@@ -13,16 +13,18 @@ conflates them into one:
     S-curve (Bass: p = independent adopters, q = word-of-mouth/contagion). The
     ceiling here is FIXED; rollout only governs how fast you reach it.
 
-  PROCESS 2 — PEOPLE BECOME MORE WILLING TO EAT IT (acceptance grows).
-    Separately, the novelty/"ick" penalty is not permanent. As people are exposed
-    to cultivated meat -- see it normalised, see others eat it -- their resistance
-    fades. This RAISES THE CEILING ITSELF (more people buy at a given price). We
-    model the launch standing intercept relaxing from xi_x_M_0 toward the long-run
-    acceptance dial xi_x_M_floor as cumulative exposure grows.
+  PROCESS 2 — PEOPLE BECOME MORE WILLING TO EAT IT (food neophobia fades).
+    Separately, the launch novelty penalty is FOOD NEOPHOBIA -- the reluctance to eat
+    an unfamiliar food (Pliner & Hobden 1992) -- and it is not permanent. As people are
+    exposed to cultivated meat -- see it normalised, see others eat it -- it fades (the
+    mere-exposure effect). This RAISES THE CEILING ITSELF (more people buy at a given
+    price). We model the launch neophobia `neophobia_0` decaying toward ZERO as
+    cumulative exposure grows -- there is NO free long-run "standing" floor; the
+    permanent ceiling is set by the interpretable attributes accept_x + theta_free_M.
 
-They are COUPLED: acceptance grows *because of* exposure, exposure happens
-*because of* rollout. The gate: if SENSORY PARITY fails, acceptance does NOT grow
-(familiarity cures "weird", not "worse").
+They are COUPLED: neophobia fades *because of* exposure, exposure happens *because of*
+rollout. The gate: if SENSORY PARITY fails, neophobia does NOT fade (familiarity cures
+"weird", not "worse") -- and even once it fades, a TASTE deficit (accept_x<1) persists.
 
 And the THIRD axis this rung adds — COST OVER TIME (the cost->time coupling)
 -------------------------------------------------------------------------
@@ -37,16 +39,17 @@ drift from Rung 2; only the milestone YEAR is the declared unknown
 WTP curve (Rung 3) gives the current ceiling, and Bass rollout x growing acceptance
 give the realised share. We show several paths (a scenario band), never one curve.
 
-The long-run acceptance intercept xi_x_M_floor is QUALITY-DEPENDENT
-------------------------------------------------------------------
-xi_x_M_floor is the most important uncertain number here, and it is NOT one value:
-  * PREMIUM / high-quality cut: authenticity matters, "I want the real thing"
-    sticks -- xi_x_M_floor stays negative.
-  * COMMODITY / processed (OUR scope -- minced, basic): provenance matters far
-    less, the novelty penalty fades to ~0 ...
-  * ... and cultivated's cleaner/safer/no-slaughter profile can push it POSITIVE.
-Because we model the basic commodity product, the central case is ~0, and the
-upside is live. fig_acceptance_spectrum sweeps the whole range.
+The long-run ACCEPTANCE (accept_x, theta_free_M) is QUALITY-DEPENDENT
+--------------------------------------------------------------------
+Once neophobia has faded, the permanent ceiling is set by two interpretable attributes,
+and they are NOT one value:
+  * PREMIUM / high-quality cut: authenticity matters, "I want the real thing" sticks --
+    a lasting sensory/authenticity discount (accept_x < 1).
+  * COMMODITY / processed (OUR scope -- minced, basic): provenance matters far less, so
+    accept_x ~ 1 (sensory parity, physically attainable since it is real tissue) ...
+  * ... and cultivated's cleaner/safer/no-slaughter profile is the upside theta_free_M > 0.
+Because we model the basic commodity product, the central case is accept_x=1, theta_free=0,
+and the upside is live. fig_acceptance_spectrum sweeps the whole range.
 
 Usage
 -----
@@ -67,14 +70,17 @@ from cost_model import CostParams, biomass_cost, cost_floor, ratio as cost_ratio
 from market_share import DemandParams, share
 
 
-# cultivated's long-run STANDING vs conventional (xi_x_M_floor), by scenario.
-# The headline crux dial — we show the whole range, no baked-in stance.
-ACCEPT_FLOORS = [
-    (-1.5, "strong friction (~Peacock/PTC-skeptic)"),
-    (-0.5, "modest friction"),
-    (0.0,  "equivalent to conventional"),
-    (0.5,  "actively preferred (cleaner)"),
-    (1.0,  "strongly preferred"),
+# cultivated's LONG-RUN acceptance, by scenario — the headline Gate-2 axis (no baked-in
+# stance). By the long run food-neophobia has fully faded, so the permanent at-parity
+# standing is the interpretable pair (accept_x = sensory acceptance, theta_free_M =
+# cleaner-meat upside). Each scenario is (accept_x, theta_free_M, label), spanning the
+# same friction -> preferred range the old xi_x_floor dial did, but in named attributes.
+ACCEPT_SCENARIOS = [
+    (0.6, 0.0, "strong taste friction (~Peacock/PTC-skeptic)"),
+    (0.8, 0.0, "modest friction"),
+    (1.0, 0.0, "sensory parity (neutral)"),
+    (1.0, 0.5, "actively preferred (cleaner)"),
+    (1.1, 1.0, "strongly preferred (better + cleaner)"),
 ]
 
 # fixed price ratios for the static-R diagnostics (far above parity -> at parity)
@@ -121,13 +127,14 @@ class TimingParams:
     p_innov: float = value("p_innov")   # independent adopters (innovation coefficient)
     q_imit: float = value("q_imit")     # word-of-mouth / contagion (imitation coefficient)
 
-    # --- Process 2: growing acceptance (launch standing fading toward the floor)
-    xi_x_M_0: float = value("xi_x_M")            # initial (launch) standing, mainstream
-    xi_x_M_floor: float = value("xi_x_floor_M")  # LONG-RUN standing — THE scenario dial.
-    #   Central for the COMMODITY/basic product is ~0; premium aversion stays negative;
-    #   the cleaner-meat draw can push it positive (see module docstring).
-    accept_rate: float = value("accept_rate")  # acceptance growth per unit cumulative exposure
-    sensory_parity: bool = True         # gate: if False, acceptance does NOT grow (PB-meat case)
+    # --- Process 2: growing acceptance = launch FOOD-NEOPHOBIA fading toward ZERO ----
+    neophobia_0: float = value("neophobia_M")    # launch food-neophobia, mainstream (decays -> 0)
+    #   The LONG-RUN standing is NOT a free floor — it is the interpretable pair below,
+    #   which neophobia decays toward (accept_x carries friction, theta_free_M the upside):
+    accept_x: float = value("accept_x")          # long-run sensory acceptance (Gate-2 friction dial)
+    theta_free_M: float = value("theta_free_M")  # long-run cleaner-meat upside (Gate-2 upside dial)
+    accept_rate: float = value("accept_rate")  # how fast neophobia decays per unit cumulative exposure
+    sensory_parity: bool = True         # gate: if False, neophobia does NOT fade (the PB-meat case)
 
     years: int = int(value("years"))
 
@@ -140,29 +147,31 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool):
     returns the price ratio in year k. Returns time series dict."""
     t = np.arange(tp.years + 1)
     F = 0.0          # rollout: fraction-of-ceiling reached (Bass)
-    E = 0.0          # cumulative exposure (drives acceptance growth)
-    shares, ceilings, xis, Rs = [], [], [], []
+    E = 0.0          # cumulative exposure (drives neophobia decay)
+    shares, ceilings, nbs, Rs = [], [], [], []
 
     accept_on = acceptance_grows and tp.sensory_parity
     for k in range(tp.years + 1):
         Rk = R_of_year(k)
         if accept_on:
-            decay = np.exp(-tp.accept_rate * E)               # launch penalty fades with exposure
-            xiM = tp.xi_x_M_floor + (tp.xi_x_M_0 - tp.xi_x_M_floor) * decay
+            nb = tp.neophobia_0 * np.exp(-tp.accept_rate * E)  # launch neophobia decays toward 0
         else:
-            xiM = tp.xi_x_M_0
-        ceiling = share(Rk, dp, xi_x_M=xiM)                   # Rung 3 WTP curve at the current standing
+            nb = tp.neophobia_0                                # neophobia never fades (the PB-meat case)
+        # Rung-3 ceiling at the current neophobia, holding the LONG-RUN acceptance attributes
+        # (accept_x sensory, theta_free_M cleaner-meat). As nb -> 0 the ceiling rises to its
+        # permanent level set by those two attributes.
+        ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_M=nb)
         s = F * ceiling
-        shares.append(s); ceilings.append(ceiling); xis.append(xiM); Rs.append(Rk)
+        shares.append(s); ceilings.append(ceiling); nbs.append(nb); Rs.append(Rk)
         if k < tp.years:
             dF = (tp.p_innov + tp.q_imit * F) * (1.0 - F)     # rollout advances
             F = min(1.0, F + dF)
             E += F          # exposure ~ AVAILABILITY (familiarity grows as it fills shelves),
-            #   not the small consumed share -- else acceptance never ignites once shares
+            #   not the small consumed share -- else neophobia never fades once shares
             #   are realistically ~1%. People grow familiar with a product they keep seeing
             #   even if price keeps them from buying.
     return dict(t=t, share=np.array(shares), ceiling=np.array(ceilings),
-                xi=np.array(xis), R=np.array(Rs))
+                neophobia=np.array(nbs), R=np.array(Rs))
 
 
 def simulate(R: float, dp: DemandParams, tp: TimingParams,
@@ -184,24 +193,25 @@ def y30(R, dp, tp, **kw):
 
 
 # ----------------------------------------------------------------------------
-# Report — year-30 share by COST PATH x long-run standing
+# Report — year-30 share by COST PATH x long-run acceptance (accept_x, theta_free_M)
 # ----------------------------------------------------------------------------
 def summarise(dp: DemandParams, tp: TimingParams) -> None:
     print("  cost paths (R endpoints derived from the cost model):")
     for name, steps in COST_PATHS.items():
         seq = " -> ".join(f"R={rv:.2f}@yr{yr}" for yr, rv in steps)
         print(f"    {name:<28} {seq}")
-    cols = [(-1.5, "friction"), (0.0, "neutral"), (1.0, "preferred")]
-    hdr = "".join(f"{lbl:>11}" for _, lbl in cols)
-    print(f"\n  year-30 realised share %, by cost path x long-run standing xi_inf:")
+    # long-run acceptance columns = (accept_x, theta_free_M); neophobia has faded to 0
+    cols = [(0.8, 0.0, "friction"), (1.0, 0.0, "neutral"), (1.1, 1.0, "preferred")]
+    hdr = "".join(f"{lbl:>11}" for _, _, lbl in cols)
+    print(f"\n  year-30 realised share %, by cost path x long-run acceptance (accept_x, theta_free):")
     print(f"    {'cost path':<28}{hdr}   final R")
     for name, steps in COST_PATHS.items():
         row = "".join(
-            f"{simulate_path(steps, dp, replace(tp, xi_x_M_floor=xf))['share'][-1]*100:>11.1f}"
-            for xf, _ in cols)
+            f"{simulate_path(steps, dp, replace(tp, accept_x=a, theta_free_M=tf))['share'][-1]*100:>11.1f}"
+            for a, tf, _ in cols)
         print(f"    {name:<28}{row}   {steps[-1][1]:>6.2f}")
-    print("  -> the cost PATH sets the achievable ceiling (final R); standing (columns) sets")
-    print("     how much of it converts. Trajectory = Bass rollout x growing acceptance, 30 yr.")
+    print("  -> the cost PATH sets the achievable ceiling (final R); long-run acceptance (columns) sets")
+    print("     how much of it converts. Trajectory = Bass rollout x neophobia fading to 0, 30 yr.")
 
 
 # ----------------------------------------------------------------------------
@@ -214,12 +224,12 @@ def _grid(figsize=(8.6, 6.4)):
 
 def fig_cost_paths(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
     """THE cost->penetration->time figure: realised share trajectory per cost path
-    (neutral long-run standing), with the milestone year marked and a scenario band."""
+    (neutral long-run acceptance), with the milestone year marked and a scenario band."""
     fig, ax = plt.subplots(figsize=(7.4, 4.6))
     cols = ["#949494", "#DE8F05", "#0173B2", "#029E73"]
     sims = {}
     for (name, steps), col in zip(COST_PATHS.items(), cols):
-        sim = simulate_path(steps, dp, tp)            # neutral standing (tp default xi_x_M_floor)
+        sim = simulate_path(steps, dp, tp)            # neutral acceptance (tp default accept_x=1, theta_free=0)
         sims[name] = sim
         ax.plot(sim["t"], sim["share"] * 100, lw=2.0, color=col, label=name)
 
@@ -233,7 +243,7 @@ def fig_cost_paths(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
             fontsize=7, color="0.45")
     ax.set_xlabel("Years from launch")
     ax.set_ylabel(r"Realised cultivated share (\%)")
-    ax.set_title("Penetration over time, by cost-milestone path (neutral long-run standing)")
+    ax.set_title("Penetration over time, by cost-milestone path (neutral long-run acceptance)")
     ax.legend(fontsize=7.5, frameon=False, loc="upper left")
     _save(fig, outdir, "cost_paths_timing", fmts)
 
@@ -255,25 +265,26 @@ def fig_timing(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
         ax.set_ylabel(r"Realised share (%)")
     axes[0, 0].legend(fontsize=7, frameon=False, loc="upper left")
     fig.suptitle(r"Two processes over time, by price ratio "
-                 r"(acceptance $\to$ commodity neutral, $\xi_\infty=0$)",
+                 r"(neophobia $\to 0$, long-run acceptance neutral)",
                  y=1.01, fontsize=10)
     _save(fig, outdir, "timing_two_processes", fmts)
 
 
 def fig_acceptance_spectrum(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
-    """Sweep the long-run acceptance intercept xi_x_M_floor (premium -> commodity ->
-    positive cleaner-meat preference) at four fixed price ratios."""
+    """Sweep the LONG-RUN acceptance (accept_x sensory, theta_free_M cleaner-meat upside)
+    from friction -> parity -> actively preferred, at four fixed price ratios. Neophobia
+    fades to 0 in every case; what differs is the permanent ceiling these two set."""
     fig, axes = _grid()
     for ax, R in zip(axes.flat, R_GRID):
-        for xf, lbl in ACCEPT_FLOORS:
-            sim = simulate(R, dp, replace(tp, xi_x_M_floor=xf), acceptance_grows=True)
+        for a, tf, lbl in ACCEPT_SCENARIOS:
+            sim = simulate(R, dp, replace(tp, accept_x=a, theta_free_M=tf), acceptance_grows=True)
             ax.plot(sim["t"], sim["share"] * 100, lw=1.6, label=lbl)
         ax.set_title(f"R = {R:.2f}", fontsize=9)
     for ax in axes[-1]:
         ax.set_xlabel("Years (price fixed)")
     for ax in axes[:, 0]:
         ax.set_ylabel(r"Realised share (%)")
-    axes[0, 0].legend(fontsize=6.5, frameon=False, loc="upper left", title="long-run $\\xi_\\infty$")
+    axes[0, 0].legend(fontsize=6.5, frameon=False, loc="upper left", title="long-run acceptance")
     fig.suptitle("Cleaner-meat upside: long-run acceptance, by price ratio",
                  y=1.01, fontsize=10)
     _save(fig, outdir, "acceptance_spectrum", fmts)

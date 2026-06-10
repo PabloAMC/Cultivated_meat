@@ -24,6 +24,35 @@ transfer, shear, sterility caps on vessel size) — never a load-bearing cost nu
 evidence, after the GFI 2026 State-of-the-Industry report's own caveat that they are not
 independently verified.
 
+## No free knobs — the provenance audit
+
+Every number is forced into one of five categories; none is a free constant left to taste. Run
+`python inputs.py` for the datasheet that tags each one.
+
+1. **Sourced** — taken from a citation: `p_conv`, `media_intensity`, `media_price`, `overhead` (Pasitka
+   Fig. 4), `aa_intensity`/`aa_bulk_price` (Humbird), `eps_own` (scanner meta-analyses), `price_pb_mult`
+   (GFI/NIQ), `taste_quality_p` (Nectar), `w_eth` (Gallup), `pb_mainstream_frac`/`pb_share_target`
+   (GFI/SPINS), `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), the Bass `p_innov`/`q_imit`
+   (literature), and the loss-aversion ratio 2.25 (Tversky–Kahneman 1992).
+2. **Derived** — computed from other quantities, never typed: the price coefficient `β` (solved at
+   cultivated's own modeled price & share — the `price_calib` fix), the parity threshold (`p_conv −
+   markup_add`), the cost floor, and the cost-path `R` endpoints (from the cost model).
+3. **Solved to a moment** — pinned by one equation to one published datum: `w_realtissue_M`,
+   `K_wholefood_M/E` (the 89% buyer split, the 1.2% PB share, the meatless rate). Calibration, not fitting.
+4. **Judgement, but swept** — the few genuine judgement calls are *never* presented as a point; their
+   leverage is shown explicitly. `cult_sub_mult` and `loss_aversion` (the two behavioural-price levers,
+   self-check [6]); the acceptance dials `accept_x`/`theta_free_M` (Gate 2, always a band);
+   `markup_add` (swept 2–7, bounded by the USDA farm-to-retail spread).
+5. **Assumed but shown not to matter** — verified non-load-bearing: re-solving the calibration while
+   sweeping `q_taste`, `taste_quality_w`, `w_slaughter_E`, `w_realtissue_E`, `wf_mainstream_target` moves
+   the cultivated answer **< 0.2 pp** (the calibration solve absorbs them; PB stays pinned at 1.2%). The
+   timing-only knobs (`accept_rate`, `neophobia_M`) set *when*, not the ceiling. `glucose_other_floor` (~$1 of
+   the ~$7.5 floor) is the one remaining small pure assumption, and it lives inside the floor *band*.
+
+The single load-bearing **assumption** (not a number) is `real_tissue`: that cultivated, being real
+tissue, inherits conventional's standing and escapes the plant-based penalty — stated as the model's
+identifying premise, and the structural reason it predicts conventional > cultivated > plant-based at parity.
+
 ## The two outputs
 
 - **Output 1 — `R = p_cult / p_conv`** and how close it gets to parity (`R = 1`). Because cultivated
@@ -156,23 +185,62 @@ structure** (one shared characteristic) that does the job the retired real-meat 
 exactly what cultivated SHARES with conventional, the structural reason cultivated can succeed where
 plant-based stalled. A milder claim than a nest; the [3] self-check verifies it numerically.
 
-**Price and income (the BLP form).** Price enters via **Berry–Levinsohn–Pakes (1995)**: the price term
-is `α·ln(income_eff − price_j)`, so richer consumers are **less price-sensitive** (the marginal utility
-of income falls). `α` is derived from the meat own-price elasticity `eps_own` (−0.9, scanner)
-**steepened** by `cult_sub_mult`≈3 (conventional is a near-perfect substitute, so cultivated's own
-price bites harder), anchored at a reference income `income_ref` (US GDP/cap PPP) — so the US/commodity
-case is unchanged. Across regions `income_eff = income_ref·(income/income_ref)^φ`; the gradient `φ`
-(`income_gradient`, default 0.5) is damped from the pure 1/income form (φ=1) to match the empirical
-food-price-elasticity gradient (~2–3× rich→poor; Muhammad et al. 2011, USDA ERS), not ~13×. Only
-cultivated's price varies (via R), so only its R-response is an observable output.
+**Price, from first principles (for the non-economist).** This is the one place a reader without
+microeconomics can feel a coefficient is "out of the blue," so here is the whole chain, with every number
+either sourced or *derived from* the model rather than typed in:
+
+1. *Utility and the price term.* Each product gets a utility score `V_j`; shares are `softmax(V)` (the
+   logit). Price lowers utility. The naïve form is `β·price_j`, where `β<0` is the **marginal utility of a
+   dollar** — how much one more dollar of price hurts.
+
+2. *Why richer buyers care less (the BLP form).* A dollar matters less to a rich household, so instead of a
+   flat `β·price` we use **Berry–Levinsohn–Pakes (1995)**: `V_price = α·ln(income_eff − price_j)`. Spending
+   `price` out of `income` costs the *log* of what's left, so the same dollar bites harder at low income.
+   Locally this still behaves like `β·price` (its slope at the anchor is exactly `β`), so steps 3–4 pin a
+   single number, `β`, and the log form just bends it correctly across incomes.
+
+3. *We do not guess `β` — we pin it to a measured elasticity.* In any logit, the own-price elasticity of a
+   product is an identity, **`elasticity_j = β · price_j · (1 − share_j)`**. Rearranged, `β` is whatever
+   reproduces a *target elasticity* at a given price and share. So calibrating `β` reduces to: "what is
+   cultivated's own-price elasticity, and at what price/share?"
+
+4. *The target elasticity (sourced).* Meat's measured own-price elasticity is `eps_own = −0.9` (scanner
+   meta-analyses; Andreyeva 2010, Gallet 2010/12). Cultivated's own price should bite **harder** than the
+   meat *category's*, because conventional meat is a near-perfect substitute for it (a category has no close
+   substitute and is therefore inelastic; a single product inside it is not). We multiply by
+   `cult_sub_mult ≈ 3` → target **`eps_x = eps_own·cult_sub_mult = −2.7`** (κ is applied **once** — it
+   defines the target; `β` below merely delivers it). `cult_sub_mult` is the model's least data-disciplined
+   input (no cultivated cross-price data exists), so it is **swept 2–4** and is one of the two levers
+   self-check [6] reports.
+
+5. *The anchor is derived, not invented — and the calibration counts BOTH price channels.* Price enters the
+   utility through two terms: the BLP income term (local slope `β`) **and** the loss-aversion term (slope
+   `−loss_aversion/p_conv` on the loss side, where cultivated's premium sits). So the realized own-price
+   elasticity is `eps_x = (β − loss_aversion/p_conv)·p_anchor·(1 − share)`, and we solve `β` so this **total**
+   response hits the target at cultivated's **own** operating point: price `p_anchor = biomass_cost +
+   markup_add` (the cost rung's output — change `overhead`, `media_price`, `markup_add` or `p_conv` and it
+   moves), share = cultivated's own modeled share there — a short **fixed point** (`market_share._derive_beta`,
+   ~3 steps). Then `β = eps_x / (p_anchor·(1 − share)) + loss_aversion/p_conv`. **Nothing here is a free
+   constant** (no hand-set "anchor price"). Adding back the `loss_aversion/p_conv` term is the **double-counting
+   fix**: an earlier version omitted it, so the *realized* elasticity came out ≈ −5 (≈2× the −2.7 target) and
+   `loss_aversion` silently doubled as a second price-sensitivity lever. Now the realized cultivated elasticity
+   is the target **−2.7** at today's price and eases toward ≈ −1 near parity (both sane), and `loss_aversion`
+   shapes only the **kink** at parity — `cult_sub_mult` cleanly owns the elasticity *level*.
+
+6. *Across regions.* `income_eff = income_ref·(income/income_ref)^φ`; the gradient `φ` (`income_gradient`,
+   default 0.5) is damped from the pure 1/income form (φ=1) to match the empirical food-price-elasticity
+   gradient (~2–3× rich→poor; Muhammad et al. 2011, USDA ERS), not ~13×. `income_ref` is US GDP/cap PPP, so
+   the US/commodity case is unchanged. Only cultivated's price varies (via R), so only its R-response is an
+   observable output.
 
 **Reference-dependent loss aversion (two-sided, applied uniformly to every product).** A second
 price-related term, `−loss_aversion·max(0, price_ratio_j − 1) + (loss_aversion/2.25)·max(0, 1 −
 price_ratio_j)` (Tversky–Kahneman 1991 *riskless* loss aversion; Hardie, Johnson & Fader 1993 estimate the
 reference-price form on brand-choice scanner data): consumers anchor on the conventional price, so a
 product priced *above* it takes a premium penalty and one priced *below* it earns a discount reward — the
-two sides symmetric around the reference but with the loss side **2.25× steeper**, the canonical
-loss-aversion ratio (a fixed constant, not a free parameter). This applies to **every** product by its own
+two sides symmetric around the reference but with the loss side **2.25× steeper** — the canonical
+median loss-aversion coefficient **λ ≈ 2.25 from Tversky & Kahneman (1992)** (*Advances in Prospect Theory*,
+J. Risk & Uncertainty 5:297–323), a fixed literature constant, not a free parameter. This applies to **every** product by its own
 `d_j = price_ratio_j − 1` — plant-based (1.77×) and cultivated (R) alike — so all options share the *same
 functional form*; there is no cultivated-only "parity cliff". The term is continuous through parity with a
 gentle kink there; `loss_aversion=0`
@@ -190,31 +258,53 @@ rate match (total PB ≈ 1.2% [GFI/SPINS] by construction). Splitting the outsid
 beans are the *ethical* default, a *rare* mainstream choice — is what lets `w_realtissue_M` be pinned to
 the buyer split without the cheap bean option leaking into the mainstream.
 
+**Is cultivated's "standing" a fitted parameter? No — and the distinction matters.** Two different things
+wear the word *standing*, and only one is calibrated:
+
+- **Cultivated's own acceptance dials — `accept_x` (taste-acceptance) and `theta_free_M` (mainstream
+  slaughter-free value) — are NOT fitted.** They are **scenario axes
+  with a neutral default** (`accept_x=1`, `theta_free_M=0` = cultivated treated as
+  *equivalent* to conventional). We never tune them to hit a target; every cultivated headline is reported
+  as a **band across them**, and the reader sets them (this is exactly Gate 2). There is no cultivated-meat
+  choice data to fit them to — inventing a point value would be the false precision we are avoiding.
+- **What IS solved (`w_realtissue_M`, `K_wholefood_M/E`) is pinned to published moments, not free.** These
+  are *not* cultivated's standing — they are the *plant-based / whole-food* standings, and each is the
+  unique value reproducing a **measured** datum (the 89% flexitarian buyer split [GFI]; the ~1.2% PB share
+  [GFI/SPINS]; the mainstream meatless rate). That is *calibration to a moment* — one equation, one unknown,
+  the standard discrete-choice practice when you have aggregate moments but no micro-data — not curve-fitting
+  with free knobs.
+
+So the quantity cultivated's share *depends on* (its standing) is never fitted: it is the dial the reader
+turns. What we fit is only the surrounding plant-based world, and only to numbers that are actually observed.
+The single load-bearing *assumption* (not a fit) is `real_tissue`: that cultivated, being real tissue,
+inherits conventional's standing and escapes the plant-based penalty — stated as the identifying premise.
+
 `w_realtissue_M` is a **reduced-form bundle** (genuine real-tissue preference + processed/habit
 residual). We do **not** split it into a separate static *habit* term: in the cross-section habit is not
 identified from heterogeneity (Heckman's state-dependence-vs-heterogeneity problem) and we have no panel
 data, so an estimated habit constant would be spurious. **Habit instead lives where it is identified:**
-the diffusion + acceptance-growth dynamics of Rung 4 (its market-level reduced form) and the long-run
-standing **dial** `xi_x_floor_M` (a scenario, not a fitted number). `real_tissue` is the **identifying
+the diffusion + neophobia-fading dynamics of Rung 4 (its market-level reduced form) and the long-run
+acceptance dials `accept_x`/`theta_free_M` (scenarios, not fitted numbers). `real_tissue` is the **identifying
 assumption** that cultivated, being real tissue, *inherits conventional's standing and escapes the
 plant-based penalty* — the load-bearing premise, which yields **conventional > cultivated > plant-based
 at parity** as a structural *prediction* (not a fitted result). **Convenience** (the third PTC factor;
 Bryant/Peacock) is *not* modelled separately — availability is proxied by the Rung-4 rollout — and is
-folded into the same reduced-form standing; noted as a known omission.
+folded into the same reduced-form term; noted as a known omission.
 
 **Self-checks (`market_share.py`):** [1] plant-based ≈ 1.2% with cultivated absent, whole-food ≫ PB;
 [1b] PB buyer split ≈ 89% mainstream / 11% ethical (GFI), mainstream meatless ≈ 6%; [2] cultivated at
-parity spans ~10% (taste friction) → ~72% (strong clean-meat pull) over the standing dials; [3] at
+parity spans ~11% (taste friction) → ~74% (strong clean-meat pull) over the acceptance dials; [3] at
 parity cultivated draws **−40 pp from conventional** vs −0.5 pp plant-based (the no-nest proof); [3b]
-the **ethical segment is only a modest cultivated adopter** (~24% at parity, ~4% at R=1.6) — a *finding*:
+the **ethical segment adopts cultivated at parity (~16%) but falls off sharply with any premium** (~8% at R=1.6) — a *finding*:
 the cheap whole-food option that keeps ethical PB low also means ethical consumers won't pay a big
 cultivated premium (beans out-compete it); [4] a cross-category **PB-milk validation** — holding the
 *same* shared coefficients (`q_taste`, β, income) and swapping only the product positions to
-milk-appropriate values yields ~15% (observed ~15%); [5] general-population plant-based-at-parity ≈ 22% — a
+milk-appropriate values yields ~15% (observed ~15%); [5] general-population plant-based-at-parity ≈ 8% — a
 structural prediction (we pin to the GFI buyer split, **not** to the UCLA ~26% dining-hall figure, whose sample
 likely over-weights ethical/PB-friendly diners); [6] **demand-calibration robustness** — re-solving the
-calibration as each judgement anchor sweeps its range. At the likely R≈2.4 the central share (~1.4%) moves
-most with **`loss_aversion`** (0.2→5.5%) and **`cult_sub_mult`** (0.6→3.4%), while the PB-fitting internals
+calibration as each judgement anchor sweeps its range. At the likely R≈2.4 the central share (~12.7%) now moves
+most with **`cult_sub_mult`** (8.2→19.3%); **`loss_aversion`** — formerly the top lever — now barely moves it (the
+double-counting fix removed its hidden price-sensitivity, leaving it to shape only the parity kink), while the PB-fitting internals
 (`w_eth`, `pb_mainstream_frac`, `wf_mainstream_target`) barely move it (~0.1 pp) — so the cultivated answer
 turns on two *behavioural-price* judgement calls, not on the plant-based-fitting choices.
 
@@ -228,17 +318,24 @@ illustrative types, their sizes pinned not estimated); (ii) a **single price coe
 (meat own-price) elasticity, not a full substitution matrix — and `cult_sub_mult` is a reduced-form stand-in
 for a `real_tissue` random coefficient (the model's least data-disciplined lever, quantified in [6]); (iii)
 **no supply side / equilibrium** — prices are exogenous (the cost rung gives them), with no producer response
-or pass-through; (iv) **habit** is in the diffusion rung + the standing dial, not a separately fitted term
+or pass-through; (iv) **habit** is in the diffusion rung + the neophobia transient, not a separately fitted term
 (Heckman). These are the right simplifications for the question and the (absent) data; reaching for an
 estimated random-coefficients system here would be false rigor.
 
 ## Rung 4 — timing (`adoption_timing.py`)
 
 Two demand processes over 30 years: (1) **market rollout** (Bass diffusion, `p_innov`=0.02,
-`q_imit`=0.40) — the product reaching shelves toward a ceiling; (2) **acceptance growth** — the
-novelty penalty fading with cumulative *availability*, which *raises* the ceiling. Acceptance growth
-is **gated by sensory parity**: familiarity cures "it's weird", not "it's worse" (the plant-based
-lesson). Cultivated's escape is that it is real tissue, so sensory parity is physically attainable.
+`q_imit`=0.40) — the product reaching shelves toward a ceiling; (2) **food-neophobia fading** — the
+launch novelty penalty (`neophobia_M`, the wariness of a *novel* food; Pliner & Hobden 1992) decaying
+with cumulative *availability* toward **zero** (the mere-exposure effect), which *raises* the ceiling.
+This is **gated by sensory parity**: familiarity cures "it's weird", not "it's worse" — and even once
+neophobia fades, a *taste* deficit (`accept_x`<1) persists (the plant-based lesson). Cultivated's escape
+is that it is real tissue, so sensory parity is physically attainable. **There is no free long-run
+"standing" floor**: neophobia fades to 0, and the permanent at-parity ceiling is set by the two
+interpretable acceptance dials `accept_x` (sensory) and `theta_free_M` (cleaner-meat upside) — which
+`fig_acceptance_spectrum` sweeps. Removing the old `xi_x_floor_M` dial is the "no symmetry-breaking
+garbage collector" fix: cultivated's deviations from conventional are now all *named* (price, taste,
+slaughter-free, real-tissue, transient neophobia), not absorbed into a catch-all constant.
 
 **The cost→time coupling.** Rather than a smooth (false-precision) learning curve, the simulation is
 driven by a few named **cost-milestone paths** (`COST_PATHS`): step functions where `R` drops when a
@@ -261,8 +358,8 @@ lands, what then?".
 
 Result (commodity): **R P50 = 1.93, 80% CI [1.54, 2.35], 0% at/below parity** — consistent with
 Pasitka's own published projections (R ≈ 2.25–2.42). The realised spread is driven by **overhead /
-scale-up (~12%)** and **`p_conv` (~9%)**. The long-run share it implies: **P50 ≈ 4.0%, 80% CI
-[0.8, 13.6]**.
+scale-up (~13%)** and **`p_conv` (~10%)**. The long-run share it implies: **P50 ≈ 15.4%, 80% CI
+[6.4, 29.8]**.
 
 ## Rung S — sensitivity: levers & bottlenecks (`sensitivity.py`)
 
@@ -280,8 +377,8 @@ Reactor scale-up and `p_conv` lead the *realised* spread. So the OAT answers "ho
 lever move things"; the variance answers "how much does it move the expected band". Both are shown.
 
 Figures: `sensitivity_tornado_R` (cost levers on R; scale-up leads the realised spread),
-`sensitivity_tornado_share` (cost levers via R + demand dials; at the baseline R≈2.4 `eps_own` and the
-cost levers lead share, the standing dials lead it *at parity*). See RESULTS §1, §3.
+`sensitivity_tornado_share` (cost levers via R + demand dials; at the baseline R≈2.4 the cost levers
+(efficiency, medium price) and `eps_own` lead share, the acceptance dials lead it *at parity*). See RESULTS §1, §3.
 
 ## Rung 6 — scaffolding (`scaffolding.py`, most speculative)
 
@@ -313,8 +410,8 @@ price-sensitivity compound. See RESULTS §4–5.
 
 - **Gate 1 (cost, dominates):** does cost reach parity? Most likely *no* for the basic product
   (R P50 ≈ 2.0), and the binding lever within Gate 1 is **scale-up** (overhead, ~half the spread).
-- **Gate 2 (demand, at parity):** the standing dials (`accept_x`, `theta_free_M`, long-run
-  `xi_x_floor_M`) — cultivated's standing vs conventional — span ~12% (friction) to ~72% (preferred)
+- **Gate 2 (demand, at parity):** the acceptance dials (`accept_x`, `theta_free_M`) — cultivated's
+  standing vs conventional — span ~11% (friction) to ~74% (preferred)
   at parity. No baked-in stance; the reader sets them.
 
 The **low-share world** holds if cost stays above parity (Gate 1, most likely) **or** standing is
@@ -342,7 +439,7 @@ Flags: `--no-latex` (no TeX), `--show`, `--outdir`, `--formats`, `--fix name=val
 - **GFI 2026**, *State of the Industry Report: Cultivated meat, seafood, and ingredients*. Company
   self-reported media-cost claims (sub-$0.20/L), tagged as unverified.
 - **Gu et al. 2025** — scaffold materials. **Peacock 2023** (EA Forum) — the at-parity plant-based
-  displacement evidence for the standing dial.
+  displacement evidence for the acceptance dials.
 - **Demand calibration (Rung 3):** **Nectar "Taste of the Industry" 2024 & 2025** — plant-based blind
   taste-tests (only ~16% of 122 SKUs reach sensory parity → taste is the binding constraint, and the
   PB taste deficit `taste_quality_p`). **GFI/NIQ retail pricing 2024** — PB-meat +77% price premium

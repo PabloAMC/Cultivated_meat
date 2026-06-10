@@ -24,10 +24,10 @@ is sourced and reproducible; methods in [METHODS.md](METHODS.md), full results i
   *and* the scale-up ceilings are engineered away.
 - **Even at parity, how many animals get displaced depends on two uncertain dials** — whether the
   mainstream credits cultivated as real meat (taste-acceptance) and whether it comes to value
-  no-slaughter/cleaner meat. Together they span friction (~12%), equivalent (≈49% at parity), and
-  actively preferred (~72%). We take no baked-in stance.
+  no-slaughter/cleaner meat. Together they span friction (~11%), equivalent (~47% at parity), and
+  actively preferred (~75%). We take no baked-in stance.
 - **Total displacement is modest in the central case (~3% of meat by volume; the EU, with the priciest
-  meat, ~8%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
+  meat, ~10%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
   price; ultra-luxury is price-cheap but demand-capped, staying below the cuts; the window is beef
   steak and salmon fillet. The EU is the easiest market.
 
@@ -96,7 +96,7 @@ Propagating the full input uncertainty (Monte Carlo, N = 20,000):
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 1.98   80% CI [1.61, 2.39]   90% CI [1.51, 2.52]
+  price ratio R:   P50 = 1.93   80% CI [1.54, 2.35]   90% CI [1.45, 2.47]
   0% of draws reach parity (R ≤ 1)
 ```
 
@@ -111,10 +111,16 @@ CHO-grade cell efficiency is a different cell line — both are assumptions, not
 ## 3. The demand side: from price to share
 
 Given a price ratio, what share does it buy? This is the softer half, so the output is always a band.
-The demand model is a **willingness-to-pay curve**: cultivated's share at price ratio `R` is the
-fraction of buyers whose reservation price clears it. It is calibrated so that, with cultivated absent,
-plant-based meat sits at its real ~1.5% floor — and so that a new cultivated product draws from
-**conventional**, not the veggie burger.
+The demand model is a **two-segment, four-product discrete-choice (logit) model**: consumers choose
+among conventional meat, plant-based meat, cultivated meat, and a whole-food option (beans/tofu),
+split into a mainstream and a small (~5%) ethical segment. Price-sensitivity is **not guessed** — it is
+pinned to meat's *measured* own-price elasticity, with cultivated treated as a closer substitute to
+conventional (so its own price bites harder); the price coefficient is then *derived* at cultivated's
+own modeled price, with no free anchor number. It is calibrated so that, with cultivated absent,
+plant-based meat reproduces its real ~1.2% share — carried ~89% by mainstream flexitarians (matching
+the GFI buyer data) — and so that a new cultivated product draws from **conventional**, not the veggie
+burger (because cultivated shares the "real tissue" attribute that conventional dominates the
+mainstream with).
 
 ![Share vs price ratio](figures/share_vs_ratio.png)
 
@@ -129,11 +135,11 @@ Two gates decide the whole picture:
 
 | dial | cultivated share | reading |
 |---|---|---|
-| taste-acceptance 0.6 | ~12% | strong friction (not credited as real meat) |
-| taste-acceptance 0.8 | ~27% | modest friction |
-| **accepted as real meat (neutral)** | **~49%** | the default we assume nothing beyond |
-| + mainstream values no-slaughter (0.5) | ~61% | cleaner / no-slaughter / safety pull |
-| + values no-slaughter (1.0) | ~72% | |
+| taste-acceptance 0.6 | ~11% | strong friction (not credited as real meat) |
+| taste-acceptance 0.8 | ~25% | modest friction |
+| **accepted as real meat (neutral)** | **~47%** | the default we assume nothing beyond |
+| + mainstream values no-slaughter (0.5) | ~58% | cleaner / no-slaughter / safety pull |
+| + values no-slaughter (1.0) | ~67% | |
 
 We take **no baked-in stance** on gate 2 — it is the reader's to set. The tens-of-percent world needs
 cost at parity *and* (real-meat acceptance *or* a clean-meat preference).
@@ -157,8 +163,8 @@ the most decision-relevant view:
 
 **There is no easy entry point:** cheap mince is unreachable on price (R ≫ 1, left); ultra-premium
 sushi and wagyu are price-cheap but demand-resistant (authenticity, price-insensitivity), so even at
-the deepest discounts the standing penalty caps them around ~30% of the category; the most reliable
-window is the **structured cuts — salmon fillet (~54%, the single best), beef steak (~44%)** — where
+the deepest discounts the standing penalty caps them around ~25% of the category; the most reliable
+window is the **structured cuts — salmon fillet (~45%, the single best), beef steak (~40%)** — where
 price is reachable and the demand penalty is moderate. Cultivated is cheapest exactly where demand
 resists most, and most accepted where it is hardest to beat on price — the mid-cuts clearly out-draw
 the demand-capped ultra-premium, so the structured cuts are the robust entry window.
@@ -179,10 +185,10 @@ Rolling up across the whole spectrum, sampling cost + standing + elasticity:
 ```
 total cultivated penetration of meat (central / P50, with 80% bands):
   region   by VOLUME (impact)        by VALUE ($ market)
-  US       2.8%  [1.2,  6.1]          5.1%  [2.3,  9.9]
-  EU       8.0%  [3.5, 15.2]         13.8%  [6.2, 25.1]   ← easiest (priciest meat)
-  China    2.6%  [1.1,  5.6]          6.0%  [2.8, 11.4]
-  global   2.9%  [1.2,  6.4]          5.3%  [2.3, 10.7]
+  US       4.4%  [1.9,  9.0]          7.7%  [3.6, 14.2]
+  EU       9.7%  [4.9, 15.9]         16.3%  [8.4, 25.6]   ← easiest (priciest meat)
+  China    2.6%  [1.2,  4.7]          6.6%  [3.2, 11.4]
+  global   3.0%  [1.2,  6.2]          6.1%  [2.7, 11.8]
 ```
 
 The **EU is easiest** — its meat is the most expensive, so parity is nearest. The US, China and the
@@ -227,7 +233,7 @@ scaffolding cost) — underfunded by industry, a good fit for philanthropy.
   floor is unreachable at any medium price, and `R` stays ~3+ — the ATF small-vessel world.
 - **On demand:** the acceptance dials (taste-acceptance, and the mainstream's value of slaughter-free)
   are genuinely unidentified until cultivated is on shelves. The honest position is to carry the full
-  ~12%→72% at-parity range and let each reader set it.
+  ~11%→75% at-parity range and let each reader set it.
 
 The model does **not** force a pessimistic answer. It says the outcome is governed by two gates and
 flags the pivotal parameters rather than picking a side — and it makes explicit which lever
@@ -240,13 +246,13 @@ flags the pivotal parameters rather than picking a side — and it makes explici
 | parameter | central | range | source | controls |
 |---|---|---|---|---|
 | conventional meat price | $12/kg | 10–14 | market | parity threshold; meat-tax lever |
-| retail markup (additive) | $5/kg | 4–7 | assumed | parity needs biomass ≤ $7/kg |
+| retail markup (additive) | $5/kg | 2–7 | assumed (USDA spread) | parity needs biomass ≤ $7/kg |
 | reactor scale / overhead | $9.9/kg | 6–15 (downside 24.7) | Pasitka Fig.4 | the scale-up bottleneck |
 | medium price | $0.63/L | 0.20–0.63 | Pasitka measured / GFI'26 claim | medium cost (centered on measured) |
 | cell media-efficiency | 1.0× | 0.25–1.0 | Pasitka / CHO | cell efficiency (centered on measured) |
-| consumer standing at parity | 0 | −2 … +1 | the dial | gate 2 (the ~12%↔72% question) |
+| consumer standing at parity | 0 | −2 … +1 | the dial | gate 2 (the ~11%↔75% question) |
 | price elasticity (of meat) | −0.9 | −1.4 … −0.5 | scanner data | demand response to price |
-| cultivated price-sensitivity (κ) | 3× | (fixed) | assumed | cultivated vs meat elasticity (close substitute) |
+| cultivated price-sensitivity (κ) | 3× | 2–4 (swept) | assumed | cultivated vs meat elasticity (close substitute); sets the *derived* price coefficient |
 | scaffold process cost | $5/kg | 1–15 | ungrounded | premium structured products only |
 
 **Sources.** Pasitka et al. 2024 (*Nature Food*) — the empirical TEA and the three reactor configs.

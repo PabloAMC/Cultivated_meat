@@ -145,27 +145,25 @@ REGISTRY: dict[str, Input] = {
              "facility. Toggle adds Humbird's pharma-leaning clean-room burden. p.53: halving it "
              "(sanitary) or removing it (outdoor) still leaves his COP above target."),
 
-    # --- Rung 3: demand / WILLINGNESS-TO-PAY reservation-price curve ----------
-    # Cultivated's share at price ratio R is the SURVIVAL fraction of a logistic
-    # distribution of consumers' log reservation ratio w = ln(WTP/p_conv):
-    #   share_x(R) = (1 - pb_floor_share) / (1 + exp((ln R - mu)/sigma + parity(R)))
-    # sigma = (1-s_calib)/|eps_own| is the dispersion (<- elasticity); mu is the
-    # location (<- the standing dials); parity(R) is the curve's SHAPE near R=1.
-    # A binary log-price logit is exactly this logistic-in-ln(R) — the reframe just
-    # makes the WTP curve explicit (no nest, no second segment). See market_share.py.
+    # --- Rung 3: demand / price-sensitivity inputs ----------------------------
+    # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
+    # willingness-to-pay reservation curve. Price enters via the BLP income term
+    # alpha*ln(income-price); the shared price coefficient beta is DERIVED, not set here:
+    # the behavioural primitive is cultivated's own-price elasticity
+    # eps_x = eps_own*cult_sub_mult, and beta is solved so the logit reproduces it at
+    # cultivated's OWN modeled retail price (= biomass_cost + markup_add) and share, with
+    # no hand-chosen anchor (see market_share._derive_beta). The two inputs below are the
+    # factors of that target; beta tracks them and the cost model automatically.
     "eps_own": Input(-0.9, "elasticity", "[scanner] own-price elasticity of meat demand. "
         "Andreyeva, Long & Brownell 2010 (AJPH 100:216) meta-analysis: beef -0.75, pork -0.72, "
         "poultry -0.68; Gallet 2010/2012 meta-analysis: -0.7..-1.0 by species/region; plant-based "
         "scanner data sits in the same -0.5..-1.4 envelope. -0.9 is the mid-range central.",
         lo=-1.4, hi=-0.5, mode=-0.9,
-        note="Sets the DISPERSION of the WTP curve, sigma=(1-s_calib)/|eps_own| (more elastic = "
-             "tighter reservation-price spread = sharper response). Premium tiers are made LESS "
-             "elastic in meat_market (cuts x0.8, luxury x0.5): premium buyers are less price-sensitive "
-             "(Lusk & Tonsor 2016: demand more inelastic at high price)."),
-    "s_calib": Input(0.05, "share", "[calibration] share at which the own-price elasticity is "
-        "anchored. With the LOG-PRICE (WTP) curve the elasticity is beta*(1-s), independent of the "
-        "price level, so NO price anchor is needed; it sets the dispersion "
-        "sigma = (1-s_calib)/(|eps_own|*cult_sub_mult)."),
+        note="ONE factor of cultivated's own-price-elasticity TARGET eps_x = eps_own*cult_sub_mult; "
+             "the shared logit coefficient beta is DERIVED to hit that target at cultivated's own modeled "
+             "price & share (market_share._derive_beta), so beta moves automatically when this moves. "
+             "Premium tiers are made LESS elastic in meat_market (cuts x0.8, luxury x0.5): premium buyers "
+             "are less price-sensitive (Lusk & Tonsor 2016: demand more inelastic at high price)."),
     "cult_sub_mult": Input(3.0, "x", "[assumed] SUBSTITUTABILITY / closeness parameter: how much MORE "
         "own-price-elastic cultivated is than meat-as-a-category, because conventional is a near-perfect "
         "substitute for it (same tissue). The measured -0.9 is the elasticity of MEAT (no close "
@@ -176,8 +174,8 @@ REGISTRY: dict[str, Input] = {
              "cross-price elasticities are ~0/contested, but cultivated is closer). It is the FLAT-MNL "
              "counterpart of the retired nest's lambda (lam_meat=0.5 => ~2x) and a reduced-form stand-in "
              "for a random coefficient on real_tissue (correlated taste for conventional & cultivated). "
-             "Held fixed at 3 centrally; its leverage is shown explicitly in market_share self-check [6] "
-             "(setting it to 1 -- 'as inelastic as meat overall' -- lifts central penetration ~6x)."),
+             "The OTHER factor of the own-price-elasticity target eps_x = eps_own*cult_sub_mult, so it "
+             "moves the DERIVED beta directly; held at 3 centrally, its leverage is shown in self-check [6]."),
     "loss_aversion": Input(1.0, "utils", "[behavioural] REFERENCE-DEPENDENT loss aversion "
         "(Tversky-Kahneman; Hardie, Johnson & Fader 1993): consumers anchor on the conventional price. "
         "The term is TWO-SIDED around that reference — a product priced ABOVE it is penalised, one priced "
@@ -186,30 +184,16 @@ REGISTRY: dict[str, Input] = {
         "+ (loss_aversion/2.25)*max(0, 1 - price_ratio_j). Applied UNIFORMLY to every product (plant-based "
         "at 1.77x and cultivated at R), not a cultivated-only cliff.",
         lo=0.0, hi=2.5, mode=1.0,
-        note="replaces the old cultivated-only parity_penalty, putting all options on the same "
-             "functional form. 0 = pure smooth logit; higher = stronger reference dependence. The 2.25 "
+        note="all options share the same functional form (no cultivated-only parity cliff). "
+             "0 = pure smooth logit; higher = stronger reference dependence. The 2.25 "
              "loss/gain asymmetry is the Tversky-Kahneman (1992) median, not a free parameter. Judgement."),
-    "parity_penalty": Input(1.0, "utils", "[assumed] LEGACY cultivated-only parity cliff — used ONLY by "
-        "the interactive JS (build_interactive.py / build_html.py). The Python model uses the symmetric "
-        "loss_aversion term instead.",
-        note="superseded by loss_aversion; kept so the (stale) interactive HTML still imports."),
-    "parity_width": Input(0.13, "R-units", "[market] conventional PRICE SPREAD (coefficient of "
-        "variation) — sets how gradually the parity-shape term turns on. 'Conventional meat' is not "
-        "one price but a range (~+/-13% across brands/cuts/stores), so for a fixed cultivated cost the "
-        "share of conventional it undercuts is GRADED, not a step. That dispersion IS the softness.",
-        lo=0.02, hi=0.25, mode=0.13,
-        note="parity(R) = parity_penalty * (1 - exp(-(max(0,R-1)/spread)^2)); 0 at parity, ~full by "
-             "R~1+2*spread. Tied to a measured price CV, not an arbitrary constant."),
 
-    # --- the WTP LOCATION dials (cultivated's standing vs conventional) -------
-    #     The standing of cultivated is TWO interpretable dials that shift the WTP
-    #     location mu (NO baked-in stance; the reader sets them). taste-acceptance
-    #     accept_x is the FRICTION half; slaughter-free value theta_free_M is the
-    #     UPSIDE half. mu = sigma*(wtp_taste_scale*(accept_x-1) + theta_free_M + tier).
-    "wtp_taste_scale": Input(5.0, "utils", "[calibration] scale converting the taste-acceptance "
-        "deficit (1-accept_x) into a shift of the WTP-ratio location mu. Large -> the flavour-first "
-        "majority is very reluctant to buy what it does not credit as real meat (this absorbs the old "
-        "plant-based 'not-real-meat' stigma magnitude)."),
+    # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
+    #     Cultivated's standing vs conventional is TWO interpretable scenario dials,
+    #     both with a NEUTRAL default (not fitted — reported as a band): taste-
+    #     acceptance accept_x is the FRICTION half (enters utility as q_taste*(accept_x
+    #     -1)); slaughter-free value theta_free_M is the UPSIDE half (the mainstream
+    #     weight on the slaughter-free attribute). See market_share.py.
     "theta_free_M": Input(0.0, "utils", "[NEUTRAL DIAL] MAINSTREAM utility weight on the slaughter-free "
         "attribute — THE headline UPSIDE dial. In the rebuilt MNL it is w_slaughter[M], applied to "
         "EVERY slaughter-free product (cultivated, plant-based, whole-food). 0 = mainstream indifferent "
@@ -224,13 +208,7 @@ REGISTRY: dict[str, Input] = {
         "weighted by q_taste utils. 1 = tastes as real as conventional (neutral); <1 = a taste deficit.",
         lo=0.6, hi=1.0, mode=1.0,
         note="The taste-FRICTION half of cultivated's standing. In the MNL the utility offset is "
-             "q_taste*(accept_x-1) utils (replaces the old wtp_taste_scale*(accept_x-1) WTP-shift)."),
-    "pb_floor_share": Input(0.015, "share", "[GFI] mature plant-based meat share (~1.3% US, declining "
-        "since its ~2020-21 peak)",
-        lo=0.010, hi=0.025, mode=0.015,
-        note="LEGACY: used only by the binary WTP curve in build_interactive.py / build_html.py. The "
-             "rebuilt MNL replaces this static floor with pb_share_target (a calibration CHECK that "
-             "K_wholefood is solved to hit), so plant-based is now a competing product, not a constant."),
+             "q_taste*(accept_x-1) utils, weighted by the shared taste coefficient q_taste."),
 
     # === Rung 3, REBUILT: two-segment, FOUR-product latent-class MNL ==========
     # Demand is an explicit discrete choice over FOUR products by TWO segments:
@@ -242,8 +220,6 @@ REGISTRY: dict[str, Input] = {
     # w_eth*P_E(j) + (1-w_eth)*P_M(j). NO nested logit: cultivated cannibalises
     # CONVENTIONAL (not the veggie burger) because the shared real_tissue attribute
     # makes conventional dominate the large mainstream segment. See market_share.py.
-    "price_calib": Input(18.0, "$/kg", "[calibration] price at which the own-price elasticity is "
-        "anchored; sets beta_price = eps_own*cult_sub_mult/(price_calib*(1-s_calib))"),
     "price_pb_mult": Input(1.77, "x p_conv", "[GFI] plant-based meat retail PRICE premium vs "
         "conventional: GFI/NIQ 2024 put PB meat at +77% per lb (up from +65% in 2022); the gap WIDENED, "
         "and 2025 narrowing is an artifact of beef inflation, not PB cost-down",
@@ -290,7 +266,7 @@ REGISTRY: dict[str, Input] = {
              "average lags -> a modest negative, weighted by q_taste in utils."),
     "q_taste": Input(5.0, "utils", "[calibration] taste-utility weight: converts a normalised taste "
         "gap (0=parity, -1=very poor) into utils. Large => the flavour-first mainstream punishes a "
-        "taste deficit heavily. Absorbs the old wtp_taste_scale."),
+        "taste deficit heavily; it is the single shared taste coefficient for all products."),
     "w_eth": Input(0.05, "fraction", "[Gallup] ethics-driven CORE = vegetarian (4%) + vegan (1%), "
         "Gallup 2023",
         lo=0.04, hi=0.10, mode=0.05,
@@ -306,7 +282,7 @@ REGISTRY: dict[str, Input] = {
              "'I want real meat' preference + processed/habit residual). Cross-sectionally it is NOT "
              "separately identifiable from habit (we only observe plant-based, which lacks both), so we do "
              "not split it (Heckman state-dependence-vs-heterogeneity). HABIT proper lives in the diffusion "
-             "rung (adoption_timing) + the long-run standing dial xi_x_floor_M. real_tissue is the "
+             "rung (adoption_timing) + the long-run acceptance dials accept_x/theta_free_M. real_tissue is the "
              "IDENTIFYING ASSUMPTION that cultivated, being real tissue, ESCAPES this penalty (inherits "
              "conventional's standing) — the load-bearing premise, giving conventional > cultivated > "
              "plant-based at parity as a structural PREDICTION, not a fitted result."),
@@ -340,42 +316,48 @@ REGISTRY: dict[str, Input] = {
         "since the ~2020-21 peak), SPINS/Circana via GFI 2024",
         lo=0.008, hi=0.017, mode=0.012,
         note="the calibration ANCHOR: K_wholefood is solved at runtime so the model reproduces this with "
-             "cultivated absent (market_share.solve_wholefood). Replaces the old static pb_floor_share."),
+             "cultivated absent (market_share.solve_calibration) — a solved calibration target, not a static floor."),
     "K_wholefood": Input(0.0, "utils", "[calibration, SOLVED] ETHICAL-segment whole-food outside-option "
         "intercept (utils) — SOLVED so the ethical-segment plant-based rate hits its target (the residual "
         "~11% of PB buyers / the non-mainstream part of pb_share_target). The stored value is a seed.",
         note="this, not a smaller w_eth, is why a 5% ethical core yields only ~0.1pp of PB: the cheap "
              "whole-food outside option (beans/tofu) absorbs most ethical eaters. Diffusion ruled out (PB "
              "is mature/declining). Mainstream uses the separate, weaker K_wholefood_M."),
-    "xi_x_E": Input(-1.0, "utils", "[assumed] cultivated standing at LAUNCH in the ethical segment (less "
-        "wary than mainstream — no-slaughter is a positive here); fades toward xi_x_floor_E"),
-    "xi_x_floor_E": Input(0.0, "utils", "[assumed] cultivated's long-run ethical-segment standing (fades "
-        "from xi_x_E toward ~0)"),
+    "neophobia_E": Input(-1.0, "utils", "[neophobia] cultivated's FOOD-NEOPHOBIA penalty at LAUNCH in the "
+        "ethical segment — smaller than the mainstream's (the ethically-motivated are more willing to try a "
+        "novel slaughter-free food). Like neophobia_M it is a launch transient that FADES TO ZERO with "
+        "cumulative exposure, so there is NO long-run ethical 'standing' knob."),
 
-    # cultivated STANDING at LAUNCH. Conventional is the REFERENCE (mu measures
-    # cultivated's standing vs it; no permanent "incumbency" term). The launch
-    # wariness fades over time toward the long-run dial xi_x_floor_M (Rung 4).
-    "xi_x_M": Input(-2.0, "utils", "[assumed] cultivated standing vs conventional at LAUNCH in the "
-        "mainstream (wary/novel); a mu-offset (utils) that fades over time toward xi_x_floor_M"),
+    # cultivated FOOD-NEOPHOBIA at LAUNCH (mainstream). This is the ONE cultivated-
+    # specific behavioural parameter, and a NAMED, theory-grounded one — food
+    # neophobia, the reluctance to eat a NOVEL food (Pliner & Hobden 1992, the Food
+    # Neophobia Scale) — NOT a generic "standing" catch-all. Its defining property is
+    # that it FADES TO ZERO with cumulative exposure (the mere-exposure effect), so it
+    # is a launch-time TRANSIENT carried by the timing rung (adoption_timing), never a
+    # free long-run knob. The PERMANENT at-parity standing is carried entirely by the
+    # interpretable attributes accept_x (sensory parity — physically attainable, being
+    # real tissue) and theta_free_M (cleaner-meat upside). There is no xi_x dial.
+    "neophobia_M": Input(-2.0, "utils", "[neophobia] cultivated's FOOD-NEOPHOBIA penalty at LAUNCH in the "
+        "mainstream — the novelty / 'is it safe, is it natural' wariness of an unfamiliar food (Pliner & "
+        "Hobden 1992). A launch transient: FADES TO ZERO with cumulative exposure (mere-exposure effect), at "
+        "the rate accept_rate. With accept_x it captures the plant-based lesson: exposure cures the NOVELTY "
+        "penalty (this term), but a TASTE deficit (accept_x<1) is permanent and does not fade."),
 
     # --- Rung 4: timing -----------------------------------------------------
     "p_innov": Input(0.02, "1/yr", "[literature] Bass innovation coeff.; near the cross-study "
         "norm (~0.03 avg in Bass-model meta-analyses) — independent adopters"),
     "q_imit": Input(0.40, "1/yr", "[literature] Bass imitation coeff.; near the cross-study "
         "norm (~0.38 avg) — word-of-mouth/contagion"),
-    "xi_x_floor_M": Input(0.0, "utils", "[NEUTRAL DIAL] cultivated's LONG-RUN standing vs conventional "
-        "at price+taste parity — THE headline scenario axis; a mu-offset (utils)",
-        lo=-2.0, hi=1.0, mode=0.0,
-        note="The single number that decides the ~1%-to-tens-of-percent question at parity. NEUTRAL "
-             "default = 0 (cultivated treated as EQUIVALENT to conventional -> ~49% at parity, "
-             "splitting the contestable meat pool by habit/brand only). Dial NEGATIVE for friction: "
-             "-0.5 modest, -1.5 strong (~the Peacock/PTC-skeptic view: even at parity a real-world "
-             "plant-based product displaced only ~3-4pp of beef). Dial POSITIVE if cultivated is "
-             "actively preferred (cleaner/no-slaughter/safety). We take NO baked-in stance."),
-    "accept_rate": Input(0.15, "1/exposure", "[assumed] how fast the launch novelty penalty fades per "
-        "unit cumulative AVAILABILITY (rollout F, not the small consumed share)",
-        note="UNGROUNDED: sets WHEN, not the long-run ceiling. ~0.15 gives ~90% acceptance over the "
-             "30-yr horizon. (Driving it by consumed share would never ignite once shares are ~1%.)"),
+    # NOTE: there is deliberately NO long-run cultivated "standing" input. Neophobia
+    # (neophobia_M/E) fades to ZERO with exposure, and the PERMANENT at-parity standing
+    # is the interpretable pair accept_x (sensory parity) + theta_free_M (cleaner-meat
+    # upside) — the headline at-parity scenario axis (see RESULTS Gate 2). Removing the
+    # old xi_x_floor_M dial is the "no symmetry-breaking garbage collector" fix.
+    "accept_rate": Input(0.15, "1/exposure", "[assumed] how fast LAUNCH NEOPHOBIA (neophobia_M/E) decays "
+        "toward ZERO per unit cumulative AVAILABILITY (rollout F, not the small consumed share)",
+        note="UNGROUNDED: sets WHEN neophobia fades, not the long-run ceiling (which accept_x / theta_free_M "
+             "set). ~0.15 gives ~90% of the neophobia gone over the 30-yr horizon. (Driving it by consumed "
+             "share would never ignite once shares are realistically ~1%.)"),
     "milestone_year_breakthrough": Input(10, "year", "[assumed] year a scale-up / cheaper-media "
         "breakthrough lands, stepping R down (Rung 4 cost-path coupling)",
         lo=5, hi=20, mode=10,
@@ -409,12 +391,6 @@ REGISTRY: dict[str, Input] = {
 # ----------------------------------------------------------------------------
 # Irreducible amino-acid feedstock cost: media cost can never fall below this.
 AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].value  # 0.26*2 = 0.52
-
-# Contestable real-meat pool: cultivated's max share as R->0 with neutral standing.
-# = 1 - pb_floor_share, so the model reproduces ~49% at parity-neutral and the
-# plant-based floor is the only structurally-lost share (this single ceiling
-# replaces the old nest + ethical segment + whole-food outside option).
-ADDRESSABLE_CEILING: float = 1.0 - REGISTRY["pb_floor_share"].value  # 1 - 0.015 = 0.985
 
 # Pasitka's three MODELED reactor configurations (Nature Food 2024, Fig. 4), as
 # (label -> non-media overhead $/kg). Media cost (~$14/kg at $0.63/L) is ~constant
@@ -457,8 +433,7 @@ def datasheet() -> str:
         src = inp.source if not inp.note else f"{inp.source}  [{inp.note}]"
         lines.append(f"{name:<22}{inp.value:>8g}  {inp.unit:<13}{rng:<18}{src}")
     lines += ["-" * 78,
-              f"derived  AA_FLOOR = aa_intensity x aa_bulk_price = {AA_FLOOR:g} $/kg",
-              f"derived  ADDRESSABLE_CEILING = 1 - pb_floor_share = {ADDRESSABLE_CEILING:g} share"]
+              f"derived  AA_FLOOR = aa_intensity x aa_bulk_price = {AA_FLOOR:g} $/kg"]
     return "\n".join(lines)
 
 

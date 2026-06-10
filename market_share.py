@@ -5,7 +5,7 @@ demand model over FOUR products by TWO consumer segments).
 
 Rung 2 gave us R = p_cult/p_conv. This rung answers Output 2: *what share does a
 given R plausibly buy?* It is the SOFTER half of the model, so the cultivated
-headline is always a BAND over the standing dials, never a forecast.
+headline is always a BAND over the acceptance dials (accept_x, theta_free_M), never a forecast.
 
 The demand model: a two-segment, four-product latent-class logit
 ----------------------------------------------------------------
@@ -71,12 +71,16 @@ plant-based stalled. (See the [3] cannibalisation self-check below.)
 Price and income (the BLP form)
 -------------------------------
 Price enters as V_price = alpha * ln(income_eff - price) (Berry-Levinsohn-Pakes 1995):
-richer consumers are LESS price-sensitive (the marginal utility of income falls). alpha
-is DERIVED from beta_price = eps_own*cult_sub_mult/(price_calib*(1-s_calib)) so that at a
-reference income (income_ref, US GDP/cap PPP) the coefficient equals today's beta. The
-measured meat elasticity eps_own (-0.9) is steepened by cult_sub_mult (~3) because
-conventional is a near-perfect substitute. Across regions income_eff = income_ref *
-(income/income_ref)**income_gradient damps the gradient to the empirical ~2-3x rich->poor.
+richer consumers are LESS price-sensitive (the marginal utility of income falls). The
+shared coefficient beta is DERIVED, not an input: the behavioural primitive is cultivated's
+OWN-PRICE ELASTICITY eps_x = eps_own * cult_sub_mult (meat's measured -0.9, steepened ~3x
+because conventional is a near-perfect substitute), and beta is solved so the logit's TOTAL
+price response reproduces eps_x AT cultivated's own modeled retail price & share -- a short fixed point
+with NO hand-chosen anchor (see `_derive_beta`). The anchor price is cultivated's own retail
+price (biomass_cost + markup_add), so beta tracks the cost model. alpha is then pinned so the
+local price coefficient equals beta at the reference income (income_ref, US GDP/cap PPP).
+Across regions income_eff = income_ref*(income/income_ref)**income_gradient damps the gradient
+to the empirical ~2-3x rich->poor.
 
 Calibration (demographic-conditional, reduced form)
 ---------------------------------------------------
@@ -87,7 +91,7 @@ K_wholefood_M / K_wholefood_E so the mainstream meatless rate and the residual e
 rate match (total PB ~1.2%). w_realtissue_M is a REDUCED-FORM standing (real-tissue
 preference + processed/habit residual) — we do not split it into a separate habit term
 (not identified from heterogeneity without panel data; habit lives in the Rung-4 diffusion
-+ the long-run standing dial). real_tissue is the IDENTIFYING ASSUMPTION that cultivated,
++ the long-run acceptance dials accept_x/theta_free_M). real_tissue is the IDENTIFYING ASSUMPTION that cultivated,
 being real tissue, escapes the plant-based penalty.
 
 Glossary (for the non-economist)
@@ -111,7 +115,7 @@ Usage
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -142,11 +146,13 @@ class DemandParams:
     p_conv: float = value("p_conv")               # conventional commodity price $/kg (the R anchor)
 
     # --- price sensitivity -> the shared logit price coefficient ------------
+    #   The two factors of cultivated's OWN-PRICE ELASTICITY TARGET. The coefficient
+    #   beta is DERIVED from them (not an input): it is solved so the logit reproduces
+    #   eps_own*cult_sub_mult at cultivated's own modeled retail price & share, with no
+    #   hand-chosen price/share anchor. See `_derive_beta`.
     eps_own: float = value("eps_own")             # own-price elasticity of MEAT (scanner: -0.5..-1.4)
-    s_calib: float = value("s_calib")             # share at which the elasticity is anchored
-    cult_sub_mult: float = value("cult_sub_mult")  # cultivated is more elastic (conventional ~= perfect substitute)
-    price_calib: float = value("price_calib")     # price at which the elasticity is anchored, $/kg
-    income_ref: float = value("income_ref")       # reference income ($/yr) at which beta is anchored
+    cult_sub_mult: float = value("cult_sub_mult")  # x: cultivated more elastic (conventional ~ perfect substitute)
+    income_ref: float = value("income_ref")       # reference income ($/yr) for the BLP price term
     income_gradient: float = value("income_gradient")  # phi: how strongly price-sensitivity scales with income
 
     # --- product positions (attributes) ------------------------------------
@@ -175,23 +181,32 @@ class DemandParams:
     K_wholefood_E: float = value("K_wholefood")     # ethical whole-food intercept; SOLVED
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
+    # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
+    beta_ref: float = field(default=0.0, repr=False)      # the shared logit price coefficient ($/kg^-1)
+    anchor_price: float = field(default=0.0, repr=False)  # cultivated's own retail price = the beta anchor ($/kg)
+
     def __post_init__(self):
-        # Three solved parameters pin the model to the cross-sectional anchors (one
-        # equation each): w_realtissue_M (mainstream PB rate = the 89% buyer split),
-        # K_wholefood_M (mainstream whole-food rate), K_wholefood_E (ethical PB rate).
-        # We do NOT add a separate static habit term: habit is not separately
-        # identified from heterogeneity here (Heckman), so it lives in the diffusion
-        # rung (adoption_timing) + the long-run standing dial xi_x_floor_M.
+        # Two coupled solves pin the model with NO free anchor numbers:
+        #  (1) the price coefficient beta is DERIVED so cultivated's own-price
+        #      elasticity equals its target eps_own*cult_sub_mult AT cultivated's own
+        #      modeled retail price & share (a short fixed point — see _derive_beta);
+        #  (2) three cross-sectional moments are matched (solve_calibration):
+        #      w_realtissue_M (mainstream PB rate = the 89% buyer split), K_wholefood_M
+        #      (mainstream whole-food rate), K_wholefood_E (ethical PB rate).
+        # No separate static habit term: habit is not identified from heterogeneity
+        # here (Heckman), so it lives in the diffusion rung (adoption_timing) + the
+        # long-run standing is carried by accept_x + theta_free_M (no xi_x dial).
         if not self.calibrated:
-            solve_calibration(self)
+            _derive_beta(self)            # sets beta_ref + anchor_price; calibrates at the converged beta
             self.calibrated = True
 
     @property
     def beta_price(self) -> float:
-        """Shared logit price coefficient ($/kg^-1): the measured meat own-price
-        elasticity, steepened by cult_sub_mult (conventional is a near-perfect
-        substitute), anchored at price_calib and s_calib."""
-        return self.eps_own * self.cult_sub_mult / (self.price_calib * (1.0 - self.s_calib))
+        """Shared logit price coefficient ($/kg^-1) — DERIVED, not an input.
+        Set by `_derive_beta` so cultivated's own-price elasticity equals its target
+        eps_own*cult_sub_mult at cultivated's own modeled price/share. (0 only on a
+        hand-built calibrated=True object until beta_ref is assigned.)"""
+        return self.beta_ref
 
 
 # ----------------------------------------------------------------------------
@@ -204,7 +219,7 @@ def _softmax(V):
 
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
-               tier_offset, xi_x, income):
+               tier_offset, neophobia, income):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -223,7 +238,8 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     two that carry the segment's identity: w_slaughter (ethical values it) and
     w_realtissue (mainstream values it). The ASC of whole-food is segment-specific
     (beans are the ethical default, a rare mainstream choice); cultivated's ASC is
-    its standing dial (xi_x) plus the per-meat-type offset.
+    its launch food-neophobia (`neophobia`, a timing transient that fades to 0, so 0 in
+    the long-run static model) plus the per-meat-type authenticity offset.
 
     Two price-related terms, BOTH applied to every product by its own price:
       * BLP (Berry-Levinsohn-Pakes 1995) income term  alpha*ln(y_eff - price) -- richer
@@ -241,7 +257,7 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     slaughter_free = np.array([1.0, 0.0, 1.0, 1.0])
     real_tissue    = np.array([0.0, 1.0, 0.0, 1.0])
     asc_w = pr.K_wholefood_M if seg == "M" else pr.K_wholefood_E      # segment-specific whole-food ASC
-    asc            = np.array([asc_w, 0.0, 0.0, xi_x + tier_offset])
+    asc            = np.array([asc_w, 0.0, 0.0, neophobia + tier_offset])  # cultivated: launch neophobia (->0) + tier authenticity
 
     # --- segment-specific attribute weights ---------------------------------
     if seg == "M":
@@ -252,7 +268,7 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # --- the SAME utility for every product ---------------------------------
     price = price_ratio * pr.p_conv
     y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient
-    alpha = -beta * (pr.income_ref - pr.price_calib)
+    alpha = -beta * (pr.income_ref - pr.anchor_price)
     V_price = alpha * np.log1p(-price / y_eff)                        # BLP income term (~ beta*price near ref)
     # Reference-dependent value, TWO-SIDED (symmetric around the conventional price,
     # but steeper on losses): a premium (price_ratio > 1) is penalised at -loss_aversion,
@@ -267,11 +283,11 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
-             tier_offset, xi_x, income, cultivated_present=True) -> dict:
+             tier_offset, neophobia, income, cultivated_present=True) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
-                   tier_offset=tier_offset, xi_x=xi_x, income=income)
+                   tier_offset=tier_offset, neophobia=neophobia, income=income)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -284,7 +300,7 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 # ----------------------------------------------------------------------------
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
-          xi_x_M=None, xi_x_E=None) -> float:
+          neophobia_M=None, neophobia_E=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
@@ -292,9 +308,10 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
       accept_x      -> cultivated taste credit (taste_x = accept_x - 1)
       theta_free_M  -> the MAINSTREAM slaughter-free weight (lifts every no-slaughter
                        product, cultivated most because it ALSO has real-tissue)
-      tier_offset   -> per-product-type addend to cultivated's standing (utils)
-      xi_x_M / xi_x_E -> cultivated launch-standing intercept in each segment (utils;
-                       default 0 = neutral long-run standing). Used by adoption_timing.
+      tier_offset   -> per-product-type authenticity addend to cultivated's utility (utils)
+      neophobia_M / neophobia_E -> cultivated's LAUNCH food-neophobia in each segment
+                       (utils; default 0 = the long-run, fully-faded state). A timing
+                       transient set by adoption_timing as it decays toward 0 with exposure.
       eps_own       -> sweeps the price coefficient beta.
       income        -> region income ($/yr) for the BLP price term (default income_ref
                        => unchanged from the US-anchored calibration). Richer = less
@@ -304,15 +321,21 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     ax = pr.accept_x if accept_x is None else accept_x
     tfM = pr.theta_free_M if theta_free_M is None else theta_free_M
     eps = pr.eps_own if eps_own is None else eps_own
-    beta = eps * pr.cult_sub_mult / (pr.price_calib * (1.0 - pr.s_calib))
+    # beta is the DERIVED coefficient (pr.beta_ref). It splits into an elasticity part
+    # (eps_x/(p*(1-s)), proportional to the elasticity target) and the loss-aversion
+    # compensation (loss_aversion/p_conv). An eps_own override (e.g. the per-tier
+    # multipliers) scales ONLY the elasticity part, leaving the loss-aversion
+    # compensation fixed, so a tier's TOTAL elasticity scales as intended.
+    lam_slope = pr.loss_aversion / pr.p_conv
+    beta = (pr.beta_ref - lam_slope) * (eps / pr.eps_own) + lam_slope
     inc = pr.income_ref if income is None else income      # default = reference income (unchanged)
-    xiM = 0.0 if xi_x_M is None else xi_x_M                # default = neutral long-run standing
-    xiE = 0.0 if xi_x_E is None else xi_x_E
+    nbM = 0.0 if neophobia_M is None else neophobia_M      # default = long-run (neophobia fully faded)
+    nbE = 0.0 if neophobia_E is None else neophobia_E
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 xi_x=xiM, income=inc, cultivated_present=cultivated_present)
+                 neophobia=nbM, income=inc, cultivated_present=cultivated_present)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 xi_x=xiE, income=inc, cultivated_present=cultivated_present)
+                 neophobia=nbE, income=inc, cultivated_present=cultivated_present)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
@@ -322,7 +345,7 @@ def _rate(pr: DemandParams, seg: str, which: str) -> float:
     """One segment's share of `which` in {w,c,p,x} at neutral parity, cultivated
     absent and at reference income — the moment the calibration solves target."""
     s = _segment(1.0, pr, pr.beta_price, seg, accept_x=1.0, theta_free_M=0.0,
-                 tier_offset=0.0, xi_x=0.0, income=pr.income_ref, cultivated_present=False)
+                 tier_offset=0.0, neophobia=0.0, income=pr.income_ref, cultivated_present=False)
     return s[which]
 
 
@@ -370,8 +393,59 @@ def solve_calibration(pr: DemandParams, iters: int = 70, rounds: int = 12):
     return pr
 
 
+def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
+    """Set pr.beta_ref (the shared price coefficient) and pr.anchor_price with NO
+    hand-chosen price or share anchor — beta tracks the model's own parameters.
+
+    The behavioural primitive is cultivated's OWN-PRICE ELASTICITY,
+        eps_x = eps_own * cult_sub_mult,
+    i.e. meat's measured own-price elasticity, steepened because conventional is a
+    near-perfect substitute. The own-price elasticity is a property of the WHOLE
+    price response, and in this model price enters utility through TWO channels:
+      * the BLP income term, whose local slope dV/dprice is `beta`; and
+      * the reference-dependent loss-aversion term -loss_aversion*(price_ratio-1),
+        whose slope dV/dprice is -loss_aversion/p_conv on the loss side (price above
+        the conventional reference — which is where the anchor R_today>1 sits).
+    So the TOTAL semi-elasticity at the anchor is (beta - loss_aversion/p_conv), and
+    the logit own-price elasticity identity reads
+        eps_x = (beta - loss_aversion/p_conv) * price_x * (1 - s_x).
+    We solve `beta` so that this TOTAL response reproduces eps_x at cultivated's OWN
+    operating point (earlier versions omitted the loss-aversion channel, so the
+    realised elasticity came out ~2x the target — the double-counting fix):
+      * price  = cultivated's own retail price  p_anchor = biomass_cost + markup_add,
+        DERIVED from the cost model (so it tracks media_price, overhead, markup, p_conv);
+      * share  = cultivated's own neutral modeled share at that price (s_anchor), which
+        itself depends on beta -> a short FIXED POINT (converges in ~3 steps).
+    Nothing here is a free constant: move any cost input and p_anchor moves; move
+    eps_own or cult_sub_mult and the target moves; beta follows. loss_aversion now
+    only shapes the KINK/asymmetry at parity (its intended job), not the elasticity
+    LEVEL — that is set by eps_own*cult_sub_mult, as documented.
+
+        beta = eps_x / (p_anchor * (1 - s_anchor))  +  loss_aversion / p_conv
+    """
+    cp = CostParams(p_conv=pr.p_conv)
+    pr.anchor_price = float(biomass_cost(cp, value("media_price"), 1.0) + cp.markup_add)
+    R_today = pr.anchor_price / pr.p_conv
+    eps_x = pr.eps_own * pr.cult_sub_mult
+    # The loss-aversion term adds a second price-sensitivity channel; at the anchor
+    # (R_today > 1, the loss side) its semi-elasticity is loss_aversion/p_conv, which
+    # `beta` must absorb so the TOTAL realised elasticity equals the target eps_x.
+    lam_slope = pr.loss_aversion / pr.p_conv
+    s = 0.0
+    for _ in range(iters):
+        pr.beta_ref = eps_x / (pr.anchor_price * (1.0 - s)) + lam_slope
+        solve_calibration(pr)                                         # recalibrate at this beta
+        s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0)    # cultivated's own neutral share
+        if abs(s_new - s) < tol:
+            s = s_new
+            break
+        s = s_new
+    pr.beta_ref = eps_x / (pr.anchor_price * (1.0 - s)) + lam_slope
+    solve_calibration(pr)                                             # final calibration at converged beta
+
+
 def share_band(R: float, pr: DemandParams):
-    """(lo, central, hi) LONG-RUN cultivated share across the standing dials
+    """(lo, central, hi) LONG-RUN cultivated share across the acceptance dials
     (taste-acceptance accept_x: friction->full, slaughter-free value theta_free_M:
     indifferent->valued) and elasticity. Central = neutral (accept_x=1,
     theta_free_M=0 = cultivated treated as equivalent to conventional)."""
@@ -387,14 +461,14 @@ def share_band(R: float, pr: DemandParams):
 # ----------------------------------------------------------------------------
 def pb_milk_check(pr: DemandParams) -> float:
     """Out-of-sample sanity check on the SHARED taste/price machinery. Holding
-    q_taste, beta (eps_own, cult_sub_mult, price_calib, s_calib) and w_eth FIXED at
-    their meat-calibrated values, swap ONLY the product POSITIONS to plant-based
-    milk's empirical ones and read its share. The same parameters that make PB-MEAT
-    fail (premium price, taste deficit, big real-tissue gap, cheap strong outside
-    option) make PB-MILK succeed when those positions improve — milk reached
-    functional/taste parity in key uses (coffee/cereal) at ~price parity, the
-    "not-real" gap is small, and there is no cheap whole-food substitute for milk-in-
-    coffee. Returns the predicted plant-milk share (observed ~15%, GFI/SPINS 2024)."""
+    q_taste, beta (the derived price coefficient) and w_eth FIXED at their meat-
+    calibrated values, swap ONLY the product POSITIONS to plant-based milk's empirical
+    ones and read its share. The same parameters that make PB-MEAT fail (premium price,
+    taste deficit, big real-tissue gap, cheap strong outside option) make PB-MILK
+    succeed when those positions improve — milk reached functional/taste parity in key
+    uses (coffee/cereal) at ~price parity, the "not-real" gap is small, and there is no
+    cheap whole-food substitute for milk-in-coffee. Returns the predicted plant-milk
+    share (observed ~15%, GFI/SPINS 2024)."""
     milk = DemandParams(
         price_pb_mult=1.0,                 # near price-parity in use (small splash in coffee)
         taste_quality_p=0.0,               # taste/functional parity in key uses (barista oat/soy)
@@ -403,6 +477,8 @@ def pb_milk_check(pr: DemandParams) -> float:
         K_wholefood_M=-2.0, K_wholefood_E=-2.0,  # fixed weak outside (not solved; not the meat market)
         calibrated=True,                   # do NOT run the meat calibration solve on the milk world
     )
+    milk.beta_ref = pr.beta_ref            # reuse the SAME (meat-derived) price coefficient + its anchor
+    milk.anchor_price = pr.anchor_price
     # plant share = "p" with the cultivated slot absent (milk has no cultivated product)
     return share(1.0, milk, cultivated_present=False, which="p")
 
@@ -462,7 +538,7 @@ def summarise(pr: DemandParams) -> None:
           f"(target mainstream {pr.pb_mainstream_frac*100:.0f}%, GFI);  mainstream whole-food = "
           f"{_rate(pr,'M','w')*100:.0f}% (target {pr.wf_mainstream_target*100:.0f}%)")
 
-    print("  [2] cultivated share at parity by the standing dials (NO baked-in stance):")
+    print("  [2] cultivated share at parity by the acceptance dials (NO baked-in stance):")
     print("      (a) taste-acceptance accept_x (theta_free_M=0):")
     for a, lbl in [(0.6, "strong taste friction"), (0.8, "modest friction"),
                    (1.0, "EQUIVALENT real meat"), (1.1, "seen as better")]:
@@ -493,7 +569,7 @@ def summarise(pr: DemandParams) -> None:
     # (11% of PB buyers) implies ethical consumers won't pay a big cultivated PREMIUM either —
     # beans out-compete expensive cultivated even for the ethically motivated.
     exr = lambda R: _segment(R, pr, pr.beta_price, "E", accept_x=1.0, theta_free_M=0.0,
-                             tier_offset=0.0, xi_x=0.0, income=pr.income_ref)["x"] * 100
+                             tier_offset=0.0, neophobia=0.0, income=pr.income_ref)["x"] * 100
     print(f"  [3b] ethical-segment cultivated rate: {exr(1.0):.0f}% at parity, {exr(1.6):.0f}% at R=1.6 "
           f"-> competes with cheap whole-foods, so a MODEST (not dominant) early adopter")
 
@@ -509,7 +585,7 @@ def summarise(pr: DemandParams) -> None:
     # keeps the solved values (no re-solve), changing ONLY PB's price/taste to parity.
     pbp = replace(pr, price_pb_mult=1.0, taste_quality_p=0.0)
     pb_par = _segment(1.0, pbp, pbp.beta_price, "M", accept_x=1.0, theta_free_M=0.0,
-                      tier_offset=0.0, xi_x=0.0, income=pbp.income_ref,
+                      tier_offset=0.0, neophobia=0.0, income=pbp.income_ref,
                       cultivated_present=False)["p"] * 100
     print(f"  [5] plant-based at FULL price+taste parity (gen-pop mainstream) = {pb_par:.0f}%  "
           f"(structural prediction, NOT fitted)")

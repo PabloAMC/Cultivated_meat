@@ -15,12 +15,12 @@ share, differ enormously by meat type:
   * vs ultra-premium (sushi): R < 1 already, BUT demand resists (see below).
 
 BUT price is only half the story — demand runs OPPOSITE to price.
-Standing and price-sensitivity are tier-dependent (see STANDING_* / EPS_MULT_*):
+Authenticity and price-sensitivity are tier-dependent (see AUTH_* / EPS_MULT_*):
   * BASIC everyday meat: cultivated is price-UNcompetitive but demand-FRIENDLY
-    (cleaner-meat pull on staples; a nugget has no "authenticity"). Standing +.
+    (cleaner-meat pull on staples; a nugget has no "authenticity"). Authenticity offset +.
   * PREMIUM/luxury meat: cultivated is price-COMPETITIVE but demand-HOSTILE
     (bought for the authentic experience; weak welfare pull on indulgence; buyers
-    price-INsensitive). Standing -; low elasticity.
+    price-INsensitive). Authenticity offset -; low elasticity.
 So there is NO easy entry point: cultivated is cheapest exactly where demand
 resists (luxury) and demand-friendly exactly where it is dear (basics). The
 sweet spot is the MID-CUTS (salmon fillet, beef steak). This subsumes the old
@@ -39,7 +39,7 @@ Data: US per-capita consumption (USDA ERS, retail weight ~2023) and retail price
 US levels as a first pass — regional price localisation is a refinement).
 
     python meat_market.py --no-latex
-    python meat_market.py --region global --standing -0.5 --no-latex
+    python meat_market.py --region global --theta-free 0.5 --no-latex
 """
 
 from __future__ import annotations
@@ -72,31 +72,31 @@ SCAF = 6.0          # scaffold cost $/kg for a STRUCTURED cut. ASSUMED: no publi
 #                     figure); the process side is ungrounded. Treat $6/kg as a judgement, not data.
 
 # --- The PRICE-TIER demand model (the key insight) --------------------------
-# Standing and price-sensitivity are NOT uniform across the meat spectrum; they
+# Authenticity and price-sensitivity are NOT uniform across the meat spectrum; they
 # run OPPOSITE to the price ratio, which is why there is no easy entry point:
 #
 #   * BASIC everyday meat (mince/ground/processed, cheap): cultivated is price-
 #     UNcompetitive but demand-FRIENDLY — the cleaner/no-slaughter pull is
-#     exercised on routine staples, and a nugget has no "authenticity". Standing
+#     exercised on routine staples, and a nugget has no "authenticity". Authenticity offset
 #     +; price matters (elastic).
 #   * PREMIUM meat (structured, dear: sushi, fine cuts): cultivated is price-
 #     COMPETITIVE (R<1) but demand-HOSTILE — bought for the AUTHENTIC experience,
 #     the welfare pull is weak on indulgence, and buyers are price-INsensitive.
-#     Standing −; price barely matters (inelastic).
+#     Authenticity offset −; price barely matters (inelastic).
 #   * CUTS in between.
 #
-# So the tier-dependent standing OFFSET (added to the global xi_x_floor_M dial)
-# and the elasticity MULTIPLIER are derived from (structured?, price). All DIALS.
+# So the tier-dependent AUTHENTICITY OFFSET (added to cultivated's utility) and the
+# elasticity MULTIPLIER are derived from (structured?, price). All DIALS.
 # Calibrated for the WTP curve (market_share): premium must stay DEMAND-CAPPED even
-# at a deep price discount (R<<1), so its standing is strongly negative AND it is
+# at a deep price discount (R<<1), so its authenticity offset is strongly negative AND it is
 # very price-INelastic (a low EPS_MULT -> a flat WTP curve that the low R barely
 # lifts). This reproduces the key insight that the sweet spot is the MID-CUTS, not
 # ultra-premium: cultivated is cheapest exactly where authentic-experience demand
 # resists most. (The old nested logit produced this cap structurally; here it is the
 # two premium dials.)
-STANDING_BASIC   = +0.2   # everyday staple: cleaner-meat/welfare pull, no authenticity issue
-STANDING_CUT     = -0.4   # cut (steak/fillet): authenticity attachment ("want the real cut")
-STANDING_PREMIUM = -1.5   # luxury indulgence (wagyu/sushi): strong authenticity, weak welfare pull
+AUTH_BASIC   = +0.2   # everyday staple: cleaner-meat/welfare pull, no authenticity issue
+AUTH_CUT     = -0.4   # cut (steak/fillet): authenticity attachment ("want the real cut")
+AUTH_PREMIUM = -1.5   # luxury indulgence (wagyu/sushi): strong authenticity, weak welfare pull
 EPS_MULT_CUT     = 0.8    # cuts a bit less price-sensitive
 EPS_MULT_PREMIUM = 0.3    # premium buyers barely price-sensitive ("price barely matters") -> caps it
 # "Premium" is now defined PER SPECIES by a within-species price ratio: a structured
@@ -125,8 +125,8 @@ def tier(mt: "MeatType", base: float) -> str:
     return "premium" if mt.p_conv >= PREMIUM_RATIO * base else "cut"
 
 
-def tier_standing(mt: "MeatType", base: float) -> float:
-    return {"basic": STANDING_BASIC, "cut": STANDING_CUT, "premium": STANDING_PREMIUM}[tier(mt, base)]
+def tier_authenticity(mt: "MeatType", base: float) -> float:
+    return {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}[tier(mt, base)]
 
 
 def tier_eps_mult(mt: "MeatType", base: float) -> float:
@@ -285,7 +285,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
         R = p_cult / mt.p_conv
         eps = base_eps * tier_eps_mult(mt, b)                       # premium less price-sensitive
         s = share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                  tier_offset=tier_standing(mt, b), eps_own=eps, income=income)
+                  tier_offset=tier_authenticity(mt, b), eps_own=eps, income=income)
         rows.append((mt, R, s))
     tot_vol = sum(mt.w_vol * s for mt, R, s in rows)
     Wval = sum(mt.p_conv * mt.w_vol for mt, _, _ in rows)         # value weights ~ price x volume
@@ -306,7 +306,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
-    biomass cost, retail markup, the standing dial, and price elasticity."""
+    biomass cost, retail markup, the acceptance dials, and price elasticity."""
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in
          ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
@@ -324,7 +324,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     for mt in market:
         b = bases[animal_of(mt)]
         R = (biomass * mt.cost_mult + mt.scaffold + s["markup_add"]) / mt.p_conv
-        toff = tier_standing(mt, b)                                # per-tier demand resistance (utils)
+        toff = tier_authenticity(mt, b)                                # per-tier demand resistance (utils)
         eps = s["eps_own"] * tier_eps_mult(mt, b)                  # tier-dependent elasticity (array)
         sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                              accept_x=s["accept_x"][i], tier_offset=toff,
@@ -342,7 +342,7 @@ def summarise_mc(region: str, n: int) -> None:
     mc = monte_carlo(region, n)
     cv, cl = _ci(mc["vol"]), _ci(mc["val"])
     print(f"\n  MONTE CARLO total penetration band ({region.upper()}, N={n}, "
-          f"sampling cost + standing + elasticity):")
+          f"sampling cost + acceptance + elasticity):")
     print(f"    by VOLUME (impact):  P50 = {cv[50]:4.1f}%   80% CI [{cv[10]:.1f}, {cv[90]:.1f}]   "
           f"90% CI [{cv[5]:.1f}, {cv[95]:.1f}]")
     print(f"    by VALUE  (market):  P50 = {cl[50]:4.1f}%   80% CI [{cl[10]:.1f}, {cl[90]:.1f}]   "
@@ -362,7 +362,7 @@ def fig_mc(region: str, n: int, outdir, fmts) -> None:
                 f"P50={c[50]:.1f}% [{c[10]:.1f}-{c[90]:.1f}]", color=col, fontsize=7.5)
     ax.set_xlabel(r"Total cultivated penetration of meat (%)")
     ax.set_ylabel("draws")
-    ax.set_title(f"Total penetration band — {region.upper()} (cost + standing + elasticity uncertainty)")
+    ax.set_title(f"Total penetration band — {region.upper()} (cost + acceptance + elasticity uncertainty)")
     ax.legend(fontsize=8, frameon=False)
     _save(fig, outdir, f"penetration_band_{region}", fmts)
 
@@ -370,16 +370,16 @@ def fig_mc(region: str, n: int, outdir, fmts) -> None:
 # ----------------------------------------------------------------------------
 # Report
 # ----------------------------------------------------------------------------
-def summarise(region: str, standing: float) -> None:
+def summarise(region: str, theta_free: float) -> None:
     market = MARKETS[region]
     bases = species_bases(market)
     cp = CostParams()
     scenarios = [("near-term biomass $14/kg", 14.0),
                  ("cost FLOOR (central)", cost_floor(cp))]
-    print(f"  region: {region.upper()}   theta_free_M (mainstream slaughter-free value) = {standing:+.1f}"
+    print(f"  region: {region.upper()}   theta_free_M (mainstream slaughter-free value) = {theta_free:+.1f}"
           f"   income = ${REGION_INCOME[region]:,}/yr (PPP)")
     for label, biomass in scenarios:
-        rows, tv, tval = penetration(market, biomass, theta_free_M=standing,
+        rows, tv, tval = penetration(market, biomass, theta_free_M=theta_free,
                                      income=REGION_INCOME[region])
         print(f"\n  {label}  (p_cult = biomass + scaffold + ${value('markup_add'):.0f} markup):")
         print(f"    {'meat type':<20}{'$/kg':>6}{'vol%':>6}{'R':>7}{'cult share':>12}  tier")
@@ -404,10 +404,10 @@ def animal_of(mt: "MeatType") -> str:
     return mt.name.split()[0].title()
 
 
-def fig_penetration(region: str, standing: float, outdir, fmts) -> None:
+def fig_penetration(region: str, theta_free: float, outdir, fmts) -> None:
     market = MARKETS[region]
     cp = CostParams()
-    rows, tv, tval = penetration(market, cost_floor(cp), theta_free_M=standing,
+    rows, tv, tval = penetration(market, cost_floor(cp), theta_free_M=theta_free,
                                  income=REGION_INCOME[region])
 
     # group rows by animal; colour each form by its TIER (basic / cut / premium)
@@ -464,7 +464,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--region", default="us", choices=list(MARKETS))
-    ap.add_argument("--standing", type=float, default=0.0,
+    ap.add_argument("--theta-free", type=float, default=0.0, dest="theta_free",
                     help="mainstream slaughter-free value theta_free_M; 0=neutral (cultivated~conventional)")
     ap.add_argument("--n", type=int, default=10000, help="Monte Carlo draws")
     ap.add_argument("--outdir", default="figures")
@@ -476,9 +476,9 @@ def main():
     setup_style(use_latex=not args.no_latex)
     fmts = [f.strip() for f in args.formats.split(",") if f.strip()]
     print("meat_market — cultivated penetration across conventional meat types:")
-    summarise(args.region, args.standing)
+    summarise(args.region, args.theta_free)
     summarise_mc(args.region, args.n)
-    fig_penetration(args.region, args.standing, args.outdir, fmts)
+    fig_penetration(args.region, args.theta_free, args.outdir, fmts)
     fig_mc(args.region, args.n, args.outdir, fmts)
     print("Done.")
     if args.show:

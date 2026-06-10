@@ -24,7 +24,7 @@ conventional price ranges ~5×, so the answer differs by animal):
   Always a **band**, never a point.
 
 **Two gates decide the outcome:** (1) does cost reach parity? (cost-side, dominates); (2) at parity,
-how do consumers treat lab-grown real meat? (the "standing" dial). We take **no baked-in stance** on
+how do consumers treat lab-grown real meat? (the acceptance dials — taste-acceptance and cleaner-meat value). We take **no baked-in stance** on
 gate 2 — it is the reader's to set.
 
 ### The key parameters (the levers — full datasheet in `inputs.py`)
@@ -60,11 +60,11 @@ verbatim from the Monte Carlo, so the two agree by construction):
 ```
 KEY KNOBS — drivers of R   (baseline, all inputs at their measured/central value, R = 2.42)
   input         R(lo)  R(hi)  swing  var%   helpful end
-  efficiency     1.54   2.42   0.88     3%   0.25x  (CHO-grade cells)
+  efficiency     1.54   2.42   0.88     4%   0.25x  (CHO-grade cells)
   p_conv         2.90   2.07   0.83    10%   $14/kg (expensive meat / meat tax)
   media_price    1.61   2.42   0.80     0%   $0.2/L (company claim)
   overhead       2.09   2.84   0.75    13%   $6/kg  (large-reactor scale)
-  markup_add     2.33   2.58   0.25     1%   $4/kg
+  markup_add     2.17   2.58   0.42     4%   $2/kg
   swing = full lo→hi move (potential).  var% = share of the realised MC spread.
 ```
 
@@ -96,7 +96,7 @@ scalability *claimed* to 5,000 L — the cheap projections assume reactor volume
 ```
 basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs:
   price ratio R:   P50 = 1.93   80% CI [1.54, 2.35]   90% CI [1.45, 2.47]
-  long-run share:  P50 = 4.0%   80% CI [0.8, 13.6]
+  long-run share:  P50 = 15.4%  80% CI [6.4, 29.8]
   0% of draws reach parity (R ≤ 1)
 ```
 
@@ -120,25 +120,25 @@ outcome. `accept_x` (taste-acceptance: is cultivated credited as real meat?) car
 | dial | cultivated share | reading |
 |---|---|---|
 | taste-acceptance `accept_x` = 0.6 | ~11% | strong taste friction (not credited as real meat) |
-| `accept_x` = 0.8 | ~24% | modest friction |
+| `accept_x` = 0.8 | ~25% | modest friction |
 | **`accept_x` = 1.0, `theta_free_M` = 0** | **~47%** | equivalent real meat (neutral default) |
 | slaughter-free value `theta_free_M` = 0.5 | ~57% | mainstream starts valuing no-slaughter |
-| `theta_free_M` = 1.0 | ~66% | mainstream values no-slaughter |
+| `theta_free_M` = 1.0 | ~67% | mainstream values no-slaughter |
 
 (Away from parity — at the likely R ≈ 2 — price and elasticity dominate instead: the share tornado
-there is led by `eps_own` and the cost levers, the dials second.) The tens-of-percent world needs
+there is led by the cost→R levers (efficiency, medium price) and `eps_own`, the acceptance dials second.) The tens-of-percent world needs
 cost at parity **and** (real-meat acceptance **or** a clean-meat preference). *Demand calibration
 holds (self-checks):* with cultivated absent the model reproduces plant-based's real ~1.2%, carried
 ~89% by the **mainstream** (flexitarians), matching the GFI buyer data; at parity a new cultivated
 product draws **−40 pp from conventional** vs only −0.5 pp from plant-based — the no-nest IIA proof,
 driven by the shared `real_tissue` attribute. Two notable findings: (i) the **ethical segment is only a
-modest cultivated adopter** (~24% at parity, ~4% above it) — the same cheap whole-food option that keeps
+cultivated adopter at parity (~16%) but falls off sharply with any premium** (~8% at R=1.6) — the same cheap whole-food option that keeps
 ethical plant-based low also means ethical buyers won't pay a big cultivated *premium* (beans
 out-compete it); (ii) a cross-category check reproduces **plant-based milk's ~15%** from the same shared
 coefficients and milk-appropriate positions, milk winning only because it reached price+taste parity in
 use (coffee/cereal) and has no cheap substitute — meat did neither. The model predicts the ordering
 **conventional > cultivated > plant-based at parity** (cultivated escapes the not-real penalty, being
-real tissue) as a *structural prediction*, with general-population plant-based-at-parity ≈ 22% (we pin to
+real tissue) as a *structural prediction*, with general-population plant-based-at-parity ≈ 8% (we pin to
 the GFI buyer split, **not** to the UCLA ~26% dining-hall figure). **Same functional form for every
 option:** price (BLP `ln(income−price)`), a **two-sided reference-dependent loss-aversion** term
 (`−λ·max(0,price_ratio−1) + (λ/2.25)·max(0,1−price_ratio)` — penalises a premium, rewards a discount, the
@@ -146,13 +146,14 @@ loss side ~2.25× steeper per Tversky–Kahneman; applied to plant-based and cul
 cultivated-only "parity cliff"), taste, slaughter-free,
 real-tissue, and an alternative-specific constant. **Habit** is not a separate fitted parameter (not
 identified from heterogeneity without panel data — Heckman); it lives in the diffusion dynamics (§timing)
-and the long-run standing dial. **Convenience** (the third PTC factor) is proxied by rollout, not modelled
+and the long-run acceptance dials (`accept_x`, `theta_free_M`); launch food-neophobia is a transient that fades to 0. **Convenience** (the third PTC factor) is proxied by rollout, not modelled
 separately.
 
 *Robustness & scope (self-check [6]).* These demand parameters are **calibrated to moments, not estimated**
 (no cultivated-meat choice data exists), so Output 2 is a band. Re-solving the calibration as each judgement
-anchor sweeps its range, the central share at the likely R≈2.4 (~1.4%) moves most with **loss aversion**
-(0.2→5.5%) and **`cult_sub_mult`** (the substitutability lever, 0.6→3.4%), and barely at all with the
+anchor sweeps its range, the central share at the likely R≈2.4 (~12.7%) moves most with **`cult_sub_mult`**
+(the substitutability lever, 8.2→19.3%); **loss aversion** — formerly the top lever — now barely moves it (the elasticity
+double-counting fix removed its hidden price-sensitivity, leaving it to shape only the parity kink), as do the
 plant-based-fitting internals — so the answer turns on two *behavioural-price* judgement calls, which we
 surface rather than bury. This is a **partial-equilibrium** model (prices exogenous, no supply response), a
 **two-class** (not continuous random-coefficients) logit, with a single calibrated price coefficient — the
@@ -167,31 +168,31 @@ floor, neutral dials, US:
 
 ```
   meat type                $/kg  vol%    R    cult share   tier
-  chicken (ground)            5   20%  2.50      1.4%      basic
-  chicken (cuts)              9   20%  2.06      4.2%      cut
-  chicken (organic)          13   ~1%  1.42     10.0%      premium
-  beef (ground)              11   13%  1.14     42.8%      basic   <- reachable (near parity)
-  beef (steak/cuts)          20   10%  0.93     42.0%      cut     <- sweet spot
-  beef (prime/wagyu)         45   ~0%  0.41     28.2%      premium <- price-cheap but demand-capped
-  pork (processed)            8   12%  1.56     17.9%      basic
-  pork (cuts)                12    8%  1.54     13.8%      cut
-  pork (heritage)            20   ~0%  0.93     18.9%      premium
-  turkey (ground/proc.)       5    3%  2.50      1.4%      basic
-  turkey (breast/cuts)        9    3%  2.06      4.2%      cut
-  seafood (mince/canned)     10    2%  1.25     35.0%      basic
-  seafood (fillet)           24    4%  0.77     49.5%      cut     <- sweet spot (top share)
-  seafood (sushi)            40    2%  0.46     27.2%      premium <- price-cheap but demand-capped
-  rabbit (cuts)              16   ~0%  1.16     29.7%      cut
-  TOTAL — by VOLUME (impact) 18.3%  |  by VALUE ($ market) 24.9%
+  chicken (ground)            5   20%  2.50     13.7%      basic
+  chicken (cuts)              9   20%  2.06     16.9%      cut
+  chicken (organic)          13   ~1%  1.42     14.8%      premium
+  beef (ground)              11   13%  1.14     47.1%      basic   <- reachable (near parity), top share
+  beef (steak/cuts)          20   10%  0.93     38.1%      cut     <- sweet spot
+  beef (prime/wagyu)         45   ~0%  0.41     15.5%      premium <- price-cheap but demand-capped
+  pork (processed)            8   12%  1.56     34.3%      basic
+  pork (cuts)                12    8%  1.54     25.6%      cut
+  pork (heritage)            20   ~0%  0.93     16.7%      premium
+  turkey (ground/proc.)       5    3%  2.50     13.7%      basic
+  turkey (breast/cuts)        9    3%  2.06     16.9%      cut
+  seafood (mince/canned)     10    2%  1.25     43.6%      basic
+  seafood (fillet)           24    4%  0.77     39.8%      cut     <- sweet spot
+  seafood (sushi)            40    2%  0.46     15.7%      premium <- price-cheap but demand-capped
+  rabbit (cuts)              16   ~0%  1.16     33.7%      cut
+  TOTAL — by VOLUME (impact) 26.7%  |  by VALUE ($ market) 29.1%
 ```
 
 **No easy entry point:** cheap mince is unreachable on price (R ≫ 1); ultra-premium (wagyu R = 0.41,
 sushi R = 0.46) is price-cheap but demand-resistant (authenticity, price-insensitivity), so even at
-the deepest discounts the standing penalty caps it at ~22%. **The reachable window is the structured
-cuts — salmon fillet (~45%, the single best), beef steak (~40%)** — where price is reachable and the
-demand penalty is moderate; the mid-cuts clearly out-draw the demand-capped ultra-premium. Cultivated
-is cheapest exactly where demand resists most, and most accepted where it is hardest to beat on
-price — so the structured cuts are the robust entry window.
+the deepest discounts the authenticity penalty caps it at ~16%. **The reachable window is the near-parity
+basics and structured cuts — beef ground (~47%, near parity), salmon fillet (~40%), beef steak (~38%)** —
+where price is reachable and the demand penalty is moderate; they clearly out-draw the demand-capped
+ultra-premium. Cultivated is cheapest exactly where demand resists most, and most accepted where it is
+hardest to beat on price — so the near-parity cuts are the robust entry window.
 
 ## 5. Total penetration, by region (Output 2 headline)
 
@@ -199,15 +200,15 @@ Rolling up across the spectrum, sampling cost + acceptance dials + elasticity, *
 meat prices and income** (`report_regional_band`):
 
 ```
-total cultivated penetration of meat (N=10,000), 80% CI [P10, P90]:
+total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  EU        $62k        P50 8.7%  [4.2, 14.9]     P50 15.5%  [7.8, 25.3]   <- easiest (rich + priciest meat)
-  US        $86k        P50 3.2%  [1.4,  6.9]     P50  6.3%  [2.9, 12.0]
-  China     $27k        P50 2.1%  [1.0,  4.1]     P50  5.9%  [2.8, 10.7]
-  global    $24k        P50 2.0%  [0.8,  4.8]     P50  4.7%  [2.0,  9.9]
-  Brazil    $22k        P50 0.2%  [0.1,  0.4]     P50  0.5%  [0.2,  1.1]
-  India     $11k        P50 0.1%  [0.0,  0.2]     P50  0.4%  [0.2,  0.9]
-  Nigeria    $6k        P50 0.0%  [0.0,  0.0]     P50  0.0%  [0.0,  0.1]   <- hardest (cheap meat + price-sensitive)
+  EU        $62k        P50 13.4%  [6.7, 22.2]    P50 19.1%  [10.0, 29.0]  <- easiest (rich + priciest meat)
+  US        $86k        P50  8.6%  [3.8, 16.4]    P50 12.0%  [ 5.7, 20.8]
+  China     $27k        P50  5.3%  [2.3, 11.3]    P50  9.7%  [ 4.7, 16.8]
+  global    $24k        P50  7.3%  [3.1, 15.3]    P50 11.4%  [ 5.3, 20.6]
+  Brazil    $22k        P50  2.7%  [0.9,  8.5]    P50  4.5%  [ 1.6, 11.8]
+  India     $11k        P50  1.4%  [0.5,  6.6]    P50  2.9%  [ 1.3,  9.6]
+  Nigeria    $6k        P50  1.2%  [0.3, 12.7]    P50  1.9%  [ 0.6, 15.1]  <- hardest (cheap meat + price-sensitive)
 ```
 
 Two forces set the ordering, and they **compound**: (1) *local meat price* — the EU's expensive meat
