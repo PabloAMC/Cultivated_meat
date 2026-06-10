@@ -1,0 +1,357 @@
+# Cultivated meat model — methods
+
+*This is the methodology reference: the mechanisms, the equations, and every parameter with its
+source. For the findings, see [RESULTS.md](RESULTS.md). The model is built one mechanism per rung;
+every concrete number lives once in [`inputs.py`](inputs.py) (run `python inputs.py` to print the
+datasheet), and the cost equation exists once (`uncertainty.R_from_inputs`) shared by every rung.*
+
+## Design rules
+
+1. **Every rung runs and produces a figure.** No rung is a sketch.
+2. **No rung introduces a model a later rung deletes.** A rung that needs a number it cannot yet
+   produce takes it as an *input* rather than faking a mechanism.
+3. **Every number is sourced in `inputs.py`** with a provenance tag and (where uncertain) a
+   Monte-Carlo prior, so the point estimate and the uncertainty band can never drift apart.
+
+## Sourcing discipline (Pasitka-anchored)
+
+The cost stack is anchored to **Pasitka et al. 2024** (*Nature Food*) — the one *empirical* TEA —
+throughout. The **scale-up risk is expressed inside Pasitka's own three reactor configurations**
+(their Fig. 4), *not* via Humbird's headline $37/$51. **Humbird 2021** supplies only (a) the
+physical amino-acid feedstock floor and (b) the *rationale* for why scale-up is hard (CO₂/O₂
+transfer, shear, sterility caps on vessel size) — never a load-bearing cost number. Company claims
+(e.g. sub-$0.20/L medium) are tagged **[GFI26]** and treated as *self-reports*, weak directional
+evidence, after the GFI 2026 State-of-the-Industry report's own caveat that they are not
+independently verified.
+
+## The two outputs
+
+- **Output 1 — `R = p_cult / p_conv`** and how close it gets to parity (`R = 1`). Because cultivated
+  cost is ~constant across animals while conventional price is not, `R` is computed **per meat type**.
+- **Output 2 — the market share** that `R` buys, rolled up across meat types (by volume = impact,
+  by value = market). Always a **band**.
+
+**Trust gradient:** Rungs 1–2 (and the sensitivity rung) are the high-trust half — a TEA-grounded
+cost projection over a known market price. Rungs 3–4 are the softer half — a best-guess share off
+transplanted meat elasticities. Lead with Output 1; present Output 2 as a band.
+
+## The ladder
+
+| Rung | File | Adds |
+|---|---|---|
+| 1. Price ratio | `price_ratio.py` | `R` and the parity-cost **threshold** (additive markup). No cost mechanism. |
+| 2. Cost + scale-up | `cost_model.py` | Pasitka component cost; the **scale-up bottleneck** (overhead across 3 reactor configs); the irreducible floor; the cost **waterfall**. |
+| 3. Demand → share | `market_share.py` | two-segment, four-product discrete-choice model (conventional / plant-based / cultivated / whole-food), calibrated to plant-based's real ~1%. |
+| 4. Timing | `adoption_timing.py` | rollout (Bass) + growing acceptance, driven by discrete **cost-milestone paths** over 30 yr. |
+| 5. Uncertainty | `uncertainty.py` | Monte Carlo over the priors → distribution of `R` and share. |
+| **S. Sensitivity** | `sensitivity.py` | **tornado + key-knobs table: which inputs move `R` and share most.** |
+| 6. Scaffolding | `scaffolding.py` | structured-product cost vs a premium target (Wildtype/BlueNalu). |
+| 7. Meat market | `meat_market.py` | share across the meat spectrum; volume/value roll-up; price vs demand oppose. |
+
+Two shared modules sit beneath: `inputs.py` (the datasheet) and `common.py` (plotting plumbing).
+
+---
+
+## Rung 1 — the price ratio (`price_ratio.py`)
+
+```
+p_cult = biomass_cost + markup_add        (ADDITIVE markup)
+R      = p_cult / p_conv
+parity (R=1)  ⟺  biomass_cost ≤ p_conv − markup_add     ← the THRESHOLD
+```
+
+The markup is **additive** (fixed $/kg: processing, cold-chain, retail margin do *not* shrink as
+biomass gets cheaper). A multiplicative markup would let the retail wedge vanish at low cost and
+make parity look easy. Because it is a fixed addend, parity has a hard cost threshold set by just
+two numbers — `markup_add` ($5/kg) and `p_conv` ($12/kg) → **biomass ≤ $7/kg for parity.** These two
+are the most leverage-heavy inputs in the model (`p_conv` is also where a meat tax enters). The
+`markup_add` prior floors at **$2** (below conventional's ~$4): cultivated skips slaughter / evisceration
+/ carcass breakdown, a real slice of the farm-to-retail wedge, so its retail markup can sit slightly
+below conventional's — at that floor the parity threshold rises to ~$10/kg biomass.
+
+## Rung 2 — the cost model, the scale-up bottleneck, and the floor (`cost_model.py`)
+
+```
+biomass_cost = media_cost + overhead
+media_cost   = media_intensity[L/kg] × efficiency × media_price[$/L]
+```
+
+**Anchors (Pasitka):** `media_intensity` = 22.4 L/kg (24×10⁶ L → 1.07×10⁶ kg/yr at the projected
+50,000 L facility); `media_price` = $0.63/L (empirical ACF medium, down from $3.31/L — albumin
+removal was the big cut); `efficiency` = 1.0 (Pasitka cells; 0.25 = "CHO-grade", ~4× less media).
+The base case reproduces Pasitka's published **$24/kg** wet-biomass COGS.
+
+### The scale-up bottleneck (`overhead`, the model's single biggest cost lever)
+
+Pasitka reports *no* empirical $/kg; their COGS are **modelled** for a 50,000 L facility at three
+reactor configs (Fig. 4). Non-media overhead **falls with reactor scale** because consumables and
+filters dominate the small-vessel case:
+
+| config | overhead | total COGS | R |
+|---|---|---|---|
+| ATF 0.5 m³ (many small vessels) — scale-up **stalls** | $24.7/kg | $38.8/kg | 3.65 |
+| TFF 5 m³ (10×5,000 L) — current base | $9.9/kg | $24/kg | 2.42 |
+| perfusion 20 m³ — scale-up **wins** | $7.9/kg | $22/kg | 2.25 |
+
+So the `overhead` prior is **the scale-up knob**, sampled triangular **lo=6.0 (irreducible plant
+floor, optimistic tail) / mode=9.9 (TFF, the demonstrated-scalable base) / hi=15.0 (scale-up proves
+harder than the clean projection)**. The central band is *centered on the demonstrated config* so the
+median is neutral, not pessimistic. The full scale-up-**stall** case (ATF, ~$24.7/kg overhead,
+$38.8/kg total) is carried as an explicit **downside scenario** (the cost scenario table and the
+waterfall), not folded into the central band — a commercial plant only falls back to many small
+vessels if larger reactors fail (Humbird's CO₂/sterility argument), so it is a tail, not the centre.
+Pasitka's empirical continuous run was at **1.8 L**; pilot hardware at 300 L; claimed scalability to 5,000 L —
+the cheap projections assume reactor volumes nobody has demonstrated.
+
+### The irreducible floor (`cost_floor`)
+
+What remains after every *reducible* part (recombinant albumin/growth factors, single-use filters,
+small-scale capital) is engineered toward zero — what the cells must physically eat plus the minimal
+cost of running a plant:
+
+| component | value | basis |
+|---|---|---|
+| amino acids | ~$0.5/kg | 0.26 kg/kg wet × $2/kg bulk hydrolysate **[Humbird Table 3.4]**. Comparable to chicken feed cost — *no* order-of-magnitude feedstock advantage. |
+| glucose + other bulk nutrients | ~$1/kg | irreducible energy/building blocks [assumed] |
+| running a plant | ~$6/kg | minimal plant overhead at scale **[Pasitka]** (nutrients ~66–70% of perfusion COGS → non-nutrient remainder ~$6/kg). The least-constrained term; dominates the floor's width. |
+| **= floor** | **~$7.5/kg** (band $7–10) | → R ≈ 1.04 |
+
+The floor sits **right at the parity threshold ($7/kg)** — so parity on a basic product is, at best,
+marginal, *and* it assumes the scale-up ceilings are engineered away. If they are not, the floor is
+unreachable at any media price. The **cost waterfall** (`cost_waterfall.png`) walks ATF → scale-up →
+cheaper media → cell efficiency → floor, making the bottleneck and the irreducible floor visual.
+
+## Rung 3 — demand → share (`market_share.py`)
+
+A **two-segment, four-product discrete-choice (latent-class logit) model.** Consumers choose among
+**four products** — conventional meat `c`, plant-based meat `p`, cultivated `x`, and a **whole-food /
+non-meat outside option** `w` (beans/tofu/lentils) — each carrying four attributes: price-ratio,
+taste_quality, slaughter_free (0/1), real_tissue (0/1). Two latent **segments** mix by population
+weight: mainstream `M` (taste/price-driven, weights real_tissue) and ethical `E` (weights
+slaughter_free, ~5% = Gallup veg+vegan). Each segment is a **flat** multinomial logit:
+
+```
+V_sj = V_price(price_j, income)                                             # BLP income price term
+       − loss_aversion·max(0, price_ratio_j − 1)                            # loss side: premium penalty
+       + (loss_aversion/2.25)·max(0, 1 − price_ratio_j)                     # gain side: discount reward (2.25× gentler)
+       + q_taste·taste_j + w_slaughter[s]·slaughter_j + w_realtissue[s]·real_tissue_j + asc_j[s]
+P_sj = softmax_j(V_sj)
+share_j = w_eth·P_E(j) + (1 − w_eth)·P_M(j)
+# EVERY product uses this same rule (a products×attributes table · segment×weights, + an ASC).
+# No cultivated-only term: the premium penalty applies to plant-based (1.77×) and cultivated (R) alike.
+```
+
+This replaces the old binary willingness-to-pay curve and lets **plant-based be a genuine competing
+product** (its own price premium, taste, slaughter-free position) and **ethical demand a distinct
+high-WTP segment** that can adopt above parity (`R>1`), as the user requested.
+
+**Why a FLAT logit reproduces "cultivated cannibalises CONVENTIONAL, not the veggie burger" without a
+nest (the IIA fix).** A single logit obeys IIA (a new option steals proportionally). We do not add a
+nest. Instead the result emerges from **preference heterogeneity + the shared `real_tissue`
+attribute**: real_tissue makes conventional own almost the entire (large) mainstream segment, so a
+proportional reduction there comes overwhelmingly out of *conventional* in absolute terms; plant-based
+and whole-food barely register in the mainstream and are hardly touched. The ethical segment (~5%) is
+where cultivated also draws from plant-based/whole-food. `real_tissue` is the **minimal extra
+structure** (one shared characteristic) that does the job the retired real-meat nest did — and it is
+exactly what cultivated SHARES with conventional, the structural reason cultivated can succeed where
+plant-based stalled. A milder claim than a nest; the [3] self-check verifies it numerically.
+
+**Price and income (the BLP form).** Price enters via **Berry–Levinsohn–Pakes (1995)**: the price term
+is `α·ln(income_eff − price_j)`, so richer consumers are **less price-sensitive** (the marginal utility
+of income falls). `α` is derived from the meat own-price elasticity `eps_own` (−0.9, scanner)
+**steepened** by `cult_sub_mult`≈3 (conventional is a near-perfect substitute, so cultivated's own
+price bites harder), anchored at a reference income `income_ref` (US GDP/cap PPP) — so the US/commodity
+case is unchanged. Across regions `income_eff = income_ref·(income/income_ref)^φ`; the gradient `φ`
+(`income_gradient`, default 0.5) is damped from the pure 1/income form (φ=1) to match the empirical
+food-price-elasticity gradient (~2–3× rich→poor; Muhammad et al. 2011, USDA ERS), not ~13×. Only
+cultivated's price varies (via R), so only its R-response is an observable output.
+
+**Reference-dependent loss aversion (two-sided, uniform, replaces the old parity cliff).** A second
+price-related term, `−loss_aversion·max(0, price_ratio_j − 1) + (loss_aversion/2.25)·max(0, 1 −
+price_ratio_j)` (Tversky–Kahneman 1991 *riskless* loss aversion; Hardie, Johnson & Fader 1993 estimate the
+reference-price form on brand-choice scanner data): consumers anchor on the conventional price, so a
+product priced *above* it takes a premium penalty and one priced *below* it earns a discount reward — the
+two sides symmetric around the reference but with the loss side **2.25× steeper**, the canonical
+loss-aversion ratio (a fixed constant, not a free parameter). This applies to **every** product by its own
+`d_j = price_ratio_j − 1` — plant-based (1.77×) and cultivated (R) alike — so all options share the *same
+functional form*; there is no cultivated-only "parity cliff" (the old `parity_penalty`, now retired from
+the Python model). The term is continuous through parity with a gentle kink there; `loss_aversion=0`
+collapses the demand model to a plain price-only logit.
+
+**Calibration — a demographic-conditional, reduced-form standing.** Plant-based's position is pinned
+from data: price premium `price_pb_mult`=1.77 [GFI/NIQ], taste deficit `taste_quality_p` [Nectar 2025:
+only ~16% of PB SKUs reach blind parity], `w_eth`=5% [Gallup], `eps_own` [scanner]. The non-price
+standing of non-real-meat products and the outside option are **solved at runtime** from cross-sectional
+anchors (three monotone 1-D bisections, `solve_calibration`):
+`w_realtissue_M` so the **mainstream carries ~89% of plant-based buyers** (GFI/Morning Consult — most PB
+buyers are flexitarians, not the 5% ethical core); the **segment-specific** whole-food intercepts
+`K_wholefood_M`/`K_wholefood_E` so the mainstream meatless-by-choice share and the residual ethical PB
+rate match (total PB ≈ 1.2% [GFI/SPINS] by construction). Splitting the outside option by segment —
+beans are the *ethical* default, a *rare* mainstream choice — is what lets `w_realtissue_M` be pinned to
+the buyer split without the cheap bean option leaking into the mainstream.
+
+`w_realtissue_M` is a **reduced-form bundle** (genuine real-tissue preference + processed/habit
+residual). We do **not** split it into a separate static *habit* term: in the cross-section habit is not
+identified from heterogeneity (Heckman's state-dependence-vs-heterogeneity problem) and we have no panel
+data, so an estimated habit constant would be spurious. **Habit instead lives where it is identified:**
+the diffusion + acceptance-growth dynamics of Rung 4 (its market-level reduced form) and the long-run
+standing **dial** `xi_x_floor_M` (a scenario, not a fitted number). `real_tissue` is the **identifying
+assumption** that cultivated, being real tissue, *inherits conventional's standing and escapes the
+plant-based penalty* — the load-bearing premise, which yields **conventional > cultivated > plant-based
+at parity** as a structural *prediction* (not a fitted result). **Convenience** (the third PTC factor;
+Bryant/Peacock) is *not* modelled separately — availability is proxied by the Rung-4 rollout — and is
+folded into the same reduced-form standing; noted as a known omission.
+
+**Self-checks (`market_share.py`):** [1] plant-based ≈ 1.2% with cultivated absent, whole-food ≫ PB;
+[1b] PB buyer split ≈ 89% mainstream / 11% ethical (GFI), mainstream meatless ≈ 6%; [2] cultivated at
+parity spans ~10% (taste friction) → ~72% (strong clean-meat pull) over the standing dials; [3] at
+parity cultivated draws **−40 pp from conventional** vs −0.5 pp plant-based (the no-nest proof); [3b]
+the **ethical segment is only a modest cultivated adopter** (~24% at parity, ~4% at R=1.6) — a *finding*:
+the cheap whole-food option that keeps ethical PB low also means ethical consumers won't pay a big
+cultivated premium (beans out-compete it); [4] a cross-category **PB-milk validation** — holding the
+*same* shared coefficients (`q_taste`, β, income) and swapping only the product positions to
+milk-appropriate values yields ~15% (observed ~15%); [5] general-population plant-based-at-parity ≈ 22% — a
+structural prediction (we pin to the GFI buyer split, **not** to the UCLA ~26% dining-hall figure, whose sample
+likely over-weights ethical/PB-friendly diners); [6] **demand-calibration robustness** — re-solving the
+calibration as each judgement anchor sweeps its range. At the likely R≈2.4 the central share (~1.4%) moves
+most with **`loss_aversion`** (0.2→5.5%) and **`cult_sub_mult`** (0.6→3.4%), while the PB-fitting internals
+(`w_eth`, `pb_mainstream_frac`, `wf_mainstream_target`) barely move it (~0.1 pp) — so the cultivated answer
+turns on two *behavioural-price* judgement calls, not on the plant-based-fitting choices.
+
+**What this model is, and is not (honest scope).** It is a **calibrated, partial-equilibrium discrete-choice
+demand model** — standard theory (random-utility logit + latent-class heterogeneity + BLP income +
+reference-dependent loss aversion), with parameters *calibrated to moments* (PB share, the 89% buyer split,
+meta-analytic elasticities), **not structurally estimated** — because no cultivated-meat choice data exists
+(pre-commercial). So Output 2 is a *band/scenario*, never a forecast. Deliberate simplifications, named rather
+than faked: (i) **two latent classes**, not a continuous random-coefficients mixture (the segments are
+illustrative types, their sizes pinned not estimated); (ii) a **single price coefficient** calibrated to one
+(meat own-price) elasticity, not a full substitution matrix — and `cult_sub_mult` is a reduced-form stand-in
+for a `real_tissue` random coefficient (the model's least data-disciplined lever, quantified in [6]); (iii)
+**no supply side / equilibrium** — prices are exogenous (the cost rung gives them), with no producer response
+or pass-through; (iv) **habit** is in the diffusion rung + the standing dial, not a separately fitted term
+(Heckman). These are the right simplifications for the question and the (absent) data; reaching for an
+estimated random-coefficients system here would be false rigor.
+
+## Rung 4 — timing (`adoption_timing.py`)
+
+Two demand processes over 30 years: (1) **market rollout** (Bass diffusion, `p_innov`=0.02,
+`q_imit`=0.40) — the product reaching shelves toward a ceiling; (2) **acceptance growth** — the
+novelty penalty fading with cumulative *availability*, which *raises* the ceiling. Acceptance growth
+is **gated by sensory parity**: familiarity cures "it's weird", not "it's worse" (the plant-based
+lesson). Cultivated's escape is that it is real tissue, so sensory parity is physically attainable.
+
+**The cost→time coupling.** Rather than a smooth (false-precision) learning curve, the simulation is
+driven by a few named **cost-milestone paths** (`COST_PATHS`): step functions where `R` drops when a
+milestone lands. The `R` endpoints are *derived from the cost model* (Pasitka base → medium-banked →
+both-levers → floor), so they cannot drift from Rung 2; only the milestone *year*
+(`milestone_year_breakthrough`) is the declared unknown. Each year `R(t)` comes from the active path,
+the Rung-3 WTP curve gives the ceiling, and rollout × acceptance give the realised trajectory
+(`cost_paths_timing`). We show several paths (a scenario band), never one curve.
+
+## Rung 5 — uncertainty (`uncertainty.py`)
+
+**Not a time axis** — in a pre-commercial field cost falls in milestone-gated jumps with unknown
+timing, so there is no calibratable `R(t)`. Instead: the **endpoint distribution**. Monte Carlo
+(N=20,000) over the priors → distribution of achievable `R` and the long-run share it implies, as a
+range with confidence intervals. `R_from_inputs` is the one cost→R equation; `spread_contribution`
+attributes the spread to each input (reused by the sensitivity rung). The cost priors are **centered
+on Pasitka's measured values** (medium $0.63/L, cells eff=1.0), so improvements are the optimistic
+tail, never assumed. Pin any input on the CLI (`--fix media_price=0.2`) to ask "if this definitely
+lands, what then?".
+
+Result (commodity): **R P50 = 1.93, 80% CI [1.54, 2.35], 0% at/below parity** — consistent with
+Pasitka's own published projections (R ≈ 2.25–2.42). The realised spread is driven by **overhead /
+scale-up (~12%)** and **`p_conv` (~9%)**. The long-run share it implies: **P50 ≈ 4.0%, 80% CI
+[0.8, 13.6]**.
+
+## Rung S — sensitivity: levers & bottlenecks (`sensitivity.py`)
+
+The headline output for a technical reader. Two complementary views that can *legitimately differ*:
+
+- **One-at-a-time (OAT) tornado** (the lead): sweep each input lo→hi with all others at mode; rank
+  by how far the output moves. This is the **potential** swing of each lever.
+- **Variance share** (the cross-check): reused *verbatim* from `uncertainty.spread_contribution`, so
+  the number matches the Monte Carlo exactly. This is the **realised** contribution to the band.
+
+With the measured-centered priors the two views diverge in an informative way: medium price and cell
+efficiency have *large potential swings* (big OAT bars) but *small realised contributions* (~0% of
+the band), because they are centered on the measured value — they are upside, not expected movement.
+Reactor scale-up and `p_conv` lead the *realised* spread. So the OAT answers "how much could this
+lever move things"; the variance answers "how much does it move the expected band". Both are shown.
+
+Figures: `sensitivity_tornado_R` (cost levers on R; scale-up leads the realised spread),
+`sensitivity_tornado_share` (cost levers via R + demand dials; at the baseline R≈2.4 `eps_own` and the
+cost levers lead share, the standing dials lead it *at parity*). See RESULTS §1, §3.
+
+## Rung 6 — scaffolding (`scaffolding.py`, most speculative)
+
+Structured (cut/fillet) products vs a **premium** target:
+```
+structured_cost = biomass_cost + scaffold_frac × material_price + process_cost
+```
+Material price is anchored (Gu25: synthetic PLA/PCL ~$2–20/kg, a minority of mass). **Process cost
+is grounded in no TEA** — carried as a wide $1–15/kg band, the single most speculative number. The
+strategic point: a structured product competes with $25–40/kg premium cuts, not $12/kg commodity, so
+the larger denominator absorbs the scaffold cost — which is why cultivated-seafood firms chase
+premium species.
+
+## Rung 7 — the meat market (`meat_market.py`)
+
+Cultivated *cost* is ~constant across species; conventional *price* ranges ~5×. So `R` and share
+differ enormously per meat type; we roll up by **volume** (impact) and **value** (market). Demand is
+**tier-dependent and runs opposite to price:** basic everyday meat is price-uncompetitive
+but demand-friendly (cleaner-meat pull, no authenticity issue); premium/luxury is price-competitive
+but demand-hostile (authenticity, price-insensitivity). **The sweet spot is mid-cuts** (salmon
+fillet, beef steak), not ultra-luxury and not cheap mince. Per-region local prices **and region income**
+(via the BLP price term, `REGION_INCOME`) give a penetration band: **the EU is easiest** (rich + priciest
+meat), while low-income regions (India, Brazil, Nigeria) are hardest — cheap meat *and* high
+price-sensitivity compound. See RESULTS §4–5.
+
+---
+
+## Cruxes
+
+- **Gate 1 (cost, dominates):** does cost reach parity? Most likely *no* for the basic product
+  (R P50 ≈ 2.0), and the binding lever within Gate 1 is **scale-up** (overhead, ~half the spread).
+- **Gate 2 (demand, at parity):** the standing dials (`accept_x`, `theta_free_M`, long-run
+  `xi_x_floor_M`) — cultivated's standing vs conventional — span ~12% (friction) to ~72% (preferred)
+  at parity. No baked-in stance; the reader sets them.
+
+The **low-share world** holds if cost stays above parity (Gate 1, most likely) **or** standing is
+negative. The **tens-of-percent world** needs cost at parity **and** neutral-to-positive standing.
+
+## Running it
+
+```bash
+cd model
+../.venv/bin/python inputs.py                       # the datasheet (every number + source)
+../.venv/bin/python cost_model.py --no-latex        # cost, scale-up scenarios, waterfall
+../.venv/bin/python sensitivity.py --no-latex       # tornado + key-knobs table
+../.venv/bin/python uncertainty.py --no-latex       # the R / share distribution
+../.venv/bin/python meat_market.py --region eu --no-latex
+../.venv/bin/python report_figures.py --no-latex    # the curated 9-figure report set
+```
+Flags: `--no-latex` (no TeX), `--show`, `--outdir`, `--formats`, `--fix name=value`.
+
+## Sources
+
+- **Pasitka et al. 2024**, *Empirical economic analysis … cultivated chicken using animal-free
+  medium*, **Nature Food** 5:35–50. The empirical TEA; cost anchors + the three reactor configs.
+- **Humbird 2021**, *Scale-up economics for cultured meat*. The amino-acid feedstock floor and the
+  physical scale-up constraints (used as rationale, not cost numbers).
+- **GFI 2026**, *State of the Industry Report: Cultivated meat, seafood, and ingredients*. Company
+  self-reported media-cost claims (sub-$0.20/L), tagged as unverified.
+- **Gu et al. 2025** — scaffold materials. **Peacock 2023** (EA Forum) — the at-parity plant-based
+  displacement evidence for the standing dial.
+- **Demand calibration (Rung 3):** **Nectar "Taste of the Industry" 2024 & 2025** — plant-based blind
+  taste-tests (only ~16% of 122 SKUs reach sensory parity → taste is the binding constraint, and the
+  PB taste deficit `taste_quality_p`). **GFI/NIQ retail pricing 2024** — PB-meat +77% price premium
+  (`price_pb_mult`). **GFI–SPINS/Circana 2024** — PB-meat ~0.8% of meat $ / ~1.7% packaged, declining
+  (`pb_share_target`); PB-milk ~15% share / ~40% household penetration (the [4] validation anchor).
+  **Gallup 2023** — US 4% vegetarian + 1% vegan (`w_eth`). **GFI/Morning Consult 2024** — ~89% of
+  PB-meat buyers are non-veg/vegan (pins `w_realtissue_M` via the mainstream buyer split).
+- **Income & regions (Rung 3 price term, Rung 7 roll-up):** **Berry, Levinsohn & Pakes 1995**
+  (*Econometrica*) — the `α·ln(income − price)` price form (richer = less price-sensitive). **World Bank
+  2023–24** — GDP per capita (PPP) by region (`income_ref`, `REGION_INCOME`). **Muhammad et al. 2011**
+  (USDA ERS) — food demand is ~2–3× more price-responsive in low- vs high-income countries (sets the
+  damped gradient `income_gradient`). **BLS 2025** — US dried-bean retail price ($3.40/kg → `price_wf_mult`).
