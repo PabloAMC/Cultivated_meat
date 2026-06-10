@@ -98,6 +98,25 @@ def build_model() -> dict:
         # reactor configs for the cost chart: [label, overhead $/kg]
         "configs": [["perfusion 20 m³", 7.9], ["TFF 5 m³", 9.9],
                     ["ATF 0.5 m³", 24.7]],
+        # every tweakable slider -> [elegant symbol (HTML), the equation it enters].
+        # keyed by slider key; rendered as two extra columns of the parameter table.
+        "param_symbols": {
+            "media_price":   ["p<sub>med</sub>", "medium cost <i>c</i><sub>med</sub> = &iota;&eta;&thinsp;p<sub>med</sub> (&sect;1)"],
+            "efficiency":    ["&eta;", "medium cost <i>c</i><sub>med</sub> = &iota;&eta;&thinsp;p<sub>med</sub> (&sect;1)"],
+            "overhead":      ["h", "biomass cost <i>c</i><sub>bio</sub> = <i>c</i><sub>med</sub> + h (&sect;1)"],
+            "scaffold":      ["k", "R numerator: + k (structured cuts, &sect;1)"],
+            "markup_add":    ["m", "R numerator: + m (&sect;1)"],
+            "meat_tax":      ["t", "R denominator: p<sub>conv</sub>&middot;t (&sect;1)"],
+            "income":        ["y", "price term &alpha;&thinsp;ln(y &minus; price<sub>j</sub>) (&sect;2)"],
+            "eps_own":       ["&epsilon;", "price coeff &beta; = &kappa;&epsilon; / [p<sub>calib</sub>(1&minus;s)] (&sect;2)"],
+            "cult_sub_mult": ["&kappa;", "price coeff &beta; = &kappa;&epsilon; / [p<sub>calib</sub>(1&minus;s)] (&sect;2)"],
+            "loss_aversion": ["&lambda;", "reference term &minus;&lambda;(d<sub>j</sub>)<sup>+</sup> + (&lambda;/2.25)(d<sub>j</sub>)<sup>&minus;</sup> (&sect;2)"],
+            "accept_x":      ["a<sub>x</sub>", "cultivated taste q&middot;(a<sub>x</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
+            "a_p":           ["a<sub>p</sub>", "plant-based taste q&middot;(a<sub>p</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
+            "R_p":           ["R<sub>p</sub>", "plant-based price ratio in V<sub>j</sub> (&sect;2)"],
+            "theta_free_M":  ["&theta;<sub>free</sub>", "mainstream weight on slaughter-free in V<sub>j</sub> (&sect;2)"],
+            "w_eth":         ["w<sub>eth</sub>", "segment mix: share<sub>j</sub> = w<sub>eth</sub>P<sub>E</sub> + (1&minus;w<sub>eth</sub>)P<sub>M</sub> (&sect;2)"],
+        },
     }
 
     def slider(key, label, unit, lo, hi, step, default, src, tip, fmt="num"):
@@ -624,8 +643,10 @@ premium = structured, price &ge; 2.5&times; the species' base form   standing &m
       conventional, the shallower \(\lambda/2.25\) where it is cheaper — and plant-based (at 1.77&times;) is
       treated by the very same rule, on equal footing with cultivated.</p>
 
-      <h4>Parameters &amp; sources</h4>
-      <p>Every tunable input, its default, range and source (full datasheet in
+      <h4>Parameters &amp; sources — every knob, its symbol, and where it enters</h4>
+      <p>Each slider you can tweak, the <b>symbol</b> it carries in the equations above, its default and
+      range, the <b>exact term it enters</b> (§1 = cost &rarr; R; §2 = the utility \(V_j\)), and its source
+      — so every result traces back to a parameter and an equation (full datasheet in
       <a href="METHODS.md">METHODS.md</a>):</p>
       <div class="scrollx" id="paramtable"></div>
 
@@ -1193,9 +1214,13 @@ function setIncome(v){                                // sync the income slider 
   if(ri)ri.value=v; if(vi&&s)vi.textContent=fmtVal(s,v);
 }
 function fillParamTable(){
-  let h='<table class="pt"><tr><th>input</th><th>default</th><th>range</th><th>source</th></tr>';
-  MODEL.sliders.forEach(s=>{h+='<tr><td>'+s.label+'</td><td class="n">'+fmtVal(s,s.default)+
-    '</td><td class="n">'+fmtVal(s,s.min)+' … '+fmtVal(s,s.max)+'</td><td class="s">'+s.src+'</td></tr>';});
+  const SY=C.param_symbols||{};
+  let h='<table class="pt"><tr><th>parameter</th><th>symbol</th><th>default</th><th>range</th>'+
+        '<th>where it enters the equations</th><th>source</th></tr>';
+  MODEL.sliders.forEach(s=>{const sy=SY[s.key]||["",""];
+    h+='<tr><td>'+s.label.replace(/\s*\([^)]*\)\s*$/,"")+'</td><td style="white-space:nowrap">'+sy[0]+
+    '</td><td class="n">'+fmtVal(s,s.default)+'</td><td class="n">'+fmtVal(s,s.min)+' … '+fmtVal(s,s.max)+
+    '</td><td class="s">'+sy[1]+'</td><td class="s">'+s.src+'</td></tr>';});
   document.getElementById("paramtable").innerHTML=h+'</table>';
 }
 function fillPriceTable(){
