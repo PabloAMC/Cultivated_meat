@@ -141,7 +141,7 @@ share_j = w_eth·P_E(j) + (1 − w_eth)·P_M(j)
 # No cultivated-only term: the premium penalty applies to plant-based (1.77×) and cultivated (R) alike.
 ```
 
-This replaces the old binary willingness-to-pay curve and lets **plant-based be a genuine competing
+This structure makes **plant-based a genuine competing
 product** (its own price premium, taste, slaughter-free position) and **ethical demand a distinct
 high-WTP segment** that can adopt above parity (`R>1`), as the user requested.
 
@@ -166,7 +166,7 @@ case is unchanged. Across regions `income_eff = income_ref·(income/income_ref)^
 food-price-elasticity gradient (~2–3× rich→poor; Muhammad et al. 2011, USDA ERS), not ~13×. Only
 cultivated's price varies (via R), so only its R-response is an observable output.
 
-**Reference-dependent loss aversion (two-sided, uniform, replaces the old parity cliff).** A second
+**Reference-dependent loss aversion (two-sided, applied uniformly to every product).** A second
 price-related term, `−loss_aversion·max(0, price_ratio_j − 1) + (loss_aversion/2.25)·max(0, 1 −
 price_ratio_j)` (Tversky–Kahneman 1991 *riskless* loss aversion; Hardie, Johnson & Fader 1993 estimate the
 reference-price form on brand-choice scanner data): consumers anchor on the conventional price, so a
@@ -174,8 +174,8 @@ product priced *above* it takes a premium penalty and one priced *below* it earn
 two sides symmetric around the reference but with the loss side **2.25× steeper**, the canonical
 loss-aversion ratio (a fixed constant, not a free parameter). This applies to **every** product by its own
 `d_j = price_ratio_j − 1` — plant-based (1.77×) and cultivated (R) alike — so all options share the *same
-functional form*; there is no cultivated-only "parity cliff" (the old `parity_penalty`, now retired from
-the Python model). The term is continuous through parity with a gentle kink there; `loss_aversion=0`
+functional form*; there is no cultivated-only "parity cliff". The term is continuous through parity with a
+gentle kink there; `loss_aversion=0`
 collapses the demand model to a plain price-only logit.
 
 **Calibration — a demographic-conditional, reduced-form standing.** Plant-based's position is pinned

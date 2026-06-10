@@ -171,45 +171,63 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       <p>The four options and their <b>attributes</b> (conventional meat is the reference everything is
       measured against):</p>
       <table class="attr">
-        <tr><th>product</th><th>price (&times; conv.)</th><th>taste (1 = real meat)</th><th>slaughter&#8209;free</th><th>real tissue</th></tr>
-        <tr><td><b>conventional</b> meat</td><td>1 (anchor)</td><td>1 (reference)</td><td>no</td><td>yes</td></tr>
-        <tr><td><b>plant&#8209;based</b> meat</td><td>\(R_p\) (~1.77, dial)</td><td>\(a_p\) (~0.8, dial)</td><td>yes</td><td>no</td></tr>
-        <tr><td><b>cultivated</b> meat</td><td>\(R\) (from §1)</td><td>\(a_x\) (~1, dial)</td><td>yes</td><td>yes</td></tr>
-        <tr><td><b>whole&#8209;food</b> (beans/tofu)</td><td>~0.25 (cheap)</td><td>~0.3 (not meat)</td><td>yes</td><td>no</td></tr>
+        <tr><th>product</th><th>price (&times; conv.)</th><th>taste (1 = real meat)</th><th>slaughter&#8209;free</th><th>real tissue</th><th>standing</th></tr>
+        <tr><td><b>conventional</b> meat</td><td>1 (anchor)</td><td>1 (reference)</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td><b>plant&#8209;based</b> meat</td><td>\(R_p\) (~1.77, dial)</td><td>\(a_p\) (~0.8, dial)</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td><b>cultivated</b> meat</td><td>\(R\) (from §1)</td><td>\(a_x\) (~1, dial)</td><td>1</td><td>1</td><td>\(\xi_x\) (dial)</td></tr>
+        <tr><td><b>whole&#8209;food</b> (beans/tofu)</td><td>~0.25 (cheap)</td><td>~0.3 (not meat)</td><td>1</td><td>0</td><td>\(\xi_w\) (calib.)</td></tr>
       </table>
       <p>Whole food is the <b>outside option</b> — "skip meat tonight, eat beans" — and it matters: most
       ethically-motivated people get protein from whole foods, not a veggie burger, which is exactly why
-      plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule
-      (no option gets a special term):</p>
-      \[ V_j = \underbrace{\alpha\ln(y-\text{price}_j)}_{\text{price, via income}}
+      plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule — no
+      option gets a special term; the rule just reads each product's row off the table above:</p>
+      \[ V_j = \underbrace{\alpha\ln(y-\text{price}_j)}_{\text{price (via income)}}
               \;+\;\underbrace{-\,\lambda\,(d_j)^{+}+\tfrac{\lambda}{2.25}\,(d_j)^{-}}_{\text{reference dependence}}
-              \;+\; q\,\text{taste}_j \;+\; w^{s}\,\text{free}_j \;+\; w^{rt}\,\text{tissue}_j \;+\; \text{ASC}_j \]
+              \;+\; q\,\text{taste}_j \;+\; w^{s}\,\text{free}_j \;+\; w^{rt}\,\text{tissue}_j \;+\; \xi_j \]
       <p style="text-align:center;margin:-2px 0 8px;font-size:.86rem">where
       \(d_j=\dfrac{\text{price}_j}{p_{\rm conv}}-1\) is product \(j\)'s premium over conventional, and
       \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\) are its positive and negative parts.</p>
-      <p>Six ingredients, each with a plain meaning and a source:</p>
+      <p><b>Every term has the same shape</b> — a weight times that product's value of one attribute, read
+      straight from the table — and <b>a 0 in the table is not a special case</b>, just "this product doesn't
+      have that feature". Slaughter-free \(\text{free}_j\) is 0 for conventional; real-tissue
+      \(\text{tissue}_j\) is 0 for plant-based and whole-food; and the <b>standing</b> \(\xi_j\) — the last
+      column — is 0 for conventional and plant-based, non-zero only for whole-food (\(\xi_w\)) and cultivated
+      (\(\xi_x\)). So there is no free-floating "alternative-specific constant": \(\xi\) is just one more
+      attribute that happens to be zero for two of the four products, exactly like the slaughter-free and
+      real-tissue columns are zero for some.</p>
+      <p><b>The price piece, unpacked.</b> The income term's coefficient \(\alpha\) is not guessed — it is
+      built from the measured elasticity and two fixed calibration anchors:</p>
+      \[ \beta=\frac{\kappa\,\varepsilon}{p_{\rm calib}\,(1-s)},\qquad
+         \alpha=-\beta\,(y_{\rm ref}-p_{\rm calib}),\qquad
+         V^{\text{price}}_j=\alpha\ln(y-\text{price}_j). \]
+      <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
+      closeness \(\kappa\) (slider), divided by the fixed anchors — \(p_{\rm calib}\) (the $/kg the elasticity
+      is measured at) and \(s=s_{\rm calib}\approx0.05\) (the market <i>share</i> it is measured at) — gives
+      the logit's price slope \(\beta\). That \(\beta\) is then used for exactly one thing: \(\alpha=-\beta\,
+      (y_{\rm ref}-p_{\rm calib})\) rewrites it for the log form, so that at the reference income \(y_{\rm ref}\)
+      the model reproduces today's \(\beta\); \(\alpha\) is what multiplies \(\ln(y-\text{price}_j)\). (Using a
+      monthly/annual budget instead of the per-kg price only rescales \(\alpha\), which the calibration
+      absorbs — shares unchanged.)</p>
+      <p><b>The two segment-specific weights</b> (everything else is shared across the two consumer types).
+      Only the slaughter-free and real-tissue weights differ by type — that difference <i>is</i> the
+      heterogeneity:</p>
+      \[ w^{s}=\begin{cases}\theta_{\rm free}&\text{mainstream (slider, }\sim0)\\ w_{\rm slaughter,E}&\text{ethical (large, fixed)}\end{cases}
+         \qquad
+         w^{rt}=\begin{cases}w_{\rm rt}&\text{mainstream (calibrated)}\\ \approx 0&\text{ethical}\end{cases} \]
+      <p style="font-size:.9rem">So the slaughter-free term you tune is \(\theta_{\rm free}\,\text{free}_j\) for
+      the mainstream (95% of buyers): at \(\theta_{\rm free}=0\) the mainstream is indifferent to "no animal
+      killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
+      <p>The terms, each with a plain meaning and a source:</p>
       <table class="vardef">
-        <tr><td><b>price &amp; income</b> \(\alpha\ln(y-\text{price})\)</td><td>the <b>Berry–Levinsohn–Pakes
-          (1995)</b> way to put income in: <b>\(y\)</b> is the buyer's income (the <b>income</b> slider) and
-          <b>price</b> is the product's $/kg, so \(y-\text{price}\) is what's left after buying it — and the
-          \(\ln\) makes a dollar matter <i>less</i> to a richer person. <b>\(\alpha\)</b> is the price
-          coefficient (how sharply people flee price); we don't guess it — it is pinned to the measured meat
-          elasticity \(\varepsilon\) (&minus;0.9, scanner data) at a reference income, <i>steepened</i> by
-          \(\kappa\) because cultivated has a near-perfect substitute (conventional). Concretely the price
-          coefficient is \(\beta=\varepsilon\,\kappa/\big(p_{\rm calib}(1-s)\big)\) and \(\alpha=-\beta\,(y_{\rm
-          ref}-p_{\rm calib})\): \(\kappa\) simply <i>multiplies</i> the measured meat elasticity. Why \(\approx
-          3\)? — there is no cultivated cross-price data, so this is a judgement, not a measurement: meat
-          <i>as a category</i> is inelastic (\(\varepsilon\approx-0.9\), no close substitute), but cultivated has
-          one (real conventional tissue), so its <i>own</i>-price response is several times larger. The retired
-          nested-logit version implied \(\approx 2\times\); we centre at \(3\) and treat \(2\!-\!4\) as the range.
-          It is the least data-disciplined number in the model and one of the two biggest demand levers (with
-          \(\lambda\)) at the likely \(R\approx2.4\) — which is why it is a slider, not a buried constant. So
-          raising \(y\) (a richer country, or a high-growth future) flattens everyone's price sensitivity. (Across regions
-          \(y\) enters with a mild damping, so the rich→poor sensitivity gap matches the ~2–3&times; seen
-          in the data rather than a raw 1/income. <b>Price basis:</b> we use the per-kg shelf price — the
-          basis the elasticity \(\varepsilon\) is measured on. Using a monthly or annual meat budget instead
-          only rescales \(\alpha\), which the calibration absorbs, so the shares are unchanged: meat is cheap
-          relative to income at any basis, so the \(\ln\) is essentially linear.)</td></tr>
+        <tr><td><b>price &amp; income</b> \(\alpha\ln(y-\text{price}_j)\)</td><td>the <b>Berry–Levinsohn–Pakes
+          (1995)</b> way to put income in: <b>\(y\)</b> is the buyer's income (the <b>income</b> slider), so
+          \(y-\text{price}_j\) is what's left after buying product \(j\), and the \(\ln\) makes a dollar matter
+          <i>less</i> to a richer person — raise \(y\) (a richer country, or a high-growth future) and everyone's
+          price sensitivity flattens. The coefficient \(\alpha\) is not guessed: it is built from the measured meat
+          elasticity \(\varepsilon\) and the closeness \(\kappa\) via \(\beta\) — see "the price piece, unpacked"
+          just above. (Across regions \(y\) enters with a mild damping, so the rich→poor sensitivity gap matches
+          the ~2–3&times; seen in the data rather than a raw 1/income; using a monthly/annual budget instead of
+          the per-kg price only rescales \(\alpha\), which the calibration absorbs.)</td></tr>
         <tr><td><b>loss aversion</b> \(\lambda\)</td><td><b>reference-dependent</b> price term
           (Tversky–Kahneman; Hardie–Johnson–Fader 1993): people judge a price against a <i>reference</i> — here
           the familiar conventional price — and a product priced <i>above</i> it feels like a loss while one
@@ -235,12 +253,12 @@ methods and results notes. Defaults are the neutral / measured values.</p>
           conventional <i>and</i> cultivated, no for plant-based/whole-food. The mainstream weights this; it
           is the edge cultivated <b>shares with conventional</b>, and the reason cultivated draws from
           <i>beef</i>, not the veggie burger.</td></tr>
-        <tr><td><b>ASC</b> (the leftover)</td><td>a per-product constant for any baseline appeal the four
-          attributes miss — the standard "alternative-specific constant" of discrete choice. Here it is
-          <b>zero for conventional and plant-based</b> (their attributes already describe them); only two
-          carry one: <b>whole-food</b>'s is the single calibration knob (solved so the model matches
-          plant-based's real share — see below), and <b>cultivated</b>'s is its novelty-standing plus the
-          per-meat-type tier resistance (§3). So it isn't a free fudge — it's two named, justified numbers.</td></tr>
+        <tr><td><b>standing</b> \(\xi_j\)</td><td>each product's baseline appeal beyond the four measured
+          attributes (availability, habit, familiarity) — <i>an attribute like the others</i>, and like
+          them <b>zero for some products</b>: it is 0 for conventional and plant-based, non-zero only for
+          <b>whole-food</b> (\(\xi_w\), set by calibration so the model reproduces plant-based's real ~1.2%
+          share — see below) and <b>cultivated</b> (\(\xi_x\), its standing dial plus the per-meat-type tier
+          resistance, §3). Not a free-floating fudge: two named, motivated numbers, zero everywhere else.</td></tr>
       </table>
       <p><b>How the closeness \(\kappa\) actually works.</b> \(\kappa\) is the one knob that needs spelling
       out, because it has no direct data. Start from the measured number: scanner studies give the own-price
@@ -256,8 +274,9 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       making cultivated's share-vs-price curve <i>steeper</i>. It is the flat-logit stand-in for what a
       nested logit would get from a "real-meat" nest (its dissimilarity parameter), or a random coefficient
       on the real-tissue attribute. <b>Why \(\approx3\)?</b> Pure judgement — there is no cultivated cross-price
-      data anywhere. The retired nested-logit version implied \(\approx2\times\); we centre at \(3\) and treat
-      \(2\!-\!4\) as the range. Drag the slider to \(\kappa=1\) ("cultivated as inelastic as meat overall") and
+      data anywhere. A nested-logit treatment would imply a comparable factor (loosely \(\approx2\)) through
+      its dissimilarity parameter; we centre at \(3\) and treat \(2\!-\!4\) as the range. Drag the slider to
+      \(\kappa=1\) ("cultivated as inelastic as meat overall") and
       central penetration jumps several-fold — which is exactly why it is exposed, not buried.</p>
       <p style="font-size:.84rem;background:#f7f7f5;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
       <b>A note on "loss aversion" here.</b> Loss aversion is most famous from <i>risky</i> gambles (a chance to
@@ -487,9 +506,9 @@ function mediaCost(mp,ef){return Math.max(C.FEEDSTOCK_FLOOR,C.media_intensity*ef
    market_share._utilities / _segment / share. Products [w,c,p,x] = whole-food (the non-meat
    outside option), conventional, plant-based, cultivated. EVERY product uses the SAME linear
    utility (no product-specific term): a BLP income price term, a reference-dependent loss-
-   aversion premium penalty, taste, slaughter-free, real-tissue, and an alternative-specific
-   constant (ASC). Total share = w_eth*P_ethical + (1-w_eth)*P_mainstream. K = the effective
-   constants (sliders override C) WITH the three solved values attached by solveCalibration(). */
+   aversion premium penalty, taste, slaughter-free, real-tissue, and a per-product STANDING xi
+   (0 for conventional & plant-based). Total share = w_eth*P_ethical + (1-w_eth)*P_mainstream.
+   K = the effective constants (sliders override C) WITH the solved values from solveCalibration(). */
 function betaPrice(K,eps){return eps*K.cult_sub_mult/(K.price_calib*(1-K.s_calib));}
 function utilities(R,K,seg,o){
   const pc=K.p_conv_anchor;
@@ -500,8 +519,8 @@ function utilities(R,K,seg,o){
   const priceRatio=[K.price_wf_mult,1,pPb,R];                       // w, c, p, x
   const taste=[K.taste_quality_w,0,tP,o.ax-1];                      // deviation from real meat (0 = parity)
   const slaughter=[1,0,1,1], realtissue=[0,1,0,1];
-  const ascW=(seg==="M")?K.K_wholefood_M:K.K_wholefood_E;           // segment-specific whole-food ASC
-  const asc=[ascW,0,0,o.toff];                                      // cultivated ASC = the standing/tier offset
+  const xiW=(seg==="M")?K.K_wholefood_M:K.K_wholefood_E;            // whole-food standing xi_w (segment-specific, calibrated)
+  const standing=[xiW,0,0,o.toff];                                  // standing xi_j: 0 for conv & PB; cultivated = dial/tier offset
   const wSl=(seg==="M")?o.tfM:K.w_slaughter_E;
   const wRt=(seg==="M")?K.w_realtissue_M:K.w_realtissue_E;
   const beta=betaPrice(K,o.eps);
@@ -514,7 +533,7 @@ function utilities(R,K,seg,o){
     const prem=priceRatio[j]-1;                                     // premium over the conventional reference
     const Vl=-K.loss_aversion*Math.max(0,prem)                      // loss side: penalise a premium
              +(K.loss_aversion/C.LOSS_AVERSION_RATIO)*Math.max(0,-prem);  // gain side: reward a discount (2.25x gentler)
-    V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+asc[j];
+    V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+standing[j];
   }
   return V;
 }

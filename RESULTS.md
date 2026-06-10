@@ -111,8 +111,8 @@ overhead** — the parts least demonstrated and the parts that do not fall with 
 **Gate 1 — cost (dominates).** Because the achievable R for the basic product most likely sits above
 parity, gate 1 alone yields the low-share world for most of the distribution.
 
-**Gate 2 — acceptance.** *At parity*, cultivated's standing is **two meaningful dials** (replacing
-the old opaque `xi`) that span the whole believable range — the widest lever on the at-parity
+**Gate 2 — acceptance.** *At parity*, cultivated's standing is **two meaningful dials** that span the
+whole believable range — the widest lever on the at-parity
 outcome. `accept_x` (taste-acceptance: is cultivated credited as real meat?) carries the
 **friction**; `theta_free_M` (does the mainstream value no-slaughter / cleaner meat?) carries the
 **upside**. We take no stance:
