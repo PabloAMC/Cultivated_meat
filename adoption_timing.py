@@ -127,14 +127,16 @@ class TimingParams:
     p_innov: float = value("p_innov")   # independent adopters (innovation coefficient)
     q_imit: float = value("q_imit")     # word-of-mouth / contagion (imitation coefficient)
 
-    # --- Process 2: growing acceptance = launch FOOD-NEOPHOBIA fading toward ZERO ----
-    neophobia_0: float = value("neophobia_M")    # launch food-neophobia, mainstream (decays -> 0)
-    #   The LONG-RUN standing is NOT a free floor — it is the interpretable pair below,
-    #   which neophobia decays toward (accept_x carries friction, theta_free_M the upside):
+    # --- Process 2: growing acceptance = INITIAL novelty fading toward the long run -----
+    #   Cultivated's neophobia relaxes from the INITIAL (cold-start) value neophobia_x0
+    #   toward the long-run dp.neophobia_x, with exposure. Setting the two ENDPOINTS
+    #   directly (initial x0, final neophobia_x) is more intuitive than a delta; the legacy
+    #   "launch wariness" = (neophobia_x0 - dp.neophobia_x) is the transient part that fades.
+    neophobia_x0: float = value("neophobia_x0")  # INITIAL (cold-start) novelty attitude (data-anchored ~-2.8)
     accept_x: float = value("accept_x")          # long-run sensory acceptance (Gate-2 friction dial)
     theta_free_M: float = value("theta_free_M")  # long-run cleaner-meat upside (Gate-2 upside dial)
-    accept_rate: float = value("accept_rate")  # how fast neophobia decays per unit cumulative exposure
-    sensory_parity: bool = True         # gate: if False, neophobia does NOT fade (the PB-meat case)
+    accept_rate: float = value("accept_rate")  # how fast initial neophobia decays per unit cumulative exposure
+    sensory_parity: bool = True         # gate: if False, novelty does NOT fade (the PB-meat case)
 
     years: int = int(value("years"))
 
@@ -142,9 +144,18 @@ class TimingParams:
 # ----------------------------------------------------------------------------
 # The coupled simulation
 # ----------------------------------------------------------------------------
-def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool):
+def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool,
+         which="x", nb0=None, nb_long=None):
     """Core loop shared by the fixed-R and cost-path simulations. `R_of_year(k)`
-    returns the price ratio in year k. Returns time series dict."""
+    returns the price ratio in year k. Returns time series dict.
+
+    Product-agnostic (equal footing): `which` selects whose share is tracked —
+      "x"  cultivated (default): cold-start nb0=tp.neophobia_x0 -> long-run dp.neophobia_x;
+      "pb" plant-based: pass nb0/nb_long (its own cold-start/long-run novelty). Plant-based's
+           PERMANENT taste deficit (a_p<1) is what stalls it even after novelty fades — the
+           contrast that the timing chart makes visible. R_of_year for PB is its OWN price R_p."""
+    nb0 = tp.neophobia_x0 if nb0 is None else nb0
+    nb_long = dp.neophobia_x if nb_long is None else nb_long
     t = np.arange(tp.years + 1)
     F = 0.0          # rollout: fraction-of-ceiling reached (Bass)
     E = 0.0          # cumulative exposure (drives neophobia decay)
@@ -154,13 +165,15 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool):
     for k in range(tp.years + 1):
         Rk = R_of_year(k)
         if accept_on:
-            nb = tp.neophobia_0 * np.exp(-tp.accept_rate * E)  # launch neophobia decays toward 0
+            # initial (cold-start) novelty nb0 relaxes toward the long-run nb_long
+            nb = nb_long + (nb0 - nb_long) * np.exp(-tp.accept_rate * E)
         else:
-            nb = tp.neophobia_0                                # neophobia never fades (the PB-meat case)
-        # Rung-3 ceiling at the current neophobia, holding the LONG-RUN acceptance attributes
-        # (accept_x sensory, theta_free_M cleaner-meat). As nb -> 0 the ceiling rises to its
-        # permanent level set by those two attributes.
-        ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_M=nb)
+            nb = nb0                                           # novelty never fades (stuck cold)
+        # Rung-3 ceiling at the current novelty, holding the LONG-RUN acceptance attributes.
+        if which == "pb":
+            ceiling = share(Rk, dp, neophobia_p=nb, which="pb", cultivated_present=False)
+        else:
+            ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb)
         s = F * ceiling
         shares.append(s); ceilings.append(ceiling); nbs.append(nb); Rs.append(Rk)
         if k < tp.years:
@@ -175,10 +188,10 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool):
 
 
 def simulate(R: float, dp: DemandParams, tp: TimingParams,
-             acceptance_grows: bool = True):
+             acceptance_grows: bool = True, which="x", nb0=None, nb_long=None):
     """Fixed-price (fixed-R) timing: the two processes at a single price ratio.
     acceptance_grows=False -> rollout only (fixed ceiling)."""
-    return _run(lambda k: R, dp, tp, acceptance_grows)
+    return _run(lambda k: R, dp, tp, acceptance_grows, which=which, nb0=nb0, nb_long=nb_long)
 
 
 def simulate_path(path, dp: DemandParams, tp: TimingParams,
@@ -190,6 +203,60 @@ def simulate_path(path, dp: DemandParams, tp: TimingParams,
 
 def y30(R, dp, tp, **kw):
     return simulate(R, dp, tp, **kw)["share"][-1] * 100
+
+
+def _time_to_stabilize(series, frac=0.9):
+    """First year the realized share reaches `frac` of its final (year-30) value.
+    If the final value is ~0, returns the horizon."""
+    final = series[-1]
+    if final <= 1e-9:
+        return len(series) - 1
+    for k, v in enumerate(series):
+        if v >= frac * final:
+            return k
+    return len(series) - 1
+
+
+def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
+    """Sweep the timing + acceptance priors to get a BAND on the adoption trajectory
+    (share per year) and the distribution of the TIME-TO-STABILIZE (year the realized
+    share reaches 90% of its year-30 value). Sweeps EVERYTHING that shapes the path:
+      - neophobia_x0  (cold-start novelty; the 5-60% framing band)
+      - neophobia_x   (long-run destination)
+      - accept_rate   (how fast novelty fades)
+      - p_innov, q_imit (Bass rollout speed)
+      - accept_x, theta_free_M (long-run sensory / cleaner-meat acceptance)
+    `R` is held fixed (the price ratio); use the cost rung to pick it.
+    Returns dict(t, share_p10/p50/p90 [%], tstab [array of years], final [array %])."""
+    from inputs import prior
+    rng = np.random.default_rng(seed)
+    yrs = int(value("years")) if years is None else years
+
+    def draw(k):
+        kind, lo, hi, mode, _ = prior(k)
+        return rng.triangular(lo, mode, hi, n)
+
+    s = {k: draw(k) for k in ("neophobia_x0", "neophobia_x", "accept_rate",
+                              "p_innov", "q_imit", "accept_x", "theta_free_M")}
+    base = DemandParams()                       # calibrate ONCE (neophobia_x is an additive
+    #   constant that does NOT enter the calibration moments, so we override it per draw via
+    #   dataclasses.replace — which preserves the solved beta_ref, no costly re-solve).
+    paths = np.zeros((n, yrs + 1))
+    for i in range(n):
+        dp_i = replace(base, neophobia_x=float(s["neophobia_x"][i]))
+        tp_i = TimingParams(neophobia_x0=float(s["neophobia_x0"][i]),
+                            accept_rate=float(s["accept_rate"][i]),
+                            p_innov=float(s["p_innov"][i]), q_imit=float(s["q_imit"][i]),
+                            accept_x=float(s["accept_x"][i]),
+                            theta_free_M=float(s["theta_free_M"][i]), years=yrs)
+        paths[i] = _run(lambda k: R, dp_i, tp_i, acceptance_grows=True)["share"] * 100
+    tstab = np.array([_time_to_stabilize(paths[i]) for i in range(n)])
+    t = np.arange(yrs + 1)
+    return dict(t=t,
+                p10=np.percentile(paths, 10, axis=0),
+                p50=np.percentile(paths, 50, axis=0),
+                p90=np.percentile(paths, 90, axis=0),
+                tstab=tstab, final=paths[:, -1])
 
 
 # ----------------------------------------------------------------------------
@@ -270,6 +337,65 @@ def fig_timing(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
     _save(fig, outdir, "timing_two_processes", fmts)
 
 
+def fig_neophobia_time(outdir, fmts, R=1.0, n=4000, seed=0) -> None:
+    """Three-panel view of the timing rung's central question:
+       (a) the adoption-trajectory BAND over 30 yr (sweeping all timing+acceptance priors),
+           with the median time-to-stabilize marked;
+       (b) FINAL (yr-30) share vs the LONG-RUN neophobia (where it lands);
+       (c) TIME-TO-STABILIZE vs the fade rate accept_rate (how long it takes).
+    R is the held price ratio (default parity)."""
+    mc = monte_carlo_trajectory(R=R, n=n, seed=seed)
+    t = mc["t"]
+    base = DemandParams()
+
+    fig, axes = plt.subplots(1, 3, figsize=(11.5, 3.4))
+
+    # (a) trajectory band + stabilization
+    ax = axes[0]
+    ax.fill_between(t, mc["p10"], mc["p90"], color="#0173B2", alpha=0.18, label="80% band")
+    ax.plot(t, mc["p50"], color="#0173B2", lw=2, label="median")
+    ts50 = float(np.percentile(mc["tstab"], 50))
+    ax.axvline(ts50, color="#666", ls=":", lw=1)
+    ax.annotate(f"stabilises ~yr {ts50:.0f}\n(90% of final)", xy=(ts50, ax.get_ylim()[1] * 0.5),
+                xytext=(ts50 + 1.2, ax.get_ylim()[1] * 0.62), fontsize=7, color="#444")
+    ax.set_xlabel("Years"); ax.set_ylabel("Realised cultivated share (%)")
+    ax.set_title(f"(a) Adoption over time at R={R:.1f}\n(all timing+acceptance priors swept)",
+                 fontsize=8.5)
+    ax.legend(fontsize=7, frameon=False, loc="lower right")
+
+    # (b) FINAL share vs long-run neophobia_x (where it lands), everything else at default
+    ax = axes[1]
+    nxs = np.linspace(-2.0, 1.0, 25)
+    finals = []
+    tp_def = TimingParams()
+    for nx in nxs:
+        dp_i = replace(base, neophobia_x=float(nx))
+        finals.append(_run(lambda k: R, dp_i, tp_def, acceptance_grows=True)["share"][-1] * 100)
+    ax.plot(nxs, finals, color="#029E73", lw=2)
+    ax.axvline(0.0, color="#ccc", ls="--", lw=1)
+    ax.set_xlabel(r"Long-run neophobia $\nu_x$ (where it lands)")
+    ax.set_ylabel("Final (yr-30) share (%)")
+    ax.set_title("(b) Where it lands\n= the long-run novelty attitude", fontsize=8.5)
+
+    # (c) time-to-stabilize vs fade rate accept_rate (how long), other params default
+    ax = axes[2]
+    rates = np.linspace(0.05, 0.50, 25)
+    tstabs = []
+    for r in rates:
+        tp_i = TimingParams(accept_rate=float(r))
+        ser = _run(lambda k: R, base, tp_i, acceptance_grows=True)["share"] * 100
+        tstabs.append(_time_to_stabilize(ser))
+    ax.plot(rates, tstabs, color="#D55E00", lw=2)
+    ax.set_xlabel("Fade rate (novelty fades faster →)")
+    ax.set_ylabel("Years to stabilise (90% of final)")
+    ax.set_title("(c) How long it takes\n= the novelty-fade speed", fontsize=8.5)
+
+    fig.suptitle("The timing rung: cold-start fades to equilibrium — where it lands, and how long it takes",
+                 y=1.03, fontsize=10)
+    fig.tight_layout()
+    _save(fig, outdir, "neophobia_time", fmts)
+
+
 def fig_acceptance_spectrum(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
     """Sweep the LONG-RUN acceptance (accept_x sensory, theta_free_M cleaner-meat upside)
     from friction -> parity -> actively preferred, at four fixed price ratios. Neophobia
@@ -308,6 +434,7 @@ def main():
     summarise(dp, tp)
     fig_cost_paths(dp, tp, args.outdir, fmts)
     fig_timing(dp, tp, args.outdir, fmts)
+    fig_neophobia_time(args.outdir, fmts)
     fig_acceptance_spectrum(dp, tp, args.outdir, fmts)
     print("Done.")
     if args.show:

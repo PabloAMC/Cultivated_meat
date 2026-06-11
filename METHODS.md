@@ -46,7 +46,7 @@ Every number is forced into one of five categories; none is a free constant left
 5. **Assumed but shown not to matter** — verified non-load-bearing: re-solving the calibration while
    sweeping `q_taste`, `taste_quality_w`, `w_slaughter_E`, `w_realtissue_E`, `wf_mainstream_target` moves
    the cultivated answer **< 0.2 pp** (the calibration solve absorbs them; PB stays pinned at 1.2%). The
-   timing-only knobs (`accept_rate`, `neophobia_M`) set *when*, not the ceiling. `glucose_other_floor` (~$1 of
+   timing-only knobs (`accept_rate`, `neophobia_launch`) set *when*, not the ceiling. `glucose_other_floor` (~$1 of
    the ~$7.5 floor) is the one remaining small pure assumption, and it lives inside the floor *band*.
 
 The single load-bearing **assumption** (not a number) is `real_tissue`: that cultivated, being real
@@ -208,7 +208,7 @@ either sourced or *derived from* the model rather than typed in:
    meta-analyses; Andreyeva 2010, Gallet 2010/12). Cultivated's own price should bite **harder** than the
    meat *category's*, because conventional meat is a near-perfect substitute for it (a category has no close
    substitute and is therefore inelastic; a single product inside it is not). We multiply by
-   `cult_sub_mult ≈ 3` → target **`eps_x = eps_own·cult_sub_mult = −2.7`** (κ is applied **once** — it
+   `cult_sub_mult ≈ 4` → target **`eps_x = eps_own·cult_sub_mult = −3.6`** (κ is applied **once** — it
    defines the target; `β` below merely delivers it). `cult_sub_mult` is the model's least data-disciplined
    input (no cultivated cross-price data exists), so it is **swept 2–4** and is one of the two levers
    self-check [6] reports.
@@ -222,9 +222,9 @@ either sourced or *derived from* the model rather than typed in:
    moves), share = cultivated's own modeled share there — a short **fixed point** (`market_share._derive_beta`,
    ~3 steps). Then `β = eps_x / (p_anchor·(1 − share)) + loss_aversion/p_conv`. **Nothing here is a free
    constant** (no hand-set "anchor price"). Adding back the `loss_aversion/p_conv` term is the **double-counting
-   fix**: an earlier version omitted it, so the *realized* elasticity came out ≈ −5 (≈2× the −2.7 target) and
+   fix**: an earlier version omitted it, so the *realized* elasticity came out ≈ −5 — far steeper than the −3.6 target — and
    `loss_aversion` silently doubled as a second price-sensitivity lever. Now the realized cultivated elasticity
-   is the target **−2.7** at today's price and eases toward ≈ −1 near parity (both sane), and `loss_aversion`
+   is the target **−3.6** at today's price and eases toward ≈ −1 near parity (both sane), and `loss_aversion`
    shapes only the **kink** at parity — `cult_sub_mult` cleanly owns the elasticity *level*.
 
 6. *Across regions.* `income_eff = income_ref·(income/income_ref)^φ`; the gradient `φ` (`income_gradient`,
@@ -302,8 +302,8 @@ cultivated premium (beans out-compete it); [4] a cross-category **PB-milk valida
 milk-appropriate values yields ~15% (observed ~15%); [5] general-population plant-based-at-parity ≈ 8% — a
 structural prediction (we pin to the GFI buyer split, **not** to the UCLA ~26% dining-hall figure, whose sample
 likely over-weights ethical/PB-friendly diners); [6] **demand-calibration robustness** — re-solving the
-calibration as each judgement anchor sweeps its range. At the likely R≈2.4 the central share (~12.7%) now moves
-most with **`cult_sub_mult`** (8.2→19.3%); **`loss_aversion`** — formerly the top lever — now barely moves it (the
+calibration as each judgement anchor sweeps its range. At the likely R≈2.4 the central share (~8.2%) now moves
+most with **`cult_sub_mult`** (3.3→12.7% over κ=3–6); **`loss_aversion`** — formerly the top lever — now barely moves it (the
 double-counting fix removed its hidden price-sensitivity, leaving it to shape only the parity kink), while the PB-fitting internals
 (`w_eth`, `pb_mainstream_frac`, `wf_mainstream_target`) barely move it (~0.1 pp) — so the cultivated answer
 turns on two *behavioural-price* judgement calls, not on the plant-based-fitting choices.
@@ -326,16 +326,23 @@ estimated random-coefficients system here would be false rigor.
 
 Two demand processes over 30 years: (1) **market rollout** (Bass diffusion, `p_innov`=0.02,
 `q_imit`=0.40) — the product reaching shelves toward a ceiling; (2) **food-neophobia fading** — the
-launch novelty penalty (`neophobia_M`, the wariness of a *novel* food; Pliner & Hobden 1992) decaying
+launch wariness (`neophobia_launch`, the reaction to a *novel* food; Pliner & Hobden 1992) decaying
 with cumulative *availability* toward **zero** (the mere-exposure effect), which *raises* the ceiling.
 This is **gated by sensory parity**: familiarity cures "it's weird", not "it's worse" — and even once
 neophobia fades, a *taste* deficit (`accept_x`<1) persists (the plant-based lesson). Cultivated's escape
-is that it is real tissue, so sensory parity is physically attainable. **There is no free long-run
-"standing" floor**: neophobia fades to 0, and the permanent at-parity ceiling is set by the two
-interpretable acceptance dials `accept_x` (sensory) and `theta_free_M` (cleaner-meat upside) — which
-`fig_acceptance_spectrum` sweeps. Removing the old `xi_x_floor_M` dial is the "no symmetry-breaking
-garbage collector" fix: cultivated's deviations from conventional are now all *named* (price, taste,
-slaughter-free, real-tissue, transient neophobia), not absorbed into a catch-all constant.
+is that it is real tissue, so sensory parity is physically attainable.
+
+**Neophobia is a named, ± dial on BOTH novel meats.** Instead of a generic cultivated-only "standing"
+catch-all, novelty attitude is a single behavioural primitive (Pliner & Hobden 1992) applied symmetrically
+to the two non-conventional meats: `neophobia_x` (cultivated) and `neophobia_p` (plant-based). It is a
+**utility offset (utils): negative = neophobia** (the novel food is shunned), **positive = neophilia**
+(novelty is a draw), 0 = neutral — adjustable either way. The **default is 0** (neutral), so it does not
+move the central headline; it is an exploration dial alongside `accept_x`/`theta_free_M`. The timing rung
+adds an **extra launch wariness** (`neophobia_launch`) that decays with exposure *onto* the long-run
+`neophobia_x` (so cultivated's neophobia relaxes from `neophobia_x + neophobia_launch` toward `neophobia_x`).
+This is the "no symmetry-breaking garbage collector" fix: cultivated's deviations from conventional are now
+all *named* (price, taste, slaughter-free, real-tissue, neophobia), each interpretable, none a fudge —
+and the novelty term is symmetric across the two novel products, not a cultivated-only special case.
 
 **The cost→time coupling.** Rather than a smooth (false-precision) learning curve, the simulation is
 driven by a few named **cost-milestone paths** (`COST_PATHS`): step functions where `R` drops when a
@@ -358,8 +365,8 @@ lands, what then?".
 
 Result (commodity): **R P50 = 1.93, 80% CI [1.54, 2.35], 0% at/below parity** — consistent with
 Pasitka's own published projections (R ≈ 2.25–2.42). The realised spread is driven by **overhead /
-scale-up (~13%)** and **`p_conv` (~10%)**. The long-run share it implies: **P50 ≈ 15.4%, 80% CI
-[6.4, 29.8]**.
+scale-up (~13%)** and **`p_conv` (~10%)**. The long-run share it implies: **P50 ≈ 11.6%, 80% CI
+[4.1, 25.7]**.
 
 ## Rung S — sensitivity: levers & bottlenecks (`sensitivity.py`)
 

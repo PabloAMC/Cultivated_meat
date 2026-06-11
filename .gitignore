@@ -6,3 +6,7 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# scratch / debug check images (not deliverables)
+cuts_v2_check.png
+*_check.png

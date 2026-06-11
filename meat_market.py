@@ -118,19 +118,24 @@ def species_bases(market) -> dict:
 
 
 def tier(mt: "MeatType", base: float) -> str:
-    """basic = unstructured; premium = structured and priced >= 2x its species' base
-    everyday form; cut = structured but below that ratio. `base` = species_bases[...]"""
+    """basic = unstructured; premium = structured and priced >= PREMIUM_RATIO (=2.5x) its
+    species' base everyday form; cut = structured but below that ratio. `base` = species_bases[...]"""
     if mt.scaffold == 0:
         return "basic"
     return "premium" if mt.p_conv >= PREMIUM_RATIO * base else "cut"
 
 
-def tier_authenticity(mt: "MeatType", base: float) -> float:
-    return {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}[tier(mt, base)]
+def tier_authenticity(mt: "MeatType", base: float, resistance: float = 1.0) -> float:
+    """Per-tier authenticity offset (utils), scaled by the `premium_resistance` dial.
+    resistance=1 -> the central ladder; 0 -> no tier effect; 2 -> doubly resistant."""
+    return resistance * {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}[tier(mt, base)]
 
 
-def tier_eps_mult(mt: "MeatType", base: float) -> float:
-    return {"basic": 1.0, "cut": EPS_MULT_CUT, "premium": EPS_MULT_PREMIUM}[tier(mt, base)]
+def tier_eps_mult(mt: "MeatType", base: float, resistance: float = 1.0) -> float:
+    """Per-tier own-price-elasticity multiplier, with its DEVIATION from 1 scaled by
+    `premium_resistance` (so resistance=0 -> multiplier 1 = no tier effect; =1 -> central)."""
+    mult = {"basic": 1.0, "cut": EPS_MULT_CUT, "premium": EPS_MULT_PREMIUM}[tier(mt, base)]
+    return 1.0 + resistance * (mult - 1.0)
 
 # Prices: GlobalProductPrices (Jan 2026) + USDA/BLS (US); mixes: USDA ERS (US),
 # FAO/OECD (regional). Cultivated cost is ~global; the LOCAL price it competes
@@ -138,7 +143,7 @@ def tier_eps_mult(mt: "MeatType", base: float) -> float:
 
 # US — per-capita retail lbs (USDA ERS ~2023): chicken 100, beef 57, pork 50,
 # turkey 14, seafood ~19; each split mince/cut.
-# A premium variant per major species (priced >= 2x the species' everyday form).
+# A premium variant per major species (priced >= PREMIUM_RATIO=2.5x the species' everyday form).
 # Beef wagyu/prime and seafood sushi are well-attested premiums; organic chicken and
 # heritage pork are real but smaller, lower-confidence categories — kept at small w_vol,
 # carved out of the species' cut form so regional volume sums are unchanged.
@@ -265,17 +270,20 @@ REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
 
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
-                accept_x: float = 1.0, markup=None, income=None):
+                accept_x: float = 1.0, markup=None, income=None, premium_resistance=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
     theta_free_M = mainstream value of the slaughter-free attribute (headline dial).
     accept_x     = how fully the mainstream credits cultivated's taste (the other dial).
     income       = region income ($/yr) for the BLP price term (None -> reference/US).
+    premium_resistance = scales BOTH per-tier demand levers (authenticity offset and the
+                   elasticity multiplier's deviation from 1); 1 = central, 0 = no tier effect.
     The per-tier demand resistance enters as share()'s tier_offset (in utils).
     """
     markup = value("markup_add") if markup is None else markup
     base_eps = value("eps_own")
+    res = value("premium_resistance") if premium_resistance is None else premium_resistance
     pr = DemandParams()
     bases = species_bases(market)                                   # per-species reference price
     rows = []
@@ -283,9 +291,9 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
         b = bases[animal_of(mt)]
         p_cult = biomass * mt.cost_mult + mt.scaffold + markup      # per-type cost
         R = p_cult / mt.p_conv
-        eps = base_eps * tier_eps_mult(mt, b)                       # premium less price-sensitive
+        eps = base_eps * tier_eps_mult(mt, b, res)                  # premium less price-sensitive
         s = share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                  tier_offset=tier_authenticity(mt, b), eps_own=eps, income=income)
+                  tier_offset=tier_authenticity(mt, b, res), eps_own=eps, income=income)
         rows.append((mt, R, s))
     tot_vol = sum(mt.w_vol * s for mt, R, s in rows)
     Wval = sum(mt.p_conv * mt.w_vol for mt, _, _ in rows)         # value weights ~ price x volume
@@ -310,7 +318,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in
          ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
-          "theta_free_M", "accept_x")}
+          "theta_free_M", "accept_x", "premium_resistance", "neophobia_x")}
     cp = CostParams()
     biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
 
@@ -318,17 +326,19 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     market = MARKETS[region]
     income = REGION_INCOME[region]              # region income for the BLP price term
     bases = species_bases(market)
+    res = s["premium_resistance"]               # per-draw premium-resistance multiplier (array)
     Wval = sum(mt.p_conv * mt.w_vol for mt in market)
     tot_vol = np.zeros(n)
     tot_val = np.zeros(n)
     for mt in market:
         b = bases[animal_of(mt)]
         R = (biomass * mt.cost_mult + mt.scaffold + s["markup_add"]) / mt.p_conv
-        toff = tier_authenticity(mt, b)                                # per-tier demand resistance (utils)
-        eps = s["eps_own"] * tier_eps_mult(mt, b)                  # tier-dependent elasticity (array)
+        toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
+        eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
         sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
-                             accept_x=s["accept_x"][i], tier_offset=toff,
-                             eps_own=eps[i], income=income) for i in range(n)])
+                             accept_x=s["accept_x"][i], tier_offset=toff[i],
+                             eps_own=eps[i], income=income,
+                             neophobia_x=s["neophobia_x"][i]) for i in range(n)])
         tot_vol += mt.w_vol * sh
         tot_val += (mt.p_conv * mt.w_vol / Wval) * sh
     return dict(vol=tot_vol * 100, val=tot_val * 100)
@@ -374,7 +384,8 @@ def summarise(region: str, theta_free: float) -> None:
     market = MARKETS[region]
     bases = species_bases(market)
     cp = CostParams()
-    scenarios = [("near-term biomass $14/kg", 14.0),
+    scenarios = [("near-term biomass $%g/kg" % value("biomass_cost_nearterm"),
+                  value("biomass_cost_nearterm")),
                  ("cost FLOOR (central)", cost_floor(cp))]
     print(f"  region: {region.upper()}   theta_free_M (mainstream slaughter-free value) = {theta_free:+.1f}"
           f"   income = ${REGION_INCOME[region]:,}/yr (PPP)")
@@ -454,7 +465,7 @@ def fig_penetration(region: str, theta_free: float, outdir, fmts) -> None:
     ax.legend(handles=[Patch(color=TIERCOL["basic"], label="mince / processed"),
                        Patch(color=TIERCOL["cut"], label="cut / fillet"),
                        Patch(color=TIERCOL["premium"],
-                             label=r"premium ($\geq 2\times$ species base)")],
+                             label=r"premium ($\geq %g\times$ species base)" % PREMIUM_RATIO)],
               fontsize=8, frameon=False, loc="upper center", ncol=3)
     ax.set_title(f"Cultivated penetration by type of meat — {region.upper()} (at the cost floor)")
     _save(fig, outdir, f"penetration_by_type_{region}", fmts)

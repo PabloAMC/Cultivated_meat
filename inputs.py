@@ -162,31 +162,39 @@ REGISTRY: dict[str, Input] = {
         note="ONE factor of cultivated's own-price-elasticity TARGET eps_x = eps_own*cult_sub_mult; "
              "the shared logit coefficient beta is DERIVED to hit that target at cultivated's own modeled "
              "price & share (market_share._derive_beta), so beta moves automatically when this moves. "
-             "Premium tiers are made LESS elastic in meat_market (cuts x0.8, luxury x0.5): premium buyers "
+             "Premium tiers are made LESS elastic in meat_market (cuts x0.8, luxury x0.3): premium buyers "
              "are less price-sensitive (Lusk & Tonsor 2016: demand more inelastic at high price)."),
-    "cult_sub_mult": Input(3.0, "x", "[assumed] SUBSTITUTABILITY / closeness parameter: how much MORE "
-        "own-price-elastic cultivated is than meat-as-a-category, because conventional is a near-perfect "
-        "substitute for it (same tissue). The measured -0.9 is the elasticity of MEAT (no close "
-        "substitute, hence inelastic); cultivated's own price bites harder because buyers switch to "
-        "conventional.",
-        lo=2.0, hi=4.0, mode=3.0,
-        note="THE model's least data-disciplined lever (no cultivated cross-price data exists; PB "
-             "cross-price elasticities are ~0/contested, but cultivated is closer). It is the FLAT-MNL "
-             "counterpart of the retired nest's lambda (lam_meat=0.5 => ~2x) and a reduced-form stand-in "
-             "for a random coefficient on real_tissue (correlated taste for conventional & cultivated). "
-             "The OTHER factor of the own-price-elasticity target eps_x = eps_own*cult_sub_mult, so it "
-             "moves the DERIVED beta directly; held at 3 centrally, its leverage is shown in self-check [6]."),
-    "loss_aversion": Input(1.0, "utils", "[behavioural] REFERENCE-DEPENDENT loss aversion "
-        "(Tversky-Kahneman; Hardie, Johnson & Fader 1993): consumers anchor on the conventional price. "
-        "The term is TWO-SIDED around that reference — a product priced ABOVE it is penalised, one priced "
-        "BELOW it is rewarded — but STEEPER on the loss side by the canonical 2.25x ratio (losses loom "
-        "~2.25x larger than gains): V_loss_j = -loss_aversion*max(0, price_ratio_j - 1) "
-        "+ (loss_aversion/2.25)*max(0, 1 - price_ratio_j). Applied UNIFORMLY to every product (plant-based "
-        "at 1.77x and cultivated at R), not a cultivated-only cliff.",
-        lo=0.0, hi=2.5, mode=1.0,
-        note="all options share the same functional form (no cultivated-only parity cliff). "
-             "0 = pure smooth logit; higher = stronger reference dependence. The 2.25 "
-             "loss/gain asymmetry is the Tversky-Kahneman (1992) median, not a free parameter. Judgement."),
+    "cult_sub_mult": Input(4.0, "x", "[assumed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED meat "
+        "is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "
+        "buyers, versus 0.9% for meat-in-general. WHY > 1: the measured -0.9 is the elasticity of the meat "
+        "CATEGORY, which is inelastic precisely because the category has no close substitute; but a single "
+        "cultivated product DOES have a near-perfect substitute right next to it (conventional meat, the SAME "
+        "tissue), so its OWN price matters far more -- a price cut wins buyers fast, a price rise loses them to "
+        "conventional. kappa therefore sets HOW STEEPLY cultivated's share falls as it gets pricier than "
+        "conventional (above parity); it does NOT change the at-parity share (where prices are equal).",
+        lo=3.0, hi=6.0, mode=4.0,
+        note="THE model's least data-disciplined lever (no cultivated cross-price data exists). EMPIRICAL "
+             "ANCHOR: a single product's own-price elasticity is typically ~3-5x its category's (the standard "
+             "brand-vs-category gap); cultivated is a CLOSER substitute to conventional than typical brands are "
+             "to each other (same tissue), so the upper half is apt -> central 4 (realized cultivated elasticity "
+             "eps_x = eps_own*kappa = -0.9*4 = -3.6), range 3-6. It is the flat-MNL stand-in for a real_tissue "
+             "random coefficient (equivalently a nested-logit dissimilarity parameter). CALIBRATION CHECK: at "
+             "kappa=3 an attribute-identical product priced 2.4x conventional still keeps ~13% share (optimistic); "
+             "kappa=4 -> ~8%, kappa=5 -> ~5%. The OTHER factor of the target eps_x = eps_own*cult_sub_mult, so it "
+             "moves the DERIVED beta directly; swept lo-hi in self-check [6]."),
+    "loss_aversion": Input(2.25, "ratio", "[Tversky-Kahneman 1992] LOSS-AVERSION COEFFICIENT lambda, in the "
+        "CANONICAL form: consumers anchor on the conventional price; a DISCOUNT (priced below it) is rewarded "
+        "at the natural UNIT rate (+1), and a PREMIUM (priced above it) is penalised at -lambda. So "
+        "V_loss_j = -lambda*max(0, price_ratio_j - 1) + 1*max(0, 1 - price_ratio_j), and lambda IS the "
+        "loss/gain asymmetry: lambda>=1, with the literature median ~2.25 (losses loom ~2.25x larger than "
+        "equal-sized gains). Applied UNIFORMLY to every product (plant-based at 1.77x and cultivated at R), "
+        "not a cultivated-only cliff.",
+        lo=1.0, hi=4.0, mode=2.25,
+        note="DEFAULT 2.25 IS THE SOURCED Tversky-Kahneman (1992) median, not a free knob — lambda is now "
+             "literally the loss-aversion coefficient (earlier the 2.25 lived in the denominator and lambda "
+             "was a separate magnitude; this canonical form makes lambda=the constant). lambda=1 = symmetric "
+             "(no loss aversion, a smooth kink); range 1-4 spans the empirical spread. Its slope feeds the "
+             "beta calibration (so it shapes the parity KINK, not the elasticity level)."),
 
     # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
     #     Cultivated's standing vs conventional is TWO interpretable scenario dials,
@@ -209,6 +217,48 @@ REGISTRY: dict[str, Input] = {
         lo=0.6, hi=1.0, mode=1.0,
         note="The taste-FRICTION half of cultivated's standing. In the MNL the utility offset is "
              "q_taste*(accept_x-1) utils, weighted by the shared taste coefficient q_taste."),
+    "premium_resistance": Input(1.0, "x", "[assumed] JUDGEMENT DIAL scaling how much premium/cut meat "
+        "resists cultivated, relative to everyday mince. It multiplies BOTH per-tier demand levers in "
+        "meat_market together (they encode one belief): the authenticity offset tau_type "
+        "(basic +0.2, cut -0.4, premium -1.5 utils) AND the deviation of the elasticity multiplier from 1 "
+        "(cut 0.8, premium 0.3). At 1.0 = the central ladder; 0 = no tier effect (cultivated penetrates "
+        "premium as easily as mince); 2 = doubly resistant premium.",
+        lo=0.5, hi=1.5, mode=1.0,
+        note="The model's most JUDGEMENT-TO-TARGET demand assumption: the tier offsets have NO external "
+             "data source — they were chosen so premium stays demand-capped even at a deep price discount "
+             "(the 'sweet spot is mid-cuts' result). Exposed and SWEPT (prior 0.5-1.5) so that judgement's "
+             "leverage is visible rather than hidden. Scales (tau_type) and (eps_mult - 1) about their "
+             "neutral points, so resistance=0 removes the tier effect entirely."),
+    "real_tissue_x": Input(1.0, "0/1", "[IDENTIFYING PREMISE, now a DIAL] whether CULTIVATED meat counts as "
+        "'real animal tissue' (1) or not (0). =1 is the model's load-bearing premise: cultivated, being "
+        "actual cells, INHERITS conventional meat's real-tissue standing and so escapes the plant-based "
+        "'not real meat' penalty — the structural reason it can succeed where plant-based stalled. Exposed "
+        "as a 0/1 dial (default 1) so a SKEPTIC can set it to 0 ('consumers won't credit lab-grown as real "
+        "meat') and watch cultivated collapse toward the plant-based outcome. Weighted by w_realtissue_M "
+        "(mainstream) in V_x.",
+        note="The single most important ASSUMPTION in the model, deliberately made adjustable rather than "
+             "hardwired. At 1 cultivated > plant-based at parity (the headline ordering); at 0 cultivated "
+             "becomes a second plant-based product. NOT swept in the MC (it is a scenario axis, like the "
+             "acceptance dials), but a primary what-if."),
+    "real_tissue_p": Input(0.0, "0/1", "[product position] whether PLANT-BASED meat counts as 'real animal "
+        "tissue' (1) or not (0). =0 by definition (plant-based is not animal tissue) — this is the penalty "
+        "that, with its price premium and taste deficit, keeps plant-based meat at ~1.2%. Exposed for "
+        "SYMMETRY with real_tissue_x (equal footing): set it to 1 to ask the counterfactual 'what if "
+        "consumers treated plant-based as equivalent to real meat?' (it would rise sharply). Default 0.",
+        note="Plant-based gets the SAME machinery as cultivated; the only a-priori difference between the "
+             "two novel meats is this attribute (and price/taste, which are observed). Equal footing means "
+             "the asymmetry is a visible DIAL, not a hidden constant."),
+    "neophobia_p0": Input(-1.0, "utils", "[behavioural] plant-based meat's INITIAL (cold-start) novelty "
+        "attitude — the analogue of neophobia_x0 for cultivated. Plant-based is already MATURE (~1.2%), so "
+        "its observed position is the calibration target and this cold-start is mostly HISTORICAL / "
+        "exploratory: it sets where plant-based's own diffusion curve STARTED. Crucially, plant-based's "
+        "novelty never fully faded into success because it never reached sensory parity (the taste deficit "
+        "a_p<1 is permanent) — so in the timing chart plant-based is the STALLED counterfactual to "
+        "cultivated. Default -1.0; fades toward the long-run neophobia_p (default 0) at accept_rate.",
+        lo=-2.0, hi=0.5, mode=-1.0,
+        note="Mirrors neophobia_x0 so plant-based has the SAME timing apparatus. PB's stall in the chart is "
+             "driven by its permanent taste deficit (a_p) + price premium (R_p), not by novelty — novelty "
+             "fades for both; taste does not. Exploratory (PB is calibrated to its mature share)."),
 
     # === Rung 3, REBUILT: two-segment, FOUR-product latent-class MNL ==========
     # Demand is an explicit discrete choice over FOUR products by TWO segments:
@@ -323,41 +373,72 @@ REGISTRY: dict[str, Input] = {
         note="this, not a smaller w_eth, is why a 5% ethical core yields only ~0.1pp of PB: the cheap "
              "whole-food outside option (beans/tofu) absorbs most ethical eaters. Diffusion ruled out (PB "
              "is mature/declining). Mainstream uses the separate, weaker K_wholefood_M."),
-    "neophobia_E": Input(-1.0, "utils", "[neophobia] cultivated's FOOD-NEOPHOBIA penalty at LAUNCH in the "
-        "ethical segment — smaller than the mainstream's (the ethically-motivated are more willing to try a "
-        "novel slaughter-free food). Like neophobia_M it is a launch transient that FADES TO ZERO with "
-        "cumulative exposure, so there is NO long-run ethical 'standing' knob."),
-
-    # cultivated FOOD-NEOPHOBIA at LAUNCH (mainstream). This is the ONE cultivated-
-    # specific behavioural parameter, and a NAMED, theory-grounded one — food
-    # neophobia, the reluctance to eat a NOVEL food (Pliner & Hobden 1992, the Food
-    # Neophobia Scale) — NOT a generic "standing" catch-all. Its defining property is
-    # that it FADES TO ZERO with cumulative exposure (the mere-exposure effect), so it
-    # is a launch-time TRANSIENT carried by the timing rung (adoption_timing), never a
-    # free long-run knob. The PERMANENT at-parity standing is carried entirely by the
-    # interpretable attributes accept_x (sensory parity — physically attainable, being
-    # real tissue) and theta_free_M (cleaner-meat upside). There is no xi_x dial.
-    "neophobia_M": Input(-2.0, "utils", "[neophobia] cultivated's FOOD-NEOPHOBIA penalty at LAUNCH in the "
-        "mainstream — the novelty / 'is it safe, is it natural' wariness of an unfamiliar food (Pliner & "
-        "Hobden 1992). A launch transient: FADES TO ZERO with cumulative exposure (mere-exposure effect), at "
-        "the rate accept_rate. With accept_x it captures the plant-based lesson: exposure cures the NOVELTY "
-        "penalty (this term), but a TASTE deficit (accept_x<1) is permanent and does not fade."),
+    # === FOOD NEOPHOBIA — an adjustable +/- attitude to a NOVEL food, on BOTH non-
+    #     conventional meats. SIGN CONVENTION: the value is a UTILITY OFFSET in utils,
+    #     NEGATIVE = neophobia (the novel product is shunned, a penalty), POSITIVE =
+    #     neophilia (novelty is a draw, a bonus), 0 = neutral. Named & theory-grounded
+    #     (Pliner & Hobden 1992, the Food Neophobia Scale) — NOT a generic cultivated-only
+    #     "standing" catch-all: it applies SYMMETRICALLY to plant-based AND cultivated, the
+    #     two novel meats (conventional & whole-food beans are familiar -> 0). Default 0 =
+    #     neutral, so it does not move the central headline; it is an exploration dial.
+    "neophobia_x": Input(0.0, "utils", "[behavioural] CULTIVATED's long-run NOVELTY attitude (utility offset): "
+        "NEGATIVE = food neophobia (wary of a novel/unfamiliar food — a penalty), POSITIVE = neophilia (drawn "
+        "to the new — a bonus), 0 = neutral (treated like conventional on novelty). Adjustable +/-. This is the "
+        "PERMANENT (long-run) part — where novelty attitude LANDS after the product is familiar; the INITIAL "
+        "cold-start value neophobia_x0 fades toward THIS with exposure.",
+        lo=-2.0, hi=1.0, mode=0.0,
+        note="Default 0 is neutral and non-load-bearing. Dial NEGATIVE if a residual 'lab-grown is unnatural' "
+             "aversion persists even after the product is familiar (distinct from a TASTE deficit, which is "
+             "accept_x); POSITIVE if novelty / cleaner-tech is itself a draw. An exploration dial alongside "
+             "accept_x and theta_free_M (Gate 2); held at 0 centrally."),
+    "neophobia_p": Input(0.0, "utils", "[behavioural] PLANT-BASED's NOVELTY attitude (utility offset; same sign "
+        "convention as neophobia_x: - = neophobia, + = neophilia). An EXPLORATORY override applied after "
+        "calibration (like a_p, R_p): default 0 keeps PB at its calibrated ~1.2%; move it to ask 'what if PB "
+        "faced more/less novelty resistance?'. PB's residual processed-food / 'fake meat' resistance is already "
+        "baked into the calibrated w_realtissue_M, so this term is a DEVIATION from that, not a double-count.",
+        lo=-2.0, hi=1.0, mode=0.0,
+        note="Lets plant-based be explored as a first-class product (with a_p, R_p). Default 0 = the observed, "
+             "calibrated position; it is not in the headline band."),
+    "neophobia_x0": Input(-2.8, "utils", "[DATA-ANCHORED] cultivated's INITIAL (cold-start, today) novelty "
+        "attitude — the value of neophobia_x at the launch of diffusion (t=0), before any familiarity builds. "
+        "It FADES with cumulative exposure (mere-exposure effect) at rate accept_rate, relaxing toward the "
+        "long-run neophobia_x. DEFAULT -2.8 is anchored to data: at price+taste parity (R=1, accept_x=1) it "
+        "reproduces cultivated's observed COLD at-parity share of ~5% (Van Loo, Caputo & Lusk 2020, US "
+        "choice experiment: lab-grown 5% at price parity with beef). The RANGE [-3.5, +1.5] spans the full "
+        "survey FRAMING band: -3.5 -> ~3% (coldest), -2.8 -> ~5% (Lusk choice exp), 0 -> ~47% (neutral), "
+        "+1.5 -> ~78% (Perdue 2024 'cultivated chicken in a restaurant' warm framing ~60%). The legacy "
+        "'launch wariness' is now DERIVED = neophobia_x0 - neophobia_x (the transient part that fades).",
+        lo=-3.5, hi=1.5, mode=-2.8,
+        note="Replaces the old neophobia_launch (which was the delta x0 - x_long); setting the two ENDPOINTS "
+             "(initial x0, final neophobia_x) directly is more intuitive than setting the delta. Cold-start "
+             "default -2.8 = 'today's unfamiliar consumer'; it sets the START of the diffusion S-curve, not "
+             "the equilibrium (which is neophobia_x). With accept_x it captures the plant-based lesson: "
+             "exposure cures the NOVELTY penalty (this fades), but a TASTE deficit (accept_x<1) is permanent. "
+             "SWEPT in the Monte Carlo so the 5-60% framing uncertainty enters the band."),
 
     # --- Rung 4: timing -----------------------------------------------------
     "p_innov": Input(0.02, "1/yr", "[literature] Bass innovation coeff.; near the cross-study "
-        "norm (~0.03 avg in Bass-model meta-analyses) — independent adopters"),
+        "norm (~0.03 avg in Bass-model meta-analyses) — independent adopters",
+        lo=0.005, hi=0.05, mode=0.02,
+        note="Bass meta-analyses (Sultan/Farley/Lehmann 1990; Van den Bulte 2002) center p~0.01-0.03; "
+             "range spans slow (0.005) to fast (0.05) early uptake."),
     "q_imit": Input(0.40, "1/yr", "[literature] Bass imitation coeff.; near the cross-study "
-        "norm (~0.38 avg) — word-of-mouth/contagion"),
+        "norm (~0.38 avg) — word-of-mouth/contagion",
+        lo=0.20, hi=0.60, mode=0.40,
+        note="Bass meta-analytic norm q~0.3-0.5; range 0.20-0.60 spans weak to strong contagion."),
     # NOTE: there is deliberately NO long-run cultivated "standing" input. Neophobia
     # (neophobia_M/E) fades to ZERO with exposure, and the PERMANENT at-parity standing
     # is the interpretable pair accept_x (sensory parity) + theta_free_M (cleaner-meat
     # upside) — the headline at-parity scenario axis (see RESULTS Gate 2). Removing the
     # old xi_x_floor_M dial is the "no symmetry-breaking garbage collector" fix.
-    "accept_rate": Input(0.15, "1/exposure", "[assumed] how fast LAUNCH NEOPHOBIA (neophobia_M/E) decays "
-        "toward ZERO per unit cumulative AVAILABILITY (rollout F, not the small consumed share)",
-        note="UNGROUNDED: sets WHEN neophobia fades, not the long-run ceiling (which accept_x / theta_free_M "
-             "set). ~0.15 gives ~90% of the neophobia gone over the 30-yr horizon. (Driving it by consumed "
-             "share would never ignite once shares are realistically ~1%.)"),
+    "accept_rate": Input(0.15, "1/exposure", "[assumed] how fast the INITIAL neophobia (neophobia_x0) decays "
+        "toward the long-run neophobia_x, per unit cumulative AVAILABILITY (rollout F, not the small consumed "
+        "share)",
+        lo=0.05, hi=0.50, mode=0.15,
+        note="UNGROUNDED (sets WHEN novelty fades, not the long-run ceiling — that is neophobia_x / accept_x / "
+             "theta_free_M). ~0.15 -> ~90% faded by yr~23; range 0.05 (novelty barely resolves within 30yr) to "
+             "0.50 (fast, ~90% by yr~13). Driving it by consumed share would never ignite once shares are "
+             "realistically ~1%, hence availability (F). SWEPT in the MC (time-to-stabilize uncertainty)."),
     "milestone_year_breakthrough": Input(10, "year", "[assumed] year a scale-up / cheaper-media "
         "breakthrough lands, stepping R down (Rung 4 cost-path coupling)",
         lo=5, hi=20, mode=10,

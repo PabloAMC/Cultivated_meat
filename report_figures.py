@@ -30,8 +30,8 @@ import matplotlib.pyplot as plt
 
 from common import setup_style, _save
 from cost_model import CostParams, fig_cost_vs_inputs, fig_cost_waterfall
-from market_share import DemandParams, fig_share_vs_ratio
-from adoption_timing import TimingParams, fig_cost_paths
+from market_share import DemandParams, fig_share_vs_ratio, fig_pb_milk_vs_meat
+from adoption_timing import TimingParams, fig_cost_paths, fig_neophobia_time
 from sensitivity import fig_tornado_share
 from meat_market import fig_penetration, monte_carlo as pen_mc
 
@@ -80,7 +80,9 @@ def main():
     fig_cost_waterfall(CostParams(), args.outdir, fmts)       # 2 the cost waterfall
     fig_tornado_share("commodity", args.outdir, fmts)         # 3 levers on the final share
     fig_share_vs_ratio(DemandParams(), args.outdir, fmts)     # 4 the willingness-to-pay demand curve
+    fig_pb_milk_vs_meat(DemandParams(), args.outdir, fmts)    # 4b PB-milk vs PB-meat (same machinery)
     fig_cost_paths(DemandParams(), TimingParams(), args.outdir, fmts)  # 5 cost->penetration over time
+    fig_neophobia_time(args.outdir, fmts)                              # 5b timing: where it lands & how long
     for region, _ in REGIONS:                                 # 6-9 by type of meat
         fig_penetration(region, 0.0, args.outdir, fmts)
     fig_regional_band(args.n, args.outdir, fmts)              # 10 regional totals band
