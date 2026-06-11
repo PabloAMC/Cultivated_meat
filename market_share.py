@@ -122,7 +122,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior
+from inputs import value, prior, LOSS_AVERSION_RATIO
 from cost_model import (
     CostParams, biomass_cost, cost_floor, ratio as cost_ratio,
 )
@@ -131,12 +131,10 @@ from cost_model import (
 # product order used throughout: whole-food, conventional, plant-based, cultivated
 PRODUCTS = ("w", "c", "p", "x")
 
-# Loss-aversion asymmetry: how much more a premium (price ABOVE the conventional
-# reference) hurts than an equal discount (price BELOW it) helps. The canonical
-# Tversky-Kahneman (1992) median estimate is lambda ~ 2.25 (losses loom ~2.25x
-# larger than gains). The reference-dependent term is two-sided (it rewards
-# discounts AND penalises premiums), but STEEPER on the loss side by this ratio.
-LOSS_AVERSION_RATIO = 2.25
+# LOSS_AVERSION_RATIO (Tversky-Kahneman 1992 median ~2.25) lives in inputs.py (the datasheet);
+# imported above and re-exported here so build_interactive can read it from market_share as
+# before. The LIVE loss-aversion coefficient is the `loss_aversion` slider (canonical form,
+# lambda IS the coefficient); this constant is just the literature anchor for the methods text.
 
 
 # ----------------------------------------------------------------------------

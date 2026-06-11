@@ -503,6 +503,27 @@ PASITKA_CONFIGS: dict[str, float] = {
     "perfusion 20 m^3 (2x25,000 L; scale-up WINS)":  7.9,   # total ~$22/kg
 }
 
+# ----------------------------------------------------------------------------
+# Demand-model tier ladder & scaffold (model constants, not sliders).
+# These are scaled live by the `premium_resistance` slider in meat_market; they are
+# defined HERE so the datasheet is the single source of truth (meat_market and
+# market_share read them rather than redefining), and so the methods text can quote
+# the same numbers it documents. NOT swept individually (premium_resistance sweeps
+# the whole ladder); judgement-to-target, no external per-tier data exists.
+# ----------------------------------------------------------------------------
+SCAF: float = 6.0            # scaffold cost $/kg for a STRUCTURED cut (ASSUMED; no published TEA)
+PREMIUM_RATIO: float = 2.5   # a structured product priced >= this x its species' base form is "premium"
+AUTH_BASIC: float = +0.2     # per-tier authenticity offset (utils): everyday staple — cleaner-meat pull, no hang-up
+AUTH_CUT: float = -0.4       #   cut (steak/fillet): some "want the real cut" attachment
+AUTH_PREMIUM: float = -1.5   #   luxury (wagyu/sushi): strong authenticity, weak welfare pull
+EPS_MULT_CUT: float = 0.8    # per-tier elasticity multiplier: cuts a bit less price-sensitive
+EPS_MULT_PREMIUM: float = 0.3  #   premium buyers barely price-sensitive -> caps premium share
+
+# Loss-aversion asymmetry constant (Tversky-Kahneman 1992 median ~2.25). The LIVE loss-aversion
+# coefficient is the `loss_aversion` slider (canonical form, lambda IS the coefficient); this
+# constant is the literature anchor surfaced for the methods text / interactive `const`.
+LOSS_AVERSION_RATIO: float = 2.25
+
 
 # ----------------------------------------------------------------------------
 # Accessors

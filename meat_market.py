@@ -65,11 +65,10 @@ class MeatType:
     cost_mult: float = 1.0  # cultivated biomass-cost multiplier (HOOK; default 1.0, no firm data)
 
 
-SCAF = 6.0          # scaffold cost $/kg for a STRUCTURED cut. ASSUMED: no published TEA
-#                     covers scaffolding/structuring cost (Humbird 2021, CE Delft 2021 and
-#                     Risner 2021 all stop at unstructured slurry). The material side is
-#                     qualitatively guided by Gu et al. 2025 (a scaffolds review with NO cost
-#                     figure); the process side is ungrounded. Treat $6/kg as a judgement, not data.
+# SCAF: scaffold cost $/kg for a STRUCTURED cut. ASSUMED — no published TEA covers
+# scaffolding/structuring cost (Humbird 2021, CE Delft 2021 and Risner 2021 all stop at
+# unstructured slurry); material side qualitatively guided by Gu et al. 2025 (no cost figure),
+# process side ungrounded. Treat $6/kg as a judgement, not data. Defined in inputs.py (datasheet).
 
 # --- The PRICE-TIER demand model (the key insight) --------------------------
 # Authenticity and price-sensitivity are NOT uniform across the meat spectrum; they
@@ -94,17 +93,14 @@ SCAF = 6.0          # scaffold cost $/kg for a STRUCTURED cut. ASSUMED: no publi
 # ultra-premium: cultivated is cheapest exactly where authentic-experience demand
 # resists most. (The old nested logit produced this cap structurally; here it is the
 # two premium dials.)
-AUTH_BASIC   = +0.2   # everyday staple: cleaner-meat/welfare pull, no authenticity issue
-AUTH_CUT     = -0.4   # cut (steak/fillet): authenticity attachment ("want the real cut")
-AUTH_PREMIUM = -1.5   # luxury indulgence (wagyu/sushi): strong authenticity, weak welfare pull
-EPS_MULT_CUT     = 0.8    # cuts a bit less price-sensitive
-EPS_MULT_PREMIUM = 0.3    # premium buyers barely price-sensitive ("price barely matters") -> caps it
-# "Premium" is now defined PER SPECIES by a within-species price ratio: a structured
-# product priced >= PREMIUM_RATIO x its own species' everyday (cheapest) form is
-# "premium". So every species can have a premium (wagyu beef, sushi seafood,
-# organic chicken, ...), and the tier is relative to each animal rather than a single
-# absolute $/kg line that only seafood crossed.
-PREMIUM_RATIO    = 2.5
+# The tier ladder (AUTH_* authenticity offsets in utils, EPS_MULT_* elasticity multipliers)
+# and PREMIUM_RATIO, SCAF live in inputs.py (the datasheet) — imported below so the numbers
+# exist in exactly one place. AUTH_BASIC=+0.2, AUTH_CUT=-0.4, AUTH_PREMIUM=-1.5;
+# EPS_MULT_CUT=0.8, EPS_MULT_PREMIUM=0.3. "Premium" is defined PER SPECIES by a within-species
+# price ratio: a structured product priced >= PREMIUM_RATIO x its own species' everyday
+# (cheapest) form is "premium", so every species can have one (wagyu beef, sushi seafood, ...).
+from inputs import (SCAF, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
+                    EPS_MULT_CUT, EPS_MULT_PREMIUM)
 
 
 def species_bases(market) -> dict:
