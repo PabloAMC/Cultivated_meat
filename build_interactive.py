@@ -337,7 +337,7 @@ def build_model() -> dict:
                "the at-parity share). The single biggest above-parity lever: at R_x=2.4, κ=3 keeps ~{{KAPPA_3}}%, "
                "κ=4 ~{{KAPPA_4}}%, κ=5 ~{{KAPPA_5}}%. Default 4 (realised ε≈−3.6); range 3–6 from the empirical "
                "~3–5× own-brand-vs-category gap. Pure judgement — no cultivated cross-price data exists."),
-        slider("income", "Country income (<i>y</i>, GDP/cap PPP)", "$/yr", 5000, 500000, 1000, value("income_ref"),
+        slider("income", "Country income (<i>y</i>, GDP/cap PPP)", "$/yr", 5000, 5000000, 1000, value("income_ref"),
                "World Bank", tip="Average income, which sets price-sensitivity via the Berry-Levinsohn-Pakes term "
                "α·ln(income − price): richer = less price-sensitive. Auto-set by the region selector (US $86k … "
                "Nigeria $6.4k) but free to drag — and the range runs far past today's richest country for a "
