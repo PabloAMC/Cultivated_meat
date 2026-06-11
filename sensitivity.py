@@ -35,7 +35,6 @@ from __future__ import annotations
 
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save

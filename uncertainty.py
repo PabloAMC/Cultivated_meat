@@ -43,7 +43,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import prior, AA_FLOOR
+from inputs import prior
 from cost_model import CostParams, media_cost
 from market_share import DemandParams, share
 
@@ -107,13 +107,6 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
     cost = (media_cost(CostParams(), media_price, efficiency)
             + overhead + scaffold_frac * material_price + process_cost)
     return (cost + markup_add) / p_conv
-
-
-def cost_from_R_inputs(media_price, efficiency, overhead,
-                       scaffold_frac=0.0, material_price=0.0, process_cost=0.0):
-    """Biomass (+scaffold) cost $/kg behind R_from_inputs — for reporting only."""
-    return (media_cost(CostParams(), media_price, efficiency)
-            + overhead + scaffold_frac * material_price + process_cost)
 
 
 def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:

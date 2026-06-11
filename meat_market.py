@@ -51,8 +51,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior, AA_FLOOR
-from cost_model import CostParams, biomass_cost, cost_floor, media_cost
+from inputs import value, prior
+from cost_model import CostParams, cost_floor, media_cost
 from market_share import DemandParams, share
 
 

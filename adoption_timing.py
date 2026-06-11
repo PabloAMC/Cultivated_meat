@@ -201,10 +201,6 @@ def simulate_path(path, dp: DemandParams, tp: TimingParams,
     return _run(lambda k: R_at(path, k), dp, tp, acceptance_grows)
 
 
-def y30(R, dp, tp, **kw):
-    return simulate(R, dp, tp, **kw)["share"][-1] * 100
-
-
 def _time_to_stabilize(series, frac=0.9):
     """First year the realized share reaches `frac` of its final (year-30) value.
     If the final value is ~0, returns the horizon."""
