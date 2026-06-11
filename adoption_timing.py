@@ -18,9 +18,10 @@ conflates them into one:
     an unfamiliar food (Pliner & Hobden 1992) -- and it is not permanent. As people are
     exposed to cultivated meat -- see it normalised, see others eat it -- it fades (the
     mere-exposure effect). This RAISES THE CEILING ITSELF (more people buy at a given
-    price). We model the launch neophobia `neophobia_0` decaying toward ZERO as
-    cumulative exposure grows -- there is NO free long-run "standing" floor; the
-    permanent ceiling is set by the interpretable attributes accept_x + theta_free_M.
+    price). We model the launch neophobia `neophobia_x0` decaying toward the LONG-RUN
+    level `neophobia_x` (the slider, default 0) as cumulative exposure grows -- there is
+    NO free long-run "standing" floor beyond that named dial; the permanent ceiling is set
+    by the interpretable attributes accept_x + theta_free_M (and the long-run neophobia_x).
 
 They are COUPLED: neophobia fades *because of* exposure, exposure happens *because of*
 rollout. The gate: if SENSORY PARITY fails, neophobia does NOT fade (familiarity cures

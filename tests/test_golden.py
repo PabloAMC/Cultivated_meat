@@ -103,6 +103,59 @@ def check_golden() -> list:
     return fails
 
 
+def check_illustrative_numbers_in_html() -> list:
+    """Guard against PROSE DRIFT: the methodology + slider tooltips quote illustrative shares
+    ("at parity 0.8 -> ~27%", "kappa=3 keeps ~14%"). build_interactive computes those from the
+    live model and substitutes them via {{TOKEN}} placeholders, so they can never go stale —
+    UNLESS someone hand-types a literal number again (the exact failure the health-attribute
+    refactor once caused). This test enforces the invariant on THREE fronts:
+
+      (1) every {{TOKEN}} the template uses has a value in illustrative_numbers() (no typos);
+      (2) every value in illustrative_numbers() is actually USED by a {{TOKEN}} in the template
+          (no dead/forgotten computed numbers);
+      (3) the GENERATED interactive.html has no surviving {{...}} placeholder and every computed
+          value is present.
+
+    Checking the TEMPLATE (PAGE_HTML + JS_ENGINE), not just the output, is what makes this
+    catch a re-introduced hand-typed number: a stale literal would not be a {{TOKEN}}, so the
+    way to keep prose honest is to ensure illustrative shares are ONLY ever placeholders."""
+    import json
+    import re
+    import build_interactive as bi
+    fails = []
+    nums = bi.illustrative_numbers()                     # {"{{TOKEN}}": "NN"}
+    # The pre-substitution template is exactly what main() assembles: page markup + JS engine +
+    # the MODEL_JSON blob (the slider TOOLTIPS — where several illustrative numbers live — are in
+    # build_model()'s output, not in PAGE_HTML/JS_ENGINE). Reconstruct it the same way so the
+    # token scan sees every placeholder, wherever it lives.
+    template = (bi.PAGE_HTML + bi.JS_ENGINE).replace("__MODEL_JSON__", json.dumps(bi.build_model()))
+    used = set(re.findall(r"\{\{[A-Z0-9_]+\}\}", template))
+    have = set(nums.keys())
+    # (1) tokens used in the template but not computed
+    for t in sorted(used - have):
+        fails.append(f"template uses {t} but illustrative_numbers() computes no value for it")
+    # (2) computed numbers never used (dead — a sign a placeholder was hand-edited away)
+    for t in sorted(have - used):
+        fails.append(f"illustrative_numbers() computes {t} but no {{...}} in the template uses it "
+                     f"(was it replaced by a hand-typed number?)")
+    # (3) the generated page is clean and carries the values
+    html_path = os.path.join(MODEL_DIR, "interactive.html")
+    if not os.path.exists(html_path):
+        fails.append(f"{html_path} missing — run `python build_interactive.py` first")
+    else:
+        html = open(html_path, encoding="utf-8").read()
+        stray = sorted(set(re.findall(r"\{\{[A-Z0-9_]+\}\}", html)))
+        if stray:
+            fails.append(f"unsubstituted placeholder(s) survived into interactive.html: {stray}")
+        for token, val in nums.items():
+            if f"{val}%" not in html:
+                fails.append(f"{token}={val}% computed but not present in interactive.html")
+    print(f"illustrative-number drift check: {len(nums)} model-computed values, "
+          f"{len(used)} placeholders in template, "
+          f"{'all consistent' if not fails else f'{len(fails)} problem(s)'}")
+    return fails
+
+
 def test_golden_values():
     """pytest entry point: the headline model outputs match their pinned golden values."""
     fails = check_golden()
@@ -112,13 +165,22 @@ def test_golden_values():
           "in the same commit so the output move is explicit.")
 
 
+def test_illustrative_numbers_not_stale():
+    """pytest entry point: the prose's illustrative numbers match the live model (no drift)."""
+    fails = check_illustrative_numbers_in_html()
+    assert not fails, (
+        "Illustrative-number drift FAILED:\n  " + "\n  ".join(fails)
+        + "\n\nRe-run `python build_interactive.py` to re-substitute the model-computed numbers.")
+
+
 if __name__ == "__main__":
-    failures = check_golden()
+    failures = check_golden() + check_illustrative_numbers_in_html()
     if failures:
-        print(f"\nFAIL — {len(failures)} value(s) moved:")
+        print(f"\nFAIL — {len(failures)} check(s) failed:")
         for f in failures:
             print("  " + f)
-        print("\nIf intentional, update GOLDEN in tests/test_golden.py in the same commit.")
+        print("\nIf a model change is intentional, update GOLDEN (and re-run "
+              "build_interactive.py) in the same commit.")
         sys.exit(1)
-    print("PASS — all headline model outputs match their golden values.")
+    print("PASS — all headline model outputs match golden values and the prose is in sync.")
     sys.exit(0)

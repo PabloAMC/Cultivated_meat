@@ -30,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.dirname(HERE)
@@ -65,13 +66,19 @@ def _run_js() -> dict:
     if not os.path.exists(HTML):
         raise RuntimeError(f"{HTML} missing — run `python build_interactive.py` first")
 
-    model_js = os.path.join(HERE, "_model_extracted.js")
+    # Write to the system temp dir, NOT the (possibly read-only / mounted) test dir — on some
+    # mounted filesystems os.remove of a file under tests/ raises PermissionError, making the
+    # test appear to fail when the model is fine. tempfile + try/except OSError is robust.
+    fd, model_js = tempfile.mkstemp(prefix="_model_extracted_", suffix=".js")
+    os.close(fd)
     open(model_js, "w", encoding="utf-8").write(_extract_model_js(HTML))
     try:
         out = subprocess.run([node, PROBE, model_js], capture_output=True, text=True, timeout=120)
     finally:
-        if os.path.exists(model_js):
+        try:
             os.remove(model_js)
+        except OSError:
+            pass
     if out.returncode != 0:
         raise RuntimeError(f"node probe failed (exit {out.returncode}):\n{out.stderr or out.stdout}")
     data = json.loads(out.stdout.strip().splitlines()[-1])

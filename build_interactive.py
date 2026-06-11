@@ -232,242 +232,176 @@ def build_model() -> dict:
 
     sliders = [
         slider("accept_x", "Cultivated taste-acceptance (a<sub>x</sub>)", "", 0.6, 1.2, 0.05, 1.0,
-               "the dial", tip="The TASTE dial: how the mainstream rates cultivated's SENSORY quality. "
-               "It IS cultivated's taste attribute (taste_x = a_x − 1, 0 = at parity with real meat), "
-               "weighted by the shared taste weight q (=5 utils). 1.0 = tastes & feels exactly like "
-               "conventional (neutral; ~47% share at parity); below 1 = lingering 'lab-grown, not quite "
-               "real' friction (0.8 → ~25%, 0.6 → ~11% at parity); ABOVE 1 = cultivated judged to taste "
-               "BETTER than an average cut (engineered consistency/marbling, no gristle, no contamination "
-               "— a sensory claim, distinct from the slaughter-free upside θ_free), 1.1 → ~59% at parity. "
-               "SOURCE: a judgement dial; the strong-friction end echoes plant-based products displacing "
-               "only a few pp of beef at parity (Peacock 2023). The Monte-Carlo prior stays centred at "
-               "parity (1.0); this point-estimate slider ranges wider to explore the upside."),
+               "the dial", tip="How good cultivated tastes vs real meat (1 = at parity; enters utility as the gap "
+               "a_x−1, weighted by the taste weight q). At parity: 1.0 → ~{{PARITY_NEUTRAL}}% share, 0.8 → ~{{AX_08}}%, "
+               "0.6 → ~{{AX_06}}% (lingering 'not quite real' friction); above 1 = judged tastier than an average "
+               "cut (1.1 → ~{{AX_11}}%). A judgement dial, distinct from the slaughter-free upside θ_free. "
+               "Src: Peacock 2023 (plant-based at parity displaces only a few pp of beef)."),
         slider("theta_free_M", "Mainstream values slaughter-free (θ<sub>free</sub>)", "", 0.0, 1.5, 0.05, 0.0,
-               "the dial", tip="The UPSIDE dial: the mainstream's utility weight on the SLAUGHTER-FREE "
-               "attribute — on equal footing with price, taste and real-tissue. It lifts EVERY no-"
-               "slaughter product (cultivated most, because it also has real-tissue). 0 = indifferent "
-               "(neutral); positive = cultivated gains (0.5 → ~57%, 1.0 → ~67% at parity). SOURCE: a "
-               "judgement dial; ~89% of real plant-based buyers are non-veg/vegan flexitarians (GFI "
-               "2024) — that mainstream pull lives here, not in the 5% ethical core."),
+               "the dial", tip="How much the mainstream (95% of buyers) values 'no animal killed'. Lifts every "
+               "slaughter-free product, cultivated most (it also has real-tissue). At parity: 0 = indifferent "
+               "(default), 0.5 → ~{{TH_05}}%, 1.0 → ~{{TH_10}}%. A judgement dial — the ~89%-flexitarian plant-based "
+               "buyer base (GFI 2024) suggests this pull is real but modest in the mainstream, not in the 5% "
+               "ethical core."),
         slider("real_tissue_x", "Cultivated real-meat credit (b<sub>x</sub>)", "0→1", 0.0, 1.0, 0.05,
-               value("real_tissue_x"), "PREMISE→dial", tip="THE MODEL'S CENTRAL PREMISE, made a continuous "
-               "dial: the DEGREE to which consumers credit cultivated as REAL animal tissue (read it as the "
-               "fraction who accept it as real meat). 1 = fully credited (it is actual cells), so it inherits "
-               "conventional meat's standing and ESCAPES the plant-based 'not real meat' penalty — the "
-               "structural reason it can win where plant-based stalled. Slide DOWN toward 0 for the SKEPTIC's "
-               "view ('lab-grown won't be accepted as real meat'): cultivated collapses smoothly toward the "
-               "plant-based outcome (1.0→~47%, 0.75→~34%, 0.5→~24%, 0.25→~16%, 0→~10% at parity). Weighted by "
-               "the mainstream real-tissue weight. Default 1; a scenario axis, not swept in the band."),
+               value("real_tissue_x"), "PREMISE→dial", tip="The model's central premise as a dial: how far "
+               "consumers credit cultivated as REAL animal tissue. At 1 (default) it inherits conventional meat's "
+               "standing and escapes the 'not real meat' penalty that caps plant-based — the structural reason it "
+               "can win where plant-based stalled. Slide down for the skeptic's view; cultivated collapses toward "
+               "the plant-based outcome (parity: 1.0→~{{BX_10}}%, 0.75→~{{BX_075}}%, 0.5→~{{BX_05}}%, 0.25→~{{BX_025}}%, "
+               "0→~{{BX_00}}%). A scenario axis (not swept in the band)."),
         slider("real_tissue_p", "Plant-based real-meat credit (b<sub>p</sub>)", "0→1", 0.0, 1.0, 0.05,
-               value("real_tissue_p"), "0 by def.", tip="For EQUAL FOOTING with cultivated: the degree to "
-               "which plant-based is credited as real animal tissue. 0 by definition (it isn't tissue) — this "
-               "penalty, with its price premium and taste deficit, is why PB meat sits at ~1.2%. Exposed so "
-               "you can ask the counterfactual: slide UP toward 1 ('what if consumers treated plant-based as "
-               "equivalent to real meat?') and PB rises smoothly (~1% → ~9% at its current price). Default 0; "
-               "the ONLY a-priori difference between the two novel meats is this attribute."),
+               value("real_tissue_p"), "0 by def.", tip="The same dial for plant-based, for equal footing. 0 by "
+               "definition (it isn't tissue) — this penalty, plus its price premium and taste deficit, is why PB "
+               "meat sits at ~1.2%. The counterfactual: slide up to 1 ('what if PB were treated as real meat?') "
+               "and PB rises to ~{{BP_1_PB}}% at its current price. This one attribute is the ONLY a-priori "
+               "difference the model assumes between the two novel meats."),
         slider("health_x", "Cultivated health perception (ζ<sub>x</sub>)", "utils", -1.0, 1.0, 0.05, 0.0,
-               "scenario", tip="HEALTH PERCEPTION of cultivated meat, in utils added straight to its utility — "
-               "on EQUAL FOOTING with the plant-based health dial below. POSITIVE = perceived HEALTHIER (a draw: "
-               "'clean, no antibiotics, no faecal contamination, controlled fat'); NEGATIVE = perceived LESS "
-               "healthy (an aversion: 'lab-grown, unnatural, ultra-processed'); 0 = neutral (conventional is the "
-               "reference). DEFAULT 0, because the evidence is genuinely two-sided and there is NO point estimate "
-               "— surveys find both a cleaner-meat draw and an unnatural-tech aversion that roughly cancel with "
-               "wide spread. So this is a SCENARIO dial (like novelty ν and authenticity τ), not a measured "
-               "effect: it does NOT move the calibrated headline at 0, and it never re-pins the calibration. "
-               "Distinct from taste (a_x, sensory) and slaughter-free (θ, ethics). At parity each +0.5 util is "
-               "roughly a +10pp swing. SWEPT (±0.5) in the MC band."),
+               "scenario", tip="How healthy cultivated is PERCEIVED to be, in utils (positive = a draw: 'clean, "
+               "no antibiotics, controlled fat'; negative = an aversion: 'lab-grown, ultra-processed'; 0 = "
+               "neutral). At parity each +0.5 util ≈ +10pp. Default 0 and deliberately unidentified — surveys "
+               "find a draw and an aversion that roughly cancel — so it's a scenario dial that never re-pins the "
+               "calibration. A third axis, separate from taste (a_x) and ethics (θ). Swept ±0.5 in the band."),
         slider("health_p", "Plant-based health perception (ζ<sub>p</sub>)", "utils", -1.0, 1.0, 0.05, 0.0,
-               "scenario", tip="HEALTH PERCEPTION of plant-based meat — the SAME dial as ζ_x, for equal footing. "
-               "POSITIVE = perceived healthier (the 'plant-based = good for you' health-halo), NEGATIVE = "
-               "perceived less healthy ('ultra-processed fake meat, long ingredient list' — the backlash that has "
-               "dogged the category). 0 = neutral. DEFAULT 0 and UNIDENTIFIED, like ζ_x: an exploratory override "
-               "from PB's calibrated ~1.2%, not a re-pin. This is the term you'd reach for to ask 'how much of "
-               "plant-based's plateau is a health-perception problem?'. SWEPT (±0.5) in the MC band."),
+               "scenario", tip="The same health dial for plant-based (positive = the 'good-for-you' halo; "
+               "negative = the 'ultra-processed fake meat' backlash; 0 = neutral). Default 0 and unidentified, "
+               "like ζ_x — reach for it to ask how much of plant-based's plateau is a health-perception problem. "
+               "An exploratory override from PB's ~1.2%, swept ±0.5 in the band."),
         slider("neophobia_x", "Cultivated neophobia ↔ neophilia (ν<sub>x</sub>)", "utils", -2.0, 1.0, 0.1,
-               value("neophobia_x"), "behavioural", tip="FOOD NEOPHOBIA, LONG-RUN level: where cultivated's "
-               "novelty attitude LANDS once the product is familiar (Pliner-Hobden 1992). NEGATIVE = a "
-               "residual 'is it natural?' aversion that PERSISTS even after familiarity; POSITIVE = novelty / "
-               "cleaner-tech is a lasting draw; 0 = neutral (treated like conventional). This is the "
-               "EQUILIBRIUM the cold-start ν_x0 fades TOWARD (see the timing chart). Distinct from TASTE "
-               "(a_x): exposure cures novelty fear, a taste deficit is permanent. At parity −1 → ~25%, 0 → "
-               "~47%, +1 → ~70%. SOURCE: behavioural judgement; 0 (neutral) centrally. SWEPT in the MC band."),
+               value("neophobia_x"), "behavioural", tip="Where cultivated's novelty attitude LANDS once it's "
+               "familiar — the long-run level the cold-start ν_x0 fades toward (Pliner-Hobden 1992). Negative = "
+               "a residual 'is it natural?' aversion that survives familiarity; positive = a lasting "
+               "cleaner-tech draw; 0 = neutral (default). Unlike a taste deficit (a_x), novelty fear is curable "
+               "by exposure. At parity: −1 → ~{{NX_NEG1}}%, 0 → ~{{PARITY_NEUTRAL}}%, +1 → ~{{NX_POS1}}%. "
+               "Judgement; swept in the band."),
         slider("neophobia_x0", "Cultivated meat neophobia (ν<sub>x0</sub>)", "utils", -3.5, 1.5, 0.1,
-               value("neophobia_x0"), "Lusk/GFI data", tip="The INITIAL, COLD-START novelty attitude TODAY — "
-               "where the diffusion S-curve BEGINS (t=0), before familiarity builds. It fades toward the "
-               "long-run ν_x with exposure (mere-exposure effect), at rate accept_rate. DATA-ANCHORED: the "
-               "default −2.8 reproduces cultivated's observed ~5% cold at-parity share (Van Loo, Caputo & "
-               "Lusk 2020, US choice experiment). The RANGE spans the full survey FRAMING band, because the "
-               "answer depends enormously on HOW you ask: −3.5 → ~3% (coldest), −2.8 → ~5% (Lusk choice "
-               "experiment), 0 → ~47% (neutral/equivalent), +1.5 → ~78% (Perdue 2024 'cultivated chicken in "
-               "a restaurant' warm framing ~60%). This is the diffusion STARTING point, NOT the equilibrium "
-               "(that's ν_x). It does not move the long-run headline; it sets WHERE the timing curve starts."),
+               value("neophobia_x0"), "Lusk/GFI data", tip="TODAY's cold-start novelty attitude — where the "
+               "adoption curve BEGINS, before familiarity builds (it then fades toward the long-run ν_x at rate "
+               "accept_rate). The default −2.8 reproduces the observed ~5% cold at-parity share (Van Loo, Caputo "
+               "& Lusk 2020). The wide range is the survey FRAMING band — the same product polls anywhere from "
+               "~5% to ~60% by how you ask: −3.5 → ~3%, −2.8 → ~5%, 0 → ~{{NX0_NEUTRAL}}% (neutral), +1.5 → "
+               "~{{NX0_WARM}}% (Perdue 2024 warm restaurant framing). Sets WHERE the timing curve starts, not "
+               "the long-run headline."),
         slider("neophobia_p0", "Plant-based initial neophobia (ν<sub>p0</sub>)", "utils", -2.0, 0.5, 0.1,
-               value("neophobia_p0"), "behavioural", tip="Plant-based meat's INITIAL (cold-start) novelty "
-               "attitude — the analogue of ν_x0, for EQUAL FOOTING. Plant-based is already mature (~1.2%), so "
-               "this is mostly historical/exploratory: it sets where PB's OWN diffusion curve started (the "
-               "green line on the timing chart). The point of the comparison: novelty fades for BOTH novel "
-               "meats, but plant-based STALLS anyway because its taste deficit (a_p<1) and price premium "
-               "(R_p) cap its ceiling — a permanent gap that exposure cannot cure. Cultivated's bet is that, "
-               "being real tissue, it can reach the sensory + price parity plant-based never did. Default -1.0."),
+               value("neophobia_p0"), "behavioural", tip="Plant-based's cold-start novelty — the analogue of "
+               "ν_x0, for equal footing. PB is already mature (~1.2%), so this is mostly historical: it sets "
+               "where the green line on the timing chart starts. The point of showing it: novelty fades for both "
+               "novel meats, yet plant-based STALLS anyway, because its taste deficit (a_p<1) and price premium "
+               "(R_p) cap its ceiling — a gap exposure can't cure. Default −1.0."),
         slider("accept_rate", "Novelty-fade speed (accept_rate)", "1/exp", 0.05, 0.50, 0.01,
-               value("accept_rate"), "assumed", tip="How FAST the initial cold-start neophobia (ν_x0) fades "
-               "toward the long-run ν_x, per unit cumulative AVAILABILITY (shelf presence, not the small "
-               "consumed share — people grow familiar with a product they keep seeing). Sets WHEN adoption "
-               "stabilises, NOT where it lands. 0.15 (default) → ~90% faded by year ~23; 0.05 → novelty "
-               "barely resolves within 30 yr; 0.50 → fast (~90% by year ~13). NO transferable point estimate "
-               "exists, so it is a slider and is swept in the timing band — but the DEFAULT is anchored to the "
-               "precedent that RADICAL new foods diffuse over many years to decades, not a few: Bass-type "
-               "studies of novel foods (e.g. edible insects, House 2016; van Huis; the modified-Bass insect "
-               "model, Dagevos 2020) find awareness/familiarity building over decades. ~0.15 puts the bulk of "
-               "the fade across a ~20-yr horizon, matching that 'slow radical-food adoption' precedent."),
+               value("accept_rate"), "assumed", tip="How FAST cold-start neophobia fades toward its long-run "
+               "level, per unit of cumulative shelf AVAILABILITY (people grow familiar with what they keep "
+               "seeing, even before buying). Sets WHEN adoption stabilises, not where it lands: 0.15 (default) → "
+               "~90% faded by ~yr 23; 0.05 → barely resolves in 30 yr; 0.50 → ~yr 13. No transferable estimate "
+               "exists, so it's swept in the band; the default matches the slow, decades-long diffusion seen for "
+               "radical new foods (edible insects — House 2016, Dagevos 2020)."),
         slider("p_innov", "Bass innovation (p)", "1/yr", 0.005, 0.05, 0.005,
-               value("p_innov"), "Bass lit.", tip="Bass diffusion INNOVATION coefficient — the rate of "
-               "independent (non-word-of-mouth) early adopters. Sets how fast the rollout S-curve ignites. "
-               "0.02 default is near the cross-study Bass norm (~0.01-0.03; Sultan/Farley/Lehmann 1990). "
-               "Together with q it sets the diffusion speed (the timing chart), not the ceiling."),
+               value("p_innov"), "Bass lit.", tip="Bass-diffusion rate of independent early adopters — how fast "
+               "the rollout S-curve ignites. With q it sets diffusion SPEED (the timing chart), not the ceiling. "
+               "Default 0.02 is near the cross-study Bass norm (~0.01–0.03; Sultan/Farley/Lehmann 1990)."),
         slider("q_imit", "Bass imitation (q)", "1/yr", 0.20, 0.60, 0.05,
-               value("q_imit"), "Bass lit.", tip="Bass diffusion IMITATION coefficient — word-of-mouth / "
-               "contagion, the rate at which existing users pull in new ones. 0.40 default is near the "
-               "Bass meta-analytic norm (~0.3-0.5). High q = a sharp S-curve once it catches; with p it "
-               "sets WHEN adoption happens, not the long-run ceiling (which the acceptance dials set)."),
+               value("q_imit"), "Bass lit.", tip="Bass-diffusion word-of-mouth rate — how fast existing users "
+               "pull in new ones. High q = a sharp S-curve once it catches. With p it sets WHEN adoption happens, "
+               "not the long-run ceiling. Default 0.40 is near the Bass meta-analytic norm (~0.3–0.5)."),
         slider("a_p", "Plant-based taste-acceptance (a<sub>p</sub>)", "", 0.4, 1.1, 0.05,
-               round(1 + value("taste_quality_p"), 2), "NECTAR", tip="Plant-based meat's SENSORY quality, "
-               "on the same 1=real-meat scale as a_x: 1 = tastes as good as conventional, below 1 = a "
-               "deficit, weighted by the shared taste weight q. Default 0.8 reflects the category averaging "
-               "BELOW parity — NECTAR 2025 found only ~16% of plant-based products reach blind taste parity. "
-               "Slide it up toward 1 to ask 'what if plant-based tasted like the real thing?'. This is an "
-               "EXPLORATORY override: the calibration is pinned at the observed position, then this moves "
-               "plant-based's share (it does not re-pin). SOURCE: NECTAR Taste of the Industry 2025."),
+               round(1 + value("taste_quality_p"), 2), "NECTAR", tip="How good plant-based tastes vs real meat, "
+               "on the same 1=parity scale as a_x. Default 0.8: the category averages below parity — NECTAR 2025 "
+               "found only ~16% of products reach blind taste parity. Slide toward 1 to ask 'what if PB tasted "
+               "like the real thing?'. An exploratory override (moves PB's share without re-pinning the "
+               "~1.2% calibration)."),
         slider("R_p", "Plant-based price (R<sub>p</sub>)", "x", 0.2, 3.0, 0.05,
-               value("price_pb_mult"), "GFI/NIQ", tip="Plant-based meat's retail price as a multiple of "
-               "conventional — the analogue of cultivated's R. Default 1.77× = GFI/NIQ's measured +77% "
-               "premium (it has WIDENED, not narrowed). Drag toward 1.0 for 'what if plant-based hit price "
-               "parity?', or BELOW 1 (down to 0.2×) for a subsidised / commodity-cheap plant-based future "
-               "— there it earns the reference-dependent discount reward, same as any product priced under "
-               "conventional. Like a_p, an exploratory override applied after calibration, so it moves "
-               "plant-based's share rather than re-pinning it. SOURCE: GFI/NIQ retail data 2024."),
+               value("price_pb_mult"), "GFI/NIQ", tip="Plant-based's retail price as a multiple of conventional "
+               "— the plant-based analogue of cultivated's R<sub>x</sub>. Default 1.77× = GFI/NIQ's measured +77% "
+               "premium (it has widened, not narrowed). Drag to 1.0 for 'what if PB hit price parity?', or below "
+               "1 for a subsidised/commodity-cheap PB (which then earns the same discount reward any cheap "
+               "product gets). An exploratory override applied after calibration."),
         slider("neophobia_p", "Plant-based neophobia ↔ neophilia (ν<sub>p</sub>)", "utils", -2.0, 1.0, 0.1,
-               value("neophobia_p"), "behavioural", tip="The SAME novelty-attitude dial as ν_x, but for "
-               "PLANT-BASED meat: NEGATIVE = neophobia (penalty), POSITIVE = neophilia (bonus), 0 = neutral. "
-               "Plant-based's real residual 'processed / fake-meat' resistance is already baked into the "
-               "calibration, so this is an EXPLORATORY deviation from its observed ~1.2% (like a_p, R_p) — "
-               "move it to ask 'what if plant-based faced more/less novelty resistance?'. SOURCE: a "
-               "behavioural judgement dial; default 0."),
+               value("neophobia_p"), "behavioural", tip="The same long-run novelty dial as ν_x, for plant-based "
+               "(negative = neophobia, positive = neophilia, 0 = neutral default). PB's real 'processed/fake-meat' "
+               "resistance is already baked into the calibration, so this is an exploratory deviation from its "
+               "~1.2% — move it to ask 'what if PB faced more/less novelty resistance?'."),
         slider("loss_aversion", "Loss-aversion coefficient (λ)", "ratio", 1.0, 4.0, 0.05, value("loss_aversion"),
-               "Tversky-Kahneman", tip="REFERENCE-DEPENDENT loss aversion (Tversky-Kahneman 1992), in its "
-               "CANONICAL form: consumers anchor on the conventional price; a DISCOUNT (priced below it) is "
-               "rewarded at the natural UNIT rate, and a PREMIUM (priced above it) is penalised at −λ. So λ "
-               "IS the loss-aversion coefficient — how many times worse an equal-sized loss feels than a gain. "
-               "DEFAULT 2.25 is the SOURCED literature median (Tversky-Kahneman 1992, robustly replicated), not "
-               "a free knob; λ=1 = symmetric (no loss aversion, a smooth kink), range 1–4 spans the empirical "
-               "spread. Applied uniformly to plant-based (1.77×) AND cultivated (R_x) alike — no cultivated-only "
-               "cliff. Its slope feeds the β calibration, so λ shapes the parity KINK (how sharply share falls "
-               "as cultivated crosses above conventional's price), not the elasticity level. At R=2.4: λ=1 → "
-               "~34%, λ=2.25 → ~8%, λ=4 → ~1%. SOURCE: Tversky & Kahneman, J. Risk & Uncertainty 5:297 (1992)."),
+               "Tversky-Kahneman", tip="How much worse paying ABOVE the familiar conventional price feels than "
+               "the equal gain of paying below it (reference-dependent loss aversion). A discount is rewarded at "
+               "the unit rate; a premium is penalised at −λ. Default 2.25 is the Tversky-Kahneman literature "
+               "median (λ=1 = symmetric, no loss aversion). Applied to plant-based and cultivated alike. Because "
+               "the β calibration absorbs its slope, λ only shapes the KINK at parity, not the overall "
+               "price-sensitivity level — so the headline barely moves over most of the range (at R_x=2.4: λ=1 → "
+               "~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%; only λ=4 bites → ~{{LAMBDA_4}}%). Src: Tversky & "
+               "Kahneman 1992."),
         slider("cult_sub_mult", "Cultivated ↔ conventional closeness (κ)", "x", 3.0, 6.0, 0.5,
-               value("cult_sub_mult"), "assumed", tip="SUBSTITUTABILITY: how many times MORE own-price-elastic "
-               "cultivated is than meat as a CATEGORY. A 1% rise in cultivated's price loses κ×0.9% of its "
-               "buyers. WHY >1: the measured ε≈−0.9 is the elasticity of the meat CATEGORY (inelastic — no "
-               "close substitute), but a single cultivated product DOES have a near-perfect substitute next to "
-               "it (conventional, same tissue), so its own price bites ~κ× harder. It sets how STEEPLY share "
-               "falls ABOVE parity; it does NOT change the at-parity share. ANCHOR: own-brand elasticities are "
-               "empirically ~3–5× the category's, and cultivated is a closer substitute than typical brands, so "
-               "centre 4 (realized −3.6), range 3–6. The biggest above-parity demand lever (self-check [6]): at "
-               "κ=3 an identical product at 2.4× price keeps ~13%, κ=4 ~8%, κ=5 ~5%. SOURCE: judgement, "
-               "brand-elasticity-anchored; no cultivated cross-price data exists."),
+               value("cult_sub_mult"), "assumed", tip="How many times more price-sensitive a single cultivated "
+               "product is than meat as a category. WHY >1: the measured ε≈−0.9 is the category's (inelastic — no "
+               "close substitute), but cultivated has a near-perfect substitute right beside it (conventional, "
+               "same tissue), so its OWN price bites ~κ× harder. Sets how steeply share falls ABOVE parity (not "
+               "the at-parity share). The single biggest above-parity lever: at R_x=2.4, κ=3 keeps ~{{KAPPA_3}}%, "
+               "κ=4 ~{{KAPPA_4}}%, κ=5 ~{{KAPPA_5}}%. Default 4 (realised ε≈−3.6); range 3–6 from the empirical "
+               "~3–5× own-brand-vs-category gap. Pure judgement — no cultivated cross-price data exists."),
         slider("income", "Country income (<i>y</i>, GDP/cap PPP)", "$/yr", 5000, 500000, 1000, value("income_ref"),
-               "World Bank", tip="Average income, which sets price-SENSITIVITY through the Berry-"
-               "Levinsohn-Pakes price term α·ln(income − price): richer consumers are LESS price-sensitive "
-               "(a dollar matters less). Auto-set by the region selector (US $86k … Nigeria $6.4k) but "
-               "free to drag. Lowering it makes cultivated's premium bite far harder — why cultivated is "
-               "hardest in low-income regions (cheap meat AND price-sensitive). The range runs far past "
-               "today's richest country so you can explore a high-growth / AGI future where incomes rise "
-               "several-fold and price-sensitivity collapses. SOURCE: World Bank GDP/cap PPP 2023-24; the "
-               "rich→poor gradient is damped to the empirical ~2-3× (Muhammad/ERS 2011)."),
+               "World Bank", tip="Average income, which sets price-sensitivity via the Berry-Levinsohn-Pakes term "
+               "α·ln(income − price): richer = less price-sensitive. Auto-set by the region selector (US $86k … "
+               "Nigeria $6.4k) but free to drag — and the range runs far past today's richest country for a "
+               "high-growth future. The gradient is damped to the empirical ~2–3× rich→poor (Muhammad/ERS 2011), "
+               "so income is a second-order lever at today's prices; it bites hardest where the premium is large "
+               "AND the buyer is poor (cheap local meat + high price-sensitivity) — why low-income regions are "
+               "the hard case. Src: World Bank GDP/cap PPP 2023-24."),
         slider("w_eth", "Ethical (veg+vegan) population (w<sub>eth</sub>)", "", 0.04, 0.10, 0.01, value("w_eth"),
-               "Gallup", tip="Size of the ETHICAL segment (values slaughter-free, mostly eats whole foods). "
-               "5% = US vegetarian (4%) + vegan (1%), Gallup 2023. The rest is the mainstream. Plant-based "
-               "lands at ~1% (not ~5%) because the cheap whole-food outside option absorbs most ethical "
-               "eaters — changing w_eth re-solves the calibration to keep plant-based at its observed share. "
-               "SOURCE: Gallup 2023."),
+               "Gallup", tip="Size of the ethical segment (values slaughter-free, mostly eats whole foods). "
+               "Default 5% = US vegetarian (4%) + vegan (1%), Gallup 2023; the rest is the mainstream. Plant-based "
+               "lands at ~1% (not ~5%) because cheap whole foods absorb most ethical eaters — moving this "
+               "re-solves the calibration to keep PB at its observed share. Src: Gallup 2023."),
         slider("overhead", "Reactor scale / overhead (<i>h</i>)", "$/kg", 6.0, 24.7, 0.1, 9.9, "Pasitka",
-               tip="Non-medium cost of running the plant (capital, labour, consumables, utilities) "
-               "per kg, set by reactor scale. $9.9 = Pasitka's demonstrated TFF config (total "
-               "~$24/kg); ~$7.9 = large-scale perfusion (scale-up wins); ~$24.7 = many small ATF "
-               "vessels (scale-up stalls, ~$39/kg). The biggest cost lever and least demonstrated. "
-               "SOURCE: Pasitka et al., Nature Food 5, 693-702 (2024), Fig. 4 (three reactor "
-               "configs); the physical reason scale-up is hard (CO2/O2 transfer, shear, sterility) "
-               "is Humbird, Biotechnol. Bioeng. 118, 3239-3250 (2021)."),
+               tip="Cost of running the plant (capital, labour, utilities, consumables) per kg, set by reactor "
+               "scale — the biggest cost lever and the least demonstrated. $9.9 (default) = Pasitka's TFF config "
+               "(total ~$24/kg); ~$7.9 = large-scale perfusion (scale-up wins); ~$24.7 = many small ATF vessels "
+               "(scale-up stalls, ~$39/kg). Src: Pasitka et al. 2024, Fig. 4; the physics of why scale-up is hard "
+               "(CO₂/O₂ transfer, shear, sterility) is Humbird 2021."),
         slider("media_price", "Medium price (<i>p</i><sub>med</sub>)", "$/L", 0.10, 0.63, 0.01, value("media_price"),
-               "Pasitka/GFI", tip="Cost of the cell-culture medium. $0.63/L = Pasitka's measured "
-               "animal-free medium (peer-reviewed; albumin removal cut it from $3.31->$0.63/L); "
-               "$0.20/L = several companies' 2025 self-reported claims (not independently verified). "
-               "The stoichiometric floor is ~$0.07/L (= the $1.5/kg feedstock floor f divided by the "
-               "22.4 L/kg media intensity): a litre can't cost less than the amino acids dissolved in it. "
-               "This slider stops at $0.10/L (a round bound just above that floor); the floor itself "
-               "binds inside the cost equation. SOURCE: $0.63 from Pasitka et al. "
-               "2024; the $0.20 claim and its caveats from GFI's State of the Industry (2025) and "
-               "Specht's 'Analyzing cell-culture medium costs' (GFI white paper, 2021)."),
+               "Pasitka/GFI", tip="Price of the liquid the cells feed on. $0.63/L (default) = Pasitka's measured "
+               "animal-free medium (peer-reviewed; albumin removal cut it from $3.31); $0.20/L = several "
+               "companies' 2025 self-reported claims (unverified). A hard floor of ~$0.07/L sits inside the cost "
+               "equation — a litre can't cost less than the amino acids dissolved in it (the $1.5/kg feedstock "
+               "floor ÷ 22.4 L/kg intensity); this slider just stops at a round $0.10. Src: Pasitka et al. 2024; "
+               "GFI State of the Industry 2025."),
         slider("meat_tax", "Meat price (tax mult. <i>t</i>)", "x", 0.8, 1.6, 0.05, 1.0, "policy",
-               tip="A multiplier on every conventional-meat price - e.g. a meat tax or a carbon "
-               "price passed through to meat. Raising it lowers the price ratio (cultivated becomes "
-               "relatively cheaper) and is about as powerful a lever as a major cost cut. 1.0 = "
-               "today's prices. SOURCE: a policy lever, not a forecast - it scales every observed "
-               "retail price (below) by the same factor, so it does NOT change the species mix."),
+               tip="A policy multiplier on every conventional-meat price — e.g. a meat tax or a carbon price "
+               "passed through. Raising it lowers cultivated's price ratio (it becomes relatively cheaper), about "
+               "as powerful as a major cost cut. 1.0 = today's prices. It scales all retail prices by the same "
+               "factor, so it doesn't reshuffle the species mix."),
         slider("efficiency", "Cell media-efficiency (η)", "x", 0.25, 1.0, 0.05, value("efficiency"),
-               "Pasitka/CHO", tip="Medium used per kg of biomass, relative to Pasitka's cells "
-               "(1.0). 0.25 = 'CHO-grade' metabolism (4x less medium) - a different, "
-               "not-yet-demonstrated cell line. This is where cell DENSITY / metabolic efficiency "
-               "enters: both act through how much medium a kg of meat consumes. SOURCE: Pasitka et "
-               "al. 2024 (their cells, the 1.0 anchor); the 4x headroom vs CHO is a cell-line "
-               "assumption, not demonstrated for food cells."),
+               "Pasitka/CHO", tip="Medium consumed per kg of biomass, relative to Pasitka's cells (1.0, default). "
+               "0.25 = 'CHO-grade' metabolism (4× leaner) — a different, not-yet-demonstrated food cell line. This "
+               "is the channel cell density / metabolic efficiency act through. Src: Pasitka et al. 2024 (the 1.0 "
+               "anchor); the 4× headroom is a cell-line assumption, not demonstrated for food cells."),
         slider("eps_own", "Price elasticity of demand (ε)", "", -1.4, -0.5, 0.05, value("eps_own"),
-               "scanner", tip="How sharply demand responds to price. -1.0 means a 1% price rise "
-               "loses ~1% of buyers. Default -0.9 is the mid-range of published meat own-price "
-               "elasticities — the elasticity of MEAT (inelastic, no close substitute). Cultivated's "
-               "OWN price bites harder still — set by the separate closeness slider κ — because a "
-               "near-perfect substitute (conventional) exists. Premium tiers are made LESS price-sensitive "
-               "automatically (cuts x0.8, luxury "
-               "x0.3) - someone splurging on sushi barely flinches at price, which is why premium "
-               "clears parity on price yet still wins limited share. SOURCE: Andreyeva, Long "
-               "& Brownell, Am. J. Public Health 100:216 (2010) meta-analysis - beef -0.75, pork "
-               "-0.72, poultry -0.68; Gallet 2010/2012 meta-analyses span -0.7..-1.0; Lusk & Tonsor "
-               "2016 (demand more inelastic at higher prices -> the premium multipliers)."),
+               "scanner", tip="How sharply MEAT demand responds to price (−1.0 = a 1% price rise loses ~1% of "
+               "buyers). Default −0.9 is the mid-range of published meat own-price elasticities — inelastic, "
+               "because the category has no close substitute. Cultivated's own price bites harder still (set by "
+               "the closeness κ). Premium tiers are made less price-sensitive automatically (cut ×0.8, luxury "
+               "×0.3), so they clear parity on price yet win limited share. Src: Andreyeva et al. 2010 (beef "
+               "−0.75, pork −0.72, poultry −0.68); Gallet meta-analyses span −0.7..−1.0."),
         slider("markup_add", "Retail markup (<i>m</i>, additive, assumed)", "$/kg", 2.0, 7.0, 0.1,
-               value("markup_add"), "USDA spread", tip="Biomass->retail wedge (processing, cold "
-               "chain, retail margin). We ASSUME it is a fixed $/kg amount, NOT a percentage, so it "
-               "does not shrink as biomass gets cheaper; with the meat price it sets the parity "
-               "threshold (parity needs biomass <= price - markup). The MAGNITUDE is anchored to "
-               "conventional meat's farm-to-retail spread (USDA ERS: ground-beef processing+retail very "
-               "roughly $3-6/kg). The floor is $2 (below conventional's ~$4) because cultivated SKIPS "
-               "slaughter / evisceration / carcass breakdown — a real chunk of that wedge — so its retail "
-               "markup can sit slightly below conventional's; $5 is the typical case. At the $2 floor, "
-               "parity becomes reachable in the optimistic cost corner. A modelling choice (additive, not "
-               "%) and one of the model's most leveraged numbers, so slide it."),
+               value("markup_add"), "USDA spread", tip="The biomass→retail wedge (processing, cold chain, "
+               "margin), added as a fixed $/kg — NOT a percentage, so it doesn't shrink as biomass gets cheaper. "
+               "With the meat price it sets the parity threshold (parity needs biomass ≤ price − markup), making "
+               "it one of the most leveraged numbers in the model. Default $5 ≈ conventional meat's farm-to-retail "
+               "spread (USDA ERS ~$3–6/kg); the $2 floor reflects that cultivated skips slaughter/carcass "
+               "breakdown. Whether it's truly additive (vs %) is a modelling choice, so slide it."),
         slider("scaffold", "Scaffold cost (<i>k</i>, structured cuts)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
-               "assumed", tip="Extra $/kg to turn unstructured biomass into a structured cut "
-               "(scaffold material + structuring bioprocess). Applies only to cut/fillet/premium "
-               "products, not mince. The least-grounded number in the model. SOURCE: NO published "
-               "techno-economic analysis covers scaffolding cost - Humbird 2021, CE Delft 2021 and "
-               "Risner et al. 2021 all stop at unstructured cell slurry. No source gives a $/kg "
-               "figure; the $6/kg here is our assumption, treat it as a guess and slide it - set it "
-               "to 0 if structuring turns out cheap or negligible."),
+               "assumed", tip="Extra $/kg to turn unstructured biomass into a structured cut (scaffold material + "
+               "structuring bioprocess); applies to cuts/fillets/premium, not mince. The least-grounded number in "
+               "the model — NO published TEA covers it (Humbird 2021, CE Delft 2021, Risner 2021 all stop at "
+               "unstructured slurry). Treat the $6 default as a guess; set it to 0 if structuring turns out cheap."),
         slider("premium_resistance", "Premium meat resistance (ρ)", "x", 0.0, 2.0, 0.1,
                value("premium_resistance"), "judgement-to-target",
-               tip="How strongly PREMIUM and CUT meat resist cultivated, vs everyday mince. It scales "
-               "BOTH per-tier demand levers together (they encode one belief - premium meat is bought "
-               "for the authentic experience, so it resists substitutes AND barely responds to price): "
-               "the authenticity offset (basic +0.2, cut -0.4, premium -1.5 utils) and the elasticity "
-               "multiplier (cut x0.8, premium x0.3). 1.0 = the central ladder; 0 = NO tier effect "
-               "(cultivated penetrates wagyu as easily as mince); 2 = doubly resistant premium. This is "
-               "the model's MOST judgement-to-target demand input: the tier values have NO external data "
-               "source - they were chosen so premium stays demand-capped even at a deep price discount "
-               "(the 'sweet spot is mid-cuts, not ultra-premium' result). It is exposed AND swept in the "
-               "Monte Carlo (prior 0.5-1.5) so its leverage is visible, not hidden. At low resistance the "
-               "premium/luxury bars rise and the mid-cut advantage shrinks; drag it to test how much the "
-               "headline depends on this assumption. SOURCE: judgement, anchored to the plant-based "
-               "lesson (premium authenticity resisted meat substitutes); Lusk & Tonsor 2016 for premium "
-               "price-inelasticity."),
+               tip="How strongly premium and cut meat resist cultivated, vs everyday mince. It scales BOTH "
+               "per-tier levers together (one belief: premium meat is bought for the authentic experience, so it "
+               "resists substitutes AND barely flinches at price) — the authenticity offset (basic +0.2 / cut "
+               "−0.4 / premium −1.5 utils) and the elasticity multiplier (cut ×0.8 / premium ×0.3). 1.0 (default) "
+               "= the central ladder; 0 = no tier effect (cultivated penetrates wagyu like mince); 2 = doubly "
+               "resistant. This is the model's MOST judgement-to-target input — the tier values have no external "
+               "source; they produce the 'sweet spot is mid-cuts' result — so it's swept in the band (0.5–1.5). "
+               "Drag it to test how much the headline leans on this assumption."),
     ]
 
     # income uses a LOG scale (the $5k–$500k range spans 2 orders of magnitude)
@@ -527,7 +461,72 @@ def crosscheck(model: dict) -> None:
           f"share@parity(neutral)={s0*100:.1f}%")
 
 
-HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+# ---------------------------------------------------------------------------
+# Illustrative numbers, COMPUTED FROM THE MODEL at build time.
+# The methodology prose and the slider tooltips quote example shares ("at parity
+# 0.8 -> ~27%", "kappa=3 keeps ~14%", ...). Hand-typing those invites DRIFT: a
+# recalibration (e.g. the health-attribute refactor that lifted every at-parity
+# figure ~2-3pp) silently leaves the prose stale and self-contradictory. So we
+# compute every illustrative figure here, from the SAME model the page runs, and
+# substitute it into the prose via {{TOKEN}} placeholders. Change a coefficient and
+# the prose updates itself; the placeholders can never go out of sync.
+# ---------------------------------------------------------------------------
+def illustrative_numbers() -> dict:
+    """Return {TOKEN: "NN"} for every illustrative share quoted in the prose/tooltips.
+    Each is rounded to a whole percent, matching how the prose reads ("~50%")."""
+    from market_share import DemandParams, share
+    from cost_model import CostParams, biomass_cost, ratio as cost_ratio
+
+    cp = CostParams()
+    R_today = cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)     # today's basic R (~2.42)
+    base = DemandParams()                                     # central calibration
+
+    def pc(x):                                                # share% as a rounded whole number
+        return f"{round(x * 100)}"
+
+    def at_parity(**kw):                                      # cultivated share at R=1, central calib
+        return share(1.0, base, **kw)
+
+    def resolved(R, **dp_kwargs):                             # re-solve calibration, then share at R
+        return share(R, DemandParams(**dp_kwargs), accept_x=1.0, theta_free_M=0.0)
+
+    N = {
+        # at-parity baseline (neutral dials) — the most-quoted figure
+        "PARITY_NEUTRAL": pc(at_parity(accept_x=1.0, theta_free_M=0.0)),
+        # taste-acceptance ladder (a_x), at parity
+        "AX_06": pc(at_parity(accept_x=0.6, theta_free_M=0.0)),
+        "AX_08": pc(at_parity(accept_x=0.8, theta_free_M=0.0)),
+        "AX_11": pc(at_parity(accept_x=1.1, theta_free_M=0.0)),
+        # slaughter-free upside ladder (theta_free_M), at parity
+        "TH_05": pc(at_parity(accept_x=1.0, theta_free_M=0.5)),
+        "TH_10": pc(at_parity(accept_x=1.0, theta_free_M=1.0)),
+        # long-run novelty ladder (neophobia_x), at parity
+        "NX_NEG1": pc(at_parity(accept_x=1.0, theta_free_M=0.0, neophobia_x=-1.0)),
+        "NX_POS1": pc(at_parity(accept_x=1.0, theta_free_M=0.0, neophobia_x=1.0)),
+        # real-meat-credit ladder (b_x), at parity (re-instantiates, but b_x is stable in the solve)
+        "BX_10": pc(share(1.0, DemandParams(real_tissue_x=1.00), accept_x=1.0, theta_free_M=0.0)),
+        "BX_075": pc(share(1.0, DemandParams(real_tissue_x=0.75), accept_x=1.0, theta_free_M=0.0)),
+        "BX_05": pc(share(1.0, DemandParams(real_tissue_x=0.50), accept_x=1.0, theta_free_M=0.0)),
+        "BX_025": pc(share(1.0, DemandParams(real_tissue_x=0.25), accept_x=1.0, theta_free_M=0.0)),
+        "BX_00": pc(share(1.0, DemandParams(real_tissue_x=0.00), accept_x=1.0, theta_free_M=0.0)),
+        # nu_x0 framing band (static-share proxy at that novelty level), at parity
+        "NX0_NEUTRAL": pc(at_parity(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0)),
+        "NX0_WARM": pc(at_parity(accept_x=1.0, theta_free_M=0.0, neophobia_x=1.5)),
+        # plant-based with b_p=1 (credited as real meat) at ITS current price — the equal-footing what-if
+        "BP_1_PB": pc(share(1.0, DemandParams(real_tissue_p=1.0), cultivated_present=False, which="pb")),
+        # closeness (kappa) ladder, re-solved, at TODAY's R (the above-parity lever)
+        "KAPPA_3": pc(resolved(R_today, cult_sub_mult=3.0)),
+        "KAPPA_4": pc(resolved(R_today, cult_sub_mult=4.0)),
+        "KAPPA_5": pc(resolved(R_today, cult_sub_mult=5.0)),
+        # loss-aversion (lambda) ladder, re-solved, at TODAY's R (shows lambda barely moves the level)
+        "LAMBDA_1": pc(resolved(R_today, loss_aversion=1.0)),
+        "LAMBDA_225": pc(resolved(R_today, loss_aversion=2.25)),
+        "LAMBDA_4": pc(resolved(R_today, loss_aversion=4.0)),
+    }
+    return {f"{{{{{k}}}}}": v for k, v in N.items()}
+
+
+PAGE_HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cultivated meat — interactive explorer</title>
 <style>
@@ -563,7 +562,8 @@ select{width:100%;padding:5px;border:1px solid var(--rule);border-radius:6px;fon
 .btn{margin-top:6px;width:100%;padding:7px;border:1px solid var(--rule);background:#fff;
  border-radius:6px;cursor:pointer;font-size:.82rem;}
 .btn:hover{background:#f2f2f2;}
-.heads{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.heads{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+@media(max-width:560px){.heads{grid-template-columns:repeat(2,1fr);}}
 .head{border:1px solid var(--rule);border-radius:10px;padding:11px 13px;text-align:center;}
 .head .big{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;}
 .head .lab{font-size:.72rem;color:var(--muted);margin-top:3px;}
@@ -617,6 +617,17 @@ text{font-family:Georgia,serif;}
 .methods .attr td{text-align:center;padding:3px 10px;border-bottom:1px solid #f0f0f0;}
 .methods .attr td:first-child,.methods .attr th:first-child{text-align:left;white-space:nowrap;}
 .methods mjx-container{overflow-x:auto;overflow-y:hidden;}
+/* the plain-language on-ramp at the top of the methods (newcomer-first big picture) */
+.methods .intro{background:#f4f8fb;border:1px solid #cfe0ec;border-left:3px solid var(--accent);
+ border-radius:8px;padding:12px 16px;margin:6px 0 14px;}
+.methods .intro p{font-size:.9rem;margin:0 0 8px;} .methods .intro p:last-child{margin-bottom:0;}
+.methods .intro ol{font-size:.9rem;margin:6px 0 8px;padding-left:22px;} .methods .intro li{margin-bottom:5px;}
+/* "for the skeptical reader" asides — the referee-objection rebuttals, set apart from the main read
+   so the narrative flows and the defences are there when wanted */
+.methods .aside{background:#fafaf8;border:1px solid var(--rule);border-left:3px solid #bbb;
+ border-radius:6px;padding:8px 12px;margin:8px 0;font-size:.82rem;color:#444;}
+.methods .aside .ah{font-weight:700;color:#555;font-family:Georgia,serif;
+ text-transform:none;letter-spacing:.02em;font-size:.8rem;display:block;margin-bottom:3px;}
 </style>
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -624,8 +635,10 @@ text{font-family:Georgia,serif;}
 <h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build __BUILD_STAMP__</span></h1>
 <p class="lede">Drag the sliders — ordered most-decisive first — to see how the price ratio,
 market share, and per-meat-type penetration respond. These are <b>point estimates</b> at the values
-you choose (not the Monte-Carlo bands). The model and every parameter are described in the
-methods and results notes. Defaults are the neutral / measured values.</p>
+you choose (not the Monte-Carlo bands). The big penetration numbers are the <b>long-run equilibrium
+ceiling</b> (where adoption <i>lands</i> once novelty has faded), <b>not</b> a forecast of today's share —
+the timing chart (§4) shows the path climbing up to it from the cold ~5% start. The model and every
+parameter are described in the methods and results notes. Defaults are the neutral / measured values.</p>
 <div class="grid">
   <div class="rail" id="rail"></div>
   <div>
@@ -640,7 +653,7 @@ methods and results notes. Defaults are the neutral / measured values.</p>
         <p class="sub" id="mcsub"></p><svg id="mc" viewBox="0 0 720 250"></svg></div>
 
       <!-- HEADLINE CHARTS — the two most-used, lead the grid -->
-      <div class="card full"><h3>1 · Penetration by type of meat</h3>
+      <div class="card full"><h3>1 · Penetration by type of meat — cultivated &amp; plant-based</h3>
         <p class="sub" id="barsub"></p><svg id="bars" viewBox="0 0 720 300"></svg></div>
       <div class="card full"><h3>2 · Share of all meat consumed, and the cultivated slice
         <span class="toggle" id="pietog" style="font-weight:400;margin-left:8px;vertical-align:middle"></span></h3>
@@ -648,13 +661,14 @@ methods and results notes. Defaults are the neutral / measured values.</p>
         <svg id="pie" viewBox="0 0 720 330"></svg></div>
 
       <!-- DYNAMICS & DIAGNOSTICS -->
-      <div class="card"><h3>3 · Cost vs the two big inputs</h3>
-        <p class="sub">biomass cost vs medium price; lines = reactor scale; marker = your choice</p>
+      <div class="card"><h3>3 · Cultivated cost vs the two big inputs</h3>
+        <p class="sub">cultivated <b>biomass</b> cost ($/kg) vs medium price; lines = reactor scale; marker = your choice</p>
         <svg id="cost" viewBox="0 0 420 300"></svg></div>
       <div class="card"><h3>4 · Share vs price ratio (all four products)</h3>
-        <p class="sub">how the four shares move as cultivated's price ratio R<sub>x</sub> varies — cultivated (bold)
+        <p class="sub">how the four shares move as <b>cultivated's</b> price ratio R<sub>x</sub> varies — cultivated (bold)
         rises as it gets cheaper, mostly out of conventional; plant-based &amp; whole-food barely move.
-        The dot marks the chosen product's R</p>
+        <b>Blue dot</b> = cultivated at its chosen R<sub>x</sub>; <b>green dot</b> = plant-based at its
+        <i>own</i> price R<sub>p</sub> (≈1.77×, its real operating point).</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
@@ -669,11 +683,40 @@ methods and results notes. Defaults are the neutral / measured values.</p>
     <p class="note">"Penetration" totals are rolled up by <b>volume</b> (weight &rarr; animal impact)
     and by <b>value</b> ($ &rarr; market). Point estimates only — not the Monte-Carlo bands.</p>
     <details class="methods"><summary>Methodology &amp; equations</summary>
-      <p>The model is a chain — <b>biomass cost &rarr; price ratio R<sub>x</sub> &rarr; market share &rarr;
-      penetration</b> — computed per type of meat (cultivated cost is ~constant across species;
-      conventional price ranges ~5&times;, so the answer differs by animal). Everything below is the
-      live JS in this page; it mirrors the Python model line-for-line, and the self-check under the
-      charts reproduces the Python reference numbers.</p>
+
+      <div class="intro">
+        <p><b>The big picture, before the equations.</b> The question this model answers is: <i>if</i>
+        cultivated meat can be made at some cost, what share of the meat market does it win — and how
+        fast? The answer is built in <b>three steps</b>, each a section below.</p>
+        <ol>
+          <li><b>Cost &rarr; price.</b> Add up what a kilogram costs to grow — mostly the liquid the
+          cells feed on, plus the cost of running the factory — add a retail markup, and divide by the
+          price of the ordinary meat it sits next to. Call that ratio <b>\(R_x\)</b>. \(R_x=1\) means
+          "same price as the beef beside it"; \(R_x=2\) means "twice the price." (§1)</li>
+          <li><b>Price &rarr; share.</b> Put cultivated meat on a shelf with three rivals — <b>ordinary
+          meat</b>, <b>plant-based meat</b>, and the option to <b>skip meat and eat beans</b>. Each
+          shopper weighs price, taste, "no animal was killed," and "is it actually meat?", and picks
+          one. More attractive &rArr; bigger share. <b>The central bet:</b> cultivated meat <i>is</i>
+          real animal tissue, so — unlike a veggie burger — it competes head-to-head with beef and pulls
+          its buyers from <i>beef</i>, not from the plant-based aisle. (§2&ndash;3)</li>
+          <li><b>Share &rarr; over time.</b> That share is the <b>destination</b>, reached once the
+          product is familiar. Today a brand-new food is met coldly (~5% would buy it even at equal
+          price), so the model <i>starts</i> cold and climbs as people grow used to it and it reaches
+          more shelves. (§4)</li>
+        </ol>
+        <p style="margin-bottom:0">Everything else is <i>how</i> each step is done and — the part worth
+        arguing about — <i>how much to trust each number</i>. Numbers that are <b>measured</b> (costs,
+        prices, the plant-based facts we calibrate to) are pinned; numbers that are <b>judgement</b>
+        (how much a near-perfect substitute steepens price-sensitivity; how premium buyers resist) are
+        <b>exposed as sliders and swept in the uncertainty band</b>, never hidden. Drag any slider to
+        see its leverage.</p>
+      </div>
+
+      <p>Formally the model is a <b>chain</b> — <b>biomass cost &rarr; price ratio R<sub>x</sub> &rarr;
+      market share &rarr; penetration</b> — computed per type of meat (cultivated cost is ~constant
+      across species; conventional price ranges ~5&times;, so the answer differs by animal). Everything
+      below is the live JS in this page; it mirrors the Python model line-for-line, and the self-check
+      under the charts reproduces the Python reference numbers.</p>
 
       <h4>1. Cost &rarr; price ratio \(R_x\)</h4>
       <p>The one number that drives everything downstream is cultivated's <b>price ratio</b> \(R_x\) —
@@ -727,17 +770,20 @@ methods and results notes. Defaults are the neutral / measured values.</p>
         <tr><td><b>cultivated</b> meat</td><td>\(R_x\) (from §1)</td><td>\(a_x\) (~1, dial)</td><td>1</td><td>1</td><td>\(\zeta_x\) (0, dial)</td><td>0</td></tr>
         <tr><td><b>whole&#8209;food</b> (beans/tofu)</td><td>~0.25 (cheap)</td><td>~0.3 (not meat)</td><td>1</td><td>0</td><td>0</td><td>\(\xi_w\) (calib.)</td></tr>
       </table>
-      <p style="font-size:.82rem;margin:-2px 0 8px;color:#555">Four core attributes and one intercept — the
-      textbook-minimal logit — plus a default-0 health offset. The intercept \(\xi_j\) is <b>0 for all three
-      meats</b> at baseline, non-zero only for the whole-food outside option (\(\xi_w\), <i>solved</i> from data,
-      not free — see Calibration). So <b>at the central case the demand model has no free fitted constant</b>:
-      every product's position is its four core attributes. Three optional, default-0 scenario terms can be
-      switched on for the non-conventional meats — a <b>novelty</b> dial \(\nu\) (food neophobia, both novel
-      meats), a <b>health-perception</b> dial \(\zeta\) (both novel meats — the \(\zeta_j\) column above), and
-      cultivated's per-meat-type <b>authenticity</b> offset \(\tau_{\rm type}\) (§3, the "want the real cut"
-      resistance) — all spelled out in the glossary below and in §3; none moves the headline parity figure at
-      its default. So cultivated carries no hidden "standing" knob: at baseline \(\xi_x=0\) and \(\zeta_x=0\),
-      and any deviation is a named term you set.</p>
+      <p style="font-size:.82rem;margin:-2px 0 8px;color:#555">Read each row as a product's <b>position</b>:
+      four core attributes (price, taste, slaughter-free, real-tissue) plus a default-0 health offset and a
+      default-0 intercept \(\xi_j\). At baseline the three meats carry <b>no constant at all</b> (\(\xi=0\),
+      \(\zeta=0\)) — only their four attributes — so there is no hidden "standing" dial; the lone non-zero
+      intercept is the whole-food outside option's, and even that is <i>solved</i> from data, not free (see
+      Calibration). Three optional scenario terms (a <b>novelty</b> dial \(\nu\), a <b>health</b> dial
+      \(\zeta\), cultivated's per-tier <b>authenticity</b> offset \(\tau\)) are all <b>0 by default</b> and
+      explained in the glossary below; you switch them on only to explore.</p>
+      <p class="aside"><span class="ah">For the skeptical reader: "so there's literally no fitted constant?"</span>
+      Almost — the old free outside-option intercept was <i>reparameterised</i>, not deleted. It is now a named
+      health <i>attribute</i> at an assumed position \(\zeta_w=+2\) times a <i>solved</i> weight \(w^h\), hitting
+      the same two data moments the intercept used to. That is more honest (the standing is a labelled axis, not
+      a black-box number), but it is one assumed position plus one solved weight — not nothing. Its <i>level</i>
+      washes out (only the product \(w^h\zeta_w\) is identified), exactly as the old intercept's did.</p>
       <p>Whole food is the <b>outside option</b> — "skip meat tonight, eat beans" — and it matters: most
       ethically-motivated people get protein from whole foods, not a veggie burger, which is exactly why
       plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule — no
@@ -745,23 +791,18 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       \[ V_j = \underbrace{\alpha\ln(y-R_j\,p_{\rm conv})}_{\text{price (via income)}}
               \;+\;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\text{reference dependence}}
               \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j \;+\; \xi_j \]
-      <p style="text-align:center;margin:-2px 0 8px;font-size:.86rem">where each symbol is a <b>column of the
-      table above</b>: \(R_j\) price ratio, \(a_j\) taste (1 = real meat, so taste enters as the gap
-      \(a_j-1\)), \(g_j\) slaughter-free flag (0/1), \(b_j\) real-tissue flag (0/1), \(\zeta_j\) the
-      <b>health-perception</b> position weighted by \(w^{h}\), and \(\xi_j\) the per-product scenario
-      constant \(\xi_j=\nu_j+\tau_j\) (novelty + authenticity, both default 0; see below);
-      \(d_j=R_j-1\) is the premium over conventional and \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\).</p>
-      <p><b>The attribute terms all have the same shape</b> — a weight times that product's value of one
-      attribute, read straight from the table — and <b>a 0 in the table is not a special case</b>, just "this
-      product doesn't have that feature". Slaughter-free \(g_j\) is 0 for conventional; real-tissue
-      \(b_j\) is 0 for plant-based and whole-food; the health offset \(\zeta_j\) (a unit-weight term, so the
-      slider value <i>is</i> utils) is 0 for conventional and at every product's default. The last term \(\xi_j\)
-      is the <b>intercept</b> — the one term that is not a weight&times;attribute. At baseline it is <b>0 for all
-      three meats</b> and equals \(\xi_w\) (solved) only for the whole-food outside option, so the central demand
-      model has <b>no free fitted constant</b>. Three optional, default-0 scenario terms can be switched on for
-      the novel meats — the <b>novelty</b> dial \(\nu_j\), the <b>health-perception</b> dial \(\zeta_j\), and
-      cultivated's <b>authenticity</b> offset \(\tau_{\rm type}\) (§3) — each defined in the glossary below; with
-      all at their default the meats keep \(\xi=\zeta=0\), so cultivated has no hidden "standing" knob.</p>
+      <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b>
+      how attractive product \(j\) is = what you can afford after paying for it, <i>minus</i> a penalty for
+      being dearer than the familiar conventional price (or a reward for being cheaper), <i>plus</i> taste,
+      <i>plus</i> slaughter-free, <i>plus</i> real-meat, <i>plus</i> health, <i>plus</i> a small novelty/authenticity
+      constant. Each piece is unpacked below.</p>
+      <p style="font-size:.86rem">Every term is a <b>weight &times; a column of the table</b> (and a 0 in the
+      table just means "this product lacks that feature" — not a special case): \(a_j-1\) is the taste gap from
+      real meat, \(g_j\) the slaughter-free flag, \(b_j\) the real-tissue flag, \(\zeta_j\) health, and
+      \(\xi_j=\nu_j+\tau_j\) the per-product scenario constant (novelty + authenticity, both 0 by default).
+      \(d_j=R_j-1\) is the premium over conventional; \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\). Each piece is
+      defined, with its source, in the glossary table below — so the rest of §2 simply walks the terms one at a
+      time, starting with price.</p>
       <p><b>The price piece, unpacked.</b> The income term's coefficient \(\alpha\) is not guessed — and,
       unlike an earlier version, it rests on <b>no hand-picked anchor</b>. The behavioural target is
       cultivated's own-price elasticity \(\varepsilon_x=\kappa\varepsilon\). One subtlety: price enters
@@ -794,7 +835,11 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       Only income <i>ratios</i> across regions are identified — the absolute level is absorbed by
       \(\alpha\) (using a monthly budget instead of the per-kg price merely rescales \(\alpha\); shares
       unchanged) — so \(y\) is an <i>affordability scale</i>, and what it buys the model is the empirical
-      ~2–3&times; rich→poor price-sensitivity gradient.</p>
+      ~2–3&times; rich→poor price-sensitivity gradient. <b>The punchline:</b> because \(\varphi=0.5\) damps the
+      gradient and \(\alpha\) re-normalises the level, income is a <i>second-order</i> lever at today's prices —
+      cultivated's headline share barely moves between a rich and a poor country at R≈2.4. Income bites hardest
+      where the <i>premium</i> is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity),
+      which is why low-income regions are the genuinely hard case, not the at-parity headline.</p>
       <p><b>The three segment-specific weights</b> (everything else is shared across the two consumer types).
       Only the slaughter-free, real-tissue and health weights differ by type — that difference <i>is</i> the
       heterogeneity:</p>
@@ -807,8 +852,8 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       whole-food health position \(\zeta_w>0\) ("beans are the healthy choice") pulls the health- and
       ethically-minded toward whole foods over a processed veggie burger — which is <i>why</i> plant-based
       <i>meat</i> sits at ~1% despite a 5% ethical core. Both health weights are <b>solved</b> in the
-      calibration (below); this health premium is what <b>replaces the old free outside-option intercept</b>,
-      so the demand model now has no free fitted constant — every product's standing is a named attribute.</p>
+      calibration (below); this health premium is the named attribute that took over the job of the old
+      outside-option intercept (see the aside under the attribute table).</p>
       <p style="font-size:.9rem">So the slaughter-free term you tune is \(\theta_{\rm free}\,g_j\) for
       the mainstream (95% of buyers): at \(\theta_{\rm free}=0\) the mainstream is indifferent to "no animal
       killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
@@ -912,7 +957,10 @@ methods and results notes. Defaults are the neutral / measured values.</p>
           outside-option intercept</b> \(\xi_w\): the standing it encodes (ethical eaters prefer whole beans over
           a processed veggie burger, beyond price/taste/slaughter-free) is real and load-bearing — drop it and
           plant-based triples to ~4% with mostly-vegetarian buyers, contradicting the data — but it is now a
-          <i>named attribute × weight</i>, not an unexplained constant. <i>(In the code: <code>w_health_M</code>
+          <i>named attribute × weight</i>, not an unexplained constant. (The position \(\zeta_w=+2\) is itself
+          assumed, not measured — but its <i>level</i> washes out: the calibration solves \(w^{h}\) to hit the
+          two moments at whatever \(\zeta_w\) is set, so only the <i>product</i> \(w^{h}\zeta_w\) is identified,
+          exactly as the old intercept was.) <i>(In the code: <code>w_health_M</code>
           / <code>w_health_E</code> times <code>health_w</code>.)</i></td></tr>
       </table>
       <p><b>How the closeness \(\kappa\) actually works (and where it enters — just once).</b> \(\kappa\) is
@@ -930,7 +978,12 @@ methods and results notes. Defaults are the neutral / measured values.</p>
          \ \text{(at cultivated's own price \& share)} . \]
       <p>So at \(\kappa=4\) a 1% rise in cultivated's price loses ~3.6% of its buyers, four times meat's
       ~0.9% — and, after the two-channel fix above, that ~3.6 is the <i>realised</i> elasticity, not merely a
-      target. Mechanically \(\kappa\) scales the elasticity part of \(\beta\) (hence \(\alpha\) in \(V_j\)),
+      target. <b>One caveat on reading "−3.6":</b> it is the local elasticity <i>at cultivated's own
+      operating point</i> (today, \(R_x\approx2.4\), far above parity). The elasticity is not constant — it is much
+      smaller near parity (~−0.8 at \(R_x=1\), ~−1.7 at \(R_x=1.5\)) and largest far above it. That shape is intrinsic to
+      the BLP-plus-kink utility (share falls slowly just above parity, then accelerates), so "the curve is
+      gentle just above \(R_x=1\) yet −3.6 by \(R_x=2.4\)" is the model behaving correctly, not a contradiction.
+      Mechanically \(\kappa\) scales the elasticity part of \(\beta\) (hence \(\alpha\) in \(V_j\)),
       making cultivated's share-vs-price curve <i>steeper</i> above parity (it does <b>not</b> change the
       at-parity share). It is the flat-logit stand-in for what a nested logit would get from a "real-meat"
       nest (its dissimilarity parameter), or a random coefficient on the real-tissue attribute.
@@ -940,19 +993,18 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       typical brands are to each other (same tissue), so the upper half is apt. We centre at \(4\) (realised
       \(\varepsilon_x=-3.6\)) and treat \(3\!-\!6\) as the range. It is the single most consequential demand
       number for <i>above-parity</i> share — at \(\kappa=3\) an identical product at 2.4&times; conventional's
-      price still keeps ~13%, at \(\kappa=4\) ~8%, at \(\kappa=5\) ~5% — which is exactly why it is exposed,
+      price still keeps ~{{KAPPA_3}}%, at \(\kappa=4\) ~{{KAPPA_4}}%, at \(\kappa=5\) ~{{KAPPA_5}}% — which is exactly why it is exposed,
       not buried. Drag the slider to see.</p>
-      <p style="font-size:.84rem;background:#f7f7f5;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
-      <b>A note on "loss aversion" here.</b> Loss aversion is most famous from <i>risky</i> gambles (a chance to
-      win vs. lose money). But Tversky &amp; Kahneman's 1991 paper extends it to <b>riskless choice</b>: when you
-      compare goods on an attribute (here, price), you evaluate each option as a gain or loss <i>relative to a
-      reference point</i>, and losses loom larger. Paying more than the familiar conventional price reads as a
-      loss; paying less, a gain. That is exactly our \(d_j\) term, and it is standard — it is the workhorse behind
-      <b>reference-price</b> models in marketing/IO (Hardie–Johnson–Fader 1993 estimate it on real brand-choice
-      scanner data). It is a deliberate modelling <i>choice</i>, not forced: set \(\lambda=0\) and the demand
-      model collapses to a plain price-only logit (the slider lets you do exactly that). We include it because the
-      premium is the whole story for cultivated meat, and a kink at the reference price fits how shoppers actually
-      react to "more expensive than normal."</p>
+      <p class="aside"><span class="ah">For the skeptical reader: is "loss aversion" the right tool here?</span>
+      It is most famous from <i>risky</i> gambles, but Tversky &amp; Kahneman's 1991 paper extends it to
+      <b>riskless choice</b>: comparing goods on an attribute (here, price), you read each option as a gain or
+      loss <i>relative to a reference point</i>, and losses loom larger. Paying more than the familiar
+      conventional price reads as a loss; paying less, a gain — exactly our \(d_j\) term, and it is the workhorse
+      behind <b>reference-price</b> models in marketing/IO (Hardie–Johnson–Fader 1993 estimate it on real
+      brand-choice scanner data). It is a deliberate <i>choice</i>, not forced: set \(\lambda=0\) and the model
+      collapses to a plain price-only logit (the slider does exactly that). We keep it because the premium is the
+      whole story for cultivated meat, and a kink at the reference price fits how shoppers react to "more
+      expensive than normal."</p>
       <p><b>What we do with \(V_j\): turn utilities into shares.</b> Each consumer adds up the score \(V_j\)
       for every product and picks the one they like best — but with a random "mood of the day" taste shock.
       Averaging over those shocks (the standard Gumbel assumption) gives a clean formula: the probability of
@@ -984,9 +1036,11 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       habit lives in the rollout-over-time, not here.)</p>
       <p><b>Reading the share at parity.</b> At \(R_x=1\) with neutral dials (\(a_x=1,\ \theta_{\rm free}=0\)),
       cultivated is attribute-identical to conventional, so it splits the real-meat buyers ~half — about
-      <b>47%</b>, on habit and brand alone. Drop \(a_x\) for taste friction (0.8 → ~25%, 0.6 → ~11%), or
-      push it above 1 if cultivated is judged to taste <i>better</i> than an average cut (1.1 → ~59%);
-      raise \(\theta_{\rm free}\) for the cleaner-meat upside (0.5 → ~57%, 1.0 → ~67%). Nothing is baked in. The
+      <b>{{PARITY_NEUTRAL}}%</b>. That ~half is just the logit's symmetry — two attribute-identical
+      real-meat options share the segment — <i>not</i> a habit or brand term (the model has none; habit
+      lives in the timing rung, §4). Drop \(a_x\) for taste friction (0.8 → ~{{AX_08}}%, 0.6 → ~{{AX_06}}%), or
+      push it above 1 if cultivated is judged to taste <i>better</i> than an average cut (1.1 → ~{{AX_11}}%);
+      raise \(\theta_{\rm free}\) for the cleaner-meat upside (0.5 → ~{{TH_05}}%, 1.0 → ~{{TH_10}}%). Nothing is baked in. The
       model predicts the ordering <b>conventional &gt; cultivated &gt; plant-based</b> at parity — cultivated
       beats plant-based because it <i>is</i> real tissue.</p>
 
@@ -1018,15 +1072,15 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       wagyu as easily as mince), \(\rho=2\) doubles the resistance. It is <b>swept in the Monte Carlo</b>
       (prior 0.5–1.5), so the band reflects this judgement's uncertainty instead of hiding it — drag the
       slider to see how much the headline leans on it.</p>
-      <p style="font-size:.86rem"><b>Is premium resistance just neophobia? No — three things separate them.</b>
-      (i) <b>Scope</b>: neophobia \(\nu_x\) is uniform across <i>all</i> meat types (it's about the product being
-      <i>new</i>); authenticity \(\tau_{\rm type}\) is <i>tier-specific</i> (+0.2 mince vs −1.5 wagyu — it's
-      about wanting the <i>real</i> thing for this occasion). (ii) <b>Time</b>: neophobia <b>fades</b> with
-      exposure (the whole point of the timing rung — "is it weird/safe?" cures with familiarity); authenticity
-      is <b>permanent</b> (a wagyu buyer in 2050 still wants real wagyu). (iii) <b>Channel</b>: authenticity
-      <i>also</i> flattens price-sensitivity (the elasticity multiplier — luxury buyers barely flinch at
-      price), which neophobia does not. So they are distinct primitives: "fear of the new" (transient, uniform)
-      vs "I want the authentic luxury" (permanent, tier-specific, price-insensitive).</p>
+      <p class="aside"><span class="ah">For the skeptical reader: isn't premium resistance just neophobia again?</span>
+      No — three things separate them. (i) <b>Scope</b>: neophobia \(\nu_x\) is uniform across <i>all</i> meat
+      types (it's about the product being <i>new</i>); authenticity \(\tau_{\rm type}\) is <i>tier-specific</i>
+      (+0.2 mince vs −1.5 wagyu — about wanting the <i>real</i> thing for this occasion). (ii) <b>Time</b>:
+      neophobia <b>fades</b> with exposure ("is it weird/safe?" cures with familiarity); authenticity is
+      <b>permanent</b> (a wagyu buyer in 2050 still wants real wagyu). (iii) <b>Channel</b>: authenticity
+      <i>also</i> flattens price-sensitivity (the elasticity multiplier — luxury buyers barely flinch at price),
+      which neophobia does not. So they are distinct primitives: "fear of the new" (transient, uniform) vs "I
+      want the authentic luxury" (permanent, tier-specific, price-insensitive).</p>
       <p><b>"Premium" is per-species, not a single price line.</b> A product is premium when it costs
       at least <b>2.5&times; its own species' everyday (cheapest) form</b> — so every species can have one:
       <i>wagyu / prime beef</i>, <i>sushi-grade seafood</i>, <i>organic chicken</i>, <i>heritage /
@@ -1053,9 +1107,10 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       (<a href="https://doi.org/10.1073/pnas.2319016121" target="_blank" rel="noopener">cf. Jahn&nbsp;et&nbsp;al. 2024</a> <a href="#ref9">[9]</a>,
       who find the plant-based analog at &minus;1.4) — so what is uncertain is the at-parity <i>standing</i>,
       not the slope.</p>
-      <p>So the timing rung runs two coupled processes over 30 years, at a held price ratio \(R\):</p>
+      <p>So the timing rung runs two coupled processes over 30 years, at cultivated's held price ratio
+      \(R_x\):</p>
       \[ \text{share}(t) \;=\; \underbrace{F(t)}_{\text{Bass rollout}}\;\times\;
-         \underbrace{\text{ceiling}\big(\nu_x(t)\big)}_{\text{Rung-3 share as novelty fades}},\qquad
+         \underbrace{\text{ceiling}\big(\nu_x(t)\big)}_{\S2\text{ share as novelty fades}},\qquad
          \nu_x(t)=\nu_x + (\nu_{x0}-\nu_x)\,e^{-\,r\,E(t)} \]
       <p>where <b>\(\nu_{x0}\)</b> is the <b>initial (cold-start) neophobia</b> — the dial whose range is
       pinned to the data — and \(\nu_x\) is the <b>long-run</b> level it fades toward. The fade is driven
@@ -1069,7 +1124,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       <i>same</i> product polls anywhere from ~5% to ~60% depending purely on how you ask (GFI):
       a cold unbranded choice experiment gives <b>~5%</b> (\(\nu_{x0}\approx-2.8\), the data-anchored
       default — "today's unfamiliar consumer"); a warm "cultivated chicken in a restaurant" framing
-      (Perdue 2024) gives <b>~60%</b> (\(\nu_{x0}\approx+1.5\)); neutral/equivalent sits at ~47%
+      (Perdue 2024) gives <b>~60%</b> (\(\nu_{x0}\approx+1.5\)); neutral/equivalent sits at ~{{NX0_NEUTRAL}}%
       (\(\nu_{x0}=0\)). Rather than pick one, the slider <b>spans the whole framing band</b>, and it is
       <b>swept in the Monte Carlo</b>, so this — the single widest genuine uncertainty in the demand
       side — is shown, not hidden. (Reassuringly, the cultivated-specific price response itself is
@@ -1157,6 +1212,14 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         not reshuffle chicken-vs-beef-vs-pork (the cross-price terms are small/noisy; Gallet 2010/2012).</li>
         <li><b>Low-income region prices/mixes (India, Brazil, Nigeria) are rough</b>, illustrative of the
         income channel rather than calibrated. <b>Scaffold cost is a guess</b> — no TEA covers it.</li>
+        <li><b>It is a substitution model on <i>today's</i> price ladder.</b> Every share is a contest against the
+        existing meat products at their existing prices. But classic disruptive entry often does <i>not</i> fight
+        head-to-head on that ladder — it starts in <b>non-consumption or a new-attribute niche</b> (e.g. pet food,
+        novel/unfarmable species, allergen- or contaminant-free, hyper-premium "no animal harmed" positioning, or
+        an IP/ingredient play) and only later moves into the mainstream. The model would score those niches as
+        small (low volume weight) and so understates a route that the disruption literature says is the <i>likely</i>
+        one. Read the headline as "share <i>if</i> cultivated competes on the current ladder," not as the only path
+        to scale.</li>
       </ul>
 
       <h4>References</h4>
@@ -1239,7 +1302,16 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
     </details>
   </div>
 </div>
-<script>
+"""  # ---- end PAGE_HTML (CSS + markup + methodology) ----
+
+# ===========================================================================
+# JS_ENGINE — the live model + SVG charts + UI wiring. This is a hand-port of the
+# Python model (market_share / cost_model / meat_market / adoption_timing); the
+# parity test (tests/run_parity.py) asserts it matches to ~1e-16. Kept as its own
+# string (separate from PAGE_HTML above) so the ~1000-line script is editable and
+# diffable on its own. Concatenated back together in `main()`.
+# ===========================================================================
+JS_ENGINE = r"""<script>
 const MODEL = __MODEL_JSON__;
 const C = MODEL.const, SV = "http://www.w3.org/2000/svg";
 const state = {region: "global"};
@@ -1614,12 +1686,17 @@ function addQ(parent,text){const q=document.createElement("span");q.className="q
 
 /* ---------- the four live views ---------- */
 function drawHeads(s){
-  const b=biomass(s), R=basicR(s), p=penetration(s);
+  const b=biomass(s), p=penetration(s);
   const fillet=b+s.scaffold+s.markup_add;          // all-in retail $/kg of a STRUCTURED (non-minced) cut
+  // dotted-underline span = a hover tooltip. Keep the title text PLAIN ASCII (no apostrophes,
+  // Greek letters, em-dashes or section signs) — those broke the innerHTML attribute parse and
+  // surfaced as a stray "?" in some browsers/fonts.
+  const eqTip="cursor:help;border-bottom:1px dotted #999";
+  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded -- the ceiling adoption climbs toward, NOT the share today. The timing chart (sec 4) shows the path up from the cold ~5% start.";
+  const pbTip="Long-run equilibrium share, same basis as cultivated.";
   const cells=[
-    ["price ratio vs commodity","R<sub>x</sub> = "+R.toFixed(2),R<=1?"var(--green)":"var(--ink)"],
-    ["<b>cultivated</b> penetration · vol / val",(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)"],
-    ["<b>plant-based</b> penetration · vol / val",(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)"],
+    ['<b>cultivated</b> <span style="'+eqTip+'" title="'+cultTip+'">long-run ceiling</span> &middot; vol / val',(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)"],
+    ['<b>plant-based</b> <span style="'+eqTip+'" title="'+pbTip+'">long-run ceiling</span> &middot; vol / val',(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)"],
     ["non-minced fillet, retail (biomass $"+b.toFixed(0)+")","$"+fillet.toFixed(0)+"/kg","var(--ink)"]];
   const h=document.getElementById("heads"); h.innerHTML="";
   cells.forEach(([lab,big,col])=>{const d=document.createElement("div");d.className="head";
@@ -1628,66 +1705,89 @@ function drawHeads(s){
 }
 function drawBars(s,ptmc){
   const svg=document.getElementById("bars");clear(svg);
-  const W=720,H=300,mL=40,mR=12,mT=28,mB=46;
-  const {rows,tv,tval}=penetration(s);
+  const W=720,H=300,mL=40,mR=12,mT=34,mB=46;
+  const {rows,tv,tval,tvp}=penetration(s);
   const groups={};
   rows.forEach(r=>{const a=animalOf(r.mt.name);(groups[a]=groups[a]||[]).push(r);});
   const order=Object.keys(groups).sort((a,b)=>
     (groups[a].reduce((x,r)=>x+r.mt.p_conv,0)/groups[a].length)-
     (groups[b].reduce((x,r)=>x+r.mt.p_conv,0)/groups[b].length));
-  const whisk=ptmc?Math.max(...rows.map(r=>{const w=ptmc[r.mt.name]||{p90:0,pp90:0};return Math.max(w.p90,w.pp90||0);})):0;
-  const maxs=Math.max(0.2,whisk,...rows.map(r=>r.sh)), yTop=maxs*1.18;
+  // the bars STACK cultivated + plant-based, so the axis must reach the tallest STACK (or its band)
+  const stackTop=r=>{const w=ptmc&&ptmc[r.mt.name];return (w?w.p50:r.sh)+(w?w.pp50:r.shp);};
+  const whisk=ptmc?Math.max(...rows.map(r=>{const w=ptmc[r.mt.name]||{p90:0,pp50:0,pp90:0};
+    return Math.max(w.p90+w.pp50, w.p50+w.pp90);})):0;
+  const maxs=Math.max(0.2,whisk,...rows.map(stackTop)), yTop=maxs*1.18;
   const X=i=>mL+(W-mL-mR)*(i+0.5)/order.length, Y=v=>H-mB-(H-mT-mB)*v/yTop;
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
   [0,.1,.2,.3,.4,.5,.6,.7,.8].filter(v=>v<=yTop).forEach(v=>{
     el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#eee"},svg);
     tx(svg,mL-5,Y(v)+3,(v*100).toFixed(0),{"font-size":9,"text-anchor":"end",fill:"#666"});});
-  [[tv,"#595959","total by volume "+(tv*100).toFixed(0)+"%","4 3"],
-   [tval,"#111","total by value $ "+(tval*100).toFixed(0)+"%","1 3"]].forEach(([v,c,lab,dash])=>{
+  // rolled-up totals: cultivated by volume & by value (dark dashes), plant-based by volume (green dash)
+  [[tv,"#595959","cultivated total, by volume "+(tv*100).toFixed(0)+"%","4 3"],
+   [tval,"#111","cultivated total, by value $ "+(tval*100).toFixed(0)+"%","1 3"],
+   [tvp,"#117733","plant-based total, by volume "+(tvp*100).toFixed(0)+"%","2 2"]].forEach(([v,c,lab,dash])=>{
     el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:c,"stroke-dasharray":dash},svg);
     tx(svg,mL+2,Y(v)-3,lab,{"font-size":9,fill:c});});
   const COL={basic:"#E69F00",cut:"#0072B2",premium:"#882255"}, TO={basic:0,cut:1,premium:2};
-  if(ptmc){tx(svg,W-mR,mT-20,"│ green whisker = plant-based 10–90% (equal footing)",
-    {"font-size":8,fill:"#117733","text-anchor":"end"});}
-  const bw=Math.min(16,(W-mL-mR)/order.length/3.4);
+  // plant-based segment = the SAME tier colour, lightened (blended toward white) so a stack reads as
+  // "this tier's cultivated (solid) + plant-based (pale)". lighten(hex, f) blends f of the way to white.
+  const lighten=(hex,f)=>{const n=parseInt(hex.slice(1),16);
+    const r=(n>>16)&255,g=(n>>8)&255,b2=n&255, m=x=>Math.round(x+(255-x)*f);
+    return "rgb("+m(r)+","+m(g)+","+m(b2)+")";};
+  const PB_F=0.62;                                     // how far toward white the PB segment sits
+  const bw=Math.min(18,(W-mL-mR)/order.length/3.4);
   order.forEach((a,i)=>{
     const items=groups[a].sort((p,q)=>TO[p.t]-TO[q.t]), n=items.length;
     items.forEach((r,j)=>{
-      const cx=X(i)+(j-(n-1)/2)*(bw*1.14);
-      const w=ptmc&&ptmc[r.mt.name];                    // P10-P50-P90 Monte-Carlo summary
-      // when MC is on the bar IS the MC median (so the whisker brackets it; the priors for
-      // accept_x/theta_free are one-sided vs their slider defaults, so a point-estimate bar
-      // would sit at the edge of — or outside — the band). MC off: the point estimate.
-      const bh=w?w.p50:r.sh;
-      el("rect",{x:cx-bw/2,y:Y(bh),width:bw,height:H-mB-Y(bh),fill:COL[r.t],opacity:0.92},svg);
-      if(w){el("line",{x1:cx,y1:Y(w.p10),x2:cx,y2:Y(w.p90),stroke:"#333","stroke-width":1},svg);
+      const cx=X(i)+(j-(n-1)/2)*(bw*1.18);
+      const w=ptmc&&ptmc[r.mt.name];                    // P10-P50-P90 Monte-Carlo summary (cult .p*, PB .pp*)
+      // when MC is on the bars ARE the MC medians (so the whisker brackets them; the priors for
+      // accept_x/theta_free are one-sided vs their slider defaults, so a point-estimate bar would
+      // sit at the edge of — or outside — the band). MC off: the point estimates.
+      const ch=w?w.p50:r.sh, ph=w?w.pp50:r.shp, top=ch+ph;     // cultivated, plant-based, stacked total
+      const pbCol=lighten(COL[r.t],PB_F);              // plant-based = the tier colour, lightened
+      // cultivated segment (bottom, solid tier colour); plant-based segment stacked on top (same hue, paler)
+      el("rect",{x:cx-bw/2,y:Y(ch),width:bw,height:H-mB-Y(ch),fill:COL[r.t],opacity:0.92},svg);
+      if(ph>0.002) el("rect",{x:cx-bw/2,y:Y(top),width:bw,height:Y(ch)-Y(top),fill:pbCol,
+        stroke:COL[r.t],"stroke-width":0.5},svg);       // thin outline keeps the pale segment visible
+      if(w){ // cultivated whisker (within its own segment), then PB whisker (around the stacked top)
+        el("line",{x1:cx,y1:Y(w.p10),x2:cx,y2:Y(w.p90),stroke:"#333","stroke-width":1},svg);
         el("line",{x1:cx-3,y1:Y(w.p10),x2:cx+3,y2:Y(w.p10),stroke:"#333","stroke-width":1},svg);
         el("line",{x1:cx-3,y1:Y(w.p90),x2:cx+3,y2:Y(w.p90),stroke:"#333","stroke-width":1},svg);
-        // PLANT-BASED equal-footing whisker (green), offset to the bar's right edge so it doesn't
-        // overlap the cultivated whisker. A marker only (no PB bar): same per-type MC, PB positions.
-        const px=cx+bw/2+3;
-        el("line",{x1:px,y1:Y(w.pp10),x2:px,y2:Y(w.pp90),stroke:"#117733","stroke-width":1},svg);
-        el("line",{x1:px-2.5,y1:Y(w.pp10),x2:px+2.5,y2:Y(w.pp10),stroke:"#117733","stroke-width":1},svg);
-        el("line",{x1:px-2.5,y1:Y(w.pp90),x2:px+2.5,y2:Y(w.pp90),stroke:"#117733","stroke-width":1},svg);
-        el("circle",{cx:px,cy:Y(w.pp50),r:1.5,fill:"#117733"},svg);}
-      tx(svg,cx,Y(w?w.p90:bh)-9,fmtPct(bh),{"font-size":8.5,"text-anchor":"middle","font-weight":700,fill:"#222"});
-      tx(svg,cx,Y(w?w.p90:bh)-1,"R="+r.R.toFixed(2),{"font-size":7,"text-anchor":"middle",fill:"#888"});
+        const pLo=ch+w.pp10, pHi=ch+w.pp90;             // PB band sits ON TOP of the cultivated median
+        const pbWhisk=lighten(COL[r.t],0.25);           // a darker shade of the tier hue, for the PB whisker
+        el("line",{x1:cx,y1:Y(pLo),x2:cx,y2:Y(pHi),stroke:pbWhisk,"stroke-width":1},svg);
+        el("line",{x1:cx-3,y1:Y(pLo),x2:cx+3,y2:Y(pLo),stroke:pbWhisk,"stroke-width":1},svg);
+        el("line",{x1:cx-3,y1:Y(pHi),x2:cx+3,y2:Y(pHi),stroke:pbWhisk,"stroke-width":1},svg);}
+      // labels above the stack: cultivated %, then "+PB %" if PB is non-trivial, then R
+      const labY=Y(w?Math.max(w.p90,top,ch+w.pp90):top);
+      tx(svg,cx,labY-(ph>0.002?17:9),fmtPct(ch),{"font-size":8.5,"text-anchor":"middle","font-weight":700,fill:COL[r.t]});
+      if(ph>0.002) tx(svg,cx,labY-9,"+"+fmtPct(ph),{"font-size":8,"text-anchor":"middle","font-weight":700,fill:lighten(COL[r.t],0.25)});
+      tx(svg,cx,labY-1,"R="+r.R.toFixed(2),{"font-size":7,"text-anchor":"middle",fill:"#888"});
     });
     drawSpeciesIcon(svg,a,X(i),H-mB+15,11);                 // species ICON under the bar group
     tx(svg,X(i),H-mB+34,a,{"font-size":7.5,"text-anchor":"middle",fill:"#888"});  // small name caption
   });
+  // legend row 1: cultivated tiers; row 2: the plant-based stack segment
   let lx=W-mR-300;
   [["#E69F00","mince/processed"],["#0072B2","cut/fillet"],
-   ["#882255","premium (≥"+C.PREMIUM_RATIO.toFixed(1)+"× species base)"]].forEach(([c,l])=>{
-    el("rect",{x:lx,y:mT-20,width:9,height:9,fill:c},svg);
-    tx(svg,lx+12,mT-12,l,{"font-size":9,fill:"#333"});lx+=100;});
+   ["#882255","premium (≥"+C.PREMIUM_RATIO.toFixed(1)+"× base)"]].forEach(([c,l])=>{
+    el("rect",{x:lx,y:mT-26,width:9,height:9,fill:c},svg);
+    tx(svg,lx+12,mT-18,l,{"font-size":9,fill:"#333"});lx+=100;});
+  // row 2: convey "solid = cultivated, pale = plant-based" with a paired swatch (blue tier as example)
+  el("rect",{x:W-mR-300,y:mT-14,width:9,height:9,fill:COL.cut},svg);
+  el("rect",{x:W-mR-300+9,y:mT-14,width:9,height:9,fill:lighten(COL.cut,PB_F),
+    stroke:COL.cut,"stroke-width":0.5},svg);
+  tx(svg,W-mR-300+22,mT-6,"solid = cultivated, pale = plant-based (same tier hue)"+
+    (ptmc?";  whiskers = 10–90%":""),{"font-size":9,fill:"#555"});
   document.getElementById("barsub").textContent=
     "region: "+MODEL.regions.find(r=>r[0]===s.region)[1]+
-    " — each bar = cultivated share WITHIN that category"+
-    (ptmc?" (Monte-Carlo median; whiskers = 10–90% band)":" (point estimate at the current sliders)")+
-    "; dashed lines = the two rolled-up totals (by volume = impact, by value = $ market). "+
-    "No easy entry: cheap mince is unreachable on price, premium is demand-resistant; the reachable "+
-    "window is the mid-priced cuts.";
+    " — each STACKED bar = the two novel meats' share WITHIN that category: cultivated (solid, by tier "+
+    "colour) with plant-based stacked on top in a paler shade of the same tier colour, on equal footing"+
+    (ptmc?" (Monte-Carlo medians; whiskers = 10–90% band)":" (point estimates at the current sliders)")+
+    ". Dashed lines = rolled-up totals (cultivated by volume & by value; plant-based by volume). "+
+    "No easy entry for cultivated: cheap mince is unreachable on price, premium is demand-resistant; "+
+    "the reachable window is the mid-priced cuts — while plant-based stays a thin slice on taste+price.";
 }
 function drawPie(s){
   const svg=document.getElementById("pie");clear(svg);
@@ -1792,8 +1892,9 @@ function drawCurve(s){
   const rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
   const {R:Rmark,t}=typeR(mt,biomass(s),s.markup_add,s,speciesBases(market));
   const eps=s.eps_own*tMult(t,rpr);
-  // x-axis extends to cover the product's actual R (so the marker lands ON the curve, not clamped)
-  const x1=Math.max(3, Math.ceil((Rmark+0.4)*2)/2);
+  const Rp=s.R_p;                                                   // plant-based's OWN price ratio (its marker x)
+  // x-axis extends to cover BOTH markers (cultivated's Rmark and plant-based's R_p) so the dots land ON the curves
+  const x1=Math.max(3, Math.ceil((Math.max(Rmark,Rp)+0.4)*2)/2);
   const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   const evW=(R,which)=>shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),eps,
                               income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,which});
@@ -1824,16 +1925,25 @@ function drawCurve(s){
     tx(svg,W-mR-lbw+22,lgy,lab,{"font-size":8.5,fill:"#444"});
     tx(svg,W-mR-5,lgy,fmtPct(evW(Rmark,which)),{"font-size":8.5,fill:col,"text-anchor":"end","font-weight":600});
     lgy+=12;});
-  // marker at this product's R on the cultivated line (axis now extends to cover Rmark,
-  // so the dot lands on the curve). Anchor the label so it never overflows the edges.
+  // CULTIVATED marker: its share at its own R_x, on the blue curve (axis covers R_x so the dot
+  // lands on the curve). Anchor the label so it never overflows the edges.
   const sh=evW(Rmark,"x");
   const mx=X(Math.max(x0,Math.min(Rmark,x1))), my=Y(sh*100);
   el("circle",{cx:mx,cy:my,r:5,fill:"#0072B2"},svg);
-  const lbl="cultivated "+fmtPct(sh)+" @ R="+Rmark.toFixed(2);
+  const lbl="cultivated "+fmtPct(sh)+" @ Rₓ="+Rmark.toFixed(2);
   const nearR=mx>W-mR-148, nearL=mx<mL+74;                          // would overflow an edge?
   tx(svg,nearR?mx-9:(nearL?mx+9:mx),my-9,lbl,
      {"font-size":9,"font-weight":700,fill:"#0072B2","text-anchor":nearR?"end":(nearL?"start":"middle")});
-  txRsub(svg,(mL+W-mR)/2,H-3,"Price ratio ","x"," (lower = cheaper)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
+  // PLANT-BASED marker: its ACTUAL operating point — its share at its OWN price R_p, on the green
+  // curve (the true analogue of the cultivated dot; cultivated's R_x doesn't set PB's price).
+  const shp=evW(Rp,"p");
+  const px=X(Math.max(x0,Math.min(Rp,x1))), py=Y(shp*100);
+  el("circle",{cx:px,cy:py,r:4,fill:"#117733"},svg);
+  const plbl="plant-based "+fmtPct(shp)+" @ Rₚ="+Rp.toFixed(2);
+  const pNearR=px>W-mR-150, pNearL=px<mL+78;
+  tx(svg,pNearR?px-8:(pNearL?px+8:px),py+(py<my+14?16:-8),plbl,   // dodge the cultivated label if close
+     {"font-size":8.5,"font-weight":700,fill:"#117733","text-anchor":pNearR?"end":(pNearL?"start":"middle")});
+  txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
   tx(svg,W-mR,mT-6,"js __BUILD_STAMP__",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
@@ -2279,11 +2389,25 @@ def main() -> None:
     model = build_model()
     crosscheck(model)
     import datetime as _dt
-    html = HTML.replace("__MODEL_JSON__", json.dumps(model))
+    html = PAGE_HTML + JS_ENGINE                         # page markup + the JS engine (two strings, one file)
+    html = html.replace("__MODEL_JSON__", json.dumps(model))
     html = html.replace("__BUILD_STAMP__", _dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    # Substitute the illustrative numbers COMPUTED FROM THE MODEL (no hand-typed shares in the
+    # prose/tooltips — they can never drift from the live calibration). See illustrative_numbers().
+    illus = illustrative_numbers()
+    for token, val in illus.items():
+        html = html.replace(token, val)
+    leftover = [t for t in illus if t in html]
+    if leftover:                                          # a typo'd placeholder would ship a literal {{TOKEN}}
+        raise RuntimeError(f"unsubstituted illustrative tokens remain: {leftover}")
+    import re as _re
+    stray = _re.findall(r"\{\{[A-Z0-9_]+\}\}", html)
+    if stray:
+        raise RuntimeError(f"unknown {{{{...}}}} placeholders in the template (no value computed): {sorted(set(stray))}")
     with open(OUT, "w", encoding="utf-8") as fh:
         fh.write(html)
-    print(f"  wrote {os.path.relpath(OUT)}  ({os.path.getsize(OUT)/1024:.0f} KB, self-contained)")
+    print(f"  wrote {os.path.relpath(OUT)}  ({os.path.getsize(OUT)/1024:.0f} KB, self-contained); "
+          f"substituted {len(illus)} model-computed illustrative numbers")
 
 
 if __name__ == "__main__":
