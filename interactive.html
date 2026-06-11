@@ -104,7 +104,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-11 13:15</span></h1>
+<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-11 17:55</span></h1>
 <p class="lede">Drag the sliders — ordered most-decisive first — to see how the price ratio,
 market share, and per-meat-type penetration respond. These are <b>point estimates</b> at the values
 you choose (not the Monte-Carlo bands). The big penetration numbers are the <b>long-run equilibrium
@@ -1151,19 +1151,19 @@ function addQ(parent,text){const q=document.createElement("span");q.className="q
 function drawHeads(s){
   const b=biomass(s), p=penetration(s);
   const fillet=b+s.scaffold+s.markup_add;          // all-in retail $/kg of a STRUCTURED (non-minced) cut
-  // dotted-underline span = a hover tooltip. Keep the title text PLAIN ASCII (no apostrophes,
-  // Greek letters, em-dashes or section signs) — those broke the innerHTML attribute parse and
-  // surfaced as a stray "?" in some browsers/fonts.
-  const eqTip="cursor:help;border-bottom:1px dotted #999";
-  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded -- the ceiling adoption climbs toward, NOT the share today. The timing chart (sec 4) shows the path up from the cold ~5% start.";
+  // Each cell = [label HTML, big number, colour, optional tooltip]. The tooltip is attached with the
+  // SAME addQ() "?" badge the sliders use (a styled #tip popup) — NOT a native title= attribute, which
+  // rendered unreliably here. The "long-run ceiling" text is plain label HTML, so it always shows.
+  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded — the ceiling adoption climbs toward, NOT the share today. The timing chart (§4) shows the path up from the cold ~5% start.";
   const pbTip="Long-run equilibrium share, same basis as cultivated.";
   const cells=[
-    ['<b>cultivated</b> <span style="'+eqTip+'" title="'+cultTip+'">long-run ceiling</span> &middot; vol / val',(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)"],
-    ['<b>plant-based</b> <span style="'+eqTip+'" title="'+pbTip+'">long-run ceiling</span> &middot; vol / val',(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)"],
-    ["non-minced fillet, retail (biomass $"+b.toFixed(0)+")","$"+fillet.toFixed(0)+"/kg","var(--ink)"]];
+    ["<b>cultivated</b> long-run ceiling &middot; vol / val",(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)",cultTip],
+    ["<b>plant-based</b> long-run ceiling &middot; vol / val",(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)",pbTip],
+    ["non-minced fillet, retail (biomass $"+b.toFixed(0)+")","$"+fillet.toFixed(0)+"/kg","var(--ink)",null]];
   const h=document.getElementById("heads"); h.innerHTML="";
-  cells.forEach(([lab,big,col])=>{const d=document.createElement("div");d.className="head";
+  cells.forEach(([lab,big,col,tip])=>{const d=document.createElement("div");d.className="head";
     d.innerHTML='<div class="big" style="color:'+col+'">'+big+'</div><div class="lab">'+lab+'</div>';
+    if(tip) addQ(d.querySelector(".lab"),tip);     // the styled "?" tooltip badge, after the label
     h.appendChild(d);});
 }
 function drawBars(s,ptmc){
@@ -1409,7 +1409,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-11 13:15",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-11 17:55",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -1839,7 +1839,7 @@ function selfTest(){
     "  ·  income channel (China $"+(ic[0]/1000).toFixed(0)+"k, R="+ic[1].toFixed(2)+"): JS "+jsRegional.toFixed(2)+
     "% vs Python "+ic[2].toFixed(2)+"% — "+(regOK?"matches.":"MISMATCH!");
 }
-console.log("interactive.html JS build 2026-06-11 13:15 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-11 17:55 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");

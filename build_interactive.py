@@ -1688,19 +1688,19 @@ function addQ(parent,text){const q=document.createElement("span");q.className="q
 function drawHeads(s){
   const b=biomass(s), p=penetration(s);
   const fillet=b+s.scaffold+s.markup_add;          // all-in retail $/kg of a STRUCTURED (non-minced) cut
-  // dotted-underline span = a hover tooltip. Keep the title text PLAIN ASCII (no apostrophes,
-  // Greek letters, em-dashes or section signs) — those broke the innerHTML attribute parse and
-  // surfaced as a stray "?" in some browsers/fonts.
-  const eqTip="cursor:help;border-bottom:1px dotted #999";
-  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded -- the ceiling adoption climbs toward, NOT the share today. The timing chart (sec 4) shows the path up from the cold ~5% start.";
+  // Each cell = [label HTML, big number, colour, optional tooltip]. The tooltip is attached with the
+  // SAME addQ() "?" badge the sliders use (a styled #tip popup) — NOT a native title= attribute, which
+  // rendered unreliably here. The "long-run ceiling" text is plain label HTML, so it always shows.
+  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded — the ceiling adoption climbs toward, NOT the share today. The timing chart (§4) shows the path up from the cold ~5% start.";
   const pbTip="Long-run equilibrium share, same basis as cultivated.";
   const cells=[
-    ['<b>cultivated</b> <span style="'+eqTip+'" title="'+cultTip+'">long-run ceiling</span> &middot; vol / val',(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)"],
-    ['<b>plant-based</b> <span style="'+eqTip+'" title="'+pbTip+'">long-run ceiling</span> &middot; vol / val',(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)"],
-    ["non-minced fillet, retail (biomass $"+b.toFixed(0)+")","$"+fillet.toFixed(0)+"/kg","var(--ink)"]];
+    ["<b>cultivated</b> long-run ceiling &middot; vol / val",(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)",cultTip],
+    ["<b>plant-based</b> long-run ceiling &middot; vol / val",(p.tvp*100).toFixed(1)+"% / "+(p.tvalp*100).toFixed(1)+"%","var(--green)",pbTip],
+    ["non-minced fillet, retail (biomass $"+b.toFixed(0)+")","$"+fillet.toFixed(0)+"/kg","var(--ink)",null]];
   const h=document.getElementById("heads"); h.innerHTML="";
-  cells.forEach(([lab,big,col])=>{const d=document.createElement("div");d.className="head";
+  cells.forEach(([lab,big,col,tip])=>{const d=document.createElement("div");d.className="head";
     d.innerHTML='<div class="big" style="color:'+col+'">'+big+'</div><div class="lab">'+lab+'</div>';
+    if(tip) addQ(d.querySelector(".lab"),tip);     // the styled "?" tooltip badge, after the label
     h.appendChild(d);});
 }
 function drawBars(s,ptmc){
