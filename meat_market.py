@@ -265,6 +265,27 @@ REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
                  "india": 11159, "brazil": 22333, "nigeria": 6440}
 
 
+def _rollup(market, biomass, markup, res, share_of):
+    """The shared per-type roll-up used by BOTH the point estimate (penetration) and the
+    Monte-Carlo band (monte_carlo): for each meat type compute its price ratio
+    R = (biomass*cost_mult + scaffold + markup) / p_conv, get its cultivated share via the
+    `share_of(mt, R, species_base, res)` callback (scalar for the point estimate, a per-draw
+    NumPy array for the MC), then sum by VOLUME (mass) and by VALUE (price*volume, normalised).
+    Keeping this in one place means the two paths can't drift. `biomass`, `markup`, `res` and the
+    callback's return may each be a scalar or an array; the arithmetic is the same either way."""
+    bases = species_bases(market)                                   # per-species reference price
+    Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
+    rows, tot_vol, tot_val = [], 0.0, 0.0
+    for mt in market:
+        base = bases[animal_of(mt)]
+        R = (biomass * mt.cost_mult + mt.scaffold + markup) / mt.p_conv
+        s = share_of(mt, R, base, res)
+        rows.append((mt, R, s))
+        tot_vol = tot_vol + mt.w_vol * s
+        tot_val = tot_val + (mt.p_conv * mt.w_vol / Wval) * s
+    return rows, tot_vol, tot_val
+
+
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
@@ -281,19 +302,13 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     base_eps = value("eps_own")
     res = value("premium_resistance") if premium_resistance is None else premium_resistance
     pr = DemandParams()
-    bases = species_bases(market)                                   # per-species reference price
-    rows = []
-    for mt in market:
-        b = bases[animal_of(mt)]
-        p_cult = biomass * mt.cost_mult + mt.scaffold + markup      # per-type cost
-        R = p_cult / mt.p_conv
-        eps = base_eps * tier_eps_mult(mt, b, res)                  # premium less price-sensitive
-        s = share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                  tier_offset=tier_authenticity(mt, b, res), eps_own=eps, income=income)
-        rows.append((mt, R, s))
-    tot_vol = sum(mt.w_vol * s for mt, R, s in rows)
-    Wval = sum(mt.p_conv * mt.w_vol for mt, _, _ in rows)         # value weights ~ price x volume
-    tot_val = sum((mt.p_conv * mt.w_vol / Wval) * s for mt, R, s in rows)
+
+    def share_of(mt, R, base, res):                                # per-type cultivated share
+        return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
+                     tier_offset=tier_authenticity(mt, base, res),
+                     eps_own=base_eps * tier_eps_mult(mt, base, res), income=income)
+
+    rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of)
     return rows, tot_vol, tot_val
 
 
@@ -321,22 +336,17 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     base = DemandParams()                       # demand model (calibrated once)
     market = MARKETS[region]
     income = REGION_INCOME[region]              # region income for the BLP price term
-    bases = species_bases(market)
     res = s["premium_resistance"]               # per-draw premium-resistance multiplier (array)
-    Wval = sum(mt.p_conv * mt.w_vol for mt in market)
-    tot_vol = np.zeros(n)
-    tot_val = np.zeros(n)
-    for mt in market:
-        b = bases[animal_of(mt)]
-        R = (biomass * mt.cost_mult + mt.scaffold + s["markup_add"]) / mt.p_conv
+
+    def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
         toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
         eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
-        sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
-                             accept_x=s["accept_x"][i], tier_offset=toff[i],
-                             eps_own=eps[i], income=income,
-                             neophobia_x=s["neophobia_x"][i]) for i in range(n)])
-        tot_vol += mt.w_vol * sh
-        tot_val += (mt.p_conv * mt.w_vol / Wval) * sh
+        return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
+                               accept_x=s["accept_x"][i], tier_offset=toff[i],
+                               eps_own=eps[i], income=income,
+                               neophobia_x=s["neophobia_x"][i]) for i in range(n)])
+
+    _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)
     return dict(vol=tot_vol * 100, val=tot_val * 100)
 
 

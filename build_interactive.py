@@ -1416,6 +1416,13 @@ function basicR(s){return (biomass(s)+s.markup_add)/(C.p_conv_anchor*s.meat_tax)
 function speciesBases(market){const b={};market.forEach(mt=>{const a=animalOf(mt.name);
   b[a]=Math.min((a in b)?b[a]:Infinity,mt.p_conv);});return b;}
 function tierOf(mt,base){return !mt.structured?"basic":(mt.p_conv>=C.PREMIUM_RATIO*base?"premium":"cut");}
+// per-type price ratio + tier, shared by penetration / monteCarlo / perTypeMC so the
+// R = (biomass*cost_mult + scaffold + markup) / (p_conv*meat_tax) formula lives in ONE place
+// (mirror of meat_market._rollup's per-type R). `b` biomass $/kg, `mk` retail markup $/kg.
+function typeR(mt,b,mk,s,bases){
+  const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax;
+  return {R:(b*mt.cost_mult+scaf+mk)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
+}
 // per-tier authenticity offset and elasticity multiplier, scaled by the premium-resistance
 // dial r (r=1 central; r=0 no tier effect; mirrors meat_market.tier_authenticity/tier_eps_mult).
 function tAuth(t,r){r=(r===undefined?1:r);return r*(t==="basic"?C.AUTH_BASIC:t==="cut"?C.AUTH_CUT:C.AUTH_PREMIUM);}
@@ -1426,8 +1433,7 @@ function penetration(s){
   const r=(s.premium_resistance===undefined?1:s.premium_resistance);
   let Wval=0; market.forEach(mt=>Wval+=mt.p_conv*mt.w_vol);
   const rows=market.map(mt=>{
-    const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax;
-    const R=(b*mt.cost_mult+scaf+s.markup_add)/price, t=tierOf(mt,bases[animalOf(mt.name)]);
+    const {R,t}=typeR(mt,b,s.markup_add,s,bases);
     const eps=s.eps_own*tMult(t,r);                                 // premium tiers less price-sensitive
     const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,r),eps,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p};
     const sh=shareCalc(R,K,o);                                      // cultivated share of this type
@@ -1784,9 +1790,8 @@ function drawCurve(s){
   const market=MODEL.markets[s.region];
   const mt=market.find(m=>m.name===state.curveType)||market[0];
   const rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
-  const t=tierOf(mt,speciesBases(market)[animalOf(mt.name)]), eps=s.eps_own*tMult(t,rpr);
-  const scaf=mt.structured?s.scaffold:0;
-  const Rmark=(biomass(s)*mt.cost_mult+scaf+s.markup_add)/(mt.p_conv*s.meat_tax);
+  const {R:Rmark,t}=typeR(mt,biomass(s),s.markup_add,s,speciesBases(market));
+  const eps=s.eps_own*tMult(t,rpr);
   // x-axis extends to cover the product's actual R (so the marker lands ON the curve, not clamped)
   const x1=Math.max(3, Math.ceil((Rmark+0.4)*2)/2);
   const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
@@ -2009,8 +2014,7 @@ function monteCarlo(s,N){
     const b=mediaCost(mp,ef)+oh+(s.cleanroom?C.cleanroom_cost:0);
     let tv=0,tval=0,tpv=0,tpval=0;
     for(const mt of market){
-      const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax, t=tierOf(mt,bases[animalOf(mt.name)]);
-      const R=(b*mt.cost_mult+scaf+mk)/price;
+      const {R,t}=typeR(mt,b,mk,s,bases);
       const sh=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,hx:hxs});
       // plant-based share of this type uses the SAME cost-driven R for cultivated's denom but PB's
       // own positions; eps/ρ swept the same way (tier price-sensitivity applies to PB too).
@@ -2036,8 +2040,7 @@ function perTypeMC(s,N){
       aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
     const b=mediaCost(mp,ef)+oh+(s.cleanroom?C.cleanroom_cost:0);
     for(const mt of market){
-      const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax, t=tierOf(mt,bases[animalOf(mt.name)]);
-      const R=(b*mt.cost_mult+scaf+mk)/price;
+      const {R,t}=typeR(mt,b,mk,s,bases);
       acc[mt.name][d]=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,hx:hxs});
       accP[mt.name][d]=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:aps,nbx:s.neophobia_x,nbp:nbps,hp:hps,which:"p"});
     }
