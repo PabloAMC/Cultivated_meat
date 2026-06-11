@@ -348,7 +348,10 @@ REGISTRY: dict[str, Input] = {
              "average lags -> a modest negative, weighted by q_taste in utils."),
     "q_taste": Input(5.0, "utils", "[calibration] taste-utility weight: converts a normalised taste "
         "gap (0=parity, -1=very poor) into utils. Large => the flavour-first mainstream punishes a "
-        "taste deficit heavily; it is the single shared taste coefficient for all products."),
+        "taste deficit heavily; it is the single shared taste coefficient for all products. It also sets "
+        "the SCALE the other perception weights are read against: taste is the #1 food-choice driver "
+        "(IFIC 2025; Malone & Lusk 2017 find taste WTP ~2x health and ~3x safety), so q_taste is the "
+        "largest non-price weight and health (w_health_M ~0.26x q_taste) sits well below it."),
     "w_eth": Input(0.05, "fraction", "[Gallup] ethics-driven CORE = vegetarian (4%) + vegan (1%), "
         "Gallup 2023",
         lo=0.04, hi=0.10, mode=0.05,
@@ -389,7 +392,12 @@ REGISTRY: dict[str, Input] = {
         note="SEGMENT-SPECIFIC (vs w_health_E for the ethical segment): mainstream meat-eaters weight health "
              "less / substitute beans for a meat occasion rarely, so this weight is much smaller than the "
              "ethical one. Splitting the health weight by segment is what lets w_realtissue_M be pinned to the "
-             "buyer split without the cheap bean option leaking into the mainstream."),
+             "buyer split without the cheap bean option leaking into the mainstream. LITERATURE CHECK: Malone "
+             "& Lusk (2017, J. Agric. Appl. Econ. 49:139), a US discrete-choice experiment with taste, health "
+             "and safety perceptions on a common -5..+5 scale, find WTP of $0.60/$0.31/$0.21 per unit -> "
+             "mainstream HEALTH is ~0.52x TASTE (and the IFIC 2025 'very important' ratio ~0.78x brackets the "
+             "soft end). The solved w_health_M lands at ~0.26x q_taste — i.e. health is weighted BELOW taste "
+             "and price for the mainstream, consistent with (and slightly below) the discrete-choice anchor."),
     "w_realtissue_E": Input(0.0, "utils", "[assumed] ethical-segment weight on real tissue ~ 0: ethical "
         "eaters choose on slaughter-free, not on 'real meat'"),
     "w_slaughter_E": Input(4.0, "utils", "[assumed] ETHICAL-segment utility weight on the SLAUGHTER-FREE "
