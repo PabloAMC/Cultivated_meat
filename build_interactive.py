@@ -405,8 +405,8 @@ def build_model() -> dict:
                "22.4 L/kg media intensity): a litre can't cost less than the amino acids dissolved in it. "
                "This slider stops at $0.10/L (a round bound just above that floor); the floor itself "
                "binds inside the cost equation. SOURCE: $0.63 from Pasitka et al. "
-               "2024; the $0.20 claim and its caveats from GFI, State of the Industry / 'Analyzing "
-               "cell-culture medium costs' (2025)."),
+               "2024; the $0.20 claim and its caveats from GFI's State of the Industry (2025) and "
+               "Specht's 'Analyzing cell-culture medium costs' (GFI white paper, 2021)."),
         slider("meat_tax", "Meat price (tax mult. <i>t</i>)", "x", 0.8, 1.6, 0.05, 1.0, "policy",
                tip="A multiplier on every conventional-meat price - e.g. a meat tax or a carbon "
                "price passed through to meat. Raising it lowers the price ratio (cultivated becomes "
@@ -1146,9 +1146,9 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         <li id="ref2"><b>[2]</b> <b>Feedstock floor, scale-up ceilings, clean-room cost:</b> Humbird, D. Scale-up economics
         for cultured meat. <i>Biotechnology and Bioengineering</i> <b>118</b>, 3239&ndash;3250 (2021).
         <a href="https://doi.org/10.1002/bit.27848" target="_blank" rel="noopener">doi:10.1002/bit.27848</a></li>
-        <li id="ref3"><b>[3]</b> <b>$0.20/L company claims, media-cost breakdown:</b> The Good Food Institute.
-        <a href="https://gfi.org/resource/cultivated-meat-seafood-and-ingredients-state-of-the-industry/" target="_blank" rel="noopener">State of the Industry</a>
-        &amp; <a href="https://gfi.org/resource/analyzing-cell-culture-medium-costs/" target="_blank" rel="noopener">Analyzing cell-culture medium costs</a> (2025).</li>
+        <li id="ref3"><b>[3]</b> <b>$0.20/L company claims, media-cost breakdown:</b> The Good Food Institute,
+        <a href="https://gfi.org/resource/cultivated-meat-seafood-and-ingredients-state-of-the-industry/" target="_blank" rel="noopener">State of the Industry</a> (2025)
+        &amp; Specht, L., <a href="https://gfi.org/resource/analyzing-cell-culture-medium-costs/" target="_blank" rel="noopener">Analyzing cell-culture medium costs</a> (GFI white paper, 2021).</li>
         <li id="ref4"><b>[4]</b> <b>Elasticity &minus;0.9 (beef &minus;0.75, pork &minus;0.72, poultry &minus;0.68):</b>
         Andreyeva, T., Long, M.&nbsp;W. &amp; Brownell, K.&nbsp;D. The impact of food prices on
         consumption. <i>Am. J. Public Health</i> <b>100</b>, 216&ndash;222 (2010).
