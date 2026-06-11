@@ -1,0 +1,11 @@
+# Runtime dependencies for the cultivated-meat model.
+# Pins are lower bounds (>=) at versions known to work; the model uses only stable APIs.
+numpy>=1.24
+matplotlib>=3.7
+markdown>=3.4        # build_html.py only (POST.md -> POST.html)
+
+# --- optional, for development ---
+# pytest>=7.0         # to run tests/run_parity.py under pytest (it also runs as a plain script)
+#
+# The Python<->JS parity test (tests/run_parity.py) additionally needs Node.js on PATH
+# (any recent v18+); it is skipped gracefully if Node is absent.

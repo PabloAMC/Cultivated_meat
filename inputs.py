@@ -248,6 +248,25 @@ REGISTRY: dict[str, Input] = {
         note="Plant-based gets the SAME machinery as cultivated; the only a-priori difference between the "
              "two novel meats is this attribute (and price/taste, which are observed). Equal footing means "
              "the asymmetry is a visible DIAL, not a hidden constant."),
+    "health_x": Input(0.0, "utils", "[SCENARIO, unidentified] HEALTH PERCEPTION of CULTIVATED meat — a "
+        "utility offset added straight to its utility (weight 1, same scale as novelty). POSITIVE = perceived "
+        "HEALTHIER (a draw: 'clean, no antibiotics, no faecal contamination, controlled fat'); NEGATIVE = "
+        "perceived LESS healthy (an aversion: 'lab-grown, unnatural, ultra-processed'); 0 = neutral "
+        "(conventional is the reference). Default 0 because the evidence is genuinely TWO-SIDED with no point "
+        "estimate. A scenario dial like novelty/authenticity: inert at 0, never re-pins the calibration.",
+        lo=-0.5, hi=0.5, mode=0.0,
+        note="Distinct from taste (a_x, sensory) and slaughter-free (theta, ethics). Equal footing with the "
+             "plant-based health dial. At parity each +0.5 util is roughly a +10pp swing; swept +-0.5 in MC."),
+    "health_p": Input(0.0, "utils", "[SCENARIO, unidentified] HEALTH PERCEPTION of PLANT-BASED meat — the "
+        "SAME dial as health_x, for equal footing. POSITIVE = the 'plant-based = good for you' health-halo; "
+        "NEGATIVE = the 'ultra-processed fake meat' backlash. 0 = neutral. Default 0 and UNIDENTIFIED, like "
+        "health_x: an exploratory override from plant-based's calibrated ~1.2%, not a re-pin.",
+        lo=-0.5, hi=0.5, mode=0.0,
+        note="The term you'd reach for to ask 'how much of plant-based's plateau is a health-perception "
+             "problem?'. Swept +-0.5 in the MC band, like health_x."),
+    "health_w": Input(0.0, "utils", "[SCENARIO] optional HEALTH intercept on the WHOLE-FOOD outside option "
+        "(beans/tofu). 0 in the meat market; used by some comparison products where the outside option has a "
+        "health halo. Default 0; conventional meat is the 0 reference."),
     "neophobia_p0": Input(-1.0, "utils", "[behavioural] plant-based meat's INITIAL (cold-start) novelty "
         "attitude — the analogue of neophobia_x0 for cultivated. Plant-based is already MATURE (~1.2%), so "
         "its observed position is the calibration target and this cold-start is mostly HISTORICAL / "

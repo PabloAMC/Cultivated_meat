@@ -10,3 +10,6 @@ __pycache__/
 # scratch / debug check images (not deliverables)
 cuts_v2_check.png
 *_check.png
+
+# parity-test scratch (auto-extracted JS, cleaned by the test but ignore anyway)
+tests/_model_extracted.js

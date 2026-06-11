@@ -177,6 +177,9 @@ class DemandParams:
     neophobia_p: float = value("neophobia_p")       # PLANT-BASED novelty attitude (utils; exploratory override)
     real_tissue_x: float = value("real_tissue_x")   # CULTIVATED real-tissue flag (1=premise, the asymmetry; a DIAL)
     real_tissue_p: float = value("real_tissue_p")   # PLANT-BASED real-tissue flag (0 by definition; dial for symmetry)
+    health_x: float = value("health_x")             # CULTIVATED health-perception offset (utils; +healthier/-less; default 0, scenario)
+    health_p: float = value("health_p")             # PLANT-BASED health-perception offset (utils; default 0, scenario)
+    health_w: float = value("health_w")             # WHOLE-FOOD health intercept (utils; 0 in the meat market)
     w_realtissue_M: float = value("w_realtissue_M")  # MAINSTREAM real-tissue weight (the no-nest mechanism)
     w_realtissue_E: float = value("w_realtissue_E")  # ETHICAL real-tissue weight (~0)
     w_slaughter_E: float = value("w_slaughter_E")   # ETHICAL slaughter-free weight (large)
@@ -230,7 +233,7 @@ def _softmax(V):
 
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
-               tier_offset, neophobia_x, neophobia_p, income):
+               tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -273,6 +276,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # real_tissue: whole-food 0, conventional 1 (reference), plant-based & cultivated are DIALS
     # (default p=0, x=1 — the identifying asymmetry, now adjustable for equal-footing what-ifs).
     real_tissue    = np.array([0.0, 1.0, pr.real_tissue_p, pr.real_tissue_x])
+    # HEALTH PERCEPTION (utils; + = perceived healthier / a draw, - = less healthy / unnatural-aversion).
+    # Two-sided SCENARIO offset on the two novel meats (p, x) plus an optional whole-food intercept
+    # (health_w, for comparison products). Default 0 — inert at the central case, never re-pins the
+    # calibration. health_x/health_p are overrides defaulting to the calibrated pr.health_x/pr.health_p.
+    hX = pr.health_x if health_x is None else health_x
+    hP = pr.health_p if health_p is None else health_p
+    health         = np.array([pr.health_w, 0.0, hP, hX])             # [w, c, p, x]
     asc_w = pr.K_wholefood_M if seg == "M" else pr.K_wholefood_E      # segment-specific whole-food intercept (LOAD-BEARING: pins PB)
     # intercept per product [w, c, p, x]: outside-option (w); conventional 0; plant-based
     # neophobia; cultivated neophobia + per-tier authenticity offset.
@@ -308,16 +318,17 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
               + 1.0 * np.maximum(0.0, -premium))
 
     return (V_price + V_loss + pr.q_taste * taste
-            + w_slaughter * slaughter_free + w_realtissue * real_tissue + asc)
+            + w_slaughter * slaughter_free + w_realtissue * real_tissue + health + asc)
 
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
-             tier_offset, neophobia_x, neophobia_p, income, cultivated_present=True) -> dict:
+             tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
+             cultivated_present=True) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
-                   neophobia_p=neophobia_p, income=income)
+                   neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -330,7 +341,7 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 # ----------------------------------------------------------------------------
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
-          neophobia_x=None, neophobia_p=None) -> float:
+          neophobia_x=None, neophobia_p=None, health_x=None, health_p=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
@@ -344,6 +355,10 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                        value (launch wariness decaying onto the long-run neophobia_x).
       neophobia_p   -> PLANT-BASED novelty attitude (utils; default pr.neophobia_p) — an
                        exploratory deviation from PB's calibrated position.
+      health_x      -> CULTIVATED health-perception offset (utils; default pr.health_x=0).
+      health_p      -> PLANT-BASED health-perception offset (utils; default pr.health_p=0).
+                       Both are two-sided SCENARIO dials (like neophobia): inert at 0,
+                       never re-pin the calibration.
       eps_own       -> sweeps the price coefficient beta.
       income        -> region income ($/yr) for the BLP price term (default income_ref
                        => unchanged from the US-anchored calibration). Richer = less
@@ -376,9 +391,11 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, cultivated_present=cultivated_present)
+                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
+                 cultivated_present=cultivated_present)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, cultivated_present=cultivated_present)
+                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
+                 cultivated_present=cultivated_present)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
@@ -388,7 +405,8 @@ def _rate(pr: DemandParams, seg: str, which: str) -> float:
     """One segment's share of `which` in {w,c,p,x} at neutral parity, cultivated
     absent and at reference income — the moment the calibration solves target."""
     s = _segment(1.0, pr, pr.beta_price, seg, accept_x=1.0, theta_free_M=0.0,
-                 tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref, cultivated_present=False)
+                 tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
+                 health_x=0.0, health_p=0.0, cultivated_present=False)
     return s[which]
 
 
