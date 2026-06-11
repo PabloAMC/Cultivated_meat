@@ -65,7 +65,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value
+from inputs import value, prior
 from cost_model import CostParams, biomass_cost, cost_floor, ratio as cost_ratio
 from market_share import DemandParams, share
 
@@ -224,7 +224,6 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
       - accept_x, theta_free_M (long-run sensory / cleaner-meat acceptance)
     `R` is held fixed (the price ratio); use the cost rung to pick it.
     Returns dict(t, share_p10/p50/p90 [%], tstab [array of years], final [array %])."""
-    from inputs import prior
     rng = np.random.default_rng(seed)
     yrs = int(value("years")) if years is None else years
 
@@ -361,7 +360,8 @@ def fig_neophobia_time(outdir, fmts, R=1.0, n=4000, seed=0) -> None:
 
     # (b) FINAL share vs long-run neophobia_x (where it lands), everything else at default
     ax = axes[1]
-    nxs = np.linspace(-2.0, 1.0, 25)
+    nx_lo, nx_hi = prior("neophobia_x")[1], prior("neophobia_x")[2]   # sweep = the prior range (no drift)
+    nxs = np.linspace(nx_lo, nx_hi, 25)
     finals = []
     tp_def = TimingParams()
     for nx in nxs:
@@ -375,7 +375,8 @@ def fig_neophobia_time(outdir, fmts, R=1.0, n=4000, seed=0) -> None:
 
     # (c) time-to-stabilize vs fade rate accept_rate (how long), other params default
     ax = axes[2]
-    rates = np.linspace(0.05, 0.50, 25)
+    rate_lo, rate_hi = prior("accept_rate")[1], prior("accept_rate")[2]   # sweep = the prior range (no drift)
+    rates = np.linspace(rate_lo, rate_hi, 25)
     tstabs = []
     for r in rates:
         tp_i = TimingParams(accept_rate=float(r))

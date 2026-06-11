@@ -58,7 +58,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value
+from inputs import value, prior
 
 
 # conventional TARGET products a structured cultivated product could compete with
@@ -127,9 +127,12 @@ def fig_scaffolding(pr: ScaffoldParams, outdir, fmts) -> None:
     ax.axhline(1.0, ls="--", lw=0.9, color="0.35")
     ax.text(0.3, 1.03, "parity (R=1)", fontsize=7.5, color="0.35")
 
-    # plausible scaffold-cost band (material + the speculative process range)
-    lo = scaffold_cost(pr, process=1.0, material=2.0)
-    hi = scaffold_cost(pr, process=15.0, material=20.0)
+    # plausible scaffold-cost band — read the band ends from the process_cost / material_price
+    # PRIORS (inputs.py) so the figure band always matches the sampled band, no drift.
+    proc_lo, proc_hi = prior("process_cost")[1], prior("process_cost")[2]
+    mat_lo, mat_hi = prior("material_price")[1], prior("material_price")[2]
+    lo = scaffold_cost(pr, process=proc_lo, material=mat_lo)
+    hi = scaffold_cost(pr, process=proc_hi, material=mat_hi)
     ax.axvspan(lo, hi, color="#029E73", alpha=0.10)
     ax.text((lo + hi) / 2, ax.get_ylim()[1] * 0.93,
             "plausible scaffold cost\n(process unmodelled in literature)",
