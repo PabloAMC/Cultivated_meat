@@ -248,25 +248,38 @@ REGISTRY: dict[str, Input] = {
         note="Plant-based gets the SAME machinery as cultivated; the only a-priori difference between the "
              "two novel meats is this attribute (and price/taste, which are observed). Equal footing means "
              "the asymmetry is a visible DIAL, not a hidden constant."),
-    "health_x": Input(0.0, "utils", "[SCENARIO, unidentified] HEALTH PERCEPTION of CULTIVATED meat — a "
-        "utility offset added straight to its utility (weight 1, same scale as novelty). POSITIVE = perceived "
-        "HEALTHIER (a draw: 'clean, no antibiotics, no faecal contamination, controlled fat'); NEGATIVE = "
-        "perceived LESS healthy (an aversion: 'lab-grown, unnatural, ultra-processed'); 0 = neutral "
-        "(conventional is the reference). Default 0 because the evidence is genuinely TWO-SIDED with no point "
-        "estimate. A scenario dial like novelty/authenticity: inert at 0, never re-pins the calibration.",
+    # --- HEALTH-PERCEPTION ATTRIBUTE (positions per product; the WEIGHT is segment-specific & SOLVED) ---
+    # Health is a named attribute b_health on every product, weighted by a calibrated, segment-specific
+    # health weight (w_health_M / w_health_E). The whole-food health premium is the principled
+    # replacement for the old free whole-food intercept xi_w: it is WHY ethical/health-minded eaters
+    # default to beans over a processed veggie burger. Positions below; weights are solved.
+    "health_x": Input(0.0, "norm", "[SCENARIO, unidentified] HEALTH-PERCEPTION POSITION of CULTIVATED meat "
+        "(on the same scale as the other products' health positions, weighted by the segment health weight). "
+        "POSITIVE = perceived HEALTHIER (a draw: 'clean, no antibiotics, no faecal contamination, controlled "
+        "fat'); NEGATIVE = perceived LESS healthy ('lab-grown, unnatural, ultra-processed'); 0 = at the "
+        "conventional reference. Default 0 because the evidence is genuinely TWO-SIDED with no point estimate. "
+        "A scenario dial like novelty/authenticity: inert at 0 relative to conventional, never re-pins.",
         lo=-0.5, hi=0.5, mode=0.0,
         note="Distinct from taste (a_x, sensory) and slaughter-free (theta, ethics). Equal footing with the "
-             "plant-based health dial. At parity each +0.5 util is roughly a +10pp swing; swept +-0.5 in MC."),
-    "health_p": Input(0.0, "utils", "[SCENARIO, unidentified] HEALTH PERCEPTION of PLANT-BASED meat — the "
-        "SAME dial as health_x, for equal footing. POSITIVE = the 'plant-based = good for you' health-halo; "
-        "NEGATIVE = the 'ultra-processed fake meat' backlash. 0 = neutral. Default 0 and UNIDENTIFIED, like "
-        "health_x: an exploratory override from plant-based's calibrated ~1.2%, not a re-pin.",
+             "plant-based health dial. Swept +-0.5 in the MC band."),
+    "health_p": Input(0.0, "norm", "[SCENARIO, unidentified] HEALTH-PERCEPTION POSITION of PLANT-BASED meat — "
+        "the SAME dial as health_x, for equal footing. POSITIVE = the 'plant-based = good for you' health-halo; "
+        "NEGATIVE = the 'ultra-processed fake meat' backlash. 0 = at the conventional reference. Default 0 and "
+        "UNIDENTIFIED, like health_x: an exploratory deviation from plant-based's calibrated ~1.2%, not a re-pin.",
         lo=-0.5, hi=0.5, mode=0.0,
-        note="The term you'd reach for to ask 'how much of plant-based's plateau is a health-perception "
-             "problem?'. Swept +-0.5 in the MC band, like health_x."),
-    "health_w": Input(0.0, "utils", "[SCENARIO] optional HEALTH intercept on the WHOLE-FOOD outside option "
-        "(beans/tofu). 0 in the meat market; used by some comparison products where the outside option has a "
-        "health halo. Default 0; conventional meat is the 0 reference."),
+        note="The term for 'how much of plant-based's plateau is a health-perception problem?'. Swept in MC."),
+    "health_w": Input(2.0, "norm", "[position] HEALTH-PERCEPTION POSITION of the WHOLE-FOOD outside option "
+        "(beans/tofu/lentils): POSITIVE — whole plant foods are widely seen as 'the healthy choice' (dietary "
+        "guidance ranks legumes above red meat; ~17% name healthfulness the top protein driver, and 'good "
+        "source of protein' is the #1 healthy-food definer). This positive position, times the SOLVED segment "
+        "health weight, is what replaces the old free whole-food intercept. Default +2 (a judgement scale set "
+        "with the weight; only the product depends on data, not the split)."),
+    "health_c": Input(-0.1, "norm", "[position] HEALTH-PERCEPTION POSITION of CONVENTIONAL meat: slightly "
+        "NEGATIVE — red/processed meat carries a mild 'less healthy' standing (saturated fat, processed-meat "
+        "guidance) relative to whole plant foods, though it remains a high-quality protein. Small by design; it "
+        "sets conventional's health standing that the other positions are measured against. Default -0.1, so "
+        "cultivated (health_x=0, i.e. no antibiotics/contamination, controlled fat) carries a mild +0.1 health "
+        "edge over conventional — a small, defensible lift to the at-parity share (~47% -> ~50%)."),
     "neophobia_p0": Input(-1.0, "utils", "[behavioural] plant-based meat's INITIAL (cold-start) novelty "
         "attitude — the analogue of neophobia_x0 for cultivated. Plant-based is already MATURE (~1.2%), so "
         "its observed position is the calibration target and this cold-start is mostly HISTORICAL / "
@@ -297,16 +310,16 @@ REGISTRY: dict[str, Input] = {
     "price_wf_mult": Input(0.25, "x p_conv", "[BLS] whole-food plant protein staple (dried beans/lentils) "
         "$/kg vs commodity meat: US dried beans $3.40/kg (BLS Aug 2025), representative $2-3.5/kg, vs "
         "~$12/kg meat -> ~0.25x. Beans are also ~3-5x cheaper per kg of PROTEIN than beef (VRG 2024).",
-        note="the outside option is CHEAP; with taste_quality_w and K_wholefood it absorbs most ethical "
-             "demand -> PB stays ~1%."),
+        note="the outside option is CHEAP; with taste_quality_w and the whole-food HEALTH premium "
+             "(health_w x the solved segment health weight) it absorbs most ethical demand -> PB stays ~1%."),
     "taste_quality_w": Input(-0.7, "norm", "[assumed] whole-food (beans/tofu/lentils) taste/utility AS A "
         "MEAT SUBSTITUTE: nutritious and cheap, but quite far from a meat-eating experience. Normalised "
         "like (accept_x-1): 0 = as satisfying as real meat, negative = a worse stand-in for meat (-0.7 ≈ "
         "a_w 0.3 on the 1=real-meat scale)",
         lo=-1.0, hi=-0.3, mode=-0.7,
-        note="NOT load-bearing: the whole-food ASC K_wholefood is SOLVED to hit the meatless / PB-share "
-             "targets, so it absorbs whatever this taste does not — lowering taste_quality_w just raises "
-             "the solved ASC, leaving cultivated and plant-based shares unchanged. Set to a plausible "
+        note="NOT load-bearing: the whole-food HEALTH weight (w_health) is SOLVED to hit the meatless / "
+             "PB-share targets, so it absorbs whatever this taste does not — lowering taste_quality_w just "
+             "raises the solved health weight, leaving cultivated and plant-based shares unchanged. Set to a plausible "
              "'beans aren't a burger' value; the split between taste and the solved ASC is not identified."),
 
     # --- Rung 3: income-dependent price sensitivity (BLP log form) -----------
@@ -339,10 +352,10 @@ REGISTRY: dict[str, Input] = {
     "w_eth": Input(0.05, "fraction", "[Gallup] ethics-driven CORE = vegetarian (4%) + vegan (1%), "
         "Gallup 2023",
         lo=0.04, hi=0.10, mode=0.05,
-        note="5% is the ethics core and is KEPT. Plant-based lands at ~1% (not ~5%) because the cheap "
-             "whole-food outside option (K_wholefood) absorbs most ethical eaters — NOT because the "
-             "segment is smaller. The flexitarian PB buyer base (~89% of buyers, GFI 2024) lives in the "
-             "MAINSTREAM via theta_free_M, not here."),
+        note="5% is the ethics core and is KEPT. Plant-based lands at ~1% (not ~5%) because the cheap, "
+             "HEALTHY whole-food outside option (the health premium w_health_E x health_w) absorbs most "
+             "ethical eaters — NOT because the segment is smaller. The flexitarian PB buyer base (~89% of "
+             "buyers, GFI 2024) lives in the MAINSTREAM via theta_free_M, not here."),
     "w_realtissue_M": Input(2.0, "utils", "[calibration, SOLVED] MAINSTREAM utility weight on REAL TISSUE "
         "(=1 conventional & cultivated, =0 plant-based & whole-food). SOLVED at runtime so the mainstream "
         "carries pb_mainstream_frac (~89%) of plant-based buyers (GFI/Morning Consult 2024). The stored "
@@ -364,17 +377,19 @@ REGISTRY: dict[str, Input] = {
     "wf_mainstream_target": Input(0.06, "share", "[assumed, SOFT] mainstream 'meatless-by-choice' share: "
         "the fraction of mainstream meat-occasions where a whole-food plant protein is chosen over meat",
         lo=0.04, hi=0.14, mode=0.06,
-        note="pins K_wholefood_M (the mainstream whole-food intercept) so the cheap outside option does not "
+        note="pins w_health_M (the mainstream health weight) so the cheap, healthy outside option does not "
              "spill unrealistically into the mainstream. SOFT (no clean source); mostly moves the whole-food "
              "line, NOT the cultivated headline (self-check [6]: <=0.2pp). Lowered 0.10->0.06 so total "
              "whole-food (~ethical core 5pp + this) sits ~10%, not ~14%; the irreducible part is the ethical "
              "segment eating beans (w_eth * ~96% ~= 5pp), which IS the model's premise, not a free knob."),
-    "K_wholefood_M": Input(-3.0, "utils", "[calibration, SOLVED] mainstream whole-food (beans/tofu) "
-        "outside-option intercept — SOLVED so mainstream whole-food == wf_mainstream_target. Seed only.",
-        note="SEGMENT-SPECIFIC (vs K_wholefood for the ethical segment): mainstream meat-eaters rarely "
-             "substitute beans for a meat occasion, so this intercept is much weaker than the ethical one. "
-             "Splitting the outside option by segment is what lets w_realtissue_M be pinned to the buyer "
-             "split without the cheap bean option leaking into the mainstream."),
+    "w_health_M": Input(1.2, "utils", "[calibration, SOLVED] MAINSTREAM weight on the HEALTH attribute — "
+        "SOLVED so mainstream whole-food == wf_mainstream_target. Seed only. Times the whole-food health "
+        "position (health_w), this is the mainstream's pull toward beans; it REPLACES the old free whole-food "
+        "intercept K_wholefood_M.",
+        note="SEGMENT-SPECIFIC (vs w_health_E for the ethical segment): mainstream meat-eaters weight health "
+             "less / substitute beans for a meat occasion rarely, so this weight is much smaller than the "
+             "ethical one. Splitting the health weight by segment is what lets w_realtissue_M be pinned to the "
+             "buyer split without the cheap bean option leaking into the mainstream."),
     "w_realtissue_E": Input(0.0, "utils", "[assumed] ethical-segment weight on real tissue ~ 0: ethical "
         "eaters choose on slaughter-free, not on 'real meat'"),
     "w_slaughter_E": Input(4.0, "utils", "[assumed] ETHICAL-segment utility weight on the SLAUGHTER-FREE "
@@ -384,14 +399,17 @@ REGISTRY: dict[str, Input] = {
         "(~0.8% of all meat by $, ~1.7% of packaged, <1% by volume; ~13% household penetration; declining "
         "since the ~2020-21 peak), SPINS/Circana via GFI 2024",
         lo=0.008, hi=0.017, mode=0.012,
-        note="the calibration ANCHOR: K_wholefood is solved at runtime so the model reproduces this with "
+        note="the calibration ANCHOR: the whole-food health weight w_health is solved at runtime so the model reproduces this with "
              "cultivated absent (market_share.solve_calibration) — a solved calibration target, not a static floor."),
-    "K_wholefood": Input(0.0, "utils", "[calibration, SOLVED] ETHICAL-segment whole-food outside-option "
-        "intercept (utils) — SOLVED so the ethical-segment plant-based rate hits its target (the residual "
-        "~11% of PB buyers / the non-mainstream part of pb_share_target). The stored value is a seed.",
-        note="this, not a smaller w_eth, is why a 5% ethical core yields only ~0.1pp of PB: the cheap "
-             "whole-food outside option (beans/tofu) absorbs most ethical eaters. Diffusion ruled out (PB "
-             "is mature/declining). Mainstream uses the separate, weaker K_wholefood_M."),
+    "w_health_E": Input(2.3, "utils", "[calibration, SOLVED] ETHICAL-segment weight on the HEALTH attribute — "
+        "SOLVED so the ethical-segment plant-based rate hits its target (the residual ~11% of PB buyers / the "
+        "non-mainstream part of pb_share_target). Times the whole-food health position (health_w), this is the "
+        "ethical segment's strong pull toward whole foods; it REPLACES the old free intercept K_wholefood. Seed.",
+        note="this (a large health weight on the healthy whole-food option), not a smaller w_eth, is why a 5% "
+             "ethical core yields only ~0.1pp of PB: the healthy whole-food option (beans/tofu) absorbs most "
+             "ethical eaters. Diffusion ruled out (PB is mature/declining). Mainstream uses the smaller "
+             "w_health_M. The health-minded and the ethical overlap, so the ethical segment weights health "
+             "heavily — the principled reason it defaults to whole foods over a processed veggie burger."),
     # === FOOD NEOPHOBIA — an adjustable +/- attitude to a NOVEL food, on BOTH non-
     #     conventional meats. SIGN CONVENTION: the value is a UTILITY OFFSET in utils,
     #     NEGATIVE = neophobia (the novel product is shunned, a penalty), POSITIVE =

@@ -87,9 +87,11 @@ Calibration (demographic-conditional, reduced form)
 ---------------------------------------------------
 Three monotone 1-D solves (`solve_calibration`) pin the model to cross-sectional data:
 w_realtissue_M so the MAINSTREAM carries ~89% of plant-based buyers (GFI: most PB buyers
-are flexitarians, not the 5% ethical core); the SEGMENT-SPECIFIC whole-food intercepts
-K_wholefood_M / K_wholefood_E so the mainstream meatless rate and the residual ethical PB
-rate match (total PB ~1.2%). w_realtissue_M is a REDUCED-FORM standing (real-tissue
+are flexitarians, not the 5% ethical core); the SEGMENT-SPECIFIC HEALTH WEIGHTS
+w_health_M / w_health_E (times the whole-food health premium) so the mainstream meatless rate
+and the residual ethical PB rate match (total PB ~1.2%). The health weight REPLACES the old
+free whole-food intercept xi_w — the model now carries no free fitted constant, every product's
+standing is a named attribute times a weight. w_realtissue_M is a REDUCED-FORM standing (real-tissue
 preference + processed/habit residual) — we do not split it into a separate habit term
 (not identified from heterogeneity without panel data; habit lives in the Rung-4 diffusion
 + the long-run acceptance dials accept_x/theta_free_M). real_tissue is the IDENTIFYING ASSUMPTION that cultivated,
@@ -177,10 +179,13 @@ class DemandParams:
     real_tissue_p: float = value("real_tissue_p")   # PLANT-BASED real-tissue flag (0 by definition; dial for symmetry)
     health_x: float = value("health_x")             # CULTIVATED health-perception offset (utils; +healthier/-less; default 0, scenario)
     health_p: float = value("health_p")             # PLANT-BASED health-perception offset (utils; default 0, scenario)
-    health_w: float = value("health_w")             # WHOLE-FOOD health intercept (utils; 0 in the meat market)
+    health_w: float = value("health_w")             # WHOLE-FOOD health POSITION (utils; +, "beans are the healthy choice")
+    health_c: float = value("health_c")             # CONVENTIONAL health POSITION (utils; slightly -, the reference's health standing)
     w_realtissue_M: float = value("w_realtissue_M")  # MAINSTREAM real-tissue weight (the no-nest mechanism)
     w_realtissue_E: float = value("w_realtissue_E")  # ETHICAL real-tissue weight (~0)
     w_slaughter_E: float = value("w_slaughter_E")   # ETHICAL slaughter-free weight (large)
+    w_health_M: float = value("w_health_M")         # MAINSTREAM health weight; SOLVED (replaces the whole-food intercept)
+    w_health_E: float = value("w_health_E")         # ETHICAL health weight; SOLVED (the whole-food health premium pulls ethical eaters to beans)
 
     # --- reference-dependent loss aversion (uniform across products) -------
     loss_aversion: float = value("loss_aversion")    # premium-over-conventional penalty, every product
@@ -189,8 +194,6 @@ class DemandParams:
     pb_share_target: float = value("pb_share_target")          # plant-based total share anchor
     pb_mainstream_frac: float = value("pb_mainstream_frac")    # share of PB buyers who are mainstream (GFI ~89%)
     wf_mainstream_target: float = value("wf_mainstream_target")  # mainstream 'meatless-by-choice' share
-    K_wholefood_M: float = value("K_wholefood_M")   # mainstream whole-food intercept; SOLVED
-    K_wholefood_E: float = value("K_wholefood")     # ethical whole-food intercept; SOLVED
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
     # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
@@ -203,8 +206,8 @@ class DemandParams:
         #      elasticity equals its target eps_own*cult_sub_mult AT cultivated's own
         #      modeled retail price & share (a short fixed point — see _derive_beta);
         #  (2) three cross-sectional moments are matched (solve_calibration):
-        #      w_realtissue_M (mainstream PB rate = the 89% buyer split), K_wholefood_M
-        #      (mainstream whole-food rate), K_wholefood_E (ethical PB rate).
+        #      w_realtissue_M (mainstream PB rate = the 89% buyer split), w_health_M
+        #      (mainstream whole-food rate), w_health_E (ethical PB rate).
         # No separate static habit term: habit is not identified from heterogeneity
         # here (Heckman), so it lives in the diffusion rung (adoption_timing) + the
         # long-run standing is carried by accept_x + theta_free_M (no xi_x dial).
@@ -274,23 +277,26 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # real_tissue: whole-food 0, conventional 1 (reference), plant-based & cultivated are DIALS
     # (default p=0, x=1 — the identifying asymmetry, now adjustable for equal-footing what-ifs).
     real_tissue    = np.array([0.0, 1.0, pr.real_tissue_p, pr.real_tissue_x])
-    # HEALTH PERCEPTION (utils; + = perceived healthier / a draw, - = less healthy / unnatural-aversion).
-    # Two-sided SCENARIO offset on the two novel meats (p, x) plus an optional whole-food intercept
-    # (health_w, for comparison products). Default 0 — inert at the central case, never re-pins the
-    # calibration. health_x/health_p are overrides defaulting to the calibrated pr.health_x/pr.health_p.
+    # HEALTH PERCEPTION (utils; + = perceived healthier, - = less healthy). A named ATTRIBUTE on
+    # every product, weighted by a SEGMENT-SPECIFIC health weight w_health (like slaughter-free and
+    # real-tissue). Positions: whole-food health_w (+, beans are "the healthy choice"), conventional
+    # health_c (slightly -, the reference's health standing), plant-based / cultivated via their
+    # health_p / health_x dials (two-sided scenario, default 0). The whole-food health premium is
+    # what pulls ethical eaters to whole foods over a processed veggie burger — so w_health (solved
+    # in calibration) REPLACES the old free whole-food intercept xi_w: the model is now fully
+    # attribute-based, with no free fitted constant on any product.
     hX = pr.health_x if health_x is None else health_x
     hP = pr.health_p if health_p is None else health_p
-    health         = np.array([pr.health_w, 0.0, hP, hX])             # [w, c, p, x]
-    asc_w = pr.K_wholefood_M if seg == "M" else pr.K_wholefood_E      # segment-specific whole-food intercept (LOAD-BEARING: pins PB)
-    # intercept per product [w, c, p, x]: outside-option (w); conventional 0; plant-based
-    # neophobia; cultivated neophobia + per-tier authenticity offset.
-    asc            = np.array([asc_w, 0.0, neophobia_p, neophobia_x + tier_offset])
+    health         = np.array([pr.health_w, pr.health_c, hP, hX])     # [w, c, p, x]
+    # intercept per product [w, c, p, x]: NONE now on whole-food (health carries it); conventional 0;
+    # plant-based neophobia; cultivated neophobia + per-tier authenticity offset.
+    asc            = np.array([0.0, 0.0, neophobia_p, neophobia_x + tier_offset])
 
     # --- segment-specific attribute weights ---------------------------------
     if seg == "M":
-        w_slaughter, w_realtissue = theta_free_M, pr.w_realtissue_M
+        w_slaughter, w_realtissue, w_health = theta_free_M, pr.w_realtissue_M, pr.w_health_M
     else:
-        w_slaughter, w_realtissue = pr.w_slaughter_E, pr.w_realtissue_E
+        w_slaughter, w_realtissue, w_health = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
 
     # --- the SAME utility for every product ---------------------------------
     price = price_ratio * pr.p_conv
@@ -316,7 +322,8 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
               + 1.0 * np.maximum(0.0, -premium))
 
     return (V_price + V_loss + pr.q_taste * taste
-            + w_slaughter * slaughter_free + w_realtissue * real_tissue + health + asc)
+            + w_slaughter * slaughter_free + w_realtissue * real_tissue
+            + w_health * health + asc)
 
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
@@ -414,20 +421,27 @@ def solve_calibration(pr: DemandParams, iters: int = 70, rounds: int = 12):
 
       * w_realtissue_M  -> mainstream plant-based rate = pb_mainstream_frac of PB
         buyers (GFI ~89%) — i.e. the MAINSTREAM, not the 5% ethical core, carries PB.
-      * K_wholefood_M   -> mainstream whole-food rate = wf_mainstream_target.
-      * K_wholefood_E   -> ethical plant-based rate = the residual (~11%) of PB.
+      * w_health_M      -> mainstream whole-food rate = wf_mainstream_target.
+      * w_health_E      -> ethical plant-based rate = the residual (~11%) of PB.
 
-    The first two share the mainstream normalisation, so they run in a short
-    coordinate descent; the ethical one is independent. Together they reproduce the
-    total PB share and the mainstream/ethical split by construction. (No separate
-    static habit term — see __post_init__.)
+    The HEALTH weight (segment-specific) is what makes whole foods the default for the
+    health- and ethically-minded; it REPLACES the old free whole-food intercept xi_w, so
+    the model now carries no free fitted constant — every product's standing is a named
+    attribute (price, taste, slaughter-free, real-tissue, health) times a weight. With the
+    whole-food health POSITION (health_w > 0) fixed, solving the segment health WEIGHT is
+    equivalent to (and identified exactly as) solving the old intercept.
+
+    The first two share the mainstream normalisation, so they run in a short coordinate
+    descent; the ethical one is independent. Together they reproduce the total PB share and
+    the mainstream/ethical split by construction. (No separate static habit term — see
+    __post_init__.)
     """
     we = pr.w_eth
     pb_M_target = pr.pb_mainstream_frac * pr.pb_share_target / (1.0 - we)        # mainstream PB rate
     pb_E_target = (1.0 - pr.pb_mainstream_frac) * pr.pb_share_target / we        # ethical PB rate
     wf_M_target = pr.wf_mainstream_target
 
-    # --- mainstream block: (w_realtissue_M, K_wholefood_M) for (PB_M, WF_M) ---
+    # --- mainstream block: (w_realtissue_M, w_health_M) for (PB_M, WF_M) ---
     for _ in range(rounds):
         lo, hi = 0.0, 8.0                                # PB_M decreases in w_realtissue_M
         for _ in range(iters):
@@ -435,20 +449,20 @@ def solve_calibration(pr: DemandParams, iters: int = 70, rounds: int = 12):
             if _rate(pr, "M", "p") > pb_M_target: lo = mid
             else: hi = mid
         pr.w_realtissue_M = 0.5 * (lo + hi)
-        lo, hi = -16.0, 16.0                             # WF_M increases in K_wholefood_M
+        lo, hi = 0.0, 16.0                               # WF_M increases in w_health_M (health_w > 0)
         for _ in range(iters):
-            mid = 0.5 * (lo + hi); pr.K_wholefood_M = mid
+            mid = 0.5 * (lo + hi); pr.w_health_M = mid
             if _rate(pr, "M", "w") > wf_M_target: hi = mid
             else: lo = mid
-        pr.K_wholefood_M = 0.5 * (lo + hi)
+        pr.w_health_M = 0.5 * (lo + hi)
 
-    # --- ethical block: K_wholefood_E for the ethical PB rate (PB_E decreases in it) ---
-    lo, hi = -16.0, 16.0
+    # --- ethical block: w_health_E for the ethical PB rate (PB_E decreases in w_health_E) ---
+    lo, hi = 0.0, 16.0
     for _ in range(iters):
-        mid = 0.5 * (lo + hi); pr.K_wholefood_E = mid
+        mid = 0.5 * (lo + hi); pr.w_health_E = mid
         if _rate(pr, "E", "p") > pb_E_target: lo = mid
         else: hi = mid
-    pr.K_wholefood_E = 0.5 * (lo + hi)
+    pr.w_health_E = 0.5 * (lo + hi)
     return pr
 
 
@@ -543,7 +557,11 @@ def pb_milk_check(pr: DemandParams) -> float:
         taste_quality_p=0.0,               # taste/functional parity in key uses (barista oat/soy)
         w_realtissue_M=2.1,                # milk's own 'not real dairy' gap (smaller relative effect: price/taste parity)
         price_wf_mult=1.2,                 # NO cheap whole-food substitute for milk-in-coffee -> weak outside
-        K_wholefood_M=-2.0, K_wholefood_E=-2.0,  # fixed weak outside (not solved; not the meat market)
+        # WEAK outside option (fixed, not solved): no healthy whole-food rival to milk-in-coffee, so the
+        # whole-food slot carries a NEGATIVE health position (unit weights) -> reproduces the old fixed
+        # K_wholefood=-2.0 outside-option intercept. health_c=0 because DAIRY (not red meat) is milk's
+        # reference, so the conventional product carries no health penalty in this contrast.
+        health_w=-2.0, health_c=0.0, w_health_M=1.0, w_health_E=1.0,
         calibrated=True,                   # do NOT run the meat calibration solve on the milk world
     )
     milk.beta_ref = pr.beta_ref            # reuse the SAME (meat-derived) price coefficient + its anchor
@@ -556,7 +574,7 @@ def _milk_params(pr: DemandParams) -> DemandParams:
     """The plant-based MILK world (same object pb_milk_check builds) — exposed so the
     figure can read its positions."""
     milk = DemandParams(price_pb_mult=1.0, taste_quality_p=0.0, w_realtissue_M=2.1,
-                        price_wf_mult=1.2, K_wholefood_M=-2.0, K_wholefood_E=-2.0,
+                        price_wf_mult=1.2, health_w=-2.0, health_c=0.0, w_health_M=1.0, w_health_E=1.0,
                         calibrated=True)
     milk.beta_ref = pr.beta_ref
     milk.anchor_price = pr.anchor_price
@@ -637,8 +655,8 @@ def summarise(pr: DemandParams) -> None:
     cp = CostParams(p_conv=pr.p_conv)
     print(f"  4-product / 2-segment logit:  beta_price = {pr.beta_price:.3f} $/kg^-1 "
           f"(eps_own={pr.eps_own:+.2f} x cult_sub_mult={pr.cult_sub_mult:g});  w_eth = {pr.w_eth*100:.0f}%")
-    print(f"  solved: w_realtissue_M = {pr.w_realtissue_M:.2f}  K_wholefood_M = {pr.K_wholefood_M:.2f}  "
-          f"K_wholefood_E = {pr.K_wholefood_E:.2f}")
+    print(f"  solved: w_realtissue_M = {pr.w_realtissue_M:.2f}  w_health_M = {pr.w_health_M:.2f}  "
+          f"w_health_E = {pr.w_health_E:.2f}  (health positions: wf={pr.health_w:+.1f} conv={pr.health_c:+.1f})")
     scenarios = [
         ("Pasitka base (0.63 $/L)",      cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
         ("medium -> 0.2 $/L",            cost_ratio(biomass_cost(cp, 0.20, 1.0), cp)),

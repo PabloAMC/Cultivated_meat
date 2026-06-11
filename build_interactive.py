@@ -96,13 +96,14 @@ def build_model() -> dict:
         "loss_aversion": value("loss_aversion"),
         "real_tissue_x": value("real_tissue_x"),   # identifying asymmetry, now a dial
         "real_tissue_p": value("real_tissue_p"),
-        # HEALTH PERCEPTION (utils; + healthier draw / - less-healthy aversion). Two-sided SCENARIO
-        # dials on the two novel meats, DEFAULT 0 (inert at the central case; conventional is the 0
-        # reference) and UNIDENTIFIED — no point estimate, like novelty ν. health_w is an optional
-        # whole-food health intercept (0 here; used by some comparison products).
+        # HEALTH PERCEPTION — a named ATTRIBUTE on every product, weighted by a segment-specific,
+        # SOLVED health weight (w_health_M/E). Positions: whole-food health_w (+, the healthy choice),
+        # conventional health_c (slightly -); plant-based / cultivated via their health_p / health_x
+        # scenario dials (default 0). The whole-food health premium replaces the old free intercept.
         "health_x": value("health_x"),
         "health_p": value("health_p"),
         "health_w": value("health_w"),
+        "health_c": value("health_c"),
         "neophobia_p": value("neophobia_p"),
         "neophobia_p0": value("neophobia_p0"),      # plant-based cold-start (timing)
         # calibration TARGETS the JS solve hits (so calibration-affecting sliders work live)
@@ -111,8 +112,8 @@ def build_model() -> dict:
         "wf_mainstream_target": value("wf_mainstream_target"),
         # Python-SOLVED reference values (for the in-page self-check; JS re-solves and should match)
         "w_realtissue_M_ref": dp.w_realtissue_M,
-        "K_wholefood_M_ref": dp.K_wholefood_M,
-        "K_wholefood_E_ref": dp.K_wholefood_E,
+        "w_health_M_ref": dp.w_health_M,
+        "w_health_E_ref": dp.w_health_E,
         # REGIONAL income-channel reference: Python share at a Pasitka-base R for a non-US income.
         # Guards against the income/alpha mirror silently drifting again (the US case alone can't —
         # at income_ref both alpha forms coincide). [income, R, Python share %].
@@ -1266,22 +1267,24 @@ function utilities(R,K,seg,o){
   const rtP=(o.rtp!==undefined?o.rtp:(K.real_tissue_p!==undefined?K.real_tissue_p:0));
   const rtX=(o.rtx!==undefined?o.rtx:(K.real_tissue_x!==undefined?K.real_tissue_x:1));
   const slaughter=[1,0,1,1], realtissue=[0,1,rtP,rtX];
-  // HEALTH PERCEPTION (utils; + = perceived healthier / a draw, - = perceived less healthy /
-  // ultra-processed-unnatural, an aversion). A two-sided SCENARIO dial on the two non-conventional
-  // meats — plant-based (o.hp) and cultivated (o.hx) — exactly like novelty: default 0 (so it does
-  // NOT move the calibrated headline) and UNIDENTIFIED (no point estimate; conventional is the 0
-  // reference). Whole food can carry a small health intercept (K.health_w, default 0) for the
-  // comparison products (e.g. beans). Weight 1.0, so the slider value is utils, same scale as nu.
+  // HEALTH PERCEPTION — a named ATTRIBUTE on every product, weighted by a SEGMENT-SPECIFIC health
+  // weight (K.w_health_M / K.w_health_E; solved in the calibration), like slaughter-free and real-
+  // tissue. Positions: whole-food health_w (+, "beans are the healthy choice"), conventional health_c
+  // (slightly -, the reference's standing), plant-based / cultivated via their health_p / health_x
+  // dials (two-sided scenario, default 0). The whole-food health premium is what pulls ethical eaters
+  // to whole foods over a processed veggie burger — so w_health REPLACES the old free whole-food
+  // intercept xi_w: the model is now fully attribute-based, no free fitted constant on any product.
   const hW=(K.health_w!==undefined?K.health_w:0);
+  const hC=(K.health_c!==undefined?K.health_c:0);
   const hP=(o.hp!==undefined?o.hp:(K.health_p!==undefined?K.health_p:0));
   const hX=(o.hx!==undefined?o.hx:(K.health_x!==undefined?K.health_x:0));
-  const health=[hW,0,hP,hX];
-  const xiW=(seg==="M")?K.K_wholefood_M:K.K_wholefood_E;            // whole-food outside-option intercept xi_w (segment-specific, calibrated)
-  // FOOD NEOPHOBIA (utils; - = neophobia penalty, + = neophilia bonus) on the two NOVEL
-  // products: plant-based (o.nbp) and cultivated (o.nbx, + its per-tier authenticity offset).
-  const xi=[xiW,0,(o.nbp||0),(o.nbx||0)+o.toff];                    // xi_j per product [w,c,p,x]
+  const health=[hW,hC,hP,hX];                                       // [w, c, p, x]
+  // FOOD NEOPHOBIA (utils; - = neophobia penalty, + = neophilia bonus) on the two NOVEL products;
+  // whole-food carries NO intercept now (health carries it), conventional 0.
+  const xi=[0,0,(o.nbp||0),(o.nbx||0)+o.toff];                      // xi_j per product [w,c,p,x]
   const wSl=(seg==="M")?o.tfM:K.w_slaughter_E;
   const wRt=(seg==="M")?K.w_realtissue_M:K.w_realtissue_E;
+  const wH=(seg==="M")?K.w_health_M:K.w_health_E;                   // segment-specific health weight (solved)
   const yEff=K.income_ref*Math.pow(o.income/K.income_ref,K.income_gradient);
   const beta=betaPrice(K,o.eps,yEff);                              // income-aware monotonicity cap
   // BLP marginal-utility-of-income normalisation: alpha is set so the income term's LOCAL price-slope
@@ -1299,7 +1302,7 @@ function utilities(R,K,seg,o){
     const prem=priceRatio[j]-1;                                     // premium over the conventional reference
     const Vl=-K.loss_aversion*Math.max(0,prem)                      // loss side: penalise a premium at -lambda
              +1.0*Math.max(0,-prem);                               // gain side: reward a discount at the UNIT rate
-    V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+health[j]+xi[j];
+    V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+wH*health[j]+xi[j];
   }
   return V;
 }
@@ -1326,22 +1329,27 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
 // plant-based share jumps non-monotonically. Forcing rtp:0,rtx:1 here keeps the solve stable in both
 // dials (mirrors deriveBeta, which already forces rtx:1 for the same reason).
 function _rate(K,seg,which){return segShares(1,K,seg,{ax:1,tfM:0,toff:0,eps:K.eps_own,income:K.income_ref,present:false,rtp:0,rtx:1,hp:0,hx:0})[which];}
+/* re-solve the calibration (mirror of market_share.solve_calibration): solve the SEGMENT-SPECIFIC
+   HEALTH WEIGHTS (w_health_M, w_health_E) — times the whole-food health premium, these REPLACE the
+   old free whole-food intercept xi_w, so the model carries no free fitted constant. WF_M increases
+   in w_health_M and ethical PB decreases in w_health_E (health_w > 0), so the bisections run on
+   [0, 16]. */
 function solveCalibration(K){
   const we=K.w_eth;
   const pbM=K.pb_mainstream_frac*K.pb_share_target/(1-we);
   const pbE=(1-K.pb_mainstream_frac)*K.pb_share_target/we, wfM=K.wf_mainstream_target;
-  K.w_realtissue_M=2; K.K_wholefood_M=0; K.K_wholefood_E=0;
+  K.w_realtissue_M=2; K.w_health_M=1; K.w_health_E=1;
   for(let r=0;r<12;r++){
     let lo=0,hi=8;
     for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_realtissue_M=m;if(_rate(K,"M","p")>pbM)lo=m;else hi=m;}
     K.w_realtissue_M=0.5*(lo+hi);
-    lo=-16;hi=16;
-    for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.K_wholefood_M=m;if(_rate(K,"M","w")>wfM)hi=m;else lo=m;}
-    K.K_wholefood_M=0.5*(lo+hi);
+    lo=0;hi=16;                                                      // WF_M increases in w_health_M
+    for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_M=m;if(_rate(K,"M","w")>wfM)hi=m;else lo=m;}
+    K.w_health_M=0.5*(lo+hi);
   }
-  let lo=-16,hi=16;
-  for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.K_wholefood_E=m;if(_rate(K,"E","p")>pbE)lo=m;else hi=m;}
-  K.K_wholefood_E=0.5*(lo+hi);
+  let lo=0,hi=16;                                                    // ethical PB decreases in w_health_E
+  for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_E=m;if(_rate(K,"E","p")>pbE)lo=m;else hi=m;}
+  K.w_health_E=0.5*(lo+hi);
   return K;
 }
 /* DERIVE the price coefficient beta with NO free anchor (mirror of market_share._derive_beta):
@@ -1815,7 +1823,10 @@ function cmpShare(pd){
   if(pd.w_rt===null||pd.K_wf===null) return shareCalc(1.0,KP,{present:false,which:"pb"});
   const K=Object.assign({},effConsts(state));                       // reuse current calibrated beta/anchor
   K.price_pb_mult=pd.pb_mult; K.taste_quality_p=pd.taste; K.w_realtissue_M=pd.w_rt;
-  K.price_wf_mult=pd.wf_mult; K.K_wholefood_M=pd.K_wf; K.K_wholefood_E=pd.K_wf;
+  // outside-option strength: pd.K_wf is the analog's whole-food intercept -> in the health
+  // parameterisation that's a whole-food health POSITION at unit weight (health_c=0: the analog's
+  // incumbent, e.g. dairy/butter, is the reference, no health penalty).
+  K.price_wf_mult=pd.wf_mult; K.health_w=pd.K_wf; K.health_c=0; K.w_health_M=1; K.w_health_E=1;
   // the comparison product is a PLANT-BASED-style analog -> its novelty is the plant-based
   // dial neophobia_p (not cultivated's), since milk/margarine are plant-based products.
   // It also carries its own HEALTH-perception position (pd.health, ILLUSTRATIVE): e.g. margarine a
@@ -2204,7 +2215,10 @@ function milkCheck(){
   // then overwrite only the product POSITIONS to milk's (no re-solve).
   const K=Object.assign({},effConsts({}));
   K.price_pb_mult=1.0; K.taste_quality_p=0.0; K.w_realtissue_M=2.1;   // milk-appropriate positions
-  K.price_wf_mult=1.2; K.K_wholefood_M=-2.0; K.K_wholefood_E=-2.0;    // weak outside option (fixed, not solved)
+  // weak outside option (fixed, not solved): no healthy whole-food rival to milk-in-coffee, so the
+  // whole-food slot carries a NEGATIVE health position (unit weights) -> the old -2.0 intercept;
+  // health_c=0 because DAIRY (not red meat) is milk's reference.
+  K.price_wf_mult=1.2; K.health_w=-2.0; K.health_c=0; K.w_health_M=1; K.w_health_E=1;
   return shareCalc(1.0,K,{present:false,which:"pb"});
 }
 function selfTest(){
