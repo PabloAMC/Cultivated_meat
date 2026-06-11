@@ -1,5 +1,23 @@
 # Tests
 
+Run everything with `./run_tests.sh` (from `model/`): it rebuilds `interactive.html`
+from the Python model, then runs the golden-value and parity checks.
+
+## Golden-value regression (`test_golden.py`)
+
+Pins the model's headline outputs — the price ratio R, plant-based share, at-parity
+cultivated share, the plant-based-milk cross-check, the derived β / calibration values,
+the regional income gradient, a health-dial point, and the US penetration roll-ups — so any
+accidental change to a formula, default, or the calibration solve is caught with the old vs
+new value shown. If a change is intentional, update `GOLDEN` in `test_golden.py` in the same
+commit so the output move is explicit in the diff.
+
+```bash
+python tests/test_golden.py     # -> "PASS — all headline model outputs match their golden values."
+```
+
+Runs as a plain script (exit 0/1) or under pytest.
+
 ## Python ↔ JS parity (`run_parity.py`)
 
 `build_interactive.py` hand-ports the model (utilities / shareCalc / solveCalibration /

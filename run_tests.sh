@@ -7,6 +7,9 @@ cd "$(dirname "$0")"
 echo "==> regenerating interactive.html from the Python model"
 python build_interactive.py >/dev/null
 
+echo "==> golden-value regression"
+python tests/test_golden.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 
