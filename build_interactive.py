@@ -744,11 +744,12 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       option gets a special term; the rule just reads each product's row off the table above:</p>
       \[ V_j = \underbrace{\alpha\ln(y-R_j\,p_{\rm conv})}_{\text{price (via income)}}
               \;+\;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\text{reference dependence}}
-              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; \zeta_j \;+\; \xi_j \]
+              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j \;+\; \xi_j \]
       <p style="text-align:center;margin:-2px 0 8px;font-size:.86rem">where each symbol is a <b>column of the
       table above</b>: \(R_j\) price ratio, \(a_j\) taste (1 = real meat, so taste enters as the gap
       \(a_j-1\)), \(g_j\) slaughter-free flag (0/1), \(b_j\) real-tissue flag (0/1), \(\zeta_j\) the
-      <b>health-perception</b> offset (utils, default 0), \(\xi_j\) the intercept;
+      <b>health-perception</b> position weighted by \(w^{h}\), and \(\xi_j\) the per-product scenario
+      constant \(\xi_j=\nu_j+\tau_j\) (novelty + authenticity, both default 0; see below);
       \(d_j=R_j-1\) is the premium over conventional and \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\).</p>
       <p><b>The attribute terms all have the same shape</b> — a weight times that product's value of one
       attribute, read straight from the table — and <b>a 0 in the table is not a special case</b>, just "this
@@ -794,12 +795,20 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       \(\alpha\) (using a monthly budget instead of the per-kg price merely rescales \(\alpha\); shares
       unchanged) — so \(y\) is an <i>affordability scale</i>, and what it buys the model is the empirical
       ~2–3&times; rich→poor price-sensitivity gradient.</p>
-      <p><b>The two segment-specific weights</b> (everything else is shared across the two consumer types).
-      Only the slaughter-free and real-tissue weights differ by type — that difference <i>is</i> the
+      <p><b>The three segment-specific weights</b> (everything else is shared across the two consumer types).
+      Only the slaughter-free, real-tissue and health weights differ by type — that difference <i>is</i> the
       heterogeneity:</p>
       \[ w^{s}=\begin{cases}\theta_{\rm free}&\text{mainstream (slider, }\sim0)\\ w_{\rm slaughter,E}&\text{ethical (large, fixed)}\end{cases}
-         \qquad
-         w^{rt}=\begin{cases}w_{\rm rt}&\text{mainstream (calibrated)}\\ \approx 0&\text{ethical}\end{cases} \]
+         \quad
+         w^{rt}=\begin{cases}w_{\rm rt}&\text{mainstream (calib.)}\\ \approx 0&\text{ethical}\end{cases}
+         \quad
+         w^{h}=\begin{cases}w_{h,M}&\text{mainstream (calib.)}\\ w_{h,E}&\text{ethical (calib., larger)}\end{cases} \]
+      <p style="font-size:.9rem">The <b>health</b> weight \(w^{h}\) is the larger for the ethical type, so the
+      whole-food health position \(\zeta_w>0\) ("beans are the healthy choice") pulls the health- and
+      ethically-minded toward whole foods over a processed veggie burger — which is <i>why</i> plant-based
+      <i>meat</i> sits at ~1% despite a 5% ethical core. Both health weights are <b>solved</b> in the
+      calibration (below); this health premium is what <b>replaces the old free outside-option intercept</b>,
+      so the demand model now has no free fitted constant — every product's standing is a named attribute.</p>
       <p style="font-size:.9rem">So the slaughter-free term you tune is \(\theta_{\rm free}\,g_j\) for
       the mainstream (95% of buyers): at \(\theta_{\rm free}=0\) the mainstream is indifferent to "no animal
       killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
@@ -850,21 +859,23 @@ methods and results notes. Defaults are the neutral / measured values.</p>
           (skeptic: "lab-grown won't be credited as real meat") and cultivated collapses toward the
           plant-based outcome; set \(b_p=1\) and plant-based rises sharply. The asymmetry is shown
           and testable, not hardwired.</td></tr>
-        <tr><td><b>intercept</b> \(\xi_j\)</td><td>the one <i>non-attribute</i> term — added straight to
-          utility, not multiplied by an attribute. <b>At baseline it is 0 for all three meats</b> and non-zero
-          only for whole-food (\(\xi_w\), solved). The optional <b>default-0 scenario terms</b> below add to a
-          meat's utility, each independently: novelty \(\nu_j\), health-perception \(\zeta_j\) (both novel
-          meats), and (cultivated only, in §3) authenticity \(\tau_{\rm type}\). So with the defaults the meats
-          carry <i>no</i> constant and <i>no</i> health offset — there is no hidden cultivated "standing" knob;
-          turn the scenario terms on only to explore.</td></tr>
+        <tr><td><b>constant</b> \(\xi_j\)</td><td>the one <i>non-attribute</i> term — added straight to
+          utility, not multiplied by an attribute. It is the sum of the two <b>default-0 scenario terms</b>,
+          \(\xi_j=\nu_j+\tau_j\) (novelty + authenticity), and is <b>0 for every product at baseline</b> —
+          including whole-food, whose standing is now a real attribute (its health position), so there is no
+          free fitted constant anywhere. Turn the scenario terms on only to explore; with both at default the
+          meats carry no constant, so there is no hidden cultivated "standing" knob.</td></tr>
         <tr><td>&emsp;↳ <b>novelty</b> \(\nu_j\)</td><td><b>food neophobia</b> — attitude to a <i>novel</i> food
           (Pliner–Hobden 1992) — one dial on the two non-conventional meats: <b>\(\nu_x\)</b> (cultivated)
-          and <b>\(\nu_p\)</b> (plant-based). <b>Negative = neophobia</b> (the new food is shunned), <b>positive
-          = neophilia</b> (novelty draws), 0 = neutral; conventional &amp; beans are familiar (0). Default 0,
-          so it does not move the central case. It is <i>distinct from taste</i> \(a_j\): exposure cures the
-          novelty penalty, a taste deficit is permanent — and in the timing rung an extra launch wariness fades
-          <i>onto</i> \(\nu_x\) (mere-exposure). Symmetric across the two novel products — no cultivated-only
-          special case.</td></tr>
+          and <b>\(\nu_p\)</b> (plant-based). It enters the constant directly, \(\nu_j\in\{0,0,\nu_p,\nu_x\}\)
+          for \(j=(w,c,p,x)\) — so conventional and whole-food (familiar) carry 0:
+          \[ \nu_j=\begin{cases}\nu_x&j=x\ \text{(cultivated)}\\ \nu_p&j=p\ \text{(plant-based)}\\ 0&j\in\{w,c\}\ \text{(familiar)}\end{cases} \]
+          <b>Negative = neophobia</b> (the new food is shunned), <b>positive = neophilia</b> (novelty draws),
+          0 = neutral. Default 0, so it does not move the central case. It is <i>distinct from taste</i>
+          \(a_j\): exposure cures the novelty penalty, a taste deficit is permanent — and in the timing rung
+          (§4) the time-varying \(\nu_x(t)\) starts at a cold value and <b>fades onto</b> this long-run \(\nu_x\)
+          by mere-exposure, \(\nu_x(t)=\nu_x+(\nu_{x0}-\nu_x)e^{-rE(t)}\). Symmetric across the two novel
+          products — no cultivated-only special case.</td></tr>
         <tr><td>&emsp;↳ <b>health perception</b> \(\zeta_j\)</td><td><b>how healthy the product is
           <i>perceived</i> to be</b> — one dial on each non-conventional meat: <b>\(\zeta_x\)</b> (cultivated)
           and <b>\(\zeta_p\)</b> (plant-based), entering utility additively just like \(\nu\). <b>Positive =
@@ -882,22 +893,27 @@ methods and results notes. Defaults are the neutral / measured values.</p>
           plant-based nuggets a small health <i>draw</i> — illustrative positions, not calibrated, that narrow
           (but, honestly, do not fully close) those out-of-sample gaps.</td></tr>
         <tr><td>&emsp;↳ <b>authenticity</b> \(\tau_{\rm type}\)</td><td>cultivated-only, per <b>meat type</b>
-          (§3): the "I want the <i>real</i> thing" resistance, which depends on the product's role.
-          <b>\(+0.2\)</b> for everyday mince/processed (the cleaner-meat / welfare pull <i>helps</i>, no
-          authenticity hang-up), <b>\(-0.4\)</b> for cuts (steak/fillet — some attachment to the real cut),
-          <b>\(-1.5\)</b> for luxury (wagyu/sushi — strong authenticity, weak welfare pull). It is <b>0 in the
-          §2 headline parity case</b> and only switches on in the per-type roll-up; it is the term that gives §3
-          its "no easy entry point — the sweet spot is mid-priced cuts" result. A reduced-form scenario offset
-          (we have no per-product authenticity data to estimate a weight), shown rather than buried.</td></tr>
-        <tr><td>&emsp;↳ <b>outside-option intercept</b> \(\xi_w\)</td><td>whole-food's constant
-          (segment-specific). The standard <i>outside-option intercept</i> every discrete-choice model with an
-          outside option needs — here <b>not free</b>: it is <i>solved</i> (Calibration, below) so the model
-          reproduces two published facts <a href="#ref14">[14]</a>, plant-based's ~1.2% share and the 89%-flexitarian buyer split. What it
-          encodes is real and load-bearing: <b>ethical eaters prefer whole foods (beans) over a processed veggie
-          burger</b>, beyond what price/taste/slaughter-free explain — which is exactly why plant-based
-          <i>meat</i> is stuck at ~1%. (Drop it and plant-based triples to ~4% and its buyers flip to mostly
-          vegetarian, contradicting the data.) <i>(In the code it is the alternative-specific constant
-          <code>asc_w</code> / <code>K_wholefood</code>.)</i></td></tr>
+          (§3): the "I want the <i>real</i> thing" resistance, which depends on the product's role and so is a
+          function of the <i>tier</i> (set by structure and within-species price), scaled by the
+          premium-resistance dial \(\rho\):
+          \[ \tau_{\rm type}=\rho\cdot\begin{cases}+0.2&\text{basic (mince / processed)}\\ -0.4&\text{cut (steak / fillet)}\\ -1.5&\text{premium (wagyu / sushi)}\end{cases} \]
+          and it enters cultivated's constant only, \(\tau_j=\tau_{\rm type}\) for \(j=x\) and \(0\) otherwise.
+          Mince's \(+0.2\) is the cleaner-meat / welfare pull with no authenticity hang-up; cuts and luxury are
+          increasingly "want the real cut". It is <b>0 in the §2 headline parity case</b> (\(\rho\) scales it,
+          but it only switches on per-type) and gives §3 its "no easy entry point — the sweet spot is mid-priced
+          cuts" result. A reduced-form scenario offset (no per-product authenticity data to estimate a weight),
+          shown rather than buried.</td></tr>
+        <tr><td>&emsp;↳ <b>whole-food health premium</b> \(w^{h}\zeta_w\)</td><td>what makes whole foods
+          (beans/tofu) the default for the health- and ethically-minded — and the reason plant-based <i>meat</i>
+          is stuck at ~1%. It is <b>not a free constant</b>: it is the health attribute (position \(\zeta_w>0\),
+          "the healthy choice") times the <i>solved</i> segment health weight \(w^{h}\) (<i>Calibration</i>,
+          below), pinned so the model reproduces two published facts <a href="#ref14">[14]</a> — plant-based's
+          ~1.2% share and the 89%-flexitarian buyer split. <b>This health premium replaced the old free
+          outside-option intercept</b> \(\xi_w\): the standing it encodes (ethical eaters prefer whole beans over
+          a processed veggie burger, beyond price/taste/slaughter-free) is real and load-bearing — drop it and
+          plant-based triples to ~4% with mostly-vegetarian buyers, contradicting the data — but it is now a
+          <i>named attribute × weight</i>, not an unexplained constant. <i>(In the code: <code>w_health_M</code>
+          / <code>w_health_E</code> times <code>health_w</code>.)</i></td></tr>
       </table>
       <p><b>How the closeness \(\kappa\) actually works (and where it enters — just once).</b> \(\kappa\) is
       the one knob that needs spelling out, because it has no direct data. Start from the measured number:
@@ -978,10 +994,15 @@ methods and results notes. Defaults are the neutral / measured values.</p>
       <p>Each meat type is run at <i>its own</i> R (its own conventional price) with two
       <b>tier-dependent</b> adjustments: (1) the <b>authenticity offset</b> \(\tau_{\rm type}\) — the
       additive constant from §2's \(\xi_x=\nu_x+\tau_{\rm type}\), more negative the more the product is
-      bought for "the real thing"; and (2) an <b>elasticity multiplier</b> on \(\varepsilon\) (premium buyers
-      are less price-sensitive). The per-type shares are then summed weighted by <b>volume</b> (mass &rarr;
-      animal/climate impact) and by <b>value</b> (price&times;volume &rarr; $ market). Tiers are set by
-      (is it structured?, and its price <i>relative to its own species</i>):</p>
+      bought for "the real thing"; and (2) an <b>elasticity multiplier</b> \(m_{\rm type}\) on
+      \(\varepsilon\) (premium buyers are less price-sensitive). Both run off the same tier and are scaled
+      together by the premium-resistance dial \(\rho\):</p>
+      \[ \tau_{\rm type}=\rho\,\tau^0_{\rm type},\qquad
+         \varepsilon_{\rm type}=\big(1+\rho\,(m^0_{\rm type}-1)\big)\,\varepsilon,\qquad
+         (\tau^0,m^0)=\begin{cases}(+0.2,\,1.0)&\text{basic}\\ (-0.4,\,0.8)&\text{cut}\\ (-1.5,\,0.3)&\text{premium}\end{cases} \]
+      <p>The per-type shares are then summed weighted by <b>volume</b> (mass &rarr; animal/climate impact) and
+      by <b>value</b> (price&times;volume &rarr; $ market). Tiers are set by (is it structured?, and its price
+      <i>relative to its own species</i>):</p>
       <pre>tier      definition                                      authenticity τ   elasticity ×
 basic   = unstructured mince/processed                       +0.2          ×1.0
 cut     = structured, price &lt; 2.5× the species' base form     −0.4          ×0.8
