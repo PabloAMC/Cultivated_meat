@@ -121,32 +121,36 @@ outcome. `accept_x` (taste-acceptance: is cultivated credited as real meat?) car
 
 | dial | cultivated share | reading |
 |---|---|---|
-| taste-acceptance `accept_x` = 0.6 | ~11% | strong taste friction (not credited as real meat) |
-| `accept_x` = 0.8 | ~25% | modest friction |
-| **`accept_x` = 1.0, `theta_free_M` = 0** | **~47%** | equivalent real meat (neutral default) |
-| slaughter-free value `theta_free_M` = 0.5 | ~57% | mainstream starts valuing no-slaughter |
-| `theta_free_M` = 1.0 | ~67% | mainstream values no-slaughter |
+| taste-acceptance `accept_x` = 0.6 | ~12% | strong taste friction (not credited as real meat) |
+| `accept_x` = 0.8 | ~27% | modest friction |
+| **`accept_x` = 1.0, `theta_free_M` = 0** | **~50%** | equivalent real meat + mild health edge (neutral default) |
+| &nbsp;&nbsp;↳ *no health edge* (`health_x` = `health_c`) | *~47%* | *cultivated exactly equivalent to conventional* |
+| slaughter-free value `theta_free_M` = 0.5 | ~60% | mainstream starts valuing no-slaughter |
+| `theta_free_M` = 1.0 | ~69% | mainstream values no-slaughter |
 
 (Away from parity — at the likely R ≈ 2 — price and elasticity dominate instead: the share tornado
 there is led by the cost→R levers (efficiency, medium price) and `eps_own`, the acceptance dials second.) The tens-of-percent world needs
 cost at parity **and** (real-meat acceptance **or** a clean-meat preference). *Demand calibration
 holds (self-checks):* with cultivated absent the model reproduces plant-based's real ~1.2%, carried
 ~89% by the **mainstream** (flexitarians), matching the GFI buyer data; at parity a new cultivated
-product draws **−40 pp from conventional** vs only −0.5 pp from plant-based — the no-nest IIA proof,
+product draws **−45 pp from conventional** vs only −0.6 pp from plant-based — the no-nest IIA proof,
 driven by the shared `real_tissue` attribute. Two notable findings: (i) the **ethical segment is only a
 cultivated adopter at parity (~20%) but falls off sharply with any premium** (~9% at R=1.6) — the same cheap whole-food option that keeps
 ethical plant-based low also means ethical buyers won't pay a big cultivated *premium* (beans
 out-compete it); (ii) a cross-category check reproduces **plant-based milk's ~15%** from the same shared
 coefficients and milk-appropriate positions, milk winning only because it reached price+taste parity in
 use (coffee/cereal) and has no cheap substitute — meat did neither. The model predicts the ordering
-**conventional > cultivated > plant-based at parity** (cultivated escapes the not-real penalty, being
-real tissue) as a *structural prediction*, with general-population plant-based-at-parity ≈ 10% (we pin to
-the GFI buyer split, **not** to the UCLA ~26% dining-hall figure). **Same functional form for every
-option:** price (BLP `ln(income−price)`), a **two-sided reference-dependent loss-aversion** term
-(`−λ·max(0,price_ratio−1) + (λ/2.25)·max(0,1−price_ratio)` — penalises a premium, rewards a discount, the
-loss side ~2.25× steeper per Tversky–Kahneman; applied to plant-based and cultivated alike — no
-cultivated-only "parity cliff"), taste, slaughter-free,
-real-tissue, and an alternative-specific constant. **Habit** is not a separate fitted parameter (not
+**cultivated ≈ conventional ≫ plant-based at parity** (cultivated escapes the not-real penalty, being
+real tissue) as a *structural prediction*; cultivated's slight edge over conventional is a deliberate,
+removable **health** assumption (a mild −0.1 conventional health position — strip it and the two sit
+level at ~47%, see the no-edge row above), not the load-bearing result. General-population
+plant-based-at-parity ≈ 10% (we pin to the GFI buyer split, **not** to the UCLA ~26% dining-hall figure). **Same functional form for every
+option:** price (BLP `ln(income−price)`), a **two-sided reference-dependent loss-aversion** term in the
+canonical form (`−λ·max(0,price_ratio−1) + 1·max(0,1−price_ratio)` — penalises a premium at slope −λ,
+rewards a discount at the unit rate, so λ itself is the loss/gain asymmetry; applied to plant-based and
+cultivated alike — no cultivated-only "parity cliff"), taste, slaughter-free, real-tissue, and **health**
+(a per-product position × a segment-specific weight — the whole-food health premium that replaces the old
+free outside-option constant, so there is now no free fitted constant). **Habit** is not a separate fitted parameter (not
 identified from heterogeneity without panel data — Heckman); it lives in the diffusion dynamics (§timing)
 and the long-run acceptance dials (`accept_x`, `theta_free_M`); launch food-neophobia is a transient that fades to 0. **Convenience** (the third PTC factor) is proxied by rollout, not modelled
 separately.
@@ -173,25 +177,25 @@ floor, neutral dials, US:
   chicken (ground)            5   20%  2.50      8.7%      basic
   chicken (cuts)              9   20%  2.06     13.3%      cut
   chicken (organic)          13   ~1%  1.42     14.4%      premium
-  beef (ground)              11   13%  1.14     46.2%      basic   <- reachable (near parity), top share
-  beef (steak/cuts)          20   10%  0.93     38.8%      cut     <- sweet spot
-  beef (prime/wagyu)         45   ~0%  0.41     16.5%      premium <- price-cheap but demand-capped
-  pork (processed)            8   12%  1.56     30.2%      basic
-  pork (cuts)                12    8%  1.54     23.0%      cut
-  pork (heritage)            20   ~0%  0.93     17.0%      premium
-  turkey (ground/proc.)       5    3%  2.50      8.7%      basic
-  turkey (breast/cuts)        9    3%  2.06     13.3%      cut
-  seafood (mince/canned)     10    2%  1.25     41.7%      basic
-  seafood (fillet)           24    4%  0.77     41.5%      cut     <- sweet spot (top cut)
-  seafood (sushi)            40    2%  0.46     16.6%      premium <- price-cheap but demand-capped
-  rabbit (cuts)              16   ~0%  1.16     32.9%      cut
-  TOTAL — by VOLUME (impact) 24.0%  |  by VALUE ($ market) 27.5%
+  beef (ground)              11   13%  1.14     49.2%      basic   <- reachable (near parity), top share
+  beef (steak/cuts)          20   10%  0.93     40.7%      cut     <- sweet spot
+  beef (prime/wagyu)         45   ~0%  0.41     18.7%      premium <- price-cheap but demand-capped
+  pork (processed)            8   12%  1.56     32.7%      basic
+  pork (cuts)                12    8%  1.54     25.2%      cut
+  pork (heritage)            20   ~0%  0.93     18.7%      premium
+  turkey (ground/proc.)       5    3%  2.50      9.6%      basic
+  turkey (breast/cuts)        9    3%  2.06     14.7%      cut
+  seafood (mince/canned)     10    2%  1.25     44.7%      basic
+  seafood (fillet)           24    4%  0.77     40.9%      cut     <- sweet spot (top cut)
+  seafood (sushi)            40    2%  0.46     18.7%      premium <- price-cheap but demand-capped
+  rabbit (cuts)              16   ~0%  1.16     35.7%      cut
+  TOTAL — by VOLUME (impact) 25.7%  |  by VALUE ($ market) 29.2%
 ```
 
 **No easy entry point:** cheap mince is unreachable on price (R ≫ 1); ultra-premium (wagyu R = 0.41,
 sushi R = 0.46) is price-cheap but demand-resistant (authenticity, price-insensitivity), so even at
 the deepest discounts the authenticity penalty caps it at ~16%. **The reachable window is the near-parity
-basics and structured cuts — beef ground (~47%, near parity), salmon fillet (~40%), beef steak (~38%)** —
+basics and structured cuts — beef ground (~49%, near parity), salmon fillet (~41%), beef steak (~41%)** —
 where price is reachable and the demand penalty is moderate; they clearly out-draw the demand-capped
 ultra-premium. Cultivated is cheapest exactly where demand resists most, and most accepted where it is
 hardest to beat on price — so the near-parity cuts are the robust entry window.

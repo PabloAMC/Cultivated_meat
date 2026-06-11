@@ -338,7 +338,10 @@ REGISTRY: dict[str, Input] = {
              "the US — too steep). phi=0.5 (DEFAULT) gives China ~1.8x, India ~2.8x, Nigeria ~3.6x, "
              "matching the empirical food-price-elasticity gradient (poor countries ~2-3x more responsive "
              "for meat; Muhammad et al. 2011 USDA ERS, food income-elasticity 0.78 low- vs 0.50 high-income). "
-             "phi=0 = no income effect. A documented judgement dial."),
+             "phi=0 = no income effect. A documented judgement dial. (Mechanically, the BLP income term means "
+             "cultivated's share rises steeply as income climbs out of poverty but SATURATES above ~US incomes "
+             "— a $30 product is negligible to a high earner, so price stops binding and the share asymptotes; "
+             "it is flat, not rising, in the far-rich tail, which is the correct BLP behaviour, not a defect.)"),
     "taste_quality_p": Input(-0.2, "norm", "[Nectar] plant-based meat AVERAGE blind-taste deficit vs "
         "real meat. Nectar 'Taste of the Industry' 2025: only ~16% (20/122) of PB SKUs reach blind "
         "sensory parity, so the category average is BELOW parity. Normalised like (accept_x-1): "

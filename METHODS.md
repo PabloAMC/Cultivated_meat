@@ -38,7 +38,7 @@ Every number is forced into one of five categories; none is a free constant left
    cultivated's own modeled price & share — the `price_calib` fix), the parity threshold (`p_conv −
    markup_add`), the cost floor, and the cost-path `R` endpoints (from the cost model).
 3. **Solved to a moment** — pinned by one equation to one published datum: `w_realtissue_M`,
-   `K_wholefood_M/E` (the 89% buyer split, the 1.2% PB share, the meatless rate). Calibration, not fitting.
+   `w_health_M/E` (the 89% buyer split, the 1.2% PB share, the meatless rate). Calibration, not fitting.
 4. **Judgement, but swept** — the few genuine judgement calls are *never* presented as a point; their
    leverage is shown explicitly. `cult_sub_mult` and `loss_aversion` (the two behavioural-price levers,
    self-check [6]); the acceptance dials `accept_x`/`theta_free_M` (Gate 2, always a band);
@@ -51,7 +51,12 @@ Every number is forced into one of five categories; none is a free constant left
 
 The single load-bearing **assumption** (not a number) is `real_tissue`: that cultivated, being real
 tissue, inherits conventional's standing and escapes the plant-based penalty — stated as the model's
-identifying premise, and the structural reason it predicts conventional > cultivated > plant-based at parity.
+identifying premise, and the structural reason cultivated sits with conventional (far above plant-based)
+at parity. The baseline also gives cultivated a **mild health edge** over conventional (`health_c`=−0.1,
+`health_x`=0 — no antibiotics/contamination, controlled fat), which lifts it to a slight lead at parity
+(~50% vs conventional's ~43%); this is a deliberate, *flaggable* assumption — set `health_x`=−0.1 (no edge)
+and cultivated sits just below conventional at the neutral ~47%. We report it openly rather than bury it
+(see "an honest health caveat" below).
 
 ## The two outputs
 
@@ -152,21 +157,27 @@ cheaper media → cell efficiency → floor, making the bottleneck and the irred
 
 ## Rung 3 — demand → share (`market_share.py`)
 
-A **two-segment, four-product discrete-choice (latent-class logit) model.** Consumers choose among
+A **two-segment, five-attribute discrete-choice (latent-class logit) model.** Consumers choose among
 **four products** — conventional meat `c`, plant-based meat `p`, cultivated `x`, and a **whole-food /
-non-meat outside option** `w` (beans/tofu/lentils) — each carrying four attributes: price-ratio,
-taste_quality, slaughter_free (0/1), real_tissue (0/1). Two latent **segments** mix by population
-weight: mainstream `M` (taste/price-driven, weights real_tissue) and ethical `E` (weights
-slaughter_free, ~5% = Gallup veg+vegan). Each segment is a **flat** multinomial logit:
+non-meat outside option** `w` (beans/tofu/lentils) — each carrying five attributes: price-ratio,
+taste_quality, slaughter_free (0/1), real_tissue (0/1), and **health** (a position per product). Two
+latent **segments** mix by population weight: mainstream `M` (taste/price-driven, weights real_tissue)
+and ethical `E` (weights slaughter_free and health, ~5% = Gallup veg+vegan). Each segment is a **flat**
+multinomial logit:
 
 ```
 V_sj = V_price(price_j, income)                                             # BLP income price term
-       − loss_aversion·max(0, price_ratio_j − 1)                            # loss side: premium penalty
-       + (loss_aversion/2.25)·max(0, 1 − price_ratio_j)                     # gain side: discount reward (2.25× gentler)
-       + q_taste·taste_j + w_slaughter[s]·slaughter_j + w_realtissue[s]·real_tissue_j + asc_j[s]
+       − loss_aversion·max(0, price_ratio_j − 1)                            # loss side: premium penalty (slope −λ)
+       + 1·max(0, 1 − price_ratio_j)                                        # gain side: discount reward (canonical unit slope)
+       + q_taste·taste_j + w_slaughter[s]·slaughter_j
+       + w_realtissue[s]·real_tissue_j + w_health[s]·health_j + ξ_j[s]
 P_sj = softmax_j(V_sj)
 share_j = w_eth·P_E(j) + (1 − w_eth)·P_M(j)
-# EVERY product uses this same rule (a products×attributes table · segment×weights, + an ASC).
+# EVERY product uses this same rule (a products×attributes table · segment×weights). The canonical
+# Tversky-Kahneman loss aversion penalises a premium at −λ and rewards a discount at the unit rate (so λ
+# IS the loss/gain asymmetry). The constant ξ_j = ν_j + τ_j (novelty + cultivated authenticity) is 0 for
+# every product at baseline — there is NO free fitted constant anywhere, including the outside option,
+# whose standing is now its health attribute (see Calibration).
 # No cultivated-only term: the premium penalty applies to plant-based (1.77×) and cultivated (R) alike.
 ```
 
@@ -234,11 +245,12 @@ either sourced or *derived from* the model rather than typed in:
    observable output.
 
 **Reference-dependent loss aversion (two-sided, applied uniformly to every product).** A second
-price-related term, `−loss_aversion·max(0, price_ratio_j − 1) + (loss_aversion/2.25)·max(0, 1 −
+price-related term in the **canonical** form, `−λ·max(0, price_ratio_j − 1) + 1·max(0, 1 −
 price_ratio_j)` (Tversky–Kahneman 1991 *riskless* loss aversion; Hardie, Johnson & Fader 1993 estimate the
 reference-price form on brand-choice scanner data): consumers anchor on the conventional price, so a
-product priced *above* it takes a premium penalty and one priced *below* it earns a discount reward — the
-two sides symmetric around the reference but with the loss side **2.25× steeper** — the canonical
+product priced *above* it takes a premium penalty at slope −λ and one priced *below* it earns a discount
+reward at the natural **unit** rate — so **λ itself IS the loss/gain asymmetry** (the loss side is λ×
+steeper than the gain side) — the canonical
 median loss-aversion coefficient **λ ≈ 2.25 from Tversky & Kahneman (1992)** (*Advances in Prospect Theory*,
 J. Risk & Uncertainty 5:297–323), a fixed literature constant, not a free parameter. This applies to **every** product by its own
 `d_j = price_ratio_j − 1` — plant-based (1.77×) and cultivated (R) alike — so all options share the *same
@@ -252,11 +264,16 @@ only ~16% of PB SKUs reach blind parity], `w_eth`=5% [Gallup], `eps_own` [scanne
 standing of non-real-meat products and the outside option are **solved at runtime** from cross-sectional
 anchors (three monotone 1-D bisections, `solve_calibration`):
 `w_realtissue_M` so the **mainstream carries ~89% of plant-based buyers** (GFI/Morning Consult — most PB
-buyers are flexitarians, not the 5% ethical core); the **segment-specific** whole-food intercepts
-`K_wholefood_M`/`K_wholefood_E` so the mainstream meatless-by-choice share and the residual ethical PB
-rate match (total PB ≈ 1.2% [GFI/SPINS] by construction). Splitting the outside option by segment —
-beans are the *ethical* default, a *rare* mainstream choice — is what lets `w_realtissue_M` be pinned to
-the buyer split without the cheap bean option leaking into the mainstream.
+buyers are flexitarians, not the 5% ethical core); the **segment-specific health weights**
+`w_health_M`/`w_health_E` (times the whole-food health position, `health_w`=+2 — "beans are the healthy
+choice") so the mainstream meatless-by-choice share and the residual ethical PB rate match (total PB ≈
+1.2% [GFI/SPINS] by construction). This whole-food **health premium replaces** the old free outside-option
+intercept: the model now carries **no free fitted constant** — the outside option's standing is a named
+attribute (its health) times a calibrated weight. Splitting the health weight by segment — the
+ethical/health-minded weight health heavily, the mainstream much less (the solved `w_health_M` lands at
+~0.26× the taste weight, *below* the ~0.5× discrete-choice anchor of Malone & Lusk 2017) — is what lets
+`w_realtissue_M` be pinned to the buyer split without the cheap bean option leaking into the mainstream,
+and beans are the *ethical* default, a *rare* mainstream choice.
 
 **Is cultivated's "standing" a fitted parameter? No — and the distinction matters.** Two different things
 wear the word *standing*, and only one is calibrated:
@@ -267,12 +284,13 @@ wear the word *standing*, and only one is calibrated:
   *equivalent* to conventional). We never tune them to hit a target; every cultivated headline is reported
   as a **band across them**, and the reader sets them (this is exactly Gate 2). There is no cultivated-meat
   choice data to fit them to — inventing a point value would be the false precision we are avoiding.
-- **What IS solved (`w_realtissue_M`, `K_wholefood_M/E`) is pinned to published moments, not free.** These
+- **What IS solved (`w_realtissue_M`, `w_health_M/E`) is pinned to published moments, not free.** These
   are *not* cultivated's standing — they are the *plant-based / whole-food* standings, and each is the
   unique value reproducing a **measured** datum (the 89% flexitarian buyer split [GFI]; the ~1.2% PB share
   [GFI/SPINS]; the mainstream meatless rate). That is *calibration to a moment* — one equation, one unknown,
   the standard discrete-choice practice when you have aggregate moments but no micro-data — not curve-fitting
-  with free knobs.
+  with free knobs. (The health weights are weights on a *named attribute*, so even these solved numbers have
+  a meaning — the whole-food health premium — rather than being free intercepts.)
 
 So the quantity cultivated's share *depends on* (its standing) is never fitted: it is the dial the reader
 turns. What we fit is only the surrounding plant-based world, and only to numbers that are actually observed.
@@ -286,10 +304,24 @@ data, so an estimated habit constant would be spurious. **Habit instead lives wh
 the diffusion + neophobia-fading dynamics of Rung 4 (its market-level reduced form) and the long-run
 acceptance dials `accept_x`/`theta_free_M` (scenarios, not fitted numbers). `real_tissue` is the **identifying
 assumption** that cultivated, being real tissue, *inherits conventional's standing and escapes the
-plant-based penalty* — the load-bearing premise, which yields **conventional > cultivated > plant-based
-at parity** as a structural *prediction* (not a fitted result). **Convenience** (the third PTC factor;
+plant-based penalty* — the load-bearing premise, which yields **cultivated ≈ conventional ≫ plant-based
+at parity** as a structural *prediction* (not a fitted result); cultivated's slight lead over conventional
+is the mild health edge above, removable with one dial. **Convenience** (the third PTC factor;
 Bryant/Peacock) is *not* modelled separately — availability is proxied by the Rung-4 rollout — and is
 folded into the same reduced-form term; noted as a known omission.
+
+**An honest health caveat (the one place the baseline tilts toward cultivated).** Every other neutral
+default treats cultivated as *equivalent* to conventional. The health attribute is the exception: the
+baseline gives conventional a mild negative health position (`health_c`=−0.1; red/processed-meat
+guidance) while cultivated sits at 0, so cultivated carries a small **+0.1-util health edge** —
+defensible (no antibiotics, no faecal contamination, controlled fat are genuine attributes of cultured
+tissue) but an *assumption*, and the only one that moves the at-parity headline in cultivated's favour
+(~47% → ~50%, enough to put it just past conventional). We surface it three ways rather than bury it:
+(i) it is a single exposed position, (ii) the no-edge case (`health_x`=`health_c`) returns the ~47%
+"equivalent" headline, and (iii) the mainstream health *weight* is held at ~0.26× the taste weight,
+*below* the discrete-choice anchor (Malone & Lusk 2017: health ≈ 0.5× taste), so health is deliberately
+a minor lever for the taste-and-price-first mainstream. A skeptic who rejects the edge should read the
+~47% figure; the headline does not depend on cultivated being *healthier*, only on it being *real meat*.
 
 **Self-checks (`market_share.py`):** [1] plant-based ≈ 1.2% with cultivated absent, whole-food ≫ PB;
 [1b] PB buyer split ≈ 89% mainstream / 11% ethical (GFI), mainstream meatless ≈ 6%; [2] cultivated at

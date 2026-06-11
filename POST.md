@@ -24,8 +24,9 @@ is sourced and reproducible; methods in [METHODS.md](METHODS.md), full results i
   *and* the scale-up ceilings are engineered away.
 - **Even at parity, how many animals get displaced depends on two uncertain dials** — whether the
   mainstream credits cultivated as real meat (taste-acceptance) and whether it comes to value
-  no-slaughter/cleaner meat. Together they span friction (~11%), equivalent (~47% at parity), and
-  actively preferred (~75%). We take no baked-in stance.
+  no-slaughter/cleaner meat. Together they span friction (~12%), equivalent (~50% at parity — ~47% if
+  you strip cultivated's mild health edge over conventional), and actively preferred (~75%). We take no
+  baked-in stance.
 - **Total displacement is modest in the central case (~3% of meat by volume; the EU, with the priciest
   meat, ~10%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
   price; ultra-luxury is price-cheap but demand-capped, staying below the cuts; the window is beef
@@ -120,7 +121,13 @@ own modeled price, with no free anchor number. It is calibrated so that, with cu
 plant-based meat reproduces its real ~1.2% share — carried ~89% by mainstream flexitarians (matching
 the GFI buyer data) — and so that a new cultivated product draws from **conventional**, not the veggie
 burger (because cultivated shares the "real tissue" attribute that conventional dominates the
-mainstream with).
+mainstream with). Each product also carries a **health** position: whole foods score high (which is what
+pins ethical eaters to beans over a processed veggie burger, and is the principled replacement for a
+free "outside-option" constant), conventional meat slightly negative, and the novel meats neutral by
+default. The one place this tilts toward cultivated is a mild assumed health edge over conventional
+(no antibiotics/contamination, controlled fat) — worth a few points at parity, and removable with one
+dial; we flag it rather than lean on it, and the mainstream weights health *well below* taste and price
+(consistent with the discrete-choice literature, Malone & Lusk 2017).
 
 ![Share vs price ratio](figures/share_vs_ratio.png)
 
@@ -135,11 +142,12 @@ Two gates decide the whole picture:
 
 | dial | cultivated share | reading |
 |---|---|---|
-| taste-acceptance 0.6 | ~11% | strong friction (not credited as real meat) |
-| taste-acceptance 0.8 | ~25% | modest friction |
-| **accepted as real meat (neutral)** | **~47%** | the default we assume nothing beyond |
-| + mainstream values no-slaughter (0.5) | ~58% | cleaner / no-slaughter / safety pull |
-| + values no-slaughter (1.0) | ~67% | |
+| taste-acceptance 0.6 | ~12% | strong friction (not credited as real meat) |
+| taste-acceptance 0.8 | ~27% | modest friction |
+| **accepted as real meat (neutral)** | **~50%** | default + a mild health edge over conventional |
+| &nbsp;&nbsp;↳ *no health edge* | *~47%* | *cultivated exactly equivalent to conventional* |
+| + mainstream values no-slaughter (0.5) | ~60% | cleaner / no-slaughter / safety pull |
+| + values no-slaughter (1.0) | ~69% | |
 
 We take **no baked-in stance** on gate 2 — it is the reader's to set. The tens-of-percent world needs
 cost at parity *and* (real-meat acceptance *or* a clean-meat preference).
