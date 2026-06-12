@@ -13,6 +13,47 @@ datasheet), and the cost equation exists once (`uncertainty.R_from_inputs`) shar
 3. **Every number is sourced in `inputs.py`** with a provenance tag and (where uncertain) a
    Monte-Carlo prior, so the point estimate and the uncertainty band can never drift apart.
 
+## Keeping code, JS, and prose in sync — the anti-drift checklist
+
+The model exists in three coupled forms — the Python source of truth, the hand-ported JS in
+`interactive.html`, and the methodology *prose* (equations + quoted numbers). Divergence between them
+is the model's biggest maintenance risk. Three layers, three guards; the first two are automated, the
+third is a discipline because no test can verify that English correctly describes an equation.
+
+**Layer 1 — Python ↔ JS code.** *Fully automated.* `tests/run_parity.py` runs the embedded JS under
+Node and asserts it matches the Python model to ~1e-12 over a 2000-point grid (price × both acceptance
+dials × elasticity × income), plus the calibration solve, the milk check, and the timing rung. **Rule:
+after ANY change to a Python model function, re-run `build_interactive.py` (which re-ports the JS) and
+`run_tests.sh` before committing.** Never hand-edit the JS in `interactive.html` — it is generated.
+
+**Layer 2 — code ↔ numbers quoted in prose.** *Automated, two mechanisms.* (a) Every illustrative
+**share %** in the prose/tooltips is a `{{TOKEN}}` computed in `build_interactive.illustrative_numbers()`
+and substituted at build time — never hand-typed; `check_illustrative_numbers_in_html` enforces that
+every token is computed and every computed value is used. (b) Every model-**derived non-share figure**
+(an elasticity, the cost floor, `eps_own×κ`) is pinned in `tests/test_golden.check_derived_prose_numbers`,
+which re-derives it from the live model and asserts the rounded figure appears in the page. **Rule: when
+you quote a new model-derived number in the prose, either route it through a `{{TOKEN}}` (if it is a
+share %) or add it to `check_derived_prose_numbers` (otherwise). Do not hand-type a derived number with
+no guard** — that is exactly how the stale `−0.95` elasticity slipped in. *External-data* constants (the
+Lusk `[−3.4,−0.84]` bracket, the `+0.2/−0.4/−1.5` tier offsets, DOIs) are sourced, not derived, so they
+are guarded by review, not by these tests — keep them out of the derived-number guard.
+
+**Layer 3 — code ↔ equations/words in prose.** *Manual — no test can check prose English.* When you
+change a model **equation or its structure**, walk this list:
+- **Single-source every constant.** A number must live once, in `inputs.py` (or as a derived quantity).
+  If you find yourself typing a value into prose, ask whether it should be a `{{TOKEN}}` or a guarded
+  derived number instead.
+- **If you change a slope, coefficient, or sign**, grep the methodology block in `build_interactive.py`
+  (`<details class="methods">`) for every place that *describes* it, not just the equation that defines
+  it. The stale `λ/2.25` kink lived in §5 prose long after the λ default changed in §2.
+- **If you add or remove a term/equation in the code**, add or remove it in the methodology section
+  too (the cost floor and value-weight roll-up were in the code but missing from the prose).
+- **Keep the four files aligned**: `inputs.py` (datasheet), `build_interactive.py` (prose + JS),
+  `METHODS.md` and `RESULTS.md` (write-ups). A figure quoted in more than one of these is a drift
+  candidate — prefer pointing to the single source over re-quoting.
+- **Always finish with `./run_tests.sh`**, which rebuilds the page and runs all four checks. Green means
+  Layers 1–2 hold; Layer 3 is on you to have walked.
+
 ## Sourcing discipline (Pasitka-anchored)
 
 The cost stack is anchored to **Pasitka et al. 2024** (*Nature Food*) — the one *empirical* TEA —

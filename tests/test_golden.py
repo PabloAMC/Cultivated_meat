@@ -181,6 +181,77 @@ def check_illustrative_numbers_in_html() -> list:
     return fails
 
 
+def check_derived_prose_numbers() -> list:
+    """TRIPWIRE for the Layer-2 drift hole: a model-DERIVED number quoted in the methodology
+    prose that is NOT a %-share (so it lives outside illustrative_numbers / the {{TOKEN}} system)
+    must still match the live model. This is exactly the gap the stale '-0.95' elasticity slipped
+    through: it was a hand-typed literal that no test re-derived. Each entry below pins a derived
+    quantity to its live value AND asserts the rounded figure is present in the generated page —
+    so a recalibration that moves it fails loudly here unless the prose is updated in the same commit.
+
+    DISCIPLINE: when you quote a NEW model-derived number in the prose, add it here (or, if it is a
+    %-share, route it through illustrative_numbers as a {{TOKEN}}). Numbers that are EXTERNAL DATA
+    (the Lusk [-3.4, -0.84] bracket, the +0.2/-0.4/-1.5 tier offsets, DOIs) are NOT model outputs and
+    deliberately do NOT belong here — they are sourced constants, guarded by review, not by the model."""
+    import os
+    from market_share import DemandParams, share
+    from inputs import value
+
+    pr = DemandParams()
+
+    def elas(R):  # realised own-price elasticity at ratio R (neutral standing)
+        h = 1e-5
+        f = lambda r: share(r, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0)
+        s0 = f(R)
+        return (f(R * (1 + h)) - f(R * (1 - h))) / (2 * h * s0)
+
+    cost_floor = (value("aa_intensity") * value("aa_bulk_price")
+                  + value("glucose_other_floor") + value("plant_floor"))
+
+    # (label, live value, the exact string the prose uses for it). The string is what must appear
+    # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
+    derived = [
+        ("eps_x = eps_own*kappa",        value("eps_own") * value("cult_sub_mult"), "−3.6"),
+        ("elasticity at R=1.0",          elas(1.0),  "−0.8"),
+        ("elasticity at R=1.5",          elas(1.5),  "−1.7"),
+        ("elasticity at R=2.42 (op.)",   elas(2.42), "−3.6"),
+        ("biomass cost floor $/kg",      cost_floor, "7.5"),
+    ]
+    # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",
+              "elasticity at R=1.5": "−1.7", "elasticity at R=2.42 (op.)": "−3.6",
+              "biomass cost floor $/kg": "7.5"}
+
+    fails = []
+    html_path = os.path.join(MODEL_DIR, "interactive.html")
+    html = open(html_path, encoding="utf-8").read() if os.path.exists(html_path) else ""
+    if not html:
+        return [f"{html_path} missing — run `python build_interactive.py` first"]
+    for label, val, prose_str in derived:
+        # 1) the live value still rounds to the string the prose uses
+        neg = "−" if val < 0 else ""
+        rounded = f"{neg}{abs(val):.1f}"
+        if rounded != rounds[label]:
+            fails.append(f"DERIVED '{label}': live value {val:.4f} now rounds to '{rounded}', "
+                         f"but the prose quotes '{rounds[label]}' — update the prose AND this test")
+        # 2) and that string is actually present in the generated page (catches a deleted/edited literal)
+        if prose_str not in html:
+            fails.append(f"DERIVED '{label}': expected figure '{prose_str}' not found in interactive.html "
+                         f"(was the methodology prose edited away from the model?)")
+    print(f"derived-prose-number tripwire: {len(derived)} non-share derived figures checked, "
+          f"{'all present & current' if not fails else f'{len(fails)} problem(s)'}")
+    return fails
+
+
+def test_derived_prose_numbers():
+    """pytest entry point: model-derived figures quoted in the methodology prose match the live model."""
+    fails = check_derived_prose_numbers()
+    assert not fails, ("Derived-prose-number drift FAILED:\n  " + "\n  ".join(fails)
+        + "\n\nA model-derived number in the methodology prose no longer matches the model. "
+          "Update the prose (and this test's expected string) in the same commit, then re-run "
+          "build_interactive.py.")
+
+
 def check_blp_linearisation() -> list:
     """RIGOR GUARD on the damped-BLP income term. The price utility is genuine BLP,
     V_price = alpha*ln(y_eff - price), alpha = -beta*(income_ref - anchor_price),
@@ -249,7 +320,8 @@ def test_illustrative_numbers_not_stale():
 
 
 if __name__ == "__main__":
-    failures = check_golden() + check_illustrative_numbers_in_html() + check_blp_linearisation()
+    failures = (check_golden() + check_illustrative_numbers_in_html()
+                + check_derived_prose_numbers() + check_blp_linearisation())
     if failures:
         print(f"\nFAIL — {len(failures)} check(s) failed:")
         for f in failures:
