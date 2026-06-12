@@ -187,7 +187,8 @@ def build_model() -> dict:
             "scaffold":      ["k", "R numerator: + k (structured cuts, &sect;1)"],
             "markup_add":    ["m", "R numerator: + m (&sect;1)"],
             "meat_tax":      ["t", "R denominator: p<sub>conv</sub>&middot;t (&sect;1)"],
-            "income":        ["y", "price term &alpha;&thinsp;ln(y &minus; price<sub>j</sub>) (&sect;2)"],
+            "income":        ["y", "price term &alpha;&thinsp;ln(y<sub>ref</sub> &minus; price<sub>j</sub>), scaled by f (&sect;2)"],
+            "income_gradient": ["&phi;", "income&rarr;price-sensitivity exponent: f = (y<sub>ref</sub>/y)<sup>&phi;</sup> (&sect;2)"],
             "eps_own":       ["&epsilon;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
             "cult_sub_mult": ["&kappa;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
             "loss_aversion": ["&lambda;", "reference term f&middot;[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup> + 1&middot;(d<sub>j</sub>)<sup>&minus;</sup>] (&sect;2); &lambda;=1 default = symmetric"],
@@ -221,7 +222,7 @@ def build_model() -> dict:
         ("Cost → price ratio (§1)",
          ["media_price", "efficiency", "overhead", "markup_add", "scaffold", "meat_tax", "R_p"]),
         ("Demand — price sensitivity (§2)",
-         ["eps_own", "cult_sub_mult", "loss_aversion", "income", "w_eth"]),
+         ["eps_own", "cult_sub_mult", "loss_aversion", "income", "income_gradient", "w_eth"]),
         ("Demand — product standing (§2–3)",
          ["real_tissue_x", "real_tissue_p", "health_x", "health_p", "accept_x", "a_p",
           "theta_free_M", "premium_resistance"]),
@@ -350,6 +351,16 @@ def build_model() -> dict:
                "the buyer is poor (cheap local meat + high price-sensitivity) — why low-income regions are the hard "
                "case (sub-1% at today's cost). (Note: this is a real income channel; an earlier version's regional "
                "spread was a monotonicity-cap artifact — see methods.) Src: World Bank GDP/cap PPP 2023-24."),
+        slider("income_gradient", "Income → price-sensitivity gradient (φ)", "exp", 0.0, 0.5, 0.05,
+               value("income_gradient"), "Muhammad/ERS", tip="HOW STEEPLY price-sensitivity rises as income "
+               "falls — the exponent in the scaling factor f = (income_ref/income)^φ. It sets how much harder a "
+               "poorer country feels cultivated's premium, and so governs the whole 'low-income regions are the "
+               "hard case' result. φ=0 = income does nothing (everyone as price-sensitive as the US); φ=0.25 "
+               "(default) = a Nigeria/US own-price-elasticity ratio ~2× (matches the empirical rich→poor food-price "
+               "gradient, Muhammad/ERS 2011: low-income food elasticity 0.78 vs 0.50 high-income); φ=0.5 ≈ 3× and "
+               "pushes cultivated to ~0% in the poorest regions. The US anchor and every at-parity number are "
+               "UNCHANGED at any φ (f=1 at the reference income) — φ only tilts the cross-region spread. Swept in "
+               "the Monte Carlo. Src: Muhammad et al. 2011 (USDA ERS)."),
         slider("w_eth", "Ethical (veg+vegan) population (w<sub>eth</sub>)", "", 0.04, 0.10, 0.01, value("w_eth"),
                "Gallup", tip="Size of the ethical segment (values slaughter-free, mostly eats whole foods). "
                "Default 5% = US vegetarian (4%) + vegan (1%), Gallup 2023; the rest is the mainstream. Plant-based "
@@ -1495,7 +1506,7 @@ function deriveBeta(K){
 /* effective constants from the current sliders, then derive beta + run the calibration solve. */
 function effConsts(s){
   const K=Object.assign({},C);
-  ["cult_sub_mult","loss_aversion","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p"].forEach(k=>{if(k in s)K[k]=s[k];});
+  ["cult_sub_mult","loss_aversion","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient"].forEach(k=>{if(k in s)K[k]=s[k];});
   return deriveBeta(K);
 }
 function biomass(s){return mediaCost(s.media_price,s.efficiency)
