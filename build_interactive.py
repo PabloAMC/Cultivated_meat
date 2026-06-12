@@ -846,8 +846,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <p style="font-size:.84rem;color:#555;margin:-2px 0 8px"><b>How the price enters: one ratio, one dollar
       price.</b> The BLP income log needs a price in <i>dollars</i> (to compare against income), so it multiplies
       each product's price <i>ratio</i> \(R_j\) by \(p_c\) — the conventional price of the very rival this
-      comparison is against — giving \(\text{price}_j=R_j\,p_c\). For cultivated that is
-      \(R_x\,p_c\): the §1 ratio turned back into dollars. Crucially \(p_c\) is <b>not one
+      comparison is against — to get its <b>dollar price</b> \(p_j=R_j\,p_c\). For cultivated that is
+      \(p_x=R_x\,p_c\): the §1 ratio turned back into dollars. Crucially \(p_c\) is <b>not one
       number</b> — it is the conventional price of <i>this</i> meat in <i>this</i> place, so it depends on both the
       <b>cut</b> (US chicken ~\$5, steak ~\$20, wagyu ~\$45) and the <b>region</b> (chicken ~\$5 in the US, ~\$3.5
       in India): the §3 roll-up uses each cut's own local price, so a 2.4&times; premium is correctly a bigger
@@ -888,7 +888,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       its own modeled share \(s_x\), a short fixed point:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x),\qquad
-         V^{\text{price}}_j=\alpha\ln(y_{\rm eff}-\text{price}_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\varphi}. \]
+         V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\varphi}. \]
       <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
       closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_c\) hands back the
       slice of price-sensitivity the loss-aversion term already supplies, so \(\beta\) carries only the rest.
@@ -897,7 +897,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       now only shapes the kink at parity). There is no free "calibration price": move a cost input and
       \(p_x\) moves with it.</p>
       <p style="font-size:.9rem"><b>How income enters — genuine BLP.</b> Income sits <b>inside the log</b>:
-      \(V^{\text{price}}_j=\alpha\ln(y_{\rm eff}-\text{price}_j)\) is the Berry–Levinsohn–Pakes form, where the
+      \(V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j)\) is the Berry–Levinsohn–Pakes form, where the
       <i>diminishing marginal utility of income</i> IS the mechanism — the same price is a larger, more painful
       bite the poorer you are, so richer consumers are less price-sensitive without any extra term. \(\alpha\) is a
       single <b>constant</b> (not a function of income), pinned so the term's local slope equals \(\beta\) at the
@@ -931,7 +931,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
       <p>The terms, each with a plain meaning and a source:</p>
       <table class="vardef">
-        <tr><td><b>price &amp; income</b> \(\alpha\ln(y_{\rm eff}-\text{price}_j)\)</td><td>genuine
+        <tr><td><b>price &amp; income</b> \(\alpha\ln(y_{\rm eff}-p_j)\)</td><td>genuine
           <b>Berry–Levinsohn–Pakes (1995)</b> — income inside the log, so a price is a bigger bite the poorer you
           are (richer = less price-sensitive), fully unpacked in "the price piece" above. \(\alpha\) is a single
           <b>constant</b> built from \(\varepsilon\) and \(\kappa\) via \(\beta\); the cross-region tilt comes only
