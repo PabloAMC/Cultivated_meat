@@ -105,7 +105,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-12 18:51</span></h1>
+<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-12 19:27</span></h1>
 <p class="lede">Drag the sliders — ordered most-decisive first — to see how the price ratio,
 market share, and per-meat-type penetration respond. These are <b>point estimates</b> at the values
 you choose (not the Monte-Carlo bands). The big penetration numbers are the <b>long-run equilibrium
@@ -222,12 +222,22 @@ parameter are described in the methods and results notes. Defaults are the neutr
       one species' biomass cost differ if data ever warrant it. Numerator over denominator:</p>
       \[ c_{\rm bio} = \max\!\big(\,c_{\rm med} + h \;(+\,\text{clean-room, if toggled}),\ \ c_{\rm floor}\big),
          \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_{\rm conv}\,t} \]
-      <p>The biomass cost carries a second, deeper floor \(c_{\rm floor}=\underbrace{a_{\rm I}\,p_{\rm
-      aa}}_{\text{amino acids}}+\underbrace{g}_{\text{glucose}}+\underbrace{h_{\rm min}}_{\text{minimal plant}}\!
-      \approx\$7.5\)/kg — the irreducible feedstock the cells must physically eat plus the floor cost of running a
-      plant at scale, assuming the reducible parts (recombinant proteins, single-use consumables, small-scale
-      capital) are engineered toward zero. It is the "where is the floor?" number, though in the reachable slider
-      range \(c_{\rm med}+h\) already sits at or above it, so the \(\max\) rarely binds. Parity (\(R_x=1\))
+      <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b> the price
+      ratio is <i>(what a kg of cultivated meat costs to grow + the cost of turning it into a sold product)
+      &divide; (the price of the ordinary meat beside it)</i>. The numerator is the biomass cost \(c_{\rm bio}\)
+      (capped below by the floor), times an optional per-species multiplier \(\mu\) (<b>=1 at baseline</b>, inert
+      unless data ever warrant a species difference), plus the structured-cut scaffold \(k\) (0 for mince) and the
+      retail markup \(m\); the denominator is the conventional price \(p_{\rm conv}\), optionally scaled by a meat
+      tax \(t\). \(R_x=1\) is price parity.</p>
+      <p><b>Two floors, nested.</b> The medium floor \(f\!\approx\!\$1.5\)/kg above is just the feedstock dissolved
+      in the <i>medium</i>; the biomass cost carries a second, <i>deeper</i> floor that <b>contains</b> it:
+      \(c_{\rm floor}=\underbrace{a_{\rm I}\,p_{\rm aa}}_{\text{amino acids}}+\underbrace{g}_{\text{glucose}}+
+      \underbrace{h_{\rm min}}_{\text{minimal plant}}\!\approx\$7.5\)/kg — the same irreducible feedstock the cells
+      must physically eat (\(\approx\!f\)) <i>plus</i> the floor cost of running a plant at scale, assuming the
+      reducible parts (recombinant proteins, single-use consumables, small-scale capital) are engineered toward
+      zero. It is the "where is the floor?" number. (In practice neither \(\max\) bites: across the whole slider
+      range \(c_{\rm med}+h\) already sits at or above \$7.5, so the floors mark where cost <i>can't</i> go, not
+      where it currently is.) Parity (\(R_x=1\))
       therefore needs \(c_{\rm bio}\le p_{\rm conv}-m\): the markup eats the headroom, which is why it is one of
       the most leveraged numbers in the model. Cell <b>density / metabolic efficiency</b> enters only through
       \(\eta\) — what matters for cost is medium consumed per kg, which density drives.</p>
@@ -325,7 +335,9 @@ parameter are described in the methods and results notes. Defaults are the neutr
       the US and every at-parity number are invariant to \(\varphi\). <b>The punchline:</b> income bites hardest
       where the premium is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity) —
       low-income regions fall below ~1% at today's cost, the genuinely hard case, while the at-parity headline
-      (equal prices) is unaffected.</p>
+      (equal prices) is unaffected. Note the channel <b>saturates</b>: wealth relaxes <i>price</i>-sensitivity but
+      never erases the premium or the other attributes, so even an arbitrarily rich buyer does not "buy anything"
+      at \(R_x\approx2.4\) — the share tops out (~19%), it does not run to 100%.</p>
       <p><b>The three segment-specific weights</b> (everything else is shared across the two consumer types).
       Only the slaughter-free, real-tissue and health weights differ by type — that difference <i>is</i> the
       heterogeneity:</p>
@@ -346,17 +358,14 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <p>The terms, each with a plain meaning and a source:</p>
       <table class="vardef">
         <tr><td><b>price &amp; income</b> \(\alpha\ln(y_{\rm eff}-\text{price}_j)\)</td><td>genuine
-          <b>Berry–Levinsohn–Pakes (1995)</b>: income sits <i>inside</i> the log, so the diminishing marginal
-          utility of income is the mechanism — a given price is a bigger, more painful bite the poorer you are, so
-          richer buyers are less price-sensitive with no extra term. \(\alpha\) is a single <b>constant</b> (built
-          from the measured elasticity \(\varepsilon\) and closeness \(\kappa\) via \(\beta\); see "the price piece,
-          unpacked" above), pinned so the slope equals \(\beta\) at the US anchor. The cross-region tilt comes only
-          from the <b>damped effective income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^\varphi\): \(\varphi=1\)
-          is raw BLP (too steep for food, ~6&times;), \(\varphi=0.5\) (default) damps it to the empirical ~2&times;
-          gradient, \(\varphi=0\) removes income. \(y_{\rm eff}=y_{\rm ref}\) at the US reference, so the US and
-          every at-parity number are invariant to \(\varphi\). <i>(An earlier draft froze income in the log and
-          re-added it as a separate multiplier — not BLP, and it disabled the curvature; this restores genuine BLP,
-          verified against its own linearisation to &lt;0.01pp.)</i></td></tr>
+          <b>Berry–Levinsohn–Pakes (1995)</b> — income inside the log, so a price is a bigger bite the poorer you
+          are (richer = less price-sensitive), fully unpacked in "the price piece" above. \(\alpha\) is a single
+          <b>constant</b> built from \(\varepsilon\) and \(\kappa\) via \(\beta\); the cross-region tilt comes only
+          from the <b>damped effective income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^\varphi\) — \(\varphi=1\)
+          raw BLP (~6&times;, too steep for food), \(\varphi=0.5\) default (empirical ~2&times;), \(\varphi=0\) none;
+          the US and every at-parity number are invariant to \(\varphi\). <i>(An earlier draft re-added income as a
+          separate multiplier outside the log — not BLP; this restores it, verified against its linearisation to
+          &lt;0.01pp.)</i></td></tr>
         <tr><td><b>loss aversion</b> \(\lambda\) <i>(off by default)</i></td><td>an OPTIONAL
           <b>reference-dependent</b> asymmetry: people judge a price against the familiar conventional price, and a
           product priced <i>above</i> it can feel like a loss. A discount is rewarded at the <b>unit</b> rate, a
@@ -483,7 +492,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       stand-in for that heterogeneity, so the model's implied at-parity (cold) elasticity must sit inside
       \([-3.4,\,-0.84]\) — and at \(\kappa=4\) it does (<b>-1.5</b>; self-check [4b]). It is <i>also</i> consistent
       with the standard <b>~3–5&times; own-brand-vs-category gap</b> (and cultivated is a <i>closer</i> substitute —
-      same tissue), so we centre at \(4\) (realised \(\varepsilon_x=-3.6\)) and treat \(3\!-\!6\) as the range. <b>The
+      same tissue), so we centre at \(4\) (realised \(\varepsilon_x=-3.6\) <i>at the premium</i>, vs
+      -1.5 <i>at parity</i> — the same curve, steeper higher up) and treat \(3\!-\!6\) as the range. <b>The
       one thing the data cannot do</b> is pin the elasticity at the \(R_x\approx2.4\) premium where \(\kappa\)
       actually bites (no experiment has priced cultivated that far above parity), so the −3.6 <i>there</i> is a
       functional-form extrapolation from the at-parity measurement — the honest residual. It is the single most
@@ -601,7 +611,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       (<a href="https://gfi.org/wp-content/uploads/2025/01/Consumer-snapshot-cultivated-meat-in-the-US.pdf" target="_blank" rel="noopener">GFI's
       consumer research</a>: tasting and exposure steadily lift acceptance; only ~27% of Americans yet feel
       familiar with the category). The cultivated-specific price response itself is well-behaved — Lusk's
-      coefficient implies an own-price elasticity bracketing &minus;0.85 to &minus;3.4
+      coefficient implies an own-price elasticity bracketing &minus;0.84 to &minus;3.4
       (<a href="https://doi.org/10.1073/pnas.2319016121" target="_blank" rel="noopener">cf. Jahn&nbsp;et&nbsp;al. 2024</a> <a href="#ref9">[9]</a>,
       who find the plant-based analog at &minus;1.4) — so what is uncertain is the at-parity <i>standing</i>,
       not the slope.</p>
@@ -614,7 +624,9 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       pinned to the data — and \(\nu_x\) is the <b>long-run</b> level it fades toward. The fade is driven
       by cumulative <b>availability</b> \(E\) (mere-exposure: people grow familiar with what they keep
       seeing, even before they buy), at rate \(r\) (<code>accept_rate</code>). \(F(t)\) is standard
-      <b>Bass diffusion</b> <a href="#ref11">[11]</a> \(\big(\dot F=(p+qF)(1-F)\big)\). The chart above shows the realized median,
+      <b>Bass diffusion</b> <a href="#ref11">[11]</a> \(\big(\dot F=(p+qF)(1-F)\big)\) — where \(p\) is the
+      <i>innovation</i> rate (independent early adopters) and \(q\) the <i>imitation</i> rate (word-of-mouth
+      contagion), the two standard Bass coefficients. The chart above shows the realized median,
       the rising ceiling it climbs toward, and the year it <b>stabilises</b> (reaches 90% of its yr-30
       value); turn on Monte Carlo to band it.</p>
       <p style="background:#eef4fb;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
@@ -626,7 +638,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       (\(\nu_{x0}=0\)). Rather than pick one, the slider <b>spans the whole framing band</b>, and it is
       <b>swept in the Monte Carlo</b>, so this — the single widest genuine uncertainty in the demand
       side — is shown, not hidden. (Reassuringly, the cultivated-specific price response itself is
-      <i>not</i> the issue: Lusk's data imply an own-price elasticity bracketing −0.85 to −3.4, and the
+      <i>not</i> the issue: Lusk's data imply an own-price elasticity bracketing −0.84 to −3.4, and the
       model's curve sits inside that.)</p>
 
       <h4>5. Prices, the markup, and consumption shares</h4>
@@ -759,7 +771,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         <a href="https://doi.org/10.1016/j.foodpol.2020.101931" target="_blank" rel="noopener">doi:10.1016/j.foodpol.2020.101931</a>
         — US choice experiment: at price parity, lab-grown ~5%, plant-based 16%/7%, beef 72%; even at 50%
         discounts beef keeps the majority. The price coefficient implies a lab-grown own-price elasticity
-        bracketing &minus;0.85 to &minus;3.4 (so the model's share-vs-price curve sits inside the data).</li>
+        bracketing &minus;0.84 to &minus;3.4 (so the model's share-vs-price curve sits inside the data).</li>
         <li id="ref9"><b>[9]</b> <b>Plant-based analog elasticity (&minus;1.4), the 20&ndash;25% at-parity ceiling:</b>
         Jahn, Guhl &amp; Erhard. Substitution patterns and price response for plant-based meat alternatives.
         <i>PNAS</i> <b>121</b>, e2319016121 (2024),
@@ -1475,7 +1487,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-12 18:51",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-12 19:27",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -1909,7 +1921,7 @@ function selfTest(){
     "  ·  income channel (China $"+(ic[0]/1000).toFixed(0)+"k, R="+ic[1].toFixed(2)+"): JS "+jsRegional.toFixed(2)+
     "% vs Python "+ic[2].toFixed(2)+"% — "+(regOK?"matches.":"MISMATCH!");
 }
-console.log("interactive.html JS build 2026-06-12 18:51 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-12 19:27 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");
