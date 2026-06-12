@@ -462,7 +462,7 @@ differ enormously per meat type; we roll up by **volume** (impact) and **value**
 but demand-friendly (cleaner-meat pull, no authenticity issue); premium/luxury is price-competitive
 but demand-hostile (authenticity, price-insensitivity). **The sweet spot is mid-cuts** (salmon
 fillet, beef steak), not ultra-luxury and not cheap mince. Per-region local prices **and region income**
-(via the BLP price term, `REGION_INCOME`) give a penetration band: **the EU is easiest** (rich + priciest
+(via the income→price-sensitivity term, `REGION_INCOME`) give a penetration band: **Europe is easiest** (rich + priciest
 meat), while low-income regions (India, Brazil, Nigeria) are hardest — cheap meat *and* high
 price-sensitivity compound. See RESULTS §4–5.
 

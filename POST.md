@@ -27,10 +27,10 @@ is sourced and reproducible; methods in [METHODS.md](METHODS.md), full results i
   no-slaughter/cleaner meat. Together they span friction (~12%), equivalent (~50% at parity — ~47% if
   you strip cultivated's mild health edge over conventional), and actively preferred (~75%). We take no
   baked-in stance.
-- **Total displacement is modest in the central case (~3% of meat by volume; the EU, with the priciest
+- **Total displacement is modest in the central case (~3% of meat by volume; Europe, with the priciest
   meat, ~10%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
   price; ultra-luxury is price-cheap but demand-capped, staying below the cuts; the window is beef
-  steak and salmon fillet. The EU is the easiest market.
+  steak and salmon fillet. Europe is the easiest market.
 
 **So-what for funders:** the marginal dollar should target the *binding* constraint — large-volume
 bioreactor scale-up and independent at-scale facility-cost data — not another medium-chemistry win,
@@ -193,13 +193,13 @@ Rolling up across the whole spectrum, sampling cost + standing + elasticity:
 ```
 total cultivated penetration of meat (central / P50, with 80% bands):
   region   by VOLUME (impact)        by VALUE ($ market)
-  US       4.4%  [1.9,  9.0]          7.7%  [3.6, 14.2]
-  EU       9.7%  [4.9, 15.9]         16.3%  [8.4, 25.6]   ← easiest (priciest meat)
-  China    2.6%  [1.2,  4.7]          6.6%  [3.2, 11.4]
-  global   3.0%  [1.2,  6.2]          6.1%  [2.7, 11.8]
+  US       5.4%  [1.7, 13.9]          8.3%  [2.8, 19.8]
+  Europe   9.5%  [3.4, 20.2]         14.9%  [5.5, 30.0]   ← easiest (priciest meat)
+  China    2.9%  [1.0,  6.9]          6.5%  [2.2, 14.6]
+  global   3.7%  [1.2,  9.4]          6.8%  [2.2, 16.1]
 ```
 
-The **EU is easiest** — its meat is the most expensive, so parity is nearest. The US, China and the
+**Europe is easiest** — its meat is the most expensive, so parity is nearest. The US, China and the
 global average are harder, dragged down by cheap mince (~60% of volume, unreachable on price). Bands
 are wide and right-skewed: the low end is the scale-up-stalls / friction world; the long tail is the
 scale-up-wins / actively-preferred world.

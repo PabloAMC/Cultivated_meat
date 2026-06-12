@@ -40,7 +40,7 @@ from meat_market import fig_penetration, monte_carlo as pen_mc
 # Output 2 headline — the total-penetration BAND by region (volume & value)
 # ----------------------------------------------------------------------------
 REGIONS = [("nigeria", "Nigeria"), ("india", "India"), ("global", "Global"),
-           ("china", "China"), ("brazil", "Brazil"), ("us", "US"), ("eu", "EU")]
+           ("china", "China"), ("brazil", "Brazil"), ("us", "US"), ("eu", "Europe")]
 
 
 def fig_regional_band(n, outdir, fmts) -> None:

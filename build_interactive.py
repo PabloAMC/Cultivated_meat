@@ -445,7 +445,7 @@ def build_model() -> dict:
                  for mt in market]
         for region, market in mm.MARKETS.items()
     }
-    regions = [["us", "US"], ["eu", "EU"], ["china", "China"], ["global", "global"],
+    regions = [["us", "US"], ["eu", "Europe"], ["china", "China"], ["global", "global"],
                ["brazil", "Brazil"], ["india", "India"], ["nigeria", "Nigeria"]]
     return dict(const=const, sliders=sliders, toggles=toggles, markets=markets, regions=regions)
 
@@ -795,14 +795,15 @@ parameter are described in the methods and results notes. Defaults are the neutr
       ethically-motivated people get protein from whole foods, not a veggie burger, which is exactly why
       plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule — no
       option gets a special term; the rule just reads each product's row off the table above:</p>
-      \[ V_j = \underbrace{\alpha\ln(y-R_j\,p_{\rm conv})}_{\text{price (via income)}}
-              \;+\;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\text{reference dependence}}
-              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j \;+\; \xi_j \]
+      \[ V_j = \underbrace{f\big[\,\alpha\ln(y_{\rm ref}-R_j\,p_{\rm conv})
+                 \;-\;\lambda\,(d_j)^{+}+(d_j)^{-}\big]}_{\text{price (income-scaled; }\lambda=1\text{ ⇒ symmetric)}}
+              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j \;+\; \nu_j \]
       <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b>
-      how attractive product \(j\) is = what you can afford after paying for it, <i>minus</i> a penalty for
-      being dearer than the familiar conventional price (or a reward for being cheaper), <i>plus</i> taste,
-      <i>plus</i> slaughter-free, <i>plus</i> real-meat, <i>plus</i> health, <i>plus</i> a small novelty/authenticity
-      constant. Each piece is unpacked below.</p>
+      how attractive product \(j\) is = what you can afford after paying for it (scaled by income, via \(f\)),
+      <i>minus</i> a penalty for being dearer than the familiar conventional price (or a reward for being
+      cheaper), <i>plus</i> taste, <i>plus</i> slaughter-free, <i>plus</i> real-meat, <i>plus</i> health,
+      <i>plus</i> a default-0 novelty term \(\nu_j\) on the two novel meats. There is no free intercept — every
+      term is a named attribute. Each piece is unpacked below.</p>
       <p style="font-size:.86rem">Every term is a <b>weight &times; a column of the table</b> (and a 0 in the
       table just means "this product lacks that feature" — not a special case): \(a_j-1\) is the taste gap from
       real meat, \(g_j\) the slaughter-free flag, \(b_j\) the real-tissue flag, \(\zeta_j\) health, and
@@ -1151,9 +1152,9 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       <p style="font-size:.76rem;color:#888;">Prices: GlobalProductPrices
       (globalproductprices.com, retail, Jan&nbsp;2026) for the world/regional levels, cross-checked
       against USDA&nbsp;ERS &amp; BLS (US). Consumption shares (the volume weights): USDA&nbsp;ERS
-      per-capita availability (US); OECD-FAO Agricultural Outlook 2024 and FAO food-balance sheets (EU,
+      per-capita availability (US); OECD-FAO Agricultural Outlook 2024 and FAO food-balance sheets (Europe,
       China, world). Species mix genuinely varies by region — China pork-dominant (~two-thirds of
-      meat), the US poultry-heavy (~half), the EU pork-led but shifting to poultry, the world tilting
+      meat), the US poultry-heavy (~half), Europe pork-led but shifting to poultry, the world tilting
       to poultry — which is why the region selector moves the totals.</p>
       <p><b>On the retail markup \(m\) (an assumption worth flagging).</b> We add the
       biomass&rarr;retail wedge as a <i>fixed $/kg</i> amount (default $5/kg), not a percentage. We do

@@ -161,7 +161,7 @@ US_MARKET = [
     MeatType("rabbit (cuts)",         16.0,  0.004, scaffold=SCAF),
 ]
 
-# EU — higher prices (GPP Germany/France), pork+poultry heavy. Chicken is the
+# Europe — higher prices (GPP Germany/France), pork+poultry heavy. Chicken is the
 # cheapest staple (as globally); pork is the most-consumed but slightly dearer.
 EU_MARKET = [
     MeatType("chicken (ground/proc.)", 6.0,  0.15),
