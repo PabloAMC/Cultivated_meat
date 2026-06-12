@@ -756,7 +756,9 @@ parameter are described in the methods and results notes. Defaults are the neutr
       tax). So §1 is really about building the numerator \(p_x\), cultivated's retail price, one cost at a
       time — and we introduce each variable only at the step where it becomes unavoidable.</p>
       <p><b>Start with medium, because it dominates.</b> Cells grow in a liquid medium, so the first
-      thing we need is its price, \(p_{\rm med}\) (<i>$ per litre</i>). But a per-litre price isn't a
+      thing we need is its price, \(p_{\rm med}\) (<i>$ per litre</i>) — \$0.63/L measured by Pasitka
+      <a href="#ref1">[1]</a>, with sub-\$0.20/L claimed by some companies but not independently verified
+      <a href="#ref3">[3]</a> (the slider spans the range). But a per-litre price isn't a
       cost per kg of meat until we know how many litres a kilogram consumes — the <b>media
       intensity</b> \(\iota\approx 22.4\) L/kg (measured by Pasitka <a href="#ref1">[1]</a>). Cells can be engineered leaner,
       so we attach an <b>efficiency</b> multiplier \(\eta\) (1 = today's cells; 0.25 = CHO-grade, 4&times;
@@ -774,8 +776,9 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <p>Running the reactors, labour, utilities and capital adds a per-kg <b>overhead</b> \(h\) — the
       reactor-scale lever, and the model's main bottleneck — completing the biomass cost
       \(c_{\rm bio}=c_{\rm med}+h\). Turning biomass into a sold product adds a <b>retail markup</b>
-      \(m\) (processing, cold chain, margin — added in $/kg; why additive is discussed in §4) and, for
-      structured cuts only, a <b>scaffold cost</b> \(k\). A per-type multiplier \(\mu\) (default 1) lets
+      \(m\) (processing, cold chain, margin — added in $/kg; why additive is discussed in §5) and, for
+      structured cuts only, a <b>scaffold cost</b> \(k\) (\$6/kg — <i>our</i> assumption; no published TEA
+      covers structuring cost <a href="#ref6">[6]</a>). A per-type multiplier \(\mu\) (default 1) lets
       one species' biomass cost differ if data ever warrant it. Numerator over denominator:</p>
       \[ c_{\rm bio} = \max\!\big(\,c_{\rm med} + h \;(+\,\text{clean-room, if toggled}),\ \ c_{\rm floor}\big),
          \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_c\,t} \]
@@ -792,7 +795,9 @@ parameter are described in the methods and results notes. Defaults are the neutr
       \underbrace{h_{\rm min}}_{\text{minimal plant}}\!\approx\$7.5\)/kg — the same irreducible feedstock the cells
       must physically eat (\(\approx\!f\)) <i>plus</i> the floor cost of running a plant at scale, assuming the
       reducible parts (recombinant proteins, single-use consumables, small-scale capital) are engineered toward
-      zero. It is the "where is the floor?" number. (In practice neither \(\max\) bites: across the whole slider
+      zero — but <i>not</i> assuming away Humbird's scale-up ceilings (CO₂/O₂ transfer, sterility caps on vessel
+      size), which if they bind make this floor unreachable at any media price <a href="#ref2">[2]</a>. It is the
+      "where is the floor?" number. (In practice neither \(\max\) bites: across the whole slider
       range \(c_{\rm med}+h\) already sits at or above \$7.5, so the floors mark where cost <i>can't</i> go, not
       where it currently is.) Parity (\(R_x=1\))
       therefore needs \(c_{\rm bio}\le p_c-m\): the markup eats the headroom, which is why it is one of
@@ -899,7 +904,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       US anchor: \(\alpha=-\beta(y_{\rm ref}-p_x)\). The cross-region tilt comes only from the <b>damped effective
       income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\varphi}\): \(\varphi=1\) is raw BLP, which is too steep
       for food (~6&times; rich→poor elasticity ratio); \(\varphi=0.5\) (default) damps it to the empirical ~2&times;
-      gradient (Muhammad/ERS), and \(\varphi=0\) removes income. At the US reference \(y_{\rm eff}=y_{\rm ref}\), so
+      gradient (region incomes from the World Bank; the gradient from Muhammad/ERS <a href="#ref15">[15]</a>), and
+      \(\varphi=0\) removes income. At the US reference \(y_{\rm eff}=y_{\rm ref}\), so
       the US and every at-parity number are invariant to \(\varphi\). <b>The punchline:</b> income bites hardest
       where the premium is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity) —
       low-income regions fall below ~1% at today's cost, the genuinely hard case, while the at-parity headline
@@ -1122,7 +1128,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <b>tier-dependent</b> adjustments: (1) the <b>authenticity offset</b> \(\tau_{\rm type}\) — the
       additive constant from §2's \(\xi_x=\nu_x+\tau_{\rm type}\), more negative the more the product is
       bought for "the real thing"; and (2) an <b>elasticity multiplier</b> \(m_{\rm type}\) on
-      \(\varepsilon\) (premium buyers are less price-sensitive). Both run off the same tier and are scaled
+      \(\varepsilon\) (premium buyers are less price-sensitive — meat demand is more inelastic at higher price,
+      Lusk &amp; Tonsor <a href="#ref5">[5]</a>). Both run off the same tier and are scaled
       together by the premium-resistance dial \(\rho\):</p>
       \[ \tau_{\rm type}=\rho\,\tau^0_{\rm type},\qquad
          \varepsilon_{\rm type}=\big(1+\rho\,(m^0_{\rm type}-1)\big)\,\varepsilon,\qquad
@@ -1199,7 +1206,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       value); turn on Monte Carlo to band it.</p>
       <p style="background:#eef4fb;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
       <b>Why \(\nu_{x0}\)'s range is [-3.5, +1.5]: the question framing dominates the answer.</b> The
-      <i>same</i> product polls anywhere from ~5% to ~60% depending purely on how you ask (GFI):
+      <i>same</i> product polls anywhere from ~5% to ~60% depending purely on how you ask (GFI <a href="#ref10">[10]</a>):
       a cold unbranded choice experiment gives <b>~5%</b> (\(\nu_{x0}\approx-2.8\), the data-anchored
       default — "today's unfamiliar consumer"); a warm "cultivated chicken in a restaurant" framing
       (Perdue 2024) gives <b>~60%</b> (\(\nu_{x0}\approx+1.5\)); neutral/equivalent sits at ~{{NX0_NEUTRAL}}%
