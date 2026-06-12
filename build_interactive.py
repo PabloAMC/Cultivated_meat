@@ -747,12 +747,14 @@ parameter are described in the methods and results notes. Defaults are the neutr
       under the charts reproduces the Python reference numbers.</p>
 
       <h4>1. Cost &rarr; price ratio \(R_x\)</h4>
-      <p>The one number that drives everything downstream is cultivated's <b>price ratio</b> \(R_x\) —
-      cultivated retail price divided by the conventional price it competes with (the subscript \(x\)
-      marks it as cultivated's, alongside plant-based's \(R_p\) in §2). The denominator is just an
-      observed market price \(p_{\rm conv}\) (times a policy multiplier \(t\) for a meat tax). So §1 is
-      really about building the numerator, cultivated's retail price, one cost at a time — and we
-      introduce each variable only at the step where it becomes unavoidable.</p>
+      <p>The one number that drives everything downstream is cultivated's <b>price ratio</b>
+      \(R_x=p_x/p_c\) — cultivated's retail price \(p_x\) divided by the price \(p_c\) of the conventional
+      meat it competes with. (Products are indexed by a single letter throughout — \(c\) conventional,
+      \(x\) cultivated, \(p\) plant-based, \(w\) whole-food — so \(p_x,p_c\) are their prices and
+      \(R_x,R_p\) the ratios to conventional; the demand model in §2 uses the same letters.) The
+      denominator \(p_c\) is just an observed market price (times a policy multiplier \(t\) for a meat
+      tax). So §1 is really about building the numerator \(p_x\), cultivated's retail price, one cost at a
+      time — and we introduce each variable only at the step where it becomes unavoidable.</p>
       <p><b>Start with medium, because it dominates.</b> Cells grow in a liquid medium, so the first
       thing we need is its price, \(p_{\rm med}\) (<i>$ per litre</i>). But a per-litre price isn't a
       cost per kg of meat until we know how many litres a kilogram consumes — the <b>media
@@ -776,13 +778,13 @@ parameter are described in the methods and results notes. Defaults are the neutr
       structured cuts only, a <b>scaffold cost</b> \(k\). A per-type multiplier \(\mu\) (default 1) lets
       one species' biomass cost differ if data ever warrant it. Numerator over denominator:</p>
       \[ c_{\rm bio} = \max\!\big(\,c_{\rm med} + h \;(+\,\text{clean-room, if toggled}),\ \ c_{\rm floor}\big),
-         \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_{\rm conv}\,t} \]
+         \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_c\,t} \]
       <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b> the price
       ratio is <i>(what a kg of cultivated meat costs to grow + the cost of turning it into a sold product)
       &divide; (the price of the ordinary meat beside it)</i>. The numerator is the biomass cost \(c_{\rm bio}\)
       (capped below by the floor), times an optional per-species multiplier \(\mu\) (<b>=1 at baseline</b>, inert
       unless data ever warrant a species difference), plus the structured-cut scaffold \(k\) (0 for mince) and the
-      retail markup \(m\); the denominator is the conventional price \(p_{\rm conv}\), optionally scaled by a meat
+      retail markup \(m\); the denominator is the conventional price \(p_c\), optionally scaled by a meat
       tax \(t\). \(R_x=1\) is price parity.</p>
       <p><b>Two floors, nested.</b> The medium floor \(f\!\approx\!\$1.5\)/kg above is just the feedstock dissolved
       in the <i>medium</i>; the biomass cost carries a second, <i>deeper</i> floor that <b>contains</b> it:
@@ -793,7 +795,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       zero. It is the "where is the floor?" number. (In practice neither \(\max\) bites: across the whole slider
       range \(c_{\rm med}+h\) already sits at or above \$7.5, so the floors mark where cost <i>can't</i> go, not
       where it currently is.) Parity (\(R_x=1\))
-      therefore needs \(c_{\rm bio}\le p_{\rm conv}-m\): the markup eats the headroom, which is why it is one of
+      therefore needs \(c_{\rm bio}\le p_c-m\): the markup eats the headroom, which is why it is one of
       the most leveraged numbers in the model. Cell <b>density / metabolic efficiency</b> enters only through
       \(\eta\) — what matters for cost is medium consumed per kg, which density drives.</p>
 
@@ -832,16 +834,30 @@ parameter are described in the methods and results notes. Defaults are the neutr
       ethically-motivated people get protein from whole foods, not a veggie burger, which is exactly why
       plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule — no
       option gets a special term; the rule just reads each product's row off the table above:</p>
-      \[ V_j = \underbrace{\alpha\ln(y_{\rm eff}-R_j\,p_{\rm ref})}_{\text{BLP price (income in the log)}}
+      \[ V_j = \underbrace{\alpha\ln(y_{\rm eff}-R_j\,p_c)}_{\text{BLP price (income in the log)}}
               \;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\lambda=1\,\Rightarrow\,\text{symmetric}}
-              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j \;+\; \nu_j \]
+              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j
+              \;+\; \underbrace{\nu_j+\tau_j}_{\xi_j\ \text{(novelty + authenticity)}} \]
+      <p style="font-size:.84rem;color:#555;margin:-2px 0 8px"><b>How the price enters: one ratio, one dollar
+      price.</b> The BLP income log needs a price in <i>dollars</i> (to compare against income), so it multiplies
+      each product's price <i>ratio</i> \(R_j\) by \(p_c\) — the conventional price of the very rival this
+      comparison is against — giving \(\text{price}_j=R_j\,p_c\). For cultivated that is
+      \(R_x\,p_c\): the §1 ratio turned back into dollars. Crucially \(p_c\) is <b>not one
+      number</b> — it is the conventional price of <i>this</i> meat in <i>this</i> place, so it depends on both the
+      <b>cut</b> (US chicken ~\$5, steak ~\$20, wagyu ~\$45) and the <b>region</b> (chicken ~\$5 in the US, ~\$3.5
+      in India): the §3 roll-up uses each cut's own local price, so a 2.4&times; premium is correctly a bigger
+      <i>dollar</i> bite on a \$20 steak than on \$5 chicken. The single \$12 in the datasheet is just the
+      region-agnostic <b>commodity anchor</b> used for calibration and the at-parity headline. (The
+      <i>ratio</i>-based loss term \(-\lambda(d_j)^{+}\!+(d_j)^{-}\) needs no dollars at all — it sees only the
+      ratio; see its row in the table.)</p>
       <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b>
       how attractive product \(j\) is = the value of the income you have left after paying for it (the
       <b>Berry–Levinsohn–Pakes</b> log — a price is a bigger bite the poorer you are), <i>minus</i> a penalty for
       being dearer than the familiar conventional price (or a reward for being cheaper), <i>plus</i> taste,
-      <i>plus</i> slaughter-free, <i>plus</i> real-meat, <i>plus</i> health, <i>plus</i> a default-0 novelty
-      term \(\nu_j\) on the two novel meats. There is no free intercept — every term is a named attribute. Each
-      piece is unpacked below.</p>
+      <i>plus</i> slaughter-free, <i>plus</i> real-meat, <i>plus</i> health, <i>plus</i> a default-0 constant
+      \(\xi_j=\nu_j+\tau_j\) — food <b>novelty</b> \(\nu_j\) (on the two novel meats) and, for cultivated only,
+      a per-tier <b>authenticity</b> offset \(\tau_j\) that switches on in the §3 cut/premium roll-up. There is no
+      free intercept — every term is a named attribute. Each piece is unpacked below.</p>
       <p style="font-size:.86rem">Every term is a <b>weight &times; a column of the table</b> (and a 0 in the
       table just means "this product lacks that feature" — not a special case): \(a_j-1\) is the taste gap from
       real meat, \(g_j\) the slaughter-free flag, \(b_j\) the real-tissue flag, \(\zeta_j\) health, and
@@ -849,30 +865,27 @@ parameter are described in the methods and results notes. Defaults are the neutr
       \(d_j=R_j-1\) is the premium over conventional; \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\). Each piece is
       defined, with its source, in the glossary table below — so the rest of §2 simply walks the terms one at a
       time, starting with price.</p>
-      <p style="font-size:.86rem"><b>A note on the two prices, \(p_{\rm ref}\) and \(p_{\rm conv}\).</b> The
-      dollar price of product \(j\) that enters the income log is \(R_j\,p_{\rm ref}\), where \(p_{\rm ref}\) is the
-      conventional price of the <i>specific</i> rival this comparison is against — chicken vs chicken at ~\$5,
-      steak vs steak at ~\$20 — i.e. exactly the \(p_{\rm conv}\) denominator of \(R\) in §1, taken <b>per meat
-      type</b> in the §3 roll-up. (A bare at-parity calculation uses the \$12 commodity anchor, where
-      \(p_{\rm ref}=p_{\rm conv}\).) The reference-dependent term and the \(\beta\)-calibration are instead
-      anchored to that single commodity \(p_{\rm conv}=\$12\): the loss term is <i>ratio</i>-based (a function of
-      \(d_j=R_j-1\), so unit-free), and \(\beta\) is pinned once at cultivated's own commodity operating point —
-      so when you see \(\lambda/p_{\rm conv}\) below it is the loss term's slope re-expressed in <i>dollars</i> to
-      combine with \(\beta\), not a third price.</p>
+      <p style="font-size:.86rem"><b>Where the \$12 commodity anchor still appears.</b> The per-type dollar price
+      \(R_j\,p_c\) above (with \(p_c\) the local price of that cut) is what enters the income log.
+      Two <i>other</i> uses of price are anchored instead to the single \$12 commodity value: the reference-dependent
+      loss term is <i>ratio</i>-based (a function of \(d_j=R_j-1\), so unit-free — it needs no dollar price at all),
+      and the price coefficient \(\beta\) is pinned once at cultivated's own commodity operating point — so when you
+      see \(\lambda/p_c\) below it is that loss term's slope re-expressed in <i>dollars</i> to combine with
+      \(\beta\), not a separate price.</p>
       <p><b>The price piece, unpacked.</b> The income term's coefficient \(\alpha\) is not guessed — and,
       unlike an earlier version, it rests on <b>no hand-picked anchor</b>. The behavioural target is
       cultivated's own-price elasticity \(\varepsilon_x=\kappa\varepsilon\). One subtlety: price enters
       utility through <b>two</b> channels — the income term (local slope \(\beta\)) <i>and</i> the
-      loss-aversion term below (slope \(-\lambda/p_{\rm conv}\) on the loss side, which is where cultivated's
-      premium sits) — so the own-price elasticity is \(\varepsilon_x=(\beta-\lambda/p_{\rm conv})\,p_x(1-s_x)\).
+      loss-aversion term below (slope \(-\lambda/p_c\) on the loss side, which is where cultivated's
+      premium sits) — so the own-price elasticity is \(\varepsilon_x=(\beta-\lambda/p_c)\,p_x(1-s_x)\).
       We solve \(\beta\) so that <b>combined</b> response hits the target at cultivated's <b>own</b> operating
       point — its own retail price \(p_x=c_{\rm bio}+m\) (the cost rung's output, so it tracks the model) and
       its own modeled share \(s_x\), a short fixed point:</p>
-      \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_{\rm conv}},\qquad
+      \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x),\qquad
          V^{\text{price}}_j=\alpha\ln(y_{\rm eff}-\text{price}_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\varphi}. \]
       <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
-      closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_{\rm conv}\) hands back the
+      closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_c\) hands back the
       slice of price-sensitivity the loss-aversion term already supplies, so \(\beta\) carries only the rest.
       This is the fix that makes the <i>realised</i> elasticity equal \(\kappa\varepsilon\) rather than ~2&times;
       it, and it cleanly separates \(\kappa\) (which sets the elasticity <i>level</i>) from \(\lambda\) (which
@@ -1026,7 +1039,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       see inside \(\beta\) is <i>not</i> a second use — it is the same \(\varepsilon_x\) substituted in,
       because \(\beta\) is merely the logit coefficient that delivers it:</p>
       \[ \varepsilon_x \;=\; \kappa\,\varepsilon \;\approx\; 4\times(-0.9)\;=\;-3.6,
-         \qquad\text{delivered by}\qquad \beta \;=\; \frac{\varepsilon_x}{p_x\,(1-s_x)}+\frac{\lambda}{p_{\rm conv}}
+         \qquad\text{delivered by}\qquad \beta \;=\; \frac{\varepsilon_x}{p_x\,(1-s_x)}+\frac{\lambda}{p_c}
          \ \text{(at cultivated's own price and share)} . \]
       <p>So at \(\kappa=4\) a 1% rise in cultivated's price loses ~3.6% of its buyers, four times meat's
       ~0.9% — and, after the two-channel fix above, that ~3.6 is the <i>realised</i> elasticity, not merely a
@@ -1197,7 +1210,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       model's curve sits inside that.)</p>
 
       <h4>5. Prices, the markup, and consumption shares</h4>
-      <p><b>Conventional retail prices by region and form</b> — the \(p_{\rm conv}\) the model divides
+      <p><b>Conventional retail prices by region and form</b> — the \(p_c\) the model divides
       by. Cultivated cost is ~global; it is the local price it competes against that differs, by region
       and by form:</p>
       <div class="scrollx" id="pricetable"></div>
