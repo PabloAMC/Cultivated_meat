@@ -35,20 +35,24 @@ Two consumer segments (a latent-class mixture, NOT a nest):
 
 Each segment is a FLAT multinomial logit (softmax) over the products present. EVERY
 product goes through the SAME rule — a (products x attributes) table dotted with
-(segment x weights). The ONLY non-attribute constant is the outside option's intercept
-(xi_w); the meats carry no free constant (their deviations are all named attributes):
+(segment x weights). There is NO free fitted constant on any product: the whole-food
+outside option's standing is carried by a named HEALTH attribute (health_w x a solved
+segment health weight), which replaced the old free intercept xi_w; the meats carry
+none (their deviations are all named attributes):
 
-    V_sj = V_price(price_j, income)        # BLP income term (richer = less price-sensitive)
-         - loss_aversion * max(0, price_ratio_j - 1)              # premium penalty (loss side, slope lambda)
-         + 1.0          * max(0, 1 - price_ratio_j)              # discount reward (gain side, unit slope)
+    V_sj = V_price(price_j, income)        # income-scaled price term (richer = less price-sensitive)
+         - f * loss_aversion * max(0, price_ratio_j - 1)         # premium penalty (loss side, slope lambda)
+         + f * 1.0           * max(0, 1 - price_ratio_j)         # discount reward (gain side, unit slope)
          + q_taste * taste_j
          + w_slaughter[s] * slaughter_j  +  w_realtissue[s] * real_tissue_j
-         + neophobia_j  +  xi_j           # novelty attitude (p, x); outside-option intercept (w only)
-    P_sj = softmax_j(V_sj)
+         + w_health[s] * health_j  +  neophobia_j               # health attribute (carries whole-food);
+    P_sj = softmax_j(V_sj)                                       #   novelty attitude on p, x only
 
-No product gets a special-case term: plant-based and cultivated are treated by the
-SAME two-sided, reference-dependent rule (penalised for a premium, rewarded for a
-discount, with the loss side ~2.25x steeper — Tversky-Kahneman loss aversion).
+No product gets a special-case term: plant-based and cultivated are treated by the SAME
+two-sided, reference-dependent price rule. By DEFAULT loss_aversion = 1, which makes that
+rule SYMMETRIC (the loss and gain sides have equal unit slope — no kink, no loss aversion);
+loss_aversion > 1 adds an asymmetric premium penalty (Tversky-Kahneman). The whole price
+response (income term + reference term) is scaled by the income factor f (see _utilities).
 Conventional `c` is the reference (price_ratio 1, taste 0, intercept 0); see the
 attribute table in `_utilities`.
 
@@ -104,11 +108,12 @@ Glossary (for the non-economist)
   * utility V_j     : one number for how attractive option j is.
   * beta_price      : how much price matters (more negative = flee price faster).
   * real_tissue     : a 0/1 attribute = "is this actual animal tissue" (c, x = yes).
-  * intercept (xi)  : an outside-option baseline beyond the attributes; ONLY the whole-food
-    outside option has one (calibrated to data). The meats carry no free constant.
-  * loss aversion   : a reference-dependent term measuring each product's price against
-    the conventional price — penalising a premium and rewarding a discount, with the
-    penalty ~2.25x steeper than the reward (Tversky-Kahneman); applies to every product.
+  * health          : a per-product health-perception attribute (x a solved segment weight). The
+    whole-food outside option's positive health standing is what carries it — it REPLACED the old
+    free intercept xi_w, so no product now has a free fitted constant.
+  * loss aversion   : an OPTIONAL reference-dependent asymmetry (loss_aversion = lambda, default 1
+    = OFF). At lambda=1 the price rule is symmetric (no kink); lambda>1 penalises a premium more
+    than it rewards an equal discount (Tversky-Kahneman); applies to every product when on.
 
 Usage
 -----
@@ -239,15 +244,18 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
     softmax — no product gets a special-case term. The model is a (products x
-    attributes) TABLE dotted with (segment x weights). The ONLY non-attribute constant
-    is the whole-food outside option's intercept; the meats carry none. Conventional `c`
-    is the reference (price_ratio 1, taste 0, intercept 0); the others relative to it:
+    attributes) TABLE dotted with (segment x weights). There is NO free fitted constant:
+    the whole-food outside option's standing is carried by its HEALTH attribute (health_w
+    x a solved segment weight), which replaced the old free intercept xi_w. The only
+    per-product additive `asc` term is NOVELTY (neophobia), nonzero on the two novel
+    products (p, x) only. Conventional `c` is the reference (price_ratio 1, taste 0,
+    neutral health, asc 0); the others relative to it:
 
-        product   price_ratio   taste            slaughter_free  real_tissue   intercept
-        w  whole  price_wf_mult taste_quality_w  1               0             xi_w (calib)
-        c  conv   1 (anchor)    0 (reference)    0               1             0
-        p  plant  price_pb_mult taste_quality_p  1               0             0
-        x  cult   R (from cost) accept_x - 1     1               1             asc_x
+        product   price_ratio   taste            slaughter_free  real_tissue   health    asc (novelty)
+        w  whole  price_wf_mult taste_quality_w  1               0             health_w  0
+        c  conv   1 (anchor)    0 (reference)    0               1             health_c  0
+        p  plant  price_pb_mult taste_quality_p  1               0             health_p  neophobia_p
+        x  cult   R (from cost) accept_x - 1     1               1             health_x  neophobia_x
 
     Attribute WEIGHTS are shared (q_taste, the price/loss coefficients) except the
     two that carry the segment's identity: w_slaughter (ethical values it) and
@@ -258,15 +266,18 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     authenticity offset), `neophobia_p` for plant-based. Conventional and whole-food
     (familiar) carry none.
 
-    Two price-related terms, BOTH applied to every product by its own price:
-      * BLP (Berry-Levinsohn-Pakes 1995) income term  alpha*ln(y_eff - price) -- richer
-        consumers are less price-sensitive; alpha = -beta*(y_eff - p_conv) is the local
-        marginal-utility-of-income normalisation AT THE REGION'S OWN y_eff (so the income
-        term's price-slope equals beta there), and y_eff scales with income.
-      * Reference-dependent LOSS AVERSION (canonical Tversky-Kahneman form): a discount
-        (price_ratio<1) is rewarded at the UNIT rate (+1), a premium (price_ratio>1) is
-        penalised at -loss_aversion, where loss_aversion = lambda IS the loss-aversion
-        coefficient (lambda>=1; ~2.25 in the data, so losses loom ~2.25x larger than gains).
+    Two price-related terms, BOTH applied to every product by its own price, and BOTH
+    scaled by the income factor f = (income_ref/income)**income_gradient (f>1 poorer =
+    more price-sensitive, f==1 at the reference income):
+      * BLP (Berry-Levinsohn-Pakes 1995) curvature  alpha*ln(income_ref - price), with
+        alpha = -(beta*f)*(income_ref - p_conv): diminishing marginal utility of income,
+        evaluated at the REFERENCE income; the cross-region price-sensitivity tilt comes
+        from f, not from moving y_eff (the previous y_eff form was income-invariant in
+        share — see the f comment in the body; this is the genuine income channel).
+      * Reference-dependent term: a discount (price_ratio<1) rewarded at the UNIT rate,
+        a premium (price_ratio>1) penalised at -loss_aversion. loss_aversion = lambda is
+        the loss/gain asymmetry; the DEFAULT lambda=1 is SYMMETRIC (no kink, no loss
+        aversion), lambda>1 adds an asymmetric premium penalty (Tversky-Kahneman ~2.25).
         Applied to every product (plant-based at 1.77x and cultivated at R alike); no
         cultivated-only cliff.
     """
@@ -300,26 +311,36 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
     # --- the SAME utility for every product ---------------------------------
     price = price_ratio * pr.p_conv
-    y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient
-    # BLP marginal-utility-of-income normalisation: alpha is set so the income term's LOCAL
-    # price-slope equals beta AT THE REGION'S OWN income, so the factor must use the SAME y_eff
-    # that appears inside log1p(-price/y_eff). Using the US-anchored (income_ref - anchor_price)
-    # instead made the slope = beta*(income_ref-anchor)/(y_eff-price), which blows up at low income
-    # and cancelled the unit discount reward, leaving the share-vs-R curve dead flat for R<1 (and
-    # the premium share plateauing/rising) in non-US regions. Normalising with y_eff (and p_conv,
-    # the conventional reference price the premium is measured against) fixes the regional gradient
-    # while leaving the US anchor — and every at-parity headline number — unchanged. The interactive
-    # JS (build_interactive.utilities) uses this exact form; this is the source-of-truth match.
-    alpha = -beta * (y_eff - pr.p_conv)
-    V_price = alpha * np.log1p(-price / y_eff)                        # BLP income term (~ beta*price near ref)
-    # Reference-dependent value (Tversky-Kahneman), in the CANONICAL form: a discount
-    # (price_ratio < 1) is rewarded at the natural UNIT rate (+1), and a premium
-    # (price_ratio > 1) is penalised at -loss_aversion, where loss_aversion = lambda IS the
-    # loss-aversion coefficient (lambda >= 1; the literature value is ~2.25, so losses loom
-    # ~2.25x larger than equal-sized gains). Applied to EVERY product by its own premium.
+    # INCOME -> PRICE-SENSITIVITY (the real "richer = less price-sensitive" channel).
+    #   f = (income_ref / income) ** income_gradient  scales the WHOLE price response: f>1 for
+    #   poorer-than-reference regions (more price-sensitive), f<1 for richer, f==1 at income_ref.
+    # Why this form, and what it FIXES: the previous BLP normalisation set alpha so the income
+    # term's local price-slope equalled beta AT EACH region's own income — which makes the
+    # price-DIFFERENCE utility V_j - V_k ~ beta*(p_j - p_k) INDEPENDENT of income (the income
+    # factor cancels in the relative logit). So it produced NO real gradient; the regional spread
+    # the model used to show was an ARTIFACT of the monotonicity cap binding at the old
+    # loss_aversion=2.25 (a numerical clamp, not an economic channel). The fix is to scale price
+    # sensitivity DIRECTLY by income: poorer consumers feel a given premium more, so cultivated
+    # (a premium at R>1) penetrates LESS where incomes are lower — the intended Muhammad et al.
+    # (2011) ~2-3x rich->poor gradient, now actually delivered (income_gradient=0.25 -> Nigeria
+    # is ~2.4x as price-elastic as the US). The US anchor and every at-parity / calibration number
+    # are UNCHANGED because f==1 at income_ref (the calibration income), so beta is still derived
+    # there. The interactive JS (build_interactive.utilities) mirrors this exact form.
+    f = (pr.income_ref / income) ** pr.income_gradient                # >1 poorer (more sensitive)
+    beta_eff = beta * f
+    # BLP curvature is kept (diminishing marginal utility of income), evaluated at the REFERENCE
+    # income; the cross-region tilt now comes from f, not from moving y_eff. alpha normalises the
+    # local price-slope to beta_eff at the reference income.
+    alpha = -beta_eff * (pr.income_ref - pr.p_conv)
+    V_price = alpha * np.log1p(-price / pr.income_ref)                # income term (~ beta_eff*price near ref)
+    # Reference-dependent value. lambda=1 (the default) is SYMMETRIC: V_loss collapses to a smooth
+    # linear (1 - price_ratio) with NO kink — i.e. no loss aversion (see inputs.py loss_aversion).
+    # lambda>1 adds an asymmetric premium penalty (Tversky-Kahneman); applied to EVERY product by
+    # its own premium, never a cultivated-only cliff. Scaled by the SAME income factor f, so the
+    # whole price response (BLP curvature + reference term) tilts together with income.
     premium = price_ratio - 1.0
-    V_loss = (-pr.loss_aversion * np.maximum(0.0, premium)
-              + 1.0 * np.maximum(0.0, -premium))
+    V_loss = f * (-pr.loss_aversion * np.maximum(0.0, premium)
+                  + 1.0 * np.maximum(0.0, -premium))
 
     return (V_price + V_loss + pr.q_taste * taste
             + w_slaughter * slaughter_free + w_realtissue * real_tissue
@@ -381,17 +402,18 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     lam_slope = pr.loss_aversion / pr.p_conv
     beta = (pr.beta_ref - lam_slope) * (eps / pr.eps_own) + lam_slope
     inc = pr.income_ref if income is None else income      # default = reference income (unchanged)
-    # MONOTONICITY GUARD (income-aware). On the discount side (R<1) the loss term is off, so the
-    # price response is the BLP income term (local slope ~ alpha/(y_eff-price)) plus the unit gain
-    # reward. A cheaper product must never lose share, i.e. dV/d(price_ratio) <= 0, which requires
-    #   beta <= (y_eff - p_conv) / ((income_ref - anchor_price) * p_conv).
-    # This bound TIGHTENS at low income (the BLP slope is steeper there), so a fixed 1/p_conv cap
-    # leaks for poor regions (e.g. global income 24k: cut tier rose toward parity). Cap per-call.
-    y_eff_g = pr.income_ref * (inc / pr.income_ref) ** pr.income_gradient
-    denom = (pr.income_ref - pr.anchor_price) * pr.p_conv
-    if denom > 0:
-        beta_cap = (y_eff_g - pr.p_conv) / denom - 1e-4
-        beta = min(beta, beta_cap)
+    # MONOTONICITY GUARD. On the discount side (R<1) the reference term rewards a discount and the
+    # BLP curvature carries the rest of the price response; a cheaper product must never lose share
+    # (dV/dR <= 0). Under the income-scaled form both channels carry the SAME factor f, so f CANCELS
+    # in the monotonicity condition and the bound is income-INDEPENDENT:
+    #   dV/dR|_{R<1} = p_conv*beta*(income_ref-p_conv)/(income_ref-price) - 1 (in f units) <= 0,
+    #   tightest as price->p_conv (R->1)  =>  beta <= 1/p_conv.
+    # (The old guard used an income-DEPENDENT bound; that was an artifact of the previous income
+    # normalisation — under the new income->price-sensitivity scaling the clean bound is 1/p_conv.)
+    # The cap applies to the EFFECTIVE beta AFTER the per-tier eps rescale (which can lift beta on
+    # the inelastic premium tiers); inert at the default, it only bites in the high-loss_aversion /
+    # very-high-income tail where the discount side would otherwise slope upward.
+    beta = min(beta, 1.0 / pr.p_conv - 1e-4)
     nbx = pr.neophobia_x if neophobia_x is None else neophobia_x   # cultivated novelty attitude
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 

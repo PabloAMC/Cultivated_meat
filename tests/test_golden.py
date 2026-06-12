@@ -74,24 +74,29 @@ def _golden_values() -> dict:
 # The pinned numbers. Captured from the current model; update deliberately (in the same
 # commit) if a model change is intended, so the output move is explicit in the diff.
 GOLDEN = {
+    # The 2026-06-12 demand refactor moved several of these DELIBERATELY (old value in the comment):
+    #  - loss_aversion default 2.25 -> 1.0 (symmetric price response, no kink): shifts beta_ref (now
+    #    negative), parity 49.87 -> 48.76, the solved health weights, and the at-parity elasticities.
+    #  - income channel re-architected (real income->price-sensitivity scaling, gamma 0.5 -> 0.25):
+    #    the income_* rows now show a GENUINE rich-poor gradient (was a monotonicity-cap artifact).
     "cost_floor":          7.5200,
     "biomass_base":        24.0120,
     "basic_R":             2.41767,
-    "beta_ref":            0.051044,
+    "beta_ref":           -0.052661,   # was 0.051044 (loss_aversion 2.25->1.0 flips beta sign)
     "anchor_price":        29.0120,
-    "w_realtissue_M":      2.2845,
-    "w_health_M":          1.3116,
-    "w_health_E":          2.2762,
+    "w_realtissue_M":      2.24227,    # was 2.2845
+    "w_health_M":          0.847069,   # was 1.3116 (lambda=1 recalibration)
+    "w_health_E":          1.81157,    # was 2.2762
     "pb_share_pct":        1.2000,
-    "parity_pct":          49.8696,
+    "parity_pct":          48.7633,    # was 49.8696 (no loss-aversion kink lift)
     "milk_pct":            15.2568,
-    "lusk_elas_parity_cold": -0.9518,   # in Lusk 2020's measured [-3.4, -0.84] (self-check [4b])
-    "income_us_pct":       9.0336,
-    "income_china_pct":    8.4320,
-    "income_nigeria_pct":  5.6870,
-    "health_x_half_pct":   65.9593,
-    "us_pen_vol_pct":      5.9663,
-    "us_pen_val_pct":      10.0657,
+    "lusk_elas_parity_cold": -1.53837,  # was -0.9518; still in Lusk's [-3.4, -0.84] (self-check [4b])
+    "income_us_pct":       8.72582,    # was 9.0336 (US anchor ~unchanged; tiny shift from lambda=1)
+    "income_china_pct":    4.10816,    # was 8.4320 -> now a REAL income gradient (was cap artifact)
+    "income_nigeria_pct":  1.02246,    # was 5.6870 -> real gradient: poorer = far more price-sensitive
+    "health_x_half_pct":   59.577,     # was 65.9593 (lambda=1)
+    "us_pen_vol_pct":      5.89337,    # was 5.9663
+    "us_pen_val_pct":      9.97883,    # was 10.0657
 }
 
 

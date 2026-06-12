@@ -190,7 +190,7 @@ def build_model() -> dict:
             "income":        ["y", "price term &alpha;&thinsp;ln(y &minus; price<sub>j</sub>) (&sect;2)"],
             "eps_own":       ["&epsilon;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
             "cult_sub_mult": ["&kappa;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
-            "loss_aversion": ["&lambda;", "reference term &minus;&lambda;(d<sub>j</sub>)<sup>+</sup> + (&lambda;/2.25)(d<sub>j</sub>)<sup>&minus;</sup> (&sect;2)"],
+            "loss_aversion": ["&lambda;", "reference term f&middot;[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup> + 1&middot;(d<sub>j</sub>)<sup>&minus;</sup>] (&sect;2); &lambda;=1 default = symmetric"],
             "accept_x":      ["a<sub>x</sub>", "cultivated taste q&middot;(a<sub>x</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
             "neophobia_x":   ["&nu;<sub>x</sub>", "cultivated novelty, part of the constant &xi;<sub>x</sub> = &nu;<sub>x</sub> + &tau;<sub>type</sub> (&minus; neophobia / + neophilia) (&sect;2)"],
             "neophobia_p":   ["&nu;<sub>p</sub>", "plant-based novelty, the constant &xi;<sub>p</sub> = &nu;<sub>p</sub> (&minus; neophobia / + neophilia) (&sect;2)"],
@@ -321,14 +321,15 @@ def build_model() -> dict:
                "resistance is already baked into the calibration, so this is an exploratory deviation from its "
                "~1.2% — move it to ask 'what if PB faced more/less novelty resistance?'."),
         slider("loss_aversion", "Loss-aversion coefficient (λ)", "ratio", 1.0, 4.0, 0.05, value("loss_aversion"),
-               "Tversky-Kahneman", tip="How much worse paying ABOVE the familiar conventional price feels than "
-               "the equal gain of paying below it (reference-dependent loss aversion). A discount is rewarded at "
-               "the unit rate; a premium is penalised at −λ. Default 2.25 is the Tversky-Kahneman literature "
-               "median (λ=1 = symmetric, no loss aversion). Applied to plant-based and cultivated alike. Because "
-               "the β calibration absorbs its slope, λ only shapes the KINK at parity, not the overall "
-               "price-sensitivity level — so the headline barely moves over most of the range (at R_x=2.4: λ=1 → "
-               "~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%; only λ=4 bites → ~{{LAMBDA_4}}%). Src: Tversky & "
-               "Kahneman 1992."),
+               "off by default", tip="OPTIONAL reference-dependent asymmetry: how much worse paying ABOVE the "
+               "conventional price feels than the equal gain of paying below it. A discount is rewarded at the unit "
+               "rate, a premium penalised at −λ. DEFAULT λ=1 = SYMMETRIC (no kink, no loss aversion) — the model "
+               "ships with loss aversion OFF. Why: it's near-inert anyway (β absorbs its slope, so it only reshapes "
+               "the parity kink, not the level — at R_x=2.4: λ=1 → ~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%, only "
+               "λ=4 bites → ~{{LAMBDA_4}}%); it's not identifiable from cultivated data; and Bell & Lattin 2000 show "
+               "estimated loss aversion is largely the price-response heterogeneity κ already carries, so a separate "
+               "kink risks double-counting. Drag up toward the Tversky-Kahneman ~2.25 to explore the asymmetry. "
+               "Src: Tversky & Kahneman 1992; Bell & Lattin 2000."),
         slider("cult_sub_mult", "Cultivated ↔ conventional closeness (κ)", "x", 3.0, 6.0, 0.5,
                value("cult_sub_mult"), "data-bracketed", tip="How many times more price-sensitive a single cultivated "
                "product is than meat as a category. WHY >1: the measured ε≈−0.9 is the category's (inelastic — no "
@@ -341,13 +342,14 @@ def build_model() -> dict:
                "inside that bracket. The catch: Lusk measures it at PARITY, but κ bites at the R≈2.4 premium — so "
                "−3.6 there is a form extrapolation, not a measured point."),
         slider("income", "Country income (<i>y</i>, GDP/cap PPP)", "$/yr", 5000, 5000000, 1000, value("income_ref"),
-               "World Bank", tip="Average income, which sets price-sensitivity via the Berry-Levinsohn-Pakes term "
-               "α·ln(income − price): richer = less price-sensitive. Auto-set by the region selector (US $86k … "
-               "Nigeria $6.4k) but free to drag — and the range runs far past today's richest country for a "
-               "high-growth future. The gradient is damped to the empirical ~2–3× rich→poor (Muhammad/ERS 2011), "
-               "so income is a second-order lever at today's prices; it bites hardest where the premium is large "
-               "AND the buyer is poor (cheap local meat + high price-sensitivity) — why low-income regions are "
-               "the hard case. Src: World Bank GDP/cap PPP 2023-24."),
+               "World Bank", tip="Average income, which sets price-sensitivity: the whole price response is scaled "
+               "by (income_ref/income)^φ, so poorer = MORE price-sensitive (richer = less). Auto-set by the region "
+               "selector (US $86k … Nigeria $6.4k) but free to drag — the range runs far past today's richest country "
+               "for a high-growth future. φ=0.25 gives a Nigeria/US own-price-elasticity ratio ~2×, the empirical "
+               "rich→poor food-price gradient (Muhammad/ERS 2011). It bites hardest where the premium is large AND "
+               "the buyer is poor (cheap local meat + high price-sensitivity) — why low-income regions are the hard "
+               "case (sub-1% at today's cost). (Note: this is a real income channel; an earlier version's regional "
+               "spread was a monotonicity-cap artifact — see methods.) Src: World Bank GDP/cap PPP 2023-24."),
         slider("w_eth", "Ethical (veg+vegan) population (w<sub>eth</sub>)", "", 0.04, 0.10, 0.01, value("w_eth"),
                "Gallup", tip="Size of the ethical segment (values slaughter-free, mostly eats whole foods). "
                "Default 5% = US vegetarian (4%) + vegan (1%), Gallup 2023; the rest is the mainstream. Plant-based "
@@ -816,8 +818,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       point — its own retail price \(p_x=c_{\rm bio}+m\) (the cost rung's output, so it tracks the model) and
       its own modeled share \(s_x\), a short fixed point:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_{\rm conv}},\qquad
-         \alpha=-\beta\,(y_{\rm ref}-p_x),\qquad
-         V^{\text{price}}_j=\alpha\ln(y-\text{price}_j). \]
+         \alpha=-\beta f\,(y_{\rm ref}-p_{\rm conv}),\qquad
+         V^{\text{price}}_j=\alpha\ln(y_{\rm ref}-\text{price}_j),\quad f=\left(\tfrac{y_{\rm ref}}{y}\right)^{\!\varphi}. \]
       <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
       closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_{\rm conv}\) hands back the
       slice of price-sensitivity the loss-aversion term already supplies, so \(\beta\) carries only the rest.
@@ -825,24 +827,21 @@ parameter are described in the methods and results notes. Defaults are the neutr
       it, and it cleanly separates \(\kappa\) (which sets the elasticity <i>level</i>) from \(\lambda\) (which
       now only shapes the kink at parity). There is no free "calibration price": move a cost input and
       \(p_x\) moves with it.</p>
-      <p style="font-size:.9rem"><b>Why \(\alpha=-\beta(y_{\rm ref}-p_x)\)?</b> Not a second free parameter —
-      it is the <b>chain rule</b>. We want \(\alpha\ln(y-\text{price})\) to have local price-slope \(\beta\) at
-      the anchor; since \(\tfrac{d}{d\,\text{price}}\,\alpha\ln(y-\text{price})=-\alpha/(y-\text{price})\),
-      setting that \(=\beta\) at \((y_{\rm ref},p_x)\) gives exactly \(\alpha=-\beta(y_{\rm ref}-p_x)\). So the
-      factor \((y_{\rm ref}-p_x)\) is just the marginal-utility-of-income normalisation — the reason
-      \((y-\text{price})\) seems to appear "twice" (once as this slope constant, once inside the log) is the
-      derivative of a log, not a modelling artefact. <b>And \(y\)?</b> annual income per capita (GDP/cap at
-      PPP); the US reference is \(y_{\rm ref}=\$85{,}810\) (World Bank 2023), other regions scale by a damped
-      gradient \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\varphi}\) with \(\varphi=0.5\) (a fixed input, not a
-      slider; \(\varphi\) sets the rich→poor sensitivity gap — see the parameter table).
-      Only income <i>ratios</i> across regions are identified — the absolute level is absorbed by
-      \(\alpha\) (using a monthly budget instead of the per-kg price merely rescales \(\alpha\); shares
-      unchanged) — so \(y\) is an <i>affordability scale</i>, and what it buys the model is the empirical
-      ~2–3&times; rich→poor price-sensitivity gradient. <b>The punchline:</b> because \(\varphi=0.5\) damps the
-      gradient and \(\alpha\) re-normalises the level, income is a <i>second-order</i> lever at today's prices —
-      cultivated's headline share barely moves between a rich and a poor country at R≈2.4. Income bites hardest
-      where the <i>premium</i> is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity),
-      which is why low-income regions are the genuinely hard case, not the at-parity headline.</p>
+      <p style="font-size:.9rem"><b>How income enters.</b> \(\alpha\) sets the BLP curvature so the price term's
+      local slope equals \(\beta\) at the <i>reference</i> income: \(\alpha=-\beta f\,(y_{\rm ref}-p_{\rm conv})\),
+      with \(\ln(y_{\rm ref}-\text{price})\). Income then scales <b>price-sensitivity</b> directly through
+      \(f=(y_{\rm ref}/y)^{\varphi}\): a poorer buyer (\(f>1\)) feels a given premium more, a richer one less, and
+      \(f=1\) at the US reference so the anchor is untouched. <b>And \(y\)?</b> annual income per capita (GDP/cap at
+      PPP); the US reference is \(y_{\rm ref}=\$85{,}810\) (World Bank 2023). \(\varphi=0.25\) (a fixed input, not a
+      slider) gives a Nigeria/US own-price-elasticity ratio ~2&times;, the empirical rich→poor food-price gradient.
+      <b>Correction (this version):</b> an earlier form normalised \(\alpha=-\beta(y_{\rm eff}-p_x)\) with
+      \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\varphi}\) — which is income-<i>invariant</i> in share by
+      construction (the factor cancels in the relative logit), so it produced <i>no</i> real gradient; the regional
+      spread the model used to show was an artifact of the monotonicity cap binding at the old \(\lambda=2.25\).
+      Scaling price-sensitivity directly is the genuine "richer = less price-sensitive" channel. <b>The
+      punchline:</b> income now bites for real where the <i>premium</i> is large and the buyer is poor (cheap local
+      meat <i>and</i> high price-sensitivity) — low-income regions fall to sub-1% at today's cost, the genuinely
+      hard case, while the at-parity headline (equal prices) is unaffected.</p>
       <p><b>The three segment-specific weights</b> (everything else is shared across the two consumer types).
       Only the slaughter-free, real-tissue and health weights differ by type — that difference <i>is</i> the
       heterogeneity:</p>
@@ -862,26 +861,29 @@ parameter are described in the methods and results notes. Defaults are the neutr
       killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
       <p>The terms, each with a plain meaning and a source:</p>
       <table class="vardef">
-        <tr><td><b>price &amp; income</b> \(\alpha\ln(y-\text{price}_j)\)</td><td>the <b>Berry–Levinsohn–Pakes
-          (1995)</b> way to put income in: <b>\(y\)</b> is the buyer's income — annual GDP/cap at PPP, the
-          <b>income</b> slider (\(y_{\rm ref}=\$85{,}810\)) — so
-          \(y-\text{price}_j\) is what's left after buying product \(j\), and the \(\ln\) makes a dollar matter
-          <i>less</i> to a richer person — raise \(y\) (a richer country, or a high-growth future) and everyone's
-          price sensitivity flattens. The coefficient \(\alpha\) is not guessed: it is built from the measured meat
-          elasticity \(\varepsilon\) and the closeness \(\kappa\) via \(\beta\) — see "the price piece, unpacked"
-          just above. (Across regions \(y\) enters with a mild damping, so the rich→poor sensitivity gap matches
-          the ~2–3&times; seen in the data rather than a raw 1/income; using a monthly/annual budget instead of
-          the per-kg price only rescales \(\alpha\), which the calibration absorbs.)</td></tr>
-        <tr><td><b>loss aversion</b> \(\lambda\)</td><td><b>reference-dependent</b> price term
-          (Tversky–Kahneman; Hardie–Johnson–Fader 1993): people judge a price against a <i>reference</i> — here
-          the familiar conventional price — and a product priced <i>above</i> it feels like a loss while one
-          <i>below</i> it feels like a gain. In the <b>canonical</b> form, a discount is rewarded at the natural
-          <b>unit</b> rate and a premium is penalised at \(-\lambda\), so <b>\(\lambda\) is literally the
-          loss-aversion coefficient</b> — how many times worse an equal loss feels than a gain. The default
-          <b>2.25</b> is the sourced Tversky–Kahneman median <a href="#ref13">[13]</a> (\(\lambda=1\) = symmetric,
-          no loss aversion). Applied to <i>every</i> product by its
+        <tr><td><b>price &amp; income</b> \(\alpha\ln(y_{\rm ref}-\text{price}_j)\)</td><td>income enters by
+          scaling <b>price-sensitivity</b>: the whole price response is multiplied by
+          \(f=(y_{\rm ref}/y)^\varphi\), so a poorer buyer (\(f>1\)) feels a given premium more and a richer one
+          (\(f<1\)) less, with \(f=1\) at the US reference (\(y_{\rm ref}=\$85{,}810\), the <b>income</b> slider).
+          The <b>Berry–Levinsohn–Pakes (1995)</b> \(\ln\) curvature is kept (a dollar matters less to a richer
+          person), evaluated at the reference income. The coefficient \(\alpha\) is not guessed: it is built from
+          the measured meat elasticity \(\varepsilon\) and the closeness \(\kappa\) via \(\beta\) — see "the price
+          piece, unpacked" just above. \(\varphi=0.25\) gives a Nigeria/US own-price-elasticity ratio ~2&times;,
+          matching the rich→poor food-price gradient. <i>(Correction: an earlier version normalised \(\alpha\) so
+          the term was income-invariant in share — the regional spread it showed was actually a monotonicity-cap
+          artifact; this scales sensitivity directly, the genuine channel.)</i></td></tr>
+        <tr><td><b>loss aversion</b> \(\lambda\) <i>(off by default)</i></td><td>an OPTIONAL
+          <b>reference-dependent</b> asymmetry: people judge a price against the familiar conventional price, and a
+          product priced <i>above</i> it can feel like a loss. A discount is rewarded at the <b>unit</b> rate, a
+          premium penalised at \(-\lambda\). <b>The default \(\lambda=1\) is symmetric — no kink, no loss
+          aversion</b>; the model ships with this term OFF. We default it off because it is near-inert on the
+          headline (the \(\beta\) calibration absorbs its slope), it is <b>not identifiable</b> from the available
+          cultivated data, and Bell &amp; Lattin (2000) show estimated loss aversion is largely the price-response
+          <i>heterogeneity</i> that \(\kappa\) already carries — so a separate kink would double-count. Drag
+          \(\lambda\) up toward the Tversky–Kahneman median ~2.25 <a href="#ref13">[13]</a> to explore the
+          asymmetry; it then applies to <i>every</i> product by its
           own \(d_j\) — plant-based (1.77&times;) <i>and</i> cultivated (\(R_x\)) alike. This is the
-          <b>riskless</b> form of loss aversion (reference-dependent preferences over a single sure attribute,
+          <b>riskless</b> form (reference-dependent preferences over a single sure attribute,
           price), not the gamble version — see the note under the table. (Its slope is folded into the
           \(\beta\) calibration above, so \(\lambda\) sets only the <i>asymmetry</i> at parity, not the overall
           price-sensitivity level.)</td></tr>
@@ -1350,15 +1352,13 @@ function mediaCost(mp,ef){return Math.max(C.FEEDSTOCK_FLOOR,C.media_intensity*ef
    K.beta_ref by deriveBeta(). beta splits into an elasticity part and the loss-aversion
    compensation (lam); an eps override scales ONLY the elasticity part (so a tier's TOTAL
    elasticity scales as intended), leaving the loss-aversion compensation fixed. */
-function betaPrice(K,eps,yEff){const lam=K.loss_aversion/K.p_conv_anchor;
+function betaPrice(K,eps){const lam=K.loss_aversion/K.p_conv_anchor;
   let beta=(K.beta_ref-lam)*(eps/K.eps_own)+lam;
-  // MONOTONICITY GUARD (income-aware, mirror of market_share._beta_at). On the discount side the
-  // price response is the BLP income slope plus the unit gain reward; a cheaper product must never
-  // lose share, requiring beta <= (y_eff - p_conv)/((income_ref - anchor_price)*p_conv). This bound
-  // TIGHTENS at low income, so a fixed 1/p_conv cap leaks for poor regions (the 'cut' tier rose
-  // toward parity at global/India income). yEff defaults to income_ref if not supplied.
-  const ye=(yEff===undefined?K.income_ref:yEff), denom=(K.income_ref-K.anchor_price)*K.p_conv_anchor;
-  if(denom>0) beta=Math.min(beta,(ye-K.p_conv_anchor)/denom-1e-4);
+  // MONOTONICITY GUARD (mirror of market_share.share). Under the income->price-sensitivity scaling
+  // (the f factor in utilities) both price channels carry the SAME factor f, which CANCELS in the
+  // discount-side monotonicity condition, leaving the income-INDEPENDENT bound beta <= 1/p_conv.
+  // (The old guard was income-dependent — an artifact of the previous income normalisation.)
+  beta=Math.min(beta,1.0/K.p_conv_anchor-1e-4);
   return beta;}
 function utilities(R,K,seg,o){
   const pc=K.p_conv_anchor;
@@ -1391,23 +1391,25 @@ function utilities(R,K,seg,o){
   const wSl=(seg==="M")?o.tfM:K.w_slaughter_E;
   const wRt=(seg==="M")?K.w_realtissue_M:K.w_realtissue_E;
   const wH=(seg==="M")?K.w_health_M:K.w_health_E;                   // segment-specific health weight (solved)
-  const yEff=K.income_ref*Math.pow(o.income/K.income_ref,K.income_gradient);
-  const beta=betaPrice(K,o.eps,yEff);                              // income-aware monotonicity cap
-  // BLP marginal-utility-of-income normalisation: alpha is set so the income term's LOCAL price-slope
-  // equals the calibrated beta AT THE REGION'S OWN income. The factor must therefore use the SAME yEff
-  // that appears inside log1p(-price/yEff) below — using the US-anchored (income_ref - anchor_price)
-  // instead made the income term's slope = beta*(income_ref-anchor)/(yEff-price), which blows up at low
-  // income and cancelled the unit discount reward, leaving the share-vs-R curve dead flat for R<1 in
-  // non-US regions (the default 'global' region most visibly). Normalising with yEff fixes that while
-  // leaving the US anchor (and every at-parity headline number) unchanged.
-  const alpha=-beta*(yEff-K.p_conv_anchor);
+  const beta=betaPrice(K,o.eps);
+  // INCOME -> PRICE-SENSITIVITY (mirror of market_share._utilities). f = (income_ref/income)^phi
+  // scales the WHOLE price response: f>1 poorer (more price-sensitive), f=1 at the US reference.
+  // The previous BLP normalisation alpha=-beta*(yEff-p_conv) with yEff=income^phi was income-INVARIANT
+  // in share by construction (the factor cancelled in the relative logit), so it produced no real
+  // gradient — the regional spread was an artifact of the old monotonicity cap binding at lambda=2.25.
+  // This f-scaling is the genuine 'richer = less price-sensitive' channel; US anchor & every at-parity
+  // number are unchanged (f=1 at income_ref).
+  const f=Math.pow(K.income_ref/o.income,K.income_gradient);       // >1 poorer (more price-sensitive)
+  const betaEff=beta*f;
+  // BLP curvature kept, evaluated at the REFERENCE income; the cross-region tilt comes from f.
+  const alpha=-betaEff*(K.income_ref-K.p_conv_anchor);
   const V=[];
   for(let j=0;j<4;j++){
     const price=priceRatio[j]*pc;
-    const Vp=alpha*Math.log1p(-price/yEff);                         // BLP income term (richer = less price-sensitive)
+    const Vp=alpha*Math.log1p(-price/K.income_ref);                 // income term (~ betaEff*price near ref)
     const prem=priceRatio[j]-1;                                     // premium over the conventional reference
-    const Vl=-K.loss_aversion*Math.max(0,prem)                      // loss side: penalise a premium at -lambda
-             +1.0*Math.max(0,-prem);                               // gain side: reward a discount at the UNIT rate
+    const Vl=f*(-K.loss_aversion*Math.max(0,prem)                   // loss side: penalise a premium at -lambda
+                +1.0*Math.max(0,-prem));                           // gain side: reward a discount at the UNIT rate
     V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+wH*health[j]+xi[j];
   }
   return V;

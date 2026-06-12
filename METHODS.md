@@ -32,8 +32,8 @@ Every number is forced into one of five categories; none is a free constant left
 1. **Sourced** — taken from a citation: `p_conv`, `media_intensity`, `media_price`, `overhead` (Pasitka
    Fig. 4), `aa_intensity`/`aa_bulk_price` (Humbird), `eps_own` (scanner meta-analyses), `price_pb_mult`
    (GFI/NIQ), `taste_quality_p` (Nectar), `w_eth` (Gallup), `pb_mainstream_frac`/`pb_share_target`
-   (GFI/SPINS), `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), the Bass `p_innov`/`q_imit`
-   (literature), and the loss-aversion ratio 2.25 (Tversky–Kahneman 1992).
+   (GFI/SPINS), `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), and the Bass `p_innov`/`q_imit`
+   (literature). (`loss_aversion` is now an off-by-default dial, λ=1; see the reference-term note below.)
 2. **Derived** — computed from other quantities, never typed: the price coefficient `β` (solved at
    cultivated's own modeled price & share — the `price_calib` fix), the parity threshold (`p_conv −
    markup_add`), the cost floor, and the cost-path `R` endpoints (from the cost model).
@@ -166,19 +166,19 @@ and ethical `E` (weights slaughter_free and health, ~5% = Gallup veg+vegan). Eac
 multinomial logit:
 
 ```
-V_sj = V_price(price_j, income)                                             # BLP income price term
-       − loss_aversion·max(0, price_ratio_j − 1)                            # loss side: premium penalty (slope −λ)
-       + 1·max(0, 1 − price_ratio_j)                                        # gain side: discount reward (canonical unit slope)
+V_sj = V_price(price_j, income)                                             # income-scaled price term
+       + f·[ −λ·max(0, price_ratio_j − 1) + 1·max(0, 1 − price_ratio_j) ]   # reference term (λ=1 ⇒ symmetric)
        + q_taste·taste_j + w_slaughter[s]·slaughter_j
        + w_realtissue[s]·real_tissue_j + w_health[s]·health_j + ξ_j[s]
 P_sj = softmax_j(V_sj)
 share_j = w_eth·P_E(j) + (1 − w_eth)·P_M(j)
-# EVERY product uses this same rule (a products×attributes table · segment×weights). The canonical
-# Tversky-Kahneman loss aversion penalises a premium at −λ and rewards a discount at the unit rate (so λ
-# IS the loss/gain asymmetry). The constant ξ_j = ν_j + τ_j (novelty + cultivated authenticity) is 0 for
+# EVERY product uses this same rule (a products×attributes table · segment×weights). f =
+# (income_ref/income)^φ scales the WHOLE price response (income channel; §across-regions). The
+# reference term is SYMMETRIC by default (λ=1 ⇒ no kink, no loss aversion); λ>1 turns the asymmetry
+# on as an exploratory dial. The constant ξ_j = ν_j + τ_j (novelty + cultivated authenticity) is 0 for
 # every product at baseline — there is NO free fitted constant anywhere, including the outside option,
 # whose standing is now its health attribute (see Calibration).
-# No cultivated-only term: the premium penalty applies to plant-based (1.77×) and cultivated (R) alike.
+# No cultivated-only term: the reference term applies to plant-based (1.77×) and cultivated (R) alike.
 ```
 
 This structure makes **plant-based a genuine competing
@@ -204,11 +204,11 @@ either sourced or *derived from* the model rather than typed in:
    logit). Price lowers utility. The naïve form is `β·price_j`, where `β<0` is the **marginal utility of a
    dollar** — how much one more dollar of price hurts.
 
-2. *Why richer buyers care less (the BLP form).* A dollar matters less to a rich household, so instead of a
-   flat `β·price` we use **Berry–Levinsohn–Pakes (1995)**: `V_price = α·ln(income_eff − price_j)`. Spending
-   `price` out of `income` costs the *log* of what's left, so the same dollar bites harder at low income.
-   Locally this still behaves like `β·price` (its slope at the anchor is exactly `β`), so steps 3–4 pin a
-   single number, `β`, and the log form just bends it correctly across incomes.
+2. *Why richer buyers care less (the price form).* A dollar matters less to a rich household, so instead of a
+   flat `β·price` we use the **Berry–Levinsohn–Pakes (1995)** log curvature `V_price = α·ln(income_ref − price_j)`
+   and scale the whole price response by `f = (income_ref/income)^φ` (poorer = more price-sensitive; see
+   point 6). Locally this still behaves like `β·price` at the reference income (its slope at the anchor is
+   exactly `β`), so steps 3–4 pin a single number, `β`, and `f` tilts it correctly across incomes.
 
 3. *We do not guess `β` — we pin it to a measured elasticity.* In any logit, the own-price elasticity of a
    product is an identity, **`elasticity_j = β · price_j · (1 − share_j)`**. Rearranged, `β` is whatever
@@ -245,28 +245,41 @@ either sourced or *derived from* the model rather than typed in:
    constant** (no hand-set "anchor price"). Adding back the `loss_aversion/p_conv` term is the **double-counting
    fix**: an earlier version omitted it, so the *realized* elasticity came out ≈ −5 — far steeper than the −3.6 target — and
    `loss_aversion` silently doubled as a second price-sensitivity lever. Now the realized cultivated elasticity
-   is the target **−3.6** at today's price and eases toward ≈ −1 near parity (both sane), and `loss_aversion`
-   shapes only the **kink** at parity — `cult_sub_mult` cleanly owns the elasticity *level*.
+   is the target **−3.6** at today's price and eases toward ≈ −1 near parity (both sane). At the default λ=1
+   the reference term is symmetric (its unit slope is just part of the total price response β absorbs); when λ
+   is turned up it shapes only the **kink** at parity — either way `cult_sub_mult` cleanly owns the elasticity
+   *level*. (The income factor f scales this whole response by region; see point 6.)
 
-6. *Across regions.* `income_eff = income_ref·(income/income_ref)^φ`; the gradient `φ` (`income_gradient`,
-   default 0.5) is damped from the pure 1/income form (φ=1) to match the empirical food-price-elasticity
-   gradient (~2–3× rich→poor; Muhammad et al. 2011, USDA ERS), not ~13×. `income_ref` is US GDP/cap PPP, so
-   the US/commodity case is unchanged. Only cultivated's price varies (via R), so only its R-response is an
-   observable output.
+6. *Across regions (income → price-sensitivity).* The whole price response is scaled by
+   `f = (income_ref/income)^φ` (φ = `income_gradient`, default **0.25**): poorer regions (f > 1) are more
+   price-sensitive, richer ones less, with `f = 1` at the US reference so the US/commodity case is unchanged.
+   This delivers a Nigeria/US own-price-elasticity ratio ~2× — the empirical food-price gradient (~2–3×
+   rich→poor; Muhammad et al. 2011, USDA ERS). **Correction (2026-06-12):** the previous form
+   `α = −β·(y_eff − p_conv)` with `y_eff = income^φ` was *income-invariant in share by construction* (the
+   factor cancels in the relative logit), so it produced no real gradient — the regional spread the model
+   used to show was an artifact of the monotonicity cap binding at the old `loss_aversion = 2.25`. Scaling
+   price-sensitivity directly is the genuine "richer = less price-sensitive" channel; the BLP curvature
+   (diminishing marginal utility of income) is retained, evaluated at the reference income. Only cultivated's
+   price varies (via R), so only its R-response is an observable output.
 
-**Reference-dependent loss aversion (two-sided, applied uniformly to every product).** A second
-price-related term in the **canonical** form, `−λ·max(0, price_ratio_j − 1) + 1·max(0, 1 −
-price_ratio_j)` (Tversky–Kahneman 1991 *riskless* loss aversion; Hardie, Johnson & Fader 1993 estimate the
-reference-price form on brand-choice scanner data): consumers anchor on the conventional price, so a
-product priced *above* it takes a premium penalty at slope −λ and one priced *below* it earns a discount
-reward at the natural **unit** rate — so **λ itself IS the loss/gain asymmetry** (the loss side is λ×
-steeper than the gain side) — the canonical
-median loss-aversion coefficient **λ ≈ 2.25 from Tversky & Kahneman (1992)** (*Advances in Prospect Theory*,
-J. Risk & Uncertainty 5:297–323), a fixed literature constant, not a free parameter. This applies to **every** product by its own
-`d_j = price_ratio_j − 1` — plant-based (1.77×) and cultivated (R) alike — so all options share the *same
-functional form*; there is no cultivated-only "parity cliff". The term is continuous through parity with a
-gentle kink there; `loss_aversion=0`
-collapses the demand model to a plain price-only logit.
+**Reference-dependent price term (two-sided, uniform across products; asymmetry OFF by default).** A
+second price-related term in the form `−λ·max(0, price_ratio_j − 1) + 1·max(0, 1 − price_ratio_j)`:
+consumers compare each product to the conventional price, so a product priced *above* it takes a penalty
+at slope −λ and one priced *below* it earns a discount reward at the **unit** rate, with λ the loss/gain
+asymmetry. **The default is λ = 1, which makes this term symmetric** — it collapses to a smooth linear
+`(1 − price_ratio_j)` with **no kink and no loss aversion** — folded into the (income-scaled) price
+response. We default to λ = 1 deliberately: (i) λ is **near-inert on the headline** anyway (the β-derivation
+absorbs its slope, so it only reshapes the parity kink, not the elasticity level); (ii) the asymmetry is
+**not identifiable** from the available cultivated-meat data; and (iii) per **Bell & Lattin (2000)**
+(*Marketing Science* 19:185) estimated loss aversion in aggregate choice data is largely *confounded with
+unmodelled price-response heterogeneity* — which this model already carries in `κ` (the real-tissue
+random-coefficient stand-in), so a separate asymmetric kink would risk double-counting it. Setting λ > 1
+(toward the Tversky–Kahneman 1992 median ~2.25) turns the asymmetry back on as an **exploratory dial**;
+it applies to **every** product by its own `d_j = price_ratio_j − 1` (plant-based at 1.77×, cultivated at
+R), never a cultivated-only "parity cliff". *On reference points:* the comparison is **contextual** (the
+competitor's current price, a cross-sectional gap that does **not** fade), distinct from a **temporal**
+reference anchored to a product's own price history (which adapts and is transient — that time-varying
+effect lives in the neophobia fade, not here).
 
 **Calibration — a demographic-conditional, reduced-form standing.** Plant-based's position is pinned
 from data: price premium `price_pb_mult`=1.77 [GFI/NIQ], taste deficit `taste_quality_p` [Nectar 2025:

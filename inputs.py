@@ -191,19 +191,29 @@ REGISTRY: dict[str, Input] = {
              "matching the at-parity bracket grounds the SHAPE near parity, but the -3.6 at R~2.4 is an "
              "EXTRAPOLATION (no DCE has priced cultivated at ~2.4x conventional). The OTHER factor of eps_x, so it "
              "moves the DERIVED beta directly; swept lo-hi in self-check [6]."),
-    "loss_aversion": Input(2.25, "ratio", "[Tversky-Kahneman 1992] LOSS-AVERSION COEFFICIENT lambda, in the "
-        "CANONICAL form: consumers anchor on the conventional price; a DISCOUNT (priced below it) is rewarded "
-        "at the natural UNIT rate (+1), and a PREMIUM (priced above it) is penalised at -lambda. So "
-        "V_loss_j = -lambda*max(0, price_ratio_j - 1) + 1*max(0, 1 - price_ratio_j), and lambda IS the "
-        "loss/gain asymmetry: lambda>=1, with the literature median ~2.25 (losses loom ~2.25x larger than "
-        "equal-sized gains). Applied UNIFORMLY to every product (plant-based at 1.77x and cultivated at R), "
-        "not a cultivated-only cliff.",
-        lo=1.0, hi=4.0, mode=2.25,
-        note="DEFAULT 2.25 IS THE SOURCED Tversky-Kahneman (1992) median, not a free knob — lambda is now "
-             "literally the loss-aversion coefficient (earlier the 2.25 lived in the denominator and lambda "
-             "was a separate magnitude; this canonical form makes lambda=the constant). lambda=1 = symmetric "
-             "(no loss aversion, a smooth kink); range 1-4 spans the empirical spread. Its slope feeds the "
-             "beta calibration (so it shapes the parity KINK, not the elasticity level)."),
+    "loss_aversion": Input(1.0, "ratio", "REFERENCE-DEPENDENT price asymmetry lambda (OFF by default). Consumers "
+        "may compare each product to the conventional price and feel a premium as a 'loss': a DISCOUNT (below "
+        "conventional) rewarded at the UNIT rate (+1), a PREMIUM penalised at -lambda, so "
+        "V_loss_j = -lambda*max(0, price_ratio_j - 1) + 1*max(0, 1 - price_ratio_j). lambda=1 (the DEFAULT) is "
+        "SYMMETRIC -- the term collapses to a smooth linear (1 - price_ratio) with NO kink, i.e. no loss "
+        "aversion; lambda>1 adds an asymmetric premium penalty (Tversky-Kahneman 1992 put the loss/gain ratio "
+        "~2.25). Applied uniformly to every product (plant-based at 1.77x and cultivated at R), never a "
+        "cultivated-only cliff.",
+        lo=1.0, hi=4.0, mode=1.0,
+        note="WHY DEFAULT 1.0 (symmetric, no kink) rather than the TK 2.25: (1) it is NEAR-INERT on the headline "
+             "anyway -- the beta-derivation absorbs lambda's price slope, so lambda only reshapes the parity KINK, "
+             "not the elasticity level (lambda 1->2.25 moves the at-parity share <2pp and leaves the regional "
+             "penetration roll-up UNCHANGED); (2) Bell & Lattin 2000 (Marketing Sci 19:185) show estimated loss "
+             "aversion in aggregate choice data is largely CONFOUNDED by unmodeled price-response heterogeneity -- "
+             "and this model already carries that heterogeneity in kappa (cult_sub_mult, the real_tissue "
+             "random-coefficient stand-in), so a separate asymmetric kink risks DOUBLE-COUNTING it; (3) the model's "
+             "reference is CONTEXTUAL (the competitor's current price), a cross-sectional comparison that does NOT "
+             "fade -- distinct from a TEMPORAL reference anchored to a product's own price history, which adapts "
+             "and is transient (the genuinely time-varying novelty effect lives in the neophobia fade, not here). "
+             "BONUS: at lambda=1 the model's at-parity own-price elasticity is -0.82, CLOSER to Lusk 2020's "
+             "measured MNL -0.84 than the kinked lambda=2.25 (-0.50) was. So lambda is now an OFF-by-default "
+             "exploratory dial (range 1-4) for anyone who wants to test reference-dependent asymmetry, not a "
+             "baked-in behavioral assumption. Its slope still feeds the beta calibration when moved."),
 
     # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
     #     Cultivated's standing vs conventional is TWO interpretable scenario dials,
@@ -339,18 +349,25 @@ REGISTRY: dict[str, Input] = {
     "income_ref": Input(85810, "$/yr", "[World Bank] US GDP per capita PPP 2023 ($85,810) — the "
         "REFERENCE income at which the price coefficient is anchored (so the US/commodity case is "
         "unchanged). Only income RATIOS across regions matter, so the absolute level is absorbed by alpha."),
-    "income_gradient": Input(0.5, "exponent", "[Muhammad/ERS] phi: how strongly price-sensitivity scales "
-        "with income. Effective income = income_ref*(income/income_ref)**phi, so the own-price elasticity "
-        "ratio across regions = (income_ref/income)**phi.",
-        lo=0.0, hi=1.0, mode=0.5,
-        note="phi=1 = literal BLP / pure 1-over-income (cultivated ~13x more price-elastic in Nigeria than "
-             "the US — too steep). phi=0.5 (DEFAULT) gives China ~1.8x, India ~2.8x, Nigeria ~3.6x, "
-             "matching the empirical food-price-elasticity gradient (poor countries ~2-3x more responsive "
-             "for meat; Muhammad et al. 2011 USDA ERS, food income-elasticity 0.78 low- vs 0.50 high-income). "
-             "phi=0 = no income effect. A documented judgement dial. (Mechanically, the BLP income term means "
-             "cultivated's share rises steeply as income climbs out of poverty but SATURATES above ~US incomes "
-             "— a $30 product is negligible to a high earner, so price stops binding and the share asymptotes; "
-             "it is flat, not rising, in the far-rich tail, which is the correct BLP behaviour, not a defect.)"),
+    "income_gradient": Input(0.25, "exponent", "[Muhammad/ERS] phi: how strongly price-sensitivity scales "
+        "with income. The whole price response is scaled by f = (income_ref/income)**phi (f>1 poorer = more "
+        "price-sensitive, f=1 at the US reference), so the own-price elasticity ratio across regions is "
+        "(income_ref/income)**phi.",
+        lo=0.0, hi=0.5, mode=0.25,
+        note="phi=0.25 (DEFAULT) gives a Nigeria/US own-price-elasticity ratio ~2.1x (China ~1.4x, India "
+             "~1.8x), matching the empirical food-price-elasticity gradient (poor countries ~2-3x more "
+             "responsive for meat; Muhammad et al. 2011 USDA ERS, food income-elasticity 0.78 low- vs 0.50 "
+             "high-income). phi=0 = no income effect; phi=0.5 is already steep (Nigeria ~3x, cultivated ~0% "
+             "there). A documented judgement dial. MECHANISM NOTE (corrected 2026-06-12): this scales price "
+             "SENSITIVITY directly — the previous BLP normalisation alpha=-beta*(y_eff-p_conv) was "
+             "income-INVARIANT in share by construction (the factor cancelled in the relative logit), so it "
+             "produced NO real gradient; the regional spread the model used to show was an ARTIFACT of the "
+             "monotonicity cap binding at the old loss_aversion=2.25. The new f-scaling is the genuine "
+             "'richer = less price-sensitive' channel: cultivated (a premium at R>1) penetrates LESS where "
+             "incomes are lower. The US anchor and every at-parity number are unchanged (f=1 at income_ref). "
+             "Share rises as income climbs out of poverty and SATURATES above ~US incomes (a $30 product is "
+             "negligible to a high earner, so price stops binding) — flat, not rising, in the far-rich tail, "
+             "the correct behaviour."),
     "taste_quality_p": Input(-0.2, "norm", "[Nectar] plant-based meat AVERAGE blind-taste deficit vs "
         "real meat. Nectar 'Taste of the Industry' 2025: only ~16% (20/122) of PB SKUs reach blind "
         "sensory parity, so the category average is BELOW parity. Normalised like (accept_x-1): "

@@ -215,22 +215,34 @@ meat prices and income** (`report_regional_band`):
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  EU        $62k        P50 11.5%  [5.8, 19.2]    P50 17.7%  [ 9.2, 27.2]  <- easiest (rich + priciest meat)
-  US        $86k        P50  6.6%  [2.9, 13.3]    P50 10.1%  [ 4.7, 18.0]
-  China     $27k        P50  3.8%  [1.7,  7.5]    P50  8.0%  [ 3.9, 13.7]
-  global    $24k        P50  5.0%  [2.1, 10.6]    P50  8.8%  [ 4.0, 16.3]
-  Brazil    $22k        P50  1.3%  [0.4,  4.2]    P50  2.4%  [ 0.9,  6.6]
-  India     $11k        P50  0.7%  [0.3,  1.9]    P50  1.8%  [ 0.8,  3.9]
-  Nigeria    $6k        P50  0.3%  [0.1,  2.2]    P50  0.7%  [ 0.3,  3.1]  <- hardest (cheap meat + price-sensitive)
+  EU        $62k        P50  9.5%  [3.4, 20.2]    P50 14.9%  [ 5.5, 30.0]  <- easiest (rich + priciest meat)
+  US        $86k        P50  5.4%  [1.7, 13.9]    P50  8.3%  [ 2.8, 19.8]
+  global    $24k        P50  3.7%  [1.2,  9.4]    P50  6.8%  [ 2.2, 16.1]
+  China     $27k        P50  2.9%  [1.0,  6.9]    P50  6.5%  [ 2.2, 14.6]
+  Brazil    $22k        P50  0.8%  [0.2,  2.7]    P50  1.4%  [ 0.4,  4.6]
+  India     $11k        P50  0.2%  [0.1,  0.6]    P50  0.7%  [ 0.2,  1.9]
+  Nigeria    $6k        P50  0.1%  [0.0,  0.4]    P50  0.2%  [ 0.0,  0.6]  <- hardest (cheap meat + price-sensitive)
 ```
 
 Two forces set the ordering, and they **compound**: (1) *local meat price* — the EU's expensive meat
-puts parity nearest; (2) *income* — richer consumers are less price-sensitive (the BLP term). The **EU
-is easiest** (rich *and* priciest meat). **Low-income regions are hardest** — India, Brazil and Nigeria
-have *cheap* meat (R far above 1) *and* high price-sensitivity, so cultivated barely registers. That is
-the most consequential thing the income channel surfaces, since those regions hold much of the world's
-future meat demand. (Low-income local meat prices/mixes are rough, illustrative.) Bands are wide and
-right-skewed: low end = scale-up-stalls / friction; long tail = scale-up-wins / preferred.
+puts parity nearest; (2) *income* — richer consumers are genuinely less price-sensitive (price-sensitivity
+scales as `(income_ref/income)^0.25`, a Nigeria/US own-price-elasticity ratio ~2×, matching the empirical
+food-price gradient). The **EU is easiest** (rich *and* priciest meat). **Low-income regions are hardest** —
+India, Brazil and Nigeria have *cheap* meat (R far above 1) *and* high price-sensitivity, so cultivated
+barely registers (sub-1% at today's cost). That is the most consequential thing the income channel
+surfaces, since those regions hold much of the world's future meat demand. (Low-income local meat
+prices/mixes are rough, illustrative.) Bands are wide and right-skewed: low end = scale-up-stalls /
+friction; long tail = scale-up-wins / preferred.
+
+> *Methodological note (2026-06-12).* The income gradient here is a **genuine** price-sensitivity channel.
+> An earlier version's regional spread was, on inspection, an artifact of a monotonicity-cap binding (the
+> BLP normalisation it used was income-invariant in share by construction); it was replaced with a direct
+> income→price-sensitivity scaling calibrated to the ~2–3× rich-poor food-elasticity gradient. The
+> low-income regions are now *more* sharply separated — and for a defensible reason, not a numerical
+> accident. Separately, the demand model's default is now a **symmetric** price response (no loss-aversion
+> kink): the asymmetry was near-inert on the headline, not identifiable from the available data, and —
+> per Bell & Lattin (2000) — apt to be confounded with the price-response heterogeneity that `κ` already
+> carries. Loss aversion remains an off-by-default exploratory dial.
 
 One place parity is reachable today: **structured product vs premium seafood.** Vs sushi salmon
 ($40/kg), R P50 = 0.82 and 90% of draws are at/below parity — but here the lone new unknown,
