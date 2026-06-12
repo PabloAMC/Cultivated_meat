@@ -327,19 +327,20 @@ def build_model() -> dict:
                "(negative = neophobia, positive = neophilia, 0 = neutral default). PB's real 'processed/fake-meat' "
                "resistance is already baked into the calibration, so this is an exploratory deviation from its "
                "~1.2% — move it to ask 'what if PB faced more/less novelty resistance?'."),
-        slider("loss_aversion", "Loss-aversion coefficient (λ)", "ratio", 1.0, 4.0, 0.05, value("loss_aversion"),
+        slider("loss_aversion", "Loss-aversion coefficient (λ)", "ratio", 1.0, 2.25, 0.05, value("loss_aversion"),
                "off by default", tip="OPTIONAL reference-dependent asymmetry: how much worse paying ABOVE the "
                "conventional price feels than the equal gain of paying below it. A discount is rewarded at the unit "
                "rate, a premium penalised at −λ. DEFAULT λ=1 = SYMMETRIC (no kink, no loss aversion) — the model "
                "ships with loss aversion OFF. Why: it's near-inert anyway (β absorbs its slope, so it only reshapes "
-               "the parity kink, not the level — at R_x=2.4: λ=1 → ~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%, only "
-               "λ=4 bites → ~{{LAMBDA_4}}%); it's not identifiable from cultivated data; and Bell & Lattin 2000 show "
-               "estimated loss aversion is largely the price-response heterogeneity κ already carries, so a separate "
-               "kink risks double-counting. Drag up toward the Tversky-Kahneman ~2.25 to explore the asymmetry. "
-               "NOTE: the β-derivation absorbs λ's price slope (so the realised elasticity holds the −3.6 target) "
-               "only up to λ≈2.6, where β saturates at its monotonicity cap; ABOVE that the realised own-price "
-               "elasticity steepens past the target (the kink dominates) — fine for an off-by-default exploratory "
-               "dial, but the 'λ only reshapes the kink, not the level' invariant is a low-λ statement. "
+               "the parity kink, not the level — at R_x=2.4: λ=1 → ~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%); it's "
+               "not identifiable from cultivated data; and Bell & Lattin 2000 show estimated loss aversion is largely "
+               "the price-response heterogeneity κ already carries, so a separate kink risks double-counting. The "
+               "range is 1 (off) → the Tversky-Kahneman median ~2.25: a PRINCIPLED span where the β-derivation still "
+               "holds the realised elasticity at the −3.6 target (the 'λ reshapes the kink, not the level' property). "
+               "It is capped at 2.25 deliberately — beyond the TK anchor the β cap binds and the elasticity would "
+               "drift off target, exploring a broken microfoundation rather than a meaningful scenario. "
+               "(Subtlety: the BLP sub-term's coefficient flips sign around λ≈1.65, above which the price response is "
+               "carried by the kink rather than the income log — the headline elasticity stays correct throughout.) "
                "Src: Tversky & Kahneman 1992; Bell & Lattin 2000."),
         slider("cult_sub_mult", "Cultivated ↔ conventional closeness (κ)", "x", 3.0, 6.0, 0.5,
                value("cult_sub_mult"), "data-bracketed", tip="How many times more price-sensitive a single cultivated "
@@ -544,10 +545,10 @@ def illustrative_numbers() -> dict:
         "KAPPA_3": pc(resolved(R_today, cult_sub_mult=3.0)),
         "KAPPA_4": pc(resolved(R_today, cult_sub_mult=4.0)),
         "KAPPA_5": pc(resolved(R_today, cult_sub_mult=5.0)),
-        # loss-aversion (lambda) ladder, re-solved, at TODAY's R (shows lambda barely moves the level)
+        # loss-aversion (lambda) ladder, re-solved, at TODAY's R (shows lambda barely moves the level
+        # across its principled 1 -> TK-2.25 range; the slider is capped at 2.25, see its tooltip)
         "LAMBDA_1": pc(resolved(R_today, loss_aversion=1.0)),
         "LAMBDA_225": pc(resolved(R_today, loss_aversion=2.25)),
-        "LAMBDA_4": pc(resolved(R_today, loss_aversion=4.0)),
     }
     return {f"{{{{{k}}}}}": v for k, v in N.items()}
 
@@ -1505,9 +1506,10 @@ function deriveBeta(K){
   // MONOTONICITY GUARD (mirror of market_share._derive_beta): cap beta below 1/p_conv so the
   // DISCOUNT side (where the loss term is off) always slopes downward — a cheaper product must
   // never lose share. Inert at the default; only bites in the high-loss_aversion tail.
-  // LIMITATION: once this cap binds (λ≈2.6 at default p_conv) β can no longer fully absorb the
-  // loss-aversion slope, so the realised elasticity steepens past the eps_own*κ target (~-7 at
-  // λ=4 vs -3.6). The "λ only reshapes the kink, not the level" property is a LOW-λ statement.
+  // WHY λ is capped at the TK 2.25 anchor (see the loss_aversion slider): once this cap binds
+  // (λ≈2.6 at default p_conv) β can no longer fully absorb the loss-aversion slope, so the realised
+  // elasticity would drift off the eps_own*κ target. Stopping at 2.25 keeps the "λ reshapes the kink,
+  // not the level" property true across the whole admissible range.
   const betaCap=1.0/K.p_conv_anchor-1e-3;
   let s=0;
   for(let it=0;it<40;it++){

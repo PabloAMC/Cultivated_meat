@@ -555,11 +555,11 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # we cap beta just below 1/p_conv. This is inert at the default (beta<<cap) and only bites
     # in the high-loss_aversion tail, where it lets the loss side keep steepening while the
     # discount side stays monotone.
-    # CONSEQUENCE (documented limitation): once this cap binds (lambda~2.6 at the default p_conv),
-    # beta can no longer fully absorb the loss-aversion price slope, so the REALISED own-price
-    # elasticity steepens past the eps_own*cult_sub_mult target (~-7 at lambda=4 vs -3.6). The
-    # "lambda only reshapes the kink, not the elasticity level" property is therefore a LOW-lambda
-    # statement; it holds through the default (lambda=1) and the TK 2.25 anchor, not the slider's top.
+    # WHY the loss_aversion range is capped at the TK 2.25 anchor (inputs.py): once this cap binds
+    # (lambda~2.6 at the default p_conv), beta can no longer fully absorb the loss-aversion price
+    # slope, so the REALISED own-price elasticity would drift past the eps_own*cult_sub_mult target.
+    # Stopping lambda at 2.25 keeps the "lambda reshapes the kink, not the elasticity level" property
+    # true across the whole admissible range (it holds through the default lambda=1 and the TK anchor).
     beta_cap = 1.0 / pr.p_conv - 1e-3
     s = 0.0
     for _ in range(iters):
