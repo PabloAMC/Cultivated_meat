@@ -570,6 +570,50 @@ def pb_milk_check(pr: DemandParams) -> float:
     return share(1.0, milk, cultivated_present=False, which="p")
 
 
+# ----------------------------------------------------------------------------
+# DEMAND VALIDATION: the implied at-parity elasticity vs the one measured for cultivated
+# ----------------------------------------------------------------------------
+# The only direct price-variation data on cultivated meat is Van Loo, Caputo & Lusk 2020
+# (Food Policy 95:101931): a US choice experiment that priced lab-grown across SIX levels
+# ($2.99-$10.49/lb), so it identifies lab-grown's OWN-PRICE ELASTICITY AT PARITY. Their two
+# models bracket it: the (homogeneous) conditional logit price coeff -0.178/$ implies
+# eps_lab ~ -0.84 at the $5/lb parity point; the random-parameter logit mean -0.72/$ implies
+# eps_lab ~ -3.4 (heterogeneity-driven: lab's random-coeff SD ~3-4.6 is LARGER than its mean,
+# i.e. ~half the population is positive on lab-grown, half negative). So the data bracket is
+#   eps_lab(at parity, cold survey) in [-3.4, -0.84].
+# kappa (cult_sub_mult) is the model's flat-logit stand-in for exactly that real_tissue
+# heterogeneity, so this is the moment that DISCIPLINES it: the model's implied at-parity cold
+# elasticity should land inside the bracket. It does at the default kappa=4 (-0.95). The check
+# is reported (like the PB-milk check) rather than re-solved, because the bracket is wide and
+# kappa stays a SWEPT judgement dial — Lusk grounds its RANGE, it does not point-pin it.
+#
+# CAVEAT (the residual, by design): Lusk measures the elasticity AT PARITY; the model's headline
+# elasticity target eps_x = eps_own*kappa is at cultivated's OPERATING POINT (R~2.4), where the
+# model's (BLP+kink) elasticity is steeper. Matching the at-parity bracket therefore grounds the
+# SHAPE near parity but the -3.6 at R~2.4 remains a functional-form EXTRAPOLATION — no choice
+# experiment has priced cultivated at ~2.4x conventional. See METHODS / the limitations.
+LUSK_ELAS_BRACKET = (-3.4, -0.84)   # at-parity, cold-survey own-price elasticity of lab-grown
+
+
+def lusk_at_parity_elasticity(pr: DemandParams, R: float = 1.0, h: float = 1e-4) -> float:
+    """The model's implied COLD-START at-parity own-price elasticity of cultivated — the
+    quantity Van Loo/Caputo/Lusk 2020 measured. Central-difference d ln(share)/d ln(price) at
+    parity, evaluated at the cold-start novelty (neophobia_x0, the survey condition: cultivated
+    is unfamiliar), with neutral standing (accept_x=1, theta_free_M=0)."""
+    nx0 = value("neophobia_x0")
+    f = lambda r: share(r, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=nx0)
+    s0 = f(R)
+    return float((f(R * (1.0 + h)) - f(R * (1.0 - h))) / (2.0 * h * s0))
+
+
+def lusk_elasticity_check(pr: DemandParams) -> dict:
+    """Validate kappa against the Lusk bracket: return the model's implied at-parity cold
+    elasticity, the data bracket, and whether it sits inside. Reported, not re-solved."""
+    e = lusk_at_parity_elasticity(pr)
+    lo, hi = LUSK_ELAS_BRACKET
+    return {"implied": e, "bracket": LUSK_ELAS_BRACKET, "inside": lo <= e <= hi}
+
+
 def _milk_params(pr: DemandParams) -> DemandParams:
     """The plant-based MILK world (same object pb_milk_check builds) — exposed so the
     figure can read its positions."""
@@ -722,6 +766,16 @@ def summarise(pr: DemandParams) -> None:
     print(f"  [4] PB-MILK validation (same shared coefficients, milk-appropriate product positions): "
           f"{milk:.0f}%  (observed ~15%; vs PB-meat ~1%)")
     print("      -> the SAME logit/price/taste machinery reproduces milk's success AND meat's failure")
+
+    # kappa validation: the model's implied at-parity cold elasticity vs the only direct
+    # price-variation data on cultivated meat (Van Loo/Caputo/Lusk 2020). Grounds kappa's RANGE.
+    le = lusk_elasticity_check(pr)
+    lo, hi = le["bracket"]
+    print(f"  [4b] kappa validation (cult_sub_mult={pr.cult_sub_mult:g}): implied at-parity cold own-price "
+          f"elasticity = {le['implied']:.2f}  vs Lusk 2020 measured [{lo:g}, {hi:g}]: "
+          f"{'INSIDE' if le['inside'] else 'OUTSIDE'}")
+    print("      -> the one DCE that priced cultivated across 6 levels brackets the at-parity elasticity;")
+    print("         kappa stays swept (the bracket is wide), but the data grounds its range, not a heuristic.")
 
     # PLANT-BASED AT FULL PARITY (cultivated absent), holding the calibrated standing:
     # with price+taste equalised, the only thing left penalising plant-based in the

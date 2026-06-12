@@ -220,9 +220,19 @@ either sourced or *derived from* the model rather than typed in:
    meat *category's*, because conventional meat is a near-perfect substitute for it (a category has no close
    substitute and is therefore inelastic; a single product inside it is not). We multiply by
    `cult_sub_mult ≈ 4` → target **`eps_x = eps_own·cult_sub_mult = −3.6`** (κ is applied **once** — it
-   defines the target; `β` below merely delivers it). `cult_sub_mult` is the model's least data-disciplined
-   input (no cultivated cross-price data exists), so it is **swept 2–4** and is one of the two levers
-   self-check [6] reports.
+   defines the target; `β` below merely delivers it). κ is the model's softest demand lever, so it is
+   **swept 3–6** and is one of the two levers self-check [6] reports. **It is, however, bracketed by the one
+   direct measurement.** Van Loo, Caputo & Lusk (2020, *Food Policy* 95:101931) priced lab-grown meat across
+   six levels ($2.99–$10.49/lb) in a US choice experiment, identifying its **own-price elasticity at parity**;
+   their two models bracket it at **−0.84** (conditional logit, the average consumer) to **−3.4** (random-
+   parameter logit, whose steepness comes from preference heterogeneity — lab-grown's random-coefficient SD
+   exceeds its mean, i.e. ~half the population is positive on it, half negative). κ is precisely the flat-logit
+   stand-in for that heterogeneity, so the model's **implied at-parity (cold) elasticity must land inside
+   [−3.4, −0.84]** — and at κ=4 it does (**−0.95**), reported by self-check **[4b]** and guarded as a golden
+   value. *The residual caveat (a functional-form limit, not a κ one):* Lusk measures the elasticity **at
+   parity**, but the realized target −3.6 is at cultivated's **operating point R≈2.4**, where the BLP+kink
+   form is steeper. So the data ground the **shape near parity**; the −3.6 at R≈2.4 is an **extrapolation** —
+   no choice experiment has priced cultivated at ~2.4× conventional. (See limitations.)
 
 5. *The anchor is derived, not invented — and the calibration counts BOTH price channels.* Price enters the
    utility through two terms: the BLP income term (local slope `β`) **and** the loss-aversion term (slope

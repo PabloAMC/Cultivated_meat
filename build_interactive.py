@@ -330,13 +330,16 @@ def build_model() -> dict:
                "~{{LAMBDA_1}}%, λ=2.25 → ~{{LAMBDA_225}}%; only λ=4 bites → ~{{LAMBDA_4}}%). Src: Tversky & "
                "Kahneman 1992."),
         slider("cult_sub_mult", "Cultivated ↔ conventional closeness (κ)", "x", 3.0, 6.0, 0.5,
-               value("cult_sub_mult"), "assumed", tip="How many times more price-sensitive a single cultivated "
+               value("cult_sub_mult"), "data-bracketed", tip="How many times more price-sensitive a single cultivated "
                "product is than meat as a category. WHY >1: the measured ε≈−0.9 is the category's (inelastic — no "
                "close substitute), but cultivated has a near-perfect substitute right beside it (conventional, "
                "same tissue), so its OWN price bites ~κ× harder. Sets how steeply share falls ABOVE parity (not "
                "the at-parity share). The single biggest above-parity lever: at R_x=2.4, κ=3 keeps ~{{KAPPA_3}}%, "
-               "κ=4 ~{{KAPPA_4}}%, κ=5 ~{{KAPPA_5}}%. Default 4 (realised ε≈−3.6); range 3–6 from the empirical "
-               "~3–5× own-brand-vs-category gap. Pure judgement — no cultivated cross-price data exists."),
+               "κ=4 ~{{KAPPA_4}}%, κ=5 ~{{KAPPA_5}}%. Default 4 (realised ε≈−3.6); range 3–6. BRACKETED by data: "
+               "Lusk 2020 priced lab-grown across 6 levels, putting its at-parity own-price elasticity in −0.84 "
+               "(avg consumer) to −3.4 (heterogeneity); at κ=4 the model's implied at-parity elasticity is −0.95, "
+               "inside that bracket. The catch: Lusk measures it at PARITY, but κ bites at the R≈2.4 premium — so "
+               "−3.6 there is a form extrapolation, not a measured point."),
         slider("income", "Country income (<i>y</i>, GDP/cap PPP)", "$/yr", 5000, 5000000, 1000, value("income_ref"),
                "World Bank", tip="Average income, which sets price-sensitivity via the Berry-Levinsohn-Pakes term "
                "α·ln(income − price): richer = less price-sensitive. Auto-set by the region selector (US $86k … "
@@ -987,14 +990,21 @@ parameter are described in the methods and results notes. Defaults are the neutr
       making cultivated's share-vs-price curve <i>steeper</i> above parity (it does <b>not</b> change the
       at-parity share). It is the flat-logit stand-in for what a nested logit would get from a "real-meat"
       nest (its dissimilarity parameter), or a random coefficient on the real-tissue attribute.
-      <b>Why \(\approx4\)?</b> Pure judgement — there is no cultivated cross-price data anywhere — but it is
-      anchored: a single product's own-price elasticity is empirically <b>~3–5&times; its category's</b>
-      (the standard brand-vs-category gap), and cultivated is a <i>closer</i> substitute to conventional than
-      typical brands are to each other (same tissue), so the upper half is apt. We centre at \(4\) (realised
-      \(\varepsilon_x=-3.6\)) and treat \(3\!-\!6\) as the range. It is the single most consequential demand
-      number for <i>above-parity</i> share — at \(\kappa=3\) an identical product at 2.4&times; conventional's
-      price still keeps ~{{KAPPA_3}}%, at \(\kappa=4\) ~{{KAPPA_4}}%, at \(\kappa=5\) ~{{KAPPA_5}}% — which is exactly why it is exposed,
-      not buried. Drag the slider to see.</p>
+      <b>Why \(\approx4\)?</b> It is the softest demand lever, but it is <b>bracketed by the one direct
+      measurement</b>. Van Loo, Caputo &amp; Lusk (2020) priced lab-grown across six levels and identified its
+      <b>at-parity own-price elasticity</b>; their two models bracket it at <b>−0.84</b> (conditional logit, the
+      average consumer) to <b>−3.4</b> (random-parameter logit, steep because lab-grown's preference is highly
+      <i>heterogeneous</i> — its random-coefficient spread exceeds its mean). \(\kappa\) is exactly the flat-logit
+      stand-in for that heterogeneity, so the model's implied at-parity (cold) elasticity must sit inside
+      \([-3.4,\,-0.84]\) — and at \(\kappa=4\) it does (<b>−0.95</b>; self-check [4b]). It is <i>also</i> consistent
+      with the standard <b>~3–5&times; own-brand-vs-category gap</b> (and cultivated is a <i>closer</i> substitute —
+      same tissue), so we centre at \(4\) (realised \(\varepsilon_x=-3.6\)) and treat \(3\!-\!6\) as the range. <b>The
+      one thing the data cannot do</b> is pin the elasticity at the \(R_x\approx2.4\) premium where \(\kappa\)
+      actually bites (no experiment has priced cultivated that far above parity), so the −3.6 <i>there</i> is a
+      functional-form extrapolation from the at-parity measurement — the honest residual. It is the single most
+      consequential demand number for <i>above-parity</i> share — at \(\kappa=3\) an identical product at
+      2.4&times; conventional's price still keeps ~{{KAPPA_3}}%, at \(\kappa=4\) ~{{KAPPA_4}}%, at \(\kappa=5\)
+      ~{{KAPPA_5}}% — which is exactly why it is exposed, not buried. Drag the slider to see.</p>
       <p class="aside"><span class="ah">For the skeptical reader: is "loss aversion" the right tool here?</span>
       It is most famous from <i>risky</i> gambles, but Tversky &amp; Kahneman's 1991 paper extends it to
       <b>riskless choice</b>: comparing goods on an attribute (here, price), you read each option as a gain or
@@ -1186,10 +1196,13 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         <li><b>The calibration is pinned to data.</b> Plant-based's ~1.2% share and the 89%-mainstream
         buyer split (GFI) pin the otherwise-unidentified outside-option baselines; the ethical share is Gallup. We solve
         three numbers to hit those; everything else is sourced.</li>
-        <li><b>The least data-disciplined lever is \(\kappa\)</b> (cultivated↔conventional closeness):
-        no cultivated cross-price data exists, so it is judgement — anchored to the empirical ~3–5&times;
-        brand-vs-category elasticity gap. It is the single biggest demand lever for <i>above-parity</i> share
-        (self-check [6]) — drag it to see; that is the point of exposing it.</li>
+        <li><b>The softest demand lever is \(\kappa\)</b> (cultivated↔conventional closeness), but it is
+        <b>bracketed by data, not free</b>: Lusk 2020 priced lab-grown across six levels, putting its at-parity
+        own-price elasticity in −0.84…−3.4, and the model's implied at-parity elasticity at \(\kappa=4\) is −0.95,
+        inside that bracket (self-check [4b]). The <i>residual</i> is that the data measure the elasticity at
+        <b>parity</b>, while \(\kappa\) bites at the \(R_x\approx2.4\) <b>premium</b> where no one has priced
+        cultivated — so the −3.6 there is a functional-form extrapolation. It is the single biggest demand lever
+        for <i>above-parity</i> share (self-check [6]) — drag it to see; that is the point of exposing it.</li>
         <li><b>Habit is not a separate fitted term</b> (it is not separable from preference without
         panel data — Heckman); it lives in the rollout-over-time as food-neophobia fading, with long-run acceptance (\(a_x\), \(\theta_{\rm free}\)) as the dial.</li>
         <li><b>The tier offsets (authenticity &plusmn;, elasticity &times;) are reduced-form</b> scenario

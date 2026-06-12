@@ -32,7 +32,8 @@ TOL = 5e-3
 
 def _golden_values() -> dict:
     """Compute the current headline numbers from the source-of-truth modules."""
-    from market_share import DemandParams, share, pb_milk_check
+    from market_share import (DemandParams, share, pb_milk_check,
+                              lusk_at_parity_elasticity, LUSK_ELAS_BRACKET)
     from cost_model import CostParams, biomass_cost, cost_floor
     import meat_market as mm
 
@@ -56,6 +57,8 @@ def _golden_values() -> dict:
         "pb_share_pct": share(1.0, pr, cultivated_present=False, which="pb") * 100,
         "parity_pct": share(1.0, pr, accept_x=1.0, theta_free_M=0.0) * 100,
         "milk_pct": pb_milk_check(pr) * 100,
+        # --- kappa validation: implied at-parity cold elasticity, must stay in Lusk's bracket ---
+        "lusk_elas_parity_cold": lusk_at_parity_elasticity(pr),
         # --- income gradient at the Pasitka-base R (the channel that once diverged) ---
         "income_us_pct": share(2.42, pr, income=85810) * 100,
         "income_china_pct": share(2.42, pr, income=27105) * 100,
@@ -82,6 +85,7 @@ GOLDEN = {
     "pb_share_pct":        1.2000,
     "parity_pct":          49.8696,
     "milk_pct":            15.2568,
+    "lusk_elas_parity_cold": -0.9518,   # in Lusk 2020's measured [-3.4, -0.84] (self-check [4b])
     "income_us_pct":       9.0336,
     "income_china_pct":    8.4320,
     "income_nigeria_pct":  5.6870,
@@ -93,12 +97,21 @@ GOLDEN = {
 
 def check_golden() -> list:
     """Return a list of human-readable failures (empty == all golden values hold)."""
+    from market_share import LUSK_ELAS_BRACKET
     cur = _golden_values()
     fails = []
     for k, gold in GOLDEN.items():
         got = float(cur[k])
         if abs(got - gold) > TOL:
             fails.append(f"{k}: golden={gold:.6g} got={got:.6g} diff={abs(got - gold):.2e}")
+    # SUBSTANTIVE guard (beyond pinning the number): the implied at-parity cold elasticity must
+    # stay inside Lusk 2020's measured bracket — the data discipline on kappa. A recalibration
+    # that pushed it out (e.g. a kappa change) should fail loudly, not just move the golden value.
+    lo, hi = LUSK_ELAS_BRACKET
+    le = float(cur["lusk_elas_parity_cold"])
+    if not (lo <= le <= hi):
+        fails.append(f"lusk_elas_parity_cold={le:.3f} fell OUTSIDE Lusk's measured [{lo}, {hi}] "
+                     f"bracket — kappa is no longer data-consistent at parity")
     print(f"golden check: {len(GOLDEN)} pinned values (tol {TOL:.0e})")
     return fails
 

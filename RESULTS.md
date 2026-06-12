@@ -156,14 +156,21 @@ and the long-run acceptance dials (`accept_x`, `theta_free_M`); launch food-neop
 separately.
 
 *Robustness & scope (self-check [6]).* These demand parameters are **calibrated to moments, not estimated**
-(no cultivated-meat choice data exists), so Output 2 is a band. Re-solving the calibration as each judgement
-anchor sweeps its range, the central share at the likely R≈2.4 (~8.2%) moves most with **`cult_sub_mult`**
-(the substitutability lever, 3.3→12.7% over κ=3–6); **loss aversion** — formerly the top lever — now barely moves it (the elasticity
-double-counting fix removed its hidden price-sensitivity, leaving it to shape only the parity kink), as do the
-plant-based-fitting internals — so the answer turns on two *behavioural-price* judgement calls, which we
-surface rather than bury. This is a **partial-equilibrium** model (prices exogenous, no supply response), a
-**two-class** (not continuous random-coefficients) logit, with a single calibrated price coefficient — the
-right simplifications given the absent data; an estimated random-coefficients system would be false rigor here.
+(no large cultivated-meat scanner panel exists), so Output 2 is a band. Re-solving the calibration as each
+judgement anchor sweeps its range, the central share at the likely R≈2.4 (~8.2%) moves most with
+**`cult_sub_mult`** (the substitutability lever, 3.3→12.7% over κ=3–6); **loss aversion** — formerly the top
+lever — now barely moves it (the elasticity double-counting fix removed its hidden price-sensitivity, leaving
+it to shape only the parity kink), as do the plant-based-fitting internals — so the answer turns on two
+*behavioural-price* judgement calls, which we surface rather than bury. κ is the softest, but **not
+ungrounded**: the one choice experiment that varied cultivated's own price across six levels (Van Loo, Caputo
+& Lusk 2020) brackets its at-parity own-price elasticity at **−0.84 to −3.4**, and the model's implied
+at-parity (cold) elasticity at κ=4 is **−0.95 — inside that bracket** (self-check [4b], golden-guarded). What
+the data *cannot* pin is the elasticity at the R≈2.4 premium where κ actually bites (no DCE has priced
+cultivated that far above parity), so the −3.6 there is a functional-form extrapolation from the at-parity
+measurement — the honest residual on this lever. This is a **partial-equilibrium** model (prices exogenous, no
+supply response), a **two-class** (not continuous random-coefficients) logit, with a single calibrated price
+coefficient — the right simplifications given the sparse data; an estimated random-coefficients system would
+be false rigor here.
 
 ## 4. Penetration by type of meat — price and demand run opposite (Output 2)
 
