@@ -770,20 +770,21 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <p>The four options and their <b>attributes</b> (conventional meat is the reference everything is
       measured against):</p>
       <table class="attr">
-        <tr><th>product</th><th>price \(R_j\) (&times; conv.)</th><th>taste \(a_j\) (1 = real meat)</th><th>slaughter&#8209;free \(g_j\)</th><th>real tissue \(b_j\)</th><th>health \(\zeta_j\)</th><th>intercept \(\xi_j\)</th></tr>
-        <tr><td><b>conventional</b> meat</td><td>1 (anchor)</td><td>1 (reference)</td><td>0</td><td>1</td><td>0 (ref)</td><td>0</td></tr>
-        <tr><td><b>plant&#8209;based</b> meat</td><td>\(R_p\) (~1.77, dial)</td><td>\(a_p\) (~0.8, dial)</td><td>1</td><td>0</td><td>\(\zeta_p\) (0, dial)</td><td>0</td></tr>
-        <tr><td><b>cultivated</b> meat</td><td>\(R_x\) (from §1)</td><td>\(a_x\) (~1, dial)</td><td>1</td><td>1</td><td>\(\zeta_x\) (0, dial)</td><td>0</td></tr>
-        <tr><td><b>whole&#8209;food</b> (beans/tofu)</td><td>~0.25 (cheap)</td><td>~0.3 (not meat)</td><td>1</td><td>0</td><td>0</td><td>\(\xi_w\) (calib.)</td></tr>
+        <tr><th>product</th><th>price \(R_j\) (&times; conv.)</th><th>taste \(a_j\) (1 = real meat)</th><th>slaughter&#8209;free \(g_j\)</th><th>real tissue \(b_j\)</th><th>health \(\zeta_j\)</th></tr>
+        <tr><td><b>conventional</b> meat</td><td>1 (anchor)</td><td>1 (reference)</td><td>0</td><td>1</td><td>&minus;0.1 (ref)</td></tr>
+        <tr><td><b>plant&#8209;based</b> meat</td><td>\(R_p\) (~1.77, dial)</td><td>\(a_p\) (~0.8, dial)</td><td>1</td><td>0</td><td>\(\zeta_p\) (0, dial)</td></tr>
+        <tr><td><b>cultivated</b> meat</td><td>\(R_x\) (from §1)</td><td>\(a_x\) (~1, dial)</td><td>1</td><td>1</td><td>\(\zeta_x\) (0, dial)</td></tr>
+        <tr><td><b>whole&#8209;food</b> (beans/tofu)</td><td>~0.25 (cheap)</td><td>~0.3 (not meat)</td><td>1</td><td>0</td><td>+2 ("healthy choice")</td></tr>
       </table>
-      <p style="font-size:.82rem;margin:-2px 0 8px;color:#555">Read each row as a product's <b>position</b>:
-      four core attributes (price, taste, slaughter-free, real-tissue) plus a default-0 health offset and a
-      default-0 intercept \(\xi_j\). At baseline the three meats carry <b>no constant at all</b> (\(\xi=0\),
-      \(\zeta=0\)) — only their four attributes — so there is no hidden "standing" dial; the lone non-zero
-      intercept is the whole-food outside option's, and even that is <i>solved</i> from data, not free (see
-      Calibration). Three optional scenario terms (a <b>novelty</b> dial \(\nu\), a <b>health</b> dial
-      \(\zeta\), cultivated's per-tier <b>authenticity</b> offset \(\tau\)) are all <b>0 by default</b> and
-      explained in the glossary below; you switch them on only to explore.</p>
+      <p style="font-size:.82rem;margin:-2px 0 8px;color:#555">Read each row as a product's <b>position</b> on
+      five named attributes: price, taste, slaughter-free, real-tissue, and health. <b>There is no separate
+      intercept</b> — whole food's pull toward "skip the meat, eat beans" is carried by its <b>health</b>
+      position (+2, "the healthy choice"), a labelled attribute, not a free constant; its weight is <i>solved</i>
+      from data (see Calibration). The three meats carry <b>no free constant at all</b> — only their attributes.
+      The only additive term any product gets is the optional <b>novelty</b> offset \(\nu\) on the two novel meats
+      (0 by default). Three scenario dials (novelty \(\nu\), the health offsets \(\zeta_x/\zeta_p\), cultivated's
+      per-tier <b>authenticity</b> \(\tau\)) are all <b>0 by default</b> and explained in the glossary below; you
+      switch them on only to explore.</p>
       <p class="aside"><span class="ah">For the skeptical reader: "so there's literally no fitted constant?"</span>
       Almost — whole food's standing is a named health <i>attribute</i> at an assumed position \(\zeta_w=+2\)
       times a <i>solved</i> weight \(w^h\), pinned to two data moments (the meatless rate and the residual ethical
@@ -855,8 +856,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       whole-food health position \(\zeta_w>0\) ("beans are the healthy choice") pulls the health- and
       ethically-minded toward whole foods over a processed veggie burger — which is <i>why</i> plant-based
       <i>meat</i> sits at ~1% despite a 5% ethical core. Both health weights are <b>solved</b> in the
-      calibration (below); this health premium is the named attribute that took over the job of the old
-      outside-option intercept (see the aside under the attribute table).</p>
+      calibration (below); this health premium is the named attribute that carries whole food's standing,
+      so no product needs a free outside-option constant (see the aside under the attribute table).</p>
       <p style="font-size:.9rem">So the slaughter-free term you tune is \(\theta_{\rm free}\,g_j\) for
       the mainstream (95% of buyers): at \(\theta_{\rm free}=0\) the mainstream is indifferent to "no animal
       killed"; raise it and every slaughter-free product gains, cultivated most (it also has real tissue).</p>
@@ -979,7 +980,7 @@ parameter are described in the methods and results notes. Defaults are the neutr
       because \(\beta\) is merely the logit coefficient that delivers it:</p>
       \[ \varepsilon_x \;=\; \kappa\,\varepsilon \;\approx\; 4\times(-0.9)\;=\;-3.6,
          \qquad\text{delivered by}\qquad \beta \;=\; \frac{\varepsilon_x}{p_x\,(1-s_x)}+\frac{\lambda}{p_{\rm conv}}
-         \ \text{(at cultivated's own price \& share)} . \]
+         \ \text{(at cultivated's own price and share)} . \]
       <p>So at \(\kappa=4\) a 1% rise in cultivated's price loses ~3.6% of its buyers, four times meat's
       ~0.9% — and, after the two-channel fix above, that ~3.6 is the <i>realised</i> elasticity, not merely a
       target. <b>One caveat on reading "−3.6":</b> it is the local elasticity <i>at cultivated's own
