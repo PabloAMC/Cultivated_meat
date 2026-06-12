@@ -306,7 +306,8 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
                      tier_offset=tier_authenticity(mt, base, res),
-                     eps_own=base_eps * tier_eps_mult(mt, base, res), income=income)
+                     eps_own=base_eps * tier_eps_mult(mt, base, res), income=income,
+                     p_ref=mt.p_conv)        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
     rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of)
     return rows, tot_vol, tot_val
@@ -343,7 +344,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
         eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
-                               eps_own=eps[i], income=income,
+                               eps_own=eps[i], income=income, p_ref=mt.p_conv,
                                neophobia_x=s["neophobia_x"][i]) for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)

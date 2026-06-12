@@ -193,10 +193,10 @@ Rolling up across the whole spectrum, sampling cost + standing + elasticity:
 ```
 total cultivated penetration of meat (central / P50, with 80% bands):
   region   by VOLUME (impact)        by VALUE ($ market)
-  US       5.4%  [1.7, 13.9]          8.3%  [2.8, 19.8]
-  Europe   9.5%  [3.4, 20.2]         14.9%  [5.5, 30.0]   ← easiest (priciest meat)
-  China    2.9%  [1.0,  6.9]          6.5%  [2.2, 14.6]
-  global   3.7%  [1.2,  9.4]          6.8%  [2.2, 16.1]
+  US       5.6%  [1.7, 14.3]          8.2%  [2.7, 19.2]
+  Europe   9.6%  [3.3, 20.8]         14.6%  [5.2, 29.4]   ← easiest (priciest meat)
+  China    3.1%  [0.9,  8.3]          6.3%  [2.1, 14.8]
+  global   3.9%  [1.0, 11.1]          6.6%  [2.0, 16.7]
 ```
 
 **Europe is easiest** — its meat is the most expensive, so parity is nearest. The US, China and the

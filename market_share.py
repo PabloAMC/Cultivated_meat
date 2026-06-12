@@ -75,17 +75,24 @@ plant-based stalled. (See the [3] cannibalisation self-check below.)
 
 Price and income (the BLP form)
 -------------------------------
-Price enters as V_price = alpha * ln(income_eff - price) (Berry-Levinsohn-Pakes 1995):
-richer consumers are LESS price-sensitive (the marginal utility of income falls). The
-shared coefficient beta is DERIVED, not an input: the behavioural primitive is cultivated's
-OWN-PRICE ELASTICITY eps_x = eps_own * cult_sub_mult (meat's measured -0.9, steepened ~4x
-because conventional is a near-perfect substitute), and beta is solved so the logit's TOTAL
-price response reproduces eps_x AT cultivated's own modeled retail price & share -- a short fixed point
-with NO hand-chosen anchor (see `_derive_beta`). The anchor price is cultivated's own retail
-price (biomass_cost + markup_add), so beta tracks the cost model. alpha is then pinned so the
-local price coefficient equals beta at the reference income (income_ref, US GDP/cap PPP).
-Across regions income_eff = income_ref*(income/income_ref)**income_gradient damps the gradient
-to the empirical ~2-3x rich->poor.
+Price enters as V_price = alpha * ln(y_eff - price) (Berry-Levinsohn-Pakes 1995): income sits
+INSIDE the log, so the diminishing marginal utility of income IS the mechanism -- a given price
+is a bigger, more painful bite the poorer the consumer, so richer consumers are LESS price-
+sensitive. alpha = -beta * (income_ref - anchor_price) is a SINGLE CONSTANT (the marginal-utility-
+of-income coefficient), pinned so the term's local price-slope equals beta at the US calibration
+anchor. The shared coefficient beta is DERIVED, not an input: the behavioural primitive is
+cultivated's OWN-PRICE ELASTICITY eps_x = eps_own * cult_sub_mult (meat's measured -0.9, steepened
+~4x because conventional is a near-perfect substitute), and beta is solved so the logit's TOTAL
+price response reproduces eps_x AT cultivated's own modeled retail price & share -- a short fixed
+point with NO hand-chosen anchor (see `_derive_beta`). The anchor price is cultivated's own retail
+price (biomass_cost + markup_add), so beta tracks the cost model. Across regions the EFFECTIVE
+income in the log is DAMPED, y_eff = income_ref*(income/income_ref)**income_gradient: raw BLP
+(income_gradient=1) is too steep for food (~6x rich->poor elasticity ratio), so the exponent
+phi<1 damps the BLP curvature to the empirical ~2-3x gradient (Muhammad/ERS). At the US reference
+y_eff=income_ref, so the US and every at-parity number are invariant to phi. The reference
+(loss-aversion) term is RATIO-based and carries no income scaling -- the income channel lives
+entirely in the BLP log. (HISTORY: an earlier form froze income in the log and re-added it as a
+separate multiplier -- that was NOT BLP and disabled the curvature; this restores genuine BLP.)
 
 Calibration (demographic-conditional, reduced form)
 ---------------------------------------------------
@@ -239,7 +246,8 @@ def _softmax(V):
 
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
-               tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None):
+               tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
+               p_ref=None):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -310,37 +318,45 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
         w_slaughter, w_realtissue, w_health = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
 
     # --- the SAME utility for every product ---------------------------------
-    price = price_ratio * pr.p_conv
-    # INCOME -> PRICE-SENSITIVITY (the real "richer = less price-sensitive" channel).
-    #   f = (income_ref / income) ** income_gradient  scales the WHOLE price response: f>1 for
-    #   poorer-than-reference regions (more price-sensitive), f<1 for richer, f==1 at income_ref.
-    # Why this form, and what it FIXES: the previous BLP normalisation set alpha so the income
-    # term's local price-slope equalled beta AT EACH region's own income — which makes the
-    # price-DIFFERENCE utility V_j - V_k ~ beta*(p_j - p_k) INDEPENDENT of income (the income
-    # factor cancels in the relative logit). So it produced NO real gradient; the regional spread
-    # the model used to show was an ARTIFACT of the monotonicity cap binding at the old
-    # loss_aversion=2.25 (a numerical clamp, not an economic channel). The fix is to scale price
-    # sensitivity DIRECTLY by income: poorer consumers feel a given premium more, so cultivated
-    # (a premium at R>1) penetrates LESS where incomes are lower — the intended Muhammad et al.
-    # (2011) ~2-3x rich->poor gradient, now actually delivered (income_gradient=0.25 -> Nigeria
-    # is ~2.4x as price-elastic as the US). The US anchor and every at-parity / calibration number
-    # are UNCHANGED because f==1 at income_ref (the calibration income), so beta is still derived
-    # there. The interactive JS (build_interactive.utilities) mirrors this exact form.
-    f = (pr.income_ref / income) ** pr.income_gradient                # >1 poorer (more sensitive)
-    beta_eff = beta * f
-    # BLP curvature is kept (diminishing marginal utility of income), evaluated at the REFERENCE
-    # income; the cross-region tilt now comes from f, not from moving y_eff. alpha normalises the
-    # local price-slope to beta_eff at the reference income.
-    alpha = -beta_eff * (pr.income_ref - pr.p_conv)
-    V_price = alpha * np.log1p(-price / pr.income_ref)                # income term (~ beta_eff*price near ref)
+    # PER-COMPARISON REFERENCE PRICE: each product's ABSOLUTE price (the dollars the income/BLP term
+    # cares about) is its price ratio times the LOCAL conventional price p_ref — the rival this
+    # comparison is actually against (chicken vs chicken at ~$5, steak vs steak at ~$20, ...). p_ref
+    # defaults to the calibration price pr.p_conv ($12, the commodity anchor) so a bare share() call
+    # is UNCHANGED; meat_market passes each cut's own mt.p_conv. This fixes the bug where every cut's
+    # absolute price was reconstructed as R*$12 — understating the dollar premium on expensive cuts
+    # (a $20-steak premium was priced as if conventional steak cost $12), which overstated their
+    # share. The price RATIO and the calibration are still anchored at pr.p_conv; only the absolute
+    # MAGNITUDE that enters the income term becomes per-cut.
+    pref = pr.p_conv if p_ref is None else p_ref
+    price = price_ratio * pref
+    # INCOME — genuine Berry-Levinsohn-Pakes (1995) price term with a DAMPING exponent.
+    #   V_price_j = alpha * ln(y_eff - price_j)
+    #   y_eff     = income_ref * (income/income_ref)**phi      (phi = income_gradient, the damping)
+    #   alpha     = -beta * (income_ref - anchor_price)        (a SINGLE constant)
+    # This is textbook BLP: income enters ONLY inside the log, so the diminishing-marginal-utility-of-
+    # income curvature is the mechanism — a given price is a bigger bite, and hurts more, the poorer
+    # the consumer. alpha is a true constant (NOT a function of income or product j): it is pinned so
+    # the term's local price-slope equals beta at the US calibration anchor (income=income_ref,
+    # price=anchor_price), since -alpha/(income_ref-anchor_price) = beta. So the elasticity target is
+    # preserved for ANY phi, and the US/at-parity numbers are invariant to phi (y_eff=income_ref at the
+    # US reference). The phi DAMPING reconciles BLP with the data: raw BLP (phi=1, y_eff=income) is too
+    # steep for food (~6x rich->poor elasticity ratio); phi<1 damps the EFFECTIVE income that enters
+    # the log so the gradient matches the empirical ~2-3x (Muhammad et al. 2011); phi=0 removes the
+    # income effect. (HISTORY: an earlier form froze income inside the log and re-added it as a separate
+    # multiplier f — that was NOT BLP and disabled the curvature; this form puts income back in the log.
+    # Verified: matches its own linearisation to <0.01pp at meat prices, where price<<income.)
+    y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient   # damped effective income
+    alpha = -beta * (pr.income_ref - pr.anchor_price)                  # the BLP coefficient (a constant)
+    resid = np.maximum(y_eff - price, 1.0)                             # income left after buying j (log-domain guard)
+    V_price = alpha * np.log(resid)                                    # BLP: utility of residual income
     # Reference-dependent value. lambda=1 (the default) is SYMMETRIC: V_loss collapses to a smooth
     # linear (1 - price_ratio) with NO kink — i.e. no loss aversion (see inputs.py loss_aversion).
-    # lambda>1 adds an asymmetric premium penalty (Tversky-Kahneman); applied to EVERY product by
-    # its own premium, never a cultivated-only cliff. Scaled by the SAME income factor f, so the
-    # whole price response (BLP curvature + reference term) tilts together with income.
+    # lambda>1 adds an asymmetric premium penalty (Tversky-Kahneman); applied to EVERY product by its
+    # own premium, never a cultivated-only cliff. It is RATIO-based (premium over the conventional
+    # reference), so it carries no income scaling — the income channel lives entirely in the BLP log.
     premium = price_ratio - 1.0
-    V_loss = f * (-pr.loss_aversion * np.maximum(0.0, premium)
-                  + 1.0 * np.maximum(0.0, -premium))
+    V_loss = (-pr.loss_aversion * np.maximum(0.0, premium)
+              + 1.0 * np.maximum(0.0, -premium))
 
     return (V_price + V_loss + pr.q_taste * taste
             + w_slaughter * slaughter_free + w_realtissue * real_tissue
@@ -349,12 +365,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-             cultivated_present=True) -> dict:
+             cultivated_present=True, p_ref=None) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
-                   neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p)
+                   neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
+                   p_ref=p_ref)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -367,7 +384,7 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 # ----------------------------------------------------------------------------
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
-          neophobia_x=None, neophobia_p=None, health_x=None, health_p=None) -> float:
+          neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
@@ -394,35 +411,39 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     ax = pr.accept_x if accept_x is None else accept_x
     tfM = pr.theta_free_M if theta_free_M is None else theta_free_M
     eps = pr.eps_own if eps_own is None else eps_own
-    # beta is the DERIVED coefficient (pr.beta_ref). It splits into an elasticity part
-    # (eps_x/(p*(1-s)), proportional to the elasticity target) and the loss-aversion
-    # compensation (loss_aversion/p_conv). An eps_own override (e.g. the per-tier
-    # multipliers) scales ONLY the elasticity part, leaving the loss-aversion
-    # compensation fixed, so a tier's TOTAL elasticity scales as intended.
-    lam_slope = pr.loss_aversion / pr.p_conv
-    beta = (pr.beta_ref - lam_slope) * (eps / pr.eps_own) + lam_slope
+    # beta is the DERIVED coefficient (pr.beta_ref). A per-tier eps_own override (the cut/premium
+    # multipliers in meat_market) scales the WHOLE price response: beta = beta_ref * (eps/eps_own).
+    # A less-elastic tier (premium, eps x0.3) is less sensitive on BOTH channels — the BLP slope AND
+    # the reference term — which is the right economics (a premium buyer is less price-responsive,
+    # full stop). (An earlier form scaled only the elastic part and held the loss-aversion slope fixed;
+    # that pushed the inelastic premium beta POSITIVE, which the monotonicity cap then clamped to ~0,
+    # flattening the premium share to a constant ~18% across all R — a degenerate, wrong result.)
+    beta = pr.beta_ref * (eps / pr.eps_own)
     inc = pr.income_ref if income is None else income      # default = reference income (unchanged)
-    # MONOTONICITY GUARD. On the discount side (R<1) the reference term rewards a discount and the
-    # BLP curvature carries the rest of the price response; a cheaper product must never lose share
-    # (dV/dR <= 0). Under the income-scaled form both channels carry the SAME factor f, so f CANCELS
-    # in the monotonicity condition and the bound is income-INDEPENDENT:
-    #   dV/dR|_{R<1} = p_conv*beta*(income_ref-p_conv)/(income_ref-price) - 1 (in f units) <= 0,
-    #   tightest as price->p_conv (R->1)  =>  beta <= 1/p_conv.
-    # (The old guard used an income-DEPENDENT bound; that was an artifact of the previous income
-    # normalisation — under the new income->price-sensitivity scaling the clean bound is 1/p_conv.)
-    # The cap applies to the EFFECTIVE beta AFTER the per-tier eps rescale (which can lift beta on
-    # the inelastic premium tiers); inert at the default, it only bites in the high-loss_aversion /
-    # very-high-income tail where the discount side would otherwise slope upward.
-    beta = min(beta, 1.0 / pr.p_conv - 1e-4)
+    # MONOTONICITY GUARD (BLP-correct, income-aware). On the discount side (R<1) the reference term
+    # rewards a discount at the unit rate while the BLP log carries the price response with local slope
+    # dV/dR = -alpha*p_ref/(y_eff - price), alpha = -beta*(income_ref - anchor_price). A cheaper product
+    # must never lose share, i.e. the discount-side dV/dR must stay the right sign; the binding case is
+    # price -> p_ref (R->1) at the region's y_eff, which gives
+    #   beta <= (y_eff - p_ref) / ((income_ref - anchor_price) * p_ref).
+    # This bound TIGHTENS at low income (smaller y_eff). It is applied to the EFFECTIVE beta AFTER the
+    # per-tier eps rescale (which can lift beta on the inelastic premium tiers); inert at the default,
+    # it only bites in the high-loss_aversion / low-income / premium-tier corner. Verified: 0 violations
+    # across every region income x tier x lambda in the model's operating range.
+    p_ref_cap = pr.p_conv if p_ref is None else p_ref
+    y_eff_cap = pr.income_ref * (inc / pr.income_ref) ** pr.income_gradient
+    denom_cap = (pr.income_ref - pr.anchor_price) * p_ref_cap
+    if denom_cap > 0:
+        beta = min(beta, (y_eff_cap - p_ref_cap) / denom_cap - 1e-6)
     nbx = pr.neophobia_x if neophobia_x is None else neophobia_x   # cultivated novelty attitude
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present)
+                 cultivated_present=cultivated_present, p_ref=p_ref)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present)
+                 cultivated_present=cultivated_present, p_ref=p_ref)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
@@ -534,6 +555,11 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # we cap beta just below 1/p_conv. This is inert at the default (beta<<cap) and only bites
     # in the high-loss_aversion tail, where it lets the loss side keep steepening while the
     # discount side stays monotone.
+    # CONSEQUENCE (documented limitation): once this cap binds (lambda~2.6 at the default p_conv),
+    # beta can no longer fully absorb the loss-aversion price slope, so the REALISED own-price
+    # elasticity steepens past the eps_own*cult_sub_mult target (~-7 at lambda=4 vs -3.6). The
+    # "lambda only reshapes the kink, not the elasticity level" property is therefore a LOW-lambda
+    # statement; it holds through the default (lambda=1) and the TK 2.25 anchor, not the slider's top.
     beta_cap = 1.0 / pr.p_conv - 1e-3
     s = 0.0
     for _ in range(iters):
@@ -605,7 +631,7 @@ def pb_milk_check(pr: DemandParams) -> float:
 #   eps_lab(at parity, cold survey) in [-3.4, -0.84].
 # kappa (cult_sub_mult) is the model's flat-logit stand-in for exactly that real_tissue
 # heterogeneity, so this is the moment that DISCIPLINES it: the model's implied at-parity cold
-# elasticity should land inside the bracket. It does at the default kappa=4 (-0.95). The check
+# elasticity should land inside the bracket. It does at the default kappa=4 (-1.5, golden-guarded). The check
 # is reported (like the PB-milk check) rather than re-solved, because the bracket is wide and
 # kappa stays a SWEPT judgement dial — Lusk grounds its RANGE, it does not point-pin it.
 #

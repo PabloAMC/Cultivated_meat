@@ -164,7 +164,7 @@ it to shape only the parity kink), as do the plant-based-fitting internals — s
 *behavioural-price* judgement calls, which we surface rather than bury. κ is the softest, but **not
 ungrounded**: the one choice experiment that varied cultivated's own price across six levels (Van Loo, Caputo
 & Lusk 2020) brackets its at-parity own-price elasticity at **−0.84 to −3.4**, and the model's implied
-at-parity (cold) elasticity at κ=4 is **−0.95 — inside that bracket** (self-check [4b], golden-guarded). What
+at-parity (cold) elasticity at κ=4 is **−1.5 — inside that bracket** (self-check [4b], golden-guarded). What
 the data *cannot* pin is the elasticity at the R≈2.4 premium where κ actually bites (no DCE has priced
 cultivated that far above parity), so the −3.6 there is a functional-form extrapolation from the at-parity
 measurement — the honest residual on this lever. This is a **partial-equilibrium** model (prices exogenous, no
@@ -181,31 +181,33 @@ floor, neutral dials, US:
 
 ```
   meat type                $/kg  vol%    R    cult share   tier
-  chicken (ground)            5   20%  2.50      8.7%      basic
-  chicken (cuts)              9   20%  2.06     13.3%      cut
-  chicken (organic)          13   ~1%  1.42     14.4%      premium
-  beef (ground)              11   13%  1.14     49.2%      basic   <- reachable (near parity), top share
-  beef (steak/cuts)          20   10%  0.93     40.7%      cut     <- sweet spot
-  beef (prime/wagyu)         45   ~0%  0.41     18.7%      premium <- price-cheap but demand-capped
-  pork (processed)            8   12%  1.56     32.7%      basic
-  pork (cuts)                12    8%  1.54     25.2%      cut
-  pork (heritage)            20   ~0%  0.93     18.7%      premium
-  turkey (ground/proc.)       5    3%  2.50      9.6%      basic
-  turkey (breast/cuts)        9    3%  2.06     14.7%      cut
-  seafood (mince/canned)     10    2%  1.25     44.7%      basic
-  seafood (fillet)           24    4%  0.77     40.9%      cut     <- sweet spot (top cut)
-  seafood (sushi)            40    2%  0.46     18.7%      premium <- price-cheap but demand-capped
-  rabbit (cuts)              16   ~0%  1.16     35.7%      cut
-  TOTAL — by VOLUME (impact) 25.7%  |  by VALUE ($ market) 29.2%
+  chicken (ground)            5   20%  2.50     15.2%      basic
+  chicken (cuts)              9   20%  2.06     13.2%      cut
+  chicken (organic)          13   ~1%  1.42     11.7%      premium <- above parity, demand-capped low
+  beef (ground)              11   13%  1.14     48.4%      basic   <- reachable (near parity), top share
+  beef (steak/cuts)          20   10%  0.93     42.0%      cut     <- sweet spot
+  beef (prime/wagyu)         45   ~0%  0.41     36.8%      premium <- very cheap (R=0.41) yet held BELOW the cuts
+  pork (processed)            8   12%  1.56     34.7%      basic
+  pork (cuts)                12    8%  1.54     22.3%      cut
+  pork (heritage)            20   ~0%  0.93     19.4%      premium
+  turkey (ground/proc.)       5    3%  2.50     15.2%      basic
+  turkey (breast/cuts)        9    3%  2.06     13.2%      cut
+  seafood (mince/canned)     10    2%  1.25     44.4%      basic
+  seafood (fillet)           24    4%  0.77     49.6%      cut     <- sweet spot (top cut)
+  seafood (sushi)            40    2%  0.46     34.0%      premium <- very cheap (R=0.46) yet held below the cuts
+  rabbit (cuts)              16   ~0%  1.16     33.0%      cut
+  TOTAL — by VOLUME (impact) 27.4%  |  by VALUE ($ market) 31.8%
 ```
 
 **No easy entry point:** cheap mince is unreachable on price (R ≫ 1); ultra-premium (wagyu R = 0.41,
-sushi R = 0.46) is price-cheap but demand-resistant (authenticity, price-insensitivity), so even at
-the deepest discounts the authenticity penalty caps it at ~16%. **The reachable window is the near-parity
-basics and structured cuts — beef ground (~49%, near parity), salmon fillet (~41%), beef steak (~41%)** —
-where price is reachable and the demand penalty is moderate; they clearly out-draw the demand-capped
-ultra-premium. Cultivated is cheapest exactly where demand resists most, and most accepted where it is
-hardest to beat on price — so the near-parity cuts are the robust entry window.
+sushi R = 0.46) is *price-cheap* but **demand-resistant** — the authenticity penalty and low price-elasticity
+hold it well below what its deep discount would otherwise buy. A basic product at R = 0.41 would take ~86%;
+wagyu, with the same price, takes only ~37% — the authenticity cap is doing real work, just not flattening
+it to nothing. **The reachable window is the near-parity basics and structured cuts — beef ground (~48%,
+near parity), salmon fillet (~50%), beef steak (~42%)** — where price is reachable and the demand penalty is
+moderate; these out-draw the discounted-but-resistant ultra-premium. Cultivated is cheapest exactly where
+demand resists most, and most accepted where it is hardest to beat on price — so the near-parity cuts are the
+robust entry window.
 
 ## 5. Total penetration, by region (Output 2 headline)
 
@@ -215,31 +217,34 @@ meat prices and income** (`report_regional_band`):
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  9.5%  [3.4, 20.2]    P50 14.9%  [ 5.5, 30.0]  <- easiest (rich + priciest meat)
-  US        $86k        P50  5.4%  [1.7, 13.9]    P50  8.3%  [ 2.8, 19.8]
-  global    $24k        P50  3.7%  [1.2,  9.4]    P50  6.8%  [ 2.2, 16.1]
-  China     $27k        P50  2.9%  [1.0,  6.9]    P50  6.5%  [ 2.2, 14.6]
-  Brazil    $22k        P50  0.8%  [0.2,  2.7]    P50  1.4%  [ 0.4,  4.6]
-  India     $11k        P50  0.2%  [0.1,  0.6]    P50  0.7%  [ 0.2,  1.9]
-  Nigeria    $6k        P50  0.1%  [0.0,  0.4]    P50  0.2%  [ 0.0,  0.6]  <- hardest (cheap meat + price-sensitive)
+  Europe    $62k        P50  9.6%  [3.3, 20.8]    P50 14.6%  [ 5.2, 29.4]  <- easiest (rich + priciest meat)
+  US        $86k        P50  5.6%  [1.7, 14.3]    P50  8.2%  [ 2.7, 19.2]
+  global    $24k        P50  3.9%  [1.0, 11.1]    P50  6.6%  [ 2.0, 16.7]
+  China     $27k        P50  3.1%  [0.9,  8.3]    P50  6.3%  [ 2.1, 14.8]
+  Brazil    $22k        P50  1.2%  [0.3,  4.8]    P50  2.1%  [ 0.6,  7.2]
+  India     $11k        P50  0.5%  [0.1,  1.7]    P50  1.3%  [ 0.4,  3.5]
+  Nigeria    $6k        P50  0.3%  [0.1,  2.2]    P50  0.5%  [ 0.1,  2.8]  <- hardest (cheap meat + price-sensitive)
 ```
 
 Two forces set the ordering, and they **compound**: (1) *local meat price* — Europe's expensive meat
-puts parity nearest; (2) *income* — richer consumers are genuinely less price-sensitive (price-sensitivity
-scales as `(income_ref/income)^0.25`, a Nigeria/US own-price-elasticity ratio ~2×, matching the empirical
-food-price gradient). **Europe is easiest** (rich *and* priciest meat). **Low-income regions are hardest** —
-India, Brazil and Nigeria have *cheap* meat (R far above 1) *and* high price-sensitivity, so cultivated
-barely registers (sub-1% at today's cost). That is the most consequential thing the income channel
-surfaces, since those regions hold much of the world's future meat demand. (Low-income local meat
-prices/mixes are rough, illustrative.) Bands are wide and right-skewed: low end = scale-up-stalls /
-friction; long tail = scale-up-wins / preferred.
+puts parity nearest; (2) *income* — through a genuine **Berry–Levinsohn–Pakes** price term `α·ln(y_eff − price)`:
+a given price is a bigger bite the poorer the consumer, so richer consumers are less price-sensitive. The
+effective income is damped, `y_eff = income_ref·(income/income_ref)^0.5`, so the rich-poor own-price-elasticity
+ratio matches the empirical ~2× (Muhammad/ERS) rather than raw BLP's over-steep ~6×. **Europe is easiest**
+(rich *and* priciest meat). **Low-income regions are hardest** — India, Brazil and Nigeria have *cheap* meat
+(R far above 1) *and* high price-sensitivity, so cultivated barely registers (sub-1% at today's cost). That is
+the most consequential thing the income channel surfaces, since those regions hold much of the world's future
+meat demand. (Low-income local meat prices/mixes are rough, illustrative.) Bands are wide and right-skewed:
+low end = scale-up-stalls / friction; long tail = scale-up-wins / preferred.
 
-> *Methodological note (2026-06-12).* The income gradient here is a **genuine** price-sensitivity channel.
-> An earlier version's regional spread was, on inspection, an artifact of a monotonicity-cap binding (the
-> BLP normalisation it used was income-invariant in share by construction); it was replaced with a direct
-> income→price-sensitivity scaling calibrated to the ~2–3× rich-poor food-elasticity gradient. The
-> low-income regions are now *more* sharply separated — and for a defensible reason, not a numerical
-> accident. Separately, the demand model's default is now a **symmetric** price response (no loss-aversion
+> *Methodological note (2026-06-12).* The income channel is **genuine Berry–Levinsohn–Pakes**: income enters
+> inside the log (`α·ln(y_eff − price)`, a single constant `α`), so the diminishing-marginal-utility-of-income
+> curvature is the mechanism, with a damping exponent `φ` that reconciles raw BLP (too steep for food, ~6×)
+> with the empirical ~2× food-elasticity gradient. (An earlier draft froze income inside the log and re-added
+> it as a separate multiplier — that was not BLP and disabled the curvature; this restores it, verified against
+> its own linearisation to <0.01pp at meat prices.) Each meat type's absolute price uses its own conventional
+> price (chicken vs chicken, steak vs steak), not a single commodity price. Separately, the demand model's
+> default is now a **symmetric** price response (no loss-aversion
 > kink): the asymmetry was near-inert on the headline, not identifiable from the available data, and —
 > per Bell & Lattin (2000) — apt to be confounded with the price-response heterogeneity that `κ` already
 > carries. Loss aversion remains an off-by-default exploratory dial.

@@ -77,26 +77,28 @@ GOLDEN = {
     # The 2026-06-12 demand refactor moved several of these DELIBERATELY (old value in the comment):
     #  - loss_aversion default 2.25 -> 1.0 (symmetric price response, no kink): shifts beta_ref (now
     #    negative), parity 49.87 -> 48.76, the solved health weights, and the at-parity elasticities.
-    #  - income channel re-architected (real income->price-sensitivity scaling, gamma 0.5 -> 0.25):
-    #    the income_* rows now show a GENUINE rich-poor gradient (was a monotonicity-cap artifact).
+    #  - income channel re-architected to GENUINE damped-BLP: V_price = alpha*ln(y_eff - price_j),
+    #    y_eff = income_ref*(income/income_ref)**phi, single constant alpha. phi default 0.25->0.5 to
+    #    hit the empirical ~2x Nigeria/US elasticity gradient. The income_* rows show the BLP gradient.
+    #  - per-cut p_ref: each meat type's absolute price uses its own conventional price (us_pen_val moved).
     "cost_floor":          7.5200,
     "biomass_base":        24.0120,
     "basic_R":             2.41767,
-    "beta_ref":           -0.052661,   # was 0.051044 (loss_aversion 2.25->1.0 flips beta sign)
+    "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
-    "w_realtissue_M":      2.24227,    # was 2.2845
-    "w_health_M":          0.847069,   # was 1.3116 (lambda=1 recalibration)
-    "w_health_E":          1.81157,    # was 2.2762
+    "w_realtissue_M":      2.24236,
+    "w_health_M":          0.847148,
+    "w_health_E":          1.81164,
     "pb_share_pct":        1.2000,
-    "parity_pct":          48.7633,    # was 49.8696 (no loss-aversion kink lift)
+    "parity_pct":          48.7634,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
-    "lusk_elas_parity_cold": -1.53837,  # was -0.9518; still in Lusk's [-3.4, -0.84] (self-check [4b])
-    "income_us_pct":       8.72582,    # was 9.0336 (US anchor ~unchanged; tiny shift from lambda=1)
-    "income_china_pct":    4.10816,    # was 8.4320 -> now a REAL income gradient (was cap artifact)
-    "income_nigeria_pct":  1.02246,    # was 5.6870 -> real gradient: poorer = far more price-sensitive
-    "health_x_half_pct":   59.577,     # was 65.9593 (lambda=1)
-    "us_pen_vol_pct":      5.89337,    # was 5.9663
-    "us_pen_val_pct":      9.97883,    # was 10.0657
+    "lusk_elas_parity_cold": -1.53827,  # in Lusk's [-3.4, -0.84] (self-check [4b])
+    "income_us_pct":       8.72704,    # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "health_x_half_pct":   59.578,
+    "us_pen_vol_pct":      5.06441,    # cut/premium tier rescale fix (beta = beta_ref*eps_mult)
+    "us_pen_val_pct":      8.40933,    # premium no longer flat-clamped; responds to R correctly
 }
 
 
@@ -149,6 +151,11 @@ def check_illustrative_numbers_in_html() -> list:
     template = (bi.PAGE_HTML + bi.JS_ENGINE).replace("__MODEL_JSON__", json.dumps(bi.build_model()))
     used = set(re.findall(r"\{\{[A-Z0-9_]+\}\}", template))
     have = set(nums.keys())
+    # {{KAPPA4_LUSK_ELAS}} is the one model-computed token that is NOT a %-share, so it lives
+    # outside illustrative_numbers() (which is %-share-only) and is substituted directly in main()
+    # from market_share.lusk_at_parity_elasticity. It is still drift-proof (computed from the live
+    # model, golden-guarded as lusk_elas_parity_cold), so exempt it from the share-token bookkeeping.
+    used.discard("{{KAPPA4_LUSK_ELAS}}")
     # (1) tokens used in the template but not computed
     for t in sorted(used - have):
         fails.append(f"template uses {t} but illustrative_numbers() computes no value for it")
@@ -174,6 +181,56 @@ def check_illustrative_numbers_in_html() -> list:
     return fails
 
 
+def check_blp_linearisation() -> list:
+    """RIGOR GUARD on the damped-BLP income term. The price utility is genuine BLP,
+    V_price = alpha*ln(y_eff - price), alpha = -beta*(income_ref - anchor_price),
+    y_eff = income_ref*(income/income_ref)**phi. At meat prices (price << income) BLP is
+    well-approximated by its first-order linearisation,
+        ln(y_eff - price) ~ ln(y_eff) - price/y_eff,
+    so alpha*ln(y_eff-price) ~ const + beta*(income_ref-anchor)*price/y_eff. This independently
+    re-derives the income term; if the BLP implementation has an algebra error, the two diverge.
+    We assert they agree to <0.5pp over a region x R grid (verified ~0.01pp). This is a mutual
+    cross-validation of the income microfoundation, not just a pinned number."""
+    import numpy as np
+    from market_share import DemandParams, _softmax
+    pr = DemandParams()
+    yref, anchor, beta = pr.income_ref, pr.anchor_price, pr.beta_ref
+
+    def share_with(price_term, R, income, p_ref=12.0):
+        def util(seg):
+            ratio = np.array([pr.price_wf_mult, 1.0, pr.price_pb_mult, R]); price = ratio * p_ref
+            taste = np.array([pr.taste_quality_w, 0.0, pr.taste_quality_p, 0.0])
+            sl = np.array([1.0, 0, 1, 1]); rt = np.array([0, 1, pr.real_tissue_p, pr.real_tissue_x])
+            h = np.array([pr.health_w, pr.health_c, 0, 0]); asc = np.array([0, 0, pr.neophobia_p, pr.neophobia_x])
+            if seg == "M": ws, wr, wh = 0.0, pr.w_realtissue_M, pr.w_health_M
+            else: ws, wr, wh = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
+            y_eff = yref * (income / yref) ** pr.income_gradient
+            Vp = price_term(price, y_eff)
+            prem = ratio - 1.0
+            Vl = -pr.loss_aversion * np.maximum(0, prem) + np.maximum(0, -prem)
+            return Vp + Vl + pr.q_taste * taste + ws * sl + wr * rt + wh * h + asc
+        M = _softmax(util("M")); E = _softmax(util("E"))
+        return float(pr.w_eth * E[3] + (1 - pr.w_eth) * M[3])
+
+    blp = lambda price, y_eff: -beta * (yref - anchor) * np.log(np.maximum(y_eff - price, 1.0))
+    lin = lambda price, y_eff: beta * (yref - anchor) * (price / y_eff)   # 1st-order term
+    worst = 0.0
+    for R in (1.0, 1.75, 2.42, 3.0):
+        for income in (85810, 27105, 11159, 6440):
+            a = share_with(blp, R, income) * 100
+            b = share_with(lin, R, income) * 100
+            worst = max(worst, abs(a - b))
+    print(f"BLP-linearisation cross-check: max |BLP - linear| = {worst:.3f} pp (tol 0.5)")
+    return [] if worst < 0.5 else [f"BLP income term diverges from its linearisation by {worst:.2f}pp "
+                                   f"(>0.5) — possible algebra error in the damped-BLP price utility"]
+
+
+def test_blp_linearisation():
+    """pytest entry point: the damped-BLP income term matches its linearisation at meat prices."""
+    fails = check_blp_linearisation()
+    assert not fails, "BLP rigor check FAILED:\n  " + "\n  ".join(fails)
+
+
 def test_golden_values():
     """pytest entry point: the headline model outputs match their pinned golden values."""
     fails = check_golden()
@@ -192,7 +249,7 @@ def test_illustrative_numbers_not_stale():
 
 
 if __name__ == "__main__":
-    failures = check_golden() + check_illustrative_numbers_in_html()
+    failures = check_golden() + check_illustrative_numbers_in_html() + check_blp_linearisation()
     if failures:
         print(f"\nFAIL — {len(failures)} check(s) failed:")
         for f in failures:

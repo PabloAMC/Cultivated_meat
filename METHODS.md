@@ -172,9 +172,9 @@ V_sj = V_price(price_j, income)                                             # in
        + w_realtissue[s]·real_tissue_j + w_health[s]·health_j + ξ_j[s]
 P_sj = softmax_j(V_sj)
 share_j = w_eth·P_E(j) + (1 − w_eth)·P_M(j)
-# EVERY product uses this same rule (a products×attributes table · segment×weights). f =
-# (income_ref/income)^φ scales the WHOLE price response (income channel; §across-regions). The
-# reference term is SYMMETRIC by default (λ=1 ⇒ no kink, no loss aversion); λ>1 turns the asymmetry
+# EVERY product uses this same rule (a products×attributes table · segment×weights). Income enters
+# the BLP price term V_price = α·ln(y_eff − price), y_eff = income_ref·(income/income_ref)^φ (§across-
+# regions). The reference term is SYMMETRIC by default (λ=1 ⇒ no kink, no loss aversion); λ>1 turns the asymmetry
 # on as an exploratory dial. The constant ξ_j = ν_j + τ_j (novelty + cultivated authenticity) is 0 for
 # every product at baseline — there is NO free fitted constant anywhere, including the outside option,
 # whose standing is now its health attribute (see Calibration).
@@ -205,10 +205,11 @@ either sourced or *derived from* the model rather than typed in:
    dollar** — how much one more dollar of price hurts.
 
 2. *Why richer buyers care less (the price form).* A dollar matters less to a rich household, so instead of a
-   flat `β·price` we use the **Berry–Levinsohn–Pakes (1995)** log curvature `V_price = α·ln(income_ref − price_j)`
-   and scale the whole price response by `f = (income_ref/income)^φ` (poorer = more price-sensitive; see
-   point 6). Locally this still behaves like `β·price` at the reference income (its slope at the anchor is
-   exactly `β`), so steps 3–4 pin a single number, `β`, and `f` tilts it correctly across incomes.
+   flat `β·price` we use the **Berry–Levinsohn–Pakes (1995)** log curvature `V_price = α·ln(y_eff − price_j)`,
+   with income entering inside the log via the (damped) effective income `y_eff = income_ref·(income/income_ref)^φ`
+   (poorer = more price-sensitive; see point 6). Locally this still behaves like `β·price` at the reference income
+   (its slope at the anchor is exactly `β`), so steps 3–4 pin a single number, `β`, and the log curvature tilts
+   it correctly across incomes.
 
 3. *We do not guess `β` — we pin it to a measured elasticity.* In any logit, the own-price elasticity of a
    product is an identity, **`elasticity_j = β · price_j · (1 − share_j)`**. Rearranged, `β` is whatever
@@ -228,7 +229,7 @@ either sourced or *derived from* the model rather than typed in:
    parameter logit, whose steepness comes from preference heterogeneity — lab-grown's random-coefficient SD
    exceeds its mean, i.e. ~half the population is positive on it, half negative). κ is precisely the flat-logit
    stand-in for that heterogeneity, so the model's **implied at-parity (cold) elasticity must land inside
-   [−3.4, −0.84]** — and at κ=4 it does (**−0.95**), reported by self-check **[4b]** and guarded as a golden
+   [−3.4, −0.84]** — and at κ=4 it does (**−1.5**), reported by self-check **[4b]** and guarded as a golden
    value. *The residual caveat (a functional-form limit, not a κ one):* Lusk measures the elasticity **at
    parity**, but the realized target −3.6 is at cultivated's **operating point R≈2.4**, where the BLP+kink
    form is steeper. So the data ground the **shape near parity**; the −3.6 at R≈2.4 is an **extrapolation** —
@@ -248,19 +249,22 @@ either sourced or *derived from* the model rather than typed in:
    is the target **−3.6** at today's price and eases toward ≈ −1 near parity (both sane). At the default λ=1
    the reference term is symmetric (its unit slope is just part of the total price response β absorbs); when λ
    is turned up it shapes only the **kink** at parity — either way `cult_sub_mult` cleanly owns the elasticity
-   *level*. (The income factor f scales this whole response by region; see point 6.)
+   *level*. (Income enters via the BLP log; see point 6.)
 
-6. *Across regions (income → price-sensitivity).* The whole price response is scaled by
-   `f = (income_ref/income)^φ` (φ = `income_gradient`, default **0.25**): poorer regions (f > 1) are more
-   price-sensitive, richer ones less, with `f = 1` at the US reference so the US/commodity case is unchanged.
-   This delivers a Nigeria/US own-price-elasticity ratio ~2× — the empirical food-price gradient (~2–3×
-   rich→poor; Muhammad et al. 2011, USDA ERS). **Correction (2026-06-12):** the previous form
-   `α = −β·(y_eff − p_conv)` with `y_eff = income^φ` was *income-invariant in share by construction* (the
-   factor cancels in the relative logit), so it produced no real gradient — the regional spread the model
-   used to show was an artifact of the monotonicity cap binding at the old `loss_aversion = 2.25`. Scaling
-   price-sensitivity directly is the genuine "richer = less price-sensitive" channel; the BLP curvature
-   (diminishing marginal utility of income) is retained, evaluated at the reference income. Only cultivated's
-   price varies (via R), so only its R-response is an observable output.
+6. *Across regions — genuine Berry–Levinsohn–Pakes.* Income enters **inside the log**:
+   `V_price = α·ln(y_eff − price)`, with `α = −β·(income_ref − anchor_price)` a single constant. The
+   diminishing-marginal-utility-of-income curvature IS the mechanism — the same price is a larger, more
+   painful bite the poorer the consumer, so richer consumers are less price-sensitive with no extra term.
+   The cross-region tilt comes only from the **damped effective income** `y_eff = income_ref·(income/income_ref)^φ`
+   (φ = `income_gradient`, default **0.5**): raw BLP (φ = 1, y_eff = actual income) is too steep for food
+   (~6× rich→poor own-price-elasticity ratio), so φ < 1 damps the curvature to the empirical ~2× gradient
+   (Muhammad et al. 2011, USDA ERS); φ = 0 removes income. At the US reference `y_eff = income_ref`, so the
+   US and every at-parity number are invariant to φ. **Correction (2026-06-12):** an earlier form froze income
+   inside the log and re-added it as a separate multiplier `f = (income_ref/income)^φ` — that was *not* BLP and
+   disabled the curvature; this restores genuine BLP (verified against its own first-order linearisation to
+   <0.01pp at meat prices, where price ≪ income). Each meat type's absolute price uses its own conventional
+   price `p_ref` (chicken vs chicken, steak vs steak), not a single commodity price; only cultivated's price
+   varies via R, so only its R-response is an observable output.
 
 **Reference-dependent price term (two-sided, uniform across products; asymmetry OFF by default).** A
 second price-related term in the form `−λ·max(0, price_ratio_j − 1) + 1·max(0, 1 − price_ratio_j)`:
