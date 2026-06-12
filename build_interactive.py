@@ -1742,7 +1742,11 @@ function txRsub(p,x,y,pre,sub,suf,a){const t=el("text",Object.assign({x,y},a||{}
   mk(pre); mk("R"); mk(sub,{"baseline-shift":"sub","font-size":"0.75em"}); mk(suf); return t;}
 function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
 const fmtPct=v=>(v*100).toFixed(0)+"%";
-function showTip(e,text){const t=document.getElementById("tip");t.textContent=text;t.style.display="block";
+// Tooltip text is authored with light HTML markup (subscripts like R<sub>x</sub>, &times;, &rho;,
+// &sect; …) and is ENTIRELY build-time / author-controlled (no user input ever reaches it), so it is
+// rendered as HTML. Using innerHTML here is what makes R<sub>x</sub> show as a real subscript instead
+// of leaking the literal tag. (If dynamic/user content ever needs to go in a tip, sanitise it first.)
+function showTip(e,text){const t=document.getElementById("tip");t.innerHTML=text;t.style.display="block";
   const r=e.target.getBoundingClientRect();
   t.style.left=Math.max(8,Math.min(window.innerWidth-300,r.left-10))+"px";
   t.style.top=(r.bottom+6)+"px";}
