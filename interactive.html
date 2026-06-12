@@ -105,7 +105,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-12 13:34</span></h1>
+<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-12 14:04</span></h1>
 <p class="lede">Drag the sliders — ordered most-decisive first — to see how the price ratio,
 market share, and per-meat-type penetration respond. These are <b>point estimates</b> at the values
 you choose (not the Monte-Carlo bands). The big penetration numbers are the <b>long-run equilibrium
@@ -1179,8 +1179,8 @@ function drawHeads(s){
 }
 function drawBars(s,ptmc){
   const svg=document.getElementById("bars");clear(svg);
-  const W=720,H=300,mL=40,mR=12,mT=34,mB=46;
-  const {rows,tv,tval,tvp}=penetration(s);
+  const W=720,H=300,mL=40,mR=150,mT=34,mB=46;       // wide right margin = a dedicated gutter for the totals labels
+  const {rows,tv,tval,tvp,tvalp}=penetration(s);
   const groups={};
   rows.forEach(r=>{const a=animalOf(r.mt.name);(groups[a]=groups[a]||[]).push(r);});
   const order=Object.keys(groups).sort((a,b)=>
@@ -1196,19 +1196,38 @@ function drawBars(s,ptmc){
   [0,.1,.2,.3,.4,.5,.6,.7,.8].filter(v=>v<=yTop).forEach(v=>{
     el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#eee"},svg);
     tx(svg,mL-5,Y(v)+3,(v*100).toFixed(0),{"font-size":9,"text-anchor":"end",fill:"#666"});});
-  // rolled-up totals: cultivated by volume & by value (dark dashes), plant-based by volume (green dash)
-  [[tv,"#595959","cultivated total, by volume "+(tv*100).toFixed(0)+"%","4 3"],
-   [tval,"#111","cultivated total, by value $ "+(tval*100).toFixed(0)+"%","1 3"],
-   [tvp,"#117733","plant-based total, by volume "+(tvp*100).toFixed(0)+"%","2 2"]].forEach(([v,c,lab,dash])=>{
-    el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:c,"stroke-dasharray":dash},svg);
-    tx(svg,mL+2,Y(v)-3,lab,{"font-size":9,fill:c});});
+  // rolled-up totals: cultivated by volume & value (dark dashes), plant-based by volume & value (green dashes).
+  // Draw the dashed LINES across the chart, but place the LABELS in a right-side strip with a de-collision
+  // pass (sort by y, nudge any that are <11px apart) so they never overlap each other, the bars, or the
+  // species names. Labels are right-anchored at the chart's right edge, where the bars are shortest.
+  // Two-channel encoding: COLOUR = product (cultivated dark grey/black, plant-based green);
+  // DASH = metric (loose "5 3" = volume, tight "1 3" = value). So a reader learns the key once.
+  const totals=[
+    [tv,   "#444444","cultivated · volume "+(tv*100).toFixed(0)+"%",   "5 3"],
+    [tval, "#444444","cultivated · value $ "+(tval*100).toFixed(0)+"%","1 3"],
+    [tvp,  "#117733","plant-based · volume "+(tvp*100).toFixed(0)+"%", "5 3"],
+    [tvalp,"#117733","plant-based · value $ "+(tvalp*100).toFixed(0)+"%","1 3"]];
+  // dashed lines span only the PLOT area (mL..W-mR); the labels live in the right GUTTER (past W-mR),
+  // each connected to its line by a short leader, so they never touch a bar. A de-collision pass keeps
+  // the four labels from stacking when their values are close (e.g. the two plant-based totals).
+  totals.forEach(([v,c,,dash])=>{
+    el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:c,"stroke-dasharray":dash},svg);});
+  const GAP=12, lblY=totals.map(([v])=>Y(v)).map((y,i)=>({y,yLine:y,i})).sort((a,b)=>a.y-b.y);
+  for(let k=1;k<lblY.length;k++) if(lblY[k].y-lblY[k-1].y<GAP) lblY[k].y=lblY[k-1].y+GAP;
+  const overflow=lblY[lblY.length-1].y-(H-mB-2);                   // keep inside the plot height
+  if(overflow>0) lblY.forEach(o=>o.y-=overflow);
+  lblY.forEach(({y,yLine,i})=>{const [,c,lab]=totals[i];
+    el("line",{x1:W-mR,y1:yLine,x2:W-mR+5,y2:y-3,stroke:c,"stroke-width":0.6,opacity:0.6},svg); // leader from line to label
+    tx(svg,W-mR+7,y-1,lab,{"font-size":8.5,fill:c});});            // label in the gutter, left-anchored
   const COL={basic:"#E69F00",cut:"#0072B2",premium:"#882255"}, TO={basic:0,cut:1,premium:2};
   // plant-based segment = the SAME tier colour, lightened (blended toward white) so a stack reads as
   // "this tier's cultivated (solid) + plant-based (pale)". lighten(hex, f) blends f of the way to white.
   const lighten=(hex,f)=>{const n=parseInt(hex.slice(1),16);
     const r=(n>>16)&255,g=(n>>8)&255,b2=n&255, m=x=>Math.round(x+(255-x)*f);
     return "rgb("+m(r)+","+m(g)+","+m(b2)+")";};
-  const PB_F=0.62;                                     // how far toward white the PB segment sits
+  const PB_F=0.45;                                     // how far toward white the PB segment sits — 0.45 keeps
+  // every tier's PB segment clear of the gridlines/background (the old 0.62 washed the pale-orange basic tier
+  // out) while staying distinct from the solid cultivated below it; the thin tier-colour outline reinforces it.
   const bw=Math.min(18,(W-mL-mR)/order.length/3.4);
   order.forEach((a,i)=>{
     const items=groups[a].sort((p,q)=>TO[p.t]-TO[q.t]), n=items.length;
@@ -1242,24 +1261,25 @@ function drawBars(s,ptmc){
     drawSpeciesIcon(svg,a,X(i),H-mB+15,11);                 // species ICON under the bar group
     tx(svg,X(i),H-mB+34,a,{"font-size":7.5,"text-anchor":"middle",fill:"#888"});  // small name caption
   });
-  // legend row 1: cultivated tiers; row 2: the plant-based stack segment
-  let lx=W-mR-300;
+  // legend in the top header strip, anchored to the plot's left edge (robust to the gutter width).
+  // row 1: cultivated tiers; row 2: the plant-based stack segment
+  let lx=mL;
   [["#E69F00","mince/processed"],["#0072B2","cut/fillet"],
    ["#882255","premium (≥"+C.PREMIUM_RATIO.toFixed(1)+"× base)"]].forEach(([c,l])=>{
     el("rect",{x:lx,y:mT-26,width:9,height:9,fill:c},svg);
     tx(svg,lx+12,mT-18,l,{"font-size":9,fill:"#333"});lx+=100;});
   // row 2: convey "solid = cultivated, pale = plant-based" with a paired swatch (blue tier as example)
-  el("rect",{x:W-mR-300,y:mT-14,width:9,height:9,fill:COL.cut},svg);
-  el("rect",{x:W-mR-300+9,y:mT-14,width:9,height:9,fill:lighten(COL.cut,PB_F),
+  el("rect",{x:mL,y:mT-14,width:9,height:9,fill:COL.cut},svg);
+  el("rect",{x:mL+9,y:mT-14,width:9,height:9,fill:lighten(COL.cut,PB_F),
     stroke:COL.cut,"stroke-width":0.5},svg);
-  tx(svg,W-mR-300+22,mT-6,"solid = cultivated, pale = plant-based (same tier hue)"+
+  tx(svg,mL+22,mT-6,"solid = cultivated, pale = plant-based (same tier hue)"+
     (ptmc?";  whiskers = 10–90%":""),{"font-size":9,fill:"#555"});
   document.getElementById("barsub").textContent=
     "region: "+MODEL.regions.find(r=>r[0]===s.region)[1]+
     " — each STACKED bar = the two novel meats' share WITHIN that category: cultivated (solid, by tier "+
     "colour) with plant-based stacked on top in a paler shade of the same tier colour, on equal footing"+
     (ptmc?" (Monte-Carlo medians; whiskers = 10–90% band)":" (point estimates at the current sliders)")+
-    ". Dashed lines = rolled-up totals (cultivated by volume & by value; plant-based by volume). "+
+    ". Dashed lines = rolled-up totals (cultivated and plant-based, each by volume & by value). "+
     "No easy entry for cultivated: cheap mince is unreachable on price, premium is demand-resistant; "+
     "the reachable window is the mid-priced cuts — while plant-based stays a thin slice on taste+price.";
 }
@@ -1420,7 +1440,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-12 13:34",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-12 14:04",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -1854,7 +1874,7 @@ function selfTest(){
     "  ·  income channel (China $"+(ic[0]/1000).toFixed(0)+"k, R="+ic[1].toFixed(2)+"): JS "+jsRegional.toFixed(2)+
     "% vs Python "+ic[2].toFixed(2)+"% — "+(regOK?"matches.":"MISMATCH!");
 }
-console.log("interactive.html JS build 2026-06-12 13:34 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-12 14:04 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");
