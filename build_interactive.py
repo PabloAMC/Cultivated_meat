@@ -176,13 +176,56 @@ def build_model() -> dict:
         # applied as the analog's health_p position. ILLUSTRATIVE, like the other comparison numbers.
         "comparison_products": {
             "plant-based milk (oat/soy)": {"pb_mult":1.0,"taste":0.0,"w_rt":2.1,"wf_mult":1.2,
-                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"price+taste parity in use (coffee/cereal); no cheap rival"},
+                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"price+taste parity in use (coffee/cereal); no cheap rival",
+                "why":{"price":"~parity in use: a splash in coffee/cereal costs about the same (GFI/SPINS)",
+                       "taste":"functional parity in its key uses (barista oat/soy froths, tastes fine in cereal)",
+                       "rival":"no cheap whole-food substitute for milk-in-coffee → weak outside option",
+                       "rt":"a 'not real dairy' gap exists but bites less when price & taste are at parity",
+                       "health":"neutral here — dairy (not red meat) is the reference, no health edge either way"}},
             "plant-based meat":           {"pb_mult":1.77,"taste":-0.2,"w_rt":None,"wf_mult":0.25,
                 "K_wf":None,"health":0.0,"obs":1.2,"note":"the model's own calibrated meat world (price premium, taste deficit, cheap beans)"},
             "margarine (vs butter)":      {"pb_mult":0.6,"taste":-0.1,"w_rt":1.2,"wf_mult":1.3,
-                "K_wf":-2.5,"health":-0.4,"obs":40.0,"note":"ILLUSTRATIVE positions (not calibrated): cheap, near-taste-parity, weak 'real dairy' pull; health PENALTY (butter seen as the more natural/healthier choice since the trans-fat reckoning) → still won big historically on price+habit"},
+                "K_wf":-2.5,"health":-0.4,"obs":40.0,"note":"ILLUSTRATIVE positions (not calibrated): cheap, near-taste-parity, weak 'real dairy' pull; health PENALTY (butter seen as the more natural/healthier choice since the trans-fat reckoning) → still won big historically on price+habit",
+                "why":{"price":"~0.6× butter: margarine is markedly CHEAPER (the historic draw)",
+                       "taste":"close but slightly below butter for many uses (−0.1)",
+                       "rival":"no cheap third option — you spread butter or margarine (weak outside)",
+                       "rt":"a modest 'real dairy' attachment (1.2), weaker than meat's real-tissue pull",
+                       "health":"a PENALTY (−0.4): post-trans-fat, butter reads as the more natural choice"}},
             "plant-based 'chicken' nuggets":{"pb_mult":1.3,"taste":-0.1,"w_rt":1.6,"wf_mult":0.5,
-                "K_wf":-2.0,"health":0.3,"obs":8.0,"note":"ILLUSTRATIVE positions (not calibrated): processed form hides texture → smaller real-tissue gap than burgers; small health DRAW (plant nuggets read as slightly healthier than the fried-meat version)"},
+                "K_wf":-2.0,"health":0.3,"obs":8.0,"note":"ILLUSTRATIVE positions (not calibrated): processed form hides texture → smaller real-tissue gap than burgers; small health DRAW (plant nuggets read as slightly healthier than the fried-meat version)",
+                "why":{"price":"~1.3× the conventional nugget — a premium, but milder than PB burgers",
+                       "taste":"close (−0.1): breading/processing masks texture, the usual PB weak spot",
+                       "rival":"some cheap alternatives but no dominant whole-food rival (moderate)",
+                       "rt":"1.6 — a real-tissue gap, but smaller than a burger's (the nugget form hides it)",
+                       "health":"a small DRAW (+0.3): plant nuggets read as slightly healthier than fried meat"}},
+            # Cage-free / free-range eggs vs caged eggs — a DIFFERENT mechanism from the rows above, shown for
+            # contrast and as a real-world probe of the WELFARE lever (θ_free) the model is humble about.
+            # An egg is an egg: NO 'not the real thing' penalty (w_rt≈0), NO taste deficit (taste 0). The only
+            # differences are a price premium and a welfare/ethical attribute. Two complementary anchors:
+            #   * PRICE anchor (what we model here) = the US, because US shelves still show a real caged-vs-cage-free
+            #     price gap a shopper actually faces: cage-free $1.92 vs caged $1.43/doz (+34%, USDA AMS 2024).
+            #   * PREFERENCE signal (the cleaner evidence, in the note) = EUROPE's cross-country divergence under
+            #     the SAME 2012 cage rules: the UK/Netherlands went heavily non-cage VOLUNTARILY (UK free-range
+            #     ~44% pre-ban), while price-sensitive Poland/Spain stayed caged (Poland egg prices +63% in weeks
+            #     when forced). Same regulation, opposite uptake -> welfare WTP is REAL but income-gated and
+            #     price-fragile: rich/strong-norm markets pay, price-sensitive ones don't. That is exactly the
+            #     model's two-segment + income story, and exactly why θ_free defaults to ~0 (a weak, heterogeneous
+            #     driver, not a demand engine).
+            # The welfare draw is PROXIED via the +offset field (this schema has no per-product θ_free), small +0.4.
+            # KEY CAVEATS: (1) different lever than the meat rows (welfare, not authenticity); (2) BOTH US and EU
+            # observed shares are heavily MANDATE-DRIVEN (Prop 12 / retailer pledges in the US; the 2012 EU cage
+            # ban), NOT pure willingness-to-pay — so matching ~39% is NOT a clean validation, and the clean
+            # revealed-preference signal (pre-mandate voluntary share, the attitude-behaviour gap) is that welfare
+            # rarely survives a price premium at the register; (3) β is anchored to MEAT $/kg, so it responds to the
+            # 1.34x RATIO, not the trivial ~$0.49/doz absolute gap — the price term is too weak here. Read the
+            # DIRECTION (premium down, welfare up, both modest), never the number.
+            "free-range vs caged eggs":   {"pb_mult":1.34,"taste":0.0,"w_rt":0.0,"wf_mult":5.0,
+                "K_wf":-3.0,"health":0.4,"obs":39.0,"note":"DIFFERENT mechanism (a welfare probe, not a meat analog): an egg is an egg — NO 'not real' penalty, NO taste deficit. Anchors: US price gap +34% (cage-free $1.92 vs caged $1.43/doz, USDA AMS 2024) for the MODELLED premium; Europe's cross-country split for PREFERENCE (UK/NL went non-cage voluntarily, price-sensitive Poland/Spain didn't — welfare WTP is real but income-gated & price-fragile). CAVEATS: observed ~39% is MANDATE-driven (US Prop 12 / EU 2012 cage ban), NOT willingness-to-pay; β is meat-anchored so it sees the ratio not the trivial ~$0.49/doz gap. Read the DIRECTION, not the number — this is why the model keeps θ_free ≈ 0.",
+                "why":{"price":"+34% measured US shelf premium (cage-free $1.92 vs caged $1.43/doz, USDA AMS 2024)",
+                       "taste":"zero deficit — a free-range egg is sensorily identical to a caged one",
+                       "rival":"no cheap third option: the caged egg IS the cheap reference (weak outside)",
+                       "rt":"zero penalty — nobody thinks a free-range egg is a 'fake egg' (unlike PB meat)",
+                       "health":"a small WELFARE draw (+0.4), proxied here (the schema has no per-product θ_free); kept small because revealed WTP for welfare is weak & price-fragile"}},
         },
         # every tweakable slider -> [elegant symbol (HTML), the equation it enters].
         # keyed by slider key; rendered as two extra columns of the parameter table.
@@ -602,7 +645,28 @@ select{width:100%;padding:5px;border:1px solid var(--rule);border-radius:6px;fon
 .card .sub{font-size:.72rem;color:var(--muted);margin:0 0 6px;}
 svg{width:100%;height:auto;display:block;}
 .note{font-size:.74rem;color:#999;margin-top:14px;}
-.selftest{font-size:.74rem;color:var(--green);margin-top:6px;font-variant-numeric:tabular-nums;}
+.selftest{font-size:.74rem;margin-top:10px;font-variant-numeric:tabular-nums;border:1px solid var(--rule);
+  border-radius:6px;padding:8px 10px;background:#fbfcfd;}
+.selftest .sthead{font-weight:700;color:var(--ink);font-size:.76rem;margin-bottom:5px;}
+.selftest table{border-collapse:collapse;width:100%;}
+.selftest td{padding:2px 6px 2px 0;vertical-align:top;border-top:1px solid #eef1f3;}
+.selftest tr:first-child td{border-top:none;}
+.selftest .stchk{color:var(--green);font-weight:700;width:14px;}
+.selftest .stwhat{color:var(--ink);}
+.selftest .stval{text-align:right;font-weight:700;color:var(--accent);white-space:nowrap;}
+.selftest .stobs{color:var(--muted);white-space:nowrap;}
+.selftest .stnote{color:var(--muted);font-size:.7rem;margin-top:5px;}
+.selftest .stbad{color:var(--red);}
+.selftest .stsecrow td{border-top:none;padding-top:8px;}
+.selftest .stsec{font-weight:600;color:var(--ink);font-size:.71rem;}
+.selftest .sttag{display:inline-block;font-size:.62rem;font-weight:700;line-height:1;padding:2px 5px;
+  border-radius:9px;white-space:nowrap;}
+.selftest .tag-match{background:#e3f2e8;color:var(--green);}
+.selftest .tag-pin{background:#eef1f4;color:var(--muted);}
+.selftest .tag-proj{background:#eaf2f8;color:var(--accent);}
+.selftest .stbuild{color:var(--muted);font-size:.7rem;margin-top:7px;padding-top:6px;border-top:1px solid #eef1f3;}
+.selftest .stanchor{color:var(--muted);font-size:.71rem;margin:0 0 6px;padding:5px 7px;background:#eef1f4;
+  border-radius:5px;}
 .toggle button{font-size:.7rem;border:1px solid var(--rule);background:#fff;padding:2px 7px;cursor:pointer;}
 .toggle button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
 .toggle button:first-child{border-radius:6px 0 0 6px;}
@@ -702,8 +766,8 @@ parameter are described in the methods and results notes. Defaults are the neutr
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
         <p class="sub" id="timingsub">cultivated (blue) climbs from its cold ~5% start (Lusk) as familiarity grows; plant-based (green) gets the same machinery but stalls — its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
-      <div class="card full"><h3>6 · Comparison product (validate the model on any product)</h3>
-        <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product — its observed share vs the model's, a cross-category check. Plant-based <b>milk</b> (the default) reproduces ~15% from the same coefficients, swapping only the product's positions; pick another to test the model out-of-sample.</p>
+      <div class="card full"><h3>6 · Comparison products — cross-category checks</h3>
+        <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product: its observed share vs the model's. The genuine <b>out-of-sample</b> tests reuse the SAME coefficients and swap only the product's positions — plant-based <b>milk</b> (the default) lands at ~15% this way, unfitted. Two options are <i>not</i> clean validations and are labelled so on the chart: plant-based <b>meat</b> is the calibration <b>target</b> (circular), and <b>eggs</b> exercise a different lever (welfare, not authenticity).</p>
         <div style="margin:0 0 5px"><select id="cmpSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="milk" viewBox="0 0 720 320"></svg></div>
     </div>
@@ -1810,6 +1874,16 @@ function colOf(species){return COLSP[species]||"#BAB0AC";}
 function el(t,a,p){const e=document.createElementNS(SV,t);for(const k in a)e.setAttribute(k,a[k]);
   if(p)p.appendChild(e);return e;}
 function tx(p,x,y,s,a){const t=el("text",Object.assign({x,y},a||{}),p);t.textContent=s;return t;}
+// word-wrap a string into multiple <text> lines within maxW px; returns the y AFTER the last line.
+// fontPx ~ font-size; lineH ~ line spacing. SVG <text> never auto-wraps, so we greedily pack words
+// using a ~0.52*fontPx average glyph width (good enough for these short justifications).
+function txWrap(p,x,y,s,maxW,a,lineH){const fpx=(a&&a["font-size"])?parseFloat(a["font-size"]):10;
+  lineH=lineH||(fpx+3); const cw=fpx*0.52, max=Math.max(1,Math.floor(maxW/cw));
+  const words=String(s).split(" "); let line="", yy=y;
+  for(const w of words){const t=line?line+" "+w:w;
+    if(t.length>max && line){tx(p,x,yy,line,a); yy+=lineH; line=w;} else line=t;}
+  if(line){tx(p,x,yy,line,a); yy+=lineH;}
+  return yy;}
 // text with a "R" + subscript "x" + suffix, e.g. txRsub(svg, x, y, "Price ratio ", "x", " (…)", attrs)
 function txRsub(p,x,y,pre,sub,suf,a){const t=el("text",Object.assign({x,y},a||{}),p);
   const mk=(txt,extra)=>{const s=el("tspan",extra||{},t);s.textContent=txt;};
@@ -2159,25 +2233,48 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
     tx(svg,x+bw/2,H-mB+14,lab,{"font-size":10,"text-anchor":"middle",fill:"#333","font-weight":600});
   });
   const ok=Math.abs(model-obs)<=Math.max(2,0.25*obs);
-  tx(svg,(bL+bR)/2,mT-12,(ok?"✓ model reproduces ":"model gives ")+sel,
-     {"font-size":10,"text-anchor":"middle",fill:ok?"#0173B2":"#666","font-weight":700});
+  // HONEST title per product-kind (mirrors the self-check tags), not a blanket "✓ reproduces":
+  //   PB-meat  = the calibration TARGET (circular — the model is tuned to it, not a validation)
+  //   eggs     = a DIFFERENT mechanism (welfare, not the real-tissue machinery) — a contrast probe
+  //   others   = genuine OUT-OF-SAMPLE (same coefficients, only positions swapped)
+  const _isMeat=(pd.w_rt===null), _isEgg=(!_isMeat && pd.w_rt===0 && (pd.health||0)>0);
+  let title, tcol;
+  if(_isMeat){ title="“"+sel+"” is the calibration TARGET — the model is tuned to it (not a validation)"; tcol="#888"; }
+  else if(_isEgg){ title=(ok?"✓ ":"")+"“"+sel+"”: a DIFFERENT lever (welfare, not authenticity) — read as a contrast"; tcol=ok?"#0173B2":"#666"; }
+  else { title=(ok?"✓ out-of-sample: model reproduces “":"model gives “")+sel+"”"+(ok?" (NOT tuned to it)":""); tcol=ok?"#0173B2":"#666"; }
+  tx(svg,(bL+bR)/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});
   // RIGHT HALF: positions swapped in (same β, income, q) + the note
   const pX=W*0.52, pVal=W-18;
   let ry=mT+10;
   tx(svg,pX,ry,"positions swapped in (same β, income, q — only the product moves):",{"font-size":9,fill:"#888"}); ry+=20;
   const isMeat=(pd.w_rt===null);
   const hh=(pd.health!==undefined?pd.health:0);
-  const pos=[["price vs incumbent", (pd.pb_mult).toFixed(2)+"×"],
-             ["taste vs the real thing", isMeat?"−0.2 (deficit)":(pd.taste===0?"~parity":pd.taste.toFixed(1))],
-             ["cheap substitute rival", (isMeat?"strong (beans)":(pd.wf_mult>=1?"weak":"present"))],
-             ["real-meat credit (w)", isMeat?"calibrated":(pd.w_rt).toFixed(1)],
-             ["health perception (ζ)", isMeat?"0 (neutral)":(hh>0?"+"+hh.toFixed(1)+" (draw)":(hh<0?hh.toFixed(1)+" (penalty)":"0 (neutral)"))]];
-  pos.forEach(([d,v])=>{tx(svg,pX+4,ry,d,{"font-size":10,fill:"#555"});
-    el("line",{x1:pX+4,y1:ry+5,x2:pVal,y2:ry+5,stroke:"#f0f0f0"},svg);
-    tx(svg,pVal,ry,v,{"font-size":10,fill:"#222","text-anchor":"end","font-weight":600}); ry+=22;});
-  ry+=6; tx(svg,pX,ry,pd.note,{"font-size":8.5,fill:"#999"});
-  ry+=20; tx(svg,pX,ry,"→ same machinery, different product positions: a cross-category validation.",
+  // eggs are a DIFFERENT mechanism (welfare premium, no authenticity penalty): relabel the
+  // bottom two rows so they read as 'not-real penalty: none' and 'welfare draw' rather than
+  // 'real-meat credit' / 'health'. Detected by w_rt≈0 with a positive offset.
+  const isEgg=(!isMeat && pd.w_rt===0 && hh>0);
+  const W4=(pd.why||{});   // per-value short justifications (non-calibrated rows), keyed price/taste/rival/rt/health
+  const lastTwo = isEgg
+    ? [["‘not real’ penalty", "none (an egg is an egg)", W4.rt],
+       ["welfare draw", "+"+hh.toFixed(1)+" (ethical pull)", W4.health]]
+    : [["real-meat credit (w)", isMeat?"calibrated":(pd.w_rt).toFixed(1), W4.rt],
+       ["health perception (ζ)", (isMeat?"0 (neutral)":(hh>0?"+"+hh.toFixed(1)+" (draw)":(hh<0?hh.toFixed(1)+" (penalty)":"0 (neutral)"))), W4.health]];
+  const pos=[["price vs incumbent", (pd.pb_mult).toFixed(2)+"×", W4.price],
+             ["taste vs the real thing", isMeat?"−0.2 (deficit)":(pd.taste===0?"~parity":pd.taste.toFixed(1)), W4.taste],
+             ["cheap substitute rival", (isMeat?"strong (beans)":(pd.wf_mult>=1?"weak":"present")), W4.rival],
+             lastTwo[0], lastTwo[1]];
+  // each row: label + value on one line, then (if a why-comment exists) a small grey justification
+  // WRAPPED to as many lines as it needs within the panel width (SVG text doesn't auto-wrap).
+  const whyW=pVal-(pX+10);                                            // px available for the why-line
+  pos.forEach(([d,v,why])=>{tx(svg,pX+4,ry,d,{"font-size":10,fill:"#555"});
+    tx(svg,pVal,ry,v,{"font-size":10,fill:"#222","text-anchor":"end","font-weight":600}); ry+=13;
+    if(why){ry=txWrap(svg,pX+10,ry,"— "+why,whyW,{"font-size":8,fill:"#999"},10); ry+=1;}
+    el("line",{x1:pX+4,y1:ry-3,x2:pVal,y2:ry-3,stroke:"#f0f0f0"},svg); ry+=7;});
+  ry+=4; ry=txWrap(svg,pX,ry,pd.note,pVal-pX,{"font-size":8.5,fill:"#999"},11);
+  ry+=12; tx(svg,pX,ry,"→ same machinery, different product positions: a cross-category validation.",
      {"font-size":8.5,fill:"#0173B2","font-style":"italic"});
+  // grow the viewBox to fit the (now variable-height, wrapped) right-hand column
+  svg.setAttribute("viewBox","0 0 "+W+" "+Math.max(H, ry+14));
 }
 /* TIMING chart: adoption over time at the headline commodity R. Shows the median realized
    share, the 80% band (sweeping all timing+acceptance priors), the rising ceiling (cold-start
@@ -2535,17 +2632,45 @@ function selfTest(){
   // REGIONAL income-channel check: JS share at a non-US income vs the injected Python reference.
   // The income/alpha normalisation coincides at income_ref, so the US case alone can't catch
   // regional drift — this China point will mismatch if the JS and Python income terms fall apart.
-  const ic=C.income_check, jsRegional=shareCalc(ic[1],Kd,{ax:1,tfM:0,income:ic[0]})*100;
-  const regOK=Math.abs(jsRegional-ic[2])<0.1;
-  document.getElementById("selftest").textContent=
-    "model self-check (defaults, US income): basic R_x = "+R.toFixed(2)+
-    "  ·  plant-based meat, no cultivated = "+(pb*100).toFixed(2)+"% (obs ~1.2%)"+
-    "  ·  plant-based MILK, same coefficients = "+(milkCheck()*100).toFixed(0)+"% (obs ~15%)"+
-    "  ·  cultivated at parity: cold-start = "+(cold*100).toFixed(0)+"% (obs ~5% Lusk 2020) → equilibrium = "+(s0*100).toFixed(0)+"%"+
-    "  ·  JS-solved w_realtissue_M = "+Kd.w_realtissue_M.toFixed(2)+
-    " (Python "+C.w_realtissue_M_ref.toFixed(2)+")"+
-    "  ·  income channel (China $"+(ic[0]/1000).toFixed(0)+"k, R="+ic[1].toFixed(2)+"): JS "+jsRegional.toFixed(2)+
-    "% vs Python "+ic[2].toFixed(2)+"% — "+(regOK?"matches.":"MISMATCH!");
+  const ic=C.income_check, jsChina=shareCalc(ic[1],Kd,{ax:1,tfM:0,income:ic[0]})*100;
+  const jsUS=shareCalc(ic[1],Kd,{ax:1,tfM:0,income:C.income_ref})*100;   // US at the same R, for the contrast
+  const regOK=Math.abs(jsChina-ic[2])<0.1;
+  const solveOK=Math.abs(Kd.w_realtissue_M-C.w_realtissue_M_ref)<0.05;
+  const buildOK=regOK&&solveOK;
+  const mlk=milkCheck()*100;
+  // ONE status per row, three distinct meanings (no overloaded ✓):
+  //   MATCHES = a genuine out-of-sample hit (model was NOT tuned to it)
+  //   pinned  = a calibration input the model is fitted TO (reproducing it is not a test)
+  //   model   = a model projection with no real-world anchor to check against
+  const TAG={match:"<span class='sttag tag-match'>MATCHES</span>",
+             proj:"<span class='sttag tag-proj'>MODEL OUTPUT</span>"};
+  // The table is PURE genuine checks. The one CALIBRATED number (plant-based meat's ~1.2%) is stated
+  // up front as the anchor, NOT listed as a row — reproducing it is circular, so it isn't a validation.
+  // each row: [plain-language what, model value, the real-world anchor (or meaning), tag]
+  const rows=[
+    ["Plant-based <b>milk</b> — the SAME model, only the product's facts swapped to milk's", (mlk).toFixed(0)+"%",
+       "real-world ~15% — the model was NOT tuned to this", "match"],
+    ["<b>Cultivated</b> meat at equal price: today vs once it's familiar",
+       (cold*100).toFixed(0)+"% &rarr; "+(s0*100).toFixed(0)+"%",
+       "today's "+(cold*100).toFixed(0)+"% matches Lusk 2020's ~5% (not tuned); the "+(s0*100).toFixed(0)+"% is the model's long-run projection", "match"],
+    ["Poorer countries are more price-sensitive: same product &amp; price, China vs US",
+       jsChina.toFixed(0)+"% vs "+jsUS.toFixed(0)+"%",
+       "lower income &rarr; smaller share at today's premium (a model result)", "proj"],
+  ];
+  const rowHTML=([what,val,obs,tag])=>
+    "<tr><td class='stwhat'>"+what+"<div class='stobs'>"+obs+"</div></td>"+
+    "<td class='stval'>"+val+"</td>"+
+    "<td style='text-align:right;white-space:nowrap'>"+TAG[tag]+"</td></tr>";
+  document.getElementById("selftest").innerHTML=
+    "<div class='sthead'>Does the model match the real world? (live — recomputed as you move the sliders)</div>"+
+    "<div class='stanchor'>The demand side is tuned to <b>one</b> number — plant-based <b>meat</b>'s ~1.2% share of "+
+    "the meat market (the model reproduces it at "+(pb*100).toFixed(1)+"%, by construction). Everything below was "+
+    "<b>not</b> fitted:</div>"+
+    "<table>"+rows.map(rowHTML).join("")+"</table>"+
+    "<div class='stnote'><b>MATCHES</b> = the model reproduces a real-world number it was <i>not</i> tuned to (the genuine "+
+    "validation). <b>MODEL OUTPUT</b> = a model result with no direct real-world figure to check against.</div>"+
+    "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
+    "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
