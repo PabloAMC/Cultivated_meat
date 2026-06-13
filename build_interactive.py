@@ -426,13 +426,15 @@ def build_model() -> dict:
                "(total ~$24/kg); ~$7.9 = large-scale perfusion (scale-up wins); ~$24.7 = many small ATF vessels "
                "(scale-up stalls, ~$39/kg). Src: Pasitka et al. 2024, Fig. 4; the physics of why scale-up is hard "
                "(CO₂/O₂ transfer, shear, sterility) is Humbird 2021."),
-        slider("media_price", "Medium price (<i>p</i><sub>med</sub>)", "$/L", 0.10, 0.63, 0.01, value("media_price"),
-               "Pasitka/GFI", tip="Price of the liquid the cells feed on. $0.63/L (default) = Pasitka's measured "
-               "animal-free medium (peer-reviewed; albumin removal cut it from $3.31); $0.20/L = several "
-               "companies' 2025 self-reported claims (unverified). A hard floor of ~$0.07/L sits inside the cost "
-               "equation — a litre can't cost less than the amino acids dissolved in it (the $1.5/kg feedstock "
-               "floor ÷ 22.4 L/kg intensity); this slider just stops at a round $0.10. Src: Pasitka et al. 2024; "
-               "GFI State of the Industry 2025."),
+        slider("media_price", "Medium price (<i>p</i><sub>med</sub>)", "$/L", 0.10, 1.00, 0.01, value("media_price"),
+               "Pasitka/GFI", tip="Price of the liquid the cells feed on. $0.63/L (default) = Pasitka's MEASURED "
+               "animal-free medium (peer-reviewed; albumin removal cut it from $3.31). The slider runs both ways "
+               "from that anchor: DOWN to $0.20 = several companies' 2025 self-reported claims (unverified), and a "
+               "hard floor of ~$0.07/L sits inside the cost equation (a litre can't cost less than the amino acids "
+               "dissolved in it = the $1.5/kg feedstock floor ÷ 22.4 L/kg) so it stops at a round $0.10; UP to "
+               "$1.00 = the PESSIMISTIC case, media dearer than Pasitka demonstrated (a cell line/process without "
+               "the albumin removal or volume discounts). Both tails are now swept in the Monte-Carlo band. Src: "
+               "Pasitka et al. 2024; GFI State of the Industry 2025."),
         slider("meat_tax", "Meat price (tax mult. <i>t</i>)", "x", 0.8, 1.6, 0.05, 1.0, "policy",
                tip="A policy multiplier on every conventional-meat price — e.g. a meat tax or a carbon price "
                "passed through. Raising it lowers cultivated's price ratio (it becomes relatively cheaper), about "
@@ -2096,13 +2098,13 @@ function buildPieToggle(){
 }
 function drawCost(s){
   const svg=document.getElementById("cost");clear(svg);
-  const W=420,H=300,mL=42,mR=14,mT=14,mB=40, x0=0.10,x1=0.7,y1=42;
+  const W=420,H=300,mL=42,mR=14,mT=14,mB=40, x0=0.10,x1=1.0,y1=52;
   const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
   el("line",{x1:mL,y1:mT,x2:mL,y2:H-mB,stroke:"#ccc"},svg);
-  [0,10,20,30,40].forEach(v=>{tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
+  [0,10,20,30,40,50].forEach(v=>{tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
     el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f0f0f0"},svg);});
-  [0.1,0.2,0.3,0.4,0.5,0.6,0.7].forEach(v=>tx(svg,X(v),H-mB+13,v.toFixed(1),
+  [0.2,0.4,0.63,0.8,1.0].forEach(v=>tx(svg,X(v),H-mB+13,v.toFixed(2).replace(/0$/,""),
     {"font-size":9,"text-anchor":"middle",fill:"#666"}));
   const cols=["#117733","#0072B2","#CC3311"];
   C.configs.forEach(([lab,oh],k)=>{

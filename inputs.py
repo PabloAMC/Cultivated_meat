@@ -100,14 +100,19 @@ REGISTRY: dict[str, Input] = {
         "-> 1.07e6 kg/yr wet biomass = 24e6/1.07e6", note="fixed; not a major uncertainty"),
     "media_price": Input(0.63, "$/L", "[Pasitka] empirical animal-free (ACF) medium, $0.63/L "
         "(peer-reviewed; albumin removal cut it from $3.31->$0.63/L)",
-        lo=0.20, hi=0.63, mode=0.63,
-        note="CENTERED ON THE MEASURED VALUE (mode=0.63): the prior is one-sided improvement, so "
-             "cheaper medium is UPSIDE, never assumed. lo=0.20 is a COMPANY SELF-REPORT, not "
-             "measured: [GFI26] reports 'several companies announced media costs at $0.20/L or below "
-             "in 2025' (p.8), with the amino-acid input portion independently validated by GFI/MG "
-             "Consulting (p.30) but the full media cost unverified; Pasitka itself calls <$0.50/L "
-             "'theoretically possible' but needing 'major efforts to empirically demonstrate'. So "
-             "0.63 is the demonstrated centre and 0.20 the optimistic tail."),
+        lo=0.20, hi=1.00, mode=0.63,
+        note="CENTERED ON THE MEASURED VALUE (mode=0.63), now TWO-SIDED: $0.63 is the demonstrated "
+             "central case, with both a cheaper tail and a dearer tail. lo=0.20 is the optimistic "
+             "tail, a COMPANY SELF-REPORT, not measured: [GFI26] reports 'several companies announced "
+             "media costs at $0.20/L or below in 2025' (p.8), amino-acid portion independently "
+             "validated by GFI/MG Consulting (p.30) but full media cost unverified; Pasitka itself "
+             "calls <$0.50/L 'theoretically possible' but needing 'major efforts to empirically "
+             "demonstrate'. hi=1.00 is the PESSIMISTIC tail (ADDED 2026-06): media DEARER than "
+             "Pasitka's demonstrated value — plausible for cell lines/processes that haven't achieved "
+             "the albumin removal or the volume discounts Pasitka did (Pasitka itself was at $3.31/L "
+             "before that optimisation). Making the prior two-sided removes the old asymmetry where "
+             "only cheaper media could enter the band; it widens (and slightly lowers) the headline "
+             "penetration band on the downside."),
     "efficiency": Input(1.0, "x media-use", "[Pasitka] cells (1.0); ~4x more media than CHO",
         lo=0.25, hi=1.00, mode=1.00,
         note="media-VOLUME multiplier; CENTERED ON THE MEASURED Pasitka cells (mode=1.0). "
