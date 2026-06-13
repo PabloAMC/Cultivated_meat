@@ -1176,6 +1176,20 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       authenticity, price-insensitive) and most accepted where it is hardest to beat on price (cheap
       staples). The reachable window is the <b>mid-priced cuts</b> — the structured-but-not-premium
       tier (beef steak, chicken/pork cuts).</p>
+      <p style="background:#f7f7f5;border:1px solid var(--rule);border-radius:6px;padding:7px 10px"><b>Families
+      vs species — and why cost stays family-flat.</b> For display we group the species into <b>families</b> only
+      where the members genuinely share structure: <b>poultry</b> (chicken, turkey, duck/goose — near-identical
+      cell biology, ~37&nbsp;°C culture, a cheap price band, and the same "no authenticity hang-up on a nugget"
+      framing) and <b>seafood / fish</b> (the one biologically distinct family — lower ~24–28&nbsp;°C culture,
+      different cells, spanning canned to sushi). Beef, pork, sheep/goat and rabbit <b>stand alone</b>: forcing,
+      say, ruminant beef and monogastric pork into a synthetic "red meat" family would assert a commonality the
+      data don't support. Grouping is a <i>display and framing</i> layer — the tier math (premium judged vs a
+      species' own base) and the calibration are unchanged. Crucially the cultivated <b>biomass cost is held
+      flat across families</b> (one Pasitka-anchored number; differences enter only through each species' price,
+      structure, and demand): a per-family cost would need a per-family TEA, which does not exist, so the model
+      carries a documented per-type multiplier \(\mu\) (default 1) as the hook where a sourced family cost would
+      go — rather than inventing one. Fish, with its different culture biology, is the most likely future
+      exception, but only once measured.</p>
 
       <h4>4. Adoption over time (the timing rung)</h4>
       <p>The share above is an <b>equilibrium</b> — where adoption <i>lands</i> once a product is
@@ -1310,6 +1324,15 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         small (low volume weight) and so understates a route that the disruption literature says is the <i>likely</i>
         one. Read the headline as "share <i>if</i> cultivated competes on the current ladder," not as the only path
         to scale.</li>
+        <li><b>Meat only — no eggs or dairy.</b> The model is cell-cultured <i>meat</i>, anchored throughout to
+        Pasitka's muscle-tissue chicken TEA. It deliberately excludes cultured <b>egg and dairy proteins</b>,
+        which are made by a <i>different</i> process — <b>precision fermentation</b> (engineered microbes secreting
+        a target protein), with a different cost structure (no scaffolding, no perfusion bioreactors, different
+        feedstock-to-product yield). There is no equivalent peer-reviewed empirical TEA to anchor those costs, so
+        modelling them here would mean <i>inventing</i> the numerator — exactly the false precision this model
+        avoids. We flag it as a real gap because fermented egg/dairy is plausibly the <i>easier</i> cultivated-
+        economics story (commodity ingredient, no structuring) and a likely new-attribute beachhead — but it
+        belongs to a separate model, with its own sourced cost basis, not a bolt-on here.</li>
       </ul>
 
       <h4>References</h4>
@@ -1672,15 +1695,24 @@ function trajectoryMC(s,N,which){
   return {p10,p50,p90,tstab:tstab.sort((a,b)=>a-b),finals:finals.sort((a,b)=>a-b)};
 }
 function animalOf(n){
+  // SPECIES label — also the per-species 'premium' base (mirror of meat_market.animal_of); duck
+  // gets its own base so duck cuts are judged vs duck, not chicken. Coarser poultry/fish FAMILY
+  // grouping is familyOf() (display only).
   const map=[["chicken","Chicken"],["beef","Beef"],["pork","Pork"],["turkey","Turkey"],
-    ["seafood","Seafood"],["sheep","Sheep/goat"],["goat","Sheep/goat"],["rabbit","Rabbit"]];
+    ["duck","Duck"],["seafood","Seafood"],["sheep","Sheep/goat"],["goat","Sheep/goat"],["rabbit","Rabbit"]];
   for(const[k,l]of map) if(n.startsWith(k)) return l;
   return n.split(" ")[0];
 }
+// FAMILY (display grouping only; mirror of meat_market.family_of): poultry + fish are grouped
+// (member species share biology/price/framing); others stand alone.
+function familyOf(n){const a=animalOf(n);
+  if(a==="Chicken"||a==="Turkey"||a==="Duck") return "Poultry";
+  if(a==="Seafood") return "Seafood / fish";
+  return a.replace("\n"," ");}
 // fixed colour per species, kept CONSTANT across regions (so a wedge is the same
 // colour whichever region you select)
 const COLSP={Chicken:"#4C78A8", Beef:"#E45756", Pork:"#F58518", Turkey:"#72B7B2",
-  Seafood:"#54A24B", "Sheep/goat":"#B279A2", Rabbit:"#9D755D", Buffalo:"#7F7F7F", Goat:"#B279A2"};
+  Duck:"#3E6B5A", Seafood:"#54A24B", "Sheep/goat":"#B279A2", Rabbit:"#A8836B", Buffalo:"#7F7F7F", Goat:"#B279A2"};
 /* Tiny inline-SVG species ICONS (compact, recognisable face/silhouette glyphs centred at
    (cx,cy)). All face-forward heads where possible, each with EYES. No external files. */
 function _eyes(g,cx,cy,dx,ey,er){   // a symmetric pair of eyes (white sclera + dark pupil)
@@ -1720,6 +1752,16 @@ const SPECIES_ICONS={
     el("path",{d:`M${cx} ${cy+r*0.16} l ${r*0.22} ${r*0.04} l ${-r*0.2} ${r*0.14}z`,fill:"#E8A33D"},g); // beak
     el("path",{d:`M${cx-r*0.04} ${cy+r*0.04} q ${-r*0.04} ${-r*0.16} ${r*0.04} ${-r*0.16}`,stroke:"#E0463A","stroke-width":r*0.07,fill:"none"},g); // snood
     _eyes(g,cx,cy+r*0.08,r*0.09,cy+r*0.08,r*0.06);},
+  Duck:(g,cx,cy,r,c)=>{ // duck SIDE PROFILE (swimming, facing right): solid overlapping body+head (like the hen),
+    // short neck wedge, flat BILL, upswept tail, folded wing. NO hollow ring — every part overlaps solidly.
+    const d=c, dk="#2F5446", wg="#33594B";   // body, darker tail, folded wing
+    el("ellipse",{cx:cx,cy:cy+r*0.18,rx:r*0.78,ry:r*0.50,fill:d},g);                         // body
+    el("path",{d:`M${cx-r*0.55} ${cy} q ${-r*0.45} ${-r*0.12} ${-r*0.66} ${-r*0.30} q ${r*0.10} ${r*0.34} ${r*0.66} ${r*0.40} z`,fill:dk},g); // tail (upswept, off the back)
+    el("path",{d:`M${cx+r*0.18} ${cy-r*0.10} q ${r*0.10} ${-r*0.38} ${r*0.45} ${-r*0.50} q ${r*0.20} ${r*0.05} ${r*0.18} ${r*0.30} q ${-r*0.20} ${r*0.18} ${-r*0.50} ${r*0.28} z`,fill:d},g); // short neck wedge
+    el("circle",{cx:cx+r*0.50,cy:cy-r*0.42,r:r*0.30,fill:d},g);                              // head (overlaps body)
+    el("path",{d:`M${cx+r*0.78} ${cy-r*0.46} q ${r*0.42} ${-r*0.02} ${r*0.44} ${r*0.08} q ${-r*0.02} ${r*0.10} ${-r*0.44} ${r*0.09} q ${-r*0.08} ${-r*0.085} 0 ${-r*0.17} z`,fill:"#E8A33D"},g); // flat BILL (forward)
+    el("circle",{cx:cx+r*0.58,cy:cy-r*0.50,r:r*0.055,fill:"#fff"},g);el("circle",{cx:cx+r*0.595,cy:cy-r*0.50,r:r*0.032,fill:"#1c1c1c"},g); // eye
+    el("path",{d:`M${cx-r*0.18} ${cy-r*0.04} q ${r*0.34} ${-r*0.24} ${r*0.64} ${-r*0.10} q ${-r*0.16} ${r*0.22} ${-r*0.50} ${r*0.18} q ${-r*0.14} ${-r*0.06} ${-r*0.14} ${-r*0.18} z`,fill:wg},g);}, // folded wing
   Seafood:(g,cx,cy,r,c)=>{ // fish: teardrop body + tail + dorsal & pelvic fins + gill + eye + mouth
     el("path",{d:`M${cx-r*0.75} ${cy} q ${r*0.40} ${-r*0.50} ${r*1.0} ${-r*0.30} q ${r*0.25} ${r*0.10} ${r*0.30} ${r*0.30} q ${-r*0.05} ${r*0.20} ${-r*0.30} ${r*0.30} q ${-r*0.60} ${r*0.20} ${-r*1.0} ${-r*0.30} z`,fill:c},g); // body
     el("path",{d:`M${cx+r*0.50} ${cy} l ${r*0.50} ${-r*0.325} q ${-r*0.15} ${r*0.325} 0 ${r*0.65} z`,fill:c},g);   // tail

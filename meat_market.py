@@ -164,9 +164,12 @@ US_MARKET = [
 # Europe — higher prices (GPP Germany/France), pork+poultry heavy. Chicken is the
 # cheapest staple (as globally); pork is the most-consumed but slightly dearer.
 EU_MARKET = [
-    MeatType("chicken (ground/proc.)", 6.0,  0.15),
-    MeatType("chicken (cuts)",        10.0,  0.14, scaffold=SCAF),
+    MeatType("chicken (ground/proc.)", 6.0,  0.14),
+    MeatType("chicken (cuts)",        10.0,  0.135, scaffold=SCAF),
     MeatType("chicken (organic)",     15.0,  0.010, scaffold=SCAF),   # premium [low-med conf]
+    # Duck: a small but real European poultry product (France/Germany), pricier than chicken —
+    # retail ~$13-21/kg (Selina Wamucii FR); whole-duck wholesale ~$6.4/kg. Carved from chicken.
+    MeatType("duck (whole/cuts)",     14.0,  0.015, scaffold=SCAF),
     MeatType("pork (processed)",       7.0,  0.18),
     MeatType("pork (cuts)",           11.0,  0.165, scaffold=SCAF),
     MeatType("pork (iberico)",        20.0,  0.005, scaffold=SCAF),   # premium [med conf]
@@ -181,9 +184,14 @@ EU_MARKET = [
 
 # China — pork-dominant; beef pricey (imported); large seafood.
 CHINA_MARKET = [
-    MeatType("chicken (ground/proc.)", 5.0,  0.10),
-    MeatType("chicken (cuts)",         8.0,  0.115, scaffold=SCAF),
+    MeatType("chicken (ground/proc.)", 5.0,  0.055),
+    MeatType("chicken (cuts)",         8.0,  0.085, scaffold=SCAF),
     MeatType("chicken (premium)",     13.0,  0.005, scaffold=SCAF),   # premium [low conf]
+    # Duck is a major poultry product in China (~88% of world duck/goose; ~8% of Chinese meat).
+    # Prices: Selina Wamucii / Tridge retail ~$6-7.5/kg whole, cuts dearer. Carved from chicken so
+    # the region volume total is unchanged.
+    MeatType("duck (whole/proc.)",     6.0,  0.05),
+    MeatType("duck (cuts)",            9.0,  0.025, scaffold=SCAF),
     MeatType("pork (processed)",       5.0,  0.25),
     MeatType("pork (cuts)",            7.0,  0.245, scaffold=SCAF),
     MeatType("pork (heritage)",       14.0,  0.005, scaffold=SCAF),   # premium [med conf]
@@ -198,9 +206,13 @@ CHINA_MARKET = [
 
 # Global — world-average prices (GPP world avg) + FAO global mix.
 GLOBAL_MARKET = [
-    MeatType("chicken (ground/proc.)", 5.0,  0.15),
-    MeatType("chicken (cuts)",         8.0,  0.195, scaffold=SCAF),
+    MeatType("chicken (ground/proc.)", 5.0,  0.135),
+    MeatType("chicken (cuts)",         8.0,  0.18,  scaffold=SCAF),
     MeatType("chicken (organic)",     13.0,  0.005, scaffold=SCAF),   # premium [low conf]
+    # Duck + goose ~3.3% of world meat (~12 of 365 Mt; China ~88%). World-avg price ~$7 whole.
+    # Carved from chicken so the global volume total is unchanged.
+    MeatType("duck/goose (whole)",     7.0,  0.025),
+    MeatType("duck/goose (cuts)",     10.0,  0.010, scaffold=SCAF),
     MeatType("pork (processed)",       6.0,  0.16),
     MeatType("pork (cuts)",            9.0,  0.165, scaffold=SCAF),
     MeatType("pork (heritage)",       16.0,  0.005, scaffold=SCAF),   # premium [med conf]
@@ -413,13 +425,33 @@ def summarise(region: str, theta_free: float) -> None:
 # opposition reads left to right; both weighted totals marked.
 # ----------------------------------------------------------------------------
 def animal_of(mt: "MeatType") -> str:
-    """Group label (the type of meat) for the per-type figure."""
+    """SPECIES label (the type of meat). Used BOTH for figure grouping AND for the per-species
+    'premium' base price (a cut is premium if >= PREMIUM_RATIO x its OWN species' cheapest form),
+    so each species — incl. duck — gets its own base. The coarser POULTRY/FISH grouping for display
+    is family_of() below; species stays the unit of the tier math."""
     for key, lab in [("chicken", "Chicken"), ("beef", "Beef"), ("pork", "Pork"),
-                     ("turkey", "Turkey"), ("seafood", "Seafood"),
+                     ("turkey", "Turkey"), ("duck", "Duck"), ("seafood", "Seafood"),
                      ("sheep", "Sheep/\ngoat"), ("goat", "Sheep/\ngoat"), ("rabbit", "Rabbit")]:
         if mt.name.startswith(key):
             return lab
     return mt.name.split()[0].title()
+
+
+# Coarser FAMILY grouping — display/organising layer ONLY (does NOT enter the tier math, which
+# stays per-species via animal_of). We group ONLY the two families where the member species share
+# real structure: POULTRY (chicken/turkey/duck/goose — near-identical cell biology, ~37C culture,
+# cheap price band, no-authenticity-on-a-nugget framing) and SEAFOOD/FISH (the one biologically
+# distinct family — lower ~24-28C culture, different cells; wide price range). Red meat (beef),
+# pork, sheep/goat, rabbit are NOT forced into a synthetic family — they stand alone, because
+# lumping e.g. ruminant beef with monogastric pork would assert a commonality the data lacks.
+def family_of(mt: "MeatType") -> str:
+    """Family label for display grouping (poultry / fish grouped; others stand alone)."""
+    a = animal_of(mt)
+    if a in ("Chicken", "Turkey", "Duck"):
+        return "Poultry"
+    if a == "Seafood":
+        return "Seafood / fish"
+    return a.replace("\n", " ")
 
 
 def fig_penetration(region: str, theta_free: float, outdir, fmts) -> None:
