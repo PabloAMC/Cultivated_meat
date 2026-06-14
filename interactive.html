@@ -9,7 +9,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
  font-family:-apple-system,Helvetica,Arial,sans-serif;line-height:1.5;}
 .wrap{max-width:1120px;margin:0 auto;padding:24px 20px 64px;}
 h1{font-size:1.45rem;margin:0 0 .2em;font-family:Georgia,serif;}
-.lede{color:var(--muted);font-size:.92rem;margin:0 0 18px;max-width:80ch;}
+.lede{color:var(--muted);font-size:.92rem;margin:0 0 18px;overflow-wrap:break-word;}
 .lede a{color:var(--accent);}
 .grid{display:grid;grid-template-columns:300px 1fr;gap:26px;}
 @media(max-width:780px){.grid{grid-template-columns:1fr;}}
@@ -126,13 +126,36 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-13 21:25</span></h1>
-<p class="lede">Drag the sliders — ordered most-decisive first — to see how the price ratio,
-market share, and per-meat-type penetration respond. These are <b>point estimates</b> at the values
-you choose (not the Monte-Carlo bands). The big penetration numbers are the <b>long-run equilibrium
-ceiling</b> (where adoption <i>lands</i> once novelty has faded), <b>not</b> a forecast of today's share —
-the timing chart (§4) shows the path climbing up to it from the cold ~5% start. The model and every
-parameter are described in the methods and results notes. Defaults are the neutral / measured values.</p>
+<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-14 18:25</span></h1>
+<p class="lede">This is an interactive model of a single question: <b>if</b> cultivated (lab-grown)
+meat can be produced at a given cost, what share of the meat market does it win — and how soon? It is a
+transparent, fully-sourced techno-economic <i>and</i> demand model: every assumption is a labelled
+slider, the defaults are the neutral or measured values, and the sliders are ordered most-decisive
+first. Drag any of them to watch the price ratio, market shares, and per-meat-type penetration update
+live.</p>
+<p class="lede">The answer is built in <b>three linked steps</b>. <b>(1)&nbsp;Cost&nbsp;&rarr;&nbsp;price.</b>
+Add up what a kilogram costs to grow — mostly the liquid medium the cells feed on, plus the cost of
+running the reactor — add a retail markup, and divide by the price of the ordinary meat beside it to get
+cultivated's <b>price ratio</b> \(R_x\) (\(R_x=1\) is price parity; today's cost sits near 2.4&times;).
+<b>(2)&nbsp;Price&nbsp;&rarr;&nbsp;share.</b> Put cultivated on a shelf with three rivals — conventional
+meat, plant-based meat, and the option to skip meat and eat beans — and let shoppers in <b>two
+segments</b> (a mainstream majority and a small ethically-motivated minority) choose by weighing price,
+taste, animal welfare, and whether it is <i>actually meat</i>; a standard discrete-choice rule — a
+<b>multinomial logit</b>, from McFadden's random-utility theory — turns those attributes into market
+shares, with price entering in the <b>Berry&ndash;Levinsohn&ndash;Pakes</b> form (income sits inside the
+log, so a given price is a bigger bite the poorer the shopper). The <b>central premise:</b> because cultivated meat <i>is</i>
+real animal tissue, it competes head-to-head with beef and draws its buyers from <i>conventional</i>
+meat, not from the plant-based aisle. <b>(3)&nbsp;Share&nbsp;&rarr;&nbsp;over&nbsp;time.</b> That share
+is the long-run <i>destination</i>; because a brand-new food is met coldly — only ~5% would buy it at
+equal price today — the model starts cold and climbs along a <b>Bass diffusion</b> curve as familiarity grows.</p>
+<p class="lede">So the big penetration numbers are the <b>long-run equilibrium ceiling</b> — where
+adoption <i>lands</i> once novelty has faded — <b>not</b> a forecast of today's share; the timing chart
+(§4) shows the path climbing to it from the cold ~5% start. Headline figures are <b>point estimates</b>
+at the values you choose; toggle <b>Monte&nbsp;Carlo</b> to propagate the priors into an uncertainty
+band. Numbers that are <i>measured</i> (costs, prices, the plant-based facts the model is calibrated to)
+are pinned; numbers that are <i>judgement</i> are exposed as sliders and swept in the band, never hidden.
+Full equations, sources, and an honest accounting of what each number rests on are in the methods notes
+below.</p>
 <div class="grid">
   <div class="rail" id="rail"></div>
   <div>
@@ -1580,7 +1603,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-13 21:25",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-14 18:25",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -2065,7 +2088,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
-console.log("interactive.html JS build 2026-06-13 21:25 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-14 18:25 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");
