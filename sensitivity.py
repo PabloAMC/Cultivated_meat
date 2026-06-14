@@ -134,7 +134,7 @@ def _tornado_fig(target, which, base, rows, title, fname, outdir, fmts):
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([LABELS.get(r[0], r[0]) for r in rows], fontsize=8.5)
     ax.set_xlabel(r"price ratio $R$" if which == "R"
-                  else r"long-run cultivated share (\%)")
+                  else r"long-run cultivated share (%)")
     ax.set_title(title, fontsize=9.5)
     if which == "share":
         from matplotlib.patches import Patch

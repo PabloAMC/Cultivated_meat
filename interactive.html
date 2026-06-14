@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cultivated meat — interactive explorer</title>
+<title>Cultivated meat — how much of the market can it win?</title>
 <style>
 :root{--ink:#1a1a1a;--muted:#666;--rule:#e3e3e3;--accent:#0072B2;--orange:#E69F00;
  --green:#117733;--red:#CC3311;--bg:#fff;}
@@ -126,13 +126,13 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: play with the model <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-14 18:25</span></h1>
-<p class="lede">This is an interactive model of a single question: <b>if</b> cultivated (lab-grown)
-meat can be produced at a given cost, what share of the meat market does it win — and how soon? It is a
-transparent, fully-sourced techno-economic <i>and</i> demand model: every assumption is a labelled
-slider, the defaults are the neutral or measured values, and the sliders are ordered most-decisive
-first. Drag any of them to watch the price ratio, market shares, and per-meat-type penetration update
-live.</p>
+<h1>Cultivated meat: how much of the meat market can it win &mdash; and how fast? <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-14 19:59</span></h1>
+<p class="lede">Cultivated meat — real animal protein grown from cells, with no animal raised or
+slaughtered — could one day share a shelf with ordinary meat. Whether it wins a meaningful slice of that
+shelf comes down to a very human chain: what it costs to grow, what shoppers will pay for it, and how
+long trust takes to build. This page models that chain <b>in the open</b> — every assumption is a
+labelled slider (defaults are the neutral or measured values, ordered most-decisive first), and nothing
+is hidden. Drag any slider and watch the price ratio, market shares, and adoption curve respond live.</p>
 <p class="lede">The answer is built in <b>three linked steps</b>. <b>(1)&nbsp;Cost&nbsp;&rarr;&nbsp;price.</b>
 Add up what a kilogram costs to grow — mostly the liquid medium the cells feed on, plus the cost of
 running the reactor — add a retail markup, and divide by the price of the ordinary meat beside it to get
@@ -1603,7 +1603,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-14 18:25",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-14 19:59",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -2066,7 +2066,7 @@ function selfTest(){
   const rows=[
     ["Plant-based <b>milk</b> — the SAME model, only the product's facts swapped to milk's", (mlk).toFixed(0)+"%",
        "real-world ~15% — the model was NOT tuned to this", "match"],
-    ["<b>Cultivated</b> meat at equal price: today vs once it's familiar",
+    ["<b>Cultivated</b> meat at equal price: today vs once it's at full feature parity and full novelty and neophobia dissipate",
        (cold*100).toFixed(0)+"% &rarr; "+(s0*100).toFixed(0)+"%",
        "today's "+(cold*100).toFixed(0)+"% matches Lusk 2020's ~5% (not tuned); the "+(s0*100).toFixed(0)+"% is the model's long-run projection", "match"],
     ["Poorer countries are more price-sensitive: same product &amp; price, China vs US",
@@ -2088,7 +2088,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
-console.log("interactive.html JS build 2026-06-14 18:25 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-14 19:59 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");

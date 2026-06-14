@@ -305,7 +305,7 @@ def fig_cost_paths(dp: DemandParams, tp: TimingParams, outdir, fmts) -> None:
     ax.text(YR_BREAK + 0.3, ax.get_ylim()[1] * 0.04, f"milestone\n~yr{YR_BREAK}",
             fontsize=7, color="0.45")
     ax.set_xlabel("Years from launch")
-    ax.set_ylabel(r"Realised cultivated share (\%)")
+    ax.set_ylabel(r"Realised cultivated share (%)")
     ax.set_title("Penetration over time, by cost-milestone path (neutral long-run acceptance)")
     ax.legend(fontsize=7.5, frameon=False, loc="upper left")
     _save(fig, outdir, "cost_paths_timing", fmts)

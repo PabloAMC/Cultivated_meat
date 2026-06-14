@@ -712,7 +712,7 @@ def fig_pb_milk_vs_meat(pr: DemandParams, outdir, fmts) -> None:
         axR.text(x, v + 1.6, obs, ha="center", fontsize=7.5, color="0.45")
     axR.set_xticks([0, 1]); axR.set_xticklabels(["PB-meat", "PB-milk"], fontsize=9)
     axR.set_ylim(0, max(pb_milk, 15) * 1.25)
-    axR.set_ylabel(r"category share (\%)")
+    axR.set_ylabel(r"category share (%)")
     axR.set_title("…reproduces both outcomes", fontsize=10)
     fig.suptitle("Why plant-based MILK succeeds where plant-based MEAT stalls (same model, swapped positions)",
                  y=1.01, fontsize=10.5)
@@ -895,7 +895,7 @@ def fig_share_vs_ratio(pr: DemandParams, outdir, fmts) -> None:
         ax.text(R, 93, lbl, fontsize=6.5, color="0.5", ha="center", va="top")
 
     ax.set_xlabel(r"Price ratio  $R = p_{\rm cult}/p_{\rm conv}$  (lower = cheaper vs conventional)")
-    ax.set_ylabel(r"Share within the meat category (\%)")
+    ax.set_ylabel(r"Share within the meat category (%)")
     ax.set_title("Market shares vs the price ratio (two-segment, four-product choice model)")
     ax.legend(fontsize=7.5, frameon=False, loc="center right")
     _save(fig, outdir, "share_vs_ratio", fmts)

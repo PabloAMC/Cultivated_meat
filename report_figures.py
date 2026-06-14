@@ -53,12 +53,12 @@ def fig_regional_band(n, outdir, fmts) -> None:
             ax.plot([p10, p90], [y + off, y + off], color=col, lw=4, alpha=0.5,
                     solid_capstyle="round")
             ax.plot(p50, y + off, "o", color=col, ms=6)
-            ax.text(p90 + 0.4, y + off, rf"{p50:.0f}\% [{p10:.0f}-{p90:.0f}]", va="center",
+            ax.text(p90 + 0.4, y + off, rf"{p50:.0f}% [{p10:.0f}-{p90:.0f}]", va="center",
                     fontsize=7.5, color=col)
     ax.plot([], [], color="#DE8F05", lw=4, alpha=0.5, label="by volume (impact)")
     ax.plot([], [], color="#0173B2", lw=4, alpha=0.5, label=r"by value (\$ market)")
     ax.set_yticks(ys); ax.set_yticklabels([name for _, name in REGIONS])
-    ax.set_xlabel(r"Total cultivated penetration of meat (\%):  bars span P10 to P90, dot = P50")
+    ax.set_xlabel(r"Total cultivated penetration of meat (%):  bars span P10 to P90, dot = P50")
     ax.set_title("Total penetration band by region (cost, standing and elasticity sampled)")
     ax.legend(fontsize=8, frameon=False, loc="upper right")
     _save(fig, outdir, "report_regional_band", fmts)

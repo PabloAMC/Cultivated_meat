@@ -481,7 +481,7 @@ def fig_penetration(region: str, theta_free: float, outdir, fmts) -> None:
             off = (j - (n - 1) / 2) * (bw * 1.06)
             ax.bar(x + off, s * 100, width=bw, color=TIERCOL[t], alpha=0.92,
                    edgecolor="white", linewidth=0.5)
-            ax.text(x + off, s * 100 + maxs * 0.015, rf"{s*100:.0f}\%", ha="center",
+            ax.text(x + off, s * 100 + maxs * 0.015, rf"{s*100:.0f}%", ha="center",
                     va="bottom", fontsize=7, fontweight="bold", color="0.2")
             ax.text(x + off, s * 100 + maxs * 0.075, f"R={R:.2f}", ha="center",
                     va="bottom", fontsize=6, color="0.5")
@@ -490,16 +490,16 @@ def fig_penetration(region: str, theta_free: float, outdir, fmts) -> None:
     # weighted-total reference lines (neutral colours so they read as TOTALS,
     # not as another bar category), labelled in the clear left margin
     ax.axhline(tv * 100, ls="--", lw=1.2, color="0.35")
-    ax.text(-0.85, tv * 100, rf"total by volume {tv*100:.0f}\%", fontsize=7.5,
+    ax.text(-0.85, tv * 100, rf"total by volume {tv*100:.0f}%", fontsize=7.5,
             color="0.35", va="top", ha="left")
     ax.axhline(tval * 100, ls=":", lw=1.4, color="0.1")
-    ax.text(-0.85, tval * 100, rf"total by value {tval*100:.0f}\%", fontsize=7.5,
+    ax.text(-0.85, tval * 100, rf"total by value {tval*100:.0f}%", fontsize=7.5,
             color="0.1", va="bottom", ha="left")
 
     ax.set_xlim(-0.9, len(order) - 0.4)
     ax.set_ylim(0, maxs + head)
     ax.set_xticks(xticks); ax.set_xticklabels(xlabs, fontsize=8.5)
-    ax.set_ylabel(r"Cultivated share within the category (\%)")
+    ax.set_ylabel(r"Cultivated share within the category (%)")
     from matplotlib.patches import Patch
     ax.legend(handles=[Patch(color=TIERCOL["basic"], label="mince / processed"),
                        Patch(color=TIERCOL["cut"], label="cut / fillet"),
