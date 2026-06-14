@@ -2267,7 +2267,7 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
   if(_isMeat){ title="“"+sel+"” is the calibration TARGET — the model is tuned to it (not a validation)"; tcol="#888"; }
   else if(_isEgg){ title=(ok?"✓ ":"")+"“"+sel+"”: a DIFFERENT lever (welfare, not authenticity) — read as a contrast"; tcol=ok?"#0173B2":"#666"; }
   else { title=(ok?"✓ out-of-sample: model reproduces “":"model gives “")+sel+"”"+(ok?" (NOT tuned to it)":""); tcol=ok?"#0173B2":"#666"; }
-  tx(svg,(bL+bR)/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});
+  tx(svg,W/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});  // center over FULL width (not the left bar-panel) so the long title doesn't clip off the left edge
   // RIGHT HALF: positions swapped in (same β, income, q) + the note
   const pX=W*0.52, pVal=W-18;
   let ry=mT+10;
