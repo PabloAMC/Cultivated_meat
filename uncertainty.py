@@ -110,6 +110,10 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
 
 
 def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
+    # NOTE: this reference MC sweeps the cost stack + theta_free_M + accept_x. The interactive
+    # explorer's JS penetration band (build_interactive.py `monteCarlo`) deliberately sweeps a
+    # WIDER set (also health_x/health_p, premium_resistance, the plant-based dials) so both novel
+    # meats get an equal-footing band — so the on-page band is intentionally wider. By design.
     pri = active_priors(target)
     rng = np.random.default_rng(seed)
     s = {k: _sample(k, pri, rng, n, fixed) for k in pri}

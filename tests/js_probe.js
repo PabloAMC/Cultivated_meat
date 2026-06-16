@@ -107,7 +107,14 @@ js += `
     income: def.income, which: "x",
   });
 
-  realLog(JSON.stringify({ headline, grid, healthGrid, timing: { R: Rx, share: tr.share } }));
+  // FOOTHOLD rung: per-product price ratio R (footR) at the defaults. This is the cost->R
+  // machinery shared with foothold.product_R — the ONE foothold quantity that is a true Python
+  // mirror (the rest of the panel is a JS-only visualization), and the exact corner a scaffold-cost
+  // mismatch slipped through once. [label, R] per injected (non-no_referent) product.
+  const foothold = C.foothold_products.map(pd => [pd.label, footR(def, pd)]);
+
+  realLog(JSON.stringify({ headline, grid, healthGrid, foothold,
+                           timing: { R: Rx, share: tr.share } }));
 })();
 `;
 

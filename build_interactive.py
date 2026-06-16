@@ -20,6 +20,7 @@ from inputs import value, prior, AA_FLOOR, PASITKA_CONFIGS
 import meat_market as mm
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
                           lusk_at_parity_elasticity as _lusk_at_parity)
+from foothold import PRODUCTS as _FOOTHOLD, base_price as _fbase, PRICE_BASIS as _FBASIS
 
 
 def _pasitka_oh(substr):
@@ -165,6 +166,24 @@ def build_model() -> dict:
         "configs": [["perfusion 20 m³", _pasitka_oh("perfusion")],
                     ["TFF 5 m³", _pasitka_oh("TFF")],
                     ["ATF 0.5 m³", _pasitka_oh("ATF")]],
+        # FOOTHOLD products (foothold.py, the strategic entry layer): the per-product ladder the
+        # "reachability waterline" panel plots. p_conv & structure feed the SAME R machinery as the
+        # cost chart (R = (biomass + scaffold? + markup)/p_conv); the rest are the sourced ordinals
+        # for the drill-down. PROVISIONAL sources (see foothold.py) — structure, not the digits, is
+        # what the panel demonstrates. no-referent (novel) products are dropped here (no price axis).
+        "foothold_products": [
+            {"label": p.label, "p_conv": p.p_conv, "structure": p.structure,
+             # Option B: p_base = accessible-tier price cultivated actually competes at (rent stripped);
+             # "has a prestige tier" is inferred in JS from p_base < p_conv; the prestige VOLUME share is a
+             # single global slider (phi), so no per-product phi is injected.
+             "p_base": _fbase(p), "source": _FBASIS.get(p.label, "indicative retail tier"),
+             "volume_kt": p.volume_kt, "launched_by": p.launched_by, "note": p.note,
+             "defect": max(p.defect_health, p.defect_env, p.defect_ethics),
+             "defect_ethics": p.defect_ethics, "defect_env": p.defect_env,
+             "defect_health": p.defect_health, "authenticity": p.authenticity,
+             "tractability": p.tractability, "transferability": p.transferability,
+             "regulatory": p.regulatory}
+            for p in _FOOTHOLD if not p.no_referent],
         # Comparison products: the SAME demand machinery (reused meat-derived beta) applied to
         # other real-world analog categories, to validate it out-of-sample. Each gives the analog's
         # POSITIONS vs its conventional incumbent and its OBSERVED share. Fields:
@@ -258,6 +277,7 @@ def build_model() -> dict:
             "accept_rate": ["r", "novelty-fade rate: &nu;(t)=&nu;<sub>long</sub>+(&nu;<sub>0</sub>&minus;&nu;<sub>long</sub>)e<sup>&minus;rE</sup> (&sect;4)"],
             "p_innov": ["p", "Bass innovation coefficient: dF=(p+qF)(1&minus;F) (&sect;4 timing)"],
             "q_imit": ["q", "Bass imitation coefficient (word-of-mouth) (&sect;4 timing)"],
+            "phi": ["&chi;", "global prestige-rent share: fraction of a luxury category that's unaddressable rent; addressable = (1&minus;&chi;)&middot;V (&sect;6). Default 0.25 (salmon/iberico ~0.2-0.25); 0 = all addressable"],
         },
     }
 
@@ -278,6 +298,8 @@ def build_model() -> dict:
         ("Novelty & adoption over time (§4)",
          ["neophobia_x", "neophobia_p", "neophobia_x0", "neophobia_p0",
           "accept_rate", "p_innov", "q_imit"]),
+        ("Foothold rung (§6)",
+         ["phi"]),
     ]
 
     sliders = [
@@ -474,6 +496,12 @@ def build_model() -> dict:
                "resistant. This is the model's MOST judgement-to-target input — the tier values have no external "
                "source; they produce the 'sweet spot is mid-cuts' result — so it's swept in the band (0.5–1.5). "
                "Drag it to test how much the headline leans on this assumption."),
+        slider("phi", "Prestige-rent share (&chi;, §6 foothold)", "", 0.0, 0.95, 0.05, 0.25,
+               "salmon/iberico", tip="Single global prestige-rent share &chi; (panel 7): the fraction of a luxury "
+               "category that is unaddressable rent, so addressable volume = (1&minus;&chi;)&middot;V. <b>Default "
+               "0.25</b>, anchored to the only two published grade splits — salmon (wild ~25%) and iberico (bellota "
+               "~20%). Applies where a cheaper accessible tier exists (luxury); commodity has none. &chi;=0 &rarr; all "
+               "addressable; &chi;&rarr;1 &rarr; all rent. Drag to test the one guess."),
     ]
 
     # income uses a LOG scale (the $5k–$500k range spans 2 orders of magnitude)
@@ -673,6 +701,9 @@ svg{width:100%;height:auto;display:block;}
 .toggle button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
 .toggle button:first-child{border-radius:6px 0 0 6px;}
 .toggle button:last-child{border-radius:0 6px 6px 0;border-left:0;}
+#foottip{position:fixed;display:none;pointer-events:none;z-index:9999;background:#1a1a1a;color:#fff;
+  font-size:.72rem;line-height:1.4;padding:6px 9px;border-radius:5px;max-width:320px;white-space:pre-line;
+  box-shadow:0 2px 10px rgba(0,0,0,.28);}
 .q{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;
  background:#dcdcdc;color:#333;font-size:.64rem;cursor:help;margin-left:3px;font-weight:700;}
 .tog{margin:10px 0 2px;font-size:.82rem;display:flex;align-items:center;gap:7px;}
@@ -795,6 +826,24 @@ below.</p>
         <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product: its observed share vs the model's. The genuine <b>out-of-sample</b> tests reuse the SAME coefficients and swap only the product's positions — plant-based <b>milk</b> (the default) lands at ~15% this way, unfitted. Two options are <i>not</i> clean validations and are labelled so on the chart: plant-based <b>meat</b> is the calibration <b>target</b> (circular), and <b>eggs</b> exercise a different lever (welfare, not authenticity).</p>
         <div style="margin:0 0 5px"><select id="cmpSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="milk" viewBox="0 0 720 320"></svg></div>
+      <div class="card full"><h3>7 · The reachability waterline — where cultivated can enter, and what funds the descent</h3>
+        <p class="sub">Cultivated's retail cost is a <b>waterline</b> set mostly by the <b>medium price</b> (drag the §1 medium slider).
+        Crucially, luxury sticker prices are largely <b>provenance rent</b> (terroir, wild-caught, grade) that cultivated
+        <i>can't capture</i> — so each island sits at the <b>accessible-tier price</b> it actually competes at, with a grey tick
+        marking the rent-laden headline above it. Islands <b>above</b> the cost line are price-reachable (R&lt;1); dot size =
+        the <b>addressable</b> volume (prestige core removed). This is <b>price-skimming down a quality ladder under a learning
+        curve</b> (Wright 1936; Arrow 1962; Spence 1981) — the economics behind what's popularly called "disruptive innovation."
+        <b>How the competition price is chosen:</b> each product carries two retail tiers — the <b>accessible</b> (everyday) tier,
+        where cultivated competes, and the <b>headline</b> (premium/luxury) tier, mostly brand/scarcity rent it can't capture.
+        Prices are <i>sourced</i> (June 2026 retail/wholesale; the prestige-volume share is estimated) — hover any bubble for its basis.
+        Toggle to <b>share vs price-ratio</b>: the demand model's <b>predicted share</b> (the dependent variable)
+        on y, price ratio R on x (share is driven by price + the acceptance dials, not a per-product knob);
+        bubble = addressable volume. <i>The rent-stripping is what sinks the luxury traps (caviar, iberico) and
+        surfaces cruelty-free foie gras + high-volume seafood.</i></p>
+        <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL" class="on">reachability waterline</button><button id="footMV">share vs price-ratio</button></div>
+        <div style="margin:0 0 5px"><select id="footSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
+        <svg id="foothold" viewBox="0 0 720 380"></svg>
+        <div id="footcap" class="sub" style="margin-top:6px"></div></div>
     </div>
     <div class="selftest" id="selftest"></div>
     <p class="note">"Penetration" totals are rolled up by <b>volume</b> (weight &rarr; animal impact)
@@ -977,7 +1026,7 @@ below.</p>
       its own modeled share \(s_x\), a short fixed point:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x),\qquad
-         V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\varphi}. \]
+         V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\phi}. \]
       <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
       closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_c\) hands back the
       slice of price-sensitivity the loss-aversion term already supplies, so \(\beta\) carries only the rest.
@@ -991,11 +1040,11 @@ below.</p>
       bite the poorer you are, so richer consumers are less price-sensitive without any extra term. \(\alpha\) is a
       single <b>constant</b> (not a function of income), pinned so the term's local slope equals \(\beta\) at the
       US anchor: \(\alpha=-\beta(y_{\rm ref}-p_x)\). The cross-region tilt comes only from the <b>damped effective
-      income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\varphi}\): \(\varphi=1\) is raw BLP, which is too steep
-      for food (~6&times; rich→poor elasticity ratio); \(\varphi=0.5\) (default) damps it to the empirical ~2&times;
+      income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\phi}\): \(\phi=1\) is raw BLP, which is too steep
+      for food (~6&times; rich→poor elasticity ratio); \(\phi=0.5\) (default) damps it to the empirical ~2&times;
       gradient (region incomes from the World Bank; the gradient from Muhammad/ERS <a href="#ref15">[15]</a>), and
-      \(\varphi=0\) removes income. At the US reference \(y_{\rm eff}=y_{\rm ref}\), so
-      the US and every at-parity number are invariant to \(\varphi\). <b>The punchline:</b> income bites hardest
+      \(\phi=0\) removes income. At the US reference \(y_{\rm eff}=y_{\rm ref}\), so
+      the US and every at-parity number are invariant to \(\phi\). <b>The punchline:</b> income bites hardest
       where the premium is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity) —
       low-income regions fall below ~1% at today's cost, the genuinely hard case, while the at-parity headline
       (equal prices) is unaffected. Note the channel <b>saturates</b>: wealth relaxes <i>price</i>-sensitivity but
@@ -1024,9 +1073,9 @@ below.</p>
           <b>Berry–Levinsohn–Pakes (1995)</b> — income inside the log, so a price is a bigger bite the poorer you
           are (richer = less price-sensitive), fully unpacked in "the price piece" above. \(\alpha\) is a single
           <b>constant</b> built from \(\varepsilon\) and \(\kappa\) via \(\beta\); the cross-region tilt comes only
-          from the <b>damped effective income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^\varphi\) — \(\varphi=1\)
-          raw BLP (~6&times;, too steep for food), \(\varphi=0.5\) default (empirical ~2&times;), \(\varphi=0\) none;
-          the US and every at-parity number are invariant to \(\varphi\). <i>(An earlier draft re-added income as a
+          from the <b>damped effective income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^\phi\) — \(\phi=1\)
+          raw BLP (~6&times;, too steep for food), \(\phi=0.5\) default (empirical ~2&times;), \(\phi=0\) none;
+          the US and every at-parity number are invariant to \(\phi\). <i>(An earlier draft re-added income as a
           separate multiplier outside the log — not BLP; this restores it, verified against its linearisation to
           &lt;0.01pp.)</i></td></tr>
         <tr><td><b>loss aversion</b> \(\lambda\) <i>(off by default)</i></td><td>an OPTIONAL
@@ -1348,6 +1397,121 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       makes the dearer side steeper. Plant-based (at 1.77&times;) is treated by the very same rule, on equal
       footing with cultivated.</p>
 
+      <h4>6. The foothold rung — the accessible price, the rent partition, and the realizable margin</h4>
+      <p>Rungs&nbsp;1&ndash;5 roll cultivated up across a region's whole meat basket. This rung asks the
+      product-level question that <b>panel&nbsp;7</b> visualises: <b>at which single products can cultivated
+      compete on price, and how large is the gross margin it earns there?</b> &mdash; the margin that, if
+      reinvested, drives the cost down (the experience- / learning-curve mechanism, Wright&nbsp;1936 /
+      Arrow&nbsp;1962 <a href="#ref18">[18]</a>; Spence&nbsp;1981 <a href="#ref19">[19]</a>). This is
+      price-skimming down a quality ladder; it is popularly called "disruptive innovation", though the
+      load-bearing results are those standard ones, not the management framing.</p>
+
+      <p><b>Cost &mdash; the waterline.</b> Cultivated's retail cost is &sect;1's biomass cost \(c_{\rm bio}\)
+      plus the retail markup \(m\), with the scaffold \(k\) added only for structured (whole-cut) products:</p>
+      \[ c_x \;=\; c_{\rm bio} \;+\; k\,[\text{structured cut}] \;+\; m, \]
+      <p>and an irreducible-floor variant \(c_x^{\rm floor}\) that swaps \(c_{\rm bio}\) for the derived
+      floor \(c_{\rm floor}\) (&sect;1). Cost is ~global; what differs across products is the price it meets.</p>
+
+      <p><b>The rent partition &mdash; the one new primitive.</b> A luxury price is not cost-plus; it is
+      mostly <b>economic rent</b> on attributes cultivated structurally lacks &mdash; terroir, wild-caught,
+      heritage, grade, scarcity. Hedonically (Rosen&nbsp;1974 <a href="#ref16">[16]</a>) the conventional
+      price splits into a base and a rent,</p>
+      \[ p^{\rm auth} \;=\; p^{\rm base} \;+\; \underbrace{(p^{\rm auth}-p^{\rm base})}_{\text{authenticity rent}}, \]
+      <p>and cultivated &mdash; not being <i>the authentic thing</i> &mdash; can earn only the base. So the
+      ratio that decides reachability is taken against the <b>accessible tier</b>, never the headline:</p>
+      \[ R \;=\; \frac{c_x}{p^{\rm base}}\qquad(\text{not } c_x/p^{\rm auth}). \]
+      <p>Heterogeneity in the taste for authenticity then splits the category in two: a <b>prestige core</b>
+      (fraction \(\chi\)) pays the rent and <i>never</i> switches &mdash; a Veblen / conspicuous-consumption
+      segment (Bagwell&nbsp;&amp;&nbsp;Bernheim&nbsp;1996 <a href="#ref17">[17]</a>), which is precisely why a luxury incumbent
+      <b>holds price and cedes volume</b> rather than discounting &mdash; and an <b>aspirational base</b> buys
+      on quality and is contestable. Only the base is addressable:</p>
+      \[ V^{\rm addr} \;=\; (1-\chi)\,V. \]
+      <p>This counts authenticity <b>once</b> (as removed volume), avoiding the double penalty of also
+      taxing it inside the utility.</p>
+
+      <p><b>How the three tiers are pinned.</b> For a graded product they are read straight off the market's
+      own grade structure, not assigned: \(p^{\rm auth}\) is the retail price of the <b>top / prestige
+      grade</b> (bellota ib&eacute;rico, A5 wagyu, wild beluga, &#333;-toro); \(p^{\rm base}\) is the
+      <b>mainstream grade</b> bought for quality rather than provenance (serrano / cebo ham, crossbred
+      "wagyu-style", farmed Atlantic salmon, akami). Both prices are observable from grade-level retail data
+      (panel&nbsp;7's hover gives the per-product source). The <b>prestige-volume share \(\chi\)</b> would in
+      principle be the prestige grade's fraction of category volume &mdash; but unlike the prices, those
+      splits are mostly <i>not</i> published, so \(\chi\) is handled as a single global value (next paragraph)
+      rather than guessed per product. A commodity with a single grade has \(p^{\rm base}=p^{\rm auth}\) and
+      no prestige core, so the partition does nothing there.</p>
+      <p style="background:#fbf7ef;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
+      <b>What's sourced, and the judgement left.</b> The price tiers \(p^{\rm auth}\) and \(p^{\rm base}\)
+      are <b>sourced</b> (June&nbsp;2026 retail/wholesale, cited per product). The prestige <i>volume</i>
+      share \(\chi\) is a <b>single global value</b>, not per-product: only two categories' grade splits are
+      published &mdash; salmon (wild ~25% of supply) and iberico (bellota ~20% of production) &mdash; and
+      both land at ~0.2&ndash;0.25, so one number is as defensible as guessing eleven (and far easier to
+      explain). \(\chi\) is the <b>knob</b> (slider, default 0.25), applied to every product with a distinct,
+      cheaper accessible tier; commodity (single grade) has none. Drag it &mdash; \(\chi=0\) makes the whole
+      luxury market addressable, \(\chi\to1\) locks it all as rent &mdash; to see how much the picture leans
+      on the one guess.
+      (Shark fin is the one product whose <i>price</i> is also an estimate &mdash; an illegal, declining trade
+      with no clean data.)</p>
+
+      <p><b>Reachability zones</b> (panel&nbsp;7's colours), with a &plusmn;$3 "at-parity" band so knife-edge
+      products do not read as categorical:</p>
+      \[ \text{zone}=\begin{cases}
+         \text{at parity}&|p^{\rm base}-c_x|\le \$3\\
+         \text{reachable now}& p^{\rm base}\ge c_x\\
+         \text{needs the floor}& c_x^{\rm floor}\le p^{\rm base}&lt;c_x\\
+         \text{never (on price)}& p^{\rm base}&lt;c_x^{\rm floor}\end{cases} \]
+
+      <p><b>Share of the addressable base.</b> The contestable buyers choose by the <i>same</i> two-segment
+      logit \(S(\cdot)\) of &sect;2 &mdash; fully specified there (the BLP income&ndash;price term, taste,
+      slaughter-free, real-tissue and health, summed over the four products and the two segments) &mdash;
+      with <b>no new demand parameter</b>. We simply evaluate it at the accessible reference price, i.e. at
+      \(R=c_x/p^{\rm base}\), keeping &sect;2's existing acceptance dials (taste-acceptance \(a_x\),
+      slaughter-free value \(\theta_{\rm free}\), neophobia \(\nu_x\)) &mdash; the sliders the user already
+      sets and the Monte&nbsp;Carlo already sweeps:</p>
+      \[ s \;=\; S\big(R=c_x/p^{\rm base}\big). \]
+      <p>Cultivated's <b>capturable</b> advantage (cruelty-free foie gras, contaminant-free seafood) is
+      deliberately <i>not</i> a separate utility offset: that would be an un-calibratable free coefficient,
+      and it would <b>double-count</b>. It enters instead through the <b>price the product can command</b>
+      &mdash; an attribute that substitutes for the rent supports a higher \(p^{\rm base}\) (and a smaller
+      prestige core \(\chi\)), which lowers \(R\) and so lifts \(s\) through \(S\) itself. So the only
+      foothold-specific inputs are the observable price tiers \((p^{\rm base},\,p^{\rm auth},\,\chi)\);
+      the demand side introduces nothing new to calibrate.</p>
+
+      <p><b>Realizable margin.</b> Products are ranked by the annual gross margin cultivated could actually
+      capture over the addressable base &mdash; per-kg margin &times; share &times; addressable volume:</p>
+      \[ \Phi \;=\; \big(p^{\rm base}-c_x\big)^{+}\cdot s\cdot V^{\rm addr}\qquad(\$/\text{yr}). \]
+      <p>A pure-rent category (caviar, \(\chi\to1\)) has \(V^{\rm addr}\to0\Rightarrow\Phi\to0\): its large
+      headline margin is unreachable. \(\Phi\) is largest where a genuine capturable advantage meets a large
+      accessible base (cruelty-free foie gras; high-volume seafood). It is a <b>static, gross</b> figure
+      (pre-capex, pre-fixed-cost, undiscounted). The idea that this margin, reinvested, rides &sect;1's cost
+      down the experience curve <a href="#ref18">[18]</a><a href="#ref19">[19]</a> is what the rung
+      <i>motivates</i> &mdash; it is not modelled here.</p>
+
+      <p style="background:#fbf7ef;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
+      <b>What is sourced vs. judged here &mdash; read before trusting panel&nbsp;7.</b> The cost terms are
+      sourced (&sect;1; Pasitka/Humbird). The <b>only</b> foothold-specific inputs are the partition tiers
+      &mdash; the price tiers \(p^{\rm base}\), \(p^{\rm auth}\) (now <b>sourced</b> from June&nbsp;2026
+      retail/wholesale, cited per product &mdash; hover any bubble in panel&nbsp;7) and the prestige share
+      \(\chi\) (a <b>single global value</b> &mdash; the \(\chi\) slider, default 0.25, anchored to salmon &amp;
+      iberico's ~0.2&ndash;0.25). They
+      are <i>data</i> (observable market tiers), not free coefficients. The demand side adds <b>no new parameter</b> &mdash; it reuses &sect;2's calibrated logit
+      and its existing (swept) acceptance dials. <b>Relation to &sect;3:</b> this is the per-product refinement of
+      &sect;3's coarse three-tier authenticity. There the luxury penalty lives in a <i>utility</i> offset
+      \(\tau_{\rm type}\); here it lives in an <i>observable price partition</i> \((p^{\rm base},\chi)\)
+      &mdash; read off market tiers rather than assigned &mdash; with the addressable <i>volume</i>, not the
+      share, carrying the rent.</p>
+      <p style="background:#f7f7f5;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
+      <b>What this rung is &mdash; and four limitations an economist would flag.</b> It is a reduced-form
+      <b>reachability</b> map (where is cultivated price-competitive, and how large is the gross-margin
+      pool), <i>not</i> an equilibrium model. (i) <b>No supply side</b>: cultivated is treated as a
+      <b>price-taker at \(p^{\rm base}\)</b> &mdash; there is no profit-maximising price and no incumbent
+      best-response (the "hold price, cede volume" story is assumed, not derived). (ii) \(S(R)\) reuses
+      &sect;2's <b>meat-calibrated</b> logit (its choice set and elasticities), so for luxury / seafood it is
+      <i>indicative, not category-specific</i> &mdash; and being downward-sloping it does <i>not</i> carry
+      the Veblen effect used to justify \(\chi\) (so authenticity is modelled two ways: a deleted core, and
+      absent in the base). (iii) \(\Phi\) is <b>static and gross</b> (no time, discounting, capex or fixed
+      costs). (iv) <b>Partial equilibrium</b> &mdash; each product in isolation. So this rung answers
+      "<i>where can cultivated enter on price</i>", not "optimal entry, profit, or the descent dynamics".</p>
+
       <h4>Parameters &amp; sources — every knob, its symbol, and where it enters</h4>
       <p>Each slider you can tweak, the <b>symbol</b> it carries in the equations above, its default and
       range, the <b>exact term it enters</b> (§1 = cost &rarr; R; §2 = the utility \(V_j\)), and its source
@@ -1482,7 +1646,10 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         <b>Income in price (BLP):</b> Berry, Levinsohn &amp; Pakes, <i>Econometrica</i> <b>63</b>, 841 (1995),
         <a href="https://doi.org/10.2307/2171802" target="_blank" rel="noopener">doi:10.2307/2171802</a>.</li>
         <li id="ref13"><b>[13]</b> <b>Reference-dependent loss aversion:</b> Tversky &amp; Kahneman, <i>Q. J. Econ.</i> <b>106</b>,
-        1039 (1991), <a href="https://doi.org/10.2307/2937956" target="_blank" rel="noopener">doi:10.2307/2937956</a>;
+        1039 (1991), <a href="https://doi.org/10.2307/2937956" target="_blank" rel="noopener">doi:10.2307/2937956</a>
+        (the reference-dependent model) and <i>J. Risk Uncertain.</i> <b>5</b>, 297 (1992),
+        <a href="https://doi.org/10.1007/BF00122574" target="_blank" rel="noopener">doi:10.1007/BF00122574</a>
+        (the &lambda;&thinsp;&asymp;&thinsp;2.25 loss/gain median this model anchors to);
         Hardie, Johnson &amp; Fader, <i>Marketing Science</i> <b>12</b>, 378 (1993),
         <a href="https://doi.org/10.1287/mksc.12.4.378" target="_blank" rel="noopener">doi:10.1287/mksc.12.4.378</a>.
         <b>Habit ≠ heterogeneity:</b> Heckman, J.,
@@ -1498,12 +1665,26 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
         <a href="https://www.ers.usda.gov/publications/pub-details?pubid=47581" target="_blank" rel="noopener">International evidence on food consumption patterns</a>,
         USDA ERS TB-1929 (2011). <b>Whole-food bean price:</b>
         <a href="https://fred.stlouisfed.org/series/APU0000714233" target="_blank" rel="noopener">BLS/FRED retail series</a> (2025).</li>
+        <li id="ref16"><b>[16]</b> <b>Hedonic price = sum of implicit attribute prices (the rent decomposition, &sect;6):</b>
+        Rosen, S. Hedonic prices and implicit markets. <i>J. Polit. Econ.</i> <b>82</b>, 34&ndash;55 (1974).
+        <a href="https://doi.org/10.1086/260169" target="_blank" rel="noopener">doi:10.1086/260169</a></li>
+        <li id="ref17"><b>[17]</b> <b>Conspicuous-consumption / Veblen pricing (why a luxury incumbent holds price, &sect;6):</b>
+        Bagwell, L.&nbsp;S. &amp; Bernheim, B.&nbsp;D. Veblen effects in a theory of conspicuous consumption.
+        <i>Am. Econ. Rev.</i> <b>86</b>, 349&ndash;373 (1996).</li>
+        <li id="ref18"><b>[18]</b> <b>Experience / learning curve &mdash; unit cost falls with cumulative output (&sect;6):</b>
+        Wright, T.&nbsp;P. Factors affecting the cost of airplanes. <i>J. Aeronaut. Sci.</i> <b>3</b>, 122&ndash;128 (1936);
+        Arrow, K.&nbsp;J. The economic implications of learning by doing. <i>Rev. Econ. Stud.</i> <b>29</b>, 155&ndash;173 (1962).
+        <a href="https://doi.org/10.2307/2295952" target="_blank" rel="noopener">doi:10.2307/2295952</a></li>
+        <li id="ref19"><b>[19]</b> <b>Price-skimming down a quality ladder under a learning curve (&sect;6):</b>
+        Spence, A.&nbsp;M. The learning curve and competition. <i>Bell J. Econ.</i> <b>12</b>, 49&ndash;70 (1981).
+        <a href="https://doi.org/10.2307/3003508" target="_blank" rel="noopener">doi:10.2307/3003508</a></li>
       </ul>
       <p>Anchored to Pasitka et&nbsp;al. 2024 and Humbird 2021; full results in
       <a href="RESULTS.md">RESULTS.md</a>.</p>
     </details>
   </div>
 </div>
+<div id="foottip"></div>
 """  # ---- end PAGE_HTML (CSS + markup + methodology) ----
 
 # ===========================================================================
@@ -1763,6 +1944,7 @@ function trajectoryMC(s,N,which){
   // ν_p0, health_p (its price R_p is held at the slider, like the cultivated R is held).
   which=which||"x";
   const yrs=MODEL.years||30, P=C.priors, pb=(which==="pb");
+  _seedRng(pb?2:1);                 // reproducible band, distinct stream per product
   const all=[]; const tstab=[], finals=[];
   for(let d=0;d<N;d++){
     const o=pb
@@ -1922,7 +2104,8 @@ const fmtPct=v=>(v*100).toFixed(0)+"%";
 function showTip(e,text){const t=document.getElementById("tip");t.innerHTML=text;t.style.display="block";
   const r=e.target.getBoundingClientRect();
   t.style.left=Math.max(8,Math.min(window.innerWidth-300,r.left-10))+"px";
-  t.style.top=(r.bottom+6)+"px";}
+  const th=t.offsetHeight, below=r.bottom+6, above=r.top-th-6;   // flip above if it would overflow the bottom
+  t.style.top=Math.max(8, (below+th<=window.innerHeight-8) ? below : above)+"px";}
 function hideTip(){document.getElementById("tip").style.display="none";}
 function addQ(parent,text){const q=document.createElement("span");q.className="q";q.textContent="?";
   q.onmouseenter=e=>showTip(e,text);q.onmouseleave=hideTip;
@@ -2393,8 +2576,201 @@ function fillCmpSel(){
   sel.onchange=()=>{state.cmpProduct=sel.value;recompute();};
 }
 
+/* ---------- FOOTHOLD: the reachability waterline (foothold.py strategic layer) ----------
+   Cultivated retail cost = a waterline set by the live cost sliders (medium/overhead/markup/scaffold),
+   via the SAME stack as the cost chart. Products are islands at their conventional price; above the
+   line = price-reachable (R<1). Two reference lines: the current sea and the irreducible-floor sea. */
+function footRetail(s,structured){return biomass(s)+(structured?s.scaffold:0)+s.markup_add;}
+function footFloor(s,structured){return C.cost_floor+(structured?s.scaffold:0)+s.markup_add;}
+function footR(s,pd){return footRetail(s,pd.structure==="structured")/pd.p_base;}   // vs the ACCESSIBLE price (rent stripped)
+function footHasRent(p){return p.p_base!=null && p.p_conv!=null && p.p_base<p.p_conv;}   // a distinct, cheaper accessible tier exists
+function footPhi(p){return footHasRent(p) ? (state.phi===undefined?0.25:state.phi) : 0;}  // global prestige share φ where a rent tier exists
+function footAddr(p){return (1-footPhi(p))*p.volume_kt;}                              // addressable base (prestige core removed)
+function footMarginPool(s,p){const m=p.p_base-footRetail(s,p.structure==="structured");  // realizable annual gross margin ($M/yr) = margin/kg × share × addressable kt
+  return Math.max(0,m)*footShare(s,p)*footAddr(p);}
+function footReach(s,p){   // reachability zone at the accessible price, with a ±$3 "at parity" band so
+  const structured=p.structure==="structured";   // knife-edge products (salmon vs unagi) don't look categorical
+  const cost=footRetail(s,structured), fl=footFloor(s,structured), b=p.p_base;
+  if(Math.abs(b-cost)<=3) return {zone:"par",  col:"#56B4E9"};   // borderline / essentially at parity
+  if(b>=cost)             return {zone:"now",  col:"#117733"};
+  if(b>=fl)               return {zone:"floor",col:"#E69F00"};
+  return {zone:"never", col:"#BBBBBB"};
+}
+function fillFootholdSel(){
+  const sel=document.getElementById("footSel"); if(!sel) return;
+  const P=C.foothold_products;
+  if(state.footSel===undefined||state.footSel<0||state.footSel>=P.length) state.footSel=0;
+  sel.innerHTML="";
+  P.forEach((p,i)=>{const o=document.createElement("option");o.value=i;o.textContent="drill into: "+p.label;sel.appendChild(o);});
+  sel.value=state.footSel;
+  sel.onchange=()=>{state.footSel=parseInt(sel.value);drawFoothold(state);};
+}
+function drawFoothold(s){
+  const svg=document.getElementById("foothold"); if(!svg) return; clear(svg);
+  const ft=document.getElementById("foottip"); if(ft) ft.style.display="none";   // hide stale tooltip on redraw
+  if(state.footView==="margin") drawFootResponse(s,svg); else drawFootWaterline(s,svg);
+  footCaption(s);
+}
+function drawFootWaterline(s,svg){
+  const W=720,H=380,mL=52,mR=156,mT=22,mB=84;
+  const P=C.foothold_products.slice().sort((a,b)=>b.p_base-a.p_base);   // by the ACCESSIBLE price cultivated competes at
+  const selLabel=(C.foothold_products[state.footSel]||{}).label;        // highlight by identity (P is re-sorted)
+  const n=P.length, yLo=6, yHi=2600;
+  const Y=v=>H-mB-(H-mT-mB)*(Math.log(Math.max(v,yLo))-Math.log(yLo))/(Math.log(yHi)-Math.log(yLo));
+  const X=i=>mL+(W-mL-mR)*(i+0.5)/n;
+  [10,30,100,300,1000,2500].forEach(v=>{el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f2f2f2"},svg);
+    tx(svg,mL-6,Y(v)+3,"$"+v,{"font-size":8.5,"text-anchor":"end",fill:"#888"});});
+  const seaU=footRetail(s,false), seaS=footRetail(s,true), floorU=footFloor(s,false), floorS=footFloor(s,true);
+  // underwater shading (below the lower, unstructured cost) + the cost BAND (unstructured edge -> +scaffold
+  // edge) so STRUCTURED products' stems land on a visible line, not in mid-air.
+  el("rect",{x:mL,y:Y(seaU),width:W-mL-mR,height:(H-mB)-Y(seaU),fill:"#0072B2",opacity:0.05},svg);
+  el("rect",{x:mL,y:Y(seaS),width:W-mL-mR,height:Y(seaU)-Y(seaS),fill:"#0072B2",opacity:0.12},svg);
+  el("line",{x1:mL,y1:Y(seaU),x2:W-mR,y2:Y(seaU),stroke:"#0072B2","stroke-width":1.8},svg);
+  el("line",{x1:mL,y1:Y(seaS),x2:W-mR,y2:Y(seaS),stroke:"#0072B2","stroke-width":1.1,"stroke-dasharray":"5 2"},svg);
+  tx(svg,W-mR+4,Y(seaS)-1,"+scaffold $"+seaS.toFixed(0),{"font-size":8,fill:"#0072B2"});
+  tx(svg,W-mR+4,Y(seaU)+9,"cult. cost $"+seaU.toFixed(0),{"font-size":8,fill:"#0072B2","font-weight":700});
+  el("line",{x1:mL,y1:Y(floorU),x2:W-mR,y2:Y(floorU),stroke:"#0072B2","stroke-width":1,"stroke-dasharray":"2 3",opacity:0.6},svg);
+  tx(svg,W-mR+4,Y(floorU)+3,"floor $"+floorU.toFixed(0),{"font-size":8,fill:"#0072B2",opacity:0.8});
+  P.forEach((p,i)=>{
+    const structured=p.structure==="structured";
+    const cost=structured?seaS:seaU, fl=structured?floorS:floorU;
+    const rc=footReach(s,p), reach=rc.zone, col=rc.col;
+    const r=footRad(footAddr(p)), x=X(i), y=Y(p.p_base);
+    // prestige core (rent cultivated can't capture): faint marker at the headline price, dotted down to the base
+    if(p.p_conv>p.p_base*1.05){const yp=Y(p.p_conv), rent=p.p_conv-p.p_base;
+      el("line",{x1:x,y1:yp,x2:x,y2:y,stroke:"#CCC","stroke-width":1,"stroke-dasharray":"1 3"},svg);
+      tip(el("circle",{cx:x,cy:yp,r:3,fill:"#CCC"},svg),
+        p.label+"\nheadline (sticker) price $"+p.p_conv+"/kg — the premium/prestige tier"
+        +"\ncultivated competes $"+rent+"/kg lower, at $"+p.p_base+"/kg (the accessible tier)"
+        +"\nthe gap = brand/scarcity RENT cultivated can't capture (it isn't the authentic thing)");
+      if(p.label===selLabel) tx(svg,x+5,(yp+y)/2+3,"rent $"+rent,{"font-size":8,fill:"#999","font-style":"italic"});}
+    // the vertical bar IS the realizable margin (accessible price − cost): solid up when reachable, dotted-grey deficit
+    if(reach!=="never") el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:col,"stroke-width":2.2,opacity:0.6},svg);
+    else el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:"#CCC","stroke-width":1,"stroke-dasharray":"2 2"},svg);
+    tip(el("circle",{cx:x,cy:y,r,fill:col,opacity:0.9,stroke:"#fff","stroke-width":1},svg),footTip(s,p));
+    if(p.launched_by) el("circle",{cx:x,cy:y,r:r+3,fill:"none",stroke:"#333","stroke-width":1,opacity:0.7},svg);
+    if(p.label===selLabel){el("circle",{cx:x,cy:y,r:r+6,fill:"none",stroke:"#CC3311","stroke-width":1.6},svg);
+      const m=p.p_base-cost;
+      tx(svg,x+5,(Y(cost)+y)/2+3,(m>=0?"+$":"−$")+Math.abs(m).toFixed(0),{"font-size":9,fill:"#CC3311","font-weight":700});}
+    const short=p.label.replace("cultivated ","").replace(/ \(.*\)/,"");
+    tx(svg,x,H-mB+12,short,{"font-size":7.5,"text-anchor":"end",fill:"#444",transform:"rotate(-42 "+x+" "+(H-mB+12)+")"});
+  });
+  el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
+  tx(svg,(mL+W-mR)/2,H-3,"islands at the ACCESSIBLE price (grey tick = headline price = rent)   ·   bar = gross margin/kg   ·   dot = addressable volume",
+    {"font-size":8,"text-anchor":"middle",fill:"#666"});
+  [["#117733","reachable now"],["#56B4E9","at parity (±$3)"],["#E69F00","needs the floor"],["#BBBBBB","never on price"]].forEach(([c,t],k)=>{
+    el("circle",{cx:W-mR+8,cy:mT+8+k*14,r:4,fill:c},svg);tx(svg,W-mR+16,mT+11+k*14,t,{"font-size":8,fill:"#555"});});
+  const _ky=mT+8+4*14;   // the grey tick above each island = the headline (rent) price cultivated can't capture
+  el("circle",{cx:W-mR+8,cy:_ky-3,r:2.5,fill:"#CCC"},svg);
+  el("line",{x1:W-mR+8,y1:_ky,x2:W-mR+8,y2:_ky+8,stroke:"#CCC","stroke-dasharray":"1 2"},svg);
+  tx(svg,W-mR+16,_ky+1,"headline price (rent,",{"font-size":8,fill:"#555"});
+  tx(svg,W-mR+16,_ky+10,"unaddressable)",{"font-size":8,fill:"#555"});
+  footSizeKey(svg,W-mR+16,W-mR+38,mT+8+5*14+16);           // quantified volume legend
+}
+/* per-product PREDICTED SHARE via the demand model (shareCalc), live to the acceptance/price sliders.
+   NO new foothold parameter: it is §2's calibrated logit evaluated at the accessible price p_base
+   (toff=0). Cultivated's capturable advantage enters through p_base (the price it can command), not a
+   utility offset — that avoids an un-calibratable free coefficient and a double-count. See methods §6. */
+function footShare(s,pd){   // share of the ADDRESSABLE base = §2's calibrated logit at the accessible price.
+  if(pd.p_base==null) return 0;   // NO per-product demand knob: the capturable advantage enters via p_base, not a utility offset.
+  const K=KP||effConsts(s);
+  return shareCalc(footR(s,pd),K,{ax:s.accept_x,tfM:s.theta_free_M,toff:0,
+    eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:pd.p_base});
+}
+function footRad(v){return 3+2.6*Math.log10(Math.max(v,0.2)+1);}   // bubble radius ~ log volume (impact)
+function tip(elem,text){   // instant custom hover tooltip (native SVG <title> is slow/finicky)
+  elem.style.cursor="pointer";
+  elem.addEventListener("mouseenter",()=>{const t=document.getElementById("foottip");if(t){t.textContent=text;t.style.display="block";}});
+  elem.addEventListener("mousemove",e=>{const t=document.getElementById("foottip");if(t){t.style.left=(e.clientX+14)+"px";t.style.top=(e.clientY+14)+"px";}});
+  elem.addEventListener("mouseleave",()=>{const t=document.getElementById("foottip");if(t)t.style.display="none";});
+  return elem;}
+function footEdge(p){   // plain-language: the capturable advantage + how much of the market is unaddressable rent
+  const lvl=v=>v>=2?"strong":(v>=1?"moderate":"no");
+  const mx=Math.max(p.defect_ethics,p.defect_env,p.defect_health);
+  const which=[["welfare",p.defect_ethics],["sustainability",p.defect_env],["health/safety",p.defect_health]]
+    .filter(a=>a[1]===mx&&mx>0).map(a=>a[0]).join(" & ");
+  const adv=mx>0?lvl(mx)+" "+which+" advantage":"no clear attribute advantage";
+  const rent=footPhi(p)>0?Math.round(100*footPhi(p))+"% of the market is prestige rent (cultivated can't capture it)":
+             "no prestige rent (cultivated competes at the full price)";
+  return adv+"; "+rent;
+}
+function footTip(s,p){                                              // hover data for a product bubble/island
+  const structured=p.structure==="structured", R=footR(s,p), m=p.p_base-footRetail(s,structured);
+  const addr=footAddr(p), pool=footMarginPool(s,p);
+  const poolTxt=pool>=1000?"$"+(pool/1000).toFixed(1)+"B/yr":"$"+pool.toFixed(0)+"M/yr";
+  const priceTxt=(p.p_conv>p.p_base*1.05)
+    ? "headline $"+p.p_conv+"/kg → cultivated competes at $"+p.p_base+"/kg (accessible tier)"
+    : "price $"+p.p_base+"/kg (no rent)";
+  return p.label
+    +"\n"+priceTxt+"  ("+p.structure+")"
+    +"\nprice basis: "+p.source
+    +"\nR = "+R.toFixed(2)+"   ·   margin = "+(m>=0?"+$":"−$")+Math.abs(m).toFixed(0)+"/kg"
+    +"\npredicted share ≈ "+(100*footShare(s,p)).toFixed(0)+"% of the addressable base"
+    +"\naddressable volume: "+addr.toLocaleString(undefined,{maximumFractionDigits:0})+" kt/yr"
+       +(footPhi(p)>0?"  ("+Math.round(100*footPhi(p))+"% prestige core removed)":"")
+    +"\nrealizable GROSS margin ≈ "+poolTxt+"   (margin/kg × share × addressable; static, pre-capex)"
+    +"\nedge: "+footEdge(p)
+    +(p.launched_by?"\nled by: "+p.launched_by:"");
+}
+function footSizeKey(svg,cx,labx,yTop){                            // quantified bubble-size legend (reference volumes)
+  tx(svg,cx-12,yTop,"bubble = addressable volume (kt/yr, log):",{"font-size":7.5,fill:"#999"});
+  [[100000,"100,000"],[1000,"1,000"],[10,"10"]].forEach(([v,lab],k)=>{
+    const cy=yTop+22+k*28;
+    el("circle",{cx,cy,r:footRad(v),fill:"none",stroke:"#999"},svg);
+    tx(svg,labx,cy+3,lab+" kt",{"font-size":7.5,fill:"#777"});});
+}
+function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) vs price ratio R (x); the SELECTED product's curve
+  const W=720,H=380,mL=58,mR=150,mT=26,mB=54;
+  const P=C.foothold_products, sel=C.foothold_products[state.footSel]||P[0], selLabel=sel?sel.label:"";
+  const rLo=0.05, rHi=5, yLo=0, yHi=100;
+  const X=v=>mL+(W-mL-mR)*(Math.log(Math.max(v,rLo))-Math.log(rLo))/(Math.log(rHi)-Math.log(rLo));
+  const Y=v=>mT+(H-mT-mB)*(yHi-Math.max(yLo,Math.min(yHi,v)))/(yHi-yLo);
+  [0,20,40,60,80,100].forEach(v=>{el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f2f2f2"},svg);
+    tx(svg,mL-6,Y(v)+3,v+"%",{"font-size":8,"text-anchor":"end",fill:"#aaa"});});
+  [0.1,0.3,1,3].forEach(v=>{el("line",{x1:X(v),y1:mT,x2:X(v),y2:H-mB,stroke:v===1?"#bbb":"#f2f2f2","stroke-width":v===1?1.3:1},svg);
+    tx(svg,X(v),H-mB+13,v===1?"R=1 (parity)":("R="+v),{"font-size":8,"text-anchor":"middle",fill:v===1?"#666":"#aaa"});});
+  tx(svg,mL+4,Y(34),"share saturates < 100%: once cheap vs income, price stops mattering (BLP) — rivals' attributes hold the rest",
+    {"font-size":7,fill:"#bbb"});
+  P.forEach(p=>{
+    if(p.p_base==null) return;
+    const R=footR(s,p), sh=100*footShare(s,p), rc=footReach(s,p);
+    const r=footRad(footAddr(p)), x=X(R), y=Y(sh);
+    tip(el("circle",{cx:x,cy:y,r,fill:rc.col,opacity:0.5,stroke:rc.col,"stroke-width":1.2},svg),footTip(s,p));
+    if(p.launched_by) el("circle",{cx:x,cy:y,r:r+3,fill:"none",stroke:"#333","stroke-width":1,opacity:0.7},svg);
+    if(p.label===selLabel){el("circle",{cx:x,cy:y,r:r+6,fill:"none",stroke:"#CC3311","stroke-width":1.8},svg);
+      tx(svg,x,y-r-6,selLabel.replace("cultivated ",""),{"font-size":8.5,"text-anchor":"middle",fill:"#CC3311","font-weight":700});}
+  });
+  tx(svg,(mL+W-mR)/2,H-3,"price ratio R = cultivated price ÷ accessible conventional price  (log; R<1 = cheaper)  ·  hover any bubble for its name",
+    {"font-size":8.5,"text-anchor":"middle",fill:"#666"});
+  tx(svg,15,(mT+H-mB)/2,"predicted market share (%) — the dependent variable",{"font-size":8.5,"text-anchor":"middle",fill:"#666",transform:"rotate(-90 15 "+((mT+H-mB)/2)+")"});
+  footSizeKey(svg,W-mR+18,W-mR+40,mT+22);   // quantified volume legend (top-right)
+}
+function footCaption(s){
+  const pd=C.foothold_products[state.footSel]; if(!pd) return;
+  const structured=pd.structure==="structured", R=footR(s,pd), margin=pd.p_base-footRetail(s,structured);
+  const zone=R<1?"reachable now":(pd.p_base>=footFloor(s,structured)?"reachable only at the cost floor":"unreachable on price even at the floor");
+  const priceTxt=(pd.p_conv>pd.p_base*1.05)?"$"+pd.p_conv+" headline → competes at $"+pd.p_base+" (accessible)":"$"+pd.p_base+"/kg";
+  const pool=footMarginPool(s,pd), poolTxt=pool>=1000?"$"+(pool/1000).toFixed(1)+"B/yr":"$"+pool.toFixed(0)+"M/yr";
+  document.getElementById("footcap").innerHTML=
+    "<b>"+pd.label+"</b> — "+priceTxt+" · "+pd.structure+" · <b>R = "+R.toFixed(2)+"</b> ("+zone+
+    ") · margin "+(margin>=0?"+$":"−$")+Math.abs(margin).toFixed(0)+"/kg · addressable "+footAddr(pd).toLocaleString(undefined,{maximumFractionDigits:0})+
+    " kt/yr · share ~"+(100*footShare(s,pd)).toFixed(0)+"% · gross margin "+poolTxt+
+    (pd.launched_by?" · led by <b>"+pd.launched_by+"</b>":"")+
+    "<br><span style='color:#888'>price basis: "+pd.source+"</span>"+
+    "<br><span style='color:#888'>edge: "+footEdge(pd)+". "+pd.note+"</span>";
+}
+
 /* ---------- Monte Carlo (mirror of meat_market.monte_carlo) ---------- */
-function triang(lo,mode,hi){const u=Math.random(),c=(mode-lo)/(hi-lo);
+// Seeded PRNG (mulberry32) so the uncertainty bands are REPRODUCIBLE run-to-run, mirroring the
+// Python MCs (which use np.random.default_rng(0)) instead of jittering on every redraw. Each band
+// entry point calls _seedRng() first, so the same sliders always yield the same band.
+let _rngState = 0x9e3779b9;
+function _seedRng(seed){_rngState = (seed>>>0) || 1;}
+function _rand(){ _rngState |= 0; _rngState = (_rngState + 0x6D2B79F5) | 0;
+  let t = Math.imul(_rngState ^ (_rngState >>> 15), 1 | _rngState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+function triang(lo,mode,hi){const u=_rand(),c=(mode-lo)/(hi-lo);
   return u<c?lo+Math.sqrt(u*(hi-lo)*(mode-lo)):hi-Math.sqrt((1-u)*(hi-lo)*(hi-mode));}
 function pctl(sorted,q){const i=(sorted.length-1)*q/100,lo=Math.floor(i),hi=Math.ceil(i);
   return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo);}
@@ -2405,6 +2781,7 @@ function monteCarlo(s,N){
   // and pvol/pval for plant-based.
   const P=C.priors, market=MODEL.markets[s.region], bases=speciesBases(market);
   let Wval=0; market.forEach(mt=>Wval+=mt.p_conv*mt.w_vol);
+  _seedRng(3);                      // reproducible penetration band (mirrors np seed=0)
   const vol=new Array(N), val=new Array(N), pvol=new Array(N), pval=new Array(N);
   for(let d=0;d<N;d++){
     const mp=triang.apply(null,P.media_price), ef=triang.apply(null,P.efficiency),
@@ -2500,7 +2877,7 @@ function recompute(){
   KP=effConsts(state);                               // re-solve the calibration at the current sliders
   const ptmc=state.mc?perTypeMC(state,600):null;     // per-type P10-P90 whiskers when MC is on
   drawHeads(state); drawTiming(state); drawBars(state,ptmc); drawPie(state); drawCost(state); drawCurve(state);
-  drawMilk(state); drawMC(state);
+  drawMilk(state); drawMC(state); drawFoothold(state);
 }
 function setIncome(v){                                // sync the income slider when the region changes
   state.income=v; const ri=document.getElementById("r_income"), vi=document.getElementById("v_income");
@@ -2524,10 +2901,6 @@ function fillParamTable(){
      '<td class="n">0</td><td class="n">+0.2 / &minus;0.4 / &minus;1.5</td>'+
      '<td class="s">per-meat-type additive constant on cultivated, &xi;<sub>x</sub> = &nu;<sub>x</sub> + &tau;<sub>type</sub> (basic / cut / premium, &sect;3)</td>'+
      '<td class="s">reduced-form (Lusk-Tonsor tiering)</td></tr>';
-  h+='<tr><td>income gradient</td><td style="white-space:nowrap">&phi;</td>'+
-     '<td class="n">0.5</td><td class="n">0 … 1</td>'+
-     '<td class="s">damps the income term across regions: y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup> (&sect;2)</td>'+
-     '<td class="s">Muhammad/ERS 2011</td></tr>';
   document.getElementById("paramtable").innerHTML=h+'</table>';
 }
 function fillPriceTable(){
@@ -2698,7 +3071,13 @@ function selfTest(){
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
-buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); buildPieToggle();
+buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
+function setFootView(v){state.footView=v;
+  document.getElementById("footWL").classList.toggle("on",v!=="margin");
+  document.getElementById("footMV").classList.toggle("on",v==="margin");
+  drawFoothold(state);}
+document.getElementById("footWL").onclick=()=>setFootView("waterline");
+document.getElementById("footMV").onclick=()=>setFootView("margin");
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");
   this.classList.toggle("on",state.mc);recompute();};

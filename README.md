@@ -7,6 +7,10 @@ funder actually cares about. It is anchored to the **one empirical TEA** (Pasitk
 Food* 2024) and bounded by the **physical feedstock floor** (Humbird 2021). Every number is sourced
 and lives in exactly one place; every result reproduces from the code with one command.
 
+**👉 [Open the live interactive explorer](https://pabloamc.github.io/cultivated-meat/)** — with the
+rendered [methods](https://pabloamc.github.io/cultivated-meat/methods.html) and
+[results](https://pabloamc.github.io/cultivated-meat/results.html) alongside it.
+
 - **Read the findings:** [RESULTS.md](RESULTS.md) (results brief) or [POST.md](POST.md) (the essay).
 - **Read the methods:** [METHODS.md](METHODS.md) (mechanisms, equations, every parameter + source).
 - **Play with it:** open [interactive.html](interactive.html) in a browser — a self-contained,
@@ -155,7 +159,7 @@ More detail in [`tests/README.md`](tests/README.md).
 
 ## Repository map
 
-```
+```text
 model/
 ├── inputs.py            ← the datasheet: every number, source, and MC prior (start here)
 ├── price_ratio.py       ← Rung 1: R and the parity threshold

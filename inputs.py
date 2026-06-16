@@ -539,9 +539,11 @@ REGISTRY: dict[str, Input] = {
     "scaffold_frac": Input(0.2, "kg/kg", "[Gu25-qual/assumed] scaffold material per kg product "
         "(minority mass); Gu et al. 2025 gives the materials picture but no mass fraction",
         lo=0.1, hi=0.3, mode=0.2),
-    "material_price": Input(8.0, "$/kg", "[Gu25-qual/assumed] synthetic PLA/PCL <$10/kg, plant "
-        "cheaper, gels higher (Gu et al. 2025 ranking, no $/kg); Gelatex vendor claim ~<$1/kg of meat",
-        lo=2.0, hi=20.0, mode=8.0),
+    "material_price": Input(5.0, "$/kg", "[assumed/round] synthetic PLA/PCL <$10/kg, plant "
+        "cheaper, gels higher (Gu et al. 2025 ranks materials but gives no $/kg); Gelatex vendor claim "
+        "~<$1/kg of meat. Centred so the structured-scaffold mode 0.2*5 + process 5 = $6/kg == SCAF (the "
+        "round datasheet scaffold cost) — the decomposition is illustrative, pinned to that one number.",
+        lo=2.0, hi=20.0, mode=5.0),
     "process_cost": Input(5.0, "$/kg", "[UNGROUNDED] seed+maturation+removal bioprocess; no TEA",
         lo=1.0, hi=15.0, mode=5.0,
         note="widest, most speculative input; dominates the structured-product spread"),
@@ -580,6 +582,14 @@ PASITKA_CONFIGS: dict[str, float] = {
 # the whole ladder); judgement-to-target, no external per-tier data exists.
 # ----------------------------------------------------------------------------
 SCAF: float = 6.0            # scaffold cost $/kg for a STRUCTURED cut (ASSUMED; no published TEA)
+# The cost rung (cuts, §1, the JS) uses the round scalar SCAF; the foothold/uncertainty rungs build
+# the SAME scaffold cost from a 3-input decomposition so they can sample a band. The two MUST agree on
+# the central (mode) value or the foothold R silently drifts from the rest of the model — guard it here.
+_SCAF_DECOMP = (REGISTRY["scaffold_frac"].value * REGISTRY["material_price"].value
+                + REGISTRY["process_cost"].value)
+assert abs(SCAF - _SCAF_DECOMP) < 1e-9, (
+    f"scaffold cost out of sync: SCAF={SCAF} but the decomposition mode "
+    f"(scaffold_frac*material_price + process_cost) = {_SCAF_DECOMP}. Re-centre one so they match.")
 PREMIUM_RATIO: float = 2.5   # a structured product priced >= this x its species' base form is "premium"
 AUTH_BASIC: float = +0.2     # per-tier authenticity offset (utils): everyday staple — cleaner-meat pull, no hang-up
 AUTH_CUT: float = -0.4       #   cut (steak/fillet): some "want the real cut" attachment

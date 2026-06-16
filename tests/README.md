@@ -29,8 +29,9 @@ points). This test is the guard against it.
 It extracts the embedded JS from `interactive.html`, runs it headless under Node, recomputes the
 same quantities with the Python source-of-truth modules, and asserts they agree to `1e-4` over a
 grid that spans price, both acceptance dials, elasticity, income, the calibration solve, the
-plant-based-milk cross-check, and the timing rung (~2,000 grid points + headline values + the
-full trajectory).
+plant-based-milk cross-check, the foothold rung's per-product price ratio (the cost→R machinery
+where a scaffold-cost mismatch once slipped through), and the timing rung (~2,000 grid points +
+headline values + the per-product foothold ratios + the full trajectory).
 
 ### Run it
 

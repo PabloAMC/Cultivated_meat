@@ -10,7 +10,8 @@ that this very test now guards against).
 This test extracts the embedded JS from `interactive.html`, runs it headless under Node
 (tests/js_probe.js), recomputes the same quantities with the Python model, and asserts they
 agree to a tight tolerance over a grid that exercises price, both acceptance dials, elasticity,
-income (the channel that previously diverged), the calibration solve, the milk cross-check, and
+income (the channel that previously diverged), the calibration solve, the milk cross-check, the
+foothold rung's per-product price ratio (where a scaffold-cost mismatch once slipped through), and
 the timing rung.
 
 Run directly (no pytest needed):
@@ -94,6 +95,7 @@ def _python_reference(grid_keys, health_keys, timing_R) -> dict:
     from market_share import DemandParams, share, pb_milk_check
     from cost_model import CostParams, biomass_cost, ratio as cost_ratio
     from adoption_timing import TimingParams, simulate
+    from foothold import PRODUCTS as FOOTHOLD_PRODUCTS, product_R
 
     pr = DemandParams()
     cp = CostParams()
@@ -118,11 +120,16 @@ def _python_reference(grid_keys, health_keys, timing_R) -> dict:
     health = {}
     for (R, hx, hp, which) in health_keys:
         health[(R, hx, hp, which)] = share(R, pr, health_x=hx, health_p=hp, which=which)
+    # foothold rung: per-product price ratio R = product_R (cost->R at the central inputs, divided
+    # by base_price). Mirrors the JS footR at the slider defaults. Keyed by label; only the injected
+    # (non-no_referent) products have a price axis, matching what build_interactive injects.
+    foothold = {p.label: float(product_R(p))
+                for p in FOOTHOLD_PRODUCTS if not p.no_referent}
     # timing rung at the JS-reported R (use simulate -> same _run core)
     tp = TimingParams()
     timing = simulate(timing_R, pr, tp, acceptance_grows=True, which="x")["share"]
     return {"headline": headline, "grid": grid, "health": health,
-            "timing": list(map(float, timing))}
+            "foothold": foothold, "timing": list(map(float, timing))}
 
 
 # ---------------------------------------------------------------------------
@@ -170,6 +177,20 @@ def check_parity() -> list:
             fails.append(f"health R={R} hx={hx} hp={hp} which={which}: "
                          f"python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
+    # foothold rung: per-product price ratio R (the cost->R machinery shared with foothold.product_R;
+    # the corner the scaffold-cost mismatch slipped through). JS emits [label, R] per product.
+    worst_f = 0.0
+    js_foothold = dict(js.get("foothold", []))
+    for label, pv in py["foothold"].items():
+        if label not in js_foothold:
+            fails.append(f"foothold[{label}]: in Python reference but not emitted by JS")
+            continue
+        jv = js_foothold[label]
+        d = abs(pv - jv)
+        worst_f = max(worst_f, d)
+        if d > TOL:
+            fails.append(f"foothold[{label}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
+
     # timing trajectory
     jt = js["timing"]["share"]
     pt = py["timing"]
@@ -182,8 +203,9 @@ def check_parity() -> list:
                          f"diff={abs(pt[k] - jt[k]):.2e}")
 
     print(f"parity check: {len(py['grid'])} grid points, {len(py['health'])} health points, "
-          f"{len(py['headline'])} headline values, {n} timing years; "
-          f"grid max diff = {worst:.2e}, health max diff = {worst_h:.2e} (tol {TOL:.0e})")
+          f"{len(py['foothold'])} foothold products, {len(py['headline'])} headline values, "
+          f"{n} timing years; grid max diff = {worst:.2e}, health max diff = {worst_h:.2e}, "
+          f"foothold max diff = {worst_f:.2e} (tol {TOL:.0e})")
     return fails
 
 
