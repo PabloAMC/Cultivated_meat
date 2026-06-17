@@ -27,9 +27,9 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
-import tempfile
 
 import markdown
 
@@ -116,10 +116,21 @@ def locate_site(arg_site: str | None) -> str:
                  os.path.normpath(os.path.join(HERE, "..", "..", "pabloamc.github.io"))):
         if cand and os.path.isdir(os.path.join(cand, ".git")):
             return cand
-    # Fall back to a fresh clone.
-    dest = os.path.join(tempfile.gettempdir(), "pabloamc.github.io")
-    if not os.path.isdir(os.path.join(dest, ".git")):
+    # Fall back to a clone in a stable cache dir (not the system temp dir, which
+    # macOS periodically reaps — that corrupts the .git and breaks `git pull`).
+    cache = os.environ.get("XDG_CACHE_HOME") or os.path.join(
+        os.path.expanduser("~"), ".cache")
+    dest = os.path.join(cache, "pabloamc.github.io")
+    is_repo = subprocess.run(
+        ["git", "-C", dest, "rev-parse", "--is-inside-work-tree"],
+        capture_output=True).returncode == 0
+    if not is_repo:
+        # No checkout, or a partially-reaped one — start clean.
+        if os.path.isdir(dest):
+            print(f"Removing stale/broken checkout at {dest}")
+            shutil.rmtree(dest)
         print(f"Cloning {REPO} -> {dest}")
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
         subprocess.run(["gh", "repo", "clone", REPO, dest], check=True)
     else:
         subprocess.run(["git", "-C", dest, "pull", "--ff-only"], check=True)
