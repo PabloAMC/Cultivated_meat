@@ -339,7 +339,7 @@ choice") so the mainstream meatless-by-choice share and the residual ethical PB 
 intercept: the model now carries **no free fitted constant** — the outside option's standing is a named
 attribute (its health) times a calibrated weight. Splitting the health weight by segment — the
 ethical/health-minded weight health heavily, the mainstream much less (the solved `w_health_M` lands at
-~0.26× the taste weight, *below* the ~0.5× discrete-choice anchor of Malone & Lusk 2017) — is what lets
+~0.17× the taste weight, *below* the ~0.5× discrete-choice anchor of Malone & Lusk 2017) — is what lets
 `w_realtissue_M` be pinned to the buyer split without the cheap bean option leaking into the mainstream,
 and beans are the *ethical* default, a *rare* mainstream choice.
 
@@ -386,7 +386,7 @@ defensible (no antibiotics, no faecal contamination, controlled fat are genuine 
 tissue) but an *assumption*, and the only one that moves the at-parity headline in cultivated's favour
 (~47% → ~50%, enough to put it just past conventional). We surface it three ways rather than bury it:
 (i) it is a single exposed position, (ii) the no-edge case (`health_x`=`health_c`) returns the ~47%
-"equivalent" headline, and (iii) the mainstream health *weight* is held at ~0.26× the taste weight,
+"equivalent" headline, and (iii) the mainstream health *weight* is held at ~0.17× the taste weight,
 *below* the discrete-choice anchor (Malone & Lusk 2017: health ≈ 0.5× taste), so health is deliberately
 a minor lever for the taste-and-price-first mainstream. A skeptic who rejects the edge should read the
 ~47% figure; the headline does not depend on cultivated being *healthier*, only on it being *real meat*.

@@ -561,6 +561,58 @@ def crosscheck(model: dict) -> None:
           f"share@parity(neutral)={s0*100:.1f}%")
 
 
+def weights_table_rows() -> str:
+    """Model-GENERATED rows for the 'attribute weights, and how each is pinned' table — pulled
+    live from the solved DemandParams so the values can never go stale (mirrors the file's
+    single-source-of-truth / anti-drift discipline). Answers the reader's 'why can't I tweak the
+    weights?': SOLVED = pinned by a calibration moment, FIXED = a normalisation/assumption,
+    SLIDER = yours, DERIVED = built from the elasticity target."""
+    from market_share import DemandParams, share
+    dp = DemandParams()
+    def row(name, sym, M, E, how):
+        return (f'<tr><td>{name}</td><td style="white-space:nowrap">{sym}</td>'
+                f'<td class="n">{M}</td><td class="n">{E}</td><td class="s">{how}</td></tr>')
+    # --- live derivation of the price coefficients beta (logit slope) and alpha (BLP constant) ---
+    kap, eps = dp.cult_sub_mult, dp.eps_own
+    eps_x = kap * eps                                          # the own-price elasticity TARGET
+    p_x, p_c, lam, y = dp.anchor_price, dp.p_conv, dp.loss_aversion, dp.income_ref
+    s_x = share(p_x / p_c, dp, accept_x=1.0, theta_free_M=0.0, # cultivated's own neutral share at the anchor
+                neophobia_x=0.0, neophobia_p=0.0)
+    beta = dp.beta_ref
+    alpha = -beta * (y - p_x)
+    price_row = (
+        '<tr><td>price</td><td style="white-space:nowrap">&alpha;, &beta;</td>'
+        f'<td class="n" colspan="2">&beta; = {beta:.3f}<br>&alpha; = {alpha:,.0f}'
+        '<br><span style="color:#888;font-size:.85em">(shared, not per&#8209;segment)</span></td>'
+        '<td class="s"><b>DERIVED</b> from cultivated&rsquo;s own-price elasticity <b>target</b> '
+        f'&epsilon;<sub>x</sub> = &kappa;&epsilon; = {kap:.0f}&times;({eps}) = <b>{eps_x:.1f}</b> (&sect;2). '
+        'Price enters utility through two channels &mdash; the BLP log (slope &beta;) and loss aversion '
+        '(slope &minus;&lambda;/p<sub>c</sub>) &mdash; so &beta; absorbs the rest to hit the target: '
+        f'&beta; = &epsilon;<sub>x</sub>/[p<sub>x</sub>(1&minus;s<sub>x</sub>)] + &lambda;/p<sub>c</sub> = '
+        f'{eps_x:.1f}/[{p_x:.0f}&middot;{1-s_x:.2f}] + {lam:.0f}/{p_c:.0f} = <b>{beta:.3f}</b>; then the BLP '
+        f'constant &alpha; = &minus;&beta;(y<sub>ref</sub>&minus;p<sub>x</sub>) = &minus;({beta:.3f})&middot;({y:,.0f}&minus;{p_x:.0f}) = <b>{alpha:,.0f}</b> '
+        '(large only because it multiplies ln&#8202;of&#8202;income, whose differences are tiny). Evaluated at cultivated&rsquo;s '
+        f'<b>own</b> price p<sub>x</sub> = ${p_x:.0f}/kg and share s<sub>x</sub> = {s_x*100:.0f}% &mdash; a short fixed point. '
+        'No free constant: move any cost input and p<sub>x</sub> moves, so &beta; follows.</td></tr>'
+    )
+    rows = [
+        price_row,
+        row("taste", "q", f"{dp.q_taste:.2f}", f"{dp.q_taste:.2f}",
+            '<b>FIXED</b> scale constant &mdash; only utility <i>differences</i> are identified, so the level is a normalisation'),
+        row("slaughter-free", "w<sup>s</sup>", f"{dp.theta_free_M:.2f}", f"{dp.w_slaughter_E:.1f}",
+            'mainstream = <b>SLIDER</b> (&theta;<sub>free</sub>, upside dial, default 0); ethical = <b>FIXED</b> assumption (large, the ethical segment&rsquo;s defining weight)'),
+        row("real-tissue", "w<sup>rt</sup>", f"{dp.w_realtissue_M:.2f}", f"{dp.w_realtissue_E:.2f}",
+            'mainstream = <b>SOLVED</b> to hit PB&rsquo;s ~1.2% share + the 89% mainstream-buyer split; ethical = <b>FIXED</b> &asymp;0 (ethical buyers pick beans, don&rsquo;t weight &lsquo;real meat&rsquo;)'),
+        row("health", "w<sup>h</sup>", f"{dp.w_health_M:.2f}", f"{dp.w_health_E:.2f}",
+            '<b>BOTH SOLVED</b> &mdash; pin the mainstream meatless rate (~6%, so total whole-food &asymp;10%) and the ethical residual PB share'),
+        row("loss aversion", "&lambda;", f"{dp.loss_aversion:.2f}", f"{dp.loss_aversion:.2f}",
+            '<b>SLIDER</b>, default 1 = off (symmetric, no kink)'),
+        row("segment mix", "w<sub>eth</sub>", "&mdash;", f"{dp.w_eth*100:.0f}%",
+            '<b>SLIDER</b> (Gallup veg+vegan ~5%); moving it <b>re-solves</b> the calibration so PB stays pinned'),
+    ]
+    return "\n        ".join(rows)
+
+
 # ---------------------------------------------------------------------------
 # Illustrative numbers, COMPUTED FROM THE MODEL at build time.
 # The methodology prose and the slider tooltips quote example shares ("at parity
@@ -812,7 +864,7 @@ below.</p>
       <div class="card"><h3>3 · Cultivated cost vs the two big inputs</h3>
         <p class="sub">cultivated <b>biomass</b> cost ($/kg) vs medium price; lines = reactor scale; marker = your choice</p>
         <svg id="cost" viewBox="0 0 420 300"></svg></div>
-      <div class="card"><h3>4 · Share vs price ratio (all four products)</h3>
+      <div class="card"><h3>4 · Share vs price ratio</h3>
         <p class="sub">how the four shares move as <b>cultivated's</b> price ratio R<sub>x</sub> varies — cultivated (bold)
         rises as it gets cheaper, mostly out of conventional; plant-based &amp; whole-food barely move.
         <b>Blue dot</b> = cultivated at its chosen R<sub>x</sub>; <b>green dot</b> = plant-based at its
@@ -826,28 +878,34 @@ below.</p>
         <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product: its observed share vs the model's. The genuine <b>out-of-sample</b> tests reuse the SAME coefficients and swap only the product's positions — plant-based <b>milk</b> (the default) lands at ~15% this way, unfitted. Two options are <i>not</i> clean validations and are labelled so on the chart: plant-based <b>meat</b> is the calibration <b>target</b> (circular), and <b>eggs</b> exercise a different lever (welfare, not authenticity).</p>
         <div style="margin:0 0 5px"><select id="cmpSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="milk" viewBox="0 0 720 320"></svg></div>
-      <div class="card full"><h3>7 · The reachability waterline — where cultivated can enter, and how much it can displace</h3>
-        <p class="sub">Cultivated's retail cost is a <b>waterline</b> set mostly by the <b>medium price</b> (drag the §1 medium slider).
-        Crucially, luxury sticker prices are largely <b>provenance rent</b> (terroir, wild-caught, grade) that cultivated
-        <i>can't capture</i> — so each island sits at the <b>accessible-tier price</b> it actually competes at, with a grey tick
-        marking the rent-laden headline above it. Islands <b>above</b> the cost line are price-reachable (R&lt;1); dot size =
-        the <b>displaceable</b> volume (break-even share &times; addressable &mdash; the conventional production it would take). This is <b>price-skimming down a quality ladder under a learning
-        curve</b> (Wright 1936; Arrow 1962; Spence 1981) — the economics behind what's popularly called "disruptive innovation."
-        <b>How the competition price is chosen:</b> each product carries two retail tiers — the <b>accessible</b> (everyday) tier,
-        where cultivated competes, and the <b>headline</b> (premium/luxury) tier, mostly brand/scarcity rent it can't capture.
-        Prices are <i>sourced</i> (June 2026 retail/wholesale; the prestige-volume share is estimated) — hover any bubble for its basis.
-        Toggle to <b>share vs price-ratio</b>: the demand model's <b>predicted share</b> (the dependent variable)
-        on y, price ratio R on x (share is driven by price + the acceptance dials, not a per-product knob);
-        bubble = displaceable volume. <i>The rent-stripping is what sinks the luxury traps (caviar, iberico) and
-        surfaces cruelty-free foie gras + high-volume seafood.</i>
-        <b>What this panel does and doesn't claim:</b> cultivated is assumed to <b>price at its own cost</b> (0% margin),
-        and we read off the demand it would win there (<b>break-even share</b>) and the conventional production it
-        <b>displaces</b> (share &times; addressable). That is <b>reachability and impact, not profitability</b> &mdash; we
-        deliberately do not model a margin, because cost, the price it could charge, and the volume it would sell are
-        too coupled to pin a credible profit. So R&nbsp;=&nbsp;cost&nbsp;&divide;&nbsp;accessible price reads as: R&lt;1 the cost
-        already undercuts the everyday grade, R&gt;1 the cost still sits that fraction above it (the gap the welfare/
-        sustainability edge has to cover).</p>
-        <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL" class="on">reachability waterline</button><button id="footMV">share vs price-ratio</button></div>
+      <div class="card full"><h3>7 · Where cultivated can enter — share vs price (or the cost waterline)</h3>
+        <p class="sub"><b>Where can cultivated compete on price, and how much would it displace?</b> Shown two ways
+        — toggle below.
+        <b>Share vs price-ratio (the default view):</b> the demand model's <b>predicted share</b> (the dependent
+        variable) on y, price ratio R on x — share is driven by price + the acceptance dials, not a per-product
+        knob; each <b>bubble's size = the displaceable volume</b> (break-even share &times; addressable, the
+        conventional production it would take). <i>The rent-stripping is what sinks the luxury traps (caviar,
+        iberico) and surfaces cruelty-free foie gras + high-volume seafood.</i>
+        <b>How the competition price is chosen</b> (both views): luxury sticker prices are largely <b>provenance
+        rent</b> (terroir, wild-caught, grade) that cultivated <i>can't capture</i>, so each product is judged at
+        the <b>accessible-tier price</b> it actually competes at, never the rent-laden headline. Each product
+        carries two <i>sourced</i> retail tiers — the <b>accessible</b> (everyday) tier where cultivated competes,
+        and the <b>headline</b> (premium/luxury) tier, mostly brand/scarcity rent it can't capture (June 2026
+        retail/wholesale; the prestige-volume share is estimated — hover any bubble for its basis). So
+        R&nbsp;=&nbsp;cost&nbsp;&divide;&nbsp;accessible price reads as: R&lt;1 the cost already undercuts the everyday
+        grade, R&gt;1 it still sits that fraction above it (the gap the welfare/sustainability edge has to cover).
+        This is <b>price-skimming down a quality ladder under a learning curve</b> (Wright 1936; Arrow 1962;
+        Spence 1981) — the economics behind what's popularly called "disruptive innovation."
+        <b>The alternate "reachability waterline" view</b> (toggle) draws the same thing geometrically: cultivated's
+        retail cost is a <b>waterline</b> set mostly by the <b>medium price</b> (drag the §1 medium slider); each
+        island sits at its accessible-tier price with a grey tick marking the rent-laden headline above it, and
+        islands <b>above</b> the cost line are price-reachable (R&lt;1), dot size = the displaceable volume.
+        <b>What this panel does and doesn't claim:</b> cultivated is assumed to <b>price at its own cost</b> (0%
+        margin), and we read off the demand it would win there (<b>break-even share</b>) and the conventional
+        production it <b>displaces</b> (share &times; addressable). That is <b>reachability and impact, not
+        profitability</b> &mdash; we deliberately do not model a margin, because cost, the price it could charge,
+        and the volume it would sell are too coupled to pin a credible profit.</p>
+        <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">reachability waterline</button><button id="footMV" class="on">share vs price-ratio</button></div>
         <div style="margin:0 0 5px"><select id="footSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="foothold" viewBox="0 0 720 380"></svg>
         <div id="footcap" class="sub" style="margin-top:6px"></div></div>
@@ -883,6 +941,9 @@ below.</p>
         (how much a near-perfect substitute steepens price-sensitivity; how premium buyers resist) are
         <b>exposed as sliders and swept in the uncertainty band</b>, never hidden. Drag any slider to
         see its leverage.</p>
+        <p style="margin-bottom:0;font-size:.9rem;color:#555"><b>Roadmap.</b> Sections §1–§4 are those three steps
+        (§1 cost→price; §2–§3 price→share; §4 share→over time). §5 is the supporting price/markup data, and §6 is
+        a closer zoom — beyond the three core steps — on <i>which single products</i> cultivated can enter first.</p>
       </div>
 
       <p>Formally the model is a <b>chain</b> — <b>biomass cost &rarr; price ratio R<sub>x</sub> &rarr;
@@ -890,6 +951,23 @@ below.</p>
       across species; conventional price ranges ~5&times;, so the answer differs by animal). Everything
       below is the live JS in this page; it mirrors the Python model line-for-line, and the self-check
       under the charts reproduces the Python reference numbers.</p>
+
+      <div style="background:#eef4fb;border:1px solid var(--rule);border-radius:6px;padding:9px 12px;margin:8px 0">
+      <b>How to read every number below.</b> The display equations are <b>numbered \((1)\!-\!(18)\)</b>; any
+      paragraph that quotes a figure names the equation it comes from. There are only three kinds of number, and
+      each has one source:
+      <ul style="margin:5px 0 2px 0;padding-left:18px">
+        <li><b>A dollar cost or price ratio</b> (\$/kg, \(R_x\)) is built in <b>§1</b> — Eq. \((1)\)&ndash;\((2)\).</li>
+        <li><b>A percentage share</b> (e.g. "~49% at parity") is <i>always</i> computed the same way: take each
+        product's row from the attribute table, form its utility \(V_j\) (Eq. \((3)\)), exponentiate-and-normalise
+        into shares (the <b>softmax</b>, Eq. \((7)\)), then blend the two consumer segments (Eq. \((8)\)). The
+        roll-up across meat types is Eq. \((10)\); the over-time version is Eq. \((11)\).</li>
+        <li><b>A parameter value</b> (a slider's default, a weight) traces to the <b>Parameters table</b> or the
+        <b>weights table</b> at the end of this section — which also says whether it is measured, solved, or a dial.</li>
+      </ul>
+      So to check any share: read its paragraph for the dials it sets, then follow Eq. \((3)\!\to\!(7)\!\to\!(8)\).
+      <b>One tell:</b> a <i>computed</i> result names an equation; a <i>measured</i> input instead carries a
+      <b>[citation]</b> — so "~16% reach taste parity [7]" is data, while "~49% at parity (Eq. (7))" is an output.</div>
 
       <h4>1. Cost &rarr; price ratio \(R_x\)</h4>
       <p>The one number that drives everything downstream is cultivated's <b>price ratio</b>
@@ -913,7 +991,7 @@ below.</p>
       than the feedstock dissolved in it. The cells must physically eat a fixed mass of amino acids and
       glucose to build tissue (cost \(f\approx\$1.5\)/kg, set by stoichiometry), so \(c_{\rm med}\)
       cannot fall below \(f\):</p>
-      \[ c_{\rm med} = \iota\,\eta\,p_{\rm med}, \qquad\text{floored at } f \]
+      \[ c_{\rm med} = \iota\,\eta\,p_{\rm med}, \qquad\text{floored at } f \tag{1} \]
       <p>i.e. \(c_{\rm med}=\max\!\big(f,\ \iota\,\eta\,p_{\rm med}\big)\). Equivalently the floor is a
       hard lower bound on the medium price, \(p_{\rm med}\ge f/\iota\approx\$0.07\)/L. The floor only
       binds in the most optimistic corner (very cheap, very lean cells); everywhere else
@@ -926,36 +1004,49 @@ below.</p>
       covers structuring cost <a href="#ref6">[6]</a>). A per-type multiplier \(\mu\) (default 1) lets
       one species' biomass cost differ if data ever warrant it. Numerator over denominator:</p>
       \[ c_{\rm bio} = \max\!\big(\,c_{\rm med} + h \;(+\,\text{clean-room, if toggled}),\ \ c_{\rm floor}\big),
-         \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_c\,t} \]
+         \qquad R_x = \frac{c_{\rm bio}\,\mu + k + m}{p_c\,t} \tag{2} \]
       <p style="text-align:center;margin:-2px 0 8px;font-size:.84rem;color:#555"><b>In plain words:</b> the price
       ratio is <i>(what a kg of cultivated meat costs to grow + the cost of turning it into a sold product)
       &divide; (the price of the ordinary meat beside it)</i>. The numerator is the biomass cost \(c_{\rm bio}\)
       (capped below by the floor), times an optional per-species multiplier \(\mu\) (<b>=1 at baseline</b>, inert
       unless data ever warrant a species difference), plus the structured-cut scaffold \(k\) (0 for mince) and the
       retail markup \(m\); the denominator is the conventional price \(p_c\), optionally scaled by a meat
-      tax \(t\). \(R_x=1\) is price parity.</p>
-      <p><b>Two floors, nested.</b> The medium floor \(f\!\approx\!\$1.5\)/kg above is just the feedstock dissolved
-      in the <i>medium</i>; the biomass cost carries a second, <i>deeper</i> floor that <b>contains</b> it:
+      tax \(t\). \(R_x=1\) is price parity. (That whole ratio is Eq. \((2)\); its biomass input \(c_{\rm bio}\)
+      is Eq. \((1)\).)</p>
+      <p><b>Two floors, nested — the deeper one.</b> The medium floor \(f\!\approx\!\$1.5\)/kg above is just the
+      feedstock dissolved in the <i>medium</i>. The biomass cost carries a second, <i>deeper</i> floor that
+      <b>contains</b> it:
       \(c_{\rm floor}=\underbrace{a_{\rm I}\,p_{\rm aa}}_{\text{amino acids}}+\underbrace{g}_{\text{glucose}}+
       \underbrace{h_{\rm min}}_{\text{minimal plant}}\!\approx\$7.5\)/kg — the same irreducible feedstock the cells
       must physically eat (\(\approx\!f\)) <i>plus</i> the floor cost of running a plant at scale, assuming the
       reducible parts (recombinant proteins, single-use consumables, small-scale capital) are engineered toward
-      zero — but <i>not</i> assuming away Humbird's scale-up ceilings (CO₂/O₂ transfer, sterility caps on vessel
+      zero. It does <i>not</i> assume away Humbird's scale-up ceilings (CO₂/O₂ transfer, sterility caps on vessel
       size), which if they bind make this floor unreachable at any media price <a href="#ref2">[2]</a>. It is the
-      "where is the floor?" number. (In practice neither \(\max\) bites: across the whole slider
+      "where is the floor?" number.</p>
+      <p style="font-size:.9rem"><b>In practice neither floor currently bites:</b> across the whole slider
       range \(c_{\rm med}+h\) already sits at or above \$7.5, so the floors mark where cost <i>can't</i> go, not
-      where it currently is.) Parity (\(R_x=1\))
-      therefore needs \(c_{\rm bio}\le p_c-m\): the markup eats the headroom, which is why it is one of
-      the most leveraged numbers in the model. Cell <b>density / metabolic efficiency</b> enters only through
-      \(\eta\) — what matters for cost is medium consumed per kg, which density drives.</p>
+      where it is today.</p>
+      <p style="font-size:.9rem"><b>What this means for parity.</b> Parity (\(R_x=1\)) needs
+      \(c_{\rm bio}\le p_c-m\): the markup eats the headroom, which is why it is one of the most leveraged numbers
+      in the model. Cell <b>density / metabolic efficiency</b> enters only through \(\eta\) — what matters for cost
+      is medium consumed per kg, which density drives.</p>
 
       <h4>2. From the price ratio to a market share (a discrete-choice demand model)</h4>
       <p>This is a textbook <b>random-utility / discrete-choice</b> model (McFadden 1974 <a href="#ref12">[12]</a>) — the standard
       way economists turn product attributes into market shares. On an eating occasion a consumer picks
-      <i>one</i> of <b>four products</b>; each option gets a "utility" score \(V\), and the option with
-      the highest score (plus a random taste shock) wins. Averaged over the shocks, the share of each
-      option is a <b>softmax</b> (a logit) of its utility. We use <b>two consumer types</b> (a
-      latent-class / mixed logit) and average their choices.</p>
+      <i>one</i> of <b>four products</b>; each option gets a <b>utility</b> score \(V\), and the option with
+      the highest score (plus a random taste shock) wins.</p>
+      <p style="font-size:.86rem;margin:-2px 0 8px"><b>Three words, defined once.</b> <b>Utility</b> is just
+      economists' name for an <i>attractiveness score</i> — one number that rolls up everything a shopper
+      cares about (price, taste, ethics…) so two products can be compared; it has no real-world unit, and only
+      the <i>differences</i> between products matter. <b>Random-utility</b> means we add a "mood of the day"
+      taste shock to each score, so the model predicts <i>probabilities</i>, not one forced choice. And because
+      we cannot see <i>which</i> kind of shopper any one person is — only the population mix — economists call a
+      two-type model like this one a <b>latent-class</b> ("hidden type") model.</p>
+      <p>Averaging over those random shocks (the standard assumption, below) gives the share of each option as a
+      <b>softmax</b> of its utility — a standard formula (economists call it a <b>logit</b>) that turns the
+      attractiveness scores into percentages that add to 100%, handing the most attractive option the biggest
+      slice. We compute it for <b>two consumer types</b> and average their choices by the population split.</p>
       <p>The four options and their <b>attributes</b> (conventional meat is the reference everything is
       measured against):</p>
       <table class="attr">
@@ -982,20 +1073,26 @@ below.</p>
       \(w^h\zeta_w\) is identified, so the position's <i>level</i> washes out; what the data fix is its size.</p>
       <p>Whole food is the <b>outside option</b> — "skip meat tonight, eat beans" — and it matters: most
       ethically-motivated people get protein from whole foods, not a veggie burger, which is exactly why
-      plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule — no
+      plant-based <i>meat</i> sits at only ~1%. Every product runs through the <b>same</b> utility rule (Eq. \((3)\)) — no
       option gets a special term; the rule just reads each product's row off the table above:</p>
-      \[ V_j = \underbrace{\alpha\ln(y_{\rm eff}-R_j\,p_c)}_{\text{BLP price (income in the log)}}
+      \[ V_j = \underbrace{\alpha\ln(y_{\rm eff}-R_j\,p_c)}_{\text{price (a bigger bite the poorer you are)}}
               \;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\lambda=1\,\Rightarrow\,\text{symmetric}}
               \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j
-              \;+\; \underbrace{\nu_j+\tau_j}_{\xi_j\ \text{(novelty + authenticity)}} \]
+              \;+\; \underbrace{\nu_j+\tau_j}_{\xi_j\ \text{(novelty + authenticity)}} \tag{3} \]
+      <p style="font-size:.84rem;color:#555;margin:-2px 0 8px"><b>Reading the symbols.</b> \(d_j=R_j-1\) is how
+      much <i>dearer</i> product \(j\) is than conventional (its premium); the superscripts split that into the
+      dearer part \((d_j)^{+}=\max(0,d_j)\) and the cheaper part \((d_j)^{-}=\max(0,-d_j)\), so the middle term
+      penalises a premium and rewards a discount. Each remaining term is a <b>weight × a column of the attribute
+      table above</b>; all are defined, with sources, in the glossary just below. (The first term is the
+      <b>Berry–Levinsohn–Pakes</b> or "BLP" price term — explained next.)</p>
       <p style="font-size:.84rem;color:#555;margin:-2px 0 8px"><b>How the price enters: one ratio, one dollar
       price.</b> The BLP income log needs a price in <i>dollars</i> (to compare against income), so it multiplies
       each product's price <i>ratio</i> \(R_j\) by \(p_c\) — the conventional price of the very rival this
       comparison is against — to get its <b>dollar price</b> \(p_j=R_j\,p_c\). For cultivated that is
       \(p_x=R_x\,p_c\): the §1 ratio turned back into dollars. Crucially \(p_c\) is <b>not one
-      number</b> — it is the conventional price of <i>this</i> meat in <i>this</i> place, so it depends on both the
-      <b>cut</b> (US chicken ~\$5, steak ~\$20, wagyu ~\$45) and the <b>region</b> (chicken ~\$5 in the US, ~\$3.5
-      in India): the §3 roll-up uses each cut's own local price, so a 2.4&times; premium is correctly a bigger
+      number</b> — it is the conventional price of <i>this</i> meat in <i>this</i> place, so it depends on the
+      <b>cut</b> and the <b>region</b> (US chicken ~\$5, steak ~\$20, wagyu ~\$45; chicken drops to ~\$3.5 in
+      India). The §3 roll-up therefore uses each cut's own local price — so the same 2.4&times; premium is a bigger
       <i>dollar</i> bite on a \$20 steak than on \$5 chicken. The single \$12 in the datasheet is just the
       region-agnostic <b>commodity anchor</b> used for calibration and the at-parity headline. (The
       <i>ratio</i>-based loss term \(-\lambda(d_j)^{+}\!+(d_j)^{-}\) needs no dollars at all — it sees only the
@@ -1008,32 +1105,38 @@ below.</p>
       \(\xi_j=\nu_j+\tau_j\) — food <b>novelty</b> \(\nu_j\) (on the two novel meats) and, for cultivated only,
       a per-tier <b>authenticity</b> offset \(\tau_j\) that switches on in the §3 cut/premium roll-up. There is no
       free intercept — every term is a named attribute. Each piece is unpacked below.</p>
-      <p style="font-size:.86rem">Every term is a <b>weight &times; a column of the table</b> (and a 0 in the
-      table just means "this product lacks that feature" — not a special case): \(a_j-1\) is the taste gap from
-      real meat, \(g_j\) the slaughter-free flag, \(b_j\) the real-tissue flag, \(\zeta_j\) health, and
-      \(\xi_j=\nu_j+\tau_j\) the per-product scenario constant (novelty + authenticity, both 0 by default).
-      \(d_j=R_j-1\) is the premium over conventional; \((x)^{+}=\max(0,x),\ (x)^{-}=\max(0,-x)\). Each piece is
-      defined, with its source, in the glossary table below — so the rest of §2 simply walks the terms one at a
-      time, starting with price.</p>
-      <p style="font-size:.86rem"><b>Where the \$12 commodity anchor still appears.</b> The per-type dollar price
-      \(R_j\,p_c\) above (with \(p_c\) the local price of that cut) is what enters the income log.
-      Two <i>other</i> uses of price are anchored instead to the single \$12 commodity value: the reference-dependent
-      loss term is <i>ratio</i>-based (a function of \(d_j=R_j-1\), so unit-free — it needs no dollar price at all),
-      and the price coefficient \(\beta\) is pinned once at cultivated's own commodity operating point — so when you
-      see \(\lambda/p_c\) below it is that loss term's slope re-expressed in <i>dollars</i> to combine with
-      \(\beta\), not a separate price.</p>
+      <p style="font-size:.86rem">A reminder on reading the table: each term is a <b>weight &times; a column</b>,
+      and a 0 in a column just means "this product lacks that feature" — not a special case (\(a_j-1\) is the taste
+      gap from real meat, \(g_j\) the slaughter-free flag, \(b_j\) the real-tissue flag, \(\zeta_j\) health, and
+      \(\xi_j=\nu_j+\tau_j\) the per-product scenario constant). Every piece is defined, with its source, in the
+      glossary table below — so the rest of §2 simply walks the terms one at a time, starting with price.</p>
+      <p style="font-size:.86rem"><b>Where the \$12 commodity anchor still appears.</b> In the §3 roll-up
+      <i>both</i> price terms go fully local: the income log takes each cut's local dollar price (\(R_j\,p_c\) with
+      local \(p_c\)), and the ratio loss term takes each cut's local premium (\(d_j=R_j-1\), unit-free — it needs
+      no dollar price at all). The single \$12 commodity value is used in exactly three places, none of them the
+      loss term: it sets the <b>calibration</b>, it is the <b>at-parity headline</b>, and it pins the global price
+      coefficient \(\beta\) <b>once</b> at cultivated's own commodity operating point (\(p_x\!\approx\!\$29\),
+      \(p_c=\$12\)), which is then reused for every cut. The \(\lambda/p_c\) you see in \(\beta\)'s formula (Eq. \((4)\)) is
+      that one use — the loss term's slope re-expressed in dollars (\(1/\$12\)) so it can fold into \(\beta\), not a
+      separate price.</p>
       <p><b>The price piece, unpacked.</b> The income term's coefficient \(\alpha\) is not guessed — and,
       unlike an earlier version, it rests on <b>no hand-picked anchor</b>. The behavioural target is
-      cultivated's own-price elasticity \(\varepsilon_x=\kappa\varepsilon\). One subtlety: price enters
+      cultivated's own-price <b>elasticity</b> \(\varepsilon_x=\kappa\varepsilon\) — <i>elasticity</i> being
+      the standard measure of how sharply sales fall when price rises: \(\varepsilon=-1\) means a 1% price rise
+      costs you 1% of buyers, \(\varepsilon=-3.6\) means it costs 3.6% (very price-sensitive). One subtlety: price enters
       utility through <b>two</b> channels — the income term (local slope \(\beta\)) <i>and</i> the
       loss-aversion term below (slope \(-\lambda/p_c\) on the loss side, which is where cultivated's
       premium sits) — so the own-price elasticity is \(\varepsilon_x=(\beta-\lambda/p_c)\,p_x(1-s_x)\).
       We solve \(\beta\) so that <b>combined</b> response hits the target at cultivated's <b>own</b> operating
       point — its own retail price \(p_x=c_{\rm bio}+m\) (the cost rung's output, so it tracks the model) and
-      its own modeled share \(s_x\), a short fixed point:</p>
+      its own modeled share \(s_x\), a short <b>fixed point</b> (\(\beta\) depends on the share \(s_x\), which
+      depends on \(\beta\), so the model solves the two together by iterating until they stop moving):</p>
+      <p style="font-size:.86rem;margin:-2px 0 6px;color:#555"><b>You don't need to read the algebra.</b> Its
+      only job is to set the price-sensitivity dial \(\beta\) so the model's <i>realised</i> response exactly
+      equals the target elasticity \(\kappa\varepsilon\). The takeaway is the sentence right after it.</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x),\qquad
-         V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\phi}. \]
+         V^{\rm price}_j=\alpha\ln(y_{\rm eff}-p_j),\quad y_{\rm eff}=y_{\rm ref}\!\left(\tfrac{y}{y_{\rm ref}}\right)^{\!\phi}. \tag{4} \]
       <p style="font-size:.9rem">Read left to right: the meat elasticity \(\varepsilon\) (slider) times the
       closeness \(\kappa\) (slider) is the target elasticity; the \(+\lambda/p_c\) hands back the
       slice of price-sensitivity the loss-aversion term already supplies, so \(\beta\) carries only the rest.
@@ -1046,17 +1149,20 @@ below.</p>
       <i>diminishing marginal utility of income</i> IS the mechanism — the same price is a larger, more painful
       bite the poorer you are, so richer consumers are less price-sensitive without any extra term. \(\alpha\) is a
       single <b>constant</b> (not a function of income), pinned so the term's local slope equals \(\beta\) at the
-      US anchor: \(\alpha=-\beta(y_{\rm ref}-p_x)\). The cross-region tilt comes only from the <b>damped effective
+      US anchor: \(\alpha=-\beta(y_{\rm ref}-p_x)\).</p>
+      <p style="font-size:.9rem"><b>Where the cross-region tilt comes from.</b> Only from the <b>damped effective
       income</b> \(y_{\rm eff}=y_{\rm ref}(y/y_{\rm ref})^{\phi}\): \(\phi=1\) is raw BLP, which is too steep
       for food (~6&times; rich→poor elasticity ratio); \(\phi=0.5\) (default) damps it to the empirical ~2&times;
       gradient (region incomes from the World Bank; the gradient from Muhammad/ERS <a href="#ref15">[15]</a>), and
       \(\phi=0\) removes income. At the US reference \(y_{\rm eff}=y_{\rm ref}\), so
-      the US and every at-parity number are invariant to \(\phi\). <b>The punchline:</b> income bites hardest
+      the US and every at-parity number are invariant to \(\phi\).</p>
+      <p style="font-size:.9rem"><b>The punchline.</b> Income bites hardest
       where the premium is large and the buyer is poor (cheap local meat <i>and</i> high price-sensitivity) —
-      low-income regions fall below ~1% at today's cost, the genuinely hard case, while the at-parity headline
-      (equal prices) is unaffected. Note the channel <b>saturates</b>: wealth relaxes <i>price</i>-sensitivity but
+      low-income regions fall below ~1% at today's cost (Eq. \((7)\) with the income of Eq. \((4)\)), the
+      genuinely hard case, while the at-parity headline
+      (equal prices) is unaffected. And the channel <b>saturates</b>: wealth relaxes <i>price</i>-sensitivity but
       never erases the premium or the other attributes, so even an arbitrarily rich buyer does not "buy anything"
-      at \(R_x\approx2.4\) — the share tops out (~19%), it does not run to 100%.</p>
+      at \(R_x\approx2.4\) — the share (softmax Eq. \((7)\)) tops out in the high teens (~18%), it does not run to 100%.</p>
       <p><b>The three segment-specific weights</b> (everything else is shared across the two consumer types).
       Only the slaughter-free, real-tissue and health weights differ by type — that difference <i>is</i> the
       heterogeneity:</p>
@@ -1064,12 +1170,16 @@ below.</p>
          \quad
          w^{rt}=\begin{cases}w_{\rm rt}&\text{mainstream (calib.)}\\ \approx 0&\text{ethical}\end{cases}
          \quad
-         w^{h}=\begin{cases}w_{h,M}&\text{mainstream (calib.)}\\ w_{h,E}&\text{ethical (calib., larger)}\end{cases} \]
+         w^{h}=\begin{cases}w_{h,M}&\text{mainstream (calib.)}\\ w_{h,E}&\text{ethical (calib., larger)}\end{cases} \tag{5} \]
+      <p style="font-size:.84rem;margin:-2px 0 8px;color:#555"><b>In plain words:</b> three preferences differ
+      between the two shopper types — how much they care about <i>no-slaughter</i> (\(w^{s}\)), about <i>real
+      tissue</i> (\(w^{rt}\)), and about <i>health</i> (\(w^{h}\)). Each row just reads "mainstream feels this
+      much; the ethical type feels that much." Everything else (price, taste) is shared between the two types.</p>
       <p style="font-size:.9rem">The <b>health</b> weight \(w^{h}\) is the larger for the ethical type, so the
       whole-food health position \(\zeta_w>0\) ("beans are the healthy choice") pulls the health- and
       ethically-minded toward whole foods over a processed veggie burger — which is <i>why</i> plant-based
-      <i>meat</i> sits at ~1% despite a 5% ethical core. Both health weights are <b>solved</b> in the
-      calibration (below); this health premium is the named attribute that carries whole food's standing,
+      <i>meat</i> sits at ~1% despite a 5% ethical core. Both health weights (the \(w^{h}\) of Eq. \((5)\)) are
+      <b>solved</b> in the calibration (below); this health premium is the named attribute that carries whole food's standing,
       so no product needs a free outside-option constant (see the aside under the attribute table).</p>
       <p style="font-size:.9rem">So the slaughter-free term you tune is \(\theta_{\rm free}\,g_j\) for
       the mainstream (95% of buyers): at \(\theta_{\rm free}=0\) the mainstream is indifferent to "no animal
@@ -1086,20 +1196,15 @@ below.</p>
           separate multiplier outside the log — not BLP; this restores it, verified against its linearisation to
           &lt;0.01pp.)</i></td></tr>
         <tr><td><b>loss aversion</b> \(\lambda\) <i>(off by default)</i></td><td>an OPTIONAL
-          <b>reference-dependent</b> asymmetry: people judge a price against the familiar conventional price, and a
+          <b>reference-dependent</b> asymmetry: people judge a price against the familiar conventional price, so a
           product priced <i>above</i> it can feel like a loss. A discount is rewarded at the <b>unit</b> rate, a
-          premium penalised at \(-\lambda\). <b>The default \(\lambda=1\) is symmetric — no kink, no loss
-          aversion</b>; the model ships with this term OFF. We default it off because it is near-inert on the
-          headline (the \(\beta\) calibration absorbs its slope), it is <b>not identifiable</b> from the available
-          cultivated data, and Bell &amp; Lattin (2000) show estimated loss aversion is largely the price-response
-          <i>heterogeneity</i> that \(\kappa\) already carries — so a separate kink would double-count. Drag
-          \(\lambda\) up toward the Tversky–Kahneman median ~2.25 <a href="#ref13">[13]</a> to explore the
-          asymmetry; it then applies to <i>every</i> product by its
-          own \(d_j\) — plant-based (1.77&times;) <i>and</i> cultivated (\(R_x\)) alike. This is the
-          <b>riskless</b> form (reference-dependent preferences over a single sure attribute,
-          price), not the gamble version — see the note under the table. (Its slope is folded into the
-          \(\beta\) calibration above, so \(\lambda\) sets only the <i>asymmetry</i> at parity, not the overall
-          price-sensitivity level.)</td></tr>
+          premium penalised at \(-\lambda\), applied to <i>every</i> product by its own premium \(d_j\) (plant-based
+          and cultivated alike). <b>The default \(\lambda=1\) is symmetric — no kink, no loss aversion</b>: the
+          model ships with this term OFF (it is near-inert on the headline once \(\beta\) is calibrated, and not
+          separately identifiable from cultivated data). Drag it up toward the Tversky–Kahneman median ~2.25
+          <a href="#ref13">[13]</a> to switch the asymmetry on. This is the <b>riskless</b> form (over a single
+          sure attribute, price), not the gamble version — the aside "<i>is loss aversion the right tool here?</i>"
+          below gives the full why-it's-off reasoning.</td></tr>
         <tr><td><b>taste</b> \(q\,(a_j-1)\)</td><td>sensory quality on a <b>1 = real meat</b> scale: each
           product's taste-acceptance \(a_j\) is 1 if it tastes as good as conventional, below 1 if worse,
           above 1 if better. It enters utility as the <i>gap</i> from real meat, \(a_j-1\) (so conventional,
@@ -1137,8 +1242,12 @@ below.</p>
           0 = neutral. Default 0, so it does not move the central case. It is <i>distinct from taste</i>
           \(a_j\): exposure cures the novelty penalty, a taste deficit is permanent — and in the timing rung
           (§4) the time-varying \(\nu_x(t)\) starts at a cold value and <b>fades onto</b> this long-run \(\nu_x\)
-          by mere-exposure, \(\nu_x(t)=\nu_x+(\nu_{x0}-\nu_x)e^{-rE(t)}\). Symmetric across the two novel
-          products — no cultivated-only special case.</td></tr>
+          by mere-exposure, \(\nu_x(t)=\nu_x+(\nu_{x0}-\nu_x)e^{-rE(t)}\). The fade gives the two ends
+          <i>different meanings</i>, which is why both are kept: the <b>cold start \(\nu_{x0}\)</b> is the
+          first-contact <b>"is it safe / is it weird?"</b> reaction — a familiarity question that exposure
+          answers; the <b>long-run \(\nu_x\)</b> is what <i>survives</i> familiarity — the residual
+          <b>"is it natural?"</b> attitude (does the "lab-grown" discomfort fade to zero, or settle at a floor?).
+          Same axis, two time-points. Symmetric across the two novel products — no cultivated-only special case.</td></tr>
         <tr class="sub"><td><b>health perception</b> \(\zeta_j\)</td><td><b>how healthy the product is
           <i>perceived</i> to be</b> — one dial on each non-conventional meat: <b>\(\zeta_x\)</b> (cultivated)
           and <b>\(\zeta_p\)</b> (plant-based), entering utility additively just like \(\nu\). <b>Positive =
@@ -1165,7 +1274,22 @@ below.</p>
           increasingly "want the real cut". It is <b>0 in the §2 headline parity case</b> (\(\rho\) scales it,
           but it only switches on per-type) and gives §3 its "no easy entry point — the sweet spot is mid-priced
           cuts" result. A reduced-form scenario offset (no per-product authenticity data to estimate a weight),
-          shown rather than buried.</td></tr>
+          shown rather than buried.
+          <div style="margin-top:6px;padding:6px 9px;background:#faf8f3;border:1px solid var(--rule);border-radius:5px;font-size:.92em">
+          <b>Naturalness (\(\nu_x\)) vs authenticity (\(\tau\)) — why they are two different things.</b> They
+          <i>sound</i> alike ("real", "natural", "authentic") but ask different questions:
+          <ul style="margin:4px 0 0 0;padding-left:18px">
+            <li><b>Naturalness \(\nu_x\)</b> is about the <b>process — how it was made</b>: "is this real food, or
+            a lab product?" It is the <i>same for every cut</i> (a cultivated nugget and a cultivated wagyu are
+            equally grown in a bioreactor), and it can <b>fade</b> with familiarity.</li>
+            <li><b>Authenticity \(\tau\)</b> is about the <b>occasion — what you want it to be</b>: "for <i>this</i>
+            purpose, do I want the genuine heritage article?" It is <i>tier-shaped</i> and <b>permanent</b>:
+            irrelevant for a nugget, decisive for wagyu (where the real breed/provenance/status <i>is</i> the
+            product).</li>
+          </ul>
+          They are orthogonal — a cultivated <b>nugget</b> faces naturalness doubt but no authenticity demand; a
+          cultivated <b>wagyu</b> faces both. That is exactly why one is uniform-and-fading and the other is
+          tier-shaped-and-permanent.</div></td></tr>
         <tr class="sub"><td><b>whole-food health premium</b> \(w^{h}\zeta_w\)</td><td>what makes whole foods
           (beans/tofu) the default for the health- and ethically-minded — and the reason plant-based <i>meat</i>
           is stuck at ~1%. It is <b>not a free constant</b>: it is the health attribute (position \(\zeta_w>0\),
@@ -1173,13 +1297,14 @@ below.</p>
           below), pinned so the model reproduces two published facts <a href="#ref14">[14]</a> — plant-based's
           ~1.2% share and the 89%-flexitarian buyer split. The standing it encodes (ethical eaters prefer whole
           beans over a processed veggie burger, beyond price/taste/slaughter-free) is real and load-bearing —
-          drop it and plant-based triples to ~4% with mostly-vegetarian buyers, contradicting the data. (The
+          drop it and plant-based triples to ~4% with mostly-vegetarian buyers (both shares are Eq. \((7)\)),
+          contradicting the data. (The
           position \(\zeta_w=+2\) is itself assumed, not measured — but its <i>level</i> washes out: the
           calibration solves \(w^{h}\) to hit the two moments at whatever \(\zeta_w\) is set, so only the
           <i>product</i> \(w^{h}\zeta_w\) is identified.) <i>(In the code: <code>w_health_M</code>
           / <code>w_health_E</code> times <code>health_w</code>.)</i></td></tr>
       </table>
-      <p><b>How the closeness \(\kappa\) actually works (and where it enters — just once).</b> \(\kappa\) is
+      <p><b>How the closeness \(\kappa\) actually works (and where it enters — just once, in Eq. \((6)\)).</b> \(\kappa\) is
       the one knob that needs spelling out, because it has no direct data. Start from the measured number:
       scanner studies give the own-price elasticity of <i>meat as a category</i>, \(\varepsilon\approx-0.9\) <a href="#ref4">[4]</a>
       — inelastic, because if all meat gets dearer there is no close substitute to flee to. But cultivated
@@ -1191,7 +1316,7 @@ below.</p>
       because \(\beta\) is merely the logit coefficient that delivers it:</p>
       \[ \varepsilon_x \;=\; \kappa\,\varepsilon \;\approx\; 4\times(-0.9)\;=\;-3.6,
          \qquad\text{delivered by}\qquad \beta \;=\; \frac{\varepsilon_x}{p_x\,(1-s_x)}+\frac{\lambda}{p_c}
-         \ \text{(at cultivated's own price and share)} . \]
+         \ \text{(at cultivated's own price and share)} . \tag{6} \]
       <p>So at \(\kappa=4\) a 1% rise in cultivated's price loses ~3.6% of its buyers, four times meat's
       ~0.9% — and, after the two-channel fix above, that ~3.6 is the <i>realised</i> elasticity, not merely a
       target. <b>One caveat on reading "−3.6":</b> it is the local elasticity <i>at cultivated's own
@@ -1200,8 +1325,10 @@ below.</p>
       the BLP-plus-kink utility (share falls slowly just above parity, then accelerates), so "the curve is
       gentle just above \(R_x=1\) yet −3.6 by \(R_x=2.4\)" is the model behaving correctly, not a contradiction.
       Mechanically \(\kappa\) scales the elasticity part of \(\beta\) (hence \(\alpha\) in \(V_j\)),
-      making cultivated's share-vs-price curve <i>steeper</i> above parity (it does <b>not</b> change the
-      at-parity share). It is the flat-logit stand-in for what a nested logit would get from a "real-meat"
+      making cultivated's share-vs-price curve <i>steeper</i> above parity. It <b>barely</b> moves the
+      at-parity share itself (only ~1pp across the whole \(\kappa=3\!-\!6\) range — it touches it only weakly,
+      through \(\alpha\) in the income term, because the four products differ in <i>dollar</i> price even at
+      \(R_x=1\)); its real work is on the slope above parity. It is the flat-logit stand-in for what a nested logit would get from a "real-meat"
       nest (its dissimilarity parameter), or a random coefficient on the real-tissue attribute.
       <b>Why \(\approx4\)?</b> It is the softest demand lever, but it is <b>bracketed by the one direct
       measurement</b>. Van Loo, Caputo &amp; Lusk (2020) priced lab-grown across six levels and identified its
@@ -1218,55 +1345,74 @@ below.</p>
       functional-form extrapolation from the at-parity measurement — the honest residual. It is the single most
       consequential demand number for <i>above-parity</i> share — at \(\kappa=3\) an identical product at
       2.4&times; conventional's price still keeps ~{{KAPPA_3}}%, at \(\kappa=4\) ~{{KAPPA_4}}%, at \(\kappa=5\)
-      ~{{KAPPA_5}}% — which is exactly why it is exposed, not buried. Drag the slider to see.</p>
+      ~{{KAPPA_5}}% (each the softmax Eq. \((7)\), with \(\kappa\) entering through \(\beta\), Eq. \((6)\)) —
+      which is exactly why it is exposed, not buried. Drag the slider to see.</p>
       <p class="aside"><span class="ah">For the skeptical reader: is "loss aversion" the right tool here?</span>
       It is most famous from <i>risky</i> gambles, but Tversky &amp; Kahneman's 1991 paper extends it to
       <b>riskless choice</b>: comparing goods on an attribute (here, price), you read each option as a gain or
       loss <i>relative to a reference point</i>, and losses loom larger. Paying more than the familiar
       conventional price reads as a loss; paying less, a gain — exactly our \(d_j\) term, and it is the workhorse
       behind <b>reference-price</b> models in marketing/IO (Hardie–Johnson–Fader 1993 estimate it on real
-      brand-choice scanner data). It is a deliberate <i>choice</i>, not forced: set \(\lambda=0\) and the model
-      collapses to a plain price-only logit (the slider does exactly that). We keep it because the premium is the
-      whole story for cultivated meat, and a kink at the reference price fits how shoppers react to "more
-      expensive than normal."</p>
+      brand-choice scanner data). It is a deliberate <i>choice</i>, not forced: set \(\lambda=1\) and the model
+      collapses to a plain symmetric price logit (the slider's default does exactly that). <b>So why ship with it
+      OFF (\(\lambda=1\)) rather than on?</b> Three reasons: (i) it is <b>near-inert on the headline</b> — the
+      \(\beta\) calibration already absorbs its slope, so \(\lambda\) only reshapes the kink at parity, not the
+      overall price level; (ii) it is <b>not identifiable</b> from the cultivated data we have; and (iii) Bell
+      &amp; Lattin (2000) show estimated loss aversion is largely the price-response <i>heterogeneity</i> that
+      \(\kappa\) already carries — so a separate kink risks <b>double-counting</b>. We expose it (up to the
+      Tversky–Kahneman ~2.25) because the premium is the whole story for cultivated meat and a kink at the
+      reference price fits how shoppers react to "more expensive than normal" — but we keep it off until you ask
+      for it.</p>
       <p><b>What we do with \(V_j\): turn utilities into shares.</b> Each consumer adds up the score \(V_j\)
       for every product and picks the one they like best — but with a random "mood of the day" taste shock.
       Averaging over those shocks (the standard Gumbel assumption) gives a clean formula: the probability of
       choosing product \(j\) is its <b>softmax</b> (the logit), bigger \(V_j\) ⇒ bigger share, and the shares
       sum to 100%:</p>
-      \[ P_j = \frac{e^{V_j}}{\sum_{k}\,e^{V_k}} \qquad\text{(sum over the products on offer)} \]
+      \[ P_j = \frac{e^{V_j}}{\sum_{k}\,e^{V_k}} \qquad\text{(sum over the products on offer)} \tag{7} \]
+      <p style="font-size:.84rem;margin:-2px 0 8px;color:#555">(\(\sum_{k}\) just means "add up over all the
+      products"; dividing each product's \(e^{V_j}\) by that total is what forces the four shares to sum to 100%.)</p>
       <p>We compute this <i>twice</i> — once for each consumer type, using that type's own attribute weights —
       and then blend the two by the population split (the ethical type is a fraction \(w_{\rm eth}\), the
       mainstream the rest). That blend is the market share the page reports:</p>
-      \[ \text{share}_j \;=\; w_{\rm eth}\,P_j^{\,\text{ethical}} \;+\; (1-w_{\rm eth})\,P_j^{\,\text{mainstream}} \]
+      \[ \text{share}_j \;=\; w_{\rm eth}\,P_j^{\,\text{ethical}} \;+\; (1-w_{\rm eth})\,P_j^{\,\text{mainstream}} \tag{8} \]
       <p>Everything downstream — the headline penetration, the per-meat-type bars, the share-vs-price curve —
       is this one number, computed for cultivated (and, on the curve, for all four products).</p>
       <p><b>The two consumer types (heterogeneity, not a nest).</b> The <b>mainstream</b> (~95%) chooses on
       taste, price and real-tissue; the <b>ethical</b> type (~5% = Gallup vegetarian+vegan, the
-      <b>\(w_{\rm eth}\)</b> slider) weights slaughter-free heavily and mostly eats whole foods. A single
+      <b>\(w_{\rm eth}\)</b> slider) weights slaughter-free heavily and mostly eats whole foods — the two are
+      mixed by the population split \(w_{\rm eth}\) in Eq. \((8)\). A single
       logit would have a new option steal share proportionally from <i>all</i> others ("red-bus/blue-bus");
       because the mainstream is dominated by real-tissue products, a cultivated entrant draws almost entirely
       from <b>conventional</b> — no nested logit needed, just the shared real-tissue attribute and two types.</p>
       <p><b>Calibration — pinned to real data, not free.</b> Plant-based's price premium (GFI/NIQ), its taste
-      deficit (NECTAR), and the ethical share (Gallup) are fixed; then three numbers are <i>solved</i> so the
-      model reproduces (i) plant-based's observed ~1.2% of meat and (ii) the fact that <b>~89% of plant-based
-      buyers are mainstream flexitarians</b>, not the 5% ethical core (GFI 2024). Dragging \(w_{\rm eth}\),
+      deficit (NECTAR), and the ethical share (Gallup) are fixed; then three numbers (the mainstream real-tissue
+      and the two segment health weights of Eq. \((5)\)) are <i>solved</i> to hit three moments: (i) the fact that <b>~89% of
+      plant-based buyers are mainstream flexitarians</b>, not the 5% ethical core (GFI 2024), (ii) a realistic
+      mainstream meatless-by-choice rate (~6%), and (iii) the residual ethical plant-based rate — which together
+      reproduce plant-based's observed <b>~1.2%</b> of meat. Dragging \(w_{\rm eth}\),
       \(\lambda\), \(\kappa\) or income re-solves this live, so plant-based stays anchored.
       <b>An out-of-sample check:</b> holding those <i>same</i> coefficients fixed and only moving the product
       positions to plant-based <i>milk</i>'s (near price &amp; taste parity in coffee/cereal; no cheap
-      whole-food substitute for milk) reproduces PB-milk's observed <b>~15%</b> share — so the one machinery
+      whole-food substitute for milk) reproduces PB-milk's observed <b>~15%</b> share (the same Eq. \((7)\),
+      different attribute rows) — so the one machinery
       explains both PB-meat's failure and PB-milk's success (it is printed in the self-check above). (We do
       <i>not</i> add a separate "habit" term: it isn't separable from preference in the data — Heckman — so
       habit lives in the rollout-over-time, not here.)</p>
       <p><b>Reading the share at parity.</b> At \(R_x=1\) with neutral dials (\(a_x=1,\ \theta_{\rm free}=0\)),
-      cultivated is attribute-identical to conventional, so it splits the real-meat buyers ~half — about
-      <b>{{PARITY_NEUTRAL}}%</b>. That ~half is just the logit's symmetry — two attribute-identical
-      real-meat options share the segment — <i>not</i> a habit or brand term (the model has none; habit
-      lives in the timing rung, §4). Drop \(a_x\) for taste friction (0.8 → ~{{AX_08}}%, 0.6 → ~{{AX_06}}%), or
-      push it above 1 if cultivated is judged to taste <i>better</i> than an average cut (1.1 → ~{{AX_11}}%);
-      raise \(\theta_{\rm free}\) for the cleaner-meat upside (0.5 → ~{{TH_05}}%, 1.0 → ~{{TH_10}}%). Nothing is baked in. The
-      model predicts the ordering <b>conventional &gt; cultivated &gt; plant-based</b> at parity — cultivated
-      beats plant-based because it <i>is</i> real tissue.</p>
+      cultivated <i>matches</i> conventional on price, taste and real-tissue, so the two real-meat options split
+      that demand roughly evenly — cultivated takes about <b>{{PARITY_NEUTRAL}}%</b> (this share, like every
+      share here, is the softmax Eq. \((7)\) of the four utilities \(V_j\) of Eq. \((3)\), blended by Eq. \((8)\)). They are not <i>quite</i>
+      identical, though: cultivated is also slaughter-free <b>and</b> sits at health \(0\) against conventional's
+      small <b>\(-0.1\)</b> contamination penalty (a cultured product carries no antibiotics and none of the
+      fecal/bacterial contamination of slaughtered meat). So cultivated <b>weakly dominates</b> and lands a few
+      points <i>ahead</i> of conventional — even in the mainstream, where slaughter-free carries no weight and the
+      edge is purely that cleanliness margin. That near-even split is the logit's near-symmetry, <i>not</i> a habit
+      or brand term (the model has none; habit lives in the timing rung, §4). Drop \(a_x\) for taste friction
+      (0.8 → ~{{AX_08}}%, 0.6 → ~{{AX_06}}%), or push it above 1 if cultivated is judged to taste <i>better</i>
+      than an average cut (1.1 → ~{{AX_11}}%); raise \(\theta_{\rm free}\) for the cleaner-meat upside
+      (0.5 → ~{{TH_05}}%, 1.0 → ~{{TH_10}}%). Nothing is baked in. The model predicts the ordering
+      <b>cultivated &#8819; conventional &gt; plant-based</b> at parity — cultivated edges conventional on
+      cleanliness (and slaughter-free), and beats plant-based decisively because it <i>is</i> real tissue.</p>
 
       <h4>3. Roll-up across meat types, and the price tiers</h4>
       <p>Each meat type is run at <i>its own</i> R (its own conventional price) with two
@@ -1274,16 +1420,23 @@ below.</p>
       additive constant from §2's \(\xi_x=\nu_x+\tau_{\rm type}\), more negative the more the product is
       bought for "the real thing"; and (2) an <b>elasticity multiplier</b> \(m_{\rm type}\) on
       \(\varepsilon\) (premium buyers are less price-sensitive — meat demand is more inelastic at higher price,
-      Lusk &amp; Tonsor <a href="#ref5">[5]</a>). Both run off the same tier and are scaled
+      Lusk &amp; Tonsor <a href="#ref5">[5]</a>). (\(m_{\rm type}\) here is a multiplier — unrelated to the
+      retail markup \(m\) of §1; economists reuse letters.) Both run off the same tier and are scaled
       together by the premium-resistance dial \(\rho\):</p>
       \[ \tau_{\rm type}=\rho\,\tau^0_{\rm type},\qquad
          \varepsilon_{\rm type}=\big(1+\rho\,(m^0_{\rm type}-1)\big)\,\varepsilon,\qquad
-         (\tau^0,m^0)=\begin{cases}(+0.2,\,1.0)&\text{basic}\\ (-0.4,\,0.8)&\text{cut}\\ (-1.5,\,0.3)&\text{premium}\end{cases} \]
-      <p>Writing \(s_i\) for type \(i\)'s cultivated share, \(\omega_i\) for its share of consumption by mass and
-      \(p_i\) for its conventional price, the two headline totals are the <b>volume</b>- and <b>value</b>-weighted
-      sums (value normalised by the total \(\$\) of the market, \(\sum_k p_k\omega_k\)):</p>
+         (\tau^0,m^0)=\begin{cases}(+0.2,\,1.0)&\text{basic}\\ (-0.4,\,0.8)&\text{cut}\\ (-1.5,\,0.3)&\text{premium}\end{cases} \tag{9} \]
+      <p>Writing \(s_i\) for type \(i\)'s cultivated share (each its own Eq. \((7)\)), \(\omega_i\) for its share
+      of consumption by mass and \(p_i\) for its conventional price, the two headline totals are the
+      <b>volume</b>- and <b>value</b>-weighted sums (value normalised by the total \(\$\) of the market,
+      \(\sum_k p_k\omega_k\)):</p>
       \[ \text{pen}_{\rm vol}=\sum_i \omega_i\,s_i \quad(\text{mass}\to\text{animal/climate impact}),\qquad
-         \text{pen}_{\rm val}=\sum_i \frac{p_i\,\omega_i}{\sum_k p_k\,\omega_k}\,s_i \quad(\$\to\text{market}). \]
+         \text{pen}_{\rm val}=\sum_i \frac{p_i\,\omega_i}{\sum_k p_k\,\omega_k}\,s_i \quad(\$\to\text{market}). \tag{10} \]
+      <p style="font-size:.84rem;margin:-2px 0 8px;color:#555"><b>In plain words:</b> add up cultivated's share
+      across the meat types, but weight each type either by <i>how much of it people eat</i> (the <b>volume</b>
+      total — what matters for animals and climate) or by <i>how many dollars it represents</i> (the <b>value</b>
+      total — what matters for market size). The two answers differ because expensive meats are a bigger slice of
+      spending than of tonnage.</p>
       <p>Tiers are set by (is it structured?, and its price <i>relative to its own species</i>):</p>
       <pre>tier      definition                                      authenticity τ   elasticity ×
 basic   = unstructured mince/processed                       +0.2          ×1.0
@@ -1337,6 +1490,8 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       exception, but only once measured.</p>
 
       <h4>4. Adoption over time (the timing rung)</h4>
+      <p style="font-size:.86rem;color:#777;margin:-2px 0 6px"><i>This is step 3 of the big-picture three: the
+      share above is the destination; here we ask how fast cultivated gets there.</i></p>
       <p>The share above is an <b>equilibrium</b> — where adoption <i>lands</i> once a product is
       familiar. But cultivated meat is brand-new, and the data say today's consumer is <b>cold</b>: in a
       US choice experiment (<b><a href="https://doi.org/10.1016/j.foodpol.2020.101931" target="_blank" rel="noopener">Van Loo, Caputo &amp; Lusk 2020</a></b> <a href="#ref8">[8]</a>),
@@ -1350,17 +1505,19 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       who find the plant-based analog at &minus;1.4) — so what is uncertain is the at-parity <i>standing</i>,
       not the slope.</p>
       <p>So the timing rung runs two coupled processes over 30 years, at cultivated's held price ratio
-      \(R_x\):</p>
+      \(R_x\) (Eq. \((11)\); the "ceiling" it multiplies is just the §2 share, Eq. \((7)\), recomputed as
+      novelty fades):</p>
       \[ \text{share}(t) \;=\; \underbrace{F(t)}_{\text{Bass rollout}}\;\times\;
          \underbrace{\text{ceiling}\big(\nu_x(t)\big)}_{\S2\text{ share as novelty fades}},\qquad
-         \nu_x(t)=\nu_x + (\nu_{x0}-\nu_x)\,e^{-\,r\,E(t)} \]
+         \nu_x(t)=\nu_x + (\nu_{x0}-\nu_x)\,e^{-\,r\,E(t)} \tag{11} \]
       <p>where <b>\(\nu_{x0}\)</b> is the <b>initial (cold-start) neophobia</b> — the dial whose range is
       pinned to the data — and \(\nu_x\) is the <b>long-run</b> level it fades toward. The fade is driven
       by cumulative <b>availability</b> \(E\) (mere-exposure: people grow familiar with what they keep
       seeing, even before they buy), at rate \(r\) (<code>accept_rate</code>). \(F(t)\) is standard
       <b>Bass diffusion</b> <a href="#ref11">[11]</a> \(\big(\dot F=(p+qF)(1-F)\big)\) — where \(p\) is the
       <i>innovation</i> rate (independent early adopters) and \(q\) the <i>imitation</i> rate (word-of-mouth
-      contagion), the two standard Bass coefficients. The chart above shows the realized median,
+      contagion), the two standard Bass coefficients. (These Bass \(p,q\) are diffusion rates — not the
+      plant-based product index \(p\) of §2; the reuse of the letter is unavoidable convention.) The chart above shows the realized median,
       the rising ceiling it climbs toward, and the year it <b>stabilises</b> (reaches 90% of its yr-30
       value); turn on Monte Carlo to band it.</p>
       <p style="background:#eef4fb;border:1px solid var(--rule);border-radius:6px;padding:7px 10px">
@@ -1369,7 +1526,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       a cold unbranded choice experiment gives <b>~5%</b> (\(\nu_{x0}\approx-2.8\), the data-anchored
       default — "today's unfamiliar consumer"); a warm "cultivated chicken in a restaurant" framing
       (Perdue 2024) gives <b>~60%</b> (\(\nu_{x0}\approx+1.5\)); neutral/equivalent sits at ~{{NX0_NEUTRAL}}%
-      (\(\nu_{x0}=0\)). Rather than pick one, the slider <b>spans the whole framing band</b>, and it is
+      (Eq. \((7)\) at \(\nu_{x0}=0\)). Rather than pick one, the slider <b>spans the whole framing band</b>, and it is
       <b>swept in the Monte Carlo</b>, so this — the single widest genuine uncertainty in the demand
       side — is shown, not hidden. (Reassuringly, the cultivated-specific price response itself is
       <i>not</i> the issue: Lusk's data imply an own-price elasticity bracketing −0.84 to −3.4, and the
@@ -1405,6 +1562,8 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       footing with cultivated.</p>
 
       <h4>6. The foothold rung — the accessible price, the rent partition, and the displaceable volume</h4>
+      <p style="font-size:.86rem;color:#777;margin:-2px 0 6px"><i>A zoom-in beyond the three core steps: not the
+      whole-market share, but which single products cultivated can realistically enter first.</i></p>
       <p>Rungs&nbsp;1&ndash;5 roll cultivated up across a region's whole meat basket. This rung asks the
       product-level question that <b>panel&nbsp;7</b> visualises: <b>at which single products can cultivated
       compete on price, and how much conventional production would it displace there?</b> &mdash; the foothold
@@ -1415,24 +1574,33 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
 
       <p><b>Cost &mdash; the waterline.</b> Cultivated's retail cost is &sect;1's biomass cost \(c_{\rm bio}\)
       plus the retail markup \(m\), with the scaffold \(k\) added only for structured (whole-cut) products:</p>
-      \[ c_x \;=\; c_{\rm bio} \;+\; k\,[\text{structured cut}] \;+\; m, \]
+      \[ c_x \;=\; c_{\rm bio} \;+\; k\,[\text{structured cut}] \;+\; m, \tag{12} \]
       <p>and an irreducible-floor variant \(c_x^{\rm floor}\) that swaps \(c_{\rm bio}\) for the derived
       floor \(c_{\rm floor}\) (&sect;1). Cost is ~global; what differs across products is the price it meets.</p>
 
+      <p style="background:#f3f6fb;border:1px solid var(--rule);border-radius:6px;padding:7px 10px"><b>In plain
+      words, before the terms.</b> A wagyu steak's high price is mostly <i>not</i> the cost of producing it —
+      it is a premium people pay for <b>authenticity</b> (the real breed, the heritage, the scarcity).
+      Economists call that extra slice <b>economic rent</b> (an "above-cost" premium, unrelated to apartment
+      rent). Cultivated meat can match the <i>meat</i> but not the <i>authenticity</i>, so it can only ever
+      compete for the cheaper, quality-driven part of the price — never the rent. And some luxury buyers (a
+      <b>Veblen</b> segment — people for whom the high price and exclusivity are <i>the point</i>) will not
+      switch at any price. The next few lines just make that precise.</p>
       <p><b>The rent partition &mdash; the one new primitive.</b> A luxury price is not cost-plus; it is
       mostly <b>economic rent</b> on attributes cultivated structurally lacks &mdash; terroir, wild-caught,
-      heritage, grade, scarcity. Hedonically (Rosen&nbsp;1974 <a href="#ref16">[16]</a>) the conventional
+      heritage, grade, scarcity. <b>Hedonically</b> (splitting a price into the value of its separate features,
+      Rosen&nbsp;1974 <a href="#ref16">[16]</a>) the conventional
       price splits into a base and a rent,</p>
-      \[ p^{\rm auth} \;=\; p^{\rm base} \;+\; \underbrace{(p^{\rm auth}-p^{\rm base})}_{\text{authenticity rent}}, \]
+      \[ p^{\rm auth} \;=\; p^{\rm base} \;+\; \underbrace{(p^{\rm auth}-p^{\rm base})}_{\text{authenticity rent}}, \tag{13} \]
       <p>and cultivated &mdash; not being <i>the authentic thing</i> &mdash; can earn only the base. So the
       ratio that decides reachability is taken against the <b>accessible tier</b>, never the headline:</p>
-      \[ R \;=\; \frac{c_x}{p^{\rm base}}\qquad(\text{not } c_x/p^{\rm auth}). \]
+      \[ R \;=\; \frac{c_x}{p^{\rm base}}\qquad(\text{not } c_x/p^{\rm auth}). \tag{14} \]
       <p>Heterogeneity in the taste for authenticity then splits the category in two: a <b>prestige core</b>
       (fraction \(\chi\)) pays the rent and <i>never</i> switches &mdash; a Veblen / conspicuous-consumption
       segment (Bagwell&nbsp;&amp;&nbsp;Bernheim&nbsp;1996 <a href="#ref17">[17]</a>), which is precisely why a luxury incumbent
       <b>holds price and cedes volume</b> rather than discounting &mdash; and an <b>aspirational base</b> buys
       on quality and is contestable. Only the base is addressable:</p>
-      \[ V^{\rm addr} \;=\; (1-\chi)\,V. \]
+      \[ V^{\rm addr} \;=\; (1-\chi)\,V. \tag{15} \]
       <p>This counts authenticity <b>once</b> (as removed volume), avoiding the double penalty of also
       taxing it inside the utility.</p>
 
@@ -1465,7 +1633,7 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
          \text{at parity}&|p^{\rm base}-c_x|\le \$3\\
          \text{reachable now}& p^{\rm base}\ge c_x\\
          \text{needs the floor}& c_x^{\rm floor}\le p^{\rm base}&lt;c_x\\
-         \text{never (on price)}& p^{\rm base}&lt;c_x^{\rm floor}\end{cases} \]
+         \text{never (on price)}& p^{\rm base}&lt;c_x^{\rm floor}\end{cases} \tag{16} \]
 
       <p><b>Share of the addressable base.</b> The contestable buyers choose by the <i>same</i> two-segment
       logit \(S(\cdot)\) of &sect;2 &mdash; fully specified there (the BLP income&ndash;price term, taste,
@@ -1478,10 +1646,12 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       <b>basic</b> when it is unstructured/processed and <b>cut</b> when it is a whole muscle:</p>
       \[ \tau^{\rm acc}=\begin{cases}\tau_{\rm basic}=+0.2 & \text{unstructured / processed}\\
          \tau_{\rm cut}=-0.4 & \text{structured (whole cut)}\end{cases},\qquad
-         s \;=\; S\big(R=c_x/p^{\rm base};\,\tau^{\rm acc}\big). \]
+         s \;=\; S\big(R=c_x/p^{\rm base};\,\tau^{\rm acc}\big). \tag{17} \]
       <p>This is what makes the two panels <b>reconcile</b>: a commodity product (no rent tier, \(\chi=0\),
-      \(p^{\rm base}=p^{\rm conv}\)) reproduces panel&nbsp;1's basic-tier share <i>exactly</i> &mdash;
-      e.g. commodity chicken, pork and seafood land on their panel-1 values. Authenticity is therefore counted
+      \(p^{\rm base}=p^{\rm conv}\)) collapses Eq. \((17)\) back to Eq. \((7)\), so it reproduces panel&nbsp;1's
+      same-tier share <i>exactly</i> &mdash; a commodity <b>cut</b> (chicken breast, pork loin, beef steak, shrimp)
+      lands on panel&nbsp;1's <i>cut</i> tier, a commodity <b>processed</b> product (pet food) on its <i>basic</i>
+      tier. Authenticity is therefore counted
       <b>once</b>: the prestige grade as removed volume (\(\chi\)), the accessible grade through its calibrated
       basic/cut taste &mdash; never both for the same buyer.</p>
       <p>Cultivated's <b>capturable</b> advantage (cruelty-free foie gras, contaminant-free seafood) is
@@ -1498,8 +1668,9 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       that pinning, not a result). Instead we fix the cleanest defensible assumption &mdash; cultivated
       <b>prices at its own cost</b> \(c_x\) (zero margin) &mdash; and read off the demand curve the <b>share</b>
       it wins there and the conventional production that share <b>displaces</b> over the addressable base:</p>
-      \[ D \;=\; s\big(R=c_x/p^{\rm base}\big)\cdot V^{\rm addr}\qquad(\text{kt/yr}). \]
-      <p>Products are ranked and sized by \(D\). A pure-rent category (caviar, \(\chi\to1\)) has
+      \[ D \;=\; s\big(R=c_x/p^{\rm base}\big)\cdot V^{\rm addr}\qquad(\text{kt/yr}). \tag{18} \]
+      <p>Products are ranked and sized by \(D\) (Eq. \((18)\): the addressable volume of Eq. \((15)\) times the
+      reachable-tier share \(s\) of Eq. \((17)\)). A pure-rent category (caviar, \(\chi\to1\)) has
       \(V^{\rm addr}\to0\Rightarrow D\to0\). \(D\) is largest where a genuine capturable advantage meets a
       large accessible base (cruelty-free foie gras; high-volume seafood), and it <b>grows as cost falls</b>
       (lower \(c_x\Rightarrow\) lower \(R\Rightarrow\) higher \(s\)) &mdash; the price-skimming / experience-curve
@@ -1541,6 +1712,31 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       — so every result traces back to a parameter and an equation (full datasheet in
       <a href="METHODS.md">METHODS.md</a>):</p>
       <div class="scrollx" id="paramtable"></div>
+
+      <p style="margin-top:14px"><b>The attribute <i>weights</i> — and why most of them are not sliders.</b>
+      The table above is the <b>positions</b> you can drag (how good cultivated tastes, its price, whether it is
+      credited as real meat…). This second table is the <b>weights</b> — the multipliers that say how much each
+      attribute matters — and it answers a fair question: <i>why can I move a product's position but not the
+      weight on it?</i> Because the weights split into four kinds, and only some are free:</p>
+      <ul style="font-size:.9rem;margin:-2px 0 8px">
+        <li><b>SOLVED</b> — pinned by a calibration moment (PB's ~1.2% share, the 89% buyer split, the meatless
+        rate). You <i>can't</i> set these freely without breaking the fit; they re-solve when you move a target
+        (e.g. \(w_{\rm eth}\)).</li>
+        <li><b>FIXED</b> — a normalisation (the taste weight \(q\): only utility <i>differences</i> are
+        identified, so its level is arbitrary) or a structural assumption (the ethical segment's large
+        slaughter-free weight, which <i>is</i> what defines that segment).</li>
+        <li><b>SLIDER</b> — genuinely yours, because they are <i>not</i> calibration-identified (the mainstream
+        slaughter-free upside \(\theta_{\rm free}\), loss aversion \(\lambda\), the segment size \(w_{\rm eth}\)).</li>
+        <li><b>DERIVED</b> — the price coefficient, built from the elasticity target (§2).</li>
+      </ul>
+      <p style="font-size:.9rem;margin:-2px 0 8px">So you tweak a product's <i>position</i> freely (e.g.
+      cultivated's real-meat credit \(b_x\), which is the cultivated-specific scaling of the shared real-tissue
+      weight \(w^{rt}\) — moving \(b_x\) <i>is</i> how you move cultivated's effective weight); but the shared
+      weight itself is pinned by the plant-based data, so it is solved, not dragged. Values are read <b>live from
+      the calibration</b> (they can't go stale):</p>
+      <table class="pt"><tr><th>weight</th><th>symbol</th><th>mainstream</th><th>ethical</th><th>how it is set</th></tr>
+        __WEIGHTS_TABLE__
+      </table>
 
       <h4>Is this the natural way to set it up? (an honest interrogation)</h4>
       <p>The framework is exactly what an economist would use — a <b>random-utility discrete-choice
@@ -1726,6 +1922,7 @@ MODEL.toggles.forEach(t => state[t.key] = false);
 state.mc = false;
 state.curveType = null;
 state.pieBasis = "vol";                          // the pie/donut basis: by volume or by value
+state.footView = "margin";                       // panel 7 default view: "margin" = share vs price-ratio (vs "waterline")
 state.income = C.REGION_INCOME[state.region];   // income follows the selected region
 let KP = null;   // the current effective+calibrated constants (set every recompute)
 
@@ -3091,9 +3288,10 @@ function selfTest(){
     "<td style='text-align:right;white-space:nowrap'>"+TAG[tag]+"</td></tr>";
   document.getElementById("selftest").innerHTML=
     "<div class='sthead'>Does the model match the real world? (live — recomputed as you move the sliders)</div>"+
-    "<div class='stanchor'>The demand side is tuned to <b>one</b> number — plant-based <b>meat</b>'s ~1.2% share of "+
-    "the meat market (the model reproduces it at "+(pb*100).toFixed(1)+"%, by construction). Everything below was "+
-    "<b>not</b> fitted:</div>"+
+    "<div class='stanchor'>The demand side is tuned to <b>a few plant-based facts</b> — its ~1.2% share of the meat "+
+    "market (the model reproduces it at "+(pb*100).toFixed(1)+"%, by construction), its 89% mainstream-buyer split, "+
+    "and a realistic meatless rate (three solved weights, three moments — see the weights table in the methods). "+
+    "Everything below was <b>not</b> fitted:</div>"+
     "<table>"+rows.map(rowHTML).join("")+"</table>"+
     "<div class='stnote'><b>MATCHES</b> = the model reproduces a real-world number it was <i>not</i> tuned to (the genuine "+
     "validation). <b>MODEL OUTPUT</b> = a model result with no direct real-world figure to check against.</div>"+
@@ -3131,6 +3329,10 @@ def main() -> None:
     # which is %-share-only) — computed from the live model so the methods prose can never go stale.
     # Quoted to one decimal to match the prose style ("−1.5"); golden-guarded at -1.53827.
     html = html.replace("{{KAPPA4_LUSK_ELAS}}", f"{_lusk_at_parity(DemandParams()):.1f}")
+    # The attribute-weights table, GENERATED from the live solved DemandParams (never hand-typed).
+    html = html.replace("__WEIGHTS_TABLE__", weights_table_rows())
+    if "__WEIGHTS_TABLE__" in html:
+        raise RuntimeError("weights table token was not substituted")
     leftover = [t for t in illus if t in html]
     if leftover:                                          # a typo'd placeholder would ship a literal {{TOKEN}}
         raise RuntimeError(f"unsubstituted illustrative tokens remain: {leftover}")

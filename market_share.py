@@ -40,9 +40,9 @@ outside option's standing is carried by a named HEALTH attribute (health_w x a s
 segment health weight), which replaced the old free intercept xi_w; the meats carry
 none (their deviations are all named attributes):
 
-    V_sj = V_price(price_j, income)        # income-scaled price term (richer = less price-sensitive)
-         - f * loss_aversion * max(0, price_ratio_j - 1)         # premium penalty (loss side, slope lambda)
-         + f * 1.0           * max(0, 1 - price_ratio_j)         # discount reward (gain side, unit slope)
+    V_sj = alpha*ln(y_eff - price_j)       # BLP price term, income INSIDE the log (richer = less price-sensitive)
+         - loss_aversion * max(0, price_ratio_j - 1)            # premium penalty (loss side, slope lambda)
+         + 1.0           * max(0, 1 - price_ratio_j)            # discount reward (gain side, unit slope)
          + q_taste * taste_j
          + w_slaughter[s] * slaughter_j  +  w_realtissue[s] * real_tissue_j
          + w_health[s] * health_j  +  neophobia_j               # health attribute (carries whole-food);
@@ -51,8 +51,9 @@ none (their deviations are all named attributes):
 No product gets a special-case term: plant-based and cultivated are treated by the SAME
 two-sided, reference-dependent price rule. By DEFAULT loss_aversion = 1, which makes that
 rule SYMMETRIC (the loss and gain sides have equal unit slope — no kink, no loss aversion);
-loss_aversion > 1 adds an asymmetric premium penalty (Tversky-Kahneman). The whole price
-response (income term + reference term) is scaled by the income factor f (see _utilities).
+loss_aversion > 1 adds an asymmetric premium penalty (Tversky-Kahneman). Income enters
+ONLY through the BLP log (y_eff inside the log); the ratio-based reference term carries no
+income scaling (see _utilities).
 Conventional `c` is the reference (price_ratio 1, taste 0, intercept 0); see the
 attribute table in `_utilities`.
 
@@ -274,14 +275,17 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     authenticity offset), `neophobia_p` for plant-based. Conventional and whole-food
     (familiar) carry none.
 
-    Two price-related terms, BOTH applied to every product by its own price, and BOTH
-    scaled by the income factor f = (income_ref/income)**income_gradient (f>1 poorer =
-    more price-sensitive, f==1 at the reference income):
-      * BLP (Berry-Levinsohn-Pakes 1995) curvature  alpha*ln(income_ref - price), with
-        alpha = -(beta*f)*(income_ref - p_conv): diminishing marginal utility of income,
-        evaluated at the REFERENCE income; the cross-region price-sensitivity tilt comes
-        from f, not from moving y_eff (the previous y_eff form was income-invariant in
-        share — see the f comment in the body; this is the genuine income channel).
+    Two price-related terms (see the body comment at `y_eff`/`V_price` for the authoritative
+    derivation):
+      * BLP (Berry-Levinsohn-Pakes 1995) price term  alpha*ln(y_eff - price), with income
+        INSIDE the log and alpha = -beta*(income_ref - anchor_price) a single CONSTANT. The
+        damped effective income y_eff = income_ref*(income/income_ref)**income_gradient carries
+        the cross-region tilt; income_gradient (phi) damps raw BLP (phi=1, too steep for food)
+        to the empirical ~2-3x gradient. The US/at-parity numbers are invariant to phi
+        (y_eff=income_ref at the reference). This is the genuine income channel — the diminishing
+        marginal utility of income IS the mechanism (a price is a bigger bite the poorer you are).
+        (An earlier form re-added income as a separate multiplier f outside the log — NOT BLP;
+        that f factor has been removed.)
       * Reference-dependent term: a discount (price_ratio<1) rewarded at the UNIT rate,
         a premium (price_ratio>1) penalised at -loss_aversion. loss_aversion = lambda is
         the loss/gain asymmetry; the DEFAULT lambda=1 is SYMMETRIC (no kink, no loss

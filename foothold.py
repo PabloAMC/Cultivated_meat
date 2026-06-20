@@ -68,7 +68,7 @@ class Foothold:
     label: str
     p_conv: float | None     # $/kg conventional referent (None = no referent / novel)
     volume_kt: float         # global category volume kt/yr (displacement proxy)
-    structure: str           # "unstructured" | "processed" | "structured"
+    structure: str           # "processed" (mince/roe/organ — no scaffold) | "structured" (whole-muscle cut — scaffold)
     defect_health: int       # cultivated advantage from a HEALTH/SAFETY defect of the conv. product
     defect_env: int          # ... from an ENVIRONMENTAL defect (overfishing, emissions)
     defect_ethics: int       # ... from an ETHICAL/WELFARE defect (gavage, finning, feedlot)
@@ -121,11 +121,12 @@ PRODUCTS: list[Foothold] = [
              p_base=80,
              note="gavage is the defining, legally-banned defect; cruelty-free SUBSTITUTES for much of the "
                   "artisanal rent; pate->no authenticity penalty; fatty liver is easy"),
-    Foothold("cultivated unagi (eel)", 60, 250, "processed",
+    Foothold("cultivated unagi (eel)", 60, 250, "structured",
              defect_health=1, defect_env=2, defect_ethics=1, authenticity=1,
-             tractability=1, transferability=1, regulatory=1, launched_by="Forsea",
+             tractability=0, transferability=1, regulatory=1, launched_by="Forsea",
              p_base=35,
-             note="Japanese/European eel endangered (IUCN/CITES); ~all farmed (one grade); glazed kabayaki -> low rent"),
+             note="eel FILLET = whole-muscle (structured cut); Japanese/European eel endangered (IUCN/CITES); "
+                  "~all farmed (one grade); glazed kabayaki -> low rent"),
     Foothold("cultivated bluefin tuna (sushi)", 350, 40, "structured",
              defect_health=2, defect_env=2, defect_ethics=1, authenticity=2,
              tractability=-1, transferability=1, regulatory=1, launched_by="BlueNalu",
@@ -160,18 +161,18 @@ PRODUCTS: list[Foothold] = [
              defect_health=1, defect_env=2, defect_ethics=1, authenticity=2,
              tractability=-1, transferability=2, regulatory=0, launched_by="Mosa Meat",
              note="huge climate/feedlot defect + huge volume, but cheap -> R awful + structured"),
-    Foothold("cultivated chicken (nugget/mince)", 5, 120000, "unstructured",
+    Foothold("cultivated chicken breast (commodity)", 8, 120000, "structured",
              defect_health=1, defect_env=1, defect_ethics=1, authenticity=0,
-             tractability=2, transferability=1, regulatory=1, launched_by="UPSIDE/GOOD Meat",
-             note="the impact prize + easy/unstructured, but commodity price -> R worst; APPROVED yet stalled. "
-                  "$5/kg = panel 1's basic-chicken tier (shares reconcile)"),
-    Foothold("cultivated pork (commodity)", 8, 115000, "unstructured",
+             tractability=0, transferability=1, regulatory=1, launched_by="UPSIDE/GOOD Meat",
+             note="the impact prize, but a structured breast at near-commodity price -> R poor; APPROVED yet stalled. "
+                  "$8/kg = panel 1's chicken-CUTS tier (shares reconcile)"),
+    Foothold("cultivated pork loin (commodity)", 9, 115000, "structured",
              defect_health=1, defect_env=1, defect_ethics=2, authenticity=0,
-             tractability=2, transferability=1, regulatory=1, launched_by="Mission Barns",
+             tractability=0, transferability=1, regulatory=1, launched_by="Mission Barns",
              note="the other mass-meat prize: huge volume + a strong, heavily-legislated welfare defect "
-                  "(gestation crates; pigs are highly intelligent), and fatty/unstructured so easy to culture "
-                  "-> but commodity price -> R>1, unreachable on price"),
-    Foothold("cultivated pet food", 6, 20000, "unstructured",
+                  "(gestation crates; pigs are highly intelligent), but a structured loin at near-commodity "
+                  "price -> R>1, unreachable on price. $9/kg = panel 1's pork-CUTS tier (shares reconcile)"),
+    Foothold("cultivated pet food", 6, 20000, "processed",
              defect_health=1, defect_env=1, defect_ethics=1, authenticity=0,
              tractability=2, transferability=1, regulatory=2, launched_by="Bond Pet Foods",
              note="no authenticity penalty (pets), lower regulatory bar, but very low WTP/margin"),
@@ -187,17 +188,17 @@ PRODUCTS: list[Foothold] = [
              p_base=40,
              note="boiled-alive welfare + fishery pressure; little provenance rent (price is the product) -> "
                   "accessible whole/frozen tier ~$40/kg is the base"),
-    Foothold("cultivated premium prawns", 30, 2000, "processed",
+    Foothold("cultivated premium prawns", 30, 2000, "structured",
              defect_health=1, defect_env=2, defect_ethics=2, authenticity=0,
-             tractability=2, transferability=1, regulatory=1, launched_by="Umami Bioworks (ex-Shiok), CellMEAT",
+             tractability=1, transferability=1, regulatory=1, launched_by="Umami Bioworks (ex-Shiok), CellMEAT",
              p_base=18,
-             note="mangrove loss + bycatch (env) + documented forced labour (ethics); peeled/processed -> "
-                  "almost no rent; the accessible prawn tier (~$18/kg) is cheap; large addressable base"),
-    Foothold("cultivated mass shrimp (commodity)", 10, 4000, "unstructured",
+             note="whole prawn = muscle (structured cut, like lobster); mangrove loss + bycatch (env) + documented "
+                  "forced labour (ethics); little provenance rent; the accessible prawn tier (~$18/kg) is cheap; large addressable base"),
+    Foothold("cultivated shrimp (commodity)", 10, 4000, "structured",
              defect_health=1, defect_env=2, defect_ethics=2, authenticity=0,
-             tractability=2, transferability=1, regulatory=1, launched_by="",
-             note="same defects as premium prawns but at commodity price -> R>1; the high-impact prize, "
-                  "unreachable on price"),
+             tractability=1, transferability=1, regulatory=1, launched_by="",
+             note="whole shrimp = muscle (structured cut, like premium prawns); same defects as premium prawns but "
+                  "at commodity price -> R>1; the high-impact prize, unreachable on price"),
     Foothold("cultivated iberico ham", 120, 30, "structured",
              defect_health=0, defect_env=0, defect_ethics=0, authenticity=2,
              tractability=-1, transferability=1, regulatory=0, launched_by="",
@@ -225,13 +226,13 @@ PRICE_BASIS: dict[str, str] = {
     "cultivated shark fin":            "prices ESTIMATED (illegal/declining trade, not cleanly sourceable): ~$150 accessible, ~$400 top-grade",
     "cultivated wagyu":                "A5 Japanese $100–250/lb≈$220–550/kg, American wagyu $15–40/lb≈$33–88/kg (The Meatery; Cozymeal) → base ~$55, headline ~$330",
     "cultivated beef steak (commodity)":"commodity retail steak ~$15/kg (single grade; no prestige tier)",
-    "cultivated chicken (nugget/mince)":"commodity retail chicken ~$5/kg (single grade; no prestige tier; = panel 1 basic-chicken tier)",
-    "cultivated pork (commodity)":     "commodity retail pork ~$8/kg (single grade; no prestige tier; = panel 1 basic-pork tier)",
+    "cultivated chicken breast (commodity)":"everyday chicken breast ~$8/kg (single grade; no prestige tier; = panel 1 chicken-cuts tier)",
+    "cultivated pork loin (commodity)":"everyday pork loin ~$9/kg (single grade; no prestige tier; = panel 1 pork-cuts tier)",
     "cultivated pet food":             "premium pet-food meat ~$6/kg (single grade; no prestige tier)",
     "cultivated uni (sea urchin)":     "premium Japan/US uni ~$300/kg vs accessible ~$75/kg (Tridge; Selina Wamucii) → base ~$75, headline ~$250",
     "cultivated lobster":              "whole live ~$26.72/lb≈$59/kg, tail meat $55–75/lb (LobsterAnywhere) → base ~$40, headline ~$60; little provenance rent",
     "cultivated premium prawns":       "tiger prawns ~$5–25/kg vs commodity shrimp ~$2–10/kg (Tridge; IndexMundi) → base ~$18, premium ~$30",
-    "cultivated mass shrimp (commodity)":"commodity shrimp ~$10/kg retail (single grade; no prestige tier)",
+    "cultivated shrimp (commodity)":   "commodity whole shrimp ~$10/kg retail (single grade; no prestige tier)",
     "cultivated iberico ham":          "bellota whole-leg ~$80–150/kg vs serrano/cebo ~$25–40/kg (IberGour; Ibericofoods) → base ~$35, headline ~$120. ANCHORS global φ (bellota ~20% of iberico, Nat Geo/TasteAtlas)",
 }
 
