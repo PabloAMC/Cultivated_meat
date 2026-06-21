@@ -273,7 +273,7 @@ def build_model() -> dict:
             "health_x": ["&zeta;<sub>x</sub>", "cultivated health-perception offset added to V<sub>x</sub> (+ healthier / &minus; less healthy; default 0, unidentified) (&sect;2)"],
             "health_p": ["&zeta;<sub>p</sub>", "plant-based health-perception offset added to V<sub>p</sub> (+ healthier / &minus; less healthy; default 0, unidentified) (&sect;2)"],
             "neophobia_x0": ["&nu;<sub>x0</sub>", "cultivated INITIAL cold-start novelty; fades to &nu;<sub>x</sub> at rate accept_rate (&sect;4 timing)"],
-            "neophobia_p0": ["&nu;<sub>p0</sub>", "plant-based INITIAL cold-start novelty (&sect;4 timing; PB stalls on taste/price, not novelty)"],
+            "neophobia_p0": ["&nu;<sub>p0</sub>", "plant-based INITIAL cold-start novelty (&sect;4 timing; PB is capped by taste/price, not novelty)"],
             "accept_rate": ["r", "novelty-fade rate: &nu;(t)=&nu;<sub>long</sub>+(&nu;<sub>0</sub>&minus;&nu;<sub>long</sub>)e<sup>&minus;rE</sup> (&sect;4)"],
             "p_innov": ["p", "Bass innovation coefficient: dF=(p+qF)(1&minus;F) (&sect;4 timing)"],
             "q_imit": ["q", "Bass imitation coefficient (word-of-mouth) (&sect;4 timing)"],
@@ -872,7 +872,7 @@ below.</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
-        <p class="sub" id="timingsub">cultivated (blue) climbs from its cold ~5% start (Lusk) as familiarity grows; plant-based (green) gets the same machinery but stalls — its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
+        <p class="sub" id="timingsub">cultivated (blue) rises from its cold ~5% start (Lusk) as familiarity grows; plant-based (green) gets the same machinery, but its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
       <div class="card full"><h3>6 · Comparison products — cross-category checks</h3>
         <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product: its observed share vs the model's. The genuine <b>out-of-sample</b> tests reuse the SAME coefficients and swap only the product's positions — plant-based <b>milk</b> (the default) lands at ~15% this way, unfitted. Two options are <i>not</i> clean validations and are labelled so on the chart: plant-based <b>meat</b> is the calibration <b>target</b> (circular), and <b>eggs</b> exercise a different lever (welfare, not authenticity).</p>
@@ -2753,18 +2753,18 @@ function drawTiming(s){
   const ts=band?pctl(band.tstab,50):timeToStabilize(xShare);
   el("line",{x1:X(ts),y1:mT,x2:X(ts),y2:H-mB,stroke:"#999","stroke-dasharray":"2 2","stroke-width":1},svg);
   tx(svg,X(ts)-4,mT+10,"cultivated stabilises ~yr "+Math.round(ts),{"font-size":8,fill:"#777","text-anchor":"end"});
-  tx(svg,mL,mT-4,"cultivated "+xShare[0].toFixed(0)+"%→"+xShare[yrs].toFixed(0)+"%   ·   plant-based "+pShare[0].toFixed(0)+"%→"+pShare[yrs].toFixed(0)+"% (stalls)",
+  tx(svg,mL,mT-4,"cultivated "+xShare[0].toFixed(0)+"%→"+xShare[yrs].toFixed(0)+"%   ·   plant-based "+pShare[0].toFixed(0)+"%→"+pShare[yrs].toFixed(0)+"%",
      {"font-size":9,fill:"#333","font-weight":700});
   // right-side legend
   let ly=mT+8;
-  [["#0173B2","cultivated (climbs)",2.6],["#117733","plant-based (stalls)",2.0],
+  [["#0173B2","cultivated",2.6],["#117733","plant-based",2.0],
    ["#7fb2d6","cultivated ceiling",1.1],["#0173B2","cultivated 80% band"+(band?"":" — MC off"),0],
    ["#117733","plant-based 80% band",0]].forEach(([c,lab,w])=>{
     if(w)el("line",{x1:W-mR+6,y1:ly-3,x2:W-mR+22,y2:ly-3,stroke:c,"stroke-width":w,"stroke-dasharray":w===1.1?"5 3":""},svg);
     else el("rect",{x:W-mR+6,y:ly-7,width:16,height:7,fill:c,opacity:0.12},svg);
     tx(svg,W-mR+26,ly,lab,{"font-size":8,fill:"#555"}); ly+=13;});
   ly+=4;
-  tx(svg,W-mR+6,ly,"why PB stalls:",{"font-size":8,fill:"#888"}); ly+=11;
+  tx(svg,W-mR+6,ly,"what caps PB:",{"font-size":8,fill:"#888"}); ly+=11;
   tx(svg,W-mR+6,ly,"taste a_p="+(s.a_p).toFixed(2)+", R_p="+(s.R_p).toFixed(2),{"font-size":8,fill:"#117733"}); ly+=11;
   tx(svg,W-mR+6,ly,"(novelty fades; taste",{"font-size":8,fill:"#999"}); ly+=10;
   tx(svg,W-mR+6,ly,"deficit is permanent)",{"font-size":8,fill:"#999"}); ly+=14;
