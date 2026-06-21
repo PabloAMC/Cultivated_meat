@@ -833,7 +833,7 @@ is the long-run <i>destination</i>; because a brand-new food is met coldly — o
 equal price today — the model starts cold and climbs along a <b>Bass diffusion</b> curve as familiarity grows.</p>
 <p class="lede">So the big penetration numbers are the <b>long-run equilibrium ceiling</b> — where
 adoption <i>lands</i> once novelty has faded — <b>not</b> a forecast of today's share; the timing chart
-(§4) shows the path climbing to it from the cold ~5% start. Headline figures are <b>point estimates</b>
+(§4) shows the path climbing to it from a cold, near-zero start. Headline figures are <b>point estimates</b>
 at the values you choose; toggle <b>Monte&nbsp;Carlo</b> to propagate the priors into an uncertainty
 band. Numbers that are <i>measured</i> (costs, prices, the plant-based facts the model is calibrated to)
 are pinned; numbers that are <i>judgement</i> are exposed as sliders and swept in the band, never hidden.
@@ -872,7 +872,7 @@ below.</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
-        <p class="sub" id="timingsub">cultivated (blue) rises from its cold ~5% start (Lusk) as familiarity grows; plant-based (green) gets the same machinery, but its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
+        <p class="sub" id="timingsub">cultivated (blue) starts cold and near-zero (the rollout is not yet underway) and rises as the rollout spreads and familiarity grows; plant-based (green) gets the same machinery, but its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
       <div class="card full"><h3>6 · Comparison products — cross-category checks</h3>
         <p class="sub" id="cmpsub">the same demand machinery applied to a chosen real-world product: its observed share vs the model's. The genuine <b>out-of-sample</b> tests reuse the SAME coefficients and swap only the product's positions — plant-based <b>milk</b> (the default) lands at ~15% this way, unfitted. Two options are <i>not</i> clean validations and are labelled so on the chart: plant-based <b>meat</b> is the calibration <b>target</b> (circular), and <b>eggs</b> exercise a different lever (welfare, not authenticity).</p>
@@ -2340,7 +2340,7 @@ function drawHeads(s){
   // Each cell = [label HTML, big number, colour, optional tooltip]. The tooltip is attached with the
   // SAME addQ() "?" badge the sliders use (a styled #tip popup) — NOT a native title= attribute, which
   // rendered unreliably here. The "long-run ceiling" text is plain label HTML, so it always shows.
-  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded — the ceiling adoption climbs toward, NOT the share today. The timing chart (§4) shows the path up from the cold ~5% start.";
+  const cultTip="Long-run EQUILIBRIUM share, once novelty has fully faded — the ceiling adoption climbs toward, NOT the share today. The timing chart (§4) shows the path up to it from a cold, near-zero start.";
   const pbTip="Long-run equilibrium share, same basis as cultivated.";
   const cells=[
     ["<b>cultivated</b> long-run ceiling &middot; vol / val",(p.tv*100).toFixed(1)+"% / "+(p.tval*100).toFixed(1)+"%","var(--accent)",cultTip],
