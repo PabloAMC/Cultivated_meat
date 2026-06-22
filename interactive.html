@@ -134,7 +134,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: how much of the meat market can it win &mdash; and how fast? <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-22 14:04</span></h1>
+<h1>Cultivated meat: how much of the meat market can it win &mdash; and how fast? <span style="font-size:.5em;font-weight:400;color:#bbb">build 2026-06-22 14:54</span></h1>
 <p class="lede">Cultivated meat — real animal protein grown from cells, with no animal raised or
 slaughtered — could one day share a shelf with ordinary meat. Whether it wins a meaningful slice of that
 shelf comes down to a very human chain: what it costs to grow, what shoppers will pay for it, and how
@@ -186,19 +186,21 @@ below.</p>
         <svg id="pie" viewBox="0 0 720 330"></svg></div>
 
       <!-- DYNAMICS & DIAGNOSTICS -->
-      <div class="card"><h3>3 · Cultivated cost vs the two big inputs</h3>
+      <div class="card full"><h3>3 · Cultivated cost vs the two big inputs</h3>
         <p class="sub">cultivated <b>biomass</b> cost ($/kg) vs medium price; lines = reactor scale; marker = your choice</p>
-        <svg id="cost" viewBox="0 0 420 300"></svg></div>
-      <div class="card"><h3>4 · Share vs price ratio</h3>
+        <svg id="cost" viewBox="0 0 720 300"></svg></div>
+      <!-- 4a + 4b sit SIDE BY SIDE and share ONE species selector (in 4a): pick a meat type and both update. -->
+      <div class="card"><h3>4a · Share vs price ratio</h3>
         <p class="sub">how the four shares move as <b>cultivated's</b> price ratio R<sub>x</sub> varies — cultivated (bold)
         rises as it gets cheaper, mostly out of conventional; plant-based &amp; whole-food barely move.
         <b>Blue dot</b> = cultivated at its chosen R<sub>x</sub>; <b>green dot</b> = plant-based at its
-        <i>own</i> price R<sub>p</sub> (≈1.77×, its real operating point).</p>
+        <i>own</i> price R<sub>p</sub> (≈1.77×, its real operating point). The <b>species selector below drives
+        BOTH this panel and 4b →</b>.</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
-      <div class="card full"><h3>4b · Why this share — what each factor is worth</h3>
-        <p class="sub" id="bdsub">the same utility (Eq. 3), split into <b>each factor's contribution to cultivated vs conventional</b> for the mainstream segment, in utils — the <b>relative-importance</b> view. The bars sum to the net utility gap, which sets the share. <b>Price</b> is the BLP price term (its weight is the derived β); the rest are the attribute <b>weights × the gap on that attribute</b> (taste wᵗ, real-meat wʳᵗ, health wʰ, slaughter-free wˢ) plus the two offsets (novelty ν, authenticity τ). Drag any weight and watch its bar — and the share — move.</p>
-        <svg id="breakdown" viewBox="0 0 720 300"></svg></div>
+      <div class="card"><h3>4b · Why this share — what each factor is worth</h3>
+        <p class="sub" id="bdsub">the same utility (Eq. 3), split into <b>each factor's contribution to cultivated vs conventional</b> (mainstream), in utils. Bars sum to the net gap that sets the share. <b>Price</b> = the BLP term (weight = derived β); the rest = the attribute <b>weight × gap</b> (taste wᵗ, real-meat wʳᵗ, health wʰ, slaughter-free wˢ) + offsets (novelty ν, authenticity τ). Shown for the <b>species picked in 4a</b>, at this region: the balance flips across the spectrum — cheap chicken is all price; for sushi price turns <i>positive</i> (cultivated is cheaper) and the authenticity penalty τ does the work. Drag any weight and watch its bar — and the share — move.</p>
+        <svg id="breakdown" viewBox="0 0 420 300"></svg></div>
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
         <p class="sub" id="timingsub">cultivated (blue) starts cold and near-zero (the rollout is not yet underway) and rises as the rollout spreads and familiarity grows; plant-based (green) gets the same machinery, but its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
@@ -1094,8 +1096,13 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       realised elasticity shown on its sliders. To <b>see all the factors on one axis at once</b> — price, taste,
       real-meat, health, slaughter-free, novelty, authenticity — open <b>panel&nbsp;4b (“Why this share”)</b>: it
       splits cultivated's utility <i>relative to conventional</i> into each factor's contribution in utils, and the
-      bars sum to the net gap that sets the share. Drag any weight and its bar (and the share) moves — the most
-      direct way to feel what each weight <i>does</i>.</p>
+      bars sum to the net gap that sets the share. It sits <b>next to panel&nbsp;4a and shares its species
+      selector</b>, and is shown <b>per meat type and region</b>, because the balance flips across the spectrum:
+      for cheap chicken the price bar dwarfs
+      everything; for sushi the price bar turns <i>positive</i> (cultivated is the cheaper option) and the
+      authenticity penalty \(\tau\) becomes what holds it back — the model's "price and demand run opposite"
+      thesis, made visible. Drag any weight and its bar (and the share) moves — the most direct way to feel what
+      each weight <i>does</i>.</p>
 
       <h4>Is this the natural way to set it up? (an honest interrogation)</h4>
       <p>The framework is exactly what an economist would use — a <b>random-utility discrete-choice
@@ -1271,7 +1278,7 @@ MODEL.sliders.forEach(s => { state[s.key] = s.default;
   if (s.solved) state[s.key + "_ovr"] = false; });   // SOLVED weights start on AUTO (not overridden)
 MODEL.toggles.forEach(t => state[t.key] = false);
 state.mc = false;
-state.curveType = null;
+state.curveType = null;                          // shared species selector — drives panels 4a AND 4b
 state.pieBasis = "vol";                          // the pie/donut basis: by volume or by value
 state.footView = "margin";                       // panel 7 default view: "margin" = share vs price-ratio (vs "waterline")
 state.income = C.REGION_INCOME[state.region];   // income follows the selected region
@@ -1924,7 +1931,7 @@ function buildPieToggle(){
 }
 function drawCost(s){
   const svg=document.getElementById("cost");clear(svg);
-  const W=420,H=300,mL=42,mR=14,mT=14,mB=40, x0=0.10,x1=1.0,y1=52;
+  const W=720,H=300,mL=42,mR=14,mT=14,mB=40, x0=0.10,x1=1.0,y1=52;
   const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
   el("line",{x1:mL,y1:mT,x2:mL,y2:H-mB,stroke:"#ccc"},svg);
@@ -2015,7 +2022,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-06-22 14:04",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-06-22 14:54",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -2040,41 +2047,55 @@ function cmpShare(pd){
   return shareCalc(1.0,K,{present:false,which:"pb",nbp:state.neophobia_p,hp:hpd});
 }
 /* PANEL 4b — relative-importance breakdown: each factor's utils contribution to cultivated vs
-   conventional (mainstream), at the headline basic-product operating point. Uses breakdownCalc, so
-   the bars sum to the net utility gap that sets the share, and every weight slider moves its bar. */
+   conventional (mainstream). Half-width, side-by-side with 4a, and driven by the SAME species
+   selector (state.curveType). PER MEAT TYPE × REGION: the selected meat type sets the price ratio R
+   (its LOCAL conventional price), tier (authenticity τ + elasticity multiplier), and the per-
+   comparison reference price p_ref; the region sets the income that scales price-sensitivity. So the
+   balance of bars is product- and region-specific (price dominates cheap chicken; for sushi price is
+   a POSITIVE bar and τ_premium does the work). Uses breakdownCalc, so the bars sum to the net utility
+   gap that sets the share, and every weight slider moves its bar. */
 function drawBreakdown(s){
   const svg=document.getElementById("breakdown"); if(!svg||!KP) return; clear(svg);
-  const W=720,H=300, xL=164, xR=694, xz=(xL+xR)/2, padTop=30, rowH=27;
-  const R=basicR(s);                                            // cultivated's basic-product price ratio
-  const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth("basic",s.premium_resistance),
-           eps:s.eps_own,income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
+  const xL=104, xR=412, xz=(xL+xR)/2, padTop=34, rowH=25;
+  const market=MODEL.markets[s.region], bases=speciesBases(market);
+  const mt=market.find(m=>m.name===s.curveType)||market[0];     // SHARED selector with panel 4a
+  const b=biomass(s), rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
+  const {R,t}=typeR(mt,b,s.markup_add,s,bases);                 // this type's price ratio + tier
+  const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),
+           eps:s.eps_own*tMult(t,rpr),income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
            hx:s.health_x,hp:s.health_p,pricePb:s.R_p,tasteP:(s.a_p-1),
-           rtx:s.real_tissue_x,rtp:s.real_tissue_p,which:"x"};
+           rtx:s.real_tissue_x,rtp:s.real_tissue_p,pRef:mt.p_conv,which:"x"};
   const bd=breakdownCalc(R,KP,"M",o);
-  const FACT=[["price","price (β, BLP)"],["taste","taste (wᵗ)"],["real_meat","real-meat (wʳᵗ)"],
-              ["health","health (wʰ)"],["slaughter_free","slaughter-free (wˢ)"],
-              ["novelty","novelty (ν)"],["authenticity","authenticity (τ)"]];
+  const blended=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),
+           eps:s.eps_own*tMult(t,rpr),income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
+           hx:s.health_x,hp:s.health_p,pricePb:s.R_p,aP:s.a_p,rtx:s.real_tissue_x,rtp:s.real_tissue_p,
+           pRef:mt.p_conv,which:"x"});
+  const FACT=[["price","price (β)"],["taste","taste (wᵗ)"],["real_meat","real-meat (wʳᵗ)"],
+              ["health","health (wʰ)"],["slaughter_free","slaughter (wˢ)"],
+              ["novelty","novelty (ν)"],["authenticity","authent. (τ)"]];
   let maxA=1e-6; FACT.forEach(([k])=>maxA=Math.max(maxA,Math.abs(bd[k])));
   maxA=Math.max(maxA,Math.abs(bd._net));
-  const sc=(Math.min(xz-xL,xR-xz)-46)/maxA;                     // utils -> px (leave room for value labels)
-  el("line",{x1:xz,y1:padTop-6,x2:xz,y2:padTop+FACT.length*rowH+4,stroke:"#ccc","stroke-width":1},svg);
-  tx(svg,xz,padTop-12,"← worse than conventional   |   better →",{"font-size":9,fill:"#999","text-anchor":"middle"});
+  const sc=(Math.min(xz-xL,xR-xz)-30)/maxA;                     // utils -> px (leave room for value labels)
+  // species/tier/R tag + the worse/better axis hint
+  tx(svg,xL-2,padTop-16,s.region.toUpperCase()+" · "+mt.name,{"font-size":8.5,fill:"#999","text-anchor":"start"});
+  tx(svg,xR,padTop-16,t+" · R="+R.toFixed(2),{"font-size":8.5,fill:"#999","text-anchor":"end"});
+  tx(svg,xz,padTop-5,"← worse  |  better →",{"font-size":8.5,fill:"#bbb","text-anchor":"middle"});
+  el("line",{x1:xz,y1:padTop,x2:xz,y2:padTop+FACT.length*rowH+2,stroke:"#ccc","stroke-width":1},svg);
   FACT.forEach(([k,lab],i)=>{
     const y=padTop+i*rowH+rowH/2, v=bd[k], w=v*sc;
     const col=Math.abs(v)<1e-9?"#bbb":(v>0?"#029E73":"#D55E00");
-    el("rect",{x:Math.min(xz,xz+w),y:y-8,width:Math.max(1.2,Math.abs(w)),height:16,fill:col,opacity:0.9,rx:2},svg);
-    tx(svg,xL-8,y+3.5,lab,{"font-size":11,fill:"#333","text-anchor":"end"});
-    tx(svg,xz+w+(w>=0?5:-5),y+3.5,(v>=0?"+":"")+v.toFixed(2),
-       {"font-size":10,fill:"#555","text-anchor":w>=0?"start":"end"});
+    el("rect",{x:Math.min(xz,xz+w),y:y-7,width:Math.max(1.2,Math.abs(w)),height:14,fill:col,opacity:0.9,rx:2},svg);
+    tx(svg,xL-6,y+3,lab,{"font-size":9.5,fill:"#333","text-anchor":"end"});
+    tx(svg,xz+w+(w>=0?4:-4),y+3,(v>=0?"+":"")+v.toFixed(2),
+       {"font-size":9,fill:"#555","text-anchor":w>=0?"start":"end"});
   });
   // net row + resulting share
-  const yN=padTop+FACT.length*rowH+18;
-  el("line",{x1:xL,y1:yN-12,x2:xR,y2:yN-12,stroke:"#eee","stroke-width":1},svg);
-  const net=bd._net;
-  tx(svg,xL-8,yN+4,"NET vs conventional",{"font-size":11,fill:"#111","text-anchor":"end","font-weight":700});
-  tx(svg,xz,yN+4,(net>=0?"+":"")+net.toFixed(2)+" utils  →  mainstream cultivated share "+
-     (bd._share*100).toFixed(0)+"%   (at R = "+R.toFixed(2)+", current dials)",
-     {"font-size":11,fill:"#111","text-anchor":"middle","font-weight":700});
+  const yN=padTop+FACT.length*rowH+16, net=bd._net;
+  el("line",{x1:xL-6,y1:yN-11,x2:xR,y2:yN-11,stroke:"#eee","stroke-width":1},svg);
+  tx(svg,xL-6,yN+3,"NET",{"font-size":9.5,fill:"#111","text-anchor":"end","font-weight":700});
+  tx(svg,xz,yN+3,(net>=0?"+":"")+net.toFixed(2)+" utils → share "+
+     (bd._share*100).toFixed(0)+"% (blend "+(blended*100).toFixed(0)+"%)",
+     {"font-size":9.5,fill:"#111","text-anchor":"middle","font-weight":700});
 }
 function drawMilk(s){   // (id kept "milk"; now the general comparison-product chart, full width)
   const svg=document.getElementById("milk"); if(!svg) return; clear(svg);
@@ -2790,7 +2811,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
-console.log("interactive.html JS build 2026-06-22 14:04 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-06-22 14:54 — loss-aversion canonical form + betaCap monotonicity guard active");
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 function setFootView(v){state.footView=v;
   document.getElementById("footWL").classList.toggle("on",v!=="margin");

@@ -236,9 +236,13 @@ the three *solved* weights (`w_realtissue_M`, `w_health_M`, `w_health_E`) defaul
 re-solved) with an **override** that pins them and flags the broken calibration moment; the *anchored*
 ones (`w_taste`, the scale anchor; `w_slaughter_E`) re-solve the others around any change. Because a
 logit identifies only utility *differences*, each weight is also shown **relative to taste** (`wᵗ` =
-the scale); the interactive's **importance-breakdown panel** decomposes cultivated's utility *vs
-conventional* into each factor's utils contribution (`market_share.utility_breakdown`), which sum to
-the net gap that sets the share — the relative-importance view.
+the scale); the interactive's **importance-breakdown panel** (4b, side-by-side with 4a and sharing its species
+selector) decomposes cultivated's utility *vs conventional* into each factor's utils contribution
+(`market_share.utility_breakdown`), **per meat type and region** (the selected type's local
+price/tier/elasticity + the region income), which sum to the
+net gap that sets the share — the relative-importance view, and the place the "price and demand run
+opposite across the spectrum" result becomes visible (price dominates cheap chicken; for sushi price
+is a *positive* contribution and the authenticity penalty τ does the work).
 
 **Why a FLAT logit reproduces "cultivated cannibalises CONVENTIONAL, not the veggie burger" without a
 nest (the IIA fix).** A single logit obeys IIA (a new option steals proportionally). We do not add a

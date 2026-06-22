@@ -241,7 +241,7 @@ def check_parity() -> list:
             c["R"], pr, seg="M", which=o.get("which", "x"),
             accept_x=o.get("ax"), theta_free_M=o.get("tfM"), eps_own=o.get("eps"),
             income=o.get("income"), neophobia_x=o.get("nbx"), tier_offset=o.get("toff", 0.0),
-            health_x=o.get("hx"))
+            health_x=o.get("hx"), p_ref=o.get("pRef"))
         for k, pvv in pv.items():
             jvv = c["out"][k]
             d = abs(pvv - jvv)

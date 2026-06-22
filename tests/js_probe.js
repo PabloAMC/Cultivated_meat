@@ -154,6 +154,8 @@ js += `
     { R: 2.42, o: { ax: 1, tfM: 0, toff: 0, eps: C.eps_own, income: C.income_ref, nbx: 0, nbp: 0, which: "x" } },
     { R: 1.0, o: { ax: 0.8, tfM: 0.5, toff: 0, eps: C.eps_own, income: C.income_ref, nbx: -1, nbp: 0, which: "x" } },
     { R: 1.6, o: { ax: 1, tfM: 0, toff: -1.5, eps: -1.2, income: 27105, nbx: 0, nbp: 0, hx: 0.3, which: "x" } },
+    // per-PRODUCT point: a premium cut at its own local reference price (pRef) — exercises the p_ref path
+    { R: 0.46, o: { ax: 1, tfM: 0, toff: -1.5, eps: -0.27, income: 85810, nbx: 0, nbp: 0, pRef: 40, which: "x" } },
   ];
   bdCases.forEach(c => { c.out = breakdownCalc(c.R, KP, "M", c.o); });
 
