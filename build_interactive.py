@@ -87,7 +87,7 @@ def build_model() -> dict:
         "price_wf_mult": value("price_wf_mult"),
         "taste_quality_p": value("taste_quality_p"),
         "taste_quality_w": value("taste_quality_w"),
-        "q_taste": value("q_taste"),
+        "w_taste": value("w_taste"),
         # segment weights & the reference-dependent loss aversion (uniform across products)
         "LOSS_AVERSION_RATIO": LOSS_AVERSION_RATIO,   # loss/gain asymmetry (Tversky-Kahneman 2.25)
         "w_eth": value("w_eth"),
@@ -260,10 +260,10 @@ def build_model() -> dict:
             "eps_own":       ["&epsilon;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
             "cult_sub_mult": ["&kappa;", "elasticity target &kappa;&epsilon;, sets derived &beta; at cultivated's own price (&sect;2)"],
             "loss_aversion": ["&lambda;", "reference term f&middot;[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup> + 1&middot;(d<sub>j</sub>)<sup>&minus;</sup>] (&sect;2); &lambda;=1 default = symmetric"],
-            "accept_x":      ["a<sub>x</sub>", "cultivated taste q&middot;(a<sub>x</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
+            "accept_x":      ["a<sub>x</sub>", "cultivated taste w<sup>t</sup>&middot;(a<sub>x</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
             "neophobia_x":   ["&nu;<sub>x</sub>", "cultivated novelty, part of the constant &xi;<sub>x</sub> = &nu;<sub>x</sub> + &tau;<sub>type</sub> (&minus; neophobia / + neophilia) (&sect;2)"],
             "neophobia_p":   ["&nu;<sub>p</sub>", "plant-based novelty, the constant &xi;<sub>p</sub> = &nu;<sub>p</sub> (&minus; neophobia / + neophilia) (&sect;2)"],
-            "a_p":           ["a<sub>p</sub>", "plant-based taste q&middot;(a<sub>p</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
+            "a_p":           ["a<sub>p</sub>", "plant-based taste w<sup>t</sup>&middot;(a<sub>p</sub>&minus;1) in V<sub>j</sub> (&sect;2)"],
             "R_p":           ["R<sub>p</sub>", "plant-based price ratio in V<sub>j</sub> (&sect;2)"],
             "theta_free_M":  ["&theta;<sub>free</sub>", "mainstream weight on slaughter-free in V<sub>j</sub> (&sect;2)"],
             "w_eth":         ["w<sub>eth</sub>", "segment mix: share<sub>j</sub> = w<sub>eth</sub>P<sub>E</sub> + (1&minus;w<sub>eth</sub>)P<sub>M</sub> (&sect;2)"],
@@ -294,7 +294,9 @@ def build_model() -> dict:
          ["eps_own", "cult_sub_mult", "loss_aversion", "income", "income_gradient", "w_eth"]),
         ("Demand — product standing (§2–3)",
          ["real_tissue_x", "real_tissue_p", "health_x", "health_p", "accept_x", "a_p",
-          "theta_free_M", "premium_resistance"]),
+          "theta_free_M", "premium_resistance", "auth_basic", "auth_cut", "auth_premium"]),
+        ("Attribute weights — EXPERT: calibrated / solved (§3)",
+         ["w_taste", "w_realtissue_M", "w_realtissue_E", "w_health_M", "w_health_E", "w_slaughter_E"]),
         ("Novelty & adoption over time (§4)",
          ["neophobia_x", "neophobia_p", "neophobia_x0", "neophobia_p0",
           "accept_rate", "p_innov", "q_imit"]),
@@ -305,7 +307,7 @@ def build_model() -> dict:
     sliders = [
         slider("accept_x", "Cultivated taste-acceptance (a<sub>x</sub>)", "", 0.6, 1.2, 0.05, 1.0,
                "the dial", tip="How good cultivated tastes vs real meat (1 = at parity; enters utility as the gap "
-               "a_x−1, weighted by the taste weight q). At parity: 1.0 → ~{{PARITY_NEUTRAL}}% share, 0.8 → ~{{AX_08}}%, "
+               "a_x−1, weighted by the taste weight wᵗ). At parity: 1.0 → ~{{PARITY_NEUTRAL}}% share, 0.8 → ~{{AX_08}}%, "
                "0.6 → ~{{AX_06}}% (lingering 'not quite real' friction); above 1 = judged tastier than an average "
                "cut (1.1 → ~{{AX_11}}%). A judgement dial, distinct from the slaughter-free upside θ_free. "
                "Src: Peacock 2023 (plant-based at parity displaces only a few pp of beef)."),
@@ -496,6 +498,73 @@ def build_model() -> dict:
                "resistant. This is the model's MOST judgement-to-target input — the tier values have no external "
                "source; they produce the 'sweet spot is mid-cuts' result — so it's swept in the band (0.5–1.5). "
                "Drag it to test how much the headline leans on this assumption."),
+        # --- EXPERT attribute-weight sliders -------------------------------------------------
+        # The utility weights are normally PINNED (w_taste, w_slaughter_E) or SOLVED to data moments
+        # (w_realtissue_M, w_health_M, w_health_E). These sliders expose them anyway, with the sourcing
+        # flagged. The three SOLVED ones carry solved=True + warn=... : they stay AUTO (solved live)
+        # until you tick "override", which PINS them and breaks the moment shown in the warning.
+        slider("w_taste", "Taste weight (wᵗ, shared)", "utils", 1.0, 10.0, 0.5, value("w_taste"),
+               "calibration · Malone-Lusk 2017 / IFIC 2025", tip="The shared utility weight on the taste gap "
+               "(converts a_x−1 etc. into utils). It is the #1 food-choice driver, so it's the largest non-price "
+               "weight and sets the SCALE every other perception weight is read against. Default 5.0 — anchored to "
+               "discrete-choice WTP (Malone & Lusk 2017: taste ≈ 2× health, 3× safety; IFIC 2025 ranks taste #1). "
+               "Not a free fit, but not a hard measurement either: moving it rescales how harshly the flavour-first "
+               "mainstream punishes a taste deficit. The calibration re-solves around it (PB stays ~1.2%)."),
+        slider("w_slaughter_E", "Ethical slaughter-free weight (wˢ<sub>E</sub>)", "utils", 1.0, 8.0, 0.5,
+               value("w_slaughter_E"), "assumed", tip="How strongly the 5% ethical segment weights 'no animal "
+               "killed'. Large (default 4.0) = that segment strongly avoids conventional and is drawn to "
+               "no-slaughter options — what lets cultivated win an early ethical beachhead above parity. ASSUMED "
+               "(no direct estimate); the calibration re-solves the ethical health weight around it, so PB's "
+               "ethical rate stays pinned. Drag to test how much the early-adopter story leans on it."),
+        slider("w_realtissue_E", "Ethical real-tissue weight (wʳᵗ<sub>E</sub>)", "utils", 0.0, 4.0, 0.05,
+               value("w_realtissue_E"), "assumed ≈ 0", tip="How much the 5% ethical segment weights REAL animal "
+               "tissue. ASSUMED ≈ 0 (default): ethical eaters choose on slaughter-free, not on 'is it real meat', "
+               "so this attribute barely moves them — which is why cultivated's real-tissue edge is a MAINSTREAM "
+               "story (wʳᵗ_M), not an ethical-segment one. Low leverage (the segment is only 5%); exposed for "
+               "symmetry with the mainstream weight. Raising it makes the ethical segment prefer the two real-meat "
+               "products (conventional & cultivated); the calibration re-solves the ethical health weight around it."),
+        slider("w_realtissue_M", "Mainstream real-tissue weight (wʳᵗ<sub>M</sub>)", "utils", 0.0, 6.0, 0.05,
+               round(dp.w_realtissue_M, 2), "SOLVED → GFI buyer split", tip="The mainstream's non-price preference "
+               "for REAL animal tissue (conventional & cultivated have it; plant-based & whole-food don't) — the "
+               "no-nest mechanism that makes cultivated cannibalise CONVENTIONAL. Normally SOLVED so the mainstream "
+               "carries ~89% of plant-based buyers (GFI/Morning Consult 2024). Leave it on AUTO to keep that fit; "
+               "tick override to pin your own value — but then the model no longer reproduces the 89% buyer split. "
+               "Higher = stronger real-meat loyalty (cultivated wins more vs PB; PB falls below ~1.2%)."),
+        slider("w_health_M", "Mainstream health weight (wʰ<sub>M</sub>)", "utils", 0.0, 4.0, 0.05,
+               round(dp.w_health_M, 2), "SOLVED → mainstream meatless rate", tip="How much the mainstream weights "
+               "the health attribute (×the whole-food health position, this is the pull toward beans over a veggie "
+               "burger; it REPLACED the old free outside-option constant). Normally SOLVED so the mainstream "
+               "'meatless-by-choice' rate matches its ~6% target; the solved value (~0.85) sits ~0.26× the taste "
+               "weight, consistent with Malone-Lusk's 'health ≈ 0.5× taste'. AUTO keeps that fit; override to pin "
+               "it — the mainstream whole-food rate then drifts off target. Mostly moves the whole-food line, not "
+               "the cultivated headline."),
+        slider("w_health_E", "Ethical health weight (wʰ<sub>E</sub>)", "utils", 0.0, 6.0, 0.05,
+               round(dp.w_health_E, 2), "SOLVED → ethical PB rate", tip="The ethical segment's health weight — a "
+               "large value (solved ~1.8) is WHY a 5% ethical core yields only ~0.1pp of plant-based meat: the "
+               "cheap, healthy whole-food option absorbs most ethical eaters (beans over a processed veggie "
+               "burger). Normally SOLVED so the ethical plant-based rate hits its target. AUTO keeps that fit; "
+               "override to pin it — the ethical PB rate (and so total PB) then drifts off its ~1.2% calibration."),
+        # AUTHENTICITY ladder τ (utils added to cultivated's utility, per meat tier) — the "I want the
+        # genuine experience" pull, DISTINCT from the real-tissue weight (wʳᵗ, "is it animal meat").
+        # Previously bundled inside premium_resistance ρ; now each tier is its own knob. ρ still scales
+        # them (effective offset = ρ × τ_tier), so at the defaults nothing changes.
+        slider("auth_basic", "Authenticity τ — basic/mince", "utils", -1.0, 1.0, 0.05, mm.AUTH_BASIC,
+               "judgement-to-target", fmt="signed", tip="Authenticity offset on cultivated for EVERYDAY meat "
+               "(mince/processed): default +0.2 — a small PLUS (a nugget has no 'authentic cut' to miss, and the "
+               "cleaner-meat framing helps). Added to cultivated's utility, then scaled by premium-resistance ρ. "
+               "Distinct from the real-tissue weight: this is 'do I want the genuine experience', not 'is it real "
+               "animal tissue'. No external source (judged to give the 'sweet spot is mid-cuts' result) — drag it."),
+        slider("auth_cut", "Authenticity τ — cut/fillet", "utils", -2.0, 1.0, 0.05, mm.AUTH_CUT,
+               "judgement-to-target", fmt="signed", tip="Authenticity offset on cultivated for a CUT (steak/"
+               "fillet): default −0.4 — a modest penalty ('I want the real cut'). Added to cultivated's utility, "
+               "scaled by ρ. Between the basic and premium tiers. No external source; drag to test how much the "
+               "mid-cut entry window depends on it."),
+        slider("auth_premium", "Authenticity τ — premium/luxury", "utils", -3.0, 0.5, 0.05, mm.AUTH_PREMIUM,
+               "judgement-to-target", fmt="signed", tip="Authenticity offset on cultivated for PREMIUM/luxury "
+               "(wagyu, sushi): default −1.5 — a strong penalty (bought for the authentic experience; weak welfare "
+               "pull on indulgence). This is what holds ultra-premium DEMAND-capped even when it's price-cheap "
+               "(R<1), producing the 'cheapest where demand resists most' result. The single most "
+               "judgement-to-target authenticity value — no external source; drag it."),
         slider("phi", "Prestige-rent share (&chi;, §6 foothold)", "", 0.0, 0.95, 0.05, 0.25,
                "salmon/iberico", tip="Single global prestige-rent share &chi; (panel 7): the fraction of a luxury "
                "category that is unaddressable rent, so addressable volume = (1&minus;&chi;)&middot;V. <b>Default "
@@ -508,6 +577,40 @@ def build_model() -> dict:
     for _s in sliders:
         if _s["key"] == "income":
             _s["logscale"] = True
+
+    # EXPERT attribute weights: mark the three SOLVED ones so the UI renders an "override" checkbox
+    # + a warning that names the data moment the override breaks. w_taste / w_slaughter_E are pinned
+    # or assumed INPUTS (not solved), so changing them re-solves the others around the change and they
+    # carry no moment-break warning — only the provenance flagged in their [src]/tooltip.
+    _SOLVED_WARN = {
+        "w_realtissue_M": "Override ON — this weight is now PINNED, not solved: the model no longer "
+                          "reproduces the GFI ~89% mainstream plant-based-buyer split it was fit to.",
+        "w_health_M": "Override ON — this weight is now PINNED, not solved: the mainstream "
+                      "‘meatless-by-choice’ rate no longer matches its ~6% calibration target.",
+        "w_health_E": "Override ON — this weight is now PINNED, not solved: the ethical plant-based "
+                      "rate (and so total plant-based ~1.2%) no longer matches its calibration target.",
+    }
+    for _s in sliders:
+        if _s["key"] in _SOLVED_WARN:
+            _s["solved"] = True
+            _s["warn"] = _SOLVED_WARN[_s["key"]]
+
+    # INTERPRETABILITY: a logit identifies only utility DIFFERENCES, and the taste weight wᵗ sets the
+    # scale every other utils-denominated weight/offset is read against. So these sliders also show
+    # their value as a multiple of taste (e.g. "0.85 → 0.17× taste"), making relative importance legible
+    # — the point of exposing the weights at all. w_taste is the anchor (shown as "the taste scale").
+    _WNORM = {"w_taste", "theta_free_M", "w_slaughter_E", "w_realtissue_M", "w_realtissue_E",
+              "w_health_M", "w_health_E", "auth_basic", "auth_cut", "auth_premium"}
+    for _s in sliders:
+        if _s["key"] in _WNORM:
+            _s["wnorm"] = True
+
+    # PRICE has a weight too — the coefficient β — but it is DERIVED (not a free slider) from the
+    # elasticity target ε·κ. Tag the two sliders that SET it so their readout surfaces the live β
+    # (utils per $/kg, the price analogue of the w-weights) and the realised own-price elasticity.
+    for _s in sliders:
+        if _s["key"] in ("eps_own", "cult_sub_mult"):
+            _s["pricew"] = True
 
     # --- apply the model-stage grouping: tag each slider with its group + reorder ---------
     _by_key = {s["key"]: s for s in sliders}
@@ -597,8 +700,8 @@ def weights_table_rows() -> str:
     )
     rows = [
         price_row,
-        row("taste", "q", f"{dp.q_taste:.2f}", f"{dp.q_taste:.2f}",
-            '<b>FIXED</b> scale constant &mdash; only utility <i>differences</i> are identified, so the level is a normalisation'),
+        row("taste", "w<sup>t</sup>", f"{dp.w_taste:.2f}", f"{dp.w_taste:.2f}",
+            '<b>ANCHORED</b> scale constant (the <i>w</i> on taste) &mdash; only utility <i>differences</i> are identified, so its level sets the scale every other weight is read against (Malone-Lusk WTP); exposed as an expert slider'),
         row("slaughter-free", "w<sup>s</sup>", f"{dp.theta_free_M:.2f}", f"{dp.w_slaughter_E:.1f}",
             'mainstream = <b>SLIDER</b> (&theta;<sub>free</sub>, upside dial, default 0); ethical = <b>FIXED</b> assumption (large, the ethical segment&rsquo;s defining weight)'),
         row("real-tissue", "w<sup>rt</sup>", f"{dp.w_realtissue_M:.2f}", f"{dp.w_realtissue_E:.2f}",
@@ -710,6 +813,11 @@ h1{font-size:1.45rem;margin:0 0 .2em;font-family:Georgia,serif;}
 .ctl .val{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;}
 .ctl .src{color:#999;font-size:.7rem;font-weight:400;}
 input[type=range]{width:100%;accent-color:var(--accent);margin:0;}
+input[type=range]:disabled{accent-color:#c4c4c4;opacity:.55;cursor:not-allowed;}
+.ctl .ovr{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#777;margin-top:3px;}
+.ctl .ovr input{margin:0;}
+.ctl .wovr{font-size:.72rem;color:#8a5a00;background:#fff6e5;border:1px solid #f0d089;
+ border-radius:5px;padding:5px 7px;margin-top:4px;line-height:1.35;}
 select{width:100%;padding:5px;border:1px solid var(--rule);border-radius:6px;font-size:.85rem;}
 .btn{margin-top:6px;width:100%;padding:7px;border:1px solid var(--rule);background:#fff;
  border-radius:6px;cursor:pointer;font-size:.82rem;}
@@ -871,6 +979,9 @@ below.</p>
         <i>own</i> price R<sub>p</sub> (≈1.77×, its real operating point).</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
+      <div class="card full"><h3>4b · Why this share — what each factor is worth</h3>
+        <p class="sub" id="bdsub">the same utility (Eq. 3), split into <b>each factor's contribution to cultivated vs conventional</b> for the mainstream segment, in utils — the <b>relative-importance</b> view. The bars sum to the net utility gap, which sets the share. <b>Price</b> is the BLP price term (its weight is the derived β); the rest are the attribute <b>weights × the gap on that attribute</b> (taste wᵗ, real-meat wʳᵗ, health wʰ, slaughter-free wˢ) plus the two offsets (novelty ν, authenticity τ). Drag any weight and watch its bar — and the share — move.</p>
+        <svg id="breakdown" viewBox="0 0 720 300"></svg></div>
       <div class="card full"><h3>5 · Adoption over time (the timing rung)</h3>
         <p class="sub" id="timingsub">cultivated (blue) starts cold and near-zero (the rollout is not yet underway) and rises as the rollout spreads and familiarity grows; plant-based (green) gets the same machinery, but its taste + price gap caps it even after novelty fades. Turn on Monte Carlo to band cultivated.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
@@ -1077,7 +1188,7 @@ below.</p>
       option gets a special term; the rule just reads each product's row off the table above:</p>
       \[ V_j = \underbrace{\alpha\ln(y_{\rm eff}-R_j\,p_c)}_{\text{price (a bigger bite the poorer you are)}}
               \;\underbrace{-\,\lambda\,(d_j)^{+}+(d_j)^{-}}_{\lambda=1\,\Rightarrow\,\text{symmetric}}
-              \;+\; q\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j
+              \;+\; w^{t}\,(a_j-1) \;+\; w^{s}\,g_j \;+\; w^{rt}\,b_j \;+\; w^{h}\,\zeta_j
               \;+\; \underbrace{\nu_j+\tau_j}_{\xi_j\ \text{(novelty + authenticity)}} \tag{3} \]
       <p style="font-size:.84rem;color:#555;margin:-2px 0 8px"><b>Reading the symbols.</b> \(d_j=R_j-1\) is how
       much <i>dearer</i> product \(j\) is than conventional (its premium); the superscripts split that into the
@@ -1205,10 +1316,11 @@ below.</p>
           <a href="#ref13">[13]</a> to switch the asymmetry on. This is the <b>riskless</b> form (over a single
           sure attribute, price), not the gamble version — the aside "<i>is loss aversion the right tool here?</i>"
           below gives the full why-it's-off reasoning.</td></tr>
-        <tr><td><b>taste</b> \(q\,(a_j-1)\)</td><td>sensory quality on a <b>1 = real meat</b> scale: each
+        <tr><td><b>taste</b> \(w^{t}\,(a_j-1)\)</td><td>sensory quality on a <b>1 = real meat</b> scale: each
           product's taste-acceptance \(a_j\) is 1 if it tastes as good as conventional, below 1 if worse,
           above 1 if better. It enters utility as the <i>gap</i> from real meat, \(a_j-1\) (so conventional,
-          the reference, contributes 0), weighted by the shared taste weight \(q\). Two dials:
+          the reference, contributes 0), weighted by the shared taste weight \(w^{t}\) (the <i>w</i> on taste —
+          same family as \(w^{rt},w^{h},w^{s}\)). Two dials:
           <b>\(a_x\)</b> (cultivated, default 1 = parity) and <b>\(a_p\)</b> (plant-based, default ~0.8 — the
           category averages below parity; NECTAR 2025 <a href="#ref7">[7]</a> found only ~16% reach blind parity; whole-food sits
           near 0.3 — an assumption that trades off with its solved baseline appeal, so its exact value does
@@ -1713,30 +1825,54 @@ premium = structured, price ≥ 2.5× the species' base form     −1.5         
       <a href="METHODS.md">METHODS.md</a>):</p>
       <div class="scrollx" id="paramtable"></div>
 
-      <p style="margin-top:14px"><b>The attribute <i>weights</i> — and why most of them are not sliders.</b>
+      <p style="margin-top:14px"><b>The attribute <i>weights</i> — how each is set, and how to override it.</b>
       The table above is the <b>positions</b> you can drag (how good cultivated tastes, its price, whether it is
       credited as real meat…). This second table is the <b>weights</b> — the multipliers that say how much each
-      attribute matters — and it answers a fair question: <i>why can I move a product's position but not the
-      weight on it?</i> Because the weights split into four kinds, and only some are free:</p>
+      attribute matters. They split into four kinds by <i>how they are set</i>; all of them are now exposed in the
+      <b>“Attribute weights — EXPERT”</b> slider group, but with the sourcing flagged so you can see what you are
+      overriding:</p>
       <ul style="font-size:.9rem;margin:-2px 0 8px">
-        <li><b>SOLVED</b> — pinned by a calibration moment (PB's ~1.2% share, the 89% buyer split, the meatless
-        rate). You <i>can't</i> set these freely without breaking the fit; they re-solve when you move a target
-        (e.g. \(w_{\rm eth}\)).</li>
-        <li><b>FIXED</b> — a normalisation (the taste weight \(q\): only utility <i>differences</i> are
-        identified, so its level is arbitrary) or a structural assumption (the ethical segment's large
-        slaughter-free weight, which <i>is</i> what defines that segment).</li>
-        <li><b>SLIDER</b> — genuinely yours, because they are <i>not</i> calibration-identified (the mainstream
-        slaughter-free upside \(\theta_{\rm free}\), loss aversion \(\lambda\), the segment size \(w_{\rm eth}\)).</li>
-        <li><b>DERIVED</b> — the price coefficient, built from the elasticity target (§2).</li>
+        <li><b>SOLVED</b> — pinned by a calibration moment (the real-tissue weight \(w^{rt}_M\) to PB's 89% buyer
+        split; the health weights \(w^{h}_M,\,w^{h}_E\) to the meatless and ethical-PB rates). These ship on
+        <b>AUTO</b>: shown live from the calibration and re-solved when you move a target (e.g. \(w_{\rm eth}\)).
+        Tick <b>“override”</b> to pin one to your own value — a warning then flags that the model no longer
+        reproduces the moment it was solved to.</li>
+        <li><b>FIXED</b> — a normalisation (the taste weight \(w^{t}\): only utility <i>differences</i> are
+        identified, so its level is anchored, not measured) or a structural assumption (the ethical segment's
+        large slaughter-free weight, which <i>is</i> what defines that segment). Now draggable too; changing them
+        simply re-solves the SOLVED weights around the new value, so no calibration moment is broken — only the
+        literature/assumption behind the default is overridden (flagged in each tooltip).</li>
+        <li><b>SLIDER</b> — genuinely yours from the start, because they are <i>not</i> calibration-identified (the
+        mainstream slaughter-free upside \(\theta_{\rm free}\), loss aversion \(\lambda\), the segment size
+        \(w_{\rm eth}\)).</li>
+        <li><b>DERIVED</b> — <b>price has a weight too: the coefficient \(\beta\)</b> (utils per $/kg, the price
+        analogue of the \(w\)-family). It is not a free slider on purpose — it is <i>solved</i> so the model
+        reproduces a <b>measured own-price elasticity</b> \(\varepsilon\!\cdot\!\kappa\) (§2). You move price's
+        weight through the knobs that have data behind them — \(\varepsilon\) (<code>eps_own</code>),
+        \(\kappa\) (<code>cult_sub_mult</code>), \(\lambda\) (loss aversion) — and those sliders <b>display the
+        resulting \(\beta\)</b> and realised elasticity, so price's weight is visible even though it is
+        derived. A raw \(\beta\) slider would let the realised elasticity drift off its empirical anchor, the one
+        thing the derivation exists to prevent.</li>
       </ul>
-      <p style="font-size:.9rem;margin:-2px 0 8px">So you tweak a product's <i>position</i> freely (e.g.
-      cultivated's real-meat credit \(b_x\), which is the cultivated-specific scaling of the shared real-tissue
-      weight \(w^{rt}\) — moving \(b_x\) <i>is</i> how you move cultivated's effective weight); but the shared
-      weight itself is pinned by the plant-based data, so it is solved, not dragged. Values are read <b>live from
-      the calibration</b> (they can't go stale):</p>
+      <p style="font-size:.9rem;margin:-2px 0 8px">So you can tweak a product's <i>position</i> freely (e.g.
+      cultivated's real-meat credit \(b_x\), the cultivated-specific scaling of the shared real-tissue weight
+      \(w^{rt}\)); and now, as an <i>expert</i> move, the shared weights too — but the SOLVED ones default to the
+      data-pinned value and warn when you break the fit. Values are read <b>live from the calibration</b> (they
+      can't go stale):</p>
       <table class="pt"><tr><th>weight</th><th>symbol</th><th>mainstream</th><th>ethical</th><th>how it is set</th></tr>
         __WEIGHTS_TABLE__
       </table>
+
+      <p style="font-size:.9rem;margin:8px 0"><b>Reading the weights against each other.</b> A logit
+      identifies only utility <i>differences</i>, so a weight in utils means nothing on its own — it has to be
+      read against a scale. The <b>taste weight \(w^{t}\) is that scale</b> (taste is the #1 food-choice driver),
+      so each weight slider also shows its size <b>“× taste”</b> (e.g. health \(w^{h}_M\approx0.17\times\) taste):
+      that ratio <i>is</i> the factor's relative importance. Price sits on the same idea through \(\beta\) and the
+      realised elasticity shown on its sliders. To <b>see all the factors on one axis at once</b> — price, taste,
+      real-meat, health, slaughter-free, novelty, authenticity — open <b>panel&nbsp;4b (“Why this share”)</b>: it
+      splits cultivated's utility <i>relative to conventional</i> into each factor's contribution in utils, and the
+      bars sum to the net gap that sets the share. Drag any weight and its bar (and the share) moves — the most
+      direct way to feel what each weight <i>does</i>.</p>
 
       <h4>Is this the natural way to set it up? (an honest interrogation)</h4>
       <p>The framework is exactly what an economist would use — a <b>random-utility discrete-choice
@@ -1917,7 +2053,8 @@ JS_ENGINE = r"""<script>
 const MODEL = __MODEL_JSON__;
 const C = MODEL.const, SV = "http://www.w3.org/2000/svg";
 const state = {region: "global"};
-MODEL.sliders.forEach(s => state[s.key] = s.default);
+MODEL.sliders.forEach(s => { state[s.key] = s.default;
+  if (s.solved) state[s.key + "_ovr"] = false; });   // SOLVED weights start on AUTO (not overridden)
 MODEL.toggles.forEach(t => state[t.key] = false);
 state.mc = false;
 state.curveType = null;
@@ -1997,7 +2134,7 @@ function utilities(R,K,seg,o){
   // steep). US anchor & at-parity numbers are invariant to phi (y_eff=income_ref at the US ref).
   const yEff=K.income_ref*Math.pow(o.income/K.income_ref,K.income_gradient);   // damped effective income
   const alpha=-beta*(K.income_ref-K.anchor_price);                 // BLP coefficient (a constant)
-  const V=[];
+  const V=[], CO={price:[],taste:[],slaughter_free:[],real_meat:[],health:[],asc:[]};
   for(let j=0;j<4;j++){
     const price=priceRatio[j]*pc;                                  // pc = the per-comparison reference price (pRef)
     const resid=Math.max(yEff-price,1.0);                          // income left after buying j (log-domain guard)
@@ -2005,9 +2142,32 @@ function utilities(R,K,seg,o){
     const prem=priceRatio[j]-1;                                    // premium over the conventional reference
     const Vl=(-K.loss_aversion*Math.max(0,prem)                    // loss side: penalise a premium at -lambda
               +1.0*Math.max(0,-prem));                            // gain side: reward a discount (ratio-based, no income scaling)
-    V[j]=Vp+Vl+K.q_taste*taste[j]+wSl*slaughter[j]+wRt*realtissue[j]+wH*health[j]+xi[j];
+    // per-FACTOR components (mirror of market_share._utilities components) — summed to V[j]
+    CO.price[j]=Vp+Vl; CO.taste[j]=K.w_taste*taste[j]; CO.slaughter_free[j]=wSl*slaughter[j];
+    CO.real_meat[j]=wRt*realtissue[j]; CO.health[j]=wH*health[j]; CO.asc[j]=xi[j];
+    V[j]=CO.price[j]+CO.taste[j]+CO.slaughter_free[j]+CO.real_meat[j]+CO.health[j]+CO.asc[j];
   }
-  return V;
+  return o.components?CO:V;
+}
+/* relative-importance decomposition (mirror of market_share.utility_breakdown): split a product's
+   utility RELATIVE TO CONVENTIONAL into each factor's contribution (utils), so the weights are
+   legible. Contributions sum to V_which - V_c. seg = "M" (mainstream, the dominant segment). */
+function breakdownCalc(R,K,seg,o){
+  const which=o.which||"x", J={w:0,c:1,p:2,x:3}[which], c=1;
+  const CO=utilities(R,K,seg,Object.assign({},o,{components:true}));
+  const out={
+    price:          CO.price[J]-CO.price[c],
+    taste:          CO.taste[J]-CO.taste[c],
+    real_meat:      CO.real_meat[J]-CO.real_meat[c],
+    health:         CO.health[J]-CO.health[c],
+    slaughter_free: CO.slaughter_free[J]-CO.slaughter_free[c],
+    novelty:        which==="x"?(o.nbx||0):(which==="p"?(o.nbp||0):0),
+    authenticity:   which==="x"?(o.toff||0):0,
+  };
+  let net=0; for(const k in out) net+=out[k];
+  out._net=net;
+  out._share=segShares(R,K,seg,Object.assign({},o,{present:true}))[which];
+  return out;
 }
 function softmax(V){const m=Math.max.apply(null,V),e=V.map(v=>Math.exp(v-m)),s=e.reduce((a,b)=>a+b,0);return e.map(x=>x/s);}
 function segShares(R,K,seg,o){
@@ -2041,18 +2201,28 @@ function solveCalibration(K){
   const we=K.w_eth;
   const pbM=K.pb_mainstream_frac*K.pb_share_target/(1-we);
   const pbE=(1-K.pb_mainstream_frac)*K.pb_share_target/we, wfM=K.wf_mainstream_target;
-  K.w_realtissue_M=2; K.w_health_M=1; K.w_health_E=1;
+  const pin=K._pin||[], pinned=k=>pin.indexOf(k)>=0;     // SOLVED weights the user pinned (skip solving)
+  if(!pinned("w_realtissue_M"))K.w_realtissue_M=2;       // seed only the weights we will solve
+  if(!pinned("w_health_M"))K.w_health_M=1;
+  if(!pinned("w_health_E"))K.w_health_E=1;
   for(let r=0;r<12;r++){
-    let lo=0,hi=8;
-    for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_realtissue_M=m;if(_rate(K,"M","p")>pbM)lo=m;else hi=m;}
-    K.w_realtissue_M=0.5*(lo+hi);
-    lo=0;hi=16;                                                      // WF_M increases in w_health_M
-    for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_M=m;if(_rate(K,"M","w")>wfM)hi=m;else lo=m;}
-    K.w_health_M=0.5*(lo+hi);
+    if(!pinned("w_realtissue_M")){
+      let lo=0,hi=8;
+      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_realtissue_M=m;if(_rate(K,"M","p")>pbM)lo=m;else hi=m;}
+      K.w_realtissue_M=0.5*(lo+hi);
+    }
+    if(!pinned("w_health_M")){
+      let lo=0,hi=16;                                                // WF_M increases in w_health_M
+      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_M=m;if(_rate(K,"M","w")>wfM)hi=m;else lo=m;}
+      K.w_health_M=0.5*(lo+hi);
+    }
+    if(pinned("w_realtissue_M")&&pinned("w_health_M"))break;         // nothing left to coordinate-descend
   }
-  let lo=0,hi=16;                                                    // ethical PB decreases in w_health_E
-  for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_E=m;if(_rate(K,"E","p")>pbE)lo=m;else hi=m;}
-  K.w_health_E=0.5*(lo+hi);
+  if(!pinned("w_health_E")){
+    let lo=0,hi=16;                                                  // ethical PB decreases in w_health_E
+    for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_E=m;if(_rate(K,"E","p")>pbE)lo=m;else hi=m;}
+    K.w_health_E=0.5*(lo+hi);
+  }
   return K;
 }
 /* DERIVE the price coefficient beta with NO free anchor (mirror of market_share._derive_beta):
@@ -2093,7 +2263,17 @@ function deriveBeta(K){
 /* effective constants from the current sliders, then derive beta + run the calibration solve. */
 function effConsts(s){
   const K=Object.assign({},C);
-  ["cult_sub_mult","loss_aversion","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient"].forEach(k=>{if(k in s)K[k]=s[k];});
+  ["cult_sub_mult","loss_aversion","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
+   "w_taste","w_slaughter_E","w_realtissue_E"].forEach(k=>{if(k in s)K[k]=s[k];});
+  // EXPERT WEIGHT OVERRIDES (mirror of market_share.DemandParams.pinned_weights): the three
+  // attribute weights that are normally SOLVED to data moments (w_realtissue_M -> GFI 89% buyer
+  // split; w_health_M -> mainstream meatless rate; w_health_E -> ethical PB rate) can be PINNED to a
+  // user value. When pinned, solveCalibration leaves them fixed (deliberately breaking that moment);
+  // the un-pinned ones still re-solve. w_taste / w_slaughter_E above are NOT solved, so changing them
+  // simply re-pins the solved weights around the new value (no moment is broken).
+  const pin=[];
+  ["w_realtissue_M","w_health_M","w_health_E"].forEach(k=>{ if(s[k+"_ovr"]){K[k]=s[k]; pin.push(k);} });
+  K._pin=pin;
   return deriveBeta(K);
 }
 function biomass(s){return mediaCost(s.media_price,s.efficiency)
@@ -2111,7 +2291,13 @@ function typeR(mt,b,mk,s,bases){
 }
 // per-tier authenticity offset and elasticity multiplier, scaled by the premium-resistance
 // dial r (r=1 central; r=0 no tier effect; mirrors meat_market.tier_authenticity/tier_eps_mult).
-function tAuth(t,r){r=(r===undefined?1:r);return r*(t==="basic"?C.AUTH_BASIC:t==="cut"?C.AUTH_CUT:C.AUTH_PREMIUM);}
+// per-tier authenticity offset = premium-resistance r × the per-tier τ (basic/cut/premium). The τ
+// values are user-settable (the authenticity sliders auth_basic/auth_cut/auth_premium); they fall
+// back to the datasheet ladder C.AUTH_* when unset. Mirror of meat_market.tier_authenticity(...,auth).
+function _auth(key,dflt){return (typeof state!=="undefined" && (key in state))?state[key]:dflt;}
+function tAuth(t,r){r=(r===undefined?1:r);
+  const A=t==="basic"?_auth("auth_basic",C.AUTH_BASIC):t==="cut"?_auth("auth_cut",C.AUTH_CUT):_auth("auth_premium",C.AUTH_PREMIUM);
+  return r*A;}
 function tMult(t,r){r=(r===undefined?1:r);const m=(t==="basic"?1.0:t==="cut"?C.EPS_MULT_CUT:C.EPS_MULT_PREMIUM);return 1.0+r*(m-1.0);}
 function penetration(s){
   const K=KP||effConsts(s);                                         // current calibrated constants
@@ -2639,6 +2825,43 @@ function cmpShare(pd){
   const hpd=(pd.health!==undefined?pd.health:0);
   return shareCalc(1.0,K,{present:false,which:"pb",nbp:state.neophobia_p,hp:hpd});
 }
+/* PANEL 4b — relative-importance breakdown: each factor's utils contribution to cultivated vs
+   conventional (mainstream), at the headline basic-product operating point. Uses breakdownCalc, so
+   the bars sum to the net utility gap that sets the share, and every weight slider moves its bar. */
+function drawBreakdown(s){
+  const svg=document.getElementById("breakdown"); if(!svg||!KP) return; clear(svg);
+  const W=720,H=300, xL=164, xR=694, xz=(xL+xR)/2, padTop=30, rowH=27;
+  const R=basicR(s);                                            // cultivated's basic-product price ratio
+  const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth("basic",s.premium_resistance),
+           eps:s.eps_own,income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
+           hx:s.health_x,hp:s.health_p,pricePb:s.R_p,tasteP:(s.a_p-1),
+           rtx:s.real_tissue_x,rtp:s.real_tissue_p,which:"x"};
+  const bd=breakdownCalc(R,KP,"M",o);
+  const FACT=[["price","price (β, BLP)"],["taste","taste (wᵗ)"],["real_meat","real-meat (wʳᵗ)"],
+              ["health","health (wʰ)"],["slaughter_free","slaughter-free (wˢ)"],
+              ["novelty","novelty (ν)"],["authenticity","authenticity (τ)"]];
+  let maxA=1e-6; FACT.forEach(([k])=>maxA=Math.max(maxA,Math.abs(bd[k])));
+  maxA=Math.max(maxA,Math.abs(bd._net));
+  const sc=(Math.min(xz-xL,xR-xz)-46)/maxA;                     // utils -> px (leave room for value labels)
+  el("line",{x1:xz,y1:padTop-6,x2:xz,y2:padTop+FACT.length*rowH+4,stroke:"#ccc","stroke-width":1},svg);
+  tx(svg,xz,padTop-12,"← worse than conventional   |   better →",{"font-size":9,fill:"#999","text-anchor":"middle"});
+  FACT.forEach(([k,lab],i)=>{
+    const y=padTop+i*rowH+rowH/2, v=bd[k], w=v*sc;
+    const col=Math.abs(v)<1e-9?"#bbb":(v>0?"#029E73":"#D55E00");
+    el("rect",{x:Math.min(xz,xz+w),y:y-8,width:Math.max(1.2,Math.abs(w)),height:16,fill:col,opacity:0.9,rx:2},svg);
+    tx(svg,xL-8,y+3.5,lab,{"font-size":11,fill:"#333","text-anchor":"end"});
+    tx(svg,xz+w+(w>=0?5:-5),y+3.5,(v>=0?"+":"")+v.toFixed(2),
+       {"font-size":10,fill:"#555","text-anchor":w>=0?"start":"end"});
+  });
+  // net row + resulting share
+  const yN=padTop+FACT.length*rowH+18;
+  el("line",{x1:xL,y1:yN-12,x2:xR,y2:yN-12,stroke:"#eee","stroke-width":1},svg);
+  const net=bd._net;
+  tx(svg,xL-8,yN+4,"NET vs conventional",{"font-size":11,fill:"#111","text-anchor":"end","font-weight":700});
+  tx(svg,xz,yN+4,(net>=0?"+":"")+net.toFixed(2)+" utils  →  mainstream cultivated share "+
+     (bd._share*100).toFixed(0)+"%   (at R = "+R.toFixed(2)+", current dials)",
+     {"font-size":11,fill:"#111","text-anchor":"middle","font-weight":700});
+}
 function drawMilk(s){   // (id kept "milk"; now the general comparison-product chart, full width)
   const svg=document.getElementById("milk"); if(!svg) return; clear(svg);
   const W=720,H=320,mT=26,mB=44;
@@ -3102,9 +3325,20 @@ function drawMC(s){
 /* ---------- wiring ---------- */
 function recompute(){
   KP=effConsts(state);                               // re-solve the calibration at the current sliders
+  // AUTO (non-overridden) SOLVED-weight sliders display the live solved value, so the user sees what
+  // the calibration chose (and an override starts from there). Then refresh every weight readout so
+  // the "× taste" relative-importance suffix tracks wᵗ when it (or anything) moves. Pinned weights keep
+  // the user's value.
+  MODEL.sliders.forEach(s=>{
+    if(s.solved && !state[s.key+"_ovr"] && (s.key in KP)){
+      const v=+KP[s.key].toFixed(2); state[s.key]=v;
+      const r=document.getElementById("r_"+s.key); if(r)r.value=v;
+    }
+    if(s.solved || s.wnorm || s.pricew) setReadout(s);
+  });
   const ptmc=state.mc?perTypeMC(state,600):null;     // per-type P10-P90 whiskers when MC is on
   drawHeads(state); drawTiming(state); drawBars(state,ptmc); drawPie(state); drawCost(state); drawCurve(state);
-  drawMilk(state); drawMC(state); drawFoothold(state);
+  drawBreakdown(state); drawMilk(state); drawMC(state); drawFoothold(state);
 }
 function setIncome(v){                                // sync the income slider when the region changes
   state.income=v; const ri=document.getElementById("r_income"), vi=document.getElementById("v_income");
@@ -3123,11 +3357,6 @@ function fillParamTable(){
     h+='<tr><td>'+s.label.replace(/\s*\([^)]*\)\s*$/,"")+'</td><td style="white-space:nowrap">'+sy[0]+
     '</td><td class="n">'+fmtVal(s,s.default)+'</td><td class="n">'+fmtVal(s,s.min)+' … '+fmtVal(s,s.max)+
     '</td><td class="s">'+sy[1]+'</td><td class="s">'+s.src+'</td></tr>';});
-  // fixed (not-a-slider) but load-bearing constants, shown for completeness
-  h+='<tr><td>authenticity offset</td><td style="white-space:nowrap">&tau;<sub>type</sub></td>'+
-     '<td class="n">0</td><td class="n">+0.2 / &minus;0.4 / &minus;1.5</td>'+
-     '<td class="s">per-meat-type additive constant on cultivated, &xi;<sub>x</sub> = &nu;<sub>x</sub> + &tau;<sub>type</sub> (basic / cut / premium, &sect;3)</td>'+
-     '<td class="s">reduced-form (Lusk-Tonsor tiering)</td></tr>';
   document.getElementById("paramtable").innerHTML=h+'</table>';
 }
 function fillPriceTable(){
@@ -3171,6 +3400,31 @@ function fmtVal(s,v){
   if(s.unit==="utils")return v.toFixed(1);
   return v.toFixed(2);
 }
+// utils-denominated weight sliders also show their size relative to the TASTE weight wᵗ (the scale
+// anchor a logit reads every other weight against), so "how much each factor matters" is legible.
+// Mirror of the wnorm tag in build_model. w_taste itself is the anchor.
+function weightSuffix(s){
+  if(!s.wnorm) return "";
+  if(s.key==="w_taste") return " · the taste scale";
+  const wt=(KP&&KP.w_taste)||(("w_taste" in state)?state.w_taste:C.w_taste);
+  if(!wt) return "";
+  return " · "+(state[s.key]/wt).toFixed(2)+"× taste";
+}
+// PRICE's weight is the DERIVED coefficient β (utils per $/kg at the calibration anchor) — the price
+// analogue of the w-weights. Surface it (and the realised own-price elasticity ε_x = ε·κ) on the
+// sliders that set it, so "price has a weight, here it is" is visible right at the price controls.
+function priceSuffix(s){
+  if(!s.pricew || !KP) return "";
+  const b=KP.beta_ref, epsx=KP.eps_own*KP.cult_sub_mult;
+  return " · price weight β="+b.toFixed(3)+"/$ (ε_x≈"+epsx.toFixed(1)+")";
+}
+// one place that builds a slider's value readout: the number, an "(auto)" tag for un-overridden
+// solved weights, the "× taste" relative-importance suffix, and (for the price controls) β.
+function setReadout(s){
+  const vv=document.getElementById("v_"+s.key); if(!vv) return;
+  const auto=s.solved && !state[s.key+"_ovr"];
+  vv.textContent=fmtVal(s,state[s.key])+(auto?" (auto)":"")+weightSuffix(s)+priceSuffix(s);
+}
 function buildRail(){
   const rail=document.getElementById("rail");
   // region selector
@@ -3208,15 +3462,34 @@ function buildRail(){
     const inp=document.createElement("input");inp.id="r_"+s.key;
     if(s.logscale){   // slider POSITION 0..1000 maps log-spaced onto [min,max]
       Object.assign(inp,{type:"range",min:0,max:1000,step:1,value:val2pos(s,state[s.key])});
-      inp.oninput=()=>{state[s.key]=pos2val(s,parseFloat(inp.value));
-        document.getElementById("v_"+s.key).textContent=fmtVal(s,state[s.key]);recompute();};
+      inp.oninput=()=>{state[s.key]=pos2val(s,parseFloat(inp.value));setReadout(s);recompute();};
     }else{
       Object.assign(inp,{type:"range",min:s.min,max:s.max,step:s.step,value:state[s.key]});
-      inp.oninput=()=>{state[s.key]=parseFloat(inp.value);
-        document.getElementById("v_"+s.key).textContent=fmtVal(s,state[s.key]);recompute();};
+      inp.oninput=()=>{state[s.key]=parseFloat(inp.value);setReadout(s);recompute();};
     }
-    d.appendChild(inp);rail.appendChild(d);
-    document.getElementById("v_"+s.key).textContent=fmtVal(s,state[s.key]);
+    d.appendChild(inp);
+    // SOLVED weight: AUTO by default (slider disabled, value tracks the live calibration); an
+    // "override" checkbox PINS it to the slider value and reveals the moment-break warning.
+    if(s.solved){
+      inp.disabled=!state[s.key+"_ovr"];
+      const ov=document.createElement("div"); ov.className="ovr";
+      const cb=document.createElement("input"); cb.type="checkbox"; cb.id="o_"+s.key; cb.checked=state[s.key+"_ovr"];
+      const lb=document.createElement("label"); lb.htmlFor="o_"+s.key;
+      lb.textContent=" override (pin — breaks calibration)";
+      const warn=document.createElement("div"); warn.className="wovr"; warn.id="w_"+s.key;
+      warn.textContent=s.warn; warn.style.display=state[s.key+"_ovr"]?"block":"none";
+      cb.onchange=()=>{
+        state[s.key+"_ovr"]=cb.checked; inp.disabled=!cb.checked;
+        if(cb.checked && KP && (s.key in KP)){            // start the pin from the current solved value
+          state[s.key]=+KP[s.key].toFixed(2); inp.value=state[s.key];
+        }
+        warn.style.display=cb.checked?"block":"none";
+        recompute();
+      };
+      ov.appendChild(cb); ov.appendChild(lb); d.appendChild(ov); d.appendChild(warn);
+    }
+    rail.appendChild(d);
+    setReadout(s);
   });
   if(curGroup!==null) emitGroupToggles(curGroup);        // flush the LAST group's toggles
   // any toggles NOT tied to a group render at the end (none today, but keep it robust)
@@ -3226,9 +3499,14 @@ function buildRail(){
     document.querySelectorAll('#rail input[type=range]').forEach((inp,i)=>{
       const s=MODEL.sliders[i];
       state[s.key]=s.default; inp.value=s.logscale?val2pos(s,s.default):s.default;
-      document.getElementById("v_"+s.key).textContent=fmtVal(s,s.default);});
+      setReadout(s);});
     MODEL.toggles.forEach(t=>{state[t.key]=false;            // reset by KEY (robust to render order)
       const cb=document.getElementById("t_"+t.key); if(cb)cb.checked=false;});
+    MODEL.sliders.forEach(s=>{ if(s.solved){                 // clear any expert weight overrides
+      state[s.key+"_ovr"]=false;
+      const ob=document.getElementById("o_"+s.key); if(ob)ob.checked=false;
+      const ri=document.getElementById("r_"+s.key); if(ri)ri.disabled=true;
+      const wd=document.getElementById("w_"+s.key); if(wd)wd.style.display="none"; }});
     setIncome(C.REGION_INCOME[state.region]);            // income tracks the current region, not the US default
     recompute();};
   rail.appendChild(b);

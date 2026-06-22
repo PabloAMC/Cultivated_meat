@@ -43,7 +43,7 @@ none (their deviations are all named attributes):
     V_sj = alpha*ln(y_eff - price_j)       # BLP price term, income INSIDE the log (richer = less price-sensitive)
          - loss_aversion * max(0, price_ratio_j - 1)            # premium penalty (loss side, slope lambda)
          + 1.0           * max(0, 1 - price_ratio_j)            # discount reward (gain side, unit slope)
-         + q_taste * taste_j
+         + w_taste * taste_j
          + w_slaughter[s] * slaughter_j  +  w_realtissue[s] * real_tissue_j
          + w_health[s] * health_j  +  neophobia_j               # health attribute (carries whole-food);
     P_sj = softmax_j(V_sj)                                       #   novelty attitude on p, x only
@@ -180,7 +180,7 @@ class DemandParams:
     price_wf_mult: float = value("price_wf_mult")   # whole-food price (x p_conv) — cheap
     taste_quality_p: float = value("taste_quality_p")  # plant-based taste deficit (0=parity); constructor re-pins (see note)
     taste_quality_w: float = value("taste_quality_w")  # whole-food taste AS A MEAT SUBSTITUTE (norm, 0=parity)
-    q_taste: float = value("q_taste")               # taste-utility weight (utils per unit taste gap)
+    w_taste: float = value("w_taste")               # taste-utility weight (utils per unit taste gap)
 
     # --- segment weights & structure ---------------------------------------
     w_eth: float = value("w_eth")                   # ethical-segment weight (Gallup veg+vegan ~5%)
@@ -207,6 +207,12 @@ class DemandParams:
     pb_share_target: float = value("pb_share_target")          # plant-based total share anchor
     pb_mainstream_frac: float = value("pb_mainstream_frac")    # share of PB buyers who are mainstream (GFI ~89%)
     wf_mainstream_target: float = value("wf_mainstream_target")  # mainstream 'meatless-by-choice' share
+    # EXPERT OVERRIDE: names of the SOLVED weights the user has pinned by hand, so solve_calibration
+    # leaves them at the supplied value instead of fitting them to the data moment. Empty = the normal
+    # fully-solved calibration. Members may be any of {"w_realtissue_M","w_health_M","w_health_E"}.
+    # Pinning a weight DELIBERATELY breaks the moment it was solved to (the interactive flags this);
+    # the OTHER, un-pinned weights still re-solve to hit their own moments where they can.
+    pinned_weights: frozenset = frozenset()
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
     # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
@@ -248,7 +254,7 @@ def _softmax(V):
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
                tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-               p_ref=None):
+               p_ref=None, return_components=False):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -266,7 +272,7 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
         p  plant  price_pb_mult taste_quality_p  1               0             health_p  neophobia_p
         x  cult   R (from cost) accept_x - 1     1               1             health_x  neophobia_x
 
-    Attribute WEIGHTS are shared (q_taste, the price/loss coefficients) except the
+    Attribute WEIGHTS are shared (w_taste, the price/loss coefficients) except the
     two that carry the segment's identity: w_slaughter (ethical values it) and
     w_realtissue (mainstream values it). The INTERCEPT of whole-food is segment-specific
     (beans are the ethical default, a rare mainstream choice). FOOD NEOPHOBIA enters
@@ -362,9 +368,21 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     V_loss = (-pr.loss_aversion * np.maximum(0.0, premium)
               + 1.0 * np.maximum(0.0, -premium))
 
-    return (V_price + V_loss + pr.q_taste * taste
-            + w_slaughter * slaughter_free + w_realtissue * real_tissue
-            + w_health * health + asc)
+    # Per-FACTOR utility components (each an array over [w, c, p, x]). The total utility is their
+    # sum; returning them lets `utility_breakdown` show each factor's contribution on a common
+    # (utils) scale — the 'relative importance' view — WITHOUT duplicating any of this arithmetic.
+    components = {
+        "price":          V_price + V_loss,                  # price (BLP income term + reference kink)
+        "taste":          pr.w_taste * taste,                # taste weight × taste gap
+        "slaughter_free": w_slaughter * slaughter_free,      # slaughter-free weight × flag
+        "real_meat":      w_realtissue * real_tissue,        # real-tissue weight × flag
+        "health":         w_health * health,                 # health weight × position
+        "asc":            asc,                               # novelty (neophobia) + authenticity (tier offset)
+    }
+    if return_components:
+        return components
+    return (components["price"] + components["taste"] + components["slaughter_free"]
+            + components["real_meat"] + components["health"] + components["asc"])
 
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
@@ -381,6 +399,69 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
     P = _softmax(V[:3])
     return {"w": P[0], "c": P[1], "p": P[2], "x": 0.0}
+
+
+def _effective_beta(pr: DemandParams, eps, inc, p_ref) -> float:
+    """The price coefficient actually used in the utilities: the derived beta_ref, rescaled for a
+    per-tier elasticity override (beta = beta_ref*eps/eps_own — a less-elastic tier is less
+    price-responsive on BOTH channels), then capped by the income-aware MONOTONICITY GUARD so a
+    cheaper product never loses share (beta <= (y_eff - p_ref)/((income_ref - anchor_price)*p_ref);
+    binding case R->1 at the region's y_eff; tightens at low income). Factored out of `share` so the
+    importance-breakdown decomposition uses the SAME beta. Inert at the default; only bites in the
+    high-loss_aversion / low-income / premium-tier corner."""
+    beta = pr.beta_ref * (eps / pr.eps_own)
+    p_ref_cap = pr.p_conv if p_ref is None else p_ref
+    y_eff_cap = pr.income_ref * (inc / pr.income_ref) ** pr.income_gradient
+    denom_cap = (pr.income_ref - pr.anchor_price) * p_ref_cap
+    if denom_cap > 0:
+        beta = min(beta, (y_eff_cap - p_ref_cap) / denom_cap - 1e-6)
+    return beta
+
+
+# ----------------------------------------------------------------------------
+# Relative-importance decomposition: WHY cultivated lands where it does
+# ----------------------------------------------------------------------------
+# product order in the attribute table / _utilities components: [w, c, p, x]
+_IDX = {"w": 0, "c": 1, "p": 2, "x": 3}
+
+
+def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str = "x",
+                      accept_x=None, theta_free_M=None, eps_own=None, income=None,
+                      neophobia_x=None, tier_offset=0.0, health_x=None, p_ref=None) -> dict:
+    """Decompose a product's utility RELATIVE TO CONVENTIONAL (the reference) into each factor's
+    contribution, in utils, for one segment. The contributions SUM to V_which - V_c, so they are a
+    true additive decomposition — the 'relative importance' view that makes the weights legible:
+    how many utils each factor (price, taste, real-meat, health, slaughter-free, novelty,
+    authenticity) is worth at the current operating point. Mirrors `share`'s dial resolution and
+    uses the SAME effective beta (`_effective_beta`) and the SAME `_utilities` components, so the
+    decomposition can never drift from the share it explains. Returns
+    {factor: utils, ..., '_net': sum, '_share': segment share of `which`}."""
+    ax = pr.accept_x if accept_x is None else accept_x
+    tfM = pr.theta_free_M if theta_free_M is None else theta_free_M
+    eps = pr.eps_own if eps_own is None else eps_own
+    inc = pr.income_ref if income is None else income
+    nbx = pr.neophobia_x if neophobia_x is None else neophobia_x
+    beta = _effective_beta(pr, eps, inc, p_ref)
+    comp = _utilities(R, pr, beta, seg, accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
+                      neophobia_x=nbx, neophobia_p=pr.neophobia_p, income=inc,
+                      health_x=health_x, p_ref=p_ref, return_components=True)
+    j, c = _IDX[which], _IDX["c"]
+    # asc[j]-asc[c] = (neophobia + tier_offset) for j minus 0 for conventional; split the two.
+    out = {
+        "price":          float(comp["price"][j] - comp["price"][c]),
+        "taste":          float(comp["taste"][j] - comp["taste"][c]),
+        "real_meat":      float(comp["real_meat"][j] - comp["real_meat"][c]),
+        "health":         float(comp["health"][j] - comp["health"][c]),
+        "slaughter_free": float(comp["slaughter_free"][j] - comp["slaughter_free"][c]),
+        "novelty":        float(nbx if which == "x" else (pr.neophobia_p if which == "p" else 0.0)),
+        "authenticity":   float(tier_offset if which == "x" else 0.0),
+    }
+    out["_net"] = sum(out.values())
+    seg_shares = _segment(R, pr, beta, seg, accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
+                          neophobia_x=nbx, neophobia_p=pr.neophobia_p, income=inc,
+                          health_x=health_x, p_ref=p_ref)
+    out["_share"] = float(seg_shares[which])
+    return out
 
 
 # ----------------------------------------------------------------------------
@@ -422,23 +503,8 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     # full stop). (An earlier form scaled only the elastic part and held the loss-aversion slope fixed;
     # that pushed the inelastic premium beta POSITIVE, which the monotonicity cap then clamped to ~0,
     # flattening the premium share to a constant ~18% across all R — a degenerate, wrong result.)
-    beta = pr.beta_ref * (eps / pr.eps_own)
     inc = pr.income_ref if income is None else income      # default = reference income (unchanged)
-    # MONOTONICITY GUARD (BLP-correct, income-aware). On the discount side (R<1) the reference term
-    # rewards a discount at the unit rate while the BLP log carries the price response with local slope
-    # dV/dR = -alpha*p_ref/(y_eff - price), alpha = -beta*(income_ref - anchor_price). A cheaper product
-    # must never lose share, i.e. the discount-side dV/dR must stay the right sign; the binding case is
-    # price -> p_ref (R->1) at the region's y_eff, which gives
-    #   beta <= (y_eff - p_ref) / ((income_ref - anchor_price) * p_ref).
-    # This bound TIGHTENS at low income (smaller y_eff). It is applied to the EFFECTIVE beta AFTER the
-    # per-tier eps rescale (which can lift beta on the inelastic premium tiers); inert at the default,
-    # it only bites in the high-loss_aversion / low-income / premium-tier corner. Verified: 0 violations
-    # across every region income x tier x lambda in the model's operating range.
-    p_ref_cap = pr.p_conv if p_ref is None else p_ref
-    y_eff_cap = pr.income_ref * (inc / pr.income_ref) ** pr.income_gradient
-    denom_cap = (pr.income_ref - pr.anchor_price) * p_ref_cap
-    if denom_cap > 0:
-        beta = min(beta, (y_eff_cap - p_ref_cap) / denom_cap - 1e-6)
+    beta = _effective_beta(pr, eps, inc, p_ref)            # derived coeff, per-tier rescaled + capped
     nbx = pr.neophobia_x if neophobia_x is None else neophobia_x   # cultivated novelty attitude
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 
@@ -487,29 +553,36 @@ def solve_calibration(pr: DemandParams, iters: int = 70, rounds: int = 12):
     pb_M_target = pr.pb_mainstream_frac * pr.pb_share_target / (1.0 - we)        # mainstream PB rate
     pb_E_target = (1.0 - pr.pb_mainstream_frac) * pr.pb_share_target / we        # ethical PB rate
     wf_M_target = pr.wf_mainstream_target
+    pin = pr.pinned_weights                              # SOLVED weights the user has overridden
 
     # --- mainstream block: (w_realtissue_M, w_health_M) for (PB_M, WF_M) ---
+    # A pinned weight is left at its supplied value; the other still solves given that pin.
     for _ in range(rounds):
-        lo, hi = 0.0, 8.0                                # PB_M decreases in w_realtissue_M
-        for _ in range(iters):
-            mid = 0.5 * (lo + hi); pr.w_realtissue_M = mid
-            if _rate(pr, "M", "p") > pb_M_target: lo = mid
-            else: hi = mid
-        pr.w_realtissue_M = 0.5 * (lo + hi)
-        lo, hi = 0.0, 16.0                               # WF_M increases in w_health_M (health_w > 0)
-        for _ in range(iters):
-            mid = 0.5 * (lo + hi); pr.w_health_M = mid
-            if _rate(pr, "M", "w") > wf_M_target: hi = mid
-            else: lo = mid
-        pr.w_health_M = 0.5 * (lo + hi)
+        if "w_realtissue_M" not in pin:
+            lo, hi = 0.0, 8.0                            # PB_M decreases in w_realtissue_M
+            for _ in range(iters):
+                mid = 0.5 * (lo + hi); pr.w_realtissue_M = mid
+                if _rate(pr, "M", "p") > pb_M_target: lo = mid
+                else: hi = mid
+            pr.w_realtissue_M = 0.5 * (lo + hi)
+        if "w_health_M" not in pin:
+            lo, hi = 0.0, 16.0                           # WF_M increases in w_health_M (health_w > 0)
+            for _ in range(iters):
+                mid = 0.5 * (lo + hi); pr.w_health_M = mid
+                if _rate(pr, "M", "w") > wf_M_target: hi = mid
+                else: lo = mid
+            pr.w_health_M = 0.5 * (lo + hi)
+        if "w_realtissue_M" in pin and "w_health_M" in pin:
+            break                                        # nothing left to coordinate-descend
 
     # --- ethical block: w_health_E for the ethical PB rate (PB_E decreases in w_health_E) ---
-    lo, hi = 0.0, 16.0
-    for _ in range(iters):
-        mid = 0.5 * (lo + hi); pr.w_health_E = mid
-        if _rate(pr, "E", "p") > pb_E_target: lo = mid
-        else: hi = mid
-    pr.w_health_E = 0.5 * (lo + hi)
+    if "w_health_E" not in pin:
+        lo, hi = 0.0, 16.0
+        for _ in range(iters):
+            mid = 0.5 * (lo + hi); pr.w_health_E = mid
+            if _rate(pr, "E", "p") > pb_E_target: lo = mid
+            else: hi = mid
+        pr.w_health_E = 0.5 * (lo + hi)
     return pr
 
 
@@ -596,7 +669,7 @@ def share_band(R: float, pr: DemandParams):
 # ----------------------------------------------------------------------------
 def pb_milk_check(pr: DemandParams) -> float:
     """Out-of-sample sanity check on the SHARED taste/price machinery. Holding
-    q_taste, beta (the derived price coefficient) and w_eth FIXED at their meat-
+    w_taste, beta (the derived price coefficient) and w_eth FIXED at their meat-
     calibrated values, swap ONLY the product POSITIONS to plant-based milk's empirical
     ones and read its share. The same parameters that make PB-MEAT fail (premium price,
     taste deficit, big real-tissue gap, cheap strong outside option) make PB-MILK
@@ -679,7 +752,7 @@ def _milk_params(pr: DemandParams) -> DemandParams:
 
 def fig_pb_milk_vs_meat(pr: DemandParams, outdir, fmts) -> None:
     """DEPICT the cross-category validation: plant-based MILK vs plant-based MEAT.
-    The SAME shared machinery (price coefficient beta, taste weight q_taste, the 5%
+    The SAME shared machinery (price coefficient beta, taste weight w_taste, the 5%
     ethical segment) runs both — only the four PRODUCT POSITIONS differ. Milk wins
     (~15%) where meat fails (~1%) because it reaches price & taste parity in its key
     uses AND has no cheap whole-food substitute, even though its 'not-real' gap is the

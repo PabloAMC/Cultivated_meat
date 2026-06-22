@@ -91,7 +91,7 @@ def _run_js() -> dict:
 # ---------------------------------------------------------------------------
 # Python side: the SAME quantities from the source-of-truth modules.
 # ---------------------------------------------------------------------------
-def _python_reference(grid_keys, health_keys, timing_R) -> dict:
+def _python_reference(grid_keys, health_keys, timing_R, weight_cases=()) -> dict:
     from market_share import DemandParams, share, pb_milk_check
     from cost_model import CostParams, biomass_cost, ratio as cost_ratio
     from adoption_timing import TimingParams, simulate
@@ -125,11 +125,23 @@ def _python_reference(grid_keys, health_keys, timing_R) -> dict:
     # (non-no_referent) products have a price axis, matching what build_interactive injects.
     foothold = {p.label: float(product_R(p))
                 for p in FOOTHOLD_PRODUCTS if not p.no_referent}
+    # EXPERT weight overrides: rebuild the calibration with the same values pinned the JS did, and
+    # read the solved weights + shares (mirror of DemandParams.pinned_weights). Keyed by case index.
+    weights = []
+    for c in weight_cases:
+        vals = {k: float(v) for k, v in c["vals"].items()}
+        dpw = DemandParams(pinned_weights=frozenset(c["pin"]), **vals)
+        weights.append({
+            "w_realtissue_M": dpw.w_realtissue_M, "w_health_M": dpw.w_health_M,
+            "w_health_E": dpw.w_health_E,
+            "parity": share(1.0, dpw, accept_x=1.0, theta_free_M=0.0),
+            "pb": share(1.0, dpw, cultivated_present=False, which="pb")})
+
     # timing rung at the JS-reported R (use simulate -> same _run core)
     tp = TimingParams()
     timing = simulate(timing_R, pr, tp, acceptance_grows=True, which="x")["share"]
     return {"headline": headline, "grid": grid, "health": health,
-            "foothold": foothold, "timing": list(map(float, timing))}
+            "foothold": foothold, "weights": weights, "timing": list(map(float, timing))}
 
 
 # ---------------------------------------------------------------------------
@@ -144,8 +156,20 @@ def check_parity() -> list:
 
     grid_keys = [tuple(row[:5]) for row in js["grid"]]
     health_keys = [tuple(row[:4]) for row in js.get("healthGrid", [])]
-    py = _python_reference(grid_keys, health_keys, js["timing"]["R"])
+    weight_cases = js.get("weightCases", [])
+    py = _python_reference(grid_keys, health_keys, js["timing"]["R"], weight_cases)
     fails = []
+
+    # EXPERT weight overrides: the pinned-weight calibration must mirror Python (the new override path)
+    worst_w = 0.0
+    for i, (jc, pc) in enumerate(zip(weight_cases, py["weights"])):
+        for k, pv in pc.items():
+            jv = jc["out"][k]
+            d = abs(pv - jv)
+            worst_w = max(worst_w, d)
+            if d > TOL:
+                fails.append(f"weightCase[{i}] {jc['pin'] or list(jc['vals'])} [{k}]: "
+                             f"python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
     # headline
     for k, pv in py["headline"].items():
@@ -191,6 +215,40 @@ def check_parity() -> list:
         if d > TOL:
             fails.append(f"foothold[{label}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
+    # AUTHENTICITY ladder: tAuth(tier, r, τ) must mirror meat_market.tier_authenticity. Build one
+    # MeatType per tier (basic = unstructured; cut/premium by price vs a $10 base) and compare.
+    from meat_market import MeatType, tier_authenticity
+    from inputs import SCAF
+    _mt = {"basic": MeatType("x", 10.0, 0.0), "cut": MeatType("x", 10.0, 0.0, scaffold=SCAF),
+           "premium": MeatType("x", 30.0, 0.0, scaffold=SCAF)}
+    _CUST = {"basic": 0.5, "cut": -1.0, "premium": -2.5}
+    worst_a = 0.0
+    for kind, t, r, jv in js.get("authCheck", []):
+        auth = None if kind == "def" else _CUST
+        pv = tier_authenticity(_mt[t], 10.0, r, auth)
+        d = abs(pv - jv)
+        worst_a = max(worst_a, d)
+        if d > TOL:
+            fails.append(f"authCheck[{kind} {t} r={r}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
+
+    # IMPORTANCE BREAKDOWN: the per-factor utils decomposition must mirror utility_breakdown.
+    from market_share import utility_breakdown, DemandParams as _DP
+    pr = _DP()
+    worst_b = 0.0
+    for i, c in enumerate(js.get("bdCases", [])):
+        o = c["o"]
+        pv = utility_breakdown(
+            c["R"], pr, seg="M", which=o.get("which", "x"),
+            accept_x=o.get("ax"), theta_free_M=o.get("tfM"), eps_own=o.get("eps"),
+            income=o.get("income"), neophobia_x=o.get("nbx"), tier_offset=o.get("toff", 0.0),
+            health_x=o.get("hx"))
+        for k, pvv in pv.items():
+            jvv = c["out"][k]
+            d = abs(pvv - jvv)
+            worst_b = max(worst_b, d)
+            if d > TOL:
+                fails.append(f"bdCase[{i}] R={c['R']} [{k}]: python={pvv:.6f} js={jvv:.6f} diff={d:.2e}")
+
     # timing trajectory
     jt = js["timing"]["share"]
     pt = py["timing"]
@@ -203,9 +261,11 @@ def check_parity() -> list:
                          f"diff={abs(pt[k] - jt[k]):.2e}")
 
     print(f"parity check: {len(py['grid'])} grid points, {len(py['health'])} health points, "
-          f"{len(py['foothold'])} foothold products, {len(py['headline'])} headline values, "
-          f"{n} timing years; grid max diff = {worst:.2e}, health max diff = {worst_h:.2e}, "
-          f"foothold max diff = {worst_f:.2e} (tol {TOL:.0e})")
+          f"{len(py['foothold'])} foothold products, {len(weight_cases)} weight-override cases, "
+          f"{len(py['headline'])} headline values, {n} timing years; grid max diff = {worst:.2e}, "
+          f"health max diff = {worst_h:.2e}, foothold max diff = {worst_f:.2e}, "
+          f"weight-override max diff = {worst_w:.2e}, authenticity max diff = {worst_a:.2e}, "
+          f"breakdown max diff = {worst_b:.2e} (tol {TOL:.0e})")
     return fails
 
 

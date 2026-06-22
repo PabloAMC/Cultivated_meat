@@ -14,21 +14,24 @@ is sourced and reproducible; methods in [METHODS.md](METHODS.md), full results i
   empirical TEA, the basic (minced) product most likely lands at a price ratio **R ≈ 2.0 ×
   conventional meat** (80% CI ~1.6–2.4) — consistent with Pasitka's own published projections. The
   ~10× medium-cost reduction moves R from ~2.4 to ~1.6; it does not, on its own, cross parity.
-- **The binding cost lever is reactor scale-up, not the medium.** Across the honest input range,
-  reactor scale/overhead is the biggest *realised* driver of the price ratio; the medium price — the
-  number most often touted — is centered on its measured value and contributes little to the expected
-  spread. Scale-up is also the least-demonstrated step (the cheap projections assume reactors nobody
-  has built) and carries the largest downside.
+- **Two cost levers are unsettled — medium-at-scale and reactor scale-up — and both are bigger than
+  they look.** Medium price tops *both* the potential-swing and the realised-band-width rankings, once
+  you allow (as we now do) that it can be *dearer* than Pasitka's demonstrated $0.63/L for cell
+  lines/processes that haven't matched its albumin-removal and volume discounts — so cheap medium at
+  commercial scale is load-bearing, not a solved win. Reactor scale-up is the biggest *physical*
+  tail-risk: least demonstrated (the cheap projections assume reactors nobody has built) and the
+  source of the largest downside scenario (the small-vessel "stall" at R ≈ 3.65, kept out of the
+  central band on purpose).
 - **The irreducible floor sits right at the parity line (~$7.5/kg biomass vs a ~$7/kg threshold).**
   Parity is reachable in principle, but only if the optimistic end of *every* lever lands together,
   *and* the scale-up ceilings are engineered away.
 - **Even at parity, how many animals get displaced depends on two uncertain dials** — whether the
   mainstream credits cultivated as real meat (taste-acceptance) and whether it comes to value
-  no-slaughter/cleaner meat. Together they span friction (~12%), equivalent (~50% at parity — ~47% if
+  no-slaughter/cleaner meat. Together they span friction (~12%), equivalent (~49% at parity — ~47% if
   you strip cultivated's mild health edge over conventional), and actively preferred (~75%). We take no
   baked-in stance.
-- **Total displacement is modest in the central case (~3% of meat by volume; Europe, with the priciest
-  meat, ~10%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
+- **Total displacement is modest in the central case (~2–3% of meat by volume globally; Europe, with
+  the priciest meat, ~8%), and the most robust entry point is the structured cuts.** Cheap mince is unreachable on
   price; ultra-luxury is price-cheap but demand-capped, staying below the cuts; the window is beef
   steak and salmon fillet. Europe is the easiest market.
 
@@ -87,9 +90,13 @@ variance column is the realised contribution to the Monte-Carlo band):
 
 ![What drives the outcome](figures/sensitivity_tornado_share.png)
 
-The honest nuance: medium price and cell efficiency have *large potential swings* but *small realised
-contributions*, precisely because we center them on the measured values — they are upside, not
-expected movement. **Reactor scale-up and the conventional meat price lead the realised spread.**
+The honest nuance: **medium price leads both the potential swing *and* the realised band-width**,
+because its prior is two-sided (medium can be dearer than Pasitka's demonstrated $0.63/L, not only
+cheaper). **Cell efficiency** is the genuine "potential, not realised" case — a large swing but ~0%
+realised band-width, because we centre it at its measured value (1.0), the pessimistic edge of its
+range, so it can only improve from there: upside, not expected movement. Reactor scale-up's realised
+share looks modest only because its worst case — the small-vessel stall — is deliberately held out of
+the central band; it remains the least-demonstrated step and the biggest downside.
 
 ### Where the price ratio lands
 
@@ -97,7 +104,7 @@ Propagating the full input uncertainty (Monte Carlo, N = 20,000):
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 1.93   80% CI [1.54, 2.35]   90% CI [1.45, 2.47]
+  price ratio R:   P50 = 2.09   80% CI [1.63, 2.63]   90% CI [1.52, 2.79]
   0% of draws reach parity (R ≤ 1)
 ```
 
@@ -144,7 +151,7 @@ Two gates decide the whole picture:
 |---|---|---|
 | taste-acceptance 0.6 | ~12% | strong friction (not credited as real meat) |
 | taste-acceptance 0.8 | ~27% | modest friction |
-| **accepted as real meat (neutral)** | **~50%** | default + a mild health edge over conventional |
+| **accepted as real meat (neutral)** | **~49%** | default + a mild health edge over conventional |
 | &nbsp;&nbsp;↳ *no health edge* | *~47%* | *cultivated exactly equivalent to conventional* |
 | + mainstream values no-slaughter (0.5) | ~60% | cleaner / no-slaughter / safety pull |
 | + values no-slaughter (1.0) | ~69% | |
@@ -193,10 +200,10 @@ Rolling up across the whole spectrum, sampling cost + standing + elasticity:
 ```
 total cultivated penetration of meat (central / P50, with 80% bands):
   region   by VOLUME (impact)        by VALUE ($ market)
-  US       5.6%  [1.7, 14.3]          8.2%  [2.7, 19.2]
-  Europe   9.6%  [3.3, 20.8]         14.6%  [5.2, 29.4]   ← easiest (priciest meat)
-  China    3.1%  [0.9,  8.3]          6.3%  [2.1, 14.8]
-  global   3.9%  [1.0, 11.1]          6.6%  [2.0, 16.7]
+  Europe   7.6%  [2.5, 18.1]         12.2%  [4.1, 27.1]   ← easiest (priciest meat)
+  US       4.1%  [1.2, 11.5]          6.4%  [2.0, 16.5]
+  global   2.5%  [0.7,  7.6]          4.6%  [1.3, 12.7]
+  China    2.1%  [0.6,  5.9]          5.0%  [1.6, 12.6]
 ```
 
 **Europe is easiest** — its meat is the most expensive, so parity is nearest. The US, China and the
@@ -205,23 +212,27 @@ are wide and right-skewed: the low end is the scale-up-stalls / friction world; 
 scale-up-wins / actively-preferred world.
 
 One place parity is reachable today is a **structured product vs premium seafood** (the
-Wildtype/BlueNalu bet): vs sushi salmon, R is below parity in ~90% of draws — but there the lone new
+Wildtype/BlueNalu bet): vs sushi salmon, R is below parity in ~83% of draws — but there the lone new
 unknown, the **scaffold process cost**, is ungrounded in any TEA, and premium demand is hostile.
 
 ---
 
 ## 6. What a technical funder should prioritise
 
-The model points the marginal dollar at the *binding* constraint, not the most visible one:
+The model points the marginal dollar at the two *unsettled* cost constraints, not the most visible one:
 
-1. **Reactor scale-up is the binding cost lever** — biggest realised driver, least demonstrated,
-   largest downside. Demonstrating large-volume animal-cell perfusion (CO₂/O₂ transfer, shear,
-   sterility at scale) beats further medium-chemistry wins.
-2. **Plant overhead at scale** (the largest floor term) sets where the floor lands relative to
+1. **Medium price at scale is the top band driver** — largest swing *and* largest realised
+   band-width, because its prior is two-sided: the open question is not only "how cheap" but "is
+   Pasitka's $0.63/L even reproducible" for lines that haven't matched its albumin-removal and volume
+   discounts. Demonstrating cheap medium at commercial scale is load-bearing — verify the sub-$0.20/L
+   company claims *and* de-risk the dearer tail; do not treat it as solved.
+2. **Reactor scale-up is the biggest physical tail-risk** — least demonstrated, and the source of the
+   largest downside scenario (the small-vessel stall, R ≈ 3.65, kept out of the central band).
+   Demonstrating large-volume animal-cell perfusion (CO₂/O₂ transfer, shear, sterility at scale) is
+   the step the cheap projections assume away.
+3. **Plant overhead at scale** (the largest floor term) sets where the floor lands relative to
    parity — fund independent, at-scale facility-cost data. The GFI 2026 report itself flags this as
    the field's central data gap.
-3. **Medium price is already a company-claimed success** — verify the sub-$0.20/L claims rather than
-   re-fund them; centered on the measured $0.63 it is upside, not the expected path.
 4. **`p_conv` is a policy lever:** a meat tax moves `R` toward parity as much as a major cost win,
    and it is exogenously controllable.
 5. **The scaffold process cost** is the single biggest *unmeasured* number and gates the

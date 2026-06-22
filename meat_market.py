@@ -121,10 +121,13 @@ def tier(mt: "MeatType", base: float) -> str:
     return "premium" if mt.p_conv >= PREMIUM_RATIO * base else "cut"
 
 
-def tier_authenticity(mt: "MeatType", base: float, resistance: float = 1.0) -> float:
+def tier_authenticity(mt: "MeatType", base: float, resistance: float = 1.0, auth=None) -> float:
     """Per-tier authenticity offset (utils), scaled by the `premium_resistance` dial.
-    resistance=1 -> the central ladder; 0 -> no tier effect; 2 -> doubly resistant."""
-    return resistance * {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}[tier(mt, base)]
+    resistance=1 -> the central ladder; 0 -> no tier effect; 2 -> doubly resistant.
+    `auth` optionally overrides the per-tier offsets {basic, cut, premium} (the interactive's
+    authenticity sliders); None = the datasheet ladder (AUTH_BASIC / AUTH_CUT / AUTH_PREMIUM)."""
+    a = auth or {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}
+    return resistance * a[tier(mt, base)]
 
 
 def tier_eps_mult(mt: "MeatType", base: float, resistance: float = 1.0) -> float:
@@ -299,7 +302,8 @@ def _rollup(market, biomass, markup, res, share_of):
 
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
-                accept_x: float = 1.0, markup=None, income=None, premium_resistance=None):
+                accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
+                auth=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
@@ -308,6 +312,9 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     income       = region income ($/yr) for the BLP price term (None -> reference/US).
     premium_resistance = scales BOTH per-tier demand levers (authenticity offset and the
                    elasticity multiplier's deviation from 1); 1 = central, 0 = no tier effect.
+    auth         = optional per-tier authenticity offsets {basic, cut, premium} (the interactive's
+                   authenticity sliders); None = the datasheet ladder. premium_resistance still
+                   scales whatever ladder is in force.
     The per-tier demand resistance enters as share()'s tier_offset (in utils).
     """
     markup = value("markup_add") if markup is None else markup
@@ -317,7 +324,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
 
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                     tier_offset=tier_authenticity(mt, base, res),
+                     tier_offset=tier_authenticity(mt, base, res, auth),
                      eps_own=base_eps * tier_eps_mult(mt, base, res), income=income,
                      p_ref=mt.p_conv)        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 

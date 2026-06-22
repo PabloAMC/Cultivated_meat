@@ -279,7 +279,7 @@ def check_blp_linearisation() -> list:
             Vp = price_term(price, y_eff)
             prem = ratio - 1.0
             Vl = -pr.loss_aversion * np.maximum(0, prem) + np.maximum(0, -prem)
-            return Vp + Vl + pr.q_taste * taste + ws * sl + wr * rt + wh * h + asc
+            return Vp + Vl + pr.w_taste * taste + ws * sl + wr * rt + wh * h + asc
         M = _softmax(util("M")); E = _softmax(util("E"))
         return float(pr.w_eth * E[3] + (1 - pr.w_eth) * M[3])
 
@@ -302,6 +302,103 @@ def test_blp_linearisation():
     assert not fails, "BLP rigor check FAILED:\n  " + "\n  ".join(fails)
 
 
+def _mc_prose_values() -> dict:
+    """Recompute the Monte-Carlo headline numbers the PROSE essays (RESULTS/POST/METHODS) quote,
+    at the SAME (deterministic) seed and N the docs state — so they are reproducible to the last
+    digit. Slow (~75s: the regional roll-up runs a per-draw loop over 7 regions at N=30,000), so it
+    is in the full suite, not the quick path."""
+    import numpy as np
+    import uncertainty as U
+    from meat_market import monte_carlo as pen_mc
+    mc = U.monte_carlo(20000, "commodity", {})            # commodity §2 block (N=20,000, seed 0)
+    R, sh = mc["R"], mc["share"] * 100
+    out = {
+        "commodity_R_p50": float(np.percentile(R, 50)),
+        "commodity_R_ci": (float(np.percentile(R, 10)), float(np.percentile(R, 90))),
+        "commodity_share_p50": float(np.percentile(sh, 50)),
+        "commodity_share_ci": (float(np.percentile(sh, 10)), float(np.percentile(sh, 90))),
+        "regional": {},
+    }
+    for region in ("eu", "us", "global", "china", "brazil", "india", "nigeria"):
+        m = pen_mc(region, 30000)                          # regional §5 table (N=30,000, seed 0)
+        out["regional"][region] = {
+            "vol": float(np.percentile(m["vol"], 50)),
+            "val": float(np.percentile(m["val"], 50)),
+        }
+    return out
+
+
+# which regions each prose doc actually tabulates (POST shows only four; RESULTS shows all seven)
+_REGION_LABEL = {"eu": "Europe", "us": "US", "global": "global", "china": "China",
+                 "brazil": "Brazil", "india": "India", "nigeria": "Nigeria"}
+_DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL), "POST.md": ["eu", "us", "global", "china"]}
+
+
+def check_markdown_prose_numbers() -> list:
+    """ROOT-CAUSE GUARD for the prose-drift class that this audit found: the three MARKDOWN essays
+    (RESULTS.md, POST.md, METHODS.md) hand-type headline Monte-Carlo numbers that NO test re-derived,
+    so a prior change (the two-sided media_price) silently invalidated every one of them — and even
+    inverted a conclusion. interactive.html is already drift-proof (tokens + the checks above); this
+    extends the same discipline to the markdown.
+
+    It recomputes the headline MC values from the live model (at the docs' stated seed/N) and asserts
+    each rounded figure is PRESENT in the doc(s) that quote it — the commodity R/share §2 block and the
+    per-region §5 table. If the model moves and a doc is not re-synced in the same commit, this fails
+    with the stale-vs-live values shown. (Matches on the doc's own rounding; a coincidental match can
+    only cause a false PASS, never a false FAIL, so it is a safe tripwire.)"""
+    vals = _mc_prose_values()
+    docs = {}
+    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+        p = os.path.join(MODEL_DIR, name)
+        docs[name] = open(p, encoding="utf-8").read() if os.path.exists(p) else None
+
+    fails = []
+    rP = f"{vals['commodity_R_p50']:.2f}"                  # e.g. "2.09"
+    sP = f"{vals['commodity_share_p50']:.1f}%"             # e.g. "7.3%"
+    # commodity R P50 is quoted in all three; share P50 in RESULTS + METHODS (POST's block shows R only)
+    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+        if docs[name] is None:
+            fails.append(f"{name} missing")
+        elif rP not in docs[name]:
+            fails.append(f"{name}: commodity R P50 = {rP} not found (prose stale vs live model?)")
+    for name in ("RESULTS.md", "METHODS.md"):
+        if docs[name] is not None and sP not in docs[name]:
+            fails.append(f"{name}: commodity share P50 = {sP} not found (prose stale vs live model?)")
+
+    # regional table: for each region the doc tabulates, find its row (stripped line starting with the
+    # region label and carrying a CI bracket) and assert the vol & val P50 strings appear on it.
+    for name, regions in _DOC_REGIONS.items():
+        if docs[name] is None:
+            continue
+        lines = docs[name].splitlines()
+        for region in regions:
+            label = _REGION_LABEL[region]
+            row = next((ln for ln in lines if ln.strip().startswith(label) and "[" in ln), None)
+            volP = f"{vals['regional'][region]['vol']:.1f}%"
+            valP = f"{vals['regional'][region]['val']:.1f}%"
+            if row is None:
+                fails.append(f"{name}: no regional table row for {label}")
+                continue
+            if volP not in row:
+                fails.append(f"{name}: {label} VOLUME P50 should be {volP} but its row is stale: '{row.strip()}'")
+            if valP not in row:
+                fails.append(f"{name}: {label} VALUE P50 should be {valP} but its row is stale: '{row.strip()}'")
+
+    print(f"markdown-prose drift check: commodity R/share + {sum(len(r) for r in _DOC_REGIONS.values())} "
+          f"region-rows across RESULTS/POST/METHODS, "
+          f"{'all in sync' if not fails else f'{len(fails)} stale'}")
+    return fails
+
+
+def test_markdown_prose_numbers():
+    """pytest entry point: the markdown essays' headline MC numbers match the live model."""
+    fails = check_markdown_prose_numbers()
+    assert not fails, (
+        "Markdown-prose drift FAILED (an essay's headline number no longer matches the model):\n  "
+        + "\n  ".join(fails)
+        + "\n\nRe-run the model and update RESULTS.md / POST.md / METHODS.md in the same commit.")
+
+
 def test_golden_values():
     """pytest entry point: the headline model outputs match their pinned golden values."""
     fails = check_golden()
@@ -321,7 +418,8 @@ def test_illustrative_numbers_not_stale():
 
 if __name__ == "__main__":
     failures = (check_golden() + check_illustrative_numbers_in_html()
-                + check_derived_prose_numbers() + check_blp_linearisation())
+                + check_derived_prose_numbers() + check_blp_linearisation()
+                + check_markdown_prose_numbers())
     if failures:
         print(f"\nFAIL — {len(failures)} check(s) failed:")
         for f in failures:

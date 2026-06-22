@@ -113,7 +113,51 @@ js += `
   // mismatch slipped through once. [label, R] per injected (non-no_referent) product.
   const foothold = C.foothold_products.map(pd => [pd.label, footR(def, pd)]);
 
-  realLog(JSON.stringify({ headline, grid, healthGrid, foothold,
+  // EXPERT attribute-weight parity: changing a pinned/assumed weight (w_taste, w_slaughter_E)
+  // re-solves the others; OVERRIDING a solved weight pins it (breaking its moment). Mirror of
+  // market_share pinned_weights / the w_taste|w_slaughter_E constructor inputs. Each case sets
+  // the values, marks the pinned ones (key+"_ovr"=true), and reads the solved weights + shares.
+  const weightCases = [
+    { vals: { w_taste: 7.0 }, pin: [] },
+    { vals: { w_slaughter_E: 6.0 }, pin: [] },
+    { vals: { w_realtissue_E: 1.5 }, pin: [] },
+    { vals: { w_realtissue_M: 1.5 }, pin: ["w_realtissue_M"] },
+    { vals: { w_health_M: 0.4 }, pin: ["w_health_M"] },
+    { vals: { w_health_E: 2.6 }, pin: ["w_health_E"] },
+    { vals: { w_realtissue_M: 3.0, w_health_M: 0.5, w_health_E: 2.5 },
+      pin: ["w_realtissue_M", "w_health_M", "w_health_E"] },
+  ];
+  weightCases.forEach(c => {
+    const sd = Object.assign({}, def);
+    Object.keys(c.vals).forEach(k => sd[k] = c.vals[k]);
+    c.pin.forEach(k => sd[k + "_ovr"] = true);
+    const K = effConsts(sd);
+    c.out = { w_realtissue_M: K.w_realtissue_M, w_health_M: K.w_health_M, w_health_E: K.w_health_E,
+              parity: shareCalc(1.0, K, { ax: 1, tfM: 0 }),
+              pb: shareCalc(1.0, K, { present: false, which: "pb" }) };
+  });
+
+  // AUTHENTICITY ladder parity: the per-tier offset = premium-resistance r × τ_tier, with τ either
+  // the datasheet ladder (default) or the user's authenticity sliders. Mirror of
+  // meat_market.tier_authenticity. Read tAuth for each tier at default τ and at a custom τ.
+  const authCheck = [];
+  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["cut", 1.5], ["premium", 0.5]].forEach(
+    ([t, r]) => authCheck.push(["def", t, r, tAuth(t, r)]));
+  state.auth_basic = 0.5; state.auth_cut = -1.0; state.auth_premium = -2.5;   // custom τ via the sliders
+  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["premium", 0.8]].forEach(
+    ([t, r]) => authCheck.push(["cust", t, r, tAuth(t, r)]));
+  delete state.auth_basic; delete state.auth_cut; delete state.auth_premium;  // restore defaults
+
+  // IMPORTANCE BREAKDOWN parity (mirror of market_share.utility_breakdown): the per-factor utils
+  // decomposition of cultivated vs conventional (mainstream). Sample a few operating points/dials.
+  const bdCases = [
+    { R: 2.42, o: { ax: 1, tfM: 0, toff: 0, eps: C.eps_own, income: C.income_ref, nbx: 0, nbp: 0, which: "x" } },
+    { R: 1.0, o: { ax: 0.8, tfM: 0.5, toff: 0, eps: C.eps_own, income: C.income_ref, nbx: -1, nbp: 0, which: "x" } },
+    { R: 1.6, o: { ax: 1, tfM: 0, toff: -1.5, eps: -1.2, income: 27105, nbx: 0, nbp: 0, hx: 0.3, which: "x" } },
+  ];
+  bdCases.forEach(c => { c.out = breakdownCalc(c.R, KP, "M", c.o); });
+
+  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases,
                            timing: { R: Rx, share: tr.share } }));
 })();
 `;

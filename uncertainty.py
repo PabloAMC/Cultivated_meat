@@ -52,9 +52,14 @@ from market_share import DemandParams, share
 # so the MC band and the point estimates can never drift apart. Each prior() call
 # returns (kind, lo, hi, mode, note). AA_FLOOR (the irreducible amino-acid cost)
 # and the cost equation itself are also imported, not re-typed here.
+# neophobia_x (long-run novelty attitude) is swept too, for CONSISTENCY with the other two
+# reference MCs (meat_market.monte_carlo and adoption_timing.monte_carlo_trajectory both sweep
+# it). It is a genuine long-run-share uncertainty — where novelty attitude LANDS once it has
+# faded — on the same footing as the accept_x / theta_free_M acceptance dials, so omitting it
+# here understated the share band. It does NOT enter R (novelty is a demand-side utility offset).
 BASE_PRIORS = {name: prior(name) for name in
                ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
-                "theta_free_M", "accept_x")}
+                "theta_free_M", "accept_x", "neophobia_x")}
 
 # scaffold inputs — sampled ONLY for structured (premium) targets (Rung 6)
 SCAFFOLD_PRIORS = {name: prior(name) for name in
@@ -128,7 +133,8 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
 
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
-                         accept_x=s["accept_x"][i], eps_own=s["eps_own"][i])
+                         accept_x=s["accept_x"][i], eps_own=s["eps_own"][i],
+                         neophobia_x=s["neophobia_x"][i])
                    for i in range(n)])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)
 
@@ -144,10 +150,18 @@ def _ci(x):
 
 
 def spread_contribution(mc: dict, target: str, fixed: dict) -> list:
-    """How much of the R P10-P90 spread each input owns: pin it to its mode, re-run
+    """How much each input drives the WIDTH of the R band: pin it to its mode, re-run
     the MC, and measure how far the P10-P90 width shrinks. Returns
-    [(name, fraction_of_width), ...] sorted descending. Shared with sensitivity.py
-    so the two modules report the SAME variance diagnostic."""
+    [(name, fraction_of_width), ...] sorted descending. Shared with sensitivity.py so
+    the two modules report the SAME diagnostic.
+
+    CAVEAT — this is NOT a variance decomposition: the fractions do NOT sum to 1, and
+    an input whose prior MODE sits at an extreme of its range is under-credited
+    (pinning to mode then only removes one tail, barely changing P10-P90, even though
+    the input strongly moves the band's LOCATION). `efficiency` (mode 1.0 = the
+    pessimistic edge of [0.25, 1.0]) is the canonical example: ~0% width-share despite
+    a large one-at-a-time swing. Read it as 'realised dispersion ownership given where
+    we centred the prior', not 'total influence'."""
     R = mc["R"]
     base_w = np.percentile(R, 90) - np.percentile(R, 10)
     rows = []

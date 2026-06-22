@@ -232,7 +232,7 @@ REGISTRY: dict[str, Input] = {
     # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
     #     Cultivated's standing vs conventional is TWO interpretable scenario dials,
     #     both with a NEUTRAL default (not fitted — reported as a band): taste-
-    #     acceptance accept_x is the FRICTION half (enters utility as q_taste*(accept_x
+    #     acceptance accept_x is the FRICTION half (enters utility as w_taste*(accept_x
     #     -1)); slaughter-free value theta_free_M is the UPSIDE half (the mainstream
     #     weight on the slaughter-free attribute). See market_share.py.
     "theta_free_M": Input(0.0, "utils", "[NEUTRAL DIAL] MAINSTREAM utility weight on the slaughter-free "
@@ -246,10 +246,10 @@ REGISTRY: dict[str, Input] = {
              "ethical core (w_eth). MC prior 0..1: neutral to 'values no-slaughter'."),
     "accept_x": Input(1.0, "fraction", "[DIAL] how fully the mainstream credits cultivated's taste / "
         "real-meat attribute. In the rebuilt MNL it sets cultivated's taste_quality = (accept_x - 1), "
-        "weighted by q_taste utils. 1 = tastes as real as conventional (neutral); <1 = a taste deficit.",
+        "weighted by w_taste utils. 1 = tastes as real as conventional (neutral); <1 = a taste deficit.",
         lo=0.6, hi=1.0, mode=1.0,
         note="The taste-FRICTION half of cultivated's standing. In the MNL the utility offset is "
-             "q_taste*(accept_x-1) utils, weighted by the shared taste coefficient q_taste."),
+             "w_taste*(accept_x-1) utils, weighted by the shared taste coefficient w_taste."),
     "premium_resistance": Input(1.0, "x", "[assumed] JUDGEMENT DIAL scaling how much premium/cut meat "
         "resists cultivated, relative to everyday mince. It multiplies BOTH per-tier demand levers in "
         "meat_market together (they encode one belief): the authenticity offset tau_type "
@@ -387,13 +387,13 @@ REGISTRY: dict[str, Input] = {
         "0 = parity, negative = deficit",
         lo=-0.4, hi=0.0, mode=-0.2,
         note="taste is the binding constraint on PB meat (Nectar); the best ~16% reach parity, the "
-             "average lags -> a modest negative, weighted by q_taste in utils."),
-    "q_taste": Input(5.0, "utils", "[calibration] taste-utility weight: converts a normalised taste "
+             "average lags -> a modest negative, weighted by w_taste in utils."),
+    "w_taste": Input(5.0, "utils", "[calibration] taste-utility weight: converts a normalised taste "
         "gap (0=parity, -1=very poor) into utils. Large => the flavour-first mainstream punishes a "
         "taste deficit heavily; it is the single shared taste coefficient for all products. It also sets "
         "the SCALE the other perception weights are read against: taste is the #1 food-choice driver "
-        "(IFIC 2025; Malone & Lusk 2017 find taste WTP ~2x health and ~3x safety), so q_taste is the "
-        "largest non-price weight and health (w_health_M ~0.26x q_taste) sits well below it."),
+        "(IFIC 2025; Malone & Lusk 2017 find taste WTP ~2x health and ~3x safety), so w_taste is the "
+        "largest non-price weight and health (w_health_M ~0.26x w_taste) sits well below it."),
     "w_eth": Input(0.05, "fraction", "[Gallup] ethics-driven CORE = vegetarian (4%) + vegan (1%), "
         "Gallup 2023",
         lo=0.04, hi=0.10, mode=0.05,
@@ -438,7 +438,7 @@ REGISTRY: dict[str, Input] = {
              "& Lusk (2017, J. Agric. Appl. Econ. 49:139), a US discrete-choice experiment with taste, health "
              "and safety perceptions on a common -5..+5 scale, find WTP of $0.60/$0.31/$0.21 per unit -> "
              "mainstream HEALTH is ~0.52x TASTE (and the IFIC 2025 'very important' ratio ~0.78x brackets the "
-             "soft end). The solved w_health_M lands at ~0.26x q_taste — i.e. health is weighted BELOW taste "
+             "soft end). The solved w_health_M lands at ~0.26x w_taste — i.e. health is weighted BELOW taste "
              "and price for the mainstream, consistent with (and slightly below) the discrete-choice anchor."),
     "w_realtissue_E": Input(0.0, "utils", "[assumed] ethical-segment weight on real tissue ~ 0: ethical "
         "eaters choose on slaughter-free, not on 'real meat'"),

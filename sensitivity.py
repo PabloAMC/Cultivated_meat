@@ -17,15 +17,25 @@ Two complementary views (deliberately separated, never contradictory):
      with no distributional assumptions — each bar is literally "if this one
      number moves across its honest range, R moves THIS much."
 
-  2. VARIANCE SHARE — the cross-check, REUSED VERBATIM from uncertainty.py's
-     spread_contribution() (pin each input to its mode, measure how much the Monte
-     Carlo P10-P90 width shrinks). Shown as a column in the table. Because the cost
-     inputs enter R nearly linearly, the OAT ranking and the variance ranking
-     agree — and the table proves it (same numbers, one source).
+  2. PIN-TO-MODE WIDTH SHRINKAGE — the cross-check, REUSED VERBATIM from
+     uncertainty.py's spread_contribution() (pin each input to its mode, measure how
+     much the Monte Carlo P10-P90 width shrinks). Shown as a column in the table.
+     IMPORTANT — this is NOT a variance decomposition and the column does NOT sum to
+     100%: it measures how much each input drives the *width* of the band, holding
+     the others at their full priors. It systematically UNDER-credits any input whose
+     mode sits at an EXTREME of its range — pinning it to mode then only lops off one
+     tail, barely changing P10-P90, even though the input strongly shifts the band's
+     LOCATION. `efficiency` is the clearest case: its mode (1.0) is the pessimistic
+     edge of [0.25, 1.0], so it shows ~0% width-share despite the 2nd-largest OAT
+     swing. So read the two columns as ANSWERING DIFFERENT QUESTIONS — OAT swing =
+     "how far could this one number move R across its honest range" (potential);
+     width-share = "how much of the band's spread does it own, given where we centred
+     it" (realised dispersion). They do NOT have to agree, and where a prior is
+     one-sided they deliberately do not.
 
 The reuse is strict: R is computed by uncertainty.R_from_inputs (the ONE cost->R
-equation), and the variance column is uncertainty.spread_contribution — so this
-module can never disagree with the Monte-Carlo rung.
+equation), and the width column is uncertainty.spread_contribution — so this
+module can never disagree with the Monte-Carlo rung on those numbers.
 
     python sensitivity.py --no-latex
     python sensitivity.py --target sushi-salmon --no-latex
@@ -45,7 +55,7 @@ from uncertainty import (
 
 # demand-side inputs affect SHARE (through nothing on the cost side) — they do not
 # move R. Everything else in the active prior set is a cost input that moves R.
-DEMAND_INPUTS = ("eps_own", "theta_free_M", "accept_x")
+DEMAND_INPUTS = ("eps_own", "theta_free_M", "accept_x", "neophobia_x")
 
 # human-readable axis labels (the raw keys are code names; readers see these)
 LABELS = {
@@ -57,6 +67,7 @@ LABELS = {
     "theta_free_M":  "mainstream slaughter-free value",
     "accept_x":      "cultivated taste-acceptance",
     "eps_own":       "price elasticity",
+    "neophobia_x":   "long-run novelty attitude",
     "process_cost":  "scaffold process cost",
     "material_price": "scaffold material price",
     "scaffold_frac": "scaffold fraction",
@@ -85,7 +96,8 @@ def _share_at(target: str, overrides: dict) -> float:
     m = _modes(target); m.update(overrides)
     R = _R_at(target, overrides)
     return float(share(R, DemandParams(), theta_free_M=m["theta_free_M"],
-                       accept_x=m["accept_x"], eps_own=m["eps_own"]))
+                       accept_x=m["accept_x"], eps_own=m["eps_own"],
+                       neophobia_x=m["neophobia_x"]))
 
 
 # ----------------------------------------------------------------------------
@@ -165,11 +177,13 @@ def key_knobs(target: str, n: int = 20000) -> None:
     base_R, rowsR = oat(target, "R")
     var = dict(spread_contribution(monte_carlo(n, target, {}), target, {}))
     print(f"  KEY KNOBS — drivers of the price ratio R   (baseline all-at-mode R = {base_R:.2f})")
-    print(f"    {'input':<15}{'R(lo)':>7}{'R(hi)':>7}{'swing':>7}{'var%*':>7}   optimistic end")
+    print(f"    {'input':<15}{'R(lo)':>7}{'R(hi)':>7}{'swing':>7}{'width%*':>8}   optimistic end")
     for name, o_lo, o_hi, swing, opt in rowsR:
         print(f"    {name:<15}{o_lo:>7.2f}{o_hi:>7.2f}{swing:>7.2f}"
-              f"{var.get(name, 0.0)*100:>6.0f}%   {opt}")
-    print("    *var% = share of the Monte-Carlo R P10-P90 width (uncertainty.spread_contribution)")
+              f"{var.get(name, 0.0)*100:>7.0f}%   {opt}")
+    print("    *width% = how much the MC R P10-P90 width shrinks if this input is pinned to its mode")
+    print("     (uncertainty.spread_contribution). NOT a variance share: does not sum to 100%, and")
+    print("     under-credits one-sided priors (e.g. efficiency, whose mode is at its range edge).")
 
     base_s, rowsS = oat(target, "share")
     print(f"\n  KEY KNOBS — drivers of long-run SHARE   (baseline all-at-mode share = {base_s*100:.1f}%)")
