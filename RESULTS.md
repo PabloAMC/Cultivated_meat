@@ -230,7 +230,7 @@ total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
   Europe    $62k        P50  7.6%  [2.5, 18.1]    P50 12.2%  [ 4.1, 27.1]  <- easiest (rich + priciest meat)
   US        $86k        P50  4.1%  [1.2, 11.5]    P50  6.4%  [ 2.0, 16.5]
-  global    $24k        P50  2.5%  [0.7,  7.6]    P50  4.6%  [ 1.3, 12.7]
+  Global    $24k        P50  2.5%  [0.7,  7.6]    P50  4.6%  [ 1.3, 12.7]
   China     $27k        P50  2.1%  [0.6,  5.9]    P50  5.0%  [ 1.6, 12.6]
   Brazil    $22k        P50  0.6%  [0.1,  2.3]    P50  1.0%  [ 0.2,  3.5]
   India     $11k        P50  0.1%  [0.0,  0.5]    P50  0.4%  [ 0.1,  1.3]

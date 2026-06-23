@@ -329,7 +329,7 @@ def _mc_prose_values() -> dict:
 
 
 # which regions each prose doc actually tabulates (POST shows only four; RESULTS shows all seven)
-_REGION_LABEL = {"eu": "Europe", "us": "US", "global": "global", "china": "China",
+_REGION_LABEL = {"eu": "Europe", "us": "US", "global": "Global", "china": "China",
                  "brazil": "Brazil", "india": "India", "nigeria": "Nigeria"}
 _DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL), "POST.md": ["eu", "us", "global", "china"]}
 

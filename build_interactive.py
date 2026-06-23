@@ -643,7 +643,7 @@ def build_model() -> dict:
                  for mt in market]
         for region, market in mm.MARKETS.items()
     }
-    regions = [["us", "US"], ["eu", "Europe"], ["china", "China"], ["global", "global"],
+    regions = [["us", "US"], ["eu", "Europe"], ["china", "China"], ["global", "Global"],
                ["brazil", "Brazil"], ["india", "India"], ["nigeria", "Nigeria"]]
     return dict(const=const, sliders=sliders, toggles=toggles, markets=markets, regions=regions)
 
@@ -3432,12 +3432,12 @@ function weightSuffix(s){
   return " · "+(state[s.key]/wt).toFixed(2)+"× taste";
 }
 // PRICE's weight is the DERIVED coefficient β (utils per $/kg at the calibration anchor) — the price
-// analogue of the w-weights. Surface it (and the realised own-price elasticity ε_x = ε·κ) on the
+// analogue of the w-weights. Surface it (and the realised own-price elasticity εₓ = ε·κ) on the
 // sliders that set it, so "price has a weight, here it is" is visible right at the price controls.
 function priceSuffix(s){
   if(!s.pricew || !KP) return "";
   const b=KP.beta_ref, epsx=KP.eps_own*KP.cult_sub_mult;
-  return " · price weight β="+b.toFixed(3)+"/$ (ε_x≈"+epsx.toFixed(1)+")";
+  return " · price weight β="+b.toFixed(3)+"/$ (εₓ≈"+epsx.toFixed(1)+")";
 }
 // one place that builds a slider's value readout: the number, an "(auto)" tag for un-overridden
 // solved weights, the "× taste" relative-importance suffix, and (for the price controls) β.
