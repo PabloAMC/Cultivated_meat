@@ -143,25 +143,21 @@ def check_illustrative_numbers_in_html() -> list:
     import re
     import build_interactive as bi
     fails = []
-    nums = bi.illustrative_numbers()                     # {"{{TOKEN}}": "NN"}
+    nums = bi.illustrative_numbers()                     # {"{{TOKEN}}": "NN"}  (%-shares)
+    dnums = bi.derived_numbers()                         # {"{{TOKEN}}": "2.4"} (ratios, $/kg, years...)
     # The pre-substitution template is exactly what main() assembles: page markup + JS engine +
     # the MODEL_JSON blob (the slider TOOLTIPS — where several illustrative numbers live — are in
     # build_model()'s output, not in PAGE_HTML/JS_ENGINE). Reconstruct it the same way so the
     # token scan sees every placeholder, wherever it lives.
     template = (bi.PAGE_HTML + bi.JS_ENGINE).replace("__MODEL_JSON__", json.dumps(bi.build_model()))
     used = set(re.findall(r"\{\{[A-Z0-9_]+\}\}", template))
-    have = set(nums.keys())
-    # {{KAPPA4_LUSK_ELAS}} is the one model-computed token that is NOT a %-share, so it lives
-    # outside illustrative_numbers() (which is %-share-only) and is substituted directly in main()
-    # from market_share.lusk_at_parity_elasticity. It is still drift-proof (computed from the live
-    # model, golden-guarded as lusk_elas_parity_cold), so exempt it from the share-token bookkeeping.
-    used.discard("{{KAPPA4_LUSK_ELAS}}")
+    have = set(nums.keys()) | set(dnums.keys())
     # (1) tokens used in the template but not computed
     for t in sorted(used - have):
-        fails.append(f"template uses {t} but illustrative_numbers() computes no value for it")
+        fails.append(f"template uses {t} but build_interactive computes no value for it")
     # (2) computed numbers never used (dead — a sign a placeholder was hand-edited away)
     for t in sorted(have - used):
-        fails.append(f"illustrative_numbers() computes {t} but no {{...}} in the template uses it "
+        fails.append(f"build_interactive computes {t} but no {{...}} in the template uses it "
                      f"(was it replaced by a hand-typed number?)")
     # (3) the generated page is clean and carries the values
     html_path = os.path.join(MODEL_DIR, "interactive.html")
@@ -175,7 +171,10 @@ def check_illustrative_numbers_in_html() -> list:
         for token, val in nums.items():
             if f"{val}%" not in html:
                 fails.append(f"{token}={val}% computed but not present in interactive.html")
-    print(f"illustrative-number drift check: {len(nums)} model-computed values, "
+        for token, val in dnums.items():
+            if val not in html:
+                fails.append(f"{token}={val} computed but not present in interactive.html")
+    print(f"illustrative-number drift check: {len(nums) + len(dnums)} model-computed values, "
           f"{len(used)} placeholders in template, "
           f"{'all consistent' if not fails else f'{len(fails)} problem(s)'}")
     return fails
