@@ -2089,10 +2089,10 @@ function drawHeads(s){
     "benchmark of $"+conv.toFixed(0)+"/kg (each meat type in charts 1, 2 and 7 uses its own local price). "+
     "1&times; = price parity. The same for every region. Structured cuts also need a scaffold: $"+cut.toFixed(0)+"/kg.";
   const cells=[
-    [(p.tv*100).toFixed(1)+"%","<b>cultivated</b>: share of meat eaten, long run ("+reg+")",
-     (p.tval*100).toFixed(1)+"% of money spent on meat","var(--accent)",cultTip],
-    [(p.tvp*100).toFixed(1)+"%","<b>plant-based</b>: share of meat eaten ("+reg+")",
-     (p.tvalp*100).toFixed(1)+"% of money spent on meat","var(--green)",pbTip],
+    [(p.tv*100).toFixed(1)+"%","<b>cultivated</b>: long-run share of the meat market by weight ("+reg+")",
+     (p.tval*100).toFixed(1)+"% by value","var(--accent)",cultTip],
+    [(p.tvp*100).toFixed(1)+"%","<b>plant-based</b>: share of the meat market by weight ("+reg+")",
+     (p.tvalp*100).toFixed(1)+"% by value","var(--green)",pbTip],
     [R.toFixed(1)+"&times;","<b>cultivated's price</b> vs everyday meat",
      "$"+retail.toFixed(0)+" vs $"+conv.toFixed(0)+" a kilo (benchmark)","var(--ink)",rTip]];
   const h=document.getElementById("heads"); h.innerHTML="";
