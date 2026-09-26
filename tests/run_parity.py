@@ -45,6 +45,9 @@ PROBE = os.path.join(HERE, "js_probe.js")
 # 1e-4 absolute on a share (i.e. <0.01 percentage point) is comfortably tight: the income bug
 # this guards against was a 5-8 PERCENTAGE-POINT divergence, ~1000x this bound.
 TOL = 1e-4
+# Monte-Carlo medians (percentage points): JS and Python draw with different PRNGs, so they can only
+# agree within sampling noise (~0.1 pp at N=3000). 0.4 pp still catches a changed sampled set.
+MC_TOL = 0.4
 
 
 # ---------------------------------------------------------------------------
@@ -249,6 +252,28 @@ def check_parity() -> list:
             if d > TOL:
                 fails.append(f"bdCase[{i}] R={c['R']} [{k}]: python={pvv:.6f} js={jvv:.6f} diff={d:.2e}")
 
+    # MONTE CARLO (statistical): the page's penetration band samples the same inputs as the Python
+    # roll-up quoted in RESULTS.md. Different PRNGs, so medians must agree within sampling noise
+    # (MC_TOL percentage points; the bug this guards against was a ~1.4 pp gap at the US median).
+    mc = js.get("mcCheck")
+    mc_msg = "no MC check"
+    if mc:
+        import numpy as np
+        from meat_market import monte_carlo as pen_mc
+        from inputs import MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS
+        want = list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS)
+        if list(mc["inputs"]) != want:
+            fails.append(f"MC sampled inputs differ: page={mc['inputs']} python={want}")
+        m = pen_mc(mc["region"], int(mc["n"]))
+        diffs = []
+        for key, arr in (("vol_p50", m["vol"]), ("val_p50", m["val"])):
+            pv, jv = float(np.percentile(arr, 50)), float(mc[key])
+            diffs.append(abs(pv - jv))
+            if abs(pv - jv) > MC_TOL:
+                fails.append(f"MC {mc['region']} {key}: python={pv:.2f}% page={jv:.2f}% "
+                             f"diff={abs(pv - jv):.2f} pp (> {MC_TOL} pp: do they sample the same inputs?)")
+        mc_msg = f"MC median max diff = {max(diffs):.2f} pp (tol {MC_TOL})"
+
     # timing trajectory
     jt = js["timing"]["share"]
     pt = py["timing"]
@@ -265,7 +290,7 @@ def check_parity() -> list:
           f"{len(py['headline'])} headline values, {n} timing years; grid max diff = {worst:.2e}, "
           f"health max diff = {worst_h:.2e}, foothold max diff = {worst_f:.2e}, "
           f"weight-override max diff = {worst_w:.2e}, authenticity max diff = {worst_a:.2e}, "
-          f"breakdown max diff = {worst_b:.2e} (tol {TOL:.0e})")
+          f"breakdown max diff = {worst_b:.2e} (tol {TOL:.0e}); {mc_msg}")
     return fails
 
 

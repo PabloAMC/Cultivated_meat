@@ -602,6 +602,21 @@ EPS_MULT_PREMIUM: float = 0.3  #   premium buyers barely price-sensitive -> caps
 # constant is the literature anchor surfaced for the methods text / interactive `const`.
 LOSS_AVERSION_RATIO: float = 2.25
 
+# ----------------------------------------------------------------------------
+# Which inputs the Monte-Carlo bands sample. ONE list for every band — the Python roll-ups
+# (uncertainty.py, meat_market.py), the tornado (sensitivity.py) and the page's JS (injected by
+# build_interactive.py) — so they cannot sample different uncertainty sets. (They once did: the
+# page swept health_x but not neophobia_x and the Python roll-up the reverse, so the page's band
+# and the one quoted in RESULTS.md disagreed.) Everything not listed is held at its slider value.
+# ----------------------------------------------------------------------------
+MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add")
+MC_DEMAND_INPUTS = ("eps_own", "theta_free_M", "accept_x", "neophobia_x", "health_x")
+MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
+# The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
+# the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
+MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit",
+                    "accept_x", "theta_free_M", "neophobia_x", "health_x")
+
 
 # ----------------------------------------------------------------------------
 # Accessors

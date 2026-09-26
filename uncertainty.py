@@ -43,7 +43,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import prior
+from inputs import prior, MC_COST_INPUTS, MC_DEMAND_INPUTS
 from cost_model import CostParams, media_cost
 from market_share import DemandParams, share
 
@@ -52,14 +52,10 @@ from market_share import DemandParams, share
 # so the MC band and the point estimates can never drift apart. Each prior() call
 # returns (kind, lo, hi, mode, note). AA_FLOOR (the irreducible amino-acid cost)
 # and the cost equation itself are also imported, not re-typed here.
-# neophobia_x (long-run novelty attitude) is swept too, for CONSISTENCY with the other two
-# reference MCs (meat_market.monte_carlo and adoption_timing.monte_carlo_trajectory both sweep
-# it). It is a genuine long-run-share uncertainty — where novelty attitude LANDS once it has
-# faded — on the same footing as the accept_x / theta_free_M acceptance dials, so omitting it
-# here understated the share band. It does NOT enter R (novelty is a demand-side utility offset).
-BASE_PRIORS = {name: prior(name) for name in
-               ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
-                "theta_free_M", "accept_x", "neophobia_x")}
+# The sampled set is inputs.MC_COST_INPUTS + MC_DEMAND_INPUTS — the SAME list every other band
+# (meat_market.monte_carlo, the page's JS) uses. The demand inputs (acceptance dials, elasticity,
+# long-run novelty, health perception) move the share but not R.
+BASE_PRIORS = {name: prior(name) for name in MC_COST_INPUTS + MC_DEMAND_INPUTS}
 
 # scaffold inputs — sampled ONLY for structured (premium) targets (Rung 6)
 SCAFFOLD_PRIORS = {name: prior(name) for name in
@@ -115,10 +111,9 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
 
 
 def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
-    # NOTE: this reference MC sweeps the cost stack + theta_free_M + accept_x. The interactive
-    # explorer's JS penetration band (build_interactive.py `monteCarlo`) deliberately sweeps a
-    # WIDER set (also health_x/health_p, premium_resistance, the plant-based dials) so both novel
-    # meats get an equal-footing band — so the on-page band is intentionally wider. By design.
+    # Samples inputs.MC_COST_INPUTS + MC_DEMAND_INPUTS, the same set as the page's band. (The page
+    # additionally samples premium_resistance, which only matters once meat types are rolled up by
+    # tier — this commodity block has no tiers — and the plant-based dials for its own band.)
     pri = active_priors(target)
     rng = np.random.default_rng(seed)
     s = {k: _sample(k, pri, rng, n, fixed) for k in pri}
@@ -134,7 +129,7 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                          accept_x=s["accept_x"][i], eps_own=s["eps_own"][i],
-                         neophobia_x=s["neophobia_x"][i])
+                         neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
                    for i in range(n)])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)
 

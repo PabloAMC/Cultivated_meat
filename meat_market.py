@@ -100,7 +100,8 @@ class MeatType:
 # price ratio: a structured product priced >= PREMIUM_RATIO x its own species' everyday
 # (cheapest) form is "premium", so every species can have one (wagyu beef, sushi seafood, ...).
 from inputs import (SCAF, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
-                    EPS_MULT_CUT, EPS_MULT_PREMIUM)
+                    EPS_MULT_CUT, EPS_MULT_PREMIUM,
+                    MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS)
 
 
 def species_bases(market) -> dict:
@@ -345,11 +346,10 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
-    biomass cost, retail markup, the acceptance dials, and price elasticity."""
+    biomass cost, retail markup, the acceptance dials, price elasticity, premium
+    resistance. The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
-    s = {k: _draw(k, rng, n) for k in
-         ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
-          "theta_free_M", "accept_x", "premium_resistance", "neophobia_x")}
+    s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
     cp = CostParams()
     biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
 
@@ -364,7 +364,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
                                eps_own=eps[i], income=income, p_ref=mt.p_conv,
-                               neophobia_x=s["neophobia_x"][i]) for i in range(n)])
+                               neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
+                         for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)
     return dict(vol=tot_vol * 100, val=tot_val * 100)

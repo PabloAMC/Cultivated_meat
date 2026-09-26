@@ -16,7 +16,8 @@ from __future__ import annotations
 import json
 import os
 
-from inputs import value, prior, AA_FLOOR, PASITKA_CONFIGS
+from inputs import (value, prior, AA_FLOOR, PASITKA_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
+                    MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
                           lusk_at_parity_elasticity as _lusk_at_parity)
@@ -130,24 +131,16 @@ def build_model() -> dict:
         "REGION_INCOME": mm.REGION_INCOME,
         # demand calibration constants (surfaced so the methods section can show them)
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
-        # triangular Monte-Carlo priors [lo, mode, hi] for the genuinely uncertain inputs
+        # WHICH inputs the page's bands sample: the SAME lists the Python bands use (inputs.MC_*),
+        # so the page's band and the numbers quoted in RESULTS.md cannot sample different sets.
+        "mc_inputs": list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS),
+        "mc_timing_inputs": list(MC_TIMING_INPUTS),
+        # triangular Monte-Carlo priors [lo, mode, hi] for every sampled input
         "priors": {
-            "media_price": list(_prior_lo_mode_hi("media_price")),
-            "efficiency": list(_prior_lo_mode_hi("efficiency")),
-            "overhead": list(_prior_lo_mode_hi("overhead")),
-            "markup_add": list(_prior_lo_mode_hi("markup_add")),
-            "eps_own": list(_prior_lo_mode_hi("eps_own")),
-            "theta_free_M": list(_prior_lo_mode_hi("theta_free_M")),
-            "accept_x": list(_prior_lo_mode_hi("accept_x")),
-            "premium_resistance": list(_prior_lo_mode_hi("premium_resistance")),
-            "neophobia_x": list(_prior_lo_mode_hi("neophobia_x")),
-            "neophobia_x0": list(_prior_lo_mode_hi("neophobia_x0")),
-            "accept_rate": list(_prior_lo_mode_hi("accept_rate")),
-            "p_innov": list(_prior_lo_mode_hi("p_innov")),
-            "q_imit": list(_prior_lo_mode_hi("q_imit")),
-            # HEALTH priors: symmetric, centred at the neutral default 0 (two-sided, no point
-            # estimate). Swept in the MC band for BOTH novel meats, equal footing.
-            "health_x": list(_prior_lo_mode_hi("health_x")),
+            **{k: list(_prior_lo_mode_hi(k))
+               for k in dict.fromkeys(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS
+                                      + MC_TIMING_INPUTS)},
+            # plant-based's own health prior (its band, equal footing with cultivated's health_x)
             "health_p": list(_prior_lo_mode_hi("health_p")),
             # plant-based exploratory dials, also swept so PB gets a band on equal footing
             # with cultivated (its taste a_p, novelty ν_p, cold-start ν_p0). Centred at defaults.
@@ -2353,8 +2346,8 @@ function timeToStabilize(series,frac){frac=frac||0.9; const fin=series[series.le
 function trajectoryMC(s,N,which){
   // product-aware: which="x" (cultivated, default) or "pb" (plant-based). Each sweeps ITS OWN
   // priors over the shared Bass/rate diffusion priors, so BOTH novel meats get a band on EQUAL
-  // FOOTING. Cultivated sweeps accept_x, θ, ν_x, ν_x0, health_x; plant-based sweeps a_p, ν_p,
-  // ν_p0, health_p (its price R_p is held at the slider, like the cultivated R is held).
+  // FOOTING. Cultivated samples C.mc_timing_inputs (the Python timing band's list); plant-based
+  // sweeps a_p, ν_p, ν_p0, health_p (its price R_p is held at the slider, like the cultivated R is held).
   which=which||"x";
   const yrs=MODEL.years||30, P=C.priors, pb=(which==="pb");
   _seedRng(pb?2:1);                 // reproducible band, distinct stream per product
@@ -2365,10 +2358,9 @@ function trajectoryMC(s,N,which){
          nbL:triang.apply(null,P.neophobia_p), nb0:triang.apply(null,P.neophobia_p0),
          rate:triang.apply(null,P.accept_rate), p:triang.apply(null,P.p_innov), q:triang.apply(null,P.q_imit),
          hp:triang.apply(null,P.health_p), income:s.income, which:"pb"}
-      : {R:s._Rtiming, ax:triang.apply(null,P.accept_x), tfM:triang.apply(null,P.theta_free_M),
-         nbL:triang.apply(null,P.neophobia_x), nb0:triang.apply(null,P.neophobia_x0),
-         rate:triang.apply(null,P.accept_rate), p:triang.apply(null,P.p_innov), q:triang.apply(null,P.q_imit),
-         hx:triang.apply(null,P.health_x), income:s.income, which:"x"};
+      : (dr=>({R:s._Rtiming, ax:dr.accept_x, tfM:dr.theta_free_M, nbL:dr.neophobia_x, nb0:dr.neophobia_x0,
+               rate:dr.accept_rate, p:dr.p_innov, q:dr.q_imit, hx:dr.health_x, income:s.income,
+               which:"x"}))(mcDraw(C.mc_timing_inputs));   // C.mc_timing_inputs = inputs.MC_TIMING_INPUTS
     const tr=bassTrajectory(o); const sh=tr.share.map(x=>x*100);
     all.push(sh); tstab.push(timeToStabilize(sh)); finals.push(sh[sh.length-1]);
   }
@@ -3245,31 +3237,38 @@ function triang(lo,mode,hi){const u=_rand(),c=(mode-lo)/(hi-lo);
   return u<c?lo+Math.sqrt(u*(hi-lo)*(mode-lo)):hi-Math.sqrt((1-u)*(hi-lo)*(hi-mode));}
 function pctl(sorted,q){const i=(sorted.length-1)*q/100,lo=Math.floor(i),hi=Math.ceil(i);
   return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo);}
+// One Monte-Carlo draw: a triangular sample of every input in `keys`. The lists (C.mc_inputs,
+// C.mc_timing_inputs) are injected from inputs.MC_* — the SAME sets the Python bands sample — so the
+// page's bands and the numbers quoted in RESULTS.md cannot sweep different uncertainties.
+function mcDraw(keys){const d={};for(const k of keys)d[k]=triang.apply(null,C.priors[k]);return d;}
+// cultivated's shareCalc options for one draw of C.mc_inputs, for meat type mt (tier t). Same options
+// as penetration()'s point estimate, including pRef = this cut's own price (the income log needs the
+// dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
+function mcShareOpts(dr,mt,t,s){return {ax:dr.accept_x,tfM:dr.theta_free_M,toff:tAuth(t,dr.premium_resistance),
+  eps:dr.eps_own*tMult(t,dr.premium_resistance),income:s.income,pricePb:s.R_p,aP:s.a_p,
+  nbx:dr.neophobia_x,nbp:s.neophobia_p,hx:dr.health_x,pRef:mt.p_conv};}
 function monteCarlo(s,N){
-  // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (sweeps cost +
-  // acceptance + elasticity + ρ + health_x) and plant-based (sweeps its a_p, ν_p, health_p; PB has
-  // no cultivated-style cost stack, its price is the R_p slider). Returns vol/val for cultivated
-  // and pvol/pval for plant-based.
+  // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (samples C.mc_inputs:
+  // cost, acceptance, elasticity, long-run novelty, health, premium resistance) and plant-based (also
+  // its own a_p, ν_p, health_p; PB has no cost stack, its price is the R_p slider). Returns vol/val
+  // for cultivated and pvol/pval for plant-based.
   const P=C.priors, market=MODEL.markets[s.region], bases=speciesBases(market);
   let Wval=0; market.forEach(mt=>Wval+=mt.p_conv*mt.w_vol);
   _seedRng(3);                      // reproducible penetration band (mirrors np seed=0)
   const vol=new Array(N), val=new Array(N), pvol=new Array(N), pval=new Array(N);
   for(let d=0;d<N;d++){
-    const mp=triang.apply(null,P.media_price), ef=triang.apply(null,P.efficiency),
-      oh=triang.apply(null,P.overhead), mk=triang.apply(null,P.markup_add),
-      ep=triang.apply(null,P.eps_own), tfMs=triang.apply(null,P.theta_free_M),
-      axs=triang.apply(null,P.accept_x), rpr=triang.apply(null,P.premium_resistance),
-      hxs=triang.apply(null,P.health_x);
+    const dr=mcDraw(C.mc_inputs);
     // plant-based draws (its own priors, equal footing)
     const aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
-    const b=mediaCost(mp,ef)+oh+(s.cleanroom?C.cleanroom_cost:0);
+    const b=mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     let tv=0,tval=0,tpv=0,tpval=0;
     for(const mt of market){
-      const {R,t}=typeR(mt,b,mk,s,bases);
-      const sh=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,hx:hxs});
-      // plant-based share of this type uses the SAME cost-driven R for cultivated's denom but PB's
-      // own positions; eps/ρ swept the same way (tier price-sensitivity applies to PB too).
-      const shp=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:aps,nbx:s.neophobia_x,nbp:nbps,hp:hps,which:"p"});
+      const {R,t}=typeR(mt,b,dr.markup_add,s,bases);
+      const o=mcShareOpts(dr,mt,t,s);
+      const sh=shareCalc(R,KP,o);
+      // plant-based share of this type, in the SAME sampled world (same cultivated draw), with PB's
+      // own sampled positions.
+      const shp=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
       tv+=mt.w_vol*sh; tval+=(mt.p_conv*mt.w_vol/Wval)*sh;
       tpv+=mt.w_vol*shp; tpval+=(mt.p_conv*mt.w_vol/Wval)*shp;
     }
@@ -3282,18 +3281,16 @@ function monteCarlo(s,N){
 function perTypeMC(s,N){
   const P=C.priors, market=MODEL.markets[s.region], bases=speciesBases(market);
   const acc={}, accP={}; market.forEach(mt=>{acc[mt.name]=new Array(N);accP[mt.name]=new Array(N);});
+  _seedRng(4);                      // reproducible per-type error bars
   for(let d=0;d<N;d++){
-    const mp=triang.apply(null,P.media_price), ef=triang.apply(null,P.efficiency),
-      oh=triang.apply(null,P.overhead), mk=triang.apply(null,P.markup_add),
-      ep=triang.apply(null,P.eps_own), tfMs=triang.apply(null,P.theta_free_M),
-      axs=triang.apply(null,P.accept_x), rpr=triang.apply(null,P.premium_resistance),
-      hxs=triang.apply(null,P.health_x),
+    const dr=mcDraw(C.mc_inputs),
       aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
-    const b=mediaCost(mp,ef)+oh+(s.cleanroom?C.cleanroom_cost:0);
+    const b=mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     for(const mt of market){
-      const {R,t}=typeR(mt,b,mk,s,bases);
-      acc[mt.name][d]=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,hx:hxs});
-      accP[mt.name][d]=shareCalc(R,KP,{ax:axs,tfM:tfMs,toff:tAuth(t,rpr),eps:ep*tMult(t,rpr),income:s.income,pricePb:s.R_p,aP:aps,nbx:s.neophobia_x,nbp:nbps,hp:hps,which:"p"});
+      const {R,t}=typeR(mt,b,dr.markup_add,s,bases);
+      const o=mcShareOpts(dr,mt,t,s);
+      acc[mt.name][d]=shareCalc(R,KP,o);
+      accP[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
     }
   }
   const out={};

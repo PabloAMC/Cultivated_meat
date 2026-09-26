@@ -159,8 +159,16 @@ js += `
   ];
   bdCases.forEach(c => { c.out = breakdownCalc(c.R, KP, "M", c.o); });
 
+  // MONTE CARLO (statistical parity): the page's penetration band must sample the SAME inputs as
+  // meat_market.monte_carlo. The two use different PRNGs, so compare medians within sampling noise.
+  // (They once sampled different sets — health_x vs neophobia_x — and disagreed by ~1.4 pp.)
+  const med = a => pctl(a.slice().sort((x, y) => x - y), 50);
+  const mcUS = monteCarlo(Object.assign({}, def, { region: "us", income: C.income_ref }), 3000);
+  const mcCheck = { region: "us", n: 3000, inputs: C.mc_inputs,
+                    vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
+
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases,
-                           timing: { R: Rx, share: tr.share } }));
+                           mcCheck, timing: { R: Rx, share: tr.share } }));
 })();
 `;
 
