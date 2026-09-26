@@ -521,10 +521,20 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
 
 def _rate(pr: DemandParams, seg: str, which: str) -> float:
     """One segment's share of `which` in {w,c,p,x} at neutral parity, cultivated
-    absent and at reference income — the moment the calibration solves target."""
-    s = _segment(1.0, pr, pr.beta_price, seg, accept_x=1.0, theta_free_M=0.0,
-                 tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
-                 health_x=0.0, health_p=0.0, cultivated_present=False)
+    absent and at reference income — the moment the calibration solves target.
+
+    Evaluated in the OBSERVED world, where plant-based is not real tissue (the calibration data
+    come from there), so the real_tissue_p dial is a what-if applied AFTER calibration rather than
+    a reason to re-fit the weights (at real_tissue_p=1 that re-fit is degenerate). Mirrors the
+    page's _rate (rtp:0)."""
+    rtp = pr.real_tissue_p
+    pr.real_tissue_p = value("real_tissue_p")
+    try:
+        s = _segment(1.0, pr, pr.beta_price, seg, accept_x=1.0, theta_free_M=0.0,
+                     tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
+                     health_x=0.0, health_p=0.0, cultivated_present=False)
+    finally:
+        pr.real_tissue_p = rtp
     return s[which]
 
 
@@ -642,8 +652,15 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     for _ in range(iters):
         pr.beta_ref = min(beta_cap, eps_x / (pr.anchor_price * (1.0 - s)) + lam_slope)
         solve_calibration(pr)                                         # recalibrate at this beta
-        s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0,    # cultivated's own neutral share
-                      neophobia_x=0.0, neophobia_p=0.0)               # anchor beta at neutral; neophobia is a post-hoc override
+        # cultivated's own neutral share, AS A REAL-MEAT product (the premise): beta is a property of
+        # shoppers' price sensitivity, so the real_tissue_x dial shifts the outcome, not beta. Mirrors
+        # the page's deriveBeta (rtx:1). Neophobia is likewise a post-hoc override.
+        rtx = pr.real_tissue_x
+        pr.real_tissue_x = 1.0
+        try:
+            s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, neophobia_p=0.0)
+        finally:
+            pr.real_tissue_x = rtx
         if abs(s_new - s) < tol:
             s = s_new
             break

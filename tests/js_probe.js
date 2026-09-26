@@ -159,6 +159,19 @@ js += `
   ];
   bdCases.forEach(c => { c.out = breakdownCalc(c.R, KP, "M", c.o); });
 
+  // PREMISE DIALS: "seen as real meat" (cultivated b_x, plant-based b_p) are what-ifs applied AFTER the
+  // calibration, which always runs in the observed world. Page and Python once disagreed here (Python
+  // re-derived beta with b_x and re-fitted the weights with b_p, a degenerate solve at b_p=1).
+  const premise = [];
+  for (const bx of [0, 0.5]) {
+    const K = effConsts(Object.assign({}, def, { real_tissue_x: bx }));
+    premise.push(["x", bx, shareCalc(1.0, K, { ax: 1, tfM: 0 }), K.beta_ref, K.w_realtissue_M]);
+  }
+  {
+    const K = effConsts(Object.assign({}, def, { real_tissue_p: 1 }));
+    premise.push(["p", 1, shareCalc(1.0, K, { present: false, which: "pb" }), K.beta_ref, K.w_realtissue_M]);
+  }
+
   // MONTE CARLO (statistical parity): the page's penetration band must sample the SAME inputs as
   // meat_market.monte_carlo. The two use different PRNGs, so compare medians within sampling noise.
   // (They once sampled different sets — health_x vs neophobia_x — and disagreed by ~1.4 pp.)
@@ -168,7 +181,7 @@ js += `
                     vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
 
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases,
-                           mcCheck, timing: { R: Rx, share: tr.share } }));
+                           mcCheck, premise, timing: { R: Rx, share: tr.share } }));
 })();
 `;
 

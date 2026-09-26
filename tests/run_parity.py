@@ -252,6 +252,20 @@ def check_parity() -> list:
             if d > TOL:
                 fails.append(f"bdCase[{i}] R={c['R']} [{k}]: python={pvv:.6f} js={jvv:.6f} diff={d:.2e}")
 
+    # PREMISE DIALS (b_x, b_p): what-ifs applied after a calibration run in the observed world.
+    from market_share import DemandParams as _DPp, share as _share
+    worst_p = 0.0
+    for kind, v, jsh, jbeta, jwrt in js.get("premise", []):
+        dpp = _DPp(real_tissue_x=v) if kind == "x" else _DPp(real_tissue_p=v)
+        psh = (_share(1.0, dpp, accept_x=1.0, theta_free_M=0.0) if kind == "x"
+               else _share(1.0, dpp, cultivated_present=False, which="pb"))
+        for lab, pv, jv in (("share", psh, jsh), ("beta", dpp.beta_ref, jbeta),
+                            ("w_realtissue_M", dpp.w_realtissue_M, jwrt)):
+            d = abs(pv - jv)
+            worst_p = max(worst_p, d)
+            if d > TOL:
+                fails.append(f"premise b_{kind}={v} [{lab}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
+
     # MONTE CARLO (statistical): the page's penetration band samples the same inputs as the Python
     # roll-up quoted in RESULTS.md. Different PRNGs, so medians must agree within sampling noise
     # (MC_TOL percentage points; the bug this guards against was a ~1.4 pp gap at the US median).
@@ -290,7 +304,7 @@ def check_parity() -> list:
           f"{len(py['headline'])} headline values, {n} timing years; grid max diff = {worst:.2e}, "
           f"health max diff = {worst_h:.2e}, foothold max diff = {worst_f:.2e}, "
           f"weight-override max diff = {worst_w:.2e}, authenticity max diff = {worst_a:.2e}, "
-          f"breakdown max diff = {worst_b:.2e} (tol {TOL:.0e}); {mc_msg}")
+          f"breakdown max diff = {worst_b:.2e}, premise-dial max diff = {worst_p:.2e} (tol {TOL:.0e}); {mc_msg}")
     return fails
 
 

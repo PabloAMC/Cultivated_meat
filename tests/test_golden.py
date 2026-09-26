@@ -97,7 +97,7 @@ GOLDEN = {
     "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
     "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
     "health_x_half_pct":   59.578,
-    "us_pen_vol_pct":      5.06441,    # cut/premium tier rescale fix (beta = beta_ref*eps_mult)
+    "us_pen_vol_pct":      5.04423,    # 2026-09-26: volume weights now normalised (US listed weights sum to 1.004)
     "us_pen_val_pct":      8.40933,    # premium no longer flat-clamped; responds to R correctly
 }
 

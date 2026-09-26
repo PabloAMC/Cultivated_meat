@@ -11,25 +11,29 @@ from the code: `python report_figures.py` for the figures, the per-module script
 
 ## Summary
 
-- **Cultivated meat would cost about 2.4× as much as everyday meat today.** Using Pasitka's measured medium
-  price and their mid-sized reactor design, a kilo of cells costs about $24 and sells for about $29, against
-  $12 for everyday meat. Across the plausible range of every cost input, the median is **R ≈ 2.1** (80% range
+- **Made at scale with today's technology, cultivated meat would cost about 2.4× as much as everyday meat.**
+  In Pasitka's projection for a large plant, built on their measured production data (mid-sized reactor design,
+  measured medium price), a kilo of cells costs about $24 and sells for about $29, against a $12 benchmark for
+  everyday meat. Current pilot production costs far more. Across the plausible range of every cost input, the median is **R ≈ 2.1** (80% range
   1.6–2.6), and no draws reach parity. The median is lower than 2.4 only because the cell-efficiency range
   allows improvement but not deterioration.
 - **Price parity needs costs at their physical floor.** The cells must eat a fixed amount of amino acids and
   glucose, and even an ideal plant has running costs: together about **$7.5/kg**. Parity with $12 meat and a
   $5 markup needs **$7/kg**. So the floor sits right at the parity line (R ≈ 1.04).
-- **At the same price, cultivated meat would win about 49% of the market, if shoppers accept it as real
-  meat.** Not credited as real meat, it gets about 9%. Whether it tastes as good (26% if it tastes a bit worse)
+- **At the same price, and once shoppers are used to it, cultivated meat would win about 49% of the market,
+  if they accept it as real meat.** Not credited as real meat, it gets about 10%. Whether it tastes as good (26% if it tastes a bit worse)
   and whether mainstream shoppers come to value “no slaughter” (up to 68%) are open questions that only
   shelf data can settle; the model leaves them as dials.
-- **At today's cost that adds up to little:** about **2.5% of meat eaten worldwide** (Monte Carlo median; 80%
-  range 0.7–7.8%), **7.7% in Europe**, where meat is dearest, and 4.1% in the US.
+- **At today's cost that adds up to little:** about **2.5% of the meat market worldwide by weight** (Monte
+  Carlo median; 80% range 0.6–7.7%), **7.5% in Europe**, where meat is dearest, and 4.1% in the US. Counted in
+  animals it would be lower still, because most land animals raised for meat are chickens, where cultivated
+  does worst.
 - **Its best chances are in beef and seafood.** Chicken and pork are cheap enough that cultivated stays more
   expensive even at the cost floor. Premium products (wagyu, sushi-grade fish) are already beatable on price,
   but authenticity holds cultivated to about a quarter of those small markets; beef and seafood cuts displace
   the most meat. Where cultivated can already win (foie gras, bluefin tuna), the markets are tiny.
-- **These are long-run ceilings.** From a near-zero start, adoption takes about 25 years to level off.
+- **These are long-run ceilings at today's cost.** From a near-zero start, a new product takes roughly two
+  decades to get close to its ceiling; falling costs would raise the ceiling along the way.
 
 **For funders:** the binding constraints are **reactor scale-up** and **medium cost at production scale**,
 both undemonstrated, plus independent at-scale facility-cost data. Another bench-scale medium win is not
@@ -66,13 +70,18 @@ product nobody can buy yet, so it is always shown as a band, never a single numb
 | ten 5 m³ vessels (the default) | $24 | 2.42 | Pasitka's mid design |
 | many small 0.5 m³ vessels | $38.8 | 3.65 | scale-up stalls: the downside |
 
+“Today's cost” throughout means this projection for a large plant built with today's demonstrated technology,
+not what pilot production costs now. The $12 is a round benchmark for everyday meat (range $10–14); the per-type
+and regional results use each meat's own local price.
+
 Medium costs about $14/kg at the measured $0.63 per litre (22.4 L per kilo of cells). Companies reported
 $0.20/L or less in 2025, and a GFI and MG Consulting analysis of amino-acid prices supports that level
 (GFI 2026), but there is no peer-reviewed measurement at production scale. Pasitka's continuous run was at
 1.8 L, with pilot hardware at 300 L; the cheap projections assume reactor volumes nobody has yet built for
 animal cells.
 
-**The floor** is about $7.5/kg: amino acids ($0.5), glucose ($1) and a minimal plant ($6). It assumes the
+**The floor** is about $7.5/kg: amino acids ($0.5, Humbird), glucose ($1, assumed) and a minimal plant ($6,
+from Pasitka's cost breakdown). It assumes the
 reducible costs (recombinant proteins, single-use parts, small-scale capital) are engineered away, but not
 Humbird's scale-up limits (oxygen and CO₂ transfer, sterility), which, if they bind, put the floor out of
 reach at any medium price.
@@ -110,8 +119,9 @@ demonstrated step.
 
 ## 3. What share a price buys
 
-**At equal price** (R = 1), with everything else neutral, mainstream shoppers see two near-identical real
-meats and split that market:
+**At equal price** (R = 1), once shoppers are familiar with it and with everything else neutral, mainstream
+shoppers see two near-identical real meats and split that market. Shares are of a four-way choice that includes
+skipping meat for beans:
 
 | if cultivated meat… | its share at equal price |
 |---|---|
@@ -120,14 +130,17 @@ meats and split that market:
 | tastes a little worse (taste 0.8) | ~26% |
 | tastes noticeably worse (taste 0.6) | ~12% |
 | is judged tastier (taste 1.1) | ~61% |
-| …and mainstream shoppers value “no slaughter” (0.5) | ~59% |
-| …and value it strongly (1.0) | ~68% |
-| …and value it very strongly (1.5, beyond the Monte Carlo range) | ~75% |
-| is not accepted as real meat at all | ~9% |
+| tastes as good, and mainstream shoppers value “no slaughter” a little (0.5) | ~59% |
+| tastes as good, and they value it strongly (1.0) | ~68% |
+| tastes as good, and they value it very strongly (1.5, beyond the Monte Carlo range) | ~75% |
+| tastes as good but is not accepted as real meat at all | ~10% |
+
+At first contact, before shoppers are familiar with it, the model gives about 6% at equal price, in line with the
+~5% in a US choice experiment (the starting wariness is set to match it).
 
 **At today's price** (R ≈ 2.4) the model gives about **9%** in the long run (US, everyday meat): price is the
-binding constraint. The share falls slowly just above parity and faster further out (elasticity about −0.8
-at parity, −1.7 at R = 1.5, −3.6 at R = 2.4).
+binding constraint. The share falls slowly just above parity and faster further out (once familiar, the
+elasticity is about −0.8 at parity, −1.7 at R = 1.5, −3.6 at R = 2.4).
 
 **Checks on the demand model:**
 
@@ -135,15 +148,18 @@ at parity, −1.7 at R = 1.5, −3.6 at R = 2.4).
   conventional meat and only 0.6 points from plant-based. The shared “real meat” attribute produces this
   without a nested logit.
 - **Plant-based milk, out of sample.** The same model, with only the product's facts changed to milk's (near
-  price and taste parity in coffee, no cheap alternative), predicts ~15%, milk's actual share. The model was
-  fitted to plant-based *meat*, not milk.
+  price and taste parity in coffee, no cheap alternative), predicts ~15%, close to milk's market share. The model
+  was fitted to plant-based *meat*, not milk, but milk's facts are set by hand and other products (margarine,
+  plant-based nuggets) fit less well, so this is a weak test.
 - **Ethical shoppers** choose cultivated at parity (~20%) but not at a premium (~9% at R = 1.6): the cheap
   whole-food option that keeps plant-based meat low also beats a pricey cultivated product for them.
 - **Price sensitivity is tied to data.** A US choice experiment that priced lab-grown meat at six levels
   (Van Loo, Caputo & Lusk 2020) puts its elasticity at parity between −0.84 and −3.4; the model's implied
-  value is −1.5. The −3.6 at today's price is an extrapolation along the model's curve: no experiment has
-  priced cultivated meat that far above parity. That closeness parameter (κ = 4, range 3–6) is the most
-  consequential demand assumption above parity.
+  value in that setting (equal price, first-contact wariness) is −1.5. The −3.6 at today's price is an
+  assumption (κ × ε): no experiment has priced cultivated meat that far above parity. That closeness parameter
+  (κ = 4, range 3–6) is the most consequential demand assumption above parity.
+- **One calibration target is assumed:** ~6% of mainstream meals skipping meat by choice has no clean source.
+  It barely moves the result (0.3 pp across 4–14%).
 
 **What moves the share most** at today's price (the share tornado): the cost levers (medium price, cell
 efficiency, meat price, plant cost), then the demand dials: long-run novelty, the value of “no slaughter”,
@@ -172,7 +188,7 @@ cheapest form. US, neutral dials; left at today's cost, right at the cost floor:
   pork (cuts)             12    8%   2.92     3.5%         1.54    22.3%
   seafood (fillet)        24    4%   1.46    20.1%         0.77    49.6%
   seafood (sushi)         40    2%   0.88    20.9%         0.46    34.0%   premium
-  TOTAL, US: today 5.1% by volume (8.4% by value); at the floor 27.4% (31.8%)
+  TOTAL, US: today 5.0% by volume (8.4% by value); at the floor 27.3% (31.8%)
 ```
 
 - **Beef and seafood are where cultivated can compete.** Chicken and pork stay above parity even at the
@@ -199,10 +215,10 @@ health image and premium resistance, **at each region's own meat prices and inco
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  7.7%  [2.5, 18.5]    P50 12.3%  [ 4.1, 27.7]  <- easiest (rich + priciest meat)
+  Europe    $62k        P50  7.5%  [2.4, 18.2]    P50 12.3%  [ 4.1, 27.7]  <- easiest (rich + priciest meat)
   US        $86k        P50  4.1%  [1.2, 11.8]    P50  6.5%  [ 2.0, 17.0]
-  Global    $24k        P50  2.5%  [0.7,  7.8]    P50  4.6%  [ 1.3, 13.1]
-  China     $27k        P50  2.1%  [0.6,  6.1]    P50  5.0%  [ 1.5, 12.9]
+  Global    $24k        P50  2.5%  [0.6,  7.7]    P50  4.6%  [ 1.3, 13.1]
+  China     $27k        P50  2.1%  [0.6,  6.0]    P50  5.0%  [ 1.5, 12.9]
   Brazil    $22k        P50  0.6%  [0.1,  2.4]    P50  1.0%  [ 0.2,  3.6]
   India     $11k        P50  0.1%  [0.0,  0.5]    P50  0.4%  [ 0.1,  1.3]
   Nigeria    $6k        P50  0.1%  [0.0,  0.3]    P50  0.1%  [ 0.0,  0.5]  <- hardest (cheap meat + price-sensitive)
@@ -215,8 +231,9 @@ data). Low-income regions combine cheap meat with high price sensitivity, so cul
 there at today's cost; their meat prices and mixes are rough. The bands are wide and skewed: the low end is
 the world where scale-up stalls or shoppers resist; the long tail is the one where scale-up succeeds and
 shoppers embrace it. The Monte Carlo medians are a little below the explorer's point estimates at the default
-settings (Global 2.9%, Europe 9.6%, US 5.1%), because the sampled ranges are not centred on the defaults (for
-example, taste can match conventional meat but not beat it).
+settings (Global 2.9%, Europe 9.5%, US 5.0%), because the sampled ranges are not centred on the defaults (for
+example, taste can match conventional meat but not beat it). Shares by volume are by weight of meat; a count of
+animals would be lower, since chickens dominate it.
 
 **Premium seafood is the one place parity is within reach today.** A structured product against sushi-grade
 salmon ($40/kg) has a median R of 0.85, and 83% of draws are at or below parity. But its biggest unknown is
@@ -228,13 +245,19 @@ the cost of structuring the product (no published cost study), and premium buyer
 
 The explorer's chart 7 looks at specific products, comparing cultivated's cost with the price of the
 product's *everyday* grade (farmed rather than wild salmon, crossbred rather than A5 wagyu), because the
-luxury premium is for pedigree that cultivated meat can't copy. A prestige core of buyers (25% by default)
-never switches. The pattern at the defaults:
+luxury premium is for pedigree that cultivated meat can't copy. A prestige core of buyers (25% by default, a
+proxy from the share of supply in the only two published grade splits) never switches. The pattern at the
+defaults:
 
 - **Already cheaper:** foie gras, bluefin tuna, sea urchin, wagyu, lobster. But these markets are tiny,
   thousands to hundreds of thousands of tonnes a year.
-- **Not yet reachable on price, where the volume is:** beef steak, pork loin, chicken breast, each tens of
-  millions of tonnes. A small share of these displaces far more meat than winning a luxury niche outright.
+- **Not reachable on price, where the volume is:** commodity beef, pork and chicken, each tens of millions of
+  tonnes (chart 7 uses whole-category volumes), stay out of reach even at the cost floor at world commodity
+  prices. A small share of these would displace far more meat than winning a luxury niche outright.
+
+Chart 7 gives luxury products much higher shares than chart 1: it removes the prestige core and treats the rest
+like ordinary cuts, where chart 1 applies one large authenticity penalty to the whole premium category. They are
+two ways of modelling the same resistance; chart 1 is the conservative one.
 
 That is the usual path of a new technology: start where buyers pay a premium, then move down-market as costs
 fall with experience. Foie gras stands out as a first product: unstructured (no scaffold), expensive, and
@@ -245,8 +268,10 @@ cost (no margin), so this is about reach and impact, not profitability.
 
 ## 7. Over time
 
-At today's price, cultivated meat starts near 0%, reaches about 1% after 10 years and about 8% after 30,
-close to its long-run ceiling of about 9% (US, everyday meat), levelling off around year 25. How wary
+At today's price and cost, held fixed, cultivated meat starts near 0%, reaches about 1% after 10 years and
+about 8% after 30, close to its long-run ceiling of about 9% (US, everyday meat), levelling off around year 25.
+Timing is rougher than the ceilings: it uses a Bass curve built for durable goods plus a separate familiarity
+fade, which may partly overlap. How wary
 shoppers are today is the widest demand uncertainty: surveys range from ~5% (a cold choice experiment) to
 ~60% (“cultivated chicken in a restaurant”) depending on framing. The model starts at the cold end and
 samples the whole range. `cost_paths_timing` shows penetration over 30 years for different cost-milestone
@@ -283,7 +308,7 @@ and a good fit for philanthropy.
 - **Downward:** if the scale-up limits (CO₂-limited vessel size, clean-room costs) prove binding, the floor is
   out of reach at any medium price, and R stays around 3 or more.
 - **Demand:** whether shoppers accept cultivated as real meat, and whether they come to value “no slaughter”,
-  can't be measured until it is on shelves. The honest position is to carry the full range (9% to 75% at
+  can't be measured until it is on shelves. The honest position is to carry the full range (10% to 75% at
   equal price) and let each reader set it.
 
 ---

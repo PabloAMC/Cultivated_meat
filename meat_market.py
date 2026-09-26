@@ -292,13 +292,16 @@ def _rollup(market, biomass, markup, res, share_of):
     callback's return may each be a scalar or an array; the arithmetic is the same either way."""
     bases = species_bases(market)                                   # per-species reference price
     Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
+    # volume-weight normaliser: the listed w_vol sum to 1.00-1.025 by region (premium variants were
+    # added without trimming the rest exactly), so normalise to make the total a true share.
+    Wvol = sum(mt.w_vol for mt in market)
     rows, tot_vol, tot_val = [], 0.0, 0.0
     for mt in market:
         base = bases[animal_of(mt)]
         R = (biomass * mt.cost_mult + mt.scaffold + markup) / mt.p_conv
         s = share_of(mt, R, base, res)
         rows.append((mt, R, s))
-        tot_vol = tot_vol + mt.w_vol * s
+        tot_vol = tot_vol + (mt.w_vol / Wvol) * s
         tot_val = tot_val + (mt.p_conv * mt.w_vol / Wval) * s
     return rows, tot_vol, tot_val
 

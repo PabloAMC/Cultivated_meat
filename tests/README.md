@@ -12,6 +12,12 @@ accidental change to a formula, default, or the calibration solve is caught with
 new value shown. If a change is intentional, update `GOLDEN` in `test_golden.py` in the same
 commit so the output move is explicit in the diff.
 
+It also guards the **prose**: every model number quoted in the explorer's text and tooltips is a
+`{{TOKEN}}` computed at build time (`build_interactive.illustrative_numbers()` for shares,
+`derived_numbers()` for ratios, $/kg, years and coefficients), and the test checks that every token is
+computed, used, and present in the built page. The Monte Carlo figures quoted in RESULTS.md and METHODS.md
+are recomputed at their documented seed and N and checked against the text.
+
 ```bash
 python tests/test_golden.py     # -> "PASS — all headline model outputs match their golden values."
 ```
@@ -32,6 +38,11 @@ grid that spans price, both acceptance dials, elasticity, income, the calibratio
 plant-based-milk cross-check, the foothold rung's per-product price ratio (the cost→R machinery
 where a scaffold-cost mismatch once slipped through), and the timing rung (~2,000 grid points +
 headline values + the per-product foothold ratios + the full trajectory).
+
+It also runs the page's **Monte Carlo** band (US, N=3000) and compares its medians with
+`meat_market.monte_carlo` within 0.4 percentage points. The two use different random generators, so this
+is a statistical check; it also asserts both sample the same inputs (the lists in `inputs.py`,
+`MC_*_INPUTS`). The bands once sampled different sets and priced cuts differently, a ~1.4 pp gap.
 
 ### Run it
 

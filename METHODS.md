@@ -73,9 +73,9 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    norms), and `neophobia_x0` (set to reproduce the ~5% cold share in Van Loo, Caputo & Lusk 2020).
 2. **Derived** (computed, never typed): the price coefficient β (solved at cultivated's own price and share),
    the parity threshold (`p_conv − markup_add`), the cost floor, and the cost-path R endpoints.
-3. **Solved to a published fact:** `w_realtissue_M`, `w_health_M`, `w_health_E` (the 89% mainstream buyer
-   split, the 1.2% plant-based share, the ~6% mainstream meatless rate). One equation per unknown: calibration,
-   not fitting.
+3. **Solved to a target:** `w_realtissue_M`, `w_health_M`, `w_health_E`, to the 89% mainstream buyer split and
+   the 1.2% plant-based share (published) and a ~6% mainstream meatless rate (assumed; no clean source, 0.3 pp of
+   leverage). One equation per unknown: calibration, not fitting.
 4. **Judgement, shown as a range:** `cult_sub_mult` (κ; bracketed by Lusk 2020), the acceptance dials
    `accept_x`/`theta_free_M`, long-run novelty `neophobia_x`, health image `health_x`, the tier ladder (scaled
    by `premium_resistance`), `markup_add` (bounded by the USDA farm-to-retail spread), the scaffold cost, and
@@ -204,10 +204,20 @@ fixed point, `market_share._derive_beta`):
 ```
 
 κ sets the level of price sensitivity; λ only shapes it around parity. At today's price the realised
-elasticity is −3.6; along the curve it is about −0.8 at parity and −1.7 at R = 1.5. **Evidence for κ:** Van
-Loo, Caputo & Lusk (2020) priced lab-grown meat at six levels; their models put the at-parity elasticity
-between −0.84 and −3.4, and the model's implied value at κ = 4 is −1.5 (golden-guarded). No experiment has
-priced cultivated meat at 2.4 times conventional, so the −3.6 there is an extrapolation.
+elasticity is −3.6; once shoppers are familiar, it is about −0.8 at parity and −1.7 at R = 1.5. **Evidence for
+κ:** Van Loo, Caputo & Lusk (2020) priced lab-grown meat at six levels; their models put the at-parity
+elasticity between −0.84 and −3.4, and the model's implied value in that setting (equal price, first-contact
+wariness) at κ = 4 is −1.5 (golden-guarded). No experiment has priced cultivated meat at 2.4 times
+conventional, so the −3.6 there is an assumption (κ × ε), checked only against the data at parity.
+
+The anchor price `p_x` is cultivated's price at the *default* costs, computed by the cost model: change the
+defaults in `inputs.py` and it moves, but the page's cost sliders don't re-anchor it.
+
+**The “seen as real meat” dials are what-ifs applied after calibration.** β is derived with cultivated counted
+as real meat (`real_tissue_x = 1`, the premise), so moving `real_tissue_x` shifts the outcome, not the price
+coefficient. The calibration always runs in the observed world, where plant-based is not real tissue, so
+`real_tissue_p` is a counterfactual on top of it (re-fitting the weights at `real_tissue_p = 1` is degenerate).
+Python and the page once differed on both; the parity test now checks them.
 
 **Income (BLP).** `α·ln(y_eff − p)`: the same premium is a bigger bite of a smaller income. Raw BLP
 (`y_eff = y`) makes poor shoppers about six times as price-sensitive as rich ones, too steep for food, so
@@ -236,10 +246,10 @@ form (real-tissue preference plus habit): habit can't be separated from preferen
 |---|---|
 | [1] plant-based share, cultivated absent | 1.20% (target 1.2%); whole food 10.5% |
 | [1b] plant-based buyers, mainstream / ethical | 89% / 11% (target 89%); mainstream meatless 6% |
-| [2] cultivated at parity across the dials | taste 0.6 → 11.6%, 0.8 → 26.2%, 1.0 → 48.8%, 1.1 → 60.8%; “no slaughter” 0.5 → 59.4%, 1.0 → 68.5%, 1.5 → 75.5% |
+| [2] cultivated at parity across the dials | taste 0.6 → 11.6%, 0.8 → 26.2%, 1.0 → 48.8%, 1.1 → 60.8%; “no slaughter” 0.5 → 59.4%, 1.0 → 68.5%, 1.5 → 75.5%; not seen as real meat → 10.2% |
 | [3] where cultivated's share comes from (parity) | conventional −44.4 pp, plant-based −0.56 pp, whole food −3.8 pp |
 | [3b] ethical segment's cultivated rate | 20% at parity, 9% at R = 1.6 |
-| [4] plant-based milk, out of sample | 15% (observed ~15%) |
+| [4] plant-based milk, out of sample | 15% (observed ~15%; milk's positions are set by hand, so a weak test) |
 | [4b] implied at-parity elasticity (κ = 4) | −1.54, inside Lusk's [−3.4, −0.84] |
 | [5] plant-based at full price and taste parity | 10% (a prediction, not fitted) |
 | [6] share at today's price, each judgement swept and re-solved | κ 3–6: 3.4% → 13.7%; everything else moves it by 0.5 pp or less |
@@ -258,8 +268,12 @@ utility, both scaled by `premium_resistance` (ρ):
 tier = basic (unstructured) | cut (structured, < 2.5× the species' cheapest form) | premium (≥ 2.5×)
 τ_tier   = ρ · (+0.2 | −0.4 | −1.5)                      # authenticity offset (utils)
 ε_tier   = (1 + ρ·(ψ_tier − 1)) · ε,  ψ = (1 | 0.8 | 0.3)   # pricier tiers are less price-sensitive
-share_vol = Σ ω_i s_i;   share_val = Σ (p_i ω_i / Σ p_k ω_k) s_i
+share_vol = Σ (ω_i / Σ ω_k) s_i;   share_val = Σ (p_i ω_i / Σ p_k ω_k) s_i
 ```
+
+The listed volume weights sum to 1.00–1.025 by region (premium variants were added without trimming the rest
+exactly), so both totals are normalised. Volume is weight of meat, not animals: a count of animals is dominated
+by chickens, where cultivated does worst, and would be lower.
 
 The tier values are judgement (no per-product authenticity data exist), so ρ scales the whole ladder and the
 Monte Carlo samples it (0.5–1.5). What they produce (RESULTS §4): at today's cost, premium products have the
@@ -297,7 +311,9 @@ parity-tested against the page. The equations and limits are in the page's appen
 share(t) = F(t) × ceiling(ν(t)),      ν(t) = ν_x + (ν_x0 − ν_x)·exp(−r·E(t))
 ```
 
-`F(t)` is Bass diffusion (`p_innov` = 0.02, `q_imit` = 0.40): the product reaching shelves. Novelty ν fades
+`F(t)` is Bass diffusion (`p_innov` = 0.02, `q_imit` = 0.40): the fraction of the market the product has
+reached. The standard Bass rates come from durable goods, and the familiarity fade below may partly overlap
+with the word-of-mouth term, so timing is rougher than the ceilings. Novelty ν fades
 from the cold start `neophobia_x0` = −2.8 (about 6% at parity, close to the ~5% in Van Loo, Caputo & Lusk
 2020) toward the long-run `neophobia_x` (0 by default) as cumulative availability `E(t)` grows, at rate
 `accept_rate` (mere exposure). The ceiling is the Step 2 share at the current novelty. Fading novelty cures
@@ -349,8 +365,8 @@ image. Figures: `sensitivity_tornado_R`, `sensitivity_tornado_share`.
 - **Cost (dominates):** does cost reach parity? Most likely not for the basic product (R median ≈ 2.1). The
   two unsettled levers are medium cost at scale (the top driver, two-sided) and reactor scale-up (least
   demonstrated, largest downside).
-- **Demand at parity:** taste, acceptance as real meat and the value of “no slaughter” span ~9% (not accepted as
-  real meat) to ~75% (strongly valued) at equal price. The model takes no stance.
+- **Demand at parity:** taste, acceptance as real meat and the value of “no slaughter” span ~10% (not accepted
+  as real meat) to ~75% (strongly valued) at equal price. The model takes no stance.
 
 ## Running it
 
