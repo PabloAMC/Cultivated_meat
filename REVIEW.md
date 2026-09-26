@@ -1,5 +1,9 @@
 # Tough-but-fair review of the interactive cultivated-meat model
 
+> **Historical.** A review of the explorer as of 2026-06-11, and the fixes made then. The explorer's text
+> was restructured on 2026-09-26 (findings first, a plain-language method, a technical appendix; see the git
+> log), so line references and several findings below no longer apply.
+
 Scope: `build_interactive.py` (the generator) and `interactive.html` (its output, with the
 embedded JS engine and the methodology write-up). I read the in-page methodology cold first —
 before any code — to judge whether the model *as explained* is intuitive, then read the JS

@@ -55,7 +55,7 @@ from uncertainty import (
 
 # demand-side inputs affect SHARE (through nothing on the cost side) — they do not
 # move R. Everything else in the active prior set is a cost input that moves R.
-DEMAND_INPUTS = ("eps_own", "theta_free_M", "accept_x", "neophobia_x")
+from inputs import MC_DEMAND_INPUTS as DEMAND_INPUTS   # the same demand set every MC band samples
 
 # human-readable axis labels (the raw keys are code names; readers see these)
 LABELS = {
@@ -68,6 +68,7 @@ LABELS = {
     "accept_x":      "cultivated taste-acceptance",
     "eps_own":       "price elasticity",
     "neophobia_x":   "long-run novelty attitude",
+    "health_x":      "cultivated health perception",
     "process_cost":  "scaffold process cost",
     "material_price": "scaffold material price",
     "scaffold_frac": "scaffold fraction",
@@ -97,7 +98,7 @@ def _share_at(target: str, overrides: dict) -> float:
     R = _R_at(target, overrides)
     return float(share(R, DemandParams(), theta_free_M=m["theta_free_M"],
                        accept_x=m["accept_x"], eps_own=m["eps_own"],
-                       neophobia_x=m["neophobia_x"]))
+                       neophobia_x=m["neophobia_x"], health_x=m["health_x"]))
 
 
 # ----------------------------------------------------------------------------

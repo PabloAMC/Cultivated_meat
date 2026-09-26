@@ -97,7 +97,7 @@ GOLDEN = {
     "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
     "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
     "health_x_half_pct":   59.578,
-    "us_pen_vol_pct":      5.06441,    # cut/premium tier rescale fix (beta = beta_ref*eps_mult)
+    "us_pen_vol_pct":      5.04423,    # 2026-09-26: volume weights now normalised (US listed weights sum to 1.004)
     "us_pen_val_pct":      8.40933,    # premium no longer flat-clamped; responds to R correctly
 }
 
@@ -143,25 +143,21 @@ def check_illustrative_numbers_in_html() -> list:
     import re
     import build_interactive as bi
     fails = []
-    nums = bi.illustrative_numbers()                     # {"{{TOKEN}}": "NN"}
+    nums = bi.illustrative_numbers()                     # {"{{TOKEN}}": "NN"}  (%-shares)
+    dnums = bi.derived_numbers()                         # {"{{TOKEN}}": "2.4"} (ratios, $/kg, years...)
     # The pre-substitution template is exactly what main() assembles: page markup + JS engine +
     # the MODEL_JSON blob (the slider TOOLTIPS — where several illustrative numbers live — are in
     # build_model()'s output, not in PAGE_HTML/JS_ENGINE). Reconstruct it the same way so the
     # token scan sees every placeholder, wherever it lives.
     template = (bi.PAGE_HTML + bi.JS_ENGINE).replace("__MODEL_JSON__", json.dumps(bi.build_model()))
     used = set(re.findall(r"\{\{[A-Z0-9_]+\}\}", template))
-    have = set(nums.keys())
-    # {{KAPPA4_LUSK_ELAS}} is the one model-computed token that is NOT a %-share, so it lives
-    # outside illustrative_numbers() (which is %-share-only) and is substituted directly in main()
-    # from market_share.lusk_at_parity_elasticity. It is still drift-proof (computed from the live
-    # model, golden-guarded as lusk_elas_parity_cold), so exempt it from the share-token bookkeeping.
-    used.discard("{{KAPPA4_LUSK_ELAS}}")
+    have = set(nums.keys()) | set(dnums.keys())
     # (1) tokens used in the template but not computed
     for t in sorted(used - have):
-        fails.append(f"template uses {t} but illustrative_numbers() computes no value for it")
+        fails.append(f"template uses {t} but build_interactive computes no value for it")
     # (2) computed numbers never used (dead — a sign a placeholder was hand-edited away)
     for t in sorted(have - used):
-        fails.append(f"illustrative_numbers() computes {t} but no {{...}} in the template uses it "
+        fails.append(f"build_interactive computes {t} but no {{...}} in the template uses it "
                      f"(was it replaced by a hand-typed number?)")
     # (3) the generated page is clean and carries the values
     html_path = os.path.join(MODEL_DIR, "interactive.html")
@@ -175,7 +171,10 @@ def check_illustrative_numbers_in_html() -> list:
         for token, val in nums.items():
             if f"{val}%" not in html:
                 fails.append(f"{token}={val}% computed but not present in interactive.html")
-    print(f"illustrative-number drift check: {len(nums)} model-computed values, "
+        for token, val in dnums.items():
+            if val not in html:
+                fails.append(f"{token}={val} computed but not present in interactive.html")
+    print(f"illustrative-number drift check: {len(nums) + len(dnums)} model-computed values, "
           f"{len(used)} placeholders in template, "
           f"{'all consistent' if not fails else f'{len(fails)} problem(s)'}")
     return fails
@@ -303,7 +302,7 @@ def test_blp_linearisation():
 
 
 def _mc_prose_values() -> dict:
-    """Recompute the Monte-Carlo headline numbers the PROSE essays (RESULTS/POST/METHODS) quote,
+    """Recompute the Monte-Carlo headline numbers the PROSE docs (RESULTS/METHODS) quote,
     at the SAME (deterministic) seed and N the docs state — so they are reproducible to the last
     digit. Slow (~75s: the regional roll-up runs a per-draw loop over 7 regions at N=30,000), so it
     is in the full suite, not the quick path."""
@@ -331,12 +330,12 @@ def _mc_prose_values() -> dict:
 # which regions each prose doc actually tabulates (POST shows only four; RESULTS shows all seven)
 _REGION_LABEL = {"eu": "Europe", "us": "US", "global": "Global", "china": "China",
                  "brazil": "Brazil", "india": "India", "nigeria": "Nigeria"}
-_DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL), "POST.md": ["eu", "us", "global", "china"]}
+_DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL)}   # (POST.md was merged into RESULTS.md)
 
 
 def check_markdown_prose_numbers() -> list:
     """ROOT-CAUSE GUARD for the prose-drift class that this audit found: the three MARKDOWN essays
-    (RESULTS.md, POST.md, METHODS.md) hand-type headline Monte-Carlo numbers that NO test re-derived,
+    (RESULTS.md, METHODS.md; formerly also POST.md) hand-type headline Monte-Carlo numbers that NO test re-derived,
     so a prior change (the two-sided media_price) silently invalidated every one of them — and even
     inverted a conclusion. interactive.html is already drift-proof (tokens + the checks above); this
     extends the same discipline to the markdown.
@@ -348,15 +347,15 @@ def check_markdown_prose_numbers() -> list:
     only cause a false PASS, never a false FAIL, so it is a safe tripwire.)"""
     vals = _mc_prose_values()
     docs = {}
-    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+    for name in ("RESULTS.md", "METHODS.md"):
         p = os.path.join(MODEL_DIR, name)
         docs[name] = open(p, encoding="utf-8").read() if os.path.exists(p) else None
 
     fails = []
     rP = f"{vals['commodity_R_p50']:.2f}"                  # e.g. "2.09"
     sP = f"{vals['commodity_share_p50']:.1f}%"             # e.g. "7.3%"
-    # commodity R P50 is quoted in all three; share P50 in RESULTS + METHODS (POST's block shows R only)
-    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+    # commodity R P50 and share P50 are quoted in both RESULTS and METHODS
+    for name in ("RESULTS.md", "METHODS.md"):
         if docs[name] is None:
             fails.append(f"{name} missing")
         elif rP not in docs[name]:
@@ -385,7 +384,7 @@ def check_markdown_prose_numbers() -> list:
                 fails.append(f"{name}: {label} VALUE P50 should be {valP} but its row is stale: '{row.strip()}'")
 
     print(f"markdown-prose drift check: commodity R/share + {sum(len(r) for r in _DOC_REGIONS.values())} "
-          f"region-rows across RESULTS/POST/METHODS, "
+          f"region-rows across RESULTS/METHODS, "
           f"{'all in sync' if not fails else f'{len(fails)} stale'}")
     return fails
 
@@ -396,7 +395,7 @@ def test_markdown_prose_numbers():
     assert not fails, (
         "Markdown-prose drift FAILED (an essay's headline number no longer matches the model):\n  "
         + "\n  ".join(fails)
-        + "\n\nRe-run the model and update RESULTS.md / POST.md / METHODS.md in the same commit.")
+        + "\n\nRe-run the model and update RESULTS.md / METHODS.md in the same commit.")
 
 
 def test_golden_values():

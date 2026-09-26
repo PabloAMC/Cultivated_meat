@@ -66,7 +66,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior
+from inputs import value, prior, MC_TIMING_INPUTS
 from cost_model import CostParams, biomass_cost, cost_floor, ratio as cost_ratio
 from market_share import DemandParams, share
 
@@ -223,13 +223,10 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
       - accept_rate   (how fast novelty fades)
       - p_innov, q_imit (Bass rollout speed)
       - accept_x, theta_free_M (long-run sensory / cleaner-meat acceptance)
+      - health_x (cultivated health perception)
+    i.e. inputs.MC_TIMING_INPUTS — the same list the page's timing band samples.
     `R` is held fixed (the price ratio); use the cost rung to pick it.
-    Returns dict(t, share_p10/p50/p90 [%], tstab [array of years], final [array %]).
-
-    NOTE: the interactive explorer's JS timing band (build_interactive.py `trajectoryMC`)
-    deliberately sweeps a WIDER prior set than this reference MC — it also draws the health
-    offsets (health_x / health_p) to put both novel meats on equal footing — so the on-page
-    band is intentionally a touch wider than the static figure this produces. By design, not drift."""
+    Returns dict(t, share_p10/p50/p90 [%], tstab [array of years], final [array %])."""
     rng = np.random.default_rng(seed)
     yrs = int(value("years")) if years is None else years
 
@@ -237,14 +234,14 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
         kind, lo, hi, mode, _ = prior(k)
         return rng.triangular(lo, mode, hi, n)
 
-    s = {k: draw(k) for k in ("neophobia_x0", "neophobia_x", "accept_rate",
-                              "p_innov", "q_imit", "accept_x", "theta_free_M")}
+    s = {k: draw(k) for k in MC_TIMING_INPUTS}
     base = DemandParams()                       # calibrate ONCE (neophobia_x is an additive
     #   constant that does NOT enter the calibration moments, so we override it per draw via
     #   dataclasses.replace — which preserves the solved beta_ref, no costly re-solve).
     paths = np.zeros((n, yrs + 1))
     for i in range(n):
-        dp_i = replace(base, neophobia_x=float(s["neophobia_x"][i]))
+        dp_i = replace(base, neophobia_x=float(s["neophobia_x"][i]),
+                       health_x=float(s["health_x"][i]))   # neither enters the calibration
         tp_i = TimingParams(neophobia_x0=float(s["neophobia_x0"][i]),
                             accept_rate=float(s["accept_rate"][i]),
                             p_innov=float(s["p_innov"][i]), q_imit=float(s["q_imit"][i]),

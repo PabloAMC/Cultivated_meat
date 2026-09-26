@@ -22,15 +22,16 @@ Authenticity and price-sensitivity are tier-dependent (see AUTH_* / EPS_MULT_*):
     (bought for the authentic experience; weak welfare pull on indulgence; buyers
     price-INsensitive). Authenticity offset -; low elasticity.
 So there is NO easy entry point: cultivated is cheapest exactly where demand
-resists (luxury) and demand-friendly exactly where it is dear (basics). The
-sweet spot is the MID-CUTS (salmon fillet, beef steak). This subsumes the old
-Rung 6 (premium = the high-price structured end, carrying scaffold cost), and
-corrects its naive "premium first" reading.
+resists (luxury) and demand-friendly exactly where it is dear (basics). At today's
+cost the premium tier still has the highest WITHIN-category share (it is already
+price-cheap), but it is a small market, so beef and seafood CUTS displace the most
+volume; near the cost floor the cuts (and ground beef) overtake premium outright.
+Chicken and pork stay above parity even at the floor.
 
 Total cultivated penetration of meat = a weighted roll-up over the types. We
 report BOTH weightings:
   * BY VOLUME (mass) -> "what fraction of meat is displaced" (animal/climate impact).
-    Dragged DOWN by cheap-and-large chicken (~40% of volume, unreachable).
+    Dragged DOWN by cheap-and-large chicken (~40% of US volume, above parity even at the floor).
   * BY VALUE ($)     -> "what fraction of the meat market is captured" (commercial).
     Beef and premium count more.
 
@@ -89,10 +90,10 @@ class MeatType:
 # Calibrated for the WTP curve (market_share): premium must stay DEMAND-CAPPED even
 # at a deep price discount (R<<1), so its authenticity offset is strongly negative AND it is
 # very price-INelastic (a low EPS_MULT -> a flat WTP curve that the low R barely
-# lifts). This reproduces the key insight that the sweet spot is the MID-CUTS, not
-# ultra-premium: cultivated is cheapest exactly where authentic-experience demand
-# resists most. (The old nested logit produced this cap structurally; here it is the
-# two premium dials.)
+# lifts). So cultivated is cheapest exactly where authentic-experience demand resists
+# most: premium is held to roughly a quarter of its (small) category, and near the cost
+# floor the mid-cuts overtake it. (The old nested logit produced this cap structurally;
+# here it is the two premium dials.)
 # The tier ladder (AUTH_* authenticity offsets in utils, EPS_MULT_* elasticity multipliers)
 # and PREMIUM_RATIO, SCAF live in inputs.py (the datasheet) — imported below so the numbers
 # exist in exactly one place. AUTH_BASIC=+0.2, AUTH_CUT=-0.4, AUTH_PREMIUM=-1.5;
@@ -100,7 +101,8 @@ class MeatType:
 # price ratio: a structured product priced >= PREMIUM_RATIO x its own species' everyday
 # (cheapest) form is "premium", so every species can have one (wagyu beef, sushi seafood, ...).
 from inputs import (SCAF, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
-                    EPS_MULT_CUT, EPS_MULT_PREMIUM)
+                    EPS_MULT_CUT, EPS_MULT_PREMIUM,
+                    MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS)
 
 
 def species_bases(market) -> dict:
@@ -290,13 +292,16 @@ def _rollup(market, biomass, markup, res, share_of):
     callback's return may each be a scalar or an array; the arithmetic is the same either way."""
     bases = species_bases(market)                                   # per-species reference price
     Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
+    # volume-weight normaliser: the listed w_vol sum to 1.00-1.025 by region (premium variants were
+    # added without trimming the rest exactly), so normalise to make the total a true share.
+    Wvol = sum(mt.w_vol for mt in market)
     rows, tot_vol, tot_val = [], 0.0, 0.0
     for mt in market:
         base = bases[animal_of(mt)]
         R = (biomass * mt.cost_mult + mt.scaffold + markup) / mt.p_conv
         s = share_of(mt, R, base, res)
         rows.append((mt, R, s))
-        tot_vol = tot_vol + mt.w_vol * s
+        tot_vol = tot_vol + (mt.w_vol / Wvol) * s
         tot_val = tot_val + (mt.p_conv * mt.w_vol / Wval) * s
     return rows, tot_vol, tot_val
 
@@ -345,11 +350,10 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
-    biomass cost, retail markup, the acceptance dials, and price elasticity."""
+    biomass cost, retail markup, the acceptance dials, price elasticity, premium
+    resistance. The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
-    s = {k: _draw(k, rng, n) for k in
-         ("media_price", "efficiency", "overhead", "markup_add", "eps_own",
-          "theta_free_M", "accept_x", "premium_resistance", "neophobia_x")}
+    s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
     cp = CostParams()
     biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
 
@@ -364,7 +368,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
                                eps_own=eps[i], income=income, p_ref=mt.p_conv,
-                               neophobia_x=s["neophobia_x"][i]) for i in range(n)])
+                               neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
+                         for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)
     return dict(vol=tot_vol * 100, val=tot_val * 100)
