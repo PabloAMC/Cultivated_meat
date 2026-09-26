@@ -276,7 +276,7 @@ exactly), so both totals are normalised. Volume is weight of meat, not animals: 
 by chickens, where cultivated does worst, and would be lower.
 
 The tier values are judgement (no per-product authenticity data exist), so ρ scales the whole ladder and the
-Monte Carlo samples it (0.5–1.5). What they produce (RESULTS §4): at today's cost, premium products have the
+Monte Carlo samples it (0.5–1.5). What they produce (RESULTS §3): at today's cost, premium products have the
 highest share of their category (cultivated is already cheaper there) but authenticity caps them near a
 quarter; beef and seafood cuts displace the most volume; at the cost floor, cuts and ground beef overtake
 premium; chicken and pork stay above parity even at the floor. Regional markets use local prices, consumption
