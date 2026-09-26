@@ -302,7 +302,7 @@ def test_blp_linearisation():
 
 
 def _mc_prose_values() -> dict:
-    """Recompute the Monte-Carlo headline numbers the PROSE essays (RESULTS/POST/METHODS) quote,
+    """Recompute the Monte-Carlo headline numbers the PROSE docs (RESULTS/METHODS) quote,
     at the SAME (deterministic) seed and N the docs state — so they are reproducible to the last
     digit. Slow (~75s: the regional roll-up runs a per-draw loop over 7 regions at N=30,000), so it
     is in the full suite, not the quick path."""

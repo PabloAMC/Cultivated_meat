@@ -117,7 +117,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
-`build_interactive.py` (the page), `publish_site.py` (publishing).
+`build_interactive.py` (the page).
 
 ---
 

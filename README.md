@@ -60,14 +60,14 @@ it is always a band.
 ```bash
 # from the model/ directory
 python -m venv .venv && source .venv/bin/activate   # optional
-pip install -r requirements.txt                     # numpy, matplotlib, markdown
+pip install -r requirements.txt                     # numpy, matplotlib
 
 python inputs.py            # the datasheet: every number, its source and its Monte Carlo range
 python report_figures.py    # regenerate the curated figures into figures/
 python market_share.py      # the demand model's calibration and self-checks
 ```
 
-Runtime dependencies are **numpy** and **matplotlib** (plus `markdown` for `publish_site.py`). The
+Runtime dependencies are **numpy** and **matplotlib**. The
 Python↔JS parity test also needs **Node.js 18+**; it skips cleanly if Node is missing. Most scripts take
 `--no-latex` (figures use real LaTeX when a TeX engine is present, otherwise a clean fallback):
 
@@ -86,15 +86,15 @@ python sensitivity.py --no-latex
 | the curated figures (`figures/*.png`) | `python report_figures.py` |
 | the interactive explorer (`interactive.html`) | `python build_interactive.py` |
 | the full test suite (rebuilds the page first) | `./run_tests.sh` |
-| a copy of the explorer on the personal site | `python publish_site.py [--push]` (still writes to the site's old `static/` folder, which the redesigned site no longer deploys) |
 
 > **`build_interactive.py` is generative.** It reads constants and slider ranges from `inputs.py` and
 > `meat_market.py`, ports the model functions into the JavaScript embedded in `interactive.html`, and fills
 > every number in the page's text from the model at build time. **Never hand-edit `interactive.html`**: it is
 > overwritten on every build. Edit the Python, then rebuild.
 
-The explorer is served from this repository's GitHub Pages (`pabloamc.github.io/Cultivated_meat/`), so
-pushing a rebuilt `interactive.html` to `main` updates the live page.
+The explorer is served from this repository's GitHub Pages (`pabloamc.github.io/Cultivated_meat/`), which is
+also where the personal site and the EA Forum post link, so pushing a rebuilt `interactive.html` to `main`
+updates the live page.
 
 ---
 
@@ -156,7 +156,6 @@ model/
 ├── common.py            ← shared plotting helpers (no model logic)
 ├── report_figures.py    ← builds the curated figure set
 ├── build_interactive.py ← generates interactive.html (model → JS/SVG explorer + text)
-├── publish_site.py      ← copies the explorer to the personal site
 ├── run_tests.sh         ← rebuild + run the tests
 ├── tests/               ← golden-value and Python↔JS parity tests
 ├── figures/             ← curated PNGs (diagnostics/ holds the rest)

@@ -2,7 +2,6 @@
 # Pins are lower bounds (>=) at versions known to work; the model uses only stable APIs.
 numpy>=1.24
 matplotlib>=3.7
-markdown>=3.4        # publish_site.py only (renders METHODS.md / RESULTS.md)
 
 # --- optional, for development ---
 # pytest>=7.0         # to run tests/run_parity.py under pytest (it also runs as a plain script)
