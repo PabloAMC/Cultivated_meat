@@ -22,15 +22,16 @@ Authenticity and price-sensitivity are tier-dependent (see AUTH_* / EPS_MULT_*):
     (bought for the authentic experience; weak welfare pull on indulgence; buyers
     price-INsensitive). Authenticity offset -; low elasticity.
 So there is NO easy entry point: cultivated is cheapest exactly where demand
-resists (luxury) and demand-friendly exactly where it is dear (basics). The
-sweet spot is the MID-CUTS (salmon fillet, beef steak). This subsumes the old
-Rung 6 (premium = the high-price structured end, carrying scaffold cost), and
-corrects its naive "premium first" reading.
+resists (luxury) and demand-friendly exactly where it is dear (basics). At today's
+cost the premium tier still has the highest WITHIN-category share (it is already
+price-cheap), but it is a small market, so beef and seafood CUTS displace the most
+volume; near the cost floor the cuts (and ground beef) overtake premium outright.
+Chicken and pork stay above parity even at the floor.
 
 Total cultivated penetration of meat = a weighted roll-up over the types. We
 report BOTH weightings:
   * BY VOLUME (mass) -> "what fraction of meat is displaced" (animal/climate impact).
-    Dragged DOWN by cheap-and-large chicken (~40% of volume, unreachable).
+    Dragged DOWN by cheap-and-large chicken (~40% of US volume, above parity even at the floor).
   * BY VALUE ($)     -> "what fraction of the meat market is captured" (commercial).
     Beef and premium count more.
 
@@ -89,10 +90,10 @@ class MeatType:
 # Calibrated for the WTP curve (market_share): premium must stay DEMAND-CAPPED even
 # at a deep price discount (R<<1), so its authenticity offset is strongly negative AND it is
 # very price-INelastic (a low EPS_MULT -> a flat WTP curve that the low R barely
-# lifts). This reproduces the key insight that the sweet spot is the MID-CUTS, not
-# ultra-premium: cultivated is cheapest exactly where authentic-experience demand
-# resists most. (The old nested logit produced this cap structurally; here it is the
-# two premium dials.)
+# lifts). So cultivated is cheapest exactly where authentic-experience demand resists
+# most: premium is held to roughly a quarter of its (small) category, and near the cost
+# floor the mid-cuts overtake it. (The old nested logit produced this cap structurally;
+# here it is the two premium dials.)
 # The tier ladder (AUTH_* authenticity offsets in utils, EPS_MULT_* elasticity multipliers)
 # and PREMIUM_RATIO, SCAF live in inputs.py (the datasheet) — imported below so the numbers
 # exist in exactly one place. AUTH_BASIC=+0.2, AUTH_CUT=-0.4, AUTH_PREMIUM=-1.5;

@@ -1,6 +1,13 @@
 # Design note — authenticity-WTP demand extension (DRAFT for review)
 
-*Status: proposal, not built. This is the principled economic model the foothold work kept
+> **Status (September 2026): partly built.** The hedonic rent split and the prestige core (§2.2 and §3,
+> implemented as one global prestige share χ) and deriving the entry-point view from the shared demand model
+> (§6) became the entry-point analysis: `foothold.py`, the explorer's chart 7, and appendix A6 of its
+> methods. The separate authenticity characteristic in the utility (§2.3) was not built; authenticity is
+> still the per-tier offset τ. Statements below that the model ignores authenticity predate those tier
+> offsets. The rest of this note is the original proposal, kept for the record.
+
+*Original status: proposal, not built. This is the principled economic model the foothold work kept
 gesturing at; the goal here is to replace a stack of patches (margin caveats, prestige/aspirational
 split, rent discounts, incumbent-response notes) with **one** primitive, and to fold the foothold
 scorecard into the structural demand model rather than maintaining it as a parallel heuristic.*

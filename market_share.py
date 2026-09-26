@@ -912,8 +912,8 @@ def summarise(pr: DemandParams) -> None:
                       cultivated_present=False)["p"] * 100
     print(f"  [5] plant-based at FULL price+taste parity (gen-pop mainstream) = {pb_par:.0f}%  "
           f"(structural prediction, NOT fitted)")
-    print("      ordering at parity: conventional > cultivated (escapes the penalty, real tissue) > "
-          "plant-based.")
+    print("      ordering at parity (neutral dials): cultivated ≳ conventional (real tissue, plus a small "
+          "health edge) ≫ plant-based.")
     print("      (UCLA saw ~26% PB at parity, but that sample likely over-weights ethical/PB-friendly")
     print("       diners + captive dining; we pin to the GFI buyer split, not to UCLA.)")
 

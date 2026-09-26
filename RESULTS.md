@@ -1,229 +1,200 @@
-# Cultivated meat: levers, bottlenecks, and where it lands — results
+# Cultivated meat: how far can it get? — results
 
-*A techno-economic + adoption model of cultivated meat, anchored to the one empirical TEA
-(Pasitka et al., Nature Food 2024) and bounded by the physical feedstock floor (Humbird 2021).
-This is the results brief; mechanisms, equations, and every parameter source are in
-[METHODS.md](METHODS.md). All numbers reproduce from the code (`python report_figures.py`).*
-
----
-
-## The model in brief
-
-The model is a chain, computed **per type of meat** (cultivated cost is ~constant across species, but
-conventional price ranges ~5×, so the answer differs by animal):
-
-> **biomass cost → retail price ratio R → market share → total penetration**
-
-- **Output 1 — the price ratio** `R = cultivated retail price / conventional price`. *High-trust:* a
-  TEA-grounded cost over a known market price. All the action is here.
-- **Output 2 — the market share** that ratio buys, rolled up across meat types by volume (animal
-  impact) and value ($). *Softer:* a **two-segment, four-product discrete-choice model** —
-  conventional / plant-based / cultivated / whole-food, with a mainstream and an ethical segment, and
-  **income-dependent price sensitivity** (BLP `ln(income − price)`: richer regions are less
-  price-sensitive) — calibrated to plant-based's observed ~1% share and 89% mainstream buyer base.
-  Always a **band**, never a point.
-
-**Two gates decide the outcome:** (1) does cost reach parity? (cost-side, dominates); (2) at parity,
-how do consumers treat lab-grown real meat? (the acceptance dials — taste-acceptance and cleaner-meat value). We take **no baked-in stance** on
-gate 2 — it is the reader's to set.
-
-### The key parameters (the levers — full datasheet in `inputs.py`)
-
-| parameter | central | range | source | what it controls |
-|---|---|---|---|---|
-| `p_conv` | $12/kg | 10–14 | market | conventional meat price; with markup sets the parity threshold; **meat-tax lever** |
-| `markup_add` | $5/kg | 2–7 | assumed | fixed biomass→retail wedge; floor $2 (cultivated skips slaughter) |
-| `overhead` (scale-up) | $9.9/kg | 6–15; downside 24.7 | Pasitka Fig.4 | non-media plant cost = **reactor scale-up** |
-| `media_price` | $0.63/L | 0.20–0.63 | Pasitka measured / GFI'26 claim | medium cost (centered on measured) |
-| `efficiency` | 1.0× | 0.25–1.0 | Pasitka cells / CHO | cell media-use (centered on measured) |
-| `accept_x` | 1.0 | 0.6–1.0 | the dial | **cultivated taste-acceptance (friction) — gate 2a** |
-| `theta_free_M` | 0 | 0–1.0 | the dial | **mainstream slaughter-free value (upside) — gate 2b** |
-| `neophobia_x` / `_p` | 0 | −2 … +1 | the dial | **novelty attitude** on cultivated / plant-based (− = neophobia, + = neophilia); 0 = neutral |
-| `eps_own` | −0.9 | −1.4 … −0.5 | scanner | own-price elasticity of the meat **category** |
-| `cult_sub_mult` (κ) | 4× | 3–6 | assumed | how many times **more** own-price-elastic *cultivated* is than the category (it has a near-perfect substitute); sets how steeply share falls **above** parity. Realized cultivated elasticity = `eps_own·κ` = −3.6 |
-| `process_cost` | $5/kg | 1–15 | ungrounded | scaffold bioprocess (premium products only) |
-
-The cost priors are **centered on Pasitka's measured values**: cheaper medium, more-efficient cells
-and bigger reactors are the *optimistic tail*, never assumed. So the central case = what is
-demonstrated today; improvements are upside.
+*A cost and demand model of cultivated meat, anchored to the only peer-reviewed cost study built on
+measured production data (Pasitka et al., Nature Food 2024) and bounded by the physical feedstock floor
+(Humbird 2021). This is the results brief. The plain-language explanation of how the model works is in the
+[interactive explorer](https://pabloamc.github.io/Cultivated_meat/interactive.html) (“How the model works”);
+code-level methods and every parameter source are in [METHODS.md](METHODS.md). Every number here reproduces
+from the code: `python report_figures.py` for the figures, the per-module scripts for the tables.*
 
 ---
 
-## 1. The cost levers (Output 1)
+## Summary
 
-Two figures carry the cost story. `cost_vs_inputs` plots biomass cost against the two dominant
-inputs — **medium price** (x-axis, its $0.20–0.63 range shaded) and **reactor scale** (one line per
-Pasitka reactor config) — with the irreducible floor. `cost_waterfall` walks the cost down from the
-scale-up-stall case to the floor.
+- **Cultivated meat would cost about 2.4× as much as everyday meat today.** Using Pasitka's measured medium
+  price and their mid-sized reactor design, a kilo of cells costs about $24 and sells for about $29, against
+  $12 for everyday meat. Across the plausible range of every cost input, the median is **R ≈ 2.1** (80% range
+  1.6–2.6), and no draws reach parity. The median is lower than 2.4 only because the cell-efficiency range
+  allows improvement but not deterioration.
+- **Price parity needs costs at their physical floor.** The cells must eat a fixed amount of amino acids and
+  glucose, and even an ideal plant has running costs: together about **$7.5/kg**. Parity with $12 meat and a
+  $5 markup needs **$7/kg**. So the floor sits right at the parity line (R ≈ 1.04).
+- **At the same price, cultivated meat would win about 49% of the market, if shoppers accept it as real
+  meat.** Not credited as real meat, it gets about 9%. Whether it tastes as good (26% if it tastes a bit worse)
+  and whether mainstream shoppers come to value “no slaughter” (up to 68%) are open questions that only
+  shelf data can settle; the model leaves them as dials.
+- **At today's cost that adds up to little:** about **2.5% of meat eaten worldwide** (Monte Carlo median; 80%
+  range 0.7–7.8%), **7.7% in Europe**, where meat is dearest, and 4.1% in the US.
+- **Its best chances are in beef and seafood.** Chicken and pork are cheap enough that cultivated stays more
+  expensive even at the cost floor. Premium products (wagyu, sushi-grade fish) are already beatable on price,
+  but authenticity holds cultivated to about a quarter of those small markets; beef and seafood cuts displace
+  the most meat. Where cultivated can already win (foie gras, bluefin tuna), the markets are tiny.
+- **These are long-run ceilings.** From a near-zero start, adoption takes about 25 years to level off.
 
-Ranking the inputs by how much each moves R (sensitivity tornado; the variance column is reused
-verbatim from the Monte Carlo, so the two agree by construction):
+**For funders:** the binding constraints are **reactor scale-up** and **medium cost at production scale**,
+both undemonstrated, plus independent at-scale facility-cost data. Another bench-scale medium win is not
+the gap.
 
-```
-KEY KNOBS — drivers of R   (baseline, all inputs at their measured/central value, R = 2.42)
-  input         R(lo)  R(hi)  swing  width%   helpful end
-  media_price    1.61   3.11   1.49    19%   $0.2/L (company claim)
-  efficiency     1.54   2.42   0.88     0%   0.25x  (CHO-grade cells)
-  p_conv         2.90   2.07   0.83     7%   $14/kg (expensive meat / meat tax)
-  overhead       2.09   2.84   0.75     8%   $6/kg  (large-reactor scale)
-  markup_add     2.17   2.58   0.42     2%   $2/kg
-  swing = full lo→hi move (potential).  width% = how much of the realised MC band WIDTH this input
-  owns (pin-to-mode; NOT a variance share — does not sum to 100%, and under-credits one-sided priors).
-```
+---
 
-Two readings, and they answer different questions:
+## 1. What the model is
 
-- **By potential swing, medium price leads** (1.49), with efficiency, p_conv and scale all ~0.8.
-  No single input gets to parity alone — the most helpful lever's optimistic end is still R ≈ 1.5.
-- **By realised band-width, medium price also leads (19%)**, then scale-up (8%) and conventional
-  price (7%). Medium price tops *both* columns because its prior is **two-sided**: medium can be
-  *dearer* than Pasitka's demonstrated $0.63/L (cell lines/processes that haven't achieved the
-  albumin-removal or volume discounts Pasitka did), not only cheaper, so it adds spread on both sides.
+Four steps, computed for each kind of meat and region (the explorer's four-step strip):
 
-Two cautions on reading that table. First, **`width%` is not a variance decomposition** — it asks
-"how much does pinning this input collapse the band?", so it under-credits **cell efficiency**, whose
-mode (1.0) sits at the *pessimistic edge* of its range: efficiency has the second-largest *swing*
-(0.88) yet ~0% width-share, because it can only improve from where we centred it — it is **upside, not
-expected movement**. Second, scale-up's `width%` (8%) understates its importance: it carries the
-single largest **downside scenario** (the ATF small-vessel stall, R ≈ 3.65, kept out of the central
-band on purpose) and is **the least demonstrated** lever physically. So the honest summary is:
+1. **Cost → price.** Medium + plant running cost (+ scaffold for cuts) + retail markup, divided by the price of
+   the conventional meat it replaces: the price ratio **R**.
+2. **Price → choice.** A discrete-choice (logit) model: shoppers choose between conventional meat,
+   plant-based meat, cultivated meat and beans, weighing price, taste, “is it real meat?”, health and animal
+   welfare. Two kinds of shopper (95% mainstream, 5% vegetarian or vegan). Calibrated so plant-based meat
+   reproduces its observed ~1.2% share and its ~89% mainstream buyer base.
+3. **Every meat, every region.** Repeat at each meat type's local price (mince, cuts, premium), then add up
+   by volume (animal impact) and by value (money).
+4. **Over time.** Adoption starts from today's wary shoppers and rises as the product spreads (Bass
+   diffusion) and stops feeling new.
 
-| Pasitka reactor config (Fig. 4) | biomass COGS | R | reading |
+The two outputs deserve different levels of trust. **The price ratio R** is a cost built from measured data,
+divided by an observed price: fairly solid. **The market share** it buys depends on how people will treat a
+product nobody can buy yet, so it is always shown as a band, never a single number.
+
+---
+
+## 2. Cost and the price ratio
+
+| Pasitka reactor design (Fig. 4) | cells, $/kg | R vs $12 meat | reading |
 |---|---|---|---|
-| large-scale perfusion 20 m³ | $22/kg | 2.25 | scale-up succeeds (their headline target) |
-| TFF 5 m³ (10×5,000 L) | $24/kg | 2.42 | demonstrated-scalable base (the central case) |
-| ATF 0.5 m³ (many small vessels) | **$38.8/kg** | 3.65 | **scale-up stalls — the downside** |
+| large perfusion reactors (20 m³) | $22 | 2.25 | scale-up succeeds |
+| ten 5 m³ vessels (the default) | $24 | 2.42 | Pasitka's mid design |
+| many small 0.5 m³ vessels | $38.8 | 3.65 | scale-up stalls: the downside |
 
-The irreducible **floor is ~$7.5/kg** (amino acids $0.5 + glucose $1 + minimal plant overhead $6),
-sitting right at the parity threshold — reachable in principle, but only if the optimistic end of
-every lever lands together. Pasitka's continuous run was at **1.8 L**; pilot hardware at 300 L;
-scalability *claimed* to 5,000 L — the cheap projections assume reactor volumes nobody has built.
+Medium costs about $14/kg at the measured $0.63 per litre (22.4 L per kilo of cells). Companies reported
+$0.20/L or less in 2025, and a GFI and MG Consulting analysis of amino-acid prices supports that level
+(GFI 2026), but there is no peer-reviewed measurement at production scale. Pasitka's continuous run was at
+1.8 L, with pilot hardware at 300 L; the cheap projections assume reactor volumes nobody has yet built for
+animal cells.
 
-## 2. Where the price ratio lands (Output 1)
+**The floor** is about $7.5/kg: amino acids ($0.5), glucose ($1) and a minimal plant ($6). It assumes the
+reducible costs (recombinant proteins, single-use parts, small-scale capital) are engineered away, but not
+Humbird's scale-up limits (oxygen and CO₂ transfer, sterility), which, if they bind, put the floor out of
+reach at any medium price.
+
+**Where R lands** (Monte Carlo over the cost inputs and the meat price, N = 20,000):
 
 ```
-basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs:
+basic product vs commodity meat ($12/kg):
   price ratio R:   P50 = 2.09   80% CI [1.63, 2.63]   90% CI [1.52, 2.79]
-  long-run share:  P50 = 7.3%   80% CI [1.9, 21.9]
+  long-run share:  P50 = 7.3%   80% CI [1.9, 22.4]
   0% of draws reach parity (R ≤ 1)
 ```
 
-The basic commodity product most likely sits **about 2× a conventional price**, consistent with
-Pasitka's own published projections (R ≈ 2.25–2.42); the band's optimistic tail (cheap medium + CHO
-cells + large reactors all landing) approaches but does not cross parity. The medium-cost
-breakthrough is real and moves R from ~2.4 toward ~1.6; the remaining gap is **scale-up and plant
-overhead** — the parts least demonstrated and the parts that do not fall with medium chemistry.
-
-## 3. The two gates (what decides ~1% vs tens-of-percent)
-
-**Gate 1 — cost (dominates).** Because the achievable R for the basic product most likely sits above
-parity, gate 1 alone yields the low-share world for most of the distribution.
-
-**Gate 2 — acceptance.** *At parity*, cultivated's standing is **two meaningful dials** that span the
-whole believable range — the widest lever on the at-parity
-outcome. `accept_x` (taste-acceptance: is cultivated credited as real meat?) carries the
-**friction**; `theta_free_M` (does the mainstream value no-slaughter / cleaner meat?) carries the
-**upside**. We take no stance:
-
-| dial | cultivated share | reading |
-|---|---|---|
-| taste-acceptance `accept_x` = 0.6 | ~12% | strong taste friction (not credited as real meat) |
-| `accept_x` = 0.8 | ~27% | modest friction |
-| **`accept_x` = 1.0, `theta_free_M` = 0** | **~49%** | equivalent real meat + mild health edge (neutral default) |
-| &nbsp;&nbsp;↳ *no health edge* (`health_x` = `health_c`) | *~47%* | *cultivated exactly equivalent to conventional* |
-| slaughter-free value `theta_free_M` = 0.5 | ~60% | mainstream starts valuing no-slaughter |
-| `theta_free_M` = 1.0 | ~69% | mainstream values no-slaughter |
-
-(Away from parity — at the likely R ≈ 2 — price dominates instead: the share tornado
-there is led by the cost→R levers (medium price, efficiency, then `p_conv`), with the demand levers —
-`theta_free_M`, `accept_x`, `eps_own` — close behind.) The tens-of-percent world needs
-cost at parity **and** (real-meat acceptance **or** a clean-meat preference). *Demand calibration
-holds (self-checks):* with cultivated absent the model reproduces plant-based's real ~1.2%, carried
-~89% by the **mainstream** (flexitarians), matching the GFI buyer data; at parity a new cultivated
-product draws **−45 pp from conventional** vs only −0.6 pp from plant-based — the no-nest IIA proof,
-driven by the shared `real_tissue` attribute. Two notable findings: (i) the **ethical segment is only a
-cultivated adopter at parity (~20%) but falls off sharply with any premium** (~9% at R=1.6) — the same cheap whole-food option that keeps
-ethical plant-based low also means ethical buyers won't pay a big cultivated *premium* (beans
-out-compete it); (ii) a cross-category check reproduces **plant-based milk's ~15%** from the same shared
-coefficients and milk-appropriate positions, milk winning only because it reached price+taste parity in
-use (coffee/cereal) and has no cheap substitute — meat did neither. The model predicts the ordering
-**cultivated ≈ conventional ≫ plant-based at parity** (cultivated escapes the not-real penalty, being
-real tissue) as a *structural prediction*; cultivated's slight edge over conventional is a deliberate,
-removable **health** assumption (a mild −0.1 conventional health position — strip it and the two sit
-level at ~47%, see the no-edge row above), not the load-bearing result. General-population
-plant-based-at-parity ≈ 10% (we pin to the GFI buyer split, **not** to the UCLA ~26% dining-hall figure). **Same functional form for every
-option:** price (BLP `ln(income−price)`), a **two-sided reference-dependent loss-aversion** term in the
-canonical form (`−λ·max(0,price_ratio−1) + 1·max(0,1−price_ratio)` — penalises a premium at slope −λ,
-rewards a discount at the unit rate, so λ itself is the loss/gain asymmetry; applied to plant-based and
-cultivated alike — no cultivated-only "parity cliff"), taste, slaughter-free, real-tissue, and **health**
-(a per-product position × a segment-specific weight — the whole-food health premium that replaces the old
-free outside-option constant, so there is now no free fitted constant). **Habit** is not a separate fitted parameter (not
-identified from heterogeneity without panel data — Heckman); it lives in the diffusion dynamics (§timing)
-and the long-run acceptance dials (`accept_x`, `theta_free_M`); launch food-neophobia is a transient that fades to 0. **Convenience** (the third PTC factor) is proxied by rollout, not modelled
-separately.
-
-*Robustness & scope (self-check [6]).* These demand parameters are **calibrated to moments, not estimated**
-(no large cultivated-meat scanner panel exists), so Output 2 is a band. Re-solving the calibration as each
-judgement anchor sweeps its range, the central share at the likely R≈2.4 (~8.8%) moves most with
-**`cult_sub_mult`** (the substitutability lever, 3.4→13.7% over κ=3–6); **loss aversion** — formerly the top
-lever — now barely moves it (the elasticity double-counting fix removed its hidden price-sensitivity, leaving
-it to shape only the parity kink), as do the plant-based-fitting internals — so the answer turns on two
-*behavioural-price* judgement calls, which we surface rather than bury. κ is the softest, but **not
-ungrounded**: the one choice experiment that varied cultivated's own price across six levels (Van Loo, Caputo
-& Lusk 2020) brackets its at-parity own-price elasticity at **−0.84 to −3.4**, and the model's implied
-at-parity (cold) elasticity at κ=4 is **−1.5 — inside that bracket** (self-check [4b], golden-guarded). What
-the data *cannot* pin is the elasticity at the R≈2.4 premium where κ actually bites (no DCE has priced
-cultivated that far above parity), so the −3.6 there is a functional-form extrapolation from the at-parity
-measurement — the honest residual on this lever. This is a **partial-equilibrium** model (prices exogenous, no
-supply response), a **two-class** (not continuous random-coefficients) logit, with a single calibrated price
-coefficient — the right simplifications given the sparse data; an estimated random-coefficients system would
-be false rigor here.
-
-## 4. Penetration by type of meat — price and demand run opposite (Output 2)
-
-Cultivated cost is ~constant; conventional price is not — so R and share differ sharply by meat type
-(`penetration_by_type_*`). Premium is now defined **per species** (a structured product ≥ 2.5× its
-species' everyday form: wagyu beef, sushi seafood, organic chicken, heritage pork). The table below
-is at the **cost floor** (the *optimistic* cost corner — everything reduced to the irreducible
-feedstock + minimal plant overhead), neutral dials, US. **It is a best-case ceiling, not the expected
-outcome:** at today's demonstrated cost the realised band is several-fold lower (the US total here is
-27.4% by volume *at the floor*, vs a §5 expected-band P50 of ~4% by volume at sampled cost). Read this
-table for *where* cultivated lands across meat types, and §5 for *how much* in expectation.
+**What moves R** (each input swept across its range, the others at their central values):
 
 ```
-  meat type                $/kg  vol%    R    cult share   tier
-  chicken (ground)            5   20%  2.50     15.2%      basic
-  chicken (cuts)              9   20%  2.06     13.2%      cut
-  chicken (organic)          13   ~1%  1.42     11.7%      premium <- above parity, demand-capped low
-  beef (ground)              11   13%  1.14     48.4%      basic   <- reachable (near parity), top share
-  beef (steak/cuts)          20   10%  0.93     42.0%      cut     <- sweet spot
-  beef (prime/wagyu)         45   ~0%  0.41     36.8%      premium <- very cheap (R=0.41) yet held BELOW the cuts
-  pork (processed)            8   12%  1.56     34.7%      basic
-  pork (cuts)                12    8%  1.54     22.3%      cut
-  pork (heritage)            20   ~0%  0.93     19.4%      premium
-  turkey (ground/proc.)       5    3%  2.50     15.2%      basic
-  turkey (breast/cuts)        9    3%  2.06     13.2%      cut
-  seafood (mince/canned)     10    2%  1.25     44.4%      basic
-  seafood (fillet)           24    4%  0.77     49.6%      cut     <- sweet spot (top cut)
-  seafood (sushi)            40    2%  0.46     34.0%      premium <- very cheap (R=0.46) yet held below the cuts
-  rabbit (cuts)              16   ~0%  1.16     33.0%      cut
-  TOTAL — by VOLUME (impact) 27.4%  |  by VALUE ($ market) 31.8%
+  input          R(lo)  R(hi)  swing  width%   optimistic end
+  media_price     1.61   3.11   1.49    19%    $0.20/L (company reports)
+  efficiency      1.54   2.42   0.88     0%    0.25x (cells four times leaner)
+  p_conv          2.90   2.07   0.83     7%    $14/kg (dearer meat, or a meat tax)
+  overhead        2.09   2.84   0.75     9%    $6/kg (very large plants)
+  markup_add      2.17   2.58   0.42     2%    $2/kg
+  swing = the full low-to-high move. width% = how much the Monte Carlo band narrows if this input is
+  fixed (not a variance share; it under-credits one-sided ranges such as efficiency).
 ```
 
-**No easy entry point:** cheap mince is unreachable on price (R ≫ 1); ultra-premium (wagyu R = 0.41,
-sushi R = 0.46) is *price-cheap* but **demand-resistant** — the authenticity penalty and low price-elasticity
-hold it well below what its deep discount would otherwise buy. A basic product at R = 0.41 would take ~86%;
-wagyu, with the same price, takes only ~37% — the authenticity cap is doing real work, just not flattening
-it to nothing. **The reachable window is the near-parity basics and structured cuts — beef ground (~48%,
-near parity), salmon fillet (~50%), beef steak (~42%)** — where price is reachable and the demand penalty is
-moderate; these out-draw the discounted-but-resistant ultra-premium. Cultivated is cheapest exactly where
-demand resists most, and most accepted where it is hardest to beat on price — so the near-parity cuts are the
-robust entry window.
+No single input reaches parity: the best one alone gets to R ≈ 1.5. Medium price leads on both measures
+because its range runs both ways: medium could also be *dearer* than Pasitka's $0.63/L for processes that
+haven't matched their results. Cell efficiency has a large swing but ~0% width because its range starts at
+today's cells and can only improve. Reactor scale's width (9%) understates it: it carries the largest
+downside (the small-vessel stall at R ≈ 3.65, deliberately kept outside the central range) and is the least
+demonstrated step.
 
-## 5. Total penetration, by region (Output 2 headline)
+---
 
-Rolling up across the spectrum, sampling cost + acceptance dials + elasticity, **at each region's local
-meat prices and income** (`report_regional_band`):
+## 3. What share a price buys
+
+**At equal price** (R = 1), with everything else neutral, mainstream shoppers see two near-identical real
+meats and split that market:
+
+| if cultivated meat… | its share at equal price |
+|---|---|
+| tastes as good and counts as real meat (the default) | **~49%** |
+| …without its small health edge over conventional | ~47% |
+| tastes a little worse (taste 0.8) | ~26% |
+| tastes noticeably worse (taste 0.6) | ~12% |
+| is judged tastier (taste 1.1) | ~61% |
+| …and mainstream shoppers value “no slaughter” (0.5) | ~59% |
+| …and value it strongly (1.0) | ~68% |
+| …and value it very strongly (1.5, beyond the Monte Carlo range) | ~75% |
+| is not accepted as real meat at all | ~9% |
+
+**At today's price** (R ≈ 2.4) the model gives about **9%** in the long run (US, everyday meat): price is the
+binding constraint. The share falls slowly just above parity and faster further out (elasticity about −0.8
+at parity, −1.7 at R = 1.5, −3.6 at R = 2.4).
+
+**Checks on the demand model:**
+
+- **Where cultivated's buyers come from.** Adding cultivated meat at equal price takes 44 points from
+  conventional meat and only 0.6 points from plant-based. The shared “real meat” attribute produces this
+  without a nested logit.
+- **Plant-based milk, out of sample.** The same model, with only the product's facts changed to milk's (near
+  price and taste parity in coffee, no cheap alternative), predicts ~15%, milk's actual share. The model was
+  fitted to plant-based *meat*, not milk.
+- **Ethical shoppers** choose cultivated at parity (~20%) but not at a premium (~9% at R = 1.6): the cheap
+  whole-food option that keeps plant-based meat low also beats a pricey cultivated product for them.
+- **Price sensitivity is tied to data.** A US choice experiment that priced lab-grown meat at six levels
+  (Van Loo, Caputo & Lusk 2020) puts its elasticity at parity between −0.84 and −3.4; the model's implied
+  value is −1.5. The −3.6 at today's price is an extrapolation along the model's curve: no experiment has
+  priced cultivated meat that far above parity. That closeness parameter (κ = 4, range 3–6) is the most
+  consequential demand assumption above parity.
+
+**What moves the share most** at today's price (the share tornado): the cost levers (medium price, cell
+efficiency, meat price, plant cost), then the demand dials: long-run novelty, the value of “no slaughter”,
+taste, price sensitivity and health image.
+
+These demand parameters are **calibrated to a few facts, not estimated** from purchase data, which don't
+exist yet; the model is partial-equilibrium (prices are given, no supply response) with two kinds of shopper.
+
+---
+
+## 4. By type of meat: price and demand pull in opposite directions
+
+Cultivated meat costs about the same whatever animal it copies, but conventional prices vary widely, so R
+and share differ by meat type. Premium is defined per species: a cut costing at least 2.5 times the species'
+cheapest form. US, neutral dials; left at today's cost, right at the cost floor:
+
+```
+                                    today's cost          at the cost floor
+  meat type              $/kg  vol%   R     share            R     share
+  chicken (ground/proc.)   5   20%   5.80     0.3%         2.50    15.2%
+  chicken (cuts)           9   20%   3.89     1.2%         2.06    13.2%
+  beef (ground)           11   13%   2.64     8.2%         1.14    48.4%
+  beef (steak/cuts)       20   10%   1.75    13.9%         0.93    42.0%
+  beef (prime/wagyu)      45   ~0%   0.78    23.9%         0.41    36.8%   premium
+  pork (processed)         8   12%   3.63     2.8%         1.56    34.7%
+  pork (cuts)             12    8%   2.92     3.5%         1.54    22.3%
+  seafood (fillet)        24    4%   1.46    20.1%         0.77    49.6%
+  seafood (sushi)         40    2%   0.88    20.9%         0.46    34.0%   premium
+  TOTAL, US: today 5.1% by volume (8.4% by value); at the floor 27.4% (31.8%)
+```
+
+- **Beef and seafood are where cultivated can compete.** Chicken and pork stay above parity even at the
+  floor (R ≥ 1.5).
+- **Today, premium products get the biggest share of their category:** cultivated is already cheaper than
+  wagyu or sushi-grade fish, but authenticity and low price sensitivity hold it to roughly a quarter. (At
+  the cost floor, R = 0.41, a mince product at wagyu's price would take ~86%; wagyu takes ~37%.) These
+  markets are small.
+- **Beef and seafood cuts displace the most meat by volume**, and if costs fell to the floor, cuts and even
+  ground beef would overtake premium. The tier values behind this (authenticity +0.2 / −0.4 / −1.5, price
+  sensitivity ×1 / ×0.8 / ×0.3) are judgement, scaled by one “premium resistance” dial that the Monte Carlo
+  samples between 0.5 and 1.5.
+
+(Rows for turkey, heritage pork, organic chicken, canned seafood and rabbit are in `python meat_market.py`.)
+
+---
+
+## 5. Total penetration, by region
+
+Rolling up across meat types, sampling costs, the acceptance dials, price sensitivity, long-run novelty,
+health image and premium resistance, **at each region's own meat prices and income**
+(`report_regional_band`):
 
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
@@ -237,71 +208,112 @@ total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   Nigeria    $6k        P50  0.1%  [0.0,  0.3]    P50  0.1%  [ 0.0,  0.5]  <- hardest (cheap meat + price-sensitive)
 ```
 
-Two forces set the ordering, and they **compound**: (1) *local meat price* — Europe's expensive meat
-puts parity nearest; (2) *income* — through a genuine **Berry–Levinsohn–Pakes** price term `α·ln(y_eff − price)`:
-a given price is a bigger bite the poorer the consumer, so richer consumers are less price-sensitive. The
-effective income is damped, `y_eff = income_ref·(income/income_ref)^0.5`, so the rich-poor own-price-elasticity
-ratio matches the empirical ~2× (Muhammad/ERS) rather than raw BLP's over-steep ~6×. **Europe is easiest**
-(rich *and* priciest meat). **Low-income regions are hardest** — India, Brazil and Nigeria have *cheap* meat
-(R far above 1) *and* high price-sensitivity, so cultivated barely registers (sub-1% at today's cost). That is
-the most consequential thing the income channel surfaces, since those regions hold much of the world's future
-meat demand. (Low-income local meat prices/mixes are rough, illustrative.) Bands are wide and right-skewed:
-low end = scale-up-stalls / friction; long tail = scale-up-wins / preferred.
+Two forces compound. **Local meat prices:** Europe's expensive meat puts parity nearest. **Income:** the same
+premium is a bigger bite of a smaller income, so poorer shoppers are more price-sensitive (the
+Berry–Levinsohn–Pakes form, damped so the rich–poor gap matches the roughly twofold difference seen in food
+data). Low-income regions combine cheap meat with high price sensitivity, so cultivated barely registers
+there at today's cost; their meat prices and mixes are rough. The bands are wide and skewed: the low end is
+the world where scale-up stalls or shoppers resist; the long tail is the one where scale-up succeeds and
+shoppers embrace it. The Monte Carlo medians are a little below the explorer's point estimates at the default
+settings (Global 2.9%, Europe 9.6%, US 5.1%), because the sampled ranges are not centred on the defaults (for
+example, taste can match conventional meat but not beat it).
 
-> *Methodological note (2026-06-12).* The income channel is **genuine Berry–Levinsohn–Pakes**: income enters
-> inside the log (`α·ln(y_eff − price)`, a single constant `α`), so the diminishing-marginal-utility-of-income
-> curvature is the mechanism, with a damping exponent `φ` that reconciles raw BLP (too steep for food, ~6×)
-> with the empirical ~2× food-elasticity gradient. (An earlier draft froze income inside the log and re-added
-> it as a separate multiplier — that was not BLP and disabled the curvature; this restores it, verified against
-> its own linearisation to <0.01pp at meat prices.) Each meat type's absolute price uses its own conventional
-> price (chicken vs chicken, steak vs steak), not a single commodity price. Separately, the demand model's
-> default is now a **symmetric** price response (no loss-aversion
-> kink): the asymmetry was near-inert on the headline, not identifiable from the available data, and —
-> per Bell & Lattin (2000) — apt to be confounded with the price-response heterogeneity that `κ` already
-> carries. Loss aversion remains an off-by-default exploratory dial.
-
-One place parity is reachable today: **structured product vs premium seafood.** Vs sushi salmon
-($40/kg), R P50 = 0.85 and ~83% of draws are at/below parity — but here the lone new unknown,
-**scaffold process cost** (no TEA), is the top spread driver (~15%), and premium demand is hostile.
-
-## 6. What a technical funder should prioritise
-
-The model points the marginal R&D dollar at the two **unsettled** cost constraints — medium-at-scale
-and reactor scale-up — not at the most visible one:
-
-1. **Medium price at scale is the top band driver** (largest swing *and* largest realised
-   band-width): its prior is now **two-sided**, so the question is not only "how cheap" but "is
-   Pasitka's $0.63/L reproducible at all" — cell lines/processes that have not achieved the
-   albumin-removal or volume discounts sit *dearer*, the pessimistic tail. So **demonstrating cheap
-   medium at commercial scale is load-bearing, not a solved win** — verify the sub-$0.20/L company
-   claims *and* de-risk the dearer tail; do not treat it as settled.
-2. **Reactor scale-up is the biggest physical tail-risk** (least demonstrated, largest *downside*
-   scenario — the ATF small-vessel stall, R ≈ 3.65, deliberately outside the central band):
-   demonstrating large-volume animal-cell perfusion (CO₂/O₂ transfer, shear, sterility at scale) is
-   the constraint the cheap projections assume away. (Its `width%` looks modest only because the
-   stall is held out of the central prior; on the downside it dominates.)
-3. **Plant overhead at scale** (the largest floor term) sets where the floor lands vs parity — fund
-   independent, at-scale facility-cost data (the GFI 2026 report flags this as the field's data gap).
-4. **`p_conv` is a policy lever:** a meat tax moves R toward parity as much as a major cost win, and
-   it is exogenously controllable.
-5. **Scaffold process cost** is the single biggest *unmeasured* number and gates the premium-seafood
-   path — a scaffolding TEA is the literature's clearest hole.
-
-**Bottom line:** the medium-cost breakthrough is real but does not, by itself, reach parity. The gap
-to parity is **scale-up and plant overhead** — physical, least-demonstrated, least likely to fall
-with more bench chemistry. That is where philanthropic, public-goods-shaped money plausibly moves
-the trajectory.
+**Premium seafood is the one place parity is within reach today.** A structured product against sushi-grade
+salmon ($40/kg) has a median R of 0.85, and 83% of draws are at or below parity. But its biggest unknown is
+the cost of structuring the product (no published cost study), and premium buyers are reluctant.
 
 ---
 
-### Figures (curated set — `python report_figures.py`; diagnostics in `figures/diagnostics/`)
-1. `cost_vs_inputs` — the two big cost levers (medium price × reactor scale) and the floor.
-2. `cost_waterfall` — where the cost goes; scale-up is the biggest single step.
-3. `sensitivity_tornado_share` — which knobs move the final share most (eps_own + cost levers at the
-   likely R; the acceptance dials at parity).
-4. `share_vs_ratio` — the share a given price ratio buys (the willingness-to-pay demand curve).
-4b. `pb_milk_vs_meat` — the cross-category validation **depicted**: plant-based MILK vs MEAT, the same
-   machinery with swapped product positions → ~15% vs ~1% (milk wins on price + taste parity and no cheap rival).
-5. `cost_paths_timing` — penetration over 30 years by cost-milestone path (the cost→time coupling).
-6–9. `penetration_by_type_{us,eu,china,global}` — share **by type of meat** (price vs demand oppose).
-10. `report_regional_band` — total penetration band by region (volume & value).
+## 6. Entry points: which products first
+
+The explorer's chart 7 looks at specific products, comparing cultivated's cost with the price of the
+product's *everyday* grade (farmed rather than wild salmon, crossbred rather than A5 wagyu), because the
+luxury premium is for pedigree that cultivated meat can't copy. A prestige core of buyers (25% by default)
+never switches. The pattern at the defaults:
+
+- **Already cheaper:** foie gras, bluefin tuna, sea urchin, wagyu, lobster. But these markets are tiny,
+  thousands to hundreds of thousands of tonnes a year.
+- **Not yet reachable on price, where the volume is:** beef steak, pork loin, chicken breast, each tens of
+  millions of tonnes. A small share of these displaces far more meat than winning a luxury niche outright.
+
+That is the usual path of a new technology: start where buyers pay a premium, then move down-market as costs
+fall with experience. Foie gras stands out as a first product: unstructured (no scaffold), expensive, and
+increasingly banned on welfare grounds that don't apply to a cultivated version. The model assumes sale at
+cost (no margin), so this is about reach and impact, not profitability.
+
+---
+
+## 7. Over time
+
+At today's price, cultivated meat starts near 0%, reaches about 1% after 10 years and about 8% after 30,
+close to its long-run ceiling of about 9% (US, everyday meat), levelling off around year 25. How wary
+shoppers are today is the widest demand uncertainty: surveys range from ~5% (a cold choice experiment) to
+~60% (“cultivated chicken in a restaurant”) depending on framing. The model starts at the cold end and
+samples the whole range. `cost_paths_timing` shows penetration over 30 years for different cost-milestone
+paths: low and flat if costs stall, rising after a breakthrough year.
+
+---
+
+## 8. What a technical funder should prioritise
+
+1. **Medium cost at production scale.** It leads both the swing and the band width, because it could go
+   either way: the question is not only how cheap, but whether $0.63/L is reproducible at all for other cell
+   lines and processes. Verify the sub-$0.20/L company reports at scale, and de-risk the dearer tail.
+2. **Reactor scale-up**, the biggest physical risk: least demonstrated, and the source of the largest
+   downside (R ≈ 3.65 if production stays in small vessels). Demonstrating large-volume animal-cell perfusion
+   (oxygen and CO₂ transfer, shear, sterility at scale) is the step the cheap projections assume.
+3. **Plant costs at scale**, the largest term in the floor: independent, at-scale facility-cost data would
+   show where the floor really sits relative to parity. GFI's 2026 report flags this as the field's main
+   data gap.
+4. **The meat price is a policy lever.** A tax that raises conventional prices by 25% lowers R as much as
+   cutting every cultivated cost by 20%.
+5. **Scaffolding cost** is the biggest number no one has measured, and it gates the premium-seafood route.
+   A scaffolding cost study is the literature's clearest hole.
+
+These are mostly public goods (at-scale demonstrations, independent cost studies), underfunded by industry
+and a good fit for philanthropy.
+
+---
+
+## 9. What would change the conclusions
+
+- **Upward:** a peer-reviewed demonstration of animal-cell perfusion at 20,000 L or more, holding density and
+  sterility, would remove the scale-up downside and pull R toward the large-perfusion case. Independent
+  confirmation of medium below $0.30/L at scale would move cheap medium from upside into the central case.
+- **Downward:** if the scale-up limits (CO₂-limited vessel size, clean-room costs) prove binding, the floor is
+  out of reach at any medium price, and R stays around 3 or more.
+- **Demand:** whether shoppers accept cultivated as real meat, and whether they come to value “no slaughter”,
+  can't be measured until it is on shelves. The honest position is to carry the full range (9% to 75% at
+  equal price) and let each reader set it.
+
+---
+
+### Key parameters (the full datasheet: `python inputs.py`)
+
+| parameter | central | Monte Carlo range | source | what it controls |
+|---|---|---|---|---|
+| `p_conv` | $12/kg | 10–14 | retail data | everyday meat price; with the markup, the parity threshold; the meat-tax lever |
+| `markup_add` | $5/kg | 2–7 | USDA farm-to-retail spread | biomass-to-retail cost, added per kilo |
+| `overhead` | $9.9/kg | 6–15 (stall case 24.7) | Pasitka Fig. 4 | plant running cost, set by reactor scale |
+| `media_price` | $0.63/L | 0.20–1.00 | Pasitka (measured); GFI 2026 (company reports) | medium cost, both directions |
+| `efficiency` | 1.0 | 0.25–1.0 | Pasitka's cells; CHO cells | medium used per kilo, relative to today's cells |
+| `accept_x` | 1.0 | 0.6–1.0 | judgement | cultivated's taste vs conventional |
+| `theta_free_M` | 0 | 0–1.0 | judgement | how much mainstream shoppers value “no slaughter” |
+| `real_tissue_x` | 1 | not sampled | the model's premise | whether cultivated counts as real meat |
+| `neophobia_x` | 0 | −2 to +1 | judgement | long-run novelty attitude (− wary, + drawn) |
+| `health_x` | 0 | −0.5 to +0.5 | surveys go both ways | cultivated's health image |
+| `eps_own` | −0.9 | −1.4 to −0.5 | grocery scanner data | price sensitivity of meat as a category |
+| `cult_sub_mult` (κ) | 4 | 3–6 (not sampled) | bracketed by Van Loo, Caputo & Lusk 2020 | how much more price-sensitive a cultivated product is than meat overall |
+| `premium_resistance` | 1 | 0.5–1.5 | judgement | how strongly cuts and premium resist (scales the tier values) |
+| `process_cost` | $5/kg | 1–15 | no published data | scaffolding process cost (structured products only) |
+
+### Figures (`python report_figures.py`; diagnostics in `figures/diagnostics/`)
+
+1. `cost_vs_inputs`: biomass cost against the medium price, one line per reactor design, with the floor.
+2. `cost_waterfall`: from the small-vessel case down to the floor; reactor scale is the biggest single step.
+3. `sensitivity_tornado_share`: which inputs move the long-run share most.
+4. `share_vs_ratio`: the share a given price ratio buys.
+5. `pb_milk_vs_meat`: the plant-based milk check, same model, different product facts (~15% vs ~1%).
+6. `cost_paths_timing`: penetration over 30 years for different cost-milestone paths.
+7. `penetration_by_type_{us,eu,china,global}`: share by type of meat, at the cost floor.
+8. `report_regional_band`: the regional totals with their bands.

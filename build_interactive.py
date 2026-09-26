@@ -515,7 +515,8 @@ def build_model() -> dict:
         slider("w_realtissue_E", "Ethical real-meat weight (<i>w</i><sup>rt</sup><sub>E</sub>)",
                "utils", 0.0, 4.0, 0.05, value("w_realtissue_E"), "assumed ≈ 0",
                tip="How much ethical shoppers value real animal tissue. Assumed about 0: they choose on "
-               "“no slaughter”, not “is it meat”. Low leverage (5% of shoppers)."),
+               "“no slaughter”, not “is it meat”. Raising it makes them favour both real meats, which "
+               "helps cultivated a little (they are 5% of shoppers)."),
     ]
 
     # income uses a LOG scale (the $5k–$5M range spans three orders of magnitude)
@@ -1092,7 +1093,7 @@ the rest are under &ldquo;Advanced&rdquo;. Hover over or tap any <span class="q"
         <li><b>Plant running cost.</b> Everything else needed to run the plant (reactors and other capital, labour,
         energy, consumables) adds \(h\) per kilo. It is set mainly by reactor scale, and it is the least
         demonstrated number in the model: Pasitka's three designs range from $24.7/kg (many small vessels) through
-        $9.9/kg (the default) to $7.9/kg (two large perfusion reactors) [1]. Humbird explains why scaling up animal
+        $9.9/kg (the default) to $7.9/kg (large perfusion reactors) [1]. Humbird explains why scaling up animal
         cells is hard: oxygen and CO₂ transfer, and keeping huge vessels sterile [2].</li>
         <li><b>Getting it to the shelf.</b> Processing, packaging, cold chain and retail margin add a markup \(m\)
         (default ${{MARKUP}}/kg, about the farm-to-retail spread of conventional meat). Structured cuts (a steak
@@ -1144,8 +1145,8 @@ the rest are under &ldquo;Advanced&rdquo;. Hover over or tap any <span class="q"
         <tr><td><b>beans</b> / whole food</td><td>~0.25&times; [15]</td><td>0.3</td><td>no</td><td>yes</td><td>+2</td></tr>
       </table></div>
       <p style="font-size:.84rem;color:#555">Conventional meat's small health penalty stands for antibiotics and
-      contamination; beans are &ldquo;the healthy choice&rdquo;. Beans' taste score is an assumption that doesn't
-      affect the results, because the calibration re-fits around it.</p>
+      contamination; beans are &ldquo;the healthy choice&rdquo;. Beans' taste score is an assumption; it barely
+      moves the results, because the calibration re-fits around it.</p>
       <p><b>The central premise.</b> Cultivated meat <i>is</i> animal tissue, so, unlike a veggie burger, it keeps
       conventional meat's biggest advantage with mainstream shoppers. That is why, in the model, cultivated draws
       its buyers mostly from conventional meat, not from plant-based. The premise is a slider (&ldquo;seen as real

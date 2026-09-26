@@ -226,7 +226,7 @@ REGISTRY: dict[str, Input] = {
              "and is transient (the genuinely time-varying novelty effect lives in the neophobia fade, not here). "
              "BONUS: at lambda=1 the model's at-parity own-price elasticity is -0.82, CLOSER to Lusk 2020's "
              "measured MNL -0.84 than the kinked lambda=2.25 (-0.50) was. So lambda is now an OFF-by-default "
-             "exploratory dial (range 1-4) for anyone who wants to test reference-dependent asymmetry, not a "
+             "exploratory dial (range 1-2.25) for anyone who wants to test reference-dependent asymmetry, not a "
              "baked-in behavioral assumption. Its slope still feeds the beta calibration when moved."),
 
     # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
@@ -258,8 +258,9 @@ REGISTRY: dict[str, Input] = {
         "premium as easily as mince); 2 = doubly resistant premium.",
         lo=0.5, hi=1.5, mode=1.0,
         note="The model's most JUDGEMENT-TO-TARGET demand assumption: the tier offsets have NO external "
-             "data source — they were chosen so premium stays demand-capped even at a deep price discount "
-             "(the 'sweet spot is mid-cuts' result). Exposed and SWEPT (prior 0.5-1.5) so that judgement's "
+             "data source — they encode the belief that premium stays demand-capped even at a deep price "
+             "discount. (With the current calibration, premium still has the highest within-category share at "
+             "today's cost; cuts lead only near the cost floor.) Exposed and SWEPT (prior 0.5-1.5) so that judgement's "
              "leverage is visible rather than hidden. Scales (tau_type) and (eps_mult - 1) about their "
              "neutral points, so resistance=0 removes the tier effect entirely."),
     "real_tissue_x": Input(1.0, "0/1", "[IDENTIFYING PREMISE, now a DIAL] whether CULTIVATED meat counts as "
@@ -312,7 +313,7 @@ REGISTRY: dict[str, Input] = {
         "guidance) relative to whole plant foods, though it remains a high-quality protein. Small by design; it "
         "sets conventional's health standing that the other positions are measured against. Default -0.1, so "
         "cultivated (health_x=0, i.e. no antibiotics/contamination, controlled fat) carries a mild +0.1 health "
-        "edge over conventional — a small, defensible lift to the at-parity share (~47% -> ~50%)."),
+        "edge over conventional — a small, defensible lift to the at-parity share (~47% -> ~49%)."),
     "neophobia_p0": Input(-1.0, "utils", "[behavioural] plant-based meat's INITIAL (cold-start) novelty "
         "attitude — the analogue of neophobia_x0 for cultivated. Plant-based is already MATURE (~1.2%), so "
         "its observed position is the calibration target and this cold-start is mostly HISTORICAL / "
@@ -393,7 +394,7 @@ REGISTRY: dict[str, Input] = {
         "taste deficit heavily; it is the single shared taste coefficient for all products. It also sets "
         "the SCALE the other perception weights are read against: taste is the #1 food-choice driver "
         "(IFIC 2025; Malone & Lusk 2017 find taste WTP ~2x health and ~3x safety), so w_taste is the "
-        "largest non-price weight and health (w_health_M ~0.26x w_taste) sits well below it."),
+        "largest non-price weight and health (w_health_M ~0.17x w_taste) sits well below it."),
     "w_eth": Input(0.05, "fraction", "[Gallup] ethics-driven CORE = vegetarian (4%) + vegan (1%), "
         "Gallup 2023",
         lo=0.04, hi=0.10, mode=0.05,
@@ -438,8 +439,8 @@ REGISTRY: dict[str, Input] = {
              "& Lusk (2017, J. Agric. Appl. Econ. 49:139), a US discrete-choice experiment with taste, health "
              "and safety perceptions on a common -5..+5 scale, find WTP of $0.60/$0.31/$0.21 per unit -> "
              "mainstream HEALTH is ~0.52x TASTE (and the IFIC 2025 'very important' ratio ~0.78x brackets the "
-             "soft end). The solved w_health_M lands at ~0.26x w_taste — i.e. health is weighted BELOW taste "
-             "and price for the mainstream, consistent with (and slightly below) the discrete-choice anchor."),
+             "soft end). The solved w_health_M lands at ~0.17x w_taste — i.e. health is weighted BELOW taste "
+             "and price for the mainstream, well below the ~0.5x discrete-choice anchor."),
     "w_realtissue_E": Input(0.0, "utils", "[assumed] ethical-segment weight on real tissue ~ 0: ethical "
         "eaters choose on slaughter-free, not on 'real meat'"),
     "w_slaughter_E": Input(4.0, "utils", "[assumed] ETHICAL-segment utility weight on the SLAUGHTER-FREE "
@@ -492,8 +493,9 @@ REGISTRY: dict[str, Input] = {
         "long-run neophobia_x. DEFAULT -2.8 is anchored to data: at price+taste parity (R=1, accept_x=1) it "
         "reproduces cultivated's observed COLD at-parity share of ~5% (Van Loo, Caputo & Lusk 2020, US "
         "choice experiment: lab-grown 5% at price parity with beef). The RANGE [-3.5, +1.5] spans the full "
-        "survey FRAMING band: -3.5 -> ~3% (coldest), -2.8 -> ~5% (Lusk choice exp), 0 -> ~47% (neutral), "
-        "+1.5 -> ~78% (Perdue 2024 'cultivated chicken in a restaurant' warm framing ~60%). The legacy "
+        "survey FRAMING band: -3.5 -> ~3% (coldest), -2.8 -> ~6% (Lusk choice exp ~5%), 0 -> ~49% (neutral), "
+        "~+0.5 -> ~60% (Perdue 2024 'cultivated chicken in a restaurant', the warmest framing), +1.5 -> ~80% "
+        "(beyond the surveys). The legacy "
         "'launch wariness' is now DERIVED = neophobia_x0 - neophobia_x (the transient part that fades).",
         lo=-3.5, hi=1.5, mode=-2.8,
         note="Replaces the old neophobia_launch (which was the delta x0 - x_long); setting the two ENDPOINTS "

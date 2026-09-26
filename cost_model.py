@@ -103,7 +103,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, AA_FLOOR, PASITKA_CONFIGS
+from inputs import value, prior, AA_FLOOR, PASITKA_CONFIGS
 from price_ratio import p_cult as _p_cult, ratio as _ratio, parity_cost as _parity_cost
 
 # The medium's IRREDUCIBLE feedstock: amino acids + bulk glucose, which the cells
@@ -293,7 +293,8 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
     (x-axis, its reasonable range shaded) and reactor SCALE (one line per Pasitka
     config). The floor band and the parity threshold are drawn so the reader sees
     that no single input combination reaches parity on the basic product."""
-    mp = np.linspace(0.15, 0.70, 200)
+    lo, hi = prior("media_price")[1:3]              # the medium range the model samples (0.20 .. 1.00)
+    mp = np.linspace(0.15, hi + 0.05, 200)
     fig, ax = plt.subplots(figsize=(7.2, 4.7))
 
     # one line per reactor SCALE config (cells held at the measured efficiency 1.0)
@@ -302,10 +303,10 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
                        (r"ATF 0.5 m$^3$  (scale-up stalls)",       24.7, "#CC3311")]:
         ax.plot(mp, pr.media_intensity * 1.0 * mp + oh, color=c, lw=2.2, label=lbl)
 
-    # the reasonable MEDIUM range: $0.20 (company claim) .. $0.63 (Pasitka measured)
-    ax.axvspan(0.20, 0.63, color="0.82", alpha=0.40, zorder=0)
-    ax.text(0.415, 2.0, "medium range\n0.20 (claim)-0.63 (measured)", ha="center",
-            fontsize=7, color="0.4")
+    # the MEDIUM range the model samples: $0.20 (company reports) .. $1.00 (dearer than Pasitka measured)
+    ax.axvspan(lo, hi, color="0.82", alpha=0.40, zorder=0)
+    ax.text((lo + hi) / 2, 2.0, f"medium range in the model\n{lo:.2f} (company reports) to {hi:.2f} (dearer than measured)",
+            ha="center", fontsize=7, color="0.4")
     ax.scatter([0.63], [pr.media_intensity * 1.0 * 0.63 + 9.9], color="#0173B2",
                zorder=6, s=34, edgecolor="white", label=r"Pasitka measured (\$0.63, TFF)")
 
@@ -317,7 +318,7 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
     ax.axhline(pc, ls=":", lw=1.2, color="#CC3311")
     ax.text(0.17, pc - 1.7, f"parity needs biomass $\\leq$ \\${pc:.0f}/kg", fontsize=8, color="#CC3311")
 
-    ax.set_ylim(0, 40)
+    ax.set_ylim(0, 50)
     ax.set_xlabel(r"Medium price (\$/L)")
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
     ax.set_title("The two big cost levers: medium price (x) and reactor scale (lines)")

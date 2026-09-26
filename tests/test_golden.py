@@ -330,12 +330,12 @@ def _mc_prose_values() -> dict:
 # which regions each prose doc actually tabulates (POST shows only four; RESULTS shows all seven)
 _REGION_LABEL = {"eu": "Europe", "us": "US", "global": "Global", "china": "China",
                  "brazil": "Brazil", "india": "India", "nigeria": "Nigeria"}
-_DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL), "POST.md": ["eu", "us", "global", "china"]}
+_DOC_REGIONS = {"RESULTS.md": list(_REGION_LABEL)}   # (POST.md was merged into RESULTS.md)
 
 
 def check_markdown_prose_numbers() -> list:
     """ROOT-CAUSE GUARD for the prose-drift class that this audit found: the three MARKDOWN essays
-    (RESULTS.md, POST.md, METHODS.md) hand-type headline Monte-Carlo numbers that NO test re-derived,
+    (RESULTS.md, METHODS.md; formerly also POST.md) hand-type headline Monte-Carlo numbers that NO test re-derived,
     so a prior change (the two-sided media_price) silently invalidated every one of them — and even
     inverted a conclusion. interactive.html is already drift-proof (tokens + the checks above); this
     extends the same discipline to the markdown.
@@ -347,15 +347,15 @@ def check_markdown_prose_numbers() -> list:
     only cause a false PASS, never a false FAIL, so it is a safe tripwire.)"""
     vals = _mc_prose_values()
     docs = {}
-    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+    for name in ("RESULTS.md", "METHODS.md"):
         p = os.path.join(MODEL_DIR, name)
         docs[name] = open(p, encoding="utf-8").read() if os.path.exists(p) else None
 
     fails = []
     rP = f"{vals['commodity_R_p50']:.2f}"                  # e.g. "2.09"
     sP = f"{vals['commodity_share_p50']:.1f}%"             # e.g. "7.3%"
-    # commodity R P50 is quoted in all three; share P50 in RESULTS + METHODS (POST's block shows R only)
-    for name in ("RESULTS.md", "POST.md", "METHODS.md"):
+    # commodity R P50 and share P50 are quoted in both RESULTS and METHODS
+    for name in ("RESULTS.md", "METHODS.md"):
         if docs[name] is None:
             fails.append(f"{name} missing")
         elif rP not in docs[name]:
@@ -384,7 +384,7 @@ def check_markdown_prose_numbers() -> list:
                 fails.append(f"{name}: {label} VALUE P50 should be {valP} but its row is stale: '{row.strip()}'")
 
     print(f"markdown-prose drift check: commodity R/share + {sum(len(r) for r in _DOC_REGIONS.values())} "
-          f"region-rows across RESULTS/POST/METHODS, "
+          f"region-rows across RESULTS/METHODS, "
           f"{'all in sync' if not fails else f'{len(fails)} stale'}")
     return fails
 
@@ -395,7 +395,7 @@ def test_markdown_prose_numbers():
     assert not fails, (
         "Markdown-prose drift FAILED (an essay's headline number no longer matches the model):\n  "
         + "\n  ".join(fails)
-        + "\n\nRe-run the model and update RESULTS.md / POST.md / METHODS.md in the same commit.")
+        + "\n\nRe-run the model and update RESULTS.md / METHODS.md in the same commit.")
 
 
 def test_golden_values():
