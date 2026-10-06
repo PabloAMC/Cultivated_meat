@@ -9,8 +9,9 @@ language; [METHODS.md](METHODS.md) has the code-level detail. Everything below r
 
 - **Price:** made at scale with today's technology, cultivated meat would cost **~2.4× everyday meat** ($29 vs a
   $12 benchmark). Across the plausible range of costs, the median is 2.1×; no draws reach parity.
-- **Floor:** cells can't cost less than **~$7.5/kg** (feedstock plus a minimal plant); parity needs $7. So even at
-  the floor, cultivated meat is ~1.04× the price.
+- **Floor:** cells can't cost less than **~$7.7/kg** (feedstock plus a minimal plant); parity needs $7. So even at
+  the floor, cultivated meat is ~1.06× the price. The plant term is Pasitka's; on Humbird's independent plant costs
+  the floor would be about twice as high.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
 - **At today's cost** that adds up to **~2.5% of world meat by weight** (Monte Carlo median; 80% range 0.6–7.7%),
@@ -64,14 +65,14 @@ meat overall (κ = 4, range 3–6: 3.4% to 13.7% at today's price).
 ```
                             today's cost        cost floor
   meat type          $/kg    R     share        R     share
-  chicken mince        5    5.80    0.3%       2.50   15.2%
-  beef mince          11    2.64    8.2%       1.14   48.4%
-  beef steak          20    1.75   13.9%       0.93   42.0%
-  wagyu (premium)     45    0.78   23.9%       0.41   36.8%
-  pork (processed)     8    3.63    2.8%       1.56   34.7%
-  seafood fillet      24    1.46   20.1%       0.77   49.6%
-  sushi-grade (prem.) 40    0.88   20.9%       0.46   34.0%
-  TOTAL by weight: today 5.0%, at the floor 27.3%
+  chicken mince        5    5.80    0.3%       2.54   14.6%
+  beef mince          11    2.64    8.2%       1.15   47.7%
+  beef steak          20    1.75   13.9%       0.94   41.6%
+  wagyu (premium)     45    0.78   23.9%       0.42   36.7%
+  pork (processed)     8    3.63    2.8%       1.59   33.9%
+  seafood fillet      24    1.46   20.1%       0.78   49.2%
+  sushi-grade (prem.) 40    0.88   20.9%       0.47   33.8%
+  TOTAL by weight: today 5.0%, at the floor 26.8%
 ```
 
 Premium products get the biggest share of their category today, but authenticity holds them to about a quarter,
@@ -121,7 +122,9 @@ are public goods that industry underfunds.
 ## 7. What would change the conclusions
 
 - **Up:** peer-reviewed animal-cell perfusion at 20,000 L or more; medium below $0.30/L confirmed at scale.
-- **Down:** scale-up limits that bind, leaving R around 3 or more.
+- **Down:** scale-up limits that bind, leaving R around 3 or more; or plant costs nearer Humbird's independent
+  estimate (~$14.5/kg of non-nutrient cost in his most favourable design, against Pasitka's $6–10), which would put
+  the floor near $16/kg.
 - **Demand:** acceptance and the value of “no slaughter” can't be measured before launch; the model carries the
   full range (10% to 75% at equal price).
 
