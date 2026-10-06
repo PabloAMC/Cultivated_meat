@@ -55,9 +55,9 @@ source over re-quoting a number; finish with `./run_tests.sh`.
 
 The cost stack is anchored to **Pasitka et al. 2024** (*Nature Food*), the only cost study built on measured
 production data, throughout. Scale-up risk is expressed inside Pasitka's own three reactor designs (their
-Fig. 4), not through Humbird's headline $37/$51. **Humbird 2021** supplies only the physical amino-acid
-feedstock floor and the reasons scale-up is hard (oxygen and CO₂ transfer, shear, sterility limits on vessel
-size), never a load-bearing cost. Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
+Fig. 4), not through Humbird's headline $37/$51. **Humbird 2021** supplies only the physical feedstock
+floor (amino acids, glucose), the reasons scale-up is hard (oxygen and CO₂ transfer, shear, sterility limits on
+vessel size) and one cross-check of the plant cost, never a load-bearing cost. Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
 2026 State of the Industry report describes them, and a GFI and MG Consulting amino-acid cost analysis
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
 directional evidence, not the central case.
@@ -67,7 +67,7 @@ directional evidence, not the central case.
 Every input falls into one of five categories; `python inputs.py` tags each.
 
 1. **Sourced:** `p_conv`, `media_intensity`, `media_price`, `overhead` (Pasitka Fig. 4),
-   `aa_intensity`/`aa_bulk_price` (Humbird), `eps_own` (scanner meta-analyses), `price_pb_mult` (GFI/NIQ),
+   `aa_intensity`/`aa_bulk_price` and `glucose_intensity` (Humbird), `glucose_price` (GFI & Hawkwood 2025), `eps_own` (scanner meta-analyses), `price_pb_mult` (GFI/NIQ),
    `taste_quality_p` (NECTAR), `w_eth` (Gallup), `pb_mainstream_frac`/`pb_share_target` (GFI/SPINS),
    `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), the Bass `p_innov`/`q_imit` (literature
    norms), and `neophobia_x0` (set to reproduce the ~5% cold share in Van Loo, Caputo & Lusk 2020).
@@ -84,8 +84,8 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    ranges, the long-run share at today's price (8.7%) moves by 2.3 pp for `w_realtissue_E` (0–4), 1.7 pp for
    `w_taste` (1–10), 0.7 pp for `taste_quality_w` (beans' taste, 0.1–0.5), 0.3 pp for `wf_mainstream_target`
    and 0 for `w_slaughter_E`; for comparison, κ (3–6) moves it by 10 pp. The timing knobs (`accept_rate`,
-   `p_innov`, `q_imit`) set *when*, not the ceiling. `glucose_other_floor` (~$1 of the ~$7.5 floor) is a small
-   pure assumption.
+   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$7.7 floor: salts,
+   buffer, vitamins) is a small pure assumption.
 
 The single load-bearing **assumption** is `real_tissue_x = 1`: cultivated meat, being animal tissue, keeps
 conventional meat's advantage with mainstream shoppers. It is exposed as a slider. The baseline also gives
@@ -160,13 +160,27 @@ filters, small-scale capital) is engineered away:
 
 | component | value | basis |
 |---|---|---|
-| amino acids | ~$0.5/kg | 0.26 kg per kg × $2/kg bulk hydrolysate [Humbird Table 3.4]; about chicken-feed cost |
-| glucose and other nutrients | ~$1/kg | assumed |
+| amino acids | ~$0.67/kg | 0.337 kg of soy hydrolysate per kg × $2/kg [Humbird Table 3.5]; it supplies the 0.26 kg of amino acids in Table 3.4 |
+| glucose | ~$0.13/kg | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
+| salts, buffer, vitamins, trace elements | ~$0.9/kg | assumed (Humbird leaves them out as low-cost) |
 | running a plant | ~$6/kg | minimal plant cost at scale [Pasitka: nutrients ~66–70% of perfusion costs] |
-| **floor** | **~$7.5/kg** | R ≈ 1.04 |
+| **floor** | **~$7.7/kg** | R ≈ 1.06 |
 
-The floor sits right at the parity threshold, and it assumes Humbird's scale-up limits are engineered away; if
-they bind, it is out of reach at any medium price.
+*Glucose, physics first.* A cell uses glucose two ways. Some becomes biomass that isn't protein: lipid,
+carbohydrate and nucleotides, 0.065 mol per mol of dry cell mass (Humbird's Reaction 2.6). The rest is burned to pay
+the cell's metabolic power, which runs whether or not the cell grows. Per kilo of cells that cost scales with the
+time a kilo takes to grow, 1/μ. Fully respired (no lactate) at Humbird's μ = 0.029/h, the total is 0.13 mol/mol, or
+0.32 kg of glucose per kg of wet cells; faster growth would cut the respired half, toward 0.16 kg/kg. At $0.40/kg
+that is ~$0.13/kg: glucose barely matters. The feedstock as a whole (~$1.7/kg) is close to a chicken's feed bill
+(US broilers: ~4.6 kg of feed and ~$1.4 per kg of edible meat in 2025, ~$1.9 in the EU; from breeder targets,
+USDA and Wageningen data in the pf-tea evidence, `data/evidence/feed.yaml`).
+
+*What the floor assumes.* Humbird's own hydrolysate medium also buys free glutamine and tyrosine (~$2.6/kg); the
+floor leaves them out, assuming cells that make their own glutamine (glutamine-synthetase lines, standard in CHO)
+and tyrosine supplied by the hydrolysate. The plant term is Pasitka's: Humbird's independent estimate of the same
+non-nutrient costs in his most favourable design is ~$14.5/kg (`humbird_plant_cost`, a cross-check, not used),
+which would put the floor near $16/kg. The floor sits right at the parity threshold only on Pasitka's plant costs,
+and it assumes Humbird's scale-up limits are engineered away; if they bind, it is out of reach at any medium price.
 
 ## Step 2 — demand (`market_share.py`)
 
@@ -391,6 +405,8 @@ Flags: `--no-latex` (no TeX), `--show`, `--outdir`, `--formats`, `--fix name=val
   anchors and the three reactor designs.
 - **Humbird, D. (2021).** Scale-up economics for cultured meat. *Biotechnology and Bioengineering* 118,
   3239–3250. The feedstock floor and the physical scale-up limits.
+- **GFI & Hawkwood Biotech (2025).** Driving down costs of fermentation-derived ingredients (doi 10.62468/trxj5734).
+  US Midwest DE95 glucose price.
 - **GFI (2026).** State of the Industry report: cultivated meat, seafood and ingredients. Company medium-cost
   reports ($0.20/L or less) and the GFI/MG Consulting amino-acid cost analysis.
 - **Gu et al. (2025)**, scaffold materials. **Peacock (2023)**, EA Forum: displacement of meat by plant-based at

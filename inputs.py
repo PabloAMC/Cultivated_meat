@@ -64,7 +64,8 @@ class Input:
 # THE REGISTRY  (grouped by where in the ladder the number is used)
 # Tags: [Pasitka] empirical TEA (Nature Food 5, 693-702, 2024) · [Humbird] TEA
 #       (Biotechnol. Bioeng. 118, 3239-3250, 2021) · [GFI] GFI 2025 State-of-the-
-#       Industry / medium-cost analysis (company self-reports) · [Gu25-qual] Gu et al.
+#       Industry / medium-cost analysis (company self-reports) · [GFI25] GFI & Hawkwood
+#       2025 fermentation cost report (glucose price) · [Gu25-qual] Gu et al.
 #       2025 scaffolds review (Compr. Rev. Food Sci. Food Saf. 24, e70221) — materials
 #       only, NO cost figure · [market] observed retail price · [scanner] meat/plant-
 #       based own-price elasticity (Andreyeva 2010; Gallet 2010/2012) · [assumed] our
@@ -73,8 +74,9 @@ class Input:
 # Sourcing discipline: the cost stack is anchored to Pasitka throughout. The
 # scale-up risk is expressed INSIDE Pasitka's own three reactor configurations
 # (see `overhead` below), not via Humbird's $37/$51 — Humbird supplies only the
-# physical amino-acid feedstock floor and the *rationale* for why scale-up is
-# hard (CO2/O2 transfer, sterility), never a load-bearing cost ceiling.
+# physical feedstock floor (amino acids, glucose), the *rationale* for why scale-up
+# is hard (CO2/O2 transfer, sterility) and one plant-cost cross-check
+# (`humbird_plant_cost`, unused), never a load-bearing cost ceiling.
 # ----------------------------------------------------------------------------
 REGISTRY: dict[str, Input] = {
 
@@ -135,13 +137,37 @@ REGISTRY: dict[str, Input] = {
              "lever AND the largest downside, but the central estimate stays Pasitka-faithful."),
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
-    "aa_intensity": Input(0.26, "kg AA/kg wet", "[Humbird] Table 3.4 stoichiometry (~0.85 "
-        "kg/kg dry)", note="stoichiometric -> does NOT scale with media efficiency"),
+    "aa_intensity": Input(0.337, "kg hydrolysate/kg wet", "[Humbird] Table 3.5: soy hydrolysate "
+        "needed to supply Reaction 2.11's amino acids (0.26 kg/kg of pure amino acids, Table 3.4; "
+        "more hydrolysate because its amino-acid profile does not match the cells')",
+        note="stoichiometric -> does NOT scale with media efficiency. Humbird adds free glutamine "
+             "(0.044 kg/kg, $1.74) and tyrosine (0.009 kg/kg, $0.88) supplements; the floor leaves "
+             "them out, assuming cells that make their own glutamine (glutamine-synthetase lines, "
+             "as in CHO) and tyrosine covered by the hydrolysate"),
     "aa_bulk_price": Input(2.0, "$/kg", "[Humbird] bulk plant hydrolysate (cuts $15-16/kg)"),
-    "glucose_other_floor": Input(1.0, "$/kg", "[assumed] irreducible non-AA bulk nutrients"),
+    "glucose_intensity": Input(0.32, "kg/kg wet", "[Humbird] glucose at full respiration: Table "
+        "2.3 gives 0.13 mol per mol DCMa (vs 0.147 for Reaction 2.11 = 0.362 kg/kg wet, Table 3.4), "
+        "so 0.13/0.147 x 0.362 = 0.32",
+        note="anabolic glucose (lipid, carbohydrate, nucleotides: 0.065 mol, Reaction 2.6) + glucose "
+             "respired to pay the cell's metabolic power over its growth (mu = 0.029/h). No lactate; "
+             "faster growth lowers it, toward 0.16 kg/kg (anabolic only)"),
+    "glucose_price": Input(0.40, "$/kg", "[GFI25] US Midwest DE95 glucose, GFI & Hawkwood 2025 "
+        "(Driving down costs of fermentation-derived ingredients, Table 6: $0.35-0.56)",
+        note="Humbird quotes ~$0.25-0.26/kg contract prices"),
+    "other_nutrients_floor": Input(0.9, "$/kg", "[assumed] mineral salts, buffer, vitamins and "
+        "trace elements at the floor",
+        note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
+             "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
+             "so this leans conservative"),
     "plant_floor": Input(6.0, "$/kg", "[Pasitka] large-scale perfusion config: nutrients "
         "~66-70% of COGS, so non-nutrient remainder ~30-34% ~= $6/kg",
         note="least-constrained floor term; dominates the floor's width"),
+    "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
+        "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
+        "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",
+        note="CROSS-CHECK ONLY, not used in the cost: Humbird's independent estimate of the non-nutrient cost "
+             "of his most favourable design, ~2.4x plant_floor and near the top of the overhead band (15). The "
+             "floor is conditional on Pasitka's plant costs"),
     "eff_best": Input(0.25, "x media-use", "[assumed] CHO-grade media-volume multiplier "
         "(~4x less media than Pasitka's cells)", note="drives the CHO-grade SCENARIO, not the floor"),
     "cleanroom_cost": Input(3.0, "$/kg", "[Humbird] clean-room / aseptic buildings cost burden "
@@ -561,8 +587,11 @@ REGISTRY: dict[str, Input] = {
 # ----------------------------------------------------------------------------
 # Derived constants (computed from the registry — never hand-typed twice)
 # ----------------------------------------------------------------------------
-# Irreducible amino-acid feedstock cost: media cost can never fall below this.
-AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].value  # 0.26*2 = 0.52
+# Irreducible feedstock: what the cells must physically eat. Media cost can never fall below
+# AA_FLOOR + GLUCOSE_OTHER_FLOOR (cost_model.FEEDSTOCK_FLOOR).
+AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].value  # 0.337*2 = 0.67
+GLUCOSE_FLOOR: float = REGISTRY["glucose_intensity"].value * REGISTRY["glucose_price"].value  # 0.32*0.40 = 0.13
+GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].value          # 0.13 + 0.9
 
 # Pasitka's three MODELED reactor configurations (Nature Food 2024, Fig. 4), as
 # (label -> non-media overhead $/kg). Media cost (~$14/kg at $0.63/L) is ~constant
@@ -649,7 +678,9 @@ def datasheet() -> str:
         src = inp.source if not inp.note else f"{inp.source}  [{inp.note}]"
         lines.append(f"{name:<22}{inp.value:>8g}  {inp.unit:<13}{rng:<18}{src}")
     lines += ["-" * 78,
-              f"derived  AA_FLOOR = aa_intensity x aa_bulk_price = {AA_FLOOR:g} $/kg"]
+              f"derived  AA_FLOOR = aa_intensity x aa_bulk_price = {AA_FLOOR:g} $/kg",
+              f"derived  GLUCOSE_FLOOR = glucose_intensity x glucose_price = {GLUCOSE_FLOOR:g} $/kg",
+              f"derived  GLUCOSE_OTHER_FLOOR = GLUCOSE_FLOOR + other_nutrients_floor = {GLUCOSE_OTHER_FLOOR:g} $/kg"]
     return "\n".join(lines)
 
 

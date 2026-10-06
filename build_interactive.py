@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import os
 
-from inputs import (value, prior, AA_FLOOR, PASITKA_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
+from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
@@ -64,10 +64,10 @@ def build_model() -> dict:
     const = {
         "media_intensity": value("media_intensity"),
         "AA_FLOOR": AA_FLOOR,
-        "FEEDSTOCK_FLOOR": AA_FLOOR + value("glucose_other_floor"),
-        "glucose_other_floor": value("glucose_other_floor"),
+        "FEEDSTOCK_FLOOR": AA_FLOOR + GLUCOSE_OTHER_FLOOR,
+        "glucose_other_floor": GLUCOSE_OTHER_FLOOR,
         "plant_floor": value("plant_floor"),
-        "cost_floor": AA_FLOOR + value("glucose_other_floor") + value("plant_floor"),
+        "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
         # products: w=whole-food, c=conventional, p=plant-based, x=cultivated.
         # the JS mirrors market_share._utilities/share and re-runs the calibration solve.
@@ -791,6 +791,9 @@ def derived_numbers() -> dict:
         "MARKUP": f"{markup:.0f}",
         "PARITY_BIOMASS": f"{p_conv - markup:.0f}",
         "COST_FLOOR": f"{floor:.1f}",
+        "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
+        "PLANT_FLOOR": f"{value('plant_floor'):.0f}",
+        "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
         "R_STALL": f"{(stall + markup) / p_conv:.2f}",
         "R_MC_P10": f"{Rq[0]:.1f}", "R_MC_P50": f"{Rq[1]:.1f}", "R_MC_P90": f"{Rq[2]:.1f}",
@@ -1082,8 +1085,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's $9.9:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
-      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids and glucose (about $1.5/kg [2]), and even an
-      ideal plant costs about $6/kg to run (from Pasitka's breakdown [1]): a floor of about ${{COST_FLOOR}}/kg. Parity
+      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]), and even an
+      ideal plant costs about ${{PLANT_FLOOR}}/kg to run (from Pasitka's breakdown [1]; Humbird's independent estimate is about
+      ${{HUMBIRD_PLANT}}/kg [2]): a floor of about ${{COST_FLOOR}}/kg. Parity
       with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor
       <i>R</i> ≈ {{R_FLOOR}}.</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
