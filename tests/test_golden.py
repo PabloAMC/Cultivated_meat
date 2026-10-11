@@ -81,7 +81,7 @@ GOLDEN = {
     #    y_eff = income_ref*(income/income_ref)**phi, single constant alpha. phi default 0.25->0.5 to
     #    hit the empirical ~2x Nigeria/US elasticity gradient. The income_* rows show the BLP gradient.
     #  - per-cut p_ref: each meat type's absolute price uses its own conventional price (us_pen_val moved).
-    "cost_floor":          7.5200,
+    "cost_floor":          7.7020,
     "biomass_base":        24.0120,
     "basic_R":             2.41767,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
@@ -204,8 +204,9 @@ def check_derived_prose_numbers() -> list:
         s0 = f(R)
         return (f(R * (1 + h)) - f(R * (1 - h))) / (2 * h * s0)
 
+    from inputs import GLUCOSE_OTHER_FLOOR
     cost_floor = (value("aa_intensity") * value("aa_bulk_price")
-                  + value("glucose_other_floor") + value("plant_floor"))
+                  + GLUCOSE_OTHER_FLOOR + value("plant_floor"))
 
     # (label, live value, the exact string the prose uses for it). The string is what must appear
     # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
@@ -214,12 +215,12 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−0.8"),
         ("elasticity at R=1.5",          elas(1.5),  "−1.7"),
         ("elasticity at R=2.42 (op.)",   elas(2.42), "−3.6"),
-        ("biomass cost floor $/kg",      cost_floor, "7.5"),
+        ("biomass cost floor $/kg",      cost_floor, "7.7"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",
               "elasticity at R=1.5": "−1.7", "elasticity at R=2.42 (op.)": "−3.6",
-              "biomass cost floor $/kg": "7.5"}
+              "biomass cost floor $/kg": "7.7"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

@@ -60,30 +60,48 @@ were draft guesses that turned out inaccurate. We keep them clearly separated:
         sterility ceilings are engineered away. That assumption, not the media
         price, is the model's biggest unrepresented risk. Flagged in cost_floor().
 
+   * Glucose: his Table 2.3 gives 0.13 mol per mol of dry cell mass at full
+     respiration (no lactate), i.e. 0.32 kg per kg wet: about $0.13/kg at $0.40/kg.
+   * Buffers and mineral salts are left out of his medium cost as low-cost (fn. 26).
+
   OUR BEST GUESSES (labelled as ours, NOT attributed to Humbird):
    * aa_intensity: an earlier draft used 1.5 kg AA/kg biomass; Humbird's
-     stoichiometry is ~0.26 kg/kg wet (0.85 dry). CORRECTED to 0.26 -- the old
-     value was ~6x too high. (Low impact: AA is a small slice of the floor.)
+     stoichiometry is ~0.26 kg/kg wet of pure amino acids (0.85 dry), and 0.337 kg/kg
+     of soy hydrolysate to supply them (Table 3.5). The floor prices hydrolysate, so
+     it uses 0.337. Humbird's $3.4 residual also buys free glutamine and tyrosine
+     ($1.74 + $0.88); the floor leaves them out, assuming glutamine-synthetase cells
+     (standard in CHO) and tyrosine from the hydrolysate. (Low impact either way next
+     to the plant term.)
    * "~$0.75/kg AA at CHO-grade efficiency" and "4x" were draft extrapolations
      with NO basis in Humbird; they are model assumptions, not citations.
 
 The floor (see cost_floor):
-  * amino acids are irreducible feedstock at ~0.26 kg/kg wet x $2/kg = ~$0.5/kg.
-    This is comparable to, not far below, conventional chicken's feed cost: a
-    modern broiler runs FCR ~1.6-2 kg feed/kg live weight (~3-4 kg/kg edible) at
-    ~$0.35/kg feed, i.e. ~$1-1.5/kg of feed per kg edible chicken. (The "9 cal in
-    per 1 out" line is a CALORIE metric and overstates the headroom; by MASS the
-    bird is highly efficient.) So cultivated meat has no order-of-magnitude
-    feedstock advantage over the bird.
-  * glucose + other bulk nutrients: ~$1/kg irreducible.
+  * amino acids are irreducible feedstock: 0.337 kg/kg wet of hydrolysate x $2/kg =
+    ~$0.67/kg.
+  * glucose: anabolism (lipid, carbohydrate, nucleotides) plus the glucose respired
+    to pay the cells' metabolic power while they grow. Humbird's full-respiration
+    stoichiometry gives 0.32 kg/kg wet (half of it anabolic; faster growth lowers the
+    rest), x $0.40/kg (GFI & Hawkwood 2025, US Midwest) = ~$0.13/kg. Salts, buffer,
+    vitamins and trace elements: ~$0.9/kg, an assumption (the rest of an earlier $1
+    glucose-and-other guess; Humbird treats them as low-cost). Together ~$1.7/kg.
+    This is comparable to, not far below, conventional chicken's feed bill: US
+    broilers eat ~4.6 kg of feed per kg of edible meat (parents included), ~$1.4/kg
+    of edible meat in 2025 (~$1.9 in the EU, 2024), from NCC, Aviagen, USDA NASS and
+    Wageningen data (pf-tea, data/evidence/feed.yaml). (The "9 cal in per 1 out" line
+    is a CALORIE metric and overstates the headroom; by MASS the bird is efficient.)
+    So cultivated meat has no order-of-magnitude feedstock advantage over the bird.
   * running a plant: capital/labour/maintenance/utilities do not go to zero.
     Pasitka anchors this (large-scale perfusion config): nutrients rise to
     ~66-70% of COGS, so the non-nutrient floor is ~30-34% of COGS ~= $6/kg.
+    CROSS-CHECK: Humbird's independent estimate of the same non-nutrient cost for
+    his most favourable design is ~$14.5/kg (Table 4.7; humbird_plant_cost), near
+    the top of the overhead band. The floor is therefore conditional on Pasitka's
+    plant costs; on Humbird's it would be ~$16/kg.
 
 Result preview (defaults): Pasitka base ~$24/kg; medium at $0.2/L ~$14/kg;
-+ CHO-efficient cells ~$11/kg; floor ~$7.5/kg (band ~$7-10). With a $5/kg
++ CHO-efficient cells ~$11/kg; floor ~$7.7/kg (band ~$7-10). With a $5/kg
 additive markup against a $12/kg commodity price, parity (R=1) needs biomass
-<= $7/kg -- and the floor sits right AT that line (R ~1.04, band ~1.00-1.25).
+<= $7/kg -- and the floor sits right AT that line (R ~1.06, band ~1.02-1.27).
 So price parity on a basic product is, at best, marginal: it requires the floor
 to land at its optimistic (large-scale) end AND the scale/sterility ceilings
 above to be solved.
@@ -103,14 +121,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior, AA_FLOOR, PASITKA_CONFIGS
+from inputs import value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS
 from price_ratio import p_cult as _p_cult, ratio as _ratio, parity_cost as _parity_cost
 
 # The medium's IRREDUCIBLE feedstock: amino acids + bulk glucose, which the cells
 # must physically consume. Medium cost cannot fall below this however cheap the
 # medium gets — but it is STOICHIOMETRIC, so it does NOT scale with media
 # efficiency (using less medium does not let the cells eat fewer amino acids).
-FEEDSTOCK_FLOOR = AA_FLOOR + value("glucose_other_floor")   # ~0.52 + 1.0 = 1.52 $/kg
+FEEDSTOCK_FLOOR = AA_FLOOR + GLUCOSE_OTHER_FLOOR   # ~0.67 + (0.13 + 0.9) = 1.70 $/kg
 
 
 # ----------------------------------------------------------------------------
@@ -129,9 +147,9 @@ class CostParams:
     # --- floor inputs (irreducible) ----------------------------------------
     #   aa_intensity is stoichiometric (does NOT scale with media efficiency); an
     #   earlier draft used 1.5 here, ~6x too high — see module docstring.
-    aa_intensity: float = value("aa_intensity")        # kg amino acids/kg wet  [Humbird Table 3.4]
+    aa_intensity: float = value("aa_intensity")        # kg hydrolysate/kg wet  [Humbird Table 3.5]
     aa_bulk_price: float = value("aa_bulk_price")      # $/kg bulk plant hydrolysate [Humbird]
-    glucose_other_floor: float = value("glucose_other_floor")  # $/kg non-AA nutrients [assumed]
+    glucose_other_floor: float = GLUCOSE_OTHER_FLOOR   # $/kg glucose [derived] + salts etc. [assumed]
     plant_floor: float = value("plant_floor")          # $/kg minimal plant overhead at scale [Pasitka]
     eff_best: float = value("eff_best")                # CHO-grade media-VOLUME multiplier; SCENARIO only
 
@@ -179,7 +197,7 @@ def cost_floor(pr: CostParams) -> float:
     capping facility size) are engineered away. If they are not, this floor is
     unreachable at ANY media price -- the model's largest unrepresented risk.
     """
-    aa = pr.aa_intensity * pr.aa_bulk_price   # 0.26*2 = 0.52 (stoichiometric, no eff knob)
+    aa = pr.aa_intensity * pr.aa_bulk_price   # 0.337*2 = 0.67 (stoichiometric, no eff knob)
     return aa + pr.glucose_other_floor + pr.plant_floor
 
 
@@ -368,7 +386,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
         ax.bar(xf, h, bottom=b, width=0.62, color=c, alpha=0.9)
     # label the irreducible components inside the floor block
     for b, h, lab in zip(bottoms, heights,
-                         [f"amino acids \\${aa:.1f}", f"glucose \\${pr.glucose_other_floor:.0f}",
+                         [f"amino acids \\${aa:.1f}", f"glucose, salts \\${pr.glucose_other_floor:.1f}",
                           f"plant overhead \\${pr.plant_floor:.0f}"]):
         ax.text(xf + 0.34, b + h / 2, lab, fontsize=6.5, va="center", color="0.3")
     ax.text(xf, floor + 0.6, f"FLOOR\n\\${floor:.1f}", ha="center", fontsize=7.5,
