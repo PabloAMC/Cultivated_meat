@@ -62,7 +62,7 @@ class Input:
 
 # ----------------------------------------------------------------------------
 # THE REGISTRY  (grouped by where in the ladder the number is used)
-# Tags: [Pasitka] empirical TEA (Nature Food 5, 693-702, 2024) · [Humbird] TEA
+# Tags: [Pasitka] empirical TEA (Nature Food 5, 693-702, 2024) · [Believer] company announcements, read 2026-11-03 · [Humbird] TEA
 #       (Biotechnol. Bioeng. 118, 3239-3250, 2021) · [GFI] GFI 2025 State-of-the-
 #       Industry / medium-cost analysis (company self-reports) · [GFI25] GFI & Hawkwood
 #       2025 fermentation cost report (glucose price) · [Gu25-qual] Gu et al.
@@ -168,6 +168,27 @@ REGISTRY: dict[str, Input] = {
         note="CROSS-CHECK ONLY, not used in the cost: Humbird's independent estimate of the non-nutrient cost "
              "of his most favourable design, ~2.4x plant_floor and near the top of the overhead band (15). The "
              "floor is conditional on Pasitka's plant costs"),
+    # --- cost cross-checks (shown on the page's reality checks; NOT used in the cost) -----------
+    # Read in Humbird 2021's journal version (Biotechnol Bioeng 118:3239; Europe PMC PMC8362201) on 2026-11-03.
+    "humbird_tci_fedbatch": Input(328e6, "$", "[Humbird] Table 2: 'Total capital investment | $328M' (fed-batch, "
+        "649 m3 of bioreactors)", note="CROSS-CHECK ONLY"),
+    "humbird_output_fedbatch": Input(6.8e6, "kg wet/yr", "[Humbird] Table 2: 'Production rate (kTA) | 6.8' (fed-batch)",
+        note="CROSS-CHECK ONLY"),
+    "humbird_plant_charge": Input(0.24, "of TCI per yr", "[Humbird] Sect. 2.3: 'a capital charge factor (CCF ...) of "
+        "15%/y to the TCI' (i = 7.5%, n = 10 yr); Sect. 2.5: '4% TCI/y for maintenance (including CIP) and 5% TCI/y "
+        "for insurance'. 0.15 + 0.04 + 0.05 = 0.24 (derived)",
+        note="CROSS-CHECK ONLY: Humbird's 'CAPEX' lines in Table 2 ($4 + $3 + $5 = $12/kg fed-batch) are this 24%/yr "
+             "of TCI per kg (0.24 x 328M / 6.8M kg = $11.6/kg); his text's '$48 M/y' is the 15% capital charge "
+             "alone. Pasitka's split of its non-medium cost into capital and running costs is not on file"),
+    "believer_capex": Input(123.35e6, "$", "[Believer] 'initial planned investment of $123.35m' for the Wilson, NC "
+        "plant (FoodNavigator, 8 Dec 2022); 'an initial investment of more than $123 million' (NC Governor's office, "
+        "7 Dec 2022)", note="CROSS-CHECK ONLY. An initial figure, announced at groundbreaking; the final cost of the "
+        "plant (completed 2025) is not public"),
+    "believer_capacity": Input(10e6, "kg/yr", "[Believer] 'the capacity to produce at least 10,000 metric tons of "
+        "cultivated meat (around 22 million lbs) per year' (FoodNavigator, 8 Dec 2022)",
+        note="CROSS-CHECK ONLY. A company claim (Believer Meats, whose scientists co-authored Pasitka 2024). The plant "
+             "was completed in 2025, but the company became defunct before producing at scale and its assets went "
+             "to sale (Just Food, 2026: 'defunct peer Believer Meats', BDO Consulting managing the sale)"),
     "eff_best": Input(0.25, "x media-use", "[assumed] CHO-grade media-volume multiplier "
         "(~4x less media than Pasitka's cells)", note="drives the CHO-grade SCENARIO, not the floor"),
     "cleanroom_cost": Input(3.0, "$/kg", "[Humbird] clean-room / aseptic buildings cost burden "

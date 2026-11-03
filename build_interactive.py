@@ -67,6 +67,9 @@ def build_model() -> dict:
         "FEEDSTOCK_FLOOR": AA_FLOOR + GLUCOSE_OTHER_FLOOR,
         "glucose_other_floor": GLUCOSE_OTHER_FLOOR,
         "plant_floor": value("plant_floor"),
+        # cost cross-checks for the page's reality checks (inputs.py; not used in the cost)
+        **{k: value(k) for k in ("humbird_plant_cost", "humbird_tci_fedbatch", "humbird_output_fedbatch",
+                                 "humbird_plant_charge", "believer_capex", "believer_capacity")},
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
         # products: w=whole-food, c=conventional, p=plant-based, x=cultivated.
@@ -793,6 +796,7 @@ def derived_numbers() -> dict:
         "COST_FLOOR": f"{floor:.1f}",
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
         "PLANT_FLOOR": f"{value('plant_floor'):.0f}",
+        "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.0f}",
         "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
         "R_STALL": f"{(stall + markup) / p_conv:.2f}",
@@ -873,7 +877,7 @@ svg{width:100%;height:auto;display:block;}
 .selftest .stchk{color:var(--green);font-weight:700;width:14px;}
 .selftest .stwhat{color:var(--ink);}
 .selftest .stval{text-align:right;font-weight:700;color:var(--accent);white-space:nowrap;}
-.selftest .stobs{color:var(--muted);white-space:nowrap;}
+.selftest .stobs{color:var(--muted);}
 .selftest .stnote{color:var(--muted);font-size:.7rem;margin-top:5px;}
 .selftest .stbad{color:var(--red);}
 .selftest .stsecrow td{border-top:none;padding-top:8px;}
@@ -1096,9 +1100,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's $9.9:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
-      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]), and even an
-      ideal plant costs about ${{PLANT_FLOOR}}/kg to run (from Pasitka's breakdown [1]; Humbird's independent estimate is about
-      ${{HUMBIRD_PLANT}}/kg [2]): a floor of about ${{COST_FLOOR}}/kg. Parity
+      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
+      salts, buffer and vitamins in it are an assumption), and even an ideal plant costs about ${{PLANT_FLOOR}}/kg to run (a
+      judgment read from Pasitka's breakdown [1]; Humbird's independent estimate is about ${{HUMBIRD_PLANT}}/kg [2], most of it a
+      charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year): a floor of about ${{COST_FLOOR}}/kg. Parity
       with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor
       <i>R</i> ≈ {{R_FLOOR}}.</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
@@ -3117,7 +3122,24 @@ function selfTest(){
   //   MODEL OUTPUT = a model projection with no real-world figure to check against
   const TAG={match:"<span class='sttag tag-match'>MATCHES</span>",
              cal:"<span class='sttag tag-cal'>CALIBRATED</span>",
-             proj:"<span class='sttag tag-proj'>MODEL OUTPUT</span>"};
+             proj:"<span class='sttag tag-proj'>MODEL OUTPUT</span>",
+             other:"<span class='sttag tag-pin'>OTHER MODEL</span>",
+             claim:"<span class='sttag tag-cal'>COMPANY CLAIM</span>"};
+  // cost cross-checks (inputs.py, read 2026-11-03): Humbird's non-medium cost and its plant share (24% of TCI a
+  // year: capital charge 15% + maintenance 4% + insurance 5%), and Believer's announced plant cost and capacity
+  const ovh=def.overhead, hb=C.humbird_plant_cost, hbPlant=C.humbird_plant_charge*C.humbird_tci_fedbatch/C.humbird_output_fedbatch;
+  const hbPerT=C.humbird_tci_fedbatch/(C.humbird_output_fedbatch/1000), blPerT=C.believer_capex/(C.believer_capacity/1000);
+  const blPlant=C.humbird_plant_charge*C.believer_capex/C.believer_capacity;
+  const k$=x=>"$"+(x/1000).toFixed(0)+"k";
+  const costRows=[
+    ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
+       "this model uses Pasitka's figure. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
+       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+"); Pasitka's split is not public", "other"],
+    ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
+       "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+
+       (C.humbird_plant_charge*100).toFixed(0)+"% a year that plant costs $"+blPlant.toFixed(1)+"/kg, inside this model's $"+
+       ovh.toFixed(1)+". Built in 2025, but the company closed before producing at scale", "claim"],
+  ];
   // each row: [plain-language what, model value, the real-world anchor (or meaning), tag]
   const rows=[
     ["Plant-based <b>milk</b>, same model", (mlk).toFixed(0)+"%",
@@ -3138,9 +3160,11 @@ function selfTest(){
     "<div class='sthead'>Reality checks (at the default settings)</div>"+
     "<div class='stanchor'>Fitted to: plant-based meat's ~1.2% US share (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
     "mainstream buyers, plus an assumed ~6% meatless rate (A4). Not fitted:</div>"+
-    "<table>"+rows.map(rowHTML).join("")+"</table>"+
+    "<table><tr class='stsecrow'><td colspan='3' class='stsec'>Demand</td></tr>"+rows.map(rowHTML).join("")+
+    "<tr class='stsecrow'><td colspan='3' class='stsec'>Cost</td></tr>"+costRows.map(rowHTML).join("")+"</table>"+
     "<div class='stnote'><b>MATCHES</b>: a real number the model wasn't fitted to. <b>CALIBRATED</b>: set to "+
-    "match, so a consistency check. <b>MODEL OUTPUT</b>: nothing real to compare yet.</div>"+
+    "match, so a consistency check. <b>MODEL OUTPUT</b>: nothing real to compare yet. <b>OTHER MODEL</b>: another "+
+    "study's estimate; agreeing with it is not proof. <b>COMPANY CLAIM</b>: a company's own figure.</div>"+
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }

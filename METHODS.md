@@ -182,6 +182,26 @@ non-nutrient costs in his most favourable design is ~$14.5/kg (`humbird_plant_co
 which would put the floor near $16/kg. The floor sits right at the parity threshold only on Pasitka's plant costs,
 and it assumes Humbird's scale-up limits are engineered away; if they bind, it is out of reach at any medium price.
 
+### Cost cross-checks (added 2026-11-03; on the page's reality checks, not used in the cost)
+
+*Humbird's plant cost, read in full (journal version, Europe PMC PMC8362201).* His fed-batch design costs $328M
+(Table 2) for 6.8 kt/yr of wet cells. He turns the plant's cost into a yearly charge of 24% of the total capital
+investment: a capital charge factor of 15%/yr (7.5% over 10 years, Sect. 2.3) plus 4%/yr maintenance and 5%/yr
+insurance (Sect. 2.5). That is $11.6/kg, the "CAPEX" lines of his Table 2 ($4 + $3 + $5); the "$48 M/y" in his text is
+the 15% alone. So about 80% of his $14.5/kg non-medium cost is the plant. Pasitka's $9.9/kg (`overhead`) is not split
+into capital and running costs in anything on file, so the two cannot yet be reconciled line by line. In the
+precision-fermentation model (pf-tea), gaps of this size between published designs were mostly accounting:
+yearly maintenance and insurance (Humbird's 9% against ~2% in NREL-style reports), installation factors, and
+whether a return on capital is charged at all. **Open question: does Pasitka's $24/kg include a return on capital?**
+
+*A real plant: Believer Meats, Wilson, North Carolina.* Announced in December 2022 at "an initial investment of more
+than $123 million" (NC Governor's office) or "$123.35m", with "the capacity to produce at least 10,000 metric tons of
+cultivated meat ... per year" (FoodNavigator). Completed in 2025; the company (whose scientists co-authored Pasitka
+2024) then closed before producing at scale, and the plant went to sale (Just Food). As announced, that is $12,000 per
+tonne of yearly capacity, against $48,000 in Humbird's fed-batch design; at Humbird's 24%/yr it would cost $3.0/kg,
+inside this model's $9.9 non-medium cost. Either Humbird's plant is conservative (aseptic, clean-room) or the capacity
+claim was optimistic; the plant never ran long enough to say. A company claim, and the only built plant on file.
+
 ## Step 2 — demand (`market_share.py`)
 
 A two-segment, four-product logit. Products: conventional `c`, plant-based `p`, cultivated `x`, whole food
