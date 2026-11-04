@@ -67,6 +67,9 @@ def build_model() -> dict:
         "FEEDSTOCK_FLOOR": AA_FLOOR + GLUCOSE_OTHER_FLOOR,
         "glucose_other_floor": GLUCOSE_OTHER_FLOOR,
         "plant_floor": value("plant_floor"),
+        # cost cross-checks for the page's reality checks (inputs.py; not used in the cost)
+        **{k: value(k) for k in ("humbird_plant_cost", "humbird_tci_fedbatch", "humbird_output_fedbatch",
+                                 "humbird_plant_charge", "believer_capex", "believer_capacity")},
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
         # products: w=whole-food, c=conventional, p=plant-based, x=cultivated.
@@ -793,6 +796,7 @@ def derived_numbers() -> dict:
         "COST_FLOOR": f"{floor:.1f}",
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
         "PLANT_FLOOR": f"{value('plant_floor'):.0f}",
+        "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.0f}",
         "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
         "R_STALL": f"{(stall + markup) / p_conv:.2f}",
@@ -810,7 +814,7 @@ def derived_numbers() -> dict:
 
 PAGE_HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cultivated meat — how much of the market can it win?</title>
+<title>Cultivated meat: how much of the market can it win?</title>
 <style>
 :root{--ink:#1a1a1a;--muted:#666;--rule:#e3e3e3;--accent:#0072B2;--orange:#E69F00;
  --green:#117733;--red:#CC3311;--bg:#fff;}
@@ -821,8 +825,9 @@ body{margin:0;background:var(--bg);color:var(--ink);
 h1{font-size:1.45rem;margin:0 0 .2em;font-family:Georgia,serif;}
 .lede{color:var(--muted);font-size:.92rem;margin:0 0 14px;overflow-wrap:break-word;max-width:760px;}
 .lede a{color:var(--accent);}
-.grid{display:grid;grid-template-columns:300px 1fr;gap:26px;}
-@media(max-width:780px){.grid{grid-template-columns:1fr;}}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:26px;}
+.grid>*{min-width:0;}
+@media(max-width:780px){.grid{grid-template-columns:minmax(0,1fr);}}
 .rail{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;
  position:sticky;top:14px;background:#fcfcfc;
  max-height:calc(100vh - 28px);overflow-y:auto;overscroll-behavior:contain;}
@@ -866,12 +871,13 @@ svg{width:100%;height:auto;display:block;}
   border-radius:6px;padding:8px 10px;background:#fbfcfd;}
 .selftest .sthead{font-weight:700;color:var(--ink);font-size:.76rem;margin-bottom:5px;}
 .selftest table{border-collapse:collapse;width:100%;}
+@media(max-width:560px){.selftest table,.selftest tbody,.selftest tr{display:block;} .selftest td{display:inline-block;border-top:none;} .selftest tr{border-top:1px solid #eef1f3;padding:3px 0;} .selftest td.stwhat{display:block;}}
 .selftest td{padding:2px 6px 2px 0;vertical-align:top;border-top:1px solid #eef1f3;}
 .selftest tr:first-child td{border-top:none;}
 .selftest .stchk{color:var(--green);font-weight:700;width:14px;}
 .selftest .stwhat{color:var(--ink);}
 .selftest .stval{text-align:right;font-weight:700;color:var(--accent);white-space:nowrap;}
-.selftest .stobs{color:var(--muted);white-space:nowrap;}
+.selftest .stobs{color:var(--muted);}
 .selftest .stnote{color:var(--muted);font-size:.7rem;margin-top:5px;}
 .selftest .stbad{color:var(--red);}
 .selftest .stsecrow td{border-top:none;padding-top:8px;}
@@ -955,6 +961,14 @@ text{font-family:Georgia,serif;}
 .chain .arr{align-self:center;color:#aaa;font-size:1.1rem;}
 @media(max-width:620px){.chain{flex-direction:column;} .chain .arr{transform:rotate(90deg);}}
 .howto{font-size:.84rem;color:#444;margin:0 0 16px;max-width:760px;}
+.calc{border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:0 0 16px;font-size:.84rem;}
+.calc .ch{font-weight:700;margin-bottom:4px;}
+.calc ol{margin:0;padding-left:20px;}
+.calc li{margin:4px 0;}
+.calc .eq{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;background:#f7f7f5;border-radius:5px;padding:2px 6px;display:inline-block;max-width:100%;overflow-x:auto;white-space:nowrap;vertical-align:middle;}
+.calc .note{color:#777;font-size:.76rem;margin-top:4px;}
+@media(max-width:560px){.calc .eq{white-space:normal;}}
+.linkbtn{margin-top:6px;}
 .rail details.adv{margin-top:14px;border-top:1px solid var(--rule);padding-top:6px;}
 .rail details.adv>summary{cursor:pointer;font-size:.8rem;font-weight:700;color:var(--accent);padding:4px 0;}
 .head .sub2{font-size:.72rem;color:var(--muted);margin-top:1px;}
@@ -976,7 +990,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: how much of the meat market can it win — and how fast? <span class="stamp">build __BUILD_STAMP__</span></h1>
+<h1>Cultivated meat: how much of the meat market can it win, and how fast? <span class="stamp">build __BUILD_STAMP__</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
 
@@ -1011,6 +1025,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
   <div class="rail" id="rail"></div>
   <div>
     <div class="heads" id="heads"></div>
+    <div class="calc" id="calc" aria-live="polite"></div>
     <div class="mcbar">
       <button class="mcbtn" id="mcbtn">Monte Carlo: off</button>
       <span class="mcnote">Redraws the charts as uncertainty bands.</span>
@@ -1085,9 +1100,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's $9.9:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
-      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]), and even an
-      ideal plant costs about ${{PLANT_FLOOR}}/kg to run (from Pasitka's breakdown [1]; Humbird's independent estimate is about
-      ${{HUMBIRD_PLANT}}/kg [2]): a floor of about ${{COST_FLOOR}}/kg. Parity
+      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
+      salts, buffer and vitamins in it are an assumption), and even an ideal plant costs about ${{PLANT_FLOOR}}/kg to run (a
+      judgment read from Pasitka's breakdown [1]; Humbird's independent estimate is about ${{HUMBIRD_PLANT}}/kg [2], most of it a
+      charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year): a floor of about ${{COST_FLOOR}}/kg. Parity
       with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor
       <i>R</i> ≈ {{R_FLOOR}}.</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
@@ -2004,6 +2020,7 @@ function drawHeads(s){
      (p.tvalp*100).toFixed(1)+"% by value","var(--green)",pbTip],
     [R.toFixed(1)+"&times;","<b>cultivated's price</b> vs everyday meat",
      "$"+retail.toFixed(0)+" vs $"+conv.toFixed(0)+" a kilo (benchmark)","var(--ink)",rTip]];
+  drawCalc(s,b,retail,conv,R);
   const h=document.getElementById("heads"); h.innerHTML="";
   cells.forEach(([big,lab,sub,col,tip])=>{const d=document.createElement("div");d.className="head";
     d.innerHTML='<div class="big" style="color:'+col+'">'+big+'</div><div class="lab">'+lab+'</div>'+
@@ -2345,7 +2362,7 @@ function drawBreakdown(s){
   const yN=padTop+FACT.length*rowH+16, net=bd._net;
   el("line",{x1:xL-6,y1:yN-11,x2:xR,y2:yN-11,stroke:"#eee","stroke-width":1},svg);
   tx(svg,xL-6,yN+3,"NET",{"font-size":9.5,fill:"#111","text-anchor":"end","font-weight":700});
-  tx(svg,xz,yN+3,(net>=0?"+":"")+net.toFixed(2)+" utils → share "+
+  tx(svg,xz,yN+3,(net>=0?"+":"")+net.toFixed(2)+" points → share "+
      (bd._share*100).toFixed(0)+"% (blend "+(blended*100).toFixed(0)+"%)",
      {"font-size":9.5,fill:"#111","text-anchor":"middle","font-weight":700});
 }
@@ -2668,7 +2685,7 @@ function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) 
     tx(svg,mL-6,Y(v)+3,v+"%",{"font-size":8,"text-anchor":"end",fill:"#aaa"});});
   [0.1,0.3,1,3].forEach(v=>{el("line",{x1:X(v),y1:mT,x2:X(v),y2:H-mB,stroke:v===1?"#bbb":"#f2f2f2","stroke-width":v===1?1.3:1},svg);
     tx(svg,X(v),H-mB+13,v===1?"R=1 (parity)":("R="+v),{"font-size":8,"text-anchor":"middle",fill:v===1?"#666":"#aaa"});});
-  tx(svg,mL+4,Y(34),"share saturates < 100%: once cheap vs income, price stops mattering (BLP) — rivals' attributes hold the rest",
+  tx(svg,mL+4,Y(34),"share stays below 100%: once it is cheap next to income, price stops mattering; taste and the rest hold the others",
     {"font-size":7,fill:"#bbb"});
   P.forEach(p=>{
     if(p.p_base==null) return;
@@ -2826,6 +2843,8 @@ function recompute(){
   const ptmc=state.mc?perTypeMC(state,600):null;     // per-type P10-P90 whiskers when MC is on
   drawHeads(state); drawTiming(state); drawBars(state,ptmc); drawPie(state); drawCost(state); drawCurve(state);
   drawBreakdown(state); drawMilk(state); drawMC(state); drawFoothold(state);
+  if(typeof history!=='undefined' && history.replaceState){
+    const h=settingsHash(); history.replaceState(null,"",h?"#"+h:location.pathname+location.search); }
 }
 function setIncome(v){                                // sync the income slider when the region changes
   state.income=v; const ri=document.getElementById("r_income"), vi=document.getElementById("v_income");
@@ -2905,12 +2924,70 @@ function priceSuffix(s){
   const b=KP.beta_ref, epsx=KP.eps_own*KP.cult_sub_mult;
   return " · price weight β="+b.toFixed(3)+"/$ (εₓ≈"+epsx.toFixed(1)+")";
 }
+// The price ratio step by step, with the current settings in place (same formulas as biomass() and
+// basicR(), which tests/run_parity.py checks against the Python model).
+function drawCalc(s,b,retail,conv,R){
+  const raw=C.media_intensity*s.efficiency*s.media_price, med=mediaCost(s.media_price,s.efficiency);
+  const d2=x=>"$"+x.toFixed(2), d1=x=>"$"+x.toFixed(1);
+  const medTxt=raw<C.FEEDSTOCK_FLOOR
+    ? "medium at its floor "+d2(med)+" (feedstock cannot cost less)"
+    : C.media_intensity.toFixed(1)+" L/kg &times; efficiency "+s.efficiency.toFixed(2)+" &times; "+d2(s.media_price)+"/L = "+d2(med);
+  const clean=s.cleanroom?" + clean room "+d1(C.cleanroom_cost):"";
+  const tax=s.meat_tax!==1?" (benchmark $"+C.p_conv_anchor.toFixed(1)+" &times; price multiplier "+s.meat_tax.toFixed(2)+")":"";
+  document.getElementById("calc").innerHTML='<div class="ch">Your settings, step by step (everyday meat)</div><ol>'+
+    '<li><b>Cost to grow a kilo.</b> The medium the cells feed on, plus the plant: '+
+      '<span class="eq">'+medTxt+' + plant '+d1(s.overhead)+clean+' = '+d1(b)+'/kg</span></li>'+
+    '<li><b>Price in the shop.</b> Add processing, packaging and the shop\'s margin: '+
+      '<span class="eq">'+d1(b)+' + markup '+d1(s.markup_add)+' = '+d1(retail)+'/kg</span></li>'+
+    '<li><b>Price ratio.</b> Divide by the price of everyday meat'+tax+': '+
+      '<span class="eq">'+d1(retail)+' &divide; '+d1(conv)+' = '+R.toFixed(2)+'&times;</span></li>'+
+    '<li><b>Share.</b> Shoppers then choose by price, taste, "is it real meat?", health and welfare. '+
+      'Charts 4a and 4b show that step for one meat; chart 1 repeats it for every meat.</li></ol>'+
+    '<div class="note">The page uses the same formulas as the Python model. A test checks that the two agree '+
+    '(tests/run_parity.py).</div>';
+}
+// The settings in the address (#region=...&media_price=...): only what differs from the defaults.
+function settingsHash(){
+  const q=new URLSearchParams();
+  if(state.region!=="global") q.set("region",state.region);
+  MODEL.sliders.forEach(s=>{
+    if(s.key==="income") return;
+    if(s.solved){ if(state[s.key+"_ovr"]){ q.set(s.key,+(+state[s.key]).toPrecision(6)); q.set(s.key+"_ovr","1"); } return; }
+    if(state[s.key]!==s.default) q.set(s.key,+(+state[s.key]).toPrecision(6));
+  });
+  if(Math.abs(state.income-C.REGION_INCOME[state.region])>1e-9) q.set("income",+(+state.income).toPrecision(6));
+  MODEL.toggles.forEach(t=>{ if(state[t.key]) q.set(t.key,"1"); });
+  if(state.mc) q.set("mc","1");
+  return q.toString();
+}
+function readHash(){
+  if(typeof location==='undefined') return;                // no address bar (the Node parity probe)
+  const q=new URLSearchParams(location.hash.slice(1));
+  if(q.has("region") && MODEL.regions.some(r=>r[0]===q.get("region"))) state.region=q.get("region");
+  state.income=C.REGION_INCOME[state.region];
+  MODEL.sliders.forEach(s=>{
+    if(!q.has(s.key)) return;
+    const v=parseFloat(q.get(s.key)); if(!isFinite(v)) return;
+    if(s.solved){ if(q.get(s.key+"_ovr")==="1"){ state[s.key]=v; state[s.key+"_ovr"]=true; } }
+    else state[s.key]=Math.min(s.max,Math.max(s.min,v));
+  });
+  MODEL.toggles.forEach(t=>{ if(q.get(t.key)==="1") state[t.key]=true; });
+  if(q.get("mc")==="1") state.mc=true;
+}
 // one place that builds a slider's value readout: the number, an "(auto)" tag for un-overridden
 // solved weights, the "× taste" relative-importance suffix, and (for the price controls) β.
 function setReadout(s){
   const vv=document.getElementById("v_"+s.key); if(!vv) return;
   const auto=s.solved && !state[s.key+"_ovr"];
   vv.textContent=fmtVal(s,state[s.key])+(auto?" (auto)":"")+weightSuffix(s)+priceSuffix(s);
+}
+// "Medium price (<i>p</i><sub>med</sub>)" -> name "Medium price", symbol "<i>p</i><sub>med</sub>";
+// "Income (<i>y</i>, GDP per person)" -> name "Income (GDP per person)", symbol "<i>y</i>".
+function splitLabel(label){
+  const m=label.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+  if(!m) return {name:label, sym:""};
+  const inner=m[2], k=inner.indexOf(", ");
+  return k>=0 ? {name:m[1]+" ("+inner.slice(k+2)+")", sym:inner.slice(0,k)} : {name:m[1], sym:inner};
 }
 function buildRail(){
   const rail=document.getElementById("rail");
@@ -2946,10 +3023,11 @@ function buildRail(){
       const gh=document.createElement("div");gh.className="grphdr";gh.textContent=s.group;
       host.appendChild(gh);}
     const d=document.createElement("div");d.className="ctl";
-    d.innerHTML='<label><span class="nm">'+s.label+
+    const L=splitLabel(s.label);
+    d.innerHTML='<label><span class="nm">'+L.name+
       ' <span class="src">['+s.src+']</span> </span>'+
       '<span class="val" id="v_'+s.key+'"></span></label>';
-    addQ(d.querySelector(".nm"), s.tip);
+    addQ(d.querySelector(".nm"), s.tip+(L.sym?" <br>Symbol in the equations: "+L.sym+".":""));
     const inp=document.createElement("input");inp.id="r_"+s.key;
     if(s.logscale){   // slider POSITION 0..1000 maps log-spaced onto [min,max]
       Object.assign(inp,{type:"range",min:0,max:1000,step:1,value:val2pos(s,state[s.key])});
@@ -2985,6 +3063,11 @@ function buildRail(){
   if(curGroup!==null) emitGroupToggles(curGroup,host);   // flush the LAST group's toggles
   // any toggles NOT tied to a group render at the end (none today, but keep it robust)
   MODEL.toggles.filter(t=>!t.group).forEach(t=>addToggle(t,rail));
+  const lk=document.createElement("button");lk.className="btn linkbtn";lk.textContent="Copy a link to these settings";
+  lk.onclick=()=>{const url=location.href;
+    (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(
+      ()=>{lk.textContent="Link copied";setTimeout(()=>lk.textContent="Copy a link to these settings",1500);},
+      ()=>prompt("Copy this link:",url));};
   const b=document.createElement("button");b.className="btn";b.textContent="Reset all to defaults";
   b.onclick=()=>{
     MODEL.sliders.forEach(s=>{                               // by KEY, so it is robust to the rail's layout
@@ -3001,7 +3084,7 @@ function buildRail(){
       const wd=document.getElementById("w_"+s.key); if(wd)wd.style.display="none"; }});
     setIncome(C.REGION_INCOME[state.region]);            // income tracks the current region, not the US default
     recompute();};
-  rail.appendChild(b);
+  rail.appendChild(b); rail.appendChild(lk);
 }
 /* cross-category VALIDATION (mirror of market_share.pb_milk_check): hold the shared
    taste/price coefficients FIXED but swap the product positions to plant-based MILK's
@@ -3039,7 +3122,24 @@ function selfTest(){
   //   MODEL OUTPUT = a model projection with no real-world figure to check against
   const TAG={match:"<span class='sttag tag-match'>MATCHES</span>",
              cal:"<span class='sttag tag-cal'>CALIBRATED</span>",
-             proj:"<span class='sttag tag-proj'>MODEL OUTPUT</span>"};
+             proj:"<span class='sttag tag-proj'>MODEL OUTPUT</span>",
+             other:"<span class='sttag tag-pin'>OTHER MODEL</span>",
+             claim:"<span class='sttag tag-cal'>COMPANY CLAIM</span>"};
+  // cost cross-checks (inputs.py, read 2026-11-03): Humbird's non-medium cost and its plant share (24% of TCI a
+  // year: capital charge 15% + maintenance 4% + insurance 5%), and Believer's announced plant cost and capacity
+  const ovh=def.overhead, hb=C.humbird_plant_cost, hbPlant=C.humbird_plant_charge*C.humbird_tci_fedbatch/C.humbird_output_fedbatch;
+  const hbPerT=C.humbird_tci_fedbatch/(C.humbird_output_fedbatch/1000), blPerT=C.believer_capex/(C.believer_capacity/1000);
+  const blPlant=C.humbird_plant_charge*C.believer_capex/C.believer_capacity;
+  const k$=x=>"$"+(x/1000).toFixed(0)+"k";
+  const costRows=[
+    ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
+       "this model uses Pasitka's figure. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
+       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+"); Pasitka's split is not public", "other"],
+    ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
+       "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+
+       (C.humbird_plant_charge*100).toFixed(0)+"% a year that plant costs $"+blPlant.toFixed(1)+"/kg, inside this model's $"+
+       ovh.toFixed(1)+". Built in 2025, but the company closed before producing at scale", "claim"],
+  ];
   // each row: [plain-language what, model value, the real-world anchor (or meaning), tag]
   const rows=[
     ["Plant-based <b>milk</b>, same model", (mlk).toFixed(0)+"%",
@@ -3060,13 +3160,16 @@ function selfTest(){
     "<div class='sthead'>Reality checks (at the default settings)</div>"+
     "<div class='stanchor'>Fitted to: plant-based meat's ~1.2% US share (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
     "mainstream buyers, plus an assumed ~6% meatless rate (A4). Not fitted:</div>"+
-    "<table>"+rows.map(rowHTML).join("")+"</table>"+
+    "<table><tr class='stsecrow'><td colspan='3' class='stsec'>Demand</td></tr>"+rows.map(rowHTML).join("")+
+    "<tr class='stsecrow'><td colspan='3' class='stsec'>Cost</td></tr>"+costRows.map(rowHTML).join("")+"</table>"+
     "<div class='stnote'><b>MATCHES</b>: a real number the model wasn't fitted to. <b>CALIBRATED</b>: set to "+
-    "match, so a consistency check. <b>MODEL OUTPUT</b>: nothing real to compare yet.</div>"+
+    "match, so a consistency check. <b>MODEL OUTPUT</b>: nothing real to compare yet. <b>OTHER MODEL</b>: another "+
+    "study's estimate; agreeing with it is not proof. <b>COMPANY CLAIM</b>: a company's own figure.</div>"+
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
+readHash();
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 // chart titles carry their longer "how to read" text in data-help, shown by the same "?" badge as the sliders
 document.querySelectorAll("[data-help]").forEach(h=>addQ(h,h.getAttribute("data-help")));
@@ -3079,6 +3182,7 @@ document.getElementById("footMV").onclick=()=>setFootView("margin");
 document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.textContent="Monte Carlo: "+(state.mc?"on (2000 draws)":"off");
   this.classList.toggle("on",state.mc);recompute();};
+if(state.mc){ const mb=document.getElementById("mcbtn"); mb.textContent="Monte Carlo: on (2000 draws)"; mb.classList.add("on"); }
 recompute();
 </script></body></html>"""
 
