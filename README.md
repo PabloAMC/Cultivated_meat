@@ -20,7 +20,8 @@ and lives in one place, and every result reproduces from the code.
 
 > **Disclaimer.** The views expressed here are purely those of the author, Pablo Antonio Moreno Casares, and may
 > not in any circumstances be regarded as stating an official position of the European Commission. The model and
-> its page were built with the help of an AI assistant (Claude, Anthropic). This is research, not investment,
+> its page were built with the help of an AI assistant (Claude, Anthropic), and no human expert has reviewed them
+> yet. This is research, not investment,
 > business or policy advice.
 
 ---

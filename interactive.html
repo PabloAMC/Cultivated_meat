@@ -180,11 +180,11 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: how much of the meat market can it win, and how fast? <span class="stamp">build 2026-11-13 10:35</span></h1>
+<h1>Cultivated meat: how much of the meat market can it win, and how fast? <span class="stamp">build 2026-11-13 11:26</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
 <p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
-business advice. The views expressed are the author's own and do not represent the views of the European
+business advice. No human expert has reviewed the model yet. The views expressed are the author's own and do not represent the views of the European
 Commission. <a href="#about">About this page</a>.</p>
 
 <div class="findings">
@@ -728,7 +728,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
     <p><b>Views.</b> The views expressed on this page are purely those of the author, Pablo Antonio Moreno Casares.
     They may not in any circumstances be regarded as stating an official position of the European Commission.</p>
     <p><b>How it was made.</b> The model and this page were built with the help of an AI assistant (Claude,
-    Anthropic). Every number is a model result computed from the inputs listed in the code, each with its source.</p>
+    Anthropic). No human expert has reviewed the model yet. Every number is a model result computed from the inputs listed in the code, each with its source.</p>
     <p><b>Not advice.</b> This page is for research and discussion. It is not investment, business or policy advice.
     Market shares are long-run ceilings under stated assumptions, not forecasts.</p>
   </section>
@@ -1509,7 +1509,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-11-13 10:35",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-11-13 11:26",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -2390,7 +2390,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
-console.log("interactive.html JS build 2026-11-13 10:35 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-11-13 11:26 — loss-aversion canonical form + betaCap monotonicity guard active");
 readHash();
 buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 // chart titles carry their longer "how to read" text in data-help, shown by the same "?" badge as the sliders
