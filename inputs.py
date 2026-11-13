@@ -120,21 +120,24 @@ REGISTRY: dict[str, Input] = {
         note="media-VOLUME multiplier; CENTERED ON THE MEASURED Pasitka cells (mode=1.0). "
              "0.25 = CHO-grade is the OPTIMISTIC tail (a different cell line, not demonstrated for "
              "these cells), so better efficiency is upside, never assumed."),
-    "overhead": Input(9.9, "$/kg", "[Pasitka] non-media cost (capital+consumables+labour+"
-        "utilities) at the 50,000 L facility, TFF config",
-        lo=6.0, hi=15.0, mode=9.9,
-        note="THE SCALE-UP knob, expressed inside Pasitka's OWN reactor configs (Fig. 4, total "
-             "COGS $/kg = media ~$14 + this overhead). The central band is CENTERED on the "
-             "demonstrated, scalable case so the median is neutral, not pessimistic: "
-             "mode=9.9 = TFF 5 m^3 (10x5,000 L; total $24/kg) = Pasitka's demonstrated-scalable "
-             "base; lo=6.0 = large-scale perfusion 20 m^3 / irreducible plant floor (total ~$22/kg; "
-             "scale-up WINS, the optimistic tail); hi=15.0 = scale-up proves HARDER than the clean "
-             "projection (a partial shortfall). The FULL scale-up-STALL case — ATF 0.5 m^3 small "
-             "vessels, overhead ~$24.7/kg, total ~$38.8/kg (see PASITKA_CONFIGS) — is shown as an "
-             "explicit DOWNSIDE SCENARIO (cost_model scenario table + the waterfall), NOT folded "
-             "into the central band, since a commercial plant would only fall back to many small "
-             "vessels if larger reactors fail (Humbird's CO2/sterility caps). PIVOTAL: the top R "
-             "lever AND the largest downside, but the central estimate stays Pasitka-faithful."),
+    "overhead": Input(18.5, "$/kg", "[Pasitka] non-media cost at the 50,000 L facility, TFF config: running "
+        "costs $9.9/kg (consumables+utilities+labour+maintenance+insurance, SI Table S10) + the capital charge "
+        "$8.6/kg that Table S10 leaves out (SI Table S4: 14.6% of total capital investment a year)",
+        lo=11.5, hi=23.6, mode=18.5,
+        note="THE SCALE-UP knob, expressed inside Pasitka's OWN reactor configs (see PASITKA_CONFIGS). CAPITAL "
+             "CHARGE ADDED 2026-11-14: Pasitka's published totals ($38.8 / $24 / $22 per kg) are media + running "
+             "costs only; SI Table S4 lists an 'Annual Capital charge' of 14.6% of TCI a year that Table S10's "
+             "'Total cost of wet biomass production' does not include (its fixed costs are labour, maintenance "
+             "and insurance only). A price model must recover the capital, as Humbird's does (15%/yr), so it is "
+             "added here: per kg, $16.9 (ATF), $8.6 (TFF), $5.5 (large perfusion). "
+             "mode=18.5 = TFF 5 m^3 (10x5,000 L; 9.9 + 8.6; total ~$32.6/kg) = Pasitka's demonstrated-scalable "
+             "base; lo=11.5 = the plant floor (6.0 running + 5.5 capital at large-perfusion scale; scale-up "
+             "WINS, the optimistic tail); hi=23.6 = scale-up proves HARDER than the clean projection (the "
+             "earlier partial shortfall of +$5.1 running cost, capital held at the TFF level). The FULL "
+             "scale-up-STALL case — ATF, twenty-five 2 m^3 vessels, overhead ~$41.6/kg, total ~$55.7/kg — is shown "
+             "as an explicit DOWNSIDE SCENARIO (cost_model scenario table + the waterfall), NOT folded into "
+             "the central band, since a commercial plant would only fall back to many small vessels if larger "
+             "reactors fail (Humbird's CO2/sterility caps). PIVOTAL: the top R lever AND the largest downside."),
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
     "aa_intensity": Input(0.337, "kg hydrolysate/kg wet", "[Humbird] Table 3.5: soy hydrolysate "
@@ -159,15 +162,17 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(6.0, "$/kg", "[Pasitka] large-scale perfusion config: nutrients "
-        "~66-70% of COGS, so non-nutrient remainder ~30-34% ~= $6/kg",
-        note="least-constrained floor term; dominates the floor's width"),
+    "plant_floor": Input(11.5, "$/kg", "[Pasitka] large-scale perfusion config: running costs ~$6/kg "
+        "(nutrients ~66-70% of the published COGS, so the remainder ~30-34%) + the capital charge $5.5/kg "
+        "that the published COGS leaves out (SI Table S4: 14.6% x $40.3M / 1.07M kg)",
+        note="least-constrained floor term; dominates the floor's width. Capital charge added 2026-11-14 "
+             "(see `overhead`)"),
     "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
         "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
         "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",
         note="CROSS-CHECK ONLY, not used in the cost: Humbird's independent estimate of the non-nutrient cost "
-             "of his most favourable design, ~2.4x plant_floor and near the top of the overhead band (15). The "
-             "floor is conditional on Pasitka's plant costs"),
+             "of his most favourable design, capital charge included. It sits between plant_floor (11.5) and the "
+             "base overhead (18.5), now that both include Pasitka's capital charge"),
     # --- cost cross-checks (shown on the page's reality checks; NOT used in the cost) -----------
     # Read in Humbird 2021's journal version (Biotechnol Bioeng 118:3239; Europe PMC PMC8362201) on 2026-11-03.
     "humbird_tci_fedbatch": Input(328e6, "$", "[Humbird] Table 2: 'Total capital investment | $328M' (fed-batch, "
@@ -179,7 +184,9 @@ REGISTRY: dict[str, Input] = {
         "for insurance'. 0.15 + 0.04 + 0.05 = 0.24 (derived)",
         note="CROSS-CHECK ONLY: Humbird's 'CAPEX' lines in Table 2 ($4 + $3 + $5 = $12/kg fed-batch) are this 24%/yr "
              "of TCI per kg (0.24 x 328M / 6.8M kg = $11.6/kg); his text's '$48 M/y' is the 15% capital charge "
-             "alone. Pasitka's split of its non-medium cost into capital and running costs is not on file"),
+             "alone. Pasitka uses the same structure (SI Tables S4 and S10, read 2026-11-13): maintenance 4% and "
+             "insurance 5% of TCI a year are in its cost totals; its 14.6%/yr capital charge is listed but NOT "
+             "in the totals, and is added in `overhead` and `plant_floor`"),
     "believer_capex": Input(123.35e6, "$", "[Believer] 'initial planned investment of $123.35m' for the Wilson, NC "
         "plant (FoodNavigator, 8 Dec 2022); 'an initial investment of more than $123 million' (NC Governor's office, "
         "7 Dec 2022)", note="CROSS-CHECK ONLY. An initial figure, announced at groundbreaking; the final cost of the "
@@ -206,6 +213,16 @@ REGISTRY: dict[str, Input] = {
     # cultivated's OWN modeled retail price (= biomass_cost + markup_add) and share, with
     # no hand-chosen anchor (see market_share._derive_beta). The two inputs below are the
     # factors of that target; beta tracks them and the cost model automatically.
+    "elasticity_anchor_price": Input(29.012, "$/kg", "[calibration] the retail price at which the own-price "
+        "elasticity target (eps_own x cult_sub_mult) is imposed when the price coefficient beta is solved",
+        note="FROZEN 2026-11-14. It used to be DERIVED as today's cultivated retail price (biomass + markup = "
+             "22.4 x 0.63 + 9.9 + 5 = 29.012 before the capital charge was added to `overhead`). Deriving it "
+             "meant any change to a cost input re-solved beta: adding the capital charge raised the anchor to "
+             "$37.6 and cut beta from -0.053 to -0.019, so a 36% dearer product lost almost no share (world "
+             "share rose). A cost correction should not change how shoppers respond to price, and the "
+             "elasticity evidence was not measured at $37/kg, so the anchor is now a fixed calibration input "
+             "at the value the published demand calibration used. Changing it re-solves beta and every "
+             "calibrated weight"),
     "eps_own": Input(-0.9, "elasticity", "[scanner] own-price elasticity of meat demand. "
         "Andreyeva, Long & Brownell 2010 (AJPH 100:216) meta-analysis: beef -0.75, pork -0.72, "
         "poultry -0.68; Gallet 2010/2012 meta-analysis: -0.7..-1.0 by species/region; plant-based "
@@ -605,7 +622,7 @@ REGISTRY: dict[str, Input] = {
              "hand-typed here, so they cannot drift from Rung 2."),
 
     # --- Rung 6: scaffold / structured product (most speculative) -----------
-    "biomass_cost_nearterm": Input(14.0, "$/kg", "[Pasitka-derived] near-term achievable biomass "
+    "biomass_cost_nearterm": Input(23.0, "$/kg", "[Pasitka-derived] near-term achievable biomass "
         "(media $0.2/L + current cells)"),
     "scaffold_frac": Input(0.2, "kg/kg", "[Gu25-qual/assumed] scaffold material per kg product "
         "(minority mass); Gu et al. 2025 gives the materials picture but no mass fraction",
@@ -641,11 +658,23 @@ GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].v
 # across them; total wet-biomass COGS = media + overhead, reproducing Pasitka's
 # $38.8 / $24 / $22 per kg. These are the endpoints of the SCALE-UP axis that the
 # `overhead` prior samples — the model's single most important cost bottleneck.
-PASITKA_CONFIGS: dict[str, float] = {
-    "ATF 0.5 m^3 (small vessels; scale-up STALLS)": 24.7,   # total ~$38.8/kg
-    "TFF 5 m^3 (10x5,000 L; current base)":          9.9,   # total ~$24/kg
-    "perfusion 20 m^3 (2x25,000 L; scale-up WINS)":  7.9,   # total ~$22/kg
+# Vessel sizes are from Pasitka's SI Table S1 (25 x 2 m3 with 50 ATF units; 10 x 5 m3 with TFF; 2 x 25 m3
+# with an unspecified "Large-Scale PD" retention device). Earlier labels said 0.5 m3 and 20 m3.
+# Running costs are Pasitka's published non-media costs; the capital charge is SI Table S4's
+# 14.6% of total capital investment a year ($18.09M / $9.21M / $5.89M) over 1.07M kg/yr, which
+# the published totals leave out (see the `overhead` note). Each config's overhead is the sum.
+PASITKA_RUNNING: dict[str, float] = {
+    "ATF 2 m^3 (25x2,000 L; scale-up STALLS)": 24.7,   # published total ~$38.8/kg
+    "TFF 5 m^3 (10x5,000 L; current base)":          9.9,   # published total ~$24/kg
+    "perfusion 25 m^3 (2x25,000 L; scale-up WINS)":  7.9,   # published total ~$22/kg
 }
+PASITKA_CAPITAL: dict[str, float] = {
+    "ATF 2 m^3 (25x2,000 L; scale-up STALLS)": 16.9,   # 0.146 x $123.9M / 1.07M kg
+    "TFF 5 m^3 (10x5,000 L; current base)":          8.6,   # 0.146 x $63.1M  / 1.07M kg
+    "perfusion 25 m^3 (2x25,000 L; scale-up WINS)":  5.5,   # 0.146 x $40.3M  / 1.07M kg
+}
+PASITKA_CONFIGS: dict[str, float] = {k: round(PASITKA_RUNNING[k] + PASITKA_CAPITAL[k], 1)
+                                     for k in PASITKA_RUNNING}   # 41.6 / 18.5 / 13.4
 
 # ----------------------------------------------------------------------------
 # Demand-model tier ladder & scaffold (model constants, not sliders).

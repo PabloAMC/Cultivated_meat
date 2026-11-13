@@ -85,8 +85,9 @@ anchor. The shared coefficient beta is DERIVED, not an input: the behavioural pr
 cultivated's OWN-PRICE ELASTICITY eps_x = eps_own * cult_sub_mult (meat's measured -0.9, steepened
 ~4x because conventional is a near-perfect substitute), and beta is solved so the logit's TOTAL
 price response reproduces eps_x AT cultivated's own modeled retail price & share -- a short fixed
-point with NO hand-chosen anchor (see `_derive_beta`). The anchor price is cultivated's own retail
-price (biomass_cost + markup_add), so beta tracks the cost model. Across regions the EFFECTIVE
+point (see `_derive_beta`). The anchor price is a fixed calibration input
+(`elasticity_anchor_price`, $29.01: cultivated's retail price when the demand side was calibrated), so a
+change to a cost input moves the price ratio but not shoppers' price sensitivity. Across regions the EFFECTIVE
 income in the log is DAMPED, y_eff = income_ref*(income/income_ref)**income_gradient: raw BLP
 (income_gradient=1) is too steep for food (~6x rich->poor elasticity ratio), so the exponent
 phi<1 damps the BLP curvature to the empirical ~2-3x gradient (Muhammad/ERS). At the US reference
@@ -218,7 +219,7 @@ class DemandParams:
 
     # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
     beta_ref: float = field(default=0.0, repr=False)      # the shared logit price coefficient ($/kg^-1)
-    anchor_price: float = field(default=0.0, repr=False)  # cultivated's own retail price = the beta anchor ($/kg)
+    anchor_price: float = field(default=0.0, repr=False)  # the beta anchor ($/kg) = inputs elasticity_anchor_price
 
     def __post_init__(self):
         # Two coupled solves pin the model with NO free anchor numbers:
@@ -621,19 +622,22 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     We solve `beta` so that this TOTAL response reproduces eps_x at cultivated's OWN
     operating point (earlier versions omitted the loss-aversion channel, so the
     realised elasticity came out ~2x the target — the double-counting fix):
-      * price  = cultivated's own retail price  p_anchor = biomass_cost + markup_add,
-        DERIVED from the cost model (so it tracks media_price, overhead, markup, p_conv);
+      * price  = the fixed calibration price p_anchor (inputs `elasticity_anchor_price`, $29.01:
+        cultivated's retail price when the demand side was calibrated; frozen so that cost
+        corrections do not change price sensitivity);
       * share  = cultivated's own neutral modeled share at that price (s_anchor), which
         itself depends on beta -> a short FIXED POINT (converges in ~3 steps).
-    Nothing here is a free constant: move any cost input and p_anchor moves; move
-    eps_own or cult_sub_mult and the target moves; beta follows. loss_aversion now
+    Move eps_own or cult_sub_mult and the target moves; beta follows. Cost inputs no
+    longer move p_anchor (it was derived from them until 2026-11-14). loss_aversion now
     only shapes the KINK/asymmetry at parity (its intended job), not the elasticity
     LEVEL — that is set by eps_own*cult_sub_mult, as documented.
 
         beta = eps_x / (p_anchor * (1 - s_anchor))  +  loss_aversion / p_conv
     """
     cp = CostParams(p_conv=pr.p_conv)
-    pr.anchor_price = float(biomass_cost(cp, value("media_price"), 1.0) + cp.markup_add)
+    # FROZEN 2026-11-14 (see inputs.py `elasticity_anchor_price`): this was biomass_cost + markup_add, which
+    # made every cost correction re-solve beta. The docstring's "tracks the cost model" no longer holds.
+    pr.anchor_price = float(value("elasticity_anchor_price"))
     R_today = pr.anchor_price / pr.p_conv
     eps_x = pr.eps_own * pr.cult_sub_mult
     # The loss-aversion term adds a second price-sensitivity channel; at the anchor

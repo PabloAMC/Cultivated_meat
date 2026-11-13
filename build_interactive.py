@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import os
 
-from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
+from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS, PASITKA_CAPITAL, MC_COST_INPUTS, MC_DEMAND_INPUTS,
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
@@ -78,11 +78,9 @@ def build_model() -> dict:
         "eps_own": value("eps_own"),
         "cult_sub_mult": value("cult_sub_mult"),  # closeness/substitutability lever
         # the demand price coefficient beta is DERIVED (mirror of market_share._derive_beta):
-        # anchored at cultivated's OWN retail price = biomass(base) + markup, solved at its own
-        # share via a fixed point. These BASE cost values set that anchor (NOT the live sliders).
-        "anchor_media_price": value("media_price"),
-        "anchor_overhead": value("overhead"),
-        "anchor_markup": value("markup_add"),
+        # anchored at a FIXED calibration price (inputs elasticity_anchor_price), solved at cultivated's
+        # own share there via a fixed point. Neither the cost defaults nor the live sliders move it.
+        "anchor_price": value("elasticity_anchor_price"),
         # income (BLP price term): richer => less price-sensitive
         "income_ref": value("income_ref"),
         "income_gradient": value("income_gradient"),
@@ -160,9 +158,9 @@ def build_model() -> dict:
         # reactor configs for the cost chart: [short label, overhead $/kg]. The overhead
         # NUMBERS are read from inputs.PASITKA_CONFIGS (the source of truth) so they can't
         # drift from the datasheet; only the short display labels live here.
-        "configs": [["perfusion 20 m³", _pasitka_oh("perfusion")],
+        "configs": [["perfusion 25 m³", _pasitka_oh("perfusion")],
                     ["TFF 5 m³", _pasitka_oh("TFF")],
-                    ["ATF 0.5 m³", _pasitka_oh("ATF")]],
+                    ["ATF 2 m³", _pasitka_oh("ATF")]],
         # FOOTHOLD products (foothold.py, the strategic entry layer): the per-product ladder the
         # "reachability waterline" panel plots. p_conv & structure feed the SAME R machinery as the
         # cost chart (R = (biomass + scaffold? + markup)/p_conv); the rest are the sourced ordinals
@@ -324,11 +322,14 @@ def build_model() -> dict:
                "(default) is the only peer-reviewed measurement (Pasitka 2024). Companies report $0.20/L "
                "or less, unverified; $1.00/L is the case where a process doesn't match Pasitka's. Each "
                "$0.10/L adds about ${{MEDIA_PER_010}}/kg."),
-        slider("overhead", "Plant running cost (<i>h</i>)", "$/kg", 6.0, 24.7, 0.1, 9.9, "Pasitka",
+        slider("overhead", "Plant running cost (<i>h</i>)", "$/kg", value("plant_floor"), _pasitka_oh("ATF"), 0.1,
+               value("overhead"), "Pasitka",
                tip="Everything except the medium, per kg: reactors and other capital, labour, energy, "
                "consumables. Set mainly by reactor scale, and the least demonstrated number in the model. "
-               "Pasitka's three designs: $24.7 (many small vessels), $9.9 (default), $7.9 (large perfusion "
-               "reactors). About $6 is the floor for a very large, efficient plant."),
+               "Pasitka's three designs: ${{OH_ATF}} (many small vessels), ${{OH_TFF}} (default), ${{OH_PERF}} (large "
+               "perfusion reactors). These add the yearly capital charge (14.6% of the plant's cost) that "
+               "Pasitka lists but leaves out of its published cost per kg. About ${{PLANT_FLOOR}} is the "
+               "floor for a very large, efficient plant."),
         slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 7.0, 0.1, value("markup_add"),
                "USDA spread",
                tip="Processing, packaging, cold chain and retail margin, added per kg. Default $5 is about "
@@ -642,8 +643,8 @@ def weights_table_rows() -> str:
         f'<td class="n" colspan="2">&beta; = {beta:.3f}<br>&alpha; = {alpha:,.0f}'
         '<br><span style="color:#888;font-size:.85em">(shared by both)</span></td>'
         '<td class="s"><b>DERIVED</b> from the price-sensitivity target '
-        f'&epsilon;<sub>x</sub> = &kappa;&epsilon; = {kap:.0f}&times;({eps}) = <b>{eps_x:.1f}</b> (A1), at cultivated&rsquo;s '
-        f'own price p<sub>x</sub> = ${p_x:.0f}/kg and share s<sub>x</sub> = {s_x*100:.0f}%: '
+        f'&epsilon;<sub>x</sub> = &kappa;&epsilon; = {kap:.0f}&times;({eps}) = <b>{eps_x:.1f}</b> (A1), at the calibration '
+        f'price p<sub>x</sub> = ${p_x:.0f}/kg and share s<sub>x</sub> = {s_x*100:.0f}%: '
         f'&beta; = &epsilon;<sub>x</sub>/[p<sub>x</sub>(1&minus;s<sub>x</sub>)] + &lambda;/p<sub>c</sub> = '
         f'{eps_x:.1f}/[{p_x:.0f}&middot;{1-s_x:.2f}] + {lam:.0f}/{p_c:.0f} = <b>{beta:.3f}</b>; then '
         f'&alpha; = &minus;&beta;(y<sub>ref</sub>&minus;p<sub>x</sub>) = <b>{alpha:,.0f}</b> (large only because '
@@ -807,7 +808,11 @@ def derived_numbers() -> dict:
         "PARITY_BIOMASS": f"{p_conv - markup:.0f}",
         "COST_FLOOR": f"{floor:.1f}",
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
-        "PLANT_FLOOR": f"{value('plant_floor'):.0f}",
+        "PLANT_FLOOR": f"{value('plant_floor'):.1f}",
+        "ANCHOR_PRICE": f"{value('elasticity_anchor_price'):.0f}",
+        "OH_ATF": f"{_pasitka_oh('ATF'):.1f}", "OH_TFF": f"{_pasitka_oh('TFF'):.1f}",
+        "OH_PERF": f"{_pasitka_oh('perfusion'):.1f}",
+        "CAP_TFF": f"{next(v for k, v in PASITKA_CAPITAL.items() if 'TFF' in k):.1f}",
         "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.0f}",
         "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
@@ -1108,8 +1113,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         GFI and MG Consulting supports that level [3], but there is no peer-reviewed measurement at scale. Leaner cells
         would use less (the cell-efficiency slider: 1 = today's cells).</li>
         <li><b>Plant running cost:</b> capital, labour, energy and consumables. It is set mainly by reactor scale and
-        is the least demonstrated number in the model: $24.7/kg with many small vessels, $9.9 (the default), $7.9
-        with large perfusion reactors [1]. Scaling up animal cells is hard because of oxygen and CO₂ transfer and
+        is the least demonstrated number in the model: ${{OH_ATF}}/kg with many small vessels, ${{OH_TFF}} (the default),
+        ${{OH_PERF}} with large perfusion reactors [1]. These include a capital charge of 14.6% of the plant's cost a
+        year (${{CAP_TFF}}/kg in the default design), which Pasitka's supplement lists but its published cost per kg
+        (about $24) leaves out. Scaling up animal cells is hard because of oxygen and CO₂ transfer and
         sterility [2].</li>
         <li><b>Getting it to the shelf:</b> a ${{MARKUP}}/kg markup for processing, cold chain and retail (about
         conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
@@ -1118,7 +1125,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p>&ldquo;Today's cost&rdquo; means Pasitka's projection for a large plant built with today's technology, not
       what pilot production costs now. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14); charts 1, 2 and 7 use each meat's local price.</p>
-      <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's $9.9:
+      <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_TFF}}:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
       <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
@@ -1236,7 +1243,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       (<i>economic rent</i>). Cultivated meat can copy the meat, not the pedigree, so the model compares its cost with
       the product's <b>everyday grade</b> (farmed salmon, crossbred wagyu). A <b>prestige core</b> of buyers never
       switches: 25% by default, a proxy from the only two published splits (wild salmon, bellota ibérico).</p>
-      <p>Already cheaper: foie gras, bluefin tuna, sea urchin, wagyu, lobster, but each market is thousands to
+      <p>Already cheaper: foie gras, bluefin tuna, sea urchin, wagyu (lobster is close), but each market is thousands to
       hundreds of thousands of tonnes a year. Commodity beef, pork and chicken (tens of millions of tonnes each;
       chart 7 uses whole-category volumes) stay out of reach at world prices. New technologies often start at the top
       and move down-market as costs fall [18], [19]. Foie gras stands out: unstructured, expensive, and increasingly
@@ -1317,16 +1324,17 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p>Grocery data give the <b>price elasticity</b> of meat as a category, \(\varepsilon \approx -0.9\) [4]:
       1% dearer, 0.9% fewer purchases. Meat as a whole has no close substitute, so it is fairly insensitive. A single
       cultivated product does have one, conventional meat on the same shelf, so its own sensitivity is \(\kappa\)
-      times larger: \(\varepsilon_x = \kappa\varepsilon \approx 4 \times (-0.9) = -3.6\) at today's price. The price
-      weight \(\beta\) (the slope of the price score) is solved so the model delivers exactly that at cultivated's
-      own price \(p_x\) and share \(s_x\), which depend on each other and are solved together:</p>
+      times larger: \(\varepsilon_x = \kappa\varepsilon \approx 4 \times (-0.9) = -3.6\) at the calibration price. The price
+      weight \(\beta\) (the slope of the price score) is solved so the model delivers exactly that at the calibration
+      price \(p_x\) and cultivated's share there \(s_x\), which depend on each other and are solved together:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x) \tag{A1} \]
       <p>The \(\lambda/p_c\) term hands back the part of the price response already carried by the reference-price
       term in Eq. (2), so \(\kappa\) sets the level of sensitivity and \(\lambda\) only its shape around parity.
-      The price \(p_x\) is cultivated's own price at the default costs (${{RETAIL_TODAY}}/kg), computed by the cost
-      model rather than typed in: change the default costs and it moves. Moving the cost sliders on the page changes
-      cultivated's price, but not this calibration point.</p>
+      The price \(p_x\) is a fixed calibration price, ${{ANCHOR_PRICE}}/kg: cultivated's shop price before the plant's
+      capital charge was added to the cost. It is held fixed so that correcting a cost changes cultivated's price but
+      not how shoppers respond to price. Today's price is higher (${{RETAIL_TODAY}}/kg), and the model is more
+      price-sensitive there.</p>
       <p><b>Evidence for \(\kappa\).</b> Van Loo, Caputo and Lusk [8] priced lab-grown meat at six levels. Their two
       models put its elasticity at equal price between &minus;0.84 and &minus;3.4. The model's implied value in the
       same setting (equal price, first-contact wariness) at \(\kappa=4\) is {{KAPPA4_LUSK_ELAS}}, inside that range.
@@ -1746,12 +1754,12 @@ function solveCalibration(K){
    the target is cultivated's own-price elasticity eps_x = eps*kappa. Price enters utility through
    TWO channels — the BLP income term (slope beta) and the loss-aversion term (slope -lam on the
    loss side, lam = loss_aversion/p_conv) — so beta is solved so their SUM reproduces eps_x AT
-   cultivated's own retail price (= biomass at BASE cost + markup, which tracks the cost model)
-   and its own modeled share. A short fixed point co-solved with the calibration; nothing here is
-   a hand-set number. (Absorbing lam into beta is the double-counting fix: loss_aversion then only
+   the fixed calibration price C.anchor_price (inputs elasticity_anchor_price; frozen so cost
+   corrections do not change price sensitivity) and cultivated's modeled share there. A short
+   fixed point co-solved with the calibration. (Absorbing lam into beta is the double-counting fix: loss_aversion then only
    shapes the kink at parity, not the elasticity level.) */
 function deriveBeta(K){
-  const pAnchor=mediaCost(C.anchor_media_price,1)+C.anchor_overhead+C.anchor_markup;
+  const pAnchor=C.anchor_price;
   K.anchor_price=pAnchor;
   const Rtoday=pAnchor/K.p_conv_anchor, epsX=K.eps_own*K.cult_sub_mult;
   const lam=K.w_ratio*K.loss_aversion/K.p_conv_anchor;   // loss-side semi-elasticity the reference term adds
@@ -3186,7 +3194,7 @@ function selfTest(){
   const costRows=[
     ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
        "this model uses Pasitka's figure. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
-       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+"); Pasitka's split is not public", "other"],
+       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+"); Pasitka's figure here includes its 14.6% capital charge", "other"],
     ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
        "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+
        (C.humbird_plant_charge*100).toFixed(0)+"% a year that plant costs $"+blPlant.toFixed(1)+"/kg, inside this model's $"+
