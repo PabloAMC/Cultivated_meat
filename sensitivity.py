@@ -55,7 +55,10 @@ from uncertainty import (
 
 # demand-side inputs affect SHARE (through nothing on the cost side) — they do not
 # move R. Everything else in the active prior set is a cost input that moves R.
-from inputs import MC_DEMAND_INPUTS as DEMAND_INPUTS   # the same demand set every MC band samples
+from inputs import MC_DEMAND_INPUTS, prior
+# the same demand set every MC band samples, plus w_ratio: a tornado-only demand input, because each
+# value needs beta and the calibration re-solved (inputs.py, w_ratio)
+DEMAND_INPUTS = MC_DEMAND_INPUTS + ("w_ratio",)
 
 # human-readable axis labels (the raw keys are code names; readers see these)
 LABELS = {
@@ -67,6 +70,8 @@ LABELS = {
     "theta_free_M":  "mainstream slaughter-free value",
     "accept_x":      "cultivated taste-acceptance",
     "eps_own":       "price elasticity",
+    "cult_sub_mult": "cultivated's extra price sensitivity (kappa)",
+    "w_ratio":       "weight of the price-ratio term",
     "neophobia_x":   "long-run novelty attitude",
     "health_x":      "cultivated health perception",
     "process_cost":  "scaffold process cost",
@@ -96,8 +101,10 @@ def _share_at(target: str, overrides: dict) -> float:
     share THROUGH R; demand inputs (eps_own, theta_free_M, accept_x) move it directly."""
     m = _modes(target); m.update(overrides)
     R = _R_at(target, overrides)
-    return float(share(R, DemandParams(), theta_free_M=m["theta_free_M"],
-                       accept_x=m["accept_x"], eps_own=m["eps_own"],
+    dp = DemandParams(w_ratio=m["w_ratio"]) if "w_ratio" in m else DemandParams()   # w_ratio: beta re-derived
+    return float(share(R, dp, theta_free_M=m["theta_free_M"],
+                       accept_x=m["accept_x"],
+                       eps_own=m["eps_own"] * m["cult_sub_mult"] / dp.cult_sub_mult,
                        neophobia_x=m["neophobia_x"], health_x=m["health_x"]))
 
 
@@ -111,7 +118,10 @@ def oat(target: str, which: str = "R"):
     fn = _R_at if which == "R" else _share_at
     base = fn(target, {})
     rows = []
-    for name, (kind, lo, hi, mode, _note) in active_priors(target).items():
+    pri = dict(active_priors(target))
+    if which != "R":
+        pri["w_ratio"] = prior("w_ratio")
+    for name, (kind, lo, hi, mode, _note) in pri.items():
         if which == "R" and name in DEMAND_INPUTS:
             continue
         o_lo, o_hi = fn(target, {name: lo}), fn(target, {name: hi})

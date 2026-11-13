@@ -143,8 +143,11 @@ def _python_reference(grid_keys, health_keys, timing_R, weight_cases=()) -> dict
     # timing rung at the JS-reported R (use simulate -> same _run core)
     tp = TimingParams()
     timing = simulate(timing_R, pr, tp, acceptance_grows=True, which="x")["share"]
+    from adoption_timing import years_to_stabilize
+    tstabs = [years_to_stabilize(timing_R, pr, TimingParams(accept_rate=r)) for r in (0.05, 0.15, 0.5)]
     return {"headline": headline, "grid": grid, "health": health,
-            "foothold": foothold, "weights": weights, "timing": list(map(float, timing))}
+            "foothold": foothold, "weights": weights, "timing": list(map(float, timing)),
+            "tstabs": [int(x) for x in tstabs]}
 
 
 # ---------------------------------------------------------------------------
@@ -288,6 +291,9 @@ def check_parity() -> list:
                              f"diff={abs(pv - jv):.2f} pp (> {MC_TOL} pp: do they sample the same inputs?)")
         mc_msg = f"MC median max diff = {max(diffs):.2f} pp (tol {MC_TOL})"
 
+    # years to 90% of the long-run share (accept_rate 0.05, 0.15, 0.5): must be identical integers
+    if [int(x) for x in js["timing"].get("tstabs", [])] != py["tstabs"]:
+        fails.append(f"years-to-stabilize: python={py['tstabs']} js={js['timing'].get('tstabs')}")
     # timing trajectory
     jt = js["timing"]["share"]
     pt = py["timing"]

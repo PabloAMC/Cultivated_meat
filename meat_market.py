@@ -221,8 +221,14 @@ GLOBAL_MARKET = [
     MeatType("pork (processed)",       6.0,  0.16),
     MeatType("pork (cuts)",            9.0,  0.165, scaffold=SCAF),
     MeatType("pork (heritage)",       16.0,  0.005, scaffold=SCAF),   # premium [med conf]
-    MeatType("beef (ground)",         14.0,  0.09),
-    MeatType("beef (steak/cuts)",     24.0,  0.085, scaffold=SCAF),
+    # Beef (revised 2026-11-13): GPP's own "average price" (17.59 USD/kg, Jan 2026) is an UNWEIGHTED mean
+    # over 76 countries, so Switzerland (64.64) counts as much as China or Brazil; the earlier $14/$24 sat
+    # ABOVE the US $11/$20 for that reason. Weighting each country's GPP beef price by its 2025 beef
+    # consumption (USDA FAS PSD 'Meat, Beef and Veal', Domestic Consumption; 90% of world use matched;
+    # EU = mean of DE, FR, IT, ES, PL, NL) gives 19.15 USD/kg against GPP USA 18.80: world = 1.019 x US.
+    # So both beef rows are the US rows x 1.019. Method and country table: METHODS.md, "World beef price".
+    MeatType("beef (ground)",         11.2,  0.09),
+    MeatType("beef (steak/cuts)",     20.4,  0.085, scaffold=SCAF),
     MeatType("beef (prime/wagyu)",    45.0,  0.005, scaffold=SCAF),   # premium [high conf]
     MeatType("sheep/goat",            14.0,  0.05, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 8.0,  0.03),
@@ -308,7 +314,7 @@ def _rollup(market, biomass, markup, res, share_of):
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
-                auth=None):
+                auth=None, pr=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
@@ -320,12 +326,13 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     auth         = optional per-tier authenticity offsets {basic, cut, premium} (the interactive's
                    authenticity sliders); None = the datasheet ladder. premium_resistance still
                    scales whatever ladder is in force.
+    pr           = optional DemandParams (e.g. a w_ratio or loss_aversion variant); None = the defaults.
     The per-tier demand resistance enters as share()'s tier_offset (in utils).
     """
     markup = value("markup_add") if markup is None else markup
-    base_eps = value("eps_own")
+    pr = DemandParams() if pr is None else pr
+    base_eps = pr.eps_own
     res = value("premium_resistance") if premium_resistance is None else premium_resistance
-    pr = DemandParams()
 
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
@@ -364,7 +371,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
 
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
         toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
-        eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
+        eps = (s["eps_own"] * s["cult_sub_mult"] / base.cult_sub_mult      # a kappa draw scales the price response
+               * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)]))
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
                                eps_own=eps[i], income=income, p_ref=mt.p_conv,

@@ -202,6 +202,7 @@ class DemandParams:
 
     # --- reference-dependent loss aversion (uniform across products) -------
     loss_aversion: float = value("loss_aversion")    # premium-over-conventional penalty, every product
+    w_ratio: float = value("w_ratio")                # weight of the ratio-based (income-free) price term
 
     # --- calibration anchors & the SEGMENT-SPECIFIC solved outside options --
     pb_share_target: float = value("pb_share_target")          # plant-based total share anchor
@@ -254,7 +255,7 @@ def _softmax(V):
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
                tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-               p_ref=None, return_components=False):
+               p_ref=None, return_components=False, ratio_scale=1.0):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -365,8 +366,11 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # own premium, never a cultivated-only cliff. It is RATIO-based (premium over the conventional
     # reference), so it carries no income scaling — the income channel lives entirely in the BLP log.
     premium = price_ratio - 1.0
-    V_loss = (-pr.loss_aversion * np.maximum(0.0, premium)
-              + 1.0 * np.maximum(0.0, -premium))
+    # Its weight is the input w_ratio (default 1.0, formerly a hard-coded 1.0). ratio_scale = eps/eps_own
+    # is the per-tier / per-draw price-sensitivity override, applied to THIS channel as to beta, so an
+    # override scales the WHOLE price response (both channels), as _effective_beta's docstring states.
+    V_loss = pr.w_ratio * ratio_scale * (-pr.loss_aversion * np.maximum(0.0, premium)
+                                         + np.maximum(0.0, -premium))
 
     # Per-FACTOR utility components (each an array over [w, c, p, x]). The total utility is their
     # sum; returning them lets `utility_breakdown` show each factor's contribution on a common
@@ -387,13 +391,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-             cultivated_present=True, p_ref=None) -> dict:
+             cultivated_present=True, p_ref=None, ratio_scale=1.0) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
-                   p_ref=p_ref)
+                   p_ref=p_ref, ratio_scale=ratio_scale)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -409,12 +413,13 @@ def _effective_beta(pr: DemandParams, eps, inc, p_ref) -> float:
     binding case R->1 at the region's y_eff; tightens at low income). Factored out of `share` so the
     importance-breakdown decomposition uses the SAME beta. Inert at the default; only bites in the
     high-loss_aversion / low-income / premium-tier corner."""
-    beta = pr.beta_ref * (eps / pr.eps_own)
+    f = eps / pr.eps_own
+    beta = pr.beta_ref * f
     p_ref_cap = pr.p_conv if p_ref is None else p_ref
     y_eff_cap = pr.income_ref * (inc / pr.income_ref) ** pr.income_gradient
     denom_cap = (pr.income_ref - pr.anchor_price) * p_ref_cap
-    if denom_cap > 0:
-        beta = min(beta, (y_eff_cap - p_ref_cap) / denom_cap - 1e-6)
+    if denom_cap > 0:   # discount-side slope beta*(I-p_a)/(y-p) - w_ratio*f/p_ref must stay negative at R->1
+        beta = min(beta, pr.w_ratio * f * (y_eff_cap - p_ref_cap) / denom_cap - 1e-6)
     return beta
 
 
@@ -444,7 +449,8 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
     beta = _effective_beta(pr, eps, inc, p_ref)
     comp = _utilities(R, pr, beta, seg, accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                       neophobia_x=nbx, neophobia_p=pr.neophobia_p, income=inc,
-                      health_x=health_x, p_ref=p_ref, return_components=True)
+                      health_x=health_x, p_ref=p_ref, return_components=True,
+                      ratio_scale=eps / pr.eps_own)
     j, c = _IDX[which], _IDX["c"]
     # asc[j]-asc[c] = (neophobia + tier_offset) for j minus 0 for conventional; split the two.
     out = {
@@ -459,7 +465,7 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
     out["_net"] = sum(out.values())
     seg_shares = _segment(R, pr, beta, seg, accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                           neophobia_x=nbx, neophobia_p=pr.neophobia_p, income=inc,
-                          health_x=health_x, p_ref=p_ref)
+                          health_x=health_x, p_ref=p_ref, ratio_scale=eps / pr.eps_own)
     out["_share"] = float(seg_shares[which])
     return out
 
@@ -510,10 +516,10 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
@@ -633,7 +639,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # The loss-aversion term adds a second price-sensitivity channel; at the anchor
     # (R_today > 1, the loss side) its semi-elasticity is loss_aversion/p_conv, which
     # `beta` must absorb so the TOTAL realised elasticity equals the target eps_x.
-    lam_slope = pr.loss_aversion / pr.p_conv
+    lam_slope = pr.w_ratio * pr.loss_aversion / pr.p_conv
     # MONOTONICITY GUARD: on the DISCOUNT side (R<1) the loss-aversion term is off, so the
     # curve's slope there is governed by the BLP coefficient `beta` plus the unit gain reward
     # (slope -1/p_conv). A cheaper product must never lose share, i.e. the discount-side slope
@@ -647,7 +653,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # slope, so the REALISED own-price elasticity would drift past the eps_own*cult_sub_mult target.
     # Stopping lambda at 2.25 keeps the "lambda reshapes the kink, not the elasticity level" property
     # true across the whole admissible range (it holds through the default lambda=1 and the TK anchor).
-    beta_cap = 1.0 / pr.p_conv - 1e-3
+    beta_cap = pr.w_ratio / pr.p_conv - 1e-3
     s = 0.0
     for _ in range(iters):
         pr.beta_ref = min(beta_cap, eps_x / (pr.anchor_price * (1.0 - s)) + lam_slope)
@@ -710,6 +716,30 @@ def pb_milk_check(pr: DemandParams) -> float:
     milk.anchor_price = pr.anchor_price
     # plant share = "p" with the cultivated slot absent (milk has no cultivated product)
     return share(1.0, milk, cultivated_present=False, which="p")
+
+
+# ----------------------------------------------------------------------------
+# DEMAND VALIDATION: a real-meat product at a premium (organic chicken)
+# ----------------------------------------------------------------------------
+ORGANIC_CHICKEN = dict(price=13.0, cuts=9.0, mince=5.0, observed_pct=2.4)
+# From the model's own US table (meat_market.US_MARKET): organic chicken $13/kg, regular cuts $9,
+# mince $5; organic is 0.010 of the 0.412 chicken volume weight = 2.4% of US chicken.
+
+
+def organic_premium_check(pr: DemandParams) -> dict:
+    """The nearest real-world test of demand ABOVE parity (added 2026-11-13). Organic chicken is real
+    chicken, sold at a premium (1.44x regular cuts, 2.6x mince), and takes ~2.4% of US chicken. The
+    model's share for a real-meat product that matches conventional on every attribute except a higher
+    price, at those ratios (cultivated slot, neutral dials, the commodity price response), is far above
+    that. No kappa inside the Lusk 2020 bracket closes the gap (kappa=10 still gives ~18% at 1.44x), so
+    it is not a kappa calibration: the logit gives a near-identical dearer product a sizeable share.
+    This is why kappa's range reaches 9 (inputs.py) and why shares at a premium should be read as upper
+    estimates. Returns predicted shares (%) at both comparisons and the observed share."""
+    o = ORGANIC_CHICKEN
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    return dict(vs_cuts=share(o["price"] / o["cuts"], pr, p_ref=o["cuts"], **neutral) * 100,
+                vs_mince=share(o["price"] / o["mince"], pr, p_ref=o["mince"], **neutral) * 100,
+                observed=o["observed_pct"])
 
 
 # ----------------------------------------------------------------------------
@@ -918,6 +948,10 @@ def summarise(pr: DemandParams) -> None:
           f"{'INSIDE' if le['inside'] else 'OUTSIDE'}")
     print("      -> the one DCE that priced cultivated across 6 levels brackets the at-parity elasticity;")
     print("         kappa stays swept (the bracket is wide), but the data grounds its range, not a heuristic.")
+    oc = organic_premium_check(pr)
+    print(f"  [4c] premium real-meat check: a product equal to conventional except price, priced like organic "
+          f"chicken, gets {oc['vs_cuts']:.1f}% (vs regular cuts, 1.44x) / {oc['vs_mince']:.1f}% (vs mince, 2.6x); "
+          f"organic chicken's actual share is ~{oc['observed']:g}% -> FAILS: shares above parity are upper estimates.")
 
     # PLANT-BASED AT FULL PARITY (cultivated absent), holding the calibrated standing:
     # with price+taste equalised, the only thing left penalising plant-based in the
