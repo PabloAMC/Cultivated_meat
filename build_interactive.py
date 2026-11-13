@@ -1011,7 +1011,7 @@ text{font-family:Georgia,serif;}
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
 <p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
-business advice. The views expressed are the author's own and do not represent the views of the European
+business advice. No human expert has reviewed the model yet. The views expressed are the author's own and do not represent the views of the European
 Commission. <a href="#about">About this page</a>.</p>
 
 <div class="findings">
@@ -1549,7 +1549,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
     <p><b>Views.</b> The views expressed on this page are purely those of the author, Pablo Antonio Moreno Casares.
     They may not in any circumstances be regarded as stating an official position of the European Commission.</p>
     <p><b>How it was made.</b> The model and this page were built with the help of an AI assistant (Claude,
-    Anthropic). Every number is a model result computed from the inputs listed in the code, each with its source.</p>
+    Anthropic). No human expert has reviewed the model yet. Every number is a model result computed from the inputs listed in the code, each with its source.</p>
     <p><b>Not advice.</b> This page is for research and discussion. It is not investment, business or policy advice.
     Market shares are long-run ceilings under stated assumptions, not forecasts.</p>
   </section>
