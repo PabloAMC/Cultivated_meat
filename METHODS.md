@@ -115,6 +115,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | 4. Timing | `adoption_timing.py` | Bass rollout × fading novelty, and cost-milestone paths |
 | Uncertainty | `uncertainty.py` | the commodity Monte Carlo over R and share |
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
+| Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
 `build_interactive.py` (the page).
@@ -259,6 +260,46 @@ cultivated meat ... per year" (FoodNavigator). Completed in 2025; the company (w
 tonne of yearly capacity, against $48,000 in Humbird's fed-batch design; at Humbird's 24%/yr it would cost $3.0/kg,
 far below this model's $18.5 non-medium cost. Either Humbird's plant is conservative (aseptic, clean-room) or the capacity
 claim was optimistic; the plant never ran long enough to say. A company claim, and the only built plant on file.
+
+### Side-study: does slower growth pay? (`growth_rate.py`, added 2026-11-13; not used in the cost)
+
+Fast-growing cells waste glucose as lactate and glutamine as ammonia, and the process must supply enough litres
+to keep both dilute. Slower growth might need fewer litres per kg, but a plant that grows cells more slowly makes
+fewer kg per year, so its fixed costs per kg rise. `growth_rate.py` puts both effects into the cost above and finds
+the cheapest doubling time. It is an envelope: all seven growth inputs (`gr_*` in `inputs.py`) are judgement, not
+measurement.
+
+With r the doubling time relative to the base process:
+
+    cost(r) = media_intensity × efficiency × V(r) × media_price + overhead × [(1 − time_share) + time_share × r]
+    V(r)    = max(level_bp × byproduct(r), level_nut × nutrient(r))
+
+Volume is a maximum over limits, not a sum: the limit that demands the most litres sets it. Each demand has a part
+tied to growth and a part tied to time (glutamine breaking down in warm medium, maintenance energy, growth-factor
+decay); the time part rises per kg as growth slows. The growth-tied by-product is either proportional to growth
+(flat per kg) or switches off below a threshold growth rate (falls per kg as growth slows, gone at `gr_tau_star`).
+
+Result. Slower growth can pay in only one of three structural cases: a by-product sets the volume and overflow
+has a threshold. If overflow is proportional to growth, or nutrient supply sets the volume, the fastest growth is
+always cheapest. In the favourable case, at central inputs and the $18.5/kg non-medium cost, slower growth never
+pays at any medium price from $0.20 to $1.00 per litre. It pays only where the plant is cheap and the medium dear:
+$1.87/kg at the $11.5 plant floor with $1.00/L medium, with the optimum near 36 h, where the next limit takes
+over. Sampling the priors within that case (N = 20,000, seed 0), the saving exceeds $1/kg in 4% of draws at the
+model's medium-price prior, 16% at $1.00/L and 0.01% at $0.20/L. (Before the capital charge was added to the plant
+cost these were 15%, 36% and 0.05%: a dearer plant makes vessel time dearer.) Which case holds for meat cells is
+not known, so the cases are not weighted. The practical reading: growth rate is not a cost lever worth pursuing;
+what limits litres per kg matters far more.
+
+Cross-check against Humbird (long engrXiv report, text around Fig. 4.5a, read 2026-11-13; the figure itself was
+not viewed). His cells burn nutrients at a fixed rate per unit time (60 pW per cell), so every yield per kg worsens
+as growth slows, and he reports that "the modeled COP roughly doubles as the doubling time increases from 24 to 48
+hours" and that "high metabolic efficiency is more important than high growth rate". That is this envelope's
+proportional case with the by-product fully time-made. He has no threshold case, so the envelope adds only the
+condition under which the conclusion could flip, and finds it narrow.
+
+A closed form checks the code (`tests/test_growth_rate.py`): with no time-made by-product, no cell death and no
+second limit, cost is linear in r up to the threshold, so the optimum is a corner, and slowing pays if and only if
+M > K × time_share × (r* − 1), with M the medium cost and K the non-medium cost at the base.
 
 ## Step 2 — demand (`market_share.py`)
 

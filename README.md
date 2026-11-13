@@ -58,6 +58,7 @@ it is always a band.
 | 4 | [`adoption_timing.py`](adoption_timing.py) | rollout (Bass diffusion), fading novelty, cost-milestone paths over 30 years |
 | – | [`uncertainty.py`](uncertainty.py) | Monte Carlo over R and share |
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
+| – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
 
 ---
 
@@ -159,6 +160,7 @@ model/
 ├── adoption_timing.py   ← step 4: rollout, fading novelty, cost-milestone paths
 ├── uncertainty.py       ← Monte Carlo over R and share
 ├── sensitivity.py       ← which inputs matter most
+├── growth_rate.py       ← side-study: cost against doubling time (not used in the headline)
 ├── common.py            ← shared plotting helpers (no model logic)
 ├── report_figures.py    ← builds the curated figure set
 ├── build_interactive.py ← generates interactive.html (model → JS/SVG explorer + text)

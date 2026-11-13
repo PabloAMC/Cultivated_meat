@@ -10,6 +10,9 @@ python build_interactive.py >/dev/null
 echo "==> golden-value regression"
 python tests/test_golden.py
 
+echo "==> doubling-time envelope"
+python tests/test_growth_rate.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

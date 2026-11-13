@@ -204,6 +204,38 @@ REGISTRY: dict[str, Input] = {
              "facility. Toggle adds Humbird's pharma-leaning clean-room burden. p.53: halving it "
              "(sanitary) or removing it (outdoor) still leaves his COP above target."),
 
+    # --- Rung 2 side-study: doubling-time envelope (growth_rate.py; NOT used in the cost) ------
+    # Every number here is OUR JUDGEMENT, not a measurement: no public series gives these rates for
+    # meat cells. They bound a what-if (does growing slower ever pay?), they do not feed the headline.
+    "gr_tau_ref": Input(24.0, "h", "[assumed] doubling time of the base (Pasitka-anchored) process",
+        note="fixed; the envelope depends only on the RATIO tau/tau_ref, so this sets the axis, not the result"),
+    "gr_time_share": Input(0.8, "of overhead", "[assumed] share of the non-medium cost that scales with "
+        "vessel-time per kg (capital, labour, utilities, maintenance)",
+        lo=0.5, hi=1.0, mode=0.8,
+        note="a fixed plant makes kg in proportion to growth rate, so its fixed costs per kg scale with "
+             "doubling time. Cross-check: in Humbird's Table 4.7 only consumables ($0.81 of $14.5/kg) do "
+             "not; lo=0.5 allows a fed-batch cycle with a large turnaround share"),
+    "gr_tau_star": Input(48.0, "h", "[assumed] doubling time at which overflow (lactate) production stops, "
+        "threshold case", lo=30.0, hi=96.0, mode=48.0,
+        note="unknown for meat cells. The CHO chemostat series the proposal cites were read as abstracts only"),
+    "gr_bp_time_share": Input(0.2, "of by-product", "[assumed] share of the binding by-product at tau_ref that "
+        "is made per unit TIME, not per unit growth", lo=0.0, hi=0.5, mode=0.2,
+        note="glutamine breaks down to ammonia in warm medium whether or not cells grow; maintenance "
+             "metabolism also makes lactate. This part rises per kg when growth slows"),
+    "gr_next_level": Input(0.6, "x volume", "[assumed] the volume the NEXT limit would demand at tau_ref, "
+        "as a share of the volume the binding limit demands", lo=0.25, hi=1.0, mode=0.6,
+        note="relieving the binding limit cannot cut volume below the next one. lo=0.25 is eff_best "
+             "(CHO-grade); hi=1.0 means two limits bind together. growth_rate.py's rough check puts "
+             "lactate, ammonia and amino-acid supply within a factor of a few"),
+    "gr_nut_time_share": Input(0.3, "of nutrient need", "[assumed] share of the nutrient-supply need at "
+        "tau_ref that scales with time (maintenance energy, growth-factor decay)",
+        lo=0.1, hi=0.6, mode=0.3,
+        note="Humbird's glucose is about half maintenance (see glucose_intensity); amino acids are mostly "
+             "built into biomass; growth factors decay with time alone"),
+    "gr_death_rate": Input(0.002, "1/h", "[assumed] cell death rate, constant", lo=0.0, hi=0.005, mode=0.002,
+        note="dead cells must be regrown, so growth-coupled needs per NET kg rise as growth slows. A constant "
+             "rate understates Hayter 1993's finding that death rises at low growth rate (abstract only)"),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term
