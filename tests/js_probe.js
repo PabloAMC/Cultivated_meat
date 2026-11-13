@@ -106,6 +106,10 @@ js += `
     p: def.p_innov, q: def.q_imit, ax: def.accept_x, tfM: def.theta_free_M,
     income: def.income, which: "x",
   });
+  // time to 90% of the long-run share at the same options and R (mirror of years_to_stabilize)
+  const tstabs = [0.05, 0.15, 0.5].map(rate => yearsToStabilize({
+    R: Rx, nb0: def.neophobia_x0, nbL: def.neophobia_x, rate, p: def.p_innov, q: def.q_imit,
+    ax: def.accept_x, tfM: def.theta_free_M, income: def.income, which: "x" }));
 
   // FOOTHOLD rung: per-product price ratio R (footR) at the defaults. This is the cost->R
   // machinery shared with foothold.product_R — the ONE foothold quantity that is a true Python
@@ -181,7 +185,7 @@ js += `
                     vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
 
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases,
-                           mcCheck, premise, timing: { R: Rx, share: tr.share } }));
+                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs } }));
 })();
 `;
 

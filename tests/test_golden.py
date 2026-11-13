@@ -32,8 +32,9 @@ TOL = 5e-3
 
 def _golden_values() -> dict:
     """Compute the current headline numbers from the source-of-truth modules."""
-    from market_share import (DemandParams, share, pb_milk_check,
+    from market_share import (DemandParams, share, pb_milk_check, organic_premium_check,
                               lusk_at_parity_elasticity, LUSK_ELAS_BRACKET)
+    from adoption_timing import TimingParams, years_to_stabilize
     from cost_model import CostParams, biomass_cost, cost_floor
     import meat_market as mm
 
@@ -41,6 +42,7 @@ def _golden_values() -> dict:
     cp = CostParams()
     b = float(biomass_cost(cp, 0.63, 1.0))               # Pasitka-base biomass cost $/kg
     rows, tv, tval = mm.penetration(mm.MARKETS["us"], b)
+    _, gv, gval = mm.penetration(mm.MARKETS["global"], b, income=mm.REGION_INCOME["global"])
 
     return {
         # --- cost rung ---
@@ -68,6 +70,11 @@ def _golden_values() -> dict:
         # --- penetration roll-ups (US, base biomass) ---
         "us_pen_vol_pct": tv * 100,
         "us_pen_val_pct": tval * 100,
+        "world_pen_vol_pct": gv * 100,
+        # --- premium real-meat check (organic chicken, ~2.4% observed; self-check [4c], FAILS by design) ---
+        "organic_vs_cuts_pct": organic_premium_check(pr)["vs_cuts"],
+        # --- timing: years to 90% of the LONG-RUN share at today's price (horizon-free) ---
+        "years_to_stabilize": float(years_to_stabilize(pr.anchor_price / pr.p_conv, pr, TimingParams())),
     }
 
 
@@ -97,8 +104,15 @@ GOLDEN = {
     "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
     "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
     "health_x_half_pct":   59.578,
-    "us_pen_vol_pct":      5.04423,    # 2026-09-26: volume weights now normalised (US listed weights sum to 1.004)
-    "us_pen_val_pct":      8.40933,    # premium no longer flat-clamped; responds to R correctly
+    # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
+    # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
+    # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
+    # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
+    "us_pen_vol_pct":      5.73401,
+    "us_pen_val_pct":      9.26091,
+    "world_pen_vol_pct":   2.46298,
+    "organic_vs_cuts_pct": 33.45846,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "years_to_stabilize":  29.0,      # was "~25" when measured as 90% of the year-30 value
 }
 
 

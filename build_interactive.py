@@ -100,6 +100,7 @@ def build_model() -> dict:
         "w_realtissue_E": value("w_realtissue_E"),
         "w_slaughter_E": value("w_slaughter_E"),
         "loss_aversion": value("loss_aversion"),
+        "w_ratio": value("w_ratio"),                # weight of the ratio-based (income-free) price term
         "real_tissue_x": value("real_tissue_x"),   # identifying asymmetry, now a dial
         "real_tissue_p": value("real_tissue_p"),
         # HEALTH PERCEPTION — a named ATTRIBUTE on every product, weighted by a segment-specific,
@@ -255,7 +256,8 @@ def build_model() -> dict:
             "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>; A2"],
             "eps_own":       ["&epsilon;", "sets the price weight &beta;; A1"],
             "cult_sub_mult": ["&kappa;", "sets the price weight &beta;; A1"],
-            "loss_aversion": ["&lambda;", "reference-price term &minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup> in Eq. (2); A3"],
+            "loss_aversion": ["&lambda;", "reference-price term w<sub>r</sub>[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup>] in Eq. (2); A3"],
+            "w_ratio":       ["w<sub>r</sub>", "weight of the reference-price term in Eq. (2); A3"],
             "accept_x":      ["a<sub>x</sub>", "taste term w<sup>t</sup>(a<sub>x</sub>&minus;1) in Eq. (2)"],
             "neophobia_x":   ["&nu;<sub>x</sub>", "novelty term in Eq. (2); long-run end of Eq. (5)"],
             "neophobia_p":   ["&nu;<sub>p</sub>", "plant-based novelty term in Eq. (2)"],
@@ -299,7 +301,7 @@ def build_model() -> dict:
           "real_tissue_x", "accept_x", "theta_free_M", "premium_resistance"], False),
         ("Step 1 · cost and price", ["efficiency", "scaffold"], True),
         ("Step 2 · how shoppers choose",
-         ["eps_own", "cult_sub_mult", "loss_aversion", "income", "income_gradient", "w_eth",
+         ["eps_own", "cult_sub_mult", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
           "health_x", "neophobia_x"], True),
         ("Step 2 · plant-based meat", ["R_p", "a_p", "real_tissue_p", "health_p", "neophobia_p"], True),
         ("Step 3 · authenticity by tier", ["auth_basic", "auth_cut", "auth_premium"], True),
@@ -378,7 +380,7 @@ def build_model() -> dict:
                tip="How much meat purchases fall when prices rise: −0.9 (default) means 1% dearer, 0.9% "
                "fewer purchases (Andreyeva 2010; meta-analyses span −0.7 to −1.0). A single cultivated "
                "product is &kappa; times more sensitive than this. Sampled in the Monte Carlo."),
-        slider("cult_sub_mult", "Closeness to conventional (&kappa;)", "x", 3.0, 6.0, 0.5,
+        slider("cult_sub_mult", "Closeness to conventional (&kappa;)", "x", 3.0, 9.0, 0.5,
                value("cult_sub_mult"), "Lusk 2020",
                tip="How many times more price-sensitive a cultivated product is than meat as a whole: it "
                "has a near-identical substitute on the same shelf. Mostly matters above parity: at "
@@ -390,6 +392,13 @@ def build_model() -> dict:
                "1 (default) = symmetric; up to Tversky and Kahneman's 2.25. Barely moves the result, "
                "because the price weight is re-fitted: at today's price, 1 → ~{{LAMBDA_1}}%, 2.25 → "
                "~{{LAMBDA_225}}%."),
+        slider("w_ratio", "Weight of the price-ratio term (<i>w</i><sub>r</sub>)", "utils", 0.5, 1.5, 0.05,
+               value("w_ratio"), "judgement",
+               tip="How much of the price response compares each product with the conventional price "
+               "(the same for rich and poor shoppers) rather than with the shopper's income. The price "
+               "weight is re-fitted, so the US result does not move; a higher value makes poorer shoppers "
+               "relatively less put off by a premium, which raises the share in poorer regions and the "
+               "world (world meat 1.6% at 0.5, 4.0% at 1.5). No direct estimate; 1 is the model's original value."),
         slider("income", "Income (<i>y</i>, GDP per person)", "$/yr", 5000, 5000000, 1000,
                value("income_ref"), "World Bank",
                tip="Average income (PPP), set by the region selector. Poorer shoppers feel the same "
@@ -464,7 +473,8 @@ def build_model() -> dict:
                value("accept_rate"), "assumed",
                tip="How fast wariness fades as people keep seeing the product. Changes when adoption "
                "levels off, not where: 0.15 (default) → about year {{STAB_YEAR}}; 0.5 → about year "
-               "{{STAB_R05}}; 0.05 → still climbing at year 30. No direct estimate; the default "
+               "{{STAB_R05}}; 0.05 → about year {{STAB_R005}}. Each is the year adoption reaches 90% of its "
+               "long-run share. No direct estimate; the default "
                "matches the decades-long uptake of other radically new foods. Sampled."),
         slider("p_innov", "Rollout: early adopters (<i>p</i><sub>B</sub>)", "1/yr", 0.005, 0.05, 0.005,
                value("p_innov"), "Bass lit.",
@@ -764,7 +774,8 @@ def derived_numbers() -> dict:
     import uncertainty as U
     from market_share import DemandParams, share
     from cost_model import CostParams, biomass_cost, cost_floor, media_cost
-    from adoption_timing import TimingParams, simulate, _time_to_stabilize
+    from adoption_timing import TimingParams, years_to_stabilize
+    from market_share import organic_premium_check
 
     cp, dp = CostParams(), DemandParams()
     p_conv, markup = value("p_conv"), value("markup_add")
@@ -775,9 +786,10 @@ def derived_numbers() -> dict:
     stall = media + _pasitka_oh("ATF")                        # Pasitka's small-vessel design
     Rq = np.percentile(U.monte_carlo(20000, "commodity", {})["R"], [10, 50, 90])   # = RESULTS.md's draw
 
-    def stab(**kw):                                           # year the path reaches 90% of its yr-30 value
-        sim = simulate(R_today, dp, TimingParams(**kw), acceptance_grows=True, which="x")
-        return int(_time_to_stabilize(sim["share"] * 100))
+    _org = organic_premium_check(dp)                          # premium real-meat check (organic chicken)
+
+    def stab(**kw):                                           # year the path reaches 90% of its long-run share
+        return int(years_to_stabilize(R_today, dp, TimingParams(**kw)))
 
     lo, hi = -3.0, 3.0                                        # novelty at which the parity share is 60%
     for _ in range(60):                                       # (the warmest survey framing, Perdue 2024)
@@ -801,7 +813,8 @@ def derived_numbers() -> dict:
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
         "R_STALL": f"{(stall + markup) / p_conv:.2f}",
         "R_MC_P10": f"{Rq[0]:.1f}", "R_MC_P50": f"{Rq[1]:.1f}", "R_MC_P90": f"{Rq[2]:.1f}",
-        "STAB_YEAR": str(stab()), "STAB_R05": str(stab(accept_rate=0.5)),
+        "STAB_YEAR": str(stab()), "STAB_R05": str(stab(accept_rate=0.5)), "STAB_R005": str(stab(accept_rate=0.05)),
+        "ORG_CUTS": f"{_org['vs_cuts']:.0f}", "ORG_MINCE": f"{_org['vs_mince']:.0f}",
         "NX0_60": f"{(lo + hi) / 2:.1f}",
         "HEALTH_TASTE_RATIO": f"{dp.w_health_M / dp.w_taste:.2f}",
         "HEALTH_E": f"{dp.w_health_E:.1f}",
@@ -825,6 +838,10 @@ body{margin:0;background:var(--bg);color:var(--ink);
 h1{font-size:1.45rem;margin:0 0 .2em;font-family:Georgia,serif;}
 .lede{color:var(--muted);font-size:.92rem;margin:0 0 14px;overflow-wrap:break-word;max-width:760px;}
 .lede a{color:var(--accent);}
+.disc{color:var(--muted);font-size:.8rem;border-left:3px solid #d4a017;padding:2px 10px;margin:-6px 0 14px;max-width:760px;}
+.disc a{color:var(--accent);}
+#about{max-width:760px;margin:22px 0 8px;font-size:.86rem;color:var(--muted);border-top:1px solid #ddd;padding-top:10px;}
+#about h3{font-size:.95rem;margin:0 0 6px;color:inherit;}
 .grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:26px;}
 .grid>*{min-width:0;}
 @media(max-width:780px){.grid{grid-template-columns:minmax(0,1fr);}}
@@ -993,6 +1010,9 @@ text{font-family:Georgia,serif;}
 <h1>Cultivated meat: how much of the meat market can it win, and how fast? <span class="stamp">build __BUILD_STAMP__</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
+<p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
+business advice. The views expressed are the author's own and do not represent the views of the European
+Commission. <a href="#about">About this page</a>.</p>
 
 <div class="findings">
   <div class="fh">At the default settings</div>
@@ -1002,9 +1022,10 @@ much of the meat market it could win, and how fast. Every assumption is a slider
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
     <li><b>At today's cost:</b> ~{{PEN_GLOBAL_VOL}}% of world meat by weight (Europe ~{{PEN_EU_VOL}}%); less by
-    animal count, since most are chickens.</li>
+    animal count, since most are chickens. Likely an upper estimate: the model over-predicts what shoppers pay a
+    premium for (organic chicken check, below).</li>
     <li><b>Where:</b> beef and seafood; chicken and pork stay dearer even at the cost floor.</li>
-    <li><b>When:</b> these are long-run ceilings, reached in about {{STAB_YEAR}} years.</li>
+    <li><b>When:</b> these are long-run ceilings; adoption gets 90% of the way there in about {{STAB_YEAR}} years.</li>
   </ol>
 </div>
 
@@ -1015,7 +1036,7 @@ much of the meat market it could win, and how fast. Every assumption is a slider
   <div class="arr">&rarr;</div>
   <div class="link"><div class="num">~{{SHARE_TODAY}}%</div><div class="lab">long-run share, US</div></div>
   <div class="arr">&rarr;</div>
-  <div class="link"><div class="num">~{{STAB_YEAR}} years</div><div class="lab">to get there</div></div>
+  <div class="link"><div class="num">~{{STAB_YEAR}} years</div><div class="lab">to get 90% of the way</div></div>
 </div>
 <p class="howto">The model in one line: everyday meat in the US, point estimates. It repeats this for every kind of
 meat and region (charts 1, 2, 7). The left panel starts with the key assumptions; hover or tap
@@ -1031,7 +1052,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <span class="mcnote">Redraws the charts as uncertainty bands.</span>
     </div>
     <div class="charts">
-      <div class="card full" id="mccard" style="display:none"><h3 data-help="2,000 draws of the uncertain inputs from their plausible ranges: medium price, cell efficiency, plant cost, markup, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity, long-run novelty, health image and premium resistance (plus plant-based's own taste, novelty and health image). Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
+      <div class="card full" id="mccard" style="display:none"><h3 data-help="2,000 draws of the uncertain inputs from their plausible ranges: medium price, cell efficiency, plant cost, markup, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance (plus plant-based's own taste, novelty and health image). Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
         <p class="sub" id="mcsub"></p><svg id="mc" viewBox="0 0 720 250"></svg></div>
 
       <div class="card full"><h3 data-help="Each bar is cultivated meat's share within one kind of meat (solid), with plant-based stacked on top (pale). The colour marks mince, cuts or premium; R is the price ratio. Dashed lines are the totals across all meat, by weight and by value. With Monte Carlo on, bars are medians and whiskers the 10&ndash;90% range.">1 · Share by type of meat</h3>
@@ -1140,7 +1161,12 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       so the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
       of mainstream meals that skip meat (A4). Taste sets the scale for the rest. As a check, the same model with
       only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (chart 6); a
-      weak test, since milk's facts are set by hand.</p>
+      weak test, since milk's facts are set by hand. <b>A harder test fails.</b> Organic chicken is real chicken at
+      1.44&times; the price of regular cuts, and takes about 2.4% of US chicken. The model gives a real-meat product
+      equal to conventional in all but price, at that premium, about {{ORG_CUTS}}% (about {{ORG_MINCE}}% at 2.6&times;
+      mince). So the model's shares above equal price are best read as upper estimates. The uncertainty band therefore
+      lets cultivated meat be up to 9 times more price-sensitive than meat as a whole (&kappa; up to 9), the most that
+      the one price experiment on cultivated meat allows.</p>
       <p><b>At equal price</b>, once familiar, mainstream shoppers see two near-identical real meats and split that
       market: cultivated ~{{PARITY_NEUTRAL}}%, conventional ~{{CONV_PARITY}}% (cultivated's small edge is its
       slaughter-free and cleaner profile; without the health edge, ~{{NOHEALTH_PARITY}}%). The judgement calls that
@@ -1518,6 +1544,15 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       Code and tests: <a href="https://github.com/PabloAMC/Cultivated_meat">github.com/PabloAMC/Cultivated_meat</a>.</p>
     </details>
   </div>
+  <section id="about">
+    <h3>About this page</h3>
+    <p><b>Views.</b> The views expressed on this page are purely those of the author, Pablo Antonio Moreno Casares.
+    They may not in any circumstances be regarded as stating an official position of the European Commission.</p>
+    <p><b>How it was made.</b> The model and this page were built with the help of an AI assistant (Claude,
+    Anthropic). Every number is a model result computed from the inputs listed in the code, each with its source.</p>
+    <p><b>Not advice.</b> This page is for research and discussion. It is not investment, business or policy advice.
+    Market shares are long-run ceilings under stated assumptions, not forecasts.</p>
+  </section>
 </div>
 <div id="foottip"></div>
 """  # ---- end PAGE_HTML (CSS + markup + methodology) ----
@@ -1570,7 +1605,7 @@ function betaPrice(K,eps,income,pRef){
   const pr=(pRef===undefined?K.p_conv_anchor:pRef);
   const yEff=K.income_ref*Math.pow(inc/K.income_ref,K.income_gradient);
   const denom=(K.income_ref-K.anchor_price)*pr;
-  if(denom>0) beta=Math.min(beta,(yEff-pr)/denom-1e-6);
+  if(denom>0) beta=Math.min(beta,K.w_ratio*(eps/K.eps_own)*(yEff-pr)/denom-1e-6);   // discount slope incl. w_ratio*f
   return beta;}
 function utilities(R,K,seg,o){
   const pRef=(o.pRef===undefined?K.p_conv_anchor:o.pRef);          // per-comparison reference price (the cut's rival)
@@ -1605,6 +1640,8 @@ function utilities(R,K,seg,o){
   const wRt=(seg==="M")?K.w_realtissue_M:K.w_realtissue_E;
   const wH=(seg==="M")?K.w_health_M:K.w_health_E;                   // segment-specific health weight (solved)
   const beta=betaPrice(K,o.eps,o.income,pRef);
+  // per-tier / per-draw override scales the ratio term too (mirror of market_share ratio_scale = eps/eps_own)
+  const rScale=(o.eps===undefined?1:o.eps/K.eps_own);
   // INCOME — genuine damped Berry-Levinsohn-Pakes (mirror of market_share._utilities):
   //   Vp_j = alpha*ln(y_eff - price_j),  y_eff = income_ref*(income/income_ref)^phi,
   //   alpha = -beta*(income_ref - anchor_price)  (a single constant).
@@ -1620,8 +1657,8 @@ function utilities(R,K,seg,o){
     const resid=Math.max(yEff-price,1.0);                          // income left after buying j (log-domain guard)
     const Vp=alpha*Math.log(resid);                                // BLP: utility of residual income
     const prem=priceRatio[j]-1;                                    // premium over the conventional reference
-    const Vl=(-K.loss_aversion*Math.max(0,prem)                    // loss side: penalise a premium at -lambda
-              +1.0*Math.max(0,-prem));                            // gain side: reward a discount (ratio-based, no income scaling)
+    const Vl=K.w_ratio*rScale*(-K.loss_aversion*Math.max(0,prem)   // loss side: penalise a premium at -lambda
+              +Math.max(0,-prem));                                 // gain side: reward a discount (ratio-based, no income scaling)
     // per-FACTOR components (mirror of market_share._utilities components) — summed to V[j]
     CO.price[j]=Vp+Vl; CO.taste[j]=K.w_taste*taste[j]; CO.slaughter_free[j]=wSl*slaughter[j];
     CO.real_meat[j]=wRt*realtissue[j]; CO.health[j]=wH*health[j]; CO.asc[j]=xi[j];
@@ -1717,7 +1754,7 @@ function deriveBeta(K){
   const pAnchor=mediaCost(C.anchor_media_price,1)+C.anchor_overhead+C.anchor_markup;
   K.anchor_price=pAnchor;
   const Rtoday=pAnchor/K.p_conv_anchor, epsX=K.eps_own*K.cult_sub_mult;
-  const lam=K.loss_aversion/K.p_conv_anchor;   // loss-side semi-elasticity the loss-aversion term adds
+  const lam=K.w_ratio*K.loss_aversion/K.p_conv_anchor;   // loss-side semi-elasticity the reference term adds
   // MONOTONICITY GUARD (mirror of market_share._derive_beta): cap beta below 1/p_conv so the
   // DISCOUNT side (where the loss term is off) always slopes downward — a cheaper product must
   // never lose share. Inert at the default; only bites in the high-loss_aversion tail.
@@ -1725,7 +1762,7 @@ function deriveBeta(K){
   // (λ≈2.6 at default p_conv) β can no longer fully absorb the loss-aversion slope, so the realised
   // elasticity would drift off the eps_own*κ target. Stopping at 2.25 keeps the "λ reshapes the kink,
   // not the level" property true across the whole admissible range.
-  const betaCap=1.0/K.p_conv_anchor-1e-3;
+  const betaCap=K.w_ratio/K.p_conv_anchor-1e-3;
   let s=0;
   for(let it=0;it<40;it++){
     K.beta_ref=Math.min(betaCap, epsX/(pAnchor*(1-s))+lam);  // set before solveCalibration uses betaPrice
@@ -1743,7 +1780,7 @@ function deriveBeta(K){
 /* effective constants from the current sliders, then derive beta + run the calibration solve. */
 function effConsts(s){
   const K=Object.assign({},C);
-  ["cult_sub_mult","loss_aversion","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
+  ["cult_sub_mult","loss_aversion","w_ratio","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
    "w_taste","w_slaughter_E","w_realtissue_E"].forEach(k=>{if(k in s)K[k]=s[k];});
   // EXPERT WEIGHT OVERRIDES (mirror of market_share.DemandParams.pinned_weights): the three
   // attribute weights that are normally SOLVED to data moments (w_realtissue_M -> GFI 89% buyer
@@ -1817,10 +1854,21 @@ function bassTrajectory(o){
   }
   return {share,ceiling,nb};
 }
-// first year realized share reaches `frac` of its final (yr-N) value
-function timeToStabilize(series,frac){frac=frac||0.9; const fin=series[series.length-1];
-  if(fin<=1e-9) return series.length-1;
-  for(let k=0;k<series.length;k++) if(series[k]>=frac*fin) return k; return series.length-1;}
+// first year the realized share reaches `frac` of its LONG-RUN share (rollout complete, novelty at
+// its long-run value nbL), continuing past the plotted horizon (mirror of adoption_timing.years_to_stabilize;
+// cap 200). Independent of where the chart stops.
+function yearsToStabilize(o,frac){frac=frac||0.9; const K=KP, which=o.which||"x", MAX=200;
+  const ceilAt=nbk=>(which==="pb")
+      ? shareCalc(o.R,K,{toff:0,income:o.income,nbp:nbk,pricePb:o.R,aP:o.aP,hp:o.hp,present:false,which:"pb"})
+      : shareCalc(o.R,K,{ax:o.ax,tfM:o.tfM,toff:0,income:o.income,nbx:nbk,hx:o.hx});
+  const L=ceilAt(o.nbL); if(L<=1e-9) return MAX;
+  let F=0.0, E=0.0;
+  for(let k=0;k<=MAX;k++){
+    const nbk=o.nbL+(o.nb0-o.nbL)*Math.exp(-o.rate*E);
+    if(F*ceilAt(nbk)>=frac*L) return k;
+    const dF=(o.p+o.q*F)*(1.0-F); F=Math.min(1.0,F+dF); E+=F;
+  }
+  return MAX;}
 /* trajectory Monte-Carlo: sweep ALL timing+acceptance priors -> band on share(t) + tstab dist.
    R held fixed. Mirrors adoption_timing.monte_carlo_trajectory. */
 function trajectoryMC(s,N,which){
@@ -1842,7 +1890,7 @@ function trajectoryMC(s,N,which){
                rate:dr.accept_rate, p:dr.p_innov, q:dr.q_imit, hx:dr.health_x, income:s.income,
                which:"x"}))(mcDraw(C.mc_timing_inputs));   // C.mc_timing_inputs = inputs.MC_TIMING_INPUTS
     const tr=bassTrajectory(o); const sh=tr.share.map(x=>x*100);
-    all.push(sh); tstab.push(timeToStabilize(sh)); finals.push(sh[sh.length-1]);
+    all.push(sh); tstab.push(yearsToStabilize(o)); finals.push(sh[sh.length-1]);
   }
   // percentile band per year
   const p10=[],p50=[],p90=[];
@@ -2439,8 +2487,9 @@ function drawTiming(s){
   const W=720,H=300,mL=42,mR=148,mT=18,mB=38, yrs=MODEL.years||30;
   const Rx=basicR(s); s._Rtiming=Rx;                                  // cultivated's commodity price ratio
   // CULTIVATED trajectory: cold-start nu_x0 -> long-run nu_x
-  const cx=bassTrajectory({R:Rx,nb0:s.neophobia_x0,nbL:s.neophobia_x,rate:s.accept_rate,
-    p:s.p_innov,q:s.q_imit,ax:s.accept_x,tfM:s.theta_free_M,income:s.income,which:"x"});
+  const oX={R:Rx,nb0:s.neophobia_x0,nbL:s.neophobia_x,rate:s.accept_rate,
+    p:s.p_innov,q:s.q_imit,ax:s.accept_x,tfM:s.theta_free_M,income:s.income,which:"x"};
+  const cx=bassTrajectory(oX);
   // PLANT-BASED trajectory: same machinery, its OWN price R_p and cold-start nu_p0 -> nu_p.
   // PB STALLS because its taste deficit (a_p<1) + price premium cap the ceiling even after novelty fades.
   const cp=bassTrajectory({R:s.R_p,nb0:s.neophobia_p0,nbL:s.neophobia_p,rate:s.accept_rate,   // the slider (was the constant)
@@ -2477,9 +2526,11 @@ function drawTiming(s){
   let ds="";for(let k=0;k<=yrs;k++)ds+=(k?"L":"M")+X(k).toFixed(1)+" "+Y(xShare[k]).toFixed(1)+" ";
   el("path",{d:ds,fill:"none",stroke:"#0173B2","stroke-width":2.6},svg);
   // stabilisation marker (cultivated)
-  const ts=band?pctl(band.tstab,50):timeToStabilize(xShare);
-  el("line",{x1:X(ts),y1:mT,x2:X(ts),y2:H-mB,stroke:"#999","stroke-dasharray":"2 2","stroke-width":1},svg);
-  tx(svg,X(ts)-4,mT+10,"cultivated stabilises ~yr "+Math.round(ts),{"font-size":8,fill:"#777","text-anchor":"end"});
+  const ts=band?pctl(band.tstab,50):yearsToStabilize(oX);       // 90% of the LONG-RUN share (may be past the chart)
+  const tsX=Math.min(ts,yrs);                                     // marker clamped to the chart's last year
+  el("line",{x1:X(tsX),y1:mT,x2:X(tsX),y2:H-mB,stroke:"#999","stroke-dasharray":"2 2","stroke-width":1},svg);
+  tx(svg,X(tsX)-4,mT+10,"cultivated reaches 90% of its long-run share ~yr "+Math.round(ts)+(ts>yrs?" (past the chart)":""),
+     {"font-size":8,fill:"#777","text-anchor":"end"});
   tx(svg,mL,mT-4,"cultivated "+xShare[0].toFixed(0)+"%→"+xShare[yrs].toFixed(0)+"%   ·   plant-based "+pShare[0].toFixed(0)+"%→"+pShare[yrs].toFixed(0)+"%",
      {"font-size":9,fill:"#333","font-weight":700});
   // right-side legend
@@ -2735,7 +2786,8 @@ function mcDraw(keys){const d={};for(const k of keys)d[k]=triang.apply(null,C.pr
 // as penetration()'s point estimate, including pRef = this cut's own price (the income log needs the
 // dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
 function mcShareOpts(dr,mt,t,s){return {ax:dr.accept_x,tfM:dr.theta_free_M,toff:tAuth(t,dr.premium_resistance),
-  eps:dr.eps_own*tMult(t,dr.premium_resistance),income:s.income,pricePb:s.R_p,aP:s.a_p,
+  eps:dr.eps_own*(dr.cult_sub_mult/(KP||C).cult_sub_mult)*tMult(t,dr.premium_resistance),   // a kappa draw scales the price response
+  income:s.income,pricePb:s.R_p,aP:s.a_p,
   nbx:dr.neophobia_x,nbp:s.neophobia_p,hx:dr.health_x,pRef:mt.p_conv};}
 function monteCarlo(s,N){
   // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (samples C.mc_inputs:

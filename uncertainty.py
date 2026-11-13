@@ -128,7 +128,8 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
 
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
-                         accept_x=s["accept_x"][i], eps_own=s["eps_own"][i],
+                         accept_x=s["accept_x"][i],
+                         eps_own=s["eps_own"][i] * s["cult_sub_mult"][i] / base.cult_sub_mult,
                          neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
                    for i in range(n)])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)

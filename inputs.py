@@ -224,8 +224,12 @@ REGISTRY: dict[str, Input] = {
         "tissue), so its OWN price matters far more -- a price cut wins buyers fast, a price rise loses them to "
         "conventional. kappa therefore sets HOW STEEPLY cultivated's share falls as it gets pricier than "
         "conventional (above parity); it does NOT change the at-parity share (where prices are equal).",
-        lo=3.0, hi=6.0, mode=4.0,
-        note="DATA ANCHOR (the one direct measurement): Van Loo, Caputo & Lusk 2020 (Food Policy 95:101931) "
+        lo=3.0, hi=9.0, mode=4.0,
+        note="RANGE WIDENED 2026-11-13 (hi 6 -> 9): the organic-chicken check (market_share.organic_premium_check) "
+             "shows the model gives a real-meat product at a premium far more share than organic chicken's ~2.4%; "
+             "a higher kappa is the in-model direction of that evidence, so the band now reaches kappa=9, where the "
+             "implied at-parity elasticity (about -3.2) is still inside the Lusk bracket. The mode stays 4. "
+             "DATA ANCHOR (the one direct measurement): Van Loo, Caputo & Lusk 2020 (Food Policy 95:101931) "
              "priced lab-grown across SIX levels ($2.99-$10.49/lb) in a US choice experiment, identifying its "
              "OWN-PRICE ELASTICITY AT PARITY. Their two models bracket it: the conditional logit (price coeff "
              "-0.178/$) implies eps_lab ~ -0.84 at $5/lb; the random-parameter logit (mean -0.72/$, with a lab "
@@ -255,8 +259,11 @@ REGISTRY: dict[str, Input] = {
         lo=1.0, hi=2.25, mode=1.0,
         note="WHY DEFAULT 1.0 (symmetric, no kink) rather than the TK 2.25: (1) it is NEAR-INERT on the headline "
              "anyway -- the beta-derivation absorbs lambda's price slope, so lambda only reshapes the parity KINK, "
-             "not the elasticity level (lambda 1->2.25 moves the at-parity share <2pp and leaves the regional "
-             "penetration roll-up UNCHANGED). RANGE CAPPED AT 2.25 (the TK median) for a principled reason: the "
+             "not the elasticity level at the US anchor (lambda 1->2.25 moves the at-parity share <2pp). It does NOT "
+             "leave the regional roll-up unchanged (corrected 2026-11-13): absorbing lambda pushes beta positive "
+             "(+0.051 at 2.25), which reverses the income channel so poorer shoppers become LESS price-sensitive; "
+             "the world share rises from 2.5% to 6.3% and Nigeria's from 0.09% to 1.4%. Regional results at "
+             "lambda above ~1.65 (where beta crosses zero) are therefore not meaningful. RANGE CAPPED AT 2.25 (the TK median) for a principled reason: the "
              "beta-derivation absorbs lambda's price slope only up to lambda~2.6, where beta saturates at its "
              "monotonicity cap (beta_cap = 1/p_conv - 1e-3); beyond that the realised own-price elasticity would "
              "drift off the eps_own*kappa target (e.g. ~-7 at lambda=4) -- a broken microfoundation, not a "
@@ -275,6 +282,21 @@ REGISTRY: dict[str, Input] = {
              "measured MNL -0.84 than the kinked lambda=2.25 (-0.50) was. So lambda is now an OFF-by-default "
              "exploratory dial (range 1-2.25) for anyone who wants to test reference-dependent asymmetry, not a "
              "baked-in behavioral assumption. Its slope still feeds the beta calibration when moved."),
+    "w_ratio": Input(1.0, "utils per unit ratio", "[judgement] WEIGHT of the ratio-based price term "
+        "w_ratio*(-lambda*max(0, R-1) + max(0, 1-R)): the part of the price response that compares each product "
+        "with the conventional price and carries NO income scaling. The rest of the price response is the BLP "
+        "income log, which is income-scaled. beta is re-derived for any w_ratio, so the TOTAL own-price "
+        "elasticity at the US anchor stays on its target (eps_own*kappa) and US results do not move; what "
+        "w_ratio sets is the SPLIT between the two channels, which decides how much less price-sensitive "
+        "richer shoppers are than poorer ones, and so the low-income regions and the world roll-up.",
+        lo=0.5, hi=1.5, mode=1.0,
+        note="No study measures this split for meat; 1.0 (one util per unit of price ratio) is the model's "
+             "original, previously hard-coded value, kept as the default so published results are unchanged. "
+             "Range 0.5-1.5 is a judgement band around it. Effect (2026-11-13): world share 1.6% at 0.5, "
+             "2.5% at 1.0 and 4.0% at 1.5, with the US everyday share unchanged (8.8%); at 0 (all price response "
+             "income-scaled) the world share is 1.1%. It is in the tornado (sensitivity.py) rather than the Monte "
+             "Carlo, because every value needs beta and the calibration re-solved; that tornado is at the US "
+             "reference income, where its bar is zero by construction, so its effect is the world figure above."),
 
     # --- cultivated's STANDING dials (NO baked-in stance; the reader sets them) -
     #     Cultivated's standing vs conventional is TWO interpretable scenario dials,
@@ -662,7 +684,9 @@ LOSS_AVERSION_RATIO: float = 2.25
 # and the one quoted in RESULTS.md disagreed.) Everything not listed is held at its slider value.
 # ----------------------------------------------------------------------------
 MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add")
-MC_DEMAND_INPUTS = ("eps_own", "theta_free_M", "accept_x", "neophobia_x", "health_x")
+# cult_sub_mult (kappa) is sampled since 2026-11-13: a kappa draw enters as the price-sensitivity override
+# eps_own*kappa_draw/kappa, which scales both price channels (market_share ratio_scale).
+MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "neophobia_x", "health_x")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.

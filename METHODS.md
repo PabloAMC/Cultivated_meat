@@ -83,7 +83,7 @@ Every input falls into one of five categories; `python inputs.py` tags each.
 5. **Assumed, with modest leverage** (the calibration re-solves around each): across their full slider
    ranges, the long-run share at today's price (8.7%) moves by 2.3 pp for `w_realtissue_E` (0–4), 1.7 pp for
    `w_taste` (1–10), 0.7 pp for `taste_quality_w` (beans' taste, 0.1–0.5), 0.3 pp for `wf_mainstream_target`
-   and 0 for `w_slaughter_E`; for comparison, κ (3–6) moves it by 10 pp. The timing knobs (`accept_rate`,
+   and 0 for `w_slaughter_E`; for comparison, κ (3–9) moves it by 13 pp. The timing knobs (`accept_rate`,
    `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$7.7 floor: salts,
    buffer, vitamins) is a small pure assumption.
 
@@ -284,9 +284,10 @@ form (real-tissue preference plus habit): habit can't be separated from preferen
 | [3] where cultivated's share comes from (parity) | conventional −44.4 pp, plant-based −0.56 pp, whole food −3.8 pp |
 | [3b] ethical segment's cultivated rate | 20% at parity, 9% at R = 1.6 |
 | [4] plant-based milk, out of sample | 15% (observed ~15%; milk's positions are set by hand, so a weak test) |
-| [4b] implied at-parity elasticity (κ = 4) | −1.54, inside Lusk's [−3.4, −0.84] |
+| [4b] implied at-parity elasticity (κ = 4) | −1.54, inside Lusk's [−3.4, −0.84] (κ = 9: −3.21, still inside) |
+| [4c] a real-meat product at organic chicken's premium (1.44× cuts) | 33% predicted vs ~2.4% observed: **fails**; shares above parity are upper estimates |
 | [5] plant-based at full price and taste parity | 10% (a prediction, not fitted) |
-| [6] share at today's price, each judgement swept and re-solved | κ 3–6: 3.4% → 13.7%; everything else moves it by 0.5 pp or less |
+| [6] share at today's price, each judgement swept and re-solved | κ 3–9: 0.7% → 13.7%; everything else moves it by 0.5 pp or less |
 
 **Scope.** A calibrated, partial-equilibrium discrete-choice model: parameters are calibrated to published
 facts, not estimated, because there are no purchase data for cultivated meat yet. Deliberate simplifications:
@@ -357,6 +358,12 @@ on the same machinery. Neophobia is symmetric across the two novel meats (`neoph
 The cold-start range (−3.5 to +1.5) spans the survey-framing band: the model gives ~6% at −2.8 and ~60% (the
 warmest survey framing, Perdue 2024) at about +0.5; the upper end (+1.5, ~80%) extends beyond the surveys.
 
+**When it levels off.** `years_to_stabilize` gives the first year the share reaches 90% of its *long-run* share:
+rollout complete (F = 1) and novelty at its long-run value. That share is computed directly, and the simulation
+runs on past the 30 plotted years until it is reached (cap 200), so the answer does not depend on the horizon.
+At today's price it is 29 years (15 at `accept_rate` = 0.5, 72 at 0.05). Before 2026-11-13 the measure was 90% of
+the year-30 value of a 30-year run, which gave ~25 years partly because of where the run stopped.
+
 **Cost over time.** Rather than a smooth learning curve, the simulation is driven by named cost-milestone paths
 (`COST_PATHS`): step functions where R drops when a milestone lands. The R endpoints come from the cost model;
 only the milestone year is a declared unknown (`cost_paths_timing`).
@@ -369,8 +376,8 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 2.09   80% CI [1.63, 2.63]   0% of draws at or below parity
-  long-run share:  P50 = 7.3%   80% CI [1.9, 22.4]
+  price ratio R:   P50 = 2.09   80% CI [1.63, 2.62]   0% of draws at or below parity
+  long-run share:  P50 = 4.1%   80% CI [0.5, 18.0]
 ```
 
 The median is below the default 2.42 because the efficiency range (0.25–1.0, mode 1.0) only allows
@@ -417,6 +424,52 @@ cd model
 ```
 
 Flags: `--no-latex` (no TeX), `--show`, `--outdir`, `--formats`, `--fix name=value`.
+
+## World beef price
+
+`GLOBAL_MARKET` takes its prices from GlobalProductPrices (January 2026). Its own "average price" for beef
+(17.59 USD/kg) is an unweighted mean over 76 countries, so Switzerland (64.64) counts as much as China or Brazil.
+That put the old world beef rows ($14 ground, $24 steak) above the US rows ($11, $20). The revised rows weight each
+country's GPP beef price by its 2025 beef consumption (USDA FAS PSD, "Meat, Beef and Veal", domestic consumption,
+1000 t carcass weight; downloaded 2026-11-13). The countries with a GPP price cover 90% of world use. The EU, which
+PSD reports as one block, is priced at the mean of Germany, France, Italy, Spain, Poland and the Netherlands.
+
+| country | 2025 use (kt) | GPP $/kg |
+|---|---|---|
+| United States | 13,124 | 18.80 |
+| China | 11,643 | 22.19 |
+| Brazil | 8,269 | 10.21 |
+| European Union | 6,256 | 23.58 |
+| Mexico | 2,185 | 10.97 |
+| Russia | 1,620 | 14.50 |
+| Japan | 1,177 | 36.60 |
+| United Kingdom | 1,138 | 24.49 |
+| South Korea | 1,073 | 63.65 |
+| Canada | 1,040 | 19.57 |
+| … (the rest of the matched 90%) | | |
+
+Weighted mean: 19.15 USD/kg, against GPP USA 18.80, so world = 1.019 × US. Both world beef rows are the US rows ×
+1.019: ground $11.2, steak $20.4. This is the only world row re-derived; the others were not above their US
+counterparts.
+
+## Changes of 2026-11-13 (independent review)
+
+- **Price sensitivity of tiers and draws.** A per-tier or per-draw elasticity override (`eps_own` in `share`) used
+  to scale only the BLP coefficient, though its docstring said it scaled both price channels. It now scales the
+  ratio-based term too (`ratio_scale` = eps/eps_own). Cuts and premium tiers are now as price-insensitive as
+  documented, so the US roll-up rose from 5.0% to 5.7%; the Monte Carlo price-sensitivity draws now move the share
+  over their full range (they used to move it about half as far).
+- **κ is sampled** in the Monte Carlo (`MC_DEMAND_INPUTS`), range widened from 3–6 to 3–9 because of the
+  organic-chicken check ([4c]). A κ draw enters as the override eps × κ_draw/κ.
+- **`w_ratio`.** The weight of the ratio-based price term was a hard-coded 1.0; it is now the input `w_ratio`
+  (default 1.0, range 0.5–1.5, a judgement). It sets how much of the price response is income-scaled, so it moves
+  the poorer regions and the world roll-up (1.6% to 4.0% of world meat across its range) but not the US: its bar
+  in the share tornado, which is at the US reference income, is zero by construction.
+- **λ note corrected.** `loss_aversion` = 2.25 does not leave the regional roll-up unchanged: β turns positive,
+  reversing the income channel, and the world share rises from 2.5% to 6.3%. λ stays off by default.
+- **World beef** re-priced by consumption weights (above).
+- **Timing** measured against the long-run share (Step 4).
+- **Organic-chicken check** added ([4c], `organic_premium_check`); it fails, and the text says so.
 
 ## Sources
 

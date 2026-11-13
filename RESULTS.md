@@ -7,6 +7,10 @@ language; [METHODS.md](METHODS.md) has the code-level detail. Everything below r
 
 ## Summary
 
+*Revised 2026-11-13 after an independent review: premium tiers' price sensitivity is applied as documented, κ is
+sampled (range 3–9), world beef is priced by consumption weights, the price-ratio weight is an input, and the
+adoption time is measured against the long-run share. Details: METHODS.md, "Changes of 2026-11-13".*
+
 - **Price:** made at scale with today's technology, cultivated meat would cost **~2.4× everyday meat** ($29 vs a
   $12 benchmark). Across the plausible range of costs, the median is 2.1×; no draws reach parity.
 - **Floor:** cells can't cost less than **~$7.7/kg** (feedstock plus a minimal plant); parity needs $7. So even at
@@ -14,11 +18,13 @@ language; [METHODS.md](METHODS.md) has the code-level detail. Everything below r
   the floor would be about twice as high.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
-- **At today's cost** that adds up to **~2.5% of world meat by weight** (Monte Carlo median; 80% range 0.6–7.7%),
-  **7.5% in Europe**. Counted in animals it would be lower: most are chickens, where cultivated does worst.
+- **At today's cost** that adds up to **~1.2% of world meat by weight** (Monte Carlo median; 80% range 0.3–5.1%),
+  **6.1% in Europe**. Counted in animals it would be lower: most are chickens, where cultivated does worst.
+  These shares are best read as upper estimates: the model gives a real-meat product at a premium far more
+  share than organic chicken actually has (§2).
 - **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. Luxury products are already
   beatable on price, but tiny.
-- **When:** these are long-run ceilings, reached in about 25 years.
+- **When:** these are long-run ceilings; adoption reaches 90% of its long-run share after about 29 years.
 
 **For funders:** the binding constraints are reactor scale-up and medium cost at production scale, plus
 independent at-scale plant-cost data.
@@ -38,8 +44,8 @@ downside.
 
 ```
 basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs (N=20,000):
-  price ratio R:   P50 = 2.09   80% CI [1.63, 2.63]   90% CI [1.52, 2.79]
-  long-run share:  P50 = 7.3%   80% CI [1.9, 22.4]
+  price ratio R:   P50 = 2.09   80% CI [1.63, 2.62]   90% CI [1.52, 2.79]
+  long-run share:  P50 = 4.1%   80% CI [0.5, 18.0]
   0% of draws reach parity (R ≤ 1)
 ```
 
@@ -56,9 +62,16 @@ The median is below 2.42 because cell efficiency can only improve on today's cel
 
 At first contact it gets ~6% (a US choice experiment found ~5%); at today's price, ~9% in the long run (US).
 Checks: adding cultivated takes 44 points from conventional meat and only 0.6 from plant-based; the same model
-predicts ~15% for plant-based milk, close to reality (a weak test, since milk's inputs are set by hand). The
-most consequential demand assumption above parity is how price-sensitive a cultivated product is relative to
-meat overall (κ = 4, range 3–6: 3.4% to 13.7% at today's price).
+predicts ~15% for plant-based milk, close to reality (a weak test, since milk's inputs are set by hand).
+
+**A harder check fails.** Organic chicken is real chicken at 1.44× the price of regular cuts, and takes ~2.4% of US
+chicken. The model gives a real-meat product equal to conventional in all but price, at that premium, ~33% (~12%
+at 2.6× mince). No κ inside the range the one price experiment on cultivated meat allows closes the gap (κ = 10
+still gives ~18%), so it is not a matter of tuning κ: the choice model gives a nearly identical, dearer product a
+sizeable share. So shares above equal price are best read as upper estimates. The most consequential demand
+assumption above parity is how price-sensitive a cultivated product is relative to meat overall (κ = 4; the range
+now runs 3–9, the most that experiment allows, because of this check: 13.7% at κ = 3, 8.8% at 4, 0.7% at 9, US
+everyday meat at today's price).
 
 ## 3. By type of meat (US)
 
@@ -67,12 +80,12 @@ meat overall (κ = 4, range 3–6: 3.4% to 13.7% at today's price).
   meat type          $/kg    R     share        R     share
   chicken mince        5    5.80    0.3%       2.54   14.6%
   beef mince          11    2.64    8.2%       1.15   47.7%
-  beef steak          20    1.75   13.9%       0.94   41.6%
-  wagyu (premium)     45    0.78   23.9%       0.42   36.7%
+  beef steak          20    1.75   15.9%       0.94   41.6%
+  wagyu (premium)     45    0.78   21.7%       0.42   28.5%
   pork (processed)     8    3.63    2.8%       1.59   33.9%
-  seafood fillet      24    1.46   20.1%       0.78   49.2%
-  sushi-grade (prem.) 40    0.88   20.9%       0.47   33.8%
-  TOTAL by weight: today 5.0%, at the floor 26.8%
+  seafood fillet      24    1.46   21.8%       0.78   48.5%
+  sushi-grade (prem.) 40    0.88   19.9%       0.47   26.6%
+  TOTAL by weight: today 5.7%, at the floor 27.4%
 ```
 
 Premium products get the biggest share of their category today, but authenticity holds them to about a quarter,
@@ -83,17 +96,19 @@ and their markets are small; beef and seafood cuts displace the most meat. At th
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  7.5%  [2.4, 18.2]    P50 12.3%  [ 4.1, 27.7]  <- easiest (rich + priciest meat)
-  US        $86k        P50  4.1%  [1.2, 11.8]    P50  6.5%  [ 2.0, 17.0]
-  Global    $24k        P50  2.5%  [0.6,  7.7]    P50  4.6%  [ 1.3, 13.1]
-  China     $27k        P50  2.1%  [0.6,  6.0]    P50  5.0%  [ 1.5, 12.9]
-  Brazil    $22k        P50  0.6%  [0.1,  2.4]    P50  1.0%  [ 0.2,  3.6]
-  India     $11k        P50  0.1%  [0.0,  0.5]    P50  0.4%  [ 0.1,  1.3]
-  Nigeria    $6k        P50  0.1%  [0.0,  0.3]    P50  0.1%  [ 0.0,  0.5]  <- hardest (cheap meat + price-sensitive)
+  Europe    $62k        P50  6.1%  [1.7, 16.4]    P50 10.4%  [ 3.1, 25.5]  <- easiest (rich + priciest meat)
+  US        $86k        P50  2.9%  [0.7, 10.2]    P50  5.2%  [ 1.4, 15.1]
+  Global    $24k        P50  1.2%  [0.3,  5.1]    P50  2.6%  [ 0.7,  8.6]
+  China     $27k        P50  1.6%  [0.4,  5.2]    P50  4.2%  [ 1.2, 11.6]
+  Brazil    $22k        P50  0.3%  [0.1,  2.0]    P50  0.7%  [ 0.2,  3.2]
+  India     $11k        P50  0.1%  [0.0,  0.6]    P50  0.5%  [ 0.1,  1.5]
+  Nigeria    $6k        P50  0.0%  [0.0,  0.3]    P50  0.1%  [ 0.0,  0.5]  <- hardest (cheap meat + price-sensitive)
 ```
 
 Dear meat and rich shoppers make Europe easiest; cheap meat and price-sensitive shoppers make low-income regions
-hardest. The explorer's point estimates at the defaults are a little higher (Global 2.9%, Europe 9.5%, US 5.0%).
+hardest. The explorer's point estimates at the defaults are higher (Global 2.5%, Europe 10.1%, US 5.7%): they hold κ at
+4, while the band samples it up to 9. World beef is priced by consumption-weighted country prices (METHODS.md,
+"World beef price"); an unweighted country average had put it above US beef.
 Against sushi-grade salmon, a structured product is at or below parity in 83% of draws, but structuring cost is
 unmeasured.
 
@@ -105,8 +120,8 @@ volume is, stay out of reach even at the floor. Foie gras stands out: unstructur
 banned on welfare grounds.
 
 From a near-zero start, cultivated meat reaches ~1% after 10 years and ~8% after 30 (US, everyday meat, costs
-held fixed), levelling off around year 25. How wary shoppers are today (surveys: 5–60%) sets the speed, not the
-ceiling.
+held fixed), and 90% of its long-run share after about 29 years (15 to 72 across the plausible speeds at which
+wariness fades). How wary shoppers are today (surveys: 5–60%) sets the speed, not the ceiling.
 
 ## 6. What to fund
 

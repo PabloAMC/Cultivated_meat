@@ -202,22 +202,45 @@ def simulate_path(path, dp: DemandParams, tp: TimingParams,
     return _run(lambda k: R_at(path, k), dp, tp, acceptance_grows)
 
 
-def _time_to_stabilize(series, frac=0.9):
-    """First year the realized share reaches `frac` of its final (year-30) value.
-    If the final value is ~0, returns the horizon."""
-    final = series[-1]
-    if final <= 1e-9:
-        return len(series) - 1
-    for k, v in enumerate(series):
-        if v >= frac * final:
+STAB_MAX_YEARS = 200    # cap for the time-to-stabilize search (a path slower than this reports 200)
+
+
+def years_to_stabilize(R, dp: DemandParams, tp: TimingParams, frac=0.9, which="x",
+                       nb0=None, nb_long=None, max_years=STAB_MAX_YEARS) -> int:
+    """First year the realized share reaches `frac` of its LONG-RUN share, at a fixed price ratio R.
+
+    The long-run share L is where both processes end: rollout complete (F = 1) and novelty at its
+    long-run value nb_long (or stuck at nb0 when acceptance does not grow). It is computed directly,
+    so the answer does not depend on where the plotted path stops. (Before 2026-11-13 the measure was
+    90% of the year-30 value of a 30-year run, so the horizon itself set the "~25 years".) The loop is
+    _run's, continued until the share reaches frac*L or max_years."""
+    nb0 = tp.neophobia_x0 if nb0 is None else nb0
+    nb_long = dp.neophobia_x if nb_long is None else nb_long
+    accept_on = tp.sensory_parity
+    nb_end = nb_long if accept_on else nb0
+
+    def ceil(nb):
+        if which == "pb":
+            return share(R, dp, neophobia_p=nb, which="pb", cultivated_present=False)
+        return share(R, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb)
+
+    L = ceil(nb_end)
+    if L <= 1e-9:
+        return max_years
+    F = E = 0.0
+    for k in range(max_years + 1):
+        nb = nb_long + (nb0 - nb_long) * np.exp(-tp.accept_rate * E) if accept_on else nb0
+        if F * ceil(nb) >= frac * L:
             return k
-    return len(series) - 1
+        F = min(1.0, F + (tp.p_innov + tp.q_imit * F) * (1.0 - F))
+        E += F
+    return max_years
 
 
 def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
     """Sweep the timing + acceptance priors to get a BAND on the adoption trajectory
     (share per year) and the distribution of the TIME-TO-STABILIZE (year the realized
-    share reaches 90% of its year-30 value). Sweeps EVERYTHING that shapes the path:
+    share reaches 90% of its long-run share; years_to_stabilize). Sweeps EVERYTHING that shapes the path:
       - neophobia_x0  (cold-start novelty; the 5-60% framing band)
       - neophobia_x   (long-run destination)
       - accept_rate   (how fast novelty fades)
@@ -239,6 +262,7 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
     #   constant that does NOT enter the calibration moments, so we override it per draw via
     #   dataclasses.replace — which preserves the solved beta_ref, no costly re-solve).
     paths = np.zeros((n, yrs + 1))
+    tstab = np.zeros(n, dtype=int)
     for i in range(n):
         dp_i = replace(base, neophobia_x=float(s["neophobia_x"][i]),
                        health_x=float(s["health_x"][i]))   # neither enters the calibration
@@ -248,7 +272,7 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
                             accept_x=float(s["accept_x"][i]),
                             theta_free_M=float(s["theta_free_M"][i]), years=yrs)
         paths[i] = _run(lambda k: R, dp_i, tp_i, acceptance_grows=True)["share"] * 100
-    tstab = np.array([_time_to_stabilize(paths[i]) for i in range(n)])
+        tstab[i] = years_to_stabilize(R, dp_i, tp_i)
     t = np.arange(yrs + 1)
     return dict(t=t,
                 p10=np.percentile(paths, 10, axis=0),
@@ -383,11 +407,10 @@ def fig_neophobia_time(outdir, fmts, R=1.0, n=4000, seed=0) -> None:
     tstabs = []
     for r in rates:
         tp_i = TimingParams(accept_rate=float(r))
-        ser = _run(lambda k: R, base, tp_i, acceptance_grows=True)["share"] * 100
-        tstabs.append(_time_to_stabilize(ser))
+        tstabs.append(years_to_stabilize(R, base, tp_i))
     ax.plot(rates, tstabs, color="#D55E00", lw=2)
     ax.set_xlabel("Fade rate (novelty fades faster →)")
-    ax.set_ylabel("Years to stabilise (90% of final)")
+    ax.set_ylabel("Years to stabilise (90% of long-run share)")
     ax.set_title("(c) How long it takes\n= the novelty-fade speed", fontsize=8.5)
 
     fig.suptitle("The timing rung: cold-start fades to equilibrium — where it lands, and how long it takes",

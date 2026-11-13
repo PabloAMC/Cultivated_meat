@@ -18,6 +18,11 @@ The model is anchored to the only peer-reviewed cost study built on measured pro
 al., *Nature Food* 2024) and bounded by the physical feedstock floor (Humbird 2021). Every number is sourced
 and lives in one place, and every result reproduces from the code.
 
+> **Disclaimer.** The views expressed here are purely those of the author, Pablo Antonio Moreno Casares, and may
+> not in any circumstances be regarded as stating an official position of the European Commission. The model and
+> its page were built with the help of an AI assistant (Claude, Anthropic). This is research, not investment,
+> business or policy advice.
+
 ---
 
 ## The model in four steps
