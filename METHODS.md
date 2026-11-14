@@ -315,6 +315,36 @@ move these levers, and the physics is applied to each:
 The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, waste, thickness of the culture),
 and the page says which one binds. The defaults reproduce the floor.
 
+*What limits a case (`floor_tornado`, the tornado chart in the panel).* Each limiting factor is moved alone
+across its plausible range, the others held at the case being viewed. Around the floor case ($11.5/kg):
+
+| factor | range | cost at the two ends, $/kg |
+|---|---|---|
+| gas flow the cells tolerate | 2 to 6 mm/s | 28.0 – 11.5 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.3 – 25.2 |
+| tank size | 5 to 200 m³ | 10.6 – 18.8 |
+| plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
+| waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
+| doubling time | 18 to 48 h | 10.4 – 16.7 |
+| class of plant | yeast-style to pharma-style | 6.6 – 12.2 |
+| yearly charge on the plant | 12.3% to 23.6% | 9.4 – 14.1 |
+| growth factors | none to bought | 11.5 – 15.4 |
+| medium price | $0.10 to $0.50 a litre | 11.5 – 15.4 |
+| retention device | free to Humbird's filters | 10.8 – 14.4 |
+| cell mass | 1 to 3 ng | 14.8 – 11.5 |
+| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 8.5 |
+| how the tank is run | perfusion to drained and refilled | 11.5 – 14.5 |
+| runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
+| oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
+
+The floor sits at the favourable end of most ranges, which is why most bars point up. The two that point down
+furthest are the plant (a cheaper estimate or class) and CO₂ tolerance. The largest risk is the gas flow: the
+floor assumes the top of the guidance. Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
+effect on the case shown are listed under the chart instead of drawn. Clicking a factor opens a card that says
+what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
+either end. The chart on the page redraws for any case the reader sets; around the
+chicken cells a company reports, waste and medium price dominate.
+
 *The energy of growth (`pf_maintenance_share`).* West's law gives the oxygen uptake of a cell doubling about
 once a day. Part of it is upkeep and part pays for growth: qO₂(μ) = qO₂(24 h) × [s + (1 − s) × μ/μ(24 h)].
 Humbird takes s = 1 (upkeep only). GFI's 2025 review of the data finds cells at zero growth taking up 12–67% of
@@ -459,10 +489,11 @@ doubling time.
 
 *Species costs in the market model (`meat_market.species_market`).* Each meat type's cost can be scaled by
 what its species' published cells cost in the floor's plant, relative to the model cell: chicken and turkey
-× 1.63, beef × 1.24, seafood × 1.04; pork and rabbit have no cell data and stay at 1. With these, the US share
-at the floor's plant falls from 10% to 7% (world 5% → 3%, Europe 22% → 18%): beef mince drops from 18% to 8%,
-chicken stays near zero, seafood barely moves. This is a table, not a page setting: the cell data are
-too thin (cattle from cells on a surface, fish with serum) to put into the headline.
+× 1.75, beef × 1.28, seafood × 1.79 (the fish preset, with its 50 mbar of CO₂); pork and rabbit have no cell
+data and stay at 1. With these, the US share at the floor's plant falls from 10% to 5.5% (world 5.4% → 2.7%,
+Europe 22% → 14%): beef mince drops from 18% to 8%, seafood fillet from 45% to 16%, chicken stays near zero.
+This is a table, not a page setting: the cell data are too thin (cattle from cells on a surface, fish with
+serum and an inferred CO₂ limit) to put into the headline.
 
 *Animals (`meat_market.animals_per_tonne_sold`).* Land animals per tonne of meat: chicken about 580, turkey
 110, pork 11, beef 3, rabbit 770 (approximate, from carcass yields); seafood is left out because the model's
@@ -497,22 +528,76 @@ times, medium preparation 22 times, oxygen supply 8 times, a higher installation
 $101k per m³ of building, mostly clean room. Which of these animal cells truly need is the question that
 decides the frontier.
 
-**Species (`SPECIES_PRESETS`).** The panel can set the two cell levers from what has been published for a
+**Species (`SPECIES_PRESETS`).** The panel can set the cell levers from what has been published for a
 species. With everything else at the floor case:
 
-| kind of cell | doubling time | cell mass | cells, $/kg | source and quality |
-|---|---|---|---|---|
-| Humbird's model cell | 24 h | 3.0 ng | 11.5 | the cell every case assumes; not shown for meat |
-| chicken, as reported in perfusion | 48 h | 1.4 ng | 19 | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
-| cattle, serum-free | 39 h | 3.0 ng (no data) | 14 | Stout et al. 2022, primary cells on a surface; no suspension data |
-| fish (Atlantic mackerel) | 24 h | 2.5 ng | 12 | Saad et al. 2023, on a surface with 20% serum |
-| insect (Sf9), for reference | 23 h | 2.2 ng | 12 | Ashizawa et al. 2022, a compilation; grown at 21 m³ for vaccines |
+| kind of cell | doubling time | cell mass | CO₂ tolerated, mbar (range) | cells, $/kg (over the CO₂ range) | source and quality |
+|---|---|---|---|---|---|
+| Humbird's model cell | 24 h | 3.0 ng | 100 (100–200) | 11.5 (11.5–8.5) | the cell every case assumes; not shown for meat |
+| chicken, as reported in perfusion | 48 h | 1.4 ng | 100 (100–200) | 20 (20–15) | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
+| cattle, serum-free | 39 h | 3.0 ng (no data) | 100 (100–200) | 15 (15–11) | Stout et al. 2022, primary cells on a surface; no suspension data |
+| fish (Atlantic mackerel) | 24 h | 2.5 ng | 50 (10–100) | 21 (90–12) | Saad et al. 2023, on a surface with 20% serum; CO₂ inferred |
+| shrimp (hypothetical) | 24 h (assumed) | 2.5 ng (assumed) | 50 (15–100) | 21 (61–12) | no dividing shrimp cell culture exists; CO₂ a judgement (below) |
+| insect (Sf9), for reference | 23 h | 2.2 ng | 50 (50–200) | 21 (21–9) | Ashizawa et al. 2022; CO₂ measured (Vajrala and Murhammer 2016) |
 
-The cells matter as much as the plant: the chicken cells a company reports cost about $7/kg more than the floor in
-the same plant. Two things the literature search did not find (`research_notes/species_cell_parameters.md`): any
-measurement that fish cells need less oxygen per gram at their lower culture temperature, so the model assumes
-none; and any cell line that keeps dividing for shrimp or other crustaceans, so there is no preset for them.
-Several of the numbers were read only in abstracts; the notes mark which.
+The cells matter as much as the plant: the chicken cells a company reports cost nearly twice the floor in the
+same plant.
+
+*A working plant as a reference point (the Vow preset).* Vow, in Sydney, runs the one tank that grows animal
+cells at 20,000 litres: a food-grade stirred tank built in-house, with no clean room, emptied or partly drained
+and refilled, with nothing holding the cells back (GFI's 2026 industry report; the company's food-standards
+filing). Its stated target of 130 tonnes a year from 35,000 litres of tanks is 3.7–6.5 tonnes per m³ a year,
+which implies about 27 g of cells per litre; the floor assumes 22 tonnes and 120 g. The company publishes no
+cell traits, plant cost or loss rates, so the preset is a reconstruction: the waste lever is set so that a
+drained-and-refilled tank holds 27 g/L (3.4 tonnes per m³ a year), with first-plant financing.
+
+| the same operation in | cells, $/kg |
+|---|---|
+| a yeast-style plant ($190k per m³) | 28 |
+| the floor's sterile plant without clean rooms ($810k per m³) | 72 |
+| a pharma-style plant with clean rooms ($910k per m³) | 79 |
+
+Two readings. First, at this output a plant at Humbird's cost would put the cells above $70/kg, so a company
+that sells product from such a tank is very likely running a plant far cheaper than Humbird's, which is
+evidence that animal cells do not need his full sterility spend at 20 m³ in short runs. The company's own
+statements (a vessel for under $50k per m³, 80% below a pharma-specification system) point the same way; its
+whole-plant cost is not published. Second, the gap to the floor is not the plant: it is output per tank. The
+same cheap plant at the floor's density and in perfusion gives $6.6/kg. What Vow has not shown is what the floor
+needs on top: four to five times the density, and runs of weeks with the cells held back.
+
+*CO₂ tolerance by species (`research_notes/fish_cell_co2_ph.md`).* The density a tank holds is proportional to
+the CO₂ its cells tolerate, and animals differ widely in the CO₂ their cells normally see. Mammals and birds
+carry about 35–55 mbar in arterial blood. Water-breathers clear CO₂ across the gills: trout carry about 2 mbar
+and crabs about 4. Fish farms keep dissolved CO₂ under about 5–10 mbar for salmon and trout; shrimp farms under
+about 5, and 26 mbar killed 42% of shrimp in one recirculating system. No one has measured how any fish or
+crustacean cell line grows against CO₂. What exists for fish cells is indirect: salmon and trout lines are
+grown routinely in a medium with 26 mM bicarbonate, which implies about 40–50 mbar, and one trout line did not
+restore its internal pH under sustained high CO₂. The model therefore gives fish cells 50 mbar (range 10–100). For insect cells there is a measurement: Sf9 cells double in
+23 hours up to 49 mbar, 32 hours at 97 mbar and 38 hours at 196. *Shrimp.* There is no dividing shrimp cell to measure, so the 50 mbar (range 15–100) is a judgement between two
+ways of guessing. If cells tolerated only a few times what the animal's blood carries (about 4 mbar), shrimp
+cells would slow near 10 mbar. If tolerance is a general property of animal cells in a bicarbonate-matched
+medium, they would resemble fish and insect cells. The evidence favours the second: fish blood carries as
+little CO₂ as shrimp blood, yet fish cells grow at more than ten times that; water-breathers have low blood CO₂
+because gills wash it out, not because their cells need it; the deaths of whole shrimp at 26 mbar involve the
+gills and the blood pigment; and insect cells show no slowdown up to 49 mbar. Shrimp cells are also cultured at
+about twice the salt strength of mammal cells, so the bicarbonate that high CO₂ requires is a smaller relative
+change. Against it: one trout line did not restore its internal pH under sustained high CO₂, and shrimp cells
+have only ever been cultured in open air. Probability that shrimp cells grow without material slowdown: about
+93% at 10 mbar, 75% at 25, 50% at 50, 20% at 100 [judgement].
+
+Two cautions. Whole-animal limits reflect
+gills and blood as much as cells, so they probably understate what cultured cells tolerate. And because cold
+water holds more CO₂ at the same partial pressure, it is not known whether partial pressure or concentration
+is the quantity that matters to the cell. Most of the numbers behind this paragraph were read in abstracts or
+search results, not full papers; the notes file marks each.
+
+What it means: seafood is the category the model finds closest to price parity, and it is the one most exposed
+to the CO₂ limit. At 50 mbar fish cells cost $21/kg in the floor's plant, not $12. A measurement of fish-cell
+growth against CO₂ would settle more of the model's seafood result than any other single experiment, and
+bubble-free gas exchange would matter most for these cells.
+
+No preset can be a cost estimate for shrimp, because no shrimp or other crustacean cell culture that keeps
+dividing exists. Several of the numbers were read only in abstracts; the notes mark which.
 
 **What the page opens on.** The page's sliders start at the floor case (medium at $0.20/L, efficient cells, the
 floor's plant cost), because cost and share near the floor are what readers ask about; a button switches to the

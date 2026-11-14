@@ -97,8 +97,10 @@ def check() -> list:
         fails.append("the waste-limited density should fall for cells that respire more per gram")
     # the page's lever controls: the defaults are the floor, and every species preset runs
     near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-3)
-    for key, (_label, dh, mass, _med, _note) in fp.SPECIES_PRESETS.items():
-        r = fp.explore(doubling_h=dh, mass_pg=mass)
+    for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
+        r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
+        if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):
+            fails.append(f"species preset {key}: CO2 tolerance outside its own range")
         if not (0 < r["density"] <= value("pf_x_visc") and r["total"] > 0):
             fails.append(f"species preset {key}: implausible case {r}")
     # uncertainty on the floor: the point floor is the favourable end, so the median sits above it
@@ -145,6 +147,26 @@ def check() -> list:
     st = fp.settler_spec()
     if not (1.0 < st["single_cell_cm_h"] < 15.0 and st["clump_um_needed"] > st["cell_um"]):
         fails.append(f"settler: implausible settling figures ({st})")
+    # tornado: every factor has a row; at the floor the widest is the gas flow, and CO2 tolerance lowers the cost
+    tor = {r[0]: r for r in fp.floor_tornado()}
+    if len(tor) != len(fp.TORNADO) or fp.floor_tornado()[0][0] != "Gas flow the cells tolerate":
+        fails.append("tornado: wrong rows or order")
+    if any(len(t[6]) < 80 or "Evidence" not in t[6] for t in fp.TORNADO):
+        fails.append("tornado: every factor needs an explanation that says how solid the evidence is")
+    if not tor["CO\u2082 the cells tolerate"][2] < fp.explore()["total"]:
+        fails.append("tornado: more CO2 tolerance should lower the cost")
+    # species CO2 tolerance: fish at 50 mbar cost more than at the default; the tornado takes a species' range
+    if not fp.explore(doubling_h=24, mass_pg=2500, pco2_mbar=50)["total"] > 1.5 * fp.explore(doubling_h=24, mass_pg=2500)["total"]:
+        fails.append("fish at 50 mbar should cost well above fish at 100 mbar")
+    row = {r[0]: r for r in fp.floor_tornado(pco2_range=(10.0, 100.0), pco2_mbar=50.0)}["CO\u2082 the cells tolerate"]
+    if not (row[1] > row[2] and row[3] == "10 mbar"):
+        fails.append("tornado: the species CO2 range was not applied")
+    # the working plant (Vow): the reconstruction lands on its implied density and inside its stated output range
+    _l, dh, mass, _m, pco2, _r, extra, _n = fp.SPECIES_PRESETS["vow"]
+    vow = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **extra)
+    near("Vow reconstruction, density g/L", vow["density"], 27.0, 0.05)
+    if not (3.0 < vow["output"] < 6.5):
+        fails.append(f"Vow reconstruction: output {vow['output']:.1f} t/m3/yr outside its stated range")
     # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs
     tc = fp.temperature_check()
     if not (tc["metabolic_heat_kwh"] > tc["heating_10c_kwh"] and tc["heating_10c_usd_reported"] < 0.05):

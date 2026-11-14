@@ -250,31 +250,56 @@ PLANT_CLASSES = {                      # key: (capital input, escalate from Humb
 }
 
 
-# Species presets for the cell levers. (label, doubling time h, wet mass pg, litres of medium per kg if
-# reported, what the numbers are and how good they are). Sources and access levels: research_notes/species_cell_parameters.md.
+# Species presets for the cell levers: (label, doubling time h, wet mass pg, litres of medium per kg if
+# reported, CO2 tolerance in mbar if it differs from the default, the plausible range of that tolerance,
+# other panel settings the preset fixes (a dict of explore() arguments, or None for a cells-only preset),
+# what the numbers are and how good they are). Sources and access levels:
+# research_notes/species_cell_parameters.md and research_notes/fish_cell_co2_ph.md.
 SPECIES_PRESETS = {
-    "model": ("Humbird's model cell", 24.0, 3000.0, None,
+    "model": ("Humbird's model cell", 24.0, 3000.0, None, None, (100.0, 200.0), None,
               "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
-    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5,
+    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5, None, (100.0, 200.0), None,
                 "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell, 30.5 "
                 "litres of medium per kilo (the waste lever is set to match; put the medium price at $0.50 for the reported "
                 "cost). Chicken "
                 "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
                 "animal-free medium took 61 hours [20]."),
-    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None,
+    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None, None, (100.0, 200.0), None,
                "Primary bovine muscle stem cells in serum-free medium on a surface: 39 hours on average "
                "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
                "model cell's is used. No suspension culture at density has been published."),
-    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None,
+    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None, 50.0, (10.0, 100.0), None,
              "The Mack1 line: 24 hours at 27 °C, 16.8 µm across, grown on a surface with 20% serum (Saad et al. "
-             "2023). Many fish lines take two days or more. No measurement shows that fish cells need less oxygen "
-             "per gram, so none is assumed."),
-    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None,
+             "2023). Many fish lines take two days or more. <b>CO\u2082:</b> set to 50 mbar, half the default. Fish "
+             "live with about 2 to 4 mbar in their blood, against about 50 in mammals, and fish farms keep it "
+             "under 5 to 10. Salmon and trout cell lines do grow in a medium that implies about 40 to 50 mbar. "
+             "Nobody has measured how fish cells grow against CO\u2082, so the range is 10 to 100."),
+    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 50.0, (15.0, 100.0), None,
+               "No shrimp or other crustacean cell culture that keeps dividing exists, so this is not a cost "
+               "estimate. It gives shrimp the fish cell's size and speed [assumed]. <b>CO\u2082:</b> 50 mbar, a "
+               "judgement, range 15 to 100. Shrimp carry only about 4 mbar in their blood, and farms keep them "
+               "under about 5, but fish carry as little and their cells grow at 40 to 50; insect cells, the "
+               "nearest relatives with data, show no slowdown up to 49. The whole-animal limits reflect gills "
+               "and blood pigment, not cells. Shrimp cells have only ever been cultured in open air, so there "
+               "is no direct evidence. A tonne of shrimp is tens of thousands of animals, which is why the "
+               "case is worth showing."),
+    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None, 50.0, (50.0, 200.0), None,
                "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
-               "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's."),
+               "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's. <b>CO\u2082:</b> "
+               "measured (Vajrala and Murhammer 2016): no slowdown up to 49 mbar, a doubling time of 32 hours at "
+               "97 mbar and 38 hours at 196. Set to 50 mbar here, where the 23 hours holds."),
+    "vow": ("A working plant: Vow's 20,000-litre tank", 24.0, 3000.0, None, None, (100.0, 200.0),
+            {"mode": "filldraw", "plant": "microbial", "charge": 0.236, "waste": 0.205},
+            "The one plant that grows animal cells at this size (quail cells; Sydney). A food-grade stirred tank "
+            "built in-house, with no clean room, emptied or partly drained and refilled, with nothing holding the "
+            "cells back (GFI's 2026 industry report and the company's food-standards filing). Its stated target, "
+            "130 tonnes a year from 35,000 litres, is 3.7 to 6.5 tonnes per m\u00b3 a year, which implies about "
+            "27 g of cells per litre. The company publishes no cell traits, plant cost or loss rates, so this "
+            "preset is a reconstruction: the waste lever is set so the tank holds 27 g per litre, the plant is "
+            "priced like a yeast plant (its vessel is said to have cost under $50k per m\u00b3), and financing is "
+            "that of a first plant. Choose perfusion and the floor's plant again to return to the floor."),
 }
-SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell line that keeps dividing exists for "
-                   "them (reviews of 2024 and 2025).")
+SPECIES_MISSING = ""
 
 
 def waste_per_kg(cells: Cells, waste: float = 0.0) -> tuple:
@@ -470,6 +495,109 @@ FLOOR_PRIORS = {
 CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 
 
+# The limiting factors for the tornado chart on the page: (label, explore() argument, low value, high value,
+# low text, high text, what it is / where the range comes from / how solid). Each is moved alone, the rest
+# held at the case being viewed. Ranges are the ones the uncertainty run uses (FLOOR_PRIORS, input priors)
+# or the literature ranges in research_notes/. Only things that can limit the cost are here: a product
+# choice such as blending is not.
+TORNADO = [
+    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.006, "2 mm/s", "6 mm/s",
+     "CO\u2082 leaves the tank only in the gas bubbled through it, so the density a tank can hold is "
+     "proportional to the gas flow. Too much gas kills cells when bubbles burst. <b>Range:</b> 6 mm/s is the top "
+     "of the published guidance, which the floor uses [2]. Large pharma tanks usually run at 5 to 20 times less, "
+     "because their thin cultures need no more; 2 mm/s is a judgement between the two. <b>Evidence:</b> weak. "
+     "Nobody has run cells this dense at this size."),
+    ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
+     "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
+     "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "
+     "to 3. <b>Evidence:</b> the geometry is certain. What a squat vessel costs is not modelled."),
+    ("Tank size", "vessel_m3", 5.0, 200.0, "5 m\u00b3", "200 m\u00b3",
+     "A larger tank costs less per litre but is deeper, so it clears less CO\u2082 and must run thinner. "
+     "<b>Range:</b> 5 to 200 m\u00b3; the floor uses 20. <b>Evidence:</b> the vessel cost and the CO\u2082 limit "
+     "both follow Humbird [2]. Animal cells have not been grown above about 25 m\u00b3, and only in pharma."),
+    ("Plant estimate", "capex_x", 0.34, 1.5, "a third of Humbird's", "+50%",
+     "What the whole plant costs per cubic metre of tank. <b>Range:</b> Humbird calls his own estimate good to "
+     "within 50% [2]. Two other published designs for animal cells (Negulescu, CE Delft) assume plants at about a "
+     "third of his cost. <b>Evidence:</b> design studies only. No built plant publishes both its cost and its "
+     "tank volume."),
+    ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style",
+     "How sterile the plant is built. The floor uses a sterile plant without clean rooms ($810k per m\u00b3). "
+     "<b>Range:</b> a plant built like a yeast plant ($190k) to a pharma-style plant with clean rooms ($910k). "
+     "Humbird's own yeast plant with 20 m\u00b3 tanks costs about the lower figure, and two published "
+     "cultivated-meat designs assume it. <b>Evidence:</b> nobody has run animal cells in the cheaper kind."),
+    ("Waste the cells make", "waste", 0.0, 0.25, "efficient cells", "a quarter of the way to ordinary",
+     "Cells make ammonia and lactate, which stop growth. In perfusion fresh medium must wash them out, so "
+     "wasteful cells need more medium. <b>Range:</b> Humbird's efficient cells need 11 litres per kilo and "
+     "ordinary cells 190 [2]; one company reports 30.5 for chicken, about a tenth of the way [1]. "
+     "<b>Evidence:</b> the efficient cell is an assumption, not shown for meat cells."),
+    ("Doubling time", "doubling_h", 18.0, 48.0, "18 h", "48 h",
+     "A tank's output is its density times how fast the cells grow. Faster cells also respire more, so the "
+     "tank holds fewer of them. <b>Range:</b> 24 hours is Humbird's model cell [2]; 18 is fast for an animal "
+     "line; one company reports 48 in perfusion [1]. <b>Evidence:</b> measured for a few lines, mostly grown on "
+     "a surface, not in dense suspension."),
+    ("Cell mass", "mass_pg", 1000.0, 3000.0, "1 ng", "3 ng",
+     "Smaller cells respire more per gram, so the tank holds fewer of them. <b>Range:</b> the model cell is "
+     "3 ng [2]; chicken cells are reported at 1 to 1.75 ng [1]. <b>Evidence:</b> the scaling law is well "
+     "established; cell mass is rarely reported on a sound basis."),
+    ("CO\u2082 the cells tolerate", "pco2_mbar", 100.0, 200.0, "100 mbar", "200 mbar",
+     "The density a tank can hold is proportional to the dissolved CO\u2082 the cells tolerate. <b>Range:</b> "
+     "100 mbar is a pharma limit that also protects protein quality [2]; pharma cells lose about a tenth of "
+     "their growth at 200. Fish, shrimp and insect cells get their own, lower ranges (choose one in the first "
+     "control). <b>Evidence:</b> nothing is published for muscle or fish cells. This is the measurement that "
+     "would move the floor most."),
+    ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%",
+     "The share of the plant's cost charged each year: return on capital, maintenance, insurance. "
+     "<b>Range:</b> 23.6% is Humbird's first-plant figure; the floor's 17.3% uses the food industry's cost of "
+     "capital over 20 years; 12.3% is a 30-year payback with no return. <b>Evidence:</b> a financing choice, "
+     "not a scientific unknown. Loan guarantees move it."),
+    ("Retention device", "retention", 0.0, 460.0, "free", "Humbird's filters",
+     "Perfusion needs something that holds the cells in the tank while spent medium leaves. <b>Range:</b> the "
+     "floor prices it at what one study hopes it will cost ($89k per m\u00b3); the filters pharma uses would "
+     "cost about $460k. <b>Evidence:</b> a gravity settler runs today at 3,000 litres; a 20 m\u00b3 tank needs "
+     "4.5 times the flow."),
+    ("Growth factors", "growth_factors", False, True, "none", "bought",
+     "Proteins that tell cells to grow. The floor leaves them out: cells that need none, or make their own. "
+     "<b>Range:</b> bought at Humbird's large-scale price they add about $4 a kilo [2]. <b>Evidence:</b> that "
+     "price assumes an industry far larger than today's."),
+    ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre",
+     "What a litre of the nutrient liquid costs. It can never cost less than the nutrients the cells eat, so "
+     "it matters more the more medium the cells need. <b>Range:</b> companies report $0.20 to $0.50 a litre [1]. "
+     "<b>Evidence:</b> company reports, not verified at scale."),
+    ("How the tank is run", "mode", "perfusion", "filldraw", "perfusion", "drained and refilled",
+     "In perfusion a device holds the cells back while medium flows through, so the tank stays at its densest. "
+     "A tank that is half drained and refilled needs no device, but averages 72% of peak output and waste "
+     "caps its density. <b>Evidence:</b> draining and refilling is used at 20 m\u00b3; perfusion is not, "
+     "beyond 2 to 3 m\u00b3."),
+    ("Runs lost to contamination", "hazard", 0.0, 0.02, "none", "2% a day",
+     "A contaminated run ends early; the tank must be cleaned and regrown (14 days here) and a tankful is "
+     "lost. <b>Range:</b> large pharma plants lose about 0.2% of runs a day; cultivated-meat makers report "
+     "losses that work out to roughly 1 to 2% a day. <b>Evidence:</b> one survey, with run lengths not stated."),
+    ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%",
+     "Part of a cell's oxygen use runs whether or not it grows; the rest rises with growth. It matters only "
+     "when the doubling time is not 24 hours. <b>Range:</b> measurements put the upkeep share at 31% to 62%; "
+     "Humbird assumes 100% [2]. <b>Evidence:</b> few measurements, none for meat cells."),
+]
+
+
+def floor_tornado(pco2_range: tuple | None = None, **case) -> list:
+    """Cost of the case ($/kg) with each limiting factor at the low and the high end of its range, the
+    others as in `case` (default: the floor). Contamination is evaluated with a 14-day restart after a
+    lost run. `pco2_range` replaces the CO2-tolerance range for a species whose cells differ (fish,
+    shrimp, insect: SPECIES_PRESETS). Returns rows (label, cost at low, cost at high, low text, high
+    text), widest first."""
+    case = dict(case)
+    case.setdefault("restart_fail_days", 14.0)
+    rows = []
+    for label, arg, lo, hi, lo_txt, hi_txt, _info in TORNADO:
+        if arg == "pco2_mbar" and pco2_range is not None:
+            lo, hi = pco2_range
+            lo_txt, hi_txt = f"{lo:.0f} mbar", f"{hi:.0f} mbar"
+        a = explore(**{**case, arg: lo})["total"]
+        b = explore(**{**case, arg: hi})["total"]
+        rows.append((label, a, b, lo_txt, hi_txt))
+    return sorted(rows, key=lambda r: -abs(r[2] - r[1]))
+
+
 def _tri_ppf(u, lo, mode, hi):
     """Inverse CDF of a triangular distribution (vectorised); a point mass if hi == lo."""
     if hi <= lo:
@@ -609,6 +737,10 @@ def summarise(pr: CostParams) -> None:
     print(f"    cells would stay {st['stay_min']:.0f} min in the settler; their oxygen lasts {st['oxygen_lasts_s']:.0f} s")
     print(f"    to keep the stay under {value('pf_anoxia_min'):.0f} min: clumps of {st['clump_um_needed']:.0f} um "
           f"(about {st['cells_per_clump']:.0f} cells), {st['plate_area_clumps_m2']:.0f} m2 of plate")
+    base = explore()["total"]
+    print(f"\n  what limits the floor case (${base:.1f}/kg): each factor alone, low end -> high end of its range")
+    for label, a, b, lo_txt, hi_txt in floor_tornado():
+        print(f"    {label:<36} {lo_txt:>28} ${a:5.1f}   {hi_txt:<34} ${b:5.1f}")
     summarise_floor_mc(pr)
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():

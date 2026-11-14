@@ -224,6 +224,17 @@ def check_parity() -> list:
             fails.append(f"floorExplore dh={dh} m={m} v={v} {pl} {mo}: python={r['product']:.6f} ({r['limit']}) "
                          f"js={tot:.6f} ({lim})")
 
+    # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
+    cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
+             dict(mass_pg=2500.0, pco2_mbar=50.0, pco2_range=(10.0, 100.0))]
+    if len(js.get("fxTor", [])) != len(cases):
+        fails.append("fxTor: not emitted by the JS probe")
+    for case, jrows in zip(cases, js.get("fxTor", [])):
+        prow = {r[0]: (r[1], r[2]) for r in _fp.floor_tornado(**case)}
+        for lab, a, b in jrows:
+            if lab not in prow or abs(prow[lab][0] - a) > 1e-6 or abs(prow[lab][1] - b) > 1e-6:
+                fails.append(f"tornado '{lab}' case {case}: python={prow.get(lab)} js=({a:.6f}, {b:.6f})")
+
     # foothold rung: per-product price ratio R (the cost->R machinery shared with foothold.product_R;
     # the corner the scaffold-cost mismatch slipped through). JS emits [label, R] per product.
     worst_f = 0.0

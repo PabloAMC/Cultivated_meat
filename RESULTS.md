@@ -158,9 +158,16 @@ At the default cost only products priced like wagyu and sushi-grade fish sell; t
 floor, seafood, beef cuts and beef mince lead; pork is under 5% and chicken close to zero.
 
 **With the cells that have been published.** The floor assumes an efficient model cell for every species. Using
-each species' published doubling time and cell size in the same plant (chicken and turkey cost 1.6× as much,
-beef 1.2×, seafood about the same; no data for pork), the US total at the floor's plant is 7%, not 10%. The
-cell data are thin (METHODS.md, "Species costs in the market model").
+each species' published doubling time and cell size in the same plant, and for fish a lower tolerance of CO₂
+(chicken and turkey cost 1.75× as much, beef 1.3×, seafood 1.8×; no data for pork), the US total at the floor's
+plant is 5.5%, not 10% (world 2.7%, Europe 14%). The cell data are thin (METHODS.md, "Species costs in the
+market model").
+
+**Seafood rests on an untested assumption.** Seafood is the category closest to price parity at the floor,
+with a 45% share for fillets. That assumes fish cells tolerate as much dissolved CO₂ as pharma cells do. Fish
+live with about 2–4 mbar of CO₂ in their blood, against about 50 in mammals, and nobody has measured how fish
+cells grow against CO₂. If they tolerate 50 mbar, not 100, fish cells cost $21/kg in the floor's plant and the
+fillet share falls to 16%. No shrimp cell line exists at all.
 
 **Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 34 land animals at
 the floor (US) and about 18 at the reported cost; a tonne of the average US meat mix is about 250. Almost none
@@ -216,6 +223,13 @@ the plausible speeds at which wariness fades), at the floor as at the reported c
 
 A meat tax also works: raising conventional prices 25% lowers R as much as a 20% cut in every cost. Most of these
 are public goods that industry underfunds.
+
+**The one working plant.** Vow grows animal cells in a food-grade 20,000-litre tank with no clean room,
+drained and refilled, at an output that implies about 27 g of cells per litre. Reconstructed in the model, that
+operation costs about $28/kg in a yeast-style plant and over $70/kg in a plant at Humbird's cost, so the cheap
+class of plant is probably what it runs. It shows that food-grade tanks work for short runs. It does not show
+the density or the weeks-long perfusion runs the floor assumes (METHODS.md, "A working plant as a reference
+point").
 
 ## 7. What would change the conclusions
 

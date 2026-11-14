@@ -479,8 +479,8 @@ def species_market(market, **explore_kw) -> list:
     base = fp.explore(**explore_kw)["total"]
     mult = {}
     for animal, key in SPECIES_OF.items():
-        _label, dh, mass, med, _note = fp.SPECIES_PRESETS[key]
-        mult[animal] = fp.explore(doubling_h=dh, mass_pg=mass, **explore_kw)["total"] / base
+        _label, dh, mass, _med, pco2, _rng, _extra, _note = fp.SPECIES_PRESETS[key]
+        mult[animal] = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **explore_kw)["total"] / base
     return [_rep(mt, cost_mult=mult.get(animal_of(mt), 1.0)) for mt in market]
 
 
