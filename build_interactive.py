@@ -97,6 +97,9 @@ def build_model() -> dict:
             "nh3": [value("pf_nh3_efficient"), value("pf_nh3_wild")],
             "lac": [value("pf_lac_efficient"), value("pf_lac_wild")],
             "nh3_limit": value("pf_nh3_limit"), "lac_limit": value("pf_lac_limit"),
+            "osm_base": value("pf_osm_base"), "osm_limit": value("pf_osm_limit"), "ph": value("pf_ph"),
+            "pk1": value("pf_pk1"), "co2_henry": value("pf_co2_henry"), "hco3_base": value("pf_hco3_base"),
+            "min_perfusion": value("pf_min_perfusion"),
             # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint"}.get(arg, arg),
                          lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
@@ -1357,7 +1360,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         but they also respire more per hour, so the tank holds fewer of them. A tank must mix faster than it
         transfers oxygen. A run that is contaminated ends early and the tank must be restarted. Cells that make
         more ammonia and lactate need more medium to wash it out, or, in a tank that is drained and refilled, must
-        be kept thinner. The medium can never cost less than the nutrients the cells must eat.
+        be kept thinner. Besides ammonia and lactate, the medium must carry off salt and other by-products, so a
+        cell needs a least flow of medium per day whatever it makes. The medium can never cost less than the
+        nutrients the cells must eat.
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner:
         CO&#8322; leaves only in the gas bubbled through, and a deeper tank passes less gas per litre. Cells that
         tolerate more CO&#8322;, more gas flow, or a squatter tank all raise the limit.
@@ -1395,6 +1400,12 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <input type="range" id="fx_gv" min="0.6" max="12" step="0.2" value="6" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank shape: liquid depth over width</span><span class="val" id="fx_ar_v"></span></label>
             <input type="range" id="fx_ar" min="0.8" max="2.5" step="0.1" value="1.6" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Salt strength the cells tolerate</span><span class="val" id="fx_os_v"></span></label>
+            <input type="range" id="fx_os" min="330" max="480" step="5" value="415" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">pH held in the tank</span><span class="val" id="fx_ph_v"></span></label>
+            <input type="range" id="fx_ph" min="6.8" max="7.5" step="0.05" value="7.2" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Least medium flow the cells need</span><span class="val" id="fx_mf_v"></span></label>
+            <input type="range" id="fx_mf" min="3.5" max="30" step="0.5" value="7.5" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank size</span></label>
             <select id="fx_v" onchange="fxRender()"><option value="2">2 m&sup3;</option><option value="5">5 m&sup3;</option>
             <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
@@ -3550,10 +3561,20 @@ function fxCell(massPg, doublingH, maint){
   const qo2=q24*(maint+(1-maint)*mu/(Math.LN2/F.ref_doubling));                          // upkeep + the energy of growth
   return {mu:mu, qo2:qo2, o2kg:qo2/mu*32/1000};
 }
-function floorExplore(p){
+function floorExplore(p,noSearch){
   const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint;
   const cell=fxCell(p.mass_pg,p.doubling_h,ms), ref=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
   const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg, perf=p.mode==="perfusion";
+  // salt strength: how much lactate the culture may hold at this CO2 level and pH (mirror of floor_physics.explore)
+  const pcTol=p.pco2===undefined?F.pco2:p.pco2, osmLim=p.osm_limit===undefined?F.osm_limit:p.osm_limit, ph=p.ph===undefined?F.ph:p.ph;
+  const hco3=F.co2_henry*pcTol*Math.pow(10,ph-F.pk1), osmCo2=2*Math.max(0,hco3-F.hco3_base);
+  const lacRoom=Math.min(F.lac_limit,Math.max(1,(osmLim-F.osm_base-osmCo2)/2));
+  if(!noSearch&&perf&&p.medium_l===undefined&&lacRoom<F.lac_limit){
+    // the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
+    let best=null;
+    for(let i=0;i<60;i++){ const r=floorExplore(Object.assign({},p,{pco2:pcTol*(i+1)/60}),true); if(best===null||r.total<best.total) best=r; }
+    return best;
+  }
   let capex=F.capex[p.plant];
   if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
@@ -3583,13 +3604,16 @@ function floorExplore(p){
   const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
   const capital=p.charge*capex/out, labour=F.labour_ref/out, utilities=F.utilities*(0.5+0.5*burn);
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
-  const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(F.lac_limit/1000)):1000/lim[1];   // litres per kg the waste demands
+  const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
+  // litres per kg: ammonia, lactate within the salt limit, and the least flow a cell needs for everything else
+  const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(lacRoom/1000),flow/(cell.mu*24)):1000/lim[1];
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf:0, cs=p.cell_share===undefined?1:p.cell_share;
   const total=capital+labour+utilities+F.consumables+feed+gf;
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
           utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
-          medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp};
+          medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
+          pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+2*lac/ml*1000:NaN};
 }
 // Tornado: each limiting factor moved alone across its range around the current case (mirror of
 // floor_physics.floor_tornado; checked by tests/run_parity.py). Returns [label, cost at low, cost at high, low text, high text].
@@ -3637,7 +3661,7 @@ function fxTornadoDraw(p,base,parity){
   return g;
 }
 // which panel control carries each factor, and the factor of its unit (null = a select; "check" = the checkbox)
-const FX_TOR_CTL={doubling_h:["fx_dh",1],mass_pg:["fx_m",0.001],pco2:["fx_pc",1],gas_v:["fx_gv",1000],aspect:["fx_ar",1],
+const FX_TOR_CTL={osm_limit:["fx_os",1],ph:["fx_ph",1],min_perfusion:["fx_mf",1],doubling_h:["fx_dh",1],mass_pg:["fx_m",0.001],pco2:["fx_pc",1],gas_v:["fx_gv",1000],aspect:["fx_ar",1],
   waste:["fx_ws",100],charge:["fx_ch",100],hazard:["fx_hz",100],maint:["fx_ms",100],medium_price:["fx_mp",1],
   plant:["fx_pl",null],mode:["fx_mo",null],vessel_m3:["fx_v",null],growth_factors:["fx_gf","check"]};
 function fxTorSet(k,end){          // put the panel's control at one end of factor k's range
@@ -3692,13 +3716,15 @@ function fxRender(){
            mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
            hazard:num("fx_hz")/100, run_days:num("fx_rd"), restart_fail:num("fx_rf"),
            waste:num("fx_ws")/100, medium_price:num("fx_mp"),
-           pco2:num("fx_pc"), gas_v:num("fx_gv")/1000, aspect:num("fx_ar"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
+           pco2:num("fx_pc"), gas_v:num("fx_gv")/1000, aspect:num("fx_ar"),
+           osm_limit:num("fx_os"), ph:num("fx_ph"), min_perfusion:num("fx_mf"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
   g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
   g("fx_hz_v").textContent=(p.hazard*100).toFixed(1)+"%"; g("fx_rd_v").textContent=p.run_days.toFixed(0)+" days";
   g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_pc_v").textContent=p.pco2.toFixed(0)+" mbar"; g("fx_gv_v").textContent=(p.gas_v*1000).toFixed(1)+" mm/s";
-  g("fx_ar_v").textContent=p.aspect.toFixed(1); g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
+  g("fx_ar_v").textContent=p.aspect.toFixed(1); g("fx_os_v").textContent=p.osm_limit.toFixed(0)+" mOsm/kg";
+  g("fx_ph_v").textContent=p.ph.toFixed(2); g("fx_mf_v").textContent=p.min_perfusion.toFixed(1)+" mL per g a day"; g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
   g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
   const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
@@ -3713,6 +3739,8 @@ function fxRender(){
     r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
     (r.medium_floor?" (the nutrients the cells must eat; the medium cannot cost less)":"")+
     (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
+    (isFinite(r.osmolality)?"Salt strength in the tank: "+r.osmolality.toFixed(0)+" mOsm/kg"+
+      (r.pco2_used<p.pco2-0.5?"; the tank is run at "+r.pco2_used.toFixed(0)+" mbar of CO&#8322;, below what the cells tolerate, because more bicarbonate would cost more in medium than it saves in plant":"")+". ":"")+
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add); fxTorCard();
@@ -3724,6 +3752,7 @@ function fxRender(){
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
   n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is the top of the guidance: large pharma tanks usually run at 5 to 20 times less gas, and nobody has shown cells this dense tolerating it at this size.");
+  n.push("Salt: holding the pH against CO&#8322; takes bicarbonate, and lactate comes with its base; both add salt, and cells stop growing when the total is too high. So more CO&#8322; leaves less room for lactate, which then needs more medium to wash out.");
   n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
