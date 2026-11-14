@@ -1361,8 +1361,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner:
         CO&#8322; leaves only in the gas bubbled through, and a deeper tank passes less gas per litre. Cells that
         tolerate more CO&#8322;, more gas flow, or a squatter tank all raise the limit.
-        The first control sets the two cell levers from what has been published for a species; the rest of the case
-        stays as you set it.</p>
+        The first control sets the cell levers from what has been published for a species, including how much
+        CO&#8322; its cells are thought to tolerate; the rest of the case stays as you set it.</p>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
           <select id="fx_sp" onchange="fxSpecies()"></select></div>
         <p class="fxn" id="fx_spn"></p>
@@ -1390,7 +1390,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
           <div class="ctl"><label><span class="nm">Oxygen used for upkeep, not growth</span><span class="val" id="fx_ms_v"></span></label>
             <input type="range" id="fx_ms" min="31" max="100" step="1" value="50" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">CO&#8322; the cells tolerate</span><span class="val" id="fx_pc_v"></span></label>
-            <input type="range" id="fx_pc" min="50" max="250" step="5" value="100" oninput="fxRender()"></div>
+            <input type="range" id="fx_pc" min="5" max="250" step="5" value="100" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Gas flow the cells tolerate</span><span class="val" id="fx_gv_v"></span></label>
             <input type="range" id="fx_gv" min="0.6" max="12" step="0.2" value="6" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank shape: liquid depth over width</span><span class="val" id="fx_ar_v"></span></label>
@@ -3593,16 +3593,19 @@ function floorExplore(p){
 }
 // Tornado: each limiting factor moved alone across its range around the current case (mirror of
 // floor_physics.floor_tornado; checked by tests/run_parity.py). Returns [label, cost at low, cost at high, low text, high text].
-function fxTornadoRows(p){
+let fxPco2Range=null;   // the selected species' CO2-tolerance range [low, high] in mbar (null = the general one)
+function fxTornadoRows(p,pco2Range){
   const q=Object.assign({},p); if(q.restart_fail===undefined||q.restart_fail<14) q.restart_fail=14;
   return C.fx.tornado.map((t,k)=>{
-    const a=floorExplore(Object.assign({},q,{[t[1]]:t[2]})).total, b=floorExplore(Object.assign({},q,{[t[1]]:t[3]})).total;
-    return [t[0],a,b,t[4],t[5],k];
+    let lo=t[2], hi=t[3], loT=t[4], hiT=t[5];
+    if(t[1]==="pco2"&&pco2Range){ lo=pco2Range[0]; hi=pco2Range[1]; loT=lo.toFixed(0)+" mbar"; hiT=hi.toFixed(0)+" mbar"; }
+    const a=floorExplore(Object.assign({},q,{[t[1]]:lo})).total, b=floorExplore(Object.assign({},q,{[t[1]]:hi})).total;
+    return [t[0],a,b,loT,hiT,k,lo,hi];
   }).sort((x,y)=>Math.abs(y[2]-y[1])-Math.abs(x[2]-x[1]));
 }
 let fxTorSel=null;     // index into C.fx.tornado of the factor whose card is open
 function fxTornadoDraw(p,base,parity){
-  const allRows=fxTornadoRows(p), rows=allRows.filter(r=>Math.abs(r[1]-base)>=0.05||Math.abs(r[2]-base)>=0.05);
+  const allRows=fxTornadoRows(p,fxPco2Range), rows=allRows.filter(r=>Math.abs(r[1]-base)>=0.05||Math.abs(r[2]-base)>=0.05);
   const W=640, L=218, R=14, rh=30, top=22, H=top+rows.length*rh+26;
   const all=rows.reduce((a,r)=>a.concat([r[1],r[2]]),[base,parity]);
   const mn=Math.min.apply(null,all), hi=Math.min(Math.max.apply(null,all)*1.05,base*4), lo=Math.max(0,mn-0.12*(hi-mn));   // room for the value labels
@@ -3638,7 +3641,8 @@ const FX_TOR_CTL={doubling_h:["fx_dh",1],mass_pg:["fx_m",0.001],pco2:["fx_pc",1]
   waste:["fx_ws",100],charge:["fx_ch",100],hazard:["fx_hz",100],maint:["fx_ms",100],medium_price:["fx_mp",1],
   plant:["fx_pl",null],mode:["fx_mo",null],vessel_m3:["fx_v",null],growth_factors:["fx_gf","check"]};
 function fxTorSet(k,end){          // put the panel's control at one end of factor k's range
-  const t=C.fx.tornado[k], c=FX_TOR_CTL[t[1]], v=t[end?3:2]; if(!c) return;
+  const t=C.fx.tornado[k], c=FX_TOR_CTL[t[1]]; if(!c) return;
+  const v=(t[1]==="pco2"&&fxPco2Range)?fxPco2Range[end?1:0]:t[end?3:2];
   const el=document.getElementById(c[0]);
   if(c[1]==="check") el.checked=!!v; else el.value=(c[1]===null?v:v*c[1]);
   if(t[1]==="hazard"&&v>0) document.getElementById("fx_rf").value=14;
@@ -3651,8 +3655,9 @@ function fxTorCard(){
   const box=document.getElementById("fx_torinfo");
   if(fxTorSel===null){ box.innerHTML='<span class="fxn">Click a factor to see what it is, where its range comes from and how solid the evidence is.</span>'; return; }
   const t=C.fx.tornado[fxTorSel], c=FX_TOR_CTL[t[1]];
+  const rng=(t[1]==="pco2"&&fxPco2Range)?[fxPco2Range[0].toFixed(0)+" mbar",fxPco2Range[1].toFixed(0)+" mbar"]:[t[4],t[5]];
   const btn=(end,txt)=>'<button class="btn" style="margin:4px 6px 0 0" onclick="fxTorSet('+fxTorSel+','+end+')">Set to '+txt+'</button>';
-  box.innerHTML='<b>'+t[0]+'.</b> '+t[6]+'<br>'+(c?btn(0,t[4])+btn(1,t[5])
+  box.innerHTML='<b>'+t[0]+'.</b> '+t[6]+'<br>'+(c?btn(0,rng[0])+btn(1,rng[1])
     :'<span class="fxn">This one has no control above: it is an uncertainty in the estimate, not a design choice.</span>')+
     '<button class="btn" style="margin:4px 0 0 0" onclick="fxTorInfo('+fxTorSel+')">Close</button>';
 }
@@ -3664,7 +3669,9 @@ function fxSpecies(){
   if(sp[3]!==null){const F=C.fx, c=fxCell(sp[2],sp[1],F.maint_share), r=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
     const burn=c.o2kg/r.o2kg; ws=Math.max(0,Math.min(1,(sp[3]*F.nh3_limit/1000/burn-F.nh3[0])/(F.nh3[1]-F.nh3[0])));}
   document.getElementById("fx_ws").value=Math.round(ws*100);
-  document.getElementById("fx_spn").innerHTML=sp[4]+" "+C.fx.species_missing; fxRender();
+  // CO2 tolerance: the species' own value where it differs, and its plausible range for the tornado
+  document.getElementById("fx_pc").value=(sp[4]===null?C.fx.pco2:sp[4]); fxPco2Range=sp[5];
+  document.getElementById("fx_spn").innerHTML=sp[6]; fxRender();
 }
 function fxInit(){
   const sel=document.getElementById("fx_sp");

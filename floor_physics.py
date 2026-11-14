@@ -250,31 +250,42 @@ PLANT_CLASSES = {                      # key: (capital input, escalate from Humb
 }
 
 
-# Species presets for the cell levers. (label, doubling time h, wet mass pg, litres of medium per kg if
-# reported, what the numbers are and how good they are). Sources and access levels: research_notes/species_cell_parameters.md.
+# Species presets for the cell levers: (label, doubling time h, wet mass pg, litres of medium per kg if
+# reported, CO2 tolerance in mbar if it differs from the default, the plausible range of that tolerance,
+# what the numbers are and how good they are). Sources and access levels:
+# research_notes/species_cell_parameters.md and research_notes/fish_cell_co2_ph.md.
 SPECIES_PRESETS = {
-    "model": ("Humbird's model cell", 24.0, 3000.0, None,
+    "model": ("Humbird's model cell", 24.0, 3000.0, None, None, (100.0, 200.0),
               "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
-    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5,
+    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5, None, (100.0, 200.0),
                 "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell, 30.5 "
                 "litres of medium per kilo (the waste lever is set to match; put the medium price at $0.50 for the reported "
                 "cost). Chicken "
                 "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
                 "animal-free medium took 61 hours [20]."),
-    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None,
+    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None, None, (100.0, 200.0),
                "Primary bovine muscle stem cells in serum-free medium on a surface: 39 hours on average "
                "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
                "model cell's is used. No suspension culture at density has been published."),
-    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None,
+    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None, 50.0, (10.0, 100.0),
              "The Mack1 line: 24 hours at 27 °C, 16.8 µm across, grown on a surface with 20% serum (Saad et al. "
-             "2023). Many fish lines take two days or more. No measurement shows that fish cells need less oxygen "
-             "per gram, so none is assumed."),
-    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None,
+             "2023). Many fish lines take two days or more. <b>CO\u2082:</b> set to 50 mbar, half the default. Fish "
+             "live with about 2 to 4 mbar in their blood, against about 50 in mammals, and fish farms keep it "
+             "under 5 to 10. Salmon and trout cell lines do grow in a medium that implies about 40 to 50 mbar. "
+             "Nobody has measured how fish cells grow against CO\u2082, so the range is 10 to 100."),
+    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 25.0, (5.0, 50.0),
+               "No shrimp or other crustacean cell culture that keeps dividing exists, so this is not a cost "
+               "estimate. It gives shrimp the fish cell's size and speed [assumed] and a CO\u2082 tolerance "
+               "inferred from the whole animal: farms hold shrimp under about 5 mbar, and 26 mbar killed 42% of "
+               "them. Shrimp cells are also cultured at about twice the salt strength of fish cells. A tonne of "
+               "shrimp is tens of thousands of animals, which is why the case is worth showing."),
+    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None, 50.0, (50.0, 200.0),
                "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
-               "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's."),
+               "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's. <b>CO\u2082:</b> "
+               "measured (Vajrala and Murhammer 2016): no slowdown up to 49 mbar, a doubling time of 32 hours at "
+               "97 mbar and 38 hours at 196. Set to 50 mbar here, where the 23 hours holds."),
 }
-SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell line that keeps dividing exists for "
-                   "them (reviews of 2024 and 2025).")
+SPECIES_MISSING = ""
 
 
 def waste_per_kg(cells: Cells, waste: float = 0.0) -> tuple:
@@ -517,8 +528,9 @@ TORNADO = [
     ("CO\u2082 the cells tolerate", "pco2_mbar", 100.0, 200.0, "100 mbar", "200 mbar",
      "The density a tank can hold is proportional to the dissolved CO\u2082 the cells tolerate. <b>Range:</b> "
      "100 mbar is a pharma limit that also protects protein quality [2]; pharma cells lose about a tenth of "
-     "their growth at 200. <b>Evidence:</b> nothing is published for muscle or fish cells. This is the "
-     "measurement that would move the floor most."),
+     "their growth at 200. Fish, shrimp and insect cells get their own, lower ranges (choose one in the first "
+     "control). <b>Evidence:</b> nothing is published for muscle or fish cells. This is the measurement that "
+     "would move the floor most."),
     ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%",
      "The share of the plant's cost charged each year: return on capital, maintenance, insurance. "
      "<b>Range:</b> 23.6% is Humbird's first-plant figure; the floor's 17.3% uses the food industry's cost of "
@@ -553,14 +565,19 @@ TORNADO = [
 ]
 
 
-def floor_tornado(**case) -> list:
+def floor_tornado(pco2_range: tuple | None = None, **case) -> list:
     """Cost of the case ($/kg) with each limiting factor at the low and the high end of its range, the
     others as in `case` (default: the floor). Contamination is evaluated with a 14-day restart after a
-    lost run. Returns rows (label, cost at low, cost at high, low text, high text), widest first."""
+    lost run. `pco2_range` replaces the CO2-tolerance range for a species whose cells differ (fish,
+    shrimp, insect: SPECIES_PRESETS). Returns rows (label, cost at low, cost at high, low text, high
+    text), widest first."""
     case = dict(case)
     case.setdefault("restart_fail_days", 14.0)
     rows = []
     for label, arg, lo, hi, lo_txt, hi_txt, _info in TORNADO:
+        if arg == "pco2_mbar" and pco2_range is not None:
+            lo, hi = pco2_range
+            lo_txt, hi_txt = f"{lo:.0f} mbar", f"{hi:.0f} mbar"
         a = explore(**{**case, arg: lo})["total"]
         b = explore(**{**case, arg: hi})["total"]
         rows.append((label, a, b, lo_txt, hi_txt))

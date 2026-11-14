@@ -225,7 +225,8 @@ def check_parity() -> list:
                          f"js={tot:.6f} ({lim})")
 
     # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
-    cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1)]
+    cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
+             dict(mass_pg=2500.0, pco2_mbar=50.0, pco2_range=(10.0, 100.0))]
     if len(js.get("fxTor", [])) != len(cases):
         fails.append("fxTor: not emitted by the JS probe")
     for case, jrows in zip(cases, js.get("fxTor", [])):
