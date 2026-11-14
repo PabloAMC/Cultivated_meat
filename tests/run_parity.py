@@ -236,7 +236,11 @@ def check_parity() -> list:
     for case, jr in zip(FX_TRICKS, js_tr):
         kw = {names.get(k, k): v for k, v in case.items()}
         r = _fp.explore(charge=0.173, **kw)
-        tot, dens, lim, ml, setby, jlims, jo2, jo2u, jco2 = jr
+        tot, dens, lim, ml, setby, jlims, jo2, jo2u, jco2, jcol = jr
+        if (jcol is None) != (r["column"] is None) or (jcol and max(abs(jcol[0] - r["column"]["passes"]),
+                abs(jcol[1] - r["column"]["loop_volume"]), abs(jcol[2] - r["column"]["ph_vs_safe"])) > 1e-6):
+            fails.append(f"floorExplore tricks {case}: column passes / loop volume / pH differ: python "
+                         f"{None if r['column'] is None else (r['column']['passes'], r['column']['ph_vs_safe'])} js {jcol}")
         d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["medium_l"] - ml), abs(r["o2_kg"] - jo2),
                 abs(r["o2_kg_upkeep"] - jo2u), abs(r["co2_kg"] - jco2))
         bad_lims = [k for k, v in r["limits"].items()

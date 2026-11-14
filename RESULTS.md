@@ -155,14 +155,23 @@ exposed per run than short batches.
 When the cells tolerate only a capped gas flow, the cheapest combination of tank shape, column and headspace
 pressure (`gas_exchange.cheapest_tricks`; the sparger runs at its cap, a squatter tank pays for its steel):
 
-| gas cap | sterile plant, sparger only | cheapest combination | yeast-style, sparger only | cheapest combination |
+| gas cap | sterile plant, sparger only | cheapest combination, any circulation | the same, keeping the loop within the tested passes and the safe pH exposure | yeast-style: sparger only / any / within limits |
 |---|---|---|---|---|
-| 1 mm/s | $52.9 | $7.66: column with oxygen sweep, 1 bar gauge | $23.6 | $5.40: the same |
-| 2 mm/s | $28.0 | $7.52: the same | $13.4 | $5.26: the same |
-| 4 mm/s | $15.6 | $7.33: the same | $8.3 | $5.07: the same |
-| 6 mm/s | $11.5 | $7.20: column for CO₂ only, 1 bar gauge | $6.6 | $4.91: no column, liquid half as deep as wide, 1 bar gauge |
+| 1 mm/s | $52.9 | $7.66: column with oxygen sweep, 1 bar gauge; **85 passes an hour** | $17.2: column for CO₂, liquid twice as deep as wide, 1 bar gauge; 9 passes | $23.6 / $5.40 / $9.2 |
+| 2 mm/s | $28.0 | $7.52: the same; **61 passes** | $11.7: column for CO₂, liquid as deep as wide, 1 bar gauge; 11 passes | $13.4 / $5.26 / $6.8 |
+| 4 mm/s | $15.6 | $7.33: the same; **29 passes** | $8.5: column for CO₂, liquid half as deep as wide, 1 bar gauge; 7 passes | $8.3 / $5.07 / $5.3 |
+| 6 mm/s | $11.5 | $7.20: column for CO₂ only, 1 bar gauge; **22 passes** | $7.45: the same, liquid 0.75 as deep as wide; 10 passes | $6.6 / $4.91 / $4.91 (no column) |
 
-With the tricks the floor barely depends on the gas the cells tolerate. None has been tried with meat cells.
+Passes are tank volumes pumped through the column an hour. Dense cultures have been pumped through fibres at up
+to about 15-24 an hour for weeks, at 1-4 litres (Clincke 2013; a vendor note); nothing beyond that is tested.
+Culture leaving the column stays alkaline (+0.26 pH at 55 mbar) until it is back in the tank, so the share of
+the culture that is alkaline grows with the passes. The safe limit used here is the 55 mbar, 0.5 m3 design that
+the gas-exchange note found 3 to 6 times below an exposure that slowed CHO cells (Paul 2020). At 22 passes the
+loop is 1.9 times that limit (about half the harmful exposure); at 61 passes, 5.2 times (1.5 times the harmful
+one). **Within those limits the floor depends on the gas the cells tolerate again**: $7.45 at 6 mm/s, $8.5 at
+4, $11.7 at 2, $17.2 at 1. In the cells-by-tank tables above, the last column ("column with oxygen sweep, 1 bar
+gauge") runs at 22 passes an hour for the floor's cells, beyond the tested range. None of the tricks has been
+tried with meat cells.
 
 ## 2. What share a price buys
 

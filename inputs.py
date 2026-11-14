@@ -546,8 +546,17 @@ REGISTRY: dict[str, Input] = {
         "to over 200 m3/m2/h (Sulzer brochure, vendor); Tsai's area correlation was fitted over 2.5-75", lo=10.0, hi=80.0, mode=40.0),
     "ge_surface_tension": Input(0.05, "N/m", "[assumed] surface tension of culture medium with protectant "
         "(water 0.070; Pluronic lowers it)"),
-    "ge_col_pout": Input(20.0, "mbar", "[design choice] CO2 the culture leaves the column at (in from the tank "
-        "at 100)", lo=10.0, hi=55.0, mode=20.0),
+    "ge_col_pout": Input(55.0, "mbar", "[design choice] CO2 the culture leaves the column at (in from the tank "
+        "at 100)", lo=20.0, hi=70.0, mode=55.0,
+        note="55 keeps the pH rise in the loop to 0.26; stripping to 20 (pH +0.70) gave an alkaline exposure 1.6 "
+             "times the one that cut CHO density 18-52% (Paul 2020; research_notes/gas_exchange_study.md section 8)"),
+    "ge_loop_transit": Input(8.0, "s", "[assumed] time the culture spends outside the tank besides the packing: "
+        "pump, sump and return pipe (about 20 m of pipe at 3 m/s)", lo=4.0, hi=20.0, mode=8.0),
+    "ge_passes_tested": Input(15.0, "tank volumes per hour", "[Clincke et al. 2013, read in full] the highest "
+        "recirculation dense CHO cultures took for weeks through hollow fibres: 1 L/min on 4 L, about 360 passes a "
+        "day, 48 days", lo=15.0, hi=24.0, mode=15.0,
+        note="hi: a vendor note ran a 1-2 L CHO culture at 12-24 volumes an hour for three weeks with a levitated "
+             "pump. Both at bench scale and through filter fibres, not a packed column"),
     "ge_col_gas_out": Input(20.0, "mbar", "[design choice] CO2 in the sweep gas where it leaves the top of the "
         "column, against culture entering at 100 (counter-current)"),
     "ge_col_gas_in": Input(0.4, "mbar", "[textbook] CO2 in fresh air entering the bottom of the column (about 400 ppm)"),

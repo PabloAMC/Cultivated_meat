@@ -22,8 +22,10 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 *Revised after section 7.* Three unknowns stay open, and all three are about the cells; the engineering is settled
 by calculation. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor: `explore()` =
 $11.5) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
-packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.5 whatever gas the cells tolerate
-(6 or 2 mm/s); without them it is $11.5 at 6 mm/s and $28 at 2 mm/s. The membrane loop of the earlier version is
+packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.5 at any gas flow only if the culture
+may be pumped through the column 22–85 times an hour, beyond the 15–24 tested and beyond the safe pH exposure
+(section 11). Within those limits it is $7.45 at 6 mm/s, $8.5 at 4, $11.7 at 2 and $17.2 at 1; without the
+tricks, $11.5 at 6 mm/s and $28 at 2. The membrane loop of the earlier version is
 superseded: a steel column does the same job without the module problems (section 7).
 
 **1. More gas per litre of culture**
@@ -788,7 +790,8 @@ then above the thickness of the culture (258 g/L):
 | sparger at 2 mm/s | **$7.5/kg** (36 passes, 580 m³/h, 4.3 m across, $50k per m³) | **$5.2/kg** |
 | for reference, today | $11.5 (at 2 mm/s: $28.0) | $6.6 (at 2 mm/s: $13.4) |
 
-With these tricks the floor no longer depends on how much gas the cells tolerate. In the sterile plant it
+With these tricks the floor depends little on how much gas the cells tolerate, but only at high pass rates
+(section 11 limits this). In the sterile plant it
 lands at about $7, the parity mark. What remains is the culture's thickness limit, the plant class, and the
 cells (doubling time, waste, medium), plus the protectant cost that the floor leaves out.
 
@@ -1008,6 +1011,34 @@ parent session's estimate (about 2%) is right: nothing worth having.
 RESULTS.md gives the cells-by-tank table twice: with every trick, and without any that needs genetic
 engineering. Without engineering the floor's cell needs 28 L of medium per kg, and the tricks take it from $14.0
 to $9.8 in the sterile plant and to $7.5 in a yeast-style plant.
+
+---
+
+## 11. Circulation: how many passes the tricks need, and which are tested (added 2026-11-14)
+
+From the parent session's review of PR 10. The column's default now strips to 55 mbar (`ge_col_pout`), the gentle
+design of section 8; section 7's tables were computed at 20 mbar and are kept as the first design. `explore`
+and the page now report the passes an hour, the pumped flow, the loop's liquid volume (flow × time outside
+the tank: the packing plus an assumed 8 s in pump, sump and pipe) and the alkaline exposure against the safe
+design (55 mbar, 0.5 m³ at 11 passes).
+
+| case (floor's cells, 55 mbar) | passes an hour | flow, m³/h | loop volume | alkaline exposure vs safe design | vs the one that slowed CHO cells | tested range (15–24 an hour) |
+|---|---|---|---|---|---|---|
+| column for CO₂, sparger 6 mm/s | 11 | 178 | 0.46 m³ | 0.92 | 0.27 | inside |
+| column with oxygen sweep, 1 bar gauge, 6 mm/s | 22 | 358 | 0.95 m³ | 1.9 | 0.55 | at the top |
+| the same at 4 mm/s | 29 | 462 | 1.22 m³ | 2.4 | 0.71 | beyond |
+| the same at 2 mm/s | 61 | 975 | 2.58 m³ | 5.2 | 1.5 | beyond (once a minute, about 1,460 a day) |
+| the same at 1 mm/s | 85 | 1,366 | 3.61 m³ | 7.2 | 2.1 | beyond |
+
+The tested range is Clincke 2013 (15 tank volumes an hour for 48 days at 4 L, through fibres) and a vendor note
+(12–24 an hour for three weeks at 1–2 L). Both are bench scale and through filter fibres, not packing.
+
+Keeping the loop within the safe exposure and the tested passes (`cheapest_tricks(..., ph_safe=True,
+tested=True)`), the cheapest combinations in the sterile plant are $7.45 at 6 mm/s (column for CO₂, liquid 0.75
+as deep as wide, 1 bar gauge, 10 passes), $8.5 at 4, $11.7 at 2 and $17.2 at 1 mm/s; in a yeast-style plant
+$4.91, $5.3, $6.8 and $9.2. So the earlier claim that the tricks make the floor independent of the gas the cells
+tolerate holds only if cells take 3–6 times the tested circulation and twice to seven times the safe alkaline
+exposure. The 8 s outside the tank is an assumption; halving it would halve the exposure but not the passes.
 
 ---
 

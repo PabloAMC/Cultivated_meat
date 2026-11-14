@@ -118,7 +118,8 @@ def build_model() -> dict:
                    "ge_col_gas_in", "ge_col_gas_out", "ge_col_head_extra", "ge_col_pout", "ge_pump_eff", "ge_pump_cost",
                    "ge_pump_flow", "ge_install_x", "ge_col_extra_height", "ge_col_wall", "ge_head_area", "ge_cepci_2014",
                    "ge_power_price", "ge_o2_price", "ge_lime_price", "ge_lime_use", "ge_p_top_base", "ge_sparge_o2",
-                   "ge_kla_20m3", "ge_buffer", "ge_vessel_cost_exp", "ge_hall_share", "ge_clearance_m")},
+                   "ge_kla_20m3", "ge_buffer", "ge_vessel_cost_exp", "ge_hall_share", "ge_clearance_m",
+                   "ge_loop_transit", "ge_passes_tested", "ge_paul_dph", "ge_paul_share")},
             "species_missing": floor_physics.SPECIES_MISSING,
         },
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
@@ -1369,11 +1370,11 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
           <div class="ctl"><label><span class="nm">Dissolved oxygen held at</span><span class="val" id="fx_do_v"></span></label>
             <input type="range" id="fx_do" min="0.02" max="0.3" step="0.005" value="{{DO_IMPLIED}}" oninput="fxRender()">
             <p class="fxn"><i>Feed or process.</i> The floor's oxygen supply implies about 0.28 mmol/L, above air saturation; pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. Lower leaves more room to push oxygen in.</p></div>
-          <div class="ctl"><label><span class="nm">Packed column on a pumped loop</span></label>
+          <div class="ctl"><label><span class="nm">Packed column on a pumped loop</span><span class="val" id="fx_col_v"></span></label>
             <select id="fx_col" onchange="fxRender()"><option value="none" selected>none</option>
             <option value="co2">for CO&#8322; (air blown through)</option>
             <option value="o2_closed">for CO&#8322; and oxygen (oxygen recycled, lime takes the CO&#8322;)</option></select>
-            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Untested: whether cells take the film for weeks.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Dense cultures have been pumped through fibres at up to about 15&ndash;24 tank volumes an hour for weeks, at 1&ndash;4 litres; more than that is untested. Culture that has lost CO&#8322; stays alkaline until it is back in the tank, so the more passes, the more of the culture is alkaline at any moment.</p></div>
           <div class="ctl"><label><span class="nm">CO&#8322; the culture leaves the column at</span><span class="val" id="fx_cp_v"></span></label>
             <input type="range" id="fx_cp" min="20" max="70" step="5" value="55" oninput="fxRender()">
             <p class="fxn">Lower strips more per pass but makes the returning culture more alkaline; 55 keeps the pH rise to 0.26.</p></div>
@@ -3675,7 +3676,10 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom){
   const outKg=wv*x*cell.mu*8760*F.uptime_col, hours=8760*F.uptime_col;
   const energy=power*hours/1000*G.power_price/v/outKg;
   const gas=oxygen?(o2given*0.032*G.o2_price+co2rem*0.074*G.lime_price/G.lime_use)*hours/v/outKg:0;
+  const stay=dl*ae*ap*h/uL, loopVol=flow/3600*(stay+G.loop_transit), dph=Math.log10(ptank/po);
+  const dose=dph*loopVol/(wv*v), safe=Math.log10(ptank/55)*0.5/(wv*20), paul=G.paul_dph*G.paul_share;
   return {passes:passes, flow:flow, area:A, diameter:Math.sqrt(4*A/Math.PI), height:h, capex_k_m3:capex/1000/v,
+          loop_volume:loopVol, ph_rise:dph, ph_vs_safe:dose/safe, ph_vs_paul:dose/paul, passes_tested:passes<=G.passes_tested+1e-9,
           energy_kg:energy, gas_kg:gas, co2_loop:co2loop, o2_short:o2short};
 }
 function floorExplore(p,noSearch){
@@ -3930,7 +3934,9 @@ function fxRender(){
   { const air=C.fx.ge.o2_henry*0.2095*1013, dv=num("fx_do"), rqv=C.fx.rq-C.fx.rq_lipid*p.fat_fed;
     g("fx_do_v").textContent=dv.toFixed(3)+" mmol/L ("+(dv/air*100).toFixed(0)+"% of air)";
     g("fx_fat_v").textContent=(p.fat_fed*100).toFixed(0)+"% (CO\u2082 per O\u2082 "+rqv.toFixed(2)+")"; }
-  g("fx_cp_v").textContent=p.col_pout.toFixed(0)+" mbar"; g("fx_pt_v").textContent=p.p_top.toFixed(2)+" bar gauge";
+  g("fx_cp_v").textContent=p.col_pout.toFixed(0)+" mbar";
+  { const rc=p.column!=="none"?floorExplore(p).column:null;
+    g("fx_col_v").textContent=rc?rc.passes.toFixed(0)+" passes an hour, "+rc.flow.toFixed(0)+" m\u00b3/h":""; } g("fx_pt_v").textContent=p.p_top.toFixed(2)+" bar gauge";
   g("fx_nh_v").textContent=num("fx_nh").toFixed(3)+" mol/kg"; g("fx_ly_v").textContent=num("fx_ly").toFixed(2)+" mol/mol";
   g("fx_gk_v").textContent=num("fx_gk").toFixed(2)+" mol/kg"; g("fx_sb_v").textContent=(p.sorbent*100).toFixed(0)+"%";
   if(!(p.doubling_h>0)) return;
@@ -3952,7 +3958,9 @@ function fxRender(){
     "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"), produces "+
     (r.uptime*100).toFixed(0)+"% of the year and makes "+r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+
     (r.capex/1000).toFixed(2)+" million per m&sup3; of tank"+
-    (r.column?", of which the column is $"+r.column.capex_k_m3.toFixed(0)+"k (it is "+r.column.diameter.toFixed(1)+" m across and passes "+r.column.flow.toFixed(0)+" m&sup3; of culture an hour)":"")+
+    (r.column?", of which the column is $"+r.column.capex_k_m3.toFixed(0)+"k (it is "+r.column.diameter.toFixed(1)+" m across and passes "+r.column.flow.toFixed(0)+" m&sup3; of culture an hour, "+
+      r.column.passes.toFixed(0)+" times the tank's contents"+(r.column.passes_tested?", within the range dense cultures have taken":", <b>beyond the 15&ndash;24 an hour dense cultures have taken</b>")+
+      "; the alkaline culture in the loop is "+(r.column.ph_vs_safe<=1?"within":"<b>"+r.column.ph_vs_safe.toFixed(1)+" times</b>")+" the exposure judged safe, "+r.column.ph_vs_paul.toFixed(2)+" of one that slowed CHO cells)":"")+
     ". Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+
     r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
 

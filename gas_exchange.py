@@ -498,6 +498,11 @@ def column_design(x: float, sparge_velocity: float | None = None, p_out: float |
     head = height + value("ge_col_head_extra")
     power = suspension_density(x) * 9.81 * head * flow / 3600.0 / value("ge_pump_eff")      # W
     stay = film["holdup"] * height / film["uL"]                       # s on the packing
+    # alkaline exposure: culture that has lost CO2 stays alkaline until it re-mixes with the tank, so the share
+    # of the culture exposed is the loop's liquid (flow x time outside the tank) over the tank's (section 8)
+    loop_vol = flow / 3600.0 * (stay + value("ge_loop_transit"))
+    ph_dose = dph * loop_vol / (wv * vessel_m3)
+    ph_ref = np.log10(p_tank / 55.0) * 0.5 / (wv * 20.0)              # the design judged safe: 55 mbar, 0.5 m3
     # money: packing, shell and distributor, pump; installed
     capex = (column_cost(area, height) + value("ge_pump_cost") * (flow / value("ge_pump_flow")) ** 0.6) * value("ge_install_x")
     capex_k_m3 = capex / 1000.0 / vessel_m3
@@ -515,6 +520,8 @@ def column_design(x: float, sparge_velocity: float | None = None, p_out: float |
             "passes": passes, "passes_co2": passes_co2, "passes_o2": passes_o2, "flow_m3h": flow,
             "area_m2": area, "diameter_m": np.sqrt(4.0 * area / np.pi), "stay_s": stay,
             "gas_m3h": gas_m3h, "gas_velocity": gas_u, "f_factor": f_factor, "head_m": head,
+            "loop_volume": loop_vol, "ph_dose": ph_dose, "ph_vs_safe": ph_dose / ph_ref,
+            "passes_tested": passes <= value("ge_passes_tested") + 1e-9,
             "power_w_m3": power / (wv * vessel_m3), "capex_k_m3": capex_k_m3, "energy_kg": energy,
             "gas_kg": gas_cost, "o2_mmol_l_h": o2_given / (wv * vessel_m3), **film}
 
@@ -689,11 +696,13 @@ def cases_table(plant: str = "sanitary", hazard: float = 0.0, restart_days: floa
 
 
 def cheapest_tricks(sparge_cap: float, plant: str = "sanitary", aspects=(0.5, 0.75, 1.0, 1.3, 1.6, 2.0),
-                    pressures=(None, 0.5, 1.0), columns=("none", "co2", "o2_closed"), **cells) -> dict:
+                    pressures=(None, 0.5, 1.0), columns=("none", "co2", "o2_closed"), ph_safe: bool = False,
+                    tested: bool = False, **cells) -> dict:
     """The cheapest combination of tank shape, column and headspace pressure when the cells tolerate at most
     `sparge_cap` m/s of gas. The sparger runs at the cap (gas is not priced here); a squatter tank pays for its
     extra steel and floor (shape_capex_factor); the column takes whatever CO2 (and, with an oxygen sweep,
-    oxygen) the sparger cannot."""
+    oxygen) the sparger cannot. `ph_safe` keeps only loops whose alkaline exposure is within the 55 mbar /
+    0.5 m3 design (section 8); `tested` keeps only loops within the pass rate dense cultures have taken."""
     best = None
     for a in aspects:
         cx = shape_capex_factor(20.0, a)["plant"]
@@ -704,8 +713,11 @@ def cheapest_tricks(sparge_cap: float, plant: str = "sanitary", aspects=(0.5, 0.
                 if c != "none":
                     kw["col_pout"] = 55.0
                 r = fp.explore(**kw)
+                d = r["column"]
+                if d is not None and ((ph_safe and d["ph_vs_safe"] > 1.0 + 1e-9) or (tested and not d["passes_tested"])):
+                    continue
                 if best is None or r["total"] < best["total"]:
-                    best = dict(r, aspect=a, p_top_barg=p, column_mode=c)
+                    best = dict(r, aspect=a, p_top_barg=p, column_mode=c, passes=d["passes"] if d else 0.0)
     return best
 
 

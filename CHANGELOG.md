@@ -37,6 +37,13 @@ Cost side
   200 mbar $10.1 (153 g/L) to $11.3 (137 g/L). The default floor is unchanged.
 - The page's "Build your own case" panel, with the tricks and the limits chart, now stands above "How the model
   works" instead of inside it.
+- Deliberate change (review of PR 10): the column's default outlet CO2 (`ge_col_pout`) is now 55 mbar, not 20, so
+  `explore(column="co2")` moves from $8.60 to $8.62; section 7 of the gas-exchange note keeps its 20 mbar design
+  as the first one, and its tests pass 20 explicitly. New: passes an hour, pumped flow, loop volume and alkaline
+  exposure in the column's output and on the page (inputs `ge_loop_transit`, `ge_passes_tested`);
+  `cheapest_tricks(ph_safe=, tested=)`. RESULTS.md's cheapest-combination table gains the passes and a column
+  within the tested passes and the safe pH exposure ($7.45 / $8.5 / $11.7 / $17.2 at 6 / 4 / 2 / 1 mm/s), and no
+  longer says the floor barely depends on gas flow.
 
 Demand side
 - Price sensitivity above equal price is set by six premium animal products within the range of the one

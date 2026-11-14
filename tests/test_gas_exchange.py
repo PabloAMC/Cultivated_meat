@@ -125,7 +125,7 @@ def check() -> list:
     dh = 4.0 * 0.98 / value("ge_pk_area")
     kl_bs = 2.0 / np.sqrt(np.pi) * np.sqrt(value("ge_d_co2") * film["uL"] / (film["holdup"] * dh))
     near("film kL agrees with Billet and Schultes' form within 15%", film["kl_co2"], kl_bs, 0.15)
-    col = ge.column_design(189.0)
+    col = ge.column_design(189.0, p_out=20.0)        # section 7's first design (the default is now 55)
     near("column: passes x per pass = load", col["passes"] * col["per_pass"], col["co2_by_loop"], 1e-9)
     near("note: column CO2 per pass at 20 mbar out", col["per_pass"], 1.97, 0.02)
     near("note: column passes", col["passes"], 6.3, 0.02)
@@ -150,7 +150,7 @@ def check() -> list:
              ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 5.00,
               "thickness of the culture"))
     for name, kw, want, lim in cases:
-        r = ge.floor_with_column(**kw)
+        r = ge.floor_with_column(p_out=20.0, **kw)
         near(name, r["total"], want, 0.02)
         if r["limit"] != lim:
             fails.append(f"{name}: limit {r['limit']}, want {lim}")
@@ -213,6 +213,20 @@ def check() -> list:
 
     near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 9.50, 0.002)
     near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 9.25, 0.002)
+
+    # --- circulation and the pH rule (review of PR 10) -------------------------------------------------------
+    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 8.62, 0.002)
+    for kw, passes, safe in ((dict(column="co2"), 11.1, 0.92), (dict(column="o2_closed", p_top_barg=1.0), 22.4, 1.89),
+                             (dict(column="o2_closed", p_top_barg=1.0, gas_velocity=0.002), 61.0, 5.16)):
+        d = fp.explore(**kw)["column"]
+        near(f"note: passes an hour {kw}", d["passes"], passes, 0.01)
+        near(f"note: alkaline exposure vs the safe design {kw}", d["ph_vs_safe"], safe, 0.02)
+    for cap, plant, want in ((0.001, "sanitary", 17.18), (0.002, "sanitary", 11.70), (0.004, "sanitary", 8.49),
+                             (0.006, "sanitary", 7.45), (0.002, "microbial", 6.78), (0.006, "microbial", 4.91)):
+        b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
+        near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)
+        if b["column"] is not None and (b["column"]["ph_vs_safe"] > 1 + 1e-9 or not b["column"]["passes_tested"]):
+            fails.append("constrained cheapest broke its own constraint")
 
     # --- cell side: fat in the feed, the oxygen setpoint, gas per kg ------------------------------------------
     near("fat fed: RQ 1.204 -> 0.966", fp.explore(fat_fed=1.0)["rq"], 0.9659, 1e-3)
