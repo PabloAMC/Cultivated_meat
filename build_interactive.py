@@ -71,6 +71,25 @@ def build_model() -> dict:
         # cost cross-checks for the page's reality checks (inputs.py; not used in the cost)
         **{k: value(k) for k in ("humbird_plant_cost", "humbird_tci_fedbatch", "humbird_output_fedbatch",
                                  "humbird_plant_charge", "believer_capex", "believer_capacity")},
+        # build-your-own-case controls: the JS floorExplore mirrors floor_physics.explore on these
+        "fx": {
+            "charge_mature": value("plant_charge_mature"), "charge_first": value("humbird_plant_charge"),
+            "uptime_perfusion": value("pf_uptime"), "uptime_filldraw": value("pf_uptime_realistic"),
+            "capex": {k: value(v[0]) * (value("pf_capex_escalation") if v[1] else 1.0)
+                      for k, v in floor_physics.PLANT_CLASSES.items()},
+            "sized": {k: v[2] for k, v in floor_physics.PLANT_CLASSES.items()},
+            "retention": value("pf_capex_retention"), "bioreactor_share": value("pf_bioreactor_capex_share"),
+            "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
+            "co2_exp": value("pf_co2_size_exponent"), "x_waste": value("pf_x_unperfused"),
+            "draw": value("pf_draw_fraction"), "wv": value("pf_working_volume"),
+            "labour_ref": value("pf_labour") * floor_physics.output_per_m3(floor_physics.GOOD_CELLS, "fedbatch")
+                          * value("pf_opex_escalation"),
+            "utilities": value("pf_utilities") * value("pf_opex_escalation"),
+            "consumables": value("pf_consumables_low"),
+            "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
+            "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
+            "ref_mass": floor_physics.GOOD_CELLS.mass_pg, "ref_doubling": floor_physics.GOOD_CELLS.doubling_h,
+        },
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
         # products: w=whole-food, c=conventional, p=plant-based, x=cultivated.
@@ -1021,6 +1040,10 @@ svg{width:100%;height:auto;display:block;}
 .methods .refs{font-size:.8rem;padding-left:18px;} .methods .refs li{margin-bottom:4px;}
 .methods code{background:#f0f0ee;padding:0 3px;border-radius:3px;font-size:.82em;}
 table.pt{border-collapse:collapse;font-size:.78rem;width:100%;}
+.fx{border:1px solid var(--rule);border-radius:6px;padding:10px 12px;margin:12px 0;}
+.fxg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 18px;}
+.fx select{width:100%;font-size:.82rem;padding:2px;}
+.fxn{font-size:.78rem;color:#666;margin:.3em 0 0;}
 table.pt th,table.pt td{border-bottom:1px solid var(--rule);padding:3px 6px;text-align:left;}
 table.pt td.n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
 table.pt td.s{color:#777;}
@@ -1258,6 +1281,34 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       from &ldquo;pharma-style plant, cells at half the density&rdquo; down are derived from physics, not from anyone's plant
       (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
       physics-based floor&rdquo;).</p>
+      <div class="fx" id="fx">
+        <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
+        per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo.
+        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.</p>
+        <div class="fxg">
+          <div class="ctl"><label><span class="nm">Doubling time</span><span class="val" id="fx_dh_v"></span></label>
+            <input type="range" id="fx_dh" min="16" max="72" step="1" value="24" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Cell mass</span><span class="val" id="fx_m_v"></span></label>
+            <input type="range" id="fx_m" min="0.5" max="3" step="0.1" value="3" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Yearly charge on the plant</span><span class="val" id="fx_ch_v"></span></label>
+            <input type="range" id="fx_ch" min="12.3" max="23.6" step="0.1" value="{{MATURE_CHARGE_PCT}}" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Share of the year producing</span><span class="val" id="fx_up_v"></span></label>
+            <input type="range" id="fx_up" min="60" max="95" step="1" value="91" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Tank size</span></label>
+            <select id="fx_v" onchange="fxRender()"><option value="2">2 m&sup3;</option><option value="5">5 m&sup3;</option>
+            <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
+            <option value="100">100 m&sup3;</option><option value="200">200 m&sup3;</option></select></div>
+          <div class="ctl"><label><span class="nm">Class of plant</span></label>
+            <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
+            <option value="sanitary" selected>sterile, no clean rooms</option>
+            <option value="microbial">built like a yeast plant</option></select></div>
+          <div class="ctl"><label><span class="nm">How the tank is run</span></label>
+            <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>perfusion (cells held back)</option>
+            <option value="filldraw">drained and refilled</option></select></div>
+        </div>
+        <p class="example" id="fx_out"></p>
+        <p class="fxn" id="fx_notes"></p>
+      </div>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
       {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}); almost no draws reach parity. The median is below
       {{R_TODAY}} because cell efficiency can only improve on the reported process.</p>
@@ -3358,7 +3409,56 @@ function selfTest(){
 }
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
 readHash();
-buildRail(); selfTest(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
+// ---- build your own case: mirrors floor_physics.explore (checked by tests/run_parity.py) ----
+function fxCell(massPg, doublingH){
+  const F=C.fx, mu=Math.LN2/doublingH, power=F.power_coef*Math.pow(massPg,0.75);        // pW per cell
+  const qo2=power*1e-12*3600/(F.heat_per_o2*1e3)/(massPg*1e-12)*1e3;                     // mmol O2 per g per h
+  return {mu:mu, qo2:qo2, o2kg:qo2/mu*32/1000};
+}
+function floorExplore(p){
+  const F=C.fx, cell=fxCell(p.mass_pg,p.doubling_h), ref=fxCell(F.ref_mass,F.ref_doubling);
+  const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg, perf=p.mode==="perfusion";
+  let capex=F.capex[p.plant];
+  if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
+  if(perf) capex+=F.retention;
+  const limits=[["oxygen supply",F.otr/cell.qo2],["thickness of the culture",F.x_visc],
+                ["CO2 removal",F.x_co2_20/load*Math.pow(p.vessel_m3/20,F.co2_exp)]];
+  if(!perf) limits.push(["waste build-up",F.x_waste/load]);
+  let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
+  const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
+  const out=F.wv*lim[1]*cell.mu*shape*8760*p.uptime/1000;
+  const capital=p.charge*capex/out, labour=F.labour_ref/out, utilities=F.utilities*(0.5+0.5*burn);
+  const feed=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
+          utilities:utilities, consumables:F.consumables, feedstock:feed,
+          total:capital+labour+utilities+F.consumables+feed};
+}
+function fxMode(){document.getElementById("fx_up").value=
+  Math.round(100*(document.getElementById("fx_mo").value==="perfusion"?C.fx.uptime_perfusion:C.fx.uptime_filldraw)); fxRender();}
+function fxRender(){
+  const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value);
+  const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
+           mode:g("fx_mo").value, charge:num("fx_ch")/100, uptime:num("fx_up")/100};
+  if(!(p.doubling_h>0)) return;
+  g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
+  g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_up_v").textContent=(p.uptime*100).toFixed(0)+"%";
+  const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
+  const R=(r.total+def.markup_add)/C.p_conv_anchor;
+  g("fx_out").innerHTML="<b>$"+r.total.toFixed(1)+" per kilo of cells, "+R.toFixed(2)+"&times; everyday meat.</b> "+
+    "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+") and makes "+
+    r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+(r.capex/1000).toFixed(2)+" million per m&sup3; of tank. "+
+    "Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+r.labour.toFixed(1)+", energy and consumables $"+
+    (r.utilities+r.consumables).toFixed(1)+", what the cells eat $"+r.feedstock.toFixed(1)+".";
+  const n=[];
+  if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
+  if(p.plant==="microbial") n.push("Yeast plants are this cheap partly because their tanks are 150 m&sup3; and more. The plant price here does not change with tank size; set the tank to 100 or 200 m&sup3; to see what CO&#8322; removal allows at that size. Nobody has built or costed such a plant for animal cells.");
+  if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours. The energy used by growth itself is not counted (Humbird's assumption), which flatters fast cells.");
+  if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
+  if(p.uptime>0.91) n.push("Above 91% is beyond what Humbird calls &ldquo;rather aggressive&rdquo;.");
+  n.push("Medium is at its floor price here: only what the cells must eat. Growth factors are not counted.");
+  g("fx_notes").innerHTML=n.join(" ");
+}
+buildRail(); selfTest(); fxRender(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 // chart titles carry their longer "how to read" text in data-help, shown by the same "?" badge as the sliders
 document.querySelectorAll("[data-help]").forEach(h=>addQ(h,h.getAttribute("data-help")));
 function setFootView(v){state.footView=v;

@@ -175,7 +175,10 @@ REGISTRY: dict[str, Input] = {
     "plant_floor_lo": Input(4.9, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
         "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate"),
+             "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate. "
+             "CAUTION: those plants are cheap partly because their vessels are 150 m3; at that size the CO2 "
+             "limit allows about 60 g/L (pf_co2_size_exponent) and this case costs about $10/kg in all. The "
+             "value here assumes that cost per m3 with 20 m3 tanks"),
     "plant_floor_hi": Input(17.7, "$/kg", "[floor_physics] the cautious case: Humbird's sterile pharma-style plant "
         "($908k per m3), tanks half-drained and refilled with no cell retention, 85% uptime, at his first-plant "
         "financing (23.6% a year)"),
@@ -334,6 +337,13 @@ REGISTRY: dict[str, Input] = {
              "today. Added to the capital of the large-tank perfusion cases. hi: Humbird's ATF filters cost "
              "$38.5M for 192 m3 before installation, about $460k per m3 of total investment (and $4.6/kg of "
              "membranes besides), which is why his perfusion design stops at 2 m3. 2024 prices; not escalated"),
+    "pf_co2_size_exponent": Input(-0.33, "-", "[Humbird-R, derived] how the CO2-limited density falls with vessel "
+        "size: his Fig. 2.8b gives about 150 g/L at 20 m3 and 70 g/L at 200 m3 (Sect. 3, on global bioreactor "
+        "volume), so density scales as (V / 20 m3)^log10(70/150)",
+        note="CO2 leaves a sparged tank only through the gas, and the gas flow per litre must fall as tanks get "
+             "taller to protect the cells. The same holds in perfusion: the liquid carries little CO2 away. "
+             "Applied to the 120 g/L used at 20 m3. Below 20 m3 the oxygen limit binds first (195 g/L at 2 m3, "
+             "as in his perfusion design). Used only by the page's 'build your own case' controls"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),

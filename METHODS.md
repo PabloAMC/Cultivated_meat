@@ -287,6 +287,32 @@ What it says:
   cells more than triple the plant cost in Humbird's own design.
 - **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg.
 
+**Build your own case (`floor_physics.explore`, the controls under the case table on the page).** A reader can
+move seven levers, and the physics is applied to each:
+
+| lever | range | what the physics does |
+|---|---|---|
+| doubling time | 16–72 h | output per m³ is density × growth rate; the maintenance half of glucose and of utilities is burned per hour, so per kg it scales with the doubling time |
+| cell mass | 0.5–3 ng | smaller cells respire more per gram (West's law, mass^−0.25), so the oxygen, CO₂ and waste limits fall |
+| tank size | 2–200 m³ | the bioreactor share of the plant (32%) follows Humbird's vessel cost, cheaper per m³ when larger; the CO₂-limited density falls as (V / 20 m³)^−0.33, from his Fig. 2.8b (about 150 g/L at 20 m³, 70 at 200 m³) |
+| class of plant | pharma-style, sterile without clean rooms, yeast-style | capital per m³ from the table above |
+| how the tank is run | perfusion or drained and refilled | perfusion adds the cell-retention device; drained and refilled tanks are capped by waste and average 72% of peak output |
+| yearly charge on the plant | 12.3–23.6% | capital per kg |
+| share of the year producing | 60–95% | output |
+
+The density is the lowest of four limits (oxygen supply, CO₂ removal, waste, thickness of the culture), and the
+page says which one binds. The defaults reproduce the floor. What the levers show: a 16-hour doubling time takes
+the floor from $11.5 to $8.5; cells of 1.5 ng raise it to $13; **larger tanks raise the cost in perfusion**, because the
+loss of density to CO₂ outweighs the cheaper vessel ($13.5 at 50 m³, $18.7 at 200 m³), while 5 m³ tanks give
+$10.6. CO₂ leaves only through the gas in perfusion as in fed-batch, and the retention device scales with flow,
+so it has no economy of scale either. Not modelled: the energy of growth itself (Humbird counts maintenance
+only, which flatters cells faster than about 20 h), and mixing in large tanks.
+
+**A caution on the frontier.** Yeast plants cost $190k per m³ partly because their tanks are 150 m³ and more. At
+that size the CO₂ limit allows about 60 g/L of animal cells, not 120, and the frontier case would cost about
+$10/kg, not $6.6. The frontier as reported assumes a plant at that cost per m³ with 20 m³ tanks, which nobody
+has priced. How much of a yeast plant's cheapness survives at small tank sizes is the open question.
+
 Limits. Capital per m³ is other people's engineering, not physics. The 120 g/L limits are Humbird's for
 efficient cells; less efficient cells hit ammonia far sooner. The last row is a rough bound, not a proof: it
 still uses a plant cost and an oxygen ceiling that are estimates. The model cell is his 3 ng; real meat cells are

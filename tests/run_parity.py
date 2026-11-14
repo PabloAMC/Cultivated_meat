@@ -207,6 +207,19 @@ def check_parity() -> list:
             fails.append(f"health R={R} hx={hx} hp={hp} which={which}: "
                          f"python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
+    # build-your-own-case controls: floorExplore (JS) against floor_physics.explore
+    import floor_physics as _fp
+    worst_fx = 0.0
+    if not js.get("fxGrid"):
+        fails.append("fxGrid: not emitted by the JS probe")
+    for dh, m, v, pl, mo, tot, dens, out, lim in js.get("fxGrid", []):
+        r = _fp.explore(dh, m, v, pl, mo, charge=0.173, uptime=0.85)
+        d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["output"] - out))
+        worst_fx = max(worst_fx, d)
+        if d > 1e-6 or r["limit"] != lim:
+            fails.append(f"floorExplore dh={dh} m={m} v={v} {pl} {mo}: python={r['total']:.6f} ({r['limit']}) "
+                         f"js={tot:.6f} ({lim})")
+
     # foothold rung: per-product price ratio R (the cost->R machinery shared with foothold.product_R;
     # the corner the scaffold-cost mismatch slipped through). JS emits [label, R] per product.
     worst_f = 0.0

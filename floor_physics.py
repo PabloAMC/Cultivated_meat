@@ -206,6 +206,65 @@ def feedstock(cells: Cells, cheap: bool = False) -> float:
 
 
 # ----------------------------------------------------------------------------
+# Build your own case (the page's lever controls call the JS mirror of this)
+# ----------------------------------------------------------------------------
+PLANT_CLASSES = {                      # key: (capital input, escalate from Humbird's 2018 prices?, scale with vessel size?)
+    "pharma":    ("pf_capex_aseptic_fedbatch", True, True),
+    "sanitary":  ("pf_capex_no_cleanroom", True, True),
+    "microbial": ("pf_capex_fermentation", False, False),   # built plants with 150 m3 vessels: taken as quoted
+}
+
+
+def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
+            plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
+            uptime: float | None = None) -> dict:
+    """One case from the levers a reader can move, with the physics applied:
+
+      * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
+      * output per m3 is density x growth rate, so it rises as the doubling time falls;
+      * the maintenance share of glucose and of utilities is burned per hour, so per kg it scales with
+        the doubling time (Humbird's assumption: maintenance, not growth, sets respiration);
+      * a larger vessel costs less per m3 (Humbird Eq. 3.1, bioreactor share only) but holds a thinner
+        culture, because CO2 is harder to strip (pf_co2_size_exponent);
+      * perfusion needs a device to hold cells back (pf_capex_retention); fill-and-draw does not, but
+        waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
+
+    The defaults reproduce the floor tier at the mature-industry capital charge."""
+    cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h)
+    charge = value("plant_charge_mature") if charge is None else charge
+    uptime = (value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")) if uptime is None else uptime
+    key, escalate, sized = PLANT_CLASSES[plant]
+    capex = value(key) * (value("pf_capex_escalation") if escalate else 1.0)
+    if sized:
+        capex = capex_at_size(capex, vessel_m3)
+    if mode == "perfusion":
+        capex += value("pf_capex_retention")
+    limits = {"oxygen supply": value("pf_otr_cap") / cells.qo2,
+              "thickness of the culture": value("pf_x_visc"),
+              "CO2 removal": co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
+    if mode != "perfusion":
+        limits["waste build-up"] = waste_cap(cells)
+    limit = min(limits, key=limits.get)
+    x = limits[limit]
+    shape = 1.0
+    if mode != "perfusion":
+        f = value("pf_draw_fraction")
+        shape = f / np.log(1.0 / (1.0 - f))
+    out = value("pf_working_volume") * x * cells.mu * shape * HOURS * uptime / 1000.0
+    ox = value("pf_opex_escalation")
+    burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
+    capital = charge * capex / out
+    labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
+    utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
+    consumables = value("pf_consumables_low")
+    feed = feedstock(cells)
+    total = capital + labour + utilities + consumables + feed
+    return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
+            "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
+            "consumables": consumables, "feedstock": float(feed), "total": float(total)}
+
+
+# ----------------------------------------------------------------------------
 # The ladder of tiers
 # ----------------------------------------------------------------------------
 def tiers() -> list:

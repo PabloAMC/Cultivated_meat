@@ -26,8 +26,9 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   first plant the same case costs $14.
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
   a quarter of the cost per cubic metre. In such a plant the floor would be about **$6.6/kg**, just under the $7
-  that parity needs. Nobody has built or costed one for animal cells. This is the frontier that decides whether
-  cultivated meat can match the price of everyday meat.
+  that parity needs. Nobody has built or costed one for animal cells, and yeast plants are cheap partly because
+  their tanks are very large; at that tank size animal cells would cost about $10/kg, because CO₂ limits the
+  density. This is the frontier that decides whether cultivated meat can match the price of everyday meat.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
 - **At the default cost** that adds up to **~0.3% of world meat by weight** (Monte Carlo median; 80% range

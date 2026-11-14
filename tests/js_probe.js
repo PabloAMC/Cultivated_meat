@@ -184,7 +184,14 @@ js += `
   const mcCheck = { region: "us", n: 3000, inputs: C.mc_inputs,
                     vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
 
-  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases,
+  const fxGrid = [];
+  [16, 24, 48].forEach(dh => [550, 3000].forEach(m => [5, 20, 200].forEach(v =>
+    ["pharma", "sanitary", "microbial"].forEach(pl => ["perfusion", "filldraw"].forEach(mo => {
+      const p = { doubling_h: dh, mass_pg: m, vessel_m3: v, plant: pl, mode: mo, charge: 0.173, uptime: 0.85 };
+      const r = floorExplore(p);
+      fxGrid.push([dh, m, v, pl, mo, r.total, r.density, r.output, r.limit]);
+    })))));
+  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid,
                            mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs } }));
 })();
 `;
