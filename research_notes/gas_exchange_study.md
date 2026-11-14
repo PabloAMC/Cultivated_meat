@@ -916,8 +916,8 @@ wide):
 So Pablo is right on CO₂ (+37% density) and on the direction for oxygen, which is small (−4%, not in the model).
 The least-area shape does not minimise cost, though: steel goes with diameter × area, not area, and the
 cheapest shape is squatter still (0.75; section 2.2). The page's shape lever shows the CO₂, oxygen and mixing
-bars moving through the new chart, but it does not add the extra steel (about $0.25/kg at 1.0); that is in
-`gas_exchange.shape_case` only.
+bars moving through the new chart, and since a later change it also adds the extra steel and floor (about
+$0.25/kg at 1.0), so the page shows $9.50 there.
 
 ---
 

@@ -118,7 +118,7 @@ def build_model() -> dict:
                    "ge_col_gas_in", "ge_col_gas_out", "ge_col_head_extra", "ge_col_pout", "ge_pump_eff", "ge_pump_cost",
                    "ge_pump_flow", "ge_install_x", "ge_col_extra_height", "ge_col_wall", "ge_head_area", "ge_cepci_2014",
                    "ge_power_price", "ge_o2_price", "ge_lime_price", "ge_lime_use", "ge_p_top_base", "ge_sparge_o2",
-                   "ge_kla_20m3", "ge_buffer")},
+                   "ge_kla_20m3", "ge_buffer", "ge_vessel_cost_exp", "ge_hall_share", "ge_clearance_m")},
             "species_missing": floor_physics.SPECIES_MISSING,
         },
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
@@ -1295,89 +1295,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <div id="footcap" class="sub" style="margin-top:6px"></div></div>
     </div>
     <div class="selftest" id="selftest"></div>
-    <details class="methods"><summary>How the model works: method, equations and sources</summary>
-
-      <p class="mintro">Each step below has a one-line summary; click it for the detail. Equations are in appendix A0.
-      Numbers with a bracketed reference, like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], come from that source; judgement calls are
-      labelled; everything else is computed by the model at its default settings.</p>
-
-      <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> Medium, plant running cost and
-      retail markup, divided by the price of the meat it replaces: {{R_TODAY}}&times; at the cost one company reports, about {{R_FLOOR}}&times;
-      at the cost floor.</summary>
-      <p>The <b>price ratio</b> <i>R</i> is cultivated meat's retail price divided by the price of the conventional
-      meat beside it: 1 means the same price, 2 means twice the price. The retail price has three parts:</p>
-      <ul>
-        <li><b>Medium,</b> the nutrient liquid the cells grow in. One company, SuperMeat, reports {{MEDIA_L}} litres per
-        kilo of cells at under ${{MEDIA_P}} per litre [1]. Other companies reported $0.20/L or less in 2025, and an
-        amino-acid cost analysis by GFI and MG Consulting supports that level [3], but nothing is verified at
-        production scale. Leaner cells would use less (the cell-efficiency slider: 1 = as reported).</li>
-        <li><b>Plant running cost:</b> capital, labour, energy and consumables: ${{OH_DEF}}/kg. That is the same
-        company's running costs plus a yearly charge on its plant of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost,
-        the rate used for every case on this page [1, 2]. The company itself counts depreciation only, which gives
-        about $5 less. The plant's cost depends on its class, on how dense the culture is and on how fast the cells
-        grow (&ldquo;The floor&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
-        sterility [2].</li>
-        <li><b>Getting it to the shelf:</b> a ${{MARKUP}}/kg markup for processing, cold chain and retail (about
-        conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
-        study has costed it [6].</li>
-      </ul>
-      <p><b>What the default cost is.</b> What one company reports for its own process, scaled up on paper, with
-      the cost of capital put on the same footing as the other cases: about ${{BIOMASS_TODAY}} per kilo of cells [1].
-      It is the best-documented figure on a sound basis (100% cells, a realistic weight per cell), but it is a
-      company's claim from 10-litre runs, not a peer-reviewed result, and its stated tank sizes and densities
-      account for only about half of its stated output. Humbird's independent design for efficient cells comes to
-      about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells: about 70% water
-      and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20] whose kilo turned
-      out to be a wet pellet that is mostly liquid; it is no longer used. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
-      $10–14); charts 1, 2 and 7 use each meat's local price.</p>
-      <p class="example"><b>Worked example.</b> Medium: {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_DEF}}:
-      ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
-      (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
-      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
-      salts, buffer and vitamins in it are an assumption), and a plant must be paid for. The plant's cost per kilo is its cost
-      per cubic metre of tank divided by what a cubic metre makes in a year. The second part is physics: how much
-      oxygen a cell needs, and how much oxygen and CO&#8322; a tank can exchange without bubbles killing the cells.
-      The first comes from Humbird's plant design [2] in 2025 prices (as drawn, his plant comes to ${{HUMBIRD_PLANT}}/kg in
-      2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). If everything that has been costed for animal
-      cells works together (a sterile plant without clean rooms, 20,000-litre tanks in perfusion with a device to
-      hold the cells back, efficient cells), and the plant is financed like a mature food industry, the plant costs
-      about ${{PLANT_FLOOR}}/kg and the floor is about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
-      ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so at that floor <i>R</i> ≈ {{R_FLOOR}}.
-      <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year: money at 7.5% repaid in
-      10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
-      cost of capital as 5.4% and uses a 20-year life for a yeast plant, which makes the yearly charge
-      {{MATURE_CHARGE_PCT}}% [2]. The floor is a long-run case set against meat, a mature industry, so it uses the
-      lower rate; at the first-plant rate it would be about ${{COST_FLOOR_FIRST}}/kg. The default and the cautious
-      case keep the first-plant rate.
-      <b>How firm is it?</b> The floor is the best case: each input sits at the favourable end of what is known.
-      If the plant estimate, the density a tank holds, the cells, the retention device and the financing are each
-      allowed to fall short within their plausible ranges, the same case costs ${{FLOOR_MC_P50}}/kg at the median
-      (80% range ${{FLOOR_MC_P10}}–{{FLOOR_MC_P90}}). In a yeast-style plant the median is
-      ${{FLOOR_MC_YEAST_P50}}/kg, with about a {{FLOOR_MC_YEAST_PARITY}}% chance of reaching the
-      ${{PARITY_BIOMASS}} that parity needs. Letting demand vary as well (price sensitivity, acceptance, the retail
-      markup), the long-run share of world meat in this case is {{FLOOR_SHARE_MC_P50}}% at the median (80% range
-      {{FLOOR_SHARE_MC_P10}}–{{FLOOR_SHARE_MC_P90}}%), and {{FLOOR_SHARE_MC_YEAST_P50}}% in a yeast-style plant.
-      The ~{{PEN_GLOBAL_FLOOR_VOL}}% at the top of this page is the case in which nothing falls short.
-      <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of the cost per
-      cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
-      ${{COST_FLOOR_LO}}/kg, just under the parity line. Nobody has built or costed one for animal cells, which are
-      far easier to contaminate. That is the step that decides whether price parity is reachable. On cautious
-      assumptions (a pharma-style plant with clean rooms, at about ${{PLANT_FLOOR_HI}}/kg, tanks simply drained
-      and refilled, first-plant financing) the floor is about ${{COST_FLOOR_HI}}/kg.</p>
-      <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells: about 70% water
-      and 20% protein, like meat. Plant costs are in 2025 prices. &ldquo;Sterile&rdquo; means a pharma-style plant:
-      clean rooms, and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
-      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup: first with the plant financed as a first
-      plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), then as a mature food industry ({{MATURE_CHARGE_PCT}}%).
-      The model's floor and frontier use the second; its default uses the first.</p>
-      <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
-        <th>cells, $/kg (vs meat), first-plant financing</th><th>the same with food-industry financing</th></tr>
-        {{COST_CASES_ROWS}}
-      </table></div>
-      <p>Reading the table: the cells and the class of plant matter far more than how the tank is run. The cases
-      from &ldquo;pharma-style plant, cells at half the density&rdquo; down are derived from physics, not from anyone's plant
-      (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
-      physics-based floor&rdquo;).</p>
+    <h2 style="margin:18px 0 4px">Build your own case: what limits a tank, and the tricks that lift it</h2>
       <div class="fx" id="fx">
         <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
         per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo,
@@ -1499,6 +1417,89 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <div id="fx_torinfo" class="fxcard"></div>
         <p class="fxn" id="fx_notes"></p>
       </div>
+    <details class="methods"><summary>How the model works: method, equations and sources</summary>
+
+      <p class="mintro">Each step below has a one-line summary; click it for the detail. Equations are in appendix A0.
+      Numbers with a bracketed reference, like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], come from that source; judgement calls are
+      labelled; everything else is computed by the model at its default settings.</p>
+
+      <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> Medium, plant running cost and
+      retail markup, divided by the price of the meat it replaces: {{R_TODAY}}&times; at the cost one company reports, about {{R_FLOOR}}&times;
+      at the cost floor.</summary>
+      <p>The <b>price ratio</b> <i>R</i> is cultivated meat's retail price divided by the price of the conventional
+      meat beside it: 1 means the same price, 2 means twice the price. The retail price has three parts:</p>
+      <ul>
+        <li><b>Medium,</b> the nutrient liquid the cells grow in. One company, SuperMeat, reports {{MEDIA_L}} litres per
+        kilo of cells at under ${{MEDIA_P}} per litre [1]. Other companies reported $0.20/L or less in 2025, and an
+        amino-acid cost analysis by GFI and MG Consulting supports that level [3], but nothing is verified at
+        production scale. Leaner cells would use less (the cell-efficiency slider: 1 = as reported).</li>
+        <li><b>Plant running cost:</b> capital, labour, energy and consumables: ${{OH_DEF}}/kg. That is the same
+        company's running costs plus a yearly charge on its plant of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost,
+        the rate used for every case on this page [1, 2]. The company itself counts depreciation only, which gives
+        about $5 less. The plant's cost depends on its class, on how dense the culture is and on how fast the cells
+        grow (&ldquo;The floor&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
+        sterility [2].</li>
+        <li><b>Getting it to the shelf:</b> a ${{MARKUP}}/kg markup for processing, cold chain and retail (about
+        conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
+        study has costed it [6].</li>
+      </ul>
+      <p><b>What the default cost is.</b> What one company reports for its own process, scaled up on paper, with
+      the cost of capital put on the same footing as the other cases: about ${{BIOMASS_TODAY}} per kilo of cells [1].
+      It is the best-documented figure on a sound basis (100% cells, a realistic weight per cell), but it is a
+      company's claim from 10-litre runs, not a peer-reviewed result, and its stated tank sizes and densities
+      account for only about half of its stated output. Humbird's independent design for efficient cells comes to
+      about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells: about 70% water
+      and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20] whose kilo turned
+      out to be a wet pellet that is mostly liquid; it is no longer used. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      $10–14); charts 1, 2 and 7 use each meat's local price.</p>
+      <p class="example"><b>Worked example.</b> Medium: {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_DEF}}:
+      ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
+      (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
+      <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
+      salts, buffer and vitamins in it are an assumption), and a plant must be paid for. The plant's cost per kilo is its cost
+      per cubic metre of tank divided by what a cubic metre makes in a year. The second part is physics: how much
+      oxygen a cell needs, and how much oxygen and CO&#8322; a tank can exchange without bubbles killing the cells.
+      The first comes from Humbird's plant design [2] in 2025 prices (as drawn, his plant comes to ${{HUMBIRD_PLANT}}/kg in
+      2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). If everything that has been costed for animal
+      cells works together (a sterile plant without clean rooms, 20,000-litre tanks in perfusion with a device to
+      hold the cells back, efficient cells), and the plant is financed like a mature food industry, the plant costs
+      about ${{PLANT_FLOOR}}/kg and the floor is about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
+      ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so at that floor <i>R</i> ≈ {{R_FLOOR}}.
+      <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year: money at 7.5% repaid in
+      10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
+      cost of capital as 5.4% and uses a 20-year life for a yeast plant, which makes the yearly charge
+      {{MATURE_CHARGE_PCT}}% [2]. The floor is a long-run case set against meat, a mature industry, so it uses the
+      lower rate; at the first-plant rate it would be about ${{COST_FLOOR_FIRST}}/kg. The default and the cautious
+      case keep the first-plant rate.
+      <b>How firm is it?</b> The floor is the best case: each input sits at the favourable end of what is known.
+      If the plant estimate, the density a tank holds, the cells, the retention device and the financing are each
+      allowed to fall short within their plausible ranges, the same case costs ${{FLOOR_MC_P50}}/kg at the median
+      (80% range ${{FLOOR_MC_P10}}–{{FLOOR_MC_P90}}). In a yeast-style plant the median is
+      ${{FLOOR_MC_YEAST_P50}}/kg, with about a {{FLOOR_MC_YEAST_PARITY}}% chance of reaching the
+      ${{PARITY_BIOMASS}} that parity needs. Letting demand vary as well (price sensitivity, acceptance, the retail
+      markup), the long-run share of world meat in this case is {{FLOOR_SHARE_MC_P50}}% at the median (80% range
+      {{FLOOR_SHARE_MC_P10}}–{{FLOOR_SHARE_MC_P90}}%), and {{FLOOR_SHARE_MC_YEAST_P50}}% in a yeast-style plant.
+      The ~{{PEN_GLOBAL_FLOOR_VOL}}% at the top of this page is the case in which nothing falls short.
+      <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of the cost per
+      cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
+      ${{COST_FLOOR_LO}}/kg, just under the parity line. Nobody has built or costed one for animal cells, which are
+      far easier to contaminate. That is the step that decides whether price parity is reachable. On cautious
+      assumptions (a pharma-style plant with clean rooms, at about ${{PLANT_FLOOR_HI}}/kg, tanks simply drained
+      and refilled, first-plant financing) the floor is about ${{COST_FLOOR_HI}}/kg.</p>
+      <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells: about 70% water
+      and 20% protein, like meat. Plant costs are in 2025 prices. &ldquo;Sterile&rdquo; means a pharma-style plant:
+      clean rooms, and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
+      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup: first with the plant financed as a first
+      plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), then as a mature food industry ({{MATURE_CHARGE_PCT}}%).
+      The model's floor and frontier use the second; its default uses the first.</p>
+      <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
+        <th>cells, $/kg (vs meat), first-plant financing</th><th>the same with food-industry financing</th></tr>
+        {{COST_CASES_ROWS}}
+      </table></div>
+      <p>Reading the table: the cells and the class of plant matter far more than how the tank is run. The cases
+      from &ldquo;pharma-style plant, cells at half the density&rdquo; down are derived from physics, not from anyone's plant
+      (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
+      physics-based floor&rdquo;).</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
       {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}); almost no draws reach parity. The median is below
       {{R_TODAY}} because cell efficiency can only improve on the reported process.</p>
@@ -3642,6 +3643,12 @@ function fxHead(pt,v,a,dom){    // oxygen driving force (top of the tank at pt b
   const cset=dom===undefined?cl:dom, p0=pt===undefined?G.p_top_base:pt;
   return {f:(cs(p0)-cset)/(cs(G.p_top_base)-cl), cl:cset};
 }
+function fxShapeCost(v,a){      // mirror of gas_exchange.shape_capex_factor: steel ~ diameter x surface, plus floor
+  const F=C.fx, G=F.ge, geo=aa=>{ const s=fxShape(v,aa), T=s[0], h=s[1]/F.wv, surf=Math.PI*T*h+2*G.head_area*T*T;
+    return {steel:T*surf, fp:Math.pow(T+G.clearance_m,2)}; };
+  const g=geo(a), g0=geo(F.aspect);
+  return 1+F.bioreactor_share*(Math.pow(g.steel/g0.steel,G.vessel_cost_exp)-1)+G.hall_share*(g.fp/g0.fp-1);
+}
 function fxVisc(x){ const phi=x/(C.fx.cell_density*1000);
   return C.fx.medium_viscosity*1e-3*(1+2.5*phi+10.05*phi*phi+0.00273*Math.exp(16.6*phi)); }
 function fxRho(x){ const phi=x/(C.fx.cell_density*1000); return 1000*((1-phi)*C.fx.medium_density+phi*C.fx.cell_density); }
@@ -3688,6 +3695,7 @@ function floorExplore(p,noSearch){
   let capex=F.capex[p.plant];
   if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
+  if(p.shape_cost!==false&&p.aspect!==undefined) capex*=fxShapeCost(p.vessel_m3,p.aspect);   // steel and floor of a squat tank
   if(perf) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0;

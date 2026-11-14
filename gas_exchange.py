@@ -289,7 +289,7 @@ def shape_case(aspect: float, vessel_m3: float = 20.0, cells_in_shell: int = 1, 
     plant = case.get("plant", "sanitary")
     if cells_in_shell > 1 and fp.PLANT_CLASSES[plant][2]:              # priced as one vessel of the full size
         capex_x *= fp.capex_at_size(1.0, vessel_m3) / fp.capex_at_size(1.0, v_cell)
-    r = fp.explore(vessel_m3=v_cell, aspect=aspect, gas_velocity=us, capex_x=capex_x, **case)
+    r = fp.explore(vessel_m3=v_cell, aspect=aspect, gas_velocity=us, capex_x=capex_x, shape_cost=False, **case)
     T, depth = fp.tank_shape(v_cell, aspect)
     return {"aspect": aspect, "vessel_m3": vessel_m3, "T": T, "depth": depth, "gas_velocity": us,
             "vvm": us * 60.0 / depth, "density": r["density"], "limit": r["limit"], "total": r["total"],
@@ -699,7 +699,8 @@ def cheapest_tricks(sparge_cap: float, plant: str = "sanitary", aspects=(0.5, 0.
         cx = shape_capex_factor(20.0, a)["plant"]
         for p in pressures:
             for c in columns:
-                kw = dict(plant=plant, gas_velocity=sparge_cap, aspect=a, capex_x=cx, p_top_barg=p, column=c, **cells)
+                kw = dict(plant=plant, gas_velocity=sparge_cap, aspect=a, capex_x=cx, shape_cost=False, p_top_barg=p,
+                          column=c, **cells)
                 if c != "none":
                     kw["col_pout"] = 55.0
                 r = fp.explore(**kw)

@@ -334,7 +334,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
-            fat_price: float | None = None, do_mmol: float | None = None, _search: bool = True) -> dict:
+            fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
+            _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -384,6 +385,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         lipid from glucose releases CO2 without using oxygen (Humbird's Reaction 2.2: 0.090 of the 0.455 mol
         CO2 per mol of dry cell mass), so CO2 made per oxygen used (`rq`, default 1.204) falls to 0.966 when
         all of it is fed; the fat is bought at `fat_price`. `rq` can also be set directly.
+      * `aspect` other than the model's 1.6 also changes the plant's cost: more steel and floor for a squat tank,
+        less for a tall one (gas_exchange.shape_capex_factor); `shape_cost=False` leaves it out.
       * `do_mmol`: dissolved oxygen the tank is held at. Humbird's 29 mmol/L/h implies about 0.28 mmol/L;
         a lower setpoint widens the driving force for oxygen (and, by the mixing rule, the mixing limit).
     The result carries every cap (`limits`, g/L), what sets the litres of medium (`medium_terms`, L/kg), and
@@ -427,6 +430,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if sized:
         capex = capex_at_size(capex, vessel_m3)
     capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
+    if shape_cost and aspect is not None:              # a squatter tank needs more steel and floor (gas_exchange.py)
+        from gas_exchange import shape_capex_factor
+        capex *= shape_capex_factor(vessel_m3, aspect)["plant"]
     if mode == "perfusion":
         capex += value("pf_capex_retention") if retention is None else retention
     us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
@@ -687,7 +693,8 @@ TORNADO = [
     ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
      "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
      "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "
-     "to 3. <b>Evidence:</b> the geometry is certain. What a squat vessel costs is not modelled."),
+     "to 3. <b>Evidence:</b> the geometry is certain. A squat tank's extra steel and floor space are counted "
+     "(its wall thickens with its width); there are no cost data on tank shape."),
     ("Pressure at the top of the tank", "p_top_barg", 0.0, 1.0, "0 bar gauge", "1 bar gauge",
      "Oxygen dissolves in proportion to its pressure, so a higher pressure in the headspace raises oxygen transfer "
      "and, by the model's mixing rule, the mixing limit; it does nothing for CO\u2082. <b>Range:</b> Humbird's tank "

@@ -31,6 +31,12 @@ Cost side
 - Deliberate change: the packed column now takes in culture at the tank's dissolved oxygen (0.28 mmol/L) rather
   than an assumed 0.05, so the oxygen-sweep cases cost up to $0.13/kg more (e.g. $7.43 to $7.52 at 2 mm/s) and an
   air sweep can no longer add oxygen. The note and RESULTS.md were updated.
+- Deliberate change: a tank shape other than the default now carries its steel and floor cost in `explore` and on
+  the page (`shape_cost`, default on). Moved: the tank-shape tornado row $9.3–25.2 to $9.5–24.4; in METHODS'
+  CO₂ table the squat tank $9.3 to $9.5, 150 mbar with the squat tank $8.5 to $8.7, the 200 m³ squat tank at
+  200 mbar $10.1 (153 g/L) to $11.3 (137 g/L). The default floor is unchanged.
+- The page's "Build your own case" panel, with the tricks and the limits chart, now stands above "How the model
+  works" instead of inside it.
 
 Demand side
 - Price sensitivity above equal price is set by six premium animal products within the range of the one

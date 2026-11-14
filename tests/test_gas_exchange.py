@@ -211,6 +211,9 @@ def check() -> list:
     lr = ge.lactate_relief()
     near("note: lactate could supply this share of the energy", lr["share_of_energy"], 0.021, 0.03)
 
+    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 9.50, 0.002)
+    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 9.25, 0.002)
+
     # --- cell side: fat in the feed, the oxygen setpoint, gas per kg ------------------------------------------
     near("fat fed: RQ 1.204 -> 0.966", fp.explore(fat_fed=1.0)["rq"], 0.9659, 1e-3)
     near("note: fat fed, CO2 cap", fp.explore(fat_fed=1.0)["limits"]["CO2 removal"], 149.6, 0.005)

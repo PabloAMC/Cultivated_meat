@@ -322,7 +322,7 @@ across its plausible range, the others held at the case being viewed. Around the
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
 | gas flow the cells tolerate | 2 to 6 mm/s | 28.0 – 11.5 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.3 – 25.2 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.5 – 24.4 |
 | tank size | 5 to 200 m³ | 10.6 – 18.8 |
 | plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
 | waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
@@ -410,11 +410,11 @@ which is in Humbird's design:
 |---|---|---|---|
 | none | 120 | CO₂ | 11.5 |
 | cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 9.4 |
-| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.3 |
+| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.5 |
 | 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
-| 150 mbar and the squat tank | 195 | oxygen supply | 8.5 |
+| 150 mbar and the squat tank | 195 | oxygen supply | 8.7 |
 | 200 m³ tank | 56 | CO₂ | 18.8 |
-| 200 m³ squat tank, cells tolerating 200 mbar | 153 | CO₂ | 10.1 |
+| 200 m³ squat tank, cells tolerating 200 mbar | 137 | CO₂ | 11.3 |
 | 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.5 |
 
 The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit
@@ -520,8 +520,8 @@ tank's dissolved oxygen.
 
 The page mirrors all of it (`floorExplore`, checked in fourteen cases by `tests/run_parity.py`). Two tornado rows
 are new: pressure at the top of the tank (0 to 1 bar gauge) and ammonia per kg (0.055 to 0.14). The page's
-tank-shape lever does not include the extra steel of a squat tank (`gas_exchange.shape_capex_factor` does; the
-note's section 9). Results: RESULTS.md, "What the tricks do".
+tank-shape lever now includes the extra steel and floor space of a squat tank (`gas_exchange.shape_capex_factor`,
+note section 9; `shape_cost=False` leaves it out). Results: RESULTS.md, "What the tricks do".
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:
