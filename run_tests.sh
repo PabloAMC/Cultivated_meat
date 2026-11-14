@@ -16,6 +16,9 @@ python tests/test_growth_rate.py
 echo "==> physics-based floor"
 python tests/test_floor_physics.py
 
+echo "==> gas-exchange side study"
+python tests/test_gas_exchange.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

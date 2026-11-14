@@ -107,6 +107,63 @@ The median is close to the default 3.28: the plant-cost range is wider on the hi
 less dense than the floor assumes), while the medium price and cell efficiency can improve on the report. The
 Monte Carlo does not include the frontier.
 
+**What the tricks do, and what the cells decide.** Research notes size ways round the tank's limits
+(`research_notes/gas_exchange_study.md`, `waste_tricks_sizing.md`); `floor_physics.explore` carries them as
+levers, and the page's panel shows each limit as a bar. Each trick and each kind of cell is tagged by what it
+needs: **feed or process** (no change to the cells), **selection or adaptation** (cells chosen or adapted, not
+engineered; easier to regulate), or **genetic engineering**. Every tank trick here is feed or process.
+
+Cost per kg of cells in the floor's sterile plant, in brackets with runs lost to contamination at 0.2% a day
+(pharma's rate, 14-day restart); then the yeast-style plant, in brackets at 2.2% a day (the top of what a survey
+of makers implies; 0.6% a day sits between); then the density, what binds, and litres of medium per kg.
+
+*All tricks, all cells:*
+
+| cells | sparger only | sparger, fat in the feed, oxygen held at 0.08 | packed column on a loop | column with oxygen sweep, 1 bar gauge |
+|---|---|---|---|---|
+| the floor's cells [genetic engineering] | $11.5 ($11.7); yeast-style $6.6 ($7.7); 120 g/L CO₂, 11 L/kg | $9.9 ($10.1); yeast-style $6.0 ($6.9); 150 g/L CO₂, 11 L/kg | $8.6 ($8.8); yeast-style $5.5 ($6.3); 189 g/L mixing, 11 L/kg | $7.3 ($7.4); yeast-style $5.0 ($5.6); 258 g/L thickness, 11 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) [feed or process] | $17.5 ($17.8); yeast-style $10.7 ($12.5); 154 g/L CO₂, 28 L/kg | $15.3 ($15.5); yeast-style $9.8 ($11.3); 192 g/L CO₂, 28 L/kg | $13.5 ($13.7); yeast-style $9.2 ($10.5); 242 g/L mixing, 28 L/kg | $13.1 ($13.3); yeast-style $9.1 ($10.3); 258 g/L thickness, 28 L/kg |
+| ordinary meat cells (bovine) | $31.1 ($31.4); yeast-style $26.0 ($27.8); 124 g/L CO₂, 140 L/kg | $29.5 ($29.7); yeast-style $25.4 ($27.0); 155 g/L CO₂, 140 L/kg | $28.1 ($28.3); yeast-style $24.9 ($26.4); 195 g/L mixing, 140 L/kg | $26.9 ($27.1); yeast-style $24.5 ($25.7); 258 g/L thickness, 140 L/kg |
+
+*Without genetic engineering.* The floor's efficient cell is replaced by what selection and feed alone have
+shown: ammonia 0.14 mol/kg with glutamine replaced, lactate 0.39 per glucose as in adapted CHO cells, at the
+floor's 24-hour doubling:
+
+| cells | sparger only | sparger, fat in the feed, oxygen held at 0.08 | packed column on a loop | column with oxygen sweep, 1 bar gauge |
+|---|---|---|---|---|
+| the floor's cells by selection and feed only [selection or adaptation] | $14.0 ($14.2); yeast-style $9.1 ($10.2); 120 g/L CO₂, 28 L/kg | $12.4 ($12.6); yeast-style $8.5 ($9.4); 150 g/L CO₂, 28 L/kg | $11.1 ($11.3); yeast-style $8.0 ($8.8); 189 g/L mixing, 28 L/kg | $9.8 ($9.9); yeast-style $7.5 ($8.2); 258 g/L thickness, 28 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) [feed or process] | $17.5 ($17.8); yeast-style $10.7 ($12.5); 154 g/L CO₂, 28 L/kg | $15.3 ($15.5); yeast-style $9.8 ($11.3); 192 g/L CO₂, 28 L/kg | $13.5 ($13.7); yeast-style $9.2 ($10.5); 242 g/L mixing, 28 L/kg | $13.1 ($13.3); yeast-style $9.1 ($10.3); 258 g/L thickness, 28 L/kg |
+| ordinary meat cells (bovine) | $31.1 ($31.4); yeast-style $26.0 ($27.8); 124 g/L CO₂, 140 L/kg | $29.5 ($29.7); yeast-style $25.4 ($27.0); 155 g/L CO₂, 140 L/kg | $28.1 ($28.3); yeast-style $24.9 ($26.4); 195 g/L mixing, 140 L/kg | $26.9 ($27.1); yeast-style $24.5 ($25.7); 258 g/L thickness, 140 L/kg |
+
+"Best shown in meat cells" is bovine cells with glutamine replaced: 0.14 mol of ammonia per kg and a 43-hour
+doubling (Hubalek 2023); "ordinary" is the same cells with glutamine, 0.70 mol and 26 hours. Both take chicken
+cells' lactate yield (1.05 per glucose, Pasitka 2024) at 0.84 mol of glucose per kg. "Fat in the feed" means
+the cells take all their lipid from the medium instead of making it from glucose; making lipid from glucose
+gives off CO₂ without using oxygen, and on Humbird's cell that is why CO₂ made per oxygen used is 1.20 rather
+than 1.0 (fed, 0.97; a carbon balance, the note's section 10). Holding dissolved oxygen at 0.08 mmol/L (38% of
+air saturation, a usual pharma setpoint) in place of the 0.28 the floor's oxygen supply implies widens the
+oxygen driving force by about a fifth; it matters only where oxygen binds.
+
+Reading the tables: the tricks take the floor's own cells from $11.5 to $7.3, about the parity mark, and the
+cheap plant to $5.0. Without genetic engineering the floor's cell needs 28 litres of medium per kg (ammonia
+sets it), and the tricks take it from $14.0 to $9.8 ($7.5 in a yeast-style plant). With cells that have
+actually been measured, ammonia sets the medium and the tank tricks are worth much less: the cells decide the
+cost before the tank does. Losing runs adds $0.1–2.5 per kg. The loss model counts the lost time and the
+tankful lost with each failure; it does not yet count a failed restart, and long continuous runs are more
+exposed per run than short batches.
+
+When the cells tolerate only a capped gas flow, the cheapest combination of tank shape, column and headspace
+pressure (`gas_exchange.cheapest_tricks`; the sparger runs at its cap, a squatter tank pays for its steel):
+
+| gas cap | sterile plant, sparger only | cheapest combination | yeast-style, sparger only | cheapest combination |
+|---|---|---|---|---|
+| 1 mm/s | $52.9 | $7.66: column with oxygen sweep, 1 bar gauge | $23.6 | $5.40: the same |
+| 2 mm/s | $28.0 | $7.52: the same | $13.4 | $5.26: the same |
+| 4 mm/s | $15.6 | $7.33: the same | $8.3 | $5.07: the same |
+| 6 mm/s | $11.5 | $7.20: column for CO₂ only, 1 bar gauge | $6.6 | $4.91: no column, liquid half as deep as wide, 1 bar gauge |
+
+With the tricks the floor barely depends on the gas the cells tolerate. None has been tried with meat cells.
+
 ## 2. What share a price buys
 
 | if cultivated meat, at equal price and once familiar… | share |

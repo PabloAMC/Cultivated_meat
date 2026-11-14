@@ -145,7 +145,8 @@ def tank_shape(vessel_m3: float, aspect: float | None = None) -> tuple:
 
 
 def co2_limited_density(cells: Cells, vessel_m3: float = 20.0, pco2_mbar: float | None = None,
-                        gas_velocity: float | None = None, aspect: float | None = None) -> float:
+                        gas_velocity: float | None = None, aspect: float | None = None,
+                        rq: float | None = None) -> float:
     """Density (g wet/L) at which the cells make CO2 as fast as the sparge gas can carry it off.
     Removal = (gas velocity / liquid depth) x (pCO2 / RT) x how close the exhaust comes to equilibrium;
     production = RQ x oxygen uptake per gram. Reproduces Humbird's Fig. 2.8b (see pf_co2_strip_eff)."""
@@ -154,7 +155,7 @@ def co2_limited_density(cells: Cells, vessel_m3: float = 20.0, pco2_mbar: float 
     _T, depth = tank_shape(vessel_m3, aspect)
     carry = pco2 * 100.0 / (8.314 * 310.15)                    # mol CO2 per m3 of gas at the limit
     removal = us / depth * 3600.0 * carry * value("pf_co2_strip_eff")   # mol per m3 of liquid per hour = mmol/L/h
-    return removal / (value("pf_rq") * cells.qo2)
+    return removal / ((value("pf_rq") if rq is None else rq) * cells.qo2)
 
 
 def mixing_time_ratio(vessel_m3: float, aspect: float | None = None) -> float:
@@ -329,7 +330,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
             pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
             osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
-            _search: bool = True) -> dict:
+            nh3_kg: float | None = None, lac_yield: float | None = None, glc_kg: float | None = None,
+            sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
+            sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
+            col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
+            fat_price: float | None = None, do_mmol: float | None = None, _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -362,8 +367,31 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       * the least medium flow a cell needs for everything else (other by-products, nutrients that run
         out): litres per kg = that flow / growth rate, so slow cells need more.
 
+      Tricks (sized in gas_exchange.py and research_notes/gas_exchange_study.md, waste_tricks_sizing.md):
+      * `column`: a packed stripping column on a pumped loop takes the CO2 the sparger cannot ("co2", air
+        sweep), or also makes up the oxygen ("o2_closed", oxygen sweep recycled through a lime scrubber); its
+        capital, pumping, oxygen and lime are added. `col_pout` is the CO2 the culture leaves it at (mbar).
+      * `p_top_barg`: pressure at the top of the tank (default Humbird's 0.33 bar gauge); oxygen transfer, and
+        with it the mixing limit, scale with the driving force; CO2 removal does not change.
+      * `nh3_kg` (mol ammonia per kg wet cells) and `lac_yield` x `glc_kg` (mol lactate per mol glucose x mol
+        glucose per kg) set the two wastes explicitly, as measured, with no scaling; left unset, `waste` sets
+        both as before (0 = Humbird's enhanced cells, 1 = ordinary cells).
+      * `sorbent`: the share of the ammonium taken out of the cell-free permeate by an exchanger before it
+        returns, at `sorbent_q` mmol/g, `sorbent_price` $/kg and `sorbent_cycles` uses; the sodium it gives back
+        stays in the medium and counts towards the salt limit.
+      Cell side:
+      * `fat_fed`: the share of the cells' lipid taken from the feed instead of made from glucose. Making
+        lipid from glucose releases CO2 without using oxygen (Humbird's Reaction 2.2: 0.090 of the 0.455 mol
+        CO2 per mol of dry cell mass), so CO2 made per oxygen used (`rq`, default 1.204) falls to 0.966 when
+        all of it is fed; the fat is bought at `fat_price`. `rq` can also be set directly.
+      * `do_mmol`: dissolved oxygen the tank is held at. Humbird's 29 mmol/L/h implies about 0.28 mmol/L;
+        a lower setpoint widens the driving force for oxygen (and, by the mixing rule, the mixing limit).
+    The result carries every cap (`limits`, g/L), what sets the litres of medium (`medium_terms`, L/kg), and
+    the oxygen and CO2 per kg of cells (`o2_kg`, split into growth and upkeep; `co2_kg`).
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
+    args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search")}
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
     # --- salt strength: how much lactate the culture may hold at this CO2 level and pH ----------------
@@ -375,12 +403,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     lac_room = min(value("pf_lac_limit"), max(1.0, (osm_limit - value("pf_osm_base") - osm_co2) / 2.0))
     if _search and mode == "perfusion" and medium_l is None and lac_room < value("pf_lac_limit"):
         # the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
-        kw = dict(doubling_h=doubling_h, mass_pg=mass_pg, vessel_m3=vessel_m3, plant=plant, mode=mode, charge=charge,
-                  uptime=uptime, maintenance_share=maintenance_share, capex_x=capex_x, retention=retention,
-                  x_scale=x_scale, hazard=hazard, run_days=run_days, restart_fail_days=restart_fail_days,
-                  medium_price=medium_price, growth_factors=growth_factors, cell_share=cell_share, waste=waste,
-                  nh3_limit=nh3_limit, gas_velocity=gas_velocity, aspect=aspect, osm_limit=osm_limit, ph=ph,
-                  min_perfusion=min_perfusion, _search=False)
+        kw = dict(args, _search=False)
         best = None
         for i in range(60):
             r = explore(pco2_mbar=pco2_tol * (i + 1) / 60.0, **kw)
@@ -406,13 +429,27 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
     if mode == "perfusion":
         capex += value("pf_capex_retention") if retention is None else retention
-    us_rel = (value("pf_gas_velocity") if gas_velocity is None else gas_velocity) / value("pf_gas_velocity")
-    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2
-    limits = {"oxygen supply": x_o2,
+    us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
+    us_rel = us / value("pf_gas_velocity")
+    f_p = 1.0
+    if p_top_barg is not None or do_mmol is not None:  # oxygen driving force: pressure, setpoint (gas_exchange.py)
+        from gas_exchange import headspace_pressure
+        f_p = headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
+    rq_eff = (value("pf_rq") - value("pf_rq_lipid") * fat_fed) if rq is None else rq
+    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * f_p
+    limits = {"oxygen supply": float("inf") if column == "o2_closed" else x_o2,
               "thickness of the culture": value("pf_x_visc"),
-              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect),
-              "CO2 removal": x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect)}
-    wf = waste_per_kg(cells, waste)[0] / waste_per_kg(cells, 0.0)[0]       # waste relative to enhanced cells
+              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect) * f_p,
+              "CO2 removal": float("inf") if column != "none"
+                             else x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect, rq_eff)}
+    burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
+    nh3_w, lac_w = waste_per_kg(cells, waste)
+    nh3 = nh3_w if nh3_kg is None else nh3_kg          # mol per kg wet cells
+    if lac_yield is None:
+        lac = lac_w
+    else:
+        lac = lac_yield * (value("pf_glc_kg") if glc_kg is None else glc_kg)
+    wf = nh3 / waste_per_kg(cells, 0.0)[0]             # ammonia relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
     if mode != "perfusion":
@@ -428,22 +465,43 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         shape = f / np.log(1.0 / (1.0 - f))
     out = value("pf_working_volume") * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost)
     ox = value("pf_opex_escalation")
-    burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
+    col = None
+    if column != "none":                               # the column is sized for the density it allows
+        from gas_exchange import column_design
+        col = column_design(x, sparge_velocity=us, p_out=col_pout, oxygen=(column == "o2_closed"),
+                            sweep="air" if column == "co2" else "o2_closed", p_top_barg=p_top_barg,
+                            vessel_m3=vessel_m3, aspect=aspect, cells=cells, rq=rq_eff, do_mmol=do_mmol)
+        capex += col["capex_k_m3"]
     capital = charge * capex / out
     labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
     utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
+    if col is not None:
+        utilities += col["energy_kg"] + col["gas_kg"]
     consumables = value("pf_consumables_low")
     osm = float("nan")
+    terms = {}
+    sorb = sorbent if mode == "perfusion" else 0.0
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
         if mode == "perfusion":
-            nh3, lac = waste_per_kg(cells, waste)
             nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
-            need = max(nh3 / (nh3_lim / 1000.0), lac / (lac_room / 1000.0), flow / (cells.mu * 24.0))
+            terms = {"ammonia": nh3 * (1.0 - sorb) / (nh3_lim / 1000.0), "lactate": lac / (lac_room / 1000.0),
+                     "least flow": flow / (cells.mu * 24.0)}
+            if sorb > 0:                               # sodium given back by the exchanger stays in the medium
+                room = max(2.0, osm_limit - value("pf_osm_base") - osm_co2)
+                terms["salt"] = 1000.0 * (2.0 * lac + sorb * nh3) / room
+            need = max(terms.values())
         else:
             need = 1000.0 / x
+        terms["nutrients"] = value("pf_medium_l_floor")
         medium_l = max(value("pf_medium_l_floor"), need)
         if mode == "perfusion":
-            osm = value("pf_osm_base") + osm_co2 + 2.0 * lac / medium_l * 1000.0
+            osm = value("pf_osm_base") + osm_co2 + (2.0 * lac + sorb * nh3) / medium_l * 1000.0
+    if fat_fed > 0:                                    # lipid bought instead of made from glucose
+        consumables += fat_fed * value("pf_fat_kg") * (value("pf_fat_price") if fat_price is None else fat_price)
+    if sorb > 0:                                       # exchanger bought per mol of ammonium taken, over its uses
+        q = value("pf_sorbent_q") if sorbent_q is None else sorbent_q                     # mol per kg of sorbent
+        consumables += sorb * nh3 / q * (value("pf_sorbent_price") if sorbent_price is None else sorbent_price) \
+            / (value("pf_sorbent_cycles") if sorbent_cycles is None else sorbent_cycles)
     feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
     # figure is taken at the efficient cells' 11 L/kg)
@@ -454,7 +512,21 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
             "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
-            "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm)}
+            "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm),
+            "limits": {k: float(v) for k, v in limits.items()},
+            "medium_terms": {k: float(v) for k, v in terms.items()},
+            "medium_set_by": max(terms, key=terms.get) if terms else "",
+            "nh3_kg": float(nh3), "lac_kg": float(lac), "column": col,
+            "rq": float(rq_eff), "o2_kg": float(cells.qo2 / cells.mu), "o2_kg_upkeep": float(o2_split(cells)[0]),
+            "o2_kg_growth": float(o2_split(cells)[1]), "co2_kg": float(rq_eff * cells.qo2 / cells.mu)}
+
+
+def o2_split(cells: Cells) -> tuple:
+    """(upkeep, growth) oxygen per kg of cells grown, mol/kg wet. Upkeep runs per hour, so per kg it grows with
+    the time a kg takes to make; growth's share is fixed per kg (see Cells.qo2)."""
+    q24 = cells.qo2 / (cells.maintenance_share + (1.0 - cells.maintenance_share) * cells.mu / (LN2 / value("pf_doubling_h")))
+    return (q24 * cells.maintenance_share / cells.mu,
+            q24 * (1.0 - cells.maintenance_share) / (LN2 / value("pf_doubling_h")))
 
 
 def _stokes(d_um: float, drho: float) -> float:
@@ -616,6 +688,17 @@ TORNADO = [
      "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
      "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "
      "to 3. <b>Evidence:</b> the geometry is certain. What a squat vessel costs is not modelled."),
+    ("Pressure at the top of the tank", "p_top_barg", 0.0, 1.0, "0 bar gauge", "1 bar gauge",
+     "Oxygen dissolves in proportion to its pressure, so a higher pressure in the headspace raises oxygen transfer "
+     "and, by the model's mixing rule, the mixing limit; it does nothing for CO\u2082. <b>Range:</b> Humbird's tank "
+     "is at 0.33 bar gauge [2]; steaming at 121 \u00b0C already takes 1 bar, and stainless culture vessels are "
+     "rated to 3-4 bar (vendor data sheets). <b>Evidence:</b> calculated; cells already see about 1.7 bar absolute "
+     "at the bottom of the tank; no culture has been run at 1 bar gauge."),
+    ("Ammonia the cells make", "nh3_kg", 0.055, 0.14, "0.055 mol/kg", "0.14 mol/kg",
+     "Ammonia per kilo of cells grown, which fresh medium must wash out at 5 mmol/L. <b>Range:</b> 0.055 is what "
+     "Humbird's efficient cells make; 0.14 is the best measured in meat cells, bovine cells with glutamine "
+     "replaced (Hubalek 2023, read in full). Ordinary bovine cells made 0.70. <b>Evidence:</b> one study of meat "
+     "cells; the efficient cell is an assumption."),
     ("Tank size", "vessel_m3", 5.0, 200.0, "5 m\u00b3", "200 m\u00b3",
      "A larger tank costs less per litre but is deeper, so it clears less CO\u2082 and must run thinner. "
      "<b>Range:</b> 5 to 200 m\u00b3; the floor uses 20. <b>Evidence:</b> the vessel cost and the CO\u2082 limit "

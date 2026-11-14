@@ -13,6 +13,25 @@ Cost side
 - Uncertainty on the floor's own inputs, alone and together with demand; a back-test against reported runs;
   a cross-check of plant costs against other published designs.
 
+- Side-study of gas exchange (`gas_exchange.py`, `research_notes/gas_exchange_study.md`): a membrane loop,
+  tank shape with the vessel's cost, and a check of a published airlift. Not used in the floor or on the page.
+- Tricks as levers (deliberate additions; the floor, $11.48 and 11.16 L/kg, and every earlier number unchanged):
+  `explore` gains `column`, `col_pout`, `p_top_barg`, `nh3_kg`, `lac_yield`, `glc_kg`, `sorbent` (+ capacity,
+  price, uses) and returns every cap (`limits`) and what sets the medium (`medium_terms`). The page gains a
+  "Tricks" group and a "What limits this tank" chart, mirrored in `floorExplore` with nine new parity cases.
+  Two new tornado rows: pressure at the top of the tank, ammonia per kg. New inputs `pf_glc_kg`,
+  `pf_sorbent_q`, `pf_sorbent_price`, `pf_sorbent_cycles`. RESULTS.md gains the cells-by-tank tables and the
+  cheapest combination by gas cap. The waste notes `waste_tricks_sizing.md` and `waste_and_medium_evidence.md`
+  are now versioned.
+- Cell-side levers (defaults unchanged): `fat_fed` (CO₂ per oxygen from 1.204 to 0.966 when all lipid is fed;
+  Humbird's Reaction 2.2), `rq`, `do_mmol` (dissolved-oxygen setpoint; default the 0.28 mmol/L his numbers
+  imply), and outputs for oxygen and CO₂ per kg split into upkeep and growth. Inputs `pf_rq_lipid`, `pf_fat_kg`,
+  `pf_fat_price`, `ge_atp_per_o2`. Tags (feed or process / selection or adaptation / genetic engineering) on the
+  page and in RESULTS.md, whose tables now come with and without genetic engineering.
+- Deliberate change: the packed column now takes in culture at the tank's dissolved oxygen (0.28 mmol/L) rather
+  than an assumed 0.05, so the oxygen-sweep cases cost up to $0.13/kg more (e.g. $7.43 to $7.52 at 2 mm/s) and an
+  air sweep can no longer add oxygen. The note and RESULTS.md were updated.
+
 Demand side
 - Price sensitivity above equal price is set by six premium animal products within the range of the one
   choice experiment on cultivated meat. It now acts only on cultivated meat's price difference from

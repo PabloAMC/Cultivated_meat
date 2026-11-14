@@ -374,6 +374,23 @@ REGISTRY: dict[str, Input] = {
         "mol per mol of dry cell mass"),
     "pf_lac_wild": Input(6.45, "mol/kg wet", "[Humbird-R, derived] lactate, ordinary cells: Reaction 2.9, 0.474 mol "
         "per mol of dry cell mass"),
+    "pf_glc_kg": Input(1.116, "mol glucose/kg wet", "[Humbird-R, derived] glucose used per kg of cells grown by his "
+        "enhanced cells: 0.558 mol lactate at his stated lactate:glucose of 0.50", lo=0.67, hi=3.6, mode=1.116,
+        note="used only when the lactate yield is set explicitly (explore lac_yield). lo-1.0 = 0.4-0.6 kg glucose "
+             "per kg dry x 0.30 dry/wet (waste_tricks_sizing.md, consistent with CHO at a yield of 1.41); hi = "
+             "Humbird's wild-type cell (6.4 mol lactate at 1.77). Which applies to a meat cell is unmeasured"),
+    "pf_sorbent_q": Input(0.15, "mmol/g = mol/kg", "[derived, not measured; waste_tricks_sizing.md A2] ammonium a "
+        "sorbent holds at 3-5 mM against 140 mM sodium", lo=0.10, hi=0.25, mode=0.15,
+        note="mass-action exchange with selectivities of 0.6-3 for clinoptilolite, zirconium phosphate and cation "
+             "resin; pure-solution capacities (0.9-5.5) do not apply in medium. No capacity has been measured in "
+             "medium"),
+    "pf_sorbent_price": Input(5.0, "$/kg", "[assumed] a graded, sterilised exchanger fit for medium",
+        lo=0.05, hi=20.0, mode=5.0,
+        note="bulk natural zeolite is $0.05-0.30/kg (USGS Mineral Commodity Summaries 2026, read in full); no price "
+             "was found for a sterile medium-grade zeolite, resin or zirconium phosphate; 5-20 is an assumption"),
+    "pf_sorbent_cycles": Input(1.0, "uses", "[assumed] times the sorbent is used before it is thrown away (1 = "
+        "single use)", lo=1.0, hi=50.0, mode=1.0,
+        note="no regeneration count in medium was found; 50 is a hope, not a number (waste_tricks_sizing.md)"),
     "pf_nh3_limit": Input(5.0, "mmol/L", "[Humbird-R] Sect. 2.3: 'consider the limits of 5 mmol/L NH3 and 50 mmol/L "
         "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
@@ -464,6 +481,18 @@ REGISTRY: dict[str, Input] = {
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
+    "pf_rq_lipid": Input(0.2381, "mol CO2/mol O2", "[Humbird-R, derived] CO2 released by making the cells' lipid "
+        "from glucose, per oxygen used: Reaction 2.2 (0.049 glucose -> 0.205 lipid + 0.090 CO2 per mol of dry cell "
+        "mass, no oxygen) over Reaction 2.11's 0.378 mol O2. Feeding all the lipid takes RQ from 1.204 to 0.966",
+        note="Carbon and electron balance check: lipid (CH2 O0.13) carries 1.74 more electrons per carbon than "
+             "glucose; 0.205 C-mol x 1.74 / 4 = 0.089 mol CO2. Humbird's lipid is 15% of dry mass (Table 2.1)"),
+    "pf_fat_kg": Input(0.045, "kg/kg wet", "[Humbird-R, derived] lipid in a kg of wet cells: 15% of the 300 g of dry "
+        "mass (Table 2.1)"),
+    "pf_fat_price": Input(1.5, "$/kg", "[assumed] fatty acids fed to the culture, at about a vegetable-oil price",
+        lo=1.0, hi=20.0, mode=1.5,
+        note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
+             "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
+    "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
     "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
         note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
              "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "
@@ -472,6 +501,149 @@ REGISTRY: dict[str, Input] = {
              "70 (Fig. 2.8b): the balance reproduces his curve, and its (V)^(-1/3) fall with size is geometry "
              "(liquid depth). This factor, 0.96, sets the 20 m3 value to the 120 g/L the floor uses "
              "(pf_x_co2_20m3). Perfusion does not help: at 11 L/kg the liquid carries off about 4% of the CO2"),
+    # --- gas-exchange side study (gas_exchange.py; research_notes/gas_exchange_study.md). NOT used in the
+    #     headline cost or on the page. Access levels of the sources are in the note's source list ---
+    "ge_d_co2": Input(2.5e-9, "m2/s", "[textbook, scaled] diffusivity of CO2 in water: 1.92e-9 at 25 C, scaled to "
+        "37 C by temperature over viscosity (x1.34)", note="not corrected for the cells in the way; +-20%"),
+    "ge_d_o2": Input(2.8e-9, "m2/s", "[textbook, scaled] diffusivity of O2 in water: 2.1e-9 at 25 C, scaled as above"),
+    "ge_o2_henry": Input(0.0010, "mmol/L per mbar", "[textbook] solubility of O2 in culture medium at 37 C: about "
+        "1.0 mmol/L against pure oxygen at 1 bar (water is 1.05), 0.2 against air"),
+    "ge_do_setpoint": Input(0.05, "mmol/L", "[typical] dissolved oxygen a culture is held at, about a quarter of "
+        "saturation with air"),
+    "ge_o2_bar": Input(1.0, "bar", "[assumed] pressure of pure oxygen inside the fibres", lo=1.0, hi=2.0, mode=1.0,
+        note="a dense (non-porous) wall can hold more than 1 bar without bubbling; the liquid then returns to the "
+             "tank far above air saturation, which may harm cells"),
+    "ge_buffer": Input(0.0, "mmol/L per pH unit", "[assumed] buffering of the culture other than bicarbonate",
+        lo=0.0, hi=5.0, mode=0.0,
+        note="Bicarbonate can only turn into CO2 if something supplies the acid. Blood has haemoglobin (about 30 "
+             "mmol/L per pH); fresh medium has about 0.5 (1 mmol/L phosphate). The cells' own contents might "
+             "add 3-6 at 12-18% of the volume, if CO2 crossing their membranes brings it into play within "
+             "seconds [inference, not measured]. In phosphate-buffered saline, carbonic anhydrase on the fibres "
+             "doubled CO2 removal (Kimmel 2013, Arazawa 2015, read in full); in medium with no buffer it "
+             "would do little"),
+    "ge_buffer_medium": Input(0.47, "mmol/L per pH unit", "[textbook arithmetic] buffer of 1 mmol/L phosphate "
+        "(DMEM/F12 level, memory) at pH 7.2 with pK 6.8: 2.303 x 1 x 0.715 x 0.285",
+        note="HEPES (pK about 7.3, 10-25 mmol/L in lab media) would add 6-14, but is 'no longer essential' at "
+             "large scale and adds salt (patent snippets)"),
+    "ge_beta_i": Input(15.0, "mmol/L per pH unit of cell water", "[search snippet and memory] buffer inside "
+        "cultured cells other than bicarbonate: '10-50' across cell types (a physiology review); about 10 in a "
+        "muscle-like line (BC3H-1)", lo=10.0, hi=30.0, mode=15.0,
+        note="no figure found for CHO, fibroblasts or myoblasts; whether it acts within a 6 s pass depends on "
+             "carbonic anhydrase inside the cells, also not found for these cells"),
+    "ge_cell_water": Input(0.70, "of cell mass", "[Humbird-R] wet cells are about 70% water"),
+    "ge_ed_volt": Input(2.0, "V per proton", "[memory, unverified] voltage of a bipolar-membrane electrodialysis "
+        "cell pair splitting water, with losses (1.2-3 V)"),
+    "ge_filtrate_flux": Input(3.8, "L per m2 per h", "[Humbird-R; vendor size guide, snippet] what a perfusion "
+        "hollow-fibre filter passes: an ATF-10 serves up to about 1,000 L a day through 11 m2"),
+    "ge_atf_area": Input(11.0, "m2", "[vendor size guide, snippet] filter area of one ATF-10"),
+    # --- packed (falling-film) column on the loop, headspace pressure (gas_exchange.column_design) ---
+    "ge_pk_area": Input(250.0, "m2/m3", "[vendor designation] Mellapak 250Y: about 250 m2 of sheet per m3"),
+    "ge_pk_angle": Input(45.0, "degrees", "[vendor designation] the 'Y' channels run at 45 degrees from horizontal"),
+    "ge_pk_side": Input(0.0187, "m", "[Wang 2015 thesis, Table 5.1, full text; derived] corrugation side of Mellapak "
+        "250Y from its measured channel base (30.2 mm) and crimp height (11.1 mm): sqrt(15.1^2 + 11.1^2)"),
+    "ge_pk_ce": Input(0.9, "-", "[Rocha, Bravo and Fair 1996; form read in Wang 2015, value from memory] surface-renewal factor C_E"),
+    "ge_pk_load": Input(40.0, "m3/m2/h", "[design choice] liquid load on the packing; Mellapak runs from about 0.2 "
+        "to over 200 m3/m2/h (Sulzer brochure, vendor); Tsai's area correlation was fitted over 2.5-75", lo=10.0, hi=80.0, mode=40.0),
+    "ge_surface_tension": Input(0.05, "N/m", "[assumed] surface tension of culture medium with protectant "
+        "(water 0.070; Pluronic lowers it)"),
+    "ge_col_pout": Input(20.0, "mbar", "[design choice] CO2 the culture leaves the column at (in from the tank "
+        "at 100)", lo=10.0, hi=55.0, mode=20.0),
+    "ge_col_gas_out": Input(20.0, "mbar", "[design choice] CO2 in the sweep gas where it leaves the top of the "
+        "column, against culture entering at 100 (counter-current)"),
+    "ge_col_gas_in": Input(0.4, "mbar", "[textbook] CO2 in fresh air entering the bottom of the column (about 400 ppm)"),
+    "ge_loop_volume": Input(0.5, "m3", "[design choice] liquid in the loop outside the tank: packing hold-up (about "
+        "0.1-0.4 m3), a small sump and the return pipe", lo=0.2, hi=2.0, mode=0.5),
+    "ge_paul_dph": Input(0.37, "pH units", "[Paul et al. 2020, PMC7401239, full text via a summary] mean alkaline "
+        "pulse (+0.36 to +0.39) in a two-compartment CHO culture, 35-44 s per pass, that cut peak cell density by "
+        "18-52%"),
+    "ge_paul_share": Input(0.075, "of volume", "[Paul et al. 2020, as above] share of the culture in the alkaline zone"),
+    "ge_col_head_extra": Input(4.0, "m", "[assumed] pumping head beyond the packing height: lift to the top, "
+        "distributor, pipes"),
+    "ge_col_extra_height": Input(2.5, "m", "[assumed] shell height beyond the packing: distributor, gas inlet, sump"),
+    "ge_col_wall": Input(0.006, "m", "[textbook rule] minimum wall of a 1.5-4 m vessel, about 6 mm (Seider, as coded in "
+        "BioSTEAM: 1/4-5/16 inch below 6 ft)"),
+    "ge_cepci_2014": Input(1.39, "x", "[pf-tea basis] plant-cost index about 800 in 2024 over 576 in 2014"),
+    "ge_o2_sweep_purity": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: on-site oxygen is about 90% pure"),
+    "ge_o2_price": Input(0.15, "$/kg O2", "[Humbird-R] Sect. 2.3: on-site oxygen at $0.10-0.20 per kg (as quoted "
+        "by the gas-flow session)"),
+    "ge_lime_price": Input(0.24, "$/kg", "[USGS Mineral Commodity Summaries 2025, lime, search snippet] hydrated lime at "
+        "the plant, about $240 per tonne (2024)"),
+    "ge_lime_use": Input(0.7, "-", "[assumed] share of the lime that reacts in the scrubber"),
+    "ge_p_top_base": Input(0.33, "bar gauge", "[Humbird-R] Sect. 4.1: '1.33 bar (5 psig) back pressure at the "
+        "top' (as quoted by the gas-flow session); his gas velocity limit is set at the top of the vessel"),
+    "ge_sparge_o2": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: the tanks are sparged with 90% oxygen"),
+    "ge_kla_20m3": Input(26.4, "1/h", "[Humbird-R, derived] his Eq. 2.16 at 43 W/m3 and 6 mm/s (see pf_mix_ratio_20m3)"),
+    "ge_mix_time_20m3": Input(141.0, "s", "[Humbird-R, derived] his Eq. 2.18 at 20 m3 (see pf_mix_ratio_20m3)"),
+    "ge_stir_power": Input(43.0, "W/m3", "[Humbird-R, derived] the stirring power behind the mixing time (see "
+        "pf_mix_ratio_20m3)"),
+    "ge_nozzle_velocity": Input(3.0, "m/s", "[assumed] speed of the loop's return flow entering the tank"),
+    "ge_co2_frac": Input(0.5, "-", "[design choice] how far one pass takes the liquid's CO2 towards the sweep gas",
+        lo=0.3, hi=0.8, mode=0.5, note="more per pass: fewer passes, longer fibres, a larger pH swing in the loop"),
+    "ge_sweep_pco2": Input(10.0, "mbar", "[design choice] average CO2 pressure in the sweep gas (air swept at "
+        "about ten times the flow a sparger would use, or less in counter-current)"),
+    "ge_bore_mm": Input(0.5, "mm", "[Clincke et al. 2013, read in full] bore of the hollow fibres CHO cells were "
+        "pumped through at over 10^8 cells/mL: 1 mm (microfiltration) and 0.5 mm (ultrafiltration)",
+        lo=0.5, hi=1.0, mode=0.5, note="those were filters, not gas-exchange fibres; area scales with the bore"),
+    "ge_shear": Input(1000.0, "1/s", "[Clincke et al. 2013, read in full] wall shear rate in the fibres: 1,000 to "
+        "3,400 per second had 'no impact ... on CHO cell growth, viability, and metabolism' in 4-litre runs of "
+        "up to 48 days at 15 tank volumes an hour", lo=500.0, hi=3400.0, mode=1000.0,
+        note="CHO only; nothing for muscle, fibroblast or fish cells"),
+    "ge_wall_um": Input(100.0, "um", "[assumed] wall of a dense silicone (PDMS) fibre; 0 would be a microporous "
+        "wall with no resistance", note="silicone is the material that survives steam; microporous polypropylene "
+        "contactors are limited to 85 C hot water and no surfactants (3M Liqui-Cel cleaning guide, read in full)"),
+    "ge_pdms_co2": Input(3250.0, "Barrer", "[memory; search results give 3,190-3,970] CO2 permeability of PDMS",
+        note="1 Barrer = 3.35e-16 mol m / (m2 s Pa). Not read in a primary source"),
+    "ge_pdms_o2": Input(600.0, "Barrer", "[vendor data sheet, search result] O2 permeability of PDMS"),
+    "ge_headloss_x": Input(2.0, "x", "[assumed] pressure drop of the whole loop over that of the fibres alone"),
+    "ge_pump_eff": Input(0.6, "-", "[assumed] pump efficiency"),
+    "ge_power_price": Input(0.08, "$/kWh", "[assumed] industrial electricity"),
+    "ge_cost_m2": Input(200.0, "$/m2", "[distributor listings, Nov 2026] large polypropylene gas-exchange "
+        "contactors list at about $160-265 per m2 (Liqui-Cel EXF 8x20 and 10x28 complete units; areas from memory); "
+        "CO2-capture studies assume $50-200 (search results)", lo=80.0, hi=1480.0, mode=200.0,
+        note="AN OPTIMISTIC ASSUMPTION: it is the price of modules that cannot be steamed (polypropylene, hot water "
+             "to 85 C only). The one priced silicone module, which the design uses, is $704 per m2 at 2.1 m2 "
+             "(PermSelect web store, Nov 2026) and may be steamed once only. No module both survives repeated "
+             "steaming and has a published price. hi = the pharma ATF-10 filter (Humbird: $16,300 for 11 m2)"),
+    "ge_life_y": Input(2.0, "years", "[judgement] life of the membranes in a culture that fouls them and is "
+        "sterilised between runs", lo=0.1, hi=5.0, mode=2.0,
+        note="lo = one 33-day run, which is the life of a module that may be steamed only once (PermSelect "
+             "silicone). Silicone and PMP lungs last about 2-4 weeks in blood (search results); microporous "
+             "polypropylene leaks within hours to days in protein-rich liquid. 3-5 years in gas-separation service"),
+    "ge_install_x": Input(3.0, "x", "[CE Delft 2021, via research_notes/plant_capital_crosscheck.md] installed and "
+        "engineered cost over purchased cost for food-grade equipment (an overall Lang factor of about 3)"),
+    "ge_pump_cost": Input(30.0e3, "$", "[assumed] a low-shear sanitary pump for ge_pump_flow; no price was found",
+        note="a 7.5-15 HP sanitary centrifugal pump lists at about $10k (search result)"),
+    "ge_pump_flow": Input(300.0, "m3/h", "[assumed] the flow ge_pump_cost refers to; cost scales as flow^0.6"),
+    "ge_k_submerged": Input(2.0e-5, "m/s", "[assumed order of magnitude] liquid-film coefficient at a membrane "
+        "hung in a stirred tank", note="for comparison, unmodified fibres in saline at 67 mbar of CO2 removed 75-92 "
+        "mL/min per m2 (Kimmel 2013, Arazawa 2015), which is 3.4-4.1e-5 m/s with buffer helping"),
+    "ge_tubing_od_mm": Input(3.0, "mm", "[Frahm et al. 2009, read in full] outer diameter of the silicone tubing "
+        "used for bubble-free aeration up to 200 L, at 30-68 m2 of tubing per m3"),
+    "ge_head_area": Input(1.084, "x D^2", "[textbook] surface of a 2:1 elliptical vessel head"),
+    "ge_vessel_cost_exp": Input(0.6, "-", "[Seider et al. 2017, read as code in BioSTEAM] exponent of vessel cost "
+        "on shell weight: Cv = exp(7.139 + 0.18255 ln W + 0.02297 (ln W)^2) for vertical vessels, W in lb, whose "
+        "slope at the 8,000 lb of a 20 m3 tank is 0.60",
+        note="the same source prices a horizontal vessel a third below a vertical one of equal weight"),
+    "ge_hall_share": Input(0.131, "of direct cost", "[Humbird-R, derived] the sanitary cell-culture hall's share of "
+        "the plant: $20.9M of $159.5M (see pf_capex_no_cleanroom)"),
+    "ge_clearance_m": Input(2.0, "m", "[assumed] floor taken per tank is (width + this)^2"),
+    "ge_kill_protected": Input(4.0e-4, "L of culture per L of gas", "[Jobses, Martens, Tramper 1991, read in full] "
+        "volume of culture whose cells die per volume of gas sparged, hybridoma with 1 g/L Pluronic F68: death "
+        "rate 0.05 per hour at 10 L/h of gas through 80 mL", lo=4.0e-4, hi=3.2e-3, mode=4.0e-4,
+        note="death rate = this x gas flow per litre of culture ('the cell death rate is linearly proportional to "
+             "the gas flow rate per unit volume'); independent of sparger and, in Tramper 1988, of bubble size. "
+             "hi = the same at 0.1 g/L (0.4 per hour). 3 cm columns, 4-6 mm bubbles, 2.0-12 cm deep: a long "
+             "extrapolation to 20 m3"),
+    "ge_kill_unprotected": Input(8.8e-3, "L of culture per L of gas", "[Jobses et al. 1991, read in full] the same "
+        "with no protectant: 1.1 per hour", note="Tramper et al. 1988 give 4e-3 for insect cells"),
+    "ge_alr_volume": Input(261.754, "m3", "[Negulescu et al. 2023, read in full] 'the ALR is 261,754 L with a "
+        "working volume of 209,404 L'"),
+    "ge_alr_our": Input(10.3, "mmol O2/L/h", "[Negulescu et al. 2023, read in full] oxygen uptake 'of about 10.3 "
+        "mmol O2/L/hr ... based on the maximum cell concentration of 100 g FW/L'; CO2:O2 set to 1.2",
+        note="0.103 mmol per g per hour, 31% below the model cell's 0.149 for the same 3 ng cell"),
+    "ge_alr_li_height": Input(13.75, "m", "[Negulescu et al. 2023, read in full, describing Li et al. 2020] 'a 300 "
+        "m3, 13.75 m tall airlift reactor'; Negulescu gives no dimensions for its own"),
+    "ge_alr_li_volume": Input(300.0, "m3", "[as above]"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),
