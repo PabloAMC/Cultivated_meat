@@ -119,6 +119,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Floor | `floor_physics.py` | the floor's plant term from oxygen physics, by reactor type and plant class |
+| Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
 `build_interactive.py` (the page).
@@ -477,6 +478,16 @@ less, because their thin cultures need no more. Nobody has shown cells at 100 g/
 in a 20 m³ tank, so the 120 g/L the floor uses is itself unproven at scale, and the gas-flow lever only goes
 down from his value with any support. Tank shape: liquid depth of 1 to 3 times the width is in use. The
 exhaust of tall tanks leaves saturated with CO₂ (four sources), which is what the balance assumes.
+
+*Other ways to exchange gas (`gas_exchange.py`, a side-study; not in the floor or on the page).* Three
+checks, written up with sources in `research_notes/gas_exchange_study.md` and pinned by
+`tests/test_gas_exchange.py`. A membrane loop that takes out the CO₂ a sparger cannot is limited by the
+liquid, not by membrane area: a litre of culture gives up only about one millimole of CO₂ per pass, because
+the bicarbonate cannot be released without an acid, so the tank must go round the loop about eleven times an
+hour. At an assumed membrane price the floor would be about $9 with it, against $11.5; the price is weakly
+sourced, so this is not a lever on the page. A squat tank gives about the same gain with no new equipment if
+the cells' limit is the gas velocity through the liquid surface, and none if it is gas flow per litre. A
+published 262 m³ airlift needs 1.6 to 2.3 times the model's gas velocity to hold its stated density.
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:

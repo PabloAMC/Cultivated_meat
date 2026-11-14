@@ -13,6 +13,9 @@ Cost side
 - Uncertainty on the floor's own inputs, alone and together with demand; a back-test against reported runs;
   a cross-check of plant costs against other published designs.
 
+- Side-study of gas exchange (`gas_exchange.py`, `research_notes/gas_exchange_study.md`): a membrane loop,
+  tank shape with the vessel's cost, and a check of a published airlift. Not used in the floor or on the page.
+
 Demand side
 - Price sensitivity above equal price is set by six premium animal products within the range of the one
   choice experiment on cultivated meat. It now acts only on cultivated meat's price difference from

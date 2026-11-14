@@ -472,6 +472,81 @@ REGISTRY: dict[str, Input] = {
              "70 (Fig. 2.8b): the balance reproduces his curve, and its (V)^(-1/3) fall with size is geometry "
              "(liquid depth). This factor, 0.96, sets the 20 m3 value to the 120 g/L the floor uses "
              "(pf_x_co2_20m3). Perfusion does not help: at 11 L/kg the liquid carries off about 4% of the CO2"),
+    # --- gas-exchange side study (gas_exchange.py; research_notes/gas_exchange_study.md). NOT used in the
+    #     headline cost or on the page. Access levels of the sources are in the note's source list ---
+    "ge_d_co2": Input(2.5e-9, "m2/s", "[textbook, scaled] diffusivity of CO2 in water: 1.92e-9 at 25 C, scaled to "
+        "37 C by temperature over viscosity (x1.34)", note="not corrected for the cells in the way; +-20%"),
+    "ge_d_o2": Input(2.8e-9, "m2/s", "[textbook, scaled] diffusivity of O2 in water: 2.1e-9 at 25 C, scaled as above"),
+    "ge_o2_henry": Input(0.0010, "mmol/L per mbar", "[textbook] solubility of O2 in culture medium at 37 C: about "
+        "1.0 mmol/L against pure oxygen at 1 bar (water is 1.05), 0.2 against air"),
+    "ge_do_setpoint": Input(0.05, "mmol/L", "[typical] dissolved oxygen a culture is held at, about a quarter of "
+        "saturation with air"),
+    "ge_o2_bar": Input(1.0, "bar", "[assumed] pressure of pure oxygen inside the fibres", lo=1.0, hi=2.0, mode=1.0,
+        note="a dense (non-porous) wall can hold more than 1 bar without bubbling; the liquid then returns to the "
+             "tank far above air saturation, which may harm cells"),
+    "ge_buffer": Input(0.0, "mmol/L per pH unit", "[assumed] buffering of the culture other than bicarbonate",
+        lo=0.0, hi=5.0, mode=0.0,
+        note="Bicarbonate can only turn into CO2 if something supplies the acid. Blood has haemoglobin (about 30 "
+             "mmol/L per pH); fresh medium has about 0.5 (1 mmol/L phosphate). The cells' own contents might "
+             "add 3-6 at 12-18% of the volume, if CO2 crossing their membranes brings it into play within "
+             "seconds [inference, not measured]. In phosphate-buffered saline, carbonic anhydrase on the fibres "
+             "doubled CO2 removal (Kimmel 2013, Arazawa 2015, read in full); in medium with no buffer it "
+             "would do little"),
+    "ge_co2_frac": Input(0.5, "-", "[design choice] how far one pass takes the liquid's CO2 towards the sweep gas",
+        lo=0.3, hi=0.8, mode=0.5, note="more per pass: fewer passes, longer fibres, a larger pH swing in the loop"),
+    "ge_sweep_pco2": Input(10.0, "mbar", "[design choice] average CO2 pressure in the sweep gas (air swept at "
+        "about ten times the flow a sparger would use, or less in counter-current)"),
+    "ge_bore_mm": Input(0.5, "mm", "[Clincke et al. 2013, read in full] bore of the hollow fibres CHO cells were "
+        "pumped through at over 10^8 cells/mL: 1 mm (microfiltration) and 0.5 mm (ultrafiltration)",
+        lo=0.5, hi=1.0, mode=0.5, note="those were filters, not gas-exchange fibres; area scales with the bore"),
+    "ge_shear": Input(1000.0, "1/s", "[Clincke et al. 2013, read in full] wall shear rate in the fibres: 1,000 to "
+        "3,400 per second had 'no impact ... on CHO cell growth, viability, and metabolism' in 4-litre runs of "
+        "up to 48 days at 15 tank volumes an hour", lo=500.0, hi=3400.0, mode=1000.0,
+        note="CHO only; nothing for muscle, fibroblast or fish cells"),
+    "ge_wall_um": Input(100.0, "um", "[assumed] wall of a dense silicone (PDMS) fibre; 0 would be a microporous "
+        "wall with no resistance", note="silicone is the material that survives steam; microporous polypropylene "
+        "contactors are limited to 85 C hot water and no surfactants (3M Liqui-Cel cleaning guide, read in full)"),
+    "ge_pdms_co2": Input(3250.0, "Barrer", "[memory; search results give 3,190-3,970] CO2 permeability of PDMS",
+        note="1 Barrer = 3.35e-16 mol m / (m2 s Pa). Not read in a primary source"),
+    "ge_pdms_o2": Input(600.0, "Barrer", "[vendor data sheet, search result] O2 permeability of PDMS"),
+    "ge_headloss_x": Input(2.0, "x", "[assumed] pressure drop of the whole loop over that of the fibres alone"),
+    "ge_pump_eff": Input(0.6, "-", "[assumed] pump efficiency"),
+    "ge_power_price": Input(0.08, "$/kWh", "[assumed] industrial electricity"),
+    "ge_cost_m2": Input(200.0, "$/m2", "[search result, one source] hollow-fibre gas-separation membrane modules "
+        "are costed at $40-200 per m2 (Eng. Proc. 2023, 37:119; the top of its range is used)",
+        lo=40.0, hi=1480.0, mode=200.0,
+        note="WEAKLY SOURCED. No vendor price was found for any gas-exchange module. hi = the pharma hollow-fibre "
+             "filter Humbird prices: $16,300 for an ATF-10 cartridge of 11 m2. A sterile, steam-proof silicone "
+             "module for food use has no published price"),
+    "ge_life_y": Input(2.0, "years", "[judgement] life of the membranes in a culture that fouls them and is "
+        "steamed between runs", lo=0.5, hi=5.0, mode=2.0,
+        note="5 years is assumed for gas service in the same source as the price; pharma filters last one run"),
+    "ge_install_x": Input(3.0, "x", "[CE Delft 2021, via research_notes/plant_capital_crosscheck.md] installed and "
+        "engineered cost over purchased cost for food-grade equipment (an overall Lang factor of about 3)"),
+    "ge_pump_cost": Input(30.0e3, "$", "[assumed] a low-shear sanitary pump for ge_pump_flow; no price was found",
+        note="a 7.5-15 HP sanitary centrifugal pump lists at about $10k (search result)"),
+    "ge_pump_flow": Input(300.0, "m3/h", "[assumed] the flow ge_pump_cost refers to; cost scales as flow^0.6"),
+    "ge_k_submerged": Input(2.0e-5, "m/s", "[assumed order of magnitude] liquid-film coefficient at a membrane "
+        "hung in a stirred tank", note="for comparison, unmodified fibres in saline at 67 mbar of CO2 removed 75-92 "
+        "mL/min per m2 (Kimmel 2013, Arazawa 2015), which is 3.4-4.1e-5 m/s with buffer helping"),
+    "ge_tubing_od_mm": Input(3.0, "mm", "[Frahm et al. 2009, read in full] outer diameter of the silicone tubing "
+        "used for bubble-free aeration up to 200 L, at 30-68 m2 of tubing per m3"),
+    "ge_head_area": Input(1.084, "x D^2", "[textbook] surface of a 2:1 elliptical vessel head"),
+    "ge_vessel_cost_exp": Input(0.6, "-", "[Seider et al. 2017, read as code in BioSTEAM] exponent of vessel cost "
+        "on shell weight: Cv = exp(7.139 + 0.18255 ln W + 0.02297 (ln W)^2) for vertical vessels, W in lb, whose "
+        "slope at the 8,000 lb of a 20 m3 tank is 0.60",
+        note="the same source prices a horizontal vessel a third below a vertical one of equal weight"),
+    "ge_hall_share": Input(0.131, "of direct cost", "[Humbird-R, derived] the sanitary cell-culture hall's share of "
+        "the plant: $20.9M of $159.5M (see pf_capex_no_cleanroom)"),
+    "ge_clearance_m": Input(2.0, "m", "[assumed] floor taken per tank is (width + this)^2"),
+    "ge_alr_volume": Input(261.754, "m3", "[Negulescu et al. 2023, read in full] 'the ALR is 261,754 L with a "
+        "working volume of 209,404 L'"),
+    "ge_alr_our": Input(10.3, "mmol O2/L/h", "[Negulescu et al. 2023, read in full] oxygen uptake 'of about 10.3 "
+        "mmol O2/L/hr ... based on the maximum cell concentration of 100 g FW/L'; CO2:O2 set to 1.2",
+        note="0.103 mmol per g per hour, 31% below the model cell's 0.149 for the same 3 ng cell"),
+    "ge_alr_li_height": Input(13.75, "m", "[Negulescu et al. 2023, read in full, describing Li et al. 2020] 'a 300 "
+        "m3, 13.75 m tall airlift reactor'; Negulescu gives no dimensions for its own"),
+    "ge_alr_li_volume": Input(300.0, "m3", "[as above]"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),
