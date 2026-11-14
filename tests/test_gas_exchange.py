@@ -96,6 +96,26 @@ def check() -> list:
     if not ge.best_shape()["aspect"] < 1.0 < ge.best_shape(gas_rule="volume")["aspect"]:
         fails.append("the cheapest shape should be squat under the velocity rule and not under the per-litre rule")
 
+    # --- stress test: buffer in the cells, and the acid-side option -----------------------------------
+    b = ge.suspension_buffer(190.0)
+    near("note: suspension buffer at 190 g/L, mmol/L per pH", b, 2.4, 0.03)
+    rb = ge.loop_design(190.0, sparge_velocity=us, buffer=b)
+    near("note: CO2 per pass with the cells' buffer", rb["per_pass"], 1.71, 0.02)
+    near("note: passes with the cells' buffer", rb["passes"], 7.4, 0.02)
+    near("note: floor with loop and cells' buffer", ge.floor_with_loop(buffer=ge.suspension_buffer(189.0))["total"], 8.95, 0.02)
+    one_run = value("pf_run_days") / value("pf_uptime") / 365.0
+    near("note: silicone at $704, replaced each run", ge.floor_with_loop(cost_m2=704.0, life_y=one_run)["total"], 34.8, 0.02)
+    near("note: silicone at $704, 2 years", ge.floor_with_loop(cost_m2=704.0)["total"], 11.0, 0.02)
+    near("note: contactor at $160, 2 years", ge.floor_with_loop(cost_m2=160.0)["total"], 9.06, 0.02)
+    near("note: more gas, 12.5 mm/s (0.2 vvm)", fp.explore(gas_velocity=0.0125)["total"], 8.47, 0.02)
+    ac = ge.acid_side(190.0, 10.0)
+    near("acid side: passes x per pass = load", ac["passes"] * ac["per_pass"], rb["co2_by_loop"], 1e-9)
+    near("note: acid side, medium L/kg at 10 mmol/L", ac["medium_l"], 84.0, 0.02)
+    near("note: acid side, extra medium $/kg", ac["extra_medium_cost"], 11.0, 0.02)
+    near("note: electrodialysis filter area, m2", ac["ed_filter_m2"], 8660.0, 0.02)
+    if not ge.acid_side(190.0, 2.0)["extra_medium_cost"] > 5.0:
+        fails.append("even a little bought acid should cost more medium than the loop saves")
+
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
     d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])
     near("note: gas per litre at the floor, vvm", d0["vvm"], 0.096, 0.02)

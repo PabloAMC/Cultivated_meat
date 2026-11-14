@@ -69,6 +69,15 @@ def viscosity(x: float) -> float:
     return value("pf_medium_viscosity") * 1e-3 * rel
 
 
+def suspension_buffer(x: float, medium: float | None = None, beta_i: float | None = None) -> float:
+    """Non-bicarbonate buffer of the culture, mmol/L per pH unit per litre of suspension, IF the cells'
+    insides take part within a pass (that needs carbonic anhydrase inside the cells, not shown for these
+    cells): the medium's own (phosphate) plus the cells' intracellular buffer on their water."""
+    medium = value("ge_buffer_medium") if medium is None else medium
+    beta_i = value("ge_beta_i") if beta_i is None else beta_i
+    return medium + cell_volume_fraction(x) * value("ge_cell_water") * beta_i
+
+
 def co2_per_pass(p_in: float, p_out: float, buffer: float | None = None) -> tuple:
     """(mmol of CO2 a litre gives up when its CO2 pressure falls from p_in to p_out mbar, pH rise).
     The dissolved gas, plus what the non-bicarbonate buffer lets bicarbonate release. Alkalinity is
@@ -295,6 +304,46 @@ def best_shape(vessel_m3: float = 20.0, **kw) -> dict:
     """The liquid depth-to-width ratio that costs least per kg, on a grid from 0.2 to 3."""
     grid = [shape_case(a, vessel_m3, **kw) for a in np.arange(0.2, 3.01, 0.05)]
     return min(grid, key=lambda r: r["total"])
+
+
+def acid_side(x: float = 190.0, acid_mm: float = 10.0, sparge_velocity: float | None = None,
+              medium_price: float = 0.15, cells: fp.Cells | None = None) -> dict:
+    """The acid-side option, as in medical CO2 removal: add `acid_mm` mmol/L of acid to the culture just
+    before the fibres, so that much bicarbonate turns into CO2 and can be stripped, then add the same
+    amount of base after them so the tank stays at its pH.
+
+    Two versions. (1) Bought acid and base: every pass adds acid_mm of salt (for example NaCl), which the
+    perfusion must wash out under the salt limit (pf_osm_limit). (2) Acid and base made from water by
+    bipolar electrodialysis in contact with the liquid itself: no salt, but ion-exchange membranes cannot
+    take a cell suspension, so the loop's liquid must first be filtered free of cells."""
+    cells = fp.GOOD_CELLS if cells is None else cells
+    us = value("pf_gas_velocity") if sparge_velocity is None else sparge_velocity
+    plain = loop_design(x, sparge_velocity=us, cells=cells)
+    frac = value("ge_co2_frac")
+    # acid raises the CO2 entering the fibres by acid_mm; a pass strips `frac` of the excess over the sweep
+    s = value("pf_co2_henry")
+    p_in = value("pf_pco2_limit") + acid_mm / s                       # the acid's CO2 counted as pressure
+    per_pass = frac * s * (p_in - value("ge_sweep_pco2"))
+    passes = plain["co2_by_loop"] / per_pass
+    extra = per_pass - plain["per_pass"]                               # CO2 per pass that came from bicarbonate
+    # salt: acid_mm of acid and acid_mm of base added per pass -> acid_mm of salt per pass
+    gain = x * cells.mu                                               # g of cells grown per L per h
+    salt_per_kg = passes * acid_mm / gain                             # mol of salt per kg of cells
+    hco3 = s * value("pf_pco2_limit") * 10.0 ** (value("pf_ph") - value("pf_pk1"))
+    room = value("pf_osm_limit") - value("pf_osm_base") - 2.0 * max(0.0, hco3 - value("pf_hco3_base"))   # mOsm
+    lac = fp.waste_per_kg(cells)[1]
+    litres = 2.0 * (lac + salt_per_kg) / (room / 1000.0)              # L/kg to hold the salt limit
+    base_litres = max(value("pf_medium_l_floor"), 2.0 * lac / (room / 1000.0))
+    # electrodialysis: protons made per pass = acid_mm; cell-free liquid needed = the whole loop flow
+    flow = passes * value("pf_working_volume") * 20.0                 # m3/h through the loop (20 m3 tank)
+    ed_kwh_kg = salt_per_kg * value("ge_ed_volt") * 96485.0 / 3.6e6
+    filter_m2 = flow * 1000.0 / value("ge_filtrate_flux")
+    return {"per_pass": per_pass, "per_pass_plain": plain["per_pass"], "from_bicarbonate": extra,
+            "passes": passes, "passes_plain": plain["passes"], "flow_m3h": flow,
+            "salt_mol_kg": salt_per_kg, "medium_l": litres, "medium_l_base": base_litres,
+            "extra_medium_cost": (litres - base_litres) * medium_price,
+            "ed_kwh_kg": ed_kwh_kg, "ed_filter_m2": filter_m2,
+            "ed_filter_vs_atf": filter_m2 / value("ge_atf_area")}
 
 
 def sparge_death(gas_velocity: float | None = None, depth: float | None = None, protected: bool = True,

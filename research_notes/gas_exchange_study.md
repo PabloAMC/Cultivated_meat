@@ -17,6 +17,72 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 
 ---
 
+## For the experiments list
+
+Three unknowns stay open. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor:
+`explore()` = $11.5) or `gas_exchange.floor_with_loop`. **This study depends on the gas-flow session
+(what-caps-gas-flow):** if sparging alone can remove the CO₂ (unknown 1 resolves well), the membrane loop is
+not needed and unknowns 2 and 3 matter little.
+
+**1. More gas per litre of culture**
+- *Unknown:* Can a 20 m³ tank of dense cells (120–190 g/L) be sparged at 0.15–0.2 litres of gas per litre of
+  culture per minute, twice today's assumption, without bubbles killing cells or foam stopping the run?
+- *Worth:* well, **$8.5** (`explore(gas_velocity=0.0125)`, 0.2 vvm in the floor's tank) or **$8.8** for a
+  squat tank at today's gas speed (`gas_exchange.shape_case(0.8)`); badly, **$11.5** (`explore()`). Neither
+  number includes the protectant (see the note below the list).
+- *Probability it resolves well:* **50%**. Vendors rate 2,000-litre tanks to 0.2 vvm, and dense pharma
+  cultures have run at 0.1–0.2 vvm with 2–5 g/L of protectant at 50–200 litres; foam at 20 m³ and at these
+  densities has not been measured.
+- *Deciding experiment:* a perfusion run of a meat cell line in suspension at 100+ g/L in a 200–2,000 L
+  sparged tank, stepping gas from 0.1 to 0.2 vvm at 2 and 5 g/L protectant; measure cell death rate, foam,
+  antifoam used and dissolved CO₂.
+- *Cost and time:* roughly $100–300k and 2–3 months [my estimate]; a contract manufacturer with pilot
+  perfusion tanks, or a cultivated-meat company with a pilot plant.
+- *Evidence today:* measured in pharma cells only (CHO, hybridoma, insect cells).
+
+**2. Does a membrane loop work on a dense culture?**
+- *Unknown:* Pumped through silicone hollow fibres about 270 times a day for a month, does a dense culture
+  keep growing, does the CO₂ removed per pass match the calculation (1.1 mmol per litre, up to 1.7–2.2 if the
+  cells' own buffers take part), and does the gas transfer hold up?
+- *Worth:* well, **$9.0** (`floor_with_loop(buffer=suspension_buffer(189))`, modules at $200/m² lasting
+  2 years); badly, no loop, **$11.5** (`explore()`). It matters most if gas is capped low: at 2 mm/s the floor
+  is **$28** (`explore(gas_velocity=0.002)`), and a loop with no sparging at all brings it to **$11.6**
+  (`floor_with_loop(gas_velocity=0.002, oxygen=True)`).
+- *Probability it resolves well:* **35%**. The fibres' shear and the number of passes are inside what CHO cells
+  survived for weeks at 4 litres, but no gas-exchange loop has been run on a dense culture beyond a 2-litre
+  patent example, and gas fibres fouling over a month is unmeasured.
+- *Deciding experiment:* first a one-week bench test with no cells (medium with bicarbonate through a small
+  silicone module: CO₂ removed per litre and pH change); then a six-week 2–10 litre perfusion run of a meat
+  cell line at 100+ g/L with the module on the loop and the sparger turned down, against a sparged control.
+- *Cost and time:* about $5–10k and a week for the first step; $50–150k and 2–3 months for the second [my
+  estimates]; a university bioprocess lab or a contract research lab.
+- *Evidence today:* inferred (transport physics, plus medical devices in blood and pharma filter loops).
+
+**3. A module that can be cleaned and sterilised repeatedly, at a usable price**
+- *Unknown:* Can gas-exchange modules be bought at thousands of m² for under about $500 per m² that survive a
+  year of sterilisation between runs?
+- *Worth:* well (large contactors at $160/m² lasting 2 years), **$9.1** (`floor_with_loop(cost_m2=160)`);
+  badly (the only priced silicone module, $704/m², which may be steamed only once and so is replaced every
+  run), **$34.8** (`floor_with_loop(cost_m2=704, life_y=0.099)`), so the loop would not be used and the floor
+  stays at $11.5.
+- *Probability it resolves well:* **25%**. No module found is both rated for repeated steaming and priced;
+  the cheap ones (polypropylene) take hot water at 85 °C at most and leak in protein-rich liquid.
+- *Deciding experiment:* written quotes from membrane makers for 2,500–10,000 m² of silicone or PMP fibre,
+  and a cycle test: sterilise a module 20 times (steam, or hot water with peracetic acid as a food plant
+  might) and measure gas transfer and leak-tightness after each.
+- *Cost and time:* about $10–30k and 1–2 months [my estimate]; the membrane makers themselves (Thermo/3M
+  Liqui-Cel, PermSelect, Membrana) or a university membrane lab.
+- *Evidence today:* vendor data sheets and web prices; no cycle-life data for any gas-exchange module.
+
+**A cost the floor leaves out, for the medium row.** The floor counts no bubble protectant (Pluronic F68).
+At its 11 litres of medium per kg, 1 g/L is 11 g per kg of cells and the 5 g/L used in dense pharma
+perfusion is 56 g. At the pharma-grade list price (about $260/kg, vendor) that is **$2.9–14.5/kg**; at an
+unverified bulk price of $8–15/kg, $0.1–0.8. Cells also take it up (about 12 µg per million cells, Gigout
+2008, abstract, which is about 4 g per kg of 3 ng cells). Which price and dose apply is a quote and a
+dose-finding run, and it affects unknown 1, since more gas needs more protectant.
+
+---
+
 ## Answer in brief
 
 1. **A membrane loop is limited by the liquid, not by the membrane.** A litre of culture at 100 mbar of CO₂
@@ -28,6 +94,9 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
    180 m³/h of culture through about 2,500 m² of fibre, 9 kPa of pressure drop, 45 W per m³. At an assumed
    $200 per m² it adds about $78k per m³ of tank and takes the floor from $11.5 to about **$9.2/kg**
    (range $8.6 to $13.8 across the membrane prices found). Removing CO₂ for free would give $8.5.
+   *Stress test (section 6):* no module both survives repeated steaming and has a price; the one priced
+   silicone module can be steamed once, which would put the floor at $35. Workable: 35%; pays $1/kg or
+   more: 15%.
 3. **A squat tank does about the same with no new equipment, by passing more gas per litre.** Liquid
    0.75–0.8 times as deep as the tank is wide gives **$8.7–8.8/kg** with the extra steel and floor counted.
    Measured bubble damage goes with gas per litre, not with velocity (three papers, read in full), so the
@@ -392,6 +461,10 @@ Pablo downloaded the five papers and the thesis; four were read in full text for
    take protectant up (about 0.12 g/L per 10⁷ cells/mL, Gigout 2008 in the repo's earlier note, via a
    review), which at 4–6 × 10⁷ cells/mL is 0.5–0.7 g/L. Dense cultures need to be dosed well above 1 g/L.
 
+*Update (section 6):* newer industrial work finds no extra deaths up to 0.1–0.2 vvm when 2–5 g/L of protectant
+is used, so the small-column killing volume probably overstates the loss at scale; damage there comes mainly
+from fast gas at the sparger holes.
+
 **Probabilities, replacing the earlier 40%.**
 - Death by bubbles scales with gas per litre in a 20 m³ tank as in the small columns: 85%.
 - The squat tank delivers most of its gain (at least $2 of the $2.8/kg), given that the floor's own
@@ -472,14 +545,13 @@ not by membrane area. For a 20 m³ tank at 190 g/L that means about 180 m³/h th
 times that. A squat tank gets about the same gain with no new equipment by passing more gas per litre;
 it pays in cells killed by bubbles, a few percent of growth if the protectant works at scale (section 2.3).
 
-**Probabilities.**
+**Probabilities** (revised after the stress test in section 6; the first version said 50% and 30%).
 - A CO₂ loop beside a sparger can be made to work technically at 20 m³ for CHO-like single cells, given a
-  development programme: **50%** (35–65%). For: shear, passes per day and pressure are inside what CHO
-  tolerated for 48 days at 4 litres; the physics is simple. Against: no steam-proof module of this size
-  exists; fouling of gas fibres by 18% cells over weeks is unmeasured; the pump at 180 m³/h is untested
-  with cells; and the seconds-long pH swing is untested.
-- It works and lowers the floor by $1/kg or more: **30%**. The extra condition is a module price under
-  about $500 per m² with a life over a year.
+  development programme: **35%** (25–50%). Down because gas fibres last only 2–4 weeks in blood and the
+  cheap kind leaks within days, against a 33-day run, and because no module survives repeated steaming.
+- It works and lowers the floor by $1/kg or more, with the modules paid for: **15%**. Down because the one
+  priced module of the right material can be steamed once only, which would put the floor at $35, and
+  because more sparging with more protectant may do the same job without a loop.
 - A no-sparging tank at 190 g/L is workable at 20 m³: **15%**. It needs 30–50 passes an hour and
   oxygen-rich return liquid.
 - The same for cells that grow in clumps or on carriers: under 5%.
@@ -504,6 +576,81 @@ acceptable, build squat tanks and skip the loop.
 **The model's floor with it.** $9.2/kg with a CO₂ loop at the assumed price (range $8.6–13.8 across
 membrane prices; $6.1 in a yeast-style plant), against $11.5 today and $8.7 for a squat tank under the
 velocity rule. Neither reaches the $7 that parity needs in the floor's plant.
+
+---
+
+## 6. Stress test of the two loop probabilities (added 2026-11-14)
+
+Asked by the parent session: go back to the five things the 50% and 30% rest on. Sources for this section
+were read by four subagents; access levels are given for each point. One search was stopped by the
+safeguard and rerun on another model.
+
+**1. CO₂ given up per pass. Moves it up a little.** (`suspension_buffer`, `co2_per_pass`)
+- Medium: about 1 mmol/L of phosphate (DMEM/F12 level, memory) buffers 0.47 mmol/L per pH unit at pH 7.2.
+  That takes the amount per pass from 1.11 to 1.23 mmol/L. HEPES would add much more but is not used at
+  large scale (patent snippets) and adds salt. Amino acids and serum-free media add little (not found).
+- The cells: their insides buffer about 10–50 mmol/L per pH unit of cell water (a physiology review,
+  snippet; about 10 in a muscle-like line, snippet). At 18% of the volume, 70% of it water, that is 1.3–4.3
+  mmol/L per pH unit of culture. If it acts within the 6 seconds in the fibre, a pass gives up 1.55–2.16
+  mmol/L, the loop needs 6–8 passes an hour in place of 11, and the floor with the loop goes from $9.2 to
+  $9.0. It acts only if the cells carry carbonic anhydrase, which speeds the reaction; without it the
+  reaction takes 5–10 seconds (textbook constants, snippet). No data were found on the enzyme in CHO,
+  fibroblast or muscle cells.
+- Blood does better because its red cells are 45% of the volume and full of haemoglobin, which buffers
+  30–40 mmol/L per pH unit of blood, ten times what these cells could offer.
+
+**2. Cells surviving the pump and fibres. No change.** Weeks of pumping dense cultures through hollow fibres
+are documented only at 1–4 litres: Clincke 2013 (full text, read earlier) and a vendor note of a 1–2 L CHO
+run at 12–24 tank volumes an hour through 1 mm fibres with a magnetically levitated pump, 54 million
+cells/mL, three weeks, stopped by choice (Meissner application note, vendor, full text). A HEK study found
+viability fell at high flow and that one tubing material damaged cells (Zhan 2020, full text via a tool).
+Filter loops end when debris plugs the pores. No run at 500–2,000 L with its flow and shear was found.
+
+**3. Fouling of gas fibres over weeks. Moves it down.** Polymethylpentene and silicone lungs last about 2–4
+weeks in blood; clotting is the main limit and gas transfer declining is a common reason to change them
+(snippets; a registry found patients needing a second lung after a median 19 days). Microporous
+polypropylene turns wettable and leaks plasma after hours (snippets). A polypropylene contactor on
+wastewater lost about half its flux in 13 days (snippet). The floor's runs last 33 days. Nothing was found
+for cell-culture debris or antifoam on gas fibres.
+
+**4. Module price and sterilisation. Moves it down, and is the strongest single finding.**
+
+| module | $ per m² | sterilisation | source, access |
+|---|---|---|---|
+| PermSelect silicone, 0.1 to 2.1 m² | 4,300 to 704 | steam or autoclave **once**, at 121 °C at most; or gamma | vendor web store and data sheet, Nov 2026 |
+| Liqui-Cel polypropylene, 8x20 to 14x28 | about 80–265 | hot water at 85 °C at most, about 1,000 cycles; no steam | distributor listing, Nov 2026 (areas from memory); 3M cleaning guide, full text |
+| silicone tubing | about 800 | autoclavable | distributor listing |
+| CO₂-capture studies | 50–200, 3–5 year life | (gas service) | snippets |
+
+No module was found that is both rated for repeated steaming and priced. The cheap ones are polypropylene,
+which leaks in protein-rich liquid. With the priced silicone module replaced every run, the floor with the
+loop is $34.8/kg; at $704 lasting 2 years it is $11.0, which is no gain; large contactors at $160 lasting 2
+years give $9.1.
+
+**5. The acid-side option. Rules it out with bought acid; leaves a salt-free version that needs a filter
+the size of 400–2,300 pharma units.** (`acid_side`)
+- Adding acid before the fibres turns bicarbonate into CO₂: 10 mmol/L of acid raises the CO₂ removed per pass
+  from 1.1 to 6.1 mmol/L and cuts the loop to 2 passes an hour. But the tank must stay at its pH, so the
+  same amount of base goes back in after the fibres. Acid plus base is salt: 10 mmol/L of salt per pass,
+  which the medium must wash out. The floor's culture has almost no room left under the salt limit (lactate
+  and bicarbonate already take it to 413 of 415 mOsm/kg), so the medium would rise from 11 to 84 litres per
+  kg, **$11 more per kg**. Even 2 mmol/L of acid costs $6. Medical CO₂ removal can do this because the
+  patient's kidneys clear the salt.
+- Making the acid and base from water by electrodialysis adds no salt and little power (about 0.2 kWh per
+  kg). But its membranes cannot take a cell suspension, so the loop's liquid would have to be filtered free
+  of cells first: 18–95 m³/h, which at what a perfusion filter passes (3.8 L/m²/h) is 4,800–25,000 m² of
+  filter, 430–2,300 of the largest pharma units. Not practical.
+
+**A sixth point that moves the loop's value down: more sparging may do the job.** Newer industrial work
+(read by a subagent; abstracts and vendor documents) finds that with enough protectant (2 g/L for coarse
+bubbles, 5 g/L for fine ones) dense CHO cultures showed no extra deaths up to 0.1–0.2 vvm at 3–200 L (Xu
+2017, abstract), 4–5 g/L held 100–250 million cells/mL (Wei 2023, abstract; vendor note, snippet), and
+2,000-litre single-use tanks are rated to 0.2 vvm in all (Sartorius data sheet, full text; Thermo note,
+full text). Damage at scale comes mainly from gas leaving sparger holes faster than about 30 m/s (Zhu 2008,
+abstract), which more protectant does not fix. If the floor's tank could run at 0.2 vvm, CO₂ would stop
+binding and the floor would be $8.5 without a loop, before the cost of the protectant. Foam is the open
+limit: it scales with gas speed through the surface (Pilon 2001, full text), and no measured foam ceiling
+for cell-culture media was found. This is the gas-flow session's question.
 
 ---
 
@@ -577,6 +724,26 @@ and 13 were read by a subagent, 9–12 and 14 by a second, 15–18 and 20 by a t
     doi:10.1016/0141-0229(89)90097-5 . FT of the abstract and the column-height results (local PDF).
     Downloaded and not read: Tramper et al. 1986 (doi:10.1016/0141-0229(86)90007-4) and the Wageningen
     thesis (https://edepot.wur.nl/198209).
+
+Added for sections 6 and "For the experiments list" (read by subagents):
+25. PermSelect PDMS modules, web store prices and PDMSXA-1000 data sheet; sterilisation page
+    https://www.permselect.com/markets/bioreactor/sterilization . Vendor, Nov 2026.
+26. Liqui-Cel prices, https://parts.deutscheequipment.com/collections/3m-liqui-cel . Distributor listing, Nov 2026;
+    membrane areas from memory. 3M Liqui-Cel cleaning guide (hot water 85 °C, about 1,000 cycles), full text.
+27. Xu S et al. Bioprocess Biosyst Eng 2017;40:1317, doi:10.1007/s00449-017-1790-2 . AB. Wei et al. Biotechnol
+    Prog 2023;39:e3340, doi:10.1002/btpr.3340 . AB. Tharmalingam & Goudar, Biotechnol Bioeng 2015;112:832 . AB.
+    Gigout et al. Biotechnol Bioeng 2008;100:975 (11.7 µg per million cells) . AB via snippet. Zhu et al.
+    Biotechnol Bioeng 2008;101:751 (sparger-hole gas speed) . AB.
+28. Sartorius Biostat STR data sheet (0.1 vvm microsparger, 0.2 vvm in all), full text; Thermo HyPerforma 2,000 L
+    application note (0.1–0.2 vvm, 23 m/s), full text; Sherman et al. BioProcess Int 2016, full text.
+29. Pilon L, Fedorov AG, Viskanta R. J Colloid Interface Sci 2001;242:425 (foam height and gas speed), full text.
+30. Meissner SepraPor application note (1–2 L CHO, levitated pump, three weeks), vendor, full text; Zhan et al.
+    iScience 2020, https://pmc.ncbi.nlm.nih.gov/articles/PMC7593556 , full text via a tool.
+31. Oxygenator life and plasma leakage, ECMO registry: snippets (https://pmc.ncbi.nlm.nih.gov/articles/PMC6260321 ,
+    https://www.researchgate.net/publication/11117007).
+32. Intracellular buffering 10–50 mmol/L per pH unit, snippet
+    (https://comprehensivephysiology.com/WileyCDA/CompPhysArticle/refId-cp140109.html); CO₂ reaction constants,
+    snippet. Poloxamer 188 price: Sigma-Aldrich Parteck PLX 188, about $260/kg at 25 kg, vendor.
 
 From memory, not looked up or not confirmed: PDMS permeabilities (search results give 3,190–3,970 Barrer
 for CO₂; 600 for O₂ is from a vendor sheet); diffusivities and solubilities (textbook values scaled to

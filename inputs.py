@@ -492,6 +492,21 @@ REGISTRY: dict[str, Input] = {
              "seconds [inference, not measured]. In phosphate-buffered saline, carbonic anhydrase on the fibres "
              "doubled CO2 removal (Kimmel 2013, Arazawa 2015, read in full); in medium with no buffer it "
              "would do little"),
+    "ge_buffer_medium": Input(0.47, "mmol/L per pH unit", "[textbook arithmetic] buffer of 1 mmol/L phosphate "
+        "(DMEM/F12 level, memory) at pH 7.2 with pK 6.8: 2.303 x 1 x 0.715 x 0.285",
+        note="HEPES (pK about 7.3, 10-25 mmol/L in lab media) would add 6-14, but is 'no longer essential' at "
+             "large scale and adds salt (patent snippets)"),
+    "ge_beta_i": Input(15.0, "mmol/L per pH unit of cell water", "[search snippet and memory] buffer inside "
+        "cultured cells other than bicarbonate: '10-50' across cell types (a physiology review); about 10 in a "
+        "muscle-like line (BC3H-1)", lo=10.0, hi=30.0, mode=15.0,
+        note="no figure found for CHO, fibroblasts or myoblasts; whether it acts within a 6 s pass depends on "
+             "carbonic anhydrase inside the cells, also not found for these cells"),
+    "ge_cell_water": Input(0.70, "of cell mass", "[Humbird-R] wet cells are about 70% water"),
+    "ge_ed_volt": Input(2.0, "V per proton", "[memory, unverified] voltage of a bipolar-membrane electrodialysis "
+        "cell pair splitting water, with losses (1.2-3 V)"),
+    "ge_filtrate_flux": Input(3.8, "L per m2 per h", "[Humbird-R; vendor size guide, snippet] what a perfusion "
+        "hollow-fibre filter passes: an ATF-10 serves up to about 1,000 L a day through 11 m2"),
+    "ge_atf_area": Input(11.0, "m2", "[vendor size guide, snippet] filter area of one ATF-10"),
     "ge_co2_frac": Input(0.5, "-", "[design choice] how far one pass takes the liquid's CO2 towards the sweep gas",
         lo=0.3, hi=0.8, mode=0.5, note="more per pass: fewer passes, longer fibres, a larger pH swing in the loop"),
     "ge_sweep_pco2": Input(10.0, "mbar", "[design choice] average CO2 pressure in the sweep gas (air swept at "
@@ -512,15 +527,18 @@ REGISTRY: dict[str, Input] = {
     "ge_headloss_x": Input(2.0, "x", "[assumed] pressure drop of the whole loop over that of the fibres alone"),
     "ge_pump_eff": Input(0.6, "-", "[assumed] pump efficiency"),
     "ge_power_price": Input(0.08, "$/kWh", "[assumed] industrial electricity"),
-    "ge_cost_m2": Input(200.0, "$/m2", "[search result, one source] hollow-fibre gas-separation membrane modules "
-        "are costed at $40-200 per m2 (Eng. Proc. 2023, 37:119; the top of its range is used)",
-        lo=40.0, hi=1480.0, mode=200.0,
-        note="WEAKLY SOURCED. No vendor price was found for any gas-exchange module. hi = the pharma hollow-fibre "
-             "filter Humbird prices: $16,300 for an ATF-10 cartridge of 11 m2. A sterile, steam-proof silicone "
-             "module for food use has no published price"),
+    "ge_cost_m2": Input(200.0, "$/m2", "[distributor listings, Nov 2026] large polypropylene gas-exchange "
+        "contactors list at about $160-265 per m2 (Liqui-Cel EXF 8x20 and 10x28 complete units; areas from memory); "
+        "CO2-capture studies assume $50-200 (search results)", lo=80.0, hi=1480.0, mode=200.0,
+        note="AN OPTIMISTIC ASSUMPTION: it is the price of modules that cannot be steamed (polypropylene, hot water "
+             "to 85 C only). The one priced silicone module, which the design uses, is $704 per m2 at 2.1 m2 "
+             "(PermSelect web store, Nov 2026) and may be steamed once only. No module both survives repeated "
+             "steaming and has a published price. hi = the pharma ATF-10 filter (Humbird: $16,300 for 11 m2)"),
     "ge_life_y": Input(2.0, "years", "[judgement] life of the membranes in a culture that fouls them and is "
-        "steamed between runs", lo=0.5, hi=5.0, mode=2.0,
-        note="5 years is assumed for gas service in the same source as the price; pharma filters last one run"),
+        "sterilised between runs", lo=0.1, hi=5.0, mode=2.0,
+        note="lo = one 33-day run, which is the life of a module that may be steamed only once (PermSelect "
+             "silicone). Silicone and PMP lungs last about 2-4 weeks in blood (search results); microporous "
+             "polypropylene leaks within hours to days in protein-rich liquid. 3-5 years in gas-separation service"),
     "ge_install_x": Input(3.0, "x", "[CE Delft 2021, via research_notes/plant_capital_crosscheck.md] installed and "
         "engineered cost over purchased cost for food-grade equipment (an overall Lang factor of about 3)"),
     "ge_pump_cost": Input(30.0e3, "$", "[assumed] a low-shear sanitary pump for ge_pump_flow; no price was found",
