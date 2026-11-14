@@ -26,9 +26,9 @@ Floor figures are from `floor_physics.explore` with only the named argument chan
 **1. How much gas a large, dense tank can take**
 - Unknown: whether a 20 m³ tank of cells at 120 g/L can be bubbled at 6 mm/s (0.1 volumes of gas per volume of
   liquid per minute) without foam or bubble damage stopping it.
-- Worth: resolves well, $11.5/kg (`gas_velocity=0.006`), or $8.9 if 9 mm/s works (`gas_velocity=0.009`);
-  resolves badly, $27.0/kg (`gas_velocity=0.002`, the most that has been run with cells). At my central
-  5 mm/s, $13.0.
+- Worth: resolves well, $11.5/kg (`gas_velocity=0.006`), or $8.7 if 9 mm/s works (`gas_velocity=0.009`);
+  resolves badly, $28.0/kg (`gas_velocity=0.002`, the most that has been run with cells). At my central
+  5 mm/s, $13.1.
 - Probability it resolves well (6 mm/s usable): about 45%. Bubble damage looks manageable with a protectant
   (75–80%), but foam grows with gas velocity and has never been measured against it in a cell culture.
 - Deciding experiment: in a tall vessel (2–4 m of liquid, 100–500 L, ring sparger with 1–2 mm holes), step the
@@ -66,7 +66,7 @@ Floor figures are from `floor_physics.explore` with only the named argument chan
 - Worth: resolves well, $11.5/kg plus $0.2–1.1 for the protectant at an assumed bulk price of $10–20/kg (not
   in the model). Resolves badly on price, plus $3.6–9/kg at the only price found (catalogue, $165/kg).
   Resolves badly on protection, the gas flow is limited to about 0.5 mm/s and the sparged tank is not viable
-  ($97/kg at `gas_velocity=0.0005`).
+  ($100/kg at `gas_velocity=0.0005`).
 - Probability it resolves well: about 70%. The mechanism (it stops cells sticking to bubbles) is not specific
   to a cell type and one cultivated-meat maker already uses it at 1 g/L with residue below detection, but no
   measurement exists for meat cells, the dose needed rises with cell density, and cartilage cells took up
@@ -98,7 +98,7 @@ detection); EU status was not verified. So it belongs on the experiments list as
 not as a physics question.
 
 **Which way this points for the membrane loop.** The evidence does not show that sparging can run at the
-model's default velocity: I put that at about 45%, and at my central 5 mm/s the floor is $13.0, not $11.5. So
+model's default velocity: I put that at about 45%, and at my central 5 mm/s the floor is $13.1, not $11.5. So
 a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
 sparged tank must run thinner. Two things soften this. First, the most likely cap is foam, and a loop that
 only removes CO₂ still leaves the oxygen to be sparged, so it lowers the gas flow needed but does not remove
@@ -132,7 +132,7 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
    at 20 m³ with cells at 120 g/L is about 45% (I would not defend a figure outside 30–60%).
 7. **The model keeps 6 mm/s for the floor**, because the floor takes the favourable end of each range and the
    evidence neither refutes 6 mm/s nor supports a specific lower number. The tornado range becomes 2–9 mm/s.
-   At my central 5 mm/s the floor is $13.0/kg; at 2 mm/s, $27.0; at 9 mm/s, $8.9.
+   At my central 5 mm/s the floor is $13.1/kg; at 2 mm/s, $28.0; at 9 mm/s, $8.7.
 8. **Three costs or limits the model does not carry were found on the way**: the protectant (poloxamer 188) is
    not costed and is not a clearly permitted food additive; antifoam may cut oxygen transfer by up to half; and
    the exhaust gas may leave less saturated with CO₂ than the model's 96%. They are listed under "Follow-ups".
@@ -353,12 +353,14 @@ direct plant cost once installed, plus $0.05/kg of cells in power; CALC).
 | Compressing the gas | 0.09 kWh, under $0.01 | CALC, 1 to 2.5 bar, 70% efficiency |
 | If the gas were blended to the 55% oxygen the cells need at 120 g/L | about $0.25 | CALC; not Humbird's design |
 
-So the gas costs about 5% of the floor and does not cap the flow. It was already inside Humbird's plant cost
-and utilities, but tied to the tank, not to the gas flow: a case with a third of the gas was charged for the
-full oxygen plant. **Model change:** `floor_physics.oxygen_fed` and a `gas` term in `explore` now charge the
-oxygen in proportion to gas per litre of culture, adding only the difference from the design the plant prices
-assume. The floor is unchanged by construction. Cases that move: 2 mm/s $28.0 → $27.0; 9 mm/s $8.7 → $8.9; a
-squat tank $9.3 → $9.4; a 200 m³ tank $18.8 → $18.2; a 5 m³ tank $10.6 → $10.8.
+So the gas costs about 5% of the floor and does not cap the flow. It is already inside Humbird's plant cost
+and utilities, but tied to the tank, not to the gas flow: a case with a third of the gas is still charged for
+the full oxygen plant. **In the model:** `floor_physics.oxygen_fed` computes the oxygen fed, and `explore`
+reports its cost per kg (`gas`) and what charging it in proportion to gas per litre would change (`gas_extra`):
+nothing at the floor, −$1.05 at 2 mm/s, +$0.17 at 9 mm/s, +$0.14 for a squat tank, −$0.60 at 200 m³. It is
+reported, not added to the total. I first added it, then took it out when merging with the gas-exchange and
+plant-items work: the correction is under $1/kg in every case on the page, it rests on one quoted oxygen price,
+and it would have moved some 35 pinned results of those studies for no change in any conclusion.
 
 **Protectant, not in the model.** At 2–5 g/L and 11 litres of medium per kg, a kg of cells takes 22–55 g of
 poloxamer. Only catalogue prices were found: $165/kg in 25 kg lots ([36] VEND listing), which would add
@@ -487,10 +489,11 @@ split is about 60:40 for a velocity cap.
 - `pf_gas_velocity` stays at 0.006 m/s. The floor takes the favourable end of each input, 6 mm/s has roughly
   even odds, and no specific lower value is supported. Its range is now 0.002–0.009 (was 0.0006–0.006) and its
   note says what the evidence is.
-- Tornado bar "Gas flow the cells tolerate": 2 to 9 mm/s (was 2 to 6), $27.0 to $8.9 around the floor's $11.5.
+- Tornado bar "Gas flow the cells tolerate": 2 to 9 mm/s (was 2 to 6), $28.0 to $8.7 around the floor's $11.5.
   It is still the widest bar.
-- New: `oxygen_fed`, inputs `pf_o2_price`, `pf_o2_purity`, `pf_back_pressure`, and a `gas` term in `explore`
-  with its JavaScript mirror (section 5). **The floor did not move.**
+- New: `oxygen_fed`, inputs `pf_o2_price`, `pf_o2_purity`, `pf_back_pressure`, and `gas` / `gas_extra` in
+  `explore`'s result (section 5), reported and not added to the total. **The floor did not move**, and no
+  other case did.
 - Not changed, though this note bears on them: `pf_co2_strip_eff`, the oxygen-transfer formula, protectant and
   antifoam costs (see below).
 

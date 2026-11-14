@@ -119,6 +119,8 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Floor | `floor_physics.py` | the floor's plant term from oxygen physics, by reactor type and plant class |
+| Floor | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
+| Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
 `build_interactive.py` (the page).
@@ -320,9 +322,9 @@ across its plausible range, the others held at the case being viewed. Around the
 
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
-| gas flow the cells tolerate | 2 to 9 mm/s | 27.0 – 8.9 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.4 – 24.8 |
-| tank size | 5 to 200 m³ | 10.8 – 18.2 |
+| gas flow the cells tolerate | 2 to 9 mm/s | 28.0 – 8.7 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.5 – 24.4 |
+| tank size | 5 to 200 m³ | 10.6 – 18.8 |
 | plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
 | waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
 | doubling time | 18 to 48 h | 10.4 – 17.5 |
@@ -336,6 +338,8 @@ across its plausible range, the others held at the case being viewed. Around the
 | how the tank is run | perfusion to drained and refilled | 11.5 – 17.8 |
 | runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
 | least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
+| ammonia the cells make | 0.055 to 0.14 mol per kg | 11.5 – 14.0 |
+| pressure at the top of the tank | 0 to 1 bar gauge | no effect alone (CO₂ binds); with a column it lifts the oxygen and mixing limits |
 | salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
 | pH held in the tank | 6.9 to 7.4 | 11.5 – 12.3 |
 | oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
@@ -408,29 +412,27 @@ which is in Humbird's design:
 |---|---|---|---|
 | none | 120 | CO₂ | 11.5 |
 | cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 9.4 |
-| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.4 |
-| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.9 |
-| 150 mbar and the squat tank | 195 | oxygen supply | 8.6 |
-| 200 m³ tank | 56 | CO₂ | 18.2 |
-| 200 m³ squat tank, cells tolerating 200 mbar (run at 177 mbar: the salt limit, below) | 135 | CO₂ | 10.8 |
-| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.6 |
+| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.5 |
+| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
+| 150 mbar and the squat tank | 195 | oxygen supply | 8.7 |
+| 200 m³ tank | 56 | CO₂ | 18.8 |
+| 200 m³ squat tank, cells tolerating 200 mbar | 137 | CO₂ | 11.3 |
+| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.5 |
 
 The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit is a
 rule of thumb against cell damage and foam (see "What caps the gas flow" below). How much CO₂ and gas meat cells
 tolerate while growing is not known; it is the single measurement that would move the floor most.
 
-*What the gas costs (`oxygen_fed`, the `gas` term).* Because the gas flow is set by CO₂, a kg of cells needs a
-fixed volume of gas whatever the gas velocity: 6.2 mol of CO₂ at 3.7 mol per m³ of exhaust is 1.67 m³. Humbird
-sparges 90% oxygen made on site, so the tank is fed 2.5 kg of oxygen per kg of cells and the cells use 6% of it
-(his plant's oxygen unit works out to 3.7 kg per kg in fed-batch). At his $0.15 per kg of oxygen (range
-0.10–0.33; the top is what his own plant tables imply), escalated, that is $0.52 per kg of cells. It is already
-inside his plant cost and utilities, but tied to the tank. The model now charges it in proportion to the gas
-passed per litre of culture and adds only the difference from the design the plant prices assume (20 m³, his
-tank shape, 6 mm/s), so the floor is unchanged while a case with less gas no longer pays for the full oxygen
-plant and a case with more gas, or a squatter tank, pays for a larger one. The yeast-style plant's price has no
-oxygen unit in it; that omission is not corrected here. **Larger tanks
-raise the cost** unless the CO₂ limit is relaxed, because the loss of density outweighs the cheaper vessel.
-Cells of 1.5 ng raise the floor to $13.
+*What the gas costs (`oxygen_fed`; `gas` in `explore`'s result).* Because the gas flow is set by CO₂, a kg of
+cells needs a fixed volume of gas whatever the gas velocity: 6.2 mol of CO₂ at 3.7 mol per m³ of exhaust is
+1.67 m³. Humbird sparges 90% oxygen made on site, so the tank is fed 2.5 kg of oxygen per kg of cells and the
+cells use 6% of it (his plant's oxygen unit works out to 3.7 kg per kg in fed-batch). At his $0.15 per kg of
+oxygen (range 0.10–0.33; the top is what his own plant tables imply), escalated, that is $0.52 per kg of cells.
+It is already inside his plant cost and utilities, tied to the tank and not to the gas flow. `explore` reports
+it (`gas`) and what charging it in proportion to the gas passed per litre would change (`gas_extra`: zero at the
+floor, −$1.05 at 2 mm/s, +$0.17 at 9 mm/s, +$0.14 for a squat tank, −$0.60 at 200 m³). It is not added to the
+total: the correction is under $1/kg in every case on the page and rests on one quoted oxygen price, so it is
+left as a known, small bias.
 
 *Salt strength, and the least medium flow a cell needs (`pf_osm_limit`, `pf_min_perfusion`).* Two further
 limits act on a perfusion tank besides CO₂, oxygen, ammonia and lactate.
@@ -449,7 +451,7 @@ limit binds, the model runs the tank at whichever CO₂ level, at or below what 
 This changes what CO₂ tolerance is worth. Cells that tolerate 200 mbar take the floor to $9.3, not $8.5, and
 the tank is run at about 157 mbar with 17 litres of medium per kg in place of 11. Removing CO₂ by engineering
 (more gas, a squat tank, a membrane loop) raises the density without adding bicarbonate, so it keeps its full
-value ($8.6–8.9). Holding the tank at pH 6.9 would also restore it, if the cells grow as well there.
+value ($8.5–8.7). Holding the tank at pH 6.9 would also restore it, if the cells grow as well there.
 
 Least medium flow. Besides ammonia and lactate, other by-products build up and individual nutrients run out,
 so a cell needs a least flow of medium per day whatever it makes. Bioprocess engineers call it the
@@ -501,17 +503,59 @@ mechanism:
 | foam, and the side effects of antifoam | 2 / 5 / 10 (judgement) | scales with velocity; never measured against it; antifoam slows growth above about 50 ppm, can halve oxygen transfer, fouls filters, and is limited to 10 ppm in US food |
 | impeller flooding, gas hold-up | no cap | flooded above 1.4–3 mm/s, the tank becomes a stirred bubble column; hold-up about 4%; the oxygen formula is extrapolated above 2 mm/s |
 | evaporation, exhaust | no cap | 0.6% of the volume a day |
-| cost of the gas | no cap | $0.52/kg at any velocity (above) |
+| cost of the gas | no cap | $0.52/kg at any velocity while CO₂ binds (above) |
 
 Bubble damage scales with gas per litre, as CO₂ removal does, so it does not get worse with tank size; foam
 scales with velocity, so it does. Reported practice: tanks of 1–25 m³ at 0.002–0.02 vvm and up to 40 million
 cells per mL; no run above 200 L combines 50 million cells per mL with 0.05 vvm; no culture at 6 mm/s at any
 scale. The defensible range is 2 / 5 / 9 mm/s and our probability that 6 mm/s is usable at 20 m³ and 120 g/L is
 about 45%. The floor keeps 6 mm/s, since it takes the favourable end of each range; at 5 mm/s it would be
-$13.0, at 2 mm/s $27.0 and at 9 mm/s $8.9. Not in the model: the protectant (poloxamer 188, uncosted, and not a
+$13.1, at 2 mm/s $28.0 and at 9 mm/s $8.7. Not in the model: the protectant (poloxamer 188, uncosted, and not a
 clearly permitted food additive), the effect of antifoam on oxygen transfer, and an exhaust less saturated with
 CO₂ than the 96% assumed (0.7–0.96 is defensible; at 0.85 the floor is $12.6). Most primary papers were read as
 abstracts; the note lists the access level of each.
+
+*Other ways to exchange gas (`gas_exchange.py`, a side-study; not in the floor or on the page).* Three
+checks, written up with sources in `research_notes/gas_exchange_study.md` and pinned by
+`tests/test_gas_exchange.py`. A membrane loop that takes out the CO₂ a sparger cannot is limited by the
+liquid, not by membrane area: a litre of culture gives up only about one millimole of CO₂ per pass, because
+the bicarbonate cannot be released without an acid, so the tank must go round the loop about eleven times an
+hour. At an assumed membrane price the floor would be about $9 with it, against $11.5; the price is weakly
+sourced, so this is not a lever on the page. A squat tank gives about the same gain with no new equipment by
+passing more gas per litre of culture. Measured bubble damage goes with gas per litre, not velocity
+(Tramper 1988, Jöbses 1991, Handa-Corrigan 1989), and the limit Humbird cites is "about 0.1 vvm" for lysis
+and foaming (Ozturk 1996), so the squat tank pays in dead cells, a few percent of growth if a protectant
+works at scale as in small columns; the model does not count bubble deaths. A
+published 262 m³ airlift needs 1.6 to 2.3 times the model's gas velocity to hold its stated density.
+
+*Tricks as levers, and every limit shown (`explore`, the panel's "Tricks" group and "What limits this tank").*
+`explore` returns every cap in the case (`limits`, g/L) and what sets the litres of medium (`medium_terms`),
+not only the binding ones, and carries the tricks sized in the gas-exchange and waste notes:
+
+| lever | what the physics does | evidence |
+|---|---|---|
+| `column`: none, "co2", "o2_closed" | a packed stripping column on a pumped loop takes the CO₂ the sparger cannot (CO₂ limit lifted); "o2_closed" also makes up the oxygen from a recycled oxygen sweep with a lime scrubber (oxygen limit lifted). Sized by `gas_exchange.column_design` at the density reached: film over Mellapak-type packing, Tsai 2011 wetted area, Rocha–Bravo–Fair transfer; capital (Wang 2015 vendor fits, ×3 installed), pumping, oxygen and lime added | calculated; never run with animal cells |
+| `col_pout` | CO₂ the culture leaves the column at; 55 mbar keeps the alkaline pulse below the one that hurt CHO (Paul 2020) | calculated against one study |
+| `p_top_barg` | oxygen transfer, and with it the mixing limit, scale with the oxygen driving force (`headspace_pressure`); CO₂ removal does not change | calculated; tanks are rated for it |
+| `nh3_kg`; `lac_yield` × `glc_kg` | the two wastes set as measured (mol/kg; mol/mol × mol/kg), with no scaling; unset, `waste` sets both as before and the floor is unchanged | bovine 0.70 and 0.14 (Hubalek 2023); yields 0.39–1.41 (CHO), 1.05 (chicken) |
+| `sorbent` (+ `sorbent_q`, `_price`, `_cycles`) | the share of ammonium taken out of the cell-free permeate before it returns; ammonia's medium need falls by that share, the sodium given back stays and counts as salt (1 mOsm per mmol), the sorbent is bought at share × ammonia ÷ capacity × price ÷ uses | capacity 0.1–0.2 mmol/g derived, not measured; price assumed above bulk zeolite |
+
+Cell side, same table continued:
+
+| lever | what the physics does | evidence |
+|---|---|---|
+| `fat_fed` (+ `fat_price`) | the share of the cells' lipid taken from the feed; lipid made from glucose gives off CO₂ without using oxygen (Humbird's Reaction 2.2), so CO₂ per oxygen (`rq`) falls from 1.204 to 0.966 when all is fed and the CO₂ limit rises a quarter; fat bought at 45 g per kg of cells | carbon and electron balance on Humbird's cell; uptake replacing synthesis untested |
+| `do_mmol` | the dissolved oxygen the tank is held at; default the 0.28 mmol/L Humbird's numbers imply; lower widens the oxygen driving force (oxygen and mixing caps) | pharma holds 30–50% of air saturation |
+| outputs `o2_kg`, `o2_kg_upkeep`, `o2_kg_growth`, `co2_kg` | oxygen and CO₂ per kg of cells grown, split into upkeep (per hour) and growth (per kg) | follows from `Cells.qo2` |
+
+Each trick carries a tag in the page's text and in RESULTS.md: feed or process, selection or adaptation, or
+genetic engineering (`gas_exchange.CELL_CASES`, note section 10.4). The packed column takes in culture at the
+tank's dissolved oxygen.
+
+The page mirrors all of it (`floorExplore`, checked in fourteen cases by `tests/run_parity.py`). Two tornado rows
+are new: pressure at the top of the tank (0 to 1 bar gauge) and ammonia per kg (0.055 to 0.14). The page's
+tank-shape lever now includes the extra steel and floor space of a squat tank (`gas_exchange.shape_capex_factor`,
+note section 9; `shape_cost=False` leaves it out). Results: RESULTS.md, "What the tricks do".
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:
@@ -621,10 +665,66 @@ Humbird calls his own estimate good to "within 50%". The uncertainty run therefo
 to a third of his figure. Second, the frontier is better grounded than "what a yeast plant costs": it is also
 what Humbird's own yeast plant costs with 20 m³ tanks, and about what two published cultivated-meat designs
 assume, so it does not depend on very large tanks. Third, the gap is specific. At the same tank size
-Humbird's animal-cell plant costs five times his yeast plant: the bare vessel 4 times, the seed train 11
-times, medium preparation 22 times, oxygen supply 8 times, a higher installation factor (7.2 against 4.5), and
-$101k per m³ of building, mostly clean room. Which of these animal cells truly need is the question that
-decides the frontier.
+Humbird's animal-cell plant costs five times his yeast plant, and the next paragraph takes the difference
+apart item by item. (An earlier version of this paragraph quoted ratios per item, the bare vessel 4 times and
+the seed train 11 times; those were against his yeast plant with 200 m³ tanks, not at the same tank size.)
+
+**The plant item by item (`plant_items.py`, `research_notes/cheap_plant_study.md`).** Humbird's fed-batch
+plant is rebuilt line by line from his Tables 4.1 to 4.3 as nine items, each carried to total investment, and
+his yeast plant with 20 m³ tanks is rebuilt on the same nine. The first reproduces his $327.9M exactly. For
+the second he gives only a total ($70M, in a column headed "equal CAPEX"), so it is rebuilt from his standard
+yeast plant's equipment list with the six-tenths rule for everything but the vessels, and the vessel size
+exponent is solved to give his total; it comes out at 0.49, an ordinary value. Per m³ of production tank, in
+2018 dollars:
+
+| item | Humbird's plant | lean | yeast plant plus | yeast plant |
+|---|---|---|---|---|
+| hall round the bioreactors | 152 | 46 | 10 | 10 |
+| production tanks, installed | 163 | 115 | 61 | 61 |
+| oxygen supply | 89 | 0 | 0 | 5 |
+| seed train | 109 | 42 | 30 | 30 |
+| medium preparation and sterilising | 71 | 38 | 38 | 2 |
+| cleaning system and utilities | 48 | 48 | 15 | 15 |
+| labs, office, shop, warehouse | 34 | 34 | 15 | 0 |
+| harvest | 17 | 17 | 8 | 8 |
+| **total** | **683** | **340** | **175** | **130** |
+
+Each item has options (`plant_items.options`), and `explore(items={...})` prices any choice of them; the
+panel's "class of plant" sets them all at once. Two plants are new. *Lean* ($340k per m³; $452k in today's
+prices; cells at $9.0 per kg against the floor's $11.5) removes what animal cells plausibly do not need: the
+clean room and the food-plant finish (closed, steam-sterilised tanks are the sterile boundary, which pharma's
+own industry group accepts, and Vow runs a 20 m³ tank so); the owned oxygen plant (oxygen is bought, at an
+assumed $0.10 per kg, $0.33 per kg of cells); six of the eight final seed tanks (Humbird sizes the seed train
+for a restart every 57 hours; runs of ten days need 1.4 final seed tanks for 24 production tanks, so two
+small trains are kept, one a spare); electropolish and spare probes on the tanks (taken at Vow's "well under
+$1 million" a tank against his $1.41M); and a makeup tank per bioreactor. *Yeast plant plus* ($175k per m³;
+$233k today; $7.3 per kg) is his yeast plant with what animal cells certainly need added: cell labs,
+sterilisation of all the medium, and oxygen. The gap between the two is mostly the installed cost of a
+sealed, steam-sterilised tank and its piping, for which no vendor price was found. One published vendor quote
+points the other way: Garrison 2022's food-grade plant is $750k per m³, for four tanks with a seed train each.
+None of the five plants is the headline; the floor stays at the sanitary class.
+
+**Contamination as dynamics (`contamination.py`).** A contaminant doubles in 20 to 60 minutes and the cells in
+a day, so a single cell that gets in ends the run. From one cell in a 20 m³ tank to the density at which it
+shifts the tank's oxygen uptake by 5% [assumed] is about 51 doublings: 17 hours at a 20-minute doubling time,
+51 hours at 60 minutes, about 13 days for a slow organism such as mycoplasma. A dense culture hides more
+(2 × 10⁸ bacteria per mL at 120 g/L). At that point the contaminant is about 0.2% of the biomass, but the
+harvest crossed the food limits in the filings (10² to 10⁴ per gram) 6 to 17 hours earlier, so harvests must
+be held until the tank is known clean. No filing contemplates selling a contaminated batch after a kill step;
+`salvage` is a lever, set to zero. `explore` therefore takes two loss rates, a chance per day while the tank
+runs (`hazard`) and a chance per start (`start_fail`, the seed and start-up: a bad start costs its seed and
+the day until it shows). Rates by route are not published, so the module solves for thresholds: the chance
+per day at which a cheaper plant costs as much per kg as the floor's plant losing runs at pharma's 0.2% a
+day. With 33-day runs and 14 days to restart after a loss it is **3.5% a day for the lean plant (a run per
+tank every 28 days) and 7.6% for the yeast plant plus (every 13 days)**; a 30-day restart roughly halves
+both. Shared seed trains and medium lines do not change the expected number of tanks lost if the chance of
+failure is per vessel; they make losses come together, and then tanks queue for the seed train (24 tanks on
+two final seed tanks wait 4.5 days more on average, which lowers the lean threshold to 2.8%). For reference,
+pharma loses 2.3% of batches above 1,000 L (0.17–0.23% a day), and cultivated-meat makers report 11.2% (19.5%
+beyond flasks; a survey of 11 companies that gives no run lengths), which is 0.6–2.2% a day if batches run 10
+to 20 days. So the cheaper plants pay at today's reported loss rates, if they can be built at these prices.
+Not on the page: `start_fail` and `salvage`. Not modelled: a slow organism passed through a shared seed
+train before any test shows it.
 
 **Species (`SPECIES_PRESETS`).** The panel can set the cell levers from what has been published for a
 species. With everything else at the floor case:

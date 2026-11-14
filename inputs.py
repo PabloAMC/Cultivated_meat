@@ -374,6 +374,23 @@ REGISTRY: dict[str, Input] = {
         "mol per mol of dry cell mass"),
     "pf_lac_wild": Input(6.45, "mol/kg wet", "[Humbird-R, derived] lactate, ordinary cells: Reaction 2.9, 0.474 mol "
         "per mol of dry cell mass"),
+    "pf_glc_kg": Input(1.116, "mol glucose/kg wet", "[Humbird-R, derived] glucose used per kg of cells grown by his "
+        "enhanced cells: 0.558 mol lactate at his stated lactate:glucose of 0.50", lo=0.67, hi=3.6, mode=1.116,
+        note="used only when the lactate yield is set explicitly (explore lac_yield). lo-1.0 = 0.4-0.6 kg glucose "
+             "per kg dry x 0.30 dry/wet (waste_tricks_sizing.md, consistent with CHO at a yield of 1.41); hi = "
+             "Humbird's wild-type cell (6.4 mol lactate at 1.77). Which applies to a meat cell is unmeasured"),
+    "pf_sorbent_q": Input(0.15, "mmol/g = mol/kg", "[derived, not measured; waste_tricks_sizing.md A2] ammonium a "
+        "sorbent holds at 3-5 mM against 140 mM sodium", lo=0.10, hi=0.25, mode=0.15,
+        note="mass-action exchange with selectivities of 0.6-3 for clinoptilolite, zirconium phosphate and cation "
+             "resin; pure-solution capacities (0.9-5.5) do not apply in medium. No capacity has been measured in "
+             "medium"),
+    "pf_sorbent_price": Input(5.0, "$/kg", "[assumed] a graded, sterilised exchanger fit for medium",
+        lo=0.05, hi=20.0, mode=5.0,
+        note="bulk natural zeolite is $0.05-0.30/kg (USGS Mineral Commodity Summaries 2026, read in full); no price "
+             "was found for a sterile medium-grade zeolite, resin or zirconium phosphate; 5-20 is an assumption"),
+    "pf_sorbent_cycles": Input(1.0, "uses", "[assumed] times the sorbent is used before it is thrown away (1 = "
+        "single use)", lo=1.0, hi=50.0, mode=1.0,
+        note="no regeneration count in medium was found; 50 is a hope, not a number (waste_tricks_sizing.md)"),
     "pf_nh3_limit": Input(5.0, "mmol/L", "[Humbird-R] Sect. 2.3: 'consider the limits of 5 mmol/L NH3 and 50 mmol/L "
         "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
@@ -472,6 +489,18 @@ REGISTRY: dict[str, Input] = {
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
+    "pf_rq_lipid": Input(0.2381, "mol CO2/mol O2", "[Humbird-R, derived] CO2 released by making the cells' lipid "
+        "from glucose, per oxygen used: Reaction 2.2 (0.049 glucose -> 0.205 lipid + 0.090 CO2 per mol of dry cell "
+        "mass, no oxygen) over Reaction 2.11's 0.378 mol O2. Feeding all the lipid takes RQ from 1.204 to 0.966",
+        note="Carbon and electron balance check: lipid (CH2 O0.13) carries 1.74 more electrons per carbon than "
+             "glucose; 0.205 C-mol x 1.74 / 4 = 0.089 mol CO2. Humbird's lipid is 15% of dry mass (Table 2.1)"),
+    "pf_fat_kg": Input(0.045, "kg/kg wet", "[Humbird-R, derived] lipid in a kg of wet cells: 15% of the 300 g of dry "
+        "mass (Table 2.1)"),
+    "pf_fat_price": Input(1.5, "$/kg", "[assumed] fatty acids fed to the culture, at about a vegetable-oil price",
+        lo=1.0, hi=20.0, mode=1.5,
+        note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
+             "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
+    "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
     "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
         note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
              "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "
@@ -492,6 +521,158 @@ REGISTRY: dict[str, Input] = {
              "plus Table 4.4's power is about $0.25-0.33 per kg O2 [derived]. The oxygen plant is sized by the gas "
              "flow, not by what the cells use: his design feeds about 3.7 kg O2 per kg of cells (25,000 t/y for "
              "6,800 t/y of cells) and the cells use 0.2, so about 95% is vented"),
+    # --- gas-exchange side study (gas_exchange.py; research_notes/gas_exchange_study.md). NOT used in the
+    #     headline cost or on the page. Access levels of the sources are in the note's source list ---
+    "ge_d_co2": Input(2.5e-9, "m2/s", "[textbook, scaled] diffusivity of CO2 in water: 1.92e-9 at 25 C, scaled to "
+        "37 C by temperature over viscosity (x1.34)", note="not corrected for the cells in the way; +-20%"),
+    "ge_d_o2": Input(2.8e-9, "m2/s", "[textbook, scaled] diffusivity of O2 in water: 2.1e-9 at 25 C, scaled as above"),
+    "ge_o2_henry": Input(0.0010, "mmol/L per mbar", "[textbook] solubility of O2 in culture medium at 37 C: about "
+        "1.0 mmol/L against pure oxygen at 1 bar (water is 1.05), 0.2 against air"),
+    "ge_do_setpoint": Input(0.05, "mmol/L", "[typical] dissolved oxygen a culture is held at, about a quarter of "
+        "saturation with air"),
+    "ge_o2_bar": Input(1.0, "bar", "[assumed] pressure of pure oxygen inside the fibres", lo=1.0, hi=2.0, mode=1.0,
+        note="a dense (non-porous) wall can hold more than 1 bar without bubbling; the liquid then returns to the "
+             "tank far above air saturation, which may harm cells"),
+    "ge_buffer": Input(0.0, "mmol/L per pH unit", "[assumed] buffering of the culture other than bicarbonate",
+        lo=0.0, hi=5.0, mode=0.0,
+        note="Bicarbonate can only turn into CO2 if something supplies the acid. Blood has haemoglobin (about 30 "
+             "mmol/L per pH); fresh medium has about 0.5 (1 mmol/L phosphate). The cells' own contents might "
+             "add 3-6 at 12-18% of the volume, if CO2 crossing their membranes brings it into play within "
+             "seconds [inference, not measured]. In phosphate-buffered saline, carbonic anhydrase on the fibres "
+             "doubled CO2 removal (Kimmel 2013, Arazawa 2015, read in full); in medium with no buffer it "
+             "would do little"),
+    "ge_buffer_medium": Input(0.47, "mmol/L per pH unit", "[textbook arithmetic] buffer of 1 mmol/L phosphate "
+        "(DMEM/F12 level, memory) at pH 7.2 with pK 6.8: 2.303 x 1 x 0.715 x 0.285",
+        note="HEPES (pK about 7.3, 10-25 mmol/L in lab media) would add 6-14, but is 'no longer essential' at "
+             "large scale and adds salt (patent snippets)"),
+    "ge_beta_i": Input(15.0, "mmol/L per pH unit of cell water", "[search snippet and memory] buffer inside "
+        "cultured cells other than bicarbonate: '10-50' across cell types (a physiology review); about 10 in a "
+        "muscle-like line (BC3H-1)", lo=10.0, hi=30.0, mode=15.0,
+        note="no figure found for CHO, fibroblasts or myoblasts; whether it acts within a 6 s pass depends on "
+             "carbonic anhydrase inside the cells, also not found for these cells"),
+    "ge_cell_water": Input(0.70, "of cell mass", "[Humbird-R] wet cells are about 70% water"),
+    "ge_ed_volt": Input(2.0, "V per proton", "[memory, unverified] voltage of a bipolar-membrane electrodialysis "
+        "cell pair splitting water, with losses (1.2-3 V)"),
+    "ge_filtrate_flux": Input(3.8, "L per m2 per h", "[Humbird-R; vendor size guide, snippet] what a perfusion "
+        "hollow-fibre filter passes: an ATF-10 serves up to about 1,000 L a day through 11 m2"),
+    "ge_atf_area": Input(11.0, "m2", "[vendor size guide, snippet] filter area of one ATF-10"),
+    # --- packed (falling-film) column on the loop, headspace pressure (gas_exchange.column_design) ---
+    "ge_pk_area": Input(250.0, "m2/m3", "[vendor designation] Mellapak 250Y: about 250 m2 of sheet per m3"),
+    "ge_pk_angle": Input(45.0, "degrees", "[vendor designation] the 'Y' channels run at 45 degrees from horizontal"),
+    "ge_pk_side": Input(0.0187, "m", "[Wang 2015 thesis, Table 5.1, full text; derived] corrugation side of Mellapak "
+        "250Y from its measured channel base (30.2 mm) and crimp height (11.1 mm): sqrt(15.1^2 + 11.1^2)"),
+    "ge_pk_ce": Input(0.9, "-", "[Rocha, Bravo and Fair 1996; form read in Wang 2015, value from memory] surface-renewal factor C_E"),
+    "ge_pk_load": Input(40.0, "m3/m2/h", "[design choice] liquid load on the packing; Mellapak runs from about 0.2 "
+        "to over 200 m3/m2/h (Sulzer brochure, vendor); Tsai's area correlation was fitted over 2.5-75", lo=10.0, hi=80.0, mode=40.0),
+    "ge_surface_tension": Input(0.05, "N/m", "[assumed] surface tension of culture medium with protectant "
+        "(water 0.070; Pluronic lowers it)"),
+    "ge_col_pout": Input(55.0, "mbar", "[design choice] CO2 the culture leaves the column at (in from the tank "
+        "at 100)", lo=20.0, hi=70.0, mode=55.0,
+        note="55 keeps the pH rise in the loop to 0.26; stripping to 20 (pH +0.70) gave an alkaline exposure 1.6 "
+             "times the one that cut CHO density 18-52% (Paul 2020; research_notes/gas_exchange_study.md section 8)"),
+    "ge_loop_transit": Input(8.0, "s", "[assumed] time the culture spends outside the tank besides the packing: "
+        "pump, sump and return pipe (about 20 m of pipe at 3 m/s)", lo=4.0, hi=20.0, mode=8.0),
+    "ge_passes_tested": Input(15.0, "tank volumes per hour", "[Clincke et al. 2013, read in full] the highest "
+        "recirculation dense CHO cultures took for weeks through hollow fibres: 1 L/min on 4 L, about 360 passes a "
+        "day, 48 days", lo=15.0, hi=24.0, mode=15.0,
+        note="hi: a vendor note ran a 1-2 L CHO culture at 12-24 volumes an hour for three weeks with a levitated "
+             "pump. Both at bench scale and through filter fibres, not a packed column"),
+    "ge_col_gas_out": Input(20.0, "mbar", "[design choice] CO2 in the sweep gas where it leaves the top of the "
+        "column, against culture entering at 100 (counter-current)"),
+    "ge_col_gas_in": Input(0.4, "mbar", "[textbook] CO2 in fresh air entering the bottom of the column (about 400 ppm)"),
+    "ge_loop_volume": Input(0.5, "m3", "[design choice] liquid in the loop outside the tank: packing hold-up (about "
+        "0.1-0.4 m3), a small sump and the return pipe", lo=0.2, hi=2.0, mode=0.5),
+    "ge_paul_dph": Input(0.37, "pH units", "[Paul et al. 2020, PMC7401239, full text via a summary] mean alkaline "
+        "pulse (+0.36 to +0.39) in a two-compartment CHO culture, 35-44 s per pass, that cut peak cell density by "
+        "18-52%"),
+    "ge_paul_share": Input(0.075, "of volume", "[Paul et al. 2020, as above] share of the culture in the alkaline zone"),
+    "ge_col_head_extra": Input(4.0, "m", "[assumed] pumping head beyond the packing height: lift to the top, "
+        "distributor, pipes"),
+    "ge_col_extra_height": Input(2.5, "m", "[assumed] shell height beyond the packing: distributor, gas inlet, sump"),
+    "ge_col_wall": Input(0.006, "m", "[textbook rule] minimum wall of a 1.5-4 m vessel, about 6 mm (Seider, as coded in "
+        "BioSTEAM: 1/4-5/16 inch below 6 ft)"),
+    "ge_cepci_2014": Input(1.39, "x", "[pf-tea basis] plant-cost index about 800 in 2024 over 576 in 2014"),
+    "ge_o2_sweep_purity": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: on-site oxygen is about 90% pure"),
+    "ge_o2_price": Input(0.15, "$/kg O2", "[Humbird-R] Sect. 2.3: on-site oxygen at $0.10-0.20 per kg (as quoted "
+        "by the gas-flow session)"),
+    "ge_lime_price": Input(0.24, "$/kg", "[USGS Mineral Commodity Summaries 2025, lime, search snippet] hydrated lime at "
+        "the plant, about $240 per tonne (2024)"),
+    "ge_lime_use": Input(0.7, "-", "[assumed] share of the lime that reacts in the scrubber"),
+    "ge_p_top_base": Input(0.33, "bar gauge", "[Humbird-R] Sect. 4.1: '1.33 bar (5 psig) back pressure at the "
+        "top' (as quoted by the gas-flow session); his gas velocity limit is set at the top of the vessel"),
+    "ge_sparge_o2": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: the tanks are sparged with 90% oxygen"),
+    "ge_kla_20m3": Input(26.4, "1/h", "[Humbird-R, derived] his Eq. 2.16 at 43 W/m3 and 6 mm/s (see pf_mix_ratio_20m3)"),
+    "ge_mix_time_20m3": Input(141.0, "s", "[Humbird-R, derived] his Eq. 2.18 at 20 m3 (see pf_mix_ratio_20m3)"),
+    "ge_stir_power": Input(43.0, "W/m3", "[Humbird-R, derived] the stirring power behind the mixing time (see "
+        "pf_mix_ratio_20m3)"),
+    "ge_nozzle_velocity": Input(3.0, "m/s", "[assumed] speed of the loop's return flow entering the tank"),
+    "ge_co2_frac": Input(0.5, "-", "[design choice] how far one pass takes the liquid's CO2 towards the sweep gas",
+        lo=0.3, hi=0.8, mode=0.5, note="more per pass: fewer passes, longer fibres, a larger pH swing in the loop"),
+    "ge_sweep_pco2": Input(10.0, "mbar", "[design choice] average CO2 pressure in the sweep gas (air swept at "
+        "about ten times the flow a sparger would use, or less in counter-current)"),
+    "ge_bore_mm": Input(0.5, "mm", "[Clincke et al. 2013, read in full] bore of the hollow fibres CHO cells were "
+        "pumped through at over 10^8 cells/mL: 1 mm (microfiltration) and 0.5 mm (ultrafiltration)",
+        lo=0.5, hi=1.0, mode=0.5, note="those were filters, not gas-exchange fibres; area scales with the bore"),
+    "ge_shear": Input(1000.0, "1/s", "[Clincke et al. 2013, read in full] wall shear rate in the fibres: 1,000 to "
+        "3,400 per second had 'no impact ... on CHO cell growth, viability, and metabolism' in 4-litre runs of "
+        "up to 48 days at 15 tank volumes an hour", lo=500.0, hi=3400.0, mode=1000.0,
+        note="CHO only; nothing for muscle, fibroblast or fish cells"),
+    "ge_wall_um": Input(100.0, "um", "[assumed] wall of a dense silicone (PDMS) fibre; 0 would be a microporous "
+        "wall with no resistance", note="silicone is the material that survives steam; microporous polypropylene "
+        "contactors are limited to 85 C hot water and no surfactants (3M Liqui-Cel cleaning guide, read in full)"),
+    "ge_pdms_co2": Input(3250.0, "Barrer", "[memory; search results give 3,190-3,970] CO2 permeability of PDMS",
+        note="1 Barrer = 3.35e-16 mol m / (m2 s Pa). Not read in a primary source"),
+    "ge_pdms_o2": Input(600.0, "Barrer", "[vendor data sheet, search result] O2 permeability of PDMS"),
+    "ge_headloss_x": Input(2.0, "x", "[assumed] pressure drop of the whole loop over that of the fibres alone"),
+    "ge_pump_eff": Input(0.6, "-", "[assumed] pump efficiency"),
+    "ge_power_price": Input(0.08, "$/kWh", "[assumed] industrial electricity"),
+    "ge_cost_m2": Input(200.0, "$/m2", "[distributor listings, Nov 2026] large polypropylene gas-exchange "
+        "contactors list at about $160-265 per m2 (Liqui-Cel EXF 8x20 and 10x28 complete units; areas from memory); "
+        "CO2-capture studies assume $50-200 (search results)", lo=80.0, hi=1480.0, mode=200.0,
+        note="AN OPTIMISTIC ASSUMPTION: it is the price of modules that cannot be steamed (polypropylene, hot water "
+             "to 85 C only). The one priced silicone module, which the design uses, is $704 per m2 at 2.1 m2 "
+             "(PermSelect web store, Nov 2026) and may be steamed once only. No module both survives repeated "
+             "steaming and has a published price. hi = the pharma ATF-10 filter (Humbird: $16,300 for 11 m2)"),
+    "ge_life_y": Input(2.0, "years", "[judgement] life of the membranes in a culture that fouls them and is "
+        "sterilised between runs", lo=0.1, hi=5.0, mode=2.0,
+        note="lo = one 33-day run, which is the life of a module that may be steamed only once (PermSelect "
+             "silicone). Silicone and PMP lungs last about 2-4 weeks in blood (search results); microporous "
+             "polypropylene leaks within hours to days in protein-rich liquid. 3-5 years in gas-separation service"),
+    "ge_install_x": Input(3.0, "x", "[CE Delft 2021, via research_notes/plant_capital_crosscheck.md] installed and "
+        "engineered cost over purchased cost for food-grade equipment (an overall Lang factor of about 3)"),
+    "ge_pump_cost": Input(30.0e3, "$", "[assumed] a low-shear sanitary pump for ge_pump_flow; no price was found",
+        note="a 7.5-15 HP sanitary centrifugal pump lists at about $10k (search result)"),
+    "ge_pump_flow": Input(300.0, "m3/h", "[assumed] the flow ge_pump_cost refers to; cost scales as flow^0.6"),
+    "ge_k_submerged": Input(2.0e-5, "m/s", "[assumed order of magnitude] liquid-film coefficient at a membrane "
+        "hung in a stirred tank", note="for comparison, unmodified fibres in saline at 67 mbar of CO2 removed 75-92 "
+        "mL/min per m2 (Kimmel 2013, Arazawa 2015), which is 3.4-4.1e-5 m/s with buffer helping"),
+    "ge_tubing_od_mm": Input(3.0, "mm", "[Frahm et al. 2009, read in full] outer diameter of the silicone tubing "
+        "used for bubble-free aeration up to 200 L, at 30-68 m2 of tubing per m3"),
+    "ge_head_area": Input(1.084, "x D^2", "[textbook] surface of a 2:1 elliptical vessel head"),
+    "ge_vessel_cost_exp": Input(0.6, "-", "[Seider et al. 2017, read as code in BioSTEAM] exponent of vessel cost "
+        "on shell weight: Cv = exp(7.139 + 0.18255 ln W + 0.02297 (ln W)^2) for vertical vessels, W in lb, whose "
+        "slope at the 8,000 lb of a 20 m3 tank is 0.60",
+        note="the same source prices a horizontal vessel a third below a vertical one of equal weight"),
+    "ge_hall_share": Input(0.131, "of direct cost", "[Humbird-R, derived] the sanitary cell-culture hall's share of "
+        "the plant: $20.9M of $159.5M (see pf_capex_no_cleanroom)"),
+    "ge_clearance_m": Input(2.0, "m", "[assumed] floor taken per tank is (width + this)^2"),
+    "ge_kill_protected": Input(4.0e-4, "L of culture per L of gas", "[Jobses, Martens, Tramper 1991, read in full] "
+        "volume of culture whose cells die per volume of gas sparged, hybridoma with 1 g/L Pluronic F68: death "
+        "rate 0.05 per hour at 10 L/h of gas through 80 mL", lo=4.0e-4, hi=3.2e-3, mode=4.0e-4,
+        note="death rate = this x gas flow per litre of culture ('the cell death rate is linearly proportional to "
+             "the gas flow rate per unit volume'); independent of sparger and, in Tramper 1988, of bubble size. "
+             "hi = the same at 0.1 g/L (0.4 per hour). 3 cm columns, 4-6 mm bubbles, 2.0-12 cm deep: a long "
+             "extrapolation to 20 m3"),
+    "ge_kill_unprotected": Input(8.8e-3, "L of culture per L of gas", "[Jobses et al. 1991, read in full] the same "
+        "with no protectant: 1.1 per hour", note="Tramper et al. 1988 give 4e-3 for insect cells"),
+    "ge_alr_volume": Input(261.754, "m3", "[Negulescu et al. 2023, read in full] 'the ALR is 261,754 L with a "
+        "working volume of 209,404 L'"),
+    "ge_alr_our": Input(10.3, "mmol O2/L/h", "[Negulescu et al. 2023, read in full] oxygen uptake 'of about 10.3 "
+        "mmol O2/L/hr ... based on the maximum cell concentration of 100 g FW/L'; CO2:O2 set to 1.2",
+        note="0.103 mmol per g per hour, 31% below the model cell's 0.149 for the same 3 ng cell"),
+    "ge_alr_li_height": Input(13.75, "m", "[Negulescu et al. 2023, read in full, describing Li et al. 2020] 'a 300 "
+        "m3, 13.75 m tall airlift reactor'; Negulescu gives no dimensions for its own"),
+    "ge_alr_li_volume": Input(300.0, "m3", "[as above]"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),
@@ -524,6 +705,184 @@ REGISTRY: dict[str, Input] = {
         "hydrolysis and clean-up; microbial or gas-fermentation protein would have to beat that"),
     "pf_other_nutrients_cheap": Input(0.3, "$/kg", "[assumed] salts, buffer, vitamins at feed-grade prices",
         note="against the 0.9 assumed in other_nutrients_floor"),
+
+    # --- plant capital by item (plant_items.py; research_notes/cheap_plant_study.md) -------------------
+    # Humbird's fed-batch plant (24 x 20 m3) transcribed line by line, his yeast plant, and the options each
+    # item can be switched to. 2018 dollars, $k, unless stated. [Humbird-R] = the long report, read in full text.
+    "pi_n_tanks": Input(24.0, "tanks", "[Humbird-R] Table 4.1: 24 x 20 m3 production bioreactors"),
+    "pi_tank_m3": Input(20.0, "m3", "[Humbird-R] Table 4.1: production bioreactor volume"),
+    "pi_prod_installed": Input(33922.0, "$k", "[Humbird-R] Table 4.1: production bioreactors (F5), installed; "
+        "= 24 x Eq. 3.1 (30.7 x 20 + 800 = $1,414k each)"),
+    "pi_seed_installed": Input(22673.0, "$k", "[Humbird-R] Table 4.1: seed bioreactors, '24 x 16 m3 and smaller', "
+        "installed", note="24 vessels = 4 trains x (150 L, 550 L, 2.1, 8.1 and 2 x 15.6 m3) (Fig. 4.3 and text); "
+        "Eq. 3.1 on these gives $22.72M, 0.2% above the table"),
+    "pi_bioreactor_bare": Input(13794.0, "$k", "[Humbird-R] Table 4.1 note a: bare equipment cost of all 48 "
+        "bioreactors; reproduced by his note 127, $k = 51 x V^0.69"),
+    "pi_fill_tanks": Input(1660.0, "$k", "[Humbird-R] Table 4.1: initial fill tanks, 14 x 20 m3 and smaller, bare"),
+    "pi_htst": Input(702.0, "$k", "[Humbird-R] Table 4.1: HTST sterilisers, 14 x 4,950 L/h and smaller, bare"),
+    "pi_makeup_tanks": Input(3370.0, "$k", "[Humbird-R] Table 4.1: makeup tanks, 72 x 2.8 m3 and smaller (one per "
+        "bioreactor, production and seed), bare"),
+    "pi_filter_housings": Input(1481.0, "$k", "[Humbird-R] Table 4.1: filter housings, 216 x 0.7 m2 and smaller, bare"),
+    "pi_centrifuge": Input(1744.0, "$k", "[Humbird-R] Table 4.1: disk-stack centrifuges, 4 x 35 gpm, bare"),
+    "pi_vpsa": Input(8840.0, "$k", "[Humbird-R] Table 4.1: oxygen plant (vacuum pressure-swing adsorption), 25 kt "
+        "of oxygen a year, bare", note="Pasitka 2024 (SI Table S2) prices a 15 kt/yr unit at $1,991k: 4.4 times "
+        "less for 60% of the capacity"),
+    "pi_o2_compressor": Input(295.0, "$k", "[Humbird-R] Table 4.1: oxygen compressor, bare"),
+    "pi_boiler": Input(154.0, "$k", "[Humbird-R] Table 4.1: natural-gas boiler, bare"),
+    "pi_cip_tanks": Input(4136.0, "$k", "[Humbird-R] Table 4.1: clean-in-place tanks, 12 x 42 m3, bare"),
+    "pi_chiller": Input(551.0, "$k", "[Humbird-R] Table 4.1: chiller, bare"),
+    "pi_cooling_tower": Input(24.0, "$k", "[Humbird-R] Table 4.1: cooling tower, bare"),
+    "pi_missing": Input(0.10, "share", "[Humbird-R] Sect. 3.1 and Table 4.1: 10% of equipment cost for minor items "
+        "not listed (pumps and the like)", note="taken on the total including itself: allowance = listed / 0.9 - "
+        "listed. In the ISBL the listed base includes the installed bioreactors; both reproduce Table 4.1"),
+    "pi_install": Input(1.3, "x bare", "[Humbird-R] Sect. 3.1: installation of equipment other than bioreactors, "
+        "added on top of the bare cost (so installed = 2.3 x bare)"),
+    "pi_engineering": Input(0.6, "x direct", "[Humbird-R] Table 4.3: engineering and construction, 0.6 x total "
+        "direct cost"),
+    "pi_fees": Input(0.15, "x plant cost", "[Humbird-R] Table 4.3: contractor's fee and contingency, 0.15 x total "
+        "plant cost"),
+    "pi_bldg_hall": Input(39607.0, "$k", "[Humbird-R] Table 4.2: cell-culture hall, Class 8 clean room, 5,268 m2 on "
+        "2 levels ('15% occupied by major equipment')"),
+    "pi_bldg_cell_lab": Input(2575.0, "$k", "[Humbird-R] Table 4.2: cell lab, Class 6, 294 m2"),
+    "pi_bldg_qc_lab": Input(1287.0, "$k", "[Humbird-R] Table 4.2: quality-control lab, Class 6, 147 m2"),
+    "pi_bldg_office": Input(527.0, "$k", "[Humbird-R] Table 4.2: office, 318 m2"),
+    "pi_bldg_compressor": Input(162.0, "$k", "[Humbird-R] Table 4.2: compressor building, 63 m2 on 2 levels"),
+    "pi_bldg_shop": Input(1648.0, "$k", "[Humbird-R] Table 4.2: maintenance shop, 1,317 m2 (25% of the hall)"),
+    "pi_bldg_warehouse": Input(1491.0, "$k", "[Humbird-R] Table 4.2: warehouse, 1,317 m2 (25% of the hall)"),
+    "pi_bldg_slab": Input(1185.0, "$k", "[Humbird-R] Table 4.2: slab under the whole developed area, 8,724 m2"),
+    "pi_rate_class8": Input(3760.0, "$/m2-level", "[Humbird-R] Table 3.2: Class 8 clean room"),
+    "pi_rate_sanitary": Input(1980.0, "$/m2-level", "[Humbird-R] Table 3.2: sanitary building"),
+    "pi_rate_warehouse": Input(1130.0, "$/m2-level", "[Humbird-R] Table 3.2: warehouse"),
+    "pi_eq31_slope": Input(30.7, "$k/m3", "[Humbird-R] Eq. 3.1: installed cost of a sterile bioreactor, $k = 30.7 V "
+        "+ 800 for V >= 0.33 m3"),
+    "pi_eq31_fixed": Input(800.0, "$k", "[Humbird-R] Eq. 3.1: the fixed part (piping, instruments), per vessel"),
+    "pi_eq31_small_slope": Input(2285.0, "$k/m3", "[Humbird-R] Eq. 3.1 below 0.33 m3: $k = 2285 V + 49.5"),
+    "pi_eq31_small_fixed": Input(49.5, "$k", "[Humbird-R] Eq. 3.1 below 0.33 m3"),
+    "pi_bare_coef": Input(51.0, "$k", "[Humbird-R] note 127: bare bioreactor cost $k = 51 x V^0.69"),
+    "pi_bare_exp": Input(0.69, "exponent", "[Humbird-R] note 127"),
+    # Table 3.3: what the installed cost of one sterile 20 m3 bioreactor is made of
+    "pi_t33_vessel": Input(330.0, "$k", "[Humbird-R] Table 3.3, 20 m3: vessel and agitator"),
+    "pi_t33_piping": Input(360.0, "$k", "[Humbird-R] Table 3.3, 20 m3: piping (sterile feeds, steam, CIP)"),
+    "pi_t33_instr": Input(476.0, "$k", "[Humbird-R] Table 3.3, 20 m3: instruments and electrical; probes are "
+        "three times redundant (his note 92)"),
+    "pi_t33_other": Input(22.0, "$k", "[Humbird-R] Table 3.3, 20 m3: other direct cost"),
+    "pi_t33_internals": Input(164.0, "$k", "[Humbird-R] Table 3.3, 20 m3: sparger, spray balls, exhaust heater, "
+        "double mechanical seal"),
+    "pi_t33_surface": Input(132.0, "$k", "[Humbird-R] Table 3.3, 20 m3: electropolishing and acid passivation"),
+    # the seed train of the fed-batch plant: vessel sizes (m3), per train (Fig. 4.3)
+    "pi_seed_trains": Input(4.0, "trains", "[Humbird-R] Sect. 4.1: 'four identical trains ending with 6 x F5'"),
+    "pi_seed_f0_m3": Input(0.15, "m3", "[Humbird-R] Sect. 4.1: 'F0, a single 150 L seed bioreactor inoculated with "
+        "3 kg of cells prepared in the lab'"),
+    "pi_seed_f1_m3": Input(0.55, "m3", "[Humbird-R] Fig. 4.3: F1"),
+    "pi_seed_f2_m3": Input(2.1, "m3", "[Humbird-R] Fig. 4.3: F2"),
+    "pi_seed_f3_m3": Input(8.1, "m3", "[Humbird-R] Fig. 4.3: F3"),
+    "pi_seed_f4_m3": Input(15.6, "m3", "[Humbird-R] Fig. 4.3: F4, two per train; each fills three production tanks"),
+    "pi_seed_tanks_per_f4": Input(3.0, "tanks", "[Humbird-R] Fig. 4.3: an F4 batch of 1,445 kg seeds three "
+        "production tanks at 482 kg (36.5 g/L)"),
+    "pi_stage_h": Input(57.0, "h", "[Humbird-R] Sect. 4.1: a stage takes 48 h of growth (two doublings) plus 2 h to "
+        "drain, 4 h to clean and sterilise and 4 h to refill; seeds are assumed to run the same cycle"),
+    # Humbird's baker's-yeast plant (Appendix A)
+    "pi_yeast_bcr_200": Input(818.0, "$k", "[Humbird-R] Table A.1: one 200 m3 jacketed bubble column in 316L steel, "
+        "bare"),
+    "pi_yeast_seed": Input(1369.0, "$k", "[Humbird-R] Table A.1: seed train of the standard plant (0.5, 3.4, 24 and "
+        "2 x 85 m3, Fig. A.4a), bare; not itemised"),
+    "pi_yeast_pasteurizer": Input(221.0, "$k", "[Humbird-R] Table A.1: pasteuriser for the molasses feed, bare"),
+    "pi_yeast_prep_tank": Input(593.0, "$k", "[Humbird-R] Table A.1: preparation tank, bare"),
+    "pi_yeast_compressors": Input(2750.0, "$k", "[Humbird-R] Table A.1: two air compressors, bare"),
+    "pi_yeast_centrifuges": Input(1728.0, "$k", "[Humbird-R] Table A.1: two centrifuges, bare"),
+    "pi_yeast_rvf": Input(652.0, "$k", "[Humbird-R] Table A.1: two rotary vacuum filters, bare"),
+    "pi_yeast_missing": Input(0.20, "x listed", "[Humbird-R] Table A.1: minor items, 20% of purchased equipment "
+        "($3,055k of $15,276k), so purchased = listed / 0.8"),
+    "pi_yeast_lang": Input(4.5, "x equipment", "[Humbird-R] Table A.1: overall factor from purchased equipment to "
+        "total investment", note="Table 3.1's 'non-sterile outdoors (lysine)' column sums to 4.7; he uses 4.5"),
+    "pi_yeast20_capex": Input(70000.0, "$k", "[Humbird-R] Table A.5: the yeast process held to animal-cell limits "
+        "(growth rate 0.03/h, oxygen transfer 25 mol/m3/h): 27 x 20 m3 fermentors, 'Total CAPEX $70M'",
+        note="NOT ITEMISED by Humbird, and the column is headed 'equal CAPEX' (the standard plant is $68.7M), so "
+             "the figure is rounded and partly set by construction. plant_items rebuilds it from Table A.1"),
+    "pi_yeast20_tanks": Input(27.0, "tanks", "[Humbird-R] Table A.5 and Fig. A.4b: 27 x 20 m3 production fermentors; "
+        "seeds of 9 x 19, 3 x 18.5, 18 and 6 m3 (the list is in plant_items.YEAST20_SEED_M3)"),
+    "pi_yeast_output_ratio": Input(1.7 / 17.3, "ratio", "[Humbird-R] Table A.5: yeast made, constrained over "
+        "standard plant (1.7 against 17.3 kt a year)"),
+    "pi_yeast_oxygen_ratio": Input(25.0 * 540.0 / (150.0 * 1200.0), "ratio", "[Humbird-R] Table A.5: oxygen "
+        "transferred, constrained over standard: 25 against 150 mol/m3/h, in 540 against 1,200 m3"),
+    "pi_yeast_broth_ratio": Input((1.7 / 25.0) / (17.3 / 69.0), "ratio", "[Humbird-R] Table A.5: broth to dewater, "
+        "constrained over standard: yeast made / cell density (25 against 69 g/L)"),
+    "pi_yeast_feed_ratio": Input(1.7 * 0.89 / (17.3 * 0.72), "ratio", "[Humbird-R] Table A.5: molasses handled, "
+        "constrained over standard: yeast made x carbon cost per kg ($0.89 against $0.72)"),
+    "pi_scale_exp": Input(0.6, "exponent", "[assumed] the six-tenths rule for scaling equipment cost with capacity, "
+        "the standard default in process cost estimating (Negulescu 2023 uses it for bioreactors)",
+        lo=0.5, hi=0.7, mode=0.6,
+        note="used to resize the yeast plant's compressors, centrifuges, filters and feed equipment from the "
+             "standard to the constrained plant. The vessel exponent is not assumed: it is solved so that the "
+             "rebuilt plant costs Humbird's $70M (about 0.49)"),
+    # Table 3.1, 'non-sterile outdoors (lysine)': what the yeast plant's overall factor is made of
+    "pi_lys_install": Input(0.29 + 0.38 + 0.40, "x equipment", "[Humbird-R] Table 3.1, lysine column: installation "
+        "0.29 + process piping 0.38 + instruments and electrical 0.40"),
+    "pi_lys_buildings": Input(0.10 + 0.10, "x equipment", "[Humbird-R] Table 3.1, lysine column: buildings 0.10 + "
+        "site improvement 0.10"),
+    "pi_lys_aux": Input(0.30, "x equipment", "[Humbird-R] Table 3.1, lysine column: auxiliary facilities "
+        "(utilities)"),
+    # options for animal cells that are neither Humbird's nor the yeast plant's
+    "pi_vessel_food_k": Input(1000.0, "$k per 20 m3 tank", "[company claim, trade press] Vow: its 20,000 L "
+        "food-grade tank cost 'well under $1 million' (AgFunder 2025, full text; Lever VC 2025 reads it as 80% "
+        "below a pharma-specification system)", lo=450.0, hi=1414.0, mode=1000.0,
+        note="taken as an UPPER bound for a sterilisable food-grade stirred tank, installed, against Humbird's "
+             "$1,414k. Cross-checks: Humbird's Table 3.3 without electropolishing and with single probes is about "
+             "$1,190k; CE Delft 2021 prices a 12.5 m3 tank at $325k purchased; Negulescu 2023 starts from $300k "
+             "for a 20 m3 tank in 304 steel. lo: about the yeast-plant vessel with its installation. Whether "
+             "'under $1 million' includes piping and installation is not stated"),
+    "pi_o2_feed": Input(3.3, "kg O2/kg wet cells", "[Humbird-R, derived] Table 4.4: the oxygen plant draws 2,139 "
+        "kWh per batch of 1,849 kg; at about 0.35 kWh per kg of oxygen [assumed, typical for the technology] that "
+        "is 6.1 t of oxygen fed per batch, consistent with a 25 kt/yr plant serving 3,600 batches",
+        note="most of the oxygen fed leaves unused: the cells burn about 0.3 kg per kg"),
+    "pi_o2_price": Input(0.10, "$/kg", "[assumed] oxygen bought over the fence or as bulk liquid; not sourced "
+        "(industrial gas prices are contract prices and rarely published)", lo=0.05, hi=0.20, mode=0.10,
+        note="at 3.3 kg per kg of cells this is $0.33 per kg of cells, against about $1.5 per kg for owning "
+             "Humbird's oxygen plant at his capital loading. A judgement, flagged as such in the note"),
+
+    # --- contamination as dynamics (contamination.py; research_notes/cheap_plant_study.md) ----------------
+    "ct_doubling_fast_min": Input(20.0, "min", "[BioNumbers 103514, search result] E. coli in rich broth at 37 C",
+        note="the fast end. Doubling times of contaminants in cell-culture medium were looked for and not found"),
+    "ct_doubling_slow_min": Input(60.0, "min", "[assumed] a slower common contaminant (many environmental bacteria "
+        "and yeasts double in 40 to 90 minutes in rich medium)"),
+    "ct_doubling_cryptic_h": Input(6.0, "h", "[Fratz-Berilla et al. 2019, Biotechnol. Bioeng., full text] "
+        "Mycoplasma arginini in a CHO perfusion culture: doubling 'about 6 h or more'; from 15-300 CFU/mL it "
+        "reached about 1e7 CFU/mL in 2-3 days, and oxygen and CO2 readings moved 1-5 days after the spike"),
+    "ct_bact_qo2": Input(15.0, "mmol O2/g dry/h", "[from memory, textbook range 10-20 for E. coli growing fast; "
+        "not verified at source]", lo=5.0, hi=20.0, mode=15.0),
+    "ct_bact_dry_pg": Input(0.3, "pg dry per cell", "[from memory, BioNumbers: an E. coli cell is about 0.3 pg dry "
+        "(1 pg wet); not verified at source]", lo=0.15, hi=1.0, mode=0.3),
+    "ct_detect_shift": Input(0.05, "share", "[assumed] the change in a tank's oxygen uptake that its oxygen "
+        "control or off-gas reading shows clearly above noise", lo=0.01, hi=0.10, mode=0.05,
+        note="sets the contaminant density at which ordinary sensors see it; a factor of 5 either way moves "
+             "the time to detection by only about 2 doublings out of about 50"),
+    "ct_inoculum_cfu": Input(1.0, "cells", "[assumed] a contamination starts from a single cell; a hundred cells "
+        "would show under 7 doublings sooner"),
+    "ct_food_limit_cfu": Input(1e4, "CFU/g", "[FSANZ A1269 risk assessment, April 2025, full text] Vow's harvest "
+        "specification: standard plate count under 1e4 per gram",
+        note="UPSIDE's is under 100 and GOOD Meat's under 1,000 (FDA memos, full text). Raw meat at the end of "
+             "its shelf life carries 1e6 to 1e7. These are company-proposed limits, not law"),
+    "ct_start_detect_days": Input(1.0, "days", "[Linderholm et al. 2025, Anal. Bioanal. Chem., search result] "
+        "'gross contamination' is detected after 18-24 h at the earliest; contamination.time_to_detect_h gives "
+        "0.7 to 2 days for doubling times of 20 to 60 minutes", lo=0.7, hi=5.0, mode=1.0,
+        note="how long a tank started from a contaminated seed runs before it shows. hi: slow organisms"),
+    "ct_seed_share": Input(36.5 / 120.0, "of a tankful", "[Humbird-R] Sect. 4.1: a tank is started at 36.5 g/L and "
+        "harvested at 120, so a start that fails loses about 0.3 of a tankful of cells"),
+    "ct_batch_loss_pharma": Input(0.023, "of batches", "[Langer 2008, BioProcess Int., full text] BioPlan survey of "
+        "145 organisations: 2.3% of batches lost to contamination in plants above 1,000 L (7.6% from all causes); "
+        "3.2% in the 2022 survey as quoted by GFI",
+        note="over a 10-14 day production batch [typical length, from memory] this is 0.15-0.3% a day, the "
+             "basis of pf_hazard_pharma"),
+    "ct_batch_loss_cm": Input(0.112, "of batches", "[Powell et al. 2025, Compr. Rev. Food Sci. Food Saf., full "
+        "text] survey of cultivated-meat makers, May-July 2023: mean 11.2% of batches lost to contamination in the "
+        "past year (range 0-52%, 11 companies)", lo=0.0, hi=0.52, mode=0.112,
+        note="19.5% for the 6 companies beyond flask scale (ct_batch_loss_cm_scaled). Run lengths and tank sizes "
+             "are not reported, so no rate per day follows without assuming them"),
+    "ct_batch_loss_cm_scaled": Input(0.195, "of batches", "[Powell et al. 2025, full text] the same survey without "
+        "the four companies working only in flasks: mean 19.5% (6 companies)"),
+    "ct_hazard_frontier": Input(0.015, "per day", "[derived, with an assumed run length] the survey's 11.2-19.5% of "
+        "batches, if those ran 10-20 days: about 0.6 to 2.2% a day; 1.5% is the round middle",
+        lo=0.006, hi=0.022, mode=0.015),
 
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
