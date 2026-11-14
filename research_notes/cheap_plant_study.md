@@ -9,6 +9,59 @@ fees and contingency) per m³ of production tank, in Humbird's 2018 dollars unle
 prices" (× 1.33). Cost per kg is per kg of real wet cells, from `floor_physics.explore` at the floor's
 settings: perfusion, 20 m³ tanks, 120 g/L, food-industry financing.
 
+## For the experiments list
+
+Two unknowns are left open by this study. Costs per kg are from `floor_physics.explore` with everything else
+at the floor (perfusion, 20 m³ tanks, 120 g/L, food-industry financing). The model gives $11.5 for the
+sterile plant (`explore()`) and $6.6 for the yeast-style class (`explore(plant="microbial")`).
+
+### A. What a food-grade sterile plant for animal cells costs to build
+
+- **Unknown:** the installed cost of a 20 m³ line that is food-grade but still sealed and steam-sterilised
+  (tank with its sterile piping and instruments, seed vessels, medium sterilisation, cleaning), which nobody
+  has published.
+- **Worth:** $7.3 per kg if it comes in near a yeast plant with the additions animal cells must have
+  (`explore(items=plant_items.PLANTS["yeastplus"])`, $233k per m³ in today's prices); $9.0 if only the
+  clearly unnecessary items go (`explore(items=plant_items.PLANTS["lean"])`, $452k); $11.5 if it comes in at
+  Humbird's level without the clean room (`explore()`, $813k).
+- **Probability it resolves well:** about 30% for $7.3 or near it, about 65% for $9.0 or better. The bare
+  tank is not in dispute ($300k to $330k in three studies); the doubt is the piping and installation round
+  it, where the one published vendor quote (Garrison 2022) is as high as Humbird.
+- **Deciding record:** an as-built cost breakdown of one food-grade 20 m³ animal-cell line, split into tank,
+  piping and instruments, seed vessels, medium sterilisation, cleaning, building. No cells are needed for a
+  quote; the specification is a jacketed, stirred, steam-sterilisable 20 m³ vessel with sterile gas and feed
+  lines.
+- **Rough cost and time [my estimate]:** a few weeks and little money for two or three vendor quotes; about
+  $20k to $50k and two to three months for an engineering firm's costed design. Vow already holds the as-built
+  figure for its 20 m³ tank; food and dairy fermenter makers and the engineering firms that build
+  precision-fermentation plants could quote.
+- **Evidence strength today:** inferred. Design studies and company claims ("well under $1 million" a tank);
+  no built animal-cell plant publishes cost and tank volume together.
+
+### B. How often a cheap plant loses a run, and how long it takes to recover
+
+- **Unknown:** the chance per day that a 20 m³ tank in a food-grade plant without a clean room is lost to
+  contamination over runs of weeks, and the days needed to restart after a loss.
+- **Worth, in the lean plant** (`explore(items=plant_items.PLANTS["lean"], hazard=h, restart_fail_days=d)`):
+  $9.4 per kg at 0.6% a day with a 14-day restart; $10.1 at 1.5%; $13.0 at 5%, which is worse than the
+  sterile plant's $11.7 at pharma's 0.2%. A 30-day restart turns $10.1 into $11.3. In the yeast plant with
+  additions the same three rates give $7.6, $8.0 and $10.0. The break-even is 3.5% a day for the lean plant
+  and 7.6% for the yeast plant with additions.
+- **Probability it resolves well** (at or under 2.2% a day, the top of what makers report today, with a
+  restart of about two weeks): about 55%. Today's reported losses are 0.6 to 2.2% a day, but from small
+  vessels and short batches, and pharma loses three times more batches above 1,000 L than below.
+- **Deciding record:** a run log from tanks of 1 to 20 m³ in a food-grade plant: runs started, days run, runs
+  lost, the cause of each loss and days to restart, over at least 20 to 30 runs. The cell line hardly matters
+  (any suspension meat line; Vow's is quail), because what is measured is how often something gets in. A
+  cheaper first step needs no cells at all: fill a steam-sterilised tank with sterile medium, run it with gas,
+  feeds and sampling as in production, and count how many holds stay sterile for 30 days.
+- **Rough cost and time [my estimate]:** nothing but disclosure if a maker shares its log (Vow, and any
+  company running 1,000 L or more). Sterile-hold trials at a contract fermentation plant: of the order of
+  $100k to $300k and three to six months. A full campaign with cells at 20 m³: of the order of $1M to $3M and
+  six to twelve months.
+- **Evidence strength today:** for the loss rate, measured in meat cells but weakly: one survey of 11
+  companies, with no run lengths or tank sizes. For recovery time and for everything at 20 m³, inferred.
+
 ## 1. Answer in brief
 
 1. **The fivefold gap is now itemised.** Humbird's animal-cell plant costs $683k per m³ and his own yeast
