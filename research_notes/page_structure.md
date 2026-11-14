@@ -98,3 +98,16 @@ switch to `scenarios.SWITCHES` (the page and the parity test read the switch lis
 - **The all-levers panel is collapsed** and starts from the chosen scenario (a "Start from a scenario" control), so its tornado is the tornado around the page's default
   case, as the task asked ("tornado base case ... for the new default case").
 - **Phone**: the scenario table restacks into cards below 700 px; the share section's assumption panel moves above its charts (as before).
+
+## 4. One page or two? (asked by Pablo, 2026-11-15: "reorganise the webpage or potentially split it in two, if you think it is reasonable")
+
+**Decision: keep one page.** The proposed split is a cost page and a share page joined by a link that carries the scenario's cost. I considered it against the conditions set for it:
+
+- **The live link is the page's main feature.** Moving a switch changes the cost, the shop price and the share at once, and every share chart follows. On two pages the share page would show a frozen cost, or would need the whole cost model to recompute it. The page already supports carrying only a cost number (`#sc=custom:18.143`), so a one-way link would work, but the reader could no longer change a switch and watch a share chart move.
+- **Shared code.** Both pages need the demand model (for the share numbers in the cost page's result strip) and the cost model (for the share page's "Start from a scenario" control). Either each page carries both, so each is about as large as today's single file (385 KB) and the whole page is paid for twice, or the code moves into a shared `.js` file, which breaks the single self-contained file that works offline and that `tests/run_parity.py` extracts. Neither is hard, but both cost more than they give while the page reads well in one scroll.
+- **Tests.** Parity extracts the script from `interactive.html`; two pages would need the extraction, the probe and the id checks done twice or the shared file pulled out first.
+- **Reading.** What a split buys, a short first page, is mostly achieved by the jump bar and by putting the answer first. At phone width the page is one column and each section starts with a one-line statement of what it holds.
+
+**What would change this.** The vessel-types and operating-modes work will add rows to the cost part. If the cost part then grows past what one scroll comfortably holds, the clean cut is where it is today: `#answer`, `#decide` and `#build` against `#share` and `#evidence`, with the shared JavaScript pulled into one file included by both and `interactive.html` kept as the landing page (the scenario table and two links). The section ids and the `#sc=` link format are already compatible with that.
+
+**Order of commits.** Stage 1 (scenarios, numbers, docs) is commit `da06954` and stage 2 (layout) is `99b6e00`, both on PR #16. They were opened as one PR; the numbers can be reviewed on their own by reading the first commit.
