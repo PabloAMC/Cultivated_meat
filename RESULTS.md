@@ -15,8 +15,10 @@ revision (2026-11-13, independent review): METHODS.md. Details of this one: METH
 
 All costs are per kg of real cells: 70% water and about 20% protein, like meat.
 
-- **With cells as they are today,** cultivated meat made at scale would cost about **$230/kg, roughly 20× everyday
-  meat** (Humbird's design with wild-type cells; Pasitka's process restated per kg of real cells gives $86–593).
+- **With cells as they are today,** cultivated meat made at scale would cost about **$220/kg, roughly 18× everyday
+  meat**. This is the most recent measured run (Pasitka 2024) restated per kg of real cells; the range is $86–593
+  because the paper does not report how wet its biomass was. A 2024 company report (SuperMeat) claims far less,
+  about $30–55/kg, without peer review.
 - **With efficient cells in a large plant, a projection:** about **$33/kg, ~3.1× everyday meat** ($38 in the shop
   vs a $12 benchmark). Efficient cells waste little glucose and make little ammonia; nobody has shown them at
   scale. Across the plausible range of costs the median is 2.7×; no draws reach parity. This is the case every
@@ -44,7 +46,7 @@ than it looked.
 
 | case | cells, $/kg | R vs $12 meat | status |
 |---|---|---|---|
-| cells as they are today, at scale | ~$230 (86–593) | ~20 (8–50) | Humbird's design with wild-type cells; Pasitka's process per kg of real cells |
+| cells as they are today, at scale | ~$220 (86–593) | ~18 (8–50) | Pasitka's 2024 run restated per kg of real cells; a company report claims $30–55 |
 | projection: efficient cells, small vessels (scale-up stalls) | $55.7 | 5.06 | efficient cells not shown at scale |
 | **projection: efficient cells, large plant (default)** | **$32.6** | **3.13** | efficient cells not shown at scale |
 | projection: efficient cells, largest perfusion design | $27.5 | 2.71 | perfusion at this size is "theoretical" in Pasitka's words |
@@ -153,7 +155,7 @@ wariness fades). How wary shoppers are today (surveys: 5–60%) sets the speed, 
 ## 6. What to fund
 
 1. **Better cells:** lines that waste little glucose, make little ammonia, grow fast and are large. They are the
-   difference between about $230/kg and about $33/kg, and nobody has shown them at scale.
+   difference between about $220/kg and about $33/kg, and nobody has shown them at scale.
 2. **Cheaper classes of plant:** whether animal cells can be grown in large, food-grade vessels without clean
    rooms. This is the only route the model finds below price parity.
 3. **Medium cost at production scale:** verify the sub-$0.20/L reports on a stated mass basis.
@@ -169,7 +171,7 @@ are public goods that industry underfunds.
 - **Up:** efficient cells shown at pilot scale with a full mass balance; animal cells grown at density in
   food-grade vessels of 100 m³ or more; medium below $0.30/L confirmed at scale. A company white paper (SuperMeat
   2024) claims about $26–30/kg of cell mass before capital from 10 L runs scaled to 25 m³; if that held up under
-  review, today's cells would be far closer to the projection than the $230 above.
+  review, today's cells would be far closer to the projection than the $220 above.
 - **Down:** scale-up limits that bind, leaving R around 5 even with efficient cells; contamination losses in
   long continuous runs, which the floor does not model; plant costs above Humbird's design.
 - **How this model sits among others.** Restated per kg of real cells with capital included, the published design

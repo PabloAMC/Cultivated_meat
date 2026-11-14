@@ -1133,8 +1133,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       they are not what Pasitka's own process delivers per kilo of cells: its kilo is a wet pellet that is mostly
       liquid (about {{PASITKA_CELL_PCT}}% cells by our estimate). The model keeps them because they fall inside
       Humbird's independent range for efficient cells, $21–37 per kilo of real cells [2]. <b>With cells as they are
-      today</b>, Humbird's design costs about ${{TODAY_CELLS_COST}}/kg (<i>R</i> ≈ {{R_TODAY_CELLS}}), and Pasitka's
-      process, restated per kilo of real cells, ${{TODAY_CELLS_LO}}–{{TODAY_CELLS_HI}}. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      today</b>, the most recent measured run (Pasitka 2024), restated per kilo of real cells, costs about
+      ${{TODAY_CELLS_COST}}/kg (<i>R</i> ≈ {{R_TODAY_CELLS}}). The range is ${{TODAY_CELLS_LO}}–{{TODAY_CELLS_HI}}
+      because the paper does not report how wet its biomass was. A 2024 company report claims far less, about
+      $30–55, without peer review. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14); charts 1, 2 and 7 use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_TFF}}:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop

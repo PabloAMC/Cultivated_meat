@@ -10,7 +10,7 @@ so the defaults are NOT what Pasitka's process delivers per kg of cells. The mod
 keeps them as the PROJECTION for efficient cells in a large plant, because they sit
 inside Humbird's independent range for that case ($21/kg on hydrolysate, $37/kg on
 individual amino acids). The cost with cells as they are today is a separate, much
-higher scenario (`today_cells_cost`, ~$230/kg: Humbird's wild-type design). The
+higher scenario (`today_cells_cost`, ~$220/kg: Pasitka's 2024 run restated). The
 floor's plant term comes from floor_physics.py.
 
 price_ratio.py defines how a biomass cost becomes R and where the parity
@@ -111,7 +111,7 @@ The floor (see cost_floor):
 
 Result preview (defaults): projection for efficient cells ~$33/kg; medium at
 $0.2/L ~$23/kg; + CHO-efficient cells ~$20/kg; floor ~$11/kg (band ~$4-17). With
-cells as they are today: ~$230/kg. With a $5/kg additive markup against a $12/kg
+cells as they are today: ~$220/kg. With a $5/kg additive markup against a $12/kg
 commodity price, parity (R=1) needs biomass <= $7/kg, so the central floor sits
 above that line (R ~1.4); only the food-fermentation-class plant gets below it.
 
@@ -251,7 +251,7 @@ def summarise(pr: CostParams) -> None:
         ("both (0.2 $/L + CHO-grade)",              0.20,          pr.eff_best),
     ]
     tc = value("today_cells_cost"); _, tlo, thi = prior("today_cells_cost")[:3]
-    print(f"  WITH CELLS AS THEY ARE TODAY (Humbird's wild-type design; range = Pasitka's cost per kg of real cells):")
+    print(f"  WITH CELLS AS THEY ARE TODAY (Pasitka's 2024 run, restated per kg of real cells; range = how wet its biomass was):")
     print(f"    {tc:.0f} $/kg (range {tlo:.0f}-{thi:.0f})  ->  R = {ratio(tc, pr):.1f} (range {ratio(tlo, pr):.1f}-{ratio(thi, pr):.1f})\n")
     print("  PROJECTION — efficient cells in a large plant; MEDIA / CELL lever, biomass$/kg and R:")
     print("  scenario                                    biomass$/kg   R=p_cult/p_conv")

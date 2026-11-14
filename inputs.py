@@ -176,13 +176,17 @@ REGISTRY: dict[str, Input] = {
         "m3 of vessel against $683k)", note="the creative case: animal cells grown like yeast or mycoprotein. "
         "Not demonstrated"),
     "plant_floor_hi": Input(14.5, "$/kg", "[Humbird] Table 4.7: his fed-batch design as drawn (= humbird_plant_cost)"),
-    "today_cells_cost": Input(230.0, "$/kg", "[Humbird-R] Table 4.7, fed-batch with WILD-TYPE metabolism: $236.58/kg "
-        "on individual amino acids, $225.03/kg on hydrolysate",
-        lo=86.0, hi=593.0, mode=230.0,
+    "today_cells_cost": Input(217.0, "$/kg", "[Pasitka 2024, restated] the most recent measured run: its cost "
+        "analysis with the capital charge ($32.6 per kg of wet biomass) divided by the share of real cells in "
+        "that biomass (pasitka_real_cell_fraction, 0.15)",
+        lo=86.0, hi=593.0, mode=217.0,
         note="THE COST WITH CELLS AS THEY ARE TODAY, per kg of real cells, at plant scale. A scenario shown beside "
-             "the projection, not the model's base case. Range = Pasitka's own cost restated per kg of real "
-             "cells: its $32.6/kg of wet biomass (capital included) divided by pasitka_real_cell_fraction, "
-             "0.38 -> $86 and 0.055 -> $593. Humbird's wild-type perfusion design is $484/kg"),
+             "the projection, not the model's base case. Range: real-cell share 0.38 -> $86, 0.055 -> $593; it "
+             "is wide because the paper does not report how wet its biomass was. Still flattering in one "
+             "respect: it uses Pasitka's best-day medium figure (22 L/kg), not the run average (64 L/kg). "
+             "CROSS-CHECKS: Humbird's 2021 fed-batch design with wild-type cells is $225-237/kg (Table 4.7), an "
+             "older, independent calculation that agrees; a 2024 company report (SuperMeat, 10 L runs scaled to "
+             "25 m3, not peer reviewed) claims about $26-30/kg before capital, ~$30-55 with it, which disagrees"),
     "pasitka_real_cell_fraction": Input(0.15, "kg cells/kg wet biomass", "[Pasitka, derived] kg of real wet cells "
         "(70% water) in a kg of Pasitka's 'wet biomass', from the glucose consumed at typical cell yields",
         lo=0.055, hi=0.38, mode=0.15,

@@ -58,7 +58,7 @@ efficient cells, not as a measurement: Pasitka's kilogram is a wet pellet that i
 leaves out capital (Step 1, "How to read the default"; "Wet mass per cell"). The stack is kept because it sits
 inside the range of **Humbird 2021** and the other design analyses per kg of real cells ("Other analyses").
 Humbird supplies the feedstock floor (amino acids, glucose), the physics and plant costs behind the floor's plant
-term (`floor_physics.py`), the cost with today's cells (his wild-type design) and the reasons scale-up is hard
+term (`floor_physics.py`) and the reasons scale-up is hard
 (oxygen and CO₂ transfer, shear, sterility limits on vessel size). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
 2026 State of the Industry report describes them, and a GFI and MG Consulting amino-acid cost analysis
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
@@ -144,9 +144,12 @@ protein). Pasitka's kg is a wet pellet that is mostly liquid ("Wet mass per cell
 process delivers per kg of cells. The model keeps the stack as a *projection* for efficient cells in a large
 plant, because it falls inside Humbird's independent range for that case ($21/kg on hydrolysate, $37/kg on
 individual amino acids) and inside the wider literature ("Other analyses" below). The cost with cells as they are
-today is a separate scenario, `today_cells_cost` = $230/kg: Humbird's fed-batch design with wild-type metabolism
-($236.58 on amino acids, $225.03 on hydrolysate; his Table 4.7). Its range, $86–593, is Pasitka's $32.6 divided by
-the share of real cells in its biomass (`pasitka_real_cell_fraction`, 0.15, range 0.055–0.38). It is reported
+today is a separate scenario, `today_cells_cost` = $217/kg: the most recent measured run (Pasitka 2024), restated
+per kg of real cells as its $32.6 divided by the share of real cells in its biomass
+(`pasitka_real_cell_fraction`, 0.15, range 0.055–0.38, hence $86–593). Two cross-checks pull in opposite
+directions. Humbird's 2021 design with wild-type cells gives $225–237/kg (his Table 4.7): an older, independent
+calculation that agrees. SuperMeat's 2024 company report (10 L runs scaled to 25 m³, not peer reviewed) claims
+about $26–30/kg before capital, roughly $30–55 with it. It is reported
 beside the projection and is not sampled in the Monte Carlo.
 
 **The markup is additive** (processing, cold chain and retail margin don't shrink as biomass gets cheaper). A
@@ -662,7 +665,7 @@ counterparts.
 - **Premium targets.** Sushi-grade salmon is now at or below parity in 41% of draws, not 83%; lobster moves just
   above parity (1.1×).
 - **Costs read per kg of real cells** (Step 1, "How to read the default"). The default stack is now described as a
-  projection for efficient cells; a separate scenario gives the cost with cells as they are today (~$230/kg).
+  projection for efficient cells; a separate scenario gives the cost with cells as they are today (~$220/kg).
   No share number moves for this: it changes what the default is called, and adds the scenario.
 - **Floor rebuilt from physics** (`floor_physics.py`). `plant_floor` 11.5 → 9.6; floor $13.2 → $11.3/kg (R 1.52 →
   1.36), with a range from about $4 (food-fermentation-class plant) to $17 (Humbird's design as drawn). The low
