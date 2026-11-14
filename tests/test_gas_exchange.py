@@ -116,6 +116,45 @@ def check() -> list:
     if not ge.acid_side(190.0, 2.0)["extra_medium_cost"] > 5.0:
         fails.append("even a little bought acid should cost more medium than the loop saves")
 
+    # --- packed-column loop, headspace pressure, mixing (section 7 of the note) ------------------------
+    film = ge.packing_film(189.0)
+    near("note: film thickness at 189 g/L, mm", film["film_mm"], 0.336, 0.02)
+    near("note: wall shear rate in the film, 1/s", film["shear_rate"], 1700.0, 0.03)
+    near("note: HTU for CO2, m", film["htu_co2"], 0.265, 0.03)
+    # Billet and Schultes' penetration form, kL = (2/sqrt(pi)) sqrt(D uL / (hL dh)), dh = 4 eps / ap, as a check
+    dh = 4.0 * 0.98 / value("ge_pk_area")
+    kl_bs = 2.0 / np.sqrt(np.pi) * np.sqrt(value("ge_d_co2") * film["uL"] / (film["holdup"] * dh))
+    near("film kL agrees with Billet and Schultes' form within 15%", film["kl_co2"], kl_bs, 0.15)
+    col = ge.column_design(189.0)
+    near("column: passes x per pass = load", col["passes"] * col["per_pass"], col["co2_by_loop"], 1e-9)
+    near("note: column CO2 per pass at 20 mbar out", col["per_pass"], 1.97, 0.02)
+    near("note: column passes", col["passes"], 6.3, 0.02)
+    near("note: column packing height, m", col["height_m"], 0.49, 0.03)
+    near("note: column diameter, m", col["diameter_m"], 1.79, 0.03)
+    near("note: column capital, $k/m3", col["capex_k_m3"], 26.2, 0.03)
+    if not (col["gas_velocity"] < 0.1 and col["stay_s"] < 10.0):
+        fails.append("column: sweep gas should be far below flooding and the film stay a few seconds")
+    hp0, hp1 = ge.headspace_pressure(), ge.headspace_pressure(1.0)
+    near("headspace at Humbird's pressure reproduces the model's oxygen limit", hp0["otr"], value("pf_otr_cap"), 1e-9)
+    near("note: oxygen factor at 1 bar gauge", hp1["otr_factor"], 1.55, 0.02)
+    near("note: pressure alone leaves the floor", fp.explore(otr_x=hp1["otr_factor"], mix_x=hp1["otr_factor"])["total"],
+         fp.explore()["total"], 1e-9)
+    mx = ge.loop_mixing(189.0, col["passes"])
+    near("note: the loop's jet barely helps mixing", mx["mix_x"], 1.06, 0.02)
+    cases = (("note: floor, column at 6 mm/s", dict(), 8.60, "mixing"),
+             ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 7.18, "thickness of the culture"),
+             ("note: 2 mm/s, column for CO2 only", dict(sparge_velocity=0.002), 15.76, "oxygen supply"),
+             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 8.89, "mixing"),
+             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 7.41,
+              "thickness of the culture"),
+             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 5.00,
+              "thickness of the culture"))
+    for name, kw, want, lim in cases:
+        r = ge.floor_with_column(**kw)
+        near(name, r["total"], want, 0.02)
+        if r["limit"] != lim:
+            fails.append(f"{name}: limit {r['limit']}, want {lim}")
+
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
     d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])
     near("note: gas per litre at the floor, vvm", d0["vvm"], 0.096, 0.02)

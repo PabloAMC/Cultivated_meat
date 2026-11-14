@@ -19,10 +19,12 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 
 ## For the experiments list
 
-Three unknowns stay open. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor:
-`explore()` = $11.5) or `gas_exchange.floor_with_loop`. **This study depends on the gas-flow session
-(what-caps-gas-flow):** if sparging alone can remove the CO₂ (unknown 1 resolves well), the membrane loop is
-not needed and unknowns 2 and 3 matter little.
+*Revised after section 7.* Three unknowns stay open, and all three are about the cells; the engineering is settled
+by calculation. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor: `explore()` =
+$11.5) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
+packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.4 whatever gas the cells tolerate
+(6 or 2 mm/s); without them it is $11.5 at 6 mm/s and $28 at 2 mm/s. The membrane loop of the earlier version is
+superseded: a steel column does the same job without the module problems (section 7).
 
 **1. More gas per litre of culture**
 - *Unknown:* Can a 20 m³ tank of dense cells (120–190 g/L) be sparged at 0.15–0.2 litres of gas per litre of
@@ -40,39 +42,38 @@ not needed and unknowns 2 and 3 matter little.
   perfusion tanks, or a cultivated-meat company with a pilot plant.
 - *Evidence today:* measured in pharma cells only (CHO, hybridoma, insect cells).
 
-**2. Does a membrane loop work on a dense culture?**
-- *Unknown:* Pumped through silicone hollow fibres about 270 times a day for a month, does a dense culture
-  keep growing, does the CO₂ removed per pass match the calculation (1.1 mmol per litre, up to 1.7–2.2 if the
-  cells' own buffers take part), and does the gas transfer hold up?
-- *Worth:* well, **$9.0** (`floor_with_loop(buffer=suspension_buffer(189))`, modules at $200/m² lasting
-  2 years); badly, no loop, **$11.5** (`explore()`). It matters most if gas is capped low: at 2 mm/s the floor
-  is **$28** (`explore(gas_velocity=0.002)`), and a loop with no sparging at all brings it to **$11.6**
-  (`floor_with_loop(gas_velocity=0.002, oxygen=True)`).
-- *Probability it resolves well:* **35%**. The fibres' shear and the number of passes are inside what CHO cells
-  survived for weeks at 4 litres, but no gas-exchange loop has been run on a dense culture beyond a 2-litre
-  patent example, and gas fibres fouling over a month is unmeasured.
-- *Deciding experiment:* first a one-week bench test with no cells (medium with bicarbonate through a small
-  silicone module: CO₂ removed per litre and pH change); then a six-week 2–10 litre perfusion run of a meat
-  cell line at 100+ g/L with the module on the loop and the sparger turned down, against a sparged control.
-- *Cost and time:* about $5–10k and a week for the first step; $50–150k and 2–3 months for the second [my
-  estimates]; a university bioprocess lab or a contract research lab.
-- *Evidence today:* inferred (transport physics, plus medical devices in blood and pharma filter loops).
+**2. Cells on a packed stripping column**
+- *Unknown:* Pumped 6–27 times an hour over stainless packing as a 0.3–0.4 mm film against a sweep gas (shear about
+  1,700 per second, a free surface renewed ten times a second, drips from the distributor, pH up 0.7 for about
+  4 seconds), does a dense culture keep growing for a month without coating the packing?
+- *Worth:* well, **$8.6** (`floor_with_column()`, sparger at 6 mm/s) and **$8.9** if the sparger is cut to 2 mm/s
+  (`floor_with_column(sparge_velocity=0.002, oxygen=True, sweep="o2_closed")`); badly, **$11.5** (`explore()`),
+  or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
+- *Probability it resolves well:* **45%**. The shear is inside what CHO cells survived for weeks in filter
+  loops, and a film has no bursting bubbles, which is what kills cells in sparging; but nobody has run animal
+  cells over packing, the free surface and the pH pulse are untested, and some cells stick to steel.
+- *Deciding experiment:* a 5–20 litre perfusion run of a meat cell line in suspension at 100+ g/L with a small
+  packed column (0.1–0.2 m across, 0.5 m of packing) on the loop at 6 and 25 passes an hour, against a
+  sparged control: growth, viability, dissolved CO₂, pH at the column outlet, and deposits on the packing
+  after 30 days. A cell-free test first confirms the stripping rate (predicted: 100 → 20 mbar in 0.5 m).
+- *Cost and time:* about $5k and a week for the cell-free test; $50–150k and 2–3 months for the run [my
+  estimates]; a university bioprocess or chemical-engineering lab with a cell-culture partner.
+- *Evidence today:* inferred (packing correlations from gas absorption; no cell data).
 
-**3. A module that can be cleaned and sterilised repeatedly, at a usable price**
-- *Unknown:* Can gas-exchange modules be bought at thousands of m² for under about $500 per m² that survive a
-  year of sterilisation between runs?
-- *Worth:* well (large contactors at $160/m² lasting 2 years), **$9.1** (`floor_with_loop(cost_m2=160)`);
-  badly (the only priced silicone module, $704/m², which may be steamed only once and so is replaced every
-  run), **$34.8** (`floor_with_loop(cost_m2=704, life_y=0.099)`), so the loop would not be used and the floor
-  stays at $11.5.
-- *Probability it resolves well:* **25%**. No module found is both rated for repeated steaming and priced;
-  the cheap ones (polypropylene) take hot water at 85 °C at most and leak in protein-rich liquid.
-- *Deciding experiment:* written quotes from membrane makers for 2,500–10,000 m² of silicone or PMP fibre,
-  and a cycle test: sterilise a module 20 times (steam, or hot water with peracetic acid as a food plant
-  might) and measure gas transfer and leak-tightness after each.
-- *Cost and time:* about $10–30k and 1–2 months [my estimate]; the membrane makers themselves (Thermo/3M
-  Liqui-Cel, PermSelect, Membrana) or a university membrane lab.
-- *Evidence today:* vendor data sheets and web prices; no cycle-life data for any gas-exchange module.
+**3. Cells at 2 bar absolute**
+- *Unknown:* With dissolved oxygen and CO₂ held at their usual levels, do the cells grow as well with the
+  headspace at 1 bar gauge (2 bar absolute) as at Humbird's 0.33?
+- *Worth:* together with unknown 2, well, **$7.2** (`floor_with_column(oxygen=True, sweep="o2_closed",
+  p_top_barg=1.0)`; $7.4 at 2 mm/s; $5.0 in a yeast-style plant); badly, **$8.6** (the column alone, 189 g/L,
+  mixing-limited). Alone it does nothing ($11.5), because CO₂ still binds.
+- *Probability it resolves well:* **70%**. Cells sense dissolved gases, which are held fixed, rather than total
+  pressure, and 2 bar is small next to the pressures cells tolerate in other settings [my judgement]; but the
+  only data found are CHO under 0.12 bar of extra hydrostatic pressure, which changed growth a little.
+- *Deciding experiment:* two 2–5 litre pressure-rated vessels side by side, one at 0.33 and one at 1.0 bar
+  gauge, with the same dissolved oxygen and CO₂, a meat cell line in suspension for two weeks; growth rate,
+  viability, oxygen uptake.
+- *Cost and time:* about $20–50k and 1–2 months [my estimate]; any lab with steam-rated benchtop vessels.
+- *Evidence today:* measured in pharma cells only, and only for small pressures.
 
 **A cost the floor leaves out, for the medium row.** The floor counts no bubble protectant (Pluronic F68).
 At its 11 litres of medium per kg, 1 g/L is 11 g per kg of cells and the 5 g/L used in dense pharma
@@ -85,6 +86,12 @@ dose-finding run, and it affects unknown 1, since more gas needs more protectant
 
 ## Answer in brief
 
+0. **Latest (section 7): drop the membrane, keep the loop.** A short packed column of stainless steel on the
+   pumped loop strips the CO₂ with no bubbles and no membrane: 1.8 m across, half a metre of packing, $26k per
+   m³ of tank, floor **$8.6/kg**. With 1 bar of headspace pressure added and an oxygen sweep, every gas-side
+   limit clears up to the culture's thickness (258 g/L): **$7.2/kg** in the floor's plant, $5.0 in a
+   yeast-style plant, whatever gas flow the cells tolerate. What is left is whether the cells tolerate the
+   film and the pressure; no calculation can say. Items 1–2 below are the earlier membrane design.
 1. **A membrane loop is limited by the liquid, not by the membrane.** A litre of culture at 100 mbar of CO₂
    holds 2.5 mmol of dissolved CO₂ and gives up about 1.1 mmol in a pass. Its 31 mmol/L of bicarbonate is
    not available, because turning bicarbonate into CO₂ needs an acid and culture medium has almost none to
@@ -654,6 +661,150 @@ for cell-culture media was found. This is the gas-flow session's question.
 
 ---
 
+## 7. Keeping the loop, dropping the membrane: a packed column, headspace pressure, and both together (added 2026-11-14)
+
+Asked by the parent session, relaying Pablo: size by calculation the tricks that keep the pumped loop but
+need no membrane, and say what physics settles and what only a bench test can. Code: `packing_film`,
+`column_design`, `column_cost`, `headspace_pressure`, `loop_mixing`, `floor_with_column`; tests pin every
+number below. Two hooks were added to `floor_physics.explore` (`otr_x`, `mix_x`, default 1, Python only).
+
+### 7.1 A packed stripping column on the loop
+
+The culture is pumped to the top of a short column of stainless sheet-metal packing (Mellapak 250Y type),
+runs down it as a thin film against a sweep of air going up, and drains back to the tank. No bubbles burst
+and there is no membrane; everything is steel that can be steamed.
+
+How it was sized. Wetted area: Tsai et al. 2011 (form read in full in Wang's 2015 thesis). Film: laminar
+(Nusselt) film along 45° channels. Liquid-side coefficient: Rocha, Bravo and Fair 1996 (penetration over one
+corrugation side, 18.7 mm from the packing's measured geometry; the renewal factor 0.9 is from memory).
+Cross-check: Billet and Schultes' penetration form gives a coefficient within 10%. Counter-current, log-mean
+driving force; fresh air enters at the bottom, the sweep leaves the top at 20 mbar of CO₂.
+
+| at 189 g/L, sparger kept at 6 mm/s | value |
+|---|---|
+| CO₂ the column must take | 12.6 mmol/L/h (34.1 made, 21.5 by the sparger) |
+| culture leaving the column | 20 mbar of CO₂, so 1.97 mmol/L removed per pass; pH +0.7 for the time on the packing |
+| passes | 6.3 tank volumes an hour (100 m³/h) |
+| column | 1.8 m across, 0.49 m of packing (1.9 transfer units of 0.26 m) at 40 m³ per m² per hour |
+| film | 0.34 mm thick, 19 cm/s, wall shear 2.4 Pa (1,700 per second), renewed every 0.1 s; 3.7 s on the packing |
+| sweep air | 260 m³/h, 29 mm/s up the column, about 1% of the flooding gas rate |
+| pump | 100 m³/h against about 4.5 m of head: 130 W per m³ of culture (power cost $0.002/kg) |
+| oxygen it adds with an air sweep | 0.14 mmol/L per pass, 0.9 mmol/L/h (3% of the need) |
+| installed cost | $26k per m³ of tank (packing, shell, distributor from Wang's vendor fits, plus a pump, ×3) |
+
+At 258 g/L (the thickness limit) the culture is 1.8 mPa·s, the film 0.37 mm and the transfer unit 0.28 m: the
+design hardly changes. The kinetics of bicarbonate do not matter: with no buffer only dissolved CO₂ can leave
+(section 1.2), and that leaves at the film's rate. Taking the culture down to 10 mbar instead of 20 removes
+2.2 mmol/L per pass for 0.7 m of packing but raises the pH by a full unit.
+
+Floor, with the column's capital on the plant:
+
+| case | today | with the column | density, what binds |
+|---|---|---|---|
+| sparger at 6 mm/s | 11.5 | **8.6** | 189 g/L, mixing |
+| sparger at 2 mm/s (the gas-flow session's bad case), column for CO₂ only | 28.0 | 15.8 | 81 g/L, oxygen |
+| 2 mm/s, column also carries oxygen, air sweep | 28.0 | 8.9 | 189, mixing (115 passes, 1,840 m³/h: a 7.7 m column) |
+| 2 mm/s, oxygen sweep recycled through a lime scrubber | 28.0 | **8.9** | 189, mixing (22 passes, 347 m³/h, 3.3 m across; oxygen and lime $0.21/kg) |
+| 2 mm/s, oxygen sweep once through and vented | 28.0 | 10.6 | the vented oxygen costs $1.9/kg |
+
+So: a closed oxygen sweep with a lime scrubber is affordable. The lime (at $240/t, USGS snippet, 70% used)
+costs about $0.20 per kg of cells; the oxygen the column hands over costs about $0.01 at Humbird's $0.15/kg.
+Venting the sweep instead throws away about 50 times the oxygen the cells use. Venting is not affordable.
+
+Compared with the membrane loop: the column needs fewer passes (6 against 11, because it can strip deeper
+without a long fibre), no membrane, and costs a third as much ($26k against $78k per m³ at the membrane's most
+optimistic price). Its cost is small enough that a factor of three error moves the floor by $0.3.
+
+**Verdict, packed column.**
+- *Settled by calculation:* size, flow, power, sweep and cost, and that it removes the CO₂ limit for about
+  $0.1–0.2/kg; with an oxygen sweep and a scrubber it also covers a sparger cut to 2 mm/s. Floor $8.6 (6 mm/s)
+  or $8.9 (2 mm/s).
+- *Settled by literature:* nothing either way for animal cells. No one was found to have run animal or insect
+  cells through a falling-film, packed or trickle contactor; blood disc oxygenators of the 1950s–60s destroyed
+  far fewer red cells than bubble oxygenators (secondary source, snippet); damage in sparging is tied to
+  bubbles bursting, which a film lacks; anchorage-dependent CHO cells stick to steel (patent snippet).
+- *Only a bench test can tell:* whether cells tolerate 6–27 passes an hour over the packing (a free surface
+  renewed ten times a second, drips from the distributor, a pH rise of 0.7 for 4 seconds) for a month, and
+  whether they coat the packing.
+
+### 7.2 Does the loop also lift the mixing limit?
+
+The model's mixing rule (Humbird's) says oxygen transfer cannot be faster than 1/(mixing time), 141 s at
+20 m³. The column loop turns the tank over every 9.5 minutes at 6 passes an hour (2 minutes at 30), slower than
+or similar to the stirrer's mixing time. Its return jet adds 8 W per m³ to the stirrer's 43 (38 W at 30 passes),
+which shortens the mixing time by 6% (23%), since mixing time goes as power^(−1/3) in the same equation.
+
+**Verdict, mixing.**
+- *Settled by calculation:* a loop of this size does not relax the model's mixing limit materially (×1.06).
+  The model should keep it.
+- *Settled by literature:* the rule itself is a rule of thumb (Humbird, after his ref. 127), not a measurement.
+- *Only a bench or plant test can tell:* whether 189 g/L is really where oxygen gradients start to hurt in a
+  20 m³ tank.
+
+### 7.3 Headspace overpressure for oxygen
+
+The model's 29 mmol/L/h is Humbird's: 90% oxygen sparged, the top at 0.33 bar gauge (his Sect. 4.1, as quoted
+by the gas-flow session), kLa 26.4 per hour. With half the liquid head added, the oxygen the liquid could hold
+is 1.38 mmol/L, so his figure implies the culture is held at about 0.28 mmol/L of dissolved oxygen (a little
+above saturation with air). Holding that level and raising the top pressure:
+
+| top of tank | oxygen transfer | oxygen-limited density | mixing-limited density |
+|---|---|---|---|
+| 0.33 bar gauge (model) | 29.0 mmol/L/h | 195 g/L | 189 g/L |
+| 0.5 bar gauge | 33.0 (×1.14) | 222 | 215 |
+| 1.0 bar gauge | 44.9 (×1.55) | 301 | 293, so the thickness limit (258) binds |
+
+The mixing limit rises by the same factor because, in the model's own rule, transfer is capped by kLa and the
+oxygen moved at that kLa scales with the driving force.
+
+- *CO₂ is not helped:* at a fixed gas velocity at the top the gas carries pCO₂/RT per unit volume whatever the
+  pressure, so overpressure alone leaves the floor at $11.5. (If instead the gas mass flow were held fixed, the
+  dissolved CO₂ would rise with pressure.) Holding the velocity means 1.5 times more gas by mass at 1 bar gauge,
+  so more oxygen bought; the model does not price the sparge oxygen.
+- *The tank allows it:* steaming at 121 °C already takes 1.0 bar gauge, and stainless culture vessels are
+  typically rated to 3–4 bar gauge (vendor data sheets).
+- *Cells:* the only data found are for small hydrostatic pressures (CHO at up to 0.12 bar more, slower early
+  growth and higher peak density; snippet). Dissolved oxygen is held where it is; total pressure of 2 bar
+  absolute is what changes.
+
+**Verdict, overpressure.**
+- *Settled by calculation:* 1 bar gauge raises the oxygen and mixing limits by 55%; alone it changes nothing,
+  because CO₂ still binds at 120 g/L.
+- *Settled by literature:* existing steam-rated tanks take the pressure.
+- *Only a bench test can tell:* whether the cells grow the same at 2 bar absolute with dissolved oxygen and
+  CO₂ held fixed.
+
+### 7.4 All together
+
+Column on the loop with a recycled oxygen sweep, plus 1 bar gauge in the headspace. Every gas-side limit is
+then above the thickness of the culture (258 g/L):
+
+| | sterile plant without clean rooms | yeast-style plant |
+|---|---|---|
+| sparger at 6 mm/s | **$7.2/kg** (12.6 passes, 201 m³/h, a 2.5 m column, $33k per m³) | **$5.0/kg** |
+| sparger at 2 mm/s | **$7.4/kg** (26.7 passes, 427 m³/h, 3.7 m across, $44k per m³) | **$5.2/kg** |
+| for reference, today | $11.5 (at 2 mm/s: $28.0) | $6.6 (at 2 mm/s: $13.4) |
+
+With these tricks the floor no longer depends on how much gas the cells tolerate. In the sterile plant it
+lands at about $7, the parity mark. What remains is the culture's thickness limit, the plant class, and the
+cells (doubling time, waste, medium), plus the protectant cost that the floor leaves out.
+
+**Verdict, the combination.**
+- *Settled by calculation:* $7.2–7.4/kg in the floor's plant and $5.0–5.2 in a yeast-style plant, whatever the
+  gas-flow cap, for $33–44k per m³ of added capital.
+- *Settled by literature:* the parts exist as industrial equipment (packing, scrubbers, pressure-rated tanks);
+  none has been used with animal cells.
+- *Only a bench test can tell:* the three cell questions above (the film, 2 bar absolute, and the 258 g/L
+  thickness limit itself, which is Humbird's estimate from viscosity, not a measured culture).
+
+### 7.5 The membrane lead
+
+Membrane-aerated wastewater reactors (OxyMem, ZeeLung, Fluence) are sold by the thousand m², but no price per m²,
+material confirmation or steam rating was found (vendor pages and a patent). The earlier result stands: no
+gas-exchange membrane is both priced and rated for repeated steaming. The column makes the question moot.
+
+---
+
 ## Sources
 
 Access: FT = full text read; AB = abstract; SN = search snippet; V = vendor page or data sheet. Items 1–8
@@ -744,6 +895,17 @@ Added for sections 6 and "For the experiments list" (read by subagents):
 32. Intracellular buffering 10–50 mmol/L per pH unit, snippet
     (https://comprehensivephysiology.com/WileyCDA/CompPhysArticle/refId-cp140109.html); CO₂ reaction constants,
     snippet. Poloxamer 188 price: Sigma-Aldrich Parteck PLX 188, about $260/kg at 25 kg, vendor.
+
+Added for section 7 (read by subagents):
+33. Wang C. PhD dissertation, UT Austin 2015 (sites.utexas.edu/rochelle/files/2015/02/PhD-Dissertation_Wang-Chao.pdf).
+    Full text: Tsai 2011 area correlation, Mellapak 250Y measured geometry, packing and column cost fits (2014 $).
+    Tsai RE et al. AIChE J 2011;57:1173 and Rocha JA, Bravo JL, Fair JR. Ind Eng Chem Res 1996;35:1660, as
+    reproduced there.
+34. Sulzer Mellapak brochure (liquid load 0.2 to over 200 m³/m²/h), vendor. Infors and Sartorius vessel data
+    sheets (3–4 bar gauge), vendor. USGS Mineral Commodity Summaries 2025, lime ($240/t), snippet.
+35. Gollub, Hirose, Everett 1967, Ann Thorac Surg 3:347 (disc vs bubble oxygenators), via a newsletter, snippet.
+    CHO under small hydrostatic pressures, Sci Rep 2021, doi:10.1038/s41598-020-80576-8 , snippet. Brunner 2017
+    (doi:10.1002/biot.201600633) and Paul 2020 (PMC7401239) on pH zones, snippets.
 
 From memory, not looked up or not confirmed: PDMS permeabilities (search results give 3,190–3,970 Barrer
 for CO₂; 600 for O₂ is from a vendor sheet); diffusivities and solubilities (textbook values scaled to

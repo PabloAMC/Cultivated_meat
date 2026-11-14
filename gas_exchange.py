@@ -346,6 +346,189 @@ def acid_side(x: float = 190.0, acid_mm: float = 10.0, sparge_velocity: float | 
             "ed_filter_vs_atf": filter_m2 / value("ge_atf_area")}
 
 
+# ----------------------------------------------------------------------------
+# 3b. The loop without a membrane: a packed (falling-film) stripping column
+# ----------------------------------------------------------------------------
+def suspension_density(x: float) -> float:
+    """kg/m3 of the culture: medium plus cells."""
+    phi = cell_volume_fraction(x)
+    return 1000.0 * ((1.0 - phi) * value("pf_medium_density") + phi * value("pf_cell_density"))
+
+
+def packing_film(x: float, liquid_load: float | None = None) -> dict:
+    """The culture running as a film over sheet-metal structured packing (Mellapak 250Y type).
+    Wetted area: Tsai et al. 2011. Film: Nusselt laminar film along channels at the packing angle.
+    Liquid-side coefficient: Rocha, Bravo and Fair 1996 (penetration theory over one corrugation side, with
+    the film velocity). `liquid_load` in m3 of culture per m2 of column cross-section per hour."""
+    uL = (value("ge_pk_load") if liquid_load is None else liquid_load) / 3600.0       # m/s superficial
+    ap, th, S = value("ge_pk_area"), np.radians(value("ge_pk_angle")), value("ge_pk_side")
+    rho, mu, g = suspension_density(x), viscosity(x), 9.81
+    ae = min(1.0, 1.34 * ((rho / value("ge_surface_tension")) * g ** (1.0 / 3.0) * (uL / ap) ** (4.0 / 3.0)) ** 0.116)
+    q = uL / (ae * ap * np.sin(th))                                   # flow along the channel per m of wetted width
+    delta = (3.0 * mu * q / (rho * g * np.sin(th))) ** (1.0 / 3.0)    # film thickness
+    u = q / delta                                                     # mean film velocity
+    kl = {gas: 2.0 * np.sqrt(value("ge_d_co2" if gas == "co2" else "ge_d_o2") * value("ge_pk_ce") * u / (np.pi * S))
+          for gas in ("co2", "o2")}
+    return {"uL": uL, "ae": ae, "q": q, "film_mm": delta * 1000.0, "u": u, "kl_co2": kl["co2"], "kl_o2": kl["o2"],
+            "htu_co2": uL / (kl["co2"] * ae * ap), "htu_o2": uL / (kl["o2"] * ae * ap),
+            "holdup": delta * ae * ap, "wall_shear_pa": rho * g * np.sin(th) * delta,
+            "shear_rate": 3.0 * u / delta, "viscosity": mu}
+
+
+def column_cost(area: float, height: float) -> float:
+    """Purchased cost ($, today's prices) of a stainless packed column: packing, shell and internals, from the
+    vendor-quote fits in Wang's 2015 thesis (Table 6.4 and Eq. 6-6, 2014 dollars): packing 7.31 a_p + 203 $/m3;
+    shell 575 W^0.609 (W in lb of stainless); liquid distributor 15,355 D^0.1764, its supports 5/6 of that,
+    support grid 12,019 D^0.1792 (D in m). Escalated by the plant-cost index."""
+    d = np.sqrt(4.0 * area / np.pi)
+    h = height + value("ge_col_extra_height")
+    steel = (np.pi * d * h + 2.0 * value("ge_head_area") * d * d) * value("ge_col_wall") * 8000.0 / 0.4536   # lb
+    packing = area * height * (7.31 * value("ge_pk_area") + 203.05)
+    internals = 15355.0 * d ** 0.1764 * (1.0 + 5.0 / 6.0) + 12019.0 * d ** 0.1792
+    return (packing + 575.0 * steel ** 0.609 + internals) * value("ge_cepci_2014")
+
+
+def o2_supply_sparger(x: float, gas_velocity: float, p_top_barg: float | None = None) -> float:
+    """Oxygen the sparger delivers, mmol/L/h: the model's cap scaled by gas flow (kLa ~ u_s^0.8) and by the
+    headspace pressure (`headspace_pressure`)."""
+    f = headspace_pressure(p_top_barg)["otr_factor"] if p_top_barg is not None else 1.0
+    return value("pf_otr_cap") * (gas_velocity / value("pf_gas_velocity")) ** 0.8 * f
+
+
+def column_design(x: float, sparge_velocity: float | None = None, p_out: float | None = None,
+                  oxygen: bool = False, sweep: str = "air", liquid_load: float | None = None,
+                  p_top_barg: float | None = None, buffer: float | None = None, vessel_m3: float = 20.0,
+                  cells: fp.Cells | None = None) -> dict:
+    """Size a packed stripping column on a pumped loop for a tank at density x (g wet/L).
+
+    The culture is pumped to the top of the column, runs down the packing as a film against a sweep gas
+    flowing up, and drains back to the tank. CO2 leaves as dissolved gas only (the alkalinity argument
+    of section 1.2 holds whatever the contactor), from p_tank to `p_out` mbar. Bicarbonate's slow
+    reaction (seconds) does not matter without a buffer, because only dissolved CO2 can leave.
+    `oxygen`: the loop must also make up whatever oxygen the sparger does not supply, from a sweep of
+    air or of oxygen ('o2_open': once through and vented; 'o2_closed': recycled through a lime scrubber
+    that takes the CO2 out)."""
+    cells = fp.GOOD_CELLS if cells is None else cells
+    us = value("pf_gas_velocity") if sparge_velocity is None else sparge_velocity
+    p_tank = value("pf_pco2_limit")
+    p_out = value("ge_col_pout") if p_out is None else p_out
+    wv = value("pf_working_volume")
+    co2, o2 = gas_load(x, cells)
+    _T, depth = fp.tank_shape(vessel_m3)
+    by_sparge = us / depth * 3600.0 * (p_tank * 100.0 / (R_GAS * T_K)) * value("pf_co2_strip_eff")
+    co2_loop = max(0.0, co2 - by_sparge)
+    o2_short = max(0.0, o2 - o2_supply_sparger(x, us, p_top_barg)) if oxygen else 0.0
+
+    film = packing_film(x, liquid_load)
+    # counter-current: fresh sweep (ge_col_gas_in) meets the culture leaving at the bottom; the sweep leaves
+    # the top at ge_col_gas_out against culture arriving at p_tank. Log-mean driving force.
+    d1, d2 = p_tank - value("ge_col_gas_out"), p_out - value("ge_col_gas_in")
+    ntu = (p_tank - p_out) / ((d1 - d2) / np.log(d1 / d2) if abs(d1 - d2) > 1e-9 else d1)
+    height = ntu * film["htu_co2"]
+    per_pass, dph = co2_per_pass(p_tank, p_out, buffer)
+    o2_frac = 1.0 - np.exp(-height / film["htu_o2"])
+    y_o2 = 0.21 if sweep == "air" else value("ge_o2_sweep_purity")
+    o2_pass = o2_frac * (value("ge_o2_henry") * y_o2 * 1013.0 - value("ge_do_setpoint"))
+    passes_co2 = co2_loop / per_pass
+    passes_o2 = o2_short / o2_pass if o2_pass > 0 else 0.0
+    passes = max(passes_co2, passes_o2)
+    flow = passes * wv * vessel_m3                                    # m3/h through the column
+    area = flow / (film["uL"] * 3600.0)                               # m2 of cross-section
+    co2_removed = passes * per_pass * wv * vessel_m3                  # mol/h (mmol/L x m3)
+    o2_given = passes * o2_pass * wv * vessel_m3                      # mol/h
+    # sweep gas: enough that its CO2 leaves at ge_col_gas_out mbar
+    gas_mol = co2_removed / ((value("ge_col_gas_out") - value("ge_col_gas_in")) / 1013.0)   # mol/h
+    gas_m3h = gas_mol * R_GAS * T_K / 101325.0
+    gas_u = gas_m3h / 3600.0 / area
+    f_factor = gas_u * np.sqrt(1.2)
+    head = height + value("ge_col_head_extra")
+    power = suspension_density(x) * 9.81 * head * flow / 3600.0 / value("ge_pump_eff")      # W
+    stay = film["holdup"] * height / film["uL"]                       # s on the packing
+    # money: packing, shell and distributor, pump; installed
+    capex = (column_cost(area, height) + value("ge_pump_cost") * (flow / value("ge_pump_flow")) ** 0.6) * value("ge_install_x")
+    capex_k_m3 = capex / 1000.0 / vessel_m3
+    out_kg = wv * x * cells.mu * fp.HOURS * value("pf_uptime")        # kg per m3 of vessel per year
+    hours = fp.HOURS * value("pf_uptime")
+    energy = power * hours / 1000.0 * value("ge_power_price") / vessel_m3 / out_kg
+    gas_cost = 0.0
+    if sweep == "o2_open":
+        gas_cost = gas_mol * 0.032 * hours * value("ge_o2_price") / vessel_m3 / out_kg
+    elif sweep == "o2_closed":                                        # make-up = oxygen given + lime for the CO2
+        gas_cost = (o2_given * 0.032 * value("ge_o2_price") + co2_removed * 0.074 * value("ge_lime_price")
+                    / value("ge_lime_use")) * hours / vessel_m3 / out_kg
+    return {"x": x, "co2_by_loop": co2_loop, "o2_short": o2_short, "per_pass": per_pass, "ph_rise": dph,
+            "ntu": ntu, "height_m": height, "o2_frac": o2_frac, "o2_pass": o2_pass,
+            "passes": passes, "passes_co2": passes_co2, "passes_o2": passes_o2, "flow_m3h": flow,
+            "area_m2": area, "diameter_m": np.sqrt(4.0 * area / np.pi), "stay_s": stay,
+            "gas_m3h": gas_m3h, "gas_velocity": gas_u, "f_factor": f_factor, "head_m": head,
+            "power_w_m3": power / (wv * vessel_m3), "capex_k_m3": capex_k_m3, "energy_kg": energy,
+            "gas_kg": gas_cost, "o2_mmol_l_h": o2_given / (wv * vessel_m3), **film}
+
+
+def headspace_pressure(p_top_barg: float | None = None, vessel_m3: float = 20.0) -> dict:
+    """Oxygen transfer with the tank's headspace held at a higher pressure. Oxygen in the gas dissolves in
+    proportion to its partial pressure, so the driving force C* - C rises with the (mean) pressure in the
+    liquid. The model's 29 mmol/L/h (pf_otr_cap) is taken as Humbird's: 90% oxygen with the top at
+    pf ge_p_top_base bar gauge; the dissolved-oxygen level that makes it consistent with his kLa is solved
+    for and held fixed. CO2 is not affected: at a fixed gas velocity at the top the gas carries the same
+    CO2 per unit volume (pCO2 / RT), whatever the pressure."""
+    p0 = value("ge_p_top_base") if p_top_barg is None else p_top_barg
+    _T, depth = fp.tank_shape(vessel_m3)
+    rho_gh = 1007.0 * 9.81 * depth / 1e5 / 2.0                        # bar: half the hydrostatic head
+    c_star = lambda p: value("ge_o2_henry") * value("ge_sparge_o2") * (1.01325 + p + rho_gh) * 1000.0
+    kla = value("pf_otr_cap") / (c_star(value("ge_p_top_base")) - 0.0)   # first pass, to get C_L
+    c_l = c_star(value("ge_p_top_base")) - value("pf_otr_cap") / value("ge_kla_20m3")
+    f = (c_star(p0) - c_l) / (c_star(value("ge_p_top_base")) - c_l)
+    return {"p_top_barg": p0, "c_star": c_star(p0), "c_star_base": c_star(value("ge_p_top_base")),
+            "c_liquid_implied": c_l, "otr_factor": f, "otr": value("pf_otr_cap") * f,
+            "x_o2": value("pf_otr_cap") * f / fp.GOOD_CELLS.qo2, "kla_unused": kla}
+
+
+def loop_mixing(x: float, passes: float, nozzle_velocity: float | None = None, vessel_m3: float = 20.0) -> dict:
+    """Does the loop's return flow help the tank mix? Compares the loop's turnover time with the model's
+    mixing time (141 s at 20 m3, Humbird Eq. 2.18), and adds the return jet's power to the stirrer's: mixing
+    time goes as (power per volume)^(-1/3) in the same equation. Also the oxygen check that the model's
+    mixing rule stands for: the culture uses qO2 X x t_m of oxygen in one mixing time, which the dissolved
+    oxygen must cover."""
+    v = value("ge_nozzle_velocity") if nozzle_velocity is None else nozzle_velocity
+    culture = value("pf_working_volume") * vessel_m3
+    q = passes * culture / 3600.0                                     # m3/s
+    p_jet = 0.5 * 1000.0 * v ** 2 * q / culture                       # W/m3
+    t_m = value("ge_mix_time_20m3") * fp.mixing_time_ratio(vessel_m3)
+    mix_x = ((value("ge_stir_power") + p_jet) / value("ge_stir_power")) ** (1.0 / 3.0)
+    use = fp.GOOD_CELLS.qo2 * x * t_m / 3600.0                        # mmol/L used in one mixing time
+    return {"turnover_s": 3600.0 / passes if passes > 0 else float("inf"), "mix_time_s": t_m,
+            "jet_w_m3": p_jet, "mix_x": mix_x, "o2_used_in_mix_time": use}
+
+
+def floor_with_column(sparge_velocity: float | None = None, oxygen: bool = False, sweep: str = "air",
+                      p_top_barg: float | None = None, lift_mixing: bool = False, **case) -> dict:
+    """The floor with a packed-column loop (and optionally headspace pressure). The CO2 limit is lifted;
+    with `oxygen` the column also makes up the oxygen and the oxygen limit is lifted to what the column
+    supplies; `p_top_barg` raises the sparger's oxygen transfer and, by the model's own mixing rule, the mixing
+    limit by the same factor; `lift_mixing` drops the mixing rule altogether (not justified: section 7). Capital goes on the plant, power and oxygen or lime per kg."""
+    us = value("pf_gas_velocity") if sparge_velocity is None else sparge_velocity
+    f_p = headspace_pressure(p_top_barg)["otr_factor"] if p_top_barg is not None else 1.0
+    base = fp.explore(gas_velocity=us, **case)
+    # the model's mixing rule caps kLa at 1/(mixing time); the oxygen moved at that kLa scales with the driving
+    # force, so headspace pressure lifts the mixing limit by the same factor as the oxygen limit
+    mix_x = 1e6 if lift_mixing else f_p
+    free = fp.explore(gas_velocity=us, x_scale=1e6, otr_x=(1e6 if oxygen else f_p), mix_x=mix_x, **case)
+    x = free["density"]
+    if oxygen:                                                        # the column supplies the oxygen short
+        o2_spg = o2_supply_sparger(x, us, p_top_barg)
+        otr_x = max(f_p, fp.GOOD_CELLS.qo2 * x * (1.0 + 1e-9) / (o2_spg / f_p))
+        free = fp.explore(gas_velocity=us, x_scale=1e6, otr_x=otr_x, mix_x=mix_x, **case)
+        x = free["density"]
+    d = column_design(x, sparge_velocity=us, oxygen=oxygen, sweep=sweep, p_top_barg=p_top_barg,
+                      vessel_m3=case.get("vessel_m3", 20.0))
+    charge = case.get("charge", value("plant_charge_mature"))
+    capital = charge * d["capex_k_m3"] / free["output"]
+    total = free["total"] + capital + d["energy_kg"] + d["gas_kg"]
+    return {"base": base["total"], "density": x, "limit": free["limit"], "free": free["total"],
+            "capital": capital, "energy": d["energy_kg"], "gas": d["gas_kg"], "total": total, "design": d}
+
+
 def sparge_death(gas_velocity: float | None = None, depth: float | None = None, protected: bool = True,
                  cells: fp.Cells | None = None) -> dict:
     """Cells killed by bursting bubbles, from the measured rule that the death rate is proportional to

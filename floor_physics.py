@@ -329,7 +329,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
             pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
             osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
-            _search: bool = True) -> dict:
+            otr_x: float = 1.0, mix_x: float = 1.0, _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -362,6 +362,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       * the least medium flow a cell needs for everything else (other by-products, nutrients that run
         out): litres per kg = that flow / growth rate, so slow cells need more.
 
+    `otr_x` and `mix_x` scale the oxygen-supply and mixing limits (Python-only hooks for the gas-exchange
+    side study, gas_exchange.py: headspace pressure, oxygen carried by an external loop; not on the page).
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
@@ -380,7 +383,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
                   x_scale=x_scale, hazard=hazard, run_days=run_days, restart_fail_days=restart_fail_days,
                   medium_price=medium_price, growth_factors=growth_factors, cell_share=cell_share, waste=waste,
                   nh3_limit=nh3_limit, gas_velocity=gas_velocity, aspect=aspect, osm_limit=osm_limit, ph=ph,
-                  min_perfusion=min_perfusion, _search=False)
+                  min_perfusion=min_perfusion, otr_x=otr_x, mix_x=mix_x, _search=False)
         best = None
         for i in range(60):
             r = explore(pco2_mbar=pco2_tol * (i + 1) / 60.0, **kw)
@@ -407,10 +410,10 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if mode == "perfusion":
         capex += value("pf_capex_retention") if retention is None else retention
     us_rel = (value("pf_gas_velocity") if gas_velocity is None else gas_velocity) / value("pf_gas_velocity")
-    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2
+    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * otr_x
     limits = {"oxygen supply": x_o2,
               "thickness of the culture": value("pf_x_visc"),
-              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect),
+              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect) * mix_x,
               "CO2 removal": x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect)}
     wf = waste_per_kg(cells, waste)[0] / waste_per_kg(cells, 0.0)[0]       # waste relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)

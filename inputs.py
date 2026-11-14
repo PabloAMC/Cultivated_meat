@@ -507,6 +507,41 @@ REGISTRY: dict[str, Input] = {
     "ge_filtrate_flux": Input(3.8, "L per m2 per h", "[Humbird-R; vendor size guide, snippet] what a perfusion "
         "hollow-fibre filter passes: an ATF-10 serves up to about 1,000 L a day through 11 m2"),
     "ge_atf_area": Input(11.0, "m2", "[vendor size guide, snippet] filter area of one ATF-10"),
+    # --- packed (falling-film) column on the loop, headspace pressure (gas_exchange.column_design) ---
+    "ge_pk_area": Input(250.0, "m2/m3", "[vendor designation] Mellapak 250Y: about 250 m2 of sheet per m3"),
+    "ge_pk_angle": Input(45.0, "degrees", "[vendor designation] the 'Y' channels run at 45 degrees from horizontal"),
+    "ge_pk_side": Input(0.0187, "m", "[Wang 2015 thesis, Table 5.1, full text; derived] corrugation side of Mellapak "
+        "250Y from its measured channel base (30.2 mm) and crimp height (11.1 mm): sqrt(15.1^2 + 11.1^2)"),
+    "ge_pk_ce": Input(0.9, "-", "[Rocha, Bravo and Fair 1996; form read in Wang 2015, value from memory] surface-renewal factor C_E"),
+    "ge_pk_load": Input(40.0, "m3/m2/h", "[design choice] liquid load on the packing; Mellapak runs from about 0.2 "
+        "to over 200 m3/m2/h (Sulzer brochure, vendor); Tsai's area correlation was fitted over 2.5-75", lo=10.0, hi=80.0, mode=40.0),
+    "ge_surface_tension": Input(0.05, "N/m", "[assumed] surface tension of culture medium with protectant "
+        "(water 0.070; Pluronic lowers it)"),
+    "ge_col_pout": Input(20.0, "mbar", "[design choice] CO2 the culture leaves the column at (in from the tank "
+        "at 100)", lo=10.0, hi=55.0, mode=20.0),
+    "ge_col_gas_out": Input(20.0, "mbar", "[design choice] CO2 in the sweep gas where it leaves the top of the "
+        "column, against culture entering at 100 (counter-current)"),
+    "ge_col_gas_in": Input(0.4, "mbar", "[textbook] CO2 in fresh air entering the bottom of the column (about 400 ppm)"),
+    "ge_col_head_extra": Input(4.0, "m", "[assumed] pumping head beyond the packing height: lift to the top, "
+        "distributor, pipes"),
+    "ge_col_extra_height": Input(2.5, "m", "[assumed] shell height beyond the packing: distributor, gas inlet, sump"),
+    "ge_col_wall": Input(0.006, "m", "[textbook rule] minimum wall of a 1.5-4 m vessel, about 6 mm (Seider, as coded in "
+        "BioSTEAM: 1/4-5/16 inch below 6 ft)"),
+    "ge_cepci_2014": Input(1.39, "x", "[pf-tea basis] plant-cost index about 800 in 2024 over 576 in 2014"),
+    "ge_o2_sweep_purity": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: on-site oxygen is about 90% pure"),
+    "ge_o2_price": Input(0.15, "$/kg O2", "[Humbird-R] Sect. 2.3: on-site oxygen at $0.10-0.20 per kg (as quoted "
+        "by the gas-flow session)"),
+    "ge_lime_price": Input(0.24, "$/kg", "[USGS Mineral Commodity Summaries 2025, lime, search snippet] hydrated lime at "
+        "the plant, about $240 per tonne (2024)"),
+    "ge_lime_use": Input(0.7, "-", "[assumed] share of the lime that reacts in the scrubber"),
+    "ge_p_top_base": Input(0.33, "bar gauge", "[Humbird-R] Sect. 4.1: '1.33 bar (5 psig) back pressure at the "
+        "top' (as quoted by the gas-flow session); his gas velocity limit is set at the top of the vessel"),
+    "ge_sparge_o2": Input(0.9, "mol/mol", "[Humbird-R] Sect. 2.3: the tanks are sparged with 90% oxygen"),
+    "ge_kla_20m3": Input(26.4, "1/h", "[Humbird-R, derived] his Eq. 2.16 at 43 W/m3 and 6 mm/s (see pf_mix_ratio_20m3)"),
+    "ge_mix_time_20m3": Input(141.0, "s", "[Humbird-R, derived] his Eq. 2.18 at 20 m3 (see pf_mix_ratio_20m3)"),
+    "ge_stir_power": Input(43.0, "W/m3", "[Humbird-R, derived] the stirring power behind the mixing time (see "
+        "pf_mix_ratio_20m3)"),
+    "ge_nozzle_velocity": Input(3.0, "m/s", "[assumed] speed of the loop's return flow entering the tank"),
     "ge_co2_frac": Input(0.5, "-", "[design choice] how far one pass takes the liquid's CO2 towards the sweep gas",
         lo=0.3, hi=0.8, mode=0.5, note="more per pass: fewer passes, longer fibres, a larger pH swing in the loop"),
     "ge_sweep_pco2": Input(10.0, "mbar", "[design choice] average CO2 pressure in the sweep gas (air swept at "
