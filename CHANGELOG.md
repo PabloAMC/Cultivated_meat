@@ -12,6 +12,11 @@ Cost side
 - Species presets with their own CO2 tolerance; a reconstruction of the one working 20 m3 plant.
 - Uncertainty on the floor's own inputs, alone and together with demand; a back-test against reported runs;
   a cross-check of plant costs against other published designs.
+- The plant item by item (`plant_items.py`): Humbird's animal-cell plant ($683k per m3) and his yeast plant
+  with the same tanks ($130k) rebuilt on one list of nine items, each with options; two new plants in between
+  (lean $340k, a yeast plant with additions $175k); the panel's class of plant now sets the items, and they
+  can be chosen one by one. Contamination as dynamics (`contamination.py`): time to detection, what is lost,
+  and the loss rate at which a cheaper plant stops paying. Write-up: `research_notes/cheap_plant_study.md`.
 
 - Side-study of gas exchange (`gas_exchange.py`, `research_notes/gas_exchange_study.md`): a membrane loop,
   tank shape with the vessel's cost, and a check of a published airlift. Not used in the floor or on the page.

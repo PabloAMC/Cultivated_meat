@@ -330,6 +330,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
             pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
             osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
+            capex_2018: float | None = None, extra_opex: float = 0.0, start_fail: float = 0.0,
+            salvage: float = 0.0, items: dict | None = None,
             nh3_kg: float | None = None, lac_yield: float | None = None, glc_kg: float | None = None,
             sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
@@ -352,7 +354,13 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
 
       * a run ends at its planned length or when it is contaminated (a constant chance per day, `hazard`),
-        then the tank is cleaned and regrown; a contaminated run also loses the cells in the tank;
+        then the tank is cleaned and regrown; a contaminated run also loses the cells in the tank, less the
+        share `salvage` that can still be harvested and sold. A share `start_fail` of starts is contaminated
+        from the outset (through the seed or the start-up): it costs the seed and the days until it shows;
+      * `items` builds the plant item by item in place of a plant class: a dict of plant_items options
+        ({"hall": "shed", "oxygen": "bought", ...}; items left out are Humbird's). It sets the capital per
+        m3 (Humbird's 2018 dollars, escalated and sized like his plant) and adds the cost of bought oxygen.
+        `capex_2018` and `extra_opex` set the same two numbers directly;
       * the litres of medium per kg follow from the waste the cells make (`waste`: 0 = Humbird's enhanced
         cells, 1 = ordinary cells): in perfusion enough liquid must pass to wash ammonia and lactate out;
         in a drained-and-refilled tank waste caps the density instead. The medium costs litres x price,
@@ -397,6 +405,10 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search")}
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
+    if items is not None:                              # a plant built item by item
+        import plant_items
+        cap = plant_items.capital(**items)
+        capex_2018, extra_opex, items = cap["total"], extra_opex + cap["extra_opex"], None
     # --- salt strength: how much lactate the culture may hold at this CO2 level and pH ----------------
     pco2_tol = value("pf_pco2_limit") if pco2_mbar is None else pco2_mbar
     osm_limit = value("pf_osm_limit") if osm_limit is None else osm_limit
@@ -419,14 +431,21 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         clean = value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")
         restart = value("pf_run_days") * (1.0 / clean - 1.0)            # days to clean, restart and regrow
         L = value("pf_run_days") if run_days is None else run_days
-        T = L if hazard <= 0 else (1.0 - np.exp(-hazard * L)) / hazard  # expected days before the run ends
-        p_fail = 0.0 if hazard <= 0 else 1.0 - np.exp(-hazard * L)
+        ok = 1.0 - start_fail                                           # share of starts that are clean
+        T = ok * (L if hazard <= 0 else (1.0 - np.exp(-hazard * L)) / hazard)   # expected productive days per start
+        p_late = 0.0 if hazard <= 0 else ok * (1.0 - np.exp(-hazard * L))       # lost to a contamination in the run
+        p_fail = start_fail + p_late
         # after a contamination the plant must sterilise and regrow a seed train, which can take longer
         down = restart if restart_fail_days is None else (1.0 - p_fail) * restart + p_fail * max(restart, restart_fail_days)
+        down += start_fail * value("ct_start_detect_days")              # a bad start runs until it shows
         uptime = T / (T + down)
-        lost = min(0.9, p_fail / (cells.mu * 24.0 * T))                 # one tankful per failed run
+        # a tankful per run lost in mid-run (less what is salvaged); a bad start loses its seed
+        tankfuls = p_late * (1.0 - salvage) + start_fail * value("ct_seed_share")
+        lost = min(0.9, tankfuls / (cells.mu * 24.0 * T))
     key, escalate, sized = PLANT_CLASSES[plant]
     capex = value(key) * (value("pf_capex_escalation") if escalate else 1.0)
+    if capex_2018 is not None:                         # a plant built item by item (plant_items)
+        capex, sized = capex_2018 * value("pf_capex_escalation"), True
     if sized:
         capex = capex_at_size(capex, vessel_m3)
     capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
@@ -512,7 +531,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
     # figure is taken at the efficient cells' 11 L/kg)
     gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) if growth_factors else 0.0
-    total = capital + labour + utilities + consumables + feed + gf
+    total = capital + labour + utilities + consumables + feed + gf + extra_opex
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
@@ -806,8 +825,9 @@ def floor_tornado(pco2_range: tuple | None = None, **case) -> list:
         if arg == "pco2_mbar" and pco2_range is not None:
             lo, hi = pco2_range
             lo_txt, hi_txt = f"{lo:.0f} mbar", f"{hi:.0f} mbar"
-        a = explore(**{**case, arg: lo})["total"]
-        b = explore(**{**case, arg: hi})["total"]
+        base = {k: v for k, v in case.items() if k != "items"} if arg == "plant" else case   # a class replaces the items
+        a = explore(**{**base, arg: lo})["total"]
+        b = explore(**{**base, arg: hi})["total"]
         rows.append((label, a, b, lo_txt, hi_txt))
     return sorted(rows, key=lambda r: -abs(r[2] - r[1]))
 

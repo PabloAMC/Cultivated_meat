@@ -226,6 +226,19 @@ def check_parity() -> list:
             fails.append(f"floorExplore dh={dh} m={m} v={v} {pl} {mo}: python={r['product']:.6f} ({r['limit']}) "
                          f"js={tot:.6f} ({lim})")
 
+    # plants built item by item: floorExplore with items (JS) against explore(items=...) and plant_items
+    import plant_items as _pi
+    item_cases = [_pi.PLANTS["lean"], _pi.PLANTS["yeastplus"], _pi.PLANTS["yeast"], {"hall": "shed"},
+                  {"oxygen": "bought", "seed": "one"}, {"vessels": "food", "medium": "shared"}]
+    if len(js.get("fxItems", [])) != 2 * len(item_cases):
+        fails.append("fxItems: not emitted by the JS probe")
+    for i, mo, tot, capex in js.get("fxItems", []):
+        r = _fp.explore(vessel_m3=50.0 if i == 3 else 20.0, mode=mo, charge=0.173, items=item_cases[i],
+                        hazard=0.015 if i == 1 else 0.0, run_days=33, restart_fail_days=14)
+        worst_fx = max(worst_fx, abs(r["total"] - tot))
+        if abs(r["total"] - tot) > 1e-6 or abs(r["capex"] - capex) > 1e-6:
+            fails.append(f"floorExplore items case {i} {mo}: python={r['total']:.6f} js={tot:.6f}")
+
     # the tricks: floorExplore (JS) against explore with column, pressure, explicit wastes and a sorbent
     FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}, {'fat_fed': 1.0}, {'do_mmol': 0.05, 'doubling_h': 48, 'maint': 0.31}, {'rq': 1.0, 'gas_v': 0.003}, {'column': 'o2_closed', 'do_mmol': 0.08, 'gas_v': 0.002, 'fat_fed': 0.5, 'fat_price': 10.0}, {'column': 'co2', 'p_top': 0.5, 'do_mmol': 0.15, 'aspect': 1.2}, {'aspect': 1.0}, {'aspect': 0.8, 'shape_cost': False}, {'aspect': 2.5, 'vessel_m3': 100}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
@@ -251,6 +264,7 @@ def check_parity() -> list:
 
     # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
     cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
+             dict(items=_pi.PLANTS["lean"]),
              dict(mass_pg=2500.0, pco2_mbar=50.0, pco2_range=(10.0, 100.0))]
     if len(js.get("fxTor", [])) != len(cases):
         fails.append("fxTor: not emitted by the JS probe")
