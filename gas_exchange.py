@@ -388,6 +388,55 @@ def column_cost(area: float, height: float) -> float:
     return (packing + 575.0 * steel ** 0.609 + internals) * value("ge_cepci_2014")
 
 
+def column_stresses(x: float = 189.0, drop_height: float = 0.05, drop_mm: float = 4.0, liquid_load: float | None = None,
+                    vessel_m3: float = 20.0, p_top_barg: float = 1.0) -> dict:
+    """What a cell meets on the packed column and in a pressurised tank, as numbers to set against measured
+    damage thresholds (section 8 of the note).
+
+    Film: in a laminar falling film the shear rate falls linearly from the wall to the free surface, so the
+    energy dissipated per volume is mu * gamma^2: at most mu * gamma_w^2 at the wall, a third of that on
+    average. Re-forming of the film where packing sheets cross: of order u^3 / delta per kg (an estimate).
+    Drips from the distributor: a drop falling `drop_height` hits at v = sqrt(2 g h) and its energy is spent
+    within about one drop size, so of order v^3 / d per kg (an estimate, not a simulation).
+    Pressure: the absolute pressure at the top and bottom of the liquid, today and with `p_top_barg`."""
+    f = packing_film(x, liquid_load)
+    rho, mu = suspension_density(x), f["viscosity"]
+    gw = f["shear_rate"]
+    v = np.sqrt(2.0 * 9.81 * drop_height)
+    _T, depth = fp.tank_shape(vessel_m3)
+    head = rho * 9.81 * depth / 1e5
+    p0 = value("ge_p_top_base")
+    return {"wall_shear_pa": mu * gw, "shear_rate": gw,
+            "film_dissipation_max": mu * gw ** 2, "film_dissipation_mean": mu * gw ** 2 / 3.0,   # W/m3
+            "junction_dissipation": rho * f["u"] ** 3 / (f["film_mm"] / 1000.0),                 # W/m3
+            "drop_speed": v, "drop_dissipation": rho * v ** 3 / (drop_mm / 1000.0),              # W/m3
+            "surface_renewal_s": value("ge_pk_side") / f["u"],
+            "p_bottom_today": 1.01325 + p0 + head, "p_top_new": 1.01325 + p_top_barg,
+            "p_bottom_new": 1.01325 + p_top_barg + head}
+
+
+def loop_ph_exposure(p_out: float | None = None, loop_volume: float | None = None, buffer: float | None = None,
+                     vessel_m3: float = 20.0) -> dict:
+    """How much of the culture is alkaline at any moment, and by how much. Liquid that leaves the column at
+    p_out has lost CO2 and is alkaline until it re-mixes with the tank; that is its whole time in the loop
+    (packing, sump, return pipe), so the share of the culture exposed is the loop's liquid volume over the
+    tank's, whatever the flow. Compared with the one quantified case found: Paul et al. 2020, CHO, alkaline
+    zone of about 7.5% of the volume at +0.37 pH, which cut peak cell density by 18-52%."""
+    p_out = value("ge_col_pout") if p_out is None else p_out
+    vol = value("ge_loop_volume") if loop_volume is None else loop_volume
+    _amount, dph = co2_per_pass(value("pf_pco2_limit"), p_out, buffer)
+    share = vol / (value("pf_working_volume") * vessel_m3)
+    dose = dph * share
+    paul = value("ge_paul_dph") * value("ge_paul_share")
+    return {"ph_rise": dph, "share": share, "dose": dose, "paul_dose": paul, "vs_paul": dose / paul}
+
+
+def drop_height_for(dissipation: float, drop_mm: float = 4.0) -> float:
+    """Fall height (m) at which a drop's impact dissipates `dissipation` W/m3 (the v^3/d estimate)."""
+    v = (dissipation / 1000.0 * drop_mm / 1000.0) ** (1.0 / 3.0)
+    return v * v / (2.0 * 9.81)
+
+
 def o2_supply_sparger(x: float, gas_velocity: float, p_top_barg: float | None = None) -> float:
     """Oxygen the sparger delivers, mmol/L/h: the model's cap scaled by gas flow (kLa ~ u_s^0.8) and by the
     headspace pressure (`headspace_pressure`)."""
@@ -502,7 +551,8 @@ def loop_mixing(x: float, passes: float, nozzle_velocity: float | None = None, v
 
 
 def floor_with_column(sparge_velocity: float | None = None, oxygen: bool = False, sweep: str = "air",
-                      p_top_barg: float | None = None, lift_mixing: bool = False, **case) -> dict:
+                      p_top_barg: float | None = None, lift_mixing: bool = False, p_out: float | None = None,
+                      **case) -> dict:
     """The floor with a packed-column loop (and optionally headspace pressure). The CO2 limit is lifted;
     with `oxygen` the column also makes up the oxygen and the oxygen limit is lifted to what the column
     supplies; `p_top_barg` raises the sparger's oxygen transfer and, by the model's own mixing rule, the mixing
@@ -520,7 +570,7 @@ def floor_with_column(sparge_velocity: float | None = None, oxygen: bool = False
         otr_x = max(f_p, fp.GOOD_CELLS.qo2 * x * (1.0 + 1e-9) / (o2_spg / f_p))
         free = fp.explore(gas_velocity=us, x_scale=1e6, otr_x=otr_x, mix_x=mix_x, **case)
         x = free["density"]
-    d = column_design(x, sparge_velocity=us, oxygen=oxygen, sweep=sweep, p_top_barg=p_top_barg,
+    d = column_design(x, sparge_velocity=us, oxygen=oxygen, sweep=sweep, p_top_barg=p_top_barg, p_out=p_out,
                       vessel_m3=case.get("vessel_m3", 20.0))
     charge = case.get("charge", value("plant_charge_mature"))
     capital = charge * d["capex_k_m3"] / free["output"]

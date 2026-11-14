@@ -155,6 +155,24 @@ def check() -> list:
         if r["limit"] != lim:
             fails.append(f"{name}: limit {r['limit']}, want {lim}")
 
+    # --- section 8: stresses on the column, pH exposure, pressure -----------------------------------------
+    st = ge.column_stresses(189.0)
+    near("note: film dissipation at the wall, W/m3", st["film_dissipation_max"], 4000.0, 0.03)
+    near("note: drop from 5 cm, W/m3", st["drop_dissipation"], 2.46e5, 0.03)
+    near("note: fall height for 1e6 W/m3, m", ge.drop_height_for(1e6), 0.128, 0.03)
+    near("note: bottom pressure today, bar abs", st["p_bottom_today"], 1.71, 0.01)
+    near("note: bottom pressure at 1 bar gauge", st["p_bottom_new"], 2.38, 0.01)
+    if not st["wall_shear_pa"] < 3400.0 * value("pf_medium_viscosity") * 1e-3:
+        fails.append("the film's wall stress should be below what CHO took in Clincke's fibres (3,400/s)")
+    hard, soft = ge.loop_ph_exposure(20.0, 1.0), ge.loop_ph_exposure(55.0, 0.5)
+    near("note: hard design vs Paul's pH dose", hard["vs_paul"], 1.57, 0.02)
+    near("note: gentle design vs Paul's pH dose", soft["vs_paul"], 0.29, 0.03)
+    near("note: floor, gentle column", ge.floor_with_column(p_out=55.0)["total"], 8.62, 0.02)
+    near("note: floor, gentle column + oxygen + 1 bar", ge.floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
+         p_top_barg=1.0)["total"], 7.29, 0.02)
+    near("note: same at 2 mm/s", ge.floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed",
+         p_top_barg=1.0)["total"], 7.43, 0.02)
+
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
     d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])
     near("note: gas per litre at the floor, vvm", d0["vvm"], 0.096, 0.02)

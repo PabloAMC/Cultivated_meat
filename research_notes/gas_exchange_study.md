@@ -42,38 +42,40 @@ superseded: a steel column does the same job without the module problems (sectio
   perfusion tanks, or a cultivated-meat company with a pilot plant.
 - *Evidence today:* measured in pharma cells only (CHO, hybridoma, insect cells).
 
-**2. Cells on a packed stripping column**
-- *Unknown:* Pumped 6–27 times an hour over stainless packing as a 0.3–0.4 mm film against a sweep gas (shear about
-  1,700 per second, a free surface renewed ten times a second, drips from the distributor, pH up 0.7 for about
-  4 seconds), does a dense culture keep growing for a month without coating the packing?
-- *Worth:* well, **$8.6** (`floor_with_column()`, sparger at 6 mm/s) and **$8.9** if the sparger is cut to 2 mm/s
-  (`floor_with_column(sparge_velocity=0.002, oxygen=True, sweep="o2_closed")`); badly, **$11.5** (`explore()`),
-  or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
-- *Probability it resolves well:* **45%**. The shear is inside what CHO cells survived for weeks in filter
-  loops, and a film has no bursting bubbles, which is what kills cells in sparging; but nobody has run animal
-  cells over packing, the free surface and the pH pulse are untested, and some cells stick to steel.
+**2. Cells on a packed stripping column** (revised in section 8)
+- *Unknown:* With the culture pumped 11 times an hour over stainless packing as a 0.3 mm film, laid on without
+  drips, and stripped only to 55 mbar (pH up 0.26 while in the loop), do meat cells keep growing for a month
+  without coating the packing?
+- *Worth:* well, **$8.6** (`floor_with_column(p_out=55.0)`, sparger at 6 mm/s) and **$8.9** if the sparger is cut
+  to 2 mm/s (`floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed")`); badly,
+  **$11.5** (`explore()`), or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
+- *Probability it resolves well:* **60%**. Calculation and literature settle the shear (below what CHO took for
+  weeks), the drips (avoidable by design) and the pH pulse (the gentler design is 3–6 times below the exposure
+  that hurt CHO); bubble-free surface aeration is how rocking bags reach the highest CHO densities. Deposits on
+  steel and the behaviour of meat cells are untested.
 - *Deciding experiment:* a 5–20 litre perfusion run of a meat cell line in suspension at 100+ g/L with a small
-  packed column (0.1–0.2 m across, 0.5 m of packing) on the loop at 6 and 25 passes an hour, against a
-  sparged control: growth, viability, dissolved CO₂, pH at the column outlet, and deposits on the packing
-  after 30 days. A cell-free test first confirms the stripping rate (predicted: 100 → 20 mbar in 0.5 m).
+  packed column on the loop (liquid laid onto the packing, stripped to 55 mbar, loop volume under 3% of the
+  tank), against a sparged control: growth, viability, pH at the column outlet, deposits after 30 days. A
+  cell-free test first confirms the stripping rate (predicted: 100 → 55 mbar in 0.18 m).
 - *Cost and time:* about $5k and a week for the cell-free test; $50–150k and 2–3 months for the run [my
   estimates]; a university bioprocess or chemical-engineering lab with a cell-culture partner.
-- *Evidence today:* inferred (packing correlations from gas absorption; no cell data).
+- *Evidence today:* measured in pharma cells only (shear, pH pulses, bubble-free aeration); the film itself is
+  inferred.
 
-**3. Cells at 2 bar absolute**
+**3. Cells at 2 bar absolute** (revised in section 8)
 - *Unknown:* With dissolved oxygen and CO₂ held at their usual levels, do the cells grow as well with the
-  headspace at 1 bar gauge (2 bar absolute) as at Humbird's 0.33?
-- *Worth:* together with unknown 2, well, **$7.2** (`floor_with_column(oxygen=True, sweep="o2_closed",
+  headspace at 1 bar gauge as at Humbird's 0.33?
+- *Worth:* together with unknown 2, well, **$7.3** (`floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
   p_top_barg=1.0)`; $7.4 at 2 mm/s; $5.0 in a yeast-style plant); badly, **$8.6** (the column alone, 189 g/L,
   mixing-limited). Alone it does nothing ($11.5), because CO₂ still binds.
-- *Probability it resolves well:* **70%**. Cells sense dissolved gases, which are held fixed, rather than total
-  pressure, and 2 bar is small next to the pressures cells tolerate in other settings [my judgement]; but the
-  only data found are CHO under 0.12 bar of extra hydrostatic pressure, which changed growth a little.
+- *Probability it resolves well:* **85%**. Cells at the bottom of today's tank already sit at 1.7 bar absolute;
+  the design adds at most 0.67 bar, about 6 times below the lowest pressure with any reported effect on
+  cultured cells. One small CHO study saw odd effects at tiny extra pressures.
 - *Deciding experiment:* two 2–5 litre pressure-rated vessels side by side, one at 0.33 and one at 1.0 bar
   gauge, with the same dissolved oxygen and CO₂, a meat cell line in suspension for two weeks; growth rate,
   viability, oxygen uptake.
 - *Cost and time:* about $20–50k and 1–2 months [my estimate]; any lab with steam-rated benchtop vessels.
-- *Evidence today:* measured in pharma cells only, and only for small pressures.
+- *Evidence today:* inferred from physics and from pressure studies on other cells; no run at these pressures.
 
 **A cost the floor leaves out, for the medium row.** The floor counts no bubble protectant (Pluronic F68).
 At its 11 litres of medium per kg, 1 g/L is 11 g per kg of cells and the 5 g/L used in dense pharma
@@ -89,9 +91,10 @@ dose-finding run, and it affects unknown 1, since more gas needs more protectant
 0. **Latest (section 7): drop the membrane, keep the loop.** A short packed column of stainless steel on the
    pumped loop strips the CO₂ with no bubbles and no membrane: 1.8 m across, half a metre of packing, $26k per
    m³ of tank, floor **$8.6/kg**. With 1 bar of headspace pressure added and an oxygen sweep, every gas-side
-   limit clears up to the culture's thickness (258 g/L): **$7.2/kg** in the floor's plant, $5.0 in a
-   yeast-style plant, whatever gas flow the cells tolerate. What is left is whether the cells tolerate the
-   film and the pressure; no calculation can say. Items 1–2 below are the earlier membrane design.
+   limit clears up to the culture's thickness (258 g/L): **$7.3/kg** in the floor's plant, $5.0 in a
+   yeast-style plant, whatever gas flow the cells tolerate. Section 8: calculation and literature settle most
+   of the cell side too (shear, drips, the pH pulse once the column strips gently, pressure); what is left is
+   deposits on the packing and how meat cells, not CHO, respond. Items 1–2 below are the earlier membrane design.
 1. **A membrane loop is limited by the liquid, not by the membrane.** A litre of culture at 100 mbar of CO₂
    holds 2.5 mmol of dissolved CO₂ and gives up about 1.1 mmol in a pass. Its 31 mmol/L of bicarbonate is
    not available, because turning bicarbonate into CO₂ needs an acid and culture medium has almost none to
@@ -802,6 +805,83 @@ cells (doubling time, waste, medium), plus the protectant cost that the floor le
 Membrane-aerated wastewater reactors (OxyMem, ZeeLung, Fluence) are sold by the thousand m², but no price per m²,
 material confirmation or steam rating was found (vendor pages and a patent). The earlier result stands: no
 gas-exchange membrane is both priced and rated for repeated steaming. The column makes the question moot.
+
+---
+
+## 8. How far calculation and literature settle the three cell questions (added 2026-11-14)
+
+Pablo asked whether the three open questions can be settled by simulation or literature rather than given
+probabilities. Code: `column_stresses`, `drop_height_for`, `loop_ph_exposure`. Literature read by two
+subagents (on Sonnet, as biology searches; several calls were refused by the safeguard and not retried).
+
+### 8.1 Cells on the column: mostly settled, and the pH result changed the design
+
+| what a cell meets | on the column (189 g/L) | measured reference | source, access |
+|---|---|---|---|
+| wall shear stress | 2.4 Pa (1,700 per second) | CHO: no effect for weeks at 1,000–3,400 per second in fibres, about 2.6 Pa at medium viscosity | Clincke 2013, full text |
+| | | CHO necrosis "at about 1 Pa" in simple shear; the abstract's wordings conflict | Tanzeglock 2009, abstract |
+| energy dissipated in the film | at most 4,000 W/m³ at the wall, 1,300 on average | CHO growth stops at about 2.9 × 10⁵ W/m³ with repeated exposure; lysis above about 10⁶ | Godoy-Silva 2009, snippet |
+| where packing sheets cross | about 2 × 10⁴ W/m³ [estimate, u³/δ] | as above | |
+| a drop falling 5 cm from the distributor | about 2.5 × 10⁵ W/m³ [estimate, v³/d]; 10⁶ at a 13 cm fall | as above; inkjet-printed fibroblasts kept ≥94–95% viability at about 2 m/s | Saunders 2008, Li et al. (arXiv 1310.0656), snippets |
+| a free surface with no bursting bubbles, renewed every 0.1 s | | CHO reached 1–2 × 10⁸ cells/mL in rocking bags aerated only through the wave surface (10 L), and orbitally shaken vessels with a wall film and no sparging ran at 1,000 L | Clincke 2013; Zhang 2009, snippet; Kühner, vendor |
+| alkaline liquid (CO₂ stripped) | +0.7 pH while in the loop, if stripped to 20 mbar | CHO: a zone of +0.37 pH holding 7.5% of the culture, 35–44 s per pass, cut peak cell density by 18–52% | Paul et al. 2020, full text via a summary |
+
+What this settles:
+- **Shear in the film: settled, it is fine.** The film's wall stress is below what CHO took for weeks in
+  Clincke's fibres (full text). Its energy dissipation is about 70 times below the repeated-exposure
+  growth limit.
+- **Drips: settled by design.** A free fall of more than a few centimetres onto the packing approaches the
+  growth limit, and 13 cm reaches the lysis range. The distributor must lay the liquid onto the packing (a
+  flooded trough or a pipe at the packing surface), not drip it from height. This is an order-of-magnitude
+  estimate, not a simulation.
+- **A free surface without bubbles: no direct evidence for a film, but strong precedent.** The two bubble-free
+  culture systems in use (rocking bags, orbital shakers) aerate through renewing free surfaces and wall films
+  and reach the highest CHO densities on record.
+- **pH: the literature says the first design was too harsh, and a gentler one avoids it.** Liquid stays
+  alkaline until it re-mixes with the tank, so the share of the culture exposed is the loop's volume over the
+  tank's, whatever the flow. Stripped to 20 mbar with 1 m³ in the loop, the exposure (rise × share) is 1.6 times
+  the one that hurt CHO. Stripped only to 55 mbar (+0.26 pH) with 0.5 m³ in the loop it is 0.29 times
+  (0.18 with 0.3 m³). The gentler column needs 11 passes an hour, 178 m³/h, 2.4 m across and 0.18 m of packing,
+  $30k per m³ of tank, and leaves the floor at **$8.6**. Taking "rise × share" as the measure is my inference
+  from one study.
+- **Not settled: deposits on the packing over a month, and meat cells rather than CHO.** Anchorage-dependent
+  CHO stick to steel (patent snippet); suspension-adapted lines are selected not to. Nothing was found for
+  meat cells.
+
+### 8.2 Cells at 2 bar absolute: largely settled
+
+- **Calculation.** In the model's tank today the bottom of the liquid is already at 1.71 bar absolute (0.33 bar
+  gauge at the top plus 3.7 m of liquid). With 1 bar gauge at the top, the cells see 2.0 bar at the top and 2.38
+  at the bottom: at most 0.67 bar more than they already pass through every circulation. Dissolved oxygen and
+  CO₂ are held at their usual levels.
+- **Literature.** The lowest pressures with reported effects on cultured cells are cyclic loading of 0.4–5 MPa
+  (4–50 bar) in cartilage-forming cells, and cytoskeletal damage starts near 24–30 MPa (snippets). One CHO
+  study saw slower early growth and higher final density under 0.004–0.012 MPa of extra hydrostatic pressure
+  (snippet; odd, and a single study). No animal-cell culture run at 0.5–2 bar gauge headspace was found.
+- **Verdict:** the added 0.07 MPa is about 6 times below the lowest pressure with a reported effect, and within
+  a factor of 1.4 of what cells already meet at the bottom of the tank. Only the single odd CHO result keeps it
+  from being settled.
+
+### 8.3 More gas per litre: settled for CHO, not for meat cells
+
+- **Literature.** Dense CHO cultures ran at 0.1–0.2 vvm with 2–5 g/L of protectant at 3–200 L with no extra
+  deaths, and 2,000-litre tanks are rated to 0.2 vvm (section 6). Damage at scale is set mainly by gas leaving
+  sparger holes faster than about 30 m/s, a design choice.
+- **Not found:** any meat cell line in a sparged tank with its gas rate and protectant stated. Pasitka et al.
+  grew chicken fibroblasts to 1.08–1.3 × 10⁸ cells/mL in suspension (abstract), but the aeration was not in
+  what could be read. Duck embryonic fibroblasts were "highly shear-sensitive" in rocking and orbital vessels
+  and did better in a stirred tank (2026, snippet).
+- **Foam cannot be simulated reliably:** it depends on the medium's proteins and protectant. It needs a test.
+- **Verdict:** this one still needs an experiment, but it matters less now: with the column and pressure the
+  floor is $7.3–7.4 whatever the gas rate.
+
+### 8.4 What changes in the experiments list
+
+| question | before | now | why |
+|---|---|---|---|
+| more gas per litre | 50% | 50% | CHO settled; meat cells and foam untested |
+| cells on the column | 45% | **60%** | shear settled, drips designed out, pH settled by the gentler design; deposits and meat cells untested |
+| cells at 2 bar absolute | 70% | **85%** | added pressure 6× below the lowest reported effect and close to what cells already see at the bottom |
 
 ---
 
