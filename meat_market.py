@@ -371,11 +371,10 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
 
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
         toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
-        eps = (s["eps_own"] * s["cult_sub_mult"] / base.cult_sub_mult      # a kappa draw scales the price response
-               * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)]))
+        eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
-                               eps_own=eps[i], income=income, p_ref=mt.p_conv,
+                               eps_own=eps[i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
                                neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
                          for i in range(n)])
 

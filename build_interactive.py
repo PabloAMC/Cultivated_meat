@@ -108,6 +108,7 @@ def build_model() -> dict:
         "p_conv_anchor": value("p_conv"),       # the $12 commodity anchor: conventional's price in the demand model
         "eps_own": value("eps_own"),
         "cult_sub_mult": value("cult_sub_mult"),  # closeness/substitutability lever
+        "kappa_base": value("kappa_base"),        # sets the shared beta; kappa/kappa_base acts on cultivated's price gap
         # the demand price coefficient beta is DERIVED (mirror of market_share._derive_beta):
         # anchored at a FIXED calibration price (inputs elasticity_anchor_price), solved at cultivated's
         # own share there via a fixed point. Neither the cost defaults nor the live sliders move it.
@@ -416,9 +417,10 @@ def build_model() -> dict:
                value("cult_sub_mult"), "Lusk 2020",
                tip="How many times more price-sensitive a cultivated product is than meat as a whole: it "
                "has a near-identical substitute on the same shelf. Mostly matters above parity: at "
-               "the reported cost, &kappa; = 4 → ~{{KAPPA_LO}}%, 9 → ~{{KAPPA_MID}}%, 10 → ~{{KAPPA_HI}}%. "
-               "Default 4 sits inside Lusk 2020's measured range. The shares that premium animal products "
-               "(organic milk, eggs, chicken) take at their prices fit 9 to 10 better (appendix A1)."),
+               "the reported cost, &kappa; = 4 → ~{{KAPPA_LO}}%, 8.5 → ~{{KAPPA_MID}}%, 10 → ~{{KAPPA_HI}}%. "
+               "Default 8.5 is the best fit to the shares premium animal products (organic milk, eggs, chicken) "
+               "take at their prices that Lusk 2020's measured range allows (appendix A1). It changes nothing "
+               "at equal price."),
         slider("loss_aversion", "Loss aversion (&lambda;)", "ratio", 1.0, 2.25, 0.05,
                value("loss_aversion"), "off by default",
                tip="Makes paying more than the conventional price hurt more than an equal discount helps. "
@@ -783,7 +785,7 @@ def illustrative_numbers() -> dict:
         "BP_1_PB": pc(share(1.0, DemandParams(real_tissue_p=1.0), cultivated_present=False, which="pb")),
         # closeness (kappa) ladder, re-solved, at TODAY's R (the above-parity lever)
         "KAPPA_LO": f"{resolved(R_today, cult_sub_mult=4.0) * 100:.1f}",
-        "KAPPA_MID": f"{resolved(R_today, cult_sub_mult=9.0) * 100:.1f}",
+        "KAPPA_MID": f"{resolved(R_today, cult_sub_mult=8.5) * 100:.1f}",
         "KAPPA_HI": f"{resolved(R_today, cult_sub_mult=10.0) * 100:.1f}",
         # loss-aversion (lambda) ladder, re-solved, at TODAY's R (shows lambda barely moves the level
         # across its principled 1 -> TK-2.25 range; the slider is capped at 2.25, see its tooltip)
@@ -1186,10 +1188,10 @@ Commission. <a href="#about">About this page</a>.</p>
     In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
     built one for animal cells.</li>
     <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
-    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%). That is the upper reading. If shoppers treat
-    cultivated meat the way they treat today's premium meat, milk and eggs, which take 2–7% of sales at 1.5 to 2.2
-    times the price, it is about {{PEN_GLOBAL_FLOOR_LO}}% (the range across price sensitivity runs to
-    ~{{PEN_GLOBAL_FLOOR_HI}}%). Less by animal count, since most animals are chickens.</li>
+    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%), with price sensitivity set by what today's
+    premium meat, milk and eggs sell at 1.5 to 2.2 times the price (2–7% of sales). Across the plausible range of
+    price sensitivity it runs from ~{{PEN_GLOBAL_FLOOR_LO}}% to ~{{PEN_GLOBAL_FLOOR_HI}}%. Less by animal count,
+    since most animals are chickens.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
     <li><b>As a company reports its process:</b> about ${{BIOMASS_TODAY}} per kilo with capital counted [1],
@@ -1385,7 +1387,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
           <div class="ctl"><label><span class="nm">CO&#8322; the cells tolerate</span><span class="val" id="fx_pc_v"></span></label>
             <input type="range" id="fx_pc" min="50" max="250" step="5" value="100" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Gas flow the cells tolerate</span><span class="val" id="fx_gv_v"></span></label>
-            <input type="range" id="fx_gv" min="3" max="20" step="0.5" value="6" oninput="fxRender()"></div>
+            <input type="range" id="fx_gv" min="0.6" max="12" step="0.2" value="6" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank shape: liquid depth over width</span><span class="val" id="fx_ar_v"></span></label>
             <input type="range" id="fx_ar" min="0.8" max="2.5" step="0.1" value="1.6" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank size</span></label>
@@ -1437,12 +1439,15 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       so the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
       of mainstream meals that skip meat (A4). Taste sets the scale for the rest. As a check, the same model with
       only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (chart 6); a
-      weak test, since milk's facts are set by hand. <b>A harder test fails.</b> Organic chicken is real chicken at
-      1.44&times; the price of regular cuts, and takes about 2.4% of US chicken. The model gives a real-meat product
-      equal to conventional in all but price, at that premium, about {{ORG_CUTS}}% (about {{ORG_MINCE}}% at 2.6&times;
-      mince). So the model's shares above equal price are best read as upper estimates. The uncertainty band therefore
-      lets cultivated meat be up to 9 times more price-sensitive than meat as a whole (&kappa; up to 9), the most that
-      the one price experiment on cultivated meat allows.</p>
+      weak test, since milk's facts are set by hand. <b>A harder test.</b> Six premium animal products (organic
+      milk, cage-free, organic and omega-3 eggs, organic chicken, organic meat) take 2–7% of sales at 1.5 to 2.2
+      times the conventional price. Each is the ordinary product plus a virtue, which is what cultivated meat above
+      equal price would be. The model reproduces them to within a factor of about 2.6 at the default price
+      sensitivity (&kappa; = 8.5) and over-predicted them sixfold at its earlier default of 4. For example, it gives
+      a real-meat product at 1.44&times; the price of chicken cuts about {{ORG_CUTS}}% (about {{ORG_MINCE}}% at
+      2.6&times; mince). It still over-predicts at small premiums and under-predicts at large ones: real premium
+      buyers look like a small group that pays whatever the premium, which one price-sensitivity number cannot
+      capture.</p>
       <p><b>At equal price</b>, once familiar, mainstream shoppers see two near-identical real meats and split that
       market: cultivated ~{{PARITY_NEUTRAL}}%, conventional ~{{CONV_PARITY}}% (cultivated's small edge is its
       slaughter-free and cleaner profile; without the health edge, ~{{NOHEALTH_PARITY}}%). The judgement calls that
@@ -1593,8 +1598,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <h5>A1. Price sensitivity: where the price weight comes from</h5>
       <p>Grocery data give the <b>price elasticity</b> of meat as a category, \(\varepsilon \approx -0.9\) [4]:
       1% dearer, 0.9% fewer purchases. Meat as a whole has no close substitute, so it is fairly insensitive. A single
-      cultivated product does have one, conventional meat on the same shelf, so its own sensitivity is \(\kappa\)
-      times larger: \(\varepsilon_x = \kappa\varepsilon \approx 4 \times (-0.9) = -3.6\) at the calibration price. The price
+      cultivated product does have one, conventional meat on the same shelf, so a single product is more sensitive than the category: \(4 \times (-0.9) = -3.6\) at the calibration price,
+      the usual gap between a product and its category. That sets the price weight every product shares. Cultivated's price
+      <i>difference from the conventional meat beside it</i> then counts \(\kappa/4\) times as much again, because the two are
+      near-identical (\(\kappa = 8.5\) by default). The price
       weight \(\beta\) (the slope of the price score) is solved so the model delivers exactly that at the calibration
       price \(p_x\) and cultivated's share there \(s_x\), which depend on each other and are solved together:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
@@ -1605,21 +1612,19 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       capital charge was added to the cost. It is held fixed so that correcting a cost changes cultivated's price but
       not how shoppers respond to price. Today's price is higher (${{RETAIL_TODAY}}/kg), and the model is more
       price-sensitive there.</p>
-      <p><b>Evidence for \(\kappa\).</b> Two kinds, and they pull apart. First, Van Loo, Caputo and Lusk [8]
-      priced lab-grown meat at six levels; their two models put its elasticity at equal price between &minus;0.84
-      and &minus;3.4. The model's implied value in the same setting (equal price, first-contact wariness) at
-      \(\kappa=4\) is {{KAPPA4_LUSK_ELAS}}, inside that range; \(\kappa=9\) is the highest value still
-      inside it. Second, premium animal products show what share a product takes when it is the conventional one
-      plus a virtue, at a higher price: organic milk, cage-free, organic and omega-3 eggs, organic chicken and
-      organic meat take 2–7% of volume at 1.5 to 2.2 times the conventional price. The model fits those six best
-      at \(\kappa\approx10\) and over-predicts them about sixfold at the default 4. So above parity the
-      default is an upper estimate and \(\kappa=9\) is the reading from premium products; the headline share
-      at the floor is given at both. The default is not moved to 9 because the calibration strains there (one of
-      its solved weights falls to zero); the real fix is shoppers who differ in price sensitivity. Once shoppers
-      are familiar with the product, the model's elasticity is about {{ELAS_10}} at parity, {{ELAS_15}} at
+      <p><b>Evidence for \(\kappa\).</b> Two kinds. First, Van Loo, Caputo and Lusk [8] priced lab-grown meat at
+      six levels; their two models put its elasticity at equal price between &minus;0.84 and &minus;3.4. The model's
+      implied value in the same setting (equal price, first-contact wariness) is {{KAPPA4_LUSK_ELAS}}, inside that
+      range; at \(\kappa = 9\) it would be just outside. Second, premium animal products show what share a
+      product takes when it is the conventional one plus a virtue, at a higher price: organic milk, cage-free,
+      organic and omega-3 eggs, organic chicken and organic meat take 2–7% of volume at 1.5 to 2.2 times the
+      conventional price. At \(\kappa = 4\), this model's default until November 2026, it over-predicts those six
+      about sixfold; at 8.5 the typical miss is under threefold, and the best fit is at 10. So 8.5 is the best fit
+      to the premium products that the experiment allows. \(\kappa\) changes nothing at equal price. Once
+      shoppers are familiar with the product, the model's elasticity is about {{ELAS_10}} at parity, {{ELAS_15}} at
       \(R=1.5\) and {{ELAS_24}} at \(R=2.4\). At the reported cost, \(\kappa=4\) gives about {{KAPPA_LO}}%,
-      9 about {{KAPPA_MID}}% and 10 about {{KAPPA_HI}}%. \(\kappa\) plays the role that a nested logit's
-      similarity parameter would play for a &ldquo;real meat&rdquo; nest.</p>
+      8.5 about {{KAPPA_MID}}% and 10 about {{KAPPA_HI}}%. \(\kappa\) plays the role that a nested logit's
+      similarity parameter would play for a &ldquo;real meat&rdquo; nest, applied to price only.</p>
 
       <h5>A2. Income</h5>
       <p>The income part of the price score, \(\alpha\ln(y_{\rm eff}-p_j)\), is the Berry–Levinsohn–Pakes form [12]:
@@ -1947,10 +1952,16 @@ function utilities(R,K,seg,o){
     const Vl=K.w_ratio*rScale*(-K.loss_aversion*Math.max(0,prem)   // loss side: penalise a premium at -lambda
               +Math.max(0,-prem));                                 // gain side: reward a discount (ratio-based, no income scaling)
     // per-FACTOR components (mirror of market_share._utilities components) — summed to V[j]
-    CO.price[j]=Vp+Vl; CO.taste[j]=K.w_taste*taste[j]; CO.slaughter_free[j]=wSl*slaughter[j];
+    CO.price[j]=Vp+Vl; CO._vp=CO._vp||[]; CO._vl=CO._vl||[]; CO._vp[j]=Vp; CO._vl[j]=Vl;
+    CO.taste[j]=K.w_taste*taste[j]; CO.slaughter_free[j]=wSl*slaughter[j];
     CO.real_meat[j]=wRt*realtissue[j]; CO.health[j]=wH*health[j]; CO.asc[j]=xi[j];
     V[j]=CO.price[j]+CO.taste[j]+CO.slaughter_free[j]+CO.real_meat[j]+CO.health[j]+CO.asc[j];
   }
+  // CLOSENESS TO CONVENTIONAL (mirror of market_share._utilities): cultivated's price utility measured from
+  // conventional's counts kappa/kappa_base times, on both channels; nothing else moves.
+  const kr=(o.kap===undefined?K.cult_sub_mult:o.kap)/C.kappa_base;
+  if(kr!==1){ const px=CO._vp[1]+kr*(CO._vp[3]-CO._vp[1])+kr*CO._vl[3]; V[3]+=px-CO.price[3]; CO.price[3]=px; }
+  delete CO._vp; delete CO._vl;
   return o.components?CO:V;
 }
 /* relative-importance decomposition (mirror of market_share.utility_breakdown): split a product's
@@ -1979,10 +1990,10 @@ function segShares(R,K,seg,o){
   if(o.present){const P=softmax(V);return {w:P[0],c:P[1],p:P[2],x:P[3]};}
   const P=softmax(V.slice(0,3));return {w:P[0],c:P[1],p:P[2],x:0};
 }
-function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,present=true,which="x",rtx,rtp,hx,hp,pRef}){
+function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,present=true,which="x",rtx,rtp,hx,hp,pRef,kap}){
   const o={ax,tfM,toff,present,nbx,nbp,eps:(eps===undefined?K.eps_own:eps),
            income:(income===undefined?K.income_ref:income),
-           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef};
+           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap};
   const M=segShares(R,K,"M",o), E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
   return K.w_eth*E[key]+(1-K.w_eth)*M[key];
 }
@@ -2040,7 +2051,7 @@ function solveCalibration(K){
 function deriveBeta(K){
   const pAnchor=C.anchor_price;
   K.anchor_price=pAnchor;
-  const Rtoday=pAnchor/K.p_conv_anchor, epsX=K.eps_own*K.cult_sub_mult;
+  const Rtoday=pAnchor/K.p_conv_anchor, epsX=K.eps_own*C.kappa_base;   // kappa's extra acts on x only (utilities)
   const lam=K.w_ratio*K.loss_aversion/K.p_conv_anchor;   // loss-side semi-elasticity the reference term adds
   // MONOTONICITY GUARD (mirror of market_share._derive_beta): cap beta below 1/p_conv so the
   // DISCOUNT side (where the loss term is off) always slopes downward — a cheaper product must
@@ -2057,7 +2068,7 @@ function deriveBeta(K){
     // beta is calibrated to cultivated AS A REAL-MEAT product (rtx=1), so the fixed-point share
     // uses rtx=1 regardless of the user's real_tissue_x dial (matches Python _derive_beta, which
     // is stable in rtx). The dial then shifts the OUTCOME, not the price-coefficient calibration.
-    const sNew=shareCalc(Rtoday,K,{ax:1,tfM:0,rtx:1});
+    const sNew=shareCalc(Rtoday,K,{ax:1,tfM:0,rtx:1,kap:C.kappa_base});   // at kappa_base: beta does not depend on kappa
     if(Math.abs(sNew-s)<1e-9){s=sNew;break;}
     s=sNew;
   }
@@ -3073,7 +3084,7 @@ function mcDraw(keys){const d={};for(const k of keys)d[k]=triang.apply(null,C.pr
 // as penetration()'s point estimate, including pRef = this cut's own price (the income log needs the
 // dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
 function mcShareOpts(dr,mt,t,s){return {ax:dr.accept_x,tfM:dr.theta_free_M,toff:tAuth(t,dr.premium_resistance),
-  eps:dr.eps_own*(dr.cult_sub_mult/(KP||C).cult_sub_mult)*tMult(t,dr.premium_resistance),   // a kappa draw scales the price response
+  eps:dr.eps_own*tMult(t,dr.premium_resistance), kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
   income:s.income,pricePb:s.R_p,aP:s.a_p,
   nbx:dr.neophobia_x,nbp:s.neophobia_p,hx:dr.health_x,pRef:mt.p_conv};}
 function monteCarlo(s,N){
@@ -3622,7 +3633,7 @@ function fxRender(){
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
-  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits for pharma cells [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;.");
+  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is the top of the guidance: large pharma tanks usually run at 5 to 20 times less gas, and nobody has shown cells this dense tolerating it at this size.");
   n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");

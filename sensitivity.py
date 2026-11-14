@@ -104,7 +104,7 @@ def _share_at(target: str, overrides: dict) -> float:
     dp = DemandParams(w_ratio=m["w_ratio"]) if "w_ratio" in m else DemandParams()   # w_ratio: beta re-derived
     return float(share(R, dp, theta_free_M=m["theta_free_M"],
                        accept_x=m["accept_x"],
-                       eps_own=m["eps_own"] * m["cult_sub_mult"] / dp.cult_sub_mult,
+                       eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
                        neophobia_x=m["neophobia_x"], health_x=m["health_x"]))
 
 

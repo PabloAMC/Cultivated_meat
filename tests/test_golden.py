@@ -103,20 +103,20 @@ GOLDEN = {
     "pb_share_pct":        1.2000,
     "parity_pct":          48.7634,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
-    "lusk_elas_parity_cold": -1.53827,  # in Lusk's [-3.4, -0.84] (self-check [4b])
-    "income_us_pct":       8.72704,    # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "lusk_elas_parity_cold": -3.26883,  # in Lusk's [-3.4, -0.84] (self-check [4b])
+    "income_us_pct":       0.702045,    # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    0.155473,    # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.00390188,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
     "health_x_half_pct":   59.578,
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
-    "us_pen_vol_pct":      2.39512,
-    "us_pen_val_pct":      4.66618,
-    "world_pen_vol_pct":   0.852336,
-    "organic_vs_cuts_pct": 33.45846,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "us_pen_vol_pct":      0.584202,
+    "us_pen_val_pct":      1.7793,
+    "world_pen_vol_pct":   0.274195,
+    "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  30.0,      # was "~25" when measured as 90% of the year-30 value
 }
 
@@ -230,15 +230,15 @@ def check_derived_prose_numbers() -> list:
     # (label, live value, the exact string the prose uses for it). The string is what must appear
     # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
     derived = [
-        ("eps_x = eps_own*kappa",        value("eps_own") * value("cult_sub_mult"), "−3.6"),
-        ("elasticity at R=1.0",          elas(1.0),  "−0.8"),
-        ("elasticity at R=1.5",          elas(1.5),  "−1.7"),
-        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.6"),
+        ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
+        ("elasticity at R=1.0",          elas(1.0),  "−1.7"),
+        ("elasticity at R=1.5",          elas(1.5),  "−4.4"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−8.3"),
         ("biomass cost floor $/kg",      cost_floor, "11.5"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",
-              "elasticity at R=1.5": "−1.7", "elasticity at R=2.42 (anchor)": "−3.6",
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.7",
+              "elasticity at R=1.5": "−4.4", "elasticity at R=2.42 (anchor)": "−8.3",
               "biomass cost floor $/kg": "11.5"}
 
     fails = []

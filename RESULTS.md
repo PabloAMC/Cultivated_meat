@@ -9,8 +9,10 @@ language; [METHODS.md](METHODS.md) has the code-level detail. Everything below r
 
 *Revised 2026-11-14: the cost side was rebuilt. The earlier anchor (Pasitka et al. 2024) turned out to count a
 kilogram that is mostly liquid and to leave out the cost of the plant, so it is no longer used. The default is
-now a company's reported cost on a sound basis, and the floor is derived from physics. The demand side is
-unchanged. Details: METHODS.md, "Changes of 2026-11-14".*
+now a company's reported cost on a sound basis, and the floor is derived from physics. On the demand side one
+thing changed: how steeply share falls above equal price is now set by what premium meat, milk and eggs
+actually sell (it was set by one choice experiment alone). Shares at equal price are unchanged; shares above it
+are several times lower. Details: METHODS.md, "Changes of 2026-11-14".*
 
 All costs are per kg of real cells: about 70% water and 20% protein, like meat. Plant costs are in 2025 prices.
 
@@ -21,28 +23,27 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   and the device does not exist yet. With the financing of a first plant the same case costs $14. The floor is the
   best case: if its inputs are allowed to fall short within their plausible ranges, the median is $19/kg (80%
   range $12–30), and most of that distance is the cells: speed, density, waste and size.
-- **At the floor it takes ~12% of world meat by weight** in the long run, 19% in the US and 26% in Europe (point
-  estimates at the default demand settings). That is the upper reading. Six premium
-  animal products (organic milk, eggs, chicken, meat) take 2–7% of sales at 1.5 to 2.2 times the price, and the
-  model fits them only with shoppers far more price-sensitive than its default. On that reading the world figure
-  is 3% (US 10%, Europe 18%); across the whole range of price sensitivity it runs from 3% to 17%. Counted in animals it would be lower: most are chickens, where
-  cultivated does worst: a tonne sold spares about 115 land animals in the US, against 250 for a tonne of the
-  average meat mix. These shares are best read as upper estimates: the model gives a real-meat product at a
-  premium far more share than organic chicken actually has (§2).
+- **At the floor it takes ~5% of world meat by weight** in the long run, 10% in the US and 22% in Europe. How
+  steeply share falls above equal price is set by six premium animal products (organic milk, eggs, chicken,
+  meat), which take 2–7% of sales at 1.5 to 2.2 times the price, within the range one choice experiment on
+  cultivated meat allows. Across the plausible range of price sensitivity the world figure runs from 4% to 12%.
+  Counted in animals it is lower still: cultivated meat sells mostly as beef and seafood, so a tonne sold spares
+  about 34 land animals in the US, against 250 for a tonne of the average meat mix.
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
   a quarter of the cost per cubic metre. In such a plant the floor would be about **$6.6/kg**, just under the $7
   that parity needs. That plant cost is not only a yeast plant's: Humbird's own yeast plant costs about that
   with 20 m³ tanks, and two published cultivated-meat designs (CE Delft, Negulescu) assume it. Humbird's
   animal-cell plant costs five times more for sterile seed trains, medium handling, oxygen supply and clean
   rooms. Nobody has run animal cells in the cheaper kind. Allowing its inputs to fall short, the median is
-  $12/kg, with about a 5% chance of $7 or less. This is  the frontier that decides whether cultivated meat can match the price of everyday meat.
+  $12/kg, with about a 5% chance of $7 or less. This is the frontier that decides whether cultivated meat can match the price of everyday meat.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
 - **As a company reports its process, with capital counted,** cultivated chicken costs about **$34/kg of cells,
   ~3.3× everyday meat** ($39 in the shop). This is SuperMeat's 2024 process for 100% cell mass, from 10-litre runs
   scaled on paper to 25,000-litre tanks, with a yearly charge on the plant; the company's own figure, with
-  depreciation only, is $29.5/kg. It is not peer reviewed. At that cost the share is **~0.9% of world meat** (2.4%
-  in the US; Monte Carlo median over the cost and demand ranges 0.3%, 80% range 0.1–1.2%).
+  depreciation only, is $29.5/kg. It is not peer reviewed. At that cost the share is **~0.3% of world meat** (0.6%
+  in the US; Monte Carlo median over the cost and demand ranges 0.2%, 80% range 0.0–0.6%), nearly all of it
+  premium beef and seafood.
 - **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. A few luxury products are beatable
   on price already, but tiny.
 - **When:** these are long-run ceilings; adoption reaches 90% of its long-run share after about 30 years.
@@ -96,7 +97,7 @@ plant cost gives R ≈ 2.50, medium at $0.20/L 2.52, efficient cells 2.33).
 ```
 basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs (N=20,000):
   price ratio R:   P50 = 3.27   80% CI [2.51, 4.16]   90% CI [2.33, 4.43]
-  long-run share:  P50 = 0.4%   80% CI [0.0, 3.9]
+  long-run share:  P50 = 0.0%   80% CI [0.0, 0.9]
   0% of draws reach parity (R ≤ 1)
 ```
 
@@ -113,65 +114,76 @@ Monte Carlo does not include the frontier.
 | tastes as good, and “no slaughter” matters (0.5 / 1.0 / 1.5) | ~59% / ~68% / ~75% |
 | tastes as good but isn't seen as real meat | ~10% |
 
-At first contact it gets ~6% (a US choice experiment found ~5%); at the default cost, ~2% in the long run (US).
+At first contact it gets ~6% (a US choice experiment found ~5%). Against $12 everyday meat (US, long run) it
+gets ~21% at the floor (1.4× the price) and next to nothing at the reported cost (3.3×).
 Checks: adding cultivated takes 44 points from conventional meat and only 0.6 from plant-based; the same model
 predicts ~15% for plant-based milk, close to reality (a weak test, since milk's inputs are set by hand).
 
-**A harder check fails.** Organic chicken is real chicken at 1.44× the price of regular cuts, and takes ~2.4% of US
-chicken. The model gives a real-meat product equal to conventional in all but price, at that premium, ~33% (~12%
-at 2.6× mince). No κ inside the range the one price experiment on cultivated meat allows closes the gap (κ = 10
-still gives ~18%), so it is not a matter of tuning κ: the choice model gives a nearly identical, dearer product a
-sizeable share. So shares above equal price are best read as upper estimates. The most consequential demand
-assumption above parity is how price-sensitive a cultivated product is relative to meat overall (κ = 4; the range
-now runs 3–9, the most that experiment allows, because of this check: 5.0% at κ = 3, 2.3% at 4, 0.0% at 9, US
-everyday meat at the default cost).
+**A harder check, and what it changed.** Six premium animal products show what share a product takes when it is
+the ordinary one plus a virtue, at a higher price:
+
+| product (US) | price vs conventional | share of volume | model at κ = 4 | model at κ = 8.5 |
+|---|---|---|---|---|
+| organic milk | 1.63× | 7.0% | 25.6% | 9.8% |
+| cage-free eggs (before mandates) | 1.63× | 2.8% | 25.6% | 9.8% |
+| omega-3 eggs | 1.63× | 6.1% | 25.6% | 9.8% |
+| organic eggs | 2.19× | 2.2% | 12.2% | 1.5% |
+| organic chicken | 1.91× | 4.6% | 18.0% | 4.0% |
+| all organic meat | 1.50× | 2.2% | 29.9% | 14.6% |
+
+κ is how many times more price-sensitive a cultivated product is than meat as a whole. At the old default of 4
+the model over-predicted these about sixfold. The best fit is κ = 10; the one choice experiment on cultivated
+meat (Lusk 2020) allows up to about 8.8. The default is now 8.5: the typical miss is a factor of 2.6. To make
+this possible κ was changed to act only on cultivated's price difference from the conventional meat beside it,
+so it moves nothing at equal price and leaves the rest of the calibration as published. What remains wrong: the
+model still over-predicts at small premiums and under-predicts at large ones. Real premium buyers look like a
+small group that pays whatever the premium, which one number cannot capture.
 
 ## 3. By type of meat (US)
 
 ```
                             default cost        cost floor
   meat type          $/kg    R     share        R     share
-  chicken mince        5    7.87    0.0%       3.30    6.2%
-  beef mince          11    3.58    2.0%       1.50   34.8%
-  beef steak          20    2.27    7.5%       1.13   34.4%
-  wagyu (premium)     45    1.01   18.0%       0.50   26.8%
-  pork (processed)     8    4.92    0.5%       2.06   20.8%
-  seafood fillet      24    1.89   11.4%       0.94   41.5%
-  sushi-grade (prem.) 40    1.13   16.4%       0.56   25.0%
-  TOTAL by weight: default 2.4%, at the floor 19.0%
+  chicken mince        5    7.87    0.0%       3.30    0.3%
+  beef mince          11    3.58    0.0%       1.50   18.1%
+  beef steak          20    2.27    0.8%       1.13   29.4%
+  wagyu (premium)     45    1.01   17.9%       0.50   39.1%
+  pork (processed)     8    4.92    0.0%       2.06    4.6%
+  seafood fillet      24    1.89    2.1%       0.94   44.6%
+  sushi-grade (prem.) 40    1.13   14.5%       0.56   34.4%
+  TOTAL by weight: default 0.6%, at the floor 10.0%
 ```
 
-Premium products get the biggest share of their category at the default cost, but authenticity holds them to
-about a quarter even at the floor, and their markets are small. At the floor, seafood fillets, beef cuts and beef
-mince lead; chicken stays under 10%.
+At the default cost only products priced like wagyu and sushi-grade fish sell; their markets are small. At the
+floor, seafood, beef cuts and beef mince lead; pork is under 5% and chicken close to zero.
 
 **With the cells that have been published.** The floor assumes an efficient model cell for every species. Using
 each species' published doubling time and cell size in the same plant (chicken and turkey cost 1.6× as much,
-beef 1.2×, seafood about the same; no data for pork), the US total at the floor's plant is 15%, not 19%. The
+beef 1.2×, seafood about the same; no data for pork), the US total at the floor's plant is 7%, not 10%. The
 cell data are thin (METHODS.md, "Species costs in the market model").
 
-**Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 115 land animals at
-the floor (US) and about 50 at the reported cost; a tonne of the average US meat mix is about 250. Cultivated
-meat sells mostly as beef and seafood. Seafood animals are not counted.
+**Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 34 land animals at
+the floor (US) and about 18 at the reported cost; a tonne of the average US meat mix is about 250. Almost none
+of it is chicken, where the animals are. Seafood animals are not counted, and seafood is about a third of
+sales at the floor.
 
 ## 4. By region
 
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  1.5%  [0.3,  6.2]    P50  3.1%  [ 0.7, 11.0]  <- easiest (rich + priciest meat)
-  US        $86k        P50  0.7%  [0.2,  3.2]    P50  1.7%  [ 0.4,  6.0]
-  Global    $24k        P50  0.3%  [0.1,  1.2]    P50  0.8%  [ 0.2,  2.8]
-  China     $27k        P50  0.4%  [0.1,  1.7]    P50  1.5%  [ 0.4,  4.7]
-  Brazil    $22k        P50  0.1%  [0.0,  0.4]    P50  0.2%  [ 0.0,  0.9]
-  India     $11k        P50  0.0%  [0.0,  0.2]    P50  0.2%  [ 0.0,  0.7]
-  Nigeria    $6k        P50  0.0%  [0.0,  0.1]    P50  0.0%  [ 0.0,  0.1]  <- hardest (cheap meat + price-sensitive)
+  Europe    $62k        P50  0.9%  [0.2,  3.9]    P50  2.0%  [ 0.5,  7.9]  <- easiest (rich + priciest meat)
+  US        $86k        P50  0.4%  [0.1,  1.5]    P50  1.1%  [ 0.3,  3.7]
+  Global    $24k        P50  0.2%  [0.0,  0.6]    P50  0.6%  [ 0.1,  2.0]
+  China     $27k        P50  0.3%  [0.1,  1.1]    P50  1.1%  [ 0.3,  3.7]
+  Brazil    $22k        P50  0.0%  [0.0,  0.2]    P50  0.1%  [ 0.0,  0.5]
+  India     $11k        P50  0.0%  [0.0,  0.1]    P50  0.1%  [ 0.0,  0.4]
+  Nigeria    $6k        P50  0.0%  [0.0,  0.0]    P50  0.0%  [ 0.0,  0.1]  <- hardest (cheap meat + price-sensitive)
 ```
 
 Dear meat and rich shoppers make Europe easiest; cheap meat and price-sensitive shoppers make low-income regions
-hardest. The explorer's point estimates at the defaults are higher (Global 0.9%, Europe 4.6%, US 2.4%): they hold κ
-at 4 and the plant cost at its reported value, while the band samples κ up to 9 and plant costs up to the cautious
-case. World beef is priced by consumption-weighted country prices (METHODS.md, "World beef price").
+hardest. This table is at the reported cost. The point estimates there are Global 0.3%, Europe 1.3%, US 0.6%; the band
+samples κ from 4 to 11 and plant costs from the floor to the cautious case. World beef is priced by consumption-weighted country prices (METHODS.md, "World beef price").
 Against sushi-grade salmon, a structured product is at or below parity in 17% of draws, but structuring cost is
 unmeasured.
 
@@ -182,9 +194,8 @@ bluefin tuna, sea urchin, wagyu. Lobster is close (R ≈ 1.1). Each is a small m
 where the volume is, stay out of reach even at the floor. Foie gras stands out: unstructured, expensive, and
 increasingly banned on welfare grounds.
 
-From a near-zero start, cultivated meat reaches ~0.3% after 10 years and ~2% after 30 (US, everyday meat, costs
-held fixed), and 90% of its long-run share after about 30 years (15 to 73 across the plausible speeds at which
-wariness fades). Current wariness (surveys: 5–60%) sets the speed, not the ceiling.
+From a near-zero start, cultivated meat reaches 90% of its long-run share after about 30 years (16 to 74 across
+the plausible speeds at which wariness fades), at the floor as at the reported cost. Current wariness (surveys: 5–60%) sets the speed, not the ceiling.
 
 ## 6. What to fund
 
@@ -212,11 +223,10 @@ are public goods that industry underfunds.
   scale with a full mass balance; perfusion with a scalable way to hold cells back at 20,000 litres; medium below
   $0.30/L confirmed at scale.
 - **Down:** if the reported figures do not survive review or scale-up; cells that reach only half the density in
-  a pharma-style plant (R ≈ 4.5); contamination losses in long runs, which the model does not count.
-- **Demand above parity is the weakest part.** The default over-predicts the shares of six premium animal
-  products about sixfold. A higher price sensitivity fits them but strains the calibration; the proper fix is
-  a model in which shoppers differ in price sensitivity. Until then the floor share is a range, 3% to 12% of
-  world meat.
+  a pharma-style plant (R ≈ 4.5); frequent contamination with slow restarts (METHODS.md, "Losing runs").
+- **Demand above parity is the weakest part.** It now rests on six premium products and one choice experiment,
+  and the model reproduces the six only to within a factor of about 2.6. Shoppers who differ in price
+  sensitivity would fit better; there is not yet enough data to pin that down.
 - **What rests on one source.** The default is one company's report, with a capital charge that assumes a
   10-year depreciation period (20 years would add $8/kg). The floor's plant costs are one engineer's design
   (Humbird 2021) in 2025 prices. Neither has been reproduced.

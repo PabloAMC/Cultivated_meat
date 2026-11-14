@@ -77,14 +77,15 @@ Every input falls into one of five categories; `python inputs.py` tags each.
 3. **Solved to a target:** `w_realtissue_M`, `w_health_M`, `w_health_E`, to the 89% mainstream buyer split and
    the 1.2% plant-based share (published) and a ~6% mainstream meatless rate (assumed; no clean source, 0.3 pp of
    leverage). One equation per unknown: calibration, not fitting.
-4. **Judgement, shown as a range:** `cult_sub_mult` (κ; bracketed by Lusk 2020), the acceptance dials
+4. **Judgement, shown as a range:** `cult_sub_mult` (κ; set by six premium products within the Lusk 2020 bracket), the acceptance dials
    `accept_x`/`theta_free_M`, long-run novelty `neophobia_x`, health image `health_x`, the tier ladder (scaled
    by `premium_resistance`), `markup_add` (bounded by the USDA farm-to-retail spread), the scaffold cost, and
    `loss_aversion` (symmetric by default).
 5. **Assumed, with modest leverage** (the calibration re-solves around each): across their full slider
-   ranges, the long-run share at the default cost (2.3%) moves by 1.0 pp for `w_realtissue_E` (0–4), 0.4 pp for
-   `w_taste` (1–10), 2.2 pp for `taste_quality_w` (beans' taste, 0.1–0.5), under 0.1 pp for `wf_mainstream_target`
-   and 0 for `w_slaughter_E`; for comparison, κ (3–9) moves it by 5.0 pp. The timing knobs (`accept_rate`,
+   ranges, the long-run share at the floor against $12 meat (20.8%) moves by 3.1 pp for `w_realtissue_E` (0–4),
+   3.9 pp for `w_taste` (1–10), 0.3 pp for `wf_mainstream_target` and 0 for `w_slaughter_E`; `taste_quality_w`
+   (beans' taste, 0.1–0.5) moves it by 20 pp and is the most influential assumed position; for comparison, κ
+   (4–11) moves it by 19 pp. The timing knobs (`accept_rate`,
    `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$11.5 floor: salts,
    buffer, vitamins) is a small pure assumption.
 
@@ -361,16 +362,28 @@ while growing is not known; it is the single measurement that would move the flo
 raise the cost** unless the CO₂ limit is relaxed, because the loss of density outweighs the cheaper vessel.
 Cells of 1.5 ng raise the floor to $13.
 
-*Holding cells back by settling (`settler_spec`).* The floor prices a retention device that does not exist.
-Sizing a gravity settler from first principles for a 20 m³ tank at the floor case: a 17.6 µm cell settles at
-4.3 cm/h (Stokes), 2.4 cm/h in a culture this crowded. The tank passes 0.56 m³ of liquid an hour, which needs
-23 m² of inclined plate: not much. The problem is time. A cell would spend about 50 minutes between plates
-1 cm apart, and at 120 g/L the cells use up their dissolved oxygen in about 9 seconds. Clumps settle faster
-(velocity rises with the square of the diameter). To keep the stay under 10 minutes the cells must travel as
-clumps about 50 µm across, roughly 14 cells; for 5 minutes, 70 µm (40 cells). That is far below the size at
-which clumps starve in the middle (hundreds of µm). The specification for the device the floor assumes is
-therefore: cells that grow as loose clumps of 50–100 µm, or tolerate 10 minutes without oxygen, or a settler
-that is cooled or aerated. Assumed: cell density 1.06 g/mL, clumps 60% cells, plates at 60°.
+*Holding cells back by settling (`settler_spec`).* The floor prices a retention device at what one study hopes
+it will cost. Sizing a gravity settler from first principles for a 20 m³ tank at the floor case: a 17.7 µm
+cell settles at 2.4 cm/h (Stokes; the cell density is set so that a 14 µm CHO cell settles at its measured
+1.45 cm/h), and 1.3 cm/h in a culture this crowded. The tank passes 0.56 m³ of liquid an hour, which needs
+about 42 m² of inclined plate. A cell would spend about 90 minutes between plates 1 cm apart, and at 120 g/L
+the cells use up their dissolved oxygen in about 9 seconds, so the stay is without oxygen. Working inclined
+settlers hold cells for 60–90 minutes, and the largest reported serves a 3,000-litre reactor at 2,950 litres a
+day with over 85% retention (`research_notes/co2_sparging_settling.md`). So the device the floor assumes is a
+4.5-fold scale-up in flow of something that runs today, at a cell density two to four times higher than it has
+been used at. Clumps would help: velocity rises with the square of the diameter, so clumps of 30 µm (two or
+three cells) bring the stay to 60 minutes and clumps of 70 µm (about 35 cells) to 10 minutes, far below the
+200–500 µm at which clumps starve in the middle. Assumed: clumps 60% cells, plates at 60°. Not found in the
+literature: how long cells tolerate no oxygen when cooled, and settling of real cell clumps.
+
+*What the literature says about the CO₂ levers.* Tolerance: CHO cells lose about 9% of their growth rate at
+200 mbar with osmolality controlled and about half near 260 mbar with it raised, so 100 / 160 / 200 mbar is a
+defensible range; nothing is published for muscle, fibroblast or fish cells. Gas flow: Humbird's 6 mm/s
+(0.1 vvm at 20 m³) is the top of the guidance. Large pharma tanks are reported at 0.005–0.02 vvm, 5 to 20 times
+less, because their thin cultures need no more. Nobody has shown cells at 100 g/L or more tolerating his limit
+in a 20 m³ tank, so the 120 g/L the floor uses is itself unproven at scale, and the gas-flow lever only goes
+down from his value with any support. Tank shape: liquid depth of 1 to 3 times the width is in use. The
+exhaust of tall tanks leaves saturated with CO₂ (four sources), which is what the balance assumes.
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:
@@ -398,8 +411,8 @@ perfusion and to $66 in a drained-and-refilled tank.
 
 *Growth factors and blends.* Growth factors at Humbird's large-scale price add $4.0/kg. A product that is half
 cells and half plant ingredients ($3/kg) costs $7.2/kg at the floor. For demand the panel counts a blend as
-real meat only in proportion to its cells [assumed]. On that assumption blending does not win share: at the
-floor a pure product takes 34% against $12 meat (US, long run) at 1.4× the price, and a half-cells blend 24% at
+real meat only in proportion to its cells [assumed]. On that assumption blending gains a little: at the
+floor a pure product takes 21% against $12 meat (US, long run) at 1.4× the price, and a half-cells blend 23% at
 about equal price. Chicken as SuperMeat reports it (48 h, 1.4 ng, 30.5 L/kg at $0.50) comes to $32/kg in the
 floor's plant, close to the $34 default built from the same report: the two routes agree.
 
@@ -447,16 +460,16 @@ doubling time.
 *Species costs in the market model (`meat_market.species_market`).* Each meat type's cost can be scaled by
 what its species' published cells cost in the floor's plant, relative to the model cell: chicken and turkey
 × 1.63, beef × 1.24, seafood × 1.04; pork and rabbit have no cell data and stay at 1. With these, the US share
-at the floor's plant falls from 19% to 15% (world 12% → 9%, Europe 26% → 22%): chicken mince drops from 6% to
-1%, beef mince from 35% to 26%, seafood barely moves. This is a table, not a page setting: the cell data are
+at the floor's plant falls from 10% to 7% (world 5% → 3%, Europe 22% → 18%): beef mince drops from 18% to 8%,
+chicken stays near zero, seafood barely moves. This is a table, not a page setting: the cell data are
 too thin (cattle from cells on a surface, fish with serum) to put into the headline.
 
 *Animals (`meat_market.animals_per_tonne_sold`).* Land animals per tonne of meat: chicken about 580, turkey
 110, pork 11, beef 3, rabbit 770 (approximate, from carcass yields); seafood is left out because the model's
 seafood rows do not say which species. A tonne of the US meat mix is about 250 land animals. A tonne of
-cultivated meat, sold where the model says it sells, spares about 115 at the floor and about 50 at the reported
-cost, because it sells mostly as beef and seafood. Share by weight overstates the animals spared by a factor
-of two to five.
+cultivated meat, sold where the model says it sells, spares about 34 at the floor and about 18 at the reported
+cost, because it sells almost entirely as beef and seafood. Share by weight overstates the land animals spared
+by a factor of seven or more.
 
 **Plant cost from other sources (`research_notes/plant_capital_crosscheck.md`).** Every plant figure above is
 Humbird's. Other costed plants on the same basis, capital per m³ of production tank, in each source's own
@@ -611,28 +624,42 @@ option in proportion. Here the shared real-tissue attribute makes conventional m
 large mainstream segment, so a proportional reduction there comes almost entirely out of conventional in
 absolute terms. At parity, adding cultivated takes 44.4 pp from conventional and 0.56 pp from plant-based.
 
-**The price coefficient.** In a logit, a product's own-price elasticity is `β · p · (1 − s)`. The target is
-meat's measured elasticity, ε = −0.9 (Andreyeva 2010; Gallet 2010, 2012), times the closeness κ = 4: a single
-cultivated product has a near-perfect substitute beside it, so it is more price-sensitive than meat as a
+**The price coefficient.** In a logit, a product's own-price elasticity is `β · p · (1 − s)`. The target for
+the price weight every product shares is meat's measured elasticity, ε = −0.9 (Andreyeva 2010; Gallet 2010,
+2012), times `kappa_base` = 4: a single product is typically three to five times as price-sensitive as its
 category. Price enters through two terms (the BLP log, slope β, and the reference term, slope −λ/p_c on the
-premium side), so β is solved so their total hits the target at cultivated's own price and share (a short
-fixed point, `market_share._derive_beta`):
+premium side), so β is solved so their total hits the target at the calibration price and share (a short fixed
+point, `market_share._derive_beta`):
 
 ```
-β = κ·ε / (p_x·(1 − s_x)) + λ / p_c,      α = −β·(y_ref − p_x)
+β = 4·ε / (p_x·(1 − s_x)) + λ / p_c,      α = −β·(y_ref − p_x)
 ```
 
-κ sets the level of price sensitivity; λ only shapes it around parity. At the calibration price ($29/kg, R = 2.42) the realised
-elasticity is −3.6; once shoppers are familiar, it is about −0.8 at parity and −1.7 at R = 1.5. **Evidence for
-κ:** Van Loo, Caputo & Lusk (2020) priced lab-grown meat at six levels; their models put the at-parity
-elasticity between −0.84 and −3.4, and the model's implied value in that setting (equal price, first-contact
-wariness) at κ = 4 is −1.5 (golden-guarded). No experiment has priced cultivated meat at 2.4 times
-conventional, so the −3.6 there is an assumption (κ × ε), checked only against the data at parity.
+**Closeness to conventional (κ, default 8.5).** Cultivated meat sits beside a near-identical product, so
+shoppers weigh the price difference between those two more heavily than price differences across the category.
+κ / 4 multiplies cultivated's price utility measured from conventional's, on both price terms; nothing else
+moves. At equal price the difference is zero, so κ changes nothing there, and the plant-based and whole-food
+calibration is untouched (the solved weights are those of the published model). This is the role a nested
+logit's similarity parameter plays for a "real meat" nest, applied to price only so that the taste, health and
+novelty dials keep their meaning. Until 2026-11-14 one number did both jobs, which made every price more
+salient when κ rose and broke the calibration above about 8.
+
+**Evidence for κ.** Two kinds. Van Loo, Caputo & Lusk (2020) priced lab-grown meat at six levels; their models
+put the at-parity elasticity between −0.84 and −3.4, and the model's implied value in that setting (equal
+price, first-contact wariness) is −3.27 at κ = 8.5 (golden-guarded) and −3.46 at 9, just outside. Six premium
+animal products (`market_share.ANALOGUES`; `research_notes/premium_meat_analogues.md`) take 2–7% of volume at
+1.5–2.2 times the conventional price; the model's share for a product equal to conventional on everything but
+price misses them sixfold at κ = 4, by a factor of 2.6 at 8.5, and fits best at 10. So 8.5 is the best fit to
+the premium products that the experiment allows; the range is 4–11. Once shoppers are familiar the elasticity
+is about −1.7 at parity, −4.4 at R = 1.5 and −8.3 at the calibration price ($29/kg, R = 2.42). The fit is still
+loose: the six products' shares are nearly flat across premiums, as if a small group paid whatever the
+premium, and one number cannot reproduce that. A model with shoppers who differ in price sensitivity would;
+six data points do not identify it.
 
 The anchor price `p_x` ($29.01, `elasticity_anchor_price`) is a calibration device, not a cost. What it pins
 down is how sharply shoppers respond to price, and the evidence for that is at equal price: with this anchor the
-model's first-contact elasticity at parity is −1.54, inside the measured −0.84 to −3.4. So the anchor is best
-read as "the price coefficient that puts the at-parity elasticity at −1.54". No cost input changes it. It was
+model's first-contact elasticity at parity is −1.54 at κ = 4, inside the measured −0.84 to −3.4 (−3.27 at the
+default κ). So the anchor is best read as "the price coefficient that puts the at-parity elasticity there". No cost input changes it. It was
 once derived from the cost defaults, which meant every cost correction silently re-solved β (raising the cost by a
 third cut β from −0.053 to −0.019 and left shares almost unchanged); it has been fixed since 2026-11-14. The width
 of the measured bracket is carried by the κ range (3–9), not by the anchor.
@@ -650,7 +677,7 @@ al. (2011). US results don't depend on φ. The implementation is checked against
 (within 0.01 pp at meat prices).
 
 **Loss aversion (λ, default 1 = symmetric).** Up to Tversky and Kahneman's 2.25. Symmetric by default because
-it barely moves the result once β is re-fitted (2.3% → 2.4% at the default cost over λ = 1–2.25), cultivated data
+it barely moves the result once β is re-fitted (20.8% → 21.5% at the floor over λ = 1–2.25), cultivated data
 can't identify it, and measured loss aversion largely reflects price-sensitivity differences between shoppers
 (Bell & Lattin 2000) that κ already carries. It applies to every product by its own premium.
 
@@ -674,11 +701,11 @@ form (real-tissue preference plus habit): habit can't be separated from preferen
 | [3] where cultivated's share comes from (parity) | conventional −44.4 pp, plant-based −0.56 pp, whole food −3.8 pp |
 | [3b] ethical segment's cultivated rate | 20% at parity, 9% at R = 1.6 |
 | [4] plant-based milk, out of sample | 15% (observed ~15%; milk's positions are set by hand, so a weak test) |
-| [4b] implied at-parity elasticity (κ = 4) | −1.54, inside Lusk's [−3.4, −0.84] (κ = 9: −3.21, still inside) |
-| [4c] a real-meat product at organic chicken's premium (1.44× cuts) | 33% predicted vs ~2.4% observed: **fails**; shares above parity are upper estimates |
-| [4d] six premium animal products (organic milk, cage-free, organic and omega-3 eggs, organic chicken, organic meat): 2–7% of volume at 1.5–2.2× the price | typical miss a factor of six at κ = 4 (log error 1.84), a factor of 2.5 at κ = 9 (0.92), best at κ = 10 (0.86): **the default over-predicts above parity**; κ = 9 is the premium-product reading |
+| [4b] implied at-parity elasticity (κ = 8.5) | −3.27, inside Lusk's [−3.4, −0.84] (κ = 9: −3.46, just outside; κ = 4: −1.54) |
+| [4c] a real-meat product at organic chicken's premium in the model's own table (1.44× cuts) | 19% predicted vs ~2.4% observed (33% at κ = 4) |
+| [4d] six premium animal products (organic milk, cage-free, organic and omega-3 eggs, organic chicken, organic meat): 2–7% of volume at 1.5–2.2× the price | typical miss a factor of 2.6 at κ = 8.5 (log error 0.97), sixfold at κ = 4 (1.84), best at κ = 10 (0.92); over-predicts at small premiums, under-predicts at large ones |
 | [5] plant-based at full price and taste parity | 10% (a prediction, not fitted) |
-| [6] share at the default cost, each judgement swept and re-solved | κ 3–9: 0.0% → 5.0%; everything else moves it by 0.2 pp or less |
+| [6] share at the floor against $12 meat, each judgement swept and re-solved | κ 4–11: 34% → 15%; `taste_quality_w` up to 20 pp; the others 4 pp or less |
 
 **Scope.** A calibrated, partial-equilibrium discrete-choice model: parameters are calibrated to published
 facts, not estimated, because there are no purchase data for cultivated meat yet. Deliberate simplifications:
@@ -768,7 +795,7 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 ```
 basic product vs commodity meat:
   price ratio R:   P50 = 3.27   80% CI [2.51, 4.16]   0% of draws at or below parity
-  long-run share:  P50 = 0.4%   80% CI [0.0, 3.9]
+  long-run share:  P50 = 0.0%   80% CI [0.0, 0.9]
 ```
 
 The median is close to the default 3.28. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,
@@ -883,6 +910,15 @@ unchanged.
   while the floor had a full charge).
 - **Calibration price fixed** (Step 2, `elasticity_anchor_price`). The demand calibration (β, the solved weights,
   every at-parity figure) is identical to the published one; cost changes now move only the price ratio.
+- **Price sensitivity above parity re-grounded.** κ was one number that set the price weight every product
+  shares, so raising it strained the whole calibration. It is now split: `kappa_base` = 4 sets the shared price
+  weight as before, and κ / 4 multiplies only cultivated's price difference from the conventional meat beside
+  it (`market_share._utilities`). At κ = 4 the model is exactly the published one. The default is now 8.5: the
+  best fit to six premium animal products that the Lusk bracket allows. Shares at equal price are unchanged;
+  above it they fall several-fold (world share at the reported cost 0.9% → 0.3%; at the floor 12% → 5%).
+- **CO₂ limit computed** from a gas balance in place of a borrowed cap; medium use computed from the waste the
+  cells make; a gravity settler sized from first principles; uncertainty on the floor; contamination; species
+  presets; plant cost cross-checked against other designs (all in "The floor's plant term").
 - **Plant cases replace reactor designs** in the cost chart and tables: floor plant, as reported, cautious.
 - **A checklist for cost claims** added (Step 1).
 - **Side studies added:** `growth_rate.py` (slower growth does not lower cost) and the research report on

@@ -399,13 +399,14 @@ REGISTRY: dict[str, Input] = {
              "the mixing-limited density falls as (V / 20)^(-2/9). Hydrostatic pressure, which helps oxygen "
              "in tall tanks, is left out. Used by the page's 'build your own case' controls"),
     # --- gravity settling (floor_physics.settler_spec): can a settler hold cells back at 20 m3? ---
-    "pf_cell_density": Input(1.06, "g/mL", "[typical; research_notes/co2_sparging_settling.md] density of an animal cell",
-        lo=1.04, hi=1.08, mode=1.06),
+    "pf_cell_density": Input(1.036, "g/mL", "[calibrated; research_notes/co2_sparging_settling.md] density of an animal "
+        "cell, set so that a 14 um CHO cell settles at its measured 1.45 cm/h", lo=1.03, hi=1.06, mode=1.036,
+        note="measured single-cell settling: CHO 1.45 cm/h, hybridoma 2.9; working settlers are sized at 0.7-1.0"),
     "pf_medium_density": Input(1.007, "g/mL", "[typical] density of culture medium at 37 C"),
     "pf_medium_viscosity": Input(0.75, "mPa s", "[typical] viscosity of culture medium at 37 C (water is 0.69)"),
     "pf_plate_gap": Input(1.0, "cm", "[typical] spacing of the plates of an inclined (lamella) settler; they stand at 60 degrees"),
-    "pf_anoxia_min": Input(10.0, "min", "[judgement; research_notes/co2_sparging_settling.md] time cells can spend in a "
-        "settler without oxygen before growth suffers", lo=2.0, hi=30.0, mode=10.0,
+    "pf_anoxia_min": Input(60.0, "min", "[research_notes/co2_sparging_settling.md] time cells spend in working inclined "
+        "settlers (60-90 minutes), taken as what they tolerate without oxygen", lo=10.0, hi=90.0, mode=60.0,
         note="at 120 g/L the cells use up the dissolved oxygen in seconds, so the whole stay in a settler is "
              "without oxygen unless the settler is cooled"),
     "pf_clump_packing": Input(0.6, "-", "[assumed] share of a clump's volume that is cells (random packing)"),
@@ -413,11 +414,18 @@ REGISTRY: dict[str, Input] = {
     "pf_pco2_limit": Input(100.0, "mbar", "[Humbird-R] Sect. 2.3: dissolved CO2 kept below a partial pressure of 100 "
         "mbar ('productivity is maximized when pCO2 is maintained in' a range below it)",
         lo=80.0, hi=250.0, mode=100.0,
-        note="The level animal cells tolerate while GROWING. The pharma figure protects protein quality as "
-             "well as growth; range and sources in research_notes/co2_sparging_settling.md"),
+        note="The level animal cells tolerate while GROWING. Evidence (research_notes/co2_sparging_settling.md): "
+             "CHO lost 9% of its growth rate at 150 mmHg (200 mbar) with osmolality controlled (Zhu 2005) and "
+             "about half near 260 mbar with osmolality raised; a defensible range is 100 / 160 / 200 mbar. "
+             "CHO and hybridoma only: nothing is published for muscle, fibroblast or fish cells"),
     "pf_gas_velocity": Input(0.006, "m/s", "[Humbird-R] Sect. 2.3: 'Sparging is limited to a superficial velocity of "
         "0.006 m/s at the top of the vessel' (0.1 vvm in a 20 m3 tank), to protect cells from bursting bubbles",
-        lo=0.003, hi=0.02, mode=0.006),
+        lo=0.0006, hi=0.006, mode=0.006,
+        note="CAUTION: this is the top of the guidance, not practice. Large pharma tanks are reported at "
+             "0.005-0.02 vvm (0.6 mm/s in a 12.5 m3 tank), 5-20 times less, because their thin cultures need no "
+             "more. Whether cells at 100+ g/L tolerate Humbird's limit in a 20 m3 tank is untested. The exhaust "
+             "gas leaves tall tanks saturated with CO2 (Bowers 2008 and three other sources), which is what "
+             "the balance assumes"),
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
@@ -492,7 +500,16 @@ REGISTRY: dict[str, Input] = {
              "price & share (market_share._derive_beta), so beta moves automatically when this moves. "
              "Premium tiers are made LESS elastic in meat_market (cuts x0.8, luxury x0.3): premium buyers "
              "are less price-sensitive (Lusk & Tonsor 2016: demand more inelastic at high price)."),
-    "cult_sub_mult": Input(4.0, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
+    "kappa_base": Input(4.0, "x", "[structural] how many times more own-price-elastic a single meat PRODUCT is than "
+        "meat as a category; sets the price weight beta that every product shares",
+        note="ADDED 2026-11-14 when kappa was split in two. Until then one number, cult_sub_mult, set the shared "
+             "price weight beta, so raising it made shoppers more sensitive to EVERY price (beans and "
+             "plant-based included) and the calibration strained (at 9 a solved weight fell to zero). Now "
+             "kappa_base sets beta (unchanged at 4: a product's own-price elasticity is typically 3-5x its "
+             "category's), and cult_sub_mult / kappa_base multiplies only cultivated's price DIFFERENCE from "
+             "the conventional meat beside it. At cult_sub_mult = kappa_base the model is exactly the "
+             "published one"),
+    "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "
         "buyers, versus 0.9% for meat-in-general. WHY > 1: the measured -0.9 is the elasticity of the meat "
         "CATEGORY, which is inelastic precisely because the category has no close substitute; but a single "
@@ -500,20 +517,19 @@ REGISTRY: dict[str, Input] = {
         "tissue), so its OWN price matters far more -- a price cut wins buyers fast, a price rise loses them to "
         "conventional. kappa therefore sets HOW STEEPLY cultivated's share falls as it gets pricier than "
         "conventional (above parity); it does NOT change the at-parity share (where prices are equal).",
-        lo=3.0, hi=9.0, mode=4.0,
-        note="SECOND VALIDATION, 2026-11-14 (market_share.analogue_check). Six premium animal products with "
-             "matched price premiums and volume shares (organic milk, cage-free, organic and omega-3 eggs, "
-             "organic chicken, all organic meat) take 2-7% of volume at 1.5-2.2x the conventional price. The "
-             "model's share for a product equal to conventional on everything but price fits them best at "
-             "kappa = 10 (root-mean-square error of log share 0.86), acceptably at 9 (0.92), and misses by a "
-             "typical factor of six at the default 4 (1.84). kappa = 9 is also the highest value inside the "
-             "Lusk bracket (-3.2). So the evidence favours the top of the range. THE DEFAULT IS NOT MOVED, "
-             "because at kappa = 9 the calibration degenerates: the solved mainstream health weight falls to "
-             "zero and the other solved weights shift by a factor of three, so the taste, health and "
-             "no-slaughter dials stop meaning what the page says they mean. The honest reading: the default "
-             "is an upper estimate above parity, kappa = 9 is the premium-product reading, and the headline "
-             "share is reported at both. Fixing this properly needs shoppers who differ in price sensitivity "
-             "(a mixed logit), not a higher kappa. EARLIER NOTE (2026-11-13, hi 6 -> 9): the organic-chicken check (market_share.organic_premium_check) "
+        lo=4.0, hi=11.0, mode=8.5,
+        note="DEFAULT 4 -> 8.5, 2026-11-14, on two kinds of evidence. (1) Six premium animal products with "
+             "matched price premiums and volume shares (market_share.ANALOGUES: organic milk, cage-free, "
+             "organic and omega-3 eggs, organic chicken, all organic meat) take 2-7% of volume at 1.5-2.2x "
+             "the conventional price. The model's share for a product equal to conventional on everything but "
+             "price misses them by a typical factor of six at kappa = 4 (log error 1.84), by 2.6 at 8.5 "
+             "(0.97), and fits best at 10 (0.92). (2) The one choice experiment on cultivated meat (Lusk, "
+             "below) brackets the at-parity elasticity at [-3.4, -0.84]; kappa = 8.5 gives -3.27 and 9 gives "
+             "-3.46, just outside. So 8.5 is the best analogue fit that the experiment allows. Range 4 (the "
+             "old default) to 11. THIS BECAME POSSIBLE when kappa was split (kappa_base): it now multiplies "
+             "only cultivated's price difference from conventional, so the at-parity share, the plant-based "
+             "calibration and every other dial are unchanged by it (the solved weights are those of the "
+             "published model). EARLIER NOTE (2026-11-13, hi 6 -> 9): the organic-chicken check (market_share.organic_premium_check) "
              "shows the model gives a real-meat product at a premium far more share than organic chicken's ~2.4%; "
              "a higher kappa is the in-model direction of that evidence, so the band now reaches kappa=9, where the "
              "implied at-parity elasticity (about -3.2) is still inside the Lusk bracket. The mode stays 4. "
