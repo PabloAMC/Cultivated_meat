@@ -22,7 +22,7 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 *Revised after section 7.* Three unknowns stay open, and all three are about the cells; the engineering is settled
 by calculation. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor: `explore()` =
 $11.5) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
-packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.4 whatever gas the cells tolerate
+packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.5 whatever gas the cells tolerate
 (6 or 2 mm/s); without them it is $11.5 at 6 mm/s and $28 at 2 mm/s. The membrane loop of the earlier version is
 superseded: a steel column does the same job without the module problems (section 7).
 
@@ -46,7 +46,7 @@ superseded: a steel column does the same job without the module problems (sectio
 - *Unknown:* With the culture pumped 11 times an hour over stainless packing as a 0.3 mm film, laid on without
   drips, and stripped only to 55 mbar (pH up 0.26 while in the loop), do meat cells keep growing for a month
   without coating the packing?
-- *Worth:* well, **$8.6** (`floor_with_column(p_out=55.0)`, sparger at 6 mm/s) and **$8.9** if the sparger is cut
+- *Worth:* well, **$8.6** (`floor_with_column(p_out=55.0)`, sparger at 6 mm/s) and **$9.0** if the sparger is cut
   to 2 mm/s (`floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed")`); badly,
   **$11.5** (`explore()`), or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
 - *Probability it resolves well:* **60%**. Calculation and literature settle the shear (below what CHO took for
@@ -66,7 +66,7 @@ superseded: a steel column does the same job without the module problems (sectio
 - *Unknown:* With dissolved oxygen and CO₂ held at their usual levels, do the cells grow as well with the
   headspace at 1 bar gauge as at Humbird's 0.33?
 - *Worth:* together with unknown 2, well, **$7.3** (`floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
-  p_top_barg=1.0)`; $7.4 at 2 mm/s; $5.0 in a yeast-style plant); badly, **$8.6** (the column alone, 189 g/L,
+  p_top_barg=1.0)`; $7.5 at 2 mm/s; $5.0 in a yeast-style plant); badly, **$8.6** (the column alone, 189 g/L,
   mixing-limited). Alone it does nothing ($11.5), because CO₂ still binds.
 - *Probability it resolves well:* **85%**. Cells at the bottom of today's tank already sit at 1.7 bar absolute;
   the design adds at most 0.67 bar, about 6 times below the lowest pressure with any reported effect on
@@ -706,8 +706,8 @@ Floor, with the column's capital on the plant:
 |---|---|---|---|
 | sparger at 6 mm/s | 11.5 | **8.6** | 189 g/L, mixing |
 | sparger at 2 mm/s (the gas-flow session's bad case), column for CO₂ only | 28.0 | 15.8 | 81 g/L, oxygen |
-| 2 mm/s, column also carries oxygen, air sweep | 28.0 | 8.9 | 189, mixing (115 passes, 1,840 m³/h: a 7.7 m column) |
-| 2 mm/s, oxygen sweep recycled through a lime scrubber | 28.0 | **8.9** | 189, mixing (22 passes, 347 m³/h, 3.3 m across; oxygen and lime $0.21/kg) |
+| 2 mm/s, column also carries oxygen, air sweep | 28.0 | not possible | air holds 0.2 mmol/L of oxygen, less than the 0.28 the tank is held at, so an air sweep takes oxygen out (an earlier version of this note, with the culture entering at 0.05, gave $8.9) |
+| 2 mm/s, oxygen sweep recycled through a lime scrubber | 28.0 | **9.0** | 189, mixing (29 passes, 471 m³/h, 3.9 m across; oxygen and lime $0.28/kg) |
 | 2 mm/s, oxygen sweep once through and vented | 28.0 | 10.6 | the vented oxygen costs $1.9/kg |
 
 So: a closed oxygen sweep with a lime scrubber is affordable. The lime (at $240/t, USGS snippet, 70% used)
@@ -721,7 +721,7 @@ optimistic price). Its cost is small enough that a factor of three error moves t
 **Verdict, packed column.**
 - *Settled by calculation:* size, flow, power, sweep and cost, and that it removes the CO₂ limit for about
   $0.1–0.2/kg; with an oxygen sweep and a scrubber it also covers a sparger cut to 2 mm/s. Floor $8.6 (6 mm/s)
-  or $8.9 (2 mm/s).
+  or $9.0 (2 mm/s).
 - *Settled by literature:* nothing either way for animal cells. No one was found to have run animal or insect
   cells through a falling-film, packed or trickle contactor; blood disc oxygenators of the 1950s–60s destroyed
   far fewer red cells than bubble oxygenators (secondary source, snippet); damage in sparging is tied to
@@ -785,7 +785,7 @@ then above the thickness of the culture (258 g/L):
 | | sterile plant without clean rooms | yeast-style plant |
 |---|---|---|
 | sparger at 6 mm/s | **$7.2/kg** (12.6 passes, 201 m³/h, a 2.5 m column, $33k per m³) | **$5.0/kg** |
-| sparger at 2 mm/s | **$7.4/kg** (26.7 passes, 427 m³/h, 3.7 m across, $44k per m³) | **$5.2/kg** |
+| sparger at 2 mm/s | **$7.5/kg** (36 passes, 580 m³/h, 4.3 m across, $50k per m³) | **$5.2/kg** |
 | for reference, today | $11.5 (at 2 mm/s: $28.0) | $6.6 (at 2 mm/s: $13.4) |
 
 With these tricks the floor no longer depends on how much gas the cells tolerate. In the sterile plant it
@@ -793,8 +793,8 @@ lands at about $7, the parity mark. What remains is the culture's thickness limi
 cells (doubling time, waste, medium), plus the protectant cost that the floor leaves out.
 
 **Verdict, the combination.**
-- *Settled by calculation:* $7.2–7.4/kg in the floor's plant and $5.0–5.2 in a yeast-style plant, whatever the
-  gas-flow cap, for $33–44k per m³ of added capital.
+- *Settled by calculation:* $7.2–7.5/kg in the floor's plant and $5.0–5.2 in a yeast-style plant, whatever the
+  gas-flow cap, for $33–50k per m³ of added capital.
 - *Settled by literature:* the parts exist as industrial equipment (packing, scrubbers, pressure-rated tanks);
   none has been used with animal cells.
 - *Only a bench test can tell:* the three cell questions above (the film, 2 bar absolute, and the 258 g/L
@@ -873,7 +873,7 @@ What this settles:
   and did better in a stirred tank (2026, snippet).
 - **Foam cannot be simulated reliably:** it depends on the medium's proteins and protectant. It needs a test.
 - **Verdict:** this one still needs an experiment, but it matters less now: with the column and pressure the
-  floor is $7.3–7.4 whatever the gas rate.
+  floor is $7.3–7.5 whatever the gas rate.
 
 ### 8.4 What changes in the experiments list
 
@@ -918,6 +918,96 @@ The least-area shape does not minimise cost, though: steel goes with diameter ×
 cheapest shape is squatter still (0.75; section 2.2). The page's shape lever shows the CO₂, oxygen and mixing
 bars moving through the new chart, but it does not add the extra steel (about $0.25/kg at 1.0); that is in
 `gas_exchange.shape_case` only.
+
+---
+
+## 10. Cell-side tricks for CO₂ and oxygen, and what each trick needs (added 2026-11-14)
+
+Code: `explore(fat_fed=..., do_mmol=..., rq=...)`, `o2_split`, `gas_exchange.lactate_relief`; page levers "Fat taken
+from the feed" and "Dissolved oxygen held at"; tags in `gas_exchange.CELL_CASES` / `TANK_CASES`.
+
+### 10.1 Where CO₂ per oxygen of 1.204 comes from, and what fed fat does (carbon and electron balance)
+
+Read in Humbird's report (local PDF, full text). His enhanced growth (Reaction 2.11) per mol of dry cell mass
+(1 C-mol, CH1.68 O0.34 N0.21): 0.378 mol O₂ in, 0.455 mol CO₂ out, so 1.204. It splits into:
+
+| part | O₂ | CO₂ | source |
+|---|---|---|---|
+| catabolism (Reaction 2.10 × 0.082 mol glucose: 4.61 O₂, 4.63 CO₂ per glucose) | 0.378 | 0.380 | RQ 1.004 |
+| lipid from glucose (Reaction 2.2: 0.049 glucose → 0.205 C-mol lipid + 0.090 CO₂) | 0 | +0.090 | no oxygen used |
+| nucleotides (Reaction 2.4 takes up CO₂) | 0 | −0.014 | |
+| protein, carbohydrate | 0 | 0 | amino acids and glucose built in as they are |
+| total | 0.378 | 0.456 | 1.204 |
+
+Electron check (mine): lipid CH2 O0.13 carries 4 + 2 − 0.26 = 5.74 electrons per carbon against glucose's 4, so
+0.205 C-mol of it takes 0.205 × 1.74 = 0.357 electrons, which come from 0.357 / 4 = 0.089 mol of glucose carbon
+oxidised to CO₂ with no oxygen. That matches Humbird's 0.090. **So lipid made from glucose is more than all of
+the excess over 1.0** (0.090 against 0.077); nucleotides take a little back.
+
+If all the lipid comes from the feed: CO₂ = 0.455 − 0.090 = 0.365, oxygen unchanged (Humbird sizes catabolism
+from the cell's power, not from the ATP lipogenesis costs, so this is slightly cautious), **CO₂ per oxygen 0.966**,
+and the CO₂-limited density rises from 120 to **150 g/L** (+25%; the parent session estimated about 144). The
+floor goes from $11.48 to **$9.91**, with fat at an assumed $1.5/kg (45 g per kg of cells: 15% lipid in 300 g
+of dry mass). Evidence on the cell side: lipid is 11–15% of dry mass in CHO biomass equations (Széliová 2020,
+Selvarasu 2012, via snippets), consistent with Humbird's 15%. Whether fed fatty acids actually stop cells
+making their own was not found as a number; CHO cells make fatty acids from glucose in both growth and
+stationary phase (Ahn and Antoniewicz 2013, snippet). Measured RQ in CHO cultures is about 1, above 1 while
+lactate is made (snippets). So: settled by calculation that de novo lipid is the excess; only a bench test can
+tell how much of it fed lipid displaces. Delivering fat to cells needs a carrier or emulsion, not priced here.
+
+### 10.2 The dissolved-oxygen setpoint
+
+Humbird's 29 mmol/L/h at kLa 26.4 per hour, with 90% oxygen at his tank's mean pressure (0.33 bar gauge plus
+half the liquid head), implies the culture held at **0.28 mmol/L, 130% of air saturation** (air at 37 °C:
+0.21 mmol/L). That is high: pharma holds 30–50% of air saturation, cells grow unimpaired at roughly 10–100%, and
+200% slowed CHO growth (snippets). The setpoint is now a lever (`do_mmol`; default the implied level, so nothing
+changes):
+
+| dissolved oxygen | share of air saturation | oxygen cap | mixing cap |
+|---|---|---|---|
+| 0.28 mmol/L (implied, default) | 130% | 195 g/L | 189 g/L |
+| 0.10 | 47% | 226 g/L | 219 g/L |
+| 0.05 | 23% | 235 g/L | 228 g/L |
+
+The mixing cap moves too, because in the model's rule oxygen transfer is capped by kLa and what it moves at that
+kLa scales with the driving force. At the floor CO₂ binds, so the setpoint alone changes nothing; it matters
+once CO₂ is dealt with. A consistency fix came with it: the packed column now takes in culture at the tank's
+dissolved oxygen (0.28) rather than an assumed 0.05, so an oxygen sweep gives less per pass. That moved the
+oxygen-sweep cases by up to $0.13/kg (for example $7.43 → $7.52 at 2 mm/s) and showed that an air sweep cannot
+add oxygen to a culture held above air saturation (section 7.1).
+
+### 10.3 Oxygen and CO₂ per kg of cells
+
+Now shown on the page and returned by `explore` (`o2_kg`, `o2_kg_upkeep`, `o2_kg_growth`, `co2_kg`), mol per kg wet:
+
+| cell | oxygen | of which upkeep | growth | CO₂ |
+|---|---|---|---|---|
+| floor (24 h, 3 ng) | 5.16 | 2.58 | 2.58 | 6.21 |
+| 48 h doubling | 7.74 | 5.16 | 2.58 | 9.32 |
+| 16 h doubling | 4.30 | 1.72 | 2.58 | 5.18 |
+
+Upkeep runs per hour, so per kg it grows with the time a kg takes to make; growth's share is fixed per kg.
+
+**Can lactate fermentation relieve gas demand?** (`lactate_relief`) Within the lactate the medium can carry away
+at the floor (50 mmol/L × 11.2 L = 0.56 mol per kg) and at 1 ATP per lactate, against about 5 ATP per O₂ respired
+(textbook), fermentation supplies **2.1%** of the cell's energy and would spare 0.11 of 5.16 mol of oxygen. The
+parent session's estimate (about 2%) is right: nothing worth having.
+
+### 10.4 What each trick needs
+
+| trick or cell | tag | why |
+|---|---|---|
+| sparger gas flow, tank shape, packed column, headspace pressure, oxygen setpoint, sorbent | feed or process | equipment and operation only |
+| fat taken from the feed | feed or process | a medium change |
+| glutamine replaced (ammonia 0.14 mol/kg, bovine) | feed or process | α-ketoglutarate or pyruvate in place of glutamine (Hubalek 2023) |
+| CO₂ tolerance above 100 mbar | selection or adaptation | adapted lines; no engineering assumed |
+| lactate yield 0.39 per glucose | selection or adaptation | lactate-adapted CHO (Freund and Croughan 2018) |
+| lactate near zero | genetic engineering | Warburg-null knockouts (Hefzi 2025) |
+| the floor's efficient cell (ammonia 0.055 mol/kg) | genetic engineering | as low as this only in glutamine-synthetase CHO |
+
+RESULTS.md gives the cells-by-tank table twice: with every trick, and without any that needs genetic
+engineering. Without engineering the floor's cell needs 28 L of medium per kg, and the tricks take it from $14.0
+to $9.8 in the sterile plant and to $7.5 in a yeast-style plant.
 
 ---
 

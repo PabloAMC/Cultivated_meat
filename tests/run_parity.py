@@ -227,7 +227,7 @@ def check_parity() -> list:
                          f"js={tot:.6f} ({lim})")
 
     # the tricks: floorExplore (JS) against explore with column, pressure, explicit wastes and a sorbent
-    FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}]
+    FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}, {'fat_fed': 1.0}, {'do_mmol': 0.05, 'doubling_h': 48, 'maint': 0.31}, {'rq': 1.0, 'gas_v': 0.003}, {'column': 'o2_closed', 'do_mmol': 0.08, 'gas_v': 0.002, 'fat_fed': 0.5, 'fat_price': 10.0}, {'column': 'co2', 'p_top': 0.5, 'do_mmol': 0.15, 'aspect': 1.2}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
              "restart_fail": "restart_fail_days"}
     js_tr = js.get("fxTricks", [])
@@ -236,8 +236,9 @@ def check_parity() -> list:
     for case, jr in zip(FX_TRICKS, js_tr):
         kw = {names.get(k, k): v for k, v in case.items()}
         r = _fp.explore(charge=0.173, **kw)
-        tot, dens, lim, ml, setby, jlims = jr
-        d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["medium_l"] - ml))
+        tot, dens, lim, ml, setby, jlims, jo2, jo2u, jco2 = jr
+        d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["medium_l"] - ml), abs(r["o2_kg"] - jo2),
+                abs(r["o2_kg_upkeep"] - jo2u), abs(r["co2_kg"] - jco2))
         bad_lims = [k for k, v in r["limits"].items()
                     if not ((v == float("inf") and jlims.get(k) is None) or (jlims.get(k) is not None and abs(v - jlims[k]) < 1e-6))]
         if d > 1e-6 or r["limit"] != lim or r["medium_set_by"] != setby or bad_lims:

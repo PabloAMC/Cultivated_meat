@@ -481,6 +481,18 @@ REGISTRY: dict[str, Input] = {
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
+    "pf_rq_lipid": Input(0.2381, "mol CO2/mol O2", "[Humbird-R, derived] CO2 released by making the cells' lipid "
+        "from glucose, per oxygen used: Reaction 2.2 (0.049 glucose -> 0.205 lipid + 0.090 CO2 per mol of dry cell "
+        "mass, no oxygen) over Reaction 2.11's 0.378 mol O2. Feeding all the lipid takes RQ from 1.204 to 0.966",
+        note="Carbon and electron balance check: lipid (CH2 O0.13) carries 1.74 more electrons per carbon than "
+             "glucose; 0.205 C-mol x 1.74 / 4 = 0.089 mol CO2. Humbird's lipid is 15% of dry mass (Table 2.1)"),
+    "pf_fat_kg": Input(0.045, "kg/kg wet", "[Humbird-R, derived] lipid in a kg of wet cells: 15% of the 300 g of dry "
+        "mass (Table 2.1)"),
+    "pf_fat_price": Input(1.5, "$/kg", "[assumed] fatty acids fed to the culture, at about a vegetable-oil price",
+        lo=1.0, hi=20.0, mode=1.5,
+        note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
+             "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
+    "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
     "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
         note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
              "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "

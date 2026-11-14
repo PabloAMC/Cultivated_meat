@@ -506,7 +506,19 @@ not only the binding ones, and carries the tricks sized in the gas-exchange and 
 | `nh3_kg`; `lac_yield` × `glc_kg` | the two wastes set as measured (mol/kg; mol/mol × mol/kg), with no scaling; unset, `waste` sets both as before and the floor is unchanged | bovine 0.70 and 0.14 (Hubalek 2023); yields 0.39–1.41 (CHO), 1.05 (chicken) |
 | `sorbent` (+ `sorbent_q`, `_price`, `_cycles`) | the share of ammonium taken out of the cell-free permeate before it returns; ammonia's medium need falls by that share, the sodium given back stays and counts as salt (1 mOsm per mmol), the sorbent is bought at share × ammonia ÷ capacity × price ÷ uses | capacity 0.1–0.2 mmol/g derived, not measured; price assumed above bulk zeolite |
 
-The page mirrors all of it (`floorExplore`, checked in nine cases by `tests/run_parity.py`). Two tornado rows
+Cell side, same table continued:
+
+| lever | what the physics does | evidence |
+|---|---|---|
+| `fat_fed` (+ `fat_price`) | the share of the cells' lipid taken from the feed; lipid made from glucose gives off CO₂ without using oxygen (Humbird's Reaction 2.2), so CO₂ per oxygen (`rq`) falls from 1.204 to 0.966 when all is fed and the CO₂ limit rises a quarter; fat bought at 45 g per kg of cells | carbon and electron balance on Humbird's cell; uptake replacing synthesis untested |
+| `do_mmol` | the dissolved oxygen the tank is held at; default the 0.28 mmol/L Humbird's numbers imply; lower widens the oxygen driving force (oxygen and mixing caps) | pharma holds 30–50% of air saturation |
+| outputs `o2_kg`, `o2_kg_upkeep`, `o2_kg_growth`, `co2_kg` | oxygen and CO₂ per kg of cells grown, split into upkeep (per hour) and growth (per kg) | follows from `Cells.qo2` |
+
+Each trick carries a tag in the page's text and in RESULTS.md: feed or process, selection or adaptation, or
+genetic engineering (`gas_exchange.CELL_CASES`, note section 10.4). The packed column takes in culture at the
+tank's dissolved oxygen.
+
+The page mirrors all of it (`floorExplore`, checked in fourteen cases by `tests/run_parity.py`). Two tornado rows
 are new: pressure at the top of the tank (0 to 1 bar gauge) and ammonia per kg (0.055 to 0.14). The page's
 tank-shape lever does not include the extra steel of a squat tank (`gas_exchange.shape_capex_factor` does; the
 note's section 9). Results: RESULTS.md, "What the tricks do".

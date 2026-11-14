@@ -50,10 +50,10 @@ BARRER = 3.35e-16          # mol m / (m2 s Pa)
 # ----------------------------------------------------------------------------
 # 1. Loads and what a litre of culture carries
 # ----------------------------------------------------------------------------
-def gas_load(x: float, cells: fp.Cells | None = None) -> tuple:
+def gas_load(x: float, cells: fp.Cells | None = None, rq: float | None = None) -> tuple:
     """(CO2 made, O2 used) in mmol per litre of culture per hour at density x (g wet/L)."""
     cells = fp.GOOD_CELLS if cells is None else cells
-    return value("pf_rq") * cells.qo2 * x, cells.qo2 * x
+    return (value("pf_rq") if rq is None else rq) * cells.qo2 * x, cells.qo2 * x
 
 
 def cell_volume_fraction(x: float) -> float:
@@ -438,17 +438,19 @@ def drop_height_for(dissipation: float, drop_mm: float = 4.0) -> float:
 
 
 def o2_supply_sparger(x: float, gas_velocity: float, p_top_barg: float | None = None, vessel_m3: float = 20.0,
-                      aspect: float | None = None) -> float:
+                      aspect: float | None = None, do_mmol: float | None = None) -> float:
     """Oxygen the sparger delivers, mmol/L/h: the model's cap scaled by gas flow (kLa ~ u_s^0.8) and by the
     headspace pressure (`headspace_pressure`)."""
-    f = headspace_pressure(p_top_barg, vessel_m3, aspect)["otr_factor"] if p_top_barg is not None else 1.0
+    f = (headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
+         if (p_top_barg is not None or do_mmol is not None) else 1.0)
     return value("pf_otr_cap") * (gas_velocity / value("pf_gas_velocity")) ** 0.8 * f
 
 
 def column_design(x: float, sparge_velocity: float | None = None, p_out: float | None = None,
                   oxygen: bool = False, sweep: str = "air", liquid_load: float | None = None,
                   p_top_barg: float | None = None, buffer: float | None = None, vessel_m3: float = 20.0,
-                  aspect: float | None = None, cells: fp.Cells | None = None) -> dict:
+                  aspect: float | None = None, cells: fp.Cells | None = None, rq: float | None = None,
+                  do_mmol: float | None = None) -> dict:
     """Size a packed stripping column on a pumped loop for a tank at density x (g wet/L).
 
     The culture is pumped to the top of the column, runs down the packing as a film against a sweep gas
@@ -463,11 +465,13 @@ def column_design(x: float, sparge_velocity: float | None = None, p_out: float |
     p_tank = value("pf_pco2_limit")
     p_out = value("ge_col_pout") if p_out is None else p_out
     wv = value("pf_working_volume")
-    co2, o2 = gas_load(x, cells)
+    co2, o2 = gas_load(x, cells, rq)
     _T, depth = fp.tank_shape(vessel_m3, aspect)
     by_sparge = us / depth * 3600.0 * (p_tank * 100.0 / (R_GAS * T_K)) * value("pf_co2_strip_eff")
     co2_loop = max(0.0, co2 - by_sparge)
-    o2_short = max(0.0, o2 - o2_supply_sparger(x, us, p_top_barg, vessel_m3, aspect)) if oxygen else 0.0
+    o2_short = max(0.0, o2 - o2_supply_sparger(x, us, p_top_barg, vessel_m3, aspect, do_mmol)) if oxygen else 0.0
+    # the culture enters the column at the tank's dissolved oxygen
+    do_in = headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["c_liquid"]
 
     film = packing_film(x, liquid_load)
     # counter-current: fresh sweep (ge_col_gas_in) meets the culture leaving at the bottom; the sweep leaves
@@ -478,7 +482,7 @@ def column_design(x: float, sparge_velocity: float | None = None, p_out: float |
     per_pass, dph = co2_per_pass(p_tank, p_out, buffer)
     o2_frac = 1.0 - np.exp(-height / film["htu_o2"])
     y_o2 = 0.21 if sweep == "air" else value("ge_o2_sweep_purity")
-    o2_pass = o2_frac * (value("ge_o2_henry") * y_o2 * 1013.0 - value("ge_do_setpoint"))
+    o2_pass = o2_frac * (value("ge_o2_henry") * y_o2 * 1013.0 - do_in)
     passes_co2 = co2_loop / per_pass
     passes_o2 = o2_short / o2_pass if o2_pass > 0 else 0.0
     passes = max(passes_co2, passes_o2)
@@ -515,7 +519,8 @@ def column_design(x: float, sparge_velocity: float | None = None, p_out: float |
             "gas_kg": gas_cost, "o2_mmol_l_h": o2_given / (wv * vessel_m3), **film}
 
 
-def headspace_pressure(p_top_barg: float | None = None, vessel_m3: float = 20.0, aspect: float | None = None) -> dict:
+def headspace_pressure(p_top_barg: float | None = None, vessel_m3: float = 20.0, aspect: float | None = None,
+                       do_mmol: float | None = None) -> dict:
     """Oxygen transfer with the tank's headspace held at a higher pressure. Oxygen in the gas dissolves in
     proportion to its partial pressure, so the driving force C* - C rises with the (mean) pressure in the
     liquid. The model's 29 mmol/L/h (pf_otr_cap) is taken as Humbird's: 90% oxygen with the top at
@@ -528,9 +533,10 @@ def headspace_pressure(p_top_barg: float | None = None, vessel_m3: float = 20.0,
     c_star = lambda p: value("ge_o2_henry") * value("ge_sparge_o2") * (1.01325 + p + rho_gh) * 1000.0
     kla = value("pf_otr_cap") / (c_star(value("ge_p_top_base")) - 0.0)   # first pass, to get C_L
     c_l = c_star(value("ge_p_top_base")) - value("pf_otr_cap") / value("ge_kla_20m3")
-    f = (c_star(p0) - c_l) / (c_star(value("ge_p_top_base")) - c_l)
+    c_set = c_l if do_mmol is None else do_mmol      # the dissolved oxygen the tank is held at
+    f = (c_star(p0) - c_set) / (c_star(value("ge_p_top_base")) - c_l)
     return {"p_top_barg": p0, "c_star": c_star(p0), "c_star_base": c_star(value("ge_p_top_base")),
-            "c_liquid_implied": c_l, "otr_factor": f, "otr": value("pf_otr_cap") * f,
+            "c_liquid_implied": c_l, "c_liquid": c_set, "otr_factor": f, "otr": value("pf_otr_cap") * f,
             "x_o2": value("pf_otr_cap") * f / fp.GOOD_CELLS.qo2, "kla_unused": kla}
 
 
@@ -565,6 +571,19 @@ def floor_with_column(sparge_velocity: float | None = None, oxygen: bool = False
     d = r["column"]
     return {"base": base["total"], "density": r["density"], "limit": r["limit"], "total": r["total"],
             "capital": r["capital"], "energy": d["energy_kg"], "gas": d["gas_kg"], "design": d, "result": r}
+
+
+def lactate_relief(cells: fp.Cells | None = None, medium_l: float | None = None) -> dict:
+    """How much of a cell's energy fermentation to lactate could supply within the lactate the medium allows,
+    and so how much oxygen (and CO2) it could spare. Textbook yields: 1 ATP per lactate made from glucose;
+    about 5 ATP per O2 respired (P/O of 2.5)."""
+    cells = fp.GOOD_CELLS if cells is None else cells
+    litres = fp.explore()["medium_l"] if medium_l is None else medium_l
+    lac_max = value("pf_lac_limit") / 1000.0 * litres            # mol lactate per kg the medium can carry away
+    atp_resp = cells.qo2 / cells.mu * value("ge_atp_per_o2")     # mol ATP per kg from respiration
+    share = lac_max / (atp_resp + lac_max)
+    return {"lactate_max": lac_max, "atp_respiration": atp_resp, "share_of_energy": share,
+            "o2_spared": lac_max / value("ge_atp_per_o2")}
 
 
 def sparge_death(gas_velocity: float | None = None, depth: float | None = None, protected: bool = True,
@@ -623,26 +642,44 @@ def airlift_check(x: float = 100.0, vessel_m3: float | None = None, height: floa
 # ----------------------------------------------------------------------------
 # explore() arguments. Sources: research_notes/waste_tricks_sizing.md (Hubalek 2023, bovine fibro-adipogenic
 # progenitors, full text; Pasitka 2024 chicken lactate yield, snippet), and the floor's own assumptions.
+# Tags: what a trick or a cell case needs. "feed or process" (no change to the cells), "selection or adaptation"
+# (cells chosen or adapted, no engineering; easier to regulate), "genetic engineering".
+FEED, SELECT, GE = "feed or process", "selection or adaptation", "genetic engineering"
 CELL_CASES = {
-    "floor": ("the floor's assumption (Humbird's enhanced cells)", {}),
+    "floor": ("the floor's assumption (Humbird's enhanced cells)", {}, GE),
+    "floor_noge": ("the floor's cell by selection and feed only (ammonia 0.14 with glutamine replaced, lactate "
+                   "0.39 per glucose as adapted CHO)", {"nh3_kg": 0.14, "lac_yield": 0.39}, SELECT),
     "best_meat": ("best shown in meat cells (bovine, glutamine replaced)",
-                  {"doubling_h": 42.9, "nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84}),
+                  {"doubling_h": 42.9, "nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84}, FEED),
     "ordinary": ("ordinary meat cells (bovine, with glutamine)",
-                 {"doubling_h": 25.7, "nh3_kg": 0.70, "lac_yield": 1.05, "glc_kg": 0.84}),
+                 {"doubling_h": 25.7, "nh3_kg": 0.70, "lac_yield": 1.05, "glc_kg": 0.84}, "none"),
 }
 TANK_CASES = {
-    "sparger": ("sparger only", {}),
-    "column": ("packed column on a loop", {"column": "co2", "col_pout": 55.0}),
-    "all": ("column with oxygen sweep, 1 bar gauge", {"column": "o2_closed", "col_pout": 55.0, "p_top_barg": 1.0}),
+    "sparger": ("sparger only", {}, FEED),
+    "cellside": ("sparger, fat in the feed, oxygen held at 0.08", {"fat_fed": 1.0, "do_mmol": 0.08}, FEED),
+    "column": ("packed column on a loop", {"column": "co2", "col_pout": 55.0}, FEED),
+    "all": ("column with oxygen sweep, 1 bar gauge", {"column": "o2_closed", "col_pout": 55.0, "p_top_barg": 1.0}, FEED),
+}
+# why each tag (shown in the note and on the page)
+TAG_NOTES = {
+    "floor": "ammonia as low as 0.055 mol/kg has been seen only in engineered (glutamine synthetase) CHO",
+    "floor_noge": "glutamine replacement is a change of feed; lactate yield 0.39 was reached by adapting CHO",
+    "best_meat": "glutamine replaced by alpha-ketoglutarate or pyruvate in the feed (Hubalek 2023)",
 }
 LOSS_RATES = {"sanitary": (0.0, 0.002), "microbial": (0.0, 0.006, 0.022)}   # chance of losing a run per day
 
 
-def cases_table(plant: str = "sanitary", hazard: float = 0.0, restart_days: float = 14.0, **extra) -> list:
-    """[(cell label, tank label, $/kg, g/L, binding limit, L/kg, what sets the litres)] for the 3 x 3 grid."""
+def cases_table(plant: str = "sanitary", hazard: float = 0.0, restart_days: float = 14.0, genetic: bool = True,
+                **extra) -> list:
+    """[(cell label, tank label, $/kg, g/L, binding limit, L/kg, what sets the litres)] for the cells x tanks grid.
+    `genetic=False` leaves out every case that needs genetic engineering."""
     rows = []
-    for _ck, (clab, ckw) in CELL_CASES.items():
-        for _tk, (tlab, tkw) in TANK_CASES.items():
+    for _ck, (clab, ckw, ctag) in CELL_CASES.items():
+        if genetic and _ck == "floor_noge":
+            continue
+        if not genetic and ctag == GE:
+            continue
+        for _tk, (tlab, tkw, _ttag) in TANK_CASES.items():
             kw = dict(plant=plant, **ckw, **tkw, **extra)
             if hazard > 0:
                 kw.update(hazard=hazard, restart_fail_days=restart_days)
@@ -741,7 +778,7 @@ def main() -> None:
     for plant, rates in LOSS_RATES.items():
         for hz in rates:
             print(f"  {plant}, runs lost {hz * 100:.1f}% a day")
-            for row in cases_table(plant, hz):
+            for row in cases_table(plant, hz) + cases_table(plant, hz, genetic=False)[:4]:
                 print(f"    {row[0]:<52} {row[1]:<40} ${row[2]:6.2f} {row[3]:4.0f} g/L {row[4]:<25} {row[5]:5.1f} L/kg ({row[6]})")
     print("\n5. CHEAPEST COMBINATION BY GAS CAP")
     for cap in (0.001, 0.002, 0.004, 0.006):

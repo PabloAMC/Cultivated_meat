@@ -109,6 +109,8 @@ def build_model() -> dict:
             # the tricks (gas_exchange.column_design / headspace_pressure; sorbent and explicit wastes)
             "glc_kg": value("pf_glc_kg"), "sorbent_q": value("pf_sorbent_q"), "sorbent_price": value("pf_sorbent_price"),
             "sorbent_cycles": value("pf_sorbent_cycles"), "pco2_design": value("pf_pco2_limit"),
+            "rq_lipid": value("pf_rq_lipid"), "fat_kg": value("pf_fat_kg"), "fat_price": value("pf_fat_price"),
+            "do_implied": __import__("gas_exchange").headspace_pressure()["c_liquid_implied"],
             "uptime_col": value("pf_uptime"), "cell_density": value("pf_cell_density"),
             "medium_density": value("pf_medium_density"), "medium_viscosity": value("pf_medium_viscosity"),
             "ge": {k[3:]: value(k) for k in ("ge_pk_area", "ge_pk_angle", "ge_pk_side", "ge_pk_ce", "ge_pk_load",
@@ -1005,6 +1007,7 @@ def derived_numbers() -> dict:
         "MEDIA_PER_010": f"{value('media_intensity') * 0.10:.1f}",
         # the kappa-validation elasticity (golden-guarded as lusk_elas_parity_cold)
         "KAPPA4_LUSK_ELAS": f"{_lusk_at_parity(dp):.1f}",
+        "DO_IMPLIED": f"{__import__('gas_exchange').headspace_pressure()['c_liquid_implied']:.3f}",
         **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
            for tag, R in (("10", 1.0), ("15", 1.5), ("24", 2.42))},
     }
@@ -1442,32 +1445,38 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <p style="margin:.9em 0 .2em"><b>Tricks.</b> Ways round the limits below. Each is sized by calculation
         (research notes on gas exchange and on waste); none has been tried with meat cells.</p>
         <div class="fxg">
+          <div class="ctl"><label><span class="nm">Fat taken from the feed, not made from glucose</span><span class="val" id="fx_fat_v"></span></label>
+            <input type="range" id="fx_fat" min="0" max="100" step="5" value="0" oninput="fxRender()">
+            <p class="fxn"><i>Feed or process.</i> Making fat from glucose gives off CO&#8322; without using oxygen; that is most of why cells make 1.2 CO&#8322; per oxygen. Fed fat takes it to 0.97 and raises the CO&#8322; limit a quarter (carbon balance on Humbird's cell). Untested: whether the cells stop making their own.</p></div>
+          <div class="ctl"><label><span class="nm">Dissolved oxygen held at</span><span class="val" id="fx_do_v"></span></label>
+            <input type="range" id="fx_do" min="0.02" max="0.3" step="0.005" value="{{DO_IMPLIED}}" oninput="fxRender()">
+            <p class="fxn"><i>Feed or process.</i> The floor's oxygen supply implies about 0.28 mmol/L, above air saturation; pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. Lower leaves more room to push oxygen in.</p></div>
           <div class="ctl"><label><span class="nm">Packed column on a pumped loop</span></label>
             <select id="fx_col" onchange="fxRender()"><option value="none" selected>none</option>
             <option value="co2">for CO&#8322; (air blown through)</option>
             <option value="o2_closed">for CO&#8322; and oxygen (oxygen recycled, lime takes the CO&#8322;)</option></select>
-            <p class="fxn">The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Untested: whether cells take the film for weeks.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Untested: whether cells take the film for weeks.</p></div>
           <div class="ctl"><label><span class="nm">CO&#8322; the culture leaves the column at</span><span class="val" id="fx_cp_v"></span></label>
             <input type="range" id="fx_cp" min="20" max="70" step="5" value="55" oninput="fxRender()">
             <p class="fxn">Lower strips more per pass but makes the returning culture more alkaline; 55 keeps the pH rise to 0.26.</p></div>
           <div class="ctl"><label><span class="nm">Pressure at the top of the tank</span><span class="val" id="fx_pt_v"></span></label>
             <input type="range" id="fx_pt" min="0" max="1" step="0.01" value="0.33" oninput="fxRender()">
-            <p class="fxn">More pressure dissolves more oxygen; it does nothing for CO&#8322;. Steam-rated tanks take it. Untested in cells.</p></div>
+            <p class="fxn"><i>Feed or process.</i> More pressure dissolves more oxygen; it does nothing for CO&#8322;. Steam-rated tanks take it. Untested in cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonia and lactate set</span></label>
             <select id="fx_wm" onchange="fxRender()"><option value="dial" selected>by the waste lever above</option>
             <option value="sep">separately, below</option></select></div>
           <div class="ctl"><label><span class="nm">Ammonia the cells make</span><span class="val" id="fx_nh_v"></span></label>
             <input type="range" id="fx_nh" min="0.02" max="1" step="0.005" value="0.055" oninput="fxRender()">
-            <p class="fxn">0.055 is the floor's cell; bovine cells made 0.70, and 0.14 with glutamine replaced (measured).</p></div>
+            <p class="fxn">0.055 is the floor's cell (seen only in <i>genetically engineered</i> CHO); bovine cells made 0.70, and 0.14 with glutamine replaced in the feed (<i>feed or process</i>, measured).</p></div>
           <div class="ctl"><label><span class="nm">Lactate made per glucose used</span><span class="val" id="fx_ly_v"></span></label>
             <input type="range" id="fx_ly" min="0" max="1.8" step="0.05" value="0.5" oninput="fxRender()">
-            <p class="fxn">0.5 is the floor's cell; ordinary pharma cells make about 1.4, adapted ones 0.4, chicken cells 1.05.</p></div>
+            <p class="fxn">0.5 is the floor's cell; ordinary pharma cells make about 1.4, ones adapted to it 0.4 (<i>selection or adaptation</i>), chicken cells 1.05; near 0 only with knocked-out genes (<i>genetic engineering</i>).</p></div>
           <div class="ctl"><label><span class="nm">Glucose used per kilo of cells</span><span class="val" id="fx_gk_v"></span></label>
             <input type="range" id="fx_gk" min="0.6" max="3.6" step="0.02" value="1.12" oninput="fxRender()">
             <p class="fxn">The floor's cell uses 1.12 mol; 0.67&ndash;1.0 matches measured pharma cells. Unmeasured for meat cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
-            <p class="fxn">The cell-free medium passes a zeolite or resin before it returns. The sodium it gives back counts as salt. Capacity in medium is derived, not measured.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes a zeolite or resin before it returns. The sodium it gives back counts as salt. Capacity in medium is derived, not measured.</p></div>
           <div class="ctl"><label><span class="nm">Sorbent price</span></label>
             <select id="fx_spx" onchange="fxRender()"><option value="0.05">$0.05/kg (bulk zeolite)</option>
             <option value="0.3">$0.30/kg (bulk zeolite, top)</option><option value="5" selected>$5/kg (graded and sterile, assumed)</option>
@@ -3627,10 +3636,11 @@ function fxCell(massPg, doublingH, maint){
 }
 // The tricks (mirror of gas_exchange.packing_film / column_design / column_cost / headspace_pressure)
 function fxShape(v,a){ const T=Math.pow(4*C.fx.wv*v/(Math.PI*a),1/3); return [T,a*T]; }
-function fxHead(pt,v,a){        // oxygen driving force with the top of the tank at pt bar gauge, relative to Humbird's
+function fxHead(pt,v,a,dom){    // oxygen driving force (top of the tank at pt bar gauge, held at dom mmol/L) relative to Humbird's
   const F=C.fx, G=F.ge, depth=fxShape(v,a)[1], rgh=1007*9.81*depth/1e5/2;
   const cs=pp=>G.o2_henry*G.sparge_o2*(1.01325+pp+rgh)*1000, cl=cs(G.p_top_base)-F.otr/G.kla_20m3;
-  return (cs(pt)-cl)/(cs(G.p_top_base)-cl);
+  const cset=dom===undefined?cl:dom, p0=pt===undefined?G.p_top_base:pt;
+  return {f:(cs(p0)-cset)/(cs(G.p_top_base)-cl), cl:cset};
 }
 function fxVisc(x){ const phi=x/(C.fx.cell_density*1000);
   return C.fx.medium_viscosity*1e-3*(1+2.5*phi+10.05*phi*phi+0.00273*Math.exp(16.6*phi)); }
@@ -3638,11 +3648,12 @@ function fxRho(x){ const phi=x/(C.fx.cell_density*1000); return 1000*((1-phi)*C.
 function fxColumnCost(A,h){ const G=C.fx.ge, d=Math.sqrt(4*A/Math.PI), hh=h+G.col_extra_height;
   const steel=(Math.PI*d*hh+2*G.head_area*d*d)*G.col_wall*8000/0.4536;
   return (A*h*(7.31*G.pk_area+203.05)+575*Math.pow(steel,0.609)+15355*Math.pow(d,0.1764)*(1+5/6)+12019*Math.pow(d,0.1792))*G.cepci_2014; }
-function fxColumn(x,us,pout,oxygen,pt,v,a,cell){
+function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom){
   const F=C.fx, G=F.ge, wv=F.wv, ptank=F.pco2_design, R=8.314, TK=310.15, g=9.81;
-  const co2=F.rq*cell.qo2*x, o2=cell.qo2*x, depth=fxShape(v,a)[1];
+  const co2=rq*cell.qo2*x, o2=cell.qo2*x, depth=fxShape(v,a)[1];
   const bySp=us/depth*3600*(ptank*100/(R*TK))*F.strip_eff, co2loop=Math.max(0,co2-bySp);
-  const fpp=pt===undefined?1:fxHead(pt,v,a), o2short=oxygen?Math.max(0,o2-F.otr*Math.pow(us/F.gas_v,0.8)*fpp):0;
+  const fpp=(pt===undefined&&dom===undefined)?1:fxHead(pt,v,a,dom).f, o2short=oxygen?Math.max(0,o2-F.otr*Math.pow(us/F.gas_v,0.8)*fpp):0;
+  const doIn=fxHead(pt,v,a,dom).cl;                     // the culture enters at the tank's dissolved oxygen
   const uL=G.pk_load/3600, ap=G.pk_area, th=G.pk_angle*Math.PI/180, S=G.pk_side, rho=fxRho(x), mu=fxVisc(x);
   const ae=Math.min(1,1.34*Math.pow((rho/G.surface_tension)*Math.pow(g,1/3)*Math.pow(uL/ap,4/3),0.116));
   const q=uL/(ae*ap*Math.sin(th)), dl=Math.pow(3*mu*q/(rho*g*Math.sin(th)),1/3), u=q/dl;
@@ -3650,7 +3661,7 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell){
   const po=pout===undefined?G.col_pout:pout, d1=ptank-G.col_gas_out, d2=po-G.col_gas_in;
   const ntu=(ptank-po)/(Math.abs(d1-d2)>1e-9?(d1-d2)/Math.log(d1/d2):d1), h=ntu*htuC;
   const perPass=F.co2_henry*(ptank-po);          // dissolved CO2 only (no buffer: ge_buffer = 0)
-  const yo2=oxygen?G.o2_sweep_purity:0.21, o2pass=(1-Math.exp(-h/htuO))*(G.o2_henry*yo2*1013-G.do_setpoint);
+  const yo2=oxygen?G.o2_sweep_purity:0.21, o2pass=(1-Math.exp(-h/htuO))*(G.o2_henry*yo2*1013-doIn);
   const passes=Math.max(co2loop/perPass,o2pass>0?o2short/o2pass:0), flow=passes*wv*v, A=flow/(uL*3600);
   const co2rem=passes*perPass*wv*v, o2given=passes*o2pass*wv*v, power=rho*g*(h+G.col_head_extra)*flow/3600/G.pump_eff;
   const capex=(fxColumnCost(A,h)+G.pump_cost*Math.pow(flow/G.pump_flow,0.6))*G.install_x;
@@ -3690,9 +3701,10 @@ function floorExplore(p,noSearch){
   // tank shape, then the CO2 balance: removal = (gas velocity / liquid depth) x pCO2/RT; production = RQ x qO2
   const ar=p.aspect===undefined?F.aspect:p.aspect, us=p.gas_v===undefined?F.gas_v:p.gas_v, pc=p.pco2===undefined?F.pco2:p.pco2;
   const tankT=(v,a)=>Math.pow(4*F.wv*v/(Math.PI*a),1/3), T=tankT(p.vessel_m3,ar), depth=ar*T;
-  const xCo2=us/depth*3600*(pc*100/(8.314*310.15))*F.strip_eff/(F.rq*cell.qo2);
+  const xCo2=us/depth*3600*(pc*100/(8.314*310.15))*F.strip_eff/((p.rq!==undefined?p.rq:F.rq-F.rq_lipid*(p.fat_fed||0))*cell.qo2);
   const tmRel=Math.pow(T/tankT(20,F.aspect),2/3)*Math.pow(ar/F.aspect,2.5);
-  const col=p.column||"none", fP=p.p_top===undefined?1:fxHead(p.p_top,p.vessel_m3,ar);   // the tricks
+  const col=p.column||"none", fP=(p.p_top===undefined&&p.do_mmol===undefined)?1:fxHead(p.p_top,p.vessel_m3,ar,p.do_mmol).f;   // the tricks
+  const rq=p.rq!==undefined?p.rq:F.rq-F.rq_lipid*(p.fat_fed||0);   // fat from the feed releases no lipogenic CO2
   const limits=[["oxygen supply",col==="o2_closed"?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP],["thickness of the culture",F.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio/tmRel*fP],
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
@@ -3707,7 +3719,7 @@ function floorExplore(p,noSearch){
   const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
   const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
   let colR=null;
-  if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell); capex+=colR.capex_k_m3; }
+  if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol); capex+=colR.capex_k_m3; }
   const capital=p.charge*capex/out, labour=F.labour_ref/out;
   let utilities=F.utilities*(0.5+0.5*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg;
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
@@ -3723,16 +3735,19 @@ function floorExplore(p,noSearch){
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   let consumables=F.consumables;
+  if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf*ml/F.gf_litres:0, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   const total=capital+labour+utilities+consumables+feed+gf;
+  const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
           pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+(2*lac+sorb*nh3)/ml*1000:NaN,
-          limits:lims, medium_terms:terms, medium_set_by:setBy, nh3_kg:nh3, lac_kg:lac, column:colR};
+          limits:lims, medium_terms:terms, medium_set_by:setBy, nh3_kg:nh3, lac_kg:lac, column:colR,
+          rq:rq, o2_kg:cell.qo2/cell.mu, o2_kg_upkeep:o2up, o2_kg_growth:o2gr, co2_kg:rq*cell.qo2/cell.mu};
 }
 // Tornado: each limiting factor moved alone across its range around the current case (mirror of
 // floor_physics.floor_tornado; checked by tests/run_parity.py). Returns [label, cost at low, cost at high, low text, high text].
@@ -3898,11 +3913,15 @@ function fxRender(){
            pco2:num("fx_pc"), gas_v:num("fx_gv")/1000, aspect:num("fx_ar"),
            osm_limit:num("fx_os"), ph:num("fx_ph"), min_perfusion:num("fx_mf"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100,
            column:g("fx_col").value, col_pout:num("fx_cp"), p_top:num("fx_pt"),
-           sorbent:num("fx_sb")/100, sorbent_price:num("fx_spx"), sorbent_cycles:num("fx_scy")};
+           sorbent:num("fx_sb")/100, sorbent_price:num("fx_spx"), sorbent_cycles:num("fx_scy"), fat_fed:num("fx_fat")/100};
+  if(Math.abs(num("fx_do")-C.fx.do_implied)>0.003) p.do_mmol=num("fx_do");     // the default slider position is the floor's
   const sep=g("fx_wm").value==="sep";
   if(sep){ p.nh3_kg=num("fx_nh"); p.lac_yield=num("fx_ly"); p.glc_kg=num("fx_gk"); }
   ["fx_nh","fx_ly","fx_gk"].forEach(id=>{ g(id).disabled=!sep; });
   g("fx_cp").disabled=(p.column==="none");
+  { const air=C.fx.ge.o2_henry*0.2095*1013, dv=num("fx_do"), rqv=C.fx.rq-C.fx.rq_lipid*p.fat_fed;
+    g("fx_do_v").textContent=dv.toFixed(3)+" mmol/L ("+(dv/air*100).toFixed(0)+"% of air)";
+    g("fx_fat_v").textContent=(p.fat_fed*100).toFixed(0)+"% (CO\u2082 per O\u2082 "+rqv.toFixed(2)+")"; }
   g("fx_cp_v").textContent=p.col_pout.toFixed(0)+" mbar"; g("fx_pt_v").textContent=p.p_top.toFixed(2)+" bar gauge";
   g("fx_nh_v").textContent=num("fx_nh").toFixed(3)+" mol/kg"; g("fx_ly_v").textContent=num("fx_ly").toFixed(2)+" mol/mol";
   g("fx_gk_v").textContent=num("fx_gk").toFixed(2)+" mol/kg"; g("fx_sb_v").textContent=(p.sorbent*100).toFixed(0)+"%";
@@ -3933,6 +3952,8 @@ function fxRender(){
     (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
     (isFinite(r.osmolality)?"Salt strength in the tank: "+r.osmolality.toFixed(0)+" mOsm/kg"+
       (r.pco2_used<p.pco2-0.5?"; the tank is run at "+r.pco2_used.toFixed(0)+" mbar of CO&#8322;, below what the cells tolerate, because more bicarbonate would cost more in medium than it saves in plant":"")+". ":"")+
+    "Each kilo of cells uses "+r.o2_kg.toFixed(1)+" mol of oxygen ("+r.o2_kg_upkeep.toFixed(1)+" for upkeep, which grows with the doubling time, and "+
+    r.o2_kg_growth.toFixed(1)+" for growth) and gives off "+r.co2_kg.toFixed(1)+" mol of CO&#8322;. "+
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   g("fx_limits").innerHTML=fxLimitsDraw(r,floorExplore(fxFloorCase()));
@@ -3945,6 +3966,7 @@ function fxRender(){
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
   n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is the top of the guidance: large pharma tanks usually run at 5 to 20 times less gas, and nobody has shown cells this dense tolerating it at this size.");
+  n.push("What each lever needs: tank tricks, the oxygen setpoint, fat and glutamine replaced in the feed, and the sorbent are <i>feed or process</i>; cells that tolerate more CO&#8322; or make less lactate are <i>selection or adaptation</i>; the floor's efficient cells (ammonia as low as 0.055 mol/kg) have been shown only with <i>genetic engineering</i>. Selection is easier to regulate than engineering.");
   n.push("Salt: holding the pH against CO&#8322; takes bicarbonate, and lactate comes with its base; both add salt, and cells stop growing when the total is too high. So more CO&#8322; leaves less room for lactate, which then needs more medium to wash out.");
   n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");

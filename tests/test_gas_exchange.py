@@ -144,8 +144,8 @@ def check() -> list:
     cases = (("note: floor, column at 6 mm/s", dict(), 8.60, "mixing"),
              ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 7.18, "thickness of the culture"),
              ("note: 2 mm/s, column for CO2 only", dict(sparge_velocity=0.002), 15.76, "oxygen supply"),
-             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 8.89, "mixing"),
-             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 7.41,
+             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 8.99, "mixing"),
+             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 7.50,
               "thickness of the culture"),
              ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 5.00,
               "thickness of the culture"))
@@ -171,7 +171,7 @@ def check() -> list:
     near("note: floor, gentle column + oxygen + 1 bar", ge.floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
          p_top_barg=1.0)["total"], 7.29, 0.02)
     near("note: same at 2 mm/s", ge.floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed",
-         p_top_barg=1.0)["total"], 7.43, 0.02)
+         p_top_barg=1.0)["total"], 7.52, 0.02)
 
     # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
     r0 = fp.explore()
@@ -192,17 +192,39 @@ def check() -> list:
     if not ("salt" in s8["medium_terms"] and s8["osmolality"] > s0["osmolality"] - 50):
         fails.append("sorbent: the sodium it gives back must count as salt")
     near("note: ordinary bovine ammonia, L/kg", s0["medium_l"], 140.0, 1e-6)
-    pins = [("sanitary", 0.0, 0, 11.48), ("sanitary", 0.0, 1, 8.62), ("sanitary", 0.0, 2, 7.29), ("sanitary", 0.0, 3, 17.47),
-            ("sanitary", 0.0, 5, 13.13), ("sanitary", 0.0, 6, 31.09), ("sanitary", 0.0, 8, 26.89),
-            ("sanitary", 0.002, 0, 11.70), ("sanitary", 0.002, 2, 7.40), ("microbial", 0.0, 0, 6.61), ("microbial", 0.0, 2, 5.03),
-            ("microbial", 0.0, 5, 9.08), ("microbial", 0.006, 2, 5.17), ("microbial", 0.022, 0, 7.66), ("microbial", 0.022, 2, 5.59),
-            ("microbial", 0.022, 5, 10.32)]
+    # (plant, loss per day, genetic engineering allowed, cell row, tank column, $/kg); 4 tank columns per cell row
+    pins = [("sanitary", 0.0, True, 0, 0, 11.48), ("sanitary", 0.0, True, 0, 1, 9.91), ("sanitary", 0.0, True, 0, 2, 8.62),
+            ("sanitary", 0.0, True, 0, 3, 7.29), ("sanitary", 0.0, True, 1, 0, 17.47), ("sanitary", 0.0, True, 1, 3, 13.13),
+            ("sanitary", 0.0, True, 2, 0, 31.09), ("sanitary", 0.0, True, 2, 3, 26.89), ("sanitary", 0.002, True, 0, 0, 11.70),
+            ("sanitary", 0.002, True, 0, 3, 7.40), ("microbial", 0.0, True, 0, 0, 6.61), ("microbial", 0.0, True, 0, 3, 5.02),
+            ("microbial", 0.0, True, 1, 3, 9.08), ("microbial", 0.006, True, 0, 3, 5.17), ("microbial", 0.022, True, 0, 0, 7.66),
+            ("microbial", 0.022, True, 0, 3, 5.58), ("microbial", 0.022, True, 1, 3, 10.32),
+            ("sanitary", 0.0, False, 0, 0, 13.98), ("sanitary", 0.0, False, 0, 3, 9.79), ("sanitary", 0.002, False, 0, 3, 9.90),
+            ("microbial", 0.0, False, 0, 3, 7.52), ("microbial", 0.022, False, 0, 3, 8.16)]
     tabs = {}
-    for plant, hz, i, want in pins:
-        tabs.setdefault((plant, hz), ge.cases_table(plant, hz))
-        near(f"note: cases table {plant} loss {hz} row {i}", tabs[(plant, hz)][i][2], want, 0.002)
-    for cap, plant, want in ((0.001, "sanitary", 7.54), (0.002, "sanitary", 7.43), (0.006, "sanitary", 7.20),
-                             (0.002, "microbial", 5.17), (0.006, "microbial", 4.91)):
+    for plant, hz, genetic, ci, tj, want in pins:
+        tabs.setdefault((plant, hz, genetic), ge.cases_table(plant, hz, genetic=genetic))
+        near(f"note: cases table {plant} loss {hz} genetic {genetic} cell {ci} tank {tj}",
+             tabs[(plant, hz, genetic)][ci * 4 + tj][2], want, 0.002)
+    if any(c[2] == ge.GE for k, c in ge.CELL_CASES.items() if k != "floor"):
+        fails.append("only the floor's assumed cell should need genetic engineering")
+    lr = ge.lactate_relief()
+    near("note: lactate could supply this share of the energy", lr["share_of_energy"], 0.021, 0.03)
+
+    # --- cell side: fat in the feed, the oxygen setpoint, gas per kg ------------------------------------------
+    near("fat fed: RQ 1.204 -> 0.966", fp.explore(fat_fed=1.0)["rq"], 0.9659, 1e-3)
+    near("note: fat fed, CO2 cap", fp.explore(fat_fed=1.0)["limits"]["CO2 removal"], 149.6, 0.005)
+    near("lipid CO2 per O2 matches Humbird's Reactions 2.2 and 2.11", value("pf_rq_lipid"), 0.090 / 0.378, 1e-3)
+    near("note: oxygen cap at 0.05 mmol/L", fp.explore(do_mmol=0.05)["limits"]["oxygen supply"], 234.7, 0.005)
+    near("note: oxygen cap at 0.10 mmol/L", fp.explore(do_mmol=0.10)["limits"]["oxygen supply"], 225.8, 0.005)
+    near("oxygen setpoint at the implied level changes nothing", fp.explore(
+        do_mmol=ge.headspace_pressure()["c_liquid_implied"])["limits"]["oxygen supply"], r0["limits"]["oxygen supply"], 1e-9)
+    near("note: oxygen per kg at 24 h, mol", r0["o2_kg"], 5.16, 0.005)
+    near("upkeep + growth = oxygen per kg", r0["o2_kg_upkeep"] + r0["o2_kg_growth"], r0["o2_kg"], 1e-9)
+    near("note: oxygen per kg at 48 h", fp.explore(doubling_h=48)["o2_kg"], 7.74, 0.005)
+    near("CO2 per kg = RQ x oxygen", r0["co2_kg"], 1.204 * r0["o2_kg"], 1e-3)
+    for cap, plant, want in ((0.001, "sanitary", 7.66), (0.002, "sanitary", 7.52), (0.006, "sanitary", 7.20),
+                             (0.002, "microbial", 5.26), (0.006, "microbial", 4.91)):
         near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
 
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
