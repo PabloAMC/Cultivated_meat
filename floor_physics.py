@@ -327,7 +327,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
             medium_l: float | None = None, medium_price: float = 0.15, growth_factors: bool = False,
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
-            pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None) -> dict:
+            pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
+            osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
+            _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -352,10 +354,39 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         growth factors can be added at Humbird's large-scale price;
       * the product can be a blend: `cell_share` of cells, the rest plant ingredients.
 
+      * salt strength: holding the pH against dissolved CO2 takes bicarbonate, and lactate comes with its
+        base, so both add salt (2 mOsm per mmol/L). In perfusion the lactate the culture may hold is what
+        the salt limit leaves after the bicarbonate, which sets the litres needed to wash it out. If the
+        limit binds, the tank is run at the CO2 level, at or below what the cells tolerate, that costs
+        least (a search over 60 levels);
+      * the least medium flow a cell needs for everything else (other by-products, nutrients that run
+        out): litres per kg = that flow / growth rate, so slow cells need more.
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
+    # --- salt strength: how much lactate the culture may hold at this CO2 level and pH ----------------
+    pco2_tol = value("pf_pco2_limit") if pco2_mbar is None else pco2_mbar
+    osm_limit = value("pf_osm_limit") if osm_limit is None else osm_limit
+    ph = value("pf_ph") if ph is None else ph
+    hco3 = value("pf_co2_henry") * pco2_tol * 10.0 ** (ph - value("pf_pk1"))          # mmol/L at this CO2 and pH
+    osm_co2 = 2.0 * max(0.0, hco3 - value("pf_hco3_base"))                             # mOsm/kg from added bicarbonate
+    lac_room = min(value("pf_lac_limit"), max(1.0, (osm_limit - value("pf_osm_base") - osm_co2) / 2.0))
+    if _search and mode == "perfusion" and medium_l is None and lac_room < value("pf_lac_limit"):
+        # the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
+        kw = dict(doubling_h=doubling_h, mass_pg=mass_pg, vessel_m3=vessel_m3, plant=plant, mode=mode, charge=charge,
+                  uptime=uptime, maintenance_share=maintenance_share, capex_x=capex_x, retention=retention,
+                  x_scale=x_scale, hazard=hazard, run_days=run_days, restart_fail_days=restart_fail_days,
+                  medium_price=medium_price, growth_factors=growth_factors, cell_share=cell_share, waste=waste,
+                  nh3_limit=nh3_limit, gas_velocity=gas_velocity, aspect=aspect, osm_limit=osm_limit, ph=ph,
+                  min_perfusion=min_perfusion, _search=False)
+        best = None
+        for i in range(60):
+            r = explore(pco2_mbar=pco2_tol * (i + 1) / 60.0, **kw)
+            if best is None or r["total"] < best["total"]:
+                best = r
+        return best
     charge = value("plant_charge_mature") if charge is None else charge
     lost = 0.0                                          # share of output lost with contaminated tanks
     if uptime is None:
@@ -398,9 +429,18 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
     utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
     consumables = value("pf_consumables_low")
+    osm = float("nan")
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
-        need = washout_litres(cells, waste, nh3_limit) if mode == "perfusion" else 1000.0 / x
+        if mode == "perfusion":
+            nh3, lac = waste_per_kg(cells, waste)
+            nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
+            flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
+            need = max(nh3 / (nh3_lim / 1000.0), lac / (lac_room / 1000.0), flow / (cells.mu * 24.0))
+        else:
+            need = 1000.0 / x
         medium_l = max(value("pf_medium_l_floor"), need)
+        if mode == "perfusion":
+            osm = value("pf_osm_base") + osm_co2 + 2.0 * lac / medium_l * 1000.0
     feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     gf = value("pf_growth_factors") * ox if growth_factors else 0.0
     total = capital + labour + utilities + consumables + feed + gf
@@ -409,7 +449,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
             "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
-            "product": float(product)}
+            "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm)}
 
 
 def _stokes(d_um: float, drho: float) -> float:
@@ -572,6 +612,25 @@ TORNADO = [
      "A contaminated run ends early; the tank must be cleaned and regrown (14 days here) and a tankful is "
      "lost. <b>Range:</b> large pharma plants lose about 0.2% of runs a day; cultivated-meat makers report "
      "losses that work out to roughly 1 to 2% a day. <b>Evidence:</b> one survey, with run lengths not stated."),
+    ("Salt strength the cells tolerate", "osm_limit", 350.0, 450.0, "350 mOsm/kg", "450 mOsm/kg",
+     "Holding the pH against dissolved CO\u2082 takes bicarbonate, and lactate comes with the base that "
+     "neutralises it. Both add salt, and cells stop growing when the total is too high. So the more CO\u2082 "
+     "a tank runs at, the less lactate it may hold, and the more medium it needs. <b>Range:</b> fresh medium "
+     "is about 300; the floor's 415 is what Humbird's own CO\u2082 and lactate limits imply together [2]. "
+     "Across four studies of pharma cells, growth starts to fall at about 320 to 400 and is halved at about "
+     "430 to 465. <b>Evidence:</b> pharma cells only; a single limit stands in for a gradual decline."),
+    ("pH held in the tank", "ph", 6.9, 7.4, "6.9", "7.4",
+     "A lower pH needs less bicarbonate for the same CO\u2082, which leaves more room under the salt limit; a "
+     "higher pH needs more. <b>Range:</b> animal-cell tanks are usually held between about 6.9 and 7.4. "
+     "<b>Evidence:</b> the chemistry is certain; how growth of meat cells changes across this range is not "
+     "in the model."),
+    ("Least medium flow the cells need", "min_perfusion", 3.7, 18.5, "3.7 mL per g a day", "18.5 mL per g a day",
+     "Besides ammonia and lactate, other by-products build up and nutrients run out, so a cell needs a least "
+     "flow of medium per day. Litres per kilo are that flow divided by the growth rate, so slow cells need "
+     "more. <b>Range:</b> measured in pharma perfusion: 50 picolitres per cell a day sustained very dense "
+     "cultures, 14 to 30 did so at slow growth, and 8 to 10 only kept cells alive. For cells of that size "
+     "this is about 3.7 to 18.5 mL per gram a day, typically 9. The floor's 7.5 is better than typical "
+     "practice. <b>Evidence:</b> pharma cells; one company's chicken process works out to about 10.6."),
     ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%",
      "Part of a cell's oxygen use runs whether or not it grows; the rest rises with growth. It matters only "
      "when the doubling time is not 24 hours. <b>Range:</b> measurements put the upkeep share at 31% to 62%; "

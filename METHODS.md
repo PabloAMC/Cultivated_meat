@@ -325,16 +325,19 @@ across its plausible range, the others held at the case being viewed. Around the
 | tank size | 5 to 200 m³ | 10.6 – 18.8 |
 | plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
 | waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
-| doubling time | 18 to 48 h | 10.4 – 16.7 |
+| doubling time | 18 to 48 h | 10.4 – 17.5 |
 | class of plant | yeast-style to pharma-style | 6.6 – 12.2 |
 | yearly charge on the plant | 12.3% to 23.6% | 9.4 – 14.1 |
 | growth factors | none to bought | 11.5 – 15.4 |
 | medium price | $0.10 to $0.50 a litre | 11.5 – 15.4 |
 | retention device | free to Humbird's filters | 10.8 – 14.4 |
 | cell mass | 1 to 3 ng | 14.8 – 11.5 |
-| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 8.5 |
+| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 9.3 |
 | how the tank is run | perfusion to drained and refilled | 11.5 – 14.5 |
 | runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
+| least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
+| salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
+| pH held in the tank | 6.9 to 7.4 | 11.5 – 12.3 |
 | oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
 
 The floor sits at the favourable end of most ranges, which is why most bars point up. The two that point down
@@ -352,7 +355,7 @@ their growing-phase oxygen, mean 31% (from Wagner et al. 2011), and Miller et al
 energy use. The model uses s = 0.5 and lets the reader move it. At 24 h it changes nothing, so Humbird's designs
 are still reproduced. Faster cells gain less than their speed suggests, because the tank holds fewer of them: a
 16-hour doubling time takes the floor from $11.5 to $10.0 ($8.5 with upkeep only). Slower cells lose less: 48 h
-gives $16 ($20 with upkeep only). The review calls oxygen use against growth rate "a gap" for meat cell lines.
+gives $17.5 ($22 with upkeep only). The review calls oxygen use against growth rate "a gap" for meat cell lines.
 
 *Mixing (`pf_mix_ratio_20m3`).* Humbird's rule is that a tank must mix in less time than it takes to transfer
 oxygen: mixing time below 1/k_La. His Eq. 2.18 gives a mixing time of 141 s at 20 m³ (his tank shape, at the
@@ -378,19 +381,54 @@ which is in Humbird's design:
 | change from the floor case | density, g/L | what binds | floor, $/kg |
 |---|---|---|---|
 | none | 120 | CO₂ | 11.5 |
-| cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 8.7 |
+| cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 9.4 |
 | a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.3 |
 | 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
-| 150 mbar and the squat tank | 195 | oxygen supply | 8.3 |
+| 150 mbar and the squat tank | 195 | oxygen supply | 8.5 |
 | 200 m³ tank | 56 | CO₂ | 18.8 |
-| 200 m³ squat tank, cells tolerating 200 mbar | 177 | CO₂ | 8.1 |
-| 150 mbar and the squat tank, in a yeast-style plant | 195 | oxygen supply | 5.3 |
+| 200 m³ squat tank, cells tolerating 200 mbar | 153 | CO₂ | 10.1 |
+| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.5 |
 
 The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit
 protects cells from bursting bubbles in media with little protectant. How much CO₂ and gas meat cells tolerate
 while growing is not known; it is the single measurement that would move the floor most. **Larger tanks
 raise the cost** unless the CO₂ limit is relaxed, because the loss of density outweighs the cheaper vessel.
 Cells of 1.5 ng raise the floor to $13.
+
+*Salt strength, and the least medium flow a cell needs (`pf_osm_limit`, `pf_min_perfusion`).* Two further
+limits act on a perfusion tank besides CO₂, oxygen, ammonia and lactate.
+
+Salt. Holding the pH against dissolved CO₂ takes bicarbonate: [HCO₃⁻] = 0.0246 × pCO₂(mbar) × 10^(pH − 6.1)
+mmol/L, which is 31 at 100 mbar and pH 7.2. Lactate comes with the base that neutralises it. Each adds about
+2 mOsm/kg per mmol/L, on top of a fresh medium at 300 that already carries 25 mmol/L of bicarbonate. Humbird's
+two limits together (100 mbar, 50 mmol/L of lactate) come to 413 mOsm/kg, so the model takes 415 as the level
+at which growth stops; the range is 350–450. CHO cells showed no obvious change from salt alone at 400–450 and
+a 20% drop at that level combined with about 200 mbar of CO₂ (Zhu et al. 2005); across four sources growth
+starts to fall at about 320–400 and is halved at about 430–465, so a single limit stands in for a gradual
+decline. The consequence is a trade:
+the more CO₂ a tank runs at, the less lactate it may hold, and the more medium must wash it out. When the salt
+limit binds, the model runs the tank at whichever CO₂ level, at or below what the cells tolerate, costs least.
+
+This changes what CO₂ tolerance is worth. Cells that tolerate 200 mbar take the floor to $9.3, not $8.5, and
+the tank is run at about 157 mbar with 17 litres of medium per kg in place of 11. Removing CO₂ by engineering
+(more gas, a squat tank, a membrane loop) raises the density without adding bicarbonate, so it keeps its full
+value ($8.5–8.7). Holding the tank at pH 6.9 would also restore it, if the cells grow as well there.
+
+Least medium flow. Besides ammonia and lactate, other by-products build up and individual nutrients run out,
+so a cell needs a least flow of medium per day whatever it makes. Bioprocess engineers call it the
+cell-specific perfusion rate. Litres per kg are that flow divided by the growth rate per day, so slow cells
+need more medium. Measured for CHO cells: 50 pL per cell a day sustained 2 × 10⁸ cells per mL with more giving no
+benefit (Clincke et al. 2013); 14–30 did so at slow growth, and 8–10 only kept the culture alive (Mayrhofer et
+al. 2020). For cells of that size, 10 / 25 / 50 pL is 3.7 / 9.3 / 18.5 mL per gram of cells a day; the cell
+size behind the low figures was not reported, so they could be up to 1.8 times higher. The model takes 7.5,
+the value at which this stops binding for the floor's cells (10.8 L/kg at a 24 h doubling time, against 11.2
+from lactate): the floor assumes cells better than typical pharma practice and within what has been reached.
+At 9.3 the floor is $11.8 and at 18.5, $13.8. One company's chicken process (30.5 L/kg at half a doubling a day)
+works out to 10.6. This limit, more than ammonia or lactate, is why a 48 h doubling time now costs 22 L/kg.
+
+Not included: these two limits are applied in perfusion only; the growth-factor decay, damage from too much
+oxygen near the gas inlet, and by-products specific to meat cells remain outside the model. Sources and access levels: `research_notes/perfusion_rate_osmolality.md`; several figures were read in
+abstracts or search results only.
 
 *Holding cells back by settling (`settler_spec`).* The floor prices a retention device at what one study hopes
 it will cost. Sizing a gravity settler from first principles for a 20 m³ tank at the floor case: a 17.7 µm
@@ -1001,6 +1039,8 @@ unchanged.
   it (`market_share._utilities`). At κ = 4 the model is exactly the published one. The default is now 8.5: the
   best fit to six premium animal products that the Lusk bracket allows. Shares at equal price are unchanged;
   above it they fall several-fold (world share at the reported cost 0.9% → 0.3%; at the floor 12% → 5%).
+- **Salt strength and a least medium flow per cell** added as limits in perfusion ("Salt strength, and the
+  least medium flow a cell needs"); tolerating more CO₂ is now worth less than removing it by engineering.
 - **CO₂ limit computed** from a gas balance in place of a borrowed cap; medium use computed from the waste the
   cells make; a gravity settler sized from first principles; uncertainty on the floor; contamination; species
   presets; plant cost cross-checked against other designs (all in "The floor's plant term").

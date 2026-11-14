@@ -398,6 +398,41 @@ REGISTRY: dict[str, Input] = {
              "limits coincide at 20 m3, as his text says. At fixed shape and power t_m grows as V^(2/9), so "
              "the mixing-limited density falls as (V / 20)^(-2/9). Hydrostatic pressure, which helps oxygen "
              "in tall tanks, is left out. Used by the page's 'build your own case' controls"),
+    # --- salt strength (osmolality) and the least medium flow a cell needs (floor_physics.explore) ---
+    "pf_osm_base": Input(300.0, "mOsm/kg", "[typical] osmolality of fresh culture medium for mammalian cells"),
+    "pf_osm_limit": Input(415.0, "mOsm/kg", "[Humbird-R, derived; Zhu 2005] the salt strength at which growth is taken to "
+        "stop: the level that Humbird's own two limits imply together (100 mbar of CO2 and 50 mmol/L of lactate, "
+        "each with its sodium, in a 300 mOsm medium at pH 7.2 come to 413)",
+        lo=350.0, hi=450.0, mode=415.0,
+        note="Holding the pH against dissolved CO2 takes bicarbonate, and neutralising lactate takes base; both "
+             "add salt. CHO cells showed no obvious change at 400-450 mOsm/kg from salt alone and a 20% drop at "
+             "400-450 combined with 190-210 mbar of CO2 (Zhu et al. 2005, via research_notes/"
+             "co2_sparging_settling.md); hybridoma growth fell 63% at 415 with 260 mbar. Across four sources "
+             "(research_notes/perfusion_rate_osmolality.md) growth starts to fall at about 320-400 mOsm/kg "
+             "and is halved at about 430-465, so 415 sits where growth is clearly slowed but not stopped: a "
+             "single limit stands in for a gradual decline. Applied in perfusion only"),
+    "pf_ph": Input(7.2, "pH", "[typical] the pH the tank is held at (setpoints near 7.0 are common; 6.85-7.8 has been "
+        "tested)", lo=6.9, hi=7.4, mode=7.2,
+        note="sets how much bicarbonate a given CO2 level needs: [HCO3-] = dissolved CO2 x 10^(pH - pK1)"),
+    "pf_pk1": Input(6.1, "pK", "[textbook] apparent first dissociation constant of carbonic acid in medium at 37 C"),
+    "pf_co2_henry": Input(0.0246, "mmol/L per mbar", "[textbook] solubility of CO2 in water at 37 C (2.46 mmol/L at 100 mbar)"),
+    "pf_hco3_base": Input(24.6, "mmol/L", "[derived] bicarbonate already in fresh medium: equilibrium with 50 mbar of "
+        "CO2 at pH 7.4, the usual incubator condition; only bicarbonate above this adds to the salt strength"),
+    "pf_min_perfusion": Input(7.5, "mL per g wet cells per day", "[judgement within a measured range] the least medium "
+        "flow a cell needs for everything other than ammonia and lactate: other by-products that build up, and "
+        "nutrients that run out",
+        lo=3.7, hi=18.5, mode=7.5,
+        note="The bioprocess measure is the cell-specific perfusion rate. Measured for CHO cells "
+             "(research_notes/perfusion_rate_osmolality.md): 50 pL per cell per day sustained 2.1 x 10^8 cells "
+             "per mL with more giving no benefit (Clincke et al. 2013, full text); 14-30 sustained 2.2-2.4 x "
+             "10^8 at slow growth and 8-10 only held the culture without growth (Mayrhofer et al. 2020); "
+             "unoptimised processes run at 50-300. For a 17 um cell (2.7 ng) 10 / 25 / 50 pL is 3.7 / 9.3 / "
+             "18.5 mL per gram per day; cell size was not reported for the low figures, so they could be up "
+             "to 1.8 times higher. The default 7.5 is the value at which this stops binding for the floor's "
+             "efficient cells (10.8 L/kg at a 24 h doubling time, against 11.2 from lactate), so the floor "
+             "assumes cells better than typical pharma practice (9.3) and within what has been reached. "
+             "Litres per kg = this / growth rate per day, so slow cells need more. One company's chicken "
+             "process (30.5 L/kg at half a doubling a day) works out to 10.6"),
     # --- gravity settling (floor_physics.settler_spec): can a settler hold cells back at 20 m3? ---
     "pf_cell_density": Input(1.036, "g/mL", "[calibrated; research_notes/co2_sparging_settling.md] density of an animal "
         "cell, set so that a 14 um CHO cell settles at its measured 1.45 cm/h", lo=1.03, hi=1.06, mode=1.036,
