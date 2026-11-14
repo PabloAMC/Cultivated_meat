@@ -226,8 +226,22 @@ def check_parity() -> list:
             fails.append(f"floorExplore dh={dh} m={m} v={v} {pl} {mo}: python={r['product']:.6f} ({r['limit']}) "
                          f"js={tot:.6f} ({lim})")
 
+    # plants built item by item: floorExplore with items (JS) against explore(items=...) and plant_items
+    import plant_items as _pi
+    item_cases = [_pi.PLANTS["lean"], _pi.PLANTS["yeastplus"], _pi.PLANTS["yeast"], {"hall": "shed"},
+                  {"oxygen": "bought", "seed": "one"}, {"vessels": "food", "medium": "shared"}]
+    if len(js.get("fxItems", [])) != 2 * len(item_cases):
+        fails.append("fxItems: not emitted by the JS probe")
+    for i, mo, tot, capex in js.get("fxItems", []):
+        r = _fp.explore(vessel_m3=50.0 if i == 3 else 20.0, mode=mo, charge=0.173, items=item_cases[i],
+                        hazard=0.015 if i == 1 else 0.0, run_days=33, restart_fail_days=14)
+        worst_fx = max(worst_fx, abs(r["total"] - tot))
+        if abs(r["total"] - tot) > 1e-6 or abs(r["capex"] - capex) > 1e-6:
+            fails.append(f"floorExplore items case {i} {mo}: python={r['total']:.6f} js={tot:.6f}")
+
     # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
     cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
+             dict(items=_pi.PLANTS["lean"]),
              dict(mass_pg=2500.0, pco2_mbar=50.0, pco2_range=(10.0, 100.0))]
     if len(js.get("fxTor", [])) != len(cases):
         fails.append("fxTor: not emitted by the JS probe")

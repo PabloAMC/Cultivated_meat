@@ -60,6 +60,7 @@ it is always a band.
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
 | – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
 | – | [`floor_physics.py`](floor_physics.py) | side-study: a physics-based cost floor by reactor type and plant class |
+| – | [`plant_items.py`](plant_items.py), [`contamination.py`](contamination.py) | side-study: the plant's capital item by item, and the contamination a cheaper plant can afford |
 
 ---
 
@@ -163,6 +164,8 @@ model/
 ├── sensitivity.py       ← which inputs matter most
 ├── growth_rate.py       ← side-study: cost against doubling time (not used in the headline)
 ├── floor_physics.py     ← side-study: physics-based floor by reactor type and plant class
+├── plant_items.py       ← side-study: plant capital item by item (Humbird's plant and his yeast plant)
+├── contamination.py     ← side-study: detection, losses and break-even loss rates for cheaper plants
 ├── common.py            ← shared plotting helpers (no model logic)
 ├── report_figures.py    ← builds the curated figure set
 ├── build_interactive.py ← generates interactive.html (model → JS/SVG explorer + text)

@@ -119,6 +119,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Floor | `floor_physics.py` | the floor's plant term from oxygen physics, by reactor type and plant class |
+| Floor | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
 `build_interactive.py` (the page).
@@ -586,10 +587,66 @@ Humbird calls his own estimate good to "within 50%". The uncertainty run therefo
 to a third of his figure. Second, the frontier is better grounded than "what a yeast plant costs": it is also
 what Humbird's own yeast plant costs with 20 m³ tanks, and about what two published cultivated-meat designs
 assume, so it does not depend on very large tanks. Third, the gap is specific. At the same tank size
-Humbird's animal-cell plant costs five times his yeast plant: the bare vessel 4 times, the seed train 11
-times, medium preparation 22 times, oxygen supply 8 times, a higher installation factor (7.2 against 4.5), and
-$101k per m³ of building, mostly clean room. Which of these animal cells truly need is the question that
-decides the frontier.
+Humbird's animal-cell plant costs five times his yeast plant, and the next paragraph takes the difference
+apart item by item. (An earlier version of this paragraph quoted ratios per item, the bare vessel 4 times and
+the seed train 11 times; those were against his yeast plant with 200 m³ tanks, not at the same tank size.)
+
+**The plant item by item (`plant_items.py`, `research_notes/cheap_plant_study.md`).** Humbird's fed-batch
+plant is rebuilt line by line from his Tables 4.1 to 4.3 as nine items, each carried to total investment, and
+his yeast plant with 20 m³ tanks is rebuilt on the same nine. The first reproduces his $327.9M exactly. For
+the second he gives only a total ($70M, in a column headed "equal CAPEX"), so it is rebuilt from his standard
+yeast plant's equipment list with the six-tenths rule for everything but the vessels, and the vessel size
+exponent is solved to give his total; it comes out at 0.49, an ordinary value. Per m³ of production tank, in
+2018 dollars:
+
+| item | Humbird's plant | lean | yeast plant plus | yeast plant |
+|---|---|---|---|---|
+| hall round the bioreactors | 152 | 46 | 10 | 10 |
+| production tanks, installed | 163 | 115 | 61 | 61 |
+| oxygen supply | 89 | 0 | 0 | 5 |
+| seed train | 109 | 42 | 30 | 30 |
+| medium preparation and sterilising | 71 | 38 | 38 | 2 |
+| cleaning system and utilities | 48 | 48 | 15 | 15 |
+| labs, office, shop, warehouse | 34 | 34 | 15 | 0 |
+| harvest | 17 | 17 | 8 | 8 |
+| **total** | **683** | **340** | **175** | **130** |
+
+Each item has options (`plant_items.options`), and `explore(items={...})` prices any choice of them; the
+panel's "class of plant" sets them all at once. Two plants are new. *Lean* ($340k per m³; $452k in today's
+prices; cells at $9.0 per kg against the floor's $11.5) removes what animal cells plausibly do not need: the
+clean room and the food-plant finish (closed, steam-sterilised tanks are the sterile boundary, which pharma's
+own industry group accepts, and Vow runs a 20 m³ tank so); the owned oxygen plant (oxygen is bought, at an
+assumed $0.10 per kg, $0.33 per kg of cells); six of the eight final seed tanks (Humbird sizes the seed train
+for a restart every 57 hours; runs of ten days need 1.4 final seed tanks for 24 production tanks, so two
+small trains are kept, one a spare); electropolish and spare probes on the tanks (taken at Vow's "well under
+$1 million" a tank against his $1.41M); and a makeup tank per bioreactor. *Yeast plant plus* ($175k per m³;
+$233k today; $7.3 per kg) is his yeast plant with what animal cells certainly need added: cell labs,
+sterilisation of all the medium, and oxygen. The gap between the two is mostly the installed cost of a
+sealed, steam-sterilised tank and its piping, for which no vendor price was found. One published vendor quote
+points the other way: Garrison 2022's food-grade plant is $750k per m³, for four tanks with a seed train each.
+None of the five plants is the headline; the floor stays at the sanitary class.
+
+**Contamination as dynamics (`contamination.py`).** A contaminant doubles in 20 to 60 minutes and the cells in
+a day, so a single cell that gets in ends the run. From one cell in a 20 m³ tank to the density at which it
+shifts the tank's oxygen uptake by 5% [assumed] is about 51 doublings: 17 hours at a 20-minute doubling time,
+51 hours at 60 minutes, about 13 days for a slow organism such as mycoplasma. A dense culture hides more
+(2 × 10⁸ bacteria per mL at 120 g/L). At that point the contaminant is about 0.2% of the biomass, but the
+harvest crossed the food limits in the filings (10² to 10⁴ per gram) 6 to 17 hours earlier, so harvests must
+be held until the tank is known clean. No filing contemplates selling a contaminated batch after a kill step;
+`salvage` is a lever, set to zero. `explore` therefore takes two loss rates, a chance per day while the tank
+runs (`hazard`) and a chance per start (`start_fail`, the seed and start-up: a bad start costs its seed and
+the day until it shows). Rates by route are not published, so the module solves for thresholds: the chance
+per day at which a cheaper plant costs as much per kg as the floor's plant losing runs at pharma's 0.2% a
+day. With 33-day runs and 14 days to restart after a loss it is **3.5% a day for the lean plant (a run per
+tank every 28 days) and 7.6% for the yeast plant plus (every 13 days)**; a 30-day restart roughly halves
+both. Shared seed trains and medium lines do not change the expected number of tanks lost if the chance of
+failure is per vessel; they make losses come together, and then tanks queue for the seed train (24 tanks on
+two final seed tanks wait 4.5 days more on average, which lowers the lean threshold to 2.8%). For reference,
+pharma loses 2.3% of batches above 1,000 L (0.17–0.23% a day), and cultivated-meat makers report 11.2% (19.5%
+beyond flasks; a survey of 11 companies that gives no run lengths), which is 0.6–2.2% a day if batches run 10
+to 20 days. So the cheaper plants pay at today's reported loss rates, if they can be built at these prices.
+Not on the page: `start_fail` and `salvage`. Not modelled: a slow organism passed through a shared seed
+train before any test shows it.
 
 **Species (`SPECIES_PRESETS`).** The panel can set the cell levers from what has been published for a
 species. With everything else at the floor case:
