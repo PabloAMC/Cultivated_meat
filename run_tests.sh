@@ -16,6 +16,9 @@ python tests/test_growth_rate.py
 echo "==> physics-based floor"
 python tests/test_floor_physics.py
 
+echo "==> plant by items, contamination"
+python tests/test_plant_items.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

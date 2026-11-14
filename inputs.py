@@ -505,6 +505,184 @@ REGISTRY: dict[str, Input] = {
     "pf_other_nutrients_cheap": Input(0.3, "$/kg", "[assumed] salts, buffer, vitamins at feed-grade prices",
         note="against the 0.9 assumed in other_nutrients_floor"),
 
+    # --- plant capital by item (plant_items.py; research_notes/cheap_plant_study.md) -------------------
+    # Humbird's fed-batch plant (24 x 20 m3) transcribed line by line, his yeast plant, and the options each
+    # item can be switched to. 2018 dollars, $k, unless stated. [Humbird-R] = the long report, read in full text.
+    "pi_n_tanks": Input(24.0, "tanks", "[Humbird-R] Table 4.1: 24 x 20 m3 production bioreactors"),
+    "pi_tank_m3": Input(20.0, "m3", "[Humbird-R] Table 4.1: production bioreactor volume"),
+    "pi_prod_installed": Input(33922.0, "$k", "[Humbird-R] Table 4.1: production bioreactors (F5), installed; "
+        "= 24 x Eq. 3.1 (30.7 x 20 + 800 = $1,414k each)"),
+    "pi_seed_installed": Input(22673.0, "$k", "[Humbird-R] Table 4.1: seed bioreactors, '24 x 16 m3 and smaller', "
+        "installed", note="24 vessels = 4 trains x (150 L, 550 L, 2.1, 8.1 and 2 x 15.6 m3) (Fig. 4.3 and text); "
+        "Eq. 3.1 on these gives $22.72M, 0.2% above the table"),
+    "pi_bioreactor_bare": Input(13794.0, "$k", "[Humbird-R] Table 4.1 note a: bare equipment cost of all 48 "
+        "bioreactors; reproduced by his note 127, $k = 51 x V^0.69"),
+    "pi_fill_tanks": Input(1660.0, "$k", "[Humbird-R] Table 4.1: initial fill tanks, 14 x 20 m3 and smaller, bare"),
+    "pi_htst": Input(702.0, "$k", "[Humbird-R] Table 4.1: HTST sterilisers, 14 x 4,950 L/h and smaller, bare"),
+    "pi_makeup_tanks": Input(3370.0, "$k", "[Humbird-R] Table 4.1: makeup tanks, 72 x 2.8 m3 and smaller (one per "
+        "bioreactor, production and seed), bare"),
+    "pi_filter_housings": Input(1481.0, "$k", "[Humbird-R] Table 4.1: filter housings, 216 x 0.7 m2 and smaller, bare"),
+    "pi_centrifuge": Input(1744.0, "$k", "[Humbird-R] Table 4.1: disk-stack centrifuges, 4 x 35 gpm, bare"),
+    "pi_vpsa": Input(8840.0, "$k", "[Humbird-R] Table 4.1: oxygen plant (vacuum pressure-swing adsorption), 25 kt "
+        "of oxygen a year, bare", note="Pasitka 2024 (SI Table S2) prices a 15 kt/yr unit at $1,991k: 4.4 times "
+        "less for 60% of the capacity"),
+    "pi_o2_compressor": Input(295.0, "$k", "[Humbird-R] Table 4.1: oxygen compressor, bare"),
+    "pi_boiler": Input(154.0, "$k", "[Humbird-R] Table 4.1: natural-gas boiler, bare"),
+    "pi_cip_tanks": Input(4136.0, "$k", "[Humbird-R] Table 4.1: clean-in-place tanks, 12 x 42 m3, bare"),
+    "pi_chiller": Input(551.0, "$k", "[Humbird-R] Table 4.1: chiller, bare"),
+    "pi_cooling_tower": Input(24.0, "$k", "[Humbird-R] Table 4.1: cooling tower, bare"),
+    "pi_missing": Input(0.10, "share", "[Humbird-R] Sect. 3.1 and Table 4.1: 10% of equipment cost for minor items "
+        "not listed (pumps and the like)", note="taken on the total including itself: allowance = listed / 0.9 - "
+        "listed. In the ISBL the listed base includes the installed bioreactors; both reproduce Table 4.1"),
+    "pi_install": Input(1.3, "x bare", "[Humbird-R] Sect. 3.1: installation of equipment other than bioreactors, "
+        "added on top of the bare cost (so installed = 2.3 x bare)"),
+    "pi_engineering": Input(0.6, "x direct", "[Humbird-R] Table 4.3: engineering and construction, 0.6 x total "
+        "direct cost"),
+    "pi_fees": Input(0.15, "x plant cost", "[Humbird-R] Table 4.3: contractor's fee and contingency, 0.15 x total "
+        "plant cost"),
+    "pi_bldg_hall": Input(39607.0, "$k", "[Humbird-R] Table 4.2: cell-culture hall, Class 8 clean room, 5,268 m2 on "
+        "2 levels ('15% occupied by major equipment')"),
+    "pi_bldg_cell_lab": Input(2575.0, "$k", "[Humbird-R] Table 4.2: cell lab, Class 6, 294 m2"),
+    "pi_bldg_qc_lab": Input(1287.0, "$k", "[Humbird-R] Table 4.2: quality-control lab, Class 6, 147 m2"),
+    "pi_bldg_office": Input(527.0, "$k", "[Humbird-R] Table 4.2: office, 318 m2"),
+    "pi_bldg_compressor": Input(162.0, "$k", "[Humbird-R] Table 4.2: compressor building, 63 m2 on 2 levels"),
+    "pi_bldg_shop": Input(1648.0, "$k", "[Humbird-R] Table 4.2: maintenance shop, 1,317 m2 (25% of the hall)"),
+    "pi_bldg_warehouse": Input(1491.0, "$k", "[Humbird-R] Table 4.2: warehouse, 1,317 m2 (25% of the hall)"),
+    "pi_bldg_slab": Input(1185.0, "$k", "[Humbird-R] Table 4.2: slab under the whole developed area, 8,724 m2"),
+    "pi_rate_class8": Input(3760.0, "$/m2-level", "[Humbird-R] Table 3.2: Class 8 clean room"),
+    "pi_rate_sanitary": Input(1980.0, "$/m2-level", "[Humbird-R] Table 3.2: sanitary building"),
+    "pi_rate_warehouse": Input(1130.0, "$/m2-level", "[Humbird-R] Table 3.2: warehouse"),
+    "pi_eq31_slope": Input(30.7, "$k/m3", "[Humbird-R] Eq. 3.1: installed cost of a sterile bioreactor, $k = 30.7 V "
+        "+ 800 for V >= 0.33 m3"),
+    "pi_eq31_fixed": Input(800.0, "$k", "[Humbird-R] Eq. 3.1: the fixed part (piping, instruments), per vessel"),
+    "pi_eq31_small_slope": Input(2285.0, "$k/m3", "[Humbird-R] Eq. 3.1 below 0.33 m3: $k = 2285 V + 49.5"),
+    "pi_eq31_small_fixed": Input(49.5, "$k", "[Humbird-R] Eq. 3.1 below 0.33 m3"),
+    "pi_bare_coef": Input(51.0, "$k", "[Humbird-R] note 127: bare bioreactor cost $k = 51 x V^0.69"),
+    "pi_bare_exp": Input(0.69, "exponent", "[Humbird-R] note 127"),
+    # Table 3.3: what the installed cost of one sterile 20 m3 bioreactor is made of
+    "pi_t33_vessel": Input(330.0, "$k", "[Humbird-R] Table 3.3, 20 m3: vessel and agitator"),
+    "pi_t33_piping": Input(360.0, "$k", "[Humbird-R] Table 3.3, 20 m3: piping (sterile feeds, steam, CIP)"),
+    "pi_t33_instr": Input(476.0, "$k", "[Humbird-R] Table 3.3, 20 m3: instruments and electrical; probes are "
+        "three times redundant (his note 92)"),
+    "pi_t33_other": Input(22.0, "$k", "[Humbird-R] Table 3.3, 20 m3: other direct cost"),
+    "pi_t33_internals": Input(164.0, "$k", "[Humbird-R] Table 3.3, 20 m3: sparger, spray balls, exhaust heater, "
+        "double mechanical seal"),
+    "pi_t33_surface": Input(132.0, "$k", "[Humbird-R] Table 3.3, 20 m3: electropolishing and acid passivation"),
+    # the seed train of the fed-batch plant: vessel sizes (m3), per train (Fig. 4.3)
+    "pi_seed_trains": Input(4.0, "trains", "[Humbird-R] Sect. 4.1: 'four identical trains ending with 6 x F5'"),
+    "pi_seed_f0_m3": Input(0.15, "m3", "[Humbird-R] Sect. 4.1: 'F0, a single 150 L seed bioreactor inoculated with "
+        "3 kg of cells prepared in the lab'"),
+    "pi_seed_f1_m3": Input(0.55, "m3", "[Humbird-R] Fig. 4.3: F1"),
+    "pi_seed_f2_m3": Input(2.1, "m3", "[Humbird-R] Fig. 4.3: F2"),
+    "pi_seed_f3_m3": Input(8.1, "m3", "[Humbird-R] Fig. 4.3: F3"),
+    "pi_seed_f4_m3": Input(15.6, "m3", "[Humbird-R] Fig. 4.3: F4, two per train; each fills three production tanks"),
+    "pi_seed_tanks_per_f4": Input(3.0, "tanks", "[Humbird-R] Fig. 4.3: an F4 batch of 1,445 kg seeds three "
+        "production tanks at 482 kg (36.5 g/L)"),
+    "pi_stage_h": Input(57.0, "h", "[Humbird-R] Sect. 4.1: a stage takes 48 h of growth (two doublings) plus 2 h to "
+        "drain, 4 h to clean and sterilise and 4 h to refill; seeds are assumed to run the same cycle"),
+    # Humbird's baker's-yeast plant (Appendix A)
+    "pi_yeast_bcr_200": Input(818.0, "$k", "[Humbird-R] Table A.1: one 200 m3 jacketed bubble column in 316L steel, "
+        "bare"),
+    "pi_yeast_seed": Input(1369.0, "$k", "[Humbird-R] Table A.1: seed train of the standard plant (0.5, 3.4, 24 and "
+        "2 x 85 m3, Fig. A.4a), bare; not itemised"),
+    "pi_yeast_pasteurizer": Input(221.0, "$k", "[Humbird-R] Table A.1: pasteuriser for the molasses feed, bare"),
+    "pi_yeast_prep_tank": Input(593.0, "$k", "[Humbird-R] Table A.1: preparation tank, bare"),
+    "pi_yeast_compressors": Input(2750.0, "$k", "[Humbird-R] Table A.1: two air compressors, bare"),
+    "pi_yeast_centrifuges": Input(1728.0, "$k", "[Humbird-R] Table A.1: two centrifuges, bare"),
+    "pi_yeast_rvf": Input(652.0, "$k", "[Humbird-R] Table A.1: two rotary vacuum filters, bare"),
+    "pi_yeast_missing": Input(0.20, "x listed", "[Humbird-R] Table A.1: minor items, 20% of purchased equipment "
+        "($3,055k of $15,276k), so purchased = listed / 0.8"),
+    "pi_yeast_lang": Input(4.5, "x equipment", "[Humbird-R] Table A.1: overall factor from purchased equipment to "
+        "total investment", note="Table 3.1's 'non-sterile outdoors (lysine)' column sums to 4.7; he uses 4.5"),
+    "pi_yeast20_capex": Input(70000.0, "$k", "[Humbird-R] Table A.5: the yeast process held to animal-cell limits "
+        "(growth rate 0.03/h, oxygen transfer 25 mol/m3/h): 27 x 20 m3 fermentors, 'Total CAPEX $70M'",
+        note="NOT ITEMISED by Humbird, and the column is headed 'equal CAPEX' (the standard plant is $68.7M), so "
+             "the figure is rounded and partly set by construction. plant_items rebuilds it from Table A.1"),
+    "pi_yeast20_tanks": Input(27.0, "tanks", "[Humbird-R] Table A.5 and Fig. A.4b: 27 x 20 m3 production fermentors; "
+        "seeds of 9 x 19, 3 x 18.5, 18 and 6 m3 (the list is in plant_items.YEAST20_SEED_M3)"),
+    "pi_yeast_output_ratio": Input(1.7 / 17.3, "ratio", "[Humbird-R] Table A.5: yeast made, constrained over "
+        "standard plant (1.7 against 17.3 kt a year)"),
+    "pi_yeast_oxygen_ratio": Input(25.0 * 540.0 / (150.0 * 1200.0), "ratio", "[Humbird-R] Table A.5: oxygen "
+        "transferred, constrained over standard: 25 against 150 mol/m3/h, in 540 against 1,200 m3"),
+    "pi_yeast_broth_ratio": Input((1.7 / 25.0) / (17.3 / 69.0), "ratio", "[Humbird-R] Table A.5: broth to dewater, "
+        "constrained over standard: yeast made / cell density (25 against 69 g/L)"),
+    "pi_yeast_feed_ratio": Input(1.7 * 0.89 / (17.3 * 0.72), "ratio", "[Humbird-R] Table A.5: molasses handled, "
+        "constrained over standard: yeast made x carbon cost per kg ($0.89 against $0.72)"),
+    "pi_scale_exp": Input(0.6, "exponent", "[assumed] the six-tenths rule for scaling equipment cost with capacity, "
+        "the standard default in process cost estimating (Negulescu 2023 uses it for bioreactors)",
+        lo=0.5, hi=0.7, mode=0.6,
+        note="used to resize the yeast plant's compressors, centrifuges, filters and feed equipment from the "
+             "standard to the constrained plant. The vessel exponent is not assumed: it is solved so that the "
+             "rebuilt plant costs Humbird's $70M (about 0.49)"),
+    # Table 3.1, 'non-sterile outdoors (lysine)': what the yeast plant's overall factor is made of
+    "pi_lys_install": Input(0.29 + 0.38 + 0.40, "x equipment", "[Humbird-R] Table 3.1, lysine column: installation "
+        "0.29 + process piping 0.38 + instruments and electrical 0.40"),
+    "pi_lys_buildings": Input(0.10 + 0.10, "x equipment", "[Humbird-R] Table 3.1, lysine column: buildings 0.10 + "
+        "site improvement 0.10"),
+    "pi_lys_aux": Input(0.30, "x equipment", "[Humbird-R] Table 3.1, lysine column: auxiliary facilities "
+        "(utilities)"),
+    # options for animal cells that are neither Humbird's nor the yeast plant's
+    "pi_vessel_food_k": Input(1000.0, "$k per 20 m3 tank", "[company claim, trade press] Vow: its 20,000 L "
+        "food-grade tank cost 'well under $1 million' (AgFunder 2025, full text; Lever VC 2025 reads it as 80% "
+        "below a pharma-specification system)", lo=450.0, hi=1414.0, mode=1000.0,
+        note="taken as an UPPER bound for a sterilisable food-grade stirred tank, installed, against Humbird's "
+             "$1,414k. Cross-checks: Humbird's Table 3.3 without electropolishing and with single probes is about "
+             "$1,190k; CE Delft 2021 prices a 12.5 m3 tank at $325k purchased; Negulescu 2023 starts from $300k "
+             "for a 20 m3 tank in 304 steel. lo: about the yeast-plant vessel with its installation. Whether "
+             "'under $1 million' includes piping and installation is not stated"),
+    "pi_o2_feed": Input(3.3, "kg O2/kg wet cells", "[Humbird-R, derived] Table 4.4: the oxygen plant draws 2,139 "
+        "kWh per batch of 1,849 kg; at about 0.35 kWh per kg of oxygen [assumed, typical for the technology] that "
+        "is 6.1 t of oxygen fed per batch, consistent with a 25 kt/yr plant serving 3,600 batches",
+        note="most of the oxygen fed leaves unused: the cells burn about 0.3 kg per kg"),
+    "pi_o2_price": Input(0.10, "$/kg", "[assumed] oxygen bought over the fence or as bulk liquid; not sourced "
+        "(industrial gas prices are contract prices and rarely published)", lo=0.05, hi=0.20, mode=0.10,
+        note="at 3.3 kg per kg of cells this is $0.33 per kg of cells, against about $1.5 per kg for owning "
+             "Humbird's oxygen plant at his capital loading. A judgement, flagged as such in the note"),
+
+    # --- contamination as dynamics (contamination.py; research_notes/cheap_plant_study.md) ----------------
+    "ct_doubling_fast_min": Input(20.0, "min", "[BioNumbers 103514, search result] E. coli in rich broth at 37 C",
+        note="the fast end. Doubling times of contaminants in cell-culture medium were looked for and not found"),
+    "ct_doubling_slow_min": Input(60.0, "min", "[assumed] a slower common contaminant (many environmental bacteria "
+        "and yeasts double in 40 to 90 minutes in rich medium)"),
+    "ct_doubling_cryptic_h": Input(6.0, "h", "[Fratz-Berilla et al. 2019, Biotechnol. Bioeng., full text] "
+        "Mycoplasma arginini in a CHO perfusion culture: doubling 'about 6 h or more'; from 15-300 CFU/mL it "
+        "reached about 1e7 CFU/mL in 2-3 days, and oxygen and CO2 readings moved 1-5 days after the spike"),
+    "ct_bact_qo2": Input(15.0, "mmol O2/g dry/h", "[from memory, textbook range 10-20 for E. coli growing fast; "
+        "not verified at source]", lo=5.0, hi=20.0, mode=15.0),
+    "ct_bact_dry_pg": Input(0.3, "pg dry per cell", "[from memory, BioNumbers: an E. coli cell is about 0.3 pg dry "
+        "(1 pg wet); not verified at source]", lo=0.15, hi=1.0, mode=0.3),
+    "ct_detect_shift": Input(0.05, "share", "[assumed] the change in a tank's oxygen uptake that its oxygen "
+        "control or off-gas reading shows clearly above noise", lo=0.01, hi=0.10, mode=0.05,
+        note="sets the contaminant density at which ordinary sensors see it; a factor of 5 either way moves "
+             "the time to detection by only about 2 doublings out of about 50"),
+    "ct_inoculum_cfu": Input(1.0, "cells", "[assumed] a contamination starts from a single cell; a hundred cells "
+        "would show under 7 doublings sooner"),
+    "ct_food_limit_cfu": Input(1e4, "CFU/g", "[FSANZ A1269 risk assessment, April 2025, full text] Vow's harvest "
+        "specification: standard plate count under 1e4 per gram",
+        note="UPSIDE's is under 100 and GOOD Meat's under 1,000 (FDA memos, full text). Raw meat at the end of "
+             "its shelf life carries 1e6 to 1e7. These are company-proposed limits, not law"),
+    "ct_start_detect_days": Input(1.0, "days", "[Linderholm et al. 2025, Anal. Bioanal. Chem., search result] "
+        "'gross contamination' is detected after 18-24 h at the earliest; contamination.time_to_detect_h gives "
+        "0.7 to 2 days for doubling times of 20 to 60 minutes", lo=0.7, hi=5.0, mode=1.0,
+        note="how long a tank started from a contaminated seed runs before it shows. hi: slow organisms"),
+    "ct_seed_share": Input(36.5 / 120.0, "of a tankful", "[Humbird-R] Sect. 4.1: a tank is started at 36.5 g/L and "
+        "harvested at 120, so a start that fails loses about 0.3 of a tankful of cells"),
+    "ct_batch_loss_pharma": Input(0.023, "of batches", "[Langer 2008, BioProcess Int., full text] BioPlan survey of "
+        "145 organisations: 2.3% of batches lost to contamination in plants above 1,000 L (7.6% from all causes); "
+        "3.2% in the 2022 survey as quoted by GFI",
+        note="over a 10-14 day production batch [typical length, from memory] this is 0.15-0.3% a day, the "
+             "basis of pf_hazard_pharma"),
+    "ct_batch_loss_cm": Input(0.112, "of batches", "[Powell et al. 2025, Compr. Rev. Food Sci. Food Saf., full "
+        "text] survey of cultivated-meat makers, May-July 2023: mean 11.2% of batches lost to contamination in the "
+        "past year (range 0-52%, 11 companies)", lo=0.0, hi=0.52, mode=0.112,
+        note="19.5% for the 6 companies beyond flask scale (ct_batch_loss_cm_scaled). Run lengths and tank sizes "
+             "are not reported, so no rate per day follows without assuming them"),
+    "ct_batch_loss_cm_scaled": Input(0.195, "of batches", "[Powell et al. 2025, full text] the same survey without "
+        "the four companies working only in flasks: mean 19.5% (6 companies)"),
+    "ct_hazard_frontier": Input(0.015, "per day", "[derived, with an assumed run length] the survey's 11.2-19.5% of "
+        "batches, if those ran 10-20 days: about 0.6 to 2.2% a day; 1.5% is the round middle",
+        lo=0.006, hi=0.022, mode=0.015),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term

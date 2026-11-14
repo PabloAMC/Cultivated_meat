@@ -20,6 +20,8 @@ from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PLANT_CONFIGS, 
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
 import floor_physics
+import plant_items
+import contamination
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
                           lusk_at_parity_elasticity as _lusk_at_parity)
 from foothold import PRODUCTS as _FOOTHOLD, base_price as _fbase, PRICE_BASIS as _FBASIS
@@ -107,6 +109,19 @@ def build_model() -> dict:
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
+            # the plant item by item (plant_items): {item: {option: [capital $k per m3 in 2018 dollars, text]}},
+            # the options each plant choice in the panel stands for, and the cost of bought oxygen per kg
+            "items": {item: {o: [c, txt] for o, (c, txt) in opts.items()}
+                      for item, opts in plant_items.options().items()},
+            "item_labels": plant_items.ITEM_LABELS,
+            "plant_items": {"pharma": plant_items.choices_for("humbird"), "sanitary": plant_items.choices_for("floor"),
+                            "lean": plant_items.choices_for("lean"), "yeastplus": plant_items.choices_for("yeastplus"),
+                            "microbial": plant_items.choices_for("yeast")},
+            "o2_opex": value("pi_o2_feed") * value("pi_o2_price"), "escalation": value("pf_capex_escalation"),
+            # loss rates per day at which a cheaper plant stops paying (contamination.breakeven_hazard), and the
+            # rate cultivated-meat makers report
+            "breakeven": {k: contamination.breakeven_hazard(k) for k in ("lean", "yeastplus")},
+            "hazard_cm": value("ct_hazard_frontier"),
         },
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
@@ -1423,11 +1438,19 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
           <div class="ctl"><label><span class="nm">Class of plant</span></label>
             <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
             <option value="sanitary" selected>sterile, no clean rooms</option>
-            <option value="microbial">built like a yeast plant</option></select></div>
+            <option value="lean">lean: what is plausibly unnecessary removed</option>
+            <option value="yeastplus">a yeast plant plus what animal cells must have</option>
+            <option value="microbial">built like a yeast plant</option>
+            <option value="custom">your own choice of items (below)</option></select></div>
           <div class="ctl"><label><span class="nm">How the tank is run</span></label>
             <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>perfusion (cells held back)</option>
             <option value="filldraw">drained and refilled</option></select></div>
         </div>
+        <details style="margin:0 0 .6em"><summary class="fxn" style="cursor:pointer"><b>The plant, item by item.</b>
+          Humbird's design for animal cells costs five times his own yeast plant with the same tanks. Choose what
+          each item is built to; the class of plant above sets them all at once.</summary>
+          <div class="grid" id="fx_items" style="margin-top:.5em"></div>
+          <p class="fxn" id="fx_items_sum"></p></details>
         <p class="example" id="fx_out"></p>
         <p style="margin:.2em 0 .6em"><button class="btn" onclick="fxApply()">Use this case in the model above</button>
         <span class="fxn" id="fx_apply_msg"></span></p>
@@ -3587,8 +3610,11 @@ function floorExplore(p,noSearch){
     for(let i=0;i<60;i++){ const r=floorExplore(Object.assign({},p,{pco2:pcTol*(i+1)/60}),true); if(best===null||r.total<best.total) best=r; }
     return best;
   }
-  let capex=F.capex[p.plant];
-  if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
+  let capex=F.capex[p.plant], sized=F.sized[p.plant], extra=0;
+  if(p.items){ let k=0;                                          // a plant built item by item (plant_items.capital)
+    Object.keys(F.items).forEach(it=>{ k+=F.items[it][p.items[it]||Object.keys(F.items[it])[0]][0]; });
+    capex=k*F.escalation; sized=true; extra=p.items.oxygen==="bought"?F.o2_opex:0; }
+  if(sized){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
   if(perf) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
@@ -3622,8 +3648,8 @@ function floorExplore(p,noSearch){
   const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(lacRoom/1000),flow/(cell.mu*24)):1000/lim[1];
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf*ml/F.gf_litres:0, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
-  const total=capital+labour+utilities+F.consumables+feed+gf;
-  return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
+  const total=capital+labour+utilities+F.consumables+feed+gf+extra;
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, capital:capital, labour:labour,
           utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
           pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+2*lac/ml*1000:NaN};
@@ -3636,7 +3662,8 @@ function fxTornadoRows(p,pco2Range){
   return C.fx.tornado.map((t,k)=>{
     let lo=t[2], hi=t[3], loT=t[4], hiT=t[5];
     if(t[1]==="pco2"&&pco2Range){ lo=pco2Range[0]; hi=pco2Range[1]; loT=lo.toFixed(0)+" mbar"; hiT=hi.toFixed(0)+" mbar"; }
-    const a=floorExplore(Object.assign({},q,{[t[1]]:lo})).total, b=floorExplore(Object.assign({},q,{[t[1]]:hi})).total;
+    const drop=t[1]==="plant"?{items:undefined}:{};              // a class of plant replaces the chosen items
+    const a=floorExplore(Object.assign({},q,drop,{[t[1]]:lo})).total, b=floorExplore(Object.assign({},q,drop,{[t[1]]:hi})).total;
     return [t[0],a,b,loT,hiT,k,lo,hi];
   }).sort((x,y)=>Math.abs(y[2]-y[1])-Math.abs(x[2]-x[1]));
 }
@@ -3720,9 +3747,16 @@ function fxInit(){
   const sel=document.getElementById("fx_sp");
   Object.keys(C.fx.species).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=C.fx.species[k][0];sel.appendChild(o);});
   document.getElementById("fx_ms").value=Math.round(100*C.fx.maint_share);
+  const box=document.getElementById("fx_items");
+  Object.keys(C.fx.items).forEach(it=>{
+    const d=document.createElement("div"); d.className="ctl";
+    d.innerHTML='<label><span class="nm">'+C.fx.item_labels[it]+'</span></label><select id="fx_it_'+it+'" onchange="fxItem()">'+
+      Object.keys(C.fx.items[it]).map(o=>'<option value="'+o+'">'+C.fx.items[it][o][1]+'</option>').join("")+'</select>';
+    box.appendChild(d); });
   sel.value="model"; fxSpecies();
 }
 function fxMode(){fxRender();}
+function fxItem(){ document.getElementById("fx_pl").value="custom"; fxRender(); }   // an item changed by hand
 // Send the panel's case to the main model: its medium price, cell efficiency and plant running cost sliders
 // are set so the main cost matches (within what those sliders can reach), and every chart above follows.
 let fxLast=null;
@@ -3741,8 +3775,14 @@ function fxApply(){
 }
 function fxRender(){
   const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value);
-  const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
-           mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
+  const pl=g("fx_pl").value, its={};
+  // the class of plant sets every item; "custom" leaves them as chosen. Humbird's two classes and the as-built
+  // yeast plant keep their own price; the others are the sum of their items
+  if(pl!=="custom") Object.keys(C.fx.items).forEach(it=>{ g("fx_it_"+it).value=C.fx.plant_items[pl][it]; });
+  Object.keys(C.fx.items).forEach(it=>{ its[it]=g("fx_it_"+it).value; });
+  const byItems=(pl==="lean"||pl==="yeastplus"||pl==="custom");
+  const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:byItems?"sanitary":pl,
+           items:byItems?its:undefined, mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
            hazard:num("fx_hz")/100, run_days:num("fx_rd"), restart_fail:num("fx_rf"),
            waste:num("fx_ws")/100, medium_price:num("fx_mp"),
            pco2:num("fx_pc"), gas_v:num("fx_gv")/1000, aspect:num("fx_ar"),
@@ -3774,7 +3814,13 @@ function fxRender(){
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add); fxTorCard();
+  { let k=0; const parts=Object.keys(C.fx.items).map(it=>{ const c=C.fx.items[it][its[it]][0]*C.fx.escalation; k+=c;
+      return C.fx.item_labels[it].toLowerCase()+" $"+c.toFixed(0)+"k"; });
+    g("fx_items_sum").innerHTML="These items add up to $"+k.toFixed(0)+"k per m&sup3; of tank in today's prices, at 20 m&sup3; tanks: "+parts.join(", ")+"."+
+      (its.oxygen==="bought"&&byItems?" Bought oxygen adds $"+C.fx.o2_opex.toFixed(2)+" per kilo of cells.":"")+
+      (pl==="microbial"?" The class above is priced at what yeast plants cost when built ($"+C.fx.capex.microbial.toFixed(0)+"k), not at this sum.":""); }
   const n=[];
+  if(byItems) n.push("Plant by items: the tanks must still be sealed and steam-sterilised. A cheaper plant pays while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (the lean plant) or every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (the yeast plant with additions), against a sterile plant at pharma's loss rate. Cultivated-meat makers today report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");

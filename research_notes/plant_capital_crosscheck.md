@@ -87,6 +87,12 @@ Not found: Nature's Fynd (Chicago 200,000 sq ft; "price was not disclosed"), Per
 
 ## (b) Humbird: baker's yeast plant vs animal-cell fed-batch plant, line by line
 
+> Superseded in part by `cheap_plant_study.md` and `plant_items.py` (2026-11-14), which compare the animal-cell
+> plant with the yeast plant at the SAME 20 m3 tank size. The table below is against the yeast plant with
+> 200 m3 tanks, so its ratios per item are not like for like. Its split of the bioreactors' bare cost
+> ($7.92M production, $5.87M seed) is also replaced: Humbird's note 127 ($k = 51 x V^0.69) reproduces his
+> $13.794M and gives $9.67M and $4.12M.
+
 The yeast plant (Appendix A, Table A.1) is costed as purchased equipment x one overall Lang factor (4.5); Humbird does NOT tabulate its direct costs by area. The animal-cell plant (Tables 4.1-4.3) is built bottom-up (ISBL, OSBL, buildings, then indirects). To compare them, both are shown per m3 of production vessel; yeast lines below TPEC are therefore `[inferred]` from the Lang factor.
 
 | Line | Animal cell, fed-batch (24 x 20 m3 = 480 m3) | $k/m3 | Yeast (6 x 200 m3 = 1,200 m3) | $k/m3 | Ratio animal/yeast |
