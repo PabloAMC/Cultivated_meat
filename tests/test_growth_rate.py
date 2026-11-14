@@ -77,9 +77,9 @@ def check() -> list:
         expect(f"saving at ${p}/L, overhead {oh}", saving, want_saving)
 
     mc = monte_carlo(20000, 0)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.051, tol=0.01)
+    expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.042, tol=0.01)
     mc1 = monte_carlo(20000, 0, 1.00)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.173, tol=0.01)
+    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.153, tol=0.01)
     mc02 = monte_carlo(20000, 0, 0.20)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), medium $0.20/L", np.mean(mc02 > 1), 0.0, tol=0.005)
 

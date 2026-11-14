@@ -9,8 +9,8 @@ figures, but Pasitka's own kg is a watery pellet (METHODS.md, "Wet mass per cell
 so the defaults are NOT what Pasitka's process delivers per kg of cells. The model
 keeps them as the PROJECTION for efficient cells in a large plant, because they sit
 inside Humbird's independent range for that case ($21/kg on hydrolysate, $37/kg on
-individual amino acids). The cost with cells as they are today is a separate, much
-higher scenario (`today_cells_cost`, ~$220/kg: Pasitka's 2024 run restated). The
+individual amino acids, in his 2019 prices). Pasitka's own 2024 run, restated per kg
+of real cells, is a separate, much higher scenario (`pasitka_restated_cost`, ~$220/kg). The
 floor's plant term comes from floor_physics.py.
 
 price_ratio.py defines how a biomass cost becomes R and where the parity
@@ -104,16 +104,17 @@ The floor (see cost_floor):
     So cultivated meat has no order-of-magnitude feedstock advantage over the bird.
   * running a plant: capital/labour/maintenance/utilities do not go to zero.
     floor_physics.py derives this term from oxygen physics and Humbird's capital
-    per m3 of vessel: ~$9.6/kg for an aseptic plant of 20 m3 tanks run continuously
-    with efficient cells. Range: ~$3/kg if animal cells could be grown in a
-    food-fermentation-class plant (not demonstrated), $14.5/kg for Humbird's
-    fed-batch design as drawn.
+    per m3 of vessel, escalated from 2019 to 2025 prices: ~$12.5/kg for an aseptic
+    plant of 20 m3 tanks run continuously with efficient cells. Range: ~$3.5/kg if
+    animal cells could be grown in a food-fermentation-class plant (not
+    demonstrated), ~$19/kg for Humbird's fed-batch design as drawn.
 
 Result preview (defaults): projection for efficient cells ~$33/kg; medium at
-$0.2/L ~$23/kg; + CHO-efficient cells ~$20/kg; floor ~$11/kg (band ~$4-17). With
-cells as they are today: ~$220/kg. With a $5/kg additive markup against a $12/kg
-commodity price, parity (R=1) needs biomass <= $7/kg, so the central floor sits
-above that line (R ~1.4); only the food-fermentation-class plant gets below it.
+$0.2/L ~$23/kg; + CHO-efficient cells ~$20/kg; floor ~$14/kg (band ~$5-22).
+Pasitka's 2024 run restated per kg of real cells: ~$220/kg. With a $5/kg additive
+markup against a $12/kg commodity price, parity (R=1) needs biomass <= $7/kg, so
+the central floor sits above that line (R ~1.6); only the food-fermentation-class
+plant gets below it.
 
 Usage
 -----
@@ -250,8 +251,8 @@ def summarise(pr: CostParams) -> None:
         ("CHO-grade cells (0.63 $/L)",              pr.media_price, pr.eff_best),
         ("both (0.2 $/L + CHO-grade)",              0.20,          pr.eff_best),
     ]
-    tc = value("today_cells_cost"); _, tlo, thi = prior("today_cells_cost")[:3]
-    print(f"  WITH CELLS AS THEY ARE TODAY (Pasitka's 2024 run, restated per kg of real cells; range = how wet its biomass was):")
+    tc = value("pasitka_restated_cost"); _, tlo, thi = prior("pasitka_restated_cost")[:3]
+    print(f"  PASITKA'S 2024 RUN, restated per kg of real cells (range = how wet its biomass was):")
     print(f"    {tc:.0f} $/kg (range {tlo:.0f}-{thi:.0f})  ->  R = {ratio(tc, pr):.1f} (range {ratio(tlo, pr):.1f}-{ratio(thi, pr):.1f})\n")
     print("  PROJECTION — efficient cells in a large plant; MEDIA / CELL lever, biomass$/kg and R:")
     print("  scenario                                    biomass$/kg   R=p_cult/p_conv")
@@ -375,7 +376,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
     oh_tff  = PASITKA_CONFIGS["TFF 5 m^3 (10x5,000 L; current base)"]
     perf_02  = media_cost(pr, 0.2, 1.0)  + oh_perf   # cheaper media at perfusion scale
     perf_02c = media_cost(pr, 0.2, 0.25) + oh_perf   # + CHO-grade efficiency
-    floor = cost_floor(pr)                            # ~11.3
+    floor = cost_floor(pr)                            # ~14.2
     aa = pr.aa_intensity * pr.aa_bulk_price
 
     # waterfall: (label, top, bottom, colour) — full bar at the ends, floating steps between

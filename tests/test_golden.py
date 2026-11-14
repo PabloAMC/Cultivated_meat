@@ -73,7 +73,7 @@ def _golden_values() -> dict:
         "world_pen_vol_pct": gv * 100,
         # --- premium real-meat check (organic chicken, ~2.4% observed; self-check [4c], FAILS by design) ---
         "organic_vs_cuts_pct": organic_premium_check(pr)["vs_cuts"],
-        # --- timing: years to 90% of the LONG-RUN share at today's price (horizon-free) ---
+        # --- timing: years to 90% of the LONG-RUN share at the default price (horizon-free) ---
         "years_to_stabilize": float(years_to_stabilize((b + cp.markup_add) / cp.p_conv, pr, TimingParams())),
     }
 
@@ -91,9 +91,9 @@ GOLDEN = {
     # 2026-11-14: Pasitka's capital charge added to `overhead` (9.9 -> 18.5) and `plant_floor` (6.0 -> 11.5):
     # cost_floor 7.7020 -> 13.2020, biomass_base 24.0120 -> 32.6120, basic_R 2.41767 -> 3.13433. The demand
     # calibration is UNCHANGED (anchor frozen at 29.012, `elasticity_anchor_price`), so beta_ref, the solved
-    # weights and every at-parity figure below keep their values; only the roll-ups at today's cost move.
-    # 2026-11-14 (physics floor): plant_floor 11.5 -> 9.6, so cost_floor 13.2020 -> 11.3020.
-    "cost_floor":          11.3020,
+    # weights and every at-parity figure below keep their values; only the roll-ups at the default cost move.
+    # 2026-11-14 (physics floor, 2025 prices): plant_floor 11.5 -> 12.5, so cost_floor 13.2020 -> 14.2020.
+    "cost_floor":          14.2020,
     "biomass_base":        32.6120,
     "basic_R":             3.13433,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
@@ -235,12 +235,12 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−0.8"),
         ("elasticity at R=1.5",          elas(1.5),  "−1.7"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.6"),
-        ("biomass cost floor $/kg",      cost_floor, "11.3"),
+        ("biomass cost floor $/kg",      cost_floor, "14.2"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",
               "elasticity at R=1.5": "−1.7", "elasticity at R=2.42 (anchor)": "−3.6",
-              "biomass cost floor $/kg": "11.3"}
+              "biomass cost floor $/kg": "14.2"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

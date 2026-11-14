@@ -19,6 +19,7 @@ import os
 from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS, PASITKA_CAPITAL, MC_COST_INPUTS, MC_DEMAND_INPUTS,
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
+import floor_physics
 from market_share import (DemandParams, LOSS_AVERSION_RATIO,
                           lusk_at_parity_elasticity as _lusk_at_parity)
 from foothold import PRODUCTS as _FOOTHOLD, base_price as _fbase, PRICE_BASIS as _FBASIS
@@ -767,6 +768,78 @@ def illustrative_numbers() -> dict:
     return {f"{{{{{k}}}}}": v for k, v in N.items()}
 
 
+# Plain-language meaning of every cost case on the page: what it is, where it comes from, and whether
+# anyone has done it. Keys are floor_physics tier names; the two non-tier rows are added in _cost_cases_table.
+_CASE_TEXT = {
+    "Humbird fed-batch, as designed": (
+        "Humbird's fed-batch design",
+        "A detailed engineering design [2]: twenty-four 20,000-litre stirred tanks in a sterile plant. Each tank is "
+        "filled, the cells grow for about two days, and it is emptied (&ldquo;fed-batch&rdquo;). Efficient cells; "
+        "growth factors are bought.",
+        "Designed on paper; not built"),
+    "Humbird perfusion, as designed": (
+        "Humbird's perfusion design",
+        "From the same study [2]: ninety-six 2,000-litre tanks in which filters hold the cells back while fresh "
+        "medium flows through (&ldquo;perfusion&rdquo;). Denser cultures, but many small tanks and many filters.",
+        "Perfusion at this size is used in pharma; this plant was not built"),
+    "Same fed-batch plant, small slow cells": (
+        "The fed-batch design with small, slow cells",
+        "Humbird's fed-batch plant, growing cells the size and speed of those in Pasitka's run [1]: six times "
+        "smaller, doubling every 61 hours, not 24. It shows how much the cells themselves matter.",
+        "Such cells exist; the plant does not"),
+    "Sterile plant, continuous harvest": (
+        "Sterile plant, continuous harvest <b>(the model's floor)</b>",
+        "The same 20,000-litre sterile tanks, never emptied: cells are drawn off as they grow, so each tank makes "
+        "about one and a half times as much in a year. No growth-factor cost.",
+        "Not shown for animal cells at scale"),
+    "Sterile plant, 50 m3 tanks": (
+        "Sterile plant, 50,000-litre tanks",
+        "As above, in tanks two and a half times larger, which cost less per litre.",
+        "Animal cells have not been grown above about 25,000 litres"),
+    "Large perfusion, cheap retention": (
+        "Large perfusion with a cheap way to hold cells back",
+        "Pasitka's largest design [1]: two 25,000-litre perfusion tanks and a device that holds the cells back "
+        "without filters to replace. Here with efficient cells.",
+        "&ldquo;Theoretical&rdquo;, in Pasitka's words"),
+    "Food-fermentation-class plant": (
+        "Food-fermentation-class plant",
+        "Animal cells grown the way yeast or mycoprotein is: very large food-grade vessels and no clean rooms. Such "
+        "plants cost about a tenth as much per litre of vessel as a sterile one.",
+        "Not shown; needs cells that tolerate contamination"),
+    "Physics limit": (
+        "Physics limit",
+        "Not a design. The cheapest fermentation plant, the most oxygen animal cells can take, and cheap amino "
+        "acids: nothing could cost less.",
+        "A bound"),
+}
+
+
+def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
+    """HTML rows for the 'what each cost case means' table: every case the page quotes, in plain words."""
+    def row(name, what, shown, cost, hl=False):
+        r = (cost + markup) / p_conv
+        return (f'<tr{" class=\"hl\"" if hl else ""}><td>{name}</td><td class="s">{what}</td><td class="s">{shown}</td>'
+                f'<td class="n">${cost:.0f}</td><td class="n">{r:.1f}&times;</td></tr>')
+    lo, hi = prior("pasitka_restated_cost")[1:3]
+    rows = [
+        '<tr><td>Pasitka\'s 2024 run, per kilo of real cells</td><td class="s">The one peer-reviewed measured process [1]: '
+        'chicken cells grown for 20 days in a 2-litre vessel, scaled up on paper to a 50,000-litre plant. Its '
+        'published cost is per kilo of a wet pellet that is mostly liquid. Here that cost, with the plant\'s capital '
+        f'charge added, is divided by the share of real cells in the pellet (about {value("pasitka_real_cell_fraction")*100:.0f}%).'
+        f'</td><td class="s">The lab run: yes. The plant: no</td><td class="n">${value("pasitka_restated_cost"):.0f}<br>'
+        f'<span style="color:#888;font-size:.85em">(${lo:.0f}&ndash;{hi:.0f})</span></td>'
+        f'<td class="n">{(value("pasitka_restated_cost") + markup) / p_conv:.0f}&times;</td></tr>',
+        row("Projection: efficient cells, large plant <b>(the default)</b>",
+            "Ten 5,000-litre tanks growing efficient cells: cells that turn most of their food into cell mass and make "
+            "little waste. The numbers are Pasitka's [1]; they match Humbird's independent design for such cells [2].",
+            "No: efficient cells have not been shown at scale", bio),
+    ]
+    for t in floor_physics.tiers():
+        name, what, shown = _CASE_TEXT[t["name"]]
+        rows.append(row(name, what, shown, t["total"]))
+    return "\n        ".join(rows)
+
+
 def derived_numbers() -> dict:
     """Return {TOKEN: text} for every NON-share model number the prose quotes (price ratios, $/kg,
     years, coefficients). Same discipline as illustrative_numbers() (which holds the %-shares):
@@ -810,9 +883,10 @@ def derived_numbers() -> dict:
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
         "PLANT_FLOOR": f"{value('plant_floor'):.1f}",
         "ANCHOR_PRICE": f"{value('elasticity_anchor_price'):.0f}",
-        "TODAY_CELLS_COST": f"{value('today_cells_cost'):.0f}",
-        "R_TODAY_CELLS": f"{(value('today_cells_cost') + markup) / p_conv:.0f}",
-        "TODAY_CELLS_LO": f"{prior('today_cells_cost')[1]:.0f}", "TODAY_CELLS_HI": f"{prior('today_cells_cost')[2]:.0f}",
+        "COST_CASES_ROWS": _cost_cases_table(bio, markup, p_conv),
+        "PASITKA_REAL_COST": f"{value('pasitka_restated_cost'):.0f}",
+        "R_PASITKA_REAL": f"{(value('pasitka_restated_cost') + markup) / p_conv:.0f}",
+        "PASITKA_REAL_LO": f"{prior('pasitka_restated_cost')[1]:.0f}", "PASITKA_REAL_HI": f"{prior('pasitka_restated_cost')[2]:.0f}",
         "PASITKA_CELL_PCT": f"{value('pasitka_real_cell_fraction') * 100:.0f}",
         "PLANT_FLOOR_LO": f"{value('plant_floor_lo'):.0f}",
         "COST_FLOOR_LO": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR + value('plant_floor_lo'):.1f}",
@@ -1028,8 +1102,9 @@ Commission. <a href="#about">About this page</a>.</p>
 <div class="findings">
   <div class="fh">At the default settings</div>
   <ol>
-    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat in a large plant with efficient cells, a projection; with
-    cells as they are today, ~{{R_TODAY_CELLS}}&times;; ~{{R_FLOOR}}&times; even at the cost floor.</li>
+    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat in a large plant with efficient cells, a projection [1, 2]; the one
+    peer-reviewed measured run, restated per kilo of real cells, ~{{R_PASITKA_REAL}}&times; [1]; ~{{R_FLOOR}}&times; even at
+    the cost floor.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
     <li><b>At the projected cost:</b> ~{{PEN_GLOBAL_VOL}}% of world meat by weight (Europe ~{{PEN_EU_VOL}}%); less by
@@ -1085,7 +1160,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <div class="card"><h3 data-help="In score points (utils): green helps cultivated, orange hurts it. The bars add up to the net gap that sets the mainstream share; the &ldquo;blend&rdquo; in brackets mixes in the ethical shoppers. Move a slider and watch its bar change.">4b · Why this share</h3>
         <p class="sub" id="bdsub">Each factor's pull for or against cultivated, compared with conventional meat.</p>
         <svg id="breakdown" viewBox="0 0 420 300"></svg></div>
-      <div class="card full"><h3 data-help="Cultivated rises as it reaches shelves and stops feeling new. Plant-based runs on the same machinery but stalls, because its taste and price gaps don't fade. One everyday product at the ${{PCONV}} benchmark price and the selected region's income, with costs held at today's level: not the path of the headline totals.">5 · Adoption over time (Step 4)</h3>
+      <div class="card full"><h3 data-help="Cultivated rises as it reaches shelves and stops feeling new. Plant-based runs on the same machinery but stalls, because its taste and price gaps don't fade. One everyday product at the ${{PCONV}} benchmark price and the selected region's income, with costs held at the projected level: not the path of the headline totals.">5 · Adoption over time (Step 4)</h3>
         <p class="sub" id="timingsub">Cultivated (blue) climbs from near zero toward its ceiling (dashed); plant-based
         (green) stalls.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div>
@@ -1132,11 +1207,11 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       glucose and make little ammonia. Such cells have not been shown at scale. The numbers are Pasitka's [1], but
       they are not what Pasitka's own process delivers per kilo of cells: its kilo is a wet pellet that is mostly
       liquid (about {{PASITKA_CELL_PCT}}% cells by our estimate). The model keeps them because they fall inside
-      Humbird's independent range for efficient cells, $21–37 per kilo of real cells [2]. <b>With cells as they are
-      today</b>, the most recent measured run (Pasitka 2024), restated per kilo of real cells, costs about
-      ${{TODAY_CELLS_COST}}/kg (<i>R</i> ≈ {{R_TODAY_CELLS}}). The range is ${{TODAY_CELLS_LO}}–{{TODAY_CELLS_HI}}
-      because the paper does not report how wet its biomass was. A 2024 company report claims far less, about
-      $30–55, without peer review. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      Humbird's independent range for efficient cells, $21–37 per kilo of real cells in 2019 prices, about $27–48 in
+      2025 prices [2]. <b>The measured run itself</b> (Pasitka
+      2024 [1]), restated per kilo of real cells, costs about ${{PASITKA_REAL_COST}}/kg (<i>R</i> ≈
+      {{R_PASITKA_REAL}}). The range is ${{PASITKA_REAL_LO}}–{{PASITKA_REAL_HI}} because the paper does not report how
+      wet its biomass was. A 2024 company report (SuperMeat) claims about $30–55, without peer review. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14); charts 1, 2 and 7 use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_TFF}}:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
@@ -1144,12 +1219,24 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
       salts, buffer and vitamins in it are an assumption), and even an ideal sterile plant costs about ${{PLANT_FLOOR}}/kg to run. That figure
       is derived from physics: how much oxygen a cell needs, how much a reactor can deliver without bubbles killing
-      the cells, and so how many kilos a cubic metre of vessel makes in a year, priced at Humbird's plant cost [2]
-      (his own design, as drawn, comes to ${{HUMBIRD_PLANT}}/kg, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the
-      plant's cost a year). Together: a floor of about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
+      the cells, and so how many kilos a cubic metre of vessel makes in a year, priced at Humbird's plant cost [2] brought
+      from 2019 to 2025 prices (his own design, as drawn, comes to ${{HUMBIRD_PLANT}}/kg in 2019 prices, most of it a
+      charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). Together: a floor of about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
       ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor <i>R</i> ≈ {{R_FLOOR}}. The floor would
       fall to about ${{COST_FLOOR_LO}}/kg, below parity, only if animal cells could be grown like yeast, in a
       food-fermentation-class plant at about ${{PLANT_FLOOR_LO}}/kg. Nobody has shown that.</p>
+      <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells: about 70% water
+      and 20% protein, like meat. Plant costs are in 2025 prices. &ldquo;Sterile&rdquo; means a pharma-style plant:
+      clean rooms, and vessels sterilised with steam. The last column is the shop price against ${{PCONV}} everyday
+      meat, after a ${{MARKUP}}/kg markup.</p>
+      <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
+        <th>cells, $/kg</th><th>vs meat</th></tr>
+        {{COST_CASES_ROWS}}
+      </table></div>
+      <p>Reading the table: the cells and the class of plant matter far more than how the tank is run. The cases
+      from &ldquo;sterile plant, continuous harvest&rdquo; down are derived from physics, not from anyone's plant
+      (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
+      physics-based floor&rdquo;).</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
       {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}); almost no draws reach parity. The median is below
       {{R_TODAY}} because cell efficiency can only improve on the projection.</p>
@@ -1292,7 +1379,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <li><b>Timing is rougher than the ceilings:</b> a durable-goods Bass curve plus a familiarity fade that may
         overlap, with costs held fixed.</li>
         <li><b>A fixed mix of meats</b> in each region; a meat tax scales all prices equally.</li>
-        <li><b>Today's price ladder:</b> niche routes (pet food, new species, &ldquo;no animal harmed&rdquo; products)
+        <li><b>The existing price ladder:</b> niche routes (pet food, new species, &ldquo;no animal harmed&rdquo; products)
         score as small.</li>
         <li><b>Meat only:</b> cultivated egg and dairy proteins use precision fermentation and need their own
         model.</li>

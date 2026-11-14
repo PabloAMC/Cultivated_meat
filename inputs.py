@@ -123,7 +123,7 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(18.5, "$/kg", "[Pasitka] non-media cost at the 50,000 L facility, TFF config: running "
         "costs $9.9/kg (consumables+utilities+labour+maintenance+insurance, SI Table S10) + the capital charge "
         "$8.6/kg that Table S10 leaves out (SI Table S4: 14.6% of total capital investment a year)",
-        lo=9.6, hi=23.6, mode=18.5,
+        lo=12.5, hi=23.6, mode=18.5,
         note="READ PER KG OF REAL CELLS (2026-11-14): Pasitka's own kg is a watery pellet (METHODS 'Wet mass per "
              "cell'), so this figure is NOT what Pasitka's process delivers per kg of cells. The model keeps it "
              "as the PROJECTION for efficient cells in a large plant, because it sits inside Humbird's "
@@ -134,8 +134,8 @@ REGISTRY: dict[str, Input] = {
              "and insurance only). A price model must recover the capital, as Humbird's does (15%/yr), so it is "
              "added here: per kg, $16.9 (ATF), $8.6 (TFF), $5.5 (large perfusion). "
              "mode=18.5 = TFF 5 m^3 (10x5,000 L; 9.9 + 8.6; total ~$32.6/kg) = Pasitka's demonstrated-scalable "
-             "base; lo=9.6 = the plant floor (floor_physics: an aseptic plant run continuously; the "
-             "optimistic tail); hi=23.6 = scale-up proves HARDER than the clean projection (the "
+             "base; lo=12.5 = the plant floor (floor_physics: an aseptic plant run continuously, in "
+             "today's prices; the optimistic tail); hi=23.6 = scale-up proves HARDER than the clean projection (the "
              "earlier partial shortfall of +$5.1 running cost, capital held at the TFF level). The FULL "
              "scale-up-STALL case — ATF, twenty-five 2 m^3 vessels, overhead ~$41.6/kg, total ~$55.7/kg — is shown "
              "as an explicit DOWNSIDE SCENARIO (cost_model scenario table + the waterfall), NOT folded into "
@@ -165,28 +165,31 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(9.6, "$/kg", "[floor_physics] plant cost per kg of real cells in an aseptic plant of "
-        "20 m3 stirred tanks run continuously: capital, maintenance and insurance $7.4 + labour $0.95 + "
-        "utilities and consumables $1.24",
+    "plant_floor": Input(12.5, "$/kg", "[floor_physics] plant cost per kg of real cells in an aseptic plant of "
+        "20 m3 stirred tanks run continuously, in today's prices: capital, maintenance and insurance $9.8 + "
+        "labour $1.2 + utilities and consumables $1.5",
         note="PHYSICS-BASED since 2026-11-14 (was 11.5, read from Pasitka's large-perfusion design, whose kg is "
              "not a kg of cells). Derived from oxygen uptake, the oxygen a cell-culture reactor can deliver and "
-             "Humbird's capital per m3; tests/test_floor_physics.py checks this value against the module. "
-             "Assumes efficient cells and continuous operation, neither demonstrated at scale"),
-    "plant_floor_lo": Input(3.0, "$/kg", "[floor_physics] the same in a food-fermentation-class plant ($70k per "
-        "m3 of vessel against $683k)", note="the creative case: animal cells grown like yeast or mycoprotein. "
+             "Humbird's capital per m3, escalated from 2019 to current prices (pf_capex_escalation, "
+             "pf_opex_escalation; $9.6 at his prices). tests/test_floor_physics.py checks this value against "
+             "the module. Assumes efficient cells and continuous operation, neither demonstrated at scale"),
+    "plant_floor_lo": Input(3.5, "$/kg", "[floor_physics] the same in a food-fermentation-class plant ($70k per "
+        "m3 of vessel against $900k)", note="the creative case: animal cells grown like yeast or mycoprotein. "
         "Not demonstrated"),
-    "plant_floor_hi": Input(14.5, "$/kg", "[Humbird] Table 4.7: his fed-batch design as drawn (= humbird_plant_cost)"),
-    "today_cells_cost": Input(217.0, "$/kg", "[Pasitka 2024, restated] the most recent measured run: its cost "
-        "analysis with the capital charge ($32.6 per kg of wet biomass) divided by the share of real cells in "
-        "that biomass (pasitka_real_cell_fraction, 0.15)",
+    "plant_floor_hi": Input(19.0, "$/kg", "[Humbird] Table 4.7: his fed-batch design as drawn ($14.5/kg, "
+        "humbird_plant_cost), in today's prices"),
+    "pasitka_restated_cost": Input(217.0, "$/kg", "[Pasitka 2024, restated] the most recent measured run: its "
+        "cost analysis with the capital charge ($32.6 per kg of wet biomass) divided by the share of real cells "
+        "in that biomass (pasitka_real_cell_fraction, 0.15)",
         lo=86.0, hi=593.0, mode=217.0,
-        note="THE COST WITH CELLS AS THEY ARE TODAY, per kg of real cells, at plant scale. A scenario shown beside "
-             "the projection, not the model's base case. Range: real-cell share 0.38 -> $86, 0.055 -> $593; it "
-             "is wide because the paper does not report how wet its biomass was. Still flattering in one "
-             "respect: it uses Pasitka's best-day medium figure (22 L/kg), not the run average (64 L/kg). "
-             "CROSS-CHECKS: Humbird's 2021 fed-batch design with wild-type cells is $225-237/kg (Table 4.7), an "
-             "older, independent calculation that agrees; a 2024 company report (SuperMeat, 10 L runs scaled to "
-             "25 m3, not peer reviewed) claims about $26-30/kg before capital, ~$30-55 with it, which disagrees"),
+        note="WHAT THE ONE PEER-REVIEWED MEASURED PROCESS COSTS per kg of real cells, at plant scale. A scenario "
+             "shown beside the projection, not the model's base case, and not a statement about the whole "
+             "field. Range: real-cell share 0.38 -> $86, 0.055 -> $593; it is wide because the paper does not "
+             "report how wet its biomass was. Still flattering in one respect: it uses Pasitka's best-day "
+             "medium figure (22 L/kg), not the run average (64 L/kg). CROSS-CHECKS: Humbird's 2021 fed-batch "
+             "design with wild-type cells is $225-237/kg (Table 4.7), an older, independent calculation that "
+             "agrees; a 2024 company report (SuperMeat, 10 L runs scaled to 25 m3, not peer reviewed) claims "
+             "about $26-30/kg before capital, ~$30-55 with it, which disagrees"),
     "pasitka_real_cell_fraction": Input(0.15, "kg cells/kg wet biomass", "[Pasitka, derived] kg of real wet cells "
         "(70% water) in a kg of Pasitka's 'wet biomass', from the glucose consumed at typical cell yields",
         lo=0.055, hi=0.38, mode=0.15,
@@ -267,12 +270,20 @@ REGISTRY: dict[str, Input] = {
     # Per kg of REAL wet cells (70% water, ~21% protein: Humbird's basis). [Humbird-R] = Humbird's long report
     # (engrXiv, rev. 3, Oct 2021), read 2026-11-14. [pf-tea] = evidence recorded in the pf-tea repository
     # (data/evidence/*.yaml, docs/VALIDATION.md), taken as recorded there and not re-read at source.
+    "pf_capex_escalation": Input(1.32, "x", "[pf-tea] CEPCI 2024 (~800, an estimate) over 2019 (607.5): plant "
+        "construction costs since Humbird's price basis", lo=1.17, hi=1.40, mode=1.32,
+        note="Humbird's capital figures are in 2018-2019 dollars (pf-tea dates his equipment to 2018$ and his "
+             "prices to 2019). lo: CEPCI 2021 over 2019 (708.8 / 607.5), if his basis were later; hi: a further "
+             "5% for 2025-26. Applied to the Humbird-based capital per m3 in floor_physics, not to the "
+             "fermentation-plant figure (2024 announcements)"),
+    "pf_opex_escalation": Input(1.26, "x", "[pf-tea] US CPI-U 2025 (321.9) over 2019 (255.7): labour, utilities, "
+        "consumables and growth factors since Humbird's price basis"),
     "pf_cell_mass_pg": Input(3000.0, "pg wet", "[Humbird-R] Sect. 2.1 model cell: 3,000 pg hydrated, 17.7 um"),
-    "pf_cell_mass_today_pg": Input(550.0, "pg wet", "[Pasitka, derived] 10 um measured diameter (Extended Data "
+    "pf_cell_mass_small_pg": Input(550.0, "pg wet", "[Pasitka, derived] 10 um measured diameter (Extended Data "
         "Fig. 4b) as a sphere at 1.05 g/mL", note="Pasitka's own biomass figures use 10 ng per cell; see METHODS "
         "'Wet mass per cell'"),
     "pf_doubling_h": Input(24.0, "h", "[Humbird-R] mu_max = 0.029/h"),
-    "pf_doubling_today_h": Input(61.0, "h", "[Pasitka] 'Culture doubling time was relatively stable at 61 h' in "
+    "pf_doubling_slow_h": Input(61.0, "h", "[Pasitka] 'Culture doubling time was relatively stable at 61 h' in "
         "the animal-free 20-day run"),
     "pf_power_coef": Input(0.148, "pW/pg^0.75", "[Humbird-R] Eq. 2.8 (West et al.): metabolic power per cell = "
         "0.148 x M^0.75; 60 pW at 3,000 pg"),

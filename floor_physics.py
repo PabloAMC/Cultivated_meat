@@ -40,9 +40,11 @@ The chain of reasoning
    plus labour (scaled with vessel-time per kg), utilities and consumables.
 
 5. Capital per m3 depends on the CLASS of plant far more than on anything else:
-       aseptic stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird)
-       aseptic stirred tanks, fed-batch at 20 m3            $683k/m3   (Humbird)
-       food and feed fermentation plants                     $70k/m3   (pf-tea evidence)
+       aseptic stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird, 2019 prices)
+       aseptic stirred tanks, fed-batch at 20 m3            $683k/m3   (Humbird, 2019 prices)
+       food and feed fermentation plants                     $70k/m3   (pf-tea evidence, 2024)
+   Humbird's figures are escalated to today's prices in the tiers (x1.32 on capital by the
+   plant-cost index, x1.26 on running costs by consumer prices).
    Whether animal cells can ever be grown in the last class is the open question that
    decides the floor.
 
@@ -103,7 +105,7 @@ class Cells:
 
 
 GOOD_CELLS = Cells()
-TODAY_CELLS = Cells(mass_pg=value("pf_cell_mass_today_pg"), doubling_h=value("pf_doubling_today_h"))
+PASITKA_CELLS = Cells(mass_pg=value("pf_cell_mass_small_pg"), doubling_h=value("pf_doubling_slow_h"))
 
 
 def density(cells: Cells, otr: float, washed: bool) -> float:
@@ -138,15 +140,19 @@ def capex_at_size(capex_20m3: float, vessel_m3: float) -> float:
 
 
 def plant_cost(cells: Cells, mode: str, capex_k_per_m3: float, consumables: float,
-               otr: float | None = None) -> dict:
-    """Plant cost per kg of wet cells: the yearly charge on capital, labour, utilities, consumables."""
+               otr: float | None = None, capex_x: float = 1.0, opex_x: float = 1.0) -> dict:
+    """Plant cost per kg of wet cells: the yearly charge on capital, labour, utilities, consumables.
+    capex_x / opex_x escalate Humbird's 2019 prices to today's (1.0 = as published, used to check the
+    module against his tables)."""
     out = output_per_m3(cells, mode, otr)                                   # t per m3 per year
-    capital = value("humbird_plant_charge") * capex_k_per_m3 / out          # $k/t = $/kg
+    capital = value("humbird_plant_charge") * capex_k_per_m3 * capex_x / out   # $k/t = $/kg
     ref = output_per_m3(GOOD_CELLS, "fedbatch")                             # Humbird's fed-batch plant
-    labour = value("pf_labour") * ref / out                                 # same crew per m3 of vessel
+    labour = value("pf_labour") * opex_x * ref / out                        # same crew per m3 of vessel
+    utilities = value("pf_utilities") * opex_x
+    consumables = consumables * opex_x
     return {"output": out, "capital": capital, "labour": labour,
-            "utilities": value("pf_utilities"), "consumables": consumables,
-            "plant": capital + labour + value("pf_utilities") + consumables}
+            "utilities": utilities, "consumables": consumables,
+            "plant": capital + labour + utilities + consumables}
 
 
 def feedstock(cells: Cells, cheap: bool = False) -> float:
@@ -168,8 +174,11 @@ def tiers() -> list:
     fb = value("pf_capex_aseptic_fedbatch")
     rows = []
 
-    def add(name, assumes, shown, cells, mode, capex, consumables, gf, cheap=False, otr=None):
-        pc = plant_cost(cells, mode, capex, consumables, otr)
+    cx, ox = value("pf_capex_escalation"), value("pf_opex_escalation")
+
+    def add(name, assumes, shown, cells, mode, capex, consumables, gf, cheap=False, otr=None, humbird_capex=True):
+        pc = plant_cost(cells, mode, capex, consumables, otr, capex_x=cx if humbird_capex else 1.0, opex_x=ox)
+        gf = gf * ox
         feed = feedstock(cells, cheap)
         rows.append({"name": name, "assumes": assumes, "shown": shown, **pc,
                      "feedstock": feed, "growth_factors": gf,
@@ -181,29 +190,29 @@ def tiers() -> list:
     add("Humbird perfusion, as designed", "aseptic 2 m3 tanks with ATF filters, same cells",
         "designed; perfusion at 2 m3 exists in pharma", GOOD_CELLS, "perfusion",
         value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"), value("pf_growth_factors"))
-    add("Same fed-batch plant, today's cells", "the cells Pasitka grew: 0.55 ng, 61 h doubling",
-        "cells exist; this plant does not", TODAY_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
+    add("Same fed-batch plant, small slow cells", "cells the size and speed of those Pasitka grew: 0.55 ng, 61 h doubling",
+        "cells exist; this plant does not", PASITKA_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
         value("pf_growth_factors"))
-    add("Aseptic, continuous harvest", "20 m3 tanks run continuously (fill-and-draw or chemostat); no growth-factor cost",
+    add("Sterile plant, continuous harvest", "20 m3 tanks run continuously (fill-and-draw or chemostat); no growth-factor cost",
         "not shown for animal cells at scale", GOOD_CELLS, "continuous", fb, value("pf_consumables_low"), 0.0)
-    add("Aseptic, continuous, 50 m3 tanks", "as above in 50 m3 vessels, which Humbird calls a still-hypothetical optimum",
+    add("Sterile plant, 50 m3 tanks", "as above in 50 m3 vessels, which Humbird calls a still-hypothetical optimum",
         "animal cells not grown above ~25 m3", GOOD_CELLS, "continuous", capex_at_size(fb, 50.0),
         value("pf_consumables_low"), 0.0)
     add("Large perfusion, cheap retention", "Pasitka's 25 m3 design with a filter-free retention device, efficient cells",
         "'theoretical' in Pasitka's own words", GOOD_CELLS, "perfusion", value("pf_capex_pasitka_large"),
-        value("pf_consumables_low"), 0.0)
+        value("pf_consumables_low"), 0.0, humbird_capex=False)
     add("Food-fermentation-class plant", "animal cells grown like yeast or mycoprotein: large sanitary vessels, no clean rooms",
         "not shown; needs robust, contamination-tolerant cells", GOOD_CELLS, "continuous",
-        value("pf_capex_fermentation"), value("pf_consumables_low"), 0.0)
+        value("pf_capex_fermentation"), value("pf_consumables_low"), 0.0, humbird_capex=False)
     add("Physics limit", "the cheapest fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids",
         "a bound, not a design", GOOD_CELLS, "perfusion", 55.0, value("pf_consumables_low"), 0.0,
-        cheap=True, otr=50.0)
+        cheap=True, otr=50.0, humbird_capex=False)
     return rows
 
 
 def summarise(pr: CostParams) -> None:
     pc = parity_cost(pr)
-    for label, c in (("efficient model cell (3 ng, 24 h)", GOOD_CELLS), ("today's cell (0.55 ng, 61 h)", TODAY_CELLS)):
+    for label, c in (("efficient model cell (3 ng, 24 h)", GOOD_CELLS), ("small slow cell (0.55 ng, 61 h)", PASITKA_CELLS)):
         print(f"  {label}: oxygen uptake {c.qo2:.3f} mmol/g/h, {c.o2_per_kg:.2f} kg O2 per kg cells; "
               f"oxygen-limited density {density(c, value('pf_otr_cap'), True):.0f} g/L")
     print(f"\n  parity needs cells at <= ${pc:.0f}/kg (with a ${pr.markup_add:.0f} markup against ${pr.p_conv:.0f} meat)\n")
