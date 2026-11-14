@@ -73,7 +73,9 @@ def _blockers_html() -> str:
     col, allg = d(**ge.TANK_CASES["column"][1]), d(**ge.TANK_CASES["all"][1])
     low_gas, squat = d(gas_velocity=0.002), d(aspect=1.0)
     safe2 = ge.cheapest_tricks(0.002, ph_safe=True, tested=True)
-    yeast, pharma = d(plant="microbial"), d(plant="pharma")
+    lean, pharma = d(items=plant_items.PLANTS["lean"]), d(plant="pharma")
+    lean_lost = d(items=plant_items.PLANTS["lean"], hazard=0.022, restart_fail_days=14.0)
+    be = 1.0 / contamination.breakeven_hazard("lean")
     slow, gf = d(doubling_h=ge.CELL_CASES["best_meat"][1]["doubling_h"]), d(growth_factors=True)
     m = lambda r: f"${r['total']:.1f}"
     rows = [
@@ -95,8 +97,11 @@ def _blockers_html() -> str:
         ("The cost of the plant",
          "A sterile plant without clean rooms",
          f"{m(pharma)} if it must be built like a pharma plant",
-         f"Build it like a food plant: {m(yeast)}",
-         "Nobody has built one for animal cells. How often runs are lost to contamination decides it."),
+         f"Leave out what animal cells do not need (clean-room hall, an owned oxygen plant, spare seed tanks): "
+         f"{m(lean)}; {m(lean_lost)} at the highest loss rate makers report. A plant as cheap as a yeast plant is not "
+         f"counted: nothing shows animal cells can be grown that way",
+         f"Nobody has built one. The leaner plant pays only while each tank loses a run less often than about once "
+         f"every {be:.0f} days; the one survey of makers implies losses below that, from small vessels"),
         ("Fast growth and low waste together",
          "Cells that double every 24 hours",
          f"{m(slow)} at 43 hours, the pace of the low-waste cattle cells",
@@ -117,23 +122,23 @@ def _blockers_html() -> str:
     for r in rows:
         h.append("<tr><td><b>%s</b></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % r)
     h.append("</tbody></table></div>")
-    # the cells x tank grid, sterile plant / yeast-style plant
+    # the cells x tank grid, sterile plant / lean plant
     cells = [("floor", "The floor's cells (need genetic engineering)"),
              ("floor_noge", "The same by selection and feed only"),
              ("best_meat", "Best measured in meat cells"), ("ordinary", "Ordinary meat cells")]
     tanks = [("sparger", "Bubbling only"), ("column", "With the column"),
              ("all", "Column, pressure and recycled oxygen")]
     h.append("<p class='blkp' style='margin-top:10px'><b>Cells against tank.</b> Cost per kilo of cells in a "
-             "sterile plant, and in a plant built like a yeast plant. Click a figure to load that case below.</p>"
+             "sterile plant, and in a lean one (what animal cells do not need left out). Click a figure to load that case below.</p>"
              "<div class='scrollx'><table><thead><tr><th>Cells</th>" +
              "".join(f"<th>{t}</th>" for _k, t in tanks) + "</tr></thead><tbody>")
     for ck, cl in cells:
         h.append(f"<tr><td>{cl}</td>")
         for tk, _t in tanks:
             kw = dict(ge.CELL_CASES[ck][1], **ge.TANK_CASES[tk][1])
-            a, b = ex(**kw), ex(plant="microbial", **kw)
+            a, b = ex(**kw), ex(items=plant_items.PLANTS["lean"], **kw)
             h.append("<td><a href='#fx' onclick=\"fxCase('%s','%s','sanitary');return false\">$%.1f</a> / "
-                     "<a href='#fx' onclick=\"fxCase('%s','%s','microbial');return false\">$%.1f</a></td>"
+                     "<a href='#fx' onclick=\"fxCase('%s','%s','lean');return false\">$%.1f</a></td>"
                      % (ck, tk, a["total"], ck, tk, b["total"]))
         h.append("</tr>")
     h.append("</tbody></table></div>"
@@ -1122,6 +1127,7 @@ def derived_numbers() -> dict:
         "MEDIA_PER_010": f"{value('media_intensity') * 0.10:.1f}",
         # the kappa-validation elasticity (golden-guarded as lusk_elas_parity_cold)
         "KAPPA4_LUSK_ELAS": f"{_lusk_at_parity(dp):.1f}",
+        "COST_FLOOR_LEAN": f"{floor_physics.explore(items=plant_items.PLANTS['lean'])['total']:.1f}",
         "DO_IMPLIED": f"{__import__('gas_exchange').headspace_pressure()['c_liquid_implied']:.3f}",
         "BLOCKERS_HTML": _blockers_html(),
         "FX_CASES": _fx_cases_json(),
@@ -1335,8 +1341,8 @@ Commission. <a href="#about">About this page</a>.</p>
   <ol>
     <li><b>Cost:</b> about ${{COST_FLOOR}} per kilo of cells, ${{RETAIL_FLOOR}} in the shop, ~{{R_FLOOR}}&times; everyday
     meat. That needs everything that has been costed for animal cells to work together, which nobody has shown.
-    In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
-    built one for animal cells. <a href="#blockers">What stands in the way</a> is set out just below.</li>
+    A plant stripped of what animal cells do not need would bring it to about ${{COST_FLOOR_LEAN}}; nobody has built
+    one for animal cells. <a href="#blockers">What stands in the way</a> is set out just below.</li>
     <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
     (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%), with price sensitivity set by what today's
     premium meat, milk and eggs sell at 1.5 to 2.2 times the price (2–7% of sales). Across the plausible range of
@@ -1467,8 +1473,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
             <option value="sanitary" selected>sterile, no clean rooms</option>
             <option value="lean">lean: what is plausibly unnecessary removed</option>
-            <option value="yeastplus">a yeast plant plus what animal cells must have</option>
-            <option value="microbial">built like a yeast plant</option>
+            <option value="yeastplus">a yeast plant plus what animal cells must have (not shown either)</option>
+            <option value="microbial">built like a yeast plant (not shown to work for animal cells)</option>
             <option value="custom">your own choice of items (below)</option></select></div>
           <div class="ctl"><label><span class="nm">How the tank is run</span></label>
             <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>perfusion (cells held back)</option>
@@ -4082,12 +4088,14 @@ function fxRender(){
   g("fx_cp").disabled=(p.column==="none");
   { const air=C.fx.ge.o2_henry*0.2095*1013, dv=num("fx_do"), rqv=C.fx.rq-C.fx.rq_lipid*p.fat_fed;
     g("fx_do_v").textContent=dv.toFixed(3)+" mmol/L ("+(dv/air*100).toFixed(0)+"% of air)";
-    g("fx_fat_v").textContent=(p.fat_fed*100).toFixed(0)+"% (CO\u2082 per O\u2082 "+rqv.toFixed(2)+")"; }
-  g("fx_cp_v").textContent=p.col_pout.toFixed(0)+" mbar";
+    g("fx_fat_v").textContent=(p.fat_fed*100).toFixed(0)+"%: cells give off "+rqv.toFixed(2)+" CO\u2082 per oxygen used"; }
+  g("fx_cp_v").textContent=p.col_pout.toFixed(0)+" mbar, against "+p.pco2.toFixed(0)+" in the tank";
   { const rc=p.column!=="none"?floorExplore(p).column:null;
-    g("fx_col_v").textContent=rc?rc.passes.toFixed(0)+" passes an hour, "+rc.flow.toFixed(0)+" m\u00b3/h":""; } g("fx_pt_v").textContent=p.p_top.toFixed(2)+" bar gauge";
-  g("fx_nh_v").textContent=num("fx_nh").toFixed(3)+" mol/kg"; g("fx_ly_v").textContent=num("fx_ly").toFixed(2)+" mol/mol";
-  g("fx_gk_v").textContent=num("fx_gk").toFixed(2)+" mol/kg"; g("fx_sb_v").textContent=(p.sorbent*100).toFixed(0)+"%";
+    g("fx_col_v").textContent=rc?rc.passes.toFixed(0)+" passes an hour, "+rc.flow.toFixed(0)+" m\u00b3/h":""; } g("fx_pt_v").textContent=p.p_top.toFixed(2)+" bar above the air outside";
+  { const nh=num("fx_nh"), tag=Math.abs(nh-0.055)<0.003?" (the floor's cell)":Math.abs(nh-0.14)<0.005?" (glutamine replaced)":Math.abs(nh-0.70)<0.01?" (ordinary cells)":"";
+    g("fx_nh_v").textContent=nh.toFixed(3)+" mol per kilo of cells"+tag; }
+  g("fx_ly_v").textContent=num("fx_ly").toFixed(2)+" lactate per glucose";
+  g("fx_gk_v").textContent=num("fx_gk").toFixed(2)+" mol per kilo of cells"; g("fx_sb_v").textContent=(p.sorbent*100).toFixed(0)+"%";
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
   g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
@@ -4125,7 +4133,7 @@ function fxRender(){
   g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add); fxTorCard();
   { let k=0; const parts=Object.keys(C.fx.items).map(it=>{ const c=C.fx.items[it][its[it]][0]*C.fx.escalation; k+=c;
       return C.fx.item_labels[it].toLowerCase()+" $"+c.toFixed(0)+"k"; });
-    g("fx_items_sum").innerHTML="These items add up to $"+k.toFixed(0)+"k per m&sup3; of tank in today's prices, at 20 m&sup3; tanks: "+parts.join(", ")+"."+
+    g("fx_items_sum").innerHTML="These items add up to $"+k.toFixed(0)+"k per m&sup3; of tank in 2025 prices, at 20 m&sup3; tanks: "+parts.join(", ")+"."+
       (its.oxygen==="bought"&&byItems?" Bought oxygen adds $"+C.fx.o2_opex.toFixed(2)+" per kilo of cells.":"")+
       (pl==="microbial"?" The class above is priced at what yeast plants cost when built ($"+C.fx.capex.microbial.toFixed(0)+"k), not at this sum.":""); }
   const n=[];
