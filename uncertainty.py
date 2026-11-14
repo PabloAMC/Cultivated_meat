@@ -102,7 +102,7 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
     cost math exists in exactly one place. Scalar OR numpy-array inputs.
 
     media can never fall below the irreducible amino-acid floor (AA_FLOOR). overhead
-    is the Pasitka scale-up knob (perfusion ~$7.9 -> ATF ~$24.7/kg), so the total
+    is the plant knob (floor plant ~$9.8 -> cautious ~$34/kg), so the total
     cost floats from its own prior rather than cost_model's single point floor.
     Scaffold terms are 0 for the basic product, nonzero for structured targets."""
     cost = (media_cost(CostParams(), media_price, efficiency)
@@ -129,7 +129,7 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                          accept_x=s["accept_x"][i],
-                         eps_own=s["eps_own"][i] * s["cult_sub_mult"][i] / base.cult_sub_mult,
+                         eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i],
                          neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
                    for i in range(n)])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)

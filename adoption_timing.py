@@ -34,7 +34,7 @@ in a pre-commercial field cost falls in milestone-gated jumps with unknown timin
 We honour that here: rather than a smooth learning curve, we drive the simulation
 with a small set of named, discrete COST PATHS -- step functions where R drops when
 a milestone (scale-up / cheaper medium) lands. The R endpoints are DERIVED from the
-cost model (Pasitka base / medium-banked / both-levers / floor), so they cannot
+cost model (default / medium-banked / both-levers / floor), so they cannot
 drift from Rung 2; only the milestone YEAR is the declared unknown
 (milestone_year_breakthrough). At each year R(t) comes from the active path, the
 WTP curve (Rung 3) gives the current ceiling, and Bass rollout x growing acceptance
@@ -93,7 +93,7 @@ R_GRID = [2.0, 1.5, 1.05, 1.0]
 # R endpoints are DERIVED from the cost model so they cannot drift from Rung 2.
 # ----------------------------------------------------------------------------
 _CP = CostParams()
-R_TODAY  = cost_ratio(biomass_cost(_CP, value("media_price"), 1.0), _CP)   # Pasitka base (~2.4)
+R_TODAY  = cost_ratio(biomass_cost(_CP, value("media_price"), 1.0), _CP)   # the default cost
 R_MEDIUM = cost_ratio(biomass_cost(_CP, 0.20, 1.0), _CP)                   # cheap medium banked (~1.6)
 R_BREAK  = cost_ratio(biomass_cost(_CP, 0.20, _CP.eff_best), _CP)          # medium + efficient cells (~1.4)
 R_FLOOR  = cost_ratio(cost_floor(_CP), _CP)                                # irreducible floor (~1.0)

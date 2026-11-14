@@ -85,8 +85,9 @@ anchor. The shared coefficient beta is DERIVED, not an input: the behavioural pr
 cultivated's OWN-PRICE ELASTICITY eps_x = eps_own * cult_sub_mult (meat's measured -0.9, steepened
 ~4x because conventional is a near-perfect substitute), and beta is solved so the logit's TOTAL
 price response reproduces eps_x AT cultivated's own modeled retail price & share -- a short fixed
-point with NO hand-chosen anchor (see `_derive_beta`). The anchor price is cultivated's own retail
-price (biomass_cost + markup_add), so beta tracks the cost model. Across regions the EFFECTIVE
+point (see `_derive_beta`). The anchor price is a fixed calibration input
+(`elasticity_anchor_price`, $29.01: cultivated's retail price when the demand side was calibrated), so a
+change to a cost input moves the price ratio but not shoppers' price sensitivity. Across regions the EFFECTIVE
 income in the log is DAMPED, y_eff = income_ref*(income/income_ref)**income_gradient: raw BLP
 (income_gradient=1) is too steep for food (~6x rich->poor elasticity ratio), so the exponent
 phi<1 damps the BLP curvature to the empirical ~2-3x gradient (Muhammad/ERS). At the US reference
@@ -166,6 +167,7 @@ class DemandParams:
     #   hand-chosen price/share anchor. See `_derive_beta`.
     eps_own: float = value("eps_own")             # own-price elasticity of MEAT (scanner: -0.5..-1.4)
     cult_sub_mult: float = value("cult_sub_mult")  # x: cultivated more elastic (conventional ~ perfect substitute)
+    kappa_base: float = value("kappa_base")        # the product-vs-category multiplier that sets the shared beta
     income_ref: float = value("income_ref")       # reference income ($/yr) for the BLP price term
     income_gradient: float = value("income_gradient")  # phi: how strongly price-sensitivity scales with income
 
@@ -218,7 +220,7 @@ class DemandParams:
 
     # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
     beta_ref: float = field(default=0.0, repr=False)      # the shared logit price coefficient ($/kg^-1)
-    anchor_price: float = field(default=0.0, repr=False)  # cultivated's own retail price = the beta anchor ($/kg)
+    anchor_price: float = field(default=0.0, repr=False)  # the beta anchor ($/kg) = inputs elasticity_anchor_price
 
     def __post_init__(self):
         # Two coupled solves pin the model with NO free anchor numbers:
@@ -255,7 +257,7 @@ def _softmax(V):
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
                tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-               p_ref=None, return_components=False, ratio_scale=1.0):
+               p_ref=None, return_components=False, ratio_scale=1.0, kappa=None):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -371,6 +373,19 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # override scales the WHOLE price response (both channels), as _effective_beta's docstring states.
     V_loss = pr.w_ratio * ratio_scale * (-pr.loss_aversion * np.maximum(0.0, premium)
                                          + np.maximum(0.0, -premium))
+    # CLOSENESS TO CONVENTIONAL. Cultivated sits beside a near-identical product, so shoppers weigh the
+    # price DIFFERENCE between the two more heavily than they weigh price differences across the category.
+    # kappa (cult_sub_mult) relative to kappa_base (which sets the shared beta) multiplies cultivated's
+    # price utility measured from conventional's, on both channels. Nothing else moves: at parity the
+    # difference is zero, and every other product keeps the category-level beta. This is the role a
+    # nested logit's similarity parameter plays for a "real meat" nest, applied to price only so the
+    # taste, health and novelty dials keep their meaning. At kappa = kappa_base it is the flat logit.
+    kr = (pr.cult_sub_mult if kappa is None else kappa) / pr.kappa_base
+    if kr != 1.0:
+        V_price = V_price.copy()
+        V_price[3] = V_price[1] + kr * (V_price[3] - V_price[1])
+        V_loss = V_loss.copy()
+        V_loss[3] = kr * V_loss[3]
 
     # Per-FACTOR utility components (each an array over [w, c, p, x]). The total utility is their
     # sum; returning them lets `utility_breakdown` show each factor's contribution on a common
@@ -391,13 +406,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-             cultivated_present=True, p_ref=None, ratio_scale=1.0) -> dict:
+             cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
-                   p_ref=p_ref, ratio_scale=ratio_scale)
+                   p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -475,7 +490,8 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 # ----------------------------------------------------------------------------
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
-          neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None) -> float:
+          neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
+          kappa=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
@@ -494,6 +510,7 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                        Both are two-sided SCENARIO dials (like neophobia): inert at 0,
                        never re-pin the calibration.
       eps_own       -> sweeps the price coefficient beta.
+      kappa         -> overrides cult_sub_mult for this call (a Monte-Carlo draw of closeness).
       income        -> region income ($/yr) for the BLP price term (default income_ref
                        => unchanged from the US-anchored calibration). Richer = less
                        price-sensitive. Used by meat_market for the regional roll-up.
@@ -516,10 +533,10 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
@@ -621,21 +638,24 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     We solve `beta` so that this TOTAL response reproduces eps_x at cultivated's OWN
     operating point (earlier versions omitted the loss-aversion channel, so the
     realised elasticity came out ~2x the target — the double-counting fix):
-      * price  = cultivated's own retail price  p_anchor = biomass_cost + markup_add,
-        DERIVED from the cost model (so it tracks media_price, overhead, markup, p_conv);
+      * price  = the fixed calibration price p_anchor (inputs `elasticity_anchor_price`, $29.01:
+        cultivated's retail price when the demand side was calibrated; frozen so that cost
+        corrections do not change price sensitivity);
       * share  = cultivated's own neutral modeled share at that price (s_anchor), which
         itself depends on beta -> a short FIXED POINT (converges in ~3 steps).
-    Nothing here is a free constant: move any cost input and p_anchor moves; move
-    eps_own or cult_sub_mult and the target moves; beta follows. loss_aversion now
+    Move eps_own or cult_sub_mult and the target moves; beta follows. Cost inputs no
+    longer move p_anchor (it was derived from them until 2026-11-14). loss_aversion now
     only shapes the KINK/asymmetry at parity (its intended job), not the elasticity
     LEVEL — that is set by eps_own*cult_sub_mult, as documented.
 
         beta = eps_x / (p_anchor * (1 - s_anchor))  +  loss_aversion / p_conv
     """
     cp = CostParams(p_conv=pr.p_conv)
-    pr.anchor_price = float(biomass_cost(cp, value("media_price"), 1.0) + cp.markup_add)
+    # FROZEN 2026-11-14 (see inputs.py `elasticity_anchor_price`): this was biomass_cost + markup_add, which
+    # made every cost correction re-solve beta. The docstring's "tracks the cost model" no longer holds.
+    pr.anchor_price = float(value("elasticity_anchor_price"))
     R_today = pr.anchor_price / pr.p_conv
-    eps_x = pr.eps_own * pr.cult_sub_mult
+    eps_x = pr.eps_own * pr.kappa_base                # the shared beta; kappa's extra acts on x only (_utilities)
     # The loss-aversion term adds a second price-sensitivity channel; at the anchor
     # (R_today > 1, the loss side) its semi-elasticity is loss_aversion/p_conv, which
     # `beta` must absorb so the TOTAL realised elasticity equals the target eps_x.
@@ -664,7 +684,9 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
         rtx = pr.real_tissue_x
         pr.real_tissue_x = 1.0
         try:
-            s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, neophobia_p=0.0)
+            # at kappa_base, so that beta (and the whole calibration) does not depend on kappa
+            s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, neophobia_p=0.0,
+                          kappa=pr.kappa_base)
         finally:
             pr.real_tissue_x = rtx
         if abs(s_new - s) < tol:
@@ -724,6 +746,32 @@ def pb_milk_check(pr: DemandParams) -> float:
 ORGANIC_CHICKEN = dict(price=13.0, cuts=9.0, mince=5.0, observed_pct=2.4)
 # From the model's own US table (meat_market.US_MARKET): organic chicken $13/kg, regular cuts $9,
 # mince $5; organic is 0.010 of the 0.412 chicken volume weight = 2.4% of US chicken.
+
+
+# Premium animal products with a matched price premium and volume share (research_notes/
+# premium_meat_analogues.md, 2026-11-14): (name, premium price / conventional price, % of category
+# volume, source). Each is the conventional product plus a virtue some shoppers pay for, which is what
+# cultivated meat above parity would be. The eggs are from before cage-free mandates.
+ANALOGUES = [
+    ("organic milk, US",        1.63, 7.0, "size-matched premium 2023, volume share 2025 (NielsenIQ / USDA)"),
+    ("cage-free eggs, US",      1.63, 2.8, "Homescan 2014-16"),
+    ("omega-3 eggs, US",        1.63, 6.1, "Homescan 2014-16"),
+    ("organic eggs, US",        2.19, 2.2, "Homescan 2014-16"),
+    ("organic chicken, US",     1.91, 4.6, "Circana, 52 weeks to Nov 2025; not cut-matched (the source's table "
+                                           "and text disagree: 2.55x and 2.5% is the other reading)"),
+    ("all organic meat, US",    1.50, 2.2, "share of pounds; premium approximate"),
+]
+
+
+def analogue_check(pr: DemandParams) -> dict:
+    """How well the model reproduces the analogues: its share for a product equal to conventional on
+    every attribute except price, at each analogue's premium (neutral dials, the reference price).
+    Returns the predicted shares (%) and the root-mean-square error of log share (0.7 = a typical
+    miss of a factor of two)."""
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    pred = [share(R, pr, **neutral) * 100 for _n, R, _o, _s in ANALOGUES]
+    err = float(np.sqrt(np.mean([(np.log(p) - np.log(o)) ** 2 for p, (_n, _R, o, _s) in zip(pred, ANALOGUES)])))
+    return {"predicted": pred, "observed": [o for _n, _R, o, _s in ANALOGUES], "rms_log_error": err}
 
 
 def organic_premium_check(pr: DemandParams) -> dict:
@@ -874,7 +922,7 @@ def summarise(pr: DemandParams) -> None:
     print(f"  solved: w_realtissue_M = {pr.w_realtissue_M:.2f}  w_health_M = {pr.w_health_M:.2f}  "
           f"w_health_E = {pr.w_health_E:.2f}  (health positions: wf={pr.health_w:+.1f} conv={pr.health_c:+.1f})")
     scenarios = [
-        ("Pasitka base (0.63 $/L)",      cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
+        ("default (as reported)",       cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)),
         ("medium -> 0.2 $/L",            cost_ratio(biomass_cost(cp, 0.20, 1.0), cp)),
         ("both (0.2 $/L + CHO cells)",   cost_ratio(biomass_cost(cp, 0.20, cp.eff_best), cp)),
         ("cost floor (central)",         cost_ratio(cost_floor(cp), cp)),
@@ -969,7 +1017,7 @@ def summarise(pr: DemandParams) -> None:
     print("       diners + captive dining; we pin to the GFI buyer split, not to UCLA.)")
 
     # income channel: richer consumers are less price-sensitive (BLP log term)
-    rx = cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)            # Pasitka-base R (~2.4)
+    rx = cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)            # R at the default cost
     print(f"  [income] cultivated share at R={rx:.2f} by region income (phi={pr.income_gradient:g}):")
     for inc, lbl in [(85810, "US $86k"), (27105, "China $27k"), (6440, "Nigeria $6.4k")]:
         si = share(rx, pr, income=inc) * 100
@@ -1016,7 +1064,7 @@ def fig_share_vs_ratio(pr: DemandParams, outdir, fmts) -> None:
                 arrowprops=dict(arrowstyle="->", color="0.5", lw=0.8))
 
     cp = CostParams(p_conv=pr.p_conv)
-    for lbl, R in [("today\n(Pasitka)", cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
+    for lbl, R in [("projected\n(efficient cells)", cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)),
                    ("optimistic\ncost", cost_ratio(biomass_cost(cp, 0.20, cp.eff_best), cp)),
                    ("cost\nfloor", cost_ratio(cost_floor(cp), cp))]:
         ax.axvline(R, ls=":", lw=0.7, color="0.7")

@@ -40,7 +40,7 @@ def _golden_values() -> dict:
 
     pr = DemandParams()
     cp = CostParams()
-    b = float(biomass_cost(cp, 0.63, 1.0))               # Pasitka-base biomass cost $/kg
+    b = float(biomass_cost(cp))                          # default biomass cost $/kg
     rows, tv, tval = mm.penetration(mm.MARKETS["us"], b)
     _, gv, gval = mm.penetration(mm.MARKETS["global"], b, income=mm.REGION_INCOME["global"])
 
@@ -73,8 +73,8 @@ def _golden_values() -> dict:
         "world_pen_vol_pct": gv * 100,
         # --- premium real-meat check (organic chicken, ~2.4% observed; self-check [4c], FAILS by design) ---
         "organic_vs_cuts_pct": organic_premium_check(pr)["vs_cuts"],
-        # --- timing: years to 90% of the LONG-RUN share at today's price (horizon-free) ---
-        "years_to_stabilize": float(years_to_stabilize(pr.anchor_price / pr.p_conv, pr, TimingParams())),
+        # --- timing: years to 90% of the LONG-RUN share at the default price (horizon-free) ---
+        "years_to_stabilize": float(years_to_stabilize((b + cp.markup_add) / cp.p_conv, pr, TimingParams())),
     }
 
 
@@ -88,9 +88,13 @@ GOLDEN = {
     #    y_eff = income_ref*(income/income_ref)**phi, single constant alpha. phi default 0.25->0.5 to
     #    hit the empirical ~2x Nigeria/US elasticity gradient. The income_* rows show the BLP gradient.
     #  - per-cut p_ref: each meat type's absolute price uses its own conventional price (us_pen_val moved).
-    "cost_floor":          7.7020,
-    "biomass_base":        24.0120,
-    "basic_R":             2.41767,
+    # 2026-11-14: cost side re-anchored. Default = SuperMeat 2024 as reported (30.5 L/kg x $0.50 + $14.2);
+    # floor = physics-based (plant 11.5). biomass_base 24.0120 -> 29.4500, basic_R 2.41767 -> 2.87083,
+    # cost_floor 7.7020 -> 13.2020. The demand calibration is UNCHANGED (anchor fixed at 29.012,
+    # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
+    "cost_floor":          11.5020,
+    "biomass_base":        34.3500,
+    "basic_R":             3.27917,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
     "w_realtissue_M":      2.24236,
@@ -99,20 +103,21 @@ GOLDEN = {
     "pb_share_pct":        1.2000,
     "parity_pct":          48.7634,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
-    "lusk_elas_parity_cold": -1.53827,  # in Lusk's [-3.4, -0.84] (self-check [4b])
-    "income_us_pct":       8.72704,    # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    4.42554,    # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.76364,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "lusk_elas_parity_cold": -3.26883,  # in Lusk's [-3.4, -0.84] (self-check [4b])
+    "income_us_pct":       0.702045,    # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    0.155473,    # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.00390188,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
     "health_x_half_pct":   59.578,
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
-    "us_pen_vol_pct":      5.73401,
-    "us_pen_val_pct":      9.26091,
-    "world_pen_vol_pct":   2.46298,
-    "organic_vs_cuts_pct": 33.45846,  # vs ~2.4% observed: the model over-predicts shares above parity
-    "years_to_stabilize":  29.0,      # was "~25" when measured as 90% of the year-30 value
+    # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
+    "us_pen_vol_pct":      0.584202,
+    "us_pen_val_pct":      1.7793,
+    "world_pen_vol_pct":   0.274195,
+    "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "years_to_stabilize":  30.0,      # was "~25" when measured as 90% of the year-30 value
 }
 
 
@@ -225,16 +230,16 @@ def check_derived_prose_numbers() -> list:
     # (label, live value, the exact string the prose uses for it). The string is what must appear
     # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
     derived = [
-        ("eps_x = eps_own*kappa",        value("eps_own") * value("cult_sub_mult"), "−3.6"),
-        ("elasticity at R=1.0",          elas(1.0),  "−0.8"),
-        ("elasticity at R=1.5",          elas(1.5),  "−1.7"),
-        ("elasticity at R=2.42 (op.)",   elas(2.42), "−3.6"),
-        ("biomass cost floor $/kg",      cost_floor, "7.7"),
+        ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
+        ("elasticity at R=1.0",          elas(1.0),  "−1.7"),
+        ("elasticity at R=1.5",          elas(1.5),  "−4.4"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−8.3"),
+        ("biomass cost floor $/kg",      cost_floor, "11.5"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",
-              "elasticity at R=1.5": "−1.7", "elasticity at R=2.42 (op.)": "−3.6",
-              "biomass cost floor $/kg": "7.7"}
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.7",
+              "elasticity at R=1.5": "−4.4", "elasticity at R=2.42 (anchor)": "−8.3",
+              "biomass cost floor $/kg": "11.5"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")
