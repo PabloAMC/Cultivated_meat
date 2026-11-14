@@ -123,16 +123,19 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(18.5, "$/kg", "[Pasitka] non-media cost at the 50,000 L facility, TFF config: running "
         "costs $9.9/kg (consumables+utilities+labour+maintenance+insurance, SI Table S10) + the capital charge "
         "$8.6/kg that Table S10 leaves out (SI Table S4: 14.6% of total capital investment a year)",
-        lo=11.5, hi=23.6, mode=18.5,
-        note="THE SCALE-UP knob, expressed inside Pasitka's OWN reactor configs (see PASITKA_CONFIGS). CAPITAL "
+        lo=9.6, hi=23.6, mode=18.5,
+        note="READ PER KG OF REAL CELLS (2026-11-14): Pasitka's own kg is a watery pellet (METHODS 'Wet mass per "
+             "cell'), so this figure is NOT what Pasitka's process delivers per kg of cells. The model keeps it "
+             "as the PROJECTION for efficient cells in a large plant, because it sits inside Humbird's "
+             "independent range for that case ($14.5/kg fed-batch, $30/kg perfusion). THE SCALE-UP knob, expressed inside Pasitka's OWN reactor configs (see PASITKA_CONFIGS). CAPITAL "
              "CHARGE ADDED 2026-11-14: Pasitka's published totals ($38.8 / $24 / $22 per kg) are media + running "
              "costs only; SI Table S4 lists an 'Annual Capital charge' of 14.6% of TCI a year that Table S10's "
              "'Total cost of wet biomass production' does not include (its fixed costs are labour, maintenance "
              "and insurance only). A price model must recover the capital, as Humbird's does (15%/yr), so it is "
              "added here: per kg, $16.9 (ATF), $8.6 (TFF), $5.5 (large perfusion). "
              "mode=18.5 = TFF 5 m^3 (10x5,000 L; 9.9 + 8.6; total ~$32.6/kg) = Pasitka's demonstrated-scalable "
-             "base; lo=11.5 = the plant floor (6.0 running + 5.5 capital at large-perfusion scale; scale-up "
-             "WINS, the optimistic tail); hi=23.6 = scale-up proves HARDER than the clean projection (the "
+             "base; lo=9.6 = the plant floor (floor_physics: an aseptic plant run continuously; the "
+             "optimistic tail); hi=23.6 = scale-up proves HARDER than the clean projection (the "
              "earlier partial shortfall of +$5.1 running cost, capital held at the TFF level). The FULL "
              "scale-up-STALL case — ATF, twenty-five 2 m^3 vessels, overhead ~$41.6/kg, total ~$55.7/kg — is shown "
              "as an explicit DOWNSIDE SCENARIO (cost_model scenario table + the waterfall), NOT folded into "
@@ -162,11 +165,31 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(11.5, "$/kg", "[Pasitka] large-scale perfusion config: running costs ~$6/kg "
-        "(nutrients ~66-70% of the published COGS, so the remainder ~30-34%) + the capital charge $5.5/kg "
-        "that the published COGS leaves out (SI Table S4: 14.6% x $40.3M / 1.07M kg)",
-        note="least-constrained floor term; dominates the floor's width. Capital charge added 2026-11-14 "
-             "(see `overhead`)"),
+    "plant_floor": Input(9.6, "$/kg", "[floor_physics] plant cost per kg of real cells in an aseptic plant of "
+        "20 m3 stirred tanks run continuously: capital, maintenance and insurance $7.4 + labour $0.95 + "
+        "utilities and consumables $1.24",
+        note="PHYSICS-BASED since 2026-11-14 (was 11.5, read from Pasitka's large-perfusion design, whose kg is "
+             "not a kg of cells). Derived from oxygen uptake, the oxygen a cell-culture reactor can deliver and "
+             "Humbird's capital per m3; tests/test_floor_physics.py checks this value against the module. "
+             "Assumes efficient cells and continuous operation, neither demonstrated at scale"),
+    "plant_floor_lo": Input(3.0, "$/kg", "[floor_physics] the same in a food-fermentation-class plant ($70k per "
+        "m3 of vessel against $683k)", note="the creative case: animal cells grown like yeast or mycoprotein. "
+        "Not demonstrated"),
+    "plant_floor_hi": Input(14.5, "$/kg", "[Humbird] Table 4.7: his fed-batch design as drawn (= humbird_plant_cost)"),
+    "today_cells_cost": Input(230.0, "$/kg", "[Humbird-R] Table 4.7, fed-batch with WILD-TYPE metabolism: $236.58/kg "
+        "on individual amino acids, $225.03/kg on hydrolysate",
+        lo=86.0, hi=593.0, mode=230.0,
+        note="THE COST WITH CELLS AS THEY ARE TODAY, per kg of real cells, at plant scale. A scenario shown beside "
+             "the projection, not the model's base case. Range = Pasitka's own cost restated per kg of real "
+             "cells: its $32.6/kg of wet biomass (capital included) divided by pasitka_real_cell_fraction, "
+             "0.38 -> $86 and 0.055 -> $593. Humbird's wild-type perfusion design is $484/kg"),
+    "pasitka_real_cell_fraction": Input(0.15, "kg cells/kg wet biomass", "[Pasitka, derived] kg of real wet cells "
+        "(70% water) in a kg of Pasitka's 'wet biomass', from the glucose consumed at typical cell yields",
+        lo=0.055, hi=0.38, mode=0.15,
+        note="lo: measured cell diameter (10 um, ~0.55 ng) against the 10 ng per cell in its biomass figures; hi: "
+             "the amino acids its cost analysis supplies (81 g/kg) cap the biomass at ~8% protein against ~21% in "
+             "cells. Its own cost table implies 1% protein (~0.05). The paper measured moisture and did not report "
+             "it; see METHODS 'Wet mass per cell'"),
     "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
         "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
         "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",

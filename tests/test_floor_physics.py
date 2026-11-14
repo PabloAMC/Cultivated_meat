@@ -76,6 +76,12 @@ def check() -> list:
         if abs(got[name] - w) > 0.06:
             fails.append(f"tier '{name}': want {w} got {got[name]:.2f}")
 
+    # --- the model's floor inputs ARE these tiers (inputs.py holds the numbers; this ties them) -----
+    by = {r["name"]: r for r in fp.tiers()}
+    near("plant_floor = aseptic continuous tier", value("plant_floor"), by["Aseptic, continuous harvest"]["plant"], 0.01)
+    near("plant_floor_lo = food-fermentation tier", value("plant_floor_lo"), by["Food-fermentation-class plant"]["plant"], 0.03)
+    near("plant_floor_hi = Humbird as designed", value("plant_floor_hi"), by["Humbird fed-batch, as designed"]["plant"], 0.01)
+
     print("physics floor: Humbird's two designs reproduced, physics checks and pinned tiers checked")
     return fails
 

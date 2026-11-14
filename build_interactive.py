@@ -367,7 +367,7 @@ def build_model() -> dict:
         # ---- step 1: cost and price ----------------------------------------------------------
         slider("efficiency", "Cell efficiency (&eta;)", "x", 0.25, 1.0, 0.05, value("efficiency"),
                "Pasitka / CHO",
-               tip="Medium used per kg, relative to Pasitka's measured cells (1 = default). 0.25 = four "
+               tip="Medium used per kg, relative to the projection (1 = default). 0.25 = four "
                "times leaner, like the CHO cells used in pharma, not yet shown for food cells. The Monte "
                "Carlo samples 0.25 to 1, so its median assumes some improvement."),
         slider("scaffold", "Scaffold cost for cuts (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
@@ -385,13 +385,13 @@ def build_model() -> dict:
                value("cult_sub_mult"), "Lusk 2020",
                tip="How many times more price-sensitive a cultivated product is than meat as a whole: it "
                "has a near-identical substitute on the same shelf. Mostly matters above parity: at "
-               "today's price, &kappa; = 3 → ~{{KAPPA_3}}%, 4 → ~{{KAPPA_4}}%, 5 → ~{{KAPPA_5}}%. "
+               "the projected price, &kappa; = 3 → ~{{KAPPA_3}}%, 4 → ~{{KAPPA_4}}%, 5 → ~{{KAPPA_5}}%. "
                "Default 4 fits Lusk 2020's measured range (appendix A1)."),
         slider("loss_aversion", "Loss aversion (&lambda;)", "ratio", 1.0, 2.25, 0.05,
                value("loss_aversion"), "off by default",
                tip="Makes paying more than the conventional price hurt more than an equal discount helps. "
                "1 (default) = symmetric; up to Tversky and Kahneman's 2.25. Barely moves the result, "
-               "because the price weight is re-fitted: at today's price, 1 → ~{{LAMBDA_1}}%, 2.25 → "
+               "because the price weight is re-fitted: at the projected price, 1 → ~{{LAMBDA_1}}%, 2.25 → "
                "~{{LAMBDA_225}}%."),
         slider("w_ratio", "Weight of the price-ratio term (<i>w</i><sub>r</sub>)", "utils", 0.5, 1.5, 0.05,
                value("w_ratio"), "judgement",
@@ -810,6 +810,12 @@ def derived_numbers() -> dict:
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
         "PLANT_FLOOR": f"{value('plant_floor'):.1f}",
         "ANCHOR_PRICE": f"{value('elasticity_anchor_price'):.0f}",
+        "TODAY_CELLS_COST": f"{value('today_cells_cost'):.0f}",
+        "R_TODAY_CELLS": f"{(value('today_cells_cost') + markup) / p_conv:.0f}",
+        "TODAY_CELLS_LO": f"{prior('today_cells_cost')[1]:.0f}", "TODAY_CELLS_HI": f"{prior('today_cells_cost')[2]:.0f}",
+        "PASITKA_CELL_PCT": f"{value('pasitka_real_cell_fraction') * 100:.0f}",
+        "PLANT_FLOOR_LO": f"{value('plant_floor_lo'):.0f}",
+        "COST_FLOOR_LO": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR + value('plant_floor_lo'):.1f}",
         "OH_ATF": f"{_pasitka_oh('ATF'):.1f}", "OH_TFF": f"{_pasitka_oh('TFF'):.1f}",
         "OH_PERF": f"{_pasitka_oh('perfusion'):.1f}",
         "CAP_TFF": f"{next(v for k, v in PASITKA_CAPITAL.items() if 'TFF' in k):.1f}",
@@ -1022,11 +1028,11 @@ Commission. <a href="#about">About this page</a>.</p>
 <div class="findings">
   <div class="fh">At the default settings</div>
   <ol>
-    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat with today's technology; ~{{R_FLOOR}}&times; even at the cost
-    floor.</li>
+    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat in a large plant with efficient cells, a projection; with
+    cells as they are today, ~{{R_TODAY_CELLS}}&times;; ~{{R_FLOOR}}&times; even at the cost floor.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
-    <li><b>At today's cost:</b> ~{{PEN_GLOBAL_VOL}}% of world meat by weight (Europe ~{{PEN_EU_VOL}}%); less by
+    <li><b>At the projected cost:</b> ~{{PEN_GLOBAL_VOL}}% of world meat by weight (Europe ~{{PEN_EU_VOL}}%); less by
     animal count, since most are chickens. Likely an upper estimate: the model over-predicts what shoppers pay a
     premium for (organic chicken check, below).</li>
     <li><b>Where:</b> beef and seafood; chicken and pork stay dearer even at the cost floor.</li>
@@ -1103,15 +1109,15 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       labelled; everything else is computed by the model at its default settings.</p>
 
       <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> Medium, plant running cost and
-      retail markup, divided by the price of the meat it replaces: {{R_TODAY}}&times; today, about {{R_FLOOR}}&times;
+      retail markup, divided by the price of the meat it replaces: {{R_TODAY}}&times; as projected, about {{R_FLOOR}}&times;
       at the cost floor.</summary>
       <p>The <b>price ratio</b> <i>R</i> is cultivated meat's retail price divided by the price of the conventional
       meat beside it: 1 means the same price, 2 means twice the price. The retail price has three parts:</p>
       <ul>
-        <li><b>Medium,</b> the nutrient liquid the cells grow in. Pasitka and colleagues measured 22.4 litres per kilo
-        of cells at $0.63 per litre [1]. Companies reported $0.20/L or less in 2025, and an amino-acid cost analysis by
+        <li><b>Medium,</b> the nutrient liquid the cells grow in. Pasitka and colleagues report 22.4 litres per kilo
+        of wet biomass at $0.63 per litre [1]. Companies reported $0.20/L or less in 2025, and an amino-acid cost analysis by
         GFI and MG Consulting supports that level [3], but there is no peer-reviewed measurement at scale. Leaner cells
-        would use less (the cell-efficiency slider: 1 = today's cells).</li>
+        would use less (the cell-efficiency slider: 1 = the projection).</li>
         <li><b>Plant running cost:</b> capital, labour, energy and consumables. It is set mainly by reactor scale and
         is the least demonstrated number in the model: ${{OH_ATF}}/kg with many small vessels, ${{OH_TFF}} (the default),
         ${{OH_PERF}} with large perfusion reactors [1]. These include a capital charge of 14.6% of the plant's cost a
@@ -1122,21 +1128,29 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
         study has costed it [6].</li>
       </ul>
-      <p>&ldquo;Today's cost&rdquo; means Pasitka's projection for a large plant built with today's technology, not
-      what pilot production costs now. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      <p><b>What the default cost is.</b> A projection: a large plant growing efficient cells, which waste little
+      glucose and make little ammonia. Such cells have not been shown at scale. The numbers are Pasitka's [1], but
+      they are not what Pasitka's own process delivers per kilo of cells: its kilo is a wet pellet that is mostly
+      liquid (about {{PASITKA_CELL_PCT}}% cells by our estimate). The model keeps them because they fall inside
+      Humbird's independent range for efficient cells, $21–37 per kilo of real cells [2]. <b>With cells as they are
+      today</b>, Humbird's design costs about ${{TODAY_CELLS_COST}}/kg (<i>R</i> ≈ {{R_TODAY_CELLS}}), and Pasitka's
+      process, restated per kilo of real cells, ${{TODAY_CELLS_LO}}–{{TODAY_CELLS_HI}}. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14); charts 1, 2 and 7 use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium: 22.4 × $0.63 ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_TFF}}:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
       <p><b>The floor.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
-      salts, buffer and vitamins in it are an assumption), and even an ideal plant costs about ${{PLANT_FLOOR}}/kg to run (a
-      judgment read from Pasitka's breakdown [1]; Humbird's independent estimate is about ${{HUMBIRD_PLANT}}/kg [2], most of it a
-      charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year): a floor of about ${{COST_FLOOR}}/kg. Parity
-      with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor
-      <i>R</i> ≈ {{R_FLOOR}}.</p>
+      salts, buffer and vitamins in it are an assumption), and even an ideal sterile plant costs about ${{PLANT_FLOOR}}/kg to run. That figure
+      is derived from physics: how much oxygen a cell needs, how much a reactor can deliver without bubbles killing
+      the cells, and so how many kilos a cubic metre of vessel makes in a year, priced at Humbird's plant cost [2]
+      (his own design, as drawn, comes to ${{HUMBIRD_PLANT}}/kg, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the
+      plant's cost a year). Together: a floor of about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
+      ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so even at the floor <i>R</i> ≈ {{R_FLOOR}}. The floor would
+      fall to about ${{COST_FLOOR_LO}}/kg, below parity, only if animal cells could be grown like yeast, in a
+      food-fermentation-class plant at about ${{PLANT_FLOOR_LO}}/kg. Nobody has shown that.</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
       {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}); almost no draws reach parity. The median is below
-      {{R_TODAY}} because cell efficiency can only improve on today's cells.</p>
+      {{R_TODAY}} because cell efficiency can only improve on the projection.</p>
       <p><b>What moves it most:</b> the medium price and reactor scale (chart 3), then the markup. A 25% meat tax
       lowers <i>R</i> as much as a 20% cut in every cost.</p>
       </details>
@@ -1188,7 +1202,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <tr><td>tastes as good, and &ldquo;no slaughter&rdquo; matters a lot (1.0)</td><td>~{{TH_10}}%</td></tr>
         <tr><td>tastes as good but isn't seen as real meat</td><td>~{{BX_00}}%</td></tr>
       </table></div>
-      <p>At first contact the model gives ~{{COLD_PARITY}}% (Step 4). <b>At today's price</b> (<i>R</i> ≈
+      <p>At first contact the model gives ~{{COLD_PARITY}}% (Step 4). <b>At the projected price</b> (<i>R</i> ≈
       {{R_TODAY}}) it gives ~{{SHARE_TODAY}}% in the long run (US, everyday meat): price is the binding constraint.</p>
       </details>
 
@@ -1204,7 +1218,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       nugget; for wagyu the breed <i>is</i> the product: +0.2 for mince, &minus;0.4 for cuts, &minus;1.5 for premium) and
       buyers react less to <b>price</b> [5] (0.8× for cuts, 0.3× for premium). The directions are documented; the
       values are judgement, scaled by one <b>premium resistance</b> slider that the Monte Carlo samples (0.5–1.5).</p>
-      <p><b>What comes out</b> (chart 1, at today's cost):</p>
+      <p><b>What comes out</b> (chart 1, at the projected cost):</p>
       <ul>
         <li><b>Beef and seafood</b> are where cultivated can compete; chicken and pork stay dearer even at the
         floor.</li>
@@ -1227,7 +1241,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <li><b>Familiarity:</b> in a US choice experiment only ~5% chose lab-grown meat at the same price as beef [8].
         The model starts about there (~{{COLD_PARITY}}% at equal price) and lets the wariness fade with exposure.</li>
       </ul>
-      <p class="example"><b>Worked example</b> (US, everyday meat, today's price and cost held fixed): near 0% at
+      <p class="example"><b>Worked example</b> (US, everyday meat, the projected price held fixed): near 0% at
       launch, ~{{Y10_SHARE}}% after 10 years, ~{{Y30_SHARE}}% after 30, against a long-run ceiling of
       ~{{SHARE_TODAY}}%; the curve flattens around year {{STAB_YEAR}}.</p>
       <p><b>For timing, the biggest unknown</b> is how wary people are today: surveys range from ~5% (a cold choice
@@ -1290,7 +1304,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <p><b>Step 1, the price ratio.</b></p>
       \[ R \;=\; \frac{\overbrace{\iota\,\eta\,p_{\rm med}}^{\text{medium}} \;+\; \overbrace{h}^{\text{plant}}
          \;+\; \overbrace{k}^{\text{scaffold (cuts)}} \;+\; \overbrace{m}^{\text{markup}}}{p_c\,t} \tag{1} \]
-      <p>\(\iota\): litres of medium per kilo; \(\eta\): cell efficiency (1 = today's cells); \(p_{\rm med}\): medium
+      <p>\(\iota\): litres of medium per kilo; \(\eta\): cell efficiency (1 = the projection); \(p_{\rm med}\): medium
       price; \(h\): plant running cost; \(k\): scaffold (cuts only); \(m\): markup; \(p_c\): conventional price;
       \(t\): meat-tax multiplier. The medium cost never falls below the feedstock dissolved in it, and the cost of
       cells never below the floor, about ${{COST_FLOOR}}/kg.</p>
@@ -1340,8 +1354,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       same setting (equal price, first-contact wariness) at \(\kappa=4\) is {{KAPPA4_LUSK_ELAS}}, inside that range.
       No experiment has priced cultivated meat at 2.4 times conventional, so the &minus;3.6 there is an assumption
       (\(\kappa\varepsilon\)), checked only against the data at parity. Once shoppers are familiar with the
-      product, the model's elasticity is about −0.8 at parity, −1.7 at \(R=1.5\) and −3.6 at today's \(R\): share
-      falls slowly just above parity, then faster. \(\kappa\) is the most consequential demand number above parity: at today's price,
+      product, the model's elasticity is about −0.8 at parity, −1.7 at \(R=1.5\) and −3.6 at \(R=2.4\): share
+      falls slowly just above parity, then faster. \(\kappa\) is the most consequential demand number above parity: at the projected price,
       \(\kappa=3\) gives about {{KAPPA_3}}%, 4 about {{KAPPA_4}}% and 5 about {{KAPPA_5}}%. It plays the role that a
       nested logit's similarity parameter would play for a &ldquo;real meat&rdquo; nest.</p>
 
@@ -1351,15 +1365,15 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       literally, this makes poor shoppers about six times as price-sensitive as rich ones, which is too steep for
       food. So income is damped, \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi=0.5\) matching the
       roughly twofold gap in the data [15] (\(\phi=0\) removes income; US results don't depend on \(\phi\)). For
-      the same product at the same price as today, that gives about {{SHARE_TODAY}}% in the US, {{CHINA_TODAY}}% in
+      the same product at the projected price, that gives about {{SHARE_TODAY}}% in the US, {{CHINA_TODAY}}% in
       China and {{NIGERIA_TODAY}}% in Nigeria. Wealth relaxes price sensitivity but doesn't erase the other differences: even a very rich shopper
-      buys cultivated only about {{INCOME_CAP}}% of the time at today's price.</p>
+      buys cultivated only about {{INCOME_CAP}}% of the time at the projected price.</p>
 
       <h5>A3. Loss aversion (symmetric by default)</h5>
       <p>People judge a price against the familiar price of the conventional product, and a premium can feel like a
       loss [13]. The term \(-\lambda(d_j)^{+}+(d_j)^{-}\) rewards a discount at rate 1 and penalises a premium at rate
       \(\lambda\). The default \(\lambda=1\) is symmetric; the slider goes up to Tversky and Kahneman's 2.25. It is
-      left symmetric by default for three reasons: it barely moves the result once \(\beta\) is re-fitted (at today's
+      left symmetric by default for three reasons: it barely moves the result once \(\beta\) is re-fitted (at the projected
       price, {{LAMBDA_1}}% at \(\lambda=1\) vs {{LAMBDA_225}}% at 2.25); cultivated data can't identify it; and
       measured loss aversion largely reflects differences in price sensitivity between shoppers (Bell and Lattin,
       2000), which \(\kappa\) already carries.</p>
@@ -3193,7 +3207,7 @@ function selfTest(){
   const k$=x=>"$"+(x/1000).toFixed(0)+"k";
   const costRows=[
     ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
-       "this model uses Pasitka's figure. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
+       "the model's default is Pasitka's figure, read as a projection for efficient cells. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
        "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+"); Pasitka's figure here includes its 14.6% capital charge", "other"],
     ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
        "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+

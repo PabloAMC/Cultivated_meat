@@ -1,74 +1,81 @@
 # Cultivated meat: how far can it get? — results
 
-*Findings of a cost and demand model anchored to Pasitka et al. (Nature Food 2024), the only peer-reviewed cost
-study built on measured production data, and to Humbird's (2021) feedstock floor. The
+*Findings of a cost and demand model. Costs rest on Humbird's (2021) engineering analysis and on a physics-based
+floor; Pasitka et al. (Nature Food 2024) supplies the default cost stack, read as a projection (§1). The
 [interactive explorer](https://pabloamc.github.io/Cultivated_meat/interactive.html) explains the method in plain
 language; [METHODS.md](METHODS.md) has the code-level detail. Everything below reproduces from the code.*
 
 ## Summary
 
-*Revised 2026-11-13 after an independent review: premium tiers' price sensitivity is applied as documented, κ is
-sampled (range 3–9), world beef is priced by consumption weights, the price-ratio weight is an input, and the
-adoption time is measured against the long-run share. Details: METHODS.md, "Changes of 2026-11-13".*
+*Revised 2026-11-14. Three changes, all on the cost side: (1) the plant cost includes the capital charge Pasitka
+leaves out of its published cost per kg; (2) costs are read per kg of real cells, after finding that Pasitka's
+"wet biomass" is mostly liquid, so its cost per kg is not a cost per kg of meat; (3) the floor's plant term is
+derived from physics. The demand side is unchanged (its price sensitivity stays calibrated at $29/kg). Earlier
+revision (2026-11-13, independent review): METHODS.md. Details of this one: METHODS.md, "Changes of 2026-11-14".*
 
-*Revised 2026-11-14: the plant cost now includes the yearly capital charge (14.6% of the plant's cost) that
-Pasitka lists in its supplement but leaves out of its published cost per kg. That adds $8.6/kg to the default
-design and $5.5/kg to the floor, and roughly halves the shares below. Price sensitivity is unchanged: it stays
-calibrated at the earlier $29/kg price. Details: METHODS.md, "Changes of 2026-11-14".*
+All costs are per kg of real cells: 70% water and about 20% protein, like meat.
 
-- **Price:** made at scale with today's technology, cultivated meat would cost **~3.1× everyday meat** ($38 vs a
-  $12 benchmark). Across the plausible range of costs, the median is 2.7×; no draws reach parity.
-- **Floor:** cells can't cost less than **~$13.2/kg** (feedstock plus a minimal plant, its capital included); parity
-  needs $7. So even at the floor, cultivated meat is ~1.5× the price. The plant term is Pasitka's; on Humbird's
-  independent plant costs the floor would be about $16/kg.
+- **With cells as they are today,** cultivated meat made at scale would cost about **$230/kg, roughly 20× everyday
+  meat** (Humbird's design with wild-type cells; Pasitka's process restated per kg of real cells gives $86–593).
+- **With efficient cells in a large plant, a projection:** about **$33/kg, ~3.1× everyday meat** ($38 in the shop
+  vs a $12 benchmark). Efficient cells waste little glucose and make little ammonia; nobody has shown them at
+  scale. Across the plausible range of costs the median is 2.7×; no draws reach parity. This is the case every
+  share below refers to.
+- **Floor:** about **$11/kg** with a sterile plant (feedstock $1.7 plus a plant cost of $9.6 derived from oxygen
+  physics); parity needs $7. So even at the floor, cultivated meat is ~1.4× the price.
+- **Parity needs a different class of plant.** If animal cells could be grown like yeast, in food-fermentation
+  plants without clean rooms, the floor would be about $5/kg, below parity. Nobody has shown that. Physics alone
+  allows about $3/kg.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
-- **At today's cost** that adds up to **~0.5% of world meat by weight** (Monte Carlo median; 80% range 0.1–2.1%),
-  **2.8% in Europe**. Counted in animals it would be lower: most are chickens, where cultivated does worst.
-  These shares are best read as upper estimates: the model gives a real-meat product at a premium far more
-  share than organic chicken actually has (§2).
-- **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. Luxury products are already
-  beatable on price, but tiny.
+- **At the projected cost** that adds up to **~0.5% of world meat by weight** (Monte Carlo median; 80% range
+  0.1–2.3%), **3.0% in Europe**. Counted in animals it would be lower: most are chickens, where cultivated does
+  worst. These shares are best read as upper estimates: the model gives a real-meat product at a premium far more
+  share than organic chicken actually has (§2). At today's cost the share is nil.
+- **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. A few luxury products are beatable
+  on price at the projected cost, but tiny.
 - **When:** these are long-run ceilings; adoption reaches 90% of its long-run share after about 30 years.
-- **A caveat on the anchor (unresolved):** Pasitka's biomass figures count 10 ng of wet mass per cell. Its own data
-  imply far less: about 0.5 ng from the measured cell diameter (~10 µm), about 3.3 ng from the reported density
-  (43% w/v at 130 million cells per mL). If its cost analysis rests on the same conversion, every cost per kg here
-  is too low by a factor of three or more. The paper's Methods would settle it (METHODS.md, "Wet mass per cell").
 
-**For funders:** the binding constraints are reactor scale-up and medium cost at production scale, plus
-independent at-scale plant-cost data.
+**For funders:** the binding constraints are, in order, the cells themselves (efficient, fast-growing, robust
+lines), the class of plant they can be grown in, and medium cost at production scale. Reactor type matters less
+than it looked.
 
 ## 1. Cost and the price ratio
 
-| Pasitka reactor design | cells, $/kg | R vs $12 meat |
-|---|---|---|
-| two large perfusion reactors (25 m³ each) | $27.5 | 2.71 |
-| ten 5 m³ vessels (default) | $32.6 | 3.13 |
-| twenty-five 2 m³ vessels (scale-up stalls) | $55.7 | 5.06 |
+| case | cells, $/kg | R vs $12 meat | status |
+|---|---|---|---|
+| cells as they are today, at scale | ~$230 (86–593) | ~20 (8–50) | Humbird's design with wild-type cells; Pasitka's process per kg of real cells |
+| projection: efficient cells, small vessels (scale-up stalls) | $55.7 | 5.06 | efficient cells not shown at scale |
+| **projection: efficient cells, large plant (default)** | **$32.6** | **3.13** | efficient cells not shown at scale |
+| projection: efficient cells, largest perfusion design | $27.5 | 2.71 | perfusion at this size is "theoretical" in Pasitka's words |
+| floor, sterile plant run continuously | $11.3 | 1.36 | physics-based; not shown |
+| floor, food-fermentation-class plant | $4.7 | 0.80 | physics-based; not shown for animal cells |
 
-Each includes the yearly capital charge ($5.5, $8.6 and $16.9 per kg); Pasitka's published figures ($22, $24 and
-$38.8) leave it out.
+**What the default is.** The three projection rows use Pasitka's cost stack (22.4 L of medium at $0.63/L, plus its
+plant costs with the capital charge added). Pasitka reports those per kg of "wet biomass", a centrifuged pellet
+that is mostly liquid: about 15% cells by our estimate (5–40%), and 1% protein by its own cost table against ~20%
+in meat. So they are not what its process delivers per kg of cells. The model keeps them as a projection because
+they fall inside Humbird's independent range for efficient cells: $21/kg on hydrolysate, $37/kg on individual
+amino acids, per kg of real cells. Details: METHODS.md, "Wet mass per cell".
 
-All three designs are perfusion: the cells stay in the vessel behind a retention device while medium flows
-through. The cheapest one runs it in 25,000 L vessels, which nobody has shown publicly: perfusion with cell
-retention is used commercially up to about 2,000 L, and Humbird caps it there. On Humbird's like-for-like
-engineering, perfusion ($51/kg) costs more than fed-batch in 20,000 L stirred tanks ($37/kg), because the
-retention devices and the many small vessels outweigh its higher productivity. So the default (5,000 L) and
-above all the large design lean optimistic on reactor type (METHODS.md, "Reactor type and mode").
+**Reactor type.** All of Pasitka's designs are perfusion; the cheapest assumes it in 25,000 L vessels, which nobody
+has shown (commercial perfusion stops near 2,000 L). In the physics-based floor, reactor type matters less than
+expected: continuous harvest, larger vessels and cheap perfusion all land within $2/kg of each other. What moves
+the floor is the class of plant: about $683k per m³ of vessel for a sterile, pharma-style plant against about $70k
+for a food-fermentation plant (METHODS.md, "A physics-based floor").
 
-“Today's cost” is this projection for a large plant, not current pilot production. The medium ($0.63/L measured;
-companies report $0.20/L or less, unverified at scale) and reactor scale matter most; no single lever reaches
-parity on its own (the best gets to R ≈ 2.25). Reactor scale is the least demonstrated step and the biggest
-downside.
+The medium ($0.63/L in the default; companies report $0.20/L or less, unverified at scale) and plant scale matter
+most within the projection; no single lever reaches parity on its own (the best gets to R ≈ 2.25).
 
 ```
 basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs (N=20,000):
-  price ratio R:   P50 = 2.72   80% CI [2.21, 3.31]   90% CI [2.08, 3.49]
-  long-run share:  P50 = 1.1%   80% CI [0.1, 7.2]
+  price ratio R:   P50 = 2.67   80% CI [2.13, 3.28]   90% CI [1.99, 3.46]
+  long-run share:  P50 = 1.2%   80% CI [0.1, 8.0]
   0% of draws reach parity (R ≤ 1)
 ```
 
-The median is below 3.13 because cell efficiency can only improve on today's cells.
+The median is below 3.13 because cell efficiency can only improve on the projection. The Monte Carlo spans the
+projection only; it does not include today's cells.
 
 ## 2. What share a price buys
 
@@ -79,7 +86,7 @@ The median is below 3.13 because cell efficiency can only improve on today's cel
 | tastes as good, and “no slaughter” matters (0.5 / 1.0 / 1.5) | ~59% / ~68% / ~75% |
 | tastes as good but isn't seen as real meat | ~10% |
 
-At first contact it gets ~6% (a US choice experiment found ~5%); at today's price, ~3% in the long run (US).
+At first contact it gets ~6% (a US choice experiment found ~5%); at the projected price, ~3% in the long run (US).
 Checks: adding cultivated takes 44 points from conventional meat and only 0.6 from plant-based; the same model
 predicts ~15% for plant-based milk, close to reality (a weak test, since milk's inputs are set by hand).
 
@@ -90,21 +97,21 @@ still gives ~18%), so it is not a matter of tuning κ: the choice model gives a 
 sizeable share. So shares above equal price are best read as upper estimates. The most consequential demand
 assumption above parity is how price-sensitive a cultivated product is relative to meat overall (κ = 4; the range
 now runs 3–9, the most that experiment allows, because of this check: 5.9% at κ = 3, 2.9% at 4, 0.1% at 9, US
-everyday meat at today's price).
+everyday meat at the projected price).
 
 ## 3. By type of meat (US)
 
 ```
-                            today's cost        cost floor
+                            projected cost      cost floor
   meat type          $/kg    R     share        R     share
-  chicken mince        5    7.52    0.0%       3.64    4.1%
-  beef mince          11    3.42    2.5%       1.65   29.5%
-  beef steak          20    2.18    8.5%       1.21   31.3%
-  wagyu (premium)     45    0.97   18.6%       0.54   26.0%
-  pork (processed)     8    4.70    0.6%       2.28   16.3%
-  seafood fillet      24    1.82   12.8%       1.01   38.5%
-  sushi-grade (prem.) 40    1.09   16.9%       0.61   24.2%
-  TOTAL by weight: today 2.7%, at the floor 16.1%
+  chicken mince        5    7.52    0.0%       3.26    6.5%
+  beef mince          11    3.42    2.5%       1.48   35.4%
+  beef steak          20    2.18    8.5%       1.12   34.7%
+  wagyu (premium)     45    0.97   18.6%       0.50   26.9%
+  pork (processed)     8    4.70    0.6%       2.04   21.4%
+  seafood fillet      24    1.82   12.8%       0.93   41.9%
+  sushi-grade (prem.) 40    1.09   16.9%       0.56   25.0%
+  TOTAL by weight: projected 2.7%, at the floor 19.4%
 ```
 
 Premium products get the biggest share of their category today, but authenticity holds them to about a quarter
@@ -116,12 +123,12 @@ chicken stays under 10%.
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  2.8%  [0.7,  9.2]    P50  5.3%  [ 1.4, 15.6]  <- easiest (rich + priciest meat)
-  US        $86k        P50  1.3%  [0.3,  5.0]    P50  2.7%  [ 0.7,  8.6]
-  Global    $24k        P50  0.5%  [0.1,  2.1]    P50  1.3%  [ 0.4,  4.2]
-  China     $27k        P50  0.8%  [0.2,  2.6]    P50  2.3%  [ 0.6,  6.6]
-  Brazil    $22k        P50  0.1%  [0.0,  0.7]    P50  0.3%  [ 0.1,  1.4]
-  India     $11k        P50  0.1%  [0.0,  0.3]    P50  0.2%  [ 0.0,  0.9]
+  Europe    $62k        P50  3.0%  [0.7,  9.7]    P50  5.6%  [ 1.5, 16.5]  <- easiest (rich + priciest meat)
+  US        $86k        P50  1.4%  [0.3,  5.4]    P50  2.9%  [ 0.8,  9.1]
+  Global    $24k        P50  0.5%  [0.1,  2.3]    P50  1.4%  [ 0.4,  4.6]
+  China     $27k        P50  0.8%  [0.2,  2.8]    P50  2.4%  [ 0.7,  7.0]
+  Brazil    $22k        P50  0.1%  [0.0,  0.8]    P50  0.4%  [ 0.1,  1.5]
+  India     $11k        P50  0.1%  [0.0,  0.3]    P50  0.3%  [ 0.1,  0.9]
   Nigeria    $6k        P50  0.0%  [0.0,  0.1]    P50  0.0%  [ 0.0,  0.2]  <- hardest (cheap meat + price-sensitive)
 ```
 
@@ -129,7 +136,7 @@ Dear meat and rich shoppers make Europe easiest; cheap meat and price-sensitive 
 hardest. The explorer's point estimates at the defaults are higher (Global 1.0%, Europe 5.3%, US 2.7%): they hold κ at
 4, while the band samples it up to 9. World beef is priced by consumption-weighted country prices (METHODS.md,
 "World beef price"); an unweighted country average had put it above US beef.
-Against sushi-grade salmon, a structured product is at or below parity in 41% of draws, but structuring cost is
+Against sushi-grade salmon, a structured product is at or below parity in 45% of draws, but structuring cost is
 unmeasured.
 
 ## 5. Entry points, and timing
@@ -145,24 +152,30 @@ wariness fades). How wary shoppers are today (surveys: 5–60%) sets the speed, 
 
 ## 6. What to fund
 
-1. **Medium cost at production scale:** verify the sub-$0.20/L reports, and whether $0.63/L is reproducible.
-2. **Reactor scale-up:** large-volume animal-cell perfusion (oxygen and CO₂ transfer, sterility). If it stalls,
-   R stays near 5.
-3. **Independent plant-cost data at scale:** the largest term in the floor, and GFI's main data gap.
-4. **Structuring cost:** the biggest unmeasured number; it gates premium seafood.
+1. **Better cells:** lines that waste little glucose, make little ammonia, grow fast and are large. They are the
+   difference between about $230/kg and about $33/kg, and nobody has shown them at scale.
+2. **Cheaper classes of plant:** whether animal cells can be grown in large, food-grade vessels without clean
+   rooms. This is the only route the model finds below price parity.
+3. **Medium cost at production scale:** verify the sub-$0.20/L reports on a stated mass basis.
+4. **Open, comparable data:** cost claims per kg of dry matter or protein, with capital included. Pasitka's
+   kilogram is not comparable with meat, and most published analyses leave out all or part of the cost of capital.
+5. **Structuring cost:** the biggest unmeasured number; it gates premium seafood.
 
 A meat tax also works: raising conventional prices 25% lowers R as much as a 20% cut in every cost. Most of these
 are public goods that industry underfunds.
 
 ## 7. What would change the conclusions
 
-- **Up:** peer-reviewed animal-cell perfusion at 20,000 L or more; medium below $0.30/L confirmed at scale.
-- **Up:** a plant built for much less per tonne than Pasitka projects. Believer Meats' announced plant would
-  cost about a fifth as much per tonne of capacity as Pasitka's default design, but it never ran at scale.
-- **Down:** scale-up limits that bind, leaving R around 5; or a wet mass per cell well below the 10 ng in
-  Pasitka's biomass figures (the caveat above), which would raise every cost per kg by the same factor. Humbird's
-  independent plant cost (~$14.5/kg of non-nutrient cost in his most favourable design) now sits inside
-  Pasitka's range with capital included ($11.5–18.5).
+- **Up:** efficient cells shown at pilot scale with a full mass balance; animal cells grown at density in
+  food-grade vessels of 100 m³ or more; medium below $0.30/L confirmed at scale. A company white paper (SuperMeat
+  2024) claims about $26–30/kg of cell mass before capital from 10 L runs scaled to 25 m³; if that held up under
+  review, today's cells would be far closer to the projection than the $230 above.
+- **Down:** scale-up limits that bind, leaving R around 5 even with efficient cells; contamination losses in
+  long continuous runs, which the floor does not model; plant costs above Humbird's design.
+- **How this model sits among others.** Restated per kg of real cells with capital included, the published design
+  analyses run from about $18 to $65/kg (CE Delft, Negulescu, Humbird, Garrison, Ark), all for efficient cells
+  that have not been shown; the $33 default sits inside that range. None of them shares Pasitka's mass-basis
+  problem (METHODS.md, "Other analyses").
 - **Demand:** acceptance and the value of “no slaughter” can't be measured before launch; the model carries the
   full range (10% to 75% at equal price).
 

@@ -1020,7 +1020,7 @@ def fig_share_vs_ratio(pr: DemandParams, outdir, fmts) -> None:
                 arrowprops=dict(arrowstyle="->", color="0.5", lw=0.8))
 
     cp = CostParams(p_conv=pr.p_conv)
-    for lbl, R in [("today\n(Pasitka)", cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
+    for lbl, R in [("projected\n(efficient cells)", cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
                    ("optimistic\ncost", cost_ratio(biomass_cost(cp, 0.20, cp.eff_best), cp)),
                    ("cost\nfloor", cost_ratio(cost_floor(cp), cp))]:
         ax.axvline(R, ls=":", lw=0.7, color="0.7")
