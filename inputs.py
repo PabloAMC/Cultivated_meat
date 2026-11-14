@@ -337,6 +337,23 @@ REGISTRY: dict[str, Input] = {
              "today. Added to the capital of the large-tank perfusion cases. hi: Humbird's ATF filters cost "
              "$38.5M for 192 m3 before installation, about $460k per m3 of total investment (and $4.6/kg of "
              "membranes besides), which is why his perfusion design stops at 2 m3. 2024 prices; not escalated"),
+    "pf_run_days": Input(33.0, "days", "[Humbird-R] Sect. 4.2: perfusion runs of about 33 days; with his 91% uptime "
+        "that leaves 3.3 days to clean, restart and regrow",
+        note="Used by the page's 'build your own case' controls: a run ends at this length or when it is "
+             "contaminated, whichever comes first. The restart time is derived from pf_uptime (perfusion) and "
+             "pf_uptime_realistic (drained and refilled), so a run with no losses reproduces those uptimes"),
+    "pf_hazard_pharma": Input(0.002, "per day", "[research pass, derived] chance per day of losing a run to "
+        "contamination in large biopharma plants: about 2% of batches (Humbird's report) over runs of about two weeks",
+        note="REFERENCE POINTS shown beside the lever, not used in the floor (which assumes none): 0.2% a day "
+             "for biopharma contamination, 0.7% for biopharma losses from all causes (7.6% of batches), and "
+             "1-2% a day for cultivated meat today, from a survey in which makers lost 11.2% of batches (19.5% "
+             "beyond flask scale; Compr. Rev. Food Sci. Food Saf. 2025) if those batches ran 10-20 days, which "
+             "the survey does not state. See reports/'Continuous harvest bioreactor progress.md'"),
+    "pf_blend_filler_price": Input(3.0, "$/kg", "[Pasitka] the plant ingredients blended with cells in its hybrid "
+        "product, at the price that paper uses", note="for the page's blend lever only"),
+    "pf_medium_l_floor": Input(8.0, "L/kg", "[Humbird-R, derived] medium use of his efficient-cell designs, about a "
+        "quarter of the 30.5 L/kg a company reports", note="the default of the page's medium lever; at $0.20/L "
+        "it costs less than the nutrients the cells must eat, so the feedstock floor applies"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
         "uptake at a 24 h doubling time that is upkeep (it runs whether or not the cell grows); the rest rises "
         "in proportion to the growth rate",

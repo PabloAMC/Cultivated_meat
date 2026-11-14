@@ -187,9 +187,11 @@ js += `
   const fxGrid = [];
   [16, 24, 48].forEach(dh => [550, 3000].forEach(m => [5, 20, 200].forEach(v =>
     ["pharma", "sanitary", "microbial"].forEach(pl => ["perfusion", "filldraw"].forEach(mo => {
-      const p = { doubling_h: dh, mass_pg: m, vessel_m3: v, plant: pl, mode: mo, charge: 0.173, uptime: 0.85, maint: dh === 48 ? 0.31 : undefined };
+      const p = { doubling_h: dh, mass_pg: m, vessel_m3: v, plant: pl, mode: mo, charge: 0.173, maint: dh === 48 ? 0.31 : undefined,
+                  hazard: v === 5 ? 0.02 : 0, run_days: 25, restart_fail: 14, medium_l: m === 550 ? 30.5 : 8,
+                  medium_price: 0.5, growth_factors: dh === 16, cell_share: pl === "pharma" ? 0.5 : 1 };
       const r = floorExplore(p);
-      fxGrid.push([dh, m, v, pl, mo, r.total, r.density, r.output, r.limit]);
+      fxGrid.push([dh, m, v, pl, mo, r.product, r.density, r.output, r.limit]);
     })))));
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid,
                            mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs } }));

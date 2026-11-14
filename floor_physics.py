@@ -220,24 +220,25 @@ PLANT_CLASSES = {                      # key: (capital input, escalate from Humb
 }
 
 
-# Species presets for the two cell levers. (label, doubling time h, wet mass pg, what the numbers are and
-# how good they are). Sources and access levels: research_notes/species_cell_parameters.md.
+# Species presets for the cell levers. (label, doubling time h, wet mass pg, litres of medium per kg if
+# reported, what the numbers are and how good they are). Sources and access levels: research_notes/species_cell_parameters.md.
 SPECIES_PRESETS = {
-    "model": ("Humbird's model cell", 24.0, 3000.0,
+    "model": ("Humbird's model cell", 24.0, 3000.0, None,
               "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
-    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0,
-                "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell. Chicken "
+    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5,
+                "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell, 30.5 "
+                "litres of medium per kilo (set the medium price to $0.50 for the reported cost). Chicken "
                 "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
                 "animal-free medium took 61 hours [20]."),
-    "cattle": ("Cattle, serum-free", 39.0, 3000.0,
+    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None,
                "Primary bovine muscle stem cells in serum-free medium on a surface: 39 hours on average "
                "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
                "model cell's is used. No suspension culture at density has been published."),
-    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0,
+    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None,
              "The Mack1 line: 24 hours at 27 °C, 16.8 µm across, grown on a surface with 20% serum (Saad et al. "
              "2023). Many fish lines take two days or more. No measurement shows that fish cells need less oxygen "
              "per gram, so none is assumed."),
-    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0,
+    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None,
                "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
                "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's."),
 }
@@ -247,7 +248,11 @@ SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell lin
 
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
-            uptime: float | None = None, maintenance_share: float | None = None) -> dict:
+            uptime: float | None = None, maintenance_share: float | None = None,
+            capex_x: float = 1.0, retention: float | None = None, x_scale: float = 1.0,
+            hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
+            medium_l: float | None = None, medium_price: float = 0.20, growth_factors: bool = False,
+            cell_share: float = 1.0) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -261,21 +266,39 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       * perfusion needs a device to hold cells back (pf_capex_retention); fill-and-draw does not, but
         waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
 
-    The defaults reproduce the floor tier at the mature-industry capital charge."""
+      * a run ends at its planned length or when it is contaminated (a constant chance per day, `hazard`),
+        then the tank is cleaned and regrown; a contaminated run also loses the cells in the tank;
+      * the medium costs litres per kg x price, but never less than the nutrients the cells must eat;
+        growth factors can be added at Humbird's large-scale price;
+      * the product can be a blend: `cell_share` of cells, the rest plant ingredients.
+
+    `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
+    mature-industry capital charge."""
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
     charge = value("plant_charge_mature") if charge is None else charge
-    uptime = (value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")) if uptime is None else uptime
+    lost = 0.0                                          # share of output lost with contaminated tanks
+    if uptime is None:
+        clean = value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")
+        restart = value("pf_run_days") * (1.0 / clean - 1.0)            # days to clean, restart and regrow
+        L = value("pf_run_days") if run_days is None else run_days
+        T = L if hazard <= 0 else (1.0 - np.exp(-hazard * L)) / hazard  # expected days before the run ends
+        p_fail = 0.0 if hazard <= 0 else 1.0 - np.exp(-hazard * L)
+        # after a contamination the plant must sterilise and regrow a seed train, which can take longer
+        down = restart if restart_fail_days is None else (1.0 - p_fail) * restart + p_fail * max(restart, restart_fail_days)
+        uptime = T / (T + down)
+        lost = min(0.9, p_fail / (cells.mu * 24.0 * T))                 # one tankful per failed run
     key, escalate, sized = PLANT_CLASSES[plant]
     capex = value(key) * (value("pf_capex_escalation") if escalate else 1.0)
     if sized:
         capex = capex_at_size(capex, vessel_m3)
+    capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
     if mode == "perfusion":
-        capex += value("pf_capex_retention")
+        capex += value("pf_capex_retention") if retention is None else retention
     limits = {"oxygen supply": value("pf_otr_cap") / cells.qo2,
               "thickness of the culture": value("pf_x_visc"),
               "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") * (vessel_m3 / 20.0) ** (-2.0 / 9.0),
-              "CO2 removal": co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
+              "CO2 removal": x_scale * co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
     if mode != "perfusion":
         limits["waste build-up"] = waste_cap(cells)
     limit = min(limits, key=limits.get)
@@ -284,18 +307,91 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if mode != "perfusion":
         f = value("pf_draw_fraction")
         shape = f / np.log(1.0 / (1.0 - f))
-    out = value("pf_working_volume") * x * cells.mu * shape * HOURS * uptime / 1000.0
+    out = value("pf_working_volume") * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost)
     ox = value("pf_opex_escalation")
     burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
     capital = charge * capex / out
     labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
     utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
     consumables = value("pf_consumables_low")
-    feed = feedstock(cells)
-    total = capital + labour + utilities + consumables + feed
+    medium_l = value("pf_medium_l_floor") if medium_l is None else medium_l
+    feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
+    gf = value("pf_growth_factors") * ox if growth_factors else 0.0
+    total = capital + labour + utilities + consumables + feed + gf
+    product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
-            "consumables": consumables, "feedstock": float(feed), "total": float(total)}
+            "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
+            "uptime": float(uptime), "total": float(total), "product": float(product)}
+
+
+def temperature_check(delta_c: float = 10.0, heat_price: float = 0.05) -> dict:
+    """Does a lower culture temperature (fish, insect cells at about 27 C against 37 C) save energy?
+    Per kg of cells: the heat the cells give off (oxygen burned x 483 kJ per mol), the heat needed to
+    warm the medium by `delta_c` (4.18 kJ per litre per degree) at the floor's 8 L/kg and at the
+    reported 30.5 L/kg, and what that heat costs at `heat_price` $/kWh (industrial steam or gas heat
+    [assumed]). At production scale the culture gives off several times more heat than warming its
+    feed takes, so tanks are cooled, not heated; a lower setpoint saves cents per kg at most and makes
+    cooling harder. Small lab vessels lose heat through their walls and do need heating."""
+    kwh = lambda kj: kj / 3600.0
+    met = GOOD_CELLS.o2_per_kg / 0.032 * value("pf_heat_per_o2")            # kJ per kg of cells
+    heat = lambda litres: litres * 4.18 * delta_c
+    lo, hi = value("pf_medium_l_floor"), value("media_intensity")
+    return {"metabolic_heat_kwh": kwh(met), "heating_10c_kwh": kwh(heat(lo)), "heating_10c_kwh_reported": kwh(heat(hi)),
+            "heating_10c_usd": kwh(heat(lo)) * heat_price, "heating_10c_usd_reported": kwh(heat(hi)) * heat_price,
+            "utilities_usd": value("pf_utilities") * value("pf_opex_escalation")}
+
+
+# What is uncertain about the floor case, as triangular (low, mode, high). The mode is the point value.
+FLOOR_PRIORS = {
+    # a factored estimate from one design study is good to about -30% / +50% (AACE class 4) [assumed]
+    "capex_x":           (0.7, 1.0, 1.5),
+    # Humbird's uptime is the top of the range (he calls it 'rather aggressive'); 0.75 from long-run pharma
+    "uptime":            (0.75, value("pf_uptime"), value("pf_uptime")),
+    # CO2-limited density at 20 m3: 60 g/L (twice the largest reported harvest) to Humbird Fig. 2.8b's 150
+    "x_scale":           (value("pf_x_half") / value("pf_x_co2_20m3"), 1.0, 150.0 / value("pf_x_co2_20m3")),
+    # cells: 18 h is fast for an animal line, 48 h is what one company reports in perfusion
+    "doubling_h":        (18.0, 24.0, 48.0),
+    # cells: 1 ng (reported chicken cells) to the 3 ng model cell
+    "mass_pg":           (1000.0, 3000.0, 3000.0),
+}
+
+
+def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary") -> dict:
+    """Monte Carlo over the floor case's own inputs: the plant estimate, uptime, the density limit, the
+    cells, the retention device, financing and the upkeep share of respiration. Everything else in the
+    case (perfusion at 20 m3, floor-price medium, no growth factors) is held. Returns the draws of
+    total cost ($/kg) and of each input."""
+    from inputs import prior
+    rng = np.random.default_rng(seed)
+    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n) if hi > lo else np.full(n, mode)
+    draws = {k: tri(*v) for k, v in FLOOR_PRIORS.items()}
+    for key, name in (("retention", "pf_capex_retention"), ("charge", "plant_charge_mature"),
+                      ("maintenance_share", "pf_maintenance_share")):
+        _kind, lo, hi, mode, _note = prior(name)
+        draws[key] = tri(lo, mode, hi)
+    if plant == "microbial":                           # the class's own range replaces the estimate's accuracy
+        _kind, lo, hi, mode, _note = prior("pf_capex_fermentation")
+        draws["capex_x"] = tri(lo, mode, hi) / mode
+    total = np.array([explore(plant=plant, **{k: float(v[i]) for k, v in draws.items()})["total"]
+                      for i in range(n)])
+    return {"total": total, **draws}
+
+
+def summarise_floor_mc(pr: CostParams, n: int = 4000) -> None:
+    pc = parity_cost(pr)
+    print(f"\n  uncertainty on the floor case (N={n}, seed 0), cells $/kg:")
+    for plant, label in (("sanitary", "sterile plant, no clean rooms"), ("microbial", "yeast-style plant")):
+        mc = floor_mc(n, plant=plant)
+        t = mc["total"]
+        p10, p50, p90 = np.percentile(t, [10, 50, 90])
+        print(f"    {label:<32} point {explore(plant=plant)['total']:5.1f}   P10 {p10:5.1f}  P50 {p50:5.1f}  "
+              f"P90 {p90:5.1f}   P(<= ${pc:.0f}) {np.mean(t <= pc):.2f}   P(<= $10) {np.mean(t <= 10):.2f}")
+        if plant == "sanitary":
+            rk = lambda a: np.argsort(np.argsort(a))
+            rho = {k: float(np.corrcoef(rk(v), rk(t))[0, 1]) for k, v in mc.items() if k != "total"}
+            print("      what moves it (rank correlation): " +
+                  ", ".join(f"{k} {v:+.2f}" for k, v in sorted(rho.items(), key=lambda kv: -abs(kv[1]))))
 
 
 # ----------------------------------------------------------------------------
@@ -372,6 +468,7 @@ def summarise(pr: CostParams) -> None:
         print(f"  {r['name']:<36}{r['output']:>8.1f}{r['capital']:>9.2f}{r['labour']:>8.2f}"
               f"{r['utilities'] + r['consumables']:>10.2f}{r['feedstock']:>7.2f}{r['growth_factors']:>6.1f}"
               f"{r['total']:>8.1f}  {R:.2f}  {r['total_mature']:>6.1f}")
+    summarise_floor_mc(pr)
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():
         print(f"    {r['name']}: {r['assumes']}  [{r['shown']}]")

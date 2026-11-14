@@ -89,6 +89,9 @@ def build_model() -> dict:
             "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
             "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
             "ref_mass": floor_physics.GOOD_CELLS.mass_pg, "ref_doubling": floor_physics.GOOD_CELLS.doubling_h,
+            "run_days": value("pf_run_days"), "medium_l": value("pf_medium_l_floor"),
+            "gf": value("pf_growth_factors") * value("pf_opex_escalation"), "filler": value("pf_blend_filler_price"),
+            "hazard_pharma": value("pf_hazard_pharma"),
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
@@ -739,6 +742,10 @@ def illustrative_numbers() -> dict:
     pen_floor = {r: mm.penetration(mm.MARKETS[r], cost_floor(cp), income=mm.REGION_INCOME[r])[1]
                  for r in ("global", "eu")}
     R_floor = cost_ratio(cost_floor(cp), cp)
+    # the same floor share across the range of kappa (3-9), the demand number that matters most above parity
+    kr = prior("cult_sub_mult")
+    pen_floor_k = [mm.penetration(mm.MARKETS["global"], cost_floor(cp), income=mm.REGION_INCOME["global"],
+                                  pr=DemandParams(cult_sub_mult=float(k)))[1] for k in (kr[2], kr[1])]
     traj = simulate(R_today, base, TimingParams(), acceptance_grows=True, which="x")["share"] * 100
     from dataclasses import replace as _replace
     from market_share import _segment
@@ -790,6 +797,7 @@ def illustrative_numbers() -> dict:
         "PEN_US_VOL": f"{pen['us'][0] * 100:.1f}",
         "PEN_US_FLOOR_VOL": pc(pen_us_floor),                         # US total if cost hit the floor
         "PEN_GLOBAL_FLOOR_VOL": pc(pen_floor["global"]), "PEN_EU_FLOOR_VOL": pc(pen_floor["eu"]),
+        "PEN_GLOBAL_FLOOR_LO": pc(pen_floor_k[0]), "PEN_GLOBAL_FLOOR_HI": pc(pen_floor_k[1]),
         "SHARE_FLOOR": pc(share(R_floor, base)),                      # long run, floor cost, US everyday meat
         "Y10_SHARE": pc(traj[10] / 100), "Y30_SHARE": pc(traj[-1] / 100),   # the timing path (US)
         # plant-based at full price+taste parity, mainstream, calibration held (self-check [5])
@@ -857,6 +865,16 @@ _CASE_TEXT = {
 }
 
 
+def _floor_mc_tokens(parity: float) -> dict:
+    """Percentiles of the floor case when its own inputs are uncertain (floor_physics.floor_mc)."""
+    import numpy as np
+    t = floor_physics.floor_mc()["total"]
+    y = floor_physics.floor_mc(plant="microbial")["total"]
+    q = lambda a, k: f"{np.percentile(a, k):.0f}"
+    return {"FLOOR_MC_P10": q(t, 10), "FLOOR_MC_P50": q(t, 50), "FLOOR_MC_P90": q(t, 90),
+            "FLOOR_MC_YEAST_P50": q(y, 50), "FLOOR_MC_YEAST_PARITY": f"{np.mean(y <= parity) * 100:.0f}"}
+
+
 def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
     """HTML rows for the 'what each cost case means' table: every case the page quotes, in plain words."""
     def row(name, what, shown, cost, mature, hl=False):
@@ -915,6 +933,7 @@ def derived_numbers() -> dict:
         "BIOMASS_TODAY": f"{bio:.0f}",
         "RETAIL_TODAY": f"{bio + markup:.0f}",
         "RETAIL_FLOOR": f"{floor + markup:.1f}",
+        **_floor_mc_tokens(p_conv - markup),
         "STAB_YEAR_FLOOR": str(int(years_to_stabilize((floor + markup) / p_conv, dp, TimingParams()))),
         "CUT_RETAIL_TODAY": f"{bio + mm.SCAF + markup:.0f}",
         "PCONV": f"{p_conv:.0f}",
@@ -1152,9 +1171,10 @@ Commission. <a href="#about">About this page</a>.</p>
     In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
     built one for animal cells.</li>
     <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
-    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%); less by animal count, since most animals are chickens.
-    Likely an upper estimate: the model over-predicts what shoppers pay a premium for (organic chicken check,
-    below).</li>
+    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%), and anywhere from ~{{PEN_GLOBAL_FLOOR_LO}}% to
+    ~{{PEN_GLOBAL_FLOOR_HI}}% across the plausible range of how price-sensitive shoppers are. Read it as an upper
+    estimate: the model over-predicts what shoppers pay a premium for (organic chicken check, below). Less by
+    animal count, since most animals are chickens.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
     <li><b>As a company reports its process:</b> about ${{BIOMASS_TODAY}} per kilo with capital counted [1],
@@ -1283,6 +1303,12 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       {{MATURE_CHARGE_PCT}}% [2]. The floor is a long-run case set against meat, a mature industry, so it uses the
       lower rate; at the first-plant rate it would be about ${{COST_FLOOR_FIRST}}/kg. The default and the cautious
       case keep the first-plant rate.
+      <b>How firm is it?</b> The floor is the best case: each input sits at the favourable end of what is known.
+      If the plant estimate, the density a tank holds, the cells, the retention device and the financing are each
+      allowed to fall short within their plausible ranges, the same case costs ${{FLOOR_MC_P50}}/kg at the median
+      (80% range ${{FLOOR_MC_P10}}–{{FLOOR_MC_P90}}). In a yeast-style plant the median is
+      ${{FLOOR_MC_YEAST_P50}}/kg, with about a {{FLOOR_MC_YEAST_PARITY}}% chance of reaching the
+      ${{PARITY_BIOMASS}} that parity needs.
       <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of the cost per
       cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
       ${{COST_FLOOR_LO}}/kg, just under the parity line. Nobody has built or costed one for animal cells, which are
@@ -1307,7 +1333,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
         per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo,
         but they also respire more per hour, so the tank holds fewer of them. A tank must mix faster than it
-        transfers oxygen.
+        transfers oxygen. A run that is contaminated ends early and the tank must be restarted. The medium can
+        never cost less than the nutrients the cells must eat.
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.
         The first control sets the two cell levers from what has been published for a species; the rest of the case
         stays as you set it.</p>
@@ -1321,8 +1348,20 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <input type="range" id="fx_m" min="0.5" max="3" step="0.1" value="3" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Yearly charge on the plant</span><span class="val" id="fx_ch_v"></span></label>
             <input type="range" id="fx_ch" min="12.3" max="23.6" step="0.1" value="{{MATURE_CHARGE_PCT}}" oninput="fxRender()"></div>
-          <div class="ctl"><label><span class="nm">Share of the year producing</span><span class="val" id="fx_up_v"></span></label>
-            <input type="range" id="fx_up" min="60" max="95" step="1" value="91" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Chance of losing a run, per day</span><span class="val" id="fx_hz_v"></span></label>
+            <input type="range" id="fx_hz" min="0" max="10" step="0.1" value="0" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Planned length of a run</span><span class="val" id="fx_rd_v"></span></label>
+            <input type="range" id="fx_rd" min="5" max="90" step="1" value="33" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Restart after a contamination</span><span class="val" id="fx_rf_v"></span></label>
+            <input type="range" id="fx_rf" min="3" max="30" step="1" value="3" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Medium per kilo of cells</span><span class="val" id="fx_ml_v"></span></label>
+            <input type="range" id="fx_ml" min="6" max="65" step="0.5" value="8" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Medium price</span><span class="val" id="fx_mp_v"></span></label>
+            <input type="range" id="fx_mp" min="0.1" max="1" step="0.01" value="0.2" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Share of the product that is cells</span><span class="val" id="fx_cs_v"></span></label>
+            <input type="range" id="fx_cs" min="30" max="100" step="5" value="100" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Growth factors</span></label>
+            <label style="justify-content:flex-start;gap:6px"><input type="checkbox" id="fx_gf" onchange="fxRender()"> bought, at Humbird's large-scale price</label></div>
           <div class="ctl"><label><span class="nm">Oxygen used for upkeep, not growth</span><span class="val" id="fx_ms_v"></span></label>
             <input type="range" id="fx_ms" min="31" max="100" step="1" value="50" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank size</span></label>
@@ -3467,23 +3506,36 @@ function floorExplore(p){
   let capex=F.capex[p.plant];
   if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
   if(perf) capex+=F.retention;
+  // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
+  let uptime=p.uptime, lost=0;
+  if(uptime===undefined){
+    const clean=perf?F.uptime_perfusion:F.uptime_filldraw, restart=F.run_days*(1/clean-1);
+    const L=p.run_days===undefined?F.run_days:p.run_days, h=p.hazard||0;
+    const T=h<=0?L:(1-Math.exp(-h*L))/h, pFail=h<=0?0:1-Math.exp(-h*L);
+    const down=p.restart_fail===undefined?restart:(1-pFail)*restart+pFail*Math.max(restart,p.restart_fail);
+    uptime=T/(T+down); lost=Math.min(0.9,pFail/(cell.mu*24*T));
+  }
   const limits=[["oxygen supply",F.otr/cell.qo2],["thickness of the culture",F.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio*Math.pow(p.vessel_m3/20,-2/9)],
                 ["CO2 removal",F.x_co2_20/load*Math.pow(p.vessel_m3/20,F.co2_exp)]];
   if(!perf) limits.push(["waste build-up",F.x_waste/load]);
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
   const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
-  const out=F.wv*lim[1]*cell.mu*shape*8760*p.uptime/1000;
+  const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
   const capital=p.charge*capex/out, labour=F.labour_ref/out, utilities=F.utilities*(0.5+0.5*burn);
-  const feed=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
+  const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
+  const ml=p.medium_l===undefined?F.medium_l:p.medium_l, mp=p.medium_price===undefined?0.20:p.medium_price;
+  const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf:0, cs=p.cell_share===undefined?1:p.cell_share;
+  const total=capital+labour+utilities+F.consumables+feed+gf;
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
-          utilities:utilities, consumables:F.consumables, feedstock:feed,
-          total:capital+labour+utilities+F.consumables+feed};
+          utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
+          total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp};
 }
 function fxSpecies(){
   const sel=document.getElementById("fx_sp"), sp=C.fx.species[sel.value]; if(!sp) return;
   document.getElementById("fx_dh").value=sp[1]; document.getElementById("fx_m").value=sp[2]/1000;
-  document.getElementById("fx_spn").innerHTML=sp[3]+" "+C.fx.species_missing; fxRender();
+  document.getElementById("fx_ml").value=sp[3]===null?C.fx.medium_l:sp[3];
+  document.getElementById("fx_spn").innerHTML=sp[4]+" "+C.fx.species_missing; fxRender();
 }
 function fxInit(){
   const sel=document.getElementById("fx_sp");
@@ -3491,31 +3543,37 @@ function fxInit(){
   document.getElementById("fx_ms").value=Math.round(100*C.fx.maint_share);
   sel.value="model"; fxSpecies();
 }
-function fxMode(){document.getElementById("fx_up").value=
-  Math.round(100*(document.getElementById("fx_mo").value==="perfusion"?C.fx.uptime_perfusion:C.fx.uptime_filldraw)); fxRender();}
+function fxMode(){fxRender();}
 function fxRender(){
   const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value);
   const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
-           mode:g("fx_mo").value, charge:num("fx_ch")/100, uptime:num("fx_up")/100, maint:num("fx_ms")/100};
-  g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
+           mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
+           hazard:num("fx_hz")/100, run_days:num("fx_rd"), restart_fail:num("fx_rf"),
+           medium_l:num("fx_ml"), medium_price:num("fx_mp"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
-  g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_up_v").textContent=(p.uptime*100).toFixed(0)+"%";
+  g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
+  g("fx_hz_v").textContent=(p.hazard*100).toFixed(1)+"%"; g("fx_rd_v").textContent=p.run_days.toFixed(0)+" days";
+  g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_ml_v").textContent=p.medium_l.toFixed(1)+" L";
+  g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
-  const R=(r.total+def.markup_add)/C.p_conv_anchor;
-  g("fx_out").innerHTML="<b>$"+r.total.toFixed(1)+" per kilo of cells, "+R.toFixed(2)+"&times; everyday meat.</b> "+
-    "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+") and makes "+
-    r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+(r.capex/1000).toFixed(2)+" million per m&sup3; of tank. "+
-    "Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+r.labour.toFixed(1)+", energy and consumables $"+
-    (r.utilities+r.consumables).toFixed(1)+", what the cells eat $"+r.feedstock.toFixed(1)+".";
+  const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
+  g("fx_out").innerHTML="<b>$"+r.total.toFixed(1)+" per kilo of cells"+
+    (blend?"; $"+r.product.toFixed(1)+" per kilo of the blended product":"")+", "+R.toFixed(2)+"&times; everyday meat.</b> "+
+    "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"), produces "+
+    (r.uptime*100).toFixed(0)+"% of the year and makes "+r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+
+    (r.capex/1000).toFixed(2)+" million per m&sup3; of tank. Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+
+    r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+
+    (r.medium_floor?" (the nutrients the cells must eat; the medium cannot cost less)":"")+
+    (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+".";
   const n=[];
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("Yeast plants are this cheap partly because their tanks are 150 m&sup3; and more. The plant price here does not change with tank size; set the tank to 100 or 200 m&sup3; to see what CO&#8322; removal allows at that size. Nobody has built or costed such a plant for animal cells.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");
-  n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
-  if(p.uptime>0.91) n.push("Above 91% is beyond what Humbird calls &ldquo;rather aggressive&rdquo;.");
-  n.push("Medium is at its floor price here: only what the cells must eat. Growth factors are not counted.");
+  n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
+  n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
+  if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
 }
 buildRail(); selfTest(); fxInit(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();

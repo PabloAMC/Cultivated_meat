@@ -18,16 +18,21 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   everything that has been costed for animal cells works together and the plant is financed like a mature food
   industry: a sterile plant without clean rooms, perfusion in 20,000-litre tanks with a device that holds the
   cells back, efficient cells, floor-price medium. Each piece has been shown or claimed somewhere, never together,
-  and the device does not exist yet. With the financing of a first plant the same case costs $14.
+  and the device does not exist yet. With the financing of a first plant the same case costs $14. The floor is the
+  best case: if its inputs are allowed to fall short within their plausible ranges, the median is $17/kg (80%
+  range $13–24).
 - **At the floor it takes ~12% of world meat by weight** in the long run, 19% in the US and 26% in Europe (point
-  estimates at the default demand settings). Counted in animals it would be lower: most are chickens, where
-  cultivated does worst. These shares are best read as upper estimates: the model gives a real-meat product at a
+  estimates at the default demand settings). Across the plausible range of price sensitivity (κ from 9 to 3)
+  the world figure runs from 3% to 17% (US 10–22%, Europe 18–28%). Counted in animals it would be lower: most are chickens, where
+  cultivated does worst: a tonne sold spares about 115 land animals in the US, against 250 for a tonne of the
+  average meat mix. These shares are best read as upper estimates: the model gives a real-meat product at a
   premium far more share than organic chicken actually has (§2).
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
   a quarter of the cost per cubic metre. In such a plant the floor would be about **$6.6/kg**, just under the $7
   that parity needs. Nobody has built or costed one for animal cells, and yeast plants are cheap partly because
   their tanks are very large; at that tank size animal cells would cost about $10/kg, because CO₂ limits the
-  density. This is the frontier that decides whether cultivated meat can match the price of everyday meat.
+  density. Allowing its inputs to fall short, the median is $9/kg, with about an 8% chance of $7 or less. This is
+  the frontier that decides whether cultivated meat can match the price of everyday meat.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
 - **As a company reports its process, with capital counted,** cultivated chicken costs about **$34/kg of cells,
@@ -137,6 +142,15 @@ Premium products get the biggest share of their category at the default cost, bu
 about a quarter even at the floor, and their markets are small. At the floor, seafood fillets, beef cuts and beef
 mince lead; chicken stays under 10%.
 
+**With the cells that have been published.** The floor assumes an efficient model cell for every species. Using
+each species' published doubling time and cell size in the same plant (chicken and turkey cost 1.6× as much,
+beef 1.2×, seafood about the same; no data for pork), the US total at the floor's plant is 15%, not 19%. The
+cell data are thin (METHODS.md, "Species costs in the market model").
+
+**Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 115 land animals at
+the floor (US) and about 50 at the reported cost; a tonne of the average US meat mix is about 250. Cultivated
+meat sells mostly as beef and seafood. Seafood animals are not counted.
+
 ## 4. By region
 
 ```
@@ -178,10 +192,13 @@ wariness fades). Current wariness (surveys: 5–60%) sets the speed, not the cei
    floor assumes them; nobody has shown them at scale.
 3. **A way to hold cells back in large tanks:** perfusion stops at about 2,000 litres today because of filters.
    The floor prices a device nobody has built at what one study hopes it will cost.
-4. **Medium cost at production scale:** verify the $0.50/L and sub-$0.20/L reports on a stated mass basis.
-5. **Open, comparable data:** cost claims per kg of dry matter or protein, with capital included (METHODS.md, "A
+4. **Contamination is not the main obstacle to a cheap plant, on this model:** with continuous harvest a
+   yeast-style plant stays cheaper than a sterile one until it loses a run about every 11 days. Measured loss
+   rates in food-grade tanks would test this.
+5. **Medium cost at production scale:** verify the $0.50/L and sub-$0.20/L reports on a stated mass basis.
+6. **Open, comparable data:** cost claims per kg of dry matter or protein, with capital included (METHODS.md, "A
    checklist for cost claims"). Most published analyses leave out all or part of the cost of capital.
-6. **Structuring cost:** the biggest unmeasured number; it gates premium seafood.
+7. **Structuring cost:** the biggest unmeasured number; it gates premium seafood.
 
 A meat tax also works: raising conventional prices 25% lowers R as much as a 20% cut in every cost. Most of these
 are public goods that industry underfunds.

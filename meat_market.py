@@ -444,6 +444,47 @@ def summarise(region: str, theta_free: float) -> None:
 # animal with mince-vs-cut sub-bars. Ordered cheap->expensive so the price/demand
 # opposition reads left to right; both weighted totals marked.
 # ----------------------------------------------------------------------------
+# Animals per tonne of edible meat, by species [approximate; from typical carcass and edible yields: a
+# 2.6 kg broiler gives about 1.7 kg of meat, a 630 kg steer about 330 kg, a 125 kg pig about 90 kg, a
+# 14 kg turkey about 9 kg, a 2.3 kg rabbit about 1.3 kg]. Seafood is left out: it runs from a few
+# hundred animals per tonne (farmed salmon) to tens of thousands (shrimp, small fish), and the model's
+# seafood rows do not say which.
+ANIMALS_PER_TONNE = {"Chicken": 580.0, "Beef": 3.0, "Pork": 11.0, "Turkey": 110.0, "Rabbit": 770.0}
+
+
+def animals_per_tonne_sold(market, biomass: float, **kw) -> dict:
+    """Land animals spared per tonne of cultivated meat sold, given where the model says it sells.
+    Returns the mix-weighted figure for cultivated sales, the same for the whole meat market (what a
+    tonne spares if it displaced meat in proportion to consumption), and the seafood share of sales."""
+    rows, _vol, _val = penetration(market, biomass, **kw)
+    sold = {mt.name: mt.w_vol * sh for mt, _R, sh in rows}
+    tot = sum(sold.values())
+    a = lambda mt: ANIMALS_PER_TONNE.get(animal_of(mt).split("/")[0], 0.0)
+    land = sum(v for mt, _R, _s in rows for v in [sold[mt.name]] if animal_of(mt) != "Seafood")
+    return {"cultivated_mix": sum(sold[mt.name] * a(mt) for mt, _R, _s in rows) / tot,
+            "market_mix": sum(mt.w_vol * a(mt) for mt, _R, _s in rows) / sum(mt.w_vol for mt, _R, _s in rows),
+            "seafood_share_of_sales": 1.0 - land / tot}
+
+
+# Species with published cell data (floor_physics.SPECIES_PRESETS) and the meat types they stand for.
+SPECIES_OF = {"Chicken": "chicken", "Turkey": "chicken", "Duck": "chicken", "Beef": "cattle", "Seafood": "fish"}
+
+
+def species_market(market, **explore_kw) -> list:
+    """The market with each type's cost_mult set from its species' published cells, relative to the
+    model cell, everything else as in the floor case (floor_physics.explore). Types with no cell
+    data (pork, rabbit, sheep) keep 1.0. For the question: what does the floor's plant cost with the
+    cells that have actually been published?"""
+    import floor_physics as fp
+    from dataclasses import replace as _rep
+    base = fp.explore(**explore_kw)["total"]
+    mult = {}
+    for animal, key in SPECIES_OF.items():
+        _label, dh, mass, med, _note = fp.SPECIES_PRESETS[key]
+        mult[animal] = fp.explore(doubling_h=dh, mass_pg=mass, **explore_kw)["total"] / base
+    return [_rep(mt, cost_mult=mult.get(animal_of(mt), 1.0)) for mt in market]
+
+
 def animal_of(mt: "MeatType") -> str:
     """SPECIES label (the type of meat). Used BOTH for figure grouping AND for the per-species
     'premium' base price (a cut is premium if >= PREMIUM_RATIO x its OWN species' cheapest form),

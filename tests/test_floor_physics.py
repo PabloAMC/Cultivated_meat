@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 
 def check() -> list:
+    import numpy as np
     from inputs import value
     import floor_physics as fp
 
@@ -96,10 +97,38 @@ def check() -> list:
         fails.append("the waste-limited density should fall for cells that respire more per gram")
     # the page's lever controls: the defaults are the floor, and every species preset runs
     near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-6)
-    for key, (_label, dh, mass, _note) in fp.SPECIES_PRESETS.items():
+    for key, (_label, dh, mass, _med, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass)
         if not (0 < r["density"] <= value("pf_x_visc") and r["total"] > 0):
             fails.append(f"species preset {key}: implausible case {r}")
+    # uncertainty on the floor: the point floor is the favourable end, so the median sits above it
+    mc = fp.floor_mc()["total"]
+    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 16.7, 0.03)
+    if not (np.percentile(mc, 5) > fp.explore()["total"] * 0.95):
+        fails.append("floor Monte Carlo: the point floor should sit near the bottom of the distribution")
+    # contamination: more losses cost more; none reproduces the stated uptime
+    near("uptime with no losses", fp.explore()["uptime"], value("pf_uptime"), 1e-9)
+    if not (fp.explore(hazard=0.02, restart_fail_days=14)["total"] > fp.explore(hazard=0.002, restart_fail_days=14)["total"] > fp.explore()["total"]):
+        fails.append("contamination should raise the cost")
+    # medium can never cost less than what the cells must eat; a blend is cheaper per kg of product
+    if fp.explore(medium_l=1.0, medium_price=0.1)["feedstock"] < fp.feedstock(good) - 1e-9:
+        fails.append("medium cost fell below the feedstock floor")
+    if not fp.explore(cell_share=0.5)["product"] < fp.explore()["product"]:
+        fails.append("a blend should cost less per kg of product")
+    # species costs and animals per tonne in the market model
+    import meat_market as mm
+    from cost_model import CostParams, cost_floor
+    fl = cost_floor(CostParams())
+    sm = mm.species_market(mm.MARKETS["us"])
+    if not mm.penetration(sm, fl)[1] < mm.penetration(mm.MARKETS["us"], fl)[1]:
+        fails.append("published cells should lower the share at the floor's plant")
+    an = mm.animals_per_tonne_sold(mm.MARKETS["us"], fl)
+    if not (0 < an["cultivated_mix"] < an["market_mix"]):
+        fails.append("cultivated sales should spare fewer land animals per tonne than the market mix")
+    # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs
+    tc = fp.temperature_check()
+    if not (tc["metabolic_heat_kwh"] > tc["heating_10c_kwh"] and tc["heating_10c_usd_reported"] < 0.05):
+        fails.append(f"temperature check: heating should be small against metabolic heat ({tc})")
     if not (value("plant_floor_lo") < value("plant_floor") < value("plant_floor_hi")):
         fails.append("floor inputs out of order: frontier < floor < cautious expected")
 

@@ -288,7 +288,7 @@ What it says:
 - **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg.
 
 **Build your own case (`floor_physics.explore`, the controls under the case table on the page).** A reader can
-move seven levers, and the physics is applied to each:
+move these levers, and the physics is applied to each:
 
 | lever | range | what the physics does |
 |---|---|---|
@@ -299,7 +299,10 @@ move seven levers, and the physics is applied to each:
 | class of plant | pharma-style, sterile without clean rooms, yeast-style | capital per m³ from the table above |
 | how the tank is run | perfusion or drained and refilled | perfusion adds the cell-retention device; drained and refilled tanks are capped by waste and average 72% of peak output |
 | yearly charge on the plant | 12.3–23.6% | capital per kg |
-| share of the year producing | 60–95% | output |
+| chance of losing a run, per day; planned run length; restart after a contamination | 0–10%; 5–90 days; 3–30 days | a run ends at its planned length or when contaminated; the share of the year producing follows; a contaminated run also loses the tank's contents |
+| medium per kg and its price | 6–65 L; $0.10–1.00 | medium cost, never below the nutrients the cells must eat |
+| growth factors | off or on | adds Humbird's large-scale price, about $4/kg |
+| share of the product that is cells | 30–100% | the rest is plant ingredients at $3/kg |
 
 The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, waste, thickness of the culture),
 and the page says which one binds. The defaults reproduce the floor.
@@ -325,6 +328,72 @@ What the other levers show: cells of 1.5 ng raise the floor to $13; **larger tan
 perfusion**, because the loss of density to CO₂ outweighs the cheaper vessel ($13.5 at 50 m³, $18.7 at 200 m³),
 while 5 m³ tanks give $10.6. CO₂ leaves only through the gas in perfusion as in fed-batch, and the retention
 device scales with flow, so it has no economy of scale either.
+
+*Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
+constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:
+3.3 days after a planned stop (what Humbird's 91% uptime over 33-day runs implies), longer after a
+contamination if the reader sets it so. A contaminated run also loses one tankful of cells and medium. With no
+losses the stated uptimes are reproduced. Reference points: about 0.2% a day for contamination in large pharma
+plants, 0.7% for pharma losses from all causes, and roughly 1–2% a day for cultivated-meat makers today (a
+survey's 11–20% of batches, if those ran 10–20 days). What it shows: continuous harvest forgives losses. At
+1.5% a day with a 14-day restart the floor rises from $11.5 to $13.1; at 5% a day, to $17. **A yeast-style
+plant stays cheaper than a sterile one until it loses a run about every 11 days** (9% a day with a 14-day
+restart; 5% a day with a 30-day restart). The limits of this result: it prices lost time and lost tanks, not a
+contamination that spreads through a shared seed train, and it keeps the yeast-plant price at 20 m³ tanks.
+
+*Medium, growth factors, blends.* The medium costs litres per kg × price, floored at what the cells must eat.
+The default (8 L/kg at $0.20) sits on that floor. Chicken as SuperMeat reports it (48 h, 1.4 ng, 30.5 L/kg at
+$0.50) comes to $32/kg in the floor's plant, close to the $34 default built from the same report: the two
+routes agree. Growth factors at Humbird's large-scale price add $4.0/kg. A product that is half cells and half
+plant ingredients costs $7.2/kg at the floor.
+
+*Uncertainty on the floor (`floor_mc`).* The floor puts every input at the favourable end of what is known.
+Sampling the inputs that could fall short (N = 4,000, triangular, the mode at the point value):
+
+| input | range | basis |
+|---|---|---|
+| plant estimate | −30% to +50% | the usual accuracy of a factored estimate from one design study [assumed] |
+| share of the year producing | 75–91% | Humbird's figure is the top |
+| CO₂-limited density at 20 m³ | 60–150 g/L | twice the largest reported harvest, to Humbird's Fig. 2.8b |
+| doubling time | 18–48 h | fast for an animal line, to what one company reports in perfusion |
+| cell mass | 1–3 ng | reported chicken cells, to the model cell |
+| retention device | $0–460k per m³ | free, to Humbird's filters |
+| yearly charge on the plant | 12.3–23.6% | 30-year payback, to first-plant financing |
+| upkeep share of respiration | 31–100% | the two measurements, to Humbird |
+
+```
+                                 point    P10    P50    P90    P(<= $7)   P(<= $10)
+sterile plant, no clean rooms     11.5   12.6   16.7   23.8      0%          0%
+yeast-style plant                  6.6    7.1    9.1   12.5      8%         66%
+```
+
+The point floor sits below the 10th percentile by construction: it is the case in which nothing falls short.
+What moves the result most, in order: the density the tank holds, the doubling time, financing, the plant
+estimate, the retention device. The cells account for two of the top five.
+
+*Culture temperature.* Fish and insect cells grow at about 27 °C, and it is sometimes argued that this saves
+the cost of keeping a tank at 37 °C. At production scale it does not (`temperature_check`). A kilogram of cells
+gives off about 0.7 kWh of heat as it grows (the oxygen it burns × 483 kJ per mol). Warming its medium by
+10 °C takes 0.09 kWh at 8 L/kg and 0.35 kWh at 30.5 L/kg, worth half a cent to two cents per kg. A large tank
+makes more heat than its feed absorbs, so it is cooled, not heated, and a lower setpoint leaves less
+temperature difference to the cooling water. All utilities together are $1.2/kg. Small laboratory vessels lose
+heat through their walls and do need heating, which is where the intuition comes from. The real advantages
+reported for fish cells are elsewhere: no CO₂ control, tolerance of low oxygen, and in one line a 24-hour
+doubling time.
+
+*Species costs in the market model (`meat_market.species_market`).* Each meat type's cost can be scaled by
+what its species' published cells cost in the floor's plant, relative to the model cell: chicken and turkey
+× 1.63, beef × 1.24, seafood × 1.04; pork and rabbit have no cell data and stay at 1. With these, the US share
+at the floor's plant falls from 19% to 15% (world 12% → 9%, Europe 26% → 22%): chicken mince drops from 6% to
+1%, beef mince from 35% to 26%, seafood barely moves. This is a table, not a page setting: the cell data are
+too thin (cattle from cells on a surface, fish with serum) to put into the headline.
+
+*Animals (`meat_market.animals_per_tonne_sold`).* Land animals per tonne of meat: chicken about 580, turkey
+110, pork 11, beef 3, rabbit 770 (approximate, from carcass yields); seafood is left out because the model's
+seafood rows do not say which species. A tonne of the US meat mix is about 250 land animals. A tonne of
+cultivated meat, sold where the model says it sells, spares about 115 at the floor and about 50 at the reported
+cost, because it sells mostly as beef and seafood. Share by weight overstates the animals spared by a factor
+of two to five.
 
 **A caution on the frontier.** Yeast plants cost $190k per m³ partly because their tanks are 150 m³ and more. At
 that size the CO₂ limit allows about 60 g/L of animal cells, not 120, and the frontier case would cost about
