@@ -149,6 +149,8 @@ def check() -> list:
     tor = {r[0]: r for r in fp.floor_tornado()}
     if len(tor) != len(fp.TORNADO) or fp.floor_tornado()[0][0] != "Gas flow the cells tolerate":
         fails.append("tornado: wrong rows or order")
+    if any(len(t[6]) < 80 or "Evidence" not in t[6] for t in fp.TORNADO):
+        fails.append("tornado: every factor needs an explanation that says how solid the evidence is")
     if not tor["CO\u2082 the cells tolerate"][2] < fp.explore()["total"]:
         fails.append("tornado: more CO2 tolerance should lower the cost")
     # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs

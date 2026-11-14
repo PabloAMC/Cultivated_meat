@@ -471,24 +471,85 @@ CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 
 
 # The limiting factors for the tornado chart on the page: (label, explore() argument, low value, high value,
-# low text, high text). Each is moved alone, the rest held at the case being viewed. Ranges are the ones the
-# uncertainty run uses (FLOOR_PRIORS, input priors) or the literature ranges in research_notes/.
+# low text, high text, what it is / where the range comes from / how solid). Each is moved alone, the rest
+# held at the case being viewed. Ranges are the ones the uncertainty run uses (FLOOR_PRIORS, input priors)
+# or the literature ranges in research_notes/. Only things that can limit the cost are here: a product
+# choice such as blending is not.
 TORNADO = [
-    ("CO\u2082 the cells tolerate", "pco2_mbar", 100.0, 200.0, "100 mbar", "200 mbar"),
-    ("Doubling time", "doubling_h", 18.0, 48.0, "18 h", "48 h"),
-    ("Waste the cells make", "waste", 0.0, 0.25, "efficient cells", "a quarter of the way to ordinary"),
-    ("Cell mass", "mass_pg", 1000.0, 3000.0, "1 ng", "3 ng"),
-    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.006, "2 mm/s", "6 mm/s"),
-    ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0"),
-    ("Plant estimate", "capex_x", 0.34, 1.5, "a third of Humbird's", "+50%"),
-    ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style"),
-    ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%"),
-    ("Retention device", "retention", 0.0, 460.0, "free", "Humbird's filters"),
-    ("Runs lost to contamination", "hazard", 0.0, 0.02, "none", "2% a day"),
-    ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%"),
-    ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre"),
-    ("Growth factors", "growth_factors", False, True, "none", "bought"),
-    ("How the tank is run", "mode", "perfusion", "filldraw", "perfusion", "drained and refilled"),
+    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.006, "2 mm/s", "6 mm/s",
+     "CO\u2082 leaves the tank only in the gas bubbled through it, so the density a tank can hold is "
+     "proportional to the gas flow. Too much gas kills cells when bubbles burst. <b>Range:</b> 6 mm/s is the top "
+     "of the published guidance, which the floor uses [2]. Large pharma tanks usually run at 5 to 20 times less, "
+     "because their thin cultures need no more; 2 mm/s is a judgement between the two. <b>Evidence:</b> weak. "
+     "Nobody has run cells this dense at this size."),
+    ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
+     "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
+     "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "
+     "to 3. <b>Evidence:</b> the geometry is certain. What a squat vessel costs is not modelled."),
+    ("Tank size", "vessel_m3", 5.0, 200.0, "5 m\u00b3", "200 m\u00b3",
+     "A larger tank costs less per litre but is deeper, so it clears less CO\u2082 and must run thinner. "
+     "<b>Range:</b> 5 to 200 m\u00b3; the floor uses 20. <b>Evidence:</b> the vessel cost and the CO\u2082 limit "
+     "both follow Humbird [2]. Animal cells have not been grown above about 25 m\u00b3, and only in pharma."),
+    ("Plant estimate", "capex_x", 0.34, 1.5, "a third of Humbird's", "+50%",
+     "What the whole plant costs per cubic metre of tank. <b>Range:</b> Humbird calls his own estimate good to "
+     "within 50% [2]. Two other published designs for animal cells (Negulescu, CE Delft) assume plants at about a "
+     "third of his cost. <b>Evidence:</b> design studies only. No built plant publishes both its cost and its "
+     "tank volume."),
+    ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style",
+     "How sterile the plant is built. The floor uses a sterile plant without clean rooms ($810k per m\u00b3). "
+     "<b>Range:</b> a plant built like a yeast plant ($190k) to a pharma-style plant with clean rooms ($910k). "
+     "Humbird's own yeast plant with 20 m\u00b3 tanks costs about the lower figure, and two published "
+     "cultivated-meat designs assume it. <b>Evidence:</b> nobody has run animal cells in the cheaper kind."),
+    ("Waste the cells make", "waste", 0.0, 0.25, "efficient cells", "a quarter of the way to ordinary",
+     "Cells make ammonia and lactate, which stop growth. In perfusion fresh medium must wash them out, so "
+     "wasteful cells need more medium. <b>Range:</b> Humbird's efficient cells need 11 litres per kilo and "
+     "ordinary cells 190 [2]; one company reports 30.5 for chicken, about a tenth of the way [1]. "
+     "<b>Evidence:</b> the efficient cell is an assumption, not shown for meat cells."),
+    ("Doubling time", "doubling_h", 18.0, 48.0, "18 h", "48 h",
+     "A tank's output is its density times how fast the cells grow. Faster cells also respire more, so the "
+     "tank holds fewer of them. <b>Range:</b> 24 hours is Humbird's model cell [2]; 18 is fast for an animal "
+     "line; one company reports 48 in perfusion [1]. <b>Evidence:</b> measured for a few lines, mostly grown on "
+     "a surface, not in dense suspension."),
+    ("Cell mass", "mass_pg", 1000.0, 3000.0, "1 ng", "3 ng",
+     "Smaller cells respire more per gram, so the tank holds fewer of them. <b>Range:</b> the model cell is "
+     "3 ng [2]; chicken cells are reported at 1 to 1.75 ng [1]. <b>Evidence:</b> the scaling law is well "
+     "established; cell mass is rarely reported on a sound basis."),
+    ("CO\u2082 the cells tolerate", "pco2_mbar", 100.0, 200.0, "100 mbar", "200 mbar",
+     "The density a tank can hold is proportional to the dissolved CO\u2082 the cells tolerate. <b>Range:</b> "
+     "100 mbar is a pharma limit that also protects protein quality [2]; pharma cells lose about a tenth of "
+     "their growth at 200. <b>Evidence:</b> nothing is published for muscle or fish cells. This is the "
+     "measurement that would move the floor most."),
+    ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%",
+     "The share of the plant's cost charged each year: return on capital, maintenance, insurance. "
+     "<b>Range:</b> 23.6% is Humbird's first-plant figure; the floor's 17.3% uses the food industry's cost of "
+     "capital over 20 years; 12.3% is a 30-year payback with no return. <b>Evidence:</b> a financing choice, "
+     "not a scientific unknown. Loan guarantees move it."),
+    ("Retention device", "retention", 0.0, 460.0, "free", "Humbird's filters",
+     "Perfusion needs something that holds the cells in the tank while spent medium leaves. <b>Range:</b> the "
+     "floor prices it at what one study hopes it will cost ($89k per m\u00b3); the filters pharma uses would "
+     "cost about $460k. <b>Evidence:</b> a gravity settler runs today at 3,000 litres; a 20 m\u00b3 tank needs "
+     "4.5 times the flow."),
+    ("Growth factors", "growth_factors", False, True, "none", "bought",
+     "Proteins that tell cells to grow. The floor leaves them out: cells that need none, or make their own. "
+     "<b>Range:</b> bought at Humbird's large-scale price they add about $4 a kilo [2]. <b>Evidence:</b> that "
+     "price assumes an industry far larger than today's."),
+    ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre",
+     "What a litre of the nutrient liquid costs. It can never cost less than the nutrients the cells eat, so "
+     "it matters more the more medium the cells need. <b>Range:</b> companies report $0.20 to $0.50 a litre [1]. "
+     "<b>Evidence:</b> company reports, not verified at scale."),
+    ("How the tank is run", "mode", "perfusion", "filldraw", "perfusion", "drained and refilled",
+     "In perfusion a device holds the cells back while medium flows through, so the tank stays at its densest. "
+     "A tank that is half drained and refilled needs no device, but averages 72% of peak output and waste "
+     "caps its density. <b>Evidence:</b> draining and refilling is used at 20 m\u00b3; perfusion is not, "
+     "beyond 2 to 3 m\u00b3."),
+    ("Runs lost to contamination", "hazard", 0.0, 0.02, "none", "2% a day",
+     "A contaminated run ends early; the tank must be cleaned and regrown (14 days here) and a tankful is "
+     "lost. <b>Range:</b> large pharma plants lose about 0.2% of runs a day; cultivated-meat makers report "
+     "losses that work out to roughly 1 to 2% a day. <b>Evidence:</b> one survey, with run lengths not stated."),
+    ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%",
+     "Part of a cell's oxygen use runs whether or not it grows; the rest rises with growth. It matters only "
+     "when the doubling time is not 24 hours. <b>Range:</b> measurements put the upkeep share at 31% to 62%; "
+     "Humbird assumes 100% [2]. <b>Evidence:</b> few measurements, none for meat cells."),
 ]
 
 
@@ -499,7 +560,7 @@ def floor_tornado(**case) -> list:
     case = dict(case)
     case.setdefault("restart_fail_days", 14.0)
     rows = []
-    for label, arg, lo, hi, lo_txt, hi_txt in TORNADO:
+    for label, arg, lo, hi, lo_txt, hi_txt, _info in TORNADO:
         a = explore(**{**case, arg: lo})["total"]
         b = explore(**{**case, arg: hi})["total"]
         rows.append((label, a, b, lo_txt, hi_txt))

@@ -99,7 +99,7 @@ def build_model() -> dict:
             "nh3_limit": value("pf_nh3_limit"), "lac_limit": value("pf_lac_limit"),
             # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint"}.get(arg, arg),
-                         lo, hi, lo_t, hi_t] for lab, arg, lo, hi, lo_t, hi_t in floor_physics.TORNADO],
+                         lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
@@ -1098,6 +1098,8 @@ table.pt{border-collapse:collapse;font-size:.78rem;width:100%;}
 .fxg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 18px;}
 .fx select{width:100%;font-size:.82rem;padding:2px;}
 .fxn{font-size:.78rem;color:#666;margin:.3em 0 0;}
+.fxrow{fill:transparent;cursor:pointer;} .fxrow:hover{fill:#eef4fa;} .fxrow.sel{fill:#e3eefb;}
+.fxcard{font-size:.84rem;line-height:1.45;border-left:3px solid var(--accent);background:#f6f9fc;padding:8px 10px;margin:6px 0 4px;}
 table.pt th,table.pt td{border-bottom:1px solid var(--rule);padding:3px 6px;text-align:left;}
 table.pt td.n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
 table.pt td.s{color:#777;}
@@ -1408,8 +1410,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <p class="example" id="fx_out"></p>
         <p style="margin:.6em 0 .2em"><b>What limits this case.</b> Each factor moved alone across its plausible
         range, the others as you set them. Green lowers the cost, red raises it; the dotted line is the cost
-        that matches everyday meat.</p>
+        that matches everyday meat. Click a factor for what it is and where its range comes from.</p>
         <div id="fx_tornado" class="scrollx"></div>
+        <div id="fx_torinfo" class="fxcard"></div>
         <p class="fxn" id="fx_notes"></p>
       </div>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
@@ -3592,36 +3595,66 @@ function floorExplore(p){
 // floor_physics.floor_tornado; checked by tests/run_parity.py). Returns [label, cost at low, cost at high, low text, high text].
 function fxTornadoRows(p){
   const q=Object.assign({},p); if(q.restart_fail===undefined||q.restart_fail<14) q.restart_fail=14;
-  return C.fx.tornado.map(t=>{
+  return C.fx.tornado.map((t,k)=>{
     const a=floorExplore(Object.assign({},q,{[t[1]]:t[2]})).total, b=floorExplore(Object.assign({},q,{[t[1]]:t[3]})).total;
-    return [t[0],a,b,t[4],t[5]];
+    return [t[0],a,b,t[4],t[5],k];
   }).sort((x,y)=>Math.abs(y[2]-y[1])-Math.abs(x[2]-x[1]));
 }
+let fxTorSel=null;     // index into C.fx.tornado of the factor whose card is open
 function fxTornadoDraw(p,base,parity){
-  const rows=fxTornadoRows(p), W=640, L=218, R=14, rh=30, top=22, H=top+rows.length*rh+26;
+  const allRows=fxTornadoRows(p), rows=allRows.filter(r=>Math.abs(r[1]-base)>=0.05||Math.abs(r[2]-base)>=0.05);
+  const W=640, L=218, R=14, rh=30, top=22, H=top+rows.length*rh+26;
   const all=rows.reduce((a,r)=>a.concat([r[1],r[2]]),[base,parity]);
   const mn=Math.min.apply(null,all), hi=Math.min(Math.max.apply(null,all)*1.05,base*4), lo=Math.max(0,mn-0.12*(hi-mn));   // room for the value labels
   const X=v=>L+(Math.min(v,hi)-lo)/(hi-lo)*(W-L-R), esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
   let g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;min-width:520px" role="img" aria-label="Tornado chart of limiting factors">';
-  g+='<line x1="'+X(base)+'" x2="'+X(base)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#444" stroke-width="1"/>';
+  rows.forEach((r,i)=>{   // a wide, clickable band per factor (drawn first, under the bars)
+    g+='<rect class="fxrow'+(r[5]===fxTorSel?" sel":"")+'" x="0" y="'+(top+i*rh-3)+'" width="'+W+'" height="'+rh+'" onclick="fxTorInfo('+r[5]+')"><title>Click for what this is and where its range comes from</title></rect>';
+  });
+  g+='<line x1="'+X(base)+'" x2="'+X(base)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#444" stroke-width="1" pointer-events="none"/>';
   g+='<text x="'+X(base)+'" y="12" font-size="10" text-anchor="middle" fill="#444">this case $'+base.toFixed(1)+'</text>';
-  if(parity>lo&&parity<hi){ g+='<line x1="'+X(parity)+'" x2="'+X(parity)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#CC3311" stroke-width="1" stroke-dasharray="3 3"/>';
+  if(parity>lo&&parity<hi){ g+='<line x1="'+X(parity)+'" x2="'+X(parity)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#CC3311" stroke-width="1" stroke-dasharray="3 3" pointer-events="none"/>';
     g+='<text x="'+X(parity)+'" y="'+(H-10)+'" font-size="10" text-anchor="middle" fill="#CC3311">parity $'+parity.toFixed(0)+'</text>'; }
   rows.forEach((r,i)=>{
     const y=top+i*rh;
-    g+='<text x="'+(L-8)+'" y="'+(y+13)+'" font-size="11" text-anchor="end" fill="#1a1a1a">'+esc(r[0])+'</text>';
-    if(Math.abs(r[1]-base)<0.05&&Math.abs(r[2]-base)<0.05)
-      g+='<text x="'+(X(base)+4)+'" y="'+(y+13)+'" font-size="9" fill="#999">no effect on this case ('+esc(r[3])+' to '+esc(r[4])+')</text>';
+    g+='<g pointer-events="none"><text x="'+(L-8)+'" y="'+(y+13)+'" font-size="11" text-anchor="end" fill="#1a1a1a"'+(r[5]===fxTorSel?' font-weight="700"':'')+'>'+esc(r[0])+'</text>';
     [[r[1],r[3]],[r[2],r[4]]].forEach(e=>{
       const v=e[0]; if(Math.abs(v-base)<0.05) return;
       const x0=Math.min(X(v),X(base)), w=Math.abs(X(v)-X(base)), col=v<base?"#029E73":"#CC3311", clipped=v>hi;
-      g+='<rect x="'+x0+'" y="'+(y+2)+'" width="'+Math.max(w,1)+'" height="14" fill="'+col+'" opacity="0.85"><title>'+esc(e[1])+': $'+v.toFixed(1)+'/kg</title></rect>';
+      g+='<rect x="'+x0+'" y="'+(y+2)+'" width="'+Math.max(w,1)+'" height="14" fill="'+col+'" opacity="0.85"/>';
       g+='<text x="'+(v<base?x0-3:x0+w+3)+'" y="'+(y+13)+'" font-size="10" text-anchor="'+(v<base?"end":"start")+'" fill="'+col+'">$'+v.toFixed(1)+(clipped?"+":"")+'</text>';
       // range labels run away from the base line, so the two ends of a factor never collide
       g+='<text x="'+(v<base?X(base)-4:X(base)+4)+'" y="'+(y+26)+'" font-size="9" text-anchor="'+(v<base?"end":"start")+'" fill="#777">'+esc(e[1])+'</text>';
     });
+    g+='</g>';
   });
-  return g+'</svg>';
+  g+='</svg>';
+  const none=allRows.filter(r=>rows.indexOf(r)<0);
+  if(none.length) g+='<p class="fxn">No effect on this case: '+none.map(r=>'<a href="#" onclick="fxTorInfo('+r[5]+');return false">'+esc(r[0]).toLowerCase()+'</a>').join(", ")+'.</p>';
+  return g;
+}
+// which panel control carries each factor, and the factor of its unit (null = a select; "check" = the checkbox)
+const FX_TOR_CTL={doubling_h:["fx_dh",1],mass_pg:["fx_m",0.001],pco2:["fx_pc",1],gas_v:["fx_gv",1000],aspect:["fx_ar",1],
+  waste:["fx_ws",100],charge:["fx_ch",100],hazard:["fx_hz",100],maint:["fx_ms",100],medium_price:["fx_mp",1],
+  plant:["fx_pl",null],mode:["fx_mo",null],vessel_m3:["fx_v",null],growth_factors:["fx_gf","check"]};
+function fxTorSet(k,end){          // put the panel's control at one end of factor k's range
+  const t=C.fx.tornado[k], c=FX_TOR_CTL[t[1]], v=t[end?3:2]; if(!c) return;
+  const el=document.getElementById(c[0]);
+  if(c[1]==="check") el.checked=!!v; else el.value=(c[1]===null?v:v*c[1]);
+  if(t[1]==="hazard"&&v>0) document.getElementById("fx_rf").value=14;
+  fxRender();
+}
+function fxTorInfo(k){
+  fxTorSel=(fxTorSel===k?null:k); fxRender();
+}
+function fxTorCard(){
+  const box=document.getElementById("fx_torinfo");
+  if(fxTorSel===null){ box.innerHTML='<span class="fxn">Click a factor to see what it is, where its range comes from and how solid the evidence is.</span>'; return; }
+  const t=C.fx.tornado[fxTorSel], c=FX_TOR_CTL[t[1]];
+  const btn=(end,txt)=>'<button class="btn" style="margin:4px 6px 0 0" onclick="fxTorSet('+fxTorSel+','+end+')">Set to '+txt+'</button>';
+  box.innerHTML='<b>'+t[0]+'.</b> '+t[6]+'<br>'+(c?btn(0,t[4])+btn(1,t[5])
+    :'<span class="fxn">This one has no control above: it is an uncertainty in the estimate, not a design choice.</span>')+
+    '<button class="btn" style="margin:4px 0 0 0" onclick="fxTorInfo('+fxTorSel+')">Close</button>';
 }
 function fxSpecies(){
   const sel=document.getElementById("fx_sp"), sp=C.fx.species[sel.value]; if(!sp) return;
@@ -3669,7 +3702,7 @@ function fxRender(){
     (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
-  g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add);
+  g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add); fxTorCard();
   const n=[];
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");

@@ -322,6 +322,7 @@ across its plausible range, the others held at the case being viewed. Around the
 |---|---|---|
 | gas flow the cells tolerate | 2 to 6 mm/s | 28.0 – 11.5 |
 | tank shape (liquid depth / width) | 1.0 to 3.0 | 9.3 – 25.2 |
+| tank size | 5 to 200 m³ | 10.6 – 18.8 |
 | plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
 | waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
 | doubling time | 18 to 48 h | 10.4 – 16.7 |
@@ -338,7 +339,10 @@ across its plausible range, the others held at the case being viewed. Around the
 
 The floor sits at the favourable end of most ranges, which is why most bars point up. The two that point down
 furthest are the plant (a cheaper estimate or class) and CO₂ tolerance. The largest risk is the gas flow: the
-floor assumes the top of the guidance. The chart on the page redraws for any case the reader sets; around the
+floor assumes the top of the guidance. Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
+effect on the case shown are listed under the chart instead of drawn. Clicking a factor opens a card that says
+what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
+either end. The chart on the page redraws for any case the reader sets; around the
 chicken cells a company reports, waste and medium price dominate.
 
 *The energy of growth (`pf_maintenance_share`).* West's law gives the oxygen uptake of a cell doubling about
