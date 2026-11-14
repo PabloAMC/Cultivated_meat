@@ -89,6 +89,7 @@ def build_model() -> dict:
             "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
             "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
             "ref_mass": floor_physics.GOOD_CELLS.mass_pg, "ref_doubling": floor_physics.GOOD_CELLS.doubling_h,
+            "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
         },
@@ -1304,7 +1305,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       physics-based floor&rdquo;).</p>
       <div class="fx" id="fx">
         <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
-        per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo.
+        per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo,
+        but they also respire more per hour, so the tank holds fewer of them. A tank must mix faster than it
+        transfers oxygen.
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.
         The first control sets the two cell levers from what has been published for a species; the rest of the case
         stays as you set it.</p>
@@ -1320,6 +1323,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <input type="range" id="fx_ch" min="12.3" max="23.6" step="0.1" value="{{MATURE_CHARGE_PCT}}" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Share of the year producing</span><span class="val" id="fx_up_v"></span></label>
             <input type="range" id="fx_up" min="60" max="95" step="1" value="91" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Oxygen used for upkeep, not growth</span><span class="val" id="fx_ms_v"></span></label>
+            <input type="range" id="fx_ms" min="31" max="100" step="1" value="50" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank size</span></label>
             <select id="fx_v" onchange="fxRender()"><option value="2">2 m&sup3;</option><option value="5">5 m&sup3;</option>
             <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
@@ -3449,18 +3454,21 @@ function selfTest(){
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
 readHash();
 // ---- build your own case: mirrors floor_physics.explore (checked by tests/run_parity.py) ----
-function fxCell(massPg, doublingH){
+function fxCell(massPg, doublingH, maint){
   const F=C.fx, mu=Math.LN2/doublingH, power=F.power_coef*Math.pow(massPg,0.75);        // pW per cell
-  const qo2=power*1e-12*3600/(F.heat_per_o2*1e3)/(massPg*1e-12)*1e3;                     // mmol O2 per g per h
+  const q24=power*1e-12*3600/(F.heat_per_o2*1e3)/(massPg*1e-12)*1e3;                     // mmol O2 per g per h, at 24 h
+  const qo2=q24*(maint+(1-maint)*mu/(Math.LN2/F.ref_doubling));                          // upkeep + the energy of growth
   return {mu:mu, qo2:qo2, o2kg:qo2/mu*32/1000};
 }
 function floorExplore(p){
-  const F=C.fx, cell=fxCell(p.mass_pg,p.doubling_h), ref=fxCell(F.ref_mass,F.ref_doubling);
+  const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint;
+  const cell=fxCell(p.mass_pg,p.doubling_h,ms), ref=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
   const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg, perf=p.mode==="perfusion";
   let capex=F.capex[p.plant];
   if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
   if(perf) capex+=F.retention;
   const limits=[["oxygen supply",F.otr/cell.qo2],["thickness of the culture",F.x_visc],
+                ["mixing",F.otr/cell.qo2*F.mix_ratio*Math.pow(p.vessel_m3/20,-2/9)],
                 ["CO2 removal",F.x_co2_20/load*Math.pow(p.vessel_m3/20,F.co2_exp)]];
   if(!perf) limits.push(["waste build-up",F.x_waste/load]);
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
@@ -3480,6 +3488,7 @@ function fxSpecies(){
 function fxInit(){
   const sel=document.getElementById("fx_sp");
   Object.keys(C.fx.species).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=C.fx.species[k][0];sel.appendChild(o);});
+  document.getElementById("fx_ms").value=Math.round(100*C.fx.maint_share);
   sel.value="model"; fxSpecies();
 }
 function fxMode(){document.getElementById("fx_up").value=
@@ -3487,7 +3496,8 @@ function fxMode(){document.getElementById("fx_up").value=
 function fxRender(){
   const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value);
   const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
-           mode:g("fx_mo").value, charge:num("fx_ch")/100, uptime:num("fx_up")/100};
+           mode:g("fx_mo").value, charge:num("fx_ch")/100, uptime:num("fx_up")/100, maint:num("fx_ms")/100};
+  g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
   g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_up_v").textContent=(p.uptime*100).toFixed(0)+"%";
@@ -3501,7 +3511,8 @@ function fxRender(){
   const n=[];
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("Yeast plants are this cheap partly because their tanks are 150 m&sup3; and more. The plant price here does not change with tank size; set the tank to 100 or 200 m&sup3; to see what CO&#8322; removal allows at that size. Nobody has built or costed such a plant for animal cells.");
-  if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours. The energy used by growth itself is not counted (Humbird's assumption), which flatters fast cells.");
+  if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");
+  n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
   if(p.uptime>0.91) n.push("Above 91% is beyond what Humbird calls &ldquo;rather aggressive&rdquo;.");
   n.push("Medium is at its floor price here: only what the cells must eat. Growth factors are not counted.");

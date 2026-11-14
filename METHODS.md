@@ -262,7 +262,7 @@ a mature industry, so the model uses 17.3% for them. The default and the cautiou
 |---|---|---|---|---|---|---|---|---|
 | Humbird fed-batch, as designed | sterile 20 m³ stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $18.9 | $1.7 + 4.0 | **$24.6** | 2.47 | $20.7 |
 | Humbird perfusion, as designed | sterile 2 m³ tanks, cells held back by ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $39.8 | $1.7 + 4.0 | **$45.5** | 4.21 | $37.4 |
-| same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run); they respire more per gram, so the tank holds fewer | the cells exist; the plant does not | 4.2 | $60.2 | $1.9 + 4.0 | **$66.0** | 5.92 | $52.3 |
+| same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run); they respire a little more per gram | the cells exist; the plant does not | 6.0 | $42.6 | $1.8 + 4.0 | **$48.4** | 4.45 | $38.8 |
 | pharma-style plant, half the density | the cautious case with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $33.9 | $1.7 | **$35.6** | 3.38 | $27.9 |
 | pharma-style plant, fill-and-draw (the cautious case) | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.7 | $1.7 | **$19.4** | 2.03 | $15.6 |
 | no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $1.7 | **$17.9** | 1.91 | $14.5 |
@@ -284,7 +284,7 @@ What it says:
   the culture at its cap. It needs a device that holds cells back at 20 m³, which does not exist, and cells that
   make little waste, or the medium bill rises.
 - **The cells matter as much as the plant.** Halving the density nearly doubles the cautious case. Small, slow
-  cells more than triple the plant cost in Humbird's own design.
+  cells more than double the plant cost in Humbird's own design.
 - **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg.
 
 **Build your own case (`floor_physics.explore`, the controls under the case table on the page).** A reader can
@@ -292,7 +292,8 @@ move seven levers, and the physics is applied to each:
 
 | lever | range | what the physics does |
 |---|---|---|
-| doubling time | 16–72 h | output per m³ is density × growth rate; the maintenance half of glucose and of utilities is burned per hour, so per kg it scales with the doubling time |
+| doubling time | 16–72 h | output per m³ is density × growth rate; faster cells respire more per hour (next row), so the tank holds fewer; the upkeep part of glucose and of utilities is burned per hour, so per kg it scales with the doubling time |
+| oxygen used for upkeep | 31–100% | the share of oxygen uptake at a 24 h doubling time that runs whether or not the cell grows; the rest rises with the growth rate |
 | cell mass | 0.5–3 ng | smaller cells respire more per gram (West's law, mass^−0.25), so the oxygen, CO₂ and waste limits fall |
 | tank size | 2–200 m³ | the bioreactor share of the plant (32%) follows Humbird's vessel cost, cheaper per m³ when larger; the CO₂-limited density falls as (V / 20 m³)^−0.33, from his Fig. 2.8b (about 150 g/L at 20 m³, 70 at 200 m³) |
 | class of plant | pharma-style, sterile without clean rooms, yeast-style | capital per m³ from the table above |
@@ -300,13 +301,30 @@ move seven levers, and the physics is applied to each:
 | yearly charge on the plant | 12.3–23.6% | capital per kg |
 | share of the year producing | 60–95% | output |
 
-The density is the lowest of four limits (oxygen supply, CO₂ removal, waste, thickness of the culture), and the
-page says which one binds. The defaults reproduce the floor. What the levers show: a 16-hour doubling time takes
-the floor from $11.5 to $8.5; cells of 1.5 ng raise it to $13; **larger tanks raise the cost in perfusion**, because the
-loss of density to CO₂ outweighs the cheaper vessel ($13.5 at 50 m³, $18.7 at 200 m³), while 5 m³ tanks give
-$10.6. CO₂ leaves only through the gas in perfusion as in fed-batch, and the retention device scales with flow,
-so it has no economy of scale either. Not modelled: the energy of growth itself (Humbird counts maintenance
-only, which flatters cells faster than about 20 h), and mixing in large tanks.
+The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, waste, thickness of the culture),
+and the page says which one binds. The defaults reproduce the floor.
+
+*The energy of growth (`pf_maintenance_share`).* West's law gives the oxygen uptake of a cell doubling about
+once a day. Part of it is upkeep and part pays for growth: qO₂(μ) = qO₂(24 h) × [s + (1 − s) × μ/μ(24 h)].
+Humbird takes s = 1 (upkeep only). GFI's 2025 review of the data finds cells at zero growth taking up 12–67% of
+their growing-phase oxygen, mean 31% (from Wagner et al. 2011), and Miller et al. 1987 put upkeep at 62% of
+energy use. The model uses s = 0.5 and lets the reader move it. At 24 h it changes nothing, so Humbird's designs
+are still reproduced. Faster cells gain less than their speed suggests, because the tank holds fewer of them: a
+16-hour doubling time takes the floor from $11.5 to $10.0 ($8.5 with upkeep only). Slower cells lose less: 48 h
+gives $16 ($20 with upkeep only). The review calls oxygen use against growth rate "a gap" for meat cell lines.
+
+*Mixing (`pf_mix_ratio_20m3`).* Humbird's rule is that a tank must mix in less time than it takes to transfer
+oxygen: mixing time below 1/k_La. His Eq. 2.18 gives a mixing time of 141 s at 20 m³ (his tank shape, at the
+stirring power that keeps the smallest eddies at the size of a cell) and his Eq. 2.16 gives 1/k_La = 137 s, so
+the two limits meet at 20 m³, as his text says. Mixing time grows as V^(2/9), so the mixing-limited density
+falls to about 60% of the oxygen-limited one at 200 m³. In this model it never binds: below 20 m³ oxygen supply
+binds first, above it CO₂ removal does. It is a rule of thumb for a well-stirred tank, not a simulation of dead
+zones.
+
+What the other levers show: cells of 1.5 ng raise the floor to $13; **larger tanks raise the cost in
+perfusion**, because the loss of density to CO₂ outweighs the cheaper vessel ($13.5 at 50 m³, $18.7 at 200 m³),
+while 5 m³ tanks give $10.6. CO₂ leaves only through the gas in perfusion as in fed-batch, and the retention
+device scales with flow, so it has no economy of scale either.
 
 **A caution on the frontier.** Yeast plants cost $190k per m³ partly because their tanks are 150 m³ and more. At
 that size the CO₂ limit allows about 60 g/L of animal cells, not 120, and the frontier case would cost about
@@ -319,13 +337,13 @@ species. With everything else at the floor case:
 | kind of cell | doubling time | cell mass | cells, $/kg | source and quality |
 |---|---|---|---|---|
 | Humbird's model cell | 24 h | 3.0 ng | 11.5 | the cell every case assumes; not shown for meat |
-| chicken, as reported in perfusion | 48 h | 1.4 ng | 24 | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
-| cattle, serum-free | 39 h | 3.0 ng (no data) | 17 | Stout et al. 2022, primary cells on a surface; no suspension data |
+| chicken, as reported in perfusion | 48 h | 1.4 ng | 19 | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
+| cattle, serum-free | 39 h | 3.0 ng (no data) | 14 | Stout et al. 2022, primary cells on a surface; no suspension data |
 | fish (Atlantic mackerel) | 24 h | 2.5 ng | 12 | Saad et al. 2023, on a surface with 20% serum |
 | insect (Sf9), for reference | 23 h | 2.2 ng | 12 | Ashizawa et al. 2022, a compilation; grown at 21 m³ for vaccines |
 
-The cells matter as much as the plant: the chicken cells a company reports cost twice the floor in the same
-plant. Two things the literature search did not find (`research_notes/species_cell_parameters.md`): any
+The cells matter as much as the plant: the chicken cells a company reports cost about $7/kg more than the floor in
+the same plant. Two things the literature search did not find (`research_notes/species_cell_parameters.md`): any
 measurement that fish cells need less oxygen per gram at their lower culture temperature, so the model assumes
 none; and any cell line that keeps dividing for shrimp or other crustaceans, so there is no preset for them.
 Several of the numbers were read only in abstracts; the notes mark which.

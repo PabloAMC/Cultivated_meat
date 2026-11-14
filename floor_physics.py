@@ -87,6 +87,7 @@ HOURS = 8760.0
 class Cells:
     mass_pg: float = value("pf_cell_mass_pg")      # wet mass per cell
     doubling_h: float = value("pf_doubling_h")     # doubling time
+    maintenance_share: float = value("pf_maintenance_share")   # share of O2 uptake at 24 h that is upkeep
 
     @property
     def mu(self) -> float:                          # 1/h
@@ -98,15 +99,19 @@ class Cells:
 
     @property
     def qo2(self) -> float:
-        """Oxygen uptake, mmol O2 per g wet cells per hour."""
+        """Oxygen uptake, mmol O2 per g wet cells per hour. West's law gives it for a cell doubling
+        every 24 h; a share of that is upkeep and the rest scales with the growth rate (the energy of
+        growth itself), so faster cells respire more per hour and slower ones less."""
         j_per_h = self.power_pw * 1e-12 * 3600.0                     # J per cell per hour
         mol_per_h = j_per_h / (value("pf_heat_per_o2") * 1e3)        # mol O2 per cell per hour
-        return mol_per_h / (self.mass_pg * 1e-12) * 1e3              # per gram, in mmol
+        q24 = mol_per_h / (self.mass_pg * 1e-12) * 1e3               # per gram, in mmol, at 24 h
+        m = self.maintenance_share
+        return q24 * (m + (1.0 - m) * self.mu / (LN2 / value("pf_doubling_h")))
 
     @property
     def o2_per_kg(self) -> float:
-        """Oxygen burned per kg of cells grown, kg O2 per kg wet (maintenance over one doubling time
-        scale: qO2 / mu). Slower or smaller cells burn more per kg."""
+        """Oxygen burned per kg of cells grown, kg O2 per kg wet (qO2 / mu): the upkeep part grows
+        with the time a kg takes to make, the growth part does not. Slower or smaller cells burn more."""
         return self.qo2 / self.mu * 32.0 / 1000.0
 
 
@@ -242,20 +247,23 @@ SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell lin
 
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
-            uptime: float | None = None) -> dict:
+            uptime: float | None = None, maintenance_share: float | None = None) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
       * output per m3 is density x growth rate, so it rises as the doubling time falls;
-      * the maintenance share of glucose and of utilities is burned per hour, so per kg it scales with
-        the doubling time (Humbird's assumption: maintenance, not growth, sets respiration);
+      * respiration is part upkeep and part the energy of growth (pf_maintenance_share), so faster cells
+        respire more per hour and the tank holds fewer of them; per kg, the upkeep part of glucose and of
+        utilities scales with the doubling time;
+      * the tank must mix faster than it transfers oxygen (pf_mix_ratio_20m3), which tightens with size;
       * a larger vessel costs less per m3 (Humbird Eq. 3.1, bioreactor share only) but holds a thinner
         culture, because CO2 is harder to strip (pf_co2_size_exponent);
       * perfusion needs a device to hold cells back (pf_capex_retention); fill-and-draw does not, but
         waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
 
     The defaults reproduce the floor tier at the mature-industry capital charge."""
-    cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h)
+    cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
+                  maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
     charge = value("plant_charge_mature") if charge is None else charge
     uptime = (value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")) if uptime is None else uptime
     key, escalate, sized = PLANT_CLASSES[plant]
@@ -266,6 +274,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         capex += value("pf_capex_retention")
     limits = {"oxygen supply": value("pf_otr_cap") / cells.qo2,
               "thickness of the culture": value("pf_x_visc"),
+              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") * (vessel_m3 / 20.0) ** (-2.0 / 9.0),
               "CO2 removal": co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
     if mode != "perfusion":
         limits["waste build-up"] = waste_cap(cells)
@@ -327,7 +336,7 @@ def tiers() -> list:
         "designed; perfusion at 2 m3 exists in pharma", GOOD_CELLS, "perfusion",
         value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"), value("pf_growth_factors"),
         uptime=design_uptime, labour=value("pf_labour_perfusion"), humbird_consumables=True)
-    add("Same fed-batch plant, small slow cells", "cells of 0.55 ng doubling every 61 h; they respire more per gram, so the tank holds fewer of them",
+    add("Same fed-batch plant, small slow cells", "cells of 0.55 ng doubling every 61 h; each tank turns over far more slowly",
         "cells exist; this plant does not", PASITKA_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
         value("pf_growth_factors"), humbird_consumables=True)
     add("Pharma-style plant, half the density", "the cautious case below with cells at 60 g/L, not 120",

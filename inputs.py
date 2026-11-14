@@ -337,6 +337,27 @@ REGISTRY: dict[str, Input] = {
              "today. Added to the capital of the large-tank perfusion cases. hi: Humbird's ATF filters cost "
              "$38.5M for 192 m3 before installation, about $460k per m3 of total investment (and $4.6/kg of "
              "membranes besides), which is why his perfusion design stops at 2 m3. 2024 prices; not escalated"),
+    "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
+        "uptake at a 24 h doubling time that is upkeep (it runs whether or not the cell grows); the rest rises "
+        "in proportion to the growth rate",
+        lo=0.31, hi=1.0, mode=0.5,
+        note="qO2(mu) = qO2(24 h) x [share + (1 - share) x mu / mu(24 h)]. lo=0.31: GFI's 2025 growth-modelling "
+             "review, Fig. 3.5b, from Wagner et al. 2011 (cells at zero growth took up 12-67% of their "
+             "exponential-phase oxygen, mean 31%; the fit gives a true yield of 2.9 g dry cells per g O2). "
+             "Miller et al. 1987 put upkeep at 62% of ATP use in hybridoma at 0.66 per day. hi=1.0: Humbird's "
+             "assumption (upkeep only). 0.5 sits between the two measurements. At 24 h the uptake is West's "
+             "law whatever the share, so Humbird's designs are unaffected; it matters for faster and slower "
+             "cells. The review calls this 'a gap for CM-relevant cell lines'"),
+    "pf_mix_ratio_20m3": Input(0.97, "-", "[Humbird-R, derived] oxygen transfer the mixing rule allows in a 20 m3 "
+        "stirred tank, relative to the oxygen-transfer limit",
+        note="Humbird's rule (Sect. 2.3, after his ref. 127): mixing time t_m must stay below 1/kLa. His Eq. "
+             "2.18 gives t_m = 6 T^(2/3) (P/V rho)^(-1/3) (D/T)^(-1/3) (H_L/T)^2.5 = 141 s at 20 m3 (liquid "
+             "height 1.6 T from his Fig. 2.5, D = T/3, and 43 W/m3, the power at which the smallest eddies are "
+             "20 um: his Eq. 2.17 with 50x peak dissipation and water at 37 C). His Eq. 2.16 gives kLa = "
+             "0.075 (P/V)^0.47 u_s^0.8 = 26.4 per hour at 0.006 m/s, so 1/kLa = 137 s. 137/141 = 0.97: the two "
+             "limits coincide at 20 m3, as his text says. At fixed shape and power t_m grows as V^(2/9), so "
+             "the mixing-limited density falls as (V / 20)^(-2/9). Hydrostatic pressure, which helps oxygen "
+             "in tall tanks, is left out. Used by the page's 'build your own case' controls"),
     "pf_co2_size_exponent": Input(-0.33, "-", "[Humbird-R, derived] how the CO2-limited density falls with vessel "
         "size: his Fig. 2.8b gives about 150 g/L at 20 m3 and 70 g/L at 200 m3 (Sect. 3, on global bioreactor "
         "volume), so density scales as (V / 20 m3)^log10(70/150)",

@@ -187,7 +187,7 @@ js += `
   const fxGrid = [];
   [16, 24, 48].forEach(dh => [550, 3000].forEach(m => [5, 20, 200].forEach(v =>
     ["pharma", "sanitary", "microbial"].forEach(pl => ["perfusion", "filldraw"].forEach(mo => {
-      const p = { doubling_h: dh, mass_pg: m, vessel_m3: v, plant: pl, mode: mo, charge: 0.173, uptime: 0.85 };
+      const p = { doubling_h: dh, mass_pg: m, vessel_m3: v, plant: pl, mode: mo, charge: 0.173, uptime: 0.85, maint: dh === 48 ? 0.31 : undefined };
       const r = floorExplore(p);
       fxGrid.push([dh, m, v, pl, mo, r.total, r.density, r.output, r.limit]);
     })))));

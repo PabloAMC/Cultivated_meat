@@ -213,7 +213,7 @@ def check_parity() -> list:
     if not js.get("fxGrid"):
         fails.append("fxGrid: not emitted by the JS probe")
     for dh, m, v, pl, mo, tot, dens, out, lim in js.get("fxGrid", []):
-        r = _fp.explore(dh, m, v, pl, mo, charge=0.173, uptime=0.85)
+        r = _fp.explore(dh, m, v, pl, mo, charge=0.173, uptime=0.85, maintenance_share=0.31 if dh == 48 else None)
         d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["output"] - out))
         worst_fx = max(worst_fx, d)
         if d > 1e-6 or r["limit"] != lim:
