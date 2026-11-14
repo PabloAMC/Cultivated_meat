@@ -3,7 +3,9 @@
    Included into the page's script by build_interactive.py. Everything is computed by floorExplore (the mirror of
    floor_physics.explore) from the settings of the switches in MODEL.sc; nothing here is typed in by hand. */
 const SC=MODEL.sc;
-const SCS={choice:Object.assign({},SC.presets[SC.start].choice), preset:SC.start, src:"scenario"};
+const INIT_ANCHOR=(typeof location!=="undefined")?location.hash.slice(1):"";   // a link to a section (#build): the settings hash replaces it, so remember it
+const SCS={choice:Object.assign({},SC.presets[SC.start].choice), preset:SC.start, src:"scenario", customCost:null};   // src: "scenario" | "reported" | "custom" (the all-levers panel)
+function scOwnName(){ return SCS.src==="reported"?"As a company reports":SCS.src==="custom"?"Your own levers":(SCS.preset?SC.presets[SCS.preset].name:"Your own switches"); }
 const scCache={};
 let scPair=null;                                   // the two switches shown against each other
 function scSwitch(k){ return SC.switches.find(s=>s.key===k); }
@@ -108,7 +110,7 @@ function scApplyChoice(o){ SCS.choice=Object.assign({},SC.presets[SC.start].choi
 function scPick(k,v){ SCS.choice[k]=v; SCS.src="scenario"; SCS.preset=scPresetOf(SCS.choice); scCommit(); }
 function scDesignNow(){ SCS.choice=scDesign(SCS.choice); SCS.src="scenario"; SCS.preset=scPresetOf(SCS.choice); scCommit(); }
 function scCommit(){
-  state.cost_override=(SCS.src==="reported"?null:scEval(SCS.choice).total);
+  state.cost_override=(SCS.src==="reported"?null:SCS.src==="custom"?SCS.customCost:scEval(SCS.choice).total);
   scSyncRail(); recompute();
 }
 // the three cost sliders and the clean-room toggle describe the process one company reports; they are live only then
@@ -118,8 +120,8 @@ function scSyncRail(){
   const cb=document.getElementById("t_cleanroom"); if(cb) cb.disabled=!reported;
   const n=document.getElementById("sc_railnote");
   if(n) n.innerHTML=reported?"The cost comes from the three sliders below: the process one company reports.":
-    "The cost comes from the scenario chosen above (<b>"+(SCS.preset?SC.presets[SCS.preset].name:"your own switches")+"</b>). The medium price, plant cost and cell efficiency sliders apply only to “As a company reports”.";
-  const sel=document.getElementById("sc_railsel"); if(sel) sel.value=reported?"reported":(SCS.preset||"own");
+    "The cost comes from the scenario chosen above (<b>"+scOwnName()+"</b>). The medium price, plant cost and cell efficiency sliders apply only to “As a company reports”.";
+  const sel=document.getElementById("sc_railsel"); if(sel) sel.value=reported?"reported":(SCS.src==="custom"?"own":(SCS.preset||"own"));
 }
 function scRailBuild(){
   const sel=document.getElementById("sc_railsel"); if(!sel) return;
@@ -148,6 +150,7 @@ function scResultHTML(ch,r){
        ' passes an hour; dense cultures have taken up to 15–24, and the alkaline culture in the loop is '+d.ph_vs_safe.toFixed(1)+' times the exposure judged safe). '+
        'Treat the cost as optimistic, or use the button below to pick the cheapest design that passes.</p>';
   if(SCS.src==="reported") h+='<p class="scwarn">The charts below are using the process one company reports, not these switches.</p>';
+  if(SCS.src==="custom") h+='<p class="scwarn">The charts below are using the case from “All the levers” ($'+SCS.customCost.toFixed(1)+' a kilo), not these switches.</p>';
   return h;
 }
 function scTornadoSVG(rows,base){
@@ -195,7 +198,7 @@ function scRender(){
   SC.order.concat(["reported"]).forEach(k=>{ const b=document.getElementById("sc_pre_"+k); if(b) b.classList.toggle("on",k==="reported"?SCS.src==="reported":(SCS.src==="scenario"&&SCS.preset===k)); });
   host.innerHTML=scResultHTML(ch,r);
   const ownName=document.getElementById("sc_ownname");
-  if(ownName) ownName.textContent=SCS.src==="reported"?"As a company reports":(SCS.preset?SC.presets[SCS.preset].name:"Your own switches");
+  if(ownName) ownName.textContent=scOwnName();
   const pri=scPriorities(ch,true), tor=document.getElementById("sc_tornado");
   if(tor) tor.innerHTML=scTornadoSVG(pri,r.total);
   if(!scPair) scPair=[pri[0].switch,pri[1].switch];
@@ -214,16 +217,38 @@ function scChain(){        // the one-line chain under the table, for the chosen
   const sh=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref});
   const yrs=yearsToStabilize({R:R,nb0:s.neophobia_x0,nbL:s.neophobia_x,rate:s.accept_rate,p:s.p_innov,q:s.q_imit,ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref,which:"x"});
   const set=(id,t)=>{ const e=document.getElementById(id); if(e) e.innerHTML=t; };
-  set("ch_cost","$"+b.toFixed(1)+"/kg"); set("ch_costl","to grow: "+(SCS.src==="reported"?"as a company reports":(SCS.preset?SC.presets[SCS.preset].name.split(":")[0].toLowerCase():"your own switches")));
+  set("ch_cost","$"+b.toFixed(1)+"/kg"); set("ch_costl","to grow: "+(SCS.src==="scenario"&&SCS.preset?SC.presets[SCS.preset].name.split(":")[0].toLowerCase():scOwnName().toLowerCase()));
   set("ch_shop","$"+retail.toFixed(0)); set("ch_shopl","in the shop, "+R.toFixed(2)+"&times; everyday meat");
   set("ch_share","~"+(sh*100).toFixed(sh<0.1?1:0)+"%"); set("ch_years","~"+yrs+" years");
 }
-function scSettingsHash(){ return SCS.src==="reported"?"reported":(SCS.preset||SC.keys.map(k=>k+":"+SCS.choice[k]).join(",")); }
+function scSettingsHash(){ return SCS.src==="reported"?"reported":SCS.src==="custom"?"custom:"+SCS.customCost.toFixed(3):(SCS.preset||SC.keys.map(k=>k+":"+SCS.choice[k]).join(",")); }
 function scReadHash(v){
   if(!v) return;
   if(v==="reported"){ SCS.src="reported"; SCS.preset=null; return; }
+  if(v.indexOf("custom:")===0){ const c=parseFloat(v.slice(7)); if(isFinite(c)&&c>0){ SCS.src="custom"; SCS.preset=null; SCS.customCost=c; } return; }
   if(SC.presets[v]){ SCS.choice=Object.assign({},SC.presets[v].choice); SCS.preset=v; return; }
   const ch=Object.assign({},SCS.choice);
   v.split(",").forEach(kv=>{ const [k,x]=kv.split(":"); if(k in ch && scSwitch(k) && scSetting(k,x)) ch[k]=x; });
   SCS.choice=ch; SCS.preset=scPresetOf(ch);
+}
+
+/* ---------- the all-levers panel starts from a scenario ---------- */
+const FX_GLC_DEFAULT=C.fx.glc_kg;
+function fxFromScenario(key){
+  const box=document.getElementById("fx"); if(!box||!fxDefaults) return;
+  box.querySelectorAll("input,select").forEach(e=>{ if(e.id in fxDefaults){ if(e.type==="checkbox") e.checked=fxDefaults[e.id]; else e.value=fxDefaults[e.id]; } });
+  fxPco2Range=C.fx.species.model[5]; document.getElementById("fx_spn").innerHTML=C.fx.species.model[7];
+  const sel=document.getElementById("fx_sc"); if(sel) sel.value=key||"";
+  if(key){
+    const p=scParams(SC.presets[key].choice), set=(id,v)=>{ const e=document.getElementById(id); if(e) e.value=v; };
+    set("fx_dh",p.doubling_h); set("fx_m",p.mass_pg/1000);
+    set("fx_pl",p.items?"lean":p.plant); set("fx_gv",p.gas_v===undefined?C.fx.gas_v*1000:p.gas_v*1000);
+    set("fx_col",p.column||"none"); if(p.col_pout!==undefined) set("fx_cp",p.col_pout);
+    set("fx_pt",p.p_top===undefined?0.33:p.p_top); set("fx_ar",p.aspect===undefined?C.fx.aspect:p.aspect);
+    set("fx_hz",(p.hazard||0)*100); set("fx_rf",p.restart_fail===undefined?3:p.restart_fail);
+    set("fx_gf",(p.growth_factors||0)*100); set("fx_mp",p.medium_price===undefined?0.15:p.medium_price);
+    if(p.nh3_kg!==undefined){ set("fx_wm","sep"); set("fx_nh",p.nh3_kg); set("fx_ly",p.lac_yield); set("fx_gk",p.glc_kg===undefined?FX_GLC_DEFAULT:p.glc_kg); }
+    set("fx_mo","perfusion");
+  }
+  fxRender();
 }

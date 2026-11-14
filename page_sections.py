@@ -85,7 +85,17 @@ def scenario_table() -> str:
         f"<td class='s'>30.5 litres of medium per kilo at $0.50 a litre; the company reports no tank limit.</td></tr>")
     head = ("<thead><tr><th>Scenario: what has to go right</th><th>What it needs</th><th>Cost of a kilo of cells</th>"
             "<th>In the shop</th><th>Share of world meat, long run</th><th>What limits the tank</th></tr></thead>")
-    return f"<div class='scrollx'><table class='sctab'>{head}<tbody>{''.join(rows)}</tbody></table></div>"
+    labels = ("", "What it needs", "Cost of a kilo of cells", "In the shop", "Share of world meat, long run", "What limits the tank")
+
+    def label_row(row: str) -> str:                    # the phone layout stacks each row and prints these in front of each cell
+        out, k = [], 0
+        for part in row.split("<td")[1:]:
+            out.append(f"<td data-label='{labels[k]}'" + part if labels[k] else "<td" + part)
+            k += 1
+        return row.split("<td")[0] + "".join(out)
+
+    rows = [label_row(r) for r in rows]
+    return f"<div class='scrollx'><table class='sctab stack'>{head}<tbody>{''.join(rows)}</tbody></table></div>"
 
 
 # What stands in the way: each switch of the central scenario moved to a worse setting, with what it would take to meet it.
@@ -186,3 +196,105 @@ def cells_by_tank() -> str:
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(h)}</table></div>"
             "<p class='fnote'>The tank tricks help most when the cells are good: with ordinary meat cells, medium washing waste "
             "out sets most of the cost and no tank trick reaches it.</p>")
+
+
+# ----------------------------------------------------------------------------
+# Vessel types and operating modes: what the model computes today, and what a later session will add
+# ----------------------------------------------------------------------------
+_MODES = (("perfusion", "Perfusion", "fresh medium flows through the tank all the time while a device holds the cells back, "
+                                     "so the tank stays at its densest and is harvested continuously"),
+          ("filldraw", "Drained and refilled", "about half the tank is drained and refilled each cycle with nothing holding the cells "
+                                               "back; waste and the least medium flow cap the density, and the tank averages 72% of its peak"))
+_PLANTS = (("lean", "A lean plant"), ("sterile", "A sterile plant"), ("pharma", "A pharma-style plant"))
+
+
+def vessels() -> str:
+    """The comparison of operating modes, one stirred tank today, for the central scenario's cells; and the list of what is not yet modelled."""
+    c0 = S.SCENARIOS["central"].choice
+    h = ["<thead><tr><th>How the tank is run ↓ &nbsp; The plant →</th>" + "".join(f"<th>{_esc(l)}</th>" for _k, l in _PLANTS) + "</tr></thead><tbody>"]
+    for mk, mname, mdesc in _MODES:
+        h.append(f"<tr><th>{mname}<br><span class='alt'>{_esc(mdesc)}</span></th>")
+        for pk, _pl in _PLANTS:
+            r = S.run({**c0, "plant": pk}, mode=mk)
+            lim = S.LIMIT_PLAIN.get(r["limit"], r["limit"])
+            h.append(f"<td><b>{money(r['total'])}</b><br><span class='alt'>{r['density']:.0f} g/L, limited by {_esc(lim)}; "
+                     f"{r['medium_l']:.0f} L of medium a kilo; works {r['uptime'] * 100:.0f}% of the year</span></td>")
+        h.append("</tr>")
+    h.append("</tbody>")
+    return ("<p class='blkp'>Everything above is for one kind of vessel, a stirred tank of 20,000 litres, run in <b>perfusion</b>. The model "
+            "can also run it <b>drained and refilled</b>. This table shows the two against the three kinds of plant, for the central "
+            "scenario's cells (cost per kilo of cells; the tank's design and everything else as in the central scenario).</p>"
+            f"<div class='scrollx'><table class='sctab grid2'>{''.join(h)}</table></div>"
+            "<p class='fnote'>Perfusion wins by a wide margin because it keeps the culture at its densest and needs no refill. Drained "
+            "and refilled needs no device to hold the cells back, which is why it is used at this size today.</p>"
+            "<div class='scplace' id='vessels_todo'><b>Not yet in the model.</b> Other vessels: an <b>airlift</b> (gas lifts the "
+            "culture round a tall tube; no stirrer) and a <b>bubble column</b>. Other ways of running a tank: <b>batch</b> (fill, grow, "
+            "empty), <b>fed-batch</b> (feed during growth, empty at the end) and <b>chemostat</b> (continuous feed and harvest at a "
+            "steady density). A later piece of work will add them here, each as a row or column of this table and as a setting of "
+            "the switches in “What decides it”.</div>")
+
+
+# ----------------------------------------------------------------------------
+# Evidence: the back-test, what has and has not been measured, what would move the scenarios
+# ----------------------------------------------------------------------------
+def backtest_table() -> str:
+    import floor_physics as fp
+    rows = []
+    for run_, what, obs, mod, note in fp.backtest():
+        rows.append(f"<tr><td>{_esc(run_)}</td><td>{_esc(what)}</td><td class='n'>{obs:.1f}</td><td class='n'>{mod:.1f}</td>"
+                    f"<td class='n'>{obs / mod:.2f}×</td><td class='s'>{_esc(note)}</td></tr>")
+    return ("<div class='scrollx'><table class='sctab'><thead><tr><th>Reported run</th><th>Quantity</th><th>Observed</th><th>Model</th>"
+            "<th>Observed / model</th><th>Note</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+
+
+def experiments() -> str:
+    """What one measurement would be worth to the central scenario: the cost if a switch moved to the setting the measurement would show."""
+    c0 = S.SCENARIOS["central"].choice
+    base = S.run(c0)["total"]
+    base_sh = S.shares(base)["global"]
+    plan = (
+        ("A culture of low-waste meat cells that doubles every 24 hours in a stirred tank", {"growth": "24"},
+         "the combination has never been shown; the central case takes 36 hours"),
+        ("Cells that need no growth factors, or that make their own, at scale", {"gf": "none"},
+         "shown in cattle cells by genetic engineering; the central case buys 30% of Humbird's price"),
+        ("Medium at $0.15 a litre, verified on a stated mass basis", {"medium": "0.15"},
+         "companies announced $0.20; none verified at scale"),
+        ("A lean plant built and run for animal cells", {"plant": "lean"}, "nobody has built one"),
+        ("A column, pressure and recycled oxygen turn out not to work with dense meat cells", {"tricks": "none"},
+         "calculated, never tried with meat cells; the central case counts all three"),
+        ("Loss rates of 0.2% a day in a food-grade tank at 20,000 litres", {"losses": "0.2"},
+         "the survey of makers implies 0.6 to 2.2% a day if runs last 10 to 20 days; run lengths are not stated"),
+        ("The gas flow dense meat cells tolerate at this size", {"gas": "6"}, "6 mm/s has never been run with dense cells; 2 mm/s is the most that has"),
+    )
+    rows = []
+    for text, ch, why in plan:
+        r = S.run({**c0, **ch})["total"]
+        d = r - base
+        sh = S.shares(r)["global"] - base_sh
+        rows.append(f"<tr><td>{_esc(text)}</td><td class='n'><b>{'−' if d < 0 else '+'}{money(abs(d))}</b> a kilo<br><span class='alt'>{sh:+.1f} points of world share</span></td>"
+                    f"<td class='s'>{_esc(why[0].upper() + why[1:])}.</td></tr>")
+    return (f"<p class='blkp'>One measurement at a time: what the central scenario ({money(base)} a kilo, {base_sh:.1f}% of world meat) would be worth "
+            "if each measurement came out as the row says (in its favour, except where the row says it fails). These are the same switches as in “What decides it”, "
+            "so the figures are computed, not estimated by hand.</p><div class='scrollx'><table class='sctab'><thead><tr><th>The measurement</th>"
+            "<th>Worth to the central scenario if it comes out this way</th><th>What is known now</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+
+
+def measured() -> str:
+    """Two lists: what has been measured and what has not (the evidence behind the scenarios), each a sentence."""
+    done = [
+        "Perfusion at 100 to 214 million cells per millilitre at bench scale (CHO in a wave bag, Clincke 2013; chicken, SuperMeat 2024; Pasitka 2024).",
+        "Ammonia made by meat cells with and without glutamine (bovine, Hubalek 2023): 0.70 mol per kilo with, under 0.14 without; doubling 26 hours and 43 to 54.",
+        "A 20,000-litre food-grade stirred tank growing animal cells, drained and refilled, with no clean room (Vow; company reports).",
+        "Contamination losses across makers: 11.2% of batches (19.5% beyond flasks), with run lengths not stated (Powell 2025).",
+        "Gas flow in 8 to 20 cubic-metre tanks with animal cells: 0.1 to 2 mm a second (Nienow 2006).",
+    ]
+    todo = [
+        "Anything with dense meat cells in a tank above about 25 cubic metres.",
+        "Meat cells that make this little waste and still double in 24 to 30 hours.",
+        "CO₂ tolerance of muscle or fish cells; how much gas and foam dense cultures stand at 20 cubic metres.",
+        "A pumped column, extra pressure or recycled oxygen with meat cells.",
+        "A way to hold cells back at 20 cubic metres, and a lean plant's real cost.",
+        "Medium at $0.20 a litre and growth factors at scale, on a stated mass basis.",
+    ]
+    li = lambda xs: "".join(f"<li>{_esc(x)}</li>" for x in xs)
+    return (f"<div class='scpair'><div><h4>Has been measured</h4><ul>{li(done)}</ul></div><div><h4>Has not been measured</h4><ul>{li(todo)}</ul></div></div>")

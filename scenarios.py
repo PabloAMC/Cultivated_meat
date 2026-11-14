@@ -256,7 +256,8 @@ SCENARIOS = {
         "cautious", "Cautious: the best meat cells measured so far",
         "Meat cells as they have been measured (doubling every 43 hours, glutamine replaced), in a sterile plant, "
         "with no more gas than has been run, and a slow restart after every lost run.",
-        "Each switch at the setting that has actually been measured; tank design the cheapest the loop checks allow.",
+        "Each switch at a setting that has been measured or reported (else a cautious judgement: growth factors, medium price); "
+        "tank design the cheapest the loop checks allow.",
         design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1", "restart": "21",
                 "gf": "60", "medium": "0.30"})),
 }

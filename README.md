@@ -160,6 +160,8 @@ model/
 ├── price_ratio.py       ← step 1: R and the parity threshold
 ├── cost_model.py        ← step 1: Pasitka's costs, the scale-up lever, the reference case
 ├── scenarios.py         ← step 1: the cost scenarios (switches, presets, priorities, interactions, bands)
+├── page_sections.py     ← the page's computed tables (answer table, bottlenecks, cells by tank, vessels, evidence)
+├── page_scenarios.js    ← the page's live switches (a JavaScript mirror of scenarios.py)
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
 ├── scaffolding.py       ← step 3: structured products and their scaffold cost

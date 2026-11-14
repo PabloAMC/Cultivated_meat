@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-floor_physics.py — side-study to Rung 2: a physics-based floor for the cost of cultivated
-cells, by reactor type and plant class.  (NOT used in the headline cost.)
+floor_physics.py — the cost of a kilo of cultivated cells from tank physics and published plant costs,
+by reactor type and plant class (`explore`). The cost scenarios (scenarios.py) are sets of `explore` arguments;
+its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($11.48/kg), which earlier
+versions called the floor. (NOT used in the default cost of the share model.)
 
 Why
 ---
@@ -1034,7 +1036,7 @@ def fig_floor_tiers(pr: CostParams, outdir, fmts) -> None:
     ax.set_yticklabels([r["name"] for r in rows], fontsize=8)
     ax.set_xlabel(r"Cost of real wet cells (\$/kg)")
     ax.set_xlim(0, min(max(r["total"] for r in rows) * 1.12, 80))
-    ax.set_title("The class of plant sets the physics-allowed cost floor")
+    ax.set_title("The class of plant sets the cost")
     ax.legend(fontsize=7.5, frameon=False, loc="lower right")
     ax.grid(axis="y", visible=False)
     _save(fig, outdir, "floor_tiers", fmts)
@@ -1050,7 +1052,7 @@ def main():
     setup_style(use_latex=not args.no_latex)
     fmts = [f.strip() for f in args.formats.split(",") if f.strip()]
     pr = CostParams()
-    print("Rung 2 side-study — physics-based floor, per kg of real wet cells:")
+    print("Physics-based cost of cells, per kg of real wet cells (the reference case is explore() at its defaults):")
     summarise(pr)
     fig_floor_tiers(pr, args.outdir, fmts)
     print("Done.")

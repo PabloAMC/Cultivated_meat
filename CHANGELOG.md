@@ -31,6 +31,17 @@ Cost scenarios in place of "the floor" (`scenarios.py`, `research_notes/cost_sce
   became "price parity needs the best case or nearly"; the funding list was reordered (better cells first); the lean plant's break-even
   loss rate is about once in 28 days. Section 3's shares by type are unchanged and now labelled "reference case".
 
+Page reorganised (`research_notes/page_structure.md`)
+- Order: the answer (scenario table), what decides it, how the cost is built up, from cost to market share, evidence and checks, method and
+  sources (collapsed); a jump bar links them. Charts lose their numbers and are named in the text. Each share chart has its explanation under its title,
+  in the order of the reasoning (price ratio, how shoppers choose, each kind of meat, how fast).
+- New: **Vessel types and operating modes** (`#vessels`): operating mode against plant class for the chosen scenario, and a marked place for the
+  airlift, bubble column, batch, fed-batch and chemostat a later session will add. The old mixed list of cases lives on in the method.
+- New: cost-model back-test table, "what has and has not been measured", and "the measurements that would move the answer" (each priced from the switches).
+- Changed: the all-levers panel (Build your own case) is collapsed, starts from the chosen scenario and has a "Start from a scenario" control; "Use this case"
+  sends its cost to the charts. Tank shape slider goes down to 0.5. The scenario table restacks into cards on a phone.
+- No golden value moved: `tests/test_golden.py` is unchanged apart from a label ("reference cost").
+
 ## 2026-11-14
 
 Gas flow
