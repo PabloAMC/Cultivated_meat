@@ -485,8 +485,11 @@ checks, written up with sources in `research_notes/gas_exchange_study.md` and pi
 liquid, not by membrane area: a litre of culture gives up only about one millimole of CO₂ per pass, because
 the bicarbonate cannot be released without an acid, so the tank must go round the loop about eleven times an
 hour. At an assumed membrane price the floor would be about $9 with it, against $11.5; the price is weakly
-sourced, so this is not a lever on the page. A squat tank gives about the same gain with no new equipment if
-the cells' limit is the gas velocity through the liquid surface, and none if it is gas flow per litre. A
+sourced, so this is not a lever on the page. A squat tank gives about the same gain with no new equipment by
+passing more gas per litre of culture. Measured bubble damage goes with gas per litre, not velocity
+(Tramper 1988, Jöbses 1991, Handa-Corrigan 1989), and the limit Humbird cites is "about 0.1 vvm" for lysis
+and foaming (Ozturk 1996), so the squat tank pays in dead cells, a few percent of growth if a protectant
+works at scale as in small columns; the model does not count bubble deaths. A
 published 262 m³ airlift needs 1.6 to 2.3 times the model's gas velocity to hold its stated density.
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a

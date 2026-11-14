@@ -96,6 +96,16 @@ def check() -> list:
     if not ge.best_shape()["aspect"] < 1.0 < ge.best_shape(gas_rule="volume")["aspect"]:
         fails.append("the cheapest shape should be squat under the velocity rule and not under the per-litre rule")
 
+    # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
+    d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])
+    near("note: gas per litre at the floor, vvm", d0["vvm"], 0.096, 0.02)
+    near("note: bubble deaths at the floor, share of growth", d0["share_of_growth"], 0.08, 0.03)
+    near("note: bubble deaths in the squat tank", d1["share_of_growth"], 0.127, 0.03)
+    near("deaths scale with 1/depth at a fixed velocity", d1["death_per_h"] / d0["death_per_h"],
+         fp.tank_shape(20.0)[1] / fp.tank_shape(20.0, 0.8)[1], 1e-9)
+    if not ge.sparge_death(protected=False)["share_of_growth"] > 1.0:
+        fails.append("without protectant the model's gas flow should kill cells faster than they grow")
+
     # --- airlift --------------------------------------------------------------------------------------
     al = ge.airlift_check()
     for tag in ("paper", "model"):

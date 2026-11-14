@@ -539,6 +539,15 @@ REGISTRY: dict[str, Input] = {
     "ge_hall_share": Input(0.131, "of direct cost", "[Humbird-R, derived] the sanitary cell-culture hall's share of "
         "the plant: $20.9M of $159.5M (see pf_capex_no_cleanroom)"),
     "ge_clearance_m": Input(2.0, "m", "[assumed] floor taken per tank is (width + this)^2"),
+    "ge_kill_protected": Input(4.0e-4, "L of culture per L of gas", "[Jobses, Martens, Tramper 1991, read in full] "
+        "volume of culture whose cells die per volume of gas sparged, hybridoma with 1 g/L Pluronic F68: death "
+        "rate 0.05 per hour at 10 L/h of gas through 80 mL", lo=4.0e-4, hi=3.2e-3, mode=4.0e-4,
+        note="death rate = this x gas flow per litre of culture ('the cell death rate is linearly proportional to "
+             "the gas flow rate per unit volume'); independent of sparger and, in Tramper 1988, of bubble size. "
+             "hi = the same at 0.1 g/L (0.4 per hour). 3 cm columns, 4-6 mm bubbles, 2.0-12 cm deep: a long "
+             "extrapolation to 20 m3"),
+    "ge_kill_unprotected": Input(8.8e-3, "L of culture per L of gas", "[Jobses et al. 1991, read in full] the same "
+        "with no protectant: 1.1 per hour", note="Tramper et al. 1988 give 4e-3 for insect cells"),
     "ge_alr_volume": Input(261.754, "m3", "[Negulescu et al. 2023, read in full] 'the ALR is 261,754 L with a "
         "working volume of 209,404 L'"),
     "ge_alr_our": Input(10.3, "mmol O2/L/h", "[Negulescu et al. 2023, read in full] oxygen uptake 'of about 10.3 "

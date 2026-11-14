@@ -297,6 +297,20 @@ def best_shape(vessel_m3: float = 20.0, **kw) -> dict:
     return min(grid, key=lambda r: r["total"])
 
 
+def sparge_death(gas_velocity: float | None = None, depth: float | None = None, protected: bool = True,
+                 cells: fp.Cells | None = None) -> dict:
+    """Cells killed by bursting bubbles, from the measured rule that the death rate is proportional to
+    the gas flow per litre of culture (Tramper 1988, Jobses 1991): k_d = killing volume x (u_s / depth).
+    Returns the gas per litre (per hour and as vvm), the death rate per hour and its share of the
+    growth rate. Defaults: the model's gas limit in its 20 m3 tank."""
+    cells = fp.GOOD_CELLS if cells is None else cells
+    us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
+    depth = fp.tank_shape(20.0)[1] if depth is None else depth
+    per_h = us / depth * 3600.0
+    kd = value("ge_kill_protected" if protected else "ge_kill_unprotected") * per_h
+    return {"gas_per_h": per_h, "vvm": per_h / 60.0, "death_per_h": kd, "share_of_growth": kd / cells.mu}
+
+
 # ----------------------------------------------------------------------------
 # 5. A published design against the CO2 balance
 # ----------------------------------------------------------------------------
@@ -386,6 +400,13 @@ def main() -> None:
         print(f"   cheapest: depth/width {b['aspect']:.2f}, {b['density']:.0f} g/L, ${b['total']:.2f}/kg; per-litre gas rule: {bv['aspect']:.2f}, ${bv['total']:.2f}")
     r = shape_case(0.8, 200.0, cells_in_shell=10)
     print(f"  200 m3 horizontal vessel of ten stirred 20 m3 compartments, liquid 0.8 x as deep as wide: {r['density']:.0f} g/L ({r['limit']}), ${r['total']:.2f}/kg")
+    print("  cells killed by bursting bubbles (death rate = killing volume x gas per litre), share of the growth rate:")
+    for label, kw in (("floor: 6 mm/s in the 20 m3 tank, 1 g/L protectant", dict()),
+                      ("the same with no protectant", dict(protected=False)),
+                      ("squat tank (0.8) at 6 mm/s", dict(depth=fp.tank_shape(20.0, 0.8)[1])),
+                      ("200 m3 tank at 6 mm/s", dict(depth=fp.tank_shape(200.0)[1]))):
+        r = sparge_death(**kw)
+        print(f"    {label:<50} {r['vvm']:.3f} vvm  {r['death_per_h']:.4f}/h  {r['share_of_growth']:.0%}")
     print("\n3. AIRLIFT (Negulescu 2023, 262 m3, 100 g/L)")
     a = airlift_check()
     print(f"  height {a['height']:.1f} m, liquid depth {a['depth']:.1f} m")

@@ -11,7 +11,7 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 - **[INF]** marks my own inference or arithmetic. Most of section 1 is first-principles engineering
   (textbook transport equations applied to the model's cell), cross-checked against published devices.
 - Three web lookups were stopped by the model's safeguard (bubble damage to cells, twice, and one
-  repository PDF). The affected point (section 2.3) rests on memory and is labelled so.
+  repository PDF). Pablo then downloaded the papers and section 2.3 was rewritten from their full text.
 - Unit conversions: 1 mL of CO₂ per minute per m² (the medical unit, at standard conditions) = 2.68 mmol per
   m² per hour. 1 mmHg = 1.333 mbar.
 
@@ -28,11 +28,11 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
    180 m³/h of culture through about 2,500 m² of fibre, 9 kPa of pressure drop, 45 W per m³. At an assumed
    $200 per m² it adds about $78k per m³ of tank and takes the floor from $11.5 to about **$9.2/kg**
    (range $8.6 to $13.8 across the membrane prices found). Removing CO₂ for free would give $8.5.
-3. **A squat tank does about the same with no new equipment, on one condition.** Liquid 0.75–0.8 times as
-   deep as the tank is wide gives **$8.7–8.8/kg** with the extra steel and floor counted. That holds only if
-   what the cells tolerate is a gas velocity through the liquid surface. If it is gas flow per litre of
-   culture, which is what bubble-damage models imply, shape gives nothing and the loop is the only one of
-   the two that works.
+3. **A squat tank does about the same with no new equipment, by passing more gas per litre.** Liquid
+   0.75–0.8 times as deep as the tank is wide gives **$8.7–8.8/kg** with the extra steel and floor counted.
+   Measured bubble damage goes with gas per litre, not with velocity (three papers, read in full), so the
+   squat tank pays in dead cells: about 13% of growth against 8%, roughly $0.3/kg, if the protectant works
+   at scale as in small columns. Section 2.3, revised after reading the primary papers.
 4. **The cheapest published design fails the model's gas limit but not by much.** Negulescu's 262 m³ airlift
    needs 10–14 mm/s of gas to hold its 100 g/L at 100 mbar, against the model's 6. At 6 mm/s it holds
    43–62 g/L.
@@ -325,7 +325,8 @@ reference tank (0.096 vvm).
 - **Velocity rule: the cheapest shape is liquid 0.75 times as deep as wide, $8.7/kg, $2.8 below the
   floor.** Below that the oxygen limit binds, so a shallower tank only adds steel and floor. Counting
   steel and floor costs $0.4/kg at the optimum and moves it from "as squat as possible" to about 0.75.
-- **Per-litre rule: shape does nothing for CO₂.** The gas a tank may pass falls with its depth exactly as
+- **Per-litre rule, taken as a hard limit: shape does nothing for CO₂** (section 2.3 finds it is a cost,
+  not a hard limit). The gas a tank may pass falls with its depth exactly as
   fast as the gas it needs. The cheapest shape is then slightly taller than the model's (1.95, $11.4),
   because a deeper tank is allowed more gas velocity, which helps oxygen.
 - **200 m³:** under the velocity rule only a very shallow tank works (0.25: 9.3 m wide, 2.3 m deep,
@@ -341,20 +342,66 @@ reference tank (0.096 vvm).
   coefficient in a 12.5 m³ tank, Nickel 2024, in the repo's earlier note) or if the limit on gas is damage
   at the sparger holes and not at the surface.
 
-### 2.3 Which gas rule is right? [memory, unverified]
+### 2.3 Which gas rule is right? (revised 2026-11-14 after reading the primary papers)
 
-Humbird states the limit as a velocity "at the top of the vessel" and gives 0.1 vvm as its equivalent at
-20 m³. The model reads it as a velocity. The classical account of bubble damage (Tramper's "killing
-volume" model of the 1980s, as I recall it) has each bubble kill the cells in a fixed small volume when it
-bursts, so the death rate is proportional to gas flow per litre of culture and falls with liquid height at
-a given velocity. On that account the per-litre rule is the right one and a squat tank gains nothing.
-Foaming and gas hold-up, by contrast, are velocity limits. I could not verify the formula or find the
-origin of Humbird's figure: both lookups were stopped by the safeguard, and Ozturk 1996's abstract does
-not mention a sparge limit (snippet).
+Pablo downloaded the five papers and the thesis; four were read in full text for this section [21–24].
 
-My probability that the cells' limit behaves like a velocity (so that the squat tank's gain is real):
-**40%** (range 25–55%). This is the single most useful thing to check before relying on tank shape, and
-the model's tornado bar for shape ($9.3 to $25.2) is conditional on it.
+**What the sources say.**
+
+- **The limit Humbird cites is a flow per litre, and it has two causes.** Ozturk 1996 [21]: "Cell lysis and
+  foaming issues, however, limit the sparging rates to about 0.1 vvm." No velocity is given. Humbird's
+  6 mm/s is that figure converted at 20 m³.
+- **Bubble damage goes with gas per litre of culture.** Tramper et al. 1988 [22], insect cells: "the
+  first-order death-rate constant k_d is proportional to the air flow F and to the reciprocal height H",
+  and k_d = F X′ / V, with X′ (the volume of culture killed per volume of gas) about 4 × 10⁻³ and
+  independent of bubble size between 2 and 5 mm. Jöbses et al. 1991 [23], hybridoma: "the cell death rate
+  is linearly proportional to the gas flow rate per unit volume"; the sparger and the bubbles' rise do
+  no damage, the burst at the surface does. Handa-Corrigan et al. 1989 [24], hybridoma, myeloma and BHK
+  cells: viability rises with column height at a fixed gas flow. Three groups, four cell types, the same
+  result. All in columns of 2–5 cm across and up to 1.5 m tall.
+- **A protectant cuts the damage about twentyfold.** Jöbses [23]: the death rate at 10 L/h through 80 mL
+  fell from 1.1 per hour to 0.4 with 0.1 g/L of Pluronic F68 and to 0.05 with 1 g/L. That is a killing
+  volume of 8.8 × 10⁻³, 3.2 × 10⁻³ and 4 × 10⁻⁴.
+- All three papers conclude that taller vessels are better for cells at a given gas flow.
+
+**What follows** (`sparge_death`; death rate = killing volume × gas per litre) [INF from the measured rule]:
+
+| tank at the model's 6 mm/s | gas per litre | deaths, share of the growth rate (1 g/L protectant) |
+|---|---|---|
+| 20 m³, the model's shape | 0.096 vvm | 8% |
+| 20 m³, squat (0.8) | 0.153 vvm | 13% |
+| 200 m³, the model's shape | 0.045 vvm | 4% |
+| 20 m³, no protectant | 0.096 vvm | 176% (the culture dies) |
+
+1. **Bubble damage is a cost that rises with gas per litre, not a wall at a velocity.** With 1 g/L of
+   protectant, each 0.1 vvm costs about 8% of the growth rate, if the small-column figure holds at 20 m³.
+   The model does not count this loss anywhere, at the floor or elsewhere.
+2. **The squat tank survives, with a smaller gain.** At 6 mm/s it passes 1.6 times the gas per litre of
+   the reference tank, and 1.5 times Ozturk's "about 0.1 vvm". The extra deaths cost about 5% of output,
+   roughly $0.3/kg, against a gain of $2.8. So it is not true that shape "gives nothing" under the
+   per-litre rule, as the first version of this note said: that would follow only if 0.1 vvm were a hard
+   limit. A squat tank is simply a way to pass more gas per litre at the same surface velocity. It is the
+   right move if foam (a matter of velocity and surface) is what binds and the deaths are affordable.
+   Raising the gas flow by half in the reference tank is the same thing by the damage measure.
+3. **The model's penalty on large tanks is probably too harsh.** At a fixed 6 mm/s a 200 m³ tank gets
+   half the gas per litre that the damage evidence allows. At 0.096 vvm it would hold the same 120 g/L as
+   the 20 m³ tank (the "per-litre rule" columns in 2.2: $10.5–10.9 against $18.8). But that needs 13 mm/s
+   through its surface, and whether foam allows it is not in any of these papers. Humbird's own fall of
+   density with size has the same origin.
+4. **The protectant is the parameter that matters.** At 0.1 g/L the same gas costs 64% of growth. Cells
+   take protectant up (about 0.12 g/L per 10⁷ cells/mL, Gigout 2008 in the repo's earlier note, via a
+   review), which at 4–6 × 10⁷ cells/mL is 0.5–0.7 g/L. Dense cultures need to be dosed well above 1 g/L.
+
+**Probabilities, replacing the earlier 40%.**
+- Death by bubbles scales with gas per litre in a 20 m³ tank as in the small columns: 85%.
+- The squat tank delivers most of its gain (at least $2 of the $2.8/kg), given that the floor's own
+  6 mm/s is tolerable: **50%** (35–65%). It needs the protected killing volume to stay under about
+  10⁻³ at scale and at 120–190 g/L, and foam at 0.15 vvm to be manageable. Ozturk, who ran dense perfusion
+  cultures, put the practical limit at "about 0.1".
+- The floor's own gas assumption (0.096 vvm at 120 g/L) costs under 15% of growth to bubble deaths: 60%.
+
+What would settle it: the killing volume at 100+ g/L with 1–3 g/L of protectant, in a column at least a
+metre deep, and the foam behaviour at 0.1–0.2 vvm. Both are a few weeks at bench scale.
 
 Also not counted against squat tanks: the model's oxygen-transfer formula has no depth in it, and a
 shallow tank gives bubbles less time and less pressure to give up oxygen.
@@ -386,8 +433,8 @@ liquid 10.5 m deep.
   airlifts (a thesis, snippet [20]), and animal cells have been grown in airlifts of 2 to 5 m³ (Lonza;
   snippet [20]). The gas enters only the riser, where the velocity is about twice the figure above.
 - Per litre the design needs less gas than the model allows a 20 m³ tank (0.055–0.08 against 0.096 vvm).
-  So it fails under the velocity rule and passes under the per-litre rule. The same open question as in
-  section 2.3 decides it.
+  So it fails on velocity and passes on gas per litre. By the damage evidence in section 2.3 its bubble
+  deaths would be lower than the floor tank's; what is unknown is foam and gas hold-up at 10–14 mm/s.
 - A further problem is outside the CO₂ balance: Humbird notes that Li et al.'s oxygen uptake was half
   the authors' own reference value, so cells would run out of oxygen in the 20-second descent (Humbird's
   report, footnote 54, read by a subagent in full text). Li et al. was not read.
@@ -422,8 +469,8 @@ Two smaller changes are better supported and could go in sooner:
 litre of culture gives up per pass (about 1 mmol, because bicarbonate cannot be released without an acid),
 not by membrane area. For a 20 m³ tank at 190 g/L that means about 180 m³/h through about 2,500 m² of
 0.5 mm fibres, roughly $80k per m³ of tank at an assumed price. A tank with no sparging at all needs four
-times that. A squat tank gets the same gain with no new equipment, if and only if the cells' gas limit is a
-velocity and not a flow per litre.
+times that. A squat tank gets about the same gain with no new equipment by passing more gas per litre;
+it pays in cells killed by bubbles, a few percent of growth if the protectant works at scale (section 2.3).
 
 **Probabilities.**
 - A CO₂ loop beside a sparger can be made to work technically at 20 m³ for CHO-like single cells, given a
@@ -449,8 +496,10 @@ velocity and not a flow per litre.
    after a steam cycle. Success: CO₂ held at 100 mbar at 11 passes an hour with growth within 10% of the
    control and flux loss under 30%.
 
-A cheaper check comes before either: find out whether the gas limit is a velocity or a flow per litre
-(section 2.3). If it is a velocity, build squat tanks and skip the loop.
+A cheaper route comes before either (section 2.3, now read in the primary papers): bubble damage goes with
+gas per litre and a protectant cuts it twentyfold, so more gas per litre, in a squat tank or otherwise, may
+be affordable. Measure the killing volume and the foam at 0.1–0.2 vvm in a dense culture first. If both are
+acceptable, build squat tanks and skip the loop.
 
 **The model's floor with it.** $9.2/kg with a CO₂ loop at the assumed price (range $8.6–13.8 across
 membrane prices; $6.1 in a yeast-style plant), against $11.5 today and $8.7 for a squat tank under the
@@ -514,9 +563,24 @@ and 13 were read by a subagent, 9–12 and 14 by a second, 15–18 and 20 by a t
 20. Airlift practice: thesis at https://core.ac.uk/download/323206707.pdf (10–15 mm/s), SN; Lonza airlifts of
     2,000 and 5,000 L, SN; Li X et al. Chem Eng Sci 2020;211:115269, not read (known through [16] and [19]).
 
+21. Ozturk SS. Engineering challenges in high density cell culture systems. Cytotechnology 1996;22:3–16.
+    doi:10.1007/BF00353919 . FT (local PDF, sparging and aeration passages). "About 0.1 vvm", for cell lysis
+    and foaming; silicone tubing supports about 5 × 10⁷ cells/mL and was used up to 200 L.
+22. Tramper J, Smit D, Straatman J, Vlak JM. Bubble-column design for growth of fragile insect cells.
+    Bioprocess Eng 1988;3:37–41. doi:10.1007/BF00372858 . FT (local PDF).
+23. Jöbses I, Martens D, Tramper J. Lethal events during gas sparging in animal cell culture. Biotechnol
+    Bioeng 1991;37:484–490. doi:10.1002/bit.260370510 . FT (local PDF; results and discussion). One figure
+    caption gives a death rate that does not fit the others and may be a scanning error; the numbers used
+    are from the text.
+24. Handa-Corrigan A, Emery AN, Spier RE. Effect of gas–liquid interfaces on the growth of suspended
+    mammalian cells: mechanisms of cell damage by bubbles. Enzyme Microb Technol 1989;11:230–235.
+    doi:10.1016/0141-0229(89)90097-5 . FT of the abstract and the column-height results (local PDF).
+    Downloaded and not read: Tramper et al. 1986 (doi:10.1016/0141-0229(86)90007-4) and the Wageningen
+    thesis (https://edepot.wur.nl/198209).
+
 From memory, not looked up or not confirmed: PDMS permeabilities (search results give 3,190–3,970 Barrer
 for CO₂; 600 for O₂ is from a vendor sheet); diffusivities and solubilities (textbook values scaled to
-37 °C); that silicone tolerates repeated autoclaving; the Tramper killing-volume scaling (section 2.3).
+37 °C); that silicone tolerates repeated autoclaving.
 The uncatalysed CO₂ hydration rate at 37 °C is 0.11–0.18 per second (SN), so in 6 seconds a liquid comes
 about halfway to its new equilibrium without any enzyme. With no buffer this does not change the amount
 per pass (only dissolved gas leaves); the buffer rows assume equilibrium is reached, so they are upper
