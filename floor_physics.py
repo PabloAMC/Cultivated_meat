@@ -215,6 +215,31 @@ PLANT_CLASSES = {                      # key: (capital input, escalate from Humb
 }
 
 
+# Species presets for the two cell levers. (label, doubling time h, wet mass pg, what the numbers are and
+# how good they are). Sources and access levels: research_notes/species_cell_parameters.md.
+SPECIES_PRESETS = {
+    "model": ("Humbird's model cell", 24.0, 3000.0,
+              "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
+    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0,
+                "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell. Chicken "
+                "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
+                "animal-free medium took 61 hours [20]."),
+    "cattle": ("Cattle, serum-free", 39.0, 3000.0,
+               "Primary bovine muscle stem cells in serum-free medium on a surface: 39 hours on average "
+               "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
+               "model cell's is used. No suspension culture at density has been published."),
+    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0,
+             "The Mack1 line: 24 hours at 27 °C, 16.8 µm across, grown on a surface with 20% serum (Saad et al. "
+             "2023). Many fish lines take two days or more. No measurement shows that fish cells need less oxygen "
+             "per gram, so none is assumed."),
+    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0,
+               "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
+               "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's."),
+}
+SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell line that keeps dividing exists for "
+                   "them (reviews of 2024 and 2025).")
+
+
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
             uptime: float | None = None) -> dict:

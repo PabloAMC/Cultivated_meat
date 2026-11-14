@@ -89,6 +89,8 @@ def build_model() -> dict:
             "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
             "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
             "ref_mass": floor_physics.GOOD_CELLS.mass_pg, "ref_doubling": floor_physics.GOOD_CELLS.doubling_h,
+            "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
+            "species_missing": floor_physics.SPECIES_MISSING,
         },
         "cost_floor": AA_FLOOR + GLUCOSE_OTHER_FLOOR + value("plant_floor"),
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
@@ -620,6 +622,11 @@ def build_model() -> dict:
     }
     regions = [["us", "US"], ["eu", "Europe"], ["china", "China"], ["global", "Global"],
                ["brazil", "Brazil"], ["india", "India"], ["nigeria", "Nigeria"]]
+    # The page OPENS on the floor case (what readers ask about: cost and share if the engineering works).
+    # `default` stays the registry value (the reported cost) and is what the tests and the tables use.
+    start = {"media_price": 0.20, "efficiency": 0.25, "overhead": value("plant_floor")}
+    for sl in sliders:
+        sl["start"] = start.get(sl["key"], sl["default"])
     return dict(const=const, sliders=sliders, toggles=toggles, markets=markets, regions=regions)
 
 
@@ -728,6 +735,9 @@ def illustrative_numbers() -> dict:
     pen = {r: mm.penetration(mm.MARKETS[r], bio, income=mm.REGION_INCOME[r])[1:]   # (vol, val) totals
            for r in ("global", "eu", "us")}
     pen_us_floor = mm.penetration(mm.MARKETS["us"], cost_floor(cp), income=mm.REGION_INCOME["us"])[1]
+    pen_floor = {r: mm.penetration(mm.MARKETS[r], cost_floor(cp), income=mm.REGION_INCOME[r])[1]
+                 for r in ("global", "eu")}
+    R_floor = cost_ratio(cost_floor(cp), cp)
     traj = simulate(R_today, base, TimingParams(), acceptance_grows=True, which="x")["share"] * 100
     from dataclasses import replace as _replace
     from market_share import _segment
@@ -778,6 +788,8 @@ def illustrative_numbers() -> dict:
         "PEN_EU_VOL": f"{pen['eu'][0] * 100:.1f}", "PEN_EU_VAL": f"{pen['eu'][1] * 100:.1f}",
         "PEN_US_VOL": f"{pen['us'][0] * 100:.1f}",
         "PEN_US_FLOOR_VOL": pc(pen_us_floor),                         # US total if cost hit the floor
+        "PEN_GLOBAL_FLOOR_VOL": pc(pen_floor["global"]), "PEN_EU_FLOOR_VOL": pc(pen_floor["eu"]),
+        "SHARE_FLOOR": pc(share(R_floor, base)),                      # long run, floor cost, US everyday meat
         "Y10_SHARE": pc(traj[10] / 100), "Y30_SHARE": pc(traj[-1] / 100),   # the timing path (US)
         # plant-based at full price+taste parity, mainstream, calibration held (self-check [5])
         "PB_PARITY": pc(_segment(1.0, pbp, pbp.beta_price, "M", accept_x=1.0, theta_free_M=0.0,
@@ -901,6 +913,8 @@ def derived_numbers() -> dict:
         "MEDIA_TODAY": f"{media:.0f}",
         "BIOMASS_TODAY": f"{bio:.0f}",
         "RETAIL_TODAY": f"{bio + markup:.0f}",
+        "RETAIL_FLOOR": f"{floor + markup:.1f}",
+        "STAB_YEAR_FLOOR": str(int(years_to_stabilize((floor + markup) / p_conv, dp, TimingParams()))),
         "CUT_RETAIL_TODAY": f"{bio + mm.SCAF + markup:.0f}",
         "PCONV": f"{p_conv:.0f}",
         "MARKUP": f"{markup:.0f}",
@@ -1130,31 +1144,38 @@ business advice. No human expert has reviewed the model yet. The views expressed
 Commission. <a href="#about">About this page</a>.</p>
 
 <div class="findings">
-  <div class="fh">At the default settings</div>
+  <div class="fh">If the engineering works: the floor</div>
   <ol>
-    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat at the cost one company reports, with capital counted [1]; ~{{R_FLOOR}}&times; at the
-    cost floor for plants that have been costed for animal cells; about equal only at the frontier, a plant as cheap
-    as today's microbial fermentation plants.</li>
+    <li><b>Cost:</b> about ${{COST_FLOOR}} per kilo of cells, ${{RETAIL_FLOOR}} in the shop, ~{{R_FLOOR}}&times; everyday
+    meat. That needs everything that has been costed for animal cells to work together, which nobody has shown.
+    In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
+    built one for animal cells.</li>
+    <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
+    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%); less by animal count, since most animals are chickens.
+    Likely an upper estimate: the model over-predicts what shoppers pay a premium for (organic chicken check,
+    below).</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
-    <li><b>At the default cost:</b> ~{{PEN_GLOBAL_VOL}}% of world meat by weight (Europe ~{{PEN_EU_VOL}}%); less by
-    animal count, since most are chickens. Likely an upper estimate: the model over-predicts what shoppers pay a
-    premium for (organic chicken check, below).</li>
-    <li><b>Where:</b> beef and seafood; chicken and pork stay dearer even at the cost floor.</li>
-    <li><b>When:</b> these are long-run ceilings; adoption gets 90% of the way there in about {{STAB_YEAR}} years.</li>
+    <li><b>As a company reports its process:</b> about ${{BIOMASS_TODAY}} per kilo with capital counted [1],
+    ~{{R_TODAY}}&times; everyday meat, and ~{{PEN_GLOBAL_VOL}}% of world meat (Europe ~{{PEN_EU_VOL}}%).</li>
+    <li><b>Where:</b> beef and seafood; chicken and pork stay dearer even at the floor.</li>
+    <li><b>When:</b> these are long-run ceilings; adoption gets 90% of the way there in about {{STAB_YEAR_FLOOR}} years
+    at the floor ({{STAB_YEAR}} at the reported cost).</li>
   </ol>
 </div>
 
 <div class="chain" role="group" aria-label="The model in one line">
-  <div class="link"><div class="num">${{BIOMASS_TODAY}}/kg</div><div class="lab">to grow</div></div>
+  <div class="link"><div class="num">${{COST_FLOOR}}/kg</div><div class="lab">to grow, at the floor</div></div>
   <div class="arr">&rarr;</div>
-  <div class="link"><div class="num">${{RETAIL_TODAY}}</div><div class="lab">in the shop, {{R_TODAY}}&times; everyday meat</div></div>
+  <div class="link"><div class="num">${{RETAIL_FLOOR}}</div><div class="lab">in the shop, {{R_FLOOR}}&times; everyday meat</div></div>
   <div class="arr">&rarr;</div>
-  <div class="link"><div class="num">~{{SHARE_TODAY}}%</div><div class="lab">long-run share, US</div></div>
+  <div class="link"><div class="num">~{{SHARE_FLOOR}}%</div><div class="lab">long-run share against $12 meat, US</div></div>
   <div class="arr">&rarr;</div>
-  <div class="link"><div class="num">~{{STAB_YEAR}} years</div><div class="lab">to get 90% of the way</div></div>
+  <div class="link"><div class="num">~{{STAB_YEAR_FLOOR}} years</div><div class="lab">to get 90% of the way</div></div>
 </div>
-<p class="howto">The model in one line: everyday meat in the US, point estimates. It repeats this for every kind of
+<p class="howto">The model in one line, at the floor: everyday meat in the US, point estimates. The page opens on
+the floor case; &ldquo;As a company reports&rdquo; in the left panel switches to the reported cost
+(${{BIOMASS_TODAY}}/kg, ~{{SHARE_TODAY}}% in the US). It repeats this for every kind of
 meat and region (charts 1, 2, 7). The left panel starts with the key assumptions; hover or tap
 <span class="q">?</span> for help.</p>
 
@@ -1284,7 +1305,12 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       <div class="fx" id="fx">
         <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
         per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo.
-        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.</p>
+        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.
+        The first control sets the two cell levers from what has been published for a species; the rest of the case
+        stays as you set it.</p>
+        <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
+          <select id="fx_sp" onchange="fxSpecies()"></select></div>
+        <p class="fxn" id="fx_spn"></p>
         <div class="fxg">
           <div class="ctl"><label><span class="nm">Doubling time</span><span class="val" id="fx_dh_v"></span></label>
             <input type="range" id="fx_dh" min="16" max="72" step="1" value="24" oninput="fxRender()"></div>
@@ -1755,7 +1781,7 @@ JS_ENGINE = r"""<script>
 const MODEL = __MODEL_JSON__;
 const C = MODEL.const, SV = "http://www.w3.org/2000/svg";
 const state = {region: "global"};
-MODEL.sliders.forEach(s => { state[s.key] = s.default;
+MODEL.sliders.forEach(s => { state[s.key] = s.start;
   if (s.solved) state[s.key + "_ovr"] = false; });   // SOLVED weights start on AUTO (not overridden)
 MODEL.toggles.forEach(t => state[t.key] = false);
 state.mc = false;
@@ -3192,7 +3218,7 @@ function settingsHash(){
   MODEL.sliders.forEach(s=>{
     if(s.key==="income") return;
     if(s.solved){ if(state[s.key+"_ovr"]){ q.set(s.key,+(+state[s.key]).toPrecision(6)); q.set(s.key+"_ovr","1"); } return; }
-    if(state[s.key]!==s.default) q.set(s.key,+(+state[s.key]).toPrecision(6));
+    if(state[s.key]!==s.start) q.set(s.key,+(+state[s.key]).toPrecision(6));
   });
   if(Math.abs(state.income-C.REGION_INCOME[state.region])>1e-9) q.set("income",+(+state.income).toPrecision(6));
   MODEL.toggles.forEach(t=>{ if(state[t.key]) q.set(t.key,"1"); });
@@ -3238,6 +3264,19 @@ function buildRail(){
   sel.value=state.region;
   sel.onchange=()=>{state.region=sel.value;setIncome(C.REGION_INCOME[state.region]);fillCurveSel();recompute();};
   rc.appendChild(sel); rail.appendChild(rc);
+  // cost case: two presets for the three cost sliders (the page opens on the floor)
+  const pc=document.createElement("div");pc.className="ctl";
+  pc.innerHTML='<label><span class="nm">Cost case</span></label>';
+  [["floor","The floor"],["reported","As a company reports"]].forEach(([k,l])=>{
+    const bt=document.createElement("button");bt.className="btn";bt.textContent=l;bt.style.marginRight="6px";
+    bt.onclick=()=>{["media_price","efficiency","overhead"].forEach(key=>{
+        const s=MODEL.sliders.find(x=>x.key===key), v=k==="floor"?s.start:s.default;
+        state[key]=v; const inp=document.getElementById("r_"+key);
+        if(inp) inp.value=s.logscale?val2pos(s,v):v; setReadout(s);});
+      recompute();};
+    pc.appendChild(bt);});
+  addQ(pc.querySelector(".nm"),"The floor: everything that has been costed for animal cells works together, with the financing of a mature food industry. As a company reports: SuperMeat's 2024 process with a yearly charge on its plant. Both set the medium price, cell efficiency and plant running cost sliders.");
+  rail.appendChild(pc);
   // render one on/off toggle (checkbox + label + help) into `parent`.
   const addToggle=(t,parent)=>{
     const d=document.createElement("div");d.className="tog";
@@ -3307,12 +3346,12 @@ function buildRail(){
     (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(
       ()=>{lk.textContent="Link copied";setTimeout(()=>lk.textContent="Copy a link to these settings",1500);},
       ()=>prompt("Copy this link:",url));};
-  const b=document.createElement("button");b.className="btn";b.textContent="Reset all to defaults";
+  const b=document.createElement("button");b.className="btn";b.textContent="Reset all (to the floor case)";
   b.onclick=()=>{
     MODEL.sliders.forEach(s=>{                               // by KEY, so it is robust to the rail's layout
-      state[s.key]=s.default;
+      state[s.key]=s.start;
       const inp=document.getElementById("r_"+s.key);
-      if(inp) inp.value=s.logscale?val2pos(s,s.default):s.default;
+      if(inp) inp.value=s.logscale?val2pos(s,s.start):s.start;
       setReadout(s);});
     MODEL.toggles.forEach(t=>{state[t.key]=false;            // reset by KEY (robust to render order)
       const cb=document.getElementById("t_"+t.key); if(cb)cb.checked=false;});
@@ -3433,6 +3472,16 @@ function floorExplore(p){
           utilities:utilities, consumables:F.consumables, feedstock:feed,
           total:capital+labour+utilities+F.consumables+feed};
 }
+function fxSpecies(){
+  const sel=document.getElementById("fx_sp"), sp=C.fx.species[sel.value]; if(!sp) return;
+  document.getElementById("fx_dh").value=sp[1]; document.getElementById("fx_m").value=sp[2]/1000;
+  document.getElementById("fx_spn").innerHTML=sp[3]+" "+C.fx.species_missing; fxRender();
+}
+function fxInit(){
+  const sel=document.getElementById("fx_sp");
+  Object.keys(C.fx.species).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=C.fx.species[k][0];sel.appendChild(o);});
+  sel.value="model"; fxSpecies();
+}
 function fxMode(){document.getElementById("fx_up").value=
   Math.round(100*(document.getElementById("fx_mo").value==="perfusion"?C.fx.uptime_perfusion:C.fx.uptime_filldraw)); fxRender();}
 function fxRender(){
@@ -3458,7 +3507,7 @@ function fxRender(){
   n.push("Medium is at its floor price here: only what the cells must eat. Growth factors are not counted.");
   g("fx_notes").innerHTML=n.join(" ");
 }
-buildRail(); selfTest(); fxRender(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
+buildRail(); selfTest(); fxInit(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 // chart titles carry their longer "how to read" text in data-help, shown by the same "?" badge as the sliders
 document.querySelectorAll("[data-help]").forEach(h=>addQ(h,h.getAttribute("data-help")));
 function setFootView(v){state.footView=v;

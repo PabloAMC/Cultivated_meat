@@ -14,16 +14,15 @@ unchanged. Details: METHODS.md, "Changes of 2026-11-14".*
 
 All costs are per kg of real cells: about 70% water and 20% protein, like meat. Plant costs are in 2025 prices.
 
-- **As a company reports it, with capital counted,** cultivated chicken would cost about **$34/kg of cells, ~3.3×
-  everyday meat** ($39 in the shop vs a $12 benchmark). This is SuperMeat's 2024 process for 100% cell mass, from
-  10-litre runs scaled on paper to 25,000-litre tanks, with a yearly charge on the plant at the rate used for every
-  other case. The company's own figure, with depreciation only, is $29.5/kg. It is not peer reviewed. Across the
-  plausible range of costs the median is 3.3×; no draws reach parity.
-- **The floor is about $11.5/kg, ~1.4× everyday meat,** if everything that has been costed for animal cells works
-  together and the plant is financed like a mature food industry: a sterile plant without clean rooms, perfusion
-  in 20,000-litre tanks with a device that holds the cells back, efficient cells, floor-price medium. Each piece
-  has been shown or claimed somewhere, never together, and the device does not exist yet. With the financing of a
-  first plant the same case costs $14.
+- **The floor is about $11.5/kg of cells, ~1.4× everyday meat** ($16.5 in the shop vs a $12 benchmark), if
+  everything that has been costed for animal cells works together and the plant is financed like a mature food
+  industry: a sterile plant without clean rooms, perfusion in 20,000-litre tanks with a device that holds the
+  cells back, efficient cells, floor-price medium. Each piece has been shown or claimed somewhere, never together,
+  and the device does not exist yet. With the financing of a first plant the same case costs $14.
+- **At the floor it takes ~12% of world meat by weight** in the long run, 19% in the US and 26% in Europe (point
+  estimates at the default demand settings). Counted in animals it would be lower: most are chickens, where
+  cultivated does worst. These shares are best read as upper estimates: the model gives a real-meat product at a
+  premium far more share than organic chicken actually has (§2).
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
   a quarter of the cost per cubic metre. In such a plant the floor would be about **$6.6/kg**, just under the $7
   that parity needs. Nobody has built or costed one for animal cells, and yeast plants are cheap partly because
@@ -31,11 +30,11 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   density. This is the frontier that decides whether cultivated meat can match the price of everyday meat.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
-- **At the default cost** that adds up to **~0.3% of world meat by weight** (Monte Carlo median; 80% range
-  0.1–1.4%), **1.7% in Europe**. At the default settings exactly, 0.9% of world meat and 2.4% in the US; at the
-  floor, 19% in the US. Counted in animals it would be lower: most are chickens, where cultivated does worst.
-  These shares are best read as upper estimates: the model gives a real-meat product at a premium far more share
-  than organic chicken actually has (§2).
+- **As a company reports its process, with capital counted,** cultivated chicken costs about **$34/kg of cells,
+  ~3.3× everyday meat** ($39 in the shop). This is SuperMeat's 2024 process for 100% cell mass, from 10-litre runs
+  scaled on paper to 25,000-litre tanks, with a yearly charge on the plant; the company's own figure, with
+  depreciation only, is $29.5/kg. It is not peer reviewed. At that cost the share is **~0.9% of world meat** (2.4%
+  in the US; Monte Carlo median over the cost and demand ranges 0.3%, 80% range 0.1–1.4%).
 - **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. A few luxury products are beatable
   on price already, but tiny.
 - **When:** these are long-run ceilings; adoption reaches 90% of its long-run share after about 30 years.

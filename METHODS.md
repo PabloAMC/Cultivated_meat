@@ -313,6 +313,28 @@ that size the CO₂ limit allows about 60 g/L of animal cells, not 120, and the 
 $10/kg, not $6.6. The frontier as reported assumes a plant at that cost per m³ with 20 m³ tanks, which nobody
 has priced. How much of a yeast plant's cheapness survives at small tank sizes is the open question.
 
+**Species (`SPECIES_PRESETS`).** The panel can set the two cell levers from what has been published for a
+species. With everything else at the floor case:
+
+| kind of cell | doubling time | cell mass | cells, $/kg | source and quality |
+|---|---|---|---|---|
+| Humbird's model cell | 24 h | 3.0 ng | 11.5 | the cell every case assumes; not shown for meat |
+| chicken, as reported in perfusion | 48 h | 1.4 ng | 24 | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
+| cattle, serum-free | 39 h | 3.0 ng (no data) | 17 | Stout et al. 2022, primary cells on a surface; no suspension data |
+| fish (Atlantic mackerel) | 24 h | 2.5 ng | 12 | Saad et al. 2023, on a surface with 20% serum |
+| insect (Sf9), for reference | 23 h | 2.2 ng | 12 | Ashizawa et al. 2022, a compilation; grown at 21 m³ for vaccines |
+
+The cells matter as much as the plant: the chicken cells a company reports cost twice the floor in the same
+plant. Two things the literature search did not find (`research_notes/species_cell_parameters.md`): any
+measurement that fish cells need less oxygen per gram at their lower culture temperature, so the model assumes
+none; and any cell line that keeps dividing for shrimp or other crustaceans, so there is no preset for them.
+Several of the numbers were read only in abstracts; the notes mark which.
+
+**What the page opens on.** The page's sliders start at the floor case (medium at $0.20/L, efficient cells, the
+floor's plant cost), because cost and share near the floor are what readers ask about; a button switches to the
+cost a company reports. The inputs registry, the Monte Carlo and the tests still take the reported cost as the
+default.
+
 Limits. Capital per m³ is other people's engineering, not physics. The 120 g/L limits are Humbird's for
 efficient cells; less efficient cells hit ammonia far sooner. The last row is a rough bound, not a proof: it
 still uses a plant cost and an oxygen ceiling that are estimates. The model cell is his 3 ng; real meat cells are

@@ -94,6 +94,12 @@ def check() -> list:
     # caps fall for cells that respire more per gram
     if not fp.waste_cap(small) < fp.waste_cap(good) == value("pf_x_unperfused"):
         fails.append("the waste-limited density should fall for cells that respire more per gram")
+    # the page's lever controls: the defaults are the floor, and every species preset runs
+    near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-6)
+    for key, (_label, dh, mass, _note) in fp.SPECIES_PRESETS.items():
+        r = fp.explore(doubling_h=dh, mass_pg=mass)
+        if not (0 < r["density"] <= value("pf_x_visc") and r["total"] > 0):
+            fails.append(f"species preset {key}: implausible case {r}")
     if not (value("plant_floor_lo") < value("plant_floor") < value("plant_floor_hi")):
         fails.append("floor inputs out of order: frontier < floor < cautious expected")
 
