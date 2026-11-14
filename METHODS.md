@@ -320,9 +320,9 @@ across its plausible range, the others held at the case being viewed. Around the
 
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
-| gas flow the cells tolerate | 2 to 6 mm/s | 28.0 – 11.5 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.3 – 25.2 |
-| tank size | 5 to 200 m³ | 10.6 – 18.8 |
+| gas flow the cells tolerate | 2 to 9 mm/s | 27.0 – 8.9 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.4 – 24.8 |
+| tank size | 5 to 200 m³ | 10.8 – 18.2 |
 | plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
 | waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
 | doubling time | 18 to 48 h | 10.4 – 17.5 |
@@ -341,8 +341,9 @@ across its plausible range, the others held at the case being viewed. Around the
 | oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
 
 The floor sits at the favourable end of most ranges, which is why most bars point up. The two that point down
-furthest are the plant (a cheaper estimate or class) and CO₂ tolerance. The largest risk is the gas flow: the
-floor assumes the top of the guidance. Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
+furthest are the plant (a cheaper estimate or class) and the gas flow. The largest risk is also the gas flow: the
+floor's 6 mm/s is a rule of thumb, not a measured limit, and our odds that it works at this size are about even
+(below, and `research_notes/gas_flow_cap.md`). Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
 effect on the case shown are listed under the chart instead of drawn. Clicking a factor opens a card that says
 what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
 either end. The chart on the page redraws for any case the reader sets; around the
@@ -407,16 +408,27 @@ which is in Humbird's design:
 |---|---|---|---|
 | none | 120 | CO₂ | 11.5 |
 | cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 9.4 |
-| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.3 |
-| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
-| 150 mbar and the squat tank | 195 | oxygen supply | 8.5 |
-| 200 m³ tank | 56 | CO₂ | 18.8 |
-| 200 m³ squat tank, cells tolerating 200 mbar | 153 | CO₂ | 10.1 |
-| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.5 |
+| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.4 |
+| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.9 |
+| 150 mbar and the squat tank | 195 | oxygen supply | 8.6 |
+| 200 m³ tank | 56 | CO₂ | 18.2 |
+| 200 m³ squat tank, cells tolerating 200 mbar (run at 177 mbar: the salt limit, below) | 135 | CO₂ | 10.8 |
+| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.6 |
 
-The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit
-protects cells from bursting bubbles in media with little protectant. How much CO₂ and gas meat cells tolerate
-while growing is not known; it is the single measurement that would move the floor most. **Larger tanks
+The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit is a
+rule of thumb against cell damage and foam (see "What caps the gas flow" below). How much CO₂ and gas meat cells
+tolerate while growing is not known; it is the single measurement that would move the floor most.
+
+*What the gas costs (`oxygen_fed`, the `gas` term).* Because the gas flow is set by CO₂, a kg of cells needs a
+fixed volume of gas whatever the gas velocity: 6.2 mol of CO₂ at 3.7 mol per m³ of exhaust is 1.67 m³. Humbird
+sparges 90% oxygen made on site, so the tank is fed 2.5 kg of oxygen per kg of cells and the cells use 6% of it
+(his plant's oxygen unit works out to 3.7 kg per kg in fed-batch). At his $0.15 per kg of oxygen (range
+0.10–0.33; the top is what his own plant tables imply), escalated, that is $0.52 per kg of cells. It is already
+inside his plant cost and utilities, but tied to the tank. The model now charges it in proportion to the gas
+passed per litre of culture and adds only the difference from the design the plant prices assume (20 m³, his
+tank shape, 6 mm/s), so the floor is unchanged while a case with less gas no longer pays for the full oxygen
+plant and a case with more gas, or a squatter tank, pays for a larger one. The yeast-style plant's price has no
+oxygen unit in it; that omission is not corrected here. **Larger tanks
 raise the cost** unless the CO₂ limit is relaxed, because the loss of density outweighs the cheaper vessel.
 Cells of 1.5 ng raise the floor to $13.
 
@@ -437,7 +449,7 @@ limit binds, the model runs the tank at whichever CO₂ level, at or below what 
 This changes what CO₂ tolerance is worth. Cells that tolerate 200 mbar take the floor to $9.3, not $8.5, and
 the tank is run at about 157 mbar with 17 litres of medium per kg in place of 11. Removing CO₂ by engineering
 (more gas, a squat tank, a membrane loop) raises the density without adding bicarbonate, so it keeps its full
-value ($8.5–8.7). Holding the tank at pH 6.9 would also restore it, if the cells grow as well there.
+value ($8.6–8.9). Holding the tank at pH 6.9 would also restore it, if the cells grow as well there.
 
 Least medium flow. Besides ammonia and lactate, other by-products build up and individual nutrients run out,
 so a cell needs a least flow of medium per day whatever it makes. Bioprocess engineers call it the
@@ -471,12 +483,35 @@ literature: how long cells tolerate no oxygen when cooled, and settling of real 
 
 *What the literature says about the CO₂ levers.* Tolerance: CHO cells lose about 9% of their growth rate at
 200 mbar with osmolality controlled and about half near 260 mbar with it raised, so 100 / 160 / 200 mbar is a
-defensible range; nothing is published for muscle, fibroblast or fish cells. Gas flow: Humbird's 6 mm/s
-(0.1 vvm at 20 m³) is the top of the guidance. Large pharma tanks are reported at 0.005–0.02 vvm, 5 to 20 times
-less, because their thin cultures need no more. Nobody has shown cells at 100 g/L or more tolerating his limit
-in a 20 m³ tank, so the 120 g/L the floor uses is itself unproven at scale, and the gas-flow lever only goes
-down from his value with any support. Tank shape: liquid depth of 1 to 3 times the width is in use. The
+defensible range; nothing is published for muscle, fibroblast or fish cells. Gas flow: see the next paragraph. Tank shape: liquid depth of 1 to 3 times the width is in use. The
 exhaust of tall tanks leaves saturated with CO₂ (four sources), which is what the balance assumes.
+
+*What caps the gas flow (`pf_gas_velocity`; `research_notes/gas_flow_cap.md`).* Humbird's 6 mm/s is his
+conversion, for a 20 m³ tank, of guidance that the maximum sparge rate "is usually <0.1 vvm". He cites two
+sources we could not read; one paper restates the first as a limit set by "cell lysis and foaming". It is not a
+measured threshold, and Humbird himself calls such limits dubious. Nienow (2006, read in full) reports 0.1 to
+2 mm/s in 8–20 m³ tanks and says the upper limit with protectant present "is not established". Mechanism by
+mechanism:
+
+| mechanism | what it allows at 20 m³, mm/s (low / central / high) | basis |
+|---|---|---|
+| bursting bubbles, with 2–5 g/L of protectant | 2 / 14 / above 20 | death rate = killing volume × gas per litre (vvm); protectant cuts it at least 100-fold; 0.2 vvm harmless at 60–80 million cells/mL up to 200 L (abstract) |
+| the same without protectant | under 0.5 | cells would die ten times faster than they grow |
+| bubble formation at the sparger | no cap | design: 200–450 holes of 2 mm keep the hole velocity under 15–30 m/s |
+| foam, and the side effects of antifoam | 2 / 5 / 10 (judgement) | scales with velocity; never measured against it; antifoam slows growth above about 50 ppm, can halve oxygen transfer, fouls filters, and is limited to 10 ppm in US food |
+| impeller flooding, gas hold-up | no cap | flooded above 1.4–3 mm/s, the tank becomes a stirred bubble column; hold-up about 4%; the oxygen formula is extrapolated above 2 mm/s |
+| evaporation, exhaust | no cap | 0.6% of the volume a day |
+| cost of the gas | no cap | $0.52/kg at any velocity (above) |
+
+Bubble damage scales with gas per litre, as CO₂ removal does, so it does not get worse with tank size; foam
+scales with velocity, so it does. Reported practice: tanks of 1–25 m³ at 0.002–0.02 vvm and up to 40 million
+cells per mL; no run above 200 L combines 50 million cells per mL with 0.05 vvm; no culture at 6 mm/s at any
+scale. The defensible range is 2 / 5 / 9 mm/s and our probability that 6 mm/s is usable at 20 m³ and 120 g/L is
+about 45%. The floor keeps 6 mm/s, since it takes the favourable end of each range; at 5 mm/s it would be
+$13.0, at 2 mm/s $27.0 and at 9 mm/s $8.9. Not in the model: the protectant (poloxamer 188, uncosted, and not a
+clearly permitted food additive), the effect of antifoam on oxygen transfer, and an exhaust less saturated with
+CO₂ than the 96% assumed (0.7–0.96 is defensible; at 0.85 the floor is $12.6). Most primary papers were read as
+abstracts; the note lists the access level of each.
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:

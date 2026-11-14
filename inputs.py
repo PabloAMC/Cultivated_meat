@@ -454,13 +454,21 @@ REGISTRY: dict[str, Input] = {
              "about half near 260 mbar with osmolality raised; a defensible range is 100 / 160 / 200 mbar. "
              "CHO and hybridoma only: nothing is published for muscle, fibroblast or fish cells"),
     "pf_gas_velocity": Input(0.006, "m/s", "[Humbird-R] Sect. 2.3: 'Sparging is limited to a superficial velocity of "
-        "0.006 m/s at the top of the vessel' (0.1 vvm in a 20 m3 tank), to protect cells from bursting bubbles",
-        lo=0.0006, hi=0.006, mode=0.006,
-        note="CAUTION: this is the top of the guidance, not practice. Large pharma tanks are reported at "
-             "0.005-0.02 vvm (0.6 mm/s in a 12.5 m3 tank), 5-20 times less, because their thin cultures need no "
-             "more. Whether cells at 100+ g/L tolerate Humbird's limit in a 20 m3 tank is untested. The exhaust "
-             "gas leaves tall tanks saturated with CO2 (Bowers 2008 and three other sources), which is what "
-             "the balance assumes"),
+        "0.006 m/s at the top of the vessel' (0.1 vvm in a 20 m3 tank); his recasting of guidance that the maximum "
+        "sparge rate 'is usually <0.1 vvm' (he cites Ozturk 1996 and Poertner 2015, neither readable by us)",
+        lo=0.002, hi=0.009, mode=0.005,
+        note="NOT A MEASURED LIMIT (research_notes/gas_flow_cap.md). A 1990s rule of thumb, reportedly for 'cell "
+             "lysis and foaming', turned into a velocity for one tank. Nienow 2006 (read in full): large tanks use "
+             "0.1-2 mm/s and the upper limit with protectant 'is not established'. What we found: (1) damage from "
+             "bursting bubbles scales with gas per litre (vvm), as CO2 removal does, so it does not worsen with "
+             "tank size; with 2 g/L poloxamer and drilled-hole spargers 0.2 vvm did no harm at 60-80 million "
+             "cells/mL up to 200 L (abstract), without protectant 0.1 vvm kills cells ten times faster than they "
+             "grow; (2) foam scales with velocity, is unmeasured against it, and is the likeliest cap; (3) no "
+             "published culture at 6 mm/s at any scale, and none above 200 L combines 50 million cells/mL with "
+             "0.05 vvm; tanks of 1-25 m3 are reported at 0.002-0.02 vvm. Defensible range 2 / 5 / 9 mm/s; our "
+             "probability that 6 mm/s is usable at 20 m3 and 120 g/L is about 45%. The floor keeps 6 because it "
+             "takes the favourable end of each range. The exhaust gas leaves tall tanks close to saturated with "
+             "CO2 (four sources), which is what the balance assumes"),
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
@@ -472,6 +480,18 @@ REGISTRY: dict[str, Input] = {
              "70 (Fig. 2.8b): the balance reproduces his curve, and its (V)^(-1/3) fall with size is geometry "
              "(liquid depth). This factor, 0.96, sets the 20 m3 value to the 120 g/L the floor uses "
              "(pf_x_co2_20m3). Perfusion does not help: at 11 L/kg the liquid carries off about 4% of the CO2"),
+    # --- gas supply (floor_physics.oxygen_fed): what the sparge gas costs per kg ---
+    "pf_o2_purity": Input(0.90, "mol/mol", "[Humbird-R] Sect. 2.3: the tanks are sparged with 90% O2 made on site by "
+        "vacuum pressure-swing adsorption (VPSA)"),
+    "pf_back_pressure": Input(1.33, "bar", "[Humbird-R] Sect. 4.1: '1.33 bar (5 psig) back pressure at the top'; his gas "
+        "velocity limit is defined at the top of the vessel"),
+    "pf_o2_price": Input(0.15, "$/kg O2", "[Humbird-R] Sect. 2.3: on-site VPSA oxygen at 'a size-dependent effective cost "
+        "of $0.10-0.20/kg O2' (2018 prices; escalated with running costs)", lo=0.10, hi=0.33, mode=0.15,
+        note="hi: Humbird's own plant tables imply more. His Table 4.1 lists a 25,000 t/y VPSA at $8.84M bare for "
+             "480 m3 of tanks (about 13% of direct plant cost once installed), which at his 23.6% yearly charge "
+             "plus Table 4.4's power is about $0.25-0.33 per kg O2 [derived]. The oxygen plant is sized by the gas "
+             "flow, not by what the cells use: his design feeds about 3.7 kg O2 per kg of cells (25,000 t/y for "
+             "6,800 t/y of cells) and the cells use 0.2, so about 95% is vented"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),

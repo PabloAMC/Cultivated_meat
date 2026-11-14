@@ -157,6 +157,18 @@ def co2_limited_density(cells: Cells, vessel_m3: float = 20.0, pco2_mbar: float 
     return removal / (value("pf_rq") * cells.qo2)
 
 
+def oxygen_fed(vessel_m3: float = 20.0, gas_velocity: float | None = None, aspect: float | None = None) -> float:
+    """Oxygen fed with the sparge gas, kg O2 per m3 of liquid per hour: (gas velocity / liquid depth) tank
+    volumes of gas per second, at the vessel's back pressure, of which pf_o2_purity is oxygen. It depends
+    on the gas flow and the tank, not on what the cells use: nearly all of it leaves in the exhaust,
+    because the gas flow is set by CO2 removal. With the defaults (Humbird's 20 m3 tank at 6 mm/s) it is
+    8.6 kg per m3 an hour; his plant's oxygen unit averages 7.4 over a fed-batch cycle (Table 4.1)."""
+    us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
+    _T, depth = tank_shape(vessel_m3, aspect)
+    mol_gas = us / depth * 3600.0 * value("pf_back_pressure") * 1e5 / (8.314 * 310.15)   # mol gas per m3 liquid per hour
+    return mol_gas * value("pf_o2_purity") * 0.032
+
+
 def mixing_time_ratio(vessel_m3: float, aspect: float | None = None) -> float:
     """Mixing time relative to the reference 20 m3 tank (Humbird Eq. 2.18 at fixed stirring power):
     t_m ~ T^(2/3) x (H_L/T)^2.5."""
@@ -448,10 +460,18 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
     # figure is taken at the efficient cells' 11 L/kg)
     gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) if growth_factors else 0.0
-    total = capital + labour + utilities + consumables + feed + gf
+    # the sparge gas: oxygen fed per kg of cells x its price. The plant prices (capital per m3, utilities)
+    # already contain the oxygen supply of the design they come from (20 m3, Humbird's tank shape, his gas
+    # limit), so only the difference from that design is added: more gas per litre of culture needs a
+    # larger oxygen plant, less gas a smaller one.
+    o2_cost = value("pf_o2_price") * ox * value("pf_working_volume") * HOURS / (out * 1000.0)   # $ per kg cells per (kg O2/m3/h)
+    gas = o2_cost * oxygen_fed(vessel_m3, gas_velocity, aspect)
+    gas_extra = gas - o2_cost * oxygen_fed()
+    total = capital + labour + utilities + consumables + feed + gf + gas_extra
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
+            "gas": float(gas), "gas_extra": float(gas_extra),
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
             "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
             "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm)}
@@ -606,12 +626,16 @@ CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 # or the literature ranges in research_notes/. Only things that can limit the cost are here: a product
 # choice such as blending is not.
 TORNADO = [
-    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.006, "2 mm/s", "6 mm/s",
+    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.009, "2 mm/s", "9 mm/s",
      "CO\u2082 leaves the tank only in the gas bubbled through it, so the density a tank can hold is "
-     "proportional to the gas flow. Too much gas kills cells when bubbles burst. <b>Range:</b> 6 mm/s is the top "
-     "of the published guidance, which the floor uses [2]. Large pharma tanks usually run at 5 to 20 times less, "
-     "because their thin cultures need no more; 2 mm/s is a judgement between the two. <b>Evidence:</b> weak. "
-     "Nobody has run cells this dense at this size."),
+     "proportional to the gas flow. <b>Range:</b> the floor uses 6 mm/s, Humbird's reading of a rule of thumb "
+     "[2]; it is not a measured limit. Large pharma tanks run at 0.1 to 2 mm/s because their thin cultures need "
+     "no more, and 2 is about the most that has been run with cells. 9 is what bubble damage would allow with "
+     "enough protectant. <b>What caps it:</b> bursting bubbles kill cells, but a protectant cuts that at least "
+     "100-fold, and small tanks at 60 to 80 million cells per mL took twice the floor's gas per litre. Foam is "
+     "the likelier cap: it grows with gas velocity, and the antifoam that controls it slows growth and oxygen "
+     "transfer. <b>Evidence:</b> weak. Nobody has run cells this dense at this size, or any culture at 6 mm/s. "
+     "Our odds that 6 mm/s works at this size are about even."),
     ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
      "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
      "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "

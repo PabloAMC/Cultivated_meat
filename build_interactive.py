@@ -83,6 +83,11 @@ def build_model() -> dict:
             "x_waste": value("pf_x_unperfused"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
             "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"),
+            # sparge gas: $ per kg of cells per (kg O2 fed per m3 of liquid per hour) x output, and the oxygen
+            # fed by the design the plant prices come from (floor_physics.oxygen_fed)
+            "o2_cost": value("pf_o2_price") * value("pf_opex_escalation") * value("pf_working_volume") * 8760.0 / 1000.0,
+            "o2_per_gas": value("pf_back_pressure") * 1e5 / (8.314 * 310.15) * value("pf_o2_purity") * 0.032 * 3600.0,
+            "o2_ref": floor_physics.oxygen_fed(),
             "draw": value("pf_draw_fraction"), "wv": value("pf_working_volume"),
             "labour_ref": value("pf_labour") * floor_physics.output_per_m3(floor_physics.GOOD_CELLS, "fedbatch")
                           * value("pf_opex_escalation"),
@@ -1376,6 +1381,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner:
         CO&#8322; leaves only in the gas bubbled through, and a deeper tank passes less gas per litre. Cells that
         tolerate more CO&#8322;, more gas flow, or a squatter tank all raise the limit.
+        More gas per litre of culture needs a larger oxygen plant, which is charged.
         The first control sets the cell levers from what has been published for a species, including how much
         CO&#8322; its cells are thought to tolerate; the rest of the case stays as you set it.</p>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
@@ -3622,9 +3628,11 @@ function floorExplore(p,noSearch){
   const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(lacRoom/1000),flow/(cell.mu*24)):1000/lim[1];
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf*ml/F.gf_litres:0, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
-  const total=capital+labour+utilities+F.consumables+feed+gf;
+  // sparge gas: oxygen fed per kg x its price; only the difference from the design the plant prices assume is added
+  const gas=F.o2_cost/out*F.o2_per_gas*us/depth, gasExtra=gas-F.o2_cost/out*F.o2_ref;
+  const total=capital+labour+utilities+F.consumables+feed+gf+gasExtra;
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
-          utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
+          utilities:utilities, gas:gas, gas_extra:gasExtra, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
           pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+2*lac/ml*1000:NaN};
 }
@@ -3766,7 +3774,7 @@ function fxRender(){
     "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"), produces "+
     (r.uptime*100).toFixed(0)+"% of the year and makes "+r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+
     (r.capex/1000).toFixed(2)+" million per m&sup3; of tank. Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+
-    r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
+    r.labour.toFixed(1)+", energy, gas and consumables $"+(r.utilities+r.consumables+r.gas_extra).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
     (r.medium_floor?" (the nutrients the cells must eat; the medium cannot cost less)":"")+
     (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
     (isFinite(r.osmolality)?"Salt strength in the tank: "+r.osmolality.toFixed(0)+" mOsm/kg"+
@@ -3781,7 +3789,7 @@ function fxRender(){
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
-  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is the top of the guidance: large pharma tanks usually run at 5 to 20 times less gas, and nobody has shown cells this dense tolerating it at this size.");
+  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is a rule of thumb, not a measured limit: large pharma tanks run at 0.1 to 2 mm/s, and nobody has run cells this dense at this size or any culture at 6 mm/s. Bubble damage is held off by a protectant; foam is the likelier cap. Our odds that 6 mm/s works here are about even. The oxygen fed with the gas costs about $0.5 per kilo and is charged with the gas flow.");
   n.push("Salt: holding the pH against CO&#8322; takes bicarbonate, and lactate comes with its base; both add salt, and cells stop growing when the total is too high. So more CO&#8322; leaves less room for lactate, which then needs more medium to wash out.");
   n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");

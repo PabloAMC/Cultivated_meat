@@ -2,6 +2,14 @@
 
 ## 2026-11-14
 
+Gas flow (later the same day)
+- What caps the sparge gas flow was researched mechanism by mechanism (`research_notes/gas_flow_cap.md`).
+  Humbird's 6 mm/s is a rule of thumb, not a measured limit; the floor keeps it and still costs $11.5/kg, the
+  tornado range is now 2–9 mm/s ($27.0–8.9), and the input's note gives the evidence.
+- The oxygen fed with the sparge gas is now charged in proportion to gas per litre of culture
+  (`floor_physics.oxygen_fed`). The floor is unchanged; cases with other gas flows, tank shapes or sizes move by
+  up to $1/kg (2 mm/s: $28.0 to $27.0; 200 m3: $18.8 to $18.2; squat tank: $9.3 to $9.4).
+
 Cost side
 - Re-anchored. The default is a company's reported process (SuperMeat 2024) with a yearly charge on its plant;
   Pasitka et al. 2024 is no longer used (its kilogram is mostly liquid and its cost leaves out the plant).
