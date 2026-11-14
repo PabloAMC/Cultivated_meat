@@ -730,6 +730,32 @@ ORGANIC_CHICKEN = dict(price=13.0, cuts=9.0, mince=5.0, observed_pct=2.4)
 # mince $5; organic is 0.010 of the 0.412 chicken volume weight = 2.4% of US chicken.
 
 
+# Premium animal products with a matched price premium and volume share (research_notes/
+# premium_meat_analogues.md, 2026-11-14): (name, premium price / conventional price, % of category
+# volume, source). Each is the conventional product plus a virtue some shoppers pay for, which is what
+# cultivated meat above parity would be. The eggs are from before cage-free mandates.
+ANALOGUES = [
+    ("organic milk, US",        1.63, 7.0, "size-matched premium 2023, volume share 2025 (NielsenIQ / USDA)"),
+    ("cage-free eggs, US",      1.63, 2.8, "Homescan 2014-16"),
+    ("omega-3 eggs, US",        1.63, 6.1, "Homescan 2014-16"),
+    ("organic eggs, US",        2.19, 2.2, "Homescan 2014-16"),
+    ("organic chicken, US",     1.91, 4.6, "Circana, 52 weeks to Nov 2025; not cut-matched (the source's table "
+                                           "and text disagree: 2.55x and 2.5% is the other reading)"),
+    ("all organic meat, US",    1.50, 2.2, "share of pounds; premium approximate"),
+]
+
+
+def analogue_check(pr: DemandParams) -> dict:
+    """How well the model reproduces the analogues: its share for a product equal to conventional on
+    every attribute except price, at each analogue's premium (neutral dials, the reference price).
+    Returns the predicted shares (%) and the root-mean-square error of log share (0.7 = a typical
+    miss of a factor of two)."""
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    pred = [share(R, pr, **neutral) * 100 for _n, R, _o, _s in ANALOGUES]
+    err = float(np.sqrt(np.mean([(np.log(p) - np.log(o)) ** 2 for p, (_n, _R, o, _s) in zip(pred, ANALOGUES)])))
+    return {"predicted": pred, "observed": [o for _n, _R, o, _s in ANALOGUES], "rms_log_error": err}
+
+
 def organic_premium_check(pr: DemandParams) -> dict:
     """The nearest real-world test of demand ABOVE parity (added 2026-11-13). Organic chicken is real
     chicken, sold at a premium (1.44x regular cuts, 2.6x mince), and takes ~2.4% of US chicken. The

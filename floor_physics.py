@@ -227,7 +227,8 @@ SPECIES_PRESETS = {
               "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
     "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5,
                 "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell, 30.5 "
-                "litres of medium per kilo (set the medium price to $0.50 for the reported cost). Chicken "
+                "litres of medium per kilo (the waste lever is set to match; put the medium price at $0.50 for the reported "
+                "cost). Chicken "
                 "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
                 "animal-free medium took 61 hours [20]."),
     "cattle": ("Cattle, serum-free", 39.0, 3000.0, None,
@@ -246,13 +247,31 @@ SPECIES_MISSING = ("Shrimp and other crustaceans are missing because no cell lin
                    "them (reviews of 2024 and 2025).")
 
 
+def waste_per_kg(cells: Cells, waste: float = 0.0) -> tuple:
+    """(ammonia, lactate) made per kg of cells grown, mol/kg wet. `waste` runs from 0 (Humbird's enhanced
+    cells) to 1 (ordinary wild-type cells). Both come from catabolism, so they scale with the oxygen
+    burned per kg relative to the model cell."""
+    burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
+    mix = lambda lo, hi: (value(lo) + waste * (value(hi) - value(lo))) * burn
+    return mix("pf_nh3_efficient", "pf_nh3_wild"), mix("pf_lac_efficient", "pf_lac_wild")
+
+
+def washout_litres(cells: Cells, waste: float = 0.0, nh3_limit: float | None = None) -> float:
+    """Litres of liquid that must pass per kg of cells to hold ammonia and lactate under their limits
+    (steady state: what is made = what leaves). 11 L/kg for Humbird's enhanced cells, 190 for ordinary
+    ones; his 195 g/L at one tank volume a day plus the bleed is the same balance."""
+    nh3, lac = waste_per_kg(cells, waste)
+    nh3_limit = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
+    return max(nh3 / (nh3_limit / 1000.0), lac / (value("pf_lac_limit") / 1000.0))
+
+
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
             uptime: float | None = None, maintenance_share: float | None = None,
             capex_x: float = 1.0, retention: float | None = None, x_scale: float = 1.0,
             hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
-            medium_l: float | None = None, medium_price: float = 0.20, growth_factors: bool = False,
-            cell_share: float = 1.0) -> dict:
+            medium_l: float | None = None, medium_price: float = 0.15, growth_factors: bool = False,
+            cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -268,7 +287,10 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
 
       * a run ends at its planned length or when it is contaminated (a constant chance per day, `hazard`),
         then the tank is cleaned and regrown; a contaminated run also loses the cells in the tank;
-      * the medium costs litres per kg x price, but never less than the nutrients the cells must eat;
+      * the litres of medium per kg follow from the waste the cells make (`waste`: 0 = Humbird's enhanced
+        cells, 1 = ordinary cells): in perfusion enough liquid must pass to wash ammonia and lactate out;
+        in a drained-and-refilled tank waste caps the density instead. The medium costs litres x price,
+        but never less than the nutrients the cells must eat (at the default $0.15/L the two meet);
         growth factors can be added at Humbird's large-scale price;
       * the product can be a blend: `cell_share` of cells, the rest plant ingredients.
 
@@ -299,8 +321,10 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
               "thickness of the culture": value("pf_x_visc"),
               "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") * (vessel_m3 / 20.0) ** (-2.0 / 9.0),
               "CO2 removal": x_scale * co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
+    wf = waste_per_kg(cells, waste)[0] / waste_per_kg(cells, 0.0)[0]       # waste relative to enhanced cells
+    wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     if mode != "perfusion":
-        limits["waste build-up"] = waste_cap(cells)
+        limits["waste build-up"] = waste_cap(cells) / wf
     limit = min(limits, key=limits.get)
     x = limits[limit]
     shape = 1.0
@@ -314,7 +338,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
     utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
     consumables = value("pf_consumables_low")
-    medium_l = value("pf_medium_l_floor") if medium_l is None else medium_l
+    if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
+        need = washout_litres(cells, waste, nh3_limit) if mode == "perfusion" else 1000.0 / x
+        medium_l = max(value("pf_medium_l_floor"), need)
     feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     gf = value("pf_growth_factors") * ox if growth_factors else 0.0
     total = capital + labour + utilities + consumables + feed + gf
@@ -322,7 +348,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
-            "uptime": float(uptime), "total": float(total), "product": float(product)}
+            "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
+            "product": float(product)}
 
 
 def temperature_check(delta_c: float = 10.0, heat_price: float = 0.05) -> dict:
@@ -344,8 +371,10 @@ def temperature_check(delta_c: float = 10.0, heat_price: float = 0.05) -> dict:
 
 # What is uncertain about the floor case, as triangular (low, mode, high). The mode is the point value.
 FLOOR_PRIORS = {
-    # a factored estimate from one design study is good to about -30% / +50% (AACE class 4) [assumed]
-    "capex_x":           (0.7, 1.0, 1.5),
+    # the plant estimate: Humbird calls his own "within 50%"; two other published designs for animal cells
+    # come in far lower per m3 (Negulescu 2023 $209k, CE Delft 2021 $167-277k, against his $611k without
+    # clean rooms), so the low end is their level (research_notes/plant_capital_crosscheck.md)
+    "capex_x":           (0.34, 1.0, 1.5),
     # Humbird's uptime is the top of the range (he calls it 'rather aggressive'); 0.75 from long-run pharma
     "uptime":            (0.75, value("pf_uptime"), value("pf_uptime")),
     # CO2-limited density at 20 m3: 60 g/L (twice the largest reported harvest) to Humbird Fig. 2.8b's 150
@@ -354,25 +383,50 @@ FLOOR_PRIORS = {
     "doubling_h":        (18.0, 24.0, 48.0),
     # cells: 1 ng (reported chicken cells) to the 3 ng model cell
     "mass_pg":           (1000.0, 3000.0, 3000.0),
+    # cells: waste from Humbird's enhanced cells (0) to a quarter of the way to ordinary cells; the 30.5 L/kg
+    # one company reports is about a tenth of the way
+    "waste":             (0.0, 0.0, 0.25),
 }
+# The inputs that describe how good the cells are, with the sign that means "better". Good traits tend to
+# come together (a well-adapted line is fast, dense and frugal), so they are sampled with a shared
+# correlation `cell_corr` [assumed 0.5; 0 = independent]. Correlation fattens both tails.
+CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 
 
-def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary") -> dict:
+def _tri_ppf(u, lo, mode, hi):
+    """Inverse CDF of a triangular distribution (vectorised); a point mass if hi == lo."""
+    if hi <= lo:
+        return np.full_like(u, mode, dtype=float)
+    fc = (mode - lo) / (hi - lo)
+    return np.where(u < fc, lo + np.sqrt(u * (hi - lo) * (mode - lo)),
+                    hi - np.sqrt((1.0 - u) * (hi - lo) * (hi - mode)))
+
+
+def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary", cell_corr: float = 0.5) -> dict:
     """Monte Carlo over the floor case's own inputs: the plant estimate, uptime, the density limit, the
-    cells, the retention device, financing and the upkeep share of respiration. Everything else in the
-    case (perfusion at 20 m3, floor-price medium, no growth factors) is held. Returns the draws of
-    total cost ($/kg) and of each input."""
+    cells (speed, size, waste), the retention device, financing and the upkeep share of respiration.
+    Everything else in the case (perfusion at 20 m3, no growth factors) is held. The cell-quality inputs
+    share a correlation `cell_corr` (Gaussian copula). Returns the draws of total cost ($/kg) and of
+    each input."""
     from inputs import prior
+    from math import erf, sqrt
     rng = np.random.default_rng(seed)
-    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n) if hi > lo else np.full(n, mode)
-    draws = {k: tri(*v) for k, v in FLOOR_PRIORS.items()}
+    pri = dict(FLOOR_PRIORS)
     for key, name in (("retention", "pf_capex_retention"), ("charge", "plant_charge_mature"),
                       ("maintenance_share", "pf_maintenance_share")):
         _kind, lo, hi, mode, _note = prior(name)
-        draws[key] = tri(lo, mode, hi)
+        pri[key] = (lo, mode, hi)
     if plant == "microbial":                           # the class's own range replaces the estimate's accuracy
         _kind, lo, hi, mode, _note = prior("pf_capex_fermentation")
-        draws["capex_x"] = tri(lo, mode, hi) / mode
+        pri["capex_x"] = (lo / mode, 1.0, hi / mode)
+    common = rng.standard_normal(n)                    # the shared "how good are the cells" factor
+    phi = np.vectorize(lambda z: 0.5 * (1.0 + erf(z / sqrt(2.0))))
+    draws = {}
+    for k, (lo, mode, hi) in pri.items():
+        z = rng.standard_normal(n)
+        if k in CELL_QUALITY:
+            z = CELL_QUALITY[k] * (sqrt(cell_corr) * common + sqrt(1.0 - cell_corr) * z)
+        draws[k] = _tri_ppf(phi(z), lo, mode, hi)
     total = np.array([explore(plant=plant, **{k: float(v[i]) for k, v in draws.items()})["total"]
                       for i in range(n)])
     return {"total": total, **draws}
@@ -387,6 +441,9 @@ def summarise_floor_mc(pr: CostParams, n: int = 4000) -> None:
         p10, p50, p90 = np.percentile(t, [10, 50, 90])
         print(f"    {label:<32} point {explore(plant=plant)['total']:5.1f}   P10 {p10:5.1f}  P50 {p50:5.1f}  "
               f"P90 {p90:5.1f}   P(<= ${pc:.0f}) {np.mean(t <= pc):.2f}   P(<= $10) {np.mean(t <= 10):.2f}")
+        ind = floor_mc(n, plant=plant, cell_corr=0.0)["total"]
+        print(f"      with independent cell traits: P10 {np.percentile(ind, 10):5.1f}  P50 {np.percentile(ind, 50):5.1f}  "
+              f"P90 {np.percentile(ind, 90):5.1f}   P(<= ${pc:.0f}) {np.mean(ind <= pc):.2f}")
         if plant == "sanitary":
             rk = lambda a: np.argsort(np.argsort(a))
             rho = {k: float(np.corrcoef(rk(v), rk(t))[0, 1]) for k, v in mc.items() if k != "total"}

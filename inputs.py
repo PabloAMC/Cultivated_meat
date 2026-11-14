@@ -80,12 +80,17 @@ class Input:
 REGISTRY: dict[str, Input] = {
 
     # --- shared across rungs ------------------------------------------------
-    "markup_add": Input(5.0, "$/kg", "[assumed] additive biomass->retail spread, roughly "
-        "fixed $/kg (does NOT shrink as biomass falls). Anchored to conventional meat's "
-        "farm-to-retail margin: USDA price-spread data put ground-beef processing+retail at "
-        "very roughly $3-6/kg.",
-        lo=2.0, hi=7.0, mode=5.0,
-        note="PIVOTAL: with p_conv this sets the parity threshold (p_conv - markup_add). The lower "
+    "markup_add": Input(5.0, "$/kg", "[USDA ERS, judgement] additive biomass->retail spread, roughly "
+        "fixed $/kg (does NOT shrink as biomass falls). Anchored to conventional meat's wholesale-to-retail "
+        "spread (USDA ERS Meat Price Spreads, per kg of retail weight): broilers $3.0-3.3 (2026), pork "
+        "$6.6-6.9 (2023-25), Choice beef $7.6-8.7 (2023-25).",
+        lo=3.0, hi=8.7, mode=5.0,
+        note="RANGE RE-GROUNDED 2026-11-14 (was 2-7): the wholesale-to-retail spread starts AFTER the packing "
+             "plant, so it already leaves out slaughter and carcass breakdown; the cheapest species (broilers) "
+             "is $3.0, the dearest (beef) $8.7. No per-kg cost of forming, packaging or cold chain for a "
+             "cultivated product has been published (research_notes/post_harvest_costs.md), and the spread is "
+             "closer to proportional than flat across species (42-65% of retail). EARLIER NOTE: "
+             "PIVOTAL: with p_conv this sets the parity threshold (p_conv - markup_add). The lower "
              "bound is $2 (not the conventional ~$4) because cultivated SKIPS slaughter / evisceration "
              "/ carcass breakdown — a real chunk of conventional's farm-to-retail wedge — so its retail "
              "markup can sit slightly BELOW conventional's; mode stays $5 (typical), $7 = markup-heavy. "
@@ -176,9 +181,13 @@ REGISTRY: dict[str, Input] = {
         "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
              "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate. "
-             "CAUTION: those plants are cheap partly because their vessels are 150 m3; at that size the CO2 "
-             "limit allows about 60 g/L (pf_co2_size_exponent) and this case costs about $10/kg in all. The "
-             "value here assumes that cost per m3 with 20 m3 tanks"),
+             "CROSS-CHECK (research_notes/plant_capital_crosscheck.md): the price holds at small tanks. "
+             "Humbird's own baker's-yeast plant costs $57k per m3 with 200 m3 fermentors and $130k with "
+             "27 x 20 m3 (his Table A.5; about $175k in 2025 prices). And two published designs FOR ANIMAL "
+             "CELLS assume this level: CE Delft 2021 $167-277k per m3 (food-grade, no clean rooms) and "
+             "Negulescu 2023 $209k (42 m3 tanks). Humbird's animal-cell plant is 5x his yeast plant at the "
+             "same tank size: sterile seed train, media handling, oxygen supply, a higher installation factor "
+             "and clean rooms. Whether animal cells need all of that is the open question"),
     "plant_floor_hi": Input(17.7, "$/kg", "[floor_physics] the cautious case: Humbird's sterile pharma-style plant "
         "($908k per m3), tanks half-drained and refilled with no cell retention, 85% uptime, at his first-plant "
         "financing (23.6% a year)"),
@@ -351,9 +360,23 @@ REGISTRY: dict[str, Input] = {
              "the survey does not state. See reports/'Continuous harvest bioreactor progress.md'"),
     "pf_blend_filler_price": Input(3.0, "$/kg", "[Pasitka] the plant ingredients blended with cells in its hybrid "
         "product, at the price that paper uses", note="for the page's blend lever only"),
-    "pf_medium_l_floor": Input(8.0, "L/kg", "[Humbird-R, derived] medium use of his efficient-cell designs, about a "
-        "quarter of the 30.5 L/kg a company reports", note="the default of the page's medium lever; at $0.20/L "
-        "it costs less than the nutrients the cells must eat, so the feedstock floor applies"),
+    "pf_medium_l_floor": Input(8.0, "L/kg", "[Humbird-R, derived] the least liquid a kg of cells needs to carry its "
+        "nutrients in: the medium use of his efficient-cell designs, about a quarter of the 30.5 L/kg a company reports",
+        note="a lower bound on litres per kg in the page's 'build your own case' controls; the waste the "
+             "cells make usually needs more (pf_nh3_*, pf_lac_*)"),
+    "pf_nh3_efficient": Input(0.054, "mol/kg wet", "[Humbird-R, derived] ammonia made per kg of cells grown by his "
+        "enhanced cells: Reaction 2.11, 0.004 mol per mol of dry cell mass, x 13.6 mol per kg wet",
+        note="13.6 mol/kg = 300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1). "
+             "All of it comes from catabolism, so per kg it scales with the upkeep burned (slower cells make more)"),
+    "pf_nh3_wild": Input(0.952, "mol/kg wet", "[Humbird-R, derived] the same for ordinary (wild-type) cells: "
+        "Reaction 2.9, 0.070 mol per mol of dry cell mass"),
+    "pf_lac_efficient": Input(0.558, "mol/kg wet", "[Humbird-R, derived] lactate, enhanced cells: Reaction 2.11, 0.041 "
+        "mol per mol of dry cell mass"),
+    "pf_lac_wild": Input(6.45, "mol/kg wet", "[Humbird-R, derived] lactate, ordinary cells: Reaction 2.9, 0.474 mol "
+        "per mol of dry cell mass"),
+    "pf_nh3_limit": Input(5.0, "mmol/L", "[Humbird-R] Sect. 2.3: 'consider the limits of 5 mmol/L NH3 and 50 mmol/L "
+        "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0),
+    "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
         "uptake at a 24 h doubling time that is upkeep (it runs whether or not the cell grows); the rest rises "
         "in proportion to the growth rate",
@@ -454,7 +477,19 @@ REGISTRY: dict[str, Input] = {
         "conventional. kappa therefore sets HOW STEEPLY cultivated's share falls as it gets pricier than "
         "conventional (above parity); it does NOT change the at-parity share (where prices are equal).",
         lo=3.0, hi=9.0, mode=4.0,
-        note="RANGE WIDENED 2026-11-13 (hi 6 -> 9): the organic-chicken check (market_share.organic_premium_check) "
+        note="SECOND VALIDATION, 2026-11-14 (market_share.analogue_check). Six premium animal products with "
+             "matched price premiums and volume shares (organic milk, cage-free, organic and omega-3 eggs, "
+             "organic chicken, all organic meat) take 2-7% of volume at 1.5-2.2x the conventional price. The "
+             "model's share for a product equal to conventional on everything but price fits them best at "
+             "kappa = 10 (root-mean-square error of log share 0.86), acceptably at 9 (0.92), and misses by a "
+             "typical factor of six at the default 4 (1.84). kappa = 9 is also the highest value inside the "
+             "Lusk bracket (-3.2). So the evidence favours the top of the range. THE DEFAULT IS NOT MOVED, "
+             "because at kappa = 9 the calibration degenerates: the solved mainstream health weight falls to "
+             "zero and the other solved weights shift by a factor of three, so the taste, health and "
+             "no-slaughter dials stop meaning what the page says they mean. The honest reading: the default "
+             "is an upper estimate above parity, kappa = 9 is the premium-product reading, and the headline "
+             "share is reported at both. Fixing this properly needs shoppers who differ in price sensitivity "
+             "(a mixed logit), not a higher kappa. EARLIER NOTE (2026-11-13, hi 6 -> 9): the organic-chicken check (market_share.organic_premium_check) "
              "shows the model gives a real-meat product at a premium far more share than organic chicken's ~2.4%; "
              "a higher kappa is the in-model direction of that evidence, so the band now reaches kappa=9, where the "
              "implied at-parity elasticity (about -3.2) is still inside the Lusk bracket. The mode stays 4. "

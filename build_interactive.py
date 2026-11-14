@@ -92,6 +92,9 @@ def build_model() -> dict:
             "run_days": value("pf_run_days"), "medium_l": value("pf_medium_l_floor"),
             "gf": value("pf_growth_factors") * value("pf_opex_escalation"), "filler": value("pf_blend_filler_price"),
             "hazard_pharma": value("pf_hazard_pharma"),
+            "nh3": [value("pf_nh3_efficient"), value("pf_nh3_wild")],
+            "lac": [value("pf_lac_efficient"), value("pf_lac_wild")],
+            "nh3_limit": value("pf_nh3_limit"), "lac_limit": value("pf_lac_limit"),
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
@@ -356,7 +359,7 @@ def build_model() -> dict:
                "costed for animal cells, with food-industry financing; ${{PLANT_FLOOR_LO}} is the frontier, a plant at the cost of today's "
                "microbial fermentation plants; ${{OH_HI}} is a cautious case (pharma-style plant, cells at half "
                "the density)."),
-        slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 7.0, 0.1, value("markup_add"),
+        slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 9.0, 0.1, value("markup_add"),
                "USDA spread",
                tip="Processing, packaging, cold chain and retail margin, added per kg. Default $5 is about "
                "conventional meat's farm-to-retail spread (USDA). Price parity needs production cost below "
@@ -407,12 +410,13 @@ def build_model() -> dict:
                tip="How much meat purchases fall when prices rise: −0.9 (default) means 1% dearer, 0.9% "
                "fewer purchases (Andreyeva 2010; meta-analyses span −0.7 to −1.0). A single cultivated "
                "product is &kappa; times more sensitive than this. Sampled in the Monte Carlo."),
-        slider("cult_sub_mult", "Closeness to conventional (&kappa;)", "x", 3.0, 9.0, 0.5,
+        slider("cult_sub_mult", "Closeness to conventional (&kappa;)", "x", 3.0, 12.0, 0.5,
                value("cult_sub_mult"), "Lusk 2020",
                tip="How many times more price-sensitive a cultivated product is than meat as a whole: it "
                "has a near-identical substitute on the same shelf. Mostly matters above parity: at "
-               "the default price, &kappa; = 3 → ~{{KAPPA_3}}%, 4 → ~{{KAPPA_4}}%, 5 → ~{{KAPPA_5}}%. "
-               "Default 4 fits Lusk 2020's measured range (appendix A1)."),
+               "the reported cost, &kappa; = 4 → ~{{KAPPA_LO}}%, 9 → ~{{KAPPA_MID}}%, 10 → ~{{KAPPA_HI}}%. "
+               "Default 4 sits inside Lusk 2020's measured range. The shares that premium animal products "
+               "(organic milk, eggs, chicken) take at their prices fit 9 to 10 better (appendix A1)."),
         slider("loss_aversion", "Loss aversion (&lambda;)", "ratio", 1.0, 2.25, 0.05,
                value("loss_aversion"), "off by default",
                tip="Makes paying more than the conventional price hurt more than an equal discount helps. "
@@ -776,9 +780,9 @@ def illustrative_numbers() -> dict:
         # plant-based with b_p=1 (credited as real meat) at ITS current price — the equal-footing what-if
         "BP_1_PB": pc(share(1.0, DemandParams(real_tissue_p=1.0), cultivated_present=False, which="pb")),
         # closeness (kappa) ladder, re-solved, at TODAY's R (the above-parity lever)
-        "KAPPA_3": pc(resolved(R_today, cult_sub_mult=3.0)),
-        "KAPPA_4": pc(resolved(R_today, cult_sub_mult=4.0)),
-        "KAPPA_5": pc(resolved(R_today, cult_sub_mult=5.0)),
+        "KAPPA_LO": f"{resolved(R_today, cult_sub_mult=4.0) * 100:.1f}",
+        "KAPPA_MID": f"{resolved(R_today, cult_sub_mult=9.0) * 100:.1f}",
+        "KAPPA_HI": f"{resolved(R_today, cult_sub_mult=10.0) * 100:.1f}",
         # loss-aversion (lambda) ladder, re-solved, at TODAY's R (shows lambda barely moves the level
         # across its principled 1 -> TK-2.25 range; the slider is capped at 2.25, see its tooltip)
         "LAMBDA_1": pc(resolved(R_today, loss_aversion=1.0)),
@@ -863,6 +867,13 @@ _CASE_TEXT = {
         "animal cells are thought to take, and amino acids at half price.",
         "A rough bound"),
 }
+
+
+def _familiar_elasticity(dp, R: float, h: float = 1e-5) -> float:
+    """Own-price elasticity of cultivated's share at price ratio R once shoppers are familiar with it."""
+    from market_share import share as _share
+    f = lambda r: _share(r, dp, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0)
+    return (f(R * (1 + h)) - f(R * (1 - h))) / (2 * h * f(R))
 
 
 def _floor_mc_tokens(parity: float) -> dict:
@@ -966,6 +977,8 @@ def derived_numbers() -> dict:
         "MEDIA_PER_010": f"{value('media_intensity') * 0.10:.1f}",
         # the kappa-validation elasticity (golden-guarded as lusk_elas_parity_cold)
         "KAPPA4_LUSK_ELAS": f"{_lusk_at_parity(dp):.1f}",
+        **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
+           for tag, R in (("10", 1.0), ("15", 1.5), ("24", 2.42))},
     }
     return {f"{{{{{k}}}}}": v for k, v in N.items()}
 
@@ -1171,10 +1184,10 @@ Commission. <a href="#about">About this page</a>.</p>
     In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
     built one for animal cells.</li>
     <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
-    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%), and anywhere from ~{{PEN_GLOBAL_FLOOR_LO}}% to
-    ~{{PEN_GLOBAL_FLOOR_HI}}% across the plausible range of how price-sensitive shoppers are. Read it as an upper
-    estimate: the model over-predicts what shoppers pay a premium for (organic chicken check, below). Less by
-    animal count, since most animals are chickens.</li>
+    (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%). That is the upper reading. If shoppers treat
+    cultivated meat the way they treat today's premium meat, milk and eggs, which take 2–7% of sales at 1.5 to 2.2
+    times the price, it is about {{PEN_GLOBAL_FLOOR_LO}}% (the range across price sensitivity runs to
+    ~{{PEN_GLOBAL_FLOOR_HI}}%). Less by animal count, since most animals are chickens.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
     not.</li>
     <li><b>As a company reports its process:</b> about ${{BIOMASS_TODAY}} per kilo with capital counted [1],
@@ -1333,8 +1346,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
         per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo,
         but they also respire more per hour, so the tank holds fewer of them. A tank must mix faster than it
-        transfers oxygen. A run that is contaminated ends early and the tank must be restarted. The medium can
-        never cost less than the nutrients the cells must eat.
+        transfers oxygen. A run that is contaminated ends early and the tank must be restarted. Cells that make
+        more ammonia and lactate need more medium to wash it out, or, in a tank that is drained and refilled, must
+        be kept thinner. The medium can never cost less than the nutrients the cells must eat.
         Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.
         The first control sets the two cell levers from what has been published for a species; the rest of the case
         stays as you set it.</p>
@@ -1354,10 +1368,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <input type="range" id="fx_rd" min="5" max="90" step="1" value="33" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Restart after a contamination</span><span class="val" id="fx_rf_v"></span></label>
             <input type="range" id="fx_rf" min="3" max="30" step="1" value="3" oninput="fxRender()"></div>
-          <div class="ctl"><label><span class="nm">Medium per kilo of cells</span><span class="val" id="fx_ml_v"></span></label>
-            <input type="range" id="fx_ml" min="6" max="65" step="0.5" value="8" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Waste the cells make</span><span class="val" id="fx_ws_v"></span></label>
+            <input type="range" id="fx_ws" min="0" max="100" step="1" value="0" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Medium price</span><span class="val" id="fx_mp_v"></span></label>
-            <input type="range" id="fx_mp" min="0.1" max="1" step="0.01" value="0.2" oninput="fxRender()"></div>
+            <input type="range" id="fx_mp" min="0.1" max="1" step="0.01" value="0.15" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Share of the product that is cells</span><span class="val" id="fx_cs_v"></span></label>
             <input type="range" id="fx_cs" min="30" max="100" step="5" value="100" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Growth factors</span></label>
@@ -1581,15 +1595,21 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       capital charge was added to the cost. It is held fixed so that correcting a cost changes cultivated's price but
       not how shoppers respond to price. Today's price is higher (${{RETAIL_TODAY}}/kg), and the model is more
       price-sensitive there.</p>
-      <p><b>Evidence for \(\kappa\).</b> Van Loo, Caputo and Lusk [8] priced lab-grown meat at six levels. Their two
-      models put its elasticity at equal price between &minus;0.84 and &minus;3.4. The model's implied value in the
-      same setting (equal price, first-contact wariness) at \(\kappa=4\) is {{KAPPA4_LUSK_ELAS}}, inside that range.
-      No experiment has priced cultivated meat at 2.4 times conventional, so the &minus;3.6 there is an assumption
-      (\(\kappa\varepsilon\)), checked only against the data at parity. Once shoppers are familiar with the
-      product, the model's elasticity is about −0.8 at parity, −1.7 at \(R=1.5\) and −3.6 at \(R=2.4\): share
-      falls slowly just above parity, then faster. \(\kappa\) is the most consequential demand number above parity: at the default price,
-      \(\kappa=3\) gives about {{KAPPA_3}}%, 4 about {{KAPPA_4}}% and 5 about {{KAPPA_5}}%. It plays the role that a
-      nested logit's similarity parameter would play for a &ldquo;real meat&rdquo; nest.</p>
+      <p><b>Evidence for \(\kappa\).</b> Two kinds, and they pull apart. First, Van Loo, Caputo and Lusk [8]
+      priced lab-grown meat at six levels; their two models put its elasticity at equal price between &minus;0.84
+      and &minus;3.4. The model's implied value in the same setting (equal price, first-contact wariness) at
+      \(\kappa=4\) is {{KAPPA4_LUSK_ELAS}}, inside that range; \(\kappa=9\) is the highest value still
+      inside it. Second, premium animal products show what share a product takes when it is the conventional one
+      plus a virtue, at a higher price: organic milk, cage-free, organic and omega-3 eggs, organic chicken and
+      organic meat take 2–7% of volume at 1.5 to 2.2 times the conventional price. The model fits those six best
+      at \(\kappa\approx10\) and over-predicts them about sixfold at the default 4. So above parity the
+      default is an upper estimate and \(\kappa=9\) is the reading from premium products; the headline share
+      at the floor is given at both. The default is not moved to 9 because the calibration strains there (one of
+      its solved weights falls to zero); the real fix is shoppers who differ in price sensitivity. Once shoppers
+      are familiar with the product, the model's elasticity is about {{ELAS_10}} at parity, {{ELAS_15}} at
+      \(R=1.5\) and {{ELAS_24}} at \(R=2.4\). At the reported cost, \(\kappa=4\) gives about {{KAPPA_LO}}%,
+      9 about {{KAPPA_MID}}% and 10 about {{KAPPA_HI}}%. \(\kappa\) plays the role that a nested logit's
+      similarity parameter would play for a &ldquo;real meat&rdquo; nest.</p>
 
       <h5>A2. Income</h5>
       <p>The income part of the price score, \(\alpha\ln(y_{\rm eff}-p_j)\), is the Berry–Levinsohn–Pakes form [12]:
@@ -3518,23 +3538,30 @@ function floorExplore(p){
   const limits=[["oxygen supply",F.otr/cell.qo2],["thickness of the culture",F.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio*Math.pow(p.vessel_m3/20,-2/9)],
                 ["CO2 removal",F.x_co2_20/load*Math.pow(p.vessel_m3/20,F.co2_exp)]];
-  if(!perf) limits.push(["waste build-up",F.x_waste/load]);
+  const w=p.waste||0, nh3=(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn, lac=(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
+  const wf=nh3/(F.nh3[0]*burn);                                        // waste relative to enhanced cells
+  if(!perf) limits.push(["waste build-up",F.x_waste/load/wf]);
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
   const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
   const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
   const capital=p.charge*capex/out, labour=F.labour_ref/out, utilities=F.utilities*(0.5+0.5*burn);
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
-  const ml=p.medium_l===undefined?F.medium_l:p.medium_l, mp=p.medium_price===undefined?0.20:p.medium_price;
+  const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(F.lac_limit/1000)):1000/lim[1];   // litres per kg the waste demands
+  const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf:0, cs=p.cell_share===undefined?1:p.cell_share;
   const total=capital+labour+utilities+F.consumables+feed+gf;
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
           utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
-          total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp};
+          medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp};
 }
 function fxSpecies(){
   const sel=document.getElementById("fx_sp"), sp=C.fx.species[sel.value]; if(!sp) return;
   document.getElementById("fx_dh").value=sp[1]; document.getElementById("fx_m").value=sp[2]/1000;
-  document.getElementById("fx_ml").value=sp[3]===null?C.fx.medium_l:sp[3];
+  // waste level that gives the reported litres per kg at this cell's doubling time (0 if none reported)
+  let ws=0;
+  if(sp[3]!==null){const F=C.fx, c=fxCell(sp[2],sp[1],F.maint_share), r=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
+    const burn=c.o2kg/r.o2kg; ws=Math.max(0,Math.min(1,(sp[3]*F.nh3_limit/1000/burn-F.nh3[0])/(F.nh3[1]-F.nh3[0])));}
+  document.getElementById("fx_ws").value=Math.round(ws*100);
   document.getElementById("fx_spn").innerHTML=sp[4]+" "+C.fx.species_missing; fxRender();
 }
 function fxInit(){
@@ -3549,30 +3576,36 @@ function fxRender(){
   const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
            mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
            hazard:num("fx_hz")/100, run_days:num("fx_rd"), restart_fail:num("fx_rf"),
-           medium_l:num("fx_ml"), medium_price:num("fx_mp"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
+           waste:num("fx_ws")/100, medium_price:num("fx_mp"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
   g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
   g("fx_hz_v").textContent=(p.hazard*100).toFixed(1)+"%"; g("fx_rd_v").textContent=p.run_days.toFixed(0)+" days";
-  g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_ml_v").textContent=p.medium_l.toFixed(1)+" L";
+  g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
   g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
   const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
+  // long-run share against $12 meat (US): a blend is credited as real meat in proportion to its cells [assumed]
+  def.region="us"; def.income=C.income_ref;
+  const K=KP||effConsts(def), sh=shareCalc(R,K,{ax:1,tfM:0,rtx:p.cell_share*(K.real_tissue_x!==undefined?K.real_tissue_x:1)});
   g("fx_out").innerHTML="<b>$"+r.total.toFixed(1)+" per kilo of cells"+
     (blend?"; $"+r.product.toFixed(1)+" per kilo of the blended product":"")+", "+R.toFixed(2)+"&times; everyday meat.</b> "+
     "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"), produces "+
     (r.uptime*100).toFixed(0)+"% of the year and makes "+r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+
     (r.capex/1000).toFixed(2)+" million per m&sup3; of tank. Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+
-    r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+
+    r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
     (r.medium_floor?" (the nutrients the cells must eat; the medium cannot cost less)":"")+
-    (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+".";
+    (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
+    "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
+    (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   const n=[];
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
-  if(p.plant==="microbial") n.push("Yeast plants are this cheap partly because their tanks are 150 m&sup3; and more. The plant price here does not change with tank size; set the tank to 100 or 200 m&sup3; to see what CO&#8322; removal allows at that size. Nobody has built or costed such a plant for animal cells.");
+  if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
+  n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
 }

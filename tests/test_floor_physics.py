@@ -103,8 +103,19 @@ def check() -> list:
             fails.append(f"species preset {key}: implausible case {r}")
     # uncertainty on the floor: the point floor is the favourable end, so the median sits above it
     mc = fp.floor_mc()["total"]
-    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 16.7, 0.03)
-    if not (np.percentile(mc, 5) > fp.explore()["total"] * 0.95):
+    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 18.6, 0.03)
+    # premium-product analogues: the default over-predicts them; kappa = 9 fits far better
+    from market_share import DemandParams, analogue_check
+    e4, e9 = (analogue_check(DemandParams(cult_sub_mult=k))["rms_log_error"] for k in (4.0, 9.0))
+    near("analogue misfit at the default kappa", e4, 1.84, 0.03)
+    if not e9 < 0.6 * e4:
+        fails.append("kappa = 9 should fit the premium-product analogues much better than kappa = 4")
+    # medium use follows from waste: Humbird's enhanced cells need about 11 L/kg in perfusion, ordinary ones 190
+    near("wash-out litres, enhanced cells", fp.washout_litres(good, 0.0), 11.2, 0.02)
+    near("wash-out litres, ordinary cells", fp.washout_litres(good, 1.0), 190.0, 0.02)
+    if not fp.explore(mode="filldraw", waste=0.25)["density"] < fp.explore(mode="filldraw")["density"]:
+        fails.append("wasteful cells should be kept thinner in a drained-and-refilled tank")
+    if not (np.percentile(mc, 15) > fp.explore()["total"]):
         fails.append("floor Monte Carlo: the point floor should sit near the bottom of the distribution")
     # contamination: more losses cost more; none reproduces the stated uptime
     near("uptime with no losses", fp.explore()["uptime"], value("pf_uptime"), 1e-9)
