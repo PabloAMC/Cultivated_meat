@@ -77,8 +77,10 @@ $25–46/kg in 2025 prices, and the published design analyses as a whole to abou
 (METHODS.md, "Other analyses").
 
 **The floor is physics divided into engineering.** The plant's cost per kg is its cost per m³ of tank divided by
-what a m³ produces in a year. Output is limited by how much oxygen and CO₂ a tank can exchange without bubbles
-killing the cells. Plant cost per m³ comes from Humbird's design: about $910k with clean rooms, about $810k
+what a m³ produces in a year. Output is limited by how much oxygen and CO₂ a tank can exchange, which is set by
+how much gas can be bubbled through it. The floor uses 6 mm/s of gas, a rule of thumb that has not been tested at
+this size and cell density; we put the odds that it works at about even, and at 5 mm/s the floor would be $13.1
+(`research_notes/gas_flow_cap.md`). Plant cost per m³ comes from Humbird's design: about $910k with clean rooms, about $810k
 with a sanitary hall in their place. Microbial fermentation plants are built for about $190k. The model reports the floor together with the
 frontier and the cautious case, because which one applies depends on what can be made to work (METHODS.md, "The
 floor's plant term").

@@ -143,6 +143,19 @@ def check() -> list:
     near("CO2-limited density at 200 m3", fp.co2_limited_density(good, 200.0), 70.0, 0.25)
     if not fp.co2_limited_density(good, 20.0, aspect=1.0) > fp.co2_limited_density(good, 20.0):
         fails.append("a squatter tank should hold a denser culture")
+    # sparge gas: the floor is unchanged by the gas term; while CO2 binds the oxygen fed per kg does not depend
+    # on the gas velocity; less gas per litre is credited and more is charged
+    base = fp.explore()
+    near("oxygen fed, kg per m3 of liquid per hour", fp.oxygen_fed(), 8.59, 0.005)
+    if abs(base["gas_extra"]) > 1e-12:
+        fails.append("gas: the floor case must carry no gas adjustment")
+    near("gas cost per kg at the floor", base["gas"], 0.52, 0.02)
+    lo_gas, hi_gas = fp.explore(gas_velocity=0.002), fp.explore(gas_velocity=0.009)
+    if abs(lo_gas["gas"] - base["gas"]) > 1e-9 or abs(hi_gas["gas"] - base["gas"]) > 1e-9:
+        fails.append("gas: while CO2 binds, gas per kg should not depend on the gas velocity")
+    if not (lo_gas["gas_extra"] < 0 < hi_gas["gas_extra"] and fp.explore(aspect=1.0)["gas_extra"] > 0
+            and fp.explore(vessel_m3=200.0)["gas_extra"] < 0):
+        fails.append("gas: wrong sign of the oxygen-plant adjustment")
     # settling: single cells settle at centimetres per hour; clumps of a few cells settle several times faster
     st = fp.settler_spec()
     if not (1.0 < st["single_cell_cm_h"] < 15.0 and st["clump_um_needed"] > st["cell_um"]):

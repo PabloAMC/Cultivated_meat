@@ -2,6 +2,14 @@
 
 ## 2026-11-14
 
+Gas flow
+- What caps the sparge gas flow was researched mechanism by mechanism (`research_notes/gas_flow_cap.md`).
+  Humbird's 6 mm/s is a rule of thumb, not a measured limit; the floor keeps it and still costs $11.5/kg.
+- Moved: the tornado range for gas flow is 2–9 mm/s, was 2–6, so its bar runs $28.0–8.7, was $28.0–11.5. The
+  prior range of `pf_gas_velocity` is 0.002–0.009 m/s, was 0.0006–0.006. No other pinned number moved.
+- `explore` reports what the oxygen fed with the sparge gas costs (`gas`, $0.52/kg at the floor) and what
+  charging it by gas flow would change (`gas_extra`); neither is added to the total (`floor_physics.oxygen_fed`).
+
 Cost side
 - Re-anchored. The default is a company's reported process (SuperMeat 2024) with a yearly charge on its plant;
   Pasitka et al. 2024 is no longer used (its kilogram is mostly liquid and its cost leaves out the plant).
