@@ -470,6 +470,42 @@ FLOOR_PRIORS = {
 CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 
 
+# The limiting factors for the tornado chart on the page: (label, explore() argument, low value, high value,
+# low text, high text). Each is moved alone, the rest held at the case being viewed. Ranges are the ones the
+# uncertainty run uses (FLOOR_PRIORS, input priors) or the literature ranges in research_notes/.
+TORNADO = [
+    ("CO\u2082 the cells tolerate", "pco2_mbar", 100.0, 200.0, "100 mbar", "200 mbar"),
+    ("Doubling time", "doubling_h", 18.0, 48.0, "18 h", "48 h"),
+    ("Waste the cells make", "waste", 0.0, 0.25, "efficient cells", "a quarter of the way to ordinary"),
+    ("Cell mass", "mass_pg", 1000.0, 3000.0, "1 ng", "3 ng"),
+    ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.006, "2 mm/s", "6 mm/s"),
+    ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0"),
+    ("Plant estimate", "capex_x", 0.34, 1.5, "a third of Humbird's", "+50%"),
+    ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style"),
+    ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%"),
+    ("Retention device", "retention", 0.0, 460.0, "free", "Humbird's filters"),
+    ("Runs lost to contamination", "hazard", 0.0, 0.02, "none", "2% a day"),
+    ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%"),
+    ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre"),
+    ("Growth factors", "growth_factors", False, True, "none", "bought"),
+    ("How the tank is run", "mode", "perfusion", "filldraw", "perfusion", "drained and refilled"),
+]
+
+
+def floor_tornado(**case) -> list:
+    """Cost of the case ($/kg) with each limiting factor at the low and the high end of its range, the
+    others as in `case` (default: the floor). Contamination is evaluated with a 14-day restart after a
+    lost run. Returns rows (label, cost at low, cost at high, low text, high text), widest first."""
+    case = dict(case)
+    case.setdefault("restart_fail_days", 14.0)
+    rows = []
+    for label, arg, lo, hi, lo_txt, hi_txt in TORNADO:
+        a = explore(**{**case, arg: lo})["total"]
+        b = explore(**{**case, arg: hi})["total"]
+        rows.append((label, a, b, lo_txt, hi_txt))
+    return sorted(rows, key=lambda r: -abs(r[2] - r[1]))
+
+
 def _tri_ppf(u, lo, mode, hi):
     """Inverse CDF of a triangular distribution (vectorised); a point mass if hi == lo."""
     if hi <= lo:
@@ -609,6 +645,10 @@ def summarise(pr: CostParams) -> None:
     print(f"    cells would stay {st['stay_min']:.0f} min in the settler; their oxygen lasts {st['oxygen_lasts_s']:.0f} s")
     print(f"    to keep the stay under {value('pf_anoxia_min'):.0f} min: clumps of {st['clump_um_needed']:.0f} um "
           f"(about {st['cells_per_clump']:.0f} cells), {st['plate_area_clumps_m2']:.0f} m2 of plate")
+    base = explore()["total"]
+    print(f"\n  what limits the floor case (${base:.1f}/kg): each factor alone, low end -> high end of its range")
+    for label, a, b, lo_txt, hi_txt in floor_tornado():
+        print(f"    {label:<36} {lo_txt:>28} ${a:5.1f}   {hi_txt:<34} ${b:5.1f}")
     summarise_floor_mc(pr)
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():

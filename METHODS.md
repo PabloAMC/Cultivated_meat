@@ -315,6 +315,32 @@ move these levers, and the physics is applied to each:
 The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, waste, thickness of the culture),
 and the page says which one binds. The defaults reproduce the floor.
 
+*What limits a case (`floor_tornado`, the tornado chart in the panel).* Each limiting factor is moved alone
+across its plausible range, the others held at the case being viewed. Around the floor case ($11.5/kg):
+
+| factor | range | cost at the two ends, $/kg |
+|---|---|---|
+| gas flow the cells tolerate | 2 to 6 mm/s | 28.0 – 11.5 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.3 – 25.2 |
+| plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
+| waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
+| doubling time | 18 to 48 h | 10.4 – 16.7 |
+| class of plant | yeast-style to pharma-style | 6.6 – 12.2 |
+| yearly charge on the plant | 12.3% to 23.6% | 9.4 – 14.1 |
+| growth factors | none to bought | 11.5 – 15.4 |
+| medium price | $0.10 to $0.50 a litre | 11.5 – 15.4 |
+| retention device | free to Humbird's filters | 10.8 – 14.4 |
+| cell mass | 1 to 3 ng | 14.8 – 11.5 |
+| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 8.5 |
+| how the tank is run | perfusion to drained and refilled | 11.5 – 14.5 |
+| runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
+| oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
+
+The floor sits at the favourable end of most ranges, which is why most bars point up. The two that point down
+furthest are the plant (a cheaper estimate or class) and CO₂ tolerance. The largest risk is the gas flow: the
+floor assumes the top of the guidance. The chart on the page redraws for any case the reader sets; around the
+chicken cells a company reports, waste and medium price dominate.
+
 *The energy of growth (`pf_maintenance_share`).* West's law gives the oxygen uptake of a cell doubling about
 once a day. Part of it is upkeep and part pays for growth: qO₂(μ) = qO₂(24 h) × [s + (1 − s) × μ/μ(24 h)].
 Humbird takes s = 1 (upkeep only). GFI's 2025 review of the data finds cells at zero growth taking up 12–67% of

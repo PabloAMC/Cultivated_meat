@@ -97,6 +97,9 @@ def build_model() -> dict:
             "nh3": [value("pf_nh3_efficient"), value("pf_nh3_wild")],
             "lac": [value("pf_lac_efficient"), value("pf_lac_wild")],
             "nh3_limit": value("pf_nh3_limit"), "lac_limit": value("pf_lac_limit"),
+            # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
+            "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint"}.get(arg, arg),
+                         lo, hi, lo_t, hi_t] for lab, arg, lo, hi, lo_t, hi_t in floor_physics.TORNADO],
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             "species_missing": floor_physics.SPECIES_MISSING,
@@ -1403,6 +1406,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <option value="filldraw">drained and refilled</option></select></div>
         </div>
         <p class="example" id="fx_out"></p>
+        <p style="margin:.6em 0 .2em"><b>What limits this case.</b> Each factor moved alone across its plausible
+        range, the others as you set them. Green lowers the cost, red raises it; the dotted line is the cost
+        that matches everyday meat.</p>
+        <div id="fx_tornado" class="scrollx"></div>
         <p class="fxn" id="fx_notes"></p>
       </div>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
@@ -3546,7 +3553,8 @@ function floorExplore(p){
   const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg, perf=p.mode==="perfusion";
   let capex=F.capex[p.plant];
   if(F.sized[p.plant]){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
-  if(perf) capex+=F.retention;
+  capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
+  if(perf) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0;
   if(uptime===undefined){
@@ -3579,6 +3587,41 @@ function floorExplore(p){
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
           utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp};
+}
+// Tornado: each limiting factor moved alone across its range around the current case (mirror of
+// floor_physics.floor_tornado; checked by tests/run_parity.py). Returns [label, cost at low, cost at high, low text, high text].
+function fxTornadoRows(p){
+  const q=Object.assign({},p); if(q.restart_fail===undefined||q.restart_fail<14) q.restart_fail=14;
+  return C.fx.tornado.map(t=>{
+    const a=floorExplore(Object.assign({},q,{[t[1]]:t[2]})).total, b=floorExplore(Object.assign({},q,{[t[1]]:t[3]})).total;
+    return [t[0],a,b,t[4],t[5]];
+  }).sort((x,y)=>Math.abs(y[2]-y[1])-Math.abs(x[2]-x[1]));
+}
+function fxTornadoDraw(p,base,parity){
+  const rows=fxTornadoRows(p), W=640, L=218, R=14, rh=30, top=22, H=top+rows.length*rh+26;
+  const all=rows.reduce((a,r)=>a.concat([r[1],r[2]]),[base,parity]);
+  const mn=Math.min.apply(null,all), hi=Math.min(Math.max.apply(null,all)*1.05,base*4), lo=Math.max(0,mn-0.12*(hi-mn));   // room for the value labels
+  const X=v=>L+(Math.min(v,hi)-lo)/(hi-lo)*(W-L-R), esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  let g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;min-width:520px" role="img" aria-label="Tornado chart of limiting factors">';
+  g+='<line x1="'+X(base)+'" x2="'+X(base)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#444" stroke-width="1"/>';
+  g+='<text x="'+X(base)+'" y="12" font-size="10" text-anchor="middle" fill="#444">this case $'+base.toFixed(1)+'</text>';
+  if(parity>lo&&parity<hi){ g+='<line x1="'+X(parity)+'" x2="'+X(parity)+'" y1="'+(top-6)+'" y2="'+(H-22)+'" stroke="#CC3311" stroke-width="1" stroke-dasharray="3 3"/>';
+    g+='<text x="'+X(parity)+'" y="'+(H-10)+'" font-size="10" text-anchor="middle" fill="#CC3311">parity $'+parity.toFixed(0)+'</text>'; }
+  rows.forEach((r,i)=>{
+    const y=top+i*rh;
+    g+='<text x="'+(L-8)+'" y="'+(y+13)+'" font-size="11" text-anchor="end" fill="#1a1a1a">'+esc(r[0])+'</text>';
+    if(Math.abs(r[1]-base)<0.05&&Math.abs(r[2]-base)<0.05)
+      g+='<text x="'+(X(base)+4)+'" y="'+(y+13)+'" font-size="9" fill="#999">no effect on this case ('+esc(r[3])+' to '+esc(r[4])+')</text>';
+    [[r[1],r[3]],[r[2],r[4]]].forEach(e=>{
+      const v=e[0]; if(Math.abs(v-base)<0.05) return;
+      const x0=Math.min(X(v),X(base)), w=Math.abs(X(v)-X(base)), col=v<base?"#029E73":"#CC3311", clipped=v>hi;
+      g+='<rect x="'+x0+'" y="'+(y+2)+'" width="'+Math.max(w,1)+'" height="14" fill="'+col+'" opacity="0.85"><title>'+esc(e[1])+': $'+v.toFixed(1)+'/kg</title></rect>';
+      g+='<text x="'+(v<base?x0-3:x0+w+3)+'" y="'+(y+13)+'" font-size="10" text-anchor="'+(v<base?"end":"start")+'" fill="'+col+'">$'+v.toFixed(1)+(clipped?"+":"")+'</text>';
+      // range labels run away from the base line, so the two ends of a factor never collide
+      g+='<text x="'+(v<base?X(base)-4:X(base)+4)+'" y="'+(y+26)+'" font-size="9" text-anchor="'+(v<base?"end":"start")+'" fill="#777">'+esc(e[1])+'</text>';
+    });
+  });
+  return g+'</svg>';
 }
 function fxSpecies(){
   const sel=document.getElementById("fx_sp"), sp=C.fx.species[sel.value]; if(!sp) return;
@@ -3626,6 +3669,7 @@ function fxRender(){
     (p.growth_factors?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
+  g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add);
   const n=[];
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");
