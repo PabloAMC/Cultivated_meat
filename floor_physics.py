@@ -343,7 +343,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             uptime: float | None = None, maintenance_share: float | None = None,
             capex_x: float = 1.0, retention: float | None = None, x_scale: float = 1.0,
             hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
-            medium_l: float | None = None, medium_price: float = 0.15, growth_factors: bool = False,
+            medium_l: float | None = None, medium_price: float = 0.15, growth_factors: float = 0.0,
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
             pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
             osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
@@ -547,7 +547,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
     # figure is taken at the efficient cells' 11 L/kg)
-    gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) if growth_factors else 0.0
+    gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) * float(growth_factors)
     # the sparge gas: oxygen fed per kg of cells x its price, REPORTED but not added. The plant prices
     # (capital per m3, utilities) already contain the oxygen supply of the design they come from (20 m3,
     # Humbird's tank shape, his gas limit and back pressure). `gas` is what that supply costs per kg in
@@ -800,7 +800,7 @@ TORNADO = [
      "floor prices it at what one study hopes it will cost ($89k per m\u00b3); the filters pharma uses would "
      "cost about $460k. <b>Evidence:</b> a gravity settler runs today at 3,000 litres; a 20 m\u00b3 tank needs "
      "4.5 times the flow."),
-    ("Growth factors", "growth_factors", False, True, "none", "bought",
+    ("Growth factors", "growth_factors", 0.0, 1.0, "none", "all bought",
      "Proteins that tell cells to grow. The floor leaves them out: cells that need none, or make their own. "
      "<b>Range:</b> bought at Humbird's large-scale price they add about $4 a kilo [2]. <b>Evidence:</b> that "
      "price assumes an industry far larger than today's."),

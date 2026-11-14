@@ -1,5 +1,36 @@
 # Change log
 
+## 2026-11-15
+
+Cost scenarios in place of "the floor" (`scenarios.py`, `research_notes/cost_scenarios.md`)
+- **The floor is retired as a name.** $11.5/kg was `floor_physics.explore()` at its defaults (a standard 20 m3 perfusion tank,
+  120 g/L, a sterile plant, engineered cells, no tank tricks, no lost runs): neither a best case (the best case is $6.6) nor a
+  typical one. It is kept, unchanged, as the labelled reference "a standard perfusion tank, no tricks" (`scenarios.reference()`;
+  `cost_floor` keeps its name in the code). Every golden value that rests on it is unchanged: $11.4801 in `test_floor_physics`, 11.5020
+  `cost_floor` in `test_golden`.
+- **Scenarios**: ten switches (kind of cells, growth speed, plant, gas the cells tolerate, tank tricks, tank shape, runs lost, restart
+  time, growth factors, medium price), each setting an `explore` argument set with a plain label and a tag for what it needs (genetic
+  engineering / selection or adaptation / feed, process or plant / nothing new). Scenarios are presets of the switches:
+  best case $6.57 (0.96x, world share 15.2%, needs genetic engineering), central $18.14 (1.93x, 1.5%; $15.84 in a lean plant, 2.3%),
+  cautious $32.29 (3.11x, 0.3%), the reference $11.48 (5.4%), as a company reports $34.35 (0.3%). Doubling time is an explicit switch; the
+  central case takes 36 h (cost at 30 h $17.80, at 24 h $16.84). Tank design of each scenario = the cheapest the loop checks allow.
+- **New on the page**: the answer table; "What decides it" (switches, live result, what to prioritise, two switches together, which
+  switches interact), mirrored in `page_scenarios.js` and checked by `tests/run_parity.py` (16 choices, priorities, interactions, design).
+- **Moved (deliberate)**: `floor_physics.explore(growth_factors=)` is a share, not only a flag (`True` still means all; the page's checkbox
+  became a slider; tornado range 0 to 1). `cost_model.biomass_cost` is no longer floored at the reference cost (it was never
+  reached by the defaults; the page never applied it). The page opens on the central scenario, not on the reference case; its cost
+  sliders (medium price, plant running cost, cell efficiency) now start at the reported process and apply only to "As a company reports";
+  the Monte Carlo on the page holds the scenario's cost. The "reference plant" label replaces "floor plant" in `PLANT_CONFIGS`.
+  The page headline tokens `*_FLOOR*`, `FLOOR_MC_*`, `COST_FLOOR_LEAN` are replaced by scenario tokens. The cells-by-tank grid on
+  the page is recomputed from the central scenario (sterile and lean plant; each cell names its limit); the "what stands in the way"
+  table is recomputed from the central scenario.
+- New inputs (all `sc_*`, with source, range and note): `sc_nh3_*`, `sc_lac_*`, `sc_glc_measured`, `sc_mass_selected_pg`, `sc_td_*`, `sc_gas_*`,
+  `sc_hazard_*`, `sc_restart_*`, `sc_gf_*`, `sc_medium_*`, `sc_aspect_*`, `sc_p_top`.
+- Docs: README, RESULTS (summary rewritten around the scenarios), METHODS (new section "Cost scenarios"). Numbers that moved in the prose:
+  the headline "the floor is about $11.5/kg ... ~5% of world meat" is now the reference row; "price parity needs a cheaper class of plant"
+  became "price parity needs the best case or nearly"; the funding list was reordered (better cells first); the lean plant's break-even
+  loss rate is about once in 28 days. Section 3's shares by type are unchanged and now labelled "reference case".
+
 ## 2026-11-14
 
 Gas flow

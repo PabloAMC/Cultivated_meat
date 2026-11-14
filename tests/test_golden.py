@@ -234,12 +234,12 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−1.7"),
         ("elasticity at R=1.5",          elas(1.5),  "−4.4"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−8.3"),
-        ("biomass cost floor $/kg",      cost_floor, "11.5"),
+        ("reference cost $/kg",      cost_floor, "11.5"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.7",
               "elasticity at R=1.5": "−4.4", "elasticity at R=2.42 (anchor)": "−8.3",
-              "biomass cost floor $/kg": "11.5"}
+              "reference cost $/kg": "11.5"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

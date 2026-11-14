@@ -14,8 +14,11 @@ language (“How the model works”, at the bottom of the page).
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
   on the EA Forum.
 
-The model is anchored to the only peer-reviewed cost study built on measured production data (Pasitka et
-al., *Nature Food* 2024) and bounded by the physical feedstock floor (Humbird 2021). Every number is sourced
+The cost of a kilo of cells is described by **scenarios** (best case, central, cautious, and the process one company reports), each a preset
+of ten switches with what has to go right for it stated; see [RESULTS.md](RESULTS.md) and the page's "What decides it".
+What earlier versions called the floor ($11.5/kg) is kept as a labelled reference, not a limit.
+
+The default cost is what a company reports for its own process (SuperMeat 2024), and the scenarios are bounded by the physics of oxygen and CO₂ exchange and by Humbird's plant design (2021). Every number is sourced
 and lives in one place, and every result reproduces from the code.
 
 > **Disclaimer.** The views expressed here are purely those of the author, Pablo Antonio Moreno Casares, and may
@@ -50,7 +53,8 @@ it is always a band.
 | step | module | what it adds |
 |---|---|---|
 | 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (additive markup) |
-| 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the floor, the cost waterfall |
+| 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
+| 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
 | 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets) and their scaffold cost; the most speculative part |
@@ -59,7 +63,7 @@ it is always a band.
 | – | [`uncertainty.py`](uncertainty.py) | Monte Carlo over R and share |
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
 | – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
-| – | [`floor_physics.py`](floor_physics.py) | side-study: a physics-based cost floor by reactor type and plant class |
+| – | [`floor_physics.py`](floor_physics.py) | the cost of a kilo of cells from oxygen and CO₂ physics, by reactor type and plant class (its defaults are the labelled reference case) |
 | – | [`plant_items.py`](plant_items.py), [`contamination.py`](contamination.py) | side-study: the plant's capital item by item, and the contamination a cheaper plant can afford |
 
 ---
@@ -154,7 +158,8 @@ More in [`tests/README.md`](tests/README.md).
 model/
 ├── inputs.py            ← the datasheet: every number, source and Monte Carlo range (start here)
 ├── price_ratio.py       ← step 1: R and the parity threshold
-├── cost_model.py        ← step 1: Pasitka's costs, the scale-up lever, the floor
+├── cost_model.py        ← step 1: Pasitka's costs, the scale-up lever, the reference case
+├── scenarios.py         ← step 1: the cost scenarios (switches, presets, priorities, interactions, bands)
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
 ├── scaffolding.py       ← step 3: structured products and their scaffold cost
@@ -163,7 +168,7 @@ model/
 ├── uncertainty.py       ← Monte Carlo over R and share
 ├── sensitivity.py       ← which inputs matter most
 ├── growth_rate.py       ← side-study: cost against doubling time (not used in the headline)
-├── floor_physics.py     ← side-study: physics-based floor by reactor type and plant class
+├── floor_physics.py     ← the cost of cells from tank physics, by reactor type and plant class
 ├── plant_items.py       ← side-study: plant capital item by item (Humbird's plant and his yeast plant)
 ├── contamination.py     ← side-study: detection, losses and break-even loss rates for cheaper plants
 ├── common.py            ← shared plotting helpers (no model logic)
@@ -183,6 +188,6 @@ model/
 ## Sources
 
 Cost: **Pasitka et al. 2024** (*Nature Food*) for the cost stack and reactor designs; **Humbird 2021** for the
-feedstock floor and why scale-up is hard. Demand: calibrated to observed plant-based shares (GFI/SPINS/NIQ),
+the feedstock and why scale-up is hard. Demand: calibrated to observed plant-based shares (GFI/SPINS/NIQ),
 price sensitivity from grocery scanner meta-analyses and a cultivated-meat choice experiment (Van Loo, Caputo &
 Lusk 2020), the ethical segment from Gallup. Every parameter's source is tagged in [`inputs.py`](inputs.py).

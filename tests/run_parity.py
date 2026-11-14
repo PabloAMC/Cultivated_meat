@@ -274,6 +274,39 @@ def check_parity() -> list:
             if lab not in prow or abs(prow[lab][0] - a) > 1e-6 or abs(prow[lab][1] - b) > 1e-6:
                 fails.append(f"tornado '{lab}' case {case}: python={prow.get(lab)} js=({a:.6f}, {b:.6f})")
 
+    # the scenarios: scEval / scShare / scPriorities / scInteractions / scDesign (JS) against scenarios.py
+    import scenarios as _S
+    sc = js.get("sc") or {}
+    if not sc.get("cases"):
+        fails.append("scenarios: not emitted by the JS probe")
+    worst_sc = 0.0
+    for vals, tot, lim, ml, wsh, ush in sc.get("cases", []):
+        ch = dict(zip(_S.KEYS, vals))
+        r = _S.run(ch)
+        shs = _S.shares(r["total"], ("global", "us"))
+        worst_sc = max(worst_sc, abs(r["total"] - tot))
+        if abs(r["total"] - tot) > 1e-6 or r["limit"] != lim or abs(r["medium_l"] - ml) > 1e-6:
+            fails.append(f"scenario {vals}: python={r['total']:.6f} ({r['limit']}, {r['medium_l']:.3f} L) js={tot:.6f} ({lim}, {ml:.3f} L)")
+        for lab, pv, jv in (("world", shs["global"], wsh), ("us", shs["us"], ush)):
+            if abs(pv - jv) > 0.02:
+                fails.append(f"scenario {vals} {lab} share: python={pv:.4f}% js={jv:.4f}%")
+    c0 = _S.SCENARIOS["central"].choice
+    pri = _S.priorities(c0, True)
+    for (k, best, wst, db, dw, sb, sw_), prow in zip(sc.get("pri", []), pri):
+        if (k, best, wst) != (prow["switch"], prow["best"], prow["worst"]) or max(abs(db - prow["d_best"]), abs(dw - prow["d_worst"])) > 1e-6 \
+                or max(abs(sb - prow["share_best"]), abs(sw_ - prow["share_worst"])) > 0.02:
+            fails.append(f"priorities {k}: python=({prow['switch']}, {prow['best']}, {prow['worst']}, {prow['d_best']:.4f}, {prow['d_worst']:.4f}) js=({best}, {wst}, {db:.4f}, {dw:.4f})")
+    if len(sc.get("pri", [])) != len(pri):
+        fails.append("priorities: different number of switches")
+    inter = _S.interactions(c0, 6, 0.25)
+    if [(a, b) for a, b, _g in sc.get("inter", [])] != [(x["a"], x["b"]) for x in inter] or \
+            any(abs(g - x["gap"]) > 1e-6 for (_a, _b, g), x in zip(sc.get("inter", []), inter)):
+        fails.append(f"interactions: python={[(x['a'], x['b'], round(x['gap'], 4)) for x in inter]} js={sc.get('inter')}")
+    for k, (tk, sh) in zip(_S.ORDER, sc.get("design", [])):
+        d = _S.design({**_S.SCENARIOS[k].choice, "tricks": "none", "shape": "tall"})
+        if (d["tricks"], d["shape"]) != (tk, sh):
+            fails.append(f"design {k}: python=({d['tricks']}, {d['shape']}) js=({tk}, {sh})")
+
     # foothold rung: per-product price ratio R (the cost->R machinery shared with foothold.product_R;
     # the corner the scaffold-cost mismatch slipped through). JS emits [label, R] per product.
     worst_f = 0.0
@@ -377,7 +410,8 @@ def check_parity() -> list:
           f"{len(py['headline'])} headline values, {n} timing years; grid max diff = {worst:.2e}, "
           f"health max diff = {worst_h:.2e}, foothold max diff = {worst_f:.2e}, "
           f"weight-override max diff = {worst_w:.2e}, authenticity max diff = {worst_a:.2e}, "
-          f"breakdown max diff = {worst_b:.2e}, premise-dial max diff = {worst_p:.2e} (tol {TOL:.0e}); {mc_msg}")
+          f"breakdown max diff = {worst_b:.2e}, premise-dial max diff = {worst_p:.2e} (tol {TOL:.0e}); "
+          f"scenarios: {len(sc.get('cases', []))} cases, max cost diff = {worst_sc:.2e}; {mc_msg}")
     return fails
 
 

@@ -19,6 +19,9 @@ python tests/test_floor_physics.py
 echo "==> plant by items, contamination"
 python tests/test_plant_items.py
 
+echo "==> cost scenarios"
+python tests/test_scenarios.py
+
 echo "==> gas-exchange side study"
 python tests/test_gas_exchange.py
 

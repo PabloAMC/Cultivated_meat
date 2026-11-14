@@ -884,6 +884,94 @@ REGISTRY: dict[str, Input] = {
         "batches, if those ran 10-20 days: about 0.6 to 2.2% a day; 1.5% is the round middle",
         lo=0.006, hi=0.022, mode=0.015),
 
+    # --- Cost scenarios (scenarios.py): the settings of each switch -------------------------------------
+    # Each switch on the page's "what decides it" panel has a few settings; every number a setting fixes is
+    # registered here with its source and plausible range. The scenarios are presets of these switches
+    # (scenarios.py), so no scenario carries a number of its own. Evidence: research_notes/cost_scenarios.md.
+    "sc_nh3_engineered": Input(0.055, "mol/kg wet", "[Humbird-R, derived; waste_tricks_sizing.md] ammonia made by "
+        "engineered cells: his enhanced cell, 0.054, rounded; seen only in engineered (glutamine-synthetase) CHO",
+        lo=0.054, hi=0.14, mode=0.055,
+        note="GENETIC ENGINEERING. The CHO plateau rate that clears this (0.54 fmol/cell/h) is an upper bound "
+             "from cells that were not net-growing; nothing at a 24 h doubling"),
+    "sc_nh3_selected": Input(0.14, "mol/kg wet", "[Hubalek et al. 2023, full text; waste_tricks_sizing.md] ammonia "
+        "made by bovine fibro-adipogenic cells when glutamine is replaced by alpha-ketoglutarate, pyruvate or "
+        "glutamate: 'more than 5-fold' below the 0.70 with glutamine, so under 0.14",
+        lo=0.07, hi=0.25, mode=0.14,
+        note="FEED CHANGE, then SELECTION. Measured once, in one cell type, in spinner flasks; the same paper's "
+             "shaker value for ordinary cells is ten times lower than its spinner value, cause unexplained"),
+    "sc_nh3_ordinary": Input(0.70, "mol/kg wet", "[Hubalek et al. 2023, full text] the same cells with glutamine: "
+        "56.3 fmol/cell/h at a 25.7 h doubling", lo=0.09, hi=0.95, mode=0.70,
+        note="0.09 is the same paper's shaker value; 0.95 is Humbird's ordinary wild-type cell"),
+    "sc_lac_engineered": Input(0.5, "mol lactate / mol glucose", "[Humbird-R] his stated lactate:glucose ratio for "
+        "enhanced cells", lo=0.1, hi=0.5, mode=0.5,
+        note="GENETIC ENGINEERING for values near 0 (knocked-out genes); 0.5 is his assumption"),
+    "sc_lac_selected": Input(0.42, "mol lactate / mol glucose", "[waste_tricks_sizing.md] 0.39 was reached by "
+        "adapting CHO to low-lactate culture; 0.42 allows a little for meat cells, for which nothing is measured",
+        lo=0.39, hi=0.6, mode=0.42,
+        note="SELECTION OR ADAPTATION. No value for muscle, fat or fish cells has been published"),
+    "sc_lac_measured": Input(1.05, "mol lactate / mol glucose", "[Pasitka et al. 2024, snippet; "
+        "waste_tricks_sizing.md] chicken cells in perfusion; bovine cells similar", lo=0.8, hi=1.4, mode=1.05,
+        note="ordinary pharma cells make about 1.4"),
+    "sc_glc_measured": Input(0.84, "mol glucose/kg wet", "[waste_tricks_sizing.md, from Hubalek 2023 and the "
+        "chicken data] glucose used per kg of meat cells grown", lo=0.67, hi=1.2, mode=0.84,
+        note="Humbird's efficient cell uses 1.116 (pf_glc_kg); measured pharma cells 0.67-1.0. Unmeasured for "
+             "meat cells at density"),
+    "sc_mass_selected_pg": Input(2000.0, "pg wet per cell", "[judgement] between the 1.0-1.75 ng reported for "
+        "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
+        lo=1000.0, hi=3000.0, mode=2000.0,
+        note="smaller cells respire more per gram (West's law), so the tank holds fewer of them. Used for every "
+             "cell setting except the engineered one, which is Humbird's cell"),
+    "sc_td_central": Input(36.0, "h", "[Hubalek et al. 2023; judgement] the speed taken for cells that make this "
+        "little waste by selection and feed alone: cells with glutamine replaced doubled in 42.9-54.2 h "
+        "(38 h unchanged, 25.7 h in the spinner), never 24 h", lo=26.0, hi=43.0, mode=36.0,
+        note="MY ODDS (labelled judgement): 24 h together with ammonia at or below 0.14 about 10%; 30 h or "
+             "faster about 25%; 36 h or faster about 45%; 43 h or faster about 70%. Selection acts most directly "
+             "on growth rate, so the central value sits nearer the ordinary cells' speed than the measured one"),
+    "sc_td_fast": Input(30.0, "h", "[judgement] a third setting between the engineered 24 h and the central 36 h",
+        lo=26.0, hi=36.0, mode=30.0),
+    "sc_td_measured": Input(43.0, "h", "[Hubalek et al. 2023, full text] 42.9 h: the best low-ammonia culture "
+        "measured in meat cells (bovine, alpha-ketoglutarate)", lo=38.0, hi=54.0, mode=43.0,
+        note="DTs 42.9 / 47.6 / 48.8 / 54.2 h with glutamine replaced; difference from 38.0 h not significant, n = 5"),
+    "sc_gas_mid": Input(0.004, "m/s", "[research_notes/gas_flow_cap.md] a middle setting for the gas the cells "
+        "tolerate: twice the 2 mm/s run in 8-20 m3 tanks (Nienow 2006), two thirds of Humbird's 6", lo=0.002, hi=0.006,
+        mode=0.004, note="needs a protectant and foam control; nobody has run dense cells at this gas flow at 20 m3"),
+    "sc_gas_low": Input(0.002, "m/s", "[Nienow 2006, full text; gas_flow_cap.md] about the most gas that has been "
+        "run with cells in 8-20 m3 tanks", lo=0.001, hi=0.004, mode=0.002),
+    "sc_hazard_mid": Input(0.006, "per day", "[Powell et al. 2025; ct_hazard_frontier] the low end of the loss "
+        "rate the survey of makers implies (0.6-2.2% a day if batches ran 10-20 days)", lo=0.002, hi=0.015, mode=0.006),
+    "sc_hazard_cm": Input(0.01, "per day", "[Powell et al. 2025, full text; assumed run length] 11.2-19.5% of "
+        "batches lost, about 1% a day if runs last 10-20 days", lo=0.006, hi=0.022, mode=0.01),
+    "sc_hazard_high": Input(0.02, "per day", "[Powell et al. 2025] the upper end of what makers report",
+        lo=0.015, hi=0.022, mode=0.02),
+    "sc_restart_base": Input(14.0, "days", "[contamination.py; Humbird-R Sect. 4.1 seed train] two weeks to clean, "
+        "re-sterilise and regrow the seed after a lost run", lo=7.0, hi=30.0, mode=14.0),
+    "sc_restart_slow": Input(21.0, "days", "[plant_items.py, contamination.py] a plant that loses its seed trains "
+        "needs three weeks to sterilise and regrow", lo=14.0, hi=30.0, mode=21.0),
+    "sc_restart_long": Input(30.0, "days", "[contamination.common_mode_restart_days] a month: one failure that "
+        "reaches every tank", lo=21.0, hi=60.0, mode=30.0),
+    "sc_gf_part": Input(0.3, "of Humbird's growth-factor cost", "[judgement; Humbird-R, Sect. 3.1 price of "
+        "large-scale growth factors] cheaper factors or cells that need fewer: 30% of his price per litre",
+        lo=0.0, hi=1.0, mode=0.3,
+        note="his price assumes an industry far larger than today's; cells that make their own were shown in "
+             "cattle cells by genetic engineering"),
+    "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
+        mode=0.6),
+    "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
+        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20, note="company announcements, not verified at scale"),
+    "sc_medium_high": Input(0.30, "$/L", "[judgement] between the announced $0.20 and the $0.50 SuperMeat reports",
+        lo=0.2, hi=0.5, mode=0.30),
+    "sc_aspect_flat": Input(0.5, "depth/width", "[gas_exchange.cheapest_tricks] the squattest shape its search "
+        "considers: liquid half as deep as wide (a horizontal or wide, shallow vessel)", lo=0.5, hi=0.75, mode=0.5,
+        note="gives the most gas per litre; steel and floor counted; no cost data on tank shape"),
+    "sc_aspect_squat": Input(0.75, "depth/width", "[gas_exchange_study.md] a squat tank: liquid 0.75 times as deep as "
+        "wide, the cheapest shape the search finds when the gas cap is high", lo=0.5, hi=1.0, mode=0.75,
+        note="its extra steel and floor are counted (gas_exchange.shape_capex_factor); no cost data on tank shape"),
+    "sc_aspect_mid": Input(1.0, "depth/width", "[judgement] a squarer tank than Humbird's 1.6", lo=0.75, hi=1.6,
+        mode=1.0),
+    "sc_p_top": Input(1.0, "bar gauge", "[gas_exchange_study.md; vendor data sheets] pressure at the top of the tank "
+        "when the pressure trick is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
+        lo=0.33, hi=2.0, mode=1.0, note="no culture has been run at 1 bar gauge"),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term
@@ -1362,7 +1450,7 @@ GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].v
 PLANT_CONFIGS: dict[str, float] = {
     "cautious plant cost (pharma-style, half the density)":    REGISTRY["overhead"].hi,
     "as reported, with a return on capital (default)":         REGISTRY["overhead"].value,
-    "floor plant cost":                                        REGISTRY["plant_floor"].value,
+    "reference plant cost (standard perfusion tank)":          REGISTRY["plant_floor"].value,
 }
 
 # ----------------------------------------------------------------------------
