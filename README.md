@@ -1,4 +1,4 @@
-# Cultivated meat: how much of the meat market can it win — and how fast?
+# Cultivated meat: cost and market share
 
 *A cost and demand model: how cheap can cultivated meat plausibly get, and how much conventional meat
 would that displace?*

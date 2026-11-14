@@ -1118,7 +1118,7 @@ def derived_numbers() -> dict:
 
 PAGE_HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cultivated meat: how much of the market can it win?</title>
+<title>Cultivated meat: cost and market share</title>
 <style>
 :root{--ink:#1a1a1a;--muted:#666;--rule:#e3e3e3;--accent:#0072B2;--orange:#E69F00;
  --green:#117733;--red:#CC3311;--bg:#fff;}
@@ -1308,7 +1308,7 @@ text{font-family:Georgia,serif;}
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: how much of the meat market can it win, and how fast? <span class="stamp">build __BUILD_STAMP__</span></h1>
+<h1>Cultivated meat: cost and market share <span class="stamp">build __BUILD_STAMP__</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
 <p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
