@@ -116,6 +116,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Uncertainty | `uncertainty.py` | the commodity Monte Carlo over R and share |
 | Sensitivity | `sensitivity.py` | tornado and key-knobs tables for R and share |
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
+| Side-study | `floor_physics.py` | a physics-based floor by reactor type and plant class; not used in the headline |
 
 Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py` (the curated figure set),
 `build_interactive.py` (the page).
@@ -260,6 +261,66 @@ cultivated meat ... per year" (FoodNavigator). Completed in 2025; the company (w
 tonne of yearly capacity, against $48,000 in Humbird's fed-batch design; at Humbird's 24%/yr it would cost $3.0/kg,
 far below this model's $18.5 non-medium cost. Either Humbird's plant is conservative (aseptic, clean-room) or the capacity
 claim was optimistic; the plant never ran long enough to say. A company claim, and the only built plant on file.
+
+### Side-study: a physics-based floor (`floor_physics.py`, added 2026-11-14; not used in the cost)
+
+The floor above takes its plant term from Pasitka. Pasitka's cost analysis counts a very watery "wet biomass" as
+kg of product and assumes perfusion at a scale nobody has run (see "Wet mass per cell" and "Reactor type and
+mode"), so it is a weak anchor. `floor_physics.py` rebuilds the plant term from physics and published engineering,
+per kg of real wet cells (70% water, about 21% protein: Humbird's basis, comparable with meat).
+
+The chain:
+
+    power per cell          P   = 0.148 × M^0.75 pW                 (West's law, Humbird Eq. 2.8; 60 pW at 3 ng)
+    oxygen uptake           qO2 = P / (483 kJ per mol O2) / M        (0.149 mmol per g per h for the 3 ng cell)
+    density the reactor     X   = min(OTR / qO2, 258 g/L)            (and at most 120 g/L if waste is not washed out)
+    supports
+    output per m3 per year  continuous: 0.8 × X × μ × 8760 × 0.91    fed-batch: 0.8 × X / (2 t_d + 10 h) × 8760
+    plant capital per kg    0.24 × (capital per m3) / (output per m3 per year)
+
+Oxygen is the physical limit: bursting bubbles kill animal cells, so a cell-culture reactor delivers about 25–30
+mmol of oxygen per litre an hour (below 50 in any case) against 150–200 in a microbial fermenter. Labour scales
+with vessel-time per kg; utilities and consumables are Humbird's.
+
+The module's only calibration targets are Humbird's two designs, and it reproduces both: fed-batch 14.5 t per m³
+a year and $14.5/kg of non-nutrient cost (his: 14.2 and 14.5); perfusion 35.8 t per m³ a year and $29.2/kg (his:
+35.9 and 30.1).
+
+The ladder, per kg of real wet cells:
+
+| tier | what it assumes | shown? | t/m³/yr | plant | feedstock + growth factors | total | R |
+|---|---|---|---|---|---|---|---|
+| Humbird fed-batch, as designed | aseptic 20 m³ stirred tanks, efficient 3 ng cells | designed, not built | 14.5 | $14.5 | $1.7 + 3.1 | **$19.3** | 2.03 |
+| Humbird perfusion, as designed | aseptic 2 m³ tanks with ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $29.2 | $1.7 + 3.1 | **$34.0** | 3.25 |
+| same fed-batch plant, today's cells | the cells Pasitka grew: 0.55 ng, 61 h doubling | the cells exist; the plant does not | 6.4 | $30.8 | $1.9 + 3.1 | **$35.8** | 3.40 |
+| aseptic, continuous harvest | 20 m³ tanks run continuously; no growth-factor cost | not at scale for animal cells | 22.1 | $9.6 | $1.7 | **$11.3** | 1.36 |
+| aseptic, continuous, 50 m³ tanks | the same in 50 m³ vessels | animal cells not grown above ~25 m³ | 22.1 | $8.8 | $1.7 | **$10.5** | 1.29 |
+| large perfusion, cheap retention | Pasitka's 25 m³ design, efficient cells | "theoretical" in Pasitka's words | 35.8 | $7.3 | $1.7 | **$9.0** | 1.16 |
+| food-fermentation-class plant | cells grown like yeast or mycoprotein: large sanitary vessels, no clean rooms | no; needs robust, contamination-tolerant cells | 22.1 | $3.0 | $1.7 | **$4.7** | 0.80 |
+| physics limit | cheapest fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids | a bound, not a design | 47.5 | $2.0 | $0.8 | **$2.7** | 0.64 |
+
+What it says:
+
+- **The class of plant decides the floor.** An aseptic, pharma-style plant costs about $683k per m³ of vessel
+  (Humbird); food and feed fermentation plants cost about $70k (pf-tea evidence: $55–192k). No other choice moves
+  the floor by a factor of ten.
+- **With aseptic plants the floor is about $9–11/kg, above the $7 parity threshold** however the reactor is run.
+  Reactor mode matters less than it seemed: continuous harvest, larger vessels and cheap perfusion all land
+  within $2 of each other.
+- **Parity on price needs animal cells grown in food-grade plants**, at about $5/kg. Nobody has shown that. It
+  is the creative option that matters most, ahead of cheaper amino acids or waste recycling.
+- **The cells matter as much as the plant.** Pasitka's cells are six times smaller and grow 2.5 times slower
+  than Humbird's model cell, so they burn about four times the oxygen per kg and more than double the plant cost.
+- **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg. Growth factors cost $3/kg
+  at a 100 kt industry and little at much larger scale, or nothing if cells make their own.
+- **Physics alone allows about $3/kg.** That is a bound on what any plant could do, not a design.
+
+Limits. The capital figures per m³ are other people's estimates, not physics: Humbird's is a design, and the
+fermentation figures come from pf-tea's evidence file (company announcements and a model plant), taken as recorded
+there. The 120 g/L limit for unwashed cultures is Humbird's for efficient cells; today's cells would hit ammonia
+far sooner. The fall in density from CO₂ build-up above 20 m³ is not modelled, so the 50 m³ tier is slightly
+optimistic. Run length and contamination losses are not modelled; they are the reason continuous operation is
+unproven.
 
 ### Side-study: does slower growth pay? (`growth_rate.py`, added 2026-11-13; not used in the cost)
 

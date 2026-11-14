@@ -59,6 +59,7 @@ it is always a band.
 | – | [`uncertainty.py`](uncertainty.py) | Monte Carlo over R and share |
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
 | – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
+| – | [`floor_physics.py`](floor_physics.py) | side-study: a physics-based cost floor by reactor type and plant class |
 
 ---
 
@@ -161,6 +162,7 @@ model/
 ├── uncertainty.py       ← Monte Carlo over R and share
 ├── sensitivity.py       ← which inputs matter most
 ├── growth_rate.py       ← side-study: cost against doubling time (not used in the headline)
+├── floor_physics.py     ← side-study: physics-based floor by reactor type and plant class
 ├── common.py            ← shared plotting helpers (no model logic)
 ├── report_figures.py    ← builds the curated figure set
 ├── build_interactive.py ← generates interactive.html (model → JS/SVG explorer + text)

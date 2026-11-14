@@ -236,6 +236,65 @@ REGISTRY: dict[str, Input] = {
         note="dead cells must be regrown, so growth-coupled needs per NET kg rise as growth slows. A constant "
              "rate understates Hayter 1993's finding that death rises at low growth rate (abstract only)"),
 
+    # --- Rung 2 side-study: physics-based floor (floor_physics.py; NOT used in the headline cost) -----
+    # Per kg of REAL wet cells (70% water, ~21% protein: Humbird's basis). [Humbird-R] = Humbird's long report
+    # (engrXiv, rev. 3, Oct 2021), read 2026-11-14. [pf-tea] = evidence recorded in the pf-tea repository
+    # (data/evidence/*.yaml, docs/VALIDATION.md), taken as recorded there and not re-read at source.
+    "pf_cell_mass_pg": Input(3000.0, "pg wet", "[Humbird-R] Sect. 2.1 model cell: 3,000 pg hydrated, 17.7 um"),
+    "pf_cell_mass_today_pg": Input(550.0, "pg wet", "[Pasitka, derived] 10 um measured diameter (Extended Data "
+        "Fig. 4b) as a sphere at 1.05 g/mL", note="Pasitka's own biomass figures use 10 ng per cell; see METHODS "
+        "'Wet mass per cell'"),
+    "pf_doubling_h": Input(24.0, "h", "[Humbird-R] mu_max = 0.029/h"),
+    "pf_doubling_today_h": Input(61.0, "h", "[Pasitka] 'Culture doubling time was relatively stable at 61 h' in "
+        "the animal-free 20-day run"),
+    "pf_power_coef": Input(0.148, "pW/pg^0.75", "[Humbird-R] Eq. 2.8 (West et al.): metabolic power per cell = "
+        "0.148 x M^0.75; 60 pW at 3,000 pg"),
+    "pf_heat_per_o2": Input(483.0, "kJ/mol O2", "[Humbird-R] Reaction 2.10 (enhanced catabolism): 2,225 kJ per "
+        "4.61 mol O2", note="full respiration of glucose gives 467; wild-type Reaction 2.7 gives 532"),
+    "pf_x_visc": Input(258.0, "g wet/L", "[Humbird-R] Table 2.2: density at volume fraction 0.25, the viscosity limit"),
+    "pf_x_unperfused": Input(120.0, "g wet/L", "[Humbird-R] Fig. 2.8b: fed-batch limit at 20 m3 with 90% O2 and "
+        "enhanced metabolism (ammonia and CO2 bind together)", lo=50.0, hi=150.0, mode=120.0,
+        note="applies to any culture whose waste is not washed out: fed-batch, fill-and-draw, chemostat"),
+    "pf_otr_cap": Input(29.0, "mmol O2/L/h", "[Humbird-R] oxygen-limited density of 195 g/L in perfusion with 90% "
+        "O2 x the model cell's uptake", lo=13.0, hi=50.0, mode=29.0,
+        note="lo: Negulescu 2023's designs (12.8-13.5); Humbird: '<~25' with air under cell-culture sparging "
+             "limits; hi: '<50' for animal cells [pf-tea, engineering.yaml, citing Humbird 2021]. Microbial "
+             "fermenters reach 150-200, but bursting bubbles kill animal cells"),
+    "pf_working_volume": Input(0.8, "of vessel", "[Humbird-R] 80% maximum working volume"),
+    "pf_uptime": Input(0.91, "of year", "[Humbird-R] Sect. 4.2: 'average annual uptime ... ~91%' for perfusion"),
+    "pf_turnaround_h": Input(10.0, "h", "[Humbird-R] Sect. 4.2: 10 h offline per turnaround for cleaning and refill"),
+    "pf_fedbatch_doublings": Input(2.0, "doublings", "[Humbird-R] Fig. 4.3: production batch grows 482 -> 1,849 kg "
+        "(1.9 doublings); seed splits of 2-3 doublings are the recommended range"),
+    "pf_capex_aseptic_fedbatch": Input(683.0, "$k/m3", "[Humbird-R] Tables 4.1 and 4.3: TCI $327.9M for 24 x 20 m3 "
+        "production vessels (480 m3), seed train, buildings and utilities included"),
+    "pf_capex_aseptic_perfusion": Input(3450.0, "$k/m3", "[Humbird-R] Tables 4.8 and 4.10: TCI $662.6M for 96 x 2 m3 "
+        "production vessels (192 m3) with 192 ATF units"),
+    "pf_capex_pasitka_large": Input(810.0, "$k/m3", "[Pasitka] SI Tables S1 and S4: TCI $40.3M for 2 x 25 m3",
+        note="perfusion with an unspecified retention device at a scale nobody has run; see METHODS "
+             "'Reactor type and mode'"),
+    "pf_capex_fermentation": Input(70.0, "$k/m3", "[pf-tea] food and feed fermentation plants: model base plant "
+        "$68k/m3; Liberation Labs (4 x 150 m3, announced $115M) $192k/m3, or $55-91k/m3 scaled to 7,200 m3",
+        lo=55.0, hi=192.0, mode=70.0,
+        note="THE CREATIVE CASE: what a plant costs if animal cells could be grown like yeast or mycoprotein, in "
+             "large sanitary vessels without clean rooms. Not demonstrated for animal cells. Company figures are "
+             "announcements (grade C/D in pf-tea)"),
+    "pf_bioreactor_capex_share": Input(0.32, "of direct cost", "[Humbird-R] Table 4.3: bioreactors $56.6M of "
+        "$178.2M total direct cost", note="the share of plant cost that scales with vessel size (Eq. 3.1)"),
+    "pf_labour": Input(1.45, "$/kg", "[Humbird-R] Table 4.6, fed-batch: burdened labour",
+        note="scaled with vessel-time per kg in floor_physics"),
+    "pf_utilities": Input(0.94, "$/kg", "[Humbird-R] Table 4.6, fed-batch: water, power, gas"),
+    "pf_consumables_fedbatch": Input(0.85, "$/kg", "[Humbird-R] Table 4.4: sterile and virus filters per batch"),
+    "pf_consumables_perfusion": Input(4.56, "$/kg", "[Humbird-R] Table 4.14: filters plus ATF membranes"),
+    "pf_consumables_low": Input(0.3, "$/kg", "[assumed] continuous or food-grade operation with few filter changes"),
+    "pf_growth_factors": Input(3.1, "$/kg", "[Humbird-R] Table 4.4: insulin, transferrin, FGF, TGF-beta at a "
+        "100 kTA industry", note="Humbird: 'At much larger scale, their contribution vanishes entirely'. The "
+        "model's floor leaves them out; cells that make their own growth factors would do the same"),
+    "pf_aa_price_cheap": Input(1.0, "$/kg hydrolysate", "[assumed] a cheaper amino-acid source than the $2/kg "
+        "hydrolysate", note="soybean meal is roughly $0.4/kg at ~47% protein, so ~$0.85 per kg of protein before "
+        "hydrolysis and clean-up; microbial or gas-fermentation protein would have to beat that"),
+    "pf_other_nutrients_cheap": Input(0.3, "$/kg", "[assumed] salts, buffer, vitamins at feed-grade prices",
+        note="against the 0.9 assumed in other_nutrients_floor"),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term
