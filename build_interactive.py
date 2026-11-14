@@ -62,6 +62,105 @@ def _income_check(dp):
     return [inc, R, _share(R, dp, income=inc) * 100.0]
 
 
+def _blockers_html() -> str:
+    """The 'what stands in the way' block under the top summary: each bottleneck of the floor, what the floor
+    assumes, what it costs if that fails, how it could be met and how solid the evidence is; one-click cases
+    for the panel below; and the cells x tank grid. Every figure comes from floor_physics.explore."""
+    import gas_exchange as ge
+    ex = floor_physics.explore
+    d = lambda **k: ex(**k)
+    f0, noge, ordi = d(), d(nh3_kg=0.14, lac_yield=0.39), d(**ge.CELL_CASES["ordinary"][1])
+    col, allg = d(**ge.TANK_CASES["column"][1]), d(**ge.TANK_CASES["all"][1])
+    low_gas, squat = d(gas_velocity=0.002), d(aspect=1.0)
+    safe2 = ge.cheapest_tricks(0.002, ph_safe=True, tested=True)
+    yeast, pharma = d(plant="microbial"), d(plant="pharma")
+    slow, gf = d(doubling_h=ge.CELL_CASES["best_meat"][1]["doubling_h"]), d(growth_factors=True)
+    m = lambda r: f"${r['total']:.1f}"
+    rows = [
+        ("Waste the cells make",
+         f"Cells so efficient that {f0['medium_l']:.0f} litres of medium grow a kilo",
+         f"{m(noge)} with the best feed measured in meat cells ({noge['medium_l']:.0f} litres); "
+         f"{m(ordi)} with ordinary cells ({ordi['medium_l']:.0f} litres)",
+         "Replace glutamine in the feed; select or adapt cells that waste less; engineer them; or take the "
+         "ammonium out of the used medium",
+         "The floor's level has been seen only in genetically engineered pharma cells. The feed change was "
+         "measured once, in cattle cells."),
+        ("Clearing CO&#8322; from a dense tank",
+         f"Gas bubbled at 6 mm a second, so the tank holds {f0['density']:.0f} g of cells a litre",
+         f"{m(low_gas)} if cells stand only 2 mm a second, the most shown so far",
+         f"A column beside the tank that strips CO&#8322; without bubbles ({m(col)}); with pressure and "
+         f"recycled oxygen as well ({m(allg)}); or a squatter tank ({m(squat)}). With gas capped at 2 mm a "
+         f"second these bring {m(low_gas)} back to {m(safe2)}",
+         "Calculated. Nobody has run animal cells over such a column, and 6 mm a second is untested at this size."),
+        ("The cost of the plant",
+         "A sterile plant without clean rooms",
+         f"{m(pharma)} if it must be built like a pharma plant",
+         f"Build it like a food plant: {m(yeast)}",
+         "Nobody has built one for animal cells. How often runs are lost to contamination decides it."),
+        ("Fast growth and low waste together",
+         "Cells that double every 24 hours",
+         f"{m(slow)} at 43 hours, the pace of the low-waste cattle cells",
+         "Select faster lines",
+         "Each has been shown alone, never both in one culture."),
+        ("Growth factors",
+         "None are bought",
+         f"{m(gf)} if they are bought at the cheapest price projected",
+         "Cheaper factors, lines that need fewer, or cells that make their own",
+         "Cells that make their own have been shown in cattle cells, by genetic engineering."),
+    ]
+    h = ["<div class='findings blk' id='blockers'><div class='fh'>What stands in the way, and what would fix it</div>",
+         f"<p class='blkp'>The floor of {m(f0)} a kilo of cells is a stirred tank run in perfusion: medium flows "
+         "through, the cells are held back and harvested all the time. It rests on five things nobody has shown "
+         "together. Costs are per kilo of cells, with everything else left at the floor.</p>",
+         "<div class='scrollx'><table><thead><tr><th>What stands in the way</th><th>The floor assumes</th>"
+         "<th>If that fails</th><th>How it could be met</th><th>How solid</th></tr></thead><tbody>"]
+    for r in rows:
+        h.append("<tr><td><b>%s</b></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % r)
+    h.append("</tbody></table></div>")
+    # the cells x tank grid, sterile plant / yeast-style plant
+    cells = [("floor", "The floor's cells (need genetic engineering)"),
+             ("floor_noge", "The same by selection and feed only"),
+             ("best_meat", "Best measured in meat cells"), ("ordinary", "Ordinary meat cells")]
+    tanks = [("sparger", "Bubbling only"), ("column", "With the column"),
+             ("all", "Column, pressure and recycled oxygen")]
+    h.append("<p class='blkp' style='margin-top:10px'><b>Cells against tank.</b> Cost per kilo of cells in a "
+             "sterile plant, and in a plant built like a yeast plant. Click a figure to load that case below.</p>"
+             "<div class='scrollx'><table><thead><tr><th>Cells</th>" +
+             "".join(f"<th>{t}</th>" for _k, t in tanks) + "</tr></thead><tbody>")
+    for ck, cl in cells:
+        h.append(f"<tr><td>{cl}</td>")
+        for tk, _t in tanks:
+            kw = dict(ge.CELL_CASES[ck][1], **ge.TANK_CASES[tk][1])
+            a, b = ex(**kw), ex(plant="microbial", **kw)
+            h.append("<td><a href='#fx' onclick=\"fxCase('%s','%s','sanitary');return false\">$%.1f</a> / "
+                     "<a href='#fx' onclick=\"fxCase('%s','%s','microbial');return false\">$%.1f</a></td>"
+                     % (ck, tk, a["total"], ck, tk, b["total"]))
+        h.append("</tr>")
+    h.append("</tbody></table></div>"
+             "<p class='fnote'>The tank fixes help most when the cells are good: with the best cells measured so far, "
+             "medium sets most of the cost. Which measurements would settle each row is listed in the "
+             "<a href='https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/gas_exchange_study.md'>"
+             "research notes</a>. Every lever is in <a href='#fx'>Build your own case</a>, lower down.</p></div>")
+    return "".join(h)
+
+
+def _fx_cases_json() -> str:
+    """Lever settings for the one-click cases (cells x tank), as the page's control ids."""
+    import gas_exchange as ge
+    cell_ids = {"doubling_h": "fx_dh", "nh3_kg": "fx_nh", "lac_yield": "fx_ly", "glc_kg": "fx_gk"}
+    tank_ids = {"column": "fx_col", "col_pout": "fx_cp", "p_top_barg": "fx_pt"}
+    out = {"cells": {}, "tanks": {}}
+    for k, (_l, kw, _t) in ge.CELL_CASES.items():
+        o = {cell_ids[a]: v for a, v in kw.items()}
+        if "nh3_kg" in kw:
+            o["fx_wm"] = "sep"
+        out["cells"][k] = o
+    for k in ("sparger", "column", "all"):
+        out["tanks"][k] = {tank_ids[a]: v for a, v in ge.TANK_CASES[k][1].items()}
+    return json.dumps(out)
+
+
+
 def build_model() -> dict:
     dp = DemandParams()        # runs the calibration solve once -> reference solved values for the self-check
     const = {
@@ -1024,6 +1123,8 @@ def derived_numbers() -> dict:
         # the kappa-validation elasticity (golden-guarded as lusk_elas_parity_cold)
         "KAPPA4_LUSK_ELAS": f"{_lusk_at_parity(dp):.1f}",
         "DO_IMPLIED": f"{__import__('gas_exchange').headspace_pressure()['c_liquid_implied']:.3f}",
+        "BLOCKERS_HTML": _blockers_html(),
+        "FX_CASES": _fx_cases_json(),
         **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
            for tag, R in (("10", 1.0), ("15", 1.5), ("24", 2.42))},
     }
@@ -1180,6 +1281,10 @@ text{font-family:Georgia,serif;}
  padding:10px 18px 8px;margin:4px 0 14px;max-width:760px;}
 .findings .fh{font-family:Georgia,serif;font-weight:700;font-size:1.02rem;margin:0 0 6px;}
 .findings ol{margin:0;padding-left:20px;} .findings li{font-size:.93rem;margin:0 0 4px;line-height:1.45;}
+.blk table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:640px;}
+.blk th,.blk td{border-top:1px solid #cfe0ec;padding:5px 8px 5px 0;vertical-align:top;text-align:left;line-height:1.4;}
+.blk th{font-size:.76rem;color:var(--muted);font-weight:600;border-top:0;}
+.blk .blkp{font-size:.9rem;margin:0 0 8px;line-height:1.45;} .blk{margin-top:12px;}
 .findings .fnote{font-size:.78rem;color:var(--muted);margin:6px 0 0;}
 /* the model in one line: a chain of four numbers */
 .chain{display:flex;align-items:stretch;gap:6px;max-width:760px;margin:0 0 6px;}
@@ -1231,7 +1336,7 @@ Commission. <a href="#about">About this page</a>.</p>
     <li><b>Cost:</b> about ${{COST_FLOOR}} per kilo of cells, ${{RETAIL_FLOOR}} in the shop, ~{{R_FLOOR}}&times; everyday
     meat. That needs everything that has been costed for animal cells to work together, which nobody has shown.
     In a plant as cheap as a yeast plant it would be about ${{COST_FLOOR_LO}}, about equal to meat; nobody has
-    built one for animal cells.</li>
+    built one for animal cells. <a href="#blockers">What stands in the way</a> is set out just below.</li>
     <li><b>Share at the floor:</b> ~{{PEN_GLOBAL_FLOOR_VOL}}% of world meat by weight in the long run
     (US ~{{PEN_US_FLOOR_VOL}}%, Europe ~{{PEN_EU_FLOOR_VOL}}%), with price sensitivity set by what today's
     premium meat, milk and eggs sell at 1.5 to 2.2 times the price (2–7% of sales). Across the plausible range of
@@ -1246,6 +1351,8 @@ Commission. <a href="#about">About this page</a>.</p>
     at the floor ({{STAB_YEAR}} at the reported cost).</li>
   </ol>
 </div>
+
+{{BLOCKERS_HTML}}
 
 <div class="chain" role="group" aria-label="The model in one line">
   <div class="link"><div class="num">${{COST_FLOOR}}/kg</div><div class="lab">to grow, at the floor</div></div>
@@ -1313,19 +1420,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
     <div class="selftest" id="selftest"></div>
     <h2 style="margin:18px 0 4px">Build your own case: what limits a tank, and the tricks that lift it</h2>
       <div class="fx" id="fx">
-        <p><b>Build your own case.</b> Move the levers; the physics is applied for you. Smaller cells respire more
-        per gram, so a tank holds fewer of them. Faster cells make more per tank and burn less glucose per kilo,
-        but they also respire more per hour, so the tank holds fewer of them. A tank must mix faster than it
-        transfers oxygen. A run that is contaminated ends early and the tank must be restarted. Cells that make
-        more ammonia and lactate need more medium to wash it out, or, in a tank that is drained and refilled, must
-        be kept thinner. Besides ammonia and lactate, the medium must carry off salt and other by-products, so a
-        cell needs a least flow of medium per day whatever it makes. The medium can never cost less than the
-        nutrients the cells must eat.
-        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner:
-        CO&#8322; leaves only in the gas bubbled through, and a deeper tank passes less gas per litre. Cells that
-        tolerate more CO&#8322;, more gas flow, or a squatter tank all raise the limit.
-        The first control sets the cell levers from what has been published for a species, including how much
-        CO&#8322; its cells are thought to tolerate; the rest of the case stays as you set it.</p>
+        <p><b>Build your own case.</b> Move a lever and the physics is applied for you: the tank holds only as many cells as it can supply with oxygen, clear of CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit binds. The first control sets the cell levers from what has been published for a species; the cases in <a href="#blockers">What stands in the way</a> set them for you.</p>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
           <select id="fx_sp" onchange="fxSpecies()"></select></div>
         <p class="fxn" id="fx_spn"></p>
@@ -3877,6 +3972,19 @@ function fxSpecies(){
     if(ex.waste!==undefined) document.getElementById("fx_ws").value=ex.waste*100; }
   document.getElementById("fx_spn").innerHTML=sp[7]; fxRender();
 }
+// One-click cases from the "What stands in the way" grid: reset every lever to the floor, then set the
+// cell and tank levers of the case, and bring the limits chart into view.
+let fxDefaults=null;
+const FX_CASES={{FX_CASES}};
+function fxCase(cell,tank,plant){
+  const box=document.getElementById("fx"); if(!fxDefaults) return;
+  box.querySelectorAll("input,select").forEach(e=>{ if(e.id in fxDefaults){ if(e.type==="checkbox") e.checked=fxDefaults[e.id]; else e.value=fxDefaults[e.id]; } });
+  fxPco2Range=C.fx.species.model[5]; document.getElementById("fx_spn").innerHTML=C.fx.species.model[7];
+  const set=o=>Object.keys(o||{}).forEach(id=>{ const e=document.getElementById(id); if(e) e.value=o[id]; });
+  set(FX_CASES.cells[cell]); set(FX_CASES.tanks[tank]); document.getElementById("fx_pl").value=plant||"sanitary";
+  fxRender();
+  const t=document.getElementById("fx_limits"); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:"smooth",block:"center"});
+}
 function fxInit(){
   const sel=document.getElementById("fx_sp");
   Object.keys(C.fx.species).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=C.fx.species[k][0];sel.appendChild(o);});
@@ -3888,6 +3996,7 @@ function fxInit(){
       Object.keys(C.fx.items[it]).map(o=>'<option value="'+o+'">'+C.fx.items[it][o][1]+'</option>').join("")+'</select>';
     box.appendChild(d); });
   sel.value="model"; fxSpecies();
+  fxDefaults={}; document.getElementById("fx").querySelectorAll("input,select").forEach(e=>{ if(e.id) fxDefaults[e.id]=(e.type==="checkbox"?e.checked:e.value); });
 }
 function fxMode(){fxRender();}
 function fxItem(){ document.getElementById("fx_pl").value="custom"; fxRender(); }   // an item changed by hand
