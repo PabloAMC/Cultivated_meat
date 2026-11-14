@@ -1380,7 +1380,7 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
           <div class="ctl"><label><span class="nm">Restart after a contamination</span><span class="val" id="fx_rf_v"></span></label>
             <input type="range" id="fx_rf" min="3" max="30" step="1" value="3" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Waste the cells make</span><span class="val" id="fx_ws_v"></span></label>
-            <input type="range" id="fx_ws" min="0" max="100" step="1" value="0" oninput="fxRender()"></div>
+            <input type="range" id="fx_ws" min="0" max="100" step="0.5" value="0" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Medium price</span><span class="val" id="fx_mp_v"></span></label>
             <input type="range" id="fx_mp" min="0.1" max="1" step="0.01" value="0.15" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Share of the product that is cells</span><span class="val" id="fx_cs_v"></span></label>
@@ -3671,7 +3671,13 @@ function fxSpecies(){
   document.getElementById("fx_ws").value=Math.round(ws*100);
   // CO2 tolerance: the species' own value where it differs, and its plausible range for the tornado
   document.getElementById("fx_pc").value=(sp[4]===null?C.fx.pco2:sp[4]); fxPco2Range=sp[5];
-  document.getElementById("fx_spn").innerHTML=sp[6]; fxRender();
+  // a preset of a whole operation also fixes how the tank is run, the plant and the financing
+  const ex=sp[6]; if(ex){
+    if(ex.mode) document.getElementById("fx_mo").value=ex.mode;
+    if(ex.plant) document.getElementById("fx_pl").value=ex.plant;
+    if(ex.charge) document.getElementById("fx_ch").value=ex.charge*100;
+    if(ex.waste!==undefined) document.getElementById("fx_ws").value=ex.waste*100; }
+  document.getElementById("fx_spn").innerHTML=sp[7]; fxRender();
 }
 function fxInit(){
   const sel=document.getElementById("fx_sp");

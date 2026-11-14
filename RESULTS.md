@@ -224,6 +224,13 @@ the plausible speeds at which wariness fades), at the floor as at the reported c
 A meat tax also works: raising conventional prices 25% lowers R as much as a 20% cut in every cost. Most of these
 are public goods that industry underfunds.
 
+**The one working plant.** Vow grows animal cells in a food-grade 20,000-litre tank with no clean room,
+drained and refilled, at an output that implies about 27 g of cells per litre. Reconstructed in the model, that
+operation costs about $28/kg in a yeast-style plant and over $70/kg in a plant at Humbird's cost, so the cheap
+class of plant is probably what it runs. It shows that food-grade tanks work for short runs. It does not show
+the density or the weeks-long perfusion runs the floor assumes (METHODS.md, "A working plant as a reference
+point").
+
 ## 7. What would change the conclusions
 
 - **Up:** animal cells grown in a plant built like a microbial fermentation plant; efficient cells shown at pilot

@@ -252,28 +252,29 @@ PLANT_CLASSES = {                      # key: (capital input, escalate from Humb
 
 # Species presets for the cell levers: (label, doubling time h, wet mass pg, litres of medium per kg if
 # reported, CO2 tolerance in mbar if it differs from the default, the plausible range of that tolerance,
+# other panel settings the preset fixes (a dict of explore() arguments, or None for a cells-only preset),
 # what the numbers are and how good they are). Sources and access levels:
 # research_notes/species_cell_parameters.md and research_notes/fish_cell_co2_ph.md.
 SPECIES_PRESETS = {
-    "model": ("Humbird's model cell", 24.0, 3000.0, None, None, (100.0, 200.0),
+    "model": ("Humbird's model cell", 24.0, 3000.0, None, None, (100.0, 200.0), None,
               "The efficient cell every case on this page assumes [2]. No meat cell line has been shown to match it."),
-    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5, None, (100.0, 200.0),
+    "chicken": ("Chicken, as reported in perfusion", 48.0, 1400.0, 30.5, None, (100.0, 200.0), None,
                 "SuperMeat's 2024 report [1]: half a doubling a day in perfusion, 1.0 to 1.75 ng per cell, 30.5 "
                 "litres of medium per kilo (the waste lever is set to match; put the medium price at $0.50 for the reported "
                 "cost). Chicken "
                 "fibroblasts double in about 20 hours when grown on a surface; another measured run in "
                 "animal-free medium took 61 hours [20]."),
-    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None, None, (100.0, 200.0),
+    "cattle": ("Cattle, serum-free", 39.0, 3000.0, None, None, (100.0, 200.0), None,
                "Primary bovine muscle stem cells in serum-free medium on a surface: 39 hours on average "
                "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
                "model cell's is used. No suspension culture at density has been published."),
-    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None, 50.0, (10.0, 100.0),
+    "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None, 50.0, (10.0, 100.0), None,
              "The Mack1 line: 24 hours at 27 °C, 16.8 µm across, grown on a surface with 20% serum (Saad et al. "
              "2023). Many fish lines take two days or more. <b>CO\u2082:</b> set to 50 mbar, half the default. Fish "
              "live with about 2 to 4 mbar in their blood, against about 50 in mammals, and fish farms keep it "
              "under 5 to 10. Salmon and trout cell lines do grow in a medium that implies about 40 to 50 mbar. "
              "Nobody has measured how fish cells grow against CO\u2082, so the range is 10 to 100."),
-    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 50.0, (15.0, 100.0),
+    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 50.0, (15.0, 100.0), None,
                "No shrimp or other crustacean cell culture that keeps dividing exists, so this is not a cost "
                "estimate. It gives shrimp the fish cell's size and speed [assumed]. <b>CO\u2082:</b> 50 mbar, a "
                "judgement, range 15 to 100. Shrimp carry only about 4 mbar in their blood, and farms keep them "
@@ -282,11 +283,21 @@ SPECIES_PRESETS = {
                "and blood pigment, not cells. Shrimp cells have only ever been cultured in open air, so there "
                "is no direct evidence. A tonne of shrimp is tens of thousands of animals, which is why the "
                "case is worth showing."),
-    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None, 50.0, (50.0, 200.0),
+    "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None, 50.0, (50.0, 200.0), None,
                "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
                "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's. <b>CO\u2082:</b> "
                "measured (Vajrala and Murhammer 2016): no slowdown up to 49 mbar, a doubling time of 32 hours at "
                "97 mbar and 38 hours at 196. Set to 50 mbar here, where the 23 hours holds."),
+    "vow": ("A working plant: Vow's 20,000-litre tank", 24.0, 3000.0, None, None, (100.0, 200.0),
+            {"mode": "filldraw", "plant": "microbial", "charge": 0.236, "waste": 0.205},
+            "The one plant that grows animal cells at this size (quail cells; Sydney). A food-grade stirred tank "
+            "built in-house, with no clean room, emptied or partly drained and refilled, with nothing holding the "
+            "cells back (GFI's 2026 industry report and the company's food-standards filing). Its stated target, "
+            "130 tonnes a year from 35,000 litres, is 3.7 to 6.5 tonnes per m\u00b3 a year, which implies about "
+            "27 g of cells per litre. The company publishes no cell traits, plant cost or loss rates, so this "
+            "preset is a reconstruction: the waste lever is set so the tank holds 27 g per litre, the plant is "
+            "priced like a yeast plant (its vessel is said to have cost under $50k per m\u00b3), and financing is "
+            "that of a first plant. Choose perfusion and the floor's plant again to return to the floor."),
 }
 SPECIES_MISSING = ""
 

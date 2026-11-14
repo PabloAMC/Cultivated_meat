@@ -543,6 +543,28 @@ species. With everything else at the floor case:
 The cells matter as much as the plant: the chicken cells a company reports cost nearly twice the floor in the
 same plant.
 
+*A working plant as a reference point (the Vow preset).* Vow, in Sydney, runs the one tank that grows animal
+cells at 20,000 litres: a food-grade stirred tank built in-house, with no clean room, emptied or partly drained
+and refilled, with nothing holding the cells back (GFI's 2026 industry report; the company's food-standards
+filing). Its stated target of 130 tonnes a year from 35,000 litres of tanks is 3.7–6.5 tonnes per m³ a year,
+which implies about 27 g of cells per litre; the floor assumes 22 tonnes and 120 g. The company publishes no
+cell traits, plant cost or loss rates, so the preset is a reconstruction: the waste lever is set so that a
+drained-and-refilled tank holds 27 g/L (3.4 tonnes per m³ a year), with first-plant financing.
+
+| the same operation in | cells, $/kg |
+|---|---|
+| a yeast-style plant ($190k per m³) | 28 |
+| the floor's sterile plant without clean rooms ($810k per m³) | 72 |
+| a pharma-style plant with clean rooms ($910k per m³) | 79 |
+
+Two readings. First, at this output a plant at Humbird's cost would put the cells above $70/kg, so a company
+that sells product from such a tank is very likely running a plant far cheaper than Humbird's, which is
+evidence that animal cells do not need his full sterility spend at 20 m³ in short runs. The company's own
+statements (a vessel for under $50k per m³, 80% below a pharma-specification system) point the same way; its
+whole-plant cost is not published. Second, the gap to the floor is not the plant: it is output per tank. The
+same cheap plant at the floor's density and in perfusion gives $6.6/kg. What Vow has not shown is what the floor
+needs on top: four to five times the density, and runs of weeks with the cells held back.
+
 *CO₂ tolerance by species (`research_notes/fish_cell_co2_ph.md`).* The density a tank holds is proportional to
 the CO₂ its cells tolerate, and animals differ widely in the CO₂ their cells normally see. Mammals and birds
 carry about 35–55 mbar in arterial blood. Water-breathers clear CO₂ across the gills: trout carry about 2 mbar
