@@ -273,12 +273,15 @@ SPECIES_PRESETS = {
              "live with about 2 to 4 mbar in their blood, against about 50 in mammals, and fish farms keep it "
              "under 5 to 10. Salmon and trout cell lines do grow in a medium that implies about 40 to 50 mbar. "
              "Nobody has measured how fish cells grow against CO\u2082, so the range is 10 to 100."),
-    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 25.0, (5.0, 50.0),
+    "shrimp": ("Shrimp (hypothetical: no cell line exists)", 24.0, 2500.0, None, 50.0, (15.0, 100.0),
                "No shrimp or other crustacean cell culture that keeps dividing exists, so this is not a cost "
-               "estimate. It gives shrimp the fish cell's size and speed [assumed] and a CO\u2082 tolerance "
-               "inferred from the whole animal: farms hold shrimp under about 5 mbar, and 26 mbar killed 42% of "
-               "them. Shrimp cells are also cultured at about twice the salt strength of fish cells. A tonne of "
-               "shrimp is tens of thousands of animals, which is why the case is worth showing."),
+               "estimate. It gives shrimp the fish cell's size and speed [assumed]. <b>CO\u2082:</b> 50 mbar, a "
+               "judgement, range 15 to 100. Shrimp carry only about 4 mbar in their blood, and farms keep them "
+               "under about 5, but fish carry as little and their cells grow at 40 to 50; insect cells, the "
+               "nearest relatives with data, show no slowdown up to 49. The whole-animal limits reflect gills "
+               "and blood pigment, not cells. Shrimp cells have only ever been cultured in open air, so there "
+               "is no direct evidence. A tonne of shrimp is tens of thousands of animals, which is why the "
+               "case is worth showing."),
     "insect": ("Insect (Sf9), for reference", 23.0, 2200.0, None, 50.0, (50.0, 200.0),
                "Sf9 cells: about 23 hours at 27 °C, grown in suspension in tanks up to 21,000 litres for vaccines "
                "(Ashizawa et al. 2022). Measured oxygen uptake per gram is close to the model's. <b>CO\u2082:</b> "

@@ -537,7 +537,7 @@ species. With everything else at the floor case:
 | chicken, as reported in perfusion | 48 h | 1.4 ng | 100 (100–200) | 20 (20–15) | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
 | cattle, serum-free | 39 h | 3.0 ng (no data) | 100 (100–200) | 15 (15–11) | Stout et al. 2022, primary cells on a surface; no suspension data |
 | fish (Atlantic mackerel) | 24 h | 2.5 ng | 50 (10–100) | 21 (90–12) | Saad et al. 2023, on a surface with 20% serum; CO₂ inferred |
-| shrimp (hypothetical) | 24 h (assumed) | 2.5 ng (assumed) | 25 (5–50) | 38 (177–21) | no dividing shrimp cell culture exists; CO₂ inferred from the whole animal |
+| shrimp (hypothetical) | 24 h (assumed) | 2.5 ng (assumed) | 50 (15–100) | 21 (61–12) | no dividing shrimp cell culture exists; CO₂ a judgement (below) |
 | insect (Sf9), for reference | 23 h | 2.2 ng | 50 (50–200) | 21 (21–9) | Ashizawa et al. 2022; CO₂ measured (Vajrala and Murhammer 2016) |
 
 The cells matter as much as the plant: the chicken cells a company reports cost nearly twice the floor in the
@@ -550,9 +550,20 @@ and crabs about 4. Fish farms keep dissolved CO₂ under about 5–10 mbar for s
 about 5, and 26 mbar killed 42% of shrimp in one recirculating system. No one has measured how any fish or
 crustacean cell line grows against CO₂. What exists for fish cells is indirect: salmon and trout lines are
 grown routinely in a medium with 26 mM bicarbonate, which implies about 40–50 mbar, and one trout line did not
-restore its internal pH under sustained high CO₂. The model therefore gives fish cells 50 mbar (range 10–100)
-and shows shrimp at 25 (5–50) as a hypothetical. For insect cells there is a measurement: Sf9 cells double in
-23 hours up to 49 mbar, 32 hours at 97 mbar and 38 hours at 196. Two cautions. Whole-animal limits reflect
+restore its internal pH under sustained high CO₂. The model therefore gives fish cells 50 mbar (range 10–100). For insect cells there is a measurement: Sf9 cells double in
+23 hours up to 49 mbar, 32 hours at 97 mbar and 38 hours at 196. *Shrimp.* There is no dividing shrimp cell to measure, so the 50 mbar (range 15–100) is a judgement between two
+ways of guessing. If cells tolerated only a few times what the animal's blood carries (about 4 mbar), shrimp
+cells would slow near 10 mbar. If tolerance is a general property of animal cells in a bicarbonate-matched
+medium, they would resemble fish and insect cells. The evidence favours the second: fish blood carries as
+little CO₂ as shrimp blood, yet fish cells grow at more than ten times that; water-breathers have low blood CO₂
+because gills wash it out, not because their cells need it; the deaths of whole shrimp at 26 mbar involve the
+gills and the blood pigment; and insect cells show no slowdown up to 49 mbar. Shrimp cells are also cultured at
+about twice the salt strength of mammal cells, so the bicarbonate that high CO₂ requires is a smaller relative
+change. Against it: one trout line did not restore its internal pH under sustained high CO₂, and shrimp cells
+have only ever been cultured in open air. Probability that shrimp cells grow without material slowdown: about
+93% at 10 mbar, 75% at 25, 50% at 50, 20% at 100 [judgement].
+
+Two cautions. Whole-animal limits reflect
 gills and blood as much as cells, so they probably understate what cultured cells tolerate. And because cold
 water holds more CO₂ at the same partial pressure, it is not known whether partial pressure or concentration
 is the quantity that matters to the cell. Most of the numbers behind this paragraph were read in abstracts or
