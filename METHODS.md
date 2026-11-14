@@ -337,6 +337,8 @@ across its plausible range, the others held at the case being viewed. Around the
 | how the tank is run | perfusion to drained and refilled | 11.5 – 17.8 |
 | runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
 | least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
+| ammonia the cells make | 0.055 to 0.14 mol per kg | 11.5 – 14.0 |
+| pressure at the top of the tank | 0 to 1 bar gauge | no effect alone (CO₂ binds); with a column it lifts the oxygen and mixing limits |
 | salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
 | pH held in the tank | 6.9 to 7.4 | 11.5 – 12.3 |
 | oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
@@ -491,6 +493,23 @@ passing more gas per litre of culture. Measured bubble damage goes with gas per 
 and foaming (Ozturk 1996), so the squat tank pays in dead cells, a few percent of growth if a protectant
 works at scale as in small columns; the model does not count bubble deaths. A
 published 262 m³ airlift needs 1.6 to 2.3 times the model's gas velocity to hold its stated density.
+
+*Tricks as levers, and every limit shown (`explore`, the panel's "Tricks" group and "What limits this tank").*
+`explore` returns every cap in the case (`limits`, g/L) and what sets the litres of medium (`medium_terms`),
+not only the binding ones, and carries the tricks sized in the gas-exchange and waste notes:
+
+| lever | what the physics does | evidence |
+|---|---|---|
+| `column`: none, "co2", "o2_closed" | a packed stripping column on a pumped loop takes the CO₂ the sparger cannot (CO₂ limit lifted); "o2_closed" also makes up the oxygen from a recycled oxygen sweep with a lime scrubber (oxygen limit lifted). Sized by `gas_exchange.column_design` at the density reached: film over Mellapak-type packing, Tsai 2011 wetted area, Rocha–Bravo–Fair transfer; capital (Wang 2015 vendor fits, ×3 installed), pumping, oxygen and lime added | calculated; never run with animal cells |
+| `col_pout` | CO₂ the culture leaves the column at; 55 mbar keeps the alkaline pulse below the one that hurt CHO (Paul 2020) | calculated against one study |
+| `p_top_barg` | oxygen transfer, and with it the mixing limit, scale with the oxygen driving force (`headspace_pressure`); CO₂ removal does not change | calculated; tanks are rated for it |
+| `nh3_kg`; `lac_yield` × `glc_kg` | the two wastes set as measured (mol/kg; mol/mol × mol/kg), with no scaling; unset, `waste` sets both as before and the floor is unchanged | bovine 0.70 and 0.14 (Hubalek 2023); yields 0.39–1.41 (CHO), 1.05 (chicken) |
+| `sorbent` (+ `sorbent_q`, `_price`, `_cycles`) | the share of ammonium taken out of the cell-free permeate before it returns; ammonia's medium need falls by that share, the sodium given back stays and counts as salt (1 mOsm per mmol), the sorbent is bought at share × ammonia ÷ capacity × price ÷ uses | capacity 0.1–0.2 mmol/g derived, not measured; price assumed above bulk zeolite |
+
+The page mirrors all of it (`floorExplore`, checked in nine cases by `tests/run_parity.py`). Two tornado rows
+are new: pressure at the top of the tank (0 to 1 bar gauge) and ammonia per kg (0.055 to 0.14). The page's
+tank-shape lever does not include the extra steel of a squat tank (`gas_exchange.shape_capex_factor` does; the
+note's section 9). Results: RESULTS.md, "What the tricks do".
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:

@@ -15,6 +15,14 @@ Cost side
 
 - Side-study of gas exchange (`gas_exchange.py`, `research_notes/gas_exchange_study.md`): a membrane loop,
   tank shape with the vessel's cost, and a check of a published airlift. Not used in the floor or on the page.
+- Tricks as levers (deliberate additions; the floor, $11.48 and 11.16 L/kg, and every earlier number unchanged):
+  `explore` gains `column`, `col_pout`, `p_top_barg`, `nh3_kg`, `lac_yield`, `glc_kg`, `sorbent` (+ capacity,
+  price, uses) and returns every cap (`limits`) and what sets the medium (`medium_terms`). The page gains a
+  "Tricks" group and a "What limits this tank" chart, mirrored in `floorExplore` with nine new parity cases.
+  Two new tornado rows: pressure at the top of the tank, ammonia per kg. New inputs `pf_glc_kg`,
+  `pf_sorbent_q`, `pf_sorbent_price`, `pf_sorbent_cycles`. RESULTS.md gains the cells-by-tank tables and the
+  cheapest combination by gas cap. The waste notes `waste_tricks_sizing.md` and `waste_and_medium_evidence.md`
+  are now versioned.
 
 Demand side
 - Price sensitivity above equal price is set by six premium animal products within the range of the one

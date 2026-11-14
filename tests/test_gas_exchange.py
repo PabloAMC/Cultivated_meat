@@ -137,7 +137,7 @@ def check() -> list:
     hp0, hp1 = ge.headspace_pressure(), ge.headspace_pressure(1.0)
     near("headspace at Humbird's pressure reproduces the model's oxygen limit", hp0["otr"], value("pf_otr_cap"), 1e-9)
     near("note: oxygen factor at 1 bar gauge", hp1["otr_factor"], 1.55, 0.02)
-    near("note: pressure alone leaves the floor", fp.explore(otr_x=hp1["otr_factor"], mix_x=hp1["otr_factor"])["total"],
+    near("note: pressure alone leaves the floor", fp.explore(p_top_barg=1.0)["total"],
          fp.explore()["total"], 1e-9)
     mx = ge.loop_mixing(189.0, col["passes"])
     near("note: the loop's jet barely helps mixing", mx["mix_x"], 1.06, 0.02)
@@ -172,6 +172,38 @@ def check() -> list:
          p_top_barg=1.0)["total"], 7.29, 0.02)
     near("note: same at 2 mm/s", ge.floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed",
          p_top_barg=1.0)["total"], 7.43, 0.02)
+
+    # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
+    r0 = fp.explore()
+    near("explore: default floor unchanged", r0["total"], 11.48, 0.001)
+    near("explore: default medium unchanged", r0["medium_l"], 11.16, 1e-6)
+    if set(r0["limits"]) != {"oxygen supply", "thickness of the culture", "mixing", "CO2 removal"} or r0["medium_set_by"] != "lactate":
+        fails.append("explore: limits or medium terms missing at the floor")
+    if abs(r0["limits"][r0["limit"]] - r0["density"]) > 1e-9 or min(r0["limits"].values()) != r0["density"]:
+        fails.append("explore: the binding limit must be the smallest cap")
+    ex = fp.explore(nh3_kg=value("pf_nh3_efficient"), lac_yield=0.5, glc_kg=value("pf_glc_kg"))
+    near("explicit wastes at the enhanced cell reproduce the floor", ex["total"], r0["total"], 1e-9)
+    near("pf_glc_kg times 0.5 is the enhanced lactate", 0.5 * value("pf_glc_kg"), value("pf_lac_efficient"), 1e-3)
+    s0 = fp.explore(nh3_kg=0.70, sorbent=0.0)
+    s8 = fp.explore(nh3_kg=0.70, sorbent=0.8)
+    near("sorbent takes 80% of the ammonia term", s8["medium_terms"]["ammonia"], 0.2 * s0["medium_terms"]["ammonia"], 1e-9)
+    near("sorbent cost: share x ammonia / capacity x price / uses",
+         s8["consumables"] - s0["consumables"], 0.8 * 0.70 / value("pf_sorbent_q") * value("pf_sorbent_price"), 1e-9)
+    if not ("salt" in s8["medium_terms"] and s8["osmolality"] > s0["osmolality"] - 50):
+        fails.append("sorbent: the sodium it gives back must count as salt")
+    near("note: ordinary bovine ammonia, L/kg", s0["medium_l"], 140.0, 1e-6)
+    pins = [("sanitary", 0.0, 0, 11.48), ("sanitary", 0.0, 1, 8.62), ("sanitary", 0.0, 2, 7.29), ("sanitary", 0.0, 3, 17.47),
+            ("sanitary", 0.0, 5, 13.13), ("sanitary", 0.0, 6, 31.09), ("sanitary", 0.0, 8, 26.89),
+            ("sanitary", 0.002, 0, 11.70), ("sanitary", 0.002, 2, 7.40), ("microbial", 0.0, 0, 6.61), ("microbial", 0.0, 2, 5.03),
+            ("microbial", 0.0, 5, 9.08), ("microbial", 0.006, 2, 5.17), ("microbial", 0.022, 0, 7.66), ("microbial", 0.022, 2, 5.59),
+            ("microbial", 0.022, 5, 10.32)]
+    tabs = {}
+    for plant, hz, i, want in pins:
+        tabs.setdefault((plant, hz), ge.cases_table(plant, hz))
+        near(f"note: cases table {plant} loss {hz} row {i}", tabs[(plant, hz)][i][2], want, 0.002)
+    for cap, plant, want in ((0.001, "sanitary", 7.54), (0.002, "sanitary", 7.43), (0.006, "sanitary", 7.20),
+                             (0.002, "microbial", 5.17), (0.006, "microbial", 4.91)):
+        near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
 
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
     d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])

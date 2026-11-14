@@ -107,6 +107,49 @@ The median is close to the default 3.28: the plant-cost range is wider on the hi
 less dense than the floor assumes), while the medium price and cell efficiency can improve on the report. The
 Monte Carlo does not include the frontier.
 
+**What the tricks do, and what the cells decide.** Two research notes size ways round the tank's limits
+(`research_notes/gas_exchange_study.md`, `waste_tricks_sizing.md`); `floor_physics.explore` now carries them as
+levers, and the page's panel shows each limit as a bar. Cost per kg of cells in the floor's sterile plant, then
+in brackets with runs lost to contamination at 0.2% a day (pharma's rate) and a 14-day restart; then the
+density, what binds, and litres of medium per kg:
+
+| cells | sparger only | packed column on a loop | column with oxygen sweep, 1 bar gauge |
+|---|---|---|---|
+| the floor's assumption (Humbird's enhanced cells) | $11.5 ($11.7); 120 g/L, CO₂; 11 L/kg | $8.6 ($8.8); 189 g/L, mixing; 11 L/kg | $7.3 ($7.4); 258 g/L, thickness; 11 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) | $17.5 ($17.8); 154 g/L, CO₂; 28 L/kg | $13.5 ($13.7); 242 g/L, mixing; 28 L/kg | $13.1 ($13.3); 258 g/L, thickness; 28 L/kg |
+| ordinary meat cells (bovine, with glutamine) | $31.1 ($31.4); 124 g/L, CO₂; 140 L/kg | $28.1 ($28.3); 195 g/L, mixing; 140 L/kg | $26.9 ($27.1); 258 g/L, thickness; 140 L/kg |
+
+The same in a yeast-style plant, with runs lost at 0.6% and 2.2% a day in brackets (the range a survey of
+makers implies):
+
+| cells | sparger only | packed column on a loop | column with oxygen sweep, 1 bar gauge |
+|---|---|---|---|
+| the floor's assumption (Humbird's enhanced cells) | $6.6 ($6.9 / $7.7); 120 g/L, CO₂; 11 L/kg | $5.5 ($5.7 / $6.3); 189 g/L, mixing; 11 L/kg | $5.0 ($5.2 / $5.6); 258 g/L, thickness; 11 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) | $10.7 ($11.1 / $12.5); 154 g/L, CO₂; 28 L/kg | $9.2 ($9.5 / $10.5); 242 g/L, mixing; 28 L/kg | $9.1 ($9.4 / $10.3); 258 g/L, thickness; 28 L/kg |
+| ordinary meat cells (bovine, with glutamine) | $26.0 ($26.5 / $27.8); 124 g/L, CO₂; 140 L/kg | $24.9 ($25.3 / $26.4); 195 g/L, mixing; 140 L/kg | $24.5 ($24.8 / $25.7); 258 g/L, thickness; 140 L/kg |
+
+"Best shown in meat cells" is bovine cells with glutamine replaced: 0.14 mol of ammonia per kg and a 43-hour
+doubling (Hubalek 2023); "ordinary" is the same cells with glutamine, 0.70 mol and 26 hours. Both take chicken
+cells' lactate yield (1.05 per glucose, Pasitka 2024) at 0.84 mol of glucose per kg.
+
+Reading the tables: the tricks take the floor's own cells from $11.5 to $7.3, about the parity mark, and the
+cheap plant to $5.0. But with cells that have actually been measured, ammonia sets the medium (28 or 140 litres
+per kg) and the tricks for the tank are worth much less: the cells decide the cost before the tank does. Losing
+runs adds $0.1–2.5 per kg. The loss model counts the lost time and the tankful lost with each failure; it does
+not yet count a failed restart, and long continuous runs are more exposed per run than short batches.
+
+When the cells tolerate only a capped gas flow, the cheapest combination of tank shape, column and headspace
+pressure (`gas_exchange.cheapest_tricks`; the sparger runs at its cap, a squatter tank pays for its steel):
+
+| gas cap | sterile plant, sparger only | cheapest combination | yeast-style, sparger only | cheapest combination |
+|---|---|---|---|---|
+| 1 mm/s | $52.9 | $7.54: column with oxygen sweep, 1 bar gauge | $23.6 | $5.27: the same |
+| 2 mm/s | $28.0 | $7.43: the same | $13.4 | $5.17: the same |
+| 4 mm/s | $15.6 | $7.33: the same | $8.3 | $5.07: the same |
+| 6 mm/s | $11.5 | $7.20: column for CO₂ only, 1 bar gauge | $6.6 | $4.91: no column, liquid half as deep as wide, 1 bar gauge |
+
+With the tricks the floor barely depends on the gas the cells tolerate. None has been tried with meat cells.
+
 ## 2. What share a price buys
 
 | if cultivated meat, at equal price and once familiar… | share |

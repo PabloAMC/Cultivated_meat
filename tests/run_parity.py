@@ -226,6 +226,24 @@ def check_parity() -> list:
             fails.append(f"floorExplore dh={dh} m={m} v={v} {pl} {mo}: python={r['product']:.6f} ({r['limit']}) "
                          f"js={tot:.6f} ({lim})")
 
+    # the tricks: floorExplore (JS) against explore with column, pressure, explicit wastes and a sorbent
+    FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}]
+    names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
+             "restart_fail": "restart_fail_days"}
+    js_tr = js.get("fxTricks", [])
+    if len(js_tr) != len(FX_TRICKS):
+        fails.append("fxTricks: not emitted by the JS probe")
+    for case, jr in zip(FX_TRICKS, js_tr):
+        kw = {names.get(k, k): v for k, v in case.items()}
+        r = _fp.explore(charge=0.173, **kw)
+        tot, dens, lim, ml, setby, jlims = jr
+        d = max(abs(r["total"] - tot), abs(r["density"] - dens), abs(r["medium_l"] - ml))
+        bad_lims = [k for k, v in r["limits"].items()
+                    if not ((v == float("inf") and jlims.get(k) is None) or (jlims.get(k) is not None and abs(v - jlims[k]) < 1e-6))]
+        if d > 1e-6 or r["limit"] != lim or r["medium_set_by"] != setby or bad_lims:
+            fails.append(f"floorExplore tricks {case}: python={r['total']:.6f} ({r['limit']}, {r['medium_set_by']}) "
+                         f"js={tot:.6f} ({lim}, {setby}) limits differ: {bad_lims}")
+
     # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
     cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
              dict(mass_pg=2500.0, pco2_mbar=50.0, pco2_range=(10.0, 100.0))]

@@ -885,6 +885,42 @@ What this settles:
 
 ---
 
+## 9. The tricks in the model and on the page; a cylinder as deep as it is wide (added 2026-11-14)
+
+The column, headspace pressure, explicit ammonia and lactate, and the sorbent are now levers of
+`floor_physics.explore` and of the page (METHODS.md, "Tricks as levers"; RESULTS.md, "What the tricks do").
+`explore` returns every cap, and the page draws them as bars against the floor case.
+
+**Losses in the tables.** RESULTS.md shows each plant with a stated loss rate beside the no-loss figure (0.2% a
+day for the sterile plant, 0.6% and 2.2% for the yeast-style plant, 14-day restart). The model counts the lost
+time and the tankful lost with each failure. It does not count a failed restart or the richer loss model of the
+cheap-plant branch, which will replace this when merged. Long continuous-harvest runs (33 days here) are more
+exposed per run than short batches.
+
+**A cylinder with the least wall: liquid as deep as it is wide** (Pablo: "the ideal bioreactors would be
+cylindrical that minimize the area for volume, so probably that already helps somewhat with CO₂ (but worsens
+O₂)"). From `explore(aspect=1.0)` and `shape_capex_factor`, against the model's tank (liquid 3.74 m deep, 2.34 m
+wide):
+
+| | model's tank (1.6) | as deep as wide (1.0) | what changes it |
+|---|---|---|---|
+| width × liquid depth | 2.34 × 3.74 m | 2.73 × 2.73 m | |
+| CO₂ cap | 120 g/L | **164 g/L** | the same gas speed passes through a shallower liquid, so more gas per litre |
+| oxygen cap | 195 g/L | 195 g/L in the model; **about 4% lower** in reality | the model's oxygen transfer has no depth in it; a shallower liquid has less hydrostatic pressure, so oxygen dissolves less (my arithmetic: −4%) |
+| mixing cap | 189 g/L | **551 g/L** | mixing time goes as (depth/width)^2.5 at fixed power |
+| vessel surface | 46.1 m² | 45.5 m² (−1%) | a cylinder with dished heads is close to its least surface at this shape |
+| steel | 1 | **+15%** | wall thickness grows with diameter (pressure and minimum-thickness rules), so steel is diameter × surface |
+| plant cost | 1 | +5.4% (shell +9%, floor space +19%) | `shape_capex_factor` |
+| floor cost | $11.48 | **$9.25** (shape free), **$9.50** with the steel and floor | CO₂ still binds, at 164 g/L instead of 120 |
+
+So Pablo is right on CO₂ (+37% density) and on the direction for oxygen, which is small (−4%, not in the model).
+The least-area shape does not minimise cost, though: steel goes with diameter × area, not area, and the
+cheapest shape is squatter still (0.75; section 2.2). The page's shape lever shows the CO₂, oxygen and mixing
+bars moving through the new chart, but it does not add the extra steel (about $0.25/kg at 1.0); that is in
+`gas_exchange.shape_case` only.
+
+---
+
 ## Sources
 
 Access: FT = full text read; AB = abstract; SN = search snippet; V = vendor page or data sheet. Items 1–8

@@ -199,7 +199,13 @@ js += `
     .map(p => fxTornadoRows(p).map(r => [r[0], r[1], r[2]]));
   fxTor.push(fxTornadoRows({ doubling_h: 24, mass_pg: 2500, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: 0.173, pco2: 50 },
                            [10, 100]).map(r => [r[0], r[1], r[2]]));
-  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxTor,
+  // the tricks (column, pressure, explicit wastes, sorbent): the same cases as tests/run_parity.py FX_TRICKS
+  const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}].map(c => {
+    const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
+                                           charge: 0.173 }, c));
+    return [r.total, r.density, r.limit, r.medium_l, r.medium_set_by, r.limits];
+  });
+  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxTor, fxTricks,
                            mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs } }));
 })();
 `;
