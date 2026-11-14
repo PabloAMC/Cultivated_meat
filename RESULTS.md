@@ -27,6 +27,8 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   steeply share falls above equal price is set by six premium animal products (organic milk, eggs, chicken,
   meat), which take 2–7% of sales at 1.5 to 2.2 times the price, within the range one choice experiment on
   cultivated meat allows. Across the plausible range of price sensitivity the world figure runs from 4% to 12%.
+  That is the case in which nothing falls short. Letting cost and demand both vary within their ranges, the
+  median is 0.8% of world meat (80% range 0.1–4.0%), and 2.4% in a yeast-style plant.
   Counted in animals it is lower still: cultivated meat sells mostly as beef and seafood, so a tonne sold spares
   about 34 land animals in the US, against 250 for a tonne of the average meat mix.
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
@@ -230,6 +232,12 @@ operation costs about $28/kg in a yeast-style plant and over $70/kg in a plant a
 class of plant is probably what it runs. It shows that food-grade tanks work for short runs. It does not show
 the density or the weeks-long perfusion runs the floor assumes (METHODS.md, "A working plant as a reference
 point").
+
+**How the physics fares against reported runs.** Fed the cells and vessels of published runs, the model is
+cautious about how dense a culture a vessel can hold (a small vessel has held twice its limit), and optimistic
+about medium (real perfusion runs used 1.2 to 2.8 times more) and about output in practice (the one working
+20 m³ plant makes under half of what the model's efficient cells would). It also flags two reports whose own
+numbers do not add up (METHODS.md, "Back-test against reported runs").
 
 ## 7. What would change the conclusions
 

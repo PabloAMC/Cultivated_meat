@@ -100,6 +100,7 @@ def build_model() -> dict:
             "osm_base": value("pf_osm_base"), "osm_limit": value("pf_osm_limit"), "ph": value("pf_ph"),
             "pk1": value("pf_pk1"), "co2_henry": value("pf_co2_henry"), "hco3_base": value("pf_hco3_base"),
             "min_perfusion": value("pf_min_perfusion"),
+            "gf_litres": floor_physics.washout_litres(floor_physics.GOOD_CELLS),
             # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint"}.get(arg, arg),
                          lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
@@ -892,8 +893,14 @@ def _floor_mc_tokens(parity: float) -> dict:
     t = floor_physics.floor_mc()["total"]
     y = floor_physics.floor_mc(plant="microbial")["total"]
     q = lambda a, k: f"{np.percentile(a, k):.0f}"
+    # cost and demand uncertain together at the floor case (meat_market.floor_share_mc), world, by volume
+    sh = mm.floor_share_mc("global", 2000)["vol"]
+    shy = mm.floor_share_mc("global", 2000, plant="microbial")["vol"]
+    f1 = lambda a, k: f"{np.percentile(a, k):.1f}"
     return {"FLOOR_MC_P10": q(t, 10), "FLOOR_MC_P50": q(t, 50), "FLOOR_MC_P90": q(t, 90),
-            "FLOOR_MC_YEAST_P50": q(y, 50), "FLOOR_MC_YEAST_PARITY": f"{np.mean(y <= parity) * 100:.0f}"}
+            "FLOOR_MC_YEAST_P50": q(y, 50), "FLOOR_MC_YEAST_PARITY": f"{np.mean(y <= parity) * 100:.0f}",
+            "FLOOR_SHARE_MC_P10": f1(sh, 10), "FLOOR_SHARE_MC_P50": f1(sh, 50), "FLOOR_SHARE_MC_P90": f1(sh, 90),
+            "FLOOR_SHARE_MC_YEAST_P50": f1(shy, 50)}
 
 
 def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
@@ -1333,7 +1340,10 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       allowed to fall short within their plausible ranges, the same case costs ${{FLOOR_MC_P50}}/kg at the median
       (80% range ${{FLOOR_MC_P10}}–{{FLOOR_MC_P90}}). In a yeast-style plant the median is
       ${{FLOOR_MC_YEAST_P50}}/kg, with about a {{FLOOR_MC_YEAST_PARITY}}% chance of reaching the
-      ${{PARITY_BIOMASS}} that parity needs.
+      ${{PARITY_BIOMASS}} that parity needs. Letting demand vary as well (price sensitivity, acceptance, the retail
+      markup), the long-run share of world meat in this case is {{FLOOR_SHARE_MC_P50}}% at the median (80% range
+      {{FLOOR_SHARE_MC_P10}}–{{FLOOR_SHARE_MC_P90}}%), and {{FLOOR_SHARE_MC_YEAST_P50}}% in a yeast-style plant.
+      The ~{{PEN_GLOBAL_FLOOR_VOL}}% at the top of this page is the case in which nothing falls short.
       <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of the cost per
       cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
       ${{COST_FLOOR_LO}}/kg, just under the parity line. Nobody has built or costed one for animal cells, which are
@@ -1419,6 +1429,8 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <option value="filldraw">drained and refilled</option></select></div>
         </div>
         <p class="example" id="fx_out"></p>
+        <p style="margin:.2em 0 .6em"><button class="btn" onclick="fxApply()">Use this case in the model above</button>
+        <span class="fxn" id="fx_apply_msg"></span></p>
         <p style="margin:.6em 0 .2em"><b>What limits this case.</b> Each factor moved alone across its plausible
         range, the others as you set them. Green lowers the cost, red raises it; the dotted line is the cost
         that matches everyday meat. Click a factor for what it is and where its range comes from.</p>
@@ -3598,17 +3610,18 @@ function floorExplore(p,noSearch){
                 ["CO2 removal",xCo2]];
   const w=p.waste||0, nh3=(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn, lac=(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
   const wf=nh3/(F.nh3[0]*burn);                                        // waste relative to enhanced cells
-  if(!perf) limits.push(["waste build-up",F.x_waste/load/wf]);
+  const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
+  if(!perf){ limits.push(["waste build-up",F.x_waste/load/wf]);
+    limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
   const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
   const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
   const capital=p.charge*capex/out, labour=F.labour_ref/out, utilities=F.utilities*(0.5+0.5*burn);
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
-  const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
   // litres per kg: ammonia, lactate within the salt limit, and the least flow a cell needs for everything else
   const need=perf?Math.max(nh3/(F.nh3_limit/1000),lac/(lacRoom/1000),flow/(cell.mu*24)):1000/lim[1];
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
-  const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf:0, cs=p.cell_share===undefined?1:p.cell_share;
+  const feed=Math.max(eat,ml*mp)/(1-lost), gf=p.growth_factors?F.gf*ml/F.gf_litres:0, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   const total=capital+labour+utilities+F.consumables+feed+gf;
   return {density:lim[1], limit:lim[0], output:out, capex:capex, capital:capital, labour:labour,
           utilities:utilities, consumables:F.consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
@@ -3710,6 +3723,22 @@ function fxInit(){
   sel.value="model"; fxSpecies();
 }
 function fxMode(){fxRender();}
+// Send the panel's case to the main model: its medium price, cell efficiency and plant running cost sliders
+// are set so the main cost matches (within what those sliders can reach), and every chart above follows.
+let fxLast=null;
+function fxApply(){
+  if(!fxLast) return;
+  const r=fxLast, S=k=>MODEL.sliders.find(x=>x.key===k), cl=(v,s)=>Math.min(s.max,Math.max(s.min,v));
+  const sE=S("efficiency"), sP=S("media_price"), sO=S("overhead");
+  const eff=cl(r.medium_l/C.media_intensity,sE), price=cl(r.feedstock/(C.media_intensity*eff),sP);
+  const medium=mediaCost(price,eff), oh=cl(r.total-medium,sO), got=medium+oh;
+  [["efficiency",eff],["media_price",price],["overhead",oh]].forEach(([k,v])=>{ const s=S(k); state[k]=v;
+    const inp=document.getElementById("r_"+k); if(inp) inp.value=s.logscale?val2pos(s,v):v; setReadout(s); });
+  recompute();
+  document.getElementById("fx_apply_msg").innerHTML=Math.abs(got-r.total)<0.1
+    ? "Done: the model above now runs at $"+got.toFixed(1)+" per kilo of cells."
+    : "The sliders above cannot reach this case exactly: the model now runs at $"+got.toFixed(1)+", not $"+r.total.toFixed(1)+".";
+}
 function fxRender(){
   const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value);
   const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
@@ -3727,6 +3756,7 @@ function fxRender(){
   g("fx_ph_v").textContent=p.ph.toFixed(2); g("fx_mf_v").textContent=p.min_perfusion.toFixed(1)+" mL per g a day"; g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
   g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
+  fxLast=r; { const m=document.getElementById("fx_apply_msg"); if(m) m.innerHTML=""; }
   const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
   // long-run share against $12 meat (US): a blend is credited as real meat in proportion to its cells [assumed]
   def.region="us"; def.income=C.income_ref;

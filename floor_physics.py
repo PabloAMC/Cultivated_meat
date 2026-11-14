@@ -351,7 +351,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         cells, 1 = ordinary cells): in perfusion enough liquid must pass to wash ammonia and lactate out;
         in a drained-and-refilled tank waste caps the density instead. The medium costs litres x price,
         but never less than the nutrients the cells must eat (at the default $0.15/L the two meet);
-        growth factors can be added at Humbird's large-scale price;
+        growth factors can be added at Humbird's large-scale price, scaled with the litres of medium;
       * the product can be a blend: `cell_share` of cells, the rest plant ingredients.
 
       * salt strength: holding the pH against dissolved CO2 takes bicarbonate, and lactate comes with its
@@ -414,8 +414,12 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
               "CO2 removal": x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect)}
     wf = waste_per_kg(cells, waste)[0] / waste_per_kg(cells, 0.0)[0]       # waste relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
+    flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
     if mode != "perfusion":
         limits["waste build-up"] = waste_cap(cells) / wf
+        # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
+        # caps the density: 1000 / (flow / growth rate per day)
+        limits["other by-products"] = 1000.0 * cells.mu * 24.0 / flow
     limit = min(limits, key=limits.get)
     x = limits[limit]
     shape = 1.0
@@ -434,7 +438,6 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         if mode == "perfusion":
             nh3, lac = waste_per_kg(cells, waste)
             nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
-            flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
             need = max(nh3 / (nh3_lim / 1000.0), lac / (lac_room / 1000.0), flow / (cells.mu * 24.0))
         else:
             need = 1000.0 / x
@@ -442,7 +445,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         if mode == "perfusion":
             osm = value("pf_osm_base") + osm_co2 + 2.0 * lac / medium_l * 1000.0
     feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
-    gf = value("pf_growth_factors") * ox if growth_factors else 0.0
+    # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
+    # figure is taken at the efficient cells' 11 L/kg)
+    gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) if growth_factors else 0.0
     total = capital + labour + utilities + consumables + feed + gf
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
@@ -492,6 +497,66 @@ def settler_spec(cells: Cells = None, x: float | None = None, medium_l: float | 
             "stay_min": float(stay(v1h)), "oxygen_lasts_s": float(0.044 / (x * cells.qo2) * 3600.0),
             "clump_um_needed": float(d_need), "cells_per_clump": float(pack * (d_need / d_cell) ** 3),
             "plate_area_clumps_m2": float(flow / (v_need / 100.0))}
+
+
+def backtest() -> list:
+    """Reported runs against what the model gives for the same cells and vessel. Not a fit: nothing in the
+    model was tuned to these (Humbird's two designs, which it was tuned to, are left out). Each row is
+    (run, quantity, observed, model, note). Sources: research_notes/perfusion_rate_osmolality.md,
+    species_cell_parameters.md, the SuperMeat and Pasitka reports, and the continuous-harvest report."""
+    rows = []
+    day = 24.0
+
+    def cell(mass_pg, mu_per_day):
+        return Cells(mass_pg=mass_pg, doubling_h=LN2 / mu_per_day * day)
+
+    def caps(c):                                   # what the model lets a small, well-gassed vessel hold
+        return {"oxygen supply": value("pf_otr_cap") / c.qo2, "thickness of the culture": value("pf_x_visc")}
+
+    def litres(c, flow=None):                      # litres of medium per kg in perfusion, efficient-cell waste
+        flow = value("pf_min_perfusion") if flow is None else flow
+        return max(washout_litres(c), flow / (c.mu * day), value("pf_medium_l_floor"))
+
+    # 1. Clincke et al. 2013: CHO in a wave bag with perfusion, the densest culture on record
+    c = cell(2400.0, 0.35)                         # 16.4 um cells at the top density; growth 0.35 per day
+    obs_x = 2.14e8 * 2400e-12 * 1000.0             # g wet per litre
+    k = min(caps(c), key=caps(c).get)
+    rows.append(("CHO, wave-bag perfusion (Clincke 2013)", "densest culture held, g/L", obs_x, caps(c)[k],
+                 f"model limit: {k}. The run reached a packed-cell fraction of 0.5; its authors advise 0.37"))
+    obs_l = 50e-12 / (2400e-15 * 0.35)             # 50 pL per cell per day
+    rows.append(("CHO, wave-bag perfusion (Clincke 2013)", "medium, L per kg of cells", obs_l, litres(c),
+                 "50 pL per cell a day; more gave no benefit, less was not tried"))
+    # 2. Mayrhofer et al. 2020: CHO at 2.2-2.4e8 cells/mL on optimised medium
+    c = cell(2500.0, 0.15)
+    rows.append(("CHO, optimised perfusion medium (Mayrhofer 2020)", "medium, L per kg of cells",
+                 22e-12 / (2500e-15 * 0.15), litres(c),
+                 "14-30 pL per cell a day at about 0.15 per day growth; cell size assumed 2.5 ng"))
+    # 3. SuperMeat 2024 (company report): chicken cells, 10 L perfusion with bleed
+    c = cell(1400.0, 0.5 * LN2)                    # half a doubling a day; 1.0-1.75 ng per cell
+    obs_x = 80e6 * 1400e-12 * 1000.0
+    k = min(caps(c), key=caps(c).get)
+    rows.append(("Chicken, 10 L perfusion (SuperMeat 2024)", "density held, g/L", obs_x, caps(c)[k],
+                 f"model limit: {k}; 80 million cells per mL at 1.0-1.75 ng"))
+    rows.append(("Chicken, 10 L perfusion (SuperMeat 2024)", "medium, L per kg of cells", 30.5, litres(c),
+                 "as reported for the scaled-up process"))
+    out = value("pf_working_volume") * obs_x * c.mu * HOURS * value("pf_uptime") / 1000.0
+    rows.append(("Chicken, scaled up on paper (SuperMeat 2024)", "output, t per m3 a year", 3039.0 / 125.0, out,
+                 "stated output against what its own density and growth rate give: the report does not add up"))
+    # 4. Pasitka et al. 2024: chicken fibroblasts at 130 million cells per mL
+    c = cell(550.0, LN2 / (61.0 / day))            # 10 um cells; 61 h doubling in animal-free medium
+    rows.append(("Chicken, bench perfusion (Pasitka 2024)", "density claimed, g/L", 430.0, 130e6 * 550e-12 * 1000.0,
+                 "'43% w/v' against cell count x the mass of a 10 um cell: the claimed figure is not cell mass"))
+    # 5. Vow: the one 20 m3 plant, drained and refilled
+    r = explore(mode="filldraw", charge=value("humbird_plant_charge"))
+    rows.append(("Quail, 20 m3 drained and refilled (Vow)", "output, t per m3 a year", (3.7 + 6.5) / 2.0, r["output"],
+                 "stated target 3.7-6.5 against the model's efficient cells in the same mode"))
+    return rows
+
+
+def summarise_backtest() -> None:
+    print("\n  back-test: reported runs against the model for the same cells (observed / model):")
+    for run, what, obs, mod, note in backtest():
+        print(f"    {run:<50} {what:<28} {obs:7.1f} / {mod:7.1f}  = {obs / mod:4.2f}x   {note}")
 
 
 def temperature_check(delta_c: float = 10.0, heat_price: float = 0.05) -> dict:
@@ -800,6 +865,7 @@ def summarise(pr: CostParams) -> None:
     print(f"\n  what limits the floor case (${base:.1f}/kg): each factor alone, low end -> high end of its range")
     for label, a, b, lo_txt, hi_txt in floor_tornado():
         print(f"    {label:<36} {lo_txt:>28} ${a:5.1f}   {hi_txt:<34} ${b:5.1f}")
+    summarise_backtest()
     summarise_floor_mc(pr)
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():
