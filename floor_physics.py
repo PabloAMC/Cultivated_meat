@@ -225,9 +225,13 @@ def tiers() -> list:
                         labour=labour, escalate_consumables=humbird_consumables)
         gf = gf * ox
         feed = feedstock(cells, cheap)
+        # the same plant financed like a mature food industry (plant_charge_mature in place of
+        # humbird_plant_charge): only the capital line changes
+        saving = pc["capital"] * (1.0 - value("plant_charge_mature") / value("humbird_plant_charge"))
         rows.append({"name": name, "assumes": assumes, "shown": shown, **pc,
                      "feedstock": feed, "growth_factors": gf,
-                     "total": pc["plant"] + feed + gf})
+                     "total": pc["plant"] + feed + gf,
+                     "plant_mature": pc["plant"] - saving, "total_mature": pc["plant"] + feed + gf - saving})
 
     low = value("pf_consumables_low")           # assumed, in 2025 prices
     design_uptime = value("pf_uptime")          # Humbird's own figure; he calls it "rather aggressive"
@@ -267,12 +271,14 @@ def summarise(pr: CostParams) -> None:
         print(f"  {label}: oxygen uptake {c.qo2:.3f} mmol/g/h, {c.o2_per_kg:.2f} kg O2 per kg cells; "
               f"oxygen-limited density {density(c, value('pf_otr_cap'), True):.0f} g/L")
     print(f"\n  parity needs cells at <= ${pc:.0f}/kg (with a ${pr.markup_add:.0f} markup against ${pr.p_conv:.0f} meat)\n")
-    print(f"  {'tier':<36}{'t/m3/yr':>8}{'capital':>9}{'labour':>8}{'util+cons':>10}{'feed':>7}{'GF':>6}{'TOTAL':>8}   R")
+    print(f"  first-plant financing {value('humbird_plant_charge'):.1%} a year; 'mature' = food-industry financing "
+          f"{value('plant_charge_mature'):.1%}")
+    print(f"  {'tier':<36}{'t/m3/yr':>8}{'capital':>9}{'labour':>8}{'util+cons':>10}{'feed':>7}{'GF':>6}{'TOTAL':>8}   R   mature")
     for r in tiers():
         R = (r["total"] + pr.markup_add) / pr.p_conv
         print(f"  {r['name']:<36}{r['output']:>8.1f}{r['capital']:>9.2f}{r['labour']:>8.2f}"
               f"{r['utilities'] + r['consumables']:>10.2f}{r['feedstock']:>7.2f}{r['growth_factors']:>6.1f}"
-              f"{r['total']:>8.1f}  {R:.2f}")
+              f"{r['total']:>8.1f}  {R:.2f}  {r['total_mature']:>6.1f}")
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():
         print(f"    {r['name']}: {r['assumes']}  [{r['shown']}]")
@@ -291,6 +297,8 @@ def fig_floor_tiers(pr: CostParams, outdir, fmts) -> None:
         left += vals
     for yi, r in zip(y, rows):
         ax.text(r["total"] + 0.6, yi, f"\\${r['total']:.0f}", va="center", fontsize=8)
+        ax.plot([r["total_mature"]], [yi], marker="|", ms=13, mew=1.6, color="k",
+                label="with food-industry financing" if yi == 0 else None)
     ax.axvline(parity_cost(pr), ls=":", lw=1.2, color="#CC3311")
     ax.text(parity_cost(pr) + 0.4, len(rows) - 0.45, "parity", fontsize=7.5, color="#CC3311")
     ax.set_yticks(y)

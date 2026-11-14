@@ -101,17 +101,18 @@ The floor (see cost_floor):
     plant costs in 2025 prices. THE FLOOR: a sterile plant without clean rooms
     ($810k per m3, Humbird's plant with a sanitary hall) plus a hoped-for device
     to hold cells back, 20 m3 tanks in perfusion at 120 g/L, efficient cells:
-    ~$12.4/kg. THE FRONTIER: the same in a plant at the cost of built microbial
-    fermentation plants ($190k per m3): ~$5.7/kg; not costed or built for animal
+    ~$9.8/kg with food-industry financing (17.3% of the plant's cost a year;
+    $12.4 at Humbird's first-plant 23.6%). THE FRONTIER: the same in a plant at
+    the cost of built microbial fermentation plants ($190k per m3): ~$4.9/kg; not costed or built for animal
     cells. THE CAUTIOUS CASE: Humbird's pharma-style plant, tanks drained and
     refilled: ~$17.7/kg.
 
 Result preview (defaults): as reported, with capital ~$34/kg; medium at $0.2/L
-~$25/kg; + efficient cells ~$23/kg; floor ~$14/kg (band ~$7.4-19.4). With a $5/kg
+~$25/kg; + efficient cells ~$23/kg; floor ~$11.5/kg (band ~$6.6-19.4). With a $5/kg
 additive markup against a $12/kg commodity price, parity (R=1) needs biomass
 <= $7/kg. The floor with plants that have been costed for animal cells is about
-twice that. The frontier case, a plant at the cost of today's microbial
-fermentation plants, sits at the parity line (~$7.4/kg).
+well above that. The frontier case, a plant at the cost of today's microbial
+fermentation plants, sits just under the parity line (~$6.6/kg).
 
 Usage
 -----

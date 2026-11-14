@@ -125,14 +125,14 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(19.1, "$/kg", "[SuperMeat, capital restated] everything except medium. Running costs as the "
         "company reports them, $10.8/kg ($11.8/lb 'without depreciation' = $26.0/kg, less 30.5 L x $0.50 of "
         "medium), plus a full yearly charge on the plant, $8.3/kg",
-        lo=12.4, hi=34.0, mode=19.1,
+        lo=9.8, hi=34.0, mode=19.1,
         note="THE PLANT knob. CAPITAL: the report gives depreciation of $1.6/lb ($3.5/kg) but neither the plant's "
              "cost nor the depreciation period. Assuming straight-line over 10 years (Humbird's plant life), the "
              "plant costs $35 per kg of yearly output, and at the 23.6%-a-year charge used for every other case "
              "(humbird_plant_charge) that is $8.3/kg. Over 20 years it would be $16.7/kg. The company's own "
              "figure with depreciation only is $29.5/kg in all; this default is $34.3. CAUTION: the report's "
              "stated tank volumes, densities and bleed rate reproduce about half its stated output, so its "
-             "plant cost per kg cannot be checked. lo=12.4 = the plant floor (floor_physics: no clean rooms, "
+             "plant cost per kg cannot be checked. lo=9.8 = the plant floor (floor_physics: no clean rooms, "
              "perfusion, efficient cells). hi=34 = the cautious case with cells at half the density "
              "(floor_physics: pharma-style plant, tanks drained and refilled, 60 g/L). PIVOTAL: with the "
              "medium price, the top driver of R."),
@@ -160,29 +160,43 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(12.4, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
-        "been costed for animal cells works together: a sterile plant without clean rooms ($810k per m3 in "
-        "2025 prices) plus a hoped-for device to hold cells back ($89k per m3), 20 m3 tanks in perfusion at the "
-        "density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% uptime: capital, maintenance and "
-        "insurance $9.6 + labour $1.2 + utilities and consumables $1.5",
+    "plant_floor": Input(9.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
+        "been costed for animal cells works together, financed like a mature food industry: a sterile plant "
+        "without clean rooms ($810k per m3 in 2025 prices) plus a hoped-for device to hold cells back ($89k per "
+        "m3), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% "
+        "uptime: capital, maintenance and insurance $7.1 + labour $1.2 + utilities and consumables $1.5",
         note="THE FLOOR'S PLANT TERM (2026-11-14). Each element is allowed by physics and claimed or shown "
              "somewhere, never together: food-grade 20 m3 tanks run today (Vow); perfusion above 100 g/L is "
              "shown at 10 L (SuperMeat, Pasitka); a way to hold cells back at 20 m3 is not shown; efficient "
              "cells are not shown; 91% uptime is Humbird's figure, which he calls 'rather aggressive'. "
+             "FINANCING: the yearly charge is plant_charge_mature (17.3%), because the floor is a long-run "
+             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $12.4. "
              "tests/test_floor_physics.py ties this value to the module"),
-    "plant_floor_lo": Input(5.7, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
-        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn)",
+    "plant_floor_lo": Input(4.9, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
+        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. It puts the floor at about the "
-             "parity line, not clearly below it"),
+             "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate"),
     "plant_floor_hi": Input(17.7, "$/kg", "[floor_physics] the cautious case: Humbird's sterile pharma-style plant "
-        "($908k per m3), tanks half-drained and refilled with no cell retention, 85% uptime"),
+        "($908k per m3), tanks half-drained and refilled with no cell retention, 85% uptime, at his first-plant "
+        "financing (23.6% a year)"),
+    "plant_charge_mature": Input(0.173, "of TCI per yr", "[Humbird-R, derived] the yearly charge on a plant financed "
+        "like a mature food industry: capital recovery at i = 5.4% over n = 20 years (8.3%) plus his 4% "
+        "maintenance and 5% insurance",
+        lo=0.123, hi=0.236, mode=0.173,
+        note="GROUNDING, all from Humbird's report: Sect. 3.1 gives the 2019 cost of capital of the food "
+             "processing sector as 5.4% (against 8.5% for pharma and biotech, and the 7.5% of Beyond Meat that "
+             "he adopts); his baker's-yeast benchmark (Appendix A) uses a 20-year plant life, where his "
+             "cultivated-meat plants use 10. CCF = i / (1 - (1 + i)^-n) = 0.083. Maintenance and insurance are "
+             "kept at his 4% and 5%, which he also applies to the yeast plant. Used for the floor and the "
+             "frontier, which are long-run cases set against meat; the default and the cautious cases keep the "
+             "first-plant rate (humbird_plant_charge). lo: CE Delft 2021's 30-year payback with no return "
+             "(3.3% + 9%). hi: the first-plant rate"),
     "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
         "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
         "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",
         note="CROSS-CHECK ONLY, not used in the cost: Humbird's independent estimate of the non-nutrient cost "
              "of his most favourable design, in 2018 prices ($18.9 in 2025 prices). The default overhead "
-             "(19.1) is about the same; the floor (12.4) assumes a plant without clean rooms run in perfusion"),
+             "(19.1) is about the same; the floor (9.8) assumes a plant without clean rooms run in perfusion"),
     # --- cost cross-checks (shown on the page's reality checks; NOT used in the cost) -----------
     # Read in Humbird 2021's journal version (Biotechnol Bioeng 118:3239; Europe PMC PMC8362201) on 2026-11-03.
     "humbird_tci_fedbatch": Input(328e6, "$", "[Humbird] Table 2: 'Total capital investment | $328M' (fed-batch, "

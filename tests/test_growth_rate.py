@@ -69,8 +69,8 @@ def check() -> list:
     for (p, oh), (want_tau, want_saving) in {
         (0.50, 19.1): (24.0, 0.0),      # the default: never pays
         (1.00, 19.1): (36.3, 1.140),    # dear medium: pays
-        (1.00, 12.4): (36.3, 3.880),    # dear medium at the plant floor
-        (0.20, 12.4): (24.0, 0.0),
+        (1.00, 9.8): (36.3, 4.943),    # dear medium at the plant floor
+        (0.20, 9.8): (24.0, 0.0),
     }.items():
         tau_opt, _, saving = optimum(pr, gp, p, oh, "byproduct-threshold")
         expect(f"tau_opt at ${p}/L, overhead {oh}", tau_opt, want_tau, tol=0.2)
@@ -79,7 +79,7 @@ def check() -> list:
     mc = monte_carlo(20000, 0)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.062, tol=0.01)
     mc1 = monte_carlo(20000, 0, 1.00)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.218, tol=0.01)
+    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.237, tol=0.01)
     mc02 = monte_carlo(20000, 0, 0.20)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), medium $0.20/L", np.mean(mc02 > 1), 0.0, tol=0.005)
 

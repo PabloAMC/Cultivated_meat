@@ -85,7 +85,7 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    ranges, the long-run share at the default cost (2.3%) moves by 1.0 pp for `w_realtissue_E` (0–4), 0.4 pp for
    `w_taste` (1–10), 2.2 pp for `taste_quality_w` (beans' taste, 0.1–0.5), under 0.1 pp for `wf_mainstream_target`
    and 0 for `w_slaughter_E`; for comparison, κ (3–9) moves it by 5.0 pp. The timing knobs (`accept_rate`,
-   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$14.1 floor: salts,
+   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$11.5 floor: salts,
    buffer, vitamins) is a small pure assumption.
 
 The single load-bearing **assumption** is `real_tissue_x = 1`: cultivated meat, being animal tissue, keeps
@@ -145,7 +145,7 @@ scaled on paper to 25 m³ tanks.
 | `media_intensity` | 30.5 L/kg | 92.77 million L a year for 3,039 t |
 | `media_price` | $0.50/L (range 0.20–1.00) | "<$0.5 per liter"; other companies report $0.20 or less [GFI 2026]; none verified at scale |
 | `efficiency` | 1.0 (range 0.25–1.0) | as reported; 0.25 is about 8 L/kg, the medium use of Humbird's efficient-cell designs |
-| `overhead` | $19.1/kg (range 12.4–34) | running costs $10.8/kg ($11.8/lb "without depreciation", less the medium) plus a yearly charge on the plant, $8.3/kg |
+| `overhead` | $19.1/kg (range 9.8–34) | running costs $10.8/kg ($11.8/lb "without depreciation", less the medium) plus a yearly charge on the plant, $8.3/kg |
 | **default cost** | **$34.4/kg, R = 3.28** | the company's own figure, with depreciation only, is $29.5/kg (R = 2.87) |
 
 *Capital in the default.* Every other case in this model carries a yearly charge on the plant of 23.6% of its
@@ -174,10 +174,10 @@ parity threshold rises to ~$10/kg of biomass.
 | amino acids | ~$0.67/kg | 0.337 kg of soy hydrolysate per kg × $2/kg [Humbird Table 3.5]; it supplies the 0.26 kg of amino acids in Table 3.4 |
 | glucose | ~$0.13/kg | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
 | salts, buffer, vitamins, trace elements | ~$0.9/kg | assumed (Humbird leaves them out as low-cost) |
-| running a plant | ~$12.4/kg | physics and published plant costs (`floor_physics.py`, next section) |
-| **floor** | **~$14.1/kg** | R ≈ 1.59 |
-| **frontier** | **~$7.4/kg** | R ≈ 1.03 (at the parity line), if animal cells can be grown in plants that cost what microbial fermentation plants cost |
-| cautious case | ~$19.4/kg | R ≈ 2.03: a pharma-style plant, tanks drained and refilled |
+| running a plant | ~$9.8/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section) |
+| **floor** | **~$11.5/kg** | R ≈ 1.38 ($14.1 and 1.59 with first-plant financing) |
+| **frontier** | **~$6.6/kg** | R ≈ 0.97 (just under the parity line; $7.4 with first-plant financing), if animal cells can be grown in plants that cost what microbial fermentation plants cost |
+| cautious case | ~$19.4/kg | R ≈ 2.03: a pharma-style plant, tanks drained and refilled, first-plant financing |
 
 The model does not report one floor on its own. The floor is the case in which everything that has been costed
 for animal cells works together; the frontier and the cautious case are reported beside it wherever it appears.
@@ -221,7 +221,8 @@ perfusion a device holds the cells back while waste is washed out, so the cultur
 fill-and-draw a fraction f of the tank is drained each cycle and the culture climbs back to the cap, so it
 averages f/ln(1/(1−f)) of (cap × maximum growth rate): 0.72 at f = 0.5. Uptime is Humbird's 0.91 in perfusion
 (33-day runs, no failures) and 0.85 in fill-and-draw (`pf_uptime_realistic`). The yearly charge on capital is
-Humbird's 23.6% (capital charge 14.6%, maintenance 4%, insurance 5%). Labour scales with vessel-time per kg,
+Humbird's 23.6% (capital charge 14.6%, maintenance 4%, insurance 5%) for a first plant, and 17.3% for a
+mature industry (below). Labour scales with vessel-time per kg,
 except in Humbird's perfusion design, which uses his own labour figure.
 
 **Plant cost per m³ of production tank, and where each figure comes from:**
@@ -247,31 +248,39 @@ The module's only calibration targets are Humbird's two designs, and at his pric
 14.5 t per m³ a year and $14.4/kg of non-nutrient cost (his: 14.2 and 14.5); perfusion 35.8 t per m³ a year and
 $30.2/kg (his: 35.9 and 30.1).
 
-**The cases, per kg of real wet cells, in 2025 prices:**
+**Financing (`plant_charge_mature`).** Humbird's capital charge is money at 7.5% repaid over 10 years (his
+Eq. 3.2), which he chose from Beyond Meat's cost of capital and a short plant life. The same section of his
+report gives the 2019 cost of capital of the food-processing sector as 5.4%, and his baker's-yeast benchmark
+uses a 20-year life. At 5.4% over 20 years the capital charge is 8.3%; with his 4% maintenance and 5% insurance
+the yearly charge is 17.3%. The floor and the frontier are long-run cases set against meat, which is financed as
+a mature industry, so the model uses 17.3% for them. The default and the cautious cases keep 23.6%. The range is
+12.3% (CE Delft's 30-year payback with no return) to 23.6%. The table gives every case both ways.
 
-| case | what it assumes | has anyone done it? | t/m³/yr | plant | feedstock + growth factors | total | R |
-|---|---|---|---|---|---|---|---|
-| Humbird fed-batch, as designed | sterile 20 m³ stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $18.9 | $1.7 + 4.0 | **$24.6** | 2.47 |
-| Humbird perfusion, as designed | sterile 2 m³ tanks, cells held back by ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $39.8 | $1.7 + 4.0 | **$45.5** | 4.21 |
-| same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run); they respire more per gram, so the tank holds fewer | the cells exist; the plant does not | 4.2 | $60.2 | $1.9 + 4.0 | **$66.0** | 5.92 |
-| pharma-style plant, half the density | the cautious case with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $33.9 | $1.7 | **$35.6** | 3.38 |
-| pharma-style plant, fill-and-draw (the cautious case) | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.7 | $1.7 | **$19.4** | 2.03 |
-| no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $1.7 | **$17.9** | 1.91 |
-| **no clean rooms, perfusion (the floor)** | sterile plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hoped-for device; efficient cells; 91% uptime | each piece shown or claimed separately, never together; no such device exists | 22.1 | $12.4 | $1.7 | **$14.1** | 1.59 |
-| **microbial-fermentation-class plant (the frontier)** | the floor case in a plant at the cost of built microbial plants | such plants exist for microbes; none built or costed for animal cells | 22.1 | $5.7 | $1.7 | **$7.4** | 1.03 |
-| rough lower bound | the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at half price | a rough bound, not a design | 47.5 | $2.4 | $0.8 | **$3.2** | 0.68 |
+**The cases, per kg of real wet cells, in 2025 prices.** "Mature" is the total with food-industry financing.
+
+| case | what it assumes | has anyone done it? | t/m³/yr | plant | feedstock + growth factors | total | R | mature |
+|---|---|---|---|---|---|---|---|---|
+| Humbird fed-batch, as designed | sterile 20 m³ stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $18.9 | $1.7 + 4.0 | **$24.6** | 2.47 | $20.7 |
+| Humbird perfusion, as designed | sterile 2 m³ tanks, cells held back by ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $39.8 | $1.7 + 4.0 | **$45.5** | 4.21 | $37.4 |
+| same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run); they respire more per gram, so the tank holds fewer | the cells exist; the plant does not | 4.2 | $60.2 | $1.9 + 4.0 | **$66.0** | 5.92 | $52.3 |
+| pharma-style plant, half the density | the cautious case with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $33.9 | $1.7 | **$35.6** | 3.38 | $27.9 |
+| pharma-style plant, fill-and-draw (the cautious case) | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.7 | $1.7 | **$19.4** | 2.03 | $15.6 |
+| no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $1.7 | **$17.9** | 1.91 | $14.5 |
+| **no clean rooms, perfusion (the floor)** | sterile plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hoped-for device; efficient cells; 91% uptime | each piece shown or claimed separately, never together; no such device exists | 22.1 | $12.4 | $1.7 | **$14.1** | 1.59 | **$11.5** |
+| **microbial-fermentation-class plant (the frontier)** | the floor case in a plant at the cost of built microbial plants | such plants exist for microbes; none built or costed for animal cells | 22.1 | $5.7 | $1.7 | **$7.4** | 1.03 | **$6.6** |
+| rough lower bound | the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at half price | a rough bound, not a design | 47.5 | $2.4 | $0.8 | **$3.2** | 0.68 | $3.1 |
 
 What it says:
 
-- **With plants that have been costed for animal cells, the floor is about $14/kg, twice the $7 parity
-  threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and floor-price
+- **With plants that have been costed for animal cells, the floor is about $11.5/kg with food-industry
+  financing ($14 for a first plant), well above the $7 parity threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and floor-price
   medium together.
 - **Price parity needs a cheaper class of plant.** At the cost of today's microbial fermentation plants the
-  floor is about $7.4/kg, at the parity line. Whether animal cells can be grown in such plants is the question that decides it.
+  floor is about $6.6/kg, just under the parity line ($7.4 for a first plant). Whether animal cells can be grown in such plants is the question that decides it.
   Contaminants double in 20 minutes, animal cells in a day or two.
 - **Clean rooms are not the main cost.** Removing them saves about a tenth. The cost is in sterile vessels,
   piping and the buildings and utilities around small tanks.
-- **Perfusion is worth about $4/kg at the floor** against tanks that are drained and refilled, because it holds
+- **Perfusion is worth about $3–4/kg at the floor** against tanks that are drained and refilled, because it holds
   the culture at its cap. It needs a device that holds cells back at 20 m³, which does not exist, and cells that
   make little waste, or the medium bill rises.
 - **The cells matter as much as the plant.** Halving the density nearly doubles the cautious case. Small, slow
@@ -344,7 +353,7 @@ has a threshold. If overflow is proportional to growth, or nutrient supply sets 
 always cheapest. In the favourable case, at central inputs and the default plant cost ($19.1/kg), slower growth
 does not pay at the reported medium price ($0.50/L) or below; with medium at $1.00/L it saves $1.1/kg, with the
 optimum near 36 h, where the next limit takes over. Sampling the priors within that case (N = 20,000, seed 0),
-the saving exceeds $1/kg in 6% of draws at the model's medium-price prior, 22% at $1.00/L and 0.02% at $0.20/L.
+the saving exceeds $1/kg in 7% of draws at the model's medium-price prior, 24% at $1.00/L and 0.02% at $0.20/L.
 Which case holds for meat cells is not known, so the cases are not weighted. The practical reading: growth rate
 is not a cost lever worth pursuing unless medium stays dear; what limits litres per kg matters more.
 
@@ -490,7 +499,7 @@ The material price is a judgement range ($2–20/kg; Gu et al. 2025 describe the
 and the process cost ($1–15/kg) has no published cost study behind it: the most speculative numbers in the
 model. At the central values they add $6/kg, the scaffold cost the page uses. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
-premium species: against sushi-grade salmon, R has a median of 1.20, with 16% of draws at or below parity.
+premium species: against sushi-grade salmon, R has a median of 1.18, with 20% of draws at or below parity.
 
 ## Step 3 — entry points (`foothold.py`, the page's chart 7)
 
@@ -538,11 +547,11 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 3.26   80% CI [2.55, 4.12]   0% of draws at or below parity
-  long-run share:  P50 = 0.4%   80% CI [0.0, 3.8]
+  price ratio R:   P50 = 3.19   80% CI [2.44, 4.08]   0% of draws at or below parity
+  long-run share:  P50 = 0.4%   80% CI [0.0, 4.4]
 ```
 
-The median is close to the default 3.28. The plant-cost range (12.4 / 19.1 / 34) is wider on the high side,
+The median is a little below the default 3.28. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,
 because reported harvests are less dense than the floor assumes; the medium price and cell efficiency can
 improve on the report. Pin any input from the command line (`--fix media_price=0.2`) to ask “if this lands, what then?”.
 
@@ -644,8 +653,9 @@ unchanged.
   on its plant at the rate every other case uses, $19.1/kg; $34.4/kg in all (was $24.0). R 2.42 → 3.28. The
   company's own figure, with depreciation only, is $29.5/kg.
 - **Floor rebuilt from physics** (`floor_physics.py`): plant cost per m³ from Humbird's tables in 2025 prices,
-  divided by the output oxygen and CO₂ transfer allow. Floor $7.7 → $14.1/kg (R 1.06 → 1.59), reported with a
-  frontier ($7.4, microbial-class plant costs) and a cautious case ($19.4).
+  divided by the output oxygen and CO₂ transfer allow, with food-industry financing for the long-run cases.
+  Floor $7.7 → $11.5/kg (R 1.06 → 1.38), reported with a frontier ($6.6, microbial-class plant costs) and a
+  cautious case ($19.4). With first-plant financing the floor is $14.1 and the frontier $7.4.
 - **Audited the same day** by an independent reading of the code against the sources. Fixed: the clean-room
   saving (Humbird's Sanitary rate on two levels, not his Class 8 rate on one), the price year (2018, not 2019),
   the yearly charge (23.6%, not 24%), a price for the cell-retention device (it had been free), density caps

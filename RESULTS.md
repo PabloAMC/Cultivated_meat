@@ -19,19 +19,20 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
   10-litre runs scaled on paper to 25,000-litre tanks, with a yearly charge on the plant at the rate used for every
   other case. The company's own figure, with depreciation only, is $29.5/kg. It is not peer reviewed. Across the
   plausible range of costs the median is 3.3×; no draws reach parity.
-- **The floor is about $14/kg, ~1.6× everyday meat,** if everything that has been costed for animal cells works
-  together: a sterile plant without clean rooms, perfusion in 20,000-litre tanks with a device that holds the
-  cells back, efficient cells, floor-price medium. Each piece has been shown or claimed somewhere, never together,
-  and the device does not exist yet.
+- **The floor is about $11.5/kg, ~1.4× everyday meat,** if everything that has been costed for animal cells works
+  together and the plant is financed like a mature food industry: a sterile plant without clean rooms, perfusion
+  in 20,000-litre tanks with a device that holds the cells back, efficient cells, floor-price medium. Each piece
+  has been shown or claimed somewhere, never together, and the device does not exist yet. With the financing of a
+  first plant the same case costs $14.
 - **Price parity needs a cheaper class of plant.** Plants for yeast and other microbes are built today for about
-  a quarter of the cost per cubic metre. In such a plant the floor would be about **$7.4/kg**, at the $7 parity
-  line (the difference is well inside the error). Nobody has built or costed one for animal cells. This is the frontier that decides whether
+  a quarter of the cost per cubic metre. In such a plant the floor would be about **$6.6/kg**, just under the $7
+  that parity needs. Nobody has built or costed one for animal cells. This is the frontier that decides whether
   cultivated meat can match the price of everyday meat.
 - **At equal price,** once familiar, it wins **~49%** of the market if seen as real meat, **~10%** if not. Taste and
   the value shoppers put on “no slaughter” move this between ~12% and ~75%.
 - **At the default cost** that adds up to **~0.3% of world meat by weight** (Monte Carlo median; 80% range
-  0.1–1.2%), **1.5% in Europe**. At the default settings exactly, 0.9% of world meat and 2.4% in the US; at the
-  floor, 15% in the US. Counted in animals it would be lower: most are chickens, where cultivated does worst.
+  0.1–1.4%), **1.7% in Europe**. At the default settings exactly, 0.9% of world meat and 2.4% in the US; at the
+  floor, 19% in the US. Counted in animals it would be lower: most are chickens, where cultivated does worst.
   These shares are best read as upper estimates: the model gives a real-meat product at a premium far more share
   than organic chicken actually has (§2).
 - **Where:** beef and seafood. Chicken and pork stay dearer even at the floor. A few luxury products are beatable
@@ -49,9 +50,10 @@ robust), a way to hold cells back in large tanks, and medium cost at production 
 | **as reported by a company, with a return on capital (default)** | **$34.4** | **3.28** | SuperMeat 2024; 10 L runs scaled on paper; not peer reviewed; its own figure with depreciation only is $29.5 |
 | Humbird's fed-batch design, 2025 prices | $24.6 | 2.47 | a detailed design with efficient cells; not built |
 | cautious floor: pharma-style plant, tanks drained and refilled | $19.4 | 2.03 | physics-based; efficient cells at this density not shown |
-| **floor: no clean rooms, perfusion, efficient cells** | **$14.1** | **1.59** | physics-based; each piece shown separately, never together; the cell-retention device is hoped for |
-| **frontier: the floor in a microbial-class plant** | **$7.4** | **1.03** | such plants exist for microbes; none built or costed for animal cells |
-| rough lower bound | $3.2 | 0.68 | a bound, not a design |
+| floor case with first-plant financing | $14.1 | 1.59 | the row below at 23.6% of the plant's cost a year |
+| **floor: no clean rooms, perfusion, efficient cells, food-industry financing** | **$11.5** | **1.38** | physics-based; each piece shown separately, never together; the cell-retention device is hoped for |
+| **frontier: the floor in a microbial-class plant** | **$6.6** | **0.97** | such plants exist for microbes; none built or costed for animal cells |
+| rough lower bound | $3.1 | 0.68 | a bound, not a design |
 
 **The default.** SuperMeat reports 30.5 L of medium per kg at under $0.50/L, $11.8/lb ($26.0/kg) without
 depreciation and $13.4/lb ($29.5/kg) with it. Its kilogram is 100% cells at a realistic weight per cell. Every
@@ -70,21 +72,27 @@ with a sanitary hall in their place. Microbial fermentation plants are built for
 frontier and the cautious case, because which one applies depends on what can be made to work (METHODS.md, "The
 floor's plant term").
 
-**How the tank is run matters less than the plant and the cells.** Perfusion is worth about $4/kg at the floor
+**Financing matters as much as engineering.** Humbird charges 23.6% of a plant's cost a year: money at 7.5%
+repaid in 10 years, plus 4% maintenance and 5% insurance. That fits a first plant, and the default and the
+cautious cases use it. His own report gives the food-processing sector's cost of capital as 5.4% and uses a
+20-year life for a yeast plant; that makes the charge 17.3%. The floor and the frontier are long-run cases set
+against meat, a mature industry, so they use 17.3%. It is worth $2.6/kg at the floor.
+
+**How the tank is run matters less than the plant and the cells.** Perfusion is worth about $3–4/kg at the floor
 against tanks that are drained and refilled; removing clean rooms saves about a tenth of the plant cost; a
-microbial-class plant halves the floor.
+microbial-class plant nearly halves the floor.
 
 The medium and the plant matter most; no single lever reaches parity on its own (from the default: the floor's
-plant cost gives R ≈ 2.72, medium at $0.20/L 2.52, efficient cells 2.33).
+plant cost gives R ≈ 2.50, medium at $0.20/L 2.52, efficient cells 2.33).
 
 ```
 basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs (N=20,000):
-  price ratio R:   P50 = 3.26   80% CI [2.55, 4.12]   90% CI [2.37, 4.38]
-  long-run share:  P50 = 0.4%   80% CI [0.0, 3.8]
+  price ratio R:   P50 = 3.19   80% CI [2.44, 4.08]   90% CI [2.26, 4.34]
+  long-run share:  P50 = 0.4%   80% CI [0.0, 4.4]
   0% of draws reach parity (R ≤ 1)
 ```
 
-The median is close to the default 3.28: the plant-cost range is wider on the high side (reported harvests are
+The median is a little below the default 3.28: the plant-cost range is wider on the high side (reported harvests are
 less dense than the floor assumes), while the medium price and cell efficiency can improve on the report. The
 Monte Carlo does not include the frontier.
 
@@ -115,14 +123,14 @@ everyday meat at the default cost).
 ```
                             default cost        cost floor
   meat type          $/kg    R     share        R     share
-  chicken mince        5    7.87    0.0%       3.82    3.3%
-  beef mince          11    3.58    2.0%       1.74   26.9%
-  beef steak          20    2.27    7.5%       1.26   29.8%
-  wagyu (premium)     45    1.01   18.0%       0.56   25.6%
-  pork (processed)     8    4.92    0.5%       2.39   14.2%
-  seafood fillet      24    1.89   11.4%       1.05   36.9%
-  sushi-grade (prem.) 40    1.13   16.4%       0.63   23.8%
-  TOTAL by weight: default 2.4%, at the floor 14.7%
+  chicken mince        5    7.87    0.0%       3.30    6.2%
+  beef mince          11    3.58    2.0%       1.50   34.8%
+  beef steak          20    2.27    7.5%       1.13   34.4%
+  wagyu (premium)     45    1.01   18.0%       0.50   26.8%
+  pork (processed)     8    4.92    0.5%       2.06   20.8%
+  seafood fillet      24    1.89   11.4%       0.94   41.5%
+  sushi-grade (prem.) 40    1.13   16.4%       0.56   25.0%
+  TOTAL by weight: default 2.4%, at the floor 19.0%
 ```
 
 Premium products get the biggest share of their category at the default cost, but authenticity holds them to
@@ -134,11 +142,11 @@ mince lead; chicken stays under 10%.
 ```
 total cultivated penetration of meat (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  1.5%  [0.3,  6.0]    P50  3.1%  [ 0.7, 10.8]  <- easiest (rich + priciest meat)
-  US        $86k        P50  0.7%  [0.2,  3.2]    P50  1.7%  [ 0.4,  5.9]
-  Global    $24k        P50  0.3%  [0.1,  1.2]    P50  0.8%  [ 0.2,  2.8]
-  China     $27k        P50  0.4%  [0.1,  1.6]    P50  1.5%  [ 0.4,  4.6]
-  Brazil    $22k        P50  0.1%  [0.0,  0.4]    P50  0.2%  [ 0.0,  0.9]
+  Europe    $62k        P50  1.7%  [0.3,  6.6]    P50  3.3%  [ 0.8, 11.7]  <- easiest (rich + priciest meat)
+  US        $86k        P50  0.8%  [0.2,  3.5]    P50  1.8%  [ 0.5,  6.4]
+  Global    $24k        P50  0.3%  [0.1,  1.4]    P50  0.9%  [ 0.2,  3.0]
+  China     $27k        P50  0.5%  [0.1,  1.8]    P50  1.5%  [ 0.4,  5.0]
+  Brazil    $22k        P50  0.1%  [0.0,  0.4]    P50  0.2%  [ 0.0,  1.0]
   India     $11k        P50  0.0%  [0.0,  0.2]    P50  0.2%  [ 0.0,  0.7]
   Nigeria    $6k        P50  0.0%  [0.0,  0.1]    P50  0.0%  [ 0.0,  0.1]  <- hardest (cheap meat + price-sensitive)
 ```
@@ -147,7 +155,7 @@ Dear meat and rich shoppers make Europe easiest; cheap meat and price-sensitive 
 hardest. The explorer's point estimates at the defaults are higher (Global 0.9%, Europe 4.6%, US 2.4%): they hold κ
 at 4 and the plant cost at its reported value, while the band samples κ up to 9 and plant costs up to the cautious
 case. World beef is priced by consumption-weighted country prices (METHODS.md, "World beef price").
-Against sushi-grade salmon, a structured product is at or below parity in 16% of draws, but structuring cost is
+Against sushi-grade salmon, a structured product is at or below parity in 20% of draws, but structuring cost is
 unmeasured.
 
 ## 5. Entry points, and timing

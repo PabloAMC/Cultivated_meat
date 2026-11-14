@@ -79,8 +79,10 @@ def check() -> list:
 
     # --- the model's floor inputs ARE these tiers (inputs.py holds the numbers; this ties them) -----
     by = {r["name"]: r for r in fp.tiers()}
-    near("plant_floor = the floor tier", value("plant_floor"), by["No clean rooms, perfusion"]["plant"], 0.01)
-    near("plant_floor_lo = the frontier tier", value("plant_floor_lo"), by["Microbial-fermentation-class plant"]["plant"], 0.01)
+    near("plant_floor = the floor tier", value("plant_floor"), by["No clean rooms, perfusion"]["plant_mature"], 0.01)
+    near("plant_floor_lo = the frontier tier", value("plant_floor_lo"), by["Microbial-fermentation-class plant"]["plant_mature"], 0.01)
+    # the mature-industry charge: capital recovery at 5.4% over 20 years, plus 4% maintenance and 5% insurance
+    near("mature plant charge", value("plant_charge_mature"), 0.054 / (1 - 1.054 ** -20) + 0.09, 0.005)
     near("plant_floor_hi = the cautious tier", value("plant_floor_hi"), by["Pharma-style plant, fill-and-draw"]["plant"], 0.01)
     near("overhead range starts at the plant floor", __import__("inputs").prior("overhead")[1], value("plant_floor"), 1e-9)
     near("overhead range ends at the half-density tier", __import__("inputs").prior("overhead")[2],

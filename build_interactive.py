@@ -328,7 +328,7 @@ def build_model() -> dict:
                tip="Everything except the medium, per kg: reactors and other capital, labour, energy, "
                "consumables. ${{OH_DEF}} (default) is one company's running costs for a 25,000-litre perfusion plant "
                "plus a yearly charge on the plant. ${{OH_FLOOR}} is the floor for plants that have been "
-               "costed for animal cells; ${{PLANT_FLOOR_LO}} is the frontier, a plant at the cost of today's "
+               "costed for animal cells, with food-industry financing; ${{PLANT_FLOOR_LO}} is the frontier, a plant at the cost of today's "
                "microbial fermentation plants; ${{OH_HI}} is a cautious case (pharma-style plant, cells at half "
                "the density)."),
         slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 7.0, 0.1, value("markup_add"),
@@ -827,21 +827,23 @@ _CASE_TEXT = {
 
 def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
     """HTML rows for the 'what each cost case means' table: every case the page quotes, in plain words."""
-    def row(name, what, shown, cost, hl=False):
-        r = (cost + markup) / p_conv
+    def row(name, what, shown, cost, mature, hl=False):
+        cell = lambda c: f'<td class="n">${c:.0f} ({(c + markup) / p_conv:.1f}&times;)</td>'
         return (f'<tr{" class=\"hl\"" if hl else ""}><td>{name}</td><td class="s">{what}</td><td class="s">{shown}</td>'
-                f'<td class="n">${cost:.0f}</td><td class="n">{r:.1f}&times;</td></tr>')
+                f'{cell(cost)}{cell(mature)}</tr>')
+    # the default's capital is $35 per kg of yearly output (inputs.py `overhead`): the two rates differ on that
+    bio_mature = bio - 35.0 * (value("humbird_plant_charge") - value("plant_charge_mature"))
     rows = [
         row("As reported by a company, with a return on capital <b>(the default)</b>",
             "SuperMeat's 2024 report [1]: chicken cells in perfusion at 10 litres for 45 days, scaled up on paper to "
             "25,000-litre tanks. 30.5 litres of medium per kilo at $0.50 a litre, plus its running costs, plus a "
             "yearly charge on the plant at the same rate as every other row. The company's own figure, with "
             "depreciation only, is about $29.5.",
-            "10-litre runs: yes, by the company. Not peer reviewed. The plant: no", bio),
+            "10-litre runs: yes, by the company. Not peer reviewed. The plant: no", bio, bio_mature),
     ]
     for t in floor_physics.tiers():
         name, what, shown = _CASE_TEXT[t["name"]]
-        rows.append(row(name, what, shown, t["total"]))
+        rows.append(row(name, what, shown, t["total"], t["total_mature"]))
     return "\n        ".join(rows)
 
 
@@ -891,6 +893,8 @@ def derived_numbers() -> dict:
         "COST_CASES_ROWS": _cost_cases_table(bio, markup, p_conv),
         "PLANT_FLOOR_HI": f"{value('plant_floor_hi'):.0f}",
         "PLANT_FLOOR_LO": f"{value('plant_floor_lo'):.1f}",
+        "MATURE_CHARGE_PCT": f"{value('plant_charge_mature') * 100:.1f}",
+        "COST_FLOOR_FIRST": f"{[t for t in floor_physics.tiers() if t['name'] == 'No clean rooms, perfusion'][0]['total']:.0f}",
         "COST_FLOOR_LO": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR + value('plant_floor_lo'):.1f}",
         "COST_FLOOR_HI": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR + value('plant_floor_hi'):.0f}",
         "OH_DEF": f"{_plant_oh('as reported'):.1f}", "OH_FLOOR": f"{_plant_oh('floor plant'):.1f}",
@@ -1225,21 +1229,29 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       The first comes from Humbird's plant design [2] in 2025 prices (as drawn, his plant comes to ${{HUMBIRD_PLANT}}/kg in
       2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). If everything that has been costed for animal
       cells works together (a sterile plant without clean rooms, 20,000-litre tanks in perfusion with a device to
-      hold the cells back, efficient cells),
-      the plant costs about ${{PLANT_FLOOR}}/kg and the floor is about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}}
-      meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so at that floor <i>R</i> ≈ {{R_FLOOR}}.
-      <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of that cost per
+      hold the cells back, efficient cells), and the plant is financed like a mature food industry, the plant costs
+      about ${{PLANT_FLOOR}}/kg and the floor is about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}} meat and a
+      ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so at that floor <i>R</i> ≈ {{R_FLOOR}}.
+      <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year: money at 7.5% repaid in
+      10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
+      cost of capital as 5.4% and uses a 20-year life for a yeast plant, which makes the yearly charge
+      {{MATURE_CHARGE_PCT}}% [2]. The floor is a long-run case set against meat, a mature industry, so it uses the
+      lower rate; at the first-plant rate it would be about ${{COST_FLOOR_FIRST}}/kg. The default and the cautious
+      case keep the first-plant rate.
+      <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of the cost per
       cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
-      ${{COST_FLOOR_LO}}/kg, which is at the parity line. Nobody has built or costed one for animal cells, which are far
-      easier to contaminate. That is the step that decides whether price parity is reachable. On cautious
-      assumptions (a pharma-style plant with clean rooms, at about ${{PLANT_FLOOR_HI}}/kg, and tanks simply drained
-      and refilled) the floor is about ${{COST_FLOOR_HI}}/kg.</p>
+      ${{COST_FLOOR_LO}}/kg, just under the parity line. Nobody has built or costed one for animal cells, which are
+      far easier to contaminate. That is the step that decides whether price parity is reachable. On cautious
+      assumptions (a pharma-style plant with clean rooms, at about ${{PLANT_FLOOR_HI}}/kg, tanks simply drained
+      and refilled, first-plant financing) the floor is about ${{COST_FLOOR_HI}}/kg.</p>
       <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells: about 70% water
       and 20% protein, like meat. Plant costs are in 2025 prices. &ldquo;Sterile&rdquo; means a pharma-style plant:
-      clean rooms, and vessels sterilised with steam. The last column is the shop price against ${{PCONV}} everyday
-      meat, after a ${{MARKUP}}/kg markup.</p>
+      clean rooms, and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
+      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup: first with the plant financed as a first
+      plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), then as a mature food industry ({{MATURE_CHARGE_PCT}}%).
+      The model's floor and frontier use the second; its default uses the first.</p>
       <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
-        <th>cells, $/kg</th><th>vs meat</th></tr>
+        <th>cells, $/kg (vs meat), first-plant financing</th><th>the same with food-industry financing</th></tr>
         {{COST_CASES_ROWS}}
       </table></div>
       <p>Reading the table: the cells and the class of plant matter far more than how the tank is run. The cases

@@ -102,7 +102,7 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
     cost math exists in exactly one place. Scalar OR numpy-array inputs.
 
     media can never fall below the irreducible amino-acid floor (AA_FLOOR). overhead
-    is the plant knob (floor plant ~$12.4 -> cautious ~$34/kg), so the total
+    is the plant knob (floor plant ~$9.8 -> cautious ~$34/kg), so the total
     cost floats from its own prior rather than cost_model's single point floor.
     Scaffold terms are 0 for the basic product, nonzero for structured targets."""
     cost = (media_cost(CostParams(), media_price, efficiency)
