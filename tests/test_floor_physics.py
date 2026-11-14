@@ -44,7 +44,8 @@ def check() -> list:
 
     # --- Humbird's perfusion design: 6.9 kt/yr from 192 m3; $22.6/kg of capital, maintenance and
     #     insurance; $30.1/kg of non-nutrient cost (Tables 4.13 and 4.14) ---------------------------
-    pf = fp.plant_cost(good, "perfusion", value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"))
+    pf = fp.plant_cost(good, "perfusion", value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"),
+                       uptime=value("pf_uptime"))
     near("perfusion output, t/m3/yr", pf["output"], 6900.0 / 192.0, 0.05)
     near("perfusion capital charge, $/kg", pf["capital"], 13.97 + 3.84 + 4.79, 0.05)
     near("perfusion plant cost, $/kg", pf["plant"], 5.77 + 5.56 + 4.11 + 7.17 + 1.99 + 0.98 + 4.56, 0.05)
@@ -54,7 +55,7 @@ def check() -> list:
         fails.append("a smaller cell should take up more oxygen per gram")
     if not small.o2_per_kg > 3 * good.o2_per_kg:
         fails.append("small slow cells (0.55 ng, 61 h) should burn over 3x the oxygen per kg")
-    for mode in ("fedbatch", "continuous", "perfusion"):
+    for mode in ("fedbatch", "filldraw", "perfusion"):
         if not fp.output_per_m3(small, mode) < fp.output_per_m3(good, mode):
             fails.append(f"{mode}: small slow cells should yield less per m3")
     for cells in (good, small):
@@ -68,9 +69,9 @@ def check() -> list:
 
     # --- pinned tier totals ($/kg of real wet cells, 2025 prices), quoted in METHODS.md ----------
     want = {"Humbird fed-batch, as designed": 24.6, "Humbird perfusion, as designed": 43.8,
-            "Same fed-batch plant, small slow cells": 46.2, "Sterile plant, continuous harvest": 14.3,
-            "Sterile plant, 50 m3 tanks": 13.2, "Large perfusion, cheap retention": 9.4,
-            "Food-fermentation-class plant": 5.2, "Physics limit": 3.2}
+            "Same fed-batch plant, small slow cells": 46.2, "Pharma-style plant, half the density": 35.9,
+            "Pharma-style plant, fill-and-draw": 19.6, "No clean rooms, fill-and-draw": 18.0,
+            "No clean rooms, perfusion": 13.2, "Microbial-fermentation-class plant": 6.5, "Physics limit": 3.2}
     got = {r["name"]: r["total"] for r in fp.tiers()}
     for name, w in want.items():
         if abs(got[name] - w) > 0.06:
@@ -78,9 +79,25 @@ def check() -> list:
 
     # --- the model's floor inputs ARE these tiers (inputs.py holds the numbers; this ties them) -----
     by = {r["name"]: r for r in fp.tiers()}
-    near("plant_floor = aseptic continuous tier", value("plant_floor"), by["Sterile plant, continuous harvest"]["plant"], 0.01)
-    near("plant_floor_lo = food-fermentation tier", value("plant_floor_lo"), by["Food-fermentation-class plant"]["plant"], 0.03)
-    near("plant_floor_hi = Humbird as designed", value("plant_floor_hi"), by["Humbird fed-batch, as designed"]["plant"], 0.01)
+    near("plant_floor = the floor tier", value("plant_floor"), by["No clean rooms, perfusion"]["plant"], 0.01)
+    near("plant_floor_lo = the frontier tier", value("plant_floor_lo"), by["Microbial-fermentation-class plant"]["plant"], 0.01)
+    near("plant_floor_hi = the cautious tier", value("plant_floor_hi"), by["Pharma-style plant, fill-and-draw"]["plant"], 0.01)
+    near("overhead range starts at the plant floor", __import__("inputs").prior("overhead")[1], value("plant_floor"), 1e-9)
+    near("overhead range ends at the half-density tier", __import__("inputs").prior("overhead")[2],
+         by["Pharma-style plant, half the density"]["plant"], 0.02)
+    # the no-clean-room capital is Humbird's Table 4.2 with an ordinary hall in place of the clean room
+    near("no-clean-room capital, $k/m3 (2019)", value("pf_capex_no_cleanroom"),
+         683.0 * (178.21 - (39.607 - 5268 * 3.759 / 1000.0)) / 178.21, 0.005)
+    if not (value("plant_floor_lo") < value("plant_floor") < value("plant_floor_hi")):
+        fails.append("floor inputs out of order: frontier < floor < cautious expected")
+
+    # --- fill-and-draw delivers f/ln(1/(1-f)) of (cap x maximum growth rate): 0.72 at half draws ----
+    import numpy as np
+    f = value("pf_draw_fraction")
+    ideal = value("pf_working_volume") * value("pf_x_unperfused") * good.mu * 8760 / 1000.0
+    near("fill-and-draw output factor", fp.output_per_m3(good, "filldraw", uptime=1.0) / ideal, f / np.log(1 / (1 - f)), 1e-6)
+    if not fp.output_per_m3(good, "filldraw", uptime=1.0) < ideal:
+        fails.append("fill-and-draw cannot beat the density cap times the maximum growth rate")
 
     print("physics floor: Humbird's two designs reproduced, physics checks and pinned tiers checked")
     return fails

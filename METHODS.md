@@ -53,13 +53,12 @@ source over re-quoting a number; finish with `./run_tests.sh`.
 
 ## Sourcing discipline
 
-The default cost stack uses the figures of **Pasitka et al. 2024** (*Nature Food*), read as a projection for
-efficient cells, not as a measurement: Pasitka's kilogram is a wet pellet that is mostly liquid and its cost
-leaves out capital (Step 1, "How to read the default"; "Wet mass per cell"). The stack is kept because it sits
-inside the range of **Humbird 2021** and the other design analyses per kg of real cells ("Other analyses").
-Humbird supplies the feedstock floor (amino acids, glucose), the physics and plant costs behind the floor's plant
-term (`floor_physics.py`) and the reasons scale-up is hard
-(oxygen and CO₂ transfer, shear, sterility limits on vessel size). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
+Costs are per kg of real wet cells. The default cost stack is what a company reports for its own process
+(**SuperMeat 2024**, not peer reviewed), chosen because it is the best-documented figure on a sound mass basis.
+**Humbird 2021** (journal paper and long report) supplies the feedstock floor, the cell physics and the plant
+costs behind the floor (`floor_physics.py`). Built microbial fermentation plants come from the pf-tea evidence
+file. **Pasitka et al. 2024** was the anchor until 2026-11-15 and is no longer used: its kilogram is a wet pellet
+that is mostly liquid, and its cost leaves out capital ("Why Pasitka is not the anchor"). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
 2026 State of the Industry report describes them, and a GFI and MG Consulting amino-acid cost analysis
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
 directional evidence, not the central case.
@@ -68,7 +67,7 @@ directional evidence, not the central case.
 
 Every input falls into one of five categories; `python inputs.py` tags each.
 
-1. **Sourced:** `p_conv`, `media_intensity`, `media_price`, `overhead` (Pasitka Fig. 4),
+1. **Sourced:** `p_conv`, `media_intensity`, `media_price`, `overhead` (SuperMeat 2024, a company report),
    `aa_intensity`/`aa_bulk_price` and `glucose_intensity` (Humbird), `glucose_price` (GFI & Hawkwood 2025), `eps_own` (scanner meta-analyses), `price_pb_mult` (GFI/NIQ),
    `taste_quality_p` (NECTAR), `w_eth` (Gallup), `pb_mainstream_frac`/`pb_share_target` (GFI/SPINS),
    `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), the Bass `p_innov`/`q_imit` (literature
@@ -83,10 +82,10 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    by `premium_resistance`), `markup_add` (bounded by the USDA farm-to-retail spread), the scaffold cost, and
    `loss_aversion` (symmetric by default).
 5. **Assumed, with modest leverage** (the calibration re-solves around each): across their full slider
-   ranges, the long-run share at the projected price (2.9%) moves by 1.2 pp for `w_realtissue_E` (0–4), 0.5 pp for
-   `w_taste` (1–10), 1.4 pp for `taste_quality_w` (beans' taste, 0.1–0.5), 0.1 pp for `wf_mainstream_target`
-   and 0 for `w_slaughter_E`; for comparison, κ (3–9) moves it by 5.8 pp. The timing knobs (`accept_rate`,
-   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$14.2 floor: salts,
+   ranges, the long-run share at the default cost (4.4%) moves by 1.5 pp for `w_realtissue_E` (0–4), 0.8 pp for
+   `w_taste` (1–10), 2.1 pp for `taste_quality_w` (beans' taste, 0.1–0.5), 0.2 pp for `wf_mainstream_target`
+   and 0 for `w_slaughter_E`; for comparison, κ (3–9) moves it by 8.0 pp. The timing knobs (`accept_rate`,
+   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$13.2 floor: salts,
    buffer, vitamins) is a small pure assumption.
 
 The single load-bearing **assumption** is `real_tissue_x = 1`: cultivated meat, being animal tissue, keeps
@@ -109,7 +108,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | step | module | what it adds |
 |---|---|---|
 | 1. Price ratio | `price_ratio.py` | R and the parity threshold (additive markup); takes biomass cost as an input |
-| 1. Cost | `cost_model.py` | Pasitka's cost stack, the scale-up lever (three reactor designs), the floor, the waterfall |
+| 1. Cost | `cost_model.py` | the cost stack (medium + plant), three plant cases, the floor, the waterfall |
 | 2. Demand | `market_share.py` | the two-segment, four-product logit, its calibration and self-checks |
 | 3. Meat types and regions | `meat_market.py` | per-type R and share, tiers, the volume and value roll-up, the regional Monte Carlo |
 | 3. Structured products | `scaffolding.py` | scaffold cost for structured products vs a premium target |
@@ -125,7 +124,7 @@ Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py`
 
 ---
 
-## Step 1 — cost and the price ratio (`price_ratio.py`, `cost_model.py`)
+## Step 1 — cost and the price ratio (`price_ratio.py`, `cost_model.py`, `floor_physics.py`)
 
 ```
 media_cost   = media_intensity [L/kg] × efficiency × media_price [$/L]   (never below the feedstock floor)
@@ -135,59 +134,44 @@ R            = p_cult / (p_conv × meat_tax)
 parity (R=1) ⟺ biomass_cost ≤ p_conv − markup_add = $7/kg              (mince, $12 meat, $5 markup)
 ```
 
-**Anchors (Pasitka):** `media_intensity` = 22.4 L/kg; `media_price` = $0.63/L (animal-free medium, down from
-$3.31/L; removing albumin was the big cut); `efficiency` = 1.0 (their cells; 0.25 = CHO-like cells using
-about a quarter of the medium). The default is Pasitka's published **$24/kg** biomass cost plus the **$8.6/kg** capital charge that figure leaves out (below): **$32.6/kg**.
+**Every cost is per kg of real wet cells:** about 70% water and 20% protein, comparable with meat.
 
-**How to read the default (2026-11-14).** All costs in this model are per kg of real cells (70% water, about 20%
-protein). Pasitka's kg is a wet pellet that is mostly liquid ("Wet mass per cell" below), so $32.6 is not what its
-process delivers per kg of cells. The model keeps the stack as a *projection* for efficient cells in a large
-plant, because it falls inside Humbird's independent range for that case ($21/kg on hydrolysate, $37/kg on
-individual amino acids, in his 2019 prices; about $27–48 in 2025 prices) and inside the wider literature ("Other analyses" below). The one peer-reviewed
-measured run is a separate scenario, `pasitka_restated_cost` = $217/kg: Pasitka's $32.6 divided by the share of
-real cells in its biomass (`pasitka_real_cell_fraction`, 0.15, range 0.055–0.38, hence $86–593). Two cross-checks
-pull in opposite directions. Humbird's 2021 design with wild-type cells gives $225–237/kg (his Table 4.7): an
-older, independent calculation that agrees. SuperMeat's 2024 company report (10 L runs scaled to 25 m³, not peer
-reviewed) claims about $26–30/kg before capital, roughly $30–55 with it. It is reported
-beside the projection and is not sampled in the Monte Carlo.
+**The default is what a company reports** (SuperMeat 2024, a company report, not peer reviewed): 100% cultivated
+chicken, cell wet weight 1.0–1.75 g per 10⁹ cells, perfusion at 80 × 10⁶ cells/mL for 45 days in 10 L vessels,
+scaled on paper to 25 m³ tanks.
+
+| input | value | source |
+|---|---|---|
+| `media_intensity` | 30.5 L/kg | 92.77 million L a year for 3,039 t |
+| `media_price` | $0.50/L (range 0.20–1.00) | "<$0.5 per liter"; other companies report $0.20 or less [GFI 2026]; none verified at scale |
+| `efficiency` | 1.0 (range 0.25–1.0) | as reported; 0.25 is about 8 L/kg, the medium use of Humbird's efficient-cell designs |
+| `overhead` | $14.2/kg (range 11.5–34) | $13.4/lb ($29.5/kg) "with depreciation", less the medium |
+| **default cost** | **$29.5/kg, R = 2.87** | |
+
+The default counts the plant's depreciation ($3.5/kg) but no return on the money invested; the report gives
+neither the plant's cost nor the depreciation period. With a full yearly charge on the plant it would be several
+dollars higher. Humbird's independent design for efficient cells comes to $25–47/kg in 2025 prices. The `overhead`
+range runs from the plant floor to the cautious case with cells at half the density (both below).
 
 **The markup is additive** (processing, cold chain and retail margin don't shrink as biomass gets cheaper). A
 percentage markup would let the retail wedge vanish at low cost and make parity look easy. Its range floors at
 $2, below conventional meat's ~$4, because cultivated skips slaughter and carcass breakdown; at that floor the
 parity threshold rises to ~$10/kg of biomass.
 
-**The scale-up lever (`overhead`).** Pasitka's costs are modelled for a 50,000 L facility at three reactor
-designs; non-medium costs fall with vessel size because consumables and filters dominate small vessels:
-
-| design | running costs | capital charge | overhead | biomass cost | R |
-|---|---|---|---|---|---|
-| ATF, twenty-five 2 m³ vessels: scale-up stalls | $24.7/kg | $16.9/kg | $41.6/kg | $55.7/kg | 5.06 |
-| TFF, ten 5 m³ vessels: the default | $9.9/kg | $8.6/kg | $18.5/kg | $32.6/kg | 3.13 |
-| perfusion, two 25 m³ vessels: scale-up succeeds | $7.9/kg | $5.5/kg | $13.4/kg | $27.5/kg | 2.71 |
-
-**The capital charge (added 2026-11-14).** Pasitka's published totals ($38.8, $24 and $22 per kg) are medium plus
-running costs. Its Supplementary Table S4 lists an "Annual Capital charge" of 14.6% of the total capital
-investment a year ($18.1M, $9.2M and $5.9M on investments of $123.9M, $63.1M and $40.3M), but Table S10's "Total
-cost of wet biomass production" does not include it: its fixed costs are labour, maintenance and insurance only.
-A plant has to recover its capital, and Humbird's cost includes the equivalent charge (15% a year), so the model
-adds it: the charge divided by 1.07M kg a year (`inputs.PASITKA_CAPITAL`). Read in the supplement on 2026-11-13.
-
-The Monte Carlo range for `overhead` is triangular 12.5 / 18.5 / 23.6: centred on the default design, with the
-minimal-plant floor as the optimistic end. The small-vessel stall is a named downside scenario (in the
-waterfall and the cost table), not part of the central band: a commercial plant would only fall back to many
-small vessels if large reactors fail. Pasitka's continuous run was at 1.8 L, with pilot hardware at 300 L and
-claimed scalability to 5,000 L.
-
-**The floor (`cost_floor`)** is what remains when every reducible cost (recombinant proteins, single-use
-filters, small-scale capital) is engineered away:
+**The floor (`cost_floor`)** is what remains when every reducible cost is engineered away:
 
 | component | value | basis |
 |---|---|---|
 | amino acids | ~$0.67/kg | 0.337 kg of soy hydrolysate per kg × $2/kg [Humbird Table 3.5]; it supplies the 0.26 kg of amino acids in Table 3.4 |
 | glucose | ~$0.13/kg | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
 | salts, buffer, vitamins, trace elements | ~$0.9/kg | assumed (Humbird leaves them out as low-cost) |
-| running a plant | ~$12.5/kg | a sterile plant of 20 m³ tanks run continuously with efficient cells, derived from oxygen physics and Humbird's capital per m³ in 2025 prices (`floor_physics.py`, below). Range: ~$3.5 in a food-fermentation-class plant, ~$19 for Humbird's fed-batch design as drawn |
-| **floor** | **~$14.2/kg** | R ≈ 1.60 (range ~$5–21) |
+| running a plant | ~$11.5/kg | physics and published plant costs (`floor_physics.py`, next section) |
+| **floor** | **~$13.2/kg** | R ≈ 1.52 |
+| **frontier** | **~$6.5/kg** | R ≈ 0.96, if animal cells can be grown in plants that cost what microbial fermentation plants cost |
+| cautious case | ~$19.6/kg | R ≈ 2.05: a pharma-style plant, tanks drained and refilled |
+
+The model does not report one floor on its own. The floor is the case in which everything that has been costed
+for animal cells works together; the frontier and the cautious case are reported beside it wherever it appears.
 
 *Glucose, physics first.* A cell uses glucose two ways. Some becomes biomass that isn't protein: lipid,
 carbohydrate and nucleotides, 0.065 mol per mol of dry cell mass (Humbird's Reaction 2.6). The rest is burned to pay
@@ -198,152 +182,128 @@ that is ~$0.13/kg: glucose barely matters. The feedstock as a whole (~$1.7/kg) i
 (US broilers: ~4.6 kg of feed and ~$1.4 per kg of edible meat in 2025, ~$1.9 in the EU; from breeder targets,
 USDA and Wageningen data in the pf-tea evidence, `data/evidence/feed.yaml`).
 
-*What the floor assumes.* Humbird's own hydrolysate medium also buys free glutamine and tyrosine (~$2.6/kg); the
-floor leaves them out, assuming cells that make their own glutamine (glutamine-synthetase lines, standard in CHO)
-and tyrosine supplied by the hydrolysate. It also leaves out growth factors ($3.1/kg at a 100 kt industry in
-Humbird's Table 4.4; he expects them to vanish at much larger scale). The plant term assumes efficient cells and
-continuous operation, neither shown at scale, and it does not model contamination losses. The central floor is
-about twice the $7/kg parity threshold; only the food-fermentation-class plant gets below it.
+*What the floor leaves out.* Humbird's own hydrolysate medium also buys free glutamine and tyrosine (~$2.6/kg); the
+floor assumes cells that make their own glutamine (glutamine-synthetase lines, standard in CHO) and tyrosine
+supplied by the hydrolysate. It also leaves out growth factors (about $4/kg at a 100 kt industry, from Humbird's
+Table 4.4 in 2025 prices; he expects them to vanish at much larger scale). Feedstock prices are not escalated to
+2025.
 
-### Reactor type and mode (added 2026-11-14; a cross-check, not used in the cost)
+### The floor's plant term (`floor_physics.py`)
 
-All three Pasitka designs are perfusion with cell retention. Its Supplementary Table S1 (read directly) lists:
-
-| design | production vessels | retention device | equipment cost of the device |
-|---|---|---|---|
-| ATF | 25 × 2 m³ | 50 × ATF 10 | $17.5M |
-| TFF (the default) | 10 × 5 m³ | 10 × TFF | $1.75M |
-| large-scale perfusion | 2 × 25 m³ | 2 × "Large-Scale PD", not specified further | $2.42M |
-
-(Earlier versions of this model labelled the ATF design 0.5 m³ and the large design 20 m³; 0.5 m³ is the seed
-vessel.) Installation is charged at 0.3 × equipment cost on the retention and auxiliary items only; Humbird uses
-1.3 × on everything.
-
-How the modes compare in the published analyses. Figures marked "derived" are arithmetic on the source's own
-numbers; the Humbird and Negulescu rows were read by a research assistant from the long report and the preprint,
-not line by line by the author.
-
-| mode | vessel | wet cells, g/L/day | plant cost per tonne of yearly output | cost, $/kg |
-|---|---|---|---|---|
-| fed-batch stirred tank (Humbird) | 20 m³ | 39 (derived) | $48k | 37 |
-| perfusion with ATF (Humbird) | 2 m³ | 98 (derived) | $96k | 51 |
-| perfusion (Pasitka: ATF / TFF / large) | 2 / 5 / 25 m³ | 59 | $116k / $59k / $38k | 55.7 / 32.6 / 27.5 with capital |
-| batch stirred tank (Negulescu 2023) | 42 / 210 m³, hypothetical | 5 (derived; includes 10 days of differentiation) | $108k / $58k | 30.4 / 20.8 |
-| batch airlift (Negulescu 2023) | 260 m³, hypothetical | 5 (derived) | $14k | 13.0 |
-
-What follows for this model:
-
-- **Perfusion at 25 m³ is undemonstrated.** Humbird caps perfusion at 2 m³ because "perfusion culture volumes are
-  necessarily much smaller", limited by the retention device; the largest ATF unit serves about 2 m³. Commercial
-  perfusion in biopharma runs at roughly 0.5–2 m³. No public demonstration of cell-retention perfusion at 5 m³ or
-  25 m³ was found; the support is the authors' own scalability claim.
-- **Pasitka's large design is cheaper per tonne than Humbird's fed-batch** ($38k against $48k) while keeping
-  perfusion's productivity, through a retention device with no membrane consumables and a low installation factor.
-  That combination is the optimistic end; the default (TFF, $59k per tonne) sits between Humbird's two designs.
-- **On like-for-like engineering, perfusion costs more than fed-batch** (Humbird: $51 against $37 per kg), because
-  retention devices and many small vessels outweigh the 2.5× higher productivity. Fed-batch in stirred tanks is the
-  proven route for animal cells, up to about 25 m³.
-- **Airlift reactors are the cheap-capital hope** (Negulescu: $13/kg at 260 m³), but the vessel is hypothetical,
-  its price is scaled from a 1997 quote, and animal cells have not been grown above about 25 m³ in any reactor.
-- **Continuous harvest without retention** (a chemostat with bleed) has no published cost analysis.
-- **Size of the effect.** Reactor mode and size move the cost by about 1.5–2.3×: comparable to the medium-price
-  range, smaller than the wet-mass question below. The model already carries it as the `overhead` range
-  ($11.5–23.6/kg, with $41.6 as the stall case); what this section adds is that the lower half of that range rests
-  on perfusion at a scale nobody has run.
-
-The number to watch is Pasitka's productivity: 59 g of wet cells per litre a day, sustained in 5–25 m³ vessels.
-
-### Cost cross-checks (added 2026-11-03; on the page's reality checks, not used in the cost)
-
-*Humbird's plant cost, read in full (journal version, Europe PMC PMC8362201).* His fed-batch design costs $328M
-(Table 2) for 6.8 kt/yr of wet cells. He turns the plant's cost into a yearly charge of 24% of the total capital
-investment: a capital charge factor of 15%/yr (7.5% over 10 years, Sect. 2.3) plus 4%/yr maintenance and 5%/yr
-insurance (Sect. 2.5). That is $11.6/kg, the "CAPEX" lines of his Table 2 ($4 + $3 + $5); the "$48 M/y" in his text is
-the 15% alone. So about 80% of his $14.5/kg non-medium cost is the plant. In the
-precision-fermentation model (pf-tea), gaps of this size between published designs were mostly accounting:
-yearly maintenance and insurance (Humbird's 9% against ~2% in NREL-style reports), installation factors, and
-whether a return on capital is charged at all. **Resolved 2026-11-13: Pasitka's $24/kg does not include a return on
-capital.** Its supplement uses Humbird's structure (maintenance 4% and insurance 5% of the investment a year are in
-the cost; a 14.6% capital charge is listed but left out of the total). With that charge added (above), Pasitka's
-non-medium cost is $18.5/kg in the default design and $13.4/kg at large scale, either side of Humbird's $14.5.
-
-*A real plant: Believer Meats, Wilson, North Carolina.* Announced in December 2022 at "an initial investment of more
-than $123 million" (NC Governor's office) or "$123.35m", with "the capacity to produce at least 10,000 metric tons of
-cultivated meat ... per year" (FoodNavigator). Completed in 2025; the company (whose scientists co-authored Pasitka
-2024) then closed before producing at scale, and the plant went to sale (Just Food). As announced, that is $12,000 per
-tonne of yearly capacity, against $48,000 in Humbird's fed-batch design; at Humbird's 24%/yr it would cost $3.0/kg,
-far below this model's $18.5 non-medium cost. Either Humbird's plant is conservative (aseptic, clean-room) or the capacity
-claim was optimistic; the plant never ran long enough to say. A company claim, and the only built plant on file.
-
-### A physics-based floor (`floor_physics.py`, added 2026-11-14; sets the floor's plant term)
-
-The floor used to take its plant term from Pasitka. Pasitka's cost analysis counts a very watery "wet biomass" as
-kg of product and assumes perfusion at a scale nobody has run (see "Wet mass per cell" and "Reactor type and
-mode"), so it was a weak anchor. The "sterile plant, continuous harvest" tier below is now `plant_floor`, and the
-food-fermentation and Humbird tiers are its range. `floor_physics.py` rebuilds the plant term from physics and published engineering,
-per kg of real wet cells (70% water, about 21% protein: Humbird's basis, comparable with meat).
+The plant's cost per kg is its cost per m³ of tank divided by what a m³ produces in a year. The second factor is
+physics; the first is engineering, taken from published designs and built plants.
 
 The chain:
 
     power per cell          P   = 0.148 × M^0.75 pW                 (West's law, Humbird Eq. 2.8; 60 pW at 3 ng)
     oxygen uptake           qO2 = P / (483 kJ per mol O2) / M        (0.149 mmol per g per h for the 3 ng cell)
-    density the reactor     X   = min(OTR / qO2, 258 g/L)            (and at most 120 g/L if waste is not washed out)
-    supports
-    output per m3 per year  continuous: 0.8 × X × μ × 8760 × 0.91    fed-batch: 0.8 × X / (2 t_d + 10 h) × 8760
+    density the tank holds  oxygen:  OTR / qO2, at most 258 g/L      (195 g/L at 29 mmol O2 per L per h)
+                            CO2:     about 120 g/L at 20 m3           (Humbird Sect. 2.3)
+                            waste:   about 120 g/L if it is not washed out, for efficient cells
+    output per m3 per year  perfusion:     0.8 × X × μ × 8760 × uptime
+                            fill-and-draw: 0.8 × X × μ × f/ln(1/(1−f)) × 8760 × uptime
+                            fed-batch:     0.8 × X / (2 t_d + 10 h) × 8760
     plant capital per kg    0.24 × (capital per m3) / (output per m3 per year)
 
-Oxygen is the physical limit: bursting bubbles kill animal cells, so a cell-culture reactor delivers about 25–30
-mmol of oxygen per litre an hour (below 50 in any case) against 150–200 in a microbial fermenter. Labour scales
-with vessel-time per kg; utilities and consumables are Humbird's.
+Oxygen and CO₂ are the physical limits: bursting bubbles kill animal cells, so a cell-culture tank exchanges about
+25–30 mmol of oxygen per litre an hour (below 50 in any case) against 150–200 in a microbial fermenter. In
+perfusion a device holds the cells back while waste is washed out, so the culture sits at its cap. In
+fill-and-draw a fraction f of the tank is drained each cycle and the culture climbs back to the cap, so it
+averages f/ln(1/(1−f)) of (cap × maximum growth rate): 0.72 at f = 0.5. Uptime is Humbird's 0.91 in perfusion
+(33-day runs, no failures) and 0.85 in fill-and-draw (`pf_uptime_realistic`). The yearly charge on capital is
+Humbird's 24% (capital charge 15%, maintenance 4%, insurance 5%). Labour scales with vessel-time per kg.
+
+**Plant cost per m³ of production tank, and where each figure comes from:**
+
+| class of plant | $ per m³ (2025 prices) | source |
+|---|---|---|
+| pharma-style, 2 m³ perfusion tanks with ATF filters | $4.5M | Humbird Tables 4.8 and 4.10: $662.6M for 192 m³, 2019 prices × 1.32 |
+| pharma-style with clean rooms, 20 m³ tanks | $900k | Humbird Tables 4.1 and 4.3: $327.9M for 480 m³ (seed train, buildings, utilities included), × 1.32 |
+| the same without clean rooms | $800k | his Table 4.2 with the 5,268 m² cell-culture hall at $3,759/m² (an ordinary controlled hall) in place of a Class 8 clean room: total direct cost $178.2M → $158.4M |
+| microbial fermentation plants, as built | $190k | Liberation Labs, 4 × 150 m³, announced at $115M; Quorn's third fermenter about £190k per m³ (pf-tea evidence) |
+
+Dropping the clean rooms saves only about 11%, because Humbird's vessels are already priced without pharma
+compliance (his Eq. 3.1 takes 25% off for "the elimination of cGMP"). Other costed animal-cell plants are in the
+same range or above: a 2025 company-commissioned design with six 5 m³ vessels comes to about $1.3M per m³. No
+published design supports a much cheaper sterile plant for animal cells; an earlier version of this model assumed
+$300k per m³ without a source. Prices: Humbird's figures are in 2018–2019 dollars, escalated by the plant-cost
+index (CEPCI about 800 in 2024, an estimate, over 607.5 in 2019: × 1.32) and, for running costs, by US consumer
+prices (× 1.26); both as recorded in pf-tea.
 
 The module's only calibration targets are Humbird's two designs, and at his prices it reproduces both: fed-batch
 14.5 t per m³ a year and $14.5/kg of non-nutrient cost (his: 14.2 and 14.5); perfusion 35.8 t per m³ a year and
 $29.2/kg (his: 35.9 and 30.1).
 
-**Prices.** Humbird's figures are in 2018–2019 dollars. The ladder below escalates them to 2025: capital by the
-plant-cost index (CEPCI about 800 in 2024, an estimate, over 607.5 in 2019: ×1.32, `pf_capex_escalation`, range
-1.17–1.40) and labour, utilities, consumables and growth factors by US consumer prices (×1.26,
-`pf_opex_escalation`). The fermentation-plant and Pasitka capital figures are 2024 figures and are not escalated.
-Both indices are as recorded in the pf-tea repository.
+**The cases, per kg of real wet cells, in 2025 prices:**
 
-The ladder, per kg of real wet cells, in 2025 prices:
-
-| tier | what it assumes | shown? | t/m³/yr | plant | feedstock + growth factors | total | R |
+| case | what it assumes | has anyone done it? | t/m³/yr | plant | feedstock + growth factors | total | R |
 |---|---|---|---|---|---|---|---|
-| Humbird fed-batch, as designed | sterile 20 m³ stirred tanks, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $19.0 | $1.7 + 3.9 | **$24.6** | 2.47 |
+| Humbird fed-batch, as designed | sterile 20 m³ stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $19.0 | $1.7 + 3.9 | **$24.6** | 2.47 |
 | Humbird perfusion, as designed | sterile 2 m³ tanks, cells held back by ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $38.2 | $1.7 + 3.9 | **$43.8** | 4.06 |
-| same fed-batch plant, small slow cells | cells the size and speed of those Pasitka grew: 0.55 ng, 61 h doubling | the cells exist; the plant does not | 6.4 | $40.4 | $1.9 + 3.9 | **$46.2** | 4.26 |
-| sterile plant, continuous harvest | 20 m³ tanks never emptied, cells drawn off as they grow; no growth-factor cost | not at scale for animal cells | 22.1 | $12.5 | $1.7 | **$14.3** | 1.60 |
-| sterile plant, 50 m³ tanks | the same in 50 m³ vessels | animal cells not grown above ~25 m³ | 22.1 | $11.5 | $1.7 | **$13.2** | 1.52 |
-| large perfusion, cheap retention | Pasitka's 25 m³ design, efficient cells, its 2024 capital figure | "theoretical" in Pasitka's words | 35.8 | $7.7 | $1.7 | **$9.4** | 1.20 |
-| food-fermentation-class plant | cells grown like yeast or mycoprotein: large sanitary vessels, no clean rooms | no; needs robust, contamination-tolerant cells | 22.1 | $3.5 | $1.7 | **$5.2** | 0.85 |
-| physics limit | cheapest fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids | a bound, not a design | 47.5 | $2.4 | $0.8 | **$3.2** | 0.68 |
+| same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run) | the cells exist; the plant does not | 6.4 | $40.4 | $1.9 + 3.9 | **$46.2** | 4.26 |
+| pharma-style plant, half the density | the cautious case with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $34.2 | $1.7 | **$35.9** | 3.41 |
+| pharma-style plant, fill-and-draw (the cautious case) | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.9 | $1.7 | **$19.6** | 2.05 |
+| no clean rooms, fill-and-draw | the same in a food-grade building | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $1.7 | **$18.0** | 1.91 |
+| **no clean rooms, perfusion (the floor)** | food-grade sterile plant; 20 m³ tanks in perfusion at 120 g/L with a scalable way to hold cells back; efficient cells; 91% uptime | each piece shown or claimed separately, never together | 22.1 | $11.5 | $1.7 | **$13.2** | 1.51 |
+| **microbial-fermentation-class plant (the frontier)** | the floor case in a plant at the cost of built microbial plants | such plants exist for microbes; none built or costed for animal cells | 22.1 | $4.8 | $1.7 | **$6.5** | 0.96 |
+| physics limit | the cheapest modelled fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids | a bound, not a design | 47.5 | $2.5 | $0.8 | **$3.2** | 0.69 |
 
 What it says:
 
-- **The class of plant decides the floor.** A sterile, pharma-style plant costs about $900k per m³ of vessel
-  (Humbird's $683k in 2025 prices); food and feed fermentation plants cost about $70k (pf-tea evidence:
-  $55–192k). No other choice moves the floor by a factor of ten.
-- **With sterile plants the floor is about $13–14/kg, twice the $7 parity threshold** however the reactor is run.
-  Reactor mode matters less than it seemed: continuous harvest and larger vessels land within about $1 of each
-  other. The cheap-perfusion tier is lower mainly because it uses Pasitka's capital figure for a design nobody
-  has built; it is the least trustworthy row.
-- **Parity on price needs animal cells grown in food-grade plants**, at about $5/kg. Nobody has shown that. It
-  is the creative option that matters most, ahead of cheaper amino acids or waste recycling.
-- **The cells matter as much as the plant.** The cells in Pasitka's run are six times smaller and grow 2.5 times
-  slower than Humbird's model cell, so they burn about four times the oxygen per kg and more than double the
-  plant cost.
-- **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg. Growth factors cost about
-  $4/kg at a 100 kt industry and little at much larger scale, or nothing if cells make their own.
-- **Physics alone allows about $3/kg.** That is a bound on what any plant could do, not a design.
+- **With plants that have been costed for animal cells, the floor is about $13/kg, nearly twice the $7 parity
+  threshold.** It needs perfusion at 20 m³, efficient cells and floor-price medium together.
+- **Price parity needs a cheaper class of plant.** At the cost of today's microbial fermentation plants the
+  floor is about $6.5/kg. Whether animal cells can be grown in such plants is the question that decides it.
+  Contaminants double in 20 minutes, animal cells in a day or two.
+- **Clean rooms are not the main cost.** Removing them saves about a tenth. The cost is in sterile vessels,
+  piping and the buildings and utilities around small tanks.
+- **Perfusion is worth about $5/kg at the floor** against tanks that are drained and refilled, because it holds
+  the culture at its cap. It needs a device that holds cells back at 20 m³, which does not exist, and cells that
+  make little waste, or the medium bill rises.
+- **The cells matter as much as the plant.** Halving the density nearly doubles the cautious case. Small, slow
+  cells more than double the plant cost in Humbird's own design.
+- **Feedstock is not the constraint.** Halving amino-acid prices saves about $0.3/kg.
 
-Limits. The capital figures per m³ are other people's estimates, not physics: Humbird's is a 2021 design in
-2019 prices, escalated by an index whose 2024 value is provisional, and the fermentation figures come from
-pf-tea's evidence file (company announcements and a model plant), taken as recorded there. Feedstock prices are
-not escalated. The 120 g/L limit for unwashed cultures is Humbird's for efficient cells; less efficient cells
-would hit ammonia far sooner. The fall in density from CO₂ build-up above 20 m³ is not modelled, so the 50 m³
-tier is slightly optimistic. Run length and contamination losses are not modelled; they are the reason
-continuous operation is unproven.
+Limits. Capital per m³ is other people's engineering, not physics. The 120 g/L limits are Humbird's for
+efficient cells; less efficient cells hit ammonia far sooner. The model cell is his 3 ng; real meat cells are
+two to three times smaller (GFI 2025; SuperMeat reports 1.0–1.75 ng), which lowers oxygen-limited density by
+about a fifth. Uptime is an input: the module does not model contamination. The microbial-class figure comes
+from two company figures recorded in pf-tea. The evidence on what has been built is in `reports/Continuous
+harvest bioreactor progress.md`.
+
+### Cost cross-checks (on the page's reality checks; not used in the cost)
+
+*Humbird's plant cost.* His fed-batch design costs $328M (Table 2) for 6.8 kt/yr of wet cells. He turns the
+plant's cost into a yearly charge of 24% of the total capital investment: a capital charge of 15%/yr (7.5% over
+10 years, Sect. 2.3) plus 4%/yr maintenance and 5%/yr insurance (Sect. 2.5). That is $11.6/kg; with labour,
+utilities and consumables his non-nutrient cost is $14.5/kg in 2019 prices, $19.0 in 2025 prices. The default's
+$14.2 is a company's figure with depreciation only.
+
+*A real plant: Believer Meats, Wilson, North Carolina.* Announced in December 2022 at "an initial investment of
+more than $123 million" (NC Governor's office), with "the capacity to produce at least 10,000 metric tons of
+cultivated meat ... per year" (FoodNavigator). Completed in 2025; the company closed in December 2025 before
+producing at scale. As announced, that is $12,000 per tonne of yearly capacity, against $48,000 in Humbird's
+fed-batch design. Either Humbird's plant is conservative or the capacity claim was optimistic; the plant never
+ran long enough to say.
+
+### A checklist for cost claims
+
+A cost per kg of cultivated meat can only be compared with another, or with meat, if it states:
+
+1. **What the kilogram is.** Wet cells, dry matter, protein, or a product blended with plant ingredients; with
+   the water or protein content, and the cell mass and diameter used to convert counts into kilograms.
+2. **A mass balance.** Amino acids and glucose supplied per kg against what that much protein and energy needs;
+   cells per mL × mass per cell against the density claimed.
+3. **Capital.** Whether a return on capital is included, at what yearly rate, on what plant cost, in which
+   year's prices.
+4. **The plant.** Class (clean rooms or not), vessel size and count, how the tank is run, how cells are held
+   back, uptime and assumed losses.
+5. **What has been demonstrated.** The largest vessel and longest run behind each number, and whether the result
+   is peer reviewed, a company report or a design.
+6. **The medium.** Litres per kg on the stated mass basis, price per litre, and what is in it.
+
+This model's default fails item 3 (no return on capital) and rests on a company report under item 5; both are
+stated where the default is defined.
 
 ### Side-study: does slower growth pay? (`growth_rate.py`, added 2026-11-13; not used in the cost)
 
@@ -365,14 +325,12 @@ decay); the time part rises per kg as growth slows. The growth-tied by-product i
 
 Result. Slower growth can pay in only one of three structural cases: a by-product sets the volume and overflow
 has a threshold. If overflow is proportional to growth, or nutrient supply sets the volume, the fastest growth is
-always cheapest. In the favourable case, at central inputs and the $18.5/kg non-medium cost, slower growth never
-pays at any medium price from $0.20 to $1.00 per litre. It pays only where the plant is cheap and the medium dear:
-$1.46/kg at the $12.5 plant floor with $1.00/L medium, with the optimum near 36 h, where the next limit takes
-over. Sampling the priors within that case (N = 20,000, seed 0), the saving exceeds $1/kg in 4% of draws at the
-model's medium-price prior, 15% at $1.00/L and 0.01% at $0.20/L. (Before the capital charge was added to the plant
-cost these were 15%, 36% and 0.05%: a dearer plant makes vessel time dearer.) Which case holds for meat cells is
-not known, so the cases are not weighted. The practical reading: growth rate is not a cost lever worth pursuing;
-what limits litres per kg matters far more.
+always cheapest. In the favourable case, at central inputs and the default plant cost ($14.2/kg), slower growth
+does not pay at the reported medium price ($0.50/L) or below; with medium at $1.00/L it saves $3.1/kg, with the
+optimum near 36 h, where the next limit takes over. Sampling the priors within that case (N = 20,000, seed 0),
+the saving exceeds $1/kg in 8% of draws at the model's medium-price prior, 26% at $1.00/L and 0.02% at $0.20/L.
+Which case holds for meat cells is not known, so the cases are not weighted. The practical reading: growth rate
+is not a cost lever worth pursuing unless medium stays dear; what limits litres per kg matters more.
 
 Cross-check against Humbird (long engrXiv report, text around Fig. 4.5a, read 2026-11-13; the figure itself was
 not viewed). His cells burn nutrients at a fixed rate per unit time (60 pW per cell), so every yield per kg worsens
@@ -427,13 +385,13 @@ elasticity between −0.84 and −3.4, and the model's implied value in that set
 wariness) at κ = 4 is −1.5 (golden-guarded). No experiment has priced cultivated meat at 2.4 times
 conventional, so the −3.6 there is an assumption (κ × ε), checked only against the data at parity.
 
-The anchor price `p_x` is a fixed calibration input (`elasticity_anchor_price`, $29.01): cultivated's retail price
-before the capital charge was added. Until 2026-11-14 it was computed from the default costs, so any change to a
-cost input re-solved β. Adding the capital charge then raised the anchor to $37.6 and cut β from −0.053 to −0.019,
-and a 36% dearer product lost almost no share (the world share rose). A cost correction should not change how
-shoppers respond to price, so the anchor is frozen at the value the demand side was calibrated on. Neither the
-cost defaults nor the page's sliders move it. The default price ($37.6, R = 3.13) is above the anchor, and the model
-is more price-sensitive there than at the anchor.
+The anchor price `p_x` ($29.01, `elasticity_anchor_price`) is a calibration device, not a cost. What it pins
+down is how sharply shoppers respond to price, and the evidence for that is at equal price: with this anchor the
+model's first-contact elasticity at parity is −1.54, inside the measured −0.84 to −3.4. So the anchor is best
+read as "the price coefficient that puts the at-parity elasticity at −1.54". No cost input changes it. It was
+once derived from the cost defaults, which meant every cost correction silently re-solved β (raising the cost by a
+third cut β from −0.053 to −0.019 and left shares almost unchanged); it has been fixed since 2026-11-14. The width
+of the measured bracket is carried by the κ range (3–9), not by the anchor.
 
 **The “seen as real meat” dials are what-ifs applied after calibration.** β is derived with cultivated counted
 as real meat (`real_tissue_x = 1`, the premise), so moving `real_tissue_x` shifts the outcome, not the price
@@ -448,7 +406,7 @@ al. (2011). US results don't depend on φ. The implementation is checked against
 (within 0.01 pp at meat prices).
 
 **Loss aversion (λ, default 1 = symmetric).** Up to Tversky and Kahneman's 2.25. Symmetric by default because
-it barely moves the result once β is re-fitted (2.9% → 3.0% at the projected price over λ = 1–2.25), cultivated data
+it barely moves the result once β is re-fitted (4.4% → 4.5% at the default cost over λ = 1–2.25), cultivated data
 can't identify it, and measured loss aversion largely reflects price-sensitivity differences between shoppers
 (Bell & Lattin 2000) that κ already carries. It applies to every product by its own premium.
 
@@ -475,7 +433,7 @@ form (real-tissue preference plus habit): habit can't be separated from preferen
 | [4b] implied at-parity elasticity (κ = 4) | −1.54, inside Lusk's [−3.4, −0.84] (κ = 9: −3.21, still inside) |
 | [4c] a real-meat product at organic chicken's premium (1.44× cuts) | 33% predicted vs ~2.4% observed: **fails**; shares above parity are upper estimates |
 | [5] plant-based at full price and taste parity | 10% (a prediction, not fitted) |
-| [6] share at the projected price, each judgement swept and re-solved | κ 3–9: 0.1% → 5.9%; everything else moves it by 0.1 pp or less |
+| [6] share at the default cost, each judgement swept and re-solved | κ 3–9: 0.2% → 8.1%; everything else moves it by 0.2 pp or less |
 
 **Scope.** A calibrated, partial-equilibrium discrete-choice model: parameters are calibrated to published
 facts, not estimated, because there are no purchase data for cultivated meat yet. Deliberate simplifications:
@@ -499,7 +457,7 @@ exactly), so both totals are normalised. Volume is weight of meat, not animals: 
 by chickens, where cultivated does worst, and would be lower.
 
 The tier values are judgement (no per-product authenticity data exist), so ρ scales the whole ladder and the
-Monte Carlo samples it (0.5–1.5). What they produce (RESULTS §3): at the projected cost, premium products have the
+Monte Carlo samples it (0.5–1.5). What they produce (RESULTS §3): at the default cost, premium products have the
 highest share of their category (cultivated is already cheaper there) but authenticity caps them near a
 quarter; beef and seafood cuts displace the most volume; at the cost floor, cuts and ground beef overtake
 premium; chicken and pork stay above parity even at the floor. Regional markets use local prices, consumption
@@ -516,7 +474,7 @@ The material price is a judgement range ($2–20/kg; Gu et al. 2025 describe the
 and the process cost ($1–15/kg) has no published cost study behind it: the most speculative numbers in the
 model. At the central values they add $6/kg, the scaffold cost the page uses. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
-premium species: against sushi-grade salmon, R has a median of 1.04, with 39% of draws at or below parity.
+premium species: against sushi-grade salmon, R has a median of 1.15, with 24% of draws at or below parity.
 
 ## Step 3 — entry points (`foothold.py`, the page's chart 7)
 
@@ -549,7 +507,7 @@ warmest survey framing, Perdue 2024) at about +0.5; the upper end (+1.5, ~80%) e
 **When it levels off.** `years_to_stabilize` gives the first year the share reaches 90% of its *long-run* share:
 rollout complete (F = 1) and novelty at its long-run value. That share is computed directly, and the simulation
 runs on past the 30 plotted years until it is reached (cap 200), so the answer does not depend on the horizon.
-At the projected price it is 30 years (15 at `accept_rate` = 0.5, 73 at 0.05). Before 2026-11-13 the measure was 90% of
+At the default cost it is 30 years (15 at `accept_rate` = 0.5, 73 at 0.05). Before 2026-11-13 the measure was 90% of
 the year-30 value of a 30-year run, which gave ~25 years partly because of where the run stopped.
 
 **Cost over time.** Rather than a smooth learning curve, the simulation is driven by named cost-milestone paths
@@ -564,12 +522,12 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 2.75   80% CI [2.24, 3.33]   0% of draws at or below parity
-  long-run share:  P50 = 1.0%   80% CI [0.1, 6.9]
+  price ratio R:   P50 = 3.09   80% CI [2.36, 3.99]   0% of draws at or below parity
+  long-run share:  P50 = 0.5%   80% CI [0.0, 5.0]
 ```
 
-The median is below the default 3.13 because the efficiency range (0.25–1.0, mode 1.0) only allows
-improvement. Pin any input from the command line (`--fix media_price=0.2`) to ask “if this lands, what then?”.
+The median is above the default 2.87 because the plant-cost range (11.5 / 14.2 / 34) is wider on the high side:
+the reported figure leaves out a return on capital, and reported harvests are less dense than the floor assumes. Pin any input from the command line (`--fix media_price=0.2`) to ask “if this lands, what then?”.
 
 ## Sensitivity (`sensitivity.py`)
 
@@ -581,9 +539,9 @@ Two views that can legitimately differ:
   `uncertainty.spread_contribution`). Not a variance decomposition: it doesn't sum to 100% and under-credits
   inputs whose mode is at the edge of their range.
 
-For R: medium price leads both (swing 1.49, width 19%) because its range runs both ways; cell efficiency has a
-large swing (0.88) but ~0% width (its range can only improve); plant cost owns 9% of the width but understates
-reactor scale, whose worst case (the small-vessel stall) is kept out of the band. For share at the projected price,
+For R: medium price has the largest swing (2.03) and plant cost the largest share of the band's width (27%,
+against 17%); cell efficiency has a large swing (0.95) but ~0% width (its range can only improve). For share at
+the default cost,
 the cost levers lead, then long-run novelty, the value of “no slaughter”, taste, price elasticity and health
 image. Figures: `sensitivity_tornado_R`, `sensitivity_tornado_share`.
 
@@ -591,7 +549,7 @@ image. Figures: `sensitivity_tornado_R`, `sensitivity_tornado_share`.
 
 ## Cruxes
 
-- **Cost (dominates):** does cost reach parity? Most likely not for the basic product (R median ≈ 2.75). The
+- **Cost (dominates):** does cost reach parity? Most likely not for the basic product (R median ≈ 3.1). The
   two unsettled levers are medium cost at scale (the top driver, two-sided) and reactor scale-up (least
   demonstrated, largest downside).
 - **Demand at parity:** taste, acceptance as real meat and the value of “no slaughter” span ~10% (not accepted
@@ -659,67 +617,63 @@ counterparts.
 - **Timing** measured against the long-run share (Step 4).
 - **Organic-chicken check** added ([4c], `organic_premium_check`); it fails, and the text says so.
 
-## Changes of 2026-11-14 (capital charge; calibration price frozen)
+## Changes of 2026-11-14/15 (cost side re-anchored)
 
-- **Capital charge added to the plant cost** (Step 1). Pasitka's published cost per kg leaves out the 14.6%-a-year
-  capital charge its supplement lists. `overhead` rises from 9.9 to 18.5 (range 11.5–23.6), `plant_floor` from 6.0
-  to 11.5, and the three designs to $41.6 / $18.5 / $13.4 per kg. Base biomass cost $24.0 → $32.6/kg; R 2.42 → 3.13;
-  floor $7.7 → $13.2/kg (R 1.06 → 1.52); Monte Carlo median R 2.09 → 2.72.
-- **Calibration price frozen** (Step 2, `elasticity_anchor_price`). Without this, the cost change would have
-  re-solved β and left the shares almost unchanged. With it, the demand calibration (β, the solved weights, every
-  at-parity figure) is identical to the published one, and only the price ratio moves.
-- **Shares.** US everyday meat at the default cost 8.8% → 2.9%; US roll-up 5.7% → 2.7% by weight; world roll-up 2.5% →
-  1.0% (Monte Carlo median 1.2% → 0.5%); US at the floor 27.4% → 16.1%.
-- **Premium targets.** Sushi-grade salmon is now at or below parity in 41% of draws, not 83%; lobster moves just
-  above parity (1.1×).
-- **Costs read per kg of real cells** (Step 1, "How to read the default"). The default stack is now described as a
-  projection for efficient cells; a separate scenario gives Pasitka's 2024 run restated per kg of real cells
-  (~$220/kg). No share number moves for this: it changes what the default is called, and adds the scenario.
-- **Floor rebuilt from physics, in 2025 prices** (`floor_physics.py`). `plant_floor` 11.5 → 12.5; floor $13.2 →
-  $14.2/kg (R 1.52 → 1.60), with a range from about $5 (food-fermentation-class plant) to $21 (Humbird's design
-  as drawn). The low end of the `overhead` range follows (11.5 → 12.5), so Monte Carlo medians move slightly: R
-  2.72 → 2.75; US at the floor 16.1% → 14.6%; sushi-grade salmon at or below parity in 39% of draws.
-- **Reactor labels corrected** to Pasitka's equipment list (2, 5 and 25 m³).
+A review of the cost anchor found that it could not be used, and the cost side was rebuilt. The demand side is
+unchanged.
 
-## Wet mass per cell (2026-11-14)
+- **Pasitka et al. 2024 removed as the anchor** (next section). The default is now what a company reports for
+  its own process (SuperMeat 2024): 30.5 L/kg of medium at $0.50/L plus $14.2/kg, $29.5/kg in all (was $24.0).
+  R 2.42 → 2.87.
+- **Floor rebuilt from physics** (`floor_physics.py`): plant cost per m³ from Humbird's tables in 2025 prices,
+  divided by the output oxygen and CO₂ transfer allow. Floor $7.7 → $13.2/kg (R 1.06 → 1.52), reported with a
+  frontier ($6.5, microbial-class plant costs) and a cautious case ($19.6).
+- **Calibration price fixed** (Step 2, `elasticity_anchor_price`). The demand calibration (β, the solved weights,
+  every at-parity figure) is identical to the published one; cost changes now move only the price ratio.
+- **Plant cases replace reactor designs** in the cost chart and tables: floor plant, as reported, cautious.
+- **A checklist for cost claims** added (Step 1).
+- **Side studies added:** `growth_rate.py` (slower growth does not lower cost) and the research report on
+  continuous harvest (`reports/`).
 
-Pasitka's cost per kg is per kg of "wet biomass", and that kilogram is mostly liquid. The full article, its
-supplement and its source data were read on 2026-11-13/14.
+## Why Pasitka is not the anchor
 
-What the paper says. The harvested biomass "was centrifuged at 17,500 rcf, 15 min ... and weighed". The 20-day
-animal-free run "produced a total of 1.7 kg of wet biomass using 110 l of medium ... correlating to a total of
-173 × 10⁹ cells"; in the source data, wet biomass is exactly 10 ng per counted cell at every time point. The cost
-analysis scales from that run: "a production yield of 1.8 kg wet biomass produced per litre of bioreactor volume
-per month", so 1.07 × 10⁶ kg a year in 50,000 L. Protein, fat and moisture were measured, but only "80 g protein
-and 13 g of fat per 100 g dry mass" is reported.
+Pasitka et al. 2024 (Nature Food 5, 693–702) was this model's cost anchor. The article, supplement and source
+data were read in full on 2026-11-13/14. Four things rule it out as a cost per kg of meat.
 
-What does not fit:
+**1. Its kilogram is mostly liquid.** The harvested biomass "was centrifuged at 17,500 rcf, 15 min ... and
+weighed"; the 20-day run "produced a total of 1.7 kg of wet biomass ... correlating to a total of 173 × 10⁹
+cells", exactly 10 ng per counted cell at every time point in the source data. The cost analysis scales from
+that: "1.8 kg wet biomass produced per litre of bioreactor volume per month".
 
 | evidence, all from the paper | what it implies |
 |---|---|
-| "cell sizes averaging 10 ± 0.75 μm" (Extended Data Fig. 4b); a sphere at 1.05 g/mL | 0.55 ng per cell, so 1.7 kg of biomass holds about 95 g of cells (5.5%) |
+| "cell sizes averaging 10 ± 0.75 μm" (Extended Data Fig. 4b); a sphere at 1.05 g/mL | 0.55 ng per cell, so 1.7 kg of biomass holds about 95 g of cells |
 | Abstract: "130 × 10⁶ cells per ml, corresponding to yields of 43% w/v" | 3.3 ng per cell; at 10 ng the same culture would be 130% w/v |
-| Supplementary Table S5: nutrients cost $14.11 per kg of biomass and $1,411.50 per kg of protein, every row 100× | the biomass is 1% protein; cells and meat are about 20% |
+| Supplementary Table S5: nutrients cost $14.11 per kg of biomass and $1,411.50 per kg of protein | the biomass is 1% protein; cells and meat are about 20% |
 | Table S5: 86,653 kg of amino acids a year for 1.07 × 10⁶ kg of biomass | 81 g per kg: at most 8% protein even if every gram were built in |
-| Glucose consumed in the run (252 g) at typical cell yields | about 3% protein, 15% cells |
 
-So a kg of this biomass holds between 5.5% and 38% real cells, most likely about 15%
-(`pasitka_real_cell_fraction`). Why a centrifuged pellet would be that wet is not explained; the animal-free medium
-contains methylcellulose, which may hold liquid. The moisture figure would settle it.
+Protein, fat and moisture were measured; only "80 g protein and 13 g of fat per 100 g dry mass" is reported.
 
-Two more points from the full text. The cost analysis uses 22.4 L of medium per kg, which is the best daily
-conversion in the run ("up to 4.5 × 10⁹ cells l⁻¹"); over the whole run it was 64 L per kg (110 L for 1.7 kg). And
-the headline price ($6.8/lb) is for a hybrid: "US$3 kg⁻¹ of plant-based ingredients and a 50% biomass inclusion
-rate". The cells doubled every 61 h in animal-free medium.
+**2. Its cost leaves out capital.** Supplementary Table S4 lists an "Annual Capital charge" of 14.6% of the
+investment; Table S10's "Total cost of wet biomass production" contains nutrients, consumables, utilities,
+labour, maintenance and insurance only. Its own sensitivity (cost moves $3.18/kg across −15% to +45% of plant
+cost) fits that.
 
-What the model does about it: it no longer treats Pasitka's cost as a cost per kg of cells. See "How to read the
-default" in Step 1.
+**3. Its medium use is the best day.** The cost analysis uses 22.4 L per kg, the best daily conversion ("up to
+4.5 × 10⁹ cells l⁻¹"); the run as a whole used 110 L for 1.7 kg.
 
-## Other analyses (2026-11-14)
+**4. Its headline is a hybrid, and its cheapest plant is hypothetical.** The $6.8/lb is for a product with "a
+50% biomass inclusion rate"; the 25,000 L perfusion design is a "theoretical large-scale perfusion modality".
 
-A reading of the other published analyses, for the same two problems (what the kilogram is, and whether capital is
-counted). The table was compiled by a research assistant from the papers' text; the last column is an estimate,
-not the sources' own figure.
+None of this touches the paper's laboratory result, a 20-day continuous culture in animal-free medium. It means
+the cost per kg cannot be compared with meat. Why a centrifuged pellet would be that wet is not explained; the
+moisture figure would settle the exact factor.
+
+## Other analyses
+
+A reading of the published analyses on the checklist's first and third items (what the kilogram is, whether
+capital is counted). Compiled by a research assistant from the papers' text; the last column is an estimate, not
+the sources' own figure.
 
 | analysis | published $/kg | what the kg is | capital in the cost | reactor | per kg of real cells, capital included |
 |---|---|---|---|---|---|
@@ -729,13 +683,12 @@ not the sources' own figure.
 | Garrison 2022 | 63.7 | "cells similar to tissue"; density not given | yes, 10% over 10 years | 20 m³ fill-and-draw | not convertible; medium looks ~35× short of amino acids |
 | Negulescu 2023 | 35 / 25 / 17 | wet cells, 3 ng, 30% dry matter | depreciation only | 42 and 211 m³ stirred, 262 m³ airlift | ~18–41 |
 | Ark (Quint) 2023 | 65 | 2.5 ng cells; basis unstated | depreciation only | 25 m³ fed-batch | ≥65 |
-| SuperMeat 2024 (company) | 26, or 29.5 with depreciation | "cell wet weight", 1.0–1.75 ng | headline excludes it | 25 m³ perfusion with continuous bleed | ~30–55 |
-| Pasitka 2024 | 24 | wet pellet, ~15% cells | no | 2–25 m³ perfusion | ~86–593 |
+| SuperMeat 2024 (company; this model's default) | 26, or 29.5 with depreciation | 100% cells, 1.0–1.75 ng | depreciation only | 25 m³ perfusion with continuous bleed | ~30–55 |
+| Pasitka 2024 | 24 | wet pellet, mostly liquid | no | 2–25 m³ perfusion | not comparable |
 
-Three things follow. None of the others shares Pasitka's mass-basis problem: each builds its kg from cell size and
-count. Most leave out all or part of the cost of capital, and several best cases break a mass balance or a packing
-limit. And with capital counted, the credible design figures for efficient cells span about $18–65/kg, which
-brackets this model's $33 default and Humbird's $37.
+None of the others shares Pasitka's mass-basis problem: each builds its kg from cell size and count. Most leave
+out all or part of the cost of capital, and several best cases break a mass balance or a packing limit. With
+capital counted, the design figures span about $18–65/kg.
 
 ## Sources
 

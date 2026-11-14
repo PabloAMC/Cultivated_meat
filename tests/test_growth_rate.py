@@ -42,8 +42,8 @@ def check() -> list:
     # --- closed form: linear cost up to tau*, so a corner optimum ---------------------------
     bare = GrowthParams(bp_time_share=0.0, death_rate=0.0, next_level=0.0, nut_time_share=0.0,
                         tau_star=48.0, time_share=1.0)
-    M = float(media_cost(pr, 1.00, 1.0))                     # 22.4 $/kg at $1.00/L
-    for oh in (6.0, 15.0, 30.0):
+    M = float(media_cost(pr, 1.00, 1.0))                     # medium cost per kg at $1.00/L
+    for oh in (6.0, 15.0, 60.0):
         pays = M > oh * bare.time_share * (bare.tau_star / bare.tau_ref - 1.0)
         tau_opt, _, saving = optimum(pr, bare, 1.00, oh)
         if pays:
@@ -55,7 +55,7 @@ def check() -> list:
 
     # --- slowing never pays when nothing falls with growth rate ----------------------------
     for case in ("byproduct-proportional", "nutrient"):
-        for p in (0.20, 0.63, 1.00):
+        for p in (0.20, 0.50, 1.00):
             tau_opt, _, saving = optimum(pr, gp, p, 6.0, case)
             if tau_opt != gp.tau_ref or saving != 0:
                 fails.append(f"{case} at ${p}/L: optimum moved off the base ({tau_opt:.1f} h)")
@@ -67,9 +67,9 @@ def check() -> list:
 
     # --- pinned numbers (central growth parameters; quoted in the write-up) -----------------
     for (p, oh), (want_tau, want_saving) in {
-        (0.63, 18.5): (24.0, 0.0),      # the default plant cost (capital charge included): never pays
-        (1.00, 18.5): (24.0, 0.0),
-        (1.00, 11.5): (36.3, 1.866),    # only at the plant floor with dear medium
+        (0.50, 14.2): (24.0, 0.0),      # the default: never pays
+        (1.00, 14.2): (36.3, 3.139),    # dear medium: pays
+        (1.00, 11.5): (36.3, 4.246),    # dear medium at the plant floor
         (0.20, 11.5): (24.0, 0.0),
     }.items():
         tau_opt, _, saving = optimum(pr, gp, p, oh, "byproduct-threshold")
@@ -77,9 +77,9 @@ def check() -> list:
         expect(f"saving at ${p}/L, overhead {oh}", saving, want_saving)
 
     mc = monte_carlo(20000, 0)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.042, tol=0.01)
+    expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.080, tol=0.01)
     mc1 = monte_carlo(20000, 0, 1.00)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.153, tol=0.01)
+    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.257, tol=0.01)
     mc02 = monte_carlo(20000, 0, 0.20)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), medium $0.20/L", np.mean(mc02 > 1), 0.0, tol=0.005)
 

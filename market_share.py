@@ -878,7 +878,7 @@ def summarise(pr: DemandParams) -> None:
     print(f"  solved: w_realtissue_M = {pr.w_realtissue_M:.2f}  w_health_M = {pr.w_health_M:.2f}  "
           f"w_health_E = {pr.w_health_E:.2f}  (health positions: wf={pr.health_w:+.1f} conv={pr.health_c:+.1f})")
     scenarios = [
-        ("Pasitka base (0.63 $/L)",      cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
+        ("default (as reported)",       cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)),
         ("medium -> 0.2 $/L",            cost_ratio(biomass_cost(cp, 0.20, 1.0), cp)),
         ("both (0.2 $/L + CHO cells)",   cost_ratio(biomass_cost(cp, 0.20, cp.eff_best), cp)),
         ("cost floor (central)",         cost_ratio(cost_floor(cp), cp)),
@@ -973,7 +973,7 @@ def summarise(pr: DemandParams) -> None:
     print("       diners + captive dining; we pin to the GFI buyer split, not to UCLA.)")
 
     # income channel: richer consumers are less price-sensitive (BLP log term)
-    rx = cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)            # Pasitka-base R (~2.4)
+    rx = cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)            # R at the default cost
     print(f"  [income] cultivated share at R={rx:.2f} by region income (phi={pr.income_gradient:g}):")
     for inc, lbl in [(85810, "US $86k"), (27105, "China $27k"), (6440, "Nigeria $6.4k")]:
         si = share(rx, pr, income=inc) * 100
@@ -1020,7 +1020,7 @@ def fig_share_vs_ratio(pr: DemandParams, outdir, fmts) -> None:
                 arrowprops=dict(arrowstyle="->", color="0.5", lw=0.8))
 
     cp = CostParams(p_conv=pr.p_conv)
-    for lbl, R in [("projected\n(efficient cells)", cost_ratio(biomass_cost(cp, 0.63, 1.0), cp)),
+    for lbl, R in [("projected\n(efficient cells)", cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)),
                    ("optimistic\ncost", cost_ratio(biomass_cost(cp, 0.20, cp.eff_best), cp)),
                    ("cost\nfloor", cost_ratio(cost_floor(cp), cp))]:
         ax.axvline(R, ls=":", lw=0.7, color="0.7")

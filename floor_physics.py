@@ -5,9 +5,7 @@ cells, by reactor type and plant class.  (NOT used in the headline cost.)
 
 Why
 ---
-The model's floor took its plant term from Pasitka's cost analysis. That analysis counts a
-very watery "wet biomass" as kg of product and assumes perfusion at a scale nobody has run
-(METHODS.md), so it cannot anchor a floor. This module rebuilds the plant term from physics
+This module builds the floor's plant term from physics
 and published engineering, per kg of REAL wet cells (70% water, ~21% protein: Humbird's
 basis, comparable with meat), and shows how far creative options could push it.
 
@@ -29,8 +27,14 @@ The chain of reasoning
 
 3. Output per m3 of vessel per year follows from density and growth rate mu = ln2 / t_d:
 
-       continuous (perfusion, chemostat):  wv * X * mu * 8760 * uptime
-       fed-batch:                          wv * X / (n * t_d + turnaround) * 8760
+       perfusion (cells retained):    wv * X * mu * 8760 * uptime
+       fill-and-draw (no retention):  wv * X * mu * f/ln(1/(1-f)) * 8760 * uptime
+       fed-batch:                     wv * X / (n * t_d + turnaround) * 8760
+
+   In fill-and-draw a fraction f of the tank is drained each cycle and the culture must climb
+   back to the cap, so it averages 72% of (cap x maximum growth rate) at f = 0.5. An earlier
+   version of this module took the cap and the maximum growth rate at once; no way of running
+   a tank without cell retention delivers that.
 
 4. The plant's yearly cost is a fixed share of its capital (capital charge 15% + maintenance
    4% + insurance 5% = 24%, Humbird), so
@@ -40,13 +44,15 @@ The chain of reasoning
    plus labour (scaled with vessel-time per kg), utilities and consumables.
 
 5. Capital per m3 depends on the CLASS of plant far more than on anything else:
-       aseptic stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird, 2019 prices)
-       aseptic stirred tanks, fed-batch at 20 m3            $683k/m3   (Humbird, 2019 prices)
-       food and feed fermentation plants                     $70k/m3   (pf-tea evidence, 2024)
+       sterile stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird, 2019 prices)
+       sterile stirred tanks with clean rooms, 20 m3        $683k/m3   (Humbird, 2019 prices)
+       the same without the clean room                      $607k/m3   (derived from his Table 4.2)
+       microbial fermentation plants as built               $190k/m3   (pf-tea evidence, 2024)
    Humbird's figures are escalated to today's prices in the tiers (x1.32 on capital by the
    plant-cost index, x1.26 on running costs by consumer prices).
-   Whether animal cells can ever be grown in the last class is the open question that
-   decides the floor.
+   Dropping the clean room saves only about 11%: Humbird's vessels are already priced
+   without pharma compliance. Whether animal cells can ever be grown in the last class is
+   the open question that decides whether price parity is reachable.
 
 The module reproduces Humbird's two designs (tests/test_floor_physics.py) and then prices a
 ladder of tiers, from "as engineered" to "physics limit". Each tier says what it assumes
@@ -115,19 +121,32 @@ def density(cells: Cells, otr: float, washed: bool) -> float:
     return x if washed else min(x, value("pf_x_unperfused"))
 
 
-def output_per_m3(cells: Cells, mode: str, otr: float | None = None) -> float:
-    """Tonnes of wet cells per m3 of production vessel per year. mode: 'fedbatch', 'continuous'
-    (harvest without retention: fill-and-draw or chemostat) or 'perfusion' (cells retained, waste
-    washed out)."""
+def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: float | None = None,
+                  x_cap: float | None = None) -> float:
+    """Tonnes of wet cells per m3 of production vessel per year.
+
+    mode 'fedbatch'   fill, grow two doublings, empty, clean (Humbird's fed-batch design).
+    mode 'filldraw'   never emptied: a fraction f is drained and refilled each cycle, no cell retention.
+                      The culture climbs back to the cap each cycle, so average output is
+                      f / ln(1/(1-f)) of (cap x maximum growth rate): 0.72 at f = 0.5.
+    mode 'perfusion'  cells retained and waste washed out, so the culture sits at its oxygen-limited
+                      density and the harvest is a steady bleed at the growth rate.
+    `uptime` is the share of the year the tank produces (not used by 'fedbatch', whose cycle already
+    includes its turnaround)."""
     otr = value("pf_otr_cap") if otr is None else otr
+    uptime = value("pf_uptime_realistic") if uptime is None else uptime
     wv = value("pf_working_volume")
     if mode == "fedbatch":
-        x = density(cells, otr, washed=False)
+        x = density(cells, otr, washed=False) if x_cap is None else x_cap
         cycle = value("pf_fedbatch_doublings") * cells.doubling_h + value("pf_turnaround_h")
         return wv * x / cycle * HOURS / 1000.0
-    if mode in ("continuous", "perfusion"):
-        x = density(cells, otr, washed=(mode == "perfusion"))
-        return wv * x * cells.mu * HOURS * value("pf_uptime") / 1000.0
+    if mode == "filldraw":
+        x = density(cells, otr, washed=False) if x_cap is None else min(x_cap, density(cells, otr, washed=False))
+        f = value("pf_draw_fraction")
+        return wv * x * cells.mu * f / np.log(1.0 / (1.0 - f)) * HOURS * uptime / 1000.0
+    if mode == "perfusion":
+        x = density(cells, otr, washed=True) if x_cap is None else min(x_cap, density(cells, otr, washed=True))
+        return wv * x * cells.mu * HOURS * uptime / 1000.0
     raise ValueError(f"unknown mode {mode!r}")
 
 
@@ -140,11 +159,12 @@ def capex_at_size(capex_20m3: float, vessel_m3: float) -> float:
 
 
 def plant_cost(cells: Cells, mode: str, capex_k_per_m3: float, consumables: float,
-               otr: float | None = None, capex_x: float = 1.0, opex_x: float = 1.0) -> dict:
+               otr: float | None = None, capex_x: float = 1.0, opex_x: float = 1.0,
+               uptime: float | None = None, x_cap: float | None = None) -> dict:
     """Plant cost per kg of wet cells: the yearly charge on capital, labour, utilities, consumables.
     capex_x / opex_x escalate Humbird's 2019 prices to today's (1.0 = as published, used to check the
     module against his tables)."""
-    out = output_per_m3(cells, mode, otr)                                   # t per m3 per year
+    out = output_per_m3(cells, mode, otr, uptime, x_cap)                    # t per m3 per year
     capital = value("humbird_plant_charge") * capex_k_per_m3 * capex_x / out   # $k/t = $/kg
     ref = output_per_m3(GOOD_CELLS, "fedbatch")                             # Humbird's fed-batch plant
     labour = value("pf_labour") * opex_x * ref / out                        # same crew per m3 of vessel
@@ -176,37 +196,45 @@ def tiers() -> list:
 
     cx, ox = value("pf_capex_escalation"), value("pf_opex_escalation")
 
-    def add(name, assumes, shown, cells, mode, capex, consumables, gf, cheap=False, otr=None, humbird_capex=True):
-        pc = plant_cost(cells, mode, capex, consumables, otr, capex_x=cx if humbird_capex else 1.0, opex_x=ox)
+    def add(name, assumes, shown, cells, mode, capex, consumables, gf, cheap=False, otr=None, humbird_capex=True,
+            uptime=None, x_cap=None):
+        pc = plant_cost(cells, mode, capex, consumables, otr, capex_x=cx if humbird_capex else 1.0, opex_x=ox,
+                        uptime=uptime, x_cap=x_cap)
         gf = gf * ox
         feed = feedstock(cells, cheap)
         rows.append({"name": name, "assumes": assumes, "shown": shown, **pc,
                      "feedstock": feed, "growth_factors": gf,
                      "total": pc["plant"] + feed + gf})
 
-    add("Humbird fed-batch, as designed", "aseptic 20 m3 stirred tanks, efficient 3 ng cells, growth factors bought",
+    low = value("pf_consumables_low")
+    design_uptime = value("pf_uptime")          # Humbird's own figure, for his design as drawn
+    add("Humbird fed-batch, as designed", "sterile 20 m3 stirred tanks, filled and emptied every ~2 days; efficient 3 ng cells; growth factors bought",
         "designed, not built", GOOD_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
         value("pf_growth_factors"))
-    add("Humbird perfusion, as designed", "aseptic 2 m3 tanks with ATF filters, same cells",
+    add("Humbird perfusion, as designed", "sterile 2 m3 tanks, cells held back by ATF filters; same cells",
         "designed; perfusion at 2 m3 exists in pharma", GOOD_CELLS, "perfusion",
-        value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"), value("pf_growth_factors"))
+        value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"), value("pf_growth_factors"),
+        uptime=design_uptime)
     add("Same fed-batch plant, small slow cells", "cells the size and speed of those Pasitka grew: 0.55 ng, 61 h doubling",
         "cells exist; this plant does not", PASITKA_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
         value("pf_growth_factors"))
-    add("Sterile plant, continuous harvest", "20 m3 tanks run continuously (fill-and-draw or chemostat); no growth-factor cost",
-        "not shown for animal cells at scale", GOOD_CELLS, "continuous", fb, value("pf_consumables_low"), 0.0)
-    add("Sterile plant, 50 m3 tanks", "as above in 50 m3 vessels, which Humbird calls a still-hypothetical optimum",
-        "animal cells not grown above ~25 m3", GOOD_CELLS, "continuous", capex_at_size(fb, 50.0),
-        value("pf_consumables_low"), 0.0)
-    add("Large perfusion, cheap retention", "Pasitka's 25 m3 design with a filter-free retention device, efficient cells",
-        "'theoretical' in Pasitka's own words", GOOD_CELLS, "perfusion", value("pf_capex_pasitka_large"),
-        value("pf_consumables_low"), 0.0, humbird_capex=False)
-    add("Food-fermentation-class plant", "animal cells grown like yeast or mycoprotein: large sanitary vessels, no clean rooms",
-        "not shown; needs robust, contamination-tolerant cells", GOOD_CELLS, "continuous",
-        value("pf_capex_fermentation"), value("pf_consumables_low"), 0.0, humbird_capex=False)
-    add("Physics limit", "the cheapest fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids",
-        "a bound, not a design", GOOD_CELLS, "perfusion", 55.0, value("pf_consumables_low"), 0.0,
-        cheap=True, otr=50.0, humbird_capex=False)
+    co2 = value("pf_x_co2_20m3")                # density a 20 m3 tank holds in perfusion (CO2 removal)
+    ncr = value("pf_capex_no_cleanroom")
+    add("Pharma-style plant, half the density", "the cautious case below with cells at 60 g/L, not 120",
+        "nearer to reported harvests (about 27 g/L)", GOOD_CELLS, "filldraw", fb, low, 0.0, x_cap=60.0)
+    add("Pharma-style plant, fill-and-draw", "Humbird's sterile plant with clean rooms; 20 m3 tanks half drained and refilled each cycle, no cell retention, 85% uptime; efficient cells",
+        "fill-and-draw is filed as an option at 20 m3; this density is not shown", GOOD_CELLS, "filldraw", fb, low, 0.0)
+    add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with an ordinary hall in place of the clean room",
+        "food-grade 20 m3 tanks run today; this density is not shown", GOOD_CELLS, "filldraw", ncr, low, 0.0)
+    add("No clean rooms, perfusion", "the floor: food-grade sterile plant; 20 m3 tanks in perfusion at 120 g/L with a scalable way to hold cells back; efficient cells; 91% uptime",
+        "each piece shown or claimed separately, never together", GOOD_CELLS, "perfusion",
+        ncr, low, 0.0, uptime=design_uptime, x_cap=co2)
+    add("Microbial-fermentation-class plant", "the frontier: the floor case in a plant that costs what microbial fermentation plants cost when built",
+        "such plants exist for microbes; not costed or built for animal cells", GOOD_CELLS, "perfusion",
+        value("pf_capex_fermentation"), low, 0.0, humbird_capex=False, uptime=design_uptime, x_cap=co2)
+    add("Physics limit", "the cheapest modelled fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids, no lost time",
+        "a bound, not a design", GOOD_CELLS, "perfusion", 70.0, low, 0.0,
+        cheap=True, otr=50.0, humbird_capex=False, uptime=design_uptime)
     return rows
 
 

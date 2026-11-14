@@ -3,23 +3,19 @@
 cost_model — the cost of cultivated biomass, with a derived floor. This is the
 NUMERATOR of the price ratio.
 
-HOW TO READ THE NUMBERS (2026-11-14). All costs are per kg of REAL wet cells (70%
-water, ~21% protein: comparable with meat). The default stack below uses Pasitka's
-figures, but Pasitka's own kg is a watery pellet (METHODS.md, "Wet mass per cell"),
-so the defaults are NOT what Pasitka's process delivers per kg of cells. The model
-keeps them as the PROJECTION for efficient cells in a large plant, because they sit
-inside Humbird's independent range for that case ($21/kg on hydrolysate, $37/kg on
-individual amino acids, in his 2019 prices). Pasitka's own 2024 run, restated per kg
-of real cells, is a separate, much higher scenario (`pasitka_restated_cost`, ~$220/kg). The
-floor's plant term comes from floor_physics.py.
+HOW TO READ THE NUMBERS (2026-11-15). All costs are per kg of REAL wet cells (about
+70% water, 20% protein: comparable with meat). The default is what a company reports
+for its own process (SuperMeat 2024: 30.5 L of medium per kg at $0.50/L, plus $14.2/kg
+for everything else, depreciation included: $29.5/kg). The floor's plant term comes
+from physics (floor_physics.py). Pasitka et al. 2024 is no longer an anchor: its
+kilogram is a wet pellet that is mostly liquid, and its cost leaves out capital
+(METHODS.md, "Why Pasitka is not the anchor").
 
 price_ratio.py defines how a biomass cost becomes R and where the parity
 threshold sits; THIS module produces that biomass cost — a transparent,
-component-based number you can poke. The reference is Pasitka et al. 2024
-(Nature Food) — the one *empirical* TEA — and the two questions it answers are
-exactly the ones we care about:
+component-based number you can poke. The two questions it answers:
 
-  1. "What if the medium gets cheaper?"  -> vary `media_price` (0.63 -> 0.2 $/L).
+  1. "What if the medium gets cheaper?"  -> vary `media_price` (0.50 -> 0.2 $/L).
   2. "Where is the floor?"               -> `cost_floor()` derives it from the
                                             irreducible amino-acid feedstock +
                                             the minimal cost of running a plant.
@@ -42,16 +38,13 @@ shrink in proportion when biomass gets cheaper. A multiplicative markup would
 wrongly let the retail wedge vanish as cost falls and make parity look easier
 than it is. ~$5/kg is comparable to conventional meat's farm-to-retail spread.
 
-Anchors (all tagged):
-  * media_intensity = 22.4 L/kg   [Pasitka: a 50,000 L facility uses 24e6 L of
-    ACF medium to make 1.07e6 kg/yr wet biomass -> 24e6/1.07e6 = 22.4 L/kg].
-  * media_price     = 0.63 $/L    [Pasitka empirical ACF medium; tweak to 0.2].
-  * nonmedia_cost   = 18.5 $/kg    [Pasitka TFF base: running costs $9.9/kg (nutrients
-    are 59% of the published ~$24/kg COGS, so non-nutrient is ~41%) + the capital
-    charge $8.6/kg that the published COGS leaves out (SI Table S4: 14.6% of the
-    capital investment a year). See inputs.py `overhead`.
-  * efficiency      = 1.0          [Pasitka cells; their cells use ~4x more
-    medium than CHO, so efficiency 0.25 models "CHO-grade" metabolism].
+Anchors (all tagged; see inputs.py):
+  * media_intensity = 30.5 L/kg   [SuperMeat: 92.77e6 L a year for 3,039 t].
+  * media_price     = 0.50 $/L    [SuperMeat: "<$0.5 per liter"; tweak to 0.2].
+  * nonmedia_cost   = 14.2 $/kg   [SuperMeat: $29.5/kg with depreciation, less the
+    medium. Depreciation only: no return on capital].
+  * efficiency      = 1.0         [cells as reported; 0.25 = about 8 L/kg, the
+    medium use of Humbird's efficient-cell designs].
 
 What Humbird actually CONSTRAINS vs. what is our best guess
 ----------------------------------------------------------
@@ -103,18 +96,20 @@ The floor (see cost_floor):
     is a CALORIE metric and overstates the headroom; by MASS the bird is efficient.)
     So cultivated meat has no order-of-magnitude feedstock advantage over the bird.
   * running a plant: capital/labour/maintenance/utilities do not go to zero.
-    floor_physics.py derives this term from oxygen physics and Humbird's capital
-    per m3 of vessel, escalated from 2019 to 2025 prices: ~$12.5/kg for an aseptic
-    plant of 20 m3 tanks run continuously with efficient cells. Range: ~$3.5/kg if
-    animal cells could be grown in a food-fermentation-class plant (not
-    demonstrated), ~$19/kg for Humbird's fed-batch design as drawn.
+    floor_physics.py derives this term from oxygen and CO2 physics and published
+    plant costs in 2025 prices. THE FLOOR: a sterile plant without clean rooms
+    ($800k per m3, Humbird's plant less its clean-room premium), 20 m3 tanks in
+    perfusion at 120 g/L, efficient cells: ~$11.5/kg. THE FRONTIER: the same in a
+    plant at the cost of built microbial fermentation plants ($190k per m3):
+    ~$4.8/kg; not costed or built for animal cells. THE CAUTIOUS CASE: Humbird's
+    pharma-style plant, tanks drained and refilled: ~$17.9/kg.
 
-Result preview (defaults): projection for efficient cells ~$33/kg; medium at
-$0.2/L ~$23/kg; + CHO-efficient cells ~$20/kg; floor ~$14/kg (band ~$5-22).
-Pasitka's 2024 run restated per kg of real cells: ~$220/kg. With a $5/kg additive
-markup against a $12/kg commodity price, parity (R=1) needs biomass <= $7/kg, so
-the central floor sits above that line (R ~1.6); only the food-fermentation-class
-plant gets below it.
+Result preview (defaults): as reported ~$29.5/kg; medium at $0.2/L ~$20/kg;
++ efficient cells ~$18/kg; floor ~$13/kg (band ~$6.5-20). With a $5/kg additive
+markup against a $12/kg commodity price, parity (R=1) needs biomass <= $7/kg. The
+floor with plants that have been costed for animal cells is about twice that. Only
+the frontier case, a plant at the cost of today's microbial fermentation plants,
+gets to parity (~$6.5/kg).
 
 Usage
 -----
@@ -131,7 +126,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PASITKA_CONFIGS
+from inputs import value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PLANT_CONFIGS
 from price_ratio import p_cult as _p_cult, ratio as _ratio, parity_cost as _parity_cost
 
 # The medium's IRREDUCIBLE feedstock: amino acids + bulk glucose, which the cells
@@ -147,12 +142,12 @@ FEEDSTOCK_FLOOR = AA_FLOOR + GLUCOSE_OTHER_FLOOR   # ~0.67 + (0.13 + 0.9) = 1.70
 @dataclass
 class CostParams:
     # --- operating cost: media ---------------------------------------------
-    media_intensity: float = value("media_intensity")  # L medium per kg wet [Pasitka]
-    media_price: float = value("media_price")          # $/L medium (ACF)    [Pasitka] -> tweak to 0.2
+    media_intensity: float = value("media_intensity")  # L medium per kg wet [SuperMeat]
+    media_price: float = value("media_price")          # $/L medium          [SuperMeat] -> tweak to 0.2
     efficiency: float = value("efficiency")            # media-use multiplier; 0.25 = CHO-grade
 
     # --- operating cost: everything else -----------------------------------
-    nonmedia_cost: float = value("overhead")           # $/kg capital+consumables+labour [Pasitka 50k L]
+    nonmedia_cost: float = value("overhead")           # $/kg everything but medium [SuperMeat, with depreciation]
 
     # --- floor inputs (irreducible) ----------------------------------------
     #   aa_intensity is stoichiometric (does NOT scale with media efficiency); an
@@ -213,15 +208,14 @@ def cost_floor(pr: CostParams) -> float:
 
 def floor_band(pr: CostParams):
     """A band on the floor; the plant-overhead term is the least-constrained
-    piece (depends on how far scale-up goes beyond Pasitka). (lo, central, hi)."""
+    piece (it depends on the class of plant). (lo, central, hi)."""
     aa = pr.aa_intensity * pr.aa_bulk_price
     central = cost_floor(pr)
-    # Overhead is bounded by Pasitka's OWN reported range; we do not extrapolate
-    # below Pasitka's largest demonstrated scale (~$6/kg, large-scale perfusion).
-    # Plant term from floor_physics: a food-fermentation-class plant (optimistic, not demonstrated for
-    # animal cells) up to Humbird's fed-batch design as drawn.
-    lo = aa + 0.5 * pr.glucose_other_floor + value("plant_floor_lo")
-    hi = aa + 1.5 * pr.glucose_other_floor + value("plant_floor_hi")
+    # Plant term from floor_physics: the frontier (a plant at the cost of built microbial fermentation
+    # plants; not shown for animal cells) up to the cautious case (Humbird's pharma-style plant, tanks
+    # drained and refilled). Feedstock is held at its central value in both.
+    lo = aa + pr.glucose_other_floor + value("plant_floor_lo")     # the frontier
+    hi = aa + pr.glucose_other_floor + value("plant_floor_hi")     # the cautious case
     return lo, central, hi
 
 
@@ -246,30 +240,22 @@ def parity_cost(pr: CostParams) -> float:
 # ----------------------------------------------------------------------------
 def summarise(pr: CostParams) -> None:
     scenarios = [
-        ("projection: efficient cells, large plant", pr.media_price, 1.0),
-        ("medium -> 0.2 $/L",                        0.20,          1.0),
-        ("CHO-grade cells (0.63 $/L)",              pr.media_price, pr.eff_best),
-        ("both (0.2 $/L + CHO-grade)",              0.20,          pr.eff_best),
+        ("as reported (SuperMeat 2024)",             pr.media_price, 1.0),
+        ("medium -> 0.2 $/L",                        0.20,           1.0),
+        ("efficient cells (4x less medium)",         pr.media_price, pr.eff_best),
+        ("both (0.2 $/L + efficient cells)",         0.20,           pr.eff_best),
     ]
-    tc = value("pasitka_restated_cost"); _, tlo, thi = prior("pasitka_restated_cost")[:3]
-    print(f"  PASITKA'S 2024 RUN, restated per kg of real cells (range = how wet its biomass was):")
-    print(f"    {tc:.0f} $/kg (range {tlo:.0f}-{thi:.0f})  ->  R = {ratio(tc, pr):.1f} (range {ratio(tlo, pr):.1f}-{ratio(thi, pr):.1f})\n")
-    print("  PROJECTION — efficient cells in a large plant; MEDIA / CELL lever, biomass$/kg and R:")
-    print("  scenario                                    biomass$/kg   R=p_cult/p_conv")
+    print("  MEDIUM / CELL lever (plant held at the default), cells $/kg and R:")
+    print("  scenario                                    cells $/kg   R=p_cult/p_conv")
     for name, mp, ef in scenarios:
         c = biomass_cost(pr, mp, ef)
         print(f"    {name:<42} {c:7.1f}        {ratio(c, pr):.2f}")
 
-    # The SCALE-UP lever, shown inside Pasitka's own three reactor configs (Fig. 4).
-    # media held at the empirical $0.63/L so this isolates the overhead/scale axis.
-    print("\n  SCALE-UP lever — Pasitka's three reactor configs (media held at $0.63/L):")
-    m = media_cost(pr, 0.63, 1.0)
-    for label, oh in PASITKA_CONFIGS.items():
+    print(f"\n  PLANT lever — three plant cases (medium held at ${pr.media_price:.2f}/L):")
+    m = media_cost(pr, pr.media_price, 1.0)
+    for label, oh in PLANT_CONFIGS.items():
         tot = m + oh
-        print(f"    {label:<46} {tot:6.1f}        {ratio(tot, pr):.2f}")
-    oh = list(PASITKA_CONFIGS.values())
-    print(f"    -> scale-up (ATF->perfusion) is a ~${max(oh) - min(oh):.0f}/kg move; the media cut "
-          "($0.63->$0.2) is only ~$10/kg. Scale is the bigger cost lever.")
+        print(f"    {label:<58} {tot:6.1f}        {ratio(tot, pr):.2f}")
 
     lo, ce, hi = floor_band(pr)
     print(f"\n  derived FLOOR: {ce:.1f} $/kg  (band {lo:.1f}-{hi:.1f})  "
@@ -279,7 +265,7 @@ def summarise(pr: CostParams) -> None:
     pc = parity_cost(pr)
     print(f"  parity (R=1) needs biomass <= {pc:.1f} $/kg (= p_conv - markup_add). "
           f"Floor central {ce:.1f} {'<=' if ce <= pc else '>'} {pc:.1f}: "
-          f"parity is {'reachable' if ce <= pc else 'marginal (only at the optimistic floor end)' if lo <= pc else 'out of reach on these plant costs'}.")
+          f"parity is {'reachable' if ce <= pc else 'reachable only at the frontier (microbial-class plant costs)' if lo <= pc else 'out of reach on these plant costs'}.")
 
 
 # ----------------------------------------------------------------------------
@@ -289,8 +275,8 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
     mp = np.linspace(0.1, 0.7, 200)
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
 
-    for ef, lbl, c in [(1.0, "current cells (Pasitka)", "#0173B2"),
-                       (pr.eff_best, "CHO-grade cells (4x less media)", "#DE8F05")]:
+    for ef, lbl, c in [(1.0, "cells as reported", "#0173B2"),
+                       (pr.eff_best, "efficient cells (4x less medium)", "#DE8F05")]:
         cost = np.array([biomass_cost(pr, m, ef) for m in mp])
         ax.plot(mp, cost, color=c, lw=2.0, label=lbl)
 
@@ -313,7 +299,7 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
 
     ax.set_xlabel(r"Medium price (\$/L)")
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
-    ax.set_title("Cost vs medium price (Pasitka-anchored), with floor")
+    ax.set_title("Cost vs medium price, with the floor")
     ax.legend(fontsize=8, frameon=False)
     _save(fig, outdir, "cost_vs_media", fmts)
 
@@ -324,26 +310,26 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
 # ----------------------------------------------------------------------------
 def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
     """Biomass cost as a function of the two dominant cost inputs: medium price
-    (x-axis, its reasonable range shaded) and reactor SCALE (one line per Pasitka
-    config). The floor band and the parity threshold are drawn so the reader sees
+    (x-axis, its reasonable range shaded) and the PLANT (one line per plant
+    case). The floor band and the parity threshold are drawn so the reader sees
     that no single input combination reaches parity on the basic product."""
     lo, hi = prior("media_price")[1:3]              # the medium range the model samples (0.20 .. 1.00)
     mp = np.linspace(0.15, hi + 0.05, 200)
     fig, ax = plt.subplots(figsize=(7.2, 4.7))
 
-    # one line per reactor SCALE config (cells held at the measured efficiency 1.0)
-    oh_atf, oh_tff, oh_perf = (PASITKA_CONFIGS[k] for k in PASITKA_CONFIGS)   # dict order: ATF, TFF, perfusion
-    for lbl, oh, c in [(r"perfusion 25 m$^3$  (scale-up wins)",     oh_perf, "#029E73"),
-                       (r"TFF 5 m$^3$  (demonstrated base)",        oh_tff, "#0173B2"),
-                       (r"ATF 2 m$^3$  (scale-up stalls)",        oh_atf, "#CC3311")]:
+    # one line per plant case (cells held at the reported efficiency 1.0)
+    oh_hi, oh_def, oh_floor = (PLANT_CONFIGS[k] for k in PLANT_CONFIGS)       # dict order: cautious, default, floor
+    for lbl, oh, c in [("floor plant (no clean rooms, perfusion)",     oh_floor, "#029E73"),
+                       ("as reported (default)",                       oh_def,   "#0173B2"),
+                       ("cautious (pharma-style, half the density)",   oh_hi,    "#CC3311")]:
         ax.plot(mp, pr.media_intensity * 1.0 * mp + oh, color=c, lw=2.2, label=lbl)
 
-    # the MEDIUM range the model samples: $0.20 (company reports) .. $1.00 (dearer than Pasitka measured)
+    # the MEDIUM range the model samples
     ax.axvspan(lo, hi, color="0.82", alpha=0.40, zorder=0)
-    ax.text((lo + hi) / 2, 2.0, f"medium range in the model\n{lo:.2f} (company reports) to {hi:.2f} (dearer than measured)",
+    ax.text((lo + hi) / 2, 2.0, f"medium range in the model\n{lo:.2f} to {hi:.2f} per litre",
             ha="center", fontsize=7, color="0.4")
-    ax.scatter([0.63], [pr.media_intensity * 1.0 * 0.63 + oh_tff], color="#0173B2",
-               zorder=6, s=34, edgecolor="white", label=r"Pasitka measured (\$0.63, TFF)")
+    ax.scatter([pr.media_price], [pr.media_intensity * 1.0 * pr.media_price + oh_def], color="#0173B2",
+               zorder=6, s=34, edgecolor="white", label=rf"reported (\${pr.media_price:.2f}/L)")
 
     # two reference lines: the irreducible floor and the parity threshold (biomass terms)
     ce = cost_floor(pr)
@@ -365,27 +351,26 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
 # Figure: the cost WATERFALL — where the cost goes, and what is irreducible
 # ----------------------------------------------------------------------------
 def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
-    """Walk the cost down from Pasitka's worst (ATF, scale-up stalls) to the
-    irreducible floor, one lever per step, so a reader SEES which lever moves the
-    most ($) and where the floor is. Pulls media_cost / cost_floor / parity_cost /
-    PASITKA_CONFIGS — no new constants, no hard-coded numbers."""
-    m063 = media_cost(pr, 0.63, 1.0)                 # ~14.1
-    atf  = m063 + PASITKA_CONFIGS["ATF 2 m^3 (25x2,000 L; scale-up STALLS)"]   # ~55.7
-    perf = m063 + PASITKA_CONFIGS["perfusion 25 m^3 (2x25,000 L; scale-up WINS)"]   # ~27.5
-    oh_perf = PASITKA_CONFIGS["perfusion 25 m^3 (2x25,000 L; scale-up WINS)"]
-    oh_tff  = PASITKA_CONFIGS["TFF 5 m^3 (10x5,000 L; current base)"]
-    perf_02  = media_cost(pr, 0.2, 1.0)  + oh_perf   # cheaper media at perfusion scale
-    perf_02c = media_cost(pr, 0.2, 0.25) + oh_perf   # + CHO-grade efficiency
-    floor = cost_floor(pr)                            # ~14.2
+    """Walk the cost down from the cautious plant case to the floor, one lever per step, so a
+    reader SEES which lever moves the most ($) and where the floor is. Pulls media_cost / cost_floor /
+    parity_cost / PLANT_CONFIGS — no hard-coded numbers."""
+    oh_hi, oh_def, oh_floor = (PLANT_CONFIGS[k] for k in PLANT_CONFIGS)
+    m_def = media_cost(pr, pr.media_price, 1.0)
+    top      = m_def + oh_hi                                   # cautious plant, reported medium
+    reported = m_def + oh_def                                  # the default
+    cheap    = media_cost(pr, 0.2, 1.0) + oh_def               # cheaper medium
+    eff      = media_cost(pr, 0.2, pr.eff_best) + oh_def       # + efficient cells
+    floor = cost_floor(pr)
     aa = pr.aa_intensity * pr.aa_bulk_price
+    m063, oh_tff = m_def, oh_def                               # names used by the reference line below
 
     # waterfall: (label, top, bottom, colour) — full bar at the ends, floating steps between
     steps = [
-        ("Pasitka ATF\n(scale-up\nstalls)",        atf,      0.0,      "#949494"),
-        ("reach large\nreactors\n(SCALE-UP)",      atf,      perf,     "#0173B2"),
-        ("cheaper media\n0.63->0.2/L\n(GFI '26)",  perf,     perf_02,  "#56B4E9"),
-        ("CHO-grade\nefficiency",                  perf_02,  perf_02c, "#56B4E9"),
-        ("other reducible\n(consumables,\nsmall-scale capital)", perf_02c, floor, "#56B4E9"),
+        ("cautious plant\n(pharma-style,\nhalf density)",   top,      0.0,      "#949494"),
+        ("plant as\ncompanies\nreport",                     top,      reported, "#0173B2"),
+        (f"cheaper medium\n{pr.media_price:.2f}->0.2/L",      reported, cheap,    "#56B4E9"),
+        ("efficient\ncells",                                cheap,    eff,      "#56B4E9"),
+        ("floor plant and\nfloor-price\nmedium",            eff,      floor,    "#56B4E9"),
     ]
     fig, ax = plt.subplots(figsize=(7.6, 4.6))
     xs = range(len(steps) + 1)
@@ -416,16 +401,16 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
     ax.axhline(pc, ls=":", lw=1.1, color="#CC3311")
     ax.text(len(steps) + 0.05, pc - 1.5, rf"parity threshold (biomass $\leq$ \${pc:.0f}/kg)",
             fontsize=7.5, color="#CC3311", ha="right")
-    # base TFF reference (label on the right, over the low descended bars = clear space)
+    # the default (label on the right, over the low descended bars = clear space)
     ax.axhline(m063 + oh_tff, ls="--", lw=0.8, color="0.6")
-    ax.text(len(steps) + 0.3, m063 + oh_tff + 0.5, f"Pasitka base\n(TFF) \\${m063 + oh_tff:.0f}/kg",
+    ax.text(len(steps) + 0.3, m063 + oh_tff + 0.5, f"as reported\n\\${m063 + oh_tff:.0f}/kg",
             fontsize=7, color="0.5", ha="right")
 
     labels = [s[0] for s in steps] + ["irreducible\nfloor"]
     ax.set_xticks(list(xs))
     ax.set_xticklabels(labels, fontsize=7.5)
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
-    ax.set_title("Cost waterfall: scale-up is the biggest lever; the floor sits above the parity line")
+    ax.set_title("From the cautious case to the floor")
     _save(fig, outdir, "cost_waterfall", fmts)
 
 
@@ -448,7 +433,7 @@ def main():
     if args.efficiency is not None:
         pr.efficiency = args.efficiency
 
-    print("Step 2 — Pasitka-anchored cost model:")
+    print("Step 2 — cost model (per kg of real cells):")
     summarise(pr)
     fig_cost_vs_inputs(pr, args.outdir, fmts)
     fig_cost_vs_media(pr, args.outdir, fmts)

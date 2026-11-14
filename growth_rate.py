@@ -187,11 +187,11 @@ def summarise(pr: CostParams, gp: GrowthParams, n_mc: int = 20000) -> None:
 
     print("\n  POINT SCENARIOS — cheapest doubling time and saving vs the base, by medium price")
     print("  (growth parameters at their central values; overhead as labelled)")
-    print(f"    {'case':<24}{'overhead':>9}" + "".join(f"{f'${p:.2f}/L':>16}" for p in (0.20, 0.40, 0.63, 1.00)))
+    print(f"    {'case':<24}{'overhead':>9}" + "".join(f"{f'${p:.2f}/L':>16}" for p in (0.20, 0.40, 0.50, 1.00)))
     for case in CASES:
-        for oh in (11.5, 18.5, 23.6):
+        for oh in (11.5, 14.2, 34.0):
             cells = []
-            for p in (0.20, 0.40, 0.63, 1.00):
+            for p in (0.20, 0.40, 0.50, 1.00):
                 t, _, s = optimum(pr, gp, p, oh, case)
                 cells.append(f"{t:5.0f} h {s:5.2f} $".rjust(16))
             print(f"    {case:<24}{oh:>9.1f}" + "".join(cells))
@@ -199,7 +199,7 @@ def summarise(pr: CostParams, gp: GrowthParams, n_mc: int = 20000) -> None:
     print(f"\n  CONDITIONAL MONTE CARLO (N={n_mc}, seed 0) — within each case, over the priors")
     print(f"    {'medium':<14}{'case':<24}{'P(saving>$1)':>14}{'P(saving>$3)':>14}"
           f"{'median saving':>15}{'90th pct':>10}")
-    for label, mp in (("prior", None), ("$0.20/L", 0.20), ("$0.63/L", 0.63), ("$1.00/L", 1.00)):
+    for label, mp in (("prior", None), ("$0.20/L", 0.20), ("$0.50/L", 0.50), ("$1.00/L", 1.00)):
         mc = monte_carlo(n_mc, 0, mp)
         for case in CASES:
             s = mc[case]["saving"]
@@ -212,7 +212,7 @@ def summarise(pr: CostParams, gp: GrowthParams, n_mc: int = 20000) -> None:
 def fig_cost_vs_doubling_time(pr: CostParams, gp: GrowthParams, outdir, fmts) -> None:
     tau = np.linspace(gp.tau_ref, 3.0 * gp.tau_ref, 400)
     fig, ax = plt.subplots(figsize=(6.6, 4.3))
-    for p, c in [(1.00, "#D55E00"), (0.63, "#0173B2"), (0.20, "#029E73")]:
+    for p, c in [(1.00, "#D55E00"), (0.50, "#0173B2"), (0.20, "#029E73")]:
         y_thr = cost(tau, pr, gp, p, None, "byproduct-threshold")
         y_pro = cost(tau, pr, gp, p, None, "byproduct-proportional")
         ax.plot(tau, y_thr, color=c, lw=2.0, label=rf"medium \${p:.2f}/L")
