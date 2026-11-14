@@ -215,7 +215,8 @@ def check_parity() -> list:
     for dh, m, v, pl, mo, tot, dens, out, lim in js.get("fxGrid", []):
         r = _fp.explore(dh, m, v, pl, mo, charge=0.173, maintenance_share=0.31 if dh == 48 else None,
                         hazard=0.02 if v == 5 else 0.0, run_days=25, restart_fail_days=14,
-                        waste=0.3 if v == 200 else 0.0, medium_l=30.5 if m == 550 else None, medium_price=0.5, growth_factors=(dh == 16),
+                        waste=0.3 if v == 200 else 0.0, pco2_mbar=160 if dh == 24 else None,
+                        gas_velocity=0.009 if m == 3000 else None, aspect=1.0 if v == 5 else None, medium_l=30.5 if m == 550 else None, medium_price=0.5, growth_factors=(dh == 16),
                         cell_share=0.5 if pl == "pharma" else 1.0)
         d = max(abs(r["product"] - tot), abs(r["density"] - dens), abs(r["output"] - out))
         worst_fx = max(worst_fx, d)

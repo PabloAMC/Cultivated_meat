@@ -96,7 +96,7 @@ def check() -> list:
     if not fp.waste_cap(small) < fp.waste_cap(good) == value("pf_x_unperfused"):
         fails.append("the waste-limited density should fall for cells that respire more per gram")
     # the page's lever controls: the defaults are the floor, and every species preset runs
-    near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-6)
+    near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-3)
     for key, (_label, dh, mass, _med, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass)
         if not (0 < r["density"] <= value("pf_x_visc") and r["total"] > 0):
@@ -136,6 +136,15 @@ def check() -> list:
     an = mm.animals_per_tonne_sold(mm.MARKETS["us"], fl)
     if not (0 < an["cultivated_mix"] < an["market_mix"]):
         fails.append("cultivated sales should spare fewer land animals per tonne than the market mix")
+    # CO2 balance: reproduces the 120 g/L at 20 m3 and Humbird's fall with size (about 70 g/L at 200 m3)
+    near("CO2-limited density at 20 m3", fp.co2_limited_density(good, 20.0), value("pf_x_co2_20m3"), 0.002)
+    near("CO2-limited density at 200 m3", fp.co2_limited_density(good, 200.0), 70.0, 0.25)
+    if not fp.co2_limited_density(good, 20.0, aspect=1.0) > fp.co2_limited_density(good, 20.0):
+        fails.append("a squatter tank should hold a denser culture")
+    # settling: single cells settle at centimetres per hour; clumps of a few cells settle several times faster
+    st = fp.settler_spec()
+    if not (1.0 < st["single_cell_cm_h"] < 15.0 and st["clump_um_needed"] > st["cell_um"]):
+        fails.append(f"settler: implausible settling figures ({st})")
     # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs
     tc = fp.temperature_check()
     if not (tc["metabolic_heat_kwh"] > tc["heating_10c_kwh"] and tc["heating_10c_usd_reported"] < 0.05):

@@ -398,13 +398,37 @@ REGISTRY: dict[str, Input] = {
              "limits coincide at 20 m3, as his text says. At fixed shape and power t_m grows as V^(2/9), so "
              "the mixing-limited density falls as (V / 20)^(-2/9). Hydrostatic pressure, which helps oxygen "
              "in tall tanks, is left out. Used by the page's 'build your own case' controls"),
-    "pf_co2_size_exponent": Input(-0.33, "-", "[Humbird-R, derived] how the CO2-limited density falls with vessel "
-        "size: his Fig. 2.8b gives about 150 g/L at 20 m3 and 70 g/L at 200 m3 (Sect. 3, on global bioreactor "
-        "volume), so density scales as (V / 20 m3)^log10(70/150)",
-        note="CO2 leaves a sparged tank only through the gas, and the gas flow per litre must fall as tanks get "
-             "taller to protect the cells. The same holds in perfusion: the liquid carries little CO2 away. "
-             "Applied to the 120 g/L used at 20 m3. Below 20 m3 the oxygen limit binds first (195 g/L at 2 m3, "
-             "as in his perfusion design). Used only by the page's 'build your own case' controls"),
+    # --- gravity settling (floor_physics.settler_spec): can a settler hold cells back at 20 m3? ---
+    "pf_cell_density": Input(1.06, "g/mL", "[typical; research_notes/co2_sparging_settling.md] density of an animal cell",
+        lo=1.04, hi=1.08, mode=1.06),
+    "pf_medium_density": Input(1.007, "g/mL", "[typical] density of culture medium at 37 C"),
+    "pf_medium_viscosity": Input(0.75, "mPa s", "[typical] viscosity of culture medium at 37 C (water is 0.69)"),
+    "pf_plate_gap": Input(1.0, "cm", "[typical] spacing of the plates of an inclined (lamella) settler; they stand at 60 degrees"),
+    "pf_anoxia_min": Input(10.0, "min", "[judgement; research_notes/co2_sparging_settling.md] time cells can spend in a "
+        "settler without oxygen before growth suffers", lo=2.0, hi=30.0, mode=10.0,
+        note="at 120 g/L the cells use up the dissolved oxygen in seconds, so the whole stay in a settler is "
+             "without oxygen unless the settler is cooled"),
+    "pf_clump_packing": Input(0.6, "-", "[assumed] share of a clump's volume that is cells (random packing)"),
+    # --- CO2 balance (floor_physics.co2_limited_density): the tank's CO2 limit from first principles ---
+    "pf_pco2_limit": Input(100.0, "mbar", "[Humbird-R] Sect. 2.3: dissolved CO2 kept below a partial pressure of 100 "
+        "mbar ('productivity is maximized when pCO2 is maintained in' a range below it)",
+        lo=80.0, hi=250.0, mode=100.0,
+        note="The level animal cells tolerate while GROWING. The pharma figure protects protein quality as "
+             "well as growth; range and sources in research_notes/co2_sparging_settling.md"),
+    "pf_gas_velocity": Input(0.006, "m/s", "[Humbird-R] Sect. 2.3: 'Sparging is limited to a superficial velocity of "
+        "0.006 m/s at the top of the vessel' (0.1 vvm in a 20 m3 tank), to protect cells from bursting bubbles",
+        lo=0.003, hi=0.02, mode=0.006),
+    "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
+        "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
+    "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
+    "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
+        note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
+             "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "
+             "so the most the tank can remove is (u_s / H_L) x pCO2 / RT. The cells make RQ x qO2 per gram. "
+             "With Humbird's limits that gives 125 g/L at 20 m3 and 58 g/L at 200 m3, against his 120-150 and "
+             "70 (Fig. 2.8b): the balance reproduces his curve, and its (V)^(-1/3) fall with size is geometry "
+             "(liquid depth). This factor, 0.96, sets the 20 m3 value to the 120 g/L the floor uses "
+             "(pf_x_co2_20m3). Perfusion does not help: at 11 L/kg the liquid carries off about 4% of the CO2"),
     "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
         note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
              "trade-press source), so 60 g/L is still about twice what has been reported"),

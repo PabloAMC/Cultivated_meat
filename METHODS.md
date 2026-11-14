@@ -213,7 +213,7 @@ The chain:
     power per cell          P   = 0.148 × M^0.75 pW                 (West's law, Humbird Eq. 2.8; 60 pW at 3 ng)
     oxygen uptake           qO2 = P / (483 kJ per mol O2) / M        (0.149 mmol per g per h for the 3 ng cell)
     density the tank holds  oxygen:  OTR / qO2, at most 258 g/L      (195 g/L at 29 mmol O2 per L per h)
-                            CO2:     about 120 g/L at 20 m3           (Humbird Sect. 2.3)
+                            CO2:     about 120 g/L at 20 m3           (Humbird Sect. 2.3; derived from a balance below)
                             waste:   about 120 g/L if it is not washed out, for efficient cells
                             (the CO2 and waste caps scale with 1/qO2: cells that respire more per gram get less)
     output per m3 per year  perfusion:     0.8 × X × μ × 8760 × uptime
@@ -301,7 +301,8 @@ move these levers, and the physics is applied to each:
 | doubling time | 16–72 h | output per m³ is density × growth rate; faster cells respire more per hour (next row), so the tank holds fewer; the upkeep part of glucose and of utilities is burned per hour, so per kg it scales with the doubling time |
 | oxygen used for upkeep | 31–100% | the share of oxygen uptake at a 24 h doubling time that runs whether or not the cell grows; the rest rises with the growth rate |
 | cell mass | 0.5–3 ng | smaller cells respire more per gram (West's law, mass^−0.25), so the oxygen, CO₂ and waste limits fall |
-| tank size | 2–200 m³ | the bioreactor share of the plant (32%) follows Humbird's vessel cost, cheaper per m³ when larger; the CO₂-limited density falls as (V / 20 m³)^−0.33, from his Fig. 2.8b (about 150 g/L at 20 m³, 70 at 200 m³) |
+| tank size | 2–200 m³ | the bioreactor share of the plant (32%) follows Humbird's vessel cost, cheaper per m³ when larger; a deeper tank passes less gas per litre, so the CO₂-limited density falls (below) |
+| CO₂ the cells tolerate; gas flow they tolerate; tank shape | 50–250 mbar; 3–20 mm/s; liquid depth 0.8–2.5 × width | the CO₂ balance below; gas flow also raises oxygen transfer; shape changes the mixing time |
 | class of plant | pharma-style, sterile without clean rooms, yeast-style | capital per m³ from the table above |
 | how the tank is run | perfusion or drained and refilled | perfusion adds the cell-retention device; drained and refilled tanks are capped by waste and average 72% of peak output |
 | yearly charge on the plant | 12.3–23.6% | capital per kg |
@@ -330,10 +331,46 @@ falls to about 60% of the oxygen-limited one at 200 m³. In this model it never 
 binds first, above it CO₂ removal does. It is a rule of thumb for a well-stirred tank, not a simulation of dead
 zones.
 
-What the other levers show: cells of 1.5 ng raise the floor to $13; **larger tanks raise the cost in
-perfusion**, because the loss of density to CO₂ outweighs the cheaper vessel ($13.5 at 50 m³, $18.7 at 200 m³),
-while 5 m³ tanks give $10.6. CO₂ leaves only through the gas in perfusion as in fed-batch, and the retention
-device scales with flow, so it has no economy of scale either.
+*The CO₂ limit from a balance (`co2_limited_density`).* The density a large tank holds was a number taken
+from Humbird's figure. It is now computed. CO₂ leaves a sparged tank only in the exhaust gas. Gas passes at
+(superficial velocity ÷ liquid depth) tank volumes per second, and at the tolerated level it carries pCO₂/RT
+of CO₂. The cells make RQ × qO₂ per gram (RQ = 1.2 for his enhanced cells). So
+
+    density limit = (u_s / H_L) × (pCO₂ / RT) × 0.96 / (RQ × qO₂)
+
+With Humbird's limits (100 mbar, 6 mm/s, liquid 1.6 times as deep as the tank is wide) this gives 125 g/L at
+20 m³ and 58 g/L at 200 m³; his figure shows 120–150 and 70. The 0.96 sets the 20 m³ value to the 120 g/L the
+floor uses. The fall with size is geometry: a larger tank is deeper. Perfusion does not help, because at
+11 L/kg the liquid carries off about 4% of the CO₂. The balance shows three ways to raise the limit, none of
+which is in Humbird's design:
+
+| change from the floor case | density, g/L | what binds | floor, $/kg |
+|---|---|---|---|
+| none | 120 | CO₂ | 11.5 |
+| cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 8.7 |
+| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.3 |
+| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
+| 150 mbar and the squat tank | 195 | oxygen supply | 8.3 |
+| 200 m³ tank | 56 | CO₂ | 18.8 |
+| 200 m³ squat tank, cells tolerating 200 mbar | 177 | CO₂ | 8.1 |
+| 150 mbar and the squat tank, in a yeast-style plant | 195 | oxygen supply | 5.3 |
+
+The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit
+protects cells from bursting bubbles in media with little protectant. How much CO₂ and gas meat cells tolerate
+while growing is not known; it is the single measurement that would move the floor most. **Larger tanks
+raise the cost** unless the CO₂ limit is relaxed, because the loss of density outweighs the cheaper vessel.
+Cells of 1.5 ng raise the floor to $13.
+
+*Holding cells back by settling (`settler_spec`).* The floor prices a retention device that does not exist.
+Sizing a gravity settler from first principles for a 20 m³ tank at the floor case: a 17.6 µm cell settles at
+4.3 cm/h (Stokes), 2.4 cm/h in a culture this crowded. The tank passes 0.56 m³ of liquid an hour, which needs
+23 m² of inclined plate: not much. The problem is time. A cell would spend about 50 minutes between plates
+1 cm apart, and at 120 g/L the cells use up their dissolved oxygen in about 9 seconds. Clumps settle faster
+(velocity rises with the square of the diameter). To keep the stay under 10 minutes the cells must travel as
+clumps about 50 µm across, roughly 14 cells; for 5 minutes, 70 µm (40 cells). That is far below the size at
+which clumps starve in the middle (hundreds of µm). The specification for the device the floor assumes is
+therefore: cells that grow as loose clumps of 50–100 µm, or tolerate 10 minutes without oxygen, or a settler
+that is cooled or aerated. Assumed: cell density 1.06 g/mL, clumps 60% cells, plates at 60°.
 
 *Losing runs (`hazard`, `pf_run_days`).* A run ends at its planned length L or when it is contaminated, at a
 constant chance h per day, so it lasts (1 − e^(−hL))/h days on average. Then the tank is cleaned and regrown:

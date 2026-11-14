@@ -136,6 +136,36 @@ def co2_cap(cells: Cells) -> float:
     return value("pf_x_co2_20m3") / _per_cell_load(cells)
 
 
+def tank_shape(vessel_m3: float, aspect: float | None = None) -> tuple:
+    """(diameter T, liquid depth H_L) in metres of a tank filled to its working volume, for a liquid
+    depth-to-diameter ratio `aspect`."""
+    aspect = value("pf_aspect") if aspect is None else aspect
+    T = (4.0 * value("pf_working_volume") * vessel_m3 / (np.pi * aspect)) ** (1.0 / 3.0)
+    return T, aspect * T
+
+
+def co2_limited_density(cells: Cells, vessel_m3: float = 20.0, pco2_mbar: float | None = None,
+                        gas_velocity: float | None = None, aspect: float | None = None) -> float:
+    """Density (g wet/L) at which the cells make CO2 as fast as the sparge gas can carry it off.
+    Removal = (gas velocity / liquid depth) x (pCO2 / RT) x how close the exhaust comes to equilibrium;
+    production = RQ x oxygen uptake per gram. Reproduces Humbird's Fig. 2.8b (see pf_co2_strip_eff)."""
+    pco2 = value("pf_pco2_limit") if pco2_mbar is None else pco2_mbar
+    us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
+    _T, depth = tank_shape(vessel_m3, aspect)
+    carry = pco2 * 100.0 / (8.314 * 310.15)                    # mol CO2 per m3 of gas at the limit
+    removal = us / depth * 3600.0 * carry * value("pf_co2_strip_eff")   # mol per m3 of liquid per hour = mmol/L/h
+    return removal / (value("pf_rq") * cells.qo2)
+
+
+def mixing_time_ratio(vessel_m3: float, aspect: float | None = None) -> float:
+    """Mixing time relative to the reference 20 m3 tank (Humbird Eq. 2.18 at fixed stirring power):
+    t_m ~ T^(2/3) x (H_L/T)^2.5."""
+    T, _d = tank_shape(vessel_m3, aspect)
+    T0, _d0 = tank_shape(20.0, value("pf_aspect"))
+    a = value("pf_aspect") if aspect is None else aspect
+    return (T / T0) ** (2.0 / 3.0) * (a / value("pf_aspect")) ** 2.5
+
+
 def density(cells: Cells, otr: float, washed: bool) -> float:
     """Highest cell density (g wet/L) the reactor supports: oxygen, viscosity and, if waste is not
     washed out, the ammonia/CO2 limit."""
@@ -271,7 +301,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             capex_x: float = 1.0, retention: float | None = None, x_scale: float = 1.0,
             hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
             medium_l: float | None = None, medium_price: float = 0.15, growth_factors: bool = False,
-            cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None) -> dict:
+            cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
+            pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -281,7 +312,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         utilities scales with the doubling time;
       * the tank must mix faster than it transfers oxygen (pf_mix_ratio_20m3), which tightens with size;
       * a larger vessel costs less per m3 (Humbird Eq. 3.1, bioreactor share only) but holds a thinner
-        culture, because CO2 is harder to strip (pf_co2_size_exponent);
+        culture: CO2 leaves only in the sparge gas, and a deeper tank passes less gas per litre
+        (co2_limited_density). More CO2 tolerance, more gas flow or a squatter tank all raise the limit;
+        gas flow also raises oxygen transfer (kLa ~ u_s^0.8) and tank shape changes the mixing time;
       * perfusion needs a device to hold cells back (pf_capex_retention); fill-and-draw does not, but
         waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
 
@@ -317,10 +350,12 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
     if mode == "perfusion":
         capex += value("pf_capex_retention") if retention is None else retention
-    limits = {"oxygen supply": value("pf_otr_cap") / cells.qo2,
+    us_rel = (value("pf_gas_velocity") if gas_velocity is None else gas_velocity) / value("pf_gas_velocity")
+    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2
+    limits = {"oxygen supply": x_o2,
               "thickness of the culture": value("pf_x_visc"),
-              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") * (vessel_m3 / 20.0) ** (-2.0 / 9.0),
-              "CO2 removal": x_scale * co2_cap(cells) * (vessel_m3 / 20.0) ** value("pf_co2_size_exponent")}
+              "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect),
+              "CO2 removal": x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect)}
     wf = waste_per_kg(cells, waste)[0] / waste_per_kg(cells, 0.0)[0]       # waste relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     if mode != "perfusion":
@@ -350,6 +385,48 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
             "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
             "product": float(product)}
+
+
+def _stokes(d_um: float, drho: float) -> float:
+    """Stokes settling velocity, cm/h, of a sphere d_um across with density excess drho (kg/m3)."""
+    d = d_um * 1e-6
+    v = d * d * drho * 9.81 / (18.0 * value("pf_medium_viscosity") * 1e-3)        # m/s
+    return v * 100.0 * 3600.0
+
+
+def settler_spec(cells: Cells = None, x: float | None = None, medium_l: float | None = None,
+                 anoxia_min: float | None = None, vessel_m3: float = 20.0) -> dict:
+    """Can a gravity settler hold the cells back in a large perfusion tank? First-principles sizing.
+
+    A single cell settles at Stokes' velocity, slowed by crowding (Richardson-Zaki, (1 - phi)^4.65). An
+    inclined settler needs projected plate area = liquid flow / settling velocity, and a cell stays in
+    it for about plate gap / (velocity x cos 60). The stay is without oxygen, so it must be shorter than
+    the cells tolerate. Clumps settle faster (velocity ~ diameter^2 x packing), which gives the
+    specification: the clump size at which the stay fits the tolerated time. Returns velocities (cm/h),
+    plate area per tank (m2), stay (minutes) for single cells, and the clump diameter needed (um)."""
+    cells = GOOD_CELLS if cells is None else cells
+    x = co2_limited_density(cells, vessel_m3) if x is None else x
+    medium_l = washout_litres(cells) if medium_l is None else medium_l
+    tol = value("pf_anoxia_min") if anoxia_min is None else anoxia_min
+    rho_c, rho_m = value("pf_cell_density") * 1000.0, value("pf_medium_density") * 1000.0
+    d_cell = (6.0 * cells.mass_pg * 1e-15 / (np.pi * rho_c)) ** (1.0 / 3.0) * 1e6       # um
+    phi = x / rho_c                                                                    # volume fraction of cells
+    crowd = (1.0 - phi) ** 4.65
+    v1 = _stokes(d_cell, rho_c - rho_m)
+    v1h = v1 * crowd
+    out = value("pf_working_volume") * x * cells.mu * HOURS * value("pf_uptime") / 1000.0   # t per m3 per yr
+    flow = medium_l * out * 1000.0 / HOURS / 1000.0 * vessel_m3                        # m3 of liquid per hour, per tank
+    gap, cos60 = value("pf_plate_gap"), 0.5
+    stay = lambda v: gap / (v * cos60) * 60.0                                           # minutes
+    pack = value("pf_clump_packing")
+    # clump whose (crowded) velocity makes the stay equal the tolerated time: v ~ d^2 x packing
+    v_need = gap / (tol / 60.0 * cos60)                                                # cm/h
+    d_need = d_cell * np.sqrt(v_need / (v1h * pack))
+    return {"cell_um": float(d_cell), "single_cell_cm_h": float(v1), "crowded_cm_h": float(v1h),
+            "flow_m3_h": float(flow), "plate_area_m2": float(flow / (v1h / 100.0)),
+            "stay_min": float(stay(v1h)), "oxygen_lasts_s": float(0.044 / (x * cells.qo2) * 3600.0),
+            "clump_um_needed": float(d_need), "cells_per_clump": float(pack * (d_need / d_cell) ** 3),
+            "plate_area_clumps_m2": float(flow / (v_need / 100.0))}
 
 
 def temperature_check(delta_c: float = 10.0, heat_price: float = 0.05) -> dict:
@@ -525,6 +602,13 @@ def summarise(pr: CostParams) -> None:
         print(f"  {r['name']:<36}{r['output']:>8.1f}{r['capital']:>9.2f}{r['labour']:>8.2f}"
               f"{r['utilities'] + r['consumables']:>10.2f}{r['feedstock']:>7.2f}{r['growth_factors']:>6.1f}"
               f"{r['total']:>8.1f}  {R:.2f}  {r['total_mature']:>6.1f}")
+    st = settler_spec()
+    print(f"\n  holding cells back by settling, 20 m3 perfusion tank at the floor case:")
+    print(f"    a {st['cell_um']:.0f} um cell settles at {st['single_cell_cm_h']:.1f} cm/h ({st['crowded_cm_h']:.1f} when crowded); "
+          f"{st['flow_m3_h']:.2f} m3/h of liquid needs {st['plate_area_m2']:.0f} m2 of plate")
+    print(f"    cells would stay {st['stay_min']:.0f} min in the settler; their oxygen lasts {st['oxygen_lasts_s']:.0f} s")
+    print(f"    to keep the stay under {value('pf_anoxia_min'):.0f} min: clumps of {st['clump_um_needed']:.0f} um "
+          f"(about {st['cells_per_clump']:.0f} cells), {st['plate_area_clumps_m2']:.0f} m2 of plate")
     summarise_floor_mc(pr)
     print("\n  what each tier assumes, and whether it has been shown:")
     for r in tiers():

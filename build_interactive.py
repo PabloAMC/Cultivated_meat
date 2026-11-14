@@ -80,7 +80,9 @@ def build_model() -> dict:
             "sized": {k: v[2] for k, v in floor_physics.PLANT_CLASSES.items()},
             "retention": value("pf_capex_retention"), "bioreactor_share": value("pf_bioreactor_capex_share"),
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
-            "co2_exp": value("pf_co2_size_exponent"), "x_waste": value("pf_x_unperfused"),
+            "x_waste": value("pf_x_unperfused"),
+            "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
+            "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"),
             "draw": value("pf_draw_fraction"), "wv": value("pf_working_volume"),
             "labour_ref": value("pf_labour") * floor_physics.output_per_m3(floor_physics.GOOD_CELLS, "fedbatch")
                           * value("pf_opex_escalation"),
@@ -1349,7 +1351,9 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         transfers oxygen. A run that is contaminated ends early and the tank must be restarted. Cells that make
         more ammonia and lactate need more medium to wash it out, or, in a tank that is drained and refilled, must
         be kept thinner. The medium can never cost less than the nutrients the cells must eat.
-        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner.
+        Larger tanks cost less per litre but are harder to clear of CO&#8322;, so the culture must be thinner:
+        CO&#8322; leaves only in the gas bubbled through, and a deeper tank passes less gas per litre. Cells that
+        tolerate more CO&#8322;, more gas flow, or a squatter tank all raise the limit.
         The first control sets the two cell levers from what has been published for a species; the rest of the case
         stays as you set it.</p>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
@@ -1378,6 +1382,12 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
             <label style="justify-content:flex-start;gap:6px"><input type="checkbox" id="fx_gf" onchange="fxRender()"> bought, at Humbird's large-scale price</label></div>
           <div class="ctl"><label><span class="nm">Oxygen used for upkeep, not growth</span><span class="val" id="fx_ms_v"></span></label>
             <input type="range" id="fx_ms" min="31" max="100" step="1" value="50" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">CO&#8322; the cells tolerate</span><span class="val" id="fx_pc_v"></span></label>
+            <input type="range" id="fx_pc" min="50" max="250" step="5" value="100" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Gas flow the cells tolerate</span><span class="val" id="fx_gv_v"></span></label>
+            <input type="range" id="fx_gv" min="3" max="20" step="0.5" value="6" oninput="fxRender()"></div>
+          <div class="ctl"><label><span class="nm">Tank shape: liquid depth over width</span><span class="val" id="fx_ar_v"></span></label>
+            <input type="range" id="fx_ar" min="0.8" max="2.5" step="0.1" value="1.6" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Tank size</span></label>
             <select id="fx_v" onchange="fxRender()"><option value="2">2 m&sup3;</option><option value="5">5 m&sup3;</option>
             <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
@@ -3535,9 +3545,14 @@ function floorExplore(p){
     const down=p.restart_fail===undefined?restart:(1-pFail)*restart+pFail*Math.max(restart,p.restart_fail);
     uptime=T/(T+down); lost=Math.min(0.9,pFail/(cell.mu*24*T));
   }
-  const limits=[["oxygen supply",F.otr/cell.qo2],["thickness of the culture",F.x_visc],
-                ["mixing",F.otr/cell.qo2*F.mix_ratio*Math.pow(p.vessel_m3/20,-2/9)],
-                ["CO2 removal",F.x_co2_20/load*Math.pow(p.vessel_m3/20,F.co2_exp)]];
+  // tank shape, then the CO2 balance: removal = (gas velocity / liquid depth) x pCO2/RT; production = RQ x qO2
+  const ar=p.aspect===undefined?F.aspect:p.aspect, us=p.gas_v===undefined?F.gas_v:p.gas_v, pc=p.pco2===undefined?F.pco2:p.pco2;
+  const tankT=(v,a)=>Math.pow(4*F.wv*v/(Math.PI*a),1/3), T=tankT(p.vessel_m3,ar), depth=ar*T;
+  const xCo2=us/depth*3600*(pc*100/(8.314*310.15))*F.strip_eff/(F.rq*cell.qo2);
+  const tmRel=Math.pow(T/tankT(20,F.aspect),2/3)*Math.pow(ar/F.aspect,2.5);
+  const limits=[["oxygen supply",F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2],["thickness of the culture",F.x_visc],
+                ["mixing",F.otr/cell.qo2*F.mix_ratio/tmRel],
+                ["CO2 removal",xCo2]];
   const w=p.waste||0, nh3=(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn, lac=(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
   const wf=nh3/(F.nh3[0]*burn);                                        // waste relative to enhanced cells
   if(!perf) limits.push(["waste build-up",F.x_waste/load/wf]);
@@ -3576,12 +3591,14 @@ function fxRender(){
   const p={doubling_h:num("fx_dh"), mass_pg:num("fx_m")*1000, vessel_m3:num("fx_v"), plant:g("fx_pl").value,
            mode:g("fx_mo").value, charge:num("fx_ch")/100, maint:num("fx_ms")/100,
            hazard:num("fx_hz")/100, run_days:num("fx_rd"), restart_fail:num("fx_rf"),
-           waste:num("fx_ws")/100, medium_price:num("fx_mp"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
+           waste:num("fx_ws")/100, medium_price:num("fx_mp"),
+           pco2:num("fx_pc"), gas_v:num("fx_gv")/1000, aspect:num("fx_ar"), growth_factors:g("fx_gf").checked, cell_share:num("fx_cs")/100};
   if(!(p.doubling_h>0)) return;
   g("fx_dh_v").textContent=p.doubling_h.toFixed(0)+" h"; g("fx_m_v").textContent=(p.mass_pg/1000).toFixed(1)+" ng";
   g("fx_ch_v").textContent=(p.charge*100).toFixed(1)+"% of its cost"; g("fx_ms_v").textContent=(p.maint*100).toFixed(0)+"%";
   g("fx_hz_v").textContent=(p.hazard*100).toFixed(1)+"%"; g("fx_rd_v").textContent=p.run_days.toFixed(0)+" days";
-  g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
+  g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_pc_v").textContent=p.pco2.toFixed(0)+" mbar"; g("fx_gv_v").textContent=(p.gas_v*1000).toFixed(1)+" mm/s";
+  g("fx_ar_v").textContent=p.aspect.toFixed(1); g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
   g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
   const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
@@ -3605,6 +3622,7 @@ function fxRender(){
   if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
   n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
   n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
+  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits for pharma cells [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;.");
   n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
   if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
