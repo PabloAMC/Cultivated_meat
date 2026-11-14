@@ -7,12 +7,12 @@ Why this file exists
 --------------------
 The model's whole credibility rests on every number being honest and sourced.
 Before this file, a number like the medium price lived as a point default in
-cost_model (`media_price = 0.63`) AND as an independent prior in uncertainty.py
-(`("triangular", 0.20, 0.63, 0.40, ...)`) — two unconnected facts that could
+cost_model (`media_price = 0.50`) AND as an independent prior in uncertainty.py
+(`("triangular", 0.20, 1.00, 0.50, ...)`) — two unconnected facts that could
 silently drift apart. Here each input is a SINGLE record carrying both facets:
 
-    Input(value=0.63, unit="$/L", source="Pasitka empirical ACF medium",
-          lo=0.20, hi=0.63, mode=0.40, note="albumin removal cut $3.26->0.63")
+    Input(value=0.50, unit="$/L", source="SuperMeat 2024: '<$0.5 per liter'",
+          lo=0.20, hi=1.00, mode=0.50, note="company figures; none verified at scale")
 
   * `value`            -> the point/base-case default the dataclasses use.
   * `lo, mode, hi`     -> the triangular Monte-Carlo prior uncertainty.py samples.
@@ -26,8 +26,8 @@ Reference it
     python inputs.py            # prints the full datasheet (every number + source)
 
     from inputs import value, prior, REGISTRY
-    value("media_price")        # -> 0.63
-    prior("media_price")        # -> ("triangular", 0.20, 0.63, 0.40, "<note>")
+    value("media_price")        # -> 0.50
+    prior("media_price")        # -> ("triangular", 0.20, 1.00, 0.50, "<note>")
 
 Every number here is real and sourced. The model has no placeholder mechanism
 that a later rung substitutes, so there are no "fake" values to keep out — the
@@ -71,7 +71,7 @@ class Input:
 #       based own-price elasticity (Andreyeva 2010; Gallet 2010/2012) · [assumed] our
 #       judgement · [calibration] fixes a model coefficient
 #
-# Sourcing discipline (2026-11-15): costs are per kg of real wet cells. The default stack is what a
+# Sourcing discipline (2026-11-14): costs are per kg of real wet cells. The default stack is what a
 # company reports for its own process ([SuperMeat] 2024, not peer reviewed). The floor comes from
 # physics and published plant costs (floor_physics.py: Humbird's long report for cell physics and
 # plant capital, pf-tea for built fermentation plants). Pasitka et al. 2024 is NOT an anchor: its
@@ -98,13 +98,13 @@ REGISTRY: dict[str, Input] = {
 
     # --- Rung 2: cost model ----------------------------------------------------
     # ALL COSTS ARE PER KG OF REAL WET CELLS (about 70% water, 20% protein: comparable with meat).
-    # RE-ANCHORED 2026-11-15. The default used to be Pasitka et al. 2024. That paper's kilogram is a wet
+    # RE-ANCHORED 2026-11-14. The default used to be Pasitka et al. 2024. That paper's kilogram is a wet
     # pellet that is mostly liquid and its cost leaves out capital (METHODS.md, "Why Pasitka is not the
     # anchor"), so it is no longer used. The default is now what a company reports for its own process
     # (SuperMeat 2024: 100% cell mass, cell wet weight 1.0-1.75 ng, 10 L runs scaled on paper to 25 m3);
     # the floor comes from physics (floor_physics.py). [SuperMeat] = "Cultivating the Future: A Deep Dive
     # Into Cost-Effective Cultivated Meat Production" (Nov 2024, company report, not peer reviewed), read
-    # 2026-11-15.
+    # 2026-11-14.
     "media_intensity": Input(30.5, "L/kg wet", "[SuperMeat] 'Media Usage: 92,772K liters per year' for 6.7 million "
         "lb (3,039 t) of 100% cultivated chicken: 92.77e6 L / 3.039e6 kg",
         note="fixed; the efficiency multiplier carries the uncertainty. For scale: Humbird's efficient-cell "
@@ -122,15 +122,20 @@ REGISTRY: dict[str, Input] = {
         note="media-VOLUME multiplier; centred on the reported process (mode=1.0). 0.25 = about 8 L/kg, the "
              "medium use of Humbird's efficient-cell designs: an OPTIMISTIC tail, not demonstrated for meat "
              "cells, so better efficiency is upside, never assumed."),
-    "overhead": Input(14.2, "$/kg", "[SuperMeat] everything except medium, as the company reports it: $13.4/lb "
-        "($29.5/kg) 'with depreciation' less 30.5 L x $0.50 of medium",
-        lo=11.5, hi=34.0, mode=14.2,
-        note="THE PLANT knob. mode=14.2 = SuperMeat's own figure for a 25 m3 perfusion plant, including its "
-             "depreciation ($3.5/kg; rate and plant cost not disclosed) but no return on capital; with a "
-             "full 24%-a-year charge on the plant it would be several $/kg higher. lo=11.5 = the plant "
-             "floor (floor_physics: no clean rooms, perfusion, efficient cells). hi=34 = the cautious case "
-             "with cells at half the density (floor_physics: pharma-style plant, tanks drained and "
-             "refilled, 60 g/L). PIVOTAL: with the medium price, the top driver of R."),
+    "overhead": Input(19.1, "$/kg", "[SuperMeat, capital restated] everything except medium. Running costs as the "
+        "company reports them, $10.8/kg ($11.8/lb 'without depreciation' = $26.0/kg, less 30.5 L x $0.50 of "
+        "medium), plus a full yearly charge on the plant, $8.3/kg",
+        lo=12.4, hi=34.0, mode=19.1,
+        note="THE PLANT knob. CAPITAL: the report gives depreciation of $1.6/lb ($3.5/kg) but neither the plant's "
+             "cost nor the depreciation period. Assuming straight-line over 10 years (Humbird's plant life), the "
+             "plant costs $35 per kg of yearly output, and at the 23.6%-a-year charge used for every other case "
+             "(humbird_plant_charge) that is $8.3/kg. Over 20 years it would be $16.7/kg. The company's own "
+             "figure with depreciation only is $29.5/kg in all; this default is $34.3. CAUTION: the report's "
+             "stated tank volumes, densities and bleed rate reproduce about half its stated output, so its "
+             "plant cost per kg cannot be checked. lo=12.4 = the plant floor (floor_physics: no clean rooms, "
+             "perfusion, efficient cells). hi=34 = the cautious case with cells at half the density "
+             "(floor_physics: pharma-style plant, tanks drained and refilled, 60 g/L). PIVOTAL: with the "
+             "medium price, the top driver of R."),
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
     "aa_intensity": Input(0.337, "kg hydrolysate/kg wet", "[Humbird] Table 3.5: soy hydrolysate "
@@ -155,39 +160,41 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(11.5, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
-        "been costed for animal cells works together: a sterile plant without clean rooms ($800k per m3 in "
-        "2025 prices), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient cells, "
-        "91% uptime: capital, maintenance and insurance $8.7 + labour $1.2 + utilities and consumables $1.6",
-        note="THE FLOOR'S PLANT TERM (2026-11-15). Each element is allowed by physics and claimed or shown "
+    "plant_floor": Input(12.4, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
+        "been costed for animal cells works together: a sterile plant without clean rooms ($810k per m3 in "
+        "2025 prices) plus a hoped-for device to hold cells back ($89k per m3), 20 m3 tanks in perfusion at the "
+        "density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% uptime: capital, maintenance and "
+        "insurance $9.6 + labour $1.2 + utilities and consumables $1.5",
+        note="THE FLOOR'S PLANT TERM (2026-11-14). Each element is allowed by physics and claimed or shown "
              "somewhere, never together: food-grade 20 m3 tanks run today (Vow); perfusion above 100 g/L is "
              "shown at 10 L (SuperMeat, Pasitka); a way to hold cells back at 20 m3 is not shown; efficient "
-             "cells are not shown. tests/test_floor_physics.py ties this value to the module"),
-    "plant_floor_lo": Input(4.8, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
+             "cells are not shown; 91% uptime is Humbird's figure, which he calls 'rather aggressive'. "
+             "tests/test_floor_physics.py ties this value to the module"),
+    "plant_floor_lo": Input(5.7, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
         "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn)",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. This is the route to price parity"),
-    "plant_floor_hi": Input(17.9, "$/kg", "[floor_physics] the cautious case: Humbird's sterile pharma-style plant "
-        "($900k per m3), tanks half-drained and refilled with no cell retention, 85% uptime"),
+             "animal cells, whose cultures are far easier to contaminate. It puts the floor at about the "
+             "parity line, not clearly below it"),
+    "plant_floor_hi": Input(17.7, "$/kg", "[floor_physics] the cautious case: Humbird's sterile pharma-style plant "
+        "($908k per m3), tanks half-drained and refilled with no cell retention, 85% uptime"),
     "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
         "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
         "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",
         note="CROSS-CHECK ONLY, not used in the cost: Humbird's independent estimate of the non-nutrient cost "
-             "of his most favourable design, in 2019 prices ($19.0 in 2025 prices). The default overhead "
-             "(14.2, a company's figure with depreciation only) sits below it; the floor (11.5) assumes a "
-             "plant without clean rooms run in perfusion"),
+             "of his most favourable design, in 2018 prices ($18.9 in 2025 prices). The default overhead "
+             "(19.1) is about the same; the floor (12.4) assumes a plant without clean rooms run in perfusion"),
     # --- cost cross-checks (shown on the page's reality checks; NOT used in the cost) -----------
     # Read in Humbird 2021's journal version (Biotechnol Bioeng 118:3239; Europe PMC PMC8362201) on 2026-11-03.
     "humbird_tci_fedbatch": Input(328e6, "$", "[Humbird] Table 2: 'Total capital investment | $328M' (fed-batch, "
         "649 m3 of bioreactors)", note="CROSS-CHECK ONLY"),
     "humbird_output_fedbatch": Input(6.8e6, "kg wet/yr", "[Humbird] Table 2: 'Production rate (kTA) | 6.8' (fed-batch)",
         note="CROSS-CHECK ONLY"),
-    "humbird_plant_charge": Input(0.24, "of TCI per yr", "[Humbird] Sect. 2.3: 'a capital charge factor (CCF ...) of "
-        "15%/y to the TCI' (i = 7.5%, n = 10 yr); Sect. 2.5: '4% TCI/y for maintenance (including CIP) and 5% TCI/y "
-        "for insurance'. 0.15 + 0.04 + 0.05 = 0.24 (derived)",
-        note="CROSS-CHECK ONLY: Humbird's 'CAPEX' lines in Table 2 ($4 + $3 + $5 = $12/kg fed-batch) are this 24%/yr "
-             "of TCI per kg (0.24 x 328M / 6.8M kg = $11.6/kg); his text's '$48 M/y' is the 15% capital charge "
-             "alone"),
+    "humbird_plant_charge": Input(0.236, "of TCI per yr", "[Humbird] Tables 4.3 and 4.10: 'Annual capital charge "
+        "14.6% TCI/y' (i = 7.5%, n = 10 yr; his text rounds it to 15%); Sect. 2.5: '4% TCI/y for maintenance "
+        "(including CIP) and 5% TCI/y for insurance'. 0.146 + 0.04 + 0.05 = 0.236 (derived)",
+        note="Used by floor_physics for every plant case and for the default's capital. Humbird's 'CAPEX' lines "
+             "in Table 2 ($4 + $3 + $5 = $12/kg fed-batch) are this 23.6%/yr of TCI per kg (0.236 x 328M / "
+             "6.8M kg = $11.4/kg)"),
     "believer_capex": Input(123.35e6, "$", "[Believer] 'initial planned investment of $123.35m' for the Wilson, NC "
         "plant (FoodNavigator, 8 Dec 2022); 'an initial investment of more than $123 million' (NC Governor's office, "
         "7 Dec 2022)", note="CROSS-CHECK ONLY. An initial figure, announced at groundbreaking; the final cost of the "
@@ -200,11 +207,11 @@ REGISTRY: dict[str, Input] = {
     "eff_best": Input(0.25, "x media-use", "[assumed] efficient-cell media-volume multiplier "
         "(~4x less medium than reported: about 8 L/kg, as in Humbird's designs)",
         note="drives the efficient-cell SCENARIO, not the floor"),
-    "cleanroom_cost": Input(3.0, "$/kg", "[Humbird] clean-room / aseptic buildings cost burden "
-        "(Table 4.7 $3.08/kg fed-batch, Table 4.14 $4.11/kg perfusion; ~8% of his COGS)",
-        note="OPTIONAL adder, OFF by default: the default plant cost is a company's own figure for a "
-             "food-grade facility. Toggle adds Humbird's pharma-leaning clean-room burden. p.53: halving it "
-             "(sanitary) or removing it (outdoor) still leaves his COP above target."),
+    "cleanroom_cost": Input(1.6, "$/kg", "[Humbird-R, derived] the clean-room premium in his fed-batch design: the "
+        "cell-culture hall as a Class 8 clean room ($39.6M) against a sanitary hall ($20.9M), x 1.84 to total "
+        "investment, x 23.6% a year over 6.8 kt, in 2025 prices",
+        note="OPTIONAL adder, OFF by default. An earlier value ($3.0) was Humbird's whole buildings line (Table "
+             "4.7), not the premium. The default's source does not say what class of building it assumes"),
 
     # --- Rung 2 side-study: doubling-time envelope (growth_rate.py; NOT used in the cost) ------
     # Every number here is OUR JUDGEMENT, not a measurement: no public series gives these rates for
@@ -242,13 +249,12 @@ REGISTRY: dict[str, Input] = {
     # Per kg of REAL wet cells (70% water, ~21% protein: Humbird's basis). [Humbird-R] = Humbird's long report
     # (engrXiv, rev. 3, Oct 2021), read 2026-11-14. [pf-tea] = evidence recorded in the pf-tea repository
     # (data/evidence/*.yaml, docs/VALIDATION.md), taken as recorded there and not re-read at source.
-    "pf_capex_escalation": Input(1.32, "x", "[pf-tea] CEPCI 2024 (~800, an estimate) over 2019 (607.5): plant "
-        "construction costs since Humbird's price basis", lo=1.17, hi=1.40, mode=1.32,
-        note="Humbird's capital figures are in 2018-2019 dollars (pf-tea dates his equipment to 2018$ and his "
-             "prices to 2019). lo: CEPCI 2021 over 2019 (708.8 / 607.5), if his basis were later; hi: a further "
-             "5% for 2025-26. Applied to the Humbird-based capital per m3 in floor_physics, not to the "
-             "fermentation-plant figure (2024 announcements)"),
-    "pf_opex_escalation": Input(1.26, "x", "[pf-tea] US CPI-U 2025 (321.9) over 2019 (255.7): labour, utilities, "
+    "pf_capex_escalation": Input(1.33, "x", "[pf-tea] CEPCI 2024 (~800, an estimate) over 2018 (603.1): plant "
+        "construction costs since Humbird's price basis", lo=1.17, hi=1.40, mode=1.33,
+        note="Humbird's costs are in 2018 dollars (his Table 3.2 and equipment captions say '2018$'). lo: CEPCI "
+             "2021 over 2018 (708.8 / 603.1); hi: a further 5% for 2025-26. Applied to the Humbird-based capital "
+             "per m3 in floor_physics, not to figures that are already recent"),
+    "pf_opex_escalation": Input(1.28, "x", "[pf-tea] US CPI-U 2025 (321.9) over 2018 (251.1): labour, utilities, "
         "consumables and growth factors since Humbird's price basis"),
     "pf_cell_mass_pg": Input(3000.0, "pg wet", "[Humbird-R] Sect. 2.1 model cell: 3,000 pg hydrated, 17.7 um"),
     "pf_cell_mass_small_pg": Input(550.0, "pg wet", "[Pasitka, derived] 10 um measured diameter (Extended Data "
@@ -296,16 +302,27 @@ REGISTRY: dict[str, Input] = {
     "pf_capex_pasitka_large": Input(810.0, "$k/m3", "[Pasitka] SI Tables S1 and S4: TCI $40.3M for 2 x 25 m3",
         note="perfusion with an unspecified retention device at a scale nobody has run; see METHODS "
              "'Reactor type and mode'"),
-    "pf_capex_no_cleanroom": Input(607.0, "$k/m3", "[Humbird-R, derived] his fed-batch plant with the clean-room "
-        "premium removed: Table 4.2 prices the 5,268 m2 cell-culture hall at $39.6M as a Class 8 clean room; at "
-        "the $3,759/m2 of a controlled, non-classified hall (Pasitka SI Table S3) it is $19.8M. Total direct "
-        "cost $178.2M -> $158.4M, so TCI x 0.889 = $291M for 480 m3. 2019 prices; $800k in 2025 prices",
+    "pf_capex_no_cleanroom": Input(611.0, "$k/m3", "[Humbird-R, derived] his fed-batch plant with the clean room "
+        "replaced by a sanitary hall: Table 4.2 prices the cell-culture hall (5,268 m2 on 2 levels) at $39.6M as a "
+        "Class 8 clean room, $3,760 per m2-level (Table 3.2); at the 'Sanitary' rate of $1,980 it is $20.9M. Total "
+        "direct cost $178.2M -> $159.5M, so TCI x 0.895 = $293M for 480 m3. 2018 prices; about $810k in 2025 prices",
         note="GROUNDING: Humbird's vessels are already priced without pharma compliance (Eq. 3.1 takes 25% off "
              "for 'the elimination of cGMP'), so the saving from dropping clean rooms is the building alone, "
-             "about 11%. Other costed animal-cell plants agree in scale: Pasitka's designs are $0.8-2.5M per "
+             "about 10%. Other costed animal-cell plants agree in scale: Pasitka's designs are $0.8-2.5M per "
              "m3 and a 2025 company-commissioned design (ADL for Gourmey, six 5 m3 vessels) is about $1.3M "
              "per m3. An earlier version of this model assumed $300k; nothing published supports that for "
              "animal cells"),
+    "pf_capex_retention": Input(89.0, "$k/m3", "[Pasitka SI Tables S1 and S4, derived] a hoped-for filter-free device "
+        "to hold cells back in large tanks: '2 x Large-Scale PD' at $1.21M each for 2 x 25 m3, x 1.84 for "
+        "engineering, construction, fees and contingency",
+        lo=0.0, hi=460.0, mode=89.0,
+        note="A HYPOTHETICAL DEVICE: the paper does not say what it is, and nothing holds cells back at 20 m3 "
+             "today. Added to the capital of the large-tank perfusion cases. hi: Humbird's ATF filters cost "
+             "$38.5M for 192 m3 before installation, about $460k per m3 of total investment (and $4.6/kg of "
+             "membranes besides), which is why his perfusion design stops at 2 m3. 2024 prices; not escalated"),
+    "pf_x_half": Input(60.0, "g wet/L", "[assumed] half the efficient-cell density cap, for the cautious case",
+        note="Vow's largest reported harvest from a 20,000 L tank implies about 27 g/L (our research pass, one "
+             "trade-press source), so 60 g/L is still about twice what has been reported"),
     "pf_capex_fermentation": Input(190.0, "$k/m3", "[pf-tea] what microbial fermentation plants cost when built: "
         "Liberation Labs (4 x 150 m3, announced $115M) $192k/m3; Quorn's third fermenter about GBP 190k/m3",
         lo=70.0, hi=300.0, mode=190.0,
@@ -320,6 +337,12 @@ REGISTRY: dict[str, Input] = {
     "pf_utilities": Input(0.94, "$/kg", "[Humbird-R] Table 4.6, fed-batch: water, power, gas"),
     "pf_consumables_fedbatch": Input(0.85, "$/kg", "[Humbird-R] Table 4.4: sterile and virus filters per batch"),
     "pf_consumables_perfusion": Input(4.56, "$/kg", "[Humbird-R] Table 4.14: filters plus ATF membranes"),
+    "pf_labour_perfusion": Input(1.99, "$/kg", "[Humbird-R] Table 4.13, perfusion: burdened labour (132 staff for "
+        "96 small tanks, against 95 for the fed-batch plant)"),
+    "pf_bound_capex": Input(70.0, "$k/m3", "[pf-tea] the model fermentation plant at 7,200 m3, used only for the "
+        "rough lower bound"),
+    "pf_bound_otr": Input(50.0, "mmol O2/L/h", "[pf-tea, citing Humbird 2021] '<50' for animal cells, used only "
+        "for the rough lower bound"),
     "pf_consumables_low": Input(0.3, "$/kg", "[assumed] continuous or food-grade operation with few filter changes"),
     "pf_growth_factors": Input(3.1, "$/kg", "[Humbird-R] Table 4.4: insulin, transferrin, FGF, TGF-beta at a "
         "100 kTA industry", note="Humbird: 'At much larger scale, their contribution vanishes entirely'. The "
@@ -336,8 +359,8 @@ REGISTRY: dict[str, Input] = {
     # alpha*ln(income-price); the shared price coefficient beta is DERIVED, not set here:
     # the behavioural primitive is cultivated's own-price elasticity
     # eps_x = eps_own*cult_sub_mult, and beta is solved so the logit reproduces it at
-    # cultivated's OWN modeled retail price (= biomass_cost + markup_add) and share, with
-    # no hand-chosen anchor (see market_share._derive_beta). The two inputs below are the
+    # a FIXED calibration price (`elasticity_anchor_price` below) and cultivated's share there
+    # (see market_share._derive_beta). The two inputs below are the
     # factors of that target; beta tracks them and the cost model automatically.
     "elasticity_anchor_price": Input(29.012, "$/kg", "[calibration] the retail price at which the own-price "
         "elasticity target (eps_own x cult_sub_mult = -3.6) is imposed when the price coefficient beta is solved",
@@ -749,8 +772,8 @@ REGISTRY: dict[str, Input] = {
              "hand-typed here, so they cannot drift from Rung 2."),
 
     # --- Rung 6: scaffold / structured product (most speculative) -----------
-    "biomass_cost_nearterm": Input(20.3, "$/kg", "[derived] near-term achievable biomass: the default "
-        "with medium at $0.20/L (30.5 x 0.20 + 14.2)"),
+    "biomass_cost_nearterm": Input(25.2, "$/kg", "[derived] near-term achievable biomass: the default "
+        "with medium at $0.20/L (30.5 x 0.20 + 19.1)"),
     "scaffold_frac": Input(0.2, "kg/kg", "[Gu25-qual/assumed] scaffold material per kg product "
         "(minority mass); Gu et al. 2025 gives the materials picture but no mass fraction",
         lo=0.1, hi=0.3, mode=0.2),
@@ -780,13 +803,15 @@ AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].val
 GLUCOSE_FLOOR: float = REGISTRY["glucose_intensity"].value * REGISTRY["glucose_price"].value  # 0.32*0.40 = 0.13
 GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].value          # 0.13 + 0.9
 
-# Three plant cases for the cost chart and the scenario tables, as (label -> everything-but-medium $/kg).
+# Three plant COSTS for the cost chart and the scenario tables, as (label -> everything-but-medium $/kg).
+# They are combined with the reported medium use, so the outer two are not the floor_physics cases
+# themselves (those assume efficient cells and floor-price medium); they show the plant lever alone.
 # The middle one is the default (`overhead`); the ends are the plant floor and the cautious case with
 # cells at half the density, both from floor_physics.py. These are the ends of the `overhead` prior.
 PLANT_CONFIGS: dict[str, float] = {
-    "cautious: pharma-style plant, cells at half the density": REGISTRY["overhead"].hi,
-    "as reported (default)":                                   REGISTRY["overhead"].value,
-    "floor plant: no clean rooms, perfusion, efficient cells": REGISTRY["plant_floor"].value,
+    "cautious plant cost (pharma-style, half the density)":    REGISTRY["overhead"].hi,
+    "as reported, with a return on capital (default)":         REGISTRY["overhead"].value,
+    "floor plant cost":                                        REGISTRY["plant_floor"].value,
 }
 
 # ----------------------------------------------------------------------------

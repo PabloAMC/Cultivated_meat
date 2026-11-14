@@ -189,7 +189,7 @@ def summarise(pr: CostParams, gp: GrowthParams, n_mc: int = 20000) -> None:
     print("  (growth parameters at their central values; overhead as labelled)")
     print(f"    {'case':<24}{'overhead':>9}" + "".join(f"{f'${p:.2f}/L':>16}" for p in (0.20, 0.40, 0.50, 1.00)))
     for case in CASES:
-        for oh in (11.5, 14.2, 34.0):
+        for oh in (12.4, 19.1, 34.0):
             cells = []
             for p in (0.20, 0.40, 0.50, 1.00):
                 t, _, s = optimum(pr, gp, p, oh, case)

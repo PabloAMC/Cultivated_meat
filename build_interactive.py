@@ -326,8 +326,8 @@ def build_model() -> dict:
         slider("overhead", "Plant running cost (<i>h</i>)", "$/kg", value("plant_floor_lo"), _plant_oh("cautious"), 0.1,
                value("overhead"), "SuperMeat / physics",
                tip="Everything except the medium, per kg: reactors and other capital, labour, energy, "
-               "consumables. ${{OH_DEF}} (default) is what one company reports for a 25,000-litre perfusion plant, "
-               "with depreciation but no return on capital. ${{OH_FLOOR}} is the floor for plants that have been "
+               "consumables. ${{OH_DEF}} (default) is one company's running costs for a 25,000-litre perfusion plant "
+               "plus a yearly charge on the plant. ${{OH_FLOOR}} is the floor for plants that have been "
                "costed for animal cells; ${{PLANT_FLOOR_LO}} is the frontier, a plant at the cost of today's "
                "microbial fermentation plants; ${{OH_HI}} is a cautious case (pharma-style plant, cells at half "
                "the density)."),
@@ -808,7 +808,8 @@ _CASE_TEXT = {
         "Everything that has been costed for animal cells, working together. A food-grade sterile plant. Fresh "
         "medium flows through 20,000-litre tanks while a device holds the cells back (&ldquo;perfusion&rdquo;), so "
         "the culture stays at 120 g per litre, the most such a tank can clear of CO&#8322;. Efficient cells, "
-        "floor-price medium, the tank producing 91% of the year.",
+        "floor-price medium, the tank producing 91% of the year. The device is priced at what one study hopes "
+        "it will cost.",
         "Each piece is shown or claimed somewhere; never together. No device yet holds cells back at this size"),
     "Microbial-fermentation-class plant": (
         "The frontier: a plant as cheap as microbial fermentation plants",
@@ -816,11 +817,11 @@ _CASE_TEXT = {
         "about a quarter as much per litre of tank, with much larger vessels. Bacteria double in 20 minutes and "
         "animal cells in a day or two, so animal cells are far easier to contaminate.",
         "Such plants exist for microbes. None has been built or costed for animal cells"),
-    "Physics limit": (
-        "Physics limit",
-        "Not a design. The cheapest modelled fermentation plant, the most oxygen animal cells can take, and cheap amino "
-        "acids: nothing could cost less.",
-        "A bound"),
+    "Rough lower bound": (
+        "A rough lower bound",
+        "Not a design. The cheapest modelled fermentation plant, the density of a small tank, the most oxygen "
+        "animal cells are thought to take, and amino acids at half price.",
+        "A rough bound"),
 }
 
 
@@ -831,10 +832,11 @@ def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
         return (f'<tr{" class=\"hl\"" if hl else ""}><td>{name}</td><td class="s">{what}</td><td class="s">{shown}</td>'
                 f'<td class="n">${cost:.0f}</td><td class="n">{r:.1f}&times;</td></tr>')
     rows = [
-        row("As reported by a company <b>(the default)</b>",
+        row("As reported by a company, with a return on capital <b>(the default)</b>",
             "SuperMeat's 2024 report [1]: chicken cells in perfusion at 10 litres for 45 days, scaled up on paper to "
-            "25,000-litre tanks. 30.5 litres of medium per kilo at $0.50 a litre, plus everything else. Includes "
-            "the plant's depreciation but no return on the money invested in it.",
+            "25,000-litre tanks. 30.5 litres of medium per kilo at $0.50 a litre, plus its running costs, plus a "
+            "yearly charge on the plant at the same rate as every other row. The company's own figure, with "
+            "depreciation only, is about $29.5.",
             "10-litre runs: yes, by the company. Not peer reviewed. The plant: no", bio),
     ]
     for t in floor_physics.tiers():
@@ -894,7 +896,7 @@ def derived_numbers() -> dict:
         "OH_DEF": f"{_plant_oh('as reported'):.1f}", "OH_FLOOR": f"{_plant_oh('floor plant'):.1f}",
         "OH_HI": f"{_plant_oh('cautious'):.0f}",
         "MEDIA_L": f"{value('media_intensity'):.1f}", "MEDIA_P": f"{value('media_price'):.2f}",
-        "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.0f}",
+        "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.1f}",
         "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
         "R_FLOOR": f"{(floor + markup) / p_conv:.2f}",
         "R_STALL": f"{(stall + markup) / p_conv:.2f}",
@@ -1103,7 +1105,7 @@ Commission. <a href="#about">About this page</a>.</p>
 <div class="findings">
   <div class="fh">At the default settings</div>
   <ol>
-    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat at the cost one company reports [1]; ~{{R_FLOOR}}&times; at the
+    <li><b>Price:</b> ~{{R_TODAY}}&times; everyday meat at the cost one company reports, with capital counted [1]; ~{{R_FLOOR}}&times; at the
     cost floor for plants that have been costed for animal cells; about equal only at the frontier, a plant as cheap
     as today's microbial fermentation plants.</li>
     <li><b>At equal price:</b> ~{{PARITY_NEUTRAL}}% of the market once familiar, if seen as real meat; ~{{BX_00}}% if
@@ -1194,21 +1196,24 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
         kilo of cells at under ${{MEDIA_P}} per litre [1]. Other companies reported $0.20/L or less in 2025, and an
         amino-acid cost analysis by GFI and MG Consulting supports that level [3], but nothing is verified at
         production scale. Leaner cells would use less (the cell-efficiency slider: 1 = as reported).</li>
-        <li><b>Plant running cost:</b> capital, labour, energy and consumables: ${{OH_DEF}}/kg in the same report,
-        which counts the plant's depreciation but no return on the money invested [1]. It depends on the class of
-        plant, on how dense the culture is and on how fast the cells grow (&ldquo;The floor&rdquo; below). Scaling
-        up animal cells is hard because of oxygen and CO₂ transfer and sterility [2].</li>
+        <li><b>Plant running cost:</b> capital, labour, energy and consumables: ${{OH_DEF}}/kg. That is the same
+        company's running costs plus a yearly charge on its plant of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost,
+        the rate used for every case on this page [1, 2]. The company itself counts depreciation only, which gives
+        about $5 less. The plant's cost depends on its class, on how dense the culture is and on how fast the cells
+        grow (&ldquo;The floor&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
+        sterility [2].</li>
         <li><b>Getting it to the shelf:</b> a ${{MARKUP}}/kg markup for processing, cold chain and retail (about
         conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
         study has costed it [6].</li>
       </ul>
-      <p><b>What the default cost is.</b> What one company reports for its own process, scaled up on paper: about
-      ${{BIOMASS_TODAY}} per kilo of cells [1]. It is the best-documented figure on a sound basis (100% cells, a
-      realistic weight per cell), but it is a company's claim from 10-litre runs, not a peer-reviewed result, and it
-      leaves out a return on capital. Humbird's independent design for efficient cells comes to $25–47 per kilo in
-      2025 prices [2]. Every cost on this page is per kilo of real cells: about 70% water and 20% protein, like
-      meat. An earlier version of this page used a peer-reviewed study [20] whose kilo turned out to be a wet pellet
-      that is mostly liquid; it is no longer used. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      <p><b>What the default cost is.</b> What one company reports for its own process, scaled up on paper, with
+      the cost of capital put on the same footing as the other cases: about ${{BIOMASS_TODAY}} per kilo of cells [1].
+      It is the best-documented figure on a sound basis (100% cells, a realistic weight per cell), but it is a
+      company's claim from 10-litre runs, not a peer-reviewed result, and its stated tank sizes and densities
+      account for only about half of its stated output. Humbird's independent design for efficient cells comes to
+      about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells: about 70% water
+      and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20] whose kilo turned
+      out to be a wet pellet that is mostly liquid; it is no longer used. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14); charts 1, 2 and 7 use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium: {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_DEF}}:
       ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
@@ -1218,13 +1223,14 @@ meat and region (charts 1, 2, 7). The left panel starts with the key assumptions
       per cubic metre of tank divided by what a cubic metre makes in a year. The second part is physics: how much
       oxygen a cell needs, and how much oxygen and CO&#8322; a tank can exchange without bubbles killing the cells.
       The first comes from Humbird's plant design [2] in 2025 prices (as drawn, his plant comes to ${{HUMBIRD_PLANT}}/kg in
-      2019 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). If everything that has been costed for animal
-      cells works together (a sterile plant without clean rooms, 20,000-litre tanks in perfusion, efficient cells),
+      2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year). If everything that has been costed for animal
+      cells works together (a sterile plant without clean rooms, 20,000-litre tanks in perfusion with a device to
+      hold the cells back, efficient cells),
       the plant costs about ${{PLANT_FLOOR}}/kg and the floor is about ${{COST_FLOOR}}/kg. Parity with ${{PCONV}}
       meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg, so at that floor <i>R</i> ≈ {{R_FLOOR}}.
       <b>The frontier:</b> plants for yeast and other microbes are built today for about a quarter of that cost per
       cubic metre. In such a plant the plant term would be about ${{PLANT_FLOOR_LO}}/kg and the floor about
-      ${{COST_FLOOR_LO}}/kg, just below parity. Nobody has built or costed one for animal cells, which are far
+      ${{COST_FLOOR_LO}}/kg, which is at the parity line. Nobody has built or costed one for animal cells, which are far
       easier to contaminate. That is the step that decides whether price parity is reachable. On cautious
       assumptions (a pharma-style plant with clean rooms, at about ${{PLANT_FLOOR_HI}}/kg, and tanks simply drained
       and refilled) the floor is about ${{COST_FLOOR_HI}}/kg.</p>
@@ -3303,8 +3309,8 @@ function selfTest(){
   const k$=x=>"$"+(x/1000).toFixed(0)+"k";
   const costRows=[
     ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
-       "the model's default is a company's figure with depreciation only. Humbird charges "+(C.humbird_plant_charge*100).toFixed(0)+"% of the plant's cost "+
-       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+", in 2019 prices)", "other"],
+       "the model's default is a company's running costs plus the same yearly charge on its plant. Humbird charges "+(C.humbird_plant_charge*100).toFixed(1)+"% of the plant's cost "+
+       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+", in 2018 prices)", "other"],
     ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
        "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+
        (C.humbird_plant_charge*100).toFixed(0)+"% a year that plant costs $"+blPlant.toFixed(1)+"/kg, inside this model's $"+

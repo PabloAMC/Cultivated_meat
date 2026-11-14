@@ -36,20 +36,20 @@ The chain of reasoning
    version of this module took the cap and the maximum growth rate at once; no way of running
    a tank without cell retention delivers that.
 
-4. The plant's yearly cost is a fixed share of its capital (capital charge 15% + maintenance
-   4% + insurance 5% = 24%, Humbird), so
+4. The plant's yearly cost is a fixed share of its capital (capital charge 14.6% + maintenance
+   4% + insurance 5% = 23.6%, Humbird), so
 
-       plant capital per kg = 0.24 * (capital per m3) / (output per m3 per year)
+       plant capital per kg = 0.236 * (capital per m3) / (output per m3 per year)
 
    plus labour (scaled with vessel-time per kg), utilities and consumables.
 
 5. Capital per m3 depends on the CLASS of plant far more than on anything else:
-       sterile stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird, 2019 prices)
-       sterile stirred tanks with clean rooms, 20 m3        $683k/m3   (Humbird, 2019 prices)
-       the same without the clean room                      $607k/m3   (derived from his Table 4.2)
+       sterile stirred tanks with ATF perfusion at 2 m3   $3,450k/m3   (Humbird, 2018 prices)
+       sterile stirred tanks with clean rooms, 20 m3        $683k/m3   (Humbird, 2018 prices)
+       the same with a sanitary hall, no clean room         $611k/m3   (derived from his Tables 3.2, 4.2)
        microbial fermentation plants as built               $190k/m3   (pf-tea evidence, 2024)
-   Humbird's figures are escalated to today's prices in the tiers (x1.32 on capital by the
-   plant-cost index, x1.26 on running costs by consumer prices).
+   Humbird's figures are escalated to today's prices in the tiers (x1.33 on capital by the
+   plant-cost index, x1.28 on running costs by consumer prices).
    Dropping the clean room saves only about 11%: Humbird's vessels are already priced
    without pharma compliance. Whether animal cells can ever be grown in the last class is
    the open question that decides whether price parity is reachable.
@@ -114,11 +114,28 @@ GOOD_CELLS = Cells()
 PASITKA_CELLS = Cells(mass_pg=value("pf_cell_mass_small_pg"), doubling_h=value("pf_doubling_slow_h"))
 
 
+def _per_cell_load(cells: Cells) -> float:
+    """CO2 and waste made per gram of cells per hour, relative to the model cell. Both follow oxygen
+    uptake, so the densities Humbird derives for his 3 ng cell fall in proportion for cells that
+    respire more per gram."""
+    return cells.qo2 / GOOD_CELLS.qo2
+
+
+def waste_cap(cells: Cells) -> float:
+    """Density (g/L) at which waste stops a culture that is not washed out (efficient cells)."""
+    return value("pf_x_unperfused") / _per_cell_load(cells)
+
+
+def co2_cap(cells: Cells) -> float:
+    """Density (g/L) a 20 m3 tank can hold in perfusion before CO2 removal limits it."""
+    return value("pf_x_co2_20m3") / _per_cell_load(cells)
+
+
 def density(cells: Cells, otr: float, washed: bool) -> float:
     """Highest cell density (g wet/L) the reactor supports: oxygen, viscosity and, if waste is not
     washed out, the ammonia/CO2 limit."""
     x = min(value("pf_x_visc"), otr / cells.qo2)
-    return x if washed else min(x, value("pf_x_unperfused"))
+    return x if washed else min(x, waste_cap(cells))
 
 
 def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: float | None = None,
@@ -160,16 +177,19 @@ def capex_at_size(capex_20m3: float, vessel_m3: float) -> float:
 
 def plant_cost(cells: Cells, mode: str, capex_k_per_m3: float, consumables: float,
                otr: float | None = None, capex_x: float = 1.0, opex_x: float = 1.0,
-               uptime: float | None = None, x_cap: float | None = None) -> dict:
+               uptime: float | None = None, x_cap: float | None = None,
+               labour: float | None = None, escalate_consumables: bool = True) -> dict:
     """Plant cost per kg of wet cells: the yearly charge on capital, labour, utilities, consumables.
-    capex_x / opex_x escalate Humbird's 2019 prices to today's (1.0 = as published, used to check the
+    capex_x / opex_x escalate Humbird's 2018 prices to today's (1.0 = as published, used to check the
     module against his tables)."""
     out = output_per_m3(cells, mode, otr, uptime, x_cap)                    # t per m3 per year
     capital = value("humbird_plant_charge") * capex_k_per_m3 * capex_x / out   # $k/t = $/kg
     ref = output_per_m3(GOOD_CELLS, "fedbatch")                             # Humbird's fed-batch plant
-    labour = value("pf_labour") * opex_x * ref / out                        # same crew per m3 of vessel
+    # same crew per m3 of vessel, unless the design states its own labour (Humbird's perfusion plant
+    # has many small tanks and more staff per m3)
+    labour = (value("pf_labour") * ref / out if labour is None else labour) * opex_x
     utilities = value("pf_utilities") * opex_x
-    consumables = consumables * opex_x
+    consumables = consumables * (opex_x if escalate_consumables else 1.0)
     return {"output": out, "capital": capital, "labour": labour,
             "utilities": utilities, "consumables": consumables,
             "plant": capital + labour + utilities + consumables}
@@ -197,44 +217,47 @@ def tiers() -> list:
     cx, ox = value("pf_capex_escalation"), value("pf_opex_escalation")
 
     def add(name, assumes, shown, cells, mode, capex, consumables, gf, cheap=False, otr=None, humbird_capex=True,
-            uptime=None, x_cap=None):
-        pc = plant_cost(cells, mode, capex, consumables, otr, capex_x=cx if humbird_capex else 1.0, opex_x=ox,
-                        uptime=uptime, x_cap=x_cap)
+            uptime=None, x_cap=None, labour=None, humbird_consumables=False, retention=False):
+        # capital: Humbird's figures are escalated from 2018 prices; the others are recent. The retention
+        # device (2024 prices) is added after escalation.
+        cap = capex * (cx if humbird_capex else 1.0) + (value("pf_capex_retention") if retention else 0.0)
+        pc = plant_cost(cells, mode, cap, consumables, otr, capex_x=1.0, opex_x=ox, uptime=uptime, x_cap=x_cap,
+                        labour=labour, escalate_consumables=humbird_consumables)
         gf = gf * ox
         feed = feedstock(cells, cheap)
         rows.append({"name": name, "assumes": assumes, "shown": shown, **pc,
                      "feedstock": feed, "growth_factors": gf,
                      "total": pc["plant"] + feed + gf})
 
-    low = value("pf_consumables_low")
-    design_uptime = value("pf_uptime")          # Humbird's own figure, for his design as drawn
-    add("Humbird fed-batch, as designed", "sterile 20 m3 stirred tanks, filled and emptied every ~2 days; efficient 3 ng cells; growth factors bought",
+    low = value("pf_consumables_low")           # assumed, in 2025 prices
+    design_uptime = value("pf_uptime")          # Humbird's own figure; he calls it "rather aggressive"
+    ncr = value("pf_capex_no_cleanroom")
+    add("Humbird fed-batch, as designed", "sterile 20 m3 stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells; growth factors bought",
         "designed, not built", GOOD_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
-        value("pf_growth_factors"))
+        value("pf_growth_factors"), humbird_consumables=True)
     add("Humbird perfusion, as designed", "sterile 2 m3 tanks, cells held back by ATF filters; same cells",
         "designed; perfusion at 2 m3 exists in pharma", GOOD_CELLS, "perfusion",
         value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"), value("pf_growth_factors"),
-        uptime=design_uptime)
-    add("Same fed-batch plant, small slow cells", "cells the size and speed of those Pasitka grew: 0.55 ng, 61 h doubling",
+        uptime=design_uptime, labour=value("pf_labour_perfusion"), humbird_consumables=True)
+    add("Same fed-batch plant, small slow cells", "cells of 0.55 ng doubling every 61 h; they respire more per gram, so the tank holds fewer of them",
         "cells exist; this plant does not", PASITKA_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
-        value("pf_growth_factors"))
-    co2 = value("pf_x_co2_20m3")                # density a 20 m3 tank holds in perfusion (CO2 removal)
-    ncr = value("pf_capex_no_cleanroom")
+        value("pf_growth_factors"), humbird_consumables=True)
     add("Pharma-style plant, half the density", "the cautious case below with cells at 60 g/L, not 120",
-        "nearer to reported harvests (about 27 g/L)", GOOD_CELLS, "filldraw", fb, low, 0.0, x_cap=60.0)
+        "nearer to reported harvests (about 27 g/L)", GOOD_CELLS, "filldraw", fb, low, 0.0, x_cap=value("pf_x_half"))
     add("Pharma-style plant, fill-and-draw", "Humbird's sterile plant with clean rooms; 20 m3 tanks half drained and refilled each cycle, no cell retention, 85% uptime; efficient cells",
         "fill-and-draw is filed as an option at 20 m3; this density is not shown", GOOD_CELLS, "filldraw", fb, low, 0.0)
-    add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with an ordinary hall in place of the clean room",
+    add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
         "food-grade 20 m3 tanks run today; this density is not shown", GOOD_CELLS, "filldraw", ncr, low, 0.0)
-    add("No clean rooms, perfusion", "the floor: food-grade sterile plant; 20 m3 tanks in perfusion at 120 g/L with a scalable way to hold cells back; efficient cells; 91% uptime",
+    add("No clean rooms, perfusion", "the floor: food-grade sterile plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hoped-for filter-free device; efficient cells; 91% uptime",
         "each piece shown or claimed separately, never together", GOOD_CELLS, "perfusion",
-        ncr, low, 0.0, uptime=design_uptime, x_cap=co2)
+        ncr, low, 0.0, uptime=design_uptime, x_cap=co2_cap(GOOD_CELLS), retention=True)
     add("Microbial-fermentation-class plant", "the frontier: the floor case in a plant that costs what microbial fermentation plants cost when built",
         "such plants exist for microbes; not costed or built for animal cells", GOOD_CELLS, "perfusion",
-        value("pf_capex_fermentation"), low, 0.0, humbird_capex=False, uptime=design_uptime, x_cap=co2)
-    add("Physics limit", "the cheapest modelled fermentation plant, oxygen at the animal-cell ceiling, cheap amino acids, no lost time",
-        "a bound, not a design", GOOD_CELLS, "perfusion", 70.0, low, 0.0,
-        cheap=True, otr=50.0, humbird_capex=False, uptime=design_uptime)
+        value("pf_capex_fermentation"), low, 0.0, humbird_capex=False, uptime=design_uptime,
+        x_cap=co2_cap(GOOD_CELLS), retention=True)
+    add("Rough lower bound", "the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at half price",
+        "a rough bound, not a design", GOOD_CELLS, "perfusion", value("pf_bound_capex"), low, 0.0,
+        cheap=True, otr=value("pf_bound_otr"), humbird_capex=False, uptime=design_uptime)
     return rows
 
 

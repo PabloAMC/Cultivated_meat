@@ -45,7 +45,7 @@ def check() -> list:
     # --- Humbird's perfusion design: 6.9 kt/yr from 192 m3; $22.6/kg of capital, maintenance and
     #     insurance; $30.1/kg of non-nutrient cost (Tables 4.13 and 4.14) ---------------------------
     pf = fp.plant_cost(good, "perfusion", value("pf_capex_aseptic_perfusion"), value("pf_consumables_perfusion"),
-                       uptime=value("pf_uptime"))
+                       uptime=value("pf_uptime"), labour=value("pf_labour_perfusion"))
     near("perfusion output, t/m3/yr", pf["output"], 6900.0 / 192.0, 0.05)
     near("perfusion capital charge, $/kg", pf["capital"], 13.97 + 3.84 + 4.79, 0.05)
     near("perfusion plant cost, $/kg", pf["plant"], 5.77 + 5.56 + 4.11 + 7.17 + 1.99 + 0.98 + 4.56, 0.05)
@@ -68,10 +68,10 @@ def check() -> list:
         fails.append("capital per m3 should fall with vessel size")
 
     # --- pinned tier totals ($/kg of real wet cells, 2025 prices), quoted in METHODS.md ----------
-    want = {"Humbird fed-batch, as designed": 24.6, "Humbird perfusion, as designed": 43.8,
-            "Same fed-batch plant, small slow cells": 46.2, "Pharma-style plant, half the density": 35.9,
-            "Pharma-style plant, fill-and-draw": 19.6, "No clean rooms, fill-and-draw": 18.0,
-            "No clean rooms, perfusion": 13.2, "Microbial-fermentation-class plant": 6.5, "Physics limit": 3.2}
+    want = {"Humbird fed-batch, as designed": 24.6, "Humbird perfusion, as designed": 45.5,
+            "Same fed-batch plant, small slow cells": 66.0, "Pharma-style plant, half the density": 35.6,
+            "Pharma-style plant, fill-and-draw": 19.4, "No clean rooms, fill-and-draw": 17.9,
+            "No clean rooms, perfusion": 14.1, "Microbial-fermentation-class plant": 7.4, "Rough lower bound": 3.2}
     got = {r["name"]: r["total"] for r in fp.tiers()}
     for name, w in want.items():
         if abs(got[name] - w) > 0.06:
@@ -85,9 +85,13 @@ def check() -> list:
     near("overhead range starts at the plant floor", __import__("inputs").prior("overhead")[1], value("plant_floor"), 1e-9)
     near("overhead range ends at the half-density tier", __import__("inputs").prior("overhead")[2],
          by["Pharma-style plant, half the density"]["plant"], 0.02)
-    # the no-clean-room capital is Humbird's Table 4.2 with an ordinary hall in place of the clean room
-    near("no-clean-room capital, $k/m3 (2019)", value("pf_capex_no_cleanroom"),
-         683.0 * (178.21 - (39.607 - 5268 * 3.759 / 1000.0)) / 178.21, 0.005)
+    # the no-clean-room capital is Humbird's Table 4.2 hall (5,268 m2 on 2 levels) at the Sanitary rate of
+    # his Table 3.2 ($1,980 per m2-level) in place of Class 8 ($3,760)
+    near("no-clean-room capital, $k/m3 (2018)", value("pf_capex_no_cleanroom"),
+         683.0 * (178.21 - 39.607 + 5268 * 2 * 1.980 / 1000.0) / 178.21, 0.005)
+    # caps fall for cells that respire more per gram
+    if not fp.waste_cap(small) < fp.waste_cap(good) == value("pf_x_unperfused"):
+        fails.append("the waste-limited density should fall for cells that respire more per gram")
     if not (value("plant_floor_lo") < value("plant_floor") < value("plant_floor_hi")):
         fails.append("floor inputs out of order: frontier < floor < cautious expected")
 

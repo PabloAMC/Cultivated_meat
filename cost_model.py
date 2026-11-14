@@ -3,13 +3,14 @@
 cost_model — the cost of cultivated biomass, with a derived floor. This is the
 NUMERATOR of the price ratio.
 
-HOW TO READ THE NUMBERS (2026-11-15). All costs are per kg of REAL wet cells (about
+HOW TO READ THE NUMBERS (2026-11-14). All costs are per kg of REAL wet cells (about
 70% water, 20% protein: comparable with meat). The default is what a company reports
-for its own process (SuperMeat 2024: 30.5 L of medium per kg at $0.50/L, plus $14.2/kg
-for everything else, depreciation included: $29.5/kg). The floor's plant term comes
-from physics (floor_physics.py). Pasitka et al. 2024 is no longer an anchor: its
-kilogram is a wet pellet that is mostly liquid, and its cost leaves out capital
-(METHODS.md, "Why Pasitka is not the anchor").
+for its own process (SuperMeat 2024: 30.5 L of medium per kg at $0.50/L, plus $10.8/kg
+of running costs), with a yearly charge on its plant at the rate used for every other
+case ($8.3/kg): $34.3/kg. The company's own figure, with depreciation only, is $29.5.
+The floor's plant term comes from physics (floor_physics.py). Pasitka et al. 2024 is
+no longer an anchor: its kilogram is a wet pellet that is mostly liquid, and its cost
+leaves out capital (METHODS.md, "Why Pasitka is not the anchor").
 
 price_ratio.py defines how a biomass cost becomes R and where the parity
 threshold sits; THIS module produces that biomass cost — a transparent,
@@ -41,8 +42,8 @@ than it is. ~$5/kg is comparable to conventional meat's farm-to-retail spread.
 Anchors (all tagged; see inputs.py):
   * media_intensity = 30.5 L/kg   [SuperMeat: 92.77e6 L a year for 3,039 t].
   * media_price     = 0.50 $/L    [SuperMeat: "<$0.5 per liter"; tweak to 0.2].
-  * nonmedia_cost   = 14.2 $/kg   [SuperMeat: $29.5/kg with depreciation, less the
-    medium. Depreciation only: no return on capital].
+  * nonmedia_cost   = 19.1 $/kg   [SuperMeat's running costs ($10.8) plus a 23.6%-a-
+    year charge on its plant ($8.3, from its depreciation over an assumed 10 years)].
   * efficiency      = 1.0         [cells as reported; 0.25 = about 8 L/kg, the
     medium use of Humbird's efficient-cell designs].
 
@@ -98,18 +99,19 @@ The floor (see cost_floor):
   * running a plant: capital/labour/maintenance/utilities do not go to zero.
     floor_physics.py derives this term from oxygen and CO2 physics and published
     plant costs in 2025 prices. THE FLOOR: a sterile plant without clean rooms
-    ($800k per m3, Humbird's plant less its clean-room premium), 20 m3 tanks in
-    perfusion at 120 g/L, efficient cells: ~$11.5/kg. THE FRONTIER: the same in a
-    plant at the cost of built microbial fermentation plants ($190k per m3):
-    ~$4.8/kg; not costed or built for animal cells. THE CAUTIOUS CASE: Humbird's
-    pharma-style plant, tanks drained and refilled: ~$17.9/kg.
+    ($810k per m3, Humbird's plant with a sanitary hall) plus a hoped-for device
+    to hold cells back, 20 m3 tanks in perfusion at 120 g/L, efficient cells:
+    ~$12.4/kg. THE FRONTIER: the same in a plant at the cost of built microbial
+    fermentation plants ($190k per m3): ~$5.7/kg; not costed or built for animal
+    cells. THE CAUTIOUS CASE: Humbird's pharma-style plant, tanks drained and
+    refilled: ~$17.7/kg.
 
-Result preview (defaults): as reported ~$29.5/kg; medium at $0.2/L ~$20/kg;
-+ efficient cells ~$18/kg; floor ~$13/kg (band ~$6.5-20). With a $5/kg additive
-markup against a $12/kg commodity price, parity (R=1) needs biomass <= $7/kg. The
-floor with plants that have been costed for animal cells is about twice that. Only
-the frontier case, a plant at the cost of today's microbial fermentation plants,
-gets to parity (~$6.5/kg).
+Result preview (defaults): as reported, with capital ~$34/kg; medium at $0.2/L
+~$25/kg; + efficient cells ~$23/kg; floor ~$14/kg (band ~$7.4-19.4). With a $5/kg
+additive markup against a $12/kg commodity price, parity (R=1) needs biomass
+<= $7/kg. The floor with plants that have been costed for animal cells is about
+twice that. The frontier case, a plant at the cost of today's microbial
+fermentation plants, sits at the parity line (~$7.4/kg).
 
 Usage
 -----
@@ -173,7 +175,7 @@ def media_cost(pr: CostParams, media_price=None, efficiency=None):
         media_cost = max( FEEDSTOCK_FLOOR,  media_intensity * efficiency * media_price )
 
     The feedstock (amino acids + glucose the cells must physically eat) is
-    stoichiometric and sets a hard floor (~$1.5/kg): medium can never cost less than
+    stoichiometric and sets a hard floor (~$1.7/kg): medium can never cost less than
     its dissolved feedstock, i.e. media_price >= FEEDSTOCK_FLOOR/media_intensity
     (~$0.07/L). Above that floor it is simply litres x price. Accepts scalars or
     numpy arrays (Monte Carlo reuses it)."""
@@ -197,10 +199,9 @@ def cost_floor(pr: CostParams) -> float:
     small-scale capital) are assumed engineered toward zero; what remains is what
     the cells must physically eat plus the floor cost of operating a facility.
 
-    IMPORTANT (see module docstring): this is a FEEDSTOCK + OVERHEAD floor. It
-    assumes Humbird's scale-up CEILINGS (CO2-limited reactor volume, sterility cost
-    capping facility size) are engineered away. If they are not, this floor is
-    unreachable at ANY media price -- the model's largest unrepresented risk.
+    The plant term is derived in floor_physics.py within Humbird's physical limits (oxygen and CO2
+    transfer at 20 m3). It assumes efficient cells and a device to hold cells back that does not
+    exist yet; see inputs.py `plant_floor` for what has and has not been shown.
     """
     aa = pr.aa_intensity * pr.aa_bulk_price   # 0.337*2 = 0.67 (stoichiometric, no eff knob)
     return aa + pr.glucose_other_floor + pr.plant_floor
@@ -240,7 +241,7 @@ def parity_cost(pr: CostParams) -> float:
 # ----------------------------------------------------------------------------
 def summarise(pr: CostParams) -> None:
     scenarios = [
-        ("as reported (SuperMeat 2024)",             pr.media_price, 1.0),
+        ("as reported, with capital (SuperMeat 2024)", pr.media_price, 1.0),
         ("medium -> 0.2 $/L",                        0.20,           1.0),
         ("efficient cells (4x less medium)",         pr.media_price, pr.eff_best),
         ("both (0.2 $/L + efficient cells)",         0.20,           pr.eff_best),
@@ -265,7 +266,7 @@ def summarise(pr: CostParams) -> None:
     pc = parity_cost(pr)
     print(f"  parity (R=1) needs biomass <= {pc:.1f} $/kg (= p_conv - markup_add). "
           f"Floor central {ce:.1f} {'<=' if ce <= pc else '>'} {pc:.1f}: "
-          f"parity is {'reachable' if ce <= pc else 'reachable only at the frontier (microbial-class plant costs)' if lo <= pc else 'out of reach on these plant costs'}.")
+          f"parity is {'reachable' if ce <= pc else 'about reachable only at the frontier (microbial-class plant costs)' if lo <= pc * 1.1 else 'out of reach on these plant costs'}.")
 
 
 # ----------------------------------------------------------------------------
@@ -293,7 +294,7 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
             fontsize=7.5, color="0.4")
 
     # anchor points
-    ax.scatter([0.63], [biomass_cost(pr, 0.63, 1.0)], color="#0173B2", zorder=5, s=28)
+    ax.scatter([pr.media_price], [biomass_cost(pr, pr.media_price, 1.0)], color="#0173B2", zorder=5, s=28)
     ax.axvline(0.20, ls=":", lw=0.6, color="0.7")
     ax.text(0.205, ax.get_ylim()[1]*0.92, "0.2 $/L target", fontsize=7, color="0.5")
 
@@ -319,9 +320,9 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
 
     # one line per plant case (cells held at the reported efficiency 1.0)
     oh_hi, oh_def, oh_floor = (PLANT_CONFIGS[k] for k in PLANT_CONFIGS)       # dict order: cautious, default, floor
-    for lbl, oh, c in [("floor plant (no clean rooms, perfusion)",     oh_floor, "#029E73"),
-                       ("as reported (default)",                       oh_def,   "#0173B2"),
-                       ("cautious (pharma-style, half the density)",   oh_hi,    "#CC3311")]:
+    for lbl, oh, c in [("floor plant cost",                            oh_floor, "#029E73"),
+                       ("as reported, with capital (default)",        oh_def,   "#0173B2"),
+                       ("cautious plant cost",                         oh_hi,    "#CC3311")]:
         ax.plot(mp, pr.media_intensity * 1.0 * mp + oh, color=c, lw=2.2, label=lbl)
 
     # the MEDIUM range the model samples
@@ -362,7 +363,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
     eff      = media_cost(pr, 0.2, pr.eff_best) + oh_def       # + efficient cells
     floor = cost_floor(pr)
     aa = pr.aa_intensity * pr.aa_bulk_price
-    m063, oh_tff = m_def, oh_def                               # names used by the reference line below
+    m_ref, oh_ref = m_def, oh_def                              # the default, for the reference line below
 
     # waterfall: (label, top, bottom, colour) — full bar at the ends, floating steps between
     steps = [
@@ -402,8 +403,8 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
     ax.text(len(steps) + 0.05, pc - 1.5, rf"parity threshold (biomass $\leq$ \${pc:.0f}/kg)",
             fontsize=7.5, color="#CC3311", ha="right")
     # the default (label on the right, over the low descended bars = clear space)
-    ax.axhline(m063 + oh_tff, ls="--", lw=0.8, color="0.6")
-    ax.text(len(steps) + 0.3, m063 + oh_tff + 0.5, f"as reported\n\\${m063 + oh_tff:.0f}/kg",
+    ax.axhline(m_ref + oh_ref, ls="--", lw=0.8, color="0.6")
+    ax.text(len(steps) + 0.3, m_ref + oh_ref + 0.5, f"as reported\n\\${m_ref + oh_ref:.0f}/kg",
             fontsize=7, color="0.5", ha="right")
 
     labels = [s[0] for s in steps] + ["irreducible\nfloor"]
