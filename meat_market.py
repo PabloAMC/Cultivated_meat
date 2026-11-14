@@ -353,7 +353,7 @@ def _draw(name, rng, n):
     return rng.triangular(lo, mode, hi, n)
 
 
-def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
+def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
@@ -362,7 +362,11 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
     cp = CostParams()
-    biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
+    if biomass is None:
+        biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
+    else:                                       # a cost distribution supplied by the caller (floor_share_mc)
+        biomass = np.asarray(biomass, dtype=float)
+        assert biomass.shape == (n,), "biomass must have one value per draw"
 
     base = DemandParams()                       # demand model (calibrated once)
     market = MARKETS[region]
@@ -380,6 +384,17 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0) -> dict:
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)
     return dict(vol=tot_vol * 100, val=tot_val * 100)
+
+
+def floor_share_mc(region: str = "global", n: int = 2000, seed: int = 0, plant: str = "sanitary") -> dict:
+    """Cost and demand uncertain together, at the floor case: each draw takes a cost from the floor's own
+    uncertainty (floor_physics.floor_mc: plant estimate, density, cells, financing ...) and the demand
+    dials from their priors (price sensitivity, acceptance, markup ...). Returns the total penetration
+    draws (% by volume and by value) and the cost draws."""
+    import floor_physics as fp
+    cost = fp.floor_mc(n, seed=seed, plant=plant)["total"]
+    mc = monte_carlo(region, n, seed=seed + 1, biomass=cost)
+    return dict(vol=mc["vol"], val=mc["val"], cost=cost)
 
 
 def _ci(x):

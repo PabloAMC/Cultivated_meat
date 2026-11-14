@@ -333,7 +333,7 @@ across its plausible range, the others held at the case being viewed. Around the
 | retention device | free to Humbird's filters | 10.8 – 14.4 |
 | cell mass | 1 to 3 ng | 14.8 – 11.5 |
 | CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 9.3 |
-| how the tank is run | perfusion to drained and refilled | 11.5 – 14.5 |
+| how the tank is run | perfusion to drained and refilled | 11.5 – 17.8 |
 | runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
 | least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
 | salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
@@ -347,6 +347,31 @@ effect on the case shown are listed under the chart instead of drawn. Clicking a
 what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
 either end. The chart on the page redraws for any case the reader sets; around the
 chicken cells a company reports, waste and medium price dominate.
+
+*Tanks that are drained and refilled.* Such a tank gets 1/density litres of medium per kg, so the least medium
+flow a cell needs caps its density at 1000 × growth rate per day ÷ flow: 92 g/L for the floor's cells, below
+the 120 g/L that waste allows. With that, running the floor case drained and refilled costs $17.8/kg, not $14.5.
+Salt strength is not modelled in this mode.
+
+*Growth factors* are dosed per litre of medium, so their cost scales with the litres used: $4.0/kg at the
+efficient cells' 11 L/kg, $10 at 29 L/kg.
+
+*Cost and demand uncertain together (`meat_market.floor_share_mc`).* Each draw takes a cost from the floor's own
+uncertainty and the demand dials from their priors (price sensitivity, acceptance, the retail markup). Long-run
+share of meat by weight, 2,000 draws:
+
+```
+                              world              US                 Europe
+                              P10  P50  P90      P10  P50  P90      P10  P50  P90
+sterile plant, no clean rooms 0.1  0.8  4.0      0.3  1.8  8.1      0.8  5.4  17.7
+yeast-style plant             0.4  2.4  9.8      1.0  4.7  16.6     3.3  12.1 27.3
+```
+
+The 5% of world meat quoted for the floor is the case in which nothing falls short, on cost or on demand.
+
+*Sending a case to the main model.* The button under the panel sets the main model's medium price, cell
+efficiency and plant running cost so that its cost matches the panel's case; every chart then follows. Where
+those three sliders cannot reach the case, the page says what cost it used.
 
 *The energy of growth (`pf_maintenance_share`).* West's law gives the oxygen uptake of a cell doubling about
 once a day. Part of it is upkeep and part pays for growth: qO₂(μ) = qO₂(24 h) × [s + (1 − s) × μ/μ(24 h)].
@@ -649,6 +674,66 @@ two to three times smaller (GFI 2025; SuperMeat reports 1.0–1.75 ng), which lo
 about a fifth. Uptime is an input: the module does not model contamination. The microbial-class figure comes
 from two company figures recorded in pf-tea. The evidence on what has been built is in `reports/Continuous
 harvest bioreactor progress.md`.
+
+### Back-test against reported runs (`floor_physics.backtest`)
+
+Nothing in the model was tuned to these runs (Humbird's two designs, which it was tuned to, are left out). Each
+row gives what was reported and what the model gives for the same cells and vessel.
+
+| run | quantity | observed | model | observed / model |
+|---|---|---|---|---|
+| CHO, wave-bag perfusion (Clincke 2013) | densest culture held, g/L | 514 | 245 (oxygen limit) | 2.1 |
+| CHO, wave-bag perfusion (Clincke 2013) | medium, L per kg of cells | 60 | 21 | 2.8 |
+| CHO, optimised perfusion medium (Mayrhofer 2020) | medium, L per kg of cells | 59 | 50 | 1.2 |
+| chicken, 10 L perfusion (SuperMeat 2024) | density held, g/L | 112 | 214 allowed | 0.5 |
+| chicken, 10 L perfusion (SuperMeat 2024) | medium, L per kg of cells | 30.5 | 21.6 | 1.4 |
+| chicken, scaled up on paper (SuperMeat 2024) | output, t per m³ a year | 24.3 stated | 10.3 from its own density and growth | 2.4 |
+| chicken, bench perfusion (Pasitka 2024) | density, g/L | 430 claimed | 72 from its cell count and cell size | 6.0 |
+| quail, 20 m³ drained and refilled (Vow) | output, t per m³ a year | 3.7–6.5 | 11.5 with the model's efficient cells | 0.44 |
+
+What it shows:
+
+- **The model is cautious about what a vessel can hold.** A small, heavily gassed vessel held twice the model's
+  oxygen limit and twice its thickness limit (a packed-cell fraction of 0.5, against Humbird's 0.25). Those two
+  limits come from Humbird's large stirred tank and do not bind at the floor, where CO₂ binds first.
+- **The model is optimistic about medium.** Every perfusion run used more medium than the model gives for the
+  same cells: 1.2 to 2.8 times. The least medium flow in the model (7.5 mL per gram a day) sits below what
+  these runs used (about 10 to 21). At the typical measured value the floor would be $11.8, at the highest
+  $13.8.
+- **The model is optimistic about output in practice.** The one working 20 m³ plant makes less than half of
+  what the model's efficient cells would in the same kind of tank.
+- **It catches inconsistent claims.** SuperMeat's stated output is 2.4 times what its own density and growth
+  rate give, and Pasitka's "43% w/v" is six times the mass of the cells counted.
+
+The back-test has few points and none is a meat cell line at scale. It is a check on direction, not a
+calibration.
+
+### How the key numbers were checked
+
+"Full text" means the source was read in full and the number found in it. "Abstract" and "search result" mean
+only that much was read. The research notes carry the same marks row by row.
+
+| number | value | how checked |
+|---|---|---|
+| plant cost, yearly charge, limits on density, vessel cost, waste yields, CO₂ and gas limits | Humbird 2021 | full text (the long report), by the model's authors |
+| reported chicken process: medium, cost, density, growth | SuperMeat 2024 | full text (company report, not peer reviewed) |
+| Pasitka's mass basis, protein content, capital charge | Pasitka 2024 and supplement | full text |
+| other published plant costs | Negulescu 2023, CE Delft 2021, Garrison 2022 | full text of local copies |
+| yeast-style plant cost as built | company statements and industry benchmarks | company claims; one figure inferred |
+| Vow's tank, mode and output | GFI 2026 report, food-standards filing, trade press | report and filing read; output from trade press |
+| least medium flow | Clincke 2013 (full text); Mayrhofer 2020 (most of the text) | cell size for the low figures not reported |
+| salt-strength limit | Zhu 2005 and three others | abstracts and search results; one read in full |
+| CO₂ tolerance of pharma cells | Zhu 2005, Gray 1996 and others | abstracts and search results |
+| gas flow in practice, settling velocities, settler scale | several | mostly abstracts and search results |
+| fish, shrimp and insect CO₂ figures | comparative physiology and aquaculture sources; Vajrala and Murhammer 2016 | mostly search results; crab figure full text |
+| species doubling times and cell sizes | Saad 2023 and Ashizawa 2022 full text; Stout 2022 full text | chicken and pig figures from abstracts |
+| premium-product prices and shares | scanner-data studies and trade data | mixed; milk and eggs full text |
+| acid constant of carbonic acid (6.1), osmotic contribution (2 mOsm per mmol/L) | textbook values | from memory, not sourced |
+| price sensitivity range | Van Loo, Caputo and Lusk 2020 | full text, in the earlier published version of this model |
+
+The numbers the floor itself rests on (the first two rows) were read in full. Most of what was added to bound
+it or to describe other species was not. A reader checking the model should start with the rows marked
+"search results".
 
 ### Cost cross-checks (on the page's reality checks; not used in the cost)
 
@@ -1041,6 +1126,9 @@ unchanged.
   above it they fall several-fold (world share at the reported cost 0.9% → 0.3%; at the floor 12% → 5%).
 - **Salt strength and a least medium flow per cell** added as limits in perfusion ("Salt strength, and the
   least medium flow a cell needs"); tolerating more CO₂ is now worth less than removing it by engineering.
+- **Back-test, provenance table and joint uncertainty** added ("Back-test against reported runs", "How the key
+  numbers were checked"); drained-and-refilled tanks get the medium-flow limit; growth factors scale with
+  medium; a button sends a panel case to the main model.
 - **CO₂ limit computed** from a gas balance in place of a borrowed cap; medium use computed from the waste the
   cells make; a gravity settler sized from first principles; uncertainty on the floor; contamination; species
   presets; plant cost cross-checked against other designs (all in "The floor's plant term").

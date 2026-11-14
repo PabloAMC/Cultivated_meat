@@ -167,6 +167,23 @@ def check() -> list:
     near("Vow reconstruction, density g/L", vow["density"], 27.0, 0.05)
     if not (3.0 < vow["output"] < 6.5):
         fails.append(f"Vow reconstruction: output {vow['output']:.1f} t/m3/yr outside its stated range")
+    # back-test: the model allows the densities reported and gives less medium than real runs used
+    bt = {(r[0], r[1]): r for r in fp.backtest()}
+    if len(bt) != 8:
+        fails.append("back-test: expected eight rows")
+    sm = bt[("Chicken, 10 L perfusion (SuperMeat 2024)", "medium, L per kg of cells")]
+    if not (1.2 < sm[2] / sm[3] < 1.7):
+        fails.append(f"back-test: SuperMeat medium ratio moved ({sm[2] / sm[3]:.2f})")
+    # drained-and-refilled tanks: the least medium flow caps the density; growth factors scale with medium
+    fd = fp.explore(mode="filldraw")
+    if not (fd["limit"] == "other by-products" and 85 < fd["density"] < 100):
+        fails.append(f"fill-and-draw: expected the medium-flow cap near 92 g/L, got {fd['density']:.0f} ({fd['limit']})")
+    if not fp.explore(growth_factors=True, waste=0.1)["growth_factors"] > 2 * fp.explore(growth_factors=True)["growth_factors"]:
+        fails.append("growth factors should scale with the litres of medium")
+    # cost and demand together: the median share is well below the point floor share
+    js = mm.floor_share_mc("global", 400)
+    if not (0.2 < float(np.median(js["vol"])) < 3.0):
+        fails.append(f"joint uncertainty: world median share {float(np.median(js['vol'])):.2f}% out of range")
     # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs
     tc = fp.temperature_check()
     if not (tc["metabolic_heat_kwh"] > tc["heating_10c_kwh"] and tc["heating_10c_usd_reported"] < 0.05):
