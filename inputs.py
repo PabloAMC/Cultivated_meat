@@ -956,6 +956,11 @@ REGISTRY: dict[str, Input] = {
              "cattle cells by genetic engineering"),
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
+    "sc_medium_aspire": Input(0.05, "$/L", "[Pablo's aspiration, 2026-11-15; GFI Dec 2025] a medium at $0.05 a litre: GFI puts "
+        "amino acids alone at $0.02-0.17 a litre and the lowest company report at $0.07 (Clever Carnivore, unaudited)",
+        lo=0.03, hi=0.10, mode=0.05,
+        note="an aspiration, not a figure anyone has reported. Below about $0.06 the model's nutrient floor ($1.70 a kilo) binds, "
+             "so this setting prices medium at the floor; nutrient_floor.py shows the floor is probably higher"),
     "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
         "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20,
         note="company announcements, not verified at scale. GFI's amino acid analysis (Dec 2025, read in full) puts amino acids at "
@@ -1195,6 +1200,23 @@ REGISTRY: dict[str, Input] = {
         hi=150.0, mode=50.0),
     "rt_hc_phi_max": Input(0.12, "volume fraction", "[Bettinardi et al. 2020, abstract] the densest hydrocyclone perfusion: "
         "5e7 cells/mL in a 40 L bag", lo=0.06, hi=0.2, mode=0.12),
+
+    # --- The nutrient floor, bottom-up from GFI's amino-acid prices (nutrient_floor.py; research_notes/nutrient_floor.md) ---
+    # Not used by any default: nutrient_floor.py reprices the scenarios through explore()'s own `aa_bulk_price`.
+    "nf_aa_price_feed": Input(6.36, "$/kg AA", "[GFI amino acid analysis, Dec 2025, Table 1, read in full; unweighted mean of 22 "
+        "amino acids] feed-grade price scenario, from aggregate supplier data", lo=3.0, hi=12.0, mode=6.36,
+        note="the mean is unweighted: the amino acids a cell needs are not needed in equal amounts. Serine, arginine and "
+             "glutamine are needed in the largest amounts. GFI reports its own weighted figures only in charts"),
+    "nf_aa_price_low": Input(11.59, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] low food-grade scenario: 25% below the "
+        "lowest quote for each amino acid", lo=7.0, hi=16.0, mode=11.59),
+    "nf_aa_price_high": Input(23.18, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] high food-grade scenario: 25% above "
+        "the highest quote", lo=15.0, hi=35.0, mode=23.18),
+    "nf_aa_g_eff": Input(232.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9, read in full] the most efficient of eight "
+        "bioconversion estimates (200-650); 232 is the figure from Humbird's stoichiometry", lo=200.0, hi=350.0, mode=232.0),
+    "nf_aa_g_mid": Input(350.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the third most efficient of its estimates",
+        lo=232.0, hi=500.0, mode=350.0),
+    "nf_aa_g_low": Input(650.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the least efficient of its estimates",
+        lo=500.0, hi=650.0, mode=650.0),
 
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a

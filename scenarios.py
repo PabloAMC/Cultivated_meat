@@ -149,6 +149,9 @@ SWITCHES = (
         Setting("all", "All bought at his price", {"growth_factors": 1.0}, NOTHING,
                 "Humbird's large-scale price, which assumes an industry far larger than today's"))),
     Switch("medium", "Price of the medium", "What a litre of the nutrient liquid costs", (
+        Setting("0.05", "$0.05 a litre (an aspiration)", {"medium_price": value("sc_medium_aspire")}, FEED,
+                "no one has reported it: the lowest company report is $0.07 and GFI's amino acids alone cost $0.02-0.17; "
+                "the medium then costs what the cells must eat"),
         Setting("0.15", "$0.15 a litre", {"medium_price": 0.15}, FEED,
                 "the cost of the nutrients the cells eat: the medium cannot cost less"),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid")}, FEED,
@@ -168,7 +171,7 @@ _SHORT = {
     ("losses", "0.2"): "0.2% a day", ("losses", "0.6"): "0.6% a day", ("losses", "1"): "1% a day", ("losses", "2"): "2% a day",
     ("restart", "14"): "14 days", ("restart", "21"): "21 days", ("restart", "30"): "30 days",
     ("gf", "none"): "none", ("gf", "30"): "30%", ("gf", "60"): "60%", ("gf", "all"): "all",
-    ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
+    ("medium", "0.05"): "$0.05/L", ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
 }
 SWITCHES = tuple(replace(sw, settings=tuple(replace(st, short=_SHORT[(sw.key, st.key)]) for st in sw.settings))
                  for sw in SWITCHES)
@@ -233,7 +236,7 @@ SCENARIOS = {
         "best", "Best case: everything works",
         "Cells that make almost no waste (engineered), doubling every day, in a food-grade plant with shared medium, with a tank that clears CO₂ "
         "without more bubbles, and no growth factors to buy.",
-        "Cells, growth speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers "
+        "Cells, growth speed, plant, gas and growth factors at their cheapest setting, medium at $0.15 (the $0.05 aspiration is not assumed); losses at the low end of what makers "
         "report (pharma's 0.2% a day is not assumed); tank design the cheapest the loop checks allow.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),

@@ -2,6 +2,14 @@
 
 ## 2026-11-15
 
+The nutrient floor from GFI's amino-acid prices, and a $0.05 medium setting (`nutrient_floor.py`, `research_notes/nutrient_floor.md`)
+- The model's nutrient floor ($1.70 a kilo) is below every figure GFI's December 2025 prices give ($2.50 to $16.09): its amino acids
+  are $0.67, against $1.48 at GFI's cheapest tier. The best case, whose medium is set by the floor, would cost $9.76 to $12.36 at
+  the cheaper tiers (now $8.95); Central does not move unless amino acids are dear. No default changed.
+- New "Price of the medium" setting: **$0.05 a litre**, an aspiration tagged "feed or process". Central at $0.05: $22.68 (the floor
+  binds). The best case keeps $0.15, and its rule text says so. "What decides it" for Central now shows the medium price worth
+  −$3.96 at its best setting.
+
 What GFI reports about the cost of medium (`research_notes/medium_cost_gfi.md`; no number moved)
 - GFI's December 2025 amino acid analysis and January 2023 growth factor report, read in full: amino acids $0.02-0.17 a litre against
   $0.24-0.54 on Humbird's prices; Humbird's amino acids about $18-19 a kilo of cells; company reports of $0.20, $0.07 and $0.63 a

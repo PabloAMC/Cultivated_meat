@@ -31,6 +31,9 @@ python tests/test_retention.py
 echo "==> downside: no perfusion at 20 m3"
 python tests/test_downside.py
 
+echo "==> nutrient floor"
+python tests/test_nutrient_floor.py
+
 echo "==> gas-exchange side study"
 python tests/test_gas_exchange.py
 
