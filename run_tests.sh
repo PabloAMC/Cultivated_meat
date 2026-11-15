@@ -49,6 +49,9 @@ python tests/test_gas_exchange.py
 echo "==> growth-factor prices and the fastest doubling time"
 python tests/test_gf_doubling_bounds.py
 
+echo "==> the frontier: every lever at its limit"
+python tests/test_frontier.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

@@ -297,6 +297,14 @@ says "This density is not shown for meat cells". Results, assumptions and source
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 
+### The frontier (`frontier.py`, added 2026-11-15)
+
+`frontier.ladder` starts from the central scenario and applies, in order, the levers `min_litres` (least medium per kg, `explore(medium_l=)`),
+doubling time, the filter device (`retention`), the medium price, growth factors returned by a protein-retaining filter
+(`gf_doubling_bounds.reuse`), the density limit (`thick_culture`), the plant, the losses and the gas; each is kept. `frontier.alone` applies each to Central
+alone. `frontier.with_gfi_amino_acids` replaces the nutrient floor with GFI's prices (`nutrient_floor`). Findings and odds:
+`research_notes/frontier.md`.
+
 ### If perfusion cannot be run at 20 m3 (`downside.py`, added 2026-11-15)
 
 For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the

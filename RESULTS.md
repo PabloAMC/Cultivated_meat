@@ -214,6 +214,14 @@ one). **Within those limits the reference case depends on the gas the cells tole
 gauge") runs at 22 passes an hour for the engineered cells, beyond the tested range. None of the tricks has been
 tried with meat cells.
 
+### The frontier: every lever at its limit
+
+Moving the central scenario's levers one at a time to the limits the research notes support, each kept moved, takes it from
+$26.64 to **$5.49** a kilo ($6.29 with GFI's amino-acid prices). The least medium the physics allows (6.4 L/kg) is the largest
+step on its own ($12.28), then cells doubling in 16 hours, then a cheaper filter; the levers share what they save, because fewer litres
+of medium also mean less to filter. The frontier is below the $7 that parity needs, but no step is shown for meat cells, and the odds of
+all of them together are far below any single one (`research_notes/frontier.md`).
+
 ### If perfusion cannot be run at 20 m³
 
 Every scenario uses a perfusion tank, which nobody has run above about 4 m³. Without cell retention a tank is capped by waste.

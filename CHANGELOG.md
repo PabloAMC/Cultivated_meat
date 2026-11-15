@@ -2,6 +2,13 @@
 
 ## 2026-11-15
 
+The frontier: every lever at its limit (`frontier.py`, `research_notes/frontier.md`; no default changed)
+- Central ($26.64) with one lever at a time moved to the limit its research note supports, each kept moved: least medium 6.4 L/kg
+  $12.28, 16 h doubling $7.79, dialyser-grade fibres $7.15, growth factors returned $6.97, 320 g/L $6.36, shared-medium plant $5.76,
+  0.2% losses $5.59, gas 6 mm/s **$5.49** ($6.29 with GFI's amino-acid floor). Below the $7 that parity needs, but no step is shown for
+  meat cells. The litres of medium per kilo are the lever: they set the medium, growth-factor and filtering costs together.
+  Each lever alone reproduces the number in the study it comes from. `tests/test_frontier.py`, in `run_tests.sh`.
+
 Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
 - Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
   under the column loop's pH and pass-rate checks. 20 m3 is within 0.4% to 2.3% of the cheapest size: best $8.95 -> $8.82 at 55 m3,
