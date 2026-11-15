@@ -956,8 +956,16 @@ REGISTRY: dict[str, Input] = {
              "cattle cells by genetic engineering"),
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
+    "sc_medium_aspire": Input(0.05, "$/L", "[Pablo's aspiration, 2026-11-15; GFI Dec 2025] a medium at $0.05 a litre: GFI puts "
+        "amino acids alone at $0.02-0.17 a litre and the lowest company report at $0.07 (Clever Carnivore, unaudited)",
+        lo=0.03, hi=0.10, mode=0.05,
+        note="an aspiration, not a figure anyone has reported. Below about $0.06 the model's nutrient floor ($1.70 a kilo) binds, "
+             "so this setting prices medium at the floor; nutrient_floor.py shows the floor is probably higher"),
     "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
-        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20, note="company announcements, not verified at scale"),
+        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20,
+        note="company announcements, not verified at scale. GFI's amino acid analysis (Dec 2025, read in full) puts amino acids at "
+             "$0.02-0.17/L and cites Meatly and Gourmey at about $0.20, Clever Carnivore at $0.07 and Believer's measured "
+             "$0.63; see research_notes/medium_cost_gfi.md"),
     "sc_medium_high": Input(0.30, "$/L", "[judgement] between the announced $0.20 and the $0.50 SuperMeat reports",
         lo=0.2, hi=0.5, mode=0.30),
     "sc_aspect_flat": Input(0.5, "depth/width", "[gas_exchange.cheapest_tricks] the squattest shape its search "
@@ -1192,6 +1200,23 @@ REGISTRY: dict[str, Input] = {
         hi=150.0, mode=50.0),
     "rt_hc_phi_max": Input(0.12, "volume fraction", "[Bettinardi et al. 2020, abstract] the densest hydrocyclone perfusion: "
         "5e7 cells/mL in a 40 L bag", lo=0.06, hi=0.2, mode=0.12),
+
+    # --- The nutrient floor, bottom-up from GFI's amino-acid prices (nutrient_floor.py; research_notes/nutrient_floor.md) ---
+    # Not used by any default: nutrient_floor.py reprices the scenarios through explore()'s own `aa_bulk_price`.
+    "nf_aa_price_feed": Input(6.36, "$/kg AA", "[GFI amino acid analysis, Dec 2025, Table 1, read in full; unweighted mean of 22 "
+        "amino acids] feed-grade price scenario, from aggregate supplier data", lo=3.0, hi=12.0, mode=6.36,
+        note="the mean is unweighted: the amino acids a cell needs are not needed in equal amounts. Serine, arginine and "
+             "glutamine are needed in the largest amounts. GFI reports its own weighted figures only in charts"),
+    "nf_aa_price_low": Input(11.59, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] low food-grade scenario: 25% below the "
+        "lowest quote for each amino acid", lo=7.0, hi=16.0, mode=11.59),
+    "nf_aa_price_high": Input(23.18, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] high food-grade scenario: 25% above "
+        "the highest quote", lo=15.0, hi=35.0, mode=23.18),
+    "nf_aa_g_eff": Input(232.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9, read in full] the most efficient of eight "
+        "bioconversion estimates (200-650); 232 is the figure from Humbird's stoichiometry", lo=200.0, hi=350.0, mode=232.0),
+    "nf_aa_g_mid": Input(350.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the third most efficient of its estimates",
+        lo=232.0, hi=500.0, mode=350.0),
+    "nf_aa_g_low": Input(650.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the least efficient of its estimates",
+        lo=500.0, hi=650.0, mode=650.0),
 
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
@@ -1674,6 +1699,176 @@ REGISTRY: dict[str, Input] = {
              "connections (surface goes as V^(2/3)) and a loss costs the whole tank, so the loss per kilo rises with "
              "the chance per tank-day. No source gives it by tank size; BioPlan's survey found larger facilities had "
              "about three times the contamination of smaller ones (facilities, not tanks)"),
+    # --- how thick a culture can be (thick_culture.py, research_notes/thick_culture.md) ------------------
+    "tc_phi_max": Input(0.65, "volume fraction", "[Iordan, Duperray and Verdier 2007, arXiv:0709.3671, read in full] the "
+        "maximum packing in the Krieger-Dougherty fit to the viscosity of CHO suspensions at 1,000 per second (eta/eta0 = "
+        "(1 - phi/phi0)^(-2.5 phi0))", lo=0.64, hi=0.74, mode=0.65,
+        note="0.64 is random close packing of hard spheres, 0.74 the face-centred cubic limit. Their cells were spun down "
+             "and re-diluted at 20 C and not growing"),
+    "tc_thin": Input(1.33, "-", "[Tregidgo et al. 2023, Chem Eng Res Des 194:344, read in full] CHO at 1e8 cells/mL, 37 C: "
+        "2.4 mPa s at 50 rpm in a 250 mL tank against 1.8 at a shear rate of 45 per second (the viscosity the Thomas "
+        "equation gives for a quarter cells by volume): the excess viscosity is 1.33 times higher at the low shear a large "
+        "tank has", lo=1.0, hi=3.0, mode=1.33,
+        note="hi: the same paper, 'viscosities increase up to 3-fold ... at shear rates below 40 per second', with high "
+             "scatter. Applied to the excess of the suspension over the medium"),
+    "tc_kla_exp": Input(0.40, "-", "[Yagi and Yoshida 1975, as listed in a university course note, snippet] the oxygen "
+        "transfer coefficient falls with the apparent viscosity to the power -0.40 in stirred tanks of Newtonian and "
+        "non-Newtonian liquids", lo=0.0, hi=0.6, mode=0.40,
+        note="lo: Amgen's CHO perfusion cultures at 1e5 to 35e5 cells/mL lost almost no kLa (AIChE 2017 abstract, 403 on "
+             "fetch) and Pappenreiter saw none between cell-free and spent harvest medium (via Bioprocess Intl 2024). hi: a "
+             "2025 Biotechnology Journal paper reports a 10-40% fall with culture rheology (snippet, not read). Humbird's "
+             "kLa equation has no viscosity term"),
+    "tc_np": Input(5.0, "-", "[Tregidgo et al. 2023, read in full] power number of the dual-impeller 250 mL tank, 4.9; "
+        "elephant-ear and pitched-blade impellers in large tanks run at 1.3-1.5 (assumed)", lo=1.3, hi=5.0, mode=5.0,
+        note="at a fixed power per volume a lower power number turns the stirrer faster and raises the Reynolds number, so 5 "
+             "is the cautious end"),
+    "tc_re_turb": Input(1.0e4, "-", "[Tregidgo et al. 2023, read in full] a mixing number (time x speed) that stays constant "
+        "from Re 5,600 up; the usual boundary of fully turbulent flow is 10,000", lo=5600.0, hi=1.0e4, mode=1.0e4,
+        note="above this Reynolds number, Humbird's mixing-time equation (which has no viscosity in it) holds"),
+    "tc_bubble_mm": Input(3.5, "mm", "[research_notes/gas_flow_cap.md, section 3, citing a bubble-column measurement in "
+        "synthetic medium with poloxamer] bubbles of 3-4 mm", lo=2.0, hi=5.0, mode=3.5),
+    "tc_holdup": Input(0.04, "of the tank", "[research_notes/gas_flow_cap.md, section 3] gas hold-up at 6 mm/s: 3.5% at "
+        "4.2 mm/s and 4.5% at 7.7 mm/s", lo=0.03, hi=0.06, mode=0.04,
+        note="measured without cells, at the viscosity of the medium"),
+    "tc_yield_sigma": Input(1.4, "Pa", "[Iordan, Duperray and Verdier 2007, read in full] the stress scale sigma* of the "
+        "fractal-aggregate fit to their yield stresses", lo=0.5, hi=5.0, mode=1.4,
+        note="their Figure 4a values were not extracted; the yield stress is taken as sigma* (phi/phi0)^m, with m below. "
+             "They fitted CHO at 20 C, spun down and re-diluted"),
+    "tc_yield_exp": Input(8.4, "-", "[Iordan, Duperray and Verdier 2007, read in full] yield stress grows as phi to the "
+        "power 8.4", lo=6.0, hi=11.0, mode=8.4),
+    "tc_peak_dissipation": Input(50.0, "-", "[Humbird 2021, Eq. 2.17 after Nienow 2010, read in part] the energy dissipation "
+        "near the impeller against the tank average", lo=20.0, hi=100.0, mode=50.0),
+    "tc_jacket_u": Input(400.0, "W/m2/K", "[assumed] heat transfer through the wall of a jacketed steel tank holding a thick "
+        "culture, inside film included", lo=200.0, hi=700.0, mode=400.0,
+        note="textbook range for a stirred jacketed vessel; nothing found for a 20 m3 animal-cell tank"),
+    "tc_cool_dt": Input(10.0, "K", "[assumed] temperature difference between the culture (37 C) and the cooling water in the "
+        "jacket", lo=5.0, hi=15.0, mode=10.0),
+    # --- the least medium per kg of cells that physics allows (min_litres.py; research_notes/min_litres_per_kg.md) ---
+    "ml_dry_mol_kg": Input(13.6, "mol/kg wet", "[Humbird-R, derived] moles of dry cell mass in a kg of wet cells",
+        note="300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1); the figure that "
+             "turns pf_nh3_efficient from per mole of dry mass into per kg"),
+    "ml_n_per_dry": Input(0.21, "mol N/mol dry", "[Humbird-R] Table 2.1: nitrogen in the cell formula CH1.68 O0.34 N0.21",
+        note="x 13.6 = 2.86 mol N per kg wet. A protein-only count gives about 2.2 (195 g protein per kg wet at 16% "
+             "nitrogen); nucleic acids add about 0.2"),
+    "ml_aa_pure_kg": Input(0.26, "kg/kg wet", "[Humbird-R] Table 3.4: pure amino acids the cells take up per kg of wet cells "
+        "(Reaction 2.11); quoted in the aa_intensity note",
+        note="free amino acids in the proportion the cell builds protein; the hydrolysate (0.337) carries more because "
+             "its profile does not match"),
+    "ml_aa_mw": Input(128.0, "g/mol", "[textbook] mean molar mass of a free amino acid: 110 for a protein residue plus 18 "
+        "for water", lo=120.0, hi=140.0, mode=128.0),
+    "ml_glc_mw": Input(180.16, "g/mol", "[textbook] glucose"),
+    "ml_salts_osm": Input(250.0, "mOsm/kg", "[judgement; research_notes/min_litres_per_kg.md] osmolality of the salts and "
+        "buffer in a conventional medium, without its glucose and amino acids",
+        lo=150.0, hi=260.0, mode=250.0,
+        note="about 100 mM NaCl (190), 25 mM bicarbonate (50) and the rest (10). Not sourced from a medium sheet. Lower "
+             "values mean cells that tolerate less sodium; no source on how low the salts can go. Used only where the "
+             "medium is what the cells sit in (min_litres.bounds, 'bath')"),
+    "ml_feed_g_l": Input(100.0, "g/L", "[judgement; research_notes/min_litres_per_kg.md] strength of a concentrated feed of "
+        "amino acids and glucose, as solids per litre, that is mixed into the tank and diluted there",
+        lo=50.0, hi=200.0, mode=100.0,
+        note="single-strength perfusion media carry roughly 10-30 g/L of these (unsourced); feeds of 5-10 times that "
+             "are used in fed-batch (the search found papers on ultra-concentrated feeds, limited by tyrosine and "
+             "cystine solubility, and no figure). No measurement in a 20 m3 perfusion tank"),
+    "ml_nh3_chogs": Input(0.012, "mol/kg wet", "[Mayrhofer et al. 2020, via waste_tricks_sizing.md B2, derived] ammonia of a "
+        "glutamine-synthetase CHO line in optimised perfusion, if its 0.54 fmol per cell per hour held at 0.35 per day",
+        lo=0.0063, hi=0.029, mode=0.012,
+        note="the lowest ammonia in any source read. Measured in cells that were not growing; the extrapolation to "
+             "faster growth is an inference, and the cells are CHO, not meat cells"),
+    "ml_atp_bio": Input(1.6e-11, "mol ATP/cell", "[Kilburn, Lilly and Webb 1969, J Cell Sci 4:645, via the BioNumbers page "
+        "(ID 101985), read]: ATP to build a mouse fibroblast (LS cell)",
+        note="cell size not given on that page; used only as a cross-check on the oxygen the model burns"),
+    "ml_atp_maint": Input(2.9e-11, "mol ATP/cell", "[Kilburn et al. 1969, as above] ATP for upkeep per new cell at a "
+        "1.15 day generation time"),
+    "ml_kilburn_td_h": Input(27.6, "h", "[Kilburn et al. 1969] the 1.15 day generation time of that upkeep figure"),
+    # --- growth-factor prices and the fastest doubling time (gf_doubling_bounds.py;
+    #     research_notes/gf_and_doubling_bounds.md). Access levels: FT = full text read, ABS = abstract only,
+    #     SNIP = search snippet, MEM = from memory (check before citing). ------------------------------------
+    "gb_conc_insulin": Input(0.0194, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT; Chen et al. 2011 Essential 8] "
+        "insulin in the medium: 19.4 mg/L"),
+    "gb_conc_transferrin": Input(0.0107, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] transferrin: 10.7 mg/L"),
+    "gb_conc_fgf": Input(1.0e-4, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] FGF: 0.1 mg/L"),
+    "gb_conc_tgfb": Input(2.0e-6, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] TGF-beta: 0.002 mg/L"),
+    "gb_price_insulin": Input(7.0, "$/g", "[Humbird-R Table 4.4, FT] unit cost of insulin in his fed-batch plant, 2018 dollars, "
+        "from his price-volume line at the world demand of 16,785 kg/y"),
+    "gb_price_transferrin": Input(12.0, "$/g", "[Humbird-R Table 4.4, FT] transferrin, 2018 dollars, at 9,258 kg/y"),
+    "gb_price_fgf": Input(649.0, "$/g", "[Humbird-R Table 4.4, FT] FGF, 2018 dollars, at 87 kg/y"),
+    "gb_price_tgfb": Input(18837.0, "$/g", "[Humbird-R Table 4.4, FT] TGF-beta, 2018 dollars, at 1.7 kg/y",
+        note="the four prices at the four concentrations cost $3.13 per kg of cells in his table (pf_growth_factors rounds "
+             "this to 3.1). His batch holds about 115 g/L, so 8.65 L of medium per kg"),
+    "gb_pv_intercept": Input(4.90, "log10 $/kg", "[Humbird-R Eq. 3.4, FT] log10(price in $/kg) = intercept - slope x "
+        "log10(volume in MT/y), a regression of market prices of protein bioproducts (insulin, antibodies, industrial enzymes)"),
+    "gb_pv_slope": Input(0.861, "-", "[Humbird-R Eq. 3.4, FT] price falls 0.861 decades for every decade of volume"),
+    "gb_gfi_target_rp": Input(1.0, "$/g", "[GFI 2023 (Swartz et al.), Table 1, FT] production cost assumed for insulin and "
+        "transferrin so growth factors and recombinant proteins are 10% of a $10/kg cost: $1,000/kg"),
+    "gb_gfi_target_gf": Input(100.0, "$/g", "[GFI 2023, Table 1, FT] production cost assumed for growth factors: $100,000/kg"),
+    "gb_gfi_litres_low": Input(8.0, "L/kg", "[GFI 2023, Box 2, FT; Sinke et al. 2021 Table 16] medium use, low scenario"),
+    "gb_gfi_litres_mid": Input(13.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, medium scenario"),
+    "gb_gfi_litres_high": Input(42.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, high scenario"),
+    "gb_mkt_insulin": Input(24.75, "$/g", "[Gotham, Barber & Hill 2018, BMJ Global Health 3:e000850, full text via Europe PMC] "
+        "regular human insulin API, a regression of Indian export prices in 2013-2016 without the USA shipments",
+        note="a market price, not a production cost; fell about 18% a year; only 484-793 kg a year in the data. Humbird's "
+             "footnote calls the same number a production cost. Pharmaoffer trade data average $36.4/g over 12 months to "
+             "Aug 2026 (SNIP: the page returned 403)"),
+    "gb_mkt_transferrin": Input(182.3, "$/g", "[Stout et al. 2022 Beefy-9 Supplementary Table 3, read in full by the pf-tea "
+        "evidence file] InVitria recombinant human transferrin, 10 g for $1,823",
+        note="InVitria Optiferrin: $351.7/g at 1 g and $217.7/g at 10 g (pf-tea evidence, vendor page)"),
+    "gb_mkt_fgf2": Input(196000.0, "$/g", "[GFI growth-factor-cost page, FT] ORF Genetics human FGF2, $196/mg in September 2022",
+        note="the same page: $7.47/mg (7,470 $/g) from Venkatesan et al. made in-house, and $2,005/mg in the 2018 analysis"),
+    "gb_mkt_fgf2_inhouse": Input(7470.0, "$/g", "[GFI growth-factor-cost page, FT; Venkatesan et al. not read] FGF2 made in-house"),
+    "gb_mkt_tgfb": Input(2.9e7, "$/g", "[Humbird-R footnote 111, FT] research quantities of human TGF-beta from the Sigma "
+        "catalogue, about $29k/mg"),
+    "gb_floor_enzyme_lo": Input(12.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] Novozymes quotes for common food enzymes "
+        "at 200-1,000 kg"),
+    "gb_floor_enzyme_hi": Input(25.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] the top of the same quotes"),
+    "gb_floor_albumin_trade": Input(55.0, "$/kg", "[pf-tea evidence, grade C: GFI 2025 and trade data] bulk albumin traded at "
+        "$40-70/kg", lo=40.0, hi=70.0, mode=55.0),
+    "gb_floor_tf_model": Input(314.0, "$/kg", "[pf-tea model result, my own: results/analyses.json, case tf/100/humbird] "
+        "recombinant transferrin on albumin's two-column route, 100 t/y, design-point titre",
+        note="at the best published titre (Finnis 2010, 2.29 g/L, 10 L) the same plant gives $949/kg at 100 t/y and $1,939 at "
+             "10 t/y. A bottom-up cost from patents and one fermentation paper, not a quote"),
+    "gb_floor_tf_published": Input(949.0, "$/kg", "[pf-tea model result: tf_finnis2010/100/humbird] the same at the best "
+        "published titre"),
+    "gb_fgf2_half_life_h": Input(10.0, "h", "[vendor pages and a review, SNIP] wild-type FGF2 at 37 C in culture medium: "
+        "under 10 h", lo=5.0, hi=10.0, mode=10.0),
+    "gb_fgf2_g3_half_life_h": Input(168.0, "h", "[Qkine and Reprocell vendor pages, SNIP; Dvorak et al. preprint reports "
+        ">20 days] engineered FGF2-G3 at 37 C: over 7 days", lo=168.0, hi=480.0, mode=168.0),
+    # biosynthesis ATP budget, per gram of dry cell mass, from Humbird's composition (Table 2.1)
+    "gb_f_protein": Input(0.70, "g/g dry", "[Humbird-R Table 2.1, FT] protein share of dry cell mass"),
+    "gb_f_lipid": Input(0.15, "g/g dry", "[Humbird-R Table 2.1, FT] lipid"),
+    "gb_f_carb": Input(0.10, "g/g dry", "[Humbird-R Table 2.1, FT] carbohydrate"),
+    "gb_f_rna": Input(0.05, "g/g dry", "[Humbird-R Table 2.1, FT] RNA and DNA"),
+    "gb_dry_per_wet": Input(0.30, "g/g wet", "[Humbird-R, via pf_fat_kg] dry mass in a gram of wet cells: 70% water"),
+    "gb_aa_g_mol": Input(110.0, "g/mol", "[textbook, MEM] mean mass of an amino-acid residue in protein"),
+    "gb_atp_peptide": Input(4.0, "ATP/bond", "[textbook, MEM] two to charge the tRNA, one to bring it in, one to move the "
+        "ribosome; a minimum, leaves out making ribosomes and mRNA", lo=4.0, hi=6.0, mode=4.0),
+    "gb_lipid_g_mol": Input(256.0, "g/mol", "[Humbird-R Table 2.1: lipid taken as palmitate] palmitate mass"),
+    "gb_atp_fa16": Input(42.0, "ATP/palmitate", "[textbook, MEM] 7 ATP and 14 NADPH to build palmitate from acetyl-CoA, "
+        "counting each NADPH as 2.5 ATP; carbon not counted", lo=30.0, hi=50.0, mode=42.0,
+        note="Humbird's Reaction 2.2 makes all lipid from glucose. Fed fatty acids skip this cost (pf_fat_kg, pf_fat_price)"),
+    "gb_nt_g_mol": Input(330.0, "g/mol", "[textbook, MEM] mean nucleotide mass"),
+    "gb_atp_nt": Input(9.0, "ATP/nucleotide", "[textbook, MEM] about 7 to make a nucleotide from glucose and glutamine and 2 "
+        "to join it to the chain", lo=6.0, hi=12.0, mode=9.0),
+    "gb_glycosyl_g_mol": Input(162.0, "g/mol", "[textbook] one hexose unit in a polysaccharide"),
+    "gb_atp_glycosyl": Input(2.0, "ATP/unit", "[textbook, MEM] to add one hexose to a chain through UDP-glucose",
+        lo=1.0, hi=3.0, mode=2.0),
+    "gb_biosyn_overhead": Input(1.0, "x", "[judgement] extra ATP over the bare synthesis for folding, amino-acid uptake, "
+        "making ribosomes and mRNA; 1.0 counts none of it", lo=1.0, hi=1.6, mode=1.0),
+    "gb_resp_scope": Input(2.0, "x", "[judgement; typical maximal-to-basal respiration of cultured cells under an uncoupler is "
+        "about 2-4, MEM, not read in this pass] most oxygen a cell can burn per gram, relative to West's rate at a 24 h "
+        "doubling", lo=1.5, hi=3.0, mode=2.0,
+        note="more mitochondria per cell would raise it; heart muscle holds about 35% of its volume as mitochondria against "
+             "10-20% in fast cell lines (MEM)"),
+    "gb_elong_aa_s": Input(5.6, "aa/s", "[Ingolia et al. 2011, mouse embryonic stem cells; bionumbers snippet, SNIP] how fast a "
+        "mammalian ribosome adds amino acids", lo=2.0, hi=6.0, mode=5.6,
+        note="other studies in U2OS and HEK293 cells give 3.1-4.9 codons/s"),
+    "gb_ribosome_kda": Input(4300.0, "kDa", "[textbook, MEM] mass of a mammalian 80S ribosome"),
+    "gb_rrna_in_ribosome": Input(0.65, "of ribosome mass", "[textbook, MEM] 2.8 MDa of rRNA in 4.3 MDa"),
+    "gb_rrna_in_rna": Input(0.80, "of RNA", "[textbook, MEM] ribosomal RNA is about 80% of a cell's RNA"),
+    "gb_cho_mass_pg": Input(1167.0, "pg wet", "[Humbird-R footnote 41, FT] a CHO cell: 350 pg dry mass and 70% water"),
+    "gb_cho_qo2_pmol_h": Input(0.227, "pmol O2/cell/h", "[Goudar et al. 2011, ABS, via species_cell_parameters.md] CHO "
+        "perfusion at 36.5 C: 5.14-5.77 pmol/cell/day", lo=0.214, hi=0.240, mode=0.227),
+    "gb_cho_doubling_h": Input(15.0, "h", "[species_cell_parameters.md] CHO doubling time, 14-16 h", lo=14.0, hi=16.0, mode=15.0,
+        note="the 14-16 h comes from the research-note brief, not from a source read in this pass"),
 }
 
 

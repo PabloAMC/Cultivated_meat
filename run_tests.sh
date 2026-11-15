@@ -34,8 +34,20 @@ python tests/test_downside.py
 echo "==> cost against tank size"
 python tests/test_tank_size.py
 
+echo "==> how thick a culture can be: viscosity, stirrer, oxygen, cost at other density limits"
+python tests/test_thick_culture.py
+
+echo "==> least medium per kg of cells that physics allows"
+python tests/test_min_litres.py
+
+echo "==> nutrient floor"
+python tests/test_nutrient_floor.py
+
 echo "==> gas-exchange side study"
 python tests/test_gas_exchange.py
+
+echo "==> growth-factor prices and the fastest doubling time"
+python tests/test_gf_doubling_bounds.py
 
 echo "==> Python <-> JS parity"
 python tests/run_parity.py

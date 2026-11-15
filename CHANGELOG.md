@@ -10,6 +10,27 @@ Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no
   2% to 4% more at 10 m3 and 20% to 50% more at 2 m3. Labour per m3 is the one assumption that could move the answer (the best case
   would be 7.6% cheaper at 200 m3 if crew per m3 kept falling as in Humbird's plants). Odds for each size are in the note. New inputs
   `ts_ph_relaxed`, `ts_loop_hw_exp`, `ts_hazard_exp` (what-if rows only). `tests/test_tank_size.py`, in `run_tests.sh`.
+The least medium per kg of cells that physics allows (`min_litres.py`, `research_notes/min_litres_per_kg.md`; no number moved)
+- Waste sets no floor: nitrogen, carbon and energy balances all allow zero ammonia and zero lactate. Delivering the nutrients
+  does: 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose per kg of cells. If the medium must be what the cells
+  sit in, the floor is 14-25 L/kg (Central's 28 is within 10% of it; Best's 11 is not possible). If a concentrate of 100 g/L is
+  diluted in the tank, it is 5.8 L/kg (Best) and 6.4 (Central), or 8.0 at the lowest flow per cell measured. Costs at those
+  litres: Best $6.94, Central $12.28-13.05, against $8.95 and $26.64. New `ml_*` inputs; `tests/test_min_litres.py`, in
+  `run_tests.sh`.
+The nutrient floor from GFI's amino-acid prices, and a $0.05 medium setting (`nutrient_floor.py`, `research_notes/nutrient_floor.md`)
+- The model's nutrient floor ($1.70 a kilo) is below every figure GFI's December 2025 prices give ($2.50 to $16.09): its amino acids
+  are $0.67, against $1.48 at GFI's cheapest tier. The best case, whose medium is set by the floor, would cost $9.76 to $12.36 at
+  the cheaper tiers (now $8.95); Central does not move unless amino acids are dear. No default changed.
+- New "Price of the medium" setting: **$0.05 a litre**, an aspiration tagged "feed or process". Central at $0.05: $22.68 (the floor
+  binds). The best case keeps $0.15, and its rule text says so. "What decides it" for Central now shows the medium price worth
+  −$3.96 at its best setting.
+
+What GFI reports about the cost of medium (`research_notes/medium_cost_gfi.md`; no number moved)
+- GFI's December 2025 amino acid analysis and January 2023 growth factor report, read in full: amino acids $0.02-0.17 a litre against
+  $0.24-0.54 on Humbird's prices; Humbird's amino acids about $18-19 a kilo of cells; company reports of $0.20, $0.07 and $0.63 a
+  litre. The model's Central case matches GFI; the best case's medium ($1.72 a kilo, 11 L/kg) sits below it.
+- **Correction:** the tier "Humbird fed-batch, as designed" uses the model's feedstock (his cheaper bulk hydrolysate), not his own
+  medium cost, which was far higher. The name was not changed.
 
 If perfusion cannot be run at 20 m3 (`downside.py`, `research_notes/no_perfusion_downside.md`; no number moved)
 - Each scenario priced in a stirred tank without cell retention, in fed-batch and in fill-and-draw, at the model's own density cap
