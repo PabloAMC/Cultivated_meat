@@ -1087,6 +1087,11 @@ REGISTRY: dict[str, Input] = {
 
     # --- Cell retention for a 20 m3 perfusion tank (retention.py; research_notes/retention_devices.md) ---------------
     # Not used by any default: retention.py reprices the cases with each device through explore(retention=, extra_opex=).
+    "rt_tff_default": Input(1.0, "switch", "[model choice, 2026-11-15] 1: perfusion is priced with the TFF hollow-fibre "
+        "loop (retention.py; floor_physics.explore's default); 0: with the old hoped-for device, pf_capex_retention and no "
+        "membranes",
+        note="the side studies written before this change (research_notes/gas_exchange_study.md, cheap_plant_study.md) quote "
+             "figures at 0; their tests check them at 0"),
     "rt_install": Input(1.84, "x", "[Pasitka SI Tables S1 and S4, as for pf_capex_retention] engineering, construction, "
         "fees and contingency on bought retention equipment", lo=1.5, hi=2.5, mode=1.84),
     "rt_flux_lmh": Input(5.0, "L/m2/h", "[Repligen design guidance, snippet; Ott 2024, Veje 2024, read in full] permeate "

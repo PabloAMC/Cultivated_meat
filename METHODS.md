@@ -120,7 +120,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Cost physics | `floor_physics.py` | the cost of a kilo of cells from oxygen and CO₂ physics, by plant class and tank (`explore`); the reference case is its default |
 | Cost scenarios | `scenarios.py`, `page_sections.py`, `page_scenarios.js` | the ten switches, the scenarios as presets, what to prioritise, interactions, the bands; the page's JavaScript mirrors it |
-| Side-study | `retention.py` | the duty of the device that holds cells back in a 20 m3 perfusion tank, and each real device's cost; not used in the scenarios |
+| Cost physics | `retention.py` | the duty of the device that holds cells back in a 20 m3 perfusion tank, each real device's cost; the TFF loop is the model's default |
 | Vessels and modes | `vessels.py`, `page_vessels.js` | vessel type against operating mode, with everything else held; each cell is `explore(vm=...)` |
 | Cost physics | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
 | Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
@@ -241,7 +241,7 @@ reports the change in cost and in the long-run share of world meat for the best 
 (`scenarios.interactions`): for every pair of switches, the saving from moving A to its cheapest setting is computed with B as it is and
 with B at its own cheapest setting; pairs whose two savings differ by more than $0.25 are reported as sentences ("they overlap", "they
 reinforce each other"). **Bands** (`scenarios.scenario_mc`, `scenarios.bands`): the scenario's switches are held, and the plant
-estimate, financing, retention device, upkeep share of respiration, medium price and loss rate are drawn from their priors (the plant
+estimate, financing, the life of the filter membranes, upkeep share of respiration, medium price and loss rate are drawn from their priors (the plant
 estimate as in the reference case's run; the food-grade plant with shared medium not below a plant with everything animal cells must have); the share band lets demand
 vary too (`meat_market.monte_carlo`), 4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds).
 The scenarios' own cell traits and speeds are not drawn: they are what the scenarios differ in. **The headline share of a scenario is the
@@ -251,11 +251,11 @@ with the tricks taken away: once with the tricks switch at "none" and the tank s
 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
 |---|---|---|---|---|
-| Best case: everything works | **$6.6** ($6–8) | 0.96 | **7.9%** (2.8–17.3%) | needs genetic engineering |
-| Central: selection and feed only, a food-grade plant | **$18.1** ($16–22) | 1.93 | **0.8%** (0.2–2.5%) | needs selection or adaptation of cells |
-| Central, food-grade plant with shared medium | **$15.8** ($15–19) | 1.74 | **1.1%** (0.3–3.2%) | needs selection or adaptation of cells |
-| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
-| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% (point estimate) | needs genetic engineering |
+| Best case: everything works | **$8.9** ($9–12) | 1.16 | **4.4%** (1.3–11.2%) | needs genetic engineering |
+| Central: selection and feed only, a food-grade plant | **$26.6** ($24–35) | 2.64 | **0.3%** (0.1–0.8%) | needs selection or adaptation of cells |
+| Central, food-grade plant with shared medium | **$24.3** ($23–33) | 2.44 | **0.3%** (0.1–1.0%) | needs selection or adaptation of cells |
+| Cautious: the best meat cells measured so far | **$39.0** ($35–49) | 3.66 | **0.1%** (0.0–0.3%) | needs a change of feed, process or plant |
+| Reference: a standard perfusion tank, no tricks | $11.8 | 1.40 | 5.0% (point estimate) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% (point estimate) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
@@ -268,7 +268,7 @@ A grid of five vessels (stirred tank, airlift, single-use bag, packed bed, hollo
 fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, tank tricks
 and losses are those of the reference case or of a scenario. Each cell is one call to `floor_physics.explore` with a `vm`
 dict built from `inputs.py` `vm_*`. With no `vm`, `explore` is unchanged: the stirred tank in perfusion is the reference
-case ($11.48) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($17.81).
+case ($11.84) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($17.81).
 
 What `vm` changes in `explore`:
 
@@ -297,14 +297,24 @@ says "This density is not shown for meat cells". Results, assumptions and source
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 
-### Side-study: holding the cells back (`retention.py`, added 2026-11-15; not used in the scenarios)
+### Holding the cells back (`retention.py`, added 2026-11-15; the model's default since the same day)
+
+**The default.** In perfusion, `explore` prices a TFF hollow-fibre loop. The loop clears the cell-free liquid the bleed does not
+carry out: litres per kg = medium per kg - 1000 / density. Membrane area per m³ of tank = that flow / 5 L/m²/h (`rt_flux_lmh`).
+Hardware costs $1k per m² of membrane (`rt_tff_hw`), times 1.84 to install. Membranes cost $1,450 per m² and filter 3,960 litres
+per m² before replacement (`rt_membrane_price`, `rt_membrane_life`): about $0.37 a litre. A number for `retention` charges a
+flat capital per m³ and no membranes, as the old hoped-for device did (`pf_capex_retention`, $89k). `rt_tff_default = 0`
+restores the old device everywhere; the gas-exchange and cheap-plant studies' tests run that way, because their notes quote
+figures computed with it. The tier ladder (`tiers`) also keeps the old device.
+
+**The study.**
 
 The duty comes from `explore()`: medium in = litres per kg x harvest; the bleed (the product) = harvest / density; the device
 clears the rest as cell-free permeate. Each device (ATF, TFF, inclined settler, acoustic settler, disc-stack separator on the
 outflow, hydrocyclone; spin filters and fluidized-bed centrifuges are ruled out) is data in `inputs.py` `rt_*`. `sizing` gives
 units or area, capital per m3 of tank and running cost per kg (membranes at about $0.37 per litre of permeate; power and
 maintenance), and the share of grown cells the device destroys or lets go. `scenario_cost` reprices a case through
-`explore(retention=, extra_opex=)` and divides every cost per kg by the share of cells that survive. No default changes. Findings
+`explore(retention=, extra_opex=)` and divides every cost per kg by the share of cells that survive. Findings
 and sources: `research_notes/retention_devices.md`.
 
 ### The reference case's plant term (`floor_physics.py`)
@@ -420,36 +430,38 @@ The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, 
 and the page says which one binds. The defaults reproduce the reference case.
 
 *What limits a case (`floor_tornado`, the tornado chart in the panel).* Each limiting factor is moved alone
-across its plausible range, the others held at the case being viewed. Around the reference case ($11.5/kg):
+across its plausible range, the others held at the case being viewed. Around the reference case ($11.8/kg):
 
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
-| gas flow the cells tolerate | 2 to 9 mm/s | 28.0 – 8.7 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.5 – 24.4 |
-| tank size | 5 to 200 m³ | 10.6 – 18.8 |
-| plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
-| waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
-| doubling time | 18 to 48 h | 10.4 – 17.5 |
-| class of plant | yeast-style to pharma-style | 6.6 – 12.2 |
-| yearly charge on the plant | 12.3% to 23.6% | 9.4 – 14.1 |
-| growth factors | none to bought | 11.5 – 15.4 |
-| medium price | $0.10 to $0.50 a litre | 11.5 – 15.4 |
-| retention device | free to Humbird's filters | 10.8 – 14.4 |
-| cell mass | 1 to 3 ng | 14.8 – 11.5 |
-| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 9.3 |
-| how the tank is run | perfusion to drained and refilled | 11.5 – 17.8 |
-| runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
-| least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
-| ammonia the cells make | 0.055 to 0.14 mol per kg | 11.5 – 14.0 |
-| pressure at the top of the tank | 0 to 1 bar gauge | no effect alone (CO₂ binds); with a column it lifts the oxygen and mixing limits |
-| salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
-| pH held in the tank | 6.9 to 7.4 | 11.5 – 12.3 |
-| oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
+| waste the cells make | efficient cells to a quarter of the way to ordinary | 11.8 – 35.2 |
+| gas flow the cells tolerate | 2 mm/s to 9 mm/s | 25.9 – 10.4 |
+| doubling time | 18 h to 48 h | 9.8 – 22.2 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 10.9 – 22.5 |
+| ammonia the cells make | 0.055 mol/kg to 0.14 mol/kg | 11.8 – 20.6 |
+| least medium flow the cells need | 3.7 mL per g a day to 18.5 mL per g a day | 11.8 – 20.0 |
+| plant estimate | a third of Humbird's to +50% | 7.6 – 15.0 |
+| salt strength the cells tolerate | 350 mOsm/kg to 450 mOsm/kg | 18.9 – 11.8 |
+| how the tank is run | perfusion to drained and refilled | 11.8 – 17.8 |
+| class of plant | built like a yeast plant to pharma-style | 7.0 – 12.6 |
+| tank size | 5 m³ to 200 m³ | 12.4 – 17.3 |
+| yearly charge on the plant | 12.3% to 23.6% | 10.0 – 14.2 |
+| growth factors | none to all bought | 11.8 – 15.8 |
+| medium price | $0.10 a litre to $0.50 a litre | 11.8 – 15.7 |
+| life of the filter membranes | 5,500 litres per m² to 900 litres per m² | 11.6 – 15.4 |
+| cell mass | 1 ng to 3 ng | 15.3 – 11.8 |
+| runs lost to contamination | none to 2% a day | 11.8 – 13.9 |
+| pH held in the tank | 6.9 to 7.4 | 11.8 – 13.9 |
+| cO₂ the cells tolerate | 100 mbar to 200 mbar | 11.8 – 11.6 |
+| pressure at the top of the tank | 0 bar gauge to 1 bar gauge | 11.8 – 11.8 |
+| oxygen used for upkeep | 31% to 100% | 11.8 – 11.8 |
 
-The reference case sits at the favourable end of most ranges, which is why most bars point up. The two that point down
-furthest are the plant (a cheaper estimate or class) and the gas flow. The largest risk is also the gas flow: the
-reference case's 6 mm/s is a rule of thumb, not a measured limit, and our odds that it works at this size are about even
-(below, and `research_notes/gas_flow_cap.md`). Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
+The reference case sits at the favourable end of most ranges, which is why most bars point up. The widest bar is the
+waste the cells make. Wasteful cells need more medium per kilo, and in perfusion every litre the bleed of cells does not carry
+out must pass the filter's membranes, at about $0.37 a litre (`retention.py`). The two bars that point down furthest are the
+plant (a cheaper estimate or class) and the gas flow. The gas flow is also a large risk: the reference case's 6 mm/s is a rule
+of thumb, not a measured limit, and our odds that it works at this size are about even (below, and
+`research_notes/gas_flow_cap.md`). Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
 effect on the case shown are listed under the chart instead of drawn. Clicking a factor opens a card that says
 what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
 either end. The chart on the page redraws for any case the reader sets; around the

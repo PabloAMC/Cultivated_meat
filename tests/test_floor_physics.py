@@ -96,7 +96,10 @@ def check() -> list:
     if not fp.waste_cap(small) < fp.waste_cap(good) == value("pf_x_unperfused"):
         fails.append("the waste-limited density should fall for cells that respire more per gram")
     # the page's lever controls: the defaults are the floor, and every species preset runs
-    near("explore() defaults = the floor", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-3)
+    # the tier ladder keeps the old hoped-for retention device; explore() now prices a TFF loop by default (retention.py)
+    near("explore() with the old device = the floor tier", fp.explore(retention=value("pf_capex_retention"))["total"],
+         by["No clean rooms, perfusion"]["total_mature"], 1e-3)
+    near("explore() defaults, with the TFF loop", fp.explore()["total"], 11.84, 1e-3)
     for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
         if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):
@@ -105,7 +108,7 @@ def check() -> list:
             fails.append(f"species preset {key}: implausible case {r}")
     # uncertainty on the floor: the point floor is the favourable end, so the median sits above it
     mc = fp.floor_mc()["total"]
-    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 18.6, 0.03)
+    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 25.7, 0.03)
     # premium-product analogues: the default over-predicts them; kappa = 9 fits far better
     from market_share import DemandParams, analogue_check
     e4, e9 = (analogue_check(DemandParams(cult_sub_mult=k))["rms_log_error"] for k in (4.0, 9.0))
@@ -160,9 +163,10 @@ def check() -> list:
     st = fp.settler_spec()
     if not (1.0 < st["single_cell_cm_h"] < 15.0 and st["clump_um_needed"] > st["cell_um"]):
         fails.append(f"settler: implausible settling figures ({st})")
-    # tornado: every factor has a row; at the floor the widest is the gas flow, and CO2 tolerance lowers the cost
+    # tornado: every factor has a row; at the floor the widest is the waste the cells make (more medium, more permeate
+    # through the membranes), and CO2 tolerance lowers the cost
     tor = {r[0]: r for r in fp.floor_tornado()}
-    if len(tor) != len(fp.TORNADO) or fp.floor_tornado()[0][0] != "Gas flow the cells tolerate":
+    if len(tor) != len(fp.TORNADO) or fp.floor_tornado()[0][0] != "Waste the cells make":
         fails.append("tornado: wrong rows or order")
     if any(len(t[6]) < 80 or "Evidence" not in t[6] for t in fp.TORNADO):
         fails.append("tornado: every factor needs an explanation that says how solid the evidence is")

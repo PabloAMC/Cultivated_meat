@@ -21,11 +21,11 @@ from inputs import value
 # the reference-case grid, $/kg (None = not possible). Update in the same commit as an intended change.
 GOLDEN_REF = {
     ("stirred", "batch"): 62.9527, ("stirred", "fedbatch"): 18.2046, ("stirred", "filldraw"): 17.8091,
-    ("stirred", "chemostat"): 33.6712, ("stirred", "perfusion"): 11.4801,
-    ("airlift", "fedbatch"): 20.0256, ("airlift", "perfusion"): 15.1686,
+    ("stirred", "chemostat"): 33.6712, ("stirred", "perfusion"): 11.8411,
+    ("airlift", "fedbatch"): 20.0256, ("airlift", "perfusion"): 14.1094,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 18.1434, ("stirred", "fedbatch"): 45.2850, ("airlift", "perfusion"): 38.6944}
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 26.6381, ("stirred", "fedbatch"): 45.2850, ("airlift", "perfusion"): 40.1204}
 
 
 def close(a, b, tol=1e-3):

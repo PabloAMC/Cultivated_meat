@@ -20,7 +20,7 @@ SCENARIOS  presets of the switches, each with a one-sentence story of what has t
 priorities()   for one scenario, what each switch is worth if it moved to its best or its worst setting.
 grid()         two switches against each other.
 interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
-scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention device, upkeep,
+scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention membranes, upkeep,
                medium price, loss rate), holding the scenario's switches.
 
 The page (build_interactive.py) has a JavaScript mirror of this module; tests/run_parity.py checks the two agree.
@@ -477,7 +477,7 @@ MC_PRIORS = {
 
 
 def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
-    """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, retention device, upkeep
+    """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
     share of respiration, medium price and loss rate, drawn from their priors; the scenario's switches held."""
     rng = np.random.default_rng(seed)
     kw0 = explore_kwargs(choice)
@@ -488,7 +488,7 @@ def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
     tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
     d = {"capex_x": tri(*pri["capex_x"]), "medium_price": tri(*pri["medium_price"]) * kw0.get("medium_price", 0.15),
          "hazard": tri(*pri["hazard"]) * kw0.get("hazard", 0.0)}
-    for key, name in (("charge", "plant_charge_mature"), ("retention", "pf_capex_retention"),
+    for key, name in (("charge", "plant_charge_mature"), ("membrane_life", "rt_membrane_life"),
                       ("maintenance_share", "pf_maintenance_share")):
         _kind, lo, hi, mode, _note = prior(name)
         d[key] = tri(lo, mode, hi)

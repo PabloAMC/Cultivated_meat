@@ -36,13 +36,16 @@ def check() -> list:
         # the harvest over a year is the tank's output
         if not close(d["kg_h"] * 8760 * d["uptime"], r["output"] * d["vessel_m3"] * 1000.0):
             fails.append(f"{name}: harvest over the year != output")
-    # the model's defaults are untouched: the hoped-for device reproduces every case's cost exactly
+    # the model's default is the TFF loop: retention.py's own sizing gives the same capital and membranes as explore()
     for name, kw in R.cases().items():
-        c = R.scenario_cost("hoped", kw)
-        if not close(c["total"], c["base"], 1e-12):
-            fails.append(f"{name}: the hoped-for device does not reproduce the case ({c['total']} vs {c['base']})")
-    if not close(fp.explore()["total"], 11.4801, 1e-5) or value("pf_capex_retention") != 89.0:
-        fails.append("a default moved")
+        d0 = R.duty(kw)
+        sz, r = R.sizing("tff", kw, d0), d0["result"]
+        if not (close(sz["capex_k_m3"], r["retention_capex"], 1e-9) and close(sz["cons_kg"], r["membranes"], 1e-9)):
+            fails.append(f"{name}: TFF sizing ({sz['capex_k_m3']:.3f}k, ${sz['cons_kg']:.3f}) != explore "
+                         f"({r['retention_capex']:.3f}k, ${r['membranes']:.3f})")
+    # the old hoped-for device: a flat $89k per m3 and no membranes gives the old reference cost
+    if not close(R.scenario_cost("hoped", {})["total"], 11.4801, 1e-5):
+        fails.append("the hoped-for device no longer reproduces the old reference cost ($11.48)")
     cen = R.cases()["central"]
     d = R.duty(cen)
     # ATF: whole units that cover the permeate at the design flux

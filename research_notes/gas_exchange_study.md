@@ -1,5 +1,9 @@
 # Gas exchange for a 20 m³ tank of animal cells: membrane loop, tank shape, and a published airlift
 
+> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
+> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
+> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. This note's tests check its figures with the old device (`rt_tff_default = 0`). The comparisons between tricks still hold; the levels are lower than the model's current ones.
+
 Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every table). Tests:
 `tests/test_gas_exchange.py`. Nothing here is used in the headline cost or on the page.
 

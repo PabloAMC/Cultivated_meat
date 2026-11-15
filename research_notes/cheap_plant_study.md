@@ -1,5 +1,9 @@
 # Cheap-plant study: what animal cells need of a sterile plant, and how much contamination a cheaper one can afford
 
+> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
+> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
+> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. This note's tests check its figures with the old device (`rt_tff_default = 0`). The comparisons between plants still hold; the levels are lower than the model's current ones.
+
 Compiled 2026-11-14. Calculations: `plant_items.py` (part 1), `contamination.py` (part 2), checked by
 `tests/test_plant_items.py`, which also checks that the figures quoted here match the code. Sources are
 numbered in section 7 with how each was read.

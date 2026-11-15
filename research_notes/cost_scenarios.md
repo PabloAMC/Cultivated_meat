@@ -1,5 +1,9 @@
 # Cost scenarios: settings, why, what each needs, and what would move them
 
+> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
+> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
+> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. RESULTS.md and METHODS.md carry the current scenario table: the central case is now $26.6, the best case $8.9.
+
 Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_scenarios.js` (the page), `tests/test_scenarios.py`.
 Inputs: `inputs.py`, the `sc_*` block (each with source, range, note). Every cost below is computed by `floor_physics.explore`; run
 `python scenarios.py` to reproduce this note's numbers and `python scenarios.py --markdown` for the table.

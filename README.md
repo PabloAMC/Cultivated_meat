@@ -56,7 +56,7 @@ it is always a band.
 | 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
-| side | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty, each real device's cost; not used in the scenarios |
+| 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; the filter loop it prices is the model's default |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
 | 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets) and their scaffold cost; the most speculative part |

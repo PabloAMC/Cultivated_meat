@@ -5,9 +5,10 @@ retention.py — what it takes to hold the cells back in a 20 m3 perfusion tank,
 Why
 ---
 Every cost scenario uses a 20 m3 stirred tank in perfusion: fresh medium flows through, a device holds the cells back,
-and the harvest is a steady bleed of cells. Nobody has run animal cells in perfusion above about 4 m3. The model charges
-a hoped-for device at `pf_capex_retention` ($89k per m3 of tank, from one design study). If perfusion fails at 20 m3, the
-central scenario moves from about $18 to $45-49 a kilo (vessels.py). This module sizes the real devices for the real duty.
+and the harvest is a steady bleed of cells. Nobody has run animal cells in perfusion above about 4 m3. The model used to
+charge a hoped-for device at `pf_capex_retention` ($89k per m3 of tank, from one design study that does not name it).
+This module sizes the real devices for the real duty. Since 2026-11-15 the model's default is the TFF hollow-fibre loop
+priced here (floor_physics.explore); the hoped-for device is kept as a row for comparison.
 
 The duty
 --------
@@ -75,12 +76,12 @@ def duty(kw: dict | None = None) -> dict:
 # Each: name, how it holds cells back, what it is sized on, the densest culture (volume fraction) it has held, the largest
 # scale shown, and where its cost goes. The numbers are in inputs.py `rt_*`; the evidence in research_notes/retention_devices.md.
 DEVICES = {
-    "hoped": dict(name="Hoped-for device (the model's default)", how="a filter-free device one design study priced",
+    "hoped": dict(name="Hoped-for device (the old default)", how="a filter-free device one design study priced",
                   shown="none: Pasitka's design study does not say what it is", phi_max=None),
     "atf": dict(name="ATF hollow-fibre filter", how="a diaphragm pulls culture back and forth through hollow fibres",
                 shown="50 days on 50 L at 1e8 cells/mL (Ott 2024); 1.3e8 for days in 4 L (Clincke 2013); units rated to 5,000 L",
                 phi_max="rt_atf_phi_max"),
-    "tff": dict(name="TFF hollow-fibre loop", how="a pump circulates culture past hollow fibres",
+    "tff": dict(name="TFF hollow-fibre loop (the model's default)", how="a pump circulates culture past hollow fibres",
                 shown="2.14e8 cells/mL for days in a 4 L bag (Clincke 2013); one fibre lasted 30 days; nothing published above pilot scale",
                 phi_max="rt_tff_phi_max"),
     "settler": dict(name="Inclined (lamella) settler", how="cells settle on inclined plates and slide back to the tank",
@@ -160,13 +161,16 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
 
 
 def scenario_cost(device: str, kw: dict | None = None) -> dict:
-    """The case's cost per kg with this device in place of the model's hoped-for one: explore() with the device's capital
-    (`retention`) and running cost (`extra_opex`), then every cost per kg divided by the share of grown cells that survive
-    the device. No default changes."""
+    """The case's cost per kg with this device: explore() with the device's capital (`retention`, a flat charge with no
+    membranes) and running cost (`extra_opex`), then every cost per kg divided by the share of grown cells that survive
+    the device. The TFF loop is explore()'s own default, so it is explore() itself (its sizing here gives the same numbers)."""
     kw = dict(kw or {})
     d = duty(kw)
     sz = sizing(device, kw, d)
-    r = fp.explore(**{**kw, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg"]})
+    if device == "tff":
+        r = fp.explore(**kw)
+    else:
+        r = fp.explore(**{**kw, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg"]})
     total = r["total"] / (1.0 - sz["loss"])
     return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"]}
 
@@ -234,7 +238,7 @@ def summarise_duty() -> None:
 def summarise() -> None:
     summarise_duty()
     for name, rows in table().items():
-        print(f"\n  {name}: cost per kg of wet cells with each device (the model's default is the first row)")
+        print(f"\n  {name}: cost per kg of wet cells with each device (deltas against the model's default, the TFF loop)")
         for dev, c in rows.items():
             extra = ""
             if c.get("units"):

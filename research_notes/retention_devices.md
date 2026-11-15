@@ -125,10 +125,10 @@ The same devices in the other two cases:
    a culture that is a quarter cells. The devices shown at that density cost $25.69 to $30.43 a kilo in place of $18.14. The
    range is $21 to $80. The hoped-for device hides this, because it charges only capital, and the real cost is membranes or burst
    cells.
-3. **Recommended default (Pablo to decide):** price retention as a TFF hollow-fibre loop: capital of about $1k per m2 of membrane,
+3. **Applied as the model's default on 2026-11-15, at Pablo's request:** retention is priced as a TFF hollow-fibre loop: capital of about $1k per m2 of membrane,
    times 1.84, plus $0.37 per litre of permeate for membranes. The scenarios would become:
 
-   | scenario | now | with TFF | with a disc stack |
+   | scenario | before | with TFF (now the default) | with a disc stack |
    |---|---|---|---|
    | Best case | $6.57 | $8.95 | $7.38 |
    | Central | $18.14 | $26.64 | $25.69 |
