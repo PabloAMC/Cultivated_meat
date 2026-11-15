@@ -31,6 +31,9 @@ python tests/test_retention.py
 echo "==> downside: no perfusion at 20 m3"
 python tests/test_downside.py
 
+echo "==> how thick a culture can be: viscosity, stirrer, oxygen, cost at other density limits"
+python tests/test_thick_culture.py
+
 echo "==> least medium per kg of cells that physics allows"
 python tests/test_min_litres.py
 

@@ -1677,6 +1677,50 @@ REGISTRY: dict[str, Input] = {
     "p_conv_sushi_salmon": Input(40.0, "$/kg", "[market] sushi-grade salmon / Wildtype target",
         lo=32.0, hi=48.0, mode=40.0),
 
+    # --- how thick a culture can be (thick_culture.py, research_notes/thick_culture.md) ------------------
+    "tc_phi_max": Input(0.65, "volume fraction", "[Iordan, Duperray and Verdier 2007, arXiv:0709.3671, read in full] the "
+        "maximum packing in the Krieger-Dougherty fit to the viscosity of CHO suspensions at 1,000 per second (eta/eta0 = "
+        "(1 - phi/phi0)^(-2.5 phi0))", lo=0.64, hi=0.74, mode=0.65,
+        note="0.64 is random close packing of hard spheres, 0.74 the face-centred cubic limit. Their cells were spun down "
+             "and re-diluted at 20 C and not growing"),
+    "tc_thin": Input(1.33, "-", "[Tregidgo et al. 2023, Chem Eng Res Des 194:344, read in full] CHO at 1e8 cells/mL, 37 C: "
+        "2.4 mPa s at 50 rpm in a 250 mL tank against 1.8 at a shear rate of 45 per second (the viscosity the Thomas "
+        "equation gives for a quarter cells by volume): the excess viscosity is 1.33 times higher at the low shear a large "
+        "tank has", lo=1.0, hi=3.0, mode=1.33,
+        note="hi: the same paper, 'viscosities increase up to 3-fold ... at shear rates below 40 per second', with high "
+             "scatter. Applied to the excess of the suspension over the medium"),
+    "tc_kla_exp": Input(0.40, "-", "[Yagi and Yoshida 1975, as listed in a university course note, snippet] the oxygen "
+        "transfer coefficient falls with the apparent viscosity to the power -0.40 in stirred tanks of Newtonian and "
+        "non-Newtonian liquids", lo=0.0, hi=0.6, mode=0.40,
+        note="lo: Amgen's CHO perfusion cultures at 1e5 to 35e5 cells/mL lost almost no kLa (AIChE 2017 abstract, 403 on "
+             "fetch) and Pappenreiter saw none between cell-free and spent harvest medium (via Bioprocess Intl 2024). hi: a "
+             "2025 Biotechnology Journal paper reports a 10-40% fall with culture rheology (snippet, not read). Humbird's "
+             "kLa equation has no viscosity term"),
+    "tc_np": Input(5.0, "-", "[Tregidgo et al. 2023, read in full] power number of the dual-impeller 250 mL tank, 4.9; "
+        "elephant-ear and pitched-blade impellers in large tanks run at 1.3-1.5 (assumed)", lo=1.3, hi=5.0, mode=5.0,
+        note="at a fixed power per volume a lower power number turns the stirrer faster and raises the Reynolds number, so 5 "
+             "is the cautious end"),
+    "tc_re_turb": Input(1.0e4, "-", "[Tregidgo et al. 2023, read in full] a mixing number (time x speed) that stays constant "
+        "from Re 5,600 up; the usual boundary of fully turbulent flow is 10,000", lo=5600.0, hi=1.0e4, mode=1.0e4,
+        note="above this Reynolds number, Humbird's mixing-time equation (which has no viscosity in it) holds"),
+    "tc_bubble_mm": Input(3.5, "mm", "[research_notes/gas_flow_cap.md, section 3, citing a bubble-column measurement in "
+        "synthetic medium with poloxamer] bubbles of 3-4 mm", lo=2.0, hi=5.0, mode=3.5),
+    "tc_holdup": Input(0.04, "of the tank", "[research_notes/gas_flow_cap.md, section 3] gas hold-up at 6 mm/s: 3.5% at "
+        "4.2 mm/s and 4.5% at 7.7 mm/s", lo=0.03, hi=0.06, mode=0.04,
+        note="measured without cells, at the viscosity of the medium"),
+    "tc_yield_sigma": Input(1.4, "Pa", "[Iordan, Duperray and Verdier 2007, read in full] the stress scale sigma* of the "
+        "fractal-aggregate fit to their yield stresses", lo=0.5, hi=5.0, mode=1.4,
+        note="their Figure 4a values were not extracted; the yield stress is taken as sigma* (phi/phi0)^m, with m below. "
+             "They fitted CHO at 20 C, spun down and re-diluted"),
+    "tc_yield_exp": Input(8.4, "-", "[Iordan, Duperray and Verdier 2007, read in full] yield stress grows as phi to the "
+        "power 8.4", lo=6.0, hi=11.0, mode=8.4),
+    "tc_peak_dissipation": Input(50.0, "-", "[Humbird 2021, Eq. 2.17 after Nienow 2010, read in part] the energy dissipation "
+        "near the impeller against the tank average", lo=20.0, hi=100.0, mode=50.0),
+    "tc_jacket_u": Input(400.0, "W/m2/K", "[assumed] heat transfer through the wall of a jacketed steel tank holding a thick "
+        "culture, inside film included", lo=200.0, hi=700.0, mode=400.0,
+        note="textbook range for a stirred jacketed vessel; nothing found for a 20 m3 animal-cell tank"),
+    "tc_cool_dt": Input(10.0, "K", "[assumed] temperature difference between the culture (37 C) and the cooling water in the "
+        "jacket", lo=5.0, hi=15.0, mode=10.0),
     # --- the least medium per kg of cells that physics allows (min_litres.py; research_notes/min_litres_per_kg.md) ---
     "ml_dry_mol_kg": Input(13.6, "mol/kg wet", "[Humbird-R, derived] moles of dry cell mass in a kg of wet cells",
         note="300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1); the figure that "
