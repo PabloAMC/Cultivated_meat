@@ -84,6 +84,13 @@ DEVICES = {
     "tff": dict(name="TFF hollow-fibre loop (the model's default)", how="a pump circulates culture past hollow fibres",
                 shown="2.14e8 cells/mL for days in a 4 L bag (Clincke 2013); one fibre lasted 30 days; nothing published above pilot scale",
                 phi_max="rt_tff_phi_max"),
+    "reuse": dict(name="Reused pharma hollow-fibre modules", how="the TFF loop, with each module cleaned and used again four times",
+                  shown="no reuse data with animal cells; steam limits a module to about 10 cycles",
+                  phi_max="rt_tff_phi_max"),
+    "dialyser": dict(name="Dialyser-grade hollow fibres, replaced often", how="a bank of mass-made medical hollow-fibre filters",
+                     shown="whole blood at 32-40% cells by volume, for hours; no animal-cell culture", phi_max="rt_dial_phi_max"),
+    "ceramic": dict(name="Ceramic membranes run as a slow TFF loop", how="dairy-type ceramic elements, cleaned in place between runs",
+                    shown="nothing with animal cells", phi_max="rt_ceramic_phi_max"),
     "settler": dict(name="Inclined (lamella) settler", how="cells settle on inclined plates and slide back to the tank",
                     shown="5e7 cells/mL (Coronel 2020); a 2,000 L tank (Romann 2023); a 3,000 L seed tank",
                     phi_max="rt_settle_phi_max"),
@@ -101,7 +108,15 @@ NOT_COSTED = {"spin": ("Spin filter", "Its screen sits inside the tank, so its a
                                      "shown only at about 1e7 cells/mL or less, and it clogs within weeks."),
               "ksep": ("Fluidized-bed centrifuge (kSep)", "One cycle holds about 2.9 kg of cells; the central duty passes "
                                                          "485 kg an hour, about 170 cycles an hour. The 6000S is discontinued.")}
-ORDER = ("hoped", "atf", "tff", "settler", "acoustic", "discstack", "hydrocyclone")
+ORDER = ("hoped", "atf", "tff", "reuse", "dialyser", "ceramic", "settler", "acoustic", "discstack", "hydrocyclone")
+NOT_COSTED["mbr"] = ("Wastewater membrane (submerged, air-scoured)", "It cannot be steamed (rated to 40 C), is made for 3-20 g/L of "
+                     "solids against 50-75 g/L dry here, and needs coarse bubbles in the culture.")
+NOT_COSTED["pvdf"] = ("Food and beverage hollow fibres (wine, beer)", "Sanitised with hot water, not sterilised, used on fluids "
+                      "with well under 1% solids; no price per m2 was found.")
+# membrane devices: flux, hardware $k per m2, membrane price $ per m2, litres per m2 before replacement
+_MEMB = {"reuse": ("rt_flux_lmh", "rt_tff_hw", "rt_membrane_price", "rt_reuse_life"),
+         "dialyser": ("rt_dial_flux", "rt_dial_hw", "rt_dial_price", "rt_dial_life"),
+         "ceramic": ("rt_flux_lmh", "rt_ceramic_hw", "rt_ceramic_price", "rt_ceramic_life")}
 
 
 def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
@@ -123,6 +138,10 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     elif device == "tff":
         area = P * 1000.0 / value("rt_flux_lmh")
         out.update(area_m2=area, cons_kg=membranes, capex_k_m3=area * value("rt_tff_hw") * value("rt_install") / v)
+    elif device in _MEMB:
+        flux, hw, price, life = (value(k) for k in _MEMB[device])
+        area = P * 1000.0 / flux
+        out.update(area_m2=area, cons_kg=perm_l_kg * price / life, capex_k_m3=area * hw * value("rt_install") / v)
     elif device == "settler":
         cells = fp.Cells(mass_pg=kw.get("mass_pg", 3000.0) if kw else 3000.0, doubling_h=24.0)
         d_um = (6.0 * cells.mass_pg * 1e-15 / (math.pi * value("pf_cell_density") * 1000.0)) ** (1.0 / 3.0) * 1e6
@@ -178,6 +197,9 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
 # The inputs behind each device, and which way is cheaper (+1: a higher value is cheaper; -1: a lower one is)
 _DRIVERS = {
     "hoped": (("pf_capex_retention", -1),),
+    "reuse": (("rt_flux_lmh", +1), ("rt_tff_hw", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_reuse_life", +1)),
+    "dialyser": (("rt_dial_flux", +1), ("rt_dial_hw", -1), ("rt_install", -1), ("rt_dial_price", -1), ("rt_dial_life", +1)),
+    "ceramic": (("rt_flux_lmh", +1), ("rt_ceramic_hw", -1), ("rt_install", -1), ("rt_ceramic_price", -1), ("rt_ceramic_life", +1)),
     "atf": (("rt_flux_lmh", +1), ("rt_atf_price", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_membrane_life", +1)),
     "tff": (("rt_flux_lmh", +1), ("rt_tff_hw", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_membrane_life", +1)),
     "settler": (("rt_settle_price", -1), ("rt_settle_v_frac", +1), ("rt_settle_holdup", -1)),
