@@ -2,6 +2,13 @@
 
 ## 2026-11-15
 
+What GFI reports about the cost of medium (`research_notes/medium_cost_gfi.md`; no number moved)
+- GFI's December 2025 amino acid analysis and January 2023 growth factor report, read in full: amino acids $0.02-0.17 a litre against
+  $0.24-0.54 on Humbird's prices; Humbird's amino acids about $18-19 a kilo of cells; company reports of $0.20, $0.07 and $0.63 a
+  litre. The model's Central case matches GFI; the best case's medium ($1.72 a kilo, 11 L/kg) sits below it.
+- **Correction:** the tier "Humbird fed-batch, as designed" uses the model's feedstock (his cheaper bulk hydrolysate), not his own
+  medium cost, which was far higher. The name was not changed.
+
 If perfusion cannot be run at 20 m3 (`downside.py`, `research_notes/no_perfusion_downside.md`; no number moved)
 - Each scenario priced in a stirred tank without cell retention, in fed-batch and in fill-and-draw, at the model's own density cap
   and at the 27 g/L shown for meat cells, with the tank design chosen again. Central: $26.64 with perfusion, $40.39 (fed-batch) or

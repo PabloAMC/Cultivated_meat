@@ -957,7 +957,10 @@ REGISTRY: dict[str, Input] = {
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
     "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
-        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20, note="company announcements, not verified at scale"),
+        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20,
+        note="company announcements, not verified at scale. GFI's amino acid analysis (Dec 2025, read in full) puts amino acids at "
+             "$0.02-0.17/L and cites Meatly and Gourmey at about $0.20, Clever Carnivore at $0.07 and Believer's measured "
+             "$0.63; see research_notes/medium_cost_gfi.md"),
     "sc_medium_high": Input(0.30, "$/L", "[judgement] between the announced $0.20 and the $0.50 SuperMeat reports",
         lo=0.2, hi=0.5, mode=0.30),
     "sc_aspect_flat": Input(0.5, "depth/width", "[gas_exchange.cheapest_tricks] the squattest shape its search "
