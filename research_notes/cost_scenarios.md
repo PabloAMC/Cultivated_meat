@@ -1,8 +1,8 @@
 # Cost scenarios: settings, why, what each needs, and what would move them
 
-> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
-> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
-> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. RESULTS.md and METHODS.md carry the current scenario table: the central case is now $26.6, the best case $8.9.
+> **Updated 2026-11-15 (late).** Every figure in this note is recomputed with the model's default device for holding the cells back,
+> the hollow-fibre filter loop with its membranes (`retention.py`, `research_notes/retention_devices.md`). Earlier versions of this note
+> used the old hoped-for device ($89k per m3 of tank, no membranes); git history has them (best case $6.57, central $18.14).
 
 Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_scenarios.js` (the page), `tests/test_scenarios.py`.
 Inputs: `inputs.py`, the `sc_*` block (each with source, range, note). Every cost below is computed by `floor_physics.explore`; run
@@ -32,7 +32,7 @@ plant design; **nothing new** has been done.
 | runs lost | 0.2 / 0.6 / 1 / 2% a day | 0.2% is large pharma (`pf_hazard_pharma`); the survey of makers (Powell 2025: 11.2% of batches lost, 19.5% beyond flasks) implies 0.6 to 2.2% a day **if** runs lasted 10 to 20 days, which the survey does not state. |
 | restart after a loss | 14 / 21 / 30 days | `contamination.py`; 21 days when the seed trains must be regrown; 30 when one failure reaches every tank. |
 | growth factors | none (GE) · 30% (FEED) · 60% · all of Humbird's price | His price assumes an industry far larger than today's; cells that make their own were shown in cattle cells by genetic engineering. 30% and 60% are judgement. |
-| medium price | $0.15 / 0.20 / 0.30 / 0.50 a litre | $0.15 is the cost of the nutrients themselves (the medium cannot cost less); $0.20 is what several companies announced for 2025 (GFI 2026 report, p.8; not verified at scale); $0.50 is SuperMeat. |
+| medium price | $0.05 / 0.15 / 0.20 / 0.30 / 0.50 a litre | $0.05 is an aspiration nobody has reported (lowest company report $0.07; GFI's amino acids alone $0.02-0.17; below it the medium costs what the cells must eat, `nutrient_floor.md`); $0.15 was this note's earlier estimate of the nutrients themselves; $0.20 is what several companies announced for 2025 (GFI 2026 report, p.8; not verified at scale); $0.50 is SuperMeat. |
 
 ## The scenarios, and the rule that defines each
 
@@ -50,32 +50,32 @@ Computed results (cells $/kg; shop; R against $12 meat; long-run share of world 
 
 | scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the tank tricks | ordinary tall tank |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Best case | $6.57 | $6.3–8.1 | $11.6 | 0.96 | **7.9%** | 2.8–17.3% | 15.2% | 22.5% | 33.6% | $7.4 | $9.4 |
-| Central, food-grade plant | $18.14 | $16.2–21.8 | $23.1 | 1.93 | **0.8%** | 0.2–2.5% | 1.5% | 3.5% | 10.7% | $23.0 | $30.0 |
-| Central, food-grade plant with shared medium | $15.84 | $14.9–19.0 | $20.8 | 1.74 | **1.1%** | 0.3–3.2% | 2.3% | 5.0% | 13.9% | $18.9 | $23.6 |
-| Cautious | $32.29 | $29.2–41.2 | $37.3 | 3.11 | **0.2%** | 0.0–0.5% | 0.3% | 0.7% | 1.7% | $51.7 | $62.8 |
-| Reference (standard tank, no tricks) | $11.48 | | $16.5 | 1.37 | | | 5.4% | 10.0% | 21.6% | | |
+| Best case | $8.95 | $8.5–11.6 | $13.9 | 1.16 | **4.4%** | 1.3–11.2% | 9.3% | 15.3% | 27.0% | $9.2 | $9.7 |
+| Central, food-grade plant | $26.64 | $24.4–35.0 | $31.6 | 2.64 | **0.3%** | 0.1–0.8% | 0.5% | 1.2% | 3.6% | $30.2 | $34.5 |
+| Central, food-grade plant with shared medium | $24.34 | $22.9–32.7 | $29.3 | 2.44 | **0.3%** | 0.1–1.0% | 0.7% | 1.6% | 4.8% | $26.0 | $28.2 |
+| Cautious | $38.97 | $35.4–48.9 | $44.0 | 3.66 | **0.1%** | 0.0–0.3% | 0.2% | 0.4% | 0.8% | $53.4 | $61.3 |
+| Reference (standard tank, no tricks) | $11.84 | | $16.8 | 1.40 | | | 5.0% | 9.4% | 20.9% | | |
 | As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |
 
 **Why the median and not the point estimate.** Each point cost sits below its band's median cost, because the estimates behind a scenario are drawn with
 more room to fall short than to improve. The share rises steeply as the price falls, so the share at the point cost is higher than the median share.
-A headline of 15.2% for the best case would be a number most draws do not reach, since the median is 7.9%. The page keeps the point estimate where
+A headline of 9.3% for the best case would be a number most draws do not reach, since the median is 4.4%. The page keeps the point estimate where
 it is labelled as one. The band exists for the four scenarios. Once a reader changes a switch, the live strip shows the point estimate and says so.
-At 1,000 draws the best case's median moved by 0.3 points between seeds (7.8 to 8.15), so the bands use 4,000.
+At 1,000 draws the best case's median moved by 0.3 points between seeds (7.8 to 8.15, with the old device), so the bands use 4,000.
 
 **Tank design nobody has run with animal cells.** Each scenario's tank design is the cheapest the loop checks allow. Each rests on tricks
 that are calculated, not measured. Best case: a column, 1 bar of extra pressure, and a tank 0.75 as deep as wide. Central: the column, the pressure,
 recycled pure oxygen, and a tank half as deep as wide. Cautious: the column, the pressure, and a tank as deep as wide. "Without the tank tricks"
-sets the tricks switch to "none" and keeps the tank shape (Central: +$4.9). "Ordinary tall tank" also takes the shape back to Humbird's 1.6 (Central:
-+$11.8). The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
+sets the tricks switch to "none" and keeps the tank shape (Central: +$3.5). "Ordinary tall tank" also takes the shape back to Humbird's 1.6 (Central:
++$7.9). The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
 
-Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the retention device) are drawn with more room to fall short than to improve: the best case's point ($6.57) is at the 18th percentile of its draws (median $7.2), the central point ($18.14) at the 37th (median $18.9), the central point with shared medium at the 27th and the cautious point at the 31st.
+Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the life of the filter membranes) are drawn with more room to fall short than to improve: the best case's point ($8.95) is at the 25th percentile of its draws (median $9.6), the central point ($26.64) at the 32nd (median $28.2), the central point with shared medium at the 27th (median $26.0) and the cautious point at the 31st (median $41.4).
 
 ### What the bands vary, and what they do not
 
 Each scenario's switches are held. The draws are the estimates behind a scenario: the plant estimate (a third to 1.5 times; for the food-grade plant with shared medium
-not below a plant with everything animal cells must have), the financing charge (12.3 to 23.6%, mode 17.3%), the retention device
-($0 to $460k per m3, mode $89k), the upkeep share of respiration (31 to 100%), the medium price (0.6 to 1.5 times the setting) and the loss
+not below a plant with everything animal cells must have), the financing charge (12.3 to 23.6%, mode 17.3%), the life of the filter
+membranes (900 to 5,500 litres per m², mode 3,960), the upkeep share of respiration (31 to 100%), the medium price (0.6 to 1.5 times the setting) and the loss
 rate (0.3 to 2 times). The cell traits and speed are not drawn: they are what the scenarios differ in, and "What to prioritise" shows what each is
 worth. This differs from the earlier `floor_mc`, which drew the cell traits too (it was a band around engineered cells); that run is unchanged and kept.
 
@@ -94,8 +94,8 @@ The measured low-waste meat-cell cultures never doubled in 24 hours:
 **Choice: 36 hours for the central case.** Selection acts most directly on growth rate, so the central value should sit nearer the ordinary cells'
 speed (25.7 h) than the one measured low-waste culture (42.9 h), but the combination has never been shown. My odds (labelled judgement): 24 h together
 with ammonia at or below 0.14 about 10%; 30 h or faster about 25%; 36 h or faster about 45%; 43 h or faster about 70%. **Alternative:** 24 h, as the
-engineered-cell scenario assumes, costs $16.84 instead of $18.14 (−$1.3, about 7%); 30 h costs $17.80. For the food-grade plant with shared medium, $14.89 at 24 h, $15.55 at
-30 h, $15.84 at 36 h. So speed is worth about $1 to 1.5 a kilo here, against $3.8 for engineered cells, $3.0 for no growth factors, $1.4 for the cheapest medium.
+engineered-cell scenario assumes, costs $24.96 instead of $26.64 (−$1.7, about 6%); 30 h costs $26.04. For the food-grade plant with shared medium, $23.00 at 24 h, $23.80 at
+30 h, $24.34 at 36 h. So speed is worth about $1.3 to 1.7 a kilo here, against $8.2 for engineered cells, $3.0 for no growth factors, $1.4 for medium at $0.15 a litre.
 
 ## What decides the central case
 
@@ -103,21 +103,24 @@ Each switch moved alone (cost change; change in world share in percentage points
 
 | switch | best setting | worst setting |
 |---|---|---|
-| kind of cells | engineered −$3.8 (+1.5 pts) | ordinary +$34.8 (−1.5 pts) |
-| price of the medium | $0.15 −$1.4 (+0.4) | $0.50 +$8.6 (−1.0) |
-| growth factors | none −$3.0 (+1.0) | all +$7.0 (−0.9) |
-| tank tricks | (already all three) | none +$4.9 (−0.7) |
-| growth speed | 24 h −$2.7 (+0.9) | 43 h +$1.6 (−0.3) |
-| the plant | food-grade with shared medium −$2.3 (+0.7) | pharma-style +$0.7 (−0.2) |
-| runs lost | 0.2% a day −$0.8 (+0.2) | 2% +$1.1 (−0.2) |
-| restart after a loss | (14 days) | 30 days +$1.0 (−0.2) |
-| tank shape | 1.6 −$0.7 (+0.2), but beyond the loop checks | 0.5 $0.0 |
-| gas the cells tolerate | 6 mm/s −$0.3 (+0.1) | 2 mm/s +$0.4 (−0.1) |
+| kind of cells | engineered −$8.2 (+0.9 pts) | ordinary +$76.8 (−0.5 pts) |
+| price of the medium | $0.05 (an aspiration) −$4.0 (+0.3); $0.15 −$1.4 | $0.50 +$8.6 (−0.3) |
+| growth factors | none −$3.0 (+0.2) | all +$7.0 (−0.2) |
+| growth speed | 24 h −$2.5 (+0.2) | 43 h +$1.5 (−0.1) |
+| tank tricks | (already all three) | none +$3.5 (−0.1) |
+| the plant | food-grade with shared medium −$2.3 (+0.1) | pharma-style +$0.7 (−0.0) |
+| runs lost | 0.2% a day −$0.8 (+0.0) | 2% +$1.1 (−0.1) |
+| restart after a loss | (14 days) | 30 days +$1.0 (−0.0) |
+| tank shape | 1.6 −$0.7 (+0.0), but beyond the loop checks | 0.5 $0.0 |
+| gas the cells tolerate | 6 mm/s −$0.3 (+0.0) | 2 mm/s +$0.4 (−0.0) |
 
-Interactions (computed, `scenarios.interactions`): engineered cells save $3.8 as things stand and $5.4 if cells also doubled every 24 h (they reinforce
-each other); they save $2.5 with no growth factors and $3.2 at $0.15 a litre (they overlap: all three attack the same medium cost). In the cautious case, 6 mm/s of
-gas would save $7.0 but only $0.4 if all three tank tricks were in place: the tricks do the job of the gas. A tank trick matters little if the cells waste a lot:
-with ordinary cells no tank trick reaches the medium cost that washing out ammonia sets (the cells-by-tank grid on the page).
+The share changes are at the point cost and are small because the central share is small (0.5% at the point cost).
+
+Interactions (computed, `scenarios.interactions`): engineered cells save $8.2 as things stand and $11.7 if cells also doubled every 24 h (they reinforce
+each other); they save $6.9 with no growth factors and $5.8 at $0.05 a litre (they overlap: all three attack the same medium cost, and each litre of
+medium must also pass the filter). In the cautious case, 6 mm/s of gas would save $5.3 but only $0.4 if all three tank tricks were in place: the tricks do
+the job of the gas. A tank trick matters little if the cells waste a lot: with ordinary cells no tank trick reaches the medium cost that washing out
+ammonia sets (the cells-by-tank grid on the page).
 
 ## What would move each scenario
 

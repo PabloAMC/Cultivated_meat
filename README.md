@@ -184,6 +184,7 @@ model/
 ├── tests/               ← golden-value and Python↔JS parity tests
 ├── figures/             ← curated PNGs (diagnostics/ holds the rest)
 ├── RESULTS.md           ← the findings
+├── TODO.md              ← open work, decisions waiting, project ideas
 ├── METHODS.md           ← code-level methods, sources and the anti-drift checklist
 ├── DESIGN_authenticity_demand.md ← design note behind the entry-point analysis (historical)
 └── REVIEW.md            ← a June 2026 review of the explorer (historical)

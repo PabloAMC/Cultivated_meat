@@ -501,6 +501,12 @@ REGISTRY: dict[str, Input] = {
         note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
              "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
     "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
+    "pf_antifoam_otr": Input(1.0, "-", "[assumed default, effect reported] oxygen transfer from the sparger with antifoam "
+        "present, relative to without",
+        lo=0.5, hi=1.0, mode=1.0,
+        note="research_notes/gas_flow_cap.md (follow-up 2): antifoams cut kLa by 0 to about 50% depending on type and dose "
+             "(snippet- and abstract-level sources there). 1 keeps Humbird's oxygen transfer; at 0.5 the oxygen limit of the "
+             "reference tank falls from 195 to about 97 g/L and binds before CO2. Applied to the sparger only."),
     "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
         note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
              "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "

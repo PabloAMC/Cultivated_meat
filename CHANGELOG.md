@@ -2,6 +2,20 @@
 
 ## 2026-11-15
 
+Housekeeping (`TODO.md`; no default changed, no headline moved)
+- **`TODO.md`**: one list of open PRs, decisions waiting on Pablo, housekeeping and project ideas; `research_notes/roadmap_2026-11-15.md`
+  keeps the reasoning for the projects.
+- Two new levers from the gas-flow follow-ups, each with a tornado bar and the page mirror (parity holds):
+  `explore(strip_eff=)` (CO₂ carried off by the exhaust gas, 0.70–0.96; at 0.70 the reference holds 87 g/L and costs $13.60) and
+  `explore(antifoam_otr=)` with new input `pf_antifoam_otr` (default 1, range 0.5–1; sparger oxygen only). Halved, the reference
+  becomes oxygen-limited at 97 g/L ($12.88) and Cautious goes from $38.97 to $50.58.
+- Poloxamer 188: catalogue price only (~$230–260/kg); at 2 g/L that is $5.6–14 a kilo of cells. Not added; in `gas_flow_cap.md`
+  and TODO.md as a decision.
+- Notes recomputed with the filter loop: `cost_scenarios.md`, `vessels_and_modes.md` (every figure). `cheap_plant_study.md` and
+  `gas_exchange_study.md` stay dated snapshots (their tests pin the old device) with a box of current figures: the tank tricks are
+  worth about half as much (the gentler column saves $1.47, not $2.86); the lean plant's break-even loss rate is 3.9% a day.
+- `interactive.html` rebuilt (main's copy was older than its source); untracked notes and the growth-rate proposal committed.
+
 Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
 - Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
   under the column loop's pH and pass-rate checks. 20 m3 is within 0.4% to 2.3% of the cheapest size: best $8.95 -> $8.82 at 55 m3,

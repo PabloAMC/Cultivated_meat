@@ -459,6 +459,8 @@ across its plausible range, the others held at the case being viewed. Around the
 | cell mass | 1 ng to 3 ng | 15.3 – 11.8 |
 | runs lost to contamination | none to 2% a day | 11.8 – 13.9 |
 | pH held in the tank | 6.9 to 7.4 | 11.8 – 13.9 |
+| CO₂ carried off by the exhaust gas | 70% of the most it could carry to 96% | 13.6 – 11.8 |
+| oxygen transfer left with antifoam | halved to no effect | 12.9 – 11.8 |
 | cO₂ the cells tolerate | 100 mbar to 200 mbar | 11.8 – 11.6 |
 | pressure at the top of the tank | 0 bar gauge to 1 bar gauge | 11.8 – 11.8 |
 | oxygen used for upkeep | 31% to 100% | 11.8 – 11.8 |

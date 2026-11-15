@@ -1,8 +1,14 @@
 # Cheap-plant study: what animal cells need of a sterile plant, and how much contamination a cheaper one can afford
 
 > **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
-> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
-> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. This note's tests check its figures with the old device (`rt_tff_default = 0`). The comparisons between plants still hold; the levels are lower than the model's current ones.
+> perfusion tank ($89k per m3 of tank, no membranes), and `tests/test_plant_items.py` checks them with that device
+> (`rt_tff_default = 0`). The model's default is now a hollow-fibre filter loop with its membranes (`retention.py`). The
+> comparisons between plants hold; the levels move up by about $0.3-0.4 a kilo. **Current figures** (recomputed 2026-11-15,
+> default device; old in brackets): sterile plant $11.84 ($11.48), at pharma's 0.2% a day $12.04 ($11.70); yeast-style class
+> $6.97 ($6.61); yeast plant with what animal cells need $7.63 ($7.27); lean plant $9.35 ($8.99); lean plant losing 0.6 / 1.5 / 5%
+> a day with a 14-day restart $9.73 / $10.32 / $12.85 ($9.42 / $10.10 / $12.97), 1.5% with a 30-day restart $11.39 ($11.31);
+> break-even loss rate against the sterile plant at 0.2% a day: **3.9% a day** for the lean plant (3.5%) and **8.9%** for the yeast
+> plant with additions (7.6%).
 
 Compiled 2026-11-14. Calculations: `plant_items.py` (part 1), `contamination.py` (part 2), checked by
 `tests/test_plant_items.py`, which also checks that the figures quoted here match the code. Sources are

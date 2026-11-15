@@ -340,6 +340,24 @@ def washout_litres(cells: Cells, waste: float = 0.0, nh3_limit: float | None = N
     return max(nh3 / (nh3_limit / 1000.0), lac / (value("pf_lac_limit") / 1000.0))
 
 
+def _inputs_set(settings: dict):
+    """Context manager: run with some inputs set to other values, and restore them after (as retention._with)."""
+    import contextlib
+    from dataclasses import replace
+    import inputs as I
+
+    @contextlib.contextmanager
+    def cm():
+        old = {k: I.REGISTRY[k] for k in settings}
+        try:
+            for k, v in settings.items():
+                I.REGISTRY[k] = replace(I.REGISTRY[k], value=v)
+            yield
+        finally:
+            I.REGISTRY.update(old)
+    return cm()
+
+
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
             uptime: float | None = None, maintenance_share: float | None = None,
@@ -357,6 +375,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
             fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
             vm: dict | None = None, membrane_life: float | None = None, flux: float | None = None,
+            strip_eff: float | None = None, antifoam_otr: float | None = None,
             _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
@@ -433,8 +452,19 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       whether the tank is run in cycles (batch, fed-batch) or continuously, the length of a cycle or a run, and how fast
       the culture is diluted (chemostat).
 
+      Gas-side uncertainties (research_notes/gas_flow_cap.md, follow-ups 2 and 3): `strip_eff`, how close the exhaust gas
+      comes to equilibrium with the liquid's CO2 (pf_co2_strip_eff, calibrated to Humbird at 0.96; 0.7 is the low end
+      reported), used by the sparger and by the column's sparger share; `antifoam_otr`, the oxygen transfer left with
+      antifoam present (pf_antifoam_otr; 1 = no effect, 0.5 = halved), applied to the sparger's oxygen only (the mixing
+      rule is left as it is).
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
+    if strip_eff is not None or antifoam_otr is not None:   # run the case with those two inputs set, then restore them
+        over = {k: v for k, v in (("pf_co2_strip_eff", strip_eff), ("pf_antifoam_otr", antifoam_otr)) if v is not None}
+        kw = {k: v for k, v in locals().items() if k not in ("strip_eff", "antifoam_otr", "over")}
+        with _inputs_set(over):
+            return explore(**kw)
     args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search")}
     vm = vm or {}
     washed = vm.get("washed", mode == "perfusion")     # is waste washed out (cells retained, or fixed to a support)?
@@ -519,7 +549,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         from gas_exchange import headspace_pressure
         f_p = headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
     rq_eff = (value("pf_rq") - value("pf_rq_lipid") * fat_fed) if rq is None else rq
-    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * f_p
+    x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * f_p * value("pf_antifoam_otr")
     limits = {"oxygen supply": float("inf") if column == "o2_closed" else x_o2,
               "thickness of the culture": value("pf_x_visc"),
               "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect) * f_p,
@@ -809,6 +839,18 @@ TORNADO = [
      "the likelier cap: it grows with gas velocity, and the antifoam that controls it slows growth and oxygen "
      "transfer. <b>Evidence:</b> weak. Nobody has run cells this dense at this size, or any culture at 6 mm/s. "
      "Our odds that 6 mm/s works at this size are about even."),
+    ("CO\u2082 carried off by the exhaust gas", "strip_eff", 0.70, 0.9605, "70% of the most it could carry", "96%",
+     "Gas bubbled through the tank leaves carrying CO\u2082, but the bubbles do not quite reach balance with the liquid. "
+     "<b>Range:</b> 96% is what makes the model's CO\u2082 balance reproduce Humbird's density limits [2]; measured "
+     "stripping models of pharma tanks put it lower, down to about 70% (research_notes/gas_flow_cap.md). The density a "
+     "sparged tank can hold falls in proportion. <b>Evidence:</b> pharma tanks of 2 to 20 m\u00b3, thinner cultures, "
+     "read mostly at abstract level."),
+    ("Oxygen transfer left with antifoam", "antifoam_otr", 0.5, 1.0, "halved", "no effect",
+     "Bubbling hard makes foam, and the antifoam that controls it coats the bubbles and slows the oxygen they pass to "
+     "the liquid. <b>Range:</b> reported effects run from none to about half (research_notes/gas_flow_cap.md); the model "
+     "assumes none. Halved, the reference tank is limited by oxygen at about 97 g/L instead of by CO\u2082 at 120. "
+     "<b>Evidence:</b> weak: depends on the antifoam, its dose and the medium; not measured in dense meat-cell cultures. "
+     "Only the sparger is affected here, not a column or the mixing rule."),
     ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
      "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
      "<b>Range:</b> Humbird's tank has liquid 1.6 times as deep as it is wide [2]; tanks in use run from about 1 "
