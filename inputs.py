@@ -1651,6 +1651,96 @@ REGISTRY: dict[str, Input] = {
         lo=20.0, hi=30.0, mode=25.0),
     "p_conv_sushi_salmon": Input(40.0, "$/kg", "[market] sushi-grade salmon / Wildtype target",
         lo=32.0, hi=48.0, mode=40.0),
+
+    # --- growth-factor prices and the fastest doubling time (gf_doubling_bounds.py;
+    #     research_notes/gf_and_doubling_bounds.md). Access levels: FT = full text read, ABS = abstract only,
+    #     SNIP = search snippet, MEM = from memory (check before citing). ------------------------------------
+    "gb_conc_insulin": Input(0.0194, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT; Chen et al. 2011 Essential 8] "
+        "insulin in the medium: 19.4 mg/L"),
+    "gb_conc_transferrin": Input(0.0107, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] transferrin: 10.7 mg/L"),
+    "gb_conc_fgf": Input(1.0e-4, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] FGF: 0.1 mg/L"),
+    "gb_conc_tgfb": Input(2.0e-6, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] TGF-beta: 0.002 mg/L"),
+    "gb_price_insulin": Input(7.0, "$/g", "[Humbird-R Table 4.4, FT] unit cost of insulin in his fed-batch plant, 2018 dollars, "
+        "from his price-volume line at the world demand of 16,785 kg/y"),
+    "gb_price_transferrin": Input(12.0, "$/g", "[Humbird-R Table 4.4, FT] transferrin, 2018 dollars, at 9,258 kg/y"),
+    "gb_price_fgf": Input(649.0, "$/g", "[Humbird-R Table 4.4, FT] FGF, 2018 dollars, at 87 kg/y"),
+    "gb_price_tgfb": Input(18837.0, "$/g", "[Humbird-R Table 4.4, FT] TGF-beta, 2018 dollars, at 1.7 kg/y",
+        note="the four prices at the four concentrations cost $3.13 per kg of cells in his table (pf_growth_factors rounds "
+             "this to 3.1). His batch holds about 115 g/L, so 8.65 L of medium per kg"),
+    "gb_pv_intercept": Input(4.90, "log10 $/kg", "[Humbird-R Eq. 3.4, FT] log10(price in $/kg) = intercept - slope x "
+        "log10(volume in MT/y), a regression of market prices of protein bioproducts (insulin, antibodies, industrial enzymes)"),
+    "gb_pv_slope": Input(0.861, "-", "[Humbird-R Eq. 3.4, FT] price falls 0.861 decades for every decade of volume"),
+    "gb_gfi_target_rp": Input(1.0, "$/g", "[GFI 2023 (Swartz et al.), Table 1, FT] production cost assumed for insulin and "
+        "transferrin so growth factors and recombinant proteins are 10% of a $10/kg cost: $1,000/kg"),
+    "gb_gfi_target_gf": Input(100.0, "$/g", "[GFI 2023, Table 1, FT] production cost assumed for growth factors: $100,000/kg"),
+    "gb_gfi_litres_low": Input(8.0, "L/kg", "[GFI 2023, Box 2, FT; Sinke et al. 2021 Table 16] medium use, low scenario"),
+    "gb_gfi_litres_mid": Input(13.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, medium scenario"),
+    "gb_gfi_litres_high": Input(42.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, high scenario"),
+    "gb_mkt_insulin": Input(24.75, "$/g", "[Gotham, Barber & Hill 2018, BMJ Global Health 3:e000850, full text via Europe PMC] "
+        "regular human insulin API, a regression of Indian export prices in 2013-2016 without the USA shipments",
+        note="a market price, not a production cost; fell about 18% a year; only 484-793 kg a year in the data. Humbird's "
+             "footnote calls the same number a production cost. Pharmaoffer trade data average $36.4/g over 12 months to "
+             "Aug 2026 (SNIP: the page returned 403)"),
+    "gb_mkt_transferrin": Input(182.3, "$/g", "[Stout et al. 2022 Beefy-9 Supplementary Table 3, read in full by the pf-tea "
+        "evidence file] InVitria recombinant human transferrin, 10 g for $1,823",
+        note="InVitria Optiferrin: $351.7/g at 1 g and $217.7/g at 10 g (pf-tea evidence, vendor page)"),
+    "gb_mkt_fgf2": Input(196000.0, "$/g", "[GFI growth-factor-cost page, FT] ORF Genetics human FGF2, $196/mg in September 2022",
+        note="the same page: $7.47/mg (7,470 $/g) from Venkatesan et al. made in-house, and $2,005/mg in the 2018 analysis"),
+    "gb_mkt_fgf2_inhouse": Input(7470.0, "$/g", "[GFI growth-factor-cost page, FT; Venkatesan et al. not read] FGF2 made in-house"),
+    "gb_mkt_tgfb": Input(2.9e7, "$/g", "[Humbird-R footnote 111, FT] research quantities of human TGF-beta from the Sigma "
+        "catalogue, about $29k/mg"),
+    "gb_floor_enzyme_lo": Input(12.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] Novozymes quotes for common food enzymes "
+        "at 200-1,000 kg"),
+    "gb_floor_enzyme_hi": Input(25.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] the top of the same quotes"),
+    "gb_floor_albumin_trade": Input(55.0, "$/kg", "[pf-tea evidence, grade C: GFI 2025 and trade data] bulk albumin traded at "
+        "$40-70/kg", lo=40.0, hi=70.0, mode=55.0),
+    "gb_floor_tf_model": Input(314.0, "$/kg", "[pf-tea model result, my own: results/analyses.json, case tf/100/humbird] "
+        "recombinant transferrin on albumin's two-column route, 100 t/y, design-point titre",
+        note="at the best published titre (Finnis 2010, 2.29 g/L, 10 L) the same plant gives $949/kg at 100 t/y and $1,939 at "
+             "10 t/y. A bottom-up cost from patents and one fermentation paper, not a quote"),
+    "gb_floor_tf_published": Input(949.0, "$/kg", "[pf-tea model result: tf_finnis2010/100/humbird] the same at the best "
+        "published titre"),
+    "gb_fgf2_half_life_h": Input(10.0, "h", "[vendor pages and a review, SNIP] wild-type FGF2 at 37 C in culture medium: "
+        "under 10 h", lo=5.0, hi=10.0, mode=10.0),
+    "gb_fgf2_g3_half_life_h": Input(168.0, "h", "[Qkine and Reprocell vendor pages, SNIP; Dvorak et al. preprint reports "
+        ">20 days] engineered FGF2-G3 at 37 C: over 7 days", lo=168.0, hi=480.0, mode=168.0),
+    # biosynthesis ATP budget, per gram of dry cell mass, from Humbird's composition (Table 2.1)
+    "gb_f_protein": Input(0.70, "g/g dry", "[Humbird-R Table 2.1, FT] protein share of dry cell mass"),
+    "gb_f_lipid": Input(0.15, "g/g dry", "[Humbird-R Table 2.1, FT] lipid"),
+    "gb_f_carb": Input(0.10, "g/g dry", "[Humbird-R Table 2.1, FT] carbohydrate"),
+    "gb_f_rna": Input(0.05, "g/g dry", "[Humbird-R Table 2.1, FT] RNA and DNA"),
+    "gb_dry_per_wet": Input(0.30, "g/g wet", "[Humbird-R, via pf_fat_kg] dry mass in a gram of wet cells: 70% water"),
+    "gb_aa_g_mol": Input(110.0, "g/mol", "[textbook, MEM] mean mass of an amino-acid residue in protein"),
+    "gb_atp_peptide": Input(4.0, "ATP/bond", "[textbook, MEM] two to charge the tRNA, one to bring it in, one to move the "
+        "ribosome; a minimum, leaves out making ribosomes and mRNA", lo=4.0, hi=6.0, mode=4.0),
+    "gb_lipid_g_mol": Input(256.0, "g/mol", "[Humbird-R Table 2.1: lipid taken as palmitate] palmitate mass"),
+    "gb_atp_fa16": Input(42.0, "ATP/palmitate", "[textbook, MEM] 7 ATP and 14 NADPH to build palmitate from acetyl-CoA, "
+        "counting each NADPH as 2.5 ATP; carbon not counted", lo=30.0, hi=50.0, mode=42.0,
+        note="Humbird's Reaction 2.2 makes all lipid from glucose. Fed fatty acids skip this cost (pf_fat_kg, pf_fat_price)"),
+    "gb_nt_g_mol": Input(330.0, "g/mol", "[textbook, MEM] mean nucleotide mass"),
+    "gb_atp_nt": Input(9.0, "ATP/nucleotide", "[textbook, MEM] about 7 to make a nucleotide from glucose and glutamine and 2 "
+        "to join it to the chain", lo=6.0, hi=12.0, mode=9.0),
+    "gb_glycosyl_g_mol": Input(162.0, "g/mol", "[textbook] one hexose unit in a polysaccharide"),
+    "gb_atp_glycosyl": Input(2.0, "ATP/unit", "[textbook, MEM] to add one hexose to a chain through UDP-glucose",
+        lo=1.0, hi=3.0, mode=2.0),
+    "gb_biosyn_overhead": Input(1.0, "x", "[judgement] extra ATP over the bare synthesis for folding, amino-acid uptake, "
+        "making ribosomes and mRNA; 1.0 counts none of it", lo=1.0, hi=1.6, mode=1.0),
+    "gb_resp_scope": Input(2.0, "x", "[judgement; typical maximal-to-basal respiration of cultured cells under an uncoupler is "
+        "about 2-4, MEM, not read in this pass] most oxygen a cell can burn per gram, relative to West's rate at a 24 h "
+        "doubling", lo=1.5, hi=3.0, mode=2.0,
+        note="more mitochondria per cell would raise it; heart muscle holds about 35% of its volume as mitochondria against "
+             "10-20% in fast cell lines (MEM)"),
+    "gb_elong_aa_s": Input(5.6, "aa/s", "[Ingolia et al. 2011, mouse embryonic stem cells; bionumbers snippet, SNIP] how fast a "
+        "mammalian ribosome adds amino acids", lo=2.0, hi=6.0, mode=5.6,
+        note="other studies in U2OS and HEK293 cells give 3.1-4.9 codons/s"),
+    "gb_ribosome_kda": Input(4300.0, "kDa", "[textbook, MEM] mass of a mammalian 80S ribosome"),
+    "gb_rrna_in_ribosome": Input(0.65, "of ribosome mass", "[textbook, MEM] 2.8 MDa of rRNA in 4.3 MDa"),
+    "gb_rrna_in_rna": Input(0.80, "of RNA", "[textbook, MEM] ribosomal RNA is about 80% of a cell's RNA"),
+    "gb_cho_mass_pg": Input(1167.0, "pg wet", "[Humbird-R footnote 41, FT] a CHO cell: 350 pg dry mass and 70% water"),
+    "gb_cho_qo2_pmol_h": Input(0.227, "pmol O2/cell/h", "[Goudar et al. 2011, ABS, via species_cell_parameters.md] CHO "
+        "perfusion at 36.5 C: 5.14-5.77 pmol/cell/day", lo=0.214, hi=0.240, mode=0.227),
+    "gb_cho_doubling_h": Input(15.0, "h", "[species_cell_parameters.md] CHO doubling time, 14-16 h", lo=14.0, hi=16.0, mode=15.0,
+        note="the 14-16 h comes from the research-note brief, not from a source read in this pass"),
 }
 
 
