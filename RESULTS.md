@@ -66,7 +66,7 @@ estimate is higher than the median (best case: 9.3% at the point cost, 4.4% medi
 - **No scenario reaches price parity.** Parity with $12 meat and a $5 markup needs $7/kg of cells. The best case costs $8.9, and its own
   band is $8.5–11.6. A plant as cheap as a yeast plant is not used in any scenario: nothing shows that animal cells can be grown that way.
 - **What decides it** (from the central scenario, each switch moved alone to its best or its worst setting): the kind of cells
-  (−$8.2 with engineered cells, +$77 with ordinary meat cells), the medium price (−$1.4 to +$8.6), growth factors (−$3.0 to +$7.0), tank
+  (−$8.2 with engineered cells, +$77 with ordinary meat cells), the medium price (−$4.0 at the $0.05 aspiration, −$1.4 at $0.15, +$8.6 at $0.50), growth factors (−$3.0 to +$7.0), tank
   tricks (up to +$3.5 if none work), growth speed (−$2.5 at 24 hours), the plant (−$2.3 with shared medium). The kind of cells matters
   most because waste sets the litres of medium a kilo, and each litre must also pass the filter. Some switches interact. The page ranks
   them around any scenario you choose.
