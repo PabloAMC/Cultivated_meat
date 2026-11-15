@@ -1,0 +1,2548 @@
+Amino acid cost and
+supply chain analysis
+for cultivated meat
+     Introduction         Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+Authors
+Marie Gibbons, MS, independent cultivated meat scientist,
+https://www.mariegibbonsconsulting.com
+
+Amanda Bess, PhD,
+senior analysis program manager
+
+Elliot Swartz*, PhD,
+senior principal scientist, cultivated meat
+
+*Corresponding author: elliots@gfi.org
+
+
+
+
+Suggested citation: Gibbons, M., A. Bess, and E. Swartz. Amino acid cost and supply chain analysis for
+cultivated meat. Washington D.C.: Good Food Institute. 2025. https://doi.org/10.62468/xcjx6040
+
+Graphic design and copy edit: Kelli Cromsigt, Emily Hennegan, Joe Gagyi, Tara Foss
+
+
+
+
+About GFI
+The Good Food Institute is a nonprofit think tank working to make the global food system better for the
+planet, people, and animals. Alongside scientists, businesses, and policymakers, GFI’s teams focus on making
+plant-based, fermentation-enabled, and cultivated meat delicious, affordable, and accessible. Powered by
+philanthropy, GFI is an international network of organizations advancing alternative proteins as an essential
+solution needed to meet the world’s climate, global health, food security, and biodiversity goals. All of GFI’s
+work is made possible by gifts and grants from our global community of donors. If you are interested in
+learning more about giving to GFI, contact philanthropy@gfi.org. To learn more, please visit www.gfi.org.
+
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   2
+    Introduction         Methods             Results                 Discussion               Conclusion                Appendix
+
+
+
+
+Executive summary
+
+Unlocking a cost-effective amino acid supply is                 Approach
+essential to scaling the cultivated meat (CM) industry.
+Amino acids represent a significant cost driver                 1. Collected data and insights from structured
+for CM production, due not only to the large                       interviews with stakeholders across the supply
+quantities required, but also the complex                          chain, including amino acid suppliers, cell media
+supply chain needed to deliver them at the                         formulators, cultivated meat producers, and
+scale and suitability for food applications.                       hydrolysate experts.
+
+This white paper evaluates pathways to                          2. Modeled total and individual amino acid usage
+supply amino acids at the cost and volume                          to produce 250 kilotonnes (kTA) of CM using
+required for a competitive cultivated meat                         commercially-relevant media formulations and
+industry. Through a first-of-its-kind analysis                     estimates of amino acid requirements (200–650
+of future amino acid requirements, alter-                          g total AA/kg CM).
+native sourcing strategies, and real-world
+price data, it equips stakeholders—from                         3. Estimated the amino acid cost contribution per
+                                                                   liter of media and per kg of CM across two food-
+amino acid suppliers to CM producers—
+                                                                   grade amino acid price tiers based on real-world
+with the insights needed to prioritize the
+                                                                   quotes and one feed-grade price tier derived from
+most impactful research and supply chain                           aggregate supplier data.
+solutions as the CM industry scales.
+                                                                4. Assessed the potential of 50 raw materials
+                                                                   and hydrolysates to supply bulk amino acids
+This report demonstrates that while amino acids                    and calculated price thresholds for hydrolysates
+remain a major cost consideration, they are not                    to be competitive with amino acids derived
+an insurmountable financial barrier. With proac-                   from fermentation.
+tive production scale up, innovation in low-cost
+source materials, and alignment on clear regula-
+tory requirements, the cultivated meat industry
+is well-positioned to unlock more affordable,
+scalable, and sustainable protein production.
+
+
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   3
+     Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+          Key Findings
+
+
+
+1
+          Amino acid costs are significantly lower than previously estimated
+
+          Real-world prices for food- and feed-grade amino acids are up to 10× lower than the figures
+          used in a previous, highly-cited study (Humbird 2021). If the industry can source amino acids
+          at lower-tier food-grade prices and achieve efficient production, amino acid cost contributions
+          could fall below $5/kg of cultivated meat—a major improvement over previous estimates of
+          ~$18–$19/kg, which accounted for up to half the total cost of cultivated meat production
+          (Humbird 2021). Total amino acid cost contributions to commercially-relevant media ranged
+          from $0.02 to $0.17/L depending on the formulation and price (Figure 1). This suggests total
+          media costs under $0.20/L are achievable, aligning with recent reports from companies in
+          the sector. These updated amino acid price estimates should now serve as the most realistic
+          baseline for future techno-economic and media cost modeling.
+
+
+
+
+Figure 1. Total amino acid cost contributions to a commercially-relevant media formulation across four different price scenarios, with
+a red reference line at $0.20/L to represent recent reports from companies in the sector. Data for an additional media formulation are
+shown in Figure 6.
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   4
+Introduction         Methods              Results              Discussion               Conclusion                Appendix
+
+
+
+
+2
+      Projected amino acid requirements could
+      strain global supply
+
+      Although current amino acid supply and media manufacturing
+      capacity are adequate for today’s needs, this could quickly change
+      in the future. At a future production volume of 250 kTA of
+      cultivated meat, which equates to less than 1% of current global
+      meat consumption, total amino acid requirements could reach
+      ~50–163 kTA. Arginine, glutamine, and serine are each projected to
+      exceed 10,000 MT/year, with eight additional amino acids requiring
+      at least 2,200 MT/year. Asparagine, glutamine, histidine, proline,
+      serine, tyrosine, and, to a lesser extent, leucine and isoleucine, were
+      identified as high-risk for future supply bottlenecks due to future
+      demand potentially outstripping current production volumes.
+
+
+
+
+3
+      Hydrolysates hold strong long-term potential
+      despite limitations
+
+      Hydrolysates and raw materials are consistently deficient in key amino
+      acids like glutamine, arginine, cystine, serine, and asparagine, necessi-
+      tating supplementation. Additionally, a single hydrolysate is unlikely to
+      practically supply the remaining amino acids, likely requiring blending
+      of two or more hydrolysates. Even so, several blends of hydrolysates
+      were able to supply up to 60% of the required amino acids in modeled
+      scenarios. To compete with fermentation-derived amino acids, hydroly-
+      sate blends would need to cost between $1.51–$11.27/kg hydrolysate.
+      Batch-to-batch variability, solubility issues, and limited compositional
+      data remain barriers to widespread adoption. While there is enthusiasm
+      for hydrolysates and current testing within R&D programs, near-term
+      CM products are unlikely to utilize them for amino acid supplementation
+      until these challenges are resolved.
+
+
+
+
+                                                                                   Photo credit: Влад Варшавский / Adobe Stock
+
+
+                                                    Amino acid cost and supply chain analysis for cultivated meat / December 2025   5
+     Introduction            Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+4
+            Six amino acids pose outsized cost and supply risks
+
+            Six amino acids—serine, glutamine, asparagine, histidine, proline, and arginine—
+            emerged as the most problematic due to high inclusion rates, elevated prices, low global
+            production volumes, or manufacturing complexity (Figure 2). Serine stood out, contrib-
+            uting between ~16-38% of total amino acid costs in media. Furthermore, most of these
+            amino acids are difficult to replace with hydrolysates and are likely to remain reliant on
+            fermentation. Strategic efforts to improve production efficiency, diversify sourcing, and
+            reduce costs for these high-impact inputs will be critical for long-term scalability.
+
+
+
+
+Figure 2. High-risk amino acids. Heatmap summary of key results from the analysis, which shows the overlap in amino acids that are
+cost drivers, in limited supply, and difficult to replace with hydrolysates. Lighter shades indicate lower risk.
+
+
+
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   6
+     Introduction         Methods              Results              Discussion               Conclusion                Appendix
+
+
+
+
+Calls to action                                                4. Share production volumes for amino acids.
+                                                                  The true production volume of most amino acids
+Cultivated meat has the potential to transform protein            suitable for cultivated meat is not currently
+production by significantly reducing its environmental            known, and improved data will be necessary
+footprint, improving public health, and mitigating                to continually refine which amino acids may be
+the ethical and social impacts of conventional meat.              limited in supply.
+Achieving price parity is a critical step toward realizing
+these public benefits at scale, and amino acid cost            5. Share updated life cycle inventory data for real-
+and supply challenges must be addressed to unlock                 world, food- and feed-grade amino acid produc-
+the full potential of cultivated meat. To that end,               tion and integrate renewable energy to reduce
+coordinated action is needed across the ecosystem.                environmental impact.
+
+The following calls to action outline specific
+steps that amino acid suppliers, researchers,                  Academic researchers
+cultivated meat companies, policymakers, and
+nonprofits can take to accelerate progress and                 1. Develop and publish empirical data from
+ensure a resilient, affordable, and scalable                        commercially relevant bioprocesses to refine the
+amino acid supply chain for cultivated meat.                        feed conversion ratio of cultivated meat and key
+                                                                    substrates such as glucose, glutamine, and other
+                                                                    amino acids.
+
+Amino acid suppliers                                           2. Use the hydrolysate modeling framework from
+                                                                  this report to narrow the search space for
+1. Actively monitor global cultivated meat produc-
+                                                                  high-potential blends of hydrolyzed raw materials
+   tion and proactively plan capacity to meet
+                                                                  for experimental validation.
+   growing amino acid demand, especially for
+   at-risk amino acids (e.g., asparagine, gluta-               3. Develop hydrolysis protocols that make hydro-
+   mine, histidine, proline, serine, and tyrosine).               lysates a cost-competitive amino acid source
+                                                                  ($1.51–$11.27/kg hydrolysate) compared with
+2. Improve fermentation productivity and
+                                                                  fermentation-derived amino acids.
+   yields for high-risk amino acids such as
+   arginine, asparagine, glutamine, histi-                     4. Generate open-access datasets on hydrolysate
+   dine, proline, serine, and tyrosine.                           composition and performance to enable artificial
+                                                                  intelligence (AI) and machine learning (ML) tools
+3. Alongside CM companies and regulatory
+                                                                  for media optimization.
+   experts, support the co-development of
+   “CM-grade” amino acid input specifications that             5. Collaborate with amino acid suppliers to update
+   are fit-for-purpose, standardizing criteria for                environmental impact data for food- and feed-
+   endotoxin thresholds, heavy metals, microbial                  grade amino acid production and integrate it into
+   contamination, and other impurities of concern, to             future LCA models.
+   streamline documentation and regulatory review.
+                                                               6. Investigate metabolic and cell engineering
+                                                                  strategies to improve fermentation yields and CM
+                                                                  feed conversion ratios, reducing the cost burden
+                                                                  of high-impact amino acids such as arginine,
+                                                                  asparagine, glutamine, histidine, proline, serine,
+                                                                  and tyrosine.
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   7
+    Introduction         Methods             Results               Discussion               Conclusion                Appendix
+
+
+
+
+Cultivated meat companies                                     Governments, policymakers,
+                                                              and regulatory agencies
+1. Co-develop “CM-grade” amino acid standards
+   with amino acid suppliers, establishing fit-for-pur-       1. Support the development and recognition of
+   pose criteria for amino acid quality to streamline            “CM-grade” amino acid standards to streamline
+   documentation and regulatory compliance.                      regulatory reviews and enable cost-effective
+   Foregoing such an effort in favor of defaulting to            sourcing.
+   higher-grade inputs could unnecessarily constrain
+   innovation and prevent cost-competitive produc-            2. Establish global leadership in cultivated meat
+   tion at commercial scales.                                    by creating incentives for domestic amino acid
+                                                                 manufacturing, including de-risking CapEx burden
+2. Publish commercially relevant media formula-                  through grants, tax incentives, and low-interest
+   tions, including differentiation media, to improve            loan programs. Onshoring amino acid manu-
+   shared modeling and supply chain planning.                    facturing can reduce the dependence and risk
+                                                                 of relying on concentrated international supply
+3. Publish empirical data from commercially relevant
+                                                                   chains while creating new jobs and economic
+    bioprocesses to determine the feed conversion
+                                                                   opportunities to leverage local biomass and
+    ratio of cultivated meat and key substrates such
+                                                                   feedstocks for amino acid fermentation.
+    as glucose, glutamine, and other amino acids.
+
+4. Explore hybrid media strategies that integrate             Nonprofits and trade associations
+   hydrolysates and fermentation-based amino acids
+   for long-term cost and sustainability gains.               1. Acquire and open-source media formulations and
+                                                                 other IP (e.g., cell lines and bioprocess data) from
+5. Collaborate across the sector to establish pooled
+                                                                 defunct startups to support sector-wide transpar-
+   procurement strategies that create clear, aggre-
+                                                                 ency and modeling.
+   gated demand signals for high-risk amino acids.
+   Parallel development of CM-grade standards can             2. Facilitate pre-competitive R&D by funding proj-
+   ensure the entire supply chain is operating under             ects that validate hydrolysate blends, optimize
+   the same expectations.                                        raw material sourcing and processing, and
+                                                                 characterize functional performance.
+
+                                                              3. Convene stakeholders to finalize and promote
+                                                                 adoption of “CM-grade” media input standards
+                                                                 and help align industry expectations with
+                                                                 regulatory needs.
+
+                                                              4. Support the creation of shared databases for
+                                                                 amino acid production volumes, hydrolysate
+                                                                 performance, and environmental impacts to
+                                                                 guide future modeling and investment.
+
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   8
+     Introduction           Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+Abbreviations
+
+AA                  amino acid
+
+AI/ML               artificial intelligence/machine learning
+
+CHO                 chinese hamster ovary cells
+
+CM                  cultivated meat
+
+CoA                 certificate of analysis
+
+DM                  dry mass
+
+EU                  European Union
+
+FSF4                name of a media formulation from SciFi Foods, acquired by GFI
+
+g AA/kg CM          grams of amino acids per kilogram of cultivated meat
+
+IP                  intellectual property
+
+kTA                 kilotonnes annually
+
+L                   liter
+
+LCA                 life cycle assessment
+
+MT                  metric ton = tonne
+
+MT/yr               metric tons per year
+
+R&D                 research and development
+
+                    fermentation-derived amino acids (arginine, asparagine, cystine, glutamine, and serine)
+Spiked AAs          assumed to be added individually to media during the hydrolysate analysis portion of
+                    the report
+
+TCA                 Tricarboxylic Acid
+
+TEA                 techno-economic analysis
+
+
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   9
+            Introduction                                        Methods                                           Results                                       Discussion                                       Conclusion                                        Appendix
+
+
+
+
+Table of contents
+Executive summary���������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 3
+       Approach�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 3
+       Key findings������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 4
+       Calls to action������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 7
+       Abbreviations�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 9
+Introduction�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 11
+Methods (abridged)������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������ 12
+       Structured interviews������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 12
+       Scenarios��������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 12
+       Identifying candidate hydrolysate blends and costs���������������������������������������������������������������������������������������������������������������������������������������������������� 14
+Results����������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 15
+       Total amino acid requirements������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 15
+       Individual amino acid requirements����������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 15
+       Amino acid costs for media and cultivated meat production�������������������������������������������������������������������������������������������������������������������������������19
+       Hydrolysate potential and price thresholds for cultivated meat application�������������������������������������������������������������������������������������� 26
+       Fermentation-based amino acid production and sourcing for cultivated meat applications�������������������������������������������� 33
+       Supply chain architecture for cultivated meat applications�����������������������������������������������������������������������������������������������������������������������������������35
+Discussion������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 37
+       High cost and supply-constrained amino acids present new innovation opportunities��������������������������������������������������������� 37
+       Amino acid prices are significantly lower than previously estimated��������������������������������������������������������������������������������������������������������� 38
+       Future outlook�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 38
+Conclusion������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 48
+Acknowledgments��������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 48
+References������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������ 49
+Appendix����������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 52
+       High-risk amino acid snapshots���������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 52
+       Extended methods�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 60
+       Assumptions and limitations�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������69
+       FSF4 full media formulation�������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������� 73
+       Interview questionnaire��������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������75
+
+
+
+                                                                                                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025                                                                           10
+    Introduction          Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+Introduction
+Cultivated meat is a method of meat production that           sidestreams could be more cost-effective and envi-
+involves the cultivation of animal cells in a controlled      ronmentally sustainable than individual fermentation
+environment. This approach presents the opportunity           processes (Humbird 2021; Sinke et al. 2023; Eastham
+to feed more people with fewer resources, meeting             et al. 2023).
+the growing global demand for protein in a more
+                                                              This analysis aims to clarify the current and future
+sustainable, efficient, and humane way. One of the
+                                                              amino acid supply chain for cultivated meat. Using
+major challenges for the cultivated meat sector is
+                                                              structured interviews with amino acid suppliers, cell
+lowering the cost of production. Prior techno-
+                                                              culture media companies, cultivated meat manufac-
+economic analyses have identified the cell culture
+                                                              turers, hydrolysate producers, and industry experts,
+media as a major cost driver (Humbird 2021;
+                                                              we collected information on amino acid prices,
+Negulescu et al. 2023; Vergeer, et al. 2021). Within
+                                                              production volumes, sourcing practices, and regula-
+the cell culture media, amino acids are a leading cost
+                                                              tory considerations. Combined with publicly available
+component, with one well-cited study calculating that
+                                                              information on media formulations and bioconversion
+they would contribute ~$18 to $19/kg to the cost of
+                                                              efficiency projections, we modeled amino acid supply
+production, making most cultivated meat processes
+                                                              assuming a future cultivated meat industry producing
+economically nonviable (Humbird 2021).
+                                                              250 kilotonnes of product annually (250 kTA). This
+In animal cell cultures, 13 L-amino acids are essential       model served as the basis for evaluating:
+and must be provided exogenously to the cells. In
+                                                              • How many tonnes of total and individual amino
+cell culture media used to cultivate rapidly prolifer-
+                                                                acids are needed to meet a 250 kTA demand?
+ating and dense cultures, other non-essential amino
+acids or chemical forms (e.g., dipeptides) of amino           • What is the anticipated cost contribution of amino
+acids are included to handle the metabolic demand.              acids per liter of media and per kg of cultivated
+Accordingly, most complete cell culture media                   meat, and how does this compare to prior
+typically contain at least 20 amino acids or amino acid         estimates?
+forms in varying quantities.
+                                                              • Which raw materials or hydrolysates are the most
+Amino acids can be produced from several different              promising candidates for supplying amino acids,
+methods, including the extraction of protein hydro-             and what would they need to be priced at to be
+lysates, chemical or enzymatic synthesis, and                   competitive with amino acids from fermentation?
+microbial fermentation (D’Este et al. 2018). Microbial
+fermentation is the predominant form of current               Using this information, we provide crucial insights into
+industrial production of L-amino acids, with workhorse        potential supply chain bottlenecks, highlight areas
+organisms such as E. coli and C. glutamicum used              for research and development, and propose recom-
+to produce the bulk of those available. Despite this,         mendations for stakeholders along the amino acid
+researchers have hypothesized that supplying amino            supply chain. This report provides the most complete
+acids and other nutritional components of the media           assessment to date of the amino acid supply chain
+(e.g., vitamins, sugars, minerals) through hydrolyzed         for cultivated meat based on current practices and
+crops, microbes, microalgae, or other agricultural            future needs.
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   11
+    Introduction        Methods             Results               Discussion               Conclusion                Appendix
+
+
+
+
+Methods (abridged)
+The analysis aimed to evaluate the                           Scenarios
+following questions:
+                                                             1. Eight bioconversion efficiencies were used to
+• How many tonnes of total and individual amino
+                                                                estimate the amount of amino acids required
+  acids are needed to meet a 250 kTA CM demand?
+                                                                to make 1 kg of cultivated meat. The range of
+• What is the anticipated cost contribution of amino            estimates used throughout the analysis spanned
+  acids per liter of media and per kg of cultivated             200 to 650 g AA/kg CM.
+  meat, and how does this compare to prior
+                                                             2. The concentrations of total and individual amino
+  estimates?
+                                                                acids were taken from commercially relevant
+• Which raw materials or hydrolysates are the most              media formulations to understand the demand
+  promising candidates for supplying amino acids,               for amino acids. A media formulation called
+  and what would they need to cost to be competi-               FSF4, previously developed by the CM startup
+  tive with amino acids from fermentation?                      SciFi Foods and acquired by GFI, was used as
+                                                                the baseline formulation. Some scenarios and
+                                                                figures also incorporated a modified CHO media
+Structured interviews                                           formulation to represent a nutritional profile that
+                                                                can support multiple species, and a higher upper
+A detailed questionnaire was assembled, and a total
+                                                                bound for nutritional density.
+of 25 stakeholders (Eight CM companies, three hydro-
+lysate suppliers or experts, 10 cell culture media           3. Three amino acid price scenarios were assembled
+companies or experts, four amino acid suppliers or              (Table 1). These scenarios included two food-
+experts) were interviewed and/or provided written               grade amino acid price tiers based on real-world
+answers to the questionnaire. Information acquired              quotes and one feed-grade price tier derived
+from interviews was used to inform the Scenarios.               from aggregate supplier data. Some scenarios
+All information is based on aggregated responses,               also incorporated previously published pricing
+and any identifying information was excluded to                 data (Humbird 2021). The Extended Methods in
+ensure the confidentiality of participants.                     the Appendix contain further details on how each
+                                                                price scenario was established.
+
+
+
+
+                                                       Amino acid cost and supply chain analysis for cultivated meat / December 2025   12
+            Introduction           Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+Table 1. Scenarios for food- and feed-grade amino acid prices used in this study. The low food-grade scenario represents a -25% differential
+from the lowest value listed for each amino acid in the quotes obtained during interviews, while the high food-grade scenario represents a +25%
+differential from the highest price for each amino acid listed in quotes. A hypothetical low price was obtained for feed-grade amino acids listed
+on aggregate supplier sites. All values were rounded to the nearest whole number.
+
+
+
+                                                Price ($/kg AA)
+
+ Amino acid
+                                                Feed-grade price                 Low food-grade                       High food-grade
+                                                scenario                         price scenario                       price scenario
+
+ L-Alanine                                                     5                                13                                  21
+
+ L-Arginine                                                    3                                 5                                  18
+
+ L-Asparagine                                                13*                                18                                  31
+
+ L-Aspartic Acid                                               3                                10                                  16
+
+ L-Cysteine                                                   10                                11                                  29
+
+ L-Cystine                                                    10                                13                                  13 θ
+
+ L-Glutamic Acid                                               4                                12                                  20
+
+ L-Glutamine                                                   5                                 7                                  16
+
+ Glycine                                                       2                                 4                                   7
+
+ L-Histidine                                                  10                                26                                  75
+
+ L-Hydroxyproline                                            15*                                15                                  25 θ
+
+ L-Isoleucine                                                  4                                11                                  19
+
+ L-Leucine                                                     4                                 4                                   6
+
+ L-Lysine                                                      1                                 4                                  11
+
+ L-Methionine                                                  3                                 8                                  20
+
+ L-Phenylalanine                                               8                                 8                                  13
+
+ L-Proline                                                    13                                19                                  31
+
+ L-Serine                                                     10                                30                                  50
+
+ L-Threonine                                                   1                                 3                                  13
+
+ L-Tryptophan                                                  3                                16                                  33
+
+ L-Tyrosine                                                   10                                14                                  30
+
+ L-Valine                                                      3                                 4                                  13
+
+* No feed-grade prices were obtained for these amino acids, so the lowest food-grade value was used.
+  Feed-grade methionine is produced as D,L-Methionine, which may not be suitable for animal cell culture due to a lack of the liver
+and kidney enzyme D-amino acid oxidase used to convert D-amino acids in vivo. Prices for pure L-Methionine are uncertain.
+θ No real-world quotes were obtained for these amino acids, so the highest food-grade value from aggregate suppliers was used.
+
+
+
+                                                                     Amino acid cost and supply chain analysis for cultivated meat / December 2025   13
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+Identifying candidate
+hydrolysate blends and costs
+                                                                      The Appendix contains the Extended
+Amino acid composition (g AA/100 g dry mass) was                      Methods section, including the full interview
+assembled for 50 different raw materials or commer-                   questionnaire, FSF4 media formulation,
+cially available hydrolysates. The raw materials and                  and key assumptions and limitations. If you
+hydrolysates were determined to be an inadequate                      are a cultivated meat researcher, we highly
+supply of glutamine, arginine, asparagine, cystine,                   recommend reading through the Extended
+and serine based on the requirements of the media                     Methods, which contains further background,
+formulations. These five amino acids (Spiked AAs)                     references, details, figures, and tables related
+were assumed to be supplied individually via fermen-                  to the scenarios and methodology used
+tation processes.                                                     throughout the analysis.
+
+ChatGPT (GPT-5) was used to identify candidate
+blends (combinations of up to three raw materials                                  Excel spreadsheets used for the
+or hydrolysates) that would satisfy the requirements                               analysis can be downloaded here.
+for the remaining amino acids in the media. Results                                The spreadsheet also contains
+were replicated using Excel’s Solver tool and verified                             multiple interactive calculators
+by manual calculation. Maximum viable prices for                                   for amino acid costs and
+the hydrolysate blends to achieve parity with a fully                              hydrolysate blending.
+fermentation-derived amino acid media composition
+were then calculated.
+
+
+
+
+                                                                                                   Photo credit: samuelgarces / Adobe Stock
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   14
+     Introduction            Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+Results
+Total amino acid requirements                                        Individual amino acid
+Amino acid suppliers and other industry stakeholders
+                                                                     requirements
+may benefit from understanding the expected total                    The quantity of each individual amino acid that would
+quantity of amino acids needed to produce a given                    be required to produce 250 kTA of cultivated meat
+amount of cultivated meat. In this analysis, we                      was estimated by scaling the amino acid amounts in
+modeled a future 250 kTA cultivated meat industry,                   the FSF4 media formulation to match the total amino
+which is approximately 500x the annual commercial                    acid requirements per kilogram of meat, based on the
+production volume capacity in 2025, based on                         full range of bioconversion efficiency scenarios (200-
+internal GFI data. Using eight bioconversion efficiency              650 g AA/kg CM). An additional scenario using the
+scenarios ranging from 200 to 650 g AA/kg CM (Table                  modified CHO media and the least efficient scenario
+A1, Extended Methods), a straightforward calculation                 (650 g AA/kg CM) was calculated to display the higher
+results in an expected range of ~50 to 163 kTA of total              upper-bound and potential variability in certain amino
+amino acids (Figure 3).                                              acid requirements (Figure 4).
+
+
+
+
+Figure 3. Projected total amino acid requirements to produce 250 kTA of cultivated meat. Here, we scaled the projected amino acid
+needs to 250 kTA of cultivated meat using eight bioconversion efficiency estimates (g AA/kg CM). This comparison illustrates the
+magnitude of total amino acid demand at an industrial scale. See Table A1 for references.
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   15
+     Introduction             Methods                Results              Discussion               Conclusion                Appendix
+
+
+
+
+Figure 4A
+
+
+
+
+Figure 4B
+
+Figure 4. Estimated volumes (MT) of individual amino acids needed to produce 250 kTA of cultivated meat across the full range of
+bioconversion efficiency scenarios (200-650 g AA/kg CM). The blue data correspond to the FSF4 media formulation. The red data
+correspond to the modified CHO formulation using the least efficient scenario (650 g AA/kg CM). (A) shows high-volume amino acids,
+defined as those with potential requirements reaching 5,000 MT or more. (B) shows lower-volume amino acids, generally requiring
+less than 5,000 MT. Together, these figures highlight both the scale and variability in amino acid demand across different production
+scenarios and media compositions. (Note the change of the x-axis scale, for ease of viewing, from 40,000 tonnes in 4a to 15,000 tonnes
+in 4b.)
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   16
+          Introduction              Methods      Results                Discussion               Conclusion                Appendix
+
+
+
+
+    This provided a clear view of which amino acids                Individual amino acid supply
+    would be required in the largest quantities and
+                                                                   bottlenecks
+    highlighted the variability in demand across
+    different modeling assumptions.                                Using these data, we cross-referenced current amino
+                                                                   acid production volume information obtained from
+    The data show that arginine, glutamine, and serine
+                                                                   literature and during the interview stage (Table 2)
+    had the highest projected demand, with volumes
+                                                                   to determine which amino acids could be at risk of
+    often exceeding 10,000 MT annually. Eight other
+                                                                   supply constraints as the cultivated meat industry
+    amino acids (asparagine, cystine, isoleucine,
+                                                                   scales toward industrial volumes (e.g., 250 kTA
+    leucine, lysine, threonine, tyrosine, and valine)
+                                                                   and beyond). Although exact current production
+    were characterized as high volume, with minimum
+                                                                   volume data is opaque and of lower confidence (and
+    requirements of at least 2,200 MT annually. The
+                                                                   further complicated by the lack of stratification by
+    remaining 11 amino acids had projected volume
+                                                                   downstream usage in feed, food, and pharma), the
+    requirements in the hundreds to low thousands of
+                                                                   combined modeling data and information gathered
+    MT annually. Notably, some amino acids are absent
+                                                                   suggested multiple amino acids are at high risk of
+    (e.g., cystine, hydroxyproline) or considerably
+                                                                   supply bottlenecks due to future estimated demand
+    divergent (e.g., asparagine, glutamic acid, aspartic
+                                                                   potentially outstripping current production volumes
+    acid, proline) in the FSF4 and modified CHO formu-
+    lations, suggesting uncertainty for these projections.         Those identified as being high risk to supply bottle-
+    Public disclosure of additional commercial CM                  necks included asparagine, glutamine, histidine,
+    media formulations can provide higher confidence               proline, serine, and tyrosine, and, to a lesser extent,
+    in the degree of inclusion of these inputs.                    isoleucine and leucine. Interestingly, while our
+                                                                   calculations and the data from Table 2 did not support
+                                                                   the following amino acids as high-risk bottlenecks,
+                                                                   they were flagged during interviews and are also
+                                                                   worth noting: cysteine, methionine, and tryptophan.
+                                                                   Snapshots containing more information on these
+                                                                   amino acids are provided in the Appendix section
+                                                                   of this paper.
+
+
+Photo credit: murat / Adobe Stock
+
+
+
+
+                                                             Amino acid cost and supply chain analysis for cultivated meat / December 2025   17
+     Introduction              Methods               Results                Discussion               Conclusion                Appendix
+
+
+
+
+Table 2. Production volume comparisons. Shown are the minimum and maximum estimated annual amino acid requirements to
+produce 250 kTA CM per our calculations, along with the current estimated yearly global production volumes for each amino acid.
+Amino acids with the highest supply risk are shaded in dark orange, while those shaded in light orange were deemed moderate risk.
+Additional details for risk designation are provided in the Appendix. Annual production volume data were compiled from published
+literature, confidential industry interviews, and market research data. The data have limitations and are considered low confidence.
+
+
+
+
+                           Minimum Estimate                    Maximum Estimate                      Est Yearly Production
+  Amino acid
+                           (MT AA/250 kTA CM)                  (MT AA/250 kTA CM)                    (MT AA)
+
+
+ L-Alanine                63                                225                                     50,000
+
+ L-Arginine               6,250                             20,244                                  60,000*
+
+ L-Asparagine             2,119                             18,000                                  N/A
+
+ L-Aspartic Acid          94                                6,750                                   17,000
+
+ L-Cysteine               744                               2,410                                   11,650
+
+ L-Cystine                0                                 8,589                                   N/A
+
+ L-Glutamic Acid          104                               6,750                                   3,300,000
+
+ L-Glutamine              6,525                             33,398                                  8,000*
+
+ Glycine                  265                               858                                     70,000
+
+ L-Histidine              1,334                             4,860                                   2,000*
+
+ L-Isoleucine             2,308                             9,900                                   3,000
+
+ L-Leucine                2,502                             12,263                                  3,000
+
+ L-Lysine                 3,867                             13,208                                  2,200,000
+
+ L-Methionine             731                               3,128                                   850,000**
+
+ L-Phenylalanine          1,503                             5,400                                   30,000
+
+ L-Proline                244                               13,230                                  500
+
+ L-Serine                 7,416                             24,019                                  400
+
+ L-Threonine              2,265                             7,336                                   950,000
+
+ L-Tryptophan             764                               2,476                                   90,000*
+
+ L-Tyrosine               2,364                             7,657                                   200
+
+ L-Valine                 2,240                             8,730                                   20,000*
+
+
+
+* Per interviews.
+** The vast majority of this volume is believed to be feed-grade methionine, produced as D,L-Methionine, which may not be suitable for
+animal cell culture due to a lack of the liver and kidney enzyme D-amino acid oxidase used to convert D-amino acids in vivo. Volumes of
+pure L-Methionine are unknown.
+
+                                                                 Amino acid cost and supply chain analysis for cultivated meat / December 2025   18
+     Introduction             Methods                Results               Discussion               Conclusion                Appendix
+
+
+
+
+Amino acid costs for media and                                        and verified supplier quotes (Table 1; see Extended
+                                                                      Methods). The updated data show that real prices for
+cultivated meat production                                            food-grade amino acids are, in some cases, over an
+Humbird’s techno-economic analysis was instru-                        order of magnitude lower than those used previously
+mental in identifying amino acids as a cost driver                    (Figure 5). As noted by interviewees, Humbird’s
+of cultivated meat production, with projections                       previous estimates were more reflective of phar-
+(based on an amino acid price to 100 kTA CM                           ma-grade prices. This large discrepancy has impli-
+volume relationship) suggesting that amino acids                      cations for the projected cost contribution of amino
+alone could contribute ~$18-19/kg CM. However,                        acids per liter of media and per kg of CM.
+many in the industry questioned the validity of these
+estimates. Accordingly, we sought to develop updated
+price information for amino acids using data from
+media manufacturers, cultivated meat companies,
+
+
+
+
+Figure 5. Current amino acid price data based on quotes and other information obtained during interviews. The light blue bars represent
+the low to high food-grade price ranges calculated from quotes. Feed-grade estimates are shown in dark blue dots, with Humbird’s
+estimates shown in red. Cystine, glutamic acid, and hydroxyproline were not included in the Humbird stoichiometry. See Table 1
+caption for caveats to the data for asparagine, cystine, hydroxyproline, and methionine.
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   19
+     Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+Total amino acid cost contribution                                    tionally dense CHO media had costs between ~$0.05
+                                                                      to $0.17/L. Notably, the higher prices assumed by
+per liter of media
+                                                                      Humbird place amino acid costs at ~$0.24 to $0.54/L
+Previous work has estimated that media costs would                    for the respective media formulations, falling outside
+need to approach $1/L or less to have a chance at                     the $0.20/L benchmark for total media costs.
+being competitive with most conventional meat prod-
+                                                                      It is important to note that these calculations reflect
+ucts (Negulescu et al. 2023). Interestingly, a recent
+                                                                      only the amino acid portion of the media. Other
+peer-reviewed study by Believer Meats reported
+                                                                      components, such as growth factors, vitamins,
+media costs at $0.63/L (Pasitka et al. 2024). However,
+                                                                      minerals, salts, carbohydrates, and lipids, are not
+even more recent reports from CM companies Meatly
+                                                                      included in this analysis. Besides amino acids, other
+and GOURMEY suggest media costs are already
+                                                                      studies have identified growth factors and other
+around $0.20/L, with Clever Carnivore reporting the
+                                                                      recombinant proteins (e.g., albumin, insulin, and
+lowest cited costs at $0.07/L. To understand how this
+                                                                      transferrin) as cost drivers within media (Swartz et
+could be achieved, we calculated the amino acid cost
+                                                                      al. 2023). However, trends in the industry suggest
+contribution to the FSF4 and modified CHO cell media
+                                                                      many companies have developed protein-free media,
+using the three price estimates gathered in this study
+                                                                      exemplified by a recent cultivated chicken product
+alongside Humbird’s prices for comparison (Figure
+                                                                      produced by Believer Meats that was cleared for sale
+6). Total amino acid costs for the FSF4 media were
+                                                                      in the United States (FDA Inventory for Human Food
+between ~$0.02 to $0.08/L, while the more nutri-
+                                                                      Made with Cultured Animal Cells, 2025).
+
+
+
+
+Figure 6. Total amino acid cost contributions to FSF4 media and modified CHO media formulations across four different price scenarios.
+Each figure displays the per-liter contribution of total amino acids across these price assumptions, with a reference line in red set at
+$0.20/L—an approximate near-term media cost target for the industry. For ease of comparison, the Humbird price estimates were
+applied to the media formulations used in this study, rather than the stoichiometry used in his study.
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   20
+       Introduction             Methods                Results              Discussion               Conclusion                Appendix
+
+
+
+
+Protein-free media may be difficult to achieve for                     The difference in cost drivers between the two
+all the cell types used in cultivated meat and, as                     formulations reflects their distinct amino acid compo-
+a result, proteins may be present in other formu-                      sitions that match the metabolism of the cells for
+lations. Although growth factor and protein prices                     which they were designed. In the FSF4 media, the
+are currently high when used, they are not antici-                     higher glutamine concentration makes glutamine
+pated to be a long-term cost driver for the industry.                  a major cost driver, whereas in the modified CHO
+Furthermore, other work has reported that amino                        media, glutamine is present at a lower level and is
+acids make up ~76% of media costs, with glucose,                       partially “replaced” by increased asparagine. This
+vitamins, lipids, and salts contributing less than                     shift reflects the fact that the modified CHO media
+1% of total media costs (Negulescu et al. 2023).                       formulation is intended to cover a range of species
+Accordingly, our analysis suggests that achieving                      with potential for cultivated meat applications, some
+media costs below $0.20/L is quite reasonable.                         of which synthesize asparagine less efficiently and
+Future studies can follow the strategy outlined in this                therefore require higher supplementation. In addition,
+report to determine a more accurate accounting of                      there are species-specific differences in nitrogen
+complete media costs.                                                  metabolism. For example, poultry cells rely less on
+                                                                       glutamine and generate lower levels of ammonia,
+                                                                       instead using asparagine more heavily as both a
+Individual amino acid cost drivers                                     carbon source and a nitrogen donor for the TCA cycle
+                                                                       and biosynthesis (Lohr et al. 2014). Consequently,
+In addition to total amino acid costs, we identified                   asparagine represents a larger fraction of total amino
+individual amino acids that are potential cost drivers,                acid costs in the modified CHO media.
+defined as those accounting for nearly 10% or more
+of the total amino acid cost contribution under any of                 Proline supplementation in CHO media is likely driven
+the pricing scenarios and media formulations (Figures                  by CHO cells frequently lacking a fully functional
+7-8). Arginine, asparagine, histidine, and serine were                 proline biosynthesis pathway due to defects in
+found to be cost drivers across both media formu-                      relevant enzymes. This necessitates added proline
+lations, while glutamine and cyst(e)ine1 were only                     to sustain robust growth and high recombinant
+flagged as high-cost contributors in the FSF4 media,                   productivity (Valle et al. 1973). In contrast, future
+and proline was only identified as high-cost in the                    cultivated meat cell lines may not require this level of
+modified CHO media. Serine stood out, accounting                       proline supplementation, illustrating that amino acid
+for between ~16-38% of total amino acid costs,                         demands are both cell line‑ and process‑specific. This
+depending on price scenario and media formulation.                     highlights the need for targeted media development
+The reasoning for their high costs is due to a combi-                  and systematic evaluation of amino acid requirements
+nation of high inclusion rates and/or high prices (see                 for each cell line used in production, rather than
+“High-risk amino acid snapshots” in the Appendix).                     assuming that optimized formulations will translate
+                                                                       directly to other species or applications.
+
+
+
+
+1
+    Cyst(e)ine was only a cost driver under a single condition and was deemed to be lower concern.
+
+
+                                                                 Amino acid cost and supply chain analysis for cultivated meat / December 2025   21
+     Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+Figure 7. Amino acid cost drivers in FSF4 and CHO media across multiple pricing scenarios. This figure highlights the individual amino
+acids that contribute most significantly to cost: serine, proline, histidine, glutamine, asparagine, and arginine.
+
+
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   22
+     Introduction             Methods                Results              Discussion               Conclusion                Appendix
+
+
+
+
+Figure 8. Percent of the cost contribution of amino acid cost drivers in (Top) FSF4 media and (Bottom) modified CHO media cost across
+multiple pricing scenarios.
+
+
+
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   23
+     Introduction            Methods                Results               Discussion               Conclusion                Appendix
+
+
+
+
+Amino acid cost contributions per                                   Taken together, our analysis suggests that media costs
+                                                                    below $0.20/L are likely feasible, while several esti-
+kilogram of cultivated meat
+                                                                    mates suggest total amino acid costs may contribute
+The cost per liter of media ($/L) is a widely used metric           less than $5/kg CM. Despite differences in the amino
+across the cellular agriculture sector, but can be                  acid composition between the media formulations,
+prone to misinterpretation. Comparing this metric and               the overall amino acid cost contributions are relatively
+translating it to the cost of the end product requires              similar, suggesting that amino acid costs are more
+additional contextual information on the nutritional                sensitive to assumptions made for bioconversion
+density of the ingredients, the total volume required to            efficiency. The analysis also highlighted serine as a
+make a given quantity of meat, and the bioconversion                predominant cost driver, accounting for ~16-38% of
+efficiency of the cells and process. As this information            total amino acid costs, while arginine, asparagine,
+is captured by the media formulations and bioconver-                glutamine, histidine, and proline each accounted for
+sion efficiency estimates in this study2, we proceeded              nearly 10% or more of total costs (depending on the
+to model amino acid cost contributions per kg CM.                   estimate or scenario), making them key targets for
+Then, we compared these results to previous esti-                   future cost reduction. Future analyses can apply this
+mates from Humbird, as well as a hypothetical                       strategy to understand other media input cost profiles,
+$10/kg CM target benchmark (Figure 9).                              further improving the accuracy of media cost and tech-
+                                                                    no-economic models.
+The analysis revealed that for both media formu-
+lations, amino acid costs remained under $10/kg
+CM across all three price tiers for the most efficient
+bioconversion estimates (200, 232, and 350 g AA/
+kg CM). As bioconversion efficiency decreases, some                         Our analysis suggests that media
+estimates (500 and 650 g AA/kg CM) exceeded the                             costs below $0.20/L are likely
+$10/kg threshold at the higher price scenario. If the                       feasible, while several estimates
+industry is able to source amino acids at the lower end                     suggest total amino acid costs may
+of the price range and achieve efficient bioconversion,                     contribute less than $5/kg CM.
+then amino acid cost contributions could be held
+below ~$5/kg CM, significantly less than the ~$18-19/
+kg CM previously estimated by Humbird. While these
+calculations exclude all of the other aspects that
+make up the total cost of CM production, updated
+pricing for amino acids suggests that the outlook for
+cost-competitive cultivated meat is more optimistic
+than previously believed.
+
+
+
+
+2
+ The corresponding volumes of media to produce 1 kg of CM (L/kg CM) under different bioconversion efficiency estimates (200-650 g
+AA/kg CM) work out to ~57-183 L/kg using the FSF4 formulation and ~28-90L/kg using the modified CHO formulation. Limitations are
+described in Table A5.
+
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   24
+     Introduction             Methods                Results              Discussion               Conclusion                Appendix
+
+
+
+
+Figure 9. Estimated costs of amino acids per kg CM across multiple bioconversion efficiency estimates and pricing scenarios. (Top) Shows
+estimated costs using the FSF4 media formulation, while (Bottom) uses the modified CHO formulation. Each figure displays how the cost
+contributions of amino acids per kg CM change depending on the estimated amino acid bioconversion efficiency and price. The red line
+indicates a hypothetical $10/kg CM target benchmark. For comparison, amino acid costs per kg CM from Humbird’s model are shown.
+
+
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   25
+     Introduction             Methods                Results              Discussion               Conclusion                Appendix
+
+
+
+
+Hydrolysate potential and price                                      Second, hydrolysates offer a form of nutrient bundling
+                                                                     that may simplify formulation and reduce the need
+thresholds for cultivated meat                                       for multiple additive inputs. Promising materials
+application                                                          cited by companies included yeast, soy, wheat, pea,
+                                                                     cottonseed, and both microalgae and macroalgae.
+Protein hydrolysates have been proposed as a way
+                                                                     When processed under the right conditions, these
+to supply cellular nutrition at lower cost and environ-
+                                                                     materials can yield mixtures of peptides, free amino
+mental impact (Sinke et al. 2023; Humbird 2021).
+                                                                     acids, vitamins, trace minerals, and functional
+Below, we review the promises and drawbacks of
+                                                                     compounds, many of which overlap with the nutri-
+hydrolysates and analyze which raw materials or
+                                                                     tional and signaling needs of animal cells in culture.
+hydrolysates could be the most promising candidates
+                                                                     Their inclusion may reduce the need for extensive
+for supplying amino acids, as well as what they would
+                                                                     quality control across dozens of separate ingredients
+need to be priced at to be competitive with amino
+                                                                     currently used to formulate cell culture media, while
+acids from fermentation.3
+                                                                     potentially contributing growth-promoting cofactors
+                                                                     not yet fully characterized.
+Industry perspectives and
+production practices                                                 Sustainability was also noted as a motivating factor
+                                                                     by many companies. Several pointed to the potential
+19 of the 25 interviewees had insights into hydroly-                 to use agricultural sidestreams such as okara, spent
+sates. Twelve expressed support for hydrolysates as                  yeast, or algal biomass to produce hydrolysates,
+a promising strategy to reduce long-term media costs,                providing a circular economy pathway and reducing
+three of which are currently blending hydrolysates                   sugar feedstock and land use compared to amino acid
+with purified amino acids. Four companies were                       fermentation. In this way, hydrolysates could support
+cautiously supportive, emphasizing the need for                      both economic and environmental sustainability
+more performance and scale data, while three others                  goals for the cultivated meat industry and provide
+were currently uninterested, citing reliability or                   opportunities to leverage region-specific biomass or
+regulatory concerns.                                                 agricultural sidestreams.
+
+The appeal of hydrolysates is multifaceted. First,
+they offer a potential route to lower amino acid input
+costs. Unlike microbial fermentation, which requires
+separate production and purification of individual
+amino acids, hydrolysates can be generated from
+bulk, protein-rich, and low endotoxin materials in a
+simplified process, with fewer downstream steps.
+Some models suggest this could dramatically reduce
+the per-kilogram cost of amino acid delivery (Humbird
+2021).
+
+
+
+
+                                                                     Photo credit: JackF / Adobe Stock
+
+
+
+
+3
+  Some differences can exist between hydrolysates and peptones. For simplicity, peptones are used interchangeably with hydrolysates
+throughout this report.
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   26
+     Introduction          Methods              Results              Discussion               Conclusion                Appendix
+
+
+
+
+From a production perspective, companies over-                  Critically, our analysis identified several amino acids
+whelmingly preferred enzymatic hydrolysis over acid             such as glutamine, asparagine, cystine, and some-
+or base methods, citing lower degradation of amino              times serine and arginine, as often underrepresented
+acids, reduced ammonium byproducts, and improved                in hydrolysates due to degradation during processing
+retention of functional peptides. While enzyme                  or low native abundance in the source material
+costs were noted, most viewed them as justifiable in            (Figure A5, Extended Methods). These shortfalls
+exchange for improved product consistency and func-             likely require targeted supplementation with purified
+tionality. Downstream processing typically included             amino acids to meet cellular demands. It is possible
+membrane filtration, centrifugation, evaporation,               that some hydrolysates may still deliver these
+and spray drying, with a few companies also experi-             compounds via protected or peptide-bound forms,
+menting with deep eutectic solvent (DES) extraction.            such as Ala-Gln or N-acetyl-cysteine, that can act
+Some noted that minimal purification (e.g., without             as intracellular reservoirs and contribute to cellular
+ultrafiltration) may be sufficient to yield cost-effective      amino acid pools post-uptake; however, this has yet
+products with adequate performance.                             to be verified empirically. Given these limitations,
+                                                                interviewees noted that while there is enthusiasm
+Despite enthusiasm for the concept, interviewees
+                                                                for hydrolysates and current testing within R&D
+highlighted key technical and logistical challenges
+                                                                programs, near-term commercial CM products are
+limiting near-term commercial adoption. Several
+                                                                unlikely to feature them in their production processes
+companies emphasized batch-to-batch variability
+                                                                for amino acid supplementation until these challenges
+driven by differences in plant source material,
+                                                                are resolved.
+seasonality, compositional variability, harvest condi-
+tions, and processing methods. They noted that such             Taken together, the interviews suggested that hydro-
+inconsistencies can have outsized effects at scale,             lysates hold long-term promise as a cost-effective
+especially in cell lines with narrow performance                and potentially more sustainable alternative to amino
+tolerances, potentially jeopardizing process reliability.       acid fermentation. However, until issues around
+Incompatibilities such as filter clogging during media          performance consistency, batch variability, and regu-
+sterilization and elevated ammonia concentrations,              latory clarity are addressed, hydrolysates are more
+likely due to deamidation of proteins and amino acids           likely to serve as supplemental ingredients in hybrid
+during hydrolysis, were also reported. Achieving the            formulations rather than full replacements for amino
+desired, constant degree of hydrolysis for free amino           acids or other basal media inputs. For further discus-
+acids and peptides can require extensive optimization           sion of the potential and challenges associated with
+of conditions, including temperature, pH, enzyme                hydrolysates, we refer the reader to recent review
+type, enzyme/substrate ratio, and time, which may               papers (Charteris and le Coutre 2025; Mi et al. 2025).
+need to be tuned for each raw material and use case.
+The chemically undefined nature of a hydrolysate and
+the allergenicity of certain raw materials may lead
+to increased regulatory burden. Certain materials
+may also contain residual antinutritional factors that
+may lead to growth inhibition. Beyond practical and
+regulatory concerns, there remains a critical lack of
+research on how variability in hydrolysate compo-
+sition affects cell performance, as well as a limited
+mechanistic understanding of which peptide fractions
+are bioactive.
+
+
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   27
+        Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+Identification of candidate                                              Scenario B, which analyzed the modified CHO
+                                                                         media blends at the same efficiency, required
+hydrolysate blends
+                                                                         more dry mass (547–561 g) and showed more
+Much of the research on hydrolysates to date has                         variation, including wheat gluten, wheat peptone,
+been performed through trial and error. Given the                        and Yarrowia lipolytica single cell protein in some
+large search space of potential starting materials,                      blends. Differences from Scenario A were mainly
+we sought to develop an updated strategy that                            driven by higher proline requirements in the modi-
+narrows the number of hydrolysates to screen and                         fied CHO media, which could be satisfied by the
+increases the likelihood of identifying experimental                     inclusion of wheat gluten that contains 2-3x more
+hits to further develop. After reviewing the amino                       proline than pea or potato peptone. These results
+acid composition of 50 different raw materials4                          show that media-specific amino acid requirements
+and hydrolysates, we were unable to find a single                        significantly affect optimal blend composition.
+candidate that could supply all the amino acids                          Interestingly, Scenario C, which limits inputs to
+needed for our media formulations without using                          commercially available peptones, produced blends
+impractical amounts of material (Figure 10).                             similar to Scenario A (449–465 g) by replacing
+Given these constraints, a more likely pathway for                       pea protein concentrate with extra pea peptone.
+hydrolysates to supplement or fully replace amino                        This reinforces the robustness of peptones;
+acids is through complementary blends, similar to                        however, their use may come at a higher poten-
+cultural practices of eating beans and rice to deliver                   tial cost due to processing requirements, which
+complete protein. To identify candidate blends, we                       could affect large-scale economic viability.
+used ChatGPT to identify blends of raw materials                         Finally, Scenario D, which restricts inputs to raw
+and hydrolysates that could satisfy the nutritional                      materials only, required the highest amount of mate-
+requirements of the FSF4 or modified CHO media,                          rial (678-702 g). This scenario resulted in the most
+excluding glutamine, serine, cystine, arginine, and                      distinct blends, consistently including pea protein
+asparagine (the five Spiked AAs; see Methods). The                       concentrate, along with Yarrowia lipolytica yeast,
+analysis explored blends of up to three materials                        wheat gluten, corn gluten meal, and Chlorella vulgaris,
+or hydrolysates across four different scenarios,                         a type of green microalgae. Despite higher mass
+constrained for simplicity and interpretability                          requirements, this scenario highlights the potential
+(Table A4, Extended Methods). The top three                              to expand the diversity of amino acid sources, which
+hits for each scenario are shown in Figure 11.                           may have simpler production processes, lower land
+In Scenario A, top blends based on the FSF4                              use, increased circularity, and other environmental
+media at 350 g AA/kg CM required 449–462 g dry                           benefits (Haraguchi et al. 2025; Yamanaka et al.
+mass. Potato and pea peptones were consistent                            2023; Tuomisto and de Mattos 2011).
+components, complemented by small amounts
+of yeast extract, papaic soy digest, or pea protein
+concentrate. This highlights that potato- and
+pea-derived peptones may be efficient and
+versatile for meeting amino acid requirements.
+
+
+
+
+4
+    Raw materials were defined as those that, to the best of our knowledge, were not derived from a hydrolysis process.
+
+
+                                                                   Amino acid cost and supply chain analysis for cultivated meat / December 2025   28
+     Introduction             Methods                Results               Discussion               Conclusion                Appendix
+
+
+
+
+Figure 10. Ratio of individual amino acid concentration in hydrolysates and raw materials compared to the FSF4 media. This heat
+map displays the ratios of individual amino acid concentrations (g AA/g raw material or hydrolysate) for 50 different raw materials
+and hydrolysates compared to the amino acid concentration (g AA/L of media) in the FSF4 media formulation. A ratio of 1 or greater
+indicates that 1 g of the material meets or exceeds the concentration in 1 L of FSF4 media. These results underscore the probable need
+to combine multiple materials and/or hydrolysates to achieve a more balanced and media-compatible amino acid profile suitable for
+cultivated meat production.
+
+
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   29
+       Introduction             Methods                 Results               Discussion               Conclusion                Appendix
+
+
+
+
+Top hydolysate blend options in grams of dry mass
+
+
+
+
+  Figure 11. Top raw material or hydrolysate blend options across four scenarios. This figure presents the three top hits for blends across
+  each of the four scenarios described in the Extended Methods (Table A4). Scenario A models the FSF4 media formulation assuming a
+  bioconversion efficiency of 350 g AA/kg CM. Scenario B models the modified CHO media formulation at the same efficiency. Scenario C
+  models the media and bioconversion efficiency of Scenario A, but limits input options to only commercially available peptones,
+  while Scenario D considers only raw materials. Each column represents a blend composed of up to three raw materials or hydrolysates,
+  with the relative contribution of each shown by segment size, allowing for direct comparison of blend composition and diversity
+  across scenarios.
+
+
+
+
+                                                                   Amino acid cost and supply chain analysis for cultivated meat / December 2025   30
+     Introduction            Methods                Results               Discussion               Conclusion                Appendix
+
+
+
+
+The top candidate blend is shown in Figure 12,                       Hydrolysate price thresholds
+which visualizes the contribution of pea peptone,
+potato peptone, and yeast extract to the individual                  Many studies have discussed the potential of using
+amino acid requirements to produce 1 kg CM using                     hydrolysates in media, but few have evaluated the
+the FSF4 media. Tyrosine, histidine, and tryptophan                  price profiles they would need to achieve to reduce
+were the limiting amino acids, with all others being                 rather than raise media costs. To evaluate the cost
+oversupplied (with the exception of the “Spiked AAs”                 competitiveness of hydrolysate-based media, we
+previously noted). Yeast extract displays a “topping                 modeled the maximum allowable price thresholds
+up” effect due to ChatGPT finding results that restrict              ($/kg hydrolysate blend) for the 12 blends identified
+the total mass of material used. In practice, it may be              previously in Figure 11 to determine what a blend’s
+easier to blend just pea and potato peptone, which                   price would need to be to be competitive with amino
+can also fulfill the amino acid requirements through                 acids derived from fermentation (see Extended
+a slight increase in the total amount of material                    Methods). The calculations accounted for blends that
+required (e.g., 449 g for pea/potato/yeast vs. 465 g                 contained low amounts of arginine and serine (as
+for pea/potato shown in Scenario C).                                 shown in Figure 12), which offset the cost contribu-
+                                                                     tions of spiking these two amino acids.
+
+
+
+
+Figure 12. Amino acid contributions of the top candidate blend vs the amino acids needed for 1 kg CM. Here we compared the amino
+acid contributions of the top hit, composed of potato peptone, pea peptone, and yeast extract, against the estimated amino acids
+needed to create 1 kg of CM, assuming the FSF4 media formulation is used and 350 g AA/kg CM is required (green Xs). Each individual
+material’s contribution is depicted within stacked columns, allowing for visualization of how the blend components complement each
+other to approach the desired formulation.
+
+
+
+
+                                                               Amino acid cost and supply chain analysis for cultivated meat / December 2025   31
+     Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+Furthermore, different media formulations have                        ($2.79 to $11.27/kg hydrolysate blend) because
+different amino acid requirements. Accordingly, the                   the modified CHO media formulation contains lower
+blend with the least amount of required dry mass                      amounts of serine, and the blend is able to fulfill most
+does not necessarily correspond to the blend with the                 of the serine needs, offsetting costs associated with
+most favorable price profile, as the amount and type                  spiking it in. All blends in Scenario B had the most
+of spiked AAs needed can have a significant impact                    favorable price profiles for this same reason. The
+on cost.5                                                             blend with the least favorable price profile (Blend D1,
+                                                                      $1.51 to $7.12) was composed of pea protein concen-
+Table 3 shows the prices for hydrolysate blends to be                 trate, corn gluten meal, and Yarrowia lipolytica yeast.
+competitive with fermentation-derived amino acids                     All blends in Scenario D were similarly unfavorable
+under the three pricing scenarios. The blend with the                 because they required significantly more material,
+most favorable price profile was composed of potato                   resulting in lower allowable prices per kg of hydroly-
+peptone, pea peptone, and wheat gluten (Blend B1,                     sate blend.
+Figure 11). It had the highest permitted price range
+
+
+Table 3. Maximum allowable price ranges for different hydrolysate blends to achieve parity with fermentation-derived amino acids.
+The lowest and highest values ($1.51–$11.27/kg hydrolysate blend) represents the competitive pricing window for these blends,
+depending on fermented amino acid pricing.
+
+
+
+
+                          Feed-grade                             Low food-grade                           High food-grade
+                       price scenario for                       price scenario for                        price scenario for
+                        fermented AAs                            fermented AAs                             fermented AAs
+
+                            Price allowance ($/kg hydrolysate blend) to be at parity with a media
+    Blends
+                                composed of amino acids derived solely through fermentation
+
+      A1                        $2.02                                   $4.08                                       $9.30
+
+      A2                        $2.03                                   $4.11                                       $9.36
+
+      A3                        $2.00                                   $4.05                                       $9.25
+
+      B1                        $2.79                                   $5.57                                      $11.27
+
+      B2                        $2.73                                   $5.41                                      $10.99
+
+      B3                        $2.73                                   $5.46                                      $11.02
+
+      C1                        $2.02                                   $4.08                                       $9.30
+
+      C2                        $2.03                                   $4.11                                       $9.36
+
+      C3                        $1.95                                   $3.90                                       $8.98
+
+      D1                        $1.51                                   $3.13                                       $7.12
+
+      D2                        $1.55                                   $3.24                                       $7.30
+
+      D3                        $1.52                                   $3.17                                       $7.10
+
+
+5
+  The highest prices were deemed the most favorable, as it is presumably easier to create a hydrolysis process with a higher price
+target than a lower one.
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   32
+    Introduction          Methods             Results                 Discussion               Conclusion                Appendix
+
+
+
+
+The lowest and highest values ($1.51-$11.27/                     altering amino acid composition, or releasing inhibi-
+kg hydrolysate blend) represent the competitive                  tory compounds that could impact cell culture perfor-
+pricing window for hydrolysate blends identified                 mance. These examples and price ranges should
+in this analysis. Because the results are sensitive              therefore be viewed as a guide rather than definitive
+to several variables (e.g., bioconversion efficiency             solutions. Recommendations for future research are
+assumptions, media formulation, amino acid prices,               included in the Discussion.
+amount and need for spiked AAs, hydrolysate types
+and composition), this price range should be viewed
+as a starting point for practitioners developing hydro-          Fermentation-based amino acid
+lysis processes for cultivated meat. It is important             production and sourcing for
+to note that this range should also be viewed as                 cultivated meat applications
+fairly idealistic, as it assumes that all amino acids
+are bioavailable and that conversion efficiency is at            The sections below reflect industry practices and
+350 g AA/kg CM, which may be optimistic in the near              perspectives on fermentation-based amino acid
+term. Additional considerations are discussed in the             production, purification, and readiness for use in culti-
+Appendix (Table A5).                                             vated meat applications. Additionally, we describe the
+                                                                 amino acid supply chain architecture. These findings
+As a point of comparison, current pricing data                   are based on the structured interviews and question-
+acquired during interviews for hydrolysates were                 naires with cultivated meat stakeholders.
+limited but varied considerably. While some bulk raw
+                                                                 All suppliers confirmed microbial fermentation as
+materials can be acquired below this range, added
+                                                                 the core platform for amino acid production. E. coli
+processing costs combined with the low volume
+                                                                 and C. glutamicum were described as the dominant
+and immature hydrolysate market can push current
+                                                                 strains due to their high productivity and regulatory
+prices (~$5-30/kg hydrolysate per three interviewees)
+                                                                 familiarity. These organisms have been optimized
+outside this range. Overall, more data are needed
+                                                                 over decades to improve yield and scale up efficiency.
+to understand the techno-economics of hydrolysate
+                                                                 Some respondents also mentioned selective use of
+production from different materials.
+                                                                 chemical synthesis, particularly for sulfur-containing
+Taken together, these findings illustrate a promising            amino acids such as cysteine and methionine, due to
+strategy for identifying candidate hydrolysate blends            technical hurdles in fermentation. One supplier uses
+that could support basal media supplementation or                chemical synthesis specifically for cysteine, citing
+partial amino acid replacement. While none of the 50             cost-effectiveness and stability. Another indicated
+hydrolysates and raw materials analyzed individually             ongoing innovation in enzymatic conversions and
+provided a practical means for complete amino acid               hybrid methods for hard-to-produce amino acids.
+coverage, several blend combinations were identified
+                                                                 Cost drivers of fermentation-based amino acids were
+using a constrained optimization approach. The
+                                                                 multifaceted. Per interviewees, sugar feedstocks
+consistency of certain inputs, such as pea and potato
+                                                                 (e.g., glucose syrup, molasses) and utilities (steam,
+peptones in Scenarios A–C, or raw materials like
+                                                                 electricity, water) were consistently cited as major
+Chlorella vulgaris microalgae and Yarrowia lipolytica
+                                                                 contributors to variable cost, accounting for up to
+yeast in Scenario D, highlights their potential as
+                                                                 80% in some cases. Several producers noted that
+starting points for further process optimization and
+                                                                 sugar alone accounts for ~50% of variable cost,
+experimental validation. While highly processed
+                                                                 while utilities contribute ~30%. Additional costs
+peptones may offer nutritional efficiency, they may
+                                                                 include chemical reagents (e.g., NaOH, H₂SO₄,
+be more expensive. Raw materials may offer a more
+                                                                 ammonia), labor, and purification steps. Amino acids
+affordable and sustainable alternative, but they will
+                                                                 like lysine, which have benefited from decades of
+still require processing, potentially introducing costs,
+
+
+                                                           Amino acid cost and supply chain analysis for cultivated meat / December 2025   33
+    Introduction          Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+strain improvement, exhibit high productivity and low         Endotoxins, produced by gram-negative bacteria such
+cost. In contrast, newer or technically challenging           as E. coli, are a known consideration for ensuring
+amino acids, such as histidine or cysteine, suffer            high-performing cell cultures. One respondent
+from lower yields and higher costs even at scale.             emphasized that even gram-positive strains such
+We refer readers to a recent summary on the tech-             as C. glutamicum may still carry endotoxins via
+no-economics of fermentation-derived ingredients              environmental contamination. Suppliers noted that
+for additional information (Eastham et al. 2025).             pharmaceutical-grade amino acids often undergo
+                                                              additional steps, such as ultrafiltration, specifically
+Significant differences exist between feed-, food-,
+                                                              aimed at achieving extremely low endotoxin levels,
+and pharma-grade amino acids due to differing spec-
+                                                              whereas food- and feed-grade products typically do
+ifications. Feed-grade amino acids (the quality used
+                                                              not include these targeted steps. However, standard
+in livestock feed) are the lowest-cost tier, tolerating
+                                                              food-grade purification methods, such as activated
+reduced purity, less documentation, and color vari-
+                                                              carbon treatment, ion exchange, crystallization, and
+ability (e.g., off-white or yellowish appearance). These
+                                                              spray-drying, can substantially reduce endotoxin
+are produced with minimal downstream processing
+                                                              content, even though removal is not their primary
+and limited microbial contamination controls. Food-
+                                                              purpose. For example, one supplier specified endo-
+grade amino acids require enhanced purity, refined
+                                                              toxin at no more than 40 endotoxin units (EU/g) for
+appearance, and tighter controls, and are produced
+                                                              certain food-grade amino acids, a level generally
+under food GMP conditions. Additional purification
+                                                              considered tolerable for cell culture, although another
+steps, such as activated carbon treatment, ion
+                                                              interviewee noted uncertainty about what level is
+exchange, and filtration, drive higher costs. Some
+                                                              truly tolerable for CM applications. Opinions on the
+manufacturers do not offer feed-grade products
+                                                              regulatory importance of endotoxins were mixed, with
+but may supply an intermediate “industrial-grade”
+                                                              some companies indicating that specifications are
+tier (~98% purity), which is not manufactured in
+                                                              required, while others reported that regulators and
+GMP environments. In these cases, customers are
+                                                              end users did not raise the issue.
+responsible for managing impurity levels and micro-
+bial contamination risks during media formulation, a          Endotoxin levels in feed-grade amino acids may be
+typical procedure for large-scale media suppliers but         more variable and, in some cases, high enough to
+still unfamiliar territory for emerging cultivated meat       cause concern for media use. One interviewee noted
+companies. Several respondents emphasized that                that additional removal can be achieved through
+food- and feed-grade production lines must often be           ultrafiltration, as well as heat application (e.g., drying,
+physically separated to meet regulatory requirements.         spray-drying) or desiccation (e.g., crystallization),
+One producer noted that feed-grade and food-grade             which could potentially be optimized to further reduce
+products cannot be manufactured simultaneously                endotoxins. Finally, once an input is incorporated into
+on the same production line due to cross-con-                 a complete media formulation, endotoxin concentra-
+tamination and documentation standards. Taken                 tion is significantly diluted. While endotoxins remain
+together, this implies that retrofitting feed-grade           a potential challenge highlighted by several inter-
+production lines would require significant investment         viewees, current food-grade purification practices,
+and upgrades to meet food-grade specifications.               coupled with dilution in media, often appear sufficient
+                                                              to keep levels low, though some uncertainty remains
+                                                              over acceptable limits.
+
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   34
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+Fit-for-purpose “cultivated meat-                              Supply chain architecture for
+grade” amino acid specifications                               cultivated meat applications
+There was broad consensus among amino acid                     The supply chain for fermentation-based amino
+producers, cell culture media suppliers, and cultivated        acids used in cultivated meat is still evolving. It is
+meat companies that the cultivated meat industry               decentralized and largely shaped by infrastructure
+would benefit from a clearly defined “cultivated               originally developed for pharmaceutical and animal
+meat–grade” (CM-grade) specification for amino                 feed applications. The current supply chain generally
+acids. This emerging grade would balance safety,               consists of amino acid suppliers, cell culture media
+performance, and cost, establishing standards stricter         companies, and CM companies.
+than those for feed applications but more tailored
+than food and pharmaceutical-grade requirements.               Individual amino acid suppliers tend to manufacture
+Interviewees emphasized that over-specification (i.e.,         only a subset of the 20+ amino acids that may be
+requiring endotoxin levels or documentation practices          used in cultivated meat production. As a result, many
+from pharma) would unnecessarily inflate costs and             different suppliers will be needed to meet future
+discourage broader supplier participation. Instead, a          demand. China is the dominant producer and exporter
+CM-grade should be fit-for-purpose, combining func-            of many amino acids, with additional production
+tional performance, quality, safety, and regulatory            hubs in South Korea and South America. While some
+compatibility. Key specifications could be centered            production occurs in other regions such as Japan,
+around factors affecting food safety and cell growth,          India, the U.S., Europe, and Southeast Asia, these
+such as microbial contamination (i.e., bioburden),             regions tend to rely on imports due to less infrastruc-
+heavy metals, residual solvents, aflatoxins, and               ture or higher production costs.
+endotoxins, combined with relaxed thresholds for               Cell culture media companies are critical integrators
+color and appearance that are often required to meet           and distributors along the supply chain. They source
+food-grade standards. Interviewees also proposed               amino acids from a patchwork of up to dozens of
+CM-grade should aim to ensure traceability, batch              manufacturers and distributors across the globe.
+consistency, and documented contaminant testing
+without creating unnecessary barriers. Many inter-
+viewees also stressed the importance of transparent
+manufacturing processes, raw material suitability,
+and functional performance over rigid purity thresh-
+olds. Companies noted that standards may continue
+to be refined over time, particularly as regulatory
+frameworks differ by country and application. Such a
+framework was seen as essential to unlocking scal-
+able, affordable inputs for the cultivated meat sector
+without compromising product safety or cell culture
+performance. Additional considerations are included
+in the Discussion.
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   35
+     Introduction             Methods                 Results              Discussion               Conclusion                Appendix
+
+
+
+
+These amino acids, alongside other media inputs,                      While some CM companies are considering or have
+are imported in bulk and requalified, mixed, and                      already invested in capabilities for in-house media
+packaged for distribution to CM company end users                     sourcing and formulation, few currently purchase
+(Figure 13). Cell culture media companies perform                     amino acids directly at industrial scales. Instead, they
+extensive supplier due diligence to ensure quality and                rely on media companies that purchase in bulk and
+reliability, and often maintain multiple suppliers for                can formulate and ship custom, pre-mixed powdered
+each amino acid for redundancy and competition.6                      media according to the requirements of each
+Interviewees noted that their competitive advantage                   customer.7 Most CM companies avoid in-house media
+is often their supplier network, which enables them                   sourcing because it requires considerable invest-
+to lock in lower prices with suppliers producing                      ment and overhead to source the dozens of inputs in
+high-quality inputs. They also emphasized the impor-                  most media formulations, specialist equipment and
+tance of quality, consistency, and documentation,                     personnel to mix and formulate the media, and the
+with endotoxin levels, heavy metal content, allergen                  establishment of additional quality assurance teams
+status, and animal-free certification being repeatedly                and programs. The layered supply network outlined in
+cited as critical specifications when selecting amino                 Figure 13 adds complexity and cost to media sourcing
+acid suppliers.                                                       for CM companies, but provides reliability, flexibility,
+                                                                      and risk mitigation against inventory shortages or
+                                                                      regional regulatory issues for end users.
+
+
+
+
+Figure 13. Visualization of the amino acid supply chain for cultivated meat media. In this simplified example, a media supplier sources
+amino acids from many global suppliers before formulating and shipping media to global cultivated meat customers. In practice, media
+suppliers will often have localized facilities in several regions to optimize shipping and logistics.
+
+
+6
+  Interviewees noted that while the prices of food-grade amino acids on aggregate supplier sites such as Alibaba were generally
+representative, they discourage the use of sourcing through aggregate supplier websites due to variability and quality issues.
+7
+  Media formulations are often held as trade secrets, which underscores the importance of having commercially-relevant formulations like
+FSF4 made publicly available.
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   36
+     Introduction             Methods                Results               Discussion               Conclusion                Appendix
+
+
+
+
+Discussion
+
+High cost and supply-                                                 limited supply and difficult to replace using hydroly-
+                                                                      sates, which indicates they are most likely to remain
+constrained amino acids present                                       supplied through fermentation. This nexus highlights
+new innovation opportunities                                          the opportunity areas for amino acid innovation and
+                                                                      provides direction for researchers and amino acid
+Our analysis yielded several new insights into
+                                                                      suppliers to focus their efforts in the coming years.
+opportunities, challenges, and potential bottlenecks
+                                                                      Additional information on each of these amino acids
+related to the amino acid supply for cultivated meat.
+                                                                      and opportunities for researchers and suppliers can
+Figure 14 summarizes the key findings, highlighting
+                                                                      be found in the “High-risk amino acid snapshots”
+the amino acids that are currently expensive or in
+                                                                      section of the Appendix.
+
+
+
+
+Figure 14. Heatmap summary of key results from the analysis, which shows the overlap in amino acids that are cost drivers, in limited
+supply, and difficult to replace with hydrolysates. Lighter shades indicate lower risk.
+
+
+
+                                                                Amino acid cost and supply chain analysis for cultivated meat / December 2025   37
+    Introduction          Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+Amino acid prices are                                         Moving forward, we recommend using the updated
+                                                              price estimates from this study (Table 1) in future
+significantly lower than                                      research characterizing media costs and cultivated
+previously estimated                                          meat techno-economics.
+
+Amino acids are widely acknowledged as one of the
+primary cost drivers in cultivated meat media. Early
+                                                              Future outlook
+techno-economic assessments, most notably by
+Humbird, estimated that amino acids could contribute
+                                                              Establishing “CM-grade” media in-
+between ~$18-$19/kg CM, a figure that placed                  puts to lower costs and streamline
+them at the center of discussions around economic             the regulatory process
+feasibility for the industry. However, our research
+has shown that the underlying price assumptions               A consistent theme throughout the interviews was
+previously used (between $40 and $156/kg AA) were             the critical role that ingredient grade plays in both the
+overinflated and more representative of pharmaceu-            cost and regulatory viability of amino acids for culti-
+tical-grade pricing. Pricing of food-grade amino acids        vated meat. Currently, pharma-grade amino acids are
+at today’s purchase volumes of 25-100 kg tends to             predominantly used for R&D in academia and early-
+span between ~$5 to $75/kg AA, with some price                stage startups. However, the majority of amino acids
+differences being over an order of magnitude less             are already supplied as food-grade to CM companies
+than previously assumed (Figure 5).                           nearing commercialization, when higher production
+                                                              volumes require bulk purchasing of powdered media.
+Lower amino acid prices result in lower estimates for         Additionally, several interviewees have begun testing
+the cost contribution of amino acids to cell culture          feed-grade amino acids in R&D applications and noted
+media and overall cultivated meat production. Over            that they often perform equivalently to higher grades
+the last few years, it has been commonly cited that           in cell culture. However, the use of feed-grade inputs
+$1/L media is a target benchmark necessary to                 is clouded by concerns around heavy metal content,
+approach cost-competitive cultivated meat. However,           endotoxin, bioburden (i.e., microbial contamination),
+the study from which this target was derived was also         batch variability, and inconsistent CoA documenta-
+based on outdated amino acid prices (Negulescu et             tion, issues that can create delays or rejections in
+al. 2023). In support of recent company statements,           regulatory review processes. In some jurisdictions,
+our analysis shows that commercially-relevant media           such as South Korea, explicit requirements for food-
+costs below $0.20/L are quite reasonable (Figure 6),          grade inputs restrict use of other input types, while in
+and we recommend this as an updated benchmark for             the EU and US, acceptability appears to hinge on prior
+researchers and companies to strive for.                      food-use history and overall safety evidence.
+Furthermore, several scenarios in our analysis                Input grades can be nebulous and standards may
+suggest total amino acid costs may contribute less            vary by jurisdiction. Accordingly, one interviewee
+than $5/kg CM. This is a significant decrease from            noted that they do not even think in terms of “grades”
+previous estimates of $18-19/kg CM, which accounted           but focus instead on locating suppliers who can
+for up to half the total cost of cultivated meat produc-      provide low-cost inputs that meet the safety and
+tion (Humbird 2021). While these calculations exclude         performance profile suitable for cultivated meat.
+all of the other aspects that make up the total cost of       This general concept for the creation of a “cultivated
+production, updated pricing for amino acids suggests          meat-grade” specification was supported by almost
+that the outlook for cost-competitive cultivated meat         every interviewee. This new standard could draw
+is more optimistic than previously believed.                  from food- and feed-grade benchmarks but introduce
+                                                              fit-for-purpose criteria such as verified endotoxin
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   38
+    Introduction          Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+thresholds, maximum limits on heavy metals, micro-
+bial contamination, and other impurities of concern,
+animal-origin-free verification, consistent batch
+                                                                      Recommendations to
+documentation and CoA formatting, and harmoni-
+zation of traceability audits or input swaps during
+                                                                      address challenges:
+the regulatory review process. For example, there is
+                                                                      Cross-sector collaboration to develop
+currently a lack of clarity for CM manufacturers who
+                                                                      “cultivated meat–grade” standards:
+have an approved product but may want to swap a
+                                                                      Establishing fit-for-purpose, standardized
+pharma-grade amino acid (used during initial submis-
+                                                                      criteria for amino acid quality, such as
+sion) for a food-grade amino acid used in current
+                                                                      verified endotoxin thresholds, maximum
+production. While some interviewees suggested this
+                                                                      limits on heavy metals, bioburden (i.e.,
+may only require a simple notification to the regulator
+                                                                      microbial contamination), other impurities
+if the Chemical Abstracts Service (CAS) number is
+                                                                      of concern, and animal-origin-free verifi-
+unchanged, others suggested that reviewers may
+                                                                      cation can streamline documentation and
+raise additional questions about the identity of
+                                                                      regulatory compliance. Interviewees nearly
+impurities that could exist in the food-grade version.
+                                                                      unanimously supported this effort.
+
+Establishing a CM-grade can also be overlaid with
+safe limits for media inputs (Ong et al. 2025) to
+promote transparent dialogue with regulators and
+streamline the approval process, while also unlocking           Advancing the use of hydrolysates
+the use of more affordable and widely available amino
+acid sources, particularly those currently categorized          When considering a future cultivated meat industry
+as feed-grade but suitable for cell culture use. Several        where volumes move beyond the millions of tonnes
+interviewees noted they have already begun to                   of production, diversifying the supply of amino acids
+develop such programs internally and consider this a            and other basal media components is likely to be an
+competitive advantage in offering lower-cost inputs to          important long-term goal. As previously discussed,
+the cultivated meat sector.                                     hydrolysates from bulk raw materials may offer
+                                                                numerous advantages in cost, environmental impact,
+Developing a new standard will require coordinated              and supply chain simplicity, circularity, and resilience.
+effort between regulators and the suppliers, media              However, their uptake in commercial production is
+companies, and CM manufacturers that make up                    likely to remain limited until technical challenges are
+the supply chain. These efforts could be additionally           resolved. What steps should be taken to advance the
+supported through public-private consortia, new                 use of hydrolysates?
+standards-setting organizations for cultivated meat,
+and pre-competitive R&D projects that characterize              Our analysis presents a strategy for narrowing the
+the safety and performance of different materials.              search space for raw materials to match the nutri-
+Based on the enthusiasm expressed by interviewees,              tional requirements of commercially-relevant media
+we consider this a key area of focus for the continued          formulations and determine which individual amino
+development of the future media supply chain.                   acids may need to be spiked in. Since most studies
+Foregoing such an effort in favor of defaulting to              exploring hydrolysates are currently performed
+higher-grade inputs could unnecessarily constrain               through trial and error, we recommend using this
+innovation and prevent cost-competitive production              updated strategy to increase the efficiency of finding
+at commercial scales.                                           and replicating hits in hydrolysate screening pipelines.
+
+
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   39
+    Introduction         Methods            Results              Discussion               Conclusion                Appendix
+
+
+
+
+It is important to note that the results from this          Additionally, the determination of a pricing window
+analysis should be viewed as preliminary findings. The      ($1.51-$11.27/kg) for hydrolysate blends to be
+dataset currently includes only 50 raw materials or         competitive with fully fermentation-derived media
+hydrolysates, and several limitations to the approach       provides a valuable starting point for those pursuing
+are noted in Table A5. Researchers can build on these       hydrolysate research. To our knowledge, these are the
+initial results by expanding the food-safe materials        first reported target prices for hydrolysates, enabling
+dataset and developing algorithms that can simul-           practitioners to model and develop hydrolysis
+taneously optimize multiple variables such as cost,         processes that are designed to be cost-competitive
+environmental metrics, dry mass amounts, and AA             from the beginning. Interviewees indicated that
+supplementation to enable a more complete under-            producing hydrolysates in this range is likely feasible,
+standing of the tradeoffs at play. For example, the         however, more research into the techno-economics of
+case study below shows how different starting mate-         hydrolysate production is needed.
+rials could be leveraged to achieve a specific goal,
+such as eliminating the need to spike in asparagine.
+
+
+
+
+      Case study
+
+   Eliminating spiked asparagine using microalgae hydrolysates
+   Euglena gracilis is a microalgae that is generally recognized as safe (GRAS). We observed
+   that certain microalgae, such as Euglena, contain high amounts of asparagine, so we wanted
+   to understand if it could eliminate the need to spike in fermentation-derived asparagine and
+   whether that could yield cost benefits.
+
+
+   We re-ran the analysis using Scenario A criteria (FSF4 media at 350 g AA/kg CM) and found that
+   a blend of 216 g potato peptone, 34 g pea peptone, and 298 g of Euglena could theoretically
+   satisfy asparagine requirements. Cost modeling showed that the competitive price for Euglena-
+   containing blends spanned $2.09-$8.76/kg hydrolysate blend. This showed that while some
+   costs were favorably offset due to avoidance of spiking fermentation-derived asparagine, those
+   savings were offset in the opposite direction by the requirement for more material. As a result,
+   its price range still fell within that of non-Euglena blends (Table 3).
+
+
+
+
+                                                                                                   Photo credit: NaturePL / Adobe Stock
+
+
+
+
+                                                      Amino acid cost and supply chain analysis for cultivated meat / December 2025       40
+    Introduction          Methods             Results               Discussion               Conclusion                Appendix
+
+
+
+
+In the near term, screening and experimental vali-                  This could consequently increase the osmolality
+dation work will be a priority. However, there are                  of the media, leading to growth inhibition effects
+numerous factors outside of our analysis scope that                 due to osmolality (O’Toole 1997) rather than
+may be important considerations for determining why                 some inhibitory factor in the hydrolysate. High
+certain hydrolysates work or fail in validation studies:            amounts of material used could also impact
+                                                                    solubility, leading to precipitation. Consideration
+•   Defining the goal: As mentioned in Table A5
+                                                                    and correction for media osmolality and pH prior
+    (Extended Methods), our analysis examines
+                                                                    to use will be important to eliminate confounding
+    hydrolysates solely through the lens of amino
+                                                                    variables and effectively troubleshoot.
+    acid replacement. In practice, hydrolysates may
+    contain bioactive peptides and other compounds             •    Scale up: As experimental validation is performed
+    that display the capacity to replace serum, growth              in larger bioreactors, hydrolysates may also influ-
+    factors, antioxidants, and other basal media                    ence foaming rates, media viscosity, and oxygen
+    components. Accordingly, the goal of the study                  transfer, requiring adjustments to mixing, feeding,
+    (e.g., growth factor replacement vs. amino acid                 and antifoam protocols. Again, knowledge of
+    replacement) should be clearly defined with                     these potential effects ahead of time will enable
+    proper controls to determine the effect of the                  practitioners to proactively design compatible
+    hydrolysate. Different goals are likely to require              processes and effectively troubleshoot.
+    different hydrolysis protocols. Additionally,
+                                                               Another area that requires a large research effort is
+    consistent outcome criteria based on growth
+                                                               the optimization of hydrolysate composition based
+    rate or bioreactor volumetric productivity will be
+                                                               on specific processes tailored to specific end goals.
+    important to ensure commercial relevance and
+                                                               As mentioned in Table A5 (Extended Methods), a
+    comparability of results across labs and studies.
+                                                               limitation in our analysis is the assumption that amino
+    Recent demonstrations imply it is likely that
+                                                               acid composition in raw materials is unchanged post-
+    hydrolysates and/or lysates and protein fractions
+                                                               hydrolysis or post-processing. In reality, the compo-
+    from raw materials gain traction for serum and
+                                                               sition of free amino acids is not only likely to change
+    growth factor replacement before they become
+                                                               but also display variability. Solving for batch-to-batch
+    viable solutions for basal media components
+                                                               variability and increasing performance predictability
+    (Dolgin et al. 2025; Stout et al. 2022).
+                                                               will require a large effort over many years that is best
+•   Osmolality and solubility: The top hit in our              accomplished through open, pre-competitive R&D.
+    analysis, a blend of pea peptone, potato peptone,          Researchers should focus efforts on:
+    and yeast extract, required 449 g of material to
+                                                               Hydrolysis protocols:
+    meet the requirements of the FSF4 media formu-
+    lation, assuming a bioconversion efficiency of             •    Developing cost-effective hydrolysis protocols
+    350g AA/kg CM. This scenario assumes approx-                    that yield predictable compositions. Key variables
+    imately 100L of media is used to create 1 kg CM                 for optimization include pre-treatments of the
+    and translates to the equivalent of adding ~4.5g                raw material (e.g., solvent extraction vs. pressing;
+    of hydrolysate per liter of media. This would make              milling and filtration steps) and enzyme types and
+    the hydrolysate second only to glucose (5 g/L) in               conditions.
+    weight within the FSF4 media formulation.
+                                                               •    Determining whether hydrolysis protocols can
+                                                                    be generalized or will need to be tailored to each
+                                                                    specific raw material.
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   41
+    Introduction          Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+Characterizing composition:                                     A diversified amino acid supply strategy, combining
+                                                                fermentation with optimized hydrolysates, will likely
+•   Determining the nutritional composition (e.g.,
+                                                                be important to meeting the sector’s long-term cost
+    free amino acids, peptides, carbohydrates, lipids,
+                                                                and sustainability targets. As cultivated meat moves
+    micronutrients, etc) of different hydrolysates with
+                                                                closer to industrial-scale production, addressing these
+    different hydrolysis and fractionation protocols.
+                                                                upstream input challenges will be just as critical as
+•   Developing analytical tools to identify potentially         advances in bioreactor design, cell line engineering,
+    beneficial (e.g., antioxidant, antimicrobial) or            or process control. The path to scale will depend not
+    harmful compounds or metabolites (e.g.,                     only on scientific breakthroughs but on coordination
+    inhibitory tannins, polyphenols, and antinutrients)         between manufacturers, regulators, researchers,
+    and developing methods to enhance or remove                 policymakers, and civil society to build an amino
+    their presence. This characterization may also              acid supply chain that is resilient, cost-effective, and
+    ease regulatory evaluation.                                 ready for the demands of a global protein transition.
+
+•   Developing cell-line specific screening tools to
+    test performance across hydrolysate blends.
+
+
+Cell line adaptation:                                                 Recommendations to
+Since cells are not typically grown in hydrolysates,
+                                                                      address challenges:
+they may require adaptation protocols where the
+                                                                      Researchers can use the information and
+hydrolysate is phased in at certain concentrations
+                                                                      strategy in this report to narrow the search
+that get elevated over time. Some cell lines may also
+                                                                      space for candidate raw materials for
+tolerate more variance in composition than others.
+                                                                      amino acid replacement and align hydro-
+                                                                      lysis protocol development to cost-com-
+Generating open datasets:                                             petitive targets between $1.51-$11.27/kg
+Making sense of the complex data generated from                       hydrolysate. Researchers may also wish
+screening can be assisted through the development                     to expand the food-safe materials dataset
+of software tools, predictive models, and other AI/                   and evaluate additional variables that may
+ML methods (Isaac et al. 2024). These models can be                   impact cost or environmental metrics to
+further refined based on media design and cell type                   better understand potential tradeoffs.
+compatibility.
+                                                                      Characterization of hydrolysates and
+                                                                      validation of their performance is a
+Creating robust sourcing pathways:                                    complex task with many variables.
+If low-cost, scalable, nutrient-rich raw materials are                Datasets will need to be accessible
+identified as suitable amino acid replacements in cell                and open-access in order to leverage
+culture media, large-scale production will be critical.               software tools and AI/ML methods that
+Several promising options we have already identified                  can help make sense of the data.
+include pea, potato, yeast, soy, wheat, and algae.
+
+Finally, if performance and variability issues can be
+solved, techno-economic and life cycle assessments
+can inform industrialization pathways for hydroly-
+sates, which will need to be compared to existing
+fermentation methods to further understand supply
+chain optimization and tradeoffs.
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   42
+        Introduction              Methods                 Results               Discussion               Conclusion                Appendix
+
+
+
+
+Ensuring industry readiness to                                             the environment, people, and animals. As production
+                                                                           volumes for cultivated meat increase beyond the
+prevent supply bottlenecks
+                                                                           250 kTA scale, amino acids could become significant
+Based on the collective findings from the interviews                       supply constraints in the future. As with any new
+and analysis, we conclude that the amino acid supply                       industry, scaling of the supply chain alongside the
+and broader capacity to manufacture cell culture                           broader sector will be critical to achieving production
+media is not a current bottleneck for the cultivated                       milestones. While no critical amino acid is in shortage
+meat industry. Media companies have long been                              today, several companies warned that if the cultivated
+anticipating the scale up of cultivated meat produc-                       meat sector suddenly demands hundreds of tonnes
+tion and standing ready to serve this new market,                          of an amino acid that currently has a small market
+and the existing supply of amino acids is adequate for                     (e.g., serine, tyrosine, proline), lead times for scale
+current needs. For example, our interviews suggest                         up (e.g., new or retrofit fermentation capacity) could
+that media companies collectively have the capacity                        create supply bottlenecks and price increases if not
+to manufacture well over 10,000 MT of CM media                             proactively addressed. As development progresses,
+annually, whereas the annual commercial production                         suppliers should actively monitor global cultivated
+volumes of cultivated meat are currently less than                         meat production and timelines for new facility open-
+1,000 MT. However, amino acid suppliers are not yet                        ings, which could lead to large, sudden increases in
+closely tracking cultivated meat development, and                          amino acid demand.
+if demand rises suddenly, supply constraints could                         This chicken-and-egg scenario may be further miti-
+quickly push up prices for certain amino acids.                            gated through several interventions taken by other
+Our analysis was performed on the basis of a future                        industries and mentioned by interviewees:
+cultivated meat industry producing 250 kTA. However,                       •    Proactive infrastructure actions: Governments
+we explicitly do not provide a timeframe for when                               have an opportunity to further establish global
+these volumes are expected to occur, as the data                                leadership in cultivated meat production by
+to predict this is limited. Nevertheless, production                            onshoring domestic amino acid production and
+volumes of cultivated meat could increase quickly.                              increasing supply. See “Mitigating geopolitical
+As of November 2025, ten products have been                                     risks” below for recommendations.
+cleared by regulators, and four are currently on the
+market across the US, Singapore, and Australia,                            •    Pooled procurement: Amino acid suppliers
+with more on the way.8 With newly acquired                                      expressed caution about investing in new
+regulatory approvals, multiple cultivated meat                                  capacity or retrofitting existing infrastructure
+manufacturers now have the greenlight to scale                                  for food-grade or “CM-grade” inputs until there
+up production into the tonnes and beyond. While                                 is more certain, consolidated demand from the
+250 kTA of production won’t happen overnight,                                   cultivated meat sector. Accordingly, the coordi-
+it will be increasingly important to have accurate                              nated purchasing for guaranteed, large volume
+accounting of cultivated meat production such                                   offtake across multiple CM companies and/or
+that suppliers can plan ahead to ensure amino                                   media suppliers can create stronger demand
+acid supply and demand operate in lockstep.                                     signals, improve negotiating power, and help
+                                                                                de-risk supplier investment in larger production
+Furthermore, our calculations based on 250 kTA of                               runs or new infrastructure.
+cultivated meat represent less than 1% of global meat
+consumption, and amino acid production will need to
+increase significantly if cultivated meat is to grow to
+levels that have a meaningful positive impact on
+
+
+8
+    Additionally, two cultivated pet food products have been cleared for sale, with one on the market in the U.K.
+
+                                                                     Amino acid cost and supply chain analysis for cultivated meat / December 2025   43
+    Introduction          Methods             Results              Discussion               Conclusion                Appendix
+
+
+
+
+•   Develop “cultivated meat–grade” standards:                Further reducing the cost burden of
+    Currently, amino acid suppliers do not neces-
+                                                              fermentation-based amino acids
+    sarily know what specifications are needed
+    for cultivated meat use. Additionally, several            Our analysis has shown that amino acid costs are
+    media companies indicated that even when                  significantly lower than previously believed. However,
+    purchasing food-grade amino acids, endotoxin              this does not imply that a bottom has been reached.
+    levels, trace metal content, and allergen status          In essence, amino acid production is a form of “preci-
+    are inconsistently reported, making regulatory            sion fermentation,” and the same priority areas of
+    submissions and cross-batch blending more                 focus for R&D could unlock further cost reductions
+    difficult. As previously discussed, developing            for amino acids. These areas broadly include strain,
+    “CM-grade” standards can help inform the types            feedstock, and bioprocess optimization, which can
+    of documentation, equipment, and downstream               each be designed to meet the safety, regulatory,
+    purification processes needed to ensure amino             cost, and performance needs of the CM industry.
+    acids are consistently safe, high-performing, and         The CM industry will create a new, larger market for
+    cost-effective.                                           higher cost and/or low-volume amino acids such as
+•   Build strategic reserves of high-risk AAs:                serine, tyrosine, proline, and histidine, providing a
+    Creating strategic stocks and implementing                strong incentive for suppliers to compete on lowering
+    forward contracts for cost- or supply-sensitive           costs for these amino acids. For a deeper dive on
+    amino acids listed in Figure 14 could help to             these topics, we refer the reader to GFI’s Science of
+    prevent price and supply volatility as the culti-         Fermentation overview and TEA landscape report.
+    vated meat industry scales.                               Additional recommendations for specific amino acids
+                                                              are included in the “High-risk amino acid snapshots”
+                                                              section of the Appendix.
+
+                                                              On the demand side, cultivated meat companies
+     Recommendations to
+                                                              and researchers can pursue cell line and metabolic
+     address challenges:                                      engineering strategies centered on optimizing feed
+                                                              conversion ratios. This can be accomplished by
+     •   Amino acid suppliers should actively
+                                                              reducing dependence on glycolysis and increasing
+         monitor global cultivated meat
+                                                              the time that cells spend using the more efficient
+         production and proactively plan
+                                                              oxidative phosphorylation pathway (Hefzi et al. 2024).
+         capacity to meet growing amino acid
+                                                              In combination with targeted feeding strategies, this
+         demand.
+                                                              can significantly reduce the overall amount of amino
+     •   The cultivated meat sector can explore               acids required, as well as those used in especially
+         pooled procurement of amino acids                    high quantities such as glutamine. Finally, the devel-
+         to guarantee large volume offtakes to                opment of minimal media that limits overfed amino
+         create stronger demand signals that                  acids can also reduce overall cost burdens (Lyra-Leite
+         enable supplier resource allocation                  et al. 2023).
+         into expanded capacity. Parallel devel-
+         opment of CM-grade standards can
+         ensure the entire supply chain is oper-
+         ating under the same expectations.
+
+
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   44
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+                                                                    cultivated meat, which thus far has been based on
+                                                                    models rather than empirical findings. The impor-
+    Recommendations to                                              tance of these data cannot be understated. Every
+                                                                    key metric for the industry — from cost to biore-
+    address challenges:
+                                                                    actor volumetric productivity to environmental
+    •    Amino acid suppliers and researchers                       impact — is strongly influenced by the underlying
+         can further optimize strains, feed-                        feed conversion ratio.
+         stocks, and bioprocesses operations to
+                                                               •    Media formulations: Acquisition of the FSF4
+         lower the unit cost of high-cost amino
+                                                                    media formulation was critical to the execu-
+         acids
+                                                                    tion of this analysis. Additionally, we aimed to
+    •    Cultivated meat researchers and manu-                      provide analysis of media formulation variation
+         facturers can increase bioconversion                       through the inclusion of the modified CHO media.
+         efficiency through cell line and meta-                     However, future analyses can be refined by
+         bolic engineering strategies and lower                     having access to additional commercially-relevant
+         the overall cost burden by developing                      media formulations, including differentiation
+         minimal media.                                             media. Composting of IP, as done with SciFi’s
+                                                                    assets, offers a promising route to achieve this.
+                                                                    Alternatively, companies may opt to publish
+                                                                    patents or papers that contain descriptive infor-
+Closing data gaps                                                   mation on media formulations (Moutsatsou et al.
+                                                                    2021; Pasitka et al. 2024).
+Although we were able to thoroughly analyze amino
+acid costs and production volumes by triangulating             •    Amino acid production volumes: While we were
+insights from interviews and the public literature,                 able to compile estimates for annual production
+closing certain data gaps can better refine future                  of amino acids through interviews and public
+analysis of media components.                                       information (Table 2), many interviewees stated
+                                                                    that these data are generally opaque and consid-
+•   Bioconversion efficiency: As mentioned in Table                 ered lower quality. The true production volume
+    A1 (Extended Methods), the range of biocon-                     of most amino acids suitable for cultivated meat
+    version efficiency scenarios of 200-650 gAA/kg                  is not currently known, and improved data will be
+    CM is still fairly broad. Our analysis showed that              necessary to continually refine which amino acids
+    amino acid costs are more sensitive to assump-                  may be bottlenecked in supply.
+    tions for efficiency compared to media compo-
+    sition, highlighting the importance of this metric
+    (Figure 9). Additionally, metabolic efficiency has
+    been highlighted in CM TEAs as a prerequisite
+    for cost-competitive cultivated meat. To refine
+    this assumption over time, more empirical data
+    from commercially-relevant bioprocesses are
+    needed for the bioconversion of key substrates
+    (e.g., glucose, glutamine, and other amino acids).
+    These data should be reported on a dry cell mass
+    basis to ensure that variance in water composition
+    is eliminated. They can then be translated into
+    estimates for the total feed conversion ratio for
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   45
+        Introduction           Methods          Results              Discussion               Conclusion                Appendix
+
+
+
+
+                                                                Not only are these inputs well-characterized and
+                                                                familiar to regulators, but they are also more cost-
+        Recommendations to address                              effective than previously assumed. However, these
+        challenges:                                             findings still have implications for evaluating the
+                                                                environmental impact of cultivated meat.
+        •    Researchers and cultivated meat
+             manufacturers should publish empir-                One well-cited life cycle assessment (LCA) assumed
+             ical data from commercially-relevant               that 75% of amino acids would be supplied by soy
+             bioprocesses to determine the feed                 hydrolysates by the year 2030 (Sinke et al. 2023)9,
+             conversion ratio of cultivated meat and            which our analysis reveals is unlikely to hold. Other
+             key substrates such as glucose, gluta-             LCAs have identified amino acids as a key driver
+             mine, and other amino acids.                       of the environmental impact of media production
+                                                                (Tuomisto, Allan, and Ellis 2022), and thus sourcing
+        •    Researchers and cultivated meat manu-              amino acids solely through individual fermenta-
+             facturers can refine future analyses               tion processes may elevate total energy use, land
+             by publishing more commercially-rel-               required for fermentation feedstocks, and water
+             evant media formulations. Nonprofit                use upstream in the supply chain. Calculating the
+             entities can acquire and compost                   environmental impact of media is generally limited
+             IP from startups to make the assets                by the lack of updated inventory data in LCA data-
+             open-access.                                       bases (Nikkhah et al. 2024). Most studies reference
+        •    Amino acid suppliers and researchers               environmental impact data from a 2010 report
+             can collaborate to create refined and              on feed-grade lysine, methionine, and threonine
+             consolidated databases for amino acid              production, which is then broadly applied to overall
+             production volumes that are suitable for           amino acid production (Marinussen and Kool 2010).
+             cultivated meat.                                   Moving forward, LCA practitioners should collaborate
+                                                                with amino acid suppliers to create updated inventory
+                                                                data for the production of food- and feed-grade amino
+Addressing environmental impact                                 acids and other media inputs produced via fermenta-
+                                                                tion. Measurement of real-world amino acid produc-
+implications
+                                                                tion rather than lab-scale proxies will be critical for
+                                                                accuracy. Future LCAs can also use the FSF4 media
+Our research has concluded that in the short term,
+                                                                formulation and bioconversion efficiency scenarios
+the cultivated meat industry will likely continue to
+                                                                in this report when establishing mass balances to
+rely heavily on fermentation-derived amino acids.
+                                                                ensure commercial relevance. The near-term reliance
+One recent study assumed that pharma-grade inputs,
+                                                                on amino acids from fermentation reinforces the
+including amino acids, would be required for culti-
+                                                                importance of using renewable energy at cultivated
+vated meat production, resulting in elevated environ-
+                                                                meat facilities and throughout the supply chain to
+mental impacts compared to previous reports (Risner
+                                                                achieve sustainable production (Sinke et al. 2023).
+et al. 2025). This study has since been refuted, and
+                                                                Encouragingly, amino acid suppliers noted they are
+the interviews during this report decisively indicated
+                                                                actively implementing renewables to achieve their
+that food-grade amino acids, supported by existing
+                                                                own environmental, social and governance
+supply chains, are already being used throughout
+                                                                (ESG) goals.
+the industry.
+
+
+
+9
+    This study was funded by GFI.
+
+
+                                                          Amino acid cost and supply chain analysis for cultivated meat / December 2025   46
+     Introduction          Methods               Results                 Discussion               Conclusion                Appendix
+
+
+
+
+                                                                    meat production. They can incentivize domestic
+                                                                    amino acid manufacturing by de-risking CapEx burden
+                                                                    through grants, tax incentives, and low-interest loan
+     Recommendations to address
+                                                                    programs. Onshoring amino acid manufacturing can
+     challenges:                                                    reduce the dependence and risk of relying on concen-
+                                                                    trated international supply chains while creating new
+     •    Researchers investigating the envi-
+                                                                    jobs and economic opportunities to leverage local
+          ronmental impact of cultivated meat
+                                                                    biomass and feedstocks for amino acid fermentation.
+          should assume that amino acids will
+                                                                    Lastly, governments can consider creating strategic
+          be supplied primarily by fermentation
+                                                                    reserves for key amino acids or other media inputs
+          processes. Because environmental
+                                                                    that are also important for human and animal nutri-
+          impact data for amino acid production
+                                                                    tion. These actions can collectively mitigate external
+          is outdated, researchers and suppliers
+                                                                    risk factors that could affect the success of the entire
+          should collaborate to generate updated
+                                                                    industry while encouraging competition in media
+          inventory data for real-world, food- and
+                                                                    input and fermentation feedstock innovation that
+          feed-grade amino acid production.
+                                                                    lowers costs and increases supply chain resilience.
+     •    Suppliers should incorporate renewable
+          energy into their production facilities
+          to lower the environmental impact of
+          production.
+                                                                          Recommendations to address
+                                                                          challenges:
+
+                                                                          Policymakers and governments should
+Mitigating geopolitical risks                                             incentivize domestic amino acid manu-
+                                                                          facturing through grants, tax incentives,
+Much of the current production capacity for food-
+                                                                          and low-interest loan programs. They can
+and feed-grade amino acids resides in China, with
+                                                                          also consider creating strategic stocks and
+secondary hubs in South Korea and South America.
+                                                                          implementing forward contracts for cost- or
+This regional concentration exposes the sector to
+                                                                          supply-sensitive amino acids listed in Figure
+geopolitical risk, logistical delays, and trade volatility.
+                                                                          14 to prevent price and supply volatility as
+Interviewees noted that the 2025 U.S. tariffs have
+                                                                          the cultivated meat industry scales.
+already presented challenges. From a national secu-
+rity perspective, governments have an opportunity
+to further establish global leadership in cultivated
+
+
+                                                                                                           Photo credit: Sergey Ryzhov / Adobe Stock
+
+
+
+
+                                                              Amino acid cost and supply chain analysis for cultivated meat / December 2025    47
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+Conclusion
+Our analysis demonstrates that the economics of               pathways toward solutions. The cultivated meat field
+amino acid production will be a decisive factor in            now stands at a pivotal juncture: the strategies chosen
+unlocking the full potential of cultivated meat. While        today to advance amino acid manufacturing, through
+technical feasibility has been established across             process optimization, new biotechnological routes,
+multiple production platforms, realizing cost-com-            and collaborative infrastructure, will shape the pace
+petitive supply at scale will require targeted inno-          and equity of future market growth. Ensuring that
+vation, sustained investment, and close alignment             amino acid production is efficient, affordable, and
+between industry, researchers, and policymakers.              resilient is not only critical for commercial viability
+By integrating detailed cost modeling with real-world         but also for fulfilling the broader promise of cultivated
+perspectives from producers and early adopters,               meat as a sustainable, secure, and scalable contrib-
+this work highlights the challenges and the credible          utor to the global protein supply.
+
+
+
+
+Acknowledgments
+This analysis would not have been possible without the generous contributions of our interviewees who shared
+their time, information, data, and insights. We extend our sincere appreciation to all who participated. The
+following list includes those individuals who consented to be named and does not encompass those who
+contributed anonymously.
+
+
+• Louis Cheung, JS Biosciences Co, Ltd                         • Dean Paes, PhD, Mosa Meat
+
+• Aslak Heuser C. Christiansen, consultant                     • Jill Schriewer, consultant, WildBio
+
+• Luke Grocholl, MilliporeSigma                                • Ruben Smouter, Strategy manager, Meatable
+
+• Yuki Hanyu, PhD, Integriculture                              • Panagiotis Vlachogiannis, Business Development
+                                                                 and Supply Chain Associate, Nutreco
+• Appachu Kodira, JS Biosciences/KCell
+                                                               • Patrick Westfall, VP, Research & Development,
+• Rick Kwekkeboom, Innovation manager, Meatable
+                                                                 Bond Pet Foods
+• Dr. Neta Lavon, Co-Founder & Chief Technology
+                                                               • Mark Whittaker, President, Scientific Research
+  Officer, Aleph Farms
+                                                                 Consortium, Inc, DBA
+• Dr. Ayelet Maor-Shoshani, Senior Director, Cell
+                                                               • Susanne Wiegel, PhD, Strategic Advisor Cellular
+  Line and Media Development, Aleph Farms
+                                                                 Agriculture, Biotech, and Life Sciences
+• Hyoungsouk Myoung, BIO Business Division,
+                                                               • The Ajinomoto Group
+  Daesang Corporation
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   48
+     Introduction         Methods            Results               Discussion               Conclusion                Appendix
+
+
+
+
+References
+
+1. Amirvaresi, Arian, and Reza Ovissipour. 2024.              8. Haraguchi, Yuji, Yuta Okamoto, Toru Asahi, and
+   “Assessment of Plant- and Microbial-Derived                   Tatsuya Shimizu. 2025. “Nitrogenous Fertilizer‐
+   Protein Hydrolysates as Sustainable for                       free Microalgal Culture Using Nitrogen‐fixing
+   Fetal Bovine Serum in Seafood Cell Culture                    Cyanobacteria‐derived Extracts for Sustainable
+   Media.” Future Foods: A Dedicated Journal for                 Food Production.” Phycological Research 73 (2):
+   Sustainability in Food Science, no. 100443                    60–69.
+   (August), 100443.                                          9. Hefzi, Hooman, Iván Martínez-Monge, Igor
+2. Charteris, Charlotte, and Johannes le Coutre.                 Marin de Mas, Nicholas Luke Cowie, Alejandro
+   2025. “Cultivated Meat Meets Upcycling:                       Gomez Toledo, Soo Min Noh, Karen Julie la Cour
+   Unlocking the Potential of Agricultural Side-                 Karottki, et al. 2024. “Multiplex Genome Editing
+   Streams.” Future Foods: A Dedicated Journal for               Eliminates the Warburg Effect without Impacting
+   Sustainability in Food Science, no. 100726 (July),            Growth Rate in Mammalian Cells.” Bioengineering.
+   100726.                                                       bioRxiv. https://www.biorxiv.org/content/10.1101
+3. D’Este, Martina, Merlin Alvarado-Morales, and                 /2024.08.02.606284v1.full.pdf.
+   Irini Angelidaki. 2018. “Amino Acids Production            10. Hubalek, S., J. Melke, P. Pawlica, M. J. Post,
+   Focusing on Fermentation Technologies - A                      and P. Moutsatsou. 2023. “Non-Ammoniagenic
+   Review.” Biotechnology Advances 36 (1): 14–25.                 Proliferation and Differentiation Media
+4. Dolgin, James, Damayanti Chakravarty,                          for Cultivated Adipose Tissue.” Frontiers
+   Sean F. Sullivan, Yiming Cai, Taehwan Lim,                     in Bioengineering and Biotechnology 11
+   Pomaikaimaikalani Yamaguchi, Joseph E. Balkan,                 (July):1202165.
+   et al. 2025. “Microbial Lysates as Low-Cost                11. Humbird, David. 2021. “Scale-up Economics for
+   Serum Replacements in Cellular Agriculture                     Cultured Meat.” Biotechnology and Bioengineering
+   Media Formulation.” Food Research International                118 (8): 3239–50.
+   (Ottawa, Ont.) 201 (115633): 115633.                       12. Isaac, Kathy Sharon, Michelle Combe, Greg
+5. Eastham, L., Panescu, P., Costa, S., Bess, A.,                 Potter, and Stanislav Sokolenko. 2024. “Machine
+   Quoc Le, B., Radovanović, V., Mijušković, V. 2023.             Learning Tools for Peptide Bioactivity Evaluation
+   “Cultivating Alternative Proteins from Commodity               - Implications for Cell Culture Media Optimization
+   Crop Sidestreams.” The Good Food Institute.                    and the Broader Cultivated Meat Industry.”
+   https://gfi.org/wp-content/uploads/2024/02/                    Current Research in Food Science 9 (100842):
+   Sidestreams-analysis.pdf.                                      100842.
+6. Eastham, E., McKee, A., Bess, A., Leman, A.                13. Jiaqi Mi, Hui Si Audrey Koh, Vinayaka Srinivas,
+   2025. “Driving to Cost Parity: Insights and                    William R. Birch, Weibiao Zhou. 2025. “Towards
+   Recommendations from a Meta-Analysis of                        Affordable Cultivated Meat: The Potential of Plant
+   Techno-Economic Data for Fermentation Derived                  Protein Hydrolysates.” Trends in Food Science &
+   Ingredients.” The Good Food Institute. https://                Technology, July, 105178.
+   doi.org/10.62468/trxj5734                                  14. Kossmann, Hanno, Thorsten Moess, and Peter
+7.   “FDA Inventory for Human Food Made with                      Breunig. 2025. “The Climate Impact and Land
+     Cultured Animal Cells (Believer Meats).” 2025.               Use of Cultivated Meat: Evaluating Agricultural
+     Accessed August 26, 2025. https://www.                       Feedstock Production.” PloS One 20 (1):
+     hfpappexternal.fda.gov/scripts/fdcc/index.                   e0316480.
+     cfm?set=AnimalCellCultureFoods&id=039.
+
+
+                                                        Amino acid cost and supply chain analysis for cultivated meat / December 2025   49
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+15. Kulis-Horn, Robert K., Marcus Persicke, and                22. Nikkhah, Amin, Kirsten Trinidad, David L. Kaplan,
+    Jörn Kalinowski. 2014. “Histidine Biosynthesis,                and Nicole Tichenor Blackstone. 2024. “Life
+    Its Regulation and Biotechnological Application                Cycle Assessment of Beefy-9 and Beefy-R
+    in Corynebacterium Glutamicum: Histidine inC.                  Serum-Free Culture Media for Cell-Cultivated
+    Glutamicum.” Microbial Biotechnology 7 (1): 5–25.              Beef Production.” Sustainable Production and
+16. Li, Guohua, Qingyang Xu, Haibo Xiong, Yunpeng                  Consumption 50 (July):168–76.
+    Liu, Yufu Zhang, Zhichao Chen, and Ning Chen.              23. Ong, Kimberly, Kora Kukk, Dean Powell, Wei
+    2021. “Improving the L-Tyrosine Production with                Ning Chen, Samuel Goh, and Jo Anne Shatkin.
+    Application of Repeated Batch Fermentation                     2025. “Development of a Safety-Assessed Media
+    Technology Based on a Novel Centrifuge                         Ingredient (SAMI) Framework for Streamlined
+    Bioreactor.” Food and Bioproducts Processing                   Safety Assessment of Cultivated Meat and
+    126 (March):3–11.                                              Seafood Products.” Preprints. https://doi.
+17. Lohr, Verena, Oliver Hädicke, Yvonne Genzel,                   org/10.20944/preprints202503.0374.v1.
+    Ingo Jordan, Heino Büntemeyer, Steffen Klamt,              24. O’Toole, Angela. 1997. “An Investigation into
+    and Udo Reichl. 2014. “The Avian Cell Line AGE1.                Factors That Cause Inhibition of the Growth
+    CR.pIX Characterized by Metabolic Flux Analysis.”               of Animal Cells in Vitro.” Accessed October
+    BMC Biotechnology 14 (1): 72.                                   30, 2024. https://doras.dcu.ie/19265/1/
+18. Lyra-Leite, Davi M., Raymond R. Copley, Phillip P.              Angela_O’Toole_20130718083840.pdf.
+    Freeman, Praeploy Pongpamorn, Disheet Shah,                25. Pasitka, Laura, Guy Wissotsky, Muneef Ayyash,
+    Donald E. McKenna, Brian Lenny, et al. 2023.                   Nir Yarza, Gal Rosoff, Revital Kaminker, and
+    “Nutritional Requirements of Human Induced                     Yaakov Nahmias. 2024. “Empirical Economic
+    Pluripotent Stem Cells.” Stem Cell Reports 18 (6):             Analysis Shows Cost-Effective Continuous
+    1371–87.                                                       Manufacturing of Cultivated Chicken Using
+19. Marinussen, M., and A. Kool. 2010.                             Animal-Free Medium.” Nature Food 5 (8):
+    “Environmental Impacts of Synthetic Amino                      693–702.
+    Acid Production.” Blonk Sustainability. https://           26. Patriarca, Eduardo J., Federica Cermola, Cristina
+    website-production-s3bucket-1nevfd7531z8u.                     D’Aniello, Annalisa Fico, Ombretta Guardiola,
+    s3.eu-west-1.amazonaws.com/public/                             Dario De Cesare, and Gabriella Minchiotti.
+    website/download/f0e6feeb-d39c-45d2-af25-                      2021. “The Multifaceted Roles of Proline in Cell
+    f94d1de9e074/amino-acids.pdf.                                  Behavior.” Frontiers in Cell and Developmental
+20. Moutsatsou, Panagiota, Helder Cruz, Iva                        Biology 9 (August):728576.
+    Klevernic, Anna Kolkmann, and Anon Van Essen.              27. Pavlova, Natalya N., Sheng Hui, Jonathan M.
+    2021. Serum-free medium for culturing a bovine                 Ghergurovich, Jing Fan, Andrew M. Intlekofer,
+    progenitor cell. WIPO 2021158103:A1. World                     Richard M. White, Joshua D. Rabinowitz, Craig B.
+    Patent, filed February 3, 2021, and issued                     Thompson, and Ji Zhang. 2018. “As Extracellular
+    August 12, 2021. https://patentimages.storage.                 Glutamine Levels Decline, Asparagine Becomes
+    googleapis.com/10/2d/5b/e1ddc6bf916e15/                        an Essential Amino Acid.” Cell Metabolism 27 (2):
+    WO2021158103A1.pdf.                                            428–38.e5.
+21. Negulescu, Patrick G., Derrick Risner, Edward              28. Risner, Derrick, Patrick Negulescu, Yoonbin Kim,
+    S. Spang, Daniel Sumner, David Block, Somen                    Cuong Nguyen, Justin B. Siegel, and Edward S.
+    Nandi, and Karen A. McDonald. 2023. “Techno-                   Spang. 2025. “Environmental Impacts of Cultured
+    Economic Modeling and Assessment of Cultivated                 Meat: A Cradle-to-Gate Life Cycle Assessment.”
+    Meat: Impact of Production Bioreactor Scale.”                  ACS Food Science & Technology 5 (1): 61–74.
+    Biotechnology and Bioengineering 120 (4):
+    1055–67.
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   50
+     Introduction         Methods              Results                Discussion               Conclusion                Appendix
+
+
+
+
+29. Schwentner, Andreas, André Feith, Eugenia                         Production in Hollow Fiber Bioreactors.” The
+    Münch, Judith Stiefelmaier, Ira Lauer, Lorenzo                    Science of the Total Environment 851 (Pt 1):
+    Favilli, Christoph Massner, et al. 2019. “Modular                 158051.
+    Systems Metabolic Engineering Enables                        35. Tuomisto, Hanna L., and M. Joost Teixeira de
+    Balancing of Relevant Pathways for L-Histidine                   Mattos. 2011. “Environmental Impacts of
+    Production with Corynebacterium Glutamicum.”                     Cultured Meat Production.” Environmental
+    Biotechnology for Biofuels 12 (1): 65.                           Science & Technology 45 (14): 6117–23.
+30. Sinke, Pelle, Elliot Swartz, Hermes Sanctorum,               36. Utagawa, Takashi. 2004. “Production of Arginine
+    Coen van der Giesen, and Ingrid Odegard. 2023.                   by Fermentation.” The Journal of Nutrition 134
+    “Ex-Ante Life Cycle Assessment of Commercial-                    (10 Suppl): 2854S – 2857S; discussion 2895S.
+    Scale Cultivated Meat Production in 2030.”
+                                                                 37. Valle, D., S. J. Downing, S. C. Harris, and
+    International Journal of Life Cycle Assessment 28
+                                                                     J. M. Phang. 1973. “Proline Biosynthesis:
+    (3): 234–54.
+                                                                     Multiple Defects in Chinese Hamster Ovary
+31. Stout, Andrew, Addison Mirliani, John Yuen,                      Cells.” Biochemical and Biophysical Research
+    Eugene White, and David L. Kaplan. 2022. “Simple                  Communications 53 (4): 1130–36.
+    and Effective Serum-Free Medium for Sustained
+                                                                 38. Vergeer, R., Sinke, P., Odegard, I. 2021. “TEA of
+    Expansion of Bovine Satellite Cells for Cell
+                                                                     Cultivated Meat: Future Projections for Different
+    Cultured Meat.” Communications Biology, June,
+                                                                     Scenarios.” CE Delft.
+    2021.05.28.446057.
+                                                                 39. Wu, Qi, Xinyue Chen, Juanjuan Li, and Shengrong
+32. Sun, Tao, Wee Chiew Kwok, Koon Jiew Chua,
+                                                                     Sun. 2020. “Serine and Metabolism Regulation:
+    Tat-Ming Lo, Jason Potter, Wen Shan Yew,
+                                                                     A Novel Mechanism in Antitumor Immunity and
+    Jonathan D. Chesnut, In Young Hwang, and
+                                                                     Senescence.” Aging and Disease 11 (6): 1640–53.
+    Matthew Wook Chang. 2020. “Development of
+    a Proline-Based Selection System for Reliable                40. Yamanaka, Kumiko, Yuji Haraguchi, Hironobu
+    Genetic Engineering in Chinese Hamster Ovary                     Takahashi, Ikko Kawashima, and Tatsuya Shimizu.
+    Cells.” ACS Synthetic Biology 9 (7): 1864–72.                    2023. “Development of Serum-Free and Grain-
+                                                                     Derived-Nutrient-Free Medium Using Microalga-
+33. Swartz, E., Ravi, A., Reeber, A., Levink, J., Huang,
+                                                                     Derived Nutrients and Mammalian Cell-Secreted
+    T., Smith, B. 2023. “Anticipated Growth Factor
+                                                                     Growth Factors for Sustainable Cultured Meat
+    and Recombinant Protein Costs and Volumes
+                                                                     Production.” Scientific Reports 13 (1): 498.
+    Necessary for Cost-Competitive Cultivated
+    Meat.” The Good Food Institute. https://gfi.                 41. 胡辉, 李军, and 翁志兵. 2014. Serum-free protein-
+    org/wp-content/uploads/2023/01/GFI-report_                       free culture medium supporting CHO (Chinese
+    Anticipated-growth-factor-and-recombinant-                       Hamster Ovary Cell) high density suspension
+    protein-costs-and-volumes-necessary-for-cost-                    culture. CN:104073463:A. Patent, filed March
+    competitive-cultivated-meat_2023-1.pdf.                          29, 2013, and issued October 1, 2014. https://
+                                                                     patentimages.storage.googleapis.com/ff/8d/f9/
+34. Tuomisto, Hanna L., Scott J. Allan, and Marianne
+                                                                     ea926e08449a0f/CN104073463A.pdf.
+    J. Ellis. 2022. “Prospective Life Cycle Assessment
+    of a Bioprocess Design for Cultured Meat
+
+
+
+
+                                                           Amino acid cost and supply chain analysis for cultivated meat / December 2025   51
+    Introduction         Methods             Results                Discussion               Conclusion                Appendix
+
+
+
+
+Appendix
+
+High-risk amino acid snapshots                                 Lastly, L-cyst(e)ine, L-tryptophan, and L-methionine
+                                                               are worth noting. Cyst(e)ine was mentioned most
+The amino acid snapshots below are presented in the            frequently in interviews, with many describing it
+order of their importance for amino acid suppliers and         as inherently challenging to produce. Its instability
+cultivated meat researchers to focus their efforts.            during manufacturing requires specialized equip-
+                                                               ment and processes, and fermentation is difficult
+•   L-Serine                                                   because of its sulfur content, which is toxic to
+                                                               microbes. Despite these challenges and its high
+•   L-Glutamine
+                                                               inclusion rate in some media formulations, current
+•   L-Asparagine                                               global production is over 11,000 MT/year (not
+                                                               accounting for L-cystine production, which was
+•   L-Histidine
+                                                               uncertain), above or on par with the ~700–11,000 MT
+•   L-Proline                                                  projected for cultivated meat at 250 kTA CM scale.
+
+•   L-Arginine                                                 Similarly, tryptophan was raised as a potential issue
+                                                               due to the complexity of its manufacturing process
+•   L-tyrosine                                                 and the safety considerations posed by potential
+                                                               impurities in food-grade processes. In practice,
+                                                               though, global production is approximately 90,000
+Lower-risk amino acids                                         MT/year, vastly exceeding the ~750–2,500 MT
+                                                               projected for cultivated meat at a 250 kTA scale.
+In addition to those above, L-isoleucine and L-leucine
+were flagged by at least one interviewee as amino              Finally, methionine is produced for animal
+acids potentially at risk of a supply bottleneck               feed as D,L-methionine, which may not be suit-
+due to high inclusion rates and a limited number               able for cell culture. Accordingly, production
+of suppliers. With each amino acid having esti-                of L-methionine, which is complex due to its
+mated production volumes in the low thousands                  sulfur content, may also be an at-risk amino
+of tonnes per year, the projected demands of                   acid. Our analysis was unable to identify current
+upwards of 12,300 MT/year to meet 250 kTA CM                   production volumes of pure L-methionine.
+production could pose significant supply risks.
+
+However, each of these amino acids is used in
+relatively low quantities in media and are suitable
+candidates for substitution via hydrolysates, making
+them lower risk compared to others discussed.
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   52
+     Introduction         Methods            Results                Discussion               Conclusion                Appendix
+
+
+
+
+                     L-Serine                                   Serine was the highest amino
+                                                                acid cost contributor to media
+
+
+
+
+About                                                           Opportunities
+Serine is a non-essential amino acid, but it plays              Historically, the main manufacturing process uses
+a central role in cell metabolism. It is required for           microbial conversion of glycine (with formaldehyde)
+protein synthesis and is a precursor in one-carbon              into serine. This route is economically inefficient
+metabolism, feeding into nucleotide synthesis and               because glycine is a significantly more expensive
+the production of NADPH, NADH, and ATP. Rapidly                 feedstock than glucose, leading to a high production
+dividing cells consume serine to support proliferation          cost for serine.
+and fuel nucleotide production; supplying serine in
+                                                                Scaling up serine production and investing in further
+media ensures cells have ample building blocks for
+                                                                innovation (e.g., in feedstock sources) to drive down
+these pathways (Wu et al., 2020). Accordingly, serine
+                                                                costs will be a priority opportunity area for amino
+often has high inclusion rates in media.
+                                                                acid suppliers to meet the needs of the cultivated
+                                                                meat sector.
+
+
+
+
+      Cost driver                           Potential supply                                     Difficult to replace
+                                            bottleneck                                           with hydrolysates
+• Serine had estimated food-
+  grade prices of $30-50/kg,           • Serine has few large-volume                     • Hydrolysates can partially
+  second only to histidine.              applications and consequently                     supply serine; however,
+                                         only ~400 MT is produced                          achieving sufficient levels to
+• Its high price and relatively high     per year.                                         meet demand will be difficult.
+  usage rates make it the highest
+  cost contributor (16-38% of          • Projected serine demand was                     • Serine is likely to remain
+  amino acid costs) in media,            ~7,400-25,000 MT/yr, far higher                   predominantly supplied by
+  depending on the formulation.          than current global production.                   fermentation.
+
+                                       • Two interviewees flagged serine
+                                         as high-risk.
+
+
+
+
+                                                         Amino acid cost and supply chain analysis for cultivated meat / December 2025   53
+    Introduction          Methods            Results               Discussion               Conclusion                Appendix
+
+
+
+
+                   L-Glutamine
+                                                                                Glutamine is the highest
+                                                                                contributor to amino acid
+                                                                                mass in media
+
+
+
+About                                                          Opportunities
+Glutamine is one of the most crucial amino acids in            Glutamine is chemically unstable and degrades
+cell culture, where it serves as a primary fuel and            into ammonia and pyroglutamate over time at
+nitrogen donor for proliferating cells. Glutamine              physiological pH. As a result, it is frequently
+is readily transported into cells, supporting the              supplemented or used in stabilized dipeptide
+synthesis of proteins, fats, and nucleotides, making           forms, such as alanyl-glutamine (GlutaMAX).
+it a major contributor to cellular biomass. It also
+                                                               Opportunities exist to reduce overall glutamine
+supports the tricarboxylic acid cycle through
+                                                               use by utilizing TCA cycle intermediates such as
+anaplerosis (replenishing TCA cycle intermediates)
+                                                               α-ketoglutarate as substrates (Hubalek, 2023),
+and can serve as an energy source when glucose is
+                                                               and researchers can examine the potential cost
+insufficient. Because rapidly growing cells consume
+                                                               tradeoffs of this approach. Suppliers can support
+glutamine at very high rates, media typically contain
+                                                               the cultivated meat industry by scaling up produc-
+glutamine at concentrations several-fold higher than
+                                                               tion volumes of L-glutamine and lowering the
+any other amino acid.
+                                                               manufacturing cost of α-ketoglutarate and stabi-
+                                     
