@@ -2,6 +2,13 @@
 
 ## 2026-11-15
 
+The least medium per kg of cells that physics allows (`min_litres.py`, `research_notes/min_litres_per_kg.md`; no number moved)
+- Waste sets no floor: nitrogen, carbon and energy balances all allow zero ammonia and zero lactate. Delivering the nutrients
+  does: 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose per kg of cells. If the medium must be what the cells
+  sit in, the floor is 14-25 L/kg (Central's 28 is within 10% of it; Best's 11 is not possible). If a concentrate of 100 g/L is
+  diluted in the tank, it is 5.8 L/kg (Best) and 6.4 (Central), or 8.0 at the lowest flow per cell measured. Costs at those
+  litres: Best $6.94, Central $12.28-13.05, against $8.95 and $26.64. New `ml_*` inputs; `tests/test_min_litres.py`, in
+  `run_tests.sh`.
 The nutrient floor from GFI's amino-acid prices, and a $0.05 medium setting (`nutrient_floor.py`, `research_notes/nutrient_floor.md`)
 - The model's nutrient floor ($1.70 a kilo) is below every figure GFI's December 2025 prices give ($2.50 to $16.09): its amino acids
   are $0.67, against $1.48 at GFI's cheapest tier. The best case, whose medium is set by the floor, would cost $9.76 to $12.36 at
