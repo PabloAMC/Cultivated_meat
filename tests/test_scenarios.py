@@ -128,9 +128,9 @@ page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read(
 for k in S.ORDER:
     bk = S.bands(S.SCENARIOS[k].choice)
     sm = S.summary(S.SCENARIOS[k].choice)
-    check(f"<b>{bk['share'][1]:.1f}%</b><br><span class='alt'>median; 80% of draws between" in page,
+    check(f"<b>{bk['share'][1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
           f"the page's answer table does not headline {k}'s median share {bk['share'][1]:.1f}%")
-    check(f"At the point cost: {sm['world']:.1f}%" in page, f"the page does not label {k}'s point estimate")
+    check(f"At the point cost the share is {sm['world']:.1f}%" in page, f"the page does not label {k}'s point estimate")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
 # the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice)["share"][1] < S.summary(S.SCENARIOS["best"].choice)["world"],

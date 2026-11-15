@@ -53,16 +53,16 @@ Computed results (cells $/kg; shop; R against $12 meat; long-run share of world 
 | Reference (standard tank, no tricks) | $11.48 | | $16.5 | 1.37 | | | 5.4% | 10.0% | 21.6% | | |
 | As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |
 
-**Why the median and not the point estimate.** Each point cost sits below its band's median cost (the estimates behind a scenario are drawn with
-more room to fall short than to improve), and the share is steeply convex in price, so the share at the point cost is higher than the median
-share: a headline of 15.2% for the best case would be a number most draws do not reach (median 7.9%). The point estimate stays on the page where
-it is labelled as one. The band is computed for the four scenarios; once a reader changes a switch the live strip shows the point estimate and says so.
+**Why the median and not the point estimate.** Each point cost sits below its band's median cost, because the estimates behind a scenario are drawn with
+more room to fall short than to improve. The share rises steeply as the price falls, so the share at the point cost is higher than the median share.
+A headline of 15.2% for the best case would be a number most draws do not reach, since the median is 7.9%. The page keeps the point estimate where
+it is labelled as one. The band exists for the four scenarios. Once a reader changes a switch, the live strip shows the point estimate and says so.
 At 1,000 draws the best case's median moved by 0.3 points between seeds (7.8 to 8.15), so the bands use 4,000.
 
-**Tank design nobody has run with animal cells.** Every scenario's tank design is the cheapest the loop checks allow, and each is built on tricks
-that are calculated, not measured: Best case: a column, 1 bar of extra pressure, a tank 0.75 as deep as wide; Central: the column, the pressure,
-recycled pure oxygen and a tank half as deep as wide; Cautious: the column, the pressure and a tank as deep as wide. "Without the tank tricks"
-sets the tricks switch to "none" and keeps the tank shape (Central +$4.9); "ordinary tall tank" also takes the shape back to Humbird's 1.6 (Central
+**Tank design nobody has run with animal cells.** Each scenario's tank design is the cheapest the loop checks allow. Each rests on tricks
+that are calculated, not measured. Best case: a column, 1 bar of extra pressure, and a tank 0.75 as deep as wide. Central: the column, the pressure,
+recycled pure oxygen, and a tank half as deep as wide. Cautious: the column, the pressure, and a tank as deep as wide. "Without the tank tricks"
+sets the tricks switch to "none" and keeps the tank shape (Central: +$4.9). "Ordinary tall tank" also takes the shape back to Humbird's 1.6 (Central:
 +$11.8). The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
 
 Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the retention device) are drawn with more room to fall short than to improve: the best case's point ($6.57) is at the 18th percentile of its draws (median $7.2), the central point ($18.14) at the 37th (median $18.9), the lean central point at the 27th and the cautious point at the 31st.

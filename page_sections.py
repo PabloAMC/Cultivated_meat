@@ -53,9 +53,9 @@ def scenario_table() -> str:
         tr = S.tricks_report(sc.choice)
         trick_html = ""
         if tr["used"]:
-            trick_html = (f"<p class='fxn tricks'><b>Tank design nobody has run with animal cells:</b> {_esc('; '.join(tr['used']))}. "
-                          f"<b>Without it: {money(tr['no_tricks'])}</b> a kilo with the same tank shape (+{money(tr['d_no_tricks'])}), "
-                          f"<b>{money(tr['ordinary_tank'])}</b> in the ordinary tall tank.</p>")
+            trick_html = (f"<p class='fxn tricks'><b>Nobody has run this tank design with animal cells.</b> It uses {_esc(S.plain_list(tr['used']))}. "
+                          f"Without these tricks, a kilo costs <b>{money(tr['no_tricks'])}</b> in a tank of the same shape ({money(tr['d_no_tricks'])} more). "
+                          f"In the ordinary tall tank, it costs <b>{money(tr['ordinary_tank'])}</b>.</p>")
         rows.append(
             f"<tr data-sc='{key}'><td class='scname'><b>{_esc(sc.name)}</b><br><span class='story'>{_esc(S.story_text(key))}</span><br>"
             f"<button class='btn scbtn small' onclick=\"scApply('{key}');location.hash='decide';return false\">Use these assumptions</button></td>"
@@ -64,9 +64,9 @@ def scenario_table() -> str:
             f"<td class='n'><b>{money(sm['cost'])}</b><br><span class='alt'>{money(b['cost'][0])}–{money(b['cost'][2])} "
             f"(10th–90th percentile of the estimates behind it)</span>{alts}</td>"
             f"<td class='n'>{money(sm['retail'], 0)}<br><span class='alt'>{sm['ratio']:.2f}× everyday meat</span></td>"
-            f"<td class='n'><b>{b['share'][1]:.1f}%</b><br><span class='alt'>median; 80% of draws between {b['share'][0]:.1f}% and "
-            f"{b['share'][2]:.1f}% (cost and demand both uncertain). At the point cost: {sm['world']:.1f}% "
-            f"(US {sm['us']:.1f}%, Europe {sm['eu']:.1f}%)</span></td>"
+            f"<td class='n'><b>{b['share'][1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between {b['share'][0]:.1f}% and "
+            f"{b['share'][2]:.1f}%, with cost and demand both uncertain. At the point cost the share is {sm['world']:.1f}% "
+            f"(US {sm['us']:.1f}%, Europe {sm['eu']:.1f}%).</span></td>"
             f"<td class='s'>{_esc(limit_text(r))}</td></tr>")
     ref = S.reference()
     rs = S.summary(r=ref)
@@ -280,8 +280,9 @@ def experiments() -> str:
         sh = S.shares(r)["global"] - base_sh
         rows.append(f"<tr><td>{_esc(text)}</td><td class='n'><b>{'−' if d < 0 else '+'}{money(abs(d))}</b> a kilo<br><span class='alt'>{sh:+.1f} points of world share</span></td>"
                     f"<td class='s'>{_esc(why[0].upper() + why[1:])}.</td></tr>")
-    return (f"<p class='blkp'>One measurement at a time: what the central scenario ({money(base)} a kilo, {base_sh:.1f}% of world meat as a point estimate; the table at the top gives the median) would be worth "
-            "if each measurement came out as the row says (in its favour, except where the row says it fails). These are the same switches as in “What decides it”, "
+    return (f"<p class='blkp'>One measurement at a time. The central scenario costs {money(base)} a kilo and has a point-estimate share of {base_sh:.1f}% of world meat "
+            "(the table at the top gives the median). Each row shows what the scenario would cost if that measurement came out as the row says. "
+            "The measurement comes out in its favour, except where the row says it fails. These are the same switches as in “What decides it”, "
             "so the figures are computed, not estimated by hand.</p><div class='scrollx'><table class='sctab'><thead><tr><th>The measurement</th>"
             "<th>Worth to the central scenario if it comes out this way</th><th>What is known now</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
 

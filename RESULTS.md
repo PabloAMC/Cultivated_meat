@@ -31,31 +31,30 @@ forecast of when.
 
 The bands: each scenario's switches are held, and the estimates behind it (plant cost, financing, the device that holds cells
 back, the upkeep share of respiration, medium price and loss rate) are allowed to be off; the share band lets demand vary too (4,000 draws).
-**The share quoted for a scenario is the median of those draws**, not the share at the scenario's own point cost: the point cost sits below
-the median cost (the estimates behind it have more room to fall short than to improve), and the share is steeply convex in price, so the point
-estimate is higher than the median (best case 15.2% at the point cost, 7.9% median). The point estimates are labelled as such where they appear.
+**The share quoted for a scenario is the median of those draws.** It is not the share at the scenario's own point cost. The point cost sits below
+the median cost, because the estimates behind it have more room to fall short than to improve. The share also rises steeply as the price falls, so the point
+estimate is higher than the median (best case: 15.2% at the point cost, 7.9% median). Where a point estimate appears, it is labelled.
 
 - **There is no single cost; it depends on what goes right.** In the **best case** everything works at once: cells engineered to
   make almost no waste, doubling every 24 hours, a lean plant, a tank that clears CO₂ without more bubbles, no growth factors to buy.
   That costs about **$6.6/kg of cells** (0.96× everyday meat, $11.6 in the shop against $12), and cultivated meat takes **about 8%
-  of world meat** in the long run (median of draws in which cost and demand are uncertain; 80% of them between 3% and 17%; the point
-  estimate at exactly $6.6 is 15%, with 23% in the US and 34% in Europe). It needs genetic engineering of the cells, a plant nobody has
-  built and tank design nobody has tried with animal cells: a CO₂-stripping column beside the tank, 1 bar of extra pressure and a tank
-  whose liquid is 0.75 times as deep as wide. Without those it costs $7.4 a kilo (same tank shape), or $9.4 in the ordinary tall tank.
+  of world meat** in the long run. That is the median of draws in which cost and demand are uncertain, and 80% of the draws fall between 3% and 17%.
+  At exactly $6.6 the point estimate is 15%, with 23% in the US and 34% in Europe. The best case needs genetic engineering of the cells and a plant
+  nobody has built. It also needs a tank design nobody has run with animal cells: a column beside the tank that strips CO₂, 1 bar of extra pressure,
+  and a tank whose liquid is 0.75 times as deep as wide. Without these tricks it costs $7.4 a kilo in a tank of the same shape. In the ordinary tall tank it costs $9.4.
 - **The central scenario needs no genetic engineering.** Cells that make little waste because glutamine is replaced in the feed
   and the best lines are chosen, doubling every 36 hours, in a sterile plant without clean rooms: about **$18/kg** (1.9×), or $15.8 in a
-  lean plant, and **~0.8% of world meat** (median; 80% of draws between 0.2% and 2.5%; the point estimate at exactly $18.1 is 1.5%,
-  3.5% in the US, 11% in Europe; ~1.1% in a lean plant). **It relies on tank design nobody has run with animal cells:** a column
-  beside the tank that strips CO₂ without bubbles, 1 bar of extra pressure, pure oxygen recycled through the column and a tank whose
-  liquid is half as deep as wide. Without them a kilo costs **$23.0** (same tank shape, +$4.9), or **$30.0** in the ordinary tall tank.
-  Doubling time is an explicit assumption and 36 hours is a judgement: low-waste meat-cell cultures have been measured at 43–54
-  hours, and at 26 hours only with glutamine, which is what makes the waste; the odds of 24 hours at this waste level are put at about
-  10%. At 30 hours the central case costs $17.8 and at 24 hours $16.8, so setting 24 hours is worth about $1.3/kg, much less than the
-  kind of cells.
+  lean plant, and **~0.8% of world meat**. That is the median, and 80% of draws fall between 0.2% and 2.5%. At exactly $18.1 the point estimate is 1.5%
+  (3.5% in the US, 11% in Europe). In a lean plant the median is about 1.1%. **Nobody has run the central tank design with animal cells.**
+  It uses a column beside the tank that strips CO₂ without bubbles, 1 bar of extra pressure, pure oxygen recycled through the column, and a tank
+  whose liquid is half as deep as wide. Without these tricks a kilo costs **$23.0** in a tank of the same shape (+$4.9). In the ordinary tall tank it costs **$30.0**.
+  Doubling time is an explicit assumption, and 36 hours is a judgement. Low-waste meat-cell cultures have doubled in 43 to 54 hours. Only cultures fed
+  glutamine have doubled in about 26 hours, and glutamine is what makes the waste. The author puts the odds of 24 hours at this waste level at about 10%.
+  At 30 hours the central case costs $17.8, and at 24 hours $16.8. A 24-hour doubling is worth about $1.3 a kilo, much less than the kind of cells.
 - **The cautious scenario uses what has been measured:** the best low-waste meat cells (43 hours), a sterile plant, the most gas
   that has been run in tanks of this size (2 mm/s), 1% of runs lost a day with three weeks to restart, growth factors at 60% of
-  Humbird's price, medium at $0.30/L. About **$32/kg** (3.1×), **~0.2% of world meat** (median; 0.0–0.5%; 0.3% at the point cost). It too relies on a column, pressure and
-  a squarer tank, none run with animal cells; without them it costs $51.7 ($62.8 in the ordinary tall tank).
+  Humbird's price, medium at $0.30/L. About **$32/kg** (3.1×), **~0.2% of world meat** (median; 0.0–0.5%; 0.3% at the point cost). It also uses a column, extra pressure and
+  a squarer tank, and nobody has run these with animal cells. Without them it costs $51.7 a kilo, or $62.8 in the ordinary tall tank.
 - **Price parity needs the best case or nearly.** Parity with $12 meat and a $5 markup needs $7/kg of cells. Only the best case reaches it,
   and within its own band ($6.3–8.1) it is borderline. A plant as cheap as a yeast plant is not used in any scenario: nothing
   shows that animal cells can be grown that way.

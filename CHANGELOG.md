@@ -16,12 +16,12 @@ Cost scenarios in place of "the floor" (`scenarios.py`, `research_notes/cost_sce
   cost), the reference $11.48 (5.4%, point estimate), as a company reports $34.35 (0.3%, point estimate). Doubling time is an explicit switch; the
   central case takes 36 h (cost at 30 h $17.80, at 24 h $16.84). Tank design of each scenario = the cheapest the loop checks allow.
 - **Review of PR 16 (2026-11-15), the share headline and what the tank design relies on.** The share quoted for a scenario is now the
-  **median of its band** (cost and demand both uncertain), with the 10th-90th percentile beside it; the point estimate is kept, labelled.
+  **median of its band**, where cost and demand are both uncertain. The 10th-90th percentile sits beside it. The point estimate is kept, labelled.
   Best case 15.2% -> **7.9%** (2.8-17.3), central 1.5% -> **0.8%** (0.2-2.5), central lean 2.3% -> **1.1%** (0.3-3.2), cautious 0.3% -> **0.2%**
   (0.0-0.5). The bands use 4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds). No
-  cost and no golden value changed. Each scenario now says which tank tricks it relies on and what it costs without them (central $23.0, or $30.0
-  in the ordinary tall tank; best $7.4 / $9.4; cautious $51.7 / $62.8), and the central scenario's story gives the reasoning for 36 h and what
-  24 h would be worth ($1.3/kg). `tests/test_scenarios.py` checks the median headline in RESULTS/METHODS/the page and the tricks sentences.
+  cost and no golden value changed. Each scenario now says which tank tricks it uses and what it costs without them (central $23.0, or $30.0
+  in the ordinary tall tank; best $7.4 / $9.4; cautious $51.7 / $62.8). The central scenario's story gives the reasoning for 36 h and says what
+  24 h is worth ($1.3/kg). `tests/test_scenarios.py` checks the median headline in RESULTS/METHODS/the page and the tricks sentences.
 - **New on the page**: the answer table; "What decides it" (switches, live result, what to prioritise, two switches together, which
   switches interact), mirrored in `page_scenarios.js` and checked by `tests/run_parity.py` (16 choices, priorities, interactions, design).
 - **Moved (deliberate)**: `floor_physics.explore(growth_factors=)` is a share, not only a flag (`True` still means all; the page's checkbox

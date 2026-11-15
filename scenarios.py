@@ -330,13 +330,18 @@ def tricks_report(choice: dict) -> dict:
             "d_no_tricks": no_tricks - base, "d_ordinary": ordinary - base}
 
 
+def plain_list(items) -> str:
+    items = list(items)
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + ", and " + items[-1]
+
+
 def tricks_sentence(choice: dict) -> str:
     t = tricks_report(choice)
     if not t["used"]:
         return ""
-    return ("It relies on tank design that nobody has run with animal cells: " + "; ".join(t["used"]) +
-            f". Without those tricks (same tank shape, gas bubbled in at the base) a kilo costs ${t['no_tricks']:.1f}, "
-            f"${t['d_no_tricks']:.1f} more; in the ordinary tall tank, ${t['ordinary_tank']:.1f}.")
+    return (f"Nobody has run this tank design with animal cells. It uses {plain_list(t['used'])}. "
+            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape, ${t['d_no_tricks']:.1f} more. "
+            f"In the ordinary tall tank, it costs ${t['ordinary_tank']:.1f}.")
 
 
 def growth_sentence(key: str) -> str:
@@ -347,9 +352,10 @@ def growth_sentence(key: str) -> str:
     base = run(design(c))["total"]
     fast = alt_cost(key, {"growth": "24"})
     mid = alt_cost(key, {"growth": "30"})
-    return ("Doubling every 36 hours is a judgement between measurements: low-waste meat-cell cultures have been measured at "
-            "43\u201354 hours, and at 26 hours only with glutamine in the feed (Hubalek 2023); the odds of 24 hours at this waste "
-            f"level are put at about 10%. Setting the switch to 24 hours would save ${base - fast:.1f} a kilo (${base - mid:.1f} at 30 hours).")
+    return ("The 36-hour doubling time is a judgement. Meat-cell cultures that make little waste have doubled in 43 to 54 hours. "
+            "Only cultures fed glutamine have doubled in about 26 hours, and glutamine is what makes the waste (Hubalek 2023). "
+            "The author puts the odds of 24 hours at this waste level at about 10%. "
+            f"A 24-hour doubling would save ${base - fast:.1f} a kilo, and 30 hours would save ${base - mid:.1f}.")
 
 
 def story_text(key: str) -> str:

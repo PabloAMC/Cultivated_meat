@@ -243,10 +243,9 @@ estimate, financing, retention device, upkeep share of respiration, medium price
 estimate as in the reference case's run; the lean plant not below a plant with everything animal cells must have); the share band lets demand
 vary too (`meat_market.monte_carlo`), 4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds).
 The scenarios' own cell traits and speeds are not drawn: they are what the scenarios differ in. **The headline share of a scenario is the
-median of the share draws**, not the share at the scenario's point cost, which is higher (the point cost sits below the cost's median and the
-share is convex in price); the point estimate stays on the page, labelled. Tank design: `scenarios.tricks_report` gives the cost of each
-scenario with the tricks taken away (tricks switch at "none", same tank shape; and the ordinary tall tank as well), and the page states them
-beside the scenario.
+median of the share draws.** The share at the scenario's point cost is higher, because the point cost sits below the cost's median and the
+share rises steeply as the price falls. The page keeps the point estimate, labelled. `scenarios.tricks_report` gives each scenario's cost
+with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
 |---|---|---|---|---|
