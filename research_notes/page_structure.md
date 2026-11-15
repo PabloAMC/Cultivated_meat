@@ -55,7 +55,7 @@ Charts get plain titles without numbers; every textual reference to "chart 7" be
 A later session will add other vessels (airlift, bubble column) and other operating modes (batch, fed-batch, chemostat). The page leaves a
 section for them: **3.4 Vessel types and operating modes** (`#vessels`), with its own heading, a table of what the model computes today and
 an explicit "not yet in the model" list. What can be fixed now is the clarity of the comparison: the old mixed list becomes a two-way
-table, **operating mode** (perfusion; drained and refilled) against **plant class** (lean; sterile; pharma-style), computed for the chosen
+table, **operating mode** (perfusion; drained and refilled) against **plant class** (food-grade with shared medium; food-grade; pharma-style), computed for the chosen
 scenario's cells, each cell naming the limit that binds. The "How the tank is run" dropdown stays in the all-levers panel but now says in
 words what each option does. It is not made an eleventh switch, so that the later session decides how modes combine with vessels.
 
@@ -72,7 +72,7 @@ The page now runs in this order (each part has an id; the jump bar at the top li
 |---|---|---|
 | The answer | `#answer` | the scenario table (cost with its band, shop price, long-run share, what it needs, what limits the tank; the reference and the reported process as labelled rows; on a phone each row stacks), the words used, the one-line chain for the chosen scenario |
 | What decides it | `#decide` | preset buttons; the live result strip; ten switches each with its tag and a one-line note; "what to prioritise" (ranked bars, change in cost and in share points); two switches against each other; the computed interactions |
-| How the cost is built up | `#build` | what stands in the way (computed from the central scenario); cells against tank (each cell: cost in a sterile and a lean plant, density, the limit that binds, loads into the switches); cost against medium price; **Vessel types and operating modes** (`#vessels`); "All the levers" (the old Build your own case, collapsed, which starts from the chosen scenario and has a "Start from a scenario" control) |
+| How the cost is built up | `#build` | what stands in the way (computed from the central scenario); cells against tank (each cell: cost in a sterile and a food-grade plant with shared medium, density, the limit that binds, loads into the switches); cost against medium price; **Vessel types and operating modes** (`#vessels`); "All the levers" (the old Build your own case, collapsed, which starts from the chosen scenario and has a "Start from a scenario" control) |
 | From cost to market share | `#share` | the assumption panel beside four steps in order: the price ratio (three headline numbers and the step-by-step calculation); how shoppers choose (share against price, why this share); the result for each kind of meat (share by type, share of all meat, the Monte Carlo toggle); how fast (adoption). Each step has its explanation under its title |
 | Evidence and checks | `#evidence` | reality checks; other products and which products could go first; the cost model against reported runs (new on the page, from `floor_physics.backtest`); what has and has not been measured; the measurements that would move the answer, each priced from the switches (`page_sections.experiments`) |
 | Method and sources | `#method` | collapsed, as before; the cost steps now describe the scenarios |
@@ -80,7 +80,7 @@ The page now runs in this order (each part has an id; the jump bar at the top li
 Chart titles lost their numbers; the text refers to charts by name. Every chart that was on the page is still there.
 
 **Vessel types and operating modes (`#vessels`).** The old mixed list becomes a two-way table: operating mode (perfusion; drained and refilled) against plant class
-(lean; sterile; pharma-style), for the chosen scenario's cells, each cell naming the limit that binds (perfusion $15.8 to $18.8 against $33 to $53
+(food-grade with shared medium; food-grade; pharma-style), for the chosen scenario's cells, each cell naming the limit that binds (perfusion $15.8 to $18.8 against $33 to $53
 drained and refilled, in the central case). Below it is a dashed box, "Not yet in the model", naming what a later session will add: an airlift, a bubble column,
 batch, fed-batch and chemostat. To add them: give `floor_physics.explore` the vessel and mode, add rows or columns to `page_sections.vessels()`, add a
 switch to `scenarios.SWITCHES` (the page and the parity test read the switch list from `scenarios.js_model()`), and mirror the new physics in `floorExplore`.

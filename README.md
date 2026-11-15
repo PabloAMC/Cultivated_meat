@@ -55,6 +55,7 @@ it is always a band.
 | 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (additive markup) |
 | 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
+| 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
 | 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets) and their scaffold cost; the most speculative part |
@@ -162,6 +163,8 @@ model/
 ├── scenarios.py         ← step 1: the cost scenarios (switches, presets, priorities, interactions, bands)
 ├── page_sections.py     ← the page's computed tables (answer table, bottlenecks, cells by tank, vessels, evidence)
 ├── page_scenarios.js    ← the page's live switches (a JavaScript mirror of scenarios.py)
+├── vessels.py           ← step 1: vessel type against operating mode
+├── page_vessels.js      ← the page's vessel-by-mode table (a JavaScript mirror of vessels.py)
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
 ├── scaffolding.py       ← step 3: structured products and their scaffold cost

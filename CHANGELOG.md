@@ -2,6 +2,42 @@
 
 ## 2026-11-15
 
+Densities not shown for meat cells (no number moved)
+- A cell tagged "done at this size" now says "This density is not shown for meat cells" when its density is above the 27 g/L
+  reported for meat cells in a vessel of 1 m3 or more (new input `vm_x_meat_shown`: Vow's 538 kg harvest from 20,000 L; range
+  27-68 g/L). This flags fed-batch and fill-and-draw in the stirred tank, fed-batch in the bag and the packed bed. The legend
+  says the tag is about the vessel, the mode and the size, not the density. The takeaway says the 20 m3 fed-batch and
+  fill-and-draw costs assume 62-92 g/L. Python, the JS mirror (parity-checked), the Markdown table, RESULTS, METHODS and the
+  research note follow.
+
+Plant names (Pablo's choice; no number moved)
+- "A sterile plant without clean rooms" is now **"A food-grade plant"** (Humbird's plant with a sanitary hall in place of the clean
+  room). "A lean plant" is now **"A food-grade plant with shared medium"** (the same plant with a shared medium line, two seed
+  trains and bought oxygen; nobody has built one). The scenario names follow ("Central: selection and feed only, a food-grade
+  plant"; "Central, food-grade plant with shared medium"). The pharma-style plant keeps its name. Internal keys (`lean`, `sterile`,
+  `sanitary`) are unchanged. Entries below this one keep the old names.
+- The page says above the scenario table and in the vessel section that every scenario uses a 20 m³ stirred tank in perfusion,
+  with a continuous harvest, and that nobody has run animal cells in perfusion above about 4 m³.
+
+Vessel types against operating modes (`vessels.py`, `page_vessels.js`, `research_notes/vessels_and_modes.md`)
+- **New grid**: five vessels (stirred tank 20 m3, airlift 20 m3, single-use bag 5 m3, packed bed 65 L, hollow fibres 0.5 L) against
+  five modes (batch, fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change; cells, plant, tank tricks
+  and losses are those of the reference case or a scenario. Each cell: cost, density and what limits it, the largest cost item, a
+  maturity tag (done at this size / only done smaller / never done with animal cells), or "not possible" with the reason.
+- **The modes no longer collapse.** Reference case, stirred tank: batch $62.95, fed-batch $18.20, fill-and-draw $17.81 (unchanged),
+  chemostat $33.67, perfusion $11.48 (unchanged). Central scenario: $109.07, $45.29, $48.95, $96.32, $18.14 (unchanged).
+- `floor_physics.explore(vm=...)`: a new, optional argument (vessel and mode numbers). Left out, `explore` is unchanged: every golden
+  value holds ($11.4801 reference, $18.14 central). The JS mirror `floorExplore` takes the same `vm`; parity is checked over 100 cells
+  (reference case, central, best, cautious). `fxCell` now also returns the doubling time.
+- New inputs `vm_*` (sizes, airlift shape and oxygen transfer, unit prices, bag/bed/set prices, bed and cartridge densities and cycles,
+  batch density, chemostat dilution, restart after a lost cycle, labour exponent, largest perfusion run), each with source and range.
+  Bag, bed and set prices are assumptions: no price was found.
+- Page: the "Vessel types and operating modes" section is filled. The table follows the switches in "What decides it", with a
+  button for the reference case, a one-sentence reading guide, a legend, a plain takeaway, the limits of each vessel and the
+  evidence behind each tag. The placeholder from the scenarios work is gone.
+- Tests: `tests/test_vessels.py` (anchors, fed-batch against Humbird's formula, chemostat against fill-and-draw, impossible cells,
+  expected orderings, golden grid), added to `run_tests.sh`.
+
 Cost scenarios in place of "the floor" (`scenarios.py`, `research_notes/cost_scenarios.md`)
 - **The floor is retired as a name.** $11.5/kg was `floor_physics.explore()` at its defaults (a standard 20 m3 perfusion tank,
   120 g/L, a sterile plant, engineered cells, no tank tricks, no lost runs): neither a best case (the best case is $6.6) nor a

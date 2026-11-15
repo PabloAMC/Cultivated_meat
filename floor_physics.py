@@ -356,7 +356,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
             fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
-            _search: bool = True) -> dict:
+            vm: dict | None = None, _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -419,9 +419,23 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     The result carries every cap (`limits`, g/L), what sets the litres of medium (`medium_terms`, L/kg), and
     the oxygen and CO2 per kg of cells (`o2_kg`, split into growth and upkeep; `co2_kg`).
 
+      Vessel and mode (vessels.py): `vm`, a dict of the numbers that make a vessel type and an operating mode. Left out,
+      the case is a stirred tank in `mode` 'perfusion' or 'filldraw', as before. Its keys are listed in `vessels.VM_KEYS`.
+      For the vessel: the oxygen-transfer multiplier, whether oxygen, mixing and CO2 follow the sparged-tank rules or are
+      replaced by a density cap of the vessel's own, its cost relative to a stirred tank, what it throws away each run,
+      how much of the grown cells it gives back, and its working volume. For the mode: whether waste is washed out,
+      whether the tank is run in cycles (batch, fed-batch) or continuously, the length of a cycle or a run, and how fast
+      the culture is diluted (chemostat).
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
     args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search")}
+    vm = vm or {}
+    washed = vm.get("washed", mode == "perfusion")     # is waste washed out (cells retained, or fixed to a support)?
+    cyclic = vm.get("kind") == "cyclic"                # cycles (batch, fed-batch) in place of a continuous run
+    wv = vm.get("wv", value("pf_working_volume"))
+    if vm.get("dil_frac"):                             # a chemostat grows at its dilution rate, below the maximum
+        doubling_h = doubling_h / vm["dil_frac"]
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
     if items is not None:                              # a plant built item by item
@@ -435,7 +449,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     hco3 = value("pf_co2_henry") * pco2_tol * 10.0 ** (ph - value("pf_pk1"))          # mmol/L at this CO2 and pH
     osm_co2 = 2.0 * max(0.0, hco3 - value("pf_hco3_base"))                             # mOsm/kg from added bicarbonate
     lac_room = min(value("pf_lac_limit"), max(1.0, (osm_limit - value("pf_osm_base") - osm_co2) / 2.0))
-    if _search and mode == "perfusion" and medium_l is None and lac_room < value("pf_lac_limit"):
+    if _search and washed and medium_l is None and lac_room < value("pf_lac_limit"):
         # the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
         kw = dict(args, _search=False)
         best = None
@@ -446,11 +460,24 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         return best
     charge = value("plant_charge_mature") if charge is None else charge
     lost = 0.0                                          # share of output lost with contaminated tanks
-    if uptime is None:
-        clean = value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic")
+    cycle_h = runs_yr = None
+    if cyclic:
+        # a cycle: n doublings from the seed to the final density, then the tank is emptied, cleaned and refilled.
+        # A contamination loses the cycle's cells and adds a restart; the seed train for the next cycle is ready.
+        grow_h = vm["n_doublings"] * cells.doubling_h
+        cycle_h = grow_h + vm["turnaround_h"]
+        ok = 1.0 - start_fail
+        p_late = 0.0 if hazard <= 0 else ok * (1.0 - np.exp(-hazard * cycle_h / 24.0))
+        p_fail = start_fail + p_late
+        cycle_h += 24.0 * (p_fail * vm["restart_days"] + start_fail * value("ct_start_detect_days"))
+        lost = min(0.9, p_late * (1.0 - salvage) + start_fail)
+        uptime = grow_h / cycle_h                        # share of the year the tank grows cells
+        runs_yr = HOURS / cycle_h
+    elif uptime is None:
+        clean = vm.get("clean_uptime", value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic"))
         restart = value("pf_run_days") * (1.0 / clean - 1.0)            # days to clean, restart and regrow
-        L = value("pf_run_days") if run_days is None else run_days
-        ok = 1.0 - start_fail                                           # share of starts that are clean
+        L = vm.get("run_days", value("pf_run_days")) if run_days is None else run_days
+        ok = 1.0 - start_fail                                          # share of starts that are clean
         T = ok * (L if hazard <= 0 else (1.0 - np.exp(-hazard * L)) / hazard)   # expected productive days per start
         p_late = 0.0 if hazard <= 0 else ok * (1.0 - np.exp(-hazard * L))       # lost to a contamination in the run
         p_fail = start_fail + p_late
@@ -458,6 +485,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         down = restart if restart_fail_days is None else (1.0 - p_fail) * restart + p_fail * max(restart, restart_fail_days)
         down += start_fail * value("ct_start_detect_days")              # a bad start runs until it shows
         uptime = T / (T + down)
+        runs_yr = 365.0 / (T + down)
         # a tankful per run lost in mid-run (less what is salvaged); a bad start loses its seed
         tankfuls = p_late * (1.0 - salvage) + start_fail * value("ct_seed_share")
         lost = min(0.9, tankfuls / (cells.mu * 24.0 * T))
@@ -465,13 +493,17 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     capex = value(key) * (value("pf_capex_escalation") if escalate else 1.0)
     if capex_2018 is not None:                         # a plant built item by item (plant_items)
         capex, sized = capex_2018 * value("pf_capex_escalation"), True
-    if sized:
+    if "capex_ratio" in vm:                            # another vessel type: its unit costs `capex_ratio` times a
+        share = value("pf_bioreactor_capex_share")     # packaged stirred vessel of its size (bioreactor share only)
+        size_f = (30.7 * vessel_m3 + 800.0) / vessel_m3 / ((30.7 * 20.0 + 800.0) / 20.0) if sized else 1.0
+        capex *= (1.0 - share) + share * size_f * vm["capex_ratio"]
+    elif sized:
         capex = capex_at_size(capex, vessel_m3)
-    capex *= capex_x                                   # uncertainty in the plant estimate (floor_mc)
+    capex *= capex_x                                  # uncertainty in the plant estimate (floor_mc)
     if shape_cost and aspect is not None:              # a squatter tank needs more steel and floor (gas_exchange.py)
         from gas_exchange import shape_capex_factor
         capex *= shape_capex_factor(vessel_m3, aspect)["plant"]
-    if mode == "perfusion":
+    if washed and not vm.get("own_retention"):         # a device holds suspended cells back
         capex += value("pf_capex_retention") if retention is None else retention
     us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
     us_rel = us / value("pf_gas_velocity")
@@ -486,6 +518,16 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
               "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect) * f_p,
               "CO2 removal": float("inf") if column != "none"
                              else x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect, rq_eff)}
+    if vm:                                             # the vessel's own gas exchange (vessels.py)
+        limits["oxygen supply"] *= vm.get("otr_mult", 1.0)
+        if not vm.get("mixing", True):
+            limits["mixing"] = float("inf")
+        if not vm.get("co2_gas", True):
+            limits["CO2 removal"] = float("inf")
+        if not vm.get("o2_gas", True):
+            limits["oxygen supply"] = float("inf")
+        for name, cap in vm.get("caps", {}).items():   # density caps of the vessel or the mode, g per litre of vessel
+            limits[name] = cap
     burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
     nh3_w, lac_w = waste_per_kg(cells, waste)
     nh3 = nh3_w if nh3_kg is None else nh3_kg          # mol per kg wet cells
@@ -496,7 +538,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     wf = nh3 / waste_per_kg(cells, 0.0)[0]             # ammonia relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
-    if mode != "perfusion":
+    if not washed:
         limits["waste build-up"] = waste_cap(cells) / wf
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
         # caps the density: 1000 / (flow / growth rate per day)
@@ -504,10 +546,15 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     limit = min(limits, key=limits.get)
     x = limits[limit]
     shape = 1.0
-    if mode != "perfusion":
+    if not washed:
         f = value("pf_draw_fraction")
         shape = f / np.log(1.0 / (1.0 - f))
-    out = value("pf_working_volume") * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost)
+    shape = vm.get("shape", shape)
+    rec = vm.get("recovery", 1.0)                      # share of the grown cells the harvest gives back
+    if cyclic:                                         # a tankful per cycle
+        out = wv * x * rec * HOURS / cycle_h / 1000.0 * (1.0 - lost)
+    else:
+        out = wv * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost) * rec
     ox = value("pf_opex_escalation")
     col = None
     if column != "none":                               # the column is sized for the density it allows
@@ -517,16 +564,18 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
                             vessel_m3=vessel_m3, aspect=aspect, cells=cells, rq=rq_eff, do_mmol=do_mmol)
         capex += col["capex_k_m3"]
     capital = charge * capex / out
-    labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox
+    labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox * vm.get("labour_mult", 1.0)
     utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
     if col is not None:
         utilities += col["energy_kg"] + col["gas_kg"]
     consumables = value("pf_consumables_low")
+    if vm.get("cons_run"):                             # what the vessel throws away each run ($k per m3 of vessel)
+        consumables += vm["cons_run"] * (runs_yr if runs_yr is not None else 365.0 / (run_days or value("pf_run_days"))) / out
     osm = float("nan")
     terms = {}
-    sorb = sorbent if mode == "perfusion" else 0.0
+    sorb = sorbent if washed else 0.0
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
-        if mode == "perfusion":
+        if washed:
             nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
             terms = {"ammonia": nh3 * (1.0 - sorb) / (nh3_lim / 1000.0), "lactate": lac / (lac_room / 1000.0),
                      "least flow": flow / (cells.mu * 24.0)}
@@ -538,7 +587,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             need = 1000.0 / x
         terms["nutrients"] = value("pf_medium_l_floor")
         medium_l = max(value("pf_medium_l_floor"), need)
-        if mode == "perfusion":
+        if washed:
             osm = value("pf_osm_base") + osm_co2 + (2.0 * lac + sorb * nh3) / medium_l * 1000.0
     if fat_fed > 0:                                    # lipid bought instead of made from glucose
         consumables += fat_fed * value("pf_fat_kg") * (value("pf_fat_price") if fat_price is None else fat_price)
@@ -768,7 +817,7 @@ TORNADO = [
      "third of his cost. <b>Evidence:</b> design studies only. No built plant publishes both its cost and its "
      "tank volume."),
     ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style",
-     "How sterile the plant is built. The floor uses a sterile plant without clean rooms ($810k per m\u00b3). "
+     "How sterile the plant is built. The floor uses a food-grade plant ($810k per m\u00b3). "
      "<b>Range:</b> a plant built like a yeast plant ($190k) to a pharma-style plant with clean rooms ($910k). "
      "Humbird's own yeast plant with 20 m\u00b3 tanks costs about the lower figure, and two published "
      "cultivated-meat designs assume it. <b>Evidence:</b> nobody has run animal cells in the cheaper kind."),
@@ -907,7 +956,7 @@ def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary", cell_corr: f
 def summarise_floor_mc(pr: CostParams, n: int = 4000) -> None:
     pc = parity_cost(pr)
     print(f"\n  uncertainty on the floor case (N={n}, seed 0), cells $/kg:")
-    for plant, label in (("sanitary", "sterile plant, no clean rooms"), ("microbial", "yeast-style plant")):
+    for plant, label in (("sanitary", "food-grade plant"), ("microbial", "yeast-style plant")):
         mc = floor_mc(n, plant=plant)
         t = mc["total"]
         p10, p50, p90 = np.percentile(t, [10, 50, 90])
@@ -970,7 +1019,7 @@ def tiers() -> list:
         "fill-and-draw is filed as an option at 20 m3; this density is not shown", GOOD_CELLS, "filldraw", fb, low, 0.0)
     add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
         "food-grade 20 m3 tanks run today; this density is not shown", GOOD_CELLS, "filldraw", ncr, low, 0.0)
-    add("No clean rooms, perfusion", "the floor: food-grade sterile plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hoped-for filter-free device; efficient cells; 91% uptime",
+    add("No clean rooms, perfusion", "the floor: food-grade plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hoped-for filter-free device; efficient cells; 91% uptime",
         "each piece shown or claimed separately, never together", GOOD_CELLS, "perfusion",
         ncr, low, 0.0, uptime=design_uptime, x_cap=co2_cap(GOOD_CELLS), retention=True)
     add("Microbial-fermentation-class plant", "the frontier: the floor case in a plant that costs what microbial fermentation plants cost when built",

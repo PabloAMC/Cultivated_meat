@@ -225,8 +225,13 @@ js += `
   const scPri = scPriorities(SC.presets.central.choice, true).map(r => [r.switch, r.best, r.worst, r.d_best, r.d_worst, r.share_best, r.share_worst]);
   const scInt = scInteractions(SC.presets.central.choice, 6, 0.25).map(x => [x.a, x.b, x.gap]);
   const scDes = SC.order.map(k => { const d = scDesign(Object.assign({}, SC.presets[k].choice, { tricks: "none", shape: "tall" })); return [d.tricks, d.shape]; });
+  // vessel types against operating modes (page_vessels.js): the reference case, the central scenario, two other presets
+  const vmBases = [{ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: C.fx.charge_mature }]
+    .concat(["central", "best", "cautious"].map(k => scParams(SC.presets[k].choice)));
+  const vmCases = vmBases.map(b => VM.vorder.map(v => VM.morder.map(m => { const c = vmCell(v, m, b);
+    return c.possible ? [v, m, true, c.cost, c.limit, c.density, c.tricks_fallback, c.unchecked_cost, c.density_unshown] : [v, m, false]; })));
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
-                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
+                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();
 `;
 
