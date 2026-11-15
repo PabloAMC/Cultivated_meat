@@ -1651,6 +1651,29 @@ REGISTRY: dict[str, Input] = {
         lo=20.0, hi=30.0, mode=25.0),
     "p_conv_sushi_salmon": Input(40.0, "$/kg", "[market] sushi-grade salmon / Wildtype target",
         lo=32.0, hi=48.0, mode=40.0),
+
+    # --- Tank size scan (tank_size.py; research_notes/tank_size.md). Used only by the what-if rows of that scan; no
+    #     scenario, default or page number uses them. -----------------------------------------------------------------
+    "ts_ph_relaxed": Input(2.0, "x the safe dose", "[derived, research_notes/gas_exchange_study.md section 8] the "
+        "alkaline dose a column loop may give the culture in the what-if that relaxes the pH check: the safe design "
+        "(55 mbar out, 0.5 m3 of loop in a 20 m3 tank) is 0.29 of the dose that slowed CHO cells, so twice it is 0.58",
+        lo=1.0, hi=3.4, mode=2.0,
+        note="3.4 times the safe dose is the dose that slowed CHO cells (Paul et al. 2020, via a summary); one study, "
+             "inferred measure of 'rise x share'"),
+    "ts_loop_hw_exp": Input(0.3, "-", "[assumed] how fast the cost of the retention loop's hardware per m2 of membrane "
+        "falls with tank size, in the what-if that gives it economies of scale: per m2 it scales as (V/20)^-0.3, so "
+        "the hardware as a whole scales as V^0.7",
+        lo=0.0, hi=0.4, mode=0.3,
+        note="the base model prices every m2 alike (rt_tff_hw); pumps, housings and controls cost less per m2 in a "
+             "bigger skid and more in a small one; the membranes themselves do not change. The usual exponent for "
+             "process equipment is 0.6 to 0.7 (ge_vessel_cost_exp is 0.6)"),
+    "ts_hazard_exp": Input(0.333, "-", "[assumed] how fast the chance of losing a run per tank-day grows with tank "
+        "size, in the what-if that makes it grow: hazard x (V/20)^0.333",
+        lo=0.0, hi=0.667, mode=0.333,
+        note="the base model holds the chance per tank-day fixed. A bigger tank has more ports, seals and "
+             "connections (surface goes as V^(2/3)) and a loss costs the whole tank, so the loss per kilo rises with "
+             "the chance per tank-day. No source gives it by tank size; BioPlan's survey found larger facilities had "
+             "about three times the contamination of smaller ones (facilities, not tanks)"),
 }
 
 
