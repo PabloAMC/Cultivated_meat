@@ -2,6 +2,15 @@
 
 ## 2026-11-15
 
+Holding the cells back in a 20 m3 perfusion tank (`retention.py`, `research_notes/retention_devices.md`; no default changed)
+- The duty from the model: the reference case clears 0.16 m3/h of cell-free permeate (the bleed carries most of the liquid);
+  the central case clears 1.88 m3/h from a culture that is a quarter cells; the best case 0.86 m3/h.
+- Each real device sized and costed (`rt_*` inputs, each with source and range). Reference case: $10.82-12.25 with any device
+  that works, against $11.48. Central: $25.69 (disc-stack separator, 28% of cells burst) to $30.43 (ATF), against $18.14; range
+  $21-80. A settler is not possible at 258 g/L; acoustic devices and hydrocyclones are beyond what has been shown.
+- Membranes, not hardware, set the cost of filtering the central culture: about $0.37 per litre of permeate, $8.83 a kilo.
+- `tests/test_retention.py` (balances, the default reproduced exactly, sizing rules, ranges, pinned headline), in `run_tests.sh`.
+
 Densities not shown for meat cells (no number moved)
 - A cell tagged "done at this size" now says "This density is not shown for meat cells" when its density is above the 27 g/L
   reported for meat cells in a vessel of 1 m3 or more (new input `vm_x_meat_shown`: Vow's 538 kg harvest from 20,000 L; range

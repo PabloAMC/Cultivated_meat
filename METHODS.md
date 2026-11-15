@@ -120,6 +120,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Cost physics | `floor_physics.py` | the cost of a kilo of cells from oxygen and CO₂ physics, by plant class and tank (`explore`); the reference case is its default |
 | Cost scenarios | `scenarios.py`, `page_sections.py`, `page_scenarios.js` | the ten switches, the scenarios as presets, what to prioritise, interactions, the bands; the page's JavaScript mirrors it |
+| Side-study | `retention.py` | the duty of the device that holds cells back in a 20 m3 perfusion tank, and each real device's cost; not used in the scenarios |
 | Vessels and modes | `vessels.py`, `page_vessels.js` | vessel type against operating mode, with everything else held; each cell is `explore(vm=...)` |
 | Cost physics | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
 | Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
@@ -295,6 +296,16 @@ does not say that anyone has reached the cell's density. A cell tagged "done at 
 says "This density is not shown for meat cells". Results, assumptions and sources:
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
+
+### Side-study: holding the cells back (`retention.py`, added 2026-11-15; not used in the scenarios)
+
+The duty comes from `explore()`: medium in = litres per kg x harvest; the bleed (the product) = harvest / density; the device
+clears the rest as cell-free permeate. Each device (ATF, TFF, inclined settler, acoustic settler, disc-stack separator on the
+outflow, hydrocyclone; spin filters and fluidized-bed centrifuges are ruled out) is data in `inputs.py` `rt_*`. `sizing` gives
+units or area, capital per m3 of tank and running cost per kg (membranes at about $0.37 per litre of permeate; power and
+maintenance), and the share of grown cells the device destroys or lets go. `scenario_cost` reprices a case through
+`explore(retention=, extra_opex=)` and divides every cost per kg by the share of cells that survive. No default changes. Findings
+and sources: `research_notes/retention_devices.md`.
 
 ### The reference case's plant term (`floor_physics.py`)
 
