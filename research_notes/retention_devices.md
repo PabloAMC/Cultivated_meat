@@ -136,8 +136,13 @@ The same devices in the other two cases:
    | Cautious | $32.29 | $38.97 | $37.41 |
    | Reference | $11.48 | $11.84 | $11.76 |
 
-   These keep each scenario's tank design as it was chosen with the hoped-for device. With a cost per litre of permeate, a
-   slightly thinner culture may cost less, because the bleed then carries more of the liquid. This has not been re-optimised.
+   The scenarios' tank designs are chosen again under the new cost (`scenarios.design` runs on the model's default), and they
+   come out the same. A thinner culture does not pay (`retention.density_scan`). Held at 180 g/L in place of 258, the central
+   case filters 15% fewer litres a kilo and saves $0.6 of membranes, but the plant's capital per kilo rises by $2.4, because
+   each tank makes fewer kilos: $28.75 against $26.64. At the worst membrane life (900 L/m2) the cost is about $56.7 at any
+   density from 180 to 258 g/L. Membrane life matters far more than density: it moves the central case by about $30. One
+   exception: the cautious case could run all three tank tricks within the loop's checks if it held the culture at 180 g/L,
+   which would cost $37.87 against $38.97. The model has no density setpoint switch, so this is not used.
 4. **What would lower it.** Cells that need less medium per kg (less ammonia), so less permeate: the "kind of cells" switch now
    also decides the retention cost. Membranes that last longer at this density. A separator that bursts under 1% of the cells per
    pass: at 1% the central case costs $20.32. None is shown.
