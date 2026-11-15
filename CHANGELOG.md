@@ -2,6 +2,12 @@
 
 ## 2026-11-15
 
+Does a thinner culture pay once filtering costs money? (`retention.density_scan`; no number moved)
+- No, for the best, central and shared-medium cases: their tank designs, chosen again under the filter cost, are unchanged, and
+  holding the culture below the density the tank allows saves membranes but costs more plant capital per kilo (central: $28.75 at
+  180 g/L against $26.64 at 258). The cautious case would save $1.10 at 180 g/L with all three tricks; there is no density
+  setpoint switch, so the model does not use it. Membrane life moves the central case by about $30; density barely does.
+
 The filter loop is the model's default (Pablo's decision; numbers move)
 - `floor_physics.explore` now prices the device that holds cells back in perfusion as a TFF hollow-fibre loop: hardware per m² of
   membrane sized on the cell-free liquid the bleed does not carry out, plus membranes at about $0.37 a litre filtered. A number

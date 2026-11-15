@@ -73,6 +73,10 @@ def check() -> list:
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-4):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
+    # a thinner culture does not pay in the central case: the cheapest density is the one the tank allows
+    scan = R.density_scan(R.cases()["central"])
+    if min(scan, key=lambda r: r[1])[0] != 258.0 or not scan[-1][2] < scan[0][2]:
+        fails.append("central: a thinner culture should save membranes but cost more in total")
     # pinned duty (reference case): 0.62 m3/h of medium, 0.16 of permeate
     d = R.duty({})
     if not (close(d["medium_m3_h"], 0.6195, 1e-3) and close(d["permeate_m3_h"], 0.1573, 1e-2)):

@@ -253,6 +253,19 @@ def summarise() -> None:
                   f"running ${c['cons_kg']:5.2f}/kg  loss {c['loss'] * 100:4.1f}%{'  BEYOND WHAT IS SHOWN' if c['beyond'] else ''}{'  NOT POSSIBLE' if c['impossible'] else ''}{extra}")
 
 
+def density_scan(kw: dict | None = None, caps=(258.0, 220.0, 180.0, 140.0, 100.0), membrane_life: float | None = None) -> list:
+    """Does a thinner culture pay once filtering costs money? The case's cost with its density held at each cap (a
+    density setpoint below what the tank allows), with the default filter loop. A thinner culture filters fewer litres a
+    kilo, because the bleed of cells carries more of the liquid out, but each tank makes fewer kilos. Returns
+    [(cap, total, membranes $/kg, plant capital $/kg)]."""
+    rows = []
+    for cap in caps:
+        r = fp.explore(**{**(kw or {}), "vm": {"caps": {"chosen density": float(cap)}},
+                          **({} if membrane_life is None else {"membrane_life": membrane_life})})
+        rows.append((float(cap), r["total"], r["membranes"], r["capital"]))
+    return rows
+
+
 def summarise_ranges() -> None:
     print("\n  ranges (each device's own inputs at their favourable / unfavourable ends):")
     for name, kw in cases().items():
@@ -265,3 +278,7 @@ def summarise_ranges() -> None:
 if __name__ == "__main__":
     summarise()
     summarise_ranges()
+    print("\n  does a thinner culture pay? central scenario, density held at each cap (cost; membranes; plant capital):")
+    for life in (None, 900.0):
+        print("    membrane life " + ("default" if life is None else f"{life:.0f} L/m2") + ": " +
+              "; ".join(f"{c:.0f} g/L ${t:.2f} (${m:.1f}, ${k:.1f})" for c, t, m, k in density_scan(cases()["central"], membrane_life=life)))
