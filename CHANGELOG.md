@@ -2,6 +2,12 @@
 
 ## 2026-11-15
 
+If perfusion cannot be run at 20 m3 (`downside.py`, `research_notes/no_perfusion_downside.md`; no number moved)
+- Each scenario priced in a stirred tank without cell retention, in fed-batch and in fill-and-draw, at the model's own density cap
+  and at the 27 g/L shown for meat cells, with the tank design chosen again. Central: $26.64 with perfusion, $40.39 (fed-batch) or
+  $43.58 (fill-and-draw) at 62 g/L, $90-97 at 27 g/L. Best case $8.95 -> $13.22 at 92 g/L, $41 at 27 g/L. The food-grade plant with
+  shared medium cushions it most ($24.34 -> $28.22). `tests/test_downside.py`, in `run_tests.sh`.
+
 Cheaper membranes for holding cells back (`research_notes/retention_alternatives.md`; no default changed)
 - Three routes priced in `retention.py`, from a research pass on reusable and cleanable membranes (new `rt_reuse_*`, `rt_dial_*`,
   `rt_ceramic_*` inputs, each with source and range). Central case, against $26.64 with the default TFF loop: dialyser-grade
