@@ -212,6 +212,7 @@ function scRender(){
   scChain();
   document.querySelectorAll("#answer tr[data-sc]").forEach(tr=>{ const k=tr.getAttribute("data-sc");
     tr.classList.toggle("sel",k==="reported"?SCS.src==="reported":(SCS.src==="scenario"&&SCS.preset===k)); });
+  if(typeof vmRender==="function") vmRender();     // the vessel-by-mode table follows the switches (page_vessels.js)
   const its=scInteractions(ch), nh=document.getElementById("sc_notes");
   if(nh) nh.innerHTML=its.length?'<ul>'+its.map(x=>'<li>'+x.text+'</li>').join("")+'</ul>':
     '<p class="fxn">No two switches interact strongly around these settings: each saves about the same whatever the other is.</p>';

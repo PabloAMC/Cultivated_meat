@@ -675,8 +675,9 @@ def build_model() -> dict:
     for sl in sliders:
         sl["start"] = sl["default"]
     import scenarios
+    import vessels
     return dict(const=const, sliders=sliders, toggles=toggles, markets=markets, regions=regions,
-                sc=scenarios.js_model())
+                sc=scenarios.js_model(), vm=vessels.js_model())
 
 
 # ---------------------------------------------------------------------------
@@ -1239,6 +1240,10 @@ text{font-family:Georgia,serif;}
 .lede2{font-size:.9rem;color:#333;max-width:760px;margin:0 0 12px;}
 table.sctab{border-collapse:collapse;width:100%;font-size:.82rem;min-width:820px;}
 .sctab th,.sctab td{border-top:1px solid var(--rule);padding:7px 9px 7px 0;vertical-align:top;text-align:left;line-height:1.4;}
+.vmtab td{min-width:120px;} .vmtab td.vno{color:#888;background:#f6f6f6;} .vmtab td.vsame{color:#888;}
+.vtag{display:inline-block;font-size:.66rem;border-radius:3px;padding:0 4px;margin-top:2px;white-space:nowrap;}
+.vt-today{background:#e3f1e5;color:#1e5e2c;} .vt-pilot{background:#fdf1d8;color:#7a5200;} .vt-paper{background:#f6e0e0;color:#8a1f1f;}
+.vmbtn.on{background:#333;color:#fff;} .vmtab th .alt{font-weight:normal;}
 .sctab th{font-size:.74rem;color:var(--muted);font-weight:600;border-top:0;}
 .sctab td.n{font-variant-numeric:tabular-nums;white-space:nowrap;} .sctab td.s{color:#555;font-size:.78rem;}
 .sctab .story{color:#444;font-size:.8rem;} .sctab .alt{color:var(--muted);font-size:.72rem;white-space:normal;}
@@ -3793,6 +3798,7 @@ function selfTest(){
 }
 console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonical form + betaCap monotonicity guard active");
 /*__SC_JS__*/
+/*__VM_JS__*/
 readHash();
 state.cost_override=(SCS.src==="reported"?null:SCS.src==="custom"?SCS.customCost:scEval(SCS.choice).total);
 // ---- build your own case: mirrors floor_physics.explore (checked by tests/run_parity.py) ----
@@ -3800,7 +3806,7 @@ function fxCell(massPg, doublingH, maint){
   const F=C.fx, mu=Math.LN2/doublingH, power=F.power_coef*Math.pow(massPg,0.75);        // pW per cell
   const q24=power*1e-12*3600/(F.heat_per_o2*1e3)/(massPg*1e-12)*1e3;                     // mmol O2 per g per h, at 24 h
   const qo2=q24*(maint+(1-maint)*mu/(Math.LN2/F.ref_doubling));                          // upkeep + the energy of growth
-  return {mu:mu, qo2:qo2, o2kg:qo2/mu*32/1000};
+  return {mu:mu, qo2:qo2, o2kg:qo2/mu*32/1000, td:doublingH};
 }
 // The tricks (mirror of gas_exchange.packing_film / column_design / column_cost / headspace_pressure)
 function fxShape(v,a){ const T=Math.pow(4*C.fx.wv*v/(Math.PI*a),1/3); return [T,a*T]; }
@@ -3849,9 +3855,10 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom){
           energy_kg:energy, gas_kg:gas, co2_loop:co2loop, o2_short:o2short};
 }
 function floorExplore(p,noSearch){
-  const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint;
-  const cell=fxCell(p.mass_pg,p.doubling_h,ms), ref=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
-  const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg, perf=p.mode==="perfusion";
+  const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)
+  const perf=vm.washed!==undefined?vm.washed:p.mode==="perfusion", cyclic=vm.kind==="cyclic", wv=vm.wv!==undefined?vm.wv:F.wv;
+  const cell=fxCell(p.mass_pg,vm.dil_frac?p.doubling_h/vm.dil_frac:p.doubling_h,ms), ref=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
+  const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg;
   // salt strength: how much lactate the culture may hold at this CO2 level and pH (mirror of floor_physics.explore)
   const pcTol=p.pco2===undefined?F.pco2:p.pco2, osmLim=p.osm_limit===undefined?F.osm_limit:p.osm_limit, ph=p.ph===undefined?F.ph:p.ph;
   const hco3=F.co2_henry*pcTol*Math.pow(10,ph-F.pk1), osmCo2=2*Math.max(0,hco3-F.hco3_base);
@@ -3866,18 +3873,24 @@ function floorExplore(p,noSearch){
   if(p.items){ let k=0;                                          // a plant built item by item (plant_items.capital)
     Object.keys(F.items).forEach(it=>{ k+=F.items[it][p.items[it]||Object.keys(F.items[it])[0]][0]; });
     capex=k*F.escalation; sized=true; extra=p.items.oxygen==="bought"?F.o2_opex:0; }
-  if(sized){const per=v=>(30.7*v+800)/v; capex*=(1-F.bioreactor_share)+F.bioreactor_share*per(p.vessel_m3)/per(20);}
+  { const per=v=>(30.7*v+800)/v, sf=sized?per(p.vessel_m3)/per(20):1;             // another vessel: its unit price ratio
+    if(vm.capex_ratio!==undefined) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf*vm.capex_ratio;
+    else if(sized) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf; }
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
   if(p.shape_cost!==false&&p.aspect!==undefined) capex*=fxShapeCost(p.vessel_m3,p.aspect);   // steel and floor of a squat tank
-  if(perf) capex+=(p.retention===undefined?F.retention:p.retention);
+  if(perf&&!vm.own_retention) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
-  let uptime=p.uptime, lost=0;
-  if(uptime===undefined){
-    const clean=perf?F.uptime_perfusion:F.uptime_filldraw, restart=F.run_days*(1/clean-1);
-    const L=p.run_days===undefined?F.run_days:p.run_days, h=p.hazard||0;
+  let uptime=p.uptime, lost=0, cycleH=null, runsYr=null;
+  if(cyclic){                       // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
+    const h=p.hazard||0, grow=vm.n_doublings*cell.td; cycleH=grow+vm.turnaround_h;
+    const pFail=h<=0?0:1-Math.exp(-h*cycleH/24);
+    cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH;
+  } else if(uptime===undefined){
+    const clean=vm.clean_uptime!==undefined?vm.clean_uptime:(p.mode==="perfusion"?F.uptime_perfusion:F.uptime_filldraw), restart=F.run_days*(1/clean-1);
+    const L=p.run_days===undefined?(vm.run_days!==undefined?vm.run_days:F.run_days):p.run_days, h=p.hazard||0;
     const T=h<=0?L:(1-Math.exp(-h*L))/h, pFail=h<=0?0:1-Math.exp(-h*L);
     const down=p.restart_fail===undefined?restart:(1-pFail)*restart+pFail*Math.max(restart,p.restart_fail);
-    uptime=T/(T+down); lost=Math.min(0.9,pFail/(cell.mu*24*T));
+    uptime=T/(T+down); runsYr=365/(T+down); lost=Math.min(0.9,pFail/(cell.mu*24*T));
   }
   // tank shape, then the CO2 balance: removal = (gas velocity / liquid depth) x pCO2/RT; production = RQ x qO2
   const ar=p.aspect===undefined?F.aspect:p.aspect, us=p.gas_v===undefined?F.gas_v:p.gas_v, pc=p.pco2===undefined?F.pco2:p.pco2;
@@ -3889,6 +3902,9 @@ function floorExplore(p,noSearch){
   const limits=[["oxygen supply",col==="o2_closed"?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP],["thickness of the culture",F.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio/tmRel*fP],
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
+  if(p.vm){ limits[0][1]*=(vm.otr_mult===undefined?1:vm.otr_mult);         // the vessel's own gas exchange
+    if(vm.mixing===false) limits[2][1]=Infinity; if(vm.co2_gas===false) limits[3][1]=Infinity; if(vm.o2_gas===false) limits[0][1]=Infinity;
+    Object.keys(vm.caps||{}).forEach(k=>limits.push([k,vm.caps[k]])); }
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
   const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:F.glc_kg):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
@@ -3897,11 +3913,11 @@ function floorExplore(p,noSearch){
   if(!perf){ limits.push(["waste build-up",F.x_waste/load/wf]);
     limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
-  const shape=perf?1:F.draw/Math.log(1/(1-F.draw));
-  const out=F.wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);
+  const shape=vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))), rec=vm.recovery===undefined?1:vm.recovery;
+  const out=cyclic?wv*lim[1]*rec*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost)*rec;
   let colR=null;
   if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol); capex+=colR.capex_k_m3; }
-  const capital=p.charge*capex/out, labour=F.labour_ref/out;
+  const capital=p.charge*capex/out, labour=F.labour_ref/out*(vm.labour_mult===undefined?1:vm.labour_mult);
   let utilities=F.utilities*(0.5+0.5*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg;
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
@@ -3916,6 +3932,7 @@ function floorExplore(p,noSearch){
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   let consumables=F.consumables;
+  if(vm.cons_run) consumables+=vm.cons_run*(runsYr!==null?runsYr:365/(p.run_days||F.run_days))/out;   // what the vessel throws away
   if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
@@ -4200,6 +4217,7 @@ def main() -> None:
     html = PAGE_HTML + JS_ENGINE                         # page markup + the JS engine (two strings, one file)
     html = html.replace("__MODEL_JSON__", json.dumps(model))
     html = html.replace("/*__SC_JS__*/", open(os.path.join(HERE, "page_scenarios.js"), encoding="utf-8").read())
+    html = html.replace("/*__VM_JS__*/", open(os.path.join(HERE, "page_vessels.js"), encoding="utf-8").read())
     html = html.replace("__BUILD_STAMP__", _dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # Substitute the illustrative numbers COMPUTED FROM THE MODEL (no hand-typed shares in the
     # prose/tooltips — they can never drift from the live calibration). See illustrative_numbers().

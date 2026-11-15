@@ -200,6 +200,30 @@ one). **Within those limits the reference case depends on the gas the cells tole
 gauge") runs at 22 passes an hour for the engineered cells, beyond the tested range. None of the tricks has been
 tried with meat cells.
 
+### Vessel types and operating modes
+
+A stirred tank and perfusion are not alternatives: one is a vessel, the other a way of running it. `vessels.py` changes only
+those two and holds the rest (research_notes/vessels_and_modes.md has both grids, with sources).
+
+| reference case, $/kg | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
+|---|---|---|---|---|---|
+| Stirred tank, 20 m3 | 62.95 | 18.20 | 17.81 | 33.67 | **11.48** |
+| Airlift, 20 m3 | 59.97 | 20.03 | 19.59 | 32.10 | 15.17 |
+| Single-use bag, 5 m3 | 1,078 | 292.80 | 38.18 | 74.50 | 15.46 |
+| Packed bed, 65 L | 3,730 | as batch | not possible | not possible | 3,726 |
+| Hollow fibres, 0.5 L | 610,043 | as batch | not possible | not possible | 610,039 |
+
+In the central scenario the stirred tank costs $109.07, $45.29, $48.95, $96.32 and $18.14 across the same modes.
+
+- Perfusion in a stirred tank is the cheapest combination in both settings. Nobody has run animal cells in perfusion above
+  about 4 m3.
+- Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $18 in the reference case and $45-49 in the central
+  scenario. The central cells make more ammonia, and a culture that is not washed out stops at 62 g/L.
+- An airlift costs about what a stirred tank costs when waste is not washed out. In perfusion its tall shape clears less CO2.
+- A single-use bag pays for a bag each run; it comes close to steel only in perfusion.
+- Packed beds and hollow fibres cost thousands of dollars a kilo as built. A 20 m3 bed at a stirred tank's price, with free
+  carriers, still costs $42.19: it is seeded thin and emptied every run.
+
 ## 2. What share a price buys
 
 | if cultivated meat, at equal price and once familiar… | share |

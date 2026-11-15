@@ -972,6 +972,112 @@ REGISTRY: dict[str, Input] = {
         "when the pressure trick is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
         lo=0.33, hi=2.0, mode=1.0, note="no culture has been run at 1 bar gauge"),
 
+    # --- Vessel types and operating modes (vessels.py; research_notes/vessels_and_modes.md) ---------------
+    # Each vessel is priced at the largest unit it has been built or designed at, up to 20 m3. Sizes are working
+    # volumes where `wv` is 1, else vessel volumes. Everything not listed is the model's stirred tank.
+    "vm_str_m3": Input(20.0, "m3", "[Humbird-R] the model's tank; animal cells have been grown in stirred tanks of "
+        "up to about 25 m3 (pharma; Vow's 20 m3 for food)"),
+    "vm_perf_max_m3": Input(4.0, "m3", "[research pass, read part] the largest animal-cell perfusion run found: Genzyme's "
+        "4,000 L tanks at Geel; Humbird's perfusion design stops at 2 m3",
+        note="our probability that anyone has run animal cells in perfusion at 20 m3 for a month: 2-3%"),
+    "vm_labour_exp": Input(0.54, "-", "[Humbird-R, derived] labour per m3 of tank against tanks per m3: his fed-batch "
+        "plant has 95 staff for 24 x 20 m3 tanks, his perfusion plant 132 for 96 x 2 m3 (Tables 4.6, 4.13): 3.5 "
+        "times the staff per m3 for 10 times the tanks per m3, so the exponent is log 3.5 / log 10",
+        lo=0.3, hi=1.0, mode=0.54,
+        note="applied to vessels whose largest unit is below 20 m3. lo: automated single-use units; hi: crew in "
+             "proportion to the number of units"),
+    "vm_restart_cycle_days": Input(2.0, "days", "[assumed] time a lost batch or bed cycle adds, beyond the cycle "
+        "itself: clean, sterilise and start again from the next seed, which is ready because the seed train cycles "
+        "anyway", lo=1.0, hi=14.0, mode=2.0,
+        note="hi: the seed train must be regrown too. Continuous runs keep the scenarios' restart (14-30 days), "
+             "because a lost continuous tank must be regrown to its density from a seed"),
+    "vm_batch_x": Input(25.0, "g wet/L", "[assumed from pharma] density a plain batch reaches when all the food is in "
+        "the first fill: CHO batch cultures peak at about 1e7 cells/mL, against 1.5-2.2e7 in fed-batch (Clincke et "
+        "al. 2013 Part II, read part; Merck application note, snippet), i.e. 25 g/L at 2.5 ng a cell",
+        lo=12.0, hi=45.0, mode=25.0,
+        note="the CHO batch peak is a textbook figure, not found in a primary source in this pass. Vow's reported "
+             "harvests imply about 27 g/L at 20 m3"),
+    "vm_chemostat_dil": Input(0.6, "of mu_max", "[HeLa chemostat, Korean J. Biotechnol. 1989, abstract only] cell output "
+        "peaked at a dilution rate of 0.030 per hour against washout at 0.050, about 0.6 of washout; mouse LS cells "
+        "held their highest density at 0.30-0.35 per day (J. Gen. Virol. 1973-74, snippet)", lo=0.4, hi=0.9, mode=0.6,
+        note="a chemostat must run below the maximum growth rate, or the culture washes out. Lab scale only: no "
+             "animal-cell chemostat above about 1 litre has been reported"),
+    # airlift (draft-tube bubble column) and single-use stirred bag
+    "vm_alr_aspect": Input(3.0, "depth/width", "[assumed] liquid depth over width of a 20 m3 airlift: Li et al. 2020's "
+        "300 m3 design is 13.75 m tall (about 2.6 times its width, the proportions the model's airlift check uses); "
+        "airlifts are built tall to drive the circulation, and Quorn's loops are 30 m or more",
+        lo=2.0, hi=8.0, mode=3.0,
+        note="a taller airlift passes less gas per litre at the same gas speed, so it clears less CO2"),
+    "vm_alr_otr_mult": Input(1.0, "x stirred", "[Hubbard 2024 preprint, read in full, quoting Negulescu 2023's "
+        "correlation] kLa = 0.32 x (gas speed in m/s)^0.7 per second for an airlift: 32 per hour at 6 mm/s, against "
+        "26 per hour for Humbird's stirred tank at the same speed (ge_kla_20m3)",
+        lo=0.7, hi=1.2, mode=1.0,
+        note="central 1.0, not 1.2: the correlation is for air and water, and no oxygen transfer has been measured in "
+             "an animal-cell airlift above 1 m3. In air the airlift transfers 7-13 mmol/L/h at 6-16 mm/s; Humbird's 29 "
+             "is with 90% oxygen"),
+    "vm_alr_capex_ratio": Input(0.8, "x a stirred vessel", "[assumed, research pass] no stirrer, drive or seal, but a "
+        "taller, thicker shell, a compressor and a bigger gas train. Scaling Humbird's aseptic plant to 155 m3 gives "
+        "$270k per m3, the same as a Quorn airlift cost model's $271k: a like-for-like ratio near 1",
+        lo=0.5, hi=1.0, mode=0.8,
+        note="Negulescu 2023's 0.15 comes from a price list for a non-aseptic airlift, not from a property of airlifts"),
+    "vm_bag_m3": Input(5.0, "m3", "[Thermo Fisher launch, 2021, secondary; Patheon white paper, read in full] the "
+        "largest single-use stirred bags are 5,000 L (WuXi has installed them); 2,000 L is the common size",
+        note="the gamma-sterilised bag and its film weight cap the size near 4-6 m3. Rocking bags stop at 500 L "
+             "(CHO perfusion, 2004) and transfer 0.6-4 mmol O2/L/h in air"),
+    "vm_bag_capex_ratio": Input(0.5, "x a stirred vessel", "[vendor claim, secondary] single-use hardware costs 40-50% "
+        "less than stainless: no jacket, no cleaning or steaming in place", lo=0.4, hi=1.0, mode=0.5),
+    "vm_bag_cost_run": Input(20.0, "$k/m3 per run", "[assumed] the bag thrown away after each run, $15-30 per litre "
+        "(no vendor or published price found; one unsourced figure of about $30k for a 1,000 L bag)",
+        lo=5.0, hi=30.0, mode=20.0,
+        note="a bag would have to cost about $3-5 a litre for single-use to match stainless (research pass)"),
+    # fixed bed: the iCELLis 500 (Pall/Cytiva), the largest commercial fixed bed
+    "vm_bed_m3": Input(0.065, "m3 working", "[Pall application note, read in full] iCELLis 500: 500 m2 of PET "
+        "carriers in a 25 L bed, 59-71 L working volume; 660 m2 is the largest run",
+        note="scale-up is by number of units: the bed is kept at 10 cm or less to limit gradients"),
+    "vm_bed_x": Input(113.0, "g wet/L", "[Pall application note, read in full; converted] 490,000 Vero cells per cm2 "
+        "after 6.9 days on 200 m2; on a full 500 m2 bed at 3 ng a cell that is 7.35 kg in 59-71 L of working volume",
+        lo=60.0, hi=275.0, mode=113.0,
+        note="hi: a vendor's 1.2e6 cells per cm2, which 3 ng cells could hardly fit. Oxygen along the bed allows "
+             "about this density only with enriched gas (research pass, calculated)"),
+    "vm_bed_doublings": Input(6.6, "doublings", "[Pall application note, read in full] seeded at 5,000 cells per cm2, "
+        "harvested at 490,000: 6.6 doublings per run", lo=4.0, hi=7.0, mode=6.6,
+        note="a fixed bed is seeded thin because the seed is spread over the whole carrier surface"),
+    "vm_bed_turnaround_h": Input(72.0, "h", "[assumed, research pass] set up a new single-use bed, equilibrate, "
+        "detach the cells and harvest: about 3 days, giving 33-35 runs a year with Vero cells",
+        lo=24.0, hi=120.0, mode=72.0),
+    "vm_bed_recovery": Input(0.9, "of cells", "[assumed] share of the grown cells that detaching gives back: no "
+        "fixed-bed figure was found; microcarrier harvests give 88-98%, a mesh bed 96% (snippets)",
+        lo=0.7, hi=0.96, mode=0.9,
+        note="a patent on fixed-bed detachment says enzyme alone detaches the cells poorly in a dense bed"),
+    "vm_bed_capex_ratio": Input(1.0, "x a stirred vessel", "[assumed] a fixed-bed unit with its controller costs "
+        "about what Humbird's formula gives for a packaged vessel of that size ($0.8M a unit): no price was found",
+        lo=0.3, hi=1.5, mode=1.0,
+        note="applies to the bioreactor share of the plant only; the rest of the plant is priced per m3 as for "
+             "20 m3 tanks, which flatters many small units"),
+    "vm_bed_cost_run": Input(154.0, "$k/m3 per run", "[assumed] a new single-use bed and bag each run at about "
+        "$10,000 for a 500 m2 bed (no price found; the research pass puts 80% on $5,000-50,000), over 65 L",
+        lo=31.0, hi=460.0, mode=154.0,
+        note="an edible carrier that becomes part of the product (Ever After Foods' claim) would remove this, "
+             "but it is unpublished"),
+    # hollow fibre: the Terumo Quantum, the largest hollow-fibre unit with published cell yields
+    "vm_hf_m3": Input(0.00048, "m3 working", "[HEK293T paper, PMC10504471, read part; Terumo papers, snippet] "
+        "Quantum: 2.1 m2 of fibre, 175 mL inside the fibres and 305 mL outside",
+        note="a 1 L cartridge has been proposed, never run; scale-up is by number of cartridges"),
+    "vm_hf_x": Input(13.0, "g wet/L", "[PMC10504471, read part; converted] 2.14e9 HEK293T cells in 0.48 L of circuit "
+        "after about 100 h, at 3 ng a cell", lo=9.0, hi=150.0, mode=13.0,
+        note="hi: vendors' 1-2e8 cells per mL of bare cartridge, counted over a system 2-5 times its volume"),
+    "vm_hf_doublings": Input(3.1, "doublings", "[PMC10504471, read part] 2.5e8 cells seeded, 2.14e9 harvested",
+        lo=3.0, hi=7.0, mode=3.1),
+    "vm_hf_turnaround_h": Input(96.0, "h", "[assumed, research pass] about 2 days of lag after seeding and 2 days to "
+        "harvest, clean and set up", lo=48.0, hi=144.0, mode=96.0),
+    "vm_hf_recovery": Input(0.9, "of cells", "[Terumo, snippet] 90-95% expected when the cells are flushed out with "
+        "an enzyme", lo=0.7, hi=0.95, mode=0.9, note="a vendor's expectation, not a measurement"),
+    "vm_hf_capex_ratio": Input(0.035, "x a stirred vessel", "[reseller listing, snippet] a Quantum instrument "
+        "lists at about EUR 25,000, against $0.8M that Humbird's formula gives for a packaged vessel",
+        lo=0.02, hi=0.1, mode=0.035),
+    "vm_hf_cost_run": Input(6250.0, "$k/m3 per run", "[assumed] a single-use set of about $3,000 a run (no price "
+        "found) over 0.48 L", lo=2000.0, hi=20000.0, mode=6250.0),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term

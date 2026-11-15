@@ -274,6 +274,24 @@ def check_parity() -> list:
             if lab not in prow or abs(prow[lab][0] - a) > 1e-6 or abs(prow[lab][1] - b) > 1e-6:
                 fails.append(f"tornado '{lab}' case {case}: python={prow.get(lab)} js=({a:.6f}, {b:.6f})")
 
+    # vessel types against operating modes: vmCell (JS) against vessels.cell, for the reference case and three presets
+    import vessels as _V
+    import scenarios as _S0
+    vm_js = js.get("vm")
+    if not vm_js:
+        fails.append("vessels: not emitted by the JS probe")
+    else:
+        bases = [{}] + [_S0.explore_kwargs(_S0.SCENARIOS[k].choice) for k in ("central", "best", "cautious")]
+        for b, rows in zip(bases, vm_js):
+            for row in rows:
+                for c in row:
+                    pc = _V.cell(c[0], c[1], b)
+                    if pc["possible"] != c[2]:
+                        fails.append(f"vessels {c[0]} {c[1]}: possible python={pc['possible']} js={c[2]}")
+                    elif pc["possible"] and (abs(pc["cost"] - c[3]) > 1e-6 * max(1.0, pc["cost"]) or pc["limit"] != c[4]
+                                             or pc["tricks_fallback"] != c[6]):
+                        fails.append(f"vessels {c[0]} {c[1]}: python={pc['cost']:.6f} ({pc['limit']}, {pc['tricks_fallback']!r}) "
+                                     f"js={c[3]:.6f} ({c[4]}, {c[6]!r})")
     # the scenarios: scEval / scShare / scPriorities / scInteractions / scDesign (JS) against scenarios.py
     import scenarios as _S
     sc = js.get("sc") or {}

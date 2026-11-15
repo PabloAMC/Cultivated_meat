@@ -22,6 +22,9 @@ python tests/test_plant_items.py
 echo "==> cost scenarios"
 python tests/test_scenarios.py
 
+echo "==> vessel types against operating modes"
+python tests/test_vessels.py
+
 echo "==> gas-exchange side study"
 python tests/test_gas_exchange.py
 

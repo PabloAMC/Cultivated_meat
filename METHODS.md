@@ -120,6 +120,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Cost physics | `floor_physics.py` | the cost of a kilo of cells from oxygen and CO₂ physics, by plant class and tank (`explore`); the reference case is its default |
 | Cost scenarios | `scenarios.py`, `page_sections.py`, `page_scenarios.js` | the ten switches, the scenarios as presets, what to prioritise, interactions, the bands; the page's JavaScript mirrors it |
+| Vessels and modes | `vessels.py`, `page_vessels.js` | vessel type against operating mode, with everything else held; each cell is `explore(vm=...)` |
 | Cost physics | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
 | Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
 
@@ -259,6 +260,38 @@ with the tricks taken away: once with the tricks switch at "none" and the tank s
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
 assumptions (no yeast-class plant, the tags, the ordering of costs) and that this prose quotes the model's numbers.
+
+### Vessel types and operating modes (`vessels.py`, added 2026-11-15)
+
+A grid of five vessels (stirred tank, airlift, single-use bag, packed bed, hollow fibres) against five modes (batch,
+fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, tank tricks
+and losses are those of the reference case or of a scenario. Each cell is one call to `floor_physics.explore` with a `vm`
+dict built from `inputs.py` `vm_*`. With no `vm`, `explore` is unchanged: the stirred tank in perfusion is the reference
+case ($11.48) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($17.81).
+
+What `vm` changes in `explore`:
+
+- **Whether waste is washed out** (`washed`): perfusion, and a bed whose medium tank dilutes the waste. Otherwise waste
+  build-up and the least medium flow cap the density, and the medium per kg is 1000 / density.
+- **Cycles** (`kind = "cyclic"`): batch, fed-batch, and any vessel whose cells sit on a support. A cycle is n doublings from
+  the seed plus a turnaround: `cycle = n x t_d + turnaround`, output per m3 = working volume x density x recovery / cycle.
+  A contamination during the cycle (chance `1 - exp(-hazard x cycle)`) loses the cycle's cells and adds `vm_restart_cycle_days`.
+  With no losses this is Humbird's fed-batch formula (`output_per_m3(..., "fedbatch")`), which `tests/test_vessels.py` checks.
+- **Chemostat** (`dil_frac`): the culture grows at the dilution rate, 0.6 of the top rate, so the cells are built with a doubling
+  time 1/0.6 times longer. The culture sits at its cap (shape 1, not fill-and-draw's 0.72).
+- **The vessel's gas exchange**: an oxygen-transfer multiplier; no stirred-tank mixing rule for an airlift; no sparged-gas
+  limits for a bed or a cartridge, which get a density cap of their own (`caps`).
+- **Cost**: the vessel's unit costs `capex_ratio` times Humbird's packaged stirred vessel of the same size (his Eq. 3.1),
+  applied to the bioreactor share (32%) of the plant only. What it throws away each run (`cons_run`, $k per m3) is charged
+  per run. A plant of units smaller than 20 m3 gets labour x (20 / unit size)^0.54, from Humbird's two plants.
+- **Tank tricks**: they apply to the stirred tank and the airlift. A bag takes no pressure, and the support vessels have their
+  own gas exchange. Where the case's column loop fails its pH or pass-rate check in another vessel, the cell uses the cheapest
+  setting of the tricks switch that passes (as `scenarios.design` does) and reports the cost the tricks would have given.
+
+Each vessel is priced at its largest unit built for animal cells, up to 20 m3. Each cell carries a maturity tag: done at this
+size, only done smaller, never done with animal cells (`vessels.TAGS`). Results, assumptions and sources:
+`research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
+by `tests/run_parity.py` over 100 cells).
 
 ### The reference case's plant term (`floor_physics.py`)
 
