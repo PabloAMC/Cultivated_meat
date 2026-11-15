@@ -2,6 +2,15 @@
 
 ## 2026-11-15
 
+Model audit: drift, accuracy and whether the costs are reasonable price points (`audit.py`, `audit_history.py`, `research_notes/model_audit.md`; no default changed)
+- **Drift:** measured at every commit that touched the cost code. Default $24.01 -> $34.35 (14 Nov), Central $18.14 -> $26.64, best $6.57 -> $8.95
+  (15 Nov). Every step that moved a headline added a cost an earlier version left out; none lowered one. Nothing has moved since the filter loop.
+- **Accuracy:** the model needs 1.2 to 2.8 times less medium than every reported perfusion run and predicts 2.3 times the output of the one
+  working 20 m3 plant. Drawing every documented range at once, Central's median is $33 (10th-90th percentile $24-46; the $26.64 point is at the
+  20th percentile) and the best case's is $14.1 ($8.95 is the 1st percentile).
+- **Shelf price:** a flat $5 markup gives Central $32; a markup proportional to the price (as conventional spreads are) gives $50 and lowers the
+  cost at which cultivated meat reaches parity from $7 to $5.6. New inputs `au_retail_share`, `au_processing`. `tests/test_audit.py`, in `run_tests.sh`.
+
 Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
 - Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
   under the column loop's pH and pass-rate checks. 20 m3 is within 0.4% to 2.3% of the cheapest size: best $8.95 -> $8.82 at 55 m3,

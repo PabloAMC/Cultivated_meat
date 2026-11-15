@@ -49,6 +49,9 @@ python tests/test_gas_exchange.py
 echo "==> growth-factor prices and the fastest doubling time"
 python tests/test_gf_doubling_bounds.py
 
+echo "==> model audit: global uncertainty and the retail translation"
+python tests/test_audit.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 
