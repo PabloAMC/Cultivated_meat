@@ -297,6 +297,12 @@ says "This density is not shown for meat cells". Results, assumptions and source
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 
+### The filter's flux limit (`filter_flux.py`, added 2026-11-15)
+
+`backtransport_lmh` is the shear-induced back-transport ceiling, J = 0.078 x shear x (phi_w a^4 / (phi_b L))^(1/3) x ln(phi_w/phi_b)
+(Vyas 1999, Eq. 2.18, restating Belfort, Davis and Zydney 1994; Davis and Sherwood's 0.072 form is the second option), with
+`ff_*` inputs. `cost_at` reprices a scenario at any filter flux and membrane life through `retention._with`. Findings: `research_notes/filter_flux.md`.
+
 ### The frontier (`frontier.py`, added 2026-11-15)
 
 `frontier.ladder` starts from the central scenario and applies, in order, the levers `min_litres` (least medium per kg, `explore(medium_l=)`),

@@ -2,6 +2,12 @@
 
 ## 2026-11-15
 
+Can a filter hold 5 L/m2/h at 25% cells? (`filter_flux.py`, `research_notes/filter_flux.md`; no default changed)
+- The physical ceiling (shear-induced back-transport, as printed in two theses) is 57 to 800 L/m2/h for the model's cells: 5 L/m2/h is not above it
+  (under 5% in my judgement). The limit is fouling: CHO membranes fouled after 450-1,200 L/m2 (Pinto 2020, Veje 2024, read in
+  full), 3 to 9 times below the default 3,960. At those throughputs Central costs $47-96 and the best case $15-30. The flux
+  itself barely moves the cost (about $0.2 for halving it); the membrane's throughput does. `tests/test_filter_flux.py`, in `run_tests.sh`.
+
 The frontier: every lever at its limit (`frontier.py`, `research_notes/frontier.md`; no default changed)
 - Central ($26.64) with one lever at a time moved to the limit its research note supports, each kept moved: least medium 6.4 L/kg
   $12.28, 16 h doubling $7.79, dialyser-grade fibres $7.15, growth factors returned $6.97, 320 g/L $6.36, shared-medium plant $5.76,

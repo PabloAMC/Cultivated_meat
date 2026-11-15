@@ -52,6 +52,9 @@ python tests/test_gf_doubling_bounds.py
 echo "==> the frontier: every lever at its limit"
 python tests/test_frontier.py
 
+echo "==> the filter flux limit"
+python tests/test_filter_flux.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 
