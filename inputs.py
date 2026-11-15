@@ -130,14 +130,14 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(19.1, "$/kg", "[SuperMeat, capital restated] everything except medium. Running costs as the "
         "company reports them, $10.8/kg ($11.8/lb 'without depreciation' = $26.0/kg, less 30.5 L x $0.50 of "
         "medium), plus a full yearly charge on the plant, $8.3/kg",
-        lo=9.8, hi=34.0, mode=19.1,
+        lo=10.8, hi=34.0, mode=19.1,
         note="THE PLANT knob. CAPITAL: the report gives depreciation of $1.6/lb ($3.5/kg) but neither the plant's "
              "cost nor the depreciation period. Assuming straight-line over 10 years (Humbird's plant life), the "
              "plant costs $35 per kg of yearly output, and at the 23.6%-a-year charge used for every other case "
              "(humbird_plant_charge) that is $8.3/kg. Over 20 years it would be $16.7/kg. The company's own "
              "figure with depreciation only is $29.5/kg in all; this default is $34.3. CAUTION: the report's "
              "stated tank volumes, densities and bleed rate reproduce about half its stated output, so its "
-             "plant cost per kg cannot be checked. lo=9.8 = the plant floor (floor_physics: no clean rooms, "
+             "plant cost per kg cannot be checked. lo=10.8 = the plant floor (floor_physics: no clean rooms, "
              "perfusion, efficient cells). hi=34 = the cautious case with cells at half the density "
              "(floor_physics: pharma-style plant, tanks drained and refilled, 60 g/L). PIVOTAL: with the "
              "medium price, the top driver of R."),
@@ -165,22 +165,26 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(9.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
+    "plant_floor": Input(10.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
         "been costed for animal cells works together, financed like a mature food industry: a food-grade plant "
-        "without clean rooms ($810k per m3 in 2025 prices) plus a hoped-for device to hold cells back ($89k per "
-        "m3), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% "
-        "uptime: capital, maintenance and insurance $7.1 + labour $1.2 + utilities and consumables $1.5",
+        "without clean rooms ($810k per m3 in 2025 prices) plus a hollow-fibre filter loop to hold cells back "
+        "(retention.py), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, "
+        "91% uptime: capital, maintenance and insurance $6.4 + labour $1.2 + utilities $1.2 + consumables $2.0 (of "
+        "which filter membranes $1.0 and bubble protectant $0.7). Until 2026-11-15 (late) it was $9.8, with a "
+        "hoped-for device at $89k per m3 and no protectant",
         note="THE FLOOR'S PLANT TERM (2026-11-14). Each element is allowed by physics and claimed or shown "
              "somewhere, never together: food-grade 20 m3 tanks run today (Vow); perfusion above 100 g/L is "
              "shown at 10 L (SuperMeat, Pasitka); a way to hold cells back at 20 m3 is not shown; efficient "
              "cells are not shown; 91% uptime is Humbird's figure, which he calls 'rather aggressive'. "
              "FINANCING: the yearly charge is plant_charge_mature (17.3%), because the floor is a long-run "
-             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $12.4. "
+             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $13.1. "
              "tests/test_floor_physics.py ties this value to the module"),
-    "plant_floor_lo": Input(4.9, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
-        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing",
+    "plant_floor_lo": Input(6.3, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
+        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing, "
+        "buying its oxygen (such plants have no oxygen unit). $4.9 before 2026-11-15 (late): no filter membranes, "
+        "no protectant, no oxygen",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate. "
+             "animal cells, whose cultures are far easier to contaminate. $6.8 at the first-plant rate. "
              "CROSS-CHECK (research_notes/plant_capital_crosscheck.md): the price holds at small tanks. "
              "Humbird's own baker's-yeast plant costs $57k per m3 with 200 m3 fermentors and $130k with "
              "27 x 20 m3 (his Table A.5; about $175k in 2025 prices). And two published designs FOR ANIMAL "
@@ -501,9 +505,21 @@ REGISTRY: dict[str, Input] = {
         note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
              "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
     "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
-    "pf_antifoam_otr": Input(1.0, "-", "[assumed default, effect reported] oxygen transfer from the sparger with antifoam "
-        "present, relative to without",
-        lo=0.5, hi=1.0, mode=1.0,
+    "pf_protectant_dose": Input(2.0, "g/L", "[gas_flow_cap.md] poloxamer 188 in the medium: the dose with which dense pharma "
+        "cultures took 0.1-0.2 vvm without extra cell death, which the model's 6 mm/s relies on",
+        lo=1.0, hi=5.0, mode=2.0,
+        note="Humbird recommends more than 0.5 g/L for vigorously sparged cultures (Sect. 2.3); dense high-gas runs used 2-5 g/L "
+             "(research_notes/gas_flow_cap.md). It passes the filter and leaves with the medium."),
+    "pf_protectant_price": Input(30.0, "$/kg", "[assumed] poloxamer 188 bought by the tonne: no bulk price found; catalogue "
+        "prices are $230-260/kg in 10-25 kg packs (Sigma-Aldrich, search summary), tonne-scale excipients sell at a fraction",
+        lo=10.0, hi=260.0, mode=30.0,
+        note="hi = the catalogue price. At 2 g/L and $30/kg it is $0.06 a litre of medium: $0.67/kg of cells at 11 L/kg, "
+             "$1.7 at 28 L/kg. A supplier quote would replace the assumption (TODO.md)."),
+    "pf_o2_microbial": Input(1.0, "switch", "[model choice, 2026-11-15] 1: the yeast-style plant class buys its oxygen "
+        "(pi_o2_feed x pi_o2_price), as plants built item by item do; 0: no oxygen cost (earlier versions)"),
+    "pf_antifoam_otr": Input(0.75, "-", "[judgement, effect reported] oxygen transfer from the sparger with antifoam "
+        "present, relative to without: the middle of the reported 0-50% cut",
+        lo=0.5, hi=1.0, mode=0.75,
         note="research_notes/gas_flow_cap.md (follow-up 2): antifoams cut kLa by 0 to about 50% depending on type and dose "
              "(snippet- and abstract-level sources there). 1 keeps Humbird's oxygen transfer; at 0.5 the oxygen limit of the "
              "reference tank falls from 195 to about 97 g/L and binds before CO2. Applied to the sparger only."),

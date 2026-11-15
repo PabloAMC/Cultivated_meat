@@ -2,6 +2,25 @@
 
 ## 2026-11-15
 
+Three costs counted, the plant ladder tied to `explore` (Pablo asked for the long-term choice on each; **numbers move**)
+- **Bubble protectant** (poloxamer 188): new inputs `pf_protectant_dose` (2 g/L, 1–5) and `pf_protectant_price` ($30/kg assumed, $10–260;
+  catalogue $230–260), charged per litre of medium in every sparged vessel; `explore(protectant_price=)`, a tornado bar, the JS mirror.
+- **Antifoam**: `pf_antifoam_otr` default 1 → **0.75** (the middle of the reported 0–50% cut; judgement). Oxygen now limits Central (177 g/L)
+  and Cautious.
+- **Yeast-style plant buys its oxygen** (`pi_o2_feed` × `pi_o2_price`, $0.33/kg), as item-built plants already did; switch `pf_o2_microbial`.
+- **The plant ladder's perfusion rows are `explore()` itself** (filter loop, protectant, oxygen), so they cannot drift again: reference
+  tier $11.5 → $12.5 (first plant $14.1 → $14.8), microbial tier $6.6 → $8.0. `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3, the
+  `overhead` range starts at 10.8. Golden `cost_floor` 11.502 → 12.502.
+- Scenarios (designs chosen again): best $8.95 → **$9.71** (R 1.23, median world share 3.8%), central $26.64 → **$29.92** (R 2.91, 0.2%),
+  central with shared medium $24.34 → $26.81, cautious $38.97 → $43.79, reference $11.84 → $12.51. Best case and Central now use the column,
+  1 bar and a tank as deep as wide (recycled oxygen fails the loop checks); Cautious the column and 1 bar in the tall tank.
+- The default's Monte Carlo: R median 3.27 → 3.29; regional bands updated.
+- Docs: RESULTS (summary, cost table, the cells-by-tricks tables and the gas-cap table recomputed: they still carried pre-filter-loop
+  figures, e.g. bovine cells with glutamine replaced at $17.5 where the model now gives $26.2), METHODS (scenario, tier, tornado, CO₂, species,
+  floor Monte Carlo tables: the last still showed a median of $18.6), `cost_scenarios.md`, `vessels_and_modes.md`, `gas_flow_cap.md`.
+- **Side studies are now snapshots with a stated basis**: `floor_physics.BEFORE_PROTECTANT` / `BEFORE_FILTER_LOOP` and `tests/_snapshot.py` run
+  their tests with the settings their notes were computed with; each note says so at the top and gives the current scenario costs.
+
 Housekeeping (`TODO.md`; no default changed, no headline moved)
 - **`TODO.md`**: one list of open PRs, decisions waiting on Pablo, housekeeping and project ideas; `research_notes/roadmap_2026-11-15.md`
   keeps the reasoning for the projects.

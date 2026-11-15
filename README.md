@@ -16,7 +16,7 @@ language (“How the model works”, at the bottom of the page).
 
 The cost of a kilo of cells is described by **scenarios** (best case, central, cautious, and the process one company reports), each a preset
 of ten switches with what has to go right for it stated; see [RESULTS.md](RESULTS.md) and the page's "What decides it".
-What earlier versions called the floor ($11.5/kg) is kept as a labelled reference, not a limit.
+What earlier versions called the floor (then $11.5/kg, now $12.5 with the filter loop and the protectant counted) is kept as a labelled reference, not a limit.
 
 The default cost is what a company reports for its own process (SuperMeat 2024), and the scenarios are bounded by the physics of oxygen and CO₂ exchange and by Humbird's plant design (2021). Every number is sourced
 and lives in one place, and every result reproduces from the code.

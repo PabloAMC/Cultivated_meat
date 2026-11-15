@@ -87,7 +87,8 @@ def build_model() -> dict:
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
             "x_waste": value("pf_x_unperfused"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
-            "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"), "antifoam": value("pf_antifoam_otr"),
+            "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"), "antifoam": value("pf_antifoam_otr"), "protect_dose": value("pf_protectant_dose"),
+            "protect_price": value("pf_protectant_price"), "o2_microbial": value("pf_o2_microbial") >= 0.5,
             "draw": value("pf_draw_fraction"), "wv": value("pf_working_volume"),
             "labour_ref": value("pf_labour") * floor_physics.output_per_m3(floor_physics.GOOD_CELLS, "fedbatch")
                           * value("pf_opex_escalation"),
@@ -882,15 +883,15 @@ _CASE_TEXT = {
     "No clean rooms, perfusion": (
         "No clean rooms, perfusion <b>(the reference tank)</b>",
         "Everything that has been costed for animal cells, working together. A food-grade plant. Fresh "
-        "medium flows through 20,000-litre tanks while a device holds the cells back (&ldquo;perfusion&rdquo;), so "
+        "medium flows through 20,000-litre tanks while a hollow-fibre filter holds the cells back (&ldquo;perfusion&rdquo;), so "
         "the culture stays at 120 g per litre, the most such a tank can clear of CO&#8322;. Efficient cells, "
-        "$0.15-a-litre medium, the tank producing 91% of the year. The device is priced at what one study hopes "
-        "it will cost.",
+        "$0.15-a-litre medium, the tank producing 91% of the year. The filter's membranes and a protectant "
+        "against bubble damage are counted.",
         "Each piece is shown or claimed somewhere; never together. No device yet holds cells back at this size"),
     "Microbial-fermentation-class plant": (
         "A plant as cheap as microbial fermentation plants (no scenario assumes it)",
         "The reference case in a plant that costs what plants for yeast and other microbes cost when built today: "
-        "about a quarter as much per litre of tank, with much larger vessels. Bacteria double in 20 minutes and "
+        "about a quarter as much per litre of tank, with much larger vessels; it buys its oxygen. Bacteria double in 20 minutes and "
         "animal cells in a day or two, so animal cells are far easier to contaminate.",
         "Such plants exist for microbes. None has been built or costed for animal cells"),
     "Rough lower bound": (
@@ -3877,6 +3878,7 @@ function floorExplore(p,noSearch){
   if(p.items){ let k=0;                                          // a plant built item by item (plant_items.capital)
     Object.keys(F.items).forEach(it=>{ k+=F.items[it][p.items[it]||Object.keys(F.items[it])[0]][0]; });
     capex=k*F.escalation; sized=true; extra=p.items.oxygen==="bought"?F.o2_opex:0; }
+  else if(p.plant==="microbial"&&vm.o2_gas!==false&&F.o2_microbial) extra=F.o2_opex;   // no oxygen unit in this class's price
   { const per=v=>(30.7*v+800)/v, sf=sized?per(p.vessel_m3)/per(20):1;             // another vessel: its unit price ratio
     if(vm.capex_ratio!==undefined) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf*vm.capex_ratio;
     else if(sized) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf; }
@@ -3947,11 +3949,13 @@ function floorExplore(p,noSearch){
   if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
+  let protectant=0;                                     // poloxamer leaves with every litre of a sparged tank's medium
+  if(vm.o2_gas!==false||vm.co2_gas!==false){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=F.gf*ml/F.gf_litres*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
-  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, capital:capital, labour:labour,
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, protectant:protectant, capital:capital, labour:labour,
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
           pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+(2*lac+sorb*nh3)/ml*1000:NaN,

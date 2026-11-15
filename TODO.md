@@ -4,7 +4,7 @@ The one list of open work, decisions and project ideas. Keep it current: tick or
 does it. Reasons and estimates for the projects are in [`research_notes/roadmap_2026-11-15.md`](research_notes/roadmap_2026-11-15.md);
 the earlier idea list (A–T, M1–M8) is in [`research_notes/project_review.md`](research_notes/project_review.md).
 
-Last updated 2026-11-15.
+Last updated 2026-11-16.
 
 ## 1. Waiting on Pablo
 
@@ -17,24 +17,31 @@ Open pull requests (each says "no default changes" unless noted):
 - [ ] #31 Model audit: costs have only drifted up; Central's median over all ranges is $33. **Decisions inside:** show
       the spread beside each point; membrane life; first-plant or mature financing; a markup that is a share of price.
 
-Decisions that move numbers (found while doing housekeeping; not changed):
+Decisions taken 2026-11-15 (late), on Pablo's instruction to pick the long-term option (numbers moved; CHANGELOG has them):
 
-- [ ] **The tier ladder still prices perfusion with the old $89k device.** It feeds `plant_floor` (the cost side of the
-      demand model) and the page's "at the first-plant rate the reference would be about $14". Moving it to the filter loop
-      moves golden values.
-- [ ] **The yeast-style plant class has no oxygen in its price.** `explore` reports the sparge oxygen (`gas`, $0.52/kg at the
-      reference) but adds it nowhere, which is right for plants whose price includes an oxygen unit and wrong for
-      `plant="microbial"`. No scenario uses that class. Adding it moves the class-of-plant tornado bar and ~15 pinned
-      numbers in `tests/test_gas_exchange.py`.
-- [ ] **Poloxamer is not costed.** At 2 g/L it is $5.6/kg (reference, best case) to $14/kg (Central, Cautious) at catalogue
-      price, $1–3 at an assumed $50/kg (`research_notes/gas_flow_cap.md`, follow-up 1). Needs a bulk quote before it goes in.
-- [ ] Should antifoam's effect (`pf_antifoam_otr`) have a central value below 1? Halved, Cautious goes from $39 to $51.
+- [x] The plant ladder's perfusion rows are now `explore()` itself; `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3.
+- [x] The yeast-style plant buys its oxygen ($0.33/kg).
+- [x] Poloxamer is costed: 2 g/L at an assumed $30/kg (catalogue $230–260). **Replace the price with a supplier quote.**
+- [x] Antifoam's central value is 0.75 (the middle of 0–50%). Oxygen now limits Central and Cautious. **A measurement in dense
+      meat-cell culture would replace this judgement**; it is worth about $1.8/kg in Central and $3.7 in Cautious.
+
+Found while doing it (not changed):
+
+- [ ] **METHODS calls CO₂ tolerance "the single measurement that would move the reference case most", but the tornado now
+      shows 100 → 200 mbar moving it by $0.2**: the salt limit (bicarbonate uses up the osmolality lactate needs) caps the CO₂
+      level the tank can run at. Either the claim or the salt rule needs a second look.
+- [ ] **The fill-and-draw rows of the plant ladder are older than `explore`**: they cost $19.4 / $17.9 where `explore` gives about
+      $24 / $22 for the same plants, because they skip the waste and least-flow caps. `plant_floor_hi` (the cautious end of the
+      default's plant range) comes from one of them.
+- [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched.
+- [ ] **Rebuild `figures/` with LaTeX** (`python report_figures.py`): the curated figures predate the filter loop and these three costs.
+      Not done here because this machine has no LaTeX, and `--no-latex` changes their fonts.
 
 Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
 - [ ] Check the AI Office's rules on outside activities before publishing new work.
-- [ ] Ask a supplier (BASF or a distributor) for a tonne price of poloxamer 188.
+- [ ] Ask a supplier (BASF or a distributor) for a tonne price of poloxamer 188 (the model assumes $30/kg).
 
 ## 2. Housekeeping
 
