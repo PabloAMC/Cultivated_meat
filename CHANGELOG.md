@@ -2,6 +2,14 @@
 
 ## 2026-11-15
 
+The least medium per kg of cells that physics allows (`min_litres.py`, `research_notes/min_litres_per_kg.md`; no number moved)
+- Waste sets no floor: nitrogen, carbon and energy balances all allow zero ammonia and zero lactate. Delivering the nutrients
+  does: 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose per kg of cells. If the medium must be what the cells
+  sit in, the floor is 14-25 L/kg (Central's 28 is within 10% of it; Best's 11 is not possible). If a concentrate of 100 g/L is
+  diluted in the tank, it is 5.8 L/kg (Best) and 6.4 (Central), or 8.0 at the lowest flow per cell measured. Costs at those
+  litres: Best $6.94, Central $12.28-13.05, against $8.95 and $26.64. New `ml_*` inputs; `tests/test_min_litres.py`, in
+  `run_tests.sh`.
+
 If perfusion cannot be run at 20 m3 (`downside.py`, `research_notes/no_perfusion_downside.md`; no number moved)
 - Each scenario priced in a stirred tank without cell retention, in fed-batch and in fill-and-draw, at the model's own density cap
   and at the 27 g/L shown for meat cells, with the tank design chosen again. Central: $26.64 with perfusion, $40.39 (fed-batch) or

@@ -1651,6 +1651,44 @@ REGISTRY: dict[str, Input] = {
         lo=20.0, hi=30.0, mode=25.0),
     "p_conv_sushi_salmon": Input(40.0, "$/kg", "[market] sushi-grade salmon / Wildtype target",
         lo=32.0, hi=48.0, mode=40.0),
+
+    # --- the least medium per kg of cells that physics allows (min_litres.py; research_notes/min_litres_per_kg.md) ---
+    "ml_dry_mol_kg": Input(13.6, "mol/kg wet", "[Humbird-R, derived] moles of dry cell mass in a kg of wet cells",
+        note="300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1); the figure that "
+             "turns pf_nh3_efficient from per mole of dry mass into per kg"),
+    "ml_n_per_dry": Input(0.21, "mol N/mol dry", "[Humbird-R] Table 2.1: nitrogen in the cell formula CH1.68 O0.34 N0.21",
+        note="x 13.6 = 2.86 mol N per kg wet. A protein-only count gives about 2.2 (195 g protein per kg wet at 16% "
+             "nitrogen); nucleic acids add about 0.2"),
+    "ml_aa_pure_kg": Input(0.26, "kg/kg wet", "[Humbird-R] Table 3.4: pure amino acids the cells take up per kg of wet cells "
+        "(Reaction 2.11); quoted in the aa_intensity note",
+        note="free amino acids in the proportion the cell builds protein; the hydrolysate (0.337) carries more because "
+             "its profile does not match"),
+    "ml_aa_mw": Input(128.0, "g/mol", "[textbook] mean molar mass of a free amino acid: 110 for a protein residue plus 18 "
+        "for water", lo=120.0, hi=140.0, mode=128.0),
+    "ml_glc_mw": Input(180.16, "g/mol", "[textbook] glucose"),
+    "ml_salts_osm": Input(250.0, "mOsm/kg", "[judgement; research_notes/min_litres_per_kg.md] osmolality of the salts and "
+        "buffer in a conventional medium, without its glucose and amino acids",
+        lo=150.0, hi=260.0, mode=250.0,
+        note="about 100 mM NaCl (190), 25 mM bicarbonate (50) and the rest (10). Not sourced from a medium sheet. Lower "
+             "values mean cells that tolerate less sodium; no source on how low the salts can go. Used only where the "
+             "medium is what the cells sit in (min_litres.bounds, 'bath')"),
+    "ml_feed_g_l": Input(100.0, "g/L", "[judgement; research_notes/min_litres_per_kg.md] strength of a concentrated feed of "
+        "amino acids and glucose, as solids per litre, that is mixed into the tank and diluted there",
+        lo=50.0, hi=200.0, mode=100.0,
+        note="single-strength perfusion media carry roughly 10-30 g/L of these (unsourced); feeds of 5-10 times that "
+             "are used in fed-batch (the search found papers on ultra-concentrated feeds, limited by tyrosine and "
+             "cystine solubility, and no figure). No measurement in a 20 m3 perfusion tank"),
+    "ml_nh3_chogs": Input(0.012, "mol/kg wet", "[Mayrhofer et al. 2020, via waste_tricks_sizing.md B2, derived] ammonia of a "
+        "glutamine-synthetase CHO line in optimised perfusion, if its 0.54 fmol per cell per hour held at 0.35 per day",
+        lo=0.0063, hi=0.029, mode=0.012,
+        note="the lowest ammonia in any source read. Measured in cells that were not growing; the extrapolation to "
+             "faster growth is an inference, and the cells are CHO, not meat cells"),
+    "ml_atp_bio": Input(1.6e-11, "mol ATP/cell", "[Kilburn, Lilly and Webb 1969, J Cell Sci 4:645, via the BioNumbers page "
+        "(ID 101985), read]: ATP to build a mouse fibroblast (LS cell)",
+        note="cell size not given on that page; used only as a cross-check on the oxygen the model burns"),
+    "ml_atp_maint": Input(2.9e-11, "mol ATP/cell", "[Kilburn et al. 1969, as above] ATP for upkeep per new cell at a "
+        "1.15 day generation time"),
+    "ml_kilburn_td_h": Input(27.6, "h", "[Kilburn et al. 1969] the 1.15 day generation time of that upkeep figure"),
 }
 
 
