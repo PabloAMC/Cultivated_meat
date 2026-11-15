@@ -2,6 +2,14 @@
 
 ## 2026-11-15
 
+Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
+- Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
+  under the column loop's pH and pass-rate checks. 20 m3 is within 0.4% to 2.3% of the cheapest size: best $8.95 -> $8.82 at 55 m3,
+  central $26.64 -> $26.50 at 23 m3, central with shared medium $24.34 -> $24.25 at 34 m3, cautious $38.97 -> $38.08 at 46 m3. The
+  20 m3 designs fail the pH check at 23 to 26 m3; without the checks the best case would save 3.4% at 200 m3. Smaller tanks cost
+  2% to 4% more at 10 m3 and 20% to 50% more at 2 m3. Labour per m3 is the one assumption that could move the answer (the best case
+  would be 7.6% cheaper at 200 m3 if crew per m3 kept falling as in Humbird's plants). Odds for each size are in the note. New inputs
+  `ts_ph_relaxed`, `ts_loop_hw_exp`, `ts_hazard_exp` (what-if rows only). `tests/test_tank_size.py`, in `run_tests.sh`.
 The least medium per kg of cells that physics allows (`min_litres.py`, `research_notes/min_litres_per_kg.md`; no number moved)
 - Waste sets no floor: nitrogen, carbon and energy balances all allow zero ammonia and zero lactate. Delivering the nutrients
   does: 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose per kg of cells. If the medium must be what the cells
