@@ -214,6 +214,14 @@ one). **Within those limits the reference case depends on the gas the cells tole
 gauge") runs at 22 passes an hour for the engineered cells, beyond the tested range. None of the tricks has been
 tried with meat cells.
 
+### If perfusion cannot be run at 20 m³
+
+Every scenario uses a perfusion tank, which nobody has run above about 4 m³. Without cell retention a tank is capped by waste.
+Central costs **$40–44** a kilo in a stirred tank in fed-batch or fill-and-draw at the model's own cap (62 g/L), and **$90–97** at
+the 27 g/L reported for meat cells at 20 m³, against $26.64. The best case goes from $8.95 to $13.22 (or $41). The food-grade plant
+with shared medium cushions it most: $24.34 to $28.22. We put about 65% on perfusion failing at 20 m³ for the best case and
+Central (`research_notes/no_perfusion_downside.md`).
+
 ### Vessel types and operating modes
 
 A stirred tank and perfusion are not alternatives: one is a vessel, the other a way of running it. `vessels.py` changes only

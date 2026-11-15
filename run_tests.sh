@@ -28,6 +28,9 @@ python tests/test_vessels.py
 echo "==> cell retention for a 20 m3 perfusion tank"
 python tests/test_retention.py
 
+echo "==> downside: no perfusion at 20 m3"
+python tests/test_downside.py
+
 echo "==> gas-exchange side study"
 python tests/test_gas_exchange.py
 

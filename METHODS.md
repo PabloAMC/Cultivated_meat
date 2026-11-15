@@ -297,6 +297,13 @@ says "This density is not shown for meat cells". Results, assumptions and source
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 
+### If perfusion cannot be run at 20 m3 (`downside.py`, added 2026-11-15)
+
+For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the
+model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (tricks,
+shape) chosen again for each mode. Findings, with the likelihood of the fallback:
+`research_notes/no_perfusion_downside.md`.
+
 ### Holding the cells back (`retention.py`, added 2026-11-15; the model's default since the same day)
 
 **The default.** In perfusion, `explore` prices a TFF hollow-fibre loop. The loop clears the cell-free liquid the bleed does not
