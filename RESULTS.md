@@ -218,7 +218,9 @@ In the central scenario the stirred tank costs $109.07, $45.29, $48.95, $96.32 a
 - Perfusion in a stirred tank is the cheapest combination in both settings. Nobody has run animal cells in perfusion above
   about 4 m3.
 - Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $18 in the reference case and $45-49 in the central
-  scenario. The central cells make more ammonia, and a culture that is not washed out stops at 62 g/L.
+  scenario. The central cells make more ammonia, and a culture that is not washed out stops at 62 g/L. These costs assume
+  62-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
+  reports harvests of about 27 g/L.
 - An airlift costs about what a stirred tank costs when waste is not washed out. In perfusion its tall shape clears less CO2.
 - A single-use bag pays for a bag each run; it comes close to steel only in perfusion.
 - Packed beds and hollow fibres cost thousands of dollars a kilo as built. A 20 m3 bed at a stirred tank's price, with free

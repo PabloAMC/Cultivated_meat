@@ -233,6 +233,8 @@ LIMIT_PLAIN = {"CO2 removal": "clearing CO₂", "oxygen supply": "getting oxygen
                "other by-products": "other waste and spent food", "food in one fill": "the food in one fill",
                "room on the carriers": "room on the carriers", "room between the fibres": "room between the fibres"}
 
+UNSHOWN_NOTE = "This density is not shown for meat cells."
+
 BIGGEST = {"capital": "the plant", "feedstock": "the medium", "consumables": "what is thrown away",
            "labour": "labour", "growth_factors": "growth factors", "utilities": "utilities"}
 
@@ -261,6 +263,7 @@ def cell(vessel: str, mode: str, base: dict | None = None) -> dict:
     big = max(parts, key=parts.get)
     return {"possible": True, "cost": r["total"], "limit": r["limit"], "density": r["density"], "output": r["output"],
             "medium_l": r["medium_l"], "uptime": r["uptime"], "biggest": BIGGEST[big], "biggest_share": parts[big] / r["total"],
+            "density_unshown": tag == TODAY and r["density"] > value("vm_x_meat_shown") + 1e-9,
             "tricks_fallback": fallback, "unchecked_cost": unchecked, "same_as": SAME_AS.get((vessel, mode), (None,))[0],
             "tag": tag, "evidence": ev, "result": r}
 
@@ -299,7 +302,8 @@ def js_model() -> dict:
             "tags": {f"{v}|{m}": list(t) for (v, m), t in TAGS.items()}, "tag_order": list(TAG_ORDER),
             "trick_args": [jsn.get(k, k) for k in _TRICK_ARGS], "biggest": BIGGEST,
             "str_m3": value("vm_str_m3"), "labour_exp": value("vm_labour_exp"), "restart": value("vm_restart_cycle_days"),
-            "batch_x": value("vm_batch_x"), "limit_plain": LIMIT_PLAIN}
+            "batch_x": value("vm_batch_x"), "limit_plain": LIMIT_PLAIN, "x_meat_shown": value("vm_x_meat_shown"),
+            "unshown_note": UNSHOWN_NOTE}
 
 
 def settings() -> dict:
@@ -324,7 +328,8 @@ def markdown_table(base: dict | None = None) -> str:
             else:
                 cost = f"${c['cost']:,.0f}" if c["cost"] >= 1000 else f"${c['cost']:.2f}"
                 fb = f", with {c['tricks_fallback']} (${c['unchecked_cost']:.2f} if the loop passed)" if c["tricks_fallback"] else ""
-                cells.append(f"**{cost}** ({c['density']:.0f} g/L, {LIMIT_PLAIN.get(c['limit'], c['limit'])}; {c['tag']}{fb})")
+                un = f"; {UNSHOWN_NOTE[:-1].lower()}" if c["density_unshown"] else ""
+                cells.append(f"**{cost}** ({c['density']:.0f} g/L, {LIMIT_PLAIN.get(c['limit'], c['limit'])}; {c['tag']}{un}{fb})")
         size = VESSELS[v]["size"]
         rows.append(f"| {VESSELS[v]['name']} ({size:g} m3) | " + " | ".join(cells) + " |")
     return "\n".join(rows)

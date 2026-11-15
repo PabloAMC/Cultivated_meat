@@ -103,7 +103,12 @@ Details:
 | Packed bed (0.065 m3) | **$5,178** (113 g/L, room on the carriers; done at this size) | as batch | not possible | not possible | **$5,174** (113 g/L, room on the carriers; done at this size) |
 | Hollow fibres (0.00048 m3) | **$685,153** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$685,149** (13 g/L, room between the fibres; done at this size) |
 
-Tags: "done at this size" means animal cells have been grown this way at this unit size, for any product. Only Vow's stirred tank
+Tags: "done at this size" means animal cells have been grown this way at this unit size, for any product. The tag is about
+the vessel, the mode and the size. It does not say that anyone has reached the density in the cell. In both grids, the stirred
+tank in fed-batch and fill-and-draw, the bag in fed-batch and the packed bed (vaccine cells) carry the tag at densities above
+27 g/L. The densest meat-cell culture reported in a vessel of 1 m3 or more is Vow's 538 kg harvest from a 20,000 L tank, about
+27 g/L if the tank was full (`vm_x_meat_shown`; a poorly sourced 68 g/L is the top of its range). The page marks those cells
+"This density is not shown for meat cells". Only Vow's stirred tank
 grows cells for food at 20 m3. "Only done smaller" means animal cells have been grown this way only in smaller vessels. "Never done
 with animal cells" means no record was found.
 
@@ -114,7 +119,8 @@ with animal cells" means no record was found.
    anyone having run it at 20 m3 for a month (operating_modes.md, section 5e).
 2. **The modes that run at 20 m3 today cost more.** Fed-batch and fill-and-draw cost about $18 in the reference case. In the central
    scenario they cost $45-49. The gap grows because the central cells make more ammonia: without washing it out, the culture stops
-   at 62 g/L instead of 92.
+   at 62 g/L instead of 92. These costs assume 62-92 g of cells a litre. Nobody has shown that density for meat cells at this
+   size. The one 20 m3 plant for meat cells reports harvests of about 27 g/L. So $18.20 is not a demonstrated cost.
 3. **A chemostat costs more than fill-and-draw** ($33.67 against $17.81 in the reference case). It must run below the top growth
    rate, and the least medium a cell needs then caps the density lower.
 4. **Batch is the dearest stirred-tank mode.** One fill of medium feeds only a thin culture ($62.95), and the unspent medium leaves with

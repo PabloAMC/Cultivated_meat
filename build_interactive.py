@@ -1243,7 +1243,7 @@ table.sctab{border-collapse:collapse;width:100%;font-size:.82rem;min-width:820px
 .vmtab td{min-width:120px;} .vmtab td.vno{color:#888;background:#f6f6f6;} .vmtab td.vsame{color:#888;}
 .vtag{display:inline-block;font-size:.66rem;border-radius:3px;padding:0 4px;margin-top:2px;white-space:nowrap;}
 .vt-today{background:#e3f1e5;color:#1e5e2c;} .vt-pilot{background:#fdf1d8;color:#7a5200;} .vt-paper{background:#f6e0e0;color:#8a1f1f;}
-.vmbtn.on{background:#333;color:#fff;} .vmtab th .alt{font-weight:normal;}
+.vmbtn.on{background:#333;color:#fff;} .vmtab th .alt{font-weight:normal;} .vunshown{color:#8a1f1f;}
 .sctab th{font-size:.74rem;color:var(--muted);font-weight:600;border-top:0;}
 .sctab td.n{font-variant-numeric:tabular-nums;white-space:nowrap;} .sctab td.s{color:#555;font-size:.78rem;}
 .sctab .story{color:#444;font-size:.8rem;} .sctab .alt{color:var(--muted);font-size:.72rem;white-space:normal;}

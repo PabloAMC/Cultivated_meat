@@ -289,7 +289,10 @@ What `vm` changes in `explore`:
   setting of the tricks switch that passes (as `scenarios.design` does) and reports the cost the tricks would have given.
 
 Each vessel is priced at its largest unit built for animal cells, up to 20 m3. Each cell carries a maturity tag: done at this
-size, only done smaller, never done with animal cells (`vessels.TAGS`). Results, assumptions and sources:
+size, only done smaller, never done with animal cells (`vessels.TAGS`). The tag is about the vessel, the mode and the size. It
+does not say that anyone has reached the cell's density. A cell tagged "done at this size" whose density is above
+`vm_x_meat_shown` (27 g/L: Vow's 538 kg harvest from 20,000 L, the densest meat-cell culture reported at 1 m3 or more) also
+says "This density is not shown for meat cells". Results, assumptions and sources:
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 

@@ -2,6 +2,14 @@
 
 ## 2026-11-15
 
+Densities not shown for meat cells (no number moved)
+- A cell tagged "done at this size" now says "This density is not shown for meat cells" when its density is above the 27 g/L
+  reported for meat cells in a vessel of 1 m3 or more (new input `vm_x_meat_shown`: Vow's 538 kg harvest from 20,000 L; range
+  27-68 g/L). This flags fed-batch and fill-and-draw in the stirred tank, fed-batch in the bag and the packed bed. The legend
+  says the tag is about the vessel, the mode and the size, not the density. The takeaway says the 20 m3 fed-batch and
+  fill-and-draw costs assume 62-92 g/L. Python, the JS mirror (parity-checked), the Markdown table, RESULTS, METHODS and the
+  research note follow.
+
 Plant names (Pablo's choice; no number moved)
 - "A sterile plant without clean rooms" is now **"A food-grade plant"** (Humbird's plant with a sanitary hall in place of the clean
   room). "A lean plant" is now **"A food-grade plant with shared medium"** (the same plant with a shared medium line, two seed

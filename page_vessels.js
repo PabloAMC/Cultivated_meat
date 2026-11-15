@@ -44,6 +44,7 @@ function vmCell(v,m,base){                      // mirror of vessels.cell
   let big="capital"; Object.keys(VM.biggest).forEach(k=>{ if(r[k]>r[big]) big=k; });
   return {possible:true, cost:r.total, limit:r.limit, density:r.density, output:r.output, medium_l:r.medium_l, uptime:r.uptime,
           biggest:VM.biggest[big], biggest_share:r[big]/r.total, tricks_fallback:fallback, unchecked_cost:unchecked,
+          density_unshown:tag[0]===VM.tag_order[0]&&r.density>VM.x_meat_shown+1e-9,
           same_as:VM.same_as[key]?VM.same_as[key][0]:null, tag:tag[0], evidence:tag[1]};
 }
 function vmBase(){                              // the case the table holds fixed
@@ -61,7 +62,8 @@ function vmCellHTML(c,v,m){
   if(c.tricks_fallback) extra='<br><span class="alt">The tank tricks’ loop fails its pH check in this vessel, so these are with “'+
     c.tricks_fallback+'”; with the tricks it would be '+vmMoney(c.unchecked_cost)+'.</span>';
   return '<td title="'+c.evidence.replace(/"/g,"&quot;")+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+
-    ' g/L, limited by '+lim+'; biggest cost: '+c.biggest+'</span><br>'+vmTagChip(c.tag)+extra+'</td>';
+    ' g/L, limited by '+lim+'; biggest cost: '+c.biggest+'</span><br>'+vmTagChip(c.tag)+
+    (c.density_unshown?'<br><span class="alt vunshown">'+VM.unshown_note+'</span>':'')+extra+'</td>';
 }
 function vmGridHTML(base){
   const head='<thead><tr><th>Vessel ↓ &nbsp; How it is run →</th>'+VM.morder.map(m=>'<th>'+VM.modes[m].name+

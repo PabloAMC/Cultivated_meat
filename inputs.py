@@ -980,6 +980,13 @@ REGISTRY: dict[str, Input] = {
     "vm_perf_max_m3": Input(4.0, "m3", "[research pass, read part] the largest animal-cell perfusion run found: Genzyme's "
         "4,000 L tanks at Geel; Humbird's perfusion design stops at 2 m3",
         note="our probability that anyone has run animal cells in perfusion at 20 m3 for a month: 2-3%"),
+    "vm_x_meat_shown": Input(27.0, "g wet/L", "[research_notes/Continuous harvest bioreactor progress/"
+        "cultivated_meat_reactor_progress.md, company and press reports] the densest culture of meat cells reported in a vessel "
+        "of 1 m3 or more: Vow's record 538 kg harvest from its 20,000 L tank is about 27 g/L if the tank was full",
+        lo=27.0, hi=68.0, mode=27.0,
+        note="hi: 1,500 kg from 22,000 L, about 68 g/L, poorly sourced. Bench perfusion has gone far higher (SuperMeat, 10 L, "
+             "about 112 g/L), but not at this size. vessels.py flags any cell tagged 'done at this size' whose density is above "
+             "this: the vessel, mode and size have been run, but not at that density with meat cells"),
     "vm_labour_exp": Input(0.54, "-", "[Humbird-R, derived] labour per m3 of tank against tanks per m3: his fed-batch "
         "plant has 95 staff for 24 x 20 m3 tanks, his perfusion plant 132 for 96 x 2 m3 (Tables 4.6, 4.13): 3.5 "
         "times the staff per m3 for 10 times the tanks per m3, so the exponent is log 3.5 / log 10",

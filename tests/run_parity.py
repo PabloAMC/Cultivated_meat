@@ -289,7 +289,7 @@ def check_parity() -> list:
                     if pc["possible"] != c[2]:
                         fails.append(f"vessels {c[0]} {c[1]}: possible python={pc['possible']} js={c[2]}")
                     elif pc["possible"] and (abs(pc["cost"] - c[3]) > 1e-6 * max(1.0, pc["cost"]) or pc["limit"] != c[4]
-                                             or pc["tricks_fallback"] != c[6]):
+                                             or pc["tricks_fallback"] != c[6] or pc["density_unshown"] != c[8]):
                         fails.append(f"vessels {c[0]} {c[1]}: python={pc['cost']:.6f} ({pc['limit']}, {pc['tricks_fallback']!r}) "
                                      f"js={c[3]:.6f} ({c[4]}, {c[6]!r})")
     # the scenarios: scEval / scShare / scPriorities / scInteractions / scDesign (JS) against scenarios.py

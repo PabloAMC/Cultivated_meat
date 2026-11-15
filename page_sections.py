@@ -258,7 +258,9 @@ def vessel_grid_html(base: dict | None) -> str:
                              f"“{_esc(c['tricks_fallback'])}”; with the tricks it would be {_vm_money(c['unchecked_cost'])}.</span>")
                 cells.append(f"<td title=\"{_esc(c['evidence'])}\"><b>{_vm_money(c['cost'])}</b><br><span class='alt'>"
                              f"{c['density']:.0f} g/L, limited by {_esc(lim)}; biggest cost: {_esc(c['biggest'])}</span><br>"
-                             f"{_vm_tag(c['tag'])}{extra}</td>")
+                             f"{_vm_tag(c['tag'])}"
+                             + (f"<br><span class='alt vunshown'>{_esc(V.UNSHOWN_NOTE)}</span>" if c["density_unshown"] else "")
+                             + f"{extra}</td>")
         rows.append(f"<tr><th>{_esc(vv['name'])}<br><span class='alt'>{_vm_size(vv['size'])}. {_esc(vv['what'])}</span></th>"
                     + "".join(cells) + "</tr>")
     return f"<div class='scrollx'><table class='sctab vmtab'>{head}<tbody>{''.join(rows)}</tbody></table></div>"
@@ -294,10 +296,14 @@ def vessels() -> str:
     take = (
         f"<p class='fnote'><b>What the table says.</b> Perfusion in a stirred tank is the cheapest combination: "
         f"{m(R[S_]['cost'])} a kilo in the reference case and {m(C[S_]['cost'])} in the central scenario. Nobody has run animal "
-        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. The modes that run at 20 m³ today cost more. In the reference case a fed-batch "
+        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. The modes that run at {value('vm_str_m3'):.0f} m³ today cost more. In the reference case a fed-batch "
         f"stirred tank costs {m(R[('stirred', 'fedbatch')]['cost'])} and fill-and-draw {m(R[('stirred', 'filldraw')]['cost'])}. "
         f"In the central scenario they cost {m(C[('stirred', 'fedbatch')]['cost'])} and {m(C[('stirred', 'filldraw')]['cost'])}, "
         f"because cells that make more waste cap a culture that is not washed out at a lower density. "
+        f"These costs assume {min(R[('stirred', 'filldraw')]['density'], C[('stirred', 'filldraw')]['density']):.0f} to "
+        f"{max(R[('stirred', 'filldraw')]['density'], C[('stirred', 'filldraw')]['density']):.0f} g of cells a litre. Nobody has shown "
+        f"that density for meat cells in a tank this size. The one {value('vm_str_m3'):.0f} m³ plant for meat cells reports harvests of about "
+        f"{value('vm_x_meat_shown'):.0f} g a litre. "
         f"A chemostat costs more than fill-and-draw ({m(R[('stirred', 'chemostat')]['cost'])} in the reference case), because it "
         f"must run below the cells' top growth rate. Batch costs most of the stirred-tank modes "
         f"({m(R[('stirred', 'batch')]['cost'])}), because one fill of medium feeds only a thin culture.</p>"
@@ -306,11 +312,14 @@ def vessels() -> str:
         f"and clears less CO₂. A single-use bag needs a new bag every run. That makes it close to a stirred tank only in perfusion "
         f"({m(R[('bag', 'perfusion')]['cost'])}), where a run lasts a month. Packed beds and hollow fibres exist only as small units, "
         f"so they cost {m(R[('packed', 'perfusion')]['cost'])} and {m(R[('hollow', 'perfusion')]['cost'])} a kilo in the reference "
-        f"case. Even a 20 m³ bed priced like a stirred tank, with carriers that cost nothing, would cost {m(f['bed'])}: the bed is "
+        f"case. Even a {value('vm_str_m3'):.0f} m³ bed priced like a stirred tank, with carriers that cost nothing, would cost {m(f['bed'])}: the bed is "
         f"seeded thin and emptied every run, so it makes a fraction of a perfusion tank's output.</p>")
     legend = ("<p class='fnote'>Under each cost: how dense the culture gets, what limits it, and the largest item of cost. The tag says "
               "whether anyone has grown animal cells this way at this size, for any product: "
-              f"{_vm_tag(V.TODAY)} {_vm_tag(V.PILOT)} {_vm_tag(V.PAPER)}. Only Vow's stirred tank grows cells for food at 20 m³.</p>")
+              f"{_vm_tag(V.TODAY)} {_vm_tag(V.PILOT)} {_vm_tag(V.PAPER)}. Only Vow's stirred tank grows cells for food at {value('vm_str_m3'):.0f} m³. "
+              "The tag is about the vessel, the way it is run and its size. It does not say that anyone has reached the density in "
+              f"the cell. Where the density is above the {value('vm_x_meat_shown'):.0f} g a litre reported for meat cells in a tank of "
+              f"1 m³ or more, the cell says so.</p>")
     ev = "".join(f"<li><b>{_esc(V.VESSELS[v]['name'])}, {_esc(V.MODES[m]['name'].lower())}:</b> {_esc(V.TAGS[(v, m)][1])}</li>"
                  for v in V.VESSEL_ORDER for m in V.MODE_ORDER if V.TAGS[(v, m)][1] and (v, m) not in V.SAME_AS)
     return (guide + f"<div id='vm_grid'>{vessel_grid_html(V.settings()['central'])}</div>" + legend + take +
