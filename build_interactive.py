@@ -394,7 +394,7 @@ def build_model() -> dict:
                value("overhead"), "SuperMeat / physics",
                tip="Everything except the medium, per kg: reactors and other capital, labour, energy, "
                "consumables. ${{OH_DEF}} (default) is one company's running costs for a 25,000-litre perfusion plant "
-               "plus a yearly charge on the plant. ${{OH_FLOOR}} is the plant term of the reference tank (a sterile plant costed for "
+               "plus a yearly charge on the plant. ${{OH_FLOOR}} is the plant term of the reference tank (a food-grade plant costed for "
                "animal cells, with food-industry financing); ${{PLANT_FLOOR_LO}} is a plant at the cost of today's "
                "microbial fermentation plants, which no scenario assumes; ${{OH_HI}} is a cautious case (pharma-style plant, cells at half "
                "the density)."),
@@ -846,7 +846,7 @@ def illustrative_numbers() -> dict:
 _CASE_TEXT = {
     "Humbird fed-batch, as designed": (
         "Humbird's fed-batch design",
-        "A detailed engineering design [2]: twenty-four 20,000-litre stirred tanks in a sterile plant. Each tank is "
+        "A detailed engineering design [2]: twenty-four 20,000-litre stirred tanks in a food-grade plant. Each tank is "
         "filled, the cells grow for about two days, and it is emptied (&ldquo;fed-batch&rdquo;). Efficient cells; "
         "growth factors are bought.",
         "Designed on paper; not built"),
@@ -878,7 +878,7 @@ _CASE_TEXT = {
         "Food-grade 20,000-litre tanks run today; this density is not shown"),
     "No clean rooms, perfusion": (
         "No clean rooms, perfusion <b>(the reference tank)</b>",
-        "Everything that has been costed for animal cells, working together. A food-grade sterile plant. Fresh "
+        "Everything that has been costed for animal cells, working together. A food-grade plant. Fresh "
         "medium flows through 20,000-litre tanks while a device holds the cells back (&ldquo;perfusion&rdquo;), so "
         "the culture stays at 120 g per litre, the most such a tank can clear of CO&#8322;. Efficient cells, "
         "$0.15-a-litre medium, the tank producing 91% of the year. The device is priced at what one study hopes "
@@ -1424,8 +1424,8 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
             <option value="100">100 m&sup3;</option><option value="200">200 m&sup3;</option></select></div>
           <div class="ctl"><label><span class="nm">Class of plant</span></label>
             <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
-            <option value="sanitary" selected>sterile, no clean rooms</option>
-            <option value="lean">lean: what is plausibly unnecessary removed</option>
+            <option value="sanitary" selected>food-grade</option>
+            <option value="lean">food-grade with shared medium</option>
             <option value="yeastplus">a yeast plant plus what animal cells must have (not shown either)</option>
             <option value="microbial">built like a yeast plant (not shown to work for animal cells)</option>
             <option value="custom">your own choice of items (below)</option></select></div>
@@ -1630,8 +1630,8 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
       ${{HUMBIRD_PLANT}}/kg in 2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year).
       Which of these come out depends on ten decisions, the switches in &ldquo;What decides it&rdquo;, and a
       <b>scenario</b> is a preset of them. <b>Best case:</b> every switch at its cheapest setting that has a plausible route,
-      ${{COST_BEST}}/kg. <b>Central:</b> cells made low-waste by feed and selection, doubling every 36 hours, a sterile plant,
-      ${{COST_CENTRAL}}/kg (${{COST_CENTRAL_LEAN}} in a lean plant). <b>Cautious:</b> the best meat cells measured so far,
+      ${{COST_BEST}}/kg. <b>Central:</b> cells made low-waste by feed and selection, doubling every 36 hours, a food-grade plant,
+      ${{COST_CENTRAL}}/kg (${{COST_CENTRAL_LEAN}} in a food-grade plant with shared medium). <b>Cautious:</b> the best meat cells measured so far,
       ${{COST_CAUTIOUS}}/kg. Parity with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
       <b>The reference.</b> What earlier versions of this page called the floor is a standard perfusion tank with no tank
       tricks, engineered cells and no lost runs: the plant costs about ${{PLANT_FLOOR}}/kg and the cells ${{COST_FLOOR}}/kg. It is kept as a
@@ -4178,7 +4178,7 @@ function fxRender(){
       (its.oxygen==="bought"&&byItems?" Bought oxygen adds $"+C.fx.o2_opex.toFixed(2)+" per kilo of cells.":"")+
       (pl==="microbial"?" The class above is priced at what yeast plants cost when built ($"+C.fx.capex.microbial.toFixed(0)+"k), not at this sum.":""); }
   const n=[];
-  if(byItems) n.push("Plant by items: the tanks must still be sealed and steam-sterilised. A cheaper plant pays while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (the lean plant) or every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (the yeast plant with additions), against a sterile plant at pharma's loss rate. Cultivated-meat makers today report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
+  if(byItems) n.push("Plant by items: the tanks must still be sealed and steam-sterilised. A cheaper plant pays while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (the food-grade plant with shared medium) or every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (the yeast plant with additions), against a food-grade plant at pharma's loss rate. Cultivated-meat makers today report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");

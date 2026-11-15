@@ -76,7 +76,7 @@ def scenario_table() -> str:
     rows.append(
         f"<tr class='ref'><td class='scname'><b>Reference: a standard perfusion tank, no tricks</b><br><span class='story'>"
         f"What earlier versions of this page called the floor. Humbird's 20,000-litre stirred tank run in perfusion at "
-        f"120 g/L, a sterile plant, engineered cells, no tank tricks, no growth factors, no lost runs. Kept as a labelled "
+        f"120 g/L, a food-grade plant, engineered cells, no tank tricks, no growth factors, no lost runs. Kept as a labelled "
         f"reference, not as a limit: the best case is below it.</span></td><td>{chip(S.GE)}</td>"
         f"<td class='n'><b>{money(rs['cost'])}</b></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
         f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>point estimate; US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
@@ -102,7 +102,16 @@ def scenario_table() -> str:
         return row.split("<td")[0] + "".join(out)
 
     rows = [label_row(r) for r in rows]
-    return f"<div class='scrollx'><table class='sctab stack'>{head}<tbody>{''.join(rows)}</tbody></table></div>"
+    return (f"<div class='scrollx'><table class='sctab stack'>{head}<tbody>{''.join(rows)}</tbody></table></div>"
+            f"<p class='fnote'>{tank_in_every_scenario()} The section <a href='#vessels'>Vessel types and operating modes</a> "
+            "compares other vessels and other ways of running a tank.</p>")
+
+
+def tank_in_every_scenario() -> str:
+    """The tank all the scenarios assume, in plain sentences (above the scenario table and in the vessel section)."""
+    return (f"<b>The tank in every scenario.</b> Every scenario uses a stirred tank of {value('vm_str_m3'):.0f} m³ run in "
+            "perfusion. The tank holds the cells back while fresh medium washes the waste out. The harvest is a steady bleed of "
+            f"cells: a continuous harvest. Nobody has run animal cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³.")
 
 
 # What stands in the way: each switch of the central scenario moved to a worse setting, with what it would take to meet it.
@@ -133,11 +142,11 @@ def bottlenecks() -> str:
          "The column, extra pressure and recycled oxygen are sized by calculation; a squat tank also helps",
          "Calculated. Nobody has run animal cells over such a column, and 4 mm a second is untested at this size."),
         ("The cost of the plant",
-         "A sterile plant without clean rooms.",
+         "A food-grade plant.",
          f"{cost({'plant': 'pharma'})} if it must be built like a pharma plant",
          f"Leave out what animal cells do not need (a clean-room hall, an owned oxygen plant, spare seed tanks): {cost({'plant': 'lean'})}. "
          "A plant as cheap as a yeast plant is not counted: nothing shows animal cells can be grown that way",
-         f"Nobody has built a lean plant for animal cells. It pays only while a tank loses a run less often than about once in "
+         f"Nobody has built a food-grade plant with shared medium for animal cells. It pays only while a tank loses a run less often than about once in "
          f"{be:.0f} days; the one survey of makers implies more losses, from small vessels."),
         ("Fast growth and low waste together",
          "Cells that double every 36 hours while making little waste.",
@@ -194,12 +203,12 @@ def cells_by_tank() -> str:
             lean = S.run({**cs, "plant": "lean"})
             lim = S.LIMIT_PLAIN.get(r["limit"], r["limit"])
             h.append(f"<td onclick=\"scApplyChoice({{cells:'{ck}',growth:'{gk}',tricks:'{tk}',shape:'{shape}'}})\" class='gcell'>"
-                     f"<b>{money(r['total'])}</b> <span class='alt'>({money(lean['total'])} in a lean plant)</span><br>"
+                     f"<b>{money(r['total'])}</b> <span class='alt'>({money(lean['total'])} in a food-grade plant with shared medium)</span><br>"
                      f"<span class='alt'>{r['density']:.0f} g/L, limited by {_esc(lim)}</span></td>")
         h.append("</tr>")
     h.append("</tbody>")
     return ("<p class='blkp'><b>Cells against tank.</b> Cost per kilo of cells for each kind of cell in each kind of tank, in a "
-            "sterile plant (the lean plant in brackets), everything else as in the central case. Click a figure to load it into the switches.</p>"
+            "food-grade plant (the food-grade plant with shared medium in brackets), everything else as in the central case. Click a figure to load it into the switches.</p>"
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(h)}</table></div>"
             "<p class='fnote'>The tank tricks help most when the cells are good: with ordinary meat cells, medium washing waste "
             "out sets most of the cost and no tank trick reaches it.</p>")
@@ -273,7 +282,9 @@ def vessels() -> str:
     R, C = f["ref"], f["cen"]
     m = _vm_money
     S_ = ("stirred", "perfusion")
-    guide = ("<p class='blkp'>Each cell is the cost of a kilo of cells when only the vessel (the row) and the way it is run (the "
+    guide = (f"<p class='blkp'>{tank_in_every_scenario()} This table asks what other vessels and other ways of running a "
+             "tank would cost.</p>"
+             "<p class='blkp'>Each cell is the cost of a kilo of cells when only the vessel (the row) and the way it is run (the "
              "column) change, with the cells, plant, tank tricks and losses of <b id='vm_case'>the central scenario</b> held fixed.</p>"
              "<p class='blkp'><button class='btn small vmbtn on' data-vm='scenario' onclick=\"vmSet('scenario');return false\">"
              "The scenario chosen above</button> <button class='btn small vmbtn' data-vm='reference' onclick=\"vmSet('reference');"
@@ -337,7 +348,7 @@ def experiments() -> str:
          "shown in cattle cells by genetic engineering; the central case buys 30% of Humbird's price"),
         ("Medium at $0.15 a litre, verified on a stated mass basis", {"medium": "0.15"},
          "companies announced $0.20; none verified at scale"),
-        ("A lean plant built and run for animal cells", {"plant": "lean"}, "nobody has built one"),
+        ("A food-grade plant with shared medium built and run for animal cells", {"plant": "lean"}, "nobody has built one"),
         ("A column, pressure and recycled oxygen turn out not to work with dense meat cells", {"tricks": "none"},
          "calculated, never tried with meat cells; the central case counts all three"),
         ("Loss rates of 0.2% a day in a food-grade tank at 20,000 litres", {"losses": "0.2"},
@@ -372,7 +383,7 @@ def measured() -> str:
         "Meat cells that make this little waste and still double in 24 to 30 hours.",
         "CO₂ tolerance of muscle or fish cells; how much gas and foam dense cultures stand at 20 cubic metres.",
         "A pumped column, extra pressure or recycled oxygen with meat cells.",
-        "A way to hold cells back at 20 cubic metres, and a lean plant's real cost.",
+        "A way to hold cells back at 20 cubic metres, and the real cost of a food-grade plant with shared medium.",
         "Medium at $0.20 a litre and growth factors at scale, on a stated mass basis.",
     ]
     li = lambda xs: "".join(f"<li>{_esc(x)}</li>" for x in xs)

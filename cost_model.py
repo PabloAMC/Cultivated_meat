@@ -101,7 +101,7 @@ The floor (see cost_floor):
     So cultivated meat has no order-of-magnitude feedstock advantage over the bird.
   * running a plant: capital/labour/maintenance/utilities do not go to zero.
     floor_physics.py derives this term from oxygen and CO2 physics and published
-    plant costs in 2025 prices. THE FLOOR: a sterile plant without clean rooms
+    plant costs in 2025 prices. THE FLOOR: a food-grade plant
     ($810k per m3, Humbird's plant with a sanitary hall) plus a hoped-for device
     to hold cells back, 20 m3 tanks in perfusion at 120 g/L, efficient cells:
     ~$9.8/kg with food-industry financing (17.3% of the plant's cost a year;

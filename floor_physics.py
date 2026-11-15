@@ -817,7 +817,7 @@ TORNADO = [
      "third of his cost. <b>Evidence:</b> design studies only. No built plant publishes both its cost and its "
      "tank volume."),
     ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style",
-     "How sterile the plant is built. The floor uses a sterile plant without clean rooms ($810k per m\u00b3). "
+     "How sterile the plant is built. The floor uses a food-grade plant ($810k per m\u00b3). "
      "<b>Range:</b> a plant built like a yeast plant ($190k) to a pharma-style plant with clean rooms ($910k). "
      "Humbird's own yeast plant with 20 m\u00b3 tanks costs about the lower figure, and two published "
      "cultivated-meat designs assume it. <b>Evidence:</b> nobody has run animal cells in the cheaper kind."),
@@ -956,7 +956,7 @@ def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary", cell_corr: f
 def summarise_floor_mc(pr: CostParams, n: int = 4000) -> None:
     pc = parity_cost(pr)
     print(f"\n  uncertainty on the floor case (N={n}, seed 0), cells $/kg:")
-    for plant, label in (("sanitary", "sterile plant, no clean rooms"), ("microbial", "yeast-style plant")):
+    for plant, label in (("sanitary", "food-grade plant"), ("microbial", "yeast-style plant")):
         mc = floor_mc(n, plant=plant)
         t = mc["total"]
         p10, p50, p90 = np.percentile(t, [10, 50, 90])
@@ -1019,7 +1019,7 @@ def tiers() -> list:
         "fill-and-draw is filed as an option at 20 m3; this density is not shown", GOOD_CELLS, "filldraw", fb, low, 0.0)
     add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
         "food-grade 20 m3 tanks run today; this density is not shown", GOOD_CELLS, "filldraw", ncr, low, 0.0)
-    add("No clean rooms, perfusion", "the floor: food-grade sterile plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hoped-for filter-free device; efficient cells; 91% uptime",
+    add("No clean rooms, perfusion", "the floor: food-grade plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hoped-for filter-free device; efficient cells; 91% uptime",
         "each piece shown or claimed separately, never together", GOOD_CELLS, "perfusion",
         ncr, low, 0.0, uptime=design_uptime, x_cap=co2_cap(GOOD_CELLS), retention=True)
     add("Microbial-fermentation-class plant", "the frontier: the floor case in a plant that costs what microbial fermentation plants cost when built",

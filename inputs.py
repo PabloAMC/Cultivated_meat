@@ -166,7 +166,7 @@ REGISTRY: dict[str, Input] = {
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
     "plant_floor": Input(9.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
-        "been costed for animal cells works together, financed like a mature food industry: a sterile plant "
+        "been costed for animal cells works together, financed like a mature food industry: a food-grade plant "
         "without clean rooms ($810k per m3 in 2025 prices) plus a hoped-for device to hold cells back ($89k per "
         "m3), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% "
         "uptime: capital, maintenance and insurance $7.1 + labour $1.2 + utilities and consumables $1.5",

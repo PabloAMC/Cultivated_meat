@@ -2,6 +2,15 @@
 
 ## 2026-11-15
 
+Plant names (Pablo's choice; no number moved)
+- "A sterile plant without clean rooms" is now **"A food-grade plant"** (Humbird's plant with a sanitary hall in place of the clean
+  room). "A lean plant" is now **"A food-grade plant with shared medium"** (the same plant with a shared medium line, two seed
+  trains and bought oxygen; nobody has built one). The scenario names follow ("Central: selection and feed only, a food-grade
+  plant"; "Central, food-grade plant with shared medium"). The pharma-style plant keeps its name. Internal keys (`lean`, `sterile`,
+  `sanitary`) are unchanged. Entries below this one keep the old names.
+- The page says above the scenario table and in the vessel section that every scenario uses a 20 m³ stirred tank in perfusion,
+  with a continuous harvest, and that nobody has run animal cells in perfusion above about 4 m³.
+
 Vessel types against operating modes (`vessels.py`, `page_vessels.js`, `research_notes/vessels_and_modes.md`)
 - **New grid**: five vessels (stirred tank 20 m3, airlift 20 m3, single-use bag 5 m3, packed bed 65 L, hollow fibres 0.5 L) against
   five modes (batch, fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change; cells, plant, tank tricks

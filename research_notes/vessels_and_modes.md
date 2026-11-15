@@ -24,9 +24,9 @@ fill-and-draw, because all of them were treated as "waste not washed out".
 The grid below changes only the vessel and the mode. It holds the cells, the plant class, the tank tricks and the losses
 fixed, in one of two settings:
 
-- **the reference case**: `floor_physics.explore()` at its defaults (engineered cells doubling every 24 h, a sterile plant
+- **the reference case**: `floor_physics.explore()` at its defaults (engineered cells doubling every 24 h, a food-grade plant
   without clean rooms, no tank tricks, no losses). The stirred tank in perfusion gives $11.48.
-- **the central scenario** (`scenarios.py`): selected cells on a low-waste feed, doubling every 36 h, a sterile plant, gas
+- **the central scenario** (`scenarios.py`): selected cells on a low-waste feed, doubling every 36 h, a food-grade plant, gas
   at up to 4 mm/s, the column with pressure and recycled oxygen, a squat tank, 1% of runs lost a day, a 14-day restart,
   30% of growth factors bought, medium at $0.20 a litre. The stirred tank in perfusion gives $18.14.
 

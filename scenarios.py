@@ -6,7 +6,7 @@ Why
 ---
 Earlier versions of this model quoted one number, "the floor", as if it were the lowest cost the physics allows.
 It was neither a best case nor a typical case: it was `floor_physics.explore()` at its defaults (a standard
-20 m3 stirred tank in perfusion, 120 g/L, a sterile plant, engineered cells, no tank tricks). That number is
+20 m3 stirred tank in perfusion, 120 g/L, a food-grade plant, engineered cells, no tank tricks). That number is
 kept as a labelled REFERENCE (`reference()`), and everything else is described as SCENARIOS: each is a preset of a
 small set of SWITCHES, one per decision that moves the cost. Every figure is computed from the model.
 
@@ -50,7 +50,7 @@ TAG_PLAIN = {GE: "needs genetic engineering", SELECT: "needs selection or adapta
 class Setting:
     key: str
     label: str            # plain-language name of this setting
-    kw: dict              # floor_physics.explore() arguments (plant_items for the lean plant)
+    kw: dict              # floor_physics.explore() arguments (plant_items for the food-grade plant with shared medium)
     tag: str              # what it needs
     note: str             # one line: what it assumes, evidence
     short: str = ""       # a few words, for chart labels
@@ -98,10 +98,10 @@ SWITCHES = (
         Setting("43", "Every 43 hours", {"doubling_h": value("sc_td_measured")}, NOTHING,
                 "the best low-waste meat-cell culture measured (42.9 h, Hubalek 2023)"))),
     Switch("plant", "The plant", "How much the buildings and equipment around the tanks cost", (
-        Setting("lean", "A lean plant: only what animal cells need",
+        Setting("lean", "A food-grade plant with shared medium",
                 {"items": dict(plant_items.PLANTS["lean"])}, FEED,
-                "no clean room, food-grade tanks, a shared medium line, two seed trains, bought oxygen; nobody has built one"),
-        Setting("sterile", "A sterile plant without clean rooms", {"plant": "sanitary"}, NOTHING,
+                "the food-grade plant with a shared medium line, two seed trains and bought oxygen; nobody has built one"),
+        Setting("sterile", "A food-grade plant", {"plant": "sanitary"}, NOTHING,
                 "Humbird's plant with a sanitary hall in place of the clean room; food-grade tanks of this size run today"),
         Setting("pharma", "A pharma-style plant with clean rooms", {"plant": "pharma"}, NOTHING,
                 "Humbird's plant as designed"))),
@@ -160,7 +160,7 @@ SWITCHES = (
 _SHORT = {
     ("cells", "engineered"): "engineered", ("cells", "selected"): "selected on low-waste feed", ("cells", "measured"): "best measured",
     ("cells", "ordinary"): "ordinary", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
-    ("plant", "lean"): "lean plant", ("plant", "sterile"): "sterile plant", ("plant", "pharma"): "pharma-style plant",
+    ("plant", "lean"): "food-grade, shared medium", ("plant", "sterile"): "food-grade plant", ("plant", "pharma"): "pharma-style plant",
     ("gas", "6"): "6 mm/s", ("gas", "4"): "4 mm/s", ("gas", "2"): "2 mm/s",
     ("tricks", "none"): "no tricks", ("tricks", "column"): "column", ("tricks", "pressure"): "column + pressure",
     ("tricks", "oxygen"): "column + pressure + oxygen",
@@ -231,30 +231,30 @@ _BASE = {"cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "l
 SCENARIOS = {
     "best": Scenario(
         "best", "Best case: everything works",
-        "Cells that make almost no waste (engineered), doubling every day, in a lean plant, with a tank that clears CO₂ "
+        "Cells that make almost no waste (engineered), doubling every day, in a food-grade plant with shared medium, with a tank that clears CO₂ "
         "without more bubbles, and no growth factors to buy.",
         "Cells, growth speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers "
         "report (pharma's 0.2% a day is not assumed); tank design the cheapest the loop checks allow.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),
     "central": Scenario(
-        "central", "Central: selection and feed only, a sterile plant",
+        "central", "Central: selection and feed only, a food-grade plant",
         "Cells that make little waste because the feed is changed and the best lines are chosen (no engineering), "
-        "doubling every 36 hours, in a sterile plant, with a tank that clears CO₂ without more bubbles.",
+        "doubling every 36 hours, in a food-grade plant, with a tank that clears CO₂ without more bubbles.",
         "Cells that have been measured or that selection can reach; every other switch at the setting nearest the middle "
         "of what is reported; tank design the cheapest the loop checks allow.",
         design(dict(_BASE)),
-        alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a lean plant", {"plant": "lean"}))),
+        alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
     "central_lean": Scenario(
-        "central_lean", "Central, in a lean plant",
-        "The central case, in a plant stripped of what animal cells plausibly do not need (no clean room, shared medium "
-        "line, bought oxygen); nobody has built one.",
-        "As Central, with the lean plant.",
+        "central_lean", "Central, food-grade plant with shared medium",
+        "The central case in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
+        "has built one.",
+        "As Central, with the food-grade plant with shared medium.",
         design({**_BASE, "plant": "lean"}),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}))),
     "cautious": Scenario(
         "cautious", "Cautious: the best meat cells measured so far",
-        "Meat cells as they have been measured (doubling every 43 hours, glutamine replaced), in a sterile plant, "
+        "Meat cells as they have been measured (doubling every 43 hours, glutamine replaced), in a food-grade plant, "
         "with no more gas than has been run, and a slow restart after every lost run.",
         "Each switch at a setting that has been measured or reported (else a cautious judgement: growth factors, medium price); "
         "tank design the cheapest the loop checks allow.",
@@ -275,7 +275,7 @@ def alt_cost(key: str, change: dict) -> float:
 
 def reference() -> dict:
     """The old 'floor': floor_physics.explore() at its defaults. A standard 20 m3 stirred tank in perfusion at
-    120 g/L, a sterile plant without clean rooms, engineered cells, no tank tricks, no losses, no growth
+    120 g/L, a food-grade plant, engineered cells, no tank tricks, no losses, no growth
     factors. Kept so the Humbird cross-checks and the golden tests still make sense."""
     return fp.explore()
 
