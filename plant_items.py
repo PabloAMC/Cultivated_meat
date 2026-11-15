@@ -273,7 +273,7 @@ def options() -> dict:
             "yeast": (y["vessels"], "bubble columns as in a yeast plant"),
         },
         "seed": {
-            "full": (h["seed"], "four trains, eight final seed tanks: a tank restarts every 57 hours (Humbird)"),
+            "full": (h["seed"], "four trains and eight final seed tanks, so a tank restarts every 57 hours (Humbird)"),
             "two": (seed(2.0, 2.0), "two small trains: enough for runs of ten days or more"),
             "one": (seed(1.0, 1.0), "one small train, no spare"),
             "yeast": (y["seed"], "as in a yeast plant"),
@@ -281,7 +281,7 @@ def options() -> dict:
         "medium": {
             "dedicated": (h["medium"], "a makeup tank and filters for every bioreactor (Humbird)"),
             "shared": (_per_m3(_equipment_direct(v("pi_fill_tanks") + v("pi_htst") + v("pi_filter_housings"))),
-                       "shared tanks, heat sterilisers and filters; no makeup tank per bioreactor"),
+                       "shared tanks, heat sterilisers and filters, with no makeup tank per bioreactor"),
             "yeast": (y["medium"], "one pasteuriser and one tank"),
         },
         "oxygen": {
@@ -311,8 +311,8 @@ PLANTS = {
 }
 PLANT_LABELS = {
     "humbird": "Humbird's plant, with clean rooms",
-    "floor": "The floor's plant: sanitary hall",
-    "lean": "Lean: what is plausibly unnecessary removed",
+    "floor": "A food-grade plant",
+    "lean": "A food-grade plant with shared medium",
     "yeastplus": "A yeast plant plus what animal cells must have",
     "yeast": "Built like a yeast plant",
 }

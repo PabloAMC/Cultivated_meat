@@ -9,17 +9,17 @@ language (“How the model works”, at the bottom of the page).
 
 - **The findings:** [RESULTS.md](RESULTS.md).
 - **Code-level methods and sources:** [METHODS.md](METHODS.md).
-- **Run it offline:** open [interactive.html](interactive.html) in a browser. It is self-contained; the
-  Python model is ported to JavaScript and kept in step by a parity test.
+- **Run it offline:** open [interactive.html](interactive.html) in a browser. It is self-contained. The
+  Python model is ported to JavaScript, and a parity test keeps the two in step.
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
   on the EA Forum.
 
-The cost of a kilo of cells is described by **scenarios** (best case, central, cautious, and the process one company reports), each a preset
-of ten switches with what has to go right for it stated; see [RESULTS.md](RESULTS.md) and the page's "What decides it".
-What earlier versions called the floor ($11.5/kg) is kept as a labelled reference, not a limit.
+**Scenarios** describe the cost of a kilo of cells. They are the best case, the central case, the cautious case and the process one company reports.
+Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page's "What decides it".
+Earlier versions called the $11.5/kg reference case the floor. The model now keeps it as a labelled reference, not a limit.
 
-The default cost is what a company reports for its own process (SuperMeat 2024), and the scenarios are bounded by the physics of oxygen and CO₂ exchange and by Humbird's plant design (2021). Every number is sourced
-and lives in one place, and every result reproduces from the code.
+The default cost is what a company reports for its own process (SuperMeat 2024). The physics of oxygen and CO₂ exchange and Humbird's plant design (2021) bound the scenarios.
+Every number is sourced and lives in one place, and every result reproduces from the code.
 
 > **Disclaimer.** The views expressed here are purely those of the author, Pablo Antonio Moreno Casares, and may
 > not in any circumstances be regarded as stating an official position of the European Commission. The model and
@@ -31,19 +31,19 @@ and lives in one place, and every result reproduces from the code.
 
 ## The model in four steps
 
-Computed for each type of meat and region, because cultivated meat costs about the same whatever animal it
-copies, while conventional prices vary about fivefold (cheap chicken to sushi):
+The model runs for each type of meat and region, because cultivated meat costs about the same whatever animal it
+copies, while conventional prices vary about fivefold (cheap chicken to sushi). It has four steps:
 
-1. **Cost → price:** what a kilo costs to grow, plus retail costs, divided by the price of the meat beside
-   it: the price ratio **R**.
-2. **Price → choice:** shoppers choose between conventional meat, plant-based meat, cultivated meat and
-   beans, weighing price, taste, “is it real meat?”, health and animal welfare (a two-segment logit
-   calibrated to plant-based meat's observed ~1.2% share).
-3. **Every meat, every region:** repeat at each meat type's local price, then add up by volume and by value.
-4. **Over time:** start from today's wary shoppers and grow as the product spreads and becomes familiar.
+1. **Cost → price.** The cost of growing a kilo, plus retail costs, divided by the price of the meat beside
+   it, gives the price ratio **R**.
+2. **Price → choice.** Shoppers choose between conventional meat, plant-based meat, cultivated meat and
+   beans. They weigh price, taste, “is it real meat?”, health and animal welfare. This is a two-segment logit
+   calibrated to plant-based meat's observed ~1.2% share.
+3. **Every meat, every region.** The model repeats the choice at each meat type's local price, then adds up by volume and by value.
+4. **Over time.** The share starts from wary shoppers and grows as the product spreads and becomes familiar.
 
-The two outputs carry different levels of trust. **R** is a cost built from measured data over an observed
-price: fairly solid. **The market share** depends on how people will treat a product nobody can buy yet, so
+The two outputs deserve different levels of trust. **R** is a cost built from measured data over an observed
+price, so it is fairly solid. **The market share** depends on how people will treat a product that nobody can buy yet, so
 it is always a band.
 
 ---

@@ -77,29 +77,29 @@ VESSELS = {
     "stirred": dict(
         name="Stirred tank", size=value("vm_str_m3"),
         what="A steel tank with a stirrer; gas bubbled in at the base.",
-        limits="Oxygen and CO₂ move only through bubbles; bubbles and foam hurt cells, so the gas flow is capped. "
-               "A deeper tank passes less gas per litre and clears less CO₂. The stirrer must mix faster than oxygen "
-               "is used.",
+        limits="Oxygen and CO₂ move only through bubbles. Bubbles and foam hurt cells, so the gas flow is capped. "
+               "A deeper tank passes less gas per litre and clears less CO₂. The stirrer must mix faster than the cells "
+               "use oxygen.",
         vm={}, tricks=True, shape=True),
     "airlift": dict(
         name="Airlift (bubble column)", size=value("vm_str_m3"),
-        what="A tall tank with a tube inside; gas rises in the tube and carries the culture round. No stirrer.",
-        limits="The same bubble rules as a stirred tank, but the tank is taller, so the same gas flow passes less "
-               "gas per litre and clears less CO₂. The gas, not a stirrer, mixes it.",
+        what="A tall tank with a tube inside. Gas rises in the tube and moves the culture round. It has no stirrer.",
+        limits="The same bubble rules apply as in a stirred tank. The tank is taller, so the same gas flow passes less "
+               "gas per litre and clears less CO₂. The gas mixes the culture, not a stirrer.",
         vm={"mixing": False, "capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult")},
         aspect=value("vm_alr_aspect"), tricks=True, shape=False),
     "bag": dict(
         name="Single-use bag", size=value("vm_bag_m3"),
-        what="A plastic bag in a steel frame, stirred, thrown away after each run.",
-        limits="The stirred tank's physics at the bag's largest common size. The bag takes no pressure, so the "
-               "pressure trick does not apply; the frame is cheap but each run uses a new bag.",
+        what="A plastic bag in a steel frame, with a stirrer. Each run uses a new bag.",
+        limits="The physics is the same as in a stirred tank, at the bag's largest common size. The bag takes no pressure, so the "
+               "pressure trick does not apply. The frame is cheap, but each run uses a new bag.",
         vm={"capex_ratio": value("vm_bag_capex_ratio"), "cons_run": value("vm_bag_cost_run")},
         tricks=False, shape=False),
     "packed": dict(
         name="Packed bed", size=value("vm_bed_m3"),
-        what="Cells grow on carriers packed in a bed; medium is pumped through it and oxygenated outside.",
-        limits="The carriers' surface per litre caps the density; oxygen falls along the bed, which caps its height. "
-               "The cells must be detached to harvest, so the bed is grown and emptied in cycles and some cells stay behind.",
+        what="Cells grow on carriers packed in a bed. A pump sends medium through the bed, and the medium is oxygenated outside it.",
+        limits="The carriers' surface per litre caps the density. Oxygen falls along the bed, which caps its height. "
+               "The cells must be detached to harvest, so the bed is grown and emptied in cycles, and some cells stay behind.",
         vm={"co2_gas": False, "o2_gas": False, "mixing": False, "own_retention": True,
             "caps": {"room on the carriers": value("vm_bed_x")}, "recovery": value("vm_bed_recovery"),
             "capex_ratio": value("vm_bed_capex_ratio"), "cons_run": value("vm_bed_cost_run"), "wv": 1.0},
@@ -107,9 +107,9 @@ VESSELS = {
         tricks=False, shape=False, fixed=True),
     "hollow": dict(
         name="Hollow fibres", size=value("vm_hf_m3"),
-        what="Cells grow around a bundle of porous fibres that carry the medium, inside a cartridge.",
-        limits="The space between the fibres caps the density; oxygen and food must cross the fibre wall. "
-               "Cartridges are small, so a plant needs thousands; cells are flushed out to harvest.",
+        what="Cells grow around a bundle of porous fibres inside a cartridge. The fibres carry the medium.",
+        limits="The space between the fibres caps the density. Oxygen and food must cross the fibre wall. "
+               "Cartridges are small, so a plant needs thousands. Cells are flushed out to harvest.",
         vm={"co2_gas": False, "o2_gas": False, "mixing": False, "own_retention": True,
             "caps": {"room between the fibres": value("vm_hf_x")}, "recovery": value("vm_hf_recovery"),
             "capex_ratio": value("vm_hf_capex_ratio"), "cons_run": value("vm_hf_cost_run"), "wv": 1.0},
@@ -125,11 +125,11 @@ MODES = {
                   vm={**_CYCLE, "washed": False, "caps": {"food in one fill": value("vm_batch_x")}}),
     "fedbatch": dict(name="Fed-batch", what="Fill, grow while feeding concentrate, empty.",
                      vm={**_CYCLE, "washed": False}),
-    "filldraw": dict(name="Fill-and-draw", what="Drain half, refill, let it regrow; never emptied.",
+    "filldraw": dict(name="Fill-and-draw", what="Drain half, refill, and let it regrow. The tank is never emptied.",
                      vm={"washed": False}, mode="filldraw"),
     "chemostat": dict(name="Chemostat", what="Medium in and culture out all the time, at a steady density.",
                       vm={"washed": False, "shape": 1.0, "dil_frac": value("vm_chemostat_dil")}, mode="filldraw"),
-    "perfusion": dict(name="Perfusion", what="Medium flows through while a device holds the cells back; cells "
+    "perfusion": dict(name="Perfusion", what="Medium flows through while a device holds the cells back. Cells "
                                              "are bled off as they grow.",
                       vm={"washed": True}, mode="perfusion"),
 }
@@ -146,39 +146,39 @@ NOT_POSSIBLE = {
     ("hollow", "filldraw"): "The cells sit between the fibres, so part of the culture cannot be drained off.",
     ("hollow", "chemostat"): "The cells sit between the fibres, so there is no free culture to draw off.",
 }
-SAME_AS = {("packed", "fedbatch"): ("batch", "The medium is pumped round from a separate tank; topping that tank up is "
+SAME_AS = {("packed", "fedbatch"): ("batch", "A pump sends the medium round from a separate tank. Topping that tank up is "
                                              "the batch run, not a different mode."),
-           ("hollow", "fedbatch"): ("batch", "The medium is pumped round from a separate tank; topping that tank up is "
+           ("hollow", "fedbatch"): ("batch", "A pump sends the medium round from a separate tank. Topping that tank up is "
                                              "the batch run, not a different mode.")}
 
 # Maturity of each combination at the vessel's size: (tag, evidence). TODAY = animal cells have been grown this way
 # at this size; PILOT = only in smaller vessels; PAPER = never with animal cells. research_notes/vessels_and_modes.md.
 TAGS = {
-    ("stirred", "batch"): (TODAY, "Pharma runs animal cells in stirred tanks of up to about 25 m³; Vow harvests whole 20 m³ tanks of quail cells."),
+    ("stirred", "batch"): (TODAY, "Pharma runs animal cells in stirred tanks of up to about 25 m³. Vow harvests whole 20 m³ tanks of quail cells."),
     ("stirred", "fedbatch"): (TODAY, "The standard way pharma grows animal cells, in tanks of up to about 25 m³."),
-    ("stirred", "filldraw"): (TODAY, "Vow's food-safety filing names draw-and-fill at 20 m³; it does not say how often it is used."),
+    ("stirred", "filldraw"): (TODAY, "Vow's food-safety filing names draw-and-fill at 20 m³. It does not say how often Vow uses it."),
     ("stirred", "chemostat"): (PILOT, "Animal-cell chemostats have been run only at about 1 litre."),
-    ("stirred", "perfusion"): (PILOT, "The largest animal-cell perfusion found is 4 m³ (Genzyme); no way to hold cells back at 20 m³ exists."),
-    ("airlift", "batch"): (PILOT, "Lonza (then Celltech) grew antibody-making cells in airlifts of up to 2 m³, at low density; 10 m³ is claimed."),
-    ("airlift", "fedbatch"): (PILOT, "As batch: airlifts of up to 2 m³ with animal cells, at low density."),
+    ("stirred", "perfusion"): (PILOT, "The largest animal-cell perfusion found is 4 m³ (Genzyme). No way to hold cells back at 20 m³ exists."),
+    ("airlift", "batch"): (PILOT, "Lonza (then Celltech) grew antibody-making cells in airlifts of up to 2 m³, at low density. A size of 10 m³ is claimed."),
+    ("airlift", "fedbatch"): (PILOT, "The same as batch. Airlifts of up to 2 m³ have been used with animal cells, at low density."),
     ("airlift", "filldraw"): (PAPER, "Not found with animal cells. Quorn runs fungus continuously in 155 m³ airlifts."),
     ("airlift", "chemostat"): (PAPER, "Not found with animal cells. Quorn runs fungus continuously in 155 m³ airlifts."),
     ("airlift", "perfusion"): (PAPER, "Not found with animal cells at any size."),
     ("bag", "batch"): (TODAY, "Single-use bags of 2,000 L are common in pharma, and 5,000 L bags are installed."),
-    ("bag", "fedbatch"): (TODAY, "Pharma's fed-batch runs in single-use bags of 2,000 to 5,000 L."),
-    ("bag", "filldraw"): (PILOT, "Repeated harvests have been shown in bench vessels; no 5,000 L bag run found."),
+    ("bag", "fedbatch"): (TODAY, "Pharma runs fed-batch in single-use bags of 2,000 to 5,000 L."),
+    ("bag", "filldraw"): (PILOT, "Repeated harvests have been shown in bench vessels. No 5,000 L bag run has been found."),
     ("bag", "chemostat"): (PILOT, "Animal-cell chemostats have been run only at about 1 litre."),
-    ("bag", "perfusion"): (PILOT, "Perfusion runs in single-use bags of up to about 2,000 L; the densest cultures were in rocking bags of a few litres."),
-    ("packed", "batch"): (TODAY, "iCELLis 500 beds grow vaccine cells this way, at this size; never food cells."),
+    ("bag", "perfusion"): (PILOT, "Perfusion runs in single-use bags of up to about 2,000 L. The densest cultures were in rocking bags of a few litres."),
+    ("packed", "batch"): (TODAY, "iCELLis 500 beds grow vaccine cells this way, at this size. They have never grown food cells."),
     ("packed", "fedbatch"): (TODAY, "As batch."),
     ("packed", "filldraw"): (TODAY, ""),
     ("packed", "chemostat"): (TODAY, ""),
-    ("packed", "perfusion"): (TODAY, "iCELLis 500 beds can be perfused at this size, for vaccines; never food cells."),
+    ("packed", "perfusion"): (TODAY, "iCELLis 500 beds can be perfused at this size, for vaccines. They have never been used for food cells."),
     ("hollow", "batch"): (TODAY, "The Quantum grows cells for cell therapy at this size, about 6 g a run."),
     ("hollow", "fedbatch"): (TODAY, "As batch."),
     ("hollow", "filldraw"): (TODAY, ""),
     ("hollow", "chemostat"): (TODAY, ""),
-    ("hollow", "perfusion"): (TODAY, "The Quantum is perfused at this size, for cell therapy; no unit for kilograms of cells exists."),
+    ("hollow", "perfusion"): (TODAY, "The Quantum is perfused at this size, for cell therapy. No unit for kilograms of cells exists."),
 }
 
 

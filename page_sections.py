@@ -258,7 +258,7 @@ def vessel_grid_html(base: dict | None) -> str:
                     extra = (f"<br><span class='alt'>The loop for the tank tricks fails its pH check in this vessel, so this cost is with "
                              f"“{_esc(c['tricks_fallback'])}”. With the tricks it would be {_vm_money(c['unchecked_cost'])}.</span>")
                 cells.append(f"<td title=\"{_esc(c['evidence'])}\"><b>{_vm_money(c['cost'])}</b><br><span class='alt'>"
-                             f"{c['density']:.0f} g/L, limited by {_esc(lim)}; biggest cost: {_esc(c['biggest'])}</span><br>"
+                             f"{c['density']:.0f} g/L, limited by {_esc(lim)}. Biggest cost: {_esc(c['biggest'])}.</span><br>"
                              f"{_vm_tag(c['tag'])}"
                              + (f"<br><span class='alt vunshown'>{_esc(V.UNSHOWN_NOTE)}</span>" if c["density_unshown"] else "")
                              + f"{extra}</td>")
