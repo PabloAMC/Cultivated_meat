@@ -1,0 +1,1678 @@
+Anticipated growth factor and
+recombinant protein costs and volumes
+necessary for cost-competitive
+cultivated meat
+—
+January, 2023
+
+
+
+
+Elliot Swartz, PhD*
+Lead Scientist, Cultivated Meat
+The Good Food Institute
+
+*Corresponding author
+
+
+
+
+Aditya Ravi             Alexandre Reeber     Jasper Levink,   Taya Huang             Benjamin Smith,
+General Manager,        Co-founder & Chief   MSc              Regulatory scientist   PhD
+Marketing               Executive Officer    Chief Business   Future Ready Food      Director
+Laurus Bio              Core Biogenesis      Officer          Safety Hub (FRESH),    Future Ready Food
+                                             LenioBio GmbH    Nanyang                Safety Hub (FRESH),
+                                                              Technological          Nanyang
+                                                              University             Technological
+                                                                                     University
+Table of contents
+Table of contents                                                                                                          2
+
+Executive summary                                                                                                          4
+
+Introduction                                                                                                               6
+
+Anticipated production volumes of the most commonly used growth factors and recombinant
+proteins by 2030                                                                      8
+
+Determination of a cost-reduction target for growth factors and recombinant proteins for use
+in the cultivated meat industry                                                           13
+
+Platform technologies for growth factor and recombinant protein production                                                 17
+
+   Precision fermentation (Contributing coauthor: Laurus Bio)                                                              19
+
+   Molecular farming in plants (Contributing coauthor: Core Biogenesis)                                                    22
+
+   Cell-free protein expression systems (Contributing coauthor: LenioBio)                                                  25
+
+Additional practices, technologies, and innovations for reducing the cost burden of growth
+factors and recombinant proteins                                                           28
+
+   Media recycling technologies                                                                                            29
+
+   Engineering of growth factors and recombinant proteins                                                                  29
+
+   Encapsulation or slow-release systems                                                                                   29
+
+   Use of conditioned media                                                                                                30
+
+   Self-sustaining cultures at high density                                                                                30
+
+   Discovery of biofunctional equivalents that replace the need for recombinant protein production                         31
+
+   Use of small molecule compounds                                                                                         31
+
+   Creation of protein-free media                                                                                          32
+
+   Novel innovations                                                                                                       32
+
+Safety and regulatory considerations for growth factors and recombinant proteins
+(Contributing coauthor: Future Ready Food Safety Hub, NTU)                                                                 33
+
+   Regulation of cultivated meat in the European Union                                                                     33
+
+   Regulatory oversight of foods comprised of or containing cultivated animal cells in the U.S.                            33
+
+   General safety and regulatory considerations in Singapore                                                               34
+
+
+
+
+                               The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis    2
+   Use of genetically modified organisms in growth factor and recombinant protein production                               35
+
+   Allergenicity of novel proteins                                                                                         36
+
+Discussion                                                                                                                 37
+
+References                                                                                                                 40
+
+
+
+
+                               The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis    3
+Executive summary
+Numerous studies have described the high                      The analysis found that 96.6% of production
+costs associated with growth factors and                      volume is expected to be attributable to
+other recombinant proteins used in cell                       albumin, 2.42% to transferrin, 0.97% to
+culture media for cultivated meat. However,                   insulin, and only 0.02% to all other growth
+there remains a gap in the understanding of                   factors. Based on these numbers, capturing
+the future demand, production cost profiles,                  just a fraction of 1% of the global meat
+and regulatory requirements for these                         market with cultivated meat could require a
+proteins that would be expected in a more                     corresponding volume of recombinant
+mature cultivated meat industry. This report                  albumin protein to be produced in the
+provides guidance for navigating these                        millions of kilograms, far exceeding the
+knowledge gaps by modeling the quantities                     current production volumes of many
+of specific growth factors and recombinant                    industrial enzymes.
+proteins that will be needed to support the
+                                                              In a scenario examining future
+cultivated meat industry as it scales.
+                                                              cost-competitive cultivated meat, growth
+Additionally, the report estimates the cost
+                                                              factors and recombinant proteins were
+profiles for growth factors and recombinant
+                                                              modeled to make up 10% of production
+proteins that would make them suitable for
+                                                              costs, equivalent to $1/kg of cultivated
+a cost-competitive cultivated meat market
+                                                              meat. To satisfy this ambitious cost
+and, lastly, provides details on safety and
+                                                              projection, albumin would need to be
+regulatory considerations for their use in
+                                                              produced at $10/kg, insulin and transferrin
+cultivated meat manufacturing.
+                                                              at $1,000/kg, and growth factors at
+Data and scenarios from previously                            $100,000/kg. Furthermore, cell culture
+published studies were used to estimate a                     media would need to be used efficiently,
+range of anticipated production volumes in                    defined as 8 to 13 liters of media per
+2030 for six growth factors (FGF2, IGF1,                      kilogram of cultivated meat. Producing
+NRG1, PDGFB, EGF, and TGFβ) and three                         albumin, transferrin, and insulin at such low
+other recombinant proteins (albumin,                          costs poses a significant challenge to
+transferrin, and insulin) that are expected to                achieving cost-competitive cultivated meat
+be most commonly used throughout the                          in a timely manner, as new infrastructure for
+cultivated meat industry.                                     scaled production will be needed.
+
+
+
+Capturing just a fraction of 1% of the global meat market with cultivated meat
+could require a corresponding volume of recombinant albumin protein to be
+produced in the millions of kilograms, far exceeding the current production
+volumes of many industrial enzymes.
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   4
+However, growth factors are not expected                       In the absence of further innovation,
+to be as limiting, as they are used in                         manufacturing the necessary volumes of
+substantially lower quantities and can thus                    specific recombinant proteins will require a
+tolerate a higher, more easily achievable                      sizable infrastructure buildout that may
+cost of production that would satisfy                          quickly become bottlenecked without
+cost-competitive cultivated meat.                              sufficient planning. The environmental
+                                                               impact of this supply chain expansion must
+This report examines three recombinant
+                                                               also be factored in.
+protein manufacturing platforms spanning
+precision fermentation, plant molecular                        This report adds important nuance to
+farming, and cell-free protein synthesis to                    understanding the role of growth factors
+provide greater insight into the challenges                    and recombinant proteins in achieving
+and innovative approaches to cost                              cost-competitive cultivated meat. While the
+reduction. In addition to scaling production                   exact numbers, cost profiles, and market
+and optimizing production efficiency, the                      sizes in this report may ultimately evolve,
+cultivated meat industry should seek ways                      the directionality and magnitude of desired
+to reduce the cumulative amounts of                            production volumes and cost reductions are
+recombinant proteins and growth factors                        anticipated to be consistent as the industry
+that will be required, especially for albumin,                 scales. Accordingly, investors, researchers,
+transferrin, and insulin. Opportunities to                     and businesses with an interest in
+achieve this goal are highlighted, including                   developing growth factors and recombinant
+media recycling technologies, replacement                      proteins for the cultivated meat industry
+strategies, protein engineering,                               can use this analysis to ascertain potential
+encapsulation or other slow-release                            market sizes and proactively address future
+systems, the discovery of plant-derived                        cost, scale-up, and regulatory challenges.
+homologs or orthologs, and other novel
+approaches.
+
+
+
+The cultivated meat industry should seek ways to reduce the cumulative
+amounts of recombinant proteins and growth factors that will be required,
+especially for albumin, transferrin, and insulin.
+
+
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   5
+Introduction
+Cultivating animal cells outside of the body                 Cell culture media is currently the largest
+requires a suitable cell culture medium that                 cost and environmental-impact driver for
+contains the oxygen, nutrients, and other                    cultivated meat production. The vast
+factors needed for cell growth. The makeup                   majority of current media costs and a
+of the cell culture medium can be split into                 sizable fraction of environmental impacts
+two groups of components, where the                          are incurred by the second group of added
+amount of each component in a group is                       media components: growth factors and
+typically tailored to the metabolic                          recombinant proteins (Vergeer, Sinke, and
+requirements of a given cell type and                        Odegard 2021; Sinke, Vergeer, and Odegard
+species. The first group of components is                    2021; Specht 2018). These added
+commonly referred to as the basal medium,                    components serve a variety of critical
+which generally contains a buffered solution                 functions in metabolism, transport and
+of glucose, amino acids, inorganic salts, and                delivery of nutrients and other
+water-soluble vitamins critical for cell                     macromolecules, and control of cellular
+survival. The second group of components                     activities (Box 1), making them difficult to
+contains specific added factors such as                      replace in the serum-free media
+recombinant proteins, growth factors or                      formulations expected to be used in the
+hormones, lipids, and antioxidants that                      cultivated meat industry. Thus, efforts to
+permit the long-term maintenance,                            lower the costs and environmental impacts
+proliferation, and differentiation of cells                  of the production of growth factors and
+(Swartz 2021; O’Neill et al. 2020).                          other recombinant proteins are needed.
+
+
+
+
+  Box 1. Nomenclature
+
+  The growth factors and recombinant proteins analyzed in this report include fibroblast
+  growth factor 2 (FGF2 or basic FGF), epidermal growth factor (EGF), insulin-like growth
+  factor 1 (IGF1), neuregulin 1 (NRG1), transforming growth factor beta (TGFβ1 or β3),
+  platelet-derived growth factor subunit B (PDGFB), albumin, insulin, and transferrin.
+  Albumin and transferrin are blood plasma proteins that play important roles in the
+  transport and delivery of nutrients and other macromolecules, and insulin is a protein
+  hormone that plays an important role in cellular metabolism and shuttling glucose into
+  the cell. The other proteins listed are canonical growth factors that play a broad role in
+  the control of cellular functions via signal transduction pathways. For the purposes of this
+  report, albumin, transferrin, and insulin are referred to as recombinant proteins, while
+  FGF2, EGF, IGF1, NRG1, TGFβ, and PDGFB are collectively referred to as growth factors.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   6
+Previous analyses (Specht 2018; Vergeer,                     To answer the questions outlined above, we
+Sinke, and Odegard 2021; Humbird 2021)                       began with a survey of the cultivated meat
+modeled the potential magnitude of growth                    industry that previously identified a set of
+factor cost decreases by benchmarking to                     six growth factors and three recombinant
+existing recombinant protein production in                   proteins that are expected to be most
+other industries. However, a crucial piece of                frequently used by cultivated meat
+missing information for stakeholders along                   manufacturers (“Cultivated Meat Media and
+the value chain is understanding how                         Growth Factor Trends” 2021). We then used
+relevant this benchmarking will be to the                    prior cultivated meat market size
+cultivated meat industry. To determine this,                 estimations by 2030 [small market size =
+a greater understanding is needed of the                     0.4 million metric tons, large market size =
+growth factor and recombinant protein                        2.1 million metric tons; (Brennan et al.
+quantities anticipated to support the                        2021)] along with media use efficiency
+cultivated meat industry as it scales, how                   estimations [low media use = 8 L/kg,
+growth factor and recombinant protein costs                  medium media use = 13 L/kg, high media
+could be reduced to fit the needs of the                     use = 42 L/kg; (Sinke, Vergeer, and Odegard
+industry, the timescale over which cost                      2021)] to arrive at scenario-based
+reduction is expected to occur, and how                      estimations for the anticipated production
+these components will be regulated.                          volume requirements of the six growth
+Furthermore, in regions such as Europe and                   factors and three recombinant proteins by
+Japan, it may also be important for                          the year 2030. We describe some of the
+consumer acceptance that cultivated meat                     approaches being pursued for growth factor
+is free of components from genetically                       and recombinant protein production and
+modified (GM) organisms (Bryant, van Nek,                    discuss cost reductions toward ambitious
+and Rolland 2020), which may impose an                       benchmarks for using growth factors and
+additional regulatory burden (Derbes 2021).                  recombinant proteins in a cost-competitive
+Meeting these requirements will influence                    cultivated meat industry. Together, these
+the technical challenges and costs of                        data provide a more comprehensive
+suitable growth factors and recombinant                      summary of the expected use of growth
+proteins for culture media in different                      factors and recombinant proteins and cost
+regions.                                                     reduction targets that the cultivated meat
+                                                             industry needs to achieve as it scales.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   7
+Anticipated production volumes of the most commonly
+used growth factors and recombinant proteins by 2030
+Many of the growth factors and                                 Note that these are not the only proteins
+recombinant proteins anticipated to be                         that may be used in cell culture media.
+used in cultivated meat production are                         Other serum proteins (e.g., fetuin, catalase)
+already commonly used in biomedical                            may be included, as well as
+research and the pharmaceutical industry.                      oxygen-carrying proteins (e.g., heme or
+However, the rapidly increasing scale of the                   myoglobin), proteins that influence
+cultivated meat industry will demand                           differentiation and maturation (e.g.,
+growth factors and recombinant proteins to                     interleukin-6, myostatin), scaffolding
+be produced in significantly higher                            proteins or peptides (e.g., collagen,
+quantities, cost significantly less, and have                  fibronectin, RGD), or proteins that affect
+other attributes that make them more                           other aspects of the process or end
+fit-for-purpose for consumer acceptance                        product. For example, a recent study by
+(e.g., non-GMO) or use in the cultivated                       scientists at the cultivated meat company
+meat industry (e.g., food-grade,                               Mosa Meat detailed a total of 10 proteins in
+species-specific) (Venkatesan et al. 2022).                    a serum-free media for bovine myoblast
+Projections for the anticipated volume of                      proliferation (Kolkmann et al. 2022).
+growth factors and recombinant proteins                        Accordingly, the cumulative sum of all
+required for cultivated meat production as                     recombinant proteins and growth factor
+the industry scales are needed to inform                       production volumes will be influenced by
+suppliers’ business strategy and their                         the possible inclusion of additional inputs in
+understanding of when and how to scale up                      some media or end-product formulations.
+manufacturing capacity.
+
+To calculate the anticipated production
+volumes of growth factors and recombinant
+proteins, we selected six representative
+growth factors and three recombinant
+proteins for analysis, based on GFI’s 2020
+industry survey that asked which proteins
+would be most commonly used by
+cultivated meat manufacturers (“Cultivated
+Meat Media and Growth Factor Trends”
+2021).
+
+
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   8
+We first conducted a literature review to estimate the average concentration for each growth
+factor and recombinant protein (g/L) typically used to grow various cell types relevant to
+cultivated meat, such as pluripotent stem cells, mesenchymal stem cells, fibroblasts, and
+myosatellite cells (see supplementary data in Tab 1 (Swartz et al. 2021).1 The average
+concentration of the growth factor or recombinant protein was then multiplied by values
+derived from scenarios for the media volume required to produce one kilogram of cultivated
+meat (8 L/kg, 13 L/kg, and 42 L/kg; Table 16 from Sinke, Vergeer, and Odegard (2021)) and
+different cultivated meat production volumes (0.4 and 2.1 million metric tons2) anticipated by
+2030 under certain market growth scenarios (Brennan et al. 2021). This resulted in six
+production volume estimation scenarios for growth factors and recombinant proteins based on
+media use efficiency and market size projections by 2030 (Box 2; Figures 1-3).
+
+
+Box 2. Parameters for the six scenarios used to derive production volume estimates.
+
+
+                            Media use efficiency3                                        Market size
+
+    Scenario A              Low: 8 liters / kg                                           Low: 0.4 million metric tons
+
+    Scenario B              Medium: 13 liters / kg                                       Low: 0.4 million metric tons
+
+    Scenario C              High: 42 liters / kg                                         Low: 0.4 million metric tons
+
+    Scenario D              Low: 8 liters / kg                                           High: 2.1 million metric tons
+
+    Scenario E              Medium: 13 liters / kg                                       High: 2.1 million metric tons
+
+    Scenario F              High: 42 liters / kg                                         High: 2.1 million metric tons
+
+
+
+
+1
+  Note that the concentrations sourced from the literature for this analysis were for pharmaceutical-grade growth factors, which may have higher
+potencies than food-grade proteins. The standard deviation for sourced values is high, owing to the intentional range of species and cell types
+sourced from representative publications.
+2
+  This is equivalent to 0.1% and 0.56%, respectively, of global meat production volume in the year 2030. This assumes that the 2030 global meat
+production volume is 375 million metric tons, not including seafood.
+3
+  Media ingredients can be used more or less efficiently depending on cell metabolism, waste management, and other variables, resulting in different
+volume estimations. More data will be needed to refine these numbers as the industry matures. See Sinke, Vergeer, and Odegard (2021) for more
+details.
+
+
+
+
+                                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis              9
+Figure 1.
+Production
+volume estimates
+for recombinant
+albumin protein
+in 2030.
+
+
+
+
+Figure 2.
+Production
+volume estimates
+for recombinant
+transferrin and
+insulin proteins in
+2030.
+
+
+
+
+                      The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   10
+  Figure 3.
+  Production
+  volume estimates
+  for growth factors
+  FGF2, EGF, IGF1,
+  NRG1, PDGFB,
+  and TGFβ in
+  2030.
+
+
+
+
+The figures highlight the dramatically different production volume requirements expected
+between growth factors and recombinant proteins and between recombinant proteins. For
+instance, albumin is anticipated to make up approximately 96.6% of production volume, with
+transferrin making up 2.42%, insulin making up 0.97%, and all other growth factors making up
+just 0.02% of volume (numbers are rounded; Figure 4). These percentages apply to all
+scenarios in the report, as the average concentration for each growth factor and recombinant
+protein is fixed for each scenario.
+
+
+
+
+                          The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   11
+  Figure 4. Percentage of anticipated production volumes of growth factors and
+  recombinant proteins for the cultivated meat industry in 2030. Albumin is anticipated to
+  make up approximately 96.6% of production volume, with transferrin making up 2.42%,
+  insulin making up 0.97%, and all other growth factors making up just 0.02% of volume.
+  Numbers are rounded.
+
+
+
+
+For albumin, estimations fall between                           estimated that the current global
+approximately 3,600 and 100,000 metric                          production volume of transferrin is only 0.2
+tons per year to meet demand, which could                       to 0.3 metric tons annually (Negulescu et
+make its production volume requirements                         al. 2022).
+by the end of the decade significantly larger
+than the current production of some of the                      These calculations collectively show that
+most heavily used industrial enzymes such                       the manufacturing capacity for growth
+as amylase (Humbird 2021). For insulin and                      factors and recombinant proteins would
+transferrin, the anticipated production                         need to scale rapidly alongside the
+volumes fall within a range of dozens to                        cultivated meat industry to realize the
+hundreds of metric tons per year to meet                        market growth scenarios used in this
+demand, while growth factors would                              analysis, which comprise just 0.1 to 0.56%
+require significantly lower volumes of                          of projected global meat demand expected
+dozens to hundreds of kilograms per year to                     in 2030.
+meet demand. For perspective, it is
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   12
+Determination of a cost-reduction target for growth
+factors and recombinant proteins for use in the
+cultivated meat industry
+To understand the gap between the costs of current growth factor and recombinant protein
+production and the costs that may be demanded by the future cultivated meat industry, we
+used previously derived estimates for the percentage of cultivated meat’s costs attributable to
+growth factors (Humbird 2021). This analysis estimated that if cultivated meat production
+were scaled to 100 kilotons annually, the costs for cultivated meat under favorable scenarios
+would be $37/kg. In addition, in that analysis, growth factors and recombinant proteins would
+account for $3/kg to $4/kg or approximately 10% of the total costs, which we set as the target
+for growth factor and recombinant protein cost contributions.4
+
+
+
+Setting a hypothetical and ambitious future benchmark production cost for
+cultivated meat at $10/kg, we calculated the total budget allowable for growth
+factors and recombinant proteins at a 10% cost contribution, equivalent to a
+total cost contribution of $1/kg of cultivated meat.
+
+
+In this scenario, the budget for growth factors and recombinant proteins at 10% of total costs
+becomes $400M in the low market growth scenario and $2.1B in the high market growth
+scenario (Supplementary Data (Tab 3)).
+
+We first calculated the average cost needed to stay within the 10% cost contribution under
+three medium-use efficiency scenarios using the cumulative growth factor and recombinant
+protein production volume estimates previously calculated (Figure 5).5 This results in very low
+average costs below $107/kg of growth factor and recombinant protein, which we deem to be
+excessively challenging to expect for all growth factors and recombinant proteins used in the
+industry.
+
+We next assume that the vast production volume discrepancies between growth factors and
+recombinant proteins would incentivize the market to reduce or eliminate the use of certain
+
+4
+  The previous analysis also shows that the percent cost contribution of growth factors and recombinant proteins decreases as the overall cultivated
+meat market size increases due to the inverse price to volume relationship for growth factor and recombinant protein production. Thus, at market
+sizes of 0.4 to 2.1 million metric tons modeled in this report, the expected percent contribution for growth factors and recombinant proteins may
+actually be less than 10%. However, the medium formulation in the Humbird analysis includes insulin (0.0194 g/L), transferrin (0.0107 g/L), FGF
+(1x10-4 g/L), and TGFβ (2x10-6 g/L), but lacks albumin, which as a result would increase the cost contribution. Taken together, we estimate 10% of
+costs as an ambitious but reasonable cost contribution target for this analysis.
+5
+  While the majority of media formulations used by cultivated meat manufacturers are unlikely to contain six or more of the growth factors examined,
+many media formulations may contain the three recombinant albumin, insulin, and transferrin proteins. Because the overall production volume for
+growth factors is only 0.2% of the total, we include all of it in the first calculation to obtain an estimated average total cost requirement.
+
+
+
+
+                                           The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis              13
+recombinant proteins to save on costs. Research in the cultivated meat sector has already
+described replacing albumin proteins with homologs found in chickpea protein (Watson 2021;
+Nahmias, Cohen, and Caspi 2021) and rapeseed protein isolate (Stout et al. 2022), while
+certain cell types—such as pluripotent cells—can be readily grown in albumin-free media (Kuo
+et al. 2020).
+
+For these reasons, we recalculated the average cost of growth factors and recombinant
+proteins needed to stay within the 10% cost contribution assuming that recombinant albumin
+could be eliminated from some media formulations used in the cultivated meat industry (Figure
+5). With low to medium media use, average costs rise to a range of $1,929/kg to $3,135/kg,
+which we deem to be a reasonable ambitious target range for most growth factors and
+recombinant proteins produced at large scales.
+
+
+
+
+  Figure 5. (left) The average cost of growth factors and recombinant proteins needed to
+  stay within a 10% cost threshold for cultivated meat produced at $10/kg meat,
+  equivalent to $1/kg proteins. (right) The average cost of growth factors and recombinant
+  proteins, minus recombinant albumin, needed to stay within a 10% cost threshold for
+  cultivated meat produced at $10/kg meat, equivalent to $1/kg proteins.
+
+
+
+
+                           The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   14
+Average cost expectations are illustrative but are not indicative of reality because the costs of
+growth factor and recombinant protein production are dependent on their expected demand
+and, in turn, the scale at which they are produced. The smaller production volumes anticipated
+for growth factors compared to recombinant proteins mean that they are likely to have
+dramatically different corresponding expectations for production cost.
+
+To stay within the 10% cost contribution, we created three tiers of hypothetical production
+costs based on their anticipated scale of production, which were cross-referenced to fall within
+the range of previously derived price-to-volume relationships for recombinant protein
+production (Humbird 2021; Table 1). We set the lowest cost tier for albumin at $10/kg protein,
+as there is evidence that these costs may be achievable for proteins manufactured at that
+anticipated production volume.6,7,8 We then scaled the production costs for tiers 2 and 3 based
+on the order of magnitude difference in their anticipated production volumes compared to
+albumin. These cost tiers can be used as guidance for producers of growth factors and
+recombinant proteins that aim to supply the future cultivated meat industry.
+
+At these production costs, the cost burden for growth factors and recombinant proteins stays
+within the 10% cost contribution threshold in low and medium media use scenarios, but costs
+are above this threshold if media is not used efficiently. This remains true at these production
+costs regardless of whether albumin is in the media or not, as the costs for transferrin alone are
+higher than the 10% of the total production costs for cultivated meat in the high media use
+scenario (Figure 6).
+
+                                               Protein                     Extrapolated prices from Humbird based on estimated
+                                           production cost                       production volume scenarios in this study
+                                           assumed in this
+                                                study                          Average                      Scenario A to Scenario F range
+
+    Tier 1: Albumin                              $10/kg                       $26.94/kg                            $68.68/kg to $3.95/kg
+
+                Insulin                                                     $1415.22/kg                       $3,607.98/kg to $207.56/kg
+    Tier 2:                                    $1,000/kg
+                Transferrin                                                  $642.98/kg                        $1,639.22/kg to $94.30/kg
+
+    Tier 3: Growth factors                   $100,000/kg                 $549,820.21/kg9                     $5,320,271/kg to $15,822/kg
+
+
+Table 1. Hypothetical future production cost tiers for growth factors and recombinant proteins.
+Costs are assumed to be dependent on the scale at which they are produced. Costs were
+cross-referenced to price-to-volume relationships for recombinant proteins previously derived
+by Humbird. Calculations available in the supplementary spreadsheet.
+6
+  Lowest price found for a recombinant protein—cellulase (Puetz and Wurm 2019).
+7
+  ReThinkX estimates that production of recombinant proteins via precision fermentation could fall to $10/kg by 2025 (Tubb and Seba 2019).
+8
+  Bulk ordering of common food enzymes at 200-1000kg scales were quoted from Novozymes at costs between $12-25/kg.
+9
+  The average of all growth factor scenario values. Refer to supplementary data (Tab 2) to see the full set of calculations.
+
+
+
+
+                                          The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis          15
+    Cost of growth factors and recombinant proteins to stay within a 10% cost threshold
+
+
+
+
+  Figure 6. The cumulative cost of growth factors falls below the 10% cost threshold (red
+  line represents the budget of $400M) under low and medium media use scenarios when
+  albumin is produced at $10/kg, insulin and transferrin are produced at $1000/kg, and
+  growth factors are produced at $100,000/kg. The data shown are for the low market
+  growth scenario of 400,000 metric tons of cultivated meat by 2030. Data for the high
+  market growth scenario are included in the supplementary spreadsheet.
+
+
+
+These data collectively illustrate that achieving cost-competitive cultivated meat will require
+growth factors and recombinant proteins to be produced at significantly larger scales and lower
+costs than their current production formats and scales in the biopharmaceutical sector. This is
+especially true for recombinant proteins. Additionally, media must be used efficiently such that
+growth factors and recombinant proteins do not go to waste. As discussed later, innovations
+that enable fewer growth factors and recombinant proteins to be used are expected to play an
+important role in achieving cost-competitive cultivated meat.
+
+
+
+
+                           The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   16
+Platform technologies for growth factor and
+recombinant protein production
+Recombinant DNA technology involves                            molecular farming in plants, cell-free
+combining genetic material from multiple                       production, production in insects, and
+sources. A common example of an                                production in plant or animal cell cultures.
+application of this technology is the
+                                                               Below, we highlight three different growth
+production of human insulin protein,
+                                                               factor and recombinant protein production
+whereby the DNA sequence for insulin is
+                                                               platforms (Figure 7), using contributed
+inserted into a production host such as E.
+                                                               perspectives from exemplar companies in
+coli, the insulin protein is produced by the
+                                                               each category, to describe some of the
+host, and the protein is harvested and
+                                                               challenges and cost reduction opportunities
+purified. This strategy has since been used
+                                                               for each approach as they apply to the
+to manufacture a variety of proteins in the
+                                                               cultivated meat industry (Figures 8-10). The
+biopharmaceutical and food sectors.
+                                                               figures illustrate that how cost reduction is
+The majority of growth factors (excluding                      achieved depends on the production
+steroidal hormones) are proteins or peptides                   platform, but each production platform will
+that can be produced using recombinant                         need to optimize multiple aspects of the
+DNA technology. The recent discovery of                        production process to realize costs suitable
+more robust tools for recombining DNA and                      for cultivated meat. The numbers in these
+manufacturing proteins has led to an                           figures and the percentage of cost reduction
+expansion in the library of growth factor and                  indicated for each parameter are best
+recombinant protein production hosts and                       interpreted as estimates based on individual
+manufacturing strategies: precision                            company calculations. Full
+fermentation in filamentous fungi or                           techno-economic models will be needed to
+microbes such as bacteria and yeast,                           elucidate the cost drivers and cost reduction
+                                                               expectations for each platform at scale.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   17
+Figure 7. Exemplar platform technologies for protein production. Precision fermentation and
+plant molecular farming rely on a similar approach of using microorganisms or plants as
+factories for proteins. Cell-free protein synthesis does not use an entire organism as the factory
+but rather takes the necessary cellular components and machinery for protein synthesis to
+produce proteins in vitro.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   18
+Precision fermentation                                          There are several ways to reduce production
+(Contributing coauthor: Laurus                                  costs using precision fermentation (Figure
+                                                                8). The first is in economies of scale, where
+Bio)
+                                                                the overall costs of building and operating a
+Precision fermentation involves the                             larger fermentor diminish in relation to their
+engineering of microbes such as bacteria,                       increased production capacity. It is also
+yeast, and fungi as “cell factories” that can                   important to realize these economies of
+be used to manufacture animal growth                            scale by building out manufacturing capacity
+factors and recombinant proteins without                        ahead of demand. For example, to meet the
+the animal (Waschulin and Specht 2018). In                      anticipated demand and cost profiles of the
+this process, a target gene is inserted into a                  cultivated meat industry, we are scaling our
+microbial host, and the microbe is trained to                   installed manufacturing capacities from
+selectively manufacture the protein of                          200,000 L to 2,000,000 L within the next
+interest encoded by the target gene (Figure                     12-18 months. We anticipate having the
+7). This animal-free mode of protein                            capability to manufacture recombinant
+production has several advantages                               proteins and growth factors in very
+compared to conventional animal                                 large-scale fermenters of up to 500,000 L,
+agriculture: it is free from viruses and other                  which is over 10 times larger than what we
+pathogens that may otherwise reside in an                       currently use. We estimate that the cost of
+animal host, it has a long history of safe use                  manufacturing recombinant proteins and
+in the biopharmaceutical and food                               growth factors can be reduced by ~35 to
+industries, and recent studies indicate that it                 40% from its current baseline as a result of
+can significantly reduce greenhouse gas                         this scaled production.
+emissions and other environmental impacts
+(Järviö et al. 2021; “Comparative Life Cycle                    Other cost reduction levers available for
+Assessment of Perfect Day Whey Protein                          precision fermentation are yield
+Production to Dairy Protein” 2021).                             enhancement and product innovation. For
+                                                                example, higher-yielding variants can be
+Laurus Bio has produced growth factors and                      obtained by targeted engineering, resulting
+other recombinant proteins for use in the                       in enhanced gene expression, protein
+biopharmaceutical sector for 15 years, and                      folding, post-translational modification,
+we are now leveraging our expertise in                          secretion, reduction of proteolysis, and
+recombinant protein production to meet the                      other desirable changes. Additionally,
+needs of the cultivated meat industry. There                    developing improved growth factors and
+are several differences in the needs and                        recombinant proteins can be achieved
+requirements for growth factor and                              through structure-based and random
+recombinant protein production in the                           mutagenesis combined with screening for
+biopharmaceutical versus cultivated meat                        improvements in attributes such as potency
+sectors, with the most important difference                     or thermal stability. These can be performed
+being in cost tolerance.
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   19
+for species-specific versions of growth                       ease of processing can also influence the
+factors and recombinant proteins, as we                       cost and selection of carbon and nitrogen
+expect to be demanded by the industry                         sources.
+(“Cultivated Meat Media and Growth Factor
+                                                              Finally, it is possible to eliminate or optimize
+Trends” 2021). Collectively, we estimate
+                                                              downstream purification steps that are
+that improvements in yield enhancement
+                                                              typical to meet pharmaceutical
+and product innovation can reduce the cost
+                                                              specifications but are not required for food
+of manufacturing by ~30 to 35% from its
+                                                              applications such as cultivated meat.
+current baseline.
+                                                              Specifications such as purity level, amount
+The third major cost reduction lever is in                    of impurities, formulation, and physical form
+process and downstream protein                                can be altered to obtain a growth factor or
+purification innovation. To meet the needs of                 recombinant protein product that performs
+the cultivated meat industry, our growth                      well in cell culture and is suitable for food.
+factors and recombinant proteins are                          Altogether, process improvements such as
+produced in a food-certified precision                        feedstock optimization and downstream
+fermentation facility rather than a more                      process innovations can reduce costs by
+tightly controlled pharmaceutical facility                    ~25 to 35% from their current baseline.
+that meets the requirements for drug
+                                                              These estimates provide insight into the
+manufacturing. This provides an immediate
+                                                              different cost levers available for precision
+cost reduction while not compromising on
+                                                              fermentation of recombinant proteins, all of
+safety or efficacy.
+                                                              which can be tackled simultaneously and
+Currently, it is common to use traditional,                   applied additively. Achieving substantial
+well-known carbon and nitrogen feedstocks                     cost reductions of up to 99% is not possible
+for fermentation processes, however, the                      by optimizing a singular aspect of
+use of alternate, lower-cost carbon and                       production but rather by simultaneously
+nitrogen sources is possible. These sources                   improving the entire production pipeline.
+can be associated with lower costs in                         This provides companies and researchers
+different geographies depending on their                      with many innovation opportunities to target
+accessibility and abundance. Furthermore,                     from R&D to manufacturing.
+
+
+
+
+                           The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   20
+           Cost reduction estimates for growth factors: Laurus Bio platform
+
+
+
+
+             Cost reduction for recombinant proteins: Laurus Bio platform
+
+
+
+
+Figure 8. Cost reduction opportunity estimates in precision fermentation as a percentage
+of current baseline cost. Variance in the reduction for some parameters is expected to be
+present due to sensitivity to the scale of production between growth factors (top) and
+recombinant proteins (bottom). Numbers are rounded to the nearest whole number.
+
+
+
+
+                        The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   21
+                                                                succeeding generations. This enables a
+Molecular farming in plants
+                                                                streamlined scale-up process where we
+(Contributing coauthor: Core                                    employ agricultural practices and principles
+Biogenesis)                                                     that have been in use for millennia by
+Molecular farming involves the use of plants                    cultivating Camelina in open fields. For
+as an expression host for the production of                     example, we plan to scale our open field
+growth factors and recombinant proteins                         cultivation area to dozens of hectares in the
+(Shanmugaraj, Bulaon, and Phoolcharoen                          coming years, which will enable us to
+2020). Recombinant expression of the                            produce 10 kg of growth factors per hectare
+growth factor or protein can take place                         and per harvest (two harvests per year),
+throughout the entire plant or be restricted                    allowing us to produce hundreds of
+to a specific portion such as the leaves or                     kilograms per year.
+seeds. As in other recombinant expression
+                                                                From an environmental perspective, relying
+systems, DNA is inserted into the plant                         on sunlight as the primary energy input is
+providing the code for the plant to                             expected to have a low environmental
+synthesize the corresponding growth factor                      impact profile, similar to other oilseed crops
+or protein. The accumulated protein of                          such as soy, in addition to saving on utility
+interest is then extracted and purified into a                  costs (Ritchie and Roser 2020). Open field
+final product (Figure 7). To meet the                           scale-up is also fundamental in our cost
+production volumes and price targets                            reduction strategy as it forgoes the use of
+needed for the cultivated meat industry,                        fermentation tanks, vertical farms, and other
+plant molecular farming must leverage its                       CAPEX-heavy infrastructure.
+inherent advantages in scalability while
+solving challenges related to yield,                            Challenges in plant molecular farming relate
+extraction, and purification (Figure 9).                        to yield and the extraction and purification
+                                                                of the target protein. Downstream
+At Core Biogenesis, we use the oilseed plant                    purification costs can be expensive due to
+Camelina sativa as the host for the stable                      the substantial biomass of plants relative to
+expression and production of growth factors                     the mass of the protein of interest. Targeting
+and recombinant proteins. We target our                         protein expression in the seeds of the
+growth factors and other recombinant                            Camelina plant minimizes this issue and
+proteins to the seed compartment of the                         allows for the development of scalable,
+plant, which captures the benefits of the                       phase-specific downstream process
+exponential scalability of agriculture where,                   developments. By leveraging plant
+once a stable plant line is obtained, each                      biotechnology methods like the oleosin
+plant yields thousands of seeds that each                       fusion extraction method, our downstream
+give birth to a new plant, and so forth,                        process is primarily based on mechanical
+without the need for any further                                processes derived from the agri-food
+transformation of the plant between the                         industry, allowing for the industrial-scale
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   22
+production of growth factors and other                         that are involved in plant defense
+recombinant proteins (Ling 2007).                              mechanisms and can be leveraged to
+Collectively, we estimate that scaling plant                   increase the expression yield by orders of
+production in open fields and optimizing                       magnitude. We estimate that this
+downstream purification can reduce costs                       yield-boosting technology can reduce costs
+by approximately 75% from the current                          by approximately 25% from the current
+baseline.                                                      baseline.
+
+Our downstream process allows for two                          Achieving substantial cost reduction
+distinct versions of our recombinant                           estimates of 98% or greater will require
+proteins: a final product free of impurities,                  leveraging the inherent advantages of plant
+or a cruder protein product that contains the                  molecular farming while tackling its
+recombinant growth factors of interest and                     challenges, mostly centered on increasing
+some well-characterized, edible, and GRAS                      yields and purification efficiencies.
+(generally recognized as safe) plant proteins                  Understanding these advantages and
+and lipids. This second option brings specific                 limitations of the technology will enable
+advantages to the cultivated meat industry                     companies and researchers to be best
+in terms of cost reduction. Lastly, to                         positioned to scale up rapidly and reduce
+enhance the achievable yield, we have                          costs.
+identified various combinations of genes
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   23
+       Cost reduction estimates for growth factors and recombinant proteins:
+                             Core Biogenesis platform
+
+
+
+
+Figure 9: Cost reduction opportunity estimates in plant molecular farming as a
+percentage of current baseline cost. Numbers are rounded to the nearest whole number.
+
+
+
+
+                       The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   24
+Cell-free protein expression                                   produced or entirely redesigned growth
+systems (Contributing coauthor:                                factors.
+
+LenioBio)                                                      Although not new, CFPE technology was not
+Cell-free protein expression (CFPE)                            previously considered for large-scale
+produces proteins using the lysates of cells,                  production due to challenges associated
+which are obtained after the mechanical                        with low yields. To address this issue,
+disruption of the cell membrane or cell wall.                  LenioBio leverages a new plant-based CFPE
+The cell lysate is then collected into an                      system called ALiCE®, which enables high
+appropriate vessel and genetic material is                     yields of up to 3 g/L of even the most
+added to initiate the expression of a                          difficult-to-express growth factors and
+corresponding protein of interest (Figure 7;                   recombinant proteins. Notably, the
+Silverman, Karim, and Jewett [2020]). Thus,                    mitochondria in the lysate are active,
+CFPE systems rely on recombinant or                            allowing for much more affordable
+synthetic DNA sequences but lack an intact,                    expression than previous CFPE platforms.
+recombinant host organism.                                     As of writing, we have scaled reaction
+                                                               volumes to 10 L, producing highly potent
+CFPE systems have several advantages                           growth factors with the potential for more
+related to their ease of use. First, the same                  affordable production at larger scales. We
+lysate can be used for a wide range (i.e.,                     were also recently awarded a grant from EIT
+thousands) of proteins. Secondly, protein                      Food and GFI-Europe to further optimize the
+expression completes within 24-48 hours                        system for cultivated meat applications.
+following the addition of the genetic
+material, whereas expression in living cells                   ALiCE® has several attributes that contribute
+can take days or weeks. Third, because                         to affordable production. First, the lysate
+CFPE is performed in an open environment,                      production is generic, meaning one cell line
+different expression conditions such as pH,                    and a generic process can produce the
+redox potentials, temperatures, and the                        lysate to be used for any protein, regardless
+presence of chaperones can be optimized                        of the protein’s complexity or the species it
+using high-throughput techniques for each                      originates from. This is in contrast to
+specific protein of interest. Importantly, in                  recombinant production in animal, plant, or
+the context of scaling, those conditions are                   microbial cells, which can require costly
+the same for gram, kilogram, or metric-ton                     tailored cell line or strain development for
+scale. This allows CFPE to be used for the                     specific growth factors. Second, expression
+rapid iteration or production of new growth                    conditions are similar across scales such
+factors and recombinant proteins on                            that it is relatively straightforward and
+accelerated timelines, especially when new                     affordable to scale production from
+needs arise, such as species-specific growth                   micrograms to kilograms and beyond. Third,
+factors that are not currently widely                          the generic processes allow for streamlined
+                                                               scaling with demand, reduced risks, lower
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   25
+capital costs, and reduced stockpiling.                         homeostasis like a cell culture, and
+Collectively, we expect economies of scale                      optimization can be performed in a
+and unique capabilities of ALiCE® in this                       high-throughput manner, potentially cutting
+context to contribute 50% of the needed                         operational costs in half. Additionally, when
+price reduction from current baseline costs                     it comes to innovation (e.g., exploring novel
+(Figure 10).                                                    or improved growth factors or designing
+                                                                entirely new ones), the costs of
+A second important cost reduction factor is                     discovery-development-scaling iteration
+the optimization of yield and potency.                          cycles can be greatly reduced. Finally, the
+Because ALiCE® is an open system that                           environmental impact of CFPE systems may
+produces proteins rapidly, improving yield                      be lower than recombinant production in
+and potency can be done by tweaking                             cellular systems, although life cycle
+reaction conditions in a high-throughput                        assessments are needed to verify this.
+manner. The open system also enables more
+control over factors that improve potency                       The ALiCE® system also has several
+such as optimal and homogeneous folding                         advantages specific for application in the
+and dimerization. We estimate that potency                      food industry, including the use of lysates
+and yield optimization can together                             derived from plant cells, which means that
+contribute 40% of the needed cost                               growth factors and recombinant proteins are
+reduction.                                                      both animal-free and endotoxin-free. The
+                                                                system performs post-translational
+A third factor is that purification costs can
+                                                                modifications such as disulfide bonding and
+potentially be avoided by using CFPE
+                                                                glycosylation, which is vital for proteins’
+systems like ALiCE® because the protein of
+                                                                correct folding and functionality but cannot
+interest and lysate remnants can be used
+                                                                be performed equally in all recombinant
+together in a final product. Lysate remnants
+                                                                production systems. Lastly, the lysates are
+for ALiCE® are awaiting safety and regulatory
+                                                                derived from non-GMO plant cells such that
+approval, which we expect to receive in
+                                                                the resulting growth factors and
+2023 through the GRAS process. Mitigating
+                                                                recombinant proteins are also non-GMO,
+the need for purification will further increase
+                                                                which is expected to be important for
+yield and potency and can contribute
+                                                                consumer acceptance and regulatory
+another 10% of the needed cost reduction.
+                                                                considerations in certain geographic areas.
+Other cost effects occur at the operational                     In summary, cell-free protein expression
+level because the lysate does not require                       has the potential to be pivotal in the success
+expensive growth media to maintain energy                       of cultivated meat.
+
+
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   26
+           Cost reduction estimates for growth factors and recombinant proteins:
+                                     LenioBio platform
+
+
+
+
+   Figure 10. Cost reduction opportunity estimates in cell-free protein expression systems
+   as a percentage of current baseline cost. Numbers are rounded to the nearest whole
+   number.
+
+
+
+
+Summary of platform                                             lines as expression hosts (Tripathi and
+                                                                Shrivastava 2019). All of these systems are
+technologies for growth factor
+                                                                also being used to cultivate animal proteins
+and recombinant protein                                         for use in other alternative protein products,
+production                                                      food applications, or next-generation
+                                                                materials.
+While the three platforms above were
+selected to illustrate the different levers for                 As cited previously, existing technologies
+cost reduction across different production                      permit the production of certain proteins at
+modalities, it is important to note that the                    costs as low as $10/kg. A new wave of
+production of growth factors and                                companies is now using cutting-edge
+recombinant proteins is not limited to                          technologies to achieve similar levels of cost
+precision fermentation, plant molecular                         reduction for fit-for-purpose proteins in the
+farming, or cell-free protein synthesis. Other                  cultivated meat industry. Different
+companies and researchers are using                             production platforms have certain
+insects, insect cell lines, or mammalian cell                   advantages, disadvantages, and challenges
+
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   27
+to overcome. Some of these tradeoffs may                       need to be performed. However, given the
+be platform- or protein-specific, while                        size of the future demand for growth factors
+others may influence parameters such as                        and recombinant proteins in the cultivated
+environmental impact, CAPEX, or R&D                            meat industry, there is a large opportunity
+iteration speed. Ultimately, future analyses                   for many players to exist simultaneously to
+that more rigorously assess the                                fill the supply gap and prevent future
+techno-economics and environmental                             bottlenecks.
+impact of scaled protein production will
+
+
+
+To learn more about the companies using recombinant
+protein technology in the alternative protein sector, visit
+GFI’s company database.
+
+
+
+
+Additional practices, technologies, and innovations for
+reducing the cost burden of growth factors and
+recombinant proteins
+The calculations above demonstrate that growth factors and recombinant proteins will need to
+be produced at large scales and low costs for use in the cultivated meat industry. Moreover,
+this is just one part of the supply chain that will need to be scaled and optimized. Accordingly,
+cultivated meat manufacturers will be incentivized to find ways to reduce the use of costly
+growth factors and recombinant proteins, especially those with a higher overall cost burden
+such as albumin, transferrin, and insulin.
+
+The scenarios used in this analysis intentionally result in a broad range of anticipated growth
+factor and recombinant protein production volumes to account for potential errors in
+assumptions at this early stage of industry development. It is possible that the actual
+production volumes could fall below this range if additional innovations to reduce their use are
+employed throughout the industry. Below, we discuss some of the ways the industry may
+pursue lowering the cost burden of growth factors and recombinant proteins.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   28
+                   Several studies have demonstrated proof of principle for the use of
+1                  size-exclusion dialysis to capture and reuse growth factors and
+                   recombinant proteins in bioprocessing applications (Torizal et al.
+Media recycling    2021; Nath et al. 2016). Similar strategies may be pursued by
+                   cultivated meat manufacturers to reduce the need to resupply
+technologies.      growth factors and recombinant proteins during production.
+
+
+
+                   Growth factors and recombinant proteins can be engineered in
+2                  various ways to enhance their stability, reduce protease activity,
+                   increase their potency, and serve other beneficial purposes for a
+Engineering of     given application. For example, the native FGF2 protein suffers
+growth factors     from a short half-life within warmed cell culture media due to
+                   degradation and instability. In 2019, an engineered variant called
+and recombinant
+                   FGF2-G3 was shown to have a dramatically increased half-life
+proteins.          compared to the native protein, and FGF2-G3 is now manufactured
+                   by numerous global growth factor suppliers for use in cell culture
+                   media (Koledova et al. 2019).
+
+                   Additionally, the concentrations sourced from the literature for this
+                   analysis were from pharmaceutical-grade growth factors, which
+                   may have higher potencies than food-grade proteins due to their
+                   higher purity. If potencies are not equivalent, food-grade proteins
+                   may need to be used at higher concentrations, demanding even
+                   higher quantities. Thus, engineering proteins to have increased
+                   potency could significantly impact the overall demand for these
+                   proteins. It is anticipated that a variety of engineered growth
+                   factors and recombinant proteins are likely to be used in the
+                   cultivated meat industry. Read more about GFI-funded growth
+                   factor engineering work (Venkatesan et al. 2022).
+
+
+
+                   Because growth factors can display short half-lives or variability in
+3                  cell culture, a variety of systems have been developed to control
+                   how much, when, and where growth factors are released (Wang et
+Encapsulation or
+                   al. 2017). These systems may be employed at multiple process
+slow-release       stages, including the differentiation phase where growth factors
+systems.           may be immobilized within the biomaterials that make up the
+                   scaffolding structure (Bomkamp et al. 2021).
+
+
+
+
+                   The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   29
+                   Conditioned media refers to the spent media containing
+4                  metabolites and other secreted factors that accumulate during
+                   cellular growth. Cultivated meat company Integriculture is
+Use of
+                   developing a platform called CulNet that aims to provide an
+conditioned        artificial serum by growing liver, pancreatic, and other tissues in
+media.             independent vessels and shuttling their secreted factors into
+                   separate bioreactors used to cultivate meat. Growing organ tissues
+                   that naturally produce many of the necessary growth factors for
+                   cultivating meat may more fully recapitulate the composition of
+                   serum and thus could offset some demand for the recombinant
+                   production of individual growth factors or serum proteins.
+
+
+
+                   Certain animal cells secrete growth factors and recombinant
+5                  proteins that can be beneficial to sustaining their own growth or
+                   the growth of other cell types. At high densities anticipated to be
+Self-sustaining
+                   typical in the cultivated meat industry, certain cell cultures can
+cultures at high   secrete growth factors in a self-sustaining manner (Torizal et al.
+density.           2021). This may reduce the need for or the amount of exogenously
+                   added growth factors and recombinant proteins beyond certain
+                   process steps. Co-culture of different cells may provide an
+                   additional way to capitalize on this opportunity.
+
+
+
+
+                   The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   30
+                   In a 2021 article, Dr. Yaakov Nahmias, the founder of Future Meat,
+6                  stated that the company had identified a chickpea-based albumin
+                   protein homologue that could replace the need for recombinant
+Discovery of
+                   animal albumin (Nahmias, Cohen, and Caspi 2021). Similarly, bulk
+biofunctional      protein extracts from rapeseed were shown to fully replace
+equivalents that   recombinant albumin in bovine myoblast cell cultures (Stout et al.
+replace the need   2022). These examples indicate that cultivated meat
+for recombinant    manufacturers and researchers are already clued in on the
+protein            importance of reducing albumin use to save on costs. Similarly, the
+production.        discovery of biofunctional equivalents of transferrin, insulin, or
+                   other proteins derived from plants, fungi, or other microorganisms
+                   will be important avenues to pursue. For some cell types, the
+                   growth factor IGF1 can functionally replace insulin in cell culture
+                   and can be used at substantially lower concentrations (Wamaitha
+                   et al. 2020). Thus, in some cases, recombinant proteins could be
+                   substituted by growth factors used in lower quantities.
+
+
+
+                   In cell culture, small molecules can be used in a similar fashion as
+7                  growth factors and recombinant proteins to activate or repress
+                   biochemical pathways to impart control over cell metabolism,
+Use of small
+                   behavior, and activities such as proliferation and differentiation (Liu
+molecule           et al. 2016). The synthesis of certain small molecules could be
+compounds.         more cost-effective than the use of certain growth factors and
+                   recombinant proteins. Among other considerations, the safety
+                   profiles and history of use in human medicine of small molecule
+                   compounds may need to be assessed prior to their use in
+                   cultivated meat production processes.
+
+
+
+
+                   The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   31
+                In the biopharmaceutical sector, chemically defined, protein-free
+8              media (e.g., PowerCHO, ESF 921, CD CHO) are commonly used to
+               simplify the downstream purification of therapeutic proteins.
+Creation of
+               Together with certain implementations of cell line engineering, the
+protein-free   development of bioreactor systems with on-demand,
+media.         component-specific feeds into the media may facilitate greater use
+               of protein-free media, particularly to reduce the need for proteins
+               like albumin that function as a source or sink for nonspecific
+               binding of various macromolecules to modulate their availability to
+               cells. While cell culture can be performed under protein-free
+               conditions, more research is needed to determine whether this
+               would provide the best performance for cultivated meat
+               applications.
+
+
+
+               Other approaches should be explored to reduce the quantities of
+9              growth factors and recombinant proteins needed in the cultivated
+               meat industry. For example, a new company called CellCrine claims
+Novel
+               that its enzyme media additive can reduce the need for growth
+innovations.   factors and recombinant proteins by 90% or more, while the
+               company Prolific Machines claims it can grow mammalian cells
+               without the need for exogenous growth factors at all.
+
+
+
+
+               The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   32
+Safety and regulatory considerations for growth factors
+and recombinant proteins (Contributing coauthor:
+Future Ready Food Safety Hub, Nanyang Technological
+University)
+Ensuring the safety of novel foods such as cultivated meat is paramount to their success in the
+marketplace. Suppliers of input materials such as growth factors and recombinant proteins
+must ensure that their product attributes are suitable for use in the cultivated meat industry.
+Below, we reference existing regulatory documents from the European Union (EU), the United
+States, and Singapore to help cultivated meat manufacturers and growth factor and
+recombinant protein suppliers navigate the evolving regulatory landscape.
+
+
+
+Regulation of cultivated meat in                              Regulatory oversight of foods
+the European Union                                            comprised of or containing
+In the EU, cultivated meat is considered                      cultivated animal cells in the
+novel food and falls under the scope of                       United States
+Regulation (EU) No. 2015/2283 on novel                        In 2019, the United States Food and Drug
+foods, which require pre-market                               Administration (FDA) and the United States
+authorization. Where the technology used to                   Department of Agriculture - Food Safety and
+produce the food falls under the scope of                     Inspection Service (USDA-FSIS) agreed to
+Regulation (EC) No. 1829/2003 on GM food                      establish a joint regulatory framework for
+and feed, the relevant regulation would                       foods meant for human consumption made
+apply. Cultivated meat as a food item is also                 from cultivated cells of livestock and poultry
+subject to the general principles and                         to ensure that products placed on the
+requirements of the general food law                          market are safe and appropriately labeled.
+Regulation (EC) No. 178/2002. Regulation
+(EU) No. 1169/2011 on the provision of food                   In regulating products derived from
+information to consumers also applies.                        cultivated animal cells, FDA will require a
+                                                              pre-market consultation process and
+See guidance on the preparation and                           inspections of records and facilities. The
+submission of an application for                              pre-market consultation process will include
+authorization of a novel food in the context                  the evaluation of the production process and
+of Regulation (EU) 2015/2283 (Revision 1)                     produced biological material, including
+(2021) for more information.                                  tissue collection, cell lines, cell banks,
+                                                              manufacturing controls, and all components
+                                                              and inputs.
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   33
+The first pre-market consultation process                                   Therefore, growth factors and recombinant
+was completed on November 16th, 2022,                                       proteins used at any stage of cultivated meat
+and contains valuable information related to                                production are required to be declared and
+the safety of growth factors in cultivated                                  their safety assured at anticipated levels of
+meat. More information can be found on                                      consumption. Any risk assessment of growth
+FDA’s website: Foods made with cultured                                     factors and recombinant proteins used in
+animal cells.                                                               cultivated meat production should be based
+                                                                            on appropriate safety data of the protein and
+General safety and regulatory                                               estimated consumer exposure in the final
+considerations in Singapore                                                 product, following similar approaches used
+                                                                            for food additives. Evaluation of the purity,
+As of August 2022, Singapore is the only                                    sequence analogy to known proteins,
+country where cultivated meat products                                      toxicity, and allergenic potential are all
+have been approved for sale.10 Cultivated                                   factors that should be considered in
+meat is considered novel food in Singapore,                                 assessing the safety of growth factors.
+and its manufacture, import, and sale
+require pre-market approval. This approval                                  At this point in time, the requirements for
+process falls under the purview of the                                      growth factors and recombinant proteins as
+Requirements for the Safety Assessment of                                   a component in novel food fall under the
+Novel Foods and Novel Food Ingredients,                                     requirement for the pre-market approval of
+published in November 2020 and updated                                      novel food. Under this requirement, the
+on September 26, 2022 (Singapore Food                                       purity of the component is an important part
+Agency 2021).                                                               of the approval process. However, there are
+It should be noted that under these                                         no specified analytical approaches required.
+requirements, safety is assessed for the final                              It is the responsibility of the notifying
+food item on a product-by-product basis.                                    company to provide relevant purity data and
+While there is no specific clause addressing                                validation of the analytical methodology.
+growth factors and recombinant proteins
+used in cultivated meat production, a key                                   Growth factors and recombinant protein
+requirement is characterizing the                                           manufacturers within the biopharmaceutical
+composition of the novel food and assuring                                  sector have established standardized Good
+the safety of all components comprising the                                 Manufacturing Practices (GMPs). Growth
+food, including any additives or functional                                 factor and recombinant protein
+ingredients, as well as components used in                                  manufacturers may refer to them to
+the culture media and other aspects of                                      establish their internal quality standards.
+production.                                                                 However, there is currently no guideline,
+                                                                            regulatory requirement, or standard for
+10
+  Cultivated chicken nugget and chicken breast products                     growth factors or recombinant proteins to be
+manufactured by the company Eat JUST, Inc are currently the only
+cultivated meat products approved for sale in Singapore or anywhere         used in food production.
+in the world.
+
+
+
+
+                                          The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   34
+Singapore Food Agency (SFA) has suggested                     present in the final cultivated meat product
+that similar approaches used by the Joint                     if they wish to avoid this review. When
+FAO/WHO Committee on Food Additives
+                                                              Documentation should be submitted for a
+(JECFA) for ascertaining the identity and
+                                                              safety assessment if GM organisms are used
+purity of enzymes and food additives may be
+                                                              for novel food production. Documentation
+used for growth factors and other media
+                                                              can include but is not limited to a detailed
+components.
+                                                              procedure of the genetic modification
+Furthermore, the use of GM organisms to                       process, the genetic stability of the
+produce growth factors and recombinant                        production strain, safety information of the
+proteins also needs to be considered. An                      host or recipient strain such as whole
+individual assessment of the production                       genome sequencing and proteomics data,
+organism may be required if it is not a                       and documentation on the absence of
+commonly used organism with a safe history                    potential hazards to human health.
+of use in food production. With respect to                    Additional details can be found in the
+the novel food being approved, particular                     current SFA requirements (Singapore Food
+attention will be given to any residual levels                Agency 2021).
+of growth factors and recombinant proteins
+                                                              In the EU, the European Food Safety
+that are present in the final food product.
+                                                              Authority’s (EFSA) guidance on the risk
+                                                              assessment of genetically modified
+Use of genetically modified                                   microorganisms (GMM) and their products
+organisms in growth factor and                                intended for food and feed use categorizes
+recombinant protein production                                GMM-derived products into four categories.
+In Singapore, the Singapore Genetic                           For products where GMMs that are capable
+Modification Advisory Committee (GMAC)                        of multiplying or transferring genes are not
+and SFA are responsible for assessing the                     present (categories 1-3), it is necessary to
+safety of GM foods to be sold in Singapore.                   demonstrate the processes by which the
+SFA takes reference from the Codex                            GMM has been removed or inactivated in the
+Alimentarius guidelines on conducting food                    product.11 It should also be confirmed that
+safety assessments of foods produced using                    the product does not contain viable but
+recombinant DNA microorganisms (CAC/GL                        non-cultivable (VBNC) cells or spores. For
+46-2003). If the GM organism is present in                    categories 1 and 2, it should be
+the finished food product, the food would be                  demonstrated that no recombinant genes
+subject to review by GMAC, and companies                      remain in the product.
+may consult SFA to determine if a review is                   The marketing of products derived from
+required.                                                     GMMs is regulated by different legislative
+Manufacturers will therefore need to                          instruments within the EU depending on
+demonstrate there is no GM organism                           11
+                                                                Growth factors used in food production are not applicable to
+                                                              category 4.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis          35
+whether they are intended for use in food or                  attention should first be given to
+feed, and a risk assessment is required prior                 bioinformatic approaches to compare the
+to the authorization of such a product.                       amino acid sequence of the growth factor
+Additional details can be found in the EFSA                   against known allergens for sequence
+guidance (EFSA Panel on Genetically                           homology and structural similarities.
+Modified Organisms (GMO) 2011).
+                                                              A number of rules have been developed to
+Allergenicity of novel proteins                               determine acceptable limit values for
+                                                              sequence similarity (Ladics and Selgrade
+Because all proteins have the potential to                    2009). For example, a protein with more
+induce sensitization following consumption,                   than 35% sequence identity spanning a
+assessment of allergenic potential is a key                   window of 80 amino acids or the presence of
+consideration for the safety of new and novel                 an identical hexamer (peptide of six amino
+proteins. In the case of proteins that are                    acids) compared to at least one known
+demonstrated to be the “same as” or                           allergen is to be regarded as a potential
+“substantially equivalent” to known                           allergen. Over 2,000 proteins are currently
+proteins, regulatory authorities will usually                 registered with the WHO/IUSI Allergen
+accept equivalence and will treat                             Database and various other allergen
+consumption of the protein in the same                        databases, including FARRP, COMPARE, and
+manner as the known protein with respect to                   ALLERGOME. In vitro digestion and stability
+safety. Determination of equivalence is                       studies may also be requested to determine
+based on the bioinformatic assessment of                      whether the growth factor or recombinant
+sequence analogy and demonstration of                         protein is readily degraded or denatured by
+conserved function. This is important for                     digestive enzymes, pH, or temperature and
+growth factors and recombinant proteins                       thus unlikely to present a risk of toxicity or
+since these are typically representative of                   allergenicity. In situations where the
+the endogenous proteins present in farmed                     outcome of bioinformatic analysis suggests
+animals.                                                      the potential for cross-reactivity to a major
+                                                              allergen, additional testing may be
+Nonetheless, the company registering a new                    requested on a case-by-case basis such as
+protein has the responsibility to provide                     in vitro assays with serum or blood cells
+sufficient evidence that demonstrates a lack                  from sensitized individuals, or in some
+of allergenic potential. While any protein                    cases, in vivo studies in animals or allergic
+could be an allergen, research over the past                  humans.
+decade has demonstrated that food
+allergens belong to a rather limited number                   The SFA currently requires information on
+of protein families and are characterized by a                allergenicity or allergen profiling using
+number of similar biochemical and                             bioinformatic approaches to be submitted as
+physicochemical properties. Hence,                            part of the pre-market regulatory approval
+                                                              for novel foods, including cultivated meat.
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   36
+Further details can be found in the updated requirements (Singapore Food Agency 2021).
+
+
+
+
+Further information on allergenicity determination can be
+found in the following documents:
+   1. EFSA Scientific Opinion on the evaluation of allergenic foods and food ingredients for
+      labeling purposes (EFSA Panel on Dietetic Products, Nutrition and Allergies (NDA)
+      2014).
+
+   2. Foods derived from modern biotechnology (Joint FAO/WHO Codex Alimentarius
+      Commission 2009).
+
+
+
+
+Discussion                                                     downstream processes, and aspects of the
+                                                               product itself.
+
+Growth factors and recombinant proteins                        Across all of the production platforms
+are components of serum-free cell culture                      featured in this report, economies of scale
+media widely used to support animal cell                       are perhaps the most important lever for
+growth in the cultivated meat industry.                        cost reduction, but a key variable for
+However, as illustrated in this report, their                  reaching scaled production of low-cost
+use in significantly different quantities                      growth factors and recombinant proteins
+corresponds to dramatically different                          will be their demand. In the short term,
+anticipated production volumes and price                       pooled procurement may be desirable for
+profiles that will be necessary to support the                 buyers and suppliers of growth factors and
+scale-up of a future cost-competitive                          recombinant proteins to aggregate low
+cultivated meat industry.                                      levels of demand for individual proteins. On
+                                                               longer timescales as demand rises, it may
+Although cultivated meat manufacturers
+                                                               still be difficult to finance facilities that
+have made substantial progress in reducing
+                                                               output hundreds of tons of proteins annually
+overall media costs (Swartz et al. 2021),
+                                                               many years before the industry will need
+much of this cost reduction comes from
+                                                               them.
+simply replacing pharmaceutical-grade
+growth factors and recombinant proteins                        Accordingly, ambitious cost profiles of
+with food-grade versions. As demonstrated                      $10/kg for albumin, $1000/kg for transferrin
+in this report, further cost reductions must                   and insulin, and $100,000/kg for growth
+be achieved by scaling new production                          factors will not be achieved overnight. As
+platforms and optimizing yields,                               shown in this analysis, the cultivated meat
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   37
+industry will need to grow to a certain size,12                             cost considerations should be given to the
+likely in the millions of metric tons, before                               strategic installation of new greenfield
+some of the modeled cost profiles for                                       infrastructure that will be required to
+growth factors and recombinant proteins                                     produce the quantities of certain growth
+may be achieved. The market size of                                         factors and recombinant proteins needed
+cultivated meat will also be dependent on                                   for the cultivated meat industry. For
+the successful cost reduction and                                           example, the production volume range of
+optimizations for other components along                                    transferrin detailed in this analysis is
+the value chain (e.g., bioreactors, amino                                   estimated to be 300 to 8200 times larger
+acids, and other media ingredients). Thus,                                  than its current estimated global production
+the scalability of supply chains for input                                  capacity (Negulescu et al. 2022). Clearly,
+materials and their corresponding cost                                      new capacity buildout—especially capacity
+profiles will be largely dependent on the                                   that requires large capital expenditure—will
+overall success of the cultivated meat                                      need to be carefully planned. Future studies
+industry in scaling its production and                                      may aim to analyze the amount, cost, and
+reducing costs more broadly.                                                environmental footprint of the new
+                                                                            infrastructure and capacity that will be
+Innovations that lead to an overall reduction
+                                                                            needed to support cultivated meat industry
+in the need for growth factors and
+                                                                            growth.
+recombinant proteins will be equally as
+important to achieving the lower cultivated                                 The list of innovation opportunities above
+meat costs that will further drive its                                      could not only reduce cultivated meat costs
+adoption. Media recycling systems, protein                                  on faster timescales but also enable new
+engineering, encapsulation and                                              recombinant protein manufacturing capacity
+slow-release systems, the use of                                            to be dedicated to other high-value proteins
+conditioned media, non-recombinant                                          or flavoring molecules for cultivated meat.
+replacements, small molecules, and other                                    Given that this capacity will also be in
+novel approaches all offer complementary                                    competition with other fast-growing
+paths forward. However, many of these                                       industries that leverage synthetic biology, it
+ideas remain underexplored and more                                         will be crucial to plan ahead to lower the risk
+attention should be given to these                                          of future capacity bottlenecks.
+whitespace opportunities in the future.
+                                                                            Although most safety considerations for
+Reducing the overall need for growth factors                                novel proteins are well defined based on
+and recombinant proteins will also affect                                   their prior use in foods, how each growth
+how new capacity is distributed. Time and                                   factor, recombinant protein, or production
+                                                                            platform in cultivated meat will be regulated
+12
+  Some growth factor and recombinant protein suppliers may also             is still under development in many parts of
+dedicate production capacity to the biopharmaceutical, food, and
+materials industries, where different protein products and
+                                                                            the world. Certain considerations such as
+downstream purification are tailored to the needs of each given             how GM organisms are viewed may vary
+industry.
+
+
+
+
+                                         The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   38
+significantly between regions.                                early in the process to understand
+                                                              region-specific complexities or nuances.
+Manufacturers of cultivated meat or                           Increased international regulatory
+suppliers of growth factors and recombinant                   harmonization and standards for the
+proteins are encouraged to open dialogue                      cultivated meat industry will be an
+with regulatory agencies in specific markets                  important area of focus in the coming years.
+
+
+
+
+In summary, this analysis serves as a starting guide for researchers and
+businesses with an interest in developing growth factors and recombinant
+proteins for the cultivated meat industry. As more information becomes
+available, this model can be adjusted and refined to more accurately predict the
+production volumes, costs, expected timelines, and market sizes for the
+production of these important inputs.
+
+
+
+
+                           The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   39
+References
+ 1.   Bomkamp, Claire, Stacey C. Skaalure, Gonçalo F. Fernando, Tom Ben-Arye, Elliot W. Swartz, and
+      Elizabeth A. Specht. 2021. “Scaffolding Biomaterials for 3D Cultivated Meat: Prospects and
+      Challenges.” Advancement of Science, November, e2102908.
+
+ 2.   Brennan, Tom, Joshua Katz, Yossi Quint, and Boyd Spencer. 2021. “Cultivated Meat: Out of the Lab,
+      into the Frying Pan.” McKinsey & Company. June 15, 2021.
+      https://www.mckinsey.com/industries/agriculture/our-insights/cultivated-meat-out-of-the-lab-into-t
+      he-frying-pan.
+
+ 3.   Bryant, Christopher, Lea van Nek, and Nathalie C. M. Rolland. 2020. “European Markets for Cultured
+      Meat: A Comparison of Germany and France.” Foods (Basel, Switzerland) 9 (9).
+      https://doi.org/10.3390/foods9091152.
+
+ 4.   “Comparative Life Cycle Assessment of Perfect Day Whey Protein Production to Dairy Protein.” 2021.
+      WSP.
+      https://m4f6w9b2.rocketcdn.me/app/uploads/2022/01/Comparative-Perfect-Day-Whey-LCA-report-
+      prepared-by-WSP_20AUG2021_Non-Confidential-1.pdf.
+
+ 5.   “Cultivated Meat Media and Growth Factor Trends.” 2021. 2021.
+      https://gfi.org/resource/cultivated-meat-media-growth-factor-survey/.
+
+ 6.   Derbes, Elizabeth. 2021. “Cultivated Meat Is Gaining Momentum—and Pathways for Regulatory
+      Approval.” June 3, 2021. https://gfi.org/blog/cultivated-meat-regulation-2021/.
+
+ 7.   EFSA Panel on Dietetic Products, Nutrition and Allergies (NDA). 2014. “Scientific Opinion on the
+      Evaluation of Allergenic Foods and Food Ingredients for Labelling Purposes.” EFSA Journal 12 (11).
+      https://doi.org/10.2903/j.efsa.2014.3894.
+
+ 8.   EFSA Panel on Genetically Modified Organisms (GMO). 2011. “Guidance on the Risk Assessment of
+      Genetically Modified Microorganisms and Their Products Intended for Food and Feed Use.” EFSA
+      Journal 9 (6): 2193.
+
+ 9.   Humbird, David. 2021. “Scale-up Economics for Cultured Meat.” Biotechnology and Bioengineering
+      118 (8): 3239–50.
+
+ 10. Järviö, Natasha, Tuure Parviainen, Netta-Leena Maljanen, Yumi Kobayashi, Lauri Kujanpää, Dilek
+     Ercili-Cura, Christopher P. Landowski, Toni Ryynänen, Emilia Nordlund, and Hanna L. Tuomisto. 2021.
+     “Ovalbumin Production Using Trichoderma Reesei Culture and Low-Carbon Energy Could Mitigate the
+     Environmental Impacts of Chicken-Egg-Derived Ovalbumin.” Nature Food 2 (12): 1005–13.
+
+ 11. Joint FAO/WHO Codex Alimentarius Commission. 2009. Foods Derived from Modern Biotechnology.
+     World Health Organization.
+
+ 12. Koledova, Zuzana, Jakub Sumbal, Anas Rabata, Gabin de La Bourdonnaye, Radka Chaloupkova,
+     Barbara Hrdlickova, Jiri Damborsky, and Veronika Stepankova. 2019. “Fibroblast Growth Factor 2
+     Protein Stability Provides Decreased Dependence on Heparin for Induction of FGFR Signaling and
+     Alters ERK Signaling Dynamics.” Frontiers in Cell and Developmental Biology 7 (December): 331.
+
+ 13. Kolkmann, Anna M., Anon Van Essen, Mark J. Post, and Panagiota Moutsatsou. 2022. “Development
+     of a Chemically Defined Medium for in Vitro Expansion of Primary Bovine Satellite Cells.” Frontiers in
+     Bioengineering and Biotechnology 10 (895289): 895289.
+
+
+
+                             The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   40
+14. Kuo, Hui-Hsuan, Xiaozhi Gao, Jean-Marc DeKeyser, K. Ashley Fetterman, Emily A. Pinheiro, Carly J.
+    Weddle, Hananeh Fonoudi, et al. 2020. “Negligible-Cost and Weekend-Free Chemically Defined
+    Human iPSC Culture.” Stem Cell Reports 14 (2): 256–70.
+
+15. Ladics, Gregory S., and Maryjane K. Selgrade. 2009. “Identifying Food Proteins with Allergenic
+    Potential: Evolution of Approaches to Safety Assessment and Research to Provide Additional Tools.”
+    Regulatory Toxicology and Pharmacology: RTP 54 (3 Suppl): S2–6.
+
+16. Ling, Hua. 2007. “Oleosin Fusion Expression Systems for the Production of Recombinant Proteins.”
+    Biologia 62 (2): 119.
+
+17. Liu, Kai, Chen Yu, Min Xie, Ke Li, and Sheng Ding. 2016. “Chemical Modulation of Cell Fate in Stem Cell
+    Therapeutics and Regenerative Medicine.” Cell Chemical Biology 23 (8): 893–916.
+
+18. Nahmias, Yaakov, Merav Cohen, and Jonathan Caspi. 2021. “Utilization of Plant Protein Homologues
+    in Culture Media.” World Intellectual Property Organization, July.
+    https://patents.google.com/patent/WO2021148955A1/en.
+
+19. Nath, Suman Chandra, Eiji Nagamori, Masanobu Horie, and Masahiro Kino-oka. 2016. “Culture
+    Medium Refinement by Dialysis for the Expansion of Human Induced Pluripotent Stem Cells in
+    Suspension Culture.” Bioprocess and Biosystems Engineering, September, 1–9.
+
+20. Negulescu, Patrick G., Derrick Risner, Edward S. Spang, Daniel Sumner, David Block, Somen Nandi,
+    and Karen A. McDonald. 2022. “Techno-Economic Modelling and Assessment of Cultivated Meat:
+    Impact of Production Bioreactor Scale.” bioRxiv. https://doi.org/10.31224/2414.
+
+21. O’Neill, Edward N., Zachary A. Cosenza, Keith Baar, and David E. Block. 2020. “Considerations for the
+    Development of Cost‐effective Cell Culture Media for Cultivated Meat Production.” Comprehensive
+    Reviews in Food Science and Food Safety 3 (December): 1.
+
+22. Puetz, John, and Florian M. Wurm. 2019. “Recombinant Proteins for Industrial versus Pharmaceutical
+    Purposes: A Review of Process and Pricing.” Processes 7 (8): 476.
+
+23. Ritchie, Hannah, and Max Roser. 2020. “Environmental Impacts of Food Production.” Our World in
+    Data. https://ourworldindata.org/environmental-impacts-of-food.
+
+24. Shanmugaraj, Balamurugan, Christine Joy I Bulaon, and Waranyoo Phoolcharoen. 2020. “Plant
+    Molecular Farming: A Viable Platform for Recombinant Biopharmaceutical Production.” Plants 9 (7).
+    https://doi.org/10.3390/plants9070842.
+
+25. Silverman, Adam D., Ashty S. Karim, and Michael C. Jewett. 2020. “Cell-Free Gene Expression: An
+    Expanded Repertoire of Applications.” Nature Reviews. Genetics 21 (3): 151–70.
+
+26. Singapore Food Agency. 2021. “Requirements for the Safety Assessment of Novel Foods and Novel
+    Food Ingredients.” Singapore Food Agency.
+    https://www.sfa.gov.sg/docs/default-source/food-import-and-export/Requirements-on-safety-asses
+    sment-of-novel-foods_13Dec2021_final.pdf.
+
+27. Sinke, P., Vergeer, R., Odegard, I. 2021. “LCA of Cultivated Meat: Future Projections for Different
+    Scenarios.” CE Delft.
+
+28. Specht, Liz. 2018. “An Analysis of Culture Medium Costs and Production Volumes for Cell-Based
+    Meat.” The Good Food Institute.
+    https://www.gfi.org/files/sci-tech/clean-meat-production-volume-and-medium-cost.pdf.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   41
+29. Stout, Andrew J., Miriam L. Rittenberg, Michelle Shub, Michael K. Saad, Addison B. Mirliani, and David
+    L. Kaplan. 2022. “A Beefy-R Culture Medium: Replacing Albumin with Rapeseed Protein Isolates.”
+    bioRxiv. https://doi.org/10.1101/2022.09.02.506409.
+
+30. Swartz, Elliot. 2021. “Cultivated Meat Cell Culture Media.” January 29, 2021.
+    https://gfi.org/science/the-science-of-cultivated-meat/deep-dive-cultivated-meat-cell-culture-medi
+    a/.
+
+31. Swartz, E, Nguyen, J, Neo, T, Lee, F. 2021. “Cell Culture Media and Growth Factor Trends in the
+    Cultivated Meat Industry.” The Good Food Institute.
+    https://gfi.org/wp-content/uploads/2021/11/Cultivated-meat-media-and-growth-factor-trends-2020
+    .pdf.
+
+32. Torizal, Fuad Gandhi, Qiao You Lau, Masato Ibuki, Yoshikazu Kawai, Masato Horikawa, Masataka
+    Minami, Tatsuo Michiue, Ikki Horiguchi, Masaki Nishikawa, and Yasuyuki Sakai. 2021. “A Miniature
+    Dialysis-Culture Device Allows High-Density Human-Induced Pluripotent Stem Cells Expansion from
+    Growth Factor Accumulation.” Communications Biology 4 (1): 1316.
+
+33. Tripathi, Nagesh K., and Ambuj Shrivastava. 2019. “Recent Developments in Bioprocessing of
+    Recombinant Proteins: Expression Hosts and Process Development.” Frontiers in Bioengineering and
+    Biotechnology 7 (December): 420.
+
+34. Tubb, Catherine, and Tony Seba. 2019. “Rethinking Food and Agriculture 2020-2030.” RethinkX: San
+    Francisco, CA, USA.
+
+35. Venkatesan, Meenakshi, Cameron Semper, Rosa DiLeo, Nathalie Mesa, Peter J. Stogios, and Alexei
+    Savchenko. 2022. “Recombinant Production of Growth Factors for Application in Cell Culture.”
+    bioRxiv. https://doi.org/10.1101/2022.02.15.480596.
+
+36. Vergeer, R., Sinke, P., Odegard, I. 2021. “TEA of Cultivated Meat: Future Projections for Different
+    Scenarios.” CE Delft.
+
+37. Wamaitha, Sissy E., Katarzyna J. Grybel, Gregorio Alanis-Lobato, Claudia Gerri, Sugako Ogushi, Afshan
+    McCarthy, Shantha K. Mahadevaiah, et al. 2020. “IGF1-Mediated Human Embryonic Stem Cell
+    Self-Renewal Recapitulates the Embryonic Niche.” Nature Communications 11 (1): 764.
+
+38. Wang, Zhenming, Zhefeng Wang, William Weijia Lu, Wanxin Zhen, Dazhi Yang, and Songlin Peng.
+    2017. “Novel Biomaterial Strategies for Controlled Growth Factor Delivery for Biomedical
+    Applications.” NPG Asia Materials 9 (10): e435–e435.
+
+39. Waschulin, Valentin, and Liz Specht. 2018. “Cellular Agriculture: An Extension of Common Production
+    Methods for Food.” The Good Food Institute, Washington, DC.
+
+40. Watson, Elaine. 2021. “‘Our Goal Is to Make Cultured Meat Affordable for Everyone…’ Future Meat
+    Technologies Opens Facility, Gears up for 2022 Launch.” Foodnavigator-Usa.com. William Reed
+    Business Media Ltd. June 23, 2021.
+    https://www.foodnavigator-usa.com/Article/2021/06/23/Our-goal-is-to-make-cultured-meat-afforda
+    ble-for-everyone-Future-Meat-Technologies-opens-facility-gears-up-for-2022-launch.
+
+
+
+
+                            The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   42
+Authors
+
+Elliot Swartz, PhD*                Alexandre Reeber                                   Taya Huang
+Lead Scientist,                    Co-founder & Chief                                 Regulatory scientist
+Cultivated Meat                    Executive Officer                                  Future Ready Food Safety
+The Good Food Institute            Core Biogenesis                                    Hub (FRESH), Nanyang
+                                                                                      Technological University
+*Corresponding author              Jasper Levink, MSc
+                                   Chief Business Officer                             Benjamin Smith, PhD
+Aditya Ravi                        LenioBio GmbH
+                                                                                      Director
+General Manager, Marketing
+                                                                                      Future Ready Food Safety
+Laurus Bio
+                                                                                      Hub (FRESH), Nanyang
+                                                                                      Technological University
+
+
+
+
+Partners
+
+                                             The Good Food Institute (GFI) is a 501(c)(3) nonprofit
+                                             working internationally to make plant-based and
+                                             cultivated meat delicious, affordable, and accessible.
+                                             GFI advances open-access research, mobilizes
+                                             resources and talent, and empowers partners across
+                                             the food system to create a sustainable, secure, and
+                                             just protein supply.
+
+
+                                             Laurus Bio (formerly Richcore Lifesciences) is an
+                                             integrated research-driven biomanufacturing
+                                             organization with over 15 years of experience in
+                                             precision fermentation and recombinant DNA
+                                             technology. We engineer microbes as factories to
+                                             manufacture novel and sustainable animal-free
+                                             proteins for applications in healthcare, food, nutrition,
+                                             personal care, and bio-based materials markets.
+
+
+
+
+                          The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   43
+                   Core Biogenesis is developing the world’s most
+                   scalable bioproduction platform for the production of
+                   recombinant proteins. Its plant-based production
+                   technology allows for the mass production of
+                   recombinant growth factors for the cellular agriculture
+                   industry, at costs reduced by multiple orders of
+                   magnitude.
+
+                   LenioBio is developing the first scalable eukaryotic
+                   cell-free expression platform (ALiCE®). ALiCE®
+                   provides access to life-changing proteins wherever,
+                   whenever. It stands out through its ability to express
+                   even the most complex proteins, at any scale and
+                   within 24-48 hours.
+
+                   Future Ready Food Safety Hub (FRESH) The Future
+                   Ready Food Safety Hub (FRESH) is a national research
+                   & support platform under the Singapore Food Story
+                   R&D Programme. Jointly established by Singapore’s
+                   Agency for Science Technology & Research (A*STAR),
+                   the Singapore Food Agency (SFA) and Nanyang
+                   Technological University (NTU), the platform aims to
+                   build local food safety science and R&D capabilities to
+                   support Singapore’s goals of reaching 30% nutritional
+                   security locally by 2030.
+
+
+
+
+The Good Food Institute / Anticipated growth factor and recombinant protein cost analysis   44
+
