@@ -1284,8 +1284,8 @@ table.scgrid{border-collapse:collapse;font-size:.8rem;} .scgrid th{font-weight:6
 <h1>Cultivated meat: cost and market share <span class="stamp">build __BUILD_STAMP__</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
-<p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
-business advice. No human expert has reviewed the model yet. The views expressed are the author's own and do not represent the views of the European
+<p class="disc">These are estimates from an open model built on public data. They are not forecasts, and they are not investment or
+business advice. No human expert has reviewed the model yet. The views are the author's own. They do not represent the views of the European
 Commission. <a href="#about">About this page</a>.</p>
 
 <nav class="jump" aria-label="Sections"><a href="#answer">The answer</a> <a href="#decide">What decides it</a> <a href="#build">How the cost is built up</a>
@@ -1293,25 +1293,25 @@ Commission. <a href="#about">About this page</a>.</p>
 
 <section id="answer">
 <h2 class="sech">What cultivated meat could cost, and what it would take</h2>
-<p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions nobody has tested together: how
-little waste the cells make, how fast they grow, how the plant is built, how much gas the cells stand. Each row below is one
-<b>scenario</b>: a complete set of those assumptions, with what has to go right for it. Costs are dollars per kilo of wet
-cells in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share, by weight, once cultivated meat is on every
-shelf and no longer feels new; it is not a forecast of when. It is the <b>median</b> of 4,000 draws. In each draw the cost estimates and the
-demand dials (price sensitivity, acceptance, the retail markup) are uncertain. The 10th to 90th percentile sits beside it. The share at
+<p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions that nobody has tested together. These include how
+little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
+<b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. Costs are dollars per kilo of wet
+cells, in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share by weight, once cultivated meat is on every
+shelf and no longer feels new. It is not a forecast of when that happens. The share is the <b>median</b> of 4,000 random draws, so half the draws gave less and half gave more. In each draw, the cost estimates and the
+demand dials (price sensitivity, acceptance and the retail markup) vary. The 10th to 90th percentile range sits beside the median, and 80% of draws fall inside it. The share at
 exactly the cost shown appears in small type as a point estimate. <a href="#decide">Change any assumption yourself</a> below.</p>
 {{ANSWER_HTML}}
 <p class="fnote"><b>What the table assumes about the tank.</b> Nobody has run any of these tank designs with animal cells.
-<b>Central</b> (${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape,
-and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. <b>Best case</b> (${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without them it costs
-${{TRICKS_BEST_NO}}, and ${{TRICKS_BEST_ORD}} in the ordinary tank. <b>Cautious</b> (${{COST_CAUTIOUS}}) uses {{TRICKS_CAUTIOUS_LIST}}. Without them it costs
-${{TRICKS_CAUTIOUS_NO}}, and ${{TRICKS_CAUTIOUS_ORD}} in the ordinary tank. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
-<p class="fnote">Words used on this page. <b>Medium</b>: the nutrient liquid the cells grow in. <b>Waste</b>: the ammonia and
-lactate cells give off as they grow; they slow growth, so fresh medium must wash them out. <b>Perfusion</b>: fresh medium flows
-through the tank all the time while the cells are held back and harvested continuously. <b>Column</b>: a packed tower beside the
-tank where the culture runs in a thin film and CO&#8322; leaves without bubbles. <b>Gas the cells tolerate</b>: the speed of gas
-rising through the tank, in millimetres a second; bubbles and foam hurt cells, so cells set how much gas can pass. <b>Run lost</b>:
-a batch ruined by contamination, which empties the tank and takes days to restart.</p>
+<b>Central</b> (${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape.
+In the ordinary tall tank it costs ${{TRICKS_CENTRAL_ORD}}. <b>Best case</b> (${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without these tricks it costs
+${{TRICKS_BEST_NO}}. In the ordinary tall tank it costs ${{TRICKS_BEST_ORD}}. <b>Cautious</b> (${{COST_CAUTIOUS}}) uses {{TRICKS_CAUTIOUS_LIST}}. Without these tricks it costs
+${{TRICKS_CAUTIOUS_NO}}. In the ordinary tall tank it costs ${{TRICKS_CAUTIOUS_ORD}}. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
+<p class="fnote"><b>Words used on this page.</b> <b>Medium</b> is the nutrient liquid the cells grow in. <b>Waste</b> means the ammonia and
+lactate that cells give off as they grow. Waste slows growth, so fresh medium must wash it out. <b>Perfusion</b> means that fresh medium flows
+through the tank all the time. The cells are held back and harvested continuously. A <b>column</b> is a packed tower beside the
+tank. The culture runs down it in a thin film, and CO&#8322; leaves without bubbles. <b>Gas the cells tolerate</b> is the speed of gas
+rising through the tank, in millimetres a second. Bubbles and foam hurt cells, so the cells set how much gas can pass. A <b>run lost</b>
+is a batch ruined by contamination. It empties the tank and takes days to restart.</p>
 <div class="chain" role="group" aria-label="The model in one line">
   <div class="link"><div class="num" id="ch_cost">&nbsp;</div><div class="lab" id="ch_costl">to grow</div></div>
   <div class="arr">&rarr;</div>
@@ -1321,34 +1321,34 @@ a batch ruined by contamination, which empties the tank and takes days to restar
   <div class="arr">&rarr;</div>
   <div class="link"><div class="num" id="ch_years">&nbsp;</div><div class="lab">to get 90% of the way</div></div>
 </div>
-<p class="howto">The model in one line, for the scenario you have chosen (<b id="sc_ownname"></b>): everyday meat in the US,
-point estimates. Choose a scenario in the table, or set the switches in <a href="#decide">What decides it</a>; every chart below
-follows. It repeats this for every kind of meat and region (share by type of meat, share of all meat, which products first). Hover or tap <span class="q">?</span> for help.</p>
+<p class="howto">This is the model in one line, for the scenario you have chosen (<b id="sc_ownname"></b>). It shows everyday meat in the US,
+as point estimates. Choose a scenario in the table, or set the switches in <a href="#decide">What decides it</a>, and every chart below
+follows. The model repeats this for every kind of meat and region, as the charts of share by type of meat, share of all meat and which products first show. Hover over or tap <span class="q">?</span> for help.</p>
 </section>
 
 <section id="decide">
 <h2 class="sech">What decides it</h2>
-<p class="lede2">Ten switches, one for each decision that moves the cost. The scenarios above are presets of these
-switches. Move any switch and the cost, shop price, share and what limits the tank update. Under the switches, the chart ranks
-them: what each would be worth if it moved to its best or its worst setting.</p>
+<p class="lede2">There are ten switches, one for each decision that moves the cost. Each scenario above is a preset of these
+switches. When you move a switch, the cost, the shop price, the share and the limit on the tank all update. Under the switches, a chart ranks
+them by what each would be worth if it moved to its best or its worst setting.</p>
 <div class="scpre" id="sc_presets"></div>
 <div class="scstrip" id="sc_strip"></div>
 <div class="fxcard" id="sc_result"></div>
 <div class="fxg scsw" id="sc_switches"></div>
 <p><button class="btn scbtn" style="width:auto" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
-<span class="fxn">Tries every tank trick and shape and keeps the cheapest whose loop the checks allow.</span></p>
+<span class="fxn">This tries every tank trick and shape, and keeps the cheapest one that passes the checks on the CO&#8322; loop.</span></p>
 <h3 class="subh">What to prioritise</h3>
-<p class="fxn">Around the settings above, one switch at a time: the change in cost (and in the long-run share of world meat, in
-percentage points) if that switch moved to its <b style="color:#029E73">best</b> or its <b style="color:#CC3311">worst</b>
-setting, the rest as they are. Widest first. A green bar needs something the scenario does not assume; the tag under each
+<p class="fxn">This chart moves one switch at a time, starting from the settings above. It shows the change in cost, and the change in the
+long-run share of world meat in percentage points, if that switch moved to its <b style="color:#029E73">best</b> or its <b style="color:#CC3311">worst</b>
+setting. The other switches stay as they are. The widest bars come first. A green bar needs something that the scenario does not assume, and the tag under each
 setting says what.</p>
 <div id="sc_tornado" class="scrollx"></div>
 <h3 class="subh">Two switches together</h3>
-<p class="fxn">Cost for every pair of settings of two switches; the rest as above. Click a figure to set both. Pick the pair:
+<p class="fxn">This table gives the cost for every pair of settings of two switches. The other switches stay as above. Click a figure to set both. Pick the pair:
 <select id="sc_ga" onchange="scGridSet()" style="width:auto"></select> against <select id="sc_gb" onchange="scGridSet()" style="width:auto"></select></p>
 <div id="sc_grid" class="scrollx"></div>
 <h3 class="subh">Which switches interact</h3>
-<p class="fxn">Computed from the model around the settings above: a pair is listed when moving one switch is worth a different amount once
+<p class="fxn">The model computes this around the settings above. A pair appears when moving one switch is worth a different amount once
 the other has moved.</p>
 <div id="sc_notes"></div>
 </section>
@@ -1357,9 +1357,9 @@ the other has moved.</p>
 
 <section id="build">
 <h2 class="sech">How the cost is built up</h2>
-<p class="lede2">The cost of a kilo of cells is the plant, the medium and the losses, divided by what a tank produces in a year. This part goes from
-<b>what stands in the way</b> of the cheap scenarios, to <b>how each kind of cells does in each kind of tank</b>, to the cost against the price of medium, to
-the <b>vessels and ways of running a tank</b>, and ends with every lever the model has.</p>
+<p class="lede2">The cost of a kilo of cells is the cost of the plant, the medium and the losses, divided by what a tank produces in a year. This part starts with
+<b>what stands in the way</b> of the cheap scenarios. It then shows <b>how each kind of cells does in each kind of tank</b>, and how the cost depends on the price of medium.
+After that it compares <b>vessels and ways of running a tank</b>. It ends with every lever the model has.</p>
 <div id="blockers" class="findings blk">
 <h3 class="subh">What stands in the way, and what would fix it</h3>
 {{BOTTLENECKS_HTML}}
@@ -1368,15 +1368,15 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
 {{GRID_HTML}}
 </div>
 <h3 class="subh">Cost against the price of medium</h3>
-<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports: the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red line, cultivated meat matches the price of everyday meat; the green dashed lines are the costs of the scenarios in the table at the top.">Cost against medium price</h3>
-        <p class="sub">Cost of a kilo of cells against the medium price, one line per plant case; the dot is your
+<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports. They are the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red line, cultivated meat costs the same as everyday meat or less. The green dashed lines are the costs of the scenarios in the table at the top.">Cost against medium price</h3>
+        <p class="sub">This chart shows the cost of a kilo of cells against the medium price, with one line per plant case. The dot is your
         setting.</p>
         <svg id="cost" viewBox="0 0 720 300"></svg></div></div>
 <h3 class="subh" id="vessels">Vessel types and operating modes</h3>
 {{VESSELS_HTML}}
 <details class="fxwrap" id="fxwrap"><summary><b>All the levers: build your own case</b> (what limits a tank, and the tricks that lift it)</summary>
       <div class="fx" id="fx">
-        <p><b>Build your own case.</b> Move a lever and the physics is applied for you: the tank holds only as many cells as it can supply with oxygen, clear of CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit binds. The first control sets the cell levers from what has been published for a species; the second loads a whole scenario. The switches in <a href="#decide">What decides it</a> are ten of these levers; the rest are here.</p>
+        <p><b>Build your own case.</b> When you move a lever, the model applies the physics for you. The tank holds only as many cells as it can supply with oxygen, clear of CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The first control sets the cell levers from what has been published for a species. The second control loads a whole scenario. The switches in <a href="#decide">What decides it</a> are ten of these levers, and the rest are here.</p>
         <div class="ctl"><label><span class="nm">Start from a scenario</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
@@ -1423,56 +1423,56 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
             <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
             <option value="100">100 m&sup3;</option><option value="200">200 m&sup3;</option></select></div>
           <div class="ctl"><label><span class="nm">Class of plant</span></label>
-            <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
-            <option value="sanitary" selected>food-grade</option>
-            <option value="lean">food-grade with shared medium</option>
-            <option value="yeastplus">a yeast plant plus what animal cells must have (not shown either)</option>
-            <option value="microbial">built like a yeast plant (not shown to work for animal cells)</option>
-            <option value="custom">your own choice of items (below)</option></select></div>
+            <select id="fx_pl" onchange="fxRender()"><option value="pharma">A pharma-style plant with clean rooms</option>
+            <option value="sanitary" selected>A food-grade plant</option>
+            <option value="lean">A food-grade plant with shared medium</option>
+            <option value="yeastplus">A yeast plant plus what animal cells must have (not shown to work either)</option>
+            <option value="microbial">A plant built like a yeast plant (not shown to work for animal cells)</option>
+            <option value="custom">Your own choice of items (below)</option></select></div>
           <div class="ctl"><label><span class="nm">How the tank is run</span></label>
-            <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>perfusion: fresh medium flows through, cells held back and harvested all the time</option>
-            <option value="filldraw">drained and refilled: half the tank is drained and refilled each cycle, nothing holds the cells back</option></select></div>
+            <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>Perfusion (fresh medium flows through, and the cells are held back and harvested all the time)</option>
+            <option value="filldraw">Drained and refilled (half the tank is drained and refilled each cycle, and nothing holds the cells back)</option></select></div>
         </div>
         <details style="margin:0 0 .6em"><summary class="fxn" style="cursor:pointer"><b>The plant, item by item.</b>
           Humbird's design for animal cells costs five times his own yeast plant with the same tanks. Choose what
-          each item is built to; the class of plant above sets them all at once.</summary>
+          each item is built to. The class of plant above sets them all at once.</summary>
           <div class="grid" id="fx_items" style="margin-top:.5em"></div>
           <p class="fxn" id="fx_items_sum"></p></details>
-        <p style="margin:.9em 0 .2em"><b>Tricks.</b> Ways round the limits below. Each is sized by calculation
-        (research notes on gas exchange and on waste); none has been tried with meat cells.</p>
+        <p style="margin:.9em 0 .2em"><b>Tricks.</b> These are ways to get past the limits below. The model sizes each one by calculation
+        (see the research notes on gas exchange and on waste). Nobody has tried any of them with meat cells.</p>
         <div class="fxg">
           <div class="ctl"><label><span class="nm">Fat taken from the feed, not made from glucose</span><span class="val" id="fx_fat_v"></span></label>
             <input type="range" id="fx_fat" min="0" max="100" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> Making fat from glucose gives off CO&#8322; without using oxygen; that is most of why cells make 1.2 CO&#8322; per oxygen. Fed fat takes it to 0.97 and raises the CO&#8322; limit a quarter (carbon balance on Humbird's cell). Untested: whether the cells stop making their own.</p></div>
+            <p class="fxn"><i>Feed or process.</i> Cells that make fat from glucose give off CO&#8322; without using oxygen. This is most of why cells make 1.2 CO&#8322; per oxygen. Fat in the feed lowers the ratio to 0.97 and raises the CO&#8322; limit by a quarter (a carbon balance on Humbird's cell). Nobody has tested whether the cells stop making their own fat.</p></div>
           <div class="ctl"><label><span class="nm">Dissolved oxygen held at</span><span class="val" id="fx_do_v"></span></label>
             <input type="range" id="fx_do" min="0.02" max="0.3" step="0.005" value="{{DO_IMPLIED}}" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The standard tank's oxygen supply implies about 0.28 mmol/L, above air saturation; pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. Lower leaves more room to push oxygen in.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The standard tank's oxygen supply implies about 0.28 mmol/L, which is above air saturation. Pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. A lower level leaves more room to push oxygen in.</p></div>
           <div class="ctl"><label><span class="nm">Packed column on a pumped loop</span><span class="val" id="fx_col_v"></span></label>
             <select id="fx_col" onchange="fxRender()"><option value="none" selected>none</option>
             <option value="co2">for CO&#8322; (air blown through)</option>
             <option value="o2_closed">for CO&#8322; and oxygen (oxygen recycled, lime takes the CO&#8322;)</option></select>
-            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Dense cultures have been pumped through fibres at up to about 15&ndash;24 tank volumes an hour for weeks, at 1&ndash;4 litres; more than that is untested. Culture that has lost CO&#8322; stays alkaline until it is back in the tank, so the more passes, the more of the culture is alkaline at any moment.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. The model calculates the size, the flow and the cost. Dense cultures have been pumped through fibres at up to about 15&ndash;24 tank volumes an hour for weeks, in volumes of 1&ndash;4 litres. Nobody has tested more than that. Culture that has lost CO&#8322; stays alkaline until it is back in the tank, so the more passes an hour, the more of the culture is alkaline at any moment.</p></div>
           <div class="ctl"><label><span class="nm">CO&#8322; the culture leaves the column at</span><span class="val" id="fx_cp_v"></span></label>
             <input type="range" id="fx_cp" min="20" max="70" step="5" value="55" oninput="fxRender()">
-            <p class="fxn">Lower strips more per pass but makes the returning culture more alkaline; 55 keeps the pH rise to 0.26.</p></div>
+            <p class="fxn">A lower value strips more CO&#8322; per pass but makes the returning culture more alkaline. A value of 55 keeps the pH rise to 0.26.</p></div>
           <div class="ctl"><label><span class="nm">Pressure at the top of the tank</span><span class="val" id="fx_pt_v"></span></label>
             <input type="range" id="fx_pt" min="0" max="1" step="0.01" value="0.33" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> More pressure dissolves more oxygen; it does nothing for CO&#8322;. Steam-rated tanks take it. Untested in cells.</p></div>
+            <p class="fxn"><i>Feed or process.</i> More pressure dissolves more oxygen. It does nothing for CO&#8322;. Steam-rated tanks take the pressure. Nobody has tested it in cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonia and lactate set</span></label>
             <select id="fx_wm" onchange="fxRender()"><option value="dial" selected>by the waste lever above</option>
             <option value="sep">separately, below</option></select></div>
           <div class="ctl"><label><span class="nm">Ammonia the cells make</span><span class="val" id="fx_nh_v"></span></label>
             <input type="range" id="fx_nh" min="0.02" max="1" step="0.005" value="0.055" oninput="fxRender()">
-            <p class="fxn">0.055 is the engineered cell (seen only in <i>genetically engineered</i> CHO); bovine cells made 0.70, and 0.14 with glutamine replaced in the feed (<i>feed or process</i>, measured).</p></div>
+            <p class="fxn">0.055 is the engineered cell, and only <i>genetically engineered</i> CHO cells have shown it. Bovine cells made 0.70, and 0.14 with glutamine replaced in the feed (<i>feed or process</i>, measured).</p></div>
           <div class="ctl"><label><span class="nm">Lactate made per glucose used</span><span class="val" id="fx_ly_v"></span></label>
             <input type="range" id="fx_ly" min="0" max="1.8" step="0.05" value="0.5" oninput="fxRender()">
-            <p class="fxn">0.5 is the engineered cell's; ordinary pharma cells make about 1.4, ones adapted to it 0.4 (<i>selection or adaptation</i>), chicken cells 1.05; near 0 only with knocked-out genes (<i>genetic engineering</i>).</p></div>
+            <p class="fxn">0.5 is the engineered cell's. Ordinary pharma cells make about 1.4, and cells adapted to it make 0.4 (<i>selection or adaptation</i>). Chicken cells make 1.05. A value near 0 needs knocked-out genes (<i>genetic engineering</i>).</p></div>
           <div class="ctl"><label><span class="nm">Glucose used per kilo of cells</span><span class="val" id="fx_gk_v"></span></label>
             <input type="range" id="fx_gk" min="0.6" max="3.6" step="0.02" value="1.12" oninput="fxRender()">
-            <p class="fxn">The engineered cell uses 1.12 mol; 0.67&ndash;1.0 matches measured pharma cells. Unmeasured for meat cells.</p></div>
+            <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes a zeolite or resin before it returns. The sodium it gives back counts as salt. Capacity in medium is derived, not measured.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
           <div class="ctl"><label><span class="nm">Sorbent price</span></label>
             <select id="fx_spx" onchange="fxRender()"><option value="0.05">$0.05/kg (bulk zeolite)</option>
             <option value="0.3">$0.30/kg (bulk zeolite, top)</option><option value="5" selected>$5/kg (graded and sterile, assumed)</option>
@@ -1481,16 +1481,16 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
             <select id="fx_scy" onchange="fxRender()"><option value="1" selected>1 (single use)</option>
             <option value="10">10</option><option value="50">50 (hoped for, not measured)</option></select></div>
         </div>
-        <p style="margin:.8em 0 .2em"><b>What limits this tank.</b> The density each limit allows in this case;
-        the shortest bar is the one that binds. The faint bars behind are the reference (a standard perfusion tank), so you can see what each
-        lever or trick moves.</p>
+        <p style="margin:.8em 0 .2em"><b>What limits this tank.</b> Each bar shows the density that one limit allows in this case.
+        The shortest bar is the limit that applies. The faint bars behind are the reference (a standard perfusion tank), so you can see what each
+        lever or trick changes.</p>
         <div id="fx_limits" class="scrollx"></div>
         <p class="example" id="fx_out"></p>
         <p style="margin:.2em 0 .6em"><button class="btn" onclick="fxApply()">Use this case in the charts</button>
         <span class="fxn" id="fx_apply_msg"></span></p>
-        <p style="margin:.6em 0 .2em"><b>What limits this case.</b> Each factor moved alone across its plausible
-        range, the others as you set them. Green lowers the cost, red raises it; the dotted line is the cost
-        that matches everyday meat. Click a factor for what it is and where its range comes from.</p>
+        <p style="margin:.6em 0 .2em"><b>What limits this case.</b> This chart moves each factor alone across its plausible
+        range, with the others as you set them. Green bars lower the cost and red bars raise it. The dotted line is the cost
+        that matches everyday meat. Click a factor to see what it is and where its range comes from.</p>
         <div id="fx_tornado" class="scrollx"></div>
         <div id="fx_torinfo" class="fxcard"></div>
         <p class="fxn" id="fx_notes"></p>
