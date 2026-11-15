@@ -77,6 +77,20 @@ def check() -> list:
     scan = R.density_scan(R.cases()["central"])
     if min(scan, key=lambda r: r[1])[0] != 258.0 or not scan[-1][2] < scan[0][2]:
         fails.append("central: a thinner culture should save membranes but cost more in total")
+    # the alternative membranes: each is cheaper per kg than the default TFF loop in the central case, and the dialyser's
+    # lower flux needs more membrane area for the same duty
+    tff_c = R.scenario_cost("tff", cen)
+    for dev in ("reuse", "dialyser", "ceramic"):
+        if not R.scenario_cost(dev, cen)["total"] < tff_c["total"]:
+            fails.append(f"central {dev}: should cost less than the TFF loop")
+    if not R.sizing("dialyser", cen, d)["area_m2"] > R.sizing("tff", cen, d)["area_m2"]:
+        fails.append("dialyser: lower flux should need more membrane area than the TFF loop")
+    if not R.sizing("reuse", cen, d)["cons_kg"] < R.sizing("tff", cen, d)["cons_kg"]:
+        fails.append("reused modules: membranes per kg should fall")
+    for dev, want in (("reuse", 20.7198), ("dialyser", 17.9978), ("ceramic", 19.1385)):
+        got = R.scenario_cost(dev, cen)["total"]
+        if not close(got, want, 1e-3):
+            fails.append(f"central {dev}: {got:.4f} != pinned {want}")
     # pinned duty (reference case): 0.62 m3/h of medium, 0.16 of permeate
     d = R.duty({})
     if not (close(d["medium_m3_h"], 0.6195, 1e-3) and close(d["permeate_m3_h"], 0.1573, 1e-2)):

@@ -2,6 +2,14 @@
 
 ## 2026-11-15
 
+Cheaper membranes for holding cells back (`research_notes/retention_alternatives.md`; no default changed)
+- Three routes priced in `retention.py`, from a research pass on reusable and cleanable membranes (new `rt_reuse_*`, `rt_dial_*`,
+  `rt_ceramic_*` inputs, each with source and range). Central case, against $26.64 with the default TFF loop: dialyser-grade
+  hollow fibres $18.00, ceramic membranes run as a slow TFF loop $19.14, reused pharma modules $20.72. Nothing has been run with
+  animal cells at this density for any of them; the odds the central case gets a tenfold cheaper membrane are about 15%.
+- Wastewater and food-industry membranes are listed as not costed, with reasons. Dialysis with a cleaned dialysate and cells held
+  back without a filter were not researched.
+
 Does a thinner culture pay once filtering costs money? (`retention.density_scan`; no number moved)
 - No, for the best, central and shared-medium cases: their tank designs, chosen again under the filter cost, are unchanged, and
   holding the culture below the density the tank allows saves membranes but costs more plant capital per kilo (central: $28.75 at

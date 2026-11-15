@@ -1117,6 +1117,39 @@ REGISTRY: dict[str, Input] = {
         "is replaced: 5 L/m2/h for a 33-day run", lo=900.0, hi=5500.0, mode=3960.0,
         note="lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
              "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture"),
+    # alternatives to the pharma membrane: research_notes/retention_alternatives.md, retention_alternatives_sources/
+    "rt_reuse_life": Input(12000.0, "L/m2", "[Cobetter and Sartorius reuse guidance, snippets; patent US 6,261,457, snippet] "
+        "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 x (1 + 4 x 0.3 to 0.8), "
+        "after cleaning with sodium hydroxide; flux recovers 70-80% and a patent saw reuse life fall to 30-40% of the first",
+        lo=8700.0, hi=16600.0, mode=12000.0,
+        note="the same polymer, price and sterility as the model's membrane. No reuse data with animal-cell fouling; steam "
+             "limits a module to about 10 cycles"),
+    "rt_dial_price": Input(8.0, "$/m2", "[market reports and a retailer, snippets] a haemodialyser sells for $6-25 and holds "
+        "1.8 m2 of hollow fibre", lo=3.0, hi=14.0, mode=8.0,
+        note="made in the hundreds of millions, steam- or gamma-sterilised. Plasma separators have wider fibre but no price "
+             "was found"),
+    "rt_dial_flux": Input(2.5, "L/m2/h", "[Fresenius FX 80 data sheet, snippet; haemodiafiltration study, snippet] filtering "
+        "whole blood at 30-40% cells by volume: 17-27 litres in a 4-hour session over about 2 m2", lo=2.0, hi=3.4, mode=2.5,
+        note="blood cells are 8 um and deformable; meat cells are 17 um and stiffer. Sessions last hours, not weeks"),
+    "rt_dial_life": Input(1000.0, "L/m2", "[assumed, between the two cases the research pass worked] litres a dialyser fibre "
+        "filters before it is replaced: 240 if it fouls in 4 days as CHO membranes did (Veje 2024), 2,000 if it lasts a "
+        "33-day run at 2.5 L/m2/h", lo=240.0, hi=2000.0, mode=1000.0,
+        note="no animal-cell run on dialyser fibres was found"),
+    "rt_dial_hw": Input(0.5, "$k per m2", "[assumed] manifolds, sterile connections and pumps per m2 of dialyser fibre, "
+        "about $900 for each 1.8 m2 dialyser; none could be priced", lo=0.2, hi=1.0, mode=0.5,
+        note="a central-case plant needs about 420 dialysers in parallel, so hardware, not fibre, sets the cost"),
+    "rt_dial_phi_max": Input(0.35, "volume fraction", "[Fresenius FX 80 data sheet, snippet] the densest fluid dialysers "
+        "routinely filter: whole blood at a haematocrit of 32-40%, for hours", lo=0.3, hi=0.4, mode=0.35),
+    "rt_ceramic_price": Input(1500.0, "$/m2", "[research pass, snippets] ceramic microfiltration elements for dairy and "
+        "beverages cost about $500-3,000 per m2", lo=500.0, hi=3000.0, mode=1500.0),
+    "rt_ceramic_life": Input(40000.0, "L/m2", "[assumed] litres of permeate a ceramic element filters before it is replaced: "
+        "ten runs of 33 days at 5 L/m2/h, if cleaning in place restores the flux each time", lo=15000.0, hi=200000.0,
+        mode=40000.0,
+        note="elements last years in dairies, but nobody has shown cleaning restores flux after animal cells foul them"),
+    "rt_ceramic_hw": Input(3.0, "$k per m2", "[assumed] stainless housings, a cleaning skid and a spare bank, per m2 of "
+        "ceramic membrane; no price found", lo=1.0, hi=6.0, mode=3.0),
+    "rt_ceramic_phi_max": Input(0.12, "volume fraction", "[assumed] no animal-cell run on ceramic membranes was found; the "
+        "lowest density any filter-based device has held", lo=0.05, hi=0.25, mode=0.12),
     "rt_settle_price": Input(3.5, "$k per m2", "[assumed, research pass] a steam-rated inclined settler per m2 of projected "
         "plate area, installed; no price found", lo=2.0, hi=5.0, mode=3.5),
     "rt_settle_holdup": Input(17.0, "L per m2", "[Romann et al. 2023, read in full, via the repo notes] a 2,000 L "
