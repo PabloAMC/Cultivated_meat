@@ -217,8 +217,16 @@ js += `
     return [r.total, r.density, r.limit, r.medium_l, r.medium_set_by, r.limits, r.o2_kg, r.o2_kg_upkeep, r.co2_kg,
             r.column ? [r.column.passes, r.column.loop_volume, r.column.ph_vs_safe] : null];
   });
+  // the scenarios (page_scenarios.js): the presets, twelve spread-out choices of the switches, what to prioritise, interactions, design
+  const scChoices = SC.order.map(k => SC.presets[k].choice);
+  for (let i = 0; i < 12; i++) { const ch = {}; SC.switches.forEach((sw, j) => { ch[sw.key] = sw.settings[(i * 7 + j * 3 + (i >> 1)) % sw.settings.length].key; }); scChoices.push(ch); }
+  const scCases = scChoices.map(ch => { const r = scEval(ch);
+    return [SC.keys.map(k => ch[k]), r.total, r.limit, r.medium_l, scShare(r.total, "global"), scShare(r.total, "us")]; });
+  const scPri = scPriorities(SC.presets.central.choice, true).map(r => [r.switch, r.best, r.worst, r.d_best, r.d_worst, r.share_best, r.share_worst]);
+  const scInt = scInteractions(SC.presets.central.choice, 6, 0.25).map(x => [x.a, x.b, x.gap]);
+  const scDes = SC.order.map(k => { const d = scDesign(Object.assign({}, SC.presets[k].choice, { tricks: "none", shape: "tall" })); return [d.tricks, d.shape]; });
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
-                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs } }));
+                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();
 `;
 

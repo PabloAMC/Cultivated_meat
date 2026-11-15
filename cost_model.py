@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-cost_model — the cost of cultivated biomass, with a derived floor. This is the
-NUMERATOR of the price ratio.
+cost_model — the cost of cultivated biomass, from a medium price and a plant running cost, with a
+labelled reference case. This is the NUMERATOR of the price ratio. (The cost scenarios, which describe what
+has to go right for the cost to fall, are in scenarios.py; this module takes whatever cost it is given.)
 
 HOW TO READ THE NUMBERS (2026-11-14). All costs are per kg of REAL wet cells (about
 70% water, 20% protein: comparable with meat). The default is what a company reports
 for its own process (SuperMeat 2024: 30.5 L of medium per kg at $0.50/L, plus $10.8/kg
 of running costs), with a yearly charge on its plant at the rate used for every other
 case ($8.3/kg): $34.3/kg. The company's own figure, with depreciation only, is $29.5.
-The floor's plant term comes from physics (floor_physics.py). Pasitka et al. 2024 is
+The reference case's plant term comes from physics (floor_physics.py). Pasitka et al. 2024 is
 no longer an anchor: its kilogram is a wet pellet that is mostly liquid, and its cost
 leaves out capital (METHODS.md, "Why Pasitka is not the anchor").
 
@@ -17,17 +18,19 @@ threshold sits; THIS module produces that biomass cost — a transparent,
 component-based number you can poke. The two questions it answers:
 
   1. "What if the medium gets cheaper?"  -> vary `media_price` (0.50 -> 0.2 $/L).
-  2. "Where is the floor?"               -> `cost_floor()` derives it from the
-                                            irreducible amino-acid feedstock +
-                                            the minimal cost of running a plant.
+  2. "What is the reference case?"       -> `cost_floor()` (kept under its old name) adds the
+                                            amino-acid feedstock the cells must eat to the
+                                            plant term of a standard perfusion tank, no tricks.
+                                            It is a reference, not a limit: the scenarios in
+                                            scenarios.py go below it.
 
 Why a component model (not one number)
 --------------------------------------
 Cost is a sum of a *reducible* part (recombinant proteins, single-use
 consumables, small-scale capital — engineerable toward ~0) and an *irreducible*
 part (bulk amino acids + glucose the cells must consume, and the minimal
-capital/labour/energy of running a plant at scale). Splitting them is the only
-honest way to say where the floor is.
+capital/labour/energy of running a plant at scale). Splitting them is the honest way
+to say what a cost scenario assumes.
 
         biomass_cost = media_cost + nonmedia_cost
         media_cost   = media_intensity[L/kg] * efficiency * media_price[$/L]
@@ -108,9 +111,9 @@ The floor (see cost_floor):
     refilled: ~$17.7/kg.
 
 Result preview (defaults): as reported, with capital ~$34/kg; medium at $0.2/L
-~$25/kg; + efficient cells ~$23/kg; floor ~$11.5/kg (band ~$6.6-19.4). With a $5/kg
+~$25/kg; + efficient cells ~$23/kg; the reference ~$11.5/kg (band ~$6.6-19.4). With a $5/kg
 additive markup against a $12/kg commodity price, parity (R=1) needs biomass
-<= $7/kg. The floor with plants that have been costed for animal cells is about
+<= $7/kg. The reference with a plant that has been costed for animal cells is
 well above that. The frontier case, a plant at the cost of today's microbial
 fermentation plants, sits just under the parity line (~$6.6/kg).
 
@@ -186,15 +189,16 @@ def media_cost(pr: CostParams, media_price=None, efficiency=None):
 
 
 def biomass_cost(pr: CostParams, media_price=None, efficiency=None):
-    """Operating cost of 1 kg wet biomass, $/kg. Floored at the derived floor.
-    np.maximum keeps this correct for scalar and array inputs alike."""
-    raw = media_cost(pr, media_price, efficiency) + pr.nonmedia_cost
-    return np.maximum(raw, cost_floor(pr))
+    """Operating cost of 1 kg wet biomass, $/kg: the medium (never less than the feedstock dissolved in it) plus
+    the plant. Until 2026-11-15 this was floored at `cost_floor`; the scenarios (scenarios.py) go below that
+    reference, so it no longer is. Works for scalars and arrays."""
+    return media_cost(pr, media_price, efficiency) + pr.nonmedia_cost
 
 
 def cost_floor(pr: CostParams) -> float:
-    """The irreducible cost: stoichiometric amino-acid feedstock + bulk
-    glucose/nutrients + the minimal cost of running a plant at scale. $/kg.
+    """The REFERENCE cost (what earlier versions called the floor), $/kg: stoichiometric amino-acid feedstock + bulk
+    glucose/nutrients + the plant term of a standard perfusion tank, no tank tricks. Not a limit: the best-case
+    scenario (scenarios.py) is below it.
 
     The reducible parts (recombinant albumin/growth factors, single-use filters,
     small-scale capital) are assumed engineered toward zero; what remains is what
@@ -286,7 +290,7 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
     lo, ce, hi = floor_band(pr)
     ax.axhspan(lo, hi, color="#029E73", alpha=0.12)
     ax.axhline(ce, ls="--", lw=1.0, color="#029E73")
-    ax.text(0.6, ce + 0.4, f"floor ~{ce:.0f} $/kg", fontsize=7.5, color="#029E73")
+    ax.text(0.6, ce + 0.4, f"reference ~{ce:.0f} $/kg", fontsize=7.5, color="#029E73")
 
     # parity line (biomass cost that yields R=1, additive markup)
     pc = parity_cost(pr)
@@ -301,7 +305,7 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
 
     ax.set_xlabel(r"Medium price (\$/L)")
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
-    ax.set_title("Cost vs medium price, with the floor")
+    ax.set_title("Cost vs medium price, with the reference case")
     ax.legend(fontsize=8, frameon=False)
     _save(fig, outdir, "cost_vs_media", fmts)
 
@@ -321,7 +325,7 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
 
     # one line per plant case (cells held at the reported efficiency 1.0)
     oh_hi, oh_def, oh_floor = (PLANT_CONFIGS[k] for k in PLANT_CONFIGS)       # dict order: cautious, default, floor
-    for lbl, oh, c in [("floor plant cost",                            oh_floor, "#029E73"),
+    for lbl, oh, c in [("reference plant cost",                        oh_floor, "#029E73"),
                        ("as reported, with capital (default)",        oh_def,   "#0173B2"),
                        ("cautious plant cost",                         oh_hi,    "#CC3311")]:
         ax.plot(mp, pr.media_intensity * 1.0 * mp + oh, color=c, lw=2.2, label=lbl)
@@ -336,7 +340,7 @@ def fig_cost_vs_inputs(pr: CostParams, outdir, fmts) -> None:
     # two reference lines: the irreducible floor and the parity threshold (biomass terms)
     ce = cost_floor(pr)
     ax.axhline(ce, ls="--", lw=1.2, color="#117733")
-    ax.text(0.17, ce + 0.6, rf"irreducible floor $\sim$\${ce:.1f}/kg", fontsize=8, color="#117733")
+    ax.text(0.17, ce + 0.6, rf"reference case $\sim$\${ce:.1f}/kg", fontsize=8, color="#117733")
     pc = parity_cost(pr)
     ax.axhline(pc, ls=":", lw=1.2, color="#CC3311")
     ax.text(0.17, pc - 1.7, f"parity needs biomass $\\leq$ \\${pc:.0f}/kg", fontsize=8, color="#CC3311")
@@ -372,7 +376,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
         ("plant as\ncompanies\nreport",                     top,      reported, "#0173B2"),
         (f"cheaper medium\n{pr.media_price:.2f}->0.2/L",      reported, cheap,    "#56B4E9"),
         ("efficient\ncells",                                cheap,    eff,      "#56B4E9"),
-        ("floor plant and\nfloor-price\nmedium",            eff,      floor,    "#56B4E9"),
+        ("reference plant and\n$0.2/L\nmedium",            eff,      floor,    "#56B4E9"),
     ]
     fig, ax = plt.subplots(figsize=(7.6, 4.6))
     xs = range(len(steps) + 1)
@@ -395,7 +399,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
                          [f"amino acids \\${aa:.1f}", f"glucose, salts \\${pr.glucose_other_floor:.1f}",
                           f"plant overhead \\${pr.plant_floor:.0f}"]):
         ax.text(xf + 0.34, b + h / 2, lab, fontsize=6.5, va="center", color="0.3")
-    ax.text(xf, floor + 0.6, f"FLOOR\n\\${floor:.1f}", ha="center", fontsize=7.5,
+    ax.text(xf, floor + 0.6, f"REFERENCE\n\\${floor:.1f}", ha="center", fontsize=7.5,
             color="#117733", fontweight="bold")
 
     # parity threshold line
@@ -408,11 +412,11 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
     ax.text(len(steps) + 0.3, m_ref + oh_ref + 0.5, f"as reported\n\\${m_ref + oh_ref:.0f}/kg",
             fontsize=7, color="0.5", ha="right")
 
-    labels = [s[0] for s in steps] + ["irreducible\nfloor"]
+    labels = [s[0] for s in steps] + ["reference\ncase"]
     ax.set_xticks(list(xs))
     ax.set_xticklabels(labels, fontsize=7.5)
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
-    ax.set_title("From the cautious case to the floor")
+    ax.set_title("From the cautious case to the reference case")
     _save(fig, outdir, "cost_waterfall", fmts)
 
 
