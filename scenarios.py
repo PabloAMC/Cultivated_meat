@@ -308,6 +308,57 @@ MEDIUM_PLAIN = {"ammonia": "washing out ammonia", "lactate": "washing out lactat
 
 
 # ----------------------------------------------------------------------------
+# The tank tricks a scenario relies on, and what it costs without them
+# ----------------------------------------------------------------------------
+_TRICK_PARTS = {"column": ("a column beside the tank that strips CO\u2082 without bubbles",),
+                "pressure": ("a column beside the tank that strips CO\u2082 without bubbles", "1 bar of extra pressure in the tank"),
+                "oxygen": ("a column beside the tank that strips CO\u2082 without bubbles", "1 bar of extra pressure in the tank",
+                           "pure oxygen recycled through the column")}
+_ASPECT_PLAIN = {"flat": "a tank whose liquid is half as deep as it is wide", "squat": "a tank whose liquid is 0.75 times as deep as it is wide",
+                 "square": "a tank whose liquid is as deep as it is wide"}
+
+
+def tricks_report(choice: dict) -> dict:
+    """What the tank design of a scenario relies on that nobody has run with animal cells, and the cost without it.
+    `no_tricks`: the same tank shape with gas bubbled in at the base (tricks switch at 'none'). `ordinary_tank`:
+    Humbird's tall tank as well. `used`: the tricks, in words (empty for an ordinary tank)."""
+    used = list(_TRICK_PARTS.get(choice["tricks"], ())) + ([_ASPECT_PLAIN[choice["shape"]]] if choice["shape"] != "tall" else [])
+    base = run(choice)["total"]
+    no_tricks = run({**choice, "tricks": "none"})["total"]
+    ordinary = run({**choice, "tricks": "none", "shape": "tall"})["total"]
+    return {"used": used, "cost": base, "no_tricks": no_tricks, "ordinary_tank": ordinary,
+            "d_no_tricks": no_tricks - base, "d_ordinary": ordinary - base}
+
+
+def tricks_sentence(choice: dict) -> str:
+    t = tricks_report(choice)
+    if not t["used"]:
+        return ""
+    return ("It relies on tank design that nobody has run with animal cells: " + "; ".join(t["used"]) +
+            f". Without those tricks (same tank shape, gas bubbled in at the base) a kilo costs ${t['no_tricks']:.1f}, "
+            f"${t['d_no_tricks']:.1f} more; in the ordinary tall tank, ${t['ordinary_tank']:.1f}.")
+
+
+def growth_sentence(key: str) -> str:
+    """The reasoning behind a scenario's doubling time, where it needs one (computed costs)."""
+    if key not in ("central", "central_lean"):
+        return ""
+    c = SCENARIOS[key].choice
+    base = run(design(c))["total"]
+    fast = alt_cost(key, {"growth": "24"})
+    mid = alt_cost(key, {"growth": "30"})
+    return ("Doubling every 36 hours is a judgement between measurements: low-waste meat-cell cultures have been measured at "
+            "43\u201354 hours, and at 26 hours only with glutamine in the feed (Hubalek 2023); the odds of 24 hours at this waste "
+            f"level are put at about 10%. Setting the switch to 24 hours would save ${base - fast:.1f} a kilo (${base - mid:.1f} at 30 hours).")
+
+
+def story_text(key: str) -> str:
+    """A scenario's story with what it relies on spelled out (the page's sentence under each scenario's name)."""
+    sc = SCENARIOS[key]
+    return " ".join(x for x in (sc.story, tricks_sentence(sc.choice), growth_sentence(key)) if x)
+
+
+# ----------------------------------------------------------------------------
 # Shares
 # ----------------------------------------------------------------------------
 _DP = None
@@ -447,11 +498,21 @@ def scenario_share_mc(choice: dict, region: str = "global", n: int = 1000, seed:
     return dict(vol=mc["vol"], val=mc["val"], cost=cost)
 
 
-def bands(choice: dict, n: int = 1000) -> dict:
-    """10th / 50th / 90th percentile of cost and of the world's long-run share by weight."""
-    mc = scenario_share_mc(choice, "global", n)
-    q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
-    return {"cost": q(mc["cost"]), "share": q(mc["vol"])}
+# draws behind every headline band: the share's median moves by about 0.3 points between seeds at 1,000 draws, much less at 4,000
+BAND_N = 4000
+_BANDS: dict = {}
+
+
+def bands(choice: dict, n: int = BAND_N) -> dict:
+    """10th / 50th / 90th percentile of cost and of the world's long-run share by weight (cost and demand both
+    uncertain). The 50th percentile of the share is the page's headline share for a scenario; the share at the
+    scenario's own point cost (`summary(...)['world']`) is a different number and is labelled a point estimate."""
+    key = (tuple(sorted(choice.items())), n)
+    if key not in _BANDS:
+        mc = scenario_share_mc(choice, "global", n)
+        q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
+        _BANDS[key] = {"cost": q(mc["cost"]), "share": q(mc["vol"])}
+    return _BANDS[key]
 
 
 # ----------------------------------------------------------------------------
@@ -477,30 +538,31 @@ def js_model() -> dict:
     sw = [{"key": s.key, "name": s.name, "q": s.question,
            "settings": [{"key": t.key, "label": t.label, "short": t.short, "tag": t.tag, "note": t.note,
                          "p": _js_params(t.kw)} for t in s.settings]} for s in SWITCHES]
-    presets = {k: {"name": SCENARIOS[k].name, "story": SCENARIOS[k].story, "choice": SCENARIOS[k].choice}
+    presets = {k: {"name": SCENARIOS[k].name, "story": story_text(k), "choice": SCENARIOS[k].choice}
                for k in ORDER}
+    band = {k: bands(SCENARIOS[k].choice) for k in ORDER}
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(ORDER), "start": "central",
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
-            "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS}
+            "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band}
 
 
 def markdown_table() -> str:
     """The scenario table as Markdown (README / RESULTS / research_notes/cost_scenarios.md quote it)."""
-    rows = ["| scenario | cells, $/kg (10th\u201390th percentile) | R vs $12 meat | share of world meat by weight, long run "
-            "(10th\u201390th, cost and demand uncertain) | hardest thing it needs |", "|---|---|---|---|---|"]
+    rows = ["| scenario | cells, $/kg (10th\u201390th percentile) | R vs $12 meat | share of world meat by weight, long run: "
+            "median (10th\u201390th, cost and demand uncertain) | hardest thing it needs |", "|---|---|---|---|---|"]
     for key in ORDER:
         sc = SCENARIOS[key]
         sm = summary(sc.choice)
-        b = bands(sc.choice, 1000)
+        b = bands(sc.choice)
         rows.append(f"| {sc.name} | **${sm['cost']:.1f}** (${b['cost'][0]:.0f}\u2013{b['cost'][2]:.0f}) | {sm['ratio']:.2f} | "
-                    f"**{sm['world']:.1f}%** ({b['share'][0]:.1f}\u2013{b['share'][2]:.1f}%) | {TAG_PLAIN[hardest_need(sc.choice)]} |")
+                    f"**{b['share'][1]:.1f}%** ({b['share'][0]:.1f}\u2013{b['share'][2]:.1f}%) | {TAG_PLAIN[hardest_need(sc.choice)]} |")
     ref = reference()
     rs = summary(r=ref)
-    rows.append(f"| Reference: a standard perfusion tank, no tricks | ${rs['cost']:.1f} | {rs['ratio']:.2f} | {rs['world']:.1f}% | "
+    rows.append(f"| Reference: a standard perfusion tank, no tricks | ${rs['cost']:.1f} | {rs['ratio']:.2f} | {rs['world']:.1f}% (point estimate) | "
                 f"{TAG_PLAIN[GE]} |")
     rc = reported_cost()
     rows.append(f"| As a company reports (SuperMeat 2024) | ${rc:.1f} | {(rc + value('markup_add')) / value('p_conv'):.2f} | "
-                f"{shares(rc)['global']:.1f}% | a company's own report |")
+                f"{shares(rc)['global']:.1f}% (point estimate) | a company's own report |")
     return "\n".join(rows)
 
 
@@ -517,8 +579,9 @@ def main() -> None:
     for key in ORDER:
         sc = SCENARIOS[key]
         s = summary(sc.choice)
-        print(f"{sc.name}\n  {sc.story}\n  rule: {sc.rule}")
-        print(f"  ${s['cost']:.2f}/kg cells, ${s['retail']:.1f} in the shop, {s['ratio']:.2f}x everyday meat; world {s['world']:.1f}% "
+        b = bands(sc.choice)
+        print(f"{sc.name}\n  {story_text(key)}\n  rule: {sc.rule}")
+        print(f"  ${s['cost']:.2f}/kg cells, ${s['retail']:.1f} in the shop, {s['ratio']:.2f}x everyday meat; world {b['share'][1]:.1f}% median ({b['share'][0]:.1f}\u2013{b['share'][2]:.1f}%), point estimate {s['world']:.1f}% "
               f"(US {s['us']:.1f}%, Europe {s['eu']:.1f}%); {s['density']:.0f} g/L, limited by {s['limit']}; {s['medium_l']:.0f} L/kg "
               f"set by {s['medium_set_by']}; hardest need: {hardest_need(sc.choice)}")
         print("  settings: " + "; ".join(f"{SW[k].name}: {setting(k, sc.choice[k]).label}" for k in KEYS))
@@ -530,7 +593,7 @@ def main() -> None:
                   f"   worst {setting(p['switch'], p['worst']).label[:34]:<34} {p['d_worst']:+6.2f}")
         for it in interactions(sc.choice):
             print("   *", it["text"])
-        b = bands(sc.choice, 500)
+        b = bands(sc.choice)
         print(f"  band (P10-P50-P90): cost ${b['cost'][0]:.1f} / {b['cost'][1]:.1f} / {b['cost'][2]:.1f}; "
               f"world share {b['share'][0]:.1f} / {b['share'][1]:.1f} / {b['share'][2]:.1f}%\n")
 

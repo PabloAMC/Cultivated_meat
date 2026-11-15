@@ -955,6 +955,11 @@ def _scenario_tokens() -> dict:
         if key == "central":
             out["PEN_US_CENTRAL_VOL"] = f"{sm['us']:.0f}"
         if key != "central_lean":
+            tr = S.tricks_report(S.SCENARIOS[key].choice)
+            out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
+            out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
+            out[f"TRICKS_{tag}_LIST"] = "; ".join(tr["used"])
+        if key != "central_lean":
             b = ps.bands(key)
             for i, q in enumerate(("P10", "P50", "P90")):
                 out[f"{tag}_COST_{q}"] = f"{b['cost'][i]:.1f}"
@@ -1287,8 +1292,15 @@ Commission. <a href="#about">About this page</a>.</p>
 little waste the cells make, how fast they grow, how the plant is built, how much gas the cells stand. Each row below is one
 <b>scenario</b>: a complete set of those assumptions, with what has to go right for it. Costs are dollars per kilo of wet
 cells in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share, by weight, once cultivated meat is on every
-shelf and no longer feels new; it is not a forecast of when. <a href="#decide">Change any assumption yourself</a> below.</p>
+shelf and no longer feels new; it is not a forecast of when. It is the <b>median</b> of 4,000 draws in which the cost estimates and the
+demand dials (price sensitivity, acceptance, the retail markup) are all uncertain, with the 10th to 90th percentile beside it; the share at
+exactly the cost shown is given in small type as a point estimate. <a href="#decide">Change any assumption yourself</a> below.</p>
 {{ANSWER_HTML}}
+<p class="fnote"><b>What the table assumes about the tank.</b> Every scenario here uses tank designs that nobody has run with animal cells.
+<b>Central</b> (${{COST_CENTRAL}}): {{TRICKS_CENTRAL_LIST}}. Without them it costs ${{TRICKS_CENTRAL_NO}} a kilo with the same tank shape,
+and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. <b>Best case</b> (${{COST_BEST}}): {{TRICKS_BEST_LIST}}; without them,
+${{TRICKS_BEST_NO}}, and ${{TRICKS_BEST_ORD}} in the ordinary tank. <b>Cautious</b> (${{COST_CAUTIOUS}}): {{TRICKS_CAUTIOUS_LIST}}; without them,
+${{TRICKS_CAUTIOUS_NO}}, and ${{TRICKS_CAUTIOUS_ORD}} in the ordinary tank. These are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take them away.</p>
 <p class="fnote">Words used on this page. <b>Medium</b>: the nutrient liquid the cells grow in. <b>Waste</b>: the ammonia and
 lactate cells give off as they grow; they slow growth, so fresh medium must wash them out. <b>Perfusion</b>: fresh medium flows
 through the tank all the time while the cells are held back and harvested continuously. <b>Column</b>: a packed tower beside the

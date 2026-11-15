@@ -42,16 +42,28 @@ plant design; **nothing new** has been done.
 "The checks" (`scenarios.design`): the loop must be pH-safe (the alkaline exposure within the 55 mbar, 0.5 m3 design) and at a pass rate dense
 cultures have taken (15 to 24 tank volumes an hour). Without the checks a tall tank with all three tricks would be a little cheaper still.
 
-Computed results (cells $/kg; shop; R against $12 meat; long-run share of world meat by weight; bands are 10th to 90th percentile, 1,000 draws):
+Computed results (cells $/kg; shop; R against $12 meat; long-run share of world meat by weight; bands are 10th to 90th percentile, 4,000 draws; **the headline share is the median of the draws**, the point estimate is the share at the scenario's own point cost):
 
-| scenario | cost | band | shop | R | world | band incl. demand | US | Europe |
-|---|---|---|---|---|---|---|---|---|
-| Best case | $6.57 | $6.3–8.1 | $11.6 | 0.96 | 15.2% | 2.7–17.2% | 22.5% | 33.6% |
-| Central, sterile plant | $18.14 | $16.2–21.8 | $23.1 | 1.93 | 1.5% | 0.2–2.4% | 3.5% | 10.7% |
-| Central, lean plant | $15.84 | $14.8–18.9 | $20.8 | 1.74 | 2.3% | 0.3–3.2% | 5.0% | 14.0% |
-| Cautious | $32.29 | $29.2–41.0 | $37.3 | 3.11 | 0.3% | 0.0–0.5% | 0.7% | 1.7% |
-| Reference (standard tank, no tricks) | $11.48 | | $16.5 | 1.37 | 5.4% | | 10.0% | 21.6% |
-| As a company reports | $34.35 | | $39.4 | 3.28 | 0.3% | | 0.6% | 1.3% |
+| scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the tank tricks | ordinary tall tank |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Best case | $6.57 | $6.3–8.1 | $11.6 | 0.96 | **7.9%** | 2.8–17.3% | 15.2% | 22.5% | 33.6% | $7.4 | $9.4 |
+| Central, sterile plant | $18.14 | $16.2–21.8 | $23.1 | 1.93 | **0.8%** | 0.2–2.5% | 1.5% | 3.5% | 10.7% | $23.0 | $30.0 |
+| Central, lean plant | $15.84 | $14.9–19.0 | $20.8 | 1.74 | **1.1%** | 0.3–3.2% | 2.3% | 5.0% | 13.9% | $18.9 | $23.6 |
+| Cautious | $32.29 | $29.2–41.2 | $37.3 | 3.11 | **0.2%** | 0.0–0.5% | 0.3% | 0.7% | 1.7% | $51.7 | $62.8 |
+| Reference (standard tank, no tricks) | $11.48 | | $16.5 | 1.37 | | | 5.4% | 10.0% | 21.6% | | |
+| As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |
+
+**Why the median and not the point estimate.** Each point cost sits below its band's median cost (the estimates behind a scenario are drawn with
+more room to fall short than to improve), and the share is steeply convex in price, so the share at the point cost is higher than the median
+share: a headline of 15.2% for the best case would be a number most draws do not reach (median 7.9%). The point estimate stays on the page where
+it is labelled as one. The band is computed for the four scenarios; once a reader changes a switch the live strip shows the point estimate and says so.
+At 1,000 draws the best case's median moved by 0.3 points between seeds (7.8 to 8.15), so the bands use 4,000.
+
+**Tank design nobody has run with animal cells.** Every scenario's tank design is the cheapest the loop checks allow, and each is built on tricks
+that are calculated, not measured: Best case: a column, 1 bar of extra pressure, a tank 0.75 as deep as wide; Central: the column, the pressure,
+recycled pure oxygen and a tank half as deep as wide; Cautious: the column, the pressure and a tank as deep as wide. "Without the tank tricks"
+sets the tricks switch to "none" and keeps the tank shape (Central +$4.9); "ordinary tall tank" also takes the shape back to Humbird's 1.6 (Central
++$11.8). The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
 
 Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the retention device) are drawn with more room to fall short than to improve: the best case's point ($6.57) is at the 18th percentile of its draws (median $7.2), the central point ($18.14) at the 37th (median $18.9), the lean central point at the 27th and the cautious point at the 31st.
 

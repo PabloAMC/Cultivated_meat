@@ -20,31 +20,42 @@ All costs are per kg of real cells: about 70% water and 20% protein, like meat. 
 the long-run share of the meat sold by weight, once cultivated meat is on every shelf and no longer feels new; it is not a
 forecast of when.
 
-| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run (10th–90th, cost and demand uncertain) | hardest thing it needs |
+| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
 |---|---|---|---|---|
-| Best case: everything works | **$6.6** ($6–8) | 0.96 | **15.2%** (2.7–17.2%) | needs genetic engineering |
-| Central: selection and feed only, a sterile plant | **$18.1** ($16–22) | 1.93 | **1.5%** (0.2–2.4%) | needs selection or adaptation of cells |
-| Central, in a lean plant | **$15.8** ($15–19) | 1.74 | **2.3%** (0.3–3.2%) | needs selection or adaptation of cells |
-| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.3%** (0.0–0.5%) | needs a change of feed, process or plant |
-| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% | a company's own report |
+| Best case: everything works | **$6.6** ($6–8) | 0.96 | **7.9%** (2.8–17.3%) | needs genetic engineering |
+| Central: selection and feed only, a sterile plant | **$18.1** ($16–22) | 1.93 | **0.8%** (0.2–2.5%) | needs selection or adaptation of cells |
+| Central, in a lean plant | **$15.8** ($15–19) | 1.74 | **1.1%** (0.3–3.2%) | needs selection or adaptation of cells |
+| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
+| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% (point estimate) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% (point estimate) | a company's own report |
 
 The bands: each scenario's switches are held, and the estimates behind it (plant cost, financing, the device that holds cells
-back, the upkeep share of respiration, medium price and loss rate) are allowed to be off; the share band lets demand vary too.
+back, the upkeep share of respiration, medium price and loss rate) are allowed to be off; the share band lets demand vary too (4,000 draws).
+**The share quoted for a scenario is the median of those draws**, not the share at the scenario's own point cost: the point cost sits below
+the median cost (the estimates behind it have more room to fall short than to improve), and the share is steeply convex in price, so the point
+estimate is higher than the median (best case 15.2% at the point cost, 7.9% median). The point estimates are labelled as such where they appear.
 
 - **There is no single cost; it depends on what goes right.** In the **best case** everything works at once: cells engineered to
   make almost no waste, doubling every 24 hours, a lean plant, a tank that clears CO₂ without more bubbles, no growth factors to buy.
-  That costs about **$6.6/kg of cells** (0.96× everyday meat, $11.6 in the shop against $12), and cultivated meat takes **~15% of
-  world meat** (23% in the US, 34% in Europe) in the long run. It needs genetic engineering of the cells, a plant nobody has
-  built and tank tricks nobody has tried with meat cells.
+  That costs about **$6.6/kg of cells** (0.96× everyday meat, $11.6 in the shop against $12), and cultivated meat takes **about 8%
+  of world meat** in the long run (median of draws in which cost and demand are uncertain; 80% of them between 3% and 17%; the point
+  estimate at exactly $6.6 is 15%, with 23% in the US and 34% in Europe). It needs genetic engineering of the cells, a plant nobody has
+  built and tank design nobody has tried with animal cells: a CO₂-stripping column beside the tank, 1 bar of extra pressure and a tank
+  whose liquid is 0.75 times as deep as wide. Without those it costs $7.4 a kilo (same tank shape), or $9.4 in the ordinary tall tank.
 - **The central scenario needs no genetic engineering.** Cells that make little waste because glutamine is replaced in the feed
   and the best lines are chosen, doubling every 36 hours, in a sterile plant without clean rooms: about **$18/kg** (1.9×), or $15.8 in a
-  lean plant, and **~1.5% of world meat** (~2.3% in a lean plant; 3.5% in the US, 11% in Europe). Doubling time is an explicit
-  assumption: the measured low-waste meat-cell cultures doubled in 26–48 hours, never in 24. At 30 hours the central case costs
-  $17.8 and at 24 hours $16.8, so the speed is worth about $1/kg here, much less than the kind of cells.
+  lean plant, and **~0.8% of world meat** (median; 80% of draws between 0.2% and 2.5%; the point estimate at exactly $18.1 is 1.5%,
+  3.5% in the US, 11% in Europe; ~1.1% in a lean plant). **It relies on tank design nobody has run with animal cells:** a column
+  beside the tank that strips CO₂ without bubbles, 1 bar of extra pressure, pure oxygen recycled through the column and a tank whose
+  liquid is half as deep as wide. Without them a kilo costs **$23.0** (same tank shape, +$4.9), or **$30.0** in the ordinary tall tank.
+  Doubling time is an explicit assumption and 36 hours is a judgement: low-waste meat-cell cultures have been measured at 43–54
+  hours, and at 26 hours only with glutamine, which is what makes the waste; the odds of 24 hours at this waste level are put at about
+  10%. At 30 hours the central case costs $17.8 and at 24 hours $16.8, so setting 24 hours is worth about $1.3/kg, much less than the
+  kind of cells.
 - **The cautious scenario uses what has been measured:** the best low-waste meat cells (43 hours), a sterile plant, the most gas
   that has been run in tanks of this size (2 mm/s), 1% of runs lost a day with three weeks to restart, growth factors at 60% of
-  Humbird's price, medium at $0.30/L. About **$32/kg** (3.1×), **~0.3% of world meat**.
+  Humbird's price, medium at $0.30/L. About **$32/kg** (3.1×), **~0.2% of world meat** (median; 0.0–0.5%; 0.3% at the point cost). It too relies on a column, pressure and
+  a squarer tank, none run with animal cells; without them it costs $51.7 ($62.8 in the ordinary tall tank).
 - **Price parity needs the best case or nearly.** Parity with $12 meat and a $5 markup needs $7/kg of cells. Only the best case reaches it,
   and within its own band ($6.3–8.1) it is borderline. A plant as cheap as a yeast plant is not used in any scenario: nothing
   shows that animal cells can be grown that way.

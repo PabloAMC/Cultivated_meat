@@ -118,6 +118,41 @@ for fname in ("README.md", "RESULTS.md", "METHODS.md"):
         if "the floor" in low and not any(w in low for w in ("earlier versions", "called the floor", "was called", '"the floor"', "the floor\" ")):
             check(False, f"{fname} still uses 'the floor' as a name: {ln.strip()[:100]}")
 
+# 12. the headline share of a scenario is the MEDIAN of its band, not the point estimate (Pablo's review, 2026-11-15)
+table_rows = [r for r in S.markdown_table().splitlines() if r.startswith("| ") and "scenario |" not in r]
+for fname in ("RESULTS.md", "METHODS.md"):
+    text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()
+    for row in table_rows:
+        check(row in text, f"{fname} does not carry the scenario table row: {row[:70]}")
+page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
+for k in S.ORDER:
+    bk = S.bands(S.SCENARIOS[k].choice)
+    sm = S.summary(S.SCENARIOS[k].choice)
+    check(f"<b>{bk['share'][1]:.1f}%</b><br><span class='alt'>median; 80% of draws between" in page,
+          f"the page's answer table does not headline {k}'s median share {bk['share'][1]:.1f}%")
+    check(f"At the point cost: {sm['world']:.1f}%" in page, f"the page does not label {k}'s point estimate")
+    check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
+# the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
+check(S.bands(S.SCENARIOS["best"].choice)["share"][1] < S.summary(S.SCENARIOS["best"].choice)["world"],
+      "best case: median share should be below the point estimate")
+
+# 13. what the tank design relies on is stated, with the cost without it
+for k in ("best", "central", "cautious"):
+    tr = S.tricks_report(S.SCENARIOS[k].choice)
+    check(len(tr["used"]) > 0, f"{k}: expected tank tricks to be listed")
+    check(abs(tr["no_tricks"] - S.run({**S.SCENARIOS[k].choice, "tricks": "none"})["total"]) < 1e-9, f"{k}: no-tricks cost")
+    check(tr["ordinary_tank"] > tr["no_tricks"] > tr["cost"], f"{k}: costs without tricks should rise")
+    check(f"${tr['no_tricks']:.1f}" in S.story_text(k) and f"${tr['ordinary_tank']:.1f}" in S.story_text(k),
+          f"{k}: story does not give the cost without the tricks")
+    check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
+trc = S.tricks_report(S.SCENARIOS["central"].choice)
+check(abs(trc["d_no_tricks"] - 4.90) < 0.05, f"central: expected about +$4.90 without the tricks, got {trc['d_no_tricks']:.2f}")
+check(len(trc["used"]) == 4, "central should list column, pressure, recycled oxygen and the squat tank")
+check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
+      "central's story should give the reasoning for 36 h")
+gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
+check(1.0 <= gain <= 1.5 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $1-1.5 a kilo ({gain:.2f})")
+
 if fails:
     print("FAIL — scenarios:")
     for f in fails:

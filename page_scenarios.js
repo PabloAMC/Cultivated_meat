@@ -135,10 +135,14 @@ function scResultHTML(ch,r){
   const lim=(SC.limit_plain[r.limit]||r.limit).replace("CO2","CO₂");
   const med=(SC.medium_plain[r.medium_set_by]||r.medium_set_by);
   const need=scNeeds(ch).filter(x=>x[2]!=="nothing new");
+  const bd=(SCS.src==="scenario"&&SCS.preset)?SC.bands[SCS.preset]:null;      // the band is computed for the named scenarios only
+  const shareStrip=bd?'<b>'+bd.share[1].toFixed(1)+'%</b> of world meat in the long run (median; '+bd.share[0].toFixed(1)+'&ndash;'+bd.share[2].toFixed(1)+'%)'
+    :'<b>'+world.toFixed(1)+'%</b> of world meat in the long run (point estimate)';
   const strip='<span class="scbig">'+scMoney(cost)+'<span> a kilo of cells</span></span> &nbsp; <b>'+scMoney(retail,0)+'</b> in the shop ('+R.toFixed(2)+
-    '&times; everyday meat) &nbsp; <b>'+world.toFixed(1)+'%</b> of world meat in the long run';
+    '&times; everyday meat) &nbsp; '+shareStrip;
   const el0=document.getElementById("sc_strip"); if(el0) el0.innerHTML=strip;
-  let h='<p>Long-run share of world meat: about <b>'+world.toFixed(1)+'%</b> by weight (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). '+
+  let h='<p>Long-run share of world meat: '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b> at the median of the draws, 80% of them between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'% (cost and demand both uncertain; the band is computed for the four scenarios, not for settings you change). At the cost above and the demand settings now set, the point estimate is '+world.toFixed(1)+'%'
+      :'about <b>'+world.toFixed(1)+'%</b> by weight, a point estimate (no band for settings you have changed)')+' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). '+
     'The shop price adds '+scMoney(markup,0)+' a kilo for processing, packaging and retail margin; everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
     'Each kilo of cells needs '+r.medium_l.toFixed(0)+' litres of medium, set by <b>'+med+'</b>.</p>';

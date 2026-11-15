@@ -19,7 +19,7 @@ _CACHE: dict = {}
 def bands(key: str) -> dict:
     """10th / 50th / 90th percentile of the cost and of the world's long-run share, for a scenario (cached)."""
     if key not in _CACHE:
-        _CACHE[key] = S.bands(S.SCENARIOS[key].choice, n=1000)
+        _CACHE[key] = S.bands(S.SCENARIOS[key].choice)
     return _CACHE[key]
 
 
@@ -50,16 +50,23 @@ def scenario_table() -> str:
         alts = "".join(f"<br><span class='alt'>{lab}: {money(S.alt_cost(key, ch))}</span>" for lab, ch in sc.alt)
         need = S.needs(sc.choice)
         items = "".join(f"<li>{_esc(n)}: {_esc(lab)} <i>({_esc(t)})</i></li>" for n, lab, t in need)
+        tr = S.tricks_report(sc.choice)
+        trick_html = ""
+        if tr["used"]:
+            trick_html = (f"<p class='fxn tricks'><b>Tank design nobody has run with animal cells:</b> {_esc('; '.join(tr['used']))}. "
+                          f"<b>Without it: {money(tr['no_tricks'])}</b> a kilo with the same tank shape (+{money(tr['d_no_tricks'])}), "
+                          f"<b>{money(tr['ordinary_tank'])}</b> in the ordinary tall tank.</p>")
         rows.append(
-            f"<tr data-sc='{key}'><td class='scname'><b>{_esc(sc.name)}</b><br><span class='story'>{_esc(sc.story)}</span><br>"
+            f"<tr data-sc='{key}'><td class='scname'><b>{_esc(sc.name)}</b><br><span class='story'>{_esc(S.story_text(key))}</span><br>"
             f"<button class='btn scbtn small' onclick=\"scApply('{key}');location.hash='decide';return false\">Use these assumptions</button></td>"
-            f"<td>{chip(S.hardest_need(sc.choice))}<details class='scdet'><summary>All ten assumptions</summary><ul>{items}</ul>"
+            f"<td>{chip(S.hardest_need(sc.choice))}{trick_html}<details class='scdet'><summary>All ten assumptions</summary><ul>{items}</ul>"
             f"<p class='fxn'><b>Rule:</b> {_esc(sc.rule)}</p></details></td>"
             f"<td class='n'><b>{money(sm['cost'])}</b><br><span class='alt'>{money(b['cost'][0])}–{money(b['cost'][2])} "
             f"(10th–90th percentile of the estimates behind it)</span>{alts}</td>"
             f"<td class='n'>{money(sm['retail'], 0)}<br><span class='alt'>{sm['ratio']:.2f}× everyday meat</span></td>"
-            f"<td class='n'><b>{sm['world']:.1f}%</b><br><span class='alt'>{b['share'][0]:.1f}–{b['share'][2]:.1f}% with "
-            f"demand uncertain too; US {sm['us']:.1f}%, Europe {sm['eu']:.1f}%</span></td>"
+            f"<td class='n'><b>{b['share'][1]:.1f}%</b><br><span class='alt'>median; 80% of draws between {b['share'][0]:.1f}% and "
+            f"{b['share'][2]:.1f}% (cost and demand both uncertain). At the point cost: {sm['world']:.1f}% "
+            f"(US {sm['us']:.1f}%, Europe {sm['eu']:.1f}%)</span></td>"
             f"<td class='s'>{_esc(limit_text(r))}</td></tr>")
     ref = S.reference()
     rs = S.summary(r=ref)
@@ -72,7 +79,7 @@ def scenario_table() -> str:
         f"120 g/L, a sterile plant, engineered cells, no tank tricks, no growth factors, no lost runs. Kept as a labelled "
         f"reference, not as a limit: the best case is below it.</span></td><td>{chip(S.GE)}</td>"
         f"<td class='n'><b>{money(rs['cost'])}</b></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
+        f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>point estimate; US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
         f"<td class='s'>{_esc(limit_text(ref))}</td></tr>")
     rows.append(
         f"<tr data-sc='reported'><td class='scname'><b>As a company reports</b><br><span class='story'>SuperMeat's 2024 process: chicken "
@@ -81,10 +88,10 @@ def scenario_table() -> str:
         f"<button class='btn scbtn small' onclick=\"scApply('reported');return false\">Use this in the charts</button></td>"
         f"<td><span class='tagchip none'>a company's own report</span></td>"
         f"<td class='n'><b>{money(rp['cost'])}</b></td><td class='n'>{money(rp['retail'], 0)}<br><span class='alt'>{rp['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rp['world']:.1f}%</b><br><span class='alt'>US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%</span></td>"
+        f"<td class='n'><b>{rp['world']:.1f}%</b><br><span class='alt'>point estimate; US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%</span></td>"
         f"<td class='s'>30.5 litres of medium per kilo at $0.50 a litre; the company reports no tank limit.</td></tr>")
     head = ("<thead><tr><th>Scenario: what has to go right</th><th>What it needs</th><th>Cost of a kilo of cells</th>"
-            "<th>In the shop</th><th>Share of world meat, long run</th><th>What limits the tank</th></tr></thead>")
+            "<th>In the shop</th><th>Share of world meat, long run (median)</th><th>What limits the tank</th></tr></thead>")
     labels = ("", "What it needs", "Cost of a kilo of cells", "In the shop", "Share of world meat, long run", "What limits the tank")
 
     def label_row(row: str) -> str:                    # the phone layout stacks each row and prints these in front of each cell
@@ -273,7 +280,7 @@ def experiments() -> str:
         sh = S.shares(r)["global"] - base_sh
         rows.append(f"<tr><td>{_esc(text)}</td><td class='n'><b>{'−' if d < 0 else '+'}{money(abs(d))}</b> a kilo<br><span class='alt'>{sh:+.1f} points of world share</span></td>"
                     f"<td class='s'>{_esc(why[0].upper() + why[1:])}.</td></tr>")
-    return (f"<p class='blkp'>One measurement at a time: what the central scenario ({money(base)} a kilo, {base_sh:.1f}% of world meat) would be worth "
+    return (f"<p class='blkp'>One measurement at a time: what the central scenario ({money(base)} a kilo, {base_sh:.1f}% of world meat as a point estimate; the table at the top gives the median) would be worth "
             "if each measurement came out as the row says (in its favour, except where the row says it fails). These are the same switches as in “What decides it”, "
             "so the figures are computed, not estimated by hand.</p><div class='scrollx'><table class='sctab'><thead><tr><th>The measurement</th>"
             "<th>Worth to the central scenario if it comes out this way</th><th>What is known now</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")

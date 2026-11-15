@@ -241,16 +241,21 @@ with B at its own cheapest setting; pairs whose two savings differ by more than 
 reinforce each other"). **Bands** (`scenarios.scenario_mc`, `scenarios.bands`): the scenario's switches are held, and the plant
 estimate, financing, retention device, upkeep share of respiration, medium price and loss rate are drawn from their priors (the plant
 estimate as in the reference case's run; the lean plant not below a plant with everything animal cells must have); the share band lets demand
-vary too (`meat_market.monte_carlo`). The scenarios' own cell traits and speeds are not drawn: they are what the scenarios differ in.
+vary too (`meat_market.monte_carlo`), 4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds).
+The scenarios' own cell traits and speeds are not drawn: they are what the scenarios differ in. **The headline share of a scenario is the
+median of the share draws**, not the share at the scenario's point cost, which is higher (the point cost sits below the cost's median and the
+share is convex in price); the point estimate stays on the page, labelled. Tank design: `scenarios.tricks_report` gives the cost of each
+scenario with the tricks taken away (tricks switch at "none", same tank shape; and the ordinary tall tank as well), and the page states them
+beside the scenario.
 
-| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run (10th–90th, cost and demand uncertain) | hardest thing it needs |
+| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
 |---|---|---|---|---|
-| Best case: everything works | **$6.6** ($6–8) | 0.96 | **15.2%** (2.7–17.2%) | needs genetic engineering |
-| Central: selection and feed only, a sterile plant | **$18.1** ($16–22) | 1.93 | **1.5%** (0.2–2.4%) | needs selection or adaptation of cells |
-| Central, in a lean plant | **$15.8** ($15–19) | 1.74 | **2.3%** (0.3–3.2%) | needs selection or adaptation of cells |
-| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.3%** (0.0–0.5%) | needs a change of feed, process or plant |
-| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% | a company's own report |
+| Best case: everything works | **$6.6** ($6–8) | 0.96 | **7.9%** (2.8–17.3%) | needs genetic engineering |
+| Central: selection and feed only, a sterile plant | **$18.1** ($16–22) | 1.93 | **0.8%** (0.2–2.5%) | needs selection or adaptation of cells |
+| Central, in a lean plant | **$15.8** ($15–19) | 1.74 | **1.1%** (0.3–3.2%) | needs selection or adaptation of cells |
+| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
+| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% (point estimate) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% (point estimate) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
