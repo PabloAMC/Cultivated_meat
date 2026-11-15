@@ -21,6 +21,14 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 
 def check() -> list:
+    """The study's note quotes figures computed with the old hoped-for retention device (rt_tff_default = 0), so the
+    checks run with it."""
+    import retention
+    with retention._with({"rt_tff_default": 0.0}):
+        return _check()
+
+
+def _check() -> list:
     import numpy as np
     from inputs import value
     import floor_physics as fp

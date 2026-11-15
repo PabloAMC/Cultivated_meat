@@ -81,6 +81,9 @@ def build_model() -> dict:
                       for k, v in floor_physics.PLANT_CLASSES.items()},
             "sized": {k: v[2] for k, v in floor_physics.PLANT_CLASSES.items()},
             "retention": value("pf_capex_retention"), "bioreactor_share": value("pf_bioreactor_capex_share"),
+            # the default retention device, a TFF hollow-fibre loop (floor_physics.explore, retention.py)
+            "tff": {"on": value("rt_tff_default") >= 0.5, "flux": value("rt_flux_lmh"), "hw": value("rt_tff_hw"), "install": value("rt_install"),
+                    "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life")},
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
             "x_waste": value("pf_x_unperfused"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
@@ -3878,7 +3881,8 @@ function floorExplore(p,noSearch){
     else if(sized) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf; }
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
   if(p.shape_cost!==false&&p.aspect!==undefined) capex*=fxShapeCost(p.vessel_m3,p.aspect);   // steel and floor of a squat tank
-  if(perf&&!vm.own_retention) capex+=(p.retention===undefined?F.retention:p.retention);
+  const tff=perf&&!vm.own_retention&&p.retention===undefined&&F.tff.on;   // the default device, priced after the medium
+  if(perf&&!vm.own_retention&&!tff) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0, cycleH=null, runsYr=null;
   if(cyclic){                       // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
@@ -3917,7 +3921,7 @@ function floorExplore(p,noSearch){
   const out=cyclic?wv*lim[1]*rec*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost)*rec;
   let colR=null;
   if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol); capex+=colR.capex_k_m3; }
-  const capital=p.charge*capex/out, labour=F.labour_ref/out*(vm.labour_mult===undefined?1:vm.labour_mult);
+  let capital=p.charge*capex/out; const labour=F.labour_ref/out*(vm.labour_mult===undefined?1:vm.labour_mult);
   let utilities=F.utilities*(0.5+0.5*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg;
   const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
@@ -3931,7 +3935,12 @@ function floorExplore(p,noSearch){
     terms["nutrients"]=F.medium_l; }
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
-  let consumables=F.consumables;
+  let consumables=F.consumables, retCapex=0, membranes=0;
+  if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
+    const perm=Math.max(0,ml-1000/lim[1]), kgH=out*1000/(8760*uptime);
+    const area=perm*kgH/(p.flux===undefined?F.tff.flux:p.flux);
+    retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/(p.membrane_life===undefined?F.tff.mem_life:p.membrane_life);
+    capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes; }
   if(vm.cons_run) consumables+=vm.cons_run*(runsYr!==null?runsYr:365/(p.run_days||F.run_days))/out;   // what the vessel throws away
   if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
@@ -3940,7 +3949,7 @@ function floorExplore(p,noSearch){
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
-  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, capital:capital, labour:labour,
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, capital:capital, labour:labour,
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp,
           pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+(2*lac+sorb*nh3)/ml*1000:NaN,

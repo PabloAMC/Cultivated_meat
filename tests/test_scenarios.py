@@ -27,14 +27,15 @@ def check(ok: bool, msg: str) -> None:
 
 # 1. the reference is the old floor, reproducible
 ref = S.reference()
-check(abs(ref["total"] - 11.4801) < 5e-3, f"reference cost {ref['total']:.4f} != 11.4801 (explore() defaults moved)")
+# since 2026-11-15 the reference prices its retention device as a TFF loop (retention.py): $11.84, not the old $11.48
+check(abs(ref["total"] - 11.8411) < 5e-3, f"reference cost {ref['total']:.4f} != 11.8411 (explore() defaults moved)")
 check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "reference: 120 g/L limited by CO2 removal")
 
 # 2. the scenarios come out in order, with the numbers quoted in the docs
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-for k, (lo, hi) in {"best": (6.4, 6.7), "central": (17.9, 18.4), "central_lean": (15.6, 16.1), "cautious": (31.8, 32.8)}.items():
+for k, (lo, hi) in {"best": (8.8, 9.1), "central": (26.3, 27.0), "central_lean": (24.0, 24.7), "cautious": (38.4, 39.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs: the best case needs engineering, the central one does not
@@ -146,12 +147,12 @@ for k in ("best", "central", "cautious"):
           f"{k}: story does not give the cost without the tricks")
     check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
 trc = S.tricks_report(S.SCENARIOS["central"].choice)
-check(abs(trc["d_no_tricks"] - 4.90) < 0.05, f"central: expected about +$4.90 without the tricks, got {trc['d_no_tricks']:.2f}")
+check(abs(trc["d_no_tricks"] - 3.51) < 0.05, f"central: expected about +$3.51 without the tricks, got {trc['d_no_tricks']:.2f}")
 check(len(trc["used"]) == 4, "central should list column, pressure, recycled oxygen and the squat tank")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
-check(1.0 <= gain <= 1.5 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $1-1.5 a kilo ({gain:.2f})")
+check(1.4 <= gain <= 2.0 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $1.4-2 a kilo ({gain:.2f})")
 
 if fails:
     print("FAIL — scenarios:")

@@ -1085,6 +1085,81 @@ REGISTRY: dict[str, Input] = {
     "vm_hf_cost_run": Input(6250.0, "$k/m3 per run", "[assumed] a single-use set of about $3,000 a run (no price "
         "found) over 0.48 L", lo=2000.0, hi=20000.0, mode=6250.0),
 
+    # --- Cell retention for a 20 m3 perfusion tank (retention.py; research_notes/retention_devices.md) ---------------
+    # Not used by any default: retention.py reprices the cases with each device through explore(retention=, extra_opex=).
+    "rt_tff_default": Input(1.0, "switch", "[model choice, 2026-11-15] 1: perfusion is priced with the TFF hollow-fibre "
+        "loop (retention.py; floor_physics.explore's default); 0: with the old hoped-for device, pf_capex_retention and no "
+        "membranes",
+        note="the side studies written before this change (research_notes/gas_exchange_study.md, cheap_plant_study.md) quote "
+             "figures at 0; their tests check them at 0"),
+    "rt_install": Input(1.84, "x", "[Pasitka SI Tables S1 and S4, as for pf_capex_retention] engineering, construction, "
+        "fees and contingency on bought retention equipment", lo=1.5, hi=2.5, mode=1.84),
+    "rt_flux_lmh": Input(5.0, "L/m2/h", "[Repligen design guidance, snippet; Ott 2024, Veje 2024, read in full] permeate "
+        "flux a hollow-fibre filter holds for weeks: vendors design at 4-6; one ATF 6 ran 50 days unchanged at 0.68 (50 L, "
+        "volume fraction 0.13); membranes fouled in 3-6 days at 8.3", lo=2.0, hi=8.3, mode=5.0,
+        note="no month-long data at a volume fraction of 0.25"),
+    "rt_atf_area": Input(11.0, "m2", "[Repligen XCell ATF 10 brochure, read in full] membrane area of the largest ATF unit",
+        note="rated for 200-5,000 L tanks; 'up to 1,000 L/d' of permeate each (Humbird 2021)"),
+    "rt_atf_price": Input(200.0, "$k per unit", "[Humbird 2021, read in part, derived] $38.5M for 192 ATF 10 units before "
+        "installation", lo=100.0, hi=350.0, mode=200.0, note="hi: Pasitka's SI, $17.5M for 50 units"),
+    "rt_atf_phi_max": Input(0.31, "volume fraction", "[Clincke et al. 2013, read in full] the ATF's vacuum could no longer "
+        "pull the thick broth at 1.3e8 CHO cells/mL (about 2.4 pL a cell), in a 4 L bag",
+        lo=0.25, hi=0.35, mode=0.31),
+    "rt_tff_hw": Input(1.0, "$k per m2", "[assumed, research pass] pumps, housings and skid per m2 of hollow-fibre membrane "
+        "for a recirculating TFF loop; at the central duty this gives $35k per m3 of tank, Pasitka's own TFF figure",
+        lo=0.5, hi=3.0, mode=1.0),
+    "rt_tff_phi_max": Input(0.5, "volume fraction", "[Clincke et al. 2013, read in full] a TFF loop with a positive-pressure "
+        "pump reached 2.14e8 CHO cells/mL (about half the volume) for days in a 4 L bag, at about 1 bar at the inlet",
+        lo=0.3, hi=0.5, mode=0.5),
+    "rt_membrane_price": Input(1450.0, "$/m2", "[Humbird 2021, read in part, derived] $16,000 per ATF membrane of 11 m2; a "
+        "retail 0.2 um module lists at $1,050-1,260 per m2 (snippet)", lo=1050.0, hi=1450.0, mode=1450.0),
+    "rt_membrane_life": Input(3960.0, "L/m2", "[research pass, derived] litres of permeate a m2 of membrane filters before it "
+        "is replaced: 5 L/m2/h for a 33-day run", lo=900.0, hi=5500.0, mode=3960.0,
+        note="lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
+             "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture"),
+    "rt_settle_price": Input(3.5, "$k per m2", "[assumed, research pass] a steam-rated inclined settler per m2 of projected "
+        "plate area, installed; no price found", lo=2.0, hi=5.0, mode=3.5),
+    "rt_settle_holdup": Input(17.0, "L per m2", "[Romann et al. 2023, read in full, via the repo notes] a 2,000 L "
+        "bleed-recycling settler: 30.4 L inside for 1.78 m2 of projected area", lo=10.0, hi=25.0, mode=17.0,
+        note="culture in the settler has no oxygen supply; at 1e8 cells/mL its oxygen lasts seconds"),
+    "rt_settle_v_frac": Input(0.5, "of hindered velocity", "[research notes, practice] settlers are designed to overflow at "
+        "about half the speed at which the crowded cells settle", lo=0.3, hi=0.7, mode=0.5),
+    "rt_settle_holdup_max": Input(0.05, "of the tank's liquid", "[assumed] the most culture a settler may hold outside the "
+        "tank, with no oxygen supply; Romann's 2,000 L settler held about 1.5% of its tank", lo=0.02, hi=0.10, mode=0.05,
+        note="above this a settler is marked not possible: too much of the culture would sit without oxygen"),
+    "rt_settle_phi_max": Input(0.12, "volume fraction", "[Coronel 2020; Romann 2023, via the repo notes] the densest cultures "
+        "held by a settler: 5e7 avian cells/mL; all data at a volume fraction of about 0.1 or less", lo=0.1, hi=0.2, mode=0.12),
+    "rt_acoustic_cap": Input(1.0, "m3/day per unit", "[Getinge BioSep product page, snippet] the largest acoustic separator: "
+        "1,000 L/day (vendor); independent tests reached 200-400 L/day", lo=0.2, hi=1.0, mode=1.0,
+        note="larger units are 'very difficult' because the sound heats the culture (Romann 2023 review)"),
+    "rt_acoustic_price": Input(100.0, "$k per unit", "[assumed] no price found (vendor quotes on request)",
+        lo=50.0, hi=200.0, mode=100.0),
+    "rt_ds_cap": Input(2.0, "m3/h per unit", "[Alfa Laval Culturefuge 100, vendor, snippet] a hermetic, steam-sterilised "
+        "disc-stack separator for cell culture: 0.2-2 m3/h", lo=1.0, hi=2.0, mode=2.0),
+    "rt_ds_price": Input(800.0, "$k per unit installed", "[assumed, research pass] no sterile price found; a non-sterile "
+        "154 m3/h separator cost $747.5k in 2013 (NREL 2016, read in part)", lo=400.0, hi=1500.0, mode=800.0),
+    "rt_ds_spares": Input(1.0, "units", "[assumed] one spare separator, so a seal failure does not end a 33-day run"),
+    "rt_ds_conc": Input(0.70, "volume fraction", "[Hundley and Konigsson 2020, BioProcess Int., read in part] a hermetic "
+        "separator concentrated CHO cells to 70% packed volume", lo=0.6, hi=0.8, mode=0.70),
+    "rt_ds_lysis": Input(0.04, "per pass", "[same, measured by the vendor's staff] extra cells burst per pass: 2-6% in a "
+        "single-use prototype at low load, 12.5% in the Culturefuge 100", lo=0.02, hi=0.125, mode=0.04,
+        note="CHO cells; meat cells are larger and may be more fragile. Yeast survives 2-3 passes a day for 250-280 days in "
+             "Brazilian ethanol plants, but yeast has a cell wall"),
+    "rt_ds_phi_max": Input(0.28, "volume fraction", "[Hundley and Konigsson 2020, read in part] the densest feed a hermetic "
+        "separator was shown with: a synthetic analogue at 28% packed cell volume", lo=0.2, hi=0.3, mode=0.28),
+    "rt_ds_power": Input(10.0, "kW per running unit", "[research pass, inference from vendor data] a 2 m3/h hermetic "
+        "separator; power is cents a kilo", lo=5.0, hi=20.0, mode=10.0),
+    "rt_maint": Input(0.04, "of capital a year", "[assumed] maintenance of a separator beyond the plant's own 4%",
+        lo=0.02, hi=0.08, mode=0.04),
+    "rt_hc_eff": Input(0.96, "of cells", "[Bettinardi et al. 2020, abstract; Pinto et al. 2008, snippet] share of cells a "
+        "hydrocyclone returns to the tank: 96-97% at 2.3 bar, 89-95% in other tests", lo=0.89, hi=0.97, mode=0.96),
+    "rt_hc_split": Input(0.5, "of feed", "[assumed] share of a hydrocyclone's feed that leaves in the overflow (the clarified "
+        "stream); the rest returns", lo=0.3, hi=0.7, mode=0.5),
+    "rt_hc_price": Input(50.0, "$k per m3/h of feed, installed", "[assumed] no price or flow per unit found", lo=20.0,
+        hi=150.0, mode=50.0),
+    "rt_hc_phi_max": Input(0.12, "volume fraction", "[Bettinardi et al. 2020, abstract] the densest hydrocyclone perfusion: "
+        "5e7 cells/mL in a 40 L bag", lo=0.06, hi=0.2, mode=0.12),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term

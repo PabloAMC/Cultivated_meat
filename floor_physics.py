@@ -356,7 +356,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
             fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
-            vm: dict | None = None, _search: bool = True) -> dict:
+            vm: dict | None = None, membrane_life: float | None = None, flux: float | None = None,
+            _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -369,7 +370,12 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         culture: CO2 leaves only in the sparge gas, and a deeper tank passes less gas per litre
         (co2_limited_density). More CO2 tolerance, more gas flow or a squatter tank all raise the limit;
         gas flow also raises oxygen transfer (kLa ~ u_s^0.8) and tank shape changes the mixing time;
-      * perfusion needs a device to hold cells back (pf_capex_retention); fill-and-draw does not, but
+      * perfusion needs a device to hold cells back. By default it is a TFF hollow-fibre loop sized on the cell-free
+        liquid it must clear (medium per kg less what the bleed of cells carries out, 1000 / density): membrane area =
+        that flow / `flux` (rt_flux_lmh), hardware rt_tff_hw per m2 times rt_install, and membranes at rt_membrane_price
+        per m2 over `membrane_life` litres per m2 (retention.py, research_notes/retention_devices.md). A number for
+        `retention` instead charges that much capital per m3 of tank and no membranes (the old hoped-for device was
+        pf_capex_retention). Fill-and-draw needs no device, but
         waste then caps the density and the tank averages f/ln(1/(1-f)) of its peak output.
 
       * a run ends at its planned length or when it is contaminated (a constant chance per day, `hazard`),
@@ -503,7 +509,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if shape_cost and aspect is not None:              # a squatter tank needs more steel and floor (gas_exchange.py)
         from gas_exchange import shape_capex_factor
         capex *= shape_capex_factor(vessel_m3, aspect)["plant"]
-    if washed and not vm.get("own_retention"):         # a device holds suspended cells back
+    tff = washed and not vm.get("own_retention") and retention is None and value("rt_tff_default") >= 0.5
+    if washed and not vm.get("own_retention") and not tff:                 # a flat charge in place of the TFF loop
         capex += value("pf_capex_retention") if retention is None else retention
     us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
     us_rel = us / value("pf_gas_velocity")
@@ -589,6 +596,16 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         medium_l = max(value("pf_medium_l_floor"), need)
         if washed:
             osm = value("pf_osm_base") + osm_co2 + (2.0 * lac + sorb * nh3) / medium_l * 1000.0
+    ret_capex = membranes = 0.0
+    if tff:                                            # the TFF loop clears what the bleed of cells does not carry out
+        perm = max(0.0, medium_l - 1000.0 / x)                                         # litres per kg grown
+        kg_h = out * 1000.0 / (HOURS * uptime)                                          # kg per hour per m3 of tank
+        area = perm * kg_h / (value("rt_flux_lmh") if flux is None else flux)           # m2 of membrane per m3 of tank
+        ret_capex = area * value("rt_tff_hw") * value("rt_install")                     # $k per m3 of tank
+        membranes = perm * value("rt_membrane_price") / (value("rt_membrane_life") if membrane_life is None else membrane_life)
+        capex += ret_capex
+        capital += charge * ret_capex / out
+        consumables += membranes
     if fat_fed > 0:                                    # lipid bought instead of made from glucose
         consumables += fat_fed * value("pf_fat_kg") * (value("pf_fat_price") if fat_price is None else fat_price)
     if sorb > 0:                                       # exchanger bought per mol of ammonium taken, over its uses
@@ -611,6 +628,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     total = capital + labour + utilities + consumables + feed + gf + extra_opex
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
+            "retention_capex": float(ret_capex), "membranes": float(membranes),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "gas": float(gas), "gas_extra": float(gas_extra),
             "consumables": consumables, "feedstock": float(feed), "growth_factors": float(gf),
@@ -846,11 +864,12 @@ TORNADO = [
      "<b>Range:</b> 23.6% is Humbird's first-plant figure; the floor's 17.3% uses the food industry's cost of "
      "capital over 20 years; 12.3% is a 30-year payback with no return. <b>Evidence:</b> a financing choice, "
      "not a scientific unknown. Loan guarantees move it."),
-    ("Retention device", "retention", 0.0, 460.0, "free", "Humbird's filters",
-     "Perfusion needs something that holds the cells in the tank while spent medium leaves. <b>Range:</b> the "
-     "floor prices it at what one study hopes it will cost ($89k per m\u00b3); the filters pharma uses would "
-     "cost about $460k. <b>Evidence:</b> a gravity settler runs today at 3,000 litres; a 20 m\u00b3 tank needs "
-     "4.5 times the flow."),
+    ("Life of the filter membranes", "membrane_life", 5500.0, 900.0, "5,500 litres per m\u00b2", "900 litres per m\u00b2",
+     "Perfusion needs a device that holds the cells in the tank while spent medium leaves. The model prices a hollow-fibre "
+     "filter loop. Its membranes, not its hardware, set the cost: about $1,450 per m\u00b2, replaced after filtering "
+     "3,960 litres per m\u00b2. <b>Range:</b> one fibre filtered about 5,500 litres per m\u00b2 over 30 days; membranes "
+     "pushed harder fouled after about 900. <b>Evidence:</b> small vessels only. Nobody has filtered a culture this thick "
+     "for a month at 20 m\u00b3."),
     ("Growth factors", "growth_factors", 0.0, 1.0, "none", "all bought",
      "Proteins that tell cells to grow. The floor leaves them out: cells that need none, or make their own. "
      "<b>Range:</b> bought at Humbird's large-scale price they add about $4 a kilo [2]. <b>Evidence:</b> that "
@@ -925,7 +944,7 @@ def _tri_ppf(u, lo, mode, hi):
 
 def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary", cell_corr: float = 0.5) -> dict:
     """Monte Carlo over the floor case's own inputs: the plant estimate, uptime, the density limit, the
-    cells (speed, size, waste), the retention device, financing and the upkeep share of respiration.
+    cells (speed, size, waste), the life of the retention membranes, financing and the upkeep share of respiration.
     Everything else in the case (perfusion at 20 m3, no growth factors) is held. The cell-quality inputs
     share a correlation `cell_corr` (Gaussian copula). Returns the draws of total cost ($/kg) and of
     each input."""
@@ -933,7 +952,7 @@ def floor_mc(n: int = 4000, seed: int = 0, plant: str = "sanitary", cell_corr: f
     from math import erf, sqrt
     rng = np.random.default_rng(seed)
     pri = dict(FLOOR_PRIORS)
-    for key, name in (("retention", "pf_capex_retention"), ("charge", "plant_charge_mature"),
+    for key, name in (("membrane_life", "rt_membrane_life"), ("charge", "plant_charge_mature"),
                       ("maintenance_share", "pf_maintenance_share")):
         _kind, lo, hi, mode, _note = prior(name)
         pri[key] = (lo, mode, hi)

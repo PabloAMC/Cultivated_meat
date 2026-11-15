@@ -1,5 +1,9 @@
 # Vessel types and operating modes
 
+> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
+> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
+> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. Perfusion cells in the grids below are now dearer: in the reference case the stirred tank is $11.84, the airlift $14.11, the bag $17.23; in the central case the stirred tank is $26.64. The other modes do not change. RESULTS.md has the current reference grid.
+
 Research date: 2026-11-15. Code: `vessels.py` (grid), `floor_physics.explore(vm=...)` (the physics), `page_vessels.js` (the page's
 mirror). Inputs: `inputs.py` `vm_*`. Costs are 2025 dollars per kg of wet cells, for a plant built to each design.
 

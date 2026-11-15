@@ -2,6 +2,31 @@
 
 ## 2026-11-15
 
+The filter loop is the model's default (Pablo's decision; numbers move)
+- `floor_physics.explore` now prices the device that holds cells back in perfusion as a TFF hollow-fibre loop: hardware per m² of
+  membrane sized on the cell-free liquid the bleed does not carry out, plus membranes at about $0.37 a litre filtered. A number
+  for `retention` still charges a flat capital and no membranes. `rt_tff_default = 0` restores the old hoped-for device.
+- Scenario costs: best $6.57 → **$8.95** (R 0.96 → 1.16: **no scenario reaches price parity now**; median world share 7.9% →
+  4.4%), central $18.14 → **$26.64** (0.8% → 0.3%), central with shared medium $15.84 → $24.34, cautious $32.29 → $38.97,
+  reference $11.48 → $11.84. The scenarios' tank designs did not change.
+- The tornado's retention row is now the life of the filter membranes (5,500 to 900 litres per m²); the widest bar at the reference
+  case is now the waste the cells make. The reference-case and scenario Monte Carlo runs draw the membrane life in place of a flat
+  retention capital (floor Monte Carlo median $18.6 → $25.7).
+- Pinned values updated in `test_floor_physics`, `test_scenarios`, `test_vessels`, `test_retention`. The gas-exchange and
+  cheap-plant tests check their notes with the old device; those notes, `cost_scenarios.md` and `vessels_and_modes.md` carry a dated
+  line saying so. RESULTS (summary rewritten: no parity, the filter as a cost driver) and METHODS (scenario table, tornado table,
+  the default device) follow. The tier ladder keeps the old device.
+- The page's JavaScript mirror prices the same loop; parity holds.
+
+Holding the cells back in a 20 m3 perfusion tank (`retention.py`, `research_notes/retention_devices.md`; no default changed)
+- The duty from the model: the reference case clears 0.16 m3/h of cell-free permeate (the bleed carries most of the liquid);
+  the central case clears 1.88 m3/h from a culture that is a quarter cells; the best case 0.86 m3/h.
+- Each real device sized and costed (`rt_*` inputs, each with source and range). Reference case: $10.82-12.25 with any device
+  that works, against $11.48. Central: $25.69 (disc-stack separator, 28% of cells burst) to $30.43 (ATF), against $18.14; range
+  $21-80. A settler is not possible at 258 g/L; acoustic devices and hydrocyclones are beyond what has been shown.
+- Membranes, not hardware, set the cost of filtering the central culture: about $0.37 per litre of permeate, $8.83 a kilo.
+- `tests/test_retention.py` (balances, the default reproduced exactly, sizing rules, ranges, pinned headline), in `run_tests.sh`.
+
 Densities not shown for meat cells (no number moved)
 - A cell tagged "done at this size" now says "This density is not shown for meat cells" when its density is above the 27 g/L
   reported for meat cells in a vessel of 1 m3 or more (new input `vm_x_meat_shown`: Vow's 538 kg harvest from 20,000 L; range
