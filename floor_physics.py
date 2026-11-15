@@ -700,31 +700,31 @@ def backtest() -> list:
                  f"model limit: {k}. The run reached a packed-cell fraction of 0.5; its authors advise 0.37"))
     obs_l = 50e-12 / (2400e-15 * 0.35)             # 50 pL per cell per day
     rows.append(("CHO, wave-bag perfusion (Clincke 2013)", "medium, L per kg of cells", obs_l, litres(c),
-                 "50 pL per cell a day; more gave no benefit, less was not tried"))
+                 "50 pL per cell a day. More gave no benefit, and nobody tried less."))
     # 2. Mayrhofer et al. 2020: CHO at 2.2-2.4e8 cells/mL on optimised medium
     c = cell(2500.0, 0.15)
     rows.append(("CHO, optimised perfusion medium (Mayrhofer 2020)", "medium, L per kg of cells",
                  22e-12 / (2500e-15 * 0.15), litres(c),
-                 "14-30 pL per cell a day at about 0.15 per day growth; cell size assumed 2.5 ng"))
+                 "14-30 pL per cell a day at about 0.15 per day growth. The cell size is assumed to be 2.5 ng."))
     # 3. SuperMeat 2024 (company report): chicken cells, 10 L perfusion with bleed
     c = cell(1400.0, 0.5 * LN2)                    # half a doubling a day; 1.0-1.75 ng per cell
     obs_x = 80e6 * 1400e-12 * 1000.0
     k = min(caps(c), key=caps(c).get)
     rows.append(("Chicken, 10 L perfusion (SuperMeat 2024)", "density held, g/L", obs_x, caps(c)[k],
-                 f"model limit: {k}; 80 million cells per mL at 1.0-1.75 ng"))
+                 f"model limit: {k}. The run had 80 million cells per mL at 1.0-1.75 ng."))
     rows.append(("Chicken, 10 L perfusion (SuperMeat 2024)", "medium, L per kg of cells", 30.5, litres(c),
                  "as reported for the scaled-up process"))
     out = value("pf_working_volume") * obs_x * c.mu * HOURS * value("pf_uptime") / 1000.0
     rows.append(("Chicken, scaled up on paper (SuperMeat 2024)", "output, t per m3 a year", 3039.0 / 125.0, out,
-                 "stated output against what its own density and growth rate give: the report does not add up"))
+                 "The stated output differs from what its own density and growth rate give. The report does not add up."))
     # 4. Pasitka et al. 2024: chicken fibroblasts at 130 million cells per mL
     c = cell(550.0, LN2 / (61.0 / day))            # 10 um cells; 61 h doubling in animal-free medium
     rows.append(("Chicken, bench perfusion (Pasitka 2024)", "density claimed, g/L", 430.0, 130e6 * 550e-12 * 1000.0,
-                 "'43% w/v' against cell count x the mass of a 10 um cell: the claimed figure is not cell mass"))
+                 "The report says '43% w/v', but its cell count times the mass of a 10 um cell gives much less. The claimed figure is not cell mass."))
     # 5. Vow: the one 20 m3 plant, drained and refilled
     r = explore(mode="filldraw", charge=value("humbird_plant_charge"))
     rows.append(("Quail, 20 m3 drained and refilled (Vow)", "output, t per m3 a year", (3.7 + 6.5) / 2.0, r["output"],
-                 "stated target 3.7-6.5 against the model's efficient cells in the same mode"))
+                 "The stated target is 3.7-6.5, compared here with the model's efficient cells in the same mode."))
     return rows
 
 

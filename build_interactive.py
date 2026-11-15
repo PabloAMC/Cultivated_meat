@@ -258,7 +258,7 @@ def build_model() -> dict:
         # applied as the analog's health_p position. ILLUSTRATIVE, like the other comparison numbers.
         "comparison_products": {
             "plant-based milk (oat/soy)": {"pb_mult":1.0,"taste":0.0,"w_rt":2.1,"wf_mult":1.2,
-                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"price+taste parity in use (coffee/cereal); no cheap rival",
+                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"Price and taste parity are in use (coffee and cereal). There is no cheap rival.",
                 "why":{"price":"~parity in use: a splash in coffee/cereal costs about the same (GFI/SPINS)",
                        "taste":"functional parity in its key uses (barista oat/soy froths, tastes fine in cereal)",
                        "rival":"no cheap whole-food substitute for milk-in-coffee → weak outside option",
@@ -318,12 +318,12 @@ def build_model() -> dict:
             "scaffold":      ["k", "Eq. (1), structured cuts only"],
             "markup_add":    ["m", "Eq. (1)"],
             "meat_tax":      ["t", "denominator of Eq. (1)"],
-            "income":        ["y", "income term &alpha;&thinsp;ln(y<sub>eff</sub>&minus;p<sub>j</sub>) in Eq. (2); A2"],
-            "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>; A2"],
-            "eps_own":       ["&epsilon;", "sets the price weight &beta;; A1"],
-            "cult_sub_mult": ["&kappa;", "sets the price weight &beta;; A1"],
-            "loss_aversion": ["&lambda;", "reference-price term w<sub>r</sub>[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup>] in Eq. (2); A3"],
-            "w_ratio":       ["w<sub>r</sub>", "weight of the reference-price term in Eq. (2); A3"],
+            "income":        ["y", "income term &alpha;&thinsp;ln(y<sub>eff</sub>&minus;p<sub>j</sub>) in Eq. (2), see A2"],
+            "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>, see A2"],
+            "eps_own":       ["&epsilon;", "sets the price weight &beta;, see A1"],
+            "cult_sub_mult": ["&kappa;", "sets the price weight &beta;, see A1"],
+            "loss_aversion": ["&lambda;", "reference-price term w<sub>r</sub>[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup>] in Eq. (2), see A3"],
+            "w_ratio":       ["w<sub>r</sub>", "weight of the reference-price term in Eq. (2), see A3"],
             "accept_x":      ["a<sub>x</sub>", "taste term w<sup>t</sup>(a<sub>x</sub>&minus;1) in Eq. (2)"],
             "neophobia_x":   ["&nu;<sub>x</sub>", "novelty term in Eq. (2); long-run end of Eq. (5)"],
             "neophobia_p":   ["&nu;<sub>p</sub>", "plant-based novelty term in Eq. (2)"],
@@ -331,26 +331,26 @@ def build_model() -> dict:
             "R_p":           ["R<sub>p</sub>", "plant-based price in Eq. (2)"],
             "theta_free_M":  ["&theta;", "mainstream no-slaughter weight w<sup>s</sup> in Eq. (2)"],
             "w_eth":         ["w<sub>eth</sub>", "segment mix, Eq. (3)"],
-            "premium_resistance": ["&rho;", "scales the tier offsets &tau; and &psi;; A5"],
+            "premium_resistance": ["&rho;", "scales the tier offsets &tau; and &psi;, see A5"],
             "real_tissue_x": ["b<sub>x</sub>", "real-meat term w<sup>rt</sup>b<sub>x</sub> in Eq. (2)"],
             "real_tissue_p": ["b<sub>p</sub>", "plant-based real-meat term in Eq. (2)"],
             "health_x":      ["&zeta;<sub>x</sub>", "health term w<sup>h</sup>&zeta;<sub>x</sub> in Eq. (2)"],
             "health_p":      ["&zeta;<sub>p</sub>", "plant-based health term in Eq. (2)"],
-            "auth_basic":    ["&tau;<sub>mince</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "auth_cut":      ["&tau;<sub>cut</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "auth_premium":  ["&tau;<sub>prem</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "w_taste":       ["w<sup>t</sup>", "taste weight in Eq. (2); A4"],
-            "w_realtissue_M": ["w<sup>rt</sup><sub>M</sub>", "real-meat weight in Eq. (2), mainstream; A4"],
-            "w_realtissue_E": ["w<sup>rt</sup><sub>E</sub>", "real-meat weight in Eq. (2), ethical; A4"],
-            "w_health_M":    ["w<sup>h</sup><sub>M</sub>", "health weight in Eq. (2), mainstream; A4"],
-            "w_health_E":    ["w<sup>h</sup><sub>E</sub>", "health weight in Eq. (2), ethical; A4"],
-            "w_slaughter_E": ["w<sup>s</sup><sub>E</sub>", "no-slaughter weight in Eq. (2), ethical; A4"],
+            "auth_basic":    ["&tau;<sub>mince</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "auth_cut":      ["&tau;<sub>cut</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "auth_premium":  ["&tau;<sub>prem</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "w_taste":       ["w<sup>t</sup>", "taste weight in Eq. (2), see A4"],
+            "w_realtissue_M": ["w<sup>rt</sup><sub>M</sub>", "real-meat weight in Eq. (2), mainstream, see A4"],
+            "w_realtissue_E": ["w<sup>rt</sup><sub>E</sub>", "real-meat weight in Eq. (2), ethical, see A4"],
+            "w_health_M":    ["w<sup>h</sup><sub>M</sub>", "health weight in Eq. (2), mainstream, see A4"],
+            "w_health_E":    ["w<sup>h</sup><sub>E</sub>", "health weight in Eq. (2), ethical, see A4"],
+            "w_slaughter_E": ["w<sup>s</sup><sub>E</sub>", "no-slaughter weight in Eq. (2), ethical, see A4"],
             "neophobia_x0":  ["&nu;<sub>x0</sub>", "starting novelty in Eq. (5)"],
             "neophobia_p0":  ["&nu;<sub>p0</sub>", "plant-based starting novelty in Eq. (5)"],
             "accept_rate":   ["r", "fade speed in Eq. (5)"],
             "p_innov":       ["p<sub>B</sub>", "Bass rollout F(t) in Eq. (5)"],
             "q_imit":        ["q<sub>B</sub>", "Bass rollout F(t) in Eq. (5)"],
-            "phi":           ["&chi;", "reachable volume (1&minus;&chi;)Q; A6"],
+            "phi":           ["&chi;", "reachable volume (1&minus;&chi;)Q, see A6"],
         },
     }
 
@@ -725,27 +725,27 @@ def weights_table_rows() -> str:
         f'&beta; = &epsilon;<sub>x</sub>/[p<sub>x</sub>(1&minus;s<sub>x</sub>)] + &lambda;/p<sub>c</sub> = '
         f'{eps_x:.1f}/[{p_x:.0f}&middot;{1-s_x:.2f}] + {lam:.0f}/{p_c:.0f} = <b>{beta:.3f}</b>; then '
         f'&alpha; = &minus;&beta;(y<sub>ref</sub>&minus;p<sub>x</sub>) = <b>{alpha:,.0f}</b> (large only because '
-        'differences in log income are tiny). p<sub>x</sub> is computed from the default costs, not typed in; the '
+        'differences in log income are tiny). The model computes p<sub>x</sub> from the default costs, and nobody typed it in. The '
         'page&rsquo;s cost sliders change cultivated&rsquo;s price but not this calibration point.</td></tr>'
     )
     rows = [
         price_row,
         row("taste", "w<sup>t</sup>", f"{dp.w_taste:.2f}", f"{dp.w_taste:.2f}",
-            '<b>FIXED</b> scale: only differences between scores matter, so taste sets the scale for every other '
-            'weight (anchored to willingness-to-pay studies). Expert slider.'),
+            '<b>FIXED</b> scale. Only differences between scores matter, so taste sets the scale for every other '
+            'weight (anchored to willingness-to-pay studies). This is an expert slider.'),
         row("no slaughter", "w<sup>s</sup>", f"{dp.theta_free_M:.2f}", f"{dp.w_slaughter_E:.1f}",
-            'mainstream = <b>SLIDER</b> (&theta;, default 0); ethical = <b>FIXED</b> assumption (large: it is what '
-            'defines the ethical shopper)'),
+            'Mainstream: <b>SLIDER</b> (&theta;, default 0). Ethical: <b>FIXED</b> assumption. It is large, because it '
+            'defines the ethical shopper.'),
         row("real meat", "w<sup>rt</sup>", f"{dp.w_realtissue_M:.2f}", f"{dp.w_realtissue_E:.2f}",
-            'mainstream = <b>SOLVED</b> so ~89% of plant-based buyers are mainstream; ethical = <b>FIXED</b> '
-            '&asymp;0 (they choose on &ldquo;no slaughter&rdquo;, not &ldquo;is it meat&rdquo;)'),
+            'Mainstream: <b>SOLVED</b> so that ~89% of plant-based buyers are mainstream. Ethical: <b>FIXED</b> '
+            'at about 0, because they choose on &ldquo;no slaughter&rdquo;, not &ldquo;is it meat&rdquo;.'),
         row("health", "w<sup>h</sup>", f"{dp.w_health_M:.2f}", f"{dp.w_health_E:.2f}",
-            'both <b>SOLVED</b>: the mainstream meatless rate (~6%) and the ethical shoppers&rsquo; plant-based '
-            'share'),
+            'Both <b>SOLVED</b>, from the mainstream meatless rate (~6%) and the ethical shoppers&rsquo; plant-based '
+            'share.'),
         row("loss aversion", "&lambda;", f"{dp.loss_aversion:.2f}", f"{dp.loss_aversion:.2f}",
             '<b>SLIDER</b>, default 1 = symmetric (A3)'),
         row("segment mix", "w<sub>eth</sub>", "&mdash;", f"{dp.w_eth*100:.0f}%",
-            '<b>SLIDER</b> (Gallup: 5% vegetarian or vegan); moving it re-solves the calibration'),
+            '<b>SLIDER</b> (Gallup: 5% vegetarian or vegan). Moving it re-solves the calibration.'),
     ]
     return "\n        ".join(rows)
 
@@ -1298,7 +1298,7 @@ little waste the cells make, how fast they grow, how the plant is built and how 
 <b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. Costs are dollars per kilo of wet
 cells, in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share by weight, once cultivated meat is on every
 shelf and no longer feels new. It is not a forecast of when that happens. The share is the <b>median</b> of 4,000 random draws, so half the draws gave less and half gave more. In each draw, the cost estimates and the
-demand dials (price sensitivity, acceptance and the retail markup) vary. The 10th to 90th percentile range sits beside the median, and 80% of draws fall inside it. The share at
+demand dials (price sensitivity, acceptance and the retail markup) vary. The 10th to 90th percentile range is next to the median, and 80% of draws fall inside it. The share at
 exactly the cost shown appears in small type as a point estimate. <a href="#decide">Change any assumption yourself</a> below.</p>
 {{ANSWER_HTML}}
 <p class="fnote"><b>What the table assumes about the tank.</b> Nobody has run any of these tank designs with animal cells.
@@ -1701,7 +1701,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       conventional meat's main advantage with mainstream shoppers, and it draws its buyers from conventional meat. The
       premise is a slider. Full credit gives ~{{BX_10}}% at equal price, and none gives ~{{BX_00}}%.</p>
       <p><b>Tied to data.</b> Price sensitivity follows grocery data for meat (1% dearer, 0.9% fewer purchases [4]).
-      It is steeper for cultivated meat because an almost identical product sits beside it (A1). Three weights are solved
+      It is steeper for cultivated meat because an almost identical product is next to it (A1). Three weights are solved
       so that the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
       of mainstream meals that skip meat (A4). Taste sets the scale for the rest. As a check, the same model with
       only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (see the other-products chart).
@@ -1873,7 +1873,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x) \tag{A1} \]
       <p>The \(\lambda/p_c\) term adds back the part of the price response that the reference-price
-      term in Eq. (2) already carries. So \(\kappa\) sets the level of sensitivity, and \(\lambda\) sets only its shape around parity.
+      term in Eq. (2) already contains. So \(\kappa\) sets the level of sensitivity, and \(\lambda\) sets only its shape around parity.
       The price \(p_x\) is a fixed calibration price of ${{ANCHOR_PRICE}}/kg. It is cultivated meat's shop price before the model added the plant's
       capital charge to the cost. The model holds it fixed, so that correcting a cost changes cultivated meat's price but
       not how shoppers respond to price. At the reported cost, the shop price is higher (${{RETAIL_TODAY}}/kg), and the model is more
@@ -1909,7 +1909,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       symmetric by default for three reasons. First, it barely changes the result once \(\beta\) is re-fitted (at the default
       price, {{LAMBDA_1}}% at \(\lambda=1\) against {{LAMBDA_225}}% at 2.25). Second, cultivated meat data cannot identify it. Third,
       measured loss aversion largely reflects differences in price sensitivity between shoppers (Bell and Lattin,
-      2000), and \(\kappa\) already carries those.</p>
+      2000), and \(\kappa\) already contains those.</p>
 
       <h5>A4. Calibration, and the attribute weights</h5>
       <p><b>Fixed from data:</b> plant-based meat's price premium (+77% [14]) and taste (0.8 [7]), and the ethical
@@ -4096,7 +4096,7 @@ function fxLimitsDraw(r,f){
     const mvals=mk.map(k=>r.medium_terms[k]).concat(Object.keys(f.medium_terms).map(k=>f.medium_terms[k]));
     const mm=Math.max(20,Math.ceil(Math.max.apply(null,mvals)/10)*10), XM=v=>L+Math.min(v,mm)/mm*(W-L-R), H2=top+mk.length*rh+6;
     g+='<svg viewBox="0 0 '+W+' '+H2+'" width="100%" style="max-width:'+W+'px;min-width:480px;margin-top:6px" role="img" aria-label="Litres of medium per kilo and what sets them">';
-    g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells each need asks for; the largest sets it ('+r.medium_l.toFixed(1)+' L)</text>';
+    g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells that each need asks for. The largest sets the amount ('+r.medium_l.toFixed(1)+' L)</text>';
     mk.forEach((k,i)=>{
       const y=top+i*rh, v=r.medium_terms[k], fv=f.medium_terms[k], bind=(k===r.medium_set_by);
       g+='<text x="'+(L-8)+'" y="'+(y+11)+'" font-size="11" text-anchor="end" style="fill:var(--ink)"'+(bind?' font-weight="700"':'')+'>'+esc(mname[k]||k)+'</text>';

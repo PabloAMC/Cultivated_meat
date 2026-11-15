@@ -76,7 +76,7 @@ _SHAPE_ARGS = ("aspect",)
 VESSELS = {
     "stirred": dict(
         name="Stirred tank", size=value("vm_str_m3"),
-        what="A steel tank with a stirrer; gas bubbled in at the base.",
+        what="A steel tank with a stirrer. Gas bubbles in at the base.",
         limits="Oxygen and CO₂ move only through bubbles. Bubbles and foam hurt cells, so the gas flow is capped. "
                "A deeper tank passes less gas per litre and clears less CO₂. The stirrer must mix faster than the cells "
                "use oxygen.",
