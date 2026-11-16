@@ -674,6 +674,15 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # Stopping lambda at 2.25 keeps the "lambda reshapes the kink, not the elasticity level" property
     # true across the whole admissible range (it holds through the default lambda=1 and the TK anchor).
     beta_cap = pr.w_ratio / pr.p_conv - 1e-3
+    # SIGN GUARD (2026-11-16): beta is the slope of the dollar channel (the BLP log of income left). It must not be
+    # positive: a positive beta makes alpha negative, so shoppers would gain utility from paying more, and the more so the
+    # dearer the cut. Without this, loss_aversion * w_ratio above about 1.6 (beta = target + lambda*w/p_conv > 0) moved
+    # price sensitivity off dollars so far that cultivated's share in steaks and fillets rose with loss aversion
+    # (answer_rests_on.py found Central's world share going from 0.4% to 1.4% as lambda went from 1 to 2.25). Capped at
+    # zero, the dollar channel switches off and the ratio channel alone carries the price response; past that point the
+    # realised elasticity at the anchor is steeper than the eps_own*kappa target, which is what a strong loss aversion
+    # should do. Inert at the defaults (beta = -0.053).
+    beta_cap = min(beta_cap, 0.0)
     s = 0.0
     for _ in range(iters):
         pr.beta_ref = min(beta_cap, eps_x / (pr.anchor_price * (1.0 - s)) + lam_slope)

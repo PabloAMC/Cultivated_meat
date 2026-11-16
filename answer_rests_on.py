@@ -85,10 +85,10 @@ EVIDENCE = {
     "eps_own": "scanner-data meta-analysis",
     "health_x": "a scenario dial: no data",
     "income_gradient": "USDA demand estimates",
-    "loss_aversion": "an alternative model of price, not a measured value",
+    "loss_aversion": "an alternative model of price, not a measured value; with it, part of the price response moves from dollars to the ratio to meat's price",
     "p_conv": "market prices",
     "premium_resistance": "assumed",
-    "w_ratio": "judgement",
+    "w_ratio": "judgement: how much of the price response is a ratio to meat's price rather than dollars",
     "theta_free_M": "a scenario dial: surveys disagree",
     "accept_x": "a scenario dial",
 }
@@ -96,7 +96,19 @@ EVIDENCE = {
 # what the scenarios' uncertainty bands draw (scenarios.scenario_mc and meat_market.monte_carlo)
 IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add"}
            | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS))
+if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
+    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS)
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
+NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
+             "pf_osm_limit": "no: moves the best case's median by about $0.1, at forty times the computing time",
+             "loss_aversion": "no: each value re-solves the demand model's calibration",
+             "w_ratio": "no: each value re-solves the demand model's calibration",
+             "income_gradient": "no: each value re-solves the demand model's calibration",
+             "p_conv": "no: an observed price"}
+# inputs left out of the tables, and why
+EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
+                              "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
+                              "($27.7 to $31.9 in Central) without changing any tank; it is left out."}
 
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
@@ -128,7 +140,7 @@ def _cost(key: str) -> float:
 
 def _ranged() -> list:
     return [(k, v) for k, v in I.REGISTRY.items()
-            if v.lo is not None and v.hi is not None and v.lo != v.hi and isinstance(v.value, (int, float))]
+            if v.lo is not None and v.hi is not None and v.lo != v.hi and isinstance(v.value, (int, float)) and k not in EXCLUDE]
 
 
 def _tag(k: str) -> str:
@@ -137,7 +149,11 @@ def _tag(k: str) -> str:
 
 
 def _band(k: str) -> str:
-    return "yes" if k in IN_BAND else ("partly: " + PARTLY_IN_BAND[k] if k in PARTLY_IN_BAND else "**no**")
+    if k in IN_BAND:
+        return "yes"
+    if k in PARTLY_IN_BAND:
+        return "partly: " + PARTLY_IN_BAND[k]
+    return NOT_DRAWN.get(k, "**no**")
 
 
 _CACHE: dict = {}
@@ -202,6 +218,8 @@ def summary() -> dict:
             "cost_rows": cost, "demand_rows": demand,
             "over_3": sum(abs(r["central"][1] - r["central"][0]) > 3 for r in cost),
             "not_in_band": [r["key"] for r in cost + demand if r["key"] not in IN_BAND],
+            "not_in_band_open": [r["key"] for r in cost + demand if r["key"] not in IN_BAND and r["key"] not in NOT_DRAWN
+                                 and r["key"] not in PARTLY_IN_BAND],
             "central_share_span": (min(min(r["central"]) for r in demand), max(max(r["central"]) for r in demand)),
             "best_share_span": (min(min(r["best"]) for r in demand), max(max(r["best"]) for r in demand))}
 
@@ -219,6 +237,7 @@ def markdown_cost() -> str:
         out.append(f"| {PLAIN[k]} | {_num(r['lo'])}–{_num(r['hi'])} {u} ({_num(r['value'])}) | "
                    f"${r['central'][0]:.1f} to ${r['central'][1]:.1f} | {r['share'][0]:.1f}% to {r['share'][1]:.1f}% | "
                    f"${r['best'][0]:.1f} to ${r['best'][1]:.1f} | {EVIDENCE.get(k, _tag(k))} | {_band(k)} |")
+    out += ["", *(f"*Left out: {why}*" for why in EXCLUDE.values())]
     return "\n".join(out)
 
 

@@ -21,7 +21,8 @@ priorities()   for one scenario, what each switch is worth if it moved to its be
 grid()         two switches against each other.
 interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
 scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention membranes, upkeep,
-               medium price, loss rate), holding the scenario's switches.
+               medium price, loss rate, and since 2026-11-16 the ammonia the cells tolerate, the protectant, the least
+               medium flow, antifoam), holding the scenario's switches.
 
 The page (build_interactive.py) has a JavaScript mirror of this module; tests/run_parity.py checks the two agree.
 Evidence for every setting: research_notes/cost_scenarios.md.
@@ -536,11 +537,24 @@ MC_PRIORS = {
     "medium_price": (0.6, 1.0, 1.5),      # announced $0.20/L to reported $0.50/L around the setting
     "hazard": (0.3, 1.0, 2.0),            # makers report 0.6-2.2% a day; large pharma plants 0.2%
 }
+# Since 2026-11-16 the bands also draw the estimates the cost rests on most (answer_rests_on.py), each from its own prior in
+# inputs.py: the ammonia the cells tolerate, the protectant's price and dose, the least medium flow, antifoam's cost to
+# oxygen transfer and the membrane's price. A scenario that sets one of them itself keeps its own value. Not drawn: the gas
+# flow (a switch); the glucose a cell burns per kg (a trait of the cells, which the kind-of-cells switch holds, as it holds
+# their ammonia and lactate; drawn, it would double the best case's median); and the salt the cells tolerate (drawn, it
+# moves the best case's median by about $0.1 and makes each band forty times slower, because a lower limit sets off the
+# CO2-level search in explore). The ammonia the cells tolerate is drawn because no switch sets it: every scenario takes
+# Humbird's 5 mmol/L.
+# `sc_wide_bands` = 0 restores the narrower bands.
+MC_ESTIMATES = (("nh3_limit", "pf_nh3_limit"), ("protectant_price", "pf_protectant_price"),
+                ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"))
+MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price")    # no explore() argument: set in the datasheet per draw
 
 
 def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
     """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
-    share of respiration, medium price and loss rate, drawn from their priors; the scenario's switches held. `choice=None` is
+    share of respiration, medium price and loss rate, and (MC_ESTIMATES) the estimates the cost rests on most, drawn from
+    their priors; the scenario's switches held. `choice=None` is
     Humbird's optimistic design (`reference()`, explore() at its defaults), drawn the same way."""
     rng = np.random.default_rng(seed)
     kw0 = explore_kwargs(choice) if choice is not None else {}
@@ -555,8 +569,24 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
                       ("maintenance_share", "pf_maintenance_share")):
         _kind, lo, hi, mode, _note = prior(name)
         d[key] = tri(lo, mode, hi)
-    cost = np.array([fp.explore(**{**kw0, **{k: float(v[i]) for k, v in d.items()}})["total"] for i in range(n)])
-    return {"total": cost, **d}
+    reg = {}
+    if value("sc_wide_bands") >= 0.5:                  # drawn after the others, so their draws are unchanged
+        for key, name in MC_ESTIMATES:
+            if key not in kw0:
+                _kind, lo, hi, mode, _note = prior(name)
+                d[key] = tri(lo, mode, hi)
+        for name in MC_ESTIMATE_INPUTS:
+            _kind, lo, hi, mode, _note = prior(name)
+            reg[name] = tri(lo, mode, hi)
+
+    def one(i: int) -> float:
+        kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
+        if not reg:
+            return fp.explore(**kw)["total"]
+        with fp._inputs_set({k: float(v[i]) for k, v in reg.items()}):
+            return fp.explore(**kw)["total"]
+    cost = np.array([one(i) for i in range(n)])
+    return {"total": cost, **d, **reg}
 
 
 def scenario_share_mc(choice: dict | None, region: str = "global", n: int = 1000, seed: int = 0) -> dict:

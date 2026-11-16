@@ -2,6 +2,21 @@
 
 ## 2026-11-16
 
+Wider bands, and a flaw in the demand model fixed (**headline bands move; no point cost moves**)
+- **Bands** (`scenarios.MC_ESTIMATES`, switch `sc_wide_bands`): the scenarios' cost bands now also draw the estimates the cost rests on
+  most, each from its own prior: the ammonia the cells tolerate, the protectant's price and dose, the least medium flow, antifoam's cost
+  to oxygen transfer and the membrane price. Not drawn: glucose use (a cell trait, held by the switch), salt tolerance (no effect on
+  the median, forty times slower), gas flow (a switch).
+  - Central $27–38 → **$25–47**, median share 0.2% (unchanged); best case $9–12 → **$10–19**, median share 3.8% → **1.9%**;
+    Humbird's design 2.4% → 1.3%. The best case's point cost now sits at about the 4th percentile of its draws.
+  - `pf_protectant_price` range 10–260 → **10–120** $/kg: at the catalogue price as the top, the draws' median tonne price was $87.
+- **Demand flaw**: `_derive_beta` splits price sensitivity between a dollar channel (income-scaled) and a ratio channel and pins their
+  sum at one anchor. Loss aversion above about 1.6 drove the dollar coefficient positive (paying more raised utility), which made
+  Central's share rise with loss aversion (0.4% → 1.4%). The coefficient is now capped at zero, in Python and on the page; inert at the
+  defaults. The remaining sensitivity to how price splits between dollars and ratios (0.3–0.7%) is recorded as open.
+- `answer_rests_on.py`: the band column follows the new draws; the gas-velocity row is left out with the reason (it only rescales
+  Humbird's oxygen reference). RESULTS prose, the scenario tables in RESULTS, METHODS and `cost_scenarios.md` updated.
+
 Consolidation: what the answer rests on, and every side study on the current model (`answer_rests_on.py`; **no scenario moves**)
 - **What the answer rests on** (`answer_rests_on.py`, a section near the top of RESULTS): every input with a range is moved to
   each end, one at a time. Of 513 inputs (237 with a range), 14 move Central's or the best case's cost by $1 or more and 8 move

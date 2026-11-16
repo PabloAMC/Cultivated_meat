@@ -87,11 +87,16 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **What the least medium flow is made of** (16 of Central's 28 L/kg): nutrients, small by-products or large ones. It decides
       which reuse route can go below 16 L.
 - [ ] **Add reuse to the page** as a lever (litres cleaned, on the permeate or across the culture), once a route has a measured input.
-- [ ] **Widen the scenarios' cost bands** to draw the inputs that move Central most and are not drawn now: the ammonia the cells
-      tolerate, the protectant's price, the least medium flow, antifoam's cost to oxygen transfer, the gas the tank takes
-      (`answer_rests_on.py`). Central's $27–38 band is too narrow. Needs a prior for each; moves every headline band.
-- [ ] **Two demand inputs move the share the wrong way** (loss aversion and the weight on the price ratio raise Central's share).
-      Both re-calibrate the demand model; check whether the calibration over-compensates.
+- [x] **Bands widened** (2026-11-16, `scenarios.MC_ESTIMATES`): they draw the ammonia the cells tolerate, the protectant's price and
+      dose, the least medium flow, antifoam and the membrane price. Central $27–38 → $25–47; best case $9–12 → $10–19, median share
+      3.8% → 1.9%. The protectant prior now stops at $120/kg (was the $260 catalogue price): a judgement until a quote arrives.
+- [x] **Wrong-way demand inputs** (2026-11-16): a real flaw (the dollar channel's price coefficient could turn positive at high loss
+      aversion) is fixed; the rest is an open question below.
+- [ ] **Dollars or ratios**: how much of the price response is in dollars and how much is a ratio to the cut's price is not pinned by
+      the data; it moves Central's share 0.3–0.7%. Find data that separates them (premium-cut elasticities against commodity ones),
+      or draw `w_ratio` in the bands with a precomputed calibration grid.
+- [ ] **The best case's point cost is at the 3rd–4th percentile of its draws**: its limits are tied at about 11 L/kg. Say so on the page
+      next to the best case, or define the best case by its median.
 - [ ] **Re-judge the probabilities** in `tank_size.md` (section 7, column D), `no_perfusion_downside.md` and `retention_devices.md`
       (section 5): they were judged when Central ran at 258 g/L; it now runs at 191, limited by oxygen.
 - [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
