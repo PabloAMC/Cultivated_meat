@@ -260,9 +260,11 @@ SCENARIOS = {
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),
     "central": Scenario(
-        "central", "3. Plus cells selected for low waste (Central)",
-        "A changed feed and selection of the best lines make the cells produce little waste. This needs no engineering. The cells double "
-        "every 36 hours. The plant is food-grade. The tank clears CO₂ without more bubbles.",
+        "central", "3. Plus cells selected to grow faster on the low-waste feed (Central)",
+        "The cells of rows 1 and 2 already make little ammonia, on a changed feed, but that feed slowed them. Selecting the best lines "
+        "on it wins back part of the speed: the cells double every 36 hours, not 43. This needs no engineering. They also make less "
+        "lactate, which saves nothing while ammonia sets the litres of medium. The plant is food-grade. The tank clears CO₂ without "
+        "more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design(dict(_BASE)),

@@ -28,7 +28,7 @@ litre thrown away.
 
 ## 2. The routes, in Central
 
-| what sets the litres of medium (3. Plus cells selected for low waste (Central)) | litres per kg of cells |
+| what sets the litres of medium (3. Plus cells selected to grow faster on the low-waste feed (Central)) | litres per kg of cells |
 |---|---|
 | ammonia, held at 5 mmol/L | 28.0 |
 | the least flow the cells need for everything else | 16.2 |
@@ -65,7 +65,7 @@ litre thrown away.
 | scenario | no reuse | exchanger on the permeate | electrodialysis of the permeate | dialysis of the permeate, dialysate reused | dialysis across the culture, at the filter's cost | the same, at twice the filter's clearance | perfect and free, on the permeate | perfect and free, across the culture |
 |---|---|---|---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$62.96** | $60.29 | $59.80 | $60.77 | $60.41 | $59.06 | $59.24 | $56.80 |
-| 3. Plus cells selected for low waste (Central) | **$29.42** | $27.01 | $25.95 | $26.15 | $25.06 | $20.90 | $22.12 | $14.62 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.42** | $27.01 | $25.95 | $26.15 | $25.06 | $20.90 | $22.12 | $14.62 |
 | 5. Plus engineered cells: the best case, everything works | **$9.66** | $9.66 | $9.65 | $9.66 | $9.66 | $9.20 | $9.47 | $8.28 |
 
 Reuse is worth most where the litres are set by ammonia and the medium is dear (rungs 1 to 4). In the best case the engineered

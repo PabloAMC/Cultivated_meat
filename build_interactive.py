@@ -1305,7 +1305,7 @@ Commission. <a href="#about">About this page</a>.</p>
 little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
 <b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. <b>The first five rows are a
 ladder.</b> Row 1 is today's best measured meat cells in an ordinary tank. Each row below it adds one kind of change, easiest first: changes to
-the process and cheaper inputs, then cells selected for low waste, then a cheaper plant, then engineered cells. The forecast row is the
+the process and cheaper inputs, then cells selected to grow faster on the low-waste feed, then a cheaper plant, then engineered cells. The forecast row is the
 author's median for 2035. The last two rows, Humbird's optimistic design and a company's own figure, are there for comparison. Costs are dollars per kilo of wet
 cells, in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share by weight, once cultivated meat is on every
 shelf and no longer feels new. It is not a forecast of when that happens. The share is the <b>median</b> of 4,000 random draws, so half the draws gave less and half gave more. In each draw, the cost estimates and the
@@ -1646,7 +1646,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       <b>scenario</b> is a preset of them, and the scenarios form a ladder ordered by how hard each change is. <b>Row 1, today:</b> the best
       meat cells measured, in an ordinary tank with no tricks, at today's input prices: ${{COST_TODAY}}/kg. <b>Row 2</b> adds changes to the process
       (the tank tricks, more gas with a protectant, faster restarts) and cheaper medium and growth factors: ${{COST_PROCESS}}/kg. <b>Row 3,
-      Central,</b> adds cells selected for low waste that double every 36 hours: ${{COST_CENTRAL}}/kg. <b>Row 4</b> adds a food-grade plant with shared
+      Central,</b> adds cells selected on the low-waste feed until they double every 36 hours, not 43: ${{COST_CENTRAL}}/kg. <b>Row 4</b> adds a food-grade plant with shared
       medium: ${{COST_CENTRAL_LEAN}}/kg. <b>Row 5, the best case,</b> adds engineered cells and puts every switch at its cheapest setting with a plausible
       route: ${{COST_BEST}}/kg. <b>The forecast</b> puts each switch at the author's median for 2035: ${{COST_FORECAST}}/kg. Parity with ${{PCONV}}
       meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
@@ -2837,7 +2837,8 @@ function drawCost(s){
   const marks=SC.order.map(k=>({c:scEval(SC.presets[k].choice).total,lab:SC.presets[k].name.split(":")[0],col:"#117733"}));
   marks.forEach(m=>{ m.lab+=" ~$"+m.c.toFixed(1)+"/kg"; });
   marks.push({c:par,lab:"parity: everyday meat's cost or less, $"+par.toFixed(0)+"/kg",col:"#CC3311",par:true});
-  const W=720,H=300,mL=42,mR=262,mT=14,mB=40, x0=0.10,x1=1.0, PR=W-mR;
+  const W=720,H=300,mL=42,mT=14,mB=40, x0=0.10,x1=1.0;
+  const mR=Math.min(360,22+3.7*Math.max.apply(null,marks.map(m=>m.lab.length))), PR=W-mR;   // room for the longest name
   const y1=Math.max(50,10*Math.ceil((Math.max.apply(null,marks.map(m=>m.c))+3)/10));
   const X=v=>mL+(PR-mL)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   el("line",{x1:mL,y1:H-mB,x2:PR,y2:H-mB,stroke:"#ccc"},svg);

@@ -34,7 +34,7 @@ forecast of when.
 |---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($51–81) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
 | 2. Plus process changes and cheaper inputs | **$30.7** ($28–39) | 2.98 | 0.4% | **0.2%** (0.0–0.6%) | needs a change of feed, process or plant |
-| 3. Plus cells selected for low waste (Central) | **$29.4** ($27–38) | 2.87 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($27–38) | 2.87 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
 | 4. Plus a food-grade plant with shared medium | **$26.6** ($25–35) | 2.63 | 0.5% | **0.3%** (0.1–0.8%) | needs selection or adaptation of cells |
 | 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.22 | 8.0% | **3.8%** (1.2–9.8%) | needs genetic engineering |
 | Forecast for 2035: a first draft of the author's medians | **$24.8** ($23–33) | 2.48 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
@@ -44,7 +44,7 @@ forecast of when.
 **The ladder.** The first five rows add one kind of change at a time, easiest first. Row 1 is the best meat cells measured,
 in the ordinary tall tank with no tricks, at today's prices for medium and growth factors. Row 2 adds changes that need no new
 cells: the tank tricks, more gas with a protectant, faster restarts, and medium and growth factors at the prices companies
-announce. Row 3 adds cells selected for low waste that double every 36 hours; this is the central case of earlier versions. Row 4
+announce. Row 3 adds cells selected on the low-waste feed until they double every 36 hours, not 43; this is the central case of earlier versions. Row 4
 adds a food-grade plant with shared medium. Row 5 adds engineered cells and puts every switch at its cheapest plausible
 setting; this is the best case. The forecast row is the author's median for each switch by 2035 (below). Humbird's optimistic
 design, the old reference ("the reference case" in the sections below), is not a rung: it assumes the hardest change (engineered cells) and none of the easy ones (the tank
@@ -59,8 +59,9 @@ steeply as the price falls, so the share at the point cost is higher than the me
 - **The easy changes are worth the most, and they come first.** Today's measured cells in an ordinary tank cost **$63.0 a kilo**. The
   changes in row 2 halve that, to **$30.7**, without touching the cells. The tank tricks alone are worth $20.6 for these cells, the
   largest single step anywhere on the ladder, and more gas is worth nearly as much ($17.2); the two overlap, because both clear CO₂.
-- **Selecting cells for low waste adds little on its own: $1.3, to $29.4 (Central).** The cells of rows 1 and 2 already make little
-  ammonia, because glutamine is replaced in the feed. Selection adds a lower lactate yield and a 36-hour doubling in place of 43. Nobody
+- **Selecting cells adds little on its own: $1.3, to $29.4 (Central), and all of it comes from faster growth.** The cells of rows 1
+  and 2 already make little ammonia, because glutamine is replaced in the feed. Selection adds a 36-hour doubling in place of 43, and
+  a lower lactate yield that saves nothing, because ammonia sets the litres of medium for both kinds of cell. Nobody
   has run the central tank design with animal cells. Oxygen, not CO₂, limits it, at 191 g/L: antifoam is taken to cost a quarter of the
   sparger's oxygen transfer, worth $1.7 a kilo here. Without the tricks a kilo costs $33.1 in a tank of the same shape, and $36.2 in the
   ordinary tall tank. At 30 hours Central costs $28.2, and at 24 hours $27.0. The author puts the odds of 24 hours at this waste level at
@@ -299,7 +300,7 @@ and returns it saves the medium, the growth factors and the protectant, but the 
 a device that takes the waste out with no liquid drawn through the cell filter, such as dialysis across the culture, saves the
 filter too.
 
-| what sets the litres of medium (3. Plus cells selected for low waste (Central)) | litres per kg of cells |
+| what sets the litres of medium (3. Plus cells selected to grow faster on the low-waste feed (Central)) | litres per kg of cells |
 |---|---|
 | ammonia, held at 5 mmol/L | 28.0 |
 | the least flow the cells need for everything else | 16.2 |
@@ -322,7 +323,7 @@ filter too.
 | scenario | no reuse | exchanger on the permeate | electrodialysis of the permeate | dialysis of the permeate, dialysate reused | dialysis across the culture, at the filter's cost | the same, at twice the filter's clearance | perfect and free, on the permeate | perfect and free, across the culture |
 |---|---|---|---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$62.96** | $60.29 | $59.80 | $60.77 | $60.41 | $59.06 | $59.24 | $56.80 |
-| 3. Plus cells selected for low waste (Central) | **$29.42** | $27.01 | $25.95 | $26.15 | $25.06 | $20.90 | $22.12 | $14.62 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.42** | $27.01 | $25.95 | $26.15 | $25.06 | $20.90 | $22.12 | $14.62 |
 | 5. Plus engineered cells: the best case, everything works | **$9.66** | $9.66 | $9.65 | $9.66 | $9.66 | $9.20 | $9.47 | $8.28 |
 
 - **Cleaning the permeate is worth $2–4 a kilo in Central:** $2.4 with an ammonium exchanger, $3.5 with electrodialysis (to
