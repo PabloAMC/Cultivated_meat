@@ -51,7 +51,8 @@ estimate is higher than the median (best case: 7.9% at the point cost, 3.8% medi
   and a tank whose liquid is as deep as it is wide. Without these tricks it costs $10.2 a kilo in a tank of the same shape. In the ordinary tall tank it costs $10.4.
 - **The central scenario needs no genetic engineering.** Cells that make little waste because glutamine is replaced in the feed
   and the best lines are chosen, doubling every 36 hours, in a food-grade plant: about **$30/kg** (2.9×), or $26.8 in a
-  food-grade plant with shared medium, and **~0.2% of world meat**. That is the median, and 80% of draws fall between 0.1% and 0.6%. At exactly $29.9 the point estimate is 0.4%
+  food-grade plant with shared medium (Humbird's plant without a clean hall, an oxygen plant or eight seed tanks, and with one
+  medium line for all the tanks; the shared line is the smallest of these savings), and **~0.2% of world meat**. That is the median, and 80% of draws fall between 0.1% and 0.6%. At exactly $29.9 the point estimate is 0.4%
   (0.9% in the US, 2.3% in Europe). In a food-grade plant with shared medium the median is about 0.3%. **Nobody has run the central tank design with animal cells.**
   It uses a column beside the tank that strips CO₂ without bubbles, 1 bar of extra pressure, and a tank whose liquid is as deep as it is wide.
   Oxygen, not CO₂, now limits it, at 177 g/L: antifoam is taken to cost a quarter of the sparger's oxygen transfer, which is worth $1.8 a kilo here.
@@ -70,6 +71,9 @@ estimate is higher than the median (best case: 7.9% at the point cost, 3.8% medi
   case, through cells burst in it. Nobody has held animal cells in perfusion above about 4 m³ (`research_notes/retention_devices.md`).
 - **The bubble protectant is a real cost.** At 2 g/L it is 22 g a kilo of cells in the reference and best cases and 56 g in the central and
   cautious cases: $0.7 and $1.7 a kilo at the assumed $30 a kilo, $5.6 and $14 at the catalogue price. A bulk quote would settle it.
+- **Company cost claims are operating cost; the scenarios include the plant.** On operating cost alone the central cells cost
+  $13.7–14.0 a kilo in a tank run as Vow runs its 20 m³ tank, inside the $10–15 an investor reports for several companies. The plant
+  charge is the difference (section 1, "Against what companies report").
 - **No scenario reaches price parity.** Parity with $12 meat and a $5 markup needs $7/kg of cells. The best case costs $9.7, and its own
   band is $9.2–12.2. A plant as cheap as a yeast plant is not used in any scenario: nothing shows that animal cells can be grown that way.
 - **What decides it** (from the central scenario, each switch moved alone to its best or its worst setting): the kind of cells
@@ -227,6 +231,48 @@ Central costs **$41–45** a kilo in a stirred tank in fed-batch or fill-and-dra
 the 27 g/L reported for meat cells at 20 m³, against $29.92 in perfusion. The best case goes from $9.71 to $13.87 (or $43). The food-grade plant
 with shared medium cushions it most: $26.81 to $29.19. We put about 65% on perfusion failing at 20 m³ for the best case and
 Central (`research_notes/no_perfusion_downside.md`).
+
+### Against what companies report (`industry_claims.py`)
+
+Company figures are usually operating cost (COGS): medium, labour, utilities and consumables, with nothing for the plant. Every
+scenario cost here includes a yearly charge on the plant. Split the same way:
+
+| case | cells, $/kg | of which: charge on the plant | operating cost | of which: filter membranes | medium and growth factors |
+|---|---|---|---|---|---|
+| Reference: a standard perfusion tank | $12.5 | $6.4 | **$6.1** | $1.0 | $1.7 |
+| Best case | $9.7 | $2.3 | **$7.4** | $2.5 | $1.7 |
+| Central | $29.9 | $8.2 | **$21.7** | $8.2 | $8.7 |
+| Central, shared medium | $26.8 | $4.8 | **$22.1** | $8.2 | $8.7 |
+| Cautious | $43.8 | $15.9 | **$27.9** | $6.9 | $14.6 |
+
+| Central's cells, 20 m³ tank drained and refilled (as Vow runs), in | cells, $/kg | charge on the plant | operating cost | at the 27 g/L reported for meat cells |
+|---|---|---|---|---|
+| the scenario's food-grade plant ($856k per m³) | $46.2 (62 g/L) | $32.5 | **$13.7** | $103.2 (operating $29.0) |
+| a food-grade plant with shared medium ($476k per m³) | $32.1 (62 g/L) | $18.1 | **$14.0** | $70.6 (operating $29.3) |
+| a yeast plant with what animal cells need ($246k per m³) | $23.3 (62 g/L) | $9.3 | **$14.0** | $50.6 (operating $29.3) |
+
+| who | figure | a cost of | capital in it? | kind | checked by | date |
+|---|---|---|---|---|---|---|
+| [Lever VC (investor), across several companies](https://agfundernews.com/humbird-was-spectacularly-wrong-on-cultivated-meat-economics-says-report-as-vow-predicts-it-will-soon-be-unit-margin-positive) | $10–15/kg; some below $10/kg | cell mass; wet or dry not stated; scale not stated | excluded (COGS) | vetted under NDA | the investor; data not public | April 2025 |
+| [Lever VC (investor)](https://agfundernews.com/humbird-was-spectacularly-wrong-on-cultivated-meat-economics-says-report-as-vow-predicts-it-will-soon-be-unit-margin-positive) | medium at $1/L or less, several under $0.50/L | medium per litre; litres per kg not stated | not applicable | vetted under NDA | the investor; data not public | April 2025 |
+| [Gourmey (now PARIMA), modelled by Arthur D. Little](https://parima.bio/blog/gourmey-sets-new-cost-benchmark-in-cultivated-meat-production-with-3-4-lb-model-independently-validated) | €7/kg at 5,000 L scale; medium €0.20/L | production cost; product basis not stated | not stated | model | a consultancy, commissioned by whom not stated | May 2025 |
+| [Arthur D. Little (consultancy)](https://www.adlittle.com/en/insights/viewpoints/cultivated-meat-one-year) | low €40s/kg in 2026; about €10/kg by 2030 | finished product | not stated | model | nobody named | 2025 |
+| [SuperMeat (company white paper)](https://supermeat.com/wp-content/uploads/2024/11/A-Deep-Dive-Into-Cost-Effective-Cultivated-Meat-Production-V.pdf) | $29.5/kg with depreciation ($26.0 without) | 100% chicken cells, wet; 10 L runs scaled on paper to 25,000 L | depreciation only | model from runs | nobody; not peer reviewed | November 2024 |
+| [Vow (company)](https://agfundernews.com/humbird-was-spectacularly-wrong-on-cultivated-meat-economics-says-report-as-vow-predicts-it-will-soon-be-unit-margin-positive) | a 20,000 L bioreactor built for “well under $1 million” | one vessel; whether piping and installation are in it not stated | a capital cost | company statement | nobody | April 2025 |
+
+Reading it (company figures are claims; none has been audited):
+
+- **On operating cost the model agrees with what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several companies,
+  some below $10. Central's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost $13.7–14.0 a kilo to operate. With
+  engineered cells in perfusion the operating cost is $13.0, and the best case $7.4.
+- **The difference is the plant.** A tank drained and refilled at 62 g/L makes little in a year, so the plant charge is $9–33 a kilo
+  depending on what the plant costs. Company COGS leave this out. Gourmey's €7/kg does not say whether it includes it.
+- **The plant's price is the number most worth checking against industry.** In a plant built like a yeast plant with what animal
+  cells need ($246k per m³), Central's cells drained and refilled cost $23.3, below Central in perfusion ($29.9) and with no filter
+  to hold the cells back. Nobody has published what such a plant costs to build for animal cells; Vow says its 20 m³ vessel cost
+  well under $1 million, without saying whether piping and installation are in that.
+- **The density is the other open number.** The 62 g/L above is the model's waste limit for these cells. At the 27 g/L reported for
+  meat cells at 20 m³ the same cases cost $51–103 a kilo, $29 of it operating cost.
 
 ### Vessel types and operating modes
 
