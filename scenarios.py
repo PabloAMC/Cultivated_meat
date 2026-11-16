@@ -71,96 +71,96 @@ _O2 = {"column": "o2_closed", "col_pout": value("ge_col_pout")}
 
 SWITCHES = (
     Switch("cells", "Kind of cells",
-           "How much waste (ammonia and lactate, which stop growth) the cells make and how big they are", (
+           "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
         Setting("engineered", "Engineered to make almost no waste",
                 {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": fp.GOOD_CELLS.mass_pg},
-                GE, "ammonia 0.055 mol per kilo of cells, lactate 0.5 per glucose, 3 ng a cell: Humbird's efficient cell; "
-                    "seen only in genetically engineered pharma cells"),
+                GE, "Ammonia is 0.055 mol per kilo of cells, lactate is 0.5 per glucose, and a cell weighs 3 ng. This is Humbird's "
+                    "efficient cell. Only genetically engineered pharma cells have shown it."),
         Setting("selected", "Selected on a low-waste feed",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
-                SELECT, "glutamine replaced in the feed (ammonia 0.14, measured once in bovine cells), lactate 0.42 per "
-                        "glucose as in adapted CHO, 2 ng a cell"),
+                SELECT, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells). Lactate is 0.42 per "
+                        "glucose, as in adapted CHO cells. A cell weighs 2 ng."),
         Setting("measured", "The best meat cells measured",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
-                FEED, "ammonia 0.14 (glutamine replaced; Hubalek 2023), lactate 1.05 per glucose (meat cells), 2 ng a cell"),
+                FEED, "Ammonia is 0.14 with glutamine replaced (Hubalek 2023). Lactate is 1.05 per glucose in meat cells. A cell weighs 2 ng."),
         Setting("ordinary", "Ordinary meat cells",
                 {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
-                NOTHING, "ammonia 0.70 (bovine cells with glutamine), lactate 1.05 per glucose, 2 ng a cell"))),
+                NOTHING, "Ammonia is 0.70 in bovine cells with glutamine. Lactate is 1.05 per glucose. A cell weighs 2 ng."))),
     Switch("growth", "Growth speed", "How long the cells take to double", (
         Setting("24", "Cells double every 24 hours", {"doubling_h": value("pf_doubling_h")}, SELECT,
-                "Humbird's model cell; no meat-cell culture with low waste has doubled this fast"),
+                "Humbird's model cell doubles this fast. No meat-cell culture with low waste has."),
         Setting("30", "Every 30 hours", {"doubling_h": value("sc_td_fast")}, SELECT,
-                "between the model cell and the central value"),
+                "Between the model cell and the central value."),
         Setting("36", "Every 36 hours", {"doubling_h": value("sc_td_central")}, SELECT,
-                "selection recovers part of the slowdown the low-waste feed caused (43 h measured; 25.7 h with glutamine)"),
+                "Selection wins back part of the slowdown that the low-waste feed caused. Cells doubled in 43 hours on that feed and in 25.7 hours with glutamine."),
         Setting("43", "Every 43 hours", {"doubling_h": value("sc_td_measured")}, NOTHING,
-                "the best low-waste meat-cell culture measured (42.9 h, Hubalek 2023)"))),
+                "The best low-waste meat-cell culture measured doubled in 42.9 hours (Hubalek 2023)."))),
     Switch("plant", "The plant", "How much the buildings and equipment around the tanks cost", (
         Setting("lean", "A food-grade plant with shared medium",
                 {"items": dict(plant_items.PLANTS["lean"])}, FEED,
-                "Humbird's plant without what animal cells plausibly do not need: a plain hall, bought oxygen in place of an "
+                "Humbird's plant without what animal cells plausibly do not need. It has a plain hall, bought oxygen in place of an "
                 "oxygen plant, two small seed trains in place of eight seed tanks, food-grade tanks without pharma polish, and one "
-                "sterilised medium line shared by all the tanks. About half the plant cost; most of the saving is the hall, the "
-                "oxygen and the seed trains, not the shared medium. Nobody has built one"),
+                "sterilised medium line shared by all the tanks. It costs about half as much. Most of the saving is the hall, the "
+                "oxygen and the seed trains, not the shared medium. Nobody has built one."),
         Setting("sterile", "A food-grade plant", {"plant": "sanitary"}, NOTHING,
-                "Humbird's plant with a sanitary hall in place of the clean room; food-grade tanks of this size run today"),
+                "Humbird's plant with an ordinary hall in place of the clean room. Food-grade tanks of this size are in use."),
         Setting("pharma", "A pharma-style plant with clean rooms", {"plant": "pharma"}, NOTHING,
-                "Humbird's plant as designed"))),
+                "Humbird's plant as he designed it."))),
     Switch("gas", "Gas the cells tolerate", "How fast gas can be bubbled into the tank before bubbles and foam hurt the cells", (
         Setting("6", "Gas bubbled in at up to 6 mm a second", {"gas_velocity": value("pf_gas_velocity")}, FEED,
-                "Humbird's rule of thumb, with a protectant and foam control; never run with dense cells at this size"),
+                "Humbird's rule of thumb, with a protectant and foam control. Nobody has run dense cells at this gas speed at this size."),
         Setting("4", "Up to 4 mm a second", {"gas_velocity": value("sc_gas_mid")}, FEED,
-                "twice what has been run in 8-20 m3 tanks"),
+                "Twice what has been run in tanks of 8 to 20 m³."),
         Setting("2", "Up to 2 mm a second", {"gas_velocity": value("sc_gas_low")}, NOTHING,
-                "about the most that has been run with cells in tanks of 8-20 m3 (Nienow 2006)"))),
+                "About the most that has been run with cells in tanks of 8 to 20 m³ (Nienow 2006)."))),
     Switch("tricks", "Tank tricks", "Ways to clear CO₂ and supply oxygen without more bubbles", (
-        Setting("none", "None: gas bubbled in at the base", {}, NOTHING, "the standard stirred tank"),
+        Setting("none", "None: gas bubbled in at the base", {}, NOTHING, "The standard stirred tank."),
         Setting("column", "A column beside the tank that strips CO₂ without bubbles", dict(_COL), FEED,
-                "a loop pumps culture down a packed column; sized by calculation; no animal cells have gone through one"),
+                "A pump sends culture down a packed column. The size is calculated. No animal cells have gone through one."),
         Setting("pressure", "The column, and 1 bar extra pressure in the tank", {**_COL, **_P1}, FEED,
-                "oxygen dissolves in proportion to pressure; steam-rated tanks take it; untested with cells"),
+                "Oxygen dissolves in proportion to pressure, and steam-rated tanks take it. Nobody has tested it with cells."),
         Setting("oxygen", "The column, the pressure and recycled pure oxygen", {**_O2, **_P1}, FEED,
-                "the loop also supplies the oxygen; oxygen is recycled through a lime scrubber"))),
+                "The loop also supplies the oxygen. A lime scrubber recycles it."))),
     Switch("shape", "Tank shape", "How deep the liquid is compared with the tank's width", (
         Setting("flat", "Very squat: liquid half as deep as wide", {"aspect": value("sc_aspect_flat")}, FEED,
-                "the squattest shape the search considers; the extra steel and floor are counted"),
+                "The squattest shape the search considers. The model counts the extra steel and floor."),
         Setting("squat", "Squat: liquid 0.75 times as deep as wide", {"aspect": value("sc_aspect_squat")}, FEED,
-                "a squat tank passes more gas per litre; the extra steel and floor are counted"),
-        Setting("square", "Squarer: liquid as deep as wide", {"aspect": value("sc_aspect_mid")}, FEED, "as above, less so"),
-        Setting("tall", "Tall: 1.6 times as deep as wide", {"aspect": value("pf_aspect")}, NOTHING, "Humbird's tank"))),
+                "A squat tank passes more gas per litre. The model counts the extra steel and floor."),
+        Setting("square", "Squarer: liquid as deep as wide", {"aspect": value("sc_aspect_mid")}, FEED, "The same effect, smaller."),
+        Setting("tall", "Tall: 1.6 times as deep as wide", {"aspect": value("pf_aspect")}, NOTHING, "Humbird's tank."))),
     Switch("losses", "Runs lost", "How often a run is lost to contamination", (
         Setting("0.2", "0.2% of runs lost a day", {"hazard": value("pf_hazard_pharma")}, FEED,
-                "large pharma plants; sealed, steam-sterilised tanks and strict hygiene"),
-        Setting("0.6", "0.6% a day", {"hazard": value("sc_hazard_mid")}, FEED, "the low end of what makers report"),
+                "Large pharma plants reach this with sealed, steam-sterilised tanks and strict hygiene."),
+        Setting("0.6", "0.6% a day", {"hazard": value("sc_hazard_mid")}, FEED, "The low end of what makers report."),
         Setting("1", "1% a day", {"hazard": value("sc_hazard_cm")}, NOTHING,
-                "about what the survey of makers implies, if runs last 10-20 days"),
-        Setting("2", "2% a day", {"hazard": value("sc_hazard_high")}, NOTHING, "the upper end of what makers report"))),
+                "About what the survey of makers implies, if runs last 10 to 20 days."),
+        Setting("2", "2% a day", {"hazard": value("sc_hazard_high")}, NOTHING, "The upper end of what makers report."))),
     Switch("restart", "Restart after a loss", "How long a lost tank is out of use", (
         Setting("14", "14 days to clean and restart", {"restart_fail_days": value("sc_restart_base")}, NOTHING,
-                "the seed train is ready"),
-        Setting("21", "21 days", {"restart_fail_days": value("sc_restart_slow")}, NOTHING, "the seed trains must be regrown"),
+                "The seed train is ready."),
+        Setting("21", "21 days", {"restart_fail_days": value("sc_restart_slow")}, NOTHING, "The seed trains must be regrown."),
         Setting("30", "30 days", {"restart_fail_days": value("sc_restart_long")}, NOTHING,
-                "one failure reaches every tank"))),
-    Switch("gf", "Growth factors", "How much of the proteins that tell cells to grow must be bought", (
-        Setting("none", "None bought", {"growth_factors": 0.0}, GE, "cells that need none or make their own (cattle cells, "
-                                                                     "by genetic engineering)"),
+                "One failure reaches every tank."))),
+    Switch("gf", "Growth factors", "How much must be paid for the proteins that tell cells to grow", (
+        Setting("none", "None bought", {"growth_factors": 0.0}, GE, "The cells need none or make their own. "
+                                                                     "Genetic engineering has done this in cattle cells."),
         Setting("30", "30% of Humbird's price per litre", {"growth_factors": value("sc_gf_part")}, FEED,
-                "cheaper factors, or lines that need fewer"),
-        Setting("60", "60% of his price", {"growth_factors": value("sc_gf_most")}, NOTHING, "most of his price"),
+                "Cheaper factors, or lines that need fewer."),
+        Setting("60", "60% of his price", {"growth_factors": value("sc_gf_most")}, NOTHING, "Most of his price."),
         Setting("all", "All bought at his price", {"growth_factors": 1.0}, NOTHING,
-                "Humbird's large-scale price, which assumes an industry far larger than today's"))),
+                "Humbird's large-scale price. It assumes an industry far larger than the current one."))),
     Switch("medium", "Price of the medium", "What a litre of the nutrient liquid costs", (
         Setting("0.05", "$0.05 a litre (an aspiration)", {"medium_price": value("sc_medium_aspire")}, FEED,
                 "no one has reported it: the lowest company report is $0.07 and GFI's amino acids alone cost $0.02-0.17; "
                 "the medium then costs what the cells must eat"),
         Setting("0.15", "$0.15 a litre", {"medium_price": 0.15}, FEED,
-                "the cost of the nutrients the cells eat: the medium cannot cost less"),
+                "The cost of the nutrients the cells eat. The medium cannot cost less."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid")}, FEED,
-                "what several companies announced for 2025"),
-        Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high")}, NOTHING, "between the announced and the reported"),
-        Setting("0.50", "$0.50 a litre", {"medium_price": value("media_price")}, NOTHING, "what SuperMeat reports"))),
+                "What several companies announced for 2025."),
+        Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high")}, NOTHING, "Between the announced and the reported price."),
+        Setting("0.50", "$0.50 a litre", {"medium_price": value("media_price")}, NOTHING, "What SuperMeat reports."))),
 )
 
 _SHORT = {
@@ -237,33 +237,34 @@ _BASE = {"cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "l
 SCENARIOS = {
     "best": Scenario(
         "best", "Best case: everything works",
-        "Cells that make almost no waste (engineered), doubling every day, in a food-grade plant with shared medium, with a tank that clears CO₂ "
-        "without more bubbles, and no growth factors to buy.",
-        "Cells, growth speed, plant, gas and growth factors at their cheapest setting, medium at $0.15 (the $0.05 aspiration is not assumed); losses at the low end of what makers "
-        "report (pharma's 0.2% a day is not assumed); tank design the cheapest the loop checks allow.",
+        "The cells are engineered to make almost no waste, and they double every day. The plant is a food-grade plant with shared medium. "
+        "The tank clears CO₂ without more bubbles. The cells need no bought growth factors.",
+        "Cells, growth speed, plant, gas and growth factors are at their cheapest setting. The medium costs $0.15 a litre, because the $0.05 "
+        "aspiration is not assumed. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
+        "design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),
     "central": Scenario(
         "central", "Central: selection and feed only, a food-grade plant",
-        "Cells that make little waste because the feed is changed and the best lines are chosen (no engineering), "
-        "doubling every 36 hours, in a food-grade plant, with a tank that clears CO₂ without more bubbles.",
-        "Cells that have been measured or that selection can reach; every other switch at the setting nearest the middle "
-        "of what is reported; tank design the cheapest the loop checks allow.",
+        "A changed feed and selection of the best lines make the cells produce little waste. This needs no engineering. The cells double "
+        "every 36 hours. The plant is food-grade. The tank clears CO₂ without more bubbles.",
+        "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
+        "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design(dict(_BASE)),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
     "central_lean": Scenario(
         "central_lean", "Central, food-grade plant with shared medium",
-        "The central case in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
+        "This is the central case in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
         "has built one.",
-        "As Central, with the food-grade plant with shared medium.",
+        "The same as Central, but with a food-grade plant with shared medium.",
         design({**_BASE, "plant": "lean"}),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}))),
     "cautious": Scenario(
         "cautious", "Cautious: the best meat cells measured so far",
-        "Meat cells as they have been measured (doubling every 43 hours, glutamine replaced), in a food-grade plant, "
-        "with no more gas than has been run, and a slow restart after every lost run.",
-        "Each switch at a setting that has been measured or reported (else a cautious judgement: growth factors, medium price); "
-        "tank design the cheapest the loop checks allow.",
+        "The cells are meat cells as they have been measured. They double every 43 hours, and glutamine is replaced in the feed. "
+        "The plant is food-grade. The tank gets no more gas than anyone has run. Each lost run is followed by a slow restart.",
+        "Each switch is at a setting that has been measured or reported. For growth factors and medium price, nobody has measured "
+        "it, so the setting is a cautious judgement. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1", "restart": "21",
                 "gf": "60", "medium": "0.30"})),
 }
@@ -346,8 +347,8 @@ def tricks_sentence(choice: dict) -> str:
     if not t["used"]:
         return ""
     return (f"Nobody has run this tank design with animal cells. It uses {plain_list(t['used'])}. "
-            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape, ${t['d_no_tricks']:.1f} more. "
-            f"In the ordinary tall tank, it costs ${t['ordinary_tank']:.1f}.")
+            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape. That is ${t['d_no_tricks']:.1f} more. "
+            f"In the ordinary tall tank, a kilo costs ${t['ordinary_tank']:.1f}.")
 
 
 def growth_sentence(key: str) -> str:
@@ -358,10 +359,10 @@ def growth_sentence(key: str) -> str:
     base = run(design(c))["total"]
     fast = alt_cost(key, {"growth": "24"})
     mid = alt_cost(key, {"growth": "30"})
-    return ("The 36-hour doubling time is a judgement. Meat-cell cultures that make little waste have doubled in 43 to 54 hours. "
+    return ("The 36-hour doubling time is the author's judgement. Meat-cell cultures that make little waste have doubled in 43 to 54 hours. "
             "Only cultures fed glutamine have doubled in about 26 hours, and glutamine is what makes the waste (Hubalek 2023). "
-            "The author puts the odds of 24 hours at this waste level at about 10%. "
-            f"A 24-hour doubling would save ${base - fast:.1f} a kilo, and 30 hours would save ${base - mid:.1f}.")
+            "The author thinks 24 hours at this waste level has about a 10% chance. "
+            f"A 24-hour doubling would save ${base - fast:.1f} a kilo. A 30-hour doubling would save ${base - mid:.1f}.")
 
 
 def story_text(key: str) -> str:
@@ -462,10 +463,10 @@ def interactions(choice: dict, top: int = 4, min_gap: float = 0.25) -> list:
                 continue
             sa, sb = SW[a], SW[b]
             la, lb = setting(a, ka).label, setting(b, kb).label
-            how = "they overlap: one does part of the other's job" if gap < 0 else "they reinforce each other"
+            how = "The two overlap, because one does part of the other's job." if gap < 0 else "The two reinforce each other."
             out.append({"a": a, "b": b, "gap": gap, "ga": ga, "ga_with_b": ga_with_b, "gb": gb, "gb_with_a": gb_with_a,
-                        "text": f"{sa.name}: \u201c{la}\u201d would save ${ga:.1f} a kilo as things stand, and "
-                                f"${ga_with_b:.1f} if {sb.name.lower()} were \u201c{lb}\u201d: {how}."})
+                        "text": f"Setting {sa.name.lower()} to \u201c{la}\u201d would save ${ga:.1f} a kilo as things stand. "
+                                f"It would save ${ga_with_b:.1f} if {sb.name.lower()} were \u201c{lb}\u201d. {how}"})
     return sorted(out, key=lambda r: -abs(r["gap"]))[:top]
 
 

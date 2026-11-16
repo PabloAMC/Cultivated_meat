@@ -59,10 +59,10 @@ function vmCellHTML(c,v,m){
   if(c.same_as) return '<td class="vsame"><b>As batch</b><br><span class="alt">'+VM.same_as[v+"|"+m][1]+'</span></td>';
   const lim=VM.limit_plain[c.limit]||c.limit;
   let extra="";
-  if(c.tricks_fallback) extra='<br><span class="alt">The tank tricks’ loop fails its pH check in this vessel, so these are with “'+
-    c.tricks_fallback+'”; with the tricks it would be '+vmMoney(c.unchecked_cost)+'.</span>';
+  if(c.tricks_fallback) extra='<br><span class="alt">The loop for the tank tricks fails its pH check in this vessel, so this cost is with “'+
+    c.tricks_fallback+'”. With the tricks it would be '+vmMoney(c.unchecked_cost)+'.</span>';
   return '<td title="'+c.evidence.replace(/"/g,"&quot;")+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+
-    ' g/L, limited by '+lim+'; biggest cost: '+c.biggest+'</span><br>'+vmTagChip(c.tag)+
+    ' g/L, limited by '+lim+'. Biggest cost: '+c.biggest+'.</span><br>'+vmTagChip(c.tag)+
     (c.density_unshown?'<br><span class="alt vunshown">'+VM.unshown_note+'</span>':'')+extra+'</td>';
 }
 function vmGridHTML(base){

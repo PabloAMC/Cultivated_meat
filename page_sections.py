@@ -54,8 +54,8 @@ def scenario_table() -> str:
         trick_html = ""
         if tr["used"]:
             trick_html = (f"<p class='fxn tricks'><b>Nobody has run this tank design with animal cells.</b> It uses {_esc(S.plain_list(tr['used']))}. "
-                          f"Without these tricks, a kilo costs <b>{money(tr['no_tricks'])}</b> in a tank of the same shape ({money(tr['d_no_tricks'])} more). "
-                          f"In the ordinary tall tank, it costs <b>{money(tr['ordinary_tank'])}</b>.</p>")
+                          f"Without these tricks, a kilo costs <b>{money(tr['no_tricks'])}</b> in a tank of the same shape. That is {money(tr['d_no_tricks'])} more. "
+                          f"In the ordinary tall tank, a kilo costs <b>{money(tr['ordinary_tank'])}</b>.</p>")
         rows.append(
             f"<tr data-sc='{key}'><td class='scname'><b>{_esc(sc.name)}</b><br><span class='story'>{_esc(S.story_text(key))}</span><br>"
             f"<button class='btn scbtn small' onclick=\"scApply('{key}');location.hash='decide';return false\">Use these assumptions</button></td>"
@@ -75,21 +75,21 @@ def scenario_table() -> str:
                                 "medium_set_by": "", "uptime": float("nan"), "output": float("nan")})
     rows.append(
         f"<tr class='ref'><td class='scname'><b>Reference: a standard perfusion tank, no tricks</b><br><span class='story'>"
-        f"What earlier versions of this page called the floor. Humbird's 20,000-litre stirred tank run in perfusion at "
-        f"120 g/L, a food-grade plant, engineered cells, no tank tricks, no growth factors, no lost runs. Kept as a labelled "
-        f"reference, not as a limit: the best case is below it.</span></td><td>{chip(S.GE)}</td>"
+        f"Earlier versions of this page called this number the floor. It is Humbird's 20,000-litre stirred tank run in perfusion at "
+        f"120 g/L. The plant is food-grade, the cells are engineered, and there are no tank tricks, no growth factors and no lost runs. "
+        f"This is a reference, not a limit, because the best case costs less.</span></td><td>{chip(S.GE)}</td>"
         f"<td class='n'><b>{money(rs['cost'])}</b></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>point estimate; US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
+        f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>point estimate. US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
         f"<td class='s'>{_esc(limit_text(ref))}</td></tr>")
     rows.append(
-        f"<tr data-sc='reported'><td class='scname'><b>As a company reports</b><br><span class='story'>SuperMeat's 2024 process: chicken "
-        f"cells in perfusion, scaled up on paper to 25,000-litre tanks, 30.5 litres of medium a kilo at $0.50 a litre, plus the "
-        f"company's running costs and a yearly charge on its plant. A company's figure, not peer reviewed.</span><br>"
+        f"<tr data-sc='reported'><td class='scname'><b>As a company reports</b><br><span class='story'>This is SuperMeat's 2024 process. It grows chicken "
+        f"cells in perfusion and is scaled up on paper to 25,000-litre tanks. It uses 30.5 litres of medium a kilo at $0.50 a litre. "
+        f"The cost adds the company's running costs and a yearly charge on its plant. The figure is the company's own, and nobody has peer reviewed it.</span><br>"
         f"<button class='btn scbtn small' onclick=\"scApply('reported');return false\">Use this in the charts</button></td>"
         f"<td><span class='tagchip none'>a company's own report</span></td>"
         f"<td class='n'><b>{money(rp['cost'])}</b></td><td class='n'>{money(rp['retail'], 0)}<br><span class='alt'>{rp['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rp['world']:.1f}%</b><br><span class='alt'>point estimate; US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%</span></td>"
-        f"<td class='s'>30.5 litres of medium per kilo at $0.50 a litre; the company reports no tank limit.</td></tr>")
+        f"<td class='n'><b>{rp['world']:.1f}%</b><br><span class='alt'>point estimate. US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%</span></td>"
+        f"<td class='s'>The process uses 30.5 litres of medium a kilo at $0.50 a litre. The company reports no tank limit.</td></tr>")
     head = ("<thead><tr><th>Scenario: what has to go right</th><th>What it needs</th><th>Cost of a kilo of cells</th>"
             "<th>In the shop</th><th>Share of world meat, long run (median)</th><th>What limits the tank</th></tr></thead>")
     labels = ("", "What it needs", "Cost of a kilo of cells", "In the shop", "Share of world meat, long run", "What limits the tank")
@@ -110,8 +110,8 @@ def scenario_table() -> str:
 def tank_in_every_scenario() -> str:
     """The tank all the scenarios assume, in plain sentences (above the scenario table and in the vessel section)."""
     return (f"<b>The tank in every scenario.</b> Every scenario uses a stirred tank of {value('vm_str_m3'):.0f} m³ run in "
-            "perfusion. The tank holds the cells back while fresh medium washes the waste out. The harvest is a steady bleed of "
-            f"cells: a continuous harvest. Nobody has run animal cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³.")
+            "perfusion. The tank holds the cells back while fresh medium washes the waste out. Cells leave the tank in a steady "
+            f"bleed, so the harvest is continuous. Nobody has run animal cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³.")
 
 
 # What stands in the way: each switch of the central scenario moved to a worse setting, with what it would take to meet it.
@@ -128,54 +128,54 @@ def bottlenecks() -> str:
 
     rows = [
         ("Waste the cells make",
-         "Ammonia and lactate are what cells give off as they grow; they slow growth, so fresh medium must wash them out. The "
-         f"central case assumes a low-waste feed and selected cells (0.14 mol of ammonia per kilo of cells, {r0['medium_l']:.0f} litres of medium a kilo).",
-         f"{cost({'cells': 'measured'})} with the best meat cells measured (more lactate); {cost({'cells': 'ordinary'})} with ordinary "
-         f"meat cells ({ordinary['medium_l']:.0f} litres of medium a kilo)",
-         "Replace glutamine in the feed; select or adapt cells that waste less; engineer them (the best case, "
-         f"{cost({'cells': 'engineered'})}); or take the ammonium out of the used medium",
+         "Ammonia and lactate are what cells give off as they grow. They slow growth, so fresh medium must wash them out. The "
+         f"central case assumes a low-waste feed and selected cells. These make 0.14 mol of ammonia per kilo of cells and need {r0['medium_l']:.0f} litres of medium a kilo.",
+         f"The cost is {cost({'cells': 'measured'})} with the best meat cells measured, which make more lactate. It is {cost({'cells': 'ordinary'})} with ordinary "
+         f"meat cells, which need {ordinary['medium_l']:.0f} litres of medium a kilo.",
+         "Replace glutamine in the feed. Select or adapt cells that make less waste. Engineer the cells, which is this switch's best setting "
+         f"({cost({'cells': 'engineered'})}). Or take the ammonium out of the used medium.",
          "The feed change was measured once, in cattle cells. The engineered level has been seen only in pharma cells."),
         ("Clearing CO₂ from a dense tank",
          "Cells give off CO₂, which leaves a tank only in the gas bubbled through it. The central case uses a column beside the "
-         "tank that strips CO₂ without bubbles (a pumped loop over a packed tower), pressure and recycled oxygen.",
-         f"{cost({'tricks': 'none'})} with none of these tank tricks; {cost({'gas': '2'})} if the cells tolerate only 2 mm of gas a second",
-         "The column, extra pressure and recycled oxygen are sized by calculation; a squat tank also helps",
-         "Calculated. Nobody has run animal cells over such a column, and 4 mm a second is untested at this size."),
+         "tank. A pump sends the culture over a packed tower, and CO₂ leaves without bubbles. The case also uses extra pressure and recycled oxygen.",
+         f"The cost is {cost({'tricks': 'none'})} with none of these tank tricks. It is {cost({'gas': '2'})} if the cells tolerate only 2 mm of gas a second.",
+         "The sizes of the column, the extra pressure and the recycled oxygen come from calculation. A squat tank also helps.",
+         "This is calculated, not measured. Nobody has run animal cells over such a column. Nobody has tested 4 mm a second at this size."),
         ("The cost of the plant",
-         "A food-grade plant.",
-         f"{cost({'plant': 'pharma'})} if it must be built like a pharma plant",
-         f"Leave out what animal cells do not need (a clean-room hall, an owned oxygen plant, spare seed tanks): {cost({'plant': 'lean'})}. "
-         "A plant as cheap as a yeast plant is not counted: nothing shows animal cells can be grown that way",
-         f"Nobody has built a food-grade plant with shared medium for animal cells. It pays only while a tank loses a run less often than about once in "
-         f"{be:.0f} days; the one survey of makers implies more losses, from small vessels."),
+         "The central case assumes a food-grade plant.",
+         f"The cost is {cost({'plant': 'pharma'})} if the plant must be built like a pharma plant.",
+         "Leave out what animal cells do not need: a clean-room hall, an owned oxygen plant and spare seed tanks. "
+         f"The cost is then {cost({'plant': 'lean'})}. No scenario assumes a plant as cheap as a yeast plant, because nothing shows animal cells can grow in one.",
+         f"Nobody has built a food-grade plant with shared medium for animal cells. It pays off only while a tank loses a run less often than about once in "
+         f"{be:.0f} days. The one survey of makers implies more losses, but it covers small vessels."),
         ("Fast growth and low waste together",
-         "Cells that double every 36 hours while making little waste.",
-         f"{cost({'growth': '43'})} at 43 hours, the pace of the best low-waste culture measured; {cost({'growth': '24'})} at 24 hours",
-         "Select faster lines on the low-waste feed",
+         "The central case assumes cells that double every 36 hours while making little waste.",
+         f"The cost is {cost({'growth': '43'})} at 43 hours, the pace of the best low-waste culture measured. It is {cost({'growth': '24'})} at 24 hours.",
+         "Select faster lines on the low-waste feed.",
          "Each has been shown alone, never both in one culture."),
         ("Runs lost to contamination",
-         f"A run is lost {value('sc_hazard_cm') * 100:.0f}% of days; the tank is out for {value('sc_restart_base'):.0f} days.",
-         f"{cost({'losses': '2', 'restart': '30'})} at 2% a day with a month to restart; {cost({'losses': '0.2'})} at pharma's 0.2%",
-         "Sealed, steam-sterilised tanks, tested seed trains, strict hygiene",
-         "One survey of makers; run lengths were not stated."),
+         f"The central case loses a run on {value('sc_hazard_cm') * 100:.0f}% of days. After a loss, the tank is out of use for {value('sc_restart_base'):.0f} days.",
+         f"The cost is {cost({'losses': '2', 'restart': '30'})} at 2% a day with a month to restart. It is {cost({'losses': '0.2'})} at pharma's 0.2%.",
+         "Use sealed, steam-sterilised tanks and tested seed trains, and keep strict hygiene.",
+         "One survey of makers gives this rate, and it does not state run lengths."),
         ("Growth factors",
          "Proteins that tell cells to grow. The central case buys 30% of Humbird's price per litre.",
-         f"{cost({'gf': 'all'})} if all are bought at his price",
-         f"Cheaper factors, lines that need fewer, or cells that make their own ({cost({'gf': 'none'})} with none bought)",
-         "Cells that make their own have been shown in cattle cells, by genetic engineering."),
+         f"The cost is {cost({'gf': 'all'})} if all are bought at his price.",
+         f"Use cheaper factors, lines that need fewer, or cells that make their own. With none bought, the cost is {cost({'gf': 'none'})}.",
+         "Genetic engineering has made cattle cells that make their own."),
         ("Price of the medium",
-         "$0.20 a litre, what several companies announced for 2025.",
-         f"{cost({'medium': '0.50'})} at $0.50 a litre, what SuperMeat reports",
-         "Cheaper amino acids and recycled medium",
-         "Company announcements; none verified at scale."),
+         "The central case assumes $0.20 a litre, what several companies announced for 2025.",
+         f"The cost is {cost({'medium': '0.50'})} at $0.50 a litre, what SuperMeat reports.",
+         "Use cheaper amino acids and recycle the medium.",
+         "These are company announcements. Nobody has verified them at scale."),
     ]
     h = ["<table><thead><tr><th>What stands in the way</th><th>The central case assumes</th><th>If that fails</th>"
          "<th>How it could be met</th><th>How solid</th></tr></thead><tbody>"]
     for name, assumes, fail, met, solid in rows:
         h.append(f"<tr><td><b>{name}</b></td><td>{assumes}</td><td>{fail}</td><td>{met}</td><td>{solid}</td></tr>")
     h.append("</tbody></table>")
-    return (f"<p class='blkp'>Starting from the central case ({money(base)} a kilo), each row moves one assumption to a worse "
-            "setting and leaves the rest, so the cost shown is what that one failure adds. All figures are dollars per kilo of "
+    return (f"<p class='blkp'>Each row starts from the central case ({money(base)} a kilo). It moves one assumption to a worse "
+            "setting and leaves the rest alone, so the cost shown is what that one failure adds. All figures are dollars per kilo of "
             "wet cells.</p><div class='scrollx'>" + "".join(h) + "</div>")
 
 
@@ -183,7 +183,7 @@ def bottlenecks() -> str:
 _GRID_CELLS = (("engineered", "24", "Engineered cells (24 h doubling)"),
                ("selected", "36", "Selected cells on a low-waste feed (36 h)"),
                ("measured", "43", "The best meat cells measured (43 h)"),
-               ("ordinary", "30", "Ordinary meat cells (about 26 h measured; 30 h used)"))
+               ("ordinary", "30", "Ordinary meat cells (26 h measured, 30 h used)"))
 _GRID_TANKS = (("none", "Gas bubbled in only", "the standard tank"),
                ("column", "With a column", "a pumped loop strips CO₂"),
                ("oxygen", "Column, pressure and recycled oxygen", "all three tank tricks"))
@@ -207,11 +207,12 @@ def cells_by_tank() -> str:
                      f"<span class='alt'>{r['density']:.0f} g/L, limited by {_esc(lim)}</span></td>")
         h.append("</tr>")
     h.append("</tbody>")
-    return ("<p class='blkp'><b>Cells against tank.</b> Cost per kilo of cells for each kind of cell in each kind of tank, in a "
-            "food-grade plant (the food-grade plant with shared medium in brackets), everything else as in the central case. Click a figure to load it into the switches.</p>"
+    return ("<p class='blkp'><b>Cells against tank.</b> This table gives the cost per kilo of cells for each kind of cell in each kind of tank. "
+            "The first figure is for a food-grade plant. The figure in brackets is for a food-grade plant with shared medium. "
+            "Everything else is as in the central case. Click a figure to load it into the switches.</p>"
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(h)}</table></div>"
-            "<p class='fnote'>The tank tricks help most when the cells are good: with ordinary meat cells, medium washing waste "
-            "out sets most of the cost and no tank trick reaches it.</p>")
+            "<p class='fnote'>The tank tricks help most when the cells are good. With ordinary meat cells, the medium that washes the waste "
+            "out sets most of the cost, and no tank trick lowers that.</p>")
 
 
 # ----------------------------------------------------------------------------
@@ -254,10 +255,10 @@ def vessel_grid_html(base: dict | None) -> str:
                 lim = V.LIMIT_PLAIN.get(c["limit"], c["limit"])
                 extra = ""
                 if c["tricks_fallback"]:
-                    extra = (f"<br><span class='alt'>The tank tricks’ loop fails its pH check in this vessel, so these are with "
-                             f"“{_esc(c['tricks_fallback'])}”; with the tricks it would be {_vm_money(c['unchecked_cost'])}.</span>")
+                    extra = (f"<br><span class='alt'>The loop for the tank tricks fails its pH check in this vessel, so this cost is with "
+                             f"“{_esc(c['tricks_fallback'])}”. With the tricks it would be {_vm_money(c['unchecked_cost'])}.</span>")
                 cells.append(f"<td title=\"{_esc(c['evidence'])}\"><b>{_vm_money(c['cost'])}</b><br><span class='alt'>"
-                             f"{c['density']:.0f} g/L, limited by {_esc(lim)}; biggest cost: {_esc(c['biggest'])}</span><br>"
+                             f"{c['density']:.0f} g/L, limited by {_esc(lim)}. Biggest cost: {_esc(c['biggest'])}.</span><br>"
                              f"{_vm_tag(c['tag'])}"
                              + (f"<br><span class='alt vunshown'>{_esc(V.UNSHOWN_NOTE)}</span>" if c["density_unshown"] else "")
                              + f"{extra}</td>")
@@ -286,39 +287,39 @@ def vessels() -> str:
     S_ = ("stirred", "perfusion")
     guide = (f"<p class='blkp'>{tank_in_every_scenario()} This table asks what other vessels and other ways of running a "
              "tank would cost.</p>"
-             "<p class='blkp'>Each cell is the cost of a kilo of cells when only the vessel (the row) and the way it is run (the "
-             "column) change, with the cells, plant, tank tricks and losses of <b id='vm_case'>the central scenario</b> held fixed.</p>"
+             "<p class='blkp'>Each cell gives the cost of a kilo of cells. Only the vessel (the row) and the way it is run (the "
+             "column) change. The cells, plant, tank tricks and losses stay as in <b id='vm_case'>the central scenario</b>.</p>"
              "<p class='blkp'><button class='btn small vmbtn on' data-vm='scenario' onclick=\"vmSet('scenario');return false\">"
              "The scenario chosen above</button> <button class='btn small vmbtn' data-vm='reference' onclick=\"vmSet('reference');"
              "return false\">The reference case</button></p>")
     lim_rows = "".join(f"<li><b>{_esc(V.VESSELS[v]['name'])}</b> ({_vm_size(V.VESSELS[v]['size'])}): {_esc(V.VESSELS[v]['limits'])}</li>"
                        for v in V.VESSEL_ORDER)
     take = (
-        f"<p class='fnote'><b>What the table says.</b> Perfusion in a stirred tank is the cheapest combination: "
-        f"{m(R[S_]['cost'])} a kilo in the reference case and {m(C[S_]['cost'])} in the central scenario. Nobody has run animal "
-        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. The modes that run at {value('vm_str_m3'):.0f} m³ today cost more. In the reference case a fed-batch "
-        f"stirred tank costs {m(R[('stirred', 'fedbatch')]['cost'])} and fill-and-draw {m(R[('stirred', 'filldraw')]['cost'])}. "
-        f"In the central scenario they cost {m(C[('stirred', 'fedbatch')]['cost'])} and {m(C[('stirred', 'filldraw')]['cost'])}, "
-        f"because cells that make more waste cap a culture that is not washed out at a lower density. "
+        f"<p class='fnote'><b>What the table says.</b> Perfusion in a stirred tank is the cheapest combination. "
+        f"It costs {m(R[S_]['cost'])} a kilo in the reference case and {m(C[S_]['cost'])} in the central scenario. Nobody has run animal "
+        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. The modes that have been run at {value('vm_str_m3'):.0f} m³ cost more. In the reference case a fed-batch "
+        f"stirred tank costs {m(R[('stirred', 'fedbatch')]['cost'])} and fill-and-draw costs {m(R[('stirred', 'filldraw')]['cost'])}. "
+        f"In the central scenario they cost {m(C[('stirred', 'fedbatch')]['cost'])} and {m(C[('stirred', 'filldraw')]['cost'])}. "
+        f"Cells that make more waste limit a culture that is not washed out to a lower density. "
         f"These costs assume {min(R[('stirred', 'filldraw')]['density'], C[('stirred', 'filldraw')]['density']):.0f} to "
         f"{max(R[('stirred', 'filldraw')]['density'], C[('stirred', 'filldraw')]['density']):.0f} g of cells a litre. Nobody has shown "
         f"that density for meat cells in a tank this size. The one {value('vm_str_m3'):.0f} m³ plant for meat cells reports harvests of about "
         f"{value('vm_x_meat_shown'):.0f} g a litre. "
-        f"A chemostat costs more than fill-and-draw ({m(R[('stirred', 'chemostat')]['cost'])} in the reference case), because it "
-        f"must run below the cells' top growth rate. Batch costs most of the stirred-tank modes "
-        f"({m(R[('stirred', 'batch')]['cost'])}), because one fill of medium feeds only a thin culture.</p>"
+        f"A chemostat costs more than fill-and-draw ({m(R[('stirred', 'chemostat')]['cost'])} in the reference case) because it "
+        f"must run below the cells' top growth rate. Batch costs the most of the stirred-tank modes "
+        f"({m(R[('stirred', 'batch')]['cost'])}) because one fill of medium feeds only a thin culture.</p>"
         f"<p class='fnote'>An airlift costs about what a stirred tank costs when the culture is not washed out. In perfusion it "
-        f"costs more ({m(R[('airlift', 'perfusion')]['cost'])} in the reference case), because its tall shape passes less gas per litre "
+        f"costs more ({m(R[('airlift', 'perfusion')]['cost'])} in the reference case) because its tall shape passes less gas per litre "
         f"and clears less CO₂. A single-use bag needs a new bag every run. That makes it close to a stirred tank only in perfusion "
         f"({m(R[('bag', 'perfusion')]['cost'])}), where a run lasts a month. Packed beds and hollow fibres exist only as small units, "
         f"so they cost {m(R[('packed', 'perfusion')]['cost'])} and {m(R[('hollow', 'perfusion')]['cost'])} a kilo in the reference "
-        f"case. Even a {value('vm_str_m3'):.0f} m³ bed priced like a stirred tank, with carriers that cost nothing, would cost {m(f['bed'])}: the bed is "
+        f"case. Even a {value('vm_str_m3'):.0f} m³ bed priced like a stirred tank, with carriers that cost nothing, would cost {m(f['bed'])}. The bed is "
         f"seeded thin and emptied every run, so it makes a fraction of a perfusion tank's output.</p>")
-    legend = ("<p class='fnote'>Under each cost: how dense the culture gets, what limits it, and the largest item of cost. The tag says "
-              "whether anyone has grown animal cells this way at this size, for any product: "
+    legend = ("<p class='fnote'>Under each cost, the cell gives how dense the culture gets, what limits that density, and the largest item of cost. The tag says "
+              "whether anyone has grown animal cells this way at this size, for any product. The three tags are "
               f"{_vm_tag(V.TODAY)} {_vm_tag(V.PILOT)} {_vm_tag(V.PAPER)}. Only Vow's stirred tank grows cells for food at {value('vm_str_m3'):.0f} m³. "
-              "The tag is about the vessel, the way it is run and its size. It does not say that anyone has reached the density in "
-              f"the cell. Where the density is above the {value('vm_x_meat_shown'):.0f} g a litre reported for meat cells in a tank of "
+              "The tag describes the vessel, the way it is run and its size. It does not say that anyone has reached the density in "
+              f"the cell. If the density is above the {value('vm_x_meat_shown'):.0f} g a litre reported for meat cells in a tank of "
               f"1 m³ or more, the cell says so.</p>")
     ev = "".join(f"<li><b>{_esc(V.VESSELS[v]['name'])}, {_esc(V.MODES[m]['name'].lower())}:</b> {_esc(V.TAGS[(v, m)][1])}</li>"
                  for v in V.VESSEL_ORDER for m in V.MODE_ORDER if V.TAGS[(v, m)][1] and (v, m) not in V.SAME_AS)
@@ -328,8 +329,8 @@ def vessels() -> str:
             f"a hollow-fibre filter loop that holds the cells back. Its membranes cost about "
             f"${value('rt_membrane_price') / value('rt_membrane_life'):.2f} per litre they filter. Batch and fed-batch run "
             f"{value('pf_fedbatch_doublings'):.0f} doublings a cycle from a seed, plus {value('pf_turnaround_h'):.0f} hours to clean and refill "
-            f"(Humbird's design). A lost cycle costs the cycle and {value('vm_restart_cycle_days'):.0f} more days. Each vessel is priced at "
-            f"the largest unit built for animal cells, up to {value('vm_str_m3'):.0f} m³. Evidence and sources: research_notes/vessels_and_modes.md.</p></details>")
+            f"(Humbird's design). A lost cycle costs the cycle and {value('vm_restart_cycle_days'):.0f} more days. The model prices each vessel at "
+            f"the largest unit built for animal cells, up to {value('vm_str_m3'):.0f} m³. The evidence and sources are in research_notes/vessels_and_modes.md.</p></details>")
 
 
 # ----------------------------------------------------------------------------
@@ -352,17 +353,17 @@ def experiments() -> str:
     base_sh = S.shares(base)["global"]
     plan = (
         ("A culture of low-waste meat cells that doubles every 24 hours in a stirred tank", {"growth": "24"},
-         "the combination has never been shown; the central case takes 36 hours"),
+         "Nobody has shown this combination. The central case takes 36 hours."),
         ("Cells that need no growth factors, or that make their own, at scale", {"gf": "none"},
-         "shown in cattle cells by genetic engineering; the central case buys 30% of Humbird's price"),
+         "Genetic engineering has made cattle cells that need none. The central case buys 30% of Humbird's price."),
         ("Medium at $0.15 a litre, verified on a stated mass basis", {"medium": "0.15"},
-         "companies announced $0.20; none verified at scale"),
-        ("A food-grade plant with shared medium built and run for animal cells", {"plant": "lean"}, "nobody has built one"),
+         "Companies announced $0.20 a litre. Nobody has verified it at scale."),
+        ("A food-grade plant with shared medium built and run for animal cells", {"plant": "lean"}, "Nobody has built one."),
         ("A column, pressure and recycled oxygen turn out not to work with dense meat cells", {"tricks": "none"},
-         "calculated, never tried with meat cells; the central case counts all three"),
+         "This is calculated, and nobody has tried it with meat cells. The central case counts all three."),
         ("Loss rates of 0.2% a day in a food-grade tank at 20,000 litres", {"losses": "0.2"},
-         "the survey of makers implies 0.6 to 2.2% a day if runs last 10 to 20 days; run lengths are not stated"),
-        ("The gas flow dense meat cells tolerate at this size", {"gas": "6"}, "6 mm/s has never been run with dense cells; 2 mm/s is the most that has"),
+         "The survey of makers implies 0.6 to 2.2% a day if runs last 10 to 20 days. It does not state run lengths."),
+        ("The gas flow dense meat cells tolerate at this size", {"gas": "6"}, "Nobody has run 6 mm/s with dense cells. 2 mm/s is the most that has been run."),
     )
     rows = []
     for text, ch, why in plan:
@@ -370,10 +371,10 @@ def experiments() -> str:
         d = r - base
         sh = S.shares(r)["global"] - base_sh
         rows.append(f"<tr><td>{_esc(text)}</td><td class='n'><b>{'−' if d < 0 else '+'}{money(abs(d))}</b> a kilo<br><span class='alt'>{sh:+.1f} points of world share</span></td>"
-                    f"<td class='s'>{_esc(why[0].upper() + why[1:])}.</td></tr>")
-    return (f"<p class='blkp'>One measurement at a time. The central scenario costs {money(base)} a kilo and has a point-estimate share of {base_sh:.1f}% of world meat "
-            "(the table at the top gives the median). Each row shows what the scenario would cost if that measurement came out as the row says. "
-            "The measurement comes out in its favour, except where the row says it fails. These are the same switches as in “What decides it”, "
+                    f"<td class='s'>{_esc(why)}</td></tr>")
+    return (f"<p class='blkp'>One measurement at a time. The central scenario costs {money(base)} a kilo and has a point-estimate share of {base_sh:.1f}% of world meat. "
+            "The table at the top gives the median share. Each row shows what the scenario would cost if that measurement came out as the row says. "
+            "Each measurement comes out in the scenario's favour, except where the row says it fails. These are the same switches as in “What decides it”, "
             "so the figures are computed, not estimated by hand.</p><div class='scrollx'><table class='sctab'><thead><tr><th>The measurement</th>"
             "<th>Worth to the central scenario if it comes out this way</th><th>What is known now</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
 
@@ -381,16 +382,16 @@ def experiments() -> str:
 def measured() -> str:
     """Two lists: what has been measured and what has not (the evidence behind the scenarios), each a sentence."""
     done = [
-        "Perfusion at 100 to 214 million cells per millilitre at bench scale (CHO in a wave bag, Clincke 2013; chicken, SuperMeat 2024; Pasitka 2024).",
-        "Ammonia made by meat cells with and without glutamine (bovine, Hubalek 2023): 0.70 mol per kilo with, under 0.14 without; doubling 26 hours and 43 to 54.",
-        "A 20,000-litre food-grade stirred tank growing animal cells, drained and refilled, with no clean room (Vow; company reports).",
-        "Contamination losses across makers: 11.2% of batches (19.5% beyond flasks), with run lengths not stated (Powell 2025).",
-        "Gas flow in 8 to 20 cubic-metre tanks with animal cells: 0.1 to 2 mm a second (Nienow 2006).",
+        "Perfusion at 100 to 214 million cells per millilitre at bench scale. The runs used CHO cells in a wave bag (Clincke 2013) and chicken cells (SuperMeat 2024, Pasitka 2024).",
+        "Ammonia made by bovine meat cells with and without glutamine (Hubalek 2023). With glutamine, the cells made 0.70 mol per kilo and doubled in 26 hours. Without it, they made under 0.14 mol and doubled in 43 to 54 hours.",
+        "Vow reports growing animal cells in a 20,000-litre food-grade stirred tank, drained and refilled, with no clean room.",
+        "A survey of makers found contamination losses of 11.2% of batches, or 19.5% beyond flasks. It did not state run lengths (Powell 2025).",
+        "Gas flows of 0.1 to 2 mm a second in tanks of 8 to 20 cubic metres with animal cells (Nienow 2006).",
     ]
     todo = [
         "Anything with dense meat cells in a tank above about 25 cubic metres.",
         "Meat cells that make this little waste and still double in 24 to 30 hours.",
-        "CO₂ tolerance of muscle or fish cells; how much gas and foam dense cultures stand at 20 cubic metres.",
+        "CO₂ tolerance of muscle or fish cells. How much gas and foam dense cultures stand at 20 cubic metres.",
         "A pumped column, extra pressure or recycled oxygen with meat cells.",
         "A way to hold cells back at 20 cubic metres, and the real cost of a food-grade plant with shared medium.",
         "Medium at $0.20 a litre and growth factors at scale, on a stated mass basis.",

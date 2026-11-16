@@ -72,10 +72,10 @@ function scInteractions(ch,top,minGap){
     const gaWithB=onlyB-both, gap=gaWithB-ga;
     if(Math.abs(gap)<minGap) return;
     const sa=scSwitch(a), sb=scSwitch(b), la=scSetting(a,ka).label, lb=scSetting(b,kb).label;
-    const how=gap<0?"they overlap: one does part of the other’s job":"they reinforce each other";
+    const how=gap<0?"The two overlap, because one does part of the other’s job.":"The two reinforce each other.";
     out.push({a:a,b:b,gap:gap,ga:ga,ga_with_b:gaWithB,
-      text:sa.name+": “"+la+"” would save $"+ga.toFixed(1)+" a kilo as things stand, and $"+gaWithB.toFixed(1)+
-           " if "+sb.name.toLowerCase()+" were “"+lb+"”: "+how+"."});
+      text:"Setting "+sa.name.toLowerCase()+" to “"+la+"” would save $"+ga.toFixed(1)+" a kilo as things stand. It would save $"+gaWithB.toFixed(1)+
+           " if "+sb.name.toLowerCase()+" were “"+lb+"”. "+how});
   }));
   return out.sort((x,y)=>Math.abs(y.gap)-Math.abs(x.gap)).slice(0,top);
 }
@@ -119,7 +119,7 @@ function scSyncRail(){
   ["media_price","efficiency","overhead"].forEach(k=>{ const e=document.getElementById("r_"+k); if(e) e.disabled=!reported; });
   const cb=document.getElementById("t_cleanroom"); if(cb) cb.disabled=!reported;
   const n=document.getElementById("sc_railnote");
-  if(n) n.innerHTML=reported?"The cost comes from the three sliders below: the process one company reports.":
+  if(n) n.innerHTML=reported?"The cost comes from the three sliders below. They describe the process one company reports.":
     "The cost comes from the scenario chosen above (<b>"+scOwnName()+"</b>). The medium price, plant cost and cell efficiency sliders apply only to “As a company reports”.";
   const sel=document.getElementById("sc_railsel"); if(sel) sel.value=reported?"reported":(SCS.src==="custom"?"own":(SCS.preset||"own"));
 }
@@ -136,23 +136,24 @@ function scResultHTML(ch,r){
   const med=(SC.medium_plain[r.medium_set_by]||r.medium_set_by);
   const need=scNeeds(ch).filter(x=>x[2]!=="nothing new");
   const bd=(SCS.src==="scenario"&&SCS.preset)?SC.bands[SCS.preset]:null;      // the band is computed for the named scenarios only
-  const shareStrip=bd?'<b>'+bd.share[1].toFixed(1)+'%</b> of world meat in the long run (median; 80% of draws between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%)'
+  const shareStrip=bd?'<b>'+bd.share[1].toFixed(1)+'%</b> of world meat in the long run (the median, with 80% of draws between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%)'
     :'<b>'+world.toFixed(1)+'%</b> of world meat in the long run (point estimate)';
   const strip='<span class="scbig">'+scMoney(cost)+'<span> a kilo of cells</span></span> &nbsp; <b>'+scMoney(retail,0)+'</b> in the shop ('+R.toFixed(2)+
     '&times; everyday meat) &nbsp; '+shareStrip;
   const el0=document.getElementById("sc_strip"); if(el0) el0.innerHTML=strip;
-  let h='<p>Long-run share of world meat: '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>, the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the four scenarios, not for settings you change. At the cost above and the demand settings now set, the point estimate is '+world.toFixed(1)+'%'
-      :'<b>'+world.toFixed(1)+'%</b> by weight, a point estimate. There is no band for settings you have changed')+' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). '+
-    'The shop price adds '+scMoney(markup,0)+' a kilo for processing, packaging and retail margin; everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
+  const usEu=' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). ';
+  let h='<p>The long-run share of world meat is '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>. This is the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the four scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+world.toFixed(1)+'%'+usEu
+      :'<b>'+world.toFixed(1)+'%</b> by weight'+usEu+'This is a point estimate. There is no band for settings you have changed. ')+
+    'The shop price adds '+scMoney(markup,0)+' a kilo for processing, packaging and retail margin. Everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
     'Each kilo of cells needs '+r.medium_l.toFixed(0)+' litres of medium, set by <b>'+med+'</b>.</p>';
   if(need.length){ h+='<p class="scneed"><b>What has to go right:</b> '+scTagChip(scHardest(ch))+' at the hardest. '+
-    need.map(x=>x[1]+' <i>('+x[2]+')</i>').join("; ")+'.</p>'; }
+    need.map(x=>x[1]+' <i>('+x[2]+')</i>').join(". ")+'.</p>'; }
   const d=r.column;
   if(d && (d.ph_vs_safe>1+1e-9 || !d.passes_tested))
-    h+='<p class="scwarn">This tank design pumps the culture through the column harder than the checks allow ('+d.passes.toFixed(0)+
-       ' passes an hour; dense cultures have taken up to 15–24, and the alkaline culture in the loop is '+d.ph_vs_safe.toFixed(1)+' times the exposure judged safe). '+
-       'Treat the cost as optimistic, or use the button below to pick the cheapest design that passes.</p>';
+    h+='<p class="scwarn">This tank design pumps the culture through the column harder than the checks allow. It uses '+d.passes.toFixed(0)+
+       ' passes an hour, and dense cultures have taken up to 15–24. The alkaline culture in the loop is '+d.ph_vs_safe.toFixed(1)+' times the exposure judged safe. '+
+       'Treat the cost as too low, or use the button below to pick the cheapest design that passes.</p>';
   if(SCS.src==="reported") h+='<p class="scwarn">The charts below are using the process one company reports, not these switches.</p>';
   if(SCS.src==="custom") h+='<p class="scwarn">The charts below are using the case from “All the levers” ($'+SCS.customCost.toFixed(1)+' a kilo), not these switches.</p>';
   return h;
@@ -215,14 +216,14 @@ function scRender(){
   if(typeof vmRender==="function") vmRender();     // the vessel-by-mode table follows the switches (page_vessels.js)
   const its=scInteractions(ch), nh=document.getElementById("sc_notes");
   if(nh) nh.innerHTML=its.length?'<ul>'+its.map(x=>'<li>'+x.text+'</li>').join("")+'</ul>':
-    '<p class="fxn">No two switches interact strongly around these settings: each saves about the same whatever the other is.</p>';
+    '<p class="fxn">No two switches interact strongly around these settings. Each saves about the same whatever the other is.</p>';
 }
 function scChain(){        // the one-line chain under the table, for the chosen cost
   const s=state, b=biomass(s), retail=b+s.markup_add, conv=C.p_conv_anchor*s.meat_tax, R=retail/conv;
   const sh=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref});
   const yrs=yearsToStabilize({R:R,nb0:s.neophobia_x0,nbL:s.neophobia_x,rate:s.accept_rate,p:s.p_innov,q:s.q_imit,ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref,which:"x"});
   const set=(id,t)=>{ const e=document.getElementById(id); if(e) e.innerHTML=t; };
-  set("ch_cost","$"+b.toFixed(1)+"/kg"); set("ch_costl","to grow: "+(SCS.src==="scenario"&&SCS.preset?SC.presets[SCS.preset].name.split(":")[0].toLowerCase():scOwnName().toLowerCase()));
+  set("ch_cost","$"+b.toFixed(1)+"/kg"); set("ch_costl","to grow ("+(SCS.src==="scenario"&&SCS.preset?SC.presets[SCS.preset].name.split(":")[0].toLowerCase():scOwnName().toLowerCase())+")");
   set("ch_shop","$"+retail.toFixed(0)); set("ch_shopl","in the shop, "+R.toFixed(2)+"&times; everyday meat");
   set("ch_share","~"+(sh*100).toFixed(sh<0.1?1:0)+"%"); set("ch_years","~"+yrs+" years");
 }
