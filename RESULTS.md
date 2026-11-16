@@ -51,7 +51,8 @@ estimate is higher than the median (best case: 7.9% at the point cost, 3.8% medi
   and a tank whose liquid is as deep as it is wide. Without these tricks it costs $10.2 a kilo in a tank of the same shape. In the ordinary tall tank it costs $10.4.
 - **The central scenario needs no genetic engineering.** Cells that make little waste because glutamine is replaced in the feed
   and the best lines are chosen, doubling every 36 hours, in a food-grade plant: about **$30/kg** (2.9×), or $26.8 in a
-  food-grade plant with shared medium, and **~0.2% of world meat**. That is the median, and 80% of draws fall between 0.1% and 0.6%. At exactly $29.9 the point estimate is 0.4%
+  food-grade plant with shared medium (Humbird's plant without a clean hall, an oxygen plant or eight seed tanks, and with one
+  medium line for all the tanks; the shared line is the smallest of these savings), and **~0.2% of world meat**. That is the median, and 80% of draws fall between 0.1% and 0.6%. At exactly $29.9 the point estimate is 0.4%
   (0.9% in the US, 2.3% in Europe). In a food-grade plant with shared medium the median is about 0.3%. **Nobody has run the central tank design with animal cells.**
   It uses a column beside the tank that strips CO₂ without bubbles, 1 bar of extra pressure, and a tank whose liquid is as deep as it is wide.
   Oxygen, not CO₂, now limits it, at 177 g/L: antifoam is taken to cost a quarter of the sparger's oxygen transfer, which is worth $1.8 a kilo here.

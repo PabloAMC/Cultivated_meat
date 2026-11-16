@@ -100,7 +100,10 @@ SWITCHES = (
     Switch("plant", "The plant", "How much the buildings and equipment around the tanks cost", (
         Setting("lean", "A food-grade plant with shared medium",
                 {"items": dict(plant_items.PLANTS["lean"])}, FEED,
-                "the food-grade plant with a shared medium line, two seed trains and bought oxygen; nobody has built one"),
+                "Humbird's plant without what animal cells plausibly do not need: a plain hall, bought oxygen in place of an "
+                "oxygen plant, two small seed trains in place of eight seed tanks, food-grade tanks without pharma polish, and one "
+                "sterilised medium line shared by all the tanks. About half the plant cost; most of the saving is the hall, the "
+                "oxygen and the seed trains, not the shared medium. Nobody has built one"),
         Setting("sterile", "A food-grade plant", {"plant": "sanitary"}, NOTHING,
                 "Humbird's plant with a sanitary hall in place of the clean room; food-grade tanks of this size run today"),
         Setting("pharma", "A pharma-style plant with clean rooms", {"plant": "pharma"}, NOTHING,

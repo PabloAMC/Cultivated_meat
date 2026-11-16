@@ -36,7 +36,7 @@ Found while doing it (not changed):
 - [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched.
 - [x] Rebuilt `figures/` with LaTeX (2026-11-16); fixed five labels whose bare `$` broke the LaTeX build.
 
-- [ ] **"Food-grade plant with shared medium" is a misleading name**: shared medium is $33k of the $343k per m³ it saves; most comes from a plain hall, bought oxygen and smaller seed trains (`plant_items.py`). Rename?
+- [x] "Food-grade plant with shared medium": name kept (Pablo prefers explanatory names); the switch note and RESULTS now say what it removes and that the shared medium line is the smallest saving.
 
 Things only Pablo can do:
 
