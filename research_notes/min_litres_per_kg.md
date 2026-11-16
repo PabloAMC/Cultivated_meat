@@ -1,5 +1,12 @@
 # The least medium per kg of cells that physics allows
 
+> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
+> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
+> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
+> higher now. Current scenario costs (RESULTS.md): best case $9.71 (was $8.95), central $29.92 ($26.64), central with shared medium
+> $26.81 ($24.34), cautious $43.79 ($38.97), reference $12.51 ($11.84). With antifoam counted, oxygen limits the central and
+> cautious tanks, so levers that raise the CO₂ or thickness limits are worth less there than this note says.
+
 Compiled 2026-11-15. Code: `min_litres.py` (bounds and costs), `tests/test_min_litres.py`. New inputs: `ml_*` in `inputs.py`. No default moved. Costs are 2025 dollars per kg of wet cells; every scenario is a 20 m3 stirred tank in perfusion with a TFF loop.
 
 Access codes: **FULL** = full text read. **FT-sum** = full text read through a summariser. **PART** = a secondary page or article read, not the paper. **SNIP** = search snippet only. **INF** = my arithmetic. **RECALL** = from memory, no source read. Source access carried from `waste_and_medium_evidence.md`, `waste_tricks_sizing.md` and `perfusion_rate_osmolality.md` is marked EARLIER.

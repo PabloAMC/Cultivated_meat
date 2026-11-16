@@ -26,11 +26,14 @@ sys.path.insert(0, ROOT)
 
 
 def check() -> list:
-    """The study's note quotes figures computed with the old hoped-for retention device (rt_tff_default = 0), so the
-    checks run with it."""
+    """The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
+    (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
+    run with those settings (floor_physics.BEFORE_FILTER_LOOP)."""
     import retention
-    with retention._with({"rt_tff_default": 0.0}):
-        return _check()
+    import floor_physics
+    with retention._with(floor_physics.BEFORE_FILTER_LOOP):
+        fails = _check()
+    return fails + _check_methods()
 
 
 def _check() -> list:
@@ -168,12 +171,20 @@ def _check() -> list:
     for q in quoted:
         if q not in note:
             fails.append(f"research_notes/cheap_plant_study.md does not quote {q!r}")
-    methods = open(os.path.join(ROOT, "METHODS.md")).read()
-    for q in ([f"${tot[p]:.0f}k" for p in ("lean", "yeastplus")] + [f"${cost[p]:.1f}" for p in ("lean", "yeastplus")]
-              + [f"{be[p] * 100:.1f}%" for p in ("lean", "yeastplus")]):
-        if q not in methods:
-            fails.append(f"METHODS.md does not quote {q!r}")
     return fails
+
+
+def _check_methods() -> list:
+    """METHODS.md quotes the plant costs and break-even loss rates of the model as it now stands (not the note's snapshot)."""
+    import plant_items as pi
+    import contamination as ct
+    methods = open(os.path.join(ROOT, "METHODS.md")).read()
+    tot = {p: pi.capital(p)["total"] for p in ("lean", "yeastplus")}
+    cost = {p: pi.cost_per_kg(p)["total"] for p in ("lean", "yeastplus")}
+    be = {p: ct.breakeven_hazard(p) for p in ("lean", "yeastplus")}
+    return [f"METHODS.md does not quote {q!r}" for q in
+            ([f"${tot[p]:.0f}k" for p in tot] + [f"${cost[p]:.1f}" for p in cost] + [f"{be[p] * 100:.1f}%" for p in be])
+            if q not in methods]
 
 
 def main() -> None:

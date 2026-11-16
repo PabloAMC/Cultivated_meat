@@ -1,15 +1,50 @@
 # Change log
 
+## 2026-11-16
+
+Model audit: drift, accuracy and whether the costs are reasonable price points (`audit.py`, `audit_history.py`, `research_notes/model_audit.md`; no default changed; recomputed after PR #32)
+- **Drift:** measured at every commit that touched the cost code. Default $24.01 -> $34.35 (14 Nov), Central $18.14 -> $26.64 -> $29.92, best $6.57 -> $8.95
+  -> $9.71 (15-16 Nov). Every step that moved a headline added a cost an earlier version left out; none lowered one.
+- **Accuracy:** the model needs 1.2 to 2.8 times less medium than every reported perfusion run and predicts 2.3 times the output of the one
+  working 20 m3 plant. Drawing every documented range at once, Central's median is $37 (10th-90th percentile $27-51; the $29.92 point is at the
+  19th percentile) and the best case's is $15.1 ($9.71 is the 1st percentile).
+- **Shelf price:** a flat $5 markup gives Central $35; a markup proportional to the price (as conventional spreads are) gives $56 and lowers the
+  cost at which cultivated meat reaches parity from $7 to $5.6. New inputs `au_retail_share`, `au_processing`. `tests/test_audit.py`, in `run_tests.sh`.
+
 ## 2026-11-15
 
-Model audit: drift, accuracy and whether the costs are reasonable price points (`audit.py`, `audit_history.py`, `research_notes/model_audit.md`; no default changed)
-- **Drift:** measured at every commit that touched the cost code. Default $24.01 -> $34.35 (14 Nov), Central $18.14 -> $26.64, best $6.57 -> $8.95
-  (15 Nov). Every step that moved a headline added a cost an earlier version left out; none lowered one. Nothing has moved since the filter loop.
-- **Accuracy:** the model needs 1.2 to 2.8 times less medium than every reported perfusion run and predicts 2.3 times the output of the one
-  working 20 m3 plant. Drawing every documented range at once, Central's median is $33 (10th-90th percentile $24-46; the $26.64 point is at the
-  20th percentile) and the best case's is $14.1 ($8.95 is the 1st percentile).
-- **Shelf price:** a flat $5 markup gives Central $32; a markup proportional to the price (as conventional spreads are) gives $50 and lowers the
-  cost at which cultivated meat reaches parity from $7 to $5.6. New inputs `au_retail_share`, `au_processing`. `tests/test_audit.py`, in `run_tests.sh`.
+Three costs counted, the plant ladder tied to `explore` (Pablo asked for the long-term choice on each; **numbers move**)
+- **Bubble protectant** (poloxamer 188): new inputs `pf_protectant_dose` (2 g/L, 1–5) and `pf_protectant_price` ($30/kg assumed, $10–260;
+  catalogue $230–260), charged per litre of medium in every sparged vessel; `explore(protectant_price=)`, a tornado bar, the JS mirror.
+- **Antifoam**: `pf_antifoam_otr` default 1 → **0.75** (the middle of the reported 0–50% cut; judgement). Oxygen now limits Central (177 g/L)
+  and Cautious.
+- **Yeast-style plant buys its oxygen** (`pi_o2_feed` × `pi_o2_price`, $0.33/kg), as item-built plants already did; switch `pf_o2_microbial`.
+- **The plant ladder's perfusion rows are `explore()` itself** (filter loop, protectant, oxygen), so they cannot drift again: reference
+  tier $11.5 → $12.5 (first plant $14.1 → $14.8), microbial tier $6.6 → $8.0. `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3, the
+  `overhead` range starts at 10.8. Golden `cost_floor` 11.502 → 12.502.
+- Scenarios (designs chosen again): best $8.95 → **$9.71** (R 1.23, median world share 3.8%), central $26.64 → **$29.92** (R 2.91, 0.2%),
+  central with shared medium $24.34 → $26.81, cautious $38.97 → $43.79, reference $11.84 → $12.51. Best case and Central now use the column,
+  1 bar and a tank as deep as wide (recycled oxygen fails the loop checks); Cautious the column and 1 bar in the tall tank.
+- The default's Monte Carlo: R median 3.27 → 3.29; regional bands updated.
+- Docs: RESULTS (summary, cost table, the cells-by-tricks tables and the gas-cap table recomputed: they still carried pre-filter-loop
+  figures, e.g. bovine cells with glutamine replaced at $17.5 where the model now gives $26.2), METHODS (scenario, tier, tornado, CO₂, species,
+  floor Monte Carlo tables: the last still showed a median of $18.6), `cost_scenarios.md`, `vessels_and_modes.md`, `gas_flow_cap.md`.
+- **Side studies are now snapshots with a stated basis**: `floor_physics.BEFORE_PROTECTANT` / `BEFORE_FILTER_LOOP` and `tests/_snapshot.py` run
+  their tests with the settings their notes were computed with; each note says so at the top and gives the current scenario costs.
+
+Housekeeping (`TODO.md`; no default changed, no headline moved)
+- **`TODO.md`**: one list of open PRs, decisions waiting on Pablo, housekeeping and project ideas; `research_notes/roadmap_2026-11-15.md`
+  keeps the reasoning for the projects.
+- Two new levers from the gas-flow follow-ups, each with a tornado bar and the page mirror (parity holds):
+  `explore(strip_eff=)` (CO₂ carried off by the exhaust gas, 0.70–0.96; at 0.70 the reference holds 87 g/L and costs $13.60) and
+  `explore(antifoam_otr=)` with new input `pf_antifoam_otr` (default 1, range 0.5–1; sparger oxygen only). Halved, the reference
+  becomes oxygen-limited at 97 g/L ($12.88) and Cautious goes from $38.97 to $50.58.
+- Poloxamer 188: catalogue price only (~$230–260/kg); at 2 g/L that is $5.6–14 a kilo of cells. Not added; in `gas_flow_cap.md`
+  and TODO.md as a decision.
+- Notes recomputed with the filter loop: `cost_scenarios.md`, `vessels_and_modes.md` (every figure). `cheap_plant_study.md` and
+  `gas_exchange_study.md` stay dated snapshots (their tests pin the old device) with a box of current figures: the tank tricks are
+  worth about half as much (the gentler column saves $1.47, not $2.86); the lean plant's break-even loss rate is 3.9% a day.
+- `interactive.html` rebuilt (main's copy was older than its source); untracked notes and the growth-rate proposal committed.
 
 Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
 - Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
