@@ -2,6 +2,21 @@
 
 ## 2026-11-16
 
+Can a filter hold 5 L/m2/h at 25% cells? (`filter_flux.py`, `research_notes/filter_flux.md`; no default changed)
+- The physical ceiling (shear-induced back-transport, as printed in two theses) is 57 to 800 L/m2/h for the model's cells: 5 L/m2/h is not above it
+  (under 5% in my judgement). The limit is fouling: CHO membranes fouled after 450-1,200 L/m2 (Pinto 2020, Veje 2024, read in
+  full), 3 to 9 times below the default 3,960. At those throughputs Central costs $49-94 and the best case $15-29 (recomputed after PR #32). The flux
+  itself barely moves the cost (about $0.2 for halving it); the membrane's throughput does. `tests/test_filter_flux.py`, in `run_tests.sh`.
+
+The frontier: every lever at its limit (`frontier.py`, `research_notes/frontier.md`; no default changed; recomputed after PR #32)
+- Central ($29.92) with one lever at a time moved to the limit its research note supports, each kept moved: least medium 6.4 L/kg
+  $14.27, 16 h doubling $10.32, shared-medium plant $8.38, 0.2% losses $8.02, gas 6 mm/s **$7.03** ($7.83 with GFI's amino-acid floor).
+  At the $7 that parity needs, not below it. With antifoam counted oxygen binds at 177 g/L, so 320 g/L adds nothing ($6.33 without the
+  antifoam effect). The litres of medium per kilo are the lever: they set the medium, growth-factor and filtering costs together.
+- Growth factors returned by the filter: the share charged is now capped at what is charged without the filter. Once the medium is cut
+  to 6.4 L/kg the bleed carries out as much liquid as comes in, and the uncapped formula made returning the proteins cost more.
+- `tests/test_frontier.py`, in `run_tests.sh`.
+
 The model against company cost claims (`industry_claims.py`, RESULTS section 1, the page's evidence section; no number moved)
 - Each scenario split into the yearly charge on the plant and operating cost. Company figures are operating cost (COGS); the
   scenarios include the plant. Central: $29.9 = $8.2 plant + $21.7 operating, of which $8.2 filter membranes.

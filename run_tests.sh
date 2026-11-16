@@ -49,6 +49,12 @@ python tests/test_gas_exchange.py
 echo "==> growth-factor prices and the fastest doubling time"
 python tests/test_gf_doubling_bounds.py
 
+echo "==> the frontier: every lever at its limit"
+python tests/test_frontier.py
+
+echo "==> the filter flux limit"
+python tests/test_filter_flux.py
+
 echo "==> the model against company claims"
 python tests/test_industry_claims.py
 

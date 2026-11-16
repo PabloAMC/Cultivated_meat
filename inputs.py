@@ -1240,6 +1240,35 @@ REGISTRY: dict[str, Input] = {
     "nf_aa_g_low": Input(650.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the least efficient of its estimates",
         lo=500.0, hi=650.0, mode=650.0),
 
+    # --- The filter's flux limit (filter_flux.py; research_notes/filter_flux.md) ---------------------------------------------
+    "ff_phi_w": Input(0.6, "volume fraction", "[Kromkamp 2005 (Wageningen thesis, text extract read); Vyas 1999 (Massey thesis, "
+        "full text read)] cell volume fraction in the layer at the membrane wall, the value both theses use for a packed layer",
+        lo=0.5, hi=0.64, mode=0.6),
+    "ff_coef_belfort": Input(0.078, "-", "[Vyas 1999 (Massey thesis), Eq. 2.18, full text read, page image checked, restating Belfort, "
+        "Davis and Zydney 1994] constant in J = 0.078 x shear x (phi_w a^4 / (phi_b L))^(1/3) x ln(phi_w/phi_b)",
+        note="the primary papers (Zydney and Colton 1986; Davis and Leighton 1987; Belfort et al. 1994) were not readable; "
+             "the form is checked in two theses. It needs phi_w - phi_b much less than phi_w, which fails at phi_b = 0.25"),
+    "ff_coef_ds": Input(0.072, "-", "[Kromkamp 2005, Eq. 5.2, text extract read, restating Davis and Sherwood 1990] constant in "
+        "J = 0.072 x shear x (phi_w a^4 / (phi_b L))^(1/3), stated valid for a bulk fraction phi_b below 0.1"),
+    "ff_yeast_shortfall": Input(4.0, "x", "[Redkar and Davis 1993, abstract only] measured steady-state fluxes of unwashed yeast "
+        "were 2 to 4 times below the model; washed yeast 10-30% below", lo=1.3, hi=4.0, mode=4.0,
+        note="used as the conservative cut to the back-transport ceiling"),
+    "ff_shear": Input(2000.0, "1/s", "[Pinto et al. 2020, full text read; Mostafavi et al. 2025, full text read] wall shear rate "
+        "commonly used with hollow-fibre perfusion filters: 1,250-3,000 (Pinto); 2,000 (Mostafavi); 5,500 in Veje 2024, "
+        "who call it high", lo=1250.0, hi=5500.0, mode=2000.0),
+    "ff_length": Input(0.3, "m", "[Pinto 2020 and Radoniqi 2018, full text read: 0.2 m; Veje 2024: 0.65 m] fibre length", lo=0.2,
+        hi=1.0, mode=0.3),
+    "ff_throughput_lo": Input(450.0, "L/m2", "[Pinto et al. 2020, full text read] litres filtered per m2 of a 0.65 um hollow fibre "
+        "before the pressure rose (CHO, 75e6 cells/mL, 1-2 L/m2/h): 450-900", lo=450.0, hi=900.0, mode=450.0),
+    "ff_throughput_hi": Input(1200.0, "L/m2", "[Pinto 2020; Veje 2024, full text read] the most a membrane filtered before fouling: "
+        "900-1,200 for a 0.2 um fibre at 1-2 L/m2/h (Pinto); about 1,200 over 5.9 days at 8.3 L/m2/h (Veje, the authors' "
+        "arithmetic as read by the research pass)", lo=900.0, hi=1200.0, mode=1200.0,
+        note="CHO at 50-75e6 cells/mL, a volume fraction of about 0.13-0.16, with antifoam and cell debris. The model's "
+             "default is 3,960 (rt_membrane_life), 3 to 9 times this"),
+    "ff_flux_typical": Input(2.5, "L/m2/h", "[Veje 2024 (full text, citing the literature: 2-3); Radoniqi 2018 (full text: 2); "
+        "Pinto 2020 (1-2)] the sustained permeate flux hollow-fibre perfusion filters are run at", lo=1.0, hi=3.0, mode=2.5,
+        note="the model's rt_flux_lmh is 5"),
+
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
     # willingness-to-pay reservation curve. Price enters via the BLP income term
