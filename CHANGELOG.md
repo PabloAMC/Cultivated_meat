@@ -2,6 +2,15 @@
 
 ## 2026-11-16
 
+Bioreactor design tricks and a CFD plan (`research_notes/bioreactor_design_tricks.md`, `research_notes/cfd_plan.md`; no number moved)
+- A catalogue of tank design tricks by what they relieve (CO₂, oxygen, mixing, salt, heat), whether something fundamental stops them
+  scaling (surface-to-volume, depth, flow-path length, foam, regulation), and where each sits in the model. Today's cells are CO₂-bound;
+  Central and the best case are oxygen-bound, so oxygen per watt (two spargers, impellers, antifoam) is now the lever. Not yet in the
+  model: two spargers, gas exchange on the filter loop. Perfluorocarbon oxygen carriers are PFAS, close to a non-starter for food.
+- The CFD plan: four steps from validation to bubbles, each replacing a named model input. FluidX3D v3.9 builds and runs on the Apple M4
+  (505 million updates a second in 32-bit, 766 in 16-bit; one buffer of at most 2.27 GB caps the grid at about 30 or 60 million cells).
+  The laminar pipe-flow check converges to 0.16% error in 32-bit but stalls at 23% (FP16S) and 15% (FP16C): use 32-bit for validation.
+
 A stirred tank with a bubble cage (Pablo's design; `vessels.py` row "caged", inputs `vm_cage_*`; no scenario uses it, no number moved)
 - An inner cylinder of fine mesh holds a strong sparger; the cells live in the ring around it with the scenario's own soft bubbling.
   The cage's gas (6 mm/s over the tank, 3-12) adds to the ring's, discounted to 80% (0.5-1) because only medium crosses the mesh;
