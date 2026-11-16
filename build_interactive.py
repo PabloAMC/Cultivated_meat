@@ -1043,6 +1043,7 @@ def derived_numbers() -> dict:
         "GRID_HTML": __import__("page_sections").cells_by_tank(),
         "VESSELS_HTML": __import__("page_sections").vessels(),
         "BACKTEST_HTML": __import__("page_sections").backtest_table(),
+        "INDUSTRY_HTML": __import__("page_sections").industry_claims(),
         "MEASURED_HTML": __import__("page_sections").measured(),
         "EXPERIMENTS_HTML": __import__("page_sections").experiments(),
         **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
@@ -1581,6 +1582,8 @@ It lists what has and has not been measured, and which measurements would move t
 <p class="expl">This table sets reported runs beside what the cost model gives for the same cells and vessel. Nobody tuned the model to these runs. (Humbird's two designs,
 which the model was tuned to, are left out.) An observed-to-model ratio far from 1 shows where the model is not reliable.</p>
 {{BACKTEST_HTML}}
+<h3 class="subh">Against what companies report</h3>
+{{INDUSTRY_HTML}}
 <h3 class="subh">What has and has not been measured</h3>
 {{MEASURED_HTML}}
 <h3 class="subh">The measurements that would move the answer</h3>

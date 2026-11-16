@@ -398,3 +398,39 @@ def measured() -> str:
     ]
     li = lambda xs: "".join(f"<li>{_esc(x)}</li>" for x in xs)
     return (f"<div class='scpair'><div><h4>Has been measured</h4><ul>{li(done)}</ul></div><div><h4>Has not been measured</h4><ul>{li(todo)}</ul></div></div>")
+
+
+def industry_claims() -> str:
+    """The model against company cost claims, on the same basis (industry_claims.py): scenarios split into the plant
+    charge and operating cost; Central's cells run as Vow runs its tank; the claims with their basis."""
+    import industry_claims as IC
+    s = IC.summary()
+    rows = []
+    for k in ("reference",) + S.ORDER:
+        d = s["split"][k]
+        rows.append(f"<tr><td>{_esc(IC.NAMES[k])}</td><td class='n'>{money(d['total'])}</td><td class='n'>{money(d['capital'])}</td>"
+                    f"<td class='n'><b>{money(d['operating'])}</b></td><td class='n'>{money(d['membranes'])}</td></tr>")
+    t1 = ("<div class='scrollx'><table class='sctab'><thead><tr><th>Case</th><th>Cells, $/kg</th><th>Charge on the plant</th>"
+          "<th>Operating cost</th><th>Of which filter membranes</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+    rows = []
+    for (name, d), (_n, d27) in zip(s["vow"], s["vow27"]):
+        rows.append(f"<tr><td>{_esc(name)} (${d['capex_k_m3']:.0f}k per m&sup3;)</td><td class='n'>{money(d['total'])}</td>"
+                    f"<td class='n'>{money(d['capital'])}</td><td class='n'><b>{money(d['operating'])}</b></td>"
+                    f"<td class='n'>{money(d27['total'])}</td></tr>")
+    t2 = ("<div class='scrollx'><table class='sctab'><thead><tr><th>Central's cells, 20 m&sup3; tank drained and refilled, in</th>"
+          f"<th>Cells, $/kg ({s['vow'][0][1]['density']:.0f} g/L)</th><th>Charge on the plant</th><th>Operating cost</th>"
+          "<th>At the 27 g/L reported for meat cells</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+    rows = []
+    for c in IC.CLAIMS:
+        rows.append(f"<tr><td><a href='{_esc(c.source)}'>{_esc(c.who)}</a></td><td>{_esc(c.figure)}</td><td class='s'>{_esc(c.of_what)}</td>"
+                    f"<td class='s'>{_esc(c.capital)}</td><td class='s'>{_esc(c.kind)}; checked by {_esc(c.checked)}</td><td>{_esc(c.date)}</td></tr>")
+    t3 = ("<div class='scrollx'><table class='sctab'><thead><tr><th>Who</th><th>Figure</th><th>A cost of</th><th>Capital in it?</th>"
+          "<th>Kind</th><th>Date</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+    ops = [d["operating"] for _n, d in s["vow"]]
+    text = (f"<p class='expl'>Company cost figures are usually operating cost: medium, labour, utilities and consumables, with nothing "
+            f"for the plant. Every scenario here includes a yearly charge on the plant. On operating cost the model agrees with what "
+            f"companies claim: Central's cells in a tank drained and refilled, as Vow runs its 20 m&sup3; tank, cost "
+            f"${min(ops):.1f}&ndash;{max(ops):.1f} a kilo to operate, against the $10&ndash;15 an investor reports. The difference is the plant, "
+            f"and what a plant for animal cells costs to build is the number most worth checking. None of the company figures has been "
+            f"audited.</p>")
+    return text + t1 + t2 + t3
