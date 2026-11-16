@@ -1380,7 +1380,7 @@ After that it compares <b>vessels and ways of running a tank</b>. It ends with e
 {{GRID_HTML}}
 </div>
 <h3 class="subh">Cost against the price of medium</h3>
-<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports. They are the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red line, cultivated meat costs the same as everyday meat or less. The green dashed lines are the costs of the scenarios in the table at the top.">Cost against medium price</h3>
+<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports. They are the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red dotted line, cultivated meat costs the same as everyday meat or less. The green dashed lines are the costs of the scenarios in the table at the top, named at the right.">Cost against medium price</h3>
         <p class="sub">This chart shows the cost of a kilo of cells against the medium price, with one line per plant case. The dot is your
         setting.</p>
         <svg id="cost" viewBox="0 0 720 300"></svg></div></div>
@@ -2832,35 +2832,46 @@ function buildPieToggle(){
 }
 function drawCost(s){
   const svg=document.getElementById("cost");clear(svg);
-  const W=720,H=300,mL=42,mR=14,mT=14,mB=40, x0=0.10,x1=1.0,y1=52;
-  const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
-  el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
-  el("line",{x1:mL,y1:mT,x2:mL,y2:H-mB,stroke:"#ccc"},svg);
-  [0,10,20,30,40,50].forEach(v=>{tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
-    el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f0f0f0"},svg);});
-  [0.2,0.4,0.5,0.6,0.8,1.0].forEach(v=>tx(svg,X(v),H-mB+13,v.toFixed(2).replace(/0$/,""),
-    {"font-size":9,"text-anchor":"middle",fill:"#666"}));
-  const cols=["#117733","#0072B2","#CC3311"];
-  C.configs.forEach(([lab,oh],k)=>{
-    let d="";for(let i=0;i<=40;i++){const mp=x0+(x1-x0)*i/40;
-      const b=mediaCost(mp,s.efficiency)+oh;
-      d+=(i?"L":"M")+X(mp).toFixed(1)+" "+Y(b).toFixed(1)+" ";}
-    el("path",{d,fill:"none",stroke:cols[k],"stroke-width":2},svg);
-    tx(svg,W-mR-2,Y(mediaCost(x1,s.efficiency)+oh)-2,lab,
-      {"font-size":8,"text-anchor":"end",fill:cols[k]});});
-  // the scenarios' costs + parity
-  SC.order.forEach((k,i)=>{ const c=scEval(SC.presets[k].choice).total;
-    el("line",{x1:mL,y1:Y(c),x2:W-mR,y2:Y(c),stroke:"#117733","stroke-dasharray":"4 3",opacity:0.7},svg);
-    tx(svg,mL+3,Y(c)+((k==="best"||k==="central_lean")?10:-3),SC.presets[k].name.split(":")[0]+" ~$"+c.toFixed(1)+"/kg",{"font-size":8,fill:"#117733"}); });
+  // the scenarios' costs and the parity line are labelled in a column right of the plot, spaced so that no two overlap
   const par=C.p_conv_anchor*s.meat_tax-s.markup_add;
-  el("line",{x1:mL,y1:Y(par),x2:W-mR,y2:Y(par),stroke:"#CC3311","stroke-dasharray":"1 3"},svg);
-  tx(svg,W-mR-2,Y(par)-3,"parity ≤ $"+par.toFixed(0)+"/kg",{"font-size":8,fill:"#CC3311","text-anchor":"end"});
+  const marks=SC.order.map(k=>({c:scEval(SC.presets[k].choice).total,lab:SC.presets[k].name.split(":")[0],col:"#117733"}));
+  marks.forEach(m=>{ m.lab+=" ~$"+m.c.toFixed(1)+"/kg"; });
+  marks.push({c:par,lab:"parity: everyday meat's cost or less, $"+par.toFixed(0)+"/kg",col:"#CC3311",par:true});
+  const W=720,H=300,mL=42,mR=262,mT=14,mB=40, x0=0.10,x1=1.0, PR=W-mR;
+  const y1=Math.max(50,10*Math.ceil((Math.max.apply(null,marks.map(m=>m.c))+3)/10));
+  const X=v=>mL+(PR-mL)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
+  el("line",{x1:mL,y1:H-mB,x2:PR,y2:H-mB,stroke:"#ccc"},svg);
+  el("line",{x1:mL,y1:mT,x2:mL,y2:H-mB,stroke:"#ccc"},svg);
+  for(let v=0;v<=y1;v+=10){tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
+    el("line",{x1:mL,y1:Y(v),x2:PR,y2:Y(v),stroke:"#f0f0f0"},svg);}
+  [0.2,0.4,0.6,0.8,1.0].forEach(v=>tx(svg,X(v),H-mB+13,v.toFixed(2).replace(/0$/,""),
+    {"font-size":9,"text-anchor":"middle",fill:"#666"}));
+  // one line per plant case, drawn up to the top of the plot and labelled where it ends
+  const cols=["#117733","#0072B2","#CC3311"]; let lastLab=-99;
+  C.configs.forEach(([lab,oh],k)=>{
+    let d="", ex=x0, ey=0, on=false;
+    for(let i=0;i<=80;i++){const mp=x0+(x1-x0)*i/80, b=mediaCost(mp,s.efficiency)+oh;
+      if(b>y1){ on=false; continue; }
+      d+=(on?"L":"M")+X(mp).toFixed(1)+" "+Y(b).toFixed(1)+" "; on=true; ex=mp; ey=b;}
+    if(d==="") return;
+    el("path",{d,fill:"none",stroke:cols[k],"stroke-width":2},svg);
+    let ly=Math.max(mT+8,Y(ey)-4); if(Math.abs(ly-lastLab)<10) ly=lastLab+10; lastLab=ly;
+    tx(svg,X(ex)-4,ly,lab,{"font-size":8,"text-anchor":"end",fill:cols[k],stroke:"#fff","stroke-width":2.5,"paint-order":"stroke"});});
+  marks.forEach(m=>{ m.y=Y(m.c);
+    el("line",{x1:mL,y1:m.y,x2:PR,y2:m.y,stroke:m.col,"stroke-dasharray":m.par?"1 3":"4 3",opacity:m.par?1:0.7},svg); });
+  const gap=11, ord=marks.slice().sort((a,b)=>a.y-b.y);
+  ord.forEach((m,i)=>{ m.ly=Math.max(m.y+3,i?ord[i-1].ly+gap:mT+6); });
+  for(let i=ord.length-1;i>=0;i--){ const cap=(i===ord.length-1)?H-mB:ord[i+1].ly-gap; if(ord[i].ly>cap) ord[i].ly=cap; }
+  ord.forEach(m=>{
+    el("path",{d:"M"+PR+" "+m.y.toFixed(1)+" L"+(PR+8)+" "+(m.ly-3).toFixed(1)+" L"+(PR+11)+" "+(m.ly-3).toFixed(1),fill:"none",stroke:m.col,"stroke-width":0.7,opacity:0.8},svg);
+    tx(svg,PR+13,m.ly,m.lab,{"font-size":8,fill:m.col}); });
   // marker
   const b=biomass(s), mpDot=(s.cost_override!=null)?scParams(SCS.choice).medium_price:s.media_price;
-  if(mpDot!==undefined){
-    el("circle",{cx:X(Math.min(x1,Math.max(x0,mpDot))),cy:Y(b),r:5,fill:"#000"},svg);
-    tx(svg,X(Math.min(x1,Math.max(x0,mpDot))),Y(b)-8,"$"+b.toFixed(0)+"/kg",{"font-size":9,"text-anchor":"middle","font-weight":700}); }
-  tx(svg,(mL+W-mR)/2,H-3,"Medium price ($/L)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
+  if(mpDot!==undefined&&b<=y1){
+    const cx=X(Math.min(x1,Math.max(x0,mpDot)));
+    el("circle",{cx:cx,cy:Y(b),r:5,fill:"#000"},svg);
+    tx(svg,cx,Y(b)-8,"$"+b.toFixed(0)+"/kg",{"font-size":9,"text-anchor":"middle","font-weight":700,stroke:"#fff","stroke-width":3,"paint-order":"stroke"}); }
+  tx(svg,(mL+PR)/2,H-3,"Medium price ($/L)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
 }
 function drawCurve(s){
   const svg=document.getElementById("curve");clear(svg);
@@ -3953,10 +3964,11 @@ function floorExplore(p,noSearch){
   if(p.medium_l===undefined){
     if(perf){ terms["ammonia"]=nh3*(1-sorb)/(F.nh3_limit/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);
       if(sorb>0) terms["salt"]=1000*(2*lac+sorb*nh3)/Math.max(2,osmLim-F.osm_base-osmCo2);
+      if(!vm.own_retention) terms["harvest"]=1000/lim[1];      // the culture that leaves with the harvested cells must be replaced
       need=Math.max.apply(null,Object.keys(terms).map(k=>terms[k])); }
     terms["nutrients"]=F.medium_l; }
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
-  const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
+  const ml=p.medium_l===undefined?Math.max(F.medium_l,need):((perf&&!vm.own_retention)?Math.max(p.medium_l,1000/lim[1]):p.medium_l), mp=p.medium_price===undefined?0.15:p.medium_price;
   let consumables=F.consumables, retCapex=0, membranes=0;
   if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
     let perm=Math.max(0,ml-1000/lim[1]); const kgH=out*1000/(8760*uptime);
@@ -4124,7 +4136,7 @@ function fxLimitsDraw(r,f){
   // medium litres per kilo, by what sets them
   const mk=Object.keys(r.medium_terms);
   if(mk.length){
-    const mname={"ammonia":"Washing out ammonia","lactate":"Washing out lactate","salt":"Salt from the sorbent","least flow":"Least flow the cells need","nutrients":"Nutrients the cells eat"};
+    const mname={"ammonia":"Washing out ammonia","lactate":"Washing out lactate","salt":"Salt from the sorbent","least flow":"Least flow the cells need","harvest":"Liquid that leaves with the cells","nutrients":"Nutrients the cells eat"};
     const mvals=mk.map(k=>r.medium_terms[k]).concat(Object.keys(f.medium_terms).map(k=>f.medium_terms[k]));
     const mm=Math.max(20,Math.ceil(Math.max.apply(null,mvals)/10)*10), XM=v=>L+Math.min(v,mm)/mm*(W-L-R), H2=top+mk.length*rh+6;
     g+='<svg viewBox="0 0 '+W+' '+H2+'" width="100%" style="max-width:'+W+'px;min-width:480px;margin-top:6px" role="img" aria-label="Litres of medium per kilo and what sets them">';

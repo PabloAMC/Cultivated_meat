@@ -231,7 +231,7 @@ def _check() -> list:
         d = fp.explore(**kw)["column"]
         near(f"note: passes an hour {kw}", d["passes"], passes, 0.01)
         near(f"note: alkaline exposure vs the safe design {kw}", d["ph_vs_safe"], safe, 0.02)
-    for cap, plant, want in ((0.001, "sanitary", 17.18), (0.002, "sanitary", 11.70), (0.004, "sanitary", 8.49),
+    for cap, plant, want in ((0.001, "sanitary", 17.57), (0.002, "sanitary", 11.70), (0.004, "sanitary", 8.49),
                              (0.006, "sanitary", 7.45), (0.002, "microbial", 6.78), (0.006, "microbial", 4.91)):
         b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
         near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)

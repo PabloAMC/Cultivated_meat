@@ -79,11 +79,15 @@ SWITCHES = (
         Setting("selected", "Selected on a low-waste feed",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
                 SELECT, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells). Lactate is 0.42 per "
-                        "glucose, as in adapted CHO cells. A cell weighs 2 ng."),
+                        "glucose, as in adapted CHO cells. A cell weighs 2 ng. These differ from the best meat cells measured only "
+                        "in lactate. While ammonia sets the litres of medium, as it does in every scenario here, the two cost the "
+                        "same. Less lactate pays once the ammonia is removed or the cells tolerate more of it."),
         Setting("measured", "The best meat cells measured",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
-                FEED, "Ammonia is 0.14 with glutamine replaced (Hubalek 2023). Lactate is 1.05 per glucose in meat cells. A cell weighs 2 ng."),
+                FEED, "Ammonia is 0.14 with glutamine replaced (Hubalek 2023). Lactate is 1.05 per glucose in meat cells. A cell weighs 2 ng. "
+                      "The ammonia is the same as for the selected cells, and ammonia sets the litres of medium, so the extra lactate "
+                      "costs nothing in these scenarios."),
         Setting("ordinary", "Ordinary meat cells",
                 {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
@@ -358,7 +362,8 @@ LIMIT_PLAIN = {"CO2 removal": "clearing CO₂ from the tank", "oxygen supply": "
                "mixing": "mixing the tank", "thickness of the culture": "how thick the culture can be",
                "waste build-up": "waste building up", "other by-products": "other by-products"}
 MEDIUM_PLAIN = {"ammonia": "washing out ammonia", "lactate": "washing out lactate", "least flow": "the least flow the cells need",
-                "nutrients": "the nutrients the cells eat", "salt": "salt from the sorbent"}
+                "nutrients": "the nutrients the cells eat", "salt": "salt from the sorbent",
+                "harvest": "the liquid that leaves with the harvested cells"}
 
 
 # ----------------------------------------------------------------------------

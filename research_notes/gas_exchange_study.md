@@ -35,7 +35,7 @@ by calculation. Floor numbers are $/kg of cells from `floor_physics.explore` (to
 $11.5) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
 packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.5 at any gas flow only if the culture
 may be pumped through the column 22–85 times an hour, beyond the 15–24 tested and beyond the safe pH exposure
-(section 11). Within those limits it is $7.45 at 6 mm/s, $8.5 at 4, $11.7 at 2 and $17.2 at 1; without the
+(section 11). Within those limits it is $7.45 at 6 mm/s, $8.5 at 4, $11.7 at 2 and $17.6 at 1 ($17.2 before the medium was floored at the culture that leaves with the cells, 2026-11-16); without the
 tricks, $11.5 at 6 mm/s and $28 at 2. The membrane loop of the earlier version is
 superseded: a steel column does the same job without the module problems (section 7).
 
@@ -1046,7 +1046,7 @@ The tested range is Clincke 2013 (15 tank volumes an hour for 48 days at 4 L, th
 
 Keeping the loop within the safe exposure and the tested passes (`cheapest_tricks(..., ph_safe=True,
 tested=True)`), the cheapest combinations in the sterile plant are $7.45 at 6 mm/s (column for CO₂, liquid 0.75
-as deep as wide, 1 bar gauge, 10 passes), $8.5 at 4, $11.7 at 2 and $17.2 at 1 mm/s; in a yeast-style plant
+as deep as wide, 1 bar gauge, 10 passes), $8.5 at 4, $11.7 at 2 and $17.6 at 1 mm/s; in a yeast-style plant
 $4.91, $5.3, $6.8 and $9.2. So the earlier claim that the tricks make the floor independent of the gas the cells
 tolerate holds only if cells take 3–6 times the tested circulation and twice to seven times the safe alkaline
 exposure. The 8 s outside the tank is an assumption; halving it would halve the exposure but not the passes.

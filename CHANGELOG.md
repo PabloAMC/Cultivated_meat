@@ -2,6 +2,26 @@
 
 ## 2026-11-16
 
+The medium cannot be less than the culture that leaves with the cells (`explore`, a medium term "harvest"; **no scenario moves, four side figures do**)
+- Cells in suspension are harvested with 1000 / density litres of culture per kg. `explore` let the medium fall below that in thin
+  cultures of low-waste cells. It is now a term of the medium balance, in Python and on the page (shown as a bar in the lever
+  panel), and a medium figure set by hand is raised to it. Cells on a support are exempt.
+- No scenario or tier moved. What did, all thin cultures:
+  - the airlift in perfusion: $14.78 → $15.07 in the reference case ($79.17 → $81.94 with today's cells), at 79 g/L;
+  - the tank-size study's reference at 100 and 200 m³: $14.59 → $15.02 and $17.30 → $18.29 (its note had said the reference was
+    low there by exactly these amounts);
+  - the gas-exchange study's cheapest design at 1 mm/s: $17.18 → $17.57;
+  - the frontier: $6.85 → **$6.86**, with the steps after "cells double in 16 hours" up by $0.36 (faster cells run thinner);
+  - the design search's "medium at the least the physics allows" for today's cells: saves $6.2, not $14.8, because 21.6 litres
+    leave with each kg at 46 g/L.
+
+Page: two fixes Pablo asked for
+- **"Cost against the price of medium":** labels overlapped and rung 1 ($63) was off the top. The scenarios and the parity line
+  are now named in a column at the right, spaced apart, with the axis reaching the dearest scenario.
+- **"Selected on a low-waste feed" and "the best meat cells measured" cost the same** in every scenario: they differ only in
+  lactate, and ammonia sets the litres of medium for both. Both options now say so. Rung 3's gain over rung 2 ($30.73 → $29.42)
+  comes from faster growth (43 → 36 h), not from less waste.
+
 Cleaning and reusing the medium (`medium_reuse.py`, `research_notes/medium_reuse.md`; one lever corrected, no scenario moved)
 - Question: can the ammonia be taken out and the liquid reused (project G)? Method: a liquid balance per kg of cells (fresh medium
   bought, litres cleaned and returned, litres through the cell filter), priced with `explore`, for an ammonium exchanger,

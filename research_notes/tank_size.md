@@ -122,8 +122,8 @@ no longer lifts the limit.
 | 10 | 11.83 | 5.96 | 0.04 | 0.97 | 1.66 | 1.70 | 1.50 | 151 | CO₂ removal |
 | 20 | 11.84 | 6.36 | 0.02 | 1.22 | 1.04 | 1.70 | 1.50 | 120 | CO₂ removal |
 | 50 | 12.55 | 7.70 | 0.00 | 1.65 | 0.00 | 1.70 | 1.50 | 88 | CO₂ removal |
-| 100 | 14.59 | 9.30 | 0.00 | 2.08 | 0.00 | 1.70 | 1.50 | 70 | CO₂ removal |
-| 200 | 17.30 | 11.47 | 0.00 | 2.62 | 0.00 | 1.70 | 1.50 | 56 | CO₂ removal |
+| 100 | 15.02 | 9.30 | 0.00 | 2.08 | 0.00 | 2.14 | 1.50 | 70 | CO₂ removal |
+| 200 | 18.29 | 11.47 | 0.00 | 2.62 | 0.00 | 2.69 | 1.50 | 56 | CO₂ removal |
 
 ### What binds at each size
 
@@ -169,8 +169,8 @@ decides the size.
    the loop outside the tank. The column loop has a pH and a pass check; the TFF loop pumps the whole culture through fibres and has none. All of these grow with area, so they would penalise
    large tanks, but nothing in the repo prices them.
 6. *In the reference case as defined, the model charges no loop at 50 m³ and above.* The bleed at 88, 70 and 56 g/L carries 11.3, 14.3 and 18.0 litres of liquid a kilo, at least the 11.2 litres of
-   medium the cells need, so permeate is zero. But the medium bought is 11.2 litres a kilo (the feed floor of $1.70 holds), not the 14.3 or 18.0 the bleed removes. At 100 and 200 m³ the reference is
-   low by $0.44 and $0.99 a kilo; at 50 m³ it is right. This affects only the reference as defined. In every scenario design the medium exceeds what the bleed removes.
+   medium the cells need, so permeate is zero. Until 2026-11-16 the model still bought only 11.2 litres a kilo there, not the 14.3 or 18.0 the bleed removes, so the reference was
+   low by $0.44 and $0.99 a kilo at 100 and 200 m³. `explore` now buys at least what the bleed removes, and the table above has the corrected figures ($15.02 and $18.29, from $14.59 and $17.30). This affected only the reference as defined. In every scenario design the medium exceeds what the bleed removes.
 
 ## 5. Other assumptions that favour or penalise a size
 

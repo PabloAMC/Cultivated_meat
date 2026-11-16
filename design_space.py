@@ -163,7 +163,9 @@ def limit_prices(key: str) -> list:
     with fp._inputs_set({"pf_x_visc": 320.0}):
         rows.append(("every gas limit lifted, and the culture as thick as 320 g/L", with_vm(_FREE_GAS)))
     least = min_litres.bounds(kw0.get("doubling_h", 24.0), kw0.get("mass_pg", 3000.0))["physical"]
-    rows.append((f"medium at the least the physics allows ({least:.1f} L/kg)", fp.explore(**{**kw0, "medium_l": least})))
+    r_least = fp.explore(**{**kw0, "medium_l": least})   # explore raises it to the culture that leaves with the cells, if thin
+    held = "" if r_least["medium_l"] <= least + 1e-9 else f"; this thin culture needs {r_least['medium_l']:.1f}, what leaves with the cells"
+    rows.append((f"medium at the least the physics allows ({least:.1f} L/kg{held})", r_least))
     rows.append(("filter membranes that never wear out", fp.explore(**{**kw0, "membrane_life": 1e9})))
     rows.append(("no bubble protectant to buy", fp.explore(**{**kw0, "protectant_price": 0.0})))
     rows.append(("no growth factors to buy", fp.explore(**{**kw0, "growth_factors": 0.0})))

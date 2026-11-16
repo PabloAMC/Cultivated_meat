@@ -260,7 +260,7 @@ tried with meat cells.
 ### The frontier: every lever at its limit
 
 Moving the central scenario's levers one at a time to the limits the research notes support, each kept moved, takes it from
-$29.42 to **$6.85** a kilo ($7.66 with GFI's amino-acid prices). The least medium the physics allows (6.4 L/kg) is the largest
+$29.42 to **$6.86** a kilo ($7.66 with GFI's amino-acid prices). The least medium the physics allows (6.4 L/kg) is the largest
 step on its own ($13.76), then a cheaper filter, then cells doubling in 16 hours; the levers share what they save, because fewer litres
 of medium also mean less to filter. The frontier is just under the $7 that parity needs. With antifoam counted, oxygen limits
 the tank, so a thicker culture adds nothing (without the antifoam effect the frontier is $6.16). No step is shown for meat
@@ -400,7 +400,7 @@ those two and holds the rest (research_notes/vessels_and_modes.md has both grids
 |---|---|---|---|---|---|
 | Stirred tank, 20 m3 | 65.35 | 18.85 | 18.46 | 34.75 | **12.51** |
 | Stirred tank with a bubble cage, 20 m3 | 67.59 | 19.46 | 19.05 | 35.93 | 11.08 |
-| Airlift, 20 m3 | 62.37 | 20.79 | 20.35 | 33.18 | 14.78 |
+| Airlift, 20 m3 | 62.37 | 20.79 | 20.35 | 33.18 | 15.07 |
 | Single-use bag, 5 m3 | 1,080 | 293.45 | 38.83 | 75.58 | 20.91 |
 | Packed bed, 65 L | 3,730 | as batch | not possible | not possible | 3,726 |
 | Hollow fibres, 0.5 L | 610,043 | as batch | not possible | not possible | 610,039 |

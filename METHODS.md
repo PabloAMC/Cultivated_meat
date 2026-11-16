@@ -642,6 +642,11 @@ from lactate): the reference case assumes cells better than typical pharma pract
 At 9.3 the reference case is $13.8 and at 18.5, $21.6. One company's chicken process (30.5 L/kg at half a doubling a day)
 works out to 10.6. This limit, more than ammonia or lactate, is why a 48 h doubling time now costs 22 L/kg.
 
+The liquid that leaves with the cells. Cells in suspension are harvested with the culture they sit in: 1000 / density litres per
+kg, 22 L at 46 g/L and 3.9 L at 258 g/L. The medium bought cannot be less than that (added 2026-11-16; a medium figure set by hand is
+raised to it too). It binds only in thin cultures of low-waste cells. No scenario moved; an airlift in perfusion did ($14.78 to
+$15.07 in the reference case). Cells grown on a support (packed bed, hollow fibres) are exempt.
+
 Not included: these two limits are applied in perfusion only; the growth-factor decay, damage from too much
 oxygen near the gas inlet, and by-products specific to meat cells remain outside the model. Sources and access levels: `research_notes/perfusion_rate_osmolality.md`; several figures were read in
 abstracts or search results only.

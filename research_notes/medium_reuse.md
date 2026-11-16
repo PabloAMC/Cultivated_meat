@@ -176,8 +176,8 @@ quoted (a sorbent taking half the ammonia takes Central to $22.97) becomes $28.2
 - Any run with a cleaned and reused dialysate, outside patent claims.
 - Schneider, Marison and von Stockar 1996, the review both books cite, was not read.
 
-## 11. A limit of the model noticed on the way
+## 11. A limit of the model noticed on the way, and fixed
 
-`explore` lets the fresh medium fall below the liquid that leaves with the harvested cells (the culture volume per kg, 22 L at
-46 g/L). It cannot happen in a steady tank. No scenario is affected (all buy 28 L or run thicker), and `medium_reuse.py`
-applies the floor itself, but cases under about 36 g/L with low-waste cells would be. Recorded in `TODO.md`.
+`explore` let the fresh medium fall below the liquid that leaves with the harvested cells (the culture volume per kg, 22 L at
+46 g/L). It cannot happen in a steady tank. No scenario was affected (all buy 28 L or run thicker). The floor was added to
+`explore` the same day, as a medium term of its own; `medium_reuse.py` also applies it to the litres it sets.
