@@ -66,6 +66,21 @@ From the design-tricks survey (`bioreactor_design_tricks.md`):
 - [ ] **Gas exchange on the filter loop**: cost the column or a membrane module sharing the perfusion loop's pump and piping.
 - [ ] **A non-bicarbonate buffer or a different base**, to test whether the salt limit is real where CO₂ tolerance should help.
 
+Leads on reusing the medium (project G), from two books Pablo downloaded on 2026-11-16 (kept outside the repository: *Cellular
+Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*, Soccol et al. eds., Springer 2024; chapters read in part):
+
+- [ ] **Electrodialysis with selective membranes**: over 90% of ammonium and 99% of lactate removed from culture medium (Nir 2023,
+      as cited in Soccol's waste-management chapter). Find the primary source; it is not in `waste_and_medium_evidence.md`.
+- [ ] **Dialysis loops in patents**: Future Meat / Yissum (WO2018011805: a dialyser with an ammonia filter on the dialysate, at least
+      90% of the perfusion liquid recirculated; WO2021152536: hollow fibres wrapped in absorbent, inside the tank) and Avant Meats
+      (WO2023012523: a membrane of 500 Da or more keeps growth factors in; nitrifying bacteria take the ammonia and an enzyme turns
+      lactate into pyruvate). Patent claims, not data.
+- [ ] **Microalgae on spent medium** (Haraguchi 2021-2023): ammonia taken up, extract fed back, C2C12 cells grew as on standard medium.
+- [ ] **Schneider, Marison and von Stockar 1996**, "The importance of ammonia in mammalian cell culture": the review both books cite for
+      ion exchange, gas-permeable membranes and electrodialysis. Read it in full.
+- [ ] In the model, a sorbent that takes half the ammonia takes Central from $29.42 to $22.97; then the least medium flow the cells need
+      (16 L/kg) binds, so the next step needs lactate and the other by-products out too. Price electrodialysis and dialysis as levers.
+
 Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
