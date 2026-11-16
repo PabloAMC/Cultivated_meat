@@ -1,8 +1,15 @@
 # Gas exchange for a 20 m³ tank of animal cells: membrane loop, tank shape, and a published airlift
 
-> **Note, 2026-11-15.** The figures in this note were computed with the old hoped-for device that holds the cells back in a
-> perfusion tank ($89k per m3 of tank, no membranes). The model now prices a hollow-fibre filter loop with its membranes
-> (`retention.py`, `research_notes/retention_devices.md`), so its perfusion cases cost more. This note's tests check its figures with the old device (`rt_tff_default = 0`). The comparisons between tricks still hold; the levels are lower than the model's current ones.
+> **Note, 2026-11-15.** The figures in this note were computed with the model as it was on 2026-11-14: the old hoped-for
+> device that holds the cells back ($89k per m3 of tank, no membranes), no bubble protectant, no antifoam effect, no oxygen cost for
+> the yeast-style class. `tests/test_gas_exchange.py` checks them with those settings (`floor_physics.BEFORE_FILTER_LOOP`).
+> **The tank tricks are worth much less now.** The filter loop charges for the permeate a denser culture sends through the
+> membranes, and antifoam's quarter cut to oxygen transfer makes oxygen bind soon after CO₂ is dealt with: the gentler column saves
+> $0.65 a kilo in the reference tank, not $2.86. **Current figures** (recomputed 2026-11-15, late; the note's in brackets): reference
+> $12.51 ($11.48); twice the gas, 0.2 vvm, $10.89 ($8.47); 2 mm/s $26.61 ($28.03); squat tank at today's gas speed
+> (`shape_case(0.8)`) $12.17 ($8.76); the gentler column (`floor_with_column(p_out=55)`) $11.86 ($8.62), with the sparger cut to
+> 2 mm/s and recycled oxygen $11.51 ($9.02); liquid as deep as wide $12.00 ($9.50); fat fed in place of fat made $11.79 ($9.91).
+> The scenarios (`cost_scenarios.md`) use the current model throughout.
 
 Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every table). Tests:
 `tests/test_gas_exchange.py`. Nothing here is used in the headline cost or on the page.

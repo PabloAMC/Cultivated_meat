@@ -48,7 +48,7 @@ def check() -> list:
         fails.append("the default life should be more than three times the measured throughput")
     if not close(FF.time_limited_life(5.0), value("rt_membrane_life"), 1e-3):
         fails.append("the default life is a 33-day run at 5 L/m2/h")
-    for (k, f, l), want in {("central", 5.0, 1200.0): 46.9547, ("central", 2.5, 450.0): 95.7506, ("best", 5.0, 1200.0): 15.0832}.items():
+    for (k, f, l), want in {("central", 5.0, 1200.0): 48.7509, ("central", 2.5, 450.0): 93.9730, ("best", 5.0, 1200.0): 15.3784}.items():
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")

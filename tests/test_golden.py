@@ -92,7 +92,7 @@ GOLDEN = {
     # floor = physics-based (plant 11.5). biomass_base 24.0120 -> 29.4500, basic_R 2.41767 -> 2.87083,
     # cost_floor 7.7020 -> 13.2020. The demand calibration is UNCHANGED (anchor fixed at 29.012,
     # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
-    "cost_floor":          11.5020,
+    "cost_floor":          12.5020,
     "biomass_base":        34.3500,
     "basic_R":             3.27917,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
@@ -234,12 +234,12 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−1.7"),
         ("elasticity at R=1.5",          elas(1.5),  "−4.4"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−8.3"),
-        ("reference cost $/kg",      cost_floor, "11.5"),
+        ("reference cost $/kg",      cost_floor, "12.5"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.7",
               "elasticity at R=1.5": "−4.4", "elasticity at R=2.42 (anchor)": "−8.3",
-              "reference cost $/kg": "11.5"}
+              "reference cost $/kg": "12.5"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

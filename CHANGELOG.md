@@ -1,19 +1,56 @@
 # Change log
 
-## 2026-11-15
+## 2026-11-16
 
 Can a filter hold 5 L/m2/h at 25% cells? (`filter_flux.py`, `research_notes/filter_flux.md`; no default changed)
 - The physical ceiling (shear-induced back-transport, as printed in two theses) is 57 to 800 L/m2/h for the model's cells: 5 L/m2/h is not above it
   (under 5% in my judgement). The limit is fouling: CHO membranes fouled after 450-1,200 L/m2 (Pinto 2020, Veje 2024, read in
-  full), 3 to 9 times below the default 3,960. At those throughputs Central costs $47-96 and the best case $15-30. The flux
+  full), 3 to 9 times below the default 3,960. At those throughputs Central costs $49-94 and the best case $15-29 (recomputed after PR #32). The flux
   itself barely moves the cost (about $0.2 for halving it); the membrane's throughput does. `tests/test_filter_flux.py`, in `run_tests.sh`.
 
-The frontier: every lever at its limit (`frontier.py`, `research_notes/frontier.md`; no default changed)
-- Central ($26.64) with one lever at a time moved to the limit its research note supports, each kept moved: least medium 6.4 L/kg
-  $12.28, 16 h doubling $7.79, dialyser-grade fibres $7.15, growth factors returned $6.97, 320 g/L $6.36, shared-medium plant $5.76,
-  0.2% losses $5.59, gas 6 mm/s **$5.49** ($6.29 with GFI's amino-acid floor). Below the $7 that parity needs, but no step is shown for
-  meat cells. The litres of medium per kilo are the lever: they set the medium, growth-factor and filtering costs together.
-  Each lever alone reproduces the number in the study it comes from. `tests/test_frontier.py`, in `run_tests.sh`.
+The frontier: every lever at its limit (`frontier.py`, `research_notes/frontier.md`; no default changed; recomputed after PR #32)
+- Central ($29.92) with one lever at a time moved to the limit its research note supports, each kept moved: least medium 6.4 L/kg
+  $14.27, 16 h doubling $10.32, shared-medium plant $8.38, 0.2% losses $8.02, gas 6 mm/s **$7.03** ($7.83 with GFI's amino-acid floor).
+  At the $7 that parity needs, not below it. With antifoam counted oxygen binds at 177 g/L, so 320 g/L adds nothing ($6.33 without the
+  antifoam effect). The litres of medium per kilo are the lever: they set the medium, growth-factor and filtering costs together.
+- Growth factors returned by the filter: the share charged is now capped at what is charged without the filter. Once the medium is cut
+  to 6.4 L/kg the bleed carries out as much liquid as comes in, and the uncapped formula made returning the proteins cost more.
+- `tests/test_frontier.py`, in `run_tests.sh`.
+
+## 2026-11-15
+
+Three costs counted, the plant ladder tied to `explore` (Pablo asked for the long-term choice on each; **numbers move**)
+- **Bubble protectant** (poloxamer 188): new inputs `pf_protectant_dose` (2 g/L, 1–5) and `pf_protectant_price` ($30/kg assumed, $10–260;
+  catalogue $230–260), charged per litre of medium in every sparged vessel; `explore(protectant_price=)`, a tornado bar, the JS mirror.
+- **Antifoam**: `pf_antifoam_otr` default 1 → **0.75** (the middle of the reported 0–50% cut; judgement). Oxygen now limits Central (177 g/L)
+  and Cautious.
+- **Yeast-style plant buys its oxygen** (`pi_o2_feed` × `pi_o2_price`, $0.33/kg), as item-built plants already did; switch `pf_o2_microbial`.
+- **The plant ladder's perfusion rows are `explore()` itself** (filter loop, protectant, oxygen), so they cannot drift again: reference
+  tier $11.5 → $12.5 (first plant $14.1 → $14.8), microbial tier $6.6 → $8.0. `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3, the
+  `overhead` range starts at 10.8. Golden `cost_floor` 11.502 → 12.502.
+- Scenarios (designs chosen again): best $8.95 → **$9.71** (R 1.23, median world share 3.8%), central $26.64 → **$29.92** (R 2.91, 0.2%),
+  central with shared medium $24.34 → $26.81, cautious $38.97 → $43.79, reference $11.84 → $12.51. Best case and Central now use the column,
+  1 bar and a tank as deep as wide (recycled oxygen fails the loop checks); Cautious the column and 1 bar in the tall tank.
+- The default's Monte Carlo: R median 3.27 → 3.29; regional bands updated.
+- Docs: RESULTS (summary, cost table, the cells-by-tricks tables and the gas-cap table recomputed: they still carried pre-filter-loop
+  figures, e.g. bovine cells with glutamine replaced at $17.5 where the model now gives $26.2), METHODS (scenario, tier, tornado, CO₂, species,
+  floor Monte Carlo tables: the last still showed a median of $18.6), `cost_scenarios.md`, `vessels_and_modes.md`, `gas_flow_cap.md`.
+- **Side studies are now snapshots with a stated basis**: `floor_physics.BEFORE_PROTECTANT` / `BEFORE_FILTER_LOOP` and `tests/_snapshot.py` run
+  their tests with the settings their notes were computed with; each note says so at the top and gives the current scenario costs.
+
+Housekeeping (`TODO.md`; no default changed, no headline moved)
+- **`TODO.md`**: one list of open PRs, decisions waiting on Pablo, housekeeping and project ideas; `research_notes/roadmap_2026-11-15.md`
+  keeps the reasoning for the projects.
+- Two new levers from the gas-flow follow-ups, each with a tornado bar and the page mirror (parity holds):
+  `explore(strip_eff=)` (CO₂ carried off by the exhaust gas, 0.70–0.96; at 0.70 the reference holds 87 g/L and costs $13.60) and
+  `explore(antifoam_otr=)` with new input `pf_antifoam_otr` (default 1, range 0.5–1; sparger oxygen only). Halved, the reference
+  becomes oxygen-limited at 97 g/L ($12.88) and Cautious goes from $38.97 to $50.58.
+- Poloxamer 188: catalogue price only (~$230–260/kg); at 2 g/L that is $5.6–14 a kilo of cells. Not added; in `gas_flow_cap.md`
+  and TODO.md as a decision.
+- Notes recomputed with the filter loop: `cost_scenarios.md`, `vessels_and_modes.md` (every figure). `cheap_plant_study.md` and
+  `gas_exchange_study.md` stay dated snapshots (their tests pin the old device) with a box of current figures: the tank tricks are
+  worth about half as much (the gentler column saves $1.47, not $2.86); the lean plant's break-even loss rate is 3.9% a day.
+- `interactive.html` rebuilt (main's copy was older than its source); untracked notes and the growth-rate proposal committed.
 
 Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
 - Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size

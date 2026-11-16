@@ -12,6 +12,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.dirname(HERE)
 sys.path.insert(0, MODEL_DIR)
+import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import floor_physics as fp                  # noqa: E402
 import scenarios as S                       # noqa: E402
