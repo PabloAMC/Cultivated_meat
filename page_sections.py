@@ -234,6 +234,14 @@ def _vm_size(m3: float) -> str:
     return f"{m3 * 1000:.0f} litres a unit" if m3 * 1000 >= 1 else f"{m3 * 1e6:.0f} mL a unit"
 
 
+def _vm_fallback_text(c: dict) -> str:
+    """Why a vessel's cost uses fewer tank tricks than the scenario (mirrored by vmFallbackText in page_vessels.js)."""
+    return ("The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go "
+            "with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost "
+            f"here uses the most that passes that check: “{_esc(c['tricks_fallback'])}”. With the scenario’s own tricks it would be "
+            f"{_vm_money(c['unchecked_cost'])}.")
+
+
 def vessel_grid_html(base: dict | None) -> str:
     """The table for one case (explore arguments; {} = the reference case). The same markup as page_vessels.js."""
     import vessels as V
@@ -255,8 +263,7 @@ def vessel_grid_html(base: dict | None) -> str:
                 lim = V.LIMIT_PLAIN.get(c["limit"], c["limit"])
                 extra = ""
                 if c["tricks_fallback"]:
-                    extra = (f"<br><span class='alt'>The loop for the tank tricks fails its pH check in this vessel, so this cost is with "
-                             f"“{_esc(c['tricks_fallback'])}”. With the tricks it would be {_vm_money(c['unchecked_cost'])}.</span>")
+                    extra = f"<br><span class='alt'>{_vm_fallback_text(c)}</span>"
                 cells.append(f"<td title=\"{_esc(c['evidence'])}\"><b>{_vm_money(c['cost'])}</b><br><span class='alt'>"
                              f"{c['density']:.0f} g/L, limited by {_esc(lim)}. Biggest cost: {_esc(c['biggest'])}.</span><br>"
                              f"{_vm_tag(c['tag'])}"
@@ -275,6 +282,20 @@ def vessel_facts() -> dict:
     possible = lambda g: [c["cost"] for c in g.values() if c["possible"]]
     return {"ref": ref, "cen": cen, "bed": V.what_if_bed(st["reference"])["total"],
             "bed_c": V.what_if_bed(st["central"])["total"], "ref_min": min(possible(ref)), "cen_min": min(possible(cen))}
+
+
+_GH = "https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/"
+
+
+def _vm_pointers() -> str:
+    """Where to read more: the research note behind the table and its three source files."""
+    links = (("vessels_and_modes.md", "the full study"),
+             ("vessels_and_modes_sources/airlift_bubble_column_bags.md", "airlifts, bubble columns and bags"),
+             ("vessels_and_modes_sources/packed_bed_hollow_fibre.md", "packed beds and hollow fibres"),
+             ("vessels_and_modes_sources/operating_modes.md", "the ways of running a tank, and continuous harvest at scale"),
+             ("retention_devices.md", "the devices that hold cells back in perfusion"))
+    return ("<p class='fnote'><b>Read more.</b> " + "; ".join(f"<a href='{_GH}{p}'>{_esc(t)}</a>" for p, t in links) +
+            ". Every source there says how much of it was read.</p>")
 
 
 def vessels() -> str:
@@ -330,7 +351,7 @@ def vessels() -> str:
             f"${value('rt_membrane_price') / value('rt_membrane_life'):.2f} per litre they filter. Batch and fed-batch run "
             f"{value('pf_fedbatch_doublings'):.0f} doublings a cycle from a seed, plus {value('pf_turnaround_h'):.0f} hours to clean and refill "
             f"(Humbird's design). A lost cycle costs the cycle and {value('vm_restart_cycle_days'):.0f} more days. The model prices each vessel at "
-            f"the largest unit built for animal cells, up to {value('vm_str_m3'):.0f} m³. The evidence and sources are in research_notes/vessels_and_modes.md.</p></details>")
+            f"the largest unit built for animal cells, up to {value('vm_str_m3'):.0f} m³.</p></details>" + _vm_pointers())
 
 
 # ----------------------------------------------------------------------------

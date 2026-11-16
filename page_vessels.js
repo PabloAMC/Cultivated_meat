@@ -39,7 +39,7 @@ function vmCell(v,m,base){                      // mirror of vessels.cell
       const rr=floorExplore(vmKwargs(v,m,Object.assign(b,st.p)));
       if(vmLoopOk(rr)&&(best===null||rr.total<best[1].total-1e-12)) best=[st,rr];
     });
-    r=best[1]; fallback=best[0].short;
+    r=best[1]; fallback=best[0].label;
   }
   let big="capital"; Object.keys(VM.biggest).forEach(k=>{ if(r[k]>r[big]) big=k; });
   return {possible:true, cost:r.total, limit:r.limit, density:r.density, output:r.output, medium_l:r.medium_l, uptime:r.uptime,
@@ -54,13 +54,16 @@ function vmBase(){                              // the case the table holds fixe
 function vmMoney(x){ return "$"+(x>=1000?Math.round(x).toLocaleString("en-US"):x.toFixed(2)); }
 function vmTagChip(t){ const cls=t===VM.tag_order[0]?"vt-today":t===VM.tag_order[1]?"vt-pilot":"vt-paper";
   return '<span class="vtag '+cls+'">'+t+'</span>'; }
+function vmFallbackText(c){      // mirror of page_sections._vm_fallback_text
+  return 'The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go '+
+    'with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost '+
+    'here uses the most that passes that check: “'+c.tricks_fallback+'”. With the scenario’s own tricks it would be '+vmMoney(c.unchecked_cost)+'.'; }
 function vmCellHTML(c,v,m){
   if(!c.possible) return '<td class="vno"><b>Not possible</b><br><span class="alt">'+c.reason+'</span></td>';
   if(c.same_as) return '<td class="vsame"><b>As batch</b><br><span class="alt">'+VM.same_as[v+"|"+m][1]+'</span></td>';
   const lim=VM.limit_plain[c.limit]||c.limit;
   let extra="";
-  if(c.tricks_fallback) extra='<br><span class="alt">The loop for the tank tricks fails its pH check in this vessel, so this cost is with “'+
-    c.tricks_fallback+'”. With the tricks it would be '+vmMoney(c.unchecked_cost)+'.</span>';
+  if(c.tricks_fallback) extra='<br><span class="alt">'+vmFallbackText(c)+'</span>';
   return '<td title="'+c.evidence.replace(/"/g,"&quot;")+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+
     ' g/L, limited by '+lim+'. Biggest cost: '+c.biggest+'.</span><br>'+vmTagChip(c.tag)+
     (c.density_unshown?'<br><span class="alt vunshown">'+VM.unshown_note+'</span>':'')+extra+'</td>';
