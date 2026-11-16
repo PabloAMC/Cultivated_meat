@@ -77,7 +77,7 @@ def _split(r: dict) -> dict:
 def scenario_split() -> dict:
     """{key: split} for the reference case and each scenario, as the model runs them (perfusion, 20 m3)."""
     out = {"reference": _split(fp.explore())}
-    for k in S.ORDER:
+    for k in S.PAGE_ORDER:
         out[k] = _split(S.run(S.SCENARIOS[k].choice))
     return out
 
@@ -112,15 +112,16 @@ def summary() -> dict:
 
 
 # ----------------------------------------------------------------------------
-NAMES = {"reference": "Reference: a standard perfusion tank", "best": "Best case", "central": "Central",
-         "central_lean": "Central, shared medium", "cautious": "Cautious"}
+NAMES = {"reference": "Humbird's optimistic design", "today": "1. Today's cells, ordinary tank", "process": "2. Plus process changes",
+         "central": "3. Central (selected cells)", "central_lean": "4. Plus a plant with shared medium", "best": "5. Best case (engineered cells)",
+         "forecast": "Forecast for 2035"}
 
 
 def markdown() -> str:
     s = summary()
     out = ["| case | cells, $/kg | of which: charge on the plant | operating cost | of which: filter membranes | medium and growth factors |",
            "|---|---|---|---|---|---|"]
-    for k in ("reference",) + S.ORDER:
+    for k in S.PAGE_ORDER + ("reference",):
         d = s["split"][k]
         out.append(f"| {NAMES[k]} | ${d['total']:.1f} | ${d['capital']:.1f} | **${d['operating']:.1f}** | ${d['membranes']:.1f} | "
                    f"${d['medium_gf']:.1f} |")
@@ -140,7 +141,7 @@ def main() -> None:
         print(markdown())
         return
     s = summary()
-    for k in ("reference",) + S.ORDER:
+    for k in S.PAGE_ORDER + ("reference",):
         d = s["split"][k]
         print(f"  {k:<13} total ${d['total']:6.2f}  plant charge ${d['capital']:5.2f}  operating ${d['operating']:5.2f}"
               f"  (membranes ${d['membranes']:.2f}, medium+GF ${d['medium_gf']:.2f})")

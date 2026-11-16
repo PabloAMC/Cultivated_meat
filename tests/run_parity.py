@@ -320,7 +320,7 @@ def check_parity() -> list:
     if [(a, b) for a, b, _g in sc.get("inter", [])] != [(x["a"], x["b"]) for x in inter] or \
             any(abs(g - x["gap"]) > 1e-6 for (_a, _b, g), x in zip(sc.get("inter", []), inter)):
         fails.append(f"interactions: python={[(x['a'], x['b'], round(x['gap'], 4)) for x in inter]} js={sc.get('inter')}")
-    for k, (tk, sh) in zip(_S.ORDER, sc.get("design", [])):
+    for k, (tk, sh) in zip(_S.PAGE_ORDER, sc.get("design", [])):
         d = _S.design({**_S.SCENARIOS[k].choice, "tricks": "none", "shape": "tall"})
         if (d["tricks"], d["shape"]) != (tk, sh):
             fails.append(f"design {k}: python=({d['tricks']}, {d['shape']}) js=({tk}, {sh})")

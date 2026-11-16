@@ -40,16 +40,17 @@ Found while doing it (not changed):
 
 Raised by Pablo on 2026-11-16 (open):
 
-- [ ] **What Central is for.** It has drifted from a forecast ("what is plausible") to a description of today's measured cells in a
-      future plant. Decide whether to split it into "today's cells at 20 m³" and a dated forecast (each switch at its forecast median).
-- [ ] **The reference case assumes the hardest thing (engineered cells) but not the easiest (tank tricks).** Tank tricks are feed or
-      process changes; genetic engineering is the hardest tag. Rethink the reference, or the ladder of scenarios, by difficulty.
-- [ ] **Shares that cannot be compared.** The table's scenario shares are medians of draws; the reference and the company figure are
-      point estimates (reference 4.3% looks above best 3.8%, whose point estimate is 7.9%). Show both kinds side by side, or give every row a band.
-- [ ] **Growth factors are a separate line from the medium.** They are dissolved in the medium, but priced separately because the medium
-      prices companies report exclude them. Say so on the page, or fold them into one "medium with growth factors" figure.
-- [ ] **Hybrid vessels and stirring.** A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
+- [x] **What Central is for.** Done 2026-11-16: the scenarios are a ladder ordered by difficulty; Central is rung 3, and a dated forecast row sits beside it.
+- [x] **The reference case** is now "Humbird's optimistic design", shown beside the ladder, not on it; tank tricks come at rung 2.
+- [x] **Comparable shares:** every row gives the share at its point cost and the median of draws (Humbird's design 2.4% median, best case 3.8%).
+- [ ] **Growth factors are a separate line from the medium.** They are dissolved in the medium, but priced separately: the model's medium price is the
+      nutrients, and whether the prices companies announce include growth factors is rarely stated. Say so on the page, or fold them into one "medium with growth factors" figure.
+- [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
+
+- [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
+- [ ] **Do announced medium prices include growth factors?** Sources rarely say. If they do, Central double-counts up to $3.0 a kilo.
+- [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
 Things only Pablo can do:
 

@@ -14,7 +14,9 @@ language (“How the model works”, at the bottom of the page).
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
   on the EA Forum.
 
-**Scenarios** describe the cost of a kilo of cells. They are the best case, the central case, the cautious case and the process one company reports.
+**Scenarios** describe the cost of a kilo of cells. They form a ladder ordered by how hard each change is: today's measured cells, then process
+changes and cheaper inputs, then selected cells (the central case), then a cheaper plant, then engineered cells (the best case). A forecast for
+2035, Humbird's optimistic design and the process one company reports sit beside the ladder.
 Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page's "What decides it".
 Earlier versions called the reference case the floor. It was then $11.5/kg; it is now $12.5, with the filter loop and the protectant counted.
 The model keeps it as a labelled reference, not a limit.

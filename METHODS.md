@@ -249,14 +249,25 @@ median of the share draws.** The share at the scenario's point cost is higher, b
 share rises steeply as the price falls. The page keeps the point estimate, labelled. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
-| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
-|---|---|---|---|---|
-| Best case: everything works | **$9.7** ($9–12) | 1.23 | **3.8%** (1.2–9.7%) | needs genetic engineering |
-| Central: selection and feed only, a food-grade plant | **$29.9** ($27–38) | 2.91 | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
-| Central, food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
-| Cautious: the best meat cells measured so far | **$43.8** ($39–54) | 4.07 | **0.1%** (0.0–0.2%) | needs a change of feed, process or plant |
-| Reference: a standard perfusion tank, no tricks | $12.5 | 1.46 | 4.3% (point estimate) | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% (point estimate) | a company's own report |
+**The ladder** (`scenarios.LADDER`, 2026-11-16). The page and RESULTS lead with five rungs, each adding one kind of change to the
+one before, ordered by the tag of what it needs (nothing new or a change of feed or process, then selection, then genetic
+engineering): `today` (measured cells, no tank tricks, the ordinary tall tank, today's input prices; its tricks and shape are fixed,
+not chosen by `design`), `process`, `central`, `central_lean`, `best`. Rungs 3 to 5 are exactly the earlier Central, Central with shared
+medium and best case, so every analysis run on them stands. `forecast` sets each switch at the author's median for 2035 (RESULTS, "The
+forecast"). `ORDER` keeps the four scenarios the side studies were run on (`cautious` is no longer on the page). Every row of the
+headline table gives the share at its point cost and the median of draws; `bands(None)` draws Humbird's optimistic design
+(`reference()`) the same way, and `reported_band` takes the company's process from `meat_market.monte_carlo`.
+
+| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
+|---|---|---|---|---|---|
+| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($51–81) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
+| 2. Plus process changes and cheaper inputs | **$31.3** ($29–40) | 3.03 | 0.4% | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
+| 3. Plus cells selected for low waste (Central) | **$29.9** ($27–38) | 2.91 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | 0.5% | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.23 | 7.9% | **3.8%** (1.2–9.7%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$25.0** ($24–33) | 2.50 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($10–15) | 1.46 | 4.3% | **2.4%** (0.7–6.9%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 3.28 | 0.3% | **0.2%** (0.0–0.6%) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'

@@ -2,6 +2,17 @@
 
 ## 2026-11-16
 
+The scenarios as a ladder ordered by difficulty (`scenarios.LADDER`, `PAGE_ORDER`; Pablo's review; no cost of an existing scenario moved)
+- Five rungs, each adding one kind of change: 1. today's measured cells in an ordinary tank, no tricks, today's prices ($63.0);
+  2. plus process changes and cheaper inputs ($31.3; the tank tricks alone are worth $19.2); 3. plus selected cells = Central ($29.9);
+  4. plus a plant with shared medium ($26.8); 5. plus engineered cells = the best case ($9.7). A forecast row for 2035 ($25.0, median
+  share 0.3%) is a first draft of the author's medians, with the odds behind each in RESULTS.
+- The reference is renamed "Humbird's optimistic design" and sits beside the ladder: it assumes engineered cells and no tank tricks.
+- Every row of the headline table gives the share at its point cost and the median of draws (`bands(None)` for Humbird's design,
+  `reported_band` for the company's process), so rows compare: Humbird's design 2.4% median, best case 3.8%.
+- `ORDER` keeps the four scenarios the side studies use; `cautious` leaves the page. Page prose, RESULTS, METHODS, README,
+  `cost_scenarios.md`, the company-claims table and tests follow. Roadmap: CFD target A5, oxygen transfer per watt for impellers and spargers.
+
 Model audit: drift, accuracy and whether the costs are reasonable price points (`audit.py`, `audit_history.py`, `research_notes/model_audit.md`; no default changed; recomputed after PR #32)
 - **Drift:** measured at every commit that touched the cost code. Default $24.01 -> $34.35 (14 Nov), Central $18.14 -> $26.64 -> $29.92, best $6.57 -> $8.95
   -> $9.71 (15-16 Nov). Every step that moved a headline added a cost an earlier version left out; none lowered one.

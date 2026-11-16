@@ -110,7 +110,7 @@ for fname in ("README.md", "RESULTS.md", "METHODS.md"):
     if not os.path.exists(path):
         continue
     text = open(path, encoding="utf-8").read()
-    for k in ("best", "central", "cautious"):
+    for k in ("best", "central"):
         want = f"${cost[k]:.1f}"
         if fname != "README.md":
             check(want in text, f"{fname} does not quote the {k} scenario's cost {want}")
@@ -127,7 +127,7 @@ for fname in ("RESULTS.md", "METHODS.md"):
     for row in table_rows:
         check(row in text, f"{fname} does not carry the scenario table row: {row[:70]}")
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
-for k in S.ORDER:
+for k in S.PAGE_ORDER:
     bk = S.bands(S.SCENARIOS[k].choice)
     sm = S.summary(S.SCENARIOS[k].choice)
     check(f"<b>{bk['share'][1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
@@ -138,8 +138,19 @@ for k in S.ORDER:
 check(S.bands(S.SCENARIOS["best"].choice)["share"][1] < S.summary(S.SCENARIOS["best"].choice)["world"],
       "best case: median share should be below the point estimate")
 
+# 12b. the ladder (2026-11-16): each rung adds to the one before, so the cost falls down the ladder; rungs 3-5 are the old scenarios
+lad = [S.run(S.SCENARIOS[k].choice)["total"] for k in S.LADDER]
+check(all(a > b for a, b in zip(lad, lad[1:])), f"the ladder's cost should fall rung by rung: {[round(x, 2) for x in lad]}")
+check(S.LADDER[2:] == ("central", "central_lean", "best"), "rungs 3-5 should be Central, Central with shared medium, the best case")
+for a, b in zip(S.LADDER, S.LADDER[1:]):
+    ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
+    check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
+check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
+rb = S.bands(None)
+check(f"<b>{rb['share'][1]:.1f}%</b><br><span class='alt'>The median." in page, "the page should headline the median for Humbird's design too")
+
 # 13. what the tank design relies on is stated, with the cost without it
-for k in ("best", "central", "cautious"):
+for k in ("best", "central", "process"):
     tr = S.tricks_report(S.SCENARIOS[k].choice)
     check(len(tr["used"]) > 0, f"{k}: expected tank tricks to be listed")
     check(abs(tr["no_tricks"] - S.run({**S.SCENARIOS[k].choice, "tricks": "none"})["total"]) < 1e-9, f"{k}: no-tricks cost")
