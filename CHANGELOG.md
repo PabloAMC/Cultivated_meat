@@ -21,6 +21,8 @@ Page: two fixes Pablo asked for
 - **"Selected on a low-waste feed" and "the best meat cells measured" cost the same** in every scenario: they differ only in
   lactate, and ammonia sets the litres of medium for both. Both options now say so. Rung 3's gain over rung 2 ($30.73 → $29.42)
   comes from faster growth (43 → 36 h), not from less waste.
+- **Rung 3 renamed** "3. Plus cells selected to grow faster on the low-waste feed (Central)" (was "selected for low waste"); its
+  story and the prose in RESULTS and on the page say where its $1.3 comes from. The figure's label column widens to fit.
 
 Cleaning and reusing the medium (`medium_reuse.py`, `research_notes/medium_reuse.md`; one lever corrected, no scenario moved)
 - Question: can the ammonia be taken out and the liquid reused (project G)? Method: a liquid balance per kg of cells (fresh medium
