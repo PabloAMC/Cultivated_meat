@@ -326,8 +326,8 @@ def vessels() -> str:
     return (guide + f"<div id='vm_grid'>{vessel_grid_html(V.settings()['central'])}</div>" + legend + take +
             f"<details class='scdet'><summary>The evidence behind each tag</summary><ul>{ev}</ul></details>" +
             f"<details class='scdet'><summary>What limits each vessel</summary><ul>{lim_rows}</ul><p class='fxn'>Perfusion assumes "
-            f"a device that holds the cells back. The device costs what one design study hopes for, ${value('pf_capex_retention'):.0f}k per m³ of "
-            f"tank. The filters pharma uses would cost about ${prior('pf_capex_retention')[2]:.0f}k. Batch and fed-batch run "
+            f"a hollow-fibre filter loop that holds the cells back. Its membranes cost about "
+            f"${value('rt_membrane_price') / value('rt_membrane_life'):.2f} per litre they filter. Batch and fed-batch run "
             f"{value('pf_fedbatch_doublings'):.0f} doublings a cycle from a seed, plus {value('pf_turnaround_h'):.0f} hours to clean and refill "
             f"(Humbird's design). A lost cycle costs the cycle and {value('vm_restart_cycle_days'):.0f} more days. The model prices each vessel at "
             f"the largest unit built for animal cells, up to {value('vm_str_m3'):.0f} m³. The evidence and sources are in research_notes/vessels_and_modes.md.</p></details>")

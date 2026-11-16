@@ -20,7 +20,7 @@ SCENARIOS  presets of the switches, each with a one-sentence story of what has t
 priorities()   for one scenario, what each switch is worth if it moved to its best or its worst setting.
 grid()         two switches against each other.
 interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
-scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention device, upkeep,
+scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention membranes, upkeep,
                medium price, loss rate), holding the scenario's switches.
 
 The page (build_interactive.py) has a JavaScript mirror of this module; tests/run_parity.py checks the two agree.
@@ -149,6 +149,9 @@ SWITCHES = (
         Setting("all", "All bought at his price", {"growth_factors": 1.0}, NOTHING,
                 "Humbird's large-scale price. It assumes an industry far larger than the current one."))),
     Switch("medium", "Price of the medium", "What a litre of the nutrient liquid costs", (
+        Setting("0.05", "$0.05 a litre (an aspiration)", {"medium_price": value("sc_medium_aspire")}, FEED,
+                "no one has reported it: the lowest company report is $0.07 and GFI's amino acids alone cost $0.02-0.17; "
+                "the medium then costs what the cells must eat"),
         Setting("0.15", "$0.15 a litre", {"medium_price": 0.15}, FEED,
                 "The cost of the nutrients the cells eat. The medium cannot cost less."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid")}, FEED,
@@ -168,7 +171,7 @@ _SHORT = {
     ("losses", "0.2"): "0.2% a day", ("losses", "0.6"): "0.6% a day", ("losses", "1"): "1% a day", ("losses", "2"): "2% a day",
     ("restart", "14"): "14 days", ("restart", "21"): "21 days", ("restart", "30"): "30 days",
     ("gf", "none"): "none", ("gf", "30"): "30%", ("gf", "60"): "60%", ("gf", "all"): "all",
-    ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
+    ("medium", "0.05"): "$0.05/L", ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
 }
 SWITCHES = tuple(replace(sw, settings=tuple(replace(st, short=_SHORT[(sw.key, st.key)]) for st in sw.settings))
                  for sw in SWITCHES)
@@ -233,8 +236,9 @@ SCENARIOS = {
         "best", "Best case: everything works",
         "The cells are engineered to make almost no waste, and they double every day. The plant is a food-grade plant with shared medium. "
         "The tank clears CO₂ without more bubbles. The cells need no bought growth factors.",
-        "Cells, growth speed, plant, gas, medium and growth factors are at their cheapest setting. Losses are at the low end of what makers "
-        "report, because pharma's 0.2% a day is not assumed. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
+        "Cells, growth speed, plant, gas and growth factors are at their cheapest setting. The medium costs $0.15 a litre, because the $0.05 "
+        "aspiration is not assumed. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
+        "design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),
     "central": Scenario(
@@ -477,7 +481,7 @@ MC_PRIORS = {
 
 
 def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
-    """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, retention device, upkeep
+    """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
     share of respiration, medium price and loss rate, drawn from their priors; the scenario's switches held."""
     rng = np.random.default_rng(seed)
     kw0 = explore_kwargs(choice)
@@ -488,7 +492,7 @@ def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
     tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
     d = {"capex_x": tri(*pri["capex_x"]), "medium_price": tri(*pri["medium_price"]) * kw0.get("medium_price", 0.15),
          "hazard": tri(*pri["hazard"]) * kw0.get("hazard", 0.0)}
-    for key, name in (("charge", "plant_charge_mature"), ("retention", "pf_capex_retention"),
+    for key, name in (("charge", "plant_charge_mature"), ("membrane_life", "rt_membrane_life"),
                       ("maintenance_share", "pf_maintenance_share")):
         _kind, lo, hi, mode, _note = prior(name)
         d[key] = tri(lo, mode, hi)

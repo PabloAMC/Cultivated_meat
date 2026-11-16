@@ -514,9 +514,25 @@ from a dense culture, with and without antifoam, would by itself move my 45% by 
    only catalogue prices found. US food-additive rules do not clearly cover it (21 CFR 172.808 [32], read;
    GOOD Meat's own filing says it is "not specifically stated", and reports residue under 100 mg/kg in the
    product [45] VEND). EU status not verified (from memory: not authorised as an additive).
+   *Update 2026-11-15 (late): now in the model.* The price is still catalogue only: Sigma-Aldrich 25 kg at $6,475 (about
+   $259/kg) and 10 kg at $2,320 ($232/kg) [search summary of the catalogue pages]; a B2B trade tracker has a 2,000 kg+ band
+   behind a paywall. No bulk price. Poloxamer is dissolved in the medium, so it leaves with every litre unless recovered. The model
+   now charges `pf_protectant_dose` (2 g/L, range 1–5) × litres × `pf_protectant_price` ($30/kg assumed for tonnes, range $10–260,
+   the top being the catalogue price) in every sparged vessel, with a tornado bar. At $30 that is $0.67 a kilo of cells in the
+   reference case and the best case (11.2 L/kg) and $1.68 in Central and Cautious (28 L/kg); at the catalogue price $5.6 and
+   $14. Medium prices are taken to exclude it. A web search found no EU food-additive authorisation for poloxamers and no EFSA
+   opinion; cultivated meat is assessed as a novel food, so the residue would be dealt with in that dossier. Not verified in the
+   Union list itself. A supplier quote would replace the assumed price.
 2. **Antifoam.** Its effect on oxygen transfer (0 to −50%), on growth, and the 10 ppm food limit are not in the
    model. With transfer halved the floor's oxygen limit falls from 195 to 97 g/L and would bind.
+   *Done 2026-11-15 (late):* `explore(antifoam_otr=)` and input `pf_antifoam_otr`, applied to the sparger's oxygen only, with a
+   tornado bar. **The default is 0.75**, the middle of the reported 0–50% cut (a judgement; it was 1). At 0.75 the reference tank is
+   unchanged (CO₂ still binds at 120 g/L), but oxygen now limits Central (177 g/L in place of 236; +$1.8) and Cautious (+$3.7).
+   Halved: reference $13.55 (oxygen binds at 97 g/L), best case $10.16, Central $33.18, Cautious $51.18. With no effect: $12.51,
+   $9.56, $28.15, $40.07. The effect on growth and the food limit are still not in the model.
 3. **Stripping efficiency.** 0.7–0.96 against the model's 0.96; worth a tornado bar.
+   *Done 2026-11-15 (late):* `explore(strip_eff=)` with a tornado bar (0.70 to 0.96). At 0.70 the reference tank holds 87 g/L in
+   place of 120 and costs $14.27; the scenarios, whose columns take the CO₂, move by under $0.1.
 4. **Velocity or vvm.** If the cap is in vvm, tank shape and size stop mattering for CO₂.
 5. **Yeast-style plant.** That plant class has no oxygen unit in its price; the oxygen ($0.5/kg) is not added
    there.

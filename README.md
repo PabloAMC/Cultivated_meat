@@ -16,7 +16,8 @@ language (“How the model works”, at the bottom of the page).
 
 **Scenarios** describe the cost of a kilo of cells. They are the best case, the central case, the cautious case and the process one company reports.
 Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page's "What decides it".
-Earlier versions called the $11.5/kg reference case the floor. The model now keeps it as a labelled reference, not a limit.
+Earlier versions called the reference case the floor. It was then $11.5/kg; it is now $12.5, with the filter loop and the protectant counted.
+The model keeps it as a labelled reference, not a limit.
 
 The default cost is what a company reports for its own process (SuperMeat 2024). The physics of oxygen and CO₂ exchange and Humbird's plant design (2021) bound the scenarios.
 Every number is sourced and lives in one place, and every result reproduces from the code.
@@ -56,6 +57,7 @@ it is always a band.
 | 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
+| 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; the filter loop it prices is the model's default |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
 | 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets) and their scaffold cost; the most speculative part |
@@ -183,6 +185,7 @@ model/
 ├── tests/               ← golden-value and Python↔JS parity tests
 ├── figures/             ← curated PNGs (diagnostics/ holds the rest)
 ├── RESULTS.md           ← the findings
+├── TODO.md              ← open work, decisions waiting, project ideas
 ├── METHODS.md           ← code-level methods, sources and the anti-drift checklist
 ├── DESIGN_authenticity_demand.md ← design note behind the entry-point analysis (historical)
 └── REVIEW.md            ← a June 2026 review of the explorer (historical)

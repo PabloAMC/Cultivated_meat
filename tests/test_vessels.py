@@ -20,12 +20,12 @@ from inputs import value
 
 # the reference-case grid, $/kg (None = not possible). Update in the same commit as an intended change.
 GOLDEN_REF = {
-    ("stirred", "batch"): 62.9527, ("stirred", "fedbatch"): 18.2046, ("stirred", "filldraw"): 17.8091,
-    ("stirred", "chemostat"): 33.6712, ("stirred", "perfusion"): 11.4801,
-    ("airlift", "fedbatch"): 20.0256, ("airlift", "perfusion"): 15.1686,
+    ("stirred", "batch"): 65.3527, ("stirred", "fedbatch"): 18.8538, ("stirred", "filldraw"): 18.4583,
+    ("stirred", "chemostat"): 34.7532, ("stirred", "perfusion"): 12.5107,
+    ("airlift", "fedbatch"): 20.7859, ("airlift", "perfusion"): 14.7790,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 18.1434, ("stirred", "fedbatch"): 45.2850, ("airlift", "perfusion"): 38.6944}
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 29.9230, ("stirred", "fedbatch"): 42.8732, ("airlift", "perfusion"): 32.5847}
 
 
 def close(a, b, tol=1e-3):
@@ -71,8 +71,8 @@ def check() -> list:
         fails.append("the taller airlift should clear less CO2 than the stirred tank")
     if not V.what_if_bed(ref)["total"] > gr[("stirred", "perfusion")]["cost"]:
         fails.append("even the best-case packed bed should cost more than a stirred tank in perfusion")
-    if gc[("airlift", "perfusion")]["tricks_fallback"] != "no tricks":
-        fails.append("central airlift perfusion: the loop should fail its check and fall back to no tricks")
+    if gc[("airlift", "perfusion")]["tricks_fallback"] in (None, ""):
+        fails.append("central airlift perfusion: the loop should fail its check in the taller tank and fall back to a lesser trick")
     # 6. every combination has a maturity tag and evidence
     for k in [(v, m) for v in V.VESSEL_ORDER for m in V.MODE_ORDER]:
         if k not in V.TAGS:

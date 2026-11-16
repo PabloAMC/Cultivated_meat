@@ -130,14 +130,14 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(19.1, "$/kg", "[SuperMeat, capital restated] everything except medium. Running costs as the "
         "company reports them, $10.8/kg ($11.8/lb 'without depreciation' = $26.0/kg, less 30.5 L x $0.50 of "
         "medium), plus a full yearly charge on the plant, $8.3/kg",
-        lo=9.8, hi=34.0, mode=19.1,
+        lo=10.8, hi=34.0, mode=19.1,
         note="THE PLANT knob. CAPITAL: the report gives depreciation of $1.6/lb ($3.5/kg) but neither the plant's "
              "cost nor the depreciation period. Assuming straight-line over 10 years (Humbird's plant life), the "
              "plant costs $35 per kg of yearly output, and at the 23.6%-a-year charge used for every other case "
              "(humbird_plant_charge) that is $8.3/kg. Over 20 years it would be $16.7/kg. The company's own "
              "figure with depreciation only is $29.5/kg in all; this default is $34.3. CAUTION: the report's "
              "stated tank volumes, densities and bleed rate reproduce about half its stated output, so its "
-             "plant cost per kg cannot be checked. lo=9.8 = the plant floor (floor_physics: no clean rooms, "
+             "plant cost per kg cannot be checked. lo=10.8 = the plant floor (floor_physics: no clean rooms, "
              "perfusion, efficient cells). hi=34 = the cautious case with cells at half the density "
              "(floor_physics: pharma-style plant, tanks drained and refilled, 60 g/L). PIVOTAL: with the "
              "medium price, the top driver of R."),
@@ -165,22 +165,26 @@ REGISTRY: dict[str, Input] = {
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(9.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
+    "plant_floor": Input(10.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
         "been costed for animal cells works together, financed like a mature food industry: a food-grade plant "
-        "without clean rooms ($810k per m3 in 2025 prices) plus a hoped-for device to hold cells back ($89k per "
-        "m3), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, 91% "
-        "uptime: capital, maintenance and insurance $7.1 + labour $1.2 + utilities and consumables $1.5",
+        "without clean rooms ($810k per m3 in 2025 prices) plus a hollow-fibre filter loop to hold cells back "
+        "(retention.py), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, "
+        "91% uptime: capital, maintenance and insurance $6.4 + labour $1.2 + utilities $1.2 + consumables $2.0 (of "
+        "which filter membranes $1.0 and bubble protectant $0.7). Until 2026-11-15 (late) it was $9.8, with a "
+        "hoped-for device at $89k per m3 and no protectant",
         note="THE FLOOR'S PLANT TERM (2026-11-14). Each element is allowed by physics and claimed or shown "
              "somewhere, never together: food-grade 20 m3 tanks run today (Vow); perfusion above 100 g/L is "
              "shown at 10 L (SuperMeat, Pasitka); a way to hold cells back at 20 m3 is not shown; efficient "
              "cells are not shown; 91% uptime is Humbird's figure, which he calls 'rather aggressive'. "
              "FINANCING: the yearly charge is plant_charge_mature (17.3%), because the floor is a long-run "
-             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $12.4. "
+             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $13.1. "
              "tests/test_floor_physics.py ties this value to the module"),
-    "plant_floor_lo": Input(4.9, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
-        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing",
+    "plant_floor_lo": Input(6.3, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
+        "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing, "
+        "buying its oxygen (such plants have no oxygen unit). $4.9 before 2026-11-15 (late): no filter membranes, "
+        "no protectant, no oxygen",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. $5.7 at the first-plant rate. "
+             "animal cells, whose cultures are far easier to contaminate. $6.8 at the first-plant rate. "
              "CROSS-CHECK (research_notes/plant_capital_crosscheck.md): the price holds at small tanks. "
              "Humbird's own baker's-yeast plant costs $57k per m3 with 200 m3 fermentors and $130k with "
              "27 x 20 m3 (his Table A.5; about $175k in 2025 prices). And two published designs FOR ANIMAL "
@@ -501,6 +505,24 @@ REGISTRY: dict[str, Input] = {
         note="the oil itself is cheap; delivering it to cells in serum-free medium needs a carrier (albumin, "
              "cyclodextrin) or an emulsion, which is not priced here; hi stands for a chemically defined concentrate"),
     "ge_atp_per_o2": Input(5.0, "mol ATP/mol O2", "[textbook] oxidative phosphorylation at a P/O ratio of about 2.5"),
+    "pf_protectant_dose": Input(2.0, "g/L", "[gas_flow_cap.md] poloxamer 188 in the medium: the dose with which dense pharma "
+        "cultures took 0.1-0.2 vvm without extra cell death, which the model's 6 mm/s relies on",
+        lo=1.0, hi=5.0, mode=2.0,
+        note="Humbird recommends more than 0.5 g/L for vigorously sparged cultures (Sect. 2.3); dense high-gas runs used 2-5 g/L "
+             "(research_notes/gas_flow_cap.md). It passes the filter and leaves with the medium."),
+    "pf_protectant_price": Input(30.0, "$/kg", "[assumed] poloxamer 188 bought by the tonne: no bulk price found; catalogue "
+        "prices are $230-260/kg in 10-25 kg packs (Sigma-Aldrich, search summary), tonne-scale excipients sell at a fraction",
+        lo=10.0, hi=260.0, mode=30.0,
+        note="hi = the catalogue price. At 2 g/L and $30/kg it is $0.06 a litre of medium: $0.67/kg of cells at 11 L/kg, "
+             "$1.7 at 28 L/kg. A supplier quote would replace the assumption (TODO.md)."),
+    "pf_o2_microbial": Input(1.0, "switch", "[model choice, 2026-11-15] 1: the yeast-style plant class buys its oxygen "
+        "(pi_o2_feed x pi_o2_price), as plants built item by item do; 0: no oxygen cost (earlier versions)"),
+    "pf_antifoam_otr": Input(0.75, "-", "[judgement, effect reported] oxygen transfer from the sparger with antifoam "
+        "present, relative to without: the middle of the reported 0-50% cut",
+        lo=0.5, hi=1.0, mode=0.75,
+        note="research_notes/gas_flow_cap.md (follow-up 2): antifoams cut kLa by 0 to about 50% depending on type and dose "
+             "(snippet- and abstract-level sources there). 1 keeps Humbird's oxygen transfer; at 0.5 the oxygen limit of the "
+             "reference tank falls from 195 to about 97 g/L and binds before CO2. Applied to the sparger only."),
     "pf_co2_strip_eff": Input(0.9605, "-", "[calibrated] how close the exhaust gas comes to equilibrium with the liquid",
         note="THE CO2 BALANCE. CO2 leaves a sparged tank only in the exhaust gas. Gas passes at u_s / H_L tank "
              "volumes per second (superficial velocity over liquid depth) and can carry at most pCO2 / RT of CO2, "
@@ -956,8 +978,16 @@ REGISTRY: dict[str, Input] = {
              "cattle cells by genetic engineering"),
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
+    "sc_medium_aspire": Input(0.05, "$/L", "[Pablo's aspiration, 2026-11-15; GFI Dec 2025] a medium at $0.05 a litre: GFI puts "
+        "amino acids alone at $0.02-0.17 a litre and the lowest company report at $0.07 (Clever Carnivore, unaudited)",
+        lo=0.03, hi=0.10, mode=0.05,
+        note="an aspiration, not a figure anyone has reported. Below about $0.06 the model's nutrient floor ($1.70 a kilo) binds, "
+             "so this setting prices medium at the floor; nutrient_floor.py shows the floor is probably higher"),
     "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
-        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20, note="company announcements, not verified at scale"),
+        "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20,
+        note="company announcements, not verified at scale. GFI's amino acid analysis (Dec 2025, read in full) puts amino acids at "
+             "$0.02-0.17/L and cites Meatly and Gourmey at about $0.20, Clever Carnivore at $0.07 and Believer's measured "
+             "$0.63; see research_notes/medium_cost_gfi.md"),
     "sc_medium_high": Input(0.30, "$/L", "[judgement] between the announced $0.20 and the $0.50 SuperMeat reports",
         lo=0.2, hi=0.5, mode=0.30),
     "sc_aspect_flat": Input(0.5, "depth/width", "[gas_exchange.cheapest_tricks] the squattest shape its search "
@@ -1084,6 +1114,131 @@ REGISTRY: dict[str, Input] = {
         lo=0.02, hi=0.1, mode=0.035),
     "vm_hf_cost_run": Input(6250.0, "$k/m3 per run", "[assumed] a single-use set of about $3,000 a run (no price "
         "found) over 0.48 L", lo=2000.0, hi=20000.0, mode=6250.0),
+
+    # --- Cell retention for a 20 m3 perfusion tank (retention.py; research_notes/retention_devices.md) ---------------
+    # Not used by any default: retention.py reprices the cases with each device through explore(retention=, extra_opex=).
+    "rt_tff_default": Input(1.0, "switch", "[model choice, 2026-11-15] 1: perfusion is priced with the TFF hollow-fibre "
+        "loop (retention.py; floor_physics.explore's default); 0: with the old hoped-for device, pf_capex_retention and no "
+        "membranes",
+        note="the side studies written before this change (research_notes/gas_exchange_study.md, cheap_plant_study.md) quote "
+             "figures at 0; their tests check them at 0"),
+    "rt_install": Input(1.84, "x", "[Pasitka SI Tables S1 and S4, as for pf_capex_retention] engineering, construction, "
+        "fees and contingency on bought retention equipment", lo=1.5, hi=2.5, mode=1.84),
+    "rt_flux_lmh": Input(5.0, "L/m2/h", "[Repligen design guidance, snippet; Ott 2024, Veje 2024, read in full] permeate "
+        "flux a hollow-fibre filter holds for weeks: vendors design at 4-6; one ATF 6 ran 50 days unchanged at 0.68 (50 L, "
+        "volume fraction 0.13); membranes fouled in 3-6 days at 8.3", lo=2.0, hi=8.3, mode=5.0,
+        note="no month-long data at a volume fraction of 0.25"),
+    "rt_atf_area": Input(11.0, "m2", "[Repligen XCell ATF 10 brochure, read in full] membrane area of the largest ATF unit",
+        note="rated for 200-5,000 L tanks; 'up to 1,000 L/d' of permeate each (Humbird 2021)"),
+    "rt_atf_price": Input(200.0, "$k per unit", "[Humbird 2021, read in part, derived] $38.5M for 192 ATF 10 units before "
+        "installation", lo=100.0, hi=350.0, mode=200.0, note="hi: Pasitka's SI, $17.5M for 50 units"),
+    "rt_atf_phi_max": Input(0.31, "volume fraction", "[Clincke et al. 2013, read in full] the ATF's vacuum could no longer "
+        "pull the thick broth at 1.3e8 CHO cells/mL (about 2.4 pL a cell), in a 4 L bag",
+        lo=0.25, hi=0.35, mode=0.31),
+    "rt_tff_hw": Input(1.0, "$k per m2", "[assumed, research pass] pumps, housings and skid per m2 of hollow-fibre membrane "
+        "for a recirculating TFF loop; at the central duty this gives $35k per m3 of tank, Pasitka's own TFF figure",
+        lo=0.5, hi=3.0, mode=1.0),
+    "rt_tff_phi_max": Input(0.5, "volume fraction", "[Clincke et al. 2013, read in full] a TFF loop with a positive-pressure "
+        "pump reached 2.14e8 CHO cells/mL (about half the volume) for days in a 4 L bag, at about 1 bar at the inlet",
+        lo=0.3, hi=0.5, mode=0.5),
+    "rt_membrane_price": Input(1450.0, "$/m2", "[Humbird 2021, read in part, derived] $16,000 per ATF membrane of 11 m2; a "
+        "retail 0.2 um module lists at $1,050-1,260 per m2 (snippet)", lo=1050.0, hi=1450.0, mode=1450.0),
+    "rt_membrane_life": Input(3960.0, "L/m2", "[research pass, derived] litres of permeate a m2 of membrane filters before it "
+        "is replaced: 5 L/m2/h for a 33-day run", lo=900.0, hi=5500.0, mode=3960.0,
+        note="lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
+             "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture"),
+    # alternatives to the pharma membrane: research_notes/retention_alternatives.md, retention_alternatives_sources/
+    "rt_reuse_life": Input(12000.0, "L/m2", "[Cobetter and Sartorius reuse guidance, snippets; patent US 6,261,457, snippet] "
+        "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 x (1 + 4 x 0.3 to 0.8), "
+        "after cleaning with sodium hydroxide; flux recovers 70-80% and a patent saw reuse life fall to 30-40% of the first",
+        lo=8700.0, hi=16600.0, mode=12000.0,
+        note="the same polymer, price and sterility as the model's membrane. No reuse data with animal-cell fouling; steam "
+             "limits a module to about 10 cycles"),
+    "rt_dial_price": Input(8.0, "$/m2", "[market reports and a retailer, snippets] a haemodialyser sells for $6-25 and holds "
+        "1.8 m2 of hollow fibre", lo=3.0, hi=14.0, mode=8.0,
+        note="made in the hundreds of millions, steam- or gamma-sterilised. Plasma separators have wider fibre but no price "
+             "was found"),
+    "rt_dial_flux": Input(2.5, "L/m2/h", "[Fresenius FX 80 data sheet, snippet; haemodiafiltration study, snippet] filtering "
+        "whole blood at 30-40% cells by volume: 17-27 litres in a 4-hour session over about 2 m2", lo=2.0, hi=3.4, mode=2.5,
+        note="blood cells are 8 um and deformable; meat cells are 17 um and stiffer. Sessions last hours, not weeks"),
+    "rt_dial_life": Input(1000.0, "L/m2", "[assumed, between the two cases the research pass worked] litres a dialyser fibre "
+        "filters before it is replaced: 240 if it fouls in 4 days as CHO membranes did (Veje 2024), 2,000 if it lasts a "
+        "33-day run at 2.5 L/m2/h", lo=240.0, hi=2000.0, mode=1000.0,
+        note="no animal-cell run on dialyser fibres was found"),
+    "rt_dial_hw": Input(0.5, "$k per m2", "[assumed] manifolds, sterile connections and pumps per m2 of dialyser fibre, "
+        "about $900 for each 1.8 m2 dialyser; none could be priced", lo=0.2, hi=1.0, mode=0.5,
+        note="a central-case plant needs about 420 dialysers in parallel, so hardware, not fibre, sets the cost"),
+    "rt_dial_phi_max": Input(0.35, "volume fraction", "[Fresenius FX 80 data sheet, snippet] the densest fluid dialysers "
+        "routinely filter: whole blood at a haematocrit of 32-40%, for hours", lo=0.3, hi=0.4, mode=0.35),
+    "rt_ceramic_price": Input(1500.0, "$/m2", "[research pass, snippets] ceramic microfiltration elements for dairy and "
+        "beverages cost about $500-3,000 per m2", lo=500.0, hi=3000.0, mode=1500.0),
+    "rt_ceramic_life": Input(40000.0, "L/m2", "[assumed] litres of permeate a ceramic element filters before it is replaced: "
+        "ten runs of 33 days at 5 L/m2/h, if cleaning in place restores the flux each time", lo=15000.0, hi=200000.0,
+        mode=40000.0,
+        note="elements last years in dairies, but nobody has shown cleaning restores flux after animal cells foul them"),
+    "rt_ceramic_hw": Input(3.0, "$k per m2", "[assumed] stainless housings, a cleaning skid and a spare bank, per m2 of "
+        "ceramic membrane; no price found", lo=1.0, hi=6.0, mode=3.0),
+    "rt_ceramic_phi_max": Input(0.12, "volume fraction", "[assumed] no animal-cell run on ceramic membranes was found; the "
+        "lowest density any filter-based device has held", lo=0.05, hi=0.25, mode=0.12),
+    "rt_settle_price": Input(3.5, "$k per m2", "[assumed, research pass] a steam-rated inclined settler per m2 of projected "
+        "plate area, installed; no price found", lo=2.0, hi=5.0, mode=3.5),
+    "rt_settle_holdup": Input(17.0, "L per m2", "[Romann et al. 2023, read in full, via the repo notes] a 2,000 L "
+        "bleed-recycling settler: 30.4 L inside for 1.78 m2 of projected area", lo=10.0, hi=25.0, mode=17.0,
+        note="culture in the settler has no oxygen supply; at 1e8 cells/mL its oxygen lasts seconds"),
+    "rt_settle_v_frac": Input(0.5, "of hindered velocity", "[research notes, practice] settlers are designed to overflow at "
+        "about half the speed at which the crowded cells settle", lo=0.3, hi=0.7, mode=0.5),
+    "rt_settle_holdup_max": Input(0.05, "of the tank's liquid", "[assumed] the most culture a settler may hold outside the "
+        "tank, with no oxygen supply; Romann's 2,000 L settler held about 1.5% of its tank", lo=0.02, hi=0.10, mode=0.05,
+        note="above this a settler is marked not possible: too much of the culture would sit without oxygen"),
+    "rt_settle_phi_max": Input(0.12, "volume fraction", "[Coronel 2020; Romann 2023, via the repo notes] the densest cultures "
+        "held by a settler: 5e7 avian cells/mL; all data at a volume fraction of about 0.1 or less", lo=0.1, hi=0.2, mode=0.12),
+    "rt_acoustic_cap": Input(1.0, "m3/day per unit", "[Getinge BioSep product page, snippet] the largest acoustic separator: "
+        "1,000 L/day (vendor); independent tests reached 200-400 L/day", lo=0.2, hi=1.0, mode=1.0,
+        note="larger units are 'very difficult' because the sound heats the culture (Romann 2023 review)"),
+    "rt_acoustic_price": Input(100.0, "$k per unit", "[assumed] no price found (vendor quotes on request)",
+        lo=50.0, hi=200.0, mode=100.0),
+    "rt_ds_cap": Input(2.0, "m3/h per unit", "[Alfa Laval Culturefuge 100, vendor, snippet] a hermetic, steam-sterilised "
+        "disc-stack separator for cell culture: 0.2-2 m3/h", lo=1.0, hi=2.0, mode=2.0),
+    "rt_ds_price": Input(800.0, "$k per unit installed", "[assumed, research pass] no sterile price found; a non-sterile "
+        "154 m3/h separator cost $747.5k in 2013 (NREL 2016, read in part)", lo=400.0, hi=1500.0, mode=800.0),
+    "rt_ds_spares": Input(1.0, "units", "[assumed] one spare separator, so a seal failure does not end a 33-day run"),
+    "rt_ds_conc": Input(0.70, "volume fraction", "[Hundley and Konigsson 2020, BioProcess Int., read in part] a hermetic "
+        "separator concentrated CHO cells to 70% packed volume", lo=0.6, hi=0.8, mode=0.70),
+    "rt_ds_lysis": Input(0.04, "per pass", "[same, measured by the vendor's staff] extra cells burst per pass: 2-6% in a "
+        "single-use prototype at low load, 12.5% in the Culturefuge 100", lo=0.02, hi=0.125, mode=0.04,
+        note="CHO cells; meat cells are larger and may be more fragile. Yeast survives 2-3 passes a day for 250-280 days in "
+             "Brazilian ethanol plants, but yeast has a cell wall"),
+    "rt_ds_phi_max": Input(0.28, "volume fraction", "[Hundley and Konigsson 2020, read in part] the densest feed a hermetic "
+        "separator was shown with: a synthetic analogue at 28% packed cell volume", lo=0.2, hi=0.3, mode=0.28),
+    "rt_ds_power": Input(10.0, "kW per running unit", "[research pass, inference from vendor data] a 2 m3/h hermetic "
+        "separator; power is cents a kilo", lo=5.0, hi=20.0, mode=10.0),
+    "rt_maint": Input(0.04, "of capital a year", "[assumed] maintenance of a separator beyond the plant's own 4%",
+        lo=0.02, hi=0.08, mode=0.04),
+    "rt_hc_eff": Input(0.96, "of cells", "[Bettinardi et al. 2020, abstract; Pinto et al. 2008, snippet] share of cells a "
+        "hydrocyclone returns to the tank: 96-97% at 2.3 bar, 89-95% in other tests", lo=0.89, hi=0.97, mode=0.96),
+    "rt_hc_split": Input(0.5, "of feed", "[assumed] share of a hydrocyclone's feed that leaves in the overflow (the clarified "
+        "stream); the rest returns", lo=0.3, hi=0.7, mode=0.5),
+    "rt_hc_price": Input(50.0, "$k per m3/h of feed, installed", "[assumed] no price or flow per unit found", lo=20.0,
+        hi=150.0, mode=50.0),
+    "rt_hc_phi_max": Input(0.12, "volume fraction", "[Bettinardi et al. 2020, abstract] the densest hydrocyclone perfusion: "
+        "5e7 cells/mL in a 40 L bag", lo=0.06, hi=0.2, mode=0.12),
+
+    # --- The nutrient floor, bottom-up from GFI's amino-acid prices (nutrient_floor.py; research_notes/nutrient_floor.md) ---
+    # Not used by any default: nutrient_floor.py reprices the scenarios through explore()'s own `aa_bulk_price`.
+    "nf_aa_price_feed": Input(6.36, "$/kg AA", "[GFI amino acid analysis, Dec 2025, Table 1, read in full; unweighted mean of 22 "
+        "amino acids] feed-grade price scenario, from aggregate supplier data", lo=3.0, hi=12.0, mode=6.36,
+        note="the mean is unweighted: the amino acids a cell needs are not needed in equal amounts. Serine, arginine and "
+             "glutamine are needed in the largest amounts. GFI reports its own weighted figures only in charts"),
+    "nf_aa_price_low": Input(11.59, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] low food-grade scenario: 25% below the "
+        "lowest quote for each amino acid", lo=7.0, hi=16.0, mode=11.59),
+    "nf_aa_price_high": Input(23.18, "$/kg AA", "[GFI Dec 2025, Table 1; unweighted mean] high food-grade scenario: 25% above "
+        "the highest quote", lo=15.0, hi=35.0, mode=23.18),
+    "nf_aa_g_eff": Input(232.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9, read in full] the most efficient of eight "
+        "bioconversion estimates (200-650); 232 is the figure from Humbird's stoichiometry", lo=200.0, hi=350.0, mode=232.0),
+    "nf_aa_g_mid": Input(350.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the third most efficient of its estimates",
+        lo=232.0, hi=500.0, mode=350.0),
+    "nf_aa_g_low": Input(650.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the least efficient of its estimates",
+        lo=500.0, hi=650.0, mode=650.0),
 
     # --- Rung 3: demand / price-sensitivity inputs ----------------------------
     # Rung 3 is a two-segment, four-product latent-class logit (market_share.py), NOT a
@@ -1543,6 +1698,199 @@ REGISTRY: dict[str, Input] = {
         lo=20.0, hi=30.0, mode=25.0),
     "p_conv_sushi_salmon": Input(40.0, "$/kg", "[market] sushi-grade salmon / Wildtype target",
         lo=32.0, hi=48.0, mode=40.0),
+
+    # --- Tank size scan (tank_size.py; research_notes/tank_size.md). Used only by the what-if rows of that scan; no
+    #     scenario, default or page number uses them. -----------------------------------------------------------------
+    "ts_ph_relaxed": Input(2.0, "x the safe dose", "[derived, research_notes/gas_exchange_study.md section 8] the "
+        "alkaline dose a column loop may give the culture in the what-if that relaxes the pH check: the safe design "
+        "(55 mbar out, 0.5 m3 of loop in a 20 m3 tank) is 0.29 of the dose that slowed CHO cells, so twice it is 0.58",
+        lo=1.0, hi=3.4, mode=2.0,
+        note="3.4 times the safe dose is the dose that slowed CHO cells (Paul et al. 2020, via a summary); one study, "
+             "inferred measure of 'rise x share'"),
+    "ts_loop_hw_exp": Input(0.3, "-", "[assumed] how fast the cost of the retention loop's hardware per m2 of membrane "
+        "falls with tank size, in the what-if that gives it economies of scale: per m2 it scales as (V/20)^-0.3, so "
+        "the hardware as a whole scales as V^0.7",
+        lo=0.0, hi=0.4, mode=0.3,
+        note="the base model prices every m2 alike (rt_tff_hw); pumps, housings and controls cost less per m2 in a "
+             "bigger skid and more in a small one; the membranes themselves do not change. The usual exponent for "
+             "process equipment is 0.6 to 0.7 (ge_vessel_cost_exp is 0.6)"),
+    "ts_hazard_exp": Input(0.333, "-", "[assumed] how fast the chance of losing a run per tank-day grows with tank "
+        "size, in the what-if that makes it grow: hazard x (V/20)^0.333",
+        lo=0.0, hi=0.667, mode=0.333,
+        note="the base model holds the chance per tank-day fixed. A bigger tank has more ports, seals and "
+             "connections (surface goes as V^(2/3)) and a loss costs the whole tank, so the loss per kilo rises with "
+             "the chance per tank-day. No source gives it by tank size; BioPlan's survey found larger facilities had "
+             "about three times the contamination of smaller ones (facilities, not tanks)"),
+    # --- how thick a culture can be (thick_culture.py, research_notes/thick_culture.md) ------------------
+    "tc_phi_max": Input(0.65, "volume fraction", "[Iordan, Duperray and Verdier 2007, arXiv:0709.3671, read in full] the "
+        "maximum packing in the Krieger-Dougherty fit to the viscosity of CHO suspensions at 1,000 per second (eta/eta0 = "
+        "(1 - phi/phi0)^(-2.5 phi0))", lo=0.64, hi=0.74, mode=0.65,
+        note="0.64 is random close packing of hard spheres, 0.74 the face-centred cubic limit. Their cells were spun down "
+             "and re-diluted at 20 C and not growing"),
+    "tc_thin": Input(1.33, "-", "[Tregidgo et al. 2023, Chem Eng Res Des 194:344, read in full] CHO at 1e8 cells/mL, 37 C: "
+        "2.4 mPa s at 50 rpm in a 250 mL tank against 1.8 at a shear rate of 45 per second (the viscosity the Thomas "
+        "equation gives for a quarter cells by volume): the excess viscosity is 1.33 times higher at the low shear a large "
+        "tank has", lo=1.0, hi=3.0, mode=1.33,
+        note="hi: the same paper, 'viscosities increase up to 3-fold ... at shear rates below 40 per second', with high "
+             "scatter. Applied to the excess of the suspension over the medium"),
+    "tc_kla_exp": Input(0.40, "-", "[Yagi and Yoshida 1975, as listed in a university course note, snippet] the oxygen "
+        "transfer coefficient falls with the apparent viscosity to the power -0.40 in stirred tanks of Newtonian and "
+        "non-Newtonian liquids", lo=0.0, hi=0.6, mode=0.40,
+        note="lo: Amgen's CHO perfusion cultures at 1e5 to 35e5 cells/mL lost almost no kLa (AIChE 2017 abstract, 403 on "
+             "fetch) and Pappenreiter saw none between cell-free and spent harvest medium (via Bioprocess Intl 2024). hi: a "
+             "2025 Biotechnology Journal paper reports a 10-40% fall with culture rheology (snippet, not read). Humbird's "
+             "kLa equation has no viscosity term"),
+    "tc_np": Input(5.0, "-", "[Tregidgo et al. 2023, read in full] power number of the dual-impeller 250 mL tank, 4.9; "
+        "elephant-ear and pitched-blade impellers in large tanks run at 1.3-1.5 (assumed)", lo=1.3, hi=5.0, mode=5.0,
+        note="at a fixed power per volume a lower power number turns the stirrer faster and raises the Reynolds number, so 5 "
+             "is the cautious end"),
+    "tc_re_turb": Input(1.0e4, "-", "[Tregidgo et al. 2023, read in full] a mixing number (time x speed) that stays constant "
+        "from Re 5,600 up; the usual boundary of fully turbulent flow is 10,000", lo=5600.0, hi=1.0e4, mode=1.0e4,
+        note="above this Reynolds number, Humbird's mixing-time equation (which has no viscosity in it) holds"),
+    "tc_bubble_mm": Input(3.5, "mm", "[research_notes/gas_flow_cap.md, section 3, citing a bubble-column measurement in "
+        "synthetic medium with poloxamer] bubbles of 3-4 mm", lo=2.0, hi=5.0, mode=3.5),
+    "tc_holdup": Input(0.04, "of the tank", "[research_notes/gas_flow_cap.md, section 3] gas hold-up at 6 mm/s: 3.5% at "
+        "4.2 mm/s and 4.5% at 7.7 mm/s", lo=0.03, hi=0.06, mode=0.04,
+        note="measured without cells, at the viscosity of the medium"),
+    "tc_yield_sigma": Input(1.4, "Pa", "[Iordan, Duperray and Verdier 2007, read in full] the stress scale sigma* of the "
+        "fractal-aggregate fit to their yield stresses", lo=0.5, hi=5.0, mode=1.4,
+        note="their Figure 4a values were not extracted; the yield stress is taken as sigma* (phi/phi0)^m, with m below. "
+             "They fitted CHO at 20 C, spun down and re-diluted"),
+    "tc_yield_exp": Input(8.4, "-", "[Iordan, Duperray and Verdier 2007, read in full] yield stress grows as phi to the "
+        "power 8.4", lo=6.0, hi=11.0, mode=8.4),
+    "tc_peak_dissipation": Input(50.0, "-", "[Humbird 2021, Eq. 2.17 after Nienow 2010, read in part] the energy dissipation "
+        "near the impeller against the tank average", lo=20.0, hi=100.0, mode=50.0),
+    "tc_jacket_u": Input(400.0, "W/m2/K", "[assumed] heat transfer through the wall of a jacketed steel tank holding a thick "
+        "culture, inside film included", lo=200.0, hi=700.0, mode=400.0,
+        note="textbook range for a stirred jacketed vessel; nothing found for a 20 m3 animal-cell tank"),
+    "tc_cool_dt": Input(10.0, "K", "[assumed] temperature difference between the culture (37 C) and the cooling water in the "
+        "jacket", lo=5.0, hi=15.0, mode=10.0),
+    # --- the least medium per kg of cells that physics allows (min_litres.py; research_notes/min_litres_per_kg.md) ---
+    "ml_dry_mol_kg": Input(13.6, "mol/kg wet", "[Humbird-R, derived] moles of dry cell mass in a kg of wet cells",
+        note="300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1); the figure that "
+             "turns pf_nh3_efficient from per mole of dry mass into per kg"),
+    "ml_n_per_dry": Input(0.21, "mol N/mol dry", "[Humbird-R] Table 2.1: nitrogen in the cell formula CH1.68 O0.34 N0.21",
+        note="x 13.6 = 2.86 mol N per kg wet. A protein-only count gives about 2.2 (195 g protein per kg wet at 16% "
+             "nitrogen); nucleic acids add about 0.2"),
+    "ml_aa_pure_kg": Input(0.26, "kg/kg wet", "[Humbird-R] Table 3.4: pure amino acids the cells take up per kg of wet cells "
+        "(Reaction 2.11); quoted in the aa_intensity note",
+        note="free amino acids in the proportion the cell builds protein; the hydrolysate (0.337) carries more because "
+             "its profile does not match"),
+    "ml_aa_mw": Input(128.0, "g/mol", "[textbook] mean molar mass of a free amino acid: 110 for a protein residue plus 18 "
+        "for water", lo=120.0, hi=140.0, mode=128.0),
+    "ml_glc_mw": Input(180.16, "g/mol", "[textbook] glucose"),
+    "ml_salts_osm": Input(250.0, "mOsm/kg", "[judgement; research_notes/min_litres_per_kg.md] osmolality of the salts and "
+        "buffer in a conventional medium, without its glucose and amino acids",
+        lo=150.0, hi=260.0, mode=250.0,
+        note="about 100 mM NaCl (190), 25 mM bicarbonate (50) and the rest (10). Not sourced from a medium sheet. Lower "
+             "values mean cells that tolerate less sodium; no source on how low the salts can go. Used only where the "
+             "medium is what the cells sit in (min_litres.bounds, 'bath')"),
+    "ml_feed_g_l": Input(100.0, "g/L", "[judgement; research_notes/min_litres_per_kg.md] strength of a concentrated feed of "
+        "amino acids and glucose, as solids per litre, that is mixed into the tank and diluted there",
+        lo=50.0, hi=200.0, mode=100.0,
+        note="single-strength perfusion media carry roughly 10-30 g/L of these (unsourced); feeds of 5-10 times that "
+             "are used in fed-batch (the search found papers on ultra-concentrated feeds, limited by tyrosine and "
+             "cystine solubility, and no figure). No measurement in a 20 m3 perfusion tank"),
+    "ml_nh3_chogs": Input(0.012, "mol/kg wet", "[Mayrhofer et al. 2020, via waste_tricks_sizing.md B2, derived] ammonia of a "
+        "glutamine-synthetase CHO line in optimised perfusion, if its 0.54 fmol per cell per hour held at 0.35 per day",
+        lo=0.0063, hi=0.029, mode=0.012,
+        note="the lowest ammonia in any source read. Measured in cells that were not growing; the extrapolation to "
+             "faster growth is an inference, and the cells are CHO, not meat cells"),
+    "ml_atp_bio": Input(1.6e-11, "mol ATP/cell", "[Kilburn, Lilly and Webb 1969, J Cell Sci 4:645, via the BioNumbers page "
+        "(ID 101985), read]: ATP to build a mouse fibroblast (LS cell)",
+        note="cell size not given on that page; used only as a cross-check on the oxygen the model burns"),
+    "ml_atp_maint": Input(2.9e-11, "mol ATP/cell", "[Kilburn et al. 1969, as above] ATP for upkeep per new cell at a "
+        "1.15 day generation time"),
+    "ml_kilburn_td_h": Input(27.6, "h", "[Kilburn et al. 1969] the 1.15 day generation time of that upkeep figure"),
+    # --- growth-factor prices and the fastest doubling time (gf_doubling_bounds.py;
+    #     research_notes/gf_and_doubling_bounds.md). Access levels: FT = full text read, ABS = abstract only,
+    #     SNIP = search snippet, MEM = from memory (check before citing). ------------------------------------
+    "gb_conc_insulin": Input(0.0194, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT; Chen et al. 2011 Essential 8] "
+        "insulin in the medium: 19.4 mg/L"),
+    "gb_conc_transferrin": Input(0.0107, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] transferrin: 10.7 mg/L"),
+    "gb_conc_fgf": Input(1.0e-4, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] FGF: 0.1 mg/L"),
+    "gb_conc_tgfb": Input(2.0e-6, "g/L", "[Humbird-R Sect. 3.1, FT; GFI 2023 footnote 4, FT] TGF-beta: 0.002 mg/L"),
+    "gb_price_insulin": Input(7.0, "$/g", "[Humbird-R Table 4.4, FT] unit cost of insulin in his fed-batch plant, 2018 dollars, "
+        "from his price-volume line at the world demand of 16,785 kg/y"),
+    "gb_price_transferrin": Input(12.0, "$/g", "[Humbird-R Table 4.4, FT] transferrin, 2018 dollars, at 9,258 kg/y"),
+    "gb_price_fgf": Input(649.0, "$/g", "[Humbird-R Table 4.4, FT] FGF, 2018 dollars, at 87 kg/y"),
+    "gb_price_tgfb": Input(18837.0, "$/g", "[Humbird-R Table 4.4, FT] TGF-beta, 2018 dollars, at 1.7 kg/y",
+        note="the four prices at the four concentrations cost $3.13 per kg of cells in his table (pf_growth_factors rounds "
+             "this to 3.1). His batch holds about 115 g/L, so 8.65 L of medium per kg"),
+    "gb_pv_intercept": Input(4.90, "log10 $/kg", "[Humbird-R Eq. 3.4, FT] log10(price in $/kg) = intercept - slope x "
+        "log10(volume in MT/y), a regression of market prices of protein bioproducts (insulin, antibodies, industrial enzymes)"),
+    "gb_pv_slope": Input(0.861, "-", "[Humbird-R Eq. 3.4, FT] price falls 0.861 decades for every decade of volume"),
+    "gb_gfi_target_rp": Input(1.0, "$/g", "[GFI 2023 (Swartz et al.), Table 1, FT] production cost assumed for insulin and "
+        "transferrin so growth factors and recombinant proteins are 10% of a $10/kg cost: $1,000/kg"),
+    "gb_gfi_target_gf": Input(100.0, "$/g", "[GFI 2023, Table 1, FT] production cost assumed for growth factors: $100,000/kg"),
+    "gb_gfi_litres_low": Input(8.0, "L/kg", "[GFI 2023, Box 2, FT; Sinke et al. 2021 Table 16] medium use, low scenario"),
+    "gb_gfi_litres_mid": Input(13.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, medium scenario"),
+    "gb_gfi_litres_high": Input(42.0, "L/kg", "[GFI 2023, Box 2, FT] medium use, high scenario"),
+    "gb_mkt_insulin": Input(24.75, "$/g", "[Gotham, Barber & Hill 2018, BMJ Global Health 3:e000850, full text via Europe PMC] "
+        "regular human insulin API, a regression of Indian export prices in 2013-2016 without the USA shipments",
+        note="a market price, not a production cost; fell about 18% a year; only 484-793 kg a year in the data. Humbird's "
+             "footnote calls the same number a production cost. Pharmaoffer trade data average $36.4/g over 12 months to "
+             "Aug 2026 (SNIP: the page returned 403)"),
+    "gb_mkt_transferrin": Input(182.3, "$/g", "[Stout et al. 2022 Beefy-9 Supplementary Table 3, read in full by the pf-tea "
+        "evidence file] InVitria recombinant human transferrin, 10 g for $1,823",
+        note="InVitria Optiferrin: $351.7/g at 1 g and $217.7/g at 10 g (pf-tea evidence, vendor page)"),
+    "gb_mkt_fgf2": Input(196000.0, "$/g", "[GFI growth-factor-cost page, FT] ORF Genetics human FGF2, $196/mg in September 2022",
+        note="the same page: $7.47/mg (7,470 $/g) from Venkatesan et al. made in-house, and $2,005/mg in the 2018 analysis"),
+    "gb_mkt_fgf2_inhouse": Input(7470.0, "$/g", "[GFI growth-factor-cost page, FT; Venkatesan et al. not read] FGF2 made in-house"),
+    "gb_mkt_tgfb": Input(2.9e7, "$/g", "[Humbird-R footnote 111, FT] research quantities of human TGF-beta from the Sigma "
+        "catalogue, about $29k/mg"),
+    "gb_floor_enzyme_lo": Input(12.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] Novozymes quotes for common food enzymes "
+        "at 200-1,000 kg"),
+    "gb_floor_enzyme_hi": Input(25.0, "$/kg", "[GFI 2023 footnote 8, FT, second-hand] the top of the same quotes"),
+    "gb_floor_albumin_trade": Input(55.0, "$/kg", "[pf-tea evidence, grade C: GFI 2025 and trade data] bulk albumin traded at "
+        "$40-70/kg", lo=40.0, hi=70.0, mode=55.0),
+    "gb_floor_tf_model": Input(314.0, "$/kg", "[pf-tea model result, my own: results/analyses.json, case tf/100/humbird] "
+        "recombinant transferrin on albumin's two-column route, 100 t/y, design-point titre",
+        note="at the best published titre (Finnis 2010, 2.29 g/L, 10 L) the same plant gives $949/kg at 100 t/y and $1,939 at "
+             "10 t/y. A bottom-up cost from patents and one fermentation paper, not a quote"),
+    "gb_floor_tf_published": Input(949.0, "$/kg", "[pf-tea model result: tf_finnis2010/100/humbird] the same at the best "
+        "published titre"),
+    "gb_fgf2_half_life_h": Input(10.0, "h", "[vendor pages and a review, SNIP] wild-type FGF2 at 37 C in culture medium: "
+        "under 10 h", lo=5.0, hi=10.0, mode=10.0),
+    "gb_fgf2_g3_half_life_h": Input(168.0, "h", "[Qkine and Reprocell vendor pages, SNIP; Dvorak et al. preprint reports "
+        ">20 days] engineered FGF2-G3 at 37 C: over 7 days", lo=168.0, hi=480.0, mode=168.0),
+    # biosynthesis ATP budget, per gram of dry cell mass, from Humbird's composition (Table 2.1)
+    "gb_f_protein": Input(0.70, "g/g dry", "[Humbird-R Table 2.1, FT] protein share of dry cell mass"),
+    "gb_f_lipid": Input(0.15, "g/g dry", "[Humbird-R Table 2.1, FT] lipid"),
+    "gb_f_carb": Input(0.10, "g/g dry", "[Humbird-R Table 2.1, FT] carbohydrate"),
+    "gb_f_rna": Input(0.05, "g/g dry", "[Humbird-R Table 2.1, FT] RNA and DNA"),
+    "gb_dry_per_wet": Input(0.30, "g/g wet", "[Humbird-R, via pf_fat_kg] dry mass in a gram of wet cells: 70% water"),
+    "gb_aa_g_mol": Input(110.0, "g/mol", "[textbook, MEM] mean mass of an amino-acid residue in protein"),
+    "gb_atp_peptide": Input(4.0, "ATP/bond", "[textbook, MEM] two to charge the tRNA, one to bring it in, one to move the "
+        "ribosome; a minimum, leaves out making ribosomes and mRNA", lo=4.0, hi=6.0, mode=4.0),
+    "gb_lipid_g_mol": Input(256.0, "g/mol", "[Humbird-R Table 2.1: lipid taken as palmitate] palmitate mass"),
+    "gb_atp_fa16": Input(42.0, "ATP/palmitate", "[textbook, MEM] 7 ATP and 14 NADPH to build palmitate from acetyl-CoA, "
+        "counting each NADPH as 2.5 ATP; carbon not counted", lo=30.0, hi=50.0, mode=42.0,
+        note="Humbird's Reaction 2.2 makes all lipid from glucose. Fed fatty acids skip this cost (pf_fat_kg, pf_fat_price)"),
+    "gb_nt_g_mol": Input(330.0, "g/mol", "[textbook, MEM] mean nucleotide mass"),
+    "gb_atp_nt": Input(9.0, "ATP/nucleotide", "[textbook, MEM] about 7 to make a nucleotide from glucose and glutamine and 2 "
+        "to join it to the chain", lo=6.0, hi=12.0, mode=9.0),
+    "gb_glycosyl_g_mol": Input(162.0, "g/mol", "[textbook] one hexose unit in a polysaccharide"),
+    "gb_atp_glycosyl": Input(2.0, "ATP/unit", "[textbook, MEM] to add one hexose to a chain through UDP-glucose",
+        lo=1.0, hi=3.0, mode=2.0),
+    "gb_biosyn_overhead": Input(1.0, "x", "[judgement] extra ATP over the bare synthesis for folding, amino-acid uptake, "
+        "making ribosomes and mRNA; 1.0 counts none of it", lo=1.0, hi=1.6, mode=1.0),
+    "gb_resp_scope": Input(2.0, "x", "[judgement; typical maximal-to-basal respiration of cultured cells under an uncoupler is "
+        "about 2-4, MEM, not read in this pass] most oxygen a cell can burn per gram, relative to West's rate at a 24 h "
+        "doubling", lo=1.5, hi=3.0, mode=2.0,
+        note="more mitochondria per cell would raise it; heart muscle holds about 35% of its volume as mitochondria against "
+             "10-20% in fast cell lines (MEM)"),
+    "gb_elong_aa_s": Input(5.6, "aa/s", "[Ingolia et al. 2011, mouse embryonic stem cells; bionumbers snippet, SNIP] how fast a "
+        "mammalian ribosome adds amino acids", lo=2.0, hi=6.0, mode=5.6,
+        note="other studies in U2OS and HEK293 cells give 3.1-4.9 codons/s"),
+    "gb_ribosome_kda": Input(4300.0, "kDa", "[textbook, MEM] mass of a mammalian 80S ribosome"),
+    "gb_rrna_in_ribosome": Input(0.65, "of ribosome mass", "[textbook, MEM] 2.8 MDa of rRNA in 4.3 MDa"),
+    "gb_rrna_in_rna": Input(0.80, "of RNA", "[textbook, MEM] ribosomal RNA is about 80% of a cell's RNA"),
+    "gb_cho_mass_pg": Input(1167.0, "pg wet", "[Humbird-R footnote 41, FT] a CHO cell: 350 pg dry mass and 70% water"),
+    "gb_cho_qo2_pmol_h": Input(0.227, "pmol O2/cell/h", "[Goudar et al. 2011, ABS, via species_cell_parameters.md] CHO "
+        "perfusion at 36.5 C: 5.14-5.77 pmol/cell/day", lo=0.214, hi=0.240, mode=0.227),
+    "gb_cho_doubling_h": Input(15.0, "h", "[species_cell_parameters.md] CHO doubling time, 14-16 h", lo=14.0, hi=16.0, mode=15.0,
+        note="the 14-16 h comes from the research-note brief, not from a source read in this pass"),
 }
 
 

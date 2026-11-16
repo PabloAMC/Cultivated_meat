@@ -86,7 +86,7 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    3.9 pp for `w_taste` (1–10), 0.3 pp for `wf_mainstream_target` and 0 for `w_slaughter_E`; `taste_quality_w`
    (beans' taste, 0.1–0.5) moves it by 20 pp and is the most influential assumed position; for comparison, κ
    (4–11) moves it by 19 pp. The timing knobs (`accept_rate`,
-   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$11.5 floor: salts,
+   `p_innov`, `q_imit`) set *when*, not the ceiling. `other_nutrients_floor` (~$0.9 of the ~$12.5 reference case: salts,
    buffer, vitamins) is a small pure assumption.
 
 The single load-bearing **assumption** is `real_tissue_x = 1`: cultivated meat, being animal tissue, keeps
@@ -120,6 +120,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Cost physics | `floor_physics.py` | the cost of a kilo of cells from oxygen and CO₂ physics, by plant class and tank (`explore`); the reference case is its default |
 | Cost scenarios | `scenarios.py`, `page_sections.py`, `page_scenarios.js` | the ten switches, the scenarios as presets, what to prioritise, interactions, the bands; the page's JavaScript mirrors it |
+| Cost physics | `retention.py` | the duty of the device that holds cells back in a 20 m3 perfusion tank, each real device's cost; the TFF loop is the model's default |
 | Vessels and modes | `vessels.py`, `page_vessels.js` | vessel type against operating mode, with everything else held; each cell is `explore(vm=...)` |
 | Cost physics | `plant_items.py`, `contamination.py` | the plant's capital item by item; the contamination a cheaper plant can afford |
 | Side-study | `gas_exchange.py` | a membrane loop for CO₂ and oxygen, tank shape with the vessel's cost, and a check of a published airlift; not used in the headline or on the page |
@@ -150,7 +151,7 @@ scaled on paper to 25 m³ tanks.
 | `media_intensity` | 30.5 L/kg | 92.77 million L a year for 3,039 t |
 | `media_price` | $0.50/L (range 0.20–1.00) | "<$0.5 per liter"; other companies report $0.20 or less [GFI 2026]; none verified at scale |
 | `efficiency` | 1.0 (range 0.25–1.0) | as reported; 0.25 is about 8 L/kg, the medium use of Humbird's efficient-cell designs |
-| `overhead` | $19.1/kg (range 9.8–34) | running costs $10.8/kg ($11.8/lb "without depreciation", less the medium) plus a yearly charge on the plant, $8.3/kg |
+| `overhead` | $19.1/kg (range 10.8–34) | running costs $10.8/kg ($11.8/lb "without depreciation", less the medium) plus a yearly charge on the plant, $8.3/kg |
 | **default cost** | **$34.4/kg, R = 3.28** | the company's own figure, with depreciation only, is $29.5/kg (R = 2.87) |
 
 *Capital in the default.* Every other case in this model carries a yearly charge on the plant of 23.6% of its
@@ -185,9 +186,9 @@ its range ($3, the broiler spread) the parity threshold rises to $9/kg of cells.
 | amino acids | ~$0.67/kg | 0.337 kg of soy hydrolysate per kg × $2/kg [Humbird Table 3.5]; it supplies the 0.26 kg of amino acids in Table 3.4 |
 | glucose | ~$0.13/kg | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
 | salts, buffer, vitamins, trace elements | ~$0.9/kg | assumed (Humbird leaves them out as low-cost) |
-| running a plant | ~$9.8/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section) |
-| **reference case** | **~$11.5/kg** | R ≈ 1.38 ($14.1 and 1.59 with first-plant financing) |
-| microbial-class plant (not used by any scenario) | ~$6.6/kg | R ≈ 0.97, if animal cells can be grown in plants that cost what microbial fermentation plants cost; nothing shows they can |
+| running a plant | ~$10.8/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section) |
+| **reference case** | **~$12.5/kg** | R ≈ 1.46 ($14.8 and 1.65 with first-plant financing) |
+| microbial-class plant (not used by any scenario) | ~$8.0/kg | R ≈ 1.08, buying its oxygen; if animal cells can be grown in plants that cost what microbial fermentation plants cost; nothing shows they can |
 | cautious case | ~$19.4/kg | R ≈ 2.03: a pharma-style plant, tanks drained and refilled, first-plant financing |
 
 The reference case is not a limit: the best-case scenario (below) is lower. It is kept because it is the default of
@@ -240,7 +241,7 @@ reports the change in cost and in the long-run share of world meat for the best 
 (`scenarios.interactions`): for every pair of switches, the saving from moving A to its cheapest setting is computed with B as it is and
 with B at its own cheapest setting; pairs whose two savings differ by more than $0.25 are reported as sentences ("they overlap", "they
 reinforce each other"). **Bands** (`scenarios.scenario_mc`, `scenarios.bands`): the scenario's switches are held, and the plant
-estimate, financing, retention device, upkeep share of respiration, medium price and loss rate are drawn from their priors (the plant
+estimate, financing, the life of the filter membranes, upkeep share of respiration, medium price and loss rate are drawn from their priors (the plant
 estimate as in the reference case's run; the food-grade plant with shared medium not below a plant with everything animal cells must have); the share band lets demand
 vary too (`meat_market.monte_carlo`), 4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds).
 The scenarios' own cell traits and speeds are not drawn: they are what the scenarios differ in. **The headline share of a scenario is the
@@ -250,11 +251,11 @@ with the tricks taken away: once with the tricks switch at "none" and the tank s
 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat by weight, long run: median (10th–90th, cost and demand uncertain) | hardest thing it needs |
 |---|---|---|---|---|
-| Best case: everything works | **$6.6** ($6–8) | 0.96 | **7.9%** (2.8–17.3%) | needs genetic engineering |
-| Central: selection and feed only, a food-grade plant | **$18.1** ($16–22) | 1.93 | **0.8%** (0.2–2.5%) | needs selection or adaptation of cells |
-| Central, food-grade plant with shared medium | **$15.8** ($15–19) | 1.74 | **1.1%** (0.3–3.2%) | needs selection or adaptation of cells |
-| Cautious: the best meat cells measured so far | **$32.3** ($29–41) | 3.11 | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
-| Reference: a standard perfusion tank, no tricks | $11.5 | 1.37 | 5.4% (point estimate) | needs genetic engineering |
+| Best case: everything works | **$9.7** ($9–12) | 1.23 | **3.8%** (1.2–9.7%) | needs genetic engineering |
+| Central: selection and feed only, a food-grade plant | **$29.9** ($27–38) | 2.91 | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| Central, food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
+| Cautious: the best meat cells measured so far | **$43.8** ($39–54) | 4.07 | **0.1%** (0.0–0.2%) | needs a change of feed, process or plant |
+| Reference: a standard perfusion tank, no tricks | $12.5 | 1.46 | 4.3% (point estimate) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | $34.4 | 3.28 | 0.3% (point estimate) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
@@ -267,7 +268,7 @@ A grid of five vessels (stirred tank, airlift, single-use bag, packed bed, hollo
 fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, tank tricks
 and losses are those of the reference case or of a scenario. Each cell is one call to `floor_physics.explore` with a `vm`
 dict built from `inputs.py` `vm_*`. With no `vm`, `explore` is unchanged: the stirred tank in perfusion is the reference
-case ($11.48) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($17.81).
+case ($12.51) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($18.46).
 
 What `vm` changes in `explore`:
 
@@ -295,6 +296,33 @@ does not say that anyone has reached the cell's density. A cell tagged "done at 
 says "This density is not shown for meat cells". Results, assumptions and sources:
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
+
+### If perfusion cannot be run at 20 m3 (`downside.py`, added 2026-11-15)
+
+For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the
+model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (tricks,
+shape) chosen again for each mode. Findings, with the likelihood of the fallback:
+`research_notes/no_perfusion_downside.md`.
+
+### Holding the cells back (`retention.py`, added 2026-11-15; the model's default since the same day)
+
+**The default.** In perfusion, `explore` prices a TFF hollow-fibre loop. The loop clears the cell-free liquid the bleed does not
+carry out: litres per kg = medium per kg - 1000 / density. Membrane area per m³ of tank = that flow / 5 L/m²/h (`rt_flux_lmh`).
+Hardware costs $1k per m² of membrane (`rt_tff_hw`), times 1.84 to install. Membranes cost $1,450 per m² and filter 3,960 litres
+per m² before replacement (`rt_membrane_price`, `rt_membrane_life`): about $0.37 a litre. A number for `retention` charges a
+flat capital per m³ and no membranes, as the old hoped-for device did (`pf_capex_retention`, $89k). `rt_tff_default = 0`
+restores the old device everywhere; the gas-exchange and cheap-plant studies' tests run that way, because their notes quote
+figures computed with it. The tier ladder (`tiers`) also keeps the old device.
+
+**The study.**
+
+The duty comes from `explore()`: medium in = litres per kg x harvest; the bleed (the product) = harvest / density; the device
+clears the rest as cell-free permeate. Each device (ATF, TFF, inclined settler, acoustic settler, disc-stack separator on the
+outflow, hydrocyclone; spin filters and fluidized-bed centrifuges are ruled out) is data in `inputs.py` `rt_*`. `sizing` gives
+units or area, capital per m3 of tank and running cost per kg (membranes at about $0.37 per litre of permeate; power and
+maintenance), and the share of grown cells the device destroys or lets go. `scenario_cost` reprices a case through
+`explore(retention=, extra_opex=)` and divides every cost per kg by the share of cells that survive. Findings
+and sources: `research_notes/retention_devices.md`.
 
 ### The reference case's plant term (`floor_physics.py`)
 
@@ -365,17 +393,17 @@ a mature industry, so the model uses 17.3% for them. The default and the cautiou
 | pharma-style plant, half the density | the cautious case with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $33.9 | $1.7 | **$35.6** | 3.38 | $27.9 |
 | pharma-style plant, fill-and-draw (the cautious case) | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.7 | $1.7 | **$19.4** | 2.03 | $15.6 |
 | no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $1.7 | **$17.9** | 1.91 | $14.5 |
-| **no clean rooms, perfusion (the reference tank)** | food-grade plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hoped-for device; efficient cells; 91% uptime | each piece shown or claimed separately, never together; no such device exists | 22.1 | $12.4 | $1.7 | **$14.1** | 1.59 | **$11.5** |
-| **microbial-fermentation-class plant (no scenario assumes it)** | the reference case in a plant at the cost of built microbial plants | such plants exist for microbes; none built or costed for animal cells | 22.1 | $5.7 | $1.7 | **$7.4** | 1.03 | **$6.6** |
+| **no clean rooms, perfusion (the reference tank)** | food-grade plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; bubble protectant; efficient cells; 91% uptime | each piece shown or claimed separately, never together; no filter has held animal cells at 20 m³ | 22.1 | $13.1 | $1.7 | **$14.8** | 1.65 | **$12.5** |
+| **microbial-fermentation-class plant (no scenario assumes it)** | the reference case in a plant at the cost of built microbial plants, buying its oxygen | such plants exist for microbes; none built or costed for animal cells | 22.1 | $6.8 | $1.7 | **$8.5** | 1.13 | **$8.0** |
 | rough lower bound | the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at half price | a rough bound, not a design | 47.5 | $2.4 | $0.8 | **$3.2** | 0.68 | $3.1 |
 
 What it says:
 
-- **With plants that have been costed for animal cells, the reference case is about $11.5/kg with food-industry
-  financing ($14 for a first plant), well above the $7 parity threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and $0.15-a-litre
+- **With plants that have been costed for animal cells, the reference case is about $12.5/kg with food-industry
+  financing ($15 for a first plant), well above the $7 parity threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and $0.15-a-litre
   medium together.
 - **A plant as cheap as a yeast plant is not used in any scenario.** At the cost of today's microbial fermentation plants the
-  reference case would be about $6.6/kg, just under the parity line ($7.4 for a first plant), but nothing shows that animal cells can be
+  reference case would be about $8.0/kg, above the parity line ($8.5 for a first plant), and nothing shows that animal cells can be
   grown in such plants. Contaminants double in 20 minutes, animal cells in a day or two. The best case reaches the same cost another way:
   engineered cells, tank tricks and a food-grade plant with shared medium.
 - **Clean rooms are not the main cost.** Removing them saves about a tenth. The cost is in sterile vessels,
@@ -409,36 +437,41 @@ The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, 
 and the page says which one binds. The defaults reproduce the reference case.
 
 *What limits a case (`floor_tornado`, the tornado chart in the panel).* Each limiting factor is moved alone
-across its plausible range, the others held at the case being viewed. Around the reference case ($11.5/kg):
+across its plausible range, the others held at the case being viewed. Around the reference case ($12.5/kg):
 
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
-| gas flow the cells tolerate | 2 to 9 mm/s | 28.0 – 8.7 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 9.5 – 24.4 |
-| tank size | 5 to 200 m³ | 10.6 – 18.8 |
-| plant estimate | a third of Humbird's to +50% | 7.3 – 14.7 |
-| waste the cells make | efficient cells to a quarter of the way to ordinary | 11.5 – 18.1 |
-| doubling time | 18 to 48 h | 10.4 – 17.5 |
-| class of plant | yeast-style to pharma-style | 6.6 – 12.2 |
-| yearly charge on the plant | 12.3% to 23.6% | 9.4 – 14.1 |
-| growth factors | none to bought | 11.5 – 15.4 |
-| medium price | $0.10 to $0.50 a litre | 11.5 – 15.4 |
-| retention device | free to Humbird's filters | 10.8 – 14.4 |
-| cell mass | 1 to 3 ng | 14.8 – 11.5 |
-| CO₂ the cells tolerate | 100 to 200 mbar | 11.5 – 9.3 |
-| how the tank is run | perfusion to drained and refilled | 11.5 – 17.8 |
-| runs lost to contamination | none to 2% a day (14-day restart) | 11.5 – 13.7 |
-| least medium flow the cells need | 3.7 to 18.5 mL per g a day | 11.5 – 13.8 |
-| ammonia the cells make | 0.055 to 0.14 mol per kg | 11.5 – 14.0 |
-| pressure at the top of the tank | 0 to 1 bar gauge | no effect alone (CO₂ binds); with a column it lifts the oxygen and mixing limits |
-| salt strength the cells tolerate | 350 to 450 mOsm/kg | 14.3 – 11.5 |
-| pH held in the tank | 6.9 to 7.4 | 11.5 – 12.3 |
-| oxygen used for upkeep | 31% to 100% | no effect at a 24 h doubling time |
+| waste the cells make | efficient cells to a quarter of the way to ordinary | 12.5 – 38.5 |
+| gas flow the cells tolerate | 2 mm/s to 9 mm/s | 26.6 – 11.0 |
+| doubling time | 18 h to 48 h | 10.4 – 23.5 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 12.0 – 23.2 |
+| ammonia the cells make | 0.055 mol/kg to 0.14 mol/kg | 12.5 – 22.3 |
+| least medium flow the cells need | 3.7 mL per g a day to 18.5 mL per g a day | 12.5 – 21.6 |
+| salt strength the cells tolerate | 350 mOsm/kg to 450 mOsm/kg | 20.2 – 12.5 |
+| plant estimate | a third of Humbird's to +50% | 8.3 – 15.7 |
+| how the tank is run | perfusion to drained and refilled | 12.5 – 18.5 |
+| price of the bubble protectant | $10 a kilo to $260 a kilo (catalogue) | 12.1 – 17.6 |
+| class of plant | built like a yeast plant to pharma-style | 8.0 – 13.3 |
+| yearly charge on the plant | 12.3% to 23.6% | 10.7 – 14.8 |
+| growth factors | none to all bought | 12.5 – 16.5 |
+| medium price | $0.10 a litre to $0.50 a litre | 12.5 – 16.4 |
+| life of the filter membranes | 5,500 litres per m² to 900 litres per m² | 12.2 – 16.0 |
+| cell mass | 1 ng to 3 ng | 16.1 – 12.5 |
+| tank size | 5 m³ to 200 m³ | 14.6 – 18.0 |
+| pH held in the tank | 6.9 to 7.4 | 12.5 – 14.6 |
+| runs lost to contamination | none to 2% a day | 12.5 – 14.6 |
+| CO₂ carried off by the exhaust gas | 70% of the most it could carry to 96% | 14.3 – 12.5 |
+| oxygen transfer left with antifoam | halved to no effect | 13.6 – 12.5 |
+| pressure at the top of the tank | 0 bar gauge to 1 bar gauge | 13.1 – 12.5 |
+| CO₂ the cells tolerate | 100 mbar to 200 mbar | 12.5 – 12.3 |
+| oxygen used for upkeep | 31% to 100% | 12.5 – 12.5 |
 
-The reference case sits at the favourable end of most ranges, which is why most bars point up. The two that point down
-furthest are the plant (a cheaper estimate or class) and the gas flow. The largest risk is also the gas flow: the
-reference case's 6 mm/s is a rule of thumb, not a measured limit, and our odds that it works at this size are about even
-(below, and `research_notes/gas_flow_cap.md`). Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
+The reference case sits at the favourable end of most ranges, which is why most bars point up. The widest bar is the
+waste the cells make. Wasteful cells need more medium per kilo, and in perfusion every litre the bleed of cells does not carry
+out must pass the filter's membranes, at about $0.37 a litre (`retention.py`). The two bars that point down furthest are the
+plant (a cheaper estimate or class) and the gas flow. The gas flow is also a large risk: the reference case's 6 mm/s is a rule
+of thumb, not a measured limit, and our odds that it works at this size are about even (below, and
+`research_notes/gas_flow_cap.md`). Only things that can limit the cost are included; a product choice such as blending is not. Factors with no
 effect on the case shown are listed under the chart instead of drawn. Clicking a factor opens a card that says
 what it is, where its range comes from and how solid the evidence is, with buttons that set the panel to
 either end. The chart on the page redraws for any case the reader sets; around the
@@ -475,8 +508,8 @@ Humbird takes s = 1 (upkeep only). GFI's 2025 review of the data finds cells at 
 their growing-phase oxygen, mean 31% (from Wagner et al. 2011), and Miller et al. 1987 put upkeep at 62% of
 energy use. The model uses s = 0.5 and lets the reader move it. At 24 h it changes nothing, so Humbird's designs
 are still reproduced. Faster cells gain less than their speed suggests, because the tank holds fewer of them: a
-16-hour doubling time takes the reference case from $11.5 to $10.0 ($8.5 with upkeep only). Slower cells lose less: 48 h
-gives $17.5 ($22 with upkeep only). The review calls oxygen use against growth rate "a gap" for meat cell lines.
+16-hour doubling time takes the reference case from $12.5 to $10.0 ($8.5 with upkeep only). Slower cells lose less: 48 h
+gives $23.5 ($27 with upkeep only). The review calls oxygen use against growth rate "a gap" for meat cell lines.
 
 *Mixing (`pf_mix_ratio_20m3`).* Humbird's rule is that a tank must mix in less time than it takes to transfer
 oxygen: mixing time below 1/k_La. His Eq. 2.18 gives a mixing time of 141 s at 20 m³ (his tank shape, at the
@@ -501,18 +534,33 @@ which is in Humbird's design:
 
 | change from the reference case | density, g/L | what binds | cost, $/kg |
 |---|---|---|---|
-| none | 120 | CO₂ | 11.5 |
-| cells that tolerate 150 mbar of CO₂ | 180 | CO₂ | 9.4 |
-| a tank whose liquid is as deep as it is wide | 164 | CO₂ | 9.5 |
-| 50% more gas flow (9 mm/s) | 180 | CO₂ | 8.7 |
-| 150 mbar and the squat tank | 195 | oxygen supply | 8.7 |
-| 200 m³ tank | 56 | CO₂ | 18.8 |
-| 200 m³ squat tank, cells tolerating 200 mbar | 137 | CO₂ | 11.3 |
-| 150 mbar and the squat tank, in a yeast-style plant | 193 | CO₂ | 5.5 |
+| none | 120 | CO₂ | 12.5 |
+| cells that tolerate 150 mbar of CO₂ | 129 | CO₂ (the salt limit keeps the tank below 150) | 12.3 |
+| a tank whose liquid is as deep as it is wide | 146 | oxygen supply | 12.0 |
+| 50% more gas flow (9 mm/s) | 180 | CO₂ | 11.0 |
+| 150 mbar and the squat tank | 146 | oxygen supply | 12.0 |
+| 200 m³ tank | 56 | CO₂ | 18.0 |
+| 200 m³ squat tank, cells tolerating 200 mbar | 86 | CO₂ (salt limit) | 13.7 |
+| 150 mbar and the squat tank, in a yeast-style plant | 90 | CO₂ (salt limit) | 7.9 |
+
+*Recomputed 2026-11-15 (late).* Two things changed this table since it was written: the salt limit (bicarbonate added to hold the
+pH against more CO₂ uses up the osmolality the lactate needs, so `explore` runs the tank at the cheapest CO₂ level below what the
+cells tolerate), and antifoam's quarter cut to oxygen transfer, which makes oxygen bind first in a squat tank.
 
 The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit is a
 rule of thumb against cell damage and foam (see "What caps the gas flow" below). How much CO₂ and gas meat cells
 tolerate while growing is not known; it is the single measurement that would move the reference case most.
+
+*Three costs counted since 2026-11-15 (late).* (1) **The bubble protectant.** Poloxamer 188 keeps bursting bubbles from killing
+cells and is dissolved in the medium, so it leaves with every litre: `pf_protectant_dose` (2 g/L, the dose with which dense pharma
+cultures took 0.1–0.2 vvm) × litres per kg × `pf_protectant_price` ($30/kg assumed for tonnes; only catalogue prices of $230–260 were
+found), in consumables, for every sparged vessel. Medium prices are taken to exclude it. (2) **Antifoam.** `pf_antifoam_otr` = 0.75
+multiplies the oxygen the sparger delivers (and the sparger's share of a column case's oxygen): the middle of the reported 0–50% cut,
+a judgement. The mixing rule is left as it is. (3) **Oxygen for the yeast-style plant.** That class's price has no oxygen unit, so it
+buys oxygen as a plant built item by item does (`pi_o2_feed` × `pi_o2_price`, $0.33/kg). The perfusion rows of the plant ladder
+(`tiers`) are now `explore()` itself, so they carry all three and the filter loop; `plant_floor` and `plant_floor_lo` follow
+($10.8, $6.3). Side studies written before this change are checked with the three set back (`floor_physics.BEFORE_PROTECTANT`,
+`tests/_snapshot.py`) and say so at the top.
 
 *What the gas costs (`oxygen_fed`; `gas` in `explore`'s result).* Because the gas flow is set by CO₂, a kg of
 cells needs a fixed volume of gas whatever the gas velocity: 6.2 mol of CO₂ at 3.7 mol per m³ of exhaust is
@@ -553,7 +601,7 @@ al. 2020). For cells of that size, 10 / 25 / 50 pL is 3.7 / 9.3 / 18.5 mL per gr
 size behind the low figures was not reported, so they could be up to 1.8 times higher. The model takes 7.5,
 the value at which this stops binding for the reference case's cells (10.8 L/kg at a 24 h doubling time, against 11.2
 from lactate): the reference case assumes cells better than typical pharma practice and within what has been reached.
-At 9.3 the reference case is $11.8 and at 18.5, $13.8. One company's chicken process (30.5 L/kg at half a doubling a day)
+At 9.3 the reference case is $13.8 and at 18.5, $21.6. One company's chicken process (30.5 L/kg at half a doubling a day)
 works out to 10.6. This limit, more than ammonia or lactate, is why a 48 h doubling time now costs 22 L/kg.
 
 Not included: these two limits are applied in perfusion only; the growth-factor decay, damage from too much
@@ -611,7 +659,7 @@ checks, written up with sources in `research_notes/gas_exchange_study.md` and pi
 `tests/test_gas_exchange.py`. A membrane loop that takes out the CO₂ a sparger cannot is limited by the
 liquid, not by membrane area: a litre of culture gives up only about one millimole of CO₂ per pass, because
 the bicarbonate cannot be released without an acid, so the tank must go round the loop about eleven times an
-hour. At an assumed membrane price the reference case would be about $9 with it, against $11.5; the price is weakly
+hour. At an assumed membrane price the reference case would be about $12.1 with it, against $12.5; the price is weakly
 sourced, so this is not a lever on the page. A squat tank gives about the same gain with no new equipment by
 passing more gas per litre of culture. Measured bubble damage goes with gas per litre, not velocity
 (Tramper 1988, Jöbses 1991, Handa-Corrigan 1989), and the limit Humbird cites is "about 0.1 vvm" for lysis
@@ -655,9 +703,9 @@ contamination if the reader sets it so. A contaminated run also loses one tankfu
 losses the stated uptimes are reproduced. Reference points: about 0.2% a day for contamination in large pharma
 plants, 0.7% for pharma losses from all causes, and roughly 1–2% a day for cultivated-meat makers today (a
 survey's 11–20% of batches, if those ran 10–20 days). What it shows: continuous harvest forgives losses. At
-1.5% a day with a 14-day restart the reference case rises from $11.5 to $13.1; at 5% a day, to $17. **A yeast-style
-plant stays cheaper than a sterile one until it loses a run about every 11 days** (9% a day with a 14-day
-restart; 5% a day with a 30-day restart). The limits of this result: it prices lost time and lost tanks, not a
+1.5% a day with a 14-day restart the reference case rises from $12.5 to $14.0; at 5% a day, to $18. **A yeast-style
+plant stays cheaper than a sterile one until it loses a run about every 10 days** (10% a day with a 14-day
+restart; 6% a day with a 30-day restart). The limits of this result: it prices lost time and lost tanks, not a
 contamination that spreads through a shared seed train, and it keeps the yeast-plant price at 20 m³ tanks.
 
 *Medium use from waste (`washout_litres`).* The litres of medium per kg are not an input. In perfusion,
@@ -669,8 +717,8 @@ a tank that is drained and refilled nothing washes waste out, so waste caps the 
 enhanced cells, 7 g/L for ordinary ones. The waste lever runs between the two cell types. The 30.5 L/kg one
 company reports is about a tenth of the way. Medium cost is litres × price, floored at what the cells must
 eat; at the default $0.15 per litre the two meet for enhanced cells ($0.20 would add $0.5/kg). What it shows:
-waste is as large a lever as any. A quarter of the way to ordinary cells takes the reference case from $11.5 to $18 in
-perfusion and to $66 in a drained-and-refilled tank.
+waste is as large a lever as any. A quarter of the way to ordinary cells takes the reference case from $12.5 to $38 in
+perfusion (each litre of medium also passes the filter) and to $69 in a drained-and-refilled tank.
 
 *Growth factors and blends.* Growth factors at Humbird's large-scale price add $4.0/kg. A product that is half
 cells and half plant ingredients ($3/kg) costs $7.2/kg in the reference case. For demand the panel counts a blend as
@@ -700,12 +748,12 @@ the median where it is and widens both tails.
 
 ```
                                  point    P10    P50    P90    P(<= $7)   P(<= $10)
-food-grade plant     11.5   11.9   18.6   30.3      0%          3%
-yeast-style plant                  6.6    7.7   12.0   19.7      5%         32%
-  (independent cell traits: sterile 13.3 / 18.6 / 26.6; yeast-style 8.7 / 12.0 / 17.2)
+food-grade plant                  12.5   14.5   27.5   53.3      0%          1%
+yeast-style plant                  8.0   10.1   21.2   43.3      0%         10%
+  (independent cell traits: sterile 16.9 / 27.6 / 45.6; yeast-style 11.5 / 20.8 / 37.7)
 ```
 
-The reference point sits at about the 10th percentile: it is the case in which nothing falls short, and only a
+The reference point sits at about the 5th percentile: it is the case in which nothing falls short, and only a
 cheaper plant than Humbird's can beat it.
 What moves the result most: the four cell traits (doubling time, density, waste, size), then the plant
 estimate, financing and the retention device. Most of the distance between the reference case and the median is the cells.
@@ -782,14 +830,14 @@ exponent is solved to give his total; it comes out at 0.49, an ordinary value. P
 
 Each item has options (`plant_items.options`), and `explore(items={...})` prices any choice of them; the
 panel's "class of plant" sets them all at once. Two plants are new. *Food-grade with shared medium* ($340k per m³; $452k in today's
-prices; cells at $9.0 per kg against the reference case's $11.5) removes what animal cells plausibly do not need: the
+prices; cells at $10.0 per kg against the reference case's $12.5) removes what animal cells plausibly do not need: the
 clean room and the food-plant finish (closed, steam-sterilised tanks are the sterile boundary, which pharma's
 own industry group accepts, and Vow runs a 20 m³ tank so); the owned oxygen plant (oxygen is bought, at an
 assumed $0.10 per kg, $0.33 per kg of cells); six of the eight final seed tanks (Humbird sizes the seed train
 for a restart every 57 hours; runs of ten days need 1.4 final seed tanks for 24 production tanks, so two
 small trains are kept, one a spare); electropolish and spare probes on the tanks (taken at Vow's "well under
 $1 million" a tank against his $1.41M); and a makeup tank per bioreactor. *Yeast plant plus* ($175k per m³;
-$233k today; $7.3 per kg) is his yeast plant with what animal cells certainly need added: cell labs,
+$233k today; $8.3 per kg) is his yeast plant with what animal cells certainly need added: cell labs,
 sterilisation of all the medium, and oxygen. The gap between the two is mostly the installed cost of a
 sealed, steam-sterilised tank and its piping, for which no vendor price was found. One published vendor quote
 points the other way: Garrison 2022's food-grade plant is $750k per m³, for four tanks with a seed train each.
@@ -806,8 +854,8 @@ be held until the tank is known clean. No filing contemplates selling a contamin
 runs (`hazard`) and a chance per start (`start_fail`, the seed and start-up: a bad start costs its seed and
 the day until it shows). Rates by route are not published, so the module solves for thresholds: the chance
 per day at which a cheaper plant costs as much per kg as the reference case's plant losing runs at pharma's 0.2% a
-day. With 33-day runs and 14 days to restart after a loss it is **3.5% a day for the food-grade plant with shared medium (a run per
-tank every 28 days) and 7.6% for the yeast plant plus (every 13 days)**; a 30-day restart roughly halves
+day. With 33-day runs and 14 days to restart after a loss it is **3.9% a day for the food-grade plant with shared medium (a run per
+tank every 25 days) and 8.9% for the yeast plant plus (every 11 days)**; a 30-day restart roughly halves
 both. Shared seed trains and medium lines do not change the expected number of tanks lost if the chance of
 failure is per vessel; they make losses come together, and then tanks queue for the seed train (24 tanks on
 two final seed tanks wait 4.5 days more on average, which lowers that plant's threshold to 2.8%). For reference,
@@ -822,14 +870,14 @@ species. With everything else at the reference case:
 
 | kind of cell | doubling time | cell mass | CO₂ tolerated, mbar (range) | cells, $/kg (over the CO₂ range) | source and quality |
 |---|---|---|---|---|---|
-| Humbird's model cell | 24 h | 3.0 ng | 100 (100–200) | 11.5 (11.5–8.5) | the cell every case assumes; not shown for meat |
-| chicken, as reported in perfusion | 48 h | 1.4 ng | 100 (100–200) | 20 (20–15) | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
-| cattle, serum-free | 39 h | 3.0 ng (no data) | 100 (100–200) | 15 (15–11) | Stout et al. 2022, primary cells on a surface; no suspension data |
-| fish (Atlantic mackerel) | 24 h | 2.5 ng | 50 (10–100) | 21 (90–12) | Saad et al. 2023, on a surface with 20% serum; CO₂ inferred |
-| shrimp (hypothetical) | 24 h (assumed) | 2.5 ng (assumed) | 50 (15–100) | 21 (61–12) | no dividing shrimp cell culture exists; CO₂ a judgement (below) |
-| insect (Sf9), for reference | 23 h | 2.2 ng | 50 (50–200) | 21 (21–9) | Ashizawa et al. 2022; CO₂ measured (Vajrala and Murhammer 2016) |
+| Humbird's model cell | 24 h | 3.0 ng | 100 (100–200) | 12.5 (12.5–12.3) | the cell every case assumes; not shown for meat |
+| chicken, as reported in perfusion | 48 h | 1.4 ng | 100 (100–200) | 26 (26–24) | SuperMeat 2024 (company report): half a doubling a day, 1.0–1.75 ng |
+| cattle, serum-free | 39 h | 3.0 ng (no data) | 100 (100–200) | 19 (19–18) | Stout et al. 2022, primary cells on a surface; no suspension data |
+| fish (Atlantic mackerel) | 24 h | 2.5 ng | 50 (10–100) | 20 (83–13) | Saad et al. 2023, on a surface with 20% serum; CO₂ inferred |
+| shrimp (hypothetical) | 24 h (assumed) | 2.5 ng (assumed) | 50 (15–100) | 20 (57–13) | no dividing shrimp cell culture exists; CO₂ a judgement (below) |
+| insect (Sf9), for reference | 23 h | 2.2 ng | 50 (50–200) | 20 (20–13) | Ashizawa et al. 2022; CO₂ measured (Vajrala and Murhammer 2016) |
 
-The cells matter as much as the plant: the chicken cells a company reports cost nearly twice the reference case in the
+The cells matter as much as the plant: the chicken cells a company reports cost about twice the reference case in the
 same plant.
 
 *A working plant as a reference point (the Vow preset).* Vow, in Sydney, runs the one tank that grows animal
@@ -851,7 +899,7 @@ that sells product from such a tank is very likely running a plant far cheaper t
 evidence that animal cells do not need his full sterility spend at 20 m³ in short runs. The company's own
 statements (a vessel for under $50k per m³, 80% below a pharma-specification system) point the same way; its
 whole-plant cost is not published. Second, the gap to the reference case is not the plant: it is output per tank. The
-same cheap plant at the reference case's density and in perfusion gives $6.6/kg. What Vow has not shown is what the reference case
+same cheap plant at the reference case's density and in perfusion gives $8.0/kg. What Vow has not shown is what the reference case
 needs on top: four to five times the density, and runs of weeks with the cells held back.
 
 *CO₂ tolerance by species (`research_notes/fish_cell_co2_ph.md`).* The density a tank holds is proportional to
@@ -921,8 +969,8 @@ What it shows:
   limits come from Humbird's large stirred tank and do not bind in the reference case, where CO₂ binds first.
 - **The model is optimistic about medium.** Every perfusion run used more medium than the model gives for the
   same cells: 1.2 to 2.8 times. The least medium flow in the model (7.5 mL per gram a day) sits below what
-  these runs used (about 10 to 21). At the typical measured value the reference case would be $11.8, at the highest
-  $13.8.
+  these runs used (about 10 to 21). At the typical measured value the reference case would be $13.8, at the highest
+  $21.6.
 - **The model is optimistic about output in practice.** The one working 20 m³ plant makes less than half of
   what the model's efficient cells would in the same kind of tank.
 - **It catches inconsistent claims.** SuperMeat's stated output is 2.4 times what its own density and growth
@@ -1225,8 +1273,8 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 3.27   80% CI [2.51, 4.16]   0% of draws at or below parity
-  long-run share:  P50 = 0.0%   80% CI [0.0, 0.9]
+  price ratio R:   P50 = 3.29   80% CI [2.55, 4.17]   0% of draws at or below parity
+  long-run share:  P50 = 0.0%   80% CI [0.0, 0.8]
 ```
 
 The median is close to the default 3.28. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,

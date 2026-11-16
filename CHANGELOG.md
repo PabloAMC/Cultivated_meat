@@ -2,6 +2,114 @@
 
 ## 2026-11-15
 
+Three costs counted, the plant ladder tied to `explore` (Pablo asked for the long-term choice on each; **numbers move**)
+- **Bubble protectant** (poloxamer 188): new inputs `pf_protectant_dose` (2 g/L, 1–5) and `pf_protectant_price` ($30/kg assumed, $10–260;
+  catalogue $230–260), charged per litre of medium in every sparged vessel; `explore(protectant_price=)`, a tornado bar, the JS mirror.
+- **Antifoam**: `pf_antifoam_otr` default 1 → **0.75** (the middle of the reported 0–50% cut; judgement). Oxygen now limits Central (177 g/L)
+  and Cautious.
+- **Yeast-style plant buys its oxygen** (`pi_o2_feed` × `pi_o2_price`, $0.33/kg), as item-built plants already did; switch `pf_o2_microbial`.
+- **The plant ladder's perfusion rows are `explore()` itself** (filter loop, protectant, oxygen), so they cannot drift again: reference
+  tier $11.5 → $12.5 (first plant $14.1 → $14.8), microbial tier $6.6 → $8.0. `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3, the
+  `overhead` range starts at 10.8. Golden `cost_floor` 11.502 → 12.502.
+- Scenarios (designs chosen again): best $8.95 → **$9.71** (R 1.23, median world share 3.8%), central $26.64 → **$29.92** (R 2.91, 0.2%),
+  central with shared medium $24.34 → $26.81, cautious $38.97 → $43.79, reference $11.84 → $12.51. Best case and Central now use the column,
+  1 bar and a tank as deep as wide (recycled oxygen fails the loop checks); Cautious the column and 1 bar in the tall tank.
+- The default's Monte Carlo: R median 3.27 → 3.29; regional bands updated.
+- Docs: RESULTS (summary, cost table, the cells-by-tricks tables and the gas-cap table recomputed: they still carried pre-filter-loop
+  figures, e.g. bovine cells with glutamine replaced at $17.5 where the model now gives $26.2), METHODS (scenario, tier, tornado, CO₂, species,
+  floor Monte Carlo tables: the last still showed a median of $18.6), `cost_scenarios.md`, `vessels_and_modes.md`, `gas_flow_cap.md`.
+- **Side studies are now snapshots with a stated basis**: `floor_physics.BEFORE_PROTECTANT` / `BEFORE_FILTER_LOOP` and `tests/_snapshot.py` run
+  their tests with the settings their notes were computed with; each note says so at the top and gives the current scenario costs.
+
+Housekeeping (`TODO.md`; no default changed, no headline moved)
+- **`TODO.md`**: one list of open PRs, decisions waiting on Pablo, housekeeping and project ideas; `research_notes/roadmap_2026-11-15.md`
+  keeps the reasoning for the projects.
+- Two new levers from the gas-flow follow-ups, each with a tornado bar and the page mirror (parity holds):
+  `explore(strip_eff=)` (CO₂ carried off by the exhaust gas, 0.70–0.96; at 0.70 the reference holds 87 g/L and costs $13.60) and
+  `explore(antifoam_otr=)` with new input `pf_antifoam_otr` (default 1, range 0.5–1; sparger oxygen only). Halved, the reference
+  becomes oxygen-limited at 97 g/L ($12.88) and Cautious goes from $38.97 to $50.58.
+- Poloxamer 188: catalogue price only (~$230–260/kg); at 2 g/L that is $5.6–14 a kilo of cells. Not added; in `gas_flow_cap.md`
+  and TODO.md as a decision.
+- Notes recomputed with the filter loop: `cost_scenarios.md`, `vessels_and_modes.md` (every figure). `cheap_plant_study.md` and
+  `gas_exchange_study.md` stay dated snapshots (their tests pin the old device) with a box of current figures: the tank tricks are
+  worth about half as much (the gentler column saves $1.47, not $2.86); the lean plant's break-even loss rate is 3.9% a day.
+- `interactive.html` rebuilt (main's copy was older than its source); untracked notes and the growth-rate proposal committed.
+
+Is 20 m3 the right tank size? (`tank_size.py`, `research_notes/tank_size.md`; no number moved)
+- Cost against tank size, 2 to 200 m3, for each scenario and the reference, with the tank design (tricks, shape) chosen again at each size
+  under the column loop's pH and pass-rate checks. 20 m3 is within 0.4% to 2.3% of the cheapest size: best $8.95 -> $8.82 at 55 m3,
+  central $26.64 -> $26.50 at 23 m3, central with shared medium $24.34 -> $24.25 at 34 m3, cautious $38.97 -> $38.08 at 46 m3. The
+  20 m3 designs fail the pH check at 23 to 26 m3; without the checks the best case would save 3.4% at 200 m3. Smaller tanks cost
+  2% to 4% more at 10 m3 and 20% to 50% more at 2 m3. Labour per m3 is the one assumption that could move the answer (the best case
+  would be 7.6% cheaper at 200 m3 if crew per m3 kept falling as in Humbird's plants). Odds for each size are in the note. New inputs
+  `ts_ph_relaxed`, `ts_loop_hw_exp`, `ts_hazard_exp` (what-if rows only). `tests/test_tank_size.py`, in `run_tests.sh`.
+The least medium per kg of cells that physics allows (`min_litres.py`, `research_notes/min_litres_per_kg.md`; no number moved)
+- Waste sets no floor: nitrogen, carbon and energy balances all allow zero ammonia and zero lactate. Delivering the nutrients
+  does: 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose per kg of cells. If the medium must be what the cells
+  sit in, the floor is 14-25 L/kg (Central's 28 is within 10% of it; Best's 11 is not possible). If a concentrate of 100 g/L is
+  diluted in the tank, it is 5.8 L/kg (Best) and 6.4 (Central), or 8.0 at the lowest flow per cell measured. Costs at those
+  litres: Best $6.94, Central $12.28-13.05, against $8.95 and $26.64. New `ml_*` inputs; `tests/test_min_litres.py`, in
+  `run_tests.sh`.
+The nutrient floor from GFI's amino-acid prices, and a $0.05 medium setting (`nutrient_floor.py`, `research_notes/nutrient_floor.md`)
+- The model's nutrient floor ($1.70 a kilo) is below every figure GFI's December 2025 prices give ($2.50 to $16.09): its amino acids
+  are $0.67, against $1.48 at GFI's cheapest tier. The best case, whose medium is set by the floor, would cost $9.76 to $12.36 at
+  the cheaper tiers (now $8.95); Central does not move unless amino acids are dear. No default changed.
+- New "Price of the medium" setting: **$0.05 a litre**, an aspiration tagged "feed or process". Central at $0.05: $22.68 (the floor
+  binds). The best case keeps $0.15, and its rule text says so. "What decides it" for Central now shows the medium price worth
+  −$3.96 at its best setting.
+
+What GFI reports about the cost of medium (`research_notes/medium_cost_gfi.md`; no number moved)
+- GFI's December 2025 amino acid analysis and January 2023 growth factor report, read in full: amino acids $0.02-0.17 a litre against
+  $0.24-0.54 on Humbird's prices; Humbird's amino acids about $18-19 a kilo of cells; company reports of $0.20, $0.07 and $0.63 a
+  litre. The model's Central case matches GFI; the best case's medium ($1.72 a kilo, 11 L/kg) sits below it.
+- **Correction:** the tier "Humbird fed-batch, as designed" uses the model's feedstock (his cheaper bulk hydrolysate), not his own
+  medium cost, which was far higher. The name was not changed.
+
+If perfusion cannot be run at 20 m3 (`downside.py`, `research_notes/no_perfusion_downside.md`; no number moved)
+- Each scenario priced in a stirred tank without cell retention, in fed-batch and in fill-and-draw, at the model's own density cap
+  and at the 27 g/L shown for meat cells, with the tank design chosen again. Central: $26.64 with perfusion, $40.39 (fed-batch) or
+  $43.58 (fill-and-draw) at 62 g/L, $90-97 at 27 g/L. Best case $8.95 -> $13.22 at 92 g/L, $41 at 27 g/L. The food-grade plant with
+  shared medium cushions it most ($24.34 -> $28.22). `tests/test_downside.py`, in `run_tests.sh`.
+
+Cheaper membranes for holding cells back (`research_notes/retention_alternatives.md`; no default changed)
+- Three routes priced in `retention.py`, from a research pass on reusable and cleanable membranes (new `rt_reuse_*`, `rt_dial_*`,
+  `rt_ceramic_*` inputs, each with source and range). Central case, against $26.64 with the default TFF loop: dialyser-grade
+  hollow fibres $18.00, ceramic membranes run as a slow TFF loop $19.14, reused pharma modules $20.72. Nothing has been run with
+  animal cells at this density for any of them; the odds the central case gets a tenfold cheaper membrane are about 15%.
+- Wastewater and food-industry membranes are listed as not costed, with reasons. Dialysis with a cleaned dialysate and cells held
+  back without a filter were not researched.
+
+Does a thinner culture pay once filtering costs money? (`retention.density_scan`; no number moved)
+- No, for the best, central and shared-medium cases: their tank designs, chosen again under the filter cost, are unchanged, and
+  holding the culture below the density the tank allows saves membranes but costs more plant capital per kilo (central: $28.75 at
+  180 g/L against $26.64 at 258). The cautious case would save $1.10 at 180 g/L with all three tricks; there is no density
+  setpoint switch, so the model does not use it. Membrane life moves the central case by about $30; density barely does.
+
+The filter loop is the model's default (Pablo's decision; numbers move)
+- `floor_physics.explore` now prices the device that holds cells back in perfusion as a TFF hollow-fibre loop: hardware per m² of
+  membrane sized on the cell-free liquid the bleed does not carry out, plus membranes at about $0.37 a litre filtered. A number
+  for `retention` still charges a flat capital and no membranes. `rt_tff_default = 0` restores the old hoped-for device.
+- Scenario costs: best $6.57 → **$8.95** (R 0.96 → 1.16: **no scenario reaches price parity now**; median world share 7.9% →
+  4.4%), central $18.14 → **$26.64** (0.8% → 0.3%), central with shared medium $15.84 → $24.34, cautious $32.29 → $38.97,
+  reference $11.48 → $11.84. The scenarios' tank designs did not change.
+- The tornado's retention row is now the life of the filter membranes (5,500 to 900 litres per m²); the widest bar at the reference
+  case is now the waste the cells make. The reference-case and scenario Monte Carlo runs draw the membrane life in place of a flat
+  retention capital (floor Monte Carlo median $18.6 → $25.7).
+- Pinned values updated in `test_floor_physics`, `test_scenarios`, `test_vessels`, `test_retention`. The gas-exchange and
+  cheap-plant tests check their notes with the old device; those notes, `cost_scenarios.md` and `vessels_and_modes.md` carry a dated
+  line saying so. RESULTS (summary rewritten: no parity, the filter as a cost driver) and METHODS (scenario table, tornado table,
+  the default device) follow. The tier ladder keeps the old device.
+- The page's JavaScript mirror prices the same loop; parity holds.
+
+Holding the cells back in a 20 m3 perfusion tank (`retention.py`, `research_notes/retention_devices.md`; no default changed)
+- The duty from the model: the reference case clears 0.16 m3/h of cell-free permeate (the bleed carries most of the liquid);
+  the central case clears 1.88 m3/h from a culture that is a quarter cells; the best case 0.86 m3/h.
+- Each real device sized and costed (`rt_*` inputs, each with source and range). Reference case: $10.82-12.25 with any device
+  that works, against $11.48. Central: $25.69 (disc-stack separator, 28% of cells burst) to $30.43 (ATF), against $18.14; range
+  $21-80. A settler is not possible at 258 g/L; acoustic devices and hydrocyclones are beyond what has been shown.
+- Membranes, not hardware, set the cost of filtering the central culture: about $0.37 per litre of permeate, $8.83 a kilo.
+- `tests/test_retention.py` (balances, the default reproduced exactly, sizing rules, ranges, pinned headline), in `run_tests.sh`.
+
 Densities not shown for meat cells (no number moved)
 - A cell tagged "done at this size" now says "This density is not shown for meat cells" when its density is above the 27 g/L
   reported for meat cells in a vessel of 1 m3 or more (new input `vm_x_meat_shown`: Vow's 538 kg harvest from 20,000 L; range

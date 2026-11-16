@@ -41,8 +41,8 @@ filldraw   never emptied: a share of the tank is drained and refilled each cycle
            'drained and refilled' mode).
 chemostat  fresh medium in and whole culture out, continuously, at a dilution rate below the growth rate (no
            retention). Waste caps the density as in fill-and-draw, but the culture sits at the cap.
-perfusion  fresh medium flows through while a device holds the cells back (`pf_capex_retention`: a hoped-for
-           filter-free device at Pasitka's price), so waste is washed out; cells are bled off at the growth rate.
+perfusion  fresh medium flows through while a device holds the cells back (the model's default, a TFF hollow-fibre
+           loop: retention.py), so waste is washed out; cells are bled off at the growth rate.
 
 Each cell carries: the cost per kg, what limits the density, the largest cost item, and a maturity tag
 (`TAGS`: runs at this scale today / pilot / paper only), or "not possible" with the reason.
