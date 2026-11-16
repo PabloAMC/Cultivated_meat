@@ -3929,6 +3929,7 @@ function floorExplore(p,noSearch){
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
   if(p.vm){ limits[0][1]*=(vm.otr_mult===undefined?1:vm.otr_mult);         // the vessel's own gas exchange
     if(vm.mixing===false) limits[2][1]=Infinity; if(vm.co2_gas===false) limits[3][1]=Infinity; if(vm.o2_gas===false) limits[0][1]=Infinity;
+    limits[3][1]*=(vm.co2_mult===undefined?1:vm.co2_mult);
     Object.keys(vm.caps||{}).forEach(k=>limits.push([k,vm.caps[k]])); }
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
@@ -3967,7 +3968,7 @@ function floorExplore(p,noSearch){
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
   let protectant=0;                                     // poloxamer leaves with every litre of a sparged tank's medium
-  if(vm.o2_gas!==false||vm.co2_gas!==false){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
+  if((vm.o2_gas!==false||vm.co2_gas!==false)&&!vm.no_protectant){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=F.gf*ml/F.gf_litres*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;

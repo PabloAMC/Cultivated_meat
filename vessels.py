@@ -64,7 +64,7 @@ from inputs import value
 # the keys explore() reads from a vm dict (floor_physics.explore)
 VM_KEYS = ("washed", "kind", "wv", "dil_frac", "n_doublings", "turnaround_h", "restart_days", "run_days",
            "clean_uptime", "shape", "recovery", "otr_mult", "mixing", "co2_gas", "o2_gas", "caps", "capex_ratio",
-           "own_retention", "cons_run", "labour_mult")
+           "own_retention", "cons_run", "labour_mult", "co2_mult", "no_protectant")
 
 TODAY, PILOT, PAPER = "done at this size", "only done smaller", "never done with animal cells"
 TAG_ORDER = (TODAY, PILOT, PAPER)
@@ -88,6 +88,16 @@ VESSELS = {
                "gas per litre and clears less CO₂. The gas mixes the culture, not a stirrer.",
         vm={"mixing": False, "capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult")},
         aspect=value("vm_alr_aspect"), tricks=True, shape=False),
+    "caged": dict(
+        name="Stirred tank with a bubble cage", size=value("vm_str_m3"),
+        what="A stirred tank with an inner cylinder of fine mesh. The cells live in the ring around it, stirred gently and "
+             "bubbled as softly as in the plain tank. A strong sparger bubbles inside the cylinder, where there are no cells. "
+             "Only medium crosses the mesh.",
+        limits="The ring's soft bubbling works as in a stirred tank. The cylinder adds gas exchange without bubbles touching "
+               "the cells, up to what foam allows, but its oxygen and CO₂ reach the cells only with the medium that crosses the "
+               "mesh, and a mesh fine enough to keep single cells out clogs.",
+        vm={"capex_ratio": value("vm_cage_capex_ratio")},
+        gas_add=value("vm_cage_exchange") * value("vm_cage_gas"), tricks=True, shape=True),
     "bag": dict(
         name="Single-use bag", size=value("vm_bag_m3"),
         what="A plastic bag in a steel frame, with a stirrer. Each run uses a new bag.",
@@ -116,7 +126,7 @@ VESSELS = {
         cycle={"n_doublings": value("vm_hf_doublings"), "turnaround_h": value("vm_hf_turnaround_h")},
         tricks=False, shape=False, fixed=True),
 }
-VESSEL_ORDER = ("stirred", "airlift", "bag", "packed", "hollow")
+VESSEL_ORDER = ("stirred", "caged", "airlift", "bag", "packed", "hollow")
 
 _CYCLE = {"kind": "cyclic", "n_doublings": value("pf_fedbatch_doublings"), "turnaround_h": value("pf_turnaround_h"),
           "restart_days": value("vm_restart_cycle_days")}
@@ -164,6 +174,11 @@ TAGS = {
     ("airlift", "filldraw"): (PAPER, "Not found with animal cells. Quorn runs fungus continuously in 155 m³ airlifts."),
     ("airlift", "chemostat"): (PAPER, "Not found with animal cells. Quorn runs fungus continuously in 155 m³ airlifts."),
     ("airlift", "perfusion"): (PAPER, "Not found with animal cells at any size."),
+    ("caged", "batch"): (PILOT, "Caged aeration (a sparger inside a mesh cage) has been used with cells on microcarriers in bench and pilot tanks, with mesh of about 85 µm. Single cells need a mesh finer than the cells; not found at any size."),
+    ("caged", "fedbatch"): (PILOT, "As batch: microcarrier cultures only, in small tanks."),
+    ("caged", "filldraw"): (PAPER, "Not found with animal cells."),
+    ("caged", "chemostat"): (PAPER, "Not found with animal cells."),
+    ("caged", "perfusion"): (PAPER, "Not found with animal cells. Perfusion would need a second device to hold the cells back, besides the cage."),
     ("bag", "batch"): (TODAY, "Single-use bags of 2,000 L are common in pharma, and 5,000 L bags are installed."),
     ("bag", "fedbatch"): (TODAY, "Pharma runs fed-batch in single-use bags of 2,000 to 5,000 L."),
     ("bag", "filldraw"): (PILOT, "Repeated harvests have been shown in bench vessels. No 5,000 L bag run has been found."),
@@ -220,6 +235,8 @@ def explore_kwargs(vessel: str, mode: str, base: dict | None = None) -> dict | N
             kw.pop(k, None)
     if "aspect" in v:
         kw["aspect"], kw["shape_cost"] = v["aspect"], False
+    if "gas_add" in v:      # the cage's gas, discounted by the medium that crosses its mesh, adds to the ring's own bubbling
+        kw["gas_velocity"] = kw.get("gas_velocity", value("pf_gas_velocity")) + v["gas_add"]
     kw["vessel_m3"] = v["size"]
     kw["mode"] = m.get("mode", "filldraw")
     kw["vm"] = vm
@@ -293,7 +310,7 @@ def js_model() -> dict:
     jsn = {"p_top_barg": "p_top"}
     return {"vessels": {k: {"name": v["name"], "size": v["size"], "what": v["what"], "limits": v["limits"], "vm": v["vm"],
                             "aspect": v.get("aspect"), "tricks": v["tricks"], "shape": v["shape"], "fixed": bool(v.get("fixed")),
-                            "cycle": v.get("cycle")} for k, v in VESSELS.items()},
+                            "cycle": v.get("cycle"), "gas_add": v.get("gas_add")} for k, v in VESSELS.items()},
             "modes": {k: {"name": m["name"], "what": m["what"], "vm": m["vm"], "mode": m.get("mode", "filldraw")}
                       for k, m in MODES.items()},
             "vorder": list(VESSEL_ORDER), "morder": list(MODE_ORDER),

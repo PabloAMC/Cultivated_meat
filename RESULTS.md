@@ -323,6 +323,7 @@ those two and holds the rest (research_notes/vessels_and_modes.md has both grids
 | reference case, $/kg | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
 | Stirred tank, 20 m3 | 65.35 | 18.85 | 18.46 | 34.75 | **12.51** |
+| Stirred tank with a bubble cage, 20 m3 | 67.59 | 19.46 | 19.05 | 35.93 | 11.08 |
 | Airlift, 20 m3 | 62.37 | 20.79 | 20.35 | 33.18 | 14.78 |
 | Single-use bag, 5 m3 | 1,080 | 293.45 | 38.83 | 75.58 | 20.91 |
 | Packed bed, 65 L | 3,730 | as batch | not possible | not possible | 3,726 |
@@ -338,6 +339,10 @@ includes the filter loop that holds the cells back (`retention.py`); the other m
   62-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
   reports harvests of about 27 g/L.
 - An airlift costs about what a stirred tank costs when waste is not washed out. In perfusion its tall shape clears less CO2.
+- A stirred tank with a bubble cage (Pablo's design, 2026-11-16): an inner cylinder of fine mesh holds a strong sparger, and the cells
+  live in the ring around it with soft bubbling. Only medium crosses the mesh, so the cage's gas counts at 80% of its
+  strength (a judgement). In perfusion it costs $11.08 in the reference case and $27.72 in Central, against
+  $12.51 and $29.92 in the plain tank. Caged aeration exists only with microcarriers in small tanks.
 - A single-use bag pays for a bag each run; it comes close to steel only in perfusion.
 - Packed beds and hollow fibres cost thousands of dollars a kilo as built. A 20 m3 bed at a stirred tank's price, with free
   carriers, still costs $42.19 in the reference case: it is seeded thin and emptied every run.

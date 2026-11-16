@@ -92,6 +92,7 @@ Details:
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
 | Stirred tank (20 m3) | **$65.35** (25 g/L, the food in one fill; done at this size) | **$18.85** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$18.46** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$34.75** (55 g/L, other waste and spent food; only done smaller) | **$12.51** (120 g/L, clearing CO₂; only done smaller) |
+| Stirred tank with a bubble cage (20 m3) | **$67.59** (25 g/L, the food in one fill; only done smaller) | **$19.46** (92 g/L, other waste and spent food; only done smaller) | **$19.05** (92 g/L, other waste and spent food; never done with animal cells) | **$35.93** (55 g/L, other waste and spent food; never done with animal cells) | **$11.08** (189 g/L, mixing; never done with animal cells) |
 | Airlift (bubble column) (20 m3) | **$62.37** (25 g/L, the food in one fill; only done smaller) | **$20.79** (79 g/L, clearing CO₂; only done smaller) | **$20.35** (79 g/L, clearing CO₂; never done with animal cells) | **$33.18** (55 g/L, other waste and spent food; never done with animal cells) | **$14.78** (79 g/L, clearing CO₂; never done with animal cells) |
 | Single-use bag (5 m3) | **$1,080** (25 g/L, the food in one fill; done at this size) | **$293.45** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$38.83** (92 g/L, other waste and spent food; only done smaller) | **$75.58** (55 g/L, other waste and spent food; only done smaller) | **$20.91** (146 g/L, getting oxygen in; only done smaller) |
 | Packed bed (0.065 m3) | **$3,730** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$3,726** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
@@ -102,7 +103,8 @@ Details:
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
 | Stirred tank (20 m3) | **$103.12** (25 g/L, the food in one fill; done at this size) | **$42.87** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$46.21** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$90.40** (37 g/L, other waste and spent food; only done smaller) | **$29.92** (177 g/L, getting oxygen in; only done smaller) |
-| Airlift (bubble column) (20 m3) | **$94.95** (25 g/L, the food in one fill; only done smaller) | **$40.05** (62 g/L, other waste and spent food; only done smaller) | **$43.12** (62 g/L, other waste and spent food; never done with animal cells) | **$83.00** (37 g/L, other waste and spent food; never done with animal cells) | **$32.58** (114 g/L, getting oxygen in; never done with animal cells, with column ($29.13 if the loop passed)) |
+| Stirred tank with a bubble cage (20 m3) | **$106.63** (25 g/L, the food in one fill; only done smaller) | **$44.30** (62 g/L, other waste and spent food; only done smaller) | **$47.77** (62 g/L, other waste and spent food; never done with animal cells) | **$93.57** (37 g/L, other waste and spent food; never done with animal cells) | **$27.72** (258 g/L, how thick the culture can be; never done with animal cells) |
+| Airlift (bubble column) (20 m3) | **$94.95** (25 g/L, the food in one fill; only done smaller) | **$40.05** (62 g/L, other waste and spent food; only done smaller) | **$43.12** (62 g/L, other waste and spent food; never done with animal cells) | **$83.00** (37 g/L, other waste and spent food; never done with animal cells) | **$32.58** (114 g/L, getting oxygen in; never done with animal cells, with A column beside the tank that strips CO₂ without bubbles ($29.13 if the loop passed)) |
 | Single-use bag (5 m3) | **$1,157** (25 g/L, the food in one fill; done at this size) | **$470.37** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$98.85** (62 g/L, other waste and spent food; only done smaller) | **$197.45** (37 g/L, other waste and spent food; only done smaller) | **$53.81** (114 g/L, getting oxygen in; only done smaller) |
 | Packed bed (0.065 m3) | **$5,178** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$5,174** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$685,153** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$685,149** (13 g/L, room between the fibres; done at this size) |
@@ -178,3 +180,44 @@ From `operating_modes.md`, section 7 (company claims and trade press unless mark
 - Brenner et al. 2026 (Front. Nutr., part) is a peer-reviewed full-process model of a batch train to 20 m3. It gives 30.7 days from a
   frozen vial to a 20 m3 batch.
 - No peer-reviewed report of cultivated-meat culture at 100 L or above was found. Vow remains the only producer known to run 20 m3.
+
+## 9. A stirred tank with a bubble cage, and other ways to keep bubbles away from cells (added 2026-11-16)
+
+**Pablo's design.** Two cylinders, one inside the other. The inner one is a bubble column; the outer ring holds the cells, stirred
+gently by impeller blades turning around the inner cylinder, with soft bubbling from the floor. The inner cylinder can bubble hard
+because no cells are in it. For the cells to stay out, its wall must pass medium but not cells: a fine mesh. This is **caged
+aeration**, a known design: a sparger inside a fine-mesh cage, used with cells on microcarriers in bench and pilot tanks, with
+mesh of about 85 µm (a BioProcess International review of impellers, [search summary](https://www.bioprocessintl.com/cell-line-development/which-impeller-is-right-for-your-cell-line-)).
+A patent on aeration devices notes that "large scale fine-mesh components" could be very costly to make
+([US20130175716A1](https://patents.google.com/patent/US20130175716), search summary). Single cells of 10–20 µm need a mesh finer
+than that, which clogs; this was not found at any size.
+
+**In the model** (`vessels.py`, row "Stirred tank with a bubble cage"; inputs `vm_cage_*`). The ring bubbles as the plain tank does at
+the scenario's gas setting, so the protectant and its cost stay. The cage adds gas at `vm_cage_gas` (6 mm/s over the tank's
+cross-section, 3–12; capped by foam, not by cells), discounted by `vm_cage_exchange` (0.8, 0.5–1) because its oxygen and CO₂ reach
+the cells only with the medium that crosses the mesh. Capital 1.15 times a stirred tank (1.05–1.4). Every one of these is a
+judgement: no exchange rate across a cage, no 20 m³ cage and no price were found. Results, perfusion: reference case $11.08 against
+$12.51 in the plain tank (189 g/L, mixing now binds); Central $27.72 against $29.92 (258 g/L, the thickness limit); today's cells
+(rung 1, no tricks) $39.23 against $62.96. The cage is worth most where the gas the cells tolerate is low, because it adds gas the
+cells never feel.
+
+**Variant: the inner cylinder full of gas, under pressure.** Then the wall must hold liquid out and let gas through: a gas-permeable
+membrane, which is membrane aeration. Pressure raises the oxygen driving force (as the model's 1 bar trick does) but does not help
+CO₂, which leaves in proportion to the difference between its pressure in the liquid and in the sweep gas. The difficulty is area.
+An inner cylinder 0.8 m across in the 20 m³ tank (liquid 3.74 m deep) has about 9.4 m² of wall. Removing the reference case's CO₂
+needs roughly 1,200–1,500 m² of membrane at the fluxes reached in blood CO₂-removal devices (`project_review.md`, item B), over 100
+times more. Folded membranes or a bundle of hollow fibres in the cylinder would add the area; that is the membrane loop the
+gas-exchange study set aside because no membrane was found that is both priced and rated for repeated steaming (`gas_exchange_study.md`, 7.5).
+
+**Other designs that keep bubbles away from cells, or soften them** (search summaries unless a note is named):
+
+| design | how it works | largest scale found | in the model |
+|---|---|---|---|
+| Caged aeration | sparger inside a fine-mesh cage | bench and pilot, microcarriers | the bubble-cage row (this section) |
+| Packed stripping column beside the tank | culture runs down packing as a film; no bubbles | not with animal cells | the "column" tank trick (`gas_exchange_study.md`) |
+| Membrane aeration (silicone tubing, hollow fibres, rotating membranes) | gas diffuses through a membrane | 50 L tubular pilot; dynamic membrane aeration to about 200 L | not a row; needs large area (above) |
+| Surface aeration: rocking bags, orbitally shaken tanks | gas enters through a moving free surface | rocking bags of tens of litres hold the densest CHO; orbital shakers to about 1–2.5 m³ (vendor) | not a row |
+| Airlift, internal or external loop | gas in a riser drives circulation; cells meet the bubbles | 2 m³ with animal cells (Lonza); 155 m³ for fungus (Quorn) | the airlift row |
+| Stirred airlift (draft tube plus impeller) | impeller inside or around a draft tube | not found with animal cells at scale | CFD target A5 (`roadmap_2026-11-15.md`) |
+| Microspargers and ceramic spargers | many fine bubbles: more oxygen per litre of gas, more foam | common in pharma | not a separate row |
+| Oxygen carriers in the medium (perfluorocarbons) | the medium holds more oxygen | lab | not in the model |

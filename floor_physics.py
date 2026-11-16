@@ -575,6 +575,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             limits["mixing"] = float("inf")
         if not vm.get("co2_gas", True):
             limits["CO2 removal"] = float("inf")
+        limits["CO2 removal"] *= vm.get("co2_mult", 1.0)    # gas exchanged away from the cells (a bubble cage)
         if not vm.get("o2_gas", True):
             limits["oxygen supply"] = float("inf")
         for name, cap in vm.get("caps", {}).items():   # density caps of the vessel or the mode, g per litre of vessel
@@ -657,7 +658,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         consumables += sorb * nh3 / q * (value("pf_sorbent_price") if sorbent_price is None else sorbent_price) \
             / (value("pf_sorbent_cycles") if sorbent_cycles is None else sorbent_cycles)
     protectant = 0.0
-    if vm.get("o2_gas", True) or vm.get("co2_gas", True):   # sparged: the protectant leaves with every litre of medium
+    if (vm.get("o2_gas", True) or vm.get("co2_gas", True)) and not vm.get("no_protectant"):   # bubbles meet the cells
         protectant = medium_l * value("pf_protectant_dose") / 1000.0 * (
             value("pf_protectant_price") if protectant_price is None else protectant_price)
         consumables += protectant
