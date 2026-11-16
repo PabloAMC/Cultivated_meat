@@ -2345,7 +2345,9 @@ function deriveBeta(K){
   // (λ≈2.6 at default p_conv) β can no longer fully absorb the loss-aversion slope, so the realised
   // elasticity would drift off the eps_own*κ target. Stopping at 2.25 keeps the "λ reshapes the kink,
   // not the level" property true across the whole admissible range.
-  const betaCap=K.w_ratio/K.p_conv_anchor-1e-3;
+  // SIGN GUARD (mirror of market_share._derive_beta, 2026-11-16): beta, the dollar channel's slope, is never positive,
+  // or shoppers would gain from paying more. Inert at the defaults; binds once loss_aversion*w_ratio exceeds about 1.6.
+  const betaCap=Math.min(K.w_ratio/K.p_conv_anchor-1e-3, 0);
   let s=0;
   for(let it=0;it<40;it++){
     K.beta_ref=Math.min(betaCap, epsX/(pAnchor*(1-s))+lam);  // set before solveCalibration uses betaPrice

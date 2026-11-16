@@ -31,6 +31,8 @@ def check() -> list:
     for k in ("plant_charge_mature", "rt_membrane_life", "pf_maintenance_share"):
         if f'"{k}"' not in src:
             fails.append(f"{k} is listed as in the band but scenario_mc does not draw it")
+    if "MC_ESTIMATES" not in src or "MC_ESTIMATE_INPUTS" not in src:
+        fails.append("scenario_mc no longer draws MC_ESTIMATES; the table's band column is wrong")
     if "markup_add" not in I.MC_COST_INPUTS:
         fails.append("markup_add is listed as in the band but the demand draws do not include it")
     if not s["cost_rows"] or s["cost_rows"][0]["key"] != "pf_nh3_limit":
@@ -44,7 +46,7 @@ def check() -> list:
     cs, bs = s["central_share_span"], s["best_share_span"]
     quoted = [f"The model has {s['inputs']} inputs, {s['ranged']} of them with a range",
               f"only {len(s['cost_rows'])} move", f"and {s['over_3']} move Central by more than $3",
-              f"leave out {len([k for k in s['not_in_band'] if k in cr])} of these {len(s['cost_rows'])} inputs",
+              
               f"{cs[0]:.1f}–{cs[1]:.1f}%", f"{bs[0]:.1f}–{bs[1]:.1f}%", f"above {cs[1]:.1f}%"]
     for k in ("pf_nh3_limit", "rt_membrane_life", "pf_protectant_price", "pf_min_perfusion"):
         quoted.append(f"(${cr[k]['central'][0]:.1f} to ${cr[k]['central'][1]:.1f})")

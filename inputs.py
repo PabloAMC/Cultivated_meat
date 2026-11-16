@@ -512,9 +512,13 @@ REGISTRY: dict[str, Input] = {
              "(research_notes/gas_flow_cap.md). It passes the filter and leaves with the medium."),
     "pf_protectant_price": Input(30.0, "$/kg", "[assumed] poloxamer 188 bought by the tonne: no bulk price found; catalogue "
         "prices are $230-260/kg in 10-25 kg packs (Sigma-Aldrich, search summary), tonne-scale excipients sell at a fraction",
-        lo=10.0, hi=260.0, mode=30.0,
-        note="hi = the catalogue price. At 2 g/L and $30/kg it is $0.06 a litre of medium: $0.67/kg of cells at 11 L/kg, "
-             "$1.7 at 28 L/kg. A supplier quote would replace the assumption (TODO.md)."),
+        lo=10.0, hi=120.0, mode=30.0,
+        note="hi = about half the small-pack catalogue price: a tonne buyer is unlikely to pay more. It was the catalogue "
+             "price itself ($260) until 2026-11-16, when the scenarios' bands began to draw this input; at 260 the draws' "
+             "median tonne price was $87/kg, above what the catalogue-to-bulk gap of excipients suggests (a judgement, "
+             "median about $45 now). The catalogue price stays in RESULTS as a what-if. At 2 g/L and $30/kg it is $0.06 a "
+             "litre of medium: $0.67/kg of cells at 11 L/kg, $1.7 at 28 L/kg. A supplier quote would replace the "
+             "assumption (TODO.md)."),
     "pf_o2_microbial": Input(1.0, "switch", "[model choice, 2026-11-15] 1: the yeast-style plant class buys its oxygen "
         "(pi_o2_feed x pi_o2_price), as plants built item by item do; 0: no oxygen cost (earlier versions)"),
     "pf_antifoam_otr": Input(0.75, "-", "[judgement, effect reported] oxygen transfer from the sparger with antifoam "
@@ -1013,6 +1017,10 @@ REGISTRY: dict[str, Input] = {
         lo=5.0, hi=15.0, mode=10.0,
         note="measured on blood (30-40% cells) over 4-hour sessions, not on a meat-cell culture over weeks; against the "
              "5 L/m2/h (rt_flux_lmh) a cell filter passes"),
+    "sc_wide_bands": Input(1.0, "switch", "[model choice, 2026-11-16] 1: the scenarios' uncertainty bands also draw the "
+        "estimates the cost rests on most (scenarios.MC_ESTIMATES: ammonia tolerated, protectant price and dose, least medium "
+        "flow, antifoam, membrane price); 0: only plant cost, financing, membrane life, upkeep, "
+        "medium price and loss rate, as before"),
     "sc_do_setpoint": Input(0.10, "mmol O2/L", "[gas_exchange_study.md 10.2; pharma practice, snippet-level sources] dissolved "
         "oxygen the scenarios hold the tank at: about 47% of air saturation (air at 37 C: 0.21 mmol/L)",
         lo=0.05, hi=0.28, mode=0.10,
