@@ -177,7 +177,10 @@ function scTornadoSVG(rows,base){
       g+='<text x="'+(mid-4)+'" y="'+(y+28)+'" font-size="9" text-anchor="end" fill="#777">'+esc(scSetting(r.switch,r.best).short)+'</text>'; }
     if(r.d_worst>0.005){ const clip=r.d_worst>mx*1.001, x1=X(Math.min(r.d_worst,mx*1.0));
       g+='<rect x="'+mid+'" y="'+(y+2)+'" width="'+(x1-mid)+'" height="14" fill="#CC3311" opacity="0.85"/>'+(clip?'<rect x="'+(x1-6)+'" y="'+(y+2)+'" width="6" height="14" fill="#fff" opacity="0.7"/>':'');
-      g+='<text x="'+(x1+3)+'" y="'+(y+13)+'" font-size="10" fill="#CC3311">+$'+r.d_worst.toFixed(1)+(clip?' (off the scale)':'')+(r.share_worst!==undefined?' ('+scPts(r.share_worst)+')':'')+'</text>';
+      const lab='+$'+r.d_worst.toFixed(1)+(clip?', off the scale':'')+(r.share_worst!==undefined?' ('+scPts(r.share_worst)+')':'');
+      // a clipped bar runs to the edge of the chart, so its label goes inside the bar, not after it
+      g+=clip?'<text x="'+(x1-10)+'" y="'+(y+13)+'" font-size="10" text-anchor="end" fill="#fff" font-weight="600">'+lab+'</text>'
+             :'<text x="'+(x1+3)+'" y="'+(y+13)+'" font-size="10" fill="#CC3311">'+lab+'</text>';
       g+='<text x="'+(mid+4)+'" y="'+(y+28)+'" font-size="9" fill="#777">'+esc(scSetting(r.switch,r.worst).short)+'</text>'; }
   });
   return g+'</svg>';
