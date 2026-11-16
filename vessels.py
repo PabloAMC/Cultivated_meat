@@ -121,9 +121,9 @@ VESSEL_ORDER = ("stirred", "airlift", "bag", "packed", "hollow")
 _CYCLE = {"kind": "cyclic", "n_doublings": value("pf_fedbatch_doublings"), "turnaround_h": value("pf_turnaround_h"),
           "restart_days": value("vm_restart_cycle_days")}
 MODES = {
-    "batch": dict(name="Batch", what="Fill, grow, empty. All the food is in the first fill.",
+    "batch": dict(name="Batch", what="Fill the tank with all its medium at once, let the cells grow, then empty it. Growth stops when the food in that one fill runs out.",
                   vm={**_CYCLE, "washed": False, "caps": {"food in one fill": value("vm_batch_x")}}),
-    "fedbatch": dict(name="Fed-batch", what="Fill, grow while feeding concentrate, empty.",
+    "fedbatch": dict(name="Fed-batch", what="As batch, but start with less medium and pump in concentrated food as the cells grow, then empty. More cells per run, until their own waste stops them, because nothing washes it out.",
                      vm={**_CYCLE, "washed": False}),
     "filldraw": dict(name="Fill-and-draw", what="Drain half, refill, and let it regrow. The tank is never emptied.",
                      vm={"washed": False}, mode="filldraw"),
@@ -258,7 +258,7 @@ def cell(vessel: str, mode: str, base: dict | None = None) -> dict:
             rr = fp.explore(**explore_kwargs(vessel, mode, {**b, **st.kw}))
             if _loop_ok(rr) and (best is None or rr["total"] < best[1]["total"] - 1e-12):
                 best = (st, rr)
-        r, fallback = best[1], best[0].short
+        r, fallback = best[1], best[0].label
     parts = {k: r[k] for k in BIGGEST}
     big = max(parts, key=parts.get)
     return {"possible": True, "cost": r["total"], "limit": r["limit"], "density": r["density"], "output": r["output"],
