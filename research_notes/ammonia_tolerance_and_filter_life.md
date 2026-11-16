@@ -262,3 +262,28 @@ L/m².
   Karst 2020, Pasitka's supplement. The agents' L/m² conversions are marked *mine* and I have not re-derived them.
 - The free-NH3 fractions in Section 2 use a pKa I did not source.
 - Probabilities are my judgement from the evidence above, not from a model.
+
+## 9. What adopting both values would do (tried on a scratch branch, not adopted)
+
+I set the two modes to 4 mmol/L and 2,000 L/m² on a scratch branch and recomputed the scenario ladder. Nothing was
+committed or pushed.
+
+| scenario, $/kg | now (5 mM; 3,960) | 4 mM and 2,000 L/m² |
+|---|---|---|
+| Today | 62.96 | 73.19 |
+| Process changes | 30.73 | 46.11 |
+| Central | 29.42 | 44.67 |
+| Central, lean | 26.56 | 41.81 |
+| Best case | 9.66 | 13.83 |
+| Cautious | 42.39 | 57.37 |
+
+Central alone, with only the filter moved to 2,000 L/m², is $37.58. The ladder keeps its order and its gaps. Its level
+rises by about $15 in the middle rungs.
+
+The change is not a two-number edit. With it the repo's own checks fail in `test_golden`, `test_floor_physics`,
+`test_scenarios`, `test_retention`, `test_filter_flux`, `test_answer_rests_on` and `test_audit`. They pin the old costs
+(for example the reference case at $12.51 becomes $15.70, and the floor Monte Carlo median $27.5 becomes $35.7). One scenario's
+design lists no tank tricks, which breaks `scenarios.plain_list`. An input that moved by under $1 now moves by over $1, which
+adds a row to the "what the answer rests on" table. RESULTS.md, METHODS.md and the explorer page quote the old numbers. So adopting
+it means re-pinning those tests, rebuilding the page and rewriting the headline figures, in one change. I did not do that
+without Pablo seeing the new headline.
