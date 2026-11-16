@@ -978,6 +978,15 @@ REGISTRY: dict[str, Input] = {
         "the soft bubbling in the cells' ring", lo=0.003, hi=0.012, mode=0.006),
     "vm_cage_capex_ratio": Input(1.15, "x stirred tank", "[judgement] a stirred tank plus the mesh cylinder: a patent "
         "notes that large fine-mesh parts for gas exchange could be very costly to make", lo=1.05, hi=1.4, mode=1.15),
+    "sc_do_setpoint": Input(0.10, "mmol O2/L", "[gas_exchange_study.md 10.2; pharma practice, snippet-level sources] dissolved "
+        "oxygen the scenarios hold the tank at: about 47% of air saturation (air at 37 C: 0.21 mmol/L)",
+        lo=0.05, hi=0.28, mode=0.10,
+        note="Humbird's oxygen transfer (29 mmol/L/h at kLa 26.4 per hour, 90% oxygen) implies his tank is held at 0.28 mmol/L, "
+             "130% of air saturation. Pharma holds 30-50%; cells grow unimpaired at roughly 10-100%, and 200% slowed CHO "
+             "(gas_exchange_study.md). A lower setpoint widens the driving force for oxygen and needs nothing new. Applied "
+             "to every scenario since 2026-11-16 (design_space.py found it unused); Humbird's optimistic design keeps his 0.28."),
+    "sc_do_scenarios": Input(1.0, "switch", "[model choice, 2026-11-16] 1: the scenarios hold dissolved oxygen at "
+        "sc_do_setpoint; 0: at the level Humbird's tank implies (earlier versions, and the side studies' snapshots)"),
     "sc_restart_neighbour": Input(4.0, "days", "[arithmetic, judgement] a lost tank reseeded with half the culture of a healthy "
         "neighbouring tank, in place of a new seed train: about 2 days to empty, clean and steam the tank, about 1 doubling to regrow "
         "both tanks to working density, and the neighbour's lost output counted as about 1 more day of the lost tank's time",

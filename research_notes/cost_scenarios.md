@@ -21,18 +21,23 @@ keeps it for the side studies. The forecast row is the author's median for each 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($51–81) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$31.3** ($29–40) | 3.03 | 0.4% | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
-| 3. Plus cells selected for low waste (Central) | **$29.9** ($27–38) | 2.91 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | 0.5% | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.23 | 7.9% | **3.8%** (1.2–9.7%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$25.0** ($24–33) | 2.50 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
+| 2. Plus process changes and cheaper inputs | **$30.7** ($28–39) | 2.98 | 0.4% | **0.2%** (0.0–0.6%) | needs a change of feed, process or plant |
+| 3. Plus cells selected for low waste (Central) | **$29.4** ($27–38) | 2.87 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.6** ($25–35) | 2.63 | 0.5% | **0.3%** (0.1–0.8%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.22 | 8.0% | **3.8%** (1.2–9.8%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$24.8** ($23–33) | 2.48 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($10–15) | 1.46 | 4.3% | **2.4%** (0.7–6.9%) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34.4** | 3.28 | 0.3% | **0.2%** (0.0–0.6%) | a company's own report |
 
-What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $19.17 off
+What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
 (chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
-medium $2.87; together, with the tank design chosen again, $31.63, to $31.33. Selection then takes $1.41 off (Central $29.92), the
-plant with shared medium $3.11 ($26.81), and engineered cells with every switch at its cheapest plausible setting $17.11 ($9.71).
+medium $2.87; together, with the tank design chosen again, $32.23, to $30.73. Selection then takes $1.31 off (Central $29.42), the
+plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66).
+
+**Since 2026-11-16 every scenario holds dissolved oxygen at about half of air saturation** (`scenarios.always`, `sc_do_setpoint`), which
+took Central from $29.92 to $29.42 and let the best case reach the thickness limit with recycled oxygen and a squat tank ($9.66). **The
+sections below this one were computed before that change** and keep their figures (Central $29.92, best case $9.71); the differences are
+under $0.6 a kilo.
 
 ## Why scenarios, not a floor
 

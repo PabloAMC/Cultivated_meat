@@ -45,12 +45,26 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **Comparable shares:** every row gives the share at its point cost and the median of draws (Humbird's design 2.4% median, best case 3.8%).
 - [ ] **Growth factors are a separate line from the medium.** They are dissolved in the medium, but priced separately: the model's medium price is the
       nutrients, and whether the prices companies announce include growth factors is rarely stated. Say so on the page, or fold them into one "medium with growth factors" figure.
-- [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
+- [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap; `cfd_plan.md` step 3). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
 
 - [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
 - [ ] **Do announced medium prices include growth factors?** Sources rarely say. If they do, Central double-counts up to $3.0 a kilo.
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
+
+From the design search (`design_space.py`):
+
+- [x] The lower dissolved-oxygen setpoint is in every scenario (`sc_do_setpoint`, 2026-11-16): Central $29.92 → $29.42, best $9.71 → $9.66.
+- [ ] The design search and `scenarios.design` drop a design whose column loop fails at full density; running it thinner might pass
+      (the vessel grid now does, `vessels._thinned`).
+- [ ] Add the missing options to the search as levers: two spargers, gas exchange on the filter loop, restart from a neighbour.
+- [ ] Weight "unproven elements" by the odds in the research notes, to rank designs by expected cost.
+
+From the design-tricks survey (`bioreactor_design_tricks.md`):
+
+- [ ] **Two spargers** (a microsparger for oxygen, a drilled pipe for CO₂) as a lever: standard practice, and oxygen now binds Central.
+- [ ] **Gas exchange on the filter loop**: cost the column or a membrane module sharing the perfusion loop's pump and piping.
+- [ ] **A non-bicarbonate buffer or a different base**, to test whether the salt limit is real where CO₂ tolerance should help.
 
 Things only Pablo can do:
 
@@ -84,7 +98,7 @@ In the suggested order (roadmap, section 3). Status: idea / started / done.
 | P | **Plant capital for animal cells**: an itemised, quoted cost of one food-grade 20 m³ sterilisable line (tank, piping, instruments, seed, medium sterilisation, cleaning) | idea | `industry_claims.py` shows company COGS agree with the model; the plant charge is the gap ($9–33/kg). Two or three vendor quotes or an engineering firm's costed design |
 | B | Inverse model: what a cell line must deliver for a target cost | idea | #29 (frontier) is the forward version; this inverts it into a spec |
 | C | Value of information: which experiment buys the most $/kg | idea | uses B and the odds in the gas-exchange and frontier notes |
-| A | FluidX3D tank: validate, mixing vs shape, the column's return plume | idea | first step: does FluidX3D run under OpenCL on the M4 |
+| A | FluidX3D tank: validate, mixing vs shape, the column's return plume, the bubble cage's mesh | started | runs on the M4, pipe flow validated in 32-bit (`cfd_plan.md`); next: Rushton power number and mixing time |
 | E | Hybrids and fat: cells as 5–20% of a plant-based product | idea | the near-term case for animals |
 | D | Reported-run ledger with mass-balance flags | idea | merges T and S of the old list |
 | G | Medium regeneration TEA | idea | sizing done in `waste_tricks_sizing.md` |

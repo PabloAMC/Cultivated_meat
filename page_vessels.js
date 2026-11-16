@@ -28,6 +28,13 @@ function vmKwargs(v,m,base){                    // mirror of vessels.explore_kwa
   return p;
 }
 function vmLoopOk(r){ const c=r.column; return !c||(c.ph_vs_safe<=1+1e-9&&c.passes_tested); }
+function vmThinned(kw,xHi){                     // mirror of vessels._thinned: the densest culture whose loop passes its checks
+  let lo=0, hi=xHi, ok=null;
+  for(let i=0;i<24;i++){ const mid=0.5*(lo+hi), caps=Object.assign({},kw.vm.caps||{}); caps[VM.loop_limit]=mid;
+    const r=floorExplore(Object.assign({},kw,{vm:Object.assign({},kw.vm,{caps:caps})}));
+    if(vmLoopOk(r)){ lo=mid; ok=r; } else hi=mid; }
+  return ok;
+}
 function vmCell(v,m,base){                      // mirror of vessels.cell
   const key=v+"|"+m, tag=VM.tags[key];
   const p=vmKwargs(v,m,base);
@@ -37,10 +44,12 @@ function vmCell(v,m,base){                      // mirror of vessels.cell
     unchecked=r.total; let best=null;
     scSwitch("tricks").settings.forEach(st=>{
       const b=Object.assign({},base); VM.trick_args.forEach(k=>{ delete b[k]; });
-      const rr=floorExplore(vmKwargs(v,m,Object.assign(b,st.p)));
-      if(vmLoopOk(rr)&&(best===null||rr.total<best[1].total-1e-12)) best=[st,rr];
+      const kw2=vmKwargs(v,m,Object.assign(b,st.p));
+      let rr=floorExplore(kw2), thin=false;
+      if(!vmLoopOk(rr)){ rr=vmThinned(kw2,rr.density); thin=true; }      // the same tricks with the culture run thinner
+      if(rr!==null&&(best===null||rr.total<best[1].total-1e-12)) best=[st,rr,thin];
     });
-    r=best[1]; fallback=best[0].label;
+    r=best[1]; fallback=best[0].label+(best[2]?VM.thin_note:"");
   }
   let big="capital"; Object.keys(VM.biggest).forEach(k=>{ if(r[k]>r[big]) big=k; });
   return {possible:true, cost:r.total, limit:r.limit, density:r.density, output:r.output, medium_l:r.medium_l, uptime:r.uptime,
@@ -58,7 +67,7 @@ function vmTagChip(t){ const cls=t===VM.tag_order[0]?"vt-today":t===VM.tag_order
 function vmFallbackText(c){      // mirror of page_sections._vm_fallback_text
   return 'The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go '+
     'with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost '+
-    'here uses the most that passes that check: “'+c.tricks_fallback+'”. With the scenario’s own tricks it would be '+vmMoney(c.unchecked_cost)+'.'; }
+    'here uses what passes that check: “'+c.tricks_fallback+'”. With the scenario’s own tricks at full density it would be '+vmMoney(c.unchecked_cost)+'.'; }
 function vmCellHTML(c,v,m){
   if(!c.possible) return '<td class="vno"><b>Not possible</b><br><span class="alt">'+c.reason+'</span></td>';
   if(c.same_as) return '<td class="vsame"><b>As batch</b><br><span class="alt">'+VM.same_as[v+"|"+m][1]+'</span></td>';

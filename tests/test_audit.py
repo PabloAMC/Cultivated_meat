@@ -41,7 +41,7 @@ def check() -> list:
     if abs(other["p50"] - cen["p50"]) > 1.0:
         fails.append("the median should not move by $1 between seeds")
     # pinned (seed 0, 1,000 draws)
-    for name, s, want in (("central P50", cen["p50"], 38.08), ("central P10", cen["p10"], 27.55), ("best P50", best["p50"], 15.52)):
+    for name, s, want in (("central P50", cen["p50"], 37.44), ("central P10", cen["p10"], 27.03), ("best P50", best["p50"], 15.48)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
     # the retail translation: the flat markup is the model's; a proportional chain gives a dearer shelf price and a lower parity cost

@@ -197,7 +197,15 @@ def explore_kwargs(choice: dict) -> dict:
     kw = {}
     for s in SWITCHES:
         kw.update(setting(s.key, choice[s.key]).kw)
+    kw.update(always())
     return kw
+
+
+def always() -> dict:
+    """explore() arguments every scenario carries whatever its switches: the dissolved-oxygen setpoint (sc_do_setpoint,
+    about half of air saturation, as pharma holds it; Humbird's tank implies 130%). Read at call time, so a test can set
+    sc_do_scenarios to 0 to reproduce earlier figures."""
+    return {"do_mmol": value("sc_do_setpoint")} if value("sc_do_scenarios") >= 0.5 else {}
 
 
 def run(choice: dict, **extra) -> dict:
@@ -506,7 +514,8 @@ def interactions(choice: dict, top: int = 4, min_gap: float = 0.25) -> list:
             out.append({"a": a, "b": b, "gap": gap, "ga": ga, "ga_with_b": ga_with_b, "gb": gb, "gb_with_a": gb_with_a,
                         "text": f"Setting {sa.name.lower()} to \u201c{la}\u201d would save ${ga:.1f} a kilo as things stand. "
                                 f"It would save ${ga_with_b:.1f} if {sb.name.lower()} were \u201c{lb}\u201d. {how}"})
-    return sorted(out, key=lambda r: -abs(r["gap"]))[:top]
+    # ties (two pairs with the same gap to nine decimals) keep the switches' order, so the page's JavaScript sorts alike
+    return sorted(out, key=lambda r: (-round(abs(r["gap"]), 9), KEYS.index(r["a"]), KEYS.index(r["b"])))[:top]
 
 
 # ----------------------------------------------------------------------------
@@ -595,6 +604,7 @@ def js_model() -> dict:
                for k in SCENARIOS}
     band = {k: bands(SCENARIOS[k].choice) for k in SCENARIOS}
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
+            "always": _js_params(always()),
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
             "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band}
 

@@ -61,6 +61,9 @@ python tests/test_filter_flux.py
 echo "==> the model against company claims"
 python tests/test_industry_claims.py
 
+echo "==> the tank design search"
+python tests/test_design_space.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

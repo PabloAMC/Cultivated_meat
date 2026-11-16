@@ -249,6 +249,11 @@ median of the share draws.** The share at the scenario's point cost is higher, b
 share rises steeply as the price falls. The page keeps the point estimate, labelled. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
+**What every scenario carries** (`scenarios.always`, 2026-11-16): dissolved oxygen held at `sc_do_setpoint` (0.10 mmol/L, about half
+of air saturation, as pharma holds it), in place of the 0.28 mmol/L (130%) that Humbird's oxygen transfer implies. It widens the oxygen
+driving force and needs nothing new; `design_space.py` found it free and unused. Humbird's optimistic design keeps his level. Switch
+`sc_do_scenarios` = 0 restores the earlier figures (the side studies' tests use it).
+
 **The ladder** (`scenarios.LADDER`, 2026-11-16). The page and RESULTS lead with five rungs, each adding one kind of change to the
 one before, ordered by the tag of what it needs (nothing new or a change of feed or process, then selection, then genetic
 engineering): `today` (measured cells, no tank tricks, the ordinary tall tank, today's input prices; its tricks and shape are fixed,
@@ -261,11 +266,11 @@ headline table gives the share at its point cost and the median of draws; `bands
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($51–81) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$31.3** ($29–40) | 3.03 | 0.4% | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
-| 3. Plus cells selected for low waste (Central) | **$29.9** ($27–38) | 2.91 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | 0.5% | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.23 | 7.9% | **3.8%** (1.2–9.7%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$25.0** ($24–33) | 2.50 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
+| 2. Plus process changes and cheaper inputs | **$30.7** ($28–39) | 2.98 | 0.4% | **0.2%** (0.0–0.6%) | needs a change of feed, process or plant |
+| 3. Plus cells selected for low waste (Central) | **$29.4** ($27–38) | 2.87 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.6** ($25–35) | 2.63 | 0.5% | **0.3%** (0.1–0.8%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.22 | 8.0% | **3.8%** (1.2–9.8%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$24.8** ($23–33) | 2.48 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($10–15) | 1.46 | 4.3% | **2.4%** (0.7–6.9%) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34.4** | 3.28 | 0.3% | **0.2%** (0.0–0.6%) | a company's own report |
 

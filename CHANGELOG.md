@@ -2,6 +2,39 @@
 
 ## 2026-11-16
 
+Every scenario holds dissolved oxygen at half of air saturation (`scenarios.always`, `sc_do_setpoint`; **numbers move, down**)
+- Humbird's oxygen transfer implies a tank held at 0.28 mmol/L (130% of air saturation). Pharma holds 30-50%. The scenarios now hold
+  0.10 mmol/L (about 47%), which widens the oxygen driving force and needs nothing new. Found by `design_space.py`. Humbird's optimistic
+  design keeps his level. Switch `sc_do_scenarios` = 0 restores the earlier figures; the side studies' snapshot tests use it.
+- Scenarios (designs chosen again): rung 2 $31.33 → $30.73, Central $29.92 → **$29.42** (191 g/L, oxygen), with shared medium $26.81 →
+  $26.56, best case $9.71 → **$9.66** (now at the thickness limit, with recycled oxygen and a squat tank), forecast $25.04 → $24.80.
+  Median shares unchanged to one decimal. The first change in this model's history that lowers a headline.
+- Recomputed with it: the frontier ($7.03 → $6.85, just under parity), filter flux (Central $48.59 at 1,200 L/m², $94.63 at 450), the
+  audit (Central's median over all ranges $36), the company-claims split, the design search (the setpoint is no longer an option: 144
+  designs), the vessel grid, RESULTS, METHODS and the notes' ladder sections.
+- Vessel grid: a vessel whose column loop fails its checks at full density now runs thinner until it passes (`vessels._thinned`,
+  mirrored on the page), in place of dropping the tricks. Central in an airlift: $30.88 at 139 g/L.
+- `scenarios.interactions` breaks ties by the switches' order, so Python and the page sort alike.
+
+How far tank design can go (`design_space.py`, `research_notes/design_space.md`; no default changed, no number moved)
+- Method: price each limit first (`limit_prices`: the cost if CO₂, oxygen, mixing, the thickness limit, the litres of medium, the
+  membranes and others were free), then search every combination of the tank options the model has (288 designs a scenario, under two
+  seconds for all), keep those whose column loop passes its checks, and compare with the ordinary tank with every gas limit lifted.
+- Findings: tank design is worth $28/kg for today's cells ($62.96 to $34.80) and $1.4–2.8 beyond the scenarios' own designs from
+  rung 2 on ($0.4 in the best case). Designs that leave only the thickness limit binding exist: a bubble cage with 1 bar, or 2 bar
+  without a cage. Holding dissolved oxygen at half of air saturation is standard practice, unused by the scenarios, and worth $0.5 in
+  Central. After the gas limits, the litres of medium dominate ($15.7 in Central against $2.2 for perfect gas exchange).
+- The search reproduces every scenario's own tank design exactly. `tests/test_design_space.py`, in `run_tests.sh`.
+
+Bioreactor design tricks and a CFD plan (`research_notes/bioreactor_design_tricks.md`, `research_notes/cfd_plan.md`; no number moved)
+- A catalogue of tank design tricks by what they relieve (CO₂, oxygen, mixing, salt, heat), whether something fundamental stops them
+  scaling (surface-to-volume, depth, flow-path length, foam, regulation), and where each sits in the model. Today's cells are CO₂-bound;
+  Central and the best case are oxygen-bound, so oxygen per watt (two spargers, impellers, antifoam) is now the lever. Not yet in the
+  model: two spargers, gas exchange on the filter loop. Perfluorocarbon oxygen carriers are PFAS, close to a non-starter for food.
+- The CFD plan: four steps from validation to bubbles, each replacing a named model input. FluidX3D v3.9 builds and runs on the Apple M4
+  (505 million updates a second in 32-bit, 766 in 16-bit; one buffer of at most 2.27 GB caps the grid at about 30 or 60 million cells).
+  The laminar pipe-flow check converges to 0.16% error in 32-bit but stalls at 23% (FP16S) and 15% (FP16C): use 32-bit for validation.
+
 A stirred tank with a bubble cage (Pablo's design; `vessels.py` row "caged", inputs `vm_cage_*`; no scenario uses it, no number moved)
 - An inner cylinder of fine mesh holds a strong sparger; the cells live in the ring around it with the scenario's own soft bubbling.
   The cage's gas (6 mm/s over the tank, 3-12) adds to the ring's, discounted to 80% (0.5-1) because only medium crosses the mesh;

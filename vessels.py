@@ -248,12 +248,31 @@ def explore_kwargs(vessel: str, mode: str, base: dict | None = None) -> dict | N
 LIMIT_PLAIN = {"CO2 removal": "clearing CO₂", "oxygen supply": "getting oxygen in", "mixing": "mixing",
                "thickness of the culture": "how thick the culture can be", "waste build-up": "waste building up",
                "other by-products": "other waste and spent food", "food in one fill": "the food in one fill",
-               "room on the carriers": "room on the carriers", "room between the fibres": "room between the fibres"}
+               "room on the carriers": "room on the carriers", "room between the fibres": "room between the fibres",
+               "what the column can strip safely": "what the column can strip safely"}
 
 UNSHOWN_NOTE = "This density is not shown for meat cells."
 
 BIGGEST = {"capital": "the plant", "feedstock": "the medium", "consumables": "what is thrown away",
            "labour": "labour", "growth_factors": "growth factors", "utilities": "utilities"}
+
+
+THIN_NOTE = ", with the culture run thinner"
+LOOP_LIMIT = "what the column can strip safely"
+
+
+def _thinned(kw: dict, x_hi: float, steps: int = 24):
+    """The densest culture (g/L) at which the column loop of `kw` passes its checks, by bisection between 0 and `x_hi`; the
+    explore() result there, or None if no density passes. page_vessels.js (vmThinned) does the same steps."""
+    lo, hi, ok = 0.0, float(x_hi), None
+    for _ in range(steps):
+        mid = 0.5 * (lo + hi)
+        r = fp.explore(**{**kw, "vm": {**kw["vm"], "caps": {**kw["vm"].get("caps", {}), LOOP_LIMIT: mid}}})
+        if _loop_ok(r):
+            lo, ok = mid, r
+        else:
+            hi = mid
+    return ok
 
 
 def cell(vessel: str, mode: str, base: dict | None = None) -> dict:
@@ -272,10 +291,13 @@ def cell(vessel: str, mode: str, base: dict | None = None) -> dict:
         best = None
         for st in S.SW["tricks"].settings:
             b = {k: v for k, v in (base or {}).items() if k not in _TRICK_ARGS}
-            rr = fp.explore(**explore_kwargs(vessel, mode, {**b, **st.kw}))
-            if _loop_ok(rr) and (best is None or rr["total"] < best[1]["total"] - 1e-12):
-                best = (st, rr)
-        r, fallback = best[1], best[0].label
+            kw2 = explore_kwargs(vessel, mode, {**b, **st.kw})
+            rr, thin = fp.explore(**kw2), False
+            if not _loop_ok(rr):                # the same tricks with the culture run thinner, so the loop passes its checks
+                rr, thin = _thinned(kw2, rr["density"]), True
+            if rr is not None and (best is None or rr["total"] < best[1]["total"] - 1e-12):
+                best = (st, rr, thin)
+        r, fallback = best[1], best[0].label + (THIN_NOTE if best[2] else "")
     parts = {k: r[k] for k in BIGGEST}
     big = max(parts, key=parts.get)
     return {"possible": True, "cost": r["total"], "limit": r["limit"], "density": r["density"], "output": r["output"],
@@ -320,7 +342,7 @@ def js_model() -> dict:
             "trick_args": [jsn.get(k, k) for k in _TRICK_ARGS], "biggest": BIGGEST,
             "str_m3": value("vm_str_m3"), "labour_exp": value("vm_labour_exp"), "restart": value("vm_restart_cycle_days"),
             "batch_x": value("vm_batch_x"), "limit_plain": LIMIT_PLAIN, "x_meat_shown": value("vm_x_meat_shown"),
-            "unshown_note": UNSHOWN_NOTE}
+            "unshown_note": UNSHOWN_NOTE, "thin_note": THIN_NOTE, "loop_limit": LOOP_LIMIT}
 
 
 def settings() -> dict:

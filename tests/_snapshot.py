@@ -4,7 +4,8 @@ Several side studies (tank size, thick culture, growth-factor and doubling bound
 per kg, the case without perfusion) were written before the bubble protectant, the antifoam's effect on oxygen
 transfer and the yeast-style plant's bought oxygen were counted (2026-11-15, late). Their tests pin the figures their
 notes quote, so they set those three inputs back for the whole process. Import this module BEFORE any model module
-other than `inputs` and `floor_physics`, so the scenarios' tank designs are chosen under the same settings.
+other than `inputs` and `floor_physics`, so the scenarios' tank designs are chosen under the same settings. Since 2026-11-16 the
+same settings also put the scenarios' dissolved-oxygen setpoint back to the level Humbird's tank implies (`sc_do_scenarios` = 0).
 """
 from dataclasses import replace
 
