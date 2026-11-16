@@ -118,10 +118,29 @@ function scSyncRail(){
   const reported=(SCS.src==="reported");
   ["media_price","efficiency","overhead"].forEach(k=>{ const e=document.getElementById("r_"+k); if(e) e.disabled=!reported; });
   const cb=document.getElementById("t_cleanroom"); if(cb) cb.disabled=!reported;
+  scLockNotes(reported);
   const n=document.getElementById("sc_railnote");
   if(n) n.innerHTML=reported?"The cost comes from the three sliders below. They describe the process one company reports.":
     "The cost comes from the scenario chosen above (<b>"+scOwnName()+"</b>). The medium price, plant cost and cell efficiency sliders apply only to “As a company reports”.";
   const sel=document.getElementById("sc_railsel"); if(sel) sel.value=reported?"reported":(SCS.src==="custom"?"own":(SCS.preset||"own"));
+}
+// under each locked slider: what the chosen scenario uses instead, which switch sets it, and how to unlock the slider
+function scLockNotes(reported){
+  const r=(SCS.src==="scenario")?scEval(SCS.choice):null;
+  const mp=r?scSetting("medium",SCS.choice.medium).p.medium_price:null;
+  const own=SCS.src==="custom"?"the levers you set in “All the levers”":"the scenario chosen above";
+  const txt={
+    media_price: r?'This scenario uses <b>$'+mp.toFixed(2)+' a litre</b>, set by the switch “Price of the medium” in <a href="#decide">What decides it</a>.':'Set by '+own+'.',
+    overhead: r?'This scenario’s plant and running costs come to <b>$'+(r.total-r.feedstock-r.growth_factors).toFixed(1)+' a kilo</b>, built from the plant, the tank, the gas and the losses switches in <a href="#decide">What decides it</a>.':'Set by '+own+'.',
+    efficiency: r?'This scenario’s cells need <b>'+r.medium_l.toFixed(0)+' litres of medium a kilo</b>, set by the switches “Kind of cells” and “Growth speed”.':'Set by '+own+'.'};
+  ["media_price","efficiency","overhead"].forEach(k=>{
+    const e=document.getElementById("r_"+k); if(!e) return;
+    const ctl=e.closest(".ctl"); let nt=ctl.querySelector(".locknote");
+    if(!nt){ nt=document.createElement("div"); nt.className="locknote"; ctl.appendChild(nt); }
+    nt.style.display=reported?"none":"block";
+    if(!reported) nt.innerHTML='Locked: this slider describes the process one company reports. '+txt[k]+
+      ' <a href="#" onclick="scApply(\'reported\');return false">Use the company’s process</a> to move it.';
+  });
 }
 function scRailBuild(){
   const sel=document.getElementById("sc_railsel"); if(!sel) return;
@@ -142,10 +161,11 @@ function scResultHTML(ch,r){
     '&times; everyday meat) &nbsp; '+shareStrip;
   const el0=document.getElementById("sc_strip"); if(el0) el0.innerHTML=strip;
   const usEu=' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). ';
-  let h='<p>The long-run share of world meat is '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>. This is the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the four scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+world.toFixed(1)+'%'+usEu
+  let h='<p>The long-run share of world meat is '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>. This is the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the named scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+world.toFixed(1)+'%'+usEu
       :'<b>'+world.toFixed(1)+'%</b> by weight'+usEu+'This is a point estimate. There is no band for settings you have changed. ')+
     'The shop price adds '+scMoney(markup,0)+' a kilo for processing, packaging and retail margin. Everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
+    ((r.column&&r.limit==="oxygen supply")?'Oxygen, not CO₂, limits it because the column beside the tank takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. Without the column, CO₂ would limit it first. ':'')+
     'Each kilo of cells needs '+r.medium_l.toFixed(0)+' litres of medium, set by <b>'+med+'</b>.</p>';
   if(need.length){ h+='<p class="scneed"><b>What has to go right:</b> '+scTagChip(scHardest(ch))+' at the hardest. '+
     need.map(x=>x[1]+' <i>('+x[2]+')</i>').join(". ")+'.</p>'; }
