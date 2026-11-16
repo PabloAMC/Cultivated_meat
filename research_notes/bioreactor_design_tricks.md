@@ -71,7 +71,7 @@ question for the next pass.
 | Recombinant oxygen-carrying proteins | oxygen capacity | cost | no |
 | A non-bicarbonate buffer (for example HEPES) | the salt budget at high CO₂ | cost per litre, and food status | no; worth a check because the salt limit binds |
 | Base choice (sodium hydroxide vs carbonate) | salt and CO₂ load | yes | no |
-| Ammonia sorbent, dialysis, regeneration | medium per kg | yes | the sorbent lever; regeneration is project G |
+| Ammonia sorbent, electrodialysis, dialysis | medium per kg (not the cell filter, unless the exchange is across the culture) | yes | the sorbent lever; `medium_reuse.py` and `medium_reuse.md` price the others |
 
 ### E. Vessel and mixing
 

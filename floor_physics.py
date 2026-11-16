@@ -437,7 +437,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       * `nh3_kg` (mol ammonia per kg wet cells) and `lac_yield` x `glc_kg` (mol lactate per mol glucose x mol
         glucose per kg) set the two wastes explicitly, as measured, with no scaling; left unset, `waste` sets
         both as before (0 = Humbird's enhanced cells, 1 = ordinary cells).
-      * `sorbent`: the share of the ammonium taken out of the cell-free permeate by an exchanger before it
+      * `sorbent` (the filter still passes the liquid the exchanger treats, so only medium, growth factors and
+        protectant are saved, not membranes; corrected 2026-11-16, medium_reuse.py): the share of the ammonium taken out
+        of the cell-free permeate by an exchanger before it
         returns, at `sorbent_q` mmol/g, `sorbent_price` $/kg and `sorbent_cycles` uses; the sodium it gives back
         stays in the medium and counts towards the salt limit.
       Cell side:
@@ -645,6 +647,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     ret_capex = membranes = 0.0
     if tff:                                            # the TFF loop clears what the bleed of cells does not carry out
         perm = max(0.0, medium_l - 1000.0 / x)                                         # litres per kg grown
+        if sorb > 0:        # the permeate sent through the exchanger and back passes the filter too: the ammonium it takes
+            perm += sorb * nh3 / ((value("pf_nh3_limit") if nh3_limit is None else nh3_limit) / 1000.0)   # / tank level
         kg_h = out * 1000.0 / (HOURS * uptime)                                          # kg per hour per m3 of tank
         area = perm * kg_h / (value("rt_flux_lmh") if flux is None else flux)           # m2 of membrane per m3 of tank
         ret_capex = area * value("rt_tff_hw") * value("rt_install")                     # $k per m3 of tank

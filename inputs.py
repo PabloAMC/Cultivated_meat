@@ -978,6 +978,41 @@ REGISTRY: dict[str, Input] = {
         "the soft bubbling in the cells' ring", lo=0.003, hi=0.012, mode=0.006),
     "vm_cage_capex_ratio": Input(1.15, "x stirred tank", "[judgement] a stirred tank plus the mesh cylinder: a patent "
         "notes that large fine-mesh parts for gas exchange could be very costly to make", lo=1.05, hi=1.4, mode=1.15),
+    # --- reusing the medium (medium_reuse.py; research_notes/medium_reuse.md) ---------------------------------
+    "mr_ed_nh3": Input(0.90, "share removed per pass", "[Nir 2023, as cited in Soccol et al. 2024, ch. 'Waste management'; secondary, primary "
+        "not found] ammonium taken out of culture medium by electrodialysis with selective membranes: 'over 90%'",
+        lo=0.5, hi=0.95, mode=0.90,
+        note="Chang, Grodzinsky and Wang 1995 (abstract) removed 10 mM added ammonium completely from hybridoma medium at 50 A/m2"),
+    "mr_ed_lac": Input(0.99, "share removed per pass", "[Nir 2023, as cited in Soccol et al. 2024; secondary] lactate taken out by the same "
+        "electrodialysis: '99%'", lo=0.5, hi=0.99, mode=0.99),
+    "mr_ed_cost_l": Input(0.02, "$/L treated", "[my arithmetic, not a quote] electrodialysis of cell-free permeate: electricity, "
+        "ion-exchange membranes and the salt it strips with the waste",
+        lo=0.005, hi=0.10, mode=0.02,
+        note="a litre at the limits holds about 0.03 mol of ammonium and lactate against 0.28 mol of other ions, so without "
+             "selective membranes 5-20% of the current does the job: 0.15-0.6 mol of charge a litre, 0.006-0.024 kWh at 1.5 V "
+             "($0.001-0.002), 0.04-0.16 m2.h of membrane at 100 A/m2 ($0.0005-0.005 at $200/m2 over 1-2 years), and "
+             "$0.002-0.007 of salt put back. No price for a food-grade, sterilisable stack was found; hi allows five times more."),
+    "mr_dial_removal": Input(0.90, "share removed per pass", "[YekrangSafakar et al. 2022, via waste_and_medium_evidence.md] small molecules "
+        "taken out by dialysis against basal medium: lactate fell 92% in a CHO culture at 73 million cells/mL",
+        lo=0.7, hi=0.95, mode=0.90, note="ammonia and the other small by-products are assumed to follow lactate; not measured"),
+    "mr_dialysate_l": Input(2.1, "L per L treated", "[YekrangSafakar et al. 2022, my reading in waste_and_medium_evidence.md] "
+        "dialysate used per litre of medium regenerated, when the dialysate is thrown away", lo=1.0, hi=4.0, mode=2.1),
+    "mr_dialysate_makeup": Input(0.10, "share replaced", "[patent claim WO2018011805, Yissum / Future Meat: 'at least 90% of the "
+        "perfusion solution recirculated'] dialysate replaced per pass when the dialysate itself is cleaned and reused",
+        lo=0.05, hi=0.5, mode=0.10, note="a patent claim, not a measurement"),
+    "mr_dial_cost_l": Input(0.05, "$/L treated", "[assumed] the dialyser's membranes per litre of permeate treated",
+        lo=0.01, hi=0.37, mode=0.05,
+        note="no price per litre for a reusable dialyser in culture was found; hi is the model's cost of filtering a litre "
+             "through the cell-retention fibres (rt_membrane_price / rt_membrane_life)"),
+    "mr_gf_kept": Input(0.9, "share kept per pass", "[assumed] growth factors still active in treated liquid: proteins do not cross "
+        "ion-exchange or dialysis membranes, but some stick or decay; not measured in any source found",
+        lo=0.5, hi=1.0, mode=0.9,
+        note="a stem-cell-medium patent reports glucose losses of up to 32% on sorbents (waste_tricks_sizing.md); nothing on proteins"),
+    "mr_exchange_clearance": Input(10.0, "L/m2/h", "[memory, not checked this session] small solutes a haemodialyser clears "
+        "by diffusion, as litres of fluid fully cleared per m2 an hour: urea clearance of 250-300 mL/min over 1.8 m2 of fibre",
+        lo=5.0, hi=15.0, mode=10.0,
+        note="measured on blood (30-40% cells) over 4-hour sessions, not on a meat-cell culture over weeks; against the "
+             "5 L/m2/h (rt_flux_lmh) a cell filter passes"),
     "sc_do_setpoint": Input(0.10, "mmol O2/L", "[gas_exchange_study.md 10.2; pharma practice, snippet-level sources] dissolved "
         "oxygen the scenarios hold the tank at: about 47% of air saturation (air at 37 C: 0.21 mmol/L)",
         lo=0.05, hi=0.28, mode=0.10,

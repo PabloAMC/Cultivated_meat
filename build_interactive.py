@@ -1484,7 +1484,7 @@ After that it compares <b>vessels and ways of running a tank</b>. It ends with e
             <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. It saves fresh medium but not the cell filter: the liquid it cleans has passed the filter too. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
           <div class="ctl"><label><span class="nm">Sorbent price</span></label>
             <select id="fx_spx" onchange="fxRender()"><option value="0.05">$0.05/kg (bulk zeolite)</option>
             <option value="0.3">$0.30/kg (bulk zeolite, top)</option><option value="5" selected>$5/kg (graded and sterile, assumed)</option>
@@ -3959,7 +3959,8 @@ function floorExplore(p,noSearch){
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   let consumables=F.consumables, retCapex=0, membranes=0;
   if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
-    const perm=Math.max(0,ml-1000/lim[1]), kgH=out*1000/(8760*uptime);
+    let perm=Math.max(0,ml-1000/lim[1]); const kgH=out*1000/(8760*uptime);
+    if(sorb>0) perm+=sorb*nh3/(F.nh3_limit/1000);     // the permeate sent through the exchanger and back passes the filter too
     const area=perm*kgH/(p.flux===undefined?F.tff.flux:p.flux);
     retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/(p.membrane_life===undefined?F.tff.mem_life:p.membrane_life);
     capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes; }
