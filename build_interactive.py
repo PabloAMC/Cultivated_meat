@@ -1346,6 +1346,7 @@ them by what each would be worth if it moved to its best or its worst setting.</
 <div class="scpre" id="sc_presets"></div>
 <div class="scstrip" id="sc_strip"></div>
 <div class="fxcard" id="sc_result"></div>
+<div id="sc_parts" class="scrollx" style="margin:6px 0 10px"></div>
 <div class="fxg scsw" id="sc_switches"></div>
 <p><button class="btn scbtn" style="width:auto" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
 <span class="fxn">This tries every tank trick and shape, and keeps the cheapest one that passes the checks on the CO&#8322; loop.</span></p>
