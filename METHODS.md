@@ -305,6 +305,20 @@ the chance of falling at or below stated costs, and rank correlations. `audit.re
 with a proportional retail chain. `audit_history.py` checks out each commit that touched the cost code and runs the model, which gives
 the history of the headline numbers. Findings: `research_notes/model_audit.md`.
 
+### The filter's flux limit (`filter_flux.py`, added 2026-11-15)
+
+`backtransport_lmh` is the shear-induced back-transport ceiling, J = 0.078 x shear x (phi_w a^4 / (phi_b L))^(1/3) x ln(phi_w/phi_b)
+(Vyas 1999, Eq. 2.18, restating Belfort, Davis and Zydney 1994; Davis and Sherwood's 0.072 form is the second option), with
+`ff_*` inputs. `cost_at` reprices a scenario at any filter flux and membrane life through `retention._with`. Findings: `research_notes/filter_flux.md`.
+
+### The frontier (`frontier.py`, added 2026-11-15)
+
+`frontier.ladder` starts from the central scenario and applies, in order, the levers `min_litres` (least medium per kg, `explore(medium_l=)`),
+doubling time, the filter device (`retention`), the medium price, growth factors returned by a protein-retaining filter
+(`gf_doubling_bounds.reuse`, capped at the share charged without the filter), the density limit (`thick_culture`), the plant, the losses and the gas; each is kept. `frontier.alone` applies each to Central
+alone. `frontier.with_gfi_amino_acids` replaces the nutrient floor with GFI's prices (`nutrient_floor`). Findings and odds:
+`research_notes/frontier.md`.
+
 ### If perfusion cannot be run at 20 m3 (`downside.py`, added 2026-11-15)
 
 For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the
