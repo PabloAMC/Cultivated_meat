@@ -2,6 +2,20 @@
 
 ## 2026-11-16
 
+A stirred tank with a bubble cage (Pablo's design; `vessels.py` row "caged", inputs `vm_cage_*`; no scenario uses it, no number moved)
+- An inner cylinder of fine mesh holds a strong sparger; the cells live in the ring around it with the scenario's own soft bubbling.
+  The cage's gas (6 mm/s over the tank, 3-12) adds to the ring's, discounted to 80% (0.5-1) because only medium crosses the mesh;
+  capital 1.15x a stirred tank. All three are judgements; caged aeration is known only with microcarriers in small tanks.
+- Perfusion: reference $11.08 (plain tank $12.51), Central $27.72 ($29.92), today's cells $39.23 ($62.96).
+- `vessels_and_modes.md` section 9: the design, the gas-filled variant (a membrane: about 9 m² of wall against 1,200-1,500 m² needed
+  for CO₂), and a table of other ways to keep bubbles from cells. RESULTS' vessel table gains the row. `floor_physics.explore` reads
+  two new vessel keys, `co2_mult` and `no_protectant` (unused by any row now), mirrored in the page.
+
+Restart from a neighbouring tank (`sc_restart_neighbour`, a fourth setting of "Restart after a loss"; no scenario uses it, no number moved)
+- A lost tank reseeded with half the culture of a healthy neighbour: 4 days (3-7) in place of 14 with a fresh seed train, which needs
+  about 7 doublings. Worth $0.8 a kilo in Central, $5.6 for today's cells (rung 1, which restarts in 21 days). The donor must test clean.
+- The page explains why the company sliders are locked and when oxygen, not CO₂, limits the tank (PR #36).
+
 The scenarios as a ladder ordered by difficulty (`scenarios.LADDER`, `PAGE_ORDER`; Pablo's review; no cost of an existing scenario moved)
 - Five rungs, each adding one kind of change: 1. today's measured cells in an ordinary tank, no tricks, today's prices ($63.0);
   2. plus process changes and cheaper inputs ($31.3; the tank tricks alone are worth $19.2); 3. plus selected cells = Central ($29.9);

@@ -965,6 +965,27 @@ REGISTRY: dict[str, Input] = {
         "batches lost, about 1% a day if runs last 10-20 days", lo=0.006, hi=0.022, mode=0.01),
     "sc_hazard_high": Input(0.02, "per day", "[Powell et al. 2025] the upper end of what makers report",
         lo=0.015, hi=0.022, mode=0.02),
+    # --- a stirred tank with the sparger inside a fine-mesh inner cylinder (vessels.py "caged"; Pablo's design, 2026-11-16) ---
+    "vm_cage_exchange": Input(0.8, "-", "[judgement] how much of the gas exchange inside the cage reaches the cells' ring: oxygen "
+        "and CO2 move between the two only with the medium that crosses the mesh",
+        lo=0.5, hi=1.0, mode=0.8,
+        note="caged aeration surrounds the sparger with a fine mesh so cells never meet bubbles (bench and pilot microcarrier "
+             "cultures, with mesh of about 85 um; a BioProcess International review, search summary). Single cells of 10-20 um "
+             "need mesh finer than that, which fouls. No exchange rate between cage and bulk was found; 1 = as if the "
+             "whole tank were sparged."),
+    "vm_cage_gas": Input(0.006, "m/s", "[judgement, gas_flow_cap.md] gas bubbled inside the cage, as a velocity over the whole tank's "
+        "cross-section; bubbles there never touch cells, so only foam and gas handling cap it. Added, after the mesh discount, to "
+        "the soft bubbling in the cells' ring", lo=0.003, hi=0.012, mode=0.006),
+    "vm_cage_capex_ratio": Input(1.15, "x stirred tank", "[judgement] a stirred tank plus the mesh cylinder: a patent "
+        "notes that large fine-mesh parts for gas exchange could be very costly to make", lo=1.05, hi=1.4, mode=1.15),
+    "sc_restart_neighbour": Input(4.0, "days", "[arithmetic, judgement] a lost tank reseeded with half the culture of a healthy "
+        "neighbouring tank, in place of a new seed train: about 2 days to empty, clean and steam the tank, about 1 doubling to regrow "
+        "both tanks to working density, and the neighbour's lost output counted as about 1 more day of the lost tank's time",
+        lo=3.0, hi=7.0, mode=4.0,
+        note="Pablo's question (2026-11-16): why 14 days and not 1? Regrowing from a seed at about 1 g/L to 120 g/L is about 7 doublings, "
+             "7-10 days at 24-36 h, plus cleaning and checks; a neighbour's dense culture skips most of that. The risk is a donor carrying "
+             "a contaminant not yet detected (a fast contaminant shows on oxygen readings only after 17-51 h, cheap_plant_study.md), so the "
+             "donor must test clean first. Needs several tanks running; nobody has reported doing it with animal cells at scale."),
     "sc_restart_base": Input(14.0, "days", "[contamination.py; Humbird-R Sect. 4.1 seed train] two weeks to clean, "
         "re-sterilise and regrow the seed after a lost run", lo=7.0, hi=30.0, mode=14.0),
     "sc_restart_slow": Input(21.0, "days", "[plant_items.py, contamination.py] a plant that loses its seed trains "

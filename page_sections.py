@@ -35,7 +35,9 @@ def money(v: float, d: int = 1) -> str:
 def limit_text(r: dict) -> str:
     lim = S.LIMIT_PLAIN.get(r["limit"], r["limit"])
     med = S.MEDIUM_PLAIN.get(r["medium_set_by"], r["medium_set_by"])
-    return (f"The tank holds {r['density']:.0f} g of cells a litre, limited by {lim}. Each kilo needs "
+    why = (" Oxygen, not CO₂, limits it because the column beside the tank takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. Without the column, CO₂ would limit it first."
+           if r.get("column") is not None and r["limit"] == "oxygen supply" else "")
+    return (f"The tank holds {r['density']:.0f} g of cells a litre, limited by {lim}.{why} Each kilo needs "
             f"{r['medium_l']:.0f} litres of medium, set by {med}.")
 
 
@@ -324,7 +326,9 @@ def vessels() -> str:
     take = (
         f"<p class='fnote'><b>What the table says.</b> Perfusion in a stirred tank is the cheapest combination. "
         f"It costs {m(R[S_]['cost'])} a kilo in the reference case and {m(C[S_]['cost'])} in the central scenario. Nobody has run animal "
-        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. The modes that have been run at {value('vm_str_m3'):.0f} m³ cost more. In the reference case a fed-batch "
+        f"cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³. In the reference case CO₂ limits that tank, at "
+        f"{R[S_]['density']:.0f} g a litre. In the central scenario oxygen does, at {C[S_]['density']:.0f} g a litre: the scenario's "
+        f"column takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. The modes that have been run at {value('vm_str_m3'):.0f} m³ cost more. In the reference case a fed-batch "
         f"stirred tank costs {m(R[('stirred', 'fedbatch')]['cost'])} and fill-and-draw costs {m(R[('stirred', 'filldraw')]['cost'])}. "
         f"In the central scenario they cost {m(C[('stirred', 'fedbatch')]['cost'])} and {m(C[('stirred', 'filldraw')]['cost'])}. "
         f"Cells that make more waste limit a culture that is not washed out to a lower density. "

@@ -1091,6 +1091,8 @@ h1{font-size:1.45rem;margin:0 0 .2em;font-family:Georgia,serif;}
 .ctl .src{color:#999;font-size:.7rem;font-weight:400;}
 input[type=range]{width:100%;accent-color:var(--accent);margin:0;}
 input[type=range]:disabled{accent-color:#c4c4c4;opacity:.55;cursor:not-allowed;}
+.locknote{font-size:.72rem;color:#666;background:#f6f6f6;border-radius:5px;padding:4px 7px;margin-top:4px;line-height:1.35;}
+.locknote a{color:var(--accent);}
 .ctl .ovr{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#777;margin-top:3px;}
 .ctl .ovr input{margin:0;}
 .ctl .wovr{font-size:.72rem;color:#8a5a00;background:#fff6e5;border:1px solid #f0d089;
@@ -3927,6 +3929,7 @@ function floorExplore(p,noSearch){
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
   if(p.vm){ limits[0][1]*=(vm.otr_mult===undefined?1:vm.otr_mult);         // the vessel's own gas exchange
     if(vm.mixing===false) limits[2][1]=Infinity; if(vm.co2_gas===false) limits[3][1]=Infinity; if(vm.o2_gas===false) limits[0][1]=Infinity;
+    limits[3][1]*=(vm.co2_mult===undefined?1:vm.co2_mult);
     Object.keys(vm.caps||{}).forEach(k=>limits.push([k,vm.caps[k]])); }
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
@@ -3965,7 +3968,7 @@ function floorExplore(p,noSearch){
   if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
   let protectant=0;                                     // poloxamer leaves with every litre of a sparged tank's medium
-  if(vm.o2_gas!==false||vm.co2_gas!==false){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
+  if((vm.o2_gas!==false||vm.co2_gas!==false)&&!vm.no_protectant){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
   const feed=Math.max(eat,ml*mp)/(1-lost), gf=F.gf*ml/F.gf_litres*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;

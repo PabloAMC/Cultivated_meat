@@ -138,8 +138,11 @@ SWITCHES = (
                 "About what the survey of makers implies, if runs last 10 to 20 days."),
         Setting("2", "2% a day", {"hazard": value("sc_hazard_high")}, NOTHING, "The upper end of what makers report."))),
     Switch("restart", "Restart after a loss", "How long a lost tank is out of use", (
+        Setting("4", "4 days: reseeded from a neighbouring tank", {"restart_fail_days": value("sc_restart_neighbour")}, FEED,
+                "Half the culture of a healthy neighbouring tank reseeds the lost one, so no new seed train is needed. The donor must "
+                "test clean first. Nobody has reported doing this with animal cells at scale."),
         Setting("14", "14 days to clean and restart", {"restart_fail_days": value("sc_restart_base")}, NOTHING,
-                "The seed train is ready."),
+                "The seed train is ready; regrowing from a seed to working density is about 7 doublings."),
         Setting("21", "21 days", {"restart_fail_days": value("sc_restart_slow")}, NOTHING, "The seed trains must be regrown."),
         Setting("30", "30 days", {"restart_fail_days": value("sc_restart_long")}, NOTHING,
                 "One failure reaches every tank."))),
@@ -172,7 +175,7 @@ _SHORT = {
     ("tricks", "oxygen"): "column + pressure + oxygen",
     ("shape", "flat"): "0.5 deep/wide", ("shape", "squat"): "0.75", ("shape", "square"): "1.0", ("shape", "tall"): "1.6",
     ("losses", "0.2"): "0.2% a day", ("losses", "0.6"): "0.6% a day", ("losses", "1"): "1% a day", ("losses", "2"): "2% a day",
-    ("restart", "14"): "14 days", ("restart", "21"): "21 days", ("restart", "30"): "30 days",
+    ("restart", "4"): "4 days (neighbour)", ("restart", "14"): "14 days", ("restart", "21"): "21 days", ("restart", "30"): "30 days",
     ("gf", "none"): "none", ("gf", "30"): "30%", ("gf", "60"): "60%", ("gf", "all"): "all",
     ("medium", "0.05"): "$0.05/L", ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
 }
