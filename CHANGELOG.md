@@ -2,6 +2,15 @@
 
 ## 2026-11-16
 
+Model audit: drift, accuracy and whether the costs are reasonable price points (`audit.py`, `audit_history.py`, `research_notes/model_audit.md`; no default changed; recomputed after PR #32)
+- **Drift:** measured at every commit that touched the cost code. Default $24.01 -> $34.35 (14 Nov), Central $18.14 -> $26.64 -> $29.92, best $6.57 -> $8.95
+  -> $9.71 (15-16 Nov). Every step that moved a headline added a cost an earlier version left out; none lowered one.
+- **Accuracy:** the model needs 1.2 to 2.8 times less medium than every reported perfusion run and predicts 2.3 times the output of the one
+  working 20 m3 plant. Drawing every documented range at once, Central's median is $37 (10th-90th percentile $27-51; the $29.92 point is at the
+  19th percentile) and the best case's is $15.1 ($9.71 is the 1st percentile).
+- **Shelf price:** a flat $5 markup gives Central $35; a markup proportional to the price (as conventional spreads are) gives $56 and lowers the
+  cost at which cultivated meat reaches parity from $7 to $5.6. New inputs `au_retail_share`, `au_processing`. `tests/test_audit.py`, in `run_tests.sh`.
+
 Can a filter hold 5 L/m2/h at 25% cells? (`filter_flux.py`, `research_notes/filter_flux.md`; no default changed)
 - The physical ceiling (shear-induced back-transport, as printed in two theses) is 57 to 800 L/m2/h for the model's cells: 5 L/m2/h is not above it
   (under 5% in my judgement). The limit is fouling: CHO membranes fouled after 450-1,200 L/m2 (Pinto 2020, Veje 2024, read in

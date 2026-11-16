@@ -297,6 +297,14 @@ says "This density is not shown for meat cells". Results, assumptions and source
 `research_notes/vessels_and_modes.md`. The page's table follows the switches in "What decides it" (`page_vessels.js`, checked
 by `tests/run_parity.py` over 100 cells).
 
+### The model audit (`audit.py`, `audit_history.py`, added 2026-11-15)
+
+`audit.run` draws every documented range behind a scenario at once (the scenario's own switch settings, the filter loop's flux,
+membrane price, hardware and life, the plant estimate, financing and upkeep; triangular, independent) and reports the percentiles,
+the chance of falling at or below stated costs, and rank correlations. `audit.retail` and `parity_cost` compare the model's flat markup
+with a proportional retail chain. `audit_history.py` checks out each commit that touched the cost code and runs the model, which gives
+the history of the headline numbers. Findings: `research_notes/model_audit.md`.
+
 ### The filter's flux limit (`filter_flux.py`, added 2026-11-15)
 
 `backtransport_lmh` is the shear-induced back-transport ceiling, J = 0.078 x shear x (phi_w a^4 / (phi_b L))^(1/3) x ln(phi_w/phi_b)

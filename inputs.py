@@ -1240,6 +1240,14 @@ REGISTRY: dict[str, Input] = {
     "nf_aa_g_low": Input(650.0, "g AA/kg wet cells", "[GFI Dec 2025, Fig. 9] the least efficient of its estimates",
         lo=500.0, hi=650.0, mode=650.0),
 
+    # --- The model audit (audit.py; research_notes/model_audit.md) ----------------------------------------------------------
+    "au_retail_share": Input(0.45, "of retail price", "[USDA ERS Meat Price Spreads, via research_notes/post_harvest_costs.md, full "
+        "data read] the wholesale-to-retail spread is 42-43% of the retail price for beef, 60-65% for pork and about 61% for "
+        "broilers", lo=0.42, hi=0.65, mode=0.45,
+        note="used only to test the model's flat $5/kg markup against a proportional one; the model's default is the flat markup "
+             "(markup_add)"),
+    "au_processing": Input(1.0, "$/kg", "[assumed] dewatering, forming, packing and quality control of cell mass before it enters "
+        "the retail chain; none is published for cultivated meat (post_harvest_costs.md section 4)", lo=0.3, hi=3.0, mode=1.0),
     # --- The filter's flux limit (filter_flux.py; research_notes/filter_flux.md) ---------------------------------------------
     "ff_phi_w": Input(0.6, "volume fraction", "[Kromkamp 2005 (Wageningen thesis, text extract read); Vyas 1999 (Massey thesis, "
         "full text read)] cell volume fraction in the layer at the membrane wall, the value both theses use for a packed layer",
