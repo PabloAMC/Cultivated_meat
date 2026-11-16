@@ -2,6 +2,16 @@
 
 ## 2026-11-16
 
+How far tank design can go (`design_space.py`, `research_notes/design_space.md`; no default changed, no number moved)
+- Method: price each limit first (`limit_prices`: the cost if CO₂, oxygen, mixing, the thickness limit, the litres of medium, the
+  membranes and others were free), then search every combination of the tank options the model has (288 designs a scenario, under two
+  seconds for all), keep those whose column loop passes its checks, and compare with the ordinary tank with every gas limit lifted.
+- Findings: tank design is worth $28/kg for today's cells ($62.96 to $34.80) and $1.4–2.8 beyond the scenarios' own designs from
+  rung 2 on ($0.4 in the best case). Designs that leave only the thickness limit binding exist: a bubble cage with 1 bar, or 2 bar
+  without a cage. Holding dissolved oxygen at half of air saturation is standard practice, unused by the scenarios, and worth $0.5 in
+  Central. After the gas limits, the litres of medium dominate ($15.7 in Central against $2.2 for perfect gas exchange).
+- The search reproduces every scenario's own tank design exactly. `tests/test_design_space.py`, in `run_tests.sh`.
+
 Bioreactor design tricks and a CFD plan (`research_notes/bioreactor_design_tricks.md`, `research_notes/cfd_plan.md`; no number moved)
 - A catalogue of tank design tricks by what they relieve (CO₂, oxygen, mixing, salt, heat), whether something fundamental stops them
   scaling (surface-to-volume, depth, flow-path length, foam, regulation), and where each sits in the model. Today's cells are CO₂-bound;

@@ -52,6 +52,13 @@ Raised by Pablo on 2026-11-16 (open):
 - [ ] **Do announced medium prices include growth factors?** Sources rarely say. If they do, Central double-counts up to $3.0 a kilo.
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
+From the design search (`design_space.py`):
+
+- [ ] **Use the lower dissolved-oxygen setpoint in the scenarios?** Half of air saturation is standard pharma practice; Humbird's tank
+      implies 130%. Free, worth $0.5 in Central and $0.6 at rung 2. It would move the headline numbers.
+- [ ] Add the missing options to the search as levers: two spargers, gas exchange on the filter loop, restart from a neighbour.
+- [ ] Weight "unproven elements" by the odds in the research notes, to rank designs by expected cost.
+
 From the design-tricks survey (`bioreactor_design_tricks.md`):
 
 - [ ] **Two spargers** (a microsparger for oxygen, a drilled pipe for CO₂) as a lever: standard practice, and oxygen now binds Central.

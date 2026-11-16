@@ -263,6 +263,30 @@ of medium also mean less to filter. The frontier is at the $7 that parity needs,
 the tank at 177 g/L, so a thicker culture adds nothing (without the antifoam effect the frontier is $6.33). No step is shown for meat
 cells, and the odds of all of them together are far below any single one (`research_notes/frontier.md`).
 
+### How far tank design can go (`design_space.py`)
+
+The aim of tank design is a tank where CO₂, oxygen and mixing no longer bind, so that only the thickness of the culture does
+(258 g/L). `design_space.py` first prices that aim (the ordinary tank with every gas limit lifted for free), then searches every
+combination of the tank options the model has, 288 designs a scenario, keeping those whose column loop passes its checks.
+
+| case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | perfect gas exchange |
+|---|---|---|---|---|---|
+| 1. Today's cells | $62.96 (46 g/L, CO₂) | $62.96 | $38.66 (175 g/L, oxygen; 4 unproven) | $35.38 (258 g/L, thickness; 4 unproven) | **$34.80** (258 g/L) |
+| 2. Plus process changes | $38.77 (93 g/L, CO₂) | $31.33 | $29.14 (258 g/L, thickness; 4 unproven) | $28.95 (254 g/L, CO₂; 3 unproven) | **$28.51** (258 g/L) |
+| 3. Central | $36.20 (87 g/L, CO₂) | $29.92 | $27.93 (258 g/L, thickness; 5 unproven) | $27.62 (258 g/L, thickness; 3 unproven) | **$27.19** (258 g/L) |
+| 4. Shared-medium plant | $29.86 (87 g/L, CO₂) | $26.81 | $25.80 (258 g/L, thickness; 5 unproven) | $25.57 (258 g/L, thickness; 2 unproven) | **$25.28** (258 g/L) |
+| 5. Best case | $10.40 (120 g/L, CO₂) | $9.71 | $9.60 (258 g/L, thickness; 4 unproven) | $9.48 (258 g/L, thickness; 3 unproven) | **$9.33** (258 g/L) |
+| Forecast for 2035 | $27.83 (87 g/L, CO₂) | $25.04 | $24.11 (258 g/L, thickness; 5 unproven) | $23.89 (258 g/L, thickness; 2 unproven) | **$23.61** (258 g/L) |
+
+- **Tank design matters most for today's cells:** $28 a kilo between the ordinary tank and perfect gas exchange. From rung 2 on, the
+  scenarios' designs are within $1.4–2.8 of the ideal, and the best case within $0.4.
+- **Designs that leave only the thickness limit exist on paper:** with a bubble cage and 1 bar of pressure, or without a cage at 2
+  bar. Each needs two to five elements nobody has run with animal cells. The cage's numbers are judgements.
+- **Holding dissolved oxygen at half of air saturation, as pharma does, is free and unused by the scenarios.** It is worth $0.5 a kilo
+  in Central.
+- **After the gas limits, the litres of medium are what is left.** In Central perfect gas exchange saves $2.2 a kilo; medium at the
+  least the physics allows saves $15.7. Tables and method: `research_notes/design_space.md`.
+
 ### If perfusion cannot be run at 20 m³
 
 Every scenario uses a perfusion tank, which nobody has run above about 4 m³. Without cell retention a tank is capped by waste.

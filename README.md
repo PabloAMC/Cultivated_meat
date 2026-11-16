@@ -69,6 +69,7 @@ it is always a band.
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
 | – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
 | – | [`floor_physics.py`](floor_physics.py) | the cost of a kilo of cells from oxygen and CO₂ physics, by reactor type and plant class (its defaults are the labelled reference case) |
+| – | [`design_space.py`](design_space.py) | what each tank limit is worth, and a search over every combination of tank design options |
 | – | [`industry_claims.py`](industry_claims.py) | the model against company cost claims, on the same basis: plant charge and operating cost split |
 | – | [`plant_items.py`](plant_items.py), [`contamination.py`](contamination.py) | side-study: the plant's capital item by item, and the contamination a cheaper plant can afford |
 
@@ -181,6 +182,7 @@ model/
 ├── floor_physics.py     ← the cost of cells from tank physics, by reactor type and plant class
 ├── plant_items.py       ← side-study: plant capital item by item (Humbird's plant and his yeast plant)
 ├── contamination.py     ← side-study: detection, losses and break-even loss rates for cheaper plants
+├── design_space.py      ← what each tank limit is worth; search over tank designs
 ├── industry_claims.py   ← the model against company cost claims (plant charge vs operating cost)
 ├── common.py            ← shared plotting helpers (no model logic)
 ├── report_figures.py    ← builds the curated figure set
