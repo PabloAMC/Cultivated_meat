@@ -10,6 +10,30 @@ Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_sc
 Inputs: `inputs.py`, the `sc_*` block (each with source, range, note). Every cost below is computed by `floor_physics.explore`; run
 `python scenarios.py` to reproduce this note's numbers and `python scenarios.py --markdown` for the table.
 
+## The ladder (2026-11-16)
+
+The page and RESULTS now lead with a ladder: each rung adds one kind of change to the one before, easiest first. Rungs 3 to 5 are
+exactly Central, Central with shared medium and the best case below, so the rest of this note stands. Rung 1 (`today`) is the
+cautious scenario's cells, plant, gas and prices with no tank tricks in the ordinary tall tank; rung 2 (`process`) adds the tricks,
+4 mm/s, a 14-day restart, growth factors at 30% and $0.20 medium. The cautious scenario is no longer on the page; `scenarios.ORDER`
+keeps it for the side studies. The forecast row is the author's median for each switch by 2035 (RESULTS, "The forecast").
+
+| scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
+|---|---|---|---|---|---|
+| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($51–81) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
+| 2. Plus process changes and cheaper inputs | **$31.3** ($29–40) | 3.03 | 0.4% | **0.2%** (0.0–0.5%) | needs a change of feed, process or plant |
+| 3. Plus cells selected for low waste (Central) | **$29.9** ($27–38) | 2.91 | 0.4% | **0.2%** (0.1–0.6%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.8** ($25–35) | 2.65 | 0.5% | **0.3%** (0.1–0.7%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($9–12) | 1.23 | 7.9% | **3.8%** (1.2–9.7%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$25.0** ($24–33) | 2.50 | 0.6% | **0.3%** (0.1–0.9%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($10–15) | 1.46 | 4.3% | **2.4%** (0.7–6.9%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 3.28 | 0.3% | **0.2%** (0.0–0.6%) | a company's own report |
+
+What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $19.17 off
+(chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
+medium $2.87; together, with the tank design chosen again, $31.63, to $31.33. Selection then takes $1.41 off (Central $29.92), the
+plant with shared medium $3.11 ($26.81), and engineered cells with every switch at its cheapest plausible setting $17.11 ($9.71).
+
 ## Why scenarios, not a floor
 
 Until 2026-11-15 the model quoted one number, "the floor", $11.5/kg of cells. It was `explore()` at its defaults: a standard 20 m3

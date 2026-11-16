@@ -236,7 +236,7 @@ _BASE = {"cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "l
          "gf": "30", "medium": "0.20"}
 SCENARIOS = {
     "best": Scenario(
-        "best", "Best case: everything works",
+        "best", "5. Plus engineered cells: the best case, everything works",
         "The cells are engineered to make almost no waste, and they double every day. The plant is a food-grade plant with shared medium. "
         "The tank clears CO₂ without more bubbles. The cells need no bought growth factors.",
         "Cells, growth speed, plant, gas and growth factors are at their cheapest setting. The medium costs $0.15 a litre, because the $0.05 "
@@ -245,7 +245,7 @@ SCENARIOS = {
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
                 "gf": "none", "medium": "0.15"})),
     "central": Scenario(
-        "central", "Central: selection and feed only, a food-grade plant",
+        "central", "3. Plus cells selected for low waste (Central)",
         "A changed feed and selection of the best lines make the cells produce little waste. This needs no engineering. The cells double "
         "every 36 hours. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
@@ -253,7 +253,7 @@ SCENARIOS = {
         design(dict(_BASE)),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
     "central_lean": Scenario(
-        "central_lean", "Central, food-grade plant with shared medium",
+        "central_lean", "4. Plus a food-grade plant with shared medium",
         "This is the central case in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
         "has built one.",
         "The same as Central, but with a food-grade plant with shared medium.",
@@ -267,8 +267,40 @@ SCENARIOS = {
         "it, so the setting is a cautious judgement. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1", "restart": "21",
                 "gf": "60", "medium": "0.30"})),
+    # --- the ladder (2026-11-16): each rung adds one kind of change, easiest first ----------------------------
+    "today": Scenario(
+        "today", "1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank",
+        "The cells are meat cells as they have been measured: glutamine replaced in the feed, doubling every 43 hours. The plant is "
+        "food-grade. The tank is the ordinary tall stirred tank with no tricks, run with no more gas than anyone has run. Medium and "
+        "growth factors cost what they cost today. Perfusion itself has not been run at this size.",
+        "Each switch at what has been measured or reported, and nothing new in the tank. Only the medium price and the growth "
+        "factors are judgements, because nobody has measured them at scale.",
+        {"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "tricks": "none", "shape": "tall", "losses": "1",
+         "restart": "21", "gf": "60", "medium": "0.30"}),
+    "process": Scenario(
+        "process", "2. Plus process changes and cheaper inputs",
+        "The same cells. The tank clears CO₂ without more bubbles (a column beside it) and takes more gas with a protectant, runs "
+        "restart faster, and medium and growth factors fall to the prices companies announce. None of this changes the cells.",
+        "Rung 1 with every switch that needs only a change of feed, process or supply moved to the middle of what is reported; "
+        "tank design the cheapest the loop checks allow.",
+        design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
+                "gf": "30", "medium": "0.20"})),
+    "forecast": Scenario(
+        "forecast", "Forecast for 2035: a first draft of the author's medians",
+        "Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035: selected cells "
+        "doubling every 36 hours, a food-grade plant with shared medium, 4 mm/s of gas with the column and pressure, 0.6% of runs "
+        "lost a day, medium at $0.15 and growth factors at 30% of Humbird's price.",
+        "The median of a forecast for each switch, from the odds in the research notes (RESULTS.md, \"The forecast\"). A judgement, "
+        "not a measurement; the draws behind its band do not include the forecast's own uncertainty about the switches.",
+        design({"cells": "selected", "growth": "36", "plant": "lean", "gas": "4", "losses": "0.6", "restart": "14",
+                "gf": "30", "medium": "0.15"})),
 }
+# The four scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
+# The ladder the page and RESULTS lead with: each rung adds one kind of change to the one before, easiest first. Rungs 3-5 are
+# exactly Central, Central with shared medium and the best case. The forecast is a separate row.
+LADDER = ("today", "process", "central", "central_lean", "best")
+PAGE_ORDER = LADDER + ("forecast",)
 
 
 def scenario_choice(key: str, **change) -> dict:
@@ -280,10 +312,14 @@ def alt_cost(key: str, change: dict) -> float:
     return run(design({**SCENARIOS[key].choice, **change}))["total"]
 
 
+REFERENCE_NAME = "Humbird's optimistic design: engineered cells in an ordinary perfusion tank"
+
+
 def reference() -> dict:
-    """The old 'floor': floor_physics.explore() at its defaults. A standard 20 m3 stirred tank in perfusion at
-    120 g/L, a food-grade plant, engineered cells, no tank tricks, no losses, no growth
-    factors. Kept so the Humbird cross-checks and the golden tests still make sense."""
+    """Humbird's optimistic design (the old 'floor'): floor_physics.explore() at its defaults. A standard 20 m3 stirred tank in
+    perfusion at 120 g/L, a food-grade plant, engineered cells, no tank tricks, no losses, no growth factors. It assumes the
+    hardest change (engineered cells) and none of the easy ones (tank tricks), so it is not a rung of the LADDER. Kept so the
+    Humbird cross-checks and the golden tests still make sense."""
     return fp.explore()
 
 
@@ -483,13 +519,14 @@ MC_PRIORS = {
 }
 
 
-def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
+def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
     """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
-    share of respiration, medium price and loss rate, drawn from their priors; the scenario's switches held."""
+    share of respiration, medium price and loss rate, drawn from their priors; the scenario's switches held. `choice=None` is
+    Humbird's optimistic design (`reference()`, explore() at its defaults), drawn the same way."""
     rng = np.random.default_rng(seed)
-    kw0 = explore_kwargs(choice)
+    kw0 = explore_kwargs(choice) if choice is not None else {}
     pri = dict(MC_PRIORS)
-    if choice["plant"] == "lean":                       # not below a plant with everything animal cells must have
+    if choice is not None and choice["plant"] == "lean":                       # not below a plant with everything animal cells must have
         lean = plant_items.capital("lean")["total"]
         pri["capex_x"] = (min(1.0, plant_items.capital("yeastplus")["total"] / lean), 1.0, 1.5)
     tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
@@ -503,7 +540,7 @@ def scenario_mc(choice: dict, n: int = 1000, seed: int = 0) -> dict:
     return {"total": cost, **d}
 
 
-def scenario_share_mc(choice: dict, region: str = "global", n: int = 1000, seed: int = 0) -> dict:
+def scenario_share_mc(choice: dict | None, region: str = "global", n: int = 1000, seed: int = 0) -> dict:
     """Cost and demand uncertain together: each draw takes a cost from scenario_mc and the demand dials from their priors."""
     import meat_market as mm
     cost = scenario_mc(choice, n, seed)["total"]
@@ -516,11 +553,11 @@ BAND_N = 4000
 _BANDS: dict = {}
 
 
-def bands(choice: dict, n: int = BAND_N) -> dict:
+def bands(choice: dict | None, n: int = BAND_N) -> dict:
     """10th / 50th / 90th percentile of cost and of the world's long-run share by weight (cost and demand both
     uncertain). The 50th percentile of the share is the page's headline share for a scenario; the share at the
     scenario's own point cost (`summary(...)['world']`) is a different number and is labelled a point estimate."""
-    key = (tuple(sorted(choice.items())), n)
+    key = (tuple(sorted(choice.items())) if choice is not None else "reference", n)
     if key not in _BANDS:
         mc = scenario_share_mc(choice, "global", n)
         q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
@@ -552,31 +589,48 @@ def js_model() -> dict:
            "settings": [{"key": t.key, "label": t.label, "short": t.short, "tag": t.tag, "note": t.note,
                          "p": _js_params(t.kw)} for t in s.settings]} for s in SWITCHES]
     presets = {k: {"name": SCENARIOS[k].name, "story": story_text(k), "choice": SCENARIOS[k].choice}
-               for k in ORDER}
-    band = {k: bands(SCENARIOS[k].choice) for k in ORDER}
-    return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(ORDER), "start": "central",
+               for k in SCENARIOS}
+    band = {k: bands(SCENARIOS[k].choice) for k in SCENARIOS}
+    return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
             "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band}
 
 
-def markdown_table() -> str:
-    """The scenario table as Markdown (README / RESULTS / research_notes/cost_scenarios.md quote it)."""
-    rows = ["| scenario | cells, $/kg (10th\u201390th percentile) | R vs $12 meat | share of world meat by weight, long run: "
-            "median (10th\u201390th, cost and demand uncertain) | hardest thing it needs |", "|---|---|---|---|---|"]
-    for key in ORDER:
+def reported_band(n: int = 30000) -> tuple:
+    """10th / 50th / 90th percentile of the world's long-run share for the process a company reports, with its cost and demand
+    uncertain (meat_market.monte_carlo at the default cost model; RESULTS.md section 4 uses the same draw)."""
+    import meat_market as mm
+    if "reported" not in _BANDS:
+        v = mm.monte_carlo("global", n)["vol"]
+        _BANDS["reported"] = tuple(float(x) for x in np.percentile(v, [10, 50, 90]))
+    return _BANDS["reported"]
+
+
+def table_rows() -> list:
+    """Every row of the headline table: the ladder, the forecast, Humbird's optimistic design, the reported process.
+    Each row: name, cost point, cost band (or None), ratio, share at the point cost, share band (P10, P50, P90), hardest need."""
+    rows = []
+    for key in PAGE_ORDER:
         sc = SCENARIOS[key]
-        sm = summary(sc.choice)
-        b = bands(sc.choice)
-        rows.append(f"| {sc.name} | **${sm['cost']:.1f}** (${b['cost'][0]:.0f}\u2013{b['cost'][2]:.0f}) | {sm['ratio']:.2f} | "
-                    f"**{b['share'][1]:.1f}%** ({b['share'][0]:.1f}\u2013{b['share'][2]:.1f}%) | {TAG_PLAIN[hardest_need(sc.choice)]} |")
-    ref = reference()
-    rs = summary(r=ref)
-    rows.append(f"| Reference: a standard perfusion tank, no tricks | ${rs['cost']:.1f} | {rs['ratio']:.2f} | {rs['world']:.1f}% (point estimate) | "
-                f"{TAG_PLAIN[GE]} |")
+        sm, b = summary(sc.choice), bands(sc.choice)
+        rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], TAG_PLAIN[hardest_need(sc.choice)]))
+    rs, b = summary(r=reference()), bands(None)
+    rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], TAG_PLAIN[GE]))
     rc = reported_cost()
-    rows.append(f"| As a company reports (SuperMeat 2024) | ${rc:.1f} | {(rc + value('markup_add')) / value('p_conv'):.2f} | "
-                f"{shares(rc)['global']:.1f}% (point estimate) | a company's own report |")
-    return "\n".join(rows)
+    rows.append(("As a company reports (SuperMeat 2024)", rc, None, (rc + value("markup_add")) / value("p_conv"),
+                 shares(rc)["global"], reported_band(), "a company's own report"))
+    return rows
+
+
+def markdown_table() -> str:
+    """The headline table as Markdown (RESULTS.md, METHODS.md and research_notes/cost_scenarios.md quote it). Every row gives both the
+    share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
+    out = ["| scenario | cells, $/kg (10th\u201390th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | "
+           "median of draws (10th\u201390th) | hardest thing it needs |", "|---|---|---|---|---|---|"]
+    for name, cost, cb, ratio, world, sb, need in table_rows():
+        band = f" (${cb[0]:.0f}\u2013{cb[2]:.0f})" if cb is not None else ""
+        out.append(f"| {name} | **${cost:.1f}**{band} | {ratio:.2f} | {world:.1f}% | **{sb[1]:.1f}%** ({sb[0]:.1f}\u2013{sb[2]:.1f}%) | {need} |")
+    return "\n".join(out)
 
 
 # ----------------------------------------------------------------------------

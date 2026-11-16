@@ -42,7 +42,7 @@ def limit_text(r: dict) -> str:
 def scenario_table() -> str:
     """The answer: one row per scenario (cost, shop price, share, what must go right), the reference and the reported process."""
     rows = []
-    for key in S.ORDER:
+    for key in S.PAGE_ORDER:
         sc = S.SCENARIOS[key]
         r = S.run(sc.choice)
         sm = S.summary(sc.choice, r)
@@ -70,16 +70,21 @@ def scenario_table() -> str:
             f"<td class='s'>{_esc(limit_text(r))}</td></tr>")
     ref = S.reference()
     rs = S.summary(r=ref)
+    rb = S.bands(None)
+    pb = S.reported_band()
     rep = S.reported_cost()
     rp = S.summary(cost=rep, r={"density": float("nan"), "limit": "", "medium_l": value("media_intensity"),
                                 "medium_set_by": "", "uptime": float("nan"), "output": float("nan")})
     rows.append(
-        f"<tr class='ref'><td class='scname'><b>Reference: a standard perfusion tank, no tricks</b><br><span class='story'>"
-        f"Earlier versions of this page called this number the floor. It is Humbird's 20,000-litre stirred tank run in perfusion at "
-        f"120 g/L. The plant is food-grade, the cells are engineered, and there are no tank tricks, no growth factors and no lost runs. "
-        f"This is a reference, not a limit, because the best case costs less.</span></td><td>{chip(S.GE)}</td>"
-        f"<td class='n'><b>{money(rs['cost'])}</b></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rs['world']:.1f}%</b><br><span class='alt'>point estimate. US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%</span></td>"
+        f"<tr class='ref'><td class='scname'><b>{_esc(S.REFERENCE_NAME)}</b><br><span class='story'>"
+        f"Humbird's 20,000-litre stirred tank run in perfusion at 120 g/L, as he designed it, with his engineered cells. The plant is "
+        f"food-grade, and there are no growth factors and no lost runs. Earlier versions of this page called this number the floor. "
+        f"It is not a rung of the ladder above: it assumes the hardest change, engineered cells, and none of the easy ones, the tank "
+        f"tricks. It is kept because it reproduces Humbird's analysis.</span></td><td>{chip(S.GE)}</td>"
+        f"<td class='n'><b>{money(rs['cost'])}</b><br><span class='alt'>{money(rb['cost'][0])}–{money(rb['cost'][2])} "
+        f"(10th–90th percentile of the estimates behind it)</span></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
+        f"<td class='n'><b>{rb['share'][1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between {rb['share'][0]:.1f}% and "
+        f"{rb['share'][2]:.1f}%. At the point cost the share is {rs['world']:.1f}% (US {rs['us']:.1f}%, Europe {rs['eu']:.1f}%).</span></td>"
         f"<td class='s'>{_esc(limit_text(ref))}</td></tr>")
     rows.append(
         f"<tr data-sc='reported'><td class='scname'><b>As a company reports</b><br><span class='story'>This is SuperMeat's 2024 process. It grows chicken "
@@ -88,7 +93,8 @@ def scenario_table() -> str:
         f"<button class='btn scbtn small' onclick=\"scApply('reported');return false\">Use this in the charts</button></td>"
         f"<td><span class='tagchip none'>a company's own report</span></td>"
         f"<td class='n'><b>{money(rp['cost'])}</b></td><td class='n'>{money(rp['retail'], 0)}<br><span class='alt'>{rp['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{rp['world']:.1f}%</b><br><span class='alt'>point estimate. US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%</span></td>"
+        f"<td class='n'><b>{pb[1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between {pb[0]:.1f}% and {pb[2]:.1f}%. "
+        f"At the point cost the share is {rp['world']:.1f}% (US {rp['us']:.1f}%, Europe {rp['eu']:.1f}%).</span></td>"
         f"<td class='s'>The process uses 30.5 litres of medium a kilo at $0.50 a litre. The company reports no tank limit.</td></tr>")
     head = ("<thead><tr><th>Scenario: what has to go right</th><th>What it needs</th><th>Cost of a kilo of cells</th>"
             "<th>In the shop</th><th>Share of world meat, long run (median)</th><th>What limits the tank</th></tr></thead>")
@@ -427,7 +433,7 @@ def industry_claims() -> str:
     import industry_claims as IC
     s = IC.summary()
     rows = []
-    for k in ("reference",) + S.ORDER:
+    for k in S.PAGE_ORDER + ("reference",):
         d = s["split"][k]
         rows.append(f"<tr><td>{_esc(IC.NAMES[k])}</td><td class='n'>{money(d['total'])}</td><td class='n'>{money(d['capital'])}</td>"
                     f"<td class='n'><b>{money(d['operating'])}</b></td><td class='n'>{money(d['membranes'])}</td></tr>")

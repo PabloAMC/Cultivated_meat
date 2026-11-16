@@ -952,19 +952,20 @@ def _scenario_tokens() -> dict:
     import scenarios as S
     import page_sections as ps
     out = {}
-    for key, tag in (("best", "BEST"), ("central", "CENTRAL"), ("cautious", "CAUTIOUS"), ("central_lean", "CENTRAL_LEAN")):
+    for key, tag in (("today", "TODAY"), ("process", "PROCESS"), ("central", "CENTRAL"), ("central_lean", "CENTRAL_LEAN"),
+                     ("best", "BEST"), ("forecast", "FORECAST")):
         sm = S.summary(S.SCENARIOS[key].choice)
         out[f"COST_{tag}"] = f"{sm['cost']:.1f}"
         if key in ("best", "central"):
             out[f"R_{tag}"] = f"{sm['ratio']:.2f}"
         if key == "central":
             out["PEN_US_CENTRAL_VOL"] = f"{sm['us']:.0f}"
-        if key != "central_lean":
+        if key in ("process", "central", "best"):
             tr = S.tricks_report(S.SCENARIOS[key].choice)
             out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
             out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
             out[f"TRICKS_{tag}_LIST"] = S.plain_list(tr["used"])
-        if key != "central_lean":
+        if key in ("central", "best", "today", "forecast"):
             b = ps.bands(key)
             for i, q in enumerate(("P10", "P50", "P90")):
                 out[f"{tag}_COST_{q}"] = f"{b['cost'][i]:.1f}"
@@ -1300,17 +1301,21 @@ Commission. <a href="#about">About this page</a>.</p>
 <h2 class="sech">What cultivated meat could cost, and what it would take</h2>
 <p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions that nobody has tested together. These include how
 little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
-<b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. Costs are dollars per kilo of wet
+<b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. <b>The first five rows are a
+ladder.</b> Row 1 is today's best measured meat cells in an ordinary tank. Each row below it adds one kind of change, easiest first: changes to
+the process and cheaper inputs, then cells selected for low waste, then a cheaper plant, then engineered cells. The forecast row is the
+author's median for 2035. The last two rows, Humbird's optimistic design and a company's own figure, are there for comparison. Costs are dollars per kilo of wet
 cells, in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share by weight, once cultivated meat is on every
 shelf and no longer feels new. It is not a forecast of when that happens. The share is the <b>median</b> of 4,000 random draws, so half the draws gave less and half gave more. In each draw, the cost estimates and the
 demand dials (price sensitivity, acceptance and the retail markup) vary. The 10th to 90th percentile range is next to the median, and 80% of draws fall inside it. The share at
 exactly the cost shown appears in small type as a point estimate. <a href="#decide">Change any assumption yourself</a> below.</p>
 {{ANSWER_HTML}}
 <p class="fnote"><b>What the table assumes about the tank.</b> Nobody has run any of these tank designs with animal cells.
-<b>Central</b> (${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape.
-In the ordinary tall tank it costs ${{TRICKS_CENTRAL_ORD}}. <b>Best case</b> (${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without these tricks it costs
-${{TRICKS_BEST_NO}}. In the ordinary tall tank it costs ${{TRICKS_BEST_ORD}}. <b>Cautious</b> (${{COST_CAUTIOUS}}) uses {{TRICKS_CAUTIOUS_LIST}}. Without these tricks it costs
-${{TRICKS_CAUTIOUS_NO}}. In the ordinary tall tank it costs ${{TRICKS_CAUTIOUS_ORD}}. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
+Row 1 has no tank tricks. From row 2 on, the tank clears CO&#8322; without more bubbles. <b>Row 2</b> (${{COST_PROCESS}}) uses {{TRICKS_PROCESS_LIST}}.
+Without these tricks it costs ${{TRICKS_PROCESS_NO}} a kilo in a tank of the same shape, and ${{TRICKS_PROCESS_ORD}} in the ordinary tall tank.
+<b>Central</b> (row 3, ${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape.
+In the ordinary tall tank it costs ${{TRICKS_CENTRAL_ORD}}. <b>Best case</b> (row 5, ${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without these tricks it costs
+${{TRICKS_BEST_NO}}. In the ordinary tall tank it costs ${{TRICKS_BEST_ORD}}. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
 <p class="fnote"><b>Words used on this page.</b> <b>Medium</b> is the nutrient liquid the cells grow in. <b>Waste</b> means the ammonia and
 lactate that cells give off as they grow. Waste slows growth, so fresh medium must wash it out. <b>Perfusion</b> means that fresh medium flows
 through the tank all the time. The cells are held back and harvested continuously. A <b>column</b> is a packed tower beside the
@@ -1636,28 +1641,33 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       cost per cubic metre comes from Humbird's design [2] in 2025 prices, item by item. His plant as drawn comes to
       ${{HUMBIRD_PLANT}}/kg in 2018 prices, and most of that is a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year.
       How these parts come out depends on ten decisions, which are the switches in &ldquo;What decides it&rdquo;. A
-      <b>scenario</b> is a preset of them. <b>Best case:</b> every switch is at its cheapest setting that has a plausible route, and the cost is
-      ${{COST_BEST}}/kg. <b>Central:</b> feed and selection make the cells low-waste, the cells double every 36 hours, and the plant is food-grade.
-      The cost is ${{COST_CENTRAL}}/kg (${{COST_CENTRAL_LEAN}} in a food-grade plant with shared medium). <b>Cautious:</b> the cells are the best meat cells measured so far, and the cost is
-      ${{COST_CAUTIOUS}}/kg. Parity with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
-      <b>The reference.</b> Earlier versions of this page called this number the floor. It is a standard perfusion tank with no tank
-      tricks, engineered cells and no lost runs. The plant costs about ${{PLANT_FLOOR}}/kg and the cells cost ${{COST_FLOOR}}/kg. The page keeps it as a
-      labelled reference, because it is the default of the model and the cross-checks against Humbird use it. It is not a limit,
-      and the best case costs less.
+      <b>scenario</b> is a preset of them, and the scenarios form a ladder ordered by how hard each change is. <b>Row 1, today:</b> the best
+      meat cells measured, in an ordinary tank with no tricks, at today's input prices: ${{COST_TODAY}}/kg. <b>Row 2</b> adds changes to the process
+      (the tank tricks, more gas with a protectant, faster restarts) and cheaper medium and growth factors: ${{COST_PROCESS}}/kg. <b>Row 3,
+      Central,</b> adds cells selected for low waste that double every 36 hours: ${{COST_CENTRAL}}/kg. <b>Row 4</b> adds a food-grade plant with shared
+      medium: ${{COST_CENTRAL_LEAN}}/kg. <b>Row 5, the best case,</b> adds engineered cells and puts every switch at its cheapest setting with a plausible
+      route: ${{COST_BEST}}/kg. <b>The forecast</b> puts each switch at the author's median for 2035: ${{COST_FORECAST}}/kg. Parity with ${{PCONV}}
+      meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
+      <b>Humbird's optimistic design.</b> Earlier versions of this page called this number the floor. It is Humbird's perfusion tank with
+      his engineered cells, no tank tricks and no lost runs. The plant costs about ${{PLANT_FLOOR}}/kg and the cells cost ${{COST_FLOOR}}/kg. It
+      assumes the hardest change, engineered cells, and none of the easy ones, so it is not a rung of the ladder. The page keeps it because it
+      is the model's default and the cross-checks against Humbird use it.
       <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year. This covers money at 7.5% repaid in
       10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
       cost of capital as 5.4% and uses a 20-year life for a yeast plant. Those figures make the yearly charge
       {{MATURE_CHARGE_PCT}}% [2]. The scenarios are long-run cases set against meat, a mature industry, so they use the
-      lower rate. At the first-plant rate the reference would cost about ${{COST_FLOOR_FIRST}}/kg. The reported process and the cautious
+      lower rate. At the first-plant rate Humbird's optimistic design would cost about ${{COST_FLOOR_FIRST}}/kg. The reported process and the cautious
       tier below keep the first-plant rate.
       <b>How firm are they?</b> Each scenario's switches stay fixed, but the estimates behind it can be off. These are the plant
       estimate, the retention device, the financing, the upkeep share of respiration, the medium price and the loss rate.
       With those uncertain, the central case costs ${{CENTRAL_COST_P50}}/kg at the median (80% range ${{CENTRAL_COST_P10}}&ndash;{{CENTRAL_COST_P90}}).
-      The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}) and the cautious case ${{CAUTIOUS_COST_P50}}
-      (${{CAUTIOUS_COST_P10}}&ndash;{{CAUTIOUS_COST_P90}}). When demand varies as well (price sensitivity, acceptance and the retail
+      The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}), today's cells ${{TODAY_COST_P50}}
+      (${{TODAY_COST_P10}}&ndash;{{TODAY_COST_P90}}) and the forecast ${{FORECAST_COST_P50}} (${{FORECAST_COST_P10}}&ndash;{{FORECAST_COST_P90}}).
+      When demand varies as well (price sensitivity, acceptance and the retail
       markup), the long-run share of world meat is {{CENTRAL_SHARE_P50}}% in the central case at the median (80% range
       {{CENTRAL_SHARE_P10}}&ndash;{{CENTRAL_SHARE_P90}}%). It is {{BEST_SHARE_P50}}% in the best case ({{BEST_SHARE_P10}}&ndash;{{BEST_SHARE_P90}}%) and
-      {{CAUTIOUS_SHARE_P50}}% in the cautious case ({{CAUTIOUS_SHARE_P10}}&ndash;{{CAUTIOUS_SHARE_P90}}%). The draws do not vary what the cells are like, how fast they grow or the other switches.
+      {{FORECAST_SHARE_P50}}% in the forecast ({{FORECAST_SHARE_P10}}&ndash;{{FORECAST_SHARE_P90}}%). With today's cells it is
+      {{TODAY_SHARE_P50}}% ({{TODAY_SHARE_P10}}&ndash;{{TODAY_SHARE_P90}}%). The draws do not vary what the cells are like, how fast they grow or the other switches.
       The scenarios differ in exactly those things, and the chart &ldquo;What to prioritise&rdquo; shows what each is worth.
       <b>A plant as cheap as a yeast plant</b> is not used in any scenario. Plants for yeast and other microbes cost about a
       quarter as much per cubic metre as Humbird's design for animal cells. That would cut the plant term to about ${{PLANT_FLOOR_LO}}/kg

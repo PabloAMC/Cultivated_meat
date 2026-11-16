@@ -24,7 +24,7 @@ def check() -> list:
             fails.append(f"{k}: plant charge + operating != total")
         if not 0 < d["capital"] < d["total"]:
             fails.append(f"{k}: plant charge out of range")
-    for k in S.ORDER:
+    for k in S.PAGE_ORDER:
         if abs(s["split"][k]["total"] - S.run(S.SCENARIOS[k].choice)["total"]) > 1e-9:
             fails.append(f"{k}: split total differs from the scenario")
     # drained and refilled: no filter, and cheaper plants lower only the plant charge
