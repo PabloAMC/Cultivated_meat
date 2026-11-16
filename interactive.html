@@ -234,7 +234,7 @@ table.scgrid{border-collapse:collapse;font-size:.8rem;} .scgrid th{font-weight:6
 <script>window.MathJax={chtml:{scale:0.96}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip"></div><div class="wrap">
-<h1>Cultivated meat: cost and market share <span class="stamp">build 2026-11-16 13:40</span></h1>
+<h1>Cultivated meat: cost and market share <span class="stamp">build 2026-11-16 14:33</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
 <p class="disc">These are estimates from an open model built on public data. They are not forecasts, and they are not investment or
@@ -429,7 +429,7 @@ After that it compares <b>vessels and ways of running a tank</b>. It ends with e
             <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. It saves fresh medium but not the cell filter: the liquid it cleans has passed the filter too. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
           <div class="ctl"><label><span class="nm">Sorbent price</span></label>
             <select id="fx_spx" onchange="fxRender()"><option value="0.05">$0.05/kg (bulk zeolite)</option>
             <option value="0.3">$0.30/kg (bulk zeolite, top)</option><option value="5" selected>$5/kg (graded and sterile, assumed)</option>
@@ -1876,7 +1876,7 @@ function drawCurve(s){
   txRsub(svg,(mL+W-mR)/2,H-3,"Cultivated price ratio ","x"," (lower = cheaper; plant-based fixed at its own Rₚ)",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   // JS-build fingerprint, drawn by the CURVE code itself: if this matches the header stamp, the
   // JavaScript is current (not a stale cached script). Tiny, bottom-right.
-  tx(svg,W-mR,mT-6,"js 2026-11-16 13:40",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
+  tx(svg,W-mR,mT-6,"js 2026-11-16 14:33",{"font-size":6.5,"text-anchor":"end",fill:"#ccc"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
    MEAT (~1%) from the SAME meat-derived coefficients (beta_ref/anchor reused), swapping only the
@@ -2768,7 +2768,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
-console.log("interactive.html JS build 2026-11-16 13:40 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-11-16 14:33 — loss-aversion canonical form + betaCap monotonicity guard active");
 /* ===== scenarios: the switches, the presets and what to prioritise =====
    A line-for-line mirror of scenarios.py (run, design, priorities, interactions); tests/run_parity.py checks the two agree.
    Included into the page's script by build_interactive.py. Everything is computed by floorExplore (the mirror of
@@ -3292,7 +3292,8 @@ function floorExplore(p,noSearch){
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):p.medium_l, mp=p.medium_price===undefined?0.15:p.medium_price;
   let consumables=F.consumables, retCapex=0, membranes=0;
   if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
-    const perm=Math.max(0,ml-1000/lim[1]), kgH=out*1000/(8760*uptime);
+    let perm=Math.max(0,ml-1000/lim[1]); const kgH=out*1000/(8760*uptime);
+    if(sorb>0) perm+=sorb*nh3/(F.nh3_limit/1000);     // the permeate sent through the exchanger and back passes the filter too
     const area=perm*kgH/(p.flux===undefined?F.tff.flux:p.flux);
     retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/(p.membrane_life===undefined?F.tff.mem_life:p.membrane_life);
     capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes; }

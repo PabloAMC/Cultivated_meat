@@ -2,6 +2,20 @@
 
 ## 2026-11-16
 
+Cleaning and reusing the medium (`medium_reuse.py`, `research_notes/medium_reuse.md`; one lever corrected, no scenario moved)
+- Question: can the ammonia be taken out and the liquid reused (project G)? Method: a liquid balance per kg of cells (fresh medium
+  bought, litres cleaned and returned, litres through the cell filter), priced with `explore`, for an ammonium exchanger,
+  electrodialysis, dialysis with a thrown-away or a cleaned dialysate, and dialysis across the culture; each route cleans the litres
+  that cost least. New inputs `mr_*`, each with its source and range.
+- Finding: the liquid a device on the permeate cleans has passed the cell filter either way, and the filter is $0.38 of the $0.75 a
+  litre costs in Central. So permeate-side reuse saves $2–4 a kilo (limit $7.3); dialysis across the culture saves $4.4–8.5
+  (limit $14.8) if its membrane holds up, which nobody has shown. The evidence is one cited report, one bench study and patent claims.
+- **Correction:** `explore`'s `sorbent` lever lowered the litres through the cell filter along with the fresh medium. It no longer
+  does (Python and page). No scenario uses the lever; golden figures unchanged. A sorbent taking half the ammonia takes Central to
+  $28.22, not $22.97; the best share (42%) gives $27.01.
+- `tests/test_medium_reuse.py`, in `run_tests.sh`. RESULTS has a section; METHODS' lever table and the page's sorbent note say the
+  filter is not saved.
+
 Every scenario holds dissolved oxygen at half of air saturation (`scenarios.always`, `sc_do_setpoint`; **numbers move, down**)
 - Humbird's oxygen transfer implies a tank held at 0.28 mmol/L (130% of air saturation). Pharma holds 30-50%. The scenarios now hold
   0.10 mmol/L (about 47%), which widens the oxygen driving force and needs nothing new. Found by `design_space.py`. Humbird's optimistic

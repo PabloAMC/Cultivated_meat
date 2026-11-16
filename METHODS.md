@@ -715,7 +715,7 @@ not only the binding ones, and carries the tricks sized in the gas-exchange and 
 | `col_pout` | CO₂ the culture leaves the column at; 55 mbar keeps the alkaline pulse below the one that hurt CHO (Paul 2020) | calculated against one study |
 | `p_top_barg` | oxygen transfer, and with it the mixing limit, scale with the oxygen driving force (`headspace_pressure`); CO₂ removal does not change | calculated; tanks are rated for it |
 | `nh3_kg`; `lac_yield` × `glc_kg` | the two wastes set as measured (mol/kg; mol/mol × mol/kg), with no scaling; unset, `waste` sets both as before and the reference case is unchanged | bovine 0.70 and 0.14 (Hubalek 2023); yields 0.39–1.41 (CHO), 1.05 (chicken) |
-| `sorbent` (+ `sorbent_q`, `_price`, `_cycles`) | the share of ammonium taken out of the cell-free permeate before it returns; ammonia's medium need falls by that share, the sodium given back stays and counts as salt (1 mOsm per mmol), the sorbent is bought at share × ammonia ÷ capacity × price ÷ uses | capacity 0.1–0.2 mmol/g derived, not measured; price assumed above bulk zeolite |
+| `sorbent` (+ `sorbent_q`, `_price`, `_cycles`) | the share of ammonium taken out of the cell-free permeate before it returns; ammonia's medium need falls by that share, the sodium given back stays and counts as salt (1 mOsm per mmol), the sorbent is bought at share × ammonia ÷ capacity × price ÷ uses. The permeate it cleans has passed the cell filter, so the filter's litres do not fall with the fresh medium (corrected 2026-11-16; `medium_reuse.py` prices electrodialysis and dialysis the same way) | capacity 0.1–0.2 mmol/g derived, not measured; price assumed above bulk zeolite |
 
 Cell side, same table continued:
 

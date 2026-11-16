@@ -66,6 +66,30 @@ From the design-tricks survey (`bioreactor_design_tricks.md`):
 - [ ] **Gas exchange on the filter loop**: cost the column or a membrane module sharing the perfusion loop's pump and piping.
 - [ ] **A non-bicarbonate buffer or a different base**, to test whether the salt limit is real where CO₂ tolerance should help.
 
+Leads on reusing the medium (project G), from two books Pablo downloaded on 2026-11-16 (kept outside the repository: *Cellular
+Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*, Soccol et al. eds., Springer 2024; chapters read in part):
+
+- [ ] **Electrodialysis with selective membranes**: over 90% of ammonium and 99% of lactate removed from culture medium (Nir 2023,
+      as cited in Soccol's waste-management chapter). Find the primary source; it is not in `waste_and_medium_evidence.md`.
+- [ ] **Dialysis loops in patents**: Future Meat / Yissum (WO2018011805: a dialyser with an ammonia filter on the dialysate, at least
+      90% of the perfusion liquid recirculated; WO2021152536: hollow fibres wrapped in absorbent, inside the tank) and Avant Meats
+      (WO2023012523: a membrane of 500 Da or more keeps growth factors in; nitrifying bacteria take the ammonia and an enzyme turns
+      lactate into pyruvate). Patent claims, not data.
+- [ ] **Microalgae on spent medium** (Haraguchi 2021-2023): ammonia taken up, extract fed back, C2C12 cells grew as on standard medium.
+- [ ] **Schneider, Marison and von Stockar 1996**, "The importance of ammonia in mammalian cell culture": the review both books cite for
+      ion exchange, gas-permeable membranes and electrodialysis. Read it in full.
+- [x] Electrodialysis and dialysis priced (`medium_reuse.py`, `research_notes/medium_reuse.md`, 2026-11-16). Cleaning the permeate
+      saves $2–4 a kilo in Central, because the liquid still passes the cell filter ($0.38 of the $0.75 a litre costs); dialysis
+      across the culture saves $4–9 if its membrane holds up. The sorbent lever counted the filter as saved and was corrected
+      (the $22.97 quoted here before is $28.22).
+- [ ] **Bench tests the reuse study asks for**: electrodialysis of real spent medium (removal per pass, nutrients and growth factors
+      lost, energy); a dialyser on a dense culture for weeks (clearance against time); a dialysate cleaned to under 10% make-up.
+- [ ] **What the least medium flow is made of** (16 of Central's 28 L/kg): nutrients, small by-products or large ones. It decides
+      which reuse route can go below 16 L.
+- [ ] **Add reuse to the page** as a lever (litres cleaned, on the permeate or across the culture), once a route has a measured input.
+- [ ] `explore` lets fresh medium fall below the liquid that leaves with the harvested cells (cases under about 36 g/L with
+      low-waste cells). No scenario is affected. Add the floor and repin what moves.
+
 Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
@@ -101,7 +125,7 @@ In the suggested order (roadmap, section 3). Status: idea / started / done.
 | A | FluidX3D tank: validate, mixing vs shape, the column's return plume, the bubble cage's mesh | started | runs on the M4, pipe flow validated in 32-bit (`cfd_plan.md`); next: Rushton power number and mixing time |
 | E | Hybrids and fat: cells as 5–20% of a plant-based product | idea | the near-term case for animals |
 | D | Reported-run ledger with mass-balance flags | idea | merges T and S of the old list |
-| G | Medium regeneration TEA | idea | sizing done in `waste_tricks_sizing.md` |
+| G | Medium regeneration TEA | first pass done 2026-11-16 | `medium_reuse.py`: $2–4/kg on the permeate, $4–9 across the culture; next is bench data |
 | A3 | Oxygen, CO₂ and pH gradients at 20 and 200 m³ | idea | after A0–A2; `tank_size.md` says 20 m³ is within 0.5% of the cheapest |
 | F | Cost-optimal growth rate (the proposal PDF) | idea | two-day check first: is it worth more than ~$1.7/kg? |
 | H | Bench foam test, or a protocol for a partner lab | idea | optional |
