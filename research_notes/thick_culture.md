@@ -1,12 +1,6 @@
 # How thick can a stirred or airlift culture be?
 
-> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
-> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
-> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
-> higher now. Current scenario costs (RESULTS.md), which also hold dissolved oxygen at half of air saturation: best case $9.66 (was
-> $8.95), central $29.42 ($26.64), central with shared medium $26.56 ($24.34), cautious $42.39 ($38.97), reference $12.51 ($11.84).
-> With antifoam counted, oxygen limits the central and cautious tanks, so levers that raise the CO₂ or thickness limits are worth
-> less there than this note says.
+> Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `thick_culture.py`; tests: `tests/test_thick_culture.py`; new inputs: `tc_*` in `inputs.py`. Costs are 2025
 dollars per kg of wet cells. Nothing in `explore` or any default changed: the cost scan sets the density limit with
@@ -17,20 +11,22 @@ read; **part** = sections read, or a fetch summary; **snippet** = search snippet
 
 ## 1. Answer
 
-The Central, best and shared-medium scenarios hold 258 g/L (volume fraction 0.25, 86 million 17.7 um cells per mL). The question has two
-parts, and they have different answers.
+The model's density limit is 258 g/L (volume fraction 0.25, 86 million 17.7 um cells per mL). Only the Best scenario holds it. Oxygen from
+the sparger holds the Central and shared-medium scenarios at 191 g/L and the Cautious scenario at 120 g/L. (Before the recompute, Central and
+shared medium also held 258 g/L.) The question has two parts, and they have different answers.
 
 - **Viscosity does not stop the stirred tank near 258 g/L. As a viscosity limit, 258 is too low.** At 258 g/L the culture is 2.4 times as
   viscous as medium. A 20 m3 stirrer at the model's 43 W/m3 runs at Reynolds number 2.2e5 there and stays fully turbulent up to about
   600 g/L (volume fraction 0.58). Mixing time, which Humbird's equation does not tie to viscosity, holds. The yield stress is under
   0.001 Pa at 258 g/L and 0.15 Pa at half cells; the impeller's stress is 10^4 times larger. Cells settle at 0.6 cm/h and the gas
   rises 3,000 times faster. Viscosity first bites in the pumps and filters (Clincke 2013), and in oxygen transfer.
-- **As the density a 20 m3 tank can hold, 258 is about right for the strongest design and too high for the others.** In the Central design
-  the model's own loop checks fail at 267 g/L, so 258 sits just under the first limit. In designs that feed oxygen with a sparger,
-  viscosity cuts the oxygen transfer and the tank stops at 214 g/L (Best) or 120 g/L (Cautious). With no tricks CO2 stops a tank at
-  120 g/L.
-- **The cost is not sensitive to this number.** Moving the limit from 258 to 180 g/L costs Central +$2.1 (+8%). Moving it to 320 or 400
-  g/L saves it $0.9 or $1.7 (3% and 6%) if the loop's checks are ignored, and costs $0.4 more (+1.6%) if they are kept.
+- **As the density a 20 m3 tank can hold, 258 is about right for the strongest design and too high for the others.** In the Best design
+  (closed oxygen loop) the model's own loop checks fail at 271 g/L, so 258 sits just under the first limit. In designs that feed oxygen
+  with a sparger, the model's oxygen limit is already under 258 (191 g/L Central, 120 g/L Cautious), and viscosity cuts the oxygen
+  transfer further: the tank stops at 151 g/L (Central) or 103 g/L (Cautious). With no tricks CO2 stops a tank at 120 g/L.
+- **The cost is not sensitive to this number.** In Central, oxygen binds at 191 g/L, so a limit of 320 or 400 g/L changes nothing, and
+  180 g/L costs +$0.40 (+1.3%). In Best, 180 g/L costs +$0.32 (+3.3%); 320 or 400 g/L saves $0.13 or $0.24 (1.4% and 2.5%) if the loop's
+  checks are ignored, and costs $0.04 more (+0.4%) if they are kept.
 - **Probabilities that a 20 m3 tank holds the density for a month with everything else solved, at any cost** (JUDG, section 8): 258 g/L
   **18%**, 320 g/L **6%**, 400 g/L about 1%. Most of that risk is the retention device (35% for 258 g/L, from `retention_devices.md`), not
   viscosity (97% that viscosity and mixing allow 258).
@@ -129,12 +125,12 @@ The oxygen a sparger can feed solves x = x_base x kLa factor(x), where x_base is
 
 | tank | model's oxygen limit | with viscosity (exponent 0.4) | range, exponent 0 to 0.6, shear thinning 1 to 3 |
 |---|---|---|---|
-| Humbird's tank, 6 mm/s | 195 | **153** | 118-195 |
-| Best design (column + 1 bar, squat) | 301 | **214** | 158-301 |
-| Cautious design (column + 1 bar, square) | 145 | **120** | 96-145 |
-| Central design (closed oxygen loop) | none | none | none |
+| Humbird's tank, 6 mm/s | 146 | **121** | 96-146 |
+| Central design (column + 1 bar, square) | 191 | **151** | 117-191 |
+| Cautious design (column + 1 bar, tall) | 120 | **103** | 84-120 |
+| Best design (closed oxygen loop) | none | none | none |
 
-Central's oxygen comes through the loop's column, not a sparger, so kLa does not enter. The loop pays for viscosity through its film and pump, which `column_design`
+Best's oxygen comes through the loop's column, not a sparger, so kLa does not enter. The loop pays for viscosity through its film and pump, which `column_design`
 already computes at the density asked.
 
 **CO2.** CO2 leaves with the sparge gas, whose equilibrium does not depend on viscosity to first order. The model's limit (120 g/L at 20 m3, 6 mm/s) stands. Clincke's
@@ -156,21 +152,21 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 | limit | Humbird's tank, no tricks | Central design | Best design |
 |---|---|---|---|
 | CO2 removal | **120** (0.12) | none (column) | none (column) |
-| mixing rule (oxygen transfer vs mixing time) | 189 (0.18) | 4,484 | 1,642 |
-| oxygen supply, the model's | 195 | none (closed loop) | 301 |
-| oxygen supply, with viscosity | **153** (0.15) | none | **214** (0.21) |
-| column loop checks (pH exposure, 15 passes/h) | none | **267** (0.26) | 271 (0.26) |
+| mixing rule (oxygen transfer vs mixing time) | 189 (0.18) | 996 | 1,749 |
+| oxygen supply, the model's | 146 | 191 | none (closed loop) |
+| oxygen supply, with viscosity | **121** (0.12) | **151** (0.15) | none |
+| column loop checks (pH exposure, 15 passes/h) | none | none (oxygen binds first) | **271** (0.26) |
 | the model's viscosity rule | 258 (0.25) | 258 | 258 |
-| jacket cooling | 396 (0.38) | 349 (0.34) | 355 (0.34) |
+| jacket cooling | 396 (0.38) | 366 (0.35) | 355 (0.34) |
 | ATF filter, Clincke | 321 (0.31) | 321 | 321 |
-| stirrer leaves turbulent flow | 603 (0.58) | 612 | 609 |
+| stirrer leaves turbulent flow | 603 (0.58) | 606 | 609 |
 | TFF filter, Clincke | 518 (0.50) | 518 | 518 |
 
-- **Without tricks, the plain tank stops at 120 g/L from CO2**, then oxygen with viscosity at 153 and the mixing rule at 189. Viscosity plays a small part, through oxygen. It never reaches 258.
-- **With the tricks, the first limit is the loop's own checks.** The column must pass the CO2 the sparger cannot, which grows faster than density: Central needs 10.4 passes an hour
-  at 258 g/L, 16.2 at 280 and 31 at 320, against the 15 an hour dense cultures have taken (`ge_passes_tested`) and a pH exposure judged safe at 258. These are screening rules,
-  not physical walls: a larger column passes more culture and costs more (`scenarios.design` refuses such designs).
-- **Then comes oxygen with viscosity** for designs that use a sparger, **then heat** at about 350-400 g/L, **then the ATF's vacuum** at 321 (4 L, Clincke),
+- **Without tricks, the plain tank stops at 120 g/L from CO2**, then oxygen with viscosity at 121 (146 without) and the mixing rule at 189. Viscosity plays a small part, through oxygen. It never reaches 258.
+- **With the closed oxygen loop (Best), the first limit is the loop's own checks.** The column must pass the CO2 the sparger cannot, which grows faster than density: Best needs 9.6 passes an hour
+  at 258 g/L, 14.1 at 280 and 28.5 at 320, against the 15 an hour dense cultures have taken (`ge_passes_tested`), and its pH exposure is 0.81 of the dose judged safe at 258 g/L and 1.2 at 280.
+  These are screening rules, not physical walls: a larger column passes more culture and costs more (`scenarios.design` refuses such designs).
+- **For designs that use a sparger (Central, Cautious), oxygen with viscosity comes first**, at 151 and 103 g/L. **Then heat** at about 355-400 g/L, **then the ATF's vacuum** at 321 (4 L, Clincke),
   **then the TFF at 518**. Stirring, the thing the 258 rule was meant to protect, comes last at about 600.
 - Clincke's own advice (1.46e8 cells/mL, phi 0.37, 383 g/L) and the onset of elasticity (phi 0.4, 414 g/L) lie near the jacket's limit and well under the turbulence limit.
 
@@ -182,21 +178,25 @@ thicker culture can force a design that gives up density). $/kg.
 
 | scenario | 180 | 258 (model) | 320 | 400 |
 |---|---|---|---|---|
-| Best, fixed | 9.31 | **8.95** | 8.80 (oxygen binds at 301) | 8.80 (301) |
-| Best, checked | 9.23 | 8.95 | 8.85 | 8.88 (301) |
-| Central, fixed | 28.75 | **26.64** | 25.71 | 24.94 |
-| Central, checked | 28.13 | 26.64 | 27.07 (236, oxygen) | 27.07 (236) |
-| Central, shared medium, fixed | 25.30 | **24.34** | 23.92 | 23.57 |
-| Central, shared medium, checked | 25.08 | 24.34 | 24.53 (236) | 24.53 (236) |
-| Cautious, fixed | 38.97 (oxygen binds at 145) | **38.97** | 38.97 | 38.97 |
-| Cautious, checked | 37.87 (180, closed loop) | 38.97 | 38.97 | 38.97 |
+| Best, fixed | 9.98 | **9.66** | 9.52 | 9.41 |
+| Best, checked | 9.90 (column + 1 bar, tall) | 9.66 | 9.69 (241, oxygen; column + 1 bar) | 9.69 (241) |
+| Central, fixed | 29.81 | **29.42** (oxygen binds at 191) | 29.42 (191) | 29.42 (191) |
+| Central, checked | 29.81 | 29.42 (191) | 29.42 (191) | 29.42 (191) |
+| Central, shared medium, fixed | 26.76 | **26.56** (191) | 26.56 (191) | 26.56 (191) |
+| Central, shared medium, checked | 26.76 | 26.56 (191) | 26.56 (191) | 26.56 (191) |
+| Cautious, fixed | 42.39 (oxygen binds at 120) | **42.39** | 42.39 | 42.39 |
+| Cautious, checked | 42.39 (120) | 42.39 | 42.39 | 42.39 |
 
-- Central: 180 g/L costs +$2.11 (+7.9%) held and +$1.49 checked; 320 g/L saves $0.92 (3.5%) held and costs $0.43 (1.6%) checked; 400 g/L saves $1.70 (6.4%) held.
-- **Best and Cautious do not benefit from a thicker culture at all**: oxygen from the sparger binds at 301 and 145 g/L.
-- If the sparger's oxygen falls with viscosity (`cost_viscous_oxygen`): Best $8.95 to $9.15 (+2%, 214 g/L); Cautious $38.97 to $41.37 (+6%, 120 g/L); Central unchanged.
+- Best: 180 g/L costs +$0.32 (+3.3%) held and +$0.24 checked; 320 g/L saves $0.13 (1.4%) held and costs $0.04 (0.4%) checked; 400 g/L saves $0.24 (2.5%) held.
+- Central: 180 g/L costs +$0.40 (+1.3%), held or checked; 320 and 400 g/L change nothing.
+- **Central, shared medium and Cautious do not benefit from a thicker culture at all**: oxygen from the sparger binds at 191 and 120 g/L, under the 258 limit.
+  (Before the recompute, Central gained from a thicker culture and Best and Cautious did not.)
+- If the sparger's oxygen falls with viscosity (`cost_viscous_oxygen`): Central $29.42 to $31.15 (+6%, 151 g/L); Central, shared medium $26.56 to $27.44 (+3%);
+  Cautious $42.39 to $44.68 (+5%, 103 g/L); Best unchanged (its oxygen comes through the loop).
 - **The gain from thickness is small** because capital is a smaller share than the medium and retention. A thicker culture also asks more of the retention device: Clincke's growth rate
   fell 60% above 1.5e8 cells/mL (phi 0.37). Output is density x growth rate, so 400 g/L (phi 0.39) could make less than 320. The scan holds growth fixed.
-- `retention_devices.md` (section 6, item 3) noted that the Cautious case could run all three tricks at 180 g/L for $37.87. It shows here as the checked row.
+- With all three tank tricks at 180 g/L the Cautious case would cost $38.09 to $39.72, but none of those designs passes the loop's checks (pH dose 1.55 to 1.68 times the safe
+  dose), so the checked row at 180 g/L is the Cautious case's own design ($42.39). `retention_devices.md` reaches the same answer.
 - `explore(x_scale=...)` scales only the CO2 limit, so it is not a density limit for the whole tank; the scan uses the `vm` cap.
 
 ## 8. Probabilities (JUDG)
@@ -215,13 +215,13 @@ Evidence for the densities shown: Clincke 4 L, 2.14e8 cells/mL (phi 0.5) with a 
 How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the tricks (55%, 33%, 17%); C = B x retention (35%, 20%, 8%).
 - A is high because the Reynolds number is 2e5 to 9e4 and the yield stress is tiny. The risk in A is meat cells, which may clump and rise in viscosity in ways CHO does not (fibroblasts, DNA from lysed
   cells), and the measured shear thinning, which reaches 3 times.
-- The gas side is the repo's untested tricks: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 320 g/L Central needs 31 passes an hour.
+- The gas side is the repo's untested tricks: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 320 g/L the Best design needs 29 passes an hour; Central's sparger cannot feed more than 191 g/L.
 - Retention is the largest risk. The ATF stopped at 1.3e8 cells/mL (phi 0.31); only the TFF has gone beyond, and only for days at 4 L.
 - Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, the reference case, `retention_devices.md` gives 75%.
 
 ## 9. What would settle it
 
-1. Oxygen transfer (kLa) in a stirred tank of 1 m3 or more at 1e8 cells/mL or more, measured in the culture, not in cell-free medium. It sets whether the sparger's oxygen is 153 or 195 g/L.
+1. Oxygen transfer (kLa) in a stirred tank of 1 m3 or more at 1e8 cells/mL or more, measured in the culture, not in cell-free medium. It sets whether the sparger's oxygen is 151 or 191 g/L in the Central design (121 or 146 in Humbird's tank).
 2. The viscosity of a meat-cell culture (fibroblast or muscle line) at phi 0.2 to 0.4 at 37 C, with the flow curve below 40 per second.
 3. A month-long run of any filter loop above 1e8 cells/mL at a scale of 100 L or more.
 4. A column-loop pass through live cells at 15 or more passes an hour for a week.

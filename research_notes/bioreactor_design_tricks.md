@@ -88,7 +88,7 @@ question for the next pass.
 | trick | what it relieves | in the model |
 |---|---|---|
 | Restart from a healthy neighbouring tank | lost time after a loss (4 days in place of 14) | restart setting (added today) |
-| Many small tanks or few large | CO₂ (shallower) against capital | tank-size study: 20 m³ is within 0.5% of the cheapest (repo) |
+| Many small tanks or few large | CO₂ (shallower) against capital | tank-size study: 20 m³ is within 0.5–1.8% of the cheapest (cautious 4.6%) (repo) |
 | Continuous harvest | output per tank | perfusion and fill-and-draw rows |
 
 ## 3. What would pay most, given the limits above

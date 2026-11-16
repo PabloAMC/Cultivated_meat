@@ -342,7 +342,8 @@ def washout_litres(cells: Cells, waste: float = 0.0, nh3_limit: float | None = N
 
 # Settings that restore what earlier notes were computed with, for the tests that check those notes' figures:
 # before the filter loop became the default (2026-11-15), and before the protectant, the antifoam and the yeast-style
-# plant's oxygen were counted (2026-11-15, late). Use with _inputs_set / retention._with.
+# plant's oxygen were counted (2026-11-15, late). Use with _inputs_set / retention._with. Since 2026-11-16 only parts of
+# tests/test_gas_exchange.py and tests/test_plant_items.py still use them; the other side studies run on the current model.
 BEFORE_PROTECTANT = {"pf_antifoam_otr": 1.0, "pf_protectant_dose": 0.0, "pf_o2_microbial": 0.0,
                      "sc_do_scenarios": 0.0}    # and before the scenarios held dissolved oxygen low (2026-11-16)
 BEFORE_FILTER_LOOP = {"rt_tff_default": 0.0, **BEFORE_PROTECTANT}

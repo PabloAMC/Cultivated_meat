@@ -11,7 +11,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import floor_physics as fp
 import gf_doubling_bounds as G
@@ -20,11 +19,10 @@ from inputs import value
 
 # $/kg of cells, each scenario's tank design held fixed, at other doubling times
 GOLDEN_SCAN = {
-    "best": {16.0: 7.9784, 24.0: 8.9488, 43.0: 15.5315},
-    "central": {16.0: 22.4851, 24.0: 24.1353, 36.0: 26.6381, 43.0: 28.1477},
-    "cautious": {16.0: 30.8564, 36.0: 37.0707, 43.0: 38.9681},
+    "best": {16.0: 8.7272, 24.0: 9.6571, 43.0: 16.6972},
+    "central": {16.0: 25.0979, 24.0: 27.0127, 36.0: 29.4162, 43.0: 30.7296},
+    "cautious": {16.0: 33.0129, 36.0: 40.2097, 43.0: 42.3918},
 }
-
 
 def close(a, b, tol=1e-6):
     return abs(a - b) <= tol * max(1.0, abs(b))
@@ -128,9 +126,9 @@ def check() -> list:
             ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 63.1958),
             ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1834.2358),
             ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 5.1305),
-            ("central reuse, full price", G.reuse("central")["full_reuse"], 1.4705),
-            ("central own, reuse", G.reuse("central")["own_reuse"], 0.4411),
-            ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 1.588),
+            ("central reuse, full price", G.reuse("central")["full_reuse"], 1.9871),
+            ("central own, reuse", G.reuse("central")["own_reuse"], 0.5961),
+            ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 1.9183),
             ("bottom-up ATP per g wet", G.biosynthesis_atp()["wet"], 15.7986),
             ("energy limit at 2x, bottom-up", G.energy_limit(2.0)["doubling_h"], 9.1139),
             ("energy limit at 2x, model split", G.model_energy_limit(2.0)["doubling_h"], 8.0),

@@ -6,7 +6,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import floor_physics as fp
 import min_litres as M
@@ -15,12 +14,11 @@ from inputs import REGISTRY, value
 
 # L/kg and $/kg at the bounds, per scenario (the scenarios' own costs are pinned in test_scenarios and test_golden)
 GOLDEN = {
-    "best": {"bath": (23.0745, 15.19), "physical": (5.7992, 6.94), "practical": (5.7992, 6.94), "measured_flow": (5.3395, 6.77),
-             "no_waste": (10.8202, 8.82), "no_waste_low_flow": (8.0, 7.76)},
-    "central": {"bath": (25.1232, 24.67), "physical": (6.4098, 12.28), "practical": (8.0, 13.05), "measured_flow": (8.0, 13.05),
-                "no_waste": (16.2303, 18.56), "no_waste_low_flow": (8.0, 13.05)},
+    "best": {"bath": (23.0754, 16.61), "physical": (5.8, 7.33), "practical": (5.8, 7.33), "measured_flow": (5.338, 7.13),
+             "no_waste": (10.8202, 9.51), "no_waste_low_flow": (8.0, 8.28)},
+    "central": {"bath": (25.1388, 27.28), "physical": (6.4134, 13.76), "practical": (8.007, 14.63), "measured_flow": (8.007, 14.63),
+                "no_waste": (16.2303, 20.63), "no_waste_low_flow": (8.007, 14.63)},
 }
-
 
 def close(a, b, tol=2e-3):
     return abs(a - b) <= tol * max(1.0, abs(b))

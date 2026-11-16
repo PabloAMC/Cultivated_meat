@@ -11,7 +11,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import floor_physics as fp
 import gas_exchange as ge
@@ -21,13 +20,13 @@ from inputs import value
 
 # $/kg: the design held, loop checks off ('fixed') and the design chosen again with the loop checks ('checked'), at each density limit
 GOLDEN_CAP = {
-    "best":         {180.0: (9.3106, 9.2314), 320.0: (8.7955, 8.8548), 400.0: (8.7955, 8.8795)},
-    "central":      {180.0: (28.7452, 28.1332), 320.0: (25.7148, 27.0693), 400.0: (24.9415, 27.0693)},
-    "central_lean": {180.0: (25.3045, 25.0786), 320.0: (23.9237, 24.5265), 400.0: (23.5746, 24.5265)},
-    "cautious":     {180.0: (38.9681, 37.8746), 320.0: (38.9681, 38.9681), 400.0: (38.9681, 38.9681)},
+    "best":         {180.0: (9.9802, 9.9010), 320.0: (9.5230, 9.6923), 400.0: (9.4147, 9.6923)},
+    "central":      {180.0: (29.8132, 29.8132), 320.0: (29.4162, 29.4162), 400.0: (29.4162, 29.4162)},
+    "central_lean": {180.0: (26.7586, 26.7586), 320.0: (26.5552, 26.5552), 400.0: (26.5552, 26.5552)},
+    "cautious":     {180.0: (42.3918, 42.3918), 320.0: (42.3918, 42.3918), 400.0: (42.3918, 42.3918)},
 }
-# cost if viscosity lowers the oxygen a sparger can feed
-GOLDEN_O2 = {"best": (9.1538, 213.59), "cautious": (41.3674, 120.49)}
+# cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
+GOLDEN_O2 = {"central": (31.1534, 150.69), "cautious": (44.6770, 102.72)}
 
 
 def close(a, b, tol=1e-6):
@@ -102,11 +101,11 @@ def check() -> list:
     if L["first"] != "CO2 removal" or not close(L["x"], 120.0, 1e-3):
         fails.append(f"in Humbird's plain tank CO2 binds first at 120 g/L, got {L['first']} at {L['x']:.0f}")
     Lc = TC.limits_at(S.explore_kwargs(S.SCENARIOS["central"].choice))
-    if Lc["first"] != "column loop checks" or not (260.0 < Lc["x"] < 275.0):
-        fails.append(f"Central: the column loop's checks should bind first near 267 g/L, got {Lc['first']} at {Lc['x']:.0f}")
+    if Lc["first"] != "oxygen supply, with viscosity" or not (148.0 < Lc["x"] < 154.0):
+        fails.append(f"Central: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
-    if Lb["first"] != "oxygen supply, with viscosity" or not (212.0 < Lb["x"] < 216.0):
-        fails.append(f"Best: oxygen with viscosity should bind first near 214 g/L, got {Lb['first']} at {Lb['x']:.0f}")
+    if Lb["first"] != "column loop checks" or not (265.0 < Lb["x"] < 275.0):
+        fails.append(f"Best: the column loop's checks should bind first near 271 g/L, got {Lb['first']} at {Lb['x']:.0f}")
     # the cost at other density limits
     for k in S.ORDER:
         own = S.run(S.SCENARIOS[k].choice)["total"]

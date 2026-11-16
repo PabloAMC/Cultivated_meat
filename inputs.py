@@ -1232,7 +1232,7 @@ REGISTRY: dict[str, Input] = {
         note="no animal-cell run on dialyser fibres was found"),
     "rt_dial_hw": Input(0.5, "$k per m2", "[assumed] manifolds, sterile connections and pumps per m2 of dialyser fibre, "
         "about $900 for each 1.8 m2 dialyser; none could be priced", lo=0.2, hi=1.0, mode=0.5,
-        note="a central-case plant needs about 420 dialysers in parallel, so hardware, not fibre, sets the cost"),
+        note="a central-case plant needs about 290 dialysers in parallel, so hardware, not fibre, sets the cost"),
     "rt_dial_phi_max": Input(0.35, "volume fraction", "[Fresenius FX 80 data sheet, snippet] the densest fluid dialysers "
         "routinely filter: whole blood at a haematocrit of 32-40%, for hours", lo=0.3, hi=0.4, mode=0.35),
     "rt_ceramic_price": Input(1500.0, "$/m2", "[research pass, snippets] ceramic microfiltration elements for dairy and "

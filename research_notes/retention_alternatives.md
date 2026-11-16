@@ -1,12 +1,6 @@
 # Cheaper ways to hold the cells back
 
-> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
-> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
-> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
-> higher now. Current scenario costs (RESULTS.md), which also hold dissolved oxygen at half of air saturation: best case $9.66 (was
-> $8.95), central $29.42 ($26.64), central with shared medium $26.56 ($24.34), cautious $42.39 ($38.97), reference $12.51 ($11.84).
-> With antifoam counted, oxygen limits the central and cautious tanks, so levers that raise the CO₂ or thickness limits are worth
-> less there than this note says.
+> Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Research date: 2026-11-15. Code: `retention.py` (devices `reuse`, `dialyser`, `ceramic`); inputs `rt_reuse_*`, `rt_dial_*`,
 `rt_ceramic_*` in `inputs.py`. The full research report, with every source and its access level, is in
@@ -17,21 +11,21 @@ full, and the report marks each one. No price comes from a quote. Costs are 2025
 
 After `retention_devices.md`, the model prices perfusion's retention as a TFF hollow-fibre loop. Its hardware is cheap. Its
 membranes are not: $1,450 per m², replaced after 3,960 litres, about $0.37 per litre of permeate. In the central case that is
-$8.8 of the $26.64 a kilo. Could membranes from other industries cut the cost per litre?
+$8.3 of the $29.42 a kilo. Could membranes from other industries cut the cost per litre?
 
 Prices differ enormously. The same polymers cost $3 to $150 per m² in dialysers and wastewater plants. The model's $1,450 is a
 price for small pharma volumes, not a floor set by materials. What decides the answer is how long a membrane lasts with cells at
-a quarter of the volume, and nobody has measured that for any of these.
+18–25% of the volume, and nobody has measured that for any of these.
 
 ## 2. Results
 
-Central case, the culture at 258 g/L, 1.88 m³/h of permeate. The default TFF loop costs $26.64.
+Central case, the culture at 191 g/L, 1.31 m³/h of permeate. The default TFF loop costs $29.42.
 
 | Route | Membrane price | Membrane life | Central $/kg (range) | Reference / best | What has been shown |
 |---|---|---|---|---|---|
-| Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **20.72** (19.17–23.80) | 11.15 / 7.16 | no reuse data with animal cells; steam limits a module to about 10 cycles |
-| Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **18.00** (17.68–19.73) | 10.83 / 6.34 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |
-| Ceramic membranes, run as a slow TFF loop | $1,500/m² (500–3,000) | 40,000 L/m² (15,000–200,000) | **19.14** (17.76–26.79) | 10.96 / 6.68 | nothing with animal cells; beyond the density any filter has held |
+| Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **23.83** (22.37–26.74) | 11.82 / 7.87 | no reuse data with animal cells; steam limits a module to about 10 cycles |
+| Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **21.26** (20.96–22.89) | 11.50 / 7.05 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |
+| Ceramic membranes, run as a slow TFF loop | $1,500/m² (500–3,000) | 40,000 L/m² (15,000–200,000) | **22.34** (21.04–29.56) | 11.63 / 7.39 | nothing with animal cells; beyond the density any filter has held |
 | Wastewater membrane bioreactor | $11–150/m² | 10–16 years | not costed | | it cannot be steamed, is built for a quarter of the solids, and needs coarse bubbles in the culture |
 | Food and beverage hollow fibres | not found | 6–8 years in wine | not costed | | sanitised, not sterilised; fluids with under 1% solids |
 
@@ -39,14 +33,14 @@ The ranges move each route's own inputs together to their favourable and unfavou
 
 - **Dialysers lead.** They cost $3–14 per m², are sterilised by steam or gamma rays, and are the only mass-made membrane found
   that routinely filters a fluid as thick as the central case. Their flux is lower (2.5 L/m²/h), so the central case needs about
-  750 m², roughly 420 dialysers in parallel. Their hardware is therefore a larger cost than their fibre: $0.5k per m² for
+  520 m², roughly 290 dialysers in parallel. Their hardware is therefore a larger cost than their fibre: $0.5k per m² for
   manifolds, connections and pumps, which is an assumption.
 - **The catches are real.** A dialyser's fibre bore is 185 µm, 11 cell diameters, so clumps of cells could plug it. Dialysers
-  hold back albumin and most growth factors, so a protein in the feed would build up to about 7 times its feed level in the
+  hold back albumin and most growth factors, so a protein in the feed would build up to about 5 times its feed level in the
   central case unless it is fed only at the rate the bleed removes it. That could also be an opening: it would cut the
   protein used per kilo. It has not been tested.
 - **Ceramic is cheaper per litre than pharma but needs a plant around it.** Its elements are rated for years in dairies. A
-  stainless housing, a cleaning skid and a spare bank add $3k per m² (assumed), which makes its capital $104k per m³ of tank in
+  stainless housing, a cleaning skid and a spare bank add $3k per m² (assumed), which makes its capital $72k per m³ of tank in
   the central case. It works only if cleaning in place restores the flux after animal cells foul it. Dairies run it at several
   metres a second across the membrane, which would put about 25 times the shear of an ATF filter on the cells, so it must run
   slowly like a TFF loop.
@@ -70,7 +64,7 @@ The ranges move each route's own inputs together to their favourable and unfavou
 1. **The price of membranes is not the obstacle; their life is.** At $14 per m², a tenfold saving needs only about 400 litres per
    m² of life, 3 to 4 days at 5 litres per m² an hour. That is about what the pharma membranes in Veje 2024 reached before they
    fouled. No one has measured any of these routes with a culture this thick for a month.
-2. **If membranes did that, Central would fall from $26.64 to about $18 to $19.** That is near the old $18.14 that assumed
+2. **If membranes did that, Central would fall from $29.42 to about $21 to $22.** That is near the old $21.63 that assumed
    retention was free, but it rests on a 15% chance, and it leaves out extra capital that reusable systems need and that could
    not be priced.
 3. **The experiment that would settle it:** run dialyser fibres and a ceramic element on a small perfusion culture of a meat cell

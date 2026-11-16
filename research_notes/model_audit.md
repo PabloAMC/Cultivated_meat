@@ -39,8 +39,8 @@ Between 563024d and 80b5411 nine pull requests (retention devices, medium, nutri
 analysis and left every pinned value alone, by design. The last two rows are added by hand; `audit_history.py` reproduces them when run.
 
 - **Each step was a correction.** The capital charge, the audit's findings and the membranes were real omissions. The filter loop is the
-  clearest: the model had priced the device that holds the cells back at $89k per m³ and nothing for its membranes, which come to $8.83 a
-  kilo in Central. That is 33% of the cost.
+  clearest: the model had priced the device that holds the cells back at $89k per m³ and nothing for its membranes, which come to $8.33 a
+  kilo in Central. That is 28% of the cost.
 - **A pattern of one-way corrections is a warning.** If a model is unbiased, corrections go both ways. These did not, which says the early model
   was optimistic. It would be wrong to assume the last correction was the last. Sections 3 and 4 look for what remains.
 - **The model changed fast.** The headline numbers moved only on 14 and 15 November, driven by successive reviews, and have not moved

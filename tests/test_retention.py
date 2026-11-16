@@ -11,7 +11,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import floor_physics as fp
 import retention as R
@@ -44,9 +43,9 @@ def check() -> list:
         if not (close(sz["capex_k_m3"], r["retention_capex"], 1e-9) and close(sz["cons_kg"], r["membranes"], 1e-9)):
             fails.append(f"{name}: TFF sizing ({sz['capex_k_m3']:.3f}k, ${sz['cons_kg']:.3f}) != explore "
                          f"({r['retention_capex']:.3f}k, ${r['membranes']:.3f})")
-    # the old hoped-for device: a flat $89k per m3 and no membranes gives the old reference cost
-    if not close(R.scenario_cost("hoped", {})["total"], 11.4801, 1e-5):
-        fails.append("the hoped-for device no longer reproduces the old reference cost ($11.48)")
+    # the old hoped-for device: a flat $89k per m3 and no membranes gives the reference case's cost with that device
+    if not close(R.scenario_cost("hoped", {})["total"], 12.1497, 1e-5):
+        fails.append("the hoped-for device no longer gives the pinned reference cost ($12.15)")
     cen = R.cases()["central"]
     d = R.duty(cen)
     # ATF: whole units that cover the permeate at the design flux
@@ -69,8 +68,8 @@ def check() -> list:
         rg = R.scenario_range(dev, cen)
         if not rg["low"]["total"] <= rg["mid"]["total"] + 1e-9 <= rg["high"]["total"] + 2e-9:
             fails.append(f"{dev}: range out of order")
-    # pinned headline (central): TFF $26.64, disc stack $25.69, ATF $30.43
-    for dev, want in (("tff", 26.6381), ("discstack", 25.6895), ("atf", 30.4258)):
+    # pinned headline (central): TFF $29.42, disc stack $26.85, ATF $32.92
+    for dev, want in (("tff", 29.4162), ("discstack", 26.8452), ("atf", 32.9224)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-4):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
@@ -88,7 +87,7 @@ def check() -> list:
         fails.append("dialyser: lower flux should need more membrane area than the TFF loop")
     if not R.sizing("reuse", cen, d)["cons_kg"] < R.sizing("tff", cen, d)["cons_kg"]:
         fails.append("reused modules: membranes per kg should fall")
-    for dev, want in (("reuse", 20.7198), ("dialyser", 17.9978), ("ceramic", 19.1385)):
+    for dev, want in (("reuse", 23.8320), ("dialyser", 21.2637), ("ceramic", 22.3400)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")

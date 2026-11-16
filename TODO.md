@@ -87,6 +87,15 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **What the least medium flow is made of** (16 of Central's 28 L/kg): nutrients, small by-products or large ones. It decides
       which reuse route can go below 16 L.
 - [ ] **Add reuse to the page** as a lever (litres cleaned, on the permeate or across the culture), once a route has a measured input.
+- [ ] **Widen the scenarios' cost bands** to draw the inputs that move Central most and are not drawn now: the ammonia the cells
+      tolerate, the protectant's price, the least medium flow, antifoam's cost to oxygen transfer, the gas the tank takes
+      (`answer_rests_on.py`). Central's $27–38 band is too narrow. Needs a prior for each; moves every headline band.
+- [ ] **Two demand inputs move the share the wrong way** (loss aversion and the weight on the price ratio raise Central's share).
+      Both re-calibrate the demand model; check whether the calibration over-compensates.
+- [ ] **Re-judge the probabilities** in `tank_size.md` (section 7, column D), `no_perfusion_downside.md` and `retention_devices.md`
+      (section 5): they were judged when Central ran at 258 g/L; it now runs at 191, limited by oxygen.
+- [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
+      loop and the protectant switched off (`floor_physics.BEFORE_FILTER_LOOP`). Recompute them, or mark those sections as history.
 - [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,
       "harvest"); no scenario moved, the airlift in perfusion went from $14.78 to $15.07.
 
@@ -126,7 +135,7 @@ In the suggested order (roadmap, section 3). Status: idea / started / done.
 | E | Hybrids and fat: cells as 5–20% of a plant-based product | idea | the near-term case for animals |
 | D | Reported-run ledger with mass-balance flags | idea | merges T and S of the old list |
 | G | Medium regeneration TEA | first pass done 2026-11-16 | `medium_reuse.py`: $2–4/kg on the permeate, $4–9 across the culture; next is bench data |
-| A3 | Oxygen, CO₂ and pH gradients at 20 and 200 m³ | idea | after A0–A2; `tank_size.md` says 20 m³ is within 0.5% of the cheapest |
+| A3 | Oxygen, CO₂ and pH gradients at 20 and 200 m³ | idea | after A0–A2; `tank_size.md` says 20 m³ is within 0.5–1.8% of the cheapest (cautious: 4.6%, at 111 m³) |
 | F | Cost-optimal growth rate (the proposal PDF) | idea | two-day check first: is it worth more than ~$1.7/kg? |
 | H | Bench foam test, or a protocol for a partner lab | idea | optional |
 

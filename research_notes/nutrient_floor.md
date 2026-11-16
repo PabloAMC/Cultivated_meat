@@ -1,12 +1,6 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
-> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
-> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
-> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
-> higher now. Current scenario costs (RESULTS.md), which also hold dissolved oxygen at half of air saturation: best case $9.66 (was
-> $8.95), central $29.42 ($26.64), central with shared medium $26.56 ($24.34), cautious $42.39 ($38.97), reference $12.51 ($11.84).
-> With antifoam counted, oxygen limits the central and cautious tanks, so levers that raise the CO₂ or thickness limits are worth
-> less there than this note says.
+> Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `nutrient_floor.py`; tests: `tests/test_nutrient_floor.py`; inputs `nf_*` in `inputs.py`. The source is
 GFI, *Amino acid cost and supply chain analysis for cultivated meat* (December 2025; Table 1 and Fig. 9), read in full from the
@@ -43,29 +37,29 @@ are also left out.
 
 | Scenario | Now | Feed-grade, 232 g/kg | Low food-grade, 350 g/kg | High food-grade, 650 g/kg |
 |---|---|---|---|---|
-| Best case | $8.95 | $9.76 | $12.36 | $23.47 |
-| Central | $26.64 | $26.64 | $26.64 | $37.39 |
+| Best case | $9.66 | $10.47 | $13.07 | $24.18 |
+| Central | $29.42 | $29.42 | $29.42 | $40.17 |
 
 - **The best case is sensitive.** Its medium is set by the floor (11 L/kg at $0.15), so every dollar of the floor is a dollar of
   cost. At GFI's cheapest tier it would cost $0.8 more; at the low food-grade tier and 350 g/kg, $3.4 more.
 - **Central is not, unless amino acids are dear.** Litres times price ($5.72) is above the floor everywhere except the high
   food-grade tier at the worst bioconversion. GFI's own figure for its media, $0.20 a litre, agrees with that.
-- **No scenario reaches price parity either way.** The best case needs $7 a kilo and already costs $8.95.
+- **No scenario reaches price parity either way.** The best case needs $7 a kilo and already costs $9.66.
 
 ## 4. The $0.05 setting
 
 You asked for a medium price down to $0.05 a litre as an aspiration. The "Price of the medium" switch now has one: **$0.05 a
 litre**, tagged "feed or process", labelled as an aspiration. No one has reported it: the lowest company report is $0.07, and GFI's
 amino acids alone cost $0.02–0.17. Below about $0.06 the floor binds, so this setting prices the medium at the floor. In Central it
-costs **$22.68** (−$3.96). In the best case it changes nothing. The best case keeps $0.15. The preset rule says so.
+costs **$25.46** (−$3.96). In the best case it changes nothing. The best case keeps $0.15. The preset rule says so.
 
 Since this section's result is that the floor is probably higher, a $0.05 medium at the model's $1.70 floor is optimistic. At the
-cheapest GFI floor ($2.50) Central at $0.05 would cost about $23.5.
+cheapest GFI floor ($2.50) Central at $0.05 would cost about $26.3.
 
 ## 5. What this means, and what is open
 
 1. **A decision for Pablo:** raise the model's floor to GFI's? The cheapest GFI tier gives $2.50 a kilo, which moves the best case
-   to $9.76. That is a judgement about hydrolysates, so I have not changed it.
+   to $10.47. That is a judgement about hydrolysates, so I have not changed it.
 2. **The $0.90 for everything else is still an assumption.** Vitamins, salts, trace elements and lipids could be checked against
    the same GFI report's appendix and media-supplier quotes. It is the largest unsourced part of the floor.
 3. **Weighting.** The mean price is unweighted. GFI's weighted figures are in charts and its spreadsheet, which I did not download.

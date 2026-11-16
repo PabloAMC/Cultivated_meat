@@ -1,12 +1,6 @@
 # Growth-factor prices and the fastest doubling time
 
-> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
-> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
-> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
-> higher now. Current scenario costs (RESULTS.md), which also hold dissolved oxygen at half of air saturation: best case $9.66 (was
-> $8.95), central $29.42 ($26.64), central with shared medium $26.56 ($24.34), cautious $42.39 ($38.97), reference $12.51 ($11.84).
-> With antifoam counted, oxygen limits the central and cautious tanks, so levers that raise the CO₂ or thickness limits are worth
-> less there than this note says.
+Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `gf_doubling_bounds.py`; tests: `tests/test_gf_doubling_bounds.py`; numbers: `inputs.py` (`gb_*`). Costs are 2025 dollars
 per kg of wet cells. Humbird's prices are 2018 dollars; the model scales them by 1.28 (`pf_opex_escalation`). Nothing in the model changes: the
@@ -22,13 +16,14 @@ judgement, not forecasts of the industry.
   $3,668 or $5,503. The Best case (11.2 L/kg) allows prices 2.5 times higher, and the cautious case (28 L/kg) needs the same prices as Central.
 - **What dominates.** Insulin and transferrin dominate the cost at Humbird's prices (72%), because the cells use grams of them. TGF-beta and FGF
   dominate the price gap: bought at the prices found, they are 3,000 to 16,000 times too dear for $1 a kilo, against 36 times for insulin.
-- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 28 to 4.1 per kilo in Central. At the model's own 30% price that saves
-  $2.55 of the $2.99. FGF2 that decays (half-life under 10 h) cuts that saving by about a tenth. No source shows a filter that holds these proteins back in a
+- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 28 to 5.6 per kilo in Central. At the model's own 30% price that saves
+  $2.39 of the $2.99. FGF2 that decays (half-life under 10 h) cuts that saving by about 15%. No source shows a filter that holds these proteins back in a
   perfusion tank.
 - **Doubling time.** The energy and biosynthesis budget lets an animal cell double in about 8 to 9 h if it can burn twice the oxygen West's law gives
   at 24 h. The range is 5 to 13 h for 3 to 1.5 times. The ribosomes give a similar bound. So physics allows doubling far faster than any
   scenario assumes. Biology and waste, not energy, stop 24 h cells.
-- **Cost of speed.** Central costs $26.64 at 36 h, $24.14 at 24 h and $22.49 at 16 h. Past 16 h, speed adds little.
+- **Cost of speed.** Central costs $29.42 at 36 h, $27.01 at 24 h and $25.10 at 16 h. This changed: speed past 16 h no longer adds little. Central
+  saves another $3.08 from 16 h to 8 h, more than the $1.91 from 24 h to 16 h; oxygen supply now limits Central at every doubling time.
 
 ## 2. Growth factors
 
@@ -114,21 +109,21 @@ Three readings.
 
 ### 2.5 Reuse: what a filter that returns the proteins saves
 
-`reuse(key)`. The permeate (retention.duty's flow) is protein-free, so only the bleed carries the proteins out. That is 3.88 L/kg in Best and Central
-(1000 / 258 g/L) and 6.89 in the cautious case (145 g/L). A first fill adds 0.17 (Best), 0.26 (Central) and 0.55 (cautious) L/kg.
+`reuse(key)`. The permeate (retention.duty's flow) is protein-free, so only the bleed carries the proteins out. That is 3.88 L/kg in Best
+(1000 / 258 g/L), 5.24 in Central (191 g/L) and 8.32 in the cautious case (120 g/L). A first fill adds 0.17 (Best), 0.35 (Central) and 0.67 (cautious) L/kg.
 
 | Scenario | Medium L/kg | Permeate L/kg (share) | Full price, no reuse | Full price, reuse | Scenario's own assumption, no reuse | With reuse |
 |---|---|---|---|---|---|---|
 | Best | 11.2 | 7.3 (65%) | $3.97 | $1.44 | $0 (none bought) | $0 |
-| Central | 28.0 | 24.1 (86%) | $9.96 | $1.47 | $2.99 | $0.44 |
-| Cautious | 28.0 | 21.1 (75%) | $9.96 | $2.65 | $5.97 | $1.59 |
+| Central | 28.0 | 22.8 (81%) | $9.96 | $1.99 | $2.99 | $0.60 |
+| Cautious | 28.0 | 19.7 (70%) | $9.96 | $3.20 | $5.97 | $1.92 |
 
-So reuse saves $2.55 of $2.99 in Central, $4.39 of $5.97 in the cautious case, and $2.53 if Best bought growth factors at Humbird's price.
+So reuse saves $2.39 of $2.99 in Central, $4.06 of $5.97 in the cautious case, and $2.53 if Best bought growth factors at Humbird's price.
 
 Four limits on this number.
 - **Decay.** The tank holds a retained protein for 35 h (Best), 53 h (Central) or 64 h (cautious), the time the bleed takes to turn over the liquid.
   Wild-type FGF2 has a half-life under 10 h at 37 C (vendor pages and a review, SNIP). With it decaying and the other three stable, the full-price cost
-  in Central rises from $1.47 to $2.37 and the saving falls from 85% to 76%. FGF2-G3, the engineered form, lasts over 7 days (vendor claim, SNIP; a preprint
+  in Central rises from $1.99 to $3.20 and the saving falls from 80% to 68%. FGF2-G3, the engineered form, lasts over 7 days (vendor claim, SNIP; a preprint
   reports over 20 days). I did not find half-lives for insulin, transferrin or TGF-beta; the cells also take them up.
 - **The model's filter passes proteins.** The default TFF loop uses 0.2 micron hollow fibres (Repligen Spectrum, per the retention note). Those pass all
   four proteins. Holding them back needs an ultrafilter or a dialyser fibre, which the retention note says would raise a protein to about 7 times its feed
@@ -136,7 +131,7 @@ Four limits on this number.
 - **Adsorption and shear.** No measurement of growth-factor retention by a filter in cultivated-meat perfusion exists in the notes I hold
   (`waste_and_medium_evidence.md`, item N).
 - **Price follows volume.** If prices follow Humbird's line, using less protein shrinks the market, so each gram costs more. Cost per kilo then goes as
-  litres^0.139, and the saving in Central falls from 85% to 23%. The 85% holds only if the price sits on a production-cost floor that a bigger plant does not lower.
+  litres^0.139, and the saving in Central falls from 80% to 20%. The 80% holds only if the price sits on a production-cost floor that a bigger plant does not lower.
 
 ## 3. Doubling time
 
@@ -200,19 +195,20 @@ Other limits sit outside this budget: DNA replication (S phase of 6 to 8 h in mo
 
 | Doubling time | Best | Central | Cautious |
 |---|---|---|---|
-| 8 h (beyond any meat cell shown) | 6.54 | 20.83 | 26.46 |
-| 12 h | 7.42 | 21.66 | 29.07 |
-| 16 h | 7.98 | 22.49 | 30.86 |
-| 20 h | 8.46 | 23.31 | 32.31 |
-| 24 h | **8.95** (own) | 24.14 | 33.61 |
-| 30 h | 10.89 | 25.37 | 35.39 |
-| 36 h | 13.04 | **26.64** (own) | 37.07 |
-| 43 h | 15.53 | 28.15 | **38.97** (own) |
+| 8 h (beyond any meat cell shown) | 7.80 | 22.02 | 27.83 |
+| 12 h | 8.27 | 23.85 | 30.92 |
+| 16 h | 8.73 | 25.10 | 33.01 |
+| 20 h | 9.18 | 26.11 | 34.71 |
+| 24 h | **9.66** (own) | 27.01 | 36.21 |
+| 30 h | 11.73 | 28.25 | 38.27 |
+| 36 h | 14.03 | **29.42** (own) | 40.21 |
+| 43 h | 16.70 | 30.73 | **42.39** (own) |
 
-- Central saves $2.50 from 36 h to 24 h, $4.15 to 16 h and $5.81 to 8 h. Best saves $0.97 from 24 h to 16 h.
+- Central saves $2.41 from 36 h to 24 h, $4.32 to 16 h and $7.40 to 8 h. Best saves $0.93 from 24 h to 16 h.
 - Medium does not shrink with speed. Ammonia sets Central's 28 L/kg whatever the doubling time. Capital and labour fall instead.
-- In the Best and cautious cases, density falls at the fast end because oxygen supply binds: Best drops from 258 to 241 g/L at 16 h, 201 at 12 h and 151 at 8 h;
-  cautious from 145 (43 h) to 91 (16 h) and 57 g/L (8 h). Fast cells also need more oxygen per gram.
+- Oxygen supply now binds Central and cautious at every doubling time, so their density falls with speed: Central from 204 g/L (43 h) and 191 (36 h, own) to
+  159 at 24 h, 127 at 16 h and 80 at 8 h; cautious from 120 (43 h) to 75 (16 h) and 47 g/L (8 h). Best holds 258 g/L down to 8 h; the thickness of the culture
+  binds it. This changed: before, oxygen bound Best at the fast end and Central not at all. Fast cells also need more oxygen per gram.
 - Central's 36 h is far from any energy limit. The model's own odds for 24 h together with low ammonia are about 10% (`sc_td_central`).
 
 ## 4. Probabilities (judgement)
