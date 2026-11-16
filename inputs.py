@@ -965,6 +965,14 @@ REGISTRY: dict[str, Input] = {
         "batches lost, about 1% a day if runs last 10-20 days", lo=0.006, hi=0.022, mode=0.01),
     "sc_hazard_high": Input(0.02, "per day", "[Powell et al. 2025] the upper end of what makers report",
         lo=0.015, hi=0.022, mode=0.02),
+    "sc_restart_neighbour": Input(4.0, "days", "[arithmetic, judgement] a lost tank reseeded with half the culture of a healthy "
+        "neighbouring tank, in place of a new seed train: about 2 days to empty, clean and steam the tank, about 1 doubling to regrow "
+        "both tanks to working density, and the neighbour's lost output counted as about 1 more day of the lost tank's time",
+        lo=3.0, hi=7.0, mode=4.0,
+        note="Pablo's question (2026-11-16): why 14 days and not 1? Regrowing from a seed at about 1 g/L to 120 g/L is about 7 doublings, "
+             "7-10 days at 24-36 h, plus cleaning and checks; a neighbour's dense culture skips most of that. The risk is a donor carrying "
+             "a contaminant not yet detected (a fast contaminant shows on oxygen readings only after 17-51 h, cheap_plant_study.md), so the "
+             "donor must test clean first. Needs several tanks running; nobody has reported doing it with animal cells at scale."),
     "sc_restart_base": Input(14.0, "days", "[contamination.py; Humbird-R Sect. 4.1 seed train] two weeks to clean, "
         "re-sterilise and regrow the seed after a lost run", lo=7.0, hi=30.0, mode=14.0),
     "sc_restart_slow": Input(21.0, "days", "[plant_items.py, contamination.py] a plant that loses its seed trains "

@@ -56,7 +56,7 @@ plant design; **nothing new** has been done.
 | tank tricks | none · column on a pumped loop (FEED) · column and 1 bar gauge · column, pressure and recycled oxygen (all FEED) | `gas_exchange.column_design`, `gas_exchange_study.md`: sized by calculation; no animal cells have gone through such a column. |
 | tank shape | liquid 0.5 / 0.75 / 1.0 / 1.6 times as deep as wide | geometry is certain; the extra steel and floor of a squat tank are counted (`gas_exchange.shape_capex_factor`); no cost data on tank shape. |
 | runs lost | 0.2 / 0.6 / 1 / 2% a day | 0.2% is large pharma (`pf_hazard_pharma`); the survey of makers (Powell 2025: 11.2% of batches lost, 19.5% beyond flasks) implies 0.6 to 2.2% a day **if** runs lasted 10 to 20 days, which the survey does not state. |
-| restart after a loss | 14 / 21 / 30 days | `contamination.py`; 21 days when the seed trains must be regrown; 30 when one failure reaches every tank. |
+| restart after a loss | 4 / 14 / 21 / 30 days | 4 days reseeding from a healthy neighbouring tank (FEED; added 2026-11-16; about 2 days to clean and steam, a doubling to regrow, a day for the neighbour's lost output; the donor must test clean); 14 days with a ready seed train (regrowing from a seed is about 7 doublings); 21 days when the seed trains must be regrown; 30 when one failure reaches every tank (`contamination.py`). |
 | growth factors | none (GE) · 30% (FEED) · 60% · all of Humbird's price | His price assumes an industry far larger than today's; cells that make their own were shown in cattle cells by genetic engineering. 30% and 60% are judgement. |
 | medium price | $0.05 / 0.15 / 0.20 / 0.30 / 0.50 a litre | $0.05 is an aspiration nobody has reported (lowest company report $0.07; GFI's amino acids alone $0.02-0.17; below it the medium costs what the cells must eat, `nutrient_floor.md`); $0.15 was this note's earlier estimate of the nutrients themselves; $0.20 is what several companies announced for 2025 (GFI 2026 report, p.8; not verified at scale); $0.50 is SuperMeat. |
 
@@ -137,7 +137,7 @@ Each switch moved alone (cost change; change in world share in percentage points
 | the plant | food-grade with shared medium −$3.1 (+0.1) | pharma-style +$0.9 (−0.0) |
 | growth speed | 24 h −$2.6 (+0.1) | 43 h +$1.4 (−0.0) |
 | runs lost | 0.2% a day −$1.0 (+0.0) | 2% +$1.4 (−0.0) |
-| restart after a loss | (14 days) | 30 days +$1.3 (−0.0) |
+| restart after a loss | 4 days, from a neighbouring tank −$0.8 (+0.0) | 30 days +$1.3 (−0.0) |
 | tank shape | 1.6 −$0.4 (+0.0), but beyond the loop checks | 0.5 +$0.6 |
 
 The share changes are at the point cost and are small because the central share is small (0.4% at the point cost). Gas matters more than it

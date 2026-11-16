@@ -2,6 +2,11 @@
 
 ## 2026-11-16
 
+Restart from a neighbouring tank (`sc_restart_neighbour`, a fourth setting of "Restart after a loss"; no scenario uses it, no number moved)
+- A lost tank reseeded with half the culture of a healthy neighbour: 4 days (3-7) in place of 14 with a fresh seed train, which needs
+  about 7 doublings. Worth $0.8 a kilo in Central, $5.6 for today's cells (rung 1, which restarts in 21 days). The donor must test clean.
+- The page explains why the company sliders are locked and when oxygen, not CO₂, limits the tank (PR #36).
+
 The scenarios as a ladder ordered by difficulty (`scenarios.LADDER`, `PAGE_ORDER`; Pablo's review; no cost of an existing scenario moved)
 - Five rungs, each adding one kind of change: 1. today's measured cells in an ordinary tank, no tricks, today's prices ($63.0);
   2. plus process changes and cheaper inputs ($31.3; the tank tricks alone are worth $19.2); 3. plus selected cells = Central ($29.9);
