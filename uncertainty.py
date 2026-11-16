@@ -213,7 +213,7 @@ def fig_distributions(mc: dict, target: str, outdir, fmts) -> None:
                     fontsize=7, color="#DE8F05", va="center", ha="right")
         ax.set_xlabel(lbl)
         ax.set_ylabel("draws")
-    fig.suptitle(f"Distribution — {TARGETS[target]['label']}", y=1.02, fontsize=10)
+    fig.suptitle(f"Distribution — {TARGETS[target]['label']}".replace("$", r"\$"), y=1.02, fontsize=10)
     _save(fig, outdir, "uncertainty_distributions", fmts)
 
 

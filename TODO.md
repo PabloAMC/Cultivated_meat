@@ -34,8 +34,7 @@ Found while doing it (not changed):
       $24 / $22 for the same plants, because they skip the waste and least-flow caps. `plant_floor_hi` (the cautious end of the
       default's plant range) comes from one of them.
 - [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched.
-- [ ] **Rebuild `figures/` with LaTeX** (`python report_figures.py`): the curated figures predate the filter loop and these three costs.
-      Not done here because this machine has no LaTeX, and `--no-latex` changes their fonts.
+- [x] Rebuilt `figures/` with LaTeX (2026-11-16); fixed five labels whose bare `$` broke the LaTeX build.
 
 Things only Pablo can do:
 
