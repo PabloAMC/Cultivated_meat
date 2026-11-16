@@ -119,8 +119,10 @@ Bench measurements that would settle the two biggest inputs (from #45; each is c
 - [ ] **Filter life with meat cells:** 0.025 m² hollow fibres (0.2 µm and one wide-pore) on a meat-cell perfusion at 15–20% cells
       by volume, at 2.5 and 5 L/m²/h, with the model's antifoam and protectant doses and one daily backflushed module; record
       pressure and sieving against litres per m² and against days. My guess: $20–50k, six weeks.
-- [ ] **A price for a membrane that could last:** a quote for hollow fibre at $100–600 a m² (dialyser-grade, wide-pore or
-      ceramic) in a sterile format. Without it the life and price cannot be moved together.
+- [ ] **Life and price of a cheaper membrane class together:** prices are already bracketed ($3–14 a m² dialyser fibre to $1,450
+      pharma, `retention_alternatives.md`); what is missing is how long the cheap classes (dialyser, wide-pore, ceramic) last in
+      a thick animal-cell culture. A quote alone cannot settle it, so the filter bench run above should include one of them.
+      Until then life and price stay as they are; nobody has offered a price (Pablo, 2026-11-16).
 
 Things only Pablo can do:
 
