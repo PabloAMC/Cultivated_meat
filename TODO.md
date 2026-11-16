@@ -36,6 +36,8 @@ Found while doing it (not changed):
 - [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched.
 - [x] Rebuilt `figures/` with LaTeX (2026-11-16); fixed five labels whose bare `$` broke the LaTeX build.
 
+- [ ] **"Food-grade plant with shared medium" is a misleading name**: shared medium is $33k of the $343k per m³ it saves; most comes from a plain hall, bought oxygen and smaller seed trains (`plant_items.py`). Rename?
+
 Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
@@ -65,6 +67,7 @@ In the suggested order (roadmap, section 3). Status: idea / started / done.
 
 | | project | status | notes |
 |---|---|---|---|
+| P | **Plant capital for animal cells**: an itemised, quoted cost of one food-grade 20 m³ sterilisable line (tank, piping, instruments, seed, medium sterilisation, cleaning) | idea | `industry_claims.py` shows company COGS agree with the model; the plant charge is the gap ($9–33/kg). Two or three vendor quotes or an engineering firm's costed design |
 | B | Inverse model: what a cell line must deliver for a target cost | idea | #29 (frontier) is the forward version; this inverts it into a spec |
 | C | Value of information: which experiment buys the most $/kg | idea | uses B and the odds in the gas-exchange and frontier notes |
 | A | FluidX3D tank: validate, mixing vs shape, the column's return plume | idea | first step: does FluidX3D run under OpenCL on the M4 |

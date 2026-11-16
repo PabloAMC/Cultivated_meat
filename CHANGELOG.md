@@ -1,5 +1,16 @@
 # Change log
 
+## 2026-11-16
+
+The model against company cost claims (`industry_claims.py`, RESULTS section 1, the page's evidence section; no number moved)
+- Each scenario split into the yearly charge on the plant and operating cost. Company figures are operating cost (COGS); the
+  scenarios include the plant. Central: $29.9 = $8.2 plant + $21.7 operating, of which $8.2 filter membranes.
+- Central's cells in a 20 m³ tank drained and refilled (as Vow runs): operating cost $13.7–14.0, inside the $10–15 an investor reports
+  for several companies (Lever VC, NDA data). The plant charge is $9–33 depending on the plant; in a yeast plant with what animal cells
+  need, $23.3 in all, below Central in perfusion. At the 27 g/L reported for meat cells, $51–103.
+- A table of six claims with their basis (what it is a cost of, capital in or out, model or run, who checked it).
+- `tests/test_industry_claims.py` (in `run_tests.sh`) checks RESULTS carries the tables and the figures its prose quotes.
+
 ## 2026-11-15
 
 Three costs counted, the plant ladder tied to `explore` (Pablo asked for the long-term choice on each; **numbers move**)
