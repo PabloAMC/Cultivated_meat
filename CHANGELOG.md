@@ -2,6 +2,20 @@
 
 ## 2026-11-16
 
+Every scenario holds dissolved oxygen at half of air saturation (`scenarios.always`, `sc_do_setpoint`; **numbers move, down**)
+- Humbird's oxygen transfer implies a tank held at 0.28 mmol/L (130% of air saturation). Pharma holds 30-50%. The scenarios now hold
+  0.10 mmol/L (about 47%), which widens the oxygen driving force and needs nothing new. Found by `design_space.py`. Humbird's optimistic
+  design keeps his level. Switch `sc_do_scenarios` = 0 restores the earlier figures; the side studies' snapshot tests use it.
+- Scenarios (designs chosen again): rung 2 $31.33 → $30.73, Central $29.92 → **$29.42** (191 g/L, oxygen), with shared medium $26.81 →
+  $26.56, best case $9.71 → **$9.66** (now at the thickness limit, with recycled oxygen and a squat tank), forecast $25.04 → $24.80.
+  Median shares unchanged to one decimal. The first change in this model's history that lowers a headline.
+- Recomputed with it: the frontier ($7.03 → $6.85, just under parity), filter flux (Central $48.59 at 1,200 L/m², $94.63 at 450), the
+  audit (Central's median over all ranges $36), the company-claims split, the design search (the setpoint is no longer an option: 144
+  designs), the vessel grid, RESULTS, METHODS and the notes' ladder sections.
+- Vessel grid: a vessel whose column loop fails its checks at full density now runs thinner until it passes (`vessels._thinned`,
+  mirrored on the page), in place of dropping the tricks. Central in an airlift: $30.88 at 139 g/L.
+- `scenarios.interactions` breaks ties by the switches' order, so Python and the page sort alike.
+
 How far tank design can go (`design_space.py`, `research_notes/design_space.md`; no default changed, no number moved)
 - Method: price each limit first (`limit_prices`: the cost if CO₂, oxygen, mixing, the thickness limit, the litres of medium, the
   membranes and others were free), then search every combination of the tank options the model has (288 designs a scenario, under two

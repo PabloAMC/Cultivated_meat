@@ -29,10 +29,10 @@ def check() -> list:
         fails.append("the frontier should be well under a quarter of the central cost")
     # the single levers, pinned (since PR #32 the studies' own notes are snapshots of the earlier model)
     alone = {n: c for n, c, _d in F.alone()}
-    want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 14.2700,
-            "Dialyser-grade hollow fibres as the filter": 21.9158, "Medium at $0.05 a litre": 25.9639,
-            "Cells double in 16 hours": 25.3036, "Culture at 320 g/L in place of 258": 29.9230,
-            "A food-grade plant with shared medium": 26.8147}
+    want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 13.7632,
+            "Dialyser-grade hollow fibres as the filter": 21.2637, "Medium at $0.05 a litre": 25.4571,
+            "Cells double in 16 hours": 25.0979, "Culture at 320 g/L in place of 258": 29.4162,
+            "A food-grade plant with shared medium": 26.5552}
     for n, w in want.items():
         if not close(alone[n], w, 1e-4):
             fails.append(f"{n}: {alone[n]:.4f} != {w}")
@@ -40,11 +40,11 @@ def check() -> list:
     if min(alone, key=alone.get) != "Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate":
         fails.append("the least-medium lever should be the largest on its own")
     # the pinned frontier, and the one with GFI's amino-acid floor
-    if not close(rows[-1]["cost"], 7.0311, 1e-4):
-        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 7.0311")
-    if not (close(F.with_gfi_amino_acids(rows[-1]["state"]), 7.8342, 1e-4) and
+    if not close(rows[-1]["cost"], 6.8543, 1e-4):
+        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 6.8543")
+    if not (close(F.with_gfi_amino_acids(rows[-1]["state"]), 7.6574, 1e-4) and
             F.with_gfi_amino_acids(rows[-1]["state"]) > rows[-1]["cost"]):
-        fails.append("GFI's amino-acid floor should raise the frontier to about $7.83")
+        fails.append("GFI's amino-acid floor should raise the frontier to about $7.66")
     return fails
 
 

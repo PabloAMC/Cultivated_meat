@@ -25,7 +25,7 @@ GOLDEN_REF = {
     ("airlift", "fedbatch"): 20.7859, ("airlift", "perfusion"): 14.7790,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 29.9230, ("stirred", "fedbatch"): 42.8732, ("airlift", "perfusion"): 32.5847}
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 29.4162, ("stirred", "fedbatch"): 42.8732, ("airlift", "perfusion"): 30.8821}
 
 
 def close(a, b, tol=1e-3):

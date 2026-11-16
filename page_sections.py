@@ -246,7 +246,7 @@ def _vm_fallback_text(c: dict) -> str:
     """Why a vessel's cost uses fewer tank tricks than the scenario (mirrored by vmFallbackText in page_vessels.js)."""
     return ("The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go "
             "with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost "
-            f"here uses the most that passes that check: “{_esc(c['tricks_fallback'])}”. With the scenario’s own tricks it would be "
+            f"here uses what passes that check: “{_esc(c['tricks_fallback'])}”. With the scenario’s own tricks at full density it would be "
             f"{_vm_money(c['unchecked_cost'])}.")
 
 

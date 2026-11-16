@@ -15,6 +15,7 @@ function scPresetOf(ch){ return SC.order.find(k=>scSame(SC.presets[k].choice,ch)
 function scParams(ch){          // the explore arguments of a choice (mirror of scenarios.explore_kwargs)
   const p={doubling_h:24,mass_pg:3000,vessel_m3:20,plant:"sanitary",mode:"perfusion",charge:C.fx.charge_mature};
   SC.switches.forEach(sw=>Object.assign(p,scSetting(sw.key,ch[sw.key]).p));
+  Object.assign(p,SC.always);                 // what every scenario carries (scenarios.always: the dissolved-oxygen setpoint)
   if(p.plantKey){ if(p.plantKey==="lean"){ p.plant="sanitary"; p.items=C.fx.plant_items.lean; }
     else p.plant=(p.plantKey==="sterile"?"sanitary":p.plantKey); delete p.plantKey; }
   return p;
@@ -77,7 +78,8 @@ function scInteractions(ch,top,minGap){
       text:"Setting "+sa.name.toLowerCase()+" to “"+la+"” would save $"+ga.toFixed(1)+" a kilo as things stand. It would save $"+gaWithB.toFixed(1)+
            " if "+sb.name.toLowerCase()+" were “"+lb+"”. "+how});
   }));
-  return out.sort((x,y)=>Math.abs(y.gap)-Math.abs(x.gap)).slice(0,top);
+  const rk=x=>Math.round(Math.abs(x.gap)*1e9);          // ties keep the switches' order (as scenarios.interactions)
+  return out.sort((x,y)=>(rk(y)-rk(x))||(SC.keys.indexOf(x.a)-SC.keys.indexOf(y.a))||(SC.keys.indexOf(x.b)-SC.keys.indexOf(y.b))).slice(0,top);
 }
 
 /* ---------- the page ---------- */

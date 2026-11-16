@@ -36,7 +36,7 @@ check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "refe
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-for k, (lo, hi) in {"best": (9.5, 9.9), "central": (29.5, 30.3), "central_lean": (26.5, 27.2), "cautious": (43.2, 44.4)}.items():
+for k, (lo, hi) in {"best": (9.4, 9.9), "central": (29.0, 29.8), "central_lean": (26.2, 26.9), "cautious": (41.9, 42.9)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs: the best case needs engineering, the central one does not
@@ -159,7 +159,7 @@ for k in ("best", "central", "process"):
           f"{k}: story does not give the cost without the tricks")
     check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
 trc = S.tricks_report(S.SCENARIOS["central"].choice)
-check(abs(trc["d_no_tricks"] - 3.61) < 0.05, f"central: expected about +$3.61 without the tricks, got {trc['d_no_tricks']:.2f}")
+check(abs(trc["d_no_tricks"] - 3.72) < 0.05, f"central: expected about +$3.72 without the tricks, got {trc['d_no_tricks']:.2f}")
 check(len(trc["used"]) == 3, "central should list the column, the pressure and the squarer tank")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")

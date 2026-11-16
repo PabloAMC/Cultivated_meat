@@ -10,14 +10,16 @@ culture does. Two passes, cheapest first:
    protectant, growth factors, lost runs, the plant). This is the most any design that attacks that limit could be worth,
    so it says which limits deserve design work before any design is drawn.
 2. `designs(key)`: every combination of the tank options the model already has (OPTIONS: the column, headspace pressure,
-   tank shape, the dissolved-oxygen setpoint, fat in the feed, a bubble cage), run through `floor_physics.explore`, kept only
+   tank shape, fat in the feed, a bubble cage), run through `floor_physics.explore`, kept only
    if a column loop passes its pH and pass-rate checks. Each design is scored by cost and by how many of its elements nobody
    has run with animal cells. `frontier(key)` is the cheapest design for each number of unproven elements.
 
 `ideal(key)` is the scenario in the ordinary tall tank with every gas and mixing limit lifted for free: a lower bound on what
 any of these designs can reach. The gap between a design and the ideal is what is left to gain from the tank.
 
-Nothing here changes a default. The scenarios' own tank designs (scenarios.design) are a subset of this search.
+Nothing here changes a default. The scenarios' own tank designs (scenarios.design) are a subset of this search. Every design
+carries what every scenario carries (scenarios.always): dissolved oxygen held at about half of air saturation. The first version of
+this search had that setpoint as an option and found it free and unused, so the scenarios adopted it (2026-11-16).
 
     python design_space.py              # the tables, as text
     python design_space.py --markdown   # the tables RESULTS.md and the note quote
@@ -56,11 +58,6 @@ OPTIONS = {
         ("square", "liquid as deep as wide", {"aspect": value("sc_aspect_mid")}, 0, "tanks in use run from about 1 to 3"),
         ("squat", "liquid 0.75 times as deep as wide", {"aspect": value("sc_aspect_squat")}, 1, "squatter than tanks in use"),
         ("flat", "liquid half as deep as wide", {"aspect": value("sc_aspect_flat")}, 1, "squatter than tanks in use"),
-    ),
-    "setpoint": (
-        ("high", "dissolved oxygen as Humbird's tank implies", {}, 0, ""),
-        ("low", "dissolved oxygen held at about half of air saturation", {"do_mmol": 0.10}, 0,
-         "pharma holds 30-50% of air saturation"),
     ),
     "fat": (
         ("made", "the cells make their fat from glucose", {}, 0, ""),

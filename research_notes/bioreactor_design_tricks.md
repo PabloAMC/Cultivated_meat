@@ -11,11 +11,11 @@ checked this session; treat as a lead). The CFD plan that would test several of 
 |---|---|---|---|---|
 | Rung 1, today's cells, ordinary tank, 2 mm/s | $63.0 | 46 g/L | CO₂ removal | oxygen 70, mixing 219, thickness 258 g/L |
 | Humbird's optimistic design, 6 mm/s | $12.5 | 120 g/L | CO₂ removal | oxygen 146 (with antifoam), mixing 189 |
-| Central (column, 1 bar, squarer tank) | $29.9 | 177 g/L | oxygen supply | thickness 258 |
-| Best case | $9.7 | 226 g/L | oxygen supply | thickness 258 |
+| Central (column, 1 bar, squarer tank, oxygen held at half of air saturation) | $29.4 | 191 g/L | oxygen supply | thickness 258 |
+| Best case (the same, with recycled oxygen and a squat tank) | $9.7 | 258 g/L | thickness of the culture | — |
 
 So there are two regimes. **Without a bubble-free way to remove CO₂, CO₂ binds**, and every trick that removes CO₂ without bubbles
-pays a lot (the column alone is worth $19.2/kg for today's cells). **Once CO₂ is dealt with, oxygen binds** (antifoam is taken to
+pays a lot (the column with 1 bar of pressure is worth $20.6/kg for today's cells). **Once CO₂ is dealt with, oxygen binds** (antifoam is taken to
 cut the sparger's oxygen transfer by a quarter), and the tricks worth having are those that put oxygen in per watt and per litre of
 gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity estimate, `thick_culture.md`).
 
@@ -34,7 +34,7 @@ gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity
 | Two spargers: a microsparger for oxygen, a drilled pipe for CO₂ | decouples oxygen and CO₂; fewer, larger bubbles strip CO₂ with less foam | yes | common in high-density pharma processes (memory; Xing et al. describe stripping with larger bubbles, repo) | **not in the model**: one gas flow does both jobs |
 | Microspargers (fine bubbles) | oxygen per litre of gas | yes, but more foam and more cell damage per bubble surface | common (search) | not separate |
 | Antifoam choice and dose | oxygen (antifoam costs transfer) | yes | effect 0–50% (repo) | `pf_antifoam_otr` = 0.75, a judgement |
-| Dissolved-oxygen setpoint held low | oxygen (bigger driving force) | yes | cells grow at 10–100% air saturation (repo) | the "oxygen held at" lever |
+| Dissolved-oxygen setpoint held low | oxygen (bigger driving force) | yes | cells grow at 10–100% air saturation (repo) | in every scenario since 2026-11-16 (`sc_do_setpoint`) |
 | Squat tank shape | CO₂ (more gas per litre at the same velocity), mixing | yes; costs steel and floor | geometry (model) | the tank-shape switch |
 
 ### B. Gas exchange away from the cells
@@ -93,11 +93,12 @@ question for the next pass.
 
 ## 3. What would pay most, given the limits above
 
-1. **For today's cells (CO₂-bound): any bubble-free CO₂ removal.** The column ($19.2/kg), the bubble cage ($23.7/kg, a judgement-heavy
-   estimate), or more gas the cells tolerate. The deciding experiments are cell-side: a film of dense culture on packing, and gas steps
+1. **For today's cells (CO₂-bound): any bubble-free CO₂ removal.** The column with pressure ($20.6/kg), the bubble cage ($23.7/kg, a
+   judgement-heavy estimate), or more gas the cells tolerate. The deciding experiments are cell-side: a film of dense culture on packing, and gas steps
    with protectant (`gas_exchange_study.md`).
-2. **For Central and the best case (oxygen-bound): oxygen per watt and per litre of gas.** Two spargers, impeller choice, the antifoam's
-   real cost to transfer, the dissolved-oxygen setpoint, and pressure. Two-sparger operation is the one not yet in the model, and it is
+2. **For Central (oxygen-bound): oxygen per watt and per litre of gas.** Two spargers, impeller choice, the antifoam's
+   real cost to transfer, and pressure. (The dissolved-oxygen setpoint is now in every scenario; with it the best case reaches the
+   thickness limit.) Two-sparger operation is the one not yet in the model, and it is
    standard practice; it should be a lever.
 3. **The salt limit** is now quietly binding where CO₂ tolerance should help (TODO.md). A non-bicarbonate buffer or a different base
    would test whether that limit is real.

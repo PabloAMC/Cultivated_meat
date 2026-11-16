@@ -63,18 +63,18 @@ by volume with a standard microfiltration fibre.
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|
-| Best case | **$9.71** | $15.38 | $15.44 | $29.00 |
-| Central | **$29.92** | $48.75 | $48.95 | $93.97 |
+| Best case | **$9.66** | $15.79 | $15.85 | $30.52 |
+| Central | **$29.42** | $48.59 | $48.79 | $94.63 |
 
 - **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.2. The
-  membrane's throughput moves it by $19 to $64.
-- **At the measured CHO throughput, Central costs $49–94.** That is not a forecast: the data are from thinner cultures of a pharma line.
+  membrane's throughput moves it by $19 to $65.
+- **At the measured CHO throughput, Central costs $49–95.** That is not a forecast: the data are from thinner cultures of a pharma line.
   It says the default sits at the generous end of the evidence, and the retention note's 35% for a filter holding 258 g/L for a
   month is the right order of magnitude.
 
 ## 5. What this means
 
-1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $48.75. The note leaves it at
+1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $48.59. The note leaves it at
    3,960, the model's value since PR 18, because the measured data are for CHO at thinner densities. The model's range already
    spans 900–5,500.
 2. **The experiment that settles it:** run a hollow-fibre filter on a meat cell line at 10–25% cells by volume at 2–5 L/m²/h and

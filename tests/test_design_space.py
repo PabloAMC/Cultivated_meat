@@ -29,15 +29,15 @@ def check() -> list:
         ch = S.SCENARIOS[k].choice
         own = S.run(ch)["total"]
         col, prs = TRICKS[ch["tricks"]]
-        same = D.run(k, {"column": col, "pressure": prs, "shape": ch["shape"], "setpoint": "high", "fat": "made", "vessel": "stirred"})
+        same = D.run(k, {"column": col, "pressure": prs, "shape": ch["shape"], "fat": "made", "vessel": "stirred"})
         if not close(same["cost"], own):
             fails.append(f"{k}: the scenario's own design costs {same['cost']:.4f} here, {own:.4f} in scenarios.py")
         all_ = D.designs(k)
-        if len(all_) != 288:
-            fails.append(f"{k}: expected 288 designs, got {len(all_)}")
+        if len(all_) != 144:
+            fails.append(f"{k}: expected 144 designs, got {len(all_)}")
         # the scenarios' tank designs are the cheapest of their own subset (scenarios.design), for every scenario that used it
         if k != "today":
-            sub = [d for d in all_ if d["ok"] and d["design"]["vessel"] == "stirred" and d["design"]["setpoint"] == "high"
+            sub = [d for d in all_ if d["ok"] and d["design"]["vessel"] == "stirred"
                    and d["design"]["fat"] == "made" and (d["design"]["column"], d["design"]["pressure"]) in TRICKS.values()]
             if not close(sub[0]["cost"], own):
                 fails.append(f"{k}: the cheapest of the scenarios' subset is {sub[0]['cost']:.4f}, the scenario {own:.4f}")
@@ -70,8 +70,8 @@ def check() -> list:
         if any(gas > rows[l] + 1e-9 for l in ("CO₂ removal lifted", "oxygen supply lifted", "mixing lifted")):
             fails.append(f"{k}: lifting every gas limit should be at least as good as lifting one")
     # pinned (2026-11-16)
-    for (k, what), want in {("central", "ideal"): 27.1927, ("central", "no_cage"): 27.9266, ("central", "cage"): 27.6163,
-                            ("today", "ideal"): 34.8010, ("best", "ideal"): 9.3304}.items():
+    for (k, what), want in {("central", "ideal"): 27.1889, ("central", "no_cage"): 27.9266, ("central", "cage"): 27.6173,
+                            ("today", "ideal"): 34.7979, ("best", "ideal"): 9.3315}.items():
         got = D.ideal(k)["cost"] if what == "ideal" else D.frontier(k, what == "cage")[-1]["cost"]
         if not close(got, want, 2e-4):
             fails.append(f"{k} {what}: {got:.4f} != pinned {want}")

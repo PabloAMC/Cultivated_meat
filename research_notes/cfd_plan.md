@@ -67,7 +67,7 @@ matters: OpenFOAM Euler–Euler at 1–2 m³. Check both against van't Riet-type
 | 1 | medium across the mesh | `vm_cage_exchange` | the bubble cage, $1–24/kg depending on the case |
 | 1 | alkaline exposure at the return | the column's pH check | the column's pass-rate check: in the reference tank $10.4 if 22 passes an hour were safe, $10.7 within today's limits |
 | 2 | oxygen and CO₂ spread | the well-mixed assumption | whether 200 m³ is ever worth it |
-| 3 | oxygen multiplier per design | `otr_mult`, antifoam's effect | up to $1.8/kg in Central (oxygen binds) |
+| 3 | oxygen multiplier per design | `otr_mult`, antifoam's effect | up to $1.7/kg in Central (oxygen binds) |
 
 ## 5. First run on this machine (2026-11-16)
 

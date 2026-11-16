@@ -54,8 +54,9 @@ Raised by Pablo on 2026-11-16 (open):
 
 From the design search (`design_space.py`):
 
-- [ ] **Use the lower dissolved-oxygen setpoint in the scenarios?** Half of air saturation is standard pharma practice; Humbird's tank
-      implies 130%. Free, worth $0.5 in Central and $0.6 at rung 2. It would move the headline numbers.
+- [x] The lower dissolved-oxygen setpoint is in every scenario (`sc_do_setpoint`, 2026-11-16): Central $29.92 → $29.42, best $9.71 → $9.66.
+- [ ] The design search and `scenarios.design` drop a design whose column loop fails at full density; running it thinner might pass
+      (the vessel grid now does, `vessels._thinned`).
 - [ ] Add the missing options to the search as levers: two spargers, gas exchange on the filter loop, restart from a neighbour.
 - [ ] Weight "unproven elements" by the odds in the research notes, to rank designs by expected cost.
 
