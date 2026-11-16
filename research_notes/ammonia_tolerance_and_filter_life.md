@@ -30,10 +30,11 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
    model charges no slower growth there. So the value should be the level at which Central's selected cells lose little growth, about 10%. That is
    not an IC50. For unadapted meat-relevant cells that level is about 1–3 mM. Selection, which Central assumes, could raise it.
    Only hybridoma data show by how much.
-3. **Ammonia verdict.** 5 mM is at the generous end of the meat-relevant evidence.
+3. **Ammonia verdict.** 5 mM is at the generous end of the meat-relevant evidence, but that evidence is weak: every
+   dose-response is a sudden spike on unadapted cells, mostly in serum at low density, and Central assumes selected cells.
    - My median for Central's cells is about 3.5–4 mM.
    - P(true value within a factor of 1.5 of 5 mM, i.e. 3.3–7.5 mM) ≈ **45%**; P(below 3.3) ≈ 45%; P(above 7.5) ≈ 10%.
-   - Moving to 4 mM would put Central at $34.0 (from $29.4); 3.5 mM would put it at $37.2.
+   - **I do not recommend moving it.** At 4 mM Central would be $34.0 (from $29.4), on evidence I rate as too thin for that.
 4. **Filter life.** Small-pore fibres (0.2–0.65 µm) in dense CHO perfusion usually foul or lose sieving after about 6–30 days.
    That is a few hundred to about 2,500 L/m². Clincke's best fibre (about 5,500 L/m²) is the only one at or above the model's
    3,960. An industry design framework assumes **1,000 L/m²** for cell-retention filtration at 50–120 million cells/mL. A Merck
@@ -43,9 +44,13 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
 5. **Filter verdict.** 3,960 L/m² is optimistic for the pharma fibre the model prices.
    - My median for one fibre at 18% cells by volume over a month is about 1,500 L/m² (80% interval 500–4,000).
    - P(true value within a factor of 1.5 of 3,960, i.e. 2,640–5,940 L/m²) ≈ **20%**.
-   - Moving to 1,500 would put Central at $43.1; 2,000 would put it at $37.6.
-6. **The two errors compound.** A lower ammonia limit needs more medium, so more permeate per kg, so more membrane. Both at my
-   medians (4 mM, 1,500 L/m²) give Central **$51.9** (best case $17.1), against $29.4 and $9.7 now.
+   - **But life and price act together.** A membrane adds price ÷ life to each litre of permeate. At today's $1,450 per m², a life
+     of 1,500 puts Central at $43.1. At $549 per m² or less it costs Central nothing extra. A cheaper membrane (retail modules
+     $1,050–1,260; dialyser fibre $3–14, with no animal-cell data) offsets the shorter life. So the evidence does not
+     show the model's cost is too low; it shows one of two paired inputs is at its generous end.
+6. **What I did.** No default changed. I added the pairing to the code (`filter_flux.cost_at_life_price`,
+   `break_even_price`, with a test), put the evidence in the two inputs' notes and in RESULTS.md's "What the answer rests on",
+   and left the choice of default to Pablo (section 7).
 
 ## 1. Ammonia: what the model assumes
 
@@ -230,27 +235,32 @@ L/m².
 
 ## 7. What it means for the model
 
-1. **Both inputs sit at the favourable end of their evidence.** I would move neither range's ends. I would move the modes: the
-   ammonia limit towards 4 mM, and the membrane life towards 1,500–2,000 L/m². That is a decision for Pablo. I have changed
-   nothing.
-2. **Size of the move, Central, tank design held:**
+1. **Ammonia: leave `pf_nh3_limit` at 5.** The evidence leans low, but it is on unadapted cells under a sudden spike, and
+   Central assumes selection. A meat-cell perfusion held at a constant ammonium level (Section 3) is the experiment that would
+   justify a move.
+2. **Filter: the life is probably too high, and the price may be too, in the other direction.** Central at today's price:
+   $29.4 at 3,960 L/m², $37.6 at 2,000, $43.1 at 1,500, $54.1 at 1,000. At a lower membrane price the same lives cost much less.
+   Central by membrane life (rows) and membrane price (columns), $/kg, from `filter_flux.py`:
 
-   | change | Central $/kg | best case $/kg |
-   |---|---|---|
-   | now (5 mM; 3,960 L/m²) | 29.42 | 9.66 |
-   | ammonia limit 4 mM | 33.99 | 11.15 |
-   | membrane life 2,000 L/m² | 37.58 | 12.27 |
-   | membrane life 1,500 L/m² | 43.09 | |
-   | both (4 mM; 2,000 L/m²) | 44.67 | 14.69 |
-   | both (4 mM; 1,500 L/m²) | 51.86 | 17.08 |
+   | life, L/m² | $1,450 (now) | $550 | $200 | $50 | break-even price |
+   |---|---|---|---|---|---|
+   | 3,960 (now) | 29.42 | 24.24 | 22.23 | 21.37 | $1,450 |
+   | 2,000 | 37.58 | 27.34 | 23.36 | 21.65 | $732 |
+   | 1,500 | 43.09 | 29.43 | 24.12 | 21.84 | $549 |
+   | 1,000 | 54.09 | 33.60 | 25.63 | 22.22 | $366 |
 
-   The two compound because less ammonia tolerance means more medium and more permeate, and so more membrane.
-3. **The filter is the larger move.** Moving the ammonia limit by 20% adds $4.6 to Central. Moving filter life to 2,000–1,500 L/m² adds
-   $8–14. Its evidence is also better, with a design figure from industry (1,000), a large-scale study at the model's own
-   density, and a prior pass that reached the same conclusion.
-4. **What would change my view.** A bovine or chicken line shown to hold 10% growth at 5 mM or more in perfusion, or a month on
-   one filter at 15–20% cells by volume, would move me back. Each of the two experiments above could do it, so each is worth
-   more than further searching.
+   The break-even column is the price at which that life costs the same per litre as the model's defaults. At 1,500 L/m² it is
+   $549, about 40% of Humbird's $1,450 and about half of the retail $1,050–1,260. Nothing I found shows a meat-grade
+   membrane at that price lasting 1,500 L/m² in a thick culture, so I cannot say which side of the line the truth is on.
+3. **The choice for Pablo.** (a) Leave both defaults. The headline stays at $29.4, and the two inputs' notes and RESULTS.md say
+   the pair is uncertain in both directions. This is what I did. (b) Move life to 1,500–2,000 and price down together, using
+   a named cheaper route, so Central moves little. That needs a source for the price, which I do not have. (c) Move life
+   alone. That is the cautious move, and it mismatches the pair. I advise against it.
+4. **The band is the other open point.** The scenario bands draw life from a triangle with mode 3,960 (range 900–5,500), whose
+   median is about 3,300. My median is 1,500, and the band's price draw tops out at $1,450 with nothing below $1,050. So the
+   band is one-sided in both inputs. I did not change it, because that moves every band and share figure in RESULTS.md.
+5. **What would change my view.** A bovine or chicken line shown to hold 10% growth at 5 mM or more in perfusion, or a month on
+   one filter at 15–20% cells by volume. Each of the two experiments above could settle its input.
 
 ## 8. How far this was checked
 
@@ -263,10 +273,10 @@ L/m².
 - The free-NH3 fractions in Section 2 use a pKa I did not source.
 - Probabilities are my judgement from the evidence above, not from a model.
 
-## 9. What adopting both values would do (tried on a scratch branch, not adopted)
+## 9. What adopting 4 mM and 2,000 L/m² would do (tried on a scratch branch, discarded)
 
-I set the two modes to 4 mmol/L and 2,000 L/m² on a scratch branch and recomputed the scenario ladder. Nothing was
-committed or pushed.
+I set the two modes to 4 mmol/L and 2,000 L/m² on a scratch branch, with the membrane price unchanged, and recomputed the
+scenario ladder. Nothing was committed or pushed. I report it because it shows how large the move would be.
 
 | scenario, $/kg | now (5 mM; 3,960) | 4 mM and 2,000 L/m² |
 |---|---|---|
@@ -277,13 +287,9 @@ committed or pushed.
 | Best case | 9.66 | 13.83 |
 | Cautious | 42.39 | 57.37 |
 
-Central alone, with only the filter moved to 2,000 L/m², is $37.58. The ladder keeps its order and its gaps. Its level
-rises by about $15 in the middle rungs.
-
-The change is not a two-number edit. With it the repo's own checks fail in `test_golden`, `test_floor_physics`,
-`test_scenarios`, `test_retention`, `test_filter_flux`, `test_answer_rests_on` and `test_audit`. They pin the old costs
-(for example the reference case at $12.51 becomes $15.70, and the floor Monte Carlo median $27.5 becomes $35.7). One scenario's
-design lists no tank tricks, which breaks `scenarios.plain_list`. An input that moved by under $1 now moves by over $1, which
-adds a row to the "what the answer rests on" table. RESULTS.md, METHODS.md and the explorer page quote the old numbers. So adopting
-it means re-pinning those tests, rebuilding the page and rewriting the headline figures, in one change. I did not do that
-without Pablo seeing the new headline.
+The ladder keeps its order and gaps and rises by about $15 in the middle rungs. The move is not a two-number edit. The repo's
+checks fail in `test_golden`, `test_floor_physics`, `test_scenarios`, `test_retention`, `test_filter_flux`,
+`test_answer_rests_on` and `test_audit`, because they pin the old costs (the reference case $12.51 becomes $15.70, the floor
+Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank tricks, which crashes `scenarios.plain_list`.
+A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
+METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.

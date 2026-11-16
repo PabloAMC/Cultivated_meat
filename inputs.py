@@ -396,7 +396,11 @@ REGISTRY: dict[str, Input] = {
         "single use)", lo=1.0, hi=50.0, mode=1.0,
         note="no regeneration count in medium was found; 50 is a hope, not a number (waste_tricks_sizing.md)"),
     "pf_nh3_limit": Input(5.0, "mmol/L", "[Humbird-R] Sect. 2.3: 'consider the limits of 5 mmol/L NH3 and 50 mmol/L "
-        "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0),
+        "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0,
+        note="evidence pass 2026-11-16 (research_notes/ammonia_tolerance_and_filter_life.md): unadapted meat-relevant cells "
+             "(catfish ovary, 3T3, pig muscle stem cells, bovine FAPs) lose 10-55% of growth rate at 2.5-5 mM when spiked; CHO and "
+             "adapted hybridomas tolerate more. Kept at 5 because Central assumes selected cells and no meat cell has been "
+             "measured at density; P(within 1.5x of the truth) about 45%, with the risk mostly below"),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
         "uptake at a 24 h doubling time that is upkeep (it runs whether or not the cell grows); the rest rises "
@@ -1219,7 +1223,11 @@ REGISTRY: dict[str, Input] = {
     "rt_membrane_life": Input(3960.0, "L/m2", "[research pass, derived] litres of permeate a m2 of membrane filters before it "
         "is replaced: 5 L/m2/h for a 33-day run", lo=900.0, hi=5500.0, mode=3960.0,
         note="lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
-             "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture"),
+             "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture. Evidence pass 2026-11-16 "
+             "(research_notes/ammonia_tolerance_and_filter_life.md): small-pore fibres in dense CHO perfusion foul in about 6-30 "
+             "days, about 180-2,500 L/m2, and industry designs for 1,000; 3,960 is at the generous end (P within 1.5x about "
+             "20%, median about 1,500). Read with rt_membrane_price: a membrane adds price / life per litre, so 1,500 L/m2 costs "
+             "nothing extra at $549/m2 or less (filter_flux.break_even_price)"),
     # alternatives to the pharma membrane: research_notes/retention_alternatives.md, retention_alternatives_sources/
     "rt_reuse_life": Input(12000.0, "L/m2", "[Cobetter and Sartorius reuse guidance, snippets; patent US 6,261,457, snippet] "
         "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 x (1 + 4 x 0.3 to 0.8), "
