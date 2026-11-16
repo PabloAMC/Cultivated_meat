@@ -262,7 +262,7 @@ def build_model() -> dict:
         # applied as the analog's health_p position. ILLUSTRATIVE, like the other comparison numbers.
         "comparison_products": {
             "plant-based milk (oat/soy)": {"pb_mult":1.0,"taste":0.0,"w_rt":2.1,"wf_mult":1.2,
-                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"price+taste parity in use (coffee/cereal); no cheap rival",
+                "K_wf":-2.0,"health":0.0,"obs":15.0,"note":"Price and taste parity are in use (coffee and cereal). There is no cheap rival.",
                 "why":{"price":"~parity in use: a splash in coffee/cereal costs about the same (GFI/SPINS)",
                        "taste":"functional parity in its key uses (barista oat/soy froths, tastes fine in cereal)",
                        "rival":"no cheap whole-food substitute for milk-in-coffee → weak outside option",
@@ -322,12 +322,12 @@ def build_model() -> dict:
             "scaffold":      ["k", "Eq. (1), structured cuts only"],
             "markup_add":    ["m", "Eq. (1)"],
             "meat_tax":      ["t", "denominator of Eq. (1)"],
-            "income":        ["y", "income term &alpha;&thinsp;ln(y<sub>eff</sub>&minus;p<sub>j</sub>) in Eq. (2); A2"],
-            "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>; A2"],
-            "eps_own":       ["&epsilon;", "sets the price weight &beta;; A1"],
-            "cult_sub_mult": ["&kappa;", "sets the price weight &beta;; A1"],
-            "loss_aversion": ["&lambda;", "reference-price term w<sub>r</sub>[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup>] in Eq. (2); A3"],
-            "w_ratio":       ["w<sub>r</sub>", "weight of the reference-price term in Eq. (2); A3"],
+            "income":        ["y", "income term &alpha;&thinsp;ln(y<sub>eff</sub>&minus;p<sub>j</sub>) in Eq. (2), see A2"],
+            "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>, see A2"],
+            "eps_own":       ["&epsilon;", "sets the price weight &beta;, see A1"],
+            "cult_sub_mult": ["&kappa;", "sets the price weight &beta;, see A1"],
+            "loss_aversion": ["&lambda;", "reference-price term w<sub>r</sub>[&minus;&lambda;(d<sub>j</sub>)<sup>+</sup>+(d<sub>j</sub>)<sup>&minus;</sup>] in Eq. (2), see A3"],
+            "w_ratio":       ["w<sub>r</sub>", "weight of the reference-price term in Eq. (2), see A3"],
             "accept_x":      ["a<sub>x</sub>", "taste term w<sup>t</sup>(a<sub>x</sub>&minus;1) in Eq. (2)"],
             "neophobia_x":   ["&nu;<sub>x</sub>", "novelty term in Eq. (2); long-run end of Eq. (5)"],
             "neophobia_p":   ["&nu;<sub>p</sub>", "plant-based novelty term in Eq. (2)"],
@@ -335,26 +335,26 @@ def build_model() -> dict:
             "R_p":           ["R<sub>p</sub>", "plant-based price in Eq. (2)"],
             "theta_free_M":  ["&theta;", "mainstream no-slaughter weight w<sup>s</sup> in Eq. (2)"],
             "w_eth":         ["w<sub>eth</sub>", "segment mix, Eq. (3)"],
-            "premium_resistance": ["&rho;", "scales the tier offsets &tau; and &psi;; A5"],
+            "premium_resistance": ["&rho;", "scales the tier offsets &tau; and &psi;, see A5"],
             "real_tissue_x": ["b<sub>x</sub>", "real-meat term w<sup>rt</sup>b<sub>x</sub> in Eq. (2)"],
             "real_tissue_p": ["b<sub>p</sub>", "plant-based real-meat term in Eq. (2)"],
             "health_x":      ["&zeta;<sub>x</sub>", "health term w<sup>h</sup>&zeta;<sub>x</sub> in Eq. (2)"],
             "health_p":      ["&zeta;<sub>p</sub>", "plant-based health term in Eq. (2)"],
-            "auth_basic":    ["&tau;<sub>mince</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "auth_cut":      ["&tau;<sub>cut</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "auth_premium":  ["&tau;<sub>prem</sub>", "cultivated's authenticity term in Eq. (2); A5"],
-            "w_taste":       ["w<sup>t</sup>", "taste weight in Eq. (2); A4"],
-            "w_realtissue_M": ["w<sup>rt</sup><sub>M</sub>", "real-meat weight in Eq. (2), mainstream; A4"],
-            "w_realtissue_E": ["w<sup>rt</sup><sub>E</sub>", "real-meat weight in Eq. (2), ethical; A4"],
-            "w_health_M":    ["w<sup>h</sup><sub>M</sub>", "health weight in Eq. (2), mainstream; A4"],
-            "w_health_E":    ["w<sup>h</sup><sub>E</sub>", "health weight in Eq. (2), ethical; A4"],
-            "w_slaughter_E": ["w<sup>s</sup><sub>E</sub>", "no-slaughter weight in Eq. (2), ethical; A4"],
+            "auth_basic":    ["&tau;<sub>mince</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "auth_cut":      ["&tau;<sub>cut</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "auth_premium":  ["&tau;<sub>prem</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "w_taste":       ["w<sup>t</sup>", "taste weight in Eq. (2), see A4"],
+            "w_realtissue_M": ["w<sup>rt</sup><sub>M</sub>", "real-meat weight in Eq. (2), mainstream, see A4"],
+            "w_realtissue_E": ["w<sup>rt</sup><sub>E</sub>", "real-meat weight in Eq. (2), ethical, see A4"],
+            "w_health_M":    ["w<sup>h</sup><sub>M</sub>", "health weight in Eq. (2), mainstream, see A4"],
+            "w_health_E":    ["w<sup>h</sup><sub>E</sub>", "health weight in Eq. (2), ethical, see A4"],
+            "w_slaughter_E": ["w<sup>s</sup><sub>E</sub>", "no-slaughter weight in Eq. (2), ethical, see A4"],
             "neophobia_x0":  ["&nu;<sub>x0</sub>", "starting novelty in Eq. (5)"],
             "neophobia_p0":  ["&nu;<sub>p0</sub>", "plant-based starting novelty in Eq. (5)"],
             "accept_rate":   ["r", "fade speed in Eq. (5)"],
             "p_innov":       ["p<sub>B</sub>", "Bass rollout F(t) in Eq. (5)"],
             "q_imit":        ["q<sub>B</sub>", "Bass rollout F(t) in Eq. (5)"],
-            "phi":           ["&chi;", "reachable volume (1&minus;&chi;)Q; A6"],
+            "phi":           ["&chi;", "reachable volume (1&minus;&chi;)Q, see A6"],
         },
     }
 
@@ -390,221 +390,221 @@ def build_model() -> dict:
         # ---- key assumptions ------------------------------------------------------------
         slider("media_price", "Medium price (<i>p</i><sub>med</sub>)", "$/L", 0.10, 1.00, 0.01,
                value("media_price"), "SuperMeat / GFI",
-               tip="Price of the nutrient liquid the cells grow in, the biggest single cost. $0.50/L "
-               "(default) is what one company reports for its own medium; others report $0.20/L or less. "
-               "None is verified at production scale; $1.00/L is a process that has not got there. Each "
+               tip="This is the price of the nutrient liquid the cells grow in, the biggest single cost. The default $0.50/L "
+               "is what one company reports for its own medium. Others report $0.20/L or less. "
+               "Nobody has verified any of these at production scale. $1.00/L stands for a process that has not reached production scale. Each "
                "$0.10/L adds about ${{MEDIA_PER_010}}/kg."),
         slider("overhead", "Plant running cost (<i>h</i>)", "$/kg", value("plant_floor_lo"), _plant_oh("cautious"), 0.1,
                value("overhead"), "SuperMeat / physics",
-               tip="Everything except the medium, per kg: reactors and other capital, labour, energy, "
-               "consumables. ${{OH_DEF}} (default) is one company's running costs for a 25,000-litre perfusion plant "
-               "plus a yearly charge on the plant. ${{OH_FLOOR}} is the plant term of the reference tank (a food-grade plant costed for "
-               "animal cells, with food-industry financing); ${{PLANT_FLOOR_LO}} is a plant at the cost of today's "
-               "microbial fermentation plants, which no scenario assumes; ${{OH_HI}} is a cautious case (pharma-style plant, cells at half "
-               "the density)."),
+               tip="This covers everything except the medium, per kg. It includes reactors and other capital, labour, energy and "
+               "consumables. The default ${{OH_DEF}} is one company's running costs for a 25,000-litre perfusion plant, "
+               "plus a yearly charge on the plant. ${{OH_FLOOR}} is the plant term of the reference tank, which is a food-grade plant costed for "
+               "animal cells with food-industry financing. ${{PLANT_FLOOR_LO}} is a plant that costs what "
+               "microbial fermentation plants cost, and no scenario assumes it. ${{OH_HI}} is a cautious case with a pharma-style plant and cells at half "
+               "the density."),
         slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 9.0, 0.1, value("markup_add"),
                "USDA spread",
-               tip="Processing, packaging, cold chain and retail margin, added per kg. Default $5 is about "
-               "conventional meat's farm-to-retail spread (USDA). Price parity needs production cost below "
-               "the meat price minus this markup, so it matters a lot. Adding it per kg rather than as a "
+               tip="This covers processing, packaging, cold chain and retail margin, added per kg. The default $5 is about "
+               "conventional meat's farm-to-retail spread (USDA). Price parity needs a production cost below "
+               "the meat price minus this markup, so the markup matters a lot. Adding it per kg rather than as a "
                "percentage is an assumption."),
         slider("meat_tax", "Meat price multiplier (<i>t</i>)", "x", 0.8, 1.6, 0.05, 1.0, "policy",
-               tip="Multiplies every conventional meat price, e.g. a meat or carbon tax. 1.0 = today's "
-               "prices. A multiplier of 1.25 lowers cultivated's price ratio as much as cutting all its "
+               tip="This multiplies every conventional meat price, for example through a meat or carbon tax. A value of 1.0 leaves "
+               "prices as they are. A multiplier of 1.25 lowers cultivated meat's price ratio as much as cutting all its "
                "costs by 20%."),
         slider("real_tissue_x", "Seen as real meat (<i>b</i><sub>x</sub>)", "0→1", 0.0, 1.0, 0.05,
                value("real_tissue_x"), "premise",
-               tip="The model's central premise: shoppers count cultivated as real animal meat, so it "
-               "competes head-on with conventional meat. Share at equal price: 1 (default) → "
-               "~{{BX_10}}%, 0.75 → ~{{BX_075}}%, 0.5 → ~{{BX_05}}%, 0.25 → ~{{BX_025}}%, 0 (treated "
-               "like a veggie burger) → ~{{BX_00}}%. Not sampled in the Monte Carlo."),
+               tip="This is the model's central premise. Shoppers count cultivated meat as real animal meat, so it "
+               "competes head-on with conventional meat. The share at equal price is ~{{BX_10}}% at 1 (the default), "
+               "~{{BX_075}}% at 0.75, ~{{BX_05}}% at 0.5, ~{{BX_025}}% at 0.25 and ~{{BX_00}}% at 0, where shoppers treat it "
+               "like a veggie burger. The Monte Carlo does not sample this slider."),
         slider("accept_x", "Taste vs conventional (<i>a</i><sub>x</sub>)", "", 0.6, 1.2, 0.05, 1.0,
                "judgement",
-               tip="How good cultivated tastes next to the conventional product (1 = just as good). Share "
-               "at equal price: 1 → ~{{PARITY_NEUTRAL}}%, 0.8 → ~{{AX_08}}%, 0.6 → ~{{AX_06}}%, 1.1 "
-               "(tastier) → ~{{AX_11}}%. A judgement call: nobody has tasted it at scale. Sampled in the "
-               "Monte Carlo."),
+               tip="This is how good cultivated meat tastes next to the conventional product, where 1 means just as good. The share "
+               "at equal price is ~{{PARITY_NEUTRAL}}% at 1, ~{{AX_08}}% at 0.8, ~{{AX_06}}% at 0.6 and ~{{AX_11}}% at 1.1 "
+               "(tastier). This is a judgement call, because nobody has tasted it at scale. The "
+               "Monte Carlo samples this slider."),
         slider("theta_free_M", "Mainstream values “no slaughter” (&theta;)", "", 0.0, 1.5, 0.05, 0.0,
                "judgement",
-               tip="How much mainstream shoppers (95% of people) care that no animal was killed. 0 "
-               "(default) = not at all. Raising it lifts every slaughter-free option, cultivated most. "
-               "Share at equal price: 0.5 → ~{{TH_05}}%, 1 → ~{{TH_10}}%. Sampled in the Monte Carlo "
-               "(0 to 1)."),
+               tip="This is how much mainstream shoppers (95% of people) care that no animal was killed. The default 0 "
+               "means not at all. Raising it lifts every slaughter-free option, and cultivated meat most. "
+               "The share at equal price is ~{{TH_05}}% at 0.5 and ~{{TH_10}}% at 1. The Monte Carlo samples this slider "
+               "from 0 to 1."),
         slider("premium_resistance", "Premium resistance (&rho;)", "x", 0.0, 2.0, 0.1,
                value("premium_resistance"), "judgement",
-               tip="How strongly cuts and premium meat resist cultivated compared with mince. Scales both "
-               "the authenticity penalties and the lower price sensitivity of pricier tiers: 1 = default, "
-               "0 = no tier effect (wagyu as easy as mince), 2 = double. No direct data, so the Monte "
+               tip="This is how strongly cuts and premium meat resist cultivated meat, compared with mince. It scales both "
+               "the authenticity penalties and the lower price sensitivity of pricier tiers. A value of 1 is the default, "
+               "0 means no tier effect (wagyu as easy as mince), and 2 doubles the effect. There are no direct data, so the Monte "
                "Carlo samples 0.5 to 1.5."),
         # ---- step 1: cost and price ----------------------------------------------------------
         slider("efficiency", "Cell efficiency (&eta;)", "x", 0.25, 1.0, 0.05, value("efficiency"),
                "SuperMeat / Humbird",
-               tip="Medium used per kg, relative to the reported process (1 = default). 0.25 = four "
-               "times leaner, like the CHO cells used in pharma, not yet shown for food cells. The Monte "
+               tip="This is the medium used per kg, relative to the reported process, where 1 is the default. A value of 0.25 means four "
+               "times leaner, like the CHO cells used in pharma. Nobody has shown this for food cells. The Monte "
                "Carlo samples 0.25 to 1, so its median assumes some improvement."),
         slider("scaffold", "Scaffold cost for cuts (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
                "assumed",
-               tip="Extra cost to turn cells into a structured cut (steak, fillet); mince doesn't need it. "
-               "No published study covers it (Humbird, CE Delft and Risner all stop at unstructured "
-               "cells), so the $6 default is a guess."),
+               tip="This is the extra cost of turning cells into a structured cut (steak or fillet). Mince does not need it. "
+               "No published study covers it, because Humbird, CE Delft and Risner all stop at unstructured "
+               "cells. The $6 default is a guess."),
         # ---- step 2: how shoppers choose -----------------------------------------------------
         slider("eps_own", "Price sensitivity of meat (&epsilon;)", "", -1.4, -0.5, 0.05,
                value("eps_own"), "scanner data",
-               tip="How much meat purchases fall when prices rise: −0.9 (default) means 1% dearer, 0.9% "
-               "fewer purchases (Andreyeva 2010; meta-analyses span −0.7 to −1.0). A single cultivated "
-               "product is &kappa; times more sensitive than this. Sampled in the Monte Carlo."),
+               tip="This is how much meat purchases fall when prices rise. The default −0.9 means that meat 1% dearer sells 0.9% "
+               "less (Andreyeva 2010). Meta-analyses span −0.7 to −1.0. A single cultivated "
+               "product is &kappa; times more sensitive than this. The Monte Carlo samples this slider."),
         slider("cult_sub_mult", "Closeness to conventional (&kappa;)", "x", 3.0, 12.0, 0.5,
                value("cult_sub_mult"), "Lusk 2020",
-               tip="How many times more price-sensitive a cultivated product is than meat as a whole: it "
-               "has a near-identical substitute on the same shelf. Mostly matters above parity: at "
-               "the reported cost, &kappa; = 4 → ~{{KAPPA_LO}}%, 8.5 → ~{{KAPPA_MID}}%, 10 → ~{{KAPPA_HI}}%. "
-               "Default 8.5 is the best fit to the shares premium animal products (organic milk, eggs, chicken) "
-               "take at their prices that Lusk 2020's measured range allows (appendix A1). It changes nothing "
+               tip="This is how many times more price-sensitive a cultivated product is than meat as a whole, because it "
+               "has a near-identical substitute on the same shelf. It matters mostly above parity. At "
+               "the reported cost, the share is ~{{KAPPA_LO}}% at &kappa; = 4, ~{{KAPPA_MID}}% at 8.5 and ~{{KAPPA_HI}}% at 10. "
+               "The default 8.5 is the best fit to the shares that premium animal products (organic milk, eggs and chicken) "
+               "take at their prices, within the range that Lusk 2020 measured (appendix A1). It changes nothing "
                "at equal price."),
         slider("loss_aversion", "Loss aversion (&lambda;)", "ratio", 1.0, 2.25, 0.05,
                value("loss_aversion"), "off by default",
-               tip="Makes paying more than the conventional price hurt more than an equal discount helps. "
-               "1 (default) = symmetric; up to Tversky and Kahneman's 2.25. Barely moves the result, "
-               "because the price weight is re-fitted: at the default price, 1 → ~{{LAMBDA_1}}%, 2.25 → "
-               "~{{LAMBDA_225}}%."),
+               tip="This makes paying more than the conventional price hurt more than an equal discount helps. "
+               "The default 1 is symmetric, and the slider goes up to Tversky and Kahneman's 2.25. It barely changes the result, "
+               "because the model re-fits the price weight. At the default price, the share is ~{{LAMBDA_1}}% at 1 and "
+               "~{{LAMBDA_225}}% at 2.25."),
         slider("w_ratio", "Weight of the price-ratio term (<i>w</i><sub>r</sub>)", "utils", 0.5, 1.5, 0.05,
                value("w_ratio"), "judgement",
-               tip="How much of the price response compares each product with the conventional price "
-               "(the same for rich and poor shoppers) rather than with the shopper's income. The price "
-               "weight is re-fitted, so the US result does not move; a higher value makes poorer shoppers "
-               "relatively less put off by a premium, which raises the share in poorer regions and the "
-               "world (world meat 1.6% at 0.5, 4.0% at 1.5). No direct estimate; 1 is the model's original value."),
+               tip="This is how much of the price response compares each product with the conventional price "
+               "(the same for rich and poor shoppers), rather than with the shopper's income. The model re-fits the price "
+               "weight, so the US result does not change. A higher value makes poorer shoppers "
+               "relatively less put off by a premium. That raises the share in poorer regions and in the "
+               "world (world meat 1.6% at 0.5 and 4.0% at 1.5). There is no direct estimate, and 1 is the model's original value."),
         slider("income", "Income (<i>y</i>, GDP per person)", "$/yr", 5000, 5000000, 1000,
                value("income_ref"), "World Bank",
-               tip="Average income (PPP), set by the region selector. Poorer shoppers feel the same "
-               "premium more, so they buy less of a pricier product. You can drag it far beyond today's "
-               "richest country."),
+               tip="This is average income (PPP), set by the region selector. Poorer shoppers feel the same "
+               "premium more, so they buy less of a pricier product. You can drag it far beyond the income of "
+               "the richest country."),
         slider("income_gradient", "Income damping (&phi;)", "exp", 0.0, 1.0, 0.05,
                value("income_gradient"), "Muhammad / ERS",
-               tip="How strongly income changes price sensitivity. 1 = the raw economic form, too steep "
-               "for food; 0.5 (default) matches the roughly 2× rich-to-poor gap in food price sensitivity "
-               "(Muhammad et al. 2011); 0 = no income effect. US results don't depend on it."),
+               tip="This is how strongly income changes price sensitivity. A value of 1 is the raw economic form, which is too steep "
+               "for food. The default 0.5 matches the roughly 2× rich-to-poor gap in food price sensitivity "
+               "(Muhammad et al. 2011). A value of 0 means no income effect. US results do not depend on it."),
         slider("w_eth", "Ethical shoppers (<i>w</i><sub>eth</sub>)", "", 0.04, 0.10, 0.01,
                value("w_eth"), "Gallup",
-               tip="Share of vegetarians and vegans, who strongly value “no slaughter” and mostly eat "
-               "beans and other whole foods. Default 5% (Gallup 2023). Moving it re-fits the model so "
-               "plant-based stays at its observed ~1.2%."),
+               tip="This is the share of vegetarians and vegans, who strongly value “no slaughter” and mostly eat "
+               "beans and other whole foods. The default is 5% (Gallup 2023). Moving it makes the model re-fit, so "
+               "plant-based meat stays at its observed ~1.2%."),
         slider("health_x", "Cultivated health image (&zeta;<sub>x</sub>)", "utils", -1.0, 1.0, 0.05,
                0.0, "scenario",
-               tip="How healthy cultivated meat is perceived to be: + for “clean, no antibiotics”, − for "
-               "“lab-grown, ultra-processed”. Default 0 because surveys find both and they roughly "
-               "cancel. Near equal price, +0.5 adds about 10 points. Sampled in the Monte Carlo (±0.5)."),
+               tip="This is how healthy shoppers think cultivated meat is. A plus means “clean, no antibiotics”, and a minus means "
+               "“lab-grown, ultra-processed”. The default is 0, because surveys find both views and they roughly "
+               "cancel. Near equal price, +0.5 adds about 10 points. The Monte Carlo samples ±0.5."),
         slider("neophobia_x", "Cultivated long-run novelty (&nu;<sub>x</sub>)", "utils", -2.0, 1.0,
                0.1, value("neophobia_x"), "judgement",
-               tip="Where wariness of a new food settles once cultivated is familiar: − = a lasting “is it "
-               "natural?” doubt, + = a lasting draw, 0 = neutral (default). Share at equal price: −1 → "
-               "~{{NX_NEG1}}%, 0 → ~{{PARITY_NEUTRAL}}%, +1 → ~{{NX_POS1}}%. Sampled in the Monte Carlo."),
+               tip="This is where wariness of a new food settles once cultivated meat is familiar. A minus means a lasting “is it "
+               "natural?” doubt, a plus means a lasting appeal, and the default 0 is neutral. The share at equal price is "
+               "~{{NX_NEG1}}% at −1, ~{{PARITY_NEUTRAL}}% at 0 and ~{{NX_POS1}}% at +1. The Monte Carlo samples this slider."),
         # ---- step 2: plant-based meat --------------------------------------------------------
         slider("R_p", "Plant-based price (<i>R</i><sub>p</sub>)", "x", 0.2, 3.0, 0.05,
                value("price_pb_mult"), "GFI / NIQ",
-               tip="Plant-based meat's price relative to conventional. Default 1.77× (+77%, GFI/NIQ). "
-               "Set it to 1 to ask what happens if plant-based reached price parity."),
+               tip="This is plant-based meat's price relative to conventional meat. The default is 1.77× (+77%, GFI/NIQ). "
+               "Set it to 1 to ask what happens if plant-based meat reached price parity."),
         slider("a_p", "Plant-based taste (<i>a</i><sub>p</sub>)", "", 0.4, 1.1, 0.05,
                round(1 + value("taste_quality_p"), 2), "NECTAR",
-               tip="Plant-based taste next to conventional (1 = as good). Default 0.8: only ~16% of "
+               tip="This is plant-based taste next to conventional meat, where 1 means as good. The default is 0.8, because only ~16% of "
                "products match conventional meat in blind tastings (NECTAR 2025)."),
         slider("real_tissue_p", "Plant-based seen as real meat (<i>b</i><sub>p</sub>)", "0→1", 0.0,
                1.0, 0.05, value("real_tissue_p"), "0 by definition",
-               tip="The same premise for plant-based, which isn't animal tissue (0). This is the only "
-               "built-in difference between the two alternatives. Set it to 1 and plant-based rises to "
+               tip="This is the same premise for plant-based meat, which is not animal tissue (0). It is the only "
+               "built-in difference between the two alternatives. Set it to 1 and plant-based meat rises to "
                "~{{BP_1_PB}}% at its current price."),
         slider("health_p", "Plant-based health image (&zeta;<sub>p</sub>)", "utils", -1.0, 1.0, 0.05,
                0.0, "scenario",
-               tip="How healthy plant-based meat is perceived to be: + for “good for you”, − for "
-               "“ultra-processed”. Default 0. Sampled in its band (±0.5)."),
+               tip="This is how healthy shoppers think plant-based meat is. A plus means “good for you”, and a minus means "
+               "“ultra-processed”. The default is 0. The Monte Carlo samples ±0.5."),
         slider("neophobia_p", "Plant-based long-run novelty (&nu;<sub>p</sub>)", "utils", -2.0, 1.0,
                0.1, value("neophobia_p"), "scenario",
-               tip="Plant-based's lasting attitude as a new food (− wary, + drawn; default 0). Its real "
-               "resistance is already in the calibration, so this is a what-if."),
+               tip="This is the lasting attitude toward plant-based meat as a new food. A minus means wary, a plus means drawn to it, and the "
+               "default is 0. Its real resistance is already in the calibration, so this slider is a what-if."),
         # ---- step 3: authenticity by tier ----------------------------------------------------
         slider("auth_basic", "Authenticity: mince (&tau;<sub>mince</sub>)", "utils", -1.0, 1.0, 0.05,
                mm.AUTH_BASIC, "judgement", fmt="signed",
-               tip="Bonus or penalty for cultivated in everyday mince and processed meat. Default +0.2: "
-               "nobody misses “the real thing” in a nugget, and “cleaner meat” helps. Scaled by premium "
-               "resistance. No direct data."),
+               tip="This is a bonus or penalty for cultivated meat in everyday mince and processed meat. The default is +0.2, because "
+               "nobody misses “the real thing” in a nugget and “cleaner meat” helps. Premium "
+               "resistance scales it. There are no direct data."),
         slider("auth_cut", "Authenticity: cuts (&tau;<sub>cut</sub>)", "utils", -2.0, 1.0, 0.05,
                mm.AUTH_CUT, "judgement", fmt="signed",
-               tip="The same for steaks and fillets. Default −0.4: some shoppers want the real cut. "
-               "Scaled by premium resistance. No direct data."),
+               tip="This is the same term for steaks and fillets. The default is −0.4, because some shoppers want the real cut. "
+               "Premium resistance scales it. There are no direct data."),
         slider("auth_premium", "Authenticity: premium (&tau;<sub>prem</sub>)", "utils", -3.0, 0.5,
                0.05, mm.AUTH_PREMIUM, "judgement", fmt="signed",
-               tip="The same for luxury products (wagyu, sushi-grade fish). Default −1.5: the genuine "
-               "article is the point. This caps premium shares even where cultivated is cheaper. Scaled "
-               "by premium resistance. No direct data."),
+               tip="This is the same term for luxury products (wagyu and sushi-grade fish). The default is −1.5, because the genuine "
+               "article is the point. It caps premium shares even where cultivated meat is cheaper. Premium "
+               "resistance scales it. There are no direct data."),
         # ---- step 4: over time ---------------------------------------------------------------
-        slider("neophobia_x0", "Cultivated novelty today (&nu;<sub>x0</sub>)", "utils", -3.5, 1.5, 0.1,
+        slider("neophobia_x0", "Starting wariness of cultivated meat (&nu;<sub>x0</sub>)", "utils", -3.5, 1.5, 0.1,
                value("neophobia_x0"), "Lusk / GFI",
-               tip="How wary shoppers are of cultivated meat today: where the adoption curve starts. "
-               "Default −2.8 matches a US experiment where only ~5% chose lab-grown at the same price as "
+               tip="This is how wary shoppers are of cultivated meat at launch, which is where the adoption curve starts. "
+               "The default −2.8 matches a US experiment in which only ~5% chose lab-grown meat at the same price as "
                "beef (Van Loo, Caputo &amp; Lusk 2020). Warmer survey framings reach ~60% (about "
-               "+{{NX0_60}}). The slider runs from −3.5 (~{{NX0_MIN}}%) to +1.5 (~{{NX0_WARM}}%). Changes timing, "
+               "+{{NX0_60}}). The slider runs from −3.5 (~{{NX0_MIN}}%) to +1.5 (~{{NX0_WARM}}%). It changes the timing, "
                "not the long-run ceiling."),
         slider("accept_rate", "Familiarity speed (<i>r</i>)", "1/exp", 0.05, 0.50, 0.01,
                value("accept_rate"), "assumed",
-               tip="How fast wariness fades as people keep seeing the product. Changes when adoption "
-               "levels off, not where: 0.15 (default) → about year {{STAB_YEAR}}; 0.5 → about year "
-               "{{STAB_R05}}; 0.05 → about year {{STAB_R005}}. Each is the year adoption reaches 90% of its "
-               "long-run share. No direct estimate; the default "
-               "matches the decades-long uptake of other radically new foods. Sampled."),
+               tip="This is how fast wariness fades as people keep seeing the product. It changes when adoption "
+               "levels off, not where. The default 0.15 gives about year {{STAB_YEAR}}, 0.5 gives about year "
+               "{{STAB_R05}} and 0.05 gives about year {{STAB_R005}}. Each is the year when adoption reaches 90% of its "
+               "long-run share. There is no direct estimate. The default "
+               "matches the decades-long uptake of other radically new foods. The Monte Carlo samples this slider."),
         slider("p_innov", "Rollout: early adopters (<i>p</i><sub>B</sub>)", "1/yr", 0.005, 0.05, 0.005,
                value("p_innov"), "Bass lit.",
-               tip="How fast independent early adopters take it up (Bass diffusion). With word of mouth, "
-               "it sets the speed of the S-curve, not its height. Default 0.02, near the cross-study "
+               tip="This is how fast independent early adopters take it up (Bass diffusion). Together with word of mouth, "
+               "it sets the speed of the S-curve, not its height. The default 0.02 is near the cross-study "
                "norm (0.01 to 0.03)."),
         slider("q_imit", "Rollout: word of mouth (<i>q</i><sub>B</sub>)", "1/yr", 0.20, 0.60, 0.05,
                value("q_imit"), "Bass lit.",
-               tip="How fast existing buyers pull in new ones (Bass diffusion). Default 0.40, near the "
+               tip="This is how fast existing buyers persuade new ones to buy (Bass diffusion). The default 0.40 is near the "
                "cross-study norm (0.3 to 0.5)."),
         slider("neophobia_p0", "Plant-based novelty at launch (&nu;<sub>p0</sub>)", "utils", -2.0, 0.5,
                0.1, value("neophobia_p0"), "scenario",
-               tip="Plant-based's starting wariness (default −1), for the green line in the adoption chart. It fades "
-               "like cultivated's, yet plant-based stalls anyway: its taste and price gaps don't fade."),
+               tip="This is plant-based meat's starting wariness (default −1), for the green line in the adoption chart. It fades "
+               "like cultivated meat's, yet plant-based meat stalls anyway, because its taste and price gaps do not fade."),
         # ---- entry points (which products first) ----------------------------------------------------------
         slider("phi", "Prestige share (&chi;)", "", 0.0, 0.95, 0.05, 0.25, "salmon / ibérico",
-               tip="Share of a luxury market held by buyers who want the genuine article at any price, "
-               "and so are out of cultivated's reach (the which-products-first chart). Default 0.25, from the only two published "
-               "splits: wild salmon (~25% of supply) and bellota ibérico (~20%). 0 = all reachable."),
+               tip="This is the share of a luxury market held by buyers who want the genuine article at any price. "
+               "Cultivated meat cannot reach them (see the which-products-first chart). The default 0.25 comes from the only two published "
+               "splits, wild salmon (~25% of supply) and bellota ibérico (~20%). A value of 0 means all buyers are reachable."),
         # ---- expert: attribute weights (the multipliers in Eq. 2) -----------------------------
         # Normally FIXED (w_taste, w_slaughter_E, w_realtissue_E) or SOLVED to data (w_realtissue_M,
         # w_health_M, w_health_E). The three SOLVED ones carry solved=True + warn=...: they stay AUTO
         # (solved live) until you tick "override", which pins them and breaks the fact in the warning.
         slider("w_taste", "Taste weight (<i>w</i><sup>t</sup>)", "utils", 1.0, 10.0, 0.5,
                value("w_taste"), "Malone &amp; Lusk 2017",
-               tip="How much taste matters: the scale every other weight is read against (only "
-               "differences between scores matter). Default 5, anchored to willingness-to-pay studies "
-               "that rank taste first (taste ≈ 2× health, 3× safety). Changing it re-fits the others."),
+               tip="This is how much taste matters. It is the scale that every other weight is read against, because only "
+               "differences between scores matter. The default 5 is anchored to willingness-to-pay studies "
+               "that rank taste first (taste ≈ 2× health, 3× safety). Changing it re-fits the other weights."),
         slider("w_realtissue_M", "Mainstream real-meat weight (<i>w</i><sup>rt</sup><sub>M</sub>)",
                "utils", 0.0, 6.0, 0.05, round(dp.w_realtissue_M, 2), "solved",
-               tip="How much mainstream shoppers value real animal tissue: why cultivated takes buyers "
-               "from conventional meat rather than from plant-based. Solved so ~89% of plant-based buyers "
-               "are mainstream (GFI 2024). Override to set your own; the model then stops matching that "
+               tip="This is how much mainstream shoppers value real animal tissue. It is why cultivated meat takes buyers "
+               "from conventional meat rather than from plant-based meat. The model solves it so that ~89% of plant-based buyers "
+               "are mainstream (GFI 2024). Override it to set your own value, and the model then stops matching that "
                "fact."),
         slider("w_health_M", "Mainstream health weight (<i>w</i><sup>h</sup><sub>M</sub>)", "utils",
                0.0, 4.0, 0.05, round(dp.w_health_M, 2), "solved",
-               tip="How much mainstream shoppers weigh health: the pull toward beans over a veggie burger. "
-               "Solved so ~6% of mainstream meals skip meat by choice. It comes out at "
-               "{{HEALTH_TASTE_RATIO}}× the taste weight, lighter than the ~0.5× in willingness-to-pay "
-               "studies. Override to set your own."),
+               tip="This is how much mainstream shoppers weigh health. It pushes them toward beans and away from a veggie burger. "
+               "The model solves it so that ~6% of mainstream meals skip meat by choice. It comes out at "
+               "{{HEALTH_TASTE_RATIO}}× the taste weight, which is lighter than the ~0.5× in willingness-to-pay "
+               "studies. Override it to set your own value."),
         slider("w_health_E", "Ethical health weight (<i>w</i><sup>h</sup><sub>E</sub>)", "utils", 0.0,
                6.0, 0.05, round(dp.w_health_E, 2), "solved",
-               tip="The ethical shoppers' health weight. Solved (~{{HEALTH_E}}) so that a 5% ethical "
-               "group adds only a little to plant-based meat: most of them choose beans. Override to set "
-               "your own; plant-based then drifts from its ~1.2%."),
+               tip="This is the ethical shoppers' health weight. The model solves it (~{{HEALTH_E}}) so that a 5% ethical "
+               "group adds only a little to plant-based meat, because most of them choose beans. Override it to set "
+               "your own value, and plant-based meat then moves away from its ~1.2%."),
         slider("w_slaughter_E", "Ethical no-slaughter weight (<i>w</i><sup>s</sup><sub>E</sub>)",
                "utils", 1.0, 8.0, 0.5, value("w_slaughter_E"), "assumed",
-               tip="How strongly the 5% ethical shoppers value “no animal killed” (default 4, assumed). "
-               "Gives cultivated a small ethical niche even above parity. The calibration re-fits around "
+               tip="This is how strongly the 5% ethical shoppers value “no animal killed” (default 4, assumed). "
+               "It gives cultivated meat a small ethical niche even above parity. The calibration re-fits around "
                "it."),
         slider("w_realtissue_E", "Ethical real-meat weight (<i>w</i><sup>rt</sup><sub>E</sub>)",
                "utils", 0.0, 4.0, 0.05, value("w_realtissue_E"), "assumed ≈ 0",
-               tip="How much ethical shoppers value real animal tissue. Assumed about 0: they choose on "
-               "“no slaughter”, not “is it meat”. Raising it makes them favour both real meats, which "
-               "helps cultivated a little (they are 5% of shoppers)."),
+               tip="This is how much ethical shoppers value real animal tissue. The model assumes about 0, because they choose on "
+               "“no slaughter”, not on “is it meat”. Raising it makes them favour both real meats, which "
+               "helps cultivated meat a little (they are 5% of shoppers)."),
     ]
 
     # income uses a LOG scale (the $5k–$5M range spans three orders of magnitude)
@@ -729,27 +729,27 @@ def weights_table_rows() -> str:
         f'&beta; = &epsilon;<sub>x</sub>/[p<sub>x</sub>(1&minus;s<sub>x</sub>)] + &lambda;/p<sub>c</sub> = '
         f'{eps_x:.1f}/[{p_x:.0f}&middot;{1-s_x:.2f}] + {lam:.0f}/{p_c:.0f} = <b>{beta:.3f}</b>; then '
         f'&alpha; = &minus;&beta;(y<sub>ref</sub>&minus;p<sub>x</sub>) = <b>{alpha:,.0f}</b> (large only because '
-        'differences in log income are tiny). p<sub>x</sub> is computed from the default costs, not typed in; the '
+        'differences in log income are tiny). The model computes p<sub>x</sub> from the default costs, and nobody typed it in. The '
         'page&rsquo;s cost sliders change cultivated&rsquo;s price but not this calibration point.</td></tr>'
     )
     rows = [
         price_row,
         row("taste", "w<sup>t</sup>", f"{dp.w_taste:.2f}", f"{dp.w_taste:.2f}",
-            '<b>FIXED</b> scale: only differences between scores matter, so taste sets the scale for every other '
-            'weight (anchored to willingness-to-pay studies). Expert slider.'),
+            '<b>FIXED</b> scale. Only differences between scores matter, so taste sets the scale for every other '
+            'weight (anchored to willingness-to-pay studies). This is an expert slider.'),
         row("no slaughter", "w<sup>s</sup>", f"{dp.theta_free_M:.2f}", f"{dp.w_slaughter_E:.1f}",
-            'mainstream = <b>SLIDER</b> (&theta;, default 0); ethical = <b>FIXED</b> assumption (large: it is what '
-            'defines the ethical shopper)'),
+            'Mainstream: <b>SLIDER</b> (&theta;, default 0). Ethical: <b>FIXED</b> assumption. It is large, because it '
+            'defines the ethical shopper.'),
         row("real meat", "w<sup>rt</sup>", f"{dp.w_realtissue_M:.2f}", f"{dp.w_realtissue_E:.2f}",
-            'mainstream = <b>SOLVED</b> so ~89% of plant-based buyers are mainstream; ethical = <b>FIXED</b> '
-            '&asymp;0 (they choose on &ldquo;no slaughter&rdquo;, not &ldquo;is it meat&rdquo;)'),
+            'Mainstream: <b>SOLVED</b> so that ~89% of plant-based buyers are mainstream. Ethical: <b>FIXED</b> '
+            'at about 0, because they choose on &ldquo;no slaughter&rdquo;, not &ldquo;is it meat&rdquo;.'),
         row("health", "w<sup>h</sup>", f"{dp.w_health_M:.2f}", f"{dp.w_health_E:.2f}",
-            'both <b>SOLVED</b>: the mainstream meatless rate (~6%) and the ethical shoppers&rsquo; plant-based '
-            'share'),
+            'Both <b>SOLVED</b>, from the mainstream meatless rate (~6%) and the ethical shoppers&rsquo; plant-based '
+            'share.'),
         row("loss aversion", "&lambda;", f"{dp.loss_aversion:.2f}", f"{dp.loss_aversion:.2f}",
             '<b>SLIDER</b>, default 1 = symmetric (A3)'),
         row("segment mix", "w<sub>eth</sub>", "&mdash;", f"{dp.w_eth*100:.0f}%",
-            '<b>SLIDER</b> (Gallup: 5% vegetarian or vegan); moving it re-solves the calibration'),
+            '<b>SLIDER</b> (Gallup: 5% vegetarian or vegan). Moving it re-solves the calibration.'),
     ]
     return "\n        ".join(rows)
 
@@ -850,53 +850,53 @@ def illustrative_numbers() -> dict:
 _CASE_TEXT = {
     "Humbird fed-batch, as designed": (
         "Humbird's fed-batch design",
-        "A detailed engineering design [2]: twenty-four 20,000-litre stirred tanks in a food-grade plant. Each tank is "
-        "filled, the cells grow for about two days, and it is emptied (&ldquo;fed-batch&rdquo;). Efficient cells; "
+        "This is a detailed engineering design [2] with twenty-four 20,000-litre stirred tanks in a food-grade plant. Each tank is "
+        "filled, the cells grow for about two days, and then the tank is emptied (&ldquo;fed-batch&rdquo;). The cells are efficient, and "
         "growth factors are bought.",
-        "Designed on paper; not built"),
+        "Designed on paper. Nobody has built it."),
     "Humbird perfusion, as designed": (
         "Humbird's perfusion design",
-        "From the same study [2]: ninety-six 2,000-litre tanks in which filters hold the cells back while fresh "
-        "medium flows through (&ldquo;perfusion&rdquo;). Denser cultures, but many small tanks and many filters.",
-        "Perfusion at this size is used in pharma; this plant was not built"),
+        "This comes from the same study [2]. It has ninety-six 2,000-litre tanks. Filters hold the cells back while fresh "
+        "medium flows through (&ldquo;perfusion&rdquo;). The cultures are denser, but the plant needs many small tanks and many filters.",
+        "Pharma uses perfusion at this size. Nobody has built this plant."),
     "Same fed-batch plant, small slow cells": (
         "The fed-batch design with small, slow cells",
-        "Humbird's fed-batch plant, growing cells the size and speed of those in the one peer-reviewed measured run [20]: six times "
-        "smaller, doubling every 61 hours, not 24. It shows how much the cells themselves matter.",
-        "Such cells exist; the plant does not"),
+        "This is Humbird's fed-batch plant growing cells like those in the one peer-reviewed measured run [20]. They are six times "
+        "smaller and double every 61 hours, not 24. The row shows how much the cells themselves matter.",
+        "Such cells exist. This plant does not."),
     "Pharma-style plant, half the density": (
-        "Pharma-style plant, cells at half the density",
-        "The cautious case below, but with 60 g of cells per litre, not 120. Reported harvests from a "
+        "A pharma-style plant with clean rooms, cells at half the density",
+        "This is the cautious case below, but with 60 g of cells per litre, not 120. Reported harvests from a "
         "20,000-litre tank imply about 27 g per litre.",
         "Closer to what has been reported"),
     "Pharma-style plant, fill-and-draw": (
-        "Pharma-style plant, tanks drained and refilled (the cautious case)",
-        "Humbird's sterile plant with clean rooms. The 20,000-litre tanks are never emptied: half is drained and "
-        "refilled each cycle (&ldquo;fill-and-draw&rdquo;), with nothing holding the cells back, and the tank "
-        "produces 85% of the year. Efficient cells at 120 g per litre.",
-        "Fill-and-draw is filed as an option at 20,000 litres; this density is not shown"),
+        "A pharma-style plant with clean rooms, tanks drained and refilled (the cautious case)",
+        "This is Humbird's pharma-style plant with clean rooms. The 20,000-litre tanks are never emptied. Each cycle, half the tank is drained and "
+        "refilled (&ldquo;fill-and-draw&rdquo;), nothing holds the cells back, and the tank "
+        "produces for 85% of the year. The cells are efficient, at 120 g per litre.",
+        "Fill-and-draw has been filed as an option at 20,000 litres. Nobody has shown this density."),
     "No clean rooms, fill-and-draw": (
-        "No clean rooms, tanks drained and refilled",
-        "The same culture, still free of contaminants, in a food-grade building: Humbird's plant with an ordinary "
+        "A food-grade plant, tanks drained and refilled",
+        "This is the same culture, still free of contaminants, in a food-grade building. It is Humbird's plant with an ordinary "
         "hall in place of the clean room. That saves about a tenth of the plant's cost.",
-        "Food-grade 20,000-litre tanks run today; this density is not shown"),
+        "Food-grade 20,000-litre tanks are in use. Nobody has shown this density."),
     "No clean rooms, perfusion": (
-        "No clean rooms, perfusion <b>(the reference tank)</b>",
-        "Everything that has been costed for animal cells, working together. A food-grade plant. Fresh "
-        "medium flows through 20,000-litre tanks while a hollow-fibre filter holds the cells back (&ldquo;perfusion&rdquo;), so "
-        "the culture stays at 120 g per litre, the most such a tank can clear of CO&#8322;. Efficient cells, "
-        "$0.15-a-litre medium, the tank producing 91% of the year. The filter's membranes and a protectant "
+        "A food-grade plant, perfusion <b>(the reference tank)</b>",
+        "This combines everything that has been costed for animal cells. The plant is food-grade. Fresh "
+        "medium flows through 20,000-litre tanks while a hollow-fibre filter holds the cells back (&ldquo;perfusion&rdquo;). "
+        "The culture stays at 120 g per litre, the most such a tank can clear of CO&#8322;. The cells are efficient, "
+        "the medium costs $0.15 a litre, and the tank produces for 91% of the year. The filter's membranes and a protectant "
         "against bubble damage are counted.",
-        "Each piece is shown or claimed somewhere; never together. No device yet holds cells back at this size"),
+        "Each piece has been shown or claimed somewhere, but never together. No device yet holds cells back at this size."),
     "Microbial-fermentation-class plant": (
         "A plant as cheap as microbial fermentation plants (no scenario assumes it)",
-        "The reference case in a plant that costs what plants for yeast and other microbes cost when built today: "
-        "about a quarter as much per litre of tank, with much larger vessels; it buys its oxygen. Bacteria double in 20 minutes and "
+        "This is the reference case in a plant that costs what plants for yeast and other microbes cost. Such a plant costs "
+        "about a quarter as much per litre of tank and has much larger vessels. It buys its oxygen. Bacteria double in 20 minutes and "
         "animal cells in a day or two, so animal cells are far easier to contaminate.",
-        "Such plants exist for microbes. None has been built or costed for animal cells"),
+        "Such plants exist for microbes. Nobody has built or costed one for animal cells."),
     "Rough lower bound": (
         "A rough lower bound",
-        "Not a design. The cheapest modelled fermentation plant, the density of a small tank, the most oxygen "
+        "This is not a design. It combines the cheapest modelled fermentation plant, the density of a small tank, the most oxygen "
         "animal cells are thought to take, and amino acids at half price.",
         "A rough bound"),
 }
@@ -935,11 +935,11 @@ def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
     bio_mature = bio - 35.0 * (value("humbird_plant_charge") - value("plant_charge_mature"))
     rows = [
         row("As reported by a company, with a return on capital <b>(the default)</b>",
-            "SuperMeat's 2024 report [1]: chicken cells in perfusion at 10 litres for 45 days, scaled up on paper to "
-            "25,000-litre tanks. 30.5 litres of medium per kilo at $0.50 a litre, plus its running costs, plus a "
-            "yearly charge on the plant at the same rate as every other row. The company's own figure, with "
+            "SuperMeat's 2024 report [1] describes chicken cells in perfusion at 10 litres for 45 days, scaled up on paper to "
+            "25,000-litre tanks. It uses 30.5 litres of medium per kilo at $0.50 a litre. The cost adds the company's running costs and a "
+            "yearly charge on the plant, at the same rate as every other row. The company's own figure, with "
             "depreciation only, is about $29.5.",
-            "10-litre runs: yes, by the company. Not peer reviewed. The plant: no", bio, bio_mature),
+            "The company has done 10-litre runs, and nobody has peer reviewed them. Nobody has built the plant.", bio, bio_mature),
     ]
     for t in floor_physics.tiers():
         name, what, shown = _CASE_TEXT[t["name"]]
@@ -1043,6 +1043,7 @@ def derived_numbers() -> dict:
         "GRID_HTML": __import__("page_sections").cells_by_tank(),
         "VESSELS_HTML": __import__("page_sections").vessels(),
         "BACKTEST_HTML": __import__("page_sections").backtest_table(),
+        "INDUSTRY_HTML": __import__("page_sections").industry_claims(),
         "MEASURED_HTML": __import__("page_sections").measured(),
         "EXPERIMENTS_HTML": __import__("page_sections").experiments(),
         **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
@@ -1288,8 +1289,8 @@ table.scgrid{border-collapse:collapse;font-size:.8rem;} .scgrid th{font-weight:6
 <h1>Cultivated meat: cost and market share <span class="stamp">build __BUILD_STAMP__</span></h1>
 <p class="lede">Cultivated meat is real animal meat grown from cells, without slaughter. This model estimates how
 much of the meat market it could win, and how fast. Every assumption is a slider.</p>
-<p class="disc">These are estimates from an open model built on public data, not forecasts and not investment or
-business advice. No human expert has reviewed the model yet. The views expressed are the author's own and do not represent the views of the European
+<p class="disc">These are estimates from an open model built on public data. They are not forecasts, and they are not investment or
+business advice. No human expert has reviewed the model yet. The views are the author's own. They do not represent the views of the European
 Commission. <a href="#about">About this page</a>.</p>
 
 <nav class="jump" aria-label="Sections"><a href="#answer">The answer</a> <a href="#decide">What decides it</a> <a href="#build">How the cost is built up</a>
@@ -1297,25 +1298,25 @@ Commission. <a href="#about">About this page</a>.</p>
 
 <section id="answer">
 <h2 class="sech">What cultivated meat could cost, and what it would take</h2>
-<p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions nobody has tested together: how
-little waste the cells make, how fast they grow, how the plant is built, how much gas the cells stand. Each row below is one
-<b>scenario</b>: a complete set of those assumptions, with what has to go right for it. Costs are dollars per kilo of wet
-cells in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share, by weight, once cultivated meat is on every
-shelf and no longer feels new; it is not a forecast of when. It is the <b>median</b> of 4,000 draws. In each draw the cost estimates and the
-demand dials (price sensitivity, acceptance, the retail markup) are uncertain. The 10th to 90th percentile sits beside it. The share at
+<p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions that nobody has tested together. These include how
+little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
+<b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. Costs are dollars per kilo of wet
+cells, in 2025 prices. &ldquo;Share of world meat&rdquo; is the long-run share by weight, once cultivated meat is on every
+shelf and no longer feels new. It is not a forecast of when that happens. The share is the <b>median</b> of 4,000 random draws, so half the draws gave less and half gave more. In each draw, the cost estimates and the
+demand dials (price sensitivity, acceptance and the retail markup) vary. The 10th to 90th percentile range is next to the median, and 80% of draws fall inside it. The share at
 exactly the cost shown appears in small type as a point estimate. <a href="#decide">Change any assumption yourself</a> below.</p>
 {{ANSWER_HTML}}
 <p class="fnote"><b>What the table assumes about the tank.</b> Nobody has run any of these tank designs with animal cells.
-<b>Central</b> (${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape,
-and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. <b>Best case</b> (${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without them it costs
-${{TRICKS_BEST_NO}}, and ${{TRICKS_BEST_ORD}} in the ordinary tank. <b>Cautious</b> (${{COST_CAUTIOUS}}) uses {{TRICKS_CAUTIOUS_LIST}}. Without them it costs
-${{TRICKS_CAUTIOUS_NO}}, and ${{TRICKS_CAUTIOUS_ORD}} in the ordinary tank. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
-<p class="fnote">Words used on this page. <b>Medium</b>: the nutrient liquid the cells grow in. <b>Waste</b>: the ammonia and
-lactate cells give off as they grow; they slow growth, so fresh medium must wash them out. <b>Perfusion</b>: fresh medium flows
-through the tank all the time while the cells are held back and harvested continuously. <b>Column</b>: a packed tower beside the
-tank where the culture runs in a thin film and CO&#8322; leaves without bubbles. <b>Gas the cells tolerate</b>: the speed of gas
-rising through the tank, in millimetres a second; bubbles and foam hurt cells, so cells set how much gas can pass. <b>Run lost</b>:
-a batch ruined by contamination, which empties the tank and takes days to restart.</p>
+<b>Central</b> (${{COST_CENTRAL}}) uses {{TRICKS_CENTRAL_LIST}}. Without these tricks it costs ${{TRICKS_CENTRAL_NO}} a kilo in a tank of the same shape.
+In the ordinary tall tank it costs ${{TRICKS_CENTRAL_ORD}}. <b>Best case</b> (${{COST_BEST}}) uses {{TRICKS_BEST_LIST}}. Without these tricks it costs
+${{TRICKS_BEST_NO}}. In the ordinary tall tank it costs ${{TRICKS_BEST_ORD}}. <b>Cautious</b> (${{COST_CAUTIOUS}}) uses {{TRICKS_CAUTIOUS_LIST}}. Without these tricks it costs
+${{TRICKS_CAUTIOUS_NO}}. In the ordinary tall tank it costs ${{TRICKS_CAUTIOUS_ORD}}. These costs are calculated, not measured. The &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; switches below let you take the tricks away.</p>
+<p class="fnote"><b>Words used on this page.</b> <b>Medium</b> is the nutrient liquid the cells grow in. <b>Waste</b> means the ammonia and
+lactate that cells give off as they grow. Waste slows growth, so fresh medium must wash it out. <b>Perfusion</b> means that fresh medium flows
+through the tank all the time. The cells are held back and harvested continuously. A <b>column</b> is a packed tower beside the
+tank. The culture runs down it in a thin film, and CO&#8322; leaves without bubbles. <b>Gas the cells tolerate</b> is the speed of gas
+rising through the tank, in millimetres a second. Bubbles and foam hurt cells, so the cells set how much gas can pass. A <b>run lost</b>
+is a batch ruined by contamination. It empties the tank and takes days to restart.</p>
 <div class="chain" role="group" aria-label="The model in one line">
   <div class="link"><div class="num" id="ch_cost">&nbsp;</div><div class="lab" id="ch_costl">to grow</div></div>
   <div class="arr">&rarr;</div>
@@ -1325,34 +1326,34 @@ a batch ruined by contamination, which empties the tank and takes days to restar
   <div class="arr">&rarr;</div>
   <div class="link"><div class="num" id="ch_years">&nbsp;</div><div class="lab">to get 90% of the way</div></div>
 </div>
-<p class="howto">The model in one line, for the scenario you have chosen (<b id="sc_ownname"></b>): everyday meat in the US,
-point estimates. Choose a scenario in the table, or set the switches in <a href="#decide">What decides it</a>; every chart below
-follows. It repeats this for every kind of meat and region (share by type of meat, share of all meat, which products first). Hover or tap <span class="q">?</span> for help.</p>
+<p class="howto">This is the model in one line, for the scenario you have chosen (<b id="sc_ownname"></b>). It shows everyday meat in the US,
+as point estimates. Choose a scenario in the table, or set the switches in <a href="#decide">What decides it</a>, and every chart below
+follows. The model repeats this for every kind of meat and region, as the charts of share by type of meat, share of all meat and which products first show. Hover over or tap <span class="q">?</span> for help.</p>
 </section>
 
 <section id="decide">
 <h2 class="sech">What decides it</h2>
-<p class="lede2">Ten switches, one for each decision that moves the cost. The scenarios above are presets of these
-switches. Move any switch and the cost, shop price, share and what limits the tank update. Under the switches, the chart ranks
-them: what each would be worth if it moved to its best or its worst setting.</p>
+<p class="lede2">There are ten switches, one for each decision that moves the cost. Each scenario above is a preset of these
+switches. When you move a switch, the cost, the shop price, the share and the limit on the tank all update. Under the switches, a chart ranks
+them by what each would be worth if it moved to its best or its worst setting.</p>
 <div class="scpre" id="sc_presets"></div>
 <div class="scstrip" id="sc_strip"></div>
 <div class="fxcard" id="sc_result"></div>
 <div class="fxg scsw" id="sc_switches"></div>
 <p><button class="btn scbtn" style="width:auto" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
-<span class="fxn">Tries every tank trick and shape and keeps the cheapest whose loop the checks allow.</span></p>
+<span class="fxn">This tries every tank trick and shape, and keeps the cheapest one that passes the checks on the CO&#8322; loop.</span></p>
 <h3 class="subh">What to prioritise</h3>
-<p class="fxn">Around the settings above, one switch at a time: the change in cost (and in the long-run share of world meat, in
-percentage points) if that switch moved to its <b style="color:#029E73">best</b> or its <b style="color:#CC3311">worst</b>
-setting, the rest as they are. Widest first. A green bar needs something the scenario does not assume; the tag under each
+<p class="fxn">This chart moves one switch at a time, starting from the settings above. It shows the change in cost, and the change in the
+long-run share of world meat in percentage points, if that switch moved to its <b style="color:#029E73">best</b> or its <b style="color:#CC3311">worst</b>
+setting. The other switches stay as they are. The widest bars come first. A green bar needs something that the scenario does not assume, and the tag under each
 setting says what.</p>
 <div id="sc_tornado" class="scrollx"></div>
 <h3 class="subh">Two switches together</h3>
-<p class="fxn">Cost for every pair of settings of two switches; the rest as above. Click a figure to set both. Pick the pair:
+<p class="fxn">This table gives the cost for every pair of settings of two switches. The other switches stay as above. Click a figure to set both. Pick the pair:
 <select id="sc_ga" onchange="scGridSet()" style="width:auto"></select> against <select id="sc_gb" onchange="scGridSet()" style="width:auto"></select></p>
 <div id="sc_grid" class="scrollx"></div>
 <h3 class="subh">Which switches interact</h3>
-<p class="fxn">Computed from the model around the settings above: a pair is listed when moving one switch is worth a different amount once
+<p class="fxn">The model computes this around the settings above. A pair appears when moving one switch is worth a different amount once
 the other has moved.</p>
 <div id="sc_notes"></div>
 </section>
@@ -1361,9 +1362,9 @@ the other has moved.</p>
 
 <section id="build">
 <h2 class="sech">How the cost is built up</h2>
-<p class="lede2">The cost of a kilo of cells is the plant, the medium and the losses, divided by what a tank produces in a year. This part goes from
-<b>what stands in the way</b> of the cheap scenarios, to <b>how each kind of cells does in each kind of tank</b>, to the cost against the price of medium, to
-the <b>vessels and ways of running a tank</b>, and ends with every lever the model has.</p>
+<p class="lede2">The cost of a kilo of cells is the cost of the plant, the medium and the losses, divided by what a tank produces in a year. This part starts with
+<b>what stands in the way</b> of the cheap scenarios. It then shows <b>how each kind of cells does in each kind of tank</b>, and how the cost depends on the price of medium.
+After that it compares <b>vessels and ways of running a tank</b>. It ends with every lever the model has.</p>
 <div id="blockers" class="findings blk">
 <h3 class="subh">What stands in the way, and what would fix it</h3>
 {{BOTTLENECKS_HTML}}
@@ -1372,15 +1373,15 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
 {{GRID_HTML}}
 </div>
 <h3 class="subh">Cost against the price of medium</h3>
-<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports: the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red line, cultivated meat matches the price of everyday meat; the green dashed lines are the costs of the scenarios in the table at the top.">Cost against medium price</h3>
-        <p class="sub">Cost of a kilo of cells against the medium price, one line per plant case; the dot is your
+<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The three lines are three plant cases at the process one company reports. They are the plant of the reference tank, the plant that company reports, and a cautious pharma-style plant with cells at half the density. Below the red line, cultivated meat costs the same as everyday meat or less. The green dashed lines are the costs of the scenarios in the table at the top.">Cost against medium price</h3>
+        <p class="sub">This chart shows the cost of a kilo of cells against the medium price, with one line per plant case. The dot is your
         setting.</p>
         <svg id="cost" viewBox="0 0 720 300"></svg></div></div>
 <h3 class="subh" id="vessels">Vessel types and operating modes</h3>
 {{VESSELS_HTML}}
 <details class="fxwrap" id="fxwrap"><summary><b>All the levers: build your own case</b> (what limits a tank, and the tricks that lift it)</summary>
       <div class="fx" id="fx">
-        <p><b>Build your own case.</b> Move a lever and the physics is applied for you: the tank holds only as many cells as it can supply with oxygen, clear of CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit binds. The first control sets the cell levers from what has been published for a species; the second loads a whole scenario. The switches in <a href="#decide">What decides it</a> are ten of these levers; the rest are here.</p>
+        <p><b>Build your own case.</b> When you move a lever, the model applies the physics for you. The tank holds only as many cells as it can supply with oxygen, clear of CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The first control sets the cell levers from what has been published for a species. The second control loads a whole scenario. The switches in <a href="#decide">What decides it</a> are ten of these levers, and the rest are here.</p>
         <div class="ctl"><label><span class="nm">Start from a scenario</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
         <div class="ctl"><label><span class="nm">Start from a kind of cell</span></label>
@@ -1427,56 +1428,56 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
             <option value="10">10 m&sup3;</option><option value="20" selected>20 m&sup3;</option><option value="50">50 m&sup3;</option>
             <option value="100">100 m&sup3;</option><option value="200">200 m&sup3;</option></select></div>
           <div class="ctl"><label><span class="nm">Class of plant</span></label>
-            <select id="fx_pl" onchange="fxRender()"><option value="pharma">pharma-style, clean rooms</option>
-            <option value="sanitary" selected>food-grade</option>
-            <option value="lean">food-grade with shared medium</option>
-            <option value="yeastplus">a yeast plant plus what animal cells must have (not shown either)</option>
-            <option value="microbial">built like a yeast plant (not shown to work for animal cells)</option>
-            <option value="custom">your own choice of items (below)</option></select></div>
+            <select id="fx_pl" onchange="fxRender()"><option value="pharma">A pharma-style plant with clean rooms</option>
+            <option value="sanitary" selected>A food-grade plant</option>
+            <option value="lean">A food-grade plant with shared medium</option>
+            <option value="yeastplus">A yeast plant plus what animal cells must have (not shown to work either)</option>
+            <option value="microbial">A plant built like a yeast plant (not shown to work for animal cells)</option>
+            <option value="custom">Your own choice of items (below)</option></select></div>
           <div class="ctl"><label><span class="nm">How the tank is run</span></label>
-            <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>perfusion: fresh medium flows through, cells held back and harvested all the time</option>
-            <option value="filldraw">drained and refilled: half the tank is drained and refilled each cycle, nothing holds the cells back</option></select></div>
+            <select id="fx_mo" onchange="fxMode()"><option value="perfusion" selected>Perfusion (fresh medium flows through, and the cells are held back and harvested all the time)</option>
+            <option value="filldraw">Drained and refilled (half the tank is drained and refilled each cycle, and nothing holds the cells back)</option></select></div>
         </div>
         <details style="margin:0 0 .6em"><summary class="fxn" style="cursor:pointer"><b>The plant, item by item.</b>
           Humbird's design for animal cells costs five times his own yeast plant with the same tanks. Choose what
-          each item is built to; the class of plant above sets them all at once.</summary>
+          each item is built to. The class of plant above sets them all at once.</summary>
           <div class="grid" id="fx_items" style="margin-top:.5em"></div>
           <p class="fxn" id="fx_items_sum"></p></details>
-        <p style="margin:.9em 0 .2em"><b>Tricks.</b> Ways round the limits below. Each is sized by calculation
-        (research notes on gas exchange and on waste); none has been tried with meat cells.</p>
+        <p style="margin:.9em 0 .2em"><b>Tricks.</b> These are ways to get past the limits below. The model sizes each one by calculation
+        (see the research notes on gas exchange and on waste). Nobody has tried any of them with meat cells.</p>
         <div class="fxg">
           <div class="ctl"><label><span class="nm">Fat taken from the feed, not made from glucose</span><span class="val" id="fx_fat_v"></span></label>
             <input type="range" id="fx_fat" min="0" max="100" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> Making fat from glucose gives off CO&#8322; without using oxygen; that is most of why cells make 1.2 CO&#8322; per oxygen. Fed fat takes it to 0.97 and raises the CO&#8322; limit a quarter (carbon balance on Humbird's cell). Untested: whether the cells stop making their own.</p></div>
+            <p class="fxn"><i>Feed or process.</i> Cells that make fat from glucose give off CO&#8322; without using oxygen. This is most of why cells make 1.2 CO&#8322; per oxygen. Fat in the feed lowers the ratio to 0.97 and raises the CO&#8322; limit by a quarter (a carbon balance on Humbird's cell). Nobody has tested whether the cells stop making their own fat.</p></div>
           <div class="ctl"><label><span class="nm">Dissolved oxygen held at</span><span class="val" id="fx_do_v"></span></label>
             <input type="range" id="fx_do" min="0.02" max="0.3" step="0.005" value="{{DO_IMPLIED}}" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The standard tank's oxygen supply implies about 0.28 mmol/L, above air saturation; pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. Lower leaves more room to push oxygen in.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The standard tank's oxygen supply implies about 0.28 mmol/L, which is above air saturation. Pharma holds 30&ndash;50% of air saturation, and cells grow unimpaired at about 10&ndash;100%. A lower level leaves more room to push oxygen in.</p></div>
           <div class="ctl"><label><span class="nm">Packed column on a pumped loop</span><span class="val" id="fx_col_v"></span></label>
             <select id="fx_col" onchange="fxRender()"><option value="none" selected>none</option>
             <option value="co2">for CO&#8322; (air blown through)</option>
             <option value="o2_closed">for CO&#8322; and oxygen (oxygen recycled, lime takes the CO&#8322;)</option></select>
-            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. Calculated: size, flow and cost. Dense cultures have been pumped through fibres at up to about 15&ndash;24 tank volumes an hour for weeks, at 1&ndash;4 litres; more than that is untested. Culture that has lost CO&#8322; stays alkaline until it is back in the tank, so the more passes, the more of the culture is alkaline at any moment.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The culture runs as a thin film down half a metre of steel packing, with no bubbles. The model calculates the size, the flow and the cost. Dense cultures have been pumped through fibres at up to about 15&ndash;24 tank volumes an hour for weeks, in volumes of 1&ndash;4 litres. Nobody has tested more than that. Culture that has lost CO&#8322; stays alkaline until it is back in the tank, so the more passes an hour, the more of the culture is alkaline at any moment.</p></div>
           <div class="ctl"><label><span class="nm">CO&#8322; the culture leaves the column at</span><span class="val" id="fx_cp_v"></span></label>
             <input type="range" id="fx_cp" min="20" max="70" step="5" value="55" oninput="fxRender()">
-            <p class="fxn">Lower strips more per pass but makes the returning culture more alkaline; 55 keeps the pH rise to 0.26.</p></div>
+            <p class="fxn">A lower value strips more CO&#8322; per pass but makes the returning culture more alkaline. A value of 55 keeps the pH rise to 0.26.</p></div>
           <div class="ctl"><label><span class="nm">Pressure at the top of the tank</span><span class="val" id="fx_pt_v"></span></label>
             <input type="range" id="fx_pt" min="0" max="1" step="0.01" value="0.33" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> More pressure dissolves more oxygen; it does nothing for CO&#8322;. Steam-rated tanks take it. Untested in cells.</p></div>
+            <p class="fxn"><i>Feed or process.</i> More pressure dissolves more oxygen. It does nothing for CO&#8322;. Steam-rated tanks take the pressure. Nobody has tested it in cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonia and lactate set</span></label>
             <select id="fx_wm" onchange="fxRender()"><option value="dial" selected>by the waste lever above</option>
             <option value="sep">separately, below</option></select></div>
           <div class="ctl"><label><span class="nm">Ammonia the cells make</span><span class="val" id="fx_nh_v"></span></label>
             <input type="range" id="fx_nh" min="0.02" max="1" step="0.005" value="0.055" oninput="fxRender()">
-            <p class="fxn">0.055 is the engineered cell (seen only in <i>genetically engineered</i> CHO); bovine cells made 0.70, and 0.14 with glutamine replaced in the feed (<i>feed or process</i>, measured).</p></div>
+            <p class="fxn">0.055 is the engineered cell, and only <i>genetically engineered</i> CHO cells have shown it. Bovine cells made 0.70, and 0.14 with glutamine replaced in the feed (<i>feed or process</i>, measured).</p></div>
           <div class="ctl"><label><span class="nm">Lactate made per glucose used</span><span class="val" id="fx_ly_v"></span></label>
             <input type="range" id="fx_ly" min="0" max="1.8" step="0.05" value="0.5" oninput="fxRender()">
-            <p class="fxn">0.5 is the engineered cell's; ordinary pharma cells make about 1.4, ones adapted to it 0.4 (<i>selection or adaptation</i>), chicken cells 1.05; near 0 only with knocked-out genes (<i>genetic engineering</i>).</p></div>
+            <p class="fxn">0.5 is the engineered cell's. Ordinary pharma cells make about 1.4, and cells adapted to it make 0.4 (<i>selection or adaptation</i>). Chicken cells make 1.05. A value near 0 needs knocked-out genes (<i>genetic engineering</i>).</p></div>
           <div class="ctl"><label><span class="nm">Glucose used per kilo of cells</span><span class="val" id="fx_gk_v"></span></label>
             <input type="range" id="fx_gk" min="0.6" max="3.6" step="0.02" value="1.12" oninput="fxRender()">
-            <p class="fxn">The engineered cell uses 1.12 mol; 0.67&ndash;1.0 matches measured pharma cells. Unmeasured for meat cells.</p></div>
+            <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells.</p></div>
           <div class="ctl"><label><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
-            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes a zeolite or resin before it returns. The sodium it gives back counts as salt. Capacity in medium is derived, not measured.</p></div>
+            <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
           <div class="ctl"><label><span class="nm">Sorbent price</span></label>
             <select id="fx_spx" onchange="fxRender()"><option value="0.05">$0.05/kg (bulk zeolite)</option>
             <option value="0.3">$0.30/kg (bulk zeolite, top)</option><option value="5" selected>$5/kg (graded and sterile, assumed)</option>
@@ -1485,16 +1486,16 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
             <select id="fx_scy" onchange="fxRender()"><option value="1" selected>1 (single use)</option>
             <option value="10">10</option><option value="50">50 (hoped for, not measured)</option></select></div>
         </div>
-        <p style="margin:.8em 0 .2em"><b>What limits this tank.</b> The density each limit allows in this case;
-        the shortest bar is the one that binds. The faint bars behind are the reference (a standard perfusion tank), so you can see what each
-        lever or trick moves.</p>
+        <p style="margin:.8em 0 .2em"><b>What limits this tank.</b> Each bar shows the density that one limit allows in this case.
+        The shortest bar is the limit that applies. The faint bars behind are the reference (a standard perfusion tank), so you can see what each
+        lever or trick changes.</p>
         <div id="fx_limits" class="scrollx"></div>
         <p class="example" id="fx_out"></p>
         <p style="margin:.2em 0 .6em"><button class="btn" onclick="fxApply()">Use this case in the charts</button>
         <span class="fxn" id="fx_apply_msg"></span></p>
-        <p style="margin:.6em 0 .2em"><b>What limits this case.</b> Each factor moved alone across its plausible
-        range, the others as you set them. Green lowers the cost, red raises it; the dotted line is the cost
-        that matches everyday meat. Click a factor for what it is and where its range comes from.</p>
+        <p style="margin:.6em 0 .2em"><b>What limits this case.</b> This chart moves each factor alone across its plausible
+        range, with the others as you set them. Green bars lower the cost and red bars raise it. The dotted line is the cost
+        that matches everyday meat. Click a factor to see what it is and where its range comes from.</p>
         <div id="fx_tornado" class="scrollx"></div>
         <div id="fx_torinfo" class="fxcard"></div>
         <p class="fxn" id="fx_notes"></p>
@@ -1504,54 +1505,54 @@ the <b>vessels and ways of running a tank</b>, and ends with every lever the mod
 
 <section id="share">
 <h2 class="sech">From cost to market share</h2>
-<p class="lede2">The cost above sets the price of cultivated meat. This part turns a price into a share of the meat people buy, in the order of the
-reasoning: the price ratio; how shoppers choose between four options; the result for each kind of meat and for all meat; and how quickly it
-could happen. The panel on the left holds the assumptions about shoppers and the market; the cost comes from the scenario chosen above.
-The explanation of each step is under its title; the equations are in the method section at the bottom.</p>
+<p class="lede2">The cost above sets the price of cultivated meat. This part turns that price into a share of the meat people buy. It follows the order of the
+reasoning. First it finds the price ratio. Then it shows how shoppers choose between four options. Next it gives the result for each kind of meat and for all meat.
+Last it shows how quickly this could happen. The panel on the left holds the assumptions about shoppers and the market. The cost comes from the scenario chosen above.
+The explanation of each step is under its title, and the equations are in the method section at the bottom.</p>
 <div class="grid">
   <div class="rail" id="rail"></div>
   <div>
     <h3 class="subh">1. The price ratio</h3>
-    <p class="expl">R is cultivated meat's price in the shop divided by the price of everyday meat: 1&times; is the same price. The shop price is the
+    <p class="expl">R is cultivated meat's price in the shop divided by the price of everyday meat. An R of 1&times; means the same price. The shop price is the
     cost of a kilo of cells (from the scenario) plus a markup for processing, packaging and the retailer's margin. The three numbers below are the
-    result for the region chosen on the left, once cultivated meat is on every shelf and no longer feels new.</p>
+    result for the region chosen on the left. They assume that cultivated meat is on every shelf and no longer feels new.</p>
     <div class="heads" id="heads"></div>
     <div class="calc" id="calc" aria-live="polite"></div>
     <h3 class="subh">2. How shoppers choose</h3>
-    <p class="expl">For each meal a shopper picks conventional meat, plant-based meat, cultivated meat, or beans and other whole foods. Each option gets a
-    score that adds up its price, taste, health, whether it is real meat and whether an animal was killed; tastes vary, so each option's share rises
-    smoothly with its score. 95% of shoppers are mainstream and choose mainly on price, taste and real meat; 5% are vegetarian or vegan and care about
-    slaughter. <b>Left:</b> how the four shares move with cultivated meat's price, for the kind of meat chosen. <b>Right:</b> what pulls for and against
-    cultivated meat at the current price.</p>
-    <div class="charts"><div class="card"><h3 data-help="Blue dot: cultivated at its current price. Green dot: plant-based's current price (1.77&times;); read the blue curve at the same point to compare the two at equal prices. The selector below also drives the chart beside it.">Share against price</h3>
-        <p class="sub">How the four options' shares move with cultivated's price, for the meat chosen below.</p>
+    <p class="expl">For each meal, a shopper picks conventional meat, plant-based meat, cultivated meat, or beans and other whole foods. Each option gets a
+    score. The score adds up its price, its taste, its health image, whether it is real meat and whether an animal was killed. Tastes vary, so each option's share rises
+    smoothly with its score. 95% of shoppers are mainstream. They choose mainly on price, taste and real meat. The other 5% are vegetarian or vegan, and they care about
+    slaughter. <b>Left:</b> how the four shares change with cultivated meat's price, for the kind of meat chosen. <b>Right:</b> what favours cultivated
+    meat and what counts against it at the price now set.</p>
+    <div class="charts"><div class="card"><h3 data-help="The blue dot is cultivated meat at its current price. The green dot is plant-based meat at its current price (1.77&times;). To compare the two at equal prices, read the blue curve at the green dot's price. The selector below also drives the chart beside it.">Share against price</h3>
+        <p class="sub">This chart shows how the four options' shares change with cultivated meat's price, for the meat chosen below.</p>
         <div style="margin:0 0 5px"><select id="curveSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="curve" viewBox="0 0 420 300"></svg></div>
-      <div class="card"><h3 data-help="In score points (utils): green helps cultivated, orange hurts it. The bars add up to the net gap that sets the mainstream share; the &ldquo;blend&rdquo; in brackets mixes in the ethical shoppers. Move a slider and watch its bar change.">Why this share</h3>
-        <p class="sub" id="bdsub">Each factor's pull for or against cultivated, compared with conventional meat.</p>
+      <div class="card"><h3 data-help="The bars are in score points. Green bars help cultivated meat and orange bars hurt it. The bars add up to the net gap that sets the mainstream share. The &ldquo;blend&rdquo; in brackets mixes in the ethical shoppers. Move a slider and watch its bar change.">Why this share</h3>
+        <p class="sub" id="bdsub">How much each factor helps or hurts cultivated meat, compared with conventional meat.</p>
         <svg id="breakdown" viewBox="0 0 420 300"></svg></div></div>
     <h3 class="subh">3. The result for each kind of meat</h3>
-    <p class="expl">The same choice repeated at each kind of meat's own price. Cultivated meat costs about the same whatever animal it copies, but conventional
-    prices differ, so beef and seafood can compete while chicken and pork stay dearer. Premium cuts get the largest share of their category, but
-    authenticity holds them back and the markets are small. Bars are by kind of meat; the dashed lines are the totals by weight and by value.</p>
+    <p class="expl">This repeats the same choice at each kind of meat's own price. Cultivated meat costs about the same whatever animal it copies, but conventional
+    prices differ. So beef and seafood can compete, while chicken and pork stay dearer. Premium cuts get the largest share of their category, but
+    authenticity holds them back and the markets are small. The bars show each kind of meat. The dashed lines show the totals by weight and by value.</p>
     <div class="mcbar">
       <button class="mcbtn" id="mcbtn">Monte Carlo: off</button>
-      <span class="mcnote">Redraws the charts as uncertainty bands.</span>
+      <span class="mcnote">This redraws the charts with uncertainty bands.</span>
     </div>
-    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="2,000 draws of the uncertain inputs from their plausible ranges: medium price, cell efficiency, plant cost, markup, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance (plus plant-based's own taste, novelty and health image). Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
+    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="This chart makes 2,000 random draws of the uncertain inputs from their plausible ranges. The inputs are medium price, cell efficiency, plant cost, markup, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance. It also draws plant-based meat's own taste, novelty and health image. Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
         <p class="sub" id="mcsub"></p><svg id="mc" viewBox="0 0 720 250"></svg></div>
-      <div class="card full"><h3 data-help="Each bar is cultivated meat's share within one kind of meat (solid), with plant-based stacked on top (pale). The colour marks mince, cuts or premium; R is the price ratio. Dashed lines are the totals across all meat, by weight and by value. With Monte Carlo on, bars are medians and whiskers the 10&ndash;90% range.">Share by type of meat</h3>
+      <div class="card full"><h3 data-help="Each solid bar is cultivated meat's share within one kind of meat. Plant-based meat is stacked on top in a paler colour. The colour of the bar marks mince, cuts or premium, and R is the price ratio. The dashed lines are the totals across all meat, by weight and by value. With Monte Carlo on, the bars show medians and the whiskers show the 10&ndash;90% range.">Share by type of meat</h3>
         <p class="sub" id="barsub"></p><svg id="bars" viewBox="0 0 720 300"></svg></div>
-      <div class="card full"><h3 data-help="Each wedge is one kind of meat, sized by weight eaten (or by money spent, with the toggle). The solid inner part is cultivated's share; the lighter band is plant-based's.">Share of all meat
+      <div class="card full"><h3 data-help="Each wedge is one kind of meat, sized by weight eaten (or by money spent, with the toggle). The solid inner part is cultivated meat's share. The lighter band is plant-based meat's share.">Share of all meat
         <span class="toggle" id="pietog" style="font-weight:400;margin-left:8px;vertical-align:middle"></span></h3>
         <p class="sub" id="piesub"></p>
         <svg id="pie" viewBox="0 0 720 330"></svg></div></div>
     <h3 class="subh">4. How fast</h3>
-    <p class="expl">Everything above is a long-run ceiling. This chart shows the path to it: availability spreads like other new products (a few early adopters,
-    then word of mouth), and wariness of a new food fades with exposure. Plant-based meat runs on the same machinery but stalls, because its taste and
-    price gaps do not fade. One everyday product at the benchmark price, with the cost held at the chosen scenario.</p>
-    <div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="Cultivated rises as it reaches shelves and stops feeling new. Plant-based runs on the same machinery but stalls, because its taste and price gaps don't fade. One everyday product at the ${{PCONV}} benchmark price and the selected region's income, with costs held at the default level: not the path of the headline totals.">Adoption over time</h3>
-        <p class="sub" id="timingsub">Cultivated (blue) climbs from near zero toward its ceiling (dashed); plant-based
+    <p class="expl">Everything above is a long-run ceiling. This chart shows the path to that ceiling. Availability spreads as it does for other new products, first among a few early adopters
+    and then by word of mouth. Wariness of a new food fades with exposure. Plant-based meat follows the same rules but stalls, because its taste and
+    price gaps do not fade. The chart shows one everyday product at the benchmark price, with the cost held at the chosen scenario.</p>
+    <div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="Cultivated meat rises as it reaches shelves and stops feeling new. Plant-based meat follows the same rules but stalls, because its taste and price gaps do not fade. The chart shows one everyday product at the ${{PCONV}} benchmark price and the selected region's income, with costs held at the default level. It is not the path of the headline totals.">Adoption over time</h3>
+        <p class="sub" id="timingsub">Cultivated meat (blue) climbs from near zero toward its ceiling (dashed). Plant-based meat
         (green) stalls.</p>
         <svg id="timing" viewBox="0 0 720 300"></svg></div></div>
   </div>
@@ -1560,27 +1561,29 @@ The explanation of each step is under its title; the equations are in the method
 
 <section id="evidence">
 <h2 class="sech">Evidence and checks</h2>
-<p class="lede2">What the model reproduces that it was not fitted to, how it does against other products and against reported runs, what has and has not
-been measured, and which measurements would move the answer most.</p>
+<p class="lede2">This part shows what the model reproduces without being fitted to it. It shows how the model does against other products and against reported runs.
+It lists what has and has not been measured, and which measurements would move the answer most.</p>
 <h3 class="subh">Reality checks</h3>
-<p class="expl">Numbers the model gives at its default settings, set beside real ones. <b>Matches</b> means the model was not fitted to the number.</p>
+<p class="expl">This table sets numbers from the model at its default settings beside real ones. <b>Matches</b> means that the model was not fitted to that number.</p>
 <div class="selftest" id="selftest"></div>
 <h3 class="subh">Other products, and which could go first</h3>
-<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="For plant-based milk (the default) the model was not fitted to milk and predicts about 15%, close to its market share. That is a weak test, since milk's facts are set by hand; margarine and plant-based nuggets fit less well. Plant-based meat is what the model was fitted to, so it is not a test; eggs test a different lever (animal welfare), and their share is largely set by laws.">Does the same model explain other products?</h3>
+<div class="charts" style="grid-template-columns:1fr"><div class="card full"><h3 data-help="The model was not fitted to plant-based milk (the default). It predicts about 15%, close to milk's market share. That is a weak test, because the milk facts are set by hand. Margarine and plant-based nuggets fit less well. The model was fitted to plant-based meat, so plant-based meat is not a test. Eggs test a different lever (animal welfare), and laws largely set their share.">Does the same model explain other products?</h3>
         <p class="sub" id="cmpsub">The same shopper model, with only the product's facts changed.</p>
         <div style="margin:0 0 5px"><select id="cmpSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="milk" viewBox="0 0 720 320"></svg></div>
-  <div class="card full"><h3 data-help="Each product is compared with the price of its everyday grade, not the luxury price paid for wild-caught, top-grade or protected-origin products, which cultivated can't copy. Colour: green = already cheaper, blue = about equal, orange = only in the best case, grey = not even then. Bubble size = the conventional production it would displace if sold at cost. The &ldquo;cost waterline&rdquo; view draws cultivated's cost as a line. Hover over a bubble for details.">Which products could it enter first?</h3>
-        <p class="sub">Luxury products are already beatable on price but tiny; commodity meat, where the volume is,
+  <div class="card full"><h3 data-help="The chart compares each product with the price of its everyday grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. Green means cultivated meat is already cheaper. Blue means about equal. Orange means cheaper only in the best case. Grey means not even then. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The &ldquo;cost waterline&rdquo; view draws cultivated meat's cost as a line. Hover over a bubble for details.">Which products could it enter first?</h3>
+        <p class="sub">Cultivated meat can already beat luxury products on price, but those markets are tiny. Commodity meat, where the volume is,
         stays out of reach.</p>
         <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost waterline</button><button id="footMV" class="on">share vs price</button></div>
         <div style="margin:0 0 5px"><select id="footSel" style="width:auto;max-width:100%;font-size:.78rem;padding:3px 5px"></select></div>
         <svg id="foothold" viewBox="0 0 720 380"></svg>
         <div id="footcap" class="sub" style="margin-top:6px"></div></div></div>
 <h3 class="subh">The cost model against reported runs</h3>
-<p class="expl">Reported runs set against what the cost model gives for the same cells and vessel. Nothing in the model was tuned to these (Humbird's two designs,
-which it was tuned to, are left out). Observed / model far from 1 shows where the model is not reliable.</p>
+<p class="expl">This table sets reported runs beside what the cost model gives for the same cells and vessel. Nobody tuned the model to these runs. (Humbird's two designs,
+which the model was tuned to, are left out.) An observed-to-model ratio far from 1 shows where the model is not reliable.</p>
 {{BACKTEST_HTML}}
+<h3 class="subh">Against what companies report</h3>
+{{INDUSTRY_HTML}}
 <h3 class="subh">What has and has not been measured</h3>
 {{MEASURED_HTML}}
 <h3 class="subh">The measurements that would move the answer</h3>
@@ -1590,108 +1593,108 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
 
     <details class="methods" id="method"><summary>How the model works: method, equations and sources</summary>
 
-      <p class="mintro">Each step below has a one-line summary; click it for the detail. Equations are in appendix A0.
-      Numbers with a bracketed reference, like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], come from that source; judgement calls are
-      labelled; everything else is computed by the model at its default settings.</p>
+      <p class="mintro">Each step below has a one-line summary. Click it for the detail. The equations are in appendix A0.
+      A number with a bracketed reference, like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
+      labelled. The model computes everything else at its default settings.</p>
 
-      <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> Medium, plant running cost and
-      retail markup, divided by the price of the meat it replaces: {{R_TODAY}}&times; at the cost one company reports, {{R_BEST}}&times;
-      in the best case, {{R_CENTRAL}}&times; in the central scenario.</summary>
+      <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> The price is medium, plant running cost and
+      retail markup, divided by the price of the meat it replaces. The result is {{R_TODAY}}&times; at the cost one company reports, {{R_BEST}}&times;
+      in the best case and {{R_CENTRAL}}&times; in the central scenario.</summary>
       <p>The <b>price ratio</b> <i>R</i> is cultivated meat's retail price divided by the price of the conventional
-      meat beside it: 1 means the same price, 2 means twice the price. The retail price has three parts:</p>
+      meat beside it. A ratio of 1 means the same price, and 2 means twice the price. The retail price has three parts:</p>
       <ul>
-        <li><b>Medium,</b> the nutrient liquid the cells grow in. One company, SuperMeat, reports {{MEDIA_L}} litres per
+        <li><b>Medium</b> is the nutrient liquid the cells grow in. One company, SuperMeat, reports {{MEDIA_L}} litres per
         kilo of cells at under ${{MEDIA_P}} per litre [1]. Other companies reported $0.20/L or less in 2025, and an
-        amino-acid cost analysis by GFI and MG Consulting supports that level [3], but nothing is verified at
-        production scale. Leaner cells would use less (the cell-efficiency slider: 1 = as reported).</li>
-        <li><b>Plant running cost:</b> capital, labour, energy and consumables: ${{OH_DEF}}/kg. That is the same
-        company's running costs plus a yearly charge on its plant of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost,
-        the rate used for every case on this page [1, 2]. The company itself counts depreciation only, which gives
+        amino-acid cost analysis by GFI and MG Consulting supports that level [3]. Nobody has verified either at
+        production scale. Leaner cells would use less medium. The cell-efficiency slider sets this, and 1 means as reported.</li>
+        <li><b>Plant running cost</b> covers capital, labour, energy and consumables, and comes to ${{OH_DEF}}/kg. This is the same
+        company's running costs plus a yearly charge on its plant of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost.
+        This rate is used for every case on this page [1, 2]. The company itself counts depreciation only, which gives
         about $5 less. The plant's cost depends on its class, on how dense the culture is and on how fast the cells
-        grow (&ldquo;Cost scenarios&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
+        grow (see &ldquo;Cost scenarios&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
         sterility [2].</li>
-        <li><b>Getting it to the shelf:</b> a ${{MARKUP}}/kg markup for processing, cold chain and retail (about
-        conventional meat's farm-to-retail spread), plus $6/kg of scaffold for structured cuts, a guess because no
+        <li><b>Getting it to the shelf</b> adds a ${{MARKUP}}/kg markup for processing, cold chain and retail. This is about
+        conventional meat's farm-to-retail spread. Structured cuts add $6/kg of scaffold. That figure is a guess, because no
         study has costed it [6].</li>
       </ul>
-      <p><b>What the default cost is.</b> What one company reports for its own process, scaled up on paper, with
-      the cost of capital put on the same footing as the other cases: about ${{BIOMASS_TODAY}} per kilo of cells [1].
-      It is the best-documented figure on a sound basis (100% cells, a realistic weight per cell), but it is a
-      company's claim from 10-litre runs, not a peer-reviewed result, and its stated tank sizes and densities
+      <p><b>What the default cost is.</b> The default cost is what one company reports for its own process, scaled up on paper.
+      The model puts the cost of capital on the same footing as the other cases. The result is about ${{BIOMASS_TODAY}} per kilo of cells [1].
+      It is the best-documented figure on a sound basis (100% cells and a realistic weight per cell). It is still a
+      company's claim from 10-litre runs, not a peer-reviewed result. Its stated tank sizes and densities
       account for only about half of its stated output. Humbird's independent design for efficient cells comes to
-      about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells: about 70% water
-      and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20] whose kilo turned
-      out to be a wet pellet that is mostly liquid; it is no longer used. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
-      $10–14); the share-by-type, share-of-all-meat and which-products-first charts use each meat's local price.</p>
-      <p class="example"><b>Worked example.</b> Medium: {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. Plus the plant's ${{OH_DEF}}:
-      ${{BIOMASS_TODAY}}/kg of cells. Plus the ${{MARKUP}} markup: ${{RETAIL_TODAY}}/kg in the shop
-      (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat: <i>R</i> ≈ {{R_TODAY}}.</p>
-      <p><b>Cost scenarios.</b> Cells must eat a fixed amount of amino acids, glucose and salts (about ${{FEEDSTOCK_FLOOR}}/kg [2]; the
-      salts, buffer and vitamins in it are an assumption), and a plant must be paid for. The plant's cost per kilo is its cost
-      per cubic metre of tank divided by what a cubic metre makes in a year, and the second part is physics: how much
+      about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells, which are about 70% water
+      and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20]. Its kilo turned
+      out to be a wet pellet that is mostly liquid, so this page no longer uses it. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      $10–14). The charts of share by type of meat, share of all meat and which products first use each meat's local price.</p>
+      <p class="example"><b>Worked example.</b> Medium costs {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. The plant adds ${{OH_DEF}},
+      so cells cost ${{BIOMASS_TODAY}}/kg. The ${{MARKUP}} markup makes the shop price ${{RETAIL_TODAY}}/kg
+      (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat, <i>R</i> ≈ {{R_TODAY}}.</p>
+      <p><b>Cost scenarios.</b> Cells must eat a fixed amount of amino acids, glucose and salts, and that feed costs about ${{FEEDSTOCK_FLOOR}}/kg [2].
+      The salts, buffer and vitamins in that figure are an assumption. The plant must also be paid for. The plant's cost per kilo is its cost
+      per cubic metre of tank divided by what a cubic metre makes in a year. The second part is physics: how much
       oxygen a cell needs, and how much oxygen and CO&#8322; a tank can exchange without bubbles killing the cells. The plant's
-      cost per cubic metre comes from Humbird's design [2] in 2025 prices, item by item (his plant as drawn comes to
-      ${{HUMBIRD_PLANT}}/kg in 2018 prices, most of it a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year).
-      Which of these come out depends on ten decisions, the switches in &ldquo;What decides it&rdquo;, and a
-      <b>scenario</b> is a preset of them. <b>Best case:</b> every switch at its cheapest setting that has a plausible route,
-      ${{COST_BEST}}/kg. <b>Central:</b> cells made low-waste by feed and selection, doubling every 36 hours, a food-grade plant,
-      ${{COST_CENTRAL}}/kg (${{COST_CENTRAL_LEAN}} in a food-grade plant with shared medium). <b>Cautious:</b> the best meat cells measured so far,
+      cost per cubic metre comes from Humbird's design [2] in 2025 prices, item by item. His plant as drawn comes to
+      ${{HUMBIRD_PLANT}}/kg in 2018 prices, and most of that is a charge of {{HUMBIRD_CHARGE_PCT}}% of the plant's cost a year.
+      How these parts come out depends on ten decisions, which are the switches in &ldquo;What decides it&rdquo;. A
+      <b>scenario</b> is a preset of them. <b>Best case:</b> every switch is at its cheapest setting that has a plausible route, and the cost is
+      ${{COST_BEST}}/kg. <b>Central:</b> feed and selection make the cells low-waste, the cells double every 36 hours, and the plant is food-grade.
+      The cost is ${{COST_CENTRAL}}/kg (${{COST_CENTRAL_LEAN}} in a food-grade plant with shared medium). <b>Cautious:</b> the cells are the best meat cells measured so far, and the cost is
       ${{COST_CAUTIOUS}}/kg. Parity with ${{PCONV}} meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
-      <b>The reference.</b> What earlier versions of this page called the floor is a standard perfusion tank with no tank
-      tricks, engineered cells and no lost runs: the plant costs about ${{PLANT_FLOOR}}/kg and the cells ${{COST_FLOOR}}/kg. It is kept as a
-      labelled reference, because it is the default of the model and what the cross-checks against Humbird use; it is not a limit,
-      and the best case is below it.
-      <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year: money at 7.5% repaid in
+      <b>The reference.</b> Earlier versions of this page called this number the floor. It is a standard perfusion tank with no tank
+      tricks, engineered cells and no lost runs. The plant costs about ${{PLANT_FLOOR}}/kg and the cells cost ${{COST_FLOOR}}/kg. The page keeps it as a
+      labelled reference, because it is the default of the model and the cross-checks against Humbird use it. It is not a limit,
+      and the best case costs less.
+      <b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year. This covers money at 7.5% repaid in
       10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
-      cost of capital as 5.4% and uses a 20-year life for a yeast plant, which makes the yearly charge
+      cost of capital as 5.4% and uses a 20-year life for a yeast plant. Those figures make the yearly charge
       {{MATURE_CHARGE_PCT}}% [2]. The scenarios are long-run cases set against meat, a mature industry, so they use the
-      lower rate; at the first-plant rate the reference would be about ${{COST_FLOOR_FIRST}}/kg. The reported process and the cautious
+      lower rate. At the first-plant rate the reference would cost about ${{COST_FLOOR_FIRST}}/kg. The reported process and the cautious
       tier below keep the first-plant rate.
-      <b>How firm are they?</b> Each scenario's switches are held, and the estimates behind it are allowed to be off: the plant
+      <b>How firm are they?</b> Each scenario's switches stay fixed, but the estimates behind it can be off. These are the plant
       estimate, the retention device, the financing, the upkeep share of respiration, the medium price and the loss rate.
-      Then the central case costs ${{CENTRAL_COST_P50}}/kg at the median (80% range ${{CENTRAL_COST_P10}}&ndash;{{CENTRAL_COST_P90}}),
-      the best case ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}) and the cautious case ${{CAUTIOUS_COST_P50}}
-      (${{CAUTIOUS_COST_P10}}&ndash;{{CAUTIOUS_COST_P90}}). Letting demand vary as well (price sensitivity, acceptance, the retail
+      With those uncertain, the central case costs ${{CENTRAL_COST_P50}}/kg at the median (80% range ${{CENTRAL_COST_P10}}&ndash;{{CENTRAL_COST_P90}}).
+      The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}) and the cautious case ${{CAUTIOUS_COST_P50}}
+      (${{CAUTIOUS_COST_P10}}&ndash;{{CAUTIOUS_COST_P90}}). When demand varies as well (price sensitivity, acceptance and the retail
       markup), the long-run share of world meat is {{CENTRAL_SHARE_P50}}% in the central case at the median (80% range
-      {{CENTRAL_SHARE_P10}}&ndash;{{CENTRAL_SHARE_P90}}%), {{BEST_SHARE_P50}}% in the best case ({{BEST_SHARE_P10}}&ndash;{{BEST_SHARE_P90}}%) and
-      {{CAUTIOUS_SHARE_P50}}% in the cautious case ({{CAUTIOUS_SHARE_P10}}&ndash;{{CAUTIOUS_SHARE_P90}}%). What the cells are like, how fast they grow and the other switches are not drawn
-      here: they are what the scenarios differ in, and the chart &ldquo;What to prioritise&rdquo; shows what each is worth.
-      <b>A plant as cheap as a yeast plant</b> is not used in any scenario. Plants for yeast and other microbes are built today for about a
-      quarter of the cost per cubic metre of Humbird's design for animal cells, which would cut the plant term to about ${{PLANT_FLOOR_LO}}/kg
-      (cells ${{COST_FLOOR_LO}}/kg in the reference tank), but animal cells are far easier to contaminate and nobody has shown that they
-      can be grown that way. For comparison only: the same reference case in a pharma-style plant with clean rooms, tanks simply drained and
-      refilled and first-plant financing costs about ${{COST_FLOOR_HI}}/kg.</p>
-      <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells: about 70% water
-      and 20% protein, like meat. Plant costs are in 2025 prices. &ldquo;Sterile&rdquo; means a pharma-style plant:
-      clean rooms, and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
-      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup: first with the plant financed as a first
-      plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), then as a mature food industry ({{MATURE_CHARGE_PCT}}%).
-      The scenarios use the second; the reported process uses the first.</p>
+      {{CENTRAL_SHARE_P10}}&ndash;{{CENTRAL_SHARE_P90}}%). It is {{BEST_SHARE_P50}}% in the best case ({{BEST_SHARE_P10}}&ndash;{{BEST_SHARE_P90}}%) and
+      {{CAUTIOUS_SHARE_P50}}% in the cautious case ({{CAUTIOUS_SHARE_P10}}&ndash;{{CAUTIOUS_SHARE_P90}}%). The draws do not vary what the cells are like, how fast they grow or the other switches.
+      The scenarios differ in exactly those things, and the chart &ldquo;What to prioritise&rdquo; shows what each is worth.
+      <b>A plant as cheap as a yeast plant</b> is not used in any scenario. Plants for yeast and other microbes cost about a
+      quarter as much per cubic metre as Humbird's design for animal cells. That would cut the plant term to about ${{PLANT_FLOOR_LO}}/kg
+      (cells ${{COST_FLOOR_LO}}/kg in the reference tank). But animal cells are far easier to contaminate, and nobody has shown that they
+      can grow in such a plant. For comparison only, the same reference case in a pharma-style plant with clean rooms, tanks simply drained and
+      refilled, and first-plant financing costs about ${{COST_FLOOR_HI}}/kg.</p>
+      <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells, which are about 70% water
+      and 20% protein, like meat. Plant costs are in 2025 prices. A pharma-style plant has
+      clean rooms and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
+      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup. The first column finances the plant as a first
+      plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), and the second finances it as a mature food industry ({{MATURE_CHARGE_PCT}}%).
+      The scenarios use the second. The reported process uses the first.</p>
       <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
         <th>cells, $/kg (vs meat), first-plant financing</th><th>the same with food-industry financing</th></tr>
         {{COST_CASES_ROWS}}
       </table></div>
-      <p>Reading the table: the cells and the class of plant matter far more than how the tank is run. The cases
-      from &ldquo;pharma-style plant, cells at half the density&rdquo; down are derived from physics, not from anyone's plant
-      (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
-      physics-based cost estimate&rdquo;).</p>
+      <p><b>Reading the table.</b> The cells and the class of plant matter far more than how the tank is run. The cases
+      from &ldquo;a pharma-style plant with clean rooms, cells at half the density&rdquo; down come from physics, not from anyone's plant.
+      See <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/METHODS.md">METHODS.md</a>, &ldquo;A
+      physics-based cost estimate&rdquo;.</p>
       <p><b>Uncertainty.</b> Across the plausible ranges of the four cost inputs, the median is <i>R</i> ≈
-      {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}); almost no draws reach parity. The median is below
+      {{R_MC_P50}} (80% range {{R_MC_P10}}–{{R_MC_P90}}). Almost no draws reach parity. The median is below
       {{R_TODAY}} because cell efficiency can only improve on the reported process.</p>
-      <p><b>What moves it most:</b> the medium price and reactor scale (the cost-against-medium-price chart), then the markup. A 25% meat tax
+      <p><b>What changes it most.</b> The medium price and the reactor scale matter most (see the cost-against-medium-price chart), then the markup. A 25% meat tax
       lowers <i>R</i> as much as a 20% cut in every cost.</p>
       </details>
 
-      <details class="step" id="step2"><summary><b>Step 2 · Price &rarr; choice.</b> Shoppers choose among four options
-      by price, taste, health, &ldquo;is it real meat?&rdquo; and &ldquo;no slaughter&rdquo;; at equal price, cultivated
-      gets ~{{PARITY_NEUTRAL}}% if seen as real meat.</summary>
-      <p>A standard discrete-choice model [12]. For each meal a shopper picks conventional meat, plant-based meat,
-      cultivated meat, or beans and other whole foods, so shares include the bean meals. Each option gets a score
+      <details class="step" id="step2"><summary><b>Step 2 · Price &rarr; choice.</b> Shoppers choose among four options.
+      They weigh price, taste, health, &ldquo;is it real meat?&rdquo; and &ldquo;no slaughter&rdquo;. At equal price, cultivated
+      meat gets ~{{PARITY_NEUTRAL}}% if shoppers see it as real meat.</summary>
+      <p>This is a standard discrete-choice model [12]. For each meal, a shopper picks conventional meat, plant-based meat,
+      cultivated meat, or beans and other whole foods. The shares therefore include the bean meals. Each option gets a score
       that adds up its price, taste, health, whether it is real meat and whether an animal was killed. Tastes vary,
-      so the top score doesn't always win: each option's share rises smoothly with its score (one point more means
-      about 2.7 times as often).</p>
-      <p><b>Two kinds of shopper:</b> 95% mainstream, who choose mainly on price, taste and real meat; 5% vegetarian
-      or vegan [7], who care about slaughter and mostly eat beans.</p>
+      so the top score does not always win. Each option's share rises smoothly with its score, and one more point means
+      about 2.7 times as often.</p>
+      <p><b>Two kinds of shopper.</b> 95% are mainstream, and they choose mainly on price, taste and real meat. 5% are vegetarian
+      or vegan [7]. They care about slaughter and mostly eat beans.</p>
       <div class="scrollx"><table class="attr">
         <tr><th>option</th><th>price</th><th>taste</th><th>real meat</th><th>no slaughter</th><th>health</th></tr>
         <tr><td><b>conventional</b> meat</td><td>1</td><td>1</td><td>yes</td><td>no</td><td>&minus;0.1</td></tr>
@@ -1700,28 +1703,28 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
         <tr><td><b>beans</b> / whole food</td><td>~0.25&times; [15]</td><td>0.3</td><td>no</td><td>yes</td><td>+2</td></tr>
       </table></div>
       <p style="font-size:.84rem;color:#555">Conventional meat's small health penalty stands for antibiotics and
-      contamination; beans are &ldquo;the healthy choice&rdquo;.</p>
-      <p><b>The central premise.</b> Cultivated meat <i>is</i> animal tissue, so, unlike a veggie burger, it keeps
-      conventional meat's main advantage with mainstream shoppers and draws its buyers from conventional meat. The
-      premise is a slider: full credit gives ~{{BX_10}}% at equal price, none ~{{BX_00}}%.</p>
-      <p><b>Tied to data.</b> Price sensitivity follows grocery data for meat (1% dearer, 0.9% fewer purchases [4]),
-      made steeper for cultivated because an almost identical product sits beside it (A1). Three weights are solved
-      so the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
+      contamination. Beans are &ldquo;the healthy choice&rdquo;.</p>
+      <p><b>The central premise.</b> Cultivated meat <i>is</i> animal tissue. Unlike a veggie burger, it keeps
+      conventional meat's main advantage with mainstream shoppers, and it draws its buyers from conventional meat. The
+      premise is a slider. Full credit gives ~{{BX_10}}% at equal price, and none gives ~{{BX_00}}%.</p>
+      <p><b>Tied to data.</b> Price sensitivity follows grocery data for meat (1% dearer, 0.9% fewer purchases [4]).
+      It is steeper for cultivated meat because an almost identical product is next to it (A1). Three weights are solved
+      so that the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
       of mainstream meals that skip meat (A4). Taste sets the scale for the rest. As a check, the same model with
-      only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (the other-products chart); a
-      weak test, since milk's facts are set by hand. <b>A harder test.</b> Six premium animal products (organic
-      milk, cage-free, organic and omega-3 eggs, organic chicken, organic meat) take 2–7% of sales at 1.5 to 2.2
+      only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (see the other-products chart).
+      This is a weak test, because the milk facts are set by hand. <b>A harder test.</b> Six premium animal products (organic
+      milk, cage-free, organic and omega-3 eggs, organic chicken and organic meat) take 2–7% of sales at 1.5 to 2.2
       times the conventional price. Each is the ordinary product plus a virtue, which is what cultivated meat above
       equal price would be. The model reproduces them to within a factor of about 2.6 at the default price
-      sensitivity (&kappa; = 8.5) and over-predicted them sixfold at its earlier default of 4. For example, it gives
-      a real-meat product at 1.44&times; the price of chicken cuts about {{ORG_CUTS}}% (about {{ORG_MINCE}}% at
-      2.6&times; mince). It still over-predicts at small premiums and under-predicts at large ones: real premium
-      buyers look like a small group that pays whatever the premium, which one price-sensitivity number cannot
-      capture.</p>
-      <p><b>At equal price</b>, once familiar, mainstream shoppers see two near-identical real meats and split that
-      market: cultivated ~{{PARITY_NEUTRAL}}%, conventional ~{{CONV_PARITY}}% (cultivated's small edge is its
-      slaughter-free and cleaner profile; without the health edge, ~{{NOHEALTH_PARITY}}%). The judgement calls that
-      move it most:</p>
+      sensitivity (&kappa; = 8.5). It over-predicted them sixfold at its earlier default of 4. For example, it gives
+      about {{ORG_CUTS}}% for a real-meat product at 1.44&times; the price of chicken cuts, and about {{ORG_MINCE}}% at
+      2.6&times; mince. It still over-predicts at small premiums and under-predicts at large ones.
+      Real premium buyers look like a small group that pays whatever the premium, and one price-sensitivity number cannot
+      capture that.</p>
+      <p><b>At equal price</b>, once the product is familiar, mainstream shoppers see two near-identical real meats and split that
+      market. Cultivated meat gets ~{{PARITY_NEUTRAL}}% and conventional meat ~{{CONV_PARITY}}%. Cultivated meat's small edge is its
+      slaughter-free and cleaner profile. Without the health edge it gets ~{{NOHEALTH_PARITY}}%. These judgement calls
+      change the result most:</p>
       <div class="scrollx"><table class="attr">
         <tr><th>if cultivated meat…</th><th>share at equal price</th></tr>
         <tr><td>tastes as good and is seen as real meat (default)</td><td>~{{PARITY_NEUTRAL}}%</td></tr>
@@ -1733,97 +1736,97 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
         <tr><td>tastes as good but isn't seen as real meat</td><td>~{{BX_00}}%</td></tr>
       </table></div>
       <p>At first contact the model gives ~{{COLD_PARITY}}% (Step 4). <b>At the default price</b> (<i>R</i> ≈
-      {{R_TODAY}}) it gives ~{{SHARE_TODAY}}% in the long run (US, everyday meat): price is the binding constraint.</p>
+      {{R_TODAY}}) it gives ~{{SHARE_TODAY}}% in the long run (US, everyday meat). Price is the main limit on the share.</p>
       </details>
 
-      <details class="step" id="step3"><summary><b>Step 3 · Every meat, every region.</b> Repeat at each meat's local
-      price and add up: ~{{PEN_GLOBAL_VOL}}% of world meat by weight ({{PEN_GLOBAL_VAL}}% by value), ~{{PEN_EU_VOL}}% in
+      <details class="step" id="step3"><summary><b>Step 3 · Every meat, every region.</b> The model repeats the choice at each meat's local
+      price and adds up the results. The total is ~{{PEN_GLOBAL_VOL}}% of world meat by weight ({{PEN_GLOBAL_VAL}}% by value) and ~{{PEN_EU_VOL}}% in
       Europe.</summary>
-      <p>Cultivated meat costs about the same whatever animal it copies, but conventional prices vary: in the US,
-      chicken mince is about $5/kg, a beef steak $20, sushi-grade fish $40. So the model runs each meat at its local
-      price and adds up <b>by weight</b> (closest to the climate footprint) and <b>by value</b> (the market). Neither
-      counts animals: most land animals raised for meat are chickens, where cultivated does worst.</p>
-      <p><b>Mince, cuts and premium.</b> Premium means a cut at least 2.5 times the species' cheapest form (wagyu,
-      sushi-grade fish). Up the ladder, <b>authenticity</b> matters more (nobody misses &ldquo;the real thing&rdquo; in a
-      nugget; for wagyu the breed <i>is</i> the product: +0.2 for mince, &minus;0.4 for cuts, &minus;1.5 for premium) and
-      buyers react less to <b>price</b> [5] (0.8× for cuts, 0.3× for premium). The directions are documented; the
+      <p>Cultivated meat costs about the same whatever animal it copies, but conventional prices vary. In the US,
+      chicken mince costs about $5/kg, a beef steak $20 and sushi-grade fish $40. So the model runs each meat at its local
+      price and adds up the results <b>by weight</b> (closest to the climate footprint) and <b>by value</b> (the market). Neither
+      total counts animals. Most land animals raised for meat are chickens, and cultivated meat does worst there.</p>
+      <p><b>Mince, cuts and premium.</b> Premium means a cut at least 2.5 times the species' cheapest form (for example wagyu and
+      sushi-grade fish). Higher up the ladder, <b>authenticity</b> matters more. Nobody misses &ldquo;the real thing&rdquo; in a
+      nugget, but for wagyu the breed <i>is</i> the product. The offsets are +0.2 for mince, &minus;0.4 for cuts and &minus;1.5 for premium. Buyers also
+      react less to <b>price</b> [5], at 0.8× for cuts and 0.3× for premium. The directions are documented. The
       values are judgement, scaled by one <b>premium resistance</b> slider that the Monte Carlo samples (0.5–1.5).</p>
       <p><b>What comes out</b> (share by type of meat, at the default cost):</p>
       <ul>
-        <li><b>Beef and seafood</b> are where cultivated can compete; chicken and pork stay dearer even in the
+        <li><b>Beef and seafood</b> are where cultivated meat can compete. Chicken and pork stay dearer even in the
         best case.</li>
-        <li><b>Premium products</b> get the biggest share of their category (cultivated is already cheaper there), but
-        authenticity holds it to about a quarter, and the markets are small.</li>
+        <li><b>Premium products</b> get the biggest share of their category, because cultivated meat is already cheaper there.
+        Authenticity limits that share to about a quarter, and the markets are small.</li>
         <li><b>Beef and seafood cuts</b> displace the most meat. In the central scenario, cuts and ground beef overtake
-        premium, and the US total rises from {{PEN_US_VOL}}% (the reported cost) to ~{{PEN_US_CENTRAL_VOL}}% by weight.</li>
+        premium. The US total then rises from {{PEN_US_VOL}}% (at the reported cost) to ~{{PEN_US_CENTRAL_VOL}}% by weight.</li>
       </ul>
-      <p><b>Regions.</b> Europe is easiest ({{PEN_EU_VOL}}% by weight, {{PEN_EU_VAL}}% by value): dear meat, rich
-      shoppers. China and the world average are pulled down by cheap chicken and pork; low-income regions are
-      hardest, with cheap meat and price-sensitive shoppers (A2). Prices and mixes for low-income regions are rough
+      <p><b>Regions.</b> Europe is easiest ({{PEN_EU_VOL}}% by weight, {{PEN_EU_VAL}}% by value), because meat is dear and shoppers
+      are rich. Cheap chicken and pork lower the figures for China and for the world average. Low-income regions are
+      hardest, because meat is cheap and shoppers are price-sensitive (A2). The prices and mixes for low-income regions are rough
       (A7).</p>
       </details>
 
-      <details class="step" id="step4"><summary><b>Step 4 · Over time.</b> Starts near zero and rises as the product
-      spreads and stops feeling new, levelling off after about {{STAB_YEAR}} years.</summary>
+      <details class="step" id="step4"><summary><b>Step 4 · Over time.</b> The share starts near zero. It rises as the product
+      spreads and stops feeling new, and it levels off after about {{STAB_YEAR}} years.</summary>
       <ul>
-        <li><b>Rollout:</b> availability spreads like other new products, with early adopters, then word of mouth
-        (Bass diffusion [11], standard rates from durable goods).</li>
-        <li><b>Familiarity:</b> in a US choice experiment only ~5% chose lab-grown meat at the same price as beef [8].
+        <li><b>Rollout.</b> Availability spreads like it does for other new products, first among early adopters and then by word of mouth
+        (Bass diffusion [11], with standard rates from durable goods).</li>
+        <li><b>Familiarity.</b> In a US choice experiment, only ~5% chose lab-grown meat at the same price as beef [8].
         The model starts about there (~{{COLD_PARITY}}% at equal price) and lets the wariness fade with exposure.</li>
       </ul>
-      <p class="example"><b>Worked example</b> (US, everyday meat, the default price held fixed): near 0% at
-      launch, ~{{Y10_SHARE}}% after 10 years, ~{{Y30_SHARE}}% after 30, against a long-run ceiling of
-      ~{{SHARE_TODAY}}%; the curve flattens around year {{STAB_YEAR}}.</p>
-      <p><b>For timing, the biggest unknown</b> is how wary people are today: surveys range from ~5% (a cold choice
-      experiment) to ~60% (&ldquo;cultivated chicken in a restaurant&rdquo;) [10]. The &ldquo;novelty today&rdquo; slider
+      <p class="example"><b>Worked example</b> (US, everyday meat, with the default price held fixed). The share is near 0% at
+      launch, ~{{Y10_SHARE}}% after 10 years and ~{{Y30_SHARE}}% after 30. The long-run ceiling is
+      ~{{SHARE_TODAY}}%. The curve flattens around year {{STAB_YEAR}}.</p>
+      <p><b>For timing, the biggest unknown</b> is how wary people are at the start. Surveys range from ~5% (a cold choice
+      experiment) to ~60% (&ldquo;cultivated chicken in a restaurant&rdquo;) [10]. The &ldquo;starting wariness&rdquo; slider
       spans that range (~{{NX0_MIN}}% at &minus;3.5, ~{{NX0_NEUTRAL}}% at 0, ~60% near +{{NX0_60}}, ~{{NX0_WARM}}% at
-      +1.5). It changes how fast, not how far. Plant-based runs on the same machinery but stalls: its taste and price
-      gaps don't fade.</p>
+      +1.5). It changes how fast the share grows, not how far. Plant-based meat follows the same rules but stalls, because its taste and price
+      gaps do not fade.</p>
       </details>
 
-      <details class="step" id="entry"><summary><b>Which products first.</b> Luxury products are already
-      beatable on price but tiny; commodity meat is out of reach, even in the best case.</summary>
-      <p>A luxury price is mostly not cost: A5 wagyu or caviar is dear because of breed, origin and scarcity
-      (<i>economic rent</i>). Cultivated meat can copy the meat, not the pedigree, so the model compares its cost with
+      <details class="step" id="entry"><summary><b>Which products first.</b> Cultivated meat can already beat luxury products on price,
+      but those markets are tiny. Commodity meat is out of reach, even in the best case.</summary>
+      <p>A luxury price is mostly not cost. A5 wagyu or caviar is dear because of breed, origin and scarcity
+      (<i>economic rent</i>). Cultivated meat can copy the meat but not the pedigree. So the model compares its cost with
       the product's <b>everyday grade</b> (farmed salmon, crossbred wagyu). A <b>prestige core</b> of buyers never
-      switches: 25% by default, a proxy from the only two published splits (wild salmon, bellota ibérico).</p>
-      <p>Already cheaper: foie gras, bluefin tuna, sea urchin, wagyu (lobster is close), but each market is thousands to
-      hundreds of thousands of tonnes a year. Commodity beef, pork and chicken (tens of millions of tonnes each;
-      the which-products-first chart uses whole-category volumes) stay out of reach at world prices. New technologies often start at the top
-      and move down-market as costs fall [18], [19]. Foie gras stands out: unstructured, expensive, and increasingly
-      banned on welfare grounds that don't apply to a cultivated version.</p>
-      <p>The which-products-first chart gives luxury products higher shares than share by type of meat because it removes the prestige core and treats the
-      rest like ordinary cuts, where share by type of meat applies one large penalty to the whole category; that one is the
+      switches. The default is 25%, a proxy taken from the only two published splits (wild salmon and bellota ibérico).</p>
+      <p>Cultivated meat is already cheaper than foie gras, bluefin tuna, sea urchin and wagyu, and lobster is close. Each of these markets is only thousands to
+      hundreds of thousands of tonnes a year. Commodity beef, pork and chicken are tens of millions of tonnes each, and
+      the which-products-first chart uses whole-category volumes. Cultivated meat stays out of reach for these at world prices. New technologies often start at the top
+      and move down-market as costs fall [18], [19]. Foie gras stands out. It is unstructured, it is expensive, and more places are
+      banning it on welfare grounds that do not apply to a cultivated version.</p>
+      <p>The which-products-first chart gives luxury products higher shares than the share-by-type-of-meat chart does. It removes the prestige core and treats the
+      rest like ordinary cuts. The share-by-type-of-meat chart applies one large penalty to the whole category, and that is the
       conservative view. The which-products-first chart assumes sale at cost, so it shows reach and impact, not profit.</p>
       </details>
 
       <details class="step" id="cruxes"><summary><b>What would change the conclusions.</b> Cheaper classes of plant,
-      better cells or cheap medium at scale (up), low density at scale (down), and how shoppers take to it.</summary>
+      better cells or cheap medium at scale would raise the share. Low density at scale would lower it. How shoppers react could change it either way.</summary>
       <ul>
-        <li><b>Up:</b> animal cells grown in plants built like today's microbial fermentation plants; efficient cells
-        shown at pilot scale with a full mass balance; perfusion with a scalable way to hold cells back at 20,000
-        litres; independently confirmed medium below $0.30/L at scale; a meat tax.</li>
+        <li><b>Up:</b> animal cells grown in plants built like microbial fermentation plants, efficient cells
+        shown at pilot scale with a full mass balance, perfusion with a scalable way to hold cells back at 20,000
+        litres, independently confirmed medium below $0.30/L at scale, or a meat tax.</li>
         <li><b>Down:</b> if cells reach only half the density in a pharma-style plant, <i>R</i> stays around
-        {{R_STALL}}; contamination losses in long runs, which the model does not count.</li>
-        <li><b>Demand:</b> acceptance as real meat, taste and the value of &ldquo;no slaughter&rdquo; span
+        {{R_STALL}}. Contamination losses in long runs would also lower the share, and the model does not count them.</li>
+        <li><b>Demand:</b> acceptance as real meat, taste and the value of &ldquo;no slaughter&rdquo; together span
         {{BX_00}}%–{{TH_10}}% at equal price. Nobody can measure these before launch, so they stay sliders.</li>
       </ul>
       </details>
 
-      <details class="step" id="limits"><summary><b>What the model leaves out.</b> Supply and competition, a full spread
+      <details class="step" id="limits"><summary><b>What the model leaves out.</b> The model leaves out supply and competition, a full spread
       of tastes, niche entry routes, and eggs and dairy.</summary>
       <ul>
-        <li><b>Calibrated, not estimated:</b> no purchase data exist yet, so demand is a set of scenarios, not a
+        <li><b>Calibrated, not estimated.</b> No purchase data exist yet, so demand is a set of scenarios, not a
         forecast.</li>
-        <li><b>Prices are given:</b> no supply response, competition or capacity limits.</li>
-        <li><b>Two kinds of shopper</b> and one price sensitivity per product; convenience enters only through the
+        <li><b>Prices are given.</b> The model has no supply response, competition or capacity limits.</li>
+        <li><b>Two kinds of shopper</b> and one price sensitivity per product. Convenience enters only through the
         rollout.</li>
-        <li><b>Timing is rougher than the ceilings:</b> a durable-goods Bass curve plus a familiarity fade that may
-        overlap, with costs held fixed.</li>
-        <li><b>A fixed mix of meats</b> in each region; a meat tax scales all prices equally.</li>
-        <li><b>The existing price ladder:</b> niche routes (pet food, new species, &ldquo;no animal harmed&rdquo; products)
+        <li><b>Timing is rougher than the ceilings.</b> It uses a durable-goods Bass curve plus a familiarity fade, and the two may
+        overlap. Costs stay fixed.</li>
+        <li><b>A fixed mix of meats</b> in each region. A meat tax scales all prices equally.</li>
+        <li><b>The existing price ladder.</b> Niche routes (pet food, new species and &ldquo;no animal harmed&rdquo; products)
         score as small.</li>
-        <li><b>Meat only:</b> cultivated egg and dairy proteins use precision fermentation and need their own
+        <li><b>Meat only.</b> Cultivated egg and dairy proteins use precision fermentation and need their own
         model.</li>
       </ul>
       </details>
@@ -1860,59 +1863,60 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
       \[ \text{share}(t) = F(t)\times \text{ceiling}\big(\nu(t)\big), \qquad
          \nu(t) = \nu_x + (\nu_{x0}-\nu_x)\,e^{-r\,E(t)} \tag{5} \]
       <p>\(F(t)\): the fraction of the market reached, a Bass curve with rates \(p_{\rm B}\) (early adopters) and
-      \(q_{\rm B}\) (word of mouth). Novelty \(\nu\) fades from today's \(\nu_{x0}\) toward its long-run \(\nu_x\) as
-      cumulative exposure \(E(t)\) grows, at speed \(r\); the ceiling is the Step 2 share at that novelty.</p>
+      \(q_{\rm B}\) (word of mouth). Novelty \(\nu\) fades from its starting value \(\nu_{x0}\) toward its long-run value \(\nu_x\) as
+      cumulative exposure \(E(t)\) grows, at speed \(r\). The ceiling is the Step 2 share at that novelty.</p>
 
 
       <h5>A1. Price sensitivity: where the price weight comes from</h5>
-      <p>Grocery data give the <b>price elasticity</b> of meat as a category, \(\varepsilon \approx -0.9\) [4]:
-      1% dearer, 0.9% fewer purchases. Meat as a whole has no close substitute, so it is fairly insensitive. A single
-      cultivated product does have one, conventional meat on the same shelf, so a single product is more sensitive than the category: \(4 \times (-0.9) = -3.6\) at the calibration price,
-      the usual gap between a product and its category. That sets the price weight every product shares. Cultivated's price
+      <p>Grocery data give the <b>price elasticity</b> of meat as a category, \(\varepsilon \approx -0.9\) [4].
+      This means that meat 1% dearer sells 0.9% less. Meat as a whole has no close substitute, so it is fairly insensitive to price. A single
+      cultivated product does have a close substitute, which is conventional meat on the same shelf. So a single product is more sensitive than the category.
+      At the calibration price the sensitivity is \(4 \times (-0.9) = -3.6\), the usual gap between a product and its category.
+      That sets the price weight that every product shares. Cultivated meat's price
       <i>difference from the conventional meat beside it</i> then counts \(\kappa/4\) times as much again, because the two are
-      near-identical (\(\kappa = 8.5\) by default). The price
-      weight \(\beta\) (the slope of the price score) is solved so the model delivers exactly that at the calibration
-      price \(p_x\) and cultivated's share there \(s_x\), which depend on each other and are solved together:</p>
+      near-identical (\(\kappa = 8.5\) by default). The model solves the price
+      weight \(\beta\) (the slope of the price score) so that it delivers exactly that sensitivity at the calibration
+      price \(p_x\) and at cultivated meat's share there, \(s_x\). These two depend on each other, so the model solves them together:</p>
       \[ \beta=\frac{\kappa\,\varepsilon}{p_x\,(1-s_x)}+\frac{\lambda}{p_c},\qquad
          \alpha=-\beta\,(y_{\rm ref}-p_x) \tag{A1} \]
-      <p>The \(\lambda/p_c\) term hands back the part of the price response already carried by the reference-price
-      term in Eq. (2), so \(\kappa\) sets the level of sensitivity and \(\lambda\) only its shape around parity.
-      The price \(p_x\) is a fixed calibration price, ${{ANCHOR_PRICE}}/kg: cultivated's shop price before the plant's
-      capital charge was added to the cost. It is held fixed so that correcting a cost changes cultivated's price but
-      not how shoppers respond to price. Today's price is higher (${{RETAIL_TODAY}}/kg), and the model is more
+      <p>The \(\lambda/p_c\) term adds back the part of the price response that the reference-price
+      term in Eq. (2) already contains. So \(\kappa\) sets the level of sensitivity, and \(\lambda\) sets only its shape around parity.
+      The price \(p_x\) is a fixed calibration price of ${{ANCHOR_PRICE}}/kg. It is cultivated meat's shop price before the model added the plant's
+      capital charge to the cost. The model holds it fixed, so that correcting a cost changes cultivated meat's price but
+      not how shoppers respond to price. At the reported cost, the shop price is higher (${{RETAIL_TODAY}}/kg), and the model is more
       price-sensitive there.</p>
-      <p><b>Evidence for \(\kappa\).</b> Two kinds. First, Van Loo, Caputo and Lusk [8] priced lab-grown meat at
-      six levels; their two models put its elasticity at equal price between &minus;0.84 and &minus;3.4. The model's
-      implied value in the same setting (equal price, first-contact wariness) is {{KAPPA4_LUSK_ELAS}}, inside that
-      range; at \(\kappa = 9\) it would be just outside. Second, premium animal products show what share a
-      product takes when it is the conventional one plus a virtue, at a higher price: organic milk, cage-free,
+      <p><b>Evidence for \(\kappa\).</b> There are two kinds. <b>First,</b> Van Loo, Caputo and Lusk [8] priced lab-grown meat at
+      six levels. Their two models put its elasticity at equal price between &minus;0.84 and &minus;3.4. The model's
+      implied value in the same setting (equal price, first-contact wariness) is {{KAPPA4_LUSK_ELAS}}, which is inside that
+      range. At \(\kappa = 9\) it would be just outside. <b>Second,</b> premium animal products show what share a
+      product takes when it is the conventional one plus a virtue, at a higher price. Organic milk, cage-free,
       organic and omega-3 eggs, organic chicken and organic meat take 2–7% of volume at 1.5 to 2.2 times the
-      conventional price. At \(\kappa = 4\), this model's default until November 2026, it over-predicts those six
-      about sixfold; at 8.5 the typical miss is under threefold, and the best fit is at 10. So 8.5 is the best fit
-      to the premium products that the experiment allows. \(\kappa\) changes nothing at equal price. Once
+      conventional price. At \(\kappa = 4\), this model's default until November 2026, the model over-predicts those six
+      about sixfold. At 8.5 the typical miss is under threefold, and the best fit is at 10. So 8.5 is the best fit
+      to the premium products within what the experiment allows. \(\kappa\) changes nothing at equal price. Once
       shoppers are familiar with the product, the model's elasticity is about {{ELAS_10}} at parity, {{ELAS_15}} at
       \(R=1.5\) and {{ELAS_24}} at \(R=2.4\). At the reported cost, \(\kappa=4\) gives about {{KAPPA_LO}}%,
       8.5 about {{KAPPA_MID}}% and 10 about {{KAPPA_HI}}%. \(\kappa\) plays the role that a nested logit's
-      similarity parameter would play for a &ldquo;real meat&rdquo; nest, applied to price only.</p>
+      similarity parameter would play for a &ldquo;real meat&rdquo; nest, but it applies to price only.</p>
 
       <h5>A2. Income</h5>
-      <p>The income part of the price score, \(\alpha\ln(y_{\rm eff}-p_j)\), is the Berry–Levinsohn–Pakes form [12]:
-      the same premium is a bigger bite of a smaller income, so poorer shoppers are more sensitive to price. Taken
+      <p>The income part of the price score, \(\alpha\ln(y_{\rm eff}-p_j)\), has the Berry–Levinsohn–Pakes form [12].
+      The same premium is a bigger bite of a smaller income, so poorer shoppers are more sensitive to price. Taken
       literally, this makes poor shoppers about six times as price-sensitive as rich ones, which is too steep for
-      food. So income is damped, \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi=0.5\) matching the
-      roughly twofold gap in the data [15] (\(\phi=0\) removes income; US results don't depend on \(\phi\)). For
-      the same product at the default price, that gives about {{SHARE_TODAY}}% in the US, {{CHINA_TODAY}}% in
-      China and {{NIGERIA_TODAY}}% in Nigeria. Wealth relaxes price sensitivity but doesn't erase the other differences: even a very rich shopper
-      buys cultivated only about {{INCOME_CAP}}% of the time at the default price.</p>
+      food. So the model damps income, \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi=0.5\) matching the
+      roughly twofold gap in the data [15]. (\(\phi=0\) removes income. US results do not depend on \(\phi\).) For
+      the same product at the default price, this gives about {{SHARE_TODAY}}% in the US, {{CHINA_TODAY}}% in
+      China and {{NIGERIA_TODAY}}% in Nigeria. Wealth relaxes price sensitivity but does not erase the other differences. Even a very rich shopper
+      buys cultivated meat only about {{INCOME_CAP}}% of the time at the default price.</p>
 
       <h5>A3. Loss aversion (symmetric by default)</h5>
       <p>People judge a price against the familiar price of the conventional product, and a premium can feel like a
       loss [13]. The term \(-\lambda(d_j)^{+}+(d_j)^{-}\) rewards a discount at rate 1 and penalises a premium at rate
-      \(\lambda\). The default \(\lambda=1\) is symmetric; the slider goes up to Tversky and Kahneman's 2.25. It is
-      left symmetric by default for three reasons: it barely moves the result once \(\beta\) is re-fitted (at the default
-      price, {{LAMBDA_1}}% at \(\lambda=1\) vs {{LAMBDA_225}}% at 2.25); cultivated data can't identify it; and
+      \(\lambda\). The default \(\lambda=1\) is symmetric, and the slider goes up to Tversky and Kahneman's 2.25. The model leaves it
+      symmetric by default for three reasons. First, it barely changes the result once \(\beta\) is re-fitted (at the default
+      price, {{LAMBDA_1}}% at \(\lambda=1\) against {{LAMBDA_225}}% at 2.25). Second, cultivated meat data cannot identify it. Third,
       measured loss aversion largely reflects differences in price sensitivity between shoppers (Bell and Lattin,
-      2000), which \(\kappa\) already carries.</p>
+      2000), and \(\kappa\) already contains those.</p>
 
       <h5>A4. Calibration, and the attribute weights</h5>
       <p><b>Fixed from data:</b> plant-based meat's price premium (+77% [14]) and taste (0.8 [7]), and the ethical
@@ -1921,64 +1925,65 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
       by choice, and (iii) the ethical shoppers' small plant-based share. Together these give plant-based meat its
       observed ~1.2%. Moving the ethical share, \(\lambda\), \(\kappa\) or income re-solves them live, so plant-based
       stays anchored.</p>
-      <p>Only differences between scores matter in this kind of model, so one weight has to set the scale. Taste does
-      (\(w^t = 5\)), anchored to willingness-to-pay studies that rank taste first (taste about twice health and three
-      times safety; Malone and Lusk 2017). Each weight slider shows its size relative to taste. The solved mainstream
-      health weight comes out at {{HEALTH_TASTE_RATIO}}&times; taste, lighter than the ~0.5&times; in those studies.
-      Beans' appeal is carried by their health score (+2) times a solved weight, rather than by a free constant;
-      only the product of the two is pinned down by the data. Without it, plant-based meat would roughly triple, with
-      mostly vegetarian buyers, contradicting the data.</p>
+      <p>Only differences between scores matter in this kind of model, so one weight has to set the scale. Taste sets it
+      (\(w^t = 5\)). This is anchored to willingness-to-pay studies that rank taste first (taste about twice health and three
+      times safety, Malone and Lusk 2017). Each weight slider shows its size relative to taste. The solved mainstream
+      health weight comes out at {{HEALTH_TASTE_RATIO}}&times; taste, which is lighter than the ~0.5&times; in those studies.
+      Beans' appeal comes from their health score (+2) times a solved weight, not from a free constant.
+      The data pin down only the product of the two. Without this, plant-based meat would roughly triple, with
+      mostly vegetarian buyers, which contradicts the data.</p>
       <div class="scrollx"><table class="pt"><tr><th>weight</th><th>symbol</th><th>mainstream</th><th>ethical</th><th>how it is set</th></tr>
         __WEIGHTS_TABLE__
       </table></div>
 
       <h5>A5. Three different &ldquo;is it real?&rdquo; questions, and the tier ladder</h5>
       <ul>
-        <li><b>Real meat</b> (\(b\)): is it animal tissue? Permanent, the same for every product, and the reason
-        cultivated takes buyers from conventional meat.</li>
-        <li><b>Novelty</b> (\(\nu\)): is it new, strange, safe? The same for a nugget and a steak, and it fades with
+        <li><b>Real meat</b> (\(b\)) asks whether it is animal tissue. The answer is permanent and the same for every product, and it is the reason
+        cultivated meat takes buyers from conventional meat.</li>
+        <li><b>Novelty</b> (\(\nu\)) asks whether it is new, strange or safe. It is the same for a nugget and a steak, and it fades with
         familiarity (Step 4).</li>
-        <li><b>Authenticity</b> (\(\tau\)): for this occasion, do I want the genuine article? Tier-specific and
-        permanent: irrelevant for a nugget, decisive for wagyu.</li>
+        <li><b>Authenticity</b> (\(\tau\)) asks whether, for this occasion, the shopper wants the genuine article. It depends on the tier and is
+        permanent. It is irrelevant for a nugget and decisive for wagyu.</li>
       </ul>
-      <p>They are separate because they behave differently: a cultivated nugget faces novelty but no authenticity
-      demand; a cultivated wagyu faces both. A fourth attribute, <b>health image</b> (\(\zeta\)), is separate again: it
-      is 0 by default because surveys find both a &ldquo;clean meat&rdquo; draw and an &ldquo;ultra-processed&rdquo;
-      aversion, and it is sampled between &minus;0.5 and +0.5.</p>
+      <p>They are separate because they behave differently. A cultivated nugget faces novelty but no authenticity
+      demand. A cultivated wagyu faces both. A fourth attribute, <b>health image</b> (\(\zeta\)), is separate again. It
+      is 0 by default, because surveys find both a &ldquo;clean meat&rdquo; appeal and an &ldquo;ultra-processed&rdquo;
+      aversion. The Monte Carlo samples it between &minus;0.5 and +0.5.</p>
       <p>The tier ladder in formulas, with premium resistance \(\rho\) scaling both the authenticity offset and the
       elasticity multiplier \(\psi\):</p>
       \[ \tau_{\rm tier}=\rho\,\tau^0_{\rm tier},\qquad \varepsilon_{\rm tier}=\big(1+\rho\,(\psi^0_{\rm tier}-1)\big)\,\varepsilon,\qquad
          (\tau^0,\psi^0)=\begin{cases}(+0.2,\ 1.0)&\text{mince}\\ (-0.4,\ 0.8)&\text{cut}\\ (-1.5,\ 0.3)&\text{premium}\end{cases} \tag{A5} \]
-      <p>&ldquo;Premium&rdquo; is defined per species (at least 2.5 times the species' cheapest form), so every species
-      can have one and a product doesn't change tier between regions. Wagyu and sushi-grade fish are well attested;
-      organic chicken and heritage pork are real but smaller, so they carry little volume.</p>
+      <p>The model defines &ldquo;premium&rdquo; per species (at least 2.5 times the species' cheapest form). So every species
+      can have a premium tier, and a product does not change tier between regions. Wagyu and sushi-grade fish are well attested.
+      Organic chicken and heritage pork are real but smaller, so they have little volume.</p>
 
       <h5>A6. Entry points: the equations behind the which-products-first chart</h5>
-      <p>A product's headline price splits into the accessible price and the rent, and cultivated's price ratio is
-      taken against the accessible price only (Rosen's hedonic pricing [16]):</p>
+      <p>A product's headline price splits into the accessible price and the rent. The model takes cultivated meat's price ratio
+      against the accessible price only (Rosen's hedonic pricing [16]):</p>
       \[ p^{\rm auth} = p^{\rm base} + \underbrace{(p^{\rm auth}-p^{\rm base})}_{\text{rent}},\qquad
          R = \frac{c_x}{p^{\rm base}},\qquad c_x = c_{\rm bio} + k\,[\text{cut}] + m \tag{A6a} \]
       <p>A prestige core, a share \(\chi\) of the category's volume \(Q\), pays the rent and never switches. Luxury
-      sellers keep their price and give up volume rather than discount, the classic Veblen pattern [17]. Only the
-      rest is reachable, and cultivated wins a share \(s\) of it from the same shopper model as Step 2, using the mince
-      or cut authenticity setting (the premium tier is the prestige core, already removed):</p>
+      sellers keep their price and give up volume rather than discount, which is the classic Veblen pattern [17]. Only the
+      rest is reachable. Cultivated meat wins a share \(s\) of it from the same shopper model as Step 2, using the mince
+      or cut authenticity setting. (The premium tier is the prestige core, which the model has already removed.)</p>
       \[ Q^{\rm reach} = (1-\chi)\,Q,\qquad s = S\big(R;\ \tau_{\rm mince\ or\ cut}\big),\qquad
          D = s\cdot Q^{\rm reach}\quad(\text{kt/yr displaced}) \tag{A6b} \]
-      <p>Zones: <i>about equal</i> if the accessible price is within $3 of cultivated's cost; <i>cheaper now</i> if
-      above it; <i>only in the best case</i> if above the best case's cost; otherwise <i>never on price</i>. A single-grade
-      product (no rent, \(\chi=0\)) reproduces the share-by-type-of-meat chart exactly, so the two views agree. Authenticity is counted
-      once: as removed volume for the prestige grade, and through the mince or cut setting for the accessible grade.
-      Limits: no margin or profit is modelled, the shopper model is calibrated on meat (so it is indicative for luxury
-      and seafood), and each product is treated in isolation. The accessible and headline prices are sourced per
-      product (June 2026 retail and wholesale; hover a bubble for the basis); shark fin's price is an estimate.</p>
+      <p><b>Zones.</b> A product is <i>about equal</i> if the accessible price is within $3 of cultivated meat's cost. It is <i>cheaper now</i> if
+      the accessible price is above that. It is <i>only in the best case</i> if the accessible price is above the best case's cost. Otherwise it is
+      <i>never on price</i>. A single-grade
+      product (no rent, \(\chi=0\)) reproduces the share-by-type-of-meat chart exactly, so the two views agree. The model counts authenticity
+      once, as removed volume for the prestige grade and through the mince or cut setting for the accessible grade.
+      The model has limits. It does not model margin or profit, its shopper model is calibrated on meat (so it is indicative for luxury
+      and seafood), and it treats each product in isolation. The accessible and headline prices come from sources for each
+      product (June 2026 retail and wholesale, with the basis shown when you hover over a bubble). Shark fin's price is an estimate.</p>
 
       <h5>A7. Prices, the markup, and what people eat</h5>
       <p>Conventional retail prices by region and tier, the \(p_c\) in Eq. (1):</p>
       <div class="scrollx" id="pricetable"></div>
       <p style="font-size:.76rem;color:#888;">Prices: GlobalProductPrices (retail, January 2026), cross-checked
       against USDA ERS and BLS for the US. Volumes: USDA ERS per-capita availability (US); OECD-FAO Agricultural
-      Outlook 2024 and FAO food balance sheets (Europe, China, world). The mix of meats differs by region: China is
-      two-thirds pork, the US about half poultry, Europe pork-led and shifting to poultry. Prices and mixes for India,
+      Outlook 2024 and FAO food balance sheets (Europe, China, world). The mix of meats differs by region. China is
+      two-thirds pork, the US is about half poultry, and Europe is pork-led and shifting to poultry. Prices and mixes for India,
       Brazil and Nigeria are rough.</p>
       <p><b>The markup is added per kilo, not as a percentage.</b> Much of it (processing, cold chain, retail
       handling) is genuinely per kilo, and conventional meat's farm-to-retail spread (USDA ERS, about $3–6/kg for
@@ -1986,27 +1991,27 @@ which it was tuned to, are left out). Observed / model far from 1 shows where th
       would change the parity arithmetic. That is why the markup has its own slider.</p>
 
       <h5>A8. Questions a sceptic might ask</h5>
-      <p><b>Isn't ~{{PARITY_NEUTRAL}}% at equal price just assumed?</b> It follows from the model's symmetry: two
-      options that mainstream shoppers see as equivalent split that market. The sliders show how it moves if they
+      <p><b>Isn't ~{{PARITY_NEUTRAL}}% at equal price just assumed?</b> It follows from the model's symmetry. Two
+      options that mainstream shoppers see as equivalent split that market. The sliders show how the share changes if they
       are not equivalent (Step 2 table).</p>
       <p><b>Why not a nested logit?</b> The shared real-meat attribute and the two kinds of shopper already make
       cultivated take its share almost entirely from conventional meat, which is what a nest would do, with fewer
       unobservable parameters.</p>
       <p><b>Is there really no fitted constant?</b> Almost none. Beans' appeal is a labelled attribute (health) times a
-      solved weight, rather than a free constant, but its position (+2) is assumed; only the product is identified
+      solved weight, not a free constant. The model assumes the attribute's position (+2), so only the product of the two is identified
       (A4).</p>
-      <p><b>Isn't premium resistance just novelty again?</b> No. Novelty is the same for every product and fades;
-      authenticity depends on the tier, is permanent, and comes with lower price sensitivity (A5).</p>
+      <p><b>Isn't premium resistance just novelty again?</b> No. Novelty is the same for every product and fades.
+      Authenticity depends on the tier, is permanent, and comes with lower price sensitivity (A5).</p>
       <p><b>The experiment behind the ~5% also had plant-based at 23% at equal price. Why doesn't the model?</b>
-      The model is fitted to what plant-based meat actually sells (~1.2%), and predicts about {{PB_PARITY}}% for it
-      among mainstream shoppers at equal price and taste. Hypothetical choice experiments tend to overstate adoption of new products; the model uses that
+      The model is fitted to what plant-based meat actually sells (~1.2%). It predicts about {{PB_PARITY}}% for plant-based meat
+      among mainstream shoppers at equal price and taste. Hypothetical choice experiments tend to overstate adoption of new products. The model uses that
       experiment only for cultivated meat's starting wariness and price sensitivity.</p>
-      <p><b>Why no habit term?</b> Habit can't be separated from preference without panel data (Heckman [13]); in
-      this model it lives in the slow rollout and fading novelty of Step 4.</p>
+      <p><b>Why no habit term?</b> Habit cannot be separated from preference without panel data (Heckman [13]). In
+      this model, the slow rollout and fading novelty of Step 4 stand in for habit.</p>
       <p><b>Why is loss aversion symmetric by default?</b> See A3.</p>
 
       <h5>A9. Parameters and sources</h5>
-      <p>Every slider, its symbol, default and range, where it enters the equations, and its source. The full
+      <p>This table lists every slider with its symbol, default, range, place in the equations and source. The full
       datasheet, with every number and its uncertainty range, is <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/inputs.py">inputs.py</a>.</p>
       <div class="scrollx" id="paramtable"></div>
 
@@ -2620,14 +2625,14 @@ function drawHeads(s){
   const reg=MODEL.regions.find(r=>r[0]===s.region)[1];
   // Each cell = [big number, label HTML, second line, colour, tooltip]. The tooltip uses the same addQ()
   // "?" badge as the sliders (a styled #tip popup), not a native title= attribute.
-  const cultTip="Cultivated meat's long-run share of the meat market in this region at the current settings: once "+
-    "it is on every shelf and no longer feels new. Not today's share: the adoption chart shows the path up from near zero. The "+
-    "big number weights each kind of meat by weight eaten; the second line by money spent. Counted in animals it "+
-    "would be lower, since most land animals raised for meat are chickens, where cultivated does worst.";
-  const pbTip="The same for plant-based meat, which the model is fitted to reproduce (~1.2% of US meat).";
-  const rTip="Cultivated meat's retail price divided by the price of everyday conventional meat, using a round "+
-    "benchmark of $"+conv.toFixed(0)+"/kg (each meat type in the share-by-type, share-of-all-meat and which-products-first charts uses its own local price). "+
-    "1&times; = price parity. The same for every region. Structured cuts also need a scaffold: $"+cut.toFixed(0)+"/kg.";
+  const cultTip="This is cultivated meat's long-run share of the meat market in this region at the current settings. It assumes "+
+    "cultivated meat is on every shelf and no longer feels new. It is not a share for any particular year, because the adoption chart shows the path up from near zero. The "+
+    "big number weights each kind of meat by weight eaten, and the second line weights it by money spent. Counted in animals, the share would "+
+    "be lower, because most land animals raised for meat are chickens, and cultivated meat does worst there.";
+  const pbTip="This is the same figure for plant-based meat. The model is fitted to reproduce it (~1.2% of US meat).";
+  const rTip="This is cultivated meat's retail price divided by the price of everyday conventional meat. It uses a round "+
+    "benchmark of $"+conv.toFixed(0)+"/kg. (In the charts of share by type of meat, share of all meat and which products first, each meat type uses its own local price.) "+
+    "A ratio of 1&times; means price parity. The ratio is the same for every region. Structured cuts also need a scaffold, so a cut costs $"+cut.toFixed(0)+"/kg.";
   const cells=[
     [(p.tv*100).toFixed(1)+"%","<b>cultivated</b>: long-run share of the meat market by weight ("+reg+")",
      (p.tval*100).toFixed(1)+"% by value","var(--accent)",cultTip],
@@ -2743,10 +2748,10 @@ function drawBars(s,ptmc){
   // live reading of the chart: the biggest share, and where most of the displaced VOLUME comes from
   const topS=rows.reduce((a,r)=>r.sh>a.sh?r:a), topV=rows.reduce((a,r)=>r.mt.w_vol*r.sh>a.mt.w_vol*a.sh?r:a);
   document.getElementById("barsub").innerHTML=
-    "Share within each kind of meat; dashed lines are totals. <b>"+MODEL.regions.find(r=>r[0]===s.region)[1]+":</b> "+
+    "This chart shows the share within each kind of meat. The dashed lines are totals. <b>"+MODEL.regions.find(r=>r[0]===s.region)[1]+":</b> "+
     (topS===topV
-      ? "biggest share and most volume in "+topS.mt.name+" ("+fmtPct(topS.sh)+")."
-      : "biggest share in "+topS.mt.name+" ("+fmtPct(topS.sh)+"); most volume from "+topV.mt.name+
+      ? "the biggest share and the most volume are in "+topS.mt.name+" ("+fmtPct(topS.sh)+")."
+      : "the biggest share is in "+topS.mt.name+" ("+fmtPct(topS.sh)+"), and most volume comes from "+topV.mt.name+
         " ("+fmtPct(topV.sh)+").");
 }
 function drawPie(s){
@@ -2800,10 +2805,10 @@ function drawPie(s){
     tx(svg,lx+366,ly,(pf*100).toFixed(1)+"%",{"font-size":11,fill:"#117733","text-anchor":"end","opacity":0.7});
     ly+=23;
   });
-  tx(svg,lx,ly+10,"bands inner→out: cultivated (solid) · plant-based (lighter) · pale = conventional/other",{"font-size":8.5,fill:"#999"});
+  tx(svg,lx,ly+10,"bands from the inside out: cultivated (solid), plant-based (lighter), conventional and other (pale)",{"font-size":8.5,fill:"#999"});
   document.getElementById("piesub").textContent=byVal
-    ? "each wedge is a meat type sized by its $ market value (price × volume); the shaded inner part is the cultivated fraction of that $"
-    : "each wedge is a meat type sized by how much is eaten (mass → animal impact); the shaded inner part is the cultivated fraction";
+    ? "Each wedge is a meat type sized by its market value in dollars (price × volume). The shaded inner part is the cultivated fraction of that value."
+    : "Each wedge is a meat type sized by how much is eaten, by weight (a rough guide to animal impact). The shaded inner part is the cultivated fraction.";
 }
 function buildPieToggle(){
   const host=document.getElementById("pietog");host.innerHTML="";
@@ -3011,14 +3016,14 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
   //   others   = genuine OUT-OF-SAMPLE (same coefficients, only positions swapped)
   const _isMeat=(pd.w_rt===null), _isEgg=(!_isMeat && pd.w_rt===0 && (pd.health||0)>0);
   let title, tcol;
-  if(_isMeat){ title="“"+sel+"” is the calibration TARGET — the model is tuned to it (not a validation)"; tcol="#888"; }
-  else if(_isEgg){ title=(ok?"✓ ":"")+"“"+sel+"”: a DIFFERENT lever (welfare, not authenticity) — read as a contrast"; tcol=ok?"#0173B2":"#666"; }
-  else { title=(ok?"✓ out-of-sample: model reproduces “":"model gives “")+sel+"”"+(ok?" (NOT tuned to it)":""); tcol=ok?"#0173B2":"#666"; }
+  if(_isMeat){ title="The model is tuned to “"+sel+"”, so this is not a test"; tcol="#888"; }
+  else if(_isEgg){ title=(ok?"✓ ":"")+"“"+sel+"”: this tests a different lever (welfare, not authenticity)"; tcol=ok?"#0173B2":"#666"; }
+  else { title=(ok?"✓ Out of sample: the model reproduces “":"The model gives “")+sel+"”"+(ok?" (not tuned to it)":""); tcol=ok?"#0173B2":"#666"; }
   tx(svg,W/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});  // center over FULL width (not the left bar-panel) so the long title doesn't clip off the left edge
   // RIGHT HALF: positions swapped in (same β, income, q) + the note
   const pX=W*0.52, pVal=W-18;
   let ry=mT+10;
-  tx(svg,pX,ry,"the product's facts (same weights and income; only these change):",{"font-size":9,fill:"#888"}); ry+=20;
+  tx(svg,pX,ry,"The product's facts. The weights and income stay the same, and only these change:",{"font-size":9,fill:"#888"}); ry+=20;
   const isMeat=(pd.w_rt===null);
   const hh=(pd.health!==undefined?pd.health:0);
   // eggs are a DIFFERENT mechanism (welfare premium, no authenticity penalty): relabel the
@@ -3043,7 +3048,7 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
     if(why){ry=txWrap(svg,pX+10,ry,"— "+why,whyW,{"font-size":8,fill:"#999"},10); ry+=1;}
     el("line",{x1:pX+4,y1:ry-3,x2:pVal,y2:ry-3,stroke:"#f0f0f0"},svg); ry+=7;});
   ry+=4; ry=txWrap(svg,pX,ry,pd.note,pVal-pX,{"font-size":8.5,fill:"#999"},11);
-  ry+=12; tx(svg,pX,ry,"→ same shopper model, different product: a test outside meat.",
+  ry+=12; tx(svg,pX,ry,"The same shopper model with a different product is a test outside meat.",
      {"font-size":8.5,fill:"#0173B2","font-style":"italic"});
   // grow the viewBox to fit the (now variable-height, wrapped) right-hand column
   svg.setAttribute("viewBox","0 0 "+W+" "+Math.max(H, ry+14));
@@ -3208,9 +3213,9 @@ function drawFootWaterline(s,svg){
     if(p.p_conv>p.p_base*1.05){const yp=Y(p.p_conv), rent=p.p_conv-p.p_base;
       el("line",{x1:x,y1:yp,x2:x,y2:y,stroke:"#CCC","stroke-width":1,"stroke-dasharray":"1 3"},svg);
       tip(el("circle",{cx:x,cy:yp,r:3,fill:"#CCC"},svg),
-        p.label+"\nheadline (sticker) price $"+p.p_conv+"/kg — the premium/prestige tier"
-        +"\ncultivated competes $"+rent+"/kg lower, at $"+p.p_base+"/kg (the accessible tier)"
-        +"\nthe gap = brand/scarcity RENT cultivated can't capture (it isn't the authentic thing)");
+        p.label+"\nThe headline (sticker) price is $"+p.p_conv+"/kg, the premium or prestige tier."
+        +"\nCultivated meat competes $"+rent+"/kg lower, at $"+p.p_base+"/kg (the accessible tier)."
+        +"\nThe gap is brand and scarcity rent. Cultivated meat cannot capture it, because it is not the authentic thing.");
       if(p.label===selLabel) tx(svg,x+5,(yp+y)/2+3,"rent $"+rent,{"font-size":8,fill:"#999","font-style":"italic"});}
     // the vertical bar is the cost→accessible-price gap (reachability headroom): solid up when reachable, dotted-grey deficit
     if(reach!=="never") el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:col,"stroke-width":2.2,opacity:0.6},svg);
@@ -3225,7 +3230,7 @@ function drawFootWaterline(s,svg){
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
   tx(svg,(mL+W-mR)/2,H-3,"islands at the ACCESSIBLE price (grey tick = headline price = rent)   ·   bar = cost→price gap (reachability)   ·   dot = displaceable volume",
     {"font-size":8,"text-anchor":"middle",fill:"#666"});
-  [["#117733","reachable now"],["#56B4E9","at parity (±$3)"],["#E69F00","needs the best case"],["#BBBBBB","never on price"]].forEach(([c,t],k)=>{
+  [["#117733","reachable"],["#56B4E9","at parity (±$3)"],["#E69F00","needs the best case"],["#BBBBBB","never on price"]].forEach(([c,t],k)=>{
     el("circle",{cx:W-mR+8,cy:mT+8+k*14,r:4,fill:c},svg);tx(svg,W-mR+16,mT+11+k*14,t,{"font-size":8,fill:"#555"});});
   const _ky=mT+8+4*14;   // the grey tick above each island = the headline (rent) price cultivated can't capture
   el("circle",{cx:W-mR+8,cy:_ky-3,r:2.5,fill:"#CCC"},svg);
@@ -3261,9 +3266,9 @@ function footEdge(p){   // plain-language: the capturable advantage + how much o
   const which=[["welfare",p.defect_ethics],["sustainability",p.defect_env],["health/safety",p.defect_health]]
     .filter(a=>a[1]===mx&&mx>0).map(a=>a[0]).join(" & ");
   const adv=mx>0?lvl(mx)+" "+which+" advantage":"no clear attribute advantage";
-  const rent=footPhi(p)>0?Math.round(100*footPhi(p))+"% of the market is prestige rent (cultivated can't capture it)":
-             "no prestige rent (cultivated competes at the full price)";
-  return adv+"; "+rent;
+  const rent=footPhi(p)>0?Math.round(100*footPhi(p))+"% of the market is prestige rent that cultivated meat cannot capture.":
+             "There is no prestige rent, so cultivated meat competes at the full price.";
+  return adv.charAt(0).toUpperCase()+adv.slice(1)+". "+rent;
 }
 function footTip(s,p){                  // hover card — short sentences + blank-line grouping (white-space:pre-line) for scannability
   const structured=p.structure==="structured", R=footR(s,p), cost=footRetail(s,structured);
@@ -3271,8 +3276,8 @@ function footTip(s,p){                  // hover card — short sentences + blan
   const dispTxt=disp>=1000?(disp/1000).toFixed(1)+" Mt/yr":disp.toFixed(0)+" kt/yr";
   const addrTxt=footAddr(p).toLocaleString(undefined,{maximumFractionDigits:0})+" kt/yr";
   const compete=(p.p_conv>p.p_base*1.05)
-    ? "Competes at the $"+p.p_base+"/kg accessible grade — the $"+p.p_conv+" headline is prestige rent it can't capture."
-    : "Competes at the $"+p.p_base+"/kg grade (single grade, no prestige rent).";
+    ? "Cultivated meat competes at the $"+p.p_base+"/kg accessible grade. The $"+p.p_conv+" headline price includes prestige rent that it cannot capture."
+    : "Cultivated meat competes at the $"+p.p_base+"/kg grade. This product has a single grade and no prestige rent.";
   // cultivated's price = its cost (the price the share is read at); R compares that to the accessible grade.
   const vsGrade=R<1
     ? "undercuts the $"+p.p_base+" grade (R = "+R.toFixed(2)+"), winning"
@@ -3305,7 +3310,7 @@ function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) 
     tx(svg,mL-6,Y(v)+3,v+"%",{"font-size":8,"text-anchor":"end",fill:"#aaa"});});
   [0.1,0.3,1,3].forEach(v=>{el("line",{x1:X(v),y1:mT,x2:X(v),y2:H-mB,stroke:v===1?"#bbb":"#f2f2f2","stroke-width":v===1?1.3:1},svg);
     tx(svg,X(v),H-mB+13,v===1?"R=1 (parity)":("R="+v),{"font-size":8,"text-anchor":"middle",fill:v===1?"#666":"#aaa"});});
-  tx(svg,mL+4,Y(34),"share stays below 100%: once it is cheap next to income, price stops mattering; taste and the rest hold the others",
+  tx(svg,mL+4,Y(34),"The share stays below 100%. Once the price is low next to income, price stops mattering, and taste and the other attributes decide the rest.",
     {"font-size":7,fill:"#bbb"});
   P.forEach(p=>{
     if(p.p_base==null) return;
@@ -3444,8 +3449,8 @@ function drawMC(s){
   tx(svg,(mL+W-mR)/2,H-2,"Total penetration of meat (%) — cultivated & plant-based, equal footing — solid = median, dashed = 80% CI",
     {"font-size":9,"text-anchor":"middle",fill:"#444"});
   document.getElementById("mcsub").textContent=
-    MODEL.regions.find(r=>r[0]===s.region)[1]+": spread of the total share over 2,000 draws of the uncertain inputs"+
-    (s.cost_override!=null?", with the cost held at the chosen scenario's (its own uncertainty is the range in the scenario table).":".");
+    MODEL.regions.find(r=>r[0]===s.region)[1]+": the spread of the total share over 2,000 draws of the uncertain inputs"+
+    (s.cost_override!=null?". The cost stays at the chosen scenario's cost, and the scenario table shows its own uncertainty.":".");
 }
 
 /* ---------- wiring ---------- */
@@ -3552,12 +3557,12 @@ function drawCalc(s,b,retail,conv,R){
   const raw=C.media_intensity*s.efficiency*s.media_price, med=mediaCost(s.media_price,s.efficiency);
   const d2=x=>"$"+x.toFixed(2), d1=x=>"$"+x.toFixed(1);
   const medTxt=raw<C.FEEDSTOCK_FLOOR
-    ? "medium at its floor "+d2(med)+" (feedstock cannot cost less)"
+    ? "medium at its floor "+d2(med)+" (the feedstock cannot cost less)"
     : C.media_intensity.toFixed(1)+" L/kg &times; efficiency "+s.efficiency.toFixed(2)+" &times; "+d2(s.media_price)+"/L = "+d2(med);
   const clean=s.cleanroom?" + clean room "+d1(C.cleanroom_cost):"";
   const tax=s.meat_tax!==1?" (benchmark $"+C.p_conv_anchor.toFixed(1)+" &times; price multiplier "+s.meat_tax.toFixed(2)+")":"";
   const costStep=(s.cost_override!=null)
-    ? '<li><b>Cost to grow a kilo.</b> From the scenario chosen in \u201cWhat decides it\u201d (cells, plant, tank, medium and losses together): '+
+    ? '<li><b>Cost to grow a kilo.</b> The scenario chosen in \u201cWhat decides it\u201d sets this (cells, plant, tank, medium and losses together): '+
       '<span class="eq">'+d1(b)+'/kg</span></li>'
     : '<li><b>Cost to grow a kilo.</b> The medium the cells feed on, plus the plant: '+
       '<span class="eq">'+medTxt+' + plant '+d1(s.overhead)+clean+' = '+d1(b)+'/kg</span></li>';
@@ -3567,7 +3572,7 @@ function drawCalc(s,b,retail,conv,R){
     '<li><b>Price ratio.</b> Divide by the price of everyday meat'+tax+': '+
       '<span class="eq">'+d1(retail)+' &divide; '+d1(conv)+' = '+R.toFixed(2)+'&times;</span></li>'+
     '<li><b>Share.</b> Shoppers then choose by price, taste, "is it real meat?", health and welfare. '+
-      'The two shopper-choice charts show that step for one meat; share by type of meat repeats it for every meat.</li></ol>'+
+      'The two shopper-choice charts show that step for one meat. The chart of share by type of meat repeats it for every meat.</li></ol>'+
     '<div class="note">The page uses the same formulas as the Python model. A test checks that the two agree '+
     '(tests/run_parity.py).</div>';
 }
@@ -3629,7 +3634,7 @@ function buildRail(){
   // cost case: a cost scenario (the switches in "What decides it") or the process one company reports
   const pc=document.createElement("div");pc.className="ctl";
   pc.innerHTML='<label><span class="nm">Cost case</span></label><select id="sc_railsel"></select><p class="fxn" id="sc_railnote"></p>';
-  addQ(pc.querySelector(".nm"),"Every chart on this page takes the cost of a kilo of cells from here. A scenario is a set of assumptions about the cells, plant, tank and medium (see What decides it); \u201cAs a company reports\u201d is SuperMeat's 2024 process with a yearly charge on its plant, set by the three sliders below.");
+  addQ(pc.querySelector(".nm"),"Every chart on this page takes the cost of a kilo of cells from here. A scenario is a set of assumptions about the cells, plant, tank and medium (see What decides it). \u201cAs a company reports\u201d is SuperMeat's 2024 process with a yearly charge on its plant. The three sliders below set it.");
   rail.appendChild(pc);
   // render one on/off toggle (checkbox + label + help) into `parent`.
   const addToggle=(t,parent)=>{
@@ -3676,7 +3681,7 @@ function buildRail(){
       const ov=document.createElement("div"); ov.className="ovr";
       const cb=document.createElement("input"); cb.type="checkbox"; cb.id="o_"+s.key; cb.checked=state[s.key+"_ovr"];
       const lb=document.createElement("label"); lb.htmlFor="o_"+s.key;
-      lb.textContent=" override (pin — breaks calibration)";
+      lb.textContent=" override (this pins the weight and breaks the calibration)";
       const warn=document.createElement("div"); warn.className="wovr"; warn.id="w_"+s.key;
       warn.textContent=s.warn; warn.style.display=state[s.key+"_ovr"]?"block":"none";
       cb.onchange=()=>{
@@ -3765,24 +3770,24 @@ function selfTest(){
   const k$=x=>"$"+(x/1000).toFixed(0)+"k";
   const costRows=[
     ["Cost of everything but the medium: Humbird's independent design", "$"+ovh.toFixed(1)+" vs $"+hb.toFixed(1)+"/kg",
-       "the model's default is a company's running costs plus the same yearly charge on its plant. Humbird charges "+(C.humbird_plant_charge*100).toFixed(1)+"% of the plant's cost "+
-       "a year ($"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+", in 2018 prices)", "other"],
+       "The model's default is a company's running costs plus the same yearly charge on its plant. Humbird charges "+(C.humbird_plant_charge*100).toFixed(1)+"% of the plant's cost "+
+       "a year, which is $"+hbPlant.toFixed(1)+" of his $"+hb.toFixed(1)+" in 2018 prices.", "other"],
     ["A real plant: Believer Meats, Wilson NC", k$(blPerT)+" per t/yr",
-       "investment per tonne of yearly capacity, as announced; Humbird's design needs "+k$(hbPerT)+". At his "+
-       (C.humbird_plant_charge*100).toFixed(0)+"% a year that plant costs $"+blPlant.toFixed(1)+"/kg, inside this model's $"+
-       ovh.toFixed(1)+". Built in 2025, but the company closed before producing at scale", "claim"],
+       "This is the investment per tonne of yearly capacity, as announced. Humbird's design needs "+k$(hbPerT)+". At his "+
+       (C.humbird_plant_charge*100).toFixed(0)+"% a year, that plant costs $"+blPlant.toFixed(1)+"/kg, which is inside this model's $"+
+       ovh.toFixed(1)+". The company built it in 2025 and closed before producing at scale.", "claim"],
   ];
   // each row: [plain-language what, model value, the real-world anchor (or meaning), tag]
   const rows=[
     ["Plant-based <b>milk</b>, same model", (mlk).toFixed(0)+"%",
-       "real share ~15% (milk's facts set by hand: a weak test)", "match"],
+       "The real share is ~15%. This is a weak test, because the milk facts are set by hand.", "match"],
     ["<b>Cultivated</b> at equal price, first contact", (cold*100).toFixed(0)+"%",
-       "Lusk 2020 found ~5%; starting wariness set to match", "cal"],
+       "Lusk 2020 found ~5%. The starting wariness is set to match.", "cal"],
     ["<b>Cultivated</b> at equal price, once familiar", (s0*100).toFixed(0)+"%",
        "long-run projection", "proj"],
     ["China vs US, same product and price",
        jsChina.toFixed(0)+"% vs "+jsUS.toFixed(0)+"%",
-       "poorer shoppers feel the premium more", "proj"],
+       "Poorer shoppers feel the premium more.", "proj"],
   ];
   const rowHTML=([what,val,obs,tag])=>
     "<tr><td class='stwhat'>"+what+"<div class='stobs'>"+obs+"</div></td>"+
@@ -3790,13 +3795,13 @@ function selfTest(){
     "<td style='text-align:right;white-space:nowrap'>"+TAG[tag]+"</td></tr>";
   document.getElementById("selftest").innerHTML=
     "<div class='sthead'>Reality checks (at the default settings)</div>"+
-    "<div class='stanchor'>Fitted to: plant-based meat's ~1.2% US share (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
-    "mainstream buyers, plus an assumed ~6% meatless rate (A4). Not fitted:</div>"+
+    "<div class='stanchor'>The model is fitted to plant-based meat's ~1.2% US share (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
+    "mainstream buyers, plus an assumed ~6% meatless rate (A4). It is not fitted to the rows below.</div>"+
     "<table><tr class='stsecrow'><td colspan='3' class='stsec'>Demand</td></tr>"+rows.map(rowHTML).join("")+
     "<tr class='stsecrow'><td colspan='3' class='stsec'>Cost</td></tr>"+costRows.map(rowHTML).join("")+"</table>"+
-    "<div class='stnote'><b>MATCHES</b>: a real number the model wasn't fitted to. <b>CALIBRATED</b>: set to "+
-    "match, so a consistency check. <b>MODEL OUTPUT</b>: nothing real to compare yet. <b>OTHER MODEL</b>: another "+
-    "study's estimate; agreeing with it is not proof. <b>COMPANY CLAIM</b>: a company's own figure.</div>"+
+    "<div class='stnote'><b>MATCHES</b> means a real number that the model was not fitted to. <b>CALIBRATED</b> means the model was set to "+
+    "match, so the row is a consistency check. <b>MODEL OUTPUT</b> means there is nothing real to compare yet. <b>OTHER MODEL</b> means another "+
+    "study's estimate, and agreeing with it is not proof. <b>COMPANY CLAIM</b> means a company's own figure.</div>"+
     "<div class='stbuild'>"+(buildOK?"✓":"&#9888;")+" Build check: the in-browser model reproduces the Python "+
     "source exactly (calibration &amp; the cross-region income term)"+(buildOK?".":" — MISMATCH, rebuild needed.")+"</div>";
 }
@@ -4031,7 +4036,7 @@ function fxTorCard(){
   const rng=(t[1]==="pco2"&&fxPco2Range)?[fxPco2Range[0].toFixed(0)+" mbar",fxPco2Range[1].toFixed(0)+" mbar"]:[t[4],t[5]];
   const btn=(end,txt)=>'<button class="btn" style="margin:4px 6px 0 0" onclick="fxTorSet('+fxTorSel+','+end+')">Set to '+txt+'</button>';
   box.innerHTML='<b>'+t[0]+'.</b> '+t[6]+'<br>'+(c?btn(0,rng[0])+btn(1,rng[1])
-    :'<span class="fxn">This one has no control above: it is an uncertainty in the estimate, not a design choice.</span>')+
+    :'<span class="fxn">This one has no control above. It is an uncertainty in the estimate, not a design choice.</span>')+
     '<button class="btn" style="margin:4px 0 0 0" onclick="fxTorInfo('+fxTorSel+')">Close</button>';
 }
 function fxSpecies(){
@@ -4066,7 +4071,7 @@ function fxInit(){
   sel.value="model"; fxSpecies();
   fxDefaults={}; document.getElementById("fx").querySelectorAll("input,select").forEach(e=>{ if(e.id) fxDefaults[e.id]=(e.type==="checkbox"?e.checked:e.value); });
   const sc=document.getElementById("fx_sc");
-  if(sc){ sc.innerHTML='<option value="">the reference: a standard perfusion tank, no tricks</option>'+SC.order.map(k=>'<option value="'+k+'">'+SC.presets[k].name+'</option>').join(""); }
+  if(sc){ sc.innerHTML='<option value="">The reference (a standard perfusion tank, no tricks)</option>'+SC.order.map(k=>'<option value="'+k+'">'+SC.presets[k].name+'</option>').join(""); }
   fxFromScenario(SC.start);
 }
 function fxMode(){fxRender();}
@@ -4109,7 +4114,7 @@ function fxLimitsDraw(r,f){
     const mvals=mk.map(k=>r.medium_terms[k]).concat(Object.keys(f.medium_terms).map(k=>f.medium_terms[k]));
     const mm=Math.max(20,Math.ceil(Math.max.apply(null,mvals)/10)*10), XM=v=>L+Math.min(v,mm)/mm*(W-L-R), H2=top+mk.length*rh+6;
     g+='<svg viewBox="0 0 '+W+' '+H2+'" width="100%" style="max-width:'+W+'px;min-width:480px;margin-top:6px" role="img" aria-label="Litres of medium per kilo and what sets them">';
-    g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells each need asks for; the largest sets it ('+r.medium_l.toFixed(1)+' L)</text>';
+    g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells that each need asks for. The largest sets the amount ('+r.medium_l.toFixed(1)+' L)</text>';
     mk.forEach((k,i)=>{
       const y=top+i*rh, v=r.medium_terms[k], fv=f.medium_terms[k], bind=(k===r.medium_set_by);
       g+='<text x="'+(L-8)+'" y="'+(y+11)+'" font-size="11" text-anchor="end" style="fill:var(--ink)"'+(bind?' font-weight="700"':'')+'>'+esc(mname[k]||k)+'</text>';
@@ -4167,20 +4172,20 @@ function fxRender(){
   def.region="us"; def.income=C.income_ref;
   const K=KP||effConsts(def), sh=shareCalc(R,K,{ax:1,tfM:0,rtx:p.cell_share*(K.real_tissue_x!==undefined?K.real_tissue_x:1)});
   g("fx_out").innerHTML="<b>$"+r.total.toFixed(1)+" per kilo of cells"+
-    (blend?"; $"+r.product.toFixed(1)+" per kilo of the blended product":"")+", "+R.toFixed(2)+"&times; everyday meat.</b> "+
-    "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"), produces "+
+    (blend?" ($"+r.product.toFixed(1)+" per kilo of the blended product)":"")+", "+R.toFixed(2)+"&times; everyday meat.</b> "+
+    "The tank holds "+r.density.toFixed(0)+" g of cells per litre (limited by "+r.limit.replace("CO2","CO&#8322;")+"). It produces for "+
     (r.uptime*100).toFixed(0)+"% of the year and makes "+r.output.toFixed(1)+" tonnes per m&sup3; a year. The plant costs $"+
     (r.capex/1000).toFixed(2)+" million per m&sup3; of tank"+
-    (r.column?", of which the column is $"+r.column.capex_k_m3.toFixed(0)+"k (it is "+r.column.diameter.toFixed(1)+" m across and passes "+r.column.flow.toFixed(0)+" m&sup3; of culture an hour, "+
-      r.column.passes.toFixed(0)+" times the tank's contents"+(r.column.passes_tested?", within the range dense cultures have taken":", <b>beyond the 15&ndash;24 an hour dense cultures have taken</b>")+
-      "; the alkaline culture in the loop is "+(r.column.ph_vs_safe<=1?"within":"<b>"+r.column.ph_vs_safe.toFixed(1)+" times</b>")+" the exposure judged safe, "+r.column.ph_vs_paul.toFixed(2)+" of one that slowed CHO cells)":"")+
+    (r.column?", of which the column is $"+r.column.capex_k_m3.toFixed(0)+"k. The column is "+r.column.diameter.toFixed(1)+" m across and passes "+r.column.flow.toFixed(0)+" m&sup3; of culture an hour, "+
+      r.column.passes.toFixed(0)+" times the tank's contents"+(r.column.passes_tested?", which is within the range dense cultures have taken":", <b>which is beyond the 15&ndash;24 an hour that dense cultures have taken</b>")+
+      ". The alkaline culture in the loop is "+(r.column.ph_vs_safe<=1?"within":"<b>"+r.column.ph_vs_safe.toFixed(1)+" times</b>")+" the exposure judged safe, and "+r.column.ph_vs_paul.toFixed(2)+" of the exposure that slowed CHO cells":"")+
     ". Per kilo: plant capital $"+r.capital.toFixed(1)+", labour $"+
     r.labour.toFixed(1)+", energy and consumables $"+(r.utilities+r.consumables).toFixed(1)+", medium $"+r.feedstock.toFixed(1)+" for "+r.medium_l.toFixed(0)+" litres"+
 
-    (r.medium_floor?" (the nutrients the cells must eat; the medium cannot cost less)":"")+
+    (r.medium_floor?" (the nutrients the cells must eat, so the medium cannot cost less)":"")+
     (p.growth_factors>0?", growth factors $"+r.growth_factors.toFixed(1):"")+". "+
     (isFinite(r.osmolality)?"Salt strength in the tank: "+r.osmolality.toFixed(0)+" mOsm/kg"+
-      (r.pco2_used<p.pco2-0.5?"; the tank is run at "+r.pco2_used.toFixed(0)+" mbar of CO&#8322;, below what the cells tolerate, because more bicarbonate would cost more in medium than it saves in plant":"")+". ":"")+
+      (r.pco2_used<p.pco2-0.5?". The tank runs at "+r.pco2_used.toFixed(0)+" mbar of CO&#8322;, below what the cells tolerate, because more bicarbonate would cost more in medium than it saves in plant":"")+". ":"")+
     "Each kilo of cells uses "+r.o2_kg.toFixed(1)+" mol of oxygen ("+r.o2_kg_upkeep.toFixed(1)+" for upkeep, which grows with the doubling time, and "+
     r.o2_kg_growth.toFixed(1)+" for growth) and gives off "+r.co2_kg.toFixed(1)+" mol of CO&#8322;. "+
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
@@ -4193,18 +4198,18 @@ function fxRender(){
       (its.oxygen==="bought"&&byItems?" Bought oxygen adds $"+C.fx.o2_opex.toFixed(2)+" per kilo of cells.":"")+
       (pl==="microbial"?" The class above is priced at what yeast plants cost when built ($"+C.fx.capex.microbial.toFixed(0)+"k), not at this sum.":""); }
   const n=[];
-  if(byItems) n.push("Plant by items: the tanks must still be sealed and steam-sterilised. A cheaper plant pays while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (the food-grade plant with shared medium) or every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (the yeast plant with additions), against a food-grade plant at pharma's loss rate. Cultivated-meat makers today report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
-  if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back that does not exist yet; it is priced at what one study hopes it will cost.");
-  if(p.plant==="microbial") n.push("This is what yeast plants cost when built, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more: sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind.");
+  if(byItems) n.push("Plant by items. The tanks must still be sealed and steam-sterilised. A cheaper plant pays off only while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (for the food-grade plant with shared medium) or once every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (for the yeast plant with additions). This compares each plant with a food-grade plant at pharma's loss rate. Cultivated-meat makers report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
+  if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back, and that device does not exist. The model prices it at what one study hopes it will cost.");
+  if(p.plant==="microbial") n.push("This is what yeast plants cost, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more. The extra cost comes from sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind of plant.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");
-  if(p.vessel_m3>20) n.push("Animal cells have not been grown at this tank size outside pharma fed-batch.");
-  n.push("Losing runs: large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination; cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination a plant may need two weeks or more to sterilise and regrow its starter cultures.");
-  n.push("Oxygen for upkeep: part of a cell's oxygen use runs whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time; Humbird assumes 100% [2].");
-  n.push("CO&#8322;: 100 mbar, 6 mm/s of gas and a depth 1.6 times the width are Humbird's limits [2]; with them a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is a rule of thumb, not a measured limit: large pharma tanks run at 0.1 to 2 mm/s, and nobody has run cells this dense at this size or any culture at 6 mm/s. Bubble damage is held off by a protectant; foam is the likelier cap. Our odds that 6 mm/s works here are about even. The oxygen fed with the gas, nearly all of it vented, is about $0.5 of each kilo's cost.");
-  n.push("What each lever needs: tank tricks, the oxygen setpoint, fat and glutamine replaced in the feed, and the sorbent are <i>feed or process</i>; cells that tolerate more CO&#8322; or make less lactate are <i>selection or adaptation</i>; the engineered cells (ammonia as low as 0.055 mol/kg) have been shown only with <i>genetic engineering</i>. Selection is easier to regulate than engineering.");
-  n.push("Salt: holding the pH against CO&#8322; takes bicarbonate, and lactate comes with its base; both add salt, and cells stop growing when the total is too high. So more CO&#8322; leaves less room for lactate, which then needs more medium to wash out.");
-  n.push("Waste: 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
-  if(blend) n.push("Blend: the rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
+  if(p.vessel_m3>20) n.push("Nobody has grown animal cells at this tank size outside pharma fed-batch.");
+  n.push("Losing runs. Large pharma plants lose about "+(C.fx.hazard_pharma*100).toFixed(1)+"% of runs a day to contamination. Cultivated-meat makers report losses that work out to roughly 1&ndash;2% a day. After a contamination, a plant may need two weeks or more to sterilise and regrow its starter cultures.");
+  n.push("Oxygen for upkeep. Part of a cell's oxygen use goes on whether or not it grows, and the rest rises with growth. Measurements put the upkeep share between about 31% and 62% at a 24-hour doubling time. Humbird assumes 100% [2].");
+  n.push("CO&#8322;. Humbird's limits are 100 mbar, 6 mm/s of gas and a depth 1.6 times the width [2]. With them, a simple balance gives the 120 g/L he reports at 20 m&sup3;. Pharma cells lose about a tenth of their growth at 200 mbar. But 6 mm/s is a rule of thumb, not a measured limit. Large pharma tanks run at 0.1 to 2 mm/s. Nobody has run cells this dense at this size, or any culture at 6 mm/s. A protectant holds off bubble damage, and foam is the likelier cap. The author puts the odds that 6 mm/s works here at about even. The oxygen fed with the gas, nearly all of it vented, adds about $0.5 to each kilo's cost.");
+  n.push("What each lever needs. Tank tricks, the oxygen setpoint, fat and glutamine replaced in the feed, and the sorbent need <i>feed or process</i> changes. Cells that tolerate more CO&#8322; or make less lactate need <i>selection or adaptation</i>. The engineered cells (ammonia as low as 0.055 mol/kg) have been shown only with <i>genetic engineering</i>. Selection is easier to regulate than engineering.");
+  n.push("Salt. Holding the pH against CO&#8322; takes bicarbonate, and lactate comes with its base. Both add salt, and cells stop growing when the total is too high. So more CO&#8322; leaves less room for lactate, which then needs more medium to wash out.");
+  n.push("Waste. 0% is Humbird's efficient cells (about 11 litres of medium per kilo in perfusion), and 100% is ordinary cells (about 190 litres). The 30.5 litres a company reports for chicken is about 10% of the way.");
+  if(blend) n.push("Blend. The rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
 }
 buildRail(); scBuild(); scRailBuild(); scSyncRail(); selfTest(); fxInit(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
