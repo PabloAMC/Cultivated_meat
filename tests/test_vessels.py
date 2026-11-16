@@ -22,7 +22,7 @@ from inputs import value
 GOLDEN_REF = {
     ("stirred", "batch"): 65.3527, ("stirred", "fedbatch"): 18.8538, ("stirred", "filldraw"): 18.4583,
     ("stirred", "chemostat"): 34.7532, ("stirred", "perfusion"): 12.5107,
-    ("airlift", "fedbatch"): 20.7859, ("airlift", "perfusion"): 14.7790,
+    ("airlift", "fedbatch"): 20.7859, ("airlift", "perfusion"): 15.0683,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
 GOLDEN_CENTRAL = {("stirred", "perfusion"): 29.4162, ("stirred", "fedbatch"): 42.8732, ("airlift", "perfusion"): 30.8821}

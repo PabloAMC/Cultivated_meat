@@ -20,7 +20,7 @@ import tank_size as T                       # noqa: E402
 
 # $/kg at 2, 5, 10, 20, 50, 100, 200 m3, tank design chosen again at each size
 GOLDEN = {
-    "reference": (16.5241, 12.3669, 11.8349, 11.8411, 12.5528, 14.5885, 17.2992),
+    "reference": (16.5241, 12.3669, 11.8349, 11.8411, 12.5528, 15.0240, 18.2902),
     "reference_redesigned": (14.2759, 11.2823, 10.3334, 9.8486, 9.6869, 10.2618, 10.1993),
     "best": (11.5503, 9.7566, 9.2665, 8.9488, 8.8308, 9.0653, 9.0256),
     "central": (34.7805, 29.1814, 27.3486, 26.6381, 28.3480, 28.3356, 28.8015),
@@ -65,10 +65,9 @@ for c in T.CASES:
         check(r["ok"], f"{c} at {r['size']:g} m3: the chosen design fails a loop check ({r['why']})")
         check(r["unchecked"] <= r["total"] + 1e-9, f"{c} at {r['size']:g} m3: the unchecked design is dearer")
         check(r["check_cost"] >= -1e-9, f"{c} at {r['size']:g} m3: negative cost of the checks")
-        if c in S.ORDER:     # the medium bought covers the liquid the bleed of cells carries out (the note says so)
-            check(r["medium_l"] >= 1000.0 / r["density"] - 1e-9, f"{c} at {r['size']:g} m3: the bleed removes more liquid than the medium bought")
-# ... and in the reference as defined it does not, at 100 and 200 m3 (the note says the reference is low there)
-check(scan["reference"][5]["medium_l"] < 1000.0 / scan["reference"][5]["density"], "reference at 100 m3: the bleed should remove more than the medium bought")
+        # the medium bought covers the liquid the bleed of cells carries out: in every case since 2026-11-16, when explore
+        # gained that floor (before, the reference at 100 and 200 m3 bought less, and the note said it was low there)
+        check(r["medium_l"] >= 1000.0 / r["density"] - 1e-9, f"{c} at {r['size']:g} m3: the bleed removes more liquid than the medium bought")
 
 # 3. the retention loop is sized per m3 of tank, so its cost per kg does not depend on size: the same density and medium give
 #    the same loop capital and membranes at 50, 100 and 200 m3 (central: the same 153 g/L column design at all three)

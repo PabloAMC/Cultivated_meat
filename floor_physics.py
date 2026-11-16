@@ -629,6 +629,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     osm = float("nan")
     terms = {}
     sorb = sorbent if washed else 0.0
+    suspended = not vm.get("own_retention")            # cells in suspension leave with their liquid; cells on a support do not
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
         if washed:
             nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
@@ -637,6 +638,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             if sorb > 0:                               # sodium given back by the exchanger stays in the medium
                 room = max(2.0, osm_limit - value("pf_osm_base") - osm_co2)
                 terms["salt"] = 1000.0 * (2.0 * lac + sorb * nh3) / room
+            if suspended:                              # the culture that leaves with the harvested cells must be replaced
+                terms["harvest"] = 1000.0 / x
             need = max(terms.values())
         else:
             need = 1000.0 / x
@@ -644,6 +647,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         medium_l = max(value("pf_medium_l_floor"), need)
         if washed:
             osm = value("pf_osm_base") + osm_co2 + (2.0 * lac + sorb * nh3) / medium_l * 1000.0
+    elif washed and suspended:                          # a set figure cannot be less than the culture that leaves either
+        medium_l = max(medium_l, 1000.0 / x)
     ret_capex = membranes = 0.0
     if tff:                                            # the TFF loop clears what the bleed of cells does not carry out
         perm = max(0.0, medium_l - 1000.0 / x)                                         # litres per kg grown

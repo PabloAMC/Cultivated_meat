@@ -40,8 +40,8 @@ def check() -> list:
     if min(alone, key=alone.get) != "Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate":
         fails.append("the least-medium lever should be the largest on its own")
     # the pinned frontier, and the one with GFI's amino-acid floor
-    if not close(rows[-1]["cost"], 6.8543, 1e-4):
-        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 6.8543")
+    if not close(rows[-1]["cost"], 6.8551, 1e-4):
+        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 6.8551")
     if not (close(F.with_gfi_amino_acids(rows[-1]["state"]), 7.6574, 1e-4) and
             F.with_gfi_amino_acids(rows[-1]["state"]) > rows[-1]["cost"]):
         fails.append("GFI's amino-acid floor should raise the frontier to about $7.66")

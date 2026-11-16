@@ -82,7 +82,7 @@ The cheapest design for each number of unproven elements:
 | mixing lifted | $62.96 |  | 46 g/L, CO₂ |
 | every gas limit lifted (CO₂, oxygen, mixing) | $34.80 | −$28.16 | 258 g/L, thickness |
 | every gas limit lifted, and the culture as thick as 320 g/L | $33.60 | −$29.36 | 320 g/L, thickness |
-| medium at the least the physics allows (6.7 L/kg) | $48.14 | −$14.82 | 46 g/L, CO₂ |
+| medium at the least the physics allows (6.7 L/kg; this thin culture needs 21.6, what leaves with the cells) | $56.80 | −$6.17 | 46 g/L, CO₂ |
 | filter membranes that never wear out | $60.60 | −$2.36 | 46 g/L, CO₂ |
 | no bubble protectant to buy | $61.28 | −$1.68 | 46 g/L, CO₂ |
 | no growth factors to buy | $56.99 | −$5.97 | 46 g/L, CO₂ |

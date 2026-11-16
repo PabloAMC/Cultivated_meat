@@ -93,7 +93,7 @@ Details:
 |---|---|---|---|---|---|
 | Stirred tank (20 m3) | **$65.35** (25 g/L, the food in one fill; done at this size) | **$18.85** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$18.46** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$34.75** (55 g/L, other waste and spent food; only done smaller) | **$12.51** (120 g/L, clearing CO₂; only done smaller) |
 | Stirred tank with a bubble cage (20 m3) | **$67.59** (25 g/L, the food in one fill; only done smaller) | **$19.46** (92 g/L, other waste and spent food; only done smaller) | **$19.05** (92 g/L, other waste and spent food; never done with animal cells) | **$35.93** (55 g/L, other waste and spent food; never done with animal cells) | **$11.08** (189 g/L, mixing; never done with animal cells) |
-| Airlift (bubble column) (20 m3) | **$62.37** (25 g/L, the food in one fill; only done smaller) | **$20.79** (79 g/L, clearing CO₂; only done smaller) | **$20.35** (79 g/L, clearing CO₂; never done with animal cells) | **$33.18** (55 g/L, other waste and spent food; never done with animal cells) | **$14.78** (79 g/L, clearing CO₂; never done with animal cells) |
+| Airlift (bubble column) (20 m3) | **$62.37** (25 g/L, the food in one fill; only done smaller) | **$20.79** (79 g/L, clearing CO₂; only done smaller) | **$20.35** (79 g/L, clearing CO₂; never done with animal cells) | **$33.18** (55 g/L, other waste and spent food; never done with animal cells) | **$15.07** (79 g/L, clearing CO₂; never done with animal cells) |
 | Single-use bag (5 m3) | **$1,080** (25 g/L, the food in one fill; done at this size) | **$293.45** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$38.83** (92 g/L, other waste and spent food; only done smaller) | **$75.58** (55 g/L, other waste and spent food; only done smaller) | **$20.91** (146 g/L, getting oxygen in; only done smaller) |
 | Packed bed (0.065 m3) | **$3,730** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$3,726** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$610,043** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$610,039** (13 g/L, room between the fibres; done at this size) |
@@ -131,8 +131,9 @@ with animal cells" means no record was found.
    rate, and the least medium a cell needs then caps the density lower.
 4. **Batch is the dearest stirred-tank mode.** One fill of medium feeds only a thin culture ($65.35), and the unspent medium leaves with
    the cells.
-5. **An airlift costs about what a stirred tank costs when waste is not washed out.** In perfusion it costs more ($14.78 against
-   $12.51), because its taller shape passes less gas per litre and clears less CO2. In the central scenario, the column loop runs
+5. **An airlift costs about what a stirred tank costs when waste is not washed out.** In perfusion it costs more ($15.07 against
+   $12.51), because its taller shape passes less gas per litre and clears less CO2. At 79 g/L, the 12.7 litres of culture that leave
+   with each kg of harvested cells also set the medium (since 2026-11-16 the medium cannot be less than that; it was $14.78 before). In the central scenario, the column loop runs
    over the pH-safe dose in the taller tank. The grid then uses the cheapest setting that passes: the column, with the culture run thinner (139 g/L) so that the loop
    stays within its checks ($30.88). If the loop were allowed at full density, the airlift would cost $28.29, below the stirred
    tank's $29.42: whether that loop can be run safely on a tall airlift decides between the two.

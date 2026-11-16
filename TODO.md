@@ -87,8 +87,8 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **What the least medium flow is made of** (16 of Central's 28 L/kg): nutrients, small by-products or large ones. It decides
       which reuse route can go below 16 L.
 - [ ] **Add reuse to the page** as a lever (litres cleaned, on the permeate or across the culture), once a route has a measured input.
-- [ ] `explore` lets fresh medium fall below the liquid that leaves with the harvested cells (cases under about 36 g/L with
-      low-waste cells). No scenario is affected. Add the floor and repin what moves.
+- [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,
+      "harvest"); no scenario moved, the airlift in perfusion went from $14.78 to $15.07.
 
 Things only Pablo can do:
 
