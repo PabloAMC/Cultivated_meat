@@ -1,5 +1,12 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
+> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
+> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
+> higher now. Current scenario costs (RESULTS.md): best case $9.71 (was $8.95), central $29.92 ($26.64), central with shared medium
+> $26.81 ($24.34), cautious $43.79 ($38.97), reference $12.51 ($11.84). With antifoam counted, oxygen limits the central and
+> cautious tanks, so levers that raise the CO₂ or thickness limits are worth less there than this note says.
+
 Date: 2026-11-15. Code: `nutrient_floor.py`; tests: `tests/test_nutrient_floor.py`; inputs `nf_*` in `inputs.py`. The source is
 GFI, *Amino acid cost and supply chain analysis for cultivated meat* (December 2025; Table 1 and Fig. 9), read in full from the
 PDF (text saved in `medium_cost_gfi_sources/`). Costs are 2025 dollars per kg of wet cells. No default changed.

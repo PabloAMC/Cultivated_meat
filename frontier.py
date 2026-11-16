@@ -40,7 +40,9 @@ def _gf_share_with_reuse(kw: dict) -> float:
     r = d["result"]
     bleed_l = d["bleed_m3_h"] * 1000.0 / d["kg_h"]
     fill_l = d["liquid_m3"] * 1000.0 / (d["kg_h"] * 24.0 * value("pf_run_days"))
-    return kw.get("growth_factors", 0.0) * (bleed_l + fill_l) / r["medium_l"]
+    # capped at 1: when the bleed and the first fill already carry out as much liquid as the medium brings in (a thin culture
+    # fed a concentrate), returning the proteins saves nothing, and cannot cost more
+    return kw.get("growth_factors", 0.0) * min(1.0, (bleed_l + fill_l) / r["medium_l"])
 
 
 def evaluate(state: dict) -> dict:

@@ -290,18 +290,18 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
     lo, ce, hi = floor_band(pr)
     ax.axhspan(lo, hi, color="#029E73", alpha=0.12)
     ax.axhline(ce, ls="--", lw=1.0, color="#029E73")
-    ax.text(0.6, ce + 0.4, f"reference ~{ce:.0f} $/kg", fontsize=7.5, color="#029E73")
+    ax.text(0.6, ce + 0.4, f"reference ~{ce:.0f} \\$/kg", fontsize=7.5, color="#029E73")
 
     # parity line (biomass cost that yields R=1, additive markup)
     pc = parity_cost(pr)
     ax.axhline(pc, ls=":", lw=1.0, color="0.4")
-    ax.text(0.34, pc + 0.4, f"price parity (R=1) at {pc:.0f} $/kg biomass",
+    ax.text(0.34, pc + 0.4, f"price parity (R=1) at {pc:.0f} \\$/kg biomass",
             fontsize=7.5, color="0.4")
 
     # anchor points
     ax.scatter([pr.media_price], [biomass_cost(pr, pr.media_price, 1.0)], color="#0173B2", zorder=5, s=28)
     ax.axvline(0.20, ls=":", lw=0.6, color="0.7")
-    ax.text(0.205, ax.get_ylim()[1]*0.92, "0.2 $/L target", fontsize=7, color="0.5")
+    ax.text(0.205, ax.get_ylim()[1]*0.92, r"0.2 \$/L target", fontsize=7, color="0.5")
 
     ax.set_xlabel(r"Medium price (\$/L)")
     ax.set_ylabel(r"Biomass cost (\$/kg wet)")
@@ -376,7 +376,7 @@ def fig_cost_waterfall(pr: CostParams, outdir, fmts) -> None:
         ("plant as\ncompanies\nreport",                     top,      reported, "#0173B2"),
         (f"cheaper medium\n{pr.media_price:.2f}->0.2/L",      reported, cheap,    "#56B4E9"),
         ("efficient\ncells",                                cheap,    eff,      "#56B4E9"),
-        ("reference plant and\n$0.2/L\nmedium",            eff,      floor,    "#56B4E9"),
+        ("reference plant and\n\\$0.2/L\nmedium",            eff,      floor,    "#56B4E9"),
     ]
     fig, ax = plt.subplots(figsize=(7.6, 4.6))
     xs = range(len(steps) + 1)
