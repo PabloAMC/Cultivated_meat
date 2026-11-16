@@ -597,8 +597,9 @@ multiplies the oxygen the sparger delivers (and the sparger's share of a column 
 a judgement. The mixing rule is left as it is. (3) **Oxygen for the yeast-style plant.** That class's price has no oxygen unit, so it
 buys oxygen as a plant built item by item does (`pi_o2_feed` × `pi_o2_price`, $0.33/kg). The perfusion rows of the plant ladder
 (`tiers`) are now `explore()` itself, so they carry all three and the filter loop; `plant_floor` and `plant_floor_lo` follow
-($10.8, $6.3). Side studies written before this change are checked with the three set back (`floor_physics.BEFORE_PROTECTANT`,
-`tests/_snapshot.py`) and say so at the top.
+($10.8, $6.3). Side studies written before this change were checked with the three set back for a day; since 2026-11-16 they
+run on the current model, except parts of the gas-exchange study and the plant built item by item
+(`floor_physics.BEFORE_FILTER_LOOP`).
 
 *What the gas costs (`oxygen_fed`; `gas` in `explore`'s result).* Because the gas flow is set by CO₂, a kg of
 cells needs a fixed volume of gas whatever the gas velocity: 6.2 mol of CO₂ at 3.7 mol per m³ of exhaust is

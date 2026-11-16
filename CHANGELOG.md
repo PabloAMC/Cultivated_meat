@@ -2,6 +2,29 @@
 
 ## 2026-11-16
 
+Consolidation: what the answer rests on, and every side study on the current model (`answer_rests_on.py`; **no scenario moves**)
+- **What the answer rests on** (`answer_rests_on.py`, a section near the top of RESULTS): every input with a range is moved to
+  each end, one at a time. Of 513 inputs (237 with a range), 14 move Central's or the best case's cost by $1 or more and 8 move
+  Central by more than $3. The four largest (the ammonia the cells tolerate, the cell filter's life, the protectant's price, the
+  least medium flow) have not been measured on meat cells. 11 of the 14 are not in the scenarios' uncertainty bands, so Central's
+  band ($27–38) is too narrow. On the demand side, no single input takes the share at Central's cost outside 0.1–1.4%; at the
+  best case's cost the same inputs span 1.5–15.6%. `tests/test_answer_rests_on.py`.
+- **RESULTS summary**: the revision history at its top is replaced by a four-sentence answer (the history is in this file).
+  The bands paragraph says which large inputs the bands leave out. The disc-stack sentence now gives its cost ($26.85 in Central).
+- **The seven side studies that ran on a snapshot of an older model now run on the current one** (`tests/_snapshot.py` removed):
+  tank size, thick culture, without perfusion, cell retention, nutrient floor, growth-factor and doubling bounds, the least medium
+  per kg. Tests re-pinned, notes' tables and prose recomputed. What changed in their conclusions:
+  - tank size: 20 m³ is within 0.5–1.8% of the cheapest size (was 0.5%), except the cautious case, 4.6% at 111 m³;
+  - thick culture: only the best case reaches 258 g/L; in Central oxygen with the culture's viscosity binds first (151 g/L), so a
+    thicker-culture limit is worth nothing there;
+  - doubling bounds: "past 16 hours, speed adds little" no longer holds for Central (16 → 8 h saves $3.1), because oxygen now
+    limits the density of fast cells;
+  - cell retention: Central's filter duty is 8 times the reference's (was 12); the cautious case can no longer run all three tank
+    tricks at 180 g/L;
+  - without perfusion, the nutrient floor and the least medium per kg: levels move, conclusions hold.
+  Probabilities in these notes were judged on the older model and not judged again; the notes say so where it matters.
+- Stale quotes fixed in the frontier, audit, design-tricks and TODO notes, the dialyser input's note and the centrifuge text.
+
 The medium cannot be less than the culture that leaves with the cells (`explore`, a medium term "harvest"; **no scenario moves, four side figures do**)
 - Cells in suspension are harvested with 1000 / density litres of culture per kg. `explore` let the medium fall below that in thin
   cultures of low-waste cells. It is now a term of the medium balance, in Python and on the page (shown as a bar in the lever

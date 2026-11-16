@@ -1,12 +1,6 @@
 # If perfusion cannot be run at 20 m³
 
-> **Note, 2026-11-15 (late).** The figures in this note were computed before three costs were counted: the bubble protectant
-> (poloxamer 188), antifoam's quarter cut to the sparger's oxygen transfer, and the oxygen a yeast-style plant buys. Its test checks
-> them with those three set back (`tests/_snapshot.py`, `floor_physics.BEFORE_PROTECTANT`). The comparisons hold; the levels are
-> higher now. Current scenario costs (RESULTS.md), which also hold dissolved oxygen at half of air saturation: best case $9.66 (was
-> $8.95), central $29.42 ($26.64), central with shared medium $26.56 ($24.34), cautious $42.39 ($38.97), reference $12.51 ($11.84).
-> With antifoam counted, oxygen limits the central and cautious tanks, so levers that raise the CO₂ or thickness limits are worth
-> less there than this note says.
+> Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `downside.py`; tests: `tests/test_downside.py`. Costs are 2025 dollars per kg of wet cells. Shares are the
 long-run share of world meat by weight at the scenario's point cost (`scenarios.shares`), not the median of the bands.
@@ -15,7 +9,8 @@ long-run share of world meat by weight at the scenario's point cost (`scenarios.
 
 Every scenario uses a 20 m³ stirred tank in perfusion. A device holds the cells back and fresh medium washes the waste out.
 Nobody has run animal cells in perfusion above about 4 m³ (Genzyme's tanks at Geel). The retention study (`retention_devices.md`)
-puts 35% on any filter holding the central case's 258 g/L at 20 m³ for a month, and 75% on holding the reference case's 120 g/L.
+puts 35% on any filter holding 258 g/L at 20 m³ for a month, and 75% on holding the reference case's 120 g/L. (258 g/L was the
+central case's density when that judgement was made; oxygen supply now limits the central tank to 191 g/L.)
 This note prices the fallback: the same tank with no cell retention, run in fed-batch or in fill-and-draw.
 
 Without retention, waste is not washed out. Ammonia, lactate and the least medium flow a cell needs cap the density. The one
@@ -30,22 +25,22 @@ gas limits, but they add capital without raising the density of a tank that wast
 
 | Scenario | Perfusion (the model) | Fed-batch, model cap | Fill-and-draw, model cap | Fed-batch, 27 g/L | Fill-and-draw, 27 g/L |
 |---|---|---|---|---|---|
-| Best case | **$8.95** (9.3%) | $13.22 (92 g/L, 3.7%) | $13.32 (92 g/L, 3.7%) | $40.55 (0.2%) | $40.89 (0.2%) |
-| Central | **$26.64** (0.5%) | $40.39 (62 g/L, 0.2%) | $43.58 (62 g/L, 0.1%) | $89.94 (0.0%) | $97.22 (0.0%) |
-| Central, food-grade plant with shared medium | **$24.34** (0.7%) | $28.22 (62 g/L, 0.5%) | $30.20 (62 g/L, 0.4%) | $61.74 (0.0%) | $66.28 (0.0%) |
-| Cautious | **$38.97** (0.2%) | $59.93 (52 g/L, 0.0%) | $68.35 (52 g/L, 0.0%) | $111.48 (0.0%) | $127.34 (0.0%) |
+| Best case | **$9.66** (8.0%) | $13.87 (92 g/L, 3.3%) | $13.97 (92 g/L, 3.2%) | $42.77 (0.1%) | $43.11 (0.1%) |
+| Central | **$29.42** (0.4%) | $41.36 (62 g/L, 0.2%) | $44.55 (62 g/L, 0.1%) | $92.16 (0.0%) | $99.45 (0.0%) |
+| Central, food-grade plant with shared medium | **$26.56** (0.5%) | $29.19 (62 g/L, 0.4%) | $31.18 (62 g/L, 0.4%) | $63.96 (0.0%) | $68.50 (0.0%) |
+| Cautious | **$42.39** (0.1%) | $61.09 (52 g/L, 0.0%) | $69.51 (52 g/L, 0.0%) | $113.70 (0.0%) | $129.56 (0.0%) |
 
-- **Without perfusion every scenario costs more.** At the model's own cap, the best case goes from $8.95 to $13.22, Central from $26.64
-  to $40.39, and the cautious case from $38.97 to $59.93.
-- **The density that has been shown matters more than the mode.** At 27 g/L Central costs $90–97 a kilo and the best case $41. At
+- **Without perfusion every scenario costs more.** At the model's own cap, the best case goes from $9.66 to $13.87, Central from $29.42
+  to $41.36, and the cautious case from $42.39 to $61.09.
+- **The density that has been shown matters more than the mode.** At 27 g/L Central costs $92–99 a kilo and the best case $43. At
   that density the plant's capital is spread over a third as many kilos as at 92 g/L.
 - **A plant that costs less cushions the fall.** In the food-grade plant with shared medium, fed-batch at the model's cap costs
-  $28.22, only $3.88 above its perfusion cost. Capital is a small share of that scenario's cost, so losing the high density
-  matters less. This is also the only scenario that stays above 0.4% of world meat without perfusion.
+  $29.19, only $2.63 above its perfusion cost. Capital is a small share of that scenario's cost, so losing the high density
+  matters less. Apart from the best case, it is the only scenario that keeps about 0.4% of world meat without perfusion.
 - **Fed-batch is cheaper than fill-and-draw in every scenario.** Fill-and-draw never reaches its cap in a cycle: it averages 72%
   of it. Fed-batch's cycle is Humbird's: two doublings and 10 hours to clean and refill.
 - **The tank design changes.** Every fallback drops the column and the pressure (the cautious case keeps its column). This lowers
-  Central's fed-batch cost from $45.29, the figure in the vessel grid (`vessels.py`), to $40.39. The grid holds the perfusion design
+  Central's fed-batch cost from $42.87, the figure in the vessel grid (`vessels.py`), to $41.36. The grid holds the perfusion design
   fixed on purpose, so the two numbers answer different questions.
 
 ## 3. How likely is the fallback?
@@ -56,11 +51,14 @@ These are judgement, built from the retention note. They are not a forecast.
 |---|---|
 | Perfusion fails at 20 m³ (no device holds the culture for a month, at any cost): best case, Central | about 65% (35% that a filter holds 258 g/L) |
 | The same for the reference case, at 120 g/L | about 25% |
-| The same for the cautious case, at 145 g/L | about 50% |
+| The same for the cautious case, at 120 g/L | about 50% |
 | If it fails, an unwashed 20 m³ tank reaches the model's cap (52–92 g/L) with meat cells | about 25% |
 
+The first and third rows were judged when the central case ran at 258 g/L and the cautious case at 145 g/L. Oxygen supply now
+limits them to 191 and 120 g/L; the probabilities have not been judged again.
+
 The last row is from the operating-modes research note (25% for fill-and-draw and chemostat holding a high density without
-waste-reduced cells; 15% for a chemostat alone). So if perfusion fails, the likelier price for Central is nearer $90 than $40. The
+waste-reduced cells; 15% for a chemostat alone). So if perfusion fails, the likelier price for Central is nearer $92 than $41. The
 fallback is also not the only way perfusion could fail: a device could hold the cells back at a lower density than the scenario
 assumes. The retention note and `retention.density_scan` cover that case: a thinner culture costs more.
 

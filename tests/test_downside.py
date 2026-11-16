@@ -6,7 +6,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import _snapshot  # noqa: E402,F401  the note was computed before the protectant, antifoam and oxygen (tests/_snapshot.py)
 
 import downside as D
 import scenarios as S
@@ -15,10 +14,10 @@ from inputs import value
 
 # $/kg, fed-batch and fill-and-draw, at the model's own density cap and at the density shown for meat cells
 GOLDEN = {
-    "best": {("fedbatch", "model"): 13.2241, ("fedbatch", "shown"): 40.5495, ("filldraw", "model"): 13.3220},
-    "central": {("fedbatch", "model"): 40.3857, ("fedbatch", "shown"): 89.9362, ("filldraw", "model"): 43.5795},
-    "central_lean": {("fedbatch", "model"): 28.2155, ("filldraw", "model"): 30.2045},
-    "cautious": {("fedbatch", "model"): 59.9254, ("filldraw", "shown"): 127.3374},
+    "best": {("fedbatch", "model"): 13.8733, ("fedbatch", "shown"): 42.7717, ("filldraw", "model"): 13.9712},
+    "central": {("fedbatch", "model"): 41.3596, ("fedbatch", "shown"): 92.1584, ("filldraw", "model"): 44.5533},
+    "central_lean": {("fedbatch", "model"): 29.1893, ("filldraw", "model"): 31.1783},
+    "cautious": {("fedbatch", "model"): 61.0886, ("filldraw", "shown"): 129.5596},
 }
 
 

@@ -36,8 +36,8 @@ meat needs about $7 a kilo of cells.
 | Runs lost 0.2% a day | $28.45 | −0.97 |
 | Culture at 320 g/L | $29.42 | 0.00 |
 
-Before PR #32 (protectant, antifoam, plant ladder) these matched the studies they come from ($18.00, $22.68, $22.49 and $24.34); those
-studies' notes are snapshots of that model.
+These match the studies they come from (`retention_alternatives.md`, `nutrient_floor.md`, `gf_and_doubling_bounds.md`,
+`no_perfusion_downside.md`), which were recomputed on the current model on 2026-11-16.
 
 ## 3. What this says
 
@@ -64,9 +64,9 @@ studies' notes are snapshots of that model.
 - The 6.4 L/kg needs a concentrate of 100 g/L dosed into the tank and a salt budget. The feed strength and the salt floor are
   unsourced judgements in `min_litres_per_kg.md`, and they move the answer most.
 - The scenario's tank design (tricks and shape, chosen for Central) and a 20 m³ stirred tank in perfusion are held. A tank
-  design chosen again for the new case, and the cheapest size, would add less than 1%: `tank_size.md` finds the cheapest size within
-  0.5% of 20 m³.
-- Oxygen, with antifoam counted, binds before the thickness limit, so the 320 g/L step is worth nothing here. Without the
-  antifoam effect it would be bound by the column loop's checks first (`thick_culture.md`).
+  design chosen again for the new case, and the cheapest size, would add less than 2%: `tank_size.md` finds Central's cheapest size at
+  43 m³, 1.8% below 20 m³.
+- Oxygen, with antifoam counted, binds before the thickness limit, so the 320 g/L step is worth nothing here
+  (`thick_culture.md`: in Central, oxygen with the culture's viscosity binds first, at 151 g/L).
 - If perfusion fails at 20 m³, the answer is `no_perfusion_downside.md`, not this ladder.
 - The order of the steps affects each step's size. The total does not depend on it.

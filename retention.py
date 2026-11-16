@@ -107,7 +107,7 @@ DEVICES = {
 NOT_COSTED = {"spin": ("Spin filter", "Its screen sits inside the tank, so its area grows with the tank's width, not its volume; "
                                      "shown only at about 1e7 cells/mL or less, and it clogs within weeks."),
               "ksep": ("Fluidized-bed centrifuge (kSep)", "One cycle holds about 2.9 kg of cells; the central duty passes "
-                                                         "485 kg an hour, about 170 cycles an hour. The 6000S is discontinued.")}
+                                                         "about 250 kg an hour, about 86 cycles an hour. The 6000S is discontinued.")}
 ORDER = ("hoped", "atf", "tff", "reuse", "dialyser", "ceramic", "settler", "acoustic", "discstack", "hydrocyclone")
 NOT_COSTED["mbr"] = ("Wastewater membrane (submerged, air-scoured)", "It cannot be steamed (rated to 40 C), is made for 3-20 g/L of "
                      "solids against 50-75 g/L dry here, and needs coarse bubbles in the culture.")
