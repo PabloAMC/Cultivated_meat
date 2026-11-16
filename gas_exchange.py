@@ -443,7 +443,7 @@ def o2_supply_sparger(x: float, gas_velocity: float, p_top_barg: float | None = 
     headspace pressure (`headspace_pressure`)."""
     f = (headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
          if (p_top_barg is not None or do_mmol is not None) else 1.0)
-    return value("pf_otr_cap") * (gas_velocity / value("pf_gas_velocity")) ** 0.8 * f
+    return value("pf_otr_cap") * (gas_velocity / value("pf_gas_velocity")) ** 0.8 * f * value("pf_antifoam_otr")
 
 
 def column_design(x: float, sparge_velocity: float | None = None, p_out: float | None = None,

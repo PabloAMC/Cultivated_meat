@@ -416,7 +416,7 @@ def fig_mc(region: str, n: int, outdir, fmts) -> None:
     mc = monte_carlo(region, n)
     fig, ax = plt.subplots(figsize=(7.0, 4.0))
     for x, lbl, col in [(mc["vol"], "by VOLUME (impact)", "#DE8F05"),
-                        (mc["val"], "by VALUE ($ market)", "#0173B2")]:
+                        (mc["val"], r"by VALUE (\$ market)", "#0173B2")]:
         ax.hist(x, bins=60, color=col, alpha=0.55, label=lbl)
         c = _ci(x)
         for q, ls in [(10, ":"), (50, "-"), (90, ":")]:
