@@ -52,6 +52,21 @@ def check() -> list:
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")
+    # life and price act together: the membrane adds price / life per litre, so a shorter life costs nothing extra at the break-even price
+    if not close(FF.break_even_price(value("rt_membrane_life")), value("rt_membrane_price"), 1e-12):
+        fails.append("the break-even price at the default life should be the default price")
+    default = S.run(S.SCENARIOS["central"].choice)["total"]
+    for life in (2000.0, 1500.0, 1000.0):
+        got = FF.cost_at_life_price("central", life, FF.break_even_price(life))
+        if not close(got, default, 1e-6):
+            fails.append(f"central at life {life:g} and its break-even price: {got:.4f} != default {default:.4f}")
+    if not FF.cost_at_life_price("central", 1500.0, 1450.0) > default > FF.cost_at_life_price("central", 1500.0, 200.0):
+        fails.append("a shorter life should cost more at the default price and less at a much lower one")
+    for (k, life, price), want in {("central", 2000.0, 1450.0): 37.5780, ("central", 1500.0, 1450.0): 43.0900,
+                                   ("central", 1500.0, 550.0): 29.4300, ("central", 1000.0, 200.0): 25.6300}.items():
+        got = FF.cost_at_life_price(k, life, price)
+        if not close(got, want, 1e-3):
+            fails.append(f"{k} life {life:g} price {price:g}: {got:.4f} != pinned {want}")
     return fails
 
 
