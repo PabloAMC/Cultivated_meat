@@ -10,7 +10,7 @@ for its own process (SuperMeat 2024: 30.5 L of medium per kg at $0.50/L, plus $1
 of running costs), with a yearly charge on its plant at the rate used for every other
 case ($8.3/kg): $34.3/kg. The company's own figure, with depreciation only, is $29.5.
 The reference case's plant term comes from physics (floor_physics.py). Pasitka et al. 2024 is
-no longer an anchor: its kilogram is a wet pellet that is mostly liquid, and its cost
+no longer an anchor: its kilogram is a wet pellet that holds several times more liquid than cells, and its cost
 leaves out capital (METHODS.md, "Why Pasitka is not the anchor").
 
 price_ratio.py defines how a biomass cost becomes R and where the parity

@@ -58,7 +58,7 @@ Costs are per kg of real wet cells. The default cost stack is what a company rep
 **Humbird 2021** (journal paper and long report) supplies the feedstock floor, the cell physics and the plant
 costs behind the reference case (`floor_physics.py`). Built microbial fermentation plants come from the pf-tea evidence
 file. **Pasitka et al. 2024** was the anchor until 2026-11-14 and is no longer used: its kilogram is a wet pellet
-that is mostly liquid, and its cost leaves out capital ("Why Pasitka is not the anchor"). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
+that is most likely about 18 times the mass of its cells, and its cost leaves out capital ("Why Pasitka is not the anchor"). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
 2026 State of the Industry report describes them, and a GFI and MG Consulting amino-acid cost analysis
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
 directional evidence, not the central case.
@@ -1003,7 +1003,7 @@ row gives what was reported and what the model gives for the same cells and vess
 | chicken, 10 L perfusion (SuperMeat 2024) | density held, g/L | 112 | 214 allowed | 0.5 |
 | chicken, 10 L perfusion (SuperMeat 2024) | medium, L per kg of cells | 30.5 | 21.6 | 1.4 |
 | chicken, scaled up on paper (SuperMeat 2024) | output, t per m³ a year | 24.3 stated | 10.3 from its own density and growth | 2.4 |
-| chicken, bench perfusion (Pasitka 2024) | density, g/L | 430 claimed | 72 from its cell count and cell size | 6.0 |
+| chicken, bench perfusion (Pasitka 2024) | density, g/L | 430 claimed | 72 from its cell count and its 10 μm cells | 6.0 |
 | quail, 20 m³ drained and refilled (Vow) | output, t per m³ a year | 3.7–6.5 | 11.5 with the model's efficient cells | 0.44 |
 
 What it shows:
@@ -1018,7 +1018,7 @@ What it shows:
 - **The model is optimistic about output in practice.** The one working 20 m³ plant makes less than half of
   what the model's efficient cells would in the same kind of tank.
 - **It catches inconsistent claims.** SuperMeat's stated output is 2.4 times what its own density and growth
-  rate give, and Pasitka's "43% w/v" is six times the mass of the cells counted.
+  rate give, and Pasitka's "43% w/v" is 6 times the mass of its cells at the 10 μm size it reports and its micrographs show.
 
 The back-test has few points and none is a meat cell line at scale. It is a check on direction, not a
 calibration.
@@ -1032,7 +1032,7 @@ only that much was read. The research notes carry the same marks row by row.
 |---|---|---|
 | plant cost, yearly charge, limits on density, vessel cost, waste yields, CO₂ and gas limits | Humbird 2021 | full text (the long report), by the model's authors |
 | reported chicken process: medium, cost, density, growth | SuperMeat 2024 | full text (company report, not peer reviewed) |
-| Pasitka's mass basis, protein content, capital charge | Pasitka 2024 and supplement | full text |
+| Pasitka's mass basis, cell size, capital charge | Pasitka 2024 and supplement | full text (article re-read 2026-11-17; supplement 2026-11-13/14) |
 | other published plant costs | Negulescu 2023, CE Delft 2021, Garrison 2022 | full text of local copies |
 | yeast-style plant cost as built | company statements and industry benchmarks | company claims; one figure inferred |
 | Vow's tank, mode and output | GFI 2026 report, food-standards filing, trade press | report and filing read; output from trade press |
@@ -1454,22 +1454,63 @@ unchanged.
 
 ## Why Pasitka is not the anchor
 
-Pasitka et al. 2024 (Nature Food 5, 693–702) was this model's cost anchor. The article, supplement and source
-data were read in full on 2026-11-13/14. Four things rule it out as a cost per kg of meat.
+Pasitka et al. 2024 (Nature Food 5, 693–702) was this model's cost anchor. The article text was re-read on 2026-11-17; the
+supplement and source data were read in full on 2026-11-13/14 and not re-opened since. Four things rule it out as a cost per kg of
+meat. The first needs care, because the paper's own figures disagree; the reading below is the most likely one.
 
-**1. Its kilogram is mostly liquid.** The harvested biomass "was centrifuged at 17,500 rcf, 15 min ... and
-weighed"; the 20-day run "produced a total of 1.7 kg of wet biomass ... correlating to a total of 173 × 10⁹
-cells", exactly 10 ng per counted cell at every time point in the source data. The cost analysis scales from
-that: "1.8 kg wet biomass produced per litre of bioreactor volume per month".
+**1. Its kilogram is not a kilogram of cells: most likely about 18 times too heavy.** The harvested biomass "was centrifuged
+at 17,500 rcf, 15 min ... and weighed on a laboratory scale"; the 20-day run "produced a total of 1.7 kg of wet biomass using 110 l
+of medium ... correlating to a total of 173 × 10⁹ cells", exactly 10 ng per counted cell at every time point in the source data
+(1.7 kg over 173 billion cells is 9.8 ng). The cost analysis scales from that: "1.8 kg wet biomass produced per litre of bioreactor
+volume per month", and its medium use of 22.4 L per kg is its best daily conversion ("up to 4.5 × 10⁹ cells per litre of medium")
+times 10 ng per cell. The paper gives three figures for the mass of a cell that cannot all be true:
 
-| evidence, all from the paper | what it implies |
-|---|---|
-| "cell sizes averaging 10 ± 0.75 μm" (Extended Data Fig. 4b); a sphere at 1.05 g/mL | 0.55 ng per cell, so 1.7 kg of biomass holds about 95 g of cells |
-| Abstract: "130 × 10⁶ cells per ml, corresponding to yields of 43% w/v" | 3.3 ng per cell; at 10 ng the same culture would be 130% w/v |
-| Supplementary Table S5: nutrients cost $14.11 per kg of biomass and $1,411.50 per kg of protein | the biomass is 1% protein; cells and meat are about 20% |
-| Table S5: 86,653 kg of amino acids a year for 1.07 × 10⁶ kg of biomass | 81 g per kg: at most 8% protein even if every gram were built in |
+| the paper's figure | mass per cell it implies | cell diameter, at 1.05 g/mL |
+|---|---|---|
+| "cell sizes averaging 10 ± 0.75 μm" (Extended Data Fig. 4b) | 0.55 ng | 10 μm |
+| Abstract: "130 × 10⁶ cells per ml, corresponding to yields of 43% w/v" | 3.3 ng | 18 μm |
+| 1.7 kg of wet biomass from 173 × 10⁹ cells | 9.8 ng | 26 μm |
 
-Protein, fat and moisture were measured; only "80 g protein and 13 g of fat per 100 g dry mass" is reported.
+Which is right was worked through on 2026-11-17, from the paper's own figures. **The most likely explanation: the cells are 10 μm and
+about 0.5 ng as reported, the counts are right, and both mass figures are cell counts multiplied by a fixed number of cells per gram,
+not weights of cells** (about 70%).
+
+- **The 10 μm holds up twice over.** Extended Data Fig. 4b gives the diameter every day of the run, between about 8.7 and 11.2 μm. The
+  micrographs of Fig. 3h, measured against their own 50 μm scale bar, show single round cells about 9–11 μm across, not 18 or 26.
+- **The cell counts are the measured quantity.** The densities of Fig. 3b times the volumes drawn off (eleven partial harvests of a
+  third or so of 1.8 L at 20–28 × 10⁶ cells per ml, and the final 1.8 L) come to about 170 × 10⁹ cells, the paper's 173 × 10⁹. The
+  medium fed matches the counts too (110 L against a target of 240 pl per cell a day).
+- **The 1.7 kg cannot be a weighed pellet of those harvests.** About 8 L of culture was drawn off in all, holding about 90 mL of
+  cells. A pellet of 1.7 kg would be a fifth of everything harvested and 95% liquid, after 15 minutes at 17,500 g. And the wet biomass
+  is exactly 10 ng per counted cell at every harvest (Fig. 3c and 3d have the same shape): a conversion at 10⁸ cells per gram.
+- **The "43% w/v" is a conversion as well**, at 3 × 10⁸ cells per gram: the same group's 2023 paper pairs 108 × 10⁶ cells per ml with
+  "36% w/v" (Pasitka et al. 2023, abstract), the same ratio to three figures. So the paper uses two different cells-per-gram factors,
+  and neither matches a 10 μm cell (about 1.8 × 10⁹ per gram).
+- **Energy rules out 1.7 kg of real cells, and is the one piece that leans the other way on 95 g.** The run used 252 g of glucose and
+  made 131 g of lactate (Fig. 3k), so at most 0.67 mol of glucose was burned: about 4 mol of oxygen, perhaps 6 with amino acids. Cells
+  respiring like this model's at a 61 h doubling (0.3–0.4 kg of oxygen per kg grown) could make 0.3–0.65 kg on that, not 1.7 kg. If only
+  95 g were made, these cells burned 3 to 6 times more per gram than the model's cell: possible for small, slow, lactate-spilling
+  fibroblasts, but it is evidence that the true mass could be somewhat above 95 g.
+- So the 1.7 kg holds about **95 g of cells** (70–120 g across the measured diameters): the biomass figure is about 18 times the mass
+  of the cells, and the "43%" about 6 times. Per kg of real cells the run used about 1,150 L of medium (110 L for 95 g), and about 400 L
+  at its best daily conversion, against the 22.4 L per kg the cost analysis uses.
+- What stays unexplained is where the two factors come from. 10⁸ cells per gram is a common rule of thumb for tissue; a pellet weighed
+  once with its liquid would also do it. Of the remaining 30%, about 20% is that the real mass of cells is 2 to 6 times the 95 g (counts
+  too low, or cells denser or larger than they look), which the energy balance would fit better; the rest is pellets that really were
+  weighed that wet.
+- One bound does not depend on any of this: the cost tables feed 81 g of amino acids per kg of biomass (86,653 kg for 1.07 × 10⁶ kg),
+  and a kilo of real cells holds about 200 g of protein, so the biomass is at most about 40% real cells.
+- Protein, fat and moisture of the harvested biomass were measured (5 g, NIRS) and only "80 g protein and 13 g of fat per 100 g dry
+  mass" is reported; the moisture figure would settle it.
+
+A knock-on for this model: the paper's "145 g glucose, 76 g lactate and 2.4 g ammonia per kg of wet biomass" are per kilo of that
+biomass. Their ratio (1.05 mol of lactate per mol of glucose) is safe to use, and the model uses it. Per kilo of real cells the amounts
+would be about 18 times larger; `sc_glc_measured` (0.84 mol of glucose per kg) draws partly on this figure and is to be re-derived
+(`TODO.md`).
+
+(An earlier version of this section also read Supplementary Table S5's two nutrient costs, $14.11 per kg of biomass and $1,411.50 per
+kg of protein, as showing the biomass is 1% protein. They differ by exactly a factor of 100, which looks more like a units or
+spreadsheet artefact; it is no longer used as evidence.)
 
 **2. Its cost leaves out capital.** Supplementary Table S4 lists an "Annual Capital charge" of 14.6% of the
 investment; Table S10's "Total cost of wet biomass production" contains nutrients, consumables, utilities,
@@ -1480,11 +1521,12 @@ cost) fits that.
 4.5 × 10⁹ cells l⁻¹"); the run as a whole used 110 L for 1.7 kg.
 
 **4. Its headline is a hybrid, and its cheapest plant is hypothetical.** The $6.8/lb is for a product with "a
-50% biomass inclusion rate"; the 25,000 L perfusion design is a "theoretical large-scale perfusion modality".
+50% biomass inclusion rate"; the 25,000 L perfusion design is a "theoretical large-scale perfusion modality". The blend halves the
+cost per kg of product after the biomass cost is set, so it does not cancel the mass-basis problem.
 
-None of this touches the paper's laboratory result, a 20-day continuous culture in animal-free medium. It means
-the cost per kg cannot be compared with meat. Why a centrifuged pellet would be that wet is not explained; the
-moisture figure would settle the exact factor.
+On the most likely reading the paper's $23–26 per kg of wet biomass is several hundred dollars per kg of real cells before capital;
+even on the mildest (the amino-acid bound, 2.5 times) it is $60 or more. The decision to drop it as the anchor stands either way. None of this touches the paper's
+laboratory result, a 20-day continuous culture of chicken cells in animal-free medium.
 
 ## Other analyses
 
@@ -1501,7 +1543,7 @@ the sources' own figure.
 | Negulescu 2023 | 35 / 25 / 17 | wet cells, 3 ng, 30% dry matter | depreciation only | 42 and 211 m³ stirred, 262 m³ airlift | ~18–41 |
 | Ark (Quint) 2023 | 65 | 2.5 ng cells; basis unstated | depreciation only | 25 m³ fed-batch | ≥65 |
 | SuperMeat 2024 (company; this model's default) | 26, or 29.5 with depreciation | 100% cells, 1.0–1.75 ng | depreciation only | 25 m³ perfusion with continuous bleed | ~30–55 |
-| Pasitka 2024 | 24 | wet pellet, mostly liquid | no | 2–25 m³ perfusion | not comparable |
+| Pasitka 2024 | 24 | "wet biomass" at 10 ng per counted cell, about 18 times the cells' mass | no | 2–25 m³ perfusion | not comparable |
 
 None of the others shares Pasitka's mass-basis problem: each builds its kg from cell size and count. Most leave
 out all or part of the cost of capital, and several best cases break a mass balance or a packing limit. With

@@ -73,7 +73,7 @@ Reported runs against what the model gives for the same cells and vessel. Nothin
 |---|---|---|
 | Model: reference / Central / best | $12.51 / $29.42 / $9.66 a kilo of wet cells | a 20 m³ perfusion plant; see the scenario definitions |
 | Humbird 2021 | "$37/kg wet cell mass" (as quoted in `post_harvest_costs.md`) | design with his own medium, which GFI says was far costlier |
-| Pasitka 2024 | $13.7 a kilo of a 50/50 hybrid (a third party puts pure cells at $13.75–22.27) | model of a 50,000 L plant from bench data; the kilogram counted is mostly liquid |
+| Pasitka 2024 | $13.7 a kilo of a 50/50 hybrid (a third party puts pure cells at $13.75–22.27) | model of a 50,000 L plant from bench data; the kilogram counted is most likely about 18 times the mass of its cells (METHODS.md, "Why Pasitka is not the anchor") |
 | SuperMeat 2024 | $26–29.5, $34.4 with the model's capital charge | model of a 25,000 L plant from 10 L runs |
 | Aleph, Gourmey (company-commissioned) | about $8–14 a kilo of product | confidential inputs; products contain plant protein |
 | Vow raw slurry (company claim) | under $50 a pound, about $110 a kilo | real operation at up to 20,000 L |
