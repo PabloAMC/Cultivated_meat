@@ -108,8 +108,8 @@ case's cost by $1 or more, and 7 move Central by more than $3. The rest serve si
 
 | input | its range (model's value) | Central, $/kg | Central's share of world meat | best case, $/kg | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|---|
-| Ammonia the cells tolerate in the tank | 2–10 mmol/L (5) | $56.4 to $20.6 | 0.0% to 1.0% | $19.2 to $9.7 | Humbird's choice within 2–10 mmol/L reported for mammalian cells; none measured for meat cells | yes |
-| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $57.8 to $27.1 | 0.0% to 0.5% | $18.7 to $8.9 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run | yes |
+| Ammonia the cells tolerate in the tank | 2–10 mmol/L (5) | $56.4 to $20.6 | 0.0% to 1.0% | $19.2 to $9.7 | Humbird's choice within 2–10 mmol/L reported for mammalian cells; unadapted meat-relevant cells lose 10–55% of growth at 2.5–5 mM, none measured at density | yes |
+| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $57.8 to $27.1 | 0.0% to 0.5% | $18.7 to $8.9 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
 | Least medium flow the cells need for everything but ammonia and lactate | 3.7–18.5 mL per g wet cells per day (7.5) | $29.4 to $38.4 | 0.4% to 0.2% | $9.7 to $18.7 | judgement within CHO measurements | yes |
 | Price of the bubble protectant (poloxamer 188), bought by the tonne | 10–120 $/kg (30) | $28.3 to $34.5 | 0.5% to 0.3% | $9.2 to $11.7 | assumed: only catalogue prices ($230–260/kg) found | yes |
 | Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $27.2 to $32.2 | 0.5% to 0.3% | $9.0 to $10.4 | derived from Humbird's financing, at a mature industry's rates | yes |
@@ -128,6 +128,13 @@ case's cost by $1 or more, and 7 move Central by more than $3. The rest serve si
   ($56.4 to $20.6), the life of the cell filter ($57.8 to $27.1), the price of the bubble protectant
   ($28.3 to $34.5) and the least medium flow ($29.4 to $38.4). Three of the four are a choice within a
   reported range, an assumption or a judgement. The first two dwarf the rest.
+- **An evidence pass on the first two** (`research_notes/ammonia_tolerance_and_filter_life.md`, 2026-11-16) moved neither
+  value. For ammonia, the meat-relevant cells measured so far (catfish ovary, 3T3 fibroblasts, pig muscle stem cells, bovine
+  FAPs) lose 10–55% of growth at 2.5–5 mM when spiked, but they are unadapted and none was run at density, and Central assumes
+  selected cells: 5 mM is within a factor of 1.5 of the truth with probability about 45%. For the filter, small-pore fibres in
+  dense culture last about 180–2,500 L/m² against the model's 3,960 (probability about 20% that 3,960 is within a factor of
+  1.5; median about 1,500). Life and price go together: a membrane adds price over life per litre, so a life of 1,500 costs
+  nothing extra at $549 a m² or less, and costs Central $43.1 at today's $1,450 (`filter_flux.break_even_price`).
 - **The bands now draw these estimates** (since 2026-11-16; before, they left out 11 of them, including the largest). Central's
   band went from $27–38 to **$25–47**, and the best case's from $9–12 to **$10–19**; the best case's median share fell from
   3.8% to 1.9%, Central's stayed at 0.2%. Not drawn: glucose use (a trait of the cells, which the kind-of-cells switch

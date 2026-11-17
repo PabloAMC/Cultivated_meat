@@ -83,6 +83,19 @@ def cost_at(key: str, flux_lmh: float, life_l_m2: float) -> float:
         return retention.scenario_cost("tff", S.explore_kwargs(S.SCENARIOS[key].choice))["total"]
 
 
+def cost_at_life_price(key: str, life_l_m2: float, price_per_m2: float) -> float:
+    """A scenario's cost with the cell filter at this membrane life and this membrane price (defaults: 3,960 L/m2 and $1,450/m2).
+    What the membrane adds to a litre of permeate is price / life, so the two have to be read together."""
+    with retention._with({"rt_membrane_life": life_l_m2, "rt_membrane_price": price_per_m2}):
+        return retention.scenario_cost("tff", S.explore_kwargs(S.SCENARIOS[key].choice))["total"]
+
+
+def break_even_price(life_l_m2: float) -> float:
+    """The membrane price ($/m2) at which a membrane of this life adds the same cost per litre of permeate as the model's
+    defaults (price / life = $0.366 a litre). A shorter life raises Central's cost only if membranes stay dearer than this."""
+    return life_l_m2 * value("rt_membrane_price") / value("rt_membrane_life")
+
+
 def time_limited_life(flux_lmh: float, days: float | None = None) -> float:
     """Litres a membrane filters if it is replaced once a run: flux x hours. The default life is this at 5 L/m2/h and 33 days."""
     return flux_lmh * 24.0 * (value("pf_run_days") if days is None else days)
@@ -97,6 +110,12 @@ def summarise() -> None:
                 b, d = backtransport_lmh(pb, g, L), backtransport_lmh(pb, g, L, form="davis")
                 print(f"    {L:4.1f}  {g:9.0f}   {pb:5.2f}  {b:8.0f}  {d:6.0f}   {b / 5:5.0f}x")
     print(f"  shear at which 5 L/m2/h is the ceiling: {shear_for_flux(5.0, 0.12):.0f} to {shear_for_flux(5.0, 0.25, length=1.0):.0f} 1/s")
+    print("  Central, $/kg, by membrane life (rows, L/m2) and membrane price (columns, $/m2); what counts is price / life:")
+    prices = (1450.0, 550.0, 200.0, 50.0)
+    print("    life      " + "".join(f"{pr:>9.0f}" for pr in prices) + "   break-even price")
+    for life in (3960.0, 2000.0, 1500.0, 1000.0):
+        print(f"    {life:6.0f}    " + "".join(f"{cost_at_life_price('central', life, pr):9.2f}" for pr in prices)
+              + f"   ${break_even_price(life):.0f}")
     print("  cost per kg with the measured membrane throughput (flux, life):")
     for key in ("best", "central"):
         row = "; ".join(f"({f:g}, {l:g}) ${cost_at(key, f, l):.2f}" for f, l in

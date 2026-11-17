@@ -65,8 +65,8 @@ PLAIN = {
 
 # where the value comes from, in a few words; the input's own source tag otherwise
 EVIDENCE = {
-    "pf_nh3_limit": "Humbird's choice within 2–10 mmol/L reported for mammalian cells; none measured for meat cells",
-    "rt_membrane_life": "derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run",
+    "pf_nh3_limit": "Humbird's choice within 2–10 mmol/L reported for mammalian cells; unadapted meat-relevant cells lose 10–55% of growth at 2.5–5 mM, none measured at density",
+    "rt_membrane_life": "derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price",
     "pf_protectant_price": "assumed: only catalogue prices ($230–260/kg) found",
     "pf_min_perfusion": "judgement within CHO measurements",
     "plant_charge_mature": "derived from Humbird's financing, at a mature industry's rates",

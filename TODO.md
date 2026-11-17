@@ -14,6 +14,13 @@ Open pull requests (each says "no default changes" unless noted):
 - [ ] #29 The frontier: every lever at its limit, one at a time ($26.64 → $5.49).
 - [ ] #30 Filter flux: the flux is not the limit, the membrane's throughput is. **Decision inside:** move `rt_membrane_life`
       (3,960 L/m²) towards the measured 450–1,200? At 1,200 Central is $46.95.
+- [ ] #45 Ammonia and filter-life evidence (`research_notes/ammonia_tolerance_and_filter_life.md`; no default changed). **Decisions
+      inside:** (a) `rt_membrane_life` (3,960) is probably the generous end (median about 1,500; 20% that it is within 1.5x), but a
+      membrane adds price / life per litre, so moving life alone ($29.42 → $43.09 at 1,500) would pair a pessimistic life with
+      today's $1,450 a m². Move life and price together, or leave both. This replaces the framing of #30. (b) `pf_nh3_limit`
+      (5) stays: the evidence is spiked, unadapted cells and Central assumes selection (45% that 5 is within 1.5x).
+      (c) The bands draw life with mode 3,960 and price from $1,050–1,450, so both are one-sided; moving the modes (or drawing
+      price / life as one quantity) changes every band and share figure.
 - [ ] #31 Model audit: costs have only drifted up; Central's median over all ranges is $33. **Decisions inside:** show
       the spread beside each point; membrane life; first-plant or mature financing; a markup that is a share of price.
 
@@ -108,6 +115,19 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
       8.0%. The premium data start at 1.5×. Find data on labels sold at or near parity (cage-free eggs after retailer pledges, Dutch
       Beter Leven 1 star, Label Rouge promotions) to see which is closer.
 - [ ] **Show the premium-meat anchoring on the page**, or refit κ to the sixteen premium products? Open; nothing changed so far.
+
+Bench measurements that would settle the two biggest inputs (from #45; each is cheaper than a pilot tank, and no meat-cell data exists):
+
+- [ ] **Ammonia at density:** the real cell line in a 1–2 L perfusion at 10–20% cells by volume, serum-free, ammonium held at
+      2, 3, 4, 5 and 7 mM for 10 days each, pH fixed; repeat 4 and 7 mM on cells raised slowly to that level. The answer is the
+      highest level that keeps growth within 10%. My guess: $15–40k, two to three months.
+- [ ] **Filter life with meat cells:** 0.025 m² hollow fibres (0.2 µm and one wide-pore) on a meat-cell perfusion at 15–20% cells
+      by volume, at 2.5 and 5 L/m²/h, with the model's antifoam and protectant doses and one daily backflushed module; record
+      pressure and sieving against litres per m² and against days. My guess: $20–50k, six weeks.
+- [ ] **Life and price of a cheaper membrane class together:** prices are already bracketed ($3–14 a m² dialyser fibre to $1,450
+      pharma, `retention_alternatives.md`); what is missing is how long the cheap classes (dialyser, wide-pore, ceramic) last in
+      a thick animal-cell culture. A quote alone cannot settle it, so the filter bench run above should include one of them.
+      Until then life and price stay as they are; nobody has offered a price (Pablo, 2026-11-16).
 
 Things only Pablo can do:
 

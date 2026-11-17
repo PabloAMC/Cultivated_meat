@@ -20,6 +20,13 @@ Cultivated meat anchored on premium real meats (`premium_curve.py`, `research_no
 
 ## 2026-11-16
 
+Page: where the cost goes (`page_scenarios.js`, `scPartsSVG`; no number moved)
+- Under the scenario result, a bar of the cost of a kilo of cells split into six parts (medium, growth factors, bubble protectant,
+  filter membranes, running the plant, the plant's capital charge), drawn in dollars so it shrinks as the switches lower the cost,
+  each part labelled in dollars and share where it fits. A bracket marks the four parts that scale with the litres of medium;
+  ticks mark parity and Central. A list gives each part's dollars, share and change against Central (against the best case when
+  Central is chosen). Colours follow the repo's figures and pass a colour-blind check.
+
 Wider bands, and a flaw in the demand model fixed (**headline bands move; no point cost moves**)
 - **Bands** (`scenarios.MC_ESTIMATES`, switch `sc_wide_bands`): the scenarios' cost bands now also draw the estimates the cost rests on
   most, each from its own prior: the ammonia the cells tolerate, the protectant's price and dose, the least medium flow, antifoam's cost
