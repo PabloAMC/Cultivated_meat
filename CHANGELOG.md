@@ -2,11 +2,15 @@
 
 ## 2026-11-17
 
-Pasitka 2024: the mass-basis finding corrected (METHODS and comments only; no number moved)
-- METHODS said the paper's wet biomass is "mostly liquid", 18 times wetter than cells. Re-reading the article text (2026-11-17) shows its
-  own figures for the mass of a cell disagree: 0.55 ng (10 μm, Extended Data Fig. 4b), 3.3 ng (130 × 10⁶ cells per ml = 43% w/v) and
-  9.8 ng (1.7 kg from 173 × 10⁹ cells). So the biomass holds 3 to 18 times more liquid than cells, not 18, and the paper does not say which.
-  A bound that does not depend on cell size (81 g of amino acids per kg of biomass) gives at least 2.5.
+Pasitka 2024: the mass-basis finding worked through (METHODS and comments only; no number moved)
+- The paper's own figures for the mass of a cell disagree: 0.55 ng (10 μm, Extended Data Fig. 4b), 3.3 ng (130 × 10⁶ cells per ml =
+  43% w/v) and 9.8 ng (1.7 kg from 173 × 10⁹ cells). Worked through from its figures, the most likely explanation (about 70%) is that the
+  cells are 10 μm as reported and both mass figures are counts times a fixed cells-per-gram factor, not weights of cells: the
+  micrographs show 9–11 μm cells against their scale bar; the counts match density times harvested volume; 1.7 kg cannot be a pellet from
+  about 8 L of culture holding 90 mL of cells; the 2023 paper's "36% w/v" at 108 × 10⁶ has the same ratio as the 43%; and the glucose
+  burned could not build 1.7 kg of cells (it fits 0.3–0.65 kg for cells like the model's, the one piece that leans above 95 g). So about 95 g of cells in the 1.7 kg, as METHODS first said, now with the reasoning and the
+  odds. A bound that does not depend on cell size (81 g of amino acids per kg of biomass) gives at least 2.5.
+- Knock-on recorded in TODO: `sc_glc_measured` draws partly on the paper's per-kg-of-biomass glucose figure.
 - Dropped as evidence: Supplementary Table S5's two nutrient costs differing by exactly 100 (more likely a units artefact than "1% protein").
 - The decision to drop the paper as the anchor stands: its medium use and plant output scale from the same 10 ng, and even at 3 times
   too wet its $23–26 per kg of wet biomass is $70 or more per kg of cells before capital. The back-test row in METHODS now gives both

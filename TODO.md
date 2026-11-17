@@ -129,6 +129,11 @@ Bench measurements that would settle the two biggest inputs (from #45; each is c
       a thick animal-cell culture. A quote alone cannot settle it, so the filter bench run above should include one of them.
       Until then life and price stay as they are; nobody has offered a price (Pablo, 2026-11-16).
 
+- [ ] **Re-derive `sc_glc_measured`** (0.84 mol of glucose per kg of meat cells): it draws partly on Pasitka's "145 g glucose per kg of
+      wet biomass", which is per kilo of a biomass about 18 times the cells' mass (METHODS, "Why Pasitka is not the anchor"). Per kilo of
+      real cells that run used about 15 mol of glucose and made about 15 mol of lactate and 2.6 mol of ammonia, far above the model's
+      "ordinary meat cells". Check what Hubalek 2023 alone supports, and what that does to rung 1.
+
 Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
