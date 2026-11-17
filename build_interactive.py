@@ -1632,7 +1632,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       account for only about half of its stated output. Humbird's independent design for efficient cells comes to
       about $25–46 per kilo in 2025 prices [2]. Every cost on this page is per kilo of real cells, which are about 70% water
       and 20% protein, like meat. An earlier version of this page used a peer-reviewed study [20]. Its kilo turned
-      out to be a wet pellet that is mostly liquid, so this page no longer uses it. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
+      out to be a wet pellet that holds several times more liquid than cells, so this page no longer uses it. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14). The charts of share by type of meat, share of all meat and which products first use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium costs {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. The plant adds ${{OH_DEF}},
       so cells cost ${{BIOMASS_TODAY}}/kg. The ${{MARKUP}} markup makes the shop price ${{RETAIL_TODAY}}/kg

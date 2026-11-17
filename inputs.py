@@ -75,7 +75,7 @@ class Input:
 # company reports for its own process ([SuperMeat] 2024, not peer reviewed). The floor comes from
 # physics and published plant costs (floor_physics.py: Humbird's long report for cell physics and
 # plant capital, pf-tea for built fermentation plants). Pasitka et al. 2024 is NOT an anchor: its
-# kilogram is a wet pellet that is mostly liquid and its cost leaves out capital (METHODS.md).
+# kilogram is a wet pellet that holds several times more liquid than cells and its cost leaves out capital (METHODS.md).
 # ----------------------------------------------------------------------------
 REGISTRY: dict[str, Input] = {
 
@@ -104,7 +104,7 @@ REGISTRY: dict[str, Input] = {
     # --- Rung 2: cost model ----------------------------------------------------
     # ALL COSTS ARE PER KG OF REAL WET CELLS (about 70% water, 20% protein: comparable with meat).
     # RE-ANCHORED 2026-11-14. The default used to be Pasitka et al. 2024. That paper's kilogram is a wet
-    # pellet that is mostly liquid and its cost leaves out capital (METHODS.md, "Why Pasitka is not the
+    # pellet that holds several times more liquid than cells and its cost leaves out capital (METHODS.md, "Why Pasitka is not the
     # anchor"), so it is no longer used. The default is now what a company reports for its own process
     # (SuperMeat 2024: 100% cell mass, cell wet weight 1.0-1.75 ng, 10 L runs scaled on paper to 25 m3);
     # the floor comes from physics (floor_physics.py). [SuperMeat] = "Cultivating the Future: A Deep Dive

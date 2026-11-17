@@ -2,6 +2,16 @@
 
 ## 2026-11-17
 
+Pasitka 2024: the mass-basis finding corrected (METHODS and comments only; no number moved)
+- METHODS said the paper's wet biomass is "mostly liquid", 18 times wetter than cells. Re-reading the article text (2026-11-17) shows its
+  own figures for the mass of a cell disagree: 0.55 ng (10 μm, Extended Data Fig. 4b), 3.3 ng (130 × 10⁶ cells per ml = 43% w/v) and
+  9.8 ng (1.7 kg from 173 × 10⁹ cells). So the biomass holds 3 to 18 times more liquid than cells, not 18, and the paper does not say which.
+  A bound that does not depend on cell size (81 g of amino acids per kg of biomass) gives at least 2.5.
+- Dropped as evidence: Supplementary Table S5's two nutrient costs differing by exactly 100 (more likely a units artefact than "1% protein").
+- The decision to drop the paper as the anchor stands: its medium use and plant output scale from the same 10 ng, and even at 3 times
+  too wet its $23–26 per kg of wet biomass is $70 or more per kg of cells before capital. The back-test row in METHODS now gives both
+  readings (density 72 or 240 g/L against 430 claimed).
+
 Cultivated meat anchored on premium real meats (`premium_curve.py`, `research_notes/premium_curve.md`; **no default changed**)
 - Pablo's idea: premium real meats are "real meat plus a virtue, at a premium"; fit the curve they trace and place cultivated meat on it,
   corrected for what differs (no killing, novelty, unnatural).
