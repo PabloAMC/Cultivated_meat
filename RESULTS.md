@@ -519,8 +519,20 @@ the model over-predicted these about sixfold. The best fit is κ = 10; the one c
 meat (Lusk 2020) allows up to about 8.8. The default is now 8.5: the typical miss is a factor of 2.6. To make
 this possible κ was changed to act only on cultivated's price difference from the conventional meat beside it,
 so it moves nothing at equal price and leaves the rest of the calibration as published. What remains wrong: the
-model still over-predicts at small premiums and under-predicts at large ones. Real premium buyers look like a
-small group that pays whatever the premium, which one number cannot capture.
+model still over-predicts at small premiums and under-predicts at large ones. These six alone looked like a small
+group paying whatever the premium; ten more products up to 3.6× (below) show share does fall with the premium, only
+far more slowly than the model's curve.
+
+**Anchored on premium real meats** (`premium_curve.py`, `research_notes/premium_curve.md`). Ten more premium products, up to
+3.6× the price (pasture-raised eggs, organic and Label Rouge chicken in France, Britain, Denmark and Switzerland), show share falling
+as the premium rises: US eggs from 8.6% at 2.0× to 0.3% at 3.2×; French chicken from 13% at 1.8× to 1% at 2.7×. It falls far more
+slowly than the model's curve, which misses the sixteen products by a typical factor of about 6; a curve fitted to them misses by about
+2.4, with shoppers about a quarter as price-sensitive. Placing cultivated meat on that curve, corrected for what differs from a welfare
+label (no killing +5% of meat's price, novelty −30% with half of it fading, unnatural −20%; hypothetical studies), gives Central
+**0.40%** of world meat in the long run (0.18–0.63%), against the model's
+0.41%: the two agree at Central's price. Near price parity they do not: the best case gets
+2.5% (1.2–3.9%) against 8.0%, because the premium
+data start at 1.5× and limited distribution holds premium labels down.
 
 ## 3. By type of meat (US)
 

@@ -111,6 +111,11 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,
       "harvest"); no scenario moved, the airlift in perfusion went from $14.78 to $15.07.
 
+- [ ] **Demand near price parity** (`premium_curve.md`): anchored on premium real meats the best case takes 2.5%, against the model's
+      8.0%. The premium data start at 1.5×. Find data on labels sold at or near parity (cage-free eggs after retailer pledges, Dutch
+      Beter Leven 1 star, Label Rouge promotions) to see which is closer.
+- [ ] **Show the premium-meat anchoring on the page**, or refit κ to the sixteen premium products? Open; nothing changed so far.
+
 Bench measurements that would settle the two biggest inputs (from #45; each is cheaper than a pilot tank, and no meat-cell data exists):
 
 - [ ] **Ammonia at density:** the real cell line in a 1–2 L perfusion at 10–20% cells by volume, serum-free, ammonium held at
