@@ -257,7 +257,7 @@ def _softmax(V):
 
 def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
                tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-               p_ref=None, return_components=False, ratio_scale=1.0, kappa=None):
+               p_ref=None, return_components=False, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0):
     """Utility vector V over the four products in segment `seg` in {'M','E'}.
 
     EVERY product goes through the SAME linear-in-attributes rule and the same
@@ -305,7 +305,8 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     # --- the product x attribute TABLE (rows = products w, c, p, x) ----------
     price_ratio    = np.array([pr.price_wf_mult, 1.0, pr.price_pb_mult, R])
     taste          = np.array([pr.taste_quality_w, 0.0, pr.taste_quality_p, accept_x - 1.0])  # 0 = parity
-    slaughter_free = np.array([1.0, 0.0, 1.0, 1.0])
+    slaughter_free = np.array([1.0, 0.0, 1.0, slaughter_free_x])   # x: 1 for cultivated; 0 for a premium real meat
+                                                                    # (organic, free-range) in premium_curve.py
     # real_tissue: whole-food 0, conventional 1 (reference), plant-based & cultivated are DIALS
     # (default p=0, x=1 — the identifying asymmetry, now adjustable for equal-footing what-ifs).
     real_tissue    = np.array([0.0, 1.0, pr.real_tissue_p, pr.real_tissue_x])
@@ -406,13 +407,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-             cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None) -> dict:
+             cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
     drops x from the choice set."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
-                   p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa)
+                   p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa, slaughter_free_x=slaughter_free_x)
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -491,7 +492,7 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
-          kappa=None) -> float:
+          kappa=None, slaughter_free_x=1.0) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
@@ -511,6 +512,8 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                        never re-pin the calibration.
       eps_own       -> sweeps the price coefficient beta.
       kappa         -> overrides cult_sub_mult for this call (a Monte-Carlo draw of closeness).
+      slaughter_free_x -> 1 (default): x is slaughter-free, as cultivated meat is. 0: x is a premium
+                       real meat (organic, free-range), which is not (premium_curve.py).
       income        -> region income ($/yr) for the BLP price term (default income_ref
                        => unchanged from the US-anchored calibration). Richer = less
                        price-sensitive. Used by meat_market for the regional roll-up.
@@ -533,10 +536,12 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
 
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
+                 slaughter_free_x=slaughter_free_x)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa)
+                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
+                 slaughter_free_x=slaughter_free_x)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])

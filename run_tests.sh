@@ -64,6 +64,9 @@ python tests/test_industry_claims.py
 echo "==> the tank design search"
 python tests/test_design_space.py
 
+echo "==> cultivated meat anchored on premium real meats"
+python tests/test_premium_curve.py
+
 echo "==> what the answer rests on"
 python tests/test_answer_rests_on.py
 

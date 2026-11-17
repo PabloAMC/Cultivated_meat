@@ -1,5 +1,23 @@
 # Change log
 
+## 2026-11-17
+
+Cultivated meat anchored on premium real meats (`premium_curve.py`, `research_notes/premium_curve.md`; **no default changed**)
+- Pablo's idea: premium real meats are "real meat plus a virtue, at a premium"; fit the curve they trace and place cultivated meat on it,
+  corrected for what differs (no killing, novelty, unnatural).
+- Data: ten more premium/share pairs up to 3.6× (`research_notes/high_premium_analogues_data.md`: US eggs by label, organic and
+  Label Rouge chicken in France, Britain, Denmark and Switzerland, Austrian organic eggs, Ibérico as a sensitivity). Share falls with
+  the premium in every within-source comparison, but far more slowly than the model's curve, which misses the sixteen products by a
+  factor of about 6; a fitted curve (shoppers a quarter as price-sensitive, held to the measured at-parity elasticity) misses by 2.4.
+  No sign of a loyal niche paying whatever the premium.
+- Corrections (`research_notes/cultivated_vs_welfare_meat_evidence.md`, hypothetical studies): no killing +5% of meat's price, novelty
+  −30% (half fades), unnatural −20% (likely persists).
+- Result: Central 0.40% of world meat in the long run (0.18–0.63%) against the model's 0.41%, an independent check that passes. The best
+  case 2.5% (1.2–3.9%) against 8.0%: near parity the two disagree, and the premium data do not reach there.
+- `market_share.share(..., slaughter_free_x=1.0)`: an optional switch so a product can be real meat without counting as slaughter-free;
+  the default is unchanged. `tests/test_premium_curve.py`, in `run_tests.sh`. RESULTS has a paragraph, and its old line about a
+  small group paying whatever the premium is corrected.
+
 ## 2026-11-16
 
 Wider bands, and a flaw in the demand model fixed (**headline bands move; no point cost moves**)
