@@ -220,6 +220,61 @@ function scGridHTML(ch,a,b){
 }
 function scPickTwo(a,i,b,j){ SCS.choice[a]=i; SCS.choice[b]=j; SCS.src="scenario"; SCS.preset=scPresetOf(SCS.choice); scCommit(); }
 function scGridSet(){ scPair=[document.getElementById("sc_ga").value,document.getElementById("sc_gb").value]; scRender(); }
+// Where the cost goes: the six parts of a kilo's cost for the chosen switches, on a dollar axis shared with Central, so the
+// whole bar shrinks or grows as the switches move. The first four parts scale with the litres of medium. Colours follow the
+// part, never its rank, and match the repo's figures (floor_physics.fig_floor_tiers); validated for colour-blind separation.
+const SC_PARTS=[
+  {key:"medium", name:"Medium (the nutrients)", col:"#029E73", litres:true, get:r=>r.feedstock},
+  {key:"gf", name:"Growth factors", col:"#DE8F05", litres:true, get:r=>r.growth_factors},
+  {key:"protect", name:"Bubble protectant", col:"#CC78BC", litres:true, get:r=>r.protectant},
+  {key:"membranes", name:"Filter membranes", col:"#D55E00", litres:true, get:r=>r.membranes},
+  {key:"running", name:"Running the plant (staff, power, other supplies)", col:"#56B4E9", litres:false,
+   get:r=>r.labour+r.utilities+(r.consumables-r.membranes-r.protectant)+r.extra_opex},
+  {key:"plant", name:"The plant (yearly charge on its capital)", col:"#0173B2", litres:false, get:r=>r.capital}];
+function scPartsSVG(r, ref, refName){
+  const W=720, x0=16, x1=W-16, by=78, bh=22, rowH=21, ly=by+bh+62;
+  const parts=SC_PARTS.map(p=>({p, v:Math.max(0,p.get(r)), vr:ref?Math.max(0,p.get(ref)):null}));
+  const total=parts.reduce((s,q)=>s+q.v,0), litres=parts.filter(q=>q.p.litres).reduce((s,q)=>s+q.v,0);
+  const par=C.p_conv_anchor*state.meat_tax-state.markup_add;
+  const top=Math.max(total, ref?ref.total:0, par)*1.08, step=top>60?20:top>25?10:5, xmax=Math.ceil(top/step)*step;
+  const X=v=>x0+(x1-x0)*v/xmax, f2=v=>"$"+v.toFixed(2), f1=v=>"$"+v.toFixed(1);
+  const H=ly+parts.length*rowH+8;
+  let g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;min-width:520px" role="img" aria-label="Where the cost of a kilo of cells goes">';
+  g+='<text x="'+x0+'" y="16" font-size="13" font-weight="700" style="fill:var(--ink)">Where the cost goes: '+f1(total)+' a kilo of cells</text>';
+  g+='<text x="'+x0+'" y="33" font-size="10.5" style="fill:var(--muted)">'+(total>0?Math.round(litres/total*100):0)+'% of it scales with the litres of medium ('+r.medium_l.toFixed(0)+
+     ' L a kilo): the first four parts.</text>'+
+     '<text x="'+x0+'" y="47" font-size="10.5" style="fill:var(--muted)">The bar is drawn in dollars, so it shrinks as the cost falls. Hover over a part for its value.</text>';
+  const marksAt=[par].concat(ref&&Math.abs(ref.total-total)>0.005?[ref.total]:[]);
+  for(let t=0;t<=xmax+1e-9;t+=step){ if(marksAt.some(m=>Math.abs(X(m)-X(t))<16)) { g+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="'+(by-6)+'" y2="'+(by+bh+6)+'" stroke="#eee"/>'; continue; } g+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="'+(by-6)+'" y2="'+(by+bh+6)+'" stroke="#eee"/>'+
+     '<text x="'+X(t)+'" y="'+(by+bh+18)+'" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">$'+t+'</text>'; }
+  let acc=0;
+  parts.forEach(q=>{ if(q.v<=0) return; const a=X(acc), b=X(acc+q.v); acc+=q.v;
+    g+='<rect x="'+a.toFixed(1)+'" y="'+by+'" width="'+Math.max(0.5,b-a-2).toFixed(1)+'" height="'+bh+'" rx="3" fill="'+q.p.col+'"><title>'+
+       q.p.name+': '+f2(q.v)+' a kilo ('+(q.v/total*100).toFixed(0)+'%)</title></rect>';
+    const pct=Math.round(q.v/total*100)+'%', both=f1(q.v)+' \u00b7 '+pct;      // dollars and share where the part has room
+    const lab=b-a>8+both.length*6.2?both:(b-a>8+pct.length*6.2?pct:'');
+    if(lab) g+='<text x="'+(a+5).toFixed(1)+'" y="'+(by+15)+'" font-size="10" fill="#fff" font-weight="700" pointer-events="none">'+lab+'</text>'; });
+  // the bracket over the litre-driven parts
+  if(litres>0){ const a=X(0), b=X(litres)-2; g+='<path d="M'+a+' '+(by-4)+' V'+(by-9)+' H'+b+' V'+(by-4)+'" fill="none" stroke="#999"/>'+
+     '<text x="'+((a+b)/2).toFixed(1)+'" y="'+(by-12)+'" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">scales with litres: '+f1(litres)+'</text>'; }
+  // reference marks: parity, and the named scenario to compare with
+  const mark=(v,lab,dash)=>'<line x1="'+X(v)+'" x2="'+X(v)+'" y1="'+(by+bh+2)+'" y2="'+(by+bh+24)+'" stroke="#333" stroke-dasharray="'+dash+'"/>'+
+     '<text x="'+(X(v)+3)+'" y="'+(by+bh+30)+'" font-size="9.5" style="fill:#333">'+lab+'</text>';
+  g+=mark(par,"parity "+f1(par),"2 2");
+  if(ref&&Math.abs(ref.total-total)>0.005&&Math.abs(X(ref.total)-X(par))>70) g+=mark(ref.total,refName+" "+f1(ref.total),"5 3");
+  // the list: one row per part, with what it costs and its share; the change against the reference when there is one
+  const showRef=ref&&Math.abs(ref.total-total)>0.005;
+  g+='<text x="'+(x0+560)+'" y="'+(ly-17)+'" font-size="9.5" text-anchor="end" style="fill:var(--muted)">$ a kilo</text>'+
+     '<text x="'+(x0+620)+'" y="'+(ly-17)+'" font-size="9.5" text-anchor="end" style="fill:var(--muted)">share</text>'+
+     (showRef?'<text x="'+x1+'" y="'+(ly-17)+'" font-size="9.5" text-anchor="end" style="fill:var(--muted)">vs '+refName+'</text>':'');
+  parts.forEach((q,i)=>{ const y=ly+i*rowH, d=showRef?q.v-q.vr:0;
+    g+='<rect x="'+x0+'" y="'+(y-9)+'" width="10" height="10" rx="2" fill="'+q.p.col+'"/>'+
+       '<text x="'+(x0+16)+'" y="'+y+'" font-size="11" style="fill:var(--ink)">'+q.p.name+'</text>'+
+       '<text x="'+(x0+560)+'" y="'+y+'" font-size="11" text-anchor="end" style="fill:var(--ink)">'+f2(q.v)+'</text>'+
+       '<text x="'+(x0+620)+'" y="'+y+'" font-size="11" text-anchor="end" style="fill:var(--muted)">'+(total>0?(q.v/total*100).toFixed(0):0)+'%</text>'+
+       (showRef?'<text x="'+x1+'" y="'+y+'" font-size="11" text-anchor="end" style="fill:var(--muted)">'+(Math.abs(d)<0.005?"same":(d>0?"+":"−")+f2(Math.abs(d)).slice(0))+'</text>':''); });
+  return g+'</svg>';
+}
 function scRender(){
   const host=document.getElementById("sc_result"); if(!host||!KP) return;
   const ch=SCS.choice, r=scEval(ch);
@@ -227,6 +282,8 @@ function scRender(){
     const n=document.getElementById("sc_note_"+k); if(n) n.innerHTML=scTagChip(scSetting(k,ch[k]).tag)+' '+scSetting(k,ch[k]).note; });
   SC.order.concat(["reported"]).forEach(k=>{ const b=document.getElementById("sc_pre_"+k); if(b) b.classList.toggle("on",k==="reported"?SCS.src==="reported":(SCS.src==="scenario"&&SCS.preset===k)); });
   host.innerHTML=scResultHTML(ch,r);
+  const ph=document.getElementById("sc_parts");      // where the cost goes, against Central (or the best case when Central is chosen)
+  if(ph){ const refKey=SCS.preset==="central"?"best":"central"; ph.innerHTML=scPartsSVG(r,scEval(SC.presets[refKey].choice),refKey==="central"?"Central":"the best case"); }
   const ownName=document.getElementById("sc_ownname");
   if(ownName) ownName.textContent=scOwnName();
   const pri=scPriorities(ch,true), tor=document.getElementById("sc_tornado");
