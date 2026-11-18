@@ -70,6 +70,9 @@ python tests/test_premium_curve.py
 echo "==> cultivated meat competing with welfare labels for premium buyers"
 python tests/test_premium_buyers.py
 
+echo "==> cost falling with market size, solved with the share"
+python tests/test_market_size_loop.py
+
 echo "==> what the answer rests on"
 python tests/test_answer_rests_on.py
 
