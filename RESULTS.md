@@ -102,7 +102,7 @@ steeply as the price falls, so the share at the point cost is higher than the me
   but those markets are tiny.
 - **When:** these are long-run ceilings. Adoption reaches 90% of its long-run share after about 30 years.
 
-**What the answer rests on** (`answer_rests_on.py`). The model has 515 inputs, 237 of them with a range. Moving
+**What the answer rests on** (`answer_rests_on.py`). The model has 522 inputs, 244 of them with a range. Moving
 each across its range, one at a time, with each scenario's tank design held as it is: only 13 move Central's or the best
 case's cost by $1 or more, and 7 move Central by more than $3. The rest serve side studies or tank detail.
 
@@ -541,6 +541,16 @@ long-run share rises from 0.16% to 0.29% of world meat (0.51% if they value no k
 3.69% to 4.61% (5.88%). Cultivated meat takes 11% of its sales from the label in the model (16% at the high value), but that is the
 logit's proportional assumption; if premium buyers saw the two as close substitutes it could be about half, which lowers the welfare gain
 per tonne. Defaults unchanged.
+
+**Cost falling as the market grows** (`market_size_loop.py`, `research_notes/market_size_loop.md`). The membrane is priced at a pharma
+price ($1,450 a m²) and the plant at today's equipment prices. If a food-grade membrane supplier appears once demand passes a million m²
+a year ($250 a m², then 18% cheaper for each doubling, to $60) and the plant gets 10% cheaper for each doubling of installed tanks,
+cost and share solved together give Central $19.86 a kilo of cells and 0.45% of world meat (from $29.42 and 0.16%), and the best case
+$6.16 and 11.26% (from $9.66 and 3.69%): parity, by a route that needs no better cells than the best case assumes. The loop
+starts in premium products: at Central's cost 99% of sales are sushi-grade seafood and prime beef, and that volume alone crosses the
+membrane switch, after which cultivated meat undercuts prime beef. Today's cells sell fifty times too little to start it. With slow
+learning Central has two resting points (0.16% and 0.33%), a coordination gap. The switch is a judgement (about 60%), and the size of the
+premium markets is assumed. Defaults unchanged.
 
 ## 3. By type of meat (US)
 

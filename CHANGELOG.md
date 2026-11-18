@@ -2,6 +2,17 @@
 
 ## 2026-11-18
 
+Cost falling as the market grows, solved with the share (`market_size_loop.py`, `research_notes/market_size_loop.md`; **no default
+changed**)
+- Pablo's idea: membranes and reactors get cheaper with market size, and the loop starts in premium products that cultivated meat
+  comes to undercut. The membrane ($1,450 a m², a pharma price) switches to a food-grade supplier at $250 once demand passes a million
+  m² a year, then falls 18% a doubling to $60; the plant falls 10% for each doubling of installed animal-cell tanks, to a microbial
+  plant with what animal cells need. Seven new inputs (`ms_*`), used only here.
+- Resting points: Central $19.86 and 0.45% of world meat (from $29.42, 0.16%); the best case $6.16 and 11.26% (from $9.66,
+  3.69%), which is parity. Today's cells are stuck. Without a food-grade membrane supplier little moves.
+- At Central's cost 99% of sales are premium products (sushi-grade seafood, prime beef); their volume alone crosses the membrane
+  switch in the central case, not with slow learning, where Central has two resting points.
+
 Cultivated meat as an even more premium meat, competing with welfare labels (`premium_buyers.py`, `research_notes/premium_buyers.md`;
 **no default changed**)
 - Pablo's idea: shoppers may see cultivated meat as a step above organic or free-range, but it then competes with those labels for the
