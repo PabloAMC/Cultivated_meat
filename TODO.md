@@ -10,11 +10,13 @@ Last updated 2026-11-16.
 
 Open pull requests (each says "no default changes" unless noted):
 
-- [ ] **Recalibrate the response to price** (2026-11-18, `research_notes/demand_checks.md`). Three measurements say the model is two to
-      four times too price-sensitive; the curve fitted to the sixteen premium meats (slope and level), with cultivated meat's
-      corrections, is the only one that passes all four checks. **Decisions inside:** the level at equal price (49% in the model, 7%
-      for premium labels; how much of the gap is limited distribution); whether plant-based meat's elasticity (-1.23) becomes a
-      calibration target; the split between the dollar and the ratio price terms. The page's shopper model must follow.
+- [x] ~~Recalibrate the response to price~~ (done 2026-11-18: the shopper model has premium buyers,
+      `research_notes/demand_recalibration.md`).
+- [ ] **Plant-based meat's own-price elasticity** is -2.85 in the model against a measured -1.23 (`research_notes/demand_checks.md`).
+      Read the GFI source; then decide whether it becomes a calibration target. It needs the split between the dollar and the ratio
+      price terms re-solved, which moves every calibrated weight.
+- [ ] Premium buyers are assumed to treat every meat alike; the sixteen products behind them are chicken, eggs, milk and organic meat
+      as a whole. Find premium/share pairs for beef and pork.
 - [ ] Adoption over time has first purchase but no repeat or drop-out: plant-based meat's household penetration fell from 20% to 11%
       (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
 - [ ] The market tables of China, Brazil, India and Nigeria have unsourced premium rows (`premium_market_sizes.md`); the Global table

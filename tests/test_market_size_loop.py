@@ -39,22 +39,22 @@ def check() -> list:
                 if abs(r["share"] - 100.0 * r["volume_mt"] / value("ms_world_meat")) > 1e-3:
                     fails.append(f"{k}, {case}, from {start}: the resting point's cost does not buy the share its volume is")
         lo, hi = s["solved"][(k, "central", "below")], s["solved"][(k, "central", "above")]
-        if k != "central" and abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6:
+        if abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6:
             fails.append(f"{k}: two resting points in the central case now; the note says there is one")
         if k != "today" and not lo["share"] > s["model_share"][k]:
             fails.append(f"{k}: learning no longer raises the share; rewrite the note")
         c = s["comp"][(k, "resting point")]
         if abs(c["total"] - lo["volume_mt"]) > 1e-3 * lo["volume_mt"] + 1e-6:
             fails.append(f"{k}: the volumes by tier do not add to the resting point's volume")
-    # the trap: Central rests at two points in the central case, because its premium products alone do not reach the membrane switch
-    lo, hi = s["solved"][("central", "central", "below")], s["solved"][("central", "central", "above")]
-    if not (hi["volume_mt"] > 1.5 * lo["volume_mt"] and not s["start"][("central", "central")]["crosses"]):
-        fails.append("Central no longer has two resting points in the central case; rewrite the note's section on the trap")
-    if not (s["start"][("best", "central")]["crosses"] and not s["start"][("today", "central")]["crosses"]
-            and s["start"][("central", "fast learning")]["crosses"]):
+    # Central's premium products alone do not reach the membrane switch, but its whole sales do (premium buyers of ordinary cuts)
+    st = s["start"][("central", "central")]
+    whole = s["base"]["central"]["area_per_kg"] * s["model_share"]["central"] / 100.0 * value("ms_world_meat") * 1e9
+    if not (not st["crosses"] and whole > st["switch_m2"]):
+        fails.append("Central's premium products alone, or its whole sales, now stand differently against the membrane switch; rewrite the note")
+    if not (s["start"][("best", "central")]["crosses"] and not s["start"][("today", "central")]["crosses"]):
         fails.append("which scenarios' premium products cross the membrane switch has changed; rewrite the note")
-    if not s["comp"][("central", "no learning")]["premium_of_sales"] > 0.9:
-        fails.append("premium products are no longer nearly all of Central's sales; rewrite the note")
+    if not 0.1 < s["comp"][("central", "no learning")]["premium_of_sales"] < 0.5:
+        fails.append("premium products' part of Central's sales has left 10-50%; rewrite the note")
     resp = s["response"]["products"]
     if not all(v["response"] > L.HISTORY_ALONG_CURVE[1] for v in resp.values()):
         fails.append("a premium product now responds to price no more strongly than history along the demand curve; rewrite the note")
@@ -78,10 +78,9 @@ def check() -> list:
         for line in "\n".join(tables).splitlines():
             if line.strip() and line not in text:
                 fails.append(f"{name} does not carry: {line[:90]}")
-        up = sv[("central", "central", "above")]
         for q in (quoted if name.startswith("research") else
-                  [f"${sv[('central', 'central', 'below')]['cost']:.2f}", f"${up['cost']:.2f}", f"{up['share']:.2f}%",
-                   f"${sv[('best', 'central', 'below')]['cost']:.2f}", f"{sv[('best', 'central', 'below')]['share']:.2f}%"]):
+                  [f"${sv[(k, 'central', 'below')]['cost']:.2f}" for k in ("central", "best")] +
+                  [f"{sv[(k, 'central', 'below')]['share']:.2f}%" for k in ("central", "best")]):
             if q not in text:
                 fails.append(f"{name} does not quote {q}")
     return fails

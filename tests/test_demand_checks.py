@@ -25,26 +25,25 @@ def check() -> list:
         fails.append("plant-based meat's elasticity in the model is no longer well above the measured one; rewrite the note")
     if abs(s["pb"]["share"] - 1.2) > 0.01:
         fails.append("plant-based meat's share in the check is not the calibrated 1.2%")
-    if not D.LUSK[0] <= s["cold"] <= D.LUSK[1]:
-        fails.append("the model's first-contact elasticity at equal price is outside the experiment's range")
-    if not s["kappa"] > 2.0 * s["kappa_fit"]:
-        fails.append("the model's price sensitivity is no longer over twice the premium meats' fit; rewrite the note")
     v = s["variants"]
+    i3 = D.R_GRID.index(3.0)
+    if not (0.5 * s["premium_3x"] < v[0]["curve"][i3] < 2.0 * s["premium_3x"] and v[1]["curve"][i3] < 0.2 * s["premium_3x"]):
+        fails.append("at 3 times the price the model should be near the premium meats and the model before far below; rewrite the note")
+    if not all(D.LUSK[0] <= r["cold"] <= D.LUSK[1] for r in v):
+        fails.append("a price response falls outside the experiment's range at first contact; the note says all are inside")
     for k in D.SCEN:
         if abs(v[0]["world"][k] - s["model_world"][k]) > 1e-9:
             fails.append(f"{k}: the first variant is not the model's own share")
-    if not v[0]["world"]["central"] < v[3]["world"]["central"] < v[1]["world"]["central"] < v[2]["world"]["central"]:
+    if not v[1]["world"]["central"] < v[4]["world"]["central"] < v[0]["world"]["central"] < v[2]["world"]["central"] < v[3]["world"]["central"]:
         fails.append("the order of Central's share across the price responses has changed; rewrite the note")
-    if not v[3]["world"]["best"] < v[0]["world"]["best"]:
-        fails.append("the premium-meat curve no longer gives the best case less than the model; rewrite the note")
-    if not all(D.LUSK[0] <= r["cold"] <= D.LUSK[1] for r in v[1:]):
-        fails.append("a weaker price response falls outside the experiment's range at first contact; the note says they are inside")
+    if not v[4]["world"]["best"] < v[1]["world"]["best"] < v[0]["world"]["best"]:
+        fails.append("the order of the best case's share across the price responses has changed; rewrite the note")
     u = [L.underused(S.SCENARIOS["central"].choice, x)["cost"] for x in L.UTILISATION]
     if u != sorted(u) or abs(u[0] - S.run(S.SCENARIOS["central"].choice)["total"]) > 1e-9:
         fails.append("the cost of an under-used plant should rise as less is sold, from the scenario's own cost")
 
-    quoted = [f"{s['pb']['elasticity']:.2f}", f"{S.pct_num(v[0]['world']['central'])}% to {S.pct_num(v[2]['world']['central'])}%",
-              f"{S.pct_num(v[3]['world']['central'])}%", f"{S.pct_num(v[3]['world']['best'])}%"]
+    quoted = [f"{s['pb']['elasticity']:.2f}", f"{S.pct_num(v[1]['world']['central'])}% to {S.pct_num(v[3]['world']['central'])}%",
+              f"{S.pct_num(v[0]['world']['central'])}%", f"{S.pct_num(v[0]['world']['best'])}%"]
     for name, tables in (("research_notes/demand_checks.md", [D.markdown_checks(), D.markdown_variants(), L.markdown_underused()]),
                          ("RESULTS.md", [D.markdown_checks()])):
         text = open(os.path.join(ROOT, name), encoding="utf-8").read()

@@ -270,14 +270,14 @@ headline table gives the share at its point cost and the median of draws; `bands
 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
-| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($54–91) | 7.58 | 0.00% | **0.00%** (0.00–0.01%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.04% | **0.01%** (0.00–0.08%) | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.04% | **0.02%** (0.00–0.1%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.06% | **0.03%** (0.00–0.1%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 3.1% | **0.5%** (0.07–2.9%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.08% | **0.03%** (0.00–0.2%) | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 1.1% | **0.3%** (0.05–1.6%) | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.03% | **0.02%** (0.00–0.09%) | a company's own report |
+| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($54–91) | 7.58 | 0.01% | **0.00%** (0.00–0.03%) | needs a change of feed, process or plant |
+| 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.2% | **0.04%** (0.01–0.2%) | needs a change of feed, process or plant |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.2% | **0.05%** (0.01–0.3%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.3% | **0.07%** (0.01–0.4%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 4.5% | **0.8%** (0.2–3.6%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.4% | **0.09%** (0.01–0.4%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 2.2% | **0.5%** (0.1–2.2%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.1% | **0.05%** (0.01–0.3%) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
@@ -1179,10 +1179,20 @@ animal products (`market_share.ANALOGUES`; `research_notes/premium_meat_analogue
 1.5–2.2 times the conventional price; the model's share for a product equal to conventional on everything but
 price misses them sixfold at κ = 4, by a factor of 2.6 at 8.5, and fits best at 10. So 8.5 is the best fit to
 the premium products that the experiment allows; the range is 4–11. Once shoppers are familiar the elasticity
-is about −1.7 at parity, −4.4 at R = 1.5 and −8.3 at the calibration price ($29/kg, R = 2.42). The fit is still
-loose: the six products' shares are nearly flat across premiums, as if a small group paid whatever the
-premium, and one number cannot reproduce that. A model with shoppers who differ in price sensitivity would;
-six data points do not identify it.
+is about −1.6 at parity, −3.7 at R = 1.5 and −3.4 at the calibration price ($29/kg, R = 2.42). Those figures include the
+premium buyers added on 2026-11-18; for the other shoppers alone they are −1.7, −4.4 and −8.3.
+
+**Premium buyers (2026-11-18; `research_notes/demand_recalibration.md`).** One number could not reproduce the premium products:
+their shares fall slowly with the premium, as if a small group cared little about it. With sixteen products (ten more, up to 3.6
+times the price) that group is identified in slope, though not in size. So the model now has two kinds of shopper for cultivated
+meat. Most (90%) are as above, with κ = 8.5. Premium buyers (10%, `premium_buyers_share`, from purchase data) treat it as one more
+premium meat: their price sensitivity (`premium_kappa`, 2.15) and their liking for a premium meat (`premium_liking`, +0.11 utils) are
+fitted to the sixteen products with the others held at κ = 8.5, and cultivated meat sells to them as if dearer by 0.30 of the
+ordinary meat's price (`image_price_shift`: lasting novelty 0.15, an "unnatural" image 0.20, less 0.05 for no killing over a welfare
+label). The share is the weighted sum. With no cultivated meat on the shelf the two kinds are the same, so β, the solved weights and
+every check on existing products are unchanged. The share at three times the price goes from 0.09% to 1.3% (premium meats: 1.5%);
+at equal price from 49% to 48%; the first-contact elasticity at parity from −3.27 to −3.06. What it does not fix: plant-based
+meat's own-price elasticity in the model is −2.85 against a measured −1.23 (`research_notes/demand_checks.md`).
 
 The anchor price `p_x` ($29.01, `elasticity_anchor_price`) is a calibration device, not a cost. What it pins
 down is how sharply shoppers respond to price, and the evidence for that is at equal price: with this anchor the
@@ -1322,8 +1332,8 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 4.20   80% CI [3.16, 5.48]   0% of draws at or below parity
-  long-run share:  P50 = 0.0%   80% CI [0.0, 0.1]
+  price ratio R:   P50 = 4.21   80% CI [3.16, 5.49]   0% of draws at or below parity
+  long-run share:  P50 = 0.2%   80% CI [0.0, 0.9]
 ```
 
 The median is close to the default 4.27. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,

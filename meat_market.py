@@ -386,7 +386,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dic
         return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
                                accept_x=s["accept_x"][i], tier_offset=toff[i],
                                eps_own=eps[i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
-                               neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
+                               neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i],
+                               image_shift=s["image_price_shift"][i])
                          for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"])

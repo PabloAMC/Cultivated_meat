@@ -50,7 +50,11 @@ PLAIN = {
     "pf_x_unperfused": "Density a tank reaches without perfusion",
     "pf_osm_limit": "Salt strength the cells tolerate (osmolality)",
     "neophobia_x": "How wary people are of a novel food, in the long run",
-    "cult_sub_mult": "How much more price-sensitive cultivated meat is than meat in general",
+    "cult_sub_mult": "How much more price-sensitive cultivated meat is than meat in general, for most shoppers",
+    "premium_buyers_share": "Share of shoppers who are premium buyers",
+    "premium_kappa": "How price-sensitive premium buyers are, against meat in general",
+    "premium_liking": "Premium buyers' liking for a premium meat at equal price",
+    "image_price_shift": "Cultivated meat's image handicap for premium buyers, as a price shift",
     "markup_add": "Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg",
     "retail_margin": "Retailer's gross margin, as a share of the shelf price",
     "eps_own": "Price elasticity of meat demand",
@@ -82,6 +86,10 @@ EVIDENCE = {
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
     "neophobia_x": "a judgement on long-run behaviour",
     "cult_sub_mult": "bracketed by data on close substitutes",
+    "premium_buyers_share": "household panels and surveys of organic buying",
+    "premium_kappa": "fitted to sixteen premium real meats",
+    "premium_liking": "fitted to sixteen premium real meats",
+    "image_price_shift": "stated-preference studies: sizes uncertain",
     "markup_add": "fitted to USDA ERS meat spreads, plus forming",
     "retail_margin": "US meat-department margins (28–32%) and French supermarket data",
     "eps_own": "scanner-data meta-analysis",
@@ -104,6 +112,9 @@ PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this in
 NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
              "pf_osm_limit": "no: moves the best case's median by about $0.1, at forty times the computing time",
              "loss_aversion": "no: each value re-solves the demand model's calibration",
+             "premium_buyers_share": "no: the premium buyers' liking and price sensitivity are fitted at this share",
+             "premium_kappa": "no: fitted with the share of premium buyers",
+             "premium_liking": "no: fitted with the share of premium buyers",
              "w_ratio": "no: each value re-solves the demand model's calibration",
              "income_gradient": "no: each value re-solves the demand model's calibration",
              "p_conv": "no: an observed price"}
@@ -113,7 +124,7 @@ EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch 
                               "($27.7 to $31.9 in Central) without changing any tank; it is left out."}
 
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
-_SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
+_SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "image_price_shift"}
 _PENETRATION_ARGS = {"markup_add", "retail_margin", "premium_resistance"}
 
 
@@ -130,7 +141,7 @@ def share_at(cost: float, region: str = "global", **over) -> float:
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
                      tier_offset=mm.tier_authenticity(mt, base, res, None), eps_own=eps * mm.tier_eps_mult(mt, base, res),
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
-                     kappa=over.get("cult_sub_mult"))
+                     kappa=over.get("cult_sub_mult"), image_shift=over.get("image_price_shift"))
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
     margin = over.get("retail_margin", value("retail_margin"))

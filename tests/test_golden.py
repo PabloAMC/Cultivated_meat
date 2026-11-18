@@ -99,6 +99,11 @@ GOLDEN = {
     # The demand calibration is unchanged (its anchor price is frozen).
     # 2026-11-18 (later): premium rows of the market tables sized from data (research_notes/premium_market_sizes.md):
     # US vol 0.233623 -> 0.132224, US val 0.80766 -> 0.458047, world vol 0.0914556 -> 0.0251659.
+    # 2026-11-18 (recalibration): two kinds of shopper for cultivated meat (10% premium buyers fitted to sixteen premium meats;
+    # research_notes/demand_recalibration.md). The calibration is unchanged (beta_ref, the solved weights, pb_share, milk).
+    # parity 48.7634 -> 48.3025, cold elasticity -3.26883 -> -3.05766, income_us 0.702045 -> 2.53319, income_china 0.155473 ->
+    # 1.41588, income_nigeria 0.00390188 -> 0.426329, health_x_half 59.578 -> 59.0395, US vol 0.132224 -> 0.454823,
+    # US val 0.458047 -> 0.936904, world vol 0.0251659 -> 0.124801.
     "basic_R":             4.26505,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
@@ -106,21 +111,21 @@ GOLDEN = {
     "w_health_M":          0.847148,
     "w_health_E":          1.81164,
     "pb_share_pct":        1.2000,
-    "parity_pct":          48.7634,    # calibration-anchored, invariant to the income re-architecture
+    "parity_pct":          48.3025,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
-    "lusk_elas_parity_cold": -3.26883,  # in Lusk's [-3.4, -0.84] (self-check [4b])
-    "income_us_pct":       0.702045,    # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    0.155473,    # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.00390188,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
-    "health_x_half_pct":   59.578,
+    "lusk_elas_parity_cold": -3.05766,  # in Lusk's [-3.4, -0.84] (self-check [4b])
+    "income_us_pct":       2.53319,    # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    1.41588,    # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.426329,    # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "health_x_half_pct":   59.0395,
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
-    "us_pen_vol_pct":      0.132224,
-    "us_pen_val_pct":      0.458047,
-    "world_pen_vol_pct":   0.0251659,
+    "us_pen_vol_pct":      0.454823,
+    "us_pen_val_pct":      0.936904,
+    "world_pen_vol_pct":   0.124801,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  30.0,      # was "~25" when measured as 90% of the year-30 value
 }
@@ -236,14 +241,14 @@ def check_derived_prose_numbers() -> list:
     # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
     derived = [
         ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
-        ("elasticity at R=1.0",          elas(1.0),  "−1.7"),
-        ("elasticity at R=1.5",          elas(1.5),  "−4.4"),
-        ("elasticity at R=2.42 (anchor)", elas(2.42), "−8.3"),
+        ("elasticity at R=1.0",          elas(1.0),  "−1.6"),
+        ("elasticity at R=1.5",          elas(1.5),  "−3.7"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.4"),
         ("reference cost $/kg",      cost_floor, "12.5"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.7",
-              "elasticity at R=1.5": "−4.4", "elasticity at R=2.42 (anchor)": "−8.3",
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.6",
+              "elasticity at R=1.5": "−3.7", "elasticity at R=2.42 (anchor)": "−3.4",
               "reference cost $/kg": "12.5"}
 
     fails = []

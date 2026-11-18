@@ -24,7 +24,7 @@ def check() -> list:
     pr = P.demand()
     p0 = {"kappa": pr.cult_sub_mult, "v": 0.0, "pi": 0.0, "v_l": 0.0, "kappa_l": 1.0}
     for R in (1.0, 2.0, 3.7):
-        if abs(B.shares(R, p0, R_L=None, tier_offset=0.3, p_ref=9.0)["x"] - M.share(R, pr, tier_offset=0.3, p_ref=9.0)) > 1e-12:
+        if abs(B.shares(R, p0, R_L=None, tier_offset=0.3, p_ref=9.0)["x"] - M.share(R, pr, tier_offset=0.3, p_ref=9.0, premium_share=0.0)) > 1e-12:
             fails.append(f"with no premium buyers and no label the share at R={R} is not the main model's")
     f = B.fit_at(B.PI_CENTRAL)["params"]
     for R in (1.5, 2.0, 3.0):
@@ -41,8 +41,9 @@ def check() -> list:
         shares = [s["grid"][(k, nk)]["share"] for nk in B.NO_KILLING_CASES]
         if shares != sorted(shares):
             fails.append(f"{k}: the share should rise with the value of no killing")
-        if not s["grid"][(k, 0.05)]["share"] > s["model"][k]:
-            fails.append(f"{k}: premium buyers no longer add to the main model's share; rewrite the note")
+        # since 2026-11-18 the model itself has premium buyers: it is this study's case with no label on the shelf
+        if abs(s["no_label"][k] - s["model"][k]) > 0.02 * s["model"][k]:
+            fails.append(f"{k}: the study with no label on the shelf is no longer the model's own share; rewrite the note")
     rms = [f["rms_log_error"] for f in s["fits"].values()]
     if max(rms) - min(rms) > 0.02:
         fails.append("the fits now tell the premium-buyer shares apart; the note says they do not")

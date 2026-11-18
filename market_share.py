@@ -168,6 +168,11 @@ class DemandParams:
     eps_own: float = value("eps_own")             # own-price elasticity of MEAT (scanner: -0.5..-1.4)
     cult_sub_mult: float = value("cult_sub_mult")  # x: cultivated more elastic (conventional ~ perfect substitute)
     kappa_base: float = value("kappa_base")        # the product-vs-category multiplier that sets the shared beta
+    # premium buyers (2026-11-18): a second kind of shopper for cultivated meat, fitted to sixteen premium real meats
+    premium_buyers_share: float = value("premium_buyers_share")   # share of shoppers who respond as premium-meat buyers do
+    premium_kappa: float = value("premium_kappa")                 # their price sensitivity (x meat's own elasticity)
+    premium_liking: float = value("premium_liking")               # their liking for a premium meat at equal price (utils)
+    image_price_shift: float = value("image_price_shift")         # to them cultivated meat sells as if this much dearer
     income_ref: float = value("income_ref")       # reference income ($/yr) for the BLP price term
     income_gradient: float = value("income_gradient")  # phi: how strongly price-sensitivity scales with income
 
@@ -492,9 +497,17 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
-          kappa=None, slaughter_free_x=1.0) -> float:
+          kappa=None, slaughter_free_x=1.0, premium_share=None, image_shift=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
+
+    TWO KINDS OF SHOPPER (2026-11-18). A share `premium_share` of shoppers (default pr.premium_buyers_share) are premium
+    buyers: to them the fourth product is a premium real meat, with their own price sensitivity (pr.premium_kappa), their liking
+    for a premium meat (pr.premium_liking), no slaughter-free credit of its own (its value is inside the shift) and a price
+    ratio dearer by pr.image_price_shift (novelty, an 'unnatural' image, less the value of no killing). The other shoppers are
+    the model as it was. The result is the weighted sum. premium_share=0 gives the one kind of shopper alone: the calibration
+    (_derive_beta), the checks on premium real meats and premium_curve / premium_buyers pass 0, so nothing in the calibration
+    moves. With no cultivated meat on the shelf the two kinds are the same.
 
     The override knobs map cleanly onto the four-product / two-segment model:
       accept_x      -> cultivated taste credit (taste_x = accept_x - 1)
@@ -534,17 +547,22 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     nbx = pr.neophobia_x if neophobia_x is None else neophobia_x   # cultivated novelty attitude
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 
-    M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x)
-    E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x)
     w = pr.w_eth
     key = "p" if which == "pb" else which
-    return float(w * E[key] + (1.0 - w) * M[key])
+
+    def kind(R_k, kappa_k, offset_k, sf_k) -> float:      # one kind of shopper: the two segments mixed
+        kw = dict(accept_x=ax, theta_free_M=tfM, tier_offset=offset_k, neophobia_x=nbx, neophobia_p=nbp, income=inc,
+                  health_x=health_x, health_p=health_p, cultivated_present=cultivated_present, p_ref=p_ref,
+                  ratio_scale=eps / pr.eps_own, kappa=kappa_k, slaughter_free_x=sf_k)
+        return w * _segment(R_k, pr, beta, "E", **kw)[key] + (1.0 - w) * _segment(R_k, pr, beta, "M", **kw)[key]
+
+    main = kind(R, kappa, tier_offset, slaughter_free_x)
+    pi = pr.premium_buyers_share if premium_share is None else premium_share
+    if pi <= 0.0 or not cultivated_present:
+        return float(main)
+    shift = pr.image_price_shift if image_shift is None else image_shift      # a Monte-Carlo draw of the image shift
+    premium = kind(max(R + shift, 0.05), pr.premium_kappa, tier_offset + pr.premium_liking, 0.0)
+    return float((1.0 - pi) * main + pi * premium)
 
 
 def _rate(pr: DemandParams, seg: str, which: str) -> float:
@@ -700,7 +718,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
         try:
             # at kappa_base, so that beta (and the whole calibration) does not depend on kappa
             s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, neophobia_p=0.0,
-                          kappa=pr.kappa_base)
+                          kappa=pr.kappa_base, premium_share=0.0)     # one kind of shopper: premium buyers do not move beta
         finally:
             pr.real_tissue_x = rtx
         if abs(s_new - s) < tol:
@@ -782,7 +800,7 @@ def analogue_check(pr: DemandParams) -> dict:
     every attribute except price, at each analogue's premium (neutral dials, the reference price).
     Returns the predicted shares (%) and the root-mean-square error of log share (0.7 = a typical
     miss of a factor of two)."""
-    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, premium_share=0.0)   # a real premium meat: one kind of shopper
     pred = [share(R, pr, **neutral) * 100 for _n, R, _o, _s in ANALOGUES]
     err = float(np.sqrt(np.mean([(np.log(p) - np.log(o)) ** 2 for p, (_n, _R, o, _s) in zip(pred, ANALOGUES)])))
     return {"predicted": pred, "observed": [o for _n, _R, o, _s in ANALOGUES], "rms_log_error": err}
@@ -798,7 +816,7 @@ def organic_premium_check(pr: DemandParams) -> dict:
     This is why kappa's range reaches 9 (inputs.py) and why shares at a premium should be read as upper
     estimates. Returns predicted shares (%) at both comparisons and the observed share."""
     o = ORGANIC_CHICKEN
-    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, premium_share=0.0)   # a real premium meat: one kind of shopper
     return dict(vs_cuts=share(o["price"] / o["cuts"], pr, p_ref=o["cuts"], **neutral) * 100,
                 vs_mince=share(o["price"] / o["mince"], pr, p_ref=o["mince"], **neutral) * 100,
                 observed=o["observed_pct"])

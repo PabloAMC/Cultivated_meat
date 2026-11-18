@@ -31,8 +31,8 @@ def check() -> list:
         if not fits["one"]["rms_log_error"] < s["model_rms"][name]:
             fails.append(f"{name}: the fit does no better than the main model's curve")
     lr = "long run, central"
-    if not s["shares"]["central"][lr] > 2.0 * s["model_share"]["central"]:      # since the premium markets were sized from data
-        fails.append("Central's anchored share is no longer well above the model's; rewrite the note's conclusion")
+    if not 0.5 * s["model_share"]["central"] < s["shares"]["central"][lr] < 2.0 * s["model_share"]["central"]:   # since premium buyers
+        fails.append("Central's anchored share is no longer within a factor of 2 of the model's; rewrite the note's conclusion")
     if not s["shares"]["best"][lr] < s["model_share"]["best"]:
         fails.append("the best case's anchored share is no longer below the model's; rewrite the note's conclusion")
 

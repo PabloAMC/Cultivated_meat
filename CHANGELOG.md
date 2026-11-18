@@ -2,6 +2,24 @@
 
 ## 2026-11-18
 
+The shopper model recalibrated: premium buyers (`market_share.share`, `research_notes/demand_recalibration.md`; **defaults changed**)
+- The model's share fell too fast above meat's price: 0.09% of a meat's buyers at three times the price, where sixteen premium real
+  meats hold about 1.5% (`demand_checks.md`). First proposal: put cultivated meat on the single curve fitted to those meats. Pablo
+  objected that it cut the best case to 1.8% though its cells are near parity; he was right, because that curve takes its 7% at equal
+  price from labels, which are never cheaper than the ordinary product.
+- So the model now has a second kind of shopper for cultivated meat: premium buyers, 10% of shoppers (purchase data), with the price
+  sensitivity (2.15 times meat's, against 8.5) and liking that the sixteen products imply, and an image handicap of 0.30 of the ordinary
+  price from survey studies. Most shoppers are as before. Four new inputs; two new sliders on the page; the handicap is drawn in the bands.
+- **Central's long-run share goes from 0.04% to 0.21% of world meat (median 0.05%) and the best case's from 3.1% to 4.5% (median
+  0.8%).** At three times the price the share is 1.3%; at equal price 48% (was 49%); the first-contact elasticity -3.06 (was -3.27,
+  range -0.84 to -3.4). The calibration on existing products is untouched: with no cultivated meat on the shelf the two kinds are the same.
+- Knock-ons: in the market-size loop Central again crosses the membrane switch (one resting point, $19.13 and 0.73%), on premium
+  buyers' purchases of ordinary cuts; the best case rests at $6.11 and 12.4%. A tonne of cultivated meat now spares about 67 land
+  animals in the reference case (was 17), because premium buyers buy chicken. The premium-buyers side study now measures what a
+  welfare label on the shelf takes (Central 0.17% against 0.21%).
+- Not fixed: plant-based meat's own-price elasticity (-2.85 against a measured -1.23) and the premium products' response against
+  farmed salmon's (about twice too strong). TODO.
+
 The model's response to price checked against four measurements (`demand_checks.py`, `research_notes/demand_checks.md`; **no
 default changed**)
 - Prompted by Knowles 2026 on plant-based meat's prices. Plant-based meat's own-price elasticity is -1.23 in US retail data

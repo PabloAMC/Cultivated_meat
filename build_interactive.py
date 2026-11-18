@@ -150,6 +150,9 @@ def build_model() -> dict:
         "eps_own": value("eps_own"),
         "cult_sub_mult": value("cult_sub_mult"),  # closeness/substitutability lever
         "kappa_base": value("kappa_base"),        # sets the shared beta; kappa/kappa_base acts on cultivated's price gap
+        # premium buyers: a second kind of shopper for cultivated meat (market_share.share)
+        "premium_buyers_share": value("premium_buyers_share"), "premium_kappa": value("premium_kappa"),
+        "premium_liking": value("premium_liking"), "image_price_shift": value("image_price_shift"),
         # the demand price coefficient beta is DERIVED (mirror of market_share._derive_beta):
         # anchored at a FIXED calibration price (inputs elasticity_anchor_price), solved at cultivated's
         # own share there via a fixed point. Neither the cost defaults nor the live sliders move it.
@@ -383,7 +386,7 @@ def build_model() -> dict:
           "real_tissue_x", "accept_x", "theta_free_M", "premium_resistance"], False),
         ("Step 1 · cost and price", ["efficiency", "scaffold"], True),
         ("Step 2 · how shoppers choose",
-         ["eps_own", "cult_sub_mult", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
+         ["eps_own", "cult_sub_mult", "premium_buyers_share", "image_price_shift", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
           "health_x", "neophobia_x"], True),
         ("Step 2 · plant-based meat", ["R_p", "a_p", "real_tissue_p", "health_p", "neophobia_p"], True),
         ("Step 3 · authenticity by tier", ["auth_basic", "auth_cut", "auth_premium"], True),
@@ -480,6 +483,20 @@ def build_model() -> dict:
                "The default 8.5 is the best fit to the shares that premium animal products (organic milk, eggs and chicken) "
                "take at their prices, within the range that Lusk 2020 measured (appendix A1). It changes nothing "
                "at equal price."),
+        slider("premium_buyers_share", "Premium buyers (&pi;)", "of shoppers", 0.0, 0.30, 0.01,
+               value("premium_buyers_share"), "purchase data", fmt="pct",
+               tip="The share of shoppers who habitually buy premium or welfare-labelled meat. To them cultivated meat is "
+               "another premium meat, and they respond to its price as buyers of organic and free-range meat do: about a "
+               "quarter as strongly as other shoppers. They are why a few people still buy at three or four times the price. "
+               "Their price response and liking are fitted to sixteen premium real meats at the default 10%, so moving this "
+               "slider moves their number without re-fitting. At 0 the model is the one it was before November 2026."),
+        slider("image_price_shift", "Image handicap for premium buyers", "of price", -0.15, 1.10, 0.05,
+               value("image_price_shift"), "survey studies", fmt="signed",
+               tip="To a premium buyer, cultivated meat sells like a premium real meat priced this much dearer, as a share of "
+               "the ordinary meat's price. The default +0.30 is a lasting wariness of a new food (0.15) plus an "
+               "&ldquo;unnatural&rdquo; image (0.20), less what no killing is worth over a welfare label (0.05). "
+               "&minus;0.15 is the case where novelty fades and no killing is valued highly; +1.10 is the case where both "
+               "costs stay at their worst. The figures come from stated-preference studies, so their sizes are uncertain."),
         slider("loss_aversion", "Loss aversion (&lambda;)", "ratio", 1.0, 2.25, 0.05,
                value("loss_aversion"), "off by default",
                tip="This makes paying more than the conventional price hurt more than an equal discount helps. "
@@ -996,6 +1013,12 @@ def _scenario_tokens() -> dict:
     return out
 
 
+def _premium_at(R: float) -> float:
+    """Share (%) of a premium real meat at R times the ordinary price, on the curve fitted to sixteen of them (premium_curve)."""
+    import premium_curve as P
+    return P.curve(R, P.summary()["main"]) * 100.0
+
+
 def derived_numbers() -> dict:
     """Return {TOKEN: text} for every NON-share model number the prose quotes (price ratios, $/kg,
     years, coefficients). Same discipline as illustrative_numbers() (which holds the %-shares):
@@ -1035,6 +1058,9 @@ def derived_numbers() -> dict:
         "PCONV": f"{p_conv:.0f}",
         "MARKUP": f"{markup:.1f}",
         "MARGIN_PCT": f"{value('retail_margin') * 100:.0f}",
+        "PREMIUM_PCT": f"{value('premium_buyers_share') * 100:.0f}",
+        "SHARE_3X": f"{share(3.0, dp) * 100:.1f}", "SHARE_3X_OLD": f"{share(3.0, dp, premium_share=0.0) * 100:.2f}",
+        "SHARE_3X_PREMIUM": f"{_premium_at(3.0):.1f}",
         "PARITY_BIOMASS": f"{cost_from_shelf(p_conv):.1f}",
         "COST_FLOOR": f"{floor:.1f}",
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
@@ -1771,6 +1797,14 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       about 2.7 times as often.</p>
       <p><b>Two kinds of shopper.</b> 95% are mainstream, and they choose mainly on price, taste and real meat. 5% are vegetarian
       or vegan [7]. They care about slaughter and mostly eat beans.</p>
+      <p><b>Premium buyers.</b> About {{PREMIUM_PCT}}% of shoppers already pay well over the odds for organic, free-range or other
+      premium meat. To them cultivated meat is one more premium meat, and they respond to its price as they do to those: about a quarter
+      as strongly as other shoppers. The model takes how strongly from the shares that sixteen premium meats and eggs hold at 1.5 to 3.6
+      times the ordinary price. To these buyers cultivated meat also carries a handicap, set from surveys: some lasting wariness of a
+      new food and an &ldquo;unnatural&rdquo; image, less what not killing an animal is worth beyond a welfare label. They are why the
+      model has a few buyers left at three times the price ({{SHARE_3X}}% of a meat's buyers, where premium meats hold about
+      {{SHARE_3X_PREMIUM}}%). Without them it had almost none ({{SHARE_3X_OLD}}%). Near equal price they change little. The two
+      sliders are in the advanced panel.</p>
       <div class="scrollx"><table class="attr">
         <tr><th>option</th><th>price</th><th>taste</th><th>real meat</th><th>no slaughter</th><th>health</th></tr>
         <tr><td><b>conventional</b> meat</td><td>1</td><td>1</td><td>yes</td><td>no</td><td>&minus;0.1</td></tr>
@@ -2266,7 +2300,7 @@ function utilities(R,K,seg,o){
   // (default p=0, x=1 — the identifying asymmetry, adjustable for equal-footing what-ifs).
   const rtP=(o.rtp!==undefined?o.rtp:(K.real_tissue_p!==undefined?K.real_tissue_p:0));
   const rtX=(o.rtx!==undefined?o.rtx:(K.real_tissue_x!==undefined?K.real_tissue_x:1));
-  const slaughter=[1,0,1,1], realtissue=[0,1,rtP,rtX];
+  const slaughter=[1,0,1,(o.sfx===undefined?1:o.sfx)], realtissue=[0,1,rtP,rtX];   // sfx 0: a premium real meat (premium buyers)
   // HEALTH PERCEPTION — a named ATTRIBUTE on every product, weighted by a SEGMENT-SPECIFIC health
   // weight (K.w_health_M / K.w_health_E; solved in the calibration), like slaughter-free and real-
   // tissue. Positions: whole-food health_w (+, "beans are the healthy choice"), conventional health_c
@@ -2344,12 +2378,20 @@ function segShares(R,K,seg,o){
   if(o.present){const P=softmax(V);return {w:P[0],c:P[1],p:P[2],x:P[3]};}
   const P=softmax(V.slice(0,3));return {w:P[0],c:P[1],p:P[2],x:0};
 }
-function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,present=true,which="x",rtx,rtp,hx,hp,pRef,kap}){
+// TWO KINDS OF SHOPPER (mirror of market_share.share, 2026-11-18): a share `prem` (default K.premium_buyers_share) are premium
+// buyers, to whom cultivated meat is a premium real meat: their own price sensitivity (K.premium_kappa), their liking for a premium
+// meat (K.premium_liking), no slaughter-free credit of its own, and a price ratio dearer by `shift` (default K.image_price_shift).
+// The others are the one kind the model had. prem:0 gives that one kind alone (the calibration and the checks on premium meats).
+function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,present=true,which="x",rtx,rtp,hx,hp,pRef,kap,sfx,prem,shift}){
   const o={ax,tfM,toff,present,nbx,nbp,eps:(eps===undefined?K.eps_own:eps),
            income:(income===undefined?K.income_ref:income),
-           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap};
-  const M=segShares(R,K,"M",o), E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
-  return K.w_eth*E[key]+(1-K.w_eth)*M[key];
+           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, sfx:sfx};
+  const key=(which==="pb")?"p":which;
+  const kind=(Rk,ok)=>{ const M=segShares(Rk,K,"M",ok), E=segShares(Rk,K,"E",ok); return K.w_eth*E[key]+(1-K.w_eth)*M[key]; };
+  const main=kind(R,o), pi=(prem===undefined?K.premium_buyers_share:prem);
+  if(!(pi>0)||!present) return main;
+  const sh=(shift===undefined?K.image_price_shift:shift);
+  return (1-pi)*main+pi*kind(Math.max(R+sh,0.05),Object.assign({},o,{kap:K.premium_kappa,toff:toff+K.premium_liking,sfx:0}));
 }
 /* re-solve the calibration (mirror of market_share.solve_calibration): three monotone
    bisections so the live sliders (w_eth, λ, κ, ε, prices…) keep plant-based at its observed
@@ -2424,7 +2466,7 @@ function deriveBeta(K){
     // beta is calibrated to cultivated AS A REAL-MEAT product (rtx=1), so the fixed-point share
     // uses rtx=1 regardless of the user's real_tissue_x dial (matches Python _derive_beta, which
     // is stable in rtx). The dial then shifts the OUTCOME, not the price-coefficient calibration.
-    const sNew=shareCalc(Rtoday,K,{ax:1,tfM:0,rtx:1,kap:C.kappa_base});   // at kappa_base: beta does not depend on kappa
+    const sNew=shareCalc(Rtoday,K,{ax:1,tfM:0,rtx:1,kap:C.kappa_base,prem:0});   // at kappa_base, one kind of shopper: beta does not depend on kappa or on premium buyers
     if(Math.abs(sNew-s)<1e-9){s=sNew;break;}
     s=sNew;
   }
@@ -2435,7 +2477,7 @@ function deriveBeta(K){
 function effConsts(s){
   const K=Object.assign({},C);
   ["cult_sub_mult","loss_aversion","w_ratio","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
-   "w_taste","w_slaughter_E","w_realtissue_E"].forEach(k=>{if(k in s)K[k]=s[k];});
+   "w_taste","w_slaughter_E","w_realtissue_E","premium_buyers_share","image_price_shift"].forEach(k=>{if(k in s)K[k]=s[k];});
   // EXPERT WEIGHT OVERRIDES (mirror of market_share.DemandParams.pinned_weights): the three
   // attribute weights that are normally SOLVED to data moments (w_realtissue_M -> GFI 89% buyer
   // split; w_health_M -> mainstream meatless rate; w_health_E -> ethical PB rate) can be PINNED to a
@@ -3461,7 +3503,7 @@ function mcDraw(keys){const d={};for(const k of keys)d[k]=triang.apply(null,C.pr
 function mcShareOpts(dr,mt,t,s){return {ax:dr.accept_x,tfM:dr.theta_free_M,toff:tAuth(t,dr.premium_resistance),
   eps:dr.eps_own*tMult(t,dr.premium_resistance), kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
   income:s.income,pricePb:s.R_p,aP:s.a_p,
-  nbx:dr.neophobia_x,nbp:s.neophobia_p,hx:dr.health_x,pRef:mt.p_conv};}
+  nbx:dr.neophobia_x,nbp:s.neophobia_p,hx:dr.health_x,pRef:mt.p_conv,shift:dr.image_price_shift};}
 function monteCarlo(s,N){
   // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (samples C.mc_inputs:
   // cost, acceptance, elasticity, long-run novelty, health, premium resistance) and plant-based (also

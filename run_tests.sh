@@ -73,6 +73,9 @@ python tests/test_premium_buyers.py
 echo "==> cost falling with market size, solved with the share"
 python tests/test_market_size_loop.py
 
+echo "==> the shopper model's two kinds of shopper"
+python tests/test_demand_recalibration.py
+
 echo "==> the model's response to price against four measurements"
 python tests/test_demand_checks.py
 

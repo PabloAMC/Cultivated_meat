@@ -1432,6 +1432,30 @@ REGISTRY: dict[str, Input] = {
              "category's), and cult_sub_mult / kappa_base multiplies only cultivated's price DIFFERENCE from "
              "the conventional meat beside it. At cult_sub_mult = kappa_base the model is exactly the "
              "published one"),
+    # --- PREMIUM BUYERS (2026-11-18; research_notes/demand_recalibration.md). The shopper model has two kinds of shopper for
+    # cultivated meat: most respond to its price as before (cult_sub_mult), and a share of premium buyers respond as buyers of
+    # premium real meats do. The three fitted numbers come from premium_buyers.fit_at(premium_buyers_share) on the sixteen
+    # premium products; tests/test_demand_recalibration.py fails if they drift from that fit.
+    "premium_buyers_share": Input(0.10, "of shoppers", "[Agence Bio/ObSoCo 2026 (read): about 22% of French adults eat organic "
+        "poultry at some frequency; Soil Association 2026 (read): 42% of GB households make 95% of organic spend; Gschwandtner et "
+        "al. 2024 (read): 0.6% of UK chicken purchases carry an organic or welfare label] share of meat shoppers who habitually "
+        "buy premium or welfare-labelled meat", lo=0.05, hi=0.20, mode=0.10,
+        note="The sixteen premium products fit equally well for any share from 5% to 30% (the fit trades size against liking), "
+             "so the size comes from purchase data: about 5-8% in the UK and US, 12-20% in France. Not drawn in the bands, "
+             "because premium_liking and premium_kappa are fitted at this share."),
+    "premium_kappa": Input(2.147, "x", "[fitted, premium_buyers.fit_at] how many times more price-sensitive a premium buyer is "
+        "about a premium meat than meat demand in general; fitted to sixteen premium real meats (organic and free-range chicken "
+        "and eggs, Label Rouge) with premium_buyers_share fixed", lo=1.9, hi=2.4, mode=2.147,
+        note="1.94 at a premium-buyer share of 5%, 2.36 at 20%. Against 8.5 for the other shoppers (cult_sub_mult)."),
+    "premium_liking": Input(0.110, "utils", "[fitted, premium_buyers.fit_at] a premium buyer's liking for a premium meat at "
+        "equal price, in the same fit", lo=-0.5, hi=0.84, mode=0.110,
+        note="0.84 at a premium-buyer share of 5%, -0.50 at 20%."),
+    "image_price_shift": Input(0.30, "of the conventional price", "[cultivated_vs_welfare_meat_evidence.md, hypothetical "
+        "willingness-to-pay studies] for a premium buyer, cultivated meat sells like a premium real meat priced this much "
+        "dearer: lasting novelty +0.15 (half of 0.30), an 'unnatural' image +0.20, less the value of no killing over a welfare "
+        "label, 0.05", lo=-0.15, hi=1.10, mode=0.30,
+        note="-0.15 if novelty goes and no killing is valued at 20% of meat's price; 1.10 if novelty stays and both costs are "
+             "at their high ends (premium_curve.CORRECTIONS). Drawn in the bands."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "
         "buyers, versus 0.9% for meat-in-general. WHY > 1: the measured -0.9 is the elasticity of the meat "
@@ -2106,7 +2130,7 @@ LOSS_AVERSION_RATIO: float = 2.25
 MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail_margin")
 # cult_sub_mult (kappa) is sampled since 2026-11-13: a kappa draw enters as the price-sensitivity override
 # eps_own*kappa_draw/kappa, which scales both price channels (market_share ratio_scale).
-MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "neophobia_x", "health_x")
+MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "neophobia_x", "health_x", "image_price_shift")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.

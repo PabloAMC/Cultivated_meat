@@ -77,7 +77,7 @@ def curve(R: float, p: dict, **kw) -> float:
     segment of size pi with its own liking for the virtue (v_l) and its own price sensitivity (kappa_l), beside the mainstream
     (kappa, v). Extra keyword arguments go to market_share.share (a tier offset adds to both segments' utility)."""
     pr = demand()
-    base = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, slaughter_free_x=0.0)
+    base = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, slaughter_free_x=0.0, premium_share=0.0)
     base.update(kw)
     off = base.pop("tier_offset", 0.0)
     main = M.share(R, pr, kappa=p["kappa"], tier_offset=off + p["v"], **base)

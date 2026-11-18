@@ -1,7 +1,8 @@
 # Does cultivated meat get cheaper as it sells more? Cost and share solved together
 
-Date: 2026-11-18; revised the same day after the checks in section 6 (the premium markets were sized from data, which changed the
-conclusion for Central). Code: `market_size_loop.py`; test: `tests/test_market_size_loop.py`. The study itself changes no default.
+Date: 2026-11-18; revised twice the same day: after the checks in section 6 (the premium markets were sized from data) and after the
+shopper model gained premium buyers (`demand_recalibration.md`). Code: `market_size_loop.py`; test: `tests/test_market_size_loop.py`.
+The study itself changes no default.
 
 Access levels: **FT** full text read; **ABS** abstract only; **SNIP** search snippet; **MEM** background knowledge, unchecked.
 
@@ -11,9 +12,10 @@ animal-cell tank volume that exists. So the cost should fall as the market grows
 cultivated meat first undercuts the premium product it competes with (Wildtype's salmon against sushi-grade salmon), the demand that
 unlocks is the volume that makes everything cheaper.
 
-**In short.** The best case reaches price parity this way. Central does not get there by itself: its sales are almost all premium
-products, and those markets are too small to bring a food-grade membrane supplier into being. If someone else does (a subsidy, an order
-book, another industry), Central's cells fall from $29 to about $21 and its share roughly triples, to 0.14% of world meat.
+**In short.** Both Central and the best case sell enough to bring a food-grade membrane supplier into being, and both get much
+cheaper for it: Central's cells fall from $29 to about $19 and its share rises from 0.21% to 0.73% of world meat; the best
+case reaches price parity ($6.11). Central gets there on premium buyers' purchases of ordinary cuts, not on premium products
+alone, which are too small a market. Today's cells sell too little to start.
 
 ## 1. What learns, and how
 
@@ -36,34 +38,34 @@ book, another industry), Central's cells fall from $29 to about $21 and its shar
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.0037% | 2,533 | 1,450 | 0.96× | $61.50 | 0.00% |
-| 0.1 | 0.037% | 25,335 | 1,450 | 0.80× | $56.00 | 0.00% |
-| 0.5 | 0.185% | 126,674 | 1,450 | 0.65× | $50.51 | 0.00% |
-| 2 | 0.741% | 506,698 | 107 | 0.53× | $44.04 | 0.01% |
-| 10 | 3.7% | 2,533,490 | 67 | 0.42× | $39.90 | 0.01% |
-| 35 | 13% | 8,867,215 | 50 | 0.34× | $37.30 | 0.02% |
+| 0.01 | 0.0037% | 2,533 | 1,450 | 0.96× | $61.50 | 0.01% |
+| 0.1 | 0.037% | 25,335 | 1,450 | 0.80× | $56.00 | 0.02% |
+| 0.5 | 0.185% | 126,674 | 1,450 | 0.65× | $50.51 | 0.03% |
+| 2 | 0.741% | 506,698 | 107 | 0.53× | $44.04 | 0.05% |
+| 10 | 3.7% | 2,533,490 | 67 | 0.42× | $39.90 | 0.07% |
+| 35 | 13% | 8,867,215 | 50 | 0.34× | $37.30 | 0.09% |
 
 **3. Plus cells selected to grow faster on the low-waste feed (Central)** (no learning: $29.42)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.0037% | 485 | 1,450 | 0.99× | $29.35 | 0.04% |
-| 0.1 | 0.037% | 4,854 | 1,450 | 0.93× | $28.90 | 0.05% |
-| 0.5 | 0.185% | 24,271 | 111 | 0.81× | $20.31 | 0.15% |
-| 2 | 0.741% | 97,086 | 75 | 0.68× | $19.12 | 0.19% |
-| 10 | 3.7% | 485,428 | 50 | 0.53× | $17.93 | 0.24% |
-| 35 | 13% | 1,698,999 | 50 | 0.44× | $17.25 | 0.28% |
+| 0.01 | 0.0037% | 485 | 1,450 | 0.99× | $29.35 | 0.21% |
+| 0.1 | 0.037% | 4,854 | 1,450 | 0.93× | $28.90 | 0.22% |
+| 0.5 | 0.185% | 24,271 | 111 | 0.81× | $20.31 | 0.62% |
+| 2 | 0.741% | 97,086 | 75 | 0.68× | $19.12 | 0.73% |
+| 10 | 3.7% | 485,428 | 50 | 0.53× | $17.93 | 0.86% |
+| 35 | 13% | 1,698,999 | 50 | 0.44× | $17.25 | 0.95% |
 
 **5. Plus engineered cells** (no learning: $9.66)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.0037% | 227 | 1,450 | 1.00× | $9.65 | 3.12% |
-| 0.1 | 0.037% | 2,267 | 1,450 | 0.96× | $9.58 | 3.19% |
-| 0.5 | 0.185% | 11,334 | 1,450 | 0.87× | $9.41 | 3.41% |
-| 2 | 0.741% | 45,335 | 103 | 0.75× | $6.68 | 9.03% |
-| 10 | 3.7% | 226,676 | 65 | 0.60× | $6.30 | 10.24% |
-| 35 | 13% | 793,367 | 50 | 0.52× | $6.11 | 10.91% |
+| 0.01 | 0.0037% | 227 | 1,450 | 1.00× | $9.65 | 4.52% |
+| 0.1 | 0.037% | 2,267 | 1,450 | 0.96× | $9.58 | 4.60% |
+| 0.5 | 0.185% | 11,334 | 1,450 | 0.87× | $9.41 | 4.83% |
+| 2 | 0.741% | 45,335 | 103 | 0.75× | $6.68 | 10.52% |
+| 10 | 3.7% | 226,676 | 65 | 0.60× | $6.30 | 11.70% |
+| 35 | 13% | 793,367 | 50 | 0.52× | $6.11 | 12.36% |
 
 "Share that cost would buy" is the main model's long-run share at that cost. Where it exceeds the share the volume is, the market grows;
 where it is less, it shrinks. With both items at their floors the cells cost $35.24 (today's cells), $16.10 (Central) and
@@ -73,109 +75,103 @@ $6.11 (the best case).
 
 | scenario | learning | the main model: cells, share | resting point from below: cells, share, Mt a year | from above: cells, share, Mt a year |
 |---|---|---|---|---|
-| 1. Today | central | $62.96, 0.00% | $62.45, 0.00%, 0.00 | $62.45, 0.00%, 0.00 |
-| 1. Today | no food-grade membrane supplier, slow plant learning | $62.96, 0.00% | $62.82, 0.00%, 0.00 | $62.82, 0.00%, 0.00 |
-| 1. Today | slow learning | $62.96, 0.00% | $62.82, 0.00%, 0.00 | $62.82, 0.00%, 0.00 |
-| 1. Today | fast learning | $62.96, 0.00% | $61.95, 0.00%, 0.00 | $61.95, 0.00%, 0.00 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | $29.42, 0.04% | $28.81, 0.05%, 0.13 | $20.52, 0.14%, 0.39 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | $29.42, 0.04% | $29.24, 0.04%, 0.12 | $29.24, 0.04%, 0.12 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | $29.42, 0.04% | $29.24, 0.04%, 0.12 | $29.24, 0.04%, 0.12 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | $29.42, 0.04% | $18.64, 0.21%, 0.56 | $18.64, 0.21%, 0.56 |
-| 5. Plus engineered cells | central | $9.66, 3.11% | $6.11, 10.91%, 29.47 | $6.11, 10.91%, 29.47 |
-| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | $9.66, 3.11% | $9.39, 3.43%, 9.27 | $9.39, 3.43%, 9.27 |
-| 5. Plus engineered cells | slow learning | $9.66, 3.11% | $7.16, 7.65%, 20.67 | $7.16, 7.65%, 20.67 |
-| 5. Plus engineered cells | fast learning | $9.66, 3.11% | $6.05, 11.11%, 30.00 | $6.05, 11.11%, 30.00 |
+| 1. Today | central | $62.96, 0.01% | $59.20, 0.01%, 0.03 | $59.20, 0.01%, 0.03 |
+| 1. Today | no food-grade membrane supplier, slow plant learning | $62.96, 0.01% | $61.99, 0.01%, 0.03 | $61.99, 0.01%, 0.03 |
+| 1. Today | slow learning | $62.96, 0.01% | $61.99, 0.01%, 0.03 | $61.99, 0.01%, 0.03 |
+| 1. Today | fast learning | $62.96, 0.01% | $54.46, 0.02%, 0.05 | $54.46, 0.02%, 0.05 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | $29.42, 0.21% | $19.13, 0.73%, 1.96 | $19.13, 0.73%, 1.96 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | $29.42, 0.21% | $28.93, 0.22%, 0.60 | $28.93, 0.22%, 0.60 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | $29.42, 0.21% | $22.41, 0.47%, 1.28 | $22.41, 0.47%, 1.28 |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | $29.42, 0.21% | $17.09, 0.98%, 2.63 | $17.09, 0.98%, 2.63 |
+| 5. Plus engineered cells | central | $9.66, 4.51% | $6.11, 12.36%, 33.37 | $6.11, 12.36%, 33.37 |
+| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | $9.66, 4.51% | $9.36, 4.89%, 13.21 | $9.36, 4.89%, 13.21 |
+| 5. Plus engineered cells | slow learning | $9.66, 4.51% | $7.13, 9.23%, 24.92 | $7.13, 9.23%, 24.92 |
+| 5. Plus engineered cells | fast learning | $9.66, 4.51% | $6.05, 12.55%, 33.90 | $6.05, 12.55%, 33.90 |
 
 "From below" starts with no learning; "from above" starts with everything at its floor. Where the two differ there are two resting
 points, and reaching the upper one needs someone to carry the industry across the gap.
 
-- **The best case reaches parity by this route: $6.11 against the $6.14 parity needs, and 10.91% of world meat** (3.11% without
-  learning). It has one resting point: its own sales are enough to bring the food-grade membrane. This is the only route found so far to
-  parity that needs no better cells than the best case already assumes.
-- **Central has two resting points.** Left alone it stays at $28.81 and 0.05% of world meat: its 0.11 Mt a year needs 0.64 million m²
-  of membrane, short of the switch at 1.0. If the food-grade membrane exists anyway, Central rests at $20.52 and 0.14%.
-  With fast learning (a switch at 0.3 million m²) it crosses by itself, to $18.64 and 0.21%.
+- **The best case reaches parity by this route: $6.11 against the $6.14 parity needs, and 12.36% of world meat** (4.51% without
+  learning). This is the only route found so far to parity that needs no better cells than the best case already assumes.
+- **Central: cells fall from $29.42 to $19.13 and the share rises from 0.21% to 0.73%.** Its 0.57 Mt a year needs 3.3 million m²
+  of membrane, past the switch at 1.0, so it has one resting point. With slow learning (a switch at 3 million m²) it still crosses, to
+  $22.41 and 0.47%.
 - **Today's cells are stuck** in every case: at $63 they sell almost nothing.
-- **Without a food-grade membrane supplier little changes**: Central $29.24, the best case $9.39. The plant's learning alone
+- **Without a food-grade membrane supplier little changes**: Central $28.93, the best case $9.36. The plant's learning alone
   is worth under a dollar.
 
 ## 4. The loop starts in premium products, and they are a small base
 
 | scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales | chicken (organic): price against it, share of it | pork (heritage): price against it, share of it | beef (prime/wagyu): price against it, share of it | seafood (sushi): price against it, share of it |
 |---|---|---|---|---|---|---|---|---|
-| 1. Today | no learning | $62.96 | 0.00, 0.00, 0.00 | 100% | 7.63×, 0.0% | 6.20×, 0.0% | 2.21×, 0.3% | 2.84×, 0.1% |
-| 1. Today | resting point | $62.45 | 0.00, 0.00, 0.00 | 100% | 7.58×, 0.0% | 6.16×, 0.0% | 2.19×, 0.3% | 2.82×, 0.1% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no learning | $29.42 | 0.11, 0.00, 0.00 | 96% | 4.05×, 0.3% | 3.29×, 0.5% | 1.17×, 10.7% | 1.50×, 5.0% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | resting point | $28.81 | 0.12, 0.01, 0.00 | 95% | 3.99×, 0.3% | 3.24×, 0.6% | 1.15×, 11.3% | 1.48×, 5.3% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | upper resting point | $20.52 | 0.27, 0.11, 0.01 | 69% | 3.10×, 1.0% | 2.52×, 1.8% | 0.90×, 23.6% | 1.15×, 12.4% |
-| 5. Plus engineered cells | no learning | $9.66 | 0.66, 4.88, 2.85 | 8% | 1.94×, 5.4% | 1.58×, 7.9% | 0.56×, 49.5% | 0.72×, 32.5% |
-| 5. Plus engineered cells | resting point | $6.11 | 0.83, 13.82, 14.81 | 3% | 1.56×, 9.0% | 1.27×, 12.5% | 0.45×, 58.7% | 0.58×, 41.7% |
+| 1. Today | no learning | $62.96 | 0.01, 0.01, 0.00 | 49% | 7.63×, 0.2% | 6.20×, 0.2% | 2.21×, 0.9% | 2.84×, 0.6% |
+| 1. Today | resting point | $59.20 | 0.02, 0.02, 0.00 | 44% | 7.23×, 0.2% | 5.88×, 0.3% | 2.09×, 1.1% | 2.69×, 0.7% |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no learning | $29.42 | 0.13, 0.33, 0.11 | 22% | 4.05×, 0.9% | 3.29×, 1.2% | 1.17×, 11.0% | 1.50×, 5.6% |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | resting point | $19.13 | 0.31, 1.07, 0.58 | 16% | 2.95×, 2.1% | 2.40×, 3.0% | 0.85×, 25.5% | 1.10×, 14.4% |
+| 5. Plus engineered cells | no learning | $9.66 | 0.63, 6.63, 4.91 | 5% | 1.94×, 6.2% | 1.58×, 8.6% | 0.56×, 46.7% | 0.72×, 31.2% |
+| 5. Plus engineered cells | resting point | $6.11 | 0.80, 15.50, 17.08 | 2% | 1.56×, 9.6% | 1.27×, 12.9% | 0.45×, 55.1% | 0.58×, 39.6% |
 
 | scenario | learning | premium products sold at the scenario's own cost, Mt a year | membrane that needs, million m² a year | the switch, million m² a year | do premium products alone cross it? |
 |---|---|---|---|---|---|
-| 1. Today | central | 0.00 | 0.00 | 1.0 | no |
-| 1. Today | no food-grade membrane supplier, slow plant learning | 0.00 | 0.00 | never | no |
-| 1. Today | slow learning | 0.00 | 0.00 | 3.0 | no |
-| 1. Today | fast learning | 0.00 | 0.00 | 0.3 | no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | 0.11 | 0.64 | 1.0 | no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | 0.11 | 0.64 | never | no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | 0.11 | 0.64 | 3.0 | no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | 0.11 | 0.64 | 0.3 | yes |
-| 5. Plus engineered cells | central | 0.66 | 1.21 | 1.0 | yes |
-| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | 0.66 | 1.21 | never | no |
-| 5. Plus engineered cells | slow learning | 0.66 | 1.21 | 3.0 | no |
-| 5. Plus engineered cells | fast learning | 0.66 | 1.21 | 0.3 | yes |
+| 1. Today | central | 0.01 | 0.02 | 1.0 | no |
+| 1. Today | no food-grade membrane supplier, slow plant learning | 0.01 | 0.02 | never | no |
+| 1. Today | slow learning | 0.01 | 0.02 | 3.0 | no |
+| 1. Today | fast learning | 0.01 | 0.02 | 0.3 | no |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | 0.13 | 0.72 | 1.0 | no |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | 0.13 | 0.72 | never | no |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | 0.13 | 0.72 | 3.0 | no |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | 0.13 | 0.72 | 0.3 | yes |
+| 5. Plus engineered cells | central | 0.63 | 1.16 | 1.0 | yes |
+| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | 0.63 | 1.16 | never | no |
+| 5. Plus engineered cells | slow learning | 0.63 | 1.16 | 3.0 | no |
+| 5. Plus engineered cells | fast learning | 0.63 | 1.16 | 0.3 | yes |
 
-- **At Central's cost, 96% of cultivated meat's sales are premium products**: prime or wagyu beef at 1.17 times its price and
-  sushi-grade seafood at 1.50 times. That is the whole early industry, as Pablo expected.
-- **But those markets are small.** Sized from data (`premium_market_sizes.md`), sushi-grade seafood is about 1.2 Mt a year and prime or
-  wagyu beef about 0.5 Mt. Central's share of them is 0.11 Mt a year, which needs 0.64 million m² of membrane a year: about twenty
-  times today's whole perfusion-filter market, but short of the million taken to bring a food-grade supplier.
-- **The unlocking is real once the membrane is cheap.** At $20.52 a kilo of cells cultivated meat costs 0.90 times prime beef and
-  1.15 times sushi-grade seafood, and its shares of them more than double (prime beef 10.7% to 23.6%,
-  sushi-grade seafood 5.0% to 12.4%). Premium products sold rise from 0.11 to 0.27 Mt a year.
-- **So Central's gap is a coordination problem**: a membrane maker will not build for a market that is not there, and the market is
-  not there at pharma prices. Whoever closes it (a subsidy, a purchase commitment, a supplier who already sells to another industry)
-  moves Central from 0.05% to 0.14%.
-- **Premium products are not enough to reach mass meat.** At Central's upper resting point 69% of sales are still premium; cuts and
-  mince stay at two to three times their conventional price. Only the best case's cells carry the loop into ordinary cuts and mince
-  (where 97% of its sales are).
+- **Premium products are where cultivated meat is closest to the price it competes with**: prime or wagyu beef at 1.17 times its
+  price and sushi-grade seafood at 1.50 times, at Central's cost. But those markets are small (`premium_market_sizes.md`: about 1.2 Mt
+  and 0.5 Mt a year), and they are only 22% of Central's sales.
+- **Most of Central's early volume is premium buyers buying ordinary cuts and mince** at three to six times their price: 0.33 and
+  0.11 Mt a year, against 0.13 Mt of premium products. These are the shoppers who buy organic and free-range meat today
+  (`demand_recalibration.md`). Premium products alone would need 0.72 million m² of membrane a year, short of the switch; with the
+  premium buyers Central needs 3.3 million and crosses.
+- **The unlocking is real once the membrane is cheap.** At $19.13 a kilo of cells cultivated meat costs 0.85 times prime beef and
+  1.10 times sushi-grade seafood, and its shares of them more than double (prime beef 11.0% to 25.5%,
+  sushi-grade seafood 5.6% to 14.4%).
+- **Premium products and premium buyers are not enough to reach mass meat.** At Central's resting point cultivated meat is still two to
+  three times the price of ordinary cuts and mince, and its share is under 1%. Only the best case's cells carry the loop into the
+  mainstream.
 
 ## 5. How strong is the loop, and how well is that known?
 
 | scenario | its own cost and share | first pass: the learning its own volume brings | resting point | part of the share gain from later rounds | resting point with demand anchored on premium meats (its own share there) |
 |---|---|---|---|---|---|
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $29.42, 0.04% | $28.84, 0.05% | $28.81, 0.05% | 5% | $19.48, 0.48% (0.14%) |
-| 5. Plus engineered cells | $9.66, 3.11% | $6.34, 10.11% | $6.11, 10.91% | 10% | $6.35, 2.97% (1.83%) |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $29.42, 0.21% | $20.19, 0.63% | $19.13, 0.73% | 19% | $19.48, 0.48% (0.14%) |
+| 5. Plus engineered cells | $9.66, 4.51% | $6.26, 11.84% | $6.11, 12.36% | 7% | $6.35, 2.97% (1.83%) |
 
 | input, across its range | 3. Plus cells selected to grow faster on the low-waste feed (Central): cells, share | 5. Plus engineered cells: cells, share |
 |---|---|---|
-| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $20.29 to $28.81, 0.15% to 0.05% | $6.11 to $6.14, 10.91% to 10.81% |
-| That supplier's first price (60 to 400 $/m2) | $28.81 to $28.81, 0.05% to 0.05% | $6.11 to $6.26, 10.91% to 10.40% |
-| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $28.81 to $28.81, 0.05% to 0.05% | $6.17 to $6.11, 10.70% to 10.91% |
-| Membrane's price floor (20 to 120 $/m2) | $28.81 to $28.81, 0.05% to 0.05% | $6.11 to $6.24, 10.93% to 10.46% |
-| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $29.24 to $28.26, 0.04% to 0.05% | $6.74 to $6.11, 8.83% to 10.91% |
-| Animal-cell tanks installed today (6500 to 11800 m3) | $28.70 to $28.97, 0.05% to 0.05% | $6.11 to $6.16, 10.91% to 10.73% |
-| World meat, boneless (250 to 384 Mt a year) | $28.84 to $20.16, 0.05% to 0.15% | $6.11 to $6.11, 10.91% to 10.91% |
+| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $18.99 to $19.31, 0.74% to 0.71% | $6.11 to $6.13, 12.36% to 12.28% |
+| That supplier's first price (60 to 400 $/m2) | $18.97 to $19.97, 0.74% to 0.65% | $6.11 to $6.25, 12.36% to 11.89% |
+| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $19.32 to $18.97, 0.71% to 0.74% | $6.17 to $6.11, 12.17% to 12.36% |
+| Membrane's price floor (20 to 120 $/m2) | $19.13 to $19.42, 0.73% to 0.70% | $6.10 to $6.24, 12.39% to 11.92% |
+| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $20.82 to $17.42, 0.58% to 0.93% | $6.73 to $6.11, 10.36% to 12.36% |
+| Animal-cell tanks installed today (6500 to 11800 m3) | $18.97 to $19.44, 0.74% to 0.70% | $6.11 to $6.14, 12.36% to 12.25% |
+| World meat, boneless (250 to 384 Mt a year) | $19.20 to $18.81, 0.72% to 0.76% | $6.11 to $6.11, 12.36% to 12.36% |
 
-- **It is mostly one step, not a loop.** 90% of the best case's gain in share comes on the first pass: the volume it already
-  sells is enough for the membrane switch. Later rounds, where cheaper cells sell more and more sales make cells cheaper again, add
-  10%. So the result does not rest on the strength of a feedback, which could not be measured; it rests on whether one event happens
-  (a food-grade membrane supplier) and at what price.
-- **For Central everything turns on the switch.** At 0.3 million m² a year it crosses and its cells fall to about $20; at 1 or 3 million it
-  does not. World meat at the top of its range (counting carcass weight) is also enough. The learning rates and the membrane's later
-  price move nothing while Central is below the switch.
+- **It is mostly one step, not a loop.** 81% of Central's gain in share, and 93% of the best case's, comes on the first
+  pass: the volume each already sells is enough for the membrane switch. Later rounds, where cheaper cells sell more and more sales
+  make cells cheaper again, add 19% and 7%. So the result does not rest on the strength of a feedback, which could not be
+  measured; it rests on whether one event happens (a food-grade membrane supplier) and at what price.
+- **The switch and the plant's learning rate matter most**; the membrane's later price matters little (table above).
 - **The best case is sturdy on cost**: $6.1–6.8 across every input.
-- **The share side is weaker than the cost side.** With the share taken from the curve fitted to premium real meats (`premium_curve.md`)
-  in place of the main model's, the best case's cells cost about the same ($6.35) but its share is 2.97%, not 10.91%. For Central the
-  two disagree the other way: on that curve Central sells 0.14% without learning, enough to cross the switch, and rests at 0.48%.
-  How much a given price sells is the model's least-tested part, with or without learning.
+- **The share side is weaker than the cost side.** With the share taken from the single curve fitted to premium real meats
+  (`premium_curve.md`) in place of the model's, the cells cost about the same but the best case's share is 2.97%, not 12.36%, and
+  Central's 0.48%, not 0.73%.
 
 ## 6. The checks (2026-11-18)
 
 **How big are the premium markets?** Several times smaller than the model's tables had them (`premium_market_sizes.md`): sushi-grade
-seafood about 1.2 Mt a year (the table had 5.4) and prime or wagyu beef about 0.5 Mt (1.35). The tables were corrected. This is what
-turned Central from "crosses the switch" into "needs a push".
+seafood about 1.2 Mt a year (the table had 5.4) and prime or wagyu beef about 0.5 Mt (1.35). The tables were corrected. Premium
+products alone no longer carry Central past the switch; premium buyers' purchases of ordinary meat do.
 
 **Would a food-grade membrane exist, and at what price?** No price is published for any steam- or caustic-tolerant food-grade
 hollow-fibre or tubular module (Pentair X-Flow, Microza, ROMICON, Membralox and TAMI are quote-only). The neighbours bracket it:
@@ -202,12 +198,12 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
 
 **How much does a price cut unlock?** The model against history (percent more volume per percent lower price):
 
-| premium product | price against it: at $29.42 a kilo of cells, at $20.52 | cultivated meat's share of it | percent more share per percent lower price |
+| premium product | price against it: at $29.42 a kilo of cells, at $19.13 | cultivated meat's share of it | percent more share per percent lower price |
 |---|---|---|---|
-| chicken (organic) | 4.05×, 3.10× | 0.26%, 1.03% | 5.2 |
-| pork (heritage) | 3.29×, 2.52× | 0.51%, 1.79% | 4.7 |
-| beef (prime/wagyu) | 1.17×, 0.90× | 10.68%, 23.63% | 3.0 |
-| seafood (sushi) | 1.50×, 1.15× | 4.95%, 12.44% | 3.4 |
+| chicken (organic) | 4.05×, 2.95× | 0.89%, 2.11% | 2.7 |
+| pork (heritage) | 3.29×, 2.40× | 1.22%, 3.03% | 2.9 |
+| beef (prime/wagyu) | 1.17×, 0.85× | 10.97%, 25.48% | 2.7 |
+| seafood (sushi) | 1.50×, 1.10× | 5.64%, 14.35% | 3.0 |
 | history, along the demand curve (farmed salmon while still a premium product) | | | 1–1.5 |
 | history, in total, with demand growth mixed in (salmon, US broilers, US catfish) | | | 1.3–4.1 |
 
@@ -215,7 +211,7 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
   2001, FT; Bjørndal & Tusvik 2017, FT). Early growth was largely "a move down along the demand schedule"; since 2000 nearly all growth
   has been demand shifting at flat prices. US broilers: real price −67% and consumption per person up fourfold, 1955–87 (Bishop &
   Christensen, USDA 1989, FT).
-- **The model's premium products respond to price about as strongly as history's totals, and two to three times more strongly than
+- **The model's premium products respond to price about as strongly as history's totals, and about twice as strongly as
   history along the demand curve.** So the later rounds of the loop, and the size of the unlocking in section 4, are more likely
   overstated than understated. The first pass, which is most of the result, does not depend on this.
 
@@ -237,17 +233,17 @@ is 15–30 years, with something like a one-in-three chance of stalling as Quorn
 
 ## 8. What this rests on, and what is still unknown
 
-- **The switch is a judgement** (about 65% that a food-grade supplier appears once demand passes 1 million m² a year). It decides
-  Central's result.
+- **The switch is a judgement** (about 65% that a food-grade supplier appears once demand passes 1 million m² a year). Without it
+  little moves.
 - **Still unknown:** an actual quote for a steam-tolerant food-grade module; a month-long run of animal cells at a quarter by volume
   above bench scale; the yearly area of perfusion filters sold today (estimated, not published); retail prices of the premium
   products by grade.
 - **Resting points, not a path.** Learning is counted on yearly scale, not cumulative output, and nothing says who pays for the early
   years.
-- **Not combined with the premium-buyer study** (`premium_buyers.md`), which would add to Central's early volume.
 - **Judgement:** that a food-grade membrane at $250 a m² or less exists if cultivated meat sells 0.5 Mt a year: about 0.6. That
   learning of this kind takes the best case's cells to $7 or less, given the best case's cells exist: about 0.55. That Central crosses
-  the switch with no outside push: about 0.3. That learning takes Central above 1% of world meat: about 0.03.
+  the switch with no outside push: about 0.5 (it rests on premium buyers paying three to six times the price for ordinary cuts). That
+  learning takes Central above 1% of world meat: about 0.15.
 
 ## Sources
 
