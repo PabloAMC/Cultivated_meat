@@ -19,6 +19,7 @@ import os
 from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PLANT_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
+from price_ratio import shelf_price, cost_from_shelf
 import floor_physics
 import plant_items
 import contamination
@@ -320,7 +321,8 @@ def build_model() -> dict:
             "efficiency":    ["&eta;", "medium cost &iota;&eta;p<sub>med</sub> in Eq. (1)"],
             "overhead":      ["h", "plant running cost in Eq. (1)"],
             "scaffold":      ["k", "Eq. (1), structured cuts only"],
-            "markup_add":    ["m", "Eq. (1)"],
+            "markup_add":    ["a", "Eq. (1)"],
+            "retail_margin": ["m", "Eq. (1)"],
             "meat_tax":      ["t", "denominator of Eq. (1)"],
             "income":        ["y", "income term &alpha;&thinsp;ln(y<sub>eff</sub>&minus;p<sub>j</sub>) in Eq. (2), see A2"],
             "income_gradient": ["&phi;", "y<sub>eff</sub> = y<sub>ref</sub>(y/y<sub>ref</sub>)<sup>&phi;</sup>, see A2"],
@@ -367,7 +369,7 @@ def build_model() -> dict:
     # methods and the four-step strip at the top use). (name, keys, advanced?)
     SLIDER_GROUPS = [
         ("Key assumptions",
-         ["media_price", "overhead", "markup_add", "meat_tax",
+         ["media_price", "overhead", "markup_add", "retail_margin", "meat_tax",
           "real_tissue_x", "accept_x", "theta_free_M", "premium_resistance"], False),
         ("Step 1 · cost and price", ["efficiency", "scaffold"], True),
         ("Step 2 · how shoppers choose",
@@ -402,12 +404,19 @@ def build_model() -> dict:
                "animal cells with food-industry financing. ${{PLANT_FLOOR_LO}} is a plant that costs what "
                "microbial fermentation plants cost, and no scenario assumes it. ${{OH_HI}} is a cautious case with a pharma-style plant and cells at half "
                "the density."),
-        slider("markup_add", "Retail markup (<i>m</i>)", "$/kg", 2.0, 9.0, 0.1, value("markup_add"),
-               "USDA spread",
-               tip="This covers processing, packaging, cold chain and retail margin, added per kg. The default $5 is about "
-               "conventional meat's farm-to-retail spread (USDA). Price parity needs a production cost below "
-               "the meat price minus this markup, so the markup matters a lot. Adding it per kg rather than as a "
-               "percentage is an assumption."),
+        slider("markup_add", "Costs to the shelf (<i>a</i>)", "$/kg", 0.0, 9.0, 0.1, value("markup_add"),
+               "USDA spread fit",
+               tip="Forming, packing, cold chain, transport and store handling, added per kg. They do not grow with the "
+               "product's price: USDA's meat prices show shop prices moving about dollar for dollar with wholesale prices. "
+               "Fitted to USDA's 2025 spreads with a 28% shop margin, they are $1.6/kg for chicken and $2.9 for beef; "
+               "the default $2.5 adds about $1 to form cells into a product. Set this to $5 and the shop margin to 0 "
+               "for the model's flat rule before November 2026."),
+        slider("retail_margin", "Shop's margin (<i>m</i>)", "of price", 0.0, 0.45, 0.01, value("retail_margin"),
+               "meat departments",
+               tip="The shop's gross margin as a share of the shelf price, so a dearer product carries a larger margin "
+               "in dollars. US supermarket meat departments run at about 28-32%; French supermarkets take 25% on a "
+               "premium Label Rouge chicken and 36% on a chicken fillet. The shelf price is (cost + <i>a</i>) / (1 &minus; <i>m</i>).",
+               fmt="pct"),
         slider("meat_tax", "Meat price multiplier (<i>t</i>)", "x", 0.8, 1.6, 0.05, 1.0, "policy",
                tip="This multiplies every conventional meat price, for example through a meat or carbon tax. A value of 1.0 leaves "
                "prices as they are. A multiplier of 1.25 lowers cultivated meat's price ratio as much as cutting all its "
@@ -692,7 +701,7 @@ def crosscheck(model: dict) -> None:
     from market_share import DemandParams, share
     from cost_model import CostParams, biomass_cost
     cp = CostParams()
-    R = (biomass_cost(cp, value("media_price"), 1.0) + value("markup_add")) / value("p_conv")
+    R = shelf_price(biomass_cost(cp, value("media_price"), 1.0)) / value("p_conv")
     pr = DemandParams()
     pb = share(1.0, pr, cultivated_present=False, which="pb")
     s0 = share(1.0, pr)                       # neutral defaults (accept_x=1, theta_free_M=0)
@@ -928,7 +937,7 @@ def _floor_mc_tokens(parity: float) -> dict:
 def _cost_cases_table(bio: float, markup: float, p_conv: float) -> str:
     """HTML rows for the 'what each cost case means' table: every case the page quotes, in plain words."""
     def row(name, what, shown, cost, mature, hl=False):
-        cell = lambda c: f'<td class="n">${c:.0f} ({(c + markup) / p_conv:.1f}&times;)</td>'
+        cell = lambda c: f'<td class="n">${c:.0f} ({shelf_price(c, markup) / p_conv:.1f}&times;)</td>'
         return (f'<tr{" class=\"hl\"" if hl else ""}><td>{name}</td><td class="s">{what}</td><td class="s">{shown}</td>'
                 f'{cell(cost)}{cell(mature)}</tr>')
     # the default's capital is $35 per kg of yearly output (inputs.py `overhead`): the two rates differ on that
@@ -960,6 +969,10 @@ def _scenario_tokens() -> dict:
             out[f"R_{tag}"] = f"{sm['ratio']:.2f}"
         if key == "central":
             out["PEN_US_CENTRAL_VOL"] = f"{sm['us']:.0f}"
+            import audit as AU                    # the shelf price under the three markup rules (research_notes/retail_markup_form.md)
+            out["RETAIL_CENTRAL"] = f"{AU.retail(sm['cost']):.0f}"
+            out["RETAIL_CENTRAL_FLAT"] = f"{AU.retail(sm['cost'], 'flat'):.0f}"
+            out["RETAIL_CENTRAL_PROP"] = f"{AU.retail(sm['cost'], 'proportional'):.0f}"
         if key in ("process", "central", "best"):
             tr = S.tricks_report(S.SCENARIOS[key].choice)
             out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
@@ -988,7 +1001,7 @@ def derived_numbers() -> dict:
     p_conv, markup = value("p_conv"), value("markup_add")
     media = float(media_cost(cp, value("media_price"), value("efficiency")))
     bio = float(biomass_cost(cp, value("media_price"), value("efficiency")))
-    R_today = (bio + markup) / p_conv
+    R_today = shelf_price(bio) / p_conv
     floor = float(cost_floor(cp))
     stall = media + _plant_oh("cautious")                     # the cautious plant case
     Rq = np.percentile(U.monte_carlo(20000, "commodity", {})["R"], [10, 50, 90])   # = RESULTS.md's draw
@@ -1007,11 +1020,12 @@ def derived_numbers() -> dict:
         "R_TODAY": f"{R_today:.1f}",
         "MEDIA_TODAY": f"{media:.0f}",
         "BIOMASS_TODAY": f"{bio:.0f}",
-        "RETAIL_TODAY": f"{bio + markup:.0f}",
-        "CUT_RETAIL_TODAY": f"{bio + mm.SCAF + markup:.0f}",
+        "RETAIL_TODAY": f"{shelf_price(bio):.0f}",
+        "CUT_RETAIL_TODAY": f"{shelf_price(bio + mm.SCAF):.0f}",
         "PCONV": f"{p_conv:.0f}",
-        "MARKUP": f"{markup:.0f}",
-        "PARITY_BIOMASS": f"{p_conv - markup:.0f}",
+        "MARKUP": f"{markup:.1f}",
+        "MARGIN_PCT": f"{value('retail_margin') * 100:.0f}",
+        "PARITY_BIOMASS": f"{cost_from_shelf(p_conv):.1f}",
         "COST_FLOOR": f"{floor:.1f}",
         "FEEDSTOCK_FLOOR": f"{AA_FLOOR + GLUCOSE_OTHER_FLOOR:.1f}",
         "PLANT_FLOOR": f"{value('plant_floor'):.1f}",
@@ -1027,7 +1041,7 @@ def derived_numbers() -> dict:
         "MEDIA_L": f"{value('media_intensity'):.1f}", "MEDIA_P": f"{value('media_price'):.2f}",
         "HUMBIRD_CHARGE_PCT": f"{value('humbird_plant_charge') * 100:.1f}",
         "HUMBIRD_PLANT": f"{value('humbird_plant_cost'):.1f}",
-        "R_STALL": f"{(stall + markup) / p_conv:.2f}",
+        "R_STALL": f"{shelf_price(stall) / p_conv:.2f}",
         "R_MC_P10": f"{Rq[0]:.1f}", "R_MC_P50": f"{Rq[1]:.1f}", "R_MC_P90": f"{Rq[2]:.1f}",
         "STAB_YEAR": str(stab()), "STAB_R05": str(stab(accept_rate=0.5)), "STAB_R005": str(stab(accept_rate=0.05)),
         "ORG_CUTS": f"{_org['vs_cuts']:.0f}", "ORG_MINCE": f"{_org['vs_mince']:.0f}",
@@ -1522,7 +1536,7 @@ The explanation of each step is under its title, and the equations are in the me
   <div>
     <h3 class="subh">1. The price ratio</h3>
     <p class="expl">R is cultivated meat's price in the shop divided by the price of everyday meat. An R of 1&times; means the same price. The shop price is the
-    cost of a kilo of cells (from the scenario) plus a markup for processing, packaging and the retailer's margin. The three numbers below are the
+    cost of a kilo of cells (from the scenario) plus the per-kilo costs of reaching the shelf and the shop's percentage margin. The three numbers below are the
     result for the region chosen on the left. They assume that cultivated meat is on every shelf and no longer feels new.</p>
     <div class="heads" id="heads"></div>
     <div class="calc" id="calc" aria-live="polite"></div>
@@ -1547,7 +1561,7 @@ The explanation of each step is under its title, and the equations are in the me
       <button class="mcbtn" id="mcbtn">Monte Carlo: off</button>
       <span class="mcnote">This redraws the charts with uncertainty bands.</span>
     </div>
-    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="This chart makes 2,000 random draws of the uncertain inputs from their plausible ranges. The inputs are medium price, cell efficiency, plant cost, markup, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance. It also draws plant-based meat's own taste, novelty and health image. Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
+    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="This chart makes 2,000 random draws of the uncertain inputs from their plausible ranges. The inputs are medium price, cell efficiency, plant cost, the costs of reaching the shelf, the shop's margin, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance. It also draws plant-based meat's own taste, novelty and health image. Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
         <p class="sub" id="mcsub"></p><svg id="mc" viewBox="0 0 720 250"></svg></div>
       <div class="card full"><h3 data-help="Each solid bar is cultivated meat's share within one kind of meat. Plant-based meat is stacked on top in a paler colour. The colour of the bar marks mince, cuts or premium, and R is the price ratio. The dashed lines are the totals across all meat, by weight and by value. With Monte Carlo on, the bars show medians and the whiskers show the 10&ndash;90% range.">Share by type of meat</h3>
         <p class="sub" id="barsub"></p><svg id="bars" viewBox="0 0 720 300"></svg></div>
@@ -1606,7 +1620,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       labelled. The model computes everything else at its default settings.</p>
 
       <details class="step" id="step1"><summary><b>Step 1 · Cost &rarr; price.</b> The price is medium, plant running cost and
-      retail markup, divided by the price of the meat it replaces. The result is {{R_TODAY}}&times; at the cost one company reports, {{R_BEST}}&times;
+      the costs of reaching the shelf, divided by the price of the meat it replaces. The result is {{R_TODAY}}&times; at the cost one company reports, {{R_BEST}}&times;
       in the best case and {{R_CENTRAL}}&times; in the central scenario.</summary>
       <p>The <b>price ratio</b> <i>R</i> is cultivated meat's retail price divided by the price of the conventional
       meat beside it. A ratio of 1 means the same price, and 2 means twice the price. The retail price has three parts:</p>
@@ -1621,8 +1635,9 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
         about $5 less. The plant's cost depends on its class, on how dense the culture is and on how fast the cells
         grow (see &ldquo;Cost scenarios&rdquo; below). Scaling up animal cells is hard because of oxygen and CO₂ transfer and
         sterility [2].</li>
-        <li><b>Getting it to the shelf</b> adds a ${{MARKUP}}/kg markup for processing, cold chain and retail. This is about
-        conventional meat's farm-to-retail spread. Structured cuts add $6/kg of scaffold. That figure is a guess, because no
+        <li><b>Getting it to the shelf</b> adds ${{MARKUP}}/kg for forming, packing and cold chain, and then the shop's margin,
+        {{MARGIN_PCT}}% of the shelf price. Fitted to conventional meat's wholesale-to-retail spreads, this form gives the
+        shop more dollars on a dearer product, as shops' percentage margins do. Structured cuts add $6/kg of scaffold. That figure is a guess, because no
         study has costed it [6].</li>
       </ul>
       <p><b>What the default cost is.</b> The default cost is what one company reports for its own process, scaled up on paper.
@@ -1635,7 +1650,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       out to be a wet pellet that holds several times more liquid than cells, so this page no longer uses it. The headline ratio uses a ${{PCONV}}/kg benchmark for everyday meat (range
       $10–14). The charts of share by type of meat, share of all meat and which products first use each meat's local price.</p>
       <p class="example"><b>Worked example.</b> Medium costs {{MEDIA_L}} × ${{MEDIA_P}} ≈ ${{MEDIA_TODAY}}/kg. The plant adds ${{OH_DEF}},
-      so cells cost ${{BIOMASS_TODAY}}/kg. The ${{MARKUP}} markup makes the shop price ${{RETAIL_TODAY}}/kg
+      so cells cost ${{BIOMASS_TODAY}}/kg. Adding ${{MARKUP}} to reach the shelf and the shop's {{MARGIN_PCT}}% margin makes the shop price ${{RETAIL_TODAY}}/kg
       (${{CUT_RETAIL_TODAY}} for a cut). Against ${{PCONV}} everyday meat, <i>R</i> ≈ {{R_TODAY}}.</p>
       <p><b>Cost scenarios.</b> Cells must eat a fixed amount of amino acids, glucose and salts, and that feed costs about ${{FEEDSTOCK_FLOOR}}/kg [2].
       The salts, buffer and vitamins in that figure are an assumption. The plant must also be paid for. The plant's cost per kilo is its cost
@@ -1650,7 +1665,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       Central,</b> adds cells selected on the low-waste feed until they double every 36 hours, not 43: ${{COST_CENTRAL}}/kg. <b>Row 4</b> adds a food-grade plant with shared
       medium: ${{COST_CENTRAL_LEAN}}/kg. <b>Row 5, the best case,</b> adds engineered cells and puts every switch at its cheapest setting with a plausible
       route: ${{COST_BEST}}/kg. <b>The forecast</b> puts each switch at the author's median for 2035: ${{COST_FORECAST}}/kg. Parity with ${{PCONV}}
-      meat and a ${{MARKUP}} markup needs ${{PARITY_BIOMASS}}/kg.
+      meat needs ${{PARITY_BIOMASS}}/kg.
       <b>Humbird's optimistic design.</b> Earlier versions of this page called this number the floor. It is Humbird's perfusion tank with
       his engineered cells, no tank tricks and no lost runs. The plant costs about ${{PLANT_FLOOR}}/kg and the cells cost ${{COST_FLOOR}}/kg. It
       assumes the hardest change, engineered cells, and none of the easy ones, so it is not a rung of the ladder. The page keeps it because it
@@ -1666,8 +1681,8 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       With those uncertain, the central case costs ${{CENTRAL_COST_P50}}/kg at the median (80% range ${{CENTRAL_COST_P10}}&ndash;{{CENTRAL_COST_P90}}).
       The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}), today's cells ${{TODAY_COST_P50}}
       (${{TODAY_COST_P10}}&ndash;{{TODAY_COST_P90}}) and the forecast ${{FORECAST_COST_P50}} (${{FORECAST_COST_P10}}&ndash;{{FORECAST_COST_P90}}).
-      When demand varies as well (price sensitivity, acceptance and the retail
-      markup), the long-run share of world meat is {{CENTRAL_SHARE_P50}}% in the central case at the median (80% range
+      When demand varies as well (price sensitivity, acceptance and the costs of reaching the
+      shelf), the long-run share of world meat is {{CENTRAL_SHARE_P50}}% in the central case at the median (80% range
       {{CENTRAL_SHARE_P10}}&ndash;{{CENTRAL_SHARE_P90}}%). It is {{BEST_SHARE_P50}}% in the best case ({{BEST_SHARE_P10}}&ndash;{{BEST_SHARE_P90}}%) and
       {{FORECAST_SHARE_P50}}% in the forecast ({{FORECAST_SHARE_P10}}&ndash;{{FORECAST_SHARE_P90}}%). With today's cells it is
       {{TODAY_SHARE_P50}}% ({{TODAY_SHARE_P10}}&ndash;{{TODAY_SHARE_P90}}%). The draws do not vary what the cells are like, how fast they grow or the other switches.
@@ -1680,7 +1695,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       <p><b>What each cost case means.</b> Every cost on this page is for one kilo of real cells, which are about 70% water
       and 20% protein, like meat. Plant costs are in 2025 prices. A pharma-style plant has
       clean rooms and vessels sterilised with steam. The last two columns give the cost and, in brackets, the shop
-      price against ${{PCONV}} everyday meat after a ${{MARKUP}}/kg markup. The first column finances the plant as a first
+      price against ${{PCONV}} everyday meat after ${{MARKUP}}/kg to the shelf and the shop's {{MARGIN_PCT}}% margin. The first column finances the plant as a first
       plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a year), and the second finances it as a mature food industry ({{MATURE_CHARGE_PCT}}%).
       The scenarios use the second. The reported process uses the first.</p>
       <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
@@ -1849,10 +1864,11 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
 
       <h5>A0. The equations</h5>
       <p><b>Step 1, the price ratio.</b></p>
-      \[ R \;=\; \frac{\overbrace{\iota\,\eta\,p_{\rm med}}^{\text{medium}} \;+\; \overbrace{h}^{\text{plant}}
-         \;+\; \overbrace{k}^{\text{scaffold (cuts)}} \;+\; \overbrace{m}^{\text{markup}}}{p_c\,t} \tag{1} \]
+      \[ R \;=\; \frac{\Big(\overbrace{\iota\,\eta\,p_{\rm med}}^{\text{medium}} \;+\; \overbrace{h}^{\text{plant}}
+         \;+\; \overbrace{k}^{\text{scaffold (cuts)}} \;+\; \overbrace{a}^{\text{to the shelf}}\Big)\Big/\big(1-\overbrace{m}^{\text{shop's margin}}\big)}{p_c\,t} \tag{1} \]
       <p>\(\iota\): litres of medium per kilo; \(\eta\): cell efficiency (1 = as reported); \(p_{\rm med}\): medium
-      price; \(h\): plant running cost; \(k\): scaffold (cuts only); \(m\): markup; \(p_c\): conventional price;
+      price; \(h\): plant running cost; \(k\): scaffold (cuts only); \(a\): forming, packing and cold chain per kilo; \(m\): the shop's
+      gross margin as a share of the shelf price; \(p_c\): conventional price;
       \(t\): meat-tax multiplier. The medium cost never falls below the feedstock dissolved in it.</p>
       <p><b>Step 2, the score and the shares.</b></p>
       \[ V_j \;=\; \underbrace{\alpha\ln(y_{\rm eff}-p_j) \;-\; \lambda\,(d_j)^{+} + (d_j)^{-}}_{\text{price}}
@@ -1998,10 +2014,14 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       Outlook 2024 and FAO food balance sheets (Europe, China, world). The mix of meats differs by region. China is
       two-thirds pork, the US is about half poultry, and Europe is pork-led and shifting to poultry. Prices and mixes for India,
       Brazil and Nigeria are rough.</p>
-      <p><b>The markup is added per kilo, not as a percentage.</b> Much of it (processing, cold chain, retail
-      handling) is genuinely per kilo, and conventional meat's farm-to-retail spread (USDA ERS, about $3–6/kg for
-      ground beef) sets its size. But this is a modelling choice rather than a measurement, and a percentage markup
-      would change the parity arithmetic. That is why the markup has its own slider.</p>
+      <p><b>The markup is part per kilo and part a percentage.</b> Forming, packing, cold chain and transport cost the same per
+      kilo whatever the product's price: USDA's monthly meat prices for 1970&ndash;2025 show shop prices moving about dollar for
+      dollar with wholesale prices over one to five years, not by the 1.7&ndash;2.5 times a pure percentage markup would give.
+      The shop's own margin is a percentage: US meat departments run at about 28&ndash;32% of the shelf price, so a product
+      that costs several times more carries more dollars of margin. Fitted to USDA's 2025 spreads with a 28% margin, the
+      per-kilo part is $1.6 for chicken and $2.9 for beef. Until November 2026 the model added a flat $5. At Central's cost,
+      the shelf price is ${{RETAIL_CENTRAL}} under this rule, ${{RETAIL_CENTRAL_FLAT}} under the old flat $5, and
+      ${{RETAIL_CENTRAL_PROP}} if the whole spread were a percentage. Both parts have sliders.</p>
 
       <h5>A8. Questions a sceptic might ask</h5>
       <p><b>Isn't ~{{PARITY_NEUTRAL}}% at equal price just assumed?</b> It follows from the model's symmetry. Two
@@ -2382,16 +2402,20 @@ function effConsts(s){
 function biomass(s){
   if(s.cost_override!=null) return s.cost_override;       // a cost scenario sets the cost (page_scenarios.js)
   return mediaCost(s.media_price,s.efficiency)+s.overhead+(s.cleanroom?C.cleanroom_cost:0);}
-function basicR(s){return (biomass(s)+s.markup_add)/(C.p_conv_anchor*s.meat_tax);}
+// Shelf price from the cost before the shelf: per-kg costs plus the shop's percentage margin. THE one place this
+// rule lives in the page (mirror of price_ratio.shelf_price); `mk`/`mg` default to the settings `s`.
+function shelfPrice(x,s,mk,mg){mk=(mk===undefined?s.markup_add:mk); mg=(mg===undefined?s.retail_margin:mg); return (x+mk)/(1-mg);}
+function parityCost(s){return C.p_conv_anchor*s.meat_tax*(1-s.retail_margin)-s.markup_add;}
+function basicR(s){return shelfPrice(biomass(s),s)/(C.p_conv_anchor*s.meat_tax);}
 function speciesBases(market){const b={};market.forEach(mt=>{const a=animalOf(mt.name);
   b[a]=Math.min((a in b)?b[a]:Infinity,mt.p_conv);});return b;}
 function tierOf(mt,base){return !mt.structured?"basic":(mt.p_conv>=C.PREMIUM_RATIO*base?"premium":"cut");}
 // per-type price ratio + tier, shared by penetration / monteCarlo / perTypeMC so the
-// R = (biomass*cost_mult + scaffold + markup) / (p_conv*meat_tax) formula lives in ONE place
-// (mirror of meat_market._rollup's per-type R). `b` biomass $/kg, `mk` retail markup $/kg.
-function typeR(mt,b,mk,s,bases){
+// R = shelfPrice(biomass*cost_mult + scaffold) / (p_conv*meat_tax) formula lives in ONE place
+// (mirror of meat_market._rollup's per-type R). `b` biomass $/kg, `mk` per-kg costs to the shelf, `mg` the shop's margin.
+function typeR(mt,b,mk,s,bases,mg){
   const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax;
-  return {R:(b*mt.cost_mult+scaf+mk)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
+  return {R:shelfPrice(b*mt.cost_mult+scaf,s,mk,mg)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
 }
 // per-tier authenticity offset and elasticity multiplier, scaled by the premium-resistance
 // dial r (r=1 central; r=0 no tier effect; mirrors meat_market.tier_authenticity/tier_eps_mult).
@@ -2636,7 +2660,7 @@ function addQ(parent,text){const q=document.createElement("span");q.className="q
 /* ---------- the four live views ---------- */
 function drawHeads(s){
   const b=biomass(s), p=penetration(s), R=basicR(s);
-  const retail=b+s.markup_add, conv=C.p_conv_anchor*s.meat_tax, cut=retail+s.scaffold;
+  const retail=shelfPrice(b,s), conv=C.p_conv_anchor*s.meat_tax, cut=shelfPrice(b+s.scaffold,s);
   const reg=MODEL.regions.find(r=>r[0]===s.region)[1];
   // Each cell = [big number, label HTML, second line, colour, tooltip]. The tooltip uses the same addQ()
   // "?" badge as the sliders (a styled #tip popup), not a native title= attribute.
@@ -2836,7 +2860,7 @@ function buildPieToggle(){
 function drawCost(s){
   const svg=document.getElementById("cost");clear(svg);
   // the scenarios' costs and the parity line are labelled in a column right of the plot, spaced so that no two overlap
-  const par=C.p_conv_anchor*s.meat_tax-s.markup_add;
+  const par=parityCost(s);
   const marks=SC.order.map(k=>({c:scEval(SC.presets[k].choice).total,lab:SC.presets[k].name.split(":")[0],col:"#117733"}));
   marks.forEach(m=>{ m.lab+=" ~$"+m.c.toFixed(1)+"/kg"; });
   marks.push({c:par,lab:"parity: everyday meat's cost or less, $"+par.toFixed(0)+"/kg",col:"#CC3311",par:true});
@@ -3181,8 +3205,8 @@ function fillCmpSel(){
    Cultivated retail cost = a waterline set by the live cost sliders (medium/overhead/markup/scaffold),
    via the SAME stack as the cost chart. Products are islands at their conventional price; above the
    line = price-reachable (R<1). Two reference lines: the current sea and the best-case sea. */
-function footRetail(s,structured){return biomass(s)+(structured?s.scaffold:0)+s.markup_add;}
-function footFloor(s,structured){return SC.best_cost+(structured?s.scaffold:0)+s.markup_add;}   // the best case's cost
+function footRetail(s,structured){return shelfPrice(biomass(s)+(structured?s.scaffold:0),s);}
+function footFloor(s,structured){return shelfPrice(SC.best_cost+(structured?s.scaffold:0),s);}   // the best case's cost
 function footR(s,pd){return footRetail(s,pd.structure==="structured")/pd.p_base;}   // vs the ACCESSIBLE price (rent stripped)
 function footHasRent(p){return p.p_base!=null && p.p_conv!=null && p.p_base<p.p_conv;}   // a distinct, cheaper accessible tier exists
 function footPhi(p){return footHasRent(p) ? (state.phi===undefined?0.25:state.phi) : 0;}  // global prestige share φ where a rent tier exists
@@ -3406,7 +3430,7 @@ function monteCarlo(s,N){
     const b=(s.cost_override!=null)?s.cost_override:mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     let tv=0,tval=0,tpv=0,tpval=0;
     for(const mt of market){
-      const {R,t}=typeR(mt,b,dr.markup_add,s,bases);
+      const {R,t}=typeR(mt,b,dr.markup_add,s,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,t,s);
       const sh=shareCalc(R,KP,o);
       // plant-based share of this type, in the SAME sampled world (same cultivated draw), with PB's
@@ -3430,7 +3454,7 @@ function perTypeMC(s,N){
       aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
     const b=(s.cost_override!=null)?s.cost_override:mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     for(const mt of market){
-      const {R,t}=typeR(mt,b,dr.markup_add,s,bases);
+      const {R,t}=typeR(mt,b,dr.markup_add,s,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,t,s);
       acc[mt.name][d]=shareCalc(R,KP,o);
       accP[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
@@ -3553,6 +3577,7 @@ function val2pos(s,v){const lo=Math.log(s.min),hi=Math.log(s.max);
   return 1000*(Math.log(Math.max(s.min,Math.min(s.max,v)))-lo)/(hi-lo);}
 function fmtVal(s,v){
   if(s.fmt==="signed")return (v>=0?"+":"")+v.toFixed(2);
+  if(s.fmt==="pct")return (v*100).toFixed(0)+"%";
   if(s.unit==="$/L")return "$"+v.toFixed(2);
   if(s.unit==="$/kg")return "$"+v.toFixed(s.step<1?1:0);
   if(s.unit==="$/yr")return "$"+(v/1000).toFixed(0)+"k";
@@ -3594,8 +3619,8 @@ function drawCalc(s,b,retail,conv,R){
     : '<li><b>Cost to grow a kilo.</b> The medium the cells feed on, plus the plant: '+
       '<span class="eq">'+medTxt+' + plant '+d1(s.overhead)+clean+' = '+d1(b)+'/kg</span></li>';
   document.getElementById("calc").innerHTML='<div class="ch">Your settings, step by step (everyday meat)</div><ol>'+costStep+
-    '<li><b>Price in the shop.</b> Add processing, packaging and the shop\'s margin: '+
-      '<span class="eq">'+d1(b)+' + markup '+d1(s.markup_add)+' = '+d1(retail)+'/kg</span></li>'+
+    '<li><b>Price in the shop.</b> Add forming, packing and cold chain per kg, then the shop\'s margin: '+
+      '<span class="eq">('+d1(b)+' + '+d1(s.markup_add)+') &divide; (1 &minus; '+(s.retail_margin*100).toFixed(0)+'%) = '+d1(retail)+'/kg</span></li>'+
     '<li><b>Price ratio.</b> Divide by the price of everyday meat'+tax+': '+
       '<span class="eq">'+d1(retail)+' &divide; '+d1(conv)+' = '+R.toFixed(2)+'&times;</span></li>'+
     '<li><b>Share.</b> Shoppers then choose by price, taste, "is it real meat?", health and welfare. '+
@@ -4197,7 +4222,7 @@ function fxRender(){
   g("fx_gf_v").textContent=(p.growth_factors*100).toFixed(0)+"%"; g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
   fxLast=r; { const m=document.getElementById("fx_apply_msg"); if(m) m.innerHTML=""; }
-  const R=(r.product+def.markup_add)/C.p_conv_anchor, blend=p.cell_share<1;
+  const R=shelfPrice(r.product,def)/C.p_conv_anchor, blend=p.cell_share<1;
   // long-run share against $12 meat (US): a blend is credited as real meat in proportion to its cells [assumed]
   def.region="us"; def.income=C.income_ref;
   const K=KP||effConsts(def), sh=shareCalc(R,K,{ax:1,tfM:0,rtx:p.cell_share*(K.real_tissue_x!==undefined?K.real_tissue_x:1)});
@@ -4221,7 +4246,7 @@ function fxRender(){
     "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   g("fx_limits").innerHTML=fxLimitsDraw(r,floorExplore(fxFloorCase()));
-  g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor-def.markup_add); fxTorCard();
+  g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor*(1-def.retail_margin)-def.markup_add); fxTorCard();
   { let k=0; const parts=Object.keys(C.fx.items).map(it=>{ const c=C.fx.items[it][its[it]][0]*C.fx.escalation; k+=c;
       return C.fx.item_labels[it].toLowerCase()+" $"+c.toFixed(0)+"k"; });
     g("fx_items_sum").innerHTML="These items add up to $"+k.toFixed(0)+"k per m&sup3; of tank in 2025 prices, at 20 m&sup3; tanks: "+parts.join(", ")+"."+

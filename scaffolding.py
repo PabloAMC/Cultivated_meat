@@ -13,7 +13,7 @@ The cost of a structured product
 --------------------------------
         structured_cost = biomass_cost + scaffold_cost
         scaffold_cost   = scaffold_frac[kg/kg] * material_price[$/kg] + process[$/kg]
-        p_cult          = structured_cost + markup_add
+        p_cult          = (structured_cost + markup_add) / (1 - retail_margin)
         R               = p_cult / p_conv_TARGET
 
 What we can ground vs. what we cannot:
@@ -36,7 +36,7 @@ scaffold cost lands at a much lower price RATIO. That is precisely the Wildtype 
 BlueNalu bet: target an expensive conventional product, and the structuring cost
 is absorbed by the high benchmark.
 
-Result preview (biomass ~$14/kg, markup $5/kg, scaffold ~$6/kg):
+Result preview (biomass ~$14/kg, a flat $5/kg markup as before 2026-11-18, scaffold ~$6/kg):
   * vs commodity meat ($12/kg):      R ~ 2.1  (never competitive)
   * vs premium fish ($25/kg):        R ~ 1.0  (around parity)
   * vs sushi salmon ($40/kg):        R ~ 0.6  (well BELOW parity, even with scaffold)
@@ -59,6 +59,7 @@ import matplotlib.pyplot as plt
 
 from common import setup_style, _save
 from inputs import value, prior
+from price_ratio import shelf_price
 
 
 # conventional TARGET products a structured cultivated product could compete with
@@ -73,7 +74,7 @@ COMPARATORS = [
 class ScaffoldParams:
     # --- inherited cost (from Rung 2) --------------------------------------
     biomass_cost: float = value("biomass_cost_nearterm")  # $/kg near-term (media $0.2/L, current cells)
-    markup_add: float = value("markup_add")   # $/kg additive biomass->retail (as Rung 2)
+    markup_add: float = value("markup_add")   # $/kg per-kg costs to the shelf; the retail margin is inputs.py's
 
     # --- scaffold material (ANCHORED: Gu25) --------------------------------
     scaffold_frac: float = value("scaffold_frac")    # kg scaffold material per kg product (minority mass)
@@ -91,7 +92,7 @@ def scaffold_cost(pr: ScaffoldParams, process=None, material=None) -> float:
 
 def structured_R(pr: ScaffoldParams, p_conv: float, scaff: float | None = None) -> float:
     sc = scaffold_cost(pr) if scaff is None else scaff
-    return (pr.biomass_cost + sc + pr.markup_add) / p_conv
+    return shelf_price(pr.biomass_cost + sc, pr.markup_add) / p_conv
 
 
 # ----------------------------------------------------------------------------
@@ -101,7 +102,8 @@ def summarise(pr: ScaffoldParams) -> None:
     sc = scaffold_cost(pr)
     print(f"  biomass ${pr.biomass_cost:.0f}/kg + scaffold ${sc:.0f}/kg "
           f"(material {pr.scaffold_frac*pr.material_price:.1f} + process {pr.process_cost:.0f}) "
-          f"+ markup ${pr.markup_add:.0f}/kg = p_cult ${pr.biomass_cost+sc+pr.markup_add:.0f}/kg")
+          f"+ ${pr.markup_add:.1f}/kg to the shelf, over (1 - {value('retail_margin'):.0%}) = "
+          f"p_cult ${shelf_price(pr.biomass_cost + sc, pr.markup_add):.0f}/kg")
     print("  structured-product price ratio R vs different conventional targets:")
     for name, pc, _ in COMPARATORS:
         R = structured_R(pr, pc)

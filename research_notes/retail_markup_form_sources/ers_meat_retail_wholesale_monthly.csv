@@ -1,0 +1,3673 @@
+year,month,item,cents_per_lb_retail_weight
+1970,1,Pork wholesale value,71.2
+1970,2,Pork wholesale value,70.4
+1970,3,Pork wholesale value,68
+1970,4,Pork wholesale value,65.2
+1970,5,Pork wholesale value,65.2
+1970,6,Pork wholesale value,66.2
+1970,7,Pork wholesale value,66.7
+1970,8,Pork wholesale value,61.9
+1970,9,Pork wholesale value,59.5
+1970,10,Pork wholesale value,56.7
+1970,11,Pork wholesale value,54.8
+1970,12,Pork wholesale value,55.5
+1971,1,Pork wholesale value,52.9
+1971,2,Pork wholesale value,56.3
+1971,3,Pork wholesale value,54.5
+1971,4,Pork wholesale value,52
+1971,5,Pork wholesale value,54.7
+1971,6,Pork wholesale value,55.9
+1971,7,Pork wholesale value,58.3
+1971,8,Pork wholesale value,56.6
+1971,9,Pork wholesale value,61.4
+1971,10,Pork wholesale value,60.5
+1971,11,Pork wholesale value,59.2
+1971,12,Pork wholesale value,60.8
+1972,1,Pork wholesale value,65.7
+1972,2,Pork wholesale value,69
+1972,3,Pork wholesale value,66.4
+1972,4,Pork wholesale value,63.8
+1972,5,Pork wholesale value,66.8
+1972,6,Pork wholesale value,69.5
+1972,7,Pork wholesale value,70.2
+1972,8,Pork wholesale value,73.8
+1972,9,Pork wholesale value,76.2
+1972,10,Pork wholesale value,77
+1972,11,Pork wholesale value,76.1
+1972,12,Pork wholesale value,81.5
+1973,1,Pork wholesale value,84
+1973,2,Pork wholesale value,88.2
+1973,3,Pork wholesale value,91.6
+1973,4,Pork wholesale value,87.1
+1973,5,Pork wholesale value,86.2
+1973,6,Pork wholesale value,88.2
+1973,7,Pork wholesale value,105
+1973,8,Pork wholesale value,124.1
+1973,9,Pork wholesale value,106
+1973,10,Pork wholesale value,95.7
+1973,11,Pork wholesale value,96.6
+1973,12,Pork wholesale value,97.3
+1974,1,Pork wholesale value,94.8
+1974,2,Pork wholesale value,94.8
+1974,3,Pork wholesale value,83
+1974,4,Pork wholesale value,77.8
+1974,5,Pork wholesale value,71.2
+1974,6,Pork wholesale value,70.8
+1974,7,Pork wholesale value,85
+1974,8,Pork wholesale value,86.7
+1974,9,Pork wholesale value,85.2
+1974,10,Pork wholesale value,89.9
+1974,11,Pork wholesale value,92.3
+1974,12,Pork wholesale value,94.3
+1975,1,Pork wholesale value,93.6
+1975,2,Pork wholesale value,95.6
+1975,3,Pork wholesale value,96.4
+1975,4,Pork wholesale value,98.1
+1975,5,Pork wholesale value,108.1
+1975,6,Pork wholesale value,116.2
+1975,7,Pork wholesale value,126.5
+1975,8,Pork wholesale value,131.3
+1975,9,Pork wholesale value,138.3
+1975,10,Pork wholesale value,135.1
+1975,11,Pork wholesale value,125.7
+1975,12,Pork wholesale value,118.9
+1976,1,Pork wholesale value,115.3
+1976,2,Pork wholesale value,113.2
+1976,3,Pork wholesale value,107.7
+1976,4,Pork wholesale value,110.8
+1976,5,Pork wholesale value,113.7
+1976,6,Pork wholesale value,114.3
+1976,7,Pork wholesale value,110.2
+1976,8,Pork wholesale value,103.7
+1976,9,Pork wholesale value,99.5
+1976,10,Pork wholesale value,89.8
+1976,11,Pork wholesale value,89
+1976,12,Pork wholesale value,95.8
+1977,1,Pork wholesale value,96.4
+1977,2,Pork wholesale value,95.8
+1977,3,Pork wholesale value,92.8
+1977,4,Pork wholesale value,91.4
+1977,5,Pork wholesale value,97.2
+1977,6,Pork wholesale value,101.3
+1977,7,Pork wholesale value,103.9
+1977,8,Pork wholesale value,101.3
+1977,9,Pork wholesale value,97.7
+1977,10,Pork wholesale value,100.7
+1977,11,Pork wholesale value,102.4
+1977,12,Pork wholesale value,106.7
+1978,1,Pork wholesale value,101.7
+1978,2,Pork wholesale value,106.9
+1978,3,Pork wholesale value,105.8
+1978,4,Pork wholesale value,104.6
+1978,5,Pork wholesale value,106.9
+1978,6,Pork wholesale value,105.4
+1978,7,Pork wholesale value,104.7
+1978,8,Pork wholesale value,107.5
+1978,9,Pork wholesale value,110.7
+1978,10,Pork wholesale value,114.8
+1978,11,Pork wholesale value,111
+1978,12,Pork wholesale value,112.2
+1979,1,Pork wholesale value,121.916
+1979,2,Pork wholesale value,121.916
+1979,3,Pork wholesale value,114.9794
+1979,4,Pork wholesale value,109.0938
+1979,5,Pork wholesale value,104.9949
+1979,6,Pork wholesale value,101.6317
+1979,7,Pork wholesale value,98.1634
+1979,8,Pork wholesale value,96.692
+1979,9,Pork wholesale value,99.6348
+1979,10,Pork wholesale value,94.6951
+1979,11,Pork wholesale value,101.4215
+1979,12,Pork wholesale value,100.4756
+1980,1,Pork wholesale value,98.0583
+1980,2,Pork wholesale value,95.9563
+1980,3,Pork wholesale value,92.488
+1980,4,Pork wholesale value,83.7647
+1980,5,Pork wholesale value,83.5545
+1980,6,Pork wholesale value,92.0676
+1980,7,Pork wholesale value,106.6765
+1980,8,Pork wholesale value,116.661
+1980,9,Pork wholesale value,116.2406
+1980,10,Pork wholesale value,119.0783
+1980,11,Pork wholesale value,117.3967
+1980,12,Pork wholesale value,114.1386
+1981,1,Pork wholesale value,109.4091
+1981,2,Pork wholesale value,109.9346
+1981,3,Pork wholesale value,106.7816
+1981,4,Pork wholesale value,106.3612
+1981,5,Pork wholesale value,106.6765
+1981,6,Pork wholesale value,115.0845
+1981,7,Pork wholesale value,120.3395
+1981,8,Pork wholesale value,119.3936
+1981,9,Pork wholesale value,118.4477
+1981,10,Pork wholesale value,113.4029
+1981,11,Pork wholesale value,110.6703
+1981,12,Pork wholesale value,108.7785
+1982,1,Pork wholesale value,112.457
+1982,2,Pork wholesale value,114.3488
+1982,3,Pork wholesale value,116.0304
+1982,4,Pork wholesale value,119.814
+1982,5,Pork wholesale value,128.3271
+1982,6,Pork wholesale value,131.4801
+1982,7,Pork wholesale value,135.8943
+1982,8,Pork wholesale value,139.5728
+1982,9,Pork wholesale value,142.936
+1982,10,Pork wholesale value,134.3178
+1982,11,Pork wholesale value,130.5342
+1982,12,Pork wholesale value,130.5342
+1983,1,Pork wholesale value,127.8016
+1983,2,Pork wholesale value,128.5373
+1983,3,Pork wholesale value,120.0242
+1983,4,Pork wholesale value,114.3488
+1983,5,Pork wholesale value,111.406
+1983,6,Pork wholesale value,111.1958
+1983,7,Pork wholesale value,109.5142
+1983,8,Pork wholesale value,114.6641
+1983,9,Pork wholesale value,108.6734
+1983,10,Pork wholesale value,104.8898
+1983,11,Pork wholesale value,105.9408
+1983,12,Pork wholesale value,116.4508
+1984,1,Pork wholesale value,118.6579
+1984,2,Pork wholesale value,114.7692
+1984,3,Pork wholesale value,109.0938
+1984,4,Pork wholesale value,112.5621
+1984,5,Pork wholesale value,116.2406
+1984,6,Pork wholesale value,116.4508
+1984,7,Pork wholesale value,123.9129
+1984,8,Pork wholesale value,121.8109
+1984,9,Pork wholesale value,117.3967
+1984,10,Pork wholesale value,106.4663
+1984,11,Pork wholesale value,112.2468
+1984,12,Pork wholesale value,118.4477
+1985,1,Pork wholesale value,115.61
+1985,2,Pork wholesale value,112.3519
+1985,3,Pork wholesale value,107.202
+1985,4,Pork wholesale value,102.1572
+1985,5,Pork wholesale value,104.6796
+1985,6,Pork wholesale value,111.7213
+1985,7,Pork wholesale value,99.9
+1985,8,Pork wholesale value,104.9949
+1985,9,Pork wholesale value,101.7368
+1985,10,Pork wholesale value,103.7337
+1985,11,Pork wholesale value,104.6796
+1985,12,Pork wholesale value,108.7785
+1986,1,Pork wholesale value,104.1541
+1986,2,Pork wholesale value,100.5807
+1986,3,Pork wholesale value,97.1124
+1986,4,Pork wholesale value,96.3767
+1986,5,Pork wholesale value,108.0428
+1986,6,Pork wholesale value,117.9222
+1986,7,Pork wholesale value,133.8974
+1986,8,Pork wholesale value,138.6269
+1986,9,Pork wholesale value,133.7923
+1986,10,Pork wholesale value,124.5435
+1986,11,Pork wholesale value,124.4384
+1986,12,Pork wholesale value,119.2885
+1987,1,Pork wholesale value,110.7754
+1987,2,Pork wholesale value,109.0938
+1987,3,Pork wholesale value,107.4122
+1987,4,Pork wholesale value,113.9284
+1987,5,Pork wholesale value,122.967
+1987,6,Pork wholesale value,130.6393
+1987,7,Pork wholesale value,132.6362
+1987,8,Pork wholesale value,133.477
+1987,9,Pork wholesale value,125.9098
+1987,10,Pork wholesale value,118.4477
+1987,11,Pork wholesale value,108.3581
+1987,12,Pork wholesale value,111.9315
+1988,1,Pork wholesale value,109.304
+1988,2,Pork wholesale value,110.6703
+1988,3,Pork wholesale value,108.7785
+1988,4,Pork wholesale value,107.7275
+1988,5,Pork wholesale value,111.8264
+1988,6,Pork wholesale value,111.7213
+1988,7,Pork wholesale value,105.1
+1988,8,Pork wholesale value,106.5714
+1988,9,Pork wholesale value,102.1572
+1988,10,Pork wholesale value,100.6858
+1988,11,Pork wholesale value,96.9022
+1988,12,Pork wholesale value,102.7878
+1989,1,Pork wholesale value,99.1093
+1989,2,Pork wholesale value,97.4277
+1989,3,Pork wholesale value,96.4818
+1989,4,Pork wholesale value,93.1186
+1989,5,Pork wholesale value,100.3705
+1989,6,Pork wholesale value,104.6796
+1989,7,Pork wholesale value,105.7306
+1989,8,Pork wholesale value,106.4663
+1989,9,Pork wholesale value,105.7306
+1989,10,Pork wholesale value,111.5111
+1989,11,Pork wholesale value,112.3519
+1989,12,Pork wholesale value,118.0273
+1990,1,Pork wholesale value,110.1448
+1990,2,Pork wholesale value,110.9856
+1990,3,Pork wholesale value,116.5559
+1990,4,Pork wholesale value,120.6548
+1990,5,Pork wholesale value,133.6872
+1990,6,Pork wholesale value,132.0056
+1990,7,Pork wholesale value,133.7923
+1990,8,Pork wholesale value,126.6455
+1990,9,Pork wholesale value,126.8557
+1990,10,Pork wholesale value,130.7444
+1990,11,Pork wholesale value,125.8047
+1990,12,Pork wholesale value,123.4925
+1991,1,Pork wholesale value,115.2947
+1991,2,Pork wholesale value,115.7151
+1991,3,Pork wholesale value,116.4508
+1991,4,Pork wholesale value,115.2947
+1991,5,Pork wholesale value,121.3905
+1991,6,Pork wholesale value,121.916
+1991,7,Pork wholesale value,121.6007
+1991,8,Pork wholesale value,117.1865
+1991,9,Pork wholesale value,112.5621
+1991,10,Pork wholesale value,109.9346
+1991,11,Pork wholesale value,102.5776
+1991,12,Pork wholesale value,103.3133
+1992,1,Pork wholesale value,98.3736
+1992,2,Pork wholesale value,104.3643
+1992,3,Pork wholesale value,100.4756
+1992,4,Pork wholesale value,100.0552
+1992,5,Pork wholesale value,106.3612
+1992,6,Pork wholesale value,110.1448
+1992,7,Pork wholesale value,106.9918
+1992,8,Pork wholesale value,106.8867
+1992,9,Pork wholesale value,104.6796
+1992,10,Pork wholesale value,103.8388
+1992,11,Pork wholesale value,101.8419
+1992,12,Pork wholesale value,103.8388
+1993,1,Pork wholesale value,99.845
+1993,2,Pork wholesale value,104.049
+1993,3,Pork wholesale value,107.8326
+1993,4,Pork wholesale value,107.5173
+1993,5,Pork wholesale value,107.8326
+1993,6,Pork wholesale value,111.0907
+1993,7,Pork wholesale value,108.0428
+1993,8,Pork wholesale value,111.1958
+1993,9,Pork wholesale value,110.8805
+1993,10,Pork wholesale value,111.9315
+1993,11,Pork wholesale value,108.9887
+1993,12,Pork wholesale value,107.9377
+1994,1,Pork wholesale value,111.8264
+1994,2,Pork wholesale value,113.6131
+1994,3,Pork wholesale value,110.355
+1994,4,Pork wholesale value,108.5683
+1994,5,Pork wholesale value,107.4122
+1994,6,Pork wholesale value,104.1541
+1994,7,Pork wholesale value,104.9949
+1994,8,Pork wholesale value,105.6255
+1994,9,Pork wholesale value,100.3705
+1994,10,Pork wholesale value,96.2716
+1994,11,Pork wholesale value,91.0166
+1994,12,Pork wholesale value,93.4339
+1995,1,Pork wholesale value,95.7461
+1995,2,Pork wholesale value,97.743
+1995,3,Pork wholesale value,96.0614
+1995,4,Pork wholesale value,94.59
+1995,5,Pork wholesale value,97.6379
+1995,6,Pork wholesale value,104.2592
+1995,7,Pork wholesale value,106.7816
+1995,8,Pork wholesale value,111.5111
+1995,9,Pork wholesale value,112.2468
+1995,10,Pork wholesale value,113.4029
+1995,11,Pork wholesale value,105.9408
+1995,12,Pork wholesale value,109.7244
+1996,1,Pork wholesale value,107.3071
+1996,2,Pork wholesale value,111.0907
+1996,3,Pork wholesale value,113.8233
+1996,4,Pork wholesale value,116.7661
+1996,5,Pork wholesale value,126.9608
+1996,6,Pork wholesale value,122.8619
+1996,7,Pork wholesale value,129.0628
+1996,8,Pork wholesale value,133.0566
+1996,9,Pork wholesale value,126.9608
+1996,10,Pork wholesale value,127.9067
+1996,11,Pork wholesale value,130.2189
+1996,12,Pork wholesale value,132.6362
+1997,1,Pork wholesale value,125.6996
+1997,2,Pork wholesale value,123.5976
+1997,3,Pork wholesale value,121.6007
+1997,4,Pork wholesale value,126.9608
+1997,5,Pork wholesale value,130.9546
+1997,6,Pork wholesale value,129.273
+1997,7,Pork wholesale value,129.6934
+1997,8,Pork wholesale value,129.5883
+1997,9,Pork wholesale value,123.3874
+1997,10,Pork wholesale value,116.1355
+1997,11,Pork wholesale value,113.4029
+1997,12,Pork wholesale value,106.6765
+1998,1,Pork wholesale value,101.1062
+1998,2,Pork wholesale value,98.794
+1998,3,Pork wholesale value,97.1
+1998,4,Pork wholesale value,96.2
+1998,5,Pork wholesale value,108.9
+1998,6,Pork wholesale value,108.1
+1998,7,Pork wholesale value,101.1
+1998,8,Pork wholesale value,100.9
+1998,9,Pork wholesale value,96.2
+1998,10,Pork wholesale value,93.3
+1998,11,Pork wholesale value,84.6
+1998,12,Pork wholesale value,81.1
+1999,1,Pork wholesale value,95.6
+1999,2,Pork wholesale value,91
+1999,3,Pork wholesale value,89.2
+1999,4,Pork wholesale value,95
+1999,5,Pork wholesale value,105.3
+1999,6,Pork wholesale value,100.5
+1999,7,Pork wholesale value,97
+1999,8,Pork wholesale value,107.7
+1999,9,Pork wholesale value,105
+1999,10,Pork wholesale value,99.5
+1999,11,Pork wholesale value,97.7
+1999,12,Pork wholesale value,103.6273907
+2000,1,Pork wholesale value,104.6412613
+2000,2,Pork wholesale value,110.0874715
+2000,3,Pork wholesale value,112.6290526
+2000,4,Pork wholesale value,118.6256926
+2000,5,Pork wholesale value,119.7385251
+2000,6,Pork wholesale value,122.1488115
+2000,7,Pork wholesale value,123.1174469
+2000,8,Pork wholesale value,117.3173016
+2000,9,Pork wholesale value,111.8556512
+2000,10,Pork wholesale value,114.3148666
+2000,11,Pork wholesale value,108.0929793
+2000,12,Pork wholesale value,111.0583007
+2001,1,Pork wholesale value,107.9218106
+2001,2,Pork wholesale value,107.7266029
+2001,3,Pork wholesale value,117.3012389
+2001,4,Pork wholesale value,120.5249792
+2001,5,Pork wholesale value,125.9663229
+2001,6,Pork wholesale value,128.427754
+2001,7,Pork wholesale value,126.1964346
+2001,8,Pork wholesale value,129.2356483
+2001,9,Pork wholesale value,123.9199677
+2001,10,Pork wholesale value,113.4882455
+2001,11,Pork wholesale value,105.7477968
+2001,12,Pork wholesale value,105.5219865
+2002,1,Pork wholesale value,108.448461
+2002,2,Pork wholesale value,108.327881
+2002,3,Pork wholesale value,104.5562114
+2002,4,Pork wholesale value,98.17767392
+2002,5,Pork wholesale value,99.31618823
+2002,6,Pork wholesale value,102.5594364
+2002,7,Pork wholesale value,103.9519141
+2002,8,Pork wholesale value,96.82708528
+2002,9,Pork wholesale value,91.18396729
+2002,10,Pork wholesale value,98.13649067
+2002,11,Pork wholesale value,96.56102969
+2002,12,Pork wholesale value,98.97620852
+2003,1,Pork wholesale value,101.93537
+2003,2,Pork wholesale value,101.3847932
+2003,3,Pork wholesale value,102.1420275
+2003,4,Pork wholesale value,101.86471
+2003,5,Pork wholesale value,109.2729872
+2003,6,Pork wholesale value,120.3940216
+2003,7,Pork wholesale value,113.0960976
+2003,8,Pork wholesale value,112.5831349
+2003,9,Pork wholesale value,117.0020103
+2003,10,Pork wholesale value,108.0801189
+2003,11,Pork wholesale value,102.2885604
+2003,12,Pork wholesale value,101.8198749
+2004,1,Pork wholesale value,107.9493622
+2004,2,Pork wholesale value,113.9117778
+2004,3,Pork wholesale value,118.8130621
+2004,4,Pork wholesale value,121.5169874
+2004,5,Pork wholesale value,134.7671691
+2004,6,Pork wholesale value,135.9680151
+2004,7,Pork wholesale value,135.8010297
+2004,8,Pork wholesale value,134.1487957
+2004,9,Pork wholesale value,133.6771889
+2004,10,Pork wholesale value,131.7264606
+2004,11,Pork wholesale value,129.7167991
+2004,12,Pork wholesale value,128.7776967
+2005,1,Pork wholesale value,130.8953867
+2005,2,Pork wholesale value,126.2852401
+2005,3,Pork wholesale value,125.9808944
+2005,4,Pork wholesale value,125.5482235
+2005,5,Pork wholesale value,131.1932373
+2005,6,Pork wholesale value,122.1074894
+2005,7,Pork wholesale value,123.2998382
+2005,8,Pork wholesale value,127.458663
+2005,9,Pork wholesale value,126.5181393
+2005,10,Pork wholesale value,122.4538997
+2005,11,Pork wholesale value,120.6033752
+2005,12,Pork wholesale value,117.832164
+2006,1,Pork wholesale value,109.9664665
+2006,2,Pork wholesale value,110.1773068
+2006,3,Pork wholesale value,115.8065899
+2006,4,Pork wholesale value,113.3753544
+2006,5,Pork wholesale value,121.3925602
+2006,6,Pork wholesale value,132.6876559
+2006,7,Pork wholesale value,129.19706
+2006,8,Pork wholesale value,130.8629596
+2006,9,Pork wholesale value,127.6091932
+2006,10,Pork wholesale value,124.9868747
+2006,11,Pork wholesale value,120.8832739
+2006,12,Pork wholesale value,119.3574228
+2007,1,Pork wholesale value,117.2279054
+2007,2,Pork wholesale value,124.2543591
+2007,3,Pork wholesale value,119.7435905
+2007,4,Pork wholesale value,123.7135163
+2007,5,Pork wholesale value,130.4928268
+2007,6,Pork wholesale value,130.7975817
+2007,7,Pork wholesale value,126.8704101
+2007,8,Pork wholesale value,127.1822638
+2007,9,Pork wholesale value,120.6867259
+2007,10,Pork wholesale value,114.5538567
+2007,11,Pork wholesale value,111.0990758
+2007,12,Pork wholesale value,110.6247471
+2008,1,Pork wholesale value,109.2217667
+2008,2,Pork wholesale value,112.7423155
+2008,3,Pork wholesale value,110.0298914
+2008,4,Pork wholesale value,119.4008224
+2008,5,Pork wholesale value,135.4913286
+2008,6,Pork wholesale value,134.7852127
+2008,7,Pork wholesale value,139.8894492
+2008,8,Pork wholesale value,148.5412838
+2008,9,Pork wholesale value,134.3725561
+2008,10,Pork wholesale value,125.3304469
+2008,11,Pork wholesale value,112.6845563
+2008,12,Pork wholesale value,114.3789558
+2009,1,Pork wholesale value,112.7616548
+2009,2,Pork wholesale value,111.0300386
+2009,3,Pork wholesale value,111.2348016
+2009,4,Pork wholesale value,112.0777577
+2009,5,Pork wholesale value,112.3305598
+2009,6,Pork wholesale value,109.0440597
+2009,7,Pork wholesale value,111.39866
+2009,8,Pork wholesale value,106.7820263
+2009,9,Pork wholesale value,106.1392936
+2009,10,Pork wholesale value,107.9803828
+2009,11,Pork wholesale value,111.054478
+2009,12,Pork wholesale value,122.4538989
+2010,1,Pork wholesale value,129.017799
+2010,2,Pork wholesale value,125.1408052
+2010,3,Pork wholesale value,130.8567507
+2010,4,Pork wholesale value,145.3112155
+2010,5,Pork wholesale value,148.5761527
+2010,6,Pork wholesale value,143.466366
+2010,7,Pork wholesale value,141.7399231
+2010,8,Pork wholesale value,150.1533707
+2010,9,Pork wholesale value,149.3547702
+2010,10,Pork wholesale value,145.3967538
+2010,11,Pork wholesale value,142.535494
+2010,12,Pork wholesale value,142.3486315
+2011,1,Pork wholesale value,145.5939675
+2011,2,Pork wholesale value,153.9591798
+2011,3,Pork wholesale value,156.082404
+2011,4,Pork wholesale value,158.8301291
+2011,5,Pork wholesale value,159.1431198
+2011,6,Pork wholesale value,158.08586
+2011,7,Pork wholesale value,165.5667897
+2011,8,Pork wholesale value,173.0331165
+2011,9,Pork wholesale value,165.0769626
+2011,10,Pork wholesale value,163.5224811
+2011,11,Pork wholesale value,155.3079781
+2011,12,Pork wholesale value,152.4810995
+2012,1,Pork wholesale value,146.9058558
+2012,2,Pork wholesale value,148.4191116
+2012,3,Pork wholesale value,144.5213333
+2012,4,Pork wholesale value,140.5682992
+2012,5,Pork wholesale value,143.8643027
+2012,6,Pork wholesale value,155.8320691
+2012,7,Pork wholesale value,153.817105
+2012,8,Pork wholesale value,150.726912
+2012,9,Pork wholesale value,141.2607055
+2012,10,Pork wholesale value,148.1475246
+2012,11,Pork wholesale value,145.31853
+2012,12,Pork wholesale value,145.8546707
+2013,1,Pork wholesale value,146.8485887
+2013,2,Pork wholesale value,148.8007521
+2013,3,Pork wholesale value,139.5306159
+2013,4,Pork wholesale value,141.239245
+2013,5,Pork wholesale value,153.010282
+2013,6,Pork wholesale value,167.4051004
+2013,7,Pork wholesale value,172.5298586
+2013,8,Pork wholesale value,170.6814805
+2013,9,Pork wholesale value,168.1752284
+2013,10,Pork wholesale value,165.018448
+2013,11,Pork wholesale value,161.1968579
+2013,12,Pork wholesale value,156.6526449
+2014,1,Pork wholesale value,153.8821181
+2014,2,Pork wholesale value,166.4598483
+2014,3,Pork wholesale value,199.1894115
+2014,4,Pork wholesale value,202.529032
+2014,5,Pork wholesale value,191.9858006
+2014,6,Pork wholesale value,207.287771
+2014,7,Pork wholesale value,223.0725699
+2014,8,Pork wholesale value,194.8836143
+2014,9,Pork wholesale value,189.4355878
+2014,10,Pork wholesale value,194.5873572
+2014,11,Pork wholesale value,169.4759076
+2014,12,Pork wholesale value,159.0103723
+2015,1,Pork wholesale value,149.2406392
+2015,2,Pork wholesale value,139.8771001
+2015,3,Pork wholesale value,132.9627027
+2015,4,Pork wholesale value,133.332265
+2015,5,Pork wholesale value,152.9918982
+2015,6,Pork wholesale value,150.5522956
+2015,7,Pork wholesale value,144.7470524
+2015,8,Pork wholesale value,151.7966563
+2015,9,Pork wholesale value,151.6235697
+2015,10,Pork wholesale value,156.555262
+2015,11,Pork wholesale value,145.8817511
+2015,12,Pork wholesale value,139.0021598
+2016,1,Pork wholesale value,140.1493385
+2016,2,Pork wholesale value,144.119452
+2016,3,Pork wholesale value,145.3168092
+2016,4,Pork wholesale value,150.1119117
+2016,5,Pork wholesale value,155.9813583
+2016,6,Pork wholesale value,158.7790284
+2016,7,Pork wholesale value,163.5096655
+2016,8,Pork wholesale value,153.2841512
+2016,9,Pork wholesale value,155.0211029
+2016,10,Pork wholesale value,143.2049271
+2016,11,Pork wholesale value,143.3262695
+2016,12,Pork wholesale value,148.6552158
+2017,1,Pork wholesale value,151.5650991
+2017,2,Pork wholesale value,155.6401221
+2017,3,Pork wholesale value,162.4709615
+2017,4,Pork wholesale value,158.8255413
+2017,5,Pork wholesale value,168.19892
+2017,6,Pork wholesale value,178.4229776
+2017,7,Pork wholesale value,186.4562573
+2017,8,Pork wholesale value,158.4130068
+2017,9,Pork wholesale value,129.3209464
+2017,10,Pork wholesale value,121.855784
+2017,11,Pork wholesale value,146.5726118
+2017,12,Pork wholesale value,146.6298977
+2018,1,Pork wholesale value,150.1554157
+2018,2,Pork wholesale value,144.9631891
+2018,3,Pork wholesale value,132.4627291
+2018,4,Pork wholesale value,123.4728943
+2018,5,Pork wholesale value,133.292322
+2018,6,Pork wholesale value,160.2620078
+2018,7,Pork wholesale value,163.7086512
+2018,8,Pork wholesale value,124.6909063
+2018,9,Pork wholesale value,136.1414735
+2018,10,Pork wholesale value,148.9582312
+2018,11,Pork wholesale value,129.2160944
+2018,12,Pork wholesale value,134.1571968
+2019,1,Pork wholesale value,134.9588629
+2019,2,Pork wholesale value,119.3999237
+2019,3,Pork wholesale value,138.9811722
+2019,4,Pork wholesale value,164.924109
+2019,5,Pork wholesale value,155.9994705
+2019,6,Pork wholesale value,148.408522
+2019,7,Pork wholesale value,148.5732613
+2019,8,Pork wholesale value,161.5362571
+2019,9,Pork wholesale value,131.7542314
+2019,10,Pork wholesale value,144.922307
+2019,11,Pork wholesale value,153.0902497
+2019,12,Pork wholesale value,141.8969216
+2020,1,Pork wholesale value,136.2783132
+2020,2,Pork wholesale value,115.4468606
+2020,3,Pork wholesale value,129.2087898
+2020,4,Pork wholesale value,121.6435731
+2020,5,Pork wholesale value,200.6897777
+2020,6,Pork wholesale value,139.7613099
+2020,7,Pork wholesale value,135.7105982
+2020,8,Pork wholesale value,147.0609935
+2020,9,Pork wholesale value,168.9766759
+2020,10,Pork wholesale value,186.4852926
+2020,11,Pork wholesale value,153.0289243
+2020,12,Pork wholesale value,142.832747
+2021,1,Pork wholesale value,160.4129663
+2021,2,Pork wholesale value,174.3578092
+2021,3,Pork wholesale value,204.4347863
+2021,4,Pork wholesale value,212.3724441
+2021,5,Pork wholesale value,216.3286112
+2021,6,Pork wholesale value,224.9602236
+2021,7,Pork wholesale value,231.09267
+2021,8,Pork wholesale value,241.3635844
+2021,9,Pork wholesale value,206.170915
+2021,10,Pork wholesale value,202.0725908
+2021,11,Pork wholesale value,173.3697554
+2021,12,Pork wholesale value,164.4427612
+2022,1,Pork wholesale value,183.0458632
+2022,2,Pork wholesale value,213.1613165
+2022,3,Pork wholesale value,212.2077761
+2022,4,Pork wholesale value,208.6528211
+2022,5,Pork wholesale value,198.3202429
+2022,6,Pork wholesale value,203.6482311
+2022,7,Pork wholesale value,228.3299021
+2022,8,Pork wholesale value,226.2866931
+2022,9,Pork wholesale value,193.0125489
+2022,10,Pork wholesale value,190.6462635
+2022,11,Pork wholesale value,174.7167102
+2022,12,Pork wholesale value,162.4742562
+2023,1,Pork wholesale value,154.5460779
+2023,2,Pork wholesale value,153.3069738
+2023,3,Pork wholesale value,154.2683787
+2023,4,Pork wholesale value,142.9270698
+2023,5,Pork wholesale value,147.0452361
+2023,6,Pork wholesale value,169.0185649
+2023,7,Pork wholesale value,215.6842332
+2023,8,Pork wholesale value,209.6005053
+2023,9,Pork wholesale value,185.1515957
+2023,10,Pork wholesale value,168.0616424
+2023,11,Pork wholesale value,154.9428083
+2023,12,Pork wholesale value,147.0846477
+2024,1,Pork wholesale value,167.0925642
+2024,2,Pork wholesale value,169.0619418
+2024,3,Pork wholesale value,175.6789293
+2024,4,Pork wholesale value,183.1879387
+2024,5,Pork wholesale value,183.0296249
+2024,6,Pork wholesale value,181.0459697
+2024,7,Pork wholesale value,185.39612
+2024,8,Pork wholesale value,188.2183448
+2024,9,Pork wholesale value,178.0251052
+2024,10,Pork wholesale value,186.150117
+2024,11,Pork wholesale value,179.0963282
+2024,12,Pork wholesale value,172.241554
+1970,1,Pork retail value,81.4
+1970,2,Pork retail value,81.1
+1970,3,Pork retail value,80.7
+1970,4,Pork retail value,79.3
+1970,5,Pork retail value,79.4
+1970,6,Pork retail value,79.4
+1970,7,Pork retail value,80
+1970,8,Pork retail value,79.1
+1970,9,Pork retail value,76.1
+1970,10,Pork retail value,74
+1970,11,Pork retail value,70.2
+1970,12,Pork retail value,67.9
+1971,1,Pork retail value,67.9
+1971,2,Pork retail value,68.9
+1971,3,Pork retail value,69.4
+1971,4,Pork retail value,68.2
+1971,5,Pork retail value,67.7
+1971,6,Pork retail value,69.1
+1971,7,Pork retail value,70.9
+1971,8,Pork retail value,71.1
+1971,9,Pork retail value,70.5
+1971,10,Pork retail value,70.8
+1971,11,Pork retail value,70.9
+1971,12,Pork retail value,72.4
+1972,1,Pork retail value,75.8
+1972,2,Pork retail value,80.8
+1972,3,Pork retail value,78.9
+1972,4,Pork retail value,77.7
+1972,5,Pork retail value,78.9
+1972,6,Pork retail value,81.5
+1972,7,Pork retail value,85.1
+1972,8,Pork retail value,85.5
+1972,9,Pork retail value,86.1
+1972,10,Pork retail value,87
+1972,11,Pork retail value,86.7
+1972,12,Pork retail value,88
+1973,1,Pork retail value,93.6
+1973,2,Pork retail value,96.6
+1973,3,Pork retail value,102.5
+1973,4,Pork retail value,102.2
+1973,5,Pork retail value,101.9
+1973,6,Pork retail value,103.6
+1973,7,Pork retail value,107
+1973,8,Pork retail value,130.9
+1973,9,Pork retail value,125.7
+1973,10,Pork retail value,116.5
+1973,11,Pork retail value,114.8
+1973,12,Pork retail value,115.2
+1974,1,Pork retail value,116.2
+1974,2,Pork retail value,116.7
+1974,3,Pork retail value,111.4
+1974,4,Pork retail value,104.3
+1974,5,Pork retail value,99
+1974,6,Pork retail value,93.3
+1974,7,Pork retail value,103.3
+1974,8,Pork retail value,108.3
+1974,9,Pork retail value,109.5
+1974,10,Pork retail value,108.5
+1974,11,Pork retail value,111
+1974,12,Pork retail value,112.3
+1975,1,Pork retail value,114.6
+1975,2,Pork retail value,114.5
+1975,3,Pork retail value,113.3
+1975,4,Pork retail value,115.4
+1975,5,Pork retail value,122.6
+1975,6,Pork retail value,130.1
+1975,7,Pork retail value,143.3
+1975,8,Pork retail value,149.7
+1975,9,Pork retail value,153.3
+1975,10,Pork retail value,158.2
+1975,11,Pork retail value,153.5
+1975,12,Pork retail value,147.1
+1976,1,Pork retail value,143.9
+1976,2,Pork retail value,141.3
+1976,3,Pork retail value,138.4
+1976,4,Pork retail value,136.3
+1976,5,Pork retail value,138.3
+1976,6,Pork retail value,140.1
+1976,7,Pork retail value,141.8
+1976,8,Pork retail value,137.1
+1976,9,Pork retail value,132.4
+1976,10,Pork retail value,124.6
+1976,11,Pork retail value,117.3
+1976,12,Pork retail value,117
+1977,1,Pork retail value,119.5
+1977,2,Pork retail value,121
+1977,3,Pork retail value,120.9
+1977,4,Pork retail value,118.8
+1977,5,Pork retail value,120.8
+1977,6,Pork retail value,125.6
+1977,7,Pork retail value,132
+1977,8,Pork retail value,130.2
+1977,9,Pork retail value,130.7
+1977,10,Pork retail value,126.8
+1977,11,Pork retail value,127.4
+1977,12,Pork retail value,130.5
+1978,1,Pork retail value,133.8
+1978,2,Pork retail value,138
+1978,3,Pork retail value,139.2
+1978,4,Pork retail value,141.6
+1978,5,Pork retail value,141.4
+1978,6,Pork retail value,144.2
+1978,7,Pork retail value,144.2
+1978,8,Pork retail value,144.4
+1978,9,Pork retail value,145.5
+1978,10,Pork retail value,149.4
+1978,11,Pork retail value,150.4
+1978,12,Pork retail value,150.5
+1979,1,Pork retail value,163.1436
+1979,2,Pork retail value,166.2118
+1979,3,Pork retail value,166.0002
+1979,4,Pork retail value,159.4406
+1979,5,Pork retail value,157.9594
+1979,6,Pork retail value,152.881
+1979,7,Pork retail value,150.6592
+1979,8,Pork retail value,143.7822
+1979,9,Pork retail value,143.4648
+1979,10,Pork retail value,142.0894
+1979,11,Pork retail value,139.8676
+1979,12,Pork retail value,144.2054
+1980,1,Pork retail value,143.1474
+1980,2,Pork retail value,140.9256
+1980,3,Pork retail value,141.0314
+1980,4,Pork retail value,135.2124
+1980,5,Pork retail value,130.7688
+1980,6,Pork retail value,131.6152
+1980,7,Pork retail value,144.0996
+1980,8,Pork retail value,154.1506
+1980,9,Pork retail value,159.4406
+1980,10,Pork retail value,161.6624
+1980,11,Pork retail value,165.3654
+1980,12,Pork retail value,162.7204
+1981,1,Pork retail value,160.287
+1981,2,Pork retail value,157.0072
+1981,3,Pork retail value,154.6796
+1981,4,Pork retail value,150.9766
+1981,5,Pork retail value,153.3042
+1981,6,Pork retail value,155.1028
+1981,7,Pork retail value,163.8842
+1981,8,Pork retail value,167.2698
+1981,9,Pork retail value,168.751
+1981,10,Pork retail value,169.7032
+1981,11,Pork retail value,167.3756
+1981,12,Pork retail value,166.5292
+1982,1,Pork retail value,167.3756
+1982,2,Pork retail value,170.0206
+1982,3,Pork retail value,170.7612
+1982,4,Pork retail value,172.454
+1982,5,Pork retail value,179.4368
+1982,6,Pork retail value,185.5732
+1982,7,Pork retail value,191.6038
+1982,8,Pork retail value,194.143
+1982,9,Pork retail value,201.3374
+1982,10,Pork retail value,201.9722
+1982,11,Pork retail value,197.846
+1982,12,Pork retail value,194.143
+1983,1,Pork retail value,195.73
+1983,2,Pork retail value,193.9314
+1983,3,Pork retail value,191.1806
+1983,4,Pork retail value,183.9862
+1983,5,Pork retail value,181.0238
+1983,6,Pork retail value,177.9556
+1983,7,Pork retail value,176.2628
+1983,8,Pork retail value,175.3106
+1983,9,Pork retail value,173.4062
+1983,10,Pork retail value,171.7134
+1983,11,Pork retail value,168.222
+1983,12,Pork retail value,167.2698
+1984,1,Pork retail value,171.6076
+1984,2,Pork retail value,172.3482
+1984,3,Pork retail value,168.6452
+1984,4,Pork retail value,169.0684
+1984,5,Pork retail value,167.7988
+1984,6,Pork retail value,169.1742
+1984,7,Pork retail value,171.6076
+1984,8,Pork retail value,175.7338
+1984,9,Pork retail value,173.0888
+1984,10,Pork retail value,173.4062
+1984,11,Pork retail value,171.8192
+1984,12,Pork retail value,172.983
+1985,1,Pork retail value,175.628
+1985,2,Pork retail value,175.2048
+1985,3,Pork retail value,174.2526
+1985,4,Pork retail value,168.5394
+1985,5,Pork retail value,167.9046
+1985,6,Pork retail value,167.0582
+1985,7,Pork retail value,161.7
+1985,8,Pork retail value,171.0786
+1985,9,Pork retail value,171.1844
+1985,10,Pork retail value,169.28
+1985,11,Pork retail value,171.8192
+1985,12,Pork retail value,176.157
+1986,1,Pork retail value,178.802
+1986,2,Pork retail value,178.0614
+1986,3,Pork retail value,175.4164
+1986,4,Pork retail value,171.6076
+1986,5,Pork retail value,171.7134
+1986,6,Pork retail value,176.157
+1986,7,Pork retail value,194.0372
+1986,8,Pork retail value,201.3374
+1986,9,Pork retail value,205.6752
+1986,10,Pork retail value,206.2042
+1986,11,Pork retail value,203.665
+1986,12,Pork retail value,202.3954
+1987,1,Pork retail value,199.0098
+1987,2,Pork retail value,196.3648
+1987,3,Pork retail value,191.8154
+1987,4,Pork retail value,189.2762
+1987,5,Pork retail value,194.3546
+1987,6,Pork retail value,198.4808
+1987,7,Pork retail value,204.8288
+1987,8,Pork retail value,207.5796
+1987,9,Pork retail value,208.3202
+1987,10,Pork retail value,205.6752
+1987,11,Pork retail value,200.1736
+1987,12,Pork retail value,196.3648
+1988,1,Pork retail value,196.0474
+1988,2,Pork retail value,193.7198
+1988,3,Pork retail value,193.9314
+1988,4,Pork retail value,193.5082
+1988,5,Pork retail value,194.2488
+1988,6,Pork retail value,198.7982
+1988,7,Pork retail value,198.2692
+1988,8,Pork retail value,196.259
+1988,9,Pork retail value,195.6242
+1988,10,Pork retail value,192.1328
+1988,11,Pork retail value,188.324
+1988,12,Pork retail value,187.6892
+1989,1,Pork retail value,191.6038
+1989,2,Pork retail value,189.6994
+1989,3,Pork retail value,190.1226
+1989,4,Pork retail value,189.911
+1989,5,Pork retail value,187.3718
+1989,6,Pork retail value,189.4878
+1989,7,Pork retail value,193.4024
+1989,8,Pork retail value,195.3068
+1989,9,Pork retail value,195.0952
+1989,10,Pork retail value,196.5764
+1989,11,Pork retail value,200.5968
+1989,12,Pork retail value,202.2896
+1990,1,Pork retail value,206.4158
+1990,2,Pork retail value,207.897
+1990,3,Pork retail value,208.426
+1990,4,Pork retail value,212.5522
+1990,5,Pork retail value,218.1596
+1990,6,Pork retail value,230.7498
+1990,7,Pork retail value,235.0876
+1990,8,Pork retail value,237.9442
+1990,9,Pork retail value,233.6064
+1990,10,Pork retail value,236.1456
+1990,11,Pork retail value,235.8282
+1990,12,Pork retail value,236.1456
+1991,1,Pork retail value,228.6338
+1991,2,Pork retail value,227.999
+1991,3,Pork retail value,226.3062
+1991,4,Pork retail value,223.9786
+1991,5,Pork retail value,225.6714
+1991,6,Pork retail value,227.0468
+1991,7,Pork retail value,230.3266
+1991,8,Pork retail value,226.6236
+1991,9,Pork retail value,224.1902
+1991,10,Pork retail value,219.7466
+1991,11,Pork retail value,216.9958
+1991,12,Pork retail value,212.5522
+1992,1,Pork retail value,210.2246
+1992,2,Pork retail value,211.3884
+1992,3,Pork retail value,209.6956
+1992,4,Pork retail value,205.4636
+1992,5,Pork retail value,207.7912
+1992,6,Pork retail value,208.5318
+1992,7,Pork retail value,212.2348
+1992,8,Pork retail value,212.0232
+1992,9,Pork retail value,211.1768
+1992,10,Pork retail value,209.9072
+1992,11,Pork retail value,207.7912
+1992,12,Pork retail value,207.6854
+1993,1,Pork retail value,207.368
+1993,2,Pork retail value,205.1462
+1993,3,Pork retail value,205.1462
+1993,4,Pork retail value,202.5012
+1993,5,Pork retail value,206.0984
+1993,6,Pork retail value,207.897
+1993,7,Pork retail value,211.8116
+1993,8,Pork retail value,210.2246
+1993,9,Pork retail value,213.2928
+1993,10,Pork retail value,212.8696
+1993,11,Pork retail value,213.8218
+1993,12,Pork retail value,212.7638
+1994,1,Pork retail value,212.8696
+1994,2,Pork retail value,211.4942
+1994,3,Pork retail value,213.0812
+1994,4,Pork retail value,210.2246
+1994,5,Pork retail value,210.3304
+1994,6,Pork retail value,210.542
+1994,7,Pork retail value,212.129
+1994,8,Pork retail value,210.6478
+1994,9,Pork retail value,208.7434
+1994,10,Pork retail value,208.7434
+1994,11,Pork retail value,206.31
+1994,12,Pork retail value,199.3272
+1995,1,Pork retail value,202.5012
+1995,2,Pork retail value,200.9142
+1995,3,Pork retail value,204.723
+1995,4,Pork retail value,201.6548
+1995,5,Pork retail value,202.078
+1995,6,Pork retail value,199.962
+1995,7,Pork retail value,202.5012
+1995,8,Pork retail value,208.7434
+1995,9,Pork retail value,209.484
+1995,10,Pork retail value,214.1392
+1995,11,Pork retail value,212.4464
+1995,12,Pork retail value,213.9276
+1996,1,Pork retail value,212.7638
+1996,2,Pork retail value,220.2756
+1996,3,Pork retail value,221.8626
+1996,4,Pork retail value,220.6988
+1996,5,Pork retail value,225.9888
+1996,6,Pork retail value,235.405
+1996,7,Pork retail value,238.7906
+1996,8,Pork retail value,244.8212
+1996,9,Pork retail value,247.7836
+1996,10,Pork retail value,246.514
+1996,11,Pork retail value,245.0328
+1996,12,Pork retail value,244.6096
+1997,1,Pork retail value,246.1966
+1997,2,Pork retail value,244.7154
+1997,3,Pork retail value,242.1762
+1997,4,Pork retail value,239.637
+1997,5,Pork retail value,242.282
+1997,6,Pork retail value,247.2546
+1997,7,Pork retail value,246.1966
+1997,8,Pork retail value,249.688
+1997,9,Pork retail value,248.3126
+1997,10,Pork retail value,248.5242
+1997,11,Pork retail value,244.7154
+1997,12,Pork retail value,239.9544
+1998,1,Pork retail value,248.4184
+1998,2,Pork retail value,248.101
+1998,3,Pork retail value,240.4
+1998,4,Pork retail value,235.6
+1998,5,Pork retail value,240.6
+1998,6,Pork retail value,243.1
+1998,7,Pork retail value,245.1
+1998,8,Pork retail value,245
+1998,9,Pork retail value,244.7
+1998,10,Pork retail value,242.2
+1998,11,Pork retail value,241
+1998,12,Pork retail value,238.1
+1999,1,Pork retail value,233.4
+1999,2,Pork retail value,236.9
+1999,3,Pork retail value,237.1
+1999,4,Pork retail value,234.8
+1999,5,Pork retail value,239.2
+1999,6,Pork retail value,241.2
+1999,7,Pork retail value,244.3
+1999,8,Pork retail value,246.8
+1999,9,Pork retail value,248.14815
+1999,10,Pork retail value,244.7
+1999,11,Pork retail value,244.66813
+1999,12,Pork retail value,246.09199
+2000,1,Pork retail value,245.67878
+2000,2,Pork retail value,250.97305
+2000,3,Pork retail value,252.81022
+2000,4,Pork retail value,255.50021
+2000,5,Pork retail value,256.23346
+2000,6,Pork retail value,260.31771
+2000,7,Pork retail value,262.28617
+2000,8,Pork retail value,265.63357
+2000,9,Pork retail value,265.00321
+2000,10,Pork retail value,262.14212
+2000,11,Pork retail value,259.28374
+2000,12,Pork retail value,262.5436
+2001,1,Pork retail value,260.59815
+2001,2,Pork retail value,261.53909
+2001,3,Pork retail value,265.4194
+2001,4,Pork retail value,263.3265
+2001,5,Pork retail value,266.94997
+2001,6,Pork retail value,270.89132
+2001,7,Pork retail value,270.47271
+2001,8,Pork retail value,276.32755
+2001,9,Pork retail value,278.08061
+2001,10,Pork retail value,276.42773
+2001,11,Pork retail value,271.25945
+2001,12,Pork retail value,271.44653
+2002,1,Pork retail value,270.75348
+2002,2,Pork retail value,271.7185
+2002,3,Pork retail value,270.29527
+2002,4,Pork retail value,266.68579
+2002,5,Pork retail value,269.88034
+2002,6,Pork retail value,266.62188
+2002,7,Pork retail value,264.16479
+2002,8,Pork retail value,266.60167
+2002,9,Pork retail value,261.63297
+2002,10,Pork retail value,260.950039
+2002,11,Pork retail value,259.126893
+2002,12,Pork retail value,260.5882404
+2003,1,Pork retail value,258.1707647
+2003,2,Pork retail value,262.6061492
+2003,3,Pork retail value,261.8250343
+2003,4,Pork retail value,263.8486439
+2003,5,Pork retail value,258.4599253
+2003,6,Pork retail value,264.4236544
+2003,7,Pork retail value,266.3299193
+2003,8,Pork retail value,270.6389327
+2003,9,Pork retail value,272.5977253
+2003,10,Pork retail value,270.4571794
+2003,11,Pork retail value,272.1740549
+2003,12,Pork retail value,268.0148492
+2004,1,Pork retail value,269.2927682
+2004,2,Pork retail value,269.049732
+2004,3,Pork retail value,269.6030648
+2004,4,Pork retail value,271.3345116
+2004,5,Pork retail value,276.2332689
+2004,6,Pork retail value,282.9742827
+2004,7,Pork retail value,284.7424223
+2004,8,Pork retail value,288.5454768
+2004,9,Pork retail value,289.7611105
+2004,10,Pork retail value,288.7337992
+2004,11,Pork retail value,281.1126888
+2004,12,Pork retail value,278.6778528
+2005,1,Pork retail value,283.376195
+2005,2,Pork retail value,283.9925823
+2005,3,Pork retail value,281.1699883
+2005,4,Pork retail value,284.9112197
+2005,5,Pork retail value,289.2565942
+2005,6,Pork retail value,286.0456993
+2005,7,Pork retail value,284.0309226
+2005,8,Pork retail value,282.101599
+2005,9,Pork retail value,282.5961477
+2005,10,Pork retail value,279.2312433
+2005,11,Pork retail value,277.0013363
+2005,12,Pork retail value,278.6126181
+2006,1,Pork retail value,276.2936646
+2006,2,Pork retail value,279.6253879
+2006,3,Pork retail value,276.2936646
+2006,4,Pork retail value,279.6117306
+2006,5,Pork retail value,276.6127697
+2006,6,Pork retail value,279.9184358
+2006,7,Pork retail value,284.2224421
+2006,8,Pork retail value,284.9963876
+2006,9,Pork retail value,288.2159421
+2006,10,Pork retail value,286.6197123
+2006,11,Pork retail value,279.514734
+2006,12,Pork retail value,276.8183683
+2007,1,Pork retail value,280.2430699
+2007,2,Pork retail value,279.733012
+2007,3,Pork retail value,282.4638008
+2007,4,Pork retail value,281.3401623
+2007,5,Pork retail value,287.3527674
+2007,6,Pork retail value,290.8801339
+2007,7,Pork retail value,293.6390375
+2007,8,Pork retail value,293.133484
+2007,9,Pork retail value,290.6115452
+2007,10,Pork retail value,292.9336315
+2007,11,Pork retail value,286.3393284
+2007,12,Pork retail value,285.9429175
+2008,1,Pork retail value,285.5614754
+2008,2,Pork retail value,282.5293453
+2008,3,Pork retail value,283.3110397
+2008,4,Pork retail value,285.8482699
+2008,5,Pork retail value,290.3375527
+2008,6,Pork retail value,293.2542599
+2008,7,Pork retail value,296.1661863
+2008,8,Pork retail value,301.7003196
+2008,9,Pork retail value,302.6102764
+2008,10,Pork retail value,301.6976337
+2008,11,Pork retail value,300.2620662
+2008,12,Pork retail value,300.5234102
+2009,1,Pork retail value,299.6364416
+2009,2,Pork retail value,296.1249516
+2009,3,Pork retail value,294.2435799
+2009,4,Pork retail value,291.3925386
+2009,5,Pork retail value,295.4061866
+2009,6,Pork retail value,295.3880413
+2009,7,Pork retail value,295.7289461
+2009,8,Pork retail value,293.3731501
+2009,9,Pork retail value,290.6013346
+2009,10,Pork retail value,288.0054108
+2009,11,Pork retail value,281.7846457
+2009,12,Pork retail value,281.9989905
+2010,1,Pork retail value,287.7738997
+2010,2,Pork retail value,291.7120653
+2010,3,Pork retail value,291.428439
+2010,4,Pork retail value,291.873045
+2010,5,Pork retail value,304.3033584
+2010,6,Pork retail value,310.3659545
+2010,7,Pork retail value,318.5218814
+2010,8,Pork retail value,323.1596133
+2010,9,Pork retail value,329.9539181
+2010,10,Pork retail value,336.2596904
+2010,11,Pork retail value,331.9702993
+2010,12,Pork retail value,318.8436074
+2011,1,Pork retail value,324.1326281
+2011,2,Pork retail value,328.316399
+2011,3,Pork retail value,335.7412647
+2011,4,Pork retail value,337.6612727
+2011,5,Pork retail value,348.4136136
+2011,6,Pork retail value,348.1080342
+2011,7,Pork retail value,346.5909456
+2011,8,Pork retail value,351.1705398
+2011,9,Pork retail value,356.1479737
+2011,10,Pork retail value,346.8152333
+2011,11,Pork retail value,351.0688405
+2011,12,Pork retail value,346.0708284
+2012,1,Pork retail value,349.5048757
+2012,2,Pork retail value,349.4626702
+2012,3,Pork retail value,348.9949735
+2012,4,Pork retail value,345.9474925
+2012,5,Pork retail value,340.7963372
+2012,6,Pork retail value,339.6843474
+2012,7,Pork retail value,343.4385502
+2012,8,Pork retail value,352.6426241
+2012,9,Pork retail value,350.7313179
+2012,10,Pork retail value,348.4244737
+2012,11,Pork retail value,347.8306091
+2012,12,Pork retail value,342.6591294
+2013,1,Pork retail value,345.1067009
+2013,2,Pork retail value,349.0771989
+2013,3,Pork retail value,351.7112717
+2013,4,Pork retail value,350.6931332
+2013,5,Pork retail value,355.2574239
+2013,6,Pork retail value,361.6567522
+2013,7,Pork retail value,369.5673624
+2013,8,Pork retail value,375.7369077
+2013,9,Pork retail value,379.2152715
+2013,10,Pork retail value,380.9327793
+2013,11,Pork retail value,377.6061338
+2013,12,Pork retail value,376.1305073
+2014,1,Pork retail value,375.7644496
+2014,2,Pork retail value,372.6753042
+2014,3,Pork retail value,383.0358297
+2014,4,Pork retail value,394.9975304
+2014,5,Pork retail value,409.9182074
+2014,6,Pork retail value,411.5613675
+2014,7,Pork retail value,412.6859057
+2014,8,Pork retail value,419.9773116
+2014,9,Pork retail value,421.549141
+2014,10,Pork retail value,414.8504969
+2014,11,Pork retail value,406.3854714
+2014,12,Pork retail value,399.1127533
+2015,1,Pork retail value,398.9436519
+2015,2,Pork retail value,394.1158833
+2015,3,Pork retail value,387.4270851
+2015,4,Pork retail value,376.9281358
+2015,5,Pork retail value,369.5863223
+2015,6,Pork retail value,370.3272449
+2015,7,Pork retail value,376.9481988
+2015,8,Pork retail value,383.4090976
+2015,9,Pork retail value,391.923231
+2015,10,Pork retail value,397.2622588
+2015,11,Pork retail value,391.7184098
+2015,12,Pork retail value,384.5780679
+2016,1,Pork retail value,379.3409782
+2016,2,Pork retail value,373.8349385
+2016,3,Pork retail value,375.9756756
+2016,4,Pork retail value,379.8634738
+2016,5,Pork retail value,378.0866208
+2016,6,Pork retail value,376.9816466
+2016,7,Pork retail value,378.1378458
+2016,8,Pork retail value,379.8050309
+2016,9,Pork retail value,378.8923982
+2016,10,Pork retail value,374.3201008
+2016,11,Pork retail value,362.5408353
+2016,12,Pork retail value,358.3122098
+2017,1,Pork retail value,357.0141506
+2017,2,Pork retail value,364.317288
+2017,3,Pork retail value,377.9861098
+2017,4,Pork retail value,374.7093793
+2017,5,Pork retail value,372.7683638
+2017,6,Pork retail value,375.5833622
+2017,7,Pork retail value,383.2853592
+2017,8,Pork retail value,393.5098024
+2017,9,Pork retail value,398.5390685
+2017,10,Pork retail value,390.6707778
+2017,11,Pork retail value,378.6167096
+2017,12,Pork retail value,374.0465926
+2018,1,Pork retail value,374.9884949
+2018,2,Pork retail value,373.957951
+2018,3,Pork retail value,375.2661886
+2018,4,Pork retail value,375.2335927
+2018,5,Pork retail value,374.0835059
+2018,6,Pork retail value,369.6545803
+2018,7,Pork retail value,373.0664894
+2018,8,Pork retail value,381.6542382
+2018,9,Pork retail value,378.5113266
+2018,10,Pork retail value,372.6879997
+2018,11,Pork retail value,370.0520056
+2018,12,Pork retail value,373.9808854
+2019,1,Pork retail value,371.4021032
+2019,2,Pork retail value,373.1427471
+2019,3,Pork retail value,379.9471741
+2019,4,Pork retail value,378.7478393
+2019,5,Pork retail value,388.2637659
+2019,6,Pork retail value,391.9982035
+2019,7,Pork retail value,392.6818926
+2019,8,Pork retail value,389.5896599
+2019,9,Pork retail value,387.9179916
+2019,10,Pork retail value,391.1513773
+2019,11,Pork retail value,386.023157
+2019,12,Pork retail value,381.0940497
+2020,1,Pork retail value,383.7406269
+2020,2,Pork retail value,386.4326316
+2020,3,Pork retail value,384.5503812
+2020,4,Pork retail value,389.2816759
+2020,5,Pork retail value,404.8498448
+2020,6,Pork retail value,424.5116344
+2020,7,Pork retail value,417.8817649
+2020,8,Pork retail value,408.4428572
+2020,9,Pork retail value,405.2804083
+2020,10,Pork retail value,408.420294
+2020,11,Pork retail value,409.845874
+2020,12,Pork retail value,411.9527354
+2021,1,Pork retail value,412.2249316
+2021,2,Pork retail value,415.326747
+2021,3,Pork retail value,416.5238857
+2021,4,Pork retail value,432.3124585
+2021,5,Pork retail value,438.430959
+2021,6,Pork retail value,454.589555
+2021,7,Pork retail value,460.1641764
+2021,8,Pork retail value,465.0463825
+2021,9,Pork retail value,471.5529607
+2021,10,Pork retail value,481.6049241
+2021,11,Pork retail value,482.3176387
+2021,12,Pork retail value,473.6853251
+2022,1,Pork retail value,475.3412611
+2022,2,Pork retail value,476.457911
+2022,3,Pork retail value,483.6206226
+2022,4,Pork retail value,488.5021194
+2022,5,Pork retail value,488.610898
+2022,6,Pork retail value,493.0713639
+2022,7,Pork retail value,494.3744033
+2022,8,Pork retail value,494.40638
+2022,9,Pork retail value,499.9920932
+2022,10,Pork retail value,504.6584785
+2022,11,Pork retail value,494.5188132
+2022,12,Pork retail value,482.9019373
+2023,1,Pork retail value,478.726053
+2023,2,Pork retail value,476.9622989
+2023,3,Pork retail value,475.6414571
+2023,4,Pork retail value,472.697797
+2023,5,Pork retail value,472.758371
+2023,6,Pork retail value,468.442891
+2023,7,Pork retail value,470.4448852
+2023,8,Pork retail value,483.4466774
+2023,9,Pork retail value,497.6303915
+2023,10,Pork retail value,504.2876372
+2023,11,Pork retail value,487.9615318
+2023,12,Pork retail value,481.6242818
+2024,1,Pork retail value,478.650057
+2024,2,Pork retail value,476.1482946
+2024,3,Pork retail value,479.3094
+2024,4,Pork retail value,481.4099593
+2024,5,Pork retail value,491.8904125
+2024,6,Pork retail value,488.0330061
+2024,7,Pork retail value,492.1513712
+2024,8,Pork retail value,489.8491004
+2024,9,Pork retail value,495.3961154
+2024,10,Pork retail value,492.0212958
+2024,11,Pork retail value,494.9438453
+2024,12,Pork retail value,488.3068661
+1970,1,Choice beef wholesale value,75.9
+1970,2,Choice beef wholesale value,75.6
+1970,3,Choice beef wholesale value,79.9
+1970,4,Choice beef wholesale value,79.2
+1970,5,Choice beef wholesale value,76.6
+1970,6,Choice beef wholesale value,78.2
+1970,7,Choice beef wholesale value,81.5
+1970,8,Choice beef wholesale value,79.1
+1970,9,Choice beef wholesale value,76.8
+1970,10,Choice beef wholesale value,74.6
+1970,11,Choice beef wholesale value,73.1
+1970,12,Choice beef wholesale value,71.5
+1971,1,Choice beef wholesale value,78.9
+1971,2,Choice beef wholesale value,84
+1971,3,Choice beef wholesale value,83.2
+1971,4,Choice beef wholesale value,85.2
+1971,5,Choice beef wholesale value,87.2
+1971,6,Choice beef wholesale value,85.2
+1971,7,Choice beef wholesale value,84.9
+1971,8,Choice beef wholesale value,87
+1971,9,Choice beef wholesale value,85.2
+1971,10,Choice beef wholesale value,83.6
+1971,11,Choice beef wholesale value,87.3
+1971,12,Choice beef wholesale value,90.4
+1972,1,Choice beef wholesale value,93
+1972,2,Choice beef wholesale value,93.1
+1972,3,Choice beef wholesale value,89.2
+1972,4,Choice beef wholesale value,87.2
+1972,5,Choice beef wholesale value,91.5
+1972,6,Choice beef wholesale value,96
+1972,7,Choice beef wholesale value,95.1
+1972,8,Choice beef wholesale value,88.6
+1972,9,Choice beef wholesale value,86.6
+1972,10,Choice beef wholesale value,86.2
+1972,11,Choice beef wholesale value,83.7
+1972,12,Choice beef wholesale value,93.1
+1973,1,Choice beef wholesale value,102
+1973,2,Choice beef wholesale value,108.1
+1973,3,Choice beef wholesale value,112
+1973,4,Choice beef wholesale value,112.5
+1973,5,Choice beef wholesale value,111.8
+1973,6,Choice beef wholesale value,114.4
+1973,7,Choice beef wholesale value,115.8
+1973,8,Choice beef wholesale value,126.3
+1973,9,Choice beef wholesale value,115.1
+1973,10,Choice beef wholesale value,104.6
+1973,11,Choice beef wholesale value,101.7
+1973,12,Choice beef wholesale value,105.4
+1974,1,Choice beef wholesale value,121
+1974,2,Choice beef wholesale value,122.8
+1974,3,Choice beef wholesale value,108.8
+1974,4,Choice beef wholesale value,107.3
+1974,5,Choice beef wholesale value,107.9
+1974,6,Choice beef wholesale value,101.8
+1974,7,Choice beef wholesale value,116.8
+1974,8,Choice beef wholesale value,120.4
+1974,9,Choice beef wholesale value,108.7
+1974,10,Choice beef wholesale value,105.5
+1974,11,Choice beef wholesale value,101.4
+1974,12,Choice beef wholesale value,98.9
+1975,1,Choice beef wholesale value,100.3
+1975,2,Choice beef wholesale value,95.6
+1975,3,Choice beef wholesale value,97.5
+1975,4,Choice beef wholesale value,114.3
+1975,5,Choice beef wholesale value,130.9
+1975,6,Choice beef wholesale value,139.2
+1975,7,Choice beef wholesale value,135.2
+1975,8,Choice beef wholesale value,126.7
+1975,9,Choice beef wholesale value,129.3
+1975,10,Choice beef wholesale value,123.1
+1975,11,Choice beef wholesale value,118.6
+1975,12,Choice beef wholesale value,119.3
+1976,1,Choice beef wholesale value,109.9
+1976,2,Choice beef wholesale value,102.1
+1976,3,Choice beef wholesale value,94.1
+1976,4,Choice beef wholesale value,109
+1976,5,Choice beef wholesale value,104.4
+1976,6,Choice beef wholesale value,103.2
+1976,7,Choice beef wholesale value,96
+1976,8,Choice beef wholesale value,94.6
+1976,9,Choice beef wholesale value,94.9
+1976,10,Choice beef wholesale value,96.3
+1976,11,Choice beef wholesale value,100.5
+1976,12,Choice beef wholesale value,103.5
+1977,1,Choice beef wholesale value,99.1
+1977,2,Choice beef wholesale value,97.5
+1977,3,Choice beef wholesale value,94.6
+1977,4,Choice beef wholesale value,100.1
+1977,5,Choice beef wholesale value,105.7
+1977,6,Choice beef wholesale value,103.3
+1977,7,Choice beef wholesale value,104.4
+1977,8,Choice beef wholesale value,102.5
+1977,9,Choice beef wholesale value,103.4
+1977,10,Choice beef wholesale value,108.4
+1977,11,Choice beef wholesale value,108.1
+1977,12,Choice beef wholesale value,111.8
+1978,1,Choice beef wholesale value,112.4
+1978,2,Choice beef wholesale value,116.5
+1978,3,Choice beef wholesale value,122.7
+1978,4,Choice beef wholesale value,133.2
+1978,5,Choice beef wholesale value,144.8
+1978,6,Choice beef wholesale value,141.3
+1978,7,Choice beef wholesale value,138
+1978,8,Choice beef wholesale value,130.5
+1978,9,Choice beef wholesale value,134.1
+1978,10,Choice beef wholesale value,133.7
+1978,11,Choice beef wholesale value,131.2
+1978,12,Choice beef wholesale value,138.4
+1979,1,Choice beef wholesale value,152.5
+1979,2,Choice beef wholesale value,159.6
+1979,3,Choice beef wholesale value,170.2
+1979,4,Choice beef wholesale value,176.6
+1979,5,Choice beef wholesale value,176.6
+1979,6,Choice beef wholesale value,167.8
+1979,7,Choice beef wholesale value,162.9
+1979,8,Choice beef wholesale value,154
+1979,9,Choice beef wholesale value,167.1
+1979,10,Choice beef wholesale value,160.6
+1979,11,Choice beef wholesale value,169.3
+1979,12,Choice beef wholesale value,171.4
+1980,1,Choice beef wholesale value,167.5
+1980,2,Choice beef wholesale value,170.2
+1980,3,Choice beef wholesale value,169.4
+1980,4,Choice beef wholesale value,163.2
+1980,5,Choice beef wholesale value,167.6
+1980,6,Choice beef wholesale value,172.2
+1980,7,Choice beef wholesale value,179.7
+1980,8,Choice beef wholesale value,182.1
+1980,9,Choice beef wholesale value,176.3
+1980,10,Choice beef wholesale value,172.4
+1980,11,Choice beef wholesale value,166.8
+1980,12,Choice beef wholesale value,165.5
+1981,1,Choice beef wholesale value,165.7
+1981,2,Choice beef wholesale value,159.2
+1981,3,Choice beef wholesale value,155.5
+1981,4,Choice beef wholesale value,161.5
+1981,5,Choice beef wholesale value,170.8
+1981,6,Choice beef wholesale value,174.4
+1981,7,Choice beef wholesale value,176
+1981,8,Choice beef wholesale value,169.7
+1981,9,Choice beef wholesale value,169.4
+1981,10,Choice beef wholesale value,158.8
+1981,11,Choice beef wholesale value,156.5
+1981,12,Choice beef wholesale value,155.2
+1982,1,Choice beef wholesale value,159.8
+1982,2,Choice beef wholesale value,165.2
+1982,3,Choice beef wholesale value,170.2
+1982,4,Choice beef wholesale value,178.6
+1982,5,Choice beef wholesale value,187.1
+1982,6,Choice beef wholesale value,181
+1982,7,Choice beef wholesale value,168
+1982,8,Choice beef wholesale value,165.4
+1982,9,Choice beef wholesale value,157.4
+1982,10,Choice beef wholesale value,153
+1982,11,Choice beef wholesale value,152.7
+1982,12,Choice beef wholesale value,152.7
+1983,1,Choice beef wholesale value,154.7
+1983,2,Choice beef wholesale value,158.5
+1983,3,Choice beef wholesale value,165.5
+1983,4,Choice beef wholesale value,176.5
+1983,5,Choice beef wholesale value,171.6
+1983,6,Choice beef wholesale value,167.4
+1983,7,Choice beef wholesale value,160.2
+1983,8,Choice beef wholesale value,154.6
+1983,9,Choice beef wholesale value,149.8
+1983,10,Choice beef wholesale value,149.5
+1983,11,Choice beef wholesale value,149.7
+1983,12,Choice beef wholesale value,163.3
+1984,1,Choice beef wholesale value,171.6
+1984,2,Choice beef wholesale value,167.5
+1984,3,Choice beef wholesale value,170.7
+1984,4,Choice beef wholesale value,168.3
+1984,5,Choice beef wholesale value,161.7
+1984,6,Choice beef wholesale value,159
+1984,7,Choice beef wholesale value,163.5
+1984,8,Choice beef wholesale value,158.5
+1984,9,Choice beef wholesale value,153.4
+1984,10,Choice beef wholesale value,150.4
+1984,11,Choice beef wholesale value,161.3
+1984,12,Choice beef wholesale value,164.6
+1985,1,Choice beef wholesale value,161.8
+1985,2,Choice beef wholesale value,158.9
+1985,3,Choice beef wholesale value,150.8
+1985,4,Choice beef wholesale value,146.3
+1985,5,Choice beef wholesale value,146.4
+1985,6,Choice beef wholesale value,144.5
+1985,7,Choice beef wholesale value,135
+1985,8,Choice beef wholesale value,131.9
+1985,9,Choice beef wholesale value,133.7
+1985,10,Choice beef wholesale value,149.7
+1985,11,Choice beef wholesale value,163.8
+1985,12,Choice beef wholesale value,162.6
+1986,1,Choice beef wholesale value,152.6
+1986,2,Choice beef wholesale value,143.1
+1986,3,Choice beef wholesale value,141
+1986,4,Choice beef wholesale value,137.8
+1986,5,Choice beef wholesale value,142.8
+1986,6,Choice beef wholesale value,138.4
+1986,7,Choice beef wholesale value,146.9
+1986,8,Choice beef wholesale value,149.3
+1986,9,Choice beef wholesale value,149.5
+1986,10,Choice beef wholesale value,150.9
+1986,11,Choice beef wholesale value,156
+1986,12,Choice beef wholesale value,150.1
+1987,1,Choice beef wholesale value,147.5
+1987,2,Choice beef wholesale value,151.4
+1987,3,Choice beef wholesale value,153.6
+1987,4,Choice beef wholesale value,166.1
+1987,5,Choice beef wholesale value,176
+1987,6,Choice beef wholesale value,173.5
+1987,7,Choice beef wholesale value,163.8
+1987,8,Choice beef wholesale value,157
+1987,9,Choice beef wholesale value,159.5
+1987,10,Choice beef wholesale value,159.2
+1987,11,Choice beef wholesale value,156.8
+1987,12,Choice beef wholesale value,155.4
+1988,1,Choice beef wholesale value,159.3
+1988,2,Choice beef wholesale value,163.3
+1988,3,Choice beef wholesale value,169.6
+1988,4,Choice beef wholesale value,172.6
+1988,5,Choice beef wholesale value,183
+1988,6,Choice beef wholesale value,174.2
+1988,7,Choice beef wholesale value,159.2
+1988,8,Choice beef wholesale value,165.7
+1988,9,Choice beef wholesale value,169.1
+1988,10,Choice beef wholesale value,171.1
+1988,11,Choice beef wholesale value,171.8
+1988,12,Choice beef wholesale value,174.1
+1989,1,Choice beef wholesale value,175.2
+1989,2,Choice beef wholesale value,176.3
+1989,3,Choice beef wholesale value,180.5
+1989,4,Choice beef wholesale value,182.7
+1989,5,Choice beef wholesale value,182.3
+1989,6,Choice beef wholesale value,176.3
+1989,7,Choice beef wholesale value,174.2
+1989,8,Choice beef wholesale value,173.7
+1989,9,Choice beef wholesale value,169.6
+1989,10,Choice beef wholesale value,169.5
+1989,11,Choice beef wholesale value,177.1
+1989,12,Choice beef wholesale value,183.8
+1990,1,Choice beef wholesale value,187.1
+1990,2,Choice beef wholesale value,186
+1990,3,Choice beef wholesale value,187.7
+1990,4,Choice beef wholesale value,190.1
+1990,5,Choice beef wholesale value,191.6
+1990,6,Choice beef wholesale value,187
+1990,7,Choice beef wholesale value,182.4
+1990,8,Choice beef wholesale value,187.1
+1990,9,Choice beef wholesale value,186.6
+1990,10,Choice beef wholesale value,192.2
+1990,11,Choice beef wholesale value,197.6
+1990,12,Choice beef wholesale value,199.4
+1991,1,Choice beef wholesale value,192.6
+1991,2,Choice beef wholesale value,189.6
+1991,3,Choice beef wholesale value,193.4
+1991,4,Choice beef wholesale value,194.1
+1991,5,Choice beef wholesale value,190.9
+1991,6,Choice beef wholesale value,186.1
+1991,7,Choice beef wholesale value,178.8
+1991,8,Choice beef wholesale value,172.2
+1991,9,Choice beef wholesale value,170.8
+1991,10,Choice beef wholesale value,174.5
+1991,11,Choice beef wholesale value,175.1
+1991,12,Choice beef wholesale value,171.8
+1992,1,Choice beef wholesale value,176.6
+1992,2,Choice beef wholesale value,184.6
+1992,3,Choice beef wholesale value,183.3
+1992,4,Choice beef wholesale value,182.6
+1992,5,Choice beef wholesale value,183.4
+1992,6,Choice beef wholesale value,180.8
+1992,7,Choice beef wholesale value,173.6
+1992,8,Choice beef wholesale value,175.8
+1992,9,Choice beef wholesale value,175.9
+1992,10,Choice beef wholesale value,177.5
+1992,11,Choice beef wholesale value,177.1
+1992,12,Choice beef wholesale value,184.2
+1993,1,Choice beef wholesale value,188.5
+1993,2,Choice beef wholesale value,187.8
+1993,3,Choice beef wholesale value,191.7
+1993,4,Choice beef wholesale value,193.5
+1993,5,Choice beef wholesale value,195.3
+1993,6,Choice beef wholesale value,185.2
+1993,7,Choice beef wholesale value,175.9
+1993,8,Choice beef wholesale value,179.4
+1993,9,Choice beef wholesale value,176.3
+1993,10,Choice beef wholesale value,171.6
+1993,11,Choice beef wholesale value,174.2
+1993,12,Choice beef wholesale value,170.6
+1994,1,Choice beef wholesale value,172.4
+1994,2,Choice beef wholesale value,172.7
+1994,3,Choice beef wholesale value,176.9
+1994,4,Choice beef wholesale value,176.8
+1994,5,Choice beef wholesale value,167.6
+1994,6,Choice beef wholesale value,158.5
+1994,7,Choice beef wholesale value,160.4
+1994,8,Choice beef wholesale value,166.6
+1994,9,Choice beef wholesale value,162
+1994,10,Choice beef wholesale value,159.2
+1994,11,Choice beef wholesale value,163.8
+1994,12,Choice beef wholesale value,164.3
+1995,1,Choice beef wholesale value,171.7
+1995,2,Choice beef wholesale value,170.4
+1995,3,Choice beef wholesale value,165.7
+1995,4,Choice beef wholesale value,158.5
+1995,5,Choice beef wholesale value,160.4
+1995,6,Choice beef wholesale value,165.6
+1995,7,Choice beef wholesale value,158.5
+1995,8,Choice beef wholesale value,157.8
+1995,9,Choice beef wholesale value,162.6
+1995,10,Choice beef wholesale value,165.5
+1995,11,Choice beef wholesale value,167
+1995,12,Choice beef wholesale value,162.8
+1996,1,Choice beef wholesale value,156.2
+1996,2,Choice beef wholesale value,152.2
+1996,3,Choice beef wholesale value,148.4
+1996,4,Choice beef wholesale value,147.9
+1996,5,Choice beef wholesale value,149
+1996,6,Choice beef wholesale value,154.6
+1996,7,Choice beef wholesale value,155.6
+1996,8,Choice beef wholesale value,159.9
+1996,9,Choice beef wholesale value,161.8
+1996,10,Choice beef wholesale value,167
+1996,11,Choice beef wholesale value,180
+1996,12,Choice beef wholesale value,165.3
+1997,1,Choice beef wholesale value,155.9
+1997,2,Choice beef wholesale value,151.5
+1997,3,Choice beef wholesale value,160.5
+1997,4,Choice beef wholesale value,159.8
+1997,5,Choice beef wholesale value,162.5
+1997,6,Choice beef wholesale value,156.1
+1997,7,Choice beef wholesale value,157.1
+1997,8,Choice beef wholesale value,161.2
+1997,9,Choice beef wholesale value,159.4
+1997,10,Choice beef wholesale value,158.7
+1997,11,Choice beef wholesale value,160.2
+1997,12,Choice beef wholesale value,155.6
+1998,1,Choice beef wholesale value,154.2
+1998,2,Choice beef wholesale value,148.5
+1998,3,Choice beef wholesale value,147
+1998,4,Choice beef wholesale value,151.6
+1998,5,Choice beef wholesale value,157
+1998,6,Choice beef wholesale value,154.5
+1998,7,Choice beef wholesale value,154
+1998,8,Choice beef wholesale value,160.6
+1998,9,Choice beef wholesale value,153.2
+1998,10,Choice beef wholesale value,156.4
+1998,11,Choice beef wholesale value,158.1
+1998,12,Choice beef wholesale value,150.4
+1999,1,Choice beef wholesale value,156.3
+1999,2,Choice beef wholesale value,153.7
+1999,3,Choice beef wholesale value,160.3
+1999,4,Choice beef wholesale value,166.1
+1999,5,Choice beef wholesale value,171.3
+1999,6,Choice beef wholesale value,178.1
+1999,7,Choice beef wholesale value,171.5
+1999,8,Choice beef wholesale value,175.8
+1999,9,Choice beef wholesale value,177.3
+1999,10,Choice beef wholesale value,183.1
+1999,11,Choice beef wholesale value,180.5
+1999,12,Choice beef wholesale value,181.8116328
+2000,1,Choice beef wholesale value,177.530757
+2000,2,Choice beef wholesale value,174.4559286
+2000,3,Choice beef wholesale value,183.2651302
+2000,4,Choice beef wholesale value,190.9952597
+2000,5,Choice beef wholesale value,193.8158605
+2000,6,Choice beef wholesale value,190.7480835
+2000,7,Choice beef wholesale value,179.6116687
+2000,8,Choice beef wholesale value,172.5934046
+2000,9,Choice beef wholesale value,168.5851645
+2000,10,Choice beef wholesale value,174.3837824
+2000,11,Choice beef wholesale value,182.767506
+2000,12,Choice beef wholesale value,197.5878014
+2001,1,Choice beef wholesale value,202.4757197
+2001,2,Choice beef wholesale value,201.5480398
+2001,3,Choice beef wholesale value,202.7143944
+2001,4,Choice beef wholesale value,201.685384
+2001,5,Choice beef wholesale value,204.2971879
+2001,6,Choice beef wholesale value,198.3094883
+2001,7,Choice beef wholesale value,185.9336511
+2001,8,Choice beef wholesale value,188.1229022
+2001,9,Choice beef wholesale value,186.649888
+2001,10,Choice beef wholesale value,180.4144712
+2001,11,Choice beef wholesale value,174.2655988
+2001,12,Choice beef wholesale value,177.3331099
+2002,1,Choice beef wholesale value,175.2444158
+2002,2,Choice beef wholesale value,188.1588703
+2002,3,Choice beef wholesale value,188.626431
+2002,4,Choice beef wholesale value,182.8054914
+2002,5,Choice beef wholesale value,180.6974839
+2002,6,Choice beef wholesale value,178.6832169
+2002,7,Choice beef wholesale value,172.4245667
+2002,8,Choice beef wholesale value,173.9938102
+2002,9,Choice beef wholesale value,175.3588728
+2002,10,Choice beef wholesale value,175.1664172
+2002,11,Choice beef wholesale value,182.1830564
+2002,12,Choice beef wholesale value,191.0710303
+2003,1,Choice beef wholesale value,200.3546544
+2003,2,Choice beef wholesale value,200.8147173
+2003,3,Choice beef wholesale value,197.0977999
+2003,4,Choice beef wholesale value,207.2346091
+2003,5,Choice beef wholesale value,219.9121607
+2003,6,Choice beef wholesale value,219.4413237
+2003,7,Choice beef wholesale value,202.8474756
+2003,8,Choice beef wholesale value,217.5763983
+2003,9,Choice beef wholesale value,242.5842343
+2003,10,Choice beef wholesale value,271.4849439
+2003,11,Choice beef wholesale value,257.4359968
+2003,12,Choice beef wholesale value,236.9614459
+2004,1,Choice beef wholesale value,212.8079216
+2004,2,Choice beef wholesale value,198.5010128
+2004,3,Choice beef wholesale value,218.2409226
+2004,4,Choice beef wholesale value,244.1312421
+2004,5,Choice beef wholesale value,241.2735272
+2004,6,Choice beef wholesale value,229.5514257
+2004,7,Choice beef wholesale value,216.3265676
+2004,8,Choice beef wholesale value,213.9139847
+2004,9,Choice beef wholesale value,207.4670674
+2004,10,Choice beef wholesale value,212.7397861
+2004,11,Choice beef wholesale value,208.4862778
+2004,12,Choice beef wholesale value,222.8526548
+2005,1,Choice beef wholesale value,231.4332511
+2005,2,Choice beef wholesale value,222.3875934
+2005,3,Choice beef wholesale value,233.6319314
+2005,4,Choice beef wholesale value,243.4416458
+2005,5,Choice beef wholesale value,242.8564164
+2005,6,Choice beef wholesale value,217.4616019
+2005,7,Choice beef wholesale value,204.4710049
+2005,8,Choice beef wholesale value,207.0639686
+2005,9,Choice beef wholesale value,214.6881331
+2005,10,Choice beef wholesale value,224.2666506
+2005,11,Choice beef wholesale value,230.9830534
+2005,12,Choice beef wholesale value,244.2098823
+2006,1,Choice beef wholesale value,241.3249865
+2006,2,Choice beef wholesale value,232.4128523
+2006,3,Choice beef wholesale value,226.3791124
+2006,4,Choice beef wholesale value,220.7965307
+2006,5,Choice beef wholesale value,229.3356416
+2006,6,Choice beef wholesale value,237.7998843
+2006,7,Choice beef wholesale value,228.4103913
+2006,8,Choice beef wholesale value,227.2285068
+2006,9,Choice beef wholesale value,224.897628
+2006,10,Choice beef wholesale value,224.9563343
+2006,11,Choice beef wholesale value,222.9023417
+2006,12,Choice beef wholesale value,221.6394789
+2007,1,Choice beef wholesale value,230.9353495
+2007,2,Choice beef wholesale value,231.5456973
+2007,3,Choice beef wholesale value,246.0261681
+2007,4,Choice beef wholesale value,251.8879411
+2007,5,Choice beef wholesale value,246.9195363
+2007,6,Choice beef wholesale value,224.3656595
+2007,7,Choice beef wholesale value,218.06933
+2007,8,Choice beef wholesale value,222.8689537
+2007,9,Choice beef wholesale value,226.5682416
+2007,10,Choice beef wholesale value,222.0177221
+2007,11,Choice beef wholesale value,223.6229396
+2007,12,Choice beef wholesale value,228.1171153
+2008,1,Choice beef wholesale value,224.7593462
+2008,2,Choice beef wholesale value,228.845541
+2008,3,Choice beef wholesale value,220.7045345
+2008,4,Choice beef wholesale value,225.9257054
+2008,5,Choice beef wholesale value,239.3493243
+2008,6,Choice beef wholesale value,243.0907081
+2008,7,Choice beef wholesale value,255.2102266
+2008,8,Choice beef wholesale value,248.3061453
+2008,9,Choice beef wholesale value,244.3461381
+2008,10,Choice beef wholesale value,228.5229652
+2008,11,Choice beef wholesale value,237.5405375
+2008,12,Choice beef wholesale value,224.095873
+2009,1,Choice beef wholesale value,228.4279001
+2009,2,Choice beef wholesale value,210.9694776
+2009,3,Choice beef wholesale value,209.4036112
+2009,4,Choice beef wholesale value,223.1491418
+2009,5,Choice beef wholesale value,225.15918
+2009,6,Choice beef wholesale value,215.8584977
+2009,7,Choice beef wholesale value,215.430748
+2009,8,Choice beef wholesale value,218.5190069
+2009,9,Choice beef wholesale value,216.9034908
+2009,10,Choice beef wholesale value,212.0914569
+2009,11,Choice beef wholesale value,216.943205
+2009,12,Choice beef wholesale value,213.4283944
+2010,1,Choice beef wholesale value,220.4337644
+2010,2,Choice beef wholesale value,220.9646145
+2010,3,Choice beef wholesale value,239.4548742
+2010,4,Choice beef wholesale value,257.0614655
+2010,5,Choice beef wholesale value,259.1647757
+2010,6,Choice beef wholesale value,240.4939526
+2010,7,Choice beef wholesale value,237.6865471
+2010,8,Choice beef wholesale value,240.8728194
+2010,9,Choice beef wholesale value,244.6924482
+2010,10,Choice beef wholesale value,239.4556173
+2010,11,Choice beef wholesale value,243.910517
+2010,12,Choice beef wholesale value,248.5190158
+2011,1,Choice beef wholesale value,256.9418597
+2011,2,Choice beef wholesale value,259.104365
+2011,3,Choice beef wholesale value,277.9927747
+2011,4,Choice beef wholesale value,285.9936107
+2011,5,Choice beef wholesale value,270.6069015
+2011,6,Choice beef wholesale value,267.4247586
+2011,7,Choice beef wholesale value,270.864598
+2011,8,Choice beef wholesale value,275.5546175
+2011,9,Choice beef wholesale value,278.1564577
+2011,10,Choice beef wholesale value,282.4025923
+2011,11,Choice beef wholesale value,293.8735292
+2011,12,Choice beef wholesale value,290.7782377
+2012,1,Choice beef wholesale value,284.6681289
+2012,2,Choice beef wholesale value,290.0884497
+2012,3,Choice beef wholesale value,290.0772854
+2012,4,Choice beef wholesale value,279.2691882
+2012,5,Choice beef wholesale value,292.9696262
+2012,6,Choice beef wholesale value,300.3808611
+2012,7,Choice beef wholesale value,282.2513129
+2012,8,Choice beef wholesale value,284.5267505
+2012,9,Choice beef wholesale value,292.4291553
+2012,10,Choice beef wholesale value,296.315086
+2012,11,Choice beef wholesale value,297.0928157
+2012,12,Choice beef wholesale value,296.9309638
+2013,1,Choice beef wholesale value,291.9800616
+2013,2,Choice beef wholesale value,280.4130214
+2013,3,Choice beef wholesale value,295.4374436
+2013,4,Choice beef wholesale value,291.3654393
+2013,5,Choice beef wholesale value,313.6755967
+2013,6,Choice beef wholesale value,304.8052865
+2013,7,Choice beef wholesale value,290.3482439
+2013,8,Choice beef wholesale value,294.2237444
+2013,9,Choice beef wholesale value,296.1336024
+2013,10,Choice beef wholesale value,309.7567095
+2013,11,Choice beef wholesale value,308.5925325
+2013,12,Choice beef wholesale value,304.9795969
+2014,1,Choice beef wholesale value,337.8071443
+2014,2,Choice beef wholesale value,327.6679377
+2014,3,Choice beef wholesale value,364.0635676
+2014,4,Choice beef wholesale value,348.1700194
+2014,5,Choice beef wholesale value,348.298851
+2014,6,Choice beef wholesale value,360.3427129
+2014,7,Choice beef wholesale value,385.1064232
+2014,8,Choice beef wholesale value,388.1531108
+2014,9,Choice beef wholesale value,375.572078
+2014,10,Choice beef wholesale value,377.2962852
+2014,11,Choice beef wholesale value,386.3641857
+2014,12,Choice beef wholesale value,377.5411915
+2015,1,Choice beef wholesale value,388.7547386
+2015,2,Choice beef wholesale value,368.9282653
+2015,3,Choice beef wholesale value,378.4177672
+2015,4,Choice beef wholesale value,393.6008423
+2015,5,Choice beef wholesale value,397.6188779
+2015,6,Choice beef wholesale value,382.4433727
+2015,7,Choice beef wholesale value,365.6164176
+2015,8,Choice beef wholesale value,369.8287432
+2015,9,Choice beef wholesale value,348.7929764
+2015,10,Choice beef wholesale value,325.8503838
+2015,11,Choice beef wholesale value,324.033033
+2015,12,Choice beef wholesale value,309.4596064
+2016,1,Choice beef wholesale value,349.8543179
+2016,2,Choice beef wholesale value,333.6983821
+2016,3,Choice beef wholesale value,343.8452429
+2016,4,Choice beef wholesale value,334.4160726
+2016,5,Choice beef wholesale value,331.9622643
+2016,6,Choice beef wholesale value,336.281326
+2016,7,Choice beef wholesale value,312.0128793
+2016,8,Choice beef wholesale value,305.3588699
+2016,9,Choice beef wholesale value,288.2988598
+2016,10,Choice beef wholesale value,280.1560994
+2016,11,Choice beef wholesale value,285.8663086
+2016,12,Choice beef wholesale value,299.4739618
+2017,1,Choice beef wholesale value,298.0795054
+2017,2,Choice beef wholesale value,293.5147635
+2017,3,Choice beef wholesale value,331.3969654
+2017,4,Choice beef wholesale value,327.5240025
+2017,5,Choice beef wholesale value,371.5056889
+2017,6,Choice beef wholesale value,373.6284691
+2017,7,Choice beef wholesale value,324.6782717
+2017,8,Choice beef wholesale value,304.5524644
+2017,9,Choice beef wholesale value,295.5214312
+2017,10,Choice beef wholesale value,304.8550251
+2017,11,Choice beef wholesale value,320.6284308
+2017,12,Choice beef wholesale value,311.6582949
+2018,1,Choice beef wholesale value,319.078072
+2018,2,Choice beef wholesale value,327.546074
+2018,3,Choice beef wholesale value,342.2104263
+2018,4,Choice beef wholesale value,335.1989253
+2018,5,Choice beef wholesale value,351.4893643
+2018,6,Choice beef wholesale value,338.7215952
+2018,7,Choice beef wholesale value,316.3257034
+2018,8,Choice beef wholesale value,320.6921632
+2018,9,Choice beef wholesale value,316.0590185
+2018,10,Choice beef wholesale value,319.2567062
+2018,11,Choice beef wholesale value,328.7457571
+2018,12,Choice beef wholesale value,327.3088295
+2019,1,Choice beef wholesale value,329.5432458
+2019,2,Choice beef wholesale value,333.7077969
+2019,3,Choice beef wholesale value,348.4237337
+2019,4,Choice beef wholesale value,352.7715078
+2019,5,Choice beef wholesale value,342.5195158
+2019,6,Choice beef wholesale value,338.9610878
+2019,7,Choice beef wholesale value,329.1267649
+2019,8,Choice beef wholesale value,352.3052448
+2019,9,Choice beef wholesale value,338.8661259
+2019,10,Choice beef wholesale value,336.5107952
+2019,11,Choice beef wholesale value,362.2750738
+2019,12,Choice beef wholesale value,332.8263624
+2020,1,Choice beef wholesale value,324.5219202
+2020,2,Choice beef wholesale value,317.7570942
+2020,3,Choice beef wholesale value,348.9191965
+2020,4,Choice beef wholesale value,401.9569397
+2020,5,Choice beef wholesale value,638.5632555
+2020,6,Choice beef wholesale value,370.0453289
+2020,7,Choice beef wholesale value,311.2902483
+2020,8,Choice beef wholesale value,331.6902865
+2020,9,Choice beef wholesale value,336.7455037
+2020,10,Choice beef wholesale value,322.9174287
+2020,11,Choice beef wholesale value,348.7591394
+2020,12,Choice beef wholesale value,332.9483669
+2021,1,Choice beef wholesale value,330.6225088
+2021,2,Choice beef wholesale value,359.3344518
+2021,3,Choice beef wholesale value,355.7968115
+2021,4,Choice beef wholesale value,421.5155229
+2021,5,Choice beef wholesale value,480.8423579
+2021,6,Choice beef wholesale value,487.3850895
+2021,7,Choice beef wholesale value,414.0274632
+2021,8,Choice beef wholesale value,486.4932448
+2021,9,Choice beef wholesale value,483.6430966
+2021,10,Choice beef wholesale value,428.3178612
+2021,11,Choice beef wholesale value,428.5204705
+2021,12,Choice beef wholesale value,402.0013402
+2022,1,Choice beef wholesale value,427.0352252
+2022,2,Choice beef wholesale value,411.6069762
+2022,3,Choice beef wholesale value,390.2861231
+2022,4,Choice beef wholesale value,405.4660432
+2022,5,Choice beef wholesale value,391.7411801
+2022,6,Choice beef wholesale value,403.15102
+2022,7,Choice beef wholesale value,404.5251911
+2022,8,Choice beef wholesale value,397.5029012
+2022,9,Choice beef wholesale value,380.4928352
+2022,10,Choice beef wholesale value,378.6578227
+2022,11,Choice beef wholesale value,389.2195726
+2022,12,Choice beef wholesale value,394.8346243
+2023,1,Choice beef wholesale value,418.3640829
+2023,2,Choice beef wholesale value,414.4312018
+2023,3,Choice beef wholesale value,430.065628
+2023,4,Choice beef wholesale value,454.9107527
+2023,5,Choice beef wholesale value,461.3007281
+2023,6,Choice beef wholesale value,502.4841382
+2023,7,Choice beef wholesale value,468.2122455
+2023,8,Choice beef wholesale value,467.4520729
+2023,9,Choice beef wholesale value,462.5920761
+2023,10,Choice beef wholesale value,458.6933074
+2023,11,Choice beef wholesale value,453.4053153
+2023,12,Choice beef wholesale value,443.0380641
+2024,1,Choice beef wholesale value,442.2661417
+2024,2,Choice beef wholesale value,452.5200617
+2024,3,Choice beef wholesale value,470.6767367
+2024,4,Choice beef wholesale value,454.4081951
+2024,5,Choice beef wholesale value,463.2336234
+2024,6,Choice beef wholesale value,486.087627
+2024,7,Choice beef wholesale value,485.964648
+2024,8,Choice beef wholesale value,477.9639467
+2024,9,Choice beef wholesale value,463.3410495
+2024,10,Choice beef wholesale value,476.9296579
+2024,11,Choice beef wholesale value,470.4208702
+2024,12,Choice beef wholesale value,478.4453774
+1970,1,Choice beef retail value,98.5
+1970,2,Choice beef retail value,98.3
+1970,3,Choice beef retail value,100.6
+1970,4,Choice beef retail value,101.1
+1970,5,Choice beef retail value,100.7
+1970,6,Choice beef retail value,99.8
+1970,7,Choice beef retail value,102
+1970,8,Choice beef retail value,101.7
+1970,9,Choice beef retail value,100.2
+1970,10,Choice beef retail value,99.3
+1970,11,Choice beef retail value,99.1
+1970,12,Choice beef retail value,98
+1971,1,Choice beef retail value,98.8
+1971,2,Choice beef retail value,102.9
+1971,3,Choice beef retail value,104
+1971,4,Choice beef retail value,105.8
+1971,5,Choice beef retail value,106.8
+1971,6,Choice beef retail value,107.6
+1971,7,Choice beef retail value,106.8
+1971,8,Choice beef retail value,107.7
+1971,9,Choice beef retail value,108
+1971,10,Choice beef retail value,107.2
+1971,11,Choice beef retail value,108.5
+1971,12,Choice beef retail value,110.8
+1972,1,Choice beef retail value,114
+1972,2,Choice beef retail value,118.4
+1972,3,Choice beef retail value,118.5
+1972,4,Choice beef retail value,114.6
+1972,5,Choice beef retail value,114.1
+1972,6,Choice beef retail value,116.3
+1972,7,Choice beef retail value,120.2
+1972,8,Choice beef retail value,118.7
+1972,9,Choice beef retail value,115.9
+1972,10,Choice beef retail value,115.8
+1972,11,Choice beef retail value,115.4
+1972,12,Choice beef retail value,117.8
+1973,1,Choice beef retail value,125.5
+1973,2,Choice beef retail value,134
+1973,3,Choice beef retail value,139.3
+1973,4,Choice beef retail value,140
+1973,5,Choice beef retail value,140.1
+1973,6,Choice beef retail value,139.6
+1973,7,Choice beef retail value,140.6
+1973,8,Choice beef retail value,148.7
+1973,9,Choice beef retail value,149.5
+1973,10,Choice beef retail value,140.4
+1973,11,Choice beef retail value,139.4
+1973,12,Choice beef retail value,138.9
+1974,1,Choice beef retail value,147.8
+1974,2,Choice beef retail value,155.1
+1974,3,Choice beef retail value,147.2
+1974,4,Choice beef retail value,141.2
+1974,5,Choice beef retail value,139.9
+1974,6,Choice beef retail value,136.9
+1974,7,Choice beef retail value,143
+1974,8,Choice beef retail value,148.7
+1974,9,Choice beef retail value,147
+1974,10,Choice beef retail value,142
+1974,11,Choice beef retail value,139.7
+1974,12,Choice beef retail value,137.3
+1975,1,Choice beef retail value,138.1
+1975,2,Choice beef retail value,134.2
+1975,3,Choice beef retail value,132.2
+1975,4,Choice beef retail value,139.4
+1975,5,Choice beef retail value,154
+1975,6,Choice beef retail value,164.5
+1975,7,Choice beef retail value,167.9
+1975,8,Choice beef retail value,162.2
+1975,9,Choice beef retail value,159.5
+1975,10,Choice beef retail value,159.1
+1975,11,Choice beef retail value,158
+1975,12,Choice beef retail value,157.4
+1976,1,Choice beef retail value,155.4
+1976,2,Choice beef retail value,149.2
+1976,3,Choice beef retail value,141.5
+1976,4,Choice beef retail value,148.6
+1976,5,Choice beef retail value,148.5
+1976,6,Choice beef retail value,147.5
+1976,7,Choice beef retail value,145
+1976,8,Choice beef retail value,142.4
+1976,9,Choice beef retail value,141
+1976,10,Choice beef retail value,140.2
+1976,11,Choice beef retail value,142.6
+1976,12,Choice beef retail value,146
+1977,1,Choice beef retail value,144.6
+1977,2,Choice beef retail value,141.6
+1977,3,Choice beef retail value,140.3
+1977,4,Choice beef retail value,141.1
+1977,5,Choice beef retail value,145.9
+1977,6,Choice beef retail value,144.8
+1977,7,Choice beef retail value,145.9
+1977,8,Choice beef retail value,146.9
+1977,9,Choice beef retail value,146.7
+1977,10,Choice beef retail value,149.4
+1977,11,Choice beef retail value,149.9
+1977,12,Choice beef retail value,153.1
+1978,1,Choice beef retail value,156.8
+1978,2,Choice beef retail value,159
+1978,3,Choice beef retail value,164.2
+1978,4,Choice beef retail value,173
+1978,5,Choice beef retail value,182.7
+1978,6,Choice beef retail value,191.9
+1978,7,Choice beef retail value,188.3
+1978,8,Choice beef retail value,186.1
+1978,9,Choice beef retail value,184.2
+1978,10,Choice beef retail value,184.4
+1978,11,Choice beef retail value,184.6
+1978,12,Choice beef retail value,190.3
+1979,1,Choice beef retail value,201.4
+1979,2,Choice beef retail value,211.6
+1979,3,Choice beef retail value,222.1
+1979,4,Choice beef retail value,228.8
+1979,5,Choice beef retail value,236.1
+1979,6,Choice beef retail value,229.6
+1979,7,Choice beef retail value,228.3
+1979,8,Choice beef retail value,217.1
+1979,9,Choice beef retail value,222.7
+1979,10,Choice beef retail value,220.5
+1979,11,Choice beef retail value,222.4
+1979,12,Choice beef retail value,228.6
+1980,1,Choice beef retail value,230.5
+1980,2,Choice beef retail value,230.8
+1980,3,Choice beef retail value,232.2
+1980,4,Choice beef retail value,229.3
+1980,5,Choice beef retail value,226.5
+1980,6,Choice beef retail value,226.7
+1980,7,Choice beef retail value,233.8
+1980,8,Choice beef retail value,238.1
+1980,9,Choice beef retail value,240.7
+1980,10,Choice beef retail value,237.5
+1980,11,Choice beef retail value,238.2
+1980,12,Choice beef retail value,238.8
+1981,1,Choice beef retail value,235.4
+1981,2,Choice beef retail value,233.5
+1981,3,Choice beef retail value,231.6
+1981,4,Choice beef retail value,227
+1981,5,Choice beef retail value,230.3
+1981,6,Choice beef retail value,234.8
+1981,7,Choice beef retail value,238.8
+1981,8,Choice beef retail value,238.6
+1981,9,Choice beef retail value,239.7
+1981,10,Choice beef retail value,237.4
+1981,11,Choice beef retail value,234.9
+1981,12,Choice beef retail value,234
+1982,1,Choice beef retail value,232.9
+1982,2,Choice beef retail value,234
+1982,3,Choice beef retail value,233
+1982,4,Choice beef retail value,236.3
+1982,5,Choice beef retail value,242.3
+1982,6,Choice beef retail value,250.3
+1982,7,Choice beef retail value,247.5
+1982,8,Choice beef retail value,242.7
+1982,9,Choice beef retail value,241.9
+1982,10,Choice beef retail value,234.6
+1982,11,Choice beef retail value,233.1
+1982,12,Choice beef retail value,231.7
+1983,1,Choice beef retail value,232.9
+1983,2,Choice beef retail value,234.6
+1983,3,Choice beef retail value,234.1
+1983,4,Choice beef retail value,240.3
+1983,5,Choice beef retail value,242.5
+1983,6,Choice beef retail value,240
+1983,7,Choice beef retail value,237.9
+1983,8,Choice beef retail value,234.5
+1983,9,Choice beef retail value,230.7
+1983,10,Choice beef retail value,227.9
+1983,11,Choice beef retail value,227.2
+1983,12,Choice beef retail value,226.4
+1984,1,Choice beef retail value,235.2
+1984,2,Choice beef retail value,239.8
+1984,3,Choice beef retail value,240.4
+1984,4,Choice beef retail value,240.6
+1984,5,Choice beef retail value,237.8
+1984,6,Choice beef retail value,235.6
+1984,7,Choice beef retail value,232.3
+1984,8,Choice beef retail value,233.1
+1984,9,Choice beef retail value,231.2
+1984,10,Choice beef retail value,230.9
+1984,11,Choice beef retail value,232.6
+1984,12,Choice beef retail value,236.2
+1985,1,Choice beef retail value,235.6
+1985,2,Choice beef retail value,234.6
+1985,3,Choice beef retail value,234.5
+1985,4,Choice beef retail value,232.8
+1985,5,Choice beef retail value,230.4
+1985,6,Choice beef retail value,228.1
+1985,7,Choice beef retail value,226.7
+1985,8,Choice beef retail value,221.7
+1985,9,Choice beef retail value,219.8
+1985,10,Choice beef retail value,220.4
+1985,11,Choice beef retail value,226
+1985,12,Choice beef retail value,232.9
+1986,1,Choice beef retail value,232.9
+1986,2,Choice beef retail value,228.5
+1986,3,Choice beef retail value,226.4
+1986,4,Choice beef retail value,223.1
+1986,5,Choice beef retail value,222.9
+1986,6,Choice beef retail value,222.7
+1986,7,Choice beef retail value,223.5
+1986,8,Choice beef retail value,226.3
+1986,9,Choice beef retail value,227.1
+1986,10,Choice beef retail value,227.3
+1986,11,Choice beef retail value,229.8
+1986,12,Choice beef retail value,230.8
+1987,1,Choice beef retail value,232.6
+1987,2,Choice beef retail value,229.6
+1987,3,Choice beef retail value,229.6
+1987,4,Choice beef retail value,232.8
+1987,5,Choice beef retail value,239.3
+1987,6,Choice beef retail value,245.2
+1987,7,Choice beef retail value,244
+1987,8,Choice beef retail value,241.2
+1987,9,Choice beef retail value,241.3
+1987,10,Choice beef retail value,241.5
+1987,11,Choice beef retail value,242.4
+1987,12,Choice beef retail value,241.1
+1988,1,Choice beef retail value,238.8
+1988,2,Choice beef retail value,242.1
+1988,3,Choice beef retail value,244.3
+1988,4,Choice beef retail value,245.9
+1988,5,Choice beef retail value,248.9
+1988,6,Choice beef retail value,255.5
+1988,7,Choice beef retail value,254.9
+1988,8,Choice beef retail value,253.4
+1988,9,Choice beef retail value,255.3
+1988,10,Choice beef retail value,253.4
+1988,11,Choice beef retail value,256
+1988,12,Choice beef retail value,255.6
+1989,1,Choice beef retail value,259.2
+1989,2,Choice beef retail value,258.2
+1989,3,Choice beef retail value,264.7
+1989,4,Choice beef retail value,265.3
+1989,5,Choice beef retail value,266.7
+1989,6,Choice beef retail value,268.9
+1989,7,Choice beef retail value,269.7
+1989,8,Choice beef retail value,268.2
+1989,9,Choice beef retail value,266.2
+1989,10,Choice beef retail value,265
+1989,11,Choice beef retail value,266.4
+1989,12,Choice beef retail value,269.4
+1990,1,Choice beef retail value,274.4
+1990,2,Choice beef retail value,271
+1990,3,Choice beef retail value,272.5
+1990,4,Choice beef retail value,277.9
+1990,5,Choice beef retail value,283.6
+1990,6,Choice beef retail value,282.1
+1990,7,Choice beef retail value,279.9
+1990,8,Choice beef retail value,280.6
+1990,9,Choice beef retail value,280.6
+1990,10,Choice beef retail value,282.7
+1990,11,Choice beef retail value,291.6
+1990,12,Choice beef retail value,295.3
+1991,1,Choice beef retail value,294.9
+1991,2,Choice beef retail value,292.5
+1991,3,Choice beef retail value,295.4
+1991,4,Choice beef retail value,297.1
+1991,5,Choice beef retail value,296.1
+1991,6,Choice beef retail value,292.4
+1991,7,Choice beef retail value,288.4
+1991,8,Choice beef retail value,285.4
+1991,9,Choice beef retail value,280.1
+1991,10,Choice beef retail value,277.2
+1991,11,Choice beef retail value,281
+1991,12,Choice beef retail value,279.4
+1992,1,Choice beef retail value,278.7
+1992,2,Choice beef retail value,282.5
+1992,3,Choice beef retail value,285.6
+1992,4,Choice beef retail value,287.6
+1992,5,Choice beef retail value,285.8
+1992,6,Choice beef retail value,287.1
+1992,7,Choice beef retail value,283.8
+1992,8,Choice beef retail value,280.1
+1992,9,Choice beef retail value,284.1
+1992,10,Choice beef retail value,285.6
+1992,11,Choice beef retail value,287.1
+1992,12,Choice beef retail value,287.3
+1993,1,Choice beef retail value,288.4
+1993,2,Choice beef retail value,292.5
+1993,3,Choice beef retail value,295.5
+1993,4,Choice beef retail value,299.1
+1993,5,Choice beef retail value,304.2
+1993,6,Choice beef retail value,297.9
+1993,7,Choice beef retail value,296.7
+1993,8,Choice beef retail value,290.9
+1993,9,Choice beef retail value,288.4
+1993,10,Choice beef retail value,288.5
+1993,11,Choice beef retail value,291
+1993,12,Choice beef retail value,288.2
+1994,1,Choice beef retail value,286.8
+1994,2,Choice beef retail value,284.9
+1994,3,Choice beef retail value,288.3
+1994,4,Choice beef retail value,287.1
+1994,5,Choice beef retail value,288.1
+1994,6,Choice beef retail value,283.3
+1994,7,Choice beef retail value,280.1
+1994,8,Choice beef retail value,278.4
+1994,9,Choice beef retail value,280
+1994,10,Choice beef retail value,277.9
+1994,11,Choice beef retail value,280.2
+1994,12,Choice beef retail value,279.4
+1995,1,Choice beef retail value,282.6
+1995,2,Choice beef retail value,284.3
+1995,3,Choice beef retail value,284.7
+1995,4,Choice beef retail value,283.7
+1995,5,Choice beef retail value,282.2
+1995,6,Choice beef retail value,283.4
+1995,7,Choice beef retail value,287.4
+1995,8,Choice beef retail value,284.4
+1995,9,Choice beef retail value,283.5
+1995,10,Choice beef retail value,285.3
+1995,11,Choice beef retail value,286.4
+1995,12,Choice beef retail value,284.1
+1996,1,Choice beef retail value,281.5
+1996,2,Choice beef retail value,278.8
+1996,3,Choice beef retail value,275.8
+1996,4,Choice beef retail value,279.3
+1996,5,Choice beef retail value,276.6
+1996,6,Choice beef retail value,276.3
+1996,7,Choice beef retail value,277.6
+1996,8,Choice beef retail value,281.1
+1996,9,Choice beef retail value,280.7
+1996,10,Choice beef retail value,281.9
+1996,11,Choice beef retail value,285.9
+1996,12,Choice beef retail value,287.3
+1997,1,Choice beef retail value,281.7
+1997,2,Choice beef retail value,278.6
+1997,3,Choice beef retail value,276.1
+1997,4,Choice beef retail value,279
+1997,5,Choice beef retail value,280.3
+1997,6,Choice beef retail value,277.6
+1997,7,Choice beef retail value,279.2
+1997,8,Choice beef retail value,281
+1997,9,Choice beef retail value,283
+1997,10,Choice beef retail value,279
+1997,11,Choice beef retail value,278
+1997,12,Choice beef retail value,280.9
+1998,1,Choice beef retail value,275.3
+1998,2,Choice beef retail value,272
+1998,3,Choice beef retail value,273.1
+1998,4,Choice beef retail value,278.2
+1998,5,Choice beef retail value,277.4
+1998,6,Choice beef retail value,278.7
+1998,7,Choice beef retail value,278.5
+1998,8,Choice beef retail value,279.4
+1998,9,Choice beef retail value,274.2
+1998,10,Choice beef retail value,275
+1998,11,Choice beef retail value,280
+1998,12,Choice beef retail value,283.6
+1999,1,Choice beef retail value,279.1
+1999,2,Choice beef retail value,278
+1999,3,Choice beef retail value,276.9
+1999,4,Choice beef retail value,283.9
+1999,5,Choice beef retail value,283.2
+1999,6,Choice beef retail value,287.2
+1999,7,Choice beef retail value,289.3
+1999,8,Choice beef retail value,289
+1999,9,Choice beef retail value,289.3628014
+1999,10,Choice beef retail value,295.4
+1999,11,Choice beef retail value,300.0137872
+1999,12,Choice beef retail value,301.7526967
+2000,1,Choice beef retail value,294.7253545
+2000,2,Choice beef retail value,293.6381636
+2000,3,Choice beef retail value,297.8760678
+2000,4,Choice beef retail value,305.3950004
+2000,5,Choice beef retail value,308.7826516
+2000,6,Choice beef retail value,311.5395983
+2000,7,Choice beef retail value,309.9858791
+2000,8,Choice beef retail value,309.9201535
+2000,9,Choice beef retail value,313.0148985
+2000,10,Choice beef retail value,311.823349
+2000,11,Choice beef retail value,310.278481
+2000,12,Choice beef retail value,310.0660381
+2001,1,Choice beef retail value,321.3500884
+2001,2,Choice beef retail value,334.2119961
+2001,3,Choice beef retail value,334.3035371
+2001,4,Choice beef retail value,343.2009762
+2001,5,Choice beef retail value,343.8221296
+2001,6,Choice beef retail value,347.6430099
+2001,7,Choice beef retail value,345.3952494
+2001,8,Choice beef retail value,339.3275778
+2001,9,Choice beef retail value,337.6279315
+2001,10,Choice beef retail value,337.9669425
+2001,11,Choice beef retail value,337.6302753
+2001,12,Choice beef retail value,330.3322095
+2002,1,Choice beef retail value,330.7912784
+2002,2,Choice beef retail value,330.4627335
+2002,3,Choice beef retail value,329.7636666
+2002,4,Choice beef retail value,333.5005721
+2002,5,Choice beef retail value,333.544212
+2002,6,Choice beef retail value,329.9586536
+2002,7,Choice beef retail value,328.8574196
+2002,8,Choice beef retail value,334.4981299
+2002,9,Choice beef retail value,329.3629721
+2002,10,Choice beef retail value,325.8149027
+2002,11,Choice beef retail value,334.0381797
+2002,12,Choice beef retail value,337.7564821
+2003,1,Choice beef retail value,339.7460325
+2003,2,Choice beef retail value,347.9515042
+2003,3,Choice beef retail value,356.7661422
+2003,4,Choice beef retail value,364.8042371
+2003,5,Choice beef retail value,361.3821943
+2003,6,Choice beef retail value,365.5633999
+2003,7,Choice beef retail value,365.3835019
+2003,8,Choice beef retail value,373.4732963
+2003,9,Choice beef retail value,370.8514891
+2003,10,Choice beef retail value,393.3149762
+2003,11,Choice beef retail value,431.7244008
+2003,12,Choice beef retail value,424.3047593
+2004,1,Choice beef retail value,400.5188534
+2004,2,Choice beef retail value,398.8901869
+2004,3,Choice beef retail value,397.0835646
+2004,4,Choice beef retail value,405.674895
+2004,5,Choice beef retail value,405.4891251
+2004,6,Choice beef retail value,417.2876529
+2004,7,Choice beef retail value,417.8969956
+2004,8,Choice beef retail value,411.2971446
+2004,9,Choice beef retail value,408.2230989
+2004,10,Choice beef retail value,402.0605076
+2004,11,Choice beef retail value,405.7148511
+2004,12,Choice beef retail value,408.0547317
+2005,1,Choice beef retail value,408.4566668
+2005,2,Choice beef retail value,412.7542273
+2005,3,Choice beef retail value,421.4222334
+2005,4,Choice beef retail value,425.5109053
+2005,5,Choice beef retail value,426.098368
+2005,6,Choice beef retail value,418.4306204
+2005,7,Choice beef retail value,399.3099848
+2005,8,Choice beef retail value,399.1537116
+2005,9,Choice beef retail value,392.4213174
+2005,10,Choice beef retail value,397.5920749
+2005,11,Choice beef retail value,401.861035
+2005,12,Choice beef retail value,406.0252565
+2006,1,Choice beef retail value,406.918449
+2006,2,Choice beef retail value,405.8739157
+2006,3,Choice beef retail value,401.1144815
+2006,4,Choice beef retail value,402.0496486
+2006,5,Choice beef retail value,395.1240023
+2006,6,Choice beef retail value,392.1372423
+2006,7,Choice beef retail value,387.7935544
+2006,8,Choice beef retail value,397.5877821
+2006,9,Choice beef retail value,392.6164013
+2006,10,Choice beef retail value,394.6826317
+2006,11,Choice beef retail value,396.2982039
+2006,12,Choice beef retail value,392.0868658
+2007,1,Choice beef retail value,393.9535618
+2007,2,Choice beef retail value,404.9703023
+2007,3,Choice beef retail value,418.4032794
+2007,4,Choice beef retail value,428.4717556
+2007,5,Choice beef retail value,429.7451075
+2007,6,Choice beef retail value,421.4688349
+2007,7,Choice beef retail value,414.2782367
+2007,8,Choice beef retail value,415.9041261
+2007,9,Choice beef retail value,422.6950671
+2007,10,Choice beef retail value,412.9680316
+2007,11,Choice beef retail value,415.8939331
+2007,12,Choice beef retail value,411.295704
+2008,1,Choice beef retail value,410.0284402
+2008,2,Choice beef retail value,418.6165288
+2008,3,Choice beef retail value,420.5032747
+2008,4,Choice beef retail value,417.1851348
+2008,5,Choice beef retail value,424.1480519
+2008,6,Choice beef retail value,429.5603028
+2008,7,Choice beef retail value,433.9981045
+2008,8,Choice beef retail value,452.5732695
+2008,9,Choice beef retail value,450.8678997
+2008,10,Choice beef retail value,451.1196166
+2008,11,Choice beef retail value,443.2898894
+2008,12,Choice beef retail value,437.5230726
+2009,1,Choice beef retail value,432.2579091
+2009,2,Choice beef retail value,436.7550382
+2009,3,Choice beef retail value,429.9899671
+2009,4,Choice beef retail value,427.3190163
+2009,5,Choice beef retail value,433.4701291
+2009,6,Choice beef retail value,427.6653167
+2009,7,Choice beef retail value,417.9423874
+2009,8,Choice beef retail value,421.5997802
+2009,9,Choice beef retail value,413.165471
+2009,10,Choice beef retail value,414.5407481
+2009,11,Choice beef retail value,430.4169536
+2009,12,Choice beef retail value,428.0925465
+2010,1,Choice beef retail value,417.2658083
+2010,2,Choice beef retail value,418.5521469
+2010,3,Choice beef retail value,430.3734737
+2010,4,Choice beef retail value,443.6037321
+2010,5,Choice beef retail value,445.6541751
+2010,6,Choice beef retail value,447.1673391
+2010,7,Choice beef retail value,441.4930183
+2010,8,Choice beef retail value,435.2608412
+2010,9,Choice beef retail value,441.7610807
+2010,10,Choice beef retail value,447.7566761
+2010,11,Choice beef retail value,448.8412716
+2010,12,Choice beef retail value,443.0483784
+2011,1,Choice beef retail value,452.1280763
+2011,2,Choice beef retail value,458.2942535
+2011,3,Choice beef retail value,472.4609963
+2011,4,Choice beef retail value,479.4403497
+2011,5,Choice beef retail value,483.7075958
+2011,6,Choice beef retail value,478.0168381
+2011,7,Choice beef retail value,476.6611179
+2011,8,Choice beef retail value,486.7910074
+2011,9,Choice beef retail value,491.4145061
+2011,10,Choice beef retail value,493.2660354
+2011,11,Choice beef retail value,500.1301398
+2011,12,Choice beef retail value,501.6463099
+2012,1,Choice beef retail value,509.3480494
+2012,2,Choice beef retail value,504.4830343
+2012,3,Choice beef retail value,505.2711206
+2012,4,Choice beef retail value,498.6236166
+2012,5,Choice beef retail value,496.5447525
+2012,6,Choice beef retail value,493.1931289
+2012,7,Choice beef retail value,501.3406604
+2012,8,Choice beef retail value,494.4704262
+2012,9,Choice beef retail value,494.1114584
+2012,10,Choice beef retail value,500.3548783
+2012,11,Choice beef retail value,510.90708
+2012,12,Choice beef retail value,507.7715441
+2013,1,Choice beef retail value,520.5754797
+2013,2,Choice beef retail value,517.9070922
+2013,3,Choice beef retail value,526.3461528
+2013,4,Choice beef retail value,522.3902024
+2013,5,Choice beef retail value,522.6118474
+2013,6,Choice beef retail value,527.4415897
+2013,7,Choice beef retail value,533.0926535
+2013,8,Choice beef retail value,535.0705805
+2013,9,Choice beef retail value,529.4239889
+2013,10,Choice beef retail value,535.4639855
+2013,11,Choice beef retail value,540.857439
+2013,12,Choice beef retail value,536.0417718
+2014,1,Choice beef retail value,534.5709773
+2014,2,Choice beef retail value,557.5385471
+2014,3,Choice beef retail value,572.015693
+2014,4,Choice beef retail value,587.128045
+2014,5,Choice beef retail value,591.3163992
+2014,6,Choice beef retail value,591.6933655
+2014,7,Choice beef retail value,595.1364487
+2014,8,Choice beef retail value,623.9625342
+2014,9,Choice beef retail value,625.6171809
+2014,10,Choice beef retail value,624.0626402
+2014,11,Choice beef retail value,630.3067039
+2014,12,Choice beef retail value,630.975496
+2015,1,Choice beef retail value,633.3023448
+2015,2,Choice beef retail value,626.9850959
+2015,3,Choice beef retail value,630.8759954
+2015,4,Choice beef retail value,640.1571275
+2015,5,Choice beef retail value,641.1851007
+2015,6,Choice beef retail value,640.6367056
+2015,7,Choice beef retail value,636.4903093
+2015,8,Choice beef retail value,632.8146018
+2015,9,Choice beef retail value,623.0176285
+2015,10,Choice beef retail value,623.0789692
+2015,11,Choice beef retail value,620.9215197
+2015,12,Choice beef retail value,597.1649413
+2016,1,Choice beef retail value,597.5395256
+2016,2,Choice beef retail value,598.5544296
+2016,3,Choice beef retail value,622.2705147
+2016,4,Choice beef retail value,610.4516065
+2016,5,Choice beef retail value,608.1297464
+2016,6,Choice beef retail value,619.9652558
+2016,7,Choice beef retail value,608.9847587
+2016,8,Choice beef retail value,591.5136048
+2016,9,Choice beef retail value,586.8011156
+2016,10,Choice beef retail value,573.6676168
+2016,11,Choice beef retail value,576.3701628
+2016,12,Choice beef retail value,562.1508815
+2017,1,Choice beef retail value,566.1938569
+2017,2,Choice beef retail value,584.0384474
+2017,3,Choice beef retail value,590.394118
+2017,4,Choice beef retail value,593.2903365
+2017,5,Choice beef retail value,614.0149261
+2017,6,Choice beef retail value,620.6781657
+2017,7,Choice beef retail value,610.0344958
+2017,8,Choice beef retail value,597.0091484
+2017,9,Choice beef retail value,578.2024886
+2017,10,Choice beef retail value,575.4504594
+2017,11,Choice beef retail value,580.7036594
+2017,12,Choice beef retail value,580.2704291
+2018,1,Choice beef retail value,575.751741
+2018,2,Choice beef retail value,582.774702
+2018,3,Choice beef retail value,587.0527509
+2018,4,Choice beef retail value,606.0298328
+2018,5,Choice beef retail value,596.4447138
+2018,6,Choice beef retail value,597.8279876
+2018,7,Choice beef retail value,601.9926928
+2018,8,Choice beef retail value,608.2404483
+2018,9,Choice beef retail value,593.4643289
+2018,10,Choice beef retail value,584.018268
+2018,11,Choice beef retail value,591.1390299
+2018,12,Choice beef retail value,583.2985217
+2019,1,Choice beef retail value,585.9933951
+2019,2,Choice beef retail value,590.0178357
+2019,3,Choice beef retail value,606.8143593
+2019,4,Choice beef retail value,610.2227319
+2019,5,Choice beef retail value,617.3066303
+2019,6,Choice beef retail value,614.7310236
+2019,7,Choice beef retail value,614.6574538
+2019,8,Choice beef retail value,607.4420691
+2019,9,Choice beef retail value,600.6217057
+2019,10,Choice beef retail value,589.2177479
+2019,11,Choice beef retail value,606.4947483
+2019,12,Choice beef retail value,609.0333576
+2020,1,Choice beef retail value,605.8872732
+2020,2,Choice beef retail value,604.4617533
+2020,3,Choice beef retail value,604.6074026
+2020,4,Choice beef retail value,644.3629189
+2020,5,Choice beef retail value,758.5119195
+2020,6,Choice beef retail value,755.7708103
+2020,7,Choice beef retail value,683.8362892
+2020,8,Choice beef retail value,649.2000481
+2020,9,Choice beef retail value,637.0984639
+2020,10,Choice beef retail value,635.3615871
+2020,11,Choice beef retail value,634.0650901
+2020,12,Choice beef retail value,629.2922179
+2021,1,Choice beef retail value,640.7317951
+2021,2,Choice beef retail value,641.4485763
+2021,3,Choice beef retail value,648.2129658
+2021,4,Choice beef retail value,675.5488955
+2021,5,Choice beef retail value,696.2206982
+2021,6,Choice beef retail value,746.5220404
+2021,7,Choice beef retail value,752.9241356
+2021,8,Choice beef retail value,763.8506801
+2021,9,Choice beef retail value,787.0632484
+2021,10,Choice beef retail value,790.0706202
+2021,11,Choice beef retail value,785.3585326
+2021,12,Choice beef retail value,766.3206716
+2022,1,Choice beef retail value,762.6322212
+2022,2,Choice beef retail value,761.7226834
+2022,3,Choice beef retail value,768.5368215
+2022,4,Choice beef retail value,773.4716657
+2022,5,Choice beef retail value,767.4850419
+2022,6,Choice beef retail value,765.9502206
+2022,7,Choice beef retail value,761.8757151
+2022,8,Choice beef retail value,757.6423103
+2022,9,Choice beef retail value,760.0590108
+2022,10,Choice beef retail value,742.1656715
+2022,11,Choice beef retail value,736.4969863
+2022,12,Choice beef retail value,745.0353905
+2023,1,Choice beef retail value,757.3090171
+2023,2,Choice beef retail value,758.6088519
+2023,3,Choice beef retail value,764.0718439
+2023,4,Choice beef retail value,785.2896717
+2023,5,Choice beef retail value,808.1550957
+2023,6,Choice beef retail value,813.8130078
+2023,7,Choice beef retail value,830.84243
+2023,8,Choice beef retail value,822.5124538
+2023,9,Choice beef retail value,818.0950958
+2023,10,Choice beef retail value,816.5517674
+2023,11,Choice beef retail value,803.9143647
+2023,12,Choice beef retail value,801.1249829
+2024,1,Choice beef retail value,807.8449
+2024,2,Choice beef retail value,807.9415207
+2024,3,Choice beef retail value,811.9878358
+2024,4,Choice beef retail value,815.0757994
+2024,5,Choice beef retail value,811.0861812
+2024,6,Choice beef retail value,811.8933857
+2024,7,Choice beef retail value,843.2709754
+2024,8,Choice beef retail value,851.4628442
+2024,9,Choice beef retail value,840.8145503
+2024,10,Choice beef retail value,810.6940132
+2024,11,Choice beef retail value,832.3529602
+2024,12,Choice beef retail value,837.8886737
+1990,1,Wholesale broiler composite,59.27
+1990,2,Wholesale broiler composite,67.63
+1990,3,Wholesale broiler composite,67.78
+1990,4,Wholesale broiler composite,63.64
+1990,5,Wholesale broiler composite,66.56
+1990,6,Wholesale broiler composite,59.41
+1990,7,Wholesale broiler composite,66.95
+1990,8,Wholesale broiler composite,62.05
+1990,9,Wholesale broiler composite,64.91
+1990,10,Wholesale broiler composite,56.59
+1990,11,Wholesale broiler composite,54.98
+1990,12,Wholesale broiler composite,56.32
+1991,1,Wholesale broiler composite,60.17
+1991,2,Wholesale broiler composite,59.08
+1991,3,Wholesale broiler composite,57.46
+1991,4,Wholesale broiler composite,61.56
+1991,5,Wholesale broiler composite,61.06
+1991,6,Wholesale broiler composite,61.25
+1991,7,Wholesale broiler composite,58.67
+1991,8,Wholesale broiler composite,61.97
+1991,9,Wholesale broiler composite,59.02
+1991,10,Wholesale broiler composite,56.99
+1991,11,Wholesale broiler composite,53.52
+1991,12,Wholesale broiler composite,51.67
+1992,1,Wholesale broiler composite,55.29
+1992,2,Wholesale broiler composite,55.4
+1992,3,Wholesale broiler composite,58.1
+1992,4,Wholesale broiler composite,56.56
+1992,5,Wholesale broiler composite,61.2
+1992,6,Wholesale broiler composite,58.81
+1992,7,Wholesale broiler composite,62.6
+1992,8,Wholesale broiler composite,63.13
+1992,9,Wholesale broiler composite,60.87
+1992,10,Wholesale broiler composite,63.7
+1992,11,Wholesale broiler composite,60.48
+1992,12,Wholesale broiler composite,55.98
+1993,1,Wholesale broiler composite,59.94
+1993,2,Wholesale broiler composite,61.21
+1993,3,Wholesale broiler composite,60.8
+1993,4,Wholesale broiler composite,59.91
+1993,5,Wholesale broiler composite,64.5
+1993,6,Wholesale broiler composite,59.88
+1993,7,Wholesale broiler composite,60.64
+1993,8,Wholesale broiler composite,64.08
+1993,9,Wholesale broiler composite,64.43
+1993,10,Wholesale broiler composite,59.84
+1993,11,Wholesale broiler composite,58.7
+1993,12,Wholesale broiler composite,56.89
+1994,1,Wholesale broiler composite,58.35
+1994,2,Wholesale broiler composite,59.18
+1994,3,Wholesale broiler composite,63.42
+1994,4,Wholesale broiler composite,63.38
+1994,5,Wholesale broiler composite,65.81
+1994,6,Wholesale broiler composite,62.99
+1994,7,Wholesale broiler composite,63.9
+1994,8,Wholesale broiler composite,60.05
+1994,9,Wholesale broiler composite,61.65
+1994,10,Wholesale broiler composite,57.82
+1994,11,Wholesale broiler composite,54.82
+1994,12,Wholesale broiler composite,55.69
+1995,1,Wholesale broiler composite,57.26
+1995,2,Wholesale broiler composite,58.88
+1995,3,Wholesale broiler composite,58.73
+1995,4,Wholesale broiler composite,58.52
+1995,5,Wholesale broiler composite,60.77
+1995,6,Wholesale broiler composite,61.86
+1995,7,Wholesale broiler composite,65.56
+1995,8,Wholesale broiler composite,68.6
+1995,9,Wholesale broiler composite,67.26
+1995,10,Wholesale broiler composite,64.05
+1995,11,Wholesale broiler composite,64.65
+1995,12,Wholesale broiler composite,62.07
+1996,1,Wholesale broiler composite,63.45
+1996,2,Wholesale broiler composite,61.47
+1996,3,Wholesale broiler composite,59.24
+1996,4,Wholesale broiler composite,60.62
+1996,5,Wholesale broiler composite,71.4
+1996,6,Wholesale broiler composite,71.2
+1996,7,Wholesale broiler composite,70.02
+1996,8,Wholesale broiler composite,70.76
+1996,9,Wholesale broiler composite,69.59
+1996,10,Wholesale broiler composite,65.7
+1996,11,Wholesale broiler composite,66.95
+1996,12,Wholesale broiler composite,62.07
+1997,1,Wholesale broiler composite,63.57
+1997,2,Wholesale broiler composite,63.99
+1997,3,Wholesale broiler composite,62.35
+1997,4,Wholesale broiler composite,61.5
+1997,5,Wholesale broiler composite,60.54
+1997,6,Wholesale broiler composite,63.38
+1997,7,Wholesale broiler composite,68.9
+1997,8,Wholesale broiler composite,64.63
+1997,9,Wholesale broiler composite,59.28
+1997,10,Wholesale broiler composite,56.44
+1997,11,Wholesale broiler composite,56.1
+1997,12,Wholesale broiler composite,52.71
+1998,1,Wholesale broiler composite,55.76
+1998,2,Wholesale broiler composite,60.32
+1998,3,Wholesale broiler composite,61.34
+1998,4,Wholesale broiler composite,58.36
+1998,5,Wholesale broiler composite,62.14
+1998,6,Wholesale broiler composite,65.16
+1998,7,Wholesale broiler composite,73.56
+1998,8,Wholesale broiler composite,74.47
+1998,9,Wholesale broiler composite,71.55
+1998,10,Wholesale broiler composite,63.69
+1998,11,Wholesale broiler composite,59.46
+1998,12,Wholesale broiler composite,56.16
+1999,1,Wholesale broiler composite,56.08
+1999,2,Wholesale broiler composite,55.58
+1999,3,Wholesale broiler composite,52.39
+1999,4,Wholesale broiler composite,52.45
+1999,5,Wholesale broiler composite,55.63
+1999,6,Wholesale broiler composite,56.36
+1999,7,Wholesale broiler composite,54.09
+1999,8,Wholesale broiler composite,54.23
+1999,9,Wholesale broiler composite,56.68333758
+1999,10,Wholesale broiler composite,49.7
+1999,11,Wholesale broiler composite,53.1
+1999,12,Wholesale broiler composite,52.64
+2000,1,Wholesale broiler composite,51.27
+2000,2,Wholesale broiler composite,49.49
+2000,3,Wholesale broiler composite,51.26
+2000,4,Wholesale broiler composite,52.12395358
+2000,5,Wholesale broiler composite,48.63178788
+2000,6,Wholesale broiler composite,52.1784828
+2000,7,Wholesale broiler composite,50.42756682
+2000,8,Wholesale broiler composite,51.62057568
+2000,9,Wholesale broiler composite,57.32
+2000,10,Wholesale broiler composite,60.81
+2000,11,Wholesale broiler composite,60.27
+2000,12,Wholesale broiler composite,57.09
+2001,1,Wholesale broiler composite,51.56
+2001,2,Wholesale broiler composite,58.99
+2001,3,Wholesale broiler composite,59.68
+2001,4,Wholesale broiler composite,60.87
+2001,5,Wholesale broiler composite,65.29
+2001,6,Wholesale broiler composite,65.5
+2001,7,Wholesale broiler composite,65.1
+2001,8,Wholesale broiler composite,66.54
+2001,9,Wholesale broiler composite,68.27164216
+2001,10,Wholesale broiler composite,65.07
+2001,11,Wholesale broiler composite,60.49
+2001,12,Wholesale broiler composite,57.07
+2002,1,Wholesale broiler composite,58.87
+2002,2,Wholesale broiler composite,57.65
+2002,3,Wholesale broiler composite,56.27
+2002,4,Wholesale broiler composite,54.18
+2002,5,Wholesale broiler composite,58.67
+2002,6,Wholesale broiler composite,59.38
+2002,7,Wholesale broiler composite,58.41
+2002,8,Wholesale broiler composite,57.26
+2002,9,Wholesale broiler composite,56.97
+2002,10,Wholesale broiler composite,50.67
+2002,11,Wholesale broiler composite,52.37
+2002,12,Wholesale broiler composite,50.7
+2003,1,Wholesale broiler composite,55.55
+2003,2,Wholesale broiler composite,60.65
+2003,3,Wholesale broiler composite,60.59
+2003,4,Wholesale broiler composite,59.64
+2003,5,Wholesale broiler composite,64.03
+2003,6,Wholesale broiler composite,66.41
+2003,7,Wholesale broiler composite,68.39
+2003,8,Wholesale broiler composite,71.96
+2003,9,Wholesale broiler composite,72.02
+2003,10,Wholesale broiler composite,68.86
+2003,11,Wholesale broiler composite,69.44
+2003,12,Wholesale broiler composite,70.29
+2004,1,Wholesale broiler composite,74.03
+2004,2,Wholesale broiler composite,79.57
+2004,3,Wholesale broiler composite,83.25
+2004,4,Wholesale broiler composite,84.75
+2004,5,Wholesale broiler composite,87.77
+2004,6,Wholesale broiler composite,88.58
+2004,7,Wholesale broiler composite,86.64
+2004,8,Wholesale broiler composite,79.65
+2004,9,Wholesale broiler composite,69.21
+2004,10,Wholesale broiler composite,64.57
+2004,11,Wholesale broiler composite,60.25
+2004,12,Wholesale broiler composite,62.07
+2005,1,Wholesale broiler composite,67.56
+2005,2,Wholesale broiler composite,70.9
+2005,3,Wholesale broiler composite,69.59
+2005,4,Wholesale broiler composite,68.73
+2005,5,Wholesale broiler composite,70.26
+2005,6,Wholesale broiler composite,71.17
+2005,7,Wholesale broiler composite,71.77
+2005,8,Wholesale broiler composite,70.53
+2005,9,Wholesale broiler composite,73.7
+2005,10,Wholesale broiler composite,65.43
+2005,11,Wholesale broiler composite,58.02
+2005,12,Wholesale broiler composite,54.62
+2006,1,Wholesale broiler composite,54.89816716
+2006,2,Wholesale broiler composite,53.18150794
+2006,3,Wholesale broiler composite,48.83509032
+2006,4,Wholesale broiler composite,48.98767598
+2006,5,Wholesale broiler composite,53.3669066
+2006,6,Wholesale broiler composite,57.75349416
+2006,7,Wholesale broiler composite,59.21798642
+2006,8,Wholesale broiler composite,63.5507227
+2006,9,Wholesale broiler composite,63.54795314
+2006,10,Wholesale broiler composite,56.63776698
+2006,11,Wholesale broiler composite,54.66394772
+2006,12,Wholesale broiler composite,60.69173094
+2007,1,Wholesale broiler composite,67.59721172
+2007,2,Wholesale broiler composite,74.31942428
+2007,3,Wholesale broiler composite,77.36929086
+2007,4,Wholesale broiler composite,79.4653863
+2007,5,Wholesale broiler composite,83.3813916
+2007,6,Wholesale broiler composite,82.52330632
+2007,7,Wholesale broiler composite,81.6803329
+2007,8,Wholesale broiler composite,81.3986971
+2007,9,Wholesale broiler composite,77.50753444
+2007,10,Wholesale broiler composite,68.16195838
+2007,11,Wholesale broiler composite,71.72536468
+2007,12,Wholesale broiler composite,69.55171616
+2008,1,Wholesale broiler composite,72.96069574
+2008,2,Wholesale broiler composite,75.65560762
+2008,3,Wholesale broiler composite,71.75111782
+2008,4,Wholesale broiler composite,68.9349185
+2008,5,Wholesale broiler composite,73.12473514
+2008,6,Wholesale broiler composite,72.31191592
+2008,7,Wholesale broiler composite,72.69321756
+2008,8,Wholesale broiler composite,71.91577508
+2008,9,Wholesale broiler composite,67.58610586
+2008,10,Wholesale broiler composite,70.24448
+2008,11,Wholesale broiler composite,69.68308
+2008,12,Wholesale broiler composite,67.087072
+2009,1,Wholesale broiler composite,75.022568
+2009,2,Wholesale broiler composite,75.45672
+2009,3,Wholesale broiler composite,76.171216
+2009,4,Wholesale broiler composite,76.919016
+2009,5,Wholesale broiler composite,80.980736
+2009,6,Wholesale broiler composite,82.590784
+2009,7,Wholesale broiler composite,79.157272
+2009,8,Wholesale broiler composite,76.13232
+2009,9,Wholesale broiler composite,71.617144
+2009,10,Wholesale broiler composite,70.249048
+2009,11,Wholesale broiler composite,69.789128
+2009,12,Wholesale broiler composite,71.877776
+2010,1,Wholesale broiler composite,74.581456
+2010,2,Wholesale broiler composite,73.291648
+2010,3,Wholesale broiler composite,74.99928
+2010,4,Wholesale broiler composite,75.507752
+2010,5,Wholesale broiler composite,77.23232
+2010,6,Wholesale broiler composite,75.934456
+2010,7,Wholesale broiler composite,76.296184
+2010,8,Wholesale broiler composite,78.192768
+2010,9,Wholesale broiler composite,78.134584
+2010,10,Wholesale broiler composite,72.116304
+2010,11,Wholesale broiler composite,68.60464
+2010,12,Wholesale broiler composite,66.9352
+2011,1,Wholesale broiler composite,67.284936
+2011,2,Wholesale broiler composite,66.385104
+2011,3,Wholesale broiler composite,71.990432
+2011,4,Wholesale broiler composite,72.616904
+2011,5,Wholesale broiler composite,72.684168
+2011,6,Wholesale broiler composite,71.800312
+2011,7,Wholesale broiler composite,70.626112
+2011,8,Wholesale broiler composite,72.591744
+2011,9,Wholesale broiler composite,73.960392
+2011,10,Wholesale broiler composite,71.185856
+2011,11,Wholesale broiler composite,71.633752
+2011,12,Wholesale broiler composite,74.73756
+2012,1,Wholesale broiler composite,81.416632
+2012,2,Wholesale broiler composite,83.149
+2012,3,Wholesale broiler composite,85.888912
+2012,4,Wholesale broiler composite,83.065248
+2012,5,Wholesale broiler composite,89.220312
+2012,6,Wholesale broiler composite,83.287344
+2012,7,Wholesale broiler composite,81.947048
+2012,8,Wholesale broiler composite,85.124112
+2012,9,Wholesale broiler composite,82.764752
+2012,10,Wholesale broiler composite,83.654912
+2012,11,Wholesale broiler composite,84.080216
+2012,12,Wholesale broiler composite,90.720952
+2013,1,Wholesale broiler composite,92.206432
+2013,2,Wholesale broiler composite,90.258968
+2013,3,Wholesale broiler composite,91.655144
+2013,4,Wholesale broiler composite,90.738344
+2013,5,Wholesale broiler composite,96.29592
+2013,6,Wholesale broiler composite,96.017712
+2013,7,Wholesale broiler composite,93.60156
+2013,8,Wholesale broiler composite,92.051496
+2013,9,Wholesale broiler composite,88.63252
+2013,10,Wholesale broiler composite,80.3716
+2013,11,Wholesale broiler composite,74.77368
+2013,12,Wholesale broiler composite,73.050912
+2014,1,Wholesale broiler composite,74.935904
+2014,2,Wholesale broiler composite,75.612016
+2014,3,Wholesale broiler composite,79.85368
+2014,4,Wholesale broiler composite,85.90756
+2014,5,Wholesale broiler composite,90.424832
+2014,6,Wholesale broiler composite,92.893544
+2014,7,Wholesale broiler composite,94.030216
+2014,8,Wholesale broiler composite,92.249984
+2014,9,Wholesale broiler composite,92.346936
+2014,10,Wholesale broiler composite,90.403608
+2014,11,Wholesale broiler composite,87.906176
+2014,12,Wholesale broiler composite,86.087896
+2015,1,Wholesale broiler composite,87.9496
+2015,2,Wholesale broiler composite,86.184552
+2015,3,Wholesale broiler composite,85.781784
+2015,4,Wholesale broiler composite,84.81892
+2015,5,Wholesale broiler composite,85.555152
+2015,6,Wholesale broiler composite,83.990376
+2015,7,Wholesale broiler composite,78.4968
+2015,8,Wholesale broiler composite,72.561232
+2015,9,Wholesale broiler composite,69.345792
+2015,10,Wholesale broiler composite,65.523248
+2015,11,Wholesale broiler composite,63.536568
+2015,12,Wholesale broiler composite,64.158168
+2016,1,Wholesale broiler composite,67.663504
+2016,2,Wholesale broiler composite,67.413848
+2016,3,Wholesale broiler composite,69.5224
+2016,4,Wholesale broiler composite,74.143808
+2016,5,Wholesale broiler composite,77.452248
+2016,6,Wholesale broiler composite,76.892064
+2016,7,Wholesale broiler composite,75.725144
+2016,8,Wholesale broiler composite,74.015496
+2016,9,Wholesale broiler composite,75.927792
+2016,10,Wholesale broiler composite,74.094032
+2016,11,Wholesale broiler composite,74.890264
+2016,12,Wholesale broiler composite,76.695904
+2017,1,Wholesale broiler composite,77.333424
+2017,2,Wholesale broiler composite,77.599792
+2017,3,Wholesale broiler composite,83.396312
+2017,4,Wholesale broiler composite,88.804808
+2017,5,Wholesale broiler composite,94.475288
+2017,6,Wholesale broiler composite,98.229936
+2017,7,Wholesale broiler composite,99.144464
+2017,8,Wholesale broiler composite,94.68312
+2017,9,Wholesale broiler composite,86.02968
+2017,10,Wholesale broiler composite,78.9474
+2017,11,Wholesale broiler composite,76.54128
+2017,12,Wholesale broiler composite,79.249072
+2018,1,Wholesale broiler composite,79.371936
+2018,2,Wholesale broiler composite,80.867624
+2018,3,Wholesale broiler composite,83.336552
+2018,4,Wholesale broiler composite,85.095656
+2018,5,Wholesale broiler composite,87.028808
+2018,6,Wholesale broiler composite,87.67996
+2018,7,Wholesale broiler composite,85.573256
+2018,8,Wholesale broiler composite,76.355584
+2018,9,Wholesale broiler composite,73.171008
+2018,10,Wholesale broiler composite,71.343048
+2018,11,Wholesale broiler composite,69.9982
+2018,12,Wholesale broiler composite,71.255864
+2019,1,Wholesale broiler composite,77.5246
+2019,2,Wholesale broiler composite,76.77436
+2019,3,Wholesale broiler composite,79.526976
+2019,4,Wholesale broiler composite,81.667976
+2019,5,Wholesale broiler composite,82.244816
+2019,6,Wholesale broiler composite,82.409472
+2019,7,Wholesale broiler composite,82.059784
+2019,8,Wholesale broiler composite,77.828024
+2019,9,Wholesale broiler composite,73.459472
+2019,10,Wholesale broiler composite,69.819928
+2019,11,Wholesale broiler composite,68.1326
+2019,12,Wholesale broiler composite,69.691096
+2020,1,Wholesale broiler composite,71.331888
+2020,2,Wholesale broiler composite,69.291544
+2020,3,Wholesale broiler composite,71.214968
+2020,4,Wholesale broiler composite,63.179624
+2020,5,Wholesale broiler composite,68.275792
+2020,6,Wholesale broiler composite,68.676376
+2020,7,Wholesale broiler composite,67.097024
+2020,8,Wholesale broiler composite,65.882336
+2020,9,Wholesale broiler composite,62.607936
+2020,10,Wholesale broiler composite,63.176216
+2020,11,Wholesale broiler composite,66.30412
+2020,12,Wholesale broiler composite,67.235296
+2021,1,Wholesale broiler composite,68.376432
+2021,2,Wholesale broiler composite,72.59148
+2021,3,Wholesale broiler composite,76.898664
+2021,4,Wholesale broiler composite,87.509496
+2021,5,Wholesale broiler composite,94.735936
+2021,6,Wholesale broiler composite,93.055992
+2021,7,Wholesale broiler composite,90.66208
+2021,8,Wholesale broiler composite,90.166056
+2021,9,Wholesale broiler composite,89.663232
+2021,10,Wholesale broiler composite,86.595696
+2021,11,Wholesale broiler composite,85.172352
+2021,12,Wholesale broiler composite,88.882456
+2022,1,Wholesale broiler composite,90.918192
+2022,2,Wholesale broiler composite,91.449792
+2022,3,Wholesale broiler composite,100.798536
+2022,4,Wholesale broiler composite,113.090808
+2022,5,Wholesale broiler composite,125.75624
+2022,6,Wholesale broiler composite,128.949176
+2022,7,Wholesale broiler composite,123.096
+2022,8,Wholesale broiler composite,114.090768
+2022,9,Wholesale broiler composite,111.981566
+2022,10,Wholesale broiler composite,103.897944
+2022,11,Wholesale broiler composite,89.6160752
+2022,12,Wholesale broiler composite,84.32966
+2023,1,Wholesale broiler composite,83.838316
+2023,2,Wholesale broiler composite,88.472318
+2023,3,Wholesale broiler composite,93.8711888
+2023,4,Wholesale broiler composite,97.21999
+2023,5,Wholesale broiler composite,96.7402816
+2023,6,Wholesale broiler composite,94.759304
+2023,7,Wholesale broiler composite,91.615102
+2023,8,Wholesale broiler composite,92.8447648
+2023,9,Wholesale broiler composite,96.0405
+2023,10,Wholesale broiler composite,93.897508
+2023,11,Wholesale broiler composite,92.3662032
+2023,12,Wholesale broiler composite,94.600368
+2024,1,Wholesale broiler composite,96.5219824
+2024,2,Wholesale broiler composite,99.574788
+2024,3,Wholesale broiler composite,106.64169
+2024,4,Wholesale broiler composite,107.076962
+2024,5,Wholesale broiler composite,112.9926896
+2024,6,Wholesale broiler composite,116.256704
+2024,7,Wholesale broiler composite,117.4830256
+2024,8,Wholesale broiler composite,115.102782
+2024,9,Wholesale broiler composite,114.0068
+2024,10,Wholesale broiler composite,110.0908384
+2024,11,Wholesale broiler composite,116.869616
+2024,12,Wholesale broiler composite,110.683112
+1980,1,Retail broiler composite,93.3039576
+1980,2,Retail broiler composite,92.39119
+1980,3,Retail broiler composite,90.8114008
+1980,4,Retail broiler composite,88.235892
+1980,5,Retail broiler composite,88.5777142
+1980,6,Retail broiler composite,90.2793988
+1980,7,Retail broiler composite,97.53958
+1980,8,Retail broiler composite,101.2356736
+1980,9,Retail broiler composite,106.4478102
+1980,10,Retail broiler composite,105.8828064
+1980,11,Retail broiler composite,104.6288648
+1980,12,Retail broiler composite,104.725368
+1981,1,Retail broiler composite,104.2318882
+1981,2,Retail broiler composite,105.2244048
+1981,3,Retail broiler composite,104.6880228
+1981,4,Retail broiler composite,100.7707424
+1981,5,Retail broiler composite,101.115754
+1981,6,Retail broiler composite,102.1674952
+1981,7,Retail broiler composite,108.646997
+1981,8,Retail broiler composite,106.6293088
+1981,9,Retail broiler composite,104.562828
+1981,10,Retail broiler composite,104.2693858
+1981,11,Retail broiler composite,103.0037
+1981,12,Retail broiler composite,102.241345
+1982,1,Retail broiler composite,104.3393132
+1982,2,Retail broiler composite,105.041272
+1982,3,Retail broiler composite,102.7946548
+1982,4,Retail broiler composite,101.9488548
+1982,5,Retail broiler composite,103.4390286
+1982,6,Retail broiler composite,103.6612094
+1982,7,Retail broiler composite,105.4098888
+1982,8,Retail broiler composite,104.0789592
+1982,9,Retail broiler composite,103.5172
+1982,10,Retail broiler composite,102.4454076
+1982,11,Retail broiler composite,101.300239
+1982,12,Retail broiler composite,100.6421184
+1983,1,Retail broiler composite,100.91756
+1983,2,Retail broiler composite,102.2133514
+1983,3,Retail broiler composite,103.0803168
+1983,4,Retail broiler composite,101.621263
+1983,5,Retail broiler composite,103.1935616
+1983,6,Retail broiler composite,101.455072
+1983,7,Retail broiler composite,105.7291622
+1983,8,Retail broiler composite,106.9239986
+1983,9,Retail broiler composite,110.2481296
+1983,10,Retail broiler composite,105.9618056
+1983,11,Retail broiler composite,108.3355678
+1983,12,Retail broiler composite,114.1350754
+1984,1,Retail broiler composite,120.6977236
+1984,2,Retail broiler composite,125.5589072
+1984,3,Retail broiler composite,124.1408596
+1984,4,Retail broiler composite,122.974829
+1984,5,Retail broiler composite,119.2377432
+1984,6,Retail broiler composite,120.4480128
+1984,7,Retail broiler composite,120.8759936
+1984,8,Retail broiler composite,116.215539
+1984,9,Retail broiler composite,117.94234
+1984,10,Retail broiler composite,114.7877024
+1984,11,Retail broiler composite,114.512484
+1984,12,Retail broiler composite,113.9187144
+1985,1,Retail broiler composite,116.610535
+1985,2,Retail broiler composite,116.3889212
+1985,3,Retail broiler composite,115.2830096
+1985,4,Retail broiler composite,113.0111368
+1985,5,Retail broiler composite,112.843024
+1985,6,Retail broiler composite,114.328076
+1985,7,Retail broiler composite,115.3055992
+1985,8,Retail broiler composite,113.2766336
+1985,9,Retail broiler composite,114.7296
+1985,10,Retail broiler composite,112.6197552
+1985,11,Retail broiler composite,115.8473632
+1985,12,Retail broiler composite,121.074474
+1986,1,Retail broiler composite,119.5894266
+1986,2,Retail broiler composite,117.1964574
+1986,3,Retail broiler composite,115.4630568
+1986,4,Retail broiler composite,116.4438852
+1986,5,Retail broiler composite,116.486737
+1986,6,Retail broiler composite,121.9123852
+1986,7,Retail broiler composite,132.924856
+1986,8,Retail broiler composite,144.088662
+1986,9,Retail broiler composite,139.6933952
+1986,10,Retail broiler composite,136.1910876
+1986,11,Retail broiler composite,137.6625264
+1986,12,Retail broiler composite,137.3675716
+1987,1,Retail broiler composite,130.620512
+1987,2,Retail broiler composite,128.6062912
+1987,3,Retail broiler composite,126.4429248
+1987,4,Retail broiler composite,124.838605
+1987,5,Retail broiler composite,123.2568428
+1987,6,Retail broiler composite,121.884657
+1987,7,Retail broiler composite,119.9991864
+1987,8,Retail broiler composite,123.388214
+1987,9,Retail broiler composite,122.5653976
+1987,10,Retail broiler composite,123.0200188
+1987,11,Retail broiler composite,119.561109
+1987,12,Retail broiler composite,118.9630352
+1988,1,Retail broiler composite,119.2587638
+1988,2,Retail broiler composite,117.2203504
+1988,3,Retail broiler composite,120.362984
+1988,4,Retail broiler composite,121.2307926
+1988,5,Retail broiler composite,126.364757
+1988,6,Retail broiler composite,134.732654
+1988,7,Retail broiler composite,146.3912884
+1988,8,Retail broiler composite,148.071178
+1988,9,Retail broiler composite,148.1555038
+1988,10,Retail broiler composite,144.568045
+1988,11,Retail broiler composite,141.2297488
+1988,12,Retail broiler composite,141.6085104
+1989,1,Retail broiler composite,142.441643
+1989,2,Retail broiler composite,140.5259184
+1989,3,Retail broiler composite,141.5946202
+1989,4,Retail broiler composite,145.5409952
+1989,5,Retail broiler composite,151.398214
+1989,6,Retail broiler composite,158.1133846
+1989,7,Retail broiler composite,155.3472036
+1989,8,Retail broiler composite,152.176598
+1989,9,Retail broiler composite,146.4646338
+1989,10,Retail broiler composite,144.66489
+1989,11,Retail broiler composite,140.381244
+1989,12,Retail broiler composite,140.2829128
+1990,1,Retail broiler composite,139.8430278
+1990,2,Retail broiler composite,142.616444
+1990,3,Retail broiler composite,148.343028
+1990,4,Retail broiler composite,143.4922484
+1990,5,Retail broiler composite,147.9143296
+1990,6,Retail broiler composite,148.4474272
+1990,7,Retail broiler composite,149.960894
+1990,8,Retail broiler composite,147.2178242
+1990,9,Retail broiler composite,148.5534434
+1990,10,Retail broiler composite,145.2224144
+1990,11,Retail broiler composite,143.381864
+1990,12,Retail broiler composite,141.06048
+1991,1,Retail broiler composite,144.31192
+1991,2,Retail broiler composite,144.175024
+1991,3,Retail broiler composite,142.7791984
+1991,4,Retail broiler composite,142.165684
+1991,5,Retail broiler composite,144.9524772
+1991,6,Retail broiler composite,144.61
+1991,7,Retail broiler composite,144.89
+1991,8,Retail broiler composite,146.6
+1991,9,Retail broiler composite,143.47
+1991,10,Retail broiler composite,140.71
+1991,11,Retail broiler composite,140.95
+1991,12,Retail broiler composite,141.52
+1992,1,Retail broiler composite,143.95
+1992,2,Retail broiler composite,138.64
+1992,3,Retail broiler composite,135.65
+1992,4,Retail broiler composite,138.22
+1992,5,Retail broiler composite,137.82
+1992,6,Retail broiler composite,142.28
+1992,7,Retail broiler composite,144.17
+1992,8,Retail broiler composite,144.86
+1992,9,Retail broiler composite,142.93
+1992,10,Retail broiler composite,144.04
+1992,11,Retail broiler composite,143.72
+1992,12,Retail broiler composite,145.11
+1993,1,Retail broiler composite,142.66
+1993,2,Retail broiler composite,141.34
+1993,3,Retail broiler composite,143.87
+1993,4,Retail broiler composite,144.15
+1993,5,Retail broiler composite,145
+1993,6,Retail broiler composite,143.21
+1993,7,Retail broiler composite,143.7
+1993,8,Retail broiler composite,141.36
+1993,9,Retail broiler composite,142.9
+1993,10,Retail broiler composite,145.92
+1993,11,Retail broiler composite,144.87
+1993,12,Retail broiler composite,149.09
+1994,1,Retail broiler composite,146.17
+1994,2,Retail broiler composite,146.55
+1994,3,Retail broiler composite,146.09
+1994,4,Retail broiler composite,145.76
+1994,5,Retail broiler composite,146.47
+1994,6,Retail broiler composite,148.66
+1994,7,Retail broiler composite,147.68
+1994,8,Retail broiler composite,144.56
+1994,9,Retail broiler composite,146.53
+1994,10,Retail broiler composite,142.5
+1994,11,Retail broiler composite,140.56
+1994,12,Retail broiler composite,138.69
+1995,1,Retail broiler composite,139.27
+1995,2,Retail broiler composite,141.58
+1995,3,Retail broiler composite,145.45
+1995,4,Retail broiler composite,144.1
+1995,5,Retail broiler composite,143.72
+1995,6,Retail broiler composite,142.6
+1995,7,Retail broiler composite,141.35
+1995,8,Retail broiler composite,142.24
+1995,9,Retail broiler composite,147.52
+1995,10,Retail broiler composite,145.79
+1995,11,Retail broiler composite,150.16
+1995,12,Retail broiler composite,145.32
+1996,1,Retail broiler composite,146.72
+1996,2,Retail broiler composite,149.65
+1996,3,Retail broiler composite,144.5
+1996,4,Retail broiler composite,146.78
+1996,5,Retail broiler composite,149.48
+1996,6,Retail broiler composite,150.92
+1996,7,Retail broiler composite,150.19
+1996,8,Retail broiler composite,152.16
+1996,9,Retail broiler composite,157.79
+1996,10,Retail broiler composite,152.65
+1996,11,Retail broiler composite,151.28
+1996,12,Retail broiler composite,153.96
+1997,1,Retail broiler composite,152.13
+1997,2,Retail broiler composite,152.5
+1997,3,Retail broiler composite,149.02
+1997,4,Retail broiler composite,148.52
+1997,5,Retail broiler composite,151.56
+1997,6,Retail broiler composite,151.54
+1997,7,Retail broiler composite,153.08
+1997,8,Retail broiler composite,149.2
+1997,9,Retail broiler composite,152.32
+1997,10,Retail broiler composite,148.43
+1997,11,Retail broiler composite,151.37
+1997,12,Retail broiler composite,147.91
+1998,1,Retail broiler composite,153.02
+1998,2,Retail broiler composite,150.23
+1998,3,Retail broiler composite,149.93
+1998,4,Retail broiler composite,151.33
+1998,5,Retail broiler composite,151.19
+1998,6,Retail broiler composite,154.7
+1998,7,Retail broiler composite,152.35
+1998,8,Retail broiler composite,156.08
+1998,9,Retail broiler composite,154.43
+1998,10,Retail broiler composite,158.44
+1998,11,Retail broiler composite,157.47
+1998,12,Retail broiler composite,155.64
+1999,1,Retail broiler composite,154.85
+1999,2,Retail broiler composite,153.68
+1999,3,Retail broiler composite,155.45
+1999,4,Retail broiler composite,155.09
+1999,5,Retail broiler composite,151.18
+1999,6,Retail broiler composite,155.08
+1999,7,Retail broiler composite,156.18
+1999,8,Retail broiler composite,154.62
+1999,9,Retail broiler composite,155.8780764
+1999,10,Retail broiler composite,155.23
+1999,11,Retail broiler composite,156.1
+1999,12,Retail broiler composite,149.5
+2000,1,Retail broiler composite,154.29
+2000,2,Retail broiler composite,150.67
+2000,3,Retail broiler composite,155.21
+2000,4,Retail broiler composite,156.2
+2000,5,Retail broiler composite,156.68
+2000,6,Retail broiler composite,155.1
+2000,7,Retail broiler composite,155.82
+2000,8,Retail broiler composite,158.25
+2000,9,Retail broiler composite,156.82
+2000,10,Retail broiler composite,156.25
+2000,11,Retail broiler composite,151.45
+2000,12,Retail broiler composite,157.15
+2001,1,Retail broiler composite,157.25
+2001,2,Retail broiler composite,154.95
+2001,3,Retail broiler composite,155.96
+2001,4,Retail broiler composite,156.55
+2001,5,Retail broiler composite,155.02
+2001,6,Retail broiler composite,154.81
+2001,7,Retail broiler composite,158.5
+2001,8,Retail broiler composite,161.4553566
+2001,9,Retail broiler composite,157.4859172
+2001,10,Retail broiler composite,161.69
+2001,11,Retail broiler composite,159.03
+2001,12,Retail broiler composite,159.85
+2002,1,Retail broiler composite,159.15
+2002,2,Retail broiler composite,161.95
+2002,3,Retail broiler composite,159.37
+2002,4,Retail broiler composite,161.31
+2002,5,Retail broiler composite,159.76
+2002,6,Retail broiler composite,158.93
+2002,7,Retail broiler composite,160.3
+2002,8,Retail broiler composite,163.62
+2002,9,Retail broiler composite,164.52
+2002,10,Retail broiler composite,163.23
+2002,11,Retail broiler composite,165.85
+2002,12,Retail broiler composite,164.2
+2003,1,Retail broiler composite,159.28
+2003,2,Retail broiler composite,157.99
+2003,3,Retail broiler composite,159.92
+2003,4,Retail broiler composite,162.2
+2003,5,Retail broiler composite,160.43
+2003,6,Retail broiler composite,159.2249227
+2003,7,Retail broiler composite,162.0323454
+2003,8,Retail broiler composite,161.0683069
+2003,9,Retail broiler composite,161.1313931
+2003,10,Retail broiler composite,164.6499676
+2003,11,Retail broiler composite,163.2302046
+2003,12,Retail broiler composite,164.6002395
+2004,1,Retail broiler composite,165.5752122
+2004,2,Retail broiler composite,166.5699641
+2004,3,Retail broiler composite,166.8769844
+2004,4,Retail broiler composite,167.113878
+2004,5,Retail broiler composite,174.2746841
+2004,6,Retail broiler composite,173.6046828
+2004,7,Retail broiler composite,176.1843216
+2004,8,Retail broiler composite,177.3598812
+2004,9,Retail broiler composite,178.279077
+2004,10,Retail broiler composite,178.8782511
+2004,11,Retail broiler composite,173.3439361
+2004,12,Retail broiler composite,175.3324805
+2005,1,Retail broiler composite,171.93
+2005,2,Retail broiler composite,173.39
+2005,3,Retail broiler composite,172.09
+2005,4,Retail broiler composite,173.02
+2005,5,Retail broiler composite,172.26
+2005,6,Retail broiler composite,174.35
+2005,7,Retail broiler composite,173.04
+2005,8,Retail broiler composite,174.34
+2005,9,Retail broiler composite,177.52
+2005,10,Retail broiler composite,175.5
+2005,11,Retail broiler composite,178.21
+2005,12,Retail broiler composite,173.18
+2006,1,Retail broiler composite,169.5240467
+2006,2,Retail broiler composite,154.1487508
+2006,3,Retail broiler composite,163.4698261
+2006,4,Retail broiler composite,164.4239379
+2006,5,Retail broiler composite,151.5207012
+2006,6,Retail broiler composite,149.5857604
+2006,7,Retail broiler composite,153.3753634
+2006,8,Retail broiler composite,156.648016
+2006,9,Retail broiler composite,153.9879392
+2006,10,Retail broiler composite,154.7133196
+2006,11,Retail broiler composite,156.9072168
+2006,12,Retail broiler composite,156.4838386
+2007,1,Retail broiler composite,154.1575298
+2007,2,Retail broiler composite,161.4163292
+2007,3,Retail broiler composite,162.1404408
+2007,4,Retail broiler composite,165.1371132
+2007,5,Retail broiler composite,165.6846044
+2007,6,Retail broiler composite,165.2659174
+2007,7,Retail broiler composite,170.139357
+2007,8,Retail broiler composite,167.351711
+2007,9,Retail broiler composite,166.6265962
+2007,10,Retail broiler composite,165.1841226
+2007,11,Retail broiler composite,168.944759
+2007,12,Retail broiler composite,169.28747
+2008,1,Retail broiler composite,169.4171036
+2008,2,Retail broiler composite,172.7571058
+2008,3,Retail broiler composite,173.168554
+2008,4,Retail broiler composite,173.2424176
+2008,5,Retail broiler composite,174.1240584
+2008,6,Retail broiler composite,176.2918898
+2008,7,Retail broiler composite,175.511135
+2008,8,Retail broiler composite,174.1379356
+2008,9,Retail broiler composite,175.6414158
+2008,10,Retail broiler composite,174.005199
+2008,11,Retail broiler composite,179.3128816
+2008,12,Retail broiler composite,178.110772
+2009,1,Retail broiler composite,183.6631846
+2009,2,Retail broiler composite,180.160637
+2009,3,Retail broiler composite,171.5518214
+2009,4,Retail broiler composite,181.6935954
+2009,5,Retail broiler composite,185.6795232
+2009,6,Retail broiler composite,182.5495194
+2009,7,Retail broiler composite,174.8797508
+2009,8,Retail broiler composite,176.9175078
+2009,9,Retail broiler composite,176.0476656
+2009,10,Retail broiler composite,173.456788
+2009,11,Retail broiler composite,174.3157924
+2009,12,Retail broiler composite,174.6797494
+2010,1,Retail broiler composite,173.0778786
+2010,2,Retail broiler composite,173.0267814
+2010,3,Retail broiler composite,167.803967
+2010,4,Retail broiler composite,165.2834544
+2010,5,Retail broiler composite,175.4540298
+2010,6,Retail broiler composite,176.6493428
+2010,7,Retail broiler composite,178.5128844
+2010,8,Retail broiler composite,174.6585698
+2010,9,Retail broiler composite,178.5718902
+2010,10,Retail broiler composite,180.0262006
+2010,11,Retail broiler composite,181.761359
+2010,12,Retail broiler composite,178.5278312
+2011,1,Retail broiler composite,175.7709138
+2011,2,Retail broiler composite,177.5734544
+2011,3,Retail broiler composite,178.508172
+2011,4,Retail broiler composite,174.4091004
+2011,5,Retail broiler composite,170.066244
+2011,6,Retail broiler composite,175.520283
+2011,7,Retail broiler composite,174.0359222
+2011,8,Retail broiler composite,178.728915
+2011,9,Retail broiler composite,176.7019294
+2011,10,Retail broiler composite,180.7178794
+2011,11,Retail broiler composite,179.334259
+2011,12,Retail broiler composite,179.3153106
+2012,1,Retail broiler composite,185.4724593
+2012,2,Retail broiler composite,182.6701335
+2012,3,Retail broiler composite,190.4202123
+2012,4,Retail broiler composite,188.6649843
+2012,5,Retail broiler composite,186.8971469
+2012,6,Retail broiler composite,191.0218101
+2012,7,Retail broiler composite,192.0888975
+2012,8,Retail broiler composite,190.6150998
+2012,9,Retail broiler composite,185.5533733
+2012,10,Retail broiler composite,186.9651642
+2012,11,Retail broiler composite,193.4846907
+2012,12,Retail broiler composite,197.1478713
+2013,1,Retail broiler composite,193.9555434
+2013,2,Retail broiler composite,194.7858931
+2013,3,Retail broiler composite,189.995114
+2013,4,Retail broiler composite,191.2417231
+2013,5,Retail broiler composite,194.7087365
+2013,6,Retail broiler composite,199.1886668
+2013,7,Retail broiler composite,197.5867954
+2013,8,Retail broiler composite,200.2070271
+2013,9,Retail broiler composite,200.5492379
+2013,10,Retail broiler composite,203.0975284
+2013,11,Retail broiler composite,195.574911
+2013,12,Retail broiler composite,196.7072468
+2014,1,Retail broiler composite,193.8419284
+2014,2,Retail broiler composite,195.2940237
+2014,3,Retail broiler composite,194.7298074
+2014,4,Retail broiler composite,192.9078638
+2014,5,Retail broiler composite,194.6136693
+2014,6,Retail broiler composite,194.8577538
+2014,7,Retail broiler composite,195.5890742
+2014,8,Retail broiler composite,197.0446804
+2014,9,Retail broiler composite,197.1235079
+2014,10,Retail broiler composite,198.9868164
+2014,11,Retail broiler composite,200.7991339
+2014,12,Retail broiler composite,199.433798
+2015,1,Retail broiler composite,197.842342
+2015,2,Retail broiler composite,197.7962226
+2015,3,Retail broiler composite,198.7291368
+2015,4,Retail broiler composite,199.7333427
+2015,5,Retail broiler composite,193.183912
+2015,6,Retail broiler composite,198.6927645
+2015,7,Retail broiler composite,196.3344915
+2015,8,Retail broiler composite,196.0292478
+2015,9,Retail broiler composite,194.9982776
+2015,10,Retail broiler composite,196.5389516
+2015,11,Retail broiler composite,196.9855384
+2015,12,Retail broiler composite,193.1461663
+2016,1,Retail broiler composite,192.6604709
+2016,2,Retail broiler composite,187.4210609
+2016,3,Retail broiler composite,188.725939
+2016,4,Retail broiler composite,192.1310981
+2016,5,Retail broiler composite,189.8062278
+2016,6,Retail broiler composite,191.5474678
+2016,7,Retail broiler composite,189.9161014
+2016,8,Retail broiler composite,191.1338425
+2016,9,Retail broiler composite,190.8224049
+2016,10,Retail broiler composite,189.3090808
+2016,11,Retail broiler composite,189.4055129
+2016,12,Retail broiler composite,183.831394
+2017,1,Retail broiler composite,186.0664068
+2017,2,Retail broiler composite,187.1592649
+2017,3,Retail broiler composite,187.8179867
+2017,4,Retail broiler composite,188.652272
+2017,5,Retail broiler composite,187.6941824
+2017,6,Retail broiler composite,186.7843965
+2017,7,Retail broiler composite,186.3154695
+2017,8,Retail broiler composite,188.5643485
+2017,9,Retail broiler composite,187.4216003
+2017,10,Retail broiler composite,187.4288961
+2017,11,Retail broiler composite,187.1477956
+2017,12,Retail broiler composite,189.7268839
+2018,1,Retail broiler composite,181.7108609
+2018,2,Retail broiler composite,186.0510227
+2018,3,Retail broiler composite,186.7118704
+2018,4,Retail broiler composite,189.987831
+2018,5,Retail broiler composite,189.2286472
+2018,6,Retail broiler composite,188.4173198
+2018,7,Retail broiler composite,189.1953239
+2018,8,Retail broiler composite,188.406948
+2018,9,Retail broiler composite,186.4001592
+2018,10,Retail broiler composite,188.9145936
+2018,11,Retail broiler composite,185.3261532
+2018,12,Retail broiler composite,187.0775714
+2019,1,Retail broiler composite,185.1890569
+2019,2,Retail broiler composite,187.5621684
+2019,3,Retail broiler composite,185.4715138
+2019,4,Retail broiler composite,188.3931411
+2019,5,Retail broiler composite,188.4995778
+2019,6,Retail broiler composite,187.6138494
+2019,7,Retail broiler composite,187.320159
+2019,8,Retail broiler composite,186.459169
+2019,9,Retail broiler composite,186.1044762
+2019,10,Retail broiler composite,187.9290387
+2019,11,Retail broiler composite,189.5186293
+2019,12,Retail broiler composite,191.7700224
+2020,1,Retail broiler composite,187.030937
+2020,2,Retail broiler composite,188.2372623
+2020,3,Retail broiler composite,192.7906801
+2020,4,Retail broiler composite,203.092243
+2020,5,Retail broiler composite,204.4970482
+2020,6,Retail broiler composite,207.8826785
+2020,7,Retail broiler composite,203.2447495
+2020,8,Retail broiler composite,201.0470542
+2020,9,Retail broiler composite,200.1160562
+2020,10,Retail broiler composite,199.8533316
+2020,11,Retail broiler composite,201.6869425
+2020,12,Retail broiler composite,200.6935342
+2021,1,Retail broiler composite,202.846957
+2021,2,Retail broiler composite,199.012017
+2021,3,Retail broiler composite,200.6453879
+2021,4,Retail broiler composite,201.8746464
+2021,5,Retail broiler composite,204.1124161
+2021,6,Retail broiler composite,205.6426559
+2021,7,Retail broiler composite,208.1783258
+2021,8,Retail broiler composite,214.8683214
+2021,9,Retail broiler composite,216.1219218
+2021,10,Retail broiler composite,217.3604244
+2021,11,Retail broiler composite,221.0370337
+2021,12,Retail broiler composite,221.5509621
+2022,1,Retail broiler composite,221.6667261
+2022,2,Retail broiler composite,226.9524586
+2022,3,Retail broiler composite,231.6570301
+2022,4,Retail broiler composite,239.3037425
+2022,5,Retail broiler composite,242.1869019
+2022,6,Retail broiler composite,245.4417072
+2022,7,Retail broiler composite,245.3198821
+2022,8,Retail broiler composite,254.1669558
+2022,9,Retail broiler composite,254.1739333
+2022,10,Retail broiler composite,253.5198711
+2022,11,Retail broiler composite,252.1040749
+2022,12,Retail broiler composite,247.0271113
+2023,1,Retail broiler composite,242.33412
+2023,2,Retail broiler composite,241.6664624
+2023,3,Retail broiler composite,241.5461297
+2023,4,Retail broiler composite,246.1353337
+2023,5,Retail broiler composite,245.3861331
+2023,6,Retail broiler composite,250.3945359
+2023,7,Retail broiler composite,250.1493951
+2023,8,Retail broiler composite,252.587533
+2023,9,Retail broiler composite,246.1622841
+2023,10,Retail broiler composite,247.63957
+2023,11,Retail broiler composite,243.6919396
+2023,12,Retail broiler composite,244.2354469
+2024,1,Retail broiler composite,242.350564
+2024,2,Retail broiler composite,237.4149611
+2024,3,Retail broiler composite,243.2679575
+2024,4,Retail broiler composite,241.0766196
+2024,5,Retail broiler composite,243.9506728
+2024,6,Retail broiler composite,240.2534004
+2024,7,Retail broiler composite,241.1157495
+2024,8,Retail broiler composite,244.0617366
+2024,9,Retail broiler composite,246.7879268
+2024,10,Retail broiler composite,244.7891381
+2024,11,Retail broiler composite,242.3406034
+2024,12,Retail broiler composite,243.4255114
+2025,1,Pork wholesale value,175.948968
+2025,2,Pork wholesale value,191.3751141
+2025,3,Pork wholesale value,187.7327791
+2025,4,Pork wholesale value,183.0434027
+2025,5,Pork wholesale value,189.5637075
+2025,6,Pork wholesale value,219.4287849
+2025,7,Pork wholesale value,222.2978834
+2025,8,Pork wholesale value,220.7763937
+2025,9,Pork wholesale value,217.3123341
+2025,10,Pork wholesale value,192.6429245
+2025,11,Pork wholesale value,177.9601962
+2025,12,Pork wholesale value,175.1498911
+2025,1,Pork retail value,494.476269
+2025,2,Pork retail value,483.795156
+2025,3,Pork retail value,495.0854769
+2025,4,Pork retail value,490.7261452
+2025,5,Pork retail value,490.500371
+2025,6,Pork retail value,492.1975966
+2025,7,Pork retail value,500.8714517
+2025,8,Pork retail value,500.4710931
+2025,9,Pork retail value,507.9527839
+2025,10,Pork retail value,502.1536172
+2025,11,Pork retail value,492.5347869
+2025,12,Pork retail value,485.6495672
+2025,1,Choice beef wholesale value,500.3046129
+2025,2,Choice beef wholesale value,483.113691
+2025,3,Choice beef wholesale value,491.4873396
+2025,4,Choice beef wholesale value,512.3328347
+2025,5,Choice beef wholesale value,539.0937168
+2025,6,Choice beef wholesale value,576.7500878
+2025,7,Choice beef wholesale value,571.9764201
+2025,8,Choice beef wholesale value,599.7262373
+2025,9,Choice beef wholesale value,599.9711877
+2025,10,Choice beef wholesale value,561.5742877
+2025,11,Choice beef wholesale value,566.542107
+2025,12,Choice beef wholesale value,542.6094786
+2025,1,Choice beef retail value,852.5759889
+2025,2,Choice beef retail value,863.7118732
+2025,3,Choice beef retail value,874.4726785
+2025,4,Choice beef retail value,883.1946586
+2025,5,Choice beef retail value,881.0999195
+2025,6,Choice beef retail value,926.5794062
+2025,7,Choice beef retail value,968.9520137
+2025,8,Choice beef retail value,985.2139635
+2025,9,Choice beef retail value,991.960283
+2025,10,Choice beef retail value,1011.292727
+2025,11,Choice beef retail value,1008.251812
+2025,12,Choice beef retail value,1008.424447
+2025,1,Wholesale broiler composite,110.974608
+2025,2,Wholesale broiler composite,121.651032
+2025,3,Wholesale broiler composite,107.686616
+2025,4,Wholesale broiler composite,117.009032
+2025,5,Wholesale broiler composite,117.005144
+2025,6,Wholesale broiler composite,117.764432
+2025,7,Wholesale broiler composite,116.756176
+2025,8,Wholesale broiler composite,113.131456
+2025,9,Wholesale broiler composite,105.737504
+2025,10,Wholesale broiler composite,83.785384
+2025,11,Wholesale broiler composite,80.231376
+2025,12,Wholesale broiler composite,82.324256
+2025,1,Retail broiler composite,242.6892554
+2025,2,Retail broiler composite,243.1464081
+2025,3,Retail broiler composite,245.2118116
+2025,4,Retail broiler composite,244.7599587
+2025,5,Retail broiler composite,245.9401192
+2025,6,Retail broiler composite,249.448087
+2025,7,Retail broiler composite,248.171469
+2025,8,Retail broiler composite,248.6799988
+2025,9,Retail broiler composite,246.9137336
+2025,10,Retail broiler composite,244.5078171
+2025,11,Retail broiler composite,244.7084103
+2025,12,Retail broiler composite,241.2038032

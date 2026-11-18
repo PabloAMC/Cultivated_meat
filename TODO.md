@@ -22,7 +22,7 @@ Open pull requests (each says "no default changes" unless noted):
       (c) The bands draw life with mode 3,960 and price from $1,050–1,450, so both are one-sided; moving the modes (or drawing
       price / life as one quantity) changes every band and share figure.
 - [ ] #31 Model audit: costs have only drifted up; Central's median over all ranges is $33. **Decisions inside:** show
-      the spread beside each point; membrane life; first-plant or mature financing; a markup that is a share of price.
+      the spread beside each point; membrane life; first-plant or mature financing; ~~a markup that is a share of price~~ (done 2026-11-18: per-kg costs plus a 28% margin, `research_notes/retail_markup_form.md`).
 
 Decisions taken 2026-11-15 (late), on Pablo's instruction to pick the long-term option (numbers moved; CHANGELOG has them):
 

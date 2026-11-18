@@ -80,25 +80,29 @@ class Input:
 REGISTRY: dict[str, Input] = {
 
     # --- shared across rungs ------------------------------------------------
-    "markup_add": Input(5.0, "$/kg", "[USDA ERS, judgement] additive biomass->retail spread, roughly "
-        "fixed $/kg (does NOT shrink as biomass falls). Anchored to conventional meat's wholesale-to-retail "
-        "spread (USDA ERS Meat Price Spreads, per kg of retail weight): broilers $3.0-3.3 (2026), pork "
-        "$6.6-6.9 (2023-25), Choice beef $7.6-8.7 (2023-25).",
-        lo=3.0, hi=8.7, mode=5.0,
-        note="RANGE RE-GROUNDED 2026-11-14 (was 2-7): the wholesale-to-retail spread starts AFTER the packing "
-             "plant, so it already leaves out slaughter and carcass breakdown; the cheapest species (broilers) "
-             "is $3.0, the dearest (beef) $8.7. No per-kg cost of forming, packaging or cold chain for a "
-             "cultivated product has been published (research_notes/post_harvest_costs.md), and the spread is "
-             "closer to proportional than flat across species (42-65% of retail). EARLIER NOTE: "
-             "PIVOTAL: with p_conv this sets the parity threshold (p_conv - markup_add). The lower "
-             "bound is $2 (not the conventional ~$4) because cultivated SKIPS slaughter / evisceration "
-             "/ carcass breakdown — a real chunk of conventional's farm-to-retail wedge — so its retail "
-             "markup can sit slightly BELOW conventional's; mode stays $5 (typical), $7 = markup-heavy. "
-             "The most leverage of any single number; at the $2 floor parity becomes reachable in the "
-             "optimistic cost corner."),
+    "markup_add": Input(2.5, "$/kg", "[USDA ERS fit, judgement] per-kg costs from harvested cells to the shop shelf "
+        "(forming, packing, cold chain, distribution, store handling). The shelf price is (cost + markup_add) / "
+        "(1 - retail_margin). Fitting that form with a 28% retail margin to USDA ERS 2025 retail and wholesale values "
+        "gives $1.6/kg for broilers, $2.9 for Choice beef and $3.5 for pork (pork's retail basket includes cured bacon "
+        "and ham); cultivated cells also need dewatering and forming (au_processing, about $1).",
+        lo=1.5, hi=3.5, mode=2.5,
+        note="CHANGED 2026-11-18 from a flat $5 (range 3-8.7) that stood for the WHOLE wholesale-to-retail spread. "
+             "The spread has a per-kg part (retail moves about dollar for dollar with wholesale prices over 1-5 "
+             "years, USDA ERS monthly 1970-2025) and a percentage part (retailers' gross margin), now "
+             "`retail_margin`. research_notes/retail_markup_form.md. Setting retail_margin to 0 and this to 5 "
+             "gives the old flat rule."),
+    "retail_margin": Input(0.28, "of shelf price", "[Progressive Grocer ~2011 (snippet); Cooperative Grocer 2016 (read); "
+        "OFPM 2025 via Reussir (read)] the retailer's gross margin on fresh meat, as a share of the shelf price: US meat "
+        "departments 27.6% and 28-32%; French supermarkets 25% on a premium Label Rouge chicken, 36% on a chicken "
+        "fillet, 48% on pork loin.",
+        lo=0.15, hi=0.40, mode=0.28,
+        note="ADDED 2026-11-18. A percentage of the shelf price, so a dearer product carries a larger margin in "
+             "dollars. Held constant across products: the French data show premium chicken at a LOWER percentage "
+             "than the standard fillet but more euros per kg; claims that premium tiers carry higher percentages "
+             "(up to about 40%) set the upper end. research_notes/retail_markup_form.md."),
     "p_conv": Input(12.0, "$/kg", "[market] conventional commodity meat price (~$10-15/kg)",
         lo=10.0, hi=14.0, mode=12.0,
-        note="PIVOTAL: co-sets the parity threshold with markup_add (a meat tax enters here)."),
+        note="PIVOTAL: co-sets the parity threshold, p_conv * (1 - retail_margin) - markup_add (a meat tax enters here)."),
     "years": Input(30, "years", "[assumed] analysis horizon"),
 
     # --- Rung 2: cost model ----------------------------------------------------
@@ -2068,7 +2072,7 @@ LOSS_AVERSION_RATIO: float = 2.25
 # page swept health_x but not neophobia_x and the Python roll-up the reverse, so the page's band
 # and the one quoted in RESULTS.md disagreed.) Everything not listed is held at its slider value.
 # ----------------------------------------------------------------------------
-MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add")
+MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail_margin")
 # cult_sub_mult (kappa) is sampled since 2026-11-13: a kappa draw enters as the price-sensitivity override
 # eps_own*kappa_draw/kappa, which scales both price channels (market_share ratio_scale).
 MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "neophobia_x", "health_x")

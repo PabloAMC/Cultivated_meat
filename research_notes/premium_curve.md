@@ -52,23 +52,24 @@ World long-run share, by the model's own roll-up across meat types and regions:
 
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
-| 1. Today | $62.96 | **0.03%** | 0.06% | 0.04% | 0.04% | 0.07% | 0.02% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $29.42 | **0.41%** | 0.54% | 0.34% | 0.40% | 0.63% | 0.18% |
-| Forecast for 2035 | $24.80 | **0.64%** | 0.80% | 0.51% | 0.59% | 0.94% | 0.26% |
-| 5. Plus engineered cells | $9.66 | **7.96%** | 3.34% | 2.16% | 2.50% | 3.86% | 1.15% |
+| 1. Today | $62.96 | **0.00%** | 0.02% | 0.01% | 0.02% | 0.02% | 0.01% |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $29.42 | **0.16%** | 0.22% | 0.14% | 0.16% | 0.26% | 0.07% |
+| Forecast for 2035 | $24.80 | **0.26%** | 0.36% | 0.23% | 0.27% | 0.43% | 0.12% |
+| 5. Plus engineered cells | $9.66 | **3.69%** | 2.45% | 1.58% | 1.83% | 2.84% | 0.84% |
 
 ## 3. What this says
 
-- **At Central's price the two approaches agree.** Anchored on premium meats, Central takes 0.40% in the long run
-  (0.18–0.63% across the corrections), against the model's 0.41%. The today and forecast
+- **At Central's price the two approaches agree.** Anchored on premium meats, Central takes 0.16% in the long run
+  (0.07–0.26% across the corrections), against the model's 0.16%. The today and forecast
   rows agree as well. The agreement is partly a coincidence: the two curves cross between 1.5× and 2×, and Central's share comes from
   meat types on both sides of that point. But it is the first check of the model's share at Central's price against shopping data, and
   it passes.
-- **Near price parity they disagree.** The best case takes 2.5% anchored on premium meats (1.2–3.9%),
-  against the model's 8.0%. The premium data start at 1.5×, the fitted curve below that is an extrapolation,
+- **Near price parity they disagree.** The best case takes 1.8% anchored on premium meats (0.8–2.8%),
+  against the model's 3.7%. The premium data start at 1.5×, the fitted curve below that is an extrapolation,
   and limited distribution holds premium labels' shares down. The model's parity behaviour (half the market for real meat at the same
   price and taste) is a separate assumption. The truth for the best case is probably between the two; RESULTS already reports it as
-  about 2–8%.
+  about 1–4%. (All shares here since 2026-11-18 use the shop's percentage margin, `retail_markup_form.md`; before, Central was
+  0.40% against 0.41% and the best case 2.5% against 8.0%.)
 - **The no-killing bonus is small, and the penalties win.** In stated preferences "without harming animals" counts for about as much as a
   health claim, so the corrections net out against cultivated meat in every case but the favourable one.
 - **Other fits change little.** The loyal-minority fit gives Central 0.39%; adding Ibérico ham (a share of

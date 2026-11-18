@@ -76,7 +76,7 @@ import matplotlib.pyplot as plt
 
 from common import setup_style, _save
 from inputs import value, AA_FLOOR, GLUCOSE_FLOOR
-from cost_model import CostParams, parity_cost
+from cost_model import CostParams, parity_cost, ratio
 
 LN2 = float(np.log(2.0))
 HOURS = 8760.0
@@ -1141,12 +1141,12 @@ def summarise(pr: CostParams) -> None:
     for label, c in (("efficient model cell (3 ng, 24 h)", GOOD_CELLS), ("small slow cell (0.55 ng, 61 h)", PASITKA_CELLS)):
         print(f"  {label}: oxygen uptake {c.qo2:.3f} mmol/g/h, {c.o2_per_kg:.2f} kg O2 per kg cells; "
               f"oxygen-limited density {density(c, value('pf_otr_cap'), True):.0f} g/L")
-    print(f"\n  parity needs cells at <= ${pc:.0f}/kg (with a ${pr.markup_add:.0f} markup against ${pr.p_conv:.0f} meat)\n")
+    print(f"\n  parity needs cells at <= ${pc:.0f}/kg (with ${pr.markup_add:.1f}/kg to the shelf and a {pr.retail_margin:.0%} retail margin against ${pr.p_conv:.0f} meat)\n")
     print(f"  first-plant financing {value('humbird_plant_charge'):.1%} a year; 'mature' = food-industry financing "
           f"{value('plant_charge_mature'):.1%}")
     print(f"  {'tier':<36}{'t/m3/yr':>8}{'capital':>9}{'labour':>8}{'util+cons':>10}{'feed':>7}{'GF':>6}{'TOTAL':>8}   R   mature")
     for r in tiers():
-        R = (r["total"] + pr.markup_add) / pr.p_conv
+        R = ratio(r["total"], pr)
         print(f"  {r['name']:<36}{r['output']:>8.1f}{r['capital']:>9.2f}{r['labour']:>8.2f}"
               f"{r['utilities'] + r['consumables']:>10.2f}{r['feedstock']:>7.2f}{r['growth_factors']:>6.1f}"
               f"{r['total']:>8.1f}  {R:.2f}  {r['total_mature']:>6.1f}")

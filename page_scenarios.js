@@ -151,7 +151,7 @@ function scRailBuild(){
   sel.onchange=()=>scApply(sel.value);
 }
 function scResultHTML(ch,r){
-  const markup=state.markup_add, cost=r.total, retail=cost+markup, R=retail/(C.p_conv_anchor*state.meat_tax);
+  const markup=state.markup_add, cost=r.total, retail=shelfPrice(cost,state), R=retail/(C.p_conv_anchor*state.meat_tax);
   const world=scShare(cost,"global"), us=scShare(cost,"us"), eu=scShare(cost,"eu");
   const lim=(SC.limit_plain[r.limit]||r.limit).replace("CO2","CO₂");
   const med=(SC.medium_plain[r.medium_set_by]||r.medium_set_by);
@@ -165,7 +165,7 @@ function scResultHTML(ch,r){
   const usEu=' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). ';
   let h='<p>The long-run share of world meat is '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>. This is the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the named scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+world.toFixed(1)+'%'+usEu
       :'<b>'+world.toFixed(1)+'%</b> by weight'+usEu+'This is a point estimate. There is no band for settings you have changed. ')+
-    'The shop price adds '+scMoney(markup,0)+' a kilo for processing, packaging and retail margin. Everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
+    'The shop price adds '+scMoney(markup,1)+' a kilo for forming, packing and cold chain, then the shop\'s '+(state.retail_margin*100).toFixed(0)+'% margin: '+scMoney(retail,0)+' a kilo. Everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
     ((r.column&&r.limit==="oxygen supply")?'Oxygen, not CO₂, limits it because the column beside the tank takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. Without the column, CO₂ would limit it first. ':'')+
     'Each kilo of cells needs '+r.medium_l.toFixed(0)+' litres of medium, set by <b>'+med+'</b>.</p>';
@@ -235,7 +235,7 @@ function scPartsSVG(r, ref, refName){
   const W=720, x0=16, x1=W-16, by=78, bh=22, rowH=21, ly=by+bh+62;
   const parts=SC_PARTS.map(p=>({p, v:Math.max(0,p.get(r)), vr:ref?Math.max(0,p.get(ref)):null}));
   const total=parts.reduce((s,q)=>s+q.v,0), litres=parts.filter(q=>q.p.litres).reduce((s,q)=>s+q.v,0);
-  const par=C.p_conv_anchor*state.meat_tax-state.markup_add;
+  const par=parityCost(state);
   const top=Math.max(total, ref?ref.total:0, par)*1.08, step=top>60?20:top>25?10:5, xmax=Math.ceil(top/step)*step;
   const X=v=>x0+(x1-x0)*v/xmax, f2=v=>"$"+v.toFixed(2), f1=v=>"$"+v.toFixed(1);
   const H=ly+parts.length*rowH+8;
@@ -301,7 +301,7 @@ function scRender(){
     '<p class="fxn">No two switches interact strongly around these settings. Each saves about the same whatever the other is.</p>';
 }
 function scChain(){        // the one-line chain under the table, for the chosen cost
-  const s=state, b=biomass(s), retail=b+s.markup_add, conv=C.p_conv_anchor*s.meat_tax, R=retail/conv;
+  const s=state, b=biomass(s), retail=shelfPrice(b,s), conv=C.p_conv_anchor*s.meat_tax, R=retail/conv;
   const sh=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref});
   const yrs=yearsToStabilize({R:R,nb0:s.neophobia_x0,nbL:s.neophobia_x,rate:s.accept_rate,p:s.p_innov,q:s.q_imit,ax:s.accept_x,tfM:s.theta_free_M,income:C.income_ref,which:"x"});
   const set=(id,t)=>{ const e=document.getElementById(id); if(e) e.innerHTML=t; };
