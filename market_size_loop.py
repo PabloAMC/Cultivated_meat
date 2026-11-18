@@ -209,6 +209,27 @@ def anchored(choice: dict) -> dict:
     return {"own": f(base_run(choice)["cost"]), "cost": r["cost"], "share": r["share"]}
 
 
+# What history shows for a premium animal product whose price fell (research_notes/market_size_loop.md, section 6): percent more
+# volume per percent lower price. Along the demand curve, while the product is still premium (farmed salmon, published
+# elasticities); and in total, with demand growth mixed in (salmon 1985-96 2.2, salmon 1982-99 3.7, US broilers 1955-87 1.3,
+# US catfish 1980-99 4.1).
+HISTORY_ALONG_CURVE = (1.0, 1.5)
+HISTORY_TOTAL = (1.3, 4.1)
+
+
+def premium_response(choice: dict) -> dict:
+    """How strongly the model's premium products respond to price: percent more share per percent lower price ratio, for each
+    premium product, between the scenario's own cost and its cost once the food-grade membrane exists ('from above')."""
+    c0, c1 = base_run(choice)["cost"], solve(choice, start="above")["cost"]
+    a, b = composition(c0)["products"], composition(c1)["products"]
+    out = {}
+    for n in a:
+        if a[n]["share"] > 0 and b[n]["R"] < a[n]["R"]:
+            out[n] = {"R": (a[n]["R"], b[n]["R"]), "share": (a[n]["share"], b[n]["share"]),
+                      "response": math.log(b[n]["share"] / a[n]["share"]) / math.log(a[n]["R"] / b[n]["R"])}
+    return {"costs": (c0, c1), "products": out}
+
+
 # ---------------------------------------------------------------------------- summary and tables
 _SUM: dict = {}
 
@@ -226,10 +247,17 @@ def summary() -> dict:
                 start={(k, case): premium_start(c, _case(case)) for k, c in choices.items() for case in CASES})
     _SUM.update(passes={k: passes(choices[k]) for k in ("central", "best")},
                 sens={k: sensitivity(choices[k]) for k in ("central", "best")},
-                anchored={k: anchored(choices[k]) for k in ("central", "best")})
+                anchored={k: anchored(choices[k]) for k in ("central", "best")},
+                response=premium_response(choices["central"]))
     sv = _SUM["solved"]
-    _SUM["comp"] = {(k, stage): composition(cost) for k in SCEN
-                    for stage, cost in (("no learning", _SUM["base"][k]["cost"]), ("resting point", sv[(k, "central", "below")]["cost"]))}
+    _SUM["comp"] = {}
+    for k in SCEN:
+        lo, hi = sv[(k, "central", "below")], sv[(k, "central", "above")]
+        stages = [("no learning", _SUM["base"][k]["cost"]), ("resting point", lo["cost"])]
+        if hi["volume_mt"] > 1.001 * lo["volume_mt"]:           # two resting points: show the upper one too
+            stages.append(("upper resting point", hi["cost"]))
+        for stage, cost in stages:
+            _SUM["comp"][(k, stage)] = {**composition(cost), "cost": cost}
     return _SUM
 
 
@@ -269,9 +297,11 @@ def markdown_composition() -> str:
     out = ["| scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales | " +
            " | ".join(f"{n}: price against it, share of it" for n in names) + " |", "|---|---|---|---|---|" + "---|" * len(names)]
     for k in SCEN:
-        for stage in ("no learning", "resting point"):
+        for stage in ("no learning", "resting point", "upper resting point"):
+            if (k, stage) not in s["comp"]:
+                continue
             c = s["comp"][(k, stage)]
-            cost = s["base"][k]["cost"] if stage == "no learning" else s["solved"][(k, "central", "below")]["cost"]
+            cost = c["cost"]
             out.append(f"| {_name(k)} | {stage} | ${cost:.2f} | {c['premium']:.2f}, {c['cut']:.2f}, {c['basic']:.2f} | {c['premium_of_sales']:.0%} | " +
                        " | ".join(f"{c['products'][n]['R']:.2f}×, {c['products'][n]['share']:.1f}%" for n in names) + " |")
     return "\n".join(out)
@@ -313,9 +343,20 @@ def markdown_sensitivity() -> str:
     return "\n".join(out)
 
 
+def markdown_response() -> str:
+    r = summary()["response"]
+    out = [f"| premium product | price against it: at ${r['costs'][0]:.2f} a kilo of cells, at ${r['costs'][1]:.2f} | cultivated meat's share of it | "
+           "percent more share per percent lower price |", "|---|---|---|---|"]
+    for n, v in r["products"].items():
+        out.append(f"| {n} | {v['R'][0]:.2f}×, {v['R'][1]:.2f}× | {v['share'][0]:.2f}%, {v['share'][1]:.2f}% | {v['response']:.1f} |")
+    out.append(f"| history, along the demand curve (farmed salmon while still a premium product) | | | {HISTORY_ALONG_CURVE[0]:g}–{HISTORY_ALONG_CURVE[1]:g} |")
+    out.append(f"| history, in total, with demand growth mixed in (salmon, US broilers, US catfish) | | | {HISTORY_TOTAL[0]:g}–{HISTORY_TOTAL[1]:g} |")
+    return "\n".join(out)
+
+
 def main() -> None:
     print(markdown_ladder()); print(); print(markdown_solved()); print(); print(markdown_composition()); print(); print(markdown_start())
-    print(); print(markdown_passes()); print(); print(markdown_sensitivity())
+    print(); print(markdown_passes()); print(); print(markdown_sensitivity()); print(); print(markdown_response())
     s = summary()
     print("\ncost with both items at their floors:", {k: round(v["cost"], 2) for k, v in s["floor"].items()})
 

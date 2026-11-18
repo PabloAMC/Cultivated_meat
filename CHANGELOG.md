@@ -2,6 +2,26 @@
 
 ## 2026-11-18
 
+The premium markets sized from data, and the checks on the market-size loop (`meat_market.py`, `research_notes/premium_market_sizes.md`,
+`market_size_loop.py`; **defaults changed**)
+- Pablo asked for the loop study's checks to be done and its unknowns found. The first check found a fault in the main model: the
+  premium rows of the market tables were unsourced and several times too large. Sushi-grade seafood is about 1.2 Mt a year in the world
+  (the Global table had 5.4), prime or wagyu beef at $45 or more about 0.5 Mt (1.35), heritage pork and organic chicken about 0.4 Mt
+  each (1.35 each). The Global, US and Europe rows were resized; what was removed went to the same species' cut row. China and the
+  low-income tables were not checked.
+- **Central's long-run share falls from 0.16% to 0.04% of world meat** at its point cost (median 0.02%, was 0.1%), because nearly all
+  its sales were to those rows. The best case moves from 3.7% to 3.1% (median 0.5%, was 0.8%); the US at Central from 0.35% to 0.21%.
+  Costs are unchanged. Shares under 0.1% are now printed with two decimals in the tables and on the page.
+- Anchored on premium real meats, Central is 0.14%: the earlier agreement with the model (0.16% each) was a coincidence of the oversized
+  rows. With premium buyers, Central is 0.17% (0.38% with a strong no-killing value).
+- The loop study, revised: with real premium markets Central's sales need 0.64 million m² of membrane a year, short of the million
+  taken to bring a food-grade supplier, so Central has two resting points ($28.81, or $20.52 and 0.14% if the cheap membrane exists
+  anyway). The best case still reaches parity ($6.11, 10.91%). The food-grade membrane's first price is now $150 a m² (was $250) and
+  its floor $50 (was $60), from the prices of water and dairy modules; no steam-tolerant food-grade price is published.
+- Other checks, recorded in the note: hollow fibres have held 27–35% animal cells by volume for over two weeks at 4 L (nothing for a
+  month above bench scale); the model's premium products respond to price two to three times more strongly than farmed salmon did
+  along its demand curve; a hundred-fold scale-up took such industries 15–30 years when it happened.
+
 Cost falling as the market grows, solved with the share (`market_size_loop.py`, `research_notes/market_size_loop.md`; **no default
 changed**)
 - Pablo's idea: membranes and reactors get cheaper with market size, and the loop starts in premium products that cultivated meat

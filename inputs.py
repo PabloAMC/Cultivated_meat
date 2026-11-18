@@ -1340,17 +1340,22 @@ REGISTRY: dict[str, Input] = {
     "ms_switch_area": Input(1.0e6, "m2 a year", "[judgement, research pass] yearly demand for cell-filter membrane above which a "
         "food-grade supplier exists and pharma pricing ends; about 65% that this happens once demand passes 1 million m2 a year",
         lo=3.0e5, hi=3.0e6, mode=1.0e6,
-        note="today's bioprocess perfusion hollow fibre is perhaps 0.1-0.3 million m2 a year (a guess; no figure found). Pharma "
-             "single-use prices have risen, not fallen, with volume, so below the switch the price stays at rt_membrane_price."),
-    "ms_food_membrane": Input(250.0, "$/m2", "[judgement, research pass] price of a steam- or caustic-cleanable food-grade "
-        "hollow-fibre module when a food-grade supplier first exists", lo=150.0, hi=400.0, mode=250.0,
-        note="between pharma's $1,450 and water-treatment hollow fibre at $20-50 a m2 (MBR membranes under $50, Judd 2006, snippet)"),
+        note="today's bioprocess perfusion filters are about 30,000 m2 a year (8,000-100,000; a Fermi estimate from Repligen's "
+             "filtration revenue, no figure published), so the switch is 10-100 times today's whole market. Pharma process modules "
+             "sell at $800-1,450 a m2 with no sign of volume discounts, so below the switch the price stays at rt_membrane_price."),
+    "ms_food_membrane": Input(150.0, "$/m2", "[inge dizzer XL water UF module, 60 m2, cleaned at pH 1-13: $66 a m2 (distributor "
+        "listing, snippet; specs read); Koch sanitary dairy spiral $27-62 a m2 (snippet, not steam-tolerant); Repligen KrosFlo "
+        "process hollow fibre $800-1,200 a m2 (snippet)] price of a steam- or caustic-cleanable food-grade wide-bore hollow-fibre "
+        "module when a food-grade supplier first exists", lo=60.0, hi=400.0, mode=150.0,
+        note="no price is published for any steam-tolerant food-grade module (X-Flow, Microza, ROMICON, Membralox are quote-only): "
+             "the value sits between water modules of the same polymer and pharma modules, above the first because wide fibres "
+             "pack less area and steam tolerance costs potting and housing. About 70% that it is $250 or less."),
     "ms_lr_membrane": Input(0.18, "per doubling", "[Abbott 2025 (WIOA, read): MBR membrane cost per m2 fell to 0.3 of its 2005 "
         "level by 2025, 18-26% a doubling if area doubled 4-6 times; Caldera & Breyer 2017 (abstract): seawater RO plants 15%] fall "
         "in the food-grade membrane's price for each doubling of the area made a year beyond the switch", lo=0.10, hi=0.28, mode=0.18),
-    "ms_membrane_floor": Input(60.0, "$/m2", "[judgement, research pass] the least a cleanable wide-bore food-grade module could "
-        "cost; sterile dialysers sell at about $7-10 a m2 and water hollow fibre at $20-50, but neither is built for a quarter "
-        "cells by volume and steam", lo=30.0, hi=150.0, mode=60.0),
+    "ms_membrane_floor": Input(50.0, "$/m2", "[judgement, research pass] the least a cleanable wide-bore food-grade module could "
+        "cost; water hollow fibre of the same polymer sells at about $66 a m2 singly and sterile dialysers at under $10, but "
+        "dialyser fibres (0.2 mm bore) cannot pass a quarter cells by volume", lo=20.0, hi=120.0, mode=50.0),
     "ms_lr_plant": Input(0.10, "per doubling", "[Rubin et al. 2015, Table 1, read: nuclear negative to 6%, coal 8%, gas turbines "
         "15%, hydro 1.4%; Hettinga et al. 2009, read: corn ethanol capital about 20% at constant plant size, overstated by falling "
         "interest; RO plants 12-15%] fall in the plant's capital cost per m3 of tank for each doubling of the installed animal-cell "

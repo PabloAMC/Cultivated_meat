@@ -673,6 +673,11 @@ def table_rows() -> list:
     return rows
 
 
+def pct_num(x: float) -> str:
+    """A share in percent as text: two decimals below 0.1 (so 0.04 does not print as 0.0), one above."""
+    return f"{x:.2f}" if x < 0.095 else f"{x:.1f}"
+
+
 def markdown_table() -> str:
     """The headline table as Markdown (RESULTS.md, METHODS.md and research_notes/cost_scenarios.md quote it). Every row gives both the
     share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
@@ -680,7 +685,7 @@ def markdown_table() -> str:
            "median of draws (10th\u201390th) | hardest thing it needs |", "|---|---|---|---|---|---|"]
     for name, cost, cb, ratio, world, sb, need in table_rows():
         band = f" (${cb[0]:.0f}\u2013{cb[2]:.0f})" if cb is not None else ""
-        out.append(f"| {name} | **${cost:.1f}**{band} | {ratio:.2f} | {world:.1f}% | **{sb[1]:.1f}%** ({sb[0]:.1f}\u2013{sb[2]:.1f}%) | {need} |")
+        out.append(f"| {name} | **${cost:.1f}**{band} | {ratio:.2f} | {pct_num(world)}% | **{pct_num(sb[1])}%** ({pct_num(sb[0])}\u2013{pct_num(sb[2])}%) | {need} |")
     return "\n".join(out)
 
 
