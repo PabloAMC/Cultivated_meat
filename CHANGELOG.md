@@ -14,6 +14,13 @@ default changed**)
 - Also: a plant that sells 60% of its capacity makes Central's cells cost $35.38, not $29.42 (`market_size_loop.underused`);
   plant-based meat at price parity would change cultivated meat's share by under 3%.
 
+The page opens on a short version (`build_interactive.py`, `page_scenarios.js`; no number changed)
+- Pablo: the page can overwhelm a new reader. It now opens on a short version: pick one of three cases (today's cells, Central, the best
+  case) and see three numbers (cost to grow a kilo, shop price against everyday meat, long-run share of the world's meat), a plain
+  description of the case, and where the cost goes. Every long section is folded under its heading with a one-line summary and opens on
+  a click; "Everything" shows the page as before. The choice is remembered in the browser. At phone width the page opens about 2,600
+  pixels tall, against about 29,000.
+- The short version computes nothing of its own: the numbers come from the same functions as the full page (`tests/test_easy_view.py`).
 The premium markets sized from data, and the checks on the market-size loop (`meat_market.py`, `research_notes/premium_market_sizes.md`,
 `market_size_loop.py`; **defaults changed**)
 - Pablo asked for the loop study's checks to be done and its unknowns found. The first check found a fault in the main model: the
