@@ -2,6 +2,16 @@
 
 ## 2026-11-18
 
+Cultivated meat as an even more premium meat, competing with welfare labels (`premium_buyers.py`, `research_notes/premium_buyers.md`;
+**no default changed**)
+- Pablo's idea: shoppers may see cultivated meat as a step above organic or free-range, but it then competes with those labels for the
+  same shoppers. Adds a premium class of shoppers (10%, from household panel and survey data; range 5–20%) fitted to the sixteen
+  premium products, and a welfare label at 2× on every non-premium shelf, competing with cultivated meat in one logit.
+- Central's long-run share 0.29% (main model 0.16%); 0.51% if premium buyers value no killing at a whole extra meat price. Best case 4.61%
+  (3.69%). The label on the shelf costs cultivated meat little (0.33% without it). It takes 11–16% of its sales from the label under the
+  logit's proportional assumption, up to about half if the two are close substitutes.
+- Caveat: the premium class's low price sensitivity is a fit across products; scanner data find organic meat demand more price-elastic.
+
 The shelf price is now per-kg costs plus the shop's percentage margin (`retail_spreads.py`, `research_notes/retail_markup_form.md`)
 - Question (Pablo, after Gemini argued the markup should be multiplicative): is the step from a kilo of cells to the shelf a fixed
   $/kg or a percentage? Neither alone. USDA ERS monthly meat prices (1970–2025) show shop prices moving about dollar for dollar with
