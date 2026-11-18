@@ -14,7 +14,8 @@ Everything below reproduces from the code.*
 **$29.4 a kilo of cells** and takes about **0.02–0.04% of world meat** in the long run (the median of draws and the share at the point
 cost), nearly all of it premium beef and sushi-grade seafood. With engineered cells and the cheapest plausible setting of everything else it costs **$9.7** and takes about **0.5–3%**. Price
 parity with everyday meat needs about **$6**, and no scenario reaches it. At Central's cost, no single demand input, moved across its
-range, takes the share above 0.3%. The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
+range, takes the share above 0.3%. But the model's response to price is probably two to four times too strong (below), and with a
+weaker one Central's share is three or more times larger; it stays a niche either way. The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
 has made on meat cells: see "What the answer rests on" below.
 
 All costs are per kg of real cells, which are about 70% water and 20% protein, like meat. Plant costs are in 2025 prices. "Share" is
@@ -555,6 +556,22 @@ if the cheap membrane exists anyway it rests at $20.52 and 0.14% of world meat, 
 beef's price. So Central's gap is a coordination problem. Checked against history, the model's premium products respond to price two to
 three times more strongly than farmed salmon did along its demand curve, so the unlocking is more likely overstated than understated.
 The switch is a judgement (about 65%); no price is published for a steam-tolerant food-grade module. The study changes no default.
+
+**Is the model's response to price too strong?** (`demand_checks.py`, `research_notes/demand_checks.md`.) Probably, by a factor of
+two to four:
+
+| what was measured | measured | the model | verdict |
+|---|---|---|---|
+| Plant-based meat's own-price elasticity (US retail) | -1.23 | -2.85 | 2.3 times too strong |
+| Slope of share against price across sixteen premium real meats (as a multiple of meat's own elasticity) | 2.2 | 8.5 | 3.8 times too strong |
+| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 3.0–3.4 (prime beef, sushi-grade seafood) | 2 to 3 times too strong |
+| Cultivated meat at first contact and equal price (choice experiment) | -0.84 to -3.4 | -3.27 | inside, at the strong end |
+
+How fast the share falls as the price rises above meat's decides every scenario but the best case, and it is the model's widest
+uncertainty: across the price responses these measurements point to, Central's share runs from 0.04% to 1.9%. A curve that takes
+both its slope and its level from the sixteen premium meats, corrected for what differs for cultivated meat, is the only one that
+passes all four checks; it gives Central 0.1% and the best case 1.8%. The default has not been moved yet (TODO). Plant-based
+meat's elasticity in the model is -2.85.
 
 ## 3. By type of meat (US)
 

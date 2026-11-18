@@ -2,6 +2,18 @@
 
 ## 2026-11-18
 
+The model's response to price checked against four measurements (`demand_checks.py`, `research_notes/demand_checks.md`; **no
+default changed**)
+- Prompted by Knowles 2026 on plant-based meat's prices. Plant-based meat's own-price elasticity is -1.23 in US retail data
+  (GFI, as cited); the model's is -2.85. Sixteen premium meats fit a price sensitivity of 2.2 times meat's against the model's
+  8.5. Farmed salmon responded 1.0–1.5% per 1% of price against the model's 3.0–3.4% for premium beef and seafood. Only the one
+  choice experiment the model was set to agrees with it. So the model is probably two to four times too price-sensitive.
+- Across the price responses the measurements point to, Central's share runs from 0.04% to 1.9%: the demand side is now the model's
+  widest uncertainty. The curve that passes all four checks (slope and level from the premium meats) gives Central 0.1% and the
+  best case 1.8%. Moving the default to it is the next step (TODO).
+- Also: a plant that sells 60% of its capacity makes Central's cells cost $35.38, not $29.42 (`market_size_loop.underused`);
+  plant-based meat at price parity would change cultivated meat's share by under 3%.
+
 The premium markets sized from data, and the checks on the market-size loop (`meat_market.py`, `research_notes/premium_market_sizes.md`,
 `market_size_loop.py`; **defaults changed**)
 - Pablo asked for the loop study's checks to be done and its unknowns found. The first check found a fault in the main model: the
