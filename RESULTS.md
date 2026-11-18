@@ -535,6 +535,13 @@ label (no killing +5% of meat's price, novelty −30% with half of it fading, un
 1.8% (0.8–2.8%) against 3.7%, because the premium
 data start at 1.5× and limited distribution holds premium labels down.
 
+**Premium buyers, and a welfare label on the same shelf** (`premium_buyers.py`, `research_notes/premium_buyers.md`). If about 10% of
+shoppers are habitual premium buyers who treat cultivated meat as a premium meat, and a welfare label at 2× sits beside it, Central's
+long-run share rises from 0.16% to 0.29% of world meat (0.51% if they value no killing at a whole extra meat price); the best case from
+3.69% to 4.61% (5.88%). Cultivated meat takes 11% of its sales from the label in the model (16% at the high value), but that is the
+logit's proportional assumption; if premium buyers saw the two as close substitutes it could be about half, which lowers the welfare gain
+per tonne. Defaults unchanged.
+
 ## 3. By type of meat (US)
 
 ```
