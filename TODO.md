@@ -10,6 +10,15 @@ Last updated 2026-11-16.
 
 Open pull requests (each says "no default changes" unless noted):
 
+- [ ] **Recalibrate the response to price** (2026-11-18, `research_notes/demand_checks.md`). Three measurements say the model is two to
+      four times too price-sensitive; the curve fitted to the sixteen premium meats (slope and level), with cultivated meat's
+      corrections, is the only one that passes all four checks. **Decisions inside:** the level at equal price (49% in the model, 7%
+      for premium labels; how much of the gap is limited distribution); whether plant-based meat's elasticity (-1.23) becomes a
+      calibration target; the split between the dollar and the ratio price terms. The page's shopper model must follow.
+- [ ] Adoption over time has first purchase but no repeat or drop-out: plant-based meat's household penetration fell from 20% to 11%
+      (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
+- [ ] The market tables of China, Brazil, India and Nigeria have unsourced premium rows (`premium_market_sizes.md`); the Global table
+      under-weights seafood.
 - [ ] #19 Plain, direct sentences for all page text (wording only).
 - [ ] #29 The frontier: every lever at its limit, one at a time ($26.64 → $5.49).
 - [ ] #30 Filter flux: the flux is not the limit, the membrane's throughput is. **Decision inside:** move `rt_membrane_life`

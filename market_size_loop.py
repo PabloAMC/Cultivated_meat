@@ -230,6 +230,26 @@ def premium_response(choice: dict) -> dict:
     return {"costs": (c0, c1), "products": out}
 
 
+# ---------------------------------------------------------------------------- the loop backwards: a plant built for sales that fall
+UTILISATION = (1.0, 0.8, 0.6, 0.4)     # Beyond Meat's sales fell about 40% from their peak after its plants were built (Knowles 2026)
+
+
+def underused(choice: dict, utilisation: float) -> dict:
+    """Cost of a kilo of cells from a plant that sells only `utilisation` of what it was built for: the plant's yearly charge and
+    its labour are paid whatever it makes, so each is divided by the utilisation; everything else scales with output. The
+    scenarios are at 1 (every kilo the plant can make is sold)."""
+    r = fp.explore(**S.explore_kwargs(choice))
+    fixed = r["capital"] + r["labour"]
+    return {"cost": r["total"] + fixed * (1.0 / utilisation - 1.0), "fixed": fixed, "own": r["total"]}
+
+
+def markdown_underused() -> str:
+    out = ["| share of the plant's capacity that is sold | " + " | ".join(_name(k) for k in SCEN) + " |", "|---|" + "---|" * len(SCEN)]
+    for u in UTILISATION:
+        out.append(f"| {u:.0%} | " + " | ".join(f"${underused(S.SCENARIOS[k].choice, u)['cost']:.2f}" for k in SCEN) + " |")
+    return "\n".join(out)
+
+
 # ---------------------------------------------------------------------------- summary and tables
 _SUM: dict = {}
 
@@ -356,7 +376,7 @@ def markdown_response() -> str:
 
 def main() -> None:
     print(markdown_ladder()); print(); print(markdown_solved()); print(); print(markdown_composition()); print(); print(markdown_start())
-    print(); print(markdown_passes()); print(); print(markdown_sensitivity()); print(); print(markdown_response())
+    print(); print(markdown_passes()); print(); print(markdown_sensitivity()); print(); print(markdown_response()); print(); print(markdown_underused())
     s = summary()
     print("\ncost with both items at their floors:", {k: round(v["cost"], 2) for k, v in s["floor"].items()})
 
