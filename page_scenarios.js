@@ -84,6 +84,7 @@ function scInteractions(ch,top,minGap){
 
 /* ---------- the page ---------- */
 const scMoney=(v,d)=>"$"+v.toFixed(d===undefined?1:d);
+const scPct=v=>(v<0.095?v.toFixed(2):v.toFixed(1));      // a share in percent: two decimals below 0.1 (mirror of scenarios.pct_num)
 const scPts=v=>(v>=0?"+":"−")+Math.abs(v).toFixed(1)+" pts";
 function scTagChip(t){ const cls=t==="genetic engineering"?"ge":t==="selection or adaptation"?"sel":t==="feed or process"?"feed":"none";
   return '<span class="tagchip '+cls+'">'+SC.tag_plain[t]+'</span>'; }
@@ -157,14 +158,14 @@ function scResultHTML(ch,r){
   const med=(SC.medium_plain[r.medium_set_by]||r.medium_set_by);
   const need=scNeeds(ch).filter(x=>x[2]!=="nothing new");
   const bd=(SCS.src==="scenario"&&SCS.preset)?SC.bands[SCS.preset]:null;      // the band is computed for the named scenarios only
-  const shareStrip=bd?'<b>'+bd.share[1].toFixed(1)+'%</b> of world meat in the long run (the median, with 80% of draws between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%)'
-    :'<b>'+world.toFixed(1)+'%</b> of world meat in the long run (point estimate)';
+  const shareStrip=bd?'<b>'+scPct(bd.share[1])+'%</b> of world meat in the long run (the median, with 80% of draws between '+scPct(bd.share[0])+'% and '+scPct(bd.share[2])+'%)'
+    :'<b>'+scPct(world)+'%</b> of world meat in the long run (point estimate)';
   const strip='<span class="scbig">'+scMoney(cost)+'<span> a kilo of cells</span></span> &nbsp; <b>'+scMoney(retail,0)+'</b> in the shop ('+R.toFixed(2)+
     '&times; everyday meat) &nbsp; '+shareStrip;
   const el0=document.getElementById("sc_strip"); if(el0) el0.innerHTML=strip;
-  const usEu=' (US '+us.toFixed(1)+'%, Europe '+eu.toFixed(1)+'%). ';
-  let h='<p>The long-run share of world meat is '+(bd?'<b>'+bd.share[1].toFixed(1)+'%</b>. This is the median of the draws. 80% of draws fall between '+bd.share[0].toFixed(1)+'% and '+bd.share[2].toFixed(1)+'%, with cost and demand both uncertain. The band exists only for the named scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+world.toFixed(1)+'%'+usEu
-      :'<b>'+world.toFixed(1)+'%</b> by weight'+usEu+'This is a point estimate. There is no band for settings you have changed. ')+
+  const usEu=' (US '+scPct(us)+'%, Europe '+scPct(eu)+'%). ';
+  let h='<p>The long-run share of world meat is '+(bd?'<b>'+scPct(bd.share[1])+'%</b>. This is the median of the draws. 80% of draws fall between '+scPct(bd.share[0])+'% and '+scPct(bd.share[2])+'%, with cost and demand both uncertain. The band exists only for the named scenarios, not for settings you change. At the cost above and the demand settings you have set, the point estimate is '+scPct(world)+'%'+usEu
+      :'<b>'+scPct(world)+'%</b> by weight'+usEu+'This is a point estimate. There is no band for settings you have changed. ')+
     'The shop price adds '+scMoney(markup,1)+' a kilo for forming, packing and cold chain, then the shop\'s '+(state.retail_margin*100).toFixed(0)+'% margin: '+scMoney(retail,0)+' a kilo. Everyday meat costs $'+(C.p_conv_anchor*state.meat_tax).toFixed(0)+' a kilo.</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
     ((r.column&&r.limit==="oxygen supply")?'Oxygen, not CO₂, limits it because the column beside the tank takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. Without the column, CO₂ would limit it first. ':'')+

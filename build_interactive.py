@@ -982,7 +982,7 @@ def _scenario_tokens() -> dict:
             b = ps.bands(key)
             for i, q in enumerate(("P10", "P50", "P90")):
                 out[f"{tag}_COST_{q}"] = f"{b['cost'][i]:.1f}"
-                out[f"{tag}_SHARE_{q}"] = f"{b['share'][i]:.1f}"
+                out[f"{tag}_SHARE_{q}"] = S.pct_num(b['share'][i])
     return out
 
 
