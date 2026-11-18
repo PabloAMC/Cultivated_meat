@@ -10,11 +10,16 @@ Last updated 2026-11-16.
 
 Open pull requests (each says "no default changes" unless noted):
 
-- [ ] **Recalibrate the response to price** (2026-11-18, `research_notes/demand_checks.md`). Three measurements say the model is two to
-      four times too price-sensitive; the curve fitted to the sixteen premium meats (slope and level), with cultivated meat's
-      corrections, is the only one that passes all four checks. **Decisions inside:** the level at equal price (49% in the model, 7%
-      for premium labels; how much of the gap is limited distribution); whether plant-based meat's elasticity (-1.23) becomes a
-      calibration target; the split between the dollar and the ratio price terms. The page's shopper model must follow.
+- [ ] **Put the spread of liking into the shopper model** (2026-11-18, `research_notes/liking_spread.md`,
+      `research_notes/demand_heterogeneity_evidence.md`). A normal spread of liking for cultivated meat (5 utils, κ unchanged)
+      reproduces the one random-parameter choice experiment; the model fails all four price-response checks without it.
+      **Decision inside (Pablo's):** the long-run share at equal price, which stops being a consequence of novelty fading: 13% if only
+      the model's first-contact wariness fades, 49% if shoppers end up indifferent on average. It should become a visible setting.
+      Then: mirror on the page (fifteen integration points; seven are not enough), repin, and drop the "−0.84 to −3.4" check for the
+      simulated −1.5. Branch `claude/recalibrate-demand` (premium buyers) is superseded and should not be merged.
+- [ ] Price sensitivity differs across shoppers too (4 to 10 times between groups), and plant-based meat's buyers are a concentrated
+      minority (7% of households make 82% of spending). Both belong in the same rebuild; plant-based meat's elasticity is -2.85 in
+      the model against about -1.3 measured for the category.
 - [ ] Adoption over time has first purchase but no repeat or drop-out: plant-based meat's household penetration fell from 20% to 11%
       (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
 - [ ] The market tables of China, Brazil, India and Nigeria have unsourced premium rows (`premium_market_sizes.md`); the Global table

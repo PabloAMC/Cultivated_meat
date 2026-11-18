@@ -8,8 +8,11 @@ Four independent measurements now say something about how strongly sales of a no
   1. plant-based meat's own-price elasticity in US retail data, -1.23 (GFI, as cited by Knowles 2026);
   2. the slope of share against price premium across sixteen premium real meats (`premium_curve.py`);
   3. farmed salmon while it was still a premium product: 1.0-1.5% more volume per 1% lower price (`market_size_loop.md`);
-  4. the one choice experiment on cultivated meat, at first contact and equal price: -0.84 to -3.4 (Van Loo, Caputo & Lusk 2020).
-The model was calibrated to the fourth and to six of the sixteen. This module computes the model's own figure for each, so the
+  4. the one choice experiment on cultivated meat, at first contact and equal price: about -1.5 (Van Loo, Caputo & Lusk 2020;
+     simulated from the paper's fitted model, which reports no elasticity). Until 2026-11-18 this module used "-0.84 to -3.4", the
+     range the model's own check carries (market_share.LUSK_ELAS_BRACKET): those two numbers are a formula applied to two of the
+     paper's price coefficients, not its aggregate response (research_notes/demand_heterogeneity_evidence.md).
+The model was set against that range and to six of the sixteen. This module computes the model's own figure for each, so the
 comparison is checked by a test and not by eye, and shows what the long-run share would be under the price responses the
 measurements point to. It changes no default.
 
@@ -25,7 +28,9 @@ from inputs import value
 
 PB_ELASTICITY_MEASURED = -1.23        # GFI, US retail scanner data, as cited by Knowles 2026 (the GFI source itself was not read)
 SALMON_ALONG_CURVE = (1.0, 1.5)       # percent more volume per percent lower price (market_size_loop.HISTORY_ALONG_CURVE)
-LUSK = P.LUSK                         # (-3.4, -0.84)
+LUSK = P.LUSK                         # (-3.4, -0.84): the model's own check; not a measured elasticity (see the docstring)
+VANLOO_AT_PARITY = -1.5               # the experiment's aggregate own-price elasticity at equal price, first contact (simulated)
+VANLOO_ARMS = (-1.65, -1.1)           # across its four information arms
 SCEN = ("central", "best")
 R_GRID = (1.0, 1.25, 1.5, 2.0, 3.0, 4.0)
 
@@ -113,8 +118,9 @@ def markdown_checks() -> str:
            f"{s['kappa']:.1f} | {s['kappa'] / s['kappa_fit']:.1f} times too strong |",
            f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
            f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {lo:.1f}–{hi:.1f} (prime beef, sushi-grade seafood) | 2 to 3 times too strong |",
-           f"| Cultivated meat at first contact and equal price (choice experiment) | {LUSK[1]:.2f} to {LUSK[0]:.1f} | {s['cold']:.2f} | "
-           f"inside, at the strong end |"]
+           f"| Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | "
+           f"about {VANLOO_AT_PARITY:g} ({VANLOO_ARMS[1]:g} to {VANLOO_ARMS[0]:g} across its arms) | {s['cold']:.2f} | "
+           f"{s['cold'] / VANLOO_AT_PARITY:.1f} times too strong |"]
     return "\n".join(out)
 
 

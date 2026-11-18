@@ -14,8 +14,9 @@ Everything below reproduces from the code.*
 **$29.4 a kilo of cells** and takes about **0.02–0.04% of world meat** in the long run (the median of draws and the share at the point
 cost), nearly all of it premium beef and sushi-grade seafood. With engineered cells and the cheapest plausible setting of everything else it costs **$9.7** and takes about **0.5–3%**. Price
 parity with everyday meat needs about **$6**, and no scenario reaches it. At Central's cost, no single demand input, moved across its
-range, takes the share above 0.3%. But the model's response to price is probably two to four times too strong (below), and with a
-weaker one Central's share is three or more times larger; it stays a niche either way. The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
+range, takes the share above 0.3%. But the model's response to price is two to four times too strong, because it treats
+shoppers as alike, and the share it assumes at equal price in the long run (about half) is a premise that moves the answer more
+than any cost ("The cause", below). The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
 has made on meat cells: see "What the answer rests on" below.
 
 All costs are per kg of real cells, which are about 70% water and 20% protein, like meat. Plant costs are in 2025 prices. "Share" is
@@ -557,21 +558,42 @@ beef's price. So Central's gap is a coordination problem. Checked against histor
 three times more strongly than farmed salmon did along its demand curve, so the unlocking is more likely overstated than understated.
 The switch is a judgement (about 65%); no price is published for a steam-tolerant food-grade module. The study changes no default.
 
-**Is the model's response to price too strong?** (`demand_checks.py`, `research_notes/demand_checks.md`.) Probably, by a factor of
-two to four:
+**Is the model's response to price too strong?** (`demand_checks.py`, `research_notes/demand_checks.md`.) Yes, by a factor of
+two to four, on all four measurements available:
 
 | what was measured | measured | the model | verdict |
 |---|---|---|---|
 | Plant-based meat's own-price elasticity (US retail) | -1.23 | -2.85 | 2.3 times too strong |
 | Slope of share against price across sixteen premium real meats (as a multiple of meat's own elasticity) | 2.2 | 8.5 | 3.8 times too strong |
 | A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 3.0–3.4 (prime beef, sushi-grade seafood) | 2 to 3 times too strong |
-| Cultivated meat at first contact and equal price (choice experiment) | -0.84 to -3.4 | -3.27 | inside, at the strong end |
+| Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -3.27 | 2.2 times too strong |
 
-How fast the share falls as the price rises above meat's decides every scenario but the best case, and it is the model's widest
-uncertainty: across the price responses these measurements point to, Central's share runs from 0.04% to 1.9%. A curve that takes
-both its slope and its level from the sixteen premium meats, corrected for what differs for cultivated meat, is the only one that
-passes all four checks; it gives Central 0.1% and the best case 1.8%. The default has not been moved yet (TODO). Plant-based
-meat's elasticity in the model is -2.85.
+The fourth row was corrected on 2026-11-18. The model's own check has used "−0.84 to −3.4" as the choice experiment's elasticity; the
+paper reports none, and those two numbers are a formula applied to two of its coefficients. Simulating its fitted model gives about
+−1.5 (`research_notes/demand_heterogeneity_evidence.md`). Across the single price responses these measurements could support, Central's
+share runs from 0.04% to 1.9%; a curve taking slope and level from premium meats gives Central 0.1% and the best case 1.8%, too little
+near parity. Plant-based meat's elasticity in the model is -2.85.
+
+**The cause: shoppers differ in how much they like cultivated meat, and the model has them all alike** (`liking_spread.py`,
+`research_notes/liking_spread.md`). The experiment that estimated shoppers one by one found liking spread very widely. A spread of
+5 utils, with each shopper as price-sensitive as now, reproduces its price response at all four prices (miss 0.15, against 2.56
+with no spread). It also shows what the model has been assuming about the long run:
+
+| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Today | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
+|---|---|---|---|---|---|
+| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.02% | 0.7% |
+| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.01% | 0.07% | 2.6% |
+| shoppers indifferent on average (the model's premise) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.07% | 1.0% | 17.3% |
+| the model today (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.00% | 0.04% | 3.1% |
+| premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
+
+With every shopper alike, the fading of first-contact wariness takes cultivated meat from 5% to half the market at equal price. With
+the spread, the same fading takes it to 13%; half the market needs the average shopper to end up indifferent between the two meats,
+which is a premise. Across the three readings Central's share runs from 0.02% to 1.0% and the best case's from 0.7% to 17.3%:
+the long-run share at equal price is now the model's largest unknown. The middle reading lands on what premium real meats hold at
+two and three times the price without being fitted to them. **No default has changed yet**; the headline shares above are still the
+model's with every shopper alike. An attempt the same day to give the slow tail to buyers of organic meat was not merged: the
+evidence is that they are the shoppers most hostile to cultivated meat.
 
 ## 3. By type of meat (US)
 
