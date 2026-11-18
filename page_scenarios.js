@@ -296,6 +296,7 @@ function scRender(){
   document.querySelectorAll("#answer tr[data-sc]").forEach(tr=>{ const k=tr.getAttribute("data-sc");
     tr.classList.toggle("sel",k==="reported"?SCS.src==="reported":(SCS.src==="scenario"&&SCS.preset===k)); });
   if(typeof vmRender==="function") vmRender();     // the vessel-by-mode table follows the switches (page_vessels.js)
+  easyRender();
   const its=scInteractions(ch), nh=document.getElementById("sc_notes");
   if(nh) nh.innerHTML=its.length?'<ul>'+its.map(x=>'<li>'+x.text+'</li>').join("")+'</ul>':
     '<p class="fxn">No two switches interact strongly around these settings. Each saves about the same whatever the other is.</p>';
@@ -321,6 +322,54 @@ function scReadHash(v){
 }
 
 /* ---------- the all-levers panel starts from a scenario ---------- */
+/* ===== the short version: a view switch, three numbers for the chosen case, every long section folded =====
+   Nothing is computed here that the full page does not compute: the cost is the chosen scenario's (biomass), the shop price is
+   shelfPrice, the share is the scenario's band (or the point estimate for settings the reader changed). */
+let VIEW="easy";
+function easyStored(){ try{ return localStorage.getItem("cm_view"); }catch(e){ return null; } }
+function setView(v,keep){
+  VIEW=(v==="full"?"full":"easy");
+  if(document.body&&document.body.classList) document.body.classList.toggle("easy",VIEW==="easy");
+  ["easy","full"].forEach(k=>{ const b=document.getElementById("view_"+k); if(b&&b.classList) b.classList.toggle("on",VIEW===k); });
+  if(!keep){ try{ localStorage.setItem("cm_view",VIEW); }catch(e){} }
+}
+function easyOpenFor(el){        // open the folded section that holds an element (a link to #build, or a click in the section list)
+  const sec=(el&&el.closest)?el.closest("section[data-easy]"):null;
+  if(sec&&sec.classList){ sec.classList.add("open"); const h=sec.querySelector("h2"); if(h) h.setAttribute("aria-expanded","true"); }
+}
+function easyInit(){
+  if(typeof document==="undefined"||!document.querySelectorAll) return;
+  document.querySelectorAll("section[data-easy]").forEach(sec=>{
+    const h=sec.querySelector("h2"); if(!h||!h.addEventListener) return;
+    h.setAttribute("tabindex","0"); h.setAttribute("role","button"); h.setAttribute("aria-expanded","false");
+    const tog=()=>{ if(VIEW!=="easy") return; const open=sec.classList.toggle("open"); h.setAttribute("aria-expanded",open?"true":"false"); };
+    h.addEventListener("click",tog);
+    h.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tog(); } }); });
+  document.querySelectorAll("nav.jump a").forEach(a=>{ if(a.addEventListener) a.addEventListener("click",()=>{
+    easyOpenFor(document.getElementById((a.getAttribute("href")||"").slice(1))); }); });
+  const pick=document.getElementById("easy_pick");
+  if(pick) pick.innerHTML=C.easy.cases.map(c=>'<button class="btn" id="easy_btn_'+c.key+'" onclick="scApply(\''+c.key+'\')">'+c.label+'</button>').join("");
+  setView(easyStored()==="full"?"full":"easy",true);
+}
+function easyRender(){
+  const host=document.getElementById("easy_nums"); if(!host) return;
+  const cost=biomass(state), retail=shelfPrice(cost,state), conv=C.p_conv_anchor*state.meat_tax;
+  const named=(SCS.src==="scenario"&&SCS.preset)?SCS.preset:null, bd=named?SC.bands[named]:null;
+  const share=bd?bd.share[1]:scShare(cost,"global");
+  const pct=v=>(v<0.05?"under 0.1":v.toFixed(1))+"%";
+  const tile=(big,txt)=>'<div class="easytile"><div class="easybig">'+big+'</div>'+txt+'</div>';
+  host.innerHTML='<div class="easytiles">'+
+    tile(scMoney(cost),"to grow a kilo of cells")+
+    tile(scMoney(retail,0),"a kilo in the shop: "+(retail/conv).toFixed(1)+" times everyday meat ($"+conv.toFixed(0)+")")+
+    tile(pct(share),"of the world's meat in the long run"+(bd?(bd.share[0]<0.05?" (most likely "+pct(bd.share[2])+" or less)":" (most likely between "+pct(bd.share[0])+" and "+pct(bd.share[2])+")"):" (a single estimate for your own settings)"))+
+    '</div>';
+  C.easy.cases.forEach(c=>{ const b=document.getElementById("easy_btn_"+c.key); if(b&&b.classList) b.classList.toggle("on",named===c.key); });
+  const mine=C.easy.cases.find(c=>c.key===named), say=document.getElementById("easy_say");
+  if(say) say.innerHTML='<b>'+(mine?mine.label:scOwnName())+'.</b> '+(mine?mine.say:"These are settings chosen further down the page.")+
+    ' To cost the same as everyday meat in the shop, a kilo of cells would have to cost about '+scMoney(parityCost(state))+'.';
+  const ph=document.getElementById("easy_parts");
+  if(ph) ph.innerHTML=(SCS.src==="scenario")?scPartsSVG(scEval(SCS.choice),null,null):"";
+}
 const FX_GLC_DEFAULT=C.fx.glc_kg;
 function fxFromScenario(key){
   const box=document.getElementById("fx"); if(!box||!fxDefaults) return;

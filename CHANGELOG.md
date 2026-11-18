@@ -2,6 +2,14 @@
 
 ## 2026-11-18
 
+The page opens on a short version (`build_interactive.py`, `page_scenarios.js`; no number changed)
+- Pablo: the page can overwhelm a new reader. It now opens on a short version: pick one of three cases (today's cells, Central, the best
+  case) and see three numbers (cost to grow a kilo, shop price against everyday meat, long-run share of the world's meat), a plain
+  description of the case, and where the cost goes. Every long section is folded under its heading with a one-line summary and opens on
+  a click; "Everything" shows the page as before. The choice is remembered in the browser. At phone width the page opens about 2,600
+  pixels tall, against about 29,000.
+- The short version computes nothing of its own: the numbers come from the same functions as the full page (`tests/test_easy_view.py`).
+
 The shelf price is now per-kg costs plus the shop's percentage margin (`retail_spreads.py`, `research_notes/retail_markup_form.md`)
 - Question (Pablo, after Gemini argued the markup should be multiplicative): is the step from a kilo of cells to the shelf a fixed
   $/kg or a percentage? Neither alone. USDA ERS monthly meat prices (1970–2025) show shop prices moving about dollar for dollar with
