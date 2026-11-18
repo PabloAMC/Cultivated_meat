@@ -104,7 +104,7 @@ def _python_reference(grid_keys, health_keys, timing_R, weight_cases=()) -> dict
     cp = CostParams()
 
     headline = {
-        "basicR": (biomass_cost(cp) + cp.markup_add) / cp.p_conv,
+        "basicR": cost_ratio(biomass_cost(cp), cp),
         "beta_ref": pr.beta_ref,
         "anchor_price": pr.anchor_price,
         "w_realtissue_M": pr.w_realtissue_M,

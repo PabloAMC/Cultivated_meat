@@ -73,6 +73,9 @@ python tests/test_answer_rests_on.py
 echo "==> cleaning and reusing the medium"
 python tests/test_medium_reuse.py
 
+echo "==> the retail markup rule against USDA's meat spreads"
+python tests/test_retail_spreads.py
+
 echo "==> Python <-> JS parity"
 python tests/run_parity.py
 

@@ -1,5 +1,26 @@
 # Change log
 
+## 2026-11-18
+
+The shelf price is now per-kg costs plus the shop's percentage margin (`retail_spreads.py`, `research_notes/retail_markup_form.md`)
+- Question (Pablo, after Gemini argued the markup should be multiplicative): is the step from a kilo of cells to the shelf a fixed
+  $/kg or a percentage? Neither alone. USDA ERS monthly meat prices (1970–2025) show shop prices moving about dollar for dollar with
+  wholesale prices over one to five years (beef 0.99–1.17, pork 0.77–0.92, broilers 0.78–0.84), far from the 1.7–2.5 a pure
+  percentage would give. But shops set a percentage gross margin (US meat departments 28–32%), which a new, permanently dearer
+  product would carry in dollars.
+- New rule: shelf = (cost + `markup_add`) / (1 − `retail_margin`), with `markup_add` $2.5/kg (was a flat $5; range $1.5–3.5, was
+  $3–8.7) and the new `retail_margin` 28% (15–40%). Fitted to USDA's 2025 spreads at 28%, the per-kg part is $1.6 for broilers and
+  $2.9 for beef; the $2.5 adds about $1 for forming cells into a product. Both are drawn in every uncertainty band. One function,
+  `price_ratio.shelf_price`, carries the rule in Python, `shelfPrice` on the page; the page gains a shop-margin slider (0 and $5
+  give the old flat rule).
+- What moved: parity needs cells at $6.14 (was $7.00). Shelf prices of anything above parity rise: Central $44 (was $34), best case
+  $16.9 (was $14.7). Long-run share of world meat at the point cost: Central 0.16% (was 0.41%), best case 3.7% (was 8.0%); medians
+  of the bands: Central 0.1%, best case 0.8% (0.2–3.4%, was 1.9%). The demand calibration is unchanged (its anchor price is
+  frozen). The premium-meat anchoring now gives Central 0.16% (agrees with the model) and the best case 1.8% against the model's
+  3.7%. Costs per kg of cells are unchanged.
+- Gemini's further claim that margins rise with the quality tier is unsourced, and the one comparison found (French Label Rouge
+  chicken 25% against a standard fillet 36%) runs the other way; the 40% end of the range covers a slow-selling niche product.
+
 ## 2026-11-17
 
 Pasitka 2024: the mass-basis finding worked through (METHODS and comments only; no number moved)

@@ -25,6 +25,9 @@ import floor_physics as fp
 import retention
 import scenarios as S
 from inputs import REGISTRY, prior, value
+from price_ratio import shelf_price, cost_from_shelf
+
+FLAT_MARKUP = 5.0   # $/kg, the model's flat markup before 2026-11-18
 
 # explore() argument -> the input that gives its range, per scenario switch setting
 CELL_INPUTS = {
@@ -96,20 +99,25 @@ def summary(key: str, n: int = 1000, seed: int = 0, targets=(7.0, 12.0, 18.0, 26
             "rank": dict(sorted(rho.items(), key=lambda kv: -abs(kv[1]))), "total": t}
 
 
-def retail(cost: float, form: str = "flat") -> float:
-    """Shelf price of a kilo of product from a kilo of cells, $/kg. 'flat' is the model's: cost + markup_add. 'proportional'
-    treats the retail chain as taking a share of the retail price: (cost + processing) / (1 - share). The conventional spreads
-    are closer to proportional (42-65% of retail)."""
+def retail(cost: float, form: str = "model") -> float:
+    """Shelf price of a kilo of product from a kilo of cells, $/kg. 'model' is the model's since 2026-11-18: per-kg costs
+    plus the retailer's percentage margin, (cost + markup_add) / (1 - retail_margin). 'flat' is the model's rule before
+    then, cost + $5. 'proportional' treats the whole wholesale-to-retail spread as a share of the retail price:
+    (cost + processing) / (1 - share), with the share at 42-65% (research_notes/retail_markup_form.md)."""
+    if form == "model":
+        return shelf_price(cost)
     if form == "flat":
-        return cost + value("markup_add")
+        return cost + FLAT_MARKUP
     return (cost + value("au_processing")) / (1.0 - value("au_retail_share"))
 
 
-def parity_cost(form: str = "flat", p_conv: float | None = None) -> float:
+def parity_cost(form: str = "model", p_conv: float | None = None) -> float:
     """The cost of cells at which the shelf price equals conventional meat's."""
     p = value("p_conv") if p_conv is None else p_conv
+    if form == "model":
+        return cost_from_shelf(p)
     if form == "flat":
-        return p - value("markup_add")
+        return p - FLAT_MARKUP
     return p * (1.0 - value("au_retail_share")) - value("au_processing")
 
 

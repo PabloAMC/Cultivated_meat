@@ -9,23 +9,22 @@ contains NO cost mechanism and NO time axis: it takes a biomass cost as an INPUT
 `cost_model.py` produces that cost and feeds it here — so nothing introduced in
 this module is ever substituted later (the model has no throwaway rungs).
 
-        p_cult = biomass_cost + markup_add          (ADDITIVE markup, see below)
+        p_cult = (biomass_cost + markup_add) / (1 - retail_margin)     (MIXED, see below)
         R      = p_cult / p_conv
-        parity (R = 1)  requires  biomass_cost <= p_conv - markup_add   <- THRESHOLD
+        parity (R = 1)  requires  biomass_cost <= p_conv * (1 - retail_margin) - markup_add
 
-Why the markup is ADDITIVE (and why that creates a hard threshold)
-------------------------------------------------------------------
-Processing, packaging, cold-chain distribution and retail margin are roughly
-FIXED dollars per kg; they do not shrink in proportion as biomass gets cheaper.
-A multiplicative markup would wrongly let the retail wedge vanish at low cost and
-make parity look easy. Because the markup is a fixed addend, parity has a hard
-cost THRESHOLD: biomass_cost <= p_conv - markup_add. Below it, parity is
-reachable; above it, parity is impossible at ANY biomass cost.
-
-That threshold — and therefore the entire "is parity reachable?" question — is
-set by just two numbers, `markup_add` and `p_conv`. Both live in inputs.py, and
-the verdict is sensitive to them (see MODEL.md): this is why they matter more
-than the headline cost figure.
+Why the shelf price is per-kg costs plus a percentage margin
+------------------------------------------------------------
+Until 2026-11-18 the model added a flat $5/kg. The evidence (research_notes/retail_markup_form.md) says the
+wholesale-to-retail spread has two parts:
+  * per-kg costs (forming, packing, cold chain, distribution, store handling) that do not grow with the product's
+    price: retail meat prices move about dollar for dollar with wholesale prices over 1-5 years (USDA ERS, 1970-2025),
+    not by the 1.7-2.5 times a pure percentage markup would give;
+  * the retailer's gross margin, set as a percentage of the shelf price (US meat departments about 28-32%), so a
+    product that costs several times more carries a larger margin in dollars.
+A pure percentage on the whole spread (the old audit's (cost + 1)/(1 - 0.45)) double-counts the per-kg part; a flat
+$/kg leaves out the margin's growth with price. Parity still has a hard cost THRESHOLD,
+p_conv * (1 - retail_margin) - markup_add, set by three numbers in inputs.py.
 
 Usage
 -----
@@ -49,7 +48,8 @@ from inputs import value
 # ----------------------------------------------------------------------------
 @dataclass
 class RatioParams:
-    markup_add: float = value("markup_add")   # $/kg additive biomass->retail [inputs.py]
+    markup_add: float = value("markup_add")   # $/kg per-kg costs from cells to the shelf [inputs.py]
+    retail_margin: float = value("retail_margin")   # retailer's gross margin, share of the shelf price [inputs.py]
     p_conv: float = value("p_conv")           # conventional commodity price, $/kg [inputs.py]
 
 
@@ -57,34 +57,50 @@ class RatioParams:
 # The framing: cost -> price -> ratio, and the parity threshold
 # (all functions take scalars OR numpy arrays)
 # ----------------------------------------------------------------------------
-def p_cult(cost, markup_add):
+def shelf_price(cost, markup_add=None, retail_margin=None):
+    """Shelf price of a kilo of product from its cost before the shelf, $/kg: per-kg costs plus the retailer's
+    percentage margin. THE one place this rule lives in Python (the page mirrors it as shelfPrice in its engine).
+    Scalars or numpy arrays; None takes the inputs.py value."""
+    a = value("markup_add") if markup_add is None else markup_add
+    m = value("retail_margin") if retail_margin is None else retail_margin
+    return (cost + a) / (1.0 - m)
+
+
+def cost_from_shelf(price, markup_add=None, retail_margin=None):
+    """Inverse of shelf_price: the cost before the shelf that gives this shelf price."""
+    a = value("markup_add") if markup_add is None else markup_add
+    m = value("retail_margin") if retail_margin is None else retail_margin
+    return price * (1.0 - m) - a
+
+
+def p_cult(cost, markup_add, retail_margin=None):
     """Retail price of the cultivated product, $/kg, from its biomass cost."""
-    return cost + markup_add
+    return shelf_price(cost, markup_add, retail_margin)
 
 
-def ratio(cost, markup_add, p_conv):
+def ratio(cost, markup_add, p_conv, retail_margin=None):
     """Price ratio R = p_cult / p_conv."""
-    return p_cult(cost, markup_add) / p_conv
+    return p_cult(cost, markup_add, retail_margin) / p_conv
 
 
-def parity_cost(markup_add, p_conv):
+def parity_cost(markup_add, p_conv, retail_margin=None):
     """The biomass cost at which R = 1 — the parity THRESHOLD. Below it parity is
-    reachable; above it, impossible at any biomass cost (additive markup)."""
-    return p_conv - markup_add
+    reachable; above it, impossible at any biomass cost."""
+    return cost_from_shelf(p_conv, markup_add, retail_margin)
 
 
 # ----------------------------------------------------------------------------
 # Report
 # ----------------------------------------------------------------------------
 def summarise(rp: RatioParams) -> None:
-    thr = parity_cost(rp.markup_add, rp.p_conv)
-    print(f"  retail price = biomass_cost + markup_add(${rp.markup_add:.0f}/kg);  "
+    thr = parity_cost(rp.markup_add, rp.p_conv, rp.retail_margin)
+    print(f"  retail price = (biomass_cost + ${rp.markup_add:.1f}/kg) / (1 - {rp.retail_margin:.0%} margin);  "
           f"R = retail / p_conv(${rp.p_conv:.0f}/kg)")
     print(f"  PARITY THRESHOLD: biomass_cost must be <= ${thr:.1f}/kg for R <= 1")
     costs = (5, 10, 15, 20, 25)
     print("  biomass cost $/kg :  " + "  ".join(f"{c:>4.0f}" for c in costs))
     print("  price ratio  R    :  " +
-          "  ".join(f"{ratio(c, rp.markup_add, rp.p_conv):>4.2f}" for c in costs))
+          "  ".join(f"{ratio(c, rp.markup_add, rp.p_conv, rp.retail_margin):>4.2f}" for c in costs))
 
 
 # ----------------------------------------------------------------------------
@@ -92,16 +108,16 @@ def summarise(rp: RatioParams) -> None:
 # ----------------------------------------------------------------------------
 def fig_ratio_vs_cost(rp: RatioParams, outdir: str, fmts) -> None:
     cost = np.linspace(3.0, 28.0, 200)
-    R = ratio(cost, rp.markup_add, rp.p_conv)
+    R = ratio(cost, rp.markup_add, rp.p_conv, rp.retail_margin)
     fig, ax = plt.subplots(figsize=(6.0, 3.8))
 
     ax.plot(cost, R, color="#0173B2", lw=2.0,
-            label=r"$R=(\mathrm{cost}+\mathrm{markup})/p_{\rm conv}$")
+            label=r"$R=\frac{(\mathrm{cost}+a)/(1-m)}{p_{\rm conv}}$")
 
     ax.axhline(1.0, ls="--", lw=0.9, color="0.35")
     ax.text(3.4, 1.03, "parity (R=1)", fontsize=7.5, color="0.35")
 
-    thr = parity_cost(rp.markup_add, rp.p_conv)
+    thr = parity_cost(rp.markup_add, rp.p_conv, rp.retail_margin)
     ax.axvline(thr, ls=":", lw=1.0, color="#029E73")
     ax.text(thr + 0.3, ax.get_ylim()[1] * 0.9,
             f"parity threshold\nbiomass $\\leq$ \\${thr:.0f}/kg",

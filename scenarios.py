@@ -40,6 +40,7 @@ import numpy as np
 import floor_physics as fp
 import plant_items
 from inputs import value, prior
+from price_ratio import shelf_price
 
 FEED, SELECT, GE, NOTHING = "feed or process", "selection or adaptation", "genetic engineering", "nothing new"
 TAG_ORDER = (NOTHING, FEED, SELECT, GE)            # the most demanding tag a scenario needs is the last one it uses
@@ -454,9 +455,9 @@ def summary(choice: dict | None = None, r: dict | None = None, cost: float | Non
     if r is None:
         r = run(choice)
     cost = r["total"] if cost is None else cost
-    markup, pconv = v("markup_add"), v("p_conv")
+    retail, pconv = shelf_price(cost), v("p_conv")
     sh = shares(cost)
-    return {"cost": cost, "retail": cost + markup, "ratio": (cost + markup) / pconv, "world": sh["global"], "us": sh["us"],
+    return {"cost": cost, "retail": retail, "ratio": retail / pconv, "world": sh["global"], "us": sh["us"],
             "eu": sh["eu"], "density": r["density"], "limit": r["limit"], "limit_plain": LIMIT_PLAIN.get(r["limit"], r["limit"]),
             "medium_l": r["medium_l"], "medium_set_by": r["medium_set_by"], "uptime": r["uptime"], "output": r["output"]}
 
@@ -667,7 +668,7 @@ def table_rows() -> list:
     rs, b = summary(r=reference()), bands(None)
     rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], TAG_PLAIN[GE]))
     rc = reported_cost()
-    rows.append(("As a company reports (SuperMeat 2024)", rc, None, (rc + value("markup_add")) / value("p_conv"),
+    rows.append(("As a company reports (SuperMeat 2024)", rc, None, shelf_price(rc) / value("p_conv"),
                  shares(rc)["global"], reported_band(), "a company's own report"))
     return rows
 

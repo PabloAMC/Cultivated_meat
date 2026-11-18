@@ -52,7 +52,7 @@ Broilers 2025: monthly spread 121.4 - 164.5 cents/lb, my average of 12 months 13
 ### 1c. What this says about the $5/kg markup
 
 - If harvested cell mass is treated as the analogue of boneless meat leaving the packing plant, the relevant comparator is the **wholesale-to-retail** spread: $3.0-3.3/kg (broilers), $6.6-7.8/kg (pork), $7.6-10.8/kg (beef), 2023-2026.
-- The spread is closer to proportional than flat: 42-43% of retail for beef, 60-65% for pork, about 61% for broilers.
+- The spread is closer to proportional than flat: 42-43% of retail for beef, 60-65% for pork, about 61% for broilers. (2026-11-18: over time it moves about dollar for dollar with wholesale prices; the model now splits it into per-kg costs and a 28% shop margin, `retail_markup_form.md`.)
 - These are whole-carcass, mostly whole-cut baskets. They are not the spread for ground or formed product. **Not found**: an ERS (or other) spread specific to ground beef, sausage or nuggets.
 
 ### 1d. EU

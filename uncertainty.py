@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 from common import setup_style, _save
 from inputs import prior, MC_COST_INPUTS, MC_DEMAND_INPUTS
 from cost_model import CostParams, media_cost
+from price_ratio import shelf_price, cost_from_shelf
 from market_share import DemandParams, share
 
 
@@ -97,17 +98,18 @@ def _sample(name, pri, rng, n, fixed):
 
 
 def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
-                  scaffold_frac=0.0, material_price=0.0, process_cost=0.0):
+                  scaffold_frac=0.0, material_price=0.0, process_cost=0.0, retail_margin=None):
     """The ONE cost->R equation, shared by monte_carlo and sensitivity.py so the
     cost math exists in exactly one place. Scalar OR numpy-array inputs.
 
     media can never fall below the irreducible amino-acid floor (AA_FLOOR). overhead
     is the plant knob (floor plant ~$9.8 -> cautious ~$34/kg), so the total
     cost floats from its own prior rather than cost_model's single point floor.
-    Scaffold terms are 0 for the basic product, nonzero for structured targets."""
+    Scaffold terms are 0 for the basic product, nonzero for structured targets. The shelf price is
+    price_ratio.shelf_price (per-kg costs plus the retailer's margin; None = inputs.py's margin)."""
     cost = (media_cost(CostParams(), media_price, efficiency)
             + overhead + scaffold_frac * material_price + process_cost)
-    return (cost + markup_add) / p_conv
+    return shelf_price(cost, markup_add, retail_margin) / p_conv
 
 
 def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
@@ -123,8 +125,8 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
         s["media_price"], s["efficiency"], s["overhead"], s["markup_add"], s["p_conv"],
         scaffold_frac=s["scaffold_frac"] if scaf else 0.0,
         material_price=s["material_price"] if scaf else 0.0,
-        process_cost=s["process_cost"] if scaf else 0.0)
-    cost = R * s["p_conv"] - s["markup_add"]
+        process_cost=s["process_cost"] if scaf else 0.0, retail_margin=s["retail_margin"])
+    cost = cost_from_shelf(R * s["p_conv"], s["markup_add"], s["retail_margin"])
 
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     sh = np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],

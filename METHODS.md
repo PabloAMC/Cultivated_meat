@@ -73,13 +73,13 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    `income_*` (World Bank, Muhammad/ERS), `price_wf_mult` (BLS), the Bass `p_innov`/`q_imit` (literature
    norms), and `neophobia_x0` (set to reproduce the ~5% cold share in Van Loo, Caputo & Lusk 2020).
 2. **Derived** (computed, never typed): the price coefficient β (solved at cultivated's own price and share),
-   the parity threshold (`p_conv − markup_add`), the reference cost, and the cost-path R endpoints.
+   the parity threshold (`p_conv × (1 − retail_margin) − markup_add`), the reference cost, and the cost-path R endpoints.
 3. **Solved to a target:** `w_realtissue_M`, `w_health_M`, `w_health_E`, to the 89% mainstream buyer split and
    the 1.2% plant-based share (published) and a ~6% mainstream meatless rate (assumed; no clean source, 0.3 pp of
    leverage). One equation per unknown: calibration, not fitting.
 4. **Judgement, shown as a range:** `cult_sub_mult` (κ; set by six premium products within the Lusk 2020 bracket), the acceptance dials
    `accept_x`/`theta_free_M`, long-run novelty `neophobia_x`, health image `health_x`, the tier ladder (scaled
-   by `premium_resistance`), `markup_add` (bounded by the USDA farm-to-retail spread), the scaffold cost, and
+   by `premium_resistance`), `markup_add` and `retail_margin` (fitted to USDA's spreads and meat-department margins), the scaffold cost, and
    `loss_aversion` (symmetric by default).
 5. **Assumed, with modest leverage** (the calibration re-solves around each): across their full slider
    ranges, the long-run share in the reference case against $12 meat (20.8%) moves by 3.1 pp for `w_realtissue_E` (0–4),
@@ -108,7 +108,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 
 | step | module | what it adds |
 |---|---|---|
-| 1. Price ratio | `price_ratio.py` | R and the parity threshold (additive markup); takes biomass cost as an input |
+| 1. Price ratio | `price_ratio.py` | R and the parity threshold (per-kg costs plus a percentage margin); takes biomass cost as an input |
 | 1. Cost | `cost_model.py` | the cost stack (medium + plant), three plant cases, the reference case, the waterfall |
 | 2. Demand | `market_share.py` | the two-segment, four-product logit, its calibration and self-checks |
 | 3. Meat types and regions | `meat_market.py` | per-type R and share, tiers, the volume and value roll-up, the regional Monte Carlo |
@@ -135,9 +135,9 @@ Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py`
 ```
 media_cost   = media_intensity [L/kg] × efficiency × media_price [$/L]   (never below the feedstock floor)
 biomass_cost = media_cost + overhead                                     (+ clean-room cost, if toggled)
-p_cult       = biomass_cost + scaffold (structured cuts only) + markup_add
+p_cult       = (biomass_cost + scaffold (structured cuts only) + markup_add) / (1 − retail_margin)
 R            = p_cult / (p_conv × meat_tax)
-parity (R=1) ⟺ biomass_cost ≤ p_conv − markup_add = $7/kg              (mince, $12 meat, $5 markup)
+parity (R=1) ⟺ biomass_cost ≤ p_conv × (1 − retail_margin) − markup_add = $6.14/kg   (mince, $12 meat, $2.5, 28%)
 ```
 
 **Every cost is per kg of real wet cells:** about 70% water and 20% protein, comparable with meat.
@@ -152,7 +152,7 @@ scaled on paper to 25 m³ tanks.
 | `media_price` | $0.50/L (range 0.20–1.00) | "<$0.5 per liter"; other companies report $0.20 or less [GFI 2026]; none verified at scale |
 | `efficiency` | 1.0 (range 0.25–1.0) | as reported; 0.25 is about 8 L/kg, the medium use of Humbird's efficient-cell designs |
 | `overhead` | $19.1/kg (range 10.8–34) | running costs $10.8/kg ($11.8/lb "without depreciation", less the medium) plus a yearly charge on the plant, $8.3/kg |
-| **default cost** | **$34.4/kg, R = 3.28** | the company's own figure, with depreciation only, is $29.5/kg (R = 2.87) |
+| **default cost** | **$34.4/kg, R = 4.27** | the company's own figure, with depreciation only, is $29.5/kg (R = 3.70) |
 
 *Capital in the default.* Every other case in this model carries a yearly charge on the plant of 23.6% of its
 cost (Humbird's: 14.6% return and recovery of capital, 4% maintenance, 5% insurance). The report counts
@@ -168,16 +168,21 @@ rebuilt from its own description.
 Humbird's independent design for efficient cells comes to $25–46/kg in 2025 prices. The `overhead` range runs
 from the reference case's plant term to the cautious case with cells at half the density (both below).
 
-**The markup** is anchored on USDA's wholesale-to-retail price spreads per kg of retail meat: $3.0–3.3 for
-broilers, $6.6–6.9 for pork and $7.6–8.7 for beef (2023–26). That spread starts after the packing plant, so it
-already leaves out slaughter. The default stays $5; the range is now $3.0–8.7 (it was $2–7). No study gives the
+**The markup has two parts** (since 2026-11-18; `research_notes/retail_markup_form.md`): per-kg costs `markup_add` = $2.5/kg
+($1.5–3.5) for forming, packing, cold chain, transport and store handling, and the shop's gross margin `retail_margin` = 28% of
+the shelf price (15–40%). The shelf price is (cost + $2.5) / (1 − 0.28). USDA's monthly meat prices (1970–2025) show shop prices
+moving about dollar for dollar with wholesale prices over one to five years, which rules out a pure percentage markup; US meat
+departments run at 28–32% gross margins, which a new, dearer product would carry in dollars. Fitted to USDA's 2025 retail and
+wholesale values at a 28% margin, the per-kg part is $1.6 for broilers, $2.9 for beef and $3.5 for pork; the $2.5 adds about $1
+to form cells into a product. Until 2026-11-18 the model added a flat $5 (range $3.0–8.7), the whole wholesale-to-retail
+spread. That spread starts after the packing plant, so it already leaves out slaughter. No study gives the
 cost per kg of forming, packaging or chilling a cultivated product, and none costs the structuring of a whole
 cut: the published analyses all stop at harvested cells. A bottom-up estimate for cells on a textured plant
 scaffold is $0.5–2.5/kg, but it leaves out any tissue-growing stage; the $6 scaffold figure stays a labelled
 guess (`research_notes/post_harvest_costs.md`). Products sold so far range from 3% to over 99% cells.
-**The markup is additive** (processing, cold chain and retail margin don't shrink as biomass gets cheaper). A
-percentage markup would let the retail wedge vanish at low cost and make parity look easy. At the bottom of
-its range ($3, the broiler spread) the parity threshold rises to $9/kg of cells.
+Against the flat $5 the new rule moves parity little ($7.0 to $6.1 a kilo of cells), because both are fitted to commodity
+meat's own spread, but it raises the shelf price of anything dearer: Central's from $34 to $44, and its long-run share
+from 0.41% to 0.16% of world meat. Both parts are drawn in the uncertainty bands.
 
 **The reference case (`cost_floor`, what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, engineered cells, no lost runs and no growth factors:
 
@@ -265,14 +270,14 @@ headline table gives the share at its point cost and the median of draws; `bands
 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
-| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($54–91) | 5.66 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 2.98 | 0.4% | **0.1%** (0.0–0.5%) | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 2.87 | 0.4% | **0.2%** (0.0–0.6%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 2.63 | 0.5% | **0.2%** (0.0–0.8%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.22 | 8.0% | **1.9%** (0.4–6.3%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 2.48 | 0.6% | **0.3%** (0.1–1.0%) | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.46 | 4.3% | **1.3%** (0.3–4.3%) | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34.4** | 3.28 | 0.3% | **0.2%** (0.0–0.6%) | a company's own report |
+| 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$63.0** ($54–91) | 7.58 | 0.0% | **0.0%** (0.0–0.1%) | needs a change of feed, process or plant |
+| 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.1% | **0.0%** (0.0–0.2%) | needs a change of feed, process or plant |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.2% | **0.1%** (0.0–0.3%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.2% | **0.1%** (0.0–0.4%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 3.7% | **0.8%** (0.2–3.4%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.3% | **0.1%** (0.0–0.4%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 1.6% | **0.5%** (0.1–2.0%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.1% | **0.1%** (0.0–0.3%) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
@@ -317,8 +322,8 @@ by `tests/run_parity.py` over 100 cells).
 
 `audit.run` draws every documented range behind a scenario at once (the scenario's own switch settings, the filter loop's flux,
 membrane price, hardware and life, the plant estimate, financing and upkeep; triangular, independent) and reports the percentiles,
-the chance of falling at or below stated costs, and rank correlations. `audit.retail` and `parity_cost` compare the model's flat markup
-with a proportional retail chain. `audit_history.py` checks out each commit that touched the cost code and runs the model, which gives
+the chance of falling at or below stated costs, and rank correlations. `audit.retail` and `parity_cost` compare the model's markup
+with the old flat $5 and with a chain that takes the whole spread as a percentage. `audit_history.py` checks out each commit that touched the cost code and runs the model, which gives
 the history of the headline numbers. Findings: `research_notes/model_audit.md`.
 
 ### The filter's flux limit (`filter_flux.py`, added 2026-11-15)
@@ -524,7 +529,7 @@ Salt strength is not modelled in this mode.
 efficient cells' 11 L/kg, $10 at 29 L/kg.
 
 *Cost and demand uncertain together (`meat_market.floor_share_mc`).* Each draw takes a cost from the reference case's own
-uncertainty and the demand dials from their priors (price sensitivity, acceptance, the retail markup). Long-run
+uncertainty and the demand dials from their priors (price sensitivity, acceptance, the costs of reaching the shelf and the shop's margin). Long-run
 share of meat by weight, 2,000 draws:
 
 ```
@@ -1269,7 +1274,7 @@ The material price is a judgement range ($2–20/kg; Gu et al. 2025 describe the
 and the process cost ($1–15/kg) has no published cost study behind it: the most speculative numbers in the
 model. At the central values they add $6/kg, the scaffold cost the page uses. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
-premium species: against sushi-grade salmon, R has a median of 1.20, with 17% of draws at or below parity.
+premium species: against sushi-grade salmon, R has a median of 1.57, with 1% of draws at or below parity.
 
 ## Step 3 — entry points (`foothold.py`, the page's chart 7)
 
@@ -1317,11 +1322,11 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat:
-  price ratio R:   P50 = 3.29   80% CI [2.55, 4.17]   0% of draws at or below parity
-  long-run share:  P50 = 0.0%   80% CI [0.0, 0.8]
+  price ratio R:   P50 = 4.20   80% CI [3.16, 5.48]   0% of draws at or below parity
+  long-run share:  P50 = 0.0%   80% CI [0.0, 0.1]
 ```
 
-The median is close to the default 3.28. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,
+The median is close to the default 4.27. The plant-cost range (9.8 / 19.1 / 34) is wider on the high side,
 because reported harvests are less dense than the reference case assumes; the medium price and cell efficiency can
 improve on the report. Pin any input from the command line (`--fix media_price=0.2`) to ask “if this lands, what then?”.
 

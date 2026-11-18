@@ -55,7 +55,7 @@ it is always a band.
 
 | step | module | what it adds |
 |---|---|---|
-| 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (additive markup) |
+| 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (per-kg costs plus the shop's percentage margin) |
 | 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |

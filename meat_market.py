@@ -54,6 +54,7 @@ import matplotlib.pyplot as plt
 from common import setup_style, _save
 from inputs import value, prior
 from cost_model import CostParams, cost_floor, media_cost
+from price_ratio import shelf_price
 from market_share import DemandParams, share
 
 
@@ -288,14 +289,15 @@ REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
                  "india": 11159, "brazil": 22333, "nigeria": 6440}
 
 
-def _rollup(market, biomass, markup, res, share_of):
+def _rollup(market, biomass, markup, res, share_of, margin=None):
     """The shared per-type roll-up used by BOTH the point estimate (penetration) and the
     Monte-Carlo band (monte_carlo): for each meat type compute its price ratio
-    R = (biomass*cost_mult + scaffold + markup) / p_conv, get its cultivated share via the
+    R = shelf_price(biomass*cost_mult + scaffold, markup, margin) / p_conv, get its cultivated share via the
     `share_of(mt, R, species_base, res)` callback (scalar for the point estimate, a per-draw
     NumPy array for the MC), then sum by VOLUME (mass) and by VALUE (price*volume, normalised).
     Keeping this in one place means the two paths can't drift. `biomass`, `markup`, `res` and the
-    callback's return may each be a scalar or an array; the arithmetic is the same either way."""
+    callback's return may each be a scalar or an array; the arithmetic is the same either way. `margin` is the
+    retailer's gross margin (None = inputs.py's retail_margin)."""
     bases = species_bases(market)                                   # per-species reference price
     Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
     # volume-weight normaliser: the listed w_vol sum to 1.00-1.025 by region (premium variants were
@@ -304,7 +306,7 @@ def _rollup(market, biomass, markup, res, share_of):
     rows, tot_vol, tot_val = [], 0.0, 0.0
     for mt in market:
         base = bases[animal_of(mt)]
-        R = (biomass * mt.cost_mult + mt.scaffold + markup) / mt.p_conv
+        R = shelf_price(biomass * mt.cost_mult + mt.scaffold, markup, margin) / mt.p_conv
         s = share_of(mt, R, base, res)
         rows.append((mt, R, s))
         tot_vol = tot_vol + (mt.w_vol / Wvol) * s
@@ -382,7 +384,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dic
                                neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
                          for i in range(n)])
 
-    _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of)
+    _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"])
     return dict(vol=tot_vol * 100, val=tot_val * 100)
 
 
@@ -445,7 +447,7 @@ def summarise(region: str, theta_free: float) -> None:
     for label, biomass in scenarios:
         rows, tv, tval = penetration(market, biomass, theta_free_M=theta_free,
                                      income=REGION_INCOME[region])
-        print(f"\n  {label}  (p_cult = biomass + scaffold + ${value('markup_add'):.0f} markup):")
+        print(f"\n  {label}  (p_cult = (biomass + scaffold + ${value('markup_add'):.1f}) / (1 - {value('retail_margin'):.0%})):")
         print(f"    {'meat type':<20}{'$/kg':>6}{'vol%':>6}{'R':>7}{'cult share':>12}  tier")
         for mt, R, s in rows:
             print(f"    {mt.name:<20}{mt.p_conv:>6.0f}{mt.w_vol*100:>5.0f}%{R:>7.2f}{s*100:>10.1f}%  {tier(mt, bases[animal_of(mt)])}")

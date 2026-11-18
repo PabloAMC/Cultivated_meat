@@ -51,7 +51,8 @@ PLAIN = {
     "pf_osm_limit": "Salt strength the cells tolerate (osmolality)",
     "neophobia_x": "How wary people are of a novel food, in the long run",
     "cult_sub_mult": "How much more price-sensitive cultivated meat is than meat in general",
-    "markup_add": "Spread from cells to the shop shelf, $ per kg",
+    "markup_add": "Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg",
+    "retail_margin": "Retailer's gross margin, as a share of the shelf price",
     "eps_own": "Price elasticity of meat demand",
     "health_x": "Whether people see cultivated meat as healthier or less healthy",
     "income_gradient": "How price sensitivity falls with income",
@@ -81,7 +82,8 @@ EVIDENCE = {
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
     "neophobia_x": "a judgement on long-run behaviour",
     "cult_sub_mult": "bracketed by data on close substitutes",
-    "markup_add": "USDA spreads and judgement",
+    "markup_add": "fitted to USDA ERS meat spreads, plus forming",
+    "retail_margin": "US meat-department margins (28–32%) and French supermarket data",
     "eps_own": "scanner-data meta-analysis",
     "health_x": "a scenario dial: no data",
     "income_gradient": "USDA demand estimates",
@@ -94,7 +96,7 @@ EVIDENCE = {
 }
 
 # what the scenarios' uncertainty bands draw (scenarios.scenario_mc and meat_market.monte_carlo)
-IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add"}
+IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add", "retail_margin"}
            | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS))
 if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
     IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS)
@@ -112,7 +114,7 @@ EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch 
 
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
-_PENETRATION_ARGS = {"markup_add", "premium_resistance"}
+_PENETRATION_ARGS = {"markup_add", "retail_margin", "premium_resistance"}
 
 
 def share_at(cost: float, region: str = "global", **over) -> float:
@@ -131,7 +133,8 @@ def share_at(cost: float, region: str = "global", **over) -> float:
                      kappa=over.get("cult_sub_mult"))
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
-    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of)[1] * 100.0
+    margin = over.get("retail_margin", value("retail_margin"))
+    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin)[1] * 100.0
 
 
 def _cost(key: str) -> float:

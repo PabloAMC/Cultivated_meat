@@ -130,7 +130,9 @@ wholesale-to-retail spread is 42–65% of the retail price (`post_harvest_costs.
 | **Cost of cells at parity with $12 meat** | | **$7.0** | **$5.6** (3.2 to 6.0 across shares of 42–65%) |
 
 Which is right is open. A flat spread is plausible if the retail chain's work does not scale with the product's price. The conventional
-spread does scale. At the proportional rule parity needs the cost of cells to fall below about $5.6, a level no single lever reaches.
+spread does scale. **Settled 2026-11-18** (`retail_markup_form.md`): neither. The model now uses per-kg costs plus a percentage margin,
+(cost + $2.5)/(1 − 28%), which gives Central a $44 shelf price and parity at $6.1; the whole-spread percentage above double-counts the
+per-kg part. At the proportional rule parity needs the cost of cells to fall below about $5.6, a level no single lever reaches.
 
 ## 4. Are the costs reasonable price points?
 

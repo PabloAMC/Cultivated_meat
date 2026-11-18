@@ -35,7 +35,7 @@ def _golden_values() -> dict:
     from market_share import (DemandParams, share, pb_milk_check, organic_premium_check,
                               lusk_at_parity_elasticity, LUSK_ELAS_BRACKET)
     from adoption_timing import TimingParams, years_to_stabilize
-    from cost_model import CostParams, biomass_cost, cost_floor
+    from cost_model import CostParams, biomass_cost, cost_floor, ratio as cm_ratio
     import meat_market as mm
 
     pr = DemandParams()
@@ -48,7 +48,7 @@ def _golden_values() -> dict:
         # --- cost rung ---
         "cost_floor": float(cost_floor(cp)),
         "biomass_base": b,
-        "basic_R": (b + cp.markup_add) / cp.p_conv,
+        "basic_R": cm_ratio(b, cp),
         # --- calibration / derived coefficients ---
         "beta_ref": pr.beta_ref,
         "anchor_price": pr.anchor_price,
@@ -74,7 +74,7 @@ def _golden_values() -> dict:
         # --- premium real-meat check (organic chicken, ~2.4% observed; self-check [4c], FAILS by design) ---
         "organic_vs_cuts_pct": organic_premium_check(pr)["vs_cuts"],
         # --- timing: years to 90% of the LONG-RUN share at the default price (horizon-free) ---
-        "years_to_stabilize": float(years_to_stabilize((b + cp.markup_add) / cp.p_conv, pr, TimingParams())),
+        "years_to_stabilize": float(years_to_stabilize(cm_ratio(b, cp), pr, TimingParams())),
     }
 
 
@@ -94,7 +94,10 @@ GOLDEN = {
     # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
     "cost_floor":          12.5020,
     "biomass_base":        34.3500,
-    "basic_R":             3.27917,
+    # 2026-11-18: shelf price = (cost + $2.5) / (1 - 28% shop margin), was cost + $5 (research_notes/retail_markup_form.md).
+    # basic_R 3.27917 -> 4.26505; US vol 0.584202 -> 0.233623, US val 1.7793 -> 0.80766, world vol 0.274195 -> 0.0914556.
+    # The demand calibration is unchanged (its anchor price is frozen).
+    "basic_R":             4.26505,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
     "w_realtissue_M":      2.24236,
@@ -113,9 +116,9 @@ GOLDEN = {
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
-    "us_pen_vol_pct":      0.584202,
-    "us_pen_val_pct":      1.7793,
-    "world_pen_vol_pct":   0.274195,
+    "us_pen_vol_pct":      0.233623,
+    "us_pen_val_pct":      0.80766,
+    "world_pen_vol_pct":   0.0914556,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  30.0,      # was "~25" when measured as 90% of the year-30 value
 }

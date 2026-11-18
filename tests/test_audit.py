@@ -44,11 +44,15 @@ def check() -> list:
     for name, s, want in (("central P50", cen["p50"], 37.44), ("central P10", cen["p10"], 27.03), ("best P50", best["p50"], 15.48)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
-    # the retail translation: the flat markup is the model's; a proportional chain gives a dearer shelf price and a lower parity cost
-    if not close(A.retail(10.0), 10.0 + value("markup_add"), 1e-12):
-        fails.append("the flat retail price is cost + markup")
-    if not (A.retail(26.64, "proportional") > A.retail(26.64) and A.parity_cost("proportional") < A.parity_cost()):
-        fails.append("a proportional chain should raise the price and lower the parity cost")
+    # the retail translation: the model's rule is per-kg costs plus a percentage margin; it sits between the old flat $5
+    # and a chain that takes the whole spread as a percentage, at Central's cost
+    want = (10.0 + value("markup_add")) / (1.0 - value("retail_margin"))
+    if not close(A.retail(10.0), want, 1e-12):
+        fails.append("the model's retail price is (cost + markup_add) / (1 - retail_margin)")
+    if not (A.retail(26.64, "flat") < A.retail(26.64) < A.retail(26.64, "proportional")):
+        fails.append("at Central's cost the model's shelf price should sit between the flat and the proportional rule")
+    if not close(A.retail(A.parity_cost()), value("p_conv"), 1e-9):
+        fails.append("the parity cost should give a shelf price equal to meat's")
     return fails
 
 

@@ -33,8 +33,9 @@ def check() -> list:
             fails.append(f"{k} is listed as in the band but scenario_mc does not draw it")
     if "MC_ESTIMATES" not in src or "MC_ESTIMATE_INPUTS" not in src:
         fails.append("scenario_mc no longer draws MC_ESTIMATES; the table's band column is wrong")
-    if "markup_add" not in I.MC_COST_INPUTS:
-        fails.append("markup_add is listed as in the band but the demand draws do not include it")
+    for k in ("markup_add", "retail_margin"):
+        if k not in I.MC_COST_INPUTS:
+            fails.append(f"{k} is listed as in the band but the demand draws do not include it")
     if not s["cost_rows"] or s["cost_rows"][0]["key"] != "pf_nh3_limit":
         fails.append("the ammonia limit is no longer the largest driver of Central's cost; rewrite the summary")
 

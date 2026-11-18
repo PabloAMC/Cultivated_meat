@@ -34,13 +34,11 @@ to say what a cost scenario assumes.
 
         biomass_cost = media_cost + nonmedia_cost
         media_cost   = media_intensity[L/kg] * efficiency * media_price[$/L]
-        p_cult       = biomass_cost + markup_add        (ADDITIVE, see below)
+        p_cult       = (biomass_cost + markup_add) / (1 - retail_margin)
 
-The markup is ADDITIVE, not multiplicative. Processing, packaging, cold-chain
-distribution and retail margin are roughly FIXED dollars per kg; they do not
-shrink in proportion when biomass gets cheaper. A multiplicative markup would
-wrongly let the retail wedge vanish as cost falls and make parity look easier
-than it is. ~$5/kg is comparable to conventional meat's farm-to-retail spread.
+The shelf price is per-kg costs (forming, packing, cold chain, distribution: markup_add, $2.5/kg) plus the
+retailer's gross margin as a share of the shelf price (retail_margin, 28%). See price_ratio.py and
+research_notes/retail_markup_form.md for why it is neither purely additive nor purely multiplicative.
 
 Anchors (all tagged; see inputs.py):
   * media_intensity = 30.5 L/kg   [SuperMeat: 92.77e6 L a year for 3,039 t].
@@ -111,11 +109,11 @@ The floor (see cost_floor):
     refilled: ~$17.7/kg.
 
 Result preview (defaults): as reported, with capital ~$34/kg; medium at $0.2/L
-~$25/kg; + efficient cells ~$23/kg; the reference ~$11.5/kg (band ~$6.6-19.4). With a $5/kg
-additive markup against a $12/kg commodity price, parity (R=1) needs biomass
-<= $7/kg. The reference with a plant that has been costed for animal cells is
+~$25/kg; + efficient cells ~$23/kg; the reference ~$11.5/kg (band ~$6.6-19.4). With $2.5/kg of
+per-kg costs and a 28% retail margin against a $12/kg commodity price, parity (R=1) needs biomass
+<= $6.1/kg. The reference with a plant that has been costed for animal cells is
 well above that. The frontier case, a plant at the cost of today's microbial
-fermentation plants, sits just under the parity line (~$6.6/kg).
+fermentation plants (~$6.6/kg), sits just above the parity line.
 
 Usage
 -----
@@ -165,7 +163,8 @@ class CostParams:
     eff_best: float = value("eff_best")                # CHO-grade media-VOLUME multiplier; SCENARIO only
 
     # --- conversion to the price ratio -------------------------------------
-    markup_add: float = value("markup_add")            # $/kg additive biomass->retail [assumed]
+    markup_add: float = value("markup_add")            # $/kg per-kg costs from cells to the shelf [inputs.py]
+    retail_margin: float = value("retail_margin")      # retailer's gross margin, share of shelf price [inputs.py]
     p_conv: float = value("p_conv")                    # conventional commodity price, $/kg [market]
 
 
@@ -229,16 +228,16 @@ def floor_band(pr: CostParams):
 # adapters so cost_model can report R / parity off a CostParams without
 # re-implementing (or duplicating) the markup + ratio arithmetic.
 def p_cult(cost, pr: CostParams):
-    return _p_cult(cost, pr.markup_add)
+    return _p_cult(cost, pr.markup_add, pr.retail_margin)
 
 
 def ratio(cost, pr: CostParams):
-    return _ratio(cost, pr.markup_add, pr.p_conv)
+    return _ratio(cost, pr.markup_add, pr.p_conv, pr.retail_margin)
 
 
 def parity_cost(pr: CostParams) -> float:
     """Biomass cost at which retail price equals the conventional price."""
-    return _parity_cost(pr.markup_add, pr.p_conv)
+    return _parity_cost(pr.markup_add, pr.p_conv, pr.retail_margin)
 
 
 # ----------------------------------------------------------------------------
@@ -269,7 +268,7 @@ def summarise(pr: CostParams) -> None:
     print(f"    components: amino acids {pr.aa_intensity*pr.aa_bulk_price:.2f} + "
           f"glucose/other {pr.glucose_other_floor:.1f} + running a plant {pr.plant_floor:.1f} $/kg")
     pc = parity_cost(pr)
-    print(f"  parity (R=1) needs biomass <= {pc:.1f} $/kg (= p_conv - markup_add). "
+    print(f"  parity (R=1) needs biomass <= {pc:.1f} $/kg (= p_conv x (1 - retail_margin) - markup_add). "
           f"Floor central {ce:.1f} {'<=' if ce <= pc else '>'} {pc:.1f}: "
           f"parity is {'reachable' if ce <= pc else 'about reachable only at the frontier (microbial-class plant costs)' if lo <= pc * 1.1 else 'out of reach on these plant costs'}.")
 
@@ -292,7 +291,7 @@ def fig_cost_vs_media(pr: CostParams, outdir, fmts) -> None:
     ax.axhline(ce, ls="--", lw=1.0, color="#029E73")
     ax.text(0.6, ce + 0.4, f"reference ~{ce:.0f} \\$/kg", fontsize=7.5, color="#029E73")
 
-    # parity line (biomass cost that yields R=1, additive markup)
+    # parity line (biomass cost that yields R=1)
     pc = parity_cost(pr)
     ax.axhline(pc, ls=":", lw=1.0, color="0.4")
     ax.text(0.34, pc + 0.4, f"price parity (R=1) at {pc:.0f} \\$/kg biomass",

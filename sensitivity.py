@@ -66,7 +66,8 @@ LABELS = {
     "p_conv":        "conventional meat price",
     "efficiency":    "cell media-efficiency",
     "media_price":   "medium price",
-    "markup_add":    "retail markup",
+    "markup_add":    "per-kg costs to the shelf",
+    "retail_margin": "retailer's margin",
     "theta_free_M":  "mainstream slaughter-free value",
     "accept_x":      "cultivated taste-acceptance",
     "eps_own":       "price elasticity",
@@ -93,7 +94,7 @@ def _R_at(target: str, overrides: dict) -> float:
         m["media_price"], m["efficiency"], m["overhead"], m["markup_add"], m["p_conv"],
         scaffold_frac=m["scaffold_frac"] if scaf else 0.0,
         material_price=m["material_price"] if scaf else 0.0,
-        process_cost=m["process_cost"] if scaf else 0.0))
+        process_cost=m["process_cost"] if scaf else 0.0, retail_margin=m["retail_margin"]))
 
 
 def _share_at(target: str, overrides: dict) -> float:
