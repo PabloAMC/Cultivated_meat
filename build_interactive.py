@@ -208,6 +208,16 @@ def build_model() -> dict:
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
         # WHICH inputs the page's bands sample: the SAME lists the Python bands use (inputs.MC_*),
         # so the page's band and the numbers quoted in RESULTS.md cannot sample different sets.
+        # the short version of the page (page_scenarios.js, easyRender): three cases in plain words, no numbers typed here
+        "easy": {"cases": [
+            {"key": "today", "label": "Today's cells",
+             "say": "The best meat cells measured so far, in an ordinary tank. Nothing in it is new, but nobody has run it at this size."},
+            {"key": "central", "label": "Central case",
+             "say": "Changes to the feed and the tank, cheaper inputs, and cells selected to grow faster. No genetic engineering. "
+                    "Each part is plausible, but nobody has shown them working together."},
+            {"key": "best", "label": "Best case",
+             "say": "Everything works, including cells engineered to make almost no waste. This is the low end of what the model "
+                    "allows, not what to expect."}]},
         "mc_inputs": list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS),
         "mc_timing_inputs": list(MC_TIMING_INPUTS),
         # triangular Monte-Carlo priors [lo, mode, hi] for every sampled input
@@ -1286,6 +1296,24 @@ table.sctab{border-collapse:collapse;width:100%;font-size:.82rem;min-width:820px
 .scwarn{background:#fff6e5;border:1px solid #f0d089;border-radius:5px;padding:5px 8px;font-size:.78rem;color:#6b4700;}
 .jump{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px;padding:8px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font-size:.82rem;}
 .jump a{color:var(--accent);text-decoration:none;font-weight:600;} .jump a:hover{text-decoration:underline;}
+/* the short version: a view switch, a card with three numbers, and every long section folded under its heading */
+.viewbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 12px;font-size:.84rem;color:var(--ink2,#555);}
+.viewbar .btn{width:auto;margin:0;padding:5px 12px;} .viewbar .btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+#easy{border:1px solid var(--rule);border-radius:10px;padding:4px 16px 12px;background:#fbfdfb;margin:0 0 18px;}
+#easy .sech{margin-top:12px;} #easy_pick{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px;}
+#easy_pick .btn{width:auto;margin:0;padding:6px 13px;} #easy_pick .btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.easytiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0;}
+.easytile{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:#fff;font-size:.86rem;line-height:1.35;}
+.easybig{font-size:1.75rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}
+#easy_say{font-size:.92rem;line-height:1.5;margin:8px 0;} .easysum{display:none;color:#555;font-size:.88rem;margin:0 0 8px;}
+@media(max-width:620px){.easytiles{grid-template-columns:1fr;}}
+body:not(.easy) #easy{display:none;}
+body.easy section[data-easy]{border-top:1px solid var(--rule);}
+body.easy section[data-easy]>h2{cursor:pointer;margin:14px 0 4px;}
+body.easy section[data-easy]>h2::before{content:"\25B8\00a0";color:var(--accent);}
+body.easy section[data-easy].open>h2::before{content:"\25BE\00a0";}
+body.easy section[data-easy]:not(.open)>*:not(h2):not(.easysum){display:none;}
+body.easy section[data-easy]:not(.open)>.easysum{display:block;}
 html{scroll-behavior:smooth;} section[id],h3[id]{scroll-margin-top:12px;}
 .expl{font-size:.86rem;color:#333;max-width:760px;margin:0 0 10px;line-height:1.5;}
 .fxwrap{border:1px solid var(--rule);border-radius:10px;padding:8px 12px;margin:14px 0;} .fxwrap>summary{cursor:pointer;font-size:.9rem;color:var(--accent);}
@@ -1313,8 +1341,24 @@ Commission. <a href="#about">About this page</a>.</p>
 <nav class="jump" aria-label="Sections"><a href="#answer">The answer</a> <a href="#decide">What decides it</a> <a href="#build">How the cost is built up</a>
 <a href="#share">From cost to market share</a> <a href="#evidence">Evidence and checks</a> <a href="#method" onclick="document.getElementById('method').open=true">Method and sources</a></nav>
 
-<section id="answer">
+<div class="viewbar" role="group" aria-label="How much of the page to show"><span>Show:</span>
+<button class="btn" id="view_easy" onclick="setView('easy')">The short version</button>
+<button class="btn" id="view_full" onclick="setView('full')">Everything</button></div>
+
+<section id="easy">
+<h2 class="sech">The short version</h2>
+<p class="lede2">Nobody knows yet what cultivated meat will cost, because it depends on things nobody has tried together. Pick a case to see
+what it would cost to grow, what it would cost in the shop, and how much of the world's meat it could replace at that price.</p>
+<div id="easy_pick"></div>
+<div id="easy_nums"></div>
+<p id="easy_say"></p>
+<div id="easy_parts" class="scrollx"></div>
+<p class="fxn">Each part below opens when you click its heading. <a href="#" onclick="setView('full');return false;">Show everything</a> for the whole page at once.</p>
+</section>
+
+<section id="answer" data-easy>
 <h2 class="sech">What cultivated meat could cost, and what it would take</h2>
+<p class="easysum">The table of cases, from today's cells to the best case, with what each one assumes and how sure the numbers are.</p>
 <p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions that nobody has tested together. These include how
 little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
 <b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. <b>The first five rows are a
@@ -1352,8 +1396,9 @@ as point estimates. Choose a scenario in the table, or set the switches in <a hr
 follows. The model repeats this for every kind of meat and region, as the charts of share by type of meat, share of all meat and which products first show. Hover over or tap <span class="q">?</span> for help.</p>
 </section>
 
-<section id="decide">
+<section id="decide" data-easy>
 <h2 class="sech">What decides it</h2>
+<p class="easysum">Ten switches set the cost. Change any of them and see what moves, and which matter most.</p>
 <p class="lede2">There are ten switches, one for each decision that moves the cost. Each scenario above is a preset of these
 switches. When you move a switch, the cost, the shop price, the share and the limit on the tank all update. Under the switches, a chart ranks
 them by what each would be worth if it moved to its best or its worst setting.</p>
@@ -1382,8 +1427,9 @@ the other has moved.</p>
 
 
 
-<section id="build">
+<section id="build" data-easy>
 <h2 class="sech">How the cost is built up</h2>
+<p class="easysum">Where the cost comes from: what limits a tank, the plant, the medium the cells feed on, and other kinds of vessel.</p>
 <p class="lede2">The cost of a kilo of cells is the cost of the plant, the medium and the losses, divided by what a tank produces in a year. This part starts with
 <b>what stands in the way</b> of the cheap scenarios. It then shows <b>how each kind of cells does in each kind of tank</b>, and how the cost depends on the price of medium.
 After that it compares <b>vessels and ways of running a tank</b>. It ends with every lever the model has.</p>
@@ -1525,8 +1571,9 @@ After that it compares <b>vessels and ways of running a tank</b>. It ends with e
 </details>
 </section>
 
-<section id="share">
+<section id="share" data-easy>
 <h2 class="sech">From cost to market share</h2>
+<p class="easysum">How a price becomes a share of the meat people buy, by kind of meat, by region and over time. The sliders about shoppers are here.</p>
 <p class="lede2">The cost above sets the price of cultivated meat. This part turns that price into a share of the meat people buy. It follows the order of the
 reasoning. First it finds the price ratio. Then it shows how shoppers choose between four options. Next it gives the result for each kind of meat and for all meat.
 Last it shows how quickly this could happen. The panel on the left holds the assumptions about shoppers and the market. The cost comes from the scenario chosen above.
@@ -1581,8 +1628,9 @@ The explanation of each step is under its title, and the equations are in the me
 </div>
 </section>
 
-<section id="evidence">
+<section id="evidence" data-easy>
 <h2 class="sech">Evidence and checks</h2>
+<p class="easysum">What the model gets right and wrong against real products and reported runs, and which measurements would change the answer.</p>
 <p class="lede2">This part shows what the model reproduces without being fitted to it. It shows how the model does against other products and against reported runs.
 It lists what has and has not been measured, and which measurements would move the answer most.</p>
 <h3 class="subh">Reality checks</h3>
@@ -4267,7 +4315,7 @@ function fxRender(){
   if(blend) n.push("Blend. The rest of the product is plant ingredients at $"+C.fx.filler.toFixed(0)+" a kilo.");
   g("fx_notes").innerHTML=n.join(" ");
 }
-buildRail(); scBuild(); scRailBuild(); scSyncRail(); selfTest(); fxInit(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
+buildRail(); scBuild(); scRailBuild(); scSyncRail(); easyInit(); selfTest(); fxInit(); fillParamTable(); fillPriceTable(); fillCurveSel(); fillCmpSel(); fillFootholdSel(); buildPieToggle();
 // chart titles carry their longer "how to read" text in data-help, shown by the same "?" badge as the sliders
 document.querySelectorAll("[data-help]").forEach(h=>addQ(h,h.getAttribute("data-help")));
 function setFootView(v){state.footView=v;
@@ -4281,7 +4329,7 @@ document.getElementById("mcbtn").onclick=function(){state.mc=!state.mc;
   this.classList.toggle("on",state.mc);recompute();};
 if(state.mc){ const mb=document.getElementById("mcbtn"); mb.textContent="Monte Carlo: on (2000 draws)"; mb.classList.add("on"); }
 recompute();
-if(INIT_ANCHOR){ const t=document.getElementById(INIT_ANCHOR); if(t&&t.scrollIntoView) t.scrollIntoView(); }
+if(INIT_ANCHOR){ const t=document.getElementById(INIT_ANCHOR); easyOpenFor(t); if(t&&t.scrollIntoView) t.scrollIntoView(); }
 </script></body></html>"""
 
 
