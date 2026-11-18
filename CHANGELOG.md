@@ -9,6 +9,46 @@ The page opens on a short version (`build_interactive.py`, `page_scenarios.js`; 
   a click; "Everything" shows the page as before. The choice is remembered in the browser. At phone width the page opens about 2,600
   pixels tall, against about 29,000.
 - The short version computes nothing of its own: the numbers come from the same functions as the full page (`tests/test_easy_view.py`).
+The premium markets sized from data, and the checks on the market-size loop (`meat_market.py`, `research_notes/premium_market_sizes.md`,
+`market_size_loop.py`; **defaults changed**)
+- Pablo asked for the loop study's checks to be done and its unknowns found. The first check found a fault in the main model: the
+  premium rows of the market tables were unsourced and several times too large. Sushi-grade seafood is about 1.2 Mt a year in the world
+  (the Global table had 5.4), prime or wagyu beef at $45 or more about 0.5 Mt (1.35), heritage pork and organic chicken about 0.4 Mt
+  each (1.35 each). The Global, US and Europe rows were resized; what was removed went to the same species' cut row. China and the
+  low-income tables were not checked.
+- **Central's long-run share falls from 0.16% to 0.04% of world meat** at its point cost (median 0.02%, was 0.1%), because nearly all
+  its sales were to those rows. The best case moves from 3.7% to 3.1% (median 0.5%, was 0.8%); the US at Central from 0.35% to 0.21%.
+  Costs are unchanged. Shares under 0.1% are now printed with two decimals in the tables and on the page.
+- Anchored on premium real meats, Central is 0.14%: the earlier agreement with the model (0.16% each) was a coincidence of the oversized
+  rows. With premium buyers, Central is 0.17% (0.38% with a strong no-killing value).
+- The loop study, revised: with real premium markets Central's sales need 0.64 million m² of membrane a year, short of the million
+  taken to bring a food-grade supplier, so Central has two resting points ($28.81, or $20.52 and 0.14% if the cheap membrane exists
+  anyway). The best case still reaches parity ($6.11, 10.91%). The food-grade membrane's first price is now $150 a m² (was $250) and
+  its floor $50 (was $60), from the prices of water and dairy modules; no steam-tolerant food-grade price is published.
+- Other checks, recorded in the note: hollow fibres have held 27–35% animal cells by volume for over two weeks at 4 L (nothing for a
+  month above bench scale); the model's premium products respond to price two to three times more strongly than farmed salmon did
+  along its demand curve; a hundred-fold scale-up took such industries 15–30 years when it happened.
+
+Cost falling as the market grows, solved with the share (`market_size_loop.py`, `research_notes/market_size_loop.md`; **no default
+changed**)
+- Pablo's idea: membranes and reactors get cheaper with market size, and the loop starts in premium products that cultivated meat
+  comes to undercut. The membrane ($1,450 a m², a pharma price) switches to a food-grade supplier at $250 once demand passes a million
+  m² a year, then falls 18% a doubling to $60; the plant falls 10% for each doubling of installed animal-cell tanks, to a microbial
+  plant with what animal cells need. Seven new inputs (`ms_*`), used only here.
+- Resting points: Central $19.86 and 0.45% of world meat (from $29.42, 0.16%); the best case $6.16 and 11.26% (from $9.66,
+  3.69%), which is parity. Today's cells are stuck. Without a food-grade membrane supplier little moves.
+- At Central's cost 99% of sales are premium products (sushi-grade seafood, prime beef); their volume alone crosses the membrane
+  switch in the central case, not with slow learning, where Central has two resting points.
+
+Cultivated meat as an even more premium meat, competing with welfare labels (`premium_buyers.py`, `research_notes/premium_buyers.md`;
+**no default changed**)
+- Pablo's idea: shoppers may see cultivated meat as a step above organic or free-range, but it then competes with those labels for the
+  same shoppers. Adds a premium class of shoppers (10%, from household panel and survey data; range 5–20%) fitted to the sixteen
+  premium products, and a welfare label at 2× on every non-premium shelf, competing with cultivated meat in one logit.
+- Central's long-run share 0.29% (main model 0.16%); 0.51% if premium buyers value no killing at a whole extra meat price. Best case 4.61%
+  (3.69%). The label on the shelf costs cultivated meat little (0.33% without it). It takes 11–16% of its sales from the label under the
+  logit's proportional assumption, up to about half if the two are close substitutes.
+- Caveat: the premium class's low price sensitivity is a fit across products; scanner data find organic meat demand more price-elastic.
 
 The shelf price is now per-kg costs plus the shop's percentage margin (`retail_spreads.py`, `research_notes/retail_markup_form.md`)
 - Question (Pablo, after Gemini argued the markup should be multiplicative): is the step from a kilo of cells to the shelf a fixed

@@ -200,7 +200,7 @@ def check() -> list:
         fails.append("growth factors should scale with the litres of medium")
     # cost and demand together: the median share is well below the point floor share
     js = mm.floor_share_mc("global", 400)
-    if not (0.05 < float(np.median(js["vol"])) < 3.0):   # lower bound 0.2 -> 0.05 on 2026-11-18 (shop margin)
+    if not (0.01 < float(np.median(js["vol"])) < 3.0):   # lower bound 0.2 -> 0.05 (shop margin) -> 0.01 (premium markets sized), 2026-11-18
         fails.append(f"joint uncertainty: world median share {float(np.median(js['vol'])):.2f}% out of range")
     # culture temperature: the cells' own heat exceeds what warming the medium by 10 C needs
     tc = fp.temperature_check()

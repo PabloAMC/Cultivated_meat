@@ -149,10 +149,15 @@ def tier_eps_mult(mt: "MeatType", base: float, resistance: float = 1.0) -> float
 # Beef wagyu/prime and seafood sushi are well-attested premiums; organic chicken and
 # heritage pork are real but smaller, lower-confidence categories — kept at small w_vol,
 # carved out of the species' cut form so regional volume sums are unchanged.
+# PREMIUM ROWS SIZED FROM DATA, 2026-11-18 (research_notes/premium_market_sizes.md). Until then every region carried sushi-grade
+# seafood at 2% of volume and the other premium rows at 0.5-1%, unsourced. What was removed went to the species' cut row, so the
+# regional totals are unchanged. US: organic chicken is 0.67% of chicken output (0.3% of all volume, was 1.0%); sushi-grade
+# seafood about 0.3 Mt edible (sashimi tuna 90 kt, raw salmon and others; 0.7% of volume, was 2.0%, an inference from the world
+# figures); prime beef stays at 0.5% (the rib and loin of the 10% of fed cattle that grade Prime, about 0.2 Mt).
 US_MARKET = [
     MeatType("chicken (ground/proc.)", 5.0,  0.20),
-    MeatType("chicken (cuts)",         9.0,  0.202, scaffold=SCAF),
-    MeatType("chicken (organic)",     13.0,  0.010, scaffold=SCAF),   # premium [low-med conf]
+    MeatType("chicken (cuts)",         9.0,  0.209, scaffold=SCAF),
+    MeatType("chicken (organic)",     13.0,  0.003, scaffold=SCAF),   # premium: 0.67% of US chicken output (WATT, 2020)
     MeatType("beef (ground)",         11.0,  0.13),
     MeatType("beef (steak/cuts)",     20.0,  0.105, scaffold=SCAF),
     MeatType("beef (prime/wagyu)",    45.0,  0.005, scaffold=SCAF),   # premium [high conf]
@@ -162,8 +167,8 @@ US_MARKET = [
     MeatType("turkey (ground/proc.)",  5.0,  0.030),
     MeatType("turkey (breast/cuts)",   9.0,  0.028, scaffold=SCAF),
     MeatType("seafood (mince/canned)",10.0,  0.020),
-    MeatType("seafood (fillet)",      24.0,  0.040, scaffold=SCAF),
-    MeatType("seafood (sushi)",       40.0,  0.020, scaffold=SCAF),
+    MeatType("seafood (fillet)",      24.0,  0.053, scaffold=SCAF),
+    MeatType("seafood (sushi)",       40.0,  0.007, scaffold=SCAF),   # premium: about 0.3 Mt edible [inference]
     MeatType("rabbit (cuts)",         16.0,  0.004, scaffold=SCAF),
 ]
 
@@ -183,8 +188,8 @@ EU_MARKET = [
     MeatType("beef (steak/cuts)",     30.0,  0.095, scaffold=SCAF),
     MeatType("beef (wagyu/prime)",    55.0,  0.005, scaffold=SCAF),   # premium [high conf]
     MeatType("seafood (mince/canned)",13.0,  0.04),
-    MeatType("seafood (fillet)",      28.0,  0.09, scaffold=SCAF),
-    MeatType("seafood (sushi)",       45.0,  0.02, scaffold=SCAF),
+    MeatType("seafood (fillet)",      28.0,  0.105, scaffold=SCAF),
+    MeatType("seafood (sushi)",       45.0,  0.005, scaffold=SCAF),  # premium: raw salmon and sashimi tuna, about 0.25 Mt [inference]
     MeatType("rabbit (cuts)",         15.0,  0.02, scaffold=SCAF),
 ]
 
@@ -213,15 +218,15 @@ CHINA_MARKET = [
 # Global — world-average prices (GPP world avg) + FAO global mix.
 GLOBAL_MARKET = [
     MeatType("chicken (ground/proc.)", 5.0,  0.135),
-    MeatType("chicken (cuts)",         8.0,  0.18,  scaffold=SCAF),
-    MeatType("chicken (organic)",     13.0,  0.005, scaffold=SCAF),   # premium [low conf]
+    MeatType("chicken (cuts)",         8.0,  0.1838, scaffold=SCAF),
+    MeatType("chicken (organic)",     13.0,  0.0012, scaffold=SCAF),  # premium: about 0.35 Mt (France, US, EU organic and Label Rouge)
     # Duck + goose ~3.3% of world meat (~12 of 365 Mt; China ~88%). World-avg price ~$7 whole.
     # Carved from chicken so the global volume total is unchanged.
     MeatType("duck/goose (whole)",     7.0,  0.025),
     MeatType("duck/goose (cuts)",     10.0,  0.010, scaffold=SCAF),
     MeatType("pork (processed)",       6.0,  0.16),
-    MeatType("pork (cuts)",            9.0,  0.165, scaffold=SCAF),
-    MeatType("pork (heritage)",       16.0,  0.005, scaffold=SCAF),   # premium [med conf]
+    MeatType("pork (cuts)",            9.0,  0.1685, scaffold=SCAF),
+    MeatType("pork (heritage)",       16.0,  0.0015, scaffold=SCAF),  # premium: Iberico about 0.25 Mt, EU organic 0.05; Chinese black pig not counted
     # Beef (revised 2026-11-13): GPP's own "average price" (17.59 USD/kg, Jan 2026) is an UNWEIGHTED mean
     # over 76 countries, so Switzerland (64.64) counts as much as China or Brazil; the earlier $14/$24 sat
     # ABOVE the US $11/$20 for that reason. Weighting each country's GPP beef price by its 2025 beef
@@ -229,12 +234,12 @@ GLOBAL_MARKET = [
     # EU = mean of DE, FR, IT, ES, PL, NL) gives 19.15 USD/kg against GPP USA 18.80: world = 1.019 x US.
     # So both beef rows are the US rows x 1.019. Method and country table: METHODS.md, "World beef price".
     MeatType("beef (ground)",         11.2,  0.09),
-    MeatType("beef (steak/cuts)",     20.4,  0.085, scaffold=SCAF),
-    MeatType("beef (prime/wagyu)",    45.0,  0.005, scaffold=SCAF),   # premium [high conf]
+    MeatType("beef (steak/cuts)",     20.4,  0.088, scaffold=SCAF),
+    MeatType("beef (prime/wagyu)",    45.0,  0.002, scaffold=SCAF),   # premium: about 0.5 Mt at $45 or more (0.25-0.9): US Prime rib and loin, wagyu, Hanwoo
     MeatType("sheep/goat",            14.0,  0.05, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 8.0,  0.03),
-    MeatType("seafood (fillet)",      16.0,  0.04, scaffold=SCAF),
-    MeatType("seafood (sushi)",       35.0,  0.02, scaffold=SCAF),
+    MeatType("seafood (fillet)",      16.0,  0.056, scaffold=SCAF),
+    MeatType("seafood (sushi)",       35.0,  0.004, scaffold=SCAF),   # premium: about 1.2 Mt edible (0.6-2.5): raw salmon 0.5, sashimi tuna 0.25, others
     MeatType("rabbit (cuts)",         14.0,  0.012, scaffold=SCAF),
 ]
 

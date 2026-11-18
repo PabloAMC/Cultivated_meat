@@ -1333,6 +1333,37 @@ REGISTRY: dict[str, Input] = {
              "(markup_add)"),
     "au_processing": Input(1.0, "$/kg", "[assumed] dewatering, forming, packing and quality control of cell mass before it enters "
         "the retail chain; none is published for cultivated meat (post_harvest_costs.md section 4)", lo=0.3, hi=3.0, mode=1.0),
+    # --- Cost falling with market size (market_size_loop.py; research_notes/market_size_loop.md) ------------------------------
+    "ms_world_meat": Input(270.0, "Mt a year", "[FAO Food Outlook Nov 2025, snippet; conversion assumed] world meat as boneless "
+        "weight: 384 Mt of carcass weight in 2025 (378 in 2024), of which about 70% is meat sold", lo=250.0, hi=384.0, mode=270.0,
+        note="the high end counts carcass weight as if all of it were sold as meat"),
+    "ms_switch_area": Input(1.0e6, "m2 a year", "[judgement, research pass] yearly demand for cell-filter membrane above which a "
+        "food-grade supplier exists and pharma pricing ends; about 65% that this happens once demand passes 1 million m2 a year",
+        lo=3.0e5, hi=3.0e6, mode=1.0e6,
+        note="today's bioprocess perfusion filters are about 30,000 m2 a year (8,000-100,000; a Fermi estimate from Repligen's "
+             "filtration revenue, no figure published), so the switch is 10-100 times today's whole market. Pharma process modules "
+             "sell at $800-1,450 a m2 with no sign of volume discounts, so below the switch the price stays at rt_membrane_price."),
+    "ms_food_membrane": Input(150.0, "$/m2", "[inge dizzer XL water UF module, 60 m2, cleaned at pH 1-13: $66 a m2 (distributor "
+        "listing, snippet; specs read); Koch sanitary dairy spiral $27-62 a m2 (snippet, not steam-tolerant); Repligen KrosFlo "
+        "process hollow fibre $800-1,200 a m2 (snippet)] price of a steam- or caustic-cleanable food-grade wide-bore hollow-fibre "
+        "module when a food-grade supplier first exists", lo=60.0, hi=400.0, mode=150.0,
+        note="no price is published for any steam-tolerant food-grade module (X-Flow, Microza, ROMICON, Membralox are quote-only): "
+             "the value sits between water modules of the same polymer and pharma modules, above the first because wide fibres "
+             "pack less area and steam tolerance costs potting and housing. About 70% that it is $250 or less."),
+    "ms_lr_membrane": Input(0.18, "per doubling", "[Abbott 2025 (WIOA, read): MBR membrane cost per m2 fell to 0.3 of its 2005 "
+        "level by 2025, 18-26% a doubling if area doubled 4-6 times; Caldera & Breyer 2017 (abstract): seawater RO plants 15%] fall "
+        "in the food-grade membrane's price for each doubling of the area made a year beyond the switch", lo=0.10, hi=0.28, mode=0.18),
+    "ms_membrane_floor": Input(50.0, "$/m2", "[judgement, research pass] the least a cleanable wide-bore food-grade module could "
+        "cost; water hollow fibre of the same polymer sells at about $66 a m2 singly and sterile dialysers at under $10, but "
+        "dialyser fibres (0.2 mm bore) cannot pass a quarter cells by volume", lo=20.0, hi=120.0, mode=50.0),
+    "ms_lr_plant": Input(0.10, "per doubling", "[Rubin et al. 2015, Table 1, read: nuclear negative to 6%, coal 8%, gas turbines "
+        "15%, hydro 1.4%; Hettinga et al. 2009, read: corn ethanol capital about 20% at constant plant size, overstated by falling "
+        "interest; RO plants 12-15%] fall in the plant's capital cost per m3 of tank for each doubling of the installed animal-cell "
+        "tank volume, at a fixed tank size", lo=0.03, hi=0.18, mode=0.10,
+        note="stainless tank fabrication is mature; about 10% that the true figure is negative"),
+    "ms_base_tanks": Input(8000.0, "m3", "[BDO/BPTC via BioProcess International 2023, read: 'nearly 6,500 kL' of mammalian "
+        "capacity; BioPlan basis 10.9-11.8 million L] animal-cell tank volume installed today, the scale Humbird's equipment "
+        "prices come from", lo=6500.0, hi=11800.0, mode=8000.0),
     # --- The filter's flux limit (filter_flux.py; research_notes/filter_flux.md) ---------------------------------------------
     "ff_phi_w": Input(0.6, "volume fraction", "[Kromkamp 2005 (Wageningen thesis, text extract read); Vyas 1999 (Massey thesis, "
         "full text read)] cell volume fraction in the layer at the membrane wall, the value both theses use for a packed layer",

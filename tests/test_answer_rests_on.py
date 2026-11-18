@@ -48,7 +48,7 @@ def check() -> list:
     quoted = [f"The model has {s['inputs']} inputs, {s['ranged']} of them with a range",
               f"only {len(s['cost_rows'])} move", f"and {s['over_3']} move Central by more than $3",
               
-              f"{cs[0]:.1f}–{cs[1]:.1f}%", f"{bs[0]:.1f}–{bs[1]:.1f}%", f"above {cs[1]:.1f}%"]
+              f"{S.pct_num(cs[0])}–{S.pct_num(cs[1])}%", f"{bs[0]:.1f}–{bs[1]:.1f}%", f"above {S.pct_num(cs[1])}%"]
     for k in ("pf_nh3_limit", "rt_membrane_life", "pf_protectant_price", "pf_min_perfusion"):
         quoted.append(f"(${cr[k]['central'][0]:.1f} to ${cr[k]['central'][1]:.1f})")
     for q in quoted:

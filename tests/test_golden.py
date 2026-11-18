@@ -97,6 +97,8 @@ GOLDEN = {
     # 2026-11-18: shelf price = (cost + $2.5) / (1 - 28% shop margin), was cost + $5 (research_notes/retail_markup_form.md).
     # basic_R 3.27917 -> 4.26505; US vol 0.584202 -> 0.233623, US val 1.7793 -> 0.80766, world vol 0.274195 -> 0.0914556.
     # The demand calibration is unchanged (its anchor price is frozen).
+    # 2026-11-18 (later): premium rows of the market tables sized from data (research_notes/premium_market_sizes.md):
+    # US vol 0.233623 -> 0.132224, US val 0.80766 -> 0.458047, world vol 0.0914556 -> 0.0251659.
     "basic_R":             4.26505,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
@@ -116,9 +118,9 @@ GOLDEN = {
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
-    "us_pen_vol_pct":      0.233623,
-    "us_pen_val_pct":      0.80766,
-    "world_pen_vol_pct":   0.0914556,
+    "us_pen_vol_pct":      0.132224,
+    "us_pen_val_pct":      0.458047,
+    "world_pen_vol_pct":   0.0251659,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  30.0,      # was "~25" when measured as 90% of the year-30 value
 }

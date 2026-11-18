@@ -47,6 +47,10 @@ set as a percentage:
 - In French supermarkets in 2024 a premium Label Rouge whole chicken carried a 25% margin (€1.63 of €6.46) and a chicken
   fillet 36%: a lower percentage on the premium product, but more euros per kilo (OFPM 2025 report via Réussir; secondary FT).
 - Shrink, the cost of holding stock and card fees scale with the product's value (MEM; standard retail accounting).
+- **A direct comparison, added 2026-11-18:** Beyond Meat's ground product and conventional 80/20 ground beef both sell in US shops at
+  about twice the price the retailer pays, so retailers and distributors take about $1 a lb more on the dearer product (Knowles 2026,
+  from Beyond's filings; FT). That is a pure percentage markup on one pair of products, more than this note's rule gives a dearer
+  product. It includes distributor margin and trade spend, and it is one company.
 
 A rule that takes the **whole** wholesale-to-retail spread as a percentage (42–65% of retail, the audit's
 (cost + $1)/(1 − 45%)) double-counts: that spread includes the per-kg costs of cutting, packing and transport.
@@ -59,15 +63,16 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | best case: shelf price, share | Central: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $14.7, 7.96% | $34.4, 0.41% |
-| per-kg $2.5 + a 15% margin | $7.70 | $14.3, 7.65% | $37.5, 0.29% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $16.9, 3.69% | $44.3, 0.16% |
-| per-kg $2.5 + a 40% margin | $4.70 | $20.3, 1.50% | $53.2, 0.07% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.4, 1.62% | $55.3, 0.05% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $14.7, 7.42% | $34.4, 0.14% |
+| per-kg $2.5 + a 15% margin | $7.70 | $14.3, 7.09% | $37.5, 0.09% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $16.9, 3.11% | $44.3, 0.04% |
+| per-kg $2.5 + a 40% margin | $4.70 | $20.3, 1.01% | $53.2, 0.02% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.4, 1.12% | $55.3, 0.01% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
-rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, roughly halve: Central's
-point share falls from 0.41% to 0.16% and the best case's from 8.0% to 3.7%.
+rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall by half or more: Central's
+point share from 0.14% to 0.04% and the best case's from 7.4% to 3.1%. (These shares use the premium markets as sized from data
+later on 2026-11-18, `premium_market_sizes.md`; when the rule was changed they were 0.41% to 0.16% and 8.0% to 3.7%.)
 
 ## 5. On Gemini's answer
 
@@ -87,10 +92,11 @@ cultivated meat is on every shelf and selling steadily.
 
 ## 6. Judgement
 
-- That (cost + a)/(1 − m) describes how a new, dearer meat would be priced better than a flat $/kg: **about 0.75**.
+- That (cost + a)/(1 − m) describes how a new, dearer meat would be priced better than a flat $/kg: **about 0.75**; that it is
+  closer than a whole-spread percentage: about 0.65 (lowered from 0.75 after the Beyond comparison).
 - That the flat $5 holds up (for example, retailers pricing it as a loss-leader, or most volume going to restaurants or
   direct sales with other margins): **about 0.15**.
-- That the whole spread scales as a percentage: **about 0.10**.
+- That the whole spread scales as a percentage: **about 0.20** (raised from 0.10 after the Beyond comparison).
 - That the shop's margin on cultivated meat lies within 15–40%: **about 0.8**.
 
 ## 7. What would settle it
@@ -111,3 +117,4 @@ cultivated meat is on every shelf and selling steadily.
 6. McShane, Chen, Anderson & Simester 2016, Marketing Science, via Kellogg Insight. https://insight.kellogg.northwestern.edu/article/what-do-customers-pay-when-wholesale-prices-change (ABS/SNIP): cost increases often pass through at above 100%, cuts flat.
 7. Cooperative Grocer archive, meat department pricing. https://archive.grocer.coop/node/13399 (FT)
 8. Réussir, "Volaille: les marges sous la loupe du rapport OFPM 2025". https://www.reussir.fr/lesmarches/volaille-les-marges-sous-la-loupe-du-rapport-ofpm-2025 (secondary FT)
+9. Knowles, "Why is plant-based meat still so expensive?", Net Primary Production, 16 November 2026. https://netprimary.substack.com/p/why-is-plant-based-meat-still-so (FT; figures not read)

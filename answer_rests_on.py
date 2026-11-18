@@ -238,7 +238,7 @@ def markdown_cost() -> str:
     for r in cost_drivers():
         k, u = r["key"], I.REGISTRY[r["key"]].unit
         out.append(f"| {PLAIN[k]} | {_num(r['lo'])}–{_num(r['hi'])} {u} ({_num(r['value'])}) | "
-                   f"${r['central'][0]:.1f} to ${r['central'][1]:.1f} | {r['share'][0]:.1f}% to {r['share'][1]:.1f}% | "
+                   f"${r['central'][0]:.1f} to ${r['central'][1]:.1f} | {S.pct_num(r['share'][0])}% to {S.pct_num(r['share'][1])}% | "
                    f"${r['best'][0]:.1f} to ${r['best'][1]:.1f} | {EVIDENCE.get(k, _tag(k))} | {_band(k)} |")
     out += ["", *(f"*Left out: {why}*" for why in EXCLUDE.values())]
     return "\n".join(out)
@@ -250,7 +250,7 @@ def markdown_demand() -> str:
     for r in demand_drivers():
         k, u = r["key"], I.REGISTRY[r["key"]].unit
         out.append(f"| {PLAIN[k]} | {_num(r['lo'])} to {_num(r['hi'])} {u} ({_num(r['value'])}) | "
-                   f"{r['central'][0]:.1f}% to {r['central'][1]:.1f}% | {r['best'][0]:.1f}% to {r['best'][1]:.1f}% | "
+                   f"{S.pct_num(r['central'][0])}% to {S.pct_num(r['central'][1])}% | {r['best'][0]:.1f}% to {r['best'][1]:.1f}% | "
                    f"{EVIDENCE.get(k, _tag(k))} | {_band(k)} |")
     return "\n".join(out)
 
