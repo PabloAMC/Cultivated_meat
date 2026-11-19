@@ -120,7 +120,8 @@ def build_model() -> dict:
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint", "p_top_barg": "p_top"}.get(arg, arg),
                          lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
-            "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
+            "species": {k: [x.replace("The efficient cell every case on this page assumes", "Humbird's efficient cell") if isinstance(x, str) else x for x in v]
+                        for k, v in floor_physics.SPECIES_PRESETS.items()},
             # the tricks (gas_exchange.column_design / headspace_pressure; sorbent and explicit wastes)
             "glc_kg": value("pf_glc_kg"), "glc_anabolic": value("pf_glc_anabolic"), "sorbent_q": value("pf_sorbent_q"), "sorbent_price": value("pf_sorbent_price"),
             "sorbent_cycles": value("pf_sorbent_cycles"), "pco2_design": value("pf_pco2_limit"),
@@ -1549,7 +1550,7 @@ def _how_met_html() -> str:
          "Sealed, steam-sterilised tanks, tested seed trains and strict hygiene.",
          "One survey of makers gives this rate, and it does not state run lengths."),
         ("Medium price and growth factors",
-         f"Selected cells pay $0.20 a litre, what several companies announced for 2025, and takes that price to include the growth "
+         f"Selected cells pay $0.20 a litre, what several companies announced for 2025, and take that price to include the growth "
          f"factors (the proteins that tell cells to grow). The growth-factor switch then sets a floor: medium cannot cost less than its "
          f"nutrients plus the growth factors bought. At that setting the floor is below $0.20, so the switch adds nothing. With "
          f"all growth factors bought at Humbird's price the cost is {cost({'gf': 'all'})}. At $0.50 a litre, what SuperMeat reports, it "
@@ -2148,7 +2149,7 @@ new food fade as people meet it. The cost stays fixed along the path. The timing
 <span class="ls">Ten switches set the cost. Change any of them and see what limits the tank and where the money goes.</span></summary>
 <div class="lb">
 <p>The cost of a kilo of cells is the cost of the plant, the medium and the losses, divided by what a tank produces in a year. Ten switches
-hold the decisions that move it. Each named case is a preset of these switches. Moving one makes this page your own case.</p>
+hold the decisions that move it. Each reference point is a preset of these switches. Moving one makes the page your own settings, and the first screen follows.</p>
 <div class="fxcard" id="sc_result"></div>
 <div class="railgrid scsw" id="sc_switches"></div>
 <p><button class="btn" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
@@ -2185,9 +2186,9 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
 <details class="sub" id="fxwrap"><summary>All the levers: build your own case from the physics</summary>
       <div class="fx" id="fx">
         <p>When you move a lever, the model applies the physics. The tank holds only as many cells as it can supply with oxygen, clear of
-        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The eleven switches above are
-        ten of these levers. The rest are here.</p>
-        <div class="ctl"><label for="fx_sc"><span class="nm">Start from a case</span></label>
+        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The switches above are
+        some of these levers. The rest are here.</p>
+        <div class="ctl"><label for="fx_sc"><span class="nm">Start from a reference point</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
         <div class="ctl"><label for="fx_sp"><span class="nm">Start from a kind of cell</span></label>
           <select id="fx_sp" onchange="fxSpecies()"></select></div>
@@ -2279,7 +2280,7 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
             <p class="fxn">0.5 is the engineered cell's. Ordinary pharma cells make about 1.4, and cells adapted to it make 0.4 (<i>selection or adaptation</i>). Chicken cells make 1.05. A value near 0 needs knocked-out genes (<i>genetic engineering</i>).</p></div>
           <div class="ctl"><label for="fx_gk"><span class="nm">Glucose used per kilo of cells</span><span class="val" id="fx_gk_v"></span></label>
             <input type="range" id="fx_gk" min="0.6" max="3.6" step="0.02" value="1.12" oninput="fxRender()">
-            <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells. The named cases do not use this lever: they work the glucose out from the cells' own balance of fat, oxygen, ammonia and lactate.</p></div>
+            <p class="fxn">The engineered cell uses 1.12 mol. Measured pharma cells use 0.67&ndash;1.0. Nobody has measured this for meat cells. The reference points do not use this lever: they work the glucose out from the cells' own balance of fat, oxygen, ammonia and lactate.</p></div>
           <div class="ctl"><label for="fx_sb"><span class="nm">Ammonium taken out by a sorbent</span><span class="val" id="fx_sb_v"></span></label>
             <input type="range" id="fx_sb" min="0" max="95" step="5" value="0" oninput="fxRender()">
             <p class="fxn"><i>Feed or process.</i> The cell-free medium passes through a zeolite or resin before it returns to the tank. It saves fresh medium but not the cell filter: the liquid it cleans has passed the filter too. The sodium the sorbent gives back counts as salt. The model derives the capacity in medium and nobody has measured it.</p></div>
@@ -2369,7 +2370,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         <li><b>Medium</b> is the nutrient liquid the cells grow in. Cells must eat a fixed amount of amino acids, glucose and salts,
         and that feed costs at least about ${{FEEDSTOCK_FLOOR}} a kilo of cells [2]. The salts, buffer and vitamins in that figure are an
         assumption. How many litres carry the feed depends on the waste the cells make. Fresh medium must wash ammonia out before it
-        passes {{NH3_LIMIT}} mmol a litre, the level the cases' cells are taken to tolerate, and lactate likewise. The model works out
+        passes {{NH3_LIMIT}} mmol a litre, the level the reference points' cells are taken to tolerate, and lactate likewise. The model works out
         the glucose a kilo of cells takes up from the cells' own balance: what they build, what they burn and what they turn into
         lactate. Grown in batches, the published cells stop thin, held by their lactate, so each kilo leaves with about {{MEDIUM_L_TODAY}}
         litres of medium. Selected cells
@@ -2414,7 +2415,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       <p><b>Other estimates.</b> <b>Humbird's optimistic design</b> is his perfusion tank with his engineered cells, no tank tricks
       and no lost runs. Earlier versions of this page called it the floor. The plant costs about ${{PLANT_FLOOR}}/kg and the cells
       ${{COST_FLOOR}}/kg at its most likely values. It assumes the hardest change, engineered cells, and none of the easy ones, so it is
-      not a step between the cases. The page keeps it because the cross-checks against Humbird's own analysis use it. At the
+      not a step between the reference points. The page keeps it because the cross-checks against Humbird's own analysis use it. At the
       first-plant rate it would cost about ${{COST_FLOOR_FIRST}}/kg. <b>As a company reports.</b> SuperMeat reports {{MEDIA_L}} litres
       of medium per kilo of cells at under ${{MEDIA_P}} a litre [1], which is about ${{MEDIA_TODAY}} a kilo. Its running costs plus a
       yearly charge on its plant at the first-plant rate add ${{OH_DEF}}, so cells cost about ${{BIOMASS_TODAY}} a kilo, which is
@@ -4030,7 +4031,7 @@ function drawMC(s){
   document.getElementById("mcsub").textContent=
     pgRegionName()+": the long-run share over 2,000 draws of the shopper settings (price sensitivity, the share at equal price, taste, the costs of "+
     "reaching the shelf, a cut's make-up, and plant-based meat's own taste and image). The cost of the cells is held at "+scMoney(biomass(s))+
-    " a kilo, so this spread is narrower than the first screen's, where the cost is drawn too.";
+    " a kilo (the median of the first screen's cloud). The first screen's range does the opposite: it varies the cost and holds the shopper settings.";
 }
 
 /* ---------- wiring ---------- */
@@ -4765,7 +4766,7 @@ function fxRender(){
       (r.pco2_used<p.pco2-0.5?". The tank runs at "+r.pco2_used.toFixed(0)+" mbar of CO&#8322;, below what the cells tolerate, because more bicarbonate would cost more in medium than it saves in plant":"")+". ":"")+
     "Each kilo of cells uses "+r.o2_kg.toFixed(1)+" mol of oxygen ("+r.o2_kg_upkeep.toFixed(1)+" for upkeep, which grows with the doubling time, and "+
     r.o2_kg_growth.toFixed(1)+" for growth) and gives off "+r.co2_kg.toFixed(1)+" mol of CO&#8322;. "+
-    "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+(sh*100).toFixed(0)+"%</b>"+
+    "<b>Long-run share against $"+C.p_conv_anchor.toFixed(0)+" meat (US): about "+pgPctS(sh*100)+"</b>"+
     (blend?", counting the blend as real meat only in proportion to its cells":"")+".";
   g("fx_limits").innerHTML=fxLimitsDraw(r,floorExplore(fxFloorCase()));
   g("fx_tornado").innerHTML=fxTornadoDraw(p,r.total,C.p_conv_anchor*(1-def.retail_margin)-def.markup_add); fxTorCard();

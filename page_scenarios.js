@@ -283,7 +283,14 @@ function tpShare(cost,b,region){
   return penetration(s).tv*100;
 }
 // the cost of cells at which the share is `target` % (null if not reached even at $0.5): mirror of scenarios.cost_for_share
+const TP_CF=new WeakMap();
 function tpCostFor(target,b,region){
+  if(!TP_CF.has(KP)) TP_CF.set(KP,{});
+  const M=TP_CF.get(KP), key=target+"|"+b.toFixed(6)+"|"+(region||state.region)+"|"+state.income+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells;
+  if(key in M) return M[key];
+  return M[key]=tpCostForRaw(target,b,region);
+}
+function tpCostForRaw(target,b,region){
   let lo=0.5, hi=400;
   if(tpShare(lo,b,region)<target) return null;
   for(let i=0;i<50;i++){ const mid=Math.sqrt(lo*hi); if(tpShare(mid,b,region)>=target) lo=mid; else hi=mid; }
@@ -356,9 +363,13 @@ function tpRedesign(){
 function tpTouched(){ SCS.ref=null; SCS.src="scenario"; }
 function tpExtraNow(){ SC_EXTRA=Object.assign({},SCS.traits,tpHeldKw(SCS.held)); }
 // a light update while a slider moves: the cloud, the map's point and the numbers (no new calibration)
-function tpLive(){ tpExtraNow(); PGS.cloud=tpCloudFor(SCS); pgSetCost(); tpRenderFirst(); }
+function tpLive(){ tpSchedule(()=>{ tpExtraNow(); PGS.cloud=tpCloudFor(SCS); pgSetCost(); tpRenderFirst(); }); }
+// slider moves are drawn at most once a frame
+function tpSchedule(fn){ PGS.rafFn=fn; if(typeof requestAnimationFrame==="undefined"){ fn(); return; }
+  if(!PGS.raf) PGS.raf=requestAnimationFrame(()=>{ PGS.raf=null; const f=PGS.rafFn; PGS.rafFn=null; if(f) f(); }); }
 // a full update: everything on the page
 function tpCommit(){
+  PGS.rafFn=null;
   tpRedesign(); tpExtraNow(); SCS.preset=scPresetOf(SCS.choice);
   PGS.cloud=null;
   if(KP) state.equal_price_share=tpDial(SCS.buyers);
@@ -427,7 +438,7 @@ function tpBuildControls(){
     e.addEventListener("input",()=>tpSetTrait(k,parseFloat(e.value)/T.scale,true));
     e.addEventListener("change",()=>tpSetTrait(k,parseFloat(e.value)/T.scale,false)); });
   const by=document.getElementById("tp_buyers");
-  if(by&&by.addEventListener){ by.addEventListener("input",()=>{ tpSetBuyers(parseFloat(by.value)/100); tpTouched(); tpRenderFirst(); });
+  if(by&&by.addEventListener){ by.addEventListener("input",()=>{ tpSetBuyers(parseFloat(by.value)/100); tpTouched(); tpSchedule(tpRenderFirst); });
     by.addEventListener("change",()=>{ tpSetBuyers(parseFloat(by.value)/100); tpTouched(); tpCommit(); }); }
   const wire=(id,fn)=>{ const e=document.getElementById(id); if(!e||!e.addEventListener) return;
     e.addEventListener("input",()=>fn(parseFloat(e.value),true)); e.addEventListener("change",()=>fn(parseFloat(e.value),false)); };
