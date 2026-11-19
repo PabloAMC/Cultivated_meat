@@ -146,6 +146,14 @@ what the rows differ in.
   2.8 litres a kilo and pays $1.0. A disc-stack separator on the outflow would cost $27.49 in Central, $5.3 less, even though
   about a quarter of the cells are lost in it; its sterile price is assumed, because none was found. Nobody has held animal cells
   in perfusion above about 4 m³ (`research_notes/retention_devices.md`).
+- **Cells grown as clumps could be held back without membranes, but the biology is unshown.** Aggregates of 100–300 µm settle
+  30–280 times faster than single cells, so a plain settler of about 22 m² could hold Central's culture back for about $4k per m³
+  of tank. Central would then cost $20.4 a kilo ($20–29 across the study's inputs) against $32.8 with the filter loop. Oxygen does
+  not limit it: at the scenarios' 0.10 mmol/L an aggregate's middle keeps dividing up to about 300 µm. What nobody has shown is the
+  culture. The densest aggregate culture found is about 40 g/L, for a week, in 150 mL, and every process breaks the aggregates up
+  every 5–8 days. Our judgement is about 8% that aggregates hold Central's 191 g/L in a 20 m³ tank for a month by 2035 (15% at
+  120 g/L), so the default stays the filter loop. Edible microcarriers do not help: the beads take up the tank, which holds Central
+  to 26 g/L ($84 a kilo), and the product would be 90% bead by weight (`research_notes/retention_aggregates.md`).
 - **The bubble protectant is a real cost.** At 2 g/L it is 22 g a kilo of cells in Humbird's optimistic design, 28 g in the best
   case and 70 g in Central, which needs 35 litres of medium a kilo. That is $0.7, $0.8 and $2.1 a kilo at the assumed $30 a kilo
   of protectant, or $5.8, $7.2 and $18 at the catalogue price ($260). A bulk quote would settle it.
@@ -181,7 +189,7 @@ what the rows differ in.
   21 years in Central (14 to 46 across the speeds at which wariness fades) and 22 in the best case (14 to 51). The speeds come
   from durable goods; they are assumed, not estimated for a food.
 
-**What the answer rests on** (`answer_rests_on.py`). The model has 528 inputs, 241 of them with a range. Moving
+**What the answer rests on** (`answer_rests_on.py`). The model has 544 inputs, 255 of them with a range. Moving
 each across its range, one at a time, with each scenario's tank design held as it is: only 18 move Central's or the best
 case's cost by $1 or more, and 11 move Central by more than $3. The rest serve side studies or tank detail. Costs in the table are
 at most likely values.
