@@ -31,8 +31,9 @@ page's JS engine, the side studies; **defaults changed**)
   `selected` and `engineered`; `cautious` keeps the published cells in perfusion.
 - **A forecast for 2035 was built and dropped** the same day at the author's direction ("I like the idea of clouds, but I do not like
   the idea of forecasts"): no Monte Carlo over the switches; the odds are kept as a record in `cell_trait_routes.md`, unused.
-- **The share is the share of the meat sold** (audit 6a): x / (x + c) for each product, in the point estimate, every Monte Carlo
-  path, the side studies' roll-ups and the page's JS. It was x, the share of all four choices: a flat market at 50% of meat buyers
+- **The share is the share of the meat sold** (audit 6a): x / (x + c) for each product, in the point estimate, the
+  roll-up's Monte Carlo, the side studies' roll-ups and the page's JS. Not yet in `uncertainty.py`, `sensitivity.py` and
+  `adoption_timing.py`, which still report mince's share of all four choices (labelled so in RESULTS and METHODS; TODO). It was x, the share of all four choices: a flat market at 50% of meat buyers
   showed 46.5%, now 50.0%. Shares rose by about a quarter at the Selected cells case's cost (0.16% -> 0.21% at most likely values).
 - **Every kind of cell weighs 2 ng** (`sc_mass_selected_pg`, 1-3 ng, drawn in the bands and in "what the answer rests on"); the
   engineered setting changes the metabolism only (it was Humbird's 3 ng; Humbird's design keeps it). Engineered cells, all favourable
