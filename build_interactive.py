@@ -94,7 +94,7 @@ def build_model() -> dict:
             "tff": {"on": value("rt_tff_default") >= 0.5, "flux": value("rt_flux_lmh"), "hw": value("rt_tff_hw"), "install": value("rt_install"),
                     "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life")},
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
-            "x_waste": value("pf_x_unperfused"),
+            "batch_end": value("pf_batch_end_x"), "batch_half": value("pf_batch_half_x"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
             "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"), "antifoam": value("pf_antifoam_otr"), "protect_dose": value("pf_protectant_dose"),
             "protect_price": value("pf_protectant_price"), "o2_microbial": value("pf_o2_microbial") >= 0.5,
@@ -4207,6 +4207,12 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom,se,af){
           loop_volume:loopVol, ph_rise:dph, ph_vs_safe:dose/safe, ph_vs_paul:dose/paul, passes_tested:passes<=G.passes_tested+1e-9,
           energy_kg:energy, gas_kg:gas, co2_loop:co2loop, o2_short:o2short};
 }
+function fxBatchSlow(endX,doublings){   // mirror of floor_physics.batch_slowdown: the last doublings of a batch that ends above the level
+  if(endX<=1||doublings<=0) return 1;
+  const K=C.fx.batch_half, h=Math.log(9)/Math.log(K), span=doublings*Math.LN2, n=40; let tot=0;
+  for(let i=0;i<n;i++){ const c=endX*Math.exp(-span*(i+0.5)/n); tot+=c<=1?1:(1+Math.pow(c/K,h))/(1+1/9); }
+  return tot/n;
+}
 function floorExplore(p,noSearch){
   const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)
   const perf=vm.washed!==undefined?vm.washed:p.mode==="perfusion", cyclic=vm.kind==="cyclic", wv=vm.wv!==undefined?vm.wv:F.wv;
@@ -4236,10 +4242,11 @@ function floorExplore(p,noSearch){
   if(perf&&!vm.own_retention&&!tff) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0, cycleH=null, runsYr=null, runFrac=1;
-  if(cyclic){                       // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
-    const h=p.hazard||0, grow=vm.n_doublings*cell.td; cycleH=grow+vm.turnaround_h;
+  const cyc=slow=>{                 // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
+    const h=p.hazard||0, grow=vm.n_doublings*cell.td*slow; cycleH=grow+vm.turnaround_h;
     const pFail=h<=0?0:1-Math.exp(-h*cycleH/24);
-    cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH;
+    cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH; };
+  if(cyclic){ cyc(1);
   } else if(uptime===undefined){
     const clean=vm.clean_uptime!==undefined?vm.clean_uptime:(p.mode==="perfusion"?F.uptime_perfusion:F.uptime_filldraw), restart=F.run_days*(1/clean-1);
     const L=p.run_days===undefined?(vm.run_days!==undefined?vm.run_days:F.run_days):p.run_days, h=p.hazard||0;
@@ -4269,17 +4276,17 @@ function floorExplore(p,noSearch){
   const glcBal=(F.glc_anabolic*(1-0.75*(p.fat_fed||0))+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6)/Math.max(0.05,1-(p.lac_yield||0)/2);
   const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:(p.glc_balance?glcBal:F.glc_kg)):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
   const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
-  // ammonia relative to enhanced cells, at the ammonia limit in force (mirror of floor_physics.explore: a tank that is not
-  // washed builds waste up to the limit, so a lower limit caps the density sooner)
-  const wf=nh3/(F.nh3[0]*burn)*(F.nh3_limit/nh3Lim);
   const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
-  // a tank that is not washed is capped by whichever waste builds up first: ammonia (wf) or, when the cells' lactate yield is
-  // set explicitly, lactate relative to the enhanced cells at the same oxygen burn (lf). Mirror of floor_physics.explore.
-  const lf=p.lac_yield!==undefined?lac/(F.lac[0]*burn):0;
-  if(!perf){ limits.push(["waste build-up",F.x_waste/load/Math.max(wf,lf)]);
+  // a tank that is not washed out holds what its cells make: the litres a kilo leaves with must hold its ammonia and lactate at
+  // the level perfusion is held to, times batch_end for a batch that ends above it (mirror of floor_physics.explore, 2026-11-19)
+  const steady=!!vm.dil_frac, endX=steady?1:F.batch_end;
+  if(!perf){ limits.push(["waste build-up",endX*Math.min(nh3Lim/Math.max(nh3,1e-12),lacRoom/Math.max(lac,1e-12))]);
     limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
-  const shape=vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))), rec=vm.recovery===undefined?1:vm.recovery;
+  let slow=1;
+  if(!perf){ const endRatio=steady?1:lim[1]*Math.max(nh3/nh3Lim,lac/lacRoom);
+    slow=fxBatchSlow(endRatio,cyclic?vm.n_doublings:Math.log2(1/(1-F.draw))); if(cyclic) cyc(slow); }
+  const shape=(vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))))/(cyclic?1:slow), rec=vm.recovery===undefined?1:vm.recovery;
   const out=cyclic?wv*lim[1]*rec*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost)*rec;
   let colR=null;
   if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol,p.strip_eff,p.antifoam_otr); capex+=colR.capex_k_m3; }

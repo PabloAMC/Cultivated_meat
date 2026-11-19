@@ -193,6 +193,25 @@ def density(cells: Cells, otr: float, washed: bool) -> float:
     return x if washed else min(x, waste_cap(cells))
 
 
+def batch_slowdown(end_x: float, doublings: float, half_x: float | None = None, steps: int = 40) -> float:
+    """How much longer a culture that is not washed out takes to grow its last `doublings`, against growth at the switch's
+    speed, when its waste builds up with its cells and ends at `end_x` times the level a perfusion tank is held at
+    (2026-11-19 restructure). Waste concentration is in proportion to density, so at s = ln(x / x_end) it is end_x e^s.
+    Growth is the switch's speed up to the steady-state level (the model charges perfusion nothing there) and above it falls as
+    (1 + 1/9) / (1 + (c / K)^h): a 10% loss at the level and 50% at K = `half_x` times it (pf_batch_half_x), h = ln 9 / ln K.
+    Midpoint rule in ln x; page JS mirrors it (fxBatchSlow)."""
+    if end_x <= 1.0 or doublings <= 0:
+        return 1.0
+    K = value("pf_batch_half_x") if half_x is None else half_x
+    h = float(np.log(9.0) / np.log(K))
+    span = doublings * LN2
+    tot = 0.0
+    for i in range(steps):
+        c = end_x * float(np.exp(-span * (i + 0.5) / steps))        # waste level / steady-state level
+        tot += 1.0 if c <= 1.0 else (1.0 + (c / K) ** h) / (1.0 + 1.0 / 9.0)
+    return tot / steps
+
+
 def glucose_balance(o2_kg: float, nh3_kg: float, lac_yield: float, fat_fed: float = 0.0) -> float:
     """Glucose a kilo of wet cells takes up, mol, from what it builds, burns and ferments (audit 2026-11-19):
         G = [anabolic x (1 - 0.75 fat_fed) + (O2 - 2.25 NH3) / 6] / (1 - Y / 2)
@@ -528,18 +547,20 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     lost = 0.0                                          # share of output lost with contaminated tanks
     run_frac = 1.0                                      # share of the planned run an average start completes (filter membranes)
     cycle_h = runs_yr = None
-    if cyclic:
+    def _cycle(slow: float = 1.0):
         # a cycle: n doublings from the seed to the final density, then the tank is emptied, cleaned and refilled.
         # A contamination loses the cycle's cells and adds a restart; the seed train for the next cycle is ready.
-        grow_h = vm["n_doublings"] * cells.doubling_h
+        # `slow`: the last doublings take longer when the batch ends above the steady-state waste level (batch_slowdown).
+        grow_h = vm["n_doublings"] * cells.doubling_h * slow
         cycle_h = grow_h + vm["turnaround_h"]
         ok = 1.0 - start_fail
         p_late = 0.0 if hazard <= 0 else ok * (1.0 - np.exp(-hazard * cycle_h / 24.0))
         p_fail = start_fail + p_late
         cycle_h += 24.0 * (p_fail * vm["restart_days"] + start_fail * value("ct_start_detect_days"))
         lost = min(0.9, p_late * (1.0 - salvage) + start_fail)
-        uptime = grow_h / cycle_h                        # share of the year the tank grows cells
-        runs_yr = HOURS / cycle_h
+        return cycle_h, lost, grow_h / cycle_h, HOURS / cycle_h     # uptime: share of the year the tank grows cells
+    if cyclic:
+        cycle_h, lost, uptime, runs_yr = _cycle()
     elif uptime is None:
         clean = vm.get("clean_uptime", value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic"))
         restart = value("pf_run_days") * (1.0 / clean - 1.0)            # days to clean, restart and regrow
@@ -607,26 +628,35 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         if glc_kg is None and glc_balance:      # glucose from what the cells build, burn and ferment (yield on total glucose)
             glc_kg = glucose_balance(cells.o2_per_kg * 1000.0 / 32.0, nh3, lac_yield, fat_fed)   # kg O2 -> mol
         lac = lac_yield * (value("pf_glc_kg") if glc_kg is None else glc_kg)
-    wf = nh3 / waste_per_kg(cells, 0.0)[0]             # ammonia relative to enhanced cells
-    wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
+    nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
+    steady = bool(vm.get("dil_frac"))                  # a chemostat sits at its density: no batch end above the level
+    end_x = 1.0 if steady else value("pf_batch_end_x")
     if not washed:
-        # A tank that is not washed out holds what its cells make. The reference density (waste_cap) is for enhanced cells, whose
-        # ammonia and lactate reach their limits together; scale it by whichever waste is further above theirs. Lactate counts
-        # only where the yield is set explicitly (audit 2026-11-19: with glucose from the cells' balance, the published cells
-        # make 8 times the enhanced cells' lactate, and a fed-batch tank priced by ammonia alone held 246 mmol/L against a limit of 50).
-        lf = lac / waste_per_kg(cells, 0.0)[1] if lac_yield is not None else 0.0
-        limits["waste build-up"] = waste_cap(cells) / max(wf, lf)
+        # A tank that is not washed out holds what its cells make: the litres a kilo leaves with (1000 / density) must hold its
+        # ammonia and its lactate at the level the tank allows, the level perfusion is held to (the ammonia limit; the lactate
+        # the salt leaves room for) times pf_batch_end_x for a batch that ends above it (2026-11-19 restructure; it was
+        # Humbird's fed-batch 120 g/L scaled by the waste, which let Central's fed-batch end at 7.8 mmol/L of ammonia).
+        # mmol/L / (mol/kg) = g/L.
+        limits["waste build-up"] = end_x * min(nh3_lim / max(nh3, 1e-12), lac_room / max(lac, 1e-12))
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
         # caps the density: 1000 / (flow / growth rate per day)
         limits["other by-products"] = 1000.0 * cells.mu * 24.0 / flow
     limit = min(limits, key=limits.get)
     x = limits[limit]
     shape = 1.0
+    slow = 1.0
     if not washed:
+        # the waste level at the end of a cycle, against the level perfusion is held to; above 1 the last doublings grow slower
+        end_ratio = 1.0 if steady else x * max(nh3 / nh3_lim, lac / lac_room)
         f = value("pf_draw_fraction")
         shape = f / np.log(1.0 / (1.0 - f))
+        slow = batch_slowdown(end_ratio, vm["n_doublings"] if cyclic else float(np.log2(1.0 / (1.0 - f))))
+        if cyclic:
+            cycle_h, lost, uptime, runs_yr = _cycle(slow)
     shape = vm.get("shape", shape)
+    if not cyclic:
+        shape /= slow                                  # fill-and-draw climbs back to its cap more slowly
     rec = vm.get("recovery", 1.0)                      # share of the grown cells the harvest gives back
     if cyclic:                                         # a tankful per cycle
         out = wv * x * rec * HOURS / cycle_h / 1000.0 * (1.0 - lost)
@@ -654,7 +684,6 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     suspended = not vm.get("own_retention")            # cells in suspension leave with their liquid; cells on a support do not
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
         if washed:
-            nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
             terms = {"ammonia": nh3 * (1.0 - sorb) / (nh3_lim / 1000.0), "lactate": lac / (lac_room / 1000.0),
                      "least flow": flow / (cells.mu * 24.0)}
             if sorb > 0:                               # sodium given back by the exchanger stays in the medium

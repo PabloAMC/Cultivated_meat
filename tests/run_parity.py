@@ -242,7 +242,13 @@ def check_parity() -> list:
     # the tricks: floorExplore (JS) against explore with column, pressure, explicit wastes and a sorbent
     FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}, {'fat_fed': 1.0}, {'do_mmol': 0.05, 'doubling_h': 48, 'maint': 0.31}, {'rq': 1.0, 'gas_v': 0.003}, {'column': 'o2_closed', 'do_mmol': 0.08, 'gas_v': 0.002, 'fat_fed': 0.5, 'fat_price': 10.0}, {'column': 'co2', 'p_top': 0.5, 'do_mmol': 0.15, 'aspect': 1.2}, {'aspect': 1.0}, {'aspect': 0.8, 'shape_cost': False}, {'aspect': 2.5, 'vessel_m3': 100},
                  # a tank that is not washed, with the cells' lactate yield set: lactate can cap the density (2026-11-19)
-                 {'mode': 'filldraw', 'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_balance': True, 'doubling_h': 43.0, 'mass_pg': 2000.0}]
+                 {'mode': 'filldraw', 'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_balance': True, 'doubling_h': 43.0, 'mass_pg': 2000.0},
+                 # 2026-11-19 restructure: the mass balance of an unwashed tank. Fed-batch (a batch that ends above the steady-state
+                 # level, so its last doublings grow slower), with selected cells at 4 mM and losses; and a chemostat (held at the level)
+                 {'mode': 'filldraw', 'vm': {'kind': 'cyclic', 'washed': False, 'n_doublings': 2.0, 'turnaround_h': 10.0, 'restart_days': 2.0},
+                  'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True, 'doubling_h': 36.0, 'mass_pg': 2000.0, 'nh3_limit': 4.0, 'hazard': 0.01},
+                 {'mode': 'filldraw', 'vm': {'washed': False, 'shape': 1.0, 'dil_frac': 0.6}, 'nh3_kg': 0.2, 'nh3_limit': 3.0},
+                 {'mode': 'filldraw', 'nh3_kg': 0.3, 'nh3_limit': 4.0, 'doubling_h': 30.0}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
              "restart_fail": "restart_fail_days"}
     js_tr = js.get("fxTricks", [])

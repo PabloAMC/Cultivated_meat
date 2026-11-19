@@ -314,7 +314,32 @@ REGISTRY: dict[str, Input] = {
     "pf_x_visc": Input(258.0, "g wet/L", "[Humbird-R] Table 2.2: density at volume fraction 0.25, the viscosity limit"),
     "pf_x_unperfused": Input(120.0, "g wet/L", "[Humbird-R] Fig. 2.8b: fed-batch limit at 20 m3 with 90% O2 and "
         "enhanced metabolism (ammonia and CO2 bind together)", lo=50.0, hi=150.0, mode=120.0,
-        note="applies to any culture whose waste is not washed out: fed-batch, fill-and-draw, chemostat"),
+        note="since 2026-11-19 used only for Humbird's own fed-batch design (floor_physics.tiers, density, and the labour "
+             "per m3 of his fed-batch plant). explore() caps a tank that is not washed out by the mass balance instead "
+             "(pf_batch_end_x): the litres a kilo leaves with must hold its waste at the level the tank allows"),
+    "pf_batch_end_x": Input(1.3, "x the steady-state limit", "[Humbird-R, derived; judgement] how far above the waste "
+        "level a perfusion tank is held at (the ammonia limit, and the lactate the salt allows) a tank that is not washed out "
+        "may end its cycle. Its waste builds up with its cells, so only the last doublings see the higher level. Humbird's own "
+        "fed-batch design (120 g/L of his enhanced cells, Fig. 2.8b: 0.054 mol ammonia and 0.56 mol lactate a kilo) ends at "
+        "6.5 mmol/L of ammonia and 67 mmol/L of lactate, 1.3 times the 5 and 50 he holds perfusion to",
+        lo=1.0, hi=2.0, mode=1.3,
+        note="ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
+             "in any mode, so the density of an unwashed tank is this factor x the level / the waste made per kilo (mmol/L / "
+             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let Central's fed-batch end at "
+             "7.8 mmol/L of ammonia against the 4 its perfusion is held to. Evidence, both ways (research_notes/vessels_and_modes.md "
+             "section 10): ammonia: unadapted meat-relevant cells lose about 10% of growth at 1-3 mM and 50% at 3-10 mM "
+             "(ammonia_tolerance_and_filter_life.md); CHO fed-batch ends at 5-15 mM. Lactate: CHO fed-batch peaks at 10-94 mM "
+             "(Freund 2018), harm begins near 20-40 mM in CHO, meat-cell processes hold under 30 mM (Pasitka 2024), myoblasts "
+             "grow faster at 5 mM. 1.0 holds the batch to the perfusion level; 2.0 lets the last doubling run where growth is "
+             "about a quarter slower (pf_batch_half_x), a cost the model charges"),
+    "pf_batch_half_x": Input(3.0, "x the steady-state limit", "[ammonia_tolerance_and_filter_life.md, judgement] the waste "
+        "level at which growth halves, as a multiple of the level a perfusion tank is held at (where growth loss is small, "
+        "about 10%). Sets how much slower the last doublings of a batch that ends above that level grow: growth falls as "
+        "1 / (1 + (c / K)^h), with h = ln 9 / ln(this), so the loss is 10% at the limit and 50% at this multiple of it",
+        lo=2.0, hi=5.0, mode=3.0,
+        note="ADDED 2026-11-19. Unadapted meat-relevant cells: 10% loss at about 1-3 mM ammonia and 50% at about 3-10 mM (catfish "
+             "ovary about 0.6 and 3; 3T3 about 1.5 and 8; HFF-1 about 2 and 10), ratios of 2.5-5. Charged only above the "
+             "steady-state level, as perfusion is charged nothing at it"),
     "pf_x_co2_20m3": Input(120.0, "g wet/L", "[Humbird-R] Sect. 2.3: at 20 m3 the CO2 limit falls at about 120 g/L "
         "(40e6 cells/mL); 'At larger volume, the pCO2 limit is incurred'",
         note="the density a 20 m3 tank can hold even when waste is washed out by perfusion. Small tanks are "
