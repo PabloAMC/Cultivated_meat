@@ -204,12 +204,19 @@ def _check() -> list:
         fails.append("sorbent: the sodium it gives back must count as salt")
     near("note: ordinary bovine ammonia, L/kg", s0["medium_l"], 140.0, 1e-6)
     # (plant, loss per day, genetic engineering allowed, cell row, tank column, $/kg); 4 tank columns per cell row
+    # 2026-11-19 audit batch, second round: the three cell cases that are not the floor's take glucose from the cells' own
+    # balance (CELL_CASES, glc_balance=True) in place of 0.84 / 1.116 mol a kilo. "Best shown in meat cells" (cell row 1)
+    # then takes up 4.3 mol and lactate sets its medium at 89.8 L/kg, not ammonia at 28: on these 2026-11-14 settings
+    # 17.47 -> 26.74 (sparger), 13.13 -> 22.39 (every trick), yeast-style 9.08 -> 18.34 and 10.32 -> 20.14. The fed-fat
+    # column is pinned too (20.13): it is now the cheapest tank case for these cells. Ordinary cells (row 2) and the
+    # floor's cell without engineering did not move: ammonia still sets their medium.
     pins = [("sanitary", 0.0, True, 0, 0, 11.78), ("sanitary", 0.0, True, 0, 1, 10.21), ("sanitary", 0.0, True, 0, 2, 8.92),
-            ("sanitary", 0.0, True, 0, 3, 7.59), ("sanitary", 0.0, True, 1, 0, 17.47), ("sanitary", 0.0, True, 1, 3, 13.13),
+            ("sanitary", 0.0, True, 0, 3, 7.59), ("sanitary", 0.0, True, 1, 0, 26.74), ("sanitary", 0.0, True, 1, 3, 22.39),
+            ("sanitary", 0.0, True, 1, 1, 20.13),
             ("sanitary", 0.0, True, 2, 0, 31.09), ("sanitary", 0.0, True, 2, 3, 26.89), ("sanitary", 0.002, True, 0, 0, 12.00),
             ("sanitary", 0.002, True, 0, 3, 7.70), ("microbial", 0.0, True, 0, 0, 6.91), ("microbial", 0.0, True, 0, 3, 5.325),
-            ("microbial", 0.0, True, 1, 3, 9.08), ("microbial", 0.006, True, 0, 3, 5.475), ("microbial", 0.022, True, 0, 0, 7.97),
-            ("microbial", 0.022, True, 0, 3, 5.895), ("microbial", 0.022, True, 1, 3, 10.32),
+            ("microbial", 0.0, True, 1, 3, 18.34), ("microbial", 0.006, True, 0, 3, 5.475), ("microbial", 0.022, True, 0, 0, 7.97),
+            ("microbial", 0.022, True, 0, 3, 5.895), ("microbial", 0.022, True, 1, 3, 20.14),
             ("sanitary", 0.0, False, 0, 0, 13.98), ("sanitary", 0.0, False, 0, 3, 9.79), ("sanitary", 0.002, False, 0, 3, 9.90),
             ("microbial", 0.0, False, 0, 3, 7.52), ("microbial", 0.022, False, 0, 3, 8.16)]
     tabs = {}
@@ -217,6 +224,22 @@ def _check() -> list:
         tabs.setdefault((plant, hz, genetic), ge.cases_table(plant, hz, genetic=genetic))
         near(f"note: cases table {plant} loss {hz} genetic {genetic} cell {ci} tank {tj}",
              tabs[(plant, hz, genetic)][ci * 4 + tj][2], want, 0.002)
+    # what sets the medium of each kind of cell, and what that does to the worth of the tricks (second round, 2026-11-19)
+    t0 = tabs[("sanitary", 0.0, True)]
+    meat, ordinary = t0[4:8], t0[8:12]
+    if not all(r[6] == "lactate" for r in meat) or not all(abs(meat[j][5] - 89.8) < 0.1 for j in (0, 2, 3)):
+        fails.append("best shown in meat cells: lactate should set the medium, at 89.8 L/kg unless fat is fed")
+    if not all(r[6] == "ammonia" and abs(r[5] - 140.0) < 1e-6 for r in ordinary):
+        fails.append("ordinary meat cells: ammonia should set the medium at 140 L/kg")
+    if not meat[1][5] < 0.7 * meat[0][5]:
+        fails.append("fed fat should cut the best-shown meat cells' medium by over 30% (less glucose taken up, less lactate)")
+    if min(range(4), key=lambda j: meat[j][2]) != 1:
+        fails.append("fed fat should be the cheapest tank case for the best-shown meat cells")
+    if not meat[0][2] > 2.0 * t0[0][2]:
+        fails.append("best shown in meat cells should cost over twice the floor's cell in the same tank")
+    noge = ge.cases_table("sanitary", 0.0, genetic=False)[:4]
+    if not all(r[6] == "ammonia" and abs(r[5] - 28.0) < 1e-6 for r in noge):
+        fails.append("the floor's cell by selection and feed: ammonia should still set the medium at 28 L/kg")
     if any(c[2] == ge.GE for k, c in ge.CELL_CASES.items() if k != "floor"):
         fails.append("only the floor's assumed cell should need genetic engineering")
     lr = ge.lactate_relief()

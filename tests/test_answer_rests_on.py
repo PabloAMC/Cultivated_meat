@@ -71,8 +71,35 @@ def check() -> list:
             fails.append(f"{k} should be a demand row that the bands draw")
     if s["demand_rows"][0]["key"] != "equal_price_share":
         fails.append("the share at equal price is no longer the largest demand driver at the best case's cost")
+    # the spread of liking (second round): both of its inputs are scanned, named, sourced and marked as not drawn; across
+    # their fitted ranges neither moves the share enough to be a row (0.2 points at Central's cost, 2 at the best case's)
+    for k in ("liking_sd", "liking_tail"):
+        if k not in A.demand_inputs():
+            fails.append(f"{k} is not among the demand inputs the scan moves")
+        if k not in A.PLAIN or k not in A.EVIDENCE or not A._band(k).startswith("no: "):
+            fails.append(f"{k}: needs a plain name, a source and a reason it is not drawn")
+        v = I.REGISTRY[k]
+        c = [A.share_at(s["central"], **{k: e}) for e in (v.lo, v.hi)]
+        b = [A.share_at(s["best"], **{k: e}) for e in (v.lo, v.hi)]
+        if abs(c[1] - c[0]) >= A.SHARE_MIN[0] or abs(b[1] - b[0]) >= A.SHARE_MIN[1]:
+            fails.append(f"{k} now moves the share enough to be a row; the summary should say so")
+        if k in dr:
+            fails.append(f"{k} is a demand row; check its line reads correctly")
+    if abs(I.REGISTRY["liking_sd"].value - 3.9) > 1e-9 or abs(I.REGISTRY["liking_tail"].value - 4.0) > 1e-9:
+        fails.append("the liking spread is no longer sd 3.9 with 4 degrees of freedom; repin the shares")
+    # the share at each scenario's own cost, % of world meat and seafood (0.0786 and 2.8149 with the normal spread)
+    for name, got, want in (("Central's share", s["central_share"], 0.1638), ("the best case's share, Central's demand", s["best_share"], 2.7352)):
+        if abs(got - want) > 2e-3:
+            fails.append(f"{name}: {got:.4f} != pinned {want}")
+    # which demand input sets each end of Central's span: the price elasticity of meat (low) and the price sensitivity of
+    # cultivated meat (high); before the t spread the share at equal price set both ends
+    lo_k = min(s["demand_rows"], key=lambda r: min(r["central"]))["key"]
+    hi_k = max(s["demand_rows"], key=lambda r: max(r["central"]))["key"]
+    if (lo_k, hi_k) != ("eps_own", "cult_sub_mult"):
+        fails.append(f"the ends of Central's share span are now set by {lo_k} and {hi_k}; rewrite the summary")
     # pinned (2026-11-19 audit batch; before it 15 inputs moved a cost by $1 or more and 7 moved Central by more than $3)
-    pins = [("rows", len(s["cost_rows"]), 18), ("over $3", s["over_3"], 11),
+    pins = [("inputs", s["inputs"], 528), ("with a range", s["ranged"], 241),      # liking_tail added in the second round
+            ("rows", len(s["cost_rows"]), 18), ("over $3", s["over_3"], 11),
             ("move Central by $1 or more", sum(swing(k) >= 1.0 for k in order), 16),
             ("demand rows", len(s["demand_rows"]), 9)]
     for name, got, want in pins:
@@ -85,8 +112,11 @@ def check() -> list:
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
             fails.append(f"{k}: Central {cr[k]['central'][0]:.2f} to {cr[k]['central'][1]:.2f} != pinned {want}")
     # the share's span across the demand rows, % of world meat and seafood
-    for name, got, want in (("Central's share span", s["central_share_span"], (0.0090, 1.0137)),
-                            ("the best case's share span", s["best_share_span"], (0.5178, 16.8051))):
+    # 2026-11-19, second round: shoppers' liking is a Student's t spread (liking_sd 3.9, liking_tail 4), so every share moved
+    # and no cost did. Central's span was 0.0090 to 1.0137 and the best case's 0.5178 to 16.8051 with the normal spread: the
+    # heavier tail lifts the low end far above parity, and the narrower middle lowers the best case's top by a third.
+    for name, got, want in (("Central's share span", s["central_share_span"], (0.0504, 0.8093)),
+                            ("the best case's share span", s["best_share_span"], (0.7398, 11.6982))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 
