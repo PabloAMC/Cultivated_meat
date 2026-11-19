@@ -51,10 +51,10 @@ the experiment. The table gives the model's own-price elasticity at four prices 
 
 | the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Today | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.03% | 0.8% |
-| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.01% | 0.1% | 2.7% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.08% | 1.6% | 18.1% |
-| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.00% | 0.06% | 2.9% |
+| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.1% | 1.4% |
+| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.02% | 0.4% | 4.4% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.2% | 4.3% | 24.1% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.01% | 0.2% | 8.5% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 - **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) took cultivated meat from 5% to

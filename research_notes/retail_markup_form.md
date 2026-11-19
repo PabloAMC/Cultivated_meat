@@ -65,11 +65,11 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | best case: shelf price, share | Central: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $15.0, 4.48% | $31.4, 0.50% |
-| per-kg $2.5 + a 15% margin | $7.70 | $14.7, 4.35% | $34.0, 0.31% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $17.3, 2.74% | $40.2, 0.13% |
-| per-kg $2.5 + a 40% margin | $4.70 | $20.8, 1.42% | $48.2, 0.05% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.9, 1.51% | $49.9, 0.04% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $15.0, 6.15% | $31.4, 1.15% |
+| per-kg $2.5 + a 15% margin | $7.70 | $14.7, 6.26% | $34.0, 0.88% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $17.3, 4.47% | $40.2, 0.45% |
+| per-kg $2.5 + a 40% margin | $4.70 | $20.8, 2.84% | $48.2, 0.18% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.9, 3.10% | $49.9, 0.15% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
