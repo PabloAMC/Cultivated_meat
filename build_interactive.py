@@ -739,7 +739,110 @@ def build_model() -> dict:
     import scenarios
     import vessels
     return dict(const=const, sliders=sliders, toggles=toggles, markets=markets, regions=regions,
-                sc=_plain_switch_words(scenarios.js_model()), vm=vessels.js_model(), page=page_data())
+                sc=_plain_switch_words(scenarios.js_model()), vm=vessels.js_model(), page=page_data(), tp=traits_page_data())
+
+
+# ---------------------------------------------------------------------------
+# The first screen (2026-11-19, the author's direction): the reader sets the cells' four traits, the plant and the share of
+# meat buyers who would pick it at the same price; the page draws the cost with a cloud of draws over the estimates nobody has
+# measured, and says which routes have shown each trait (cell_traits.routes_needed, mirrored in page_scenarios.js). This only
+# PREPARES data: every number comes from scenarios.py, cell_traits.py and inputs.py.
+# ---------------------------------------------------------------------------
+REPO = "https://github.com/PabloAMC/Cultivated_meat/blob/main/"
+TRAIT_PAGE = {   # trait: plain name first, the unit, the slider (in the slider's unit), the scale from the model's unit, a tooltip
+    "nh3_kg": ("Waste the cells make (ammonia)", "mol a kilo of cells", 0.0, 0.95, 0.005, 1.0,
+               "Ammonia given off as a kilo of cells grows. It poisons the culture, so fresh medium must wash it out. Lower is better."),
+    "lac_yield": ("Lactate made per glucose taken up", "mol per mol", 0.0, 1.5, 0.01, 1.0,
+                  "How much of the sugar the cells turn into lactate, a waste acid, instead of burning it. Lower is better."),
+    "doubling_h": ("Doubling time", "hours", 12.0, 60.0, 0.5, 1.0,
+                   "Hours for the cells to double in number. Faster cells fill the tank sooner. Lower is better."),
+    "mass_pg": ("Weight of one cell", "ng", 1.0, 3.5, 0.05, 0.001,
+                "Weight of one wet cell in nanograms. Small cells breathe more per gram, so a tank holds fewer grams of them. Higher is better."),
+}
+REF_TEXT = {   # the reference points: what each is, in plain words, and its sources
+    "today": ("Published cells",
+              "The best published figure for each trait, never measured together in one line: ammonia and a 43-hour doubling from "
+              "bovine fat-precursor cells fed without glutamine (Hubalek 2023, Mosa Meat), lactate from chicken fibroblasts "
+              "(Pasitka 2024, Believer Meats), and a 2 ng cell (a judgement). Grown in batches in an ordinary 20 m³ tank, as pharma "
+              "and Upside Foods do. Companies may hold better cells that they have not published."),
+    "central": ("Selected cells",
+                "The same low-ammonia feed, with cells selected to make less lactate (0.42 per glucose, as adapted CHO cells do) and to "
+                "double every 36 hours. No genetic engineering. Run in perfusion: a filter holds the cells back while fresh medium "
+                "washes the waste out. Nobody has run animal cells in perfusion above about 4 m³."),
+    "best": ("Engineered cells, all favourable",
+             "Cells that make almost no waste (Humbird's efficient cell: 0.055 mol of ammonia a kilo, 0.28 lactate per glucose) and "
+             "double every 24 hours, with every other setting at its favourable end: a plant with shared medium, medium at the cost of "
+             "the nutrients alone, more gas, fewer lost runs. The name says how such cells would most likely be made, not that they "
+             "must be. It also assumes shoppers who slightly favour it."),
+    "humbird": ("Humbird's optimistic design",
+                "Humbird's 2021 design: his engineered 3 ng cells doubling every 24 hours in an ordinary 20 m³ perfusion tank, a "
+                "food-grade plant, no tank tricks and no lost runs. It assumes the hardest change and none of the easy ones."),
+    "company": ("As a company reports",
+                "SuperMeat's 2024 report of its own process, scaled up on paper, with a yearly charge on its plant added. Not peer "
+                "reviewed. It is a cost, not a set of traits, so it cannot be loaded."),
+}
+CLOUD_N = 300          # draws in the page's cloud (scenarios.scenario_mc draws the same estimates)
+CLOUD_SEED = 7
+
+
+def traits_page_data() -> dict:
+    """What the first screen needs: the trait sliders, the routes table, the reference points, the priors the cloud draws, the
+    plant controls and the 'what it would take' rows."""
+    import scenarios as S
+    import cell_traits as CT
+    import filter_flux
+    import frontier
+    from inputs import REGISTRY as REG
+    eqs_input = {"today": "equal_price_share", "central": "equal_price_share", "best": "best_equal_price_share"}
+    refs = []
+    for k in ("today", "central", "best", "humbird", "company"):
+        label, text = REF_TEXT[k]
+        e = {"key": k, "label": label, "text": text}
+        if k in eqs_input:
+            e.update(kind="scenario", choice=S.SCENARIOS[k].choice, redesign=(k != "today"),
+                     traits=S.cell_traits(S.SCENARIOS[k].choice),
+                     buyers=S.meat_buyers_at_equal_price(value(eqs_input[k])), eqs=value(eqs_input[k]))
+        elif k == "humbird":
+            e.update(kind="humbird", traits=dict(S.HUMBIRD_TRAITS), buyers=S.meat_buyers_at_equal_price(), eqs=value("equal_price_share"),
+                     base={"doubling_h": 24.0, "mass_pg": 3000.0, "vessel_m3": 20.0, "plant": "sanitary", "mode": "perfusion",
+                           "charge": value("plant_charge_mature")}, point=S.reference()["total"])
+        else:
+            e.update(kind="company", cost=S.reported_cost(), buyers=S.meat_buyers_at_equal_price(), eqs=value("equal_price_share"))
+        if "traits" in e:
+            e["verdict"] = CT.routes_needed(e["traits"])["verdict"]
+        refs.append(e)
+
+    def pri(name):                                   # [lo, mode, hi, kind, clipLo, clipHi] as inputs.draw samples it
+        kind, lo, hi, mode, _ = prior(name)
+        clip = REG[name].clip or (None, None)
+        return [lo, mode, hi, kind, clip[0], clip[1]]
+    reg_names = ("plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "sc_nh3_selected", "sc_nh3_limit", "pf_nh3_limit",
+                 "pf_protectant_price", "pf_min_perfusion", "pf_antifoam_otr", "pf_protectant_dose", "rt_membrane_price",
+                 "aa_bulk_price", "sc_mass_selected_pg")
+    import plant_items
+    cloud = {"n": CLOUD_N, "seed": CLOUD_SEED, "priors": {n: pri(n) for n in reg_names}, "mc": S.MC_PRIORS,
+             "lean_capex_lo": min(1.0, plant_items.capital("yeastplus")["total"] / plant_items.capital("lean")["total"]),
+             "wide": value("sc_wide_bands") >= 0.5, "aa_intensity": value("aa_intensity"),
+             "estimates": [[k, n] for k, n in S.MC_ESTIMATES], "scenario_priors": S.MC_SCENARIO_PRIORS,
+             "estimate_inputs": list(S.MC_ESTIMATE_INPUTS)}
+    traits = {k: {"name": v[0], "unit": v[1], "min": v[2], "max": v[3], "step": v[4], "scale": v[5], "help": v[6],
+                  "model_name": CT.TRAITS[k][0], "model_unit": CT.TRAITS[k][1]} for k, v in TRAIT_PAGE.items()}
+    plant_names = {"lean": "A food-grade plant with shared medium", "sterile": "A food-grade plant", "pharma": "A pharma-style plant with clean rooms"}
+    wit = []
+    for r in S.what_it_would_take():
+        row = {"target": r["target"], "buyers": r["buyers"], "need": r["need"], "no_engineering": r["no_engineering"], "pick": None}
+        if r["pick"] is not None:
+            cost, tr, p, m, rn, ch = r["pick"]
+            row["pick"] = {"cost": cost, "traits": tr, "plant": p, "mode": m, "short": rn["short"], "rank": rn["rank"], "choice": ch}
+        wit.append(row)
+    life, price = value("rt_membrane_life"), value("rt_membrane_price")
+    return {"traits": traits, "routes": CT.js_model(), "refs": refs, "cloud": cloud, "wit": wit,
+            "trait_note": REPO + "research_notes/cell_trait_routes.md",
+            "plant_names": plant_names,
+            "plant": {"capex": [S.MC_PRIORS["capex_x"][0], S.MC_PRIORS["capex_x"][2]], "cpl": [0.10, 1.60],
+                      "mem_price": price, "mem_life": life, "break_even_1500": filter_flux.break_even_price(1500.0),
+                      "medium": [0.0, 0.60]},
+            "frontier": frontier.ladder()[-1]["cost"], "n_wit_sets": len(S.trait_grid())}
 
 
 # ---------------------------------------------------------------------------
@@ -1046,6 +1149,14 @@ def _scenario_tokens() -> dict:
     return out
 
 
+def first_screen_tokens() -> dict:
+    """The first screen's few numbers in the markup (the rest is written by the page's script from MODEL.tp)."""
+    import scenarios as S
+    import filter_flux
+    return {"CLOUD_N": str(CLOUD_N), "CAPEX_LO": f"{S.MC_PRIORS['capex_x'][0]:g}", "CAPEX_HI": f"{S.MC_PRIORS['capex_x'][2]:g}",
+            "BE_1500": f"${filter_flux.break_even_price(1500.0):.0f}", "CPL_1500": f"${value('rt_membrane_price') / 1500.0:.2f}", "WIT_SETS": str(len(S.trait_grid()))}
+
+
 def derived_numbers() -> dict:
     """Return {TOKEN: text} for every NON-share model number the prose quotes (price ratios, $/kg,
     years, coefficients). Same discipline as illustrative_numbers() (which holds the %-shares):
@@ -1128,6 +1239,7 @@ def derived_numbers() -> dict:
         **{f"ELAS_{tag}": f"{_familiar_elasticity(dp, R):.1f}".replace("-", "\u2212")
            for tag, R in (("10", 1.0), ("15", 1.5), ("24", 2.42))},
     }
+    N.update(first_screen_tokens())
     return {f"{{{{{k}}}}}": v for k, v in N.items()}
 
 
@@ -1268,9 +1380,10 @@ def page_data() -> dict:
              for k in CASE_KEYS]
 
     # the regional bands: the same draws as scenarios.bands (cost from scenario_mc, demand from meat_market.monte_carlo), by region
-    region_bands = {k: {"global": list(S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))["share"])} for k in CASE_KEYS}
+    # (since the first screen became the reader's own cells, 2026-11-19: only Selected cells', which the method text quotes)
+    region_bands = {k: {"global": list(S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))["share"])} for k in ("central",)}
     jobs = []
-    for k in CASE_KEYS:
+    for k in ("central",):
         cost = S.scenario_mc(S.SCENARIOS[k].choice, S.BAND_N, 0)["total"]
         jobs += [(k, reg, cost, S.eqs_of(k), S.BAND_N) for reg, _name in REGION_NAMES if reg != "global"]
     try:                                         # eighteen independent draws: run them side by side where the machine allows
@@ -1285,10 +1398,10 @@ def page_data() -> dict:
         "today": ("Published cells, grown in batches in an ordinary tank", "needs nothing new"),
         "process": ("Change the process and buy cheaper inputs", "needs a change of process and cheaper inputs"),
         "selected": ("Select cells that make less waste and grow faster on the low-waste feed", "needs selected cells"),
-        "central": ("Run the tank in perfusion: a filter holds the cells back. This is the Central case", "needs perfusion at 20 m³"),
+        "central": ("Run the tank in perfusion: a filter holds the cells back. This is Selected cells", "needs perfusion at 20 m³"),
         "central_lean": ("Build a cheaper plant: food-grade, with shared medium", "needs a cheaper plant"),
-        "engineered": ("Engineer the cells to make almost no waste", "needs genetic engineering"),
-        "best": ("Put every other switch at its favourable end. This is the Best case", "needs everything to work"),
+        "engineered": ("Cells that make almost no waste, as engineered cells do (0.055 mol of ammonia a kilo, 0.28 lactate per glucose)", "shown without engineering only in other cells"),
+        "best": ("Put every other switch at its favourable end. This is Engineered cells, all favourable", "needs everything to work"),
     }
     ladder = []
     for k in S.LADDER:
@@ -1333,7 +1446,8 @@ def page_data() -> dict:
          "ranges": {"central": [1 - sf.hi, 1 - sf.lo], "best": [1 - sf.hi, 1 - sf.lo]}, "fmt": "pct",
          "why": "Products on sale are 10 to 30% plant protein and binder. Fewer cells make a cut cheaper, and shoppers like it less."},
     ]
-    _PAGE_DATA.update({"cases": cases, "own_label": OWN_LABEL, "regions": REGION_NAMES, "region_bands": region_bands,
+    del cases                                    # the first screen no longer has named cases (traits_page_data has the reference points)
+    _PAGE_DATA.update({"own_label": OWN_LABEL, "regions": REGION_NAMES, "region_bands": region_bands,
                        "ladder": ladder, "estimates": estimates, "judgements": judgements, "p_conv": value("p_conv")})
     return _PAGE_DATA
 
@@ -1622,7 +1736,7 @@ PAGE_HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
  --b1:#0d366b;--b2:#184f95;--b3:#256abf;--b4:#3987e5;--b5:#6da7ec;--b6:#9ec5f4;
  --up:#3fbf95;--down:#ee7a63;--s1:#3987e5;--s2:#199e70;--s3:#c98500;--s4:#8a8880;}}
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;scroll-padding-top:var(--barh,84px);}
+html{scroll-behavior:smooth;scroll-padding-top:12px;}
 body{margin:0;background:var(--bg);color:var(--ink);
  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.5;font-size:16px;}
 /* one link style for the whole page */
@@ -1692,6 +1806,49 @@ input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
 .levelnav{margin:22px 0 8px;padding:0;list-style:none;border-top:1px solid var(--rule);}
 .levelnav li{max-width:none;border-bottom:1px solid var(--rule);padding:7px 0;font-size:.92rem;display:flex;gap:10px;flex-wrap:wrap;}
 .levelnav .lv{color:var(--muted);font-size:.8rem;min-width:52px;padding-top:2px;} .levelnav .ld{color:var(--ink2);}
+/* ---- the first screen: reference points, the map, the cells and the plant ---- */
+.tag.res{border-color:var(--accent);color:var(--accent);} .tag.asm{border-style:dashed;}
+.tile .tl .tag{margin-left:4px;vertical-align:1px;}
+.refbar{margin:14px 0 6px;} .refbar .rl{font-size:.9rem;font-weight:600;display:block;margin-bottom:6px;}
+.refbtns{display:flex;flex-wrap:wrap;gap:6px;}
+.refbtn{font:inherit;font-size:.88rem;padding:6px 12px;border:1px solid var(--axis);border-radius:16px;background:var(--card);color:var(--ink);cursor:pointer;line-height:1.25;}
+.refbtn:hover{background:var(--sunk);} .refbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;}
+.refnote{margin:6px 0 0;}
+.maphead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 14px;}
+.maphead h3{margin:0;} .regl{font-size:.86rem;color:var(--ink2);display:flex;align-items:center;gap:6px;}
+.readme{margin:8px 0;} .readme .lnk{margin-left:4px;}
+.legend .ramp{display:inline-flex;gap:0;} .legend .ramp span{display:inline-flex;flex-direction:column;align-items:center;font-size:.72rem;width:44px;}
+.legend .ramp i{display:block;width:44px;height:9px;}
+.legend .hatchd{background:repeating-linear-gradient(45deg,#444441 0 2px,#B4B2A9 2px 4px);width:14px;height:12px;}
+.legend .hatchl{border:1px solid #888780;background:repeating-linear-gradient(45deg,#185FA5 0 1.3px,#85B7EB 1.3px 5px);width:14px;height:12px;}
+.legend .dt.me{width:12px;height:12px;background:#fff;border:2.5px solid #1a1a19;} .legend .dt.cl{width:7px;height:7px;background:rgba(255,255,255,.75);border:1px solid rgba(26,26,25,.6);}
+.legend .dt.rf{width:8px;height:8px;background:#1a1a19;border:1.5px solid #fff;outline:1px solid #888780;}
+#tpmap text{fill:var(--ink2);} #tpmap text.ml{fill:#fff;stroke:#1a1a19;stroke-width:3px;stroke-linejoin:round;paint-order:stroke;font-weight:500;}
+#tpmap text.ml.mb{font-weight:700;} #tpmap .ax{stroke:var(--axis);}
+#tpmap circle.cd{fill:#fff;fill-opacity:.55;stroke:#1a1a19;stroke-opacity:.45;stroke-width:.6;}
+#tpmap circle.rd{fill:#1a1a19;stroke:#fff;stroke-width:1.5;} #tpmap circle.me{fill:#fff;stroke:#1a1a19;stroke-width:3;}
+.hover{font-size:.86rem;color:var(--ink2);min-height:2.8em;margin:6px 0 0;max-width:80ch;}
+.buyers{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:10px 14px;}
+.buyers label{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;} .buyers .nm{font-weight:600;} .buyers .val{margin-left:auto;font-size:1.05rem;}
+.buyers input[type=range]{max-width:none;}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0;}
+.setcol{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:12px 14px;min-width:0;}
+.setcol h3{margin:0 0 4px;}
+@media(max-width:760px){.setgrid{grid-template-columns:1fr;}}
+.ctl .trs,.ctl .fxn{font-size:.8rem;color:var(--ink2);margin:3px 0 0;} .drawn{color:var(--muted);}
+.lnk{font:inherit;font-size:inherit;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;
+ text-underline-offset:.18em;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);cursor:pointer;}
+.lnk:hover{text-decoration-color:currentColor;}
+.ctl label.rad{display:block;font-size:.86rem;margin:6px 0;line-height:1.4;} .rad input{margin:0 5px 0 0;vertical-align:-1px;} .rad select{margin-top:3px;max-width:100%;}
+.verdict{border-top:1px solid var(--rule);margin-top:12px;padding-top:8px;} .vsent{margin:0 0 6px;font-size:.92rem;}
+table.vt{border-collapse:collapse;width:100%;font-size:.82rem;} table.vt td{border-top:1px solid var(--grid);padding:5px 8px 5px 0;vertical-align:top;}
+table.vt .alt{color:var(--ink2);font-size:.78rem;}
+.tag.rt{margin-bottom:2px;} .tag.rtfeed,.tag.rtselect_meat{border-color:var(--up);color:var(--up);} .tag.rtselect_other{border-color:var(--s3);color:var(--ink2);}
+.tag.rtengineering{border-color:var(--down);color:var(--down);} .tag.rtnone{border-color:var(--down);color:var(--down);border-style:dashed;}
+.refcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:8px 0 14px;}
+.refcard{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:10px 12px;} .refcard.on{border-color:var(--ink);}
+.refcard h4{margin:0 0 4px;} .refcard p{font-size:.86rem;margin:0 0 6px;}
+#wit{margin:18px 0 6px;} table.wit{min-width:0;} table.wit td{font-size:.84rem;}
 /* ---- levels: sections that open in place ---- */
 details.level{border-bottom:1px solid var(--rule);} details.level:first-of-type{border-top:1px solid var(--rule);}
 details.level>summary{cursor:pointer;padding:12px 0;list-style:none;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:baseline;}
@@ -1788,7 +1945,7 @@ svg.w720{width:880px;max-width:none;height:auto;display:block;} svg.w420{width:5
 .methods mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;} .methods mjx-container[display="true"]{min-width:0 !important;}
 #about{margin:26px 0 8px;font-size:.88rem;color:var(--ink2);border-top:1px solid var(--rule);padding-top:10px;}
 #about h3{margin:0 0 6px;}
-section[id],h3[id],details[id]{scroll-margin-top:var(--barh,84px);}
+section[id],h3[id],details[id]{scroll-margin-top:12px;}
 @media(max-width:600px){
  .wrap{padding:0 16px 48px;} .casebar{margin:0 -16px;padding:6px 16px;} h1{font-size:1.3rem;margin-top:14px;}
  .seg{width:100%;display:grid;grid-template-columns:repeat(4,1fr);} .seg button{padding:6px 4px;font-size:.78rem;}
@@ -1802,58 +1959,110 @@ section[id],h3[id],details[id]{scroll-margin-top:var(--barh,84px);}
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip" role="tooltip"></div><div class="wrap">
 <header>
-<h1>Cultivated meat: cost and market share</h1>
+<h1>Cultivated meat: what the cells would have to do</h1>
+<p class="small">Cultivated meat is animal meat grown from cells in tanks, without slaughter. Set the cells, the plant and how shoppers
+feel, and this open model shows what a kilo of cells would cost, how much meat and seafood it could replace in the long run, and whether
+cells like yours have been made without genetic engineering. It is a model of what would follow, not a forecast.</p>
 <p class="deck" id="deck" aria-live="polite"></p>
-<p class="small">Cultivated meat is animal meat grown from cells in tanks, without slaughter. This is an open model of what it could cost and
-how much meat and seafood it could replace. Pick a case. Every figure on the page follows it.</p>
 </header>
 
-<div class="casebar" id="casebar"><div class="in">
-  <div class="seg" role="group" aria-label="The case shown on this page" id="casebtns"></div>
-  <label for="regionsel">Region <select id="regionsel"></select></label>
-  <span class="casehint" id="casehint">Move any setting on this page and it becomes your own case. The three named cases stay as they are.</span>
-</div></div>
-
-<section id="first" aria-label="The answer for the selected case">
+<section id="first" aria-label="Your cells on the map">
 <div class="tiles" id="tiles" aria-live="polite"></div>
-<div class="chart" id="l0card">
-<h3 id="l0title">Long-run share against the cost of growing a kilo of cells</h3>
-<p class="sub">Each shade is a range for one thing nobody can measure yet: the share of shoppers who would choose it at the same price as
-meat, once it is no longer new. The line is the selected case's own setting. The dots are the cases.</p>
-<div class="legend" id="l0legend"></div>
-<div class="plot" id="l0plot"><svg id="l0chart" role="img" aria-labelledby="l0title" aria-describedby="l0alt"></svg><div class="tipbox" id="l0tip"></div></div>
-<p class="alt" id="l0alt"></p>
-<details class="tv"><summary>Show the chart's numbers as a table</summary><div class="scrollx" id="l0table"></div></details>
+
+<div class="refbar"><span class="rl">Start from a reference point (it loads the cells, the plant and the shoppers):</span>
+<div class="refbtns" id="tp_refs" role="group" aria-label="Reference points"></div>
+<p class="small refnote" id="tp_refnote"></p></div>
+
+<div class="chart mapcard" id="tpcard">
+<div class="maphead"><h3 id="tptitle">Where your cells land <span class="tag res">result</span></h3>
+<label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<div class="callout readme" id="tp_read"><span id="tp_read_txt"></span> <button type="button" class="lnk" onclick="tpDismissRead()">Hide this</button></div>
+<div class="legend" id="tplegend">
+<span class="li">Long-run share of meat and seafood:</span><span class="li ramp" id="tpramp"></span>
+<span class="li"><span class="ln" style="border-top-color:#D85A30"></span>lines of equal share</span>
+<span class="li"><span class="sw hatchd"></span><span>impossible: below what the cells must eat</span></span>
+<span class="li"><span class="sw hatchl"></span><span>beyond every known limit</span></span>
+<span class="li"><span class="dt me"></span>your point: the median of the cloud</span>
+<span class="li"><span class="dt cl"></span>the cloud: one dot per draw</span>
+<span class="li"><span class="dt rf"></span>reference points</span></div>
+<div class="plot" id="tpplot"><svg id="tpmap" role="img" aria-labelledby="tptitle" aria-describedby="tp_alt"></svg></div>
+<p class="hover" id="tp_hover" aria-live="polite"></p>
+<p class="alt" id="tp_alt"></p>
+<p class="note">The cloud is {{CLOUD_N}} draws of the estimates nobody has measured: what the plant costs to build, how long the filter
+membranes last, the ammonia the cells tolerate, the price of the medium and of the bubble protectant, and more. Anything you set yourself
+leaves the cloud. The dots are spread up and down a little only so that they can be seen. The 50% dashed line is no preference.</p>
+<details class="tv"><summary>Show the map's numbers as a table</summary><div class="scrollx" id="tp_table"></div></details>
 </div>
 
-<div class="ctlrow">
-<label for="eqs">If it cost the same as meat and was no longer new, the share of shoppers who would choose it: <b id="eqs_v"></b></label>
-<input type="range" id="eqs" min="3" max="80" step="1">
-<p class="readouts" id="eqs_read" aria-live="polite"></p>
+<div class="ctlrow buyers">
+<label for="tp_buyers"><span class="nm">Meat buyers who would pick it at the same price, once it is familiar</span> <span class="tag asm">your assumption</span>
+<b class="val" id="tp_buyers_v"></b></label>
+<input type="range" id="tp_buyers" min="1" max="99" step="0.5">
+<p class="readouts" id="tp_buyers_read" aria-live="polite"></p>
 </div>
+
+<div class="setgrid">
+<section class="setcol" id="tp_cells" aria-labelledby="tp_cells_h">
+<h3 id="tp_cells_h">Change the cells</h3>
+<p class="small">Four traits of the cells set most of the cost. Each slider starts at the reference point loaded above.</p>
+<div id="tp_traits"></div>
+<div class="verdict" id="tp_verdict" aria-live="polite"></div>
+</section>
+<section class="setcol" id="tp_plant" aria-labelledby="tp_plant_h">
+<h3 id="tp_plant_h">Change the plant</h3>
+<div class="ctl"><span class="nm">How the tank is run</span>
+<label class="rad"><input type="radio" name="pl_mode" id="pl_perf" onchange="tpSetMode('perfusion')"> Perfusion: a filter holds the cells back while fresh
+medium washes the waste out (20 m&sup3;; nobody has run animal cells this way above about 4 m&sup3;)</label>
+<label class="rad"><input type="radio" name="pl_mode" id="pl_fbr" onchange="tpSetMode(document.getElementById('pl_size').value)"> Fed-batch: the cells grow in
+a batch and are harvested at the end. Tank size: <select id="pl_size" onchange="tpSetMode(this.value)" aria-label="Fed-batch tank size"></select></label>
+</div>
+<div class="ctl"><label for="pl_plant"><span class="nm">The plant</span></label><select id="pl_plant" onchange="tpSetPlant(this.value)"></select></div>
+<div class="ctl"><label for="pl_capex"><span class="nm">Plant cost against the model's estimate</span><span class="q" tabindex="0" data-tip="A multiplier on what the model estimates the plant costs to build (buildings and tanks). Nobody has built one; two published designs come in at about a third of Humbird's estimate.">?</span><span class="val" id="pl_capex_v"></span></label>
+<input type="range" id="pl_capex" min="{{CAPEX_LO}}" max="{{CAPEX_HI}}" step="0.01">
+<p class="fxn" id="pl_capex_s"></p>
+<p class="fxn">Nobody has built one; two published designs come in at about a third of Humbird's estimate.</p></div>
+<div class="ctl"><label for="pl_cpl"><span class="nm">Filter cost per litre filtered</span><span class="q" tabindex="0" data-tip="The membranes' price divided by the litres each square metre filters before it fouls and is replaced. At $1,450 a m², a membrane that lasts 1,500 litres a m² costs {{CPL_1500}} a litre; at {{BE_1500}} a m² or less it costs no more than the model's default.">?</span><span class="val" id="pl_cpl_v"></span></label>
+<input type="range" id="pl_cpl" min="0.10" max="1.60" step="0.01">
+<p class="fxn" id="pl_cpl_s"></p>
+<p class="fxn">Pharma hollow fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run at meat densities for a month.</p></div>
+<div class="ctl"><label for="pl_med"><span class="nm">Price of the medium, a litre</span><span class="q" tabindex="0" data-tip="The nutrient liquid the cells grow in. Companies announce $0.20 a litre and report $0.30 to $0.50, with growth factors in the price. At zero, the medium costs only the nutrients the cells eat.">?</span><span class="val" id="pl_med_v"></span></label>
+<input type="range" id="pl_med" min="0" max="0.60" step="0.01">
+<p class="fxn" id="pl_med_s"></p></div>
+<p class="small">More switches (gas, tank tricks, losses, growth factors) are under <a href="#engineering">Check the engineering</a>.</p>
+</section>
+</div>
+
 <div class="callout" id="sharedef"><b>What &ldquo;share&rdquo; means on this page.</b> The share of all meat and seafood sold, by weight, in the long run:
 once cultivated meat is on every shelf and no longer feels new. Seafood is {{SEAFOOD_PCT}}% of that total in the model's world market.
 It is a ceiling the market moves towards, not a figure for any year.</div>
+
+<section id="wit" aria-labelledby="wit_h">
+<h3 id="wit_h">What it would take</h3>
+<p class="small">The cost of cells that a long-run share needs, and the least intrusive cells among the {{WIT_SETS}} trait sets the model tried
+(the published value of each trait, the selected cells', the engineered cells' and one better still, in four plants), every estimate at
+its most likely value. Generated by the model; no odds.</p>
+<div class="scrollx" id="tp_wit"></div>
+</section>
 <p class="note">These are long-run ceilings, not a forecast of when. Nobody has run any of these processes at production scale, and no human
 expert has reviewed the model yet. It is not investment or business advice. <a href="#method">Method, sources and limits</a>.</p>
 </section>
 
 <ul class="levelnav" aria-label="The rest of this page">
-<li><span class="lv">Level 1</span><span><a href="#assumes">What each case assumes</a> <span class="ld">What has to go right, and the steps from the published cells to the best case.</span></span></li>
-<li><span class="lv">Level 2</span><span><a href="#moves">What would move it most</a> <span class="ld">Choices, unmeasured estimates and judgements about shoppers, ranked.</span></span></li>
+<li><span class="lv">Level 1</span><span><a href="#assumes">The reference points</a> <span class="ld">What each assumes, and the steps from the published cells to every favourable setting.</span></span></li>
+<li><span class="lv">Level 2</span><span><a href="#moves">What would move it most</a> <span class="ld">Traits, choices, unmeasured estimates and judgements about shoppers, ranked.</span></span></li>
 <li><span class="lv">Level 3</span><span><a href="#where">Where and when</a> <span class="ld">By type of meat, by region, and over time.</span></span></li>
-<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The eleven switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
+<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
 <li><span class="lv">Level 5</span><span><a href="#shoppers">Check the shopper model</a> <span class="ld">The shopper settings, share against price, and other products.</span></span></li>
 <li><span class="lv">Level 6</span><span><a href="#method">Method, sources, limits</a> <span class="ld">Equations, inputs, references and the questions a sceptic would ask.</span></span></li>
 </ul>
 
 <details class="level" id="assumes">
-<summary><span class="lv">Level 1</span><h2>What each case assumes</h2>
-<span class="ls">Most of the fall in cost needs no genetic engineering. The largest step is selecting cells that make less lactate.</span></summary>
+<summary><span class="lv">Level 1</span><h2>The reference points</h2>
+<span class="ls">Five fixed points to compare your cells with. They are not forecasts: each says what a set of cells and a plant would give.</span></summary>
 <div class="lb">
-<div id="l1_case"></div>
+<div id="l1_refs"></div>
 <div class="chart">
-<h3 id="l1title">From the published cells to the best case, one step at a time</h3>
+<h3 id="l1title">From the published cells to every setting at its favourable end, one step at a time</h3>
 <p class="sub">Each bar is the cost of a kilo of cells after one more step: the median of the draws, with a thin line for the range that
 holds 8 in 10 draws. The tag says what the step needs.</p>
 <div class="hbars" id="l1chart" role="group" aria-labelledby="l1title" aria-describedby="l1alt"></div>
@@ -1868,8 +2077,8 @@ Central case uses {{TRICKS_CENTRAL_LIST}}: ${{TRICKS_CENTRAL_NO}} without them, 
 case uses {{TRICKS_BEST_LIST}}: ${{TRICKS_BEST_NO}} without them, and ${{TRICKS_BEST_ORD}} in the ordinary tall tank. These are costs with
 every estimate at its most likely value, calculated, not measured. The switches &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; in
 <a href="#engineering">Check the engineering</a> take the tricks away.</p>
-<h3>Other estimates</h3>
-<p class="small">Three figures from outside the three cases, on the same basis. They are for comparison and cannot be selected.</p>
+<h3>Humbird's design and a company's own report, as the model's build computes them</h3>
+<p class="small">The same two reference points, from the Python model's own 4,000 draws (the page draws {{CLOUD_N}}), with the shopper settings drawn too.</p>
 {{OTHER_ESTIMATES_HTML}}
 <details class="sub"><summary>Words used on this page</summary>
 <p><b>Medium</b> is the nutrient liquid the cells grow in. <b>Waste</b> means the ammonia and lactate that cells give off as they grow. Waste
@@ -2081,8 +2290,6 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
         lever or trick changes.</p>
         <div id="fx_limits" class="scrollx"></div>
         <p class="example" id="fx_out"></p>
-        <p style="margin:.2em 0 .6em"><button class="btn" onclick="fxApply()">Use this case on the whole page</button>
-        <span class="fxn" id="fx_apply_msg"></span></p>
         <p style="margin:.6em 0 .2em"><b>What limits this case.</b> This chart moves each factor alone across its plausible
         range, with the others as you set them. Bars to the left lower the cost and bars to the right raise it. The dotted line is the cost
         that matches everyday meat. Click a factor to see what it is and where its range comes from.</p>
@@ -3014,7 +3221,7 @@ function penetration(s){
   let Wval=0, Wvol=0; market.forEach(mt=>{Wval+=mt.p_conv*mt.w_vol; Wvol+=mt.w_vol;});   // Wvol: listed weights sum to 1.00-1.025
   const rows=market.map(mt=>{
     const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
-    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv};
+    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv,lmean:s.lmean};   // lmean: the page's first screen sets the liking directly (undefined: the calibration's)
     const sh=shareCalc(R,K,Object.assign({},o,{which:"x_meat"}));  // cultivated share of the meat of this type sold, x/(x+c)
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
     return {mt,R,sh,shp,t};
@@ -3240,12 +3447,12 @@ function drawCost(s){
   const svg=document.getElementById("cost");clear(svg);
   // the scenarios' costs and the parity line are labelled in a column right of the plot, spaced so that no two overlap
   const par=parityCost(s);
-  const marks=PG.cases.map(c=>({c:scEval(SC.presets[c.key].choice).total,lab:c.label,col:"#117733"}));
+  const marks=TP.refs.filter(r=>r.kind==="scenario").map(r=>({c:scWithExtra({},()=>scEval(r.choice)).total,lab:r.label,col:"#117733"}));
   marks.forEach(m=>{ m.lab+=", $"+m.c.toFixed(1); });
   marks.push({c:par,lab:"same shop price as meat, $"+par.toFixed(1),col:"#CC3311",par:true});
   const W=720,H=300,mL=42,mT=14,mB=40, x0=0.10,x1=1.0;
   const mR=Math.min(360,22+4.6*Math.max.apply(null,marks.map(m=>m.lab.length))), PR=W-mR;   // room for the longest name
-  const own=(SCS.src==="custom")?SCS.customCost:scEval(SCS.choice).total;                    // the case set by the switches, at its most likely values
+  const own=pgPointCost();                                                                    // the reader's case, at its most likely values
   const y1=Math.max(50,10*Math.ceil((Math.max.apply(null,marks.map(m=>m.c).concat([own]))+3)/10));
   const X=v=>mL+(PR-mL)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   el("line",{x1:mL,y1:H-mB,x2:PR,y2:H-mB,stroke:"#ccc"},svg);
@@ -3275,7 +3482,7 @@ function drawCost(s){
     tx(svg,PR+13,m.ly,m.lab,{"font-size":8,fill:m.col}); });
   // marker
   const b=own, mpDot=scParams(SCS.choice).medium_price;
-  if(SCS.src==="scenario"&&mpDot!==undefined&&b<=y1){
+  if(SCS.base==="switches"&&mpDot!==undefined&&b<=y1){
     const cx=X(Math.min(x1,Math.max(x0,mpDot)));
     el("circle",{cx:cx,cy:Y(b),r:5,fill:"#000"},svg);
     tx(svg,cx,Y(b)-8,"$"+b.toFixed(1),{"font-size":9,"text-anchor":"middle","font-weight":700,stroke:"#fff","stroke-width":3,"paint-order":"stroke"}); }
@@ -3954,13 +4161,13 @@ function settingsHash(){
   const q=new URLSearchParams();
   if(state.region!=="global") q.set("region",state.region);
   MODEL.sliders.forEach(s=>{
-    if(s.key==="income") return;
+    if(s.key==="income"||s.key==="equal_price_share") return;      // the first screen's buyers (in #tp=) carry it
     if(s.solved){ if(state[s.key+"_ovr"]){ q.set(s.key,+(+state[s.key]).toPrecision(6)); q.set(s.key+"_ovr","1"); } return; }
     if(state[s.key]!==s.start) q.set(s.key,+(+state[s.key]).toPrecision(6));
   });
   if(Math.abs(state.income-C.REGION_INCOME[state.region])>1e-9) q.set("income",+(+state.income).toPrecision(6));
   MODEL.toggles.forEach(t=>{ if(state[t.key]) q.set(t.key,"1"); });
-  if(scSettingsHash()!==SC.start) q.set("sc",scSettingsHash());
+  if(scSettingsHash()) q.set("tp",scSettingsHash());
   return q.toString();
 }
 function readHash(){
@@ -3972,15 +4179,13 @@ function readHash(){
   if(q.has("region") && MODEL.regions.some(r=>r[0]===q.get("region"))) state.region=q.get("region");
   state.income=C.REGION_INCOME[state.region];
   MODEL.sliders.forEach(s=>{
-    if(!q.has(s.key)) return;
+    if(!q.has(s.key)||s.key==="equal_price_share") return;
     const v=parseFloat(q.get(s.key)); if(!isFinite(v)) return;
     if(s.solved){ if(q.get(s.key+"_ovr")==="1"){ state[s.key]=v; state[s.key+"_ovr"]=true; } }
     else state[s.key]=Math.min(s.max,Math.max(s.min,v));
   });
   MODEL.toggles.forEach(t=>{ if(q.get(t.key)==="1") state[t.key]=true; });
-  scReadHash(q.get("sc"));
-  if(q.has("sc")||q.has("equal_price_share")) return;
-  state.equal_price_share=SC.presets[SC.start].eqs;
+  scReadHash(q.get("tp"));
 }
 // one place that builds a slider's value readout: the number, an "(auto)" tag for un-overridden
 // solved weights, the "× taste" relative-importance suffix, and (for the price controls) β.
@@ -4008,8 +4213,10 @@ function buildRail(){
   const advg=document.createElement("div"); advg.className="railgrid"; adv.appendChild(advg);
   rail.appendChild(main); rail.appendChild(adv);
   let curGroup=null;
+  { const n=document.createElement("p"); n.className="small"; n.style.gridColumn="1/-1";
+    n.innerHTML="The share of meat buyers who would pick it at the same price is set on the first screen, under the map. These are the other shopper settings."; main.appendChild(n); }
   MODEL.sliders.forEach(s=>{
-    if(s.hidden) return;
+    if(s.hidden||s.key==="equal_price_share") return;      // the first screen's slider sets it, in meat buyers
     const host=s.adv?advg:main;
     if(s.group && s.group!==curGroup){ curGroup=s.group;
       if(s.adv){ const gh=document.createElement("div");gh.className="grphdr";gh.textContent=s.group; host.appendChild(gh); } }
@@ -4057,8 +4264,8 @@ function buildRail(){
     (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(
       ()=>{lk.textContent="Link copied";setTimeout(()=>lk.textContent="Copy a link to these settings",1500);},
       ()=>prompt("Copy this link:",url));};
-  const b=document.createElement("button");b.className="btn";b.type="button";b.textContent="Reset every setting to the Central case";
-  b.onclick=()=>scApply(SC.start);
+  const b=document.createElement("button");b.className="btn";b.type="button";b.textContent="Reset every shopper setting and load Selected cells";
+  b.onclick=()=>{ pgResetShoppers(); tpLoad(SC.start); };
   row.appendChild(b); row.appendChild(document.createTextNode(" ")); row.appendChild(lk); rail.appendChild(row);
 }
 // after a case is picked: every control back in step with the settings
@@ -4442,13 +4649,7 @@ function fxInit(){
 }
 function fxMode(){fxRender();}
 function fxItem(){ document.getElementById("fx_pl").value="custom"; fxRender(); }   // an item changed by hand
-// Send the panel's case to the charts: every chart takes its cost from the case (the switches in "What decides it" step aside).
-let fxLast=null;
-function fxApply(){
-  if(!fxLast) return;
-  SCS.src="custom"; SCS.preset=null; SCS.customCost=fxLast.total; scCommit();
-  document.getElementById("fx_apply_msg").innerHTML="Done: the page now runs at $"+fxLast.total.toFixed(1)+" a kilo of cells, as your own settings.";
-}
+let fxLast=null;      // the panel's last result (the panel is an explorer of its own; the first screen's controls set the page)
 // "What limits this tank": one bar per limit (density it allows), the binding one in the accent colour, the
 // floor case faintly behind; below it, the litres of medium per kilo and what sets them.
 function fxFloorCase(){ return {doubling_h:24, mass_pg:3000, vessel_m3:20, plant:"sanitary", mode:"perfusion", charge:C.fx.charge_mature}; }
@@ -4599,7 +4800,22 @@ if(PGS.anchor) pgGoto(PGS.anchor);
 
 
 def main() -> None:
-    model = build_model()
+    # --dev-cache PATH (development only): reuse the slow part of the build (the model's draws and the prose numbers) from PATH
+    # if it exists, else compute and save it there; the first screen's data (traits_page_data) is always recomputed.
+    import sys
+    import pickle
+    cache = sys.argv[sys.argv.index("--dev-cache") + 1] if "--dev-cache" in sys.argv else None
+    if cache and os.path.exists(cache):
+        with open(cache, "rb") as fh:
+            model, illus, derived, weights = pickle.load(fh)
+        model["tp"] = traits_page_data()
+        derived.update({f"{{{{{k}}}}}": v for k, v in first_screen_tokens().items()})
+    else:
+        model = build_model()
+        illus, derived, weights = illustrative_numbers(), derived_numbers(), weights_table_rows()
+        if cache:
+            with open(cache, "wb") as fh:
+                pickle.dump((model, illus, derived, weights), fh)
     crosscheck(model)
     import datetime as _dt
     html = PAGE_HTML + JS_ENGINE                         # page markup + the JS engine (two strings, one file)
@@ -4609,16 +4825,14 @@ def main() -> None:
     html = html.replace("__BUILD_STAMP__", _dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # Substitute the illustrative numbers COMPUTED FROM THE MODEL (no hand-typed shares in the
     # prose/tooltips — they can never drift from the live calibration). See illustrative_numbers().
-    illus = illustrative_numbers()
     for token, val in illus.items():
         html = html.replace(token, val)
     # Non-share model numbers (price ratios, $/kg, years, the kappa-validation elasticity), likewise
     # computed from the live model. See derived_numbers().
-    derived = derived_numbers()
     for token, val in derived.items():
         html = html.replace(token, val)
     # The attribute-weights table, GENERATED from the live solved DemandParams (never hand-typed).
-    html = html.replace("__WEIGHTS_TABLE__", weights_table_rows())
+    html = html.replace("__WEIGHTS_TABLE__", weights)
     if "__WEIGHTS_TABLE__" in html:
         raise RuntimeError("weights table token was not substituted")
     leftover = [t for t in list(illus) + list(derived) if t in html]

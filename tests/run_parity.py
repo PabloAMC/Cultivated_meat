@@ -457,14 +457,173 @@ def check_parity() -> list:
     return fails
 
 
+
+# ---------------------------------------------------------------------------
+# The first screen (page_scenarios.js, 2026-11-19): the cloud, the routes verdict, the tank design for set traits, and the
+# meat-buyers scale of the contour map, against scenarios.py and cell_traits.py.
+# ---------------------------------------------------------------------------
+CLOUD_EXACT_TOL = 1e-6        # relative, per draw, on Python's own draws
+CLOUD_MED_TOL = 0.05          # relative: the page's 300 draws against Python's 4,000 (sampling noise is about 2% at 300)
+CLOUD_TAIL_TOL = 0.10         # relative, on the 10th and 90th percentiles
+_JS_DRAW = {"maintenance_share": "maint", "pf_protectant_dose": "_dose", "rt_membrane_price": "_memprice", "aa_bulk_price": "_aa"}
+
+
+def _first_screen_cases():
+    import scenarios as S
+    from inputs import value
+    import numpy as np
+    cen, best, lean = S.SCENARIOS["central"].choice, S.SCENARIOS["best"].choice, S.SCENARIOS["central_lean"].choice
+    t4 = {"lac_yield": 0.2, "mass_pg": 2500.0}
+    held_choice = S._design_traits({**lean, "mode": "fedbatch50"}, t4)
+    exact = [  # (choice or None for Humbird's design, traits, held)
+        (cen, {}, {}), (S.SCENARIOS["today"].choice, {}, {}), (best, {"nh3_kg": 0.1, "doubling_h": 30.0}, {}),
+        (held_choice, t4, {"capex_x": 0.6, "cpl": 0.5, "medium_price": 0.25}),
+        (S._design_traits(cen, {"nh3_kg": 0.3, "lac_yield": 0.9, "doubling_h": 40.0, "mass_pg": 1500.0}),
+         {"nh3_kg": 0.3, "lac_yield": 0.9, "doubling_h": 40.0, "mass_pg": 1500.0}, {"cpl": 1.2}),
+        (None, {}, {}), (None, {"doubling_h": 30.0}, {"capex_x": 1.3})]
+    n = 40
+    cases, py_cost = [], []
+    for ch, tr, held in exact:
+        mc = S.scenario_mc(ch, n, 3, traits=tr)
+        draws = [{(_JS_DRAW.get(k, k)): float(v[i]) for k, v in mc.items() if k != "total"} for i in range(n)]
+        if held:                                    # what the page does with an estimate the reader set: hold it, recompute
+            import floor_physics as fp
+            kw0 = {**(S.explore_kwargs(ch) if ch is not None else {}), **tr}
+            costs = []
+            for d in draws:
+                d = dict(d)
+                if "capex_x" in held: d.pop("capex_x", None)
+                if "cpl" in held: d.pop("membrane_life", None); d.pop("_memprice", None)
+                if "medium_price" in held: d.pop("medium_price", None)
+                kw = {**kw0, **{({"maint": "maintenance_share"}).get(k, k): v for k, v in d.items() if not k.startswith("_")}}
+                if "capex_x" in held: kw["capex_x"] = held["capex_x"]
+                if "cpl" in held: kw["membrane_life"] = value("rt_membrane_price") / held["cpl"]
+                if "medium_price" in held: kw["medium_price"] = held["medium_price"]
+                reg = {name: d[js] for name, js in (("pf_protectant_dose", "_dose"), ("rt_membrane_price", "_memprice"), ("aa_bulk_price", "_aa")) if js in d}
+                with fp._inputs_set(reg):
+                    costs.append(fp.explore(**kw)["total"])
+            # the page drops the held keys itself (tpDrop), so it gets the full draws
+            py_cost.append(costs)
+        else:
+            py_cost.append([float(x) for x in mc["total"]])
+        cases.append({"base": "humbird" if ch is None else "switches", "choice": ch or S.SCENARIOS["central"].choice,
+                      "traits": tr, "held": held, "draws": draws})
+    stat = [(S.SCENARIOS[k].choice, {}) for k in ("today", "central", "best", "central_lean")] + [(None, {})] + \
+           [(S._design_traits(cen, {"lac_yield": 0.2, "doubling_h": 28.0}), {"lac_yield": 0.2, "doubling_h": 28.0})]
+    py_stat = []
+    for ch, tr in stat:
+        c = S.scenario_mc(ch, 4000, 0, traits=tr)["total"]
+        py_stat.append((list(np.percentile(c, [10, 50, 90])), (S.run(ch, **tr) if ch is not None else S.reference())["total"]))
+    routes = [{"nh3_kg": a, "lac_yield": l, "doubling_h": t, "mass_pg": m}
+              for a in (0.0, 0.03, 0.054, 0.1, 0.14, 0.5) for l in (0.0, 0.42, 1.05, 1.4) for t in (12.0, 15.0, 20.0, 25.7, 36.0, 43.0)
+              for m in (1000.0, 3300.0, 3400.0)]
+    design = [({**cen, "tricks": "none", "shape": "tall"}, {"nh3_kg": 0.055, "lac_yield": 0.28, "doubling_h": 24.0, "mass_pg": 2000.0}),
+              ({**cen, "mode": "fedbatch", "tricks": "none", "shape": "tall"}, {"lac_yield": 0.42, "doubling_h": 20.0}),
+              ({**S.SCENARIOS["best"].choice}, {"mass_pg": 1200.0}), ({**lean}, {"nh3_kg": 0.0, "lac_yield": 0.0, "doubling_h": 25.7})]
+    return S, exact, cases, py_cost, stat, py_stat, routes, design
+
+
+def check_first_screen() -> tuple:
+    import cell_traits as CT
+    S, exact, cases, py_cost, stat, py_stat, routes, design = _first_screen_cases()
+    buyers = [0.05, 0.145, 0.3, 0.5, 0.585, 0.75]       # scenarios.all_choices_for_meat_buyers stops at a dial of 0.79 (about 79% of buyers)
+    shares = [[c, b] for c in (3.0, 8.0, 15.0, 36.0, 120.0) for b in (0.145, 0.5, 0.8)]
+    costfor = [[1.0, 0.1450734531872825], [10.0, 0.1450734531872825], [1.0, 0.5], [10.0, 0.5]]
+    payload = {"exact": cases, "stat": [{"base": "humbird" if ch is None else "switches", "choice": ch or S.SCENARIOS["central"].choice,
+                                         "traits": tr, "held": {}} for ch, tr in stat],
+               "routes": routes, "design": [{"choice": c, "traits": t} for c, t in design], "buyers": buyers, "shares": shares, "costfor": costfor}
+    node = shutil.which("node")
+    if node is None:
+        return [], "first screen: node not found, not checked"
+    fd, model_js = tempfile.mkstemp(prefix="_model_extracted_", suffix=".js"); os.close(fd)
+    fd, inp = tempfile.mkstemp(prefix="_tp_in_", suffix=".json"); os.close(fd)
+    open(model_js, "w", encoding="utf-8").write(_extract_model_js(HTML))
+    json.dump(payload, open(inp, "w"))
+    try:
+        out = subprocess.run([node, PROBE, model_js, inp], capture_output=True, text=True, timeout=300)
+    finally:
+        for f in (model_js, inp):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+    if out.returncode != 0:
+        return [f"first-screen probe failed: {out.stderr[-2000:] or out.stdout[-2000:]}"], ""
+    js = json.loads(out.stdout.strip().splitlines()[-1])
+    if "error" in js:
+        return [f"first-screen probe error: {js['error'][:2000]}"], ""
+    tp = js["tp"]
+    fails = []
+    worst = 0.0
+    for i, (pc, jc) in enumerate(zip(py_cost, tp["exact"])):
+        for k, (a, b) in enumerate(zip(pc, jc)):
+            d = abs(a - b) / max(1.0, abs(a))
+            worst = max(worst, d)
+            if d > CLOUD_EXACT_TOL:
+                fails.append(f"cloud case {i} draw {k}: python={a:.6f} js={b:.6f}")
+                break
+    worst_m = 0.0
+    for i, ((pq, ppt), jq, jpt) in enumerate(zip(py_stat, tp["stat"], tp["points"])):
+        dm = abs(pq[1] - jq[1]) / pq[1]
+        worst_m = max(worst_m, dm)
+        if dm > CLOUD_MED_TOL:
+            fails.append(f"cloud median, case {i}: python (4,000 draws) {pq[1]:.3f}, page ({len(cases[0]['draws']) and 300} draws) {jq[1]:.3f}")
+        for a, b in ((pq[0], jq[0]), (pq[2], jq[2])):
+            if abs(a - b) / a > CLOUD_TAIL_TOL:
+                fails.append(f"cloud tails, case {i}: python {pq[0]:.2f}/{pq[2]:.2f}, page {jq[0]:.2f}/{jq[2]:.2f}")
+                break
+        if abs(ppt - jpt) > 1e-6 * max(1.0, ppt):
+            fails.append(f"most-likely-values cost, case {i}: python {ppt:.6f} js {jpt:.6f}")
+    for t, (verdict, short, rank, rt) in zip(routes, tp["routes"]):
+        pr = CT.routes_needed(t)
+        prt = [pr["traits"][k]["route"] for k in ("nh3_kg", "lac_yield", "doubling_h", "mass_pg")]
+        if (verdict, short, rank) != (pr["verdict"], pr["short"], pr["rank"]) or rt != prt:
+            fails.append(f"routes {t}: python=({pr['verdict']!r}, {pr['rank']}, {prt}) js=({verdict!r}, {rank}, {rt})")
+    for (c, t), (tk, sh) in zip(design, tp["design"]):
+        d = S._design_traits(c, t)
+        if (d["tricks"], d["shape"]) != (tk, sh):
+            fails.append(f"design for traits {t}: python=({d['tricks']}, {d['shape']}) js=({tk}, {sh})")
+    for b, jd in zip(buyers, tp["dial"]):
+        pd = S.all_choices_for_meat_buyers(b)
+        if abs(pd - jd) > 3e-4:          # Python reads the liking from its table, the page solves it: about 1e-4 apart
+            fails.append(f"meat buyers {b}: python dial {pd:.6f} js {jd:.6f}")
+    worst_s = 0.0
+    for (c, b), js_s in zip(shares, tp["shares"]):
+        ps = S.world_share(c, b)
+        worst_s = max(worst_s, abs(ps - js_s))
+        if abs(ps - js_s) > max(0.01, 0.002 * ps):
+            fails.append(f"map share at ${c} and {b:.1%} of meat buyers: python {ps:.5f}% js {js_s:.5f}%")
+    for (t, b), jc in zip(costfor, tp["costfor"]):
+        pc = S.cost_for_share(t, b)
+        if (pc is None) != (jc is None) or (pc is not None and abs(pc - jc) / pc > 0.003):
+            fails.append(f"cost for {t}% at {b:.1%}: python {pc} js {jc}")
+    if abs(tp["humbird"] - S.reference()["total"]) > 1e-6:
+        fails.append(f"Humbird's design: python {S.reference()['total']:.6f} js {tp['humbird']:.6f}")
+    import meat_market as mm
+    from inputs import value
+    for r, (avg, par) in zip(("global", "us", "eu"), tp["parity"]):
+        mk = mm.MARKETS[r]
+        pavg = sum(t.p_conv * t.w_vol for t in mk) / sum(t.w_vol for t in mk)
+        ppar = pavg * (1 - value("retail_margin")) - value("markup_add")
+        if abs(pavg - avg) > 1e-9 or abs(ppar - par) > 1e-9:
+            fails.append(f"average kilo, {r}: python {pavg:.4f} (cells {ppar:.4f}) js {avg:.4f} ({par:.4f})")
+    msg = (f"first screen: cloud on Python's draws max rel diff {worst:.1e} ({len(cases)} cases x {len(cases[0]['draws'])} draws); "
+           f"cloud median max rel diff {worst_m:.3f} (tol {CLOUD_MED_TOL}, {len(stat)} cases); {len(routes)} routes verdicts; "
+           f"{len(design)} tank designs; map share max diff {worst_s:.4f} pp")
+    return fails, msg
+
+
 def test_python_js_parity():
     """pytest entry point: the JS mirror agrees with the Python source of truth."""
-    fails = check_parity()
+    fails = check_parity() + check_first_screen()[0]
     assert not fails, "Python↔JS parity FAILED:\n  " + "\n  ".join(fails)
 
 
 if __name__ == "__main__":
     failures = check_parity()
+    _f, _m = check_first_screen()
+    print(_m)
+    failures += _f
     if failures:
         print(f"\nFAIL — {len(failures)} mismatch(es):")
         for f in failures[:25]:
