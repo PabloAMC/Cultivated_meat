@@ -89,13 +89,13 @@ RULES = (("flat $5 a kilo (the model before 2026-11-18)", 5.0, 0.0),
 
 
 def rules_table() -> str:
-    """Shelf price and long-run share of world meat at the best case's and Central's cost, under each markup rule."""
+    """Shelf price and long-run share of world meat at the Engineered cells, all favourable case's and Selected cells' cost, under each markup rule."""
     import answer_rests_on as A
     import scenarios as S
     from inputs import value
     from price_ratio import shelf_price, cost_from_shelf
     cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in ("best", "central")}
-    out = ["| rule | cells' cost for parity with $%.0f meat | best case: shelf price, share | Central: shelf price, share |" % value("p_conv"),
+    out = ["| rule | cells' cost for parity with $%.0f meat | Engineered cells, all favourable: shelf price, share | Selected cells: shelf price, share |" % value("p_conv"),
            "|---|---|---|---|"]
     for name, a, m in RULES:
         cells = [f"${shelf_price(c, a, m):.1f}, {A.share_at(c, markup_add=a, retail_margin=m):.2f}%" for c in cost.values()]

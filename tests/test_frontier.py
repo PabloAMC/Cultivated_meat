@@ -25,10 +25,10 @@ def check() -> list:
     for a, b in zip(rows, rows[1:]):
         if b["cost"] > a["cost"] + 1e-9:
             fails.append(f"'{b['name']}' raised the cost")
-    # 2026-11-19: Central fell $3.0 (growth factors inside its medium price) and the frontier rose $0.30 (the nutrient floor),
-    # so the frontier was about 27% of Central, not under a quarter
-    # 2026-11-19 audit batch: Central rose to $32.80 (ammonia tolerance 4 mmol/L, lost runs pay for their membranes) and the
-    # frontier did not move (no ammonia and no permeate at its litres), so the frontier is 22% of Central: under a quarter again
+    # 2026-11-19: Selected cells fell $3.0 (growth factors inside its medium price) and the frontier rose $0.30 (the nutrient floor),
+    # so the frontier was about 27% of Selected cells, not under a quarter
+    # 2026-11-19 audit batch: Selected cells rose to $32.80 (ammonia tolerance 4 mmol/L, lost runs pay for their membranes) and the
+    # frontier did not move (no ammonia and no permeate at its litres), so the frontier is 22% of Selected cells: under a quarter again
     if not rows[-1]["cost"] < 0.25 * rows[0]["cost"]:
         fails.append("the frontier should be under a quarter of the central cost")
     # the frontier's last state filters nothing: the bleed carries out all the liquid, so a lost run has no membrane to throw away
@@ -46,8 +46,8 @@ def check() -> list:
     # 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (central $29.42 -> $26.43);
     # the "$0.05 a litre" lever is now "Medium at the nutrient floor" (growth factors bought on top); a complete medium no
     # longer costs less than its nutrients plus its growth factors (gf_in_medium), so 6.4 L/kg pays them: 13.3873 -> 14.0865
-    # 2026-11-19 audit batch: Central $26.43 -> $32.80 (ammonia tolerance 5 -> 4 mmol/L, so 28 -> 35 L/kg; lost runs pay for
-    # their membranes). Every single lever starts from the higher Central; 6.4 L/kg moved only by the membranes of lost runs
+    # 2026-11-19 audit batch: Selected cells $26.43 -> $32.80 (ammonia tolerance 5 -> 4 mmol/L, so 28 -> 35 L/kg; lost runs pay for
+    # their membranes). Every single lever starts from the higher Selected cells; 6.4 L/kg moved only by the membranes of lost runs
     # (14.0865 -> 14.1614). Runs lost 0.2% a day is pinned too: it now saves $2.53, not $0.97, and ranks above the gas.
     # The dialyser-grade fibres: 18.2770 -> 20.2877, with retention.sizing also charging a lost run's membranes (run_frac).
     want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 14.1614,

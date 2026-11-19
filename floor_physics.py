@@ -639,7 +639,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # A tank that is not washed out holds what its cells make: the litres a kilo leaves with (1000 / density) must hold its
         # ammonia and its lactate at the level the tank allows, the level perfusion is held to (the ammonia limit; the lactate
         # the salt leaves room for) times pf_batch_end_x for a batch that ends above it (2026-11-19 restructure; it was
-        # Humbird's fed-batch 120 g/L scaled by the waste, which let Central's fed-batch end at 7.8 mmol/L of ammonia).
+        # Humbird's fed-batch 120 g/L scaled by the waste, which let Selected cells' fed-batch end at 7.8 mmol/L of ammonia).
         # mmol/L / (mol/kg) = g/L.
         limits["waste build-up"] = end_x * min(nh3_lim / max(nh3, 1e-12), lac_room / max(lac, 1e-12))
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs

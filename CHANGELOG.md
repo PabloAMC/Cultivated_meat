@@ -2,6 +2,11 @@
 
 ## 2026-11-19
 
+**Case names (2026-11-19, the author's decision):** "Central" is now **"Selected cells"** and "the best case" **"Engineered cells,
+all favourable"**, in the model's texts, RESULTS, METHODS, README, TODO and the generated tables (code keys `central`, `best`
+unchanged; research notes carry a glossary line). The page keeps the old names until it is rebuilt. The share at equal price is
+introduced as a share of meat buyers (14.5%; 58.5% for Engineered cells, all favourable), with all choices (13%, 55%) second.
+
 **Scenario restructure: a forecast for 2035 as the headline, a ladder from fed-batch, and the mass balance of a batch**
 (`floor_physics.py`, `scenarios.py`, `inputs.py` `pf_batch_*` and `fc_*`, the side studies; **defaults changed**)
 - **Mass balance of a tank that is not washed out.** Its density is at most end factor x level allowed / waste made per kilo, with the

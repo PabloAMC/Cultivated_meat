@@ -1,5 +1,7 @@
 # Is the model's response to price as strong as measured ones?
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -66,7 +68,7 @@ alike it kept steepening with the price (−10.4 at three times).
 
 ## 2. The price responses compared
 
-| price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (Central) | world share, 7. Plus everything else at its favourable end (the best case) |
+| price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
 |---|---|---|---|---|
 | **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 9.2%, 6.5%, 3.3%, 1.0%, 0.3% | -1.37 | 0.2% | 2.7% |
 | the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 48.8%, 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | -3.27 | 0.03% | 5.4% |
@@ -93,7 +95,7 @@ alike it kept steepening with the price (−10.4 at three times).
 - **A plant that sells less than it was built for costs more per kilo** (`market_size_loop.underused`): the plant's charge and its
   labour are paid whatever it makes.
 
-| share of the plant's capacity that is sold | 1. Published cells | 4. Plus perfusion (Central) | 7. Plus everything else at its favourable end (the best case) |
+| share of the plant's capacity that is sold | 1. Published cells | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
 |---|---|---|---|
 | 100% | $209.05 | $32.80 | $11.46 |
 | 80% | $254.02 | $35.06 | $12.14 |

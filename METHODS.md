@@ -62,7 +62,7 @@ file. **Pasitka et al. 2024** was the cost anchor until 2026-11-14 and is no lon
 that is most likely about 18 times the mass of its cells, and its cost leaves out capital ("Why Pasitka is not the anchor"). Company reports (medium at $0.20/L or less) are tagged **[GFI26]**: the GFI
 2026 State of the Industry report describes them, and a GFI and MG Consulting amino-acid cost analysis
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
-directional evidence, not as the basis of Central.
+directional evidence, not as the basis of the Selected cells case.
 
 ## Where every number comes from
 
@@ -81,7 +81,7 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    the 1.2% plant-based share (published) and a ~6% mainstream meatless rate (assumed; no clean source, under 0.1 pp of
    leverage). One equation per unknown: calibration, not fitting. **Fitted:** the two numbers of the spread of liking,
    `liking_sd` and `liking_tail`, jointly to a choice experiment, sixteen premium meats and farmed salmon (Step 2).
-4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 13%; the best case's own
+4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 13%; the Engineered cells, all favourable case's own
    `best_equal_price_share`, 55%), `cult_sub_mult` (κ; set by six premium products), the taste dial `accept_x`, the what-if dials
    `theta_free_M`, `neophobia_x` and `health_x`, the premium offset (scaled by `premium_resistance`), `markup_add` and
    `retail_margin` (fitted to USDA's spreads and meat-department margins), the cut's cell share and assembly cost, the ammonia the
@@ -186,9 +186,9 @@ cost per kg of forming, packaging or chilling a cultivated product, and none cos
 cut: the published analyses all stop at harvested cells. A cut is costed from analogues
 (`research_notes/structuring_cost.md`; Structured products below). Products sold so far range from 3% to over 99% cells.
 Against a flat $5 a kilo, the rule this replaced, parity moves little ($7.0 to $6.1 a kilo of cells), because both are fitted
-to commodity meat's own spread, but the shelf price of anything dearer rises: at Central's $32.8 a kilo of cells, from $37.8
-to $49.0. Central's share of world meat and seafood at that cost would be 0.44% under the flat $5 and is 0.16% under the
-present rule; at the best case's cost, with Central's demand, 4.15% and 2.74%. Both parts are drawn in the uncertainty bands.
+to commodity meat's own spread, but the shelf price of anything dearer rises: at Selected cells' $32.8 a kilo of cells, from $37.8
+to $49.0. Selected cells' share of world meat and seafood at that cost would be 0.44% under the flat $5 and is 0.16% under the
+present rule; at the Engineered cells, all favourable case's cost, with Selected cells' demand, 4.15% and 2.74%. Both parts are drawn in the uncertainty bands.
 
 **Humbird's optimistic design (`cost_floor`, `scenarios.reference()`; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, engineered cells, no lost runs and no growth factors:
 
@@ -202,7 +202,7 @@ present rule; at the best case's cost, with Central's demand, 4.15% and 2.74%. B
 | microbial-class plant (not used by any scenario) | ~$8.3/kg | R ≈ 1.25, buying its oxygen; if animal cells can be grown in plants that cost what microbial fermentation plants cost; nothing shows they can |
 | a pharma-style plant, tanks drained and refilled | ~$19.7/kg | R ≈ 2.57: first-plant financing; efficient cells |
 
-Humbird's optimistic design is not a limit: the best case (below) is lower at most likely values. It is kept because it is what
+Humbird's optimistic design is not a limit: the Engineered cells, all favourable case (below) is lower at most likely values. It is kept because it is what
 `floor_physics.explore` gives with no arguments, which the Humbird cross-checks and the golden tests use. It differs from the
 scenarios in four settings: Humbird's ammonia limit of 5 mmol/L (`pf_nh3_limit`; the scenarios use 4), his dissolved-oxygen
 level, his fixed glucose figure (the scenarios derive glucose from the cells' balance; for his cell the two agree) and no lost
@@ -240,12 +240,12 @@ adds nothing and only sets the least such a medium can cost, its nutrients plus 
 `inputs.py` (`sc_*`) with its source and range; the evidence for each is in `research_notes/cost_scenarios.md`. A plant as cheap as a yeast
 plant is not offered by any switch: the judgement is that nothing shows animal cells can be grown that way.
 
-A **scenario** is a preset of the eleven switches. **The best case:** cells, speed, plant, gas, medium and growth factors at their cheapest
+A **scenario** is a preset of the eleven switches. **The Engineered cells, all favourable case:** cells, speed, plant, gas, medium and growth factors at their cheapest
 setting, losses at the low end of what makers report (0.6% a day, not pharma's 0.2%) with a 14-day restart, tank design the cheapest the
-loop checks allow; it also takes its own share at equal price (`best_equal_price_share`, 55%). **Central:** cells made low-waste by
+loop checks allow; it also takes its own share at equal price (`best_equal_price_share`, 55%). **Selected cells:** cells made low-waste by
 feed and selection (no genetic engineering), 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
 **Published cells** (key `today`): the published cells (below) grown as a fed-batch in an ordinary 20 m³ tank with no tricks, 43 hours,
-a food-grade plant, 2 mm/s, 1% a day with 21 days to restart, 60% of growth-factor price, $0.30 a litre. Central and every rung above
+a food-grade plant, 2 mm/s, 1% a day with 21 days to restart, 60% of growth-factor price, $0.30 a litre. Selected cells and every rung above
 it run in perfusion. The **tank design** (tricks and
 shape) of every other scenario is the cheapest pair whose loop passes the checks the
 earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures have taken (`scenarios.design`).
@@ -254,7 +254,7 @@ earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures hav
 
 | kind of cells | ammonia, mol per kg wet | lactate, mol per mol of all glucose taken up | cell, ng | glucose taken up, mol per kg (derived, at the speed shown) | lactate made, mol per kg | what sets the medium |
 |---|---|---|---|---|---|---|
-| engineered | 0.055 | 0.279 | 3 | 2.0 (24 h) | 0.56 | ammonia, 13.8 L/kg in the best case (lactate 11.2, the least flow 10.8) |
+| engineered | 0.055 | 0.279 | 3 | 2.0 (24 h) | 0.56 | ammonia, 13.8 L/kg in the Engineered cells, all favourable case (lactate 11.2, the least flow 10.8) |
 | selected on a low-waste feed | 0.14 (range 0.07–0.25, `sc_nh3_selected`) | 0.42 | 2 | 2.6 (36 h) | 1.1 | ammonia, 35 L/kg (lactate 21.5) |
 | published | 0.14 | 1.05 | 2 | 4.5 (43 h) | 4.8 | lactate, 95 L/kg (ammonia 35) |
 | ordinary | 0.70 | 1.05 | 2 | 3.8 (36 h) | 4.0 | ammonia, 175 L/kg (lactate 80) |
@@ -287,7 +287,7 @@ not move. No glucose uptake has been measured for a meat cell on the low-waste f
 
 **Doubling time** is an explicit assumption. The measured low-waste meat-cell cultures (bovine fibro-adipogenic cells with glutamine replaced,
 Hubalek et al. 2023) doubled in 42.9 to 54.2 hours; the same cells with glutamine took 25.7 hours in a spinner and 38 in a shaker;
-nothing with ammonia as low as 0.14 mol/kg has doubled in 24 hours. Selection acts most directly on growth rate, so Central takes 36 hours,
+nothing with ammonia as low as 0.14 mol/kg has doubled in 24 hours. Selection acts most directly on growth rate, so the Selected cells case takes 36 hours,
 between the two (my odds, labelled judgement in `inputs.py`: 24 hours with this little waste about 10%, 30 hours or faster about 25%,
 36 or faster about 45%, 43 or faster about 70%). The page shows the cost at 24, 30 and 36 hours.
 
@@ -298,7 +298,7 @@ with B at its own cheapest setting; pairs whose two savings differ by more than 
 reinforce each other").
 
 **Bands** (`scenarios.scenario_mc`, `scenarios.bands`): the scenario's switches are held and the estimates behind it are drawn,
-4,000 draws (`scenarios.BAND_N`; at 1,000 the best case's median moved by 0.3 points between seeds).
+4,000 draws (`scenarios.BAND_N`; at 1,000 the Engineered cells, all favourable case's median moved by 0.3 points between seeds).
 
 - *Cost.* The plant estimate (0.34 to 1.5 times Humbird's, as in the uncertainty run on his design; the food-grade plant with
   shared medium not below a plant with everything animal cells must have), financing, the life and price of the filter
@@ -312,7 +312,7 @@ reinforce each other").
 - *The share at equal price is drawn from a lognormal* (`inputs.draw`, `kind="lognormal"`): its median is the model's own 13%, and
   the stated 3% and 49% set its spread (σ = ln(0.49 / 0.03) / 3.29 = 0.85), clipped to 0.5%–80%. The draws' 5th and 95th
   percentiles are 3% and 52%, and their 10th and 90th 4% and 38%. Until 2026-11-19 it was a triangular 5–13–49%, whose median was
-  21%. The best case's own setting is a triangular 35–55–70%.
+  21%. The Engineered cells, all favourable case's own setting is a triangular 35–55–70%.
 - *Not drawn:* the kind of cells, their speed and their lactate yield (what the scenarios differ in), the engineered cells'
   ammonia, the salt the cells tolerate and the gas flow (a switch).
 
@@ -320,7 +320,7 @@ reinforce each other").
 between": the cost, the shop price at the median cost, and the share. The cost with every estimate at its most likely value
 (`scenarios.run(choice)["total"]`, the mode of each prior) and the share at that cost are given second and named as such. The
 most-likely-values cost is below the median, because most estimates have more room to fall short than to improve: it is the 33rd
-percentile of Central's draws and the 12th of the best case's. The ladder's steps, the switch tables and the side studies use
+percentile of Selected cells' draws and the 12th of the Engineered cells, all favourable case's. The ladder's steps, the switch tables and the side studies use
 most likely values, so that they can be subtracted. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
@@ -330,7 +330,7 @@ driving force and needs nothing new; `design_space.py` found it free and unused.
 `sc_do_scenarios` = 0 restores the earlier figures (the side studies' tests use it). (2) The ammonia the cells tolerate,
 `sc_nh3_limit` = 4 mmol/L (range 2–8): the median of the evidence note for selected meat cells, 3.5–4
 (`research_notes/ammonia_tolerance_and_filter_life.md`), in place of Humbird's 5 (`pf_nh3_limit`). Litres of medium per kilo
-scale with 1 / limit where ammonia sets them, so Central needs 35 L/kg, not 28. (3) `glc_balance=True`: glucose from the cells'
+scale with 1 / limit where ammonia sets them, so the Selected cells case needs 35 L/kg, not 28. (3) `glc_balance=True`: glucose from the cells'
 own balance (above). Humbird's optimistic design keeps his oxygen level, his 5 mmol/L and his fixed glucose.
 
 **How the tank is run** (switch `mode`, 2026-11-19). Perfusion: `explore(mode="perfusion")`, the default of every scenario before.
@@ -360,7 +360,7 @@ his fed-batch plant, which every case's crew is scaled from). Evidence: `researc
 
 **The ladder** (`scenarios.LADDER`, rebuilt 2026-11-19). Seven rows from what has been shown, each adding one kind of change to the
 one before, likeliest first and each needing nothing from the next: `today` ("Published cells", a 20 m³ batch; its tricks and shape
-fixed), `process` (still a batch), `selected` (Central's cells, still a batch), `central` (perfusion), `central_lean`, `engineered`,
+fixed), `process` (still a batch), `selected` (the Selected cells case's cells, still a batch), `central` (perfusion), `central_lean`, `engineered`,
 `best`. At most likely values they cost $209.1, $201.4, $64.9, $32.8, $29.9, $16.9 and $11.5. The shared-medium plant is likelier than
 perfusion (about 65% against 20% by 2035) but comes after it because its seed-train saving needs long runs. `forecast` sets each
 switch at its median under the forecast's odds (`forecast_choice`): a fed-batch plant, because the cells are held back at 20 m³ with
@@ -373,11 +373,11 @@ design (`reference()`) the same way, and `reported_band` takes the company's pro
 |---|---|---|---|---|---|---|
 | 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$218** ($162–280) | $209.1 | 25.5× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | needs a change of feed, process or plant |
 | 2. Plus process changes and cheaper inputs | **$209** ($154–272) | $201.4 | 24.5× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | needs a change of feed, process or plant |
-| 3. Plus cells selected to make less waste and grow faster on the low-waste feed | **$69** ($45–107) | $64.9 | 8.3× | **0.02%** (0.002–0.1%) | 0.01% | needs selection or adaptation of cells |
-| 4. Plus perfusion (Central): waste washed out through a cell filter | **$37** ($27–57) | $32.8 | 4.6× | **0.1%** (0.02–0.6%) | 0.2% | needs selection or adaptation of cells |
+| 3. Plus cells selected to make less waste and grow faster, still in batches | **$69** ($45–107) | $64.9 | 8.3× | **0.02%** (0.002–0.1%) | 0.01% | needs selection or adaptation of cells |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$37** ($27–57) | $32.8 | 4.6× | **0.1%** (0.02–0.6%) | 0.2% | needs selection or adaptation of cells |
 | 5. Plus a food-grade plant with shared medium | **$34** ($24–54) | $29.9 | 4.2× | **0.1%** (0.02–0.8%) | 0.2% | needs selection or adaptation of cells |
 | 6. Plus engineered cells | **$23** ($17–33) | $16.9 | 3.0× | **0.4%** (0.1–2.0%) | 1.2% | needs genetic engineering |
-| 7. Plus everything else at its favourable end (the best case) | **$14** ($11–20) | $11.5 | 1.9× | **6.8%** (2.5–14.8%) | 13.8% | needs genetic engineering |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$14** ($11–20) | $11.5 | 1.9× | **6.8%** (2.5–14.8%) | 13.8% | needs genetic engineering |
 | Forecast for 2035, each switch at the author's median | **$67** ($45–99) | $55.6 | 8.0× | **0.02%** (0.002–0.1%) | 0.02% | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.0%** (0.3–4.0%) | 2.2% | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.04–0.8%) | 0.1% | a company's own report |
@@ -409,7 +409,7 @@ The headline. Each of 4,000 draws (`FORECAST_N`, seed 0) takes:
 3. **The estimates behind the cost** as `scenario_mc` draws them (plant cost, its lower bound for the shared-medium plant, financing,
    membrane life and price, upkeep, medium price and loss rate as multipliers of the drawn setting, ammonia tolerated and made,
    protectant, least medium flow, antifoam, amino-acid price).
-4. **Demand** from `meat_market.monte_carlo` fed the cost draws, with Central's demand (`equal_price_share`, lognormal, median 13%).
+4. **Demand** from `meat_market.monte_carlo` fed the cost draws, with Selected cells' demand (`equal_price_share`, lognormal, median 13%).
 
 Outputs (`forecast_summary`): the 10th, 50th and 90th percentiles of cost and share; the chance that the share exceeds 1% and 10%; the
 chance that cost is at or below parity ($6.1, `cost_model.parity_cost`); the share of draws in perfusion and by aggregates, and the
@@ -450,7 +450,7 @@ What `vm` changes in `explore`:
 - **Whether waste is washed out** (`washed`): perfusion, and a bed whose medium tank dilutes the waste. Otherwise waste
   build-up and the least medium flow cap the density, and the medium per kg is 1000 / density. Since 2026-11-19 the waste cap
   is the mass balance of "Cost scenarios" above: `pf_batch_end_x` × min(ammonia limit / ammonia per kg, lactate room / lactate per
-  kg), with the end factor 1 for a chemostat (`dil_frac`), and the last doublings slowed above the level. Central's unwashed tank
+  kg), with the end factor 1 for a chemostat (`dil_frac`), and the last doublings slowed above the level. Selected cells' unwashed tank
   stops at 37 g/L and the published cells' at 14 g/L. Before, it was the engineered cells' 120 g/L divided by whichever waste was
   further above theirs, which stopped them at 56 and 25 g/L, at 7.8 mmol/L of ammonia and about 120 of lactate.
 - **Cycles** (`kind = "cyclic"`): batch, fed-batch, and any vessel whose cells sit on a support. A cycle is n doublings from
@@ -493,9 +493,9 @@ the history of the headline numbers. Findings: `research_notes/model_audit.md`.
 
 ### The frontier (`frontier.py`, added 2026-11-15)
 
-`frontier.ladder` starts from Central and applies, in order, the levers `min_litres` (least medium per kg, `explore(medium_l=)`),
+`frontier.ladder` starts from the Selected cells case and applies, in order, the levers `min_litres` (least medium per kg, `explore(medium_l=)`),
 doubling time, the filter device (`retention`), the medium price, growth factors returned by a protein-retaining filter
-(`gf_doubling_bounds.reuse`, capped at the share charged without the filter), the density limit (`thick_culture`), the plant, the losses and the gas; each is kept. `frontier.alone` applies each to Central
+(`gf_doubling_bounds.reuse`, capped at the share charged without the filter), the density limit (`thick_culture`), the plant, the losses and the gas; each is kept. `frontier.alone` applies each to Selected cells
 alone. `frontier.with_gfi_amino_acids` replaces the nutrient floor with GFI's prices (`nutrient_floor`). Findings and odds:
 `research_notes/frontier.md`.
 
@@ -504,7 +504,7 @@ alone. `frontier.with_gfi_amino_acids` replaces the nutrient floor with GFI's pr
 For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the
 model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (tricks,
 shape) chosen again for each mode; for fed-batch through the scenario's own fed-batch setting, so a plant with shared medium keeps
-its full seed train (2026-11-19). Findings, with the likelihood of the fallback, re-judged at Central's 191 g/L:
+its full seed train (2026-11-19). Findings, with the likelihood of the fallback, re-judged at Selected cells' 191 g/L:
 `research_notes/no_perfusion_downside.md`.
 
 ### Holding the cells back (`retention.py`, added 2026-11-15)
@@ -517,7 +517,7 @@ per m² before replacement (`rt_membrane_price`, `rt_membrane_life`): $0.37 a li
 **Lost runs pay for their membranes** (2026-11-19). The membrane's life is the litres it filters over a full planned run of 33
 days at 5 L/m²/h. A run lost to contamination ends early and its membranes are thrown away with it. So the cost per litre is
 divided by `run_frac`, the share of the planned run an average start completes: (1 − e^(−hL)) / (hL) for a chance h a day and a
-planned length L (times the share of clean starts). At 1% a day it is 0.85, and Central's membranes cost $0.43 a litre: $12.8 a
+planned length L (times the share of clean starts). At 1% a day it is 0.85, and Selected cells' membranes cost $0.43 a litre: $12.8 a
 kilo for the 30 litres a kilo its filter clears. With no lost runs `run_frac` is 1 and Humbird's optimistic design is unchanged.
 `retention.sizing` charges the membrane devices of the study the same way.
 
@@ -1005,8 +1005,8 @@ serum and an inferred CO₂ limit) to put into the headline.
 *Animals (`meat_market.animals_per_tonne_sold`).* Land animals per tonne of meat: chicken about 580, turkey
 110, pork 11, beef 3, rabbit 770 (approximate, from carcass yields); seafood is left out because the model's
 seafood rows do not say which species. A tonne of the US meat mix is about 250 land animals. A tonne of
-cultivated meat, sold where the model says it sells (US), spares about 97 in Humbird's optimistic design, about 69 in Central
-and at the reported cost, and about 120 in the best case with shoppers favouring it. It sells mostly as beef and seafood, with
+cultivated meat, sold where the model says it sells (US), spares about 97 in Humbird's optimistic design, about 69 in Selected cells
+and at the reported cost, and about 120 in the Engineered cells, all favourable case with shoppers favouring it. It sells mostly as beef and seafood, with
 a tenth to a fifth as chicken. Share by weight overstates the land animals spared by a factor of about 2 to 4.
 
 **Plant cost from other sources (`research_notes/plant_capital_crosscheck.md`).** Every plant figure above is
@@ -1162,7 +1162,7 @@ bubble-free gas exchange would matter most for these cells.
 No preset can be a cost estimate for shrimp, because no shrimp or other crustacean cell culture that keeps
 dividing exists. Several of the numbers were read only in abstracts; the notes mark which.
 
-**What the page opens on.** The page opens on Central (`scenarios.py`), and every chart takes its cost from the case chosen there. The inputs registry, `uncertainty.py`'s Monte Carlo and the golden tests still start from the reported cost.
+**What the page opens on.** The page opens on the Selected cells case (`scenarios.py`), and every chart takes its cost from the case chosen there. The inputs registry, `uncertainty.py`'s Monte Carlo and the golden tests still start from the reported cost.
 
 Limits. Capital per m³ is other people's engineering, not physics. The 120 g/L limits are Humbird's for
 efficient cells; less efficient cells hit ammonia far sooner. The last row is a rough bound, not a proof: it
@@ -1373,8 +1373,10 @@ is fitted to this experiment among other things (next paragraph), so this is a f
 
 **Shoppers differ in how much they like cultivated meat** (`research_notes/liking_spread.md`; `market_share.spread_quadrature`).
 Each shopper's utility for cultivated meat is the model's plus a draw ℓ from a spread across shoppers. Its mean is set so that,
-once familiar and at equal price, at neutral settings, cultivated meat takes `equal_price_share` = 13% of choices
-(`market_share._solve_liking`). The calibration (β, the solved weights, plant-based meat's 1.2%) and every check on an existing
+once familiar and at equal price, at neutral settings, cultivated meat is picked by 14.5% of meat buyers, which is
+`equal_price_share` = 13% of all choices among meat, cultivated meat, plant-based meat and no meat (`market_share._solve_liking`).
+Readers are told the meat-buyers figure first: 50% of meat buyers would mean no preference; Engineered cells, all favourable takes
+58.5% of meat buyers (`best_equal_price_share` = 55% of all choices). The calibration (β, the solved weights, plant-based meat's 1.2%) and every check on an existing
 product are computed with every shopper alike and do not move.
 
 *The shape: a Student's t* (`inputs.LIKING_FAMILY = "student"`, since 2026-11-19). It is a bell curve with heavier tails than
@@ -1399,7 +1401,7 @@ tail of 3 with a spread of 3.7, and is within 20% of that from a spread of 3.45 
 values are 10% above the least; 4 rather than 3 is a choice. The model misses the experiment by 0.13 (2.56 with every shopper
 alike). The experiment alone would put the spread at 3.6 utils, and its own estimate, 3.6–4.6 on its scale, is about 3.3–4.7
 utils here, so 3.9 sits inside it. Neither number is drawn in the bands; across their ranges they move
-Central's share from 0.13% to 0.20% and from 0.10% to 0.22%. Because the spread is fitted to the experiment and the premium
+Selected cells' share from 0.13% to 0.20% and from 0.10% to 0.22%. Because the spread is fitted to the experiment and the premium
 meats, those are no longer independent checks of the model.
 
 *How it is integrated: 67 points on a stretched grid* (`market_share.grid_quadrature`). The share is an average over shoppers
@@ -1425,10 +1427,10 @@ familiar, its share of all choices at 1.25, 1.5, 2, 3 and 4 times the price of m
 fourth are golden-guarded). The spread also gives a group that never buys: the share is 24.5% at half the price of meat and
 41.5% if cultivated meat is free, so about 58% of choices never go to it. What it does not fix: the response of premium products
 to a falling price is 3.6–3.7 against farmed salmon's 1–1.5, and above about four times the price of meat the tail is an
-extrapolation (the premium data stop at 3.6 times). The best case, with its own 55% at equal price, takes 13.8% of world meat
+extrapolation (the premium data stop at 3.6 times). The Engineered cells, all favourable case, with its own 55% at equal price, takes 13.8% of world meat
 and seafood with this shape and took 19.9% with the normal: between one and four times the price of meat the answer depends on
 how many shoppers are moderately keener than average, which the t puts lower and no data measure beyond the one experiment.
-Shapes that fit the evidence about as well give the best case 14% to 17%.
+Shapes that fit the evidence about as well give the Engineered cells, all favourable case 14% to 17%.
 
 **The share at equal price is a judgement, and its prior is a lognormal.** 13% is a third of first-contact aversion fading (the
 model's own novelty term, 2.8 of 8.6 utils, and survey corrections in which novelty fades by half and an "unnatural" image
@@ -1440,7 +1442,7 @@ half above. The stated 3% and 49% set its spread; the draws' own 5th and 95th pe
 to 0.5%–80%. Until 2026-11-19 the prior was a triangular 5–13–49%, whose median was 21%: the bands were centred above the setting
 they were meant to surround. Outside readings: the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%
 (`research_notes/what_drives_choice.md`), and a reading of foods made by distrusted processes puts the median near 18%
-(`demand_heterogeneity_evidence.md` §6). The best case uses its own setting, 55% (`best_equal_price_share`, triangular
+(`demand_heterogeneity_evidence.md` §6). The Engineered cells, all favourable case uses its own setting, 55% (`best_equal_price_share`, triangular
 35–55–70%): shoppers who come to favour cultivated meat. The review puts about 3% on more than 49%. The share at equal price is
 the long-run dial: the no-slaughter, long-run novelty and health dials are not drawn in the bands, since they are parts of it,
 and stay on the page as what-ifs on top. Taste (`accept_x`) is separate.
@@ -1449,14 +1451,14 @@ and stay on the page as what-ifs on top. Taste (`accept_x`) is separate.
 a share x of one cut's buyers, and that cut is a share v of the carcass's value, then in the long run (herds adjust, the cost of
 raising an animal fixed, price elasticity ε for each cut) the herd falls by about v·x, the other cuts' price rises by about v·x/ε and
 that cut's falls by about (1−v)·x/ε. A smaller herd also lowers feed and land costs, which lowers every meat price somewhat. The
-best case, with 55% at equal price, takes about 37% of beef buyers, steak and mince alike, and 13.8% of all meat and seafood.
+Engineered cells, all favourable, with 55% at equal price, takes about 37% of beef buyers, steak and mince alike, and 13.8% of all meat and seafood.
 Taking steak and mince alike, the shifts between cuts largely cancel; what remains is the herd. A 37% fall in demand for beef,
 with a long-run supply elasticity of 1–2, lowers beef's price by perhaps 10–20%, and other meats' by 3–7%. At those prices the best
-case's share is 10.8–12.4% instead of 13.8%: 10% to 22% lower. With Central's demand the best case's cells take 8% of beef and
-2.7% of the whole, so the effect is about a fifth as large. Central's share is too small for any of it to matter.
+case's share is 10.8–12.4% instead of 13.8%: 10% to 22% lower. With Selected cells' demand the Engineered cells, all favourable case's cells take 8% of beef and
+2.7% of the whole, so the effect is about a fifth as large. Selected cells' share is too small for any of it to matter.
 
-**How fast: the adoption curve against history.** At its usual settings the model's share grows 80-fold (Central) to about
-110-fold (the best case and Humbird's optimistic design) between the first year and the seventeenth, reaching half its long-run
+**How fast: the adoption curve against history.** At its usual settings the model's share grows 80-fold (Selected cells) to about
+110-fold (the Engineered cells, all favourable case and Humbird's optimistic design) between the first year and the seventeenth, reaching half its long-run
 value in 11–13 years and 90% in 21–24. Industries
 that did grow a hundred-fold took 15–30 years: farmed salmon about 18 (13 kt in 1980 to over 1 Mt in 1999), US corn ethanol about 29
 for 76-fold with a mandate, US broilers 45–50; Quorn has not done it in 40 years. So the model is at the fast end of history, and it
@@ -1552,11 +1554,11 @@ The listed volume weights sum to 1.00–1.025 by region (premium variants were a
 exactly), so both totals are normalised. Volume is weight of meat and seafood, not animals: a count of animals is dominated
 by chickens, where cultivated does worst, and would be lower.
 
-What this produces (RESULTS, section 3): in Central and at the reported cost about three-fifths of sales are beef steaks,
+What this produces (RESULTS, section 3): in the Selected cells case and at the reported cost about three-fifths of sales are beef steaks,
 premium beef, premium fish and sushi-grade fish, where cultivated meat is nearest the price of the meat beside it; the rest is
 spread thinly over the large markets (pork, chicken, sheep and goat), sold at three to five times their price to the keenest
-shoppers in the tail of the spread of liking; in Humbird's optimistic design and at the best case's cost, mince and ordinary
-cuts sell more; ordinary chicken and pork stay above twice their meat's price even in the best case. Regional markets use local prices, consumption
+shoppers in the tail of the spread of liking; in Humbird's optimistic design and at the Engineered cells, all favourable case's cost, mince and ordinary
+cuts sell more; ordinary chicken and pork stay above twice their meat's price even in the Engineered cells, all favourable case. Regional markets use local prices, consumption
 mixes and income (`REGION_INCOME`); the low-income markets are rough. Biomass cost is the same for every species
 (a per-type multiplier, 1 unless set, is the hook for a species-specific cost study).
 
@@ -1619,8 +1621,8 @@ start of the path, not the ceiling.
 **When it levels off.** `years_to_stabilize` gives the first year the share reaches 90% of its *long-run* share:
 rollout complete (F = 1) and novelty at its long-run value. That share is computed directly, and the simulation
 runs on past the 30 plotted years until it is reached (cap 200), so the answer does not depend on the horizon.
-At the reported cost it is 21 years (14 at `accept_rate` = 0.5, 46 at 0.05; golden-guarded); in Central 21 (14 to 46), in
-Humbird's optimistic design 24 (14 to 55) and in the best case, with its own 55% at equal price, 22 (14 to 51). It was 28 at the
+At the reported cost it is 21 years (14 at `accept_rate` = 0.5, 46 at 0.05; golden-guarded); in the Selected cells case 21 (14 to 46), in
+Humbird's optimistic design 24 (14 to 55) and in the Engineered cells, all favourable case, with its own 55% at equal price, 22 (14 to 51). It was 28 at the
 reported cost with the normal spread. These assume that nothing stalls and that supply keeps up; the Bass rates are those of
 durable goods, so the years are an assumption, not an estimate.
 
@@ -1666,13 +1668,13 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
 
 ## Cruxes
 
-- **Cost (dominates):** does cost reach parity? Most likely not: parity needs $6.1 a kilo of cells, Central's median is $37
-  and the best case's $14 (R median 4.6 and 1.9). The unsettled numbers are the waste the cells make (lactate and ammonia),
+- **Cost (dominates):** does cost reach parity? Most likely not: parity needs $6.1 a kilo of cells, Selected cells' median is $37
+  and the Engineered cells, all favourable case's $14 (R median 4.6 and 1.9). The unsettled numbers are the waste the cells make (lactate and ammonia),
   the ammonia they tolerate, how long a cell filter lasts in a dense culture, and whether perfusion runs at 20 m³ at all.
 - **Demand at parity:** the share at equal price is a judgement, set at 13% and drawn between 3% and 52%. Around it, taste,
-  acceptance as real meat and the value of “no slaughter” move it between 6% and 21%. The best case takes 55%.
-- **The spread of liking:** a Student's t fitted loosely to one experiment, sixteen premium meats and farmed salmon. Its tail decides Central
-  (above four times the price of meat it is an extrapolation) and its middle decides the best case (13.8%, against 19.9% with
+  acceptance as real meat and the value of “no slaughter” move it between 6% and 21%. The Engineered cells, all favourable case takes 55%.
+- **The spread of liking:** a Student's t fitted loosely to one experiment, sixteen premium meats and farmed salmon. Its tail decides Selected cells
+  (above four times the price of meat it is an extrapolation) and its middle decides the Engineered cells, all favourable case (13.8%, against 19.9% with
   the normal spread it replaced). The response to a falling price is still more than twice farmed salmon's.
 
 ## Running it
@@ -1722,7 +1724,7 @@ Weighted mean: 19.15 USD/kg, against GPP USA 18.80, so world = 1.019 × US. Both
 Seafood is 24% of the world table by edible weight (FAO: about 170 Mt live weight eaten, about half of it edible, against about
 380 Mt of meat by carcass weight, about two-thirds of it boneless; `research_notes/premium_market_sizes.md`). Until 2026-11-19 it
 was two main rows from no weighted source: canned at $8 a kilo and one "fillet" row at $16 for 64% of seafood. That row carried
-the headline: fillets were 39% of Central's sales. Priced by who eats the fish (`research_notes/world_seafood_prices.md`), seafood
+the headline: fillets were 39% of Selected cells' sales. Priced by who eats the fish (`research_notes/world_seafood_prices.md`), seafood
 averages about $10 a kilo of edible fish, and the one row hid two markets:
 
 | row of `GLOBAL_MARKET` | share of seafood | share of the table | $/kg edible (low / used / high) |
@@ -1884,8 +1886,8 @@ the sources' own figure.
 | analysis | published $/kg | what the kg is | capital in the cost | reactor | per kg of real cells, capital included |
 |---|---|---|---|---|---|
 | Humbird 2021 | 37 fed-batch, 51 perfusion, ~21 on hydrolysate | wet cells, 70% moisture, 3 ng | yes, 15% a year | 20 m³ fed-batch; 2 m³ perfusion | 37 / 51 |
-| CE Delft 2021 | 6.4 (2030 best case) to 116 | wet cells, 3 ng | 30-year payback, no return, in the best cases | 10 m³ fill-and-draw, then 2 m³ perfusion | ~11–18 |
-| Risner 2021 | 1.95 to 437,000 | wet cells, 5 ng | yes | 20 m³ batch | best case fills the vessel 100% with cells: not physical |
+| CE Delft 2021 | 6.4 (2030 Engineered cells, all favourable) to 116 | wet cells, 3 ng | 30-year payback, no return, in the best cases | 10 m³ fill-and-draw, then 2 m³ perfusion | ~11–18 |
+| Risner 2021 | 1.95 to 437,000 | wet cells, 5 ng | yes | 20 m³ batch | Engineered cells, all favourable fills the vessel 100% with cells: not physical |
 | Garrison 2022 | 63.7 | "cells similar to tissue"; density not given | yes, 10% over 10 years | 20 m³ fill-and-draw | not convertible; medium looks ~35× short of amino acids |
 | Negulescu 2023 | 35 / 25 / 17 | wet cells, 3 ng, 30% dry matter | depreciation only | 42 and 211 m³ stirred, 262 m³ airlift | ~18–41 |
 | Ark (Quint) 2023 | 65 | 2.5 ng cells; basis unstated | depreciation only | 25 m³ fed-batch | ≥65 |

@@ -28,9 +28,9 @@ What this module does
    with. Premium products are the ones `meat_market.tier` labels premium. Since world seafood was re-priced on 2026-11-19 they
    are five: organic chicken, heritage pork, prime or wagyu beef, sushi-grade seafood, and the new row of premium fillets and
    shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. With the Student's t spread of liking
-   (2026-11-19) premium products are about a quarter of Central's sales at its own cost; most are ordinary cuts, a third beef
+   (2026-11-19) premium products are about a quarter of Selected cells' sales at its own cost; most are ordinary cuts, a third beef
    steaks. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
-   for Central the five do and the four small ones do not, and its whole sales need nearly five times the switch.
+   for Selected cells the five do and the four small ones do not, and its whole sales need nearly five times the switch.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables

@@ -1,5 +1,7 @@
 # How thick can a stirred or airlift culture be?
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -130,7 +132,7 @@ The oxygen a sparger can feed solves x = x_base x kLa factor(x), where x_base is
 | tank | model's oxygen limit | with viscosity (exponent 0.4) | range, exponent 0 to 0.6, shear thinning 1 to 3 |
 |---|---|---|---|
 | Humbird's tank, 6 mm/s | 146 | **121** | 96-146 |
-| Central design (column + 1 bar, square) | 191 | **151** | 117-191 |
+| Selected cells design (column + 1 bar, square) | 191 | **151** | 117-191 |
 | Cautious design (column + 1 bar, tall) | 120 | **103** | 84-120 |
 | Best design (closed oxygen loop) | none | none | none |
 
@@ -153,7 +155,7 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 
 ## 6. Which limit binds first (g/L; volume fraction = g/L / 1,036)
 
-| limit | Humbird's tank, no tricks | Central design | Best design |
+| limit | Humbird's tank, no tricks | Selected cells design | Best design |
 |---|---|---|---|
 | CO2 removal | **120** (0.12) | none (column) | none (column) |
 | mixing rule (oxygen transfer vs mixing time) | 189 (0.18) | 996 | 1,749 |
@@ -184,10 +186,10 @@ thicker culture can force a design that gives up density). $/kg.
 |---|---|---|---|---|
 | Best, fixed | 11.72 | **11.46** | 11.35 | 11.27 |
 | Best, checked | 11.64 (column + 1 bar, tall) | 11.46 | 11.48 (241, oxygen; column + 1 bar) | 11.48 (241) |
-| Central, fixed | 33.18 | **32.80** (oxygen binds at 191) | 32.80 (191) | 32.80 (191) |
-| Central, checked | 33.18 | 32.80 (191) | 32.80 (191) | 32.80 (191) |
-| Central, shared medium, fixed | 30.12 | **29.94** (191) | 29.94 (191) | 29.94 (191) |
-| Central, shared medium, checked | 30.12 | 29.94 (191) | 29.94 (191) | 29.94 (191) |
+| Selected cells, fixed | 33.18 | **32.80** (oxygen binds at 191) | 32.80 (191) | 32.80 (191) |
+| Selected cells, checked | 33.18 | 32.80 (191) | 32.80 (191) | 32.80 (191) |
+| Selected cells, shared medium, fixed | 30.12 | **29.94** (191) | 29.94 (191) | 29.94 (191) |
+| Selected cells, shared medium, checked | 30.12 | 29.94 (191) | 29.94 (191) | 29.94 (191) |
 | Cautious, fixed | 92.17 (oxygen binds at 120) | **92.17** | 92.17 | 92.17 |
 | Cautious, checked | 92.17 (120) | 92.17 | 92.17 | 92.17 |
 
@@ -215,7 +217,7 @@ Evidence for the densities shown: Clincke 4 L, 2.14e8 cells/mL (phi 0.5) with a 
 |---|---|---|---|
 | A. Viscosity, stirrer and cavern do not stop the tank (phi 0.25 / 0.31 / 0.39) | 97% | 94% | 85% |
 | B. A, and heat and gas transfer (oxygen, CO2) work with the tricks, at any cost | 51% | 28% | 12% |
-| C. B, and a retention device holds it a month at the Central duty (`retention_devices.md`: 35% at 258) | **18%** | **6%** | 1% |
+| C. B, and a retention device holds it a month at the Selected cells duty (`retention_devices.md`: 35% at 258) | **18%** | **6%** | 1% |
 | a plain sparged tank, no tricks, holds it | 1% | under 1% | under 1% |
 
 How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the tricks (55%, 33%, 17%); C = B x retention (35%, 20%, 8%).

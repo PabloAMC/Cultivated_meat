@@ -1,5 +1,7 @@
 # Ammonia the cells tolerate, and how long a cell filter lasts
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Research date: 2026-11-16. A literature pass on the two inputs that move Central most (`answer_rests_on.py`, RESULTS.md "What
 the answer rests on"): `pf_nh3_limit` (5 mmol/L, range 2–10) and `rt_membrane_life` (3,960 L/m², range 900–5,500). **No input
 was changed.** Costs are 2025 dollars per kg of wet cells. I computed them on the model as it stood on 2026-11-16 by moving one
@@ -126,7 +128,7 @@ literature (Pakbin 2025).
 | Meat-relevant unadapted cells, 50% growth loss | about 3–10 mM (catfish about 3; 3T3 about 8; HFF-1 about 10; pig and bovine FAPs unknown) |
 | Meat-cell process set-points and levels reached | 2–3 mM held (Pasitka, quail); above 3 mM reached at 3–6 million cells/mL (Bodiou) |
 | After selection or slow adaptation (hybridoma only) | 10–21 mM, with a growth cost in continuous culture |
-| My median for Central's selected cells, at the level where growth loss is small | **3.5–4 mM** |
+| My median for Selected cells' selected cells, at the level where growth loss is small | **3.5–4 mM** |
 | My 80% interval | 2–8 mM |
 
 - **Probability the model's 5 mM is within a factor of 1.5 of the truth** (3.3–7.5 mM) for meat cells at production density:
@@ -282,9 +284,9 @@ scenario ladder. Nothing was committed or pushed. I report it because it shows h
 |---|---|---|
 | Today | 62.96 | 73.19 |
 | Process changes | 30.73 | 46.11 |
-| Central | 29.42 | 44.67 |
-| Central, lean | 26.56 | 41.81 |
-| Best case | 9.66 | 13.83 |
+| Selected cells | 29.42 | 44.67 |
+| Selected cells, lean | 26.56 | 41.81 |
+| Engineered cells, all favourable | 9.66 | 13.83 |
 | Cautious | 42.39 | 57.37 |
 
 The ladder keeps its order and gaps and rises by about $15 in the middle rungs. The move is not a two-number edit. The repo's

@@ -54,25 +54,25 @@ def check() -> list:
 
     # 2026-11-19 audit batch: the published cells' glucose comes from their own balance (4.5 mol a kilo at a lactate yield
     # of 1.05), so lactate, not ammonia, sets their litres (95.5, was 28). An ammonium exchanger then saves nothing, and a
-    # route that takes lactate saves more than it does in Central. Before, reuse was capped at $4.6 for these cells.
+    # route that takes lactate saves more than it does in Selected cells. Before, reuse was capped at $4.6 for these cells.
     names = list(M.routes())
     t0, c0 = s["today"], s["central"]
     if t0["base"]["medium_set_by"] != "lactate" or c0["base"]["medium_set_by"] != "ammonia":
-        fails.append("lactate should set the published cells' litres and ammonia Central's")
+        fails.append("lactate should set the published cells' litres and ammonia Selected cells'")
     if t0["sorbent"]["saving"] > 1e-9:
         fails.append("an ammonium exchanger should save nothing where lactate sets the litres")
     if not t0["routes"][names[0]]["saving"] > c0["routes"][names[0]]["saving"] > 0:
-        fails.append("electrodialysis should save more for the published cells than in Central")
+        fails.append("electrodialysis should save more for the published cells than in Selected cells")
     if not t0["bounds"]["across the culture"]["saving"] > c0["bounds"]["across the culture"]["saving"]:
-        fails.append("a perfect device should be worth more for the published cells than in Central")
-    # reuse does not replace better cells: the published cells with the best route modelled cost more than Central with none
+        fails.append("a perfect device should be worth more for the published cells than in Selected cells")
+    # reuse does not replace better cells: the published cells with the best route modelled cost more than Selected cells with none
     if not min(c["total"] for c in t0["routes"].values()) > c0["base"]["total"]:
-        fails.append("the published cells with the best route should still cost more than Central with no device")
-    # in Central the routes keep their order: electrodialysis beats dialysis across the culture at the filter's cost, and the
+        fails.append("the published cells with the best route should still cost more than Selected cells with no device")
+    # in Selected cells the routes keep their order: electrodialysis beats dialysis across the culture at the filter's cost, and the
     # exchanger beats dialysis of the permeate with a cleaned dialysate
     if not (c0["routes"][names[0]]["total"] < c0["routes"][names[3]]["total"]
             and c0["sorbent"]["total"] < c0["routes"][names[2]]["total"]):
-        fails.append("the order of Central's routes has changed; rewrite section 2 of the note")
+        fails.append("the order of Selected cells' routes has changed; rewrite section 2 of the note")
     # the table's ammonia row names the limit the scenarios use
     if f"| ammonia, held at {M.base('central')[0]['nh3_limit']:.0f} mmol/L |" not in M.markdown():
         fails.append("the ammonia row should name the scenarios' own limit (sc_nh3_limit)")

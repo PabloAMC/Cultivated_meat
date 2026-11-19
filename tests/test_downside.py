@@ -21,8 +21,8 @@ from inputs import value
 # cells' balance gives the published cells 4.8 mol of lactate a kilo, and an unwashed tank is now capped by whichever waste is
 # further above the enhanced cells' (lactate here), so its cap falls from 52 to 25 g/L, below the 27 g/L shown for meat cells
 # 2026-11-19 restructure: an unwashed tank is capped by the waste mass balance (pf_batch_end_x times the level perfusion is held
-# to), not by Humbird's 120 g/L scaled. Central's selected cells stop at 37 g/L (was 56), the published cells (cautious) at 13.6 g/L
-# (was 25); the best case is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
+# to), not by Humbird's 120 g/L scaled. Selected cells' selected cells stop at 37 g/L (was 56), the published cells (cautious) at 13.6 g/L
+# (was 25); the Engineered cells, all favourable case is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
 # seed train (best and central_lean, fed-batch), so there fill-and-draw, which needs a seed only to restart, is the cheaper fallback.
 GOLDEN = {
     "best": {("fedbatch", "model"): 15.6371, ("fedbatch", "shown"): 44.0019, ("filldraw", "model"): 14.3709},

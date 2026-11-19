@@ -93,9 +93,9 @@ def check() -> list:
         gas = rows["every gas limit lifted (CO₂, oxygen, mixing)"]
         if any(gas > rows[l] + 1e-9 for l in ("CO₂ removal lifted", "oxygen supply lifted", "mixing lifted")):
             fails.append(f"{k}: lifting every gas limit should be at least as good as lifting one")
-    # pinned (2026-11-16; repinned 2026-11-19: growth factors inside the complete medium's price, -$2.99 Central and -$5.97 today;
+    # pinned (2026-11-16; repinned 2026-11-19: growth factors inside the complete medium's price, -$2.99 Selected cells and -$5.97 today;
     # best's medium at the $2.00 nutrient floor, +$0.30)
-    # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L and membranes for lost runs (Central +$6.46, best +$1.50); glucose from the
+    # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L and membranes for lost runs (Selected cells +$6.46, best +$1.50); glucose from the
     # cells' balance (today's ideal +$56.03: the published cells' lactate sets 95 L/kg, and no gas exchange changes that).
     # 2026-11-19 restructure: rung 1 is now fed-batch, so the published cells in perfusion are searched as "cautious" (the same
     # switches as the old rung 1; same pinned figures).

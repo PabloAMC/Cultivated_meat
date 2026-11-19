@@ -5,7 +5,7 @@ scenarios.py — cost scenarios for cultivated meat: what has to go right, and w
 Why
 ---
 Earlier versions of this model quoted one number, "the floor", as if it were the lowest cost the physics allows.
-It was neither a best case nor a typical case: it was `floor_physics.explore()` at its defaults (a standard
+It was neither a Engineered cells, all favourable nor a typical case: it was `floor_physics.explore()` at its defaults (a standard
 20 m3 stirred tank in perfusion, 120 g/L, a food-grade plant, engineered cells, no tank tricks). That number is
 kept as a labelled REFERENCE (`reference()`), and everything else is described as SCENARIOS: each is a preset of a
 small set of SWITCHES, one per decision that moves the cost. Every figure is computed from the model.
@@ -195,7 +195,7 @@ SWITCHES = (
         Setting("floor", "At the nutrient floor: only what the cells eat", {"medium_price": 0.0}, FEED,
                 "No one has reported it. The medium costs what the cells take up, at GFI's feed-grade amino-acid prices: $2.00 a "
                 "kilo of cells (232 g of amino acids at $6.36, glucose, salts and vitamins), whatever the litres; growth factors "
-                "are bought on top (the growth-factor switch). At Central's 35 litres a kilo that is about $0.06 a litre."),
+                "are bought on top (the growth-factor switch). At Selected cells' 35 litres a kilo that is about $0.06 a litre."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid"), "medium_complete": True}, FEED,
                 "What several companies announced for 2025. A complete medium: growth factors are in the price."),
         Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high"), "medium_complete": True}, NOTHING,
@@ -335,15 +335,15 @@ SCENARIOS = {
         design({"mode": "fedbatch", **_PUBLISHED, "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
                 "gf": "30", "medium": "0.20"})),
     "selected": Scenario(
-        "selected", "3. Plus cells selected to make less waste and grow faster on the low-waste feed",
+        "selected", "3. Plus cells selected to make less waste and grow faster, still in batches",
         "Selecting the best lines on the low-waste feed wins back part of the speed (a doubling every 36 hours, not 43) and cuts "
         "their lactate to 0.42 mol per mol of glucose, as adapted CHO cells reach. Still in batches in a 20 m³ tank: the batch "
         "now ends near 37 g/L, held by ammonia, not 14 g/L held by lactate.",
-        "Central's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). Selection needs no genetic engineering, and "
+        "the Selected cells case's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). Selection needs no genetic engineering, and "
         "it is likelier by 2035 (about 65%) than perfusion at 20 m³ (about 30%), and it needs no new equipment.",
         design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
-        "central", "4. Plus perfusion (Central): waste washed out through a cell filter",
+        "central", "4. Plus perfusion (Selected cells): waste washed out through a cell filter",
         "The same selected cells, doubling every 36 hours, now in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
         "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
@@ -353,9 +353,9 @@ SCENARIOS = {
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
     "central_lean": Scenario(
         "central_lean", "5. Plus a food-grade plant with shared medium",
-        "This is Central in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
+        "This is Selected cells in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
         "has built one. Its two small seed trains serve only long runs, so it comes after perfusion.",
-        "The same as Central, but with a food-grade plant with shared medium.",
+        "The same as Selected cells, but with a food-grade plant with shared medium.",
         design({**_BASE, "plant": "lean"}),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}))),
     "engineered": Scenario(
@@ -365,7 +365,7 @@ SCENARIOS = {
         "Rung 5 with the kind of cells at its cheapest setting; tank design chosen again.",
         design({**_BASE, "plant": "lean", "cells": "engineered"})),
     "best": Scenario(
-        "best", "7. Plus everything else at its favourable end (the best case)",
+        "best", "7. Plus everything else at its favourable end (Engineered cells, all favourable)",
         "The engineered cells double every day and need no bought growth factors, the medium costs only what the cells eat, "
         "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
         "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
@@ -394,7 +394,7 @@ SCENARIOS = {
 # The scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
 # The ladder RESULTS leads with after the forecast: each rung adds one kind of change to the one before, likeliest first
-# (RESULTS.md, "The ladder"). Rungs 4, 5 and 7 are exactly Central, Central with shared medium and the best case.
+# (RESULTS.md, "The ladder"). Rungs 4, 5 and 7 are exactly Selected cells, Selected cells with shared medium and the Engineered cells, all favourable case.
 LADDER = ("today", "process", "selected", "central", "central_lean", "engineered", "best")
 PAGE_ORDER = LADDER + ("forecast",)
 
@@ -522,7 +522,7 @@ _DPS: dict = {}
 
 
 def demand_for(eqs_input: str = "equal_price_share"):
-    """The demand model with the long-run share at equal price taken from this input (the best case has its own)."""
+    """The demand model with the long-run share at equal price taken from this input (the Engineered cells, all favourable case has its own)."""
     if eqs_input == "equal_price_share":
         return _demand()
     if eqs_input not in _DPS:
@@ -637,8 +637,8 @@ MC_PRIORS = {
 # inputs.py: the ammonia the cells tolerate, the protectant's price and dose, the least medium flow, antifoam's cost to
 # oxygen transfer and the membrane's price. A scenario that sets one of them itself keeps its own value. Not drawn: the gas
 # flow (a switch); the glucose a cell burns per kg (a trait of the cells, which the kind-of-cells switch holds, as it holds
-# their ammonia and lactate; drawn, it would double the best case's median); and the salt the cells tolerate (drawn, it
-# moves the best case's median by about $0.1 and makes each band forty times slower, because a lower limit sets off the
+# their ammonia and lactate; drawn, it would double the Engineered cells, all favourable case's median); and the salt the cells tolerate (drawn, it
+# moves the Engineered cells, all favourable case's median by about $0.1 and makes each band forty times slower, because a lower limit sets off the
 # CO2-level search in explore). The ammonia the cells tolerate is drawn because no switch sets it: every scenario takes
 # sc_nh3_limit (4 mmol/L since 2026-11-19; Humbird's optimistic design keeps his 5).
 # `sc_wide_bands` = 0 restores the narrower bands.
@@ -668,8 +668,8 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
         d[key] = reg_draw(name)
     reg = {}
     if value("sc_wide_bands") >= 0.5 and choice is not None and choice["cells"] in ("selected", "measured"):
-        # the ammonia these cells make was measured once (audit 2026-11-19: the third-largest estimate under Central). The
-        # engineered cells' is not drawn: the best case assumes cells that reach Humbird's figure.
+        # the ammonia these cells make was measured once (audit 2026-11-19: the third-largest estimate under Selected cells). The
+        # engineered cells' is not drawn: the Engineered cells, all favourable case assumes cells that reach Humbird's figure.
         d["nh3_kg"] = reg_draw("sc_nh3_selected")
     if value("sc_wide_bands") >= 0.5:                  # drawn after the others, so their draws are unchanged
         for key, name in MC_ESTIMATES:
@@ -837,7 +837,7 @@ def _aggregates_cost(kw: dict) -> float:
 def forecast_mc(n: int = FORECAST_N, seed: int = 0, demand: bool = True) -> dict:
     """The forecast for 2035 as a distribution: each draw takes its switches from the author's odds (forecast_switch_draws), the
     estimates behind the cost from their priors as scenario_mc draws them, and the demand dials from theirs (meat_market.
-    monte_carlo, Central's demand with its lognormal share at equal price). Where both a filter and aggregates hold the
+    monte_carlo, Selected cells' demand with its lognormal share at equal price). Where both a filter and aggregates hold the
     cells back, the cheaper is used. Returns the arrays and `summary`."""
     from cost_model import CostParams, parity_cost
     sw = forecast_switch_draws(n, seed)
@@ -978,7 +978,7 @@ FC_RESTS_ON = ("fc_perf_by_2035", "fc_perf_191", "fc_cells_engineered", "fc_cell
 
 
 FC_RESTS_LABEL = {"fc_perf_by_2035": "a perfusion that can hold the culture is in production at 20 m³ by 2035",
-                  "fc_perf_191": "a filter can hold Central's 191 g/L at 20 m³ for a month",
+                  "fc_perf_191": "a filter can hold Selected cells' 191 g/L at 20 m³ for a month",
                   "fc_cells_engineered": "engineered cells in production by 2035",
                   "fc_cells_measured": "cells no better than the published ones",
                   "fc_plant_lean": "a plant at or below the shared-medium plant's cost",
@@ -1036,9 +1036,9 @@ def forecast_rests_on_markdown(rows: list | None = None, n: int = 1000) -> str:
 # The plant-cost axis: perfusion against fed-batch as the plant gets cheaper (2026-11-19 restructure)
 # ----------------------------------------------------------------------------
 PLANT_MULTS = (1.0, 0.75, 0.5, 0.34)            # the bands' range for the plant estimate: as modelled down to a third
-PLANT_AXIS_CASES = (("process", "Published cells (rung 2's switches)"), ("central", "Selected cells (Central's switches, rungs 3–4)"),
+PLANT_AXIS_CASES = (("process", "Published cells (rung 2's switches)"), ("central", "Selected cells (Selected cells' switches, rungs 3–4)"),
                     ("central_lean", "Selected cells, plant with shared medium (rung 5)"),
-                    ("engineered", "Engineered cells (rung 6)"), ("best", "The best case's switches (rung 7)"))
+                    ("engineered", "Engineered cells (rung 6)"), ("best", "The Engineered cells, all favourable case's switches (rung 7)"))
 AXIS_MODES = ("perfusion", "fedbatch", "fedbatch100")
 
 

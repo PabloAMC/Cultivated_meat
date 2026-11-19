@@ -836,7 +836,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
     # positive: a positive beta makes alpha negative, so shoppers would gain utility from paying more, and the more so the
     # dearer the cut. Without this, loss_aversion * w_ratio above about 1.6 (beta = target + lambda*w/p_conv > 0) moved
     # price sensitivity off dollars so far that cultivated's share in steaks and fillets rose with loss aversion
-    # (answer_rests_on.py found Central's world share going from 0.4% to 1.4% as lambda went from 1 to 2.25). Capped at
+    # (answer_rests_on.py found Selected cells' world share going from 0.4% to 1.4% as lambda went from 1 to 2.25). Capped at
     # zero, the dollar channel switches off and the ratio channel alone carries the price response; past that point the
     # realised elasticity at the anchor is steeper than the eps_own*kappa target, which is what a strong loss aversion
     # should do. Inert at the defaults (beta = -0.053).
@@ -867,7 +867,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
 def share_band(R: float, pr: DemandParams):
     """(lo, central, hi) LONG-RUN cultivated share across the acceptance dials
     (taste-acceptance accept_x: friction->full, slaughter-free value theta_free_M:
-    indifferent->valued) and elasticity. Central = neutral (accept_x=1,
+    indifferent->valued) and elasticity. Selected cells = neutral (accept_x=1,
     theta_free_M=0 = cultivated treated as equivalent to conventional)."""
     central = share(R, pr, accept_x=1.0, theta_free_M=0.0)
     grid = [share(R, pr, accept_x=a, theta_free_M=f, eps_own=e)
@@ -992,7 +992,7 @@ LUSK_ELAS_BRACKET = (-1.65, -1.1)   # at-parity, first-contact own-price elastic
 
 def lusk_at_parity_elasticity(pr: DemandParams, R: float = 1.0, h: float = 1e-4) -> float:
     """The model's implied COLD-START at-parity own-price elasticity of cultivated — the
-    quantity Van Loo/Caputo/Lusk 2020 measured. Central-difference d ln(share)/d ln(price) at
+    quantity Van Loo/Caputo/Lusk 2020 measured. Selected cells-difference d ln(share)/d ln(price) at
     parity, evaluated at the cold-start novelty (neophobia_x0, the survey condition: cultivated
     is unfamiliar), with neutral standing (accept_x=1, theta_free_M=0)."""
     nx0 = value("neophobia_x0")

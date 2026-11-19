@@ -16,7 +16,7 @@ language (“How the model works”, at the bottom of the page).
 
 **Scenarios** describe the cost of a kilo of cells. They form a ladder ordered by how hard each change is: the published cells (the best
 meat cells in the published record), then process changes and cheaper inputs, then cells selected to make less lactate and grow faster
-(Central), then a cheaper plant, then engineered cells (the best case). A forecast for
+(Selected cells), then a cheaper plant, then engineered cells (the Engineered cells, all favourable case). A forecast for
 2035, Humbird's optimistic design and the process one company reports sit beside the ladder.
 Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page.
 Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $12.8, with the filter loop and the protectant counted.

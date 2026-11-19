@@ -218,7 +218,7 @@ def _world(pr: M.DemandParams, cost: float) -> float:
 
 def salmon_response(pr: M.DemandParams) -> dict:
     """market_size_loop.premium_response for a demand model: percent more share per percent lower price ratio of each premium
-    product, between Central's cost and its cost once a food-grade membrane exists; {name: (price ratio at Central's cost, response)}."""
+    product, between Selected cells' cost and its cost once a food-grade membrane exists; {name: (price ratio at Selected cells' cost, response)}."""
     import market_size_loop as L
     choice = S.SCENARIOS["central"].choice
     c0 = L.base_run(choice)["cost"]

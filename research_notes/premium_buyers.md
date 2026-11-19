@@ -1,5 +1,7 @@
 # Cultivated meat as an even more premium meat, competing with welfare labels for premium buyers
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -56,7 +58,7 @@ So the size has to come from who buys labels (section 4).
 
 ## 3. What it gives (long-run share of world meat by weight; premium buyers 10% of shoppers)
 
-| no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (Central): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (the best case): share; sold to premium buyers; taken from the label, from conventional meat |
+| no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (Selected cells): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case): share; sold to premium buyers; taken from the label, from conventional meat |
 |---|---|---|
 | +5% | 0.13%; 77%; 15%, 66% | 5.92%; 18%; 5%, 79% |
 | +25% | 0.16%; 81%; 15%, 67% | 6.15%; 21%; 5%, 79% |
@@ -68,7 +70,7 @@ So the size has to come from who buys labels (section 4).
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come
 from: the drop in each product's share when cultivated meat is added.
 
-| premium buyers, share of shoppers | 4. Plus perfusion (Central) | 7. Plus everything else at its favourable end (the best case) |
+| premium buyers, share of shoppers | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
 |---|---|---|
 | 5% | 0.14% | 5.98% |
 | 10% | 0.13% | 5.92% |

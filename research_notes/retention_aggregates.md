@@ -1,5 +1,7 @@
 # Holding the cells back without a membrane: aggregates and carriers
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Research date: 2026-11-19. Code: `retention.py` (devices `aggregates` and `microcarriers`; `particle`, `particle_case`,
 `critical_diameter`, `hypoxic_share`, `growth_penalty`, `oxygen_sizes`, `aggregate_scan`); inputs `rt_part_*`, `rt_agg_*`,
 `rt_o2_*`, `rt_mc_*` in `inputs.py`; tests `tests/test_retention.py` (`check_particles`). Costs are 2025 dollars per kg of wet
@@ -13,7 +15,7 @@ not checked in this pass. No source on carrier price was read in full, and no pr
 The question was: can cells be held back without a membrane? A single cell settles too slowly for a settler at 18% cells by
 volume (`retention_devices.md`). Cells in a particle settle far faster. Two ways to put them in one:
 
-| Route | Reference | Central | Best case | Central range | What limits it | What has been shown |
+| Route | Reference | Selected cells | Engineered cells, all favourable | Selected cells range | What limits it | What has been shown |
 |---|---|---|---|---|---|---|
 | TFF loop (the model's default) | $12.81 | $32.80 | $11.46 | $26.48-78.74 | membranes | 2.14e8 cells/mL for days in 4 L |
 | **Cells grown as aggregates, gravity settler** | **$12.12** | **$20.39** | **$8.34** (held to 193 g/L) | $19.95-29.08 | whether the cells grow as aggregates at all, and keep their size for a month | 33-35e6 iPSC/mL (about 40 g/L) in 150 mL for 7 days; aggregates held back in 8 L |
@@ -91,8 +93,8 @@ The largest aggregate whose middle stays at 0.026 mmol/L (`oxygen_sizes`):
 | Cells | At the case's own setpoint | 0.10 mmol/L | 0.21 (air) | 0.28 (Humbird's tank) |
 |---|---|---|---|---|
 | Reference (3 ng, 24 h) | 543 um at 0.28 | 295 um | 466 um | 547 um |
-| Central (2 ng, 36 h) | 307 um at 0.10 | 307 um | 485 um | 570 um |
-| Best case (3 ng, 24 h) | 295 um at 0.10 | 295 um | 466 um | 547 um |
+| Selected cells (2 ng, 36 h) | 307 um at 0.10 | 307 um | 485 um | 570 um |
+| Engineered cells, all favourable (3 ng, 24 h) | 295 um at 0.10 | 295 um | 466 um | 547 um |
 
 Without the film Central's size would be 346 um; with a film of Sherwood number 2 (still liquid), 227 um. At the unfavourable
 end of the proliferation level (0.065 mmol/L) it is 211 um; at the favourable end, 333 um.
@@ -119,7 +121,7 @@ At 0.28 mmol/L the tank's oxygen transfer falls and so does its density, which c
 to 600 um. Oxygen is not what limits this route. A layer of cells 3.5-5 um thick on a solid bead is far too thin for it to
 matter for carriers.
 
-## 4. What moves each route (Central)
+## 4. What moves each route (Selected cells)
 
 Each input alone at the ends of its range:
 
@@ -174,9 +176,9 @@ Each input alone at the ends of its range:
 | Aggregate size is held for 33 days by in-line break-up or shear, losing under 5% of the cells | 25% |
 | A gravity settler, with a back-flushed screen, holds 97% or more of the cells of an aggregate culture at 20 m3 | 50% |
 | By 2035, aggregates of a meat cell line are held at the reference's 120 g/L in a 20 m3 perfusion tank for a month | 15% |
-| By 2035, the same at Central's 191 g/L (aggregates taking a quarter of the volume) | 8% |
+| By 2035, the same at Selected cells' 191 g/L (aggregates taking a quarter of the volume) | 8% |
 | By 2035, carriers of any kind hold 100 g/L of meat cells in perfusion | 4% |
-| By 2035, carriers hold Central's 191 g/L | under 1% |
+| By 2035, carriers hold Selected cells' 191 g/L | under 1% |
 
 The 8% for aggregates at Central is above the 5% given to a settler for single cells at that density, and below the 35% for a
 filter, because the physics works but every step past 40 g/L and a week is unshown. Most of the risk is biology (growth in

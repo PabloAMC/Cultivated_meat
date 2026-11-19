@@ -37,15 +37,15 @@ check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "refe
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-# 2026-11-19: growth factors inside complete media prices (Central -$3.0), nutrient floor $2.00 (best +$0.30)
-# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Central +$4.9, best +$1.2), a lost run pays for its membranes (Central
+# 2026-11-19: growth factors inside complete media prices (Selected cells -$3.0), nutrient floor $2.00 (best +$0.30)
+# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Selected cells +$4.9, best +$1.2), a lost run pays for its membranes (Selected cells
 # +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
 for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
-# 3. what each scenario needs: the best case needs engineering, the central one does not
+# 3. what each scenario needs: the Engineered cells, all favourable case needs engineering, the central one does not
 need = {k: S.hardest_need(S.SCENARIOS[k].choice) for k in S.ORDER}
-check(need["best"] == S.GE, f"best case should need genetic engineering, needs {need['best']}")
+check(need["best"] == S.GE, f"Engineered cells, all favourable should need genetic engineering, needs {need['best']}")
 check(need["central"] == S.SELECT and need["central_lean"] == S.SELECT, "central should need selection, not engineering")
 check(need["cautious"] in (S.FEED, S.NOTHING), f"cautious needs {need['cautious']}")
 for k in S.ORDER:
@@ -133,7 +133,7 @@ for fname in ("RESULTS.md", "METHODS.md"):
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
 # The page (rebuilt 2026-11-19) has three named cases; its first screen is written by the page's own script from the bands it
 # carries, which tests/test_easy_view.py checks against scenarios.bands. Here: the page carries each scenario's band, its
-# method text states the Central and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
+# method text states the Selected cells and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
 import json as _json
 _model = _json.JSONDecoder().raw_decode(page[page.index("const MODEL = ") + len("const MODEL = "):])[0]
 for k in S.PAGE_ORDER:
@@ -142,18 +142,18 @@ for k in S.PAGE_ORDER:
           and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
           f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
-for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):
+for k, words in (("central", "in the Selected cells case at the median"), ("best", "in the Engineered cells, all favourable")):
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
 bf = S.bands(S.SCENARIOS["forecast"].choice, eqs=S.eqs_of("forecast"))
 check(f"<b>{S.pct_num(bf['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should give the forecast's median share under Other estimates")
 check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
-# the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
+# the median sits below the point estimate for the Engineered cells, all favourable case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
-      "best case: median share should be below the point estimate")
+      "Engineered cells, all favourable: median share should be below the point estimate")
 
 # 12b. the ladder (2026-11-16; rebuilt 2026-11-19 restructure): it starts from what has been shown (fed-batch at 20 m3), adds one
-# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are Central, Central with shared medium, the best case
+# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are Selected cells, Selected cells with shared medium, the Engineered cells, all favourable case
 lad = [S.run(S.SCENARIOS[k].choice)["total"] for k in S.LADDER]
 check(all(a > b for a, b in zip(lad, lad[1:])), f"the ladder's cost should fall rung by rung: {[round(x, 2) for x in lad]}")
 check(S.LADDER == ("today", "process", "selected", "central", "central_lean", "engineered", "best"), f"ladder: {S.LADDER}")

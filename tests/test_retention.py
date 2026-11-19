@@ -169,7 +169,7 @@ def check_particles() -> list:
             and close(p["cap"], value("rt_part_phi_max") * p["share"] * value("pf_cell_density") * 1000.0, 1e-12)):
         fails.append("carrier geometry: share, carrier per kg or cap is off")
     # verdicts: both are beyond what is shown in every case; carriers hold every case far below its density; aggregates hold
-    # only the best case (258 -> 193 g/L); no case loses growth for oxygen at the default sizes (the best case loses 2e-6);
+    # only the Engineered cells, all favourable case (258 -> 193 g/L); no case loses growth for oxygen at the default sizes (the Engineered cells, all favourable case loses 2e-6);
     # no settler is impossible
     for name, kw in cs.items():
         a_, m_ = R.scenario_cost("aggregates", kw), R.scenario_cost("microcarriers", kw)
@@ -179,7 +179,7 @@ def check_particles() -> list:
             fails.append(f"{name}: expected no growth lost and a possible settler")
         if not m_["total"] > R.scenario_cost("tff", kw)["total"]:
             fails.append(f"{name}: carriers should cost more than the filter loop")
-    # ranking in Central: aggregates beat every device shown at that density (TFF, ATF, disc stack) and the reused modules
+    # ranking in Selected cells: aggregates beat every device shown at that density (TFF, ATF, disc stack) and the reused modules
     ag = R.scenario_cost("aggregates", cen)["total"]
     for dev in ("tff", "atf", "discstack", "reuse", "ceramic"):
         if not ag < R.scenario_cost(dev, cen)["total"]:
@@ -265,11 +265,11 @@ def check_note_figures() -> list:
             fails.append(f"central {dev} with {k} = {v}: ${got:.2f} != pinned ${want}")
     with R._with({"rt_agg_cell_share": 0.60}):
         if round(R.scenario_cost("aggregates", cen)["density"]) != 155:
-            fails.append("aggregates at a cell share of 0.60 should hold Central to 155 g/L")
+            fails.append("aggregates at a cell share of 0.60 should hold Selected cells to 155 g/L")
     rg = R.scenario_range("aggregates", cen)["high"]
     if round(rg["density"]) != 124 or round(R.scenario_range("microcarriers", cen)["low"]["density"]) != 94:
         fails.append("range ends: aggregates 124 g/L, carriers 94 g/L")
-    # settling: Central's 2 ng cell at 1.8 cm/h; a 100 um aggregate 31 times faster, a 300 um one about 280 times
+    # settling: Selected cells' 2 ng cell at 1.8 cm/h; a 100 um aggregate 31 times faster, a 300 um one about 280 times
     d_cell = (6.0 * 2000.0 * 1e-15 / (math.pi * value("pf_cell_density") * 1000.0)) ** (1.0 / 3.0) * 1e6
     v1 = fp._stokes(d_cell, (value("pf_cell_density") - value("pf_medium_density")) * 1000.0)
     a = R.scenario_cost("aggregates", cen)
@@ -280,7 +280,7 @@ def check_note_figures() -> list:
     s1 = R.sizing("settler", cen)
     if round(s1["area_m2"]) != 488 or round(s1["holdup_m3"], 1) != 8.3:
         fails.append("single-cell settler: 488 m2 and 8.3 m3")
-    # carriers for the 3 ng cells of the reference and best cases; Central's layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
+    # carriers for the 3 ng cells of the reference and best cases; Selected cells' layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
     pb, pc = R.particle("microcarriers", cs["best"]), R.particle("microcarriers", cen)
     if not (round(pb["carrier_kg"], 2) == 0.41 and round(pb["bead_l_kg"], 1) == 5.9 and round(pb["carrier_wet_share"], 2) == 0.86
             and round(pb["cap"]) == 36 and round(pc["layer_um"], 1) == 3.5 and 4500 < pc["carrier_kg"] * 7600 * 1.08 < 5500):

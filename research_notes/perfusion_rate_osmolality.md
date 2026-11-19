@@ -1,5 +1,7 @@
 # Perfusion rate (CSPR) and osmolality limits for mammalian cell culture
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Literature lookup, 2026-11-14. Web search and reading only.
 
 Access codes used in the tables:
@@ -96,9 +98,9 @@ Worked example with the RECALL constants (INF): at pH 7.0 and pCO2 100 mbar (75 
 
 Minimum CSPR (conversion at 17 um, 2.57 pL, 1.05 g/mL; multiply mL/g by up to 1.8 for 14 um cells):
 
-| | Low | Central | High | Basis |
+| | Low | Selected cells | High | Basis |
 |---|---|---|---|---|
-| pL per cell per day | 10 | 25 | 50 | Low: [3] plateau at about zero net growth, best optimised medium. Central: [3] 14-30 with mu about 0.15 /day and 15-22 in rows 12 and 19. High: [1], [4], [7], commercial medium, mu 0.3-0.4 /day |
+| pL per cell per day | 10 | 25 | 50 | Low: [3] plateau at about zero net growth, best optimised medium. Selected cells: [3] 14-30 with mu about 0.15 /day and 15-22 in rows 12 and 19. High: [1], [4], [7], commercial medium, mu 0.3-0.4 /day |
 | mL per g wet cells per day | 3.7 | 9.3 | 18.5 | CSPR / 2.70 |
 
 Typical industrial values without a perfusion-optimised medium: 50-300 pL/cell/day (18.5-111 mL/g/day), from [3] row 12.
@@ -107,7 +109,7 @@ Growth rate cost of low CSPR: about 0.35 /day at 50 pL/cell/day [1]; about 0.15 
 
 Osmolality (mOsm/kg), fresh medium baseline 290-320:
 
-| | Low | Central | High | Basis |
+| | Low | Selected cells | High | Basis |
 |---|---|---|---|---|
 | Growth starts to fall (about 10% loss) | 320 (linear from baseline, no threshold) | 345 | 400 | Linear fits in [9], [10]; high value from production runs in [10] showing no visible effect at 400-450 |
 | Growth roughly halved | 430 | 450 | 465 | [10] 430 (INF), [8] 435, Takagi 450, [9] 464 (INF) |

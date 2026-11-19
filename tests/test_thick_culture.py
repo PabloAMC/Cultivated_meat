@@ -106,7 +106,7 @@ def check() -> list:
         fails.append(f"in Humbird's plain tank CO2 binds first at 120 g/L, got {L['first']} at {L['x']:.0f}")
     Lc = TC.limits_at(S.explore_kwargs(S.SCENARIOS["central"].choice))
     if Lc["first"] != "oxygen supply, with viscosity" or not (148.0 < Lc["x"] < 154.0):
-        fails.append(f"Central: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
+        fails.append(f"Selected cells: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
     if Lb["first"] != "column loop checks" or not (265.0 < Lb["x"] < 275.0):
         fails.append(f"Best: the column loop's checks should bind first near 271 g/L, got {Lb['first']} at {Lb['x']:.0f}")

@@ -116,7 +116,7 @@ check(90.0 < oq["size"] < 130.0 and 1.8 < oq["saving_pct"] < 2.4 and 1.8 < oq["s
       f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
 check(60.0 < ob["size"] < 85.0 and 1.0 < ob["saving_pct"] < 2.0, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
 check(35.0 < oc["size"] < 55.0 and 1.0 < oc["saving_pct"] < 2.5, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
-# without the loop checks the best case keeps falling to the end of the range (the checks, not the density limits, stop it)
+# without the loop checks the Engineered cells, all favourable case keeps falling to the end of the range (the checks, not the density limits, stop it)
 ub = T.optimum("best", {"checks": False})
 check(ub["at_edge"] and ub["size"] >= 199.0, f"best without checks: optimum {ub['size']:.0f} m3 should be the 200 m3 end of the range")
 check(ub["saving_pct"] > ob["saving_pct"], "best: removing the checks should save more")
@@ -140,7 +140,7 @@ WI = dict(T.WHAT_IFS)
 crew = T.optimum("best", WI["labour follows Humbird's crew rule"])
 haz = T.optimum("best", WI["chance of losing a run grows with tank size"])
 relax = T.optimum("best", WI["pH check relaxed to twice the safe dose"])
-check(crew["size"] > ob["size"], "crew rule should favour a larger tank for the best case")
+check(crew["size"] > ob["size"], "crew rule should favour a larger tank for the Engineered cells, all favourable case")
 check(haz["size"] < ob["size"], "a hazard that grows with size should favour a smaller tank")
 check(relax["saving_pct"] > ob["saving_pct"], "a looser pH check should save more")
 
@@ -162,7 +162,7 @@ for k, (a, b) in FB_GOLDEN.items():
     check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")
     check(c100 < c20 and T.fedbatch_at(k, 200.0)["total"] > S.run(S.SCENARIOS[k].choice)["total"], f"{k}: fed-batch against size")
 check(abs(T.fedbatch_at("central", 20.0)["total"] - S.run(S.SCENARIOS["selected"].choice)["total"]) < 1e-9,
-      "Central's switches in fed-batch at 20 m3 should be rung 3")
+      "Selected cells' switches in fed-batch at 20 m3 should be rung 3")
 if os.path.exists(NOTE):
     text = open(NOTE, encoding="utf-8").read()
     for ln in T.fedbatch_markdown().splitlines():

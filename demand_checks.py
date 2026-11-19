@@ -72,7 +72,7 @@ def _world(share_of_cost) -> dict:
 
 def variants() -> list:
     """The long-run share under different price responses. Each row: name, the curve (share at each price ratio in R_GRID, %),
-    the first-contact elasticity at equal price, and the world share at Central's and the best case's cost. The first row is the
+    the first-contact elasticity at equal price, and the world share at Selected cells' and the Engineered cells, all favourable case's cost. The first row is the
     model (a spread of liking since 2026-11-18, heavier-tailed than a normal since 2026-11-19); the next three have every shopper
     alike (liking_sd=0); the last is the normal spread the model had on 2026-11-18."""
     pr0 = S._demand()
@@ -120,9 +120,9 @@ def markdown_checks() -> str:
     import market_size_loop as L
     resp = L.summary()["response"]["products"]
     # farmed salmon was measured while still a premium product, so compare the model's products that are still dearer than their meat
-    # at Central's cost (price ratio above 1.5). Prime beef (0.96 times its meat's price) and sushi-grade seafood (1.24 times) are
+    # at Selected cells' cost (price ratio above 1.5). Prime beef (0.96 times its meat's price) and sushi-grade seafood (1.24 times) are
     # near equal price and drop out. Since seafood was re-priced on 2026-11-19 the model has a fifth premium product, premium
-    # fillets and shrimp ($20 a kilo, 2.2 times at Central's cost), which is in.
+    # fillets and shrimp ($20 a kilo, 2.2 times at Selected cells' cost), which is in.
     names = {"chicken (organic)": "organic chicken", "pork (heritage)": "heritage pork", "beef (prime/wagyu)": "prime beef",
              "seafood (premium fillet, shrimp)": "premium fish fillets and shrimp", "seafood (sushi)": "sushi-grade seafood"}
     still = [n for n, v in resp.items() if v["R"][0] > 1.5]

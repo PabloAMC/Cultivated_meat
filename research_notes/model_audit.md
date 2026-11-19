@@ -1,5 +1,7 @@
 # Model audit: drift, accuracy and whether the costs are reasonable price points
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after the scenarios' lower dissolved-oxygen setpoint. Code: `audit.py` (global uncertainty and the retail translation), `audit_history.py` (the history of the headline
 numbers), `tests/test_audit.py`. Costs are 2025 dollars per kg of wet cells. This note changes no default.
 
@@ -13,9 +15,9 @@ numbers), `tests/test_audit.py`. Costs are 2025 dollars per kg of wet cells. Thi
 
 **Drift since section 2 was written.** Two more rows, added by hand:
 
-| When | Reference | Central | Best | What changed |
+| When | Reference | Selected cells | Best | What changed |
 |---|---|---|---|---|
-| 19 Nov, first repin | $12.81 | $26.43 | $9.96 | nutrient floor $2.00; growth factors counted inside the announced medium prices (Central's first large step down) |
+| 19 Nov, first repin | $12.81 | $26.43 | $9.96 | nutrient floor $2.00; growth factors counted inside the announced medium prices (Selected cells' first large step down) |
 | 19 Nov, audit batch | $12.81 | **$32.80** | **$11.46** | cells tolerate 4 mmol/L of ammonia, not 5; a lost run throws its membranes away; glucose from the cells' own balance |
 
 So the last correction was upward again, by 24% for Central and 15% for the best case. Section 2's warning stands: a model whose
@@ -25,8 +27,8 @@ corrections mostly go one way was optimistic, and may still be.
 
 | | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
 |---|---|---|---|---|---|---|
-| Central | $32.80 | $34.1 | **$46.2** | $64.7 | 7th | 0% / 0% |
-| Best case | $11.46 | $14.0 | **$18.9** | $27.5 | below the 1st | 1% / 43% |
+| Selected cells | $32.80 | $34.1 | **$46.2** | $64.7 | 7th | 0% / 0% |
+| Engineered cells, all favourable | $11.46 | $14.0 | **$18.9** | $27.5 | below the 1st | 1% / 43% |
 
 Rank correlation with cost (Central): the ammonia the cells make +0.75, membrane life −0.39, medium price +0.26, growth factors
 +0.22, plant estimate +0.18.
@@ -42,8 +44,8 @@ With the three put right (a side calculation, same seeds, with the amino-acid pr
 
 | | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
 |---|---|---|---|---|---|---|
-| Central | $32.80 | $28.2 | **$38.3** | $58.0 | 27th | 0% / 0% |
-| Best case | $11.46 | $10.8 | **$14.4** | $21.7 | 17th | 23% / 77% |
+| Selected cells | $32.80 | $28.2 | **$38.3** | $58.0 | 27th | 0% / 0% |
+| Engineered cells, all favourable | $11.46 | $10.8 | **$14.4** | $21.7 | 17th | 23% / 77% |
 
 This agrees with the scenario bands the results now report (Central $27 / $37 / $57, best case $11 / $14 / $20), which draw the
 tolerance too. The top driver for Central is then the ammonia the cells tolerate (−0.55), ahead of the ammonia they make (+0.49)
@@ -79,7 +81,7 @@ and membrane life (−0.37).
 
 The history was measured by checking out each commit that touched the cost code and running the model (`audit_history.py`).
 
-| Commit | Time | Default | Reference | Central | Best | What changed |
+| Commit | Time | Default | Reference | Selected cells | Best | What changed |
 |---|---|---|---|---|---|---|
 | 503fb37 | 10 Jun | $24.01 | | | | first model |
 | e92504c | 14 Nov 00:23 | $32.61 | | | | Pasitka's capital charge added to the plant cost (it had been left out) |
@@ -127,7 +129,7 @@ Reported runs against what the model gives for the same cells and vessel. Nothin
 
 | Source | Cost | What it is |
 |---|---|---|
-| Model: reference / Central / best | $12.51 / $29.42 / $9.66 a kilo of wet cells | a 20 m³ perfusion plant; see the scenario definitions |
+| Model: reference / Selected cells / best | $12.51 / $29.42 / $9.66 a kilo of wet cells | a 20 m³ perfusion plant; see the scenario definitions |
 | Humbird 2021 | "$37/kg wet cell mass" (as quoted in `post_harvest_costs.md`) | design with his own medium, which GFI says was far costlier |
 | Pasitka 2024 | $13.7 a kilo of a 50/50 hybrid (a third party puts pure cells at $13.75–22.27) | model of a 50,000 L plant from bench data; the kilogram counted is most likely about 18 times the mass of its cells (METHODS.md, "Why Pasitka is not the anchor") |
 | SuperMeat 2024 | $26–29.5, $34.4 with the model's capital charge | model of a 25,000 L plant from 10 L runs |
@@ -147,8 +149,8 @@ filter loop's flux, membrane price, hardware and membrane life. 4,000 draws; two
 
 | | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 / the point |
 |---|---|---|---|---|---|---|
-| Central | $29.42 | $26.8 | **$36.4** | $49.9 | 19th | 0% / 0.2% / 19% |
-| Best case | $9.66 | $11.4 | **$15.1** | $21.5 | 1st | 16% / 74% / 0% |
+| Selected cells | $29.42 | $26.8 | **$36.4** | $49.9 | 19th | 0% / 0.2% / 19% |
+| Engineered cells, all favourable | $9.66 | $11.4 | **$15.1** | $21.5 | 1st | 16% / 74% / 0% |
 
 - **The point is at the low end because the ranges are skewed up.** Each input's most likely value is its point; its high end is far
   further from the point than its low end. So the median is above the point.
@@ -162,12 +164,12 @@ filter loop's flux, membrane price, hardware and membrane life. 4,000 draws; two
 
 | Item | Direction and size | Basis |
 |---|---|---|
-| First-plant financing (23.6% a year) instead of the mature 17.3% | **+$2.78 Central, +$0.77 best** | `humbird_plant_charge`; computed |
-| Membrane life at the measured CHO throughput (450–1,200 L/m²) instead of 3,960 | **+$19 to +$64 Central** | `filter_flux.md` (a sensitivity) |
-| Density: Central's fed-batch fallback at 27 g/L instead of 62 | +$50 (only if perfusion fails) | `no_perfusion_downside.md` |
+| First-plant financing (23.6% a year) instead of the mature 17.3% | **+$2.78 Selected cells, +$0.77 best** | `humbird_plant_charge`; computed |
+| Membrane life at the measured CHO throughput (450–1,200 L/m²) instead of 3,960 | **+$19 to +$64 Selected cells** | `filter_flux.md` (a sensitivity) |
+| Density: Selected cells' fed-batch fallback at 27 g/L instead of 62 | +$50 (only if perfusion fails) | `no_perfusion_downside.md` |
 | Medium: the model needs less than every reported perfusion run | up to 1.2 to 2.8 times more medium and filtering | back-test (3a) |
-| Nutrient floor: GFI's amino-acid prices instead of the model's $1.70 | +$0.8 to +$3.4 best case; none in Central | `nutrient_floor.md` |
-| Disposal of spent medium (28 L/kg in Central) | small, assumed under $0.15 a kilo; not costed | no wastewater cost anywhere in the model |
+| Nutrient floor: GFI's amino-acid prices instead of the model's $1.70 | +$0.8 to +$3.4 Engineered cells, all favourable; none in Selected cells | `nutrient_floor.md` |
+| Disposal of spent medium (28 L/kg in Selected cells) | small, assumed under $0.15 a kilo; not costed | no wastewater cost anywhere in the model |
 | Quality control, analytics, working capital, start-up | not costed separately; partly in Humbird's labour and the capital charge | `plant_capital_crosscheck.md` |
 | Scaffold and forming for structured products | +$6 a kilo for structured products (a model assumption, separate) | `post_harvest_costs.md` |
 | Items that could go the other way | a cheaper plant than the model's (two published designs assume a third of Humbird's); cheaper medium | `plant_capital_crosscheck.md`; `medium_cost_gfi.md` |
@@ -180,9 +182,9 @@ wholesale-to-retail spread is 42–65% of the retail price (`post_harvest_costs.
 
 | | Cost of cells | Shelf price, flat $5 | Shelf price, proportional |
 |---|---|---|---|
-| Best case | $9.66 | $14.66 | $19.38 |
-| Central, shared-medium plant | $26.56 | $31.56 | $50.10 |
-| Central | $29.42 | $34.42 | $55.30 |
+| Engineered cells, all favourable | $9.66 | $14.66 | $19.38 |
+| Selected cells, shared-medium plant | $26.56 | $31.56 | $50.10 |
+| Selected cells | $29.42 | $34.42 | $55.30 |
 | **Cost of cells at parity with $12 meat** | | **$7.0** | **$5.6** (3.2 to 6.0 across shares of 42–65%) |
 
 Which is right is open. A flat spread is plausible if the retail chain's work does not scale with the product's price. The conventional

@@ -1,5 +1,7 @@
 # Vessel types and operating modes
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > 2026-11-19 (scenario restructure): a tank that is not washed out is capped by the waste mass balance (section 10); the central
 > grid's fed-batch, fill-and-draw and chemostat columns are recomputed. Upside Foods' report is in section 11.
 
@@ -105,7 +107,7 @@ Details:
 | Packed bed (0.065 m3) | **$3,730** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$3,726** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$610,043** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$610,039** (13 g/L, room between the fibres; done at this size) |
 
-### Central scenario (the stirred tank in perfusion is $32.80)
+### Selected cells scenario (the stirred tank in perfusion is $32.80)
 
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|

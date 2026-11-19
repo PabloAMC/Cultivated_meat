@@ -1,5 +1,7 @@
 # What GFI reports about the cost of medium
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Date: 2026-11-15. Two GFI reports were read in full (text extracted from the PDFs, saved in `medium_cost_gfi_sources/`). The
 fetch tool could not read them, so the 2026 State of the Industry report (10 MB, over the tool's limit) was **not** checked. Its
 page 8 is quoted from the December 2025 report, which cites the same company claims. No number in the model changed.
@@ -44,10 +46,10 @@ cheaper than his, and that is where GFI says the progress has been.
 
 | | Model | GFI |
 |---|---|---|
-| Price per litre | $0.20 in Central, $0.15 in the best case | $0.20 (several companies), $0.07 (one), $0.63 (peer-reviewed) |
+| Price per litre | $0.20 in Selected cells, $0.15 in the Engineered cells, all favourable case | $0.20 (several companies), $0.07 (one), $0.63 (peer-reviewed) |
 | Amino acids per kg of cells | $0.67 (the floor), inside the medium cost | below $5 at the lower end |
-| Litres per kg | 28 in Central, 11 in the best case | 28–90 (CHO) or 57–183 (FSF4), from medium formulations |
-| Growth factors | $3.0 in Central, 0 in the best case | 10% of cost: about $1 a kilo at $10 |
+| Litres per kg | 28 in Selected cells, 11 in the Engineered cells, all favourable case | 28–90 (CHO) or 57–183 (FSF4), from medium formulations |
+| Growth factors | $3.0 in Selected cells, 0 in the Engineered cells, all favourable case | 10% of cost: about $1 a kilo at $10 |
 
 - **Central matches GFI.** Its medium costs 28 L × $0.20 = $5.72 a kilo. That is the same order as GFI's amino acids "below $5"
   plus the other components.

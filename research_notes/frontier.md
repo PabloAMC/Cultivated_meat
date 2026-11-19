@@ -1,5 +1,7 @@
 # The frontier: what is possible if every lever goes to its limit
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
 > What this changed here: Central rose from $26.43 to $32.80 and the frontier stayed at $7.16. The first step, cutting the medium to
@@ -15,7 +17,7 @@ limit that the research notes support, keeping each one moved. It changes no def
 
 | Step (each kept moved) | Cost | Change | Odds, from the note that studied it |
 |---|---|---|---|
-| Central scenario | **$32.80** | | |
+| Selected cells scenario | **$32.80** | | |
 | Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate | $14.16 | −18.64 | physically possible, 60% (6 L/kg or less); a meat-cell process reporting 11 L/kg or less by 2030, 10% (`min_litres_per_kg.md`) |
 | Cells double in 16 hours | $10.56 | −3.60 | physics allows about 8 h; a meat line in suspension at 50 g/L or more doubling in 16 h or less by 2035, 7% (`gf_and_doubling_bounds.md`) |
 | Dialyser-grade hollow fibres as the filter | $10.56 | 0.00 | holds 25% cells for a month, 15% (`retention_alternatives.md`) |
@@ -34,7 +36,7 @@ price. At 6.4 L/kg that is $1.28 a kilo, under what its nutrients and growth fac
 nutrient floor plus Central's 30% of Humbird's growth-factor price). The floor setting charges the same things, so it adds
 nothing once the litres are cut.
 
-## 2. Each lever on its own, from Central
+## 2. Each lever on its own, from Selected cells
 
 | Lever | Cost alone | Change |
 |---|---|---|

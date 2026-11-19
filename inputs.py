@@ -325,7 +325,7 @@ REGISTRY: dict[str, Input] = {
         lo=1.0, hi=2.0, mode=1.3,
         note="ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
              "in any mode, so the density of an unwashed tank is this factor x the level / the waste made per kilo (mmol/L / "
-             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let Central's fed-batch end at "
+             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let Selected cells' fed-batch end at "
              "7.8 mmol/L of ammonia against the 4 its perfusion is held to. Evidence, both ways (research_notes/vessels_and_modes.md "
              "section 10): ammonia: unadapted meat-relevant cells lose about 10% of growth at 1-3 mM and 50% at 3-10 mM "
              "(ammonia_tolerance_and_filter_life.md); CHO fed-batch ends at 5-15 mM. Lactate: CHO fed-batch peaks at 10-94 mM "
@@ -446,7 +446,7 @@ REGISTRY: dict[str, Input] = {
         "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0,
         note="evidence pass 2026-11-16 (research_notes/ammonia_tolerance_and_filter_life.md): unadapted meat-relevant cells "
              "(catfish ovary, 3T3, pig muscle stem cells, bovine FAPs) lose 10-55% of growth rate at 2.5-5 mM when spiked; CHO and "
-             "adapted hybridomas tolerate more. Kept at 5 because Central assumes selected cells and no meat cell has been "
+             "adapted hybridomas tolerate more. Kept at 5 because the Selected cells case assumes selected cells and no meat cell has been "
              "measured at density; P(within 1.5x of the truth) about 45%, with the risk mostly below"),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
@@ -997,7 +997,7 @@ REGISTRY: dict[str, Input] = {
         note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
              "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
              "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "
-             "does not move Central (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
+             "does not move Selected cells (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
     "sc_mass_selected_pg": Input(2000.0, "pg wet per cell", "[judgement] between the 1.0-1.75 ng reported for "
         "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
         lo=1000.0, hi=3000.0, mode=2000.0,
@@ -1204,13 +1204,13 @@ REGISTRY: dict[str, Input] = {
     # how the tank is run: perfusion where it holds the culture, else fed-batch at a tank size drawn from the odds below
     "fc_perf_120": Input(0.75, "probability", "[retention_devices.md section 5] a filter holds 120 g/L at 20 m3 for a month, "
         "module swaps allowed (possible, with a development programme; not dated)", lo=0.55, hi=0.85, mode=0.75),
-    "fc_perf_191": Input(0.45, "probability", "[judgement, re-judged 2026-11-19] a filter holds Central's 191 g/L (18% cells by "
+    "fc_perf_191": Input(0.45, "probability", "[judgement, re-judged 2026-11-19] a filter holds Selected cells' 191 g/L (18% cells by "
         "volume, 30 litres of permeate a kilo) at 20 m3 for a month, at any cost (possible, not dated)", lo=0.25, hi=0.60, mode=0.45,
         note="between the 75% at 120 g/L and the 35% at 258 g/L of retention_devices.md: the density factor tank_size.md uses "
              "(0.59 of the 120 g/L odds at 191 g/L) gives 44%. For: Clincke 2013 held 2.14e8 cells/mL (about half the volume) in 4 L "
              "for days and one fibre lasted 30 days; pharma perfusion is routine at 2 m3. Against: nothing above about 4 m3 "
              "(Genzyme) in thirty years of pharma; Merck at 85-100 million cells/mL says a filter swap at scale extends a culture "
-             "only a couple of days; Central's duty is ten times the reference's permeate"),
+             "only a couple of days; Selected cells' duty is ten times the reference's permeate"),
     "fc_perf_258": Input(0.35, "probability", "[retention_devices.md section 5] a filter holds 258 g/L at 20 m3 for a month, at any "
         "cost", lo=0.20, hi=0.50, mode=0.35),
     "fc_perf_by_2035": Input(0.45, "probability", "[judgement, 2026-11-19] that a perfusion that can be made to hold the culture is "
@@ -1218,11 +1218,11 @@ REGISTRY: dict[str, Input] = {
         note="tank_size.md section 7 puts a public demonstration by the end of 2035 at 12% against 75% possible (a ratio of 0.16); "
              "production use need not be published, and perfusion is the cheaper mode if it works, so the ratio is higher. Against: "
              "Upside chose a single-vessel process at 20 m3, most likely fed-batch (vessels_and_modes.md section 11); about 2-3% "
-             "that anyone has run animal-cell perfusion at 20 m3 for a month today. So filter perfusion at Central's density is "
+             "that anyone has run animal-cell perfusion at 20 m3 for a month today. So filter perfusion at Selected cells' density is "
              "about 0.45 x 0.45 = 20% by 2035"),
     "fc_agg_120": Input(0.15, "probability", "[retention_aggregates.md section 6] by 2035, aggregates of a meat cell line held at "
         "120 g/L in a 20 m3 perfusion tank for a month", lo=0.05, hi=0.30, mode=0.15),
-    "fc_agg_191": Input(0.08, "probability", "[retention_aggregates.md section 6] the same at Central's 191 g/L", lo=0.02, hi=0.20,
+    "fc_agg_191": Input(0.08, "probability", "[retention_aggregates.md section 6] the same at Selected cells' 191 g/L", lo=0.02, hi=0.20,
         mode=0.08),
     "fc_agg_258": Input(0.05, "probability", "[judgement, extrapolated from retention_aggregates.md] the same at 258 g/L (aggregates "
         "taking a third of the volume)", lo=0.01, hi=0.15, mode=0.05),
@@ -1701,13 +1701,13 @@ REGISTRY: dict[str, Input] = {
              "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
              "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
              "buyers; its share of all choices is 4%, and 13% reproduces both."),
-    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
-        "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
+    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the Engineered cells, all favourable case: once "
+        "familiar and at equal price, shoppers slightly favour cultivated meat. The Engineered cells, all favourable case takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
         "antibiotics, disease) none of the precedents for distrusted foods had to face (irradiated food, margarine, modified "
         "crops, all against a natural product), and decades of familiarity and a new generation of shoppers are part of it.",
         lo=0.35, hi=0.70, mode=0.55,
-        note="Used only by the best case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
+        note="Used only by the Engineered cells, all favourable case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
              "Every other scenario uses equal_price_share."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "

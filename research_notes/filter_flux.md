@@ -1,5 +1,7 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -67,8 +69,8 @@ by volume with a standard microfiltration fibre.
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|
-| Best case | **$11.46** | $20.62 | $20.71 | $42.63 |
-| Central | **$32.80** | $62.23 | $62.50 | $132.87 |
+| Engineered cells, all favourable | **$11.46** | $20.62 | $20.71 | $42.63 |
+| Selected cells | **$32.80** | $62.23 | $62.50 | $132.87 |
 
 - **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.3. The
   membrane's throughput moves it by $29 to $100.

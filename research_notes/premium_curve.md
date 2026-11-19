@@ -1,5 +1,7 @@
 # Anchoring cultivated meat's demand on premium real meats
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -60,9 +62,9 @@ last row is the best case's cells with that demand (2.74%), not the best case's 
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
 | 1. Published cells | $209.05 | **under 0.01%** | under 0.01% | under 0.01% | under 0.01% | under 0.01% | under 0.01% |
-| 4. Plus perfusion (Central) | $32.80 | **0.16%** | 0.16% | 0.08% | 0.10% | 0.19% | 0.03% |
+| 4. Plus perfusion (Selected cells) | $32.80 | **0.16%** | 0.16% | 0.08% | 0.10% | 0.19% | 0.03% |
 | Forecast for 2035, each switch at the author's median | $55.59 | **0.02%** | 0.01% | under 0.01% | under 0.01% | 0.02% | under 0.01% |
-| 7. Plus everything else at its favourable end (the best case) | $11.46 | **2.74%** | 2.05% | 1.21% | 1.44% | 2.45% | 0.58% |
+| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | $11.46 | **2.74%** | 2.05% | 1.21% | 1.44% | 2.45% | 0.58% |
 
 ## 3. What this says
 

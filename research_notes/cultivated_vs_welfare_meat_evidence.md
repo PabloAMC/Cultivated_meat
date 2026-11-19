@@ -1,5 +1,7 @@
 # Cultivated meat vs premium welfare-labelled meat: sizing three differences
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Compiled 2026-11-17 from web sources.
 
 **Purpose.** The demand curve is being re-anchored on premium real meats ("real meat plus a virtue, at a
@@ -184,7 +186,7 @@ represents poorly. Second, naming and framing move it (avoid "lab-grown").
 
 ## Summary for the model
 
-| Difference | Central (fraction of conventional price, vs a free-range or slow-growth label) | Range | P(sign right) | P(persists long run) | Model dial |
+| Difference | Selected cells (fraction of conventional price, vs a free-range or slow-growth label) | Range | P(sign right) | P(persists long run) | Model dial |
 |---|---|---|---|---|---|
 | No slaughter | +0.05 | −0.05 to +0.20 | 0.65 | 0.8 | `w_slaughter` (mainstream) |
 | Novelty (first contact) | −0.30 | −0.15 to −0.60 | 0.97 | about 0.45 (at least half gone in about 10 years: 0.55) | `neophobia_x` |

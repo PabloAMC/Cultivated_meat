@@ -1,5 +1,7 @@
 # Shoppers differ in how much they like cultivated meat
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -55,7 +57,7 @@ experiment's own-price elasticity at four prices; (ii) the share premium real me
 volume per 1% off the price), for the premium products still dearer than their meat. Two requirements on top: the first-contact
 elasticity at equal price within -1.5 ± 0.15, and a miss on the experiment's four prices of at most 0.30.
 
-| shape of the spread | parameters | choice experiment: miss | first contact, equal price: share, elasticity | share at 1.25×, 1.5×, 2×, 3×, 4× | salmon response | at half price, if free | joint misfit (experiment, premium, salmon) | meets both requirements | world share: 1. Published cells, 4. Plus perfusion (Central), Forecast for 2035, each switch at the author's median, 7. Plus everything else at its favourable end (the best case), best with its own demand |
+| shape of the spread | parameters | choice experiment: miss | first contact, equal price: share, elasticity | share at 1.25×, 1.5×, 2×, 3×, 4× | salmon response | at half price, if free | joint misfit (experiment, premium, salmon) | meets both requirements | world share: 1. Published cells, 4. Plus perfusion (Selected cells), Forecast for 2035, each switch at the author's median, 7. Plus everything else at its favourable end (the Engineered cells, all favourable case), best with its own demand |
 |---|---|---|---|---|---|---|---|---|---|
 | **measured** | | | 5%, -1.5 | —, 5.7%, 3.7%, 1.5%, 0.6% (premium real meats) | 1–1.5 | | | | |
 | normal, as it was (15 integration points) | spread 5 | 0.15 | 5.1%, -1.53 | 10.3%, 7.8%, 3.8%, 0.8%, 0.1% | 5.2–7.5 | 22%, 33% | 13.8 (1.0, 8.6, 4.2) | yes | under 0.001%, 0.08%, 0.001%, 2.8%, 19.9% |
@@ -169,7 +171,7 @@ the experiment's, for several spreads and for three values of each shopper's pri
 
 ## 4. The share at equal price in the long run
 
-| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (Central) | world share, 7. Plus everything else at its favourable end (the best case) |
+| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
 |---|---|---|---|---|---|
 | first contact (as measured) | 5% | 3.6%, 2.5%, 1.4%, 0.5%, 0.2% | under 0.001% | 0.09% | 1.2% |
 | novelty fades by what the model assumes | 15% | 10.8%, 7.7%, 3.8%, 1.1%, 0.4% | under 0.001% | 0.2% | 3.2% |

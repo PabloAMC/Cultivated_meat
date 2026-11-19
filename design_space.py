@@ -192,8 +192,8 @@ LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "t
 # gas design does not move it (2026-11-19 restructure: rungs 1-3 and the forecast's preset are fed-batch; the published cells in
 # perfusion are the cautious scenario, whose switches are the old rung 1's, so its search gives the old rung 1's figures).
 CASES = ("cautious", "central", "central_lean", "engineered", "best")
-SHORT = {"cautious": "Published cells, in perfusion", "today": "1. Published cells", "process": "2. Plus process changes", "selected": "3. Selected cells", "central": "4. Central",
-         "central_lean": "5. Shared-medium plant", "engineered": "6. Engineered cells", "best": "7. Best case",
+SHORT = {"cautious": "Published cells, in perfusion", "today": "1. Published cells", "process": "2. Plus process changes", "selected": "3. Selected cells", "central": "4. Selected cells",
+         "central_lean": "5. Shared-medium plant", "engineered": "6. Engineered cells", "best": "7. Engineered cells, all favourable",
          "forecast": "Forecast for 2035 (medians)"}
 
 

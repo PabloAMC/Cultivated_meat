@@ -43,7 +43,7 @@ from inputs import prior, value
 SIZES = (2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0)       # m3, the scan the page of results is built on
 CASES = ("reference", "reference_redesigned", "best", "central", "central_lean", "cautious")
 LABELS = {"reference": "Reference (Humbird's tank, no tricks)", "reference_redesigned": "Reference, tank design chosen again",
-          "best": "Best", "central": "Central", "central_lean": "Central, food-grade plant with shared medium",
+          "best": "Best", "central": "Selected cells", "central_lean": "Selected cells, food-grade plant with shared medium",
           "cautious": "Cautious", "engineered": "Engineered cells (rung 6)"}
 SEARCH_RANGE = (2.0, 200.0)                              # the sizes the optimum is searched over
 GRID_RATIO = 1.03                                        # step of the geometric search grid

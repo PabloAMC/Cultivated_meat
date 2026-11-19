@@ -1,5 +1,7 @@
 # If perfusion cannot be run at 20 m³
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19 (scenario restructure): the density of a tank that is not washed out is set by the waste mass balance (`pf_batch_end_x`); a fed-batch plant with shared medium keeps Humbird's full seed train; the probabilities are re-judged at Central's 191 g/L. Sections 1-3 rewritten.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
@@ -35,9 +37,9 @@ because it restarts each tank every three or four days; fill-and-draw runs for 3
 
 | Scenario | Perfusion (the model) | Fed-batch, model cap | Fill-and-draw, model cap | Fed-batch, 27 g/L | Fill-and-draw, 27 g/L |
 |---|---|---|---|---|---|
-| Best case | **$11.46** (2.7%) | $15.64 (92 g/L, 1.4%) | $14.37 (92 g/L, 1.7%) | $44.00 (0.06%) | $39.53 (0.09%) |
-| Central | **$32.80** (0.16%) | $64.90 (37 g/L, 0.01%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
-| Central, food-grade plant with shared medium | **$29.94** (0.22%) | $49.51 (37 g/L, 0.04%) | $47.94 (37 g/L, 0.04%) | $67.04 (0.01%) | $64.55 (0.01%) |
+| Engineered cells, all favourable | **$11.46** (2.7%) | $15.64 (92 g/L, 1.4%) | $14.37 (92 g/L, 1.7%) | $44.00 (0.06%) | $39.53 (0.09%) |
+| Selected cells | **$32.80** (0.16%) | $64.90 (37 g/L, 0.01%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
+| Selected cells, food-grade plant with shared medium | **$29.94** (0.22%) | $49.51 (37 g/L, 0.04%) | $47.94 (37 g/L, 0.04%) | $67.04 (0.01%) | $64.55 (0.01%) |
 | Cautious (published cells) | **$92.17** (under 0.01%) | $209.05 (14 g/L) | $242.02 (14 g/L) | $209.05 (14 g/L: the cap is under 27) | $242.02 (14 g/L) |
 
 Shares in brackets are the long-run share of world meat and seafood at the point cost.
@@ -68,12 +70,12 @@ Judgement, from the retention note, re-judged on 2026-11-19 at the scenarios' cu
 
 | Statement | Probability |
 |---|---|
-| A filter holds Central's 191 g/L at 20 m³ for a month, at any cost (so perfusion does not fail) | about 45% (re-judged; it was 35% at 258 g/L) |
-| The same for the best case, at 258 g/L | about 35% |
+| A filter holds Selected cells' 191 g/L at 20 m³ for a month, at any cost (so perfusion does not fail) | about 45% (re-judged; it was 35% at 258 g/L) |
+| The same for the Engineered cells, all favourable case, at 258 g/L | about 35% |
 | The same for the reference case, at 120 g/L and a light duty | about 75% |
 | The same for the cautious case, at 120 g/L but 87 litres of permeate a kilo | about 60% |
-| Filter perfusion at Central's density in production by 2035 (the forecast's odds: 45% possible x 45% in use by 2035) | about 20% |
-| Aggregates on a settler hold Central's density by 2035 (`retention_aggregates.md`) | about 8% |
+| Filter perfusion at Selected cells' density in production by 2035 (the forecast's odds: 45% possible x 45% in use by 2035) | about 20% |
+| Aggregates on a settler hold Selected cells' density by 2035 (`retention_aggregates.md`) | about 8% |
 | If perfusion is not used, a 20 m³ batch reaches the model's mass-balance cap with the scenario's cells | about 70% |
 
 - **191 g/L.** The odds fall with the density at which the filter must work: 75% at 120 g/L, 35% at 258 g/L (`retention_devices.md`).
