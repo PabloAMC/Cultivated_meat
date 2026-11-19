@@ -76,6 +76,9 @@ python tests/test_market_size_loop.py
 echo "==> the model's response to price against four measurements"
 python tests/test_demand_checks.py
 
+echo "==> a spread of liking for cultivated meat across shoppers"
+python tests/test_liking_spread.py
+
 echo "==> what the answer rests on"
 python tests/test_answer_rests_on.py
 

@@ -25,8 +25,8 @@ def check() -> list:
         fails.append("plant-based meat's elasticity in the model is no longer well above the measured one; rewrite the note")
     if abs(s["pb"]["share"] - 1.2) > 0.01:
         fails.append("plant-based meat's share in the check is not the calibrated 1.2%")
-    if not D.LUSK[0] <= s["cold"] <= D.LUSK[1]:
-        fails.append("the model's first-contact elasticity at equal price is outside the experiment's range")
+    if not s["cold"] < 1.5 * D.VANLOO_AT_PARITY:
+        fails.append("the model's first-contact elasticity at equal price is no longer well above the experiment's; rewrite the note")
     if not s["kappa"] > 2.0 * s["kappa_fit"]:
         fails.append("the model's price sensitivity is no longer over twice the premium meats' fit; rewrite the note")
     v = s["variants"]

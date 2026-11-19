@@ -2,6 +2,22 @@
 
 ## 2026-11-18
 
+Shoppers differ in how much they like cultivated meat: evidence, a corrected check and a side study (`liking_spread.py`,
+`research_notes/demand_heterogeneity_evidence.md`, `research_notes/liking_spread.md`; **no default changed**)
+- Three reading passes on how shoppers differ. (1) The choice experiment the model was set against reports no elasticity: the
+  "-0.84 to -3.4" the model's check uses is a formula on two of its coefficients; its fitted model simulates to about -1.5 at equal
+  price, half the model's -3.27. So the model fails all four price-response checks, not three. (2) In the two studies that split
+  shoppers into groups, cultivated-meat enthusiasts (13-16%) are not price-insensitive, and the price-insensitive organic buyers are
+  the most hostile to it. (3) Plant-based meat's -1.23 is an item-level figure for plant-based beef; the category is about -1.3 to
+  -1.5, and 7% of households make 82% of its spending.
+- A premium-buyer recalibration built earlier the same day (branch `claude/recalibrate-demand`) was **not merged**: it rested on
+  organic buyers being cultivated meat's price-insensitive buyers.
+- `liking_spread.py`: a normal spread of liking for cultivated meat across shoppers (5 utils, each shopper as price-sensitive as
+  now) reproduces the experiment's price response at four prices (miss 0.15 against 2.56). With it, the fading of first-contact
+  wariness takes cultivated meat to 13% at equal price, not half; half is a premise. Across the three readings of the long run
+  Central's share is 0.02% to 1.0% and the best case's 0.7% to 17.3%.
+- `demand_checks.py`: the fourth check now uses the simulated -1.5.
+
 The model's response to price checked against four measurements (`demand_checks.py`, `research_notes/demand_checks.md`; **no
 default changed**)
 - Prompted by Knowles 2026 on plant-based meat's prices. Plant-based meat's own-price elasticity is -1.23 in US retail data

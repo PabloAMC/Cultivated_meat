@@ -826,6 +826,11 @@ def organic_premium_check(pr: DemandParams) -> dict:
 # model's (BLP+kink) elasticity is steeper. Matching the at-parity bracket therefore grounds the
 # SHAPE near parity but the -3.6 at R~2.4 remains a functional-form EXTRAPOLATION — no choice
 # experiment has priced cultivated at ~2.4x conventional. See METHODS / the limitations.
+# CORRECTION 2026-11-18 (research_notes/demand_heterogeneity_evidence.md): the paper reports no elasticity. The two ends above are
+# beta * price * (1 - share) for its two models' price coefficients; they are not the aggregate response. Simulating the paper's
+# fitted random-parameter logit, which reproduces its published shares, gives an aggregate own-price elasticity of about -1.5 at
+# equal price (-1.1 to -1.65 across its four arms). The model's -3.27 is inside this bracket but about twice that. The bracket is
+# kept so the check below still runs; liking_spread.py and demand_checks.py use the simulated figure.
 LUSK_ELAS_BRACKET = (-3.4, -0.84)   # at-parity, cold-survey own-price elasticity of lab-grown
 
 

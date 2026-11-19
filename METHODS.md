@@ -1184,6 +1184,15 @@ loose: the six products' shares are nearly flat across premiums, as if a small g
 premium, and one number cannot reproduce that. A model with shoppers who differ in price sensitivity would;
 six data points do not identify it.
 
+**Correction, 2026-11-18** (`research_notes/demand_heterogeneity_evidence.md`, `research_notes/liking_spread.md`). The choice
+experiment reports no elasticity. "−0.84 to −3.4" is β × price × (1 − share) for its two models' price coefficients, not the
+aggregate response; simulating its fitted random-parameter logit gives about −1.5 at equal price (−1.1 to −1.65 across its arms),
+half the model's −3.27. The paper's own finding is a very wide spread of liking for the lab-grown burger across shoppers, which this
+model does not have: a spread of 5 utils with κ = 8.5 unchanged reproduces the experiment's response at all four prices tested. The
+"model with shoppers who differ" mentioned above is therefore identified after all, in liking rather than in price sensitivity. It is
+not yet the default, because with it the share at equal price in the long run (48.8% here) no longer follows from the fading of
+first-contact wariness and has to be set explicitly.
+
 The anchor price `p_x` ($29.01, `elasticity_anchor_price`) is a calibration device, not a cost. What it pins
 down is how sharply shoppers respond to price, and the evidence for that is at equal price: with this anchor the
 model's first-contact elasticity at parity is −1.54 at κ = 4, inside the measured −0.84 to −3.4 (−3.27 at the
