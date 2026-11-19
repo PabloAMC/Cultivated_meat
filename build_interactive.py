@@ -17,7 +17,7 @@ import json
 import os
 
 from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PLANT_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
-                    MC_TIER_INPUTS, MC_TIMING_INPUTS)
+                    MC_TIER_INPUTS, MC_CUT_INPUTS, MC_TIMING_INPUTS, REGISTRY, LOGNORMAL_Z90)
 import meat_market as mm
 from price_ratio import shelf_price, cost_from_shelf, structured_cost
 import floor_physics
@@ -43,6 +43,13 @@ OUT = os.path.join(HERE, "interactive.html")
 def _prior_lo_hi(name):
     kind, lo, hi, mode, _ = prior(name)
     return lo, hi
+
+
+def _lognormal_5_95(name):
+    """5th and 95th percentile of a lognormal input's draws before clipping: median x (lo/hi)^0.5 and median x (hi/lo)^0.5
+    (inputs.sample: lo and hi set the spread; they are the percentiles themselves only when the median is their geometric mean)."""
+    inp = REGISTRY[name]
+    return inp.prior_mode * (inp.lo / inp.hi) ** 0.5, inp.prior_mode * (inp.hi / inp.lo) ** 0.5
 
 
 def _prior_lo_mode_hi(name):
@@ -210,8 +217,10 @@ def build_model() -> dict:
         "cleanroom_cost": value("cleanroom_cost"),
         # per-region income (GDP/cap PPP) for the BLP price term
         "REGION_INCOME": mm.REGION_INCOME,
-        # demand calibration constants (surfaced so the methods section can show them)
+        # "premium" as a LABEL for charts (nothing numeric depends on it), and the premium penalty's price range (tierOffset)
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
+        "PREMIUM_START": mm.PREMIUM_START, "PREMIUM_FULL": mm.PREMIUM_FULL,
+        "AUTH_PREMIUM_EXTRA": mm.AUTH_PREMIUM_EXTRA,
         # a cut = cut_cells x cells + (1 - cut_cells) x matrix price + assembly (price_ratio.structured_cost; cutCost below)
         "matrix_price": value("material_price"),
         # WHICH inputs the page's bands sample: the SAME lists the Python bands use (inputs.MC_*),
@@ -227,12 +236,12 @@ def build_model() -> dict:
              "say": "Everything works, including cells engineered to make almost no waste, and once it is familiar shoppers "
                     "slightly favour it over meat at the same price. This is the favourable end of what the model allows, not what "
                     "to expect."}]},
-        "mc_inputs": list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS),
+        "mc_inputs": list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS),
         "mc_timing_inputs": list(MC_TIMING_INPUTS),
-        # triangular Monte-Carlo priors [lo, mode, hi] for every sampled input
+        # Monte-Carlo priors [lo, mode, hi] for every sampled input: triangular, unless prior_kinds names the input
         "priors": {
             **{k: list(_prior_lo_mode_hi(k))
-               for k in dict.fromkeys(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS
+               for k in dict.fromkeys(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS
                                       + MC_TIMING_INPUTS)},
             # plant-based's own health prior (its band, equal footing with cultivated's health_x)
             "health_p": list(_prior_lo_mode_hi("health_p")),
@@ -242,11 +251,13 @@ def build_model() -> dict:
             "neophobia_p": [-1.0, 0.0, 1.0],
             "neophobia_p0": [-2.0, -1.0, 0.5],
         },
+        # inputs whose prior is not triangular (inputs.sample): {name: [kind, clip low, clip high]}. lognormal: the median is
+        # priors[name][1] and priors[name][0], [2] are the 5th and 95th percentiles (mcDraw mirrors inputs.draw)
+        "prior_kinds": {k: [REGISTRY[k].kind, *(REGISTRY[k].clip or (None, None))]
+                        for k in dict.fromkeys(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS
+                                               + MC_TIMING_INPUTS) if REGISTRY[k].kind != "triangular"},
+        "lognormal_z90": LOGNORMAL_Z90,
         "years": int(value("years")),   # diffusion horizon for the timing rung
-        # tier offsets (meat_market)
-        "AUTH_BASIC": mm.AUTH_BASIC, "AUTH_CUT": mm.AUTH_CUT,
-        "AUTH_PREMIUM": mm.AUTH_PREMIUM,
-        "EPS_MULT_CUT": mm.EPS_MULT_CUT, "EPS_MULT_PREMIUM": mm.EPS_MULT_PREMIUM,
         # reactor configs for the cost chart: [short label, overhead $/kg]. The overhead
         # NUMBERS are read from inputs.PLANT_CONFIGS (the source of truth) so they can't
         # drift from the datasheet; only the short display labels live here.
@@ -357,14 +368,12 @@ def build_model() -> dict:
             "R_p":           ["R<sub>p</sub>", "plant-based price in Eq. (2)"],
             "theta_free_M":  ["&theta;", "mainstream no-slaughter weight w<sup>s</sup> in Eq. (2)"],
             "w_eth":         ["w<sub>eth</sub>", "segment mix, Eq. (3)"],
-            "premium_resistance": ["&rho;", "scales the tier offsets &tau; and &psi;, see A5"],
+            "premium_resistance": ["&rho;", "scales the premium part of the offset &tau;, see A5"],
             "real_tissue_x": ["b<sub>x</sub>", "real-meat term w<sup>rt</sup>b<sub>x</sub> in Eq. (2)"],
             "real_tissue_p": ["b<sub>p</sub>", "plant-based real-meat term in Eq. (2)"],
             "health_x":      ["&zeta;<sub>x</sub>", "health term w<sup>h</sup>&zeta;<sub>x</sub> in Eq. (2)"],
             "health_p":      ["&zeta;<sub>p</sub>", "plant-based health term in Eq. (2)"],
-            "auth_basic":    ["&tau;<sub>mince</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
-            "auth_cut":      ["&tau;<sub>cut</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
-            "auth_premium":  ["&tau;<sub>prem</sub>", "cultivated's authenticity term in Eq. (2), see A5"],
+            "auth_premium_extra": ["&tau;<sub>prem</sub>", "the full premium part of the offset &tau; in Eq. (2), see A5"],
             "w_taste":       ["w<sup>t</sup>", "taste weight in Eq. (2), see A4"],
             "w_realtissue_M": ["w<sup>rt</sup><sub>M</sub>", "real-meat weight in Eq. (2), mainstream, see A4"],
             "w_realtissue_E": ["w<sup>rt</sup><sub>E</sub>", "real-meat weight in Eq. (2), ethical, see A4"],
@@ -396,7 +405,7 @@ def build_model() -> dict:
          ["eps_own", "cult_sub_mult", "liking_sd", "theta_free_M", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
           "health_x", "neophobia_x"], True),
         ("Step 2 · plant-based meat", ["R_p", "a_p", "real_tissue_p", "health_p", "neophobia_p"], True),
-        ("Step 3 · authenticity by tier", ["auth_basic", "auth_cut", "auth_premium"], True),
+        ("Step 3 · premium products", ["auth_premium_extra"], True),
         ("Step 4 · over time",
          ["neophobia_x0", "accept_rate", "p_innov", "q_imit", "neophobia_p0"], True),
         ("Entry points (which products first)", ["phi"], True),
@@ -459,11 +468,11 @@ def build_model() -> dict:
                "means not at all. Raising it lifts every slaughter-free option, and cultivated meat most. "
                "The share at equal price is ~{{TH_05}}% at 0.5 and ~{{TH_10}}% at 1. The Monte Carlo samples this slider "
                "from 0 to 1."),
-        slider("premium_resistance", "Premium resistance (&rho;)", "x", 0.0, 2.0, 0.1,
+        slider("premium_resistance", "How much less buyers of premium products like a cultivated version (&rho;)", "x", 0.0, 2.0, 0.1,
                value("premium_resistance"), "judgement",
-               tip="This is how strongly cuts and premium meat resist cultivated meat, compared with mince. It scales both "
-               "the authenticity penalties and the lower price sensitivity of pricier tiers. A value of 1 is the default, "
-               "0 means no tier effect (wagyu as easy as mince), and 2 doubles the effect. There are no direct data, so the Monte "
+               tip="This is how much less buyers of premium products (wagyu, sushi-grade fish) like a cultivated version, beyond what "
+               "applies to any cut. A value of 1 is the default, 0 means a premium product is liked as much as any other cut, and "
+               "2 doubles the penalty. It does not change mince or ordinary cuts. There are no direct data, so the Monte "
                "Carlo samples 0.5 to 1.5."),
         # ---- step 1: cost and price ----------------------------------------------------------
         slider("efficiency", "Cell efficiency (&eta;)", "x", 0.25, 1.0, 0.05, value("efficiency"),
@@ -477,15 +486,17 @@ def build_model() -> dict:
                tip="A cut (steak or fillet) is made by binding harvested cells with plant protein. The rest of the cut is that "
                "plant protein, at $" + f"{value('material_price'):.0f}" + "/kg. Cuts sold or approved so far are 10 to 30% cells. "
                "Nobody has shown a cut that is mostly cells grown in suspension with the texture of meat. The default keeps the cut "
-               "mostly cells, the product the shopper model describes. Lower shares make a cut cheaper, but shoppers may see it "
-               "as a different product, and the model does not capture that."),
+               "mostly cells. A lower share makes a cut cheaper, and shoppers like it less: a cut that is part plant protein gets "
+               "that much less of the credit shoppers give real meat. The Monte Carlo samples "
+               + f"{(1 - REGISTRY['scaffold_frac'].hi) * 100:.0f} to {(1 - REGISTRY['scaffold_frac'].lo) * 100:.0f}" + "% cells."),
         slider("scaffold", "Cost of assembling a cut (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
                "analogues",
                tip="This is the cost of binding, forming, setting and slicing a cut after the cells are harvested. Mince does not need it. "
                "No study has costed it for cultivated meat, so the figure comes from plant-protein extrusion ($0.4 to $1.6 a kilo), "
                "surimi forming (about $1) and binder prices: $1 to $8 all in, less the $1 of forming and packing that every product already pays "
                "in the shop add-on. Growing the cells into tissue on a scaffold "
-               "instead would add about $10 a kilo, which is why companies have dropped it."),
+               "instead would add about $10 a kilo, which is why companies have dropped it. The Monte Carlo samples $"
+               + f"{REGISTRY['process_cost'].lo:g} to ${REGISTRY['process_cost'].hi:g}" + "."),
         # ---- step 2: how shoppers choose -----------------------------------------------------
         slider("eps_own", "Price sensitivity of meat (&epsilon;)", "", -1.4, -0.5, 0.05,
                value("eps_own"), "scanner data",
@@ -499,7 +510,9 @@ def build_model() -> dict:
                "default 13% assumes a third of that first wariness fades: novelty fades by half, while the sense that it is "
                "unnatural stays. 49% would mean shoppers end up indifferent on average. The best case takes "
                f"{value('best_equal_price_share'):.0%}: shoppers slightly favour it. Nobody has measured it, and it moves "
-               "the long-run share more than any cost does."),
+               "the long-run share more than any cost does. The Monte Carlo draws it with a median of "
+               f"{value('equal_price_share'):.0%}, and nine draws in ten fall between about "
+               f"{_lognormal_5_95('equal_price_share')[0]:.0%} and {_lognormal_5_95('equal_price_share')[1]:.0%}."),
         slider("liking_sd", "Spread of liking between shoppers", "utils", 0.0, 8.0, 0.25, value("liking_sd"),
                "Van Loo 2020",
                tip="How much shoppers differ in how much they like cultivated meat. With a wide spread, the shoppers still "
@@ -574,21 +587,14 @@ def build_model() -> dict:
                0.1, value("neophobia_p"), "scenario",
                tip="This is the lasting attitude toward plant-based meat as a new food. A minus means wary, a plus means drawn to it, and the "
                "default is 0. Its real resistance is already in the calibration, so this slider is a what-if."),
-        # ---- step 3: authenticity by tier ----------------------------------------------------
-        slider("auth_basic", "Authenticity: mince (&tau;<sub>mince</sub>)", "utils", -1.0, 1.0, 0.05,
-               mm.AUTH_BASIC, "judgement", fmt="signed",
-               tip="This is a bonus or penalty for cultivated meat in everyday mince and processed meat. The default is +0.2, because "
-               "nobody misses “the real thing” in a nugget and “cleaner meat” helps. Premium "
-               "resistance scales it. There are no direct data."),
-        slider("auth_cut", "Authenticity: cuts (&tau;<sub>cut</sub>)", "utils", -2.0, 1.0, 0.05,
-               mm.AUTH_CUT, "judgement", fmt="signed",
-               tip="This is the same term for steaks and fillets. The default is −0.4, because some shoppers want the real cut. "
-               "Premium resistance scales it. There are no direct data."),
-        slider("auth_premium", "Authenticity: premium (&tau;<sub>prem</sub>)", "utils", -3.0, 0.5,
-               0.05, mm.AUTH_PREMIUM, "judgement", fmt="signed",
-               tip="This is the same term for luxury products (wagyu and sushi-grade fish). The default is −1.5, because the genuine "
-               "article is the point. It caps premium shares even where cultivated meat is cheaper. Premium "
-               "resistance scales it. There are no direct data."),
+        # ---- step 3: premium products ---------------------------------------------------------
+        slider("auth_premium_extra", "Penalty on a cultivated version of a premium product (&tau;<sub>prem</sub>)", "utils", -3.0, 0.5,
+               0.05, mm.AUTH_PREMIUM_EXTRA, "judgement", fmt="signed",
+               tip="This is how much less a buyer of a luxury product (wagyu, sushi-grade fish) likes a cultivated version, on top of "
+               "what applies to any cut, because the genuine article is part of what they pay for. It applies in full to a product "
+               "priced at " + f"{mm.PREMIUM_FULL:g}" + " times its species' cheapest form or more, not at all below "
+               + f"{mm.PREMIUM_START:g}" + " times, and in part between. The slider above (&rho;) "
+               "scales it. There are no direct data."),
         # ---- step 4: over time ---------------------------------------------------------------
         slider("neophobia_x0", "Starting wariness of cultivated meat (&nu;<sub>x0</sub>)", "utils", -3.5, 1.5, 0.1,
                value("neophobia_x0"), "Lusk / GFI",
@@ -686,7 +692,7 @@ def build_model() -> dict:
     # (e.g. "0.85 → 0.17× taste"): that ratio is the factor's relative importance.
     # (Not on the key "no slaughter" slider: there the ratio is expert detail and clutters the readout.)
     _WNORM = {"w_taste", "w_slaughter_E", "w_realtissue_M", "w_realtissue_E",
-              "w_health_M", "w_health_E", "auth_basic", "auth_cut", "auth_premium"}
+              "w_health_M", "w_health_E", "auth_premium_extra"}
     for _s in sliders:
         if _s["key"] in _WNORM:
             _s["wnorm"] = True
@@ -1012,7 +1018,7 @@ def _scenario_tokens() -> dict:
         if key in ("best", "central"):
             out[f"R_{tag}"] = f"{sm['ratio']:.2f}"
         if key == "central":
-            out["PEN_US_CENTRAL_VOL"] = f"{sm['us']:.0f}"
+            out["PEN_US_CENTRAL_VOL"] = f"{sm['us']:.1f}"
             import audit as AU                    # the shelf price under the three markup rules (research_notes/retail_markup_form.md)
             out["RETAIL_CENTRAL"] = f"{AU.retail(sm['cost']):.0f}"
             out["RETAIL_CENTRAL_FLAT"] = f"{AU.retail(sm['cost'], 'flat'):.0f}"
@@ -1069,6 +1075,11 @@ def derived_numbers() -> dict:
         "PCONV": f"{p_conv:.0f}",
         "MARKUP": f"{markup:.1f}",
         "CUT_CELLS_PCT": f"{mm.CUT_CELL_SHARE * 100:.0f}",
+        # how much less shoppers like a cut than mince (meat_market.tier_offset): the blend penalty at the default cell share, and
+        # the premium penalty's size and price range
+        "BLEND_OFFSET": f"\u2212{(1 - mm.CUT_CELL_SHARE) * dp.w_realtissue_M:.2f}",
+        "PREMIUM_EXTRA": f"\u2212{abs(mm.AUTH_PREMIUM_EXTRA):g}",
+        "PREMIUM_START": f"{mm.PREMIUM_START:g}", "PREMIUM_FULL": f"{mm.PREMIUM_FULL:g}", "PREMIUM_RATIO": f"{mm.PREMIUM_RATIO:g}",
         "SCAF": f"{mm.SCAF:.0f}",
         "MARGIN_PCT": f"{value('retail_margin') * 100:.0f}",
         "PARITY_BIOMASS": f"{cost_from_shelf(p_conv):.1f}",
@@ -1646,7 +1657,7 @@ The explanation of each step is under its title, and the equations are in the me
       <button class="mcbtn" id="mcbtn">Monte Carlo: off</button>
       <span class="mcnote">This redraws the charts with uncertainty bands.</span>
     </div>
-    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="This chart makes 2,000 random draws of the uncertain inputs from their plausible ranges. The inputs are medium price, cell efficiency, plant cost, the costs of reaching the shelf, the shop's margin, taste, the value of &ldquo;no slaughter&rdquo;, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), long-run novelty, health image and premium resistance. It also draws plant-based meat's own taste, novelty and health image. Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
+    <div class="charts" style="grid-template-columns:1fr"><div class="card full" id="mccard" style="display:none"><h3 data-help="This chart makes 2,000 random draws of the uncertain inputs from their plausible ranges. The inputs are medium price, cell efficiency, plant cost, the costs of reaching the shelf, the shop's margin, taste, price sensitivity (of meat, and how much more for cultivated meat, &kappa; 3 to 9), the share at equal price once familiar, how much less buyers of premium products like a cultivated version, and a cut's share of cells and assembly cost. It also draws plant-based meat's own taste, novelty and health image. Other sliders stay where you set them. The long right tail is the world where scale-up succeeds and shoppers embrace it.">Uncertainty band (Monte Carlo)</h3>
         <p class="sub" id="mcsub"></p><svg id="mc" viewBox="0 0 720 250"></svg></div>
       <div class="card full"><h3 data-help="Each solid bar is cultivated meat's share within one kind of meat. Plant-based meat is stacked on top in a paler colour. The colour of the bar marks mince, cuts or premium, and R is the price ratio. The dashed lines are the totals across all meat, by weight and by value. With Monte Carlo on, the bars show medians and the whiskers show the 10&ndash;90% range.">Share by type of meat</h3>
         <p class="sub" id="barsub"></p><svg id="bars" viewBox="0 0 720 300"></svg></div>
@@ -1861,19 +1872,22 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       chicken mince costs about $5/kg, a beef steak $20 and sushi-grade fish $40. So the model runs each meat at its local
       price and adds up the results <b>by weight</b> (closest to the climate footprint) and <b>by value</b> (the market). Neither
       total counts animals. Most land animals raised for meat are chickens, and cultivated meat does worst there.</p>
-      <p><b>Mince, cuts and premium.</b> Premium means a cut at least 2.5 times the species' cheapest form (for example wagyu and
-      sushi-grade fish). Higher up the ladder, <b>authenticity</b> matters more. Nobody misses &ldquo;the real thing&rdquo; in a
-      nugget, but for wagyu the breed <i>is</i> the product. The offsets are +0.2 for mince, &minus;0.4 for cuts and &minus;1.5 for premium. Buyers also
-      react less to <b>price</b> [5], at 0.8× for cuts and 0.3× for premium. The directions are documented. The
-      values are judgement, scaled by one <b>premium resistance</b> slider that the Monte Carlo samples (0.5–1.5).</p>
+      <p><b>Mince, cuts and premium.</b> Shoppers like a cultivated cut less than cultivated mince, for two reasons. First, a cut
+      is cells bound with plant protein, so it gets that much less of the credit shoppers give real meat: at {{CUT_CELLS_PCT}}% cells
+      the penalty is {{BLEND_OFFSET}} points, and it grows as the share of cells falls. The same share of cells sets the cut's cost.
+      Second, <b>authenticity</b>: nobody misses &ldquo;the real thing&rdquo; in a nugget, but for wagyu the breed <i>is</i> the
+      product. A further penalty starts at {{PREMIUM_START}} times the species' cheapest form and reaches its full size,
+      {{PREMIUM_EXTRA}} points, at {{PREMIUM_FULL}} times (wagyu, sushi-grade fish). Its size is a judgement, scaled by one slider
+      that the Monte Carlo samples (0.5–1.5). Every product has the same price sensitivity. The charts label a cut
+      &ldquo;premium&rdquo; from {{PREMIUM_RATIO}} times its species' cheapest form; the label changes no number.</p>
       <p><b>What comes out</b> (share by type of meat, at the default cost):</p>
       <ul>
         <li><b>Beef and seafood</b> are where cultivated meat can compete. Chicken and pork stay dearer even in the
         best case.</li>
         <li><b>Premium products</b> get the biggest share of their category, because cultivated meat is already cheaper there.
-        Authenticity limits that share to about a quarter, and the markets are small.</li>
-        <li><b>Beef and seafood cuts</b> displace the most meat. In the central scenario, cuts and ground beef overtake
-        premium. The US total then rises from {{PEN_US_VOL}}% (at the reported cost) to ~{{PEN_US_CENTRAL_VOL}}% by weight.</li>
+        Authenticity limits that share, and the markets are small.</li>
+        <li><b>Beef and seafood cuts</b> displace the most meat. In the central scenario the US total is
+        ~{{PEN_US_CENTRAL_VOL}}% by weight, against {{PEN_US_VOL}}% at the reported cost.</li>
       </ul>
       <p><b>Regions.</b> Europe is easiest ({{PEN_EU_VOL}}% by weight, {{PEN_EU_VAL}}% by value), because meat is dear and shoppers
       are rich. Cheap chicken and pork lower the figures for China and for the world average. Low-income regions are
@@ -1962,7 +1976,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       \[ V_j \;=\; \underbrace{\alpha\ln(y_{\rm eff}-p_j) \;-\; \lambda\,(d_j)^{+} + (d_j)^{-}}_{\text{price}}
          \;+\; \underbrace{w^{t}(a_j-1)}_{\text{taste}} \;+\; \underbrace{w^{rt}\,b_j}_{\text{real meat}}
          \;+\; \underbrace{w^{s}\,g_j}_{\text{no slaughter}} \;+\; \underbrace{w^{h}\,\zeta_j}_{\text{health}}
-         \;+\; \underbrace{\nu_j+\tau_j}_{\text{novelty, authenticity}} \tag{2} \]
+         \;+\; \underbrace{\nu_j+\tau_j}_{\text{novelty; cut, premium}} \tag{2} \]
       \[ P_j = \frac{e^{V_j}}{\sum_k e^{V_k}}, \qquad
          \text{share}_j = w_{\rm eth}\,P^{\rm ethical}_j + (1-w_{\rm eth})\,P^{\rm mainstream}_j \tag{3} \]
       <p>Price enters twice: through the dollars it takes from income (\(p_j = R_j\,p_c\); \(y_{\rm eff}\) is an income
@@ -1970,7 +1984,7 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       \((d_j)^{+}\) and negative part \((d_j)^{-}\) (at the default \(\lambda=1\) the two terms are simply \(-d_j\); A3).
       \(a_j\): taste (1 = as good as conventional); \(b_j\), \(g_j\): 1 if real meat, 1 if slaughter-free; \(\zeta_j\):
       health image. The weights \(w\) (A4) differ between the two kinds of shopper for no slaughter, real meat and
-      health. \(\nu_j\) (novelty) and \(\tau_j\) (authenticity by tier, A5) are zero unless set.</p>
+      health. \(\nu_j\) (novelty) is zero unless set. \(\tau_j\) is how much less shoppers like a cultivated cut or premium product than cultivated mince (A5).</p>
       <p><b>Step 3, adding up.</b></p>
       \[ \text{share}_{\rm vol} = \sum_i \frac{\omega_i}{\sum_k \omega_k}\,s_i, \qquad
          \text{share}_{\rm val} = \sum_i \frac{p_i\,\omega_i}{\sum_k p_k\,\omega_k}\,s_i \tag{4} \]
@@ -2055,26 +2069,31 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
         __WEIGHTS_TABLE__
       </table></div>
 
-      <h5>A5. Three different &ldquo;is it real?&rdquo; questions, and the tier ladder</h5>
+      <h5>A5. Three different &ldquo;is it real?&rdquo; questions, and the offset for cuts and premium products</h5>
       <ul>
         <li><b>Real meat</b> (\(b\)) asks whether it is animal tissue. The answer is permanent and the same for every product, and it is the reason
         cultivated meat takes buyers from conventional meat.</li>
         <li><b>Novelty</b> (\(\nu\)) asks whether it is new, strange or safe. It is the same for a nugget and a steak, and it fades with
         familiarity (Step 4).</li>
-        <li><b>Authenticity</b> (\(\tau\)) asks whether, for this occasion, the shopper wants the genuine article. It depends on the tier and is
+        <li><b>Authenticity</b> (\(\tau\)) asks whether, for this occasion, the shopper wants the genuine article. It depends on the product and is
         permanent. It is irrelevant for a nugget and decisive for wagyu.</li>
       </ul>
       <p>They are separate because they behave differently. A cultivated nugget faces novelty but no authenticity
       demand. A cultivated wagyu faces both. A fourth attribute, <b>health image</b> (\(\zeta\)), is separate again. It
       is 0 by default, because surveys find both a &ldquo;clean meat&rdquo; appeal and an &ldquo;ultra-processed&rdquo;
       aversion. The Monte Carlo samples it between &minus;0.5 and +0.5.</p>
-      <p>The tier ladder in formulas, with premium resistance \(\rho\) scaling both the authenticity offset and the
-      elasticity multiplier \(\psi\):</p>
-      \[ \tau_{\rm tier}=\rho\,\tau^0_{\rm tier},\qquad \varepsilon_{\rm tier}=\big(1+\rho\,(\psi^0_{\rm tier}-1)\big)\,\varepsilon,\qquad
-         (\tau^0,\psi^0)=\begin{cases}(+0.2,\ 1.0)&\text{mince}\\ (-0.4,\ 0.8)&\text{cut}\\ (-1.5,\ 0.3)&\text{premium}\end{cases} \tag{A5} \]
-      <p>The model defines &ldquo;premium&rdquo; per species (at least 2.5 times the species' cheapest form). So every species
-      can have a premium tier, and a product does not change tier between regions. Wagyu and sushi-grade fish are well attested.
-      Organic chicken and heritage pork are real but smaller, so they have little volume.</p>
+      <p>The offset in formulas. For mince and other unstructured products \(\tau=0\). For a cut made of a share \(c\) of cells,
+      priced at \(q\) times its species' cheapest form:</p>
+      \[ \tau=\underbrace{-(1-c)\,w^{rt}_M}_{\text{part plant protein}}\;+\;\rho\,\tau_{\rm prem}\,
+         \min\!\Big(1,\max\!\Big(0,\frac{\ln(q/{{PREMIUM_START}})}{\ln({{PREMIUM_FULL}}/{{PREMIUM_START}})}\Big)\Big) \tag{A5} \]
+      <p>The first term is derived: \(w^{rt}_M\) is the weight mainstream shoppers put on real meat (A4), and a cut that is one-fifth
+      plant protein gets four-fifths of that credit. \(c\) is the same share of cells that sets the cut's cost in Eq. (1). The second
+      term is a judgement: \(\tau_{\rm prem}={{PREMIUM_EXTRA}}\) is the full penalty on a cultivated version of a premium product, and
+      \(\rho\) scales it. It rises smoothly with price, so no product changes sharply at a threshold, and because \(q\) is taken
+      per species every species can have premium products. Wagyu and sushi-grade fish are well attested.
+      Organic chicken and heritage pork are real but smaller, so they have little volume. Price sensitivity is the same for every
+      product. Until 19 November 2026 the model also made buyers of cuts and premium products less sensitive to price [5]; that
+      raised cultivated meat's share wherever it was the dearer product, and it was removed.</p>
 
       <h5>A6. Entry points: the equations behind the which-products-first chart</h5>
       <p>A product's headline price splits into the accessible price and the rent. The model takes cultivated meat's price ratio
@@ -2083,15 +2102,15 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
          R = \frac{c_x}{p^{\rm base}},\qquad c_x = c_{\rm bio} + k\,[\text{cut}] + m \tag{A6a} \]
       <p>A prestige core, a share \(\chi\) of the category's volume \(Q\), pays the rent and never switches. Luxury
       sellers keep their price and give up volume rather than discount, which is the classic Veblen pattern [17]. Only the
-      rest is reachable. Cultivated meat wins a share \(s\) of it from the same shopper model as Step 2, using the mince
-      or cut authenticity setting. (The premium tier is the prestige core, which the model has already removed.)</p>
+      rest is reachable. Cultivated meat wins a share \(s\) of it from the same shopper model as Step 2, using the offset of
+      mince or of a cut (A5) without the premium part. (The premium tier is the prestige core, which the model has already removed.)</p>
       \[ Q^{\rm reach} = (1-\chi)\,Q,\qquad s = S\big(R;\ \tau_{\rm mince\ or\ cut}\big),\qquad
          D = s\cdot Q^{\rm reach}\quad(\text{kt/yr displaced}) \tag{A6b} \]
       <p><b>Zones.</b> A product is <i>about equal</i> if the accessible price is within $3 of cultivated meat's cost. It is <i>cheaper now</i> if
       the accessible price is above that. It is <i>only in the best case</i> if the accessible price is above the best case's cost. Otherwise it is
       <i>never on price</i>. A single-grade
       product (no rent, \(\chi=0\)) reproduces the share-by-type-of-meat chart exactly, so the two views agree. The model counts authenticity
-      once, as removed volume for the prestige grade and through the mince or cut setting for the accessible grade.
+      once, as removed volume for the prestige grade and through the offset of mince or of a cut for the accessible grade.
       The model has limits. It does not model margin or profit, its shopper model is calibrated on meat (so it is indicative for luxury
       and seafood), and it treats each product in isolation. The accessible and headline prices come from sources for each
       product (June 2026 retail and wholesale, with the basis shown when you hover over a bubble). Shark fin's price is an estimate.</p>
@@ -2123,8 +2142,8 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       <p><b>Is there really no fitted constant?</b> Almost none. Beans' appeal is a labelled attribute (health) times a
       solved weight, not a free constant. The model assumes the attribute's position (+2), so only the product of the two is identified
       (A4).</p>
-      <p><b>Isn't premium resistance just novelty again?</b> No. Novelty is the same for every product and fades.
-      Authenticity depends on the tier, is permanent, and comes with lower price sensitivity (A5).</p>
+      <p><b>Isn't the premium penalty just novelty again?</b> No. Novelty is the same for every product and fades.
+      Authenticity depends on how premium the product is, and is permanent (A5).</p>
       <p><b>The experiment behind the ~5% also had plant-based at 23% at equal price. Why doesn't the model?</b>
       The model is fitted to what plant-based meat actually sells (~1.2%). It predicts about {{PB_PARITY}}% for plant-based meat
       among mainstream shoppers at equal price and taste. Hypothetical choice experiments tend to overstate adoption of new products. The model uses that
@@ -2529,33 +2548,42 @@ function parityCost(s){return C.p_conv_anchor*s.meat_tax*(1-s.retail_margin)-s.m
 function basicR(s){return shelfPrice(biomass(s),s)/(C.p_conv_anchor*s.meat_tax);}
 function speciesBases(market){const b={};market.forEach(mt=>{const a=animalOf(mt.name);
   b[a]=Math.min((a in b)?b[a]:Infinity,mt.p_conv);});return b;}
+// a LABEL for charts and tables (basic / cut / premium); nothing numeric depends on it (mirror of meat_market.tier)
 function tierOf(mt,base){return !mt.structured?"basic":(mt.p_conv>=C.PREMIUM_RATIO*base?"premium":"cut");}
-// per-type price ratio + tier, shared by penetration / monteCarlo / perTypeMC so the
+// how far a product sits in its species' premium range, 0 to 1: 0 at PREMIUM_START x the species' cheapest form or below,
+// 1 at PREMIUM_FULL x or above, linear in the logarithm of price between (mirror of meat_market.premium_ramp)
+function premiumRamp(mt,base){
+  if(!mt.structured) return 0;
+  const x=Math.log(mt.p_conv/base/C.PREMIUM_START)/Math.log(C.PREMIUM_FULL/C.PREMIUM_START);
+  return Math.max(0,Math.min(1,x));}
+// per-type price ratio, tier label and premium ramp, shared by penetration / monteCarlo / perTypeMC so the
 // R = shelfPrice(cells, or cutCost(cells) for a cut) / (p_conv*meat_tax), cells = biomass*cost_mult, lives in ONE place
 // (mirror of meat_market._rollup's per-type R). `b` biomass $/kg, `mk` per-kg costs to the shelf, `mg` the shop's margin.
 function typeR(mt,b,mk,s,bases,mg){
-  const cells=b*mt.cost_mult, price=mt.p_conv*s.meat_tax;
-  return {R:shelfPrice(mt.structured?cutCost(cells,s):cells,s,mk,mg)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
+  const cells=b*mt.cost_mult, price=mt.p_conv*s.meat_tax, base=bases[animalOf(mt.name)];
+  return {R:shelfPrice(mt.structured?cutCost(cells,s):cells,s,mk,mg)/price, t:tierOf(mt,base), ramp:premiumRamp(mt,base)};
 }
-// per-tier authenticity offset and elasticity multiplier, scaled by the premium-resistance
-// dial r (r=1 central; r=0 no tier effect; mirrors meat_market.tier_authenticity/tier_eps_mult).
-// per-tier authenticity offset = premium-resistance r × the per-tier τ (basic/cut/premium). The τ
-// values are user-settable (the authenticity sliders auth_basic/auth_cut/auth_premium); they fall
-// back to the datasheet ladder C.AUTH_* when unset. Mirror of meat_market.tier_authenticity(...,auth).
+// Utils added to cultivated meat's utility for a product, against cultivated mince (mirror of meat_market.tier_offset).
+//   mince and other unstructured products: 0
+//   a structured product: BLEND + PREMIUM
+//     BLEND   = -(1 - cells) x K.w_realtissue_M: a cut that is part plant protein gets that much less of the real-meat credit.
+//               `cells` is the SAME cell share the cut's cost uses (s.cut_cells; cutCost above). Not scaled by r.
+//     PREMIUM = r x (the full premium penalty) x ramp: r is the premium-resistance slider, ramp is premiumRamp. The full
+//               penalty is the auth_premium_extra slider, C.AUTH_PREMIUM_EXTRA when unset.
+// Every product uses the model's own price sensitivity (there is no per-tier multiplier since 2026-11-19).
 function _auth(key,dflt){return (typeof state!=="undefined" && (key in state))?state[key]:dflt;}
-function tAuth(t,r){r=(r===undefined?1:r);
-  const A=t==="basic"?_auth("auth_basic",C.AUTH_BASIC):t==="cut"?_auth("auth_cut",C.AUTH_CUT):_auth("auth_premium",C.AUTH_PREMIUM);
-  return r*A;}
-function tMult(t,r){r=(r===undefined?1:r);const m=(t==="basic"?1.0:t==="cut"?C.EPS_MULT_CUT:C.EPS_MULT_PREMIUM);return 1.0+r*(m-1.0);}
+function tierOffset(structured,ramp,r,cells,K){
+  if(!structured) return 0;
+  r=(r===undefined?1:r);
+  return -(1-cells)*K.w_realtissue_M + r*_auth("auth_premium_extra",C.AUTH_PREMIUM_EXTRA)*ramp;}
 function penetration(s){
   const K=KP||effConsts(s);                                         // current calibrated constants
   const market=MODEL.markets[s.region], b=biomass(s), bases=speciesBases(market);
   const r=(s.premium_resistance===undefined?1:s.premium_resistance);
   let Wval=0, Wvol=0; market.forEach(mt=>{Wval+=mt.p_conv*mt.w_vol; Wvol+=mt.w_vol;});   // Wvol: listed weights sum to 1.00-1.025
   const rows=market.map(mt=>{
-    const {R,t}=typeR(mt,b,s.markup_add,s,bases);
-    const eps=s.eps_own*tMult(t,r);                                 // premium tiers less price-sensitive
-    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,r),eps,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv};
+    const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
+    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv};
     const sh=shareCalc(R,K,o);                                      // cultivated share of this type
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
     return {mt,R,sh,shp,t};
@@ -3024,17 +3052,17 @@ function drawCost(s){
 function drawCurve(s){
   const svg=document.getElementById("curve");clear(svg);
   const W=420,H=300,mL=40,mR=14,mT=22,mB=40, x0=0.5,y1=90;
-  // the chosen product: its tier sets the authenticity offset + elasticity multiplier
+  // the chosen product: whether it is a cut, and how premium, sets its offset (tierOffset)
   const market=MODEL.markets[s.region];
   const mt=market.find(m=>m.name===state.curveType)||market[0];
   const rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
-  const {R:Rmark,t}=typeR(mt,biomass(s),s.markup_add,s,speciesBases(market));
-  const eps=s.eps_own*tMult(t,rpr);
+  const {R:Rmark,t,ramp}=typeR(mt,biomass(s),s.markup_add,s,speciesBases(market));   // t: a label for the title only
+  const eps=s.eps_own, toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP);
   const Rp=s.R_p;                                                   // plant-based's OWN price ratio (its marker x)
   // x-axis extends to cover BOTH markers (cultivated's Rmark and plant-based's R_p) so the dots land ON the curves
   const x1=Math.max(3, Math.ceil((Math.max(Rmark,Rp)+0.4)*2)/2);
   const X=v=>mL+(W-mL-mR)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
-  const evW=(R,which)=>shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),eps,
+  const evW=(R,which)=>shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff,eps,
                               income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,which});
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
   [0,20,40,60,80].forEach(v=>{tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
@@ -3111,7 +3139,7 @@ function cmpShare(pd){
 /* PANEL 4b — relative-importance breakdown: each factor's utils contribution to cultivated vs
    conventional (mainstream). Half-width, side-by-side with 4a, and driven by the SAME species
    selector (state.curveType). PER MEAT TYPE × REGION: the selected meat type sets the price ratio R
-   (its LOCAL conventional price), tier (authenticity τ + elasticity multiplier), and the per-
+   (its LOCAL conventional price), the offset τ of a cut or a premium product, and the per-
    comparison reference price p_ref; the region sets the income that scales price-sensitivity. So the
    balance of bars is product- and region-specific (price dominates cheap chicken; for sushi price is
    a POSITIVE bar and τ_premium does the work). Uses breakdownCalc, so the bars sum to the net utility
@@ -3122,19 +3150,20 @@ function drawBreakdown(s){
   const market=MODEL.markets[s.region], bases=speciesBases(market);
   const mt=market.find(m=>m.name===s.curveType)||market[0];     // SHARED selector with panel 4a
   const b=biomass(s), rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
-  const {R,t}=typeR(mt,b,s.markup_add,s,bases);                 // this type's price ratio + tier
-  const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),
-           eps:s.eps_own*tMult(t,rpr),income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
+  const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);            // this type's price ratio, tier label (for the tag) and premium ramp
+  const toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP);
+  const o={ax:s.accept_x,tfM:s.theta_free_M,toff,
+           eps:s.eps_own,income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
            hx:s.health_x,hp:s.health_p,pricePb:s.R_p,tasteP:(s.a_p-1),
            rtx:s.real_tissue_x,rtp:s.real_tissue_p,pRef:mt.p_conv,which:"x"};
   const bd=breakdownCalc(R,KP,"M",o);
-  const blended=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(t,rpr),
-           eps:s.eps_own*tMult(t,rpr),income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
+  const blended=shareCalc(R,KP,{ax:s.accept_x,tfM:s.theta_free_M,toff,
+           eps:s.eps_own,income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
            hx:s.health_x,hp:s.health_p,pricePb:s.R_p,aP:s.a_p,rtx:s.real_tissue_x,rtp:s.real_tissue_p,
            pRef:mt.p_conv,which:"x"});
   const FACT=[["price","price (β)"],["taste","taste (wᵗ)"],["real_meat","real-meat (wʳᵗ)"],
               ["health","health (wʰ)"],["slaughter_free","slaughter (wˢ)"],
-              ["novelty","novelty (ν)"],["authenticity","authent. (τ)"]];
+              ["novelty","novelty (ν)"],["authenticity","cut, premium (τ)"]];
   let maxA=1e-6; FACT.forEach(([k])=>maxA=Math.max(maxA,Math.abs(bd[k])));
   maxA=Math.max(maxA,Math.abs(bd._net));
   const sc=(Math.min(xz-xL,xR-xz)-30)/maxA;                     // utils -> px (leave room for value labels)
@@ -3413,18 +3442,19 @@ function drawFootWaterline(s,svg){
   footSizeKey(svg,W-mR+16,W-mR+38,mT+8+5*14+16);           // quantified volume legend
 }
 /* per-product PREDICTED SHARE via the demand model (shareCalc), live to the acceptance/price sliders.
-   NO new foothold parameter: it is the IDENTICAL Step-2 logit panel 1 uses, with the SAME per-tier
-   authenticity offset (tAuth) and elasticity multiplier (tMult). The accessible tier cultivated competes
-   at is BASIC (unstructured/processed, +0.2 everyday pull) or CUT (structured, −0.4 "want the real cut");
-   the PREMIUM tier is the prestige core, already removed as volume via φ — so authenticity is counted
-   ONCE (premium grade → volume; accessible grade → its calibrated basic/cut taste), never double. This
+   NO new foothold parameter: it is the IDENTICAL Step-2 logit panel 1 uses, with the SAME per-product
+   offset (tierOffset). The accessible tier cultivated competes at is BASIC (unstructured/processed, no offset)
+   or CUT (structured: the blend penalty of a cut that is part plant protein);
+   the PREMIUM tier is the prestige core, already removed as volume via φ — so the premium penalty is counted
+   ONCE (premium grade → volume; accessible grade → the offset of mince or of a cut), never double. This
    makes a commodity foothold product reproduce panel 1's basic-tier share exactly. See appendix A6. */
 function footShare(s,pd){   // share of the ADDRESSABLE base = Step 2's calibrated logit at the accessible price.
   if(pd.p_base==null) return 0;
   const K=KP||effConsts(s), r=(s.premium_resistance===undefined?1:s.premium_resistance);
-  const tier=(pd.structure==="structured")?"cut":"basic";   // premium = the φ-removed prestige core, not an offset here
-  return shareCalc(footR(s,pd),K,{ax:s.accept_x,tfM:s.theta_free_M,toff:tAuth(tier,r),
-    eps:s.eps_own*tMult(tier,r),income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:pd.p_base});
+  // a structured product carries the blend penalty of any cut; the premium penalty is not applied here (ramp 0): the
+  // prestige core is already removed as volume via φ
+  return shareCalc(footR(s,pd),K,{ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(pd.structure==="structured",0,r,s.cut_cells,K),
+    eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:pd.p_base});
 }
 function footRad(v){return 3+2.6*Math.log10(Math.max(v,0.2)+1);}   // bubble radius ~ log volume (impact)
 function tip(elem,text){   // instant custom hover tooltip (native SVG <title> is slow/finicky)
@@ -3523,22 +3553,38 @@ function _rand(){ _rngState |= 0; _rngState = (_rngState + 0x6D2B79F5) | 0;
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
 function triang(lo,mode,hi){const u=_rand(),c=(mode-lo)/(hi-lo);
   return u<c?lo+Math.sqrt(u*(hi-lo)*(mode-lo)):hi-Math.sqrt((1-u)*(hi-lo)*(hi-mode));}
+// a standard normal draw (Box-Muller on the page's own seeded _rand)
+function randNormal(){let u=_rand(); if(u<1e-12)u=1e-12; return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*_rand());}
+// a lognormal draw: median `median`, lo and hi its 5th and 95th percentiles (sigma = ln(hi/lo)/(2 x 1.645)), clipped to
+// [clipLo, clipHi] when given (mirror of inputs.sample)
+function lognorm(lo,median,hi,clipLo,clipHi){
+  let x=median*Math.exp(Math.log(hi/lo)/(2*C.lognormal_z90)*randNormal());
+  if(clipLo!=null) x=Math.max(clipLo,x); if(clipHi!=null) x=Math.min(clipHi,x);
+  return x;}
 function pctl(sorted,q){const i=(sorted.length-1)*q/100,lo=Math.floor(i),hi=Math.ceil(i);
   return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo);}
-// One Monte-Carlo draw: a triangular sample of every input in `keys`. The lists (C.mc_inputs,
+// One draw of the input `k` from its prior C.priors[k] = [lo, mode, hi]: triangular, unless C.prior_kinds[k] says
+// lognormal (then the mode is the median). Mirror of inputs.draw.
+function priorDraw(k){const P=C.priors[k], kd=C.prior_kinds[k];
+  return (kd&&kd[0]==="lognormal")?lognorm(P[0],P[1],P[2],kd[1],kd[2]):triang(P[0],P[1],P[2]);}
+// One Monte-Carlo draw: a sample of every input in `keys`. The lists (C.mc_inputs,
 // C.mc_timing_inputs) are injected from inputs.MC_* — the SAME sets the Python bands sample — so the
 // page's bands and the numbers quoted in RESULTS.md cannot sweep different uncertainties.
-function mcDraw(keys){const d={};for(const k of keys)d[k]=triang.apply(null,C.priors[k]);return d;}
-// cultivated's shareCalc options for one draw of C.mc_inputs, for meat type mt (tier t). Same options
-// as penetration()'s point estimate, including pRef = this cut's own price (the income log needs the
-// dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
-function mcShareOpts(dr,mt,t,s){return {ax:dr.accept_x,tfM:s.theta_free_M,toff:tAuth(t,dr.premium_resistance),
-  eps:dr.eps_own*tMult(t,dr.premium_resistance), kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
+function mcDraw(keys){const d={};for(const k of keys)d[k]=priorDraw(k);return d;}
+// The settings with one draw's cut: its cell share (1 - the drawn plant-protein share) and assembly cost. cutCost and
+// tierOffset both read the cell share from here, so a draw's cut is one product in cost and in liking.
+function mcCutSettings(s,dr){return Object.assign({},s,{cut_cells:1-dr.scaffold_frac,scaffold:dr.process_cost});}
+// cultivated's shareCalc options for one draw of C.mc_inputs, for meat type mt (premium ramp `ramp`); `s` carries the
+// draw's cut (mcCutSettings). Same options as penetration()'s point estimate, including pRef = this cut's own price (the
+// income log needs the dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
+function mcShareOpts(dr,mt,ramp,s){return {ax:dr.accept_x,tfM:s.theta_free_M,
+  toff:tierOffset(mt.structured,ramp,dr.premium_resistance,s.cut_cells,KP),
+  eps:dr.eps_own, kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
   income:s.income,pricePb:s.R_p,aP:s.a_p,
   nbx:s.neophobia_x,nbp:s.neophobia_p,hx:s.health_x,pRef:mt.p_conv,eqs:dr.equal_price_share};}   // novelty, no-slaughter, health: the slider values (not drawn)
 function monteCarlo(s,N){
   // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (samples C.mc_inputs:
-  // cost, acceptance, elasticity, long-run novelty, health, premium resistance) and plant-based (also
+  // cost, acceptance, elasticity, the share at equal price, premium resistance, a cut's make-up) and plant-based (also
   // its own a_p, ν_p, health_p; PB has no cost stack, its price is the R_p slider). Returns vol/val
   // for cultivated and pvol/pval for plant-based.
   const P=C.priors, market=MODEL.markets[s.region], bases=speciesBases(market);
@@ -3546,14 +3592,14 @@ function monteCarlo(s,N){
   _seedRng(3);                      // reproducible penetration band (mirrors np seed=0)
   const vol=new Array(N), val=new Array(N), pvol=new Array(N), pval=new Array(N);
   for(let d=0;d<N;d++){
-    const dr=mcDraw(C.mc_inputs);
+    const dr=mcDraw(C.mc_inputs), sd=mcCutSettings(s,dr);
     // plant-based draws (its own priors, equal footing)
     const aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
     const b=(s.cost_override!=null)?s.cost_override:mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     let tv=0,tval=0,tpv=0,tpval=0;
     for(const mt of market){
-      const {R,t}=typeR(mt,b,dr.markup_add,s,bases,dr.retail_margin);
-      const o=mcShareOpts(dr,mt,t,s);
+      const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
+      const o=mcShareOpts(dr,mt,ramp,sd);
       const sh=shareCalc(R,KP,o);
       // plant-based share of this type, in the SAME sampled world (same cultivated draw), with PB's
       // own sampled positions.
@@ -3572,12 +3618,12 @@ function perTypeMC(s,N){
   const acc={}, accP={}; market.forEach(mt=>{acc[mt.name]=new Array(N);accP[mt.name]=new Array(N);});
   _seedRng(4);                      // reproducible per-type error bars
   for(let d=0;d<N;d++){
-    const dr=mcDraw(C.mc_inputs),
+    const dr=mcDraw(C.mc_inputs), sd=mcCutSettings(s,dr),
       aps=triang.apply(null,P.a_p), nbps=triang.apply(null,P.neophobia_p), hps=triang.apply(null,P.health_p);
     const b=(s.cost_override!=null)?s.cost_override:mediaCost(dr.media_price,dr.efficiency)+dr.overhead+(s.cleanroom?C.cleanroom_cost:0);
     for(const mt of market){
-      const {R,t}=typeR(mt,b,dr.markup_add,s,bases,dr.retail_margin);
-      const o=mcShareOpts(dr,mt,t,s);
+      const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
+      const o=mcShareOpts(dr,mt,ramp,sd);
       acc[mt.name][d]=shareCalc(R,KP,o);
       accP[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
     }
@@ -4097,7 +4143,10 @@ function floorExplore(p,noSearch){
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
   const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:F.glc_kg):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
-  const wf=nh3/(F.nh3[0]*burn);                                        // ammonia relative to enhanced cells
+  const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
+  // ammonia relative to enhanced cells, at the ammonia limit in force (mirror of floor_physics.explore: a tank that is not
+  // washed builds waste up to the limit, so a lower limit caps the density sooner)
+  const wf=nh3/(F.nh3[0]*burn)*(F.nh3_limit/nh3Lim);
   const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
   if(!perf){ limits.push(["waste build-up",F.x_waste/load/wf]);
     limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
@@ -4112,7 +4161,6 @@ function floorExplore(p,noSearch){
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
   // least flow a cell needs for everything else
   const sorb=perf?(p.sorbent||0):0; const terms={};
-  const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
   let need=1000/lim[1];
   if(p.medium_l===undefined){
     if(perf){ terms["ammonia"]=nh3*(1-sorb)/(nh3Lim/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);

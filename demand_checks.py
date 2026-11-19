@@ -78,8 +78,7 @@ def variants() -> list:
     def row(name, **kw):
         def world(cost):
             def share_of(mt, R, base, res):
-                return M.share(R, pr, tier_offset=mm.tier_authenticity(mt, base, res, None),
-                               eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, res), income=income, p_ref=mt.p_conv, **kw)
+                return M.share(R, pr, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv, **kw)
             return mm._rollup(mm.MARKETS["global"], cost, value("markup_add"), value("premium_resistance"), share_of)[1] * 100.0
         return {"name": name, "curve": [M.share(R, pr, **kw) * 100.0 for R in R_GRID],
                 "cold": elasticity_at(1.0, pr, neophobia_x=value("neophobia_x0"), **kw), "world": _world(world)}

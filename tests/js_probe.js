@@ -141,16 +141,20 @@ js += `
               pb: shareCalc(1.0, K, { present: false, which: "pb" }) };
   });
 
-  // AUTHENTICITY ladder parity: the per-tier offset = premium-resistance r × τ_tier, with τ either
-  // the datasheet ladder (default) or the user's authenticity sliders. Mirror of
-  // meat_market.tier_authenticity. Read tAuth for each tier at default τ and at a custom τ.
+  // OFFSET of a cut / premium product (mirror of meat_market.tier_offset): 0 for mince; for a structured product the blend
+  // penalty -(1 - cell share) x w_realtissue_M plus premium-resistance r x the full premium penalty x a ramp in the product's
+  // price against its species' cheapest form ($10 here). Each case: [kind, structured, price, r, cell share, offset], at the
+  // default premium penalty ("def") and at a custom one set through the page's slider ("cust").
   const authCheck = [];
-  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["cut", 1.5], ["premium", 0.5]].forEach(
-    ([t, r]) => authCheck.push(["def", t, r, tAuth(t, r)]));
-  state.auth_basic = 0.5; state.auth_cut = -1.0; state.auth_premium = -2.5;   // custom τ via the sliders
-  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["premium", 0.8]].forEach(
-    ([t, r]) => authCheck.push(["cust", t, r, tAuth(t, r)]));
-  delete state.auth_basic; delete state.auth_cut; delete state.auth_premium;  // restore defaults
+  const offCase = (kind, structured, price, r, cells) => {
+    const mt = { name: "x", p_conv: price, structured: structured };
+    authCheck.push([kind, structured, price, r, cells, tierOffset(structured, premiumRamp(mt, 10.0), r, cells, KP)]); };
+  [[false, 10, 1.0, 0.8], [false, 60, 1.5, 0.5], [true, 10, 1.0, 0.8], [true, 19.9, 1.0, 0.8], [true, 20, 1.0, 0.8],
+   [true, 24, 1.0, 0.8], [true, 25, 1.5, 0.8], [true, 30, 0.5, 0.8], [true, 39.9, 1.0, 1.0], [true, 40, 1.0, 0.8],
+   [true, 80, 2.0, 0.3], [true, 28.3, 0.0, 0.6], [true, 12, 1.0, 1.0]].forEach(c => offCase("def", ...c));
+  state.auth_premium_extra = -2.5;                                           // a custom premium penalty via the slider
+  [[false, 10, 1.0, 0.8], [true, 10, 1.0, 0.8], [true, 30, 1.0, 0.8], [true, 50, 0.8, 0.5]].forEach(c => offCase("cust", ...c));
+  delete state.auth_premium_extra;                                           // restore the default
 
   // IMPORTANCE BREAKDOWN parity (mirror of market_share.utility_breakdown): the per-factor utils
   // decomposition of cultivated vs conventional (mainstream). Sample a few operating points/dials.
@@ -183,6 +187,11 @@ js += `
   const mcUS = monteCarlo(Object.assign({}, def, { region: "us", income: C.income_ref }), 3000);
   const mcCheck = { region: "us", n: 3000, inputs: C.mc_inputs,
                     vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
+  // the samplers themselves: 10th / 50th / 90th percentile of 40,000 draws of every input the bands sample (mirror of inputs.draw)
+  _seedRng(11);
+  const drawCheck = Array.from(new Set(C.mc_inputs.concat(C.mc_timing_inputs))).map(k => {
+    const a = []; for (let i = 0; i < 40000; i++) a.push(priorDraw(k)); a.sort((x, y) => x - y);
+    return [k, pctl(a, 10), pctl(a, 50), pctl(a, 90)]; });
 
   const fxGrid = [];
   [16, 24, 48].forEach(dh => [550, 3000].forEach(m => [5, 20, 200].forEach(v =>
@@ -231,7 +240,7 @@ js += `
   const vmCases = vmBases.map(b => VM.vorder.map(v => VM.morder.map(m => { const c = vmCell(v, m, b);
     return c.possible ? [v, m, true, c.cost, c.limit, c.density, c.tricks_fallback, c.unchecked_cost, c.density_unshown] : [v, m, false]; })));
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
-                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
+                           mcCheck, drawCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();
 `;
 

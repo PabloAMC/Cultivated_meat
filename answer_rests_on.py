@@ -67,7 +67,9 @@ PLAIN = {
     "income_gradient": "How price sensitivity falls with income",
     "loss_aversion": "Whether a price above meat's hurts more than a price below helps (off by default)",
     "p_conv": "Price of everyday meat",
-    "premium_resistance": "How much steaks and premium cuts resist cultivated meat, against mince",
+    "premium_resistance": "How much less buyers of premium products (wagyu, sushi-grade fish) like a cultivated version, beyond what applies to any cut",
+    "scaffold_frac": "Share of a cut that is plant protein, not cells",
+    "process_cost": "Cost of assembling a cut, beyond what mince pays",
     "w_ratio": "Weight on the price compared with meat's",
     "theta_free_M": "Value mainstream buyers put on meat without slaughter",
     "accept_x": "How fully mainstream buyers credit cultivated meat's taste",
@@ -98,7 +100,7 @@ EVIDENCE = {
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
     "neophobia_x": "a judgement on long-run behaviour",
     "cult_sub_mult": "bracketed by data on close substitutes",
-    "equal_price_share": "a judgement: a third of first-contact aversion fading; analogues put the median near 18%",
+    "equal_price_share": "a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`)",
     "liking_sd": "fitted to the one random-parameter choice experiment",
     "markup_add": "fitted to USDA ERS meat spreads, plus forming",
     "retail_margin": "US meat-department margins (28–32%) and French supermarket data",
@@ -108,6 +110,8 @@ EVIDENCE = {
     "loss_aversion": "an alternative model of price, not a measured value; with it, part of the price response moves from dollars to the ratio to meat's price",
     "p_conv": "market prices",
     "premium_resistance": "assumed",
+    "scaffold_frac": "assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`)",
+    "process_cost": "analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`)",
     "w_ratio": "judgement: how much of the price response is a ratio to meat's price rather than dollars",
     "theta_free_M": "a scenario dial: surveys disagree",
     "accept_x": "a scenario dial",
@@ -115,7 +119,7 @@ EVIDENCE = {
 
 # what the scenarios' uncertainty bands draw (scenarios.scenario_mc and meat_market.monte_carlo)
 IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add", "retail_margin"}
-           | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS))
+           | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS) | set(I.MC_CUT_INPUTS))
 if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
     IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected"}
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
@@ -145,6 +149,8 @@ EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
 _PENETRATION_ARGS = {"markup_add", "retail_margin", "premium_resistance"}
+# a cut's make-up: they move the share (a cut's cost and how much shoppers like it), not the cost of a kilo of cells
+_CUT_ARGS = set(I.MC_CUT_INPUTS)                     # scaffold_frac, process_cost
 
 
 def share_at(cost: float, region: str = "global", **over) -> float:
@@ -156,15 +162,18 @@ def share_at(cost: float, region: str = "global", **over) -> float:
     eps = over.get("eps_own", pr.eps_own)
     income = mm.REGION_INCOME[region]
 
+    cell_share = 1.0 - over.get("scaffold_frac", value("scaffold_frac"))     # the cut's cost and its liking: one figure for both
+
     def share_of(mt, R, base, res):
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
-                     tier_offset=mm.tier_authenticity(mt, base, res, None), eps_own=eps * mm.tier_eps_mult(mt, base, res),
+                     tier_offset=mm.tier_offset(mt, base, res, pr, cell_share), eps_own=eps,
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
                      kappa=over.get("cult_sub_mult"))
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
     margin = over.get("retail_margin", value("retail_margin"))
-    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin)[1] * 100.0
+    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin, cell_share=cell_share,
+                      assembly=over.get("process_cost"))[1] * 100.0
 
 
 def _cost(key: str) -> float:
@@ -226,9 +235,10 @@ def cost_drivers() -> list:
 
 def demand_inputs() -> list:
     """The demand inputs that have a range: the demand model's own fields, the spread to the shelf, premium resistance,
-    and the two scenario dials the headline holds at their neutral settings."""
+    a cut's make-up (its plant-protein share and assembly cost), and the two scenario dials the headline holds at their
+    neutral settings."""
     fields = {f.name for f in dataclasses.fields(DemandParams)}
-    keys = [k for k, _v in _ranged() if k in fields or k in _PENETRATION_ARGS]
+    keys = [k for k, _v in _ranged() if k in fields or k in _PENETRATION_ARGS or k in _CUT_ARGS]
     return keys + [k for k in ("theta_free_M", "accept_x") if k not in keys and k in I.REGISTRY]
 
 

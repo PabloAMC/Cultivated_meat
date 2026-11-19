@@ -128,7 +128,7 @@ def world_share(cost: float, p: dict, *, d: float, region: str = "global", R_L: 
     sold = {"all": 0.0, "premium": 0.0}
 
     def share_of(mt, R, base, r):
-        kw = dict(tier_offset=mm.tier_authenticity(mt, base, r, None), eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, r),
+        kw = dict(tier_offset=mm.tier_offset(mt, base, r, pr), eps_own=pr.eps_own,
                   income=income, p_ref=mt.p_conv, R_L=None if mm.tier(mt, base) == "premium" else R_L, d=d)
         w = mt.w_vol
         on, off = shares(R, p, **kw), shares(R, p, cultivated=False, **kw)

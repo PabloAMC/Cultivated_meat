@@ -15,7 +15,8 @@ silently drift apart. Here each input is a SINGLE record carrying both facets:
           lo=0.20, hi=1.00, mode=0.50, note="company figures; none verified at scale")
 
   * `value`            -> the point/base-case default the dataclasses use.
-  * `lo, mode, hi`     -> the triangular Monte-Carlo prior uncertainty.py samples.
+  * `lo, mode, hi`     -> the triangular Monte-Carlo prior uncertainty.py samples (`kind="lognormal"`: mode is the median and
+                          lo, hi set the spread as the 5th and 95th percentiles; see `sample`).
   * `unit, source, note` -> provenance, so the datasheet is self-documenting.
 
 So the point estimate and the uncertainty band can never diverge: change the
@@ -48,8 +49,10 @@ class Input:
     lo: float | None = None       # MC prior low  (None -> not sampled / fixed)
     hi: float | None = None       # MC prior high
     mode: float | None = None     # MC prior mode (defaults to `value` if omitted)
-    kind: str = "triangular"      # MC prior distribution
+    kind: str = "triangular"      # MC prior distribution: "triangular" (lo, mode, hi) or "lognormal" (median = mode; lo, hi =
+                                  # 5th, 95th percentiles: sigma = ln(hi/lo) / (2 x 1.645)); drawn by `sample` / `draw` below
     note: str = ""                # one-line justification / caveat
+    clip: tuple | None = None     # lognormal only: draws are clipped to (low, high)
 
     @property
     def has_prior(self) -> bool:
@@ -1464,10 +1467,15 @@ REGISTRY: dict[str, Input] = {
         "good, seen as real meat, no health or slaughter-free credit). At first contact it is about 5% (Van Loo, Caputo & Lusk "
         "2020). 13% is a third of the first-contact aversion fading: the model's own novelty term (2.8 of 8.6 utils), and the "
         "survey corrections' novelty fading by half while an 'unnatural' image persists (15 of 45 points of meat's price).",
-        lo=0.05, hi=0.49, mode=0.13,
-        note="THE MODEL'S LARGEST UNKNOWN. 0.05: nothing fades. 0.49: shoppers end up indifferent on average, the model's "
-             "implicit premise before 2026-11-18. It moves Central's long-run share about fifteen-fold across its range. Drawn "
-             "in the bands."),
+        lo=0.03, hi=0.49, mode=0.13, kind="lognormal", clip=(0.005, 0.80),
+        note="THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the "
+             "draws are below the point value and half above. 0.03 and 0.49 are its 5th and 95th percentiles in the sense that "
+             "they set its spread (sigma = ln(0.49/0.03) / 3.29 = 0.85); because 13% is a little above their geometric mean (12%), "
+             "the percentiles of the draws themselves are 3.2% and 53% (10th and 90th: 4.4% and 39%). Draws are clipped to "
+             "0.5%-80%. 0.49: shoppers end up indifferent on average, the "
+             "model's implicit premise before 2026-11-18. The literature review (research_notes/what_drives_choice.md) puts the "
+             "10th, 50th and 90th percentiles at 2%, 10% and 35%. CHANGED 2026-11-19 (audit D1) from a triangular 0.05-0.13-0.49, "
+             "whose median was 21%, well above the point value it was meant to surround."),
     "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
         "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
@@ -1590,19 +1598,17 @@ REGISTRY: dict[str, Input] = {
         lo=0.6, hi=1.0, mode=1.0,
         note="The taste-FRICTION half of cultivated's standing. In the MNL the utility offset is "
              "w_taste*(accept_x-1) utils, weighted by the shared taste coefficient w_taste."),
-    "premium_resistance": Input(1.0, "x", "[assumed] JUDGEMENT DIAL scaling how much premium/cut meat "
-        "resists cultivated, relative to everyday mince. It multiplies BOTH per-tier demand levers in "
-        "meat_market together (they encode one belief): the authenticity offset tau_type "
-        "(basic +0.2, cut -0.4, premium -1.5 utils) AND the deviation of the elasticity multiplier from 1 "
-        "(cut 0.8, premium 0.3). At 1.0 = the central ladder; 0 = no tier effect (cultivated penetrates "
-        "premium as easily as mince); 2 = doubly resistant premium.",
+    "premium_resistance": Input(1.0, "x", "[assumed] how much less buyers of premium products (wagyu, sushi-grade fish) like a "
+        "cultivated version, beyond what applies to any cut. It multiplies the premium part of a product's offset only "
+        "(meat_market.tier_offset): AUTH_PREMIUM_EXTRA (-1.1 utils) times how far the product's price sits between "
+        "PREMIUM_START (2x) and PREMIUM_FULL (4x) its species' cheapest form. 1 = as set; 0 = a premium product is liked as "
+        "much as any other cut; 2 = twice the penalty. It does not touch mince, the blend penalty every cut carries "
+        "(-(1 - cell share) x the real-meat weight), or price sensitivity.",
         lo=0.5, hi=1.5, mode=1.0,
-        note="The model's most JUDGEMENT-TO-TARGET demand assumption: the tier offsets have NO external "
-             "data source — they encode the belief that premium stays demand-capped even at a deep price "
-             "discount. (With the current calibration, premium still has the highest within-category share at "
-             "today's cost; cuts lead only near the cost floor.) Exposed and SWEPT (prior 0.5-1.5) so that judgement's "
-             "leverage is visible rather than hidden. Scales (tau_type) and (eps_mult - 1) about their "
-             "neutral points, so resistance=0 removes the tier effect entirely."),
+        note="A judgement with no external data: the belief that people buy wagyu or sushi-grade fish partly for the genuine "
+             "article. Drawn in the bands (0.5-1.5). CHANGED 2026-11-19 (audit D3): until then it also scaled a +0.2 offset for "
+             "mince, a -0.4 offset for cuts and LOWER price sensitivity for cuts and premium products (x0.8, x0.3), which raised "
+             "cultivated meat's share wherever it was the dearer product, so more 'resistance' gave a higher share."),
     "real_tissue_x": Input(1.0, "0/1", "[IDENTIFYING PREMISE, now a DIAL] whether CULTIVATED meat counts as "
         "'real animal tissue' (1) or not (0). =1 is the model's load-bearing premise: cultivated, being "
         "actual cells, INHERITS conventional meat's real-tissue standing and so escapes the plant-based "
@@ -1886,7 +1892,10 @@ REGISTRY: dict[str, Input] = {
         "and binder rather than cells. 0.2 keeps the cut mostly cells, the product the shopper model describes. Whole cuts sold "
         "or approved so far are 10-30% cells (Aleph 10-20%, Upside 'double-digit'); no cut that is mostly suspension-grown cells "
         "has been shown to have the texture of meat",
-        lo=0.1, hi=0.5, mode=0.2),
+        lo=0.1, hi=0.5, mode=0.2,
+        note="Drawn in the bands (MC_CUT_INPUTS) since 2026-11-19. It sets the cut's cost (price_ratio.structured_cost) AND how "
+             "much shoppers like it: a cut that is part plant protein gets that much less of the real-meat credit "
+             "(meat_market.tier_offset)."),
     "material_price": Input(2.0, "$/kg", "[TVP, extrusion, binders: structuring_cost.md] price of the matrix: textured or "
         "extruded plant protein $0.7-2.8/kg all in (GFI 2021), TVP $0.5-5.6/kg dry (Tridge), binders $0.1-0.6/kg of product",
         lo=1.0, hi=5.0, mode=2.0),
@@ -1896,7 +1905,8 @@ REGISTRY: dict[str, Input] = {
         "about $1, batch forming and tighter hygiene more), central $3; less the $1 already counted. Growing tissue on a scaffold "
         "in a second bioreactor would add about $10 (3-35), the route companies dropped",
         lo=0.5, hi=7.0, mode=2.0,
-        note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown"),
+        note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown. Drawn in the bands (MC_CUT_INPUTS) "
+             "since 2026-11-19."),
 
     # --- premium comparators (Rung 5 targets / Rung 6) ----------------------
     "p_conv_premium_fish": Input(25.0, "$/kg", "[market] premium fish / BlueNalu target",
@@ -2120,24 +2130,28 @@ PLANT_CONFIGS: dict[str, float] = {
 }
 
 # ----------------------------------------------------------------------------
-# Demand-model tier ladder & scaffold (model constants, not sliders).
-# These are scaled live by the `premium_resistance` slider in meat_market; they are
-# defined HERE so the datasheet is the single source of truth (meat_market and
-# market_share read them rather than redefining), and so the methods text can quote
-# the same numbers it documents. NOT swept individually (premium_resistance sweeps
-# the whole ladder); judgement-to-target, no external per-tier data exists.
+# How much less shoppers like a cultivated CUT than cultivated mince, and the cut's make-up (model constants).
+# Defined HERE so the datasheet is the single source of truth (meat_market reads them, the page is handed them).
+# REBUILT 2026-11-19 (audit D3, D4). Before: a ladder by tier (mince +0.2, cut -0.4, premium -1.5 utils, with a cliff at 2.5x the
+# species' cheapest form) and LOWER price sensitivity for cuts (x0.8) and premium (x0.3). The lower price sensitivity raised
+# cultivated meat's share wherever it was the dearer product, so "resistance" worked backwards. Now (meat_market.tier_offset):
+#   mince and other unstructured products: 0;
+#   every cut: -(1 - cell share) x the mainstream real-meat weight (derived: a cut that is one-fifth plant protein gets four-fifths
+#     of the real-meat credit; about -0.45 utils at 80% cells), not scaled by premium_resistance;
+#   premium cuts: plus premium_resistance x AUTH_PREMIUM_EXTRA x a ramp that rises from 0 at PREMIUM_START x the species' cheapest
+#     form to 1 at PREMIUM_FULL x (on a log scale of price), so there is no cliff.
+# Every product uses the model's own price sensitivity.
 # ----------------------------------------------------------------------------
 # A cut costs CUT_CELL_SHARE x cells + (1 - CUT_CELL_SHARE) x CUT_MATRIX_PRICE + SCAF (price_ratio.structured_cost).
 # SCAF is the assembly cost only since 2026-11-19 (was a $6 scaffold added to a full kilo of cells).
 SCAF: float = REGISTRY["process_cost"].value                 # $/kg to assemble a cut after harvest
 CUT_CELL_SHARE: float = 1.0 - REGISTRY["scaffold_frac"].value  # kg of cells in a kg of cut
 CUT_MATRIX_PRICE: float = REGISTRY["material_price"].value     # $/kg of plant-protein matrix and binder
-PREMIUM_RATIO: float = 2.5   # a structured product priced >= this x its species' base form is "premium"
-AUTH_BASIC: float = +0.2     # per-tier authenticity offset (utils): everyday staple — cleaner-meat pull, no hang-up
-AUTH_CUT: float = -0.4       #   cut (steak/fillet): some "want the real cut" attachment
-AUTH_PREMIUM: float = -1.5   #   luxury (wagyu/sushi): strong authenticity, weak welfare pull
-EPS_MULT_CUT: float = 0.8    # per-tier elasticity multiplier: cuts a bit less price-sensitive
-EPS_MULT_PREMIUM: float = 0.3  #   premium buyers barely price-sensitive -> caps premium share
+PREMIUM_RATIO: float = 2.5   # a LABEL only (charts, tables): a structured product priced >= this x its species' base form is "premium"
+PREMIUM_START: float = 2.0   # the premium penalty starts at this multiple of the species' cheapest form ...
+PREMIUM_FULL: float = 4.0    # ... and is complete at this one
+AUTH_PREMIUM_EXTRA: float = -1.1   # utils: the full premium penalty, on top of the blend penalty (about -0.45): about -1.5 in all,
+                                   # the old premium offset. Judgement; scaled by premium_resistance
 
 # Loss-aversion asymmetry constant (Tversky-Kahneman 1992 median ~2.25). The LIVE loss-aversion
 # coefficient is the `loss_aversion` slider (canonical form, lambda IS the coefficient); this
@@ -2159,6 +2173,9 @@ MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail
 # counted the same uncertainty twice. They stay on the page as what-if dials on top. Taste (accept_x) is separate and still drawn.
 MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "accept_x", "equal_price_share")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
+# 2026-11-19 (audit D4): a cut's make-up and assembly cost. Cuts are most of what the scenarios sell, and these two were drawn
+# nowhere. Sampled AFTER the lists above wherever meat types are rolled up, so the other inputs' draws are unchanged.
+MC_CUT_INPUTS = ("scaffold_frac", "process_cost")
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
 MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit",
@@ -2180,6 +2197,50 @@ def prior(name: str) -> tuple:
     if not inp.has_prior:
         raise KeyError(f"input '{name}' has no MC prior (it is fixed at {inp.value})")
     return (inp.kind, inp.lo, inp.hi, inp.prior_mode, inp.source if not inp.note else inp.note)
+
+
+# ----------------------------------------------------------------------------
+# Sampling: THE one place a prior is turned into draws (meat_market, uncertainty, audit, adoption_timing all call it; the
+# page mirrors it in mcDraw).
+# ----------------------------------------------------------------------------
+LOGNORMAL_Z90: float = 1.645      # standard normal's 95th percentile: lo and hi of a lognormal prior are its 5th and 95th percentiles
+
+
+def _inv_norm(u):
+    """Standard normal quantile of uniform draws `u` (an array). Used instead of rng.standard_normal so that a lognormal input
+    takes exactly one uniform number per draw, as a triangular one does: changing an input's kind leaves the draws of the
+    inputs sampled after it unchanged."""
+    import numpy as np
+    from statistics import NormalDist
+    inv = NormalDist().inv_cdf
+    u = np.clip(np.asarray(u, dtype=float), 1e-12, 1.0 - 1e-12)
+    return np.array([inv(float(x)) for x in u.ravel()]).reshape(u.shape)
+
+
+def sample(kind: str, lo: float, hi: float, mode: float, rng, n: int, clip=None):
+    """n draws from a prior given as (kind, lo, hi, mode), the order `prior()` returns. `rng` is a numpy Generator.
+      triangular: low lo, mode `mode`, high hi.
+      lognormal:  median `mode`; sigma = ln(hi/lo) / (2 x 1.645), so hi/lo is the ratio of the 95th to the 5th percentile (they
+                  are lo and hi themselves when `mode` is their geometric mean; otherwise mode x (lo/hi)^0.5 and
+                  mode x (hi/lo)^0.5); clipped to `clip` = (low, high) if given.
+      uniform:    between lo and hi."""
+    import numpy as np
+    if kind == "triangular":
+        return rng.triangular(lo, mode, hi, n)
+    if kind == "lognormal":
+        sigma = np.log(hi / lo) / (2.0 * LOGNORMAL_Z90)
+        x = mode * np.exp(sigma * _inv_norm(rng.random(n)))
+        return np.clip(x, *clip) if clip is not None else x
+    if kind == "uniform":
+        return rng.uniform(lo, hi, n)
+    raise ValueError(f"unknown prior kind '{kind}'")
+
+
+def draw(name: str, rng, n: int):
+    """n Monte-Carlo draws of the input `name` from its prior (triangular unless the input says otherwise)."""
+    inp = REGISTRY[name]
+    kind, lo, hi, mode, _note = prior(name)
+    return sample(kind, lo, hi, mode, rng, n, clip=inp.clip)
 
 
 # ----------------------------------------------------------------------------

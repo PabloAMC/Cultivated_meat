@@ -126,8 +126,7 @@ def world_share(cost: float, mu: float, sd: float, kappa: float | None = None, r
     income = mm.REGION_INCOME[region]
 
     def share_of(mt, R, base, res):
-        return share(R, mu, sd, kappa, tier_offset=mm.tier_authenticity(mt, base, res, None),
-                     eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, res), income=income, p_ref=mt.p_conv)
+        return share(R, mu, sd, kappa, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv)
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), value("premium_resistance"), share_of)[1] * 100.0
 
 

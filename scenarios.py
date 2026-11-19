@@ -39,7 +39,7 @@ import numpy as np
 
 import floor_physics as fp
 import plant_items
-from inputs import value, prior
+from inputs import value, prior, draw
 from price_ratio import shelf_price
 
 FEED, SELECT, GE, NOTHING = "feed or process", "selection or adaptation", "genetic engineering", "nothing new"
@@ -599,30 +599,26 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
     if choice is not None and choice["plant"] == "lean":                       # not below a plant with everything animal cells must have
         lean = plant_items.capital("lean")["total"]
         pri["capex_x"] = (min(1.0, plant_items.capital("yeastplus")["total"] / lean), 1.0, 1.5)
-    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
+    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)       # the ranges of MC_PRIORS (multipliers, not inputs)
+    reg_draw = lambda name: draw(name, rng, n)                      # a registry input from its own prior (inputs.draw)
     d = {"capex_x": tri(*pri["capex_x"]), "medium_price": tri(*pri["medium_price"]) * kw0.get("medium_price", 0.15),
          "hazard": tri(*pri["hazard"]) * kw0.get("hazard", 0.0)}
     for key, name in (("charge", "plant_charge_mature"), ("membrane_life", "rt_membrane_life"),
                       ("maintenance_share", "pf_maintenance_share")):
-        _kind, lo, hi, mode, _note = prior(name)
-        d[key] = tri(lo, mode, hi)
+        d[key] = reg_draw(name)
     reg = {}
     if value("sc_wide_bands") >= 0.5 and choice is not None and choice["cells"] in ("selected", "measured"):
         # the ammonia these cells make was measured once (audit 2026-11-19: the third-largest estimate under Central). The
         # engineered cells' is not drawn: the best case assumes cells that reach Humbird's figure.
-        _kind, lo, hi, mode, _note = prior("sc_nh3_selected")
-        d["nh3_kg"] = tri(lo, mode, hi)
+        d["nh3_kg"] = reg_draw("sc_nh3_selected")
     if value("sc_wide_bands") >= 0.5:                  # drawn after the others, so their draws are unchanged
         for key, name in MC_ESTIMATES:
             if key in MC_SCENARIO_PRIORS and choice is not None:      # the scenarios' own setting, with its own range
-                _kind, lo, hi, mode, _note = prior(MC_SCENARIO_PRIORS[key])
-                d[key] = tri(lo, mode, hi)
+                d[key] = reg_draw(MC_SCENARIO_PRIORS[key])
             elif key not in kw0:
-                _kind, lo, hi, mode, _note = prior(name)
-                d[key] = tri(lo, mode, hi)
+                d[key] = reg_draw(name)
         for name in MC_ESTIMATE_INPUTS:
-            _kind, lo, hi, mode, _note = prior(name)
-            reg[name] = tri(lo, mode, hi)
+            reg[name] = reg_draw(name)
 
     def one(i: int) -> float:
         kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}

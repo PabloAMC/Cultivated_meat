@@ -43,7 +43,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import prior, MC_COST_INPUTS, MC_DEMAND_INPUTS
+from inputs import prior, sample, REGISTRY, MC_COST_INPUTS, MC_DEMAND_INPUTS
 from cost_model import CostParams, media_cost
 from price_ratio import shelf_price, cost_from_shelf, structured_cost
 from market_share import DemandParams, share
@@ -90,11 +90,8 @@ def _sample(name, pri, rng, n, fixed):
     if name in fixed:
         return np.full(n, fixed[name])
     kind, lo, hi, mode, _ = pri[name]
-    if kind == "triangular":
-        return rng.triangular(lo, mode, hi, n)
-    if kind == "uniform":
-        return rng.uniform(lo, hi, n)
-    raise ValueError(kind)
+    # inputs.sample: THE one sampler. A registry input brings its own clip (a lognormal's); a target's p_conv prior has none.
+    return sample(kind, lo, hi, mode, rng, n, clip=REGISTRY[name].clip if name in REGISTRY else None)
 
 
 def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,

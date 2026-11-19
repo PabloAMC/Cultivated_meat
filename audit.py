@@ -24,7 +24,7 @@ import numpy as np
 import floor_physics as fp
 import retention
 import scenarios as S
-from inputs import REGISTRY, prior, value
+from inputs import REGISTRY, draw, prior, value
 from price_ratio import shelf_price, cost_from_shelf
 
 FLAT_MARKUP = 5.0   # $/kg, the model's flat markup before 2026-11-18
@@ -44,8 +44,7 @@ PLANT_X = "capex_x"                                  # scenarios.MC_PRIORS: the 
 
 
 def _tri(rng, name: str, n: int) -> np.ndarray:
-    _k, lo, hi, mode, _n = prior(name)
-    return rng.triangular(lo, mode, hi, n)
+    return draw(name, rng, n)               # inputs.draw: THE one sampler (triangular unless the input says otherwise)
 
 
 def draws(key: str, n: int = 1000, seed: int = 0) -> dict:

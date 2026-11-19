@@ -199,8 +199,8 @@ def cultivated_share(cost: float, p: dict, delta: float = 0.0, region: str = "gl
     res = value("premium_resistance")
 
     def share_of(mt, R, base, r):
-        return curve(max(R - d_price, 0.05), p, tier_offset=mm.tier_authenticity(mt, base, r, None) + delta,
-                     eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, r), income=income, p_ref=mt.p_conv)
+        return curve(max(R - d_price, 0.05), p, tier_offset=mm.tier_offset(mt, base, r, pr) + delta,
+                     eps_own=pr.eps_own, income=income, p_ref=mt.p_conv)
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), res, share_of)[1] * 100.0
 
 

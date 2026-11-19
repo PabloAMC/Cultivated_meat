@@ -71,7 +71,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior
+from inputs import value, prior, draw
 from cost_model import CostParams, media_cost
 
 CASES = ("byproduct-threshold", "byproduct-proportional", "nutrient")
@@ -163,8 +163,7 @@ def monte_carlo(n: int = 20000, seed: int = 0, media_price=None) -> dict:
     rng = np.random.default_rng(seed)
     d = {}
     for name in _SAMPLED:
-        _, lo, hi, mode, _ = prior(name)
-        d[name] = rng.triangular(lo, mode, hi, n)[:, None]
+        d[name] = draw(name, rng, n)[:, None]             # inputs.draw: THE one sampler
     if media_price is not None:
         d["media_price"] = np.full((n, 1), float(media_price))
     pr = CostParams()
