@@ -114,7 +114,13 @@ def markdown_checks() -> str:
     s = summary()
     import market_size_loop as L
     resp = L.summary()["response"]["products"]
-    pick = [v["response"] for n, v in resp.items() if n in ("beef (prime/wagyu)", "seafood (sushi)")]
+    # farmed salmon was measured while still a premium product, so compare the model's products that are still dearer than their meat
+    # at Central's cost (price ratio above 1.5). Since 2026-11-19 prime beef and sushi-grade seafood are near equal price and drop out.
+    names = {"chicken (organic)": "organic chicken", "pork (heritage)": "heritage pork", "beef (prime/wagyu)": "prime beef",
+             "seafood (sushi)": "sushi-grade seafood"}
+    still = [n for n, v in resp.items() if v["R"][0] > 1.5]
+    pick = [resp[n]["response"] for n in still]
+    label = ", ".join(names.get(n, n) for n in still)
     v = s["variants"]
     i3 = R_GRID.index(3.0)
     out = ["| what was measured | measured | the model | the model before 2026-11-18 |", "|---|---|---|---|",
@@ -123,7 +129,7 @@ def markdown_checks() -> str:
            f"| Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | {s['premium_3x']:.1f}% | "
            f"{S.pct_num(v[0]['curve'][i3])}% | {S.pct_num(v[1]['curve'][i3])}% |",
            f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
-           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} (prime beef, sushi-grade seafood) | 3.0–3.4 |",
+           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} ({label}: the premium products still dearer than their meat) | 3.0–3.4 |",
            f"| Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | {PB_ELASTICITY_MEASURED:.2f} | "
            f"{s['pb']['elasticity']:.2f} | {s['pb']['elasticity']:.2f} |"]
     return "\n".join(out)

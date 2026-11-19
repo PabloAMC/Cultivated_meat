@@ -21,13 +21,13 @@ keeps it for the side studies. The forecast row is the author's median for each 
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$57.0** ($49–83) | 6.89 | 0.02% | **0.03%** (0.00–0.2%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$27.7** ($25–46) | 3.50 | 0.4% | **0.3%** (0.04–2.0%) | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$26.4** ($23–42) | 3.35 | 0.5% | **0.5%** (0.06–2.5%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$23.6** ($21–39) | 3.02 | 0.7% | **0.7%** (0.08–3.2%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$10.0** ($11–18) | 1.44 | 28.3% | **17.0%** (8.2–29.0%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$23.2** ($20–39) | 2.98 | 0.7% | **0.7%** (0.09–3.3%) | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.8** ($13–22) | 1.77 | 3.0% | **2.8%** (0.7–8.2%) | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.2% | **0.3%** (0.05–1.9%) | a company's own report |
+| 2. Plus process changes and cheaper inputs | **$27.7** ($25–46) | 3.50 | 0.4% | **0.4%** (0.05–2.2%) | needs a change of feed, process or plant |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$26.4** ($23–42) | 3.35 | 0.5% | **0.6%** (0.07–2.8%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$23.6** ($21–39) | 3.02 | 0.8% | **0.8%** (0.1–3.5%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$10.0** ($11–18) | 1.44 | 30.1% | **18.3%** (9.2–30.4%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$23.2** ($20–39) | 2.98 | 0.8% | **0.8%** (0.1–3.7%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.8** ($13–22) | 1.77 | 3.4% | **3.2%** (0.8–8.9%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.2% | **0.4%** (0.06–2.2%) | a company's own report |
 
 What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
 (chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20

@@ -275,13 +275,13 @@ headline table gives the share at its point cost and the median of draws; `bands
 | scenario | cells, $/kg (10th–90th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | median of draws (10th–90th) | hardest thing it needs |
 |---|---|---|---|---|---|
 | 1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank | **$57.0** ($49–83) | 6.89 | 0.02% | **0.03%** (0.00–0.2%) | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$27.7** ($25–46) | 3.50 | 0.4% | **0.3%** (0.04–2.0%) | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$26.4** ($23–42) | 3.35 | 0.5% | **0.5%** (0.06–2.5%) | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$23.6** ($21–39) | 3.02 | 0.7% | **0.7%** (0.08–3.2%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$10.0** ($11–18) | 1.44 | 28.3% | **17.0%** (8.2–29.0%) | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$23.2** ($20–39) | 2.98 | 0.7% | **0.7%** (0.09–3.3%) | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.8** ($13–22) | 1.77 | 3.0% | **2.8%** (0.7–8.2%) | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.2% | **0.3%** (0.05–1.9%) | a company's own report |
+| 2. Plus process changes and cheaper inputs | **$27.7** ($25–46) | 3.50 | 0.4% | **0.4%** (0.05–2.2%) | needs a change of feed, process or plant |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$26.4** ($23–42) | 3.35 | 0.5% | **0.6%** (0.07–2.8%) | needs selection or adaptation of cells |
+| 4. Plus a food-grade plant with shared medium | **$23.6** ($21–39) | 3.02 | 0.8% | **0.8%** (0.1–3.5%) | needs selection or adaptation of cells |
+| 5. Plus engineered cells: the best case, everything works | **$10.0** ($11–18) | 1.44 | 30.1% | **18.3%** (9.2–30.4%) | needs genetic engineering |
+| Forecast for 2035: a first draft of the author's medians | **$23.2** ($20–39) | 2.98 | 0.8% | **0.8%** (0.1–3.7%) | needs selection or adaptation of cells |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.8** ($13–22) | 1.77 | 3.4% | **3.2%** (0.8–8.9%) | needs genetic engineering |
+| As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.2% | **0.4%** (0.06–2.2%) | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
@@ -1325,7 +1325,7 @@ scaffold on top of the cells it replaces. The cell share is the larger unknown: 
 10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When cells cost more
 than about $12/kg a cut costs less than mince, because a fifth of it is plant protein. The page's slider c sets the share. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
-premium species: against sushi-grade salmon, R has a median of 1.11, with 32% of draws at or below parity (1.57 and 1% before
+premium species: against sushi-grade salmon, R has a median of 1.08, with 37% of draws at or below parity (1.57 and 1% before
 cuts were rebuilt on 2026-11-19).
 
 ## Step 3 — entry points (`foothold.py`, the page's chart 7)

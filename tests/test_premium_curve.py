@@ -31,8 +31,8 @@ def check() -> list:
         if not fits["one"]["rms_log_error"] < s["model_rms"][name]:
             fails.append(f"{name}: the fit does no better than the main model's curve")
     lr = "long run, central"
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; the model's Central share rose 3.5-fold, the flatter anchored curve's 1.9-fold,
-    # so the anchored share went from about twice the model's to about equal (0.44% against 0.45%).
+    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; the model's Central share rose 4-fold, the flatter anchored curve's 2-fold,
+    # so the anchored share went from about twice the model's to about equal (0.48% against 0.53%).
     if not 0.8 * s["model_share"]["central"] < s["shares"]["central"][lr] < 1.25 * s["model_share"]["central"]:
         fails.append("Central's anchored share is no longer about equal to the model's; rewrite the note's conclusion")
     if not s["shares"]["best"][lr] < s["model_share"]["best"]:

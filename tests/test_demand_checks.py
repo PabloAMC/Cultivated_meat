@@ -2,7 +2,8 @@
 """test_demand_checks.py — the model's response to price against four measurements (demand_checks.py).
 
 Checks that the model's plant-based elasticity, cultivated elasticity and premium slope are computed and stand where the note says
-(too strong against three measurements, inside the fourth), that a weaker response raises Central's share, and that the note and
+(the choice experiment matched; premium meats within a factor of two; salmon's range matched by the products still at a
+premium; plant-based meat too strong), that a weaker response raises Central's share, and that the note and
 RESULTS.md carry the module's tables and the figures their prose quotes. Runs as a script or under pytest.
 """
 from __future__ import annotations
@@ -31,6 +32,13 @@ def check() -> list:
     i3 = D.R_GRID.index(3.0)
     if not (0.4 * s["premium_3x"] < v[0]["curve"][i3] < 2.0 * s["premium_3x"] and v[1]["curve"][i3] < 0.2 * s["premium_3x"]):
         fails.append("at 3 times the price the model should be near premium meats and the model before far below; rewrite the note")
+    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly, so at Central cultivated prime beef and sushi-grade seafood sell at about their
+    # meat's price or below. There the response is under farmed salmon's range; the products still at a premium stay inside it.
+    resp, (lo, hi) = L.summary()["response"]["products"], D.SALMON_ALONG_CURVE
+    if not all(resp[n]["R"][0] < 1.1 and resp[n]["response"] < lo for n in ("beef (prime/wagyu)", "seafood (sushi)")):
+        fails.append("prime beef and sushi-grade seafood are no longer near equal price with a response below salmon's range; rewrite the note")
+    if not all(resp[n]["R"][0] > 2.0 and lo <= resp[n]["response"] <= hi for n in ("chicken (organic)", "pork (heritage)")):
+        fails.append("organic chicken and heritage pork no longer respond inside salmon's range; rewrite the note")
     for k in D.SCEN:
         if abs(v[0]["world"][k] - s["model_world"][k]) > 1e-9:
             fails.append(f"{k}: the first variant is not the model's own share")

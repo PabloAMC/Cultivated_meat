@@ -1,6 +1,6 @@
 # Shoppers differ in how much they like cultivated meat
 
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $3 assembly), cuts cheaper.
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 Date: 2026-11-18. **The model's default since that day** (`market_share.share`: `liking_sd`, `equal_price_share`). This module,
 `liking_spread.py`, fits the spread and compares readings of the long run; test: `tests/test_liking_spread.py`. Evidence:
@@ -51,10 +51,10 @@ the experiment. The table gives the model's own-price elasticity at four prices 
 
 | the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Today | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.1% | 1.4% |
-| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.02% | 0.4% | 4.4% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.2% | 4.3% | 24.1% |
-| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.01% | 0.2% | 8.5% |
+| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.01% | 0.1% | 1.6% |
+| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.02% | 0.5% | 4.9% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.2% | 4.8% | 25.8% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.01% | 0.2% | 10.7% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 - **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) took cultivated meat from 5% to
@@ -63,8 +63,8 @@ the experiment. The table gives the model's own-price elasticity at four prices 
   8.6 utils, three times the wariness the model assumes: shoppers indifferent between the two meats on average.
 - **The middle reading lands on premium real meats without being fitted to them**: 3.7% at twice the price against their 3.7%,
   0.8% at three times against 1.5%.
-- **It moves the answer more than any cost**: Central from 0.1% to 4.3% of world meat and the best case from
-  1.4% to 24.1% across the three readings.
+- **It moves the answer more than any cost**: Central from 0.1% to 4.8% of world meat and the best case from
+  1.6% to 25.8% across the three readings.
 
 ## 4. The default chosen
 

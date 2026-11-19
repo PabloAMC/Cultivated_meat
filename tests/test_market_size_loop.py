@@ -48,8 +48,8 @@ def check() -> list:
         c = s["comp"][(k, "resting point")]
         if abs(c["total"] - lo["volume_mt"]) > 1e-3 * lo["volume_mt"] + 1e-6:
             fails.append(f"{k}: the volumes by tier do not add to the resting point's volume")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly, so cuts are cheaper and Central sells more than three times as much.
-    # Premium products alone now just reach the switch for Central (1.07 million m2 against 1.0), not for today's cells or the
+    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly, so cuts are cheaper and Central sells more than four times as much.
+    # Premium products alone now just reach the switch for Central (1.11 million m2 against 1.0), not for today's cells or the
     # best case; Central's and the best case's whole sales cross it by far.
     for k in L.SCEN:
         st = s["start"][(k, "central")]
@@ -64,14 +64,14 @@ def check() -> list:
     if not (abs(hi["volume_mt"] - lo["volume_mt"]) < 1e-3 * hi["volume_mt"] and lo["area_m2"] > _case("slow learning")["ms_switch_area"]
             and lo["cost"] < 0.8 * s["base"]["central"]["cost"]):
         fails.append("Central with slow learning no longer crosses the switch on its own to one resting point; rewrite the note's section 3")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; premium products are now a small part of Central's sales (12%), ordinary
+    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; premium products are now a small part of Central's sales (11%), ordinary
     # cuts most of it.
     c0 = s["comp"][("central", "no learning")]
     if not (0.05 < c0["premium_of_sales"] < 0.2 and c0["cut"] > 0.5 * c0["total"]):
         fails.append("premium products' part of Central's sales has left 5-20%, or cuts are no longer most of it; rewrite the note")
     # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; where cultivated meat is still dearer than the premium product at both
     # costs it responds within history's range (along the curve to the totals); where it undercuts it once the membrane is cheap
-    # (prime beef 0.56x, sushi 0.72x at $15.16) it responds less than history along the curve; none above the totals.
+    # (prime beef 0.52x, sushi 0.67x at $15.05) it responds less than history along the curve; none above the totals.
     for n, v in s["response"]["products"].items():
         dearer = v["R"][1] > 1.0
         if dearer and not L.HISTORY_ALONG_CURVE[0] <= v["response"] < L.HISTORY_TOTAL[1]:

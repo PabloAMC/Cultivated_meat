@@ -12,9 +12,9 @@
   Growing tissue on a scaffold would add about $10 a kilo (3-35). The cell share is the larger unknown: cuts sold so far are 10-30%
   cells. Above about $12 a kilo of cells a cut now costs less than mince.
 - The page: slider c (share of a cut that is cells) beside k (now the assembly cost, $2).
-- Shares: Central 0.13% -> **0.45%** of world meat (median 0.48%, 0.06-2.5%); best case 21.4% -> **28.3%** (median 17.0%, 8.2-29.0%;
-  4.5% with Central's demand); forecast 0.2% -> **0.7%** (median); Humbird's optimistic design median 1.3% -> 2.8%. Steaks and fish
-  fillets carry the gain. Sushi-grade salmon: median price ratio 1.57 -> 1.11. Side studies repinned (notes carry a dated line).
+- Shares: Central 0.13% -> **0.53%** of world meat (median 0.55%, 0.07-2.8%); best case 21.4% -> **30.1%** (median 18.3%, 9.2-30.4%;
+  5.0% with Central's demand); forecast 0.2% -> **0.8%** (median); Humbird's optimistic design median 1.3% -> 3.2%. Steaks and fish
+  fillets carry the gain. Sushi-grade salmon: median price ratio 1.57 -> 1.08. Side studies repinned (notes carry a dated line).
 
 **The medium: growth factors inside announced prices, the nutrient floor from GFI, simpler settings** (`inputs.py`, `scenarios.py`,
 `floor_physics.py`, `research_notes/nutrient_floor.md` §6, `research_notes/growth_factors_in_medium_price.md`; **defaults changed**)
