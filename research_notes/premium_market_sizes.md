@@ -1,6 +1,6 @@
 # How big are the premium markets? Sizing the premium rows of the market tables
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Date: 2026-11-18. Changes defaults: the premium rows of `meat_market.py`'s US, Europe and Global tables. Found while checking
 `market_size_loop.md`, which rests on premium products' volume; the main model's Central share rests on it too.
@@ -25,7 +25,7 @@ of sushi-grade seafood at $35 a kilo and 1.35 Mt of prime or wagyu beef at $45.
 | All tuna caught | 5.2 Mt, of which bluefin 1% and bigeye 7% (2023) | ISSF via Perishable News | FT (secondary) |
 | Yellowtail, eel, sea urchin | about 0.25, 0.28 and 0.07 Mt live weight | — | MEM |
 | US beef grading Prime | about 10% of fed cattle (2024); US beef 12.2 Mt carcass weight | Angus/CAB, USDA | SNIP |
-| Wagyu | Japan about 0.17 Mt; Australia about 0.07 Mt (2022 projection) | commercial report; AWA via Beef Selected cells | SNIP; FT |
+| Wagyu | Japan about 0.17 Mt; Australia about 0.07 Mt (2022 projection) | commercial report; AWA via Beef the low-lactate example | SNIP; FT |
 | Organic chicken | 0.67% of US chicken output (2020); 1% of French (2023); Label Rouge 13% of French poultry (2024) | WATT; FranceAgriMer; Réussir | SNIP; SNIP; FT |
 | Organic pork | 0.3% of EU output (about 2015); Ibérico about 3.7 million head | Pig World; trade press | SNIP |
 | World meat | 378 Mt carcass weight (2024); about 70% of it is boneless meat | FAO Food Outlook Nov 2025; USDA ERS | SNIP |
@@ -64,7 +64,7 @@ no figure was found), Brazil, India and Nigeria; Europe's wagyu row (0.5% at $55
 
 - **The main model's Central share falls from 0.16% to 0.04% of world meat**, because nearly all of Central's sales were to premium
   rows that were three to five times too large. The US falls from 0.35% to 0.21% and Europe from 0.62% to 0.45%.
-- **The best case moves little**, 3.69% to 3.11%: near parity most of its sales are ordinary cuts and mince.
+- **The all-favourable example moves little**, 3.69% to 3.11%: near parity most of its sales are ordinary cuts and mince.
 - The uncertainty bands, the tables in RESULTS.md and the side studies were recomputed (CHANGELOG).
 - `market_size_loop.md`: premium products alone no longer carry Central past the membrane switch.
 

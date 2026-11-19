@@ -1,6 +1,6 @@
 # Cultivated meat vs premium welfare-labelled meat: sizing three differences
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Compiled 2026-11-17 from web sources.
 
@@ -186,7 +186,7 @@ represents poorly. Second, naming and framing move it (avoid "lab-grown").
 
 ## Summary for the model
 
-| Difference | Selected cells (fraction of conventional price, vs a free-range or slow-growth label) | Range | P(sign right) | P(persists long run) | Model dial |
+| Difference | Low-lactate example (fraction of conventional price, vs a free-range or slow-growth label) | Range | P(sign right) | P(persists long run) | Model dial |
 |---|---|---|---|---|---|
 | No slaughter | +0.05 | −0.05 to +0.20 | 0.65 | 0.8 | `w_slaughter` (mainstream) |
 | Novelty (first contact) | −0.30 | −0.15 to −0.60 | 0.97 | about 0.45 (at least half gone in about 10 years: 0.55) | `neophobia_x` |

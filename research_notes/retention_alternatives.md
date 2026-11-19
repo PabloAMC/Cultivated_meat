@@ -1,6 +1,6 @@
 # Cheaper ways to hold the cells back
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
@@ -16,8 +16,8 @@ full, and the report marks each one. No price comes from a quote. Costs are 2025
 ## 1. The question
 
 After `retention_devices.md`, the model prices perfusion's retention as a TFF hollow-fibre loop. Its hardware is cheap. Its
-membranes are not: $1,450 per m², replaced after 3,960 litres, about $0.37 per litre of permeate, and $0.43 in the central case
-once the membranes thrown away with lost runs are counted. In the central case that is $12.8 of the $32.80 a kilo. Could membranes from other industries cut the cost per litre?
+membranes are not: $1,450 per m², replaced after 3,960 litres, about $0.37 per litre of permeate, and $0.43 in the low-lactate example
+once the membranes thrown away with lost runs are counted. In the low-lactate example that is $12.8 of the $32.80 a kilo. Could membranes from other industries cut the cost per litre?
 
 Prices differ enormously. The same polymers cost $3 to $150 per m² in dialysers and wastewater plants. The model's $1,450 is a
 price for small pharma volumes, not a floor set by materials. What decides the answer is how long a membrane lasts with cells at
@@ -25,9 +25,9 @@ price for small pharma volumes, not a floor set by materials. What decides the a
 
 ## 2. Results
 
-Central case, the culture at 191 g/L, 1.71 m³/h of permeate. The default TFF loop costs $32.80.
+The low-lactate example, the culture at 191 g/L, 1.71 m³/h of permeate. The default TFF loop costs $32.80.
 
-| Route | Membrane price | Membrane life | Selected cells $/kg (range) | Reference / best | What has been shown |
+| Route | Membrane price | Membrane life | Low-lactate example $/kg (range) | Reference / best | What has been shown |
 |---|---|---|---|---|---|
 | Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **24.23** (22.02–28.26) | 12.12 / 8.79 | no reuse data with animal cells; steam limits a module to about 10 cycles |
 | Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **20.29** (19.86–22.68) | 11.80 / 7.56 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |
@@ -36,20 +36,20 @@ Central case, the culture at 191 g/L, 1.71 m³/h of permeate. The default TFF lo
 | Food and beverage hollow fibres | not found | 6–8 years in wine | not costed | | sanitised, not sterilised; fluids with under 1% solids |
 
 The ranges move each route's own inputs together to their favourable and unfavourable ends. Reused modules and dialysers are
-thrown away with a lost run, so their life is cut by the same share as the default loop's (85% in the central case). Ceramic
+thrown away with a lost run, so their life is cut by the same share as the default loop's (85% in the low-lactate example). Ceramic
 elements are cleaned and kept.
 
 - **Dialysers lead.** They cost $3–14 per m², are sterilised by steam or gamma rays, and are the only mass-made membrane found
-  that routinely filters a fluid as thick as the central case. Their flux is lower (2.5 L/m²/h), so the central case needs about
+  that routinely filters a fluid as thick as the low-lactate example. Their flux is lower (2.5 L/m²/h), so the low-lactate example needs about
   690 m², roughly 380 dialysers in parallel. Their hardware is therefore a larger cost than their fibre: $0.5k per m² for
   manifolds, connections and pumps, which is an assumption.
 - **The catches are real.** A dialyser's fibre bore is 185 µm, 11 cell diameters, so clumps of cells could plug it. Dialysers
-  hold back albumin and most growth factors, so a protein in the feed would build up to about 7 times its feed level in the
-  central case unless it is fed only at the rate the bleed removes it. That could also be an opening: it would cut the
+  hold back albumin and most growth factors, so a protein in the feed would build up to about 7 times its feed level in the low-lactate
+  example unless it is fed only at the rate the bleed removes it. That could also be an opening: it would cut the
   protein used per kilo. It has not been tested.
 - **Ceramic is cheaper per litre than pharma but needs a plant around it.** Its elements are rated for years in dairies. A
   stainless housing, a cleaning skid and a spare bank add $3k per m² (assumed), which makes its capital $95k per m³ of tank in
-  the central case. It works only if cleaning in place restores the flux after animal cells foul it. Dairies run it at several
+  the low-lactate example. It works only if cleaning in place restores the flux after animal cells foul it. Dairies run it at several
   metres a second across the membrane, which would put about 25 times the shear of an ATF filter on the cells, so it must run
   slowly like a TFF loop.
 - **Reuse is the easiest and the weakest.** It keeps the validated module and its sterility, but gives only 2 to 4 times, and one
@@ -59,7 +59,7 @@ elements are cleaned and kept.
 
 | Statement | Probability |
 |---|---|
-| The central case gets membranes at $0.037 per litre or less (a tenth of today's) | about 15% |
+| The low-lactate example gets membranes at $0.037 per litre or less (a tenth of today's) | about 15% |
 | The reference case gets the same | about 40% |
 | Dialyser or plasma-separator arrays hold the culture for 33 days: at 12% cells by volume / at 25% | 30% / 15% |
 | Ceramic run as a slow TFF loop holds 25% and recovers 80% of its flux for 10 runs | 15% |

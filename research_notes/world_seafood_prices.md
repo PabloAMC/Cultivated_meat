@@ -1,6 +1,6 @@
 # World seafood prices, weighted by who eats the fish
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Date: 2026-11-19. A bounded web search (38 tool calls) by a search agent, after the audit found that the world seafood rows carry
 the model's headline (fillets were 39% of Central's sales) and came from no weighted source. Tags: FT full text, SNIP search
@@ -44,7 +44,7 @@ premium cephalopods and marine finfish about 3: 13–14 Mt of about 84 Mt, 16%.
 
 ## 3. The rows adopted (`meat_market.GLOBAL_MARKET`)
 
-| Row | Share of seafood | Share of the table | Low | Selected cells | High, $/kg edible |
+| Row | Share of seafood | Share of the table | Low | Low-lactate example | High, $/kg edible |
 |---|---|---|---|---|---|
 | processed, canned, cured, minced | 27% | 0.0659 | 5 | **7** | 9 |
 | mass-market whole fish and ordinary fillets | 55% | 0.1341 | 5 | **7** | 10 |

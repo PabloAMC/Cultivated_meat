@@ -92,7 +92,7 @@ def cost_at_life_price(key: str, life_l_m2: float, price_per_m2: float) -> float
 
 def break_even_price(life_l_m2: float) -> float:
     """The membrane price ($/m2) at which a membrane of this life adds the same cost per litre of permeate as the model's
-    defaults (price / life = $0.366 a litre). A shorter life raises Selected cells' cost only if membranes stay dearer than this."""
+    defaults (price / life = $0.366 a litre). A shorter life raises the low-lactate example's cost only if membranes stay dearer than this."""
     return life_l_m2 * value("rt_membrane_price") / value("rt_membrane_life")
 
 
@@ -110,7 +110,7 @@ def summarise() -> None:
                 b, d = backtransport_lmh(pb, g, L), backtransport_lmh(pb, g, L, form="davis")
                 print(f"    {L:4.1f}  {g:9.0f}   {pb:5.2f}  {b:8.0f}  {d:6.0f}   {b / 5:5.0f}x")
     print(f"  shear at which 5 L/m2/h is the ceiling: {shear_for_flux(5.0, 0.12):.0f} to {shear_for_flux(5.0, 0.25, length=1.0):.0f} 1/s")
-    print("  Selected cells, $/kg, by membrane life (rows, L/m2) and membrane price (columns, $/m2); what counts is price / life:")
+    print("  The low-lactate example, $/kg, by membrane life (rows, L/m2) and membrane price (columns, $/m2); what counts is price / life:")
     prices = (1450.0, 550.0, 200.0, 50.0)
     print("    life      " + "".join(f"{pr:>9.0f}" for pr in prices) + "   break-even price")
     for life in (3960.0, 2000.0, 1500.0, 1000.0):

@@ -14,11 +14,11 @@ from inputs import REGISTRY, value
 
 # L/kg and $/kg at the bounds, per scenario (the scenarios' own costs are pinned in test_scenarios and test_golden)
 # 2026-11-19 repin: nutrient floor $1.70 -> $2.00 (+$0.30 wherever the floor binds); growth factors inside complete media
-# prices (Selected cells' bounds fall, but a complete medium never costs less than its nutrients plus its growth factors,
+# prices (the low-lactate example's bounds fall, but a complete medium never costs less than its nutrients plus its growth factors,
 # gf_in_medium); Best's medium is now the nutrient floor, not $0.15 a litre (its bath bound falls $1.47)
 # 2026-11-19 audit batch: the litres at the bounds did not move (none depends on the ammonia tolerance); every cost rose
 # because a lost run now throws its filter membranes away early (floor_physics run_frac), by $0.05-0.72 for Best and
-# $0.07-1.27 for Selected cells, more where more litres are filtered
+# $0.07-1.27 for the low-lactate example, more where more litres are filtered
 GOLDEN = {
     # 2026-11-19 restructure: the best case's cells weigh 2 ng (were Humbird's 3 ng), so they burn more per kilo and the tank is thinner
     "best": {"bath": (23.6497, 16.348), "physical": (5.9707, 8.001), "practical": (5.9707, 8.001), "measured_flow": (5.338, 7.702),
@@ -42,7 +42,7 @@ def check() -> list:
         fails.append("the stoichiometric floor should be zero")
     if not close(M.bounds(leak=0.01)["terms"]["nitrogen"], 2 * M.bounds(leak=0.005)["terms"]["nitrogen"], 1e-9):
         fails.append("nitrogen litres should be proportional to the leak")
-    # the model's own ammonia settings: Best 0.055 mol/kg is 13.75 L/kg and Selected cells 0.14 is 35 L/kg at the scenarios' 4 mM
+    # the model's own ammonia settings: Best 0.055 mol/kg is 13.75 L/kg and the low-lactate example 0.14 is 35 L/kg at the scenarios' 4 mM
     # 2026-11-19 audit batch: these were 11 and 28 L/kg at 5 mM. The scenarios' tolerance is now the input sc_nh3_limit (4).
     # The module's nitrogen term still divides by Humbird's 5 (pf_nh3_limit), which no scenario uses any more, so the check
     # rescales it to the scenarios' limit. (The module should read sc_nh3_limit; that is a change to its logic, left to the
@@ -64,7 +64,7 @@ def check() -> list:
         if r["medium_set_by"] != "ammonia":
             fails.append(f"{key}: ammonia should set the scenario's litres")
     # 2026-11-19 audit batch: the glucose a cell making no lactate takes up, by the cells' own balance, is within 3% of the
-    # feedstock count this module uses (1.74 against 1.78 mol for Best, 2.07 against 2.12 for Selected cells)
+    # feedstock count this module uses (1.74 against 1.78 mol for Best, 2.07 against 2.12 for the low-lactate example)
     for key in M.SCENARIOS:
         kw = S.explore_kwargs(S.SCENARIOS[key].choice)
         d, m = kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0)

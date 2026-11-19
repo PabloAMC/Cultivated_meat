@@ -1,6 +1,6 @@
 # If perfusion cannot be run at 20 m³
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19 (scenario restructure): the density of a tank that is not washed out is set by the waste mass balance (`pf_batch_end_x`); a fed-batch plant with shared medium keeps Humbird's full seed train; the probabilities are re-judged at Central's 191 g/L. Sections 1-3 rewritten.
 
@@ -37,26 +37,26 @@ because it restarts each tank every three or four days; fill-and-draw runs for 3
 
 | Scenario | Perfusion (the model) | Fed-batch, model cap | Fill-and-draw, model cap | Fed-batch, 27 g/L | Fill-and-draw, 27 g/L |
 |---|---|---|---|---|---|
-| Engineered cells, all favourable | **$11.67** (3.2%) | $15.71 (92 g/L, 1.7%) | $14.44 (92 g/L, 2.1%) | $44.07 (0.07%) | $39.60 (0.11%) |
-| Selected cells | **$32.80** (0.21%) | $64.90 (37 g/L, 0.02%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
-| Selected cells, food-grade plant with shared medium | **$29.94** (0.29%) | $49.51 (37 g/L, 0.05%) | $47.94 (37 g/L, 0.05%) | $67.04 (0.02%) | $64.55 (0.02%) |
+| All-favourable example | **$11.67** (3.2%) | $15.71 (92 g/L, 1.7%) | $14.44 (92 g/L, 2.1%) | $44.07 (0.07%) | $39.60 (0.11%) |
+| Low-lactate example | **$32.80** (0.21%) | $64.90 (37 g/L, 0.02%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
+| Low-lactate example, food-grade plant with shared medium | **$29.94** (0.29%) | $49.51 (37 g/L, 0.05%) | $47.94 (37 g/L, 0.05%) | $67.04 (0.02%) | $64.55 (0.02%) |
 | Cautious (published cells) | **$92.17** (under 0.01%) | $209.05 (14 g/L) | $242.02 (14 g/L) | $209.05 (14 g/L: the cap is under 27) | $242.02 (14 g/L) |
 
 Shares in brackets are the long-run share of world meat and seafood at the point cost (the share of the meat sold, since 2026-11-19).
 
 - **Without perfusion every scenario costs much more than the old figures said.** At the model's own cap Central goes from $32.80 to
-  $64.90 in fed-batch (it was $44.13), and the cautious case from $92.17 to $209.05 (it was $113.56). Engineered cells, all favourable barely moves
-  ($15.71 in fed-batch, $14.44 in fill-and-draw): its engineered cells are held by other by-products at 92 g/L, not by their waste.
+  $64.90 in fed-batch (it was $44.13), and the cautious case from $92.17 to $209.05 (it was $113.56). The all-favourable example barely moves
+  ($15.71 in fed-batch, $14.44 in fill-and-draw): its cells are held by other by-products at 92 g/L, not by their waste.
 - **The mass balance is the reason.** Held to 1.3 times the 4 mmol/L its perfusion is held to, Central's batch ends at 37 g/L, not
   56. Its plant charge per kilo rises in proportion. The published cells make 4.8 mol of lactate a kilo; held to 1.3 times 50
   mmol/L, they stop at 14 g/L. The old cap let them reach 25 g/L at about 120 mmol/L of lactate.
 - **Perfusion is worth about $32 a kilo in Central, not $11.** That is the largest single step of the new ladder's middle: rung 3
-  (selected cells in a batch, $64.9) to rung 4 (Central, $32.8). Fed-batch's handicap is capital: the same plant makes a fifth of
+  (cells that make less lactate (0.42) in a batch, $64.9) to rung 4 (Central, $32.8). Fed-batch's handicap is capital: the same plant makes a fifth of
   the kilos. A cheaper plant narrows it (section 1 of RESULTS, the plant-cost axis): fed-batch at 20 m³ is cheaper than perfusion only
   if the whole plant costs under about a fifth of its modelled cost (0.19×) with Central's switches, 0.28× with the shared-medium
   plant.
-- **The density companies report at 20 m³ is close to the model's cap for selected cells.** At 27 g/L Central costs $88 in fed-batch
-  and $95 in fill-and-draw. Selected cells reach 37 g/L. The published cells cannot reach 27 g/L at all in a batch: they would need
+- **The density companies report at 20 m³ is close to the model's cap for cells that make less lactate (0.42).** At 27 g/L Central costs $88 in fed-batch
+  and $95 in fill-and-draw. Cells that make less lactate (0.42) reach 37 g/L. The published cells cannot reach 27 g/L at all in a batch: they would need
   a lactate yield of about 0.7 mol per mol of glucose, not 1.05.
 - **Fill-and-draw beats fed-batch in a plant with shared medium.** It needs a seed only to restart after a loss, so the plant's
   two small seed trains suffice; fed-batch needs Humbird's full seed train for a new seed every three or four days. In Humbird's own
@@ -70,12 +70,12 @@ Judgement, from the retention note, re-judged on 2026-11-19 at the scenarios' cu
 
 | Statement | Probability |
 |---|---|
-| A filter holds Selected cells' 191 g/L at 20 m³ for a month, at any cost (so perfusion does not fail) | about 45% (re-judged; it was 35% at 258 g/L) |
-| The same for the Engineered cells, all favourable case, at 258 g/L | about 35% |
+| A filter holds the low-lactate example's 191 g/L at 20 m³ for a month, at any cost (so perfusion does not fail) | about 45% (re-judged; it was 35% at 258 g/L) |
+| The same for the all-favourable example, at 258 g/L | about 35% |
 | The same for the reference case, at 120 g/L and a light duty | about 75% |
 | The same for the cautious case, at 120 g/L but 87 litres of permeate a kilo | about 60% |
-| Filter perfusion at the Selected cells case's density in production by 2035 (45% possible x 45% in use by 2035; a judgement, not used by the model) | about 20% |
-| Aggregates on a settler hold Selected cells' density by 2035 (`retention_aggregates.md`) | about 8% |
+| Filter perfusion at the low-lactate example's density in production by 2035 (45% possible x 45% in use by 2035; a judgement, not used by the model) | about 20% |
+| Aggregates on a settler hold the low-lactate example's density by 2035 (`retention_aggregates.md`) | about 8% |
 | If perfusion is not used, a 20 m³ batch reaches the model's mass-balance cap with the scenario's cells | about 70% |
 
 - **191 g/L.** The odds fall with the density at which the filter must work: 75% at 120 g/L, 35% at 258 g/L (`retention_devices.md`).

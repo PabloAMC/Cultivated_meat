@@ -269,7 +269,20 @@ if (!TP_IN) js += `
     .concat(["central", "best", "cautious"].map(k => scParams(SC.presets[k].choice)));
   const vmCases = vmBases.map(b => VM.vorder.map(v => VM.morder.map(m => { const c = vmCell(v, m, b);
     return c.possible ? [v, m, true, c.cost, c.limit, c.density, c.tricks_fallback, c.unchecked_cost, c.density_unshown] : [v, m, false]; })));
+  // the retention devices (page_retention.js): Humbird's reference case and three presets, every device on the page; and
+  // floorExplore's extra_opex and flat retention capital alone (the same cases as tests/run_parity.py RT_FX)
+  const rtBases = [{ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: C.fx.charge_mature }]
+    .concat(["central", "best", "today"].map(k => scParams(SC.presets[k].choice)));
+  const rtCases = rtBases.map(b => RT.order.map(dev => { const c = rtCost(dev, b), s = c.res;
+    return [dev, c.total, c.capex_k_m3, c.cons_kg, c.loss, c.beyond, c.impossible, c.base, c.units, c.area_m2,
+            s.capital + s.labour + s.utilities + s.consumables + s.feedstock + s.growth_factors + s.extra_opex, s.total]; }));
+  const rtFx = [{ extra_opex: 1.5 }, { extra_opex: 0.7, hazard: 0.02, plant: "microbial" }, { retention: 40, extra_opex: 0.3, hazard: 0.01 },
+                { retention: 0 }, { mode: "filldraw", retention: 40, extra_opex: 2 }].map(c => {
+    const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
+                                           charge: 0.173 }, c));
+    return [r.total, r.extra_opex, r.capex, r.consumables, r.run_frac]; });
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
+                           rt: { cases: rtCases, fx: rtFx, order: RT.order },
                            mcCheck, drawCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();
 `;

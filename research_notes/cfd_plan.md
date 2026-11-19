@@ -1,6 +1,6 @@
 # CFD plan: which tank questions simulation can answer, and how to set it up
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Compiled 2026-11-16. It turns the CFD track of `roadmap_2026-11-15.md` (targets A0–A5) and the design tricks in
 `bioreactor_design_tricks.md` into a plan with steps, tools, grids and the model input each step would replace. Section 5 records the
@@ -65,11 +65,11 @@ matters: OpenFOAM Euler–Euler at 1–2 m³. Check both against van't Riet-type
 
 | step | output | model input it replaces | worth, if it moves |
 |---|---|---|---|
-| 1 | mixing time vs shape | `mixing_time_ratio`, the mixing limit in squat tanks | the squat-tank designs of Selected cells and the Engineered cells, all favourable case |
+| 1 | mixing time vs shape | `mixing_time_ratio`, the mixing limit in squat tanks | the squat-tank designs of the low-lactate example and the all-favourable example |
 | 1 | medium across the mesh | `vm_cage_exchange` | the bubble cage, $1–24/kg depending on the case |
 | 1 | alkaline exposure at the return | the column's pH check | the column's pass-rate check: in the reference tank $10.4 if 22 passes an hour were safe, $10.7 within today's limits |
 | 2 | oxygen and CO₂ spread | the well-mixed assumption | whether 200 m³ is ever worth it |
-| 3 | oxygen multiplier per design | `otr_mult`, antifoam's effect | up to $1.7/kg in Selected cells (oxygen binds) |
+| 3 | oxygen multiplier per design | `otr_mult`, antifoam's effect | up to $1.7/kg in the low-lactate example (oxygen binds) |
 
 ## 5. First run on this machine (2026-11-16)
 

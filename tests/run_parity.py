@@ -244,7 +244,7 @@ def check_parity() -> list:
                  # a tank that is not washed, with the cells' lactate yield set: lactate can cap the density (2026-11-19)
                  {'mode': 'filldraw', 'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_balance': True, 'doubling_h': 43.0, 'mass_pg': 2000.0},
                  # 2026-11-19 restructure: the mass balance of an unwashed tank. Fed-batch (a batch that ends above the steady-state
-                 # level, so its last doublings grow slower), with selected cells at 4 mM and losses; and a chemostat (held at the level)
+                 # level, so its last doublings grow slower), with low-lactate cells at 4 mM and losses; and a chemostat (held at the level)
                  {'mode': 'filldraw', 'vm': {'kind': 'cyclic', 'washed': False, 'n_doublings': 2.0, 'turnaround_h': 10.0, 'restart_days': 2.0},
                   'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True, 'doubling_h': 36.0, 'mass_pg': 2000.0, 'nh3_limit': 4.0, 'hazard': 0.01},
                  {'mode': 'filldraw', 'vm': {'washed': False, 'shape': 1.0, 'dil_frac': 0.6}, 'nh3_kg': 0.2, 'nh3_limit': 3.0},
@@ -300,6 +300,43 @@ def check_parity() -> list:
                                              or pc["tricks_fallback"] != c[6] or pc["density_unshown"] != c[8]):
                         fails.append(f"vessels {c[0]} {c[1]}: python={pc['cost']:.6f} ({pc['limit']}, {pc['tricks_fallback']!r}) "
                                      f"js={c[3]:.6f} ({c[4]}, {c[6]!r})")
+    # the retention devices: rtCost (JS, page_retention.js) against retention.scenario_cost, for Humbird's reference case and
+    # three presets and every device on the page; and floorExplore's extra_opex and flat retention capital against explore
+    import retention as _R
+    rt_js = js.get("rt") or {}
+    ported = [k for k in _R.ORDER if k != "hoped" and k not in _R.PARTICLES]
+    RT_FX = [{"extra_opex": 1.5}, {"extra_opex": 0.7, "hazard": 0.02, "plant": "microbial"},
+             {"retention": 40.0, "extra_opex": 0.3, "hazard": 0.01}, {"retention": 0.0},
+             {"mode": "filldraw", "retention": 40.0, "extra_opex": 2.0}]
+    worst_rt = 0.0
+    if not rt_js.get("cases") or len(rt_js.get("fx", [])) != len(RT_FX):
+        fails.append("retention: not emitted by the JS probe")
+    else:
+        if rt_js["order"] != ported:
+            fails.append(f"retention: devices on the page {rt_js['order']} are not those of retention.py {ported}")
+        rel = lambda a, b: abs(a - b) / max(1.0, abs(a), abs(b))
+        for case, jr in zip(RT_FX, rt_js["fx"]):
+            r = _fp.explore(charge=0.173, **case)
+            d = max(rel(r["total"], jr[0]), rel(r["extra_opex"], jr[1]), rel(r["capex"], jr[2]), rel(r["consumables"], jr[3]),
+                    rel(r["run_frac"], jr[4]))
+            worst_rt = max(worst_rt, d)
+            if d > 1e-6:
+                fails.append(f"floorExplore {case}: python total={r['total']:.6f} extra_opex={r['extra_opex']:.6f} "
+                             f"capex={r['capex']:.6f} js={jr}")
+        names = ("reference", "central", "best", "today")
+        bases = [{}] + [_S0.explore_kwargs(_S0.SCENARIOS[k].choice) for k in names[1:]]
+        for name, b, rows in zip(names, bases, rt_js["cases"]):
+            for dev, tot, capex, cons, loss, beyond, imposs, base, units, area, parts, res_tot in rows:
+                pc = _R.scenario_cost(dev, b)
+                d = max(rel(pc["total"], tot), rel(pc["capex_k_m3"], capex), rel(pc["cons_kg"], cons), rel(pc["loss"], loss),
+                        rel(pc["base"], base), rel(pc["units"], units), rel(pc["area_m2"], area),
+                        rel(parts, tot), rel(res_tot, tot))          # the breakdown rtCost hands back adds up to its total
+                worst_rt = max(worst_rt, d)
+                if d > 1e-6 or pc["beyond"] != beyond or pc["impossible"] != imposs:
+                    fails.append(f"retention {name} {dev}: python=${pc['total']:.6f} (capital {pc['capex_k_m3']:.6f}, running "
+                                 f"{pc['cons_kg']:.6f}, loss {pc['loss']:.6f}, beyond {pc['beyond']}, {pc['impossible']!r}) "
+                                 f"js=${tot:.6f} ({capex:.6f}, {cons:.6f}, {loss:.6f}, {beyond}, {imposs!r}; parts {parts:.6f})")
+    print(f"retention devices: {sum(len(r) for r in rt_js.get('cases', []))} device-cases, max relative diff = {worst_rt:.2e}")
     # the scenarios: scEval / scShare / scPriorities / scInteractions / scDesign (JS) against scenarios.py
     import scenarios as _S
     sc = js.get("sc") or {}
@@ -469,6 +506,17 @@ CLOUD_TAIL_TOL = 0.10         # relative, on the 10th and 90th percentiles
 _JS_DRAW = {"maintenance_share": "maint", "pf_protectant_dose": "_dose", "rt_membrane_price": "_memprice", "aa_bulk_price": "_aa"}
 
 
+
+def _page_held(held: dict) -> dict:
+    """A test's held estimates as the page holds them: `cpl` (filter cost per litre) is the membranes' life at the model's price."""
+    from inputs import value as _v
+    out = {k: v for k, v in held.items() if k != "cpl"}
+    if "cpl" in held:
+        out["mem_price"] = _v("rt_membrane_price")
+        out["mem_life"] = _v("rt_membrane_price") / held["cpl"]
+    return out
+
+
 def _first_screen_cases():
     import scenarios as S
     from inputs import value
@@ -508,7 +556,8 @@ def _first_screen_cases():
         else:
             py_cost.append([float(x) for x in mc["total"]])
         cases.append({"base": "humbird" if ch is None else "switches", "choice": ch or S.SCENARIOS["central"].choice,
-                      "traits": tr, "held": held, "draws": draws})
+                      "traits": tr, "held": _page_held(held), "draws": draws})
+    # (the page holds the membranes' price and life as two settings, in the sliders' units; a cost per litre `cpl` is that pair)
     stat = [(S.SCENARIOS[k].choice, {}) for k in ("today", "central", "best", "central_lean")] + [(None, {})] + \
            [(S._design_traits(cen, {"lac_yield": 0.2, "doubling_h": 28.0}), {"lac_yield": 0.2, "doubling_h": 28.0})]
     py_stat = []

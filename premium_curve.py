@@ -175,7 +175,7 @@ def parity_elasticity(p: dict) -> float:
 # like a label product priced d lower (d > 0) or higher (d < 0).
 CORRECTIONS = {"no killing": (0.05, -0.05, 0.20), "novelty": (-0.30, -0.60, -0.15), "unnatural": (-0.20, -0.45, -0.05)}
 #               (central, unfavourable end, favourable end)
-NOVELTY_LEFT_LONG_RUN = 0.5      # P(at least half fades within about 10 years) = 0.55 in the evidence note: half is the central case
+NOVELTY_LEFT_LONG_RUN = 0.5      # P(at least half fades within about 10 years) = 0.55 in the evidence note: half is the middle value
 
 
 def delta_cases() -> dict:

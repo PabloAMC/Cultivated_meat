@@ -169,7 +169,7 @@ def check_particles() -> list:
             and close(p["cap"], value("rt_part_phi_max") * p["share"] * value("pf_cell_density") * 1000.0, 1e-12)):
         fails.append("carrier geometry: share, carrier per kg or cap is off")
     # verdicts: both are beyond what is shown in every case; carriers hold every case far below its density; aggregates hold
-    # only the Engineered cells, all favourable case (258 -> 193 g/L); no case loses growth for oxygen at the default sizes (the Engineered cells, all favourable case loses 2e-6);
+    # only the all-favourable example (258 -> 193 g/L); no case loses growth for oxygen at the default sizes (the all-favourable example loses 2e-6);
     # no settler is impossible
     for name, kw in cs.items():
         a_, m_ = R.scenario_cost("aggregates", kw), R.scenario_cost("microcarriers", kw)
@@ -181,7 +181,7 @@ def check_particles() -> list:
             fails.append(f"{name}: expected no growth lost and a possible settler")
         if not m_["total"] > R.scenario_cost("tff", kw)["total"]:
             fails.append(f"{name}: carriers should cost more than the filter loop")
-    # ranking in Selected cells: aggregates beat every device shown at that density (TFF, ATF, disc stack) and the reused modules
+    # ranking in the low-lactate example: aggregates beat every device shown at that density (TFF, ATF, disc stack) and the reused modules
     ag = R.scenario_cost("aggregates", cen)["total"]
     for dev in ("tff", "atf", "discstack", "reuse", "ceramic"):
         if not ag < R.scenario_cost(dev, cen)["total"]:
@@ -240,7 +240,7 @@ def check_note_figures() -> list:
     cs = R.cases()
     cen = cs["central"]
     ox = R.oxygen_sizes()
-    for name, row in (("reference", (295, 466, 547)), ("central", (307, 485, 570)), ("best", (281, 443, 520))):   # 2026-11-19: best's cells 2 ng, as Selected cells' ... (respire more per gram)
+    for name, row in (("reference", (295, 466, 547)), ("central", (307, 485, 570)), ("best", (281, 443, 520))):   # 2026-11-19: best's cells 2 ng, as the low-lactate example's ... (respire more per gram)
         got = tuple(round(ox[name][x]) for x in (0.10, 0.21, 0.28))
         if got != row:
             fails.append(f"{name}: oxygenated sizes {got} != pinned {row}")
@@ -267,11 +267,11 @@ def check_note_figures() -> list:
             fails.append(f"central {dev} with {k} = {v}: ${got:.2f} != pinned ${want}")
     with R._with({"rt_agg_cell_share": 0.60}):
         if round(R.scenario_cost("aggregates", cen)["density"]) != 155:
-            fails.append("aggregates at a cell share of 0.60 should hold Selected cells to 155 g/L")
+            fails.append("aggregates at a cell share of 0.60 should hold the low-lactate example to 155 g/L")
     rg = R.scenario_range("aggregates", cen)["high"]
     if round(rg["density"]) != 124 or round(R.scenario_range("microcarriers", cen)["low"]["density"]) != 94:
         fails.append("range ends: aggregates 124 g/L, carriers 94 g/L")
-    # settling: Selected cells' 2 ng cell at 1.8 cm/h; a 100 um aggregate 31 times faster, a 300 um one about 280 times
+    # settling: the low-lactate example's 2 ng cell at 1.8 cm/h; a 100 um aggregate 31 times faster, a 300 um one about 280 times
     d_cell = (6.0 * 2000.0 * 1e-15 / (math.pi * value("pf_cell_density") * 1000.0)) ** (1.0 / 3.0) * 1e6
     v1 = fp._stokes(d_cell, (value("pf_cell_density") - value("pf_medium_density")) * 1000.0)
     a = R.scenario_cost("aggregates", cen)
@@ -282,9 +282,9 @@ def check_note_figures() -> list:
     s1 = R.sizing("settler", cen)
     if round(s1["area_m2"]) != 488 or round(s1["holdup_m3"], 1) != 8.3:
         fails.append("single-cell settler: 488 m2 and 8.3 m3")
-    # carriers for the 3 ng cells of the reference and best cases; Selected cells' layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
+    # carriers for the 3 ng cells of the reference and best cases; the low-lactate example's layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
     pb, pc = R.particle("microcarriers", cs["best"]), R.particle("microcarriers", cen)
-    # 2026-11-19 restructure: the best case's cells weigh 2 ng like Selected cells', so its carriers are theirs (0.62 kg, 8.8 L, 90%, 26 g/L)
+    # 2026-11-19 restructure: the best case's cells weigh 2 ng like the low-lactate example's, so its carriers are theirs (0.62 kg, 8.8 L, 90%, 26 g/L)
     if not (round(pb["carrier_kg"], 2) == 0.62 and round(pb["bead_l_kg"], 1) == 8.8 and round(pb["carrier_wet_share"], 2) == 0.90
             and round(pb["cap"]) == 26 and round(pc["layer_um"], 1) == 3.5 and 4500 < pc["carrier_kg"] * 7600 * 1.08 < 5500):
         fails.append("carrier figures moved (0.62 kg, 8.8 L, 90%, 26 g/L; 3.5 um; about $5,000)")

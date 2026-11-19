@@ -1,8 +1,8 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
@@ -71,8 +71,8 @@ by volume with a standard microfiltration fibre.
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|
-| Engineered cells, all favourable | **$11.46** | $20.62 | $20.71 | $42.63 |
-| Selected cells | **$32.80** | $62.23 | $62.50 | $132.87 |
+| All-favourable example | **$11.46** | $20.62 | $20.71 | $42.63 |
+| Low-lactate example | **$32.80** | $62.23 | $62.50 | $132.87 |
 
 - **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.3. The
   membrane's throughput moves it by $29 to $100.

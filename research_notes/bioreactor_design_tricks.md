@@ -1,6 +1,6 @@
 # Design tricks for a 20 m³ animal-cell tank: what each relieves, and whether it scales
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Compiled 2026-11-16 at Pablo's request ("explore the possible tricks on the design of the bioreactor"). Reading, arithmetic and
 the model only; nothing measured. Access levels: **model** (computed with this repository's code), **repo** (an earlier research
@@ -11,13 +11,13 @@ checked this session; treat as a lead). The CFD plan that would test several of 
 
 | case | cost | density | what binds | the next limits |
 |---|---|---|---|---|
-| Rung 1, today's cells, ordinary tank, 2 mm/s | $63.0 | 46 g/L | CO₂ removal | oxygen 70, mixing 219, thickness 258 g/L |
+| Rung 1, Published cells, ordinary tank, 2 mm/s | $63.0 | 46 g/L | CO₂ removal | oxygen 70, mixing 219, thickness 258 g/L |
 | Humbird's optimistic design, 6 mm/s | $12.5 | 120 g/L | CO₂ removal | oxygen 146 (with antifoam), mixing 189 |
-| Selected cells (column, 1 bar, squarer tank, oxygen held at half of air saturation) | $29.4 | 191 g/L | oxygen supply | thickness 258 |
-| Engineered cells, all favourable (the same, with recycled oxygen and a squat tank) | $9.7 | 258 g/L | thickness of the culture | — |
+| Low-lactate example (column, 1 bar, squarer tank, oxygen held at half of air saturation) | $29.4 | 191 g/L | oxygen supply | thickness 258 |
+| All-favourable example (the same, with recycled oxygen and a squat tank) | $9.7 | 258 g/L | thickness of the culture | — |
 
 So there are two regimes. **Without a bubble-free way to remove CO₂, CO₂ binds**, and every trick that removes CO₂ without bubbles
-pays a lot (the column with 1 bar of pressure is worth $20.6/kg for today's cells). **Once CO₂ is dealt with, oxygen binds** (antifoam is taken to
+pays a lot (the column with 1 bar of pressure is worth $20.6/kg for Published cells). **Once CO₂ is dealt with, oxygen binds** (antifoam is taken to
 cut the sparger's oxygen transfer by a quarter), and the tricks worth having are those that put oxygen in per watt and per litre of
 gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity estimate, `thick_culture.md`).
 
@@ -95,11 +95,11 @@ question for the next pass.
 
 ## 3. What would pay most, given the limits above
 
-1. **For today's cells (CO₂-bound): any bubble-free CO₂ removal.** The column with pressure ($20.6/kg), the bubble cage ($23.7/kg, a
+1. **For Published cells (CO₂-bound): any bubble-free CO₂ removal.** The column with pressure ($20.6/kg), the bubble cage ($23.7/kg, a
    judgement-heavy estimate), or more gas the cells tolerate. The deciding experiments are cell-side: a film of dense culture on packing, and gas steps
    with protectant (`gas_exchange_study.md`).
 2. **For Central (oxygen-bound): oxygen per watt and per litre of gas.** Two spargers, impeller choice, the antifoam's
-   real cost to transfer, and pressure. (The dissolved-oxygen setpoint is now in every scenario; with it the best case reaches the
+   real cost to transfer, and pressure. (The dissolved-oxygen setpoint is now in every scenario; with it the all-favourable example reaches the
    thickness limit.) Two-sparger operation is the one not yet in the model, and it is
    standard practice; it should be a lever.
 3. **The salt limit** is now quietly binding where CO₂ tolerance should help (TODO.md). A non-bicarbonate buffer or a different base

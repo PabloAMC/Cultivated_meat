@@ -18,9 +18,9 @@ language (“How the model works”, at the bottom of the page).
 mass), set directly; `cell_traits.py` gives the best value of each measured in meat cells, with its source, and which traits of a set
 go beyond those measurements. It says nothing about how cells would come to have a trait. RESULTS leads with what it would take: the
 cost of cells a 1% or 10% share needs, and trait sets that reach it. **Reference points** describe the cost of a kilo of cells, each by its traits and the plant and process
-around it: Published cells grown in batches (what has been shown), Selected cells in perfusion, Engineered cells, all favourable,
+around it: Published cells grown in batches (what has been shown), the low-lactate example in perfusion, the all-favourable example,
 Humbird's optimistic design and the process one company reports. Each is a preset of eleven switches, and each states what has to
-go right for it. See [RESULTS.md](RESULTS.md) and the page.
+go right for it. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means cells that make 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 24 hours, with every other setting at its favourable end (a food-grade plant with shared medium, medium at the cost of its nutrients, more gas, fewer lost runs) and 58.5% of meat buyers picking it at the same price. See [RESULTS.md](RESULTS.md) and the page.
 Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $12.8, with the filter loop and the protectant counted.
 The model keeps it as a labelled comparison, not a limit.
 
@@ -177,6 +177,7 @@ model/
 ├── page_scenarios.js    ← the page's live switches (a JavaScript mirror of scenarios.py)
 ├── vessels.py           ← step 1: vessel type against operating mode
 ├── page_vessels.js      ← the page's vessel-by-mode table (a JavaScript mirror of vessels.py)
+├── page_retention.js    ← the page's retention devices (a JavaScript mirror of retention.py)
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
 ├── scaffolding.py       ← step 3: structured products and the cost of assembling them

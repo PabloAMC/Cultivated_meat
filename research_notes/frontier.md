@@ -1,6 +1,6 @@
 # The frontier: what is possible if every lever goes to its limit
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -17,7 +17,7 @@ limit that the research notes support, keeping each one moved. It changes no def
 
 | Step (each kept moved) | Cost | Change | Odds, from the note that studied it |
 |---|---|---|---|
-| Selected cells scenario | **$32.80** | | |
+| Low-lactate example | **$32.80** | | |
 | Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate | $14.16 | −18.64 | physically possible, 60% (6 L/kg or less); a meat-cell process reporting 11 L/kg or less by 2030, 10% (`min_litres_per_kg.md`) |
 | Cells double in 16 hours | $10.56 | −3.60 | physics allows about 8 h; a meat line in suspension at 50 g/L or more doubling in 16 h or less by 2035, 7% (`gf_and_doubling_bounds.md`) |
 | Dialyser-grade hollow fibres as the filter | $10.56 | 0.00 | holds 25% cells for a month, 15% (`retention_alternatives.md`) |
@@ -36,7 +36,7 @@ price. At 6.4 L/kg that is $1.28 a kilo, under what its nutrients and growth fac
 nutrient floor plus Central's 30% of Humbird's growth-factor price). The floor setting charges the same things, so it adds
 nothing once the litres are cut.
 
-## 2. Each lever on its own, from Selected cells
+## 2. Each lever on its own, from the low-lactate example
 
 | Lever | Cost alone | Change |
 |---|---|---|
@@ -60,8 +60,7 @@ rank above the gas: a lost run throws its filter membranes away early, and Centr
 
 1. **The litres of medium per kilo are the lever.** At 6.4 L/kg, Central costs $14.16 with nothing else changed. That one step is
    73% of the way from Central to the frontier (it was 64%). Fewer litres cut two
-   costs at once: the medium (with its growth factors, which are in Central's $0.20 a litre), and the filtering (the filter clears the litres the bleed does not carry out). The
-   central cells make more ammonia, which is why they need 35 (28 before the tolerance fell from 5 to 4 mmol/L).
+   costs at once: the medium (with its growth factors, which are in Central's $0.20 a litre), and the filtering (the filter clears the litres the bleed does not carry out). The low-lactate example's cells make more ammonia, which is why they need 35 (28 before the tolerance fell from 5 to 4 mmol/L).
 2. **Levers share what they save.** The dialyser-grade fibres save $12.52 alone and nothing after the medium is cut, because there is
    then almost no liquid to filter. The medium at the nutrient floor saves $1.35 alone and nothing after, because at 6.4 L/kg the
    $0.20 medium is already charged its nutrients plus its growth factors (section 1). Returning the growth factors saves nothing

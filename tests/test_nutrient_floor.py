@@ -39,13 +39,13 @@ def check() -> list:
     # every other GFI floor is above the model's
     if not all(N.floor(t, n) > fp.feedstock(fp.GOOD_CELLS) for t in N.TIERS for n in N.NEEDS if (t, n) != ("feed", "eff")):
         fails.append("every GFI floor but the cheapest should exceed the model's $2.00")
-    # the Engineered cells, all favourable case, whose medium is set by the floor, rises with dearer amino acids; central, set by litres x price, does not
+    # the all-favourable example, whose medium is set by the floor, rises with dearer amino acids; central, set by litres x price, does not
     if not N.scenario_cost("best", "feed", "mid")["total"] > S.run(S.SCENARIOS["best"].choice)["total"]:
-        fails.append("Engineered cells, all favourable should cost more at GFI's middle amino-acid need")
+        fails.append("the all-favourable example should cost more at GFI's middle amino-acid need")
     if not close(N.scenario_cost("central", "feed", "eff")["total"], S.run(S.SCENARIOS["central"].choice)["total"], 1e-9):
         fails.append("central should not move at the cheapest amino acids: litres x price binds")
-    # 2026-11-19 audit batch: at 35 L/kg Selected cells' $0.20 medium costs $7.00, above its nutrients plus its growth factors until
-    # the floor passes about $3.3 a kilo. So Selected cells no longer moves at feed-grade prices and 350 g, or at low food-grade
+    # 2026-11-19 audit batch: at 35 L/kg the low-lactate example's $0.20 medium costs $7.00, above its nutrients plus its growth factors until
+    # the floor passes about $3.3 a kilo. So the low-lactate example no longer moves at feed-grade prices and 350 g, or at low food-grade
     # prices and 232 g (it rose at both at 28 L/kg); it does at low food-grade prices and 350 g.
     base_c = S.run(S.SCENARIOS["central"].choice)["total"]
     for t, n in (("feed", "mid"), ("low", "eff")):
@@ -53,11 +53,11 @@ def check() -> list:
             fails.append(f"central should not move at {t} prices and the {n} need: litres x price still binds")
     if not N.scenario_cost("central", "low", "mid")["total"] > base_c + 1.0:
         fails.append("central should rise at low food-grade prices and 350 g/kg")
-    # the Engineered cells, all favourable case moves dollar for dollar with the floor (over the share of output not lost with lost tanks)
+    # the all-favourable example moves dollar for dollar with the floor (over the share of output not lost with lost tanks)
     d_floor = N.floor("low", "mid") - N.floor("feed", "eff")
     d_best = N.scenario_cost("best", "low", "mid")["total"] - N.scenario_cost("best", "feed", "eff")["total"]
     if not (d_floor <= d_best <= 1.02 * d_floor):
-        fails.append("the Engineered cells, all favourable case should move dollar for dollar with the floor")
+        fails.append("the all-favourable example should move dollar for dollar with the floor")
     # pinned
     # 2026-11-19 audit batch: the same two changes move all three (9.9613, 12.5648, 39.7235 before)
     for (k, t, n), want in {("best", "feed", "eff"): 11.6738, ("best", "low", "mid"): 14.2773, ("central", "high", "low"): 45.4289}.items():

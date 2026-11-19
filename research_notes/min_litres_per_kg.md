@@ -1,8 +1,8 @@
 # The least medium per kg of cells that physics allows
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -22,7 +22,7 @@ Access codes: **FULL** = full text read. **FT-sum** = full text read through a s
 1. Stoichiometry sets no floor. Nitrogen, carbon and energy balances all allow zero ammonia and zero lactate, so waste can fall to 0 L/kg. Warburg-null CHO and HEK show it for lactate (FULL); a glutamine-synthetase CHO line comes within 0.4% of zero for ammonia (INF from FT-sum).
 2. Delivering the nutrients sets the floor. A kg of cells eats 0.58 kg (Best) to 0.64 kg (Central) of amino acids and glucose, 3.8-4.2 mol. The litres follow from how strong the feed can be:
 
-| Feed | Best (24 h, 3 ng) | Selected cells (36 h, 2 ng) |
+| Feed | Best (24 h, 3 ng) | Low-lactate example (36 h, 2 ng) |
 |---|---|---|
 | The medium is what the cells sit in, at the salt limit, typical salts (250 mOsm/kg) | 23.1 L/kg | 25.1 L/kg |
 | Same, salts cut to 150 | 14.4 | 15.7 |
@@ -35,7 +35,7 @@ Access codes: **FULL** = full text read. **FT-sum** = full text read through a s
 
 ## Where the model sits
 
-| | Best | Selected cells | Floor |
+| | Best | Low-lactate example | Floor |
 |---|---|---|---|
 | Litres per kg | 13.75 (ammonia 13.75, lactate 11.2, least flow 10.8) | 35.0 (ammonia; lactate 21.5) | 5.8 / 6.4 |
 | Ammonia, mol/kg | 0.055 (1.9% of the cell's nitrogen) | 0.14 (4.9%) | 0; at the floor litres, 0.023 (0.8%) fits at 4 mmol/L |
@@ -49,7 +49,7 @@ Both scenarios' litres are now set by ammonia alone, at the 4 mmol/L the scenari
 
 `explore(medium_l=...)` with each scenario's other settings held. Scenario costs as they stand: Best $11.46, Central $32.80.
 
-| Litres per kg | Best | Selected cells |
+| Litres per kg | Best | Low-lactate example |
 |---|---|---|
 | Bath, typical salts (23.1 / 25.1) | $15.86 | $25.87 |
 | Zero waste, default flow (10.8 / 16.2) | $10.07 | $20.13 |
@@ -75,7 +75,7 @@ Best gains $3.75 at its floor (it was $2.33). Central gains $17.67 at 8 L/kg (it
 | 0.8% | 0.023 | 5.8 | what the floor litres allow |
 | 1.9% | 0.055 | 13.75 | Best |
 | 3.2% | 0.09 | 22.5 | bovine FAPs, shaker flask (Hubalek 2023, FT-sum) |
-| 4.9% | 0.14 | 35 | Selected cells; bovine FAPs on alpha-ketoglutarate or pyruvate, at most (Hubalek 2023) |
+| 4.9% | 0.14 | 35 | Low-lactate example; bovine FAPs on alpha-ketoglutarate or pyruvate, at most (Hubalek 2023) |
 | 24.5% | 0.70 | 175 | bovine FAPs, spinner, with glutamine (Hubalek 2023) |
 
 Ammonia does not bind at the floor. It binds in Central (35 L/kg) because those cells leak 4.9%, and now in Best too (13.75 L/kg at a 1.9% leak). Best's leak is 2.6 times less than Central's; the one measured CHO line is 4.6 times below Best's. The floor litres now ask for a leak 2.4 times below Best's (it was 1.9 times at 5 mmol/L).
@@ -107,8 +107,8 @@ Ammonia does not bind at the floor. It binds in Central (35 L/kg) because those 
 |---|---|
 | Stoichiometric (a, b) | none; both wastes can reach zero |
 | Medium must be a bath | (c) salt budget: 14-25 L/kg |
-| Concentrate dosed into the tank | (c) feed strength: 5.8 (Best), 6.4 (Selected cells); measured flow adds a little above that for Selected cells (8.0) |
-| The model as it stands | Best: ammonia, 13.75 (lactate 11.2 and flow 10.8 sit below it); Selected cells: ammonia, 35; published cells: lactate, 95.5 |
+| Concentrate dosed into the tank | (c) feed strength: 5.8 (Best), 6.4 (the low-lactate example); measured flow adds a little above that for the low-lactate example (8.0) |
+| The model as it stands | Best: ammonia, 13.75 (lactate 11.2 and flow 10.8 sit below it); the low-lactate example: ammonia, 35; published cells: lactate, 95.5 |
 
 ## Calibrated odds (my judgement)
 
@@ -123,7 +123,7 @@ Ammonia does not bind at the floor. It binds in Central (35 L/kg) because those 
 | A culture at 8 L/kg or less is physically possible | 80% |
 | A culture at 6 L/kg or less is physically possible | 60% |
 | A meat-cell process reports 11 L/kg or less by 2030 | 10% |
-| Selected cells' 28 L/kg is within a factor of 2 of the best process reported by 2030 | 50% |
+| The low-lactate example's 28 L/kg is within a factor of 2 of the best process reported by 2030 | 50% |
 
 The last row was judged when Central used 28 L/kg. At 35 L/kg the same row asks for a best reported process at 17.5 L/kg or more, not 14, so its odds are if anything a little lower. I have not re-judged it. The other rows do not depend on the model's litres.
 

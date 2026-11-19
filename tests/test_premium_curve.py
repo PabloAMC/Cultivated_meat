@@ -32,18 +32,18 @@ def check() -> list:
             fails.append(f"{name}: the fit does no better than the main model's curve")
     lr = "long run, central"
     sh, unf, fav = s["shares"], "long run, unfavourable (novelty stays)", "long run, favourable (novelty gone)"
-    # 2026-11-19 second round (Student's t spread of liking): the heavier tail doubled the model's share at Selected cells' cost (0.08% to
+    # 2026-11-19 second round (Student's t spread of liking): the heavier tail doubled the model's share at the low-lactate example's cost (0.08% to
     # 0.16%); the anchored share does not depend on the spread (0.10%). So the anchored share is now two-fifths BELOW the model's,
     # and the model's is still inside the range the corrections span (0.03-0.19%), near its favourable end. (After the audit batch,
     # with the normal spread: anchored a third above the model's. Before it: a tenth below.)
     m = s["model_share"]["central"]
     if not (0.5 * m < sh["central"][lr] < 0.8 * m and sh["central"][unf] < m < sh["central"][fav]):
-        fails.append("Selected cells' anchored share is no longer two-fifths below the model's, with the model's inside the corrections' range; "
+        fails.append("the low-lactate example's anchored share is no longer two-fifths below the model's, with the model's inside the corrections' range; "
                      "rewrite the note's conclusion")
-    # 2026-11-19 audit batch, unchanged by the second round: the Engineered cells, all favourable case's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
+    # 2026-11-19 audit batch, unchanged by the second round: the all-favourable example's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
     # (0.6-2.5%). The model is about twice the curve's central figure and above its favourable end. (Was: anchored below the model's.)
     if not (sh["best"][lr] < 0.6 * s["model_share"]["best"] and sh["best"][fav] < s["model_share"]["best"]):
-        fails.append("the Engineered cells, all favourable case's model share is no longer about twice the anchored one and above the curve's favourable end; "
+        fails.append("the all-favourable example's model share is no longer about twice the anchored one and above the curve's favourable end; "
                      "rewrite the note's conclusion")
 
     quoted = [f"{sh['central'][lr]:.2f}%", f"{sh['central'][unf]:.2f}–{sh['central'][fav]:.2f}%", f"{s['model_share']['central']:.2f}%",

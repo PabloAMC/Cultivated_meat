@@ -3,7 +3,7 @@
 
 Checks that the model's plant-based elasticity, cultivated elasticity and premium slope are computed and stand where the note says
 (the choice experiment matched; premium meats within a factor of two; salmon's range matched by the products still at a
-premium; plant-based meat too strong), that a weaker response raises Selected cells' share, and that the note and
+premium; plant-based meat too strong), that a weaker response raises the low-lactate example's share, and that the note and
 RESULTS.md carry the module's tables and the figures their prose quotes. Runs as a script or under pytest.
 """
 from __future__ import annotations
@@ -41,7 +41,7 @@ def check() -> list:
     resp, (lo, hi) = L.summary()["response"]["products"], D.SALMON_ALONG_CURVE
     dearer = [n for n, v in resp.items() if v["R"][0] > 1.5]
     if sorted(dearer) != ["chicken (organic)", "pork (heritage)", "seafood (premium fillet, shrimp)"]:
-        fails.append("the premium products still dearer than their meat at Selected cells' cost have changed; rewrite the note")
+        fails.append("the premium products still dearer than their meat at the low-lactate example's cost have changed; rewrite the note")
     if not all(2.0 * hi < resp[n]["response"] < 3.0 * hi for n in dearer):
         fails.append("the premium products still dearer than their meat no longer respond at two to three times the top of salmon's "
                      "range; rewrite the note")
@@ -58,7 +58,7 @@ def check() -> list:
         if abs(v[0]["world"][k] - s["model_world"][k]) > 1e-9:
             fails.append(f"{k}: the first variant is not the model's own share")
     if not v[1]["world"]["central"] < v[0]["world"]["central"] < v[2]["world"]["central"] < v[3]["world"]["central"]:
-        fails.append("the order of Selected cells' share across the price responses has changed; rewrite the note")
+        fails.append("the order of the low-lactate example's share across the price responses has changed; rewrite the note")
     u = [L.underused(S.SCENARIOS["central"].choice, x)["cost"] for x in L.UTILISATION]
     if u != sorted(u) or abs(u[0] - S.run(S.SCENARIOS["central"].choice)["total"]) > 1e-9:
         fails.append("the cost of an under-used plant should rise as less is sold, from the scenario's own cost")

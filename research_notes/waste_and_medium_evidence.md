@@ -1,6 +1,6 @@
 # Waste yields, medium use and waste-handling alternatives: evidence review
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Compiled 2026-11-14 from web search and page reads. Nothing was measured here. Written to answer one question for the model: where do real cells sit on the `waste` dial (0 = Humbird's enhanced cells, about 11 L medium per kg wet cells; 1 = wild-type cells, about 190 L/kg)?
 

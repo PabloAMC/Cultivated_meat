@@ -2,6 +2,58 @@
 
 ## 2026-11-19
 
+**Full review; the first screen by sections; no named cell types (no model number changed).**
+- **Review** (`research_notes/full_review_2026-11-19.md`): five readers went through the 14 cost analyses, the two books and six
+  papers, evidence from 2024-26, the shopper model and the retention study. Nothing overturns the answer. The perfusion cases are
+  optimistic in six places not shown before (medium preparation sized for fed-batch, membrane life against Humbird's own, density
+  2.3 times what companies report, bubble deaths not charged, labour, harvest loss), and lactate tolerance (50 mM) has no range
+  though it decides the fed-batch cost ($209 at 50 mM, $298 at 35). The uncertainty band draws shoppers' acceptance twice
+  (`accept_x` beside `equal_price_share`). No default changed: the note proposes one batch.
+- **Names** (the author's decision): no named kinds of hypothetical cell anywhere. The two names introduced earlier today for the
+  examples beside Published cells are gone from the page, its address, RESULTS, METHODS, README, TODO and the notes.
+  Cells are described by their traits. Where a document needs an example set it is "the low-lactate example" (code key `central`)
+  or "the all-favourable example" (`best`), each defined by its traits where it first appears.
+- **The opening gives one figure only: the best the model can find, as a range** (the author: "I would not lead with any number
+  except perhaps the best we can possibly do"): $2.0 a kilo of cells (the nutrients) to $7.2 (every lever at its known limit), with
+  the shop price of two named meats beside it. Published cells are where the levers start, not a headline: companies say their own
+  cells do better and have not published them. The reader's cost and share are a readout labelled "At your settings".
+- **The levers are in a bar at the side** (as on the page of early November), in four groups (cells, reactor, medium, shoppers);
+  the results are beside them and follow each lever. Under most levers are **reference values** someone has published
+  (`build_interactive.LEVER_REFS`), each a button that sets the lever, and "What this is" with the model's source.
+- **How the page was first rebuilt today, by sections with the settings above each result**: (1) the cells, then what they allow in the
+  tank (density and what limits it, litres of medium a kilo and what sets them, output per m³); (2) the reactor and how it is run;
+  (3) the medium; then what a kilo of cells costs; (4) the shoppers and the product; then how much meat it would replace. It opens
+  on Published cells (the best published figure for each trait, fed-batch at 20 m³), not on a hypothetical set of cells.
+- **Twenty more settings** in collapsible groups (`build_interactive.PAGE_PARAMS`, each with its source): the ammonia, lactate,
+  salt strength and CO₂ the cells tolerate, the oxygen they use, the upkeep share, gas flow, least medium flow; the membranes'
+  price, life and flux (in place of the one "filter cost a litre" slider), the yearly charge, kLa, labour, energy; the prices of
+  amino acids and glucose, growth factors, the protectant's dose and price. A setting the reader sets leaves the 8-in-10 range.
+- **The vessel, the way it is run and the retention device are choices on the first screen**: six vessels and five modes
+  (`vessels.py`, already mirrored on the page) and nine retention devices (`retention.py`, now mirrored in `page_retention.js`;
+  `floorExplore` gained `extra_opex`; `tests/run_parity.py` checks 36 device-cases), with two comparison tables at the reader's
+  settings.
+- **Shoppers.** A new chart for one kind of meat: the share of its buyers who pick the cultivated one against its price, which
+  passes through the reader's setting at the same price (that is the setting's definition), with a mark for where each kind of meat
+  sits at the reader's cost. The share map has a literal title ("Long-run share of the meat sold, for any cost of cells and any
+  preference of shoppers") and no reference points on it, because a published cost says nothing about shoppers; published costs are
+  ticks on the cost axis. Its "price parity" line is labelled "mince at the price of the average kilo", and the note says why the
+  50% line does not pass through 50% there (37% with the world's mix of meats).
+- **Two source texts corrected**: a protectant cuts bubble deaths about 20-fold at 1 g/L (Jöbses 1991, the model's own inputs), not
+  "at least 100-fold"; Pasitka's 2024 abstract gives 130 million cells/mL at 43% w/v (3.3 ng, unchanged).
+- **The cost shown is the cost at the settings shown** (the author: "should we remove that and just leave the point for
+  simplicity?"). The first screen no longer leads with the median of draws and an "8 in 10" range. A section under the cost, "How
+  uncertain is this cost", opens to the draws: the middle draw, the range that holds 8 in 10, and a table of every estimate varied
+  with its lowest, most likely and highest value. RESULTS and METHODS still lead with the median for their examples (TODO).
+- **Every meat price names its kind of meat** (the author: "different meats have different prices"). No "price parity" with an
+  average kilo: the cost axis and the share map mark the cost at which it would sell at the shop price of the cheapest large kind,
+  the most eaten kind of another animal, a steak and the dearest, each with its price; the sentence compares the shop price with
+  two named meats; "everyday meat" is "US minced beef or pork cuts ($12 a kilo)" in the page and RESULTS.
+- **Look**: white background in every colour scheme (the dark theme is removed), Computer Modern (CMU Serif from jsDelivr, falling
+  back to Georgia), the earlier page's blue for values, and a summary bar that stays in view while a slider moves: the cost, the
+  shop price against two named meats, and the long-run share.
+- `tests/test_easy_view.py` rewritten for the sections: the order of the pieces, no retired names, each further setting finite at
+  both ends and exact when freed, the vessel and device choices against their studies, and the same-price property.
+
 **Page fixes from the author's list; no route claims anywhere (no model number changed).**
 - **No route claims** (the author: "I would remove it"): the page, RESULTS, METHODS and README no longer say a trait has been shown
   by a feed change, selection, adaptation or engineering, or "in other cells", or "not together". Each trait carries only the best

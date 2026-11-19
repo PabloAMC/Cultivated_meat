@@ -1,8 +1,8 @@
 # Exploring the tank's design options: price the limits first, then search the designs
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > 2026-11-19 (scenario restructure): rungs 1-3 of the ladder are now batches (fed-batch at 20 m³), held by their waste, which no tank
 > design moves, so the search covers the cases run in perfusion. The published cells are searched in perfusion as the cautious scenario
@@ -42,10 +42,10 @@ The scenarios' own tank designs are a subset of this search, and the search repr
 | case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | perfect gas exchange |
 |---|---|---|---|---|---|
 | Published cells, in perfusion | $111.89 (46 g/L, CO₂) | $92.17 | $64.94 (175 g/L, oxygen; 4 unproven) | $61.78 (258 g/L, thickness; 4 unproven) | **$84.85** (258 g/L) |
-| 4. Selected cells | $39.18 (87 g/L, CO₂) | $32.80 | $31.40 (258 g/L, thickness; 5 unproven) | $31.09 (258 g/L, thickness; 3 unproven) | **$30.66** (258 g/L) |
+| 4. Low-lactate example | $39.18 (87 g/L, CO₂) | $32.80 | $31.40 (258 g/L, thickness; 5 unproven) | $31.09 (258 g/L, thickness; 3 unproven) | **$30.66** (258 g/L) |
 | 5. Shared-medium plant | $32.85 (87 g/L, CO₂) | $29.94 | $29.27 (258 g/L, thickness; 5 unproven) | $29.04 (258 g/L, thickness; 2 unproven) | **$28.75** (258 g/L) |
-| 6. Engineered cells | $20.17 (87 g/L, CO₂) | $17.27 | $16.60 (258 g/L, thickness; 5 unproven) | $16.37 (258 g/L, thickness; 2 unproven) | **$16.08** (258 g/L) |
-| 7. Engineered cells, all favourable | $12.29 (108 g/L, CO₂) | $11.67 | $11.48 (258 g/L, thickness; 4 unproven) | $11.39 (258 g/L, thickness; 2 unproven) | **$11.20** (258 g/L) |
+| 6. Cells that make almost no ammonia or lactate | $20.17 (87 g/L, CO₂) | $17.27 | $16.60 (258 g/L, thickness; 5 unproven) | $16.37 (258 g/L, thickness; 2 unproven) | **$16.08** (258 g/L) |
+| 7. All-favourable example | $12.29 (108 g/L, CO₂) | $11.67 | $11.48 (258 g/L, thickness; 4 unproven) | $11.39 (258 g/L, thickness; 2 unproven) | **$11.20** (258 g/L) |
 
 "Unproven" counts elements nobody has run with animal cells: the column (1; 2 with recycled oxygen), 1 bar of extra pressure (1; 2
 bar counts 2), a tank squatter than those in use (1), fat taken from the feed (1), the bubble cage (1). A tank as deep as wide is
@@ -70,7 +70,7 @@ The cheapest design for each number of unproven elements:
 | 3 | 1 bar of extra pressure, liquid as deep as wide, fat taken from the feed, and a stirred tank with a bubble cage | $61.93 | 258 g/L, thickness |
 | 4 | a column that strips CO₂, 1 bar of extra pressure, fat taken from the feed, and a stirred tank with a bubble cage | $61.78 | 258 g/L, thickness |
 
-| 4. Selected cells, no cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
+| 4. Low-lactate example, no cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
 |---|---|---|---|
 | 0 | liquid as deep as wide | $36.32 | 119 g/L, CO₂ |
 | 1 | a column that strips CO₂ | $35.05 | 133 g/L, oxygen |
@@ -79,7 +79,7 @@ The cheapest design for each number of unproven elements:
 | 4 | a column that strips CO₂, 2 bar of extra pressure, and liquid half as deep as wide | $31.73 | 258 g/L, thickness |
 | 5 | a column that strips CO₂, 2 bar of extra pressure, liquid 0.75 times as deep as wide, and fat taken from the feed | $31.40 | 258 g/L, thickness |
 
-| 4. Selected cells, with a bubble cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
+| 4. Low-lactate example, with a bubble cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
 |---|---|---|---|
 | 0 | liquid as deep as wide | $36.32 | 119 g/L, CO₂ |
 | 1 | liquid as deep as wide, and a stirred tank with a bubble cage | $31.54 | 241 g/L, oxygen |
@@ -103,7 +103,7 @@ The cheapest design for each number of unproven elements:
 | no runs lost | $82.81 | −$9.35 | 120 g/L, oxygen |
 | a yeast plant with what animal cells need | $82.69 | −$9.48 | 120 g/L, oxygen |
 
-| 4. Selected cells: if this were free | cost | change | density, what then binds |
+| 4. Low-lactate example: if this were free | cost | change | density, what then binds |
 |---|---|---|---|
 | the scenario as it is | $32.80 |  | 191 g/L, oxygen |
 | CO₂ removal lifted | $32.80 |  | 191 g/L, oxygen |
@@ -118,7 +118,7 @@ The cheapest design for each number of unproven elements:
 | no runs lost | $29.66 | −$3.14 | 191 g/L, oxygen |
 | a yeast plant with what animal cells need | $28.00 | −$4.80 | 191 g/L, oxygen |
 
-| 7. Engineered cells, all favourable: if this were free | cost | change | density, what then binds |
+| 7. All-favourable example: if this were free | cost | change | density, what then binds |
 |---|---|---|---|
 | the scenario as it is | $11.67 |  | 218 g/L, oxygen |
 | CO₂ removal lifted | $11.67 |  | 218 g/L, oxygen |
@@ -137,7 +137,7 @@ The cheapest design for each number of unproven elements:
 
 1. **The aim is reachable on paper, and it is worth little beyond the published cells.** Designs exist that leave only the thickness limit binding:
    with a bubble cage and 1 bar of pressure (2–4 unproven elements), or without a cage at 2 bar (4–5; the published cells then reach
-   only 175 g/L). But for the selected and engineered cells the scenario's own design is already within $0.3–2.1 of the ideal, and the best case within $0.3.
+   only 175 g/L). But for the cells that make less lactate (0.42) and the cells that make almost no ammonia or lactate the scenario's own design is already within $0.3–2.1 of the ideal, and the all-favourable example within $0.3.
 2. **For the published cells gas exchange is still worth $27 a kilo, but it is no longer what matters most.** Perfect gas exchange
    takes them from $111.89 to $84.85. Before the 2026-11-19 audit it took them from $56.99 to $28.82: the same dollars, then half
    the cost, now a quarter. A column and 1 bar of pressure give $92.17, which is $19.7 of it with two unproven elements. What changed
@@ -162,7 +162,7 @@ The cheapest design for each number of unproven elements:
    it was ($3.1 in Central, $1.2 before), because a lost run now also throws its membranes away. (Growth factors are inside the
    complete medium's price, so "no growth factors to buy" saves nothing in Central or for the published cells.)
 5. **Thicker than 258 g/L is worth about $1.** Raising the thickness limit to 320 g/L saves about $1 in Central once the gas limits
-   are lifted, and $0.1 in the best case, because a denser culture sends more permeate through the filter.
+   are lifted, and $0.1 in the all-favourable example, because a denser culture sends more permeate through the filter.
 6. **2 bar of pressure does what the cage does**, with steel instead of mesh: it reaches the thickness limit without a cage. Cells at
    3 bar absolute were not examined in the gas-exchange study; it is the top of the pressure input's range.
 

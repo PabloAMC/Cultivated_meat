@@ -140,52 +140,52 @@ def bottlenecks() -> str:
     rows = [
         ("Waste the cells make",
          "Ammonia and lactate are what cells give off as they grow. They slow growth, so fresh medium must wash them out. The "
-         f"central case assumes a low-ammonia feed and cells that make 0.42 mol of lactate per glucose. These make 0.14 mol of ammonia per kilo of cells and need {r0['medium_l']:.0f} litres of medium a kilo.",
+         f"low-lactate example assumes a low-ammonia feed and cells that make 0.42 mol of lactate per glucose. These make 0.14 mol of ammonia per kilo of cells and need {r0['medium_l']:.0f} litres of medium a kilo.",
          f"The cost is {cost({'cells': 'measured'})} with the best meat cells measured, which make more lactate. It is {cost({'cells': 'ordinary'})} with ordinary "
          f"meat cells, which need {ordinary['medium_l']:.0f} litres of medium a kilo.",
          "Cells that make less waste: this switch's best setting, 0.055 mol of ammonia a kilo and 0.28 lactate per glucose "
          f"({cost({'cells': 'engineered'})}). Or take the ammonium out of the used medium.",
          "Best measured in meat cells: 0.14 mol of ammonia a kilo without glutamine (Hubalek 2023) and 1.05 lactate per glucose (Pasitka 2024)."),
         ("Clearing CO₂ from a dense tank",
-         "Cells give off CO₂, which leaves a tank only in the gas bubbled through it. The central case uses a column beside the "
+         "Cells give off CO₂, which leaves a tank only in the gas bubbled through it. The low-lactate example uses a column beside the "
          "tank. A pump sends the culture over a packed tower, and CO₂ leaves without bubbles. The case also uses extra pressure and recycled oxygen.",
          f"The cost is {cost({'tricks': 'none'})} with none of these tank tricks. It is {cost({'gas': '2'})} if the cells tolerate only 2 mm of gas a second.",
          "The sizes of the column, the extra pressure and the recycled oxygen come from calculation. A squat tank also helps.",
          "This is calculated, not measured. Nobody has run animal cells over such a column. Nobody has tested 4 mm a second at this size."),
         ("The cost of the plant",
-         "The central case assumes a food-grade plant.",
+         "The low-lactate example assumes a food-grade plant.",
          f"The cost is {cost({'plant': 'pharma'})} if the plant must be built like a pharma plant.",
          "Leave out what animal cells do not need: a clean-room hall, an owned oxygen plant and spare seed tanks. "
          f"The cost is then {cost({'plant': 'lean'})}. No scenario assumes a plant as cheap as a yeast plant, because nothing shows animal cells can grow in one.",
          f"Nobody has built a food-grade plant with shared medium for animal cells. It pays off only while a tank loses a run less often than about once in "
          f"{be:.0f} days. The one survey of makers implies more losses, but it covers small vessels."),
         ("Fast growth and low waste together",
-         "The central case assumes cells that double every 36 hours while making little waste.",
+         "The low-lactate example assumes cells that double every 36 hours while making little waste.",
          f"The cost is {cost({'growth': '43'})} at 43 hours, the pace of the best low-waste culture measured. It is {cost({'growth': '24'})} at 24 hours.",
-         "Select faster lines on the low-waste feed.",
+         "Cells that double faster on the low-waste feed.",
          "Each has been shown alone, never both in one culture."),
         ("Runs lost to contamination",
-         f"The central case loses a run on {value('sc_hazard_cm') * 100:.0f}% of days. After a loss, the tank is out of use for {value('sc_restart_base'):.0f} days.",
+         f"The low-lactate example loses a run on {value('sc_hazard_cm') * 100:.0f}% of days. After a loss, the tank is out of use for {value('sc_restart_base'):.0f} days.",
          f"The cost is {cost({'losses': '2', 'restart': '30'})} at 2% a day with a month to restart. It is {cost({'losses': '0.2'})} at pharma's 0.2%.",
          "Use sealed, steam-sterilised tanks and tested seed trains, and keep strict hygiene.",
          "One survey of makers gives this rate, and it does not state run lengths."),
         ("Growth factors",
-         "Proteins that tell cells to grow. The central case buys 30% of Humbird's price per litre.",
+         "Proteins that tell cells to grow. The low-lactate example buys 30% of Humbird's price per litre.",
          f"The cost is {cost({'gf': 'all'})} if all are bought at his price.",
          f"Use cheaper factors, lines that need fewer, or cells that make their own. With none bought, the cost is {cost({'gf': 'none'})}.",
          "Company announcements; nothing at scale."),
         ("Price of the medium",
-         "The central case assumes $0.20 a litre, what several companies announced for 2025.",
+         "The low-lactate example assumes $0.20 a litre, what several companies announced for 2025.",
          f"The cost is {cost({'medium': '0.50'})} at $0.50 a litre, what SuperMeat reports.",
          "Use cheaper amino acids and recycle the medium.",
          "These are company announcements. Nobody has verified them at scale."),
     ]
-    h = ["<table><thead><tr><th>What stands in the way</th><th>The central case assumes</th><th>If that fails</th>"
+    h = ["<table><thead><tr><th>What stands in the way</th><th>The low-lactate example assumes</th><th>If that fails</th>"
          "<th>How it could be met</th><th>How solid</th></tr></thead><tbody>"]
     for name, assumes, fail, met, solid in rows:
         h.append(f"<tr><td><b>{name}</b></td><td>{assumes}</td><td>{fail}</td><td>{met}</td><td>{solid}</td></tr>")
     h.append("</tbody></table>")
-    return (f"<p class='blkp'>Each row starts from the central case ({money(base)} a kilo). It moves one assumption to a worse "
+    return (f"<p class='blkp'>Each row starts from the low-lactate example ({money(base)} a kilo). It moves one assumption to a worse "
             "setting and leaves the rest alone, so the cost shown is what that one failure adds. All figures are dollars per kilo of "
             "wet cells.</p><div class='scrollx'>" + "".join(h) + "</div>")
 
@@ -220,7 +220,7 @@ def cells_by_tank() -> str:
     h.append("</tbody>")
     return ("<p class='blkp'><b>Cells against tank.</b> This table gives the cost per kilo of cells for each kind of cell in each kind of tank. "
             "The first figure is for a food-grade plant. The figure in brackets is for a food-grade plant with shared medium. "
-            "Everything else is as in the central case. Click a figure to load it into the switches.</p>"
+            "Everything else is as in the low-lactate example. Click a figure to load it into the switches.</p>"
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(h)}</table></div>"
             "<p class='fnote'>The tank tricks help most when the cells are good. With ordinary meat cells, the medium that washes the waste "
             "out sets most of the cost, and no tank trick lowers that.</p>")
@@ -387,14 +387,14 @@ def experiments() -> str:
     base_sh = S.shares(base)["global"]
     plan = (
         ("A culture of low-waste meat cells that doubles every 24 hours in a stirred tank", {"growth": "24"},
-         "Bovine cells on the low-ammonia feed doubled in 42.9 hours (Hubalek 2023). The central case takes 36 hours."),
+         "Bovine cells on the low-ammonia feed doubled in 42.9 hours (Hubalek 2023). The low-lactate example takes 36 hours."),
         ("Cells that need no growth factors, or that make their own, at scale", {"gf": "none"},
-         "The central case buys 30% of Humbird's price."),
+         "The low-lactate example buys 30% of Humbird's price."),
         ("Medium at the nutrient floor: only what the cells eat", {"medium": "floor"},
-         "Companies announced $0.20 a litre. The floor, at GFI's feed-grade amino-acid prices, is about $0.07 a litre at Central's litres."),
+         "Companies announced $0.20 a litre. The floor, at GFI's feed-grade amino-acid prices, is about $0.07 a litre at the low-lactate example's litres."),
         ("A food-grade plant with shared medium built and run for animal cells", {"plant": "lean"}, "Nobody has built one."),
         ("A column, pressure and recycled oxygen turn out not to work with dense meat cells", {"tricks": "none"},
-         "This is calculated, and nobody has tried it with meat cells. The central case counts all three."),
+         "This is calculated, and nobody has tried it with meat cells. The low-lactate example counts all three."),
         ("Loss rates of 0.2% a day in a food-grade tank at 20,000 litres", {"losses": "0.2"},
          "The survey of makers implies 0.6 to 2.2% a day if runs last 10 to 20 days. It does not state run lengths."),
         ("The gas flow dense meat cells tolerate at this size", {"gas": "6"}, "Nobody has run 6 mm/s with dense cells. 2 mm/s is the most that has been run."),
@@ -436,7 +436,7 @@ def measured() -> str:
 
 def industry_claims() -> str:
     """The model against company cost claims, on the same basis (industry_claims.py): scenarios split into the plant
-    charge and operating cost; Central's cells run as Vow runs its tank; the claims with their basis."""
+    charge and operating cost; the low-lactate example's cells run as Vow runs its tank; the claims with their basis."""
     import industry_claims as IC
     s = IC.summary()
     rows = []
@@ -451,7 +451,7 @@ def industry_claims() -> str:
         rows.append(f"<tr><td>{_esc(name)} (${d['capex_k_m3']:.0f}k per m&sup3;)</td><td class='n'>{money(d['total'])}</td>"
                     f"<td class='n'>{money(d['capital'])}</td><td class='n'><b>{money(d['operating'])}</b></td>"
                     f"<td class='n'>{money(d27['total'])}</td></tr>")
-    t2 = ("<div class='scrollx'><table class='sctab'><thead><tr><th>Central's cells, 20 m&sup3; tank drained and refilled, in</th>"
+    t2 = ("<div class='scrollx'><table class='sctab'><thead><tr><th>The low-lactate example's cells, 20 m&sup3; tank drained and refilled, in</th>"
           f"<th>Cells, $/kg ({s['vow'][0][1]['density']:.0f} g/L)</th><th>Charge on the plant</th><th>Operating cost</th>"
           "<th>At the 27 g/L reported for meat cells</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
     rows = []
@@ -463,7 +463,7 @@ def industry_claims() -> str:
     ops = [d["operating"] for _n, d in s["vow"]]
     text = (f"<p class='expl'>Company cost figures are usually operating cost: medium, labour, utilities and consumables, with nothing "
             f"for the plant. Every scenario here includes a yearly charge on the plant. On operating cost the model agrees with what "
-            f"companies claim: Central's cells in a tank drained and refilled, as Vow runs its 20 m&sup3; tank, cost "
+            f"companies claim: the low-lactate example's cells in a tank drained and refilled, as Vow runs its 20 m&sup3; tank, cost "
             f"${min(ops):.1f}&ndash;{max(ops):.1f} a kilo to operate, against the $10&ndash;15 an investor reports. The difference is the plant, "
             f"and what a plant for animal cells costs to build is the number most worth checking. None of the company figures has been "
             f"audited.</p>")

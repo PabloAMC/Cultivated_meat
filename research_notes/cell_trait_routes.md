@@ -68,9 +68,9 @@ doubling under 42.9 hours). The verdict never says engineering is necessary.
 ## 4. What it does to the reference points
 
 - **Published cells** (0.14, 1.05, 43 h, 2 ng): each trait shown in meat cells.
-- **Selected cells** (0.14, 0.42, 36 h, 2 ng): no genetic engineering needed, but a lactate of 0.42 only in CHO; low ammonia with a
+- **The low-lactate example** (0.14, 0.42, 36 h, 2 ng): no genetic engineering needed, but a lactate of 0.42 only in CHO; low ammonia with a
   36-hour doubling not yet together in one meat cell.
-- **Engineered cells, all favourable** (0.055, 0.279, 24 h, 2 ng): no genetic engineering needed by this table, but its ammonia and
+- **The all-favourable example** (0.055, 0.279, 24 h, 2 ng): no genetic engineering needed by this table, but its ammonia and
   lactate only in CHO (the ammonia at a plateau) and not together with fast growth. The name says how such cells would most likely be
   made, not that they must be.
 

@@ -1,6 +1,6 @@
 # What GFI reports about the cost of medium
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Date: 2026-11-15. Two GFI reports were read in full (text extracted from the PDFs, saved in `medium_cost_gfi_sources/`). The
 fetch tool could not read them, so the 2026 State of the Industry report (10 MB, over the tool's limit) was **not** checked. Its
@@ -46,22 +46,22 @@ cheaper than his, and that is where GFI says the progress has been.
 
 | | Model | GFI |
 |---|---|---|
-| Price per litre | $0.20 in Selected cells, $0.15 in the Engineered cells, all favourable case | $0.20 (several companies), $0.07 (one), $0.63 (peer-reviewed) |
+| Price per litre | $0.20 in the low-lactate example, $0.15 in the all-favourable example | $0.20 (several companies), $0.07 (one), $0.63 (peer-reviewed) |
 | Amino acids per kg of cells | $0.67 (the floor), inside the medium cost | below $5 at the lower end |
-| Litres per kg | 28 in Selected cells, 11 in the Engineered cells, all favourable case | 28–90 (CHO) or 57–183 (FSF4), from medium formulations |
-| Growth factors | $3.0 in Selected cells, 0 in the Engineered cells, all favourable case | 10% of cost: about $1 a kilo at $10 |
+| Litres per kg | 28 in the low-lactate example, 11 in the all-favourable example | 28–90 (CHO) or 57–183 (FSF4), from medium formulations |
+| Growth factors | $3.0 in the low-lactate example, 0 in the all-favourable example | 10% of cost: about $1 a kilo at $10 |
 
 - **Central matches GFI.** Its medium costs 28 L × $0.20 = $5.72 a kilo. That is the same order as GFI's amino acids "below $5"
   plus the other components.
-- **The best case sits below GFI.** Its medium costs $1.72 a kilo, set by the model's $0.67 amino-acid floor. GFI's own range for the
-  CHO formulation (28–90 L/kg at $0.02–0.17 per litre for amino acids alone) gives $1.4–15 a kilo. The best case's 11 L/kg uses
-  less medium than any GFI formulation. This is the best case's biggest optimism on medium. I have not changed it.
+- **The all-favourable example sits below GFI.** Its medium costs $1.72 a kilo, set by the model's $0.67 amino-acid floor. GFI's own range for the
+  CHO formulation (28–90 L/kg at $0.02–0.17 per litre for amino acids alone) gives $1.4–15 a kilo. The all-favourable example's 11 L/kg uses
+  less medium than any GFI formulation. This is the all-favourable example's biggest optimism on medium. I have not changed it.
 - **A lower price would matter in Central.** At $0.15, $0.10 and $0.07 a litre, Central costs $25.21, $23.78 and $22.92, against
-  $26.64 at $0.20. The best case does not move: the nutrient floor already binds.
+  $26.64 at $0.20. The all-favourable example does not move: the nutrient floor already binds.
 
 ## 4. What the model could do
 
 The "Price of the medium" switch has four settings ($0.15, $0.20, $0.30, $0.50). GFI's December 2025 report supports adding one
-for **$0.07** (the lowest company report, unverified). If it were added, the best case's rule ("cheapest setting") would pick it,
+for **$0.07** (the lowest company report, unverified). If it were added, the all-favourable example's rule ("cheapest setting") would pick it,
 and the page's "what decides it" numbers for the medium price would change. **That is a decision for Pablo, so it is not done
 here.**

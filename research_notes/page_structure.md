@@ -81,7 +81,7 @@ Chart titles lost their numbers; the text refers to charts by name. Every chart 
 
 **Vessel types and operating modes (`#vessels`).** The old mixed list becomes a two-way table: operating mode (perfusion; drained and refilled) against plant class
 (food-grade with shared medium; food-grade; pharma-style), for the chosen scenario's cells, each cell naming the limit that binds (perfusion $15.8 to $18.8 against $33 to $53
-drained and refilled, in the central case). Below it is a dashed box, "Not yet in the model", naming what a later session will add: an airlift, a bubble column,
+drained and refilled, in the low-lactate example). Below it is a dashed box, "Not yet in the model", naming what a later session will add: an airlift, a bubble column,
 batch, fed-batch and chemostat. To add them: give `floor_physics.explore` the vessel and mode, add rows or columns to `page_sections.vessels()`, add a
 switch to `scenarios.SWITCHES` (the page and the parity test read the switch list from `scenarios.js_model()`), and mirror the new physics in `floorExplore`.
 `explore` still knows only perfusion and "anything else" (drained and refilled); `output_per_m3` has a fed-batch formula that `explore` does not use.

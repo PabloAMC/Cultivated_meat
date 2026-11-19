@@ -11,7 +11,7 @@ page (interactive.html), so run `python build_interactive.py` first. It checks
 
   * the structure: those pieces, in that order, the six levels after them, and none of the pieces the rebuilds cut (the case bar, the
     banded chart, the forecast, the three context-free tiles);
-  * the names: Published cells, Selected cells, Engineered cells, all favourable, Humbird's optimistic design, as a company reports;
+  * the names: Published cells, Humbird's optimistic design, as a company reports, and no named kind of hypothetical cell;
     never "Today's cells", "Central case" or "Best case" in what a reader sees;
   * the numbers the page's own JavaScript writes (run here under Node), for each reference point and for settings the reader moved:
     the cost is the median of the page's cloud and its most-likely-values figure is scenarios.run's; the costs 1% and 10% need are
@@ -45,15 +45,20 @@ import cell_traits as CT  # noqa: E402
 from price_ratio import shelf_price  # noqa: E402
 
 HTML = os.path.join(ROOT, "interactive.html")
-REFS = (("today", "Published cells"), ("central", "Selected cells"), ("best", "Engineered cells, all favourable"),
-        ("humbird", "Humbird's optimistic design"), ("company", "As a company reports"))
+import build_interactive as BI  # noqa: E402
+REFS = tuple((k, BI.REF_TEXT[k][0]) for k in ("today", "central", "best", "humbird", "company"))
 LEVELS = ("assumes", "moves", "where", "engineering", "shoppers", "method")
-FIRST = ('id="deck"', 'id="tp_refs"', 'id="regionsel"', 'id="tp_costline"', 'id="tp_groups"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"',
-         'id="tpmap"', 'id="tp_buyers"', 'id="tp_traits"', 'id="pl_perf"', 'id="pl_capex"', 'id="pl_cpl"', 'id="pl_med"', 'id="tp_wit"')
+# the first screen runs by sections, each with its settings before its result (the author, 2026-11-19): the cells and what they allow
+# in the tank; the reactor, how it is run and the plant; the medium; then the cost; the shoppers; then the share
+FIRST = ('id="deck"', 'id="levers"', 'id="tp_refs"', 'id="regionsel"', 'id="st_cells"', 'id="tp_traits"', 'id="tp_g_cells"',
+         'id="st_reactor"', 'id="pl_vessel"', 'id="pl_vmode"', 'id="pl_size"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_capex"',
+         'id="tp_g_reactor"', 'id="st_medium"', 'id="pl_med"', 'id="tp_g_medium"', 'id="st_shoppers"', 'id="tp_buyers"', 'id="tp_cuthost"',
+         'id="sumbar"', 'id="tp_cellres"', 'id="tp_vmgrid"', 'id="tp_rtgrid"', 'id="tp_yours"', 'id="tp_costline"', 'id="tp_groups"',
+         'id="tp_unc"', 'id="tp_one"', 'id="tpmap"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"', 'id="tp_wit"')
 # words that claim a route by which cells would get a trait (the author, 2026-11-19: remove them all); a case's name is not one
 ROUTE_WORDS = re.compile(r"engineer|genetic|selection|selected (on|for|to)|adapt|by (any|which) route|routes? (that|verdict)|feed change|"
                          r"other cells|shown together|not (yet )?shown (together|by any)|least intrusive|knocked", re.I)
-CASE_NAMES = ("Engineered cells, all favourable", "Engineered cells", "Selected cells", "Check the engineering")
+CASE_NAMES = ("Check the engineering",)
 
 # Runs in the same scope as the page's script (the DOM stubbed, the auto-run tail cut off): loads each reference point, then a few
 # settings a reader would move, and returns what the first screen would show.
@@ -71,7 +76,7 @@ PROBE = r"""
     return {key:f.key, label:f.label, cost:f.cost, cb:f.cb, point:f.point, retail:f.retail, mult:f.mult, share:f.share, sb:f.sb, buyers:f.buyers,
             one:f.one, ten:f.ten, parity:f.parity, groups:f.groups, animals:f.animals, words:words(f),
             traits:tpTraitsShown(), beyond:tpBeyond(tpTraitsShown()), deck:pgDeck(f), choice:SCS.choice, base:SCS.base, cut:state.cut_cells}; };
-  const load=k=>{ const r=tpRef(k); SCS.ref=k; SCS.from=k; SCS.traits={}; SCS.held={};
+  const load=k=>{ const r=tpRef(k); SCS.ref=k; SCS.from=k; SCS.traits={}; SCS.held={}; SCS.vessel="stirred"; SCS.vmode=null; SCS.device="tff";
     if(r.kind==="humbird"){ SCS.base="humbird"; SCS.hb={mode:"perfusion",plant:"sterile"}; } else { SCS.base="switches"; SCS.choice=Object.assign({},r.choice); SCS.redesign=r.redesign; }
     tpSetBuyers(r.buyers); };
   const out={refs:{}, labels:TP.refs.map(r=>[r.key,r.label]), wit:TP.wit,
@@ -83,6 +88,24 @@ PROBE = r"""
   load("central"); SCS.ref=null; SCS.traits={doubling_h:13}; out.moved3=show();
   // the plant protein in a steak or fillet (the first screen's slider): every figure follows it
   load("central"); state.cut_cells=0.5; out.cut50=show(); state.cut_cells=def.cut_cells;
+  // one kind of meat at the same price: the share of its buyers who pick the cultivated one IS the setting
+  out.same=[0.05,0.145,0.3,0.5,0.7,0.9].map(b=>[b,shareCalc(1,KP,{ax:state.accept_x,tfM:state.theta_free_M,income:C.income_ref,nbx:state.neophobia_x,hx:state.health_x,lmean:tpLmean(b),which:"x_meat"})]);
+  // every further setting: set at each end of its slider it gives a finite cost, and freed it gives the starting cost back exactly
+  const pt=()=>{ PGS.cloud=null; tpExtraNow(); return tpEval(SCS,tpParams()).total; };
+  out.params=[]; ["today","central","best"].forEach(k=>{ load(k); const base=pt();
+    TP.params.forEach(q=>{ SCS.held={[q.key]:q.min}; const lo=pt(); SCS.held={[q.key]:q.max}; const hi=pt(); SCS.held={}; const back=pt();
+      SCS.held={[q.key]:tpParamDefault(q,tpParams())}; const same=pt(); SCS.held={};
+      out.params.push({ref:k,key:q.key,base:base,lo:lo,hi:hi,back:back,same:same}); }); });
+  // the vessel and the way it is run: the page's cost is the vessel table's own cell
+  out.vessels=[]; load("central"); const vb=tpParams();
+  VM.vorder.forEach(v=>VM.morder.forEach(m=>{ if(!vmPossible(v,m)) return; const c=vmCell(v,m,vb);
+    SCS.vessel=v; SCS.vmode=(v==="stirred"&&(m==="perfusion"||m==="fedbatch"))?null:m; SCS.choice.mode=(v==="stirred"&&m==="fedbatch")?"fedbatch":"perfusion";
+    out.vessels.push({v:v,m:m,cell:c.cost,page:pt()}); }));
+  load("central");
+  // the retention device: the page's cost is retention.py's (page_retention.js, checked against Python by run_parity.py)
+  out.devices=MODEL.rt.order.map(d=>{ SCS.device=d; const page=pt(); SCS.device="tff"; return {d:d,page:page,rt:rtCost(d,tpParams()).total}; });
+  load("today"); out.lead=pgLead(); out.frontier=TP.frontier; out.floor=C.FEEDSTOCK_FLOOR;
+  out.shown=TP_SHOWN; out.start=TP_START; out.npar=TP.params.length;
   console.log=__realLog; console.log(JSON.stringify(out));
 })();
 """
@@ -155,7 +178,7 @@ def check() -> list:
         if i < 0:
             fails.append(f"the first screen no longer has: {p}")
     if all(i >= 0 for i in pos) and pos != sorted(pos):
-        fails.append("the first screen should run: sentence, tiles, reference points, map, meat-buyers slider, cells, plant, what it would take")
+        fails.append("the first screen should run: the opening, the levers at the side (cells, reactor, medium, shoppers), then the results beside them (tank, reactors, cost, share), then what it would take")
     first = html.find('<section id="first"')
     for lv in LEVELS:
         m = re.search(r'<details class="level[^"]*" id="%s">' % lv, html)
@@ -174,6 +197,9 @@ def check() -> list:
     for bad in ("Today's cells", "Today’s cells", "today's cells", "today’s cells"):
         if bad in html:
             fails.append(f"the old case name is still on the page: {bad}")
+    for bad in ("Selected cells", "selected cells", "Engineered cells", "engineered cells", "Where your cells land", 'id="pl_cpl"', 'id="pl_perf"'):
+        if bad in html[html.find("<body"):html.find("<script", html.find("<body"))] or bad in vis:
+            fails.append(f"a retired name or control is still on the page: {bad}")
     for bad in ("Central case", "Best case", "best case", "the default cost", "the reference case", "The short version", "Rung ",
                 "forecast for 2035", "Forecast for 2035", "2035 forecast", "author's odds"):
         if bad in vis:
@@ -213,8 +239,10 @@ def check() -> list:
             point = S.run(w["choice"], **{k: tr[k] for k in tr if name.startswith("moved")}, **held)["total"]
         if abs(w["point"] - point) > 1e-6 * max(1.0, point):
             fails.append(f"{lab}: the most-likely-values cost is {w['point']:.4f}, the model gives {point:.4f}")
-        if not (w["cb"][0] <= w["cost"] <= w["cb"][2]) or abs(w["cost"] - w["cb"][1]) > 1e-12:
-            fails.append(f"{lab}: the cost tile is not the median of the cloud")
+        # the cost shown is the cost at the settings shown (the author, 2026-11-19: "just leave the point for simplicity"); the draws
+        # are under "How uncertain is this cost", with what is varied and by how much
+        if abs(w["cost"] - w["point"]) > 1e-12:
+            fails.append(f"{lab}: the cost shown is {w['cost']:.4f}, not the cost at the settings shown ({w['point']:.4f})")
         if abs(w["retail"] - shelf_price(w["cost"])) > 1e-6:
             fails.append(f"{lab}: the shop price is not the shelf price at the median cost")
         ws = S.world_share(w["cost"], w["buyers"])     # (at the model's own plant-protein share; cut50 sets another)
@@ -273,17 +301,17 @@ def check() -> list:
                 fails.append(f"{lab}: {r['name']} is {r['w']:.4f} of world meat at ${r['price']:.2f}; meat_market gives {pw:.4f} at ${pp:.2f}")
         # the words: the sentence carries its yardsticks; each figure says what it compares with
         deck = _text(w["deck"])
-        for want in ("8 in 10 draws, if the estimates you have not set vary", "1% of the world's meat and seafood", "a kilo of cells that would match the price of the average kilo eaten",
+        for want in ("1% of the world's meat and seafood", "in the shop it would cost", "the price of chicken (minced or processed) ($", "a kilo in the world)",
                      "of the cost scales with", "of meat buyers would pick it at the same price", "plant protein" if w["cut"] < 1 else "all cells"):
             if want not in deck:
                 fails.append(f"{lab}: the sentence does not say '{want}': {deck[:240]}")
         ws_ = {k: _text(v) for k, v in w["words"].items()}
         bt = f"{w['buyers'] * 100:.1f}".rstrip("0").rstrip(".") + "% of meat buyers"
-        for k, want in (("tp_cl_note", "Price parity: at"), ("tp_cl_note", "draws of the estimates nobody has measured"),
-                        ("tp_cl_note", "most likely value"), ("tp_cl_note", "move that slider and they move"), ("tp_groups_sub", "every estimate at its most likely value"),
+        for k, want in (("tp_cl_note", "Each kind of meat has its own price"), ("tp_cl_note", "same shop price as chicken (minced or processed) at $"),
+                        ("tp_cl_note", "a kilo in the shop)"), ("tp_cl_note", "move that slider and they move"), ("tp_groups_sub", "every estimate at its most likely value"),
                         ("tp_groups_say", "1% of"), ("tp_groups_say", bt), ("tp_groups_table", "litres a kilo of cells"), ("tp_animals_sub", "at the median cost of"),
                         ("tp_animals_total", "Plant-based meat: about"), ("tp_animals_total", "by weight of cells"), ("tp_animals_say", "of its sales"),
-                        ("tp_cl_alt", "8 in 10 draws"), ("tp_cl_alt", "if the estimates you have not set vary"), ("tp_groups_alt", "split by what drives the cost"),
+                        ("tp_cl_alt", "Same shop price as chicken (minced or processed) at $"), ("tp_groups_alt", "split by what drives the cost"),
                         ("tp_animals_alt", "Long-run share of each product"), ("tp_animals_alt", "by weight of cells")):
             if want not in ws_.get(k, ""):
                 fails.append(f"{lab}: #{k} does not say '{want}': {ws_.get(k, '')[:200]}")
@@ -301,6 +329,66 @@ def check() -> list:
                 fails.append(f"{lab}: the first screen's words name a route ('{ROUTE_WORDS.search(bare).group(0)}'): {t[:160]}")
     if "doubling_h" not in probe["moved3"]["beyond"]:
         fails.append("a doubling every 13 hours is faster than the best measured in meat cells (15 hours); the page should say so")
+    for name, w in cases:
+        for t in [w["deck"]] + [v for k, v in w["words"].items() if k in ("tp_cl_note", "tp_cl_alt")]:
+            if "average kilo" in t or "everyday meat" in t:
+                fails.append(f"{name}: a meat price is quoted without naming the kind of meat: {t[:200]}")
+            if "8 in 10" in t or "draws" in t:
+                fails.append(f"{name}: the first screen's cost words still speak of draws: {t[:200]}")
+    # one kind of meat at the same price: the share is the setting (the author, 2026-11-19: "at price parity, the 50% curve should cut
+    # the 50% preference"); it holds for one product and cannot hold for a sum over meats with different prices
+    for b, x in probe["same"]:
+        if abs(b - x) > 2e-4:
+            fails.append(f"at the same price {b:.1%} of meat buyers should pick it; the page's curve gives {x:.4%}")
+    # the further settings (PAGE_PARAMS): finite at both ends, and freed or set to their own value they change nothing
+    if probe["npar"] != len(BI.PAGE_PARAMS) or probe["npar"] < 18:
+        fails.append(f"the page carries {probe['npar']} further settings; build_interactive.PAGE_PARAMS has {len(BI.PAGE_PARAMS)}")
+    moved = set()
+    for r in probe["params"]:
+        if not all(isinstance(r[k], (int, float)) and r[k] == r[k] and 0 < r[k] < 1e6 for k in ("lo", "hi", "back", "same")):
+            fails.append(f"setting {r['key']} from {r['ref']}: a cost is not a finite number ({r})")
+            continue
+        if abs(r["back"] - r["base"]) > 1e-9 * r["base"]:
+            fails.append(f"setting {r['key']} from {r['ref']}: freed, the cost is {r['back']:.6f}, it started at {r['base']:.6f}")
+        if abs(r["same"] - r["base"]) > 1e-6 * r["base"]:
+            fails.append(f"setting {r['key']} from {r['ref']}: set to its own starting value the cost is {r['same']:.6f}, not {r['base']:.6f}")
+        if abs(r["lo"] - r["hi"]) > 1e-6 * r["base"]:
+            moved.add(r["key"])
+    still = {q[0] for q in BI.PAGE_PARAMS} - moved
+    if still:
+        fails.append(f"these settings move no cost from either starting point: {sorted(still)}")
+    for r in probe["vessels"]:
+        if abs(r["page"] - r["cell"]) > 1e-6 * r["cell"]:
+            fails.append(f"{r['v']} run as {r['m']}: the page gives {r['page']:.4f}, the vessel table {r['cell']:.4f}")
+    if len(probe["vessels"]) < 20:
+        fails.append("the vessel and mode choices should cover the vessel table")
+    for r in probe["devices"]:
+        if abs(r["page"] - r["rt"]) > 1e-9 * r["rt"]:
+            fails.append(f"retention device {r['d']}: the page gives {r['page']:.4f}, retention gives {r['rt']:.4f}")
+    # the page opens on the best the model can find, as a range, and on no other cost or share (the author, 2026-11-19)
+    lead = probe["lead"]
+    for want in (f"${probe['floor']:.1f}", f"${probe['frontier']:.1f}", "Companies say their own cells do better"):
+        if want not in lead:
+            fails.append(f"the opening sentence does not say '{want}': {lead[:240]}")
+    if re.search(r"\d%", lead) or f"${probe['refs']['today']['cost']:.0f}" in lead:
+        fails.append(f"the opening sentence gives a share or the published cells' cost: {lead[:240]}")
+    if not (0 <= html.find('id="deck"') < html.find('id="levers"') < html.find('id="sumbar"')):
+        fails.append("the readout of the reader's settings should come after the opening and the levers, not lead the page")
+    # the reference values under the levers: each belongs to a lever and sits inside its slider's range
+    rng = {q[0]: (q[8], q[9]) for q in BI.PAGE_PARAMS}
+    rng.update({k: (v[2], v[3]) for k, v in BI.TRAIT_PAGE.items()})
+    rng.update({"capex_x": (0.0, 3.0), "medium_price": (0.0, 0.60), "buyers": (1.0, 99.0), "cut": (0.0, 90.0)})
+    for k, refs in BI.LEVER_REFS.items():
+        if k not in rng:
+            fails.append(f"reference values are given for '{k}', which is not a lever")
+            continue
+        for v, who in refs:
+            if not (rng[k][0] - 1e-9 <= v <= rng[k][1] + 1e-9) or not who:
+                fails.append(f"lever {k}: the reference {v} ({who}) is outside its slider ({rng[k][0]} to {rng[k][1]})")
+    if len(BI.LEVER_REFS) < 20:
+        fails.append("most levers should carry published reference values")
+    if probe["start"] != "today" or probe["shown"] != ["today", "humbird"]:
+        fails.append(f"the page should open on the published cells and offer them and Humbird's design only (got {probe['start']}, {probe['shown']})")
     # the plant protein in a steak or fillet moves every first-screen figure that sells cuts
     c50, c0 = probe["cut50"], probe["refs"]["central"]
     if abs(c50["share"] - c0["share"]) < 1e-6 or (c50["one"] is not None and c0["one"] is not None and abs(c50["one"] - c0["one"]) < 1e-6):

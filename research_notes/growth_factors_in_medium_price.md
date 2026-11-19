@@ -1,6 +1,6 @@
 # Do announced medium prices include growth factors?
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Compiled 2026-11-18. The rule below is in the code behind the input `sc_medium_complete`, **on since 2026-11-19**, with every cost
 study repinned. The same day the $0.15 a litre setting was dropped and the $0.05 aspiration became "at the nutrient floor"
@@ -39,9 +39,9 @@ the model counted them twice: $3.0 a kilo in Central.
 |---|---|---|
 | 1. Today | $62.96 | $56.99 |
 | 2. Process changes and cheaper inputs | $30.73 | $27.74 |
-| 3. Selected cells | $29.42 | $26.43 |
+| 3. Low-lactate example | $29.42 | $26.43 |
 | 4. Food-grade plant with shared medium | $26.56 | $23.57 |
-| 5. Engineered cells, all favourable | $9.66 | $9.66 (it buys no growth factors) |
+| 5. All-favourable example | $9.66 | $9.66 (it buys no growth factors) |
 | Forecast for 2035 | $24.80 | $21.82 |
 
 - Caveat: the company figures are self-reported projections at scale, not audited prices, and GFI has called SuperMeat's optimistic.
