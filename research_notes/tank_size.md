@@ -308,8 +308,8 @@ switches in fed-batch at each size, tank design chosen again (it always comes ou
 |---|---|---|---|---|---|
 | Selected cells | $32.80 | $64.89 (37 g/L) | $59.79 (37 g/L) | $58.09 (37 g/L) | $57.24 (37 g/L) |
 | Selected cells, food-grade plant with shared medium | $29.94 | $49.51 (37 g/L) | $46.11 (37 g/L) | $44.98 (37 g/L) | $44.42 (37 g/L) |
-| Engineered cells (rung 6) | $16.86 | $30.98 (62 g/L) | $28.94 (62 g/L) | $28.41 (62 g/L) | $28.06 (62 g/L) |
-| Best | $11.46 | $15.64 (92 g/L) | $14.81 (92 g/L) | $14.50 (92 g/L) | $14.33 (92 g/L) |
+| Engineered cells (rung 6) | $17.27 | $31.07 (62 g/L) | $29.03 (62 g/L) | $28.54 (62 g/L) | $28.17 (62 g/L) |
+| Best | $11.67 | $15.71 (92 g/L) | $14.93 (92 g/L) | $14.59 (92 g/L) | $14.41 (92 g/L) |
 
 - **A 100 m³ batch costs about 10% less than a 20 m³ one** with the scenarios' switches ($64.89 to $58.09 in Central, $15.64 to
   $14.50 with the best case's). Beyond 100 m³ the gain is small: only the bioreactor share of the plant (32%) gets cheaper with
@@ -319,4 +319,4 @@ switches in fed-batch at each size, tank design chosen again (it always comes ou
 - **The same caveats as for perfusion, in the other direction.** The crew per m³ is held constant: if it fell with tank size as
   between Humbird's two plants, fed-batch would gain more (section 5). The chance of losing a batch is the same per tank-day at every
   size, and no animal cells have been grown above about 25 m³ (section 7: about 12% for 50 m³ and 5% for 100 m³ by the end of 2035,
-  the odds the forecast uses for a fed-batch plant's tank size).
+  judged on 2026-11-19 and recorded in `cell_trait_routes.md`, not used by the model).

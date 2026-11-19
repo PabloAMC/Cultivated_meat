@@ -7,40 +7,46 @@ all favourable"**, in the model's texts, RESULTS, METHODS, README, TODO and the 
 unchanged; research notes carry a glossary line). The page keeps the old names until it is rebuilt. The share at equal price is
 introduced as a share of meat buyers (14.5%; 58.5% for Engineered cells, all favourable), with all choices (13%, 55%) second.
 
-**Scenario restructure: a forecast for 2035 as the headline, a ladder from fed-batch, and the mass balance of a batch**
-(`floor_physics.py`, `scenarios.py`, `inputs.py` `pf_batch_*` and `fc_*`, the side studies; **defaults changed**)
+**Scenario restructure: cells as traits, what it would take, a ladder from fed-batch, and the mass balance of a batch**
+(`floor_physics.py`, `scenarios.py`, `cell_traits.py`, `meat_market.py`, `market_share.py`, `inputs.py` `pf_batch_*` and `cr_*`, the
+page's JS engine, the side studies; **defaults changed**)
 - **Mass balance of a tank that is not washed out.** Its density is at most end factor x level allowed / waste made per kilo, with the
   same ammonia limit and lactate room as perfusion; a batch may end 1.3 times above the level (`pf_batch_end_x`, Humbird's own
-  fed-batch design; range 1.0-2.0) and its last doublings above it grow slower (`pf_batch_half_x`, growth halves at 3 times the
-  level). A chemostat is held to the level. Before, Humbird's 120 g/L was scaled by the waste. Central's batch: 56 -> **37 g/L**,
-  $44.13 -> **$64.90** (design chosen again); the published cells': 25 -> **14 g/L**, $113.56 -> **$209.05**; Humbird's design and the
-  reference case's batch do not move (other by-products hold them at 92 g/L; $19.16, +$0.001 for the slowdown). The page's
-  `floorExplore` mirrors it; parity cases added for a batch and a chemostat.
-- **A switch for how the tank is run**: perfusion at 20 m³, or fed-batch at 20, 50 or 100 m³. A fed-batch plant with shared medium keeps
-  Humbird's full seed train (a new seed every three or four days).
-- **The ladder**, seven rungs from what has been shown (medians; most likely values): 1. Published cells in a 20 m³ batch **$218**
-  ($209.1; was $128 / $111.9 in perfusion); 2. process changes and cheaper inputs **$209** ($201.4; was $91 / $76.7 in perfusion);
-  3. selected cells, still a batch **$69** ($64.9; new); 4. perfusion = **Central $37** ($32.8, unchanged); 5. shared-medium plant
-  **$34** ($29.9, unchanged); 6. engineered cells **$23** ($16.9; new); 7. the best case **$14** ($11.5, unchanged). Keys kept:
-  `today` and `process` now mean the fed-batch rungs; new keys `selected` and `engineered`; `cautious` keeps the published cells in
-  perfusion and stands in for the old rung 1 in the design search and the reuse study.
-- **The forecast for 2035 is a distribution**: each switch drawn from the author's odds (inputs `fc_*`, one per setting), linked by
-  two common factors (cells 0.5, industry 0.3), perfusion used only where a filter (45% possible at Central's 191 g/L, re-judged; x 45%
-  in production by 2035) or aggregates (8%) hold the drawn density, fed-batch otherwise; with the estimate and demand draws. Cells
-  **$68** (8 in 10 draws $24-201), share **0.02%** (under 0.001-0.6%); share above 1% in 6% of draws, above 10% in under 1%; no draw
-  at parity. The old forecast row (each switch at its median, perfusion assumed) was $33 and 0.2%; the same row now runs fed-batch:
-  $67 and 0.02%.
-- **Plant-cost axis** (`scenarios.plant_axis`): with the mass balance, fed-batch at 20 m³ beats perfusion only if the whole plant costs
-  under 0.19 times its modelled cost with Central's switches (0.28 with the shared-medium plant, 0.38 with the best case's). The
-  earlier symmetric comparison (fed-batch wins at about half the plant cost) rested on the old 56 g/L cap.
-- **Upside Foods' 20 m³ process** (AgFunderNews, 17 Nov 2026) added to `vessels_and_modes.md` (section 11): its capacity implies 33-136
-  g/L a batch, so its cells make less lactate than the published ones. Fed-batch tank size: `tank_size.md` section 10 (100 m³ about
-  10% cheaper than 20 m³).
-- Side studies repinned: downside (Central without perfusion $64.90, was $44.13), vessels (Central fed-batch $67.42, was $45.81),
-  tank size (new fed-batch scan), design search (perfusion cases only), medium reuse (`cautious` for the published cells), industry
-  claims, market-size loop, demand, liking spread, premium curve and buyers (their "Published cells" row is now the batch).
-- "Published cells" are tagged as what they are: the best published figure for each trait from two lines (Hubalek 2023; Pasitka 2024),
-  never measured together.
+  fed-batch design; range 1.0-2.0) and its last doublings above it grow slower (`pf_batch_half_x`). A chemostat is held to the level.
+  Before, Humbird's 120 g/L was scaled by the waste. The Selected cells case's batch: 56 -> **37 g/L**, $44.13 -> **$64.90**; the
+  published cells': 25 -> **14 g/L**, $113.56 -> **$209.05**; Humbird's design and the reference case's batch barely move.
+- **A switch for how the tank is run**: perfusion at 20 m³, or fed-batch at 20, 50 or 100 m³ (fed-batch at 20 m³ is what has been
+  shown for meat cells). A fed-batch plant with shared medium keeps Humbird's full seed train.
+- **Cells as four traits** (ammonia per kilo, lactate per glucose, doubling time, cell mass), set directly (`scenarios.run(...,
+  **traits)`, `scenario_mc(traits=...)`), with a table of the best level each route has shown (`cell_traits.py`, `cr_*`,
+  `research_notes/cell_trait_routes.md`) and `routes_needed`, which says what a set of traits has been shown with and never that
+  engineering is necessary. The headline table's last column is that verdict, in place of "the hardest thing it needs".
+- **What it would take** (`scenarios.what_it_would_take`, deterministic): a 1% share needs cells at $19.7 a kilo at 14.5% of meat
+  buyers ($29.8 at 50%), reached by traits each shown without engineering (some only in CHO); 10% needs $4.9 (none of the trait sets
+  tried) or $12.9 at 50% (no ammonia and no lactate, shown so far only with engineering). It leads RESULTS.
+- **The ladder** of reference points, seven rows labelled by what changes (medians; most likely values): Published cells in a 20 m³
+  batch **$219** ($209.1; was $128 / $111.9 in perfusion); cheaper inputs **$210** ($201.4); less lactate and faster growth, still a
+  batch **$67** ($64.9); perfusion = **Selected cells $36** ($32.8); shared-medium plant **$33** ($29.9); almost no ammonia or lactate
+  **$24** ($17.3); Engineered cells, all favourable **$15** ($11.7). Keys kept; `today` and `process` now mean the batch rows, new keys
+  `selected` and `engineered`; `cautious` keeps the published cells in perfusion.
+- **A forecast for 2035 was built and dropped** the same day at the author's direction ("I like the idea of clouds, but I do not like
+  the idea of forecasts"): no Monte Carlo over the switches; the odds are kept as a record in `cell_trait_routes.md`, unused.
+- **The share is the share of the meat sold** (audit 6a): x / (x + c) for each product, in the point estimate, every Monte Carlo
+  path, the side studies' roll-ups and the page's JS. It was x, the share of all four choices: a flat market at 50% of meat buyers
+  showed 46.5%, now 50.0%. Shares rose by about a quarter at the Selected cells case's cost (0.16% -> 0.21% at most likely values).
+- **Every kind of cell weighs 2 ng** (`sc_mass_selected_pg`, 1-3 ng, drawn in the bands and in "what the answer rests on"); the
+  engineered setting changes the metabolism only (it was Humbird's 3 ng; Humbird's design keeps it). Engineered cells, all favourable
+  $11.46 -> $11.67.
+- **The selected cells' ammonia**: a two-sided pass kept 0.14 mol a kilo (the one stirred measurement) and widened the low end from 0.07
+  to 0.04, so it overlaps the engineered cells' 0.055 (`ammonia_tolerance_and_filter_life.md` section 10).
+- **Plant-cost axis** (`scenarios.plant_axis`): with the mass balance, fed-batch at 20 m³ beats perfusion only if the plant costs under
+  0.19 times its modelled cost with the Selected cells case's switches (0.28 with the shared-medium plant). The earlier symmetric
+  comparison (about half) rested on the old 56 g/L cap.
+- **Parity** is labelled as parity with a $12 kilo of everyday meat ($6.1 of cells); the world's volume-weighted $9.43 needs about
+  $4.29 (US $10.93: $5.37; Europe $13.63: $7.31).
+- **Upside Foods' 20 m³ process** (AgFunderNews, 17 Nov 2026) in `vessels_and_modes.md` section 11; fed-batch tank size in
+  `tank_size.md` section 10. Side studies repinned (downside, vessels, tank size, design search on perfusion cases, medium reuse on
+  `cautious`, industry claims, market-size loop, demand checks, liking spread, premium curve and buyers).
 
 **Cell retention: aggregates and edible microcarriers** (`retention.py`, `research_notes/retention_aggregates.md`; defaults unchanged)
 - Two membrane-free routes added to the retention study. Cells grown as 100-300 µm aggregates settle fast enough for a plain settler:

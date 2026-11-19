@@ -74,7 +74,7 @@ Raised by Pablo on 2026-11-16 (open):
 - [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap; `cfd_plan.md` step 3). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Selected cells,
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
 
-- [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
+- [x] **The forecast's medians**: dropped with the forecast (2026-11-19).
 - [x] **`sc_medium_complete` on** (2026-11-19): Selected cells $29.42 -> $26.43. A complete medium cannot cost less than the nutrients plus its
       growth factors (`floor_physics.explore`, `gf_in_medium`).
 - [x] **The nutrient floor from GFI** (2026-11-19, `nutrient_floor.md` §6): $1.70 -> $2.00 a kilo (feed-grade amino acids, 232 g/kg);
@@ -105,22 +105,19 @@ Raised by Pablo on 2026-11-16 (open):
       tank's density is now end factor x level allowed / waste made per kilo (`pf_batch_end_x` 1.3, Humbird's own fed-batch design;
       the last doublings above the level grow slower, `pf_batch_half_x`). Selected cells' batch stops at 37 g/L (was 56) and costs $64.9;
       the published cells' at 14 g/L. `research_notes/vessels_and_modes.md` section 10.
-- [x] **Restructure the scenarios** (2026-11-19): forecast for 2035 drawn from the switches' odds as the headline
-      (`scenarios.forecast_mc`, odds `fc_*`); a switch for how the tank is run (fed-batch at 20/50/100 m³, perfusion at 20 m³); a
-      seven-rung ladder from Published cells in a 20 m³ batch to the Engineered cells, all favourable case, perfusion its own rung; the plant-cost axis
-      (`scenarios.plant_axis`). Demand as a second axis of the ladder was not done (the page agent's contour chart covers it).
-- [ ] **The page**: rebuild the case selector around the forecast (its distribution, the ladder of seven rungs, the mode switch);
-      the page still describes the old five-rung ladder in places and shows the forecast only as its median preset.
-- [ ] **Score the forecast's odds.** Every `fc_*` input is the author's first draft. The two that move it most are the odds that a
-      filter holds Selected cells' density at 20 m³ (`fc_perf_191`, 45%) and that it runs in production by 2035 (`fc_perf_by_2035`, 45%),
-      and the cells (`fc_cells_*`). Write them as resolvable forecasts and review yearly.
+- [x] **Restructure the scenarios** (2026-11-19): a switch for how the tank is run; cells as four traits with a routes table and
+      `routes_needed`; what it would take; reference points from fed-batch to Engineered cells, all favourable; the plant-cost axis.
+      A forecast drawn from odds was built and dropped at the author's direction.
+- [ ] **The page**: rebuild around traits as sliders with the routes verdict (`MODEL.sc.cell_routes`, `trait_verdicts`), the clouds,
+      what it would take, and the contour chart the author approved; the page still shows the old case names and five-rung texts.
+- [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia in a meat cell selected
+      for it; whether the spinner/shaker gap in Hubalek 2023 is real.
 - [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor
       rung 1 and `pf_batch_end_x` (research_notes/vessels_and_modes.md section 11; best guess fed-batch, 75%).
 - [ ] **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
-      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if the forecast's fed-batch draws should take the
+      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if a batch plant should take the cheaper of the two draws should take the
       cheaper of the two.
-- [ ] **A slower growth setting** than 43 hours: the forecast's growth odds put 30% on slower cells, now lumped at 43 h.
-- [ ] **Aggregates in the scenarios**: the forecast prices them (`retention.scenario_cost("aggregates")`) but no switch offers them.
+- [ ] **Aggregates in the scenarios**: priced in `retention.scenario_cost("aggregates")`, offered by no switch.
 - [ ] **SciFi Foods' bovine cell lines, open through Tufts.** GFI bought SciFi Foods' eight bovine lines at auction (August 2024) and
       released them through the Tufts open cell bank (October 2025): fibroblasts immortalised by CRISPR (p53 knockout and TERT
       insertion), adapted to suspension and grown serum-free; TU-GFI-SCL4 reportedly run in a 500 L bioreactor, SCL3 used in an FDA
@@ -180,7 +177,7 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **The Engineered cells, all favourable case's point cost is at the 3rd–4th percentile of its draws**: its limits are tied at about 11 L/kg. Say so on the page
       next to the Engineered cells, all favourable case, or define the Engineered cells, all favourable case by its median.
 - [x] **Re-judge the probabilities** at Selected cells' 191 g/L (2026-11-19 restructure): `no_perfusion_downside.md` section 3 and the
-      forecast's `fc_perf_191` (45% possible). Still to do: `tank_size.md` section 7, column D, and `retention_devices.md` section 5,
+      odds recorded in `cell_trait_routes.md` (45% possible). Still to do: `tank_size.md` section 7, column D, and `retention_devices.md` section 5,
       which keep their 258 g/L wording.
 - [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
       loop and the protectant switched off (`floor_physics.BEFORE_FILTER_LOOP`). Recompute them, or mark those sections as history.

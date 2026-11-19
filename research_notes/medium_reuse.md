@@ -85,7 +85,7 @@ litre thrown away.
 |---|---|---|---|---|---|---|---|---|
 | Cautious: the best meat cells measured so far, in perfusion | **$92.17** | $92.17 | $68.05 | $78.44 | $73.60 | $52.32 | $61.45 | $23.14 |
 | 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | **$11.46** | $11.46 | $11.46 | $11.46 | $11.46 | $10.53 | $11.11 | $8.74 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$11.67** | $11.67 | $11.67 | $11.67 | $11.67 | $10.74 | $11.33 | $8.96 |
 
 **The published cells: this conclusion reversed.** (Since the 2026-11-19 restructure the published cells are priced in perfusion as
 the cautious scenario, whose switches are the old rung 1's, with the tank tricks: $92.17 with no reuse, at 120 g/L. Rung 1 of the

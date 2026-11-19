@@ -62,9 +62,8 @@ last row is the best case's cells with that demand (2.74%), not the best case's 
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
 | 1. Published cells | $209.05 | **under 0.01%** | under 0.01% | under 0.01% | under 0.01% | under 0.01% | under 0.01% |
-| 4. Plus perfusion (Selected cells) | $32.80 | **0.16%** | 0.16% | 0.08% | 0.10% | 0.19% | 0.03% |
-| Forecast for 2035, each switch at the author's median | $55.59 | **0.02%** | 0.01% | under 0.01% | under 0.01% | 0.02% | under 0.01% |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | $11.46 | **2.74%** | 2.05% | 1.21% | 1.44% | 2.45% | 0.58% |
+| 4. Plus perfusion (Selected cells) | $32.80 | **0.21%** | 0.19% | 0.10% | 0.12% | 0.24% | 0.04% |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | $11.67 | **3.16%** | 2.35% | 1.38% | 1.64% | 2.81% | 0.65% |
 
 ## 3. What this says
 

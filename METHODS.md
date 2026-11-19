@@ -360,78 +360,58 @@ lengthened by it (at e = 1.3, by 0.6%). The other caps on an unwashed tank are u
 by-products"), CO₂, oxygen. `pf_x_unperfused` (Humbird's 120 g/L) is kept only for his own designs (`tiers`, and the labour per m³ of
 his fed-batch plant, which every case's crew is scaled from). Evidence: `research_notes/vessels_and_modes.md`, section 10.
 
-**The ladder** (`scenarios.LADDER`, rebuilt 2026-11-19). Seven rows from what has been shown, each adding one kind of change to the
-one before, likeliest first and each needing nothing from the next: `today` ("Published cells", a 20 m³ batch; its tricks and shape
-fixed), `process` (still a batch), `selected` (the Selected cells case's cells, still a batch), `central` (perfusion), `central_lean`, `engineered`,
-`best`. At most likely values they cost $209.1, $201.4, $64.9, $32.8, $29.9, $16.9 and $11.5. The shared-medium plant is likelier than
-perfusion (about 65% against 20% by 2035) but comes after it because its seed-train saving needs long runs. `forecast` sets each
-switch at its median under the forecast's odds (`forecast_choice`): a fed-batch plant, because the cells are held back at 20 m³ with
-odds under a half. `ORDER` keeps the four scenarios the side studies were run on; `cautious` is the published cells in perfusion
+**The reference points and the steps between them** (`scenarios.LADDER`, rebuilt 2026-11-19). Seven rows from what has been
+shown, each changing one kind of thing, labelled by what changes, not by a route: `today` ("Published cells", a 20 m³ batch; its
+tricks and shape fixed), `process` (cheaper inputs and process changes, still a batch), `selected` (less lactate and a faster
+doubling, still a batch), `central` (perfusion: the Selected cells case), `central_lean` (a cheaper plant), `engineered` (almost no
+ammonia or lactate) and `best` (everything else at its favourable end: Engineered cells, all favourable). It is an explanation of
+what each change is worth, not a path anyone must follow. `ORDER` keeps the four scenarios the side studies were run on; `cautious` is the published cells in perfusion
 with the tank tricks and gas at 2 mm/s ($92.2), and stands in for the old rung 1 in the design search and the reuse study. Every row
 of the headline table gives the medians of its draws and the most-likely-values figures; `bands(None)` draws Humbird's optimistic
 design (`reference()`) the same way, and `reported_band` takes the company's process from `meat_market.monte_carlo`.
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | hardest thing it needs |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$218** ($162–280) | $209.1 | 25.5× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$209** ($154–272) | $201.4 | 24.5× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | needs a change of feed, process or plant |
-| 3. Plus cells selected to make less waste and grow faster, still in batches | **$69** ($45–107) | $64.9 | 8.3× | **0.02%** (0.002–0.1%) | 0.01% | needs selection or adaptation of cells |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$37** ($27–57) | $32.8 | 4.6× | **0.1%** (0.02–0.6%) | 0.2% | needs selection or adaptation of cells |
-| 5. Plus a food-grade plant with shared medium | **$34** ($24–54) | $29.9 | 4.2× | **0.1%** (0.02–0.8%) | 0.2% | needs selection or adaptation of cells |
-| 6. Plus engineered cells | **$23** ($17–33) | $16.9 | 3.0× | **0.4%** (0.1–2.0%) | 1.2% | needs genetic engineering |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$14** ($11–20) | $11.5 | 1.9× | **6.8%** (2.5–14.8%) | 13.8% | needs genetic engineering |
-| Forecast for 2035, each switch at the author's median | **$67** ($45–99) | $55.6 | 8.0× | **0.02%** (0.002–0.1%) | 0.02% | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.0%** (0.3–4.0%) | 2.2% | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.04–0.8%) | 0.1% | a company's own report |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
 assumptions (no yeast-class plant, the tags, the ordering of costs) and that this prose quotes the model's numbers.
 
-### The forecast for 2035 (`scenarios.forecast_mc`, added 2026-11-19)
+### Cells as traits, and the routes that have shown them (`cell_traits.py`, added 2026-11-19)
 
-The headline. Each of 4,000 draws (`FORECAST_N`, seed 0) takes:
+The cost model uses four traits of the cells: ammonia made per kilo grown (`nh3_kg`, mol/kg wet), lactate per glucose taken up
+(`lac_yield`, mol/mol), doubling time (`doubling_h`) and the mass of a cell (`mass_pg`). `scenarios.run(choice, **traits)`,
+`scenarios.cell_traits(choice)` and `scenario_mc(choice, traits=...)` take them directly; a trait set by the reader is held in the
+draws, the other draws unchanged. The named cases are reference points defined by their trait values; the route is only in their
+description. `cell_traits.routes_needed(traits)` gives, for each trait, the least intrusive route that has shown that level (inputs
+`cr_*`; `research_notes/cell_trait_routes.md`), and a verdict for the set: "No genetic engineering needed: each trait has been
+shown without it" (naming any shown only in other cells), "These traits have so far been shown only with genetic engineering: ..."
+or "Not yet shown by any route: ...". It never says engineering is necessary. `combination` adds what has not been shown together
+(low ammonia with a doubling under 42.9 hours). The headline table's last column is this verdict, in place of "the hardest thing it
+needs". The page carries the routes and each reference point's verdict (`MODEL.sc.cell_routes`, `trait_verdicts`) for a slider view.
 
-1. **The switches** from the author's odds for 2035, one input per setting (`fc_<switch>_<setting>` in `inputs.py`, each tagged
-   [judgement] with its source; `forecast_odds` normalises each switch's odds to 1). Settings are ordered favourable first
-   (`FC_ORDER`), and a latent normal z per switch picks the setting at its cumulative odds: the setting k with
-   cum(k − 1) < Φ(z) ≤ cum(k). **The links** are a Gaussian copula with two common factors: z = √ρ F + √(1 − ρ) ε. The cell factor
-   F_c (ρ = `fc_rho_cells`, 0.5, range 0–0.8) carries the kind of cells, growth speed, growth factors and aggregates: good cells come
-   together, because the firm with an engineered low-waste line is the likeliest to have it fast and free of bought growth factors
-   (cattle cells that make their own were engineered); against, within one line the low-waste feed slowed growth 13–43% (Hubalek
-   2023). The industry factor F_i (`fc_rho_industry`, 0.3, range 0–0.6) carries the plant, medium price, gas, the tank tricks that
-   work, losses, restart, the tank size of a fed-batch plant and whether perfusion works: a bigger industry buys cheaper plants and
-   medium, runs cleaner and can afford to scale perfusion. The two factors are independent. With ρ = 0 every switch is independent.
-2. **The tank design** chosen among the tricks that work in that draw (`design(choice, tricks_max)`; each trick needs the ones before it:
-   column, then pressure, then recycled oxygen), first in perfusion. Its density X sets the odds that the cells are held back in a 20 m³
-   tank for a month in production by 2035 (`held_back_odds`): a filter, linear in X between 120, 191 and 258 g/L (`fc_perf_*`, judged
-   possible) times `fc_perf_by_2035`; aggregates on a settler (`fc_agg_*`, already by 2035). A uniform on the industry factor decides
-   the filter, one on the cell factor the aggregates. If either works the draw is perfusion, priced as the filter loop, as aggregates
-   (`retention.scenario_cost("aggregates")`), or the cheaper of the two; otherwise fed-batch at the drawn tank size, design chosen again.
-3. **The estimates behind the cost** as `scenario_mc` draws them (plant cost, its lower bound for the shared-medium plant, financing,
-   membrane life and price, upkeep, medium price and loss rate as multipliers of the drawn setting, ammonia tolerated and made,
-   protectant, least medium flow, antifoam, amino-acid price).
-4. **Demand** from `meat_market.monte_carlo` fed the cost draws, with Selected cells' demand (`equal_price_share`, lognormal, median 13%).
+| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
+|---|---|---|---|---|---|
+| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
+| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
+| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
+| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
 
-Outputs (`forecast_summary`): the 10th, 50th and 90th percentiles of cost and share; the chance that the share exceeds 1% and 10%; the
-chance that cost is at or below parity with a $12 kilo of everyday meat, the US anchor ($6.1 a kilo of cells, `cost_model.parity_cost`;
-for the world's volume-weighted $9.43 a kilo the same test needs about $4.29, for the US $10.93 $5.37, for Europe $13.63 $7.31); the share of draws in perfusion and by aggregates, and the
-cost of each kind. `forecast_rests_on` moves each of `FC_RESTS_ON` to the ends of its range, the other settings of its switch rescaled
-so the odds still sum to 1, at 1,000 draws. The odds:
-
-| switch | settings, favourable first, with the author's odds for 2035 | median | where the odds come from |
-|---|---|---|---|
-| Kind of cells | engineered 25%, selected on low-waste feed 40%, best measured 30%, ordinary 5% | selected on low-waste feed | judgement: engineering has no meat-cell result yet; selection and the feed change are shown in flasks |
-| Growth speed | 24 h 10%, 30 h 15%, 36 h 20%, 43 h 55% | 43 h | `cost_scenarios.md`: 24 h 10%, 30 h or faster 25%, 36 h or faster 45%, 43 h or faster 70% (slower is put at 43 h) |
-| The plant | food-grade, shared medium 65%, food-grade plant 30%, pharma-style plant 5% | food-grade, shared medium | `cheap_plant_study.md`: about 65% for a plant at or below the shared-medium plant's cost |
-| Gas the cells tolerate | 6 mm/s 45%, 4 mm/s 35%, 2 mm/s 20% | 4 mm/s | `gas_exchange_study.md`: 6 mm/s tolerable at 20 m³ about 50% |
-| Tank tricks that work | all three 25%, column and pressure 25%, column only 10%, none 40% | column and pressure | `gas_exchange_study.md`: a column 60%, then 1 bar 85%, then recycled oxygen 50% (judgement) |
-| Runs lost | 0.2% a day 10%, 0.6% a day 45%, 1% a day 30%, 2% a day 15% | 0.6% a day | makers report 0.6–2.2% a day (Powell 2025); judgement for 2035 |
-| Restart after a loss | 4 days (neighbour) 20%, 14 days 55%, 21 days 15%, 30 days 10% | 14 days | judgement; reseeding from a neighbour has not been reported |
-| Growth factors | none 25%, 30% 45%, 60% 20%, all 10% | 30% | judgement; tied to the kind of cells |
-| Price of the medium | nutrient floor 10%, $0.20/L 50%, $0.30/L 25%, $0.50/L 15% | $0.20/L | `medium_cost_gfi.md`: $0.20 announced for 2025, $0.07 the lowest report, $0.50 reported |
-| Tank size, if run in fed-batch | 100 m³ 7%, 50 m³ 13%, 20 m³ 80% | 20 m³ | `tank_size.md` section 7: 50 m³ about 12% and 100 m³ about 5% by the end of 2035 |
-| Cells held back at 20 m³ for a month (perfusion) | at 120 g/L: filter 34%, aggregates 15%, either 44%, 191 g/L: filter 20%, aggregates 8%, either 27%, 258 g/L: filter 16%, aggregates 5%, either 20% | fed-batch | a filter possible at 75% / 45% / 35% (`retention_devices.md`; 191 g/L re-judged), times 45% that it runs in production by 2035; aggregates by 2035 (`retention_aggregates.md`) |
+**What it would take** (`scenarios.what_it_would_take`). For a long-run share of 1% and 10% of world meat and seafood, at the model's
+14.5% of meat buyers at equal price and at 50% (no preference), the cost of cells that reaches it (`cost_for_share`, a bisection on
+the point estimate of `world_share`), and the least intrusive set of traits that reaches it among those tried (`trait_grid`: ammonia
+0.14 / 0.055 / 0, lactate 1.05 / 0.42 / 0.279 / 0, doubling 43 / 36 / 25.7 / 20 / 15 h, 2 ng; a food-grade plant or one with shared
+medium; perfusion or fed-batch at 20 m³; the Selected cells case's other switches; tank design chosen; most likely values). Least
+intrusive: the lowest route rank, then traits shown together, then the least ambitious set that still reaches the cost. No odds.
 
 ### The plant-cost axis (`scenarios.plant_axis`, added 2026-11-19)
 

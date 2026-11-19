@@ -20,6 +20,11 @@ SCENARIOS  presets of the switches, each with a one-sentence story of what has t
 priorities()   for one scenario, what each switch is worth if it moved to its best or its worst setting.
 grid()         two switches against each other.
 interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
+cell_traits()  the four cell traits a choice gives (ammonia, lactate, doubling time, cell mass); run(choice, **traits) and
+               scenario_mc(choice, traits=...) take them directly, and cell_traits.routes_needed says what they have been shown with
+               (2026-11-19). The named cases are reference points defined by their traits.
+what_it_would_take()  the cost of cells a 1% or 10% share needs, and trait sets that reach it, deterministic (2026-11-19).
+plant_axis()   perfusion against fed-batch as the plant gets cheaper (2026-11-19).
 scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention membranes, upkeep,
                medium price, loss rate, and since 2026-11-16 the ammonia the cells tolerate, the protectant, the least
                medium flow, antifoam), holding the scenario's switches.
@@ -296,13 +301,13 @@ class Scenario:
     equal_price_share: str = "equal_price_share"   # the input that sets the long-run share at equal price (demand)
 
 
-_TRICK_LEVELS = ("none", "column", "pressure", "oxygen")     # each setting needs the ones before it to work (forecast_mc)
+_TRICK_LEVELS = ("none", "column", "pressure", "oxygen")     # each setting needs the ones before it to work
 
 
 def design(choice: dict, tricks_max: str = "oxygen") -> dict:
     """Fill the two tank-design switches (tricks, shape) with the cheapest pair among the settings offered
     that a loop could actually run: a pH-safe loop at a pass rate dense cultures have taken. Everything else
-    is as in `choice`. `tricks_max`: the most the tricks can do (the forecast draws which of them work)."""
+    is as in `choice`. `tricks_max`: the most the tricks can do."""
     best = None
     allowed = _TRICK_LEVELS[:_TRICK_LEVELS.index(tricks_max) + 1]
     for tk in SW["tricks"].settings:
@@ -404,7 +409,7 @@ SCENARIOS = {
 }
 # The scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
-# The ladder RESULTS leads with after the forecast: each rung adds one kind of change to the one before, likeliest first
+# The reference points from what has been shown to every setting at its favourable end: each row changes one kind of thing
 # (RESULTS.md, "The ladder"). Rungs 4, 5 and 7 are exactly Selected cells, Selected cells with shared medium and the Engineered cells, all favourable case.
 LADDER = ("today", "process", "selected", "central", "central_lean", "engineered", "best")
 PAGE_ORDER = LADDER

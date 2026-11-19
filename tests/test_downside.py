@@ -25,7 +25,8 @@ from inputs import value
 # (was 25); the Engineered cells, all favourable case is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
 # seed train (best and central_lean, fed-batch), so there fill-and-draw, which needs a seed only to restart, is the cheaper fallback.
 GOLDEN = {
-    "best": {("fedbatch", "model"): 15.6371, ("fedbatch", "shown"): 44.0019, ("filldraw", "model"): 14.3709},
+    # 2026-11-19: every kind of cell weighs 2 ng (the engineered cells were Humbird's 3 ng)
+    "best": {("fedbatch", "model"): 15.7082, ("fedbatch", "shown"): 44.0730, ("filldraw", "model"): 14.4420},
     "central": {("fedbatch", "model"): 64.8950, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 70.6191},
     "central_lean": {("fedbatch", "model"): 49.5107, ("filldraw", "model"): 47.9440},
     "cautious": {("fedbatch", "model"): 209.0520, ("filldraw", "model"): 242.0239, ("filldraw", "shown"): 242.0239},

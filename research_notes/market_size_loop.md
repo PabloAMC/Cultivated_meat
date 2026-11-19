@@ -71,23 +71,23 @@ $6.41 and 8.30%.)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 485 | 1,450 | 0.99× | $32.74 | 0.16% |
-| 0.1 | 0.0298% | 4,854 | 1,450 | 0.93× | $32.28 | 0.17% |
-| 0.5 | 0.149% | 24,271 | 98 | 0.81× | $19.45 | 0.83% |
-| 2 | 0.595% | 97,086 | 66 | 0.68× | $18.17 | 0.99% |
-| 10 | 2.98% | 485,428 | 50 | 0.53× | $16.98 | 1.17% |
-| 35 | 10.4% | 1,698,999 | 50 | 0.44× | $16.29 | 1.30% |
+| 0.01 | 0.00298% | 485 | 1,450 | 0.99× | $32.74 | 0.21% |
+| 0.1 | 0.0298% | 4,854 | 1,450 | 0.93× | $32.28 | 0.22% |
+| 0.5 | 0.149% | 24,271 | 98 | 0.81× | $19.45 | 1.03% |
+| 2 | 0.595% | 97,086 | 66 | 0.68× | $18.17 | 1.22% |
+| 10 | 2.98% | 485,428 | 50 | 0.53× | $16.98 | 1.44% |
+| 35 | 10.4% | 1,698,999 | 50 | 0.44× | $16.29 | 1.59% |
 
 **5. Plus engineered cells** (no learning: $11.46)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 227 | 1,450 | 1.00× | $11.45 | 2.74% |
-| 0.1 | 0.0298% | 2,267 | 1,450 | 0.96× | $11.38 | 2.77% |
-| 0.5 | 0.149% | 11,334 | 137 | 0.87× | $7.59 | 5.26% |
-| 2 | 0.595% | 45,335 | 92 | 0.75× | $7.22 | 5.63% |
-| 10 | 2.98% | 226,676 | 58 | 0.60× | $6.82 | 6.05% |
-| 35 | 10.4% | 793,367 | 50 | 0.52× | $6.63 | 6.26% |
+| 0.01 | 0.00298% | 269 | 1,450 | 0.99× | $11.66 | 3.17% |
+| 0.1 | 0.0298% | 2,689 | 1,450 | 0.96× | $11.57 | 3.21% |
+| 0.5 | 0.149% | 13,443 | 140 | 0.86× | $8.00 | 5.75% |
+| 2 | 0.595% | 53,772 | 94 | 0.73× | $7.58 | 6.18% |
+| 10 | 2.98% | 268,860 | 59 | 0.58× | $7.14 | 6.67% |
+| 35 | 10.4% | 941,011 | 50 | 0.52× | $6.95 | 6.89% |
 
 "Share that cost would buy" is the main model's long-run share at that cost. Where it exceeds the share the volume is, the market grows;
 where it is less, it shrinks. With both items at their floors the cells cost $55.30 (published cells), $15.13 (Central) and
@@ -97,18 +97,18 @@ $6.63 (the best case).
 
 | scenario | learning | the main model: cells, share | resting point from below: cells, share, Mt a year | from above: cells, share, Mt a year |
 |---|---|---|---|---|
-| 1. Published cells | central | $209.05, under 0.01% | $207.78, under 0.01%, under 0.001 | $207.78, under 0.01%, under 0.001 |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | $209.05, under 0.01% | $208.69, under 0.01%, under 0.001 | $208.69, under 0.01%, under 0.001 |
-| 1. Published cells | slow learning | $209.05, under 0.01% | $208.69, under 0.01%, under 0.001 | $208.69, under 0.01%, under 0.001 |
-| 1. Published cells | fast learning | $209.05, under 0.01% | $206.61, under 0.01%, under 0.001 | $206.61, under 0.01%, under 0.001 |
-| 4. Plus perfusion (Selected cells) | central | $32.80, 0.16% | $17.69, 1.06%, 3.56 | $17.69, 1.06%, 3.56 |
-| 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | $32.80, 0.16% | $32.33, 0.17%, 0.58 | $32.33, 0.17%, 0.58 |
-| 4. Plus perfusion (Selected cells) | slow learning | $32.80, 0.16% | $21.91, 0.59%, 1.99 | $21.91, 0.59%, 1.99 |
-| 4. Plus perfusion (Selected cells) | fast learning | $32.80, 0.16% | $15.53, 1.45%, 4.88 | $15.53, 1.45%, 4.88 |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | central | $11.46, 2.74% | $6.67, 6.21%, 20.88 | $6.67, 6.21%, 20.88 |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | no food-grade membrane supplier, slow plant learning | $11.46, 2.74% | $11.18, 2.86%, 9.61 | $11.18, 2.86%, 9.61 |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | slow learning | $11.46, 2.74% | $7.88, 5.01%, 16.82 | $7.88, 5.01%, 16.82 |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | fast learning | $11.46, 2.74% | $6.54, 6.36%, 21.36 | $6.54, 6.36%, 21.36 |
+| 1. Published cells | central | $209.05, under 0.01% | $207.47, under 0.01%, 0.001 | $207.47, under 0.01%, 0.001 |
+| 1. Published cells | no food-grade membrane supplier, slow plant learning | $209.05, under 0.01% | $208.60, under 0.01%, 0.001 | $208.60, under 0.01%, 0.001 |
+| 1. Published cells | slow learning | $209.05, under 0.01% | $208.60, under 0.01%, 0.001 | $208.60, under 0.01%, 0.001 |
+| 1. Published cells | fast learning | $209.05, under 0.01% | $206.01, under 0.01%, 0.001 | $206.01, under 0.01%, 0.001 |
+| 4. Plus perfusion (Selected cells) | central | $32.80, 0.21% | $17.50, 1.34%, 4.50 | $17.50, 1.34%, 4.50 |
+| 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | $32.80, 0.21% | $32.26, 0.22%, 0.75 | $32.26, 0.22%, 0.75 |
+| 4. Plus perfusion (Selected cells) | slow learning | $32.80, 0.21% | $21.74, 0.76%, 2.56 | $21.74, 0.76%, 2.56 |
+| 4. Plus perfusion (Selected cells) | fast learning | $32.80, 0.21% | $15.36, 1.82%, 6.10 | $15.36, 1.82%, 6.10 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | central | $11.67, 3.16% | $6.95, 6.89%, 23.16 | $6.95, 6.89%, 23.16 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | no food-grade membrane supplier, slow plant learning | $11.67, 3.16% | $11.32, 3.34%, 11.23 | $11.32, 3.34%, 11.23 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | slow learning | $11.67, 3.16% | $8.25, 5.51%, 18.52 | $8.25, 5.51%, 18.52 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | fast learning | $11.67, 3.16% | $6.88, 6.99%, 23.47 | $6.88, 6.99%, 23.47 |
 
 "From below" starts with no learning; "from above" starts with everything at its floor. Where the two differ there are two resting
 points, and reaching the upper one needs someone to carry the industry across the gap.
@@ -138,26 +138,26 @@ points, and reaching the upper one needs someone to carry the industry across th
 | scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales (without premium fillets and shrimp) | chicken (organic): price against it, share of it | pork (heritage): price against it, share of it | beef (prime/wagyu): price against it, share of it | seafood (premium fillet, shrimp): price against it, share of it | seafood (sushi): price against it, share of it |
 |---|---|---|---|---|---|---|---|---|---|
 | 1. Published cells | no learning | $209.05 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.39×, under 0.01% | 14.94×, under 0.01% | 5.31×, under 0.01% | 11.95×, under 0.01% | 6.83×, under 0.01% |
-| 1. Published cells | resting point | $207.78 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.28×, under 0.01% | 14.85×, under 0.01% | 5.28×, under 0.01% | 11.88×, under 0.01% | 6.79×, under 0.01% |
-| 4. Plus perfusion (Selected cells) | no learning | $32.80 | 0.15, 0.34, 0.06 | 27% (13%) | 3.33×, 0.22% | 2.70×, 0.35% | 0.96×, 6.30% | 2.16×, 0.59% | 1.24×, 2.50% |
-| 4. Plus perfusion (Selected cells) | resting point | $17.69 | 0.88, 2.20, 0.48 | 25% (11%) | 2.04×, 1.33% | 1.65×, 2.17% | 0.59×, 31.34% | 1.32×, 3.69% | 0.76×, 14.98% |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | no learning | $11.46 | 1.87, 5.60, 1.73 | 20% (8%) | 1.50×, 3.44% | 1.22×, 5.44% | 0.43×, 50.20% | 0.98×, 8.83% | 0.56×, 28.99% |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | resting point | $6.67 | 3.26, 11.98, 5.64 | 16% (5%) | 1.09×, 7.58% | 0.89×, 11.28% | 0.32×, 64.82% | 0.71×, 16.97% | 0.41×, 43.72% |
+| 1. Published cells | resting point | $207.47 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.26×, under 0.01% | 14.83×, under 0.01% | 5.27×, under 0.01% | 11.87×, under 0.01% | 6.78×, under 0.01% |
+| 4. Plus perfusion (Selected cells) | no learning | $32.80 | 0.23, 0.41, 0.07 | 32% (18%) | 3.33×, 0.26% | 2.70×, 0.42% | 0.96×, 13.18% | 2.16×, 0.73% | 1.24×, 4.01% |
+| 4. Plus perfusion (Selected cells) | resting point | $17.50 | 1.23, 2.71, 0.57 | 27% (14%) | 2.02×, 1.60% | 1.64×, 2.66% | 0.58×, 51.75% | 1.31×, 4.67% | 0.75×, 22.82% |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | no learning | $11.67 | 2.34, 6.41, 1.88 | 22% (9%) | 1.52×, 3.87% | 1.24×, 6.25% | 0.44×, 69.57% | 0.99×, 10.46% | 0.57×, 39.51% |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | resting point | $6.95 | 3.87, 13.34, 5.95 | 17% (5%) | 1.12×, 8.38% | 0.91×, 12.71% | 0.32×, 80.88% | 0.73×, 19.65% | 0.42×, 55.47% |
 
 | scenario | learning | sold at the scenario's own cost, Mt a year: premium products, premium products without premium fillets and shrimp, everything | membrane each needs, million m² a year | the switch, million m² a year | which of the three cross it alone? |
 |---|---|---|---|---|---|
-| 1. Published cells | central | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 1.0 | no, no, no |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | never | no, no, no |
-| 1. Published cells | slow learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 3.0 | no, no, no |
-| 1. Published cells | fast learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 0.3 | no, no, no |
-| 4. Plus perfusion (Selected cells) | central | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 1.0 | yes, no, yes |
-| 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | never | no, no, no |
-| 4. Plus perfusion (Selected cells) | slow learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 3.0 | no, no, yes |
-| 4. Plus perfusion (Selected cells) | fast learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 0.3 | yes, yes, yes |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | central | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 1.0 | yes, yes, yes |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | no food-grade membrane supplier, slow plant learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | never | no, no, no |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | slow learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 3.0 | yes, no, yes |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | fast learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 0.3 | yes, yes, yes |
+| 1. Published cells | central | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 1.0 | no, no, no |
+| 1. Published cells | no food-grade membrane supplier, slow plant learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | never | no, no, no |
+| 1. Published cells | slow learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 3.0 | no, no, no |
+| 1. Published cells | fast learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 0.3 | no, no, no |
+| 4. Plus perfusion (Selected cells) | central | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | 1.0 | yes, yes, yes |
+| 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | never | no, no, no |
+| 4. Plus perfusion (Selected cells) | slow learning | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | 3.0 | no, no, yes |
+| 4. Plus perfusion (Selected cells) | fast learning | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | 0.3 | yes, yes, yes |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | central | 2.34, 0.95, 10.62 | 5.95, 2.43, 27.06 | 1.0 | yes, yes, yes |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | no food-grade membrane supplier, slow plant learning | 2.34, 0.95, 10.62 | 5.95, 2.43, 27.06 | never | no, no, no |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | slow learning | 2.34, 0.95, 10.62 | 5.95, 2.43, 27.06 | 3.0 | yes, no, yes |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | fast learning | 2.34, 0.95, 10.62 | 5.95, 2.43, 27.06 | 0.3 | yes, yes, yes |
 
 **Which products count as premium (decided 2026-11-19).** Premium products are the rows the model labels premium: a cut priced at
 2.5 times its species' cheapest form or more. When world seafood was re-priced by consumption the single fillet row ($16) was split
@@ -198,18 +198,18 @@ So the tables give every count twice: with it, and for the four small premium ma
 
 | scenario | its own cost and share | first pass: the learning its own volume brings | resting point | part of the share gain from later rounds | resting point with demand anchored on premium meats (its own share there) |
 |---|---|---|---|---|---|
-| 4. Plus perfusion (Selected cells) | $32.80, 0.16% | $19.36, 0.84% | $17.69, 1.06% | 25% | $18.18, 0.59% (0.10%) |
-| 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | $11.46, 2.74% | $6.84, 6.03% | $6.67, 6.21% | 5% | $6.83, 2.76% (1.44%) |
+| 4. Plus perfusion (Selected cells) | $32.80, 0.21% | $19.12, 1.07% | $17.50, 1.34% | 24% | $18.01, 0.72% (0.12%) |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | $11.67, 3.16% | $7.12, 6.69% | $6.95, 6.89% | 5% | $7.13, 3.07% (1.64%) |
 
-| input, across its range | 4. Plus perfusion (Selected cells): cells, share | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case): cells, share |
+| input, across its range | 4. Plus perfusion (Selected cells): cells, share | 7. Plus everything else at its favourable end (Engineered cells, all favourable): cells, share |
 |---|---|---|
-| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $17.63 to $17.90, 1.07% to 1.03% | $6.67 to $6.71, 6.21% to 6.17% |
-| That supplier's first price (60 to 400 $/m2) | $17.63 to $18.66, 1.07% to 0.92% | $6.67 to $6.89, 6.21% to 5.97% |
-| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $18.02 to $17.63, 1.01% to 1.07% | $6.76 to $6.67, 6.11% to 6.21% |
-| Membrane's price floor (20 to 120 $/m2) | $17.69 to $18.31, 1.06% to 0.97% | $6.66 to $6.87, 6.22% to 5.99% |
-| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $19.66 to $15.85, 0.80% to 1.39% | $7.28 to $6.63, 5.56% to 6.26% |
-| Animal-cell tanks installed today (6500 to 11800 m3) | $17.53 to $17.99, 1.08% to 1.01% | $6.63 to $6.74, 6.25% to 6.14% |
-| World meat, boneless (300 to 384 Mt a year) | $17.79 to $17.57, 1.04% to 1.08% | $6.69 to $6.65, 6.19% to 6.24% |
+| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $17.48 to $17.69, 1.34% to 1.31% | $6.95 to $6.99, 6.89% to 6.85% |
+| That supplier's first price (60 to 400 $/m2) | $17.48 to $18.39, 1.34% to 1.19% | $6.95 to $7.15, 6.89% to 6.66% |
+| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $17.83 to $17.48, 1.28% to 1.34% | $7.03 to $6.95, 6.80% to 6.89% |
+| Membrane's price floor (20 to 120 $/m2) | $17.50 to $18.16, 1.34% to 1.22% | $6.94 to $7.13, 6.90% to 6.68% |
+| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $19.57 to $15.66, 1.01% to 1.74% | $7.70 to $6.95, 6.06% to 6.89% |
+| Animal-cell tanks installed today (6500 to 11800 m3) | $17.35 to $17.79, 1.37% to 1.29% | $6.95 to $7.03, 6.89% to 6.80% |
+| World meat, boneless (300 to 384 Mt a year) | $17.60 to $17.38, 1.32% to 1.36% | $6.97 to $6.95, 6.87% to 6.89% |
 
 - **It is mostly one step, not a loop.** 75% of Central's gain in share comes on the first pass: the 0.55 Mt it already sells
   crosses the membrane switch, cells fall to $19.36 and the share rises to 0.84%. Later rounds, where cheaper cells sell more and
@@ -261,13 +261,13 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
 
 **How much does a price cut unlock?** The model against history (percent more volume per percent lower price):
 
-| premium product | price against it: at $32.80 a kilo of cells, at $17.69 | cultivated meat's share of it | percent more share per percent lower price |
+| premium product | price against it: at $32.80 a kilo of cells, at $17.50 | cultivated meat's share of it | percent more share per percent lower price |
 |---|---|---|---|
-| chicken (organic) | 3.33×, 2.04× | 0.22%, 1.33% | 3.6 |
-| pork (heritage) | 2.70×, 1.65× | 0.35%, 2.17% | 3.7 |
-| beef (prime/wagyu) | 0.96×, 0.59× | 6.30%, 31.34% | 3.3 |
-| seafood (premium fillet, shrimp) | 2.16×, 1.32× | 0.59%, 3.69% | 3.7 |
-| seafood (sushi) | 1.24×, 0.76× | 2.50%, 14.98% | 3.6 |
+| chicken (organic) | 3.33×, 2.02× | 0.26%, 1.60% | 3.6 |
+| pork (heritage) | 2.70×, 1.64× | 0.42%, 2.66% | 3.7 |
+| beef (prime/wagyu) | 0.96×, 0.58× | 13.18%, 51.75% | 2.7 |
+| seafood (premium fillet, shrimp) | 2.16×, 1.31× | 0.73%, 4.67% | 3.7 |
+| seafood (sushi) | 1.24×, 0.75× | 4.01%, 22.82% | 3.5 |
 | history, along the demand curve (farmed salmon while still a premium product) | | | 1–1.5 |
 | history, in total, with demand growth mixed in (salmon, US broilers, US catfish) | | | 1.3–4.1 |
 

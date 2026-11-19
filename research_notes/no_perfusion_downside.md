@@ -37,16 +37,16 @@ because it restarts each tank every three or four days; fill-and-draw runs for 3
 
 | Scenario | Perfusion (the model) | Fed-batch, model cap | Fill-and-draw, model cap | Fed-batch, 27 g/L | Fill-and-draw, 27 g/L |
 |---|---|---|---|---|---|
-| Engineered cells, all favourable | **$11.46** (2.7%) | $15.64 (92 g/L, 1.4%) | $14.37 (92 g/L, 1.7%) | $44.00 (0.06%) | $39.53 (0.09%) |
-| Selected cells | **$32.80** (0.16%) | $64.90 (37 g/L, 0.01%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
-| Selected cells, food-grade plant with shared medium | **$29.94** (0.22%) | $49.51 (37 g/L, 0.04%) | $47.94 (37 g/L, 0.04%) | $67.04 (0.01%) | $64.55 (0.01%) |
+| Engineered cells, all favourable | **$11.67** (3.2%) | $15.71 (92 g/L, 1.7%) | $14.44 (92 g/L, 2.1%) | $44.07 (0.07%) | $39.60 (0.11%) |
+| Selected cells | **$32.80** (0.21%) | $64.90 (37 g/L, 0.02%) | $70.62 (37 g/L, 0.01%) | $88.21 (under 0.01%) | $95.50 (under 0.01%) |
+| Selected cells, food-grade plant with shared medium | **$29.94** (0.29%) | $49.51 (37 g/L, 0.05%) | $47.94 (37 g/L, 0.05%) | $67.04 (0.02%) | $64.55 (0.02%) |
 | Cautious (published cells) | **$92.17** (under 0.01%) | $209.05 (14 g/L) | $242.02 (14 g/L) | $209.05 (14 g/L: the cap is under 27) | $242.02 (14 g/L) |
 
-Shares in brackets are the long-run share of world meat and seafood at the point cost.
+Shares in brackets are the long-run share of world meat and seafood at the point cost (the share of the meat sold, since 2026-11-19).
 
 - **Without perfusion every scenario costs much more than the old figures said.** At the model's own cap Central goes from $32.80 to
-  $64.90 in fed-batch (it was $44.13), and the cautious case from $92.17 to $209.05 (it was $113.56). The best case barely moves
-  ($15.64 in fed-batch, $14.37 in fill-and-draw): its engineered cells are held by other by-products at 92 g/L, not by their waste.
+  $64.90 in fed-batch (it was $44.13), and the cautious case from $92.17 to $209.05 (it was $113.56). Engineered cells, all favourable barely moves
+  ($15.71 in fed-batch, $14.44 in fill-and-draw): its engineered cells are held by other by-products at 92 g/L, not by their waste.
 - **The mass balance is the reason.** Held to 1.3 times the 4 mmol/L its perfusion is held to, Central's batch ends at 37 g/L, not
   56. Its plant charge per kilo rises in proportion. The published cells make 4.8 mol of lactate a kilo; held to 1.3 times 50
   mmol/L, they stop at 14 g/L. The old cap let them reach 25 g/L at about 120 mmol/L of lactate.
@@ -74,7 +74,7 @@ Judgement, from the retention note, re-judged on 2026-11-19 at the scenarios' cu
 | The same for the Engineered cells, all favourable case, at 258 g/L | about 35% |
 | The same for the reference case, at 120 g/L and a light duty | about 75% |
 | The same for the cautious case, at 120 g/L but 87 litres of permeate a kilo | about 60% |
-| Filter perfusion at Selected cells' density in production by 2035 (the forecast's odds: 45% possible x 45% in use by 2035) | about 20% |
+| Filter perfusion at the Selected cells case's density in production by 2035 (45% possible x 45% in use by 2035; a judgement, not used by the model) | about 20% |
 | Aggregates on a settler hold Selected cells' density by 2035 (`retention_aggregates.md`) | about 8% |
 | If perfusion is not used, a 20 m³ batch reaches the model's mass-balance cap with the scenario's cells | about 70% |
 
@@ -89,8 +89,7 @@ Judgement, from the retention note, re-judged on 2026-11-19 at the scenarios' cu
   they perfuse at. The risk is the cells: the published cells do not reach 27 g/L. About 70% for cells as good as the scenario says.
 
 So, if perfusion fails, Central's likelier cost is near $65 (the mass-balance cap), and $88 if its cells only reach the density Vow
-reports. The forecast for 2035 (`scenarios.forecast_mc`, RESULTS.md) draws this choice in every draw: about 3 draws in 10 run in
-perfusion.
+reports.
 
 ## 4. What would reduce this risk
 
@@ -111,5 +110,5 @@ perfusion.
   the perfusion level itself (end factor 1).
 - A 5–10 m³ perfusion tank, the next size down from 20 m³, where perfusion has precedent. Plants of many smaller tanks cost more
   per m³. A later piece of work could price it.
-- A mixture of the outcomes into one expected cost. Since 2026-11-19 the forecast for 2035 does this as a distribution, with the
-  odds above as inputs (`fc_perf_*`, `fc_agg_*`), not as one number.
+- A mixture of the outcomes into one expected cost or a forecast: a forecast built from these odds on 2026-11-19 was dropped at the
+  author's direction; the odds are kept in `cell_trait_routes.md` (appendix) as a record, not used by the model.

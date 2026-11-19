@@ -57,15 +57,15 @@ experiment's own-price elasticity at four prices; (ii) the share premium real me
 volume per 1% off the price), for the premium products still dearer than their meat. Two requirements on top: the first-contact
 elasticity at equal price within -1.5 ± 0.15, and a miss on the experiment's four prices of at most 0.30.
 
-| shape of the spread | parameters | choice experiment: miss | first contact, equal price: share, elasticity | share at 1.25×, 1.5×, 2×, 3×, 4× | salmon response | at half price, if free | joint misfit (experiment, premium, salmon) | meets both requirements | world share: 1. Published cells, 4. Plus perfusion (Selected cells), Forecast for 2035, each switch at the author's median, 7. Plus everything else at its favourable end (the Engineered cells, all favourable case), best with its own demand |
+| shape of the spread | parameters | choice experiment: miss | first contact, equal price: share, elasticity | share at 1.25×, 1.5×, 2×, 3×, 4× | salmon response | at half price, if free | joint misfit (experiment, premium, salmon) | meets both requirements | world share: 1. Published cells, 4. Plus perfusion (Selected cells), 7. Plus everything else at its favourable end (Engineered cells, all favourable), best with its own demand |
 |---|---|---|---|---|---|---|---|---|---|
 | **measured** | | | 5%, -1.5 | —, 5.7%, 3.7%, 1.5%, 0.6% (premium real meats) | 1–1.5 | | | | |
-| normal, as it was (15 integration points) | spread 5 | 0.15 | 5.1%, -1.53 | 10.3%, 7.8%, 3.8%, 0.8%, 0.1% | 5.2–7.5 | 22%, 33% | 13.8 (1.0, 8.6, 4.2) | yes | under 0.001%, 0.08%, 0.001%, 2.8%, 19.9% |
-| normal, integrated properly | spread 5 | 0.29 | 4.9%, -1.34 | 9.9%, 7.3%, 3.8%, 0.8%, 0.1% | 5.2–7.4 | 21%, 32% | 17.7 (3.7, 9.7, 4.2) | no | under 0.001%, 0.08%, 0.001%, 2.7%, 20.4% |
-| logistic | spread 4.25 | 0.13 | 4.6%, -1.36 | 9.6%, 6.9%, 3.5%, 0.9%, 0.2% | 4.5–5.4 | 23%, 36% | 8.3 (0.7, 4.6, 2.9) | yes | under 0.001%, 0.1%, 0.004%, 2.7%, 16.4% |
-| Student's t (the model) | spread 3.9, tail 4 | 0.13 | 4.3%, -1.37 | 9.2%, 6.5%, 3.3%, 1.0%, 0.3% | 3.6–3.7 | 25%, 42% | 4.0 (0.7, 1.6, 1.7) | yes | under 0.001%, 0.2%, 0.02%, 2.7%, 13.8% |
-| mixture of two normals | spread 4.4; 5% of shoppers at 3 times the others' spread | 0.10 | 4.3%, -1.43 | 9.4%, 6.7%, 3.3%, 1.0%, 0.5% | 2.8–3.5 | 23%, 37% | 2.5 (0.5, 0.9, 1.1) | yes | under 0.001%, 0.2%, 0.03%, 2.7%, 16.1% |
-| mixture, best on the grid (its corner) | spread 5.2; 2% of shoppers at 6 times the others' spread | 0.06 | 4.3%, -1.45 | 9.5%, 6.7%, 3.3%, 0.9%, 0.5% | 2.0–3.5 | 23%, 36% | 1.7 (0.2, 0.8, 0.8) | yes | under 0.001%, 0.4%, 0.2%, 2.7%, 16.8% |
+| normal, as it was (15 integration points) | spread 5 | 0.15 | 5.1%, -1.53 | 10.3%, 7.8%, 3.8%, 0.8%, 0.1% | 5.2–7.4 | 22%, 33% | 13.7 (1.0, 8.6, 4.2) | yes | under 0.001%, 0.1%, 3.3%, 21.6% |
+| normal, integrated properly | spread 5 | 0.29 | 4.9%, -1.34 | 9.9%, 7.3%, 3.8%, 0.8%, 0.1% | 5.1–7.3 | 21%, 32% | 17.7 (3.7, 9.7, 4.2) | no | under 0.001%, 0.1%, 3.1%, 22.1% |
+| logistic | spread 4.25 | 0.13 | 4.6%, -1.36 | 9.6%, 6.9%, 3.5%, 0.9%, 0.2% | 4.4–5.4 | 23%, 36% | 8.3 (0.7, 4.6, 2.9) | yes | under 0.001%, 0.1%, 3.1%, 17.8% |
+| Student's t (the model) | spread 3.9, tail 4 | 0.13 | 4.3%, -1.37 | 9.2%, 6.5%, 3.3%, 1.0%, 0.3% | 3.6–3.7 | 25%, 42% | 4.0 (0.7, 1.6, 1.7) | yes | under 0.001%, 0.2%, 3.2%, 15.1% |
+| mixture of two normals | spread 4.4; 5% of shoppers at 3 times the others' spread | 0.10 | 4.3%, -1.43 | 9.4%, 6.7%, 3.3%, 1.0%, 0.5% | 2.8–3.5 | 23%, 37% | 2.5 (0.5, 0.9, 1.1) | yes | under 0.001%, 0.3%, 3.2%, 17.5% |
+| mixture, best on the grid (its corner) | spread 5.2; 2% of shoppers at 6 times the others' spread | 0.06 | 4.3%, -1.45 | 9.5%, 6.7%, 3.3%, 0.9%, 0.5% | 2.0–3.4 | 23%, 36% | 1.7 (0.2, 0.8, 0.8) | yes | under 0.001%, 0.5%, 3.2%, 18.3% |
 
 The world shares use each scenario's cost of cells. "Best with its own demand" is the best case with its own 55% at equal price;
 the column before it is the best case's cells with the model's ordinary 13%.
@@ -171,12 +171,12 @@ the experiment's, for several spreads and for three values of each shopper's pri
 
 ## 4. The share at equal price in the long run
 
-| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
+| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.6%, 2.5%, 1.4%, 0.5%, 0.2% | under 0.001% | 0.09% | 1.2% |
-| novelty fades by what the model assumes | 15% | 10.8%, 7.7%, 3.8%, 1.1%, 0.4% | under 0.001% | 0.2% | 3.2% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 39.2%, 30.4%, 16.7%, 4.2%, 1.2% | under 0.001% | 0.6% | 11.6% |
-| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | under 0.001% | 0.03% | 5.4% |
+| first contact (as measured) | 5% | 3.6%, 2.5%, 1.4%, 0.5%, 0.2% | under 0.001% | 0.1% | 1.4% |
+| novelty fades by what the model assumes | 15% | 10.8%, 7.7%, 3.8%, 1.1%, 0.4% | under 0.001% | 0.2% | 3.6% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 39.2%, 30.4%, 16.7%, 4.2%, 1.2% | under 0.001% | 0.7% | 12.8% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | under 0.001% | 0.06% | 5.9% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 The world shares use each scenario's cost of cells with the reading's own demand. The best case's column is its cells at these

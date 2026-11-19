@@ -331,5 +331,5 @@ values is shaker and CHO data; the evidence for the measured value is the one st
 The bands draw the wider range. At 0.04 or 0.055 Selected cells costs $23.6 or $23.5 a kilo at most likely values, against $32.8
 at 0.14: below about 0.085 its lactate, not its ammonia, sets the litres (22 a kilo, not 35). The same switches with the engineered
 cells' ammonia and lactate cost $20.1, so most of the gap between the two kinds of cells is ammonia, and selection could close two
-thirds of it; the rest is lactate. The effect on the bands and the forecast is in
+thirds of it; the rest is lactate. The effect on the bands is in
 RESULTS.md (CHANGELOG, 2026-11-19).

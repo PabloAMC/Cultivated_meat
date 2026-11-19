@@ -58,23 +58,23 @@ So the size has to come from who buys labels (section 4).
 
 ## 3. What it gives (long-run share of world meat by weight; premium buyers 10% of shoppers)
 
-| no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (Selected cells): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case): share; sold to premium buyers; taken from the label, from conventional meat |
+| no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (Selected cells): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (Engineered cells, all favourable): share; sold to premium buyers; taken from the label, from conventional meat |
 |---|---|---|
-| +5% | 0.13%; 77%; 15%, 66% | 5.92%; 18%; 5%, 79% |
-| +25% | 0.16%; 81%; 15%, 67% | 6.15%; 21%; 5%, 79% |
-| +50% | 0.21%; 86%; 16%, 68% | 6.48%; 26%; 6%, 78% |
-| +100% | 0.37%; 92%; 16%, 69% | 7.28%; 34%; 8%, 77% |
-| the main model | 0.16% | 2.74% |
-| +5%, no label on the shelf | 0.15% | 6.24% |
+| +5% | 0.17%; 77%; 15%, 66% | 6.52%; 19%; 5%, 79% |
+| +25% | 0.21%; 81%; 15%, 67% | 6.77%; 22%; 5%, 79% |
+| +50% | 0.27%; 86%; 16%, 68% | 7.14%; 26%; 6%, 78% |
+| +100% | 0.47%; 92%; 16%, 69% | 8.02%; 34%; 8%, 77% |
+| the main model | 0.21% | 3.16% |
+| +5%, no label on the shelf | 0.20% | 6.89% |
 
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come
 from: the drop in each product's share when cultivated meat is added.
 
-| premium buyers, share of shoppers | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) |
+| premium buyers, share of shoppers | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|
-| 5% | 0.14% | 5.98% |
-| 10% | 0.13% | 5.92% |
-| 20% | 0.11% | 5.57% |
+| 5% | 0.19% | 6.57% |
+| 10% | 0.17% | 6.52% |
+| 20% | 0.16% | 6.18% |
 
 - **Premium buyers raise Central's share four times, but from very little**: from the base's 0.03% to 0.13%, with the evidence's
   +5% value of no killing. **That is now below the model's 0.16%**: the model's spread of liking, with its heavier tail since

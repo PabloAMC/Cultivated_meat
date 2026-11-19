@@ -299,5 +299,4 @@ density it implies says something about the cells. In the model the best publish
 by their lactate (1.05 mol per mol of glucose, about 4.8 mol a kilo). Reaching 33 g/L, the bottom of Upside's range, needs a
 lactate yield of about 0.6 mol per mol of glucose; the selected cells of the scenarios (0.42) reach 37 g/L. Vow's reported 27 g/L
 needs about 0.7. So the two companies that report densities at 20 m³ hold cells that make less lactate than any published meat cell,
-or run their batches at higher lactate than the model allows. This is the reason the forecast puts 30% on cells no better than the
-published ones, not more.
+or run their batches at higher lactate than the model allows.
