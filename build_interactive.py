@@ -1799,6 +1799,7 @@ input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
 .toggle.small button{font-size:.76rem;padding:2px 8px;} #tp_sell_disk .toggle{margin:2px 0 8px;display:inline-block;}
 .diskrow{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;} #tp_disk_box{flex:0 0 auto;width:300px;max-width:100%;}
 #tp_disk_table{flex:1 1 260px;} table.dk{width:100%;} table.dk td,table.dk th{padding:3px 6px;} table.dk .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+@media(max-width:500px){table.dk td,table.dk th{padding:3px 3px;font-size:.78rem;}}
 table.grp .sw.gsw{background:transparent;border:2.5px solid;width:12px;height:12px;}
 svg line.grid{stroke:var(--grid);}
 .legend .dt.rf{width:8px;height:8px;background:#1a1a19;border:1.5px solid #fff;outline:1px solid #888780;}

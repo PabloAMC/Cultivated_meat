@@ -133,6 +133,7 @@ input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
 .toggle.small button{font-size:.76rem;padding:2px 8px;} #tp_sell_disk .toggle{margin:2px 0 8px;display:inline-block;}
 .diskrow{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;} #tp_disk_box{flex:0 0 auto;width:300px;max-width:100%;}
 #tp_disk_table{flex:1 1 260px;} table.dk{width:100%;} table.dk td,table.dk th{padding:3px 6px;} table.dk .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+@media(max-width:500px){table.dk td,table.dk th{padding:3px 3px;font-size:.78rem;}}
 table.grp .sw.gsw{background:transparent;border:2.5px solid;width:12px;height:12px;}
 svg line.grid{stroke:var(--grid);}
 .legend .dt.rf{width:8px;height:8px;background:#1a1a19;border:1.5px solid #fff;outline:1px solid #888780;}
@@ -2719,7 +2720,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"Check passed: ":"<b class='stbad'>Check failed: </b>")+"the model in this page reproduces the Python "+
     "source (the calibration and the income term across regions)"+(buildOK?".":". The page needs rebuilding.")+"</div>";
 }
-console.log("interactive.html JS build 2026-11-19 22:18 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-11-19 22:29 — loss-aversion canonical form + betaCap monotonicity guard active");
 /* ===== scenarios: the switches, the presets and what to prioritise =====
    A line-for-line mirror of scenarios.py (run, design, priorities, interactions); tests/run_parity.py checks the two agree.
    Included into the page's script by build_interactive.py. Everything is computed by floorExplore (the mirror of
@@ -3192,7 +3193,9 @@ function tpLineDraw(f){
     tpTiersBest(up,W,pad,6); }
   const rowsOf=L=>{ const h=[]; L.forEach(l=>{ h[l.tier]=Math.max(h[l.tier]||0,l.lines.length); }); return h; };
   const hu=rowsOf(up), hd=rowsOf(dn), tierTop=(h,t)=>{ let y=0; for(let i=0;i<t;i++) y+=(h[i]||0)*lh+(h[i]?8:0); return y; };
-  const upH=tierTop(hu,hu.length), dnH=tierTop(hd,hd.length);
+  // the room above the strip is kept for two rows of two lines whatever the meat buyers' setting, so the strip and everything
+  // below it stay put as that slider moves the 1% and 10% lines
+  const upH=Math.max(tierTop(hu,hu.length),2*(2*lh+8)), dnH=tierTop(hd,hd.length);
   const sy=6+upH+(upH?4:0), sh=small?30:34, sb=sy+sh, ay=sb+8+dnH+6, H=ay+2*fs+20;
   const col={me:"var(--ink)",one:"#D85A30",ten:"#D85A30",par:"var(--ink2)"}, dash={par:' stroke-dasharray="4 3"',ten:' stroke-dasharray="6 3"'};
   let g='<defs><pattern id="clhd" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#444441"/><line x1="0" y1="0" x2="0" y2="5" stroke="#B4B2A9" stroke-width="1.5"/></pattern>'+
@@ -3257,10 +3260,13 @@ function tpGroupsDraw(f){
   const H=oneY+(f.one!==null?2*(fs+4)+6:0)+4;
   let g='', acc=0;
   // the items: one shade each, a thin gap of the card's colour between them, the item's name inside where it fits
+  const x1=f.one!==null?X(f.one):null;
   G.groups.forEach(gr=>{ gr.items.forEach(it=>{ if(it.v<=0) return; const a=X(acc), b=X(acc+it.v); acc+=it.v; const w=Math.max(0.5,b-a-1.5);
       g+='<rect x="'+a.toFixed(1)+'" y="'+by+'" width="'+w.toFixed(1)+'" height="'+bh+'" fill="'+tpICol(it.key)+'"><title>'+pgEsc(gr.name+": "+it.name)+': $'+it.v.toFixed(2)+' a kilo</title></rect>';
-      const nm=TP_ISHORT[it.key];
-      if(w>tpTextW(nm,fs)+8) g+='<text x="'+(a+4).toFixed(1)+'" y="'+(by+bh/2+fs*0.36).toFixed(1)+'" font-size="'+fs+'" style="fill:var(--g-'+TP_ICOL[it.key]+'-i)">'+nm+'</text>'; }); });
+      // the item's name inside its segment where it fits, kept off the 1% line (to the line's right, else its left, else left out)
+      const nm=TP_ISHORT[it.key], tw=tpTextW(nm,fs);
+      let lx=null; if(w>tw+8){ lx=a+4; if(x1!==null&&x1>lx-3&&x1<lx+tw+3) lx=(x1+4+tw<=a+w-2)?x1+4:((x1-4-tw>=a+2)?x1-4-tw:null); }
+      if(lx!==null) g+='<text x="'+lx.toFixed(1)+'" y="'+(by+bh/2+fs*0.36).toFixed(1)+'" font-size="'+fs+'" style="fill:var(--g-'+TP_ICOL[it.key]+'-i)">'+nm+'</text>'; }); });
   // each group: a bracket over its items with its name and its part of the cost
   acc=0; let lastR=-1e9;
   G.groups.forEach(gr=>{ const a=X(acc), b=X(acc+gr.v)-1.5; acc+=gr.v; if(b-a<3) return;
@@ -3269,7 +3275,6 @@ function tpGroupsDraw(f){
     const t=cands.find(c=>tpTextW(c,fs,true)<=Math.max(b-a,0)+((gr.key==="other")?0:0))||null;
     if(t&&a>lastR+4){ g+='<text x="'+a.toFixed(1)+'" y="'+gy+'" font-size="'+fs+'" class="b">'+t+'</text>'; lastR=a+tpTextW(t,fs,true); } });
   // the axis, with no tick label where the 1% line comes down
-  const x1=f.one!==null?X(f.one):null;
   for(let t=0;t<=xmax+1e-9;t+=step){ const x=X(t), s="$"+t, w=tpTextW(s,fs), xc=Math.max(pad+w/2,Math.min(W-pad-w/2,x));
     g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+ay+'" y2="'+(ay+4)+'" class="ax"/>';
     if(x1===null||Math.abs(xc-x1)>w/2+4) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
@@ -3398,7 +3403,7 @@ function tpSellDisk(A){
   svg.setAttribute("viewBox","0 0 "+S+" "+S); svg.setAttribute("width",S); svg.setAttribute("height",S);
   svg.innerHTML=g;
   const tb=document.getElementById("tp_disk_table");
-  if(tb) tb.innerHTML='<table class="num dk"><thead><tr><th>Kind of meat</th><th>$ a kilo</th><th>Of all meat</th><th>Cultivated</th><th>Plant-based</th></tr></thead><tbody>'+
+  if(tb) tb.innerHTML='<table class="num dk"><thead><tr><th>Meat</th><th>$ a kilo</th><th>Of all meat</th><th>Cultivated</th><th>Plant-based</th></tr></thead><tbody>'+
     G.map(gr=>'<tr><td><span class="sw" style="background:'+colOf(gr.animal)+'"></span>'+pgEsc(gr.animal.replace("/",", "))+'</td><td>$'+(gr.v/gr.w).toFixed(2)+'</td><td>'+Math.round(gr.wt/tot*100)+'%</td><td>'+pgPctS(gr.cf*100)+'</td><td>'+pgPctS(gr.pf*100)+'</td></tr>').join("")+
     '</tbody></table>';
 }

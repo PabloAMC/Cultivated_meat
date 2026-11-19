@@ -2,6 +2,23 @@
 
 ## 2026-11-19
 
+**Page fixes from the author's list; no route claims anywhere (no model number changed).**
+- **No route claims** (the author: "I would remove it"): the page, RESULTS, METHODS and README no longer say a trait has been shown
+  by a feed change, selection, adaptation or engineering, or "in other cells", or "not together". Each trait carries only the best
+  value measured in meat cells, with its source (`cell_traits.best_in_meat_cells`: ammonia 0.14 mol a kilo, Hubalek 2023; lactate
+  1.05 per glucose, Pasitka 2024; doubling 15 h, Stout 2023; 3.3 ng, Pasitka 2024). "What it would take" picks, among the sets
+  tried, the one with the fewest traits beyond those measurements (was: the lowest route rank), so two of its rows change their
+  example set; the costs a share needs do not. The headline table's last column lists the traits beyond the measurements. The
+  scenario tags `selection or adaptation` and `genetic engineering` became one neutral tag, `cells` (cells with other traits than
+  those published). `cell_traits.routes_needed` and `research_notes/cell_trait_routes.md` stay as the record of the evidence.
+- **First screen.** The cloud of dots is gone (cost line and map): the reader's point (the median, as before) with a thin 8-in-10
+  whisker, "if the estimates you have not set vary", and a tooltip listing them. The 1% and 10% labels say the meat buyers they
+  assume; labels that do not depend on that slider no longer move when it moves. The cost bar has a hue per group and a shade per
+  item, named where they fit. Plant cost in dollars per m³ of tank, filter cost with the membrane life, medium price with its
+  nutrient floor marked. The plant protein in a steak or fillet is a first-screen slider, and shares are given by weight of
+  product and of cells. "Where it would sell" brings back the original bars by species and type of meat and the disk, with a toggle.
+  Reference-point descriptions and ladder steps stand alone. Text spans the cards' width.
+
 **Case names (2026-11-19, the author's decision):** "Central" is now **"Selected cells"** and "the best case" **"Engineered cells,
 all favourable"**, in the model's texts, RESULTS, METHODS, README, TODO and the generated tables (code keys `central`, `best`
 unchanged; research notes carry a glossary line). The page keeps the old names until it is rebuilt. The share at equal price is
