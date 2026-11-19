@@ -42,7 +42,8 @@ copies, while conventional prices vary about fivefold (cheap chicken to sushi). 
    it, gives the price ratio **R**.
 2. **Price → choice.** Shoppers choose between conventional meat, plant-based meat, cultivated meat and
    beans. They weigh price, taste, “is it real meat?”, health and animal welfare. This is a two-segment logit
-   calibrated to plant-based meat's observed ~1.2% share.
+   calibrated to plant-based meat's observed ~1.2% share. How much shoppers like cultivated meat differs from one shopper
+   to the next (a Student's t spread, fitted to a choice experiment and to premium real meats).
 3. **Every meat, every region.** The model repeats the choice at each meat type's local price, then adds up by volume and by value.
 4. **Over time.** The share starts from wary shoppers and grows as the product spreads and becomes familiar.
 
