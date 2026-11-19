@@ -14,8 +14,8 @@ Everything below reproduces from the code.*
 run, the medium and the rest) from the author's odds of reaching it at production scale by 2035, together with the estimates
 behind the cost and the shoppers' dials. A kilo of cells then costs about **$68** (median; 8 in 10 draws between $24 and $201), and
 cultivated meat takes about **0.02% of world meat and seafood** in the long run (8 in 10 draws between under 0.001% and 0.6%). The
-chance that it takes more than 1% is about **6%**, and more than 10% under 1%. No draw reaches price parity with everyday meat,
-which needs about **$6.1** a kilo of cells. Two things make the forecast wide. Only about 3 draws in 10 hold the cells back in a
+chance that it takes more than 1% is about **6%**, and more than 10% under 1%. No draw reaches price parity with a $12 kilo of everyday meat,
+which needs about **$6.1** a kilo of cells (the world's average kilo, at $9.43, needs about $4.29). Two things make the forecast wide. Only about 3 draws in 10 hold the cells back in a
 20 m³ tank, so that it can run in perfusion (median $35); the rest grow the cells in batches (fed-batch, median $86). And the
 cells range from the published ones to engineered ones. The odds are judgements, and the table "What the forecast rests on" shows
 what moving each does.
@@ -84,7 +84,10 @@ and after each are in CHANGELOG.md.
 > - **Cost** is per kilo of real cells, which are about 70% water and 20% protein, like meat. Plant costs are in 2025 prices.
 > - **Share** is cultivated meat's share of all meat and seafood sold, by weight, in the long run: once it is on every shelf and
 >   no longer feels new. It is not a forecast of when. Seafood is about a quarter of that total (24%). A fifth of a cultivated
->   cut is plant protein, and the share counts the whole cut.
+>   cut is plant protein, and the share counts the whole cut. Since 2026-11-19 it is exactly that: for each product, cultivated
+>   over cultivated plus conventional meat. Before, it was cultivated meat's share of all four choices (with plant-based meat and
+>   no meat), which understated it: a market where every product costs the same and half of meat buyers prefer cultivated meat
+>   showed 46.5%, and now shows 50.0%. Plant-based meat's own share keeps its definition.
 > - **Share at equal price.** Of the shoppers who buy meat, the share who would pick cultivated meat when it costs the same as the
 >   meat beside it and is familiar: **14.5% of meat buyers**, in every case but one; 50% would mean no preference either way. The
 >   model works with all shoppers' choices among meat, cultivated meat, plant-based meat and no meat, where the same setting is
@@ -154,7 +157,7 @@ design is not a row of the ladder: it assumes the hardest change (engineered cel
 **The bands.** Each row's switches stay fixed, and the estimates behind it are drawn (4,000 draws). On the cost side: the plant's
 cost and financing, the life and price of the filter membranes, the upkeep share of respiration, the medium price, the loss
 rate, the ammonia the cells tolerate, the ammonia the selected and published cells make, the protectant's price and dose, the
-least medium flow, antifoam's cost to oxygen transfer and the price of amino acids. On the demand side: the share at equal price,
+least medium flow, antifoam's cost to oxygen transfer, the price of amino acids and the weight of a cell. On the demand side: the share at equal price,
 the two price sensitivities, taste, the costs of reaching the shelf, the shop's margin, how much less buyers of premium products
 like a cultivated version, and a cut's cell share and assembly cost. The kind of cells and their speed are not drawn: they are
 what the rows differ in.
@@ -227,8 +230,10 @@ what the rows differ in.
 - **Company cost claims are operating cost, and the scenarios include the plant.** On operating cost alone the central cells cost
   $18.8–19.1 a kilo in a tank run as Vow runs its 20 m³ tank, a little above the $10–15 an investor reports for several
   companies. The plant charge is the difference (section 1, "Against what companies report").
-- **No scenario reaches price parity.** Parity with $12 meat needs $6.1 a kilo of cells ($2.5 a kilo to reach the shelf and the
-  shop's 28% margin). The Engineered cells, all favourable case costs $11.5 at most likely values and $11–20 across 8 in 10 draws; none of its 4,000 draws is
+- **No scenario reaches price parity with a $12 kilo of everyday meat (the US anchor).** That needs $6.1 a kilo of cells ($2.5 a
+  kilo to reach the shelf and the shop's 28% margin): the shop price of a $12 kilo of everyday meat. For the world the bar is
+  lower still: the volume-weighted world price is $9.43 a kilo, so the same shop price as the average kilo eaten in the world needs
+  about $4.29 of cells (the US $10.93 needs $5.37; Europe's $13.63, $7.31). The Engineered cells, all favourable case costs $11.5 at most likely values and $11–20 across 8 in 10 draws; none of its 4,000 draws is
   at or below $6.1, and none of the forecast's 4,000 draws is either. No scenario uses a plant as cheap as a yeast plant, because nothing shows that animal cells can grow in one.
 - **What decides it.** Each switch is moved alone from the Selected cells case ($32.8) to its best and its worst setting. The kind of cells
   matters most: −$13.4 with engineered cells, +$38.2 with the published cells, +$98.5 with ordinary meat cells. Next comes how the
@@ -267,7 +272,7 @@ at most likely values.
 |---|---|---|---|---|---|---|
 | Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $76.3 to $29.2 | 0.007% to 0.2% | $25.0 to $10.3 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
 | Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $57.4 to $23.3 | 0.02% to 0.5% | $17.9 to $10.2 | the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
-| Ammonia the selected cells make per kilo grown | 0.07–0.25 mol/kg wet (0.14) | $23.5 to $52.1 | 0.5% to 0.03% | $11.5 to $11.5 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
+| Ammonia the selected cells make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $23.5 to $52.1 | 0.5% to 0.03% | $11.5 to $11.5 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
 | Price of the bubble protectant (poloxamer 188), bought by the tonne | 10–120 $/kg (30) | $31.4 to $39.1 | 0.2% to 0.09% | $10.9 to $13.9 | assumed: only catalogue prices ($230–260/kg) found | yes |
 | Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $38.4 to $32.8 | 0.09% to 0.2% | $15.5 to $11.5 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time |
 | Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $30.6 to $35.6 | 0.2% to 0.1% | $10.8 to $12.2 | derived from Humbird's financing, at a mature industry's rates | yes |

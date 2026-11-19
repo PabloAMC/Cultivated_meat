@@ -250,12 +250,13 @@ it run in perfusion. The **tank design** (tricks and
 shape) of every other scenario is the cheapest pair whose loop passes the checks the
 earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures have taken (`scenarios.design`).
 
-**The kinds of cell** are three numbers each: the ammonia made per kilo of cells grown, the lactate yield and the weight of a cell.
+**The kinds of cell** are two numbers each, the ammonia made per kilo of cells grown and the lactate yield; every kind has the same
+cell weight, 2 ng (`sc_mass_selected_pg`, 1–3 ng, drawn in the bands; the engineered cells had Humbird's 3 ng until 2026-11-19).
 
 | kind of cells | ammonia, mol per kg wet | lactate, mol per mol of all glucose taken up | cell, ng | glucose taken up, mol per kg (derived, at the speed shown) | lactate made, mol per kg | what sets the medium |
 |---|---|---|---|---|---|---|
-| engineered | 0.055 | 0.279 | 3 | 2.0 (24 h) | 0.56 | ammonia, 13.8 L/kg in the Engineered cells, all favourable case (lactate 11.2, the least flow 10.8) |
-| selected on a low-waste feed | 0.14 (range 0.07–0.25, `sc_nh3_selected`) | 0.42 | 2 | 2.6 (36 h) | 1.1 | ammonia, 35 L/kg (lactate 21.5) |
+| engineered | 0.055 | 0.279 | 2 (Humbird's 3 until 2026-11-19; engineering changes the metabolism, not the size) | 2.1 (24 h) | 0.59 | ammonia, 13.8 L/kg in Engineered cells, all favourable (lactate 11.8, the least flow 10.8) |
+| selected on a low-waste feed | 0.14 (range 0.04–0.25, `sc_nh3_selected`) | 0.42 | 2 | 2.6 (36 h) | 1.1 | ammonia, 35 L/kg (lactate 21.5) |
 | published | 0.14 | 1.05 | 2 | 4.5 (43 h) | 4.8 | lactate, 95 L/kg (ammonia 35) |
 | ordinary | 0.70 | 1.05 | 2 | 3.8 (36 h) | 4.0 | ammonia, 175 L/kg (lactate 80) |
 
@@ -304,8 +305,9 @@ reinforce each other").
   shared medium not below a plant with everything animal cells must have), financing, the life and price of the filter
   membranes, the upkeep share of respiration, the medium price (0.6 to 1.5 times the setting), the loss rate (0.3 to 2 times),
   the ammonia the cells tolerate (`sc_nh3_limit`, 2–8 mmol/L around 4; Humbird's optimistic design draws his `pf_nh3_limit`), the
-  ammonia the selected and published cells make (`sc_nh3_selected`, 0.07–0.25 mol/kg), the protectant's price and dose, the
-  least medium flow, antifoam's cost to oxygen transfer and the price of amino acids.
+  ammonia the selected and published cells make (`sc_nh3_selected`, 0.04–0.25 mol/kg), the protectant's price and dose, the
+  least medium flow, antifoam's cost to oxygen transfer, the price of amino acids and (since 2026-11-19) the weight of a cell
+  (`sc_mass_selected_pg`, 1–3 ng, the same for every kind of cells).
 - *Demand* (`meat_market.monte_carlo`, fed the cost draws). The share at equal price, κ, the price elasticity of meat, taste, the
   per-kg costs of reaching the shelf, the shop's margin, `premium_resistance`, and the cut's cell share and assembly cost
   (`MC_CUT_INPUTS`: `scaffold_frac` 0.1–0.5, `process_cost` $0.5–7).
@@ -412,7 +414,8 @@ The headline. Each of 4,000 draws (`FORECAST_N`, seed 0) takes:
 4. **Demand** from `meat_market.monte_carlo` fed the cost draws, with Selected cells' demand (`equal_price_share`, lognormal, median 13%).
 
 Outputs (`forecast_summary`): the 10th, 50th and 90th percentiles of cost and share; the chance that the share exceeds 1% and 10%; the
-chance that cost is at or below parity ($6.1, `cost_model.parity_cost`); the share of draws in perfusion and by aggregates, and the
+chance that cost is at or below parity with a $12 kilo of everyday meat, the US anchor ($6.1 a kilo of cells, `cost_model.parity_cost`;
+for the world's volume-weighted $9.43 a kilo the same test needs about $4.29, for the US $10.93 $5.37, for Europe $13.63 $7.31); the share of draws in perfusion and by aggregates, and the
 cost of each kind. `forecast_rests_on` moves each of `FC_RESTS_ON` to the ends of its range, the other settings of its switch rescaled
 so the odds still sum to 1, at 1,000 draws. The odds:
 
@@ -1375,6 +1378,11 @@ is fitted to this experiment among other things (next paragraph), so this is a f
 Each shopper's utility for cultivated meat is the model's plus a draw ℓ from a spread across shoppers. Its mean is set so that,
 once familiar and at equal price, at neutral settings, cultivated meat is picked by 14.5% of meat buyers, which is
 `equal_price_share` = 13% of all choices among meat, cultivated meat, plant-based meat and no meat (`market_share._solve_liking`).
+**The reported share is the share of the meat sold** (since 2026-11-19, audit finding 6a): for each product,
+`share(..., which="x_meat")` = x / (x + c), cultivated over cultivated plus conventional, both segments mixed, then summed by
+volume (`meat_market._rollup`, `penetration`, `monte_carlo`, and the side studies that rebuild the roll-up). Before it was x, the
+share of all four choices. A market where every product costs the same, at 50% of meat buyers and US income, now gives 50.0%
+(46.5% before). Plant-based meat's share keeps its definition (which="p").
 Readers are told the meat-buyers figure first: 50% of meat buyers would mean no preference; Engineered cells, all favourable takes
 58.5% of meat buyers (`best_equal_price_share` = 55% of all choices). The calibration (β, the solved weights, plant-based meat's 1.2%) and every check on an existing
 product are computed with every shopper alike and do not move.

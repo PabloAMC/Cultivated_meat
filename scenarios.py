@@ -957,12 +957,12 @@ def forecast_markdown(fc: dict | None = None) -> str:
     fc = forecast() if fc is None else fc
     sm = fc["summary"]
     c, sh = sm["cost"], sm["share"]
-    pct = lambda x: f"{x:.0%}" if x >= 0.005 or x == 0 else "under 1%"
+    pct = lambda x: f"{x:.0%}" if x >= 0.005 else ("none of the draws" if x == 0 else "under 1%")
     out = ["| the forecast for 2035 | 10th percentile | median | 90th percentile |", "|---|---|---|---|",
            f"| cells, $/kg | ${c[0]:.0f} | **${c[1]:.0f}** | ${c[2]:.0f} |",
            f"| share of world meat and seafood, long run | {pct_num(sh[0])}% | **{pct_num(sh[1])}%** | {pct_num(sh[2])}% |",
            "", "| the forecast for 2035: chance that | probability |", "|---|---|",
-           f"| cells cost no more than parity with $12 meat (${sm['parity']:.1f} a kilo) | {pct(sm['p_parity'])} |",
+           f"| cells cost no more than parity with a $12 kilo of everyday meat, the US anchor (${sm['parity']:.1f} a kilo of cells) | {pct(sm['p_parity'])} |",
            f"| the long-run share exceeds 1% of world meat and seafood | {pct(sm['p_share_1'])} |",
            f"| the long-run share exceeds 10% | {pct(sm['p_share_10'])} |",
            f"| the cells are held back at 20 m³, so the tank runs in perfusion (a filter or aggregates) | {pct(sm['p_perfusion'])} |",
