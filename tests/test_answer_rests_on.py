@@ -52,7 +52,8 @@ def check() -> list:
         fails.append("the first three drivers should each move Selected cells by over $25 and the fourth by under $10")
     # the new rows are there, with the band status the bands' code gives them
     for k, band in (("sc_nh3_limit", "yes"), ("sc_nh3_selected", "yes"), ("sc_nh3_engineered", A.NOT_DRAWN["sc_nh3_engineered"]),
-                    ("sc_mass_selected_pg", A.NOT_DRAWN["sc_mass_selected_pg"]), ("sc_p_top", A.NOT_DRAWN["sc_p_top"])):
+                    ("sc_mass_selected_pg", "yes"),   # drawn in the bands since 2026-11-19
+                    ("sc_p_top", A.NOT_DRAWN["sc_p_top"])):
         if k not in cr:
             fails.append(f"{k} should move Selected cells' or the Engineered cells, all favourable case's cost by $1 or more")
         elif A._band(k) != band:
@@ -60,7 +61,8 @@ def check() -> list:
     if "sc_nh3_limit" not in S.MC_SCENARIO_PRIORS.values() or 'reg_draw("sc_nh3_selected")' not in src:
         fails.append("scenario_mc no longer draws the scenarios' ammonia tolerance or the ammonia the selected cells make")
     # the selected cells' traits do not move the Engineered cells, all favourable case (engineered cells), and the engineered cells' do not move Selected cells
-    for k in ("sc_nh3_selected", "sc_mass_selected_pg"):
+    # 2026-11-19 restructure: the weight of a cell is shared by every kind of cell, so it moves both cases now
+    for k in ("sc_nh3_selected",):
         if k in cr and abs(cr[k]["best"][1] - cr[k]["best"][0]) > 1e-9:
             fails.append(f"{k} should not move the Engineered cells, all favourable case")
     if "sc_nh3_engineered" in cr and swing("sc_nh3_engineered") > 1e-9:
@@ -88,27 +90,30 @@ def check() -> list:
     if abs(I.REGISTRY["liking_sd"].value - 3.9) > 1e-9 or abs(I.REGISTRY["liking_tail"].value - 4.0) > 1e-9:
         fails.append("the liking spread is no longer sd 3.9 with 4 degrees of freedom; repin the shares")
     # the share at each scenario's own cost, % of world meat and seafood (0.0786 and 2.8149 with the normal spread)
-    for name, got, want in (("Selected cells' share", s["central_share"], 0.1638), ("the Engineered cells, all favourable case's share, Selected cells' demand", s["best_share"], 2.7352)):
+    for name, got, want in (("Selected cells' share", s["central_share"], 0.2102), ("the Engineered cells, all favourable case's share, Selected cells' demand", s["best_share"], 3.1617)):
+        # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         if abs(got - want) > 2e-3:
             fails.append(f"{name}: {got:.4f} != pinned {want}")
     # which demand input sets each end of Selected cells' span: the price elasticity of meat (low) and the price sensitivity of
     # cultivated meat (high); before the t spread the share at equal price set both ends
     lo_k = min(s["demand_rows"], key=lambda r: min(r["central"]))["key"]
     hi_k = max(s["demand_rows"], key=lambda r: max(r["central"]))["key"]
-    if (lo_k, hi_k) != ("eps_own", "cult_sub_mult"):
+    # 2026-11-19 restructure: with the share of the meat sold the low end is now set by the share at equal price
+    if (lo_k, hi_k) != ("equal_price_share", "cult_sub_mult"):
         fails.append(f"the ends of Selected cells' share span are now set by {lo_k} and {hi_k}; rewrite the summary")
     # pinned (2026-11-19 audit batch; before it 15 inputs moved a cost by $1 or more and 7 moved Selected cells by more than $3)
     # 2026-11-19: the retention study's aggregate and microcarrier inputs (16, 14 with a range) take 528 / 241 to 544 / 255
-    pins = [("inputs", s["inputs"], 544), ("with a range", s["ranged"], 255),      # liking_tail added in the second round
+    # 2026-11-19 restructure: + pf_batch_end_x, pf_batch_half_x (ranged) and ten cr_* route levels (no range): 556 / 257
+    pins = [("inputs", s["inputs"], 556), ("with a range", s["ranged"], 257),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 18), ("over $3", s["over_3"], 11),
             ("move Selected cells by $1 or more", sum(swing(k) >= 1.0 for k in order), 16),
-            ("demand rows", len(s["demand_rows"]), 9)]
+            ("demand rows", len(s["demand_rows"]), 8)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
     for name, got, want in pins:
         if got != want:
             fails.append(f"{name}: {got} != pinned {want}")
     # Selected cells' cost at each end of the range, $/kg (ammonia tolerance was $53.3 to $19.4 as pf_nh3_limit, filter life $54.8
     # to $24.1, protectant price $25.3 to $31.5, at Selected cells $26.43)
-    for k, want in (("rt_membrane_life", (76.30, 29.22)), ("sc_nh3_limit", (57.42, 23.33)), ("sc_nh3_selected", (23.50, 52.14)),
+    for k, want in (("rt_membrane_life", (76.30, 29.22)), ("sc_nh3_limit", (57.42, 23.33)), ("sc_nh3_selected", (23.59, 52.14)),   # low end 0.07 -> 0.04 (2026-11-19)
                     ("pf_protectant_price", (31.40, 39.10)), ("pf_osm_limit", (38.42, 32.80))):
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
             fails.append(f"{k}: Selected cells {cr[k]['central'][0]:.2f} to {cr[k]['central'][1]:.2f} != pinned {want}")
@@ -116,8 +121,9 @@ def check() -> list:
     # 2026-11-19, second round: shoppers' liking is a Student's t spread (liking_sd 3.9, liking_tail 4), so every share moved
     # and no cost did. Selected cells' span was 0.0090 to 1.0137 and the Engineered cells, all favourable case's 0.5178 to 16.8051 with the normal spread: the
     # heavier tail lifts the low end far above parity, and the narrower middle lowers the Engineered cells, all favourable case's top by a third.
-    for name, got, want in (("Selected cells' share span", s["central_share_span"], (0.0504, 0.8093)),
-                            ("the Engineered cells, all favourable case's share span", s["best_share_span"], (0.7398, 11.6982))):
+    # 2026-11-19 restructure (the share of the meat sold; best's cells 2 ng): 0.0504-0.8093 -> 0.0847-0.9709, 0.7398-11.6982 -> 0.8788-12.8533
+    for name, got, want in (("Selected cells' share span", s["central_share_span"], (0.0847, 0.9709)),
+                            ("the Engineered cells, all favourable case's share span", s["best_share_span"], (0.8788, 12.8533))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 

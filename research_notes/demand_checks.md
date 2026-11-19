@@ -84,7 +84,7 @@ alike it kept steepening with the price (−10.4 at three times).
   product.
 - The last is the model as it stood on 2026-11-18 and through the audit batch, a normal spread of 5 utils. Against it the
   Student's t gives Central twice the share (0.16% against 0.08%) and the best case's cells about the same (2.7% against 2.8%).
-- **Across one-kind responses Central's share runs from 0.03% to 1.5%**, a fifty-fold range. The model's 0.2% (0.16%), and 2.7% for
+- **Across one-kind responses Central's share runs from 0.06% to 1.8%**, a fifty-fold range. The model's 0.2% (0.21%), and 3.2% for
   the best case's cells, are its own reading; the share at equal price (`liking_spread.md`) carries most of what remains uncertain. The best
   case's column is its cells ($11.46 a kilo) with the model's ordinary demand, not its own 55% at equal price.
 
@@ -95,12 +95,12 @@ alike it kept steepening with the price (−10.4 at three times).
 - **A plant that sells less than it was built for costs more per kilo** (`market_size_loop.underused`): the plant's charge and its
   labour are paid whatever it makes.
 
-| share of the plant's capacity that is sold | 1. Published cells | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
+| share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|---|
-| 100% | $209.05 | $32.80 | $11.67 |
-| 80% | $254.02 | $35.06 | $12.48 |
-| 60% | $328.97 | $38.81 | $13.83 |
-| 40% | $478.86 | $46.33 | $16.52 |
+| 100% | $92.17 | $32.80 | $11.67 |
+| 80% | $96.59 | $35.06 | $12.48 |
+| 60% | $103.97 | $38.81 | $13.83 |
+| 40% | $118.72 | $46.33 | $16.52 |
 
   Every scenario is at 100%. Beyond Meat's sales fell about 40% from their peak after its plants were built, and its costs run about 70%
   above a right-sized plant's (Knowles 2026). The market-size loop runs backwards as well as forwards.

@@ -192,8 +192,8 @@ readings, not the best case's own 55% at equal price, which gives 13.8%.
   are therefore a little above the model's: 0.18% against 0.16% for Central, 3.2% against 2.7% for the best case's cells.
 - **The middle reading lands near premium real meats**: 3.8% at twice the price against their 3.7%, 1.1% at three times against
   1.5%, 0.4% at four times against 0.6%. Since 2026-11-19 the shape is fitted to them, so this is no longer an independent check.
-- **Across the three readings Central runs from 0.09% to 0.6% of world meat**, about six-fold, and the best case's cells from
-  1.2% to 11.6%. For Central the cost matters more: across the 8-in-10 range of its cost of cells ($27 to $57 a kilo) the share
+- **Across the three readings Central runs from 0.1% to 0.7% of world meat**, about six-fold, and the best case's cells from
+  1.4% to 12.8% (2026-11-19: the share of the meat sold; the best case's cells weigh 2 ng). For Central the cost matters more: across the 8-in-10 range of its cost of cells ($27 to $57 a kilo) the share
   at the 13% setting runs from 0.3% to 0.02%, about fourteen-fold.
 
 ## 5. The default chosen

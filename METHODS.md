@@ -187,7 +187,7 @@ cut: the published analyses all stop at harvested cells. A cut is costed from an
 (`research_notes/structuring_cost.md`; Structured products below). Products sold so far range from 3% to over 99% cells.
 Against a flat $5 a kilo, the rule this replaced, parity moves little ($7.0 to $6.1 a kilo of cells), because both are fitted
 to commodity meat's own spread, but the shelf price of anything dearer rises: at Selected cells' $32.8 a kilo of cells, from $37.8
-to $49.0. Selected cells' share of world meat and seafood at that cost would be 0.44% under the flat $5 and is 0.16% under the
+to $49.0. Selected cells' share of world meat and seafood at that cost would be 0.44% under the flat $5 and is 0.21% under the
 present rule; at the Engineered cells, all favourable case's cost, with Selected cells' demand, 4.15% and 2.74%. Both parts are drawn in the uncertainty bands.
 
 **Humbird's optimistic design (`cost_floor`, `scenarios.reference()`; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, engineered cells, no lost runs and no growth factors:
@@ -321,8 +321,8 @@ reinforce each other").
 **The headline numbers of a scenario are the medians of its draws**, with the 10th and 90th percentiles as "8 in 10 draws
 between": the cost, the shop price at the median cost, and the share. The cost with every estimate at its most likely value
 (`scenarios.run(choice)["total"]`, the mode of each prior) and the share at that cost are given second and named as such. The
-most-likely-values cost is below the median, because most estimates have more room to fall short than to improve: it is the 33rd
-percentile of Selected cells' draws and the 12th of the Engineered cells, all favourable case's. The ladder's steps, the switch tables and the side studies use
+most-likely-values cost is below the median, because most estimates have more room to fall short than to improve: it is the 37th
+percentile of the Selected cells case's draws and the 10th of Engineered cells, all favourable's. The ladder's steps, the switch tables and the side studies use
 most likely values, so that they can be subtracted. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
@@ -1291,6 +1291,8 @@ M > K × time_share × (r* − 1), with M the medium cost and K the non-medium c
 
 ## Step 2: demand (`market_share.py`)
 
+*Since 2026-11-19 every reported share is the share of the meat sold (x / (x + c)), and every kind of cell weighs 2 ng; some figures in the demand sections' prose below predate those changes (TODO.md).*
+
 A two-segment, four-product logit. Products: conventional `c`, plant-based `p`, cultivated `x`, whole food
 `w` (beans, tofu, lentils). Attributes: price ratio, taste, slaughter-free (0/1), real tissue (0/1), health.
 Segments: mainstream `M` (95%) and ethical `E` (5%, Gallup vegetarian + vegan).
@@ -1415,7 +1417,7 @@ familiar, its share of all choices at 1.25, 1.5, 2, 3 and 4 times the price of m
 fourth are golden-guarded). The spread also gives a group that never buys: the share is 24.5% at half the price of meat and
 41.5% if cultivated meat is free, so about 58% of choices never go to it. What it does not fix: the response of premium products
 to a falling price is 3.6–3.7 against farmed salmon's 1–1.5, and above about four times the price of meat the tail is an
-extrapolation (the premium data stop at 3.6 times). The Engineered cells, all favourable case, with its own 55% at equal price, takes 13.8% of world meat
+extrapolation (the premium data stop at 3.6 times). The Engineered cells, all favourable case, with its own 55% at equal price, takes 15.1% of world meat
 and seafood with this shape and took 19.9% with the normal: between one and four times the price of meat the answer depends on
 how many shoppers are moderately keener than average, which the t puts lower and no data measure beyond the one experiment.
 Shapes that fit the evidence about as well give the Engineered cells, all favourable case 14% to 17%.
@@ -1439,7 +1441,7 @@ and stay on the page as what-ifs on top. Taste (`accept_x`) is separate.
 a share x of one cut's buyers, and that cut is a share v of the carcass's value, then in the long run (herds adjust, the cost of
 raising an animal fixed, price elasticity ε for each cut) the herd falls by about v·x, the other cuts' price rises by about v·x/ε and
 that cut's falls by about (1−v)·x/ε. A smaller herd also lowers feed and land costs, which lowers every meat price somewhat. The
-Engineered cells, all favourable, with 55% at equal price, takes about 37% of beef buyers, steak and mince alike, and 13.8% of all meat and seafood.
+Engineered cells, all favourable, with 55% at equal price, takes about 37% of beef buyers, steak and mince alike, and 15.1% of all meat and seafood.
 Taking steak and mince alike, the shifts between cuts largely cancel; what remains is the herd. A 37% fall in demand for beef,
 with a long-run supply elasticity of 1–2, lowers beef's price by perhaps 10–20%, and other meats' by 3–7%. At those prices the best
 case's share is 10.8–12.4% instead of 13.8%: 10% to 22% lower. With Selected cells' demand the Engineered cells, all favourable case's cells take 8% of beef and
@@ -1662,7 +1664,7 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
 - **Demand at parity:** the share at equal price is a judgement, set at 13% and drawn between 3% and 52%. Around it, taste,
   acceptance as real meat and the value of “no slaughter” move it between 6% and 21%. The Engineered cells, all favourable case takes 55%.
 - **The spread of liking:** a Student's t fitted loosely to one experiment, sixteen premium meats and farmed salmon. Its tail decides Selected cells
-  (above four times the price of meat it is an extrapolation) and its middle decides the Engineered cells, all favourable case (13.8%, against 19.9% with
+  (above four times the price of meat it is an extrapolation) and its middle decides the Engineered cells, all favourable case (15.1% since 2026-11-19, 13.8% before; 19.9% with
   the normal spread it replaced). The response to a falling price is still more than twice farmed salmon's.
 
 ## Running it

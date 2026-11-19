@@ -1,5 +1,7 @@
 # Does cultivated meat get cheaper as it sells more? Cost and share solved together
 
+> 2026-11-19 (scenario restructure): the published cells are priced in perfusion as the cautious scenario ($92.17; rung 1 of the ladder is now a batch, with no filter to learn on); shares are the share of the meat sold; every kind of cell weighs 2 ng. The tables are current. New facts: the published cells stay near their own cost unless pushed, except with fast learning (to $51.66), and with central learning have a second resting point at $55.98 if pushed; their floor is $45.59. Selected cells rest at $17.50 and 1.34% (one resting point); Engineered cells, all favourable at $6.95 and 6.89%. Prose figures below are from before unless they match the tables.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
@@ -56,18 +58,18 @@ $6.41 and 8.30%.)
 
 ## 2. Cost against volume
 
-**1. Published cells** (no learning: $111.89)
+**Cautious** (no learning: $92.17)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 10,739 | 1,450 | 0.88× | $190.73 | under 0.01% |
-| 0.1 | 0.0298% | 107,388 | 1,450 | 0.67× | $158.71 | under 0.01% |
-| 0.5 | 0.149% | 536,938 | 1,450 | 0.53× | $137.56 | under 0.01% |
-| 2 | 0.595% | 2,147,752 | 1,450 | 0.43× | $122.56 | under 0.01% |
-| 10 | 2.98% | 10,738,759 | 1,450 | 0.33× | $108.59 | under 0.01% |
-| 35 | 10.4% | 37,585,658 | 1,450 | 0.29× | $101.38 | under 0.01% |
+| 0.01 | 0.00298% | 978 | 1,450 | 0.98× | $91.91 | under 0.01% |
+| 0.1 | 0.0298% | 9,783 | 114 | 0.89× | $55.97 | 0.03% |
+| 0.5 | 0.149% | 48,913 | 72 | 0.74× | $52.79 | 0.04% |
+| 2 | 0.595% | 195,650 | 50 | 0.61× | $50.32 | 0.04% |
+| 10 | 2.98% | 978,252 | 50 | 0.48× | $48.42 | 0.05% |
+| 35 | 10.4% | 3,423,884 | 50 | 0.40× | $47.21 | 0.06% |
 
-**3. Plus cells selected to grow faster on the low-waste feed (Central)** (no learning: $32.80)
+**4. Plus perfusion (Selected cells)** (no learning: $32.80)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
@@ -78,7 +80,7 @@ $6.41 and 8.30%.)
 | 10 | 2.98% | 485,428 | 50 | 0.53× | $16.98 | 1.44% |
 | 35 | 10.4% | 1,698,999 | 50 | 0.44× | $16.29 | 1.59% |
 
-**5. Plus engineered cells** (no learning: $11.46)
+**7. Plus everything else at its favourable end (Engineered cells, all favourable)** (no learning: $11.67)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
@@ -97,10 +99,10 @@ $6.63 (the best case).
 
 | scenario | learning | the main model: cells, share | resting point from below: cells, share, Mt a year | from above: cells, share, Mt a year |
 |---|---|---|---|---|
-| 1. Published cells | central | $209.05, under 0.01% | $207.47, under 0.01%, 0.001 | $207.47, under 0.01%, 0.001 |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | $209.05, under 0.01% | $208.60, under 0.01%, 0.001 | $208.60, under 0.01%, 0.001 |
-| 1. Published cells | slow learning | $209.05, under 0.01% | $208.60, under 0.01%, 0.001 | $208.60, under 0.01%, 0.001 |
-| 1. Published cells | fast learning | $209.05, under 0.01% | $206.01, under 0.01%, 0.001 | $206.01, under 0.01%, 0.001 |
+| Cautious | central | $92.17, under 0.01% | $91.80, under 0.01%, 0.01 | $55.98, 0.03%, 0.10 |
+| Cautious | no food-grade membrane supplier, slow plant learning | $92.17, under 0.01% | $92.06, under 0.01%, 0.01 | $92.06, under 0.01%, 0.01 |
+| Cautious | slow learning | $92.17, under 0.01% | $92.06, under 0.01%, 0.01 | $92.06, under 0.01%, 0.01 |
+| Cautious | fast learning | $92.17, under 0.01% | $51.66, 0.04%, 0.13 | $51.66, 0.04%, 0.13 |
 | 4. Plus perfusion (Selected cells) | central | $32.80, 0.21% | $17.50, 1.34%, 4.50 | $17.50, 1.34%, 4.50 |
 | 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | $32.80, 0.21% | $32.26, 0.22%, 0.75 | $32.26, 0.22%, 0.75 |
 | 4. Plus perfusion (Selected cells) | slow learning | $32.80, 0.21% | $21.74, 0.76%, 2.56 | $21.74, 0.76%, 2.56 |
@@ -116,7 +118,7 @@ points, and reaching the upper one needs someone to carry the industry across th
 - **The best case's cells come close to parity by this route but do not reach it: $6.67 against the $6.14 parity needs, and 6.21% of
   world meat** (2.74% without learning). They rest 4 cents above the cost with both items at their floors ($6.63), and no single
   input across its range takes them lower (section 5); fast learning, all its inputs at once, gives $6.54. With the best case's
-  own demand (55% at equal price, 13.8% without learning) they rest at the floors, $6.63, and take 29.0% of world meat. (With the
+  own demand (55% at equal price, 15.1% without learning) they rest at the floors, $6.63, and take 30.4% of world meat. (With the
   normal spread: $6.66 and 6.43%, and 35.6% with its own demand. Before the audit batch: $6.41 and 8.30%.)
 - **Central: cells fall from $32.80 to $17.69 and the share rises from 0.16% to 1.06%**, six and a half times. Its 0.55 Mt a year
   needs 4.86 million m² of membrane, 4.9 times the switch at 1.0, so it crosses on its own sales and has one resting point. It
@@ -137,8 +139,9 @@ points, and reaching the upper one needs someone to carry the industry across th
 
 | scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales (without premium fillets and shrimp) | chicken (organic): price against it, share of it | pork (heritage): price against it, share of it | beef (prime/wagyu): price against it, share of it | seafood (premium fillet, shrimp): price against it, share of it | seafood (sushi): price against it, share of it |
 |---|---|---|---|---|---|---|---|---|---|
-| 1. Published cells | no learning | $209.05 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.39×, under 0.01% | 14.94×, under 0.01% | 5.31×, under 0.01% | 11.95×, under 0.01% | 6.83×, under 0.01% |
-| 1. Published cells | resting point | $207.47 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.26×, under 0.01% | 14.83×, under 0.01% | 5.27×, under 0.01% | 11.87×, under 0.01% | 6.78×, under 0.01% |
+| Cautious | no learning | $92.17 | 0.004, 0.010, 0.001 | 26% (11%) | 8.40×, under 0.01% | 6.83×, 0.01% | 2.43×, 0.13% | 5.46×, 0.02% | 3.12×, 0.06% |
+| Cautious | resting point | $91.80 | 0.004, 0.010, 0.001 | 26% (11%) | 8.37×, under 0.01% | 6.80×, 0.01% | 2.42×, 0.14% | 5.44×, 0.02% | 3.11×, 0.06% |
+| Cautious | upper resting point | $55.98 | 0.03, 0.06, 0.009 | 28% (14%) | 5.31×, 0.04% | 4.31×, 0.07% | 1.53×, 1.33% | 3.45×, 0.11% | 1.97×, 0.46% |
 | 4. Plus perfusion (Selected cells) | no learning | $32.80 | 0.23, 0.41, 0.07 | 32% (18%) | 3.33×, 0.26% | 2.70×, 0.42% | 0.96×, 13.18% | 2.16×, 0.73% | 1.24×, 4.01% |
 | 4. Plus perfusion (Selected cells) | resting point | $17.50 | 1.23, 2.71, 0.57 | 27% (14%) | 2.02×, 1.60% | 1.64×, 2.66% | 0.58×, 51.75% | 1.31×, 4.67% | 0.75×, 22.82% |
 | 7. Plus everything else at its favourable end (Engineered cells, all favourable) | no learning | $11.67 | 2.34, 6.41, 1.88 | 22% (9%) | 1.52×, 3.87% | 1.24×, 6.25% | 0.44×, 69.57% | 0.99×, 10.46% | 0.57×, 39.51% |
@@ -146,10 +149,10 @@ points, and reaching the upper one needs someone to carry the industry across th
 
 | scenario | learning | sold at the scenario's own cost, Mt a year: premium products, premium products without premium fillets and shrimp, everything | membrane each needs, million m² a year | the switch, million m² a year | which of the three cross it alone? |
 |---|---|---|---|---|---|
-| 1. Published cells | central | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 1.0 | no, no, no |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | never | no, no, no |
-| 1. Published cells | slow learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 3.0 | no, no, no |
-| 1. Published cells | fast learning | under 0.001, under 0.001, 0.001 | 0.00, 0.00, 0.00 | 0.3 | no, no, no |
+| Cautious | central | 0.004, 0.002, 0.01 | 0.10, 0.04, 0.38 | 1.0 | no, no, no |
+| Cautious | no food-grade membrane supplier, slow plant learning | 0.004, 0.002, 0.01 | 0.10, 0.04, 0.38 | never | no, no, no |
+| Cautious | slow learning | 0.004, 0.002, 0.01 | 0.10, 0.04, 0.38 | 3.0 | no, no, no |
+| Cautious | fast learning | 0.004, 0.002, 0.01 | 0.10, 0.04, 0.38 | 0.3 | no, no, yes |
 | 4. Plus perfusion (Selected cells) | central | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | 1.0 | yes, yes, yes |
 | 4. Plus perfusion (Selected cells) | no food-grade membrane supplier, slow plant learning | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | never | no, no, no |
 | 4. Plus perfusion (Selected cells) | slow learning | 0.23, 0.13, 0.71 | 2.00, 1.14, 6.23 | 3.0 | no, no, yes |

@@ -51,7 +51,7 @@ VOLUMES = (0.01, 0.1, 0.5, 2.0, 10.0, 35.0)      # Mt of cultivated meat a year
 # the tables also give the count without it, so the four small premium markets the study began with can be read on their own.
 LARGE_PREMIUM = ("seafood (premium fillet, shrimp)",)
 LARGE_PREMIUM_NAME = "premium fillets and shrimp"
-SCEN = ("today", "central", "best")
+SCEN = ("cautious", "central", "best")   # 2026-11-19 restructure: rung 1 ("today") is a fed-batch with no filter to learn on; the published cells in perfusion are "cautious"
 NEVER = float("inf")
 CASES = {"central": {},
          "no food-grade membrane supplier, slow plant learning": {"ms_switch_area": NEVER, "ms_lr_plant": "lo"},
