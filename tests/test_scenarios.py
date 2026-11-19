@@ -128,14 +128,14 @@ for fname in ("RESULTS.md", "METHODS.md"):
         check(row in text, f"{fname} does not carry the scenario table row: {row[:70]}")
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
 for k in S.PAGE_ORDER:
-    bk = S.bands(S.SCENARIOS[k].choice)
-    sm = S.summary(S.SCENARIOS[k].choice)
+    bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
+    sm = S.summary(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"<b>{S.pct_num(bk['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
           f"the page's answer table does not headline {k}'s median share {S.pct_num(bk['share'][1])}%")
     check(f"At the point cost the share is {S.pct_num(sm['world'])}%" in page, f"the page does not label {k}'s point estimate")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
 # the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
-check(S.bands(S.SCENARIOS["best"].choice)["share"][1] < S.summary(S.SCENARIOS["best"].choice)["world"],
+check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
       "best case: median share should be below the point estimate")
 
 # 12b. the ladder (2026-11-16): each rung adds to the one before, so the cost falls down the ladder; rungs 3-5 are the old scenarios

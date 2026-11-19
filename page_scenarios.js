@@ -106,10 +106,18 @@ function scBuild(){
   [a,b].forEach(sel=>{ if(sel) sel.innerHTML=SC.switches.map(sw=>'<option value="'+sw.key+'">'+sw.name+'</option>').join(""); });
 }
 function scApply(key){
-  if(key==="reported"){ SCS.src="reported"; SCS.preset=null; }
-  else { SCS.src="scenario"; SCS.choice=Object.assign({},SC.presets[key].choice); SCS.preset=key; }
+  if(key==="reported"){ SCS.src="reported"; SCS.preset=null; scSetEqs(C.eqs_default); }
+  else { SCS.src="scenario"; SCS.choice=Object.assign({},SC.presets[key].choice); SCS.preset=key; scSetEqs(SC.presets[key].eqs); }
   scCommit();
 }
+// a scenario carries its demand: the share choosing cultivated meat at equal price once familiar (the best case's is higher)
+function scSetEqs(v){
+  state.equal_price_share=v;
+  if(typeof document==="undefined") return;
+  const r=document.getElementById("r_equal_price_share"); if(r) r.value=v;
+  const s=(typeof MODEL!=="undefined")?MODEL.sliders.find(x=>x.key==="equal_price_share"):null; if(s&&typeof setReadout==="function") setReadout(s);
+}
+function easyEqs(v){ scSetEqs(v/100); recompute(); }
 function scApplyChoice(o){ SCS.choice=Object.assign({},SC.presets[SC.start].choice,o); SCS.src="scenario"; SCS.preset=scPresetOf(SCS.choice); scCommit();
   const e=document.getElementById("decide"); if(e&&e.scrollIntoView) e.scrollIntoView({behavior:"smooth",block:"start"}); }
 function scPick(k,v){ SCS.choice[k]=v; SCS.src="scenario"; SCS.preset=scPresetOf(SCS.choice); scCommit(); }
@@ -357,7 +365,10 @@ function easyInit(){
 function easyRender(){
   const host=document.getElementById("easy_nums"); if(!host) return;
   const cost=biomass(state), retail=shelfPrice(cost,state), conv=C.p_conv_anchor*state.meat_tax;
-  const named=(SCS.src==="scenario"&&SCS.preset)?SCS.preset:null, bd=named?SC.bands[named]:null;
+  const picked=(SCS.src==="scenario"&&SCS.preset)?SCS.preset:null;
+  const named=(picked&&Math.abs(state.equal_price_share-SC.presets[picked].eqs)<1e-9)?picked:null, bd=named?SC.bands[named]:null;   // the band holds only at the case's own demand
+  const eq=document.getElementById("easy_eqs"), eqv=document.getElementById("easy_eqs_v");
+  if(eq) eq.value=Math.round(state.equal_price_share*100); if(eqv) eqv.textContent=Math.round(state.equal_price_share*100)+"%";
   const share=bd?bd.share[1]:scShare(cost,"global");
   const pct=v=>scPct(v)+"%";
   const tile=(big,txt)=>'<div class="easytile"><div class="easybig">'+big+'</div>'+txt+'</div>';
@@ -366,8 +377,8 @@ function easyRender(){
     tile(scMoney(retail,0),"a kilo in the shop: "+(retail/conv).toFixed(1)+" times everyday meat ($"+conv.toFixed(0)+")")+
     tile(pct(share),"of the world's meat in the long run"+(bd?(bd.share[0]<0.005?" (most likely "+pct(bd.share[2])+" or less)":" (most likely between "+pct(bd.share[0])+" and "+pct(bd.share[2])+")"):" (a single estimate for your own settings)"))+
     '</div>';
-  C.easy.cases.forEach(c=>{ const b=document.getElementById("easy_btn_"+c.key); if(b&&b.classList) b.classList.toggle("on",named===c.key); });
-  const mine=C.easy.cases.find(c=>c.key===named), say=document.getElementById("easy_say");
+  C.easy.cases.forEach(c=>{ const b=document.getElementById("easy_btn_"+c.key); if(b&&b.classList) b.classList.toggle("on",picked===c.key); });
+  const mine=C.easy.cases.find(c=>c.key===picked), say=document.getElementById("easy_say");
   if(say) say.innerHTML='<b>'+(mine?mine.label:scOwnName())+'.</b> '+(mine?mine.say:"These are settings chosen further down the page.")+
     ' To cost the same as everyday meat in the shop, a kilo of cells would have to cost about '+scMoney(parityCost(state))+'.';
   const ph=document.getElementById("easy_parts");

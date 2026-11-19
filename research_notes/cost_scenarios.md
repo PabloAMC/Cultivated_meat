@@ -24,7 +24,7 @@ keeps it for the side studies. The forecast row is the author's median for each 
 | 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.07% | **0.07%** (0.01–0.6%) | needs a change of feed, process or plant |
 | 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.08% | **0.1%** (0.01–0.8%) | needs selection or adaptation of cells |
 | 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.1% | **0.1%** (0.02–1.2%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 2.9% | **2.1%** (0.4–7.6%) | needs genetic engineering |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 22.2% | **11.5%** (3.7–23.5%) | needs genetic engineering |
 | Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.2% | **0.2%** (0.02–1.4%) | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 1.6% | **1.4%** (0.2–5.5%) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.04% | **0.1%** (0.02–0.8%) | a company's own report |

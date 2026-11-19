@@ -275,7 +275,7 @@ headline table gives the share at its point cost and the median of draws; `bands
 | 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.07% | **0.07%** (0.01–0.6%) | needs a change of feed, process or plant |
 | 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.08% | **0.1%** (0.01–0.8%) | needs selection or adaptation of cells |
 | 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.1% | **0.1%** (0.02–1.2%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 2.9% | **2.1%** (0.4–7.6%) | needs genetic engineering |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 22.2% | **11.5%** (3.7–23.5%) | needs genetic engineering |
 | Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.2% | **0.2%** (0.02–1.4%) | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 1.6% | **1.4%** (0.2–5.5%) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.04% | **0.1%** (0.02–0.8%) | a company's own report |
@@ -1209,11 +1209,12 @@ no longer drawn in the bands, since they are parts of it, and stay on the page a
 **When conventional meat's price responds (not modelled; a bound).** A carcass is a bundle of joint products. If cultivated meat takes
 a share x of one cut's buyers, and that cut is a share v of the carcass's value, then in the long run (herds adjust, the cost of
 raising an animal fixed, price elasticity ε for each cut) the herd falls by about v·x, the other cuts' price rises by about v·x/ε and
-that cut's falls by about (1−v)·x/ε. A smaller herd also lowers feed and land costs, which lowers every meat price somewhat. For the
-best case (about 15% of beef steak buyers, steaks perhaps half a carcass's value) steaks would fall and mince rise by roughly 8%,
-effects that largely offset for cultivated meat's total, and a 3–5% share of all meat would lower meat prices by perhaps 1–3%.
-Together these move the best case's share by perhaps 10–20%, against a fifteen-fold range from the share at equal price. Central's
-share is too small for any of it to matter.
+that cut's falls by about (1−v)·x/ε. A smaller herd also lowers feed and land costs, which lowers every meat price somewhat. Since
+2026-11-19 the best case takes 55% at equal price, and then it takes about 40% of beef buyers, steak and mince alike, and 22% of all
+meat. Taking steak and mince alike, the shifts between cuts largely cancel; what remains is the herd. A 40% fall in demand for beef,
+with a long-run supply elasticity of 1–2, lowers beef's price by perhaps 10–20%, and other meats' by 3–7%. At those prices the best
+case's share is 19–21% instead of 22.2%: a tenth to an eighth lower. With Central's demand (2.9%) the effect is about a tenth of
+that. Central's share is too small for any of it to matter.
 
 **How fast: the adoption curve against history.** At the defaults the model's share grows about a hundred-fold between the first year
 and the seventeenth (Central and the best case alike), reaching half its long-run value in 13–14 years and 90% in 23–26. Industries

@@ -242,6 +242,7 @@ class Scenario:
     rule: str             # how its settings were chosen
     choice: dict          # {switch: setting}, tank design filled in by `design()`
     alt: tuple = ()       # [(label, {switch: setting}), ...] the same scenario with one assumption changed
+    equal_price_share: str = "equal_price_share"   # the input that sets the long-run share at equal price (demand)
 
 
 def design(choice: dict) -> dict:
@@ -272,7 +273,8 @@ SCENARIOS = {
         "aspiration is not assumed. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
         "design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
-                "gf": "none", "medium": "0.15"})),
+                "gf": "none", "medium": "0.15"}),
+        equal_price_share="best_equal_price_share"),
     "central": Scenario(
         "central", "3. Plus cells selected to grow faster on the low-waste feed (Central)",
         "The cells of rows 1 and 2 already make little ammonia, on a changed feed, but that feed slowed them. Selecting the best lines "
@@ -453,22 +455,40 @@ def _demand():
     return _DP
 
 
-def shares(cost: float, regions=("global", "us", "eu")) -> dict:
+_DPS: dict = {}
+
+
+def demand_for(eqs_input: str = "equal_price_share"):
+    """The demand model with the long-run share at equal price taken from this input (the best case has its own)."""
+    if eqs_input == "equal_price_share":
+        return _demand()
+    if eqs_input not in _DPS:
+        from market_share import DemandParams
+        _DPS[eqs_input] = DemandParams(equal_price_share=value(eqs_input))
+    return _DPS[eqs_input]
+
+
+def eqs_of(key: str | None) -> str:
+    """The demand input a scenario uses (None, or a key that is not a scenario: the central one)."""
+    return SCENARIOS[key].equal_price_share if key in SCENARIOS else "equal_price_share"
+
+
+def shares(cost: float, regions=("global", "us", "eu"), eqs: str = "equal_price_share") -> dict:
     """Long-run share of meat sold by weight, %, by region, if cells cost `cost` $/kg (everything else at the
-    model's central demand settings)."""
+    model's central demand settings, or with the share at equal price from the input `eqs`)."""
     import meat_market as mm
-    dp = _demand()
+    dp = demand_for(eqs)
     return {r: mm.penetration(mm.MARKETS[r], cost, income=mm.REGION_INCOME[r], pr=dp)[1] * 100.0 for r in regions}
 
 
-def summary(choice: dict | None = None, r: dict | None = None, cost: float | None = None) -> dict:
+def summary(choice: dict | None = None, r: dict | None = None, cost: float | None = None, eqs: str = "equal_price_share") -> dict:
     """Everything the scenario table shows for one choice (or, with `r`/`cost`, for an explore result)."""
     from inputs import value as v
     if r is None:
         r = run(choice)
     cost = r["total"] if cost is None else cost
     retail, pconv = shelf_price(cost), v("p_conv")
-    sh = shares(cost)
+    sh = shares(cost, eqs=eqs)
     return {"cost": cost, "retail": retail, "ratio": retail / pconv, "world": sh["global"], "us": sh["us"],
             "eu": sh["eu"], "density": r["density"], "limit": r["limit"], "limit_plain": LIMIT_PLAIN.get(r["limit"], r["limit"]),
             "medium_l": r["medium_l"], "medium_set_by": r["medium_set_by"], "uptime": r["uptime"], "output": r["output"]}
@@ -602,11 +622,12 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
     return {"total": cost, **d, **reg}
 
 
-def scenario_share_mc(choice: dict | None, region: str = "global", n: int = 1000, seed: int = 0) -> dict:
+def scenario_share_mc(choice: dict | None, region: str = "global", n: int = 1000, seed: int = 0,
+                      eqs: str = "equal_price_share") -> dict:
     """Cost and demand uncertain together: each draw takes a cost from scenario_mc and the demand dials from their priors."""
     import meat_market as mm
     cost = scenario_mc(choice, n, seed)["total"]
-    mc = mm.monte_carlo(region, n, seed=seed + 1, biomass=cost)
+    mc = mm.monte_carlo(region, n, seed=seed + 1, biomass=cost, equal_share_input=eqs)
     return dict(vol=mc["vol"], val=mc["val"], cost=cost)
 
 
@@ -615,13 +636,13 @@ BAND_N = 4000
 _BANDS: dict = {}
 
 
-def bands(choice: dict | None, n: int = BAND_N) -> dict:
+def bands(choice: dict | None, n: int = BAND_N, eqs: str = "equal_price_share") -> dict:
     """10th / 50th / 90th percentile of cost and of the world's long-run share by weight (cost and demand both
     uncertain). The 50th percentile of the share is the page's headline share for a scenario; the share at the
     scenario's own point cost (`summary(...)['world']`) is a different number and is labelled a point estimate."""
-    key = (tuple(sorted(choice.items())) if choice is not None else "reference", n)
+    key = (tuple(sorted(choice.items())) if choice is not None else "reference", n, eqs)
     if key not in _BANDS:
-        mc = scenario_share_mc(choice, "global", n)
+        mc = scenario_share_mc(choice, "global", n, eqs=eqs)
         q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
         _BANDS[key] = {"cost": q(mc["cost"]), "share": q(mc["vol"])}
     return _BANDS[key]
@@ -650,9 +671,10 @@ def js_model() -> dict:
     sw = [{"key": s.key, "name": s.name, "q": s.question,
            "settings": [{"key": t.key, "label": t.label, "short": t.short, "tag": t.tag, "note": t.note,
                          "p": _js_params(t.kw)} for t in s.settings]} for s in SWITCHES]
-    presets = {k: {"name": SCENARIOS[k].name, "story": story_text(k), "choice": SCENARIOS[k].choice}
+    presets = {k: {"name": SCENARIOS[k].name, "story": story_text(k), "choice": SCENARIOS[k].choice,
+                   "eqs": value(SCENARIOS[k].equal_price_share)}
                for k in SCENARIOS}
-    band = {k: bands(SCENARIOS[k].choice) for k in SCENARIOS}
+    band = {k: bands(SCENARIOS[k].choice, eqs=eqs_of(k)) for k in SCENARIOS}
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
             "medium_complete_on": value("sc_medium_complete") >= 0.5,
             "always": _js_params(always()),
@@ -676,7 +698,7 @@ def table_rows() -> list:
     rows = []
     for key in PAGE_ORDER:
         sc = SCENARIOS[key]
-        sm, b = summary(sc.choice), bands(sc.choice)
+        sm, b = summary(sc.choice, eqs=sc.equal_price_share), bands(sc.choice, eqs=sc.equal_price_share)
         rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], TAG_PLAIN[hardest_need(sc.choice)]))
     rs, b = summary(r=reference()), bands(None)
     rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], TAG_PLAIN[GE]))
@@ -714,8 +736,8 @@ def main() -> None:
     print(f"As a company reports: ${reported_cost():.2f}/kg, world share {shares(reported_cost())['global']:.1f}%\n")
     for key in ORDER:
         sc = SCENARIOS[key]
-        s = summary(sc.choice)
-        b = bands(sc.choice)
+        s = summary(sc.choice, eqs=sc.equal_price_share)
+        b = bands(sc.choice, eqs=sc.equal_price_share)
         print(f"{sc.name}\n  {story_text(key)}\n  rule: {sc.rule}")
         print(f"  ${s['cost']:.2f}/kg cells, ${s['retail']:.1f} in the shop, {s['ratio']:.2f}x everyday meat; world {b['share'][1]:.1f}% median ({b['share'][0]:.1f}\u2013{b['share'][2]:.1f}%), point estimate {s['world']:.1f}% "
               f"(US {s['us']:.1f}%, Europe {s['eu']:.1f}%); {s['density']:.0f} g/L, limited by {s['limit']}; {s['medium_l']:.0f} L/kg "
@@ -729,7 +751,7 @@ def main() -> None:
                   f"   worst {setting(p['switch'], p['worst']).label[:34]:<34} {p['d_worst']:+6.2f}")
         for it in interactions(sc.choice):
             print("   *", it["text"])
-        b = bands(sc.choice)
+        b = bands(sc.choice, eqs=sc.equal_price_share)
         print(f"  band (P10-P50-P90): cost ${b['cost'][0]:.1f} / {b['cost'][1]:.1f} / {b['cost'][2]:.1f}; "
               f"world share {b['share'][0]:.1f} / {b['share'][1]:.1f} / {b['share'][2]:.1f}%\n")
 

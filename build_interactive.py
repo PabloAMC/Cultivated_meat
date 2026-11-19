@@ -147,6 +147,7 @@ def build_model() -> dict:
         # --- demand: two-segment, four-product discrete-choice (logit) model ---
         # products: w=whole-food, c=conventional, p=plant-based, x=cultivated.
         # the JS mirrors market_share._utilities/share and re-runs the calibration solve.
+        "eqs_default": value("equal_price_share"),   # the central demand setting (scApply resets to it)
         "p_conv_anchor": value("p_conv"),       # the $12 commodity anchor: conventional's price in the demand model
         "eps_own": value("eps_own"),
         "cult_sub_mult": value("cult_sub_mult"),  # closeness/substitutability lever
@@ -221,8 +222,9 @@ def build_model() -> dict:
              "say": "Changes to the feed and the tank, cheaper inputs, and cells selected to grow faster. No genetic engineering. "
                     "Each part is plausible, but nobody has shown them working together."},
             {"key": "best", "label": "Best case",
-             "say": "Everything works, including cells engineered to make almost no waste. This is the low end of what the model "
-                    "allows, not what to expect."}]},
+             "say": "Everything works, including cells engineered to make almost no waste, and once it is familiar shoppers "
+                    "slightly favour it over meat at the same price. This is the favourable end of what the model allows, not what "
+                    "to expect."}]},
         "mc_inputs": list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS),
         "mc_timing_inputs": list(MC_TIMING_INPUTS),
         # triangular Monte-Carlo priors [lo, mode, hi] for every sampled input
@@ -477,12 +479,13 @@ def build_model() -> dict:
                tip="This is how much meat purchases fall when prices rise. The default −0.9 means that meat 1% dearer sells 0.9% "
                "less (Andreyeva 2010). Meta-analyses span −0.7 to −1.0. A single cultivated "
                "product is &kappa; times more sensitive than this. The Monte Carlo samples this slider."),
-        slider("equal_price_share", "Share at equal price, once familiar", "of buyers", 0.03, 0.55, 0.01,
+        slider("equal_price_share", "Share at equal price, once familiar", "of buyers", 0.03, 0.80, 0.01,
                value("equal_price_share"), "judgement", fmt="pct",
                tip="If cultivated meat cost the same as the meat beside it, tasted the same and was no longer new, this is the "
                "share of that meat's buyers who would choose it. At first contact a US choice experiment found about 5%. The "
                "default 13% assumes a third of that first wariness fades: novelty fades by half, while the sense that it is "
-               "unnatural stays. 49% would mean shoppers end up indifferent on average. Nobody has measured it, and it moves "
+               "unnatural stays. 49% would mean shoppers end up indifferent on average. The best case takes "
+               f"{value('best_equal_price_share'):.0%}: shoppers slightly favour it. Nobody has measured it, and it moves "
                "the long-run share more than any cost does."),
         slider("liking_sd", "Spread of liking between shoppers", "utils", 0.0, 8.0, 0.25, value("liking_sd"),
                "Van Loo 2020",
@@ -991,7 +994,7 @@ def _scenario_tokens() -> dict:
     out = {}
     for key, tag in (("today", "TODAY"), ("process", "PROCESS"), ("central", "CENTRAL"), ("central_lean", "CENTRAL_LEAN"),
                      ("best", "BEST"), ("forecast", "FORECAST")):
-        sm = S.summary(S.SCENARIOS[key].choice)
+        sm = S.summary(S.SCENARIOS[key].choice, eqs=S.eqs_of(key))
         out[f"COST_{tag}"] = f"{sm['cost']:.1f}"
         if key in ("best", "central"):
             out[f"R_{tag}"] = f"{sm['ratio']:.2f}"
@@ -1323,7 +1326,7 @@ table.sctab{border-collapse:collapse;width:100%;font-size:.82rem;min-width:820px
 .easytiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0;}
 .easytile{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:#fff;font-size:.86rem;line-height:1.35;}
 .easybig{font-size:1.75rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}
-#easy_say{font-size:.92rem;line-height:1.5;margin:8px 0;} .easysum{display:none;color:#555;font-size:.88rem;margin:0 0 8px;}
+#easy_say{font-size:.92rem;line-height:1.5;margin:8px 0;} .easydem{font-size:.88rem;margin:4px 0 8px;} .easydem input{width:100%;max-width:420px;display:block;} .easysum{display:none;color:#555;font-size:.88rem;margin:0 0 8px;}
 @media(max-width:620px){.easytiles{grid-template-columns:1fr;}}
 body:not(.easy) #easy{display:none;}
 body.easy section[data-easy]{border-top:1px solid var(--rule);}
@@ -1369,6 +1372,8 @@ Commission. <a href="#about">About this page</a>.</p>
 what it would cost to grow, what it would cost in the shop, and how much of the world's meat it could replace at that price.</p>
 <div id="easy_pick"></div>
 <div id="easy_nums"></div>
+<div id="easy_dem" class="easydem"><label for="easy_eqs">If it cost the same as meat and was no longer new, the share of shoppers who would choose it:
+<b id="easy_eqs_v"></b></label><input type="range" id="easy_eqs" min="3" max="80" step="1" oninput="easyEqs(this.value)"></div>
 <p id="easy_say"></p>
 <div id="easy_parts" class="scrollx"></div>
 <p class="fxn">Each part below opens when you click its heading. <a href="#" onclick="setView('full');return false;">Show everything</a> for the whole page at once.</p>

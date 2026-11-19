@@ -1458,6 +1458,14 @@ REGISTRY: dict[str, Input] = {
         note="THE MODEL'S LARGEST UNKNOWN. 0.05: nothing fades. 0.49: shoppers end up indifferent on average, the model's "
              "implicit premise before 2026-11-18. It moves Central's long-run share about fifteen-fold across its range. Drawn "
              "in the bands."),
+    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
+        "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
+        "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
+        "antibiotics, disease) none of the precedents for distrusted foods had to face (irradiated food, margarine, modified "
+        "crops, all against a natural product), and decades of familiarity and a new generation of shoppers are part of it.",
+        lo=0.35, hi=0.70, mode=0.55,
+        note="Used only by the best case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
+             "Every other scenario uses equal_price_share."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "
         "buyers, versus 0.9% for meat-in-general. WHY > 1: the measured -0.9 is the elasticity of the meat "

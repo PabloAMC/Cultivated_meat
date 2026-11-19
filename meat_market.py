@@ -363,7 +363,7 @@ def _draw(name, rng, n):
     return rng.triangular(lo, mode, hi, n)
 
 
-def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dict:
+def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_share_input: str = "equal_price_share") -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
@@ -371,6 +371,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dic
     resistance. The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
+    if equal_share_input != "equal_price_share":   # a scenario with its own demand setting (the best case): drawn on its own
+        s["equal_price_share"] = _draw(equal_share_input, np.random.default_rng(seed + 7), n)   # stream, the others unchanged
     cp = CostParams()
     if biomass is None:
         biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]

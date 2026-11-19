@@ -13,6 +13,10 @@ Open pull requests (each says "no default changes" unless noted):
 - [x] **The spread of liking is in the shopper model** (done 2026-11-18, `research_notes/liking_spread.md`). The long-run share at
       equal price is a visible setting, `equal_price_share` (13%, drawn 5–49%), and the only demand dial for the long-run level in the
       bands. The model passes three of four price-response checks. Branch `claude/recalibrate-demand` is superseded; do not merge.
+- [ ] **The best case's demand (55%) and Central's range (5–49%)**: Central's range almost excludes shoppers favouring cultivated meat
+      (under 1% of draws above 45%), while the best case now assumes it. Decide whether Central's range should reach about 60%.
+- [ ] **Conventional meat's price response** (METHODS, "When conventional meat's price responds"): with the best case's demand it is
+      worth a tenth to an eighth of the share; model it if the best case's demand stays.
 - [ ] **Plant-based meat's own-price elasticity** still fails (-2.85 against about -1.3): its buyers are a committed minority the
       model does not represent. A spread of liking for plant-based meat, refitted to the 1.2% share, is the candidate fix.
 - [ ] **Evidence on the long-run share at equal price** (`demand_heterogeneity_evidence.md` §6): one reading of foods made by

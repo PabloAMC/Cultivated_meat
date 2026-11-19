@@ -19,7 +19,7 @@ _CACHE: dict = {}
 def bands(key: str) -> dict:
     """10th / 50th / 90th percentile of the cost and of the world's long-run share, for a scenario (cached)."""
     if key not in _CACHE:
-        _CACHE[key] = S.bands(S.SCENARIOS[key].choice)
+        _CACHE[key] = S.bands(S.SCENARIOS[key].choice, eqs=S.eqs_of(key))
     return _CACHE[key]
 
 
@@ -47,8 +47,11 @@ def scenario_table() -> str:
     for key in S.PAGE_ORDER:
         sc = S.SCENARIOS[key]
         r = S.run(sc.choice)
-        sm = S.summary(sc.choice, r)
+        sm = S.summary(sc.choice, r, eqs=sc.equal_price_share)
         b = bands(key)
+        demand = ("" if sc.equal_price_share == "equal_price_share" else
+                  f" Demand is favourable too: once familiar and at equal price, {value(sc.equal_price_share):.0%} of shoppers choose it "
+                  f"(the other rows: {value('equal_price_share'):.0%}).")
         alts = "".join(f"<br><span class='alt'>{lab}: {money(S.alt_cost(key, ch))}</span>" for lab, ch in sc.alt)
         need = S.needs(sc.choice)
         items = "".join(f"<li>{_esc(n)}: {_esc(lab)} <i>({_esc(t)})</i></li>" for n, lab, t in need)
@@ -68,7 +71,7 @@ def scenario_table() -> str:
             f"<td class='n'>{money(sm['retail'], 0)}<br><span class='alt'>{sm['ratio']:.2f}× everyday meat</span></td>"
             f"<td class='n'><b>{S.pct_num(b['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between {S.pct_num(b['share'][0])}% and "
             f"{S.pct_num(b['share'][2])}%, with cost and demand both uncertain. At the point cost the share is {S.pct_num(sm['world'])}% "
-            f"(US {S.pct_num(sm['us'])}%, Europe {S.pct_num(sm['eu'])}%).</span></td>"
+            f"(US {S.pct_num(sm['us'])}%, Europe {S.pct_num(sm['eu'])}%).{demand}</span></td>"
             f"<td class='s'>{_esc(limit_text(r))}</td></tr>")
     ref = S.reference()
     rs = S.summary(r=ref)

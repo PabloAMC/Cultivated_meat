@@ -12,12 +12,13 @@ Everything below reproduces from the code.*
 
 **The answer.** Cultivated meat stays a niche unless engineered cells and nearly everything else work. The central case costs
 **$29.4 a kilo of cells** and takes about **0.1% of world meat** in the long run (0.08% at the point cost; the median of draws 0.1%,
-80% of them 0.01–0.8%). With engineered cells and the cheapest plausible setting of everything else it costs **$9.7** and takes about
-**2–3%**. Price parity with everyday meat needs about **$6**, and no scenario reaches it unless the supply industry gets cheaper as it
+80% of them 0.01–0.8%). With engineered cells and the cheapest plausible setting of everything else it costs **$9.7**; if
+shoppers also slightly favour it once it is familiar, it takes about **10–20%** (the median of draws 11.5%, 80% of them 3.7–23.5%;
+22.2% at the point cost). With Central's demand the same cost gives 2.9%. Price parity with everyday meat needs about **$6**, and no scenario reaches it unless the supply industry gets cheaper as it
 grows (below). At Central's cost, no single demand input, moved across its range, takes the share above 1.1%. The input that
 moves it most is a judgement: the share of shoppers who would choose cultivated meat at equal price once it is familiar. The model
-takes 13% (5% at first contact, as measured); at about half, Central would take about 1% and the best case about 19% ("Shoppers
-differ", below). The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
+takes 13% (5% at first contact, as measured) in every case but the best, which takes 55%: shoppers slightly favour it. At 55%
+Central would take 1.4% ("Shoppers differ", below). The cost itself rests on a handful of numbers, and the weakest of them are measurements nobody
 has made on meat cells: see "What the answer rests on" below.
 
 All costs are per kg of real cells, which are about 70% water and 20% protein, like meat. Plant costs are in 2025 prices. "Share" is
@@ -30,7 +31,7 @@ forecast of when.
 | 2. Plus process changes and cheaper inputs | **$30.7** ($27–51) | 3.85 | 0.07% | **0.07%** (0.01–0.6%) | needs a change of feed, process or plant |
 | 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$29.4** ($25–47) | 3.69 | 0.08% | **0.1%** (0.01–0.8%) | needs selection or adaptation of cells |
 | 4. Plus a food-grade plant with shared medium | **$26.6** ($22–44) | 3.36 | 0.1% | **0.1%** (0.02–1.2%) | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 2.9% | **2.1%** (0.4–7.6%) | needs genetic engineering |
+| 5. Plus engineered cells: the best case, everything works | **$9.7** ($10–19) | 1.41 | 22.2% | **11.5%** (3.7–23.5%) | needs genetic engineering |
 | Forecast for 2035: a first draft of the author's medians | **$24.8** ($21–41) | 3.16 | 0.2% | **0.2%** (0.02–1.4%) | needs selection or adaptation of cells |
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$12.5** ($12–22) | 1.74 | 1.6% | **1.4%** (0.2–5.5%) | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34.4** | 4.27 | 0.04% | **0.1%** (0.02–0.8%) | a company's own report |
@@ -40,7 +41,8 @@ in the ordinary tall tank with no tricks, at today's prices for medium and growt
 cells: the tank tricks, more gas with a protectant, faster restarts, and medium and growth factors at the prices companies
 announce. Row 3 adds cells selected on the low-waste feed until they double every 36 hours, not 43; this is the central case of earlier versions. Row 4
 adds a food-grade plant with shared medium. Row 5 adds engineered cells and puts every switch at its cheapest plausible
-setting; this is the best case. The forecast row is the author's median for each switch by 2035 (below). Humbird's optimistic
+setting, and takes the favourable end of demand too: once familiar, 55% of shoppers choose it at equal price, against 13%
+in the other rows; this is the best case. The forecast row is the author's median for each switch by 2035 (below). Humbird's optimistic
 design, the old reference ("the reference case" in the sections below), is not a rung: it assumes the hardest change (engineered cells) and none of the easy ones (the tank
 tricks).
 
@@ -50,7 +52,7 @@ estimates the cost rests on most (below): the ammonia the cells tolerate, the pr
 antifoam's cost to oxygen transfer and the membrane's price. The share band lets demand vary too (4,000 draws).
 Every row gives both the share at its own point cost and the median of the draws, so rows can be compared on either. The point
 cost sits below the median cost, because the estimates behind it have more room to fall short than to improve. The share rises
-steeply as the price falls, so the share at the point cost is higher than the median (best case: 2.9% at the point cost, 2.1% median).
+steeply as the price falls, so the share at the point cost is higher than the median (best case: 22.2% at the point cost, 11.5% median).
 
 - **The easy changes are worth the most, and they come first.** Today's measured cells in an ordinary tank cost **$63.0 a kilo**. The
   changes in row 2 halve that, to **$30.7**, without touching the cells. The tank tricks alone are worth $20.6 for these cells, the
@@ -67,8 +69,9 @@ steeply as the price falls, so the share at the point cost is higher than the me
 - **Engineered cells take off $16.9, to $9.7, the best case.** They make almost no waste, so they need 11 litres of medium a kilo
   instead of 28, and every litre less is also a litre less through the filter and less protectant. Its tank reaches the thickness limit
   (258 g/L) with the column, 1 bar of pressure, recycled oxygen and a squat tank. With the cheapest plausible setting of every other
-  switch, cultivated meat then takes about **2% of world meat** (the median; 80% of draws between 0.4% and 7.6%; 2.9% at the
-  point cost, with 4.6% in the US and 6.5% in Europe). The point cost is optimistic even for this case: only 4% of the draws come
+  switch, and shoppers who slightly favour it once it is familiar, cultivated meat then takes about **12% of world meat** (the
+  median; 80% of draws between 3.7% and 23.5%; 22.2% at the point cost, with 29% in the US and 35% in Europe). With Central's demand
+  the same cost gives 2.9% (2.1% median): the demand judgement moves the best case more than any cost does. The point cost is optimistic even for this case: only 4% of the draws come
   in below it. Its limits (ammonia, lactate and the least medium flow) all ask for about 11 litres a kilo, so any estimate that goes
   against it raises the cost, and none that goes for it can lower the cost much.
 - **The forecast for 2035 is $24.8 a kilo and about 0.2% of world meat** (median; 0.02–1.4%). It is the ladder's row 4 with fewer lost
@@ -105,7 +108,7 @@ steeply as the price falls, so the share at the point cost is higher than the me
   but those markets are tiny.
 - **When:** these are long-run ceilings. Adoption reaches 90% of its long-run share after about 30 years.
 
-**What the answer rests on** (`answer_rests_on.py`). The model has 525 inputs, 246 of them with a range. Moving
+**What the answer rests on** (`answer_rests_on.py`). The model has 526 inputs, 247 of them with a range. Moving
 each across its range, one at a time, with each scenario's tank design held as it is: only 13 move Central's or the best
 case's cost by $1 or more, and 7 move Central by more than $3. The rest serve side studies or tank detail.
 
@@ -160,7 +163,7 @@ case's cost by $1 or more, and 7 move Central by more than $3. The rest serve si
 | Weight on the price compared with meat's | 0.5 to 1.5 utils per unit ratio (1) | 0.03% to 0.3% | 2.4% to 3.6% | judgement: how much of the price response is a ratio to meat's price rather than dollars | no: each value re-solves the demand model's calibration |
 
 - **The demand side cannot rescue Central.** At Central's cost, no single demand input moved across its range takes the share outside
-  0.02–1.1%. At the best case's cost the same inputs span 0.8–18.9%: there, how people take to a new food
+  0.02–1.1%. At the best case's cost, with Central's demand, the same inputs span 0.8–18.9%: there, how people take to a new food
   matters as much as the cost.
 - **A flaw in the demand model, found and fixed (2026-11-16).** Price enters utility through two channels: dollars (the BLP term,
   scaled by income) and the ratio to meat's price. They are calibrated together to one elasticity at one price. A strong loss
@@ -531,14 +534,14 @@ slowly than the model's curve, which misses the sixteen products by a typical fa
 2.4, with shoppers about a quarter as price-sensitive. Placing cultivated meat on that curve, corrected for what differs from a welfare
 label (no killing +5% of meat's price, novelty −30% with half of it fading, unnatural −20%; hypothetical studies), gives Central
 **0.16%** of world meat in the long run (0.07–0.26%), against the model's 0.08%. Near parity they disagree the other
-way: the best case gets 1.9% (0.9–3.0%) against the model's 2.9%, because the premium data start at 1.5× and
+way: at the best case's cost the curve gives 1.9% (0.9–3.0%) against the model's 2.9% with Central's demand, because the premium data start at 1.5× and
 limited distribution holds premium labels down. With the spread of liking now in the model (below), the two are within about a factor of
 two at both costs; with every shopper alike they had been three to four times apart at Central's.
 
 **Premium buyers, and a welfare label on the same shelf** (`premium_buyers.py`, `research_notes/premium_buyers.md`; on the model
 with every shopper alike). If about 10% of shoppers were habitual premium buyers who treat cultivated meat as a premium meat, with a
 welfare label at 2× beside it, Central's long-run share would rise from 0.08% to 0.18% of world meat (0.41% if they value no
-killing at a whole extra meat price), and the best case's from 2.91% to 4.26% (5.63%). Cultivated meat would take 21% of its
+killing at a whole extra meat price), and at the best case's cost from 2.91% to 4.26% (5.63%). Cultivated meat would take 21% of its
 sales from the label (24% at the high value) on the logit's proportional assumption. The premise, that buyers of organic and welfare
 meat are cultivated meat's keenest buyers, is contradicted by the evidence (`research_notes/demand_heterogeneity_evidence.md`).
 Defaults unchanged.
@@ -547,7 +550,7 @@ Defaults unchanged.
 price ($1,450 a m²) and the plant at today's equipment prices. If a food-grade membrane supplier appears once demand passes a million m²
 a year ($150 a m², then 18% cheaper for each doubling, to $50) and the plant gets 10% cheaper for each doubling of installed tanks,
 cost and share solved together give Central $19.35 a kilo of cells and 0.45% of world meat (from $29.42 and 0.08%; one resting point,
-$19.35 and 0.45% from above too), and the best case $6.17 and 5.69% (from $9.66 and 2.91%): parity, by a route that needs no
+$19.35 and 0.45% from above too), and the best case $6.17 and 5.69% (from $9.66 and 2.91%; both with Central's demand): parity, by a route that needs no
 better cells than the best case assumes. Premium products alone (43% of Central's sales) are too small a market to bring a food-grade
 membrane supplier, but Central's whole sales, with the keenest shoppers buying ordinary cuts as well, are enough. Today's cells sell too
 little to start. With slow learning Central has two resting points ($29.10 and $22.68), so there its gap is a coordination problem.
@@ -569,7 +572,7 @@ paper reports none, and those two numbers are a formula applied to two of its co
 −1.5 (`research_notes/demand_heterogeneity_evidence.md`). Plant-based meat still fails: the model gives -2.85. Its remaining buyers are
 probably a committed minority that a spread of liking for cultivated meat does not represent (TODO). Across the single price responses
 the measurements could support, with every shopper alike, Central's share runs from 0.04% to 2.2%; the default gives 0.08%,
-and the best case 2.9%.
+and at the best case's cost 2.9%.
 
 **Shoppers differ in how much they like cultivated meat** (the default since 2026-11-18; `liking_spread.py`,
 `research_notes/liking_spread.md`). The experiment that estimated shoppers one by one found liking spread very widely. A spread of
@@ -587,7 +590,7 @@ with no spread). It also shows what the model had been assuming about the long r
 With every shopper alike, the fading of first-contact wariness took cultivated meat from 5% to half the market at equal price. With
 the spread, the same fading takes it to 13%, now the model's setting (`equal_price_share`); half the market needs the average shopper
 to end up indifferent between the two meats, with no-killing's appeal outweighing the "unnatural" image. Across the three readings
-Central's share runs from 0.02% to 1.1% and the best case's from 0.8% to 18.8%: the long-run share at equal price is the
+Central's share runs from 0.02% to 1.1% and, at the best case's cost, from 0.8% to 18.8%: the long-run share at equal price is the
 model's largest unknown, drawn in the bands from 5% to 49% (median about 19%). A reading of how other foods made by distrusted
 processes fared puts it near 18% (`research_notes/demand_heterogeneity_evidence.md` §6). The setting lands on what premium real
 meats hold at two and three times the price without being fitted to them. An attempt to give the slow tail to buyers of organic

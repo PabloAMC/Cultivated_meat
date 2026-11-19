@@ -1,5 +1,22 @@
 # Change log
 
+## 2026-11-19
+
+**The best case takes the favourable end of demand too** (`inputs.best_equal_price_share`, `scenarios.py`; **default changed for the
+best case only**)
+- Pablo: "best" should mean the favourable end of every uncertain input, and demand is one of them; the precedents for distrusted
+  foods (irradiation, margarine, modified crops) all competed with a natural product, while cultivated meat's competitor is
+  factory-farmed meat.
+- The best case now takes 55% at equal price once familiar (shoppers slightly favour it), drawn 35–70% in its band; every other
+  row keeps 13%. Best case: **22.2%** of world meat at the point cost (was 2.9%), median of draws **11.5%** (3.7–23.5%; was 2.1%),
+  US 29%, Europe 35%. At its cost with Central's demand it is still 2.9%; at 55%, Central would take 1.4%.
+- Side studies (premium curve, premium buyers, market-size loop, demand checks, liking spread, what the answer rests on) stay at
+  Central's demand; RESULTS now says "at the best case's cost" where they quote it.
+- METHODS: conventional meat's price response re-bounded for the new best case (it takes about 40% of beef buyers): a tenth to an
+  eighth off its share (22.2% → 19–21%).
+- Page: choosing a scenario sets the demand slider to that scenario's value; the slider now runs to 80%; the short version has
+  its own slider for the share at equal price, and shows the band only at the case's own demand setting.
+
 ## 2026-11-18
 
 **Shoppers differ in how much they like cultivated meat: now the default** (`market_share.py`, `liking_spread.py`,
