@@ -24,8 +24,9 @@ price of everyday meat, and cultivated meat takes under 0.001% of world meat and
 - **A 1% share needs cells at about $20 a kilo** with the model's 14.5% of meat buyers picking cultivated meat at equal price, and
   about $30 if half of meat buyers did. Both are reached by cells whose traits have each been shown without genetic engineering:
   less ammonia (0.055 mol a kilo) and less lactate (0.42 mol per mol of glucose) than the published cells, in a food-grade plant.
-  Those two levels have so far been shown only in CHO cells, not in meat cells, and low ammonia has not been shown together with a
-  doubling under 43 hours in one meat cell.
+  Those two levels have so far been shown only in CHO cells, not in meat cells. The first set also doubles every 20 hours, and low
+  ammonia has not been shown together with a doubling under 43 hours in one meat cell; the second keeps the 43 hours. The first
+  reaches the cost in a 20 m³ batch, the mode that has been shown, not in perfusion.
 - **A 10% share needs cells at $4.9 a kilo at 14.5% of meat buyers**, below every set of traits tried, and below the $6.1 of parity
   with a $12 kilo of everyday meat. At 50% of meat buyers it needs $12.9, which the sets tried reach only with no ammonia and no
   lactate at all, so far shown only with genetic engineering (and, for lactate, by feeding glucose slowly in CHO cells).
