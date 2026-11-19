@@ -66,9 +66,14 @@ suspensions turn elastic from about 40% (Iordan et al. 2007, part; Thomas's and 
 | Hydrocyclone | 5e7 cells/mL in a 40 L bag (Bettinardi 2020, abstract) | feed 3.4 m3/h | $9k | ($24.58-61.99) | Beyond what is shown; loses a third of the cells |
 | Spin filter | about 1e7 cells/mL | - | - | - | Not possible: its screen does not grow with the tank's volume, and it clogs |
 | Fluidized-bed centrifuge (kSep) | cell harvests | about 86 cycles an hour | - | - | Not possible: one cycle holds 2.9 kg of cells |
+| Cells grown as aggregates, gravity settler (added 2026-11-19) | 33-35e6 iPSC/mL (about 40 g/L) in 150 mL for 7 days (Manstein 2021, full); aggregates held back in 8 L (Huang 2020, full) | 22 m2 of plate; 0.38 m3 outside the tank | $4k | **$20.39** ($19.95-29.08) | Beyond what is shown; the cells must grow as aggregates and keep their size for a month |
+| Cells on edible carriers, gravity settler (added 2026-11-19) | 8e6 Vero/mL (about 20 g/L) in 3 L (Eppendorf, snippet); carriers at up to 6,000 L | the beads hold the tank to 26 g/L, where the harvest carries all the medium out | $0k | **$84.39** ($28.98-451.86) | Not a route to Central: beads take the volume |
 
 The ranges move each device's own inputs to their favourable and unfavourable ends together (`retention.scenario_range`). Every
 other part of the scenario stays as it is.
+
+Cells grown as aggregates or on edible carriers, held back by a plain settler, are worked out in `retention_aggregates.md`:
+what limits them, the oxygen inside an aggregate, the evidence and the probabilities.
 
 The same devices in the other two cases:
 
@@ -80,6 +85,8 @@ The same devices in the other two cases:
 | Acoustic | $12.04 (4 units) | $8.43, beyond what is shown |
 | Disc stack | $12.74 (1.6% of cells lost) | $9.01 (14% lost) |
 | Hydrocyclone | $12.08 (2.6% lost) | $8.92, beyond what is shown |
+| Aggregates | $12.12, beyond what is shown | $8.34, held to 193 g/L, beyond what is shown |
+| Carriers | $37.43, held to 36 g/L | $28.53, held to 36 g/L |
 
 ## 4. How each device is costed
 
@@ -167,7 +174,8 @@ rows that name 258 g/L describe the best case's density, not today's central dut
    setpoint switch in any case.
 4. **What would lower it.** Cells that need less medium per kg (less ammonia), so less permeate: the "kind of cells" switch now
    also decides the retention cost. Membranes that last longer at this density. A separator that bursts under 1% of the cells per
-   pass: at 1% the central case costs $22.63. None is shown.
+   pass: at 1% the central case costs $22.63. None is shown. Cells that grow as aggregates and keep their size for a month: a plain settler would
+   then hold Central's culture back for $20.39 a kilo (`retention_aggregates.md`; judged 8% likely at Central's density by 2035).
 
 ## 7. What was not found
 
@@ -176,3 +184,5 @@ rows that name 258 g/L describe the best case's density, not today's central dut
 - Cells lost through a filter into the permeate.
 - Any non-membrane perfusion of animal cells above 3,000 L or above about 5e7 cells/mL for a month.
 - Mayrhofer 2020, Wolf 2019 and the Xu/Chen high-density papers were not read.
+- Retention without a membrane by growing the cells in particles (aggregates, edible carriers) was researched on 2026-11-19:
+  `retention_aggregates.md`.

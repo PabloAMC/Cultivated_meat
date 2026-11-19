@@ -30,6 +30,11 @@ m3 of tank, the running cost per kg; `scenario_cost(device, case)` reprices the 
 
 Evidence: research_notes/retention_devices.md.
 
+Cells in particles (2026-11-19): `aggregates` (cells grown as clumps of 100-300 um) and `microcarriers` (cells on edible beads)
+are held back by a plain settler sized on the particle's settling speed. Each case is first run as it would be with them
+(`particle_case`): its density is held to what the particles' volume allows, and aggregates lose the growth of cells too short
+of oxygen to divide (`growth_penalty`). Evidence: research_notes/retention_aggregates.md.
+
 Run
 ---
     python retention.py
@@ -103,12 +108,22 @@ DEVICES = {
                       phi_max="rt_ds_phi_max"),
     "hydrocyclone": dict(name="Hydrocyclone", how="a spinning flow throws cells to the wall and back to the tank",
                          shown="5e7 cells/mL in a 40 L bag (Bettinardi 2020)", phi_max="rt_hc_phi_max"),
+    "aggregates": dict(name="Cells grown as aggregates, gravity settler", how="cells grow as clumps of 100-300 um that settle "
+                       "about a hundred times faster than single cells; a settler sends them back and the clear medium goes",
+                       shown="33-35e6 iPSC/mL in 150 mL for 7 days (Manstein 2021); aggregates held back in 8 L by a spiral "
+                             "settler and a back-flushed 20 um filter (Huang 2020)", phi_max="rt_agg_phi_shown"),
+    "microcarriers": dict(name="Cells on edible carriers, gravity settler", how="cells grow on beads of about 190 um that are "
+                          "eaten with them; a settler sends the beads back",
+                          shown="8e6 Vero/mL on Cytodex 3 in 3 L (Eppendorf); carriers at up to 6,000 L in vaccine plants",
+                          phi_max="rt_mc_phi_shown"),
 }
 NOT_COSTED = {"spin": ("Spin filter", "Its screen sits inside the tank, so its area grows with the tank's width, not its volume; "
                                      "shown only at about 1e7 cells/mL or less, and it clogs within weeks."),
               "ksep": ("Fluidized-bed centrifuge (kSep)", "One cycle holds about 2.9 kg of cells; the central duty passes "
                                                          "about 250 kg an hour, about 86 cycles an hour. The 6000S is discontinued.")}
-ORDER = ("hoped", "atf", "tff", "reuse", "dialyser", "ceramic", "settler", "acoustic", "discstack", "hydrocyclone")
+ORDER = ("hoped", "atf", "tff", "reuse", "dialyser", "ceramic", "settler", "acoustic", "discstack", "hydrocyclone",
+         "aggregates", "microcarriers")
+PARTICLES = ("aggregates", "microcarriers")      # cells in particles that settle fast: research_notes/retention_aggregates.md
 NOT_COSTED["mbr"] = ("Wastewater membrane (submerged, air-scoured)", "It cannot be steamed (rated to 40 C), is made for 3-20 g/L of "
                      "solids against 50-75 g/L dry here, and needs coarse bubbles in the culture.")
 NOT_COSTED["pvdf"] = ("Food and beverage hollow fibres (wine, beer)", "Sanitised with hot water, not sterilised, used on fluids "
@@ -119,10 +134,153 @@ _MEMB = {"reuse": ("rt_flux_lmh", "rt_tff_hw", "rt_membrane_price", "rt_reuse_li
          "ceramic": ("rt_flux_lmh", "rt_ceramic_hw", "rt_ceramic_price", "rt_ceramic_life")}
 
 
+# ----------------------------------------------------------------------------
+# Cells in particles: aggregates and carriers (research_notes/retention_aggregates.md)
+# ----------------------------------------------------------------------------
+# A particle settles at Stokes' speed, d^2 x (its density excess) x g / (18 x viscosity): a clump of 100 um settles about
+# 20 times faster than one 3 ng cell, a carrier bead of 190 um about 70 times. Two things limit the route instead:
+#   * thickness: a particle carries liquid inside it (between the cells of an aggregate, or the hydrogel of a bead), and the
+#     viscosity of a suspension follows the volume its particles take. The model lets single cells take a quarter of the
+#     volume (pf_x_visc); here the particles may take rt_part_phi_max, so the cells may take that times their share of a
+#     particle's volume. For a carrier that share is small: a layer of cells a few um thick on a bead of 190 um.
+#   * oxygen, for aggregates: it reaches the middle only by diffusion. With uptake Q per volume of aggregate (zero order) and
+#     dissolved oxygen C_s at the surface, the middle of a sphere of radius r sits at C_s - Q r^2 / (6 D). Cells below
+#     rt_o2_prolif are taken not to grow. The liquid film around the aggregate adds a drop of 2 Q r^2 / (3 Sh D_water).
+#     A layer of cells on a solid bead is too thin for any of this to matter.
+
+def _cells(kw: dict | None) -> fp.Cells:
+    kw = kw or {}
+    return fp.Cells(mass_pg=kw.get("mass_pg", 3000.0), doubling_h=kw.get("doubling_h", 24.0),
+                    **({} if kw.get("maintenance_share") is None else {"maintenance_share": kw["maintenance_share"]}))
+
+
+def surface_oxygen(kw: dict | None = None) -> float:
+    """Dissolved oxygen the tank is held at (mmol/L): the case's `do_mmol`, or the level Humbird's tank implies (0.28)."""
+    from gas_exchange import headspace_pressure
+    kw = kw or {}
+    return headspace_pressure(kw.get("p_top_barg"), kw.get("vessel_m3", 20.0), kw.get("aspect"), kw.get("do_mmol"))["c_liquid"]
+
+
+def uptake_per_volume(cells: fp.Cells, share: float | None = None) -> float:
+    """Oxygen uptake of an aggregate, mol per m3 of aggregate per second: qO2 (mmol/g/h) x g of cells per L of aggregate."""
+    share = value("rt_agg_cell_share") if share is None else share
+    return cells.qo2 * share * value("pf_cell_density") * 1000.0 / 3600.0
+
+
+def _film() -> float:
+    """The liquid film around an aggregate of radius R that takes up Q: its drop is flux x 2R / (Sh x D_water), with
+    flux = Q R / 3 per area, so drop = Q R^2 F. Returns F, s/m2 x m3/mol units folded in (1/(m2/s))."""
+    return 2.0 / (3.0 * value("rt_o2_sherwood") * value("rt_o2_diff_water"))
+
+
+def critical_diameter(cells: fp.Cells, c_s: float, d_tissue: float | None = None, c_min: float | None = None,
+                      share: float | None = None) -> float:
+    """Largest aggregate (um across) whose middle stays at or above c_min (mmol/L) with c_s in the liquid around it. The
+    drop from the liquid to the middle is Q R^2 (1/(6 D) + 2/(3 Sh D_water)): diffusion inside the aggregate (zero-order
+    uptake Q) plus the liquid film around it. 0 when the liquid is already below c_min."""
+    D = value("rt_o2_diff_tissue") if d_tissue is None else d_tissue
+    c_min = value("rt_o2_prolif") if c_min is None else c_min
+    if c_s <= c_min:
+        return 0.0
+    return 2.0 * math.sqrt((c_s - c_min) / (uptake_per_volume(cells, share) * (1.0 / (6.0 * D) + _film()))) * 1e6
+
+
+def hypoxic_share(d_um: float, cells: fp.Cells, c_s: float, d_tissue: float | None = None, c_min: float | None = None,
+                  share: float | None = None) -> float:
+    """Share of an aggregate's volume below c_min. Inside a core of radius a nothing is taken up (those cells are starved);
+    the shell from a to R takes up Q, so the drop across it is Q/(6D) (R^2 - a^2) + Q a^3/(3D) (1/R - 1/a), and the film
+    outside carries the shell's uptake, a drop of 2 Q (R^3 - a^3) / (3 R Sh D_water). Returns (a/R)^3."""
+    D = value("rt_o2_diff_tissue") if d_tissue is None else d_tissue
+    c_min = value("rt_o2_prolif") if c_min is None else c_min
+    Q, R, dc = uptake_per_volume(cells, share), d_um * 1e-6 / 2.0, c_s - c_min
+    if dc <= 0:
+        return 1.0
+    F = _film()
+
+    def drop(a):
+        inside = Q / (6.0 * D) * (R * R - a * a) + (Q * a ** 3 / (3.0 * D) * (1.0 / R - 1.0 / a) if a > 0 else 0.0)
+        return inside + Q * F * (R ** 3 - a ** 3) / R
+    if drop(0.0) <= dc:
+        return 0.0
+    lo, hi = 0.0, R                                                     # drop falls from drop(0) to 0 as a goes to R
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if drop(mid) > dc else (lo, mid)
+    return (0.5 * (lo + hi) / R) ** 3
+
+
+def growth_penalty(kw: dict | None = None, c_s: float | None = None, d_max: float | None = None) -> float:
+    """Share of the cells in aggregates that do not grow for want of oxygen. Aggregates grow from rt_agg_d_min_um to
+    rt_agg_d_max_um and are then broken up. In steady state cells are spread evenly over log(aggregate size) (each
+    aggregate spends equal time in each doubling of its mass), so the share is the mean hypoxic share over log(diameter).
+    Worked out once with the case's cells as they are (the slower growth would lower their uptake a little)."""
+    cells = _cells(kw)
+    c_s = surface_oxygen(kw) if c_s is None else c_s
+    d0 = value("rt_agg_d_min_um")
+    d1 = value("rt_agg_d_max_um") if d_max is None else d_max
+    n = 40
+    ds = [d0 * (d1 / d0) ** ((i + 0.5) / n) for i in range(n)] if d1 > d0 else [d1]
+    return sum(hypoxic_share(x, cells, c_s) for x in ds) / len(ds)
+
+
+def particle(device: str, kw: dict | None = None) -> dict:
+    """What a particle of `device` is: the cells' share of its volume (`share`), the diameter the settler must hold
+    (`settle_um`, the smallest particle), its density excess over medium (kg/m3), and the densest culture the thickness rule
+    allows (`cap`, g of cells per L). For carriers also: kg of dry carrier and litres of swollen bead per kg of wet cells."""
+    kw = kw or {}
+    rho_c, rho_m = value("pf_cell_density"), value("pf_medium_density")         # g/mL
+    out = {"device": device}
+    if device == "aggregates":
+        s = value("rt_agg_cell_share")
+        out.update(share=s, settle_um=value("rt_agg_d_min_um"), drho=s * (rho_c - rho_m) * 1000.0)
+    elif device == "microcarriers":
+        m = kw.get("mass_pg", 3000.0) * 1e-12                                     # g per cell
+        sigma, db = value("rt_mc_cells_cm2"), value("rt_mc_d_um") * 1e-4         # cells/cm2, cm
+        t = sigma * m / rho_c                                                     # cm: the cell layer, as a solid film
+        s = 6.0 * t / (6.0 * t + db)                                              # cells' share of a loaded bead's volume
+        bead_l = db / (6.0 * sigma * m)                                           # mL of bead per g of cells = L per kg
+        out.update(share=s, layer_um=t * 1e4, settle_um=value("rt_mc_d_um") / (1.0 - s) ** (1.0 / 3.0),
+                   drho=(s * (rho_c - rho_m) + (1.0 - s) * (value("rt_mc_density") - rho_m)) * 1000.0,
+                   bead_l_kg=bead_l, carrier_kg=bead_l * value("rt_mc_solids"),
+                   carrier_wet_share=bead_l * value("rt_mc_density") / (bead_l * value("rt_mc_density") + 1.0))
+    else:
+        raise KeyError(device)
+    out["cap"] = value("rt_part_phi_max") * out["share"] * rho_c * 1000.0
+    return out
+
+
+def particle_case(device: str, kw: dict | None = None) -> tuple:
+    """The case as it would run with cells in particles: (explore arguments, notes). Two changes, each only when it binds:
+    the density is held to the particles' thickness cap (an explore `vm` cap), and for aggregates the doubling time is
+    lengthened by the share of cells too short of oxygen to grow (doubling / (1 - that share))."""
+    kw = dict(kw or {})
+    p = particle(device, kw)
+    note = {"cap": p["cap"], "capped": False, "penalty": 0.0, "density_wanted": fp.explore(**kw)["density"]}
+    if device == "aggregates":
+        pen = growth_penalty(kw)
+        note["penalty"] = pen
+        if pen > 0:
+            kw["doubling_h"] = kw.get("doubling_h", 24.0) / (1.0 - pen)
+    if fp.explore(**kw)["density"] > p["cap"] + 1e-9:
+        vm = dict(kw.get("vm") or {})
+        vm["caps"] = {**vm.get("caps", {}), "particles": p["cap"]}
+        kw["vm"] = vm
+        note["capped"] = True
+    return kw, note
+
+
 def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     """Size a device for a case's duty. Returns: what it takes (units, m2), capital per m3 of tank ($k), running cost per kg of
     wet cells grown ($: membranes, power, maintenance), the share of grown cells it destroys or lets go (`loss`), the culture
-    held outside the tank (m3), and whether the case's density is beyond what the device has held (`beyond`)."""
+    held outside the tank (m3), and whether the case's density is beyond what the device has held (`beyond`).
+    For cells in particles (`PARTICLES`) the duty is the case as it would run with them (`particle_case`): `note` says
+    whether its density was held to the particles' cap and how much growth the aggregates' oxygen costs."""
+    note = None
+    if device in PARTICLES:
+        kw2, note = particle_case(device, kw)
+        if d is None or kw2 != dict(kw or {}):
+            d = duty(kw2)
+        kw = kw2
     d = duty(kw) if d is None else d
     v, liq, P, B, phi = d["vessel_m3"], d["liquid_m3"], d["permeate_m3_h"], d["bleed_m3_h"], d["phi"]
     kg = d["kg_year"]
@@ -173,6 +331,17 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
         feed = P / value("rt_hc_split")
         esc = (1.0 - value("rt_hc_eff")) * feed                             # culture-equivalent flow of cells lost
         out.update(feed_m3_h=feed, loss=esc / (B + esc), capex_k_m3=feed * value("rt_hc_price") / v)
+    elif device in PARTICLES:
+        p = particle(device, kw)
+        phi_p = phi / p["share"]                                            # volume the particles take
+        v1 = fp._stokes(p["settle_um"], p["drho"])                          # cm/h, the smallest particle held
+        vd = v1 * (1.0 - phi_p) ** 4.65 * value("rt_settle_v_frac")         # design overflow, cm/h
+        area = P / (vd / 100.0)
+        carriers = p.get("carrier_kg", 0.0) * value("rt_mc_price") if device == "microcarriers" else 0.0
+        out.update(area_m2=area, holdup_m3=area * value("rt_settle_holdup") / 1000.0, settle_cm_h=vd, particle_cm_h=v1,
+                   stay_min=value("pf_plate_gap") / (vd * 0.5) * 60.0,                    # on plates at 60 degrees, no oxygen
+                   phi_particles=phi_p, capex_k_m3=area * value("rt_settle_price") / v, cons_kg=carriers,
+                   carriers_kg=carriers, loss=value("rt_part_loss"), particle=p, note=note, density=d["density"])
     else:
         raise KeyError(device)
     key = DEVICES[device]["phi_max"]
@@ -190,11 +359,12 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
     the device. The TFF loop is explore()'s own default, so it is explore() itself (its sizing here gives the same numbers)."""
     kw = dict(kw or {})
     d = duty(kw)
-    sz = sizing(device, kw, d)
+    sz = sizing(device, kw, None if device in PARTICLES else d)
+    run = particle_case(device, kw)[0] if device in PARTICLES else kw      # the case as it runs with the device
     if device == "tff":
         r = fp.explore(**kw)
     else:
-        r = fp.explore(**{**kw, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg"]})
+        r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg"]})
     total = r["total"] / (1.0 - sz["loss"])
     return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"]}
 
@@ -212,6 +382,11 @@ _DRIVERS = {
     "discstack": (("rt_ds_cap", +1), ("rt_ds_price", -1), ("rt_ds_conc", +1), ("rt_ds_lysis", -1), ("rt_ds_power", -1),
                   ("rt_maint", -1)),
     "hydrocyclone": (("rt_hc_eff", +1), ("rt_hc_split", +1), ("rt_hc_price", -1)),
+    "aggregates": (("rt_agg_d_min_um", +1), ("rt_agg_d_max_um", -1), ("rt_agg_cell_share", +1), ("rt_o2_diff_tissue", +1),
+                   ("rt_o2_prolif", -1), ("rt_o2_sherwood", +1), ("rt_part_phi_max", +1), ("rt_part_loss", -1), ("rt_settle_price", -1),
+                   ("rt_settle_v_frac", +1)),
+    "microcarriers": (("rt_mc_d_um", -1), ("rt_mc_cells_cm2", +1), ("rt_mc_solids", -1), ("rt_mc_price", -1),
+                      ("rt_part_phi_max", +1), ("rt_part_loss", -1), ("rt_settle_price", -1), ("rt_settle_v_frac", +1)),
 }
 
 
@@ -277,7 +452,7 @@ def summarise() -> None:
             if c.get("passes_day"):
                 extra += f" passes {c['passes_day']:.2f}/day"
             print(f"    {DEVICES[dev]['name']:<38} ${c['total']:7.2f} ({c['delta']:+6.2f})  capital ${c['capex_k_m3']:6.0f}k/m3  "
-                  f"running ${c['cons_kg']:5.2f}/kg  loss {c['loss'] * 100:4.1f}%{'  BEYOND WHAT IS SHOWN' if c['beyond'] else ''}{'  NOT POSSIBLE' if c['impossible'] else ''}{extra}")
+                  f"running ${c['cons_kg']:5.2f}/kg  loss {c['loss'] * 100:4.1f}%{'  BEYOND WHAT IS SHOWN' if c['beyond'] else ''}{'  NOT POSSIBLE' if c['impossible'] else ''}{'  HELD TO %.0f g/L' % c['density'] if (c.get('note') or {}).get('capped') else ''}{extra}")
 
 
 def density_scan(kw: dict | None = None, caps=(258.0, 220.0, 180.0, 140.0, 100.0), membrane_life: float | None = None) -> list:
@@ -293,6 +468,51 @@ def density_scan(kw: dict | None = None, caps=(258.0, 220.0, 180.0, 140.0, 100.0
     return rows
 
 
+def oxygen_sizes(setpoints=(0.10, 0.21, 0.28)) -> dict:
+    """{case: {'own': (setpoint, diameter), setpoint: diameter}}: the largest aggregate (um) whose middle stays at
+    rt_o2_prolif, for each case's cells at its own dissolved-oxygen setpoint and at each of `setpoints` (mmol/L)."""
+    out = {}
+    for name, kw in cases().items():
+        c, cs = _cells(kw), surface_oxygen(kw)
+        out[name] = {"own": (cs, critical_diameter(c, cs)), **{x: critical_diameter(c, x) for x in setpoints}}
+    return out
+
+
+def aggregate_scan(kw: dict | None = None, sizes=(200.0, 300.0, 400.0, 500.0, 600.0), setpoints=(None, 0.28)) -> list:
+    """The aggregate route's cost when aggregates are let grow larger before they are broken up, at the case's own
+    dissolved-oxygen setpoint and at a higher one (which raises the size that stays oxygenated but lowers the tank's oxygen
+    transfer, so its density). Returns [(setpoint, largest aggregate um, growth lost, density g/L, $/kg)]."""
+    kw = dict(kw if kw is not None else cases()["central"])
+    rows = []
+    for sp in setpoints:
+        k = kw if sp is None else {**kw, "do_mmol": sp}
+        for dmax in sizes:
+            with _with({"rt_agg_d_max_um": dmax}):
+                c = scenario_cost("aggregates", k)
+            rows.append((surface_oxygen(k), dmax, c["note"]["penalty"], c["density"], c["total"]))
+    return rows
+
+
+def summarise_particles() -> None:
+    print("\n  cells in particles (research_notes/retention_aggregates.md):")
+    for name, row in oxygen_sizes().items():
+        print(f"    {name:<10} largest aggregate whose middle grows: {row['own'][1]:.0f} um at its own {row['own'][0]:.2f} mmol/L; "
+              + ", ".join(f"{row[x]:.0f} um at {x:.2f}" for x in (0.10, 0.21, 0.28)))
+    for name, kw in cases().items():
+        for dev in PARTICLES:
+            c = scenario_cost(dev, kw)
+            p, n = c["particle"], c["note"]
+            extra = (f"; carrier {p['carrier_kg']:.2f} kg dry and {p['bead_l_kg']:.1f} L of bead per kg of cells "
+                     f"({p['carrier_wet_share']:.0%} of the wet product)" if dev == "microcarriers" else "")
+            print(f"    {name:<10}{dev:<14} cells {p['share']:.0%} of a particle; cap {n['cap']:.0f} g/L"
+                  f"{' (holds the case to it, from ' + format(n['density_wanted'], '.0f') + ')' if n['capped'] else ''}; "
+                  f"growth lost {n['penalty']:.1%}; particle settles {c['particle_cm_h']:.0f} cm/h alone, plates at "
+                  f"{c['settle_cm_h']:.1f} cm/h, {c['area_m2']:.1f} m2, {c['stay_min']:.0f} min on the plates{extra}")
+    print("    central, aggregate route against the largest aggregate allowed (setpoint, um, growth lost, g/L, $/kg):")
+    for sp, dmax, pen, x, t in aggregate_scan():
+        print(f"      {sp:.2f} mmol/L  {dmax:4.0f} um  {pen:5.1%}  {x:4.0f} g/L  ${t:.2f}")
+
+
 def summarise_ranges() -> None:
     print("\n  ranges (each device's own inputs at their favourable / unfavourable ends):")
     for name, kw in cases().items():
@@ -304,6 +524,7 @@ def summarise_ranges() -> None:
 
 if __name__ == "__main__":
     summarise()
+    summarise_particles()
     summarise_ranges()
     print("\n  does a thinner culture pay? central scenario, density held at each cap (cost; membranes; plant capital):")
     for life in (None, 900.0):

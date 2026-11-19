@@ -83,4 +83,5 @@ elements are cleaned and kept.
 - Prices per m² for food hollow fibres and plasma separators, and for sterilisable ceramic or stainless housings.
 - Flux recovered after cleaning animal-cell fouling off any of them.
 - Dialysis with a cleaned dialysate, and cells held back without a filter (clumps, edible carriers, gel beads) were not researched
-  in this pass. They remain open.
+  in this pass. Clumps and edible carriers were researched on 2026-11-19 (`retention_aggregates.md`); dialysis and gel beads
+  remain open.
