@@ -561,7 +561,7 @@ function tpAnimalsRender(f){
   let s=tpCap(tpAnd(sl.top.map(r=>r.word)))+" bring "+tpFrac(sl.part)+" of its sales.";
   if(sl.cheap.length&&sl.cheapW>=0.3&&sl.cheapPart<0.6*sl.cheapW)
     s+=" "+tpCap(cheapN)+" "+(sl.cheap.length>1?"are":"is")+" "+tpFrac(sl.cheapW)+" of "+tpRegionMeat()+" but cheap, so it sells little there"+
-       (f.sb[2]<0.00095?".":": that is why the share of all meat and seafood is only "+pgPctS(A.total)+".");
+       (f.sb[2]<0.00095?".":": that is why the share of all meat and seafood is "+pgPctS(A.total)+", well below its share of the dearer meats.");
   else if(sl.cheap.length) s+=" "+tpCap(cheapN)+", the cheaper meats, bring "+part(sl.cheapPart)+".";
   set("tp_animals_say",s);
   set("tp_animals_alt","Long-run share within each kind of meat, "+pgRegionName()+": "+A.rows.map(r=>r.name+" "+pgPctS(r.within)+" ("+wp(r.w)+"% of all meat, "+part(r.part)+" of its sales)").join("; ")+
