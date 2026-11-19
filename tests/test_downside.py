@@ -13,11 +13,14 @@ import vessels as V
 from inputs import value
 
 # $/kg, fed-batch and fill-and-draw, at the model's own density cap and at the density shown for meat cells
+# repinned 2026-11-19: best's medium is now the nutrient floor ($2.00 a kilo whatever the litres, against $0.15 a litre before);
+# the other scenarios' growth factors are inside their complete-medium price, which cannot cost less than the nutrients plus those
+# growth factors (it binds at the model cap's 16 L/kg, not at 27 g/L's 37 L/kg)
 GOLDEN = {
-    "best": {("fedbatch", "model"): 13.8733, ("fedbatch", "shown"): 42.7717, ("filldraw", "model"): 13.9712},
-    "central": {("fedbatch", "model"): 41.3596, ("fedbatch", "shown"): 92.1584, ("filldraw", "model"): 44.5533},
-    "central_lean": {("fedbatch", "model"): 29.1893, ("filldraw", "model"): 31.1783},
-    "cautious": {("fedbatch", "model"): 61.0886, ("filldraw", "shown"): 129.5596},
+    "best": {("fedbatch", "model"): 14.1793, ("fedbatch", "shown"): 39.1678, ("filldraw", "model"): 14.2754},
+    "central": {("fedbatch", "model"): 40.1594, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 43.3466},
+    "central_lean": {("fedbatch", "model"): 27.9892, ("filldraw", "model"): 29.9716},
+    "cautious": {("fedbatch", "model"): 57.3257, ("filldraw", "shown"): 121.6584},
 }
 
 

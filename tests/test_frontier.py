@@ -21,18 +21,23 @@ def check() -> list:
     base = S.run(S.SCENARIOS["central"].choice)["total"]
     if not close(rows[0]["cost"], base, 1e-12):
         fails.append("the first step is not the central scenario")
-    # moving a lever to its limit never costs more (the $0.05 step is already at the nutrient floor, so it adds nothing)
+    # moving a lever to its limit never costs more
     for a, b in zip(rows, rows[1:]):
         if b["cost"] > a["cost"] + 1e-9:
             fails.append(f"'{b['name']}' raised the cost")
-    if not rows[-1]["cost"] < 0.25 * rows[0]["cost"]:
-        fails.append("the frontier should be well under a quarter of the central cost")
+    # 2026-11-19: Central fell $3.0 (growth factors inside its medium price) and the frontier rose $0.30 (the nutrient floor),
+    # so the frontier is now about 27% of Central, not under a quarter
+    if not rows[-1]["cost"] < 0.30 * rows[0]["cost"]:
+        fails.append("the frontier should be under 30% of the central cost")
     # the single levers, pinned (since PR #32 the studies' own notes are snapshots of the earlier model)
     alone = {n: c for n, c, _d in F.alone()}
-    want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 13.7632,
-            "Dialyser-grade hollow fibres as the filter": 21.2637, "Medium at $0.05 a litre": 25.4571,
-            "Cells double in 16 hours": 25.0979, "Culture at 320 g/L in place of 258": 29.4162,
-            "A food-grade plant with shared medium": 26.5552}
+    # 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (central $29.42 -> $26.43);
+    # the "$0.05 a litre" lever is now "Medium at the nutrient floor" (growth factors bought on top); a complete medium no
+    # longer costs less than its nutrients plus its growth factors (gf_in_medium), so 6.4 L/kg pays them: 13.3873 -> 14.0865
+    want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 14.0865,
+            "Dialyser-grade hollow fibres as the filter": 18.2770, "Medium at the nutrient floor": 25.7653,
+            "Cells double in 16 hours": 22.1112, "Culture at 320 g/L in place of 258": 26.4296,
+            "A food-grade plant with shared medium": 23.5685}
     for n, w in want.items():
         if not close(alone[n], w, 1e-4):
             fails.append(f"{n}: {alone[n]:.4f} != {w}")
@@ -40,11 +45,11 @@ def check() -> list:
     if min(alone, key=alone.get) != "Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate":
         fails.append("the least-medium lever should be the largest on its own")
     # the pinned frontier, and the one with GFI's amino-acid floor
-    if not close(rows[-1]["cost"], 6.8551, 1e-4):
-        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 6.8551")
-    if not (close(F.with_gfi_amino_acids(rows[-1]["state"]), 7.6574, 1e-4) and
-            F.with_gfi_amino_acids(rows[-1]["state"]) > rows[-1]["cost"]):
-        fails.append("GFI's amino-acid floor should raise the frontier to about $7.66")
+    if not close(rows[-1]["cost"], 7.1572, 1e-4):   # 6.8551 before 2026-11-19: the nutrient floor rose $0.30
+        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 7.1572")
+    # since 2026-11-19 the model's floor IS GFI's cheapest (feed grade, efficient need), so at the defaults they coincide
+    if not close(F.with_gfi_amino_acids(rows[-1]["state"]), rows[-1]["cost"], 1e-9):
+        fails.append("GFI's cheapest amino-acid floor should equal the model's frontier")
     return fails
 
 

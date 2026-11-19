@@ -147,14 +147,20 @@ REGISTRY: dict[str, Input] = {
              "medium price, the top driver of R."),
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
-    "aa_intensity": Input(0.337, "kg hydrolysate/kg wet", "[Humbird] Table 3.5: soy hydrolysate "
-        "needed to supply Reaction 2.11's amino acids (0.26 kg/kg of pure amino acids, Table 3.4; "
-        "more hydrolysate because its amino-acid profile does not match the cells')",
-        note="stoichiometric -> does NOT scale with media efficiency. Humbird adds free glutamine "
-             "(0.044 kg/kg, $1.74) and tyrosine (0.009 kg/kg, $0.88) supplements; the floor leaves "
-             "them out, assuming cells that make their own glutamine (glutamine-synthetase lines, "
-             "as in CHO) and tyrosine covered by the hydrolysate"),
-    "aa_bulk_price": Input(2.0, "$/kg", "[Humbird] bulk plant hydrolysate (cuts $15-16/kg)"),
+    "aa_intensity": Input(0.232, "kg amino acids/kg wet", "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; Pablo "
+        "2026-11-19] amino acids a kilo of wet cells takes up, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g "
+        "is the middle). Humbird's stoichiometry (Reaction 2.11) gives 0.26 kg of pure amino acids (Table 3.4); a kilo of wet cells "
+        "is about 15-20% protein",
+        lo=0.2, hi=0.65, mode=0.232,
+        note="stoichiometric -> does NOT scale with media efficiency. Before 2026-11-19: 0.337 kg of soy hydrolysate at $2/kg "
+             "($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, arginine, asparagine, cystine or serine, so those "
+             "come from fermentation at the prices of aa_bulk_price"),
+    "aa_bulk_price": Input(6.36, "$/kg amino acids", "[GFI Dec 2025, Table 1, read in full] feed-grade amino acids, the "
+        "unweighted mean of 22 (low food-grade 11.59, high food-grade 23.18); Humbird's base case paid $15-16",
+        lo=5.0, hi=11.59, mode=6.36,
+        note="the floor: what the cells must eat at the cheapest grade GFI prices. The mean is unweighted; serine, arginine and "
+             "glutamine are needed most and serine is among the dearest, so a weighted mean is probably higher (the range "
+             "reaches low food-grade). Drawn in the scenarios' bands (scenarios.MC_ESTIMATE_INPUTS)"),
     "glucose_intensity": Input(0.32, "kg/kg wet", "[Humbird] glucose at full respiration: Table "
         "2.3 gives 0.13 mol per mol DCMa (vs 0.147 for Reaction 2.11 = 0.362 kg/kg wet, Table 3.4), "
         "so 0.13/0.147 x 0.362 = 0.32",
@@ -164,8 +170,9 @@ REGISTRY: dict[str, Input] = {
     "glucose_price": Input(0.40, "$/kg", "[GFI25] US Midwest DE95 glucose, GFI & Hawkwood 2025 "
         "(Driving down costs of fermentation-derived ingredients, Table 6: $0.35-0.56)",
         note="Humbird quotes ~$0.25-0.26/kg contract prices"),
-    "other_nutrients_floor": Input(0.9, "$/kg", "[assumed] mineral salts, buffer, vitamins and "
-        "trace elements at the floor",
+    "other_nutrients_floor": Input(0.4, "$/kg", "[assumed, Pablo 2026-11-19] mineral salts, buffer, vitamins and "
+        "trace elements at the floor: DMEM/F12's salts, bicarbonate and vitamins at bulk prices come to about $0.005-0.01 a "
+        "litre, $0.1-0.3 a kilo of cells at 11-28 litres; 0.9 before 2026-11-19",
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
@@ -734,8 +741,8 @@ REGISTRY: dict[str, Input] = {
     "pf_growth_factors": Input(3.1, "$/kg", "[Humbird-R] Table 4.4: insulin, transferrin, FGF, TGF-beta at a "
         "100 kTA industry", note="Humbird: 'At much larger scale, their contribution vanishes entirely'. The "
         "model's floor leaves them out; cells that make their own growth factors would do the same"),
-    "pf_aa_price_cheap": Input(1.0, "$/kg hydrolysate", "[assumed] a cheaper amino-acid source than the $2/kg "
-        "hydrolysate", note="soybean meal is roughly $0.4/kg at ~47% protein, so ~$0.85 per kg of protein before "
+    "pf_aa_price_cheap": Input(1.0, "$/kg amino acids", "[assumed] the physical bound: amino acids at about the price of "
+        "protein in soybean meal, far below GFI's feed-grade amino acids (aa_bulk_price)", note="soybean meal is roughly $0.4/kg at ~47% protein, so ~$0.85 per kg of protein before "
         "hydrolysis and clean-up; microbial or gas-fermentation protein would have to beat that"),
     "pf_other_nutrients_cheap": Input(0.3, "$/kg", "[assumed] salts, buffer, vitamins at feed-grade prices",
         note="against the 0.9 assumed in other_nutrients_floor"),
@@ -1059,17 +1066,13 @@ REGISTRY: dict[str, Input] = {
         lo=0.0, hi=1.0, mode=0.3,
         note="his price assumes an industry far larger than today's; cells that make their own were shown in "
              "cattle cells by genetic engineering"),
-    "sc_medium_complete": Input(0.0, "switch", "[research_notes/growth_factors_in_medium_price.md] 1: the medium prices of $0.15 a "
+    "sc_medium_complete": Input(1.0, "switch", "[research_notes/growth_factors_in_medium_price.md] 1: the medium prices of $0.20 a "
         "litre and above are complete media, with growth factors in the price, so the growth-factor switch adds nothing to them "
-        "(about 0.85 likely). 0: growth factors are added on top, as before 2026-11-18",
-        note="OFF in this change; it is turned on, with every cost study repinned (Central $29.42 to $26.43), in the next one."),
+        "(about 0.85 likely). 0: growth factors are added on top, as before 2026-11-19",
+        note="ON since 2026-11-19. The growth-factor switch still applies to the medium at the nutrient floor, which is the "
+             "nutrients alone."),
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
-    "sc_medium_aspire": Input(0.05, "$/L", "[Pablo's aspiration, 2026-11-15; GFI Dec 2025] a medium at $0.05 a litre: GFI puts "
-        "amino acids alone at $0.02-0.17 a litre and the lowest company report at $0.07 (Clever Carnivore, unaudited)",
-        lo=0.03, hi=0.10, mode=0.05,
-        note="an aspiration, not a figure anyone has reported. Below about $0.06 the model's nutrient floor ($1.70 a kilo) binds, "
-             "so this setting prices medium at the floor; nutrient_floor.py shows the floor is probably higher"),
     "sc_medium_mid": Input(0.20, "$/L", "[GFI 2026 industry report, p.8] several companies announced media costs at "
         "$0.20/L or below in 2025", lo=0.15, hi=0.5, mode=0.20,
         note="company announcements, not verified at scale. GFI's amino acid analysis (Dec 2025, read in full) puts amino acids at "

@@ -1,5 +1,7 @@
 # From a kilo of cells to a shelf price: is the retail markup a fixed $/kg or a percentage?
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 Compiled 2026-11-18, after Pablo asked whether the model's flat $5/kg markup should be multiplicative, as Gemini argued. The
 answer changed the model: since this note the shelf price is **(cost + a) / (1 − m)**, with per-kg costs a = $2.5/kg
 (`markup_add`) and the shop's gross margin m = 28% of the shelf price (`retail_margin`). The numbers in sections 2 and 4 come
@@ -63,16 +65,17 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | best case: shelf price, share | Central: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $14.7, 4.66% | $34.4, 0.34% |
-| per-kg $2.5 + a 15% margin | $7.70 | $14.3, 4.56% | $37.5, 0.20% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $16.9, 2.91% | $44.3, 0.08% |
-| per-kg $2.5 + a 40% margin | $4.70 | $20.3, 1.54% | $53.2, 0.03% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.4, 1.64% | $55.3, 0.03% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $15.0, 4.48% | $31.4, 0.50% |
+| per-kg $2.5 + a 15% margin | $7.70 | $14.7, 4.35% | $34.0, 0.31% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $17.3, 2.74% | $40.2, 0.13% |
+| per-kg $2.5 + a 40% margin | $4.70 | $20.8, 1.42% | $48.2, 0.05% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.9, 1.51% | $49.9, 0.04% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
-rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall by half or more: Central's
-point share from 0.14% to 0.04% and the best case's from 7.4% to 3.1%. (These shares use the premium markets as sized from data
-later on 2026-11-18, `premium_market_sizes.md`; when the rule was changed they were 0.41% to 0.16% and 8.0% to 3.7%.)
+rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
+point share by three-quarters, from 0.50% to 0.13%, and the best case's by two-fifths, from 4.48% to 2.74%. (These shares use the
+spread of liking and the costs of 2026-11-19; when the rule was changed they were 0.41% to 0.16% and 8.0% to 3.7%, and with the
+premium markets sized from data and every shopper alike, 0.14% to 0.04% and 7.4% to 3.1%.)
 
 ## 5. On Gemini's answer
 

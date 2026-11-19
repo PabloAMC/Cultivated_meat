@@ -162,11 +162,10 @@ SWITCHES = (
                 "Humbird's large-scale price. It assumes an industry far larger than the current one."))),
     # (with a complete-medium price, $0.20 and above, growth factors are in that price and this switch adds nothing: explore_kwargs)
     Switch("medium", "Price of the medium", "What a litre of the nutrient liquid costs", (
-        Setting("0.05", "$0.05 a litre (an aspiration)", {"medium_price": value("sc_medium_aspire")}, FEED,
-                "no one has reported it: the lowest company report is $0.07 and GFI's amino acids alone cost $0.02-0.17; "
-                "the medium then costs what the cells must eat"),
-        Setting("0.15", "$0.15 a litre", {"medium_price": 0.15, "medium_complete": True}, FEED,
-                "A complete medium at little more than the nutrients the cells eat; growth factors are in the price."),
+        Setting("floor", "At the nutrient floor: only what the cells eat", {"medium_price": 0.0}, FEED,
+                "No one has reported it. The medium costs what the cells take up, at GFI's feed-grade amino-acid prices: $2.00 a "
+                "kilo of cells (232 g of amino acids at $6.36, glucose, salts and vitamins), whatever the litres; growth factors "
+                "are bought on top (the growth-factor switch). At Central's 28 litres a kilo that is about $0.07 a litre."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid"), "medium_complete": True}, FEED,
                 "What several companies announced for 2025. A complete medium: growth factors are in the price."),
         Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high"), "medium_complete": True}, NOTHING,
@@ -186,7 +185,7 @@ _SHORT = {
     ("losses", "0.2"): "0.2% a day", ("losses", "0.6"): "0.6% a day", ("losses", "1"): "1% a day", ("losses", "2"): "2% a day",
     ("restart", "4"): "4 days (neighbour)", ("restart", "14"): "14 days", ("restart", "21"): "21 days", ("restart", "30"): "30 days",
     ("gf", "none"): "none", ("gf", "30"): "30%", ("gf", "60"): "60%", ("gf", "all"): "all",
-    ("medium", "0.05"): "$0.05/L", ("medium", "0.15"): "$0.15/L", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
+    ("medium", "floor"): "nutrient floor", ("medium", "0.20"): "$0.20/L", ("medium", "0.30"): "$0.30/L", ("medium", "0.50"): "$0.50/L",
 }
 SWITCHES = tuple(replace(sw, settings=tuple(replace(st, short=_SHORT[(sw.key, st.key)]) for st in sw.settings))
                  for sw in SWITCHES)
@@ -206,14 +205,14 @@ def explore_kwargs(choice: dict) -> dict:
 
     GROWTH FACTORS IN THE MEDIUM'S PRICE (2026-11-18, research_notes/growth_factors_in_medium_price.md): the announced and reported
     medium prices ($0.20, $0.30, $0.50 a litre) are complete media, with whatever growth factors the process uses in the price
-    (about 0.85 likely; SuperMeat 2024, Pasitka 2024 Table S5, GFI 2020), and so is $0.15, the author's view of a complete medium
-    at little more than its nutrients. With one of those, the growth-factor switch adds nothing: its cost is already paid. It still
-    applies to the $0.05 aspiration, which is the nutrients alone. Gated by the input sc_medium_complete (off until the cost
-    studies are repinned in their own change)."""
+    (about 0.85 likely; SuperMeat 2024, Pasitka 2024 Table S5, GFI 2020). With one of those, the growth-factor switch adds nothing:
+    its cost is already paid. It still applies to the medium at the nutrient floor, which is the nutrients alone. Gated by the
+    input sc_medium_complete (on since 2026-11-19)."""
     kw = {}
     for s in SWITCHES:
         kw.update(setting(s.key, choice[s.key]).kw)
     if kw.pop("medium_complete", False) and value("sc_medium_complete") >= 0.5:
+        kw["gf_in_medium"] = kw.get("growth_factors", 0.0)   # in the price, and a floor on it: nutrients + growth factors
         kw["growth_factors"] = 0.0
     kw.update(always())
     return kw
@@ -269,11 +268,11 @@ SCENARIOS = {
         "best", "5. Plus engineered cells: the best case, everything works",
         "The cells are engineered to make almost no waste, and they double every day. The plant is a food-grade plant with shared medium. "
         "The tank clears CO₂ without more bubbles. The cells need no bought growth factors.",
-        "Cells, growth speed, plant, gas and growth factors are at their cheapest setting. The medium costs $0.15 a litre, because the $0.05 "
-        "aspiration is not assumed. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
+        "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
+        "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
         "design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
-                "gf": "none", "medium": "0.15"}),
+                "gf": "none", "medium": "floor"}),
         equal_price_share="best_equal_price_share"),
     "central": Scenario(
         "central", "3. Plus cells selected to grow faster on the low-waste feed (Central)",
@@ -322,11 +321,11 @@ SCENARIOS = {
         "forecast", "Forecast for 2035: a first draft of the author's medians",
         "Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035: selected cells "
         "doubling every 36 hours, a food-grade plant with shared medium, 4 mm/s of gas with the column and pressure, 0.6% of runs "
-        "lost a day, medium at $0.15 and growth factors at 30% of Humbird's price.",
+        "lost a day, and medium at the $0.20 a litre companies announced, growth factors in the price.",
         "The median of a forecast for each switch, from the odds in the research notes (RESULTS.md, \"The forecast\"). A judgement, "
         "not a measurement; the draws behind its band do not include the forecast's own uncertainty about the switches.",
         design({"cells": "selected", "growth": "36", "plant": "lean", "gas": "4", "losses": "0.6", "restart": "14",
-                "gf": "30", "medium": "0.15"})),
+                "gf": "30", "medium": "0.20"})),
 }
 # The four scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
@@ -581,7 +580,7 @@ MC_PRIORS = {
 # `sc_wide_bands` = 0 restores the narrower bands.
 MC_ESTIMATES = (("nh3_limit", "pf_nh3_limit"), ("protectant_price", "pf_protectant_price"),
                 ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"))
-MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price")    # no explore() argument: set in the datasheet per draw
+MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price", "aa_bulk_price")    # no explore() argument: set in the datasheet per draw
 
 
 def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:

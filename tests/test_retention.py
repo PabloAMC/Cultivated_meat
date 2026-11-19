@@ -44,8 +44,10 @@ def check() -> list:
             fails.append(f"{name}: TFF sizing ({sz['capex_k_m3']:.3f}k, ${sz['cons_kg']:.3f}) != explore "
                          f"({r['retention_capex']:.3f}k, ${r['membranes']:.3f})")
     # the old hoped-for device: a flat $89k per m3 and no membranes gives the reference case's cost with that device
-    if not close(R.scenario_cost("hoped", {})["total"], 12.1497, 1e-5):
-        fails.append("the hoped-for device no longer gives the pinned reference cost ($12.15)")
+    # 2026-11-19 repin: nutrient floor $1.70 -> $2.00 ($12.15 -> $12.45); growth factors inside complete media prices
+    # (central -$2.99, disc stack -$3.69 as it buys more medium)
+    if not close(R.scenario_cost("hoped", {})["total"], 12.4512, 1e-5):
+        fails.append("the hoped-for device no longer gives the pinned reference cost ($12.45)")
     cen = R.cases()["central"]
     d = R.duty(cen)
     # ATF: whole units that cover the permeate at the design flux
@@ -68,8 +70,8 @@ def check() -> list:
         rg = R.scenario_range(dev, cen)
         if not rg["low"]["total"] <= rg["mid"]["total"] + 1e-9 <= rg["high"]["total"] + 2e-9:
             fails.append(f"{dev}: range out of order")
-    # pinned headline (central): TFF $29.42, disc stack $26.85, ATF $32.92
-    for dev, want in (("tff", 29.4162), ("discstack", 26.8452), ("atf", 32.9224)):
+    # pinned headline (central): TFF $26.43, disc stack $23.15, ATF $29.94
+    for dev, want in (("tff", 26.4296), ("discstack", 23.1538), ("atf", 29.9357)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-4):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
@@ -87,7 +89,7 @@ def check() -> list:
         fails.append("dialyser: lower flux should need more membrane area than the TFF loop")
     if not R.sizing("reuse", cen, d)["cons_kg"] < R.sizing("tff", cen, d)["cons_kg"]:
         fails.append("reused modules: membranes per kg should fall")
-    for dev, want in (("reuse", 23.8320), ("dialyser", 21.2637), ("ceramic", 22.3400)):
+    for dev, want in (("reuse", 20.8454), ("dialyser", 18.2770), ("ceramic", 19.3533)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")

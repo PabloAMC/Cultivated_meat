@@ -1,5 +1,7 @@
 # Anchoring cultivated meat's demand on premium real meats
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 Date: 2026-11-17. Code: `premium_curve.py`; test: `tests/test_premium_curve.py`. Data: `high_premium_analogues_data.md` (ten new
 premium/share pairs, 1.7–3.6×) and `premium_meat_analogues.md` (the six the model already used); the corrections:
 `cultivated_vs_welfare_meat_evidence.md`. Nothing here changes a default.
@@ -52,27 +54,28 @@ World long-run share, by the model's own roll-up across meat types and regions:
 
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
-| 1. Today | $62.96 | **0.01%** | 0.01% | 0.01% | 0.01% | 0.01% | 0.00% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $29.42 | **0.08%** | 0.22% | 0.14% | 0.16% | 0.26% | 0.07% |
-| Forecast for 2035 | $24.80 | **0.17%** | 0.38% | 0.23% | 0.27% | 0.45% | 0.12% |
-| 5. Plus engineered cells | $9.66 | **2.91%** | 2.61% | 1.66% | 1.93% | 3.03% | 0.86% |
+| 1. Today | $56.99 | **0.01%** | 0.02% | 0.01% | 0.01% | 0.02% | 0.01% |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $26.43 | **0.13%** | 0.31% | 0.19% | 0.23% | 0.37% | 0.10% |
+| Forecast for 2035 | $23.24 | **0.22%** | 0.46% | 0.28% | 0.33% | 0.54% | 0.14% |
+| 5. Plus engineered cells | $9.96 | **2.74%** | 2.50% | 1.59% | 1.85% | 2.91% | 0.83% |
 
 ## 3. What this says
 
-- **At Central's price the premium curve gives about twice the model's share.** Anchored on premium meats, Central takes 0.16% in the
-  long run (0.07–0.26% across the corrections), against the model's 0.08%. Since 2026-11-18 the model has a spread of liking across
+- **At Central's price the premium curve gives nearly twice the model's share.** Anchored on premium meats, Central takes 0.23% in the
+  long run (0.10–0.37% across the corrections), against the model's 0.13%. Since 2026-11-18 the model has a spread of liking across
   shoppers (`liking_spread.md`), which gives it a slow tail like the premium meats' (0.8% of a meat's buyers at three times the price,
-  against their 1.5%); the two now differ by a factor of two, not five.
-- **Near price parity they disagree the other way.** The best case takes 1.9% anchored on premium meats (0.9–3.0%),
-  against the model's 2.9%. The single curve takes its level at equal price from premium labels (7%), which are never cheaper than
+  against their 1.5%); the two now differ by a factor of under two, not five.
+- **Near price parity they disagree the other way.** The best case takes 1.8% anchored on premium meats (0.8–2.9%),
+  against the model's 2.7%. The single curve takes its level at equal price from premium labels (7%), which are never cheaper than
   the ordinary product, and the premium data start at 1.5×. The model sets that level as a judgement (13%, `liking_spread.md`).
   (History: with the flat $5 markup Central was 0.40% against 0.41% and the best case 2.5% against 8.0%; with the shop's percentage
   margin, 0.16% against 0.16% and 1.8% against 3.7%; with the premium markets sized from data and every shopper alike, 0.14% against
-  0.04% and 1.8% against 3.1%.)
+  0.04% and 1.8% against 3.1%; with a spread of liking, before the medium was repriced on 2026-11-19, 0.16% against 0.08% and 1.9%
+  against 2.9%.)
 - **The no-killing bonus is small, and the penalties win.** In stated preferences "without harming animals" counts for about as much as a
   health claim, so the corrections net out against cultivated meat in every case but the favourable one.
-- **Other fits change little.** The loyal-minority fit gives Central 0.39%; adding Ibérico ham (a share of
-  ibérico ham only, a luxury niche) gives 0.49%.
+- **Other fits change little.** The loyal-minority fit gives Central 0.22%; adding Ibérico ham (a share of
+  ibérico ham only, a luxury niche) gives 0.29%.
 
 Probabilities (judgement): Central's long-run share is within a factor of 2 of 0.4%: about 65%. Anchoring on premium meats raises it above
 0.6%: about 20%; before this study I had put about 55% on it rising, which the high-premium data did not bear out. The best case's

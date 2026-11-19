@@ -69,15 +69,21 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **What Central is for.** Done 2026-11-16: the scenarios are a ladder ordered by difficulty; Central is rung 3, and a dated forecast row sits beside it.
 - [x] **The reference case** is now "Humbird's optimistic design", shown beside the ladder, not on it; tank tricks come at rung 2.
 - [x] **Comparable shares:** every row gives the share at its point cost and the median of draws (Humbird's design 2.4% median, best case 3.8%).
-- [ ] **Growth factors are a separate line from the medium.** They are dissolved in the medium, but priced separately: the model's medium price is the
-      nutrients, and whether the prices companies announce include growth factors is rarely stated. Say so on the page, or fold them into one "medium with growth factors" figure.
+- [x] **Growth factors are a separate line from the medium.** Done 2026-11-19: announced and reported medium prices are complete media
+      with growth factors inside (`sc_medium_complete` on); the growth-factor line applies only to the medium at the nutrient floor.
 - [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap; `cfd_plan.md` step 3). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
 
 - [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
-- [ ] **Turn on `sc_medium_complete`** (2026-11-18, `research_notes/growth_factors_in_medium_price.md`): about 0.85 that announced
-      medium prices include growth factors. The rule is in the code, off; turning it on takes Central from $29.42 to $26.43 and needs
-      every cost study repinned. Next PR.
+- [x] **`sc_medium_complete` on** (2026-11-19): Central $29.42 -> $26.43. A complete medium cannot cost less than the nutrients plus its
+      growth factors (`floor_physics.explore`, `gf_in_medium`).
+- [x] **The nutrient floor from GFI** (2026-11-19, `nutrient_floor.md` §6): $1.70 -> $2.00 a kilo (feed-grade amino acids, 232 g/kg);
+      medium settings $0.05 and $0.15 replaced by "at the nutrient floor". Best case $9.66 -> $9.96.
+- [ ] **A supplier's tonne quote for the five amino acids hydrolysate cannot supply** (glutamine, arginine, asparagine, cystine,
+      serine), and GFI's need-weighted mean price: both would firm up the floor.
+- [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
+      what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
+      as a second axis. Waiting on Pablo: the forecast's year(s).
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
 From the design search (`design_space.py`):

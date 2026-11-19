@@ -15,7 +15,7 @@ function scPresetOf(ch){ return SC.order.find(k=>scSame(SC.presets[k].choice,ch)
 function scParams(ch){          // the explore arguments of a choice (mirror of scenarios.explore_kwargs)
   const p={doubling_h:24,mass_pg:3000,vessel_m3:20,plant:"sanitary",mode:"perfusion",charge:C.fx.charge_mature};
   SC.switches.forEach(sw=>Object.assign(p,scSetting(sw.key,ch[sw.key]).p));
-  if(p.medium_complete && SC.medium_complete_on){ p.growth_factors=0; }  // a complete medium's price already pays for growth factors (scenarios.explore_kwargs)
+  if(p.medium_complete && SC.medium_complete_on){ p.gf_in_medium=p.growth_factors||0; p.growth_factors=0; }  // a complete medium's price already pays for growth factors, and cannot cost less than nutrients + them (scenarios.explore_kwargs)
   delete p.medium_complete;
   Object.assign(p,SC.always);                 // what every scenario carries (scenarios.always: the dissolved-oxygen setpoint)
   if(p.plantKey){ if(p.plantKey==="lean"){ p.plant="sanitary"; p.items=C.fx.plant_items.lean; }

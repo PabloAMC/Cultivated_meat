@@ -1,5 +1,14 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
+> **Current figures** (`floor_physics.explore`, 2026-11-19). The costs in the body were computed on 2026-11-14, when the case
+> called "the floor" (now the reference case) was $11.5; since then the filter loop, the bubble protectant, antifoam's cut to oxygen
+> transfer and the $2.00 nutrient floor have been added. Now, with the body's figures in brackets: the reference case at 6 mm/s
+> $12.81 ($11.5); at 5 mm/s $13.70 ($13.1); at 2 mm/s $29.49 ($28.0); at 9 mm/s $11.33 ($8.7); at 0.5 mm/s $113 ($100); with the
+> exhaust 70% saturated with CO₂ $14.59 ($14.6), 85% $13.39 ($12.6). The protectant is now charged ($0.67 a kilo at $30/kg). The
+> 45% odds on 6 mm/s and the 2 / 5 / 9 mm/s range are unchanged.
+
 Research note, compiled 2026-11-14. Reading, search and arithmetic only; no experiment.
 
 **The question.** The floor ($11.5/kg) holds 120 g/L of cells in a 20 m³ stirred tank. That density is set by CO₂

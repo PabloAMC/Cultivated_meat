@@ -71,8 +71,8 @@ def steps() -> list:
          "physics allows about 8 h (median); a meat line in suspension at 50 g/L or more doubling in 16 h or less by 2035: 7% (gf_and_doubling_bounds.md)"),
         ("Dialyser-grade hollow fibres as the filter", {"device": "dialyser"},
          "nothing run with animal cells; holds 25% cells for a month: 15% (retention_alternatives.md)"),
-        ("Medium at $0.05 a litre", {"choice": {"medium": "0.05"}},
-         "an aspiration: lowest company report $0.07; GFI amino acids alone $0.02-0.17 (medium_cost_gfi.md)"),
+        ("Medium at the nutrient floor", {"choice": {"medium": "floor"}},
+         "only what the cells eat, at GFI's feed-grade amino-acid prices; lowest company report $0.07 a litre (nutrient_floor.md)"),
         ("Growth factors returned by the filter, and bought at 30% of Humbird's price", {"gf_reuse": True},
          "a filter that holds back insulin and transferrin halves the cost: 20% (gf_and_doubling_bounds.md)"),
         ("Culture at 320 g/L in place of 258", {"patch": {"pf_x_visc": 320.0}},
@@ -119,7 +119,8 @@ def alone() -> list:
 
 
 def with_gfi_amino_acids(state: dict, tier: str = "feed", need: str = "eff") -> float:
-    """The frontier's cost with the nutrient floor built from GFI's amino-acid prices instead of the model's $1.70."""
+    """The frontier's cost with the nutrient floor built from GFI's amino-acid prices (`nutrient_floor.aa_cost`). Since 2026-11-19
+    the model's own floor is GFI's feed grade at the efficient need ($2.00 a kilo), so at the defaults this equals the frontier."""
     price = nutrient_floor.aa_cost(tier, need) / value("aa_intensity")
     return evaluate({**state, "patch": {**state.get("patch", {}), "aa_bulk_price": price}})["total"]
 

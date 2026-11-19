@@ -19,14 +19,15 @@ import thick_culture as TC
 from inputs import value
 
 # $/kg: the design held, loop checks off ('fixed') and the design chosen again with the loop checks ('checked'), at each density limit
+# repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds), growth factors inside complete media prices
 GOLDEN_CAP = {
-    "best":         {180.0: (9.9802, 9.9010), 320.0: (9.5230, 9.6923), 400.0: (9.4147, 9.6923)},
-    "central":      {180.0: (29.8132, 29.8132), 320.0: (29.4162, 29.4162), 400.0: (29.4162, 29.4162)},
-    "central_lean": {180.0: (26.7586, 26.7586), 320.0: (26.5552, 26.5552), 400.0: (26.5552, 26.5552)},
-    "cautious":     {180.0: (42.3918, 42.3918), 320.0: (42.3918, 42.3918), 400.0: (42.3918, 42.3918)},
+    "best":         {180.0: (10.2844, 10.2051), 320.0: (9.8271, 9.9964), 400.0: (9.7188, 9.9964)},
+    "central":      {180.0: (26.8266, 26.8266), 320.0: (26.4296, 26.4296), 400.0: (26.4296, 26.4296)},
+    "central_lean": {180.0: (23.7719, 23.7719), 320.0: (23.5685, 23.5685), 400.0: (23.5685, 23.5685)},
+    "cautious":     {180.0: (36.4185, 36.4185), 320.0: (36.4185, 36.4185), 400.0: (36.4185, 36.4185)},
 }
 # cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
-GOLDEN_O2 = {"central": (31.1534, 150.69), "cautious": (44.6770, 102.72)}
+GOLDEN_O2 = {"central": (28.1667, 150.69), "cautious": (38.7037, 102.72)}
 
 
 def close(a, b, tol=1e-6):

@@ -1,5 +1,7 @@
 # Tank size: is 20 m³ the right size?
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Research date: 2026-11-15. Code: `tank_size.py` (`size_scan`, `summary`, `what_ifs`, `flatter`), `tests/test_tank_size.py`. Costs are 2025 dollars per kg of wet
@@ -8,28 +10,28 @@ cells. Every scenario uses a 20 m³ stirred tank in perfusion with a TFF filter 
 
 ## 1. The answer
 
-**Mostly, for cost: 20 m³ is within 0.5% to 1.8% of the cheapest size in every scenario but the cautious one, and the curve is flat.** The cautious case saves 4.6% at 111 m³.
+**Mostly, for cost: 20 m³ is within 0.5% to 2.0% of the cheapest size in every scenario but the cautious one, and the curve is flat.** The cautious case saves 5.4% at 111 m³.
 Another size saves $0.06 to $1.95 a kilo. (Before the recompute the range was 0.4% to 2.3% in every scenario, and the central case was within 0.5%.)
 **Yes, for risk: no animal cells have run above about 25 m³.**
 
 | Scenario | Cost at 20 m³ | Cheapest size the model finds | Cost there | Saving | Sizes within 1% of the minimum |
 |---|---|---|---|---|---|
-| Best | $9.66 | 71 m³ | $9.52 | $0.14 (1.5%) | 24 to 71 m³ |
-| Central | $29.42 | 43 m³ | $28.90 | $0.52 (1.8%) | 24 to 96 m³ |
-| Central, food-grade plant with shared medium | $26.56 | 43 m³ | $26.23 | $0.33 (1.2%) | 22 to 96 m³ |
-| Cautious | $42.39 | 111 m³ | $40.44 | $1.95 (4.6%) | 38 to 194 m³ |
-| Reference (Humbird's tank, no tricks) | $12.51 | 14 m³ | $12.45 | $0.06 (0.5%) | 11 to 23 m³ |
+| Best | $9.96 | 71 m³ | $9.82 | $0.14 (1.4%) | 23 to 71 m³ |
+| Central | $26.43 | 43 m³ | $25.91 | $0.52 (2.0%) | 33 to 96 m³ |
+| Central, food-grade plant with shared medium | $23.57 | 43 m³ | $23.24 | $0.33 (1.4%) | 23 to 96 m³ |
+| Cautious | $36.42 | 111 m³ | $34.47 | $1.95 (5.4%) | 39 to 194 m³ |
+| Reference (Humbird's tank, no tricks) | $12.81 | 14 m³ | $12.75 | $0.06 (0.5%) | 11 to 23 m³ |
 
-- **Smaller tanks cost more, and the penalty grows fast below 10 m³.** At 10 m³ a kilo costs 3% to 7% more (best $9.97, central $30.89, cautious $45.44). At 5 m³ it
-  costs 8% to 21% more. At 2 m³ it costs 22% to 61% more.
+- **Smaller tanks cost more, and the penalty grows fast below 10 m³.** At 10 m³ a kilo costs 3% to 8% more (best $10.27, central $27.91, cautious $39.47). At 5 m³ it
+  costs 9% to 24% more. At 2 m³ it costs 25% to 70% more.
 - **Larger tanks save little because the loop checks rule out the tricks, not because gas transfer fails.** Without the checks, the cheapest design holds the culture at 258 g/L
-  (central, cautious) or 238 to 258 g/L (best) up to 200 m³, and the best case would save 3.5% at 200 m³, the central case 3.1% at 104 m³. The pH check on the column loop rules out
+  (central, cautious) or 238 to 258 g/L (best) up to 200 m³, and the best case would save 3.4% at 200 m³, the central case 3.4% at 104 m³. The pH check on the column loop rules out
   those designs already at 20 m³, and the scenarios' own 20 m³ designs above about 24 to 44 m³. Relaxing it to twice the safe dose moves that limit to 35 m³ (best), 40 m³ (central)
   and 157 m³ (cautious).
 - **The model's one assumption that would move the answer is labour.** It charges the same crew per m³ at every size. If staff per m³ fell with tank size as they do between
-  Humbird's 2 m³ and 20 m³ plants, the best case would be 6.2% cheaper at 158 m³. Section 5 says why that is an upper bound.
-- **Only the cautious scenario gains more than 2%: 4.6% at 111 m³.** That is above the 3% this note gave as the bound before the recompute. Oxygen holds its culture at about
-  120 g/L at every size, so a larger tank's cheaper steel is not offset by a thinner culture. Without the loop checks, 153 m³ saves 3.7%.
+  Humbird's 2 m³ and 20 m³ plants, the best case would be 6.0% cheaper at 158 m³. Section 5 says why that is an upper bound.
+- **Only the cautious scenario gains more than 2%: 5.4% at 111 m³.** That is above the 3% this note gave as the bound before the recompute. Oxygen holds its culture at about
+  120 g/L at every size, so a larger tank's cheaper steel is not offset by a thinner culture. Without the loop checks, 153 m³ saves 4.4%.
 
 ## 2. How the scan works
 
@@ -54,71 +56,71 @@ no longer lifts the limit.
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **12.55** | 5.06 | 0.06 | 0.66 | 2.55 | 1.72 | 2.50 | 238 | oxygen supply | none |
-| 5 | column + 1 bar, square 1.0 | **10.60** | 3.11 | 0.06 | 0.66 | 2.55 | 1.72 | 2.50 | 238 | oxygen supply | none |
-| 10 | column + 1 bar, squat 0.75 | **9.97** | 2.48 | 0.06 | 0.66 | 2.55 | 1.72 | 2.50 | 238 | oxygen supply | $0.02 (pH) |
-| 20 | column + 1 bar + O₂, squat 0.75 | **9.66** | 2.06 | 0.06 | 0.61 | 2.67 | 1.72 | 2.54 | 258 | thickness | $0.13 (pH) |
-| 50 | column + 1 bar + O₂, flat 0.5 | **9.54** | 1.94 | 0.06 | 0.61 | 2.67 | 1.72 | 2.55 | 258 | thickness | $0.30 (pH) |
-| 100 | column, squat 0.75 | **9.73** | 2.61 | 0.05 | 0.93 | 1.93 | 1.72 | 2.51 | 170 | oxygen supply | $0.53 (pH) |
-| 200 | column, flat 0.5 | **9.88** | 2.76 | 0.04 | 0.93 | 1.92 | 1.72 | 2.51 | 169 | oxygen supply | $0.69 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **12.85** | 5.06 | 0.06 | 0.66 | 2.55 | 2.02 | 2.50 | 238 | oxygen supply | none |
+| 5 | column + 1 bar, square 1.0 | **10.90** | 3.11 | 0.06 | 0.66 | 2.55 | 2.02 | 2.50 | 238 | oxygen supply | none |
+| 10 | column + 1 bar, squat 0.75 | **10.27** | 2.48 | 0.06 | 0.66 | 2.55 | 2.02 | 2.50 | 238 | oxygen supply | $0.02 (pH) |
+| 20 | column + 1 bar + O₂, squat 0.75 | **9.96** | 2.06 | 0.06 | 0.61 | 2.67 | 2.02 | 2.54 | 258 | thickness | $0.13 (pH) |
+| 50 | column + 1 bar + O₂, flat 0.5 | **9.85** | 1.94 | 0.06 | 0.61 | 2.67 | 2.02 | 2.55 | 258 | thickness | $0.30 (pH) |
+| 100 | column, squat 0.75 | **10.04** | 2.61 | 0.05 | 0.93 | 1.93 | 2.02 | 2.51 | 170 | oxygen supply | $0.53 (pH) |
+| 200 | column, flat 0.5 | **10.18** | 2.76 | 0.04 | 0.93 | 1.92 | 2.02 | 2.51 | 169 | oxygen supply | $0.69 (pH) |
 
 #### Central
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **40.34** | 18.39 | 0.20 | 1.34 | 8.29 | 8.71 | 3.41 | 186 | oxygen supply | $3.58 (pH) |
-| 5 | column + 1 bar, tall 1.6 | **33.21** | 11.24 | 0.20 | 1.32 | 8.32 | 8.71 | 3.42 | 189 | oxygen supply | $2.52 (pH) |
-| 10 | column + 1 bar, square 1.0 | **30.89** | 8.93 | 0.20 | 1.32 | 8.31 | 8.71 | 3.42 | 188 | oxygen supply | $2.27 (pH) |
-| 20 | column + 1 bar, square 1.0 | **29.42** | 7.44 | 0.20 | 1.31 | 8.33 | 8.71 | 3.42 | 191 | oxygen supply | $1.81 (pH) |
-| 50 | column + 1 bar, flat 0.5 | **29.37** | 7.41 | 0.20 | 1.32 | 8.32 | 8.71 | 3.42 | 189 | oxygen supply | $2.39 (pH) |
-| 100 | column, square 1.0 | **30.46** | 8.74 | 0.18 | 1.82 | 7.58 | 8.71 | 3.42 | 137 | oxygen supply | $3.69 (pH) |
-| 200 | column, squat 0.75 | **30.60** | 8.88 | 0.18 | 1.81 | 7.60 | 8.71 | 3.42 | 138 | oxygen supply | $3.70 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **37.35** | 18.39 | 0.20 | 1.34 | 8.29 | 5.72 | 3.41 | 186 | oxygen supply | $3.58 (pH) |
+| 5 | column + 1 bar, tall 1.6 | **30.22** | 11.24 | 0.20 | 1.32 | 8.32 | 5.72 | 3.42 | 189 | oxygen supply | $2.52 (pH) |
+| 10 | column + 1 bar, square 1.0 | **27.91** | 8.93 | 0.20 | 1.32 | 8.31 | 5.72 | 3.42 | 188 | oxygen supply | $2.27 (pH) |
+| 20 | column + 1 bar, square 1.0 | **26.43** | 7.44 | 0.20 | 1.31 | 8.33 | 5.72 | 3.42 | 191 | oxygen supply | $1.81 (pH) |
+| 50 | column + 1 bar, flat 0.5 | **26.38** | 7.41 | 0.20 | 1.32 | 8.32 | 5.72 | 3.42 | 189 | oxygen supply | $2.39 (pH) |
+| 100 | column, square 1.0 | **27.47** | 8.74 | 0.18 | 1.82 | 7.58 | 5.72 | 3.42 | 137 | oxygen supply | $3.69 (pH) |
+| 200 | column, squat 0.75 | **27.62** | 8.88 | 0.18 | 1.81 | 7.60 | 5.72 | 3.42 | 138 | oxygen supply | $3.70 (pH) |
 
 #### Central, food-grade plant with shared medium
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **32.51** | 10.23 | 0.20 | 1.34 | 8.29 | 8.71 | 3.74 | 186 | oxygen supply | $1.31 (pH) |
-| 5 | column + 1 bar, square 1.0 | **28.58** | 6.29 | 0.20 | 1.34 | 8.29 | 8.71 | 3.74 | 186 | oxygen supply | $1.02 (pH) |
-| 10 | column + 1 bar, square 1.0 | **27.41** | 5.12 | 0.20 | 1.32 | 8.31 | 8.71 | 3.75 | 188 | oxygen supply | $1.11 (pH) |
-| 20 | column + 1 bar, square 1.0 | **26.56** | 4.25 | 0.20 | 1.31 | 8.33 | 8.71 | 3.75 | 191 | oxygen supply | $0.86 (pH) |
-| 50 | column + 1 bar, flat 0.5 | **26.47** | 4.18 | 0.20 | 1.32 | 8.32 | 8.71 | 3.75 | 189 | oxygen supply | $1.15 (pH) |
-| 100 | column, square 1.0 | **26.96** | 4.92 | 0.18 | 1.82 | 7.58 | 8.71 | 3.75 | 137 | oxygen supply | $1.78 (pH) |
-| 200 | column, squat 0.75 | **27.03** | 4.98 | 0.18 | 1.81 | 7.60 | 8.71 | 3.75 | 138 | oxygen supply | $1.79 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **29.52** | 10.23 | 0.20 | 1.34 | 8.29 | 5.72 | 3.74 | 186 | oxygen supply | $1.31 (pH) |
+| 5 | column + 1 bar, square 1.0 | **25.59** | 6.29 | 0.20 | 1.34 | 8.29 | 5.72 | 3.74 | 186 | oxygen supply | $1.02 (pH) |
+| 10 | column + 1 bar, square 1.0 | **24.43** | 5.12 | 0.20 | 1.32 | 8.31 | 5.72 | 3.75 | 188 | oxygen supply | $1.11 (pH) |
+| 20 | column + 1 bar, square 1.0 | **23.57** | 4.25 | 0.20 | 1.31 | 8.33 | 5.72 | 3.75 | 191 | oxygen supply | $0.86 (pH) |
+| 50 | column + 1 bar, flat 0.5 | **23.48** | 4.18 | 0.20 | 1.32 | 8.32 | 5.72 | 3.75 | 189 | oxygen supply | $1.15 (pH) |
+| 100 | column, square 1.0 | **23.98** | 4.92 | 0.18 | 1.82 | 7.58 | 5.72 | 3.75 | 137 | oxygen supply | $1.78 (pH) |
+| 200 | column, squat 0.75 | **24.04** | 4.98 | 0.18 | 1.81 | 7.60 | 5.72 | 3.75 | 138 | oxygen supply | $1.79 (pH) |
 
 #### Cautious
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **68.04** | 39.93 | 0.18 | 2.76 | 7.05 | 14.60 | 3.51 | 114 | oxygen supply | $20.67 (pH) |
-| 5 | column + 1 bar, tall 1.6 | **51.25** | 23.13 | 0.18 | 2.72 | 7.10 | 14.60 | 3.52 | 116 | oxygen supply | $11.68 (pH) |
-| 10 | column + 1 bar, tall 1.6 | **45.44** | 17.31 | 0.18 | 2.68 | 7.15 | 14.60 | 3.52 | 118 | oxygen supply | $8.54 (pH) |
-| 20 | column + 1 bar, tall 1.6 | **42.39** | 14.25 | 0.18 | 2.63 | 7.21 | 14.60 | 3.52 | 120 | oxygen supply | $6.87 (pH) |
-| 50 | column + 1 bar, square 1.0 | **41.39** | 13.25 | 0.18 | 2.63 | 7.20 | 14.60 | 3.52 | 120 | oxygen supply | $6.73 (pH) |
-| 100 | column + 1 bar, square 1.0 | **40.54** | 12.39 | 0.19 | 2.58 | 7.27 | 14.60 | 3.52 | 123 | oxygen supply | $6.20 (pH) |
-| 200 | column + 1 bar, flat 0.5 | **42.12** | 13.98 | 0.18 | 2.63 | 7.20 | 14.60 | 3.52 | 120 | oxygen supply | $7.74 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **62.06** | 39.93 | 0.18 | 2.76 | 7.05 | 8.62 | 3.51 | 114 | oxygen supply | $20.67 (pH) |
+| 5 | column + 1 bar, tall 1.6 | **45.27** | 23.13 | 0.18 | 2.72 | 7.10 | 8.62 | 3.52 | 116 | oxygen supply | $11.68 (pH) |
+| 10 | column + 1 bar, tall 1.6 | **39.47** | 17.31 | 0.18 | 2.68 | 7.15 | 8.62 | 3.52 | 118 | oxygen supply | $8.54 (pH) |
+| 20 | column + 1 bar, tall 1.6 | **36.42** | 14.25 | 0.18 | 2.63 | 7.21 | 8.62 | 3.52 | 120 | oxygen supply | $6.87 (pH) |
+| 50 | column + 1 bar, square 1.0 | **35.41** | 13.25 | 0.18 | 2.63 | 7.20 | 8.62 | 3.52 | 120 | oxygen supply | $6.73 (pH) |
+| 100 | column + 1 bar, square 1.0 | **34.57** | 12.39 | 0.19 | 2.58 | 7.27 | 8.62 | 3.52 | 123 | oxygen supply | $6.20 (pH) |
+| 200 | column + 1 bar, flat 0.5 | **36.14** | 13.98 | 0.18 | 2.63 | 7.20 | 8.62 | 3.52 | 120 | oxygen supply | $7.74 (pH) |
 
 #### Reference, tank design chosen again
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **15.92** | 8.88 | 0.05 | 0.65 | 2.47 | 1.70 | 2.17 | 226 | oxygen supply | $0.32 (pH) |
-| 5 | column + 1 bar, square 1.0 | **12.50** | 5.46 | 0.05 | 0.65 | 2.47 | 1.70 | 2.17 | 226 | oxygen supply | $0.41 (pH) |
-| 10 | column + 1 bar, square 1.0 | **11.38** | 4.33 | 0.05 | 0.65 | 2.47 | 1.70 | 2.17 | 226 | oxygen supply | $0.44 (pH) |
-| 20 | column + 1 bar, square 1.0 | **10.72** | 3.68 | 0.05 | 0.65 | 2.47 | 1.70 | 2.18 | 226 | oxygen supply | $0.36 (pH) |
-| 50 | column + 1 bar, flat 0.5 | **10.67** | 3.62 | 0.05 | 0.65 | 2.47 | 1.70 | 2.17 | 226 | oxygen supply | $0.54 (pH) |
-| 100 | column, square 1.0 | **11.30** | 4.81 | 0.03 | 1.00 | 1.58 | 1.70 | 2.18 | 146 | oxygen supply | $1.28 (pH) |
-| 200 | column, square 1.0 | **11.19** | 4.70 | 0.03 | 1.00 | 1.58 | 1.70 | 2.18 | 146 | oxygen supply | $1.23 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **16.22** | 8.88 | 0.05 | 0.65 | 2.47 | 2.00 | 2.17 | 226 | oxygen supply | $0.32 (pH) |
+| 5 | column + 1 bar, square 1.0 | **12.81** | 5.46 | 0.05 | 0.65 | 2.47 | 2.00 | 2.17 | 226 | oxygen supply | $0.41 (pH) |
+| 10 | column + 1 bar, square 1.0 | **11.68** | 4.33 | 0.05 | 0.65 | 2.47 | 2.00 | 2.17 | 226 | oxygen supply | $0.44 (pH) |
+| 20 | column + 1 bar, square 1.0 | **11.03** | 3.68 | 0.05 | 0.65 | 2.47 | 2.00 | 2.18 | 226 | oxygen supply | $0.36 (pH) |
+| 50 | column + 1 bar, flat 0.5 | **10.97** | 3.62 | 0.05 | 0.65 | 2.47 | 2.00 | 2.17 | 226 | oxygen supply | $0.54 (pH) |
+| 100 | column, square 1.0 | **11.60** | 4.81 | 0.03 | 1.00 | 1.58 | 2.00 | 2.18 | 146 | oxygen supply | $1.28 (pH) |
+| 200 | column, square 1.0 | **11.50** | 4.70 | 0.03 | 1.00 | 1.58 | 2.00 | 2.18 | 146 | oxygen supply | $1.23 (pH) |
 
 #### Reference as defined (Humbird's tall tank, no tricks)
 
 | m³ | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 | 20.24 | 13.75 | 0.03 | 1.00 | 1.58 | 1.70 | 2.17 | 146 | oxygen supply |
-| 5 | 14.56 | 8.07 | 0.03 | 1.00 | 1.58 | 1.70 | 2.17 | 146 | oxygen supply |
-| 10 | 12.67 | 6.18 | 0.03 | 1.00 | 1.58 | 1.70 | 2.17 | 146 | oxygen supply |
-| 20 | 12.51 | 6.36 | 0.02 | 1.22 | 1.04 | 1.70 | 2.17 | 120 | CO₂ removal |
-| 50 | 13.23 | 7.70 | 0.00 | 1.65 | 0.00 | 1.70 | 2.18 | 88 | CO₂ removal |
+| 2 | 20.54 | 13.75 | 0.03 | 1.00 | 1.58 | 2.00 | 2.17 | 146 | oxygen supply |
+| 5 | 14.86 | 8.07 | 0.03 | 1.00 | 1.58 | 2.00 | 2.17 | 146 | oxygen supply |
+| 10 | 12.97 | 6.18 | 0.03 | 1.00 | 1.58 | 2.00 | 2.17 | 146 | oxygen supply |
+| 20 | 12.81 | 6.36 | 0.02 | 1.22 | 1.04 | 2.00 | 2.17 | 120 | CO₂ removal |
+| 50 | 13.53 | 7.70 | 0.00 | 1.65 | 0.00 | 2.00 | 2.18 | 88 | CO₂ removal |
 | 100 | 15.88 | 9.30 | 0.00 | 2.08 | 0.00 | 2.14 | 2.36 | 70 | CO₂ removal |
 | 200 | 19.37 | 11.47 | 0.00 | 2.62 | 0.00 | 2.69 | 2.58 | 56 | CO₂ removal |
 
@@ -156,12 +158,12 @@ decides the size.
 | ATF-10 equivalents (11 m² each) | 16 | 74 | 24 | 157 |
 | Loop hardware, $/kg | 0.06 | 0.04 | 0.20 | 0.18 |
 | Membranes, $/kg | 2.67 | 1.92 | 8.33 | 7.60 |
-| Membranes, share of the cost | 28% | 19% | 28% | 25% |
+| Membranes, share of the cost | 27% | 19% | 32% | 28% |
 
 **Assumptions in the sizing that favour or penalise a size:**
 1. *Hardware per m² does not fall with size.* A big skid costs less per m² than a small one. That penalises large tanks. The what-if (`ts_loop_hw_exp` = 0.3, hardware as V^0.7) changes the best
-   optimum from 1.5% to 1.6% and the central from 1.8% to 1.9%. The hardware is under 1% of the cost, so this barely matters.
-2. *Membranes cost the same per litre at every size.* They are 19% to 28% of the cost, and they set the loop's cost. They fall at large sizes only because the thinner culture needs less
+   optimum from 1.4% to 1.6% and the central from 2.0% to 2.1%. The hardware is under 1% of the cost, so this barely matters.
+2. *Membranes cost the same per litre at every size.* They are 19% to 32% of the cost, and they set the loop's cost. They fall at large sizes only because the thinner culture needs less
    permeate per kilo ($8.33 to $7.60 in the central case). The price per m² would fall with a bigger order, but that has nothing to do with tank size.
 3. *Flux is 5 L/m²/h whatever the density.* A thinner culture at large size would hold a higher flux. That favours large tanks slightly, through hardware only, so the effect is under $0.05 a kilo.
 4. *No unit rounding.* A 2 m³ tank needs 1 to 3 ATF-10 units' worth of membrane; the model charges the fraction. That flatters the smallest tanks by a few cents.
@@ -188,25 +190,25 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 
 | What-if | Best | Central | Central, shared medium | Cautious | Reference, redesigned |
 |---|---|---|---|---|---|
-| As modelled | 71 m³, 1.5% | 43 m³, 1.8% | 43 m³, 1.2% | 111 m³, 4.6% | 44 m³, 2.3% |
-| No loop checks (physics only) | 200 m³, 3.5% | 104 m³, 3.1% | 104 m³, 2.0% | 153 m³, 3.7% | 200 m³, 3.8% |
-| pH check relaxed to twice the safe dose | 44 m³, 1.7% | 71 m³, 2.9% | 71 m³, 2.0% | 153 m³, 8.0% | 34 m³, 2.4% |
-| Pass limit at the top of its range (24 an hour) | 71 m³, 1.5% | 43 m³, 1.8% | 43 m³, 1.2% | 111 m³, 4.6% | 44 m³, 2.3% |
-| Labour follows Humbird's crew rule | 158 m³, 6.2% | 96 m³, 3.8% | 96 m³, 3.9% | 111 m³, 8.3% | 98 m³, 5.2% |
-| Loop hardware has economies of scale | 71 m³, 1.6% | 43 m³, 1.9% | 43 m³, 1.4% | 111 m³, 4.8% | 44 m³, 2.4% |
-| Chance of losing a run grows with size (V^0.33) | 32 m³, 0.9% | 24 m³, 0.6% | 24 m³, 0.4% | 43 m³, 2.3% | 44 m³, 2.3% |
-| Gas per litre held at its 20 m³ value | 200 m³, 4.3% | 200 m³, 7.3% | 200 m³, 4.6% | 111 m³, 11.7% | 200 m³, 7.2% |
-| Favourable to large tanks (pH check relaxed, crew rule, loop economies) | 140 m³, 7.0% | 71 m³, 5.3% | 158 m³, 5.1% | 153 m³, 12.0% | 78 m³, 5.3% |
+| As modelled | 71 m³, 1.4% | 43 m³, 2.0% | 43 m³, 1.4% | 111 m³, 5.4% | 44 m³, 2.3% |
+| No loop checks (physics only) | 200 m³, 3.4% | 104 m³, 3.4% | 104 m³, 2.3% | 153 m³, 4.4% | 200 m³, 3.7% |
+| pH check relaxed to twice the safe dose | 44 m³, 1.7% | 71 m³, 3.2% | 71 m³, 2.2% | 153 m³, 9.3% | 34 m³, 2.3% |
+| Pass limit at the top of its range (24 an hour) | 71 m³, 1.4% | 43 m³, 2.0% | 43 m³, 1.4% | 111 m³, 5.4% | 44 m³, 2.3% |
+| Labour follows Humbird's crew rule | 158 m³, 6.0% | 96 m³, 4.3% | 96 m³, 4.3% | 111 m³, 9.6% | 98 m³, 5.0% |
+| Loop hardware has economies of scale | 71 m³, 1.6% | 43 m³, 2.1% | 43 m³, 1.6% | 111 m³, 5.6% | 44 m³, 2.4% |
+| Chance of losing a run grows with size (V^0.33) | 32 m³, 0.9% | 24 m³, 0.7% | 24 m³, 0.4% | 43 m³, 2.6% | 44 m³, 2.3% |
+| Gas per litre held at its 20 m³ value | 200 m³, 4.2% | 200 m³, 8.1% | 200 m³, 5.1% | 111 m³, 13.6% | 200 m³, 7.0% |
+| Favourable to large tanks (pH check relaxed, crew rule, loop economies) | 140 m³, 6.8% | 71 m³, 5.9% | 158 m³, 5.7% | 153 m³, 14.0% | 78 m³, 5.2% |
 
 - **The pass limit never binds first.** The pH check fails before the pass count reaches 15.
-- **The crew rule is the largest single effect for the best case, and the least supported above 20 m³.** It would put the best case at 158 m³ and 6.2% cheaper. For the central and cautious
-  cases, gas per litre moves the answer more (7.3% and 11.7%). No source gives crew against tank size above 20 m³.
-- **A chance of loss that grows with size removes most of the large-tank gain.** At V^0.33 the best case's optimum drops to 32 m³ and 0.9%, the central case's to 24 m³ and 0.6%.
-- **The most favourable mix saves 5.3% for the central case, at 71 m³.** (Before the recompute it saved under 3%.) The best and cautious cases save 7.0% and 12.0%, at 140 m³ and 153 m³,
+- **The crew rule is the largest single effect for the best case, and the least supported above 20 m³.** It would put the best case at 158 m³ and 6.0% cheaper. For the central and cautious
+  cases, gas per litre moves the answer more (8.1% and 13.6%). No source gives crew against tank size above 20 m³.
+- **A chance of loss that grows with size removes most of the large-tank gain.** At V^0.33 the best case's optimum drops to 32 m³ and 0.9%, the central case's to 24 m³ and 0.7%.
+- **The most favourable mix saves 5.9% for the central case, at 71 m³.** (Before the recompute it saved under 3%.) The best and cautious cases save 6.8% and 14.0%, at 140 m³ and 153 m³,
   sizes nobody has run with animal cells.
-- **A flatter tank helps only at 100 m³ and above.** At 50 m³ the scenarios' flat tank (0.5) is already the cheapest shape for the central case ($29.37, against $29.42 at 20 m³); flatter
-  costs more ($30.25 at 0.3). At 100 m³ a tank with the liquid 0.4 times as deep as wide (6.3 m across, 2.5 m deep) passes the check with column + 1 bar for $29.41, the 20 m³ price; the scan's
-  own choice there (column alone, square) costs $30.46. At 200 m³ the best aspect (0.3) gives $29.81. So flatter tanks hold the cost flat out to 100 m³ and add 1% at 200 m³
+- **A flatter tank helps only at 100 m³ and above.** At 50 m³ the scenarios' flat tank (0.5) is already the cheapest shape for the central case ($26.38, against $26.43 at 20 m³); flatter
+  costs more ($27.26 at 0.3). At 100 m³ a tank with the liquid 0.4 times as deep as wide (6.3 m across, 2.5 m deep) passes the check with column + 1 bar for $26.42, the 20 m³ price; the scan's
+  own choice there (column alone, square) costs $27.47. At 200 m³ the best aspect (0.3) gives $26.83. So flatter tanks hold the cost flat out to 100 m³ and add 1.5% at 200 m³
   (`tank_size.flatter`). The scenarios do not offer these shapes, and nobody has built a tank this wide for cells.
 
 ## 6. The largest size at which each design passes
@@ -221,8 +223,8 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 - **The limit sits 22% to 24% above 20 m³ for the best and central designs, and 120% above for the cautious one.** A design fails when its pH dose passes 1.0 times the safe dose. At 20 m³
   the dose is 0.81 (best), 0.90 (central) and 0.84 (cautious). So each 20 m³ design already runs at 81% to 90% of the check, and 20 m³ is close to the largest size the best and central
   designs allow. (Before the recompute the cautious limit was 26.3 m³.)
-- **A re-chosen design holds 258 g/L (best) to 24.6 m³, and the central case's 191 g/L to 23.9 m³.** Above that the central case thins only slightly at first (189 g/L at 50 m³, $29.37), then
-  drops to 137 g/L at 100 m³ and costs $1.04 a kilo more there ($30.46) than at 20 m³ ($29.42).
+- **A re-chosen design holds 258 g/L (best) to 24.6 m³, and the central case's 191 g/L to 23.9 m³.** Above that the central case thins only slightly at first (189 g/L at 50 m³, $26.38), then
+  drops to 137 g/L at 100 m³ and costs $1.04 a kilo more there ($27.47) than at 20 m³ ($26.43).
 - **The check is a judgement, not a physical limit.** The safe dose is 0.29 of the dose that slowed CHO cells (Paul et al. 2020, via a summary in `gas_exchange_study.md` section 8): one study, and a measure
   (rise × share) the study did not use. At 3.4 times the safe dose the loop would reach that harm. Between 1.0 and 3.4 nothing is measured.
 
@@ -265,20 +267,20 @@ How each column is built:
   pressure and the recycled oxygen and the density falls to 170 g/L. Example, best at 20 m³: 0.75 × 0.47 × 0.26 = 9%. Each entry is uncertain by a factor of 1.5 either way.
 
 **What the odds say about size.** The chance that the scenario's own design works falls with size, but slowly: it is 14% to 19% at 2 to 5 m³, 9% to 15% at 20 m³ and 6% to 11% at 50 to 200 m³. The small
-tanks are likelier but cost 8% to 61% more. Beyond 20 m³ the odds that any perfusion run works fall from 75% to 55%, 42% and 30% (R), and the best saving is $1.95 a kilo (cautious) or less. So the odds-adjusted
-answer favours 10 to 20 m³. At 10 m³ the cost is 3% to 7% higher and R rises from 75% to 85%.
+tanks are likelier but cost 9% to 70% more. Beyond 20 m³ the odds that any perfusion run works fall from 75% to 55%, 42% and 30% (R), and the best saving is $1.95 a kilo (cautious) or less. So the odds-adjusted
+answer favours 10 to 20 m³. At 10 m³ the cost is 3% to 8% higher and R rises from 75% to 85%.
 
 ## 8. What would change the answer
 
 1. **A measured pH limit for the column loop.** The largest size depends on one check set at 0.29 of the dose that slowed CHO cells. If cells tolerate twice the safe dose, the best and central
-   cases run to 44 m³ and 71 m³ and save 1.7% and 2.9%. The experiment is the bench test in `gas_exchange_study.md` section 8.
-2. **Labour by tank size above 20 m³.** If crew falls as Humbird's plants suggest, the best case saves 6.2% at 158 m³. A plant design with 100 m³ tanks and a crew count would settle it.
-3. **Whether bubbles hurt by surface speed or by gas per litre.** The second rule moves every scenario toward 111 to 200 m³ (4% to 12%). `gas_exchange_study.md` section 2.3 puts 85% on bubble death scaling with gas per litre, but foam at 13 mm/s is unmeasured.
+   cases run to 44 m³ and 71 m³ and save 1.7% and 3.2%. The experiment is the bench test in `gas_exchange_study.md` section 8.
+2. **Labour by tank size above 20 m³.** If crew falls as Humbird's plants suggest, the best case saves 6.0% at 158 m³. A plant design with 100 m³ tanks and a crew count would settle it.
+3. **Whether bubbles hurt by surface speed or by gas per litre.** The second rule moves every scenario toward 111 to 200 m³ (4% to 14%). `gas_exchange_study.md` section 2.3 puts 85% on bubble death scaling with gas per litre, but foam at 13 mm/s is unmeasured.
 4. **A retention device that scales with the tank.** A settler or disc-stack separator has fewer parallel units, which would make large tanks more likely. The retention note puts 5% on a settler at 258 g/L.
 
 ## 9. Not done
 
-- No size above 200 m³. Without the loop checks the best case still falls slowly at 200 m³ (3.5% below 20 m³), and Humbird's vessel cost (`30.7 V + 800` $k) is extrapolated above his range.
+- No size above 200 m³. Without the loop checks the best case still falls slowly at 200 m³ (3.4% below 20 m³), and Humbird's vessel cost (`30.7 V + 800` $k) is extrapolated above his range.
 - No separate price for a tank built to a different shape beyond the model's steel and floor factor (`gas_exchange.shape_capex_factor`).
 - No seed-train sizing, no heat exchanger, no impeller design, no run-length effect on membrane life with size.
 - The search offers 16 designs per size. Intermediate pressures and a column outlet other than 55 mbar (`ge_col_pout`) are not searched; either could extend the sizes that pass the pH check.

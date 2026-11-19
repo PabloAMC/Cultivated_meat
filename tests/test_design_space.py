@@ -69,9 +69,10 @@ def check() -> list:
         gas = rows["every gas limit lifted (CO₂, oxygen, mixing)"]
         if any(gas > rows[l] + 1e-9 for l in ("CO₂ removal lifted", "oxygen supply lifted", "mixing lifted")):
             fails.append(f"{k}: lifting every gas limit should be at least as good as lifting one")
-    # pinned (2026-11-16)
-    for (k, what), want in {("central", "ideal"): 27.1889, ("central", "no_cage"): 27.9266, ("central", "cage"): 27.6173,
-                            ("today", "ideal"): 34.7979, ("best", "ideal"): 9.3315}.items():
+    # pinned (2026-11-16; repinned 2026-11-19: growth factors inside the complete medium's price, -$2.99 Central and -$5.97 today;
+    # best's medium at the $2.00 nutrient floor, +$0.30)
+    for (k, what), want in {("central", "ideal"): 24.2023, ("central", "no_cage"): 24.9399, ("central", "cage"): 24.6306,
+                            ("today", "ideal"): 28.8246, ("best", "ideal"): 9.6357}.items():
         got = D.ideal(k)["cost"] if what == "ideal" else D.frontier(k, what == "cage")[-1]["cost"]
         if not close(got, want, 2e-4):
             fails.append(f"{k} {what}: {got:.4f} != pinned {want}")

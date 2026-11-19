@@ -18,10 +18,10 @@ def close(a, b, tol=1e-3):
 
 def check() -> list:
     fails = []
-    # the default is untouched: the model's own floor is $1.70 and the scenarios keep their costs
-    if not close(fp.feedstock(fp.GOOD_CELLS), 1.70, 2e-3):
-        fails.append("the model's nutrient floor moved")
-    for k, want in (("best", 9.6571), ("central", 29.4162)):
+    # since 2026-11-19 the model's own floor is GFI's cheapest: feed-grade amino acids at the most efficient need, $2.00
+    if not close(fp.feedstock(fp.GOOD_CELLS), 2.0035, 2e-3) or not close(N.floor("feed", "eff"), fp.feedstock(fp.GOOD_CELLS), 1e-6):
+        fails.append("the model's nutrient floor moved, or is no longer GFI's feed-grade, efficient floor")
+    for k, want in (("best", 9.9613), ("central", 26.4296)):
         if not close(S.run(S.SCENARIOS[k].choice)["total"], want, 1e-4):
             fails.append(f"{k}: default cost moved")
     # GFI's headline: amino acids below about $5 a kilo at low food-grade prices and the better bioconversion estimates
@@ -34,16 +34,16 @@ def check() -> list:
     for tier in N.TIERS:
         if not N.floor(tier, "eff") < N.floor(tier, "mid") < N.floor(tier, "low"):
             fails.append(f"floor out of order across needs at tier {tier}")
-    # every bottom-up floor is above the model's
-    if not N.floor("feed", "eff") > fp.feedstock(fp.GOOD_CELLS):
-        fails.append("the cheapest GFI floor should exceed the model's $1.70")
-    # the best case, whose medium is set by the floor, rises; central, set by litres x price, does not (at cheap amino acids)
-    if not N.scenario_cost("best", "feed", "eff")["total"] > S.run(S.SCENARIOS["best"].choice)["total"]:
-        fails.append("best case should cost more with GFI's amino acid prices")
+    # every other GFI floor is above the model's
+    if not all(N.floor(t, n) > fp.feedstock(fp.GOOD_CELLS) for t in N.TIERS for n in N.NEEDS if (t, n) != ("feed", "eff")):
+        fails.append("every GFI floor but the cheapest should exceed the model's $2.00")
+    # the best case, whose medium is set by the floor, rises with dearer amino acids; central, set by litres x price, does not
+    if not N.scenario_cost("best", "feed", "mid")["total"] > S.run(S.SCENARIOS["best"].choice)["total"]:
+        fails.append("best case should cost more at GFI's middle amino-acid need")
     if not close(N.scenario_cost("central", "feed", "eff")["total"], S.run(S.SCENARIOS["central"].choice)["total"], 1e-9):
         fails.append("central should not move at the cheapest amino acids: litres x price binds")
     # pinned
-    for (k, t, n), want in {("best", "feed", "eff"): 10.4656, ("best", "low", "mid"): 13.0692, ("central", "high", "low"): 40.1685}.items():
+    for (k, t, n), want in {("best", "feed", "eff"): 9.9613, ("best", "low", "mid"): 12.5648, ("central", "high", "low"): 39.7235}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")

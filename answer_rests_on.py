@@ -46,6 +46,8 @@ PLAIN = {
     "rt_membrane_price": "Price of cell-filter membrane",
     "pf_maintenance_share": "Share of a cell's oxygen use that is upkeep, not growth",
     "pf_glc_kg": "Glucose the engineered cells use per kg grown",
+    "aa_intensity": "Amino acids a kilo of cells takes up (the nutrient floor)",
+    "aa_bulk_price": "Price of amino acids (the nutrient floor)",
     "pf_capex_escalation": "Rise in plant construction costs since 2018",
     "pf_x_unperfused": "Density a tank reaches without perfusion",
     "pf_osm_limit": "Salt strength the cells tolerate (osmolality)",
@@ -79,6 +81,8 @@ EVIDENCE = {
     "rt_membrane_price": "Humbird's ATF price; retail modules a quarter less",
     "pf_maintenance_share": "judgement from GFI and Miller 1987",
     "pf_glc_kg": "derived from Humbird's enhanced cells",
+    "aa_intensity": "GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`)",
+    "aa_bulk_price": "GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`)",
     "pf_capex_escalation": "construction cost index, 2024 estimated",
     "pf_x_unperfused": "Humbird's fed-batch limit",
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
@@ -106,6 +110,7 @@ if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the band
     IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS)
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
 NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
+             "aa_intensity": "no: a trait of the cells, as glucose use is; the best case takes the efficient end",
              "pf_osm_limit": "no: moves the best case's median by about $0.1, at forty times the computing time",
              "loss_aversion": "no: each value re-solves the demand model's calibration",
              "liking_sd": "no: the share at equal price is set given it",
@@ -118,7 +123,7 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
 # inputs left out of the tables, and why
 EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
                               "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
-                              "($27.7 to $31.9 in Central) without changing any tank; it is left out."}
+                              "($24.7 to $28.9 in Central) without changing any tank; it is left out."}
 
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}

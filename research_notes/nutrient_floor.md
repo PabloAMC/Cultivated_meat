@@ -1,5 +1,8 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> **Decided 2026-11-19 (Pablo): the model's floor is now GFI's cheapest, $2.00 a kilo** (section 6). Sections 1-5 are the analysis
+> as of 2026-11-15, when the floor was $1.70; their figures are on the model of that date.
+
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `nutrient_floor.py`; tests: `tests/test_nutrient_floor.py`; inputs `nf_*` in `inputs.py`. The source is
@@ -65,3 +68,41 @@ cheapest GFI floor ($2.50) Central at $0.05 would cost about $26.3.
 3. **Weighting.** The mean price is unweighted. GFI's weighted figures are in charts and its spreadsheet, which I did not download.
    Serine, arginine and glutamine are needed in the largest amounts, and serine is among the dearest, so a weighted mean is
    probably higher.
+
+## 6. The decision (2026-11-19)
+
+The floor is now feed-grade amino acids at GFI's most efficient need, with the other nutrients re-estimated:
+
+| part of the floor | per kilo of wet cells | basis |
+|---|---|---|
+| amino acids: 232 g at $6.36 a kilo | $1.48 | GFI, feed-grade mean of 22 (unweighted); the most efficient of eight need estimates |
+| glucose | $0.13 | 0.32 kg at $0.40 (unchanged) |
+| salts, buffer, vitamins, trace elements | $0.40 | was $0.90, assumed; DMEM/F12's salts, bicarbonate and vitamins at bulk prices are about $0.005-0.01 a litre, $0.1-0.3 a kilo at 11-28 litres |
+| **total** | **$2.00** | was $1.70 |
+
+**Why the old floor was too low.** Not a mass balance: 0.337 kg of hydrolysate supplies about the 0.26 kg of amino acids the cells
+take up (Humbird's stoichiometry; wet cells are 15-20% protein). It was the price: hydrolysis destroys or converts glutamine,
+arginine, asparagine, cystine and serine, which the cells need, so they must come from fermentation at amino-acid prices.
+
+**Why the cheapest tier.** The floor binds only where the medium costs no more than what the cells eat: the best case, Humbird's
+optimistic design and the setting "at the nutrient floor". The best case takes the favourable end of every input, so its floor is
+GFI's favourable end. Central and the other rungs pay the announced $0.20 a litre (28 litres a kilo, $5.72), above any floor below
+the high food-grade tier. The amino-acid price is drawn in the scenarios' bands ($5.0-11.6 a kilo, mode $6.36).
+
+**What it does.** The best case $9.66 to $9.96; Humbird's optimistic design $12.51 to $12.81. Central does not move on this account
+(it moved from $29.42 to $26.43 the same day, because growth factors are now counted inside the announced medium price,
+`growth_factors_in_medium_price.md`). The medium switch's $0.05 and $0.15 a litre settings were replaced by one setting, "at the
+nutrient floor": at Central's 28 litres a kilo the floor is $0.07 a litre, and with it Central costs $25.77 (growth factors bought on
+top, at 30% of Humbird's price).
+
+| amino acids | need 232 g | need 350 g | need 650 g |
+|---|---|---|---|
+| feed-grade ($6.36) | floor $2.00; best $9.96; Central $26.43 | $2.75; $10.72; $26.60 | $4.66; $12.64; $28.55 |
+| low food-grade ($11.59) | $3.22; $11.19; $27.07 | $4.58; $12.56; $28.47 | $8.06; $16.07; $32.02 |
+| high food-grade ($23.18) | $5.91; $13.90; $29.82 | $8.64; $16.66; $32.62 | $15.60; $23.67; $39.72 |
+
+Central's $0.20 a litre is a complete medium, so it cannot cost less than the nutrients plus the growth factors its price includes
+(about $3.0 a kilo at 28 litres). Above GFI's cheapest floor that sum passes its $5.72, and Central rises with the floor.
+
+Still open: the weighted mean price (serine, arginine and glutamine are needed most; serine is dear), and a supplier's tonne quote
+for the five amino acids hydrolysate cannot supply.

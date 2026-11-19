@@ -70,10 +70,16 @@ def cost(key: str = "central", loop: float = 0.0, nh3: float = 0.0, lac: float =
     perm0 = max(1e-9, r0["medium_l"] - bleed)
     charge = kw.get("charge", value("plant_charge_mature"))
     filter_l = r0["membranes"] / perm0 + charge * r0["retention_capex"] / r0["output"] / perm0   # $ per litre filtered
+    # growth factors per litre, whether bought on top or inside a complete medium's price (scenarios.explore_kwargs)
+    gf_l = (value("pf_growth_factors") * value("pf_opex_escalation") / fp.washout_litres(fp.GOOD_CELLS)
+            * (kw.get("growth_factors", 0.0) + kw.get("gf_in_medium", 0.0)))
+    # basal medium for the dialysate: the medium's price without its growth factors, and never below the nutrients a litre carries
+    basal_l = max(kw.get("medium_price", 0.15) - (gf_l if kw.get("gf_in_medium", 0.0) else 0.0),
+                  fp.feedstock(fp.GOOD_CELLS) / r0["medium_l"])
     extra = {"filter for the loop": 0.0 if in_tank else loop * filter_l,
              "exchange membrane": loop * filter_l * exchange_membrane if in_tank else 0.0,
-             "growth factors lost": loop * (1.0 - gf_kept) * r0["growth_factors"] / r0["medium_l"],
-             "dialysate": loop * dialysate_l * kw.get("medium_price", 0.15),
+             "growth factors lost": loop * (1.0 - gf_kept) * gf_l,
+             "dialysate": loop * dialysate_l * basal_l,
              "device": loop * device_l}
     total = r["total"] + sum(extra.values())
     return {**b, "total": total, "saving": r0["total"] - total, "base": r0["total"], "extra": extra, "filter_l": filter_l,

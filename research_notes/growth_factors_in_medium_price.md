@@ -1,7 +1,8 @@
 # Do announced medium prices include growth factors?
 
-Compiled 2026-11-18. The rule below is in the code behind the input `sc_medium_complete`, **off** in this change; it is turned on, with every
-cost study repinned, in its own change, because it moves every number that rests on Central's cost.
+Compiled 2026-11-18. The rule below is in the code behind the input `sc_medium_complete`, **on since 2026-11-19**, with every cost
+study repinned. The same day the $0.15 a litre setting was dropped and the $0.05 aspiration became "at the nutrient floor"
+(`nutrient_floor.md` §6), so the table in section 3 is on the model before those two changes.
 Access levels: **FT** full text read; **FT(s)** full article read through a summarising fetcher; **ABS** abstract only; **SNIP**
 search snippet; **MEM** background knowledge, unchecked.
 
