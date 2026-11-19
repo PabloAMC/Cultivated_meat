@@ -1464,15 +1464,38 @@ REGISTRY: dict[str, Input] = {
              "the conventional meat beside it. At cult_sub_mult = kappa_base the model is exactly the "
              "published one"),
     # --- SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18; research_notes/liking_spread.md). Each shopper's
-    # liking for cultivated meat is the model's plus a normal draw with spread liking_sd; its mean is set so that, once familiar
-    # and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings). liking_sd = 0 is the model
-    # before (every shopper alike, no shift).
-    "liking_sd": Input(5.0, "utils", "[fitted, liking_spread.fit] spread (standard deviation) across shoppers of liking for "
-        "cultivated meat, in the model's utils. Fitted to the one random-parameter choice experiment on cultivated meat (Van Loo, "
-        "Caputo & Lusk 2020): with it, the model reproduces that experiment's own-price elasticity at four prices (miss 0.15, "
-        "against 2.56 with every shopper alike). The experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
-        lo=3.5, hi=6.0, mode=5.0,
-        note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18."),
+    # liking for cultivated meat is the model's plus a draw from a spread with standard deviation liking_sd; its mean is set so
+    # that, once familiar and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings).
+    # liking_sd = 0 is the model before (every shopper alike, no shift). Since 2026-11-19 the spread is a Student's t
+    # (LIKING_FAMILY below, liking_tail), heavier-tailed than the normal it replaced: audit finding D3.
+    "liking_sd": Input(3.9, "utils", "[fitted, liking_spread.families] spread (standard deviation) across shoppers of liking for "
+        "cultivated meat, in the model's utils. Fitted with liking_tail, jointly, to the one random-parameter choice experiment "
+        "on cultivated meat (Van Loo, Caputo & Lusk 2020: its own-price elasticity at four prices, miss 0.13 against 2.56 with "
+        "every shopper alike), to the share sixteen premium real meats hold at 2, 3 and 4 times the ordinary price, and to "
+        "farmed salmon's response to its falling price. The choice experiment alone would put it at 3.6 (miss 0.01). The "
+        "experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
+        lo=3.6, hi=4.2, mode=3.9,
+        note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18. lo-hi: "
+             "about the values whose joint misfit is within 20% of the best (3.45-4.15 with liking_tail re-fitted, "
+             "liking_spread.profile); above 4.0 at liking_tail = 4 the first-contact elasticity at equal price leaves "
+             "-1.5 +/- 0.15. CHANGED 2026-11-19 from 5.0 with a normal spread: that fit (miss 0.15, elasticity -1.53) rested on "
+             "fifteen integration points; integrated properly a normal spread of 5 misses by 0.29 with an elasticity of -1.34, "
+             "and no normal spread meets both -1.5 +/- 0.15 and a miss under 0.30. With LIKING_FAMILY = 'normal' and "
+             "liking_sd = 5.0 the model of 2026-11-18 is reproduced exactly."),
+    "liking_tail": Input(4.0, "dof", "[fitted, liking_spread.families] how heavy the tails of the spread of "
+        "liking are: the degrees of freedom of a Student's t. The smaller, the more shoppers who like (or dislike) cultivated "
+        "meat far more than the typical spread, so the more who still buy at three or four times meat's price; at 30 or more "
+        "it is a normal spread. With liking_sd it is fitted jointly to the choice experiment, the premium real meats and "
+        "farmed salmon (see liking_sd). At 4 the share of a meat's buyers at 3, 4 and 5 times its price falls by about 0.9 "
+        "per unit of price ratio, as the premium meats' does.",
+        lo=3.0, hi=6.0, mode=4.0,
+        note="Must be above 2 (below, the spread has no standard deviation). Not drawn in the bands. LOOSELY PINNED: the "
+             "joint misfit is least at 3 and within 20% of the least from 2.5 to 4.5 (liking_spread.profile); 4 is 10% above "
+             "the least. 4 and not 3 because the misfit cannot tell them apart and three things it does not count favour the "
+             "lighter tail: the model's first-contact share at equal price (4.3% at 4, 3.9% at 3, measured 5%), shares at ten "
+             "or more times meat's price, where a heavier tail leaves more buyers than any premium meat shows, and the best "
+             "case, which a narrower middle lowers. lo-hi: 3 is the least-misfit value; 6 is about 45% above it. Used only "
+             "when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
     "equal_price_share": Input(0.13, "of buyers", "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar "
         "and costs the same as conventional meat, the share of a meat's buyers who choose it, at neutral settings (tastes as "
         "good, seen as real meat, no health or slaughter-free credit). At first contact it is about 5% (Van Loo, Caputo & Lusk "
@@ -2168,6 +2191,13 @@ AUTH_PREMIUM_EXTRA: float = -1.1   # utils: the full premium penalty, on top of 
 # coefficient is the `loss_aversion` slider (canonical form, lambda IS the coefficient); this
 # constant is the literature anchor surfaced for the methods text / interactive `const`.
 LOSS_AVERSION_RATIO: float = 2.25
+
+# The shape of the spread of liking for cultivated meat across shoppers (market_share.spread_quadrature; its standard deviation
+# is the input liking_sd and its tail weight liking_tail). "student": a Student's t, the default since 2026-11-19 (audit finding
+# D3: a normal's tail falls too fast far above price parity). "normal": the model of 2026-11-18, with its fifteen Gauss-Hermite
+# nodes; set liking_sd to 5.0 with it to reproduce that model exactly. "logistic" and "mixture" are there for comparison
+# (liking_spread.families).
+LIKING_FAMILY: str = "student"
 
 # ----------------------------------------------------------------------------
 # Which inputs the Monte-Carlo bands sample. ONE list for every band — the Python roll-ups

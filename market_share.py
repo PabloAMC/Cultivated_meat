@@ -133,12 +133,13 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior, LOSS_AVERSION_RATIO
+from inputs import value, prior, LOSS_AVERSION_RATIO, LIKING_FAMILY
 from cost_model import (
     CostParams, biomass_cost, cost_floor, ratio as cost_ratio,
 )
@@ -219,8 +220,13 @@ class DemandParams:
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
     # --- shoppers differ in how much they like cultivated meat (2026-11-18) --------------------------------------
-    liking_sd: float = value("liking_sd")                   # spread of liking across shoppers (utils); 0 = every shopper alike
+    liking_sd: float = value("liking_sd")                   # spread of liking across shoppers (standard deviation, utils); 0 = every shopper alike
+    liking_family: str = LIKING_FAMILY                      # shape of the spread: "student" (default), "normal", "logistic", "mixture"
+    liking_tail: float = value("liking_tail")               # how heavy its tails are: Student's degrees of freedom (mixture: the
+                                                            # minority's spread as a multiple of the others'); unused by normal, logistic
+    liking_minority: float = 0.05                           # mixture only: the share of shoppers with the wide spread
     equal_price_share: float = value("equal_price_share")   # long-run share at equal price, neutral settings; sets liking_mean
+    spread: tuple = field(default=(), repr=False)           # DERIVED: (nodes, weights) of the standardised spread (spread_quadrature)
     liking_mean: float = field(default=0.0, repr=False)     # DERIVED: the mean liking shift that gives equal_price_share
     liking_table: tuple = field(default=(), repr=False)     # DERIVED: (means, shares at equal price), for per-draw overrides
 
@@ -242,6 +248,7 @@ class DemandParams:
         if not self.calibrated:
             _derive_beta(self)            # sets beta_ref + anchor_price; calibrates at the converged beta
             self.calibrated = True
+        self.spread = spread_quadrature(self.liking_family, self.liking_tail, self.liking_minority)
         _solve_liking(self)               # the mean liking shift for the spread (after the calibration, which does not use it)
 
     @property
@@ -412,10 +419,85 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
             + components["real_meat"] + components["health"] + components["asc"])
 
 
-# Gauss-Hermite nodes and weights for a standard normal: the spread of liking is integrated over these. Fifteen: seven change a
-# share by up to a quarter at the default spread (liking_spread.py).
-SPREAD_NODES, SPREAD_WEIGHTS = np.polynomial.hermite_e.hermegauss(15)
-SPREAD_WEIGHTS = SPREAD_WEIGHTS / SPREAD_WEIGHTS.sum()
+# ----------------------------------------------------------------------------
+# The spread of liking across shoppers: a STANDARDISED distribution (mean 0, standard deviation 1) given as quadrature nodes z_i
+# and weights w_i. A shopper of kind i likes cultivated meat by  liking_mean + liking_sd * z_i  utils more than the model's
+# utility says, and the share is the weighted average over the kinds. The page receives the two arrays (build_interactive.py:
+# spread_nodes, spread_weights), so it mirrors whichever family is the default without knowing its formula.
+#
+#   "student"  (default since 2026-11-19)  Student's t with `tail` degrees of freedom (> 2), scaled to unit standard deviation.
+#              Heavier tails than a normal: more shoppers who like (or dislike) cultivated meat far more than the typical spread.
+#              As `tail` grows it becomes the normal. Fitted jointly to the choice experiment, premium real meats and farmed
+#              salmon (liking_spread.py, research_notes/audit_2026-11-19.md finding D3).
+#   "normal"   the model from 2026-11-18 to 2026-11-19, with the same fifteen Gauss-Hermite nodes: selecting it (with
+#              liking_sd = 5) reproduces that model's numbers exactly. Fifteen nodes are too few for this integrand (shares off by
+#              5 to 10%, the first-contact elasticity -1.53 where the converged integral gives -1.34), so it is kept for
+#              reproduction only.
+#   "logistic" exponential tails; no shape parameter.
+#   "mixture"  two normals with the same mean: a share `minority` of shoppers has a spread `tail` times the others'.
+#
+# Every family but "normal" is integrated by the trapezoid rule on a grid that is even near the middle and stretches outwards
+# (z = c sinh(y), y evenly spaced): 67 nodes reaching 40 standard deviations. Against a 20,001-point reference the share at 1
+# to 5 times meat's price is within 0.1% and at 8 times within 1% (liking_spread.markdown_quadrature). Gauss-Legendre nodes in
+# probability mapped through the quantile function need about 120 nodes for 1% up to 5 times the price and are wrong beyond about
+# 6 times, where the buyers left are beyond their last node; Gauss-Hermite nodes per component need about 90 per component for
+# the mixture.
+# ----------------------------------------------------------------------------
+LIKING_FAMILIES = ("student", "normal", "logistic", "mixture")
+NORMAL_NODES = 15                    # Gauss-Hermite nodes of the "normal" family: the 2026-11-18 model's
+GRID_STEP, GRID_STRETCH, GRID_REACH = 0.3, 3.0, 40.0    # the grid: spacing near the middle, where it starts to stretch, how far it
+                                                         # reaches (all in standard deviations)
+
+
+def spread_density(family: str, tail: float = 0.0, minority: float = 0.0):
+    """Density (up to a constant) of the standardised spread of liking: a function of z, an array of standard deviations."""
+    if family == "normal":
+        return lambda z: np.exp(-0.5 * z * z)
+    if family == "student":
+        if not tail > 2.0:
+            raise ValueError("liking_tail: Student's t needs more than 2 degrees of freedom to have a standard deviation")
+        return lambda z: (1.0 + z * z / (tail - 2.0)) ** (-0.5 * (tail + 1.0))
+    if family == "logistic":
+        s = np.sqrt(3.0) / np.pi                         # the scale at which a logistic has unit standard deviation
+        return lambda z: np.exp(-np.abs(z) / s) / (1.0 + np.exp(-np.abs(z) / s)) ** 2
+    if family == "mixture":
+        if not (0.0 < minority < 1.0 and tail >= 1.0):
+            raise ValueError("mixture: liking_minority must be between 0 and 1 and liking_tail (the ratio of spreads) at least 1")
+        s1 = 1.0 / np.sqrt(1.0 - minority + minority * tail * tail)
+        s2 = s1 * tail
+        return lambda z: (1.0 - minority) / s1 * np.exp(-0.5 * (z / s1) ** 2) + minority / s2 * np.exp(-0.5 * (z / s2) ** 2)
+    raise ValueError(f"unknown liking_family '{family}' (one of {LIKING_FAMILIES})")
+
+
+def grid_quadrature(density, step: float = GRID_STEP, stretch: float = GRID_STRETCH, reach: float = GRID_REACH) -> tuple:
+    """Nodes and weights for a standardised density by the trapezoid rule in y, with z = stretch * sinh(y / stretch): evenly
+    spaced by `step` near the middle, wider apart beyond `stretch`, out to `reach`. Weights sum to 1."""
+    k = int(np.ceil(stretch * np.arcsinh(reach / stretch) / step))
+    y = np.arange(-k, k + 1) * step / stretch
+    z = stretch * np.sinh(y)
+    w = density(z) * np.cosh(y)
+    return z, w / w.sum()
+
+
+@lru_cache(maxsize=None)
+def _spread_quadrature(family: str, tail: float, minority: float) -> tuple:
+    if family == "normal":
+        z, w = np.polynomial.hermite_e.hermegauss(NORMAL_NODES)
+        return z, w / w.sum()
+    return grid_quadrature(spread_density(family, tail, minority))
+
+
+def spread_quadrature(family: str | None = None, tail: float | None = None, minority: float = 0.05) -> tuple:
+    """(nodes, weights) of the standardised spread of liking for a family (None: the default, inputs.LIKING_FAMILY, with
+    inputs' liking_tail). Parameters a family does not use are ignored."""
+    family = LIKING_FAMILY if family is None else family
+    tail = value("liking_tail") if tail is None else tail
+    uses_tail, uses_minority = family in ("student", "mixture"), family == "mixture"
+    return _spread_quadrature(family, float(tail) if uses_tail else 0.0, float(minority) if uses_minority else 0.0)
+
+
+# The default spread, for the page (build_interactive.py passes these two arrays to its JavaScript).
+SPREAD_NODES, SPREAD_WEIGHTS = spread_quadrature()
 
 
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
@@ -423,18 +505,19 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0,
              liking=None) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
-    drops x from the choice set. `liking` = (mean, sd): shoppers' liking for cultivated meat is spread normally around the
-    model's utility plus `mean`; the shares are averaged over shoppers (Gauss-Hermite). None or sd = 0: every shopper alike."""
+    drops x from the choice set. `liking` = (mean, sd, nodes, weights): shoppers' liking for cultivated meat is spread around
+    the model's utility plus `mean`, as mean + sd x nodes with the given weights (spread_quadrature); the shares are averaged
+    over shoppers. None or sd = 0: every shopper alike."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
                    p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa, slaughter_free_x=slaughter_free_x)
     if cultivated_present and liking is not None and liking[1] > 0.0:
-        Vx = V[3] + liking[0] + liking[1] * SPREAD_NODES            # cultivated meat's utility for each kind of shopper
+        Vx = V[3] + liking[0] + liking[1] * liking[2]               # cultivated meat's utility for each kind of shopper
         m = max(float(np.max(V[:3])), float(np.max(Vx)))
         e = np.exp(V[:3] - m)
         ex = np.exp(Vx - m)
-        inv = SPREAD_WEIGHTS / (e.sum() + ex)                          # weight / denominator, per kind of shopper
+        inv = liking[3] / (e.sum() + ex)                               # weight / denominator, per kind of shopper
         return {"w": float(e[0] * inv.sum()), "c": float(e[1] * inv.sum()), "p": float(e[2] * inv.sum()),
                 "x": float((ex * inv).sum())}
     if cultivated_present:
@@ -515,18 +598,20 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
-          kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None) -> float:
+          kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None, spread=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
     SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18): cultivated meat's utility for each shopper is the model's
-    plus a normal draw with mean pr.liking_mean and spread pr.liking_sd, averaged over shoppers. liking_mean is set so that at
-    equal price, once familiar and at neutral settings, cultivated meat takes pr.equal_price_share (_solve_liking).
+    plus a draw with mean pr.liking_mean and standard deviation pr.liking_sd, averaged over shoppers. Since 2026-11-19 the draw
+    is from a heavier-tailed distribution than a normal (pr.liking_family, pr.liking_tail; spread_quadrature). liking_mean is set
+    so that at equal price, once familiar and at neutral settings, cultivated meat takes pr.equal_price_share (_solve_liking).
       liking_sd=0  -> every shopper alike and no shift: the model before 2026-11-18 (the calibration, and every check on a real
                       premium meat, uses this).
       equal_share  -> a different long-run share at equal price for this call (a Monte-Carlo draw); mapped to a mean shift
                       through pr.liking_table, at the model's spread.
       liking_mean  -> set the mean shift directly (liking_spread.py).
+      spread       -> (nodes, weights) of another standardised spread for this call (liking_spread.py compares families).
 
     The override knobs map cleanly onto the four-product / two-segment model:
       accept_x      -> cultivated taste credit (taste_x = accept_x - 1)
@@ -570,7 +655,8 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     if sd > 0.0:
         mean = (liking_mean if liking_mean is not None else
                 pr.liking_mean if equal_share is None else liking_mean_for(pr, equal_share))
-        liking = (mean, sd)
+        nodes, weights = pr.spread if spread is None else spread
+        liking = (mean, sd, nodes, weights)
     else:
         liking = None
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,

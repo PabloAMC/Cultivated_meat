@@ -3,7 +3,10 @@
 
 Checks that with no spread and no shift the share is the model's, that a spread fits the choice experiment's price response much
 better than none, that the same fade of first-contact wariness gives far less than half the market once liking is spread, and that
-the notes and RESULTS.md carry the module's tables and the figures their prose quotes. Runs as a script or under pytest.
+the notes and RESULTS.md carry the module's tables and the figures their prose quotes. Since 2026-11-19 also the shape of the spread
+(market_share.spread_quadrature): that every shape's nodes are a standardised distribution, that the normal shape with a spread of
+5 is still the model of 2026-11-18 to the last digit, and that the model's integration rule is within 1% of a 20,001-point
+reference. Runs as a script or under pytest.
 """
 from __future__ import annotations
 
@@ -13,13 +16,46 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+import numpy as np  # noqa: E402
+
 import liking_spread as LS  # noqa: E402
 import market_share as M  # noqa: E402
 import scenarios as S  # noqa: E402
 
 
-def check() -> list:
+# the model of 2026-11-18 (a normal spread of 5 utils on fifteen Gauss-Hermite nodes): its share at 1, 2 and 4 times meat's price
+NORMAL_2026_11_18 = {1.0: 0.13000000000010429, 2.0: 0.037927474907962924, 4.0: 0.0011968020247303283}
+
+
+def check_shape() -> list:
+    """The shape of the spread: nodes and weights, the normal shape's exact reproduction, and the integration rule's accuracy."""
     fails = []
+    x, w = np.polynomial.hermite_e.hermegauss(15)
+    z, wz = M.spread_quadrature("normal")
+    if not (np.array_equal(z, x) and np.array_equal(wz, w / w.sum())):
+        fails.append("the normal shape no longer uses the fifteen Gauss-Hermite nodes of the 2026-11-18 model")
+    for fam, tail in (("normal", 0.0), ("student", 4.0), ("student", 3.0), ("logistic", 0.0), ("mixture", 3.0)):
+        z, wz = M.spread_quadrature(fam, tail, 0.05)
+        var = float((wz * z * z).sum())
+        if abs(wz.sum() - 1.0) > 1e-12 or abs(float((wz * z).sum())) > 1e-9 or not 0.95 < var < 1.0 + 1e-9:   # a heavy tail keeps a little variance beyond the last node
+            fails.append(f"{fam}: the nodes are not a standardised distribution (weights {wz.sum()}, variance {var})")
+    old = LS.variant(liking_family="normal", liking_sd=5.0)
+    for R, v in NORMAL_2026_11_18.items():
+        if abs(M.share(R, old) - v) > 1e-12:
+            fails.append(f"the normal shape with a spread of 5 no longer reproduces the 2026-11-18 model at {R:g} times the price")
+    pr = LS.demand()
+    if pr.liking_family != "normal":
+        err = LS.quadrature_error(pr.spread, liking_family=pr.liking_family, liking_sd=pr.liking_sd, liking_tail=pr.liking_tail)
+        if err > 0.01:
+            fails.append(f"the model's integration rule is {err:.1%} from the 20,001-point reference at 1 to 5 times the price")
+    for R in (1.0, 2.5):
+        if abs(M.share(R, pr, liking_sd=0.0) - M.share(R, LS.variant(liking_family="normal"), liking_sd=0.0)) > 1e-15:
+            fails.append("with no spread the share depends on the shape of the spread")
+    return fails
+
+
+def check() -> list:
+    fails = check_shape()
     pr = LS.demand()
     for R in (1.0, 2.0, 3.5):
         if abs(LS.share(R, 0.0, 0.0) - M.share(R, pr, liking_sd=0.0)) > 1e-12:

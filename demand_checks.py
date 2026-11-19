@@ -20,6 +20,8 @@ measurements point to. It changes no default.
 """
 from __future__ import annotations
 
+from dataclasses import replace
+
 import market_share as M
 import meat_market as mm
 import premium_curve as P
@@ -71,11 +73,12 @@ def _world(share_of_cost) -> dict:
 def variants() -> list:
     """The long-run share under different price responses. Each row: name, the curve (share at each price ratio in R_GRID, %),
     the first-contact elasticity at equal price, and the world share at Central's and the best case's cost. The first row is the
-    model (a spread of liking since 2026-11-18); the others have every shopper alike (liking_sd=0)."""
-    pr = S._demand()
+    model (a spread of liking since 2026-11-18, heavier-tailed than a normal since 2026-11-19); the next three have every shopper
+    alike (liking_sd=0); the last is the normal spread the model had on 2026-11-18."""
+    pr0 = S._demand()
     income = mm.REGION_INCOME["global"]
 
-    def row(name, **kw):
+    def row(name, pr=pr0, **kw):
         def world(cost):
             def share_of(mt, R, base, res):
                 return M.share(R, pr, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv, **kw)
@@ -83,6 +86,7 @@ def variants() -> list:
         return {"name": name, "curve": [M.share(R, pr, **kw) * 100.0 for R in R_GRID],
                 "cold": elasticity_at(1.0, pr, neophobia_x=value("neophobia_x0"), **kw), "world": _world(world)}
 
+    pr = pr0
     rows = [row("**the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)**"),
             row("the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general", liking_sd=0.0),
             row("every shopper alike, 4 times (no extra sensitivity for cultivated meat)", liking_sd=0.0, kappa=pr.kappa_base),
@@ -92,6 +96,8 @@ def variants() -> list:
     rows.append({"name": "one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections",
                  "curve": [P.curve(max(R - d, 0.05), main) * 100.0 for R in R_GRID], "cold": P.parity_elasticity(main),
                  "world": _world(lambda c: P.cultivated_share(c, main, d_price=d))})
+    rows.append(row("the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points)",
+                    pr=replace(pr0, liking_family="normal", liking_sd=5.0)))
     return rows
 
 
