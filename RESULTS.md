@@ -14,31 +14,25 @@ Everything below reproduces from the code.*
 kilo of cells costs about **$219** (median; 8 in 10 draws between $162 and $282; $209.1 at most likely values), 26 times the shop
 price of everyday meat, and cultivated meat takes under 0.001% of world meat and seafood. What it would take to matter:
 
-| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |
+| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the cells tried that reach it with the fewest traits beyond the best measured in meat cells | at | traits beyond the best measured in meat cells (each against its own best measurement) |
 |---|---|---|---|---|---|
-| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $19.3, a food-grade plant with shared medium, fed-batch at 20 m³ | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 15 h, 2 ng | $19.4, a food-grade plant, fed-batch at 20 m³ | ammonia 0.055 mol/kg wet, against 0.14 measured; lactate 0.42 mol/mol, against 1.05 measured |
 | 10% | 14.5% | $4.9 a kilo or less | none of the sets tried |  |  |
-| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 43 h, 2 ng | $25.9, a food-grade plant, perfusion | shown without engineering, some only in other cells |
-| 10% | 50.0% | $12.9 a kilo or less | ammonia 0 mol/kg, lactate 0 mol/mol, a doubling every 25.7 h, 2 ng | $12.9, a food-grade plant with shared medium, perfusion | some traits shown only with genetic engineering; not yet together in one meat cell |
+| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.14 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $29.4, a food-grade plant, perfusion | lactate 0.42 mol/mol, against 1.05 measured |
+| 10% | 50.0% | $12.9 a kilo or less | ammonia 0.055 mol/kg, lactate 0.279 mol/mol, a doubling every 15 h, 2 ng | $11.8, a food-grade plant with shared medium, perfusion | ammonia 0.055 mol/kg wet, against 0.14 measured; lactate 0.279 mol/mol, against 1.05 measured |
 
 - **A 1% share needs cells at about $20 a kilo** with the model's 14.5% of meat buyers picking cultivated meat at equal price, and
-  about $30 if half of meat buyers did. Both are reached by cells whose traits have each been shown without genetic engineering:
-  less ammonia (0.055 mol a kilo) and less lactate (0.42 mol per mol of glucose) than the published cells, in a food-grade plant.
-  Those two levels have so far been shown only in CHO cells, not in meat cells. The first set also doubles every 20 hours, and low
-  ammonia has not been shown together with a doubling under 43 hours in one meat cell; the second keeps the 43 hours. The first
-  reaches the cost in a 20 m³ batch, the mode that has been shown, not in perfusion.
+  about $30 if half of meat buyers did. Among the sets tried, the first is reached with two traits beyond the best measured in meat
+  cells, ammonia at 0.055 mol a kilo (0.14 measured) and lactate at 0.42 mol per mol of glucose (1.05 measured), in a 20 m³ batch,
+  the mode that has been shown, not in perfusion; the second with one, the lactate.
 - **A 10% share needs cells at $4.9 a kilo at 14.5% of meat buyers**, below every set of traits tried, and below the $6.1 of parity
-  with a $12 kilo of everyday meat. At 50% of meat buyers it needs $12.9, which the sets tried reach only with no ammonia and no
-  lactate at all, so far shown only with genetic engineering (and, for lactate, by feeding glucose slowly in CHO cells).
-- **Nothing here says engineering is necessary.** For each trait, `cell_traits.routes_needed` says what has been shown and by which
-  route; the routes table is below. Each trait is judged alone, and the text says what has not been shown together.
-
-| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
-|---|---|---|---|---|---|
-| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
-| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
-| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
-| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
+  with a $12 kilo of everyday meat. At 50% of meat buyers it needs $12.9, which the sets tried reach only with ammonia and lactate
+  both well beyond the best measured in meat cells.
+- **The table says what has been measured, not how cells would get there.** For each trait the best value measured in meat cells is
+  0.14 mol of ammonia a kilo (Hubalek 2023, bovine fat-precursor cells fed without glutamine), 1.05 mol of lactate per mol of glucose
+  (Pasitka 2024, chicken fibroblasts in perfusion), a doubling every 15 hours (Stout 2023, immortalised bovine muscle cells, with serum)
+  and 3.3 ng a cell (Pasitka 2024, chicken cells, from their density); `cell_traits.best_in_meat_cells`. Each trait is set against its
+  own best measurement. Nothing here says how cells would come to have a trait.
 
 The reference points, each defined by its cells' traits and the plant and process around them (`scenarios.py`), are in the table
 below. With the Selected cells case's traits (ammonia 0.14 mol a kilo, lactate 0.42 mol per mol of glucose, a doubling every 36 hours,
@@ -59,11 +53,11 @@ $9.43, needs about $4.29). The cost rests on a handful of numbers, and the weake
   now stop a batch at 37 g/L, not 56, and the published cells at 14 g/L, not 25 (`research_notes/vessels_and_modes.md`, section 10).
 - **How the tank is run is a switch**: fed-batch at 20, 50 or 100 m³, or perfusion at 20 m³. Fed-batch at 20 m³ is what has been shown
   for meat cells (Upside Foods, 2026); perfusion has not been run with animal cells above about 4 m³.
-- **Cells are four traits**, set directly, with a table of the routes that have shown each level (`cell_traits.py`,
-  `research_notes/cell_trait_routes.md`). The named cases are reference points defined by their traits.
+- **Cells are four traits**, set directly, each set against the best value measured in meat cells (`cell_traits.best_in_meat_cells`;
+  the evidence is in `research_notes/cell_trait_routes.md`). The named cases are reference points defined by their traits.
 - **The share is the share of the meat sold**: cultivated over cultivated plus conventional meat, for each product. It was the share of
   all four choices (with plant-based meat and no meat). Every share rose, by 13–28% of itself, most where the share is small.
-- **Every kind of cell weighs 2 ng** (range 1–3 ng, drawn in the bands). The engineered setting changes the metabolism, not the size;
+- **Every kind of cell weighs 2 ng** (range 1–3 ng, drawn in the bands). The low-waste setting changes the metabolism, not the size;
   it was Humbird's 3 ng. Engineered cells, all favourable costs $11.7 at most likely values, not $11.5.
 - **The ammonia the selected cells make** keeps its value (0.14 mol a kilo, the one stirred measurement), with its low end widened
   from 0.07 to 0.04 after a two-sided evidence pass (`research_notes/ammonia_tolerance_and_filter_life.md`, section 10).
@@ -116,16 +110,16 @@ and after each are in CHANGELOG.md.
 >   cost, because most estimates have more room to fall short than to improve: 37% of the Selected cells case's draws and 10% of those of
 >   Engineered cells, all favourable come in below it. Steps of the ladder and the side tables use it, so that they can be subtracted from one another.
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
-| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | none |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | none |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | lactate |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | ammonia, lactate |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
 **The steps between the reference points.** The first seven rows change one kind of thing at a time, from what has been shown to
@@ -143,14 +137,14 @@ so that the steps can be subtracted; the table gives the medians.
   costs $0.30 a litre, between the $0.20 companies announce and the $0.50 one company reports.
 - **Row 2, Plus process changes and cheaper inputs ($201.4).** The same cells and mode. Medium at the announced $0.20 a litre and
   growth factors at 30% of Humbird's price; more gas, the tank tricks and a faster restart do nothing for a batch held by its waste.
-- **Row 3, less lactate and faster growth ($64.9).** Cells that make 0.42 mol of lactate per mol of glucose (shown without engineering
-  in adapted CHO cells, not yet in meat cells) and double every 36 hours. Still a 20 m³ batch.
+- **Row 3, less lactate and faster growth ($64.9).** Cells that make 0.42 mol of lactate per mol of glucose (the best measured in meat
+  cells is 1.05) and double every 36 hours, grown in a 20 m³ batch.
 - **Row 4, Selected cells ($32.8).** The same cells in perfusion.
 - **Row 5, Plus a food-grade plant with shared medium ($29.9).** Its two small seed trains serve only long runs, so it follows
   perfusion; a fed-batch plant with shared medium keeps Humbird's full seed train.
 - **Row 6, almost no ammonia or lactate ($17.3).** 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, the
-  metabolism of Humbird's efficient cell, at 2 ng a cell, still doubling every 36 hours, with $0.20 medium. Each level has been
-  shown without engineering only in CHO cells, and with engineering.
+  metabolism of Humbird's efficient cell, at 2 ng a cell, doubling every 36 hours, with $0.20 medium. The best measured in meat
+  cells are 0.14 mol of ammonia a kilo and 1.05 mol of lactate per mol of glucose.
 - **Row 7, Engineered cells, all favourable ($11.7).** The cells double every 24 hours and need no bought growth factors, gas at 6 mm/s, and a
   medium that costs only what the cells eat (the nutrient floor, $2.00 a kilo of cells at GFI's feed-grade amino-acid prices). It
   takes the favourable end of demand too: once cultivated meat is familiar, 58.5% of meat buyers pick it at equal price, against 14.5%
@@ -183,8 +177,8 @@ what the rows differ in.
 - **Process changes and cheaper inputs take $7.6 off, to $201.4, without touching the cells.** All of it is the cheaper medium. A
   batch this thin is not held by gas, so more gas, the tank tricks and a faster restart are worth nothing (a lost batch costs its
   cells and 2 days, whatever the restart switch says).
-- **Selected cells take $136.5 off, to $64.9: the largest step in dollars.** The selected cells make 0.42 mol of lactate per mol of
-  glucose, as adapted CHO cells do: 1.1 mol a kilo, against 4.8. Ammonia (0.14 mol a kilo, held to 1.3 times 4 mmol/L) then holds
+- **Less lactate takes $136.5 off, to $64.9: the largest step in dollars.** These cells make 0.42 mol of lactate per mol of
+  glucose (the best measured in meat cells is 1.05): 1.1 mol a kilo, against 4.8. Ammonia (0.14 mol a kilo, held to 1.3 times 4 mmol/L) then holds
   the batch at 37 g/L, nearly three times denser. The lower lactate alone is worth $126.4; the 36-hour doubling in place of 43 adds
   $10.1. Upside's reported capacity implies 33–136 g/L a batch, and Vow reports 27 g/L, so the companies' cells already make less
   lactate than the published ones (about 0.6–0.7 mol per mol of glucose would do).
@@ -200,7 +194,7 @@ what the rows differ in.
 - **Almost no ammonia or lactate takes $12.7 off, to $17.3.** Such cells need 16 litres of medium a kilo, not 35, set by the least
   flow a cell needs; every litre less is also a litre less through the filter and less protectant ($4.7 of membranes, not $12.8).
   The median of their draws is $24, and only 7% of draws come in below $17.3: almost every estimate has more room to hurt than to
-  help. Those levels have been shown without engineering only in CHO cells (the ammonia at a plateau), and with engineering.
+  help. Neither level has been measured in meat cells (0.14 and 1.05 are the best measured there).
 - **Everything else at its favourable end takes $5.6 off, to $11.7 (Engineered cells, all favourable).** A 24-hour doubling alone is
   worth $3.3. Oxygen limits the tank, at 218 g/L, with the column, 1 bar of pressure and a squat tank (2 ng cells respire more per
   gram than Humbird's 3 ng, so the tank no longer reaches the thickness limit). The median of its draws is $15, and only 10% of draws
@@ -277,8 +271,8 @@ at most likely values.
 | input | its range (model's value) | Selected cells, $/kg | Selected cells' share of world meat | Engineered cells, all favourable, $/kg | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|---|
 | Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $76.3 to $29.2 | 0.009% to 0.3% | $24.2 to $10.6 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
-| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $57.4 to $23.3 | 0.03% to 0.6% | $18.2 to $10.7 | the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
-| Ammonia the selected cells make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $23.6 to $52.1 | 0.6% to 0.04% | $11.7 to $11.7 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
+| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $57.4 to $23.3 | 0.03% to 0.6% | $18.2 to $10.7 | the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
+| Ammonia the cells of Selected cells make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $23.6 to $52.1 | 0.6% to 0.04% | $11.7 to $11.7 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
 | Price of the bubble protectant (poloxamer 188), bought by the tonne | 10–120 $/kg (30) | $31.4 to $39.1 | 0.2% to 0.1% | $11.1 to $14.1 | assumed: only catalogue prices ($230–260/kg) found | yes |
 | Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $38.4 to $32.8 | 0.1% to 0.2% | $16.3 to $11.7 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time |
 | Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $30.6 to $35.6 | 0.3% to 0.2% | $11.0 to $12.6 | derived from Humbird's financing, at a mature industry's rates | yes |
@@ -293,7 +287,7 @@ at most likely values.
 | Rise in plant construction costs since 2018 | 1.17–1.4 x (1.33) | $31.9 to $33.2 | 0.2% to 0.2% | $11.4 to $11.8 | construction cost index, 2024 estimated | partly: the plant's cost is drawn, not this index |
 | Density a tank reaches without perfusion | 50–150 g wet/L (120) | $32.0 to $33.1 | 0.2% to 0.2% | $11.3 to $11.9 | Humbird's fed-batch limit | **no** |
 | Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $32.8 to $32.8 | 0.2% to 0.2% | $11.4 to $12.9 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
-| Ammonia the engineered cells make per kilo grown | 0.054–0.14 mol/kg wet (0.055) | $32.8 to $32.8 | 0.2% to 0.2% | $11.6 to $21.7 | Humbird's enhanced cell; seen only in engineered CHO cells | no: the Engineered cells, all favourable case assumes cells that reach it |
+| Ammonia the low-waste cells make per kilo grown | 0.054–0.14 mol/kg wet (0.055) | $32.8 to $32.8 | 0.2% to 0.2% | $11.6 to $21.7 | Humbird's enhanced cell; the best measured in meat cells is 0.14 (Hubalek 2023) | no: the Engineered cells, all favourable case assumes cells that reach it |
 
 *Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($31.2 to $35.2 in Selected cells) without changing any tank; it is left out.*
 *Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, gas flow, doubling time, restart time). "What to prioritise" shows what each switch is worth.*
@@ -311,7 +305,7 @@ at most likely values.
   shorter life would come with a cheaper membrane; the band draws both.
 - **The ammonia tolerance is the note's own median.** The meat-relevant cells measured so far (catfish ovary, 3T3 fibroblasts, pig
   muscle stem cells, bovine fibro-adipogenic cells) lose 10–55% of growth at 2.5–5 mmol/L when ammonia is added. They were
-  unadapted and none was run at density. For selected cells the note gives a median of 3.5–4 mmol/L, with 8 in 10 odds on 2–8. The
+  not run at density. The note gives a median of 3.5–4 mmol/L for the cells of the scenarios, with 8 in 10 odds on 2–8. The
   scenarios use 4. At Humbird's 5, the Selected cells case would cost $27.9.
 - **The bands draw all four,** and the other estimates listed under "The bands". Not drawn: the salt the cells tolerate (it moves
   the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time), the pressure at the top of the tank (a design choice)
@@ -424,14 +418,13 @@ medium price and cell efficiency can improve on the report. It does not include 
 
 **What the tricks do, and what the cells decide.** Research notes size ways round the tank's limits
 (`research_notes/gas_exchange_study.md`, `waste_tricks_sizing.md`); `floor_physics.explore` carries them as
-levers, and the page's panel shows each limit as a bar. Each trick and each kind of cell is tagged by what it
-needs: **feed or process** (no change to the cells), **selection or adaptation** (cells chosen or adapted, not
-engineered; easier to regulate), or **genetic engineering**. Every tank trick here is feed or process.
+levers, and the page's panel shows each limit as a bar. Every tank trick here is a change of feed or process; the
+kinds of cell are set by their traits, against the best measured in meat cells.
 
 The settings of these tables are not the scenarios'. They run `explore()` as Humbird's optimistic design does: a tall 20 m³
 perfusion tank with gas at 6 mm/s, cells of 3 ng, his ammonia limit of 5 mmol/L (the scenarios use 4), medium at $0.15 a litre and
 never below what the cells eat, and no lost runs outside the brackets. Glucose comes from the cells' own balance, as in the
-scenarios, for every kind of cell but Humbird's engineered one, which keeps his figure (the two agree). So the published cells
+scenarios, for every kind of cell but Humbird's enhanced one, which keeps his figure (the two agree). So the published cells
 cost $62.3 in the first table and $111.9 as row 1 of the ladder: the same ammonia and lactate yield, and 90 litres of medium a
 kilo against 95, but here with a 3 ng cell, gas at 6 mm/s, cheaper medium, a higher ammonia limit and no lost runs. Read the tables for what the tricks do,
 not for the cost of a kind of cell.
@@ -444,18 +437,18 @@ what a survey of makers implies; 0.6% a day sits between); then the density, wha
 
 | cells | sparger only | sparger, fat in the feed, oxygen held at 0.08 | packed column on a loop | column with oxygen sweep, 1 bar gauge |
 |---|---|---|---|---|
-| the engineered cells [genetic engineering] | $12.8 ($13.0); yeast-style $8.3 ($9.6); 120 g/L CO₂, 11 L/kg | $12.0 ($12.2); yeast-style $8.4 ($9.8); 150 g/L CO₂, 11 L/kg | $12.2 ($12.4); yeast-style $8.5 ($9.9); 146 g/L oxygen, 11 L/kg | $10.7 ($10.9); yeast-style $8.7 ($10.3); 258 g/L thickness, 11 L/kg |
-| best shown in meat cells (bovine, glutamine replaced) [feed or process] | $62.3 ($63.7); yeast-style $55.8 ($70.4); 154 g/L CO₂, 90 L/kg | $43.6 ($44.6); yeast-style $38.5 ($48.4); 192 g/L CO₂, 60 L/kg | $61.1 ($62.4); yeast-style $55.8 ($70.4); 187 g/L oxygen, 90 L/kg | $59.3 ($60.6); yeast-style $55.6 ($70.2); 258 g/L thickness, 90 L/kg |
+| Humbird's enhanced cells (0.055 mol of ammonia a kilo, 0.28 lactate per glucose) | $12.8 ($13.0); yeast-style $8.3 ($9.6); 120 g/L CO₂, 11 L/kg | $12.0 ($12.2); yeast-style $8.4 ($9.8); 150 g/L CO₂, 11 L/kg | $12.2 ($12.4); yeast-style $8.5 ($9.9); 146 g/L oxygen, 11 L/kg | $10.7 ($10.9); yeast-style $8.7 ($10.3); 258 g/L thickness, 11 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) | $62.3 ($63.7); yeast-style $55.8 ($70.4); 154 g/L CO₂, 90 L/kg | $43.6 ($44.6); yeast-style $38.5 ($48.4); 192 g/L CO₂, 60 L/kg | $61.1 ($62.4); yeast-style $55.8 ($70.4); 187 g/L oxygen, 90 L/kg | $59.3 ($60.6); yeast-style $55.6 ($70.2); 258 g/L thickness, 90 L/kg |
 | ordinary meat cells (bovine) | $88.1 ($90.0); yeast-style $83.4 ($104.9); 124 g/L CO₂, 140 L/kg | $87.2 ($89.1); yeast-style $83.5 ($105.1); 155 g/L CO₂, 140 L/kg | $87.4 ($89.3); yeast-style $83.6 ($105.2); 151 g/L oxygen, 140 L/kg | $85.9 ($87.7); yeast-style $83.8 ($105.5); 258 g/L thickness, 140 L/kg |
 
-*Without genetic engineering.* The engineered cell is replaced by what selection and feed alone have
-shown: ammonia 0.14 mol/kg with glutamine replaced, lactate 0.39 per glucose as in adapted CHO cells, at the
-engineered cell's 24-hour doubling:
+*With more ammonia and lactate.* Humbird's enhanced cell with ammonia at 0.14 mol/kg (the best measured in meat
+cells, glutamine replaced) and lactate at 0.39 per glucose (the best measured in meat cells is 1.05), at its
+24-hour doubling:
 
 | cells | sparger only | sparger, fat in the feed, oxygen held at 0.08 | packed column on a loop | column with oxygen sweep, 1 bar gauge |
 |---|---|---|---|---|
-| the engineered cells by selection and feed only [selection or adaptation] | $22.3 ($22.8); yeast-style $17.8 ($21.7); 120 g/L CO₂, 28 L/kg | $21.5 ($21.9); yeast-style $17.9 ($21.9); 150 g/L CO₂, 28 L/kg | $21.7 ($22.1); yeast-style $18.0 ($22.0); 146 g/L oxygen, 28 L/kg | $20.2 ($20.6); yeast-style $18.2 ($22.4); 258 g/L thickness, 28 L/kg |
-| best shown in meat cells (bovine, glutamine replaced) [feed or process] | $62.3 ($63.7); yeast-style $55.8 ($70.4); 154 g/L CO₂, 90 L/kg | $43.6 ($44.6); yeast-style $38.5 ($48.4); 192 g/L CO₂, 60 L/kg | $61.1 ($62.4); yeast-style $55.8 ($70.4); 187 g/L oxygen, 90 L/kg | $59.3 ($60.6); yeast-style $55.6 ($70.2); 258 g/L thickness, 90 L/kg |
+| Humbird's enhanced cells with 0.14 ammonia and 0.39 lactate | $22.3 ($22.8); yeast-style $17.8 ($21.7); 120 g/L CO₂, 28 L/kg | $21.5 ($21.9); yeast-style $17.9 ($21.9); 150 g/L CO₂, 28 L/kg | $21.7 ($22.1); yeast-style $18.0 ($22.0); 146 g/L oxygen, 28 L/kg | $20.2 ($20.6); yeast-style $18.2 ($22.4); 258 g/L thickness, 28 L/kg |
+| best shown in meat cells (bovine, glutamine replaced) | $62.3 ($63.7); yeast-style $55.8 ($70.4); 154 g/L CO₂, 90 L/kg | $43.6 ($44.6); yeast-style $38.5 ($48.4); 192 g/L CO₂, 60 L/kg | $61.1 ($62.4); yeast-style $55.8 ($70.4); 187 g/L oxygen, 90 L/kg | $59.3 ($60.6); yeast-style $55.6 ($70.2); 258 g/L thickness, 90 L/kg |
 | ordinary meat cells (bovine) | $88.1 ($90.0); yeast-style $83.4 ($104.9); 124 g/L CO₂, 140 L/kg | $87.2 ($89.1); yeast-style $83.5 ($105.1); 155 g/L CO₂, 140 L/kg | $87.4 ($89.3); yeast-style $83.6 ($105.2); 151 g/L oxygen, 140 L/kg | $85.9 ($87.7); yeast-style $83.8 ($105.5); 258 g/L thickness, 140 L/kg |
 
 "Best shown in meat cells" is bovine cells with glutamine replaced: 0.14 mol of ammonia per kg and a 43-hour
@@ -467,18 +460,18 @@ than 1.0 (fed, 0.97; a carbon balance, the note's section 10). Holding dissolved
 air saturation, a usual pharma setpoint) in place of the 0.28 the standard tank's oxygen supply implies widens the
 oxygen driving force by about a fifth; it matters only where oxygen binds.
 
-Reading the tables (all with the filter loop, the protectant and antifoam counted): the tricks take the engineered cells
+Reading the tables (all with the filter loop, the protectant and antifoam counted): the tricks take the enhanced cells
 from $12.8 to $10.7, still above the $6.1 parity mark, and in a yeast-style plant they do not pay ($8.3 with the sparger alone, $8.7 with
 everything). Since the filter loop is priced, a denser culture saves less: the bleed carries out less liquid, so more passes the
-membranes. Without genetic engineering the engineered cell needs 28 litres of medium per kg (ammonia sets it), and the tricks take
+membranes. With 0.14 ammonia and 0.39 lactate the enhanced cell needs 28 litres of medium per kg (ammonia sets it), and the tricks take
 it from $22.3 to $20.2 ($17.8 in a yeast-style plant, sparger only). With cells that have actually been measured, waste sets the
 medium and the tank tricks are worth little: every trick together takes the best meat cells from $62.3 to $59.3, 5%, against 17%
-for the engineered cells. The tricks raise the density, not the litres of medium, and for these cells the litres are most of the
+for the enhanced cells. The tricks raise the density, not the litres of medium, and for these cells the litres are most of the
 cost: lactate sets them at 90 a kilo. The one tank-side change that helps them is fat in the feed, $62.3 to $43.6: cells that
 take their fat from the feed need less glucose (4.3 mol a kilo falls to 2.9), make less lactate (4.5 mol falls to 3.0) and need
 60 litres of medium, not 90. That assumes their lactate yield stays at 1.05 when fat is fed, which nobody has measured. The
 cells decide the cost before the tank does. Losing runs at 0.2% a day adds
-$0.2–1.9 per kg. At 2.2% a day in the yeast-style plant it adds $1.3–1.6 for the engineered cells, $10–15 for the best meat
+$0.2–1.9 per kg. At 2.2% a day in the yeast-style plant it adds $1.3–1.6 for the enhanced cells, $10–15 for the best meat
 cells and about $22 for ordinary cells: a lost run loses its time, its tankful and its filter membranes, and wasteful cells
 filter the most. The loss model does not yet count a failed restart, and long continuous runs are more exposed per run than short
 batches.
@@ -501,36 +494,32 @@ the gas-exchange note found 3 to 6 times below an exposure that slowed CHO cells
 loop is 1.9 times that limit (about half the harmful exposure); at 75 passes, 6.4 times (about twice the harmful
 one). **Within those limits Humbird's optimistic design depends on the gas the cells tolerate again**: $11.0 at 6 mm/s, $11.9 at
 4, $14.2 at 2, $22.4 at 1. In the cells-by-tank tables above, the last column ("column with oxygen sweep, 1 bar
-gauge") runs at 22 passes an hour for the engineered cells, beyond the tested range. None of the tricks has been
+gauge") runs at 22 passes an hour for the enhanced cells, beyond the tested range. None of the tricks has been
 tried with meat cells.
 
-### What it would take, and which routes have shown the cells' traits (`scenarios.what_it_would_take`, `cell_traits.py`)
+### What it would take, against what has been measured in meat cells (`scenarios.what_it_would_take`, `cell_traits.best_in_meat_cells`)
 
 The cost of cells a long-run share needs, at the model's 14.5% of meat buyers picking cultivated meat at equal price and at 50% (no
-preference), with every estimate at its most likely value; and the least intrusive set of traits, among those tried, that reaches
-it (ammonia 0.14, 0.055 or 0 mol a kilo; lactate 1.05, 0.42, 0.28 or 0 mol per mol of glucose; a doubling every 43, 36, 25.7, 20 or 15
-hours; 2 ng cells; a food-grade plant with or without shared medium; perfusion or a 20 m³ batch; the Selected cells case's other
-switches). "Least intrusive" ranks the traits by the routes that have shown them, never by odds:
+preference), with every estimate at its most likely value; and, among the sets of traits tried (ammonia 0.14, 0.055 or 0 mol a kilo;
+lactate 1.05, 0.42, 0.28 or 0 mol per mol of glucose; a doubling every 43, 36, 25.7, 20 or 15 hours; 2 ng cells; a food-grade plant
+with or without shared medium; perfusion or a 20 m³ batch; the Selected cells case's other switches), the set that reaches it with
+the fewest traits beyond the best measured in meat cells, then the shortest way beyond them, then the dearest. Each trait is set
+against its own best measurement in meat cells: 0.14 mol of ammonia a kilo (Hubalek 2023), 1.05 mol of lactate per mol of glucose
+(Pasitka 2024), a doubling every 15 hours (Stout 2023) and 3.3 ng a cell (Pasitka 2024). No odds, and no claim about how cells would
+come to have a trait (until 2026-11-19 this ranked traits by the routes said to have shown them; the author had that removed):
 
-| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |
+| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the cells tried that reach it with the fewest traits beyond the best measured in meat cells | at | traits beyond the best measured in meat cells (each against its own best measurement) |
 |---|---|---|---|---|---|
-| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $19.3, a food-grade plant with shared medium, fed-batch at 20 m³ | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 15 h, 2 ng | $19.4, a food-grade plant, fed-batch at 20 m³ | ammonia 0.055 mol/kg wet, against 0.14 measured; lactate 0.42 mol/mol, against 1.05 measured |
 | 10% | 14.5% | $4.9 a kilo or less | none of the sets tried |  |  |
-| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 43 h, 2 ng | $25.9, a food-grade plant, perfusion | shown without engineering, some only in other cells |
-| 10% | 50.0% | $12.9 a kilo or less | ammonia 0 mol/kg, lactate 0 mol/mol, a doubling every 25.7 h, 2 ng | $12.9, a food-grade plant with shared medium, perfusion | some traits shown only with genetic engineering; not yet together in one meat cell |
+| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.14 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $29.4, a food-grade plant, perfusion | lactate 0.42 mol/mol, against 1.05 measured |
+| 10% | 50.0% | $12.9 a kilo or less | ammonia 0.055 mol/kg, lactate 0.279 mol/mol, a doubling every 15 h, 2 ng | $11.8, a food-grade plant with shared medium, perfusion | ammonia 0.055 mol/kg wet, against 0.14 measured; lactate 0.279 mol/mol, against 1.05 measured |
 
-| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
-|---|---|---|---|---|---|
-| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
-| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
-| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
-| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
-
-A 1% share is within reach of traits that have each been shown without genetic engineering, though two of them (ammonia 0.055 and
-lactate 0.42) only in CHO cells, and low ammonia never together with fast growth in one meat cell. A 10% share needs $4.9 a kilo of cells
-at the model's own liking, below every set tried and below parity's $6.1, and, with half of meat buyers favouring it, cells with no ammonia
-and no lactate, which have so far been shown only with genetic engineering. Each trait is judged alone; `research_notes/cell_trait_routes.md`
-gives the evidence both ways. The clouds of draws (`scenario_mc(choice, traits=...)`) can be drawn for any of these sets.
+A 1% share is within reach of sets with two traits beyond the best measured in meat cells (ammonia 0.055 and lactate 0.42) at the
+model's own liking, and one (the lactate) with half of meat buyers favouring it. A 10% share needs $4.9 a kilo of cells at the model's
+own liking, below every set tried and below parity's $6.1, and, with half of meat buyers favouring it, ammonia and lactate both well
+beyond the best measured in meat cells. `research_notes/cell_trait_routes.md` gives the evidence for each measurement. The draws
+(`scenario_mc(choice, traits=...)`) can be run for any of these sets.
 
 ### Perfusion against fed-batch as the plant gets cheaper (`scenarios.plant_axis`)
 
@@ -700,7 +689,7 @@ Reading it (company figures are claims; none has been audited):
 - **On operating cost the model is a little above what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several
   companies, some below $10. The Selected cells case's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost
   $18.8–19.1 a kilo to operate (it was $13.4–13.7 before the waste mass balance of 2026-11-19: a batch held at 37 g/L, not 56,
-  spreads the crew over fewer kilos). With engineered cells in perfusion the operating cost is $12.6, and Engineered cells, all
+  spreads the crew over fewer kilos). With cells that make almost no waste, in perfusion, the operating cost is $12.6, and Engineered cells, all
   favourable $9.3. The Selected cells case itself, in perfusion, costs $25.1 to operate, half of it filter membranes. Cells that make
   less waste than the selected ones, or a batch run to higher waste levels, would bring the batch's figure into the investor's range.
 - **The difference is the plant.** A tank drained and refilled at 37 g/L makes little in a year, so the plant charge is $16–55 a

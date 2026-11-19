@@ -43,14 +43,17 @@ check(cost["best"] < ref["total"] < cost["central"], "the reference should sit b
 for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
-# 3. what each scenario needs: the Engineered cells, all favourable case needs engineering, the central one does not
+# 3. what each scenario needs (since 2026-11-19 no tag names a route: cells with other traits than the published ones are tagged
+# CELLS, never "selection" or "genetic engineering", the author's direction)
 need = {k: S.hardest_need(S.SCENARIOS[k].choice) for k in S.ORDER}
-check(need["best"] == S.GE, f"Engineered cells, all favourable should need genetic engineering, needs {need['best']}")
-check(need["central"] == S.SELECT and need["central_lean"] == S.SELECT, "central should need selection, not engineering")
+check(need["best"] == S.CELLS and need["central"] == S.CELLS and need["central_lean"] == S.CELLS,
+      f"Selected cells and Engineered cells, all favourable need cells with other traits than those published: {need}")
 check(need["cautious"] in (S.FEED, S.NOTHING), f"cautious needs {need['cautious']}")
-for k in S.ORDER:
-    if k != "best":
-        check(S.GE not in [t for _n, _l, t in S.needs(S.SCENARIOS[k].choice)], f"{k} uses a setting that needs genetic engineering")
+for k in ("today", "process"):
+    check(S.CELLS not in [t for _n, _l, t in S.needs(S.SCENARIOS[k].choice)], f"{k} uses cells with other traits than those published")
+_ROUTE = __import__("re").compile(r"genetic|engineer|selection|adapt|routes?\b|other cells|shown together|least intrusive|\bCHO\b", __import__("re").I)
+for t in list(S.TAG_PLAIN.values()) + [st.label + " " + st.note for sw in S.SWITCHES if sw.key in ("cells", "growth", "gf") for st in sw.settings]:
+    check(not _ROUTE.search(t.replace("Humbird's efficient", "")), f"a setting's words name a route: {t[:120]}")
 
 # 4. no scenario relies on a plant as cheap as a yeast plant
 for k in S.ORDER:
@@ -240,8 +243,29 @@ check("36 hours" in S.story_text("central") and "10%" in S.story_text("central")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
 check(2.2 <= gain <= 2.9 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $2.2-2.9 a kilo ({gain:.2f})")
 
-# 14. RESULTS carries the routes table, what it would take and the plant-cost axis; METHODS the routes table (generated, by line)
-for lab, md, docs in (("routes", CT.markdown(), ("RESULTS.md", "METHODS.md")), ("what it would take", S.what_it_would_take_markdown(), ("RESULTS.md",)),
+# 12e. what has been measured in meat cells, with its source (data only; since 2026-11-19 the page and the docs carry no routes)
+best = CT.best_in_meat_cells()
+check(set(best) == set(CT.TRAITS), "a best meat-cell measurement (or none) for each trait")
+check(best["nh3_kg"]["value"] == 0.14 and best["lac_yield"]["value"] == 1.05 and best["doubling_h"]["value"] == 15.0
+      and best["mass_pg"]["value"] == 3300.0, f"best measured in meat cells: {[(k, b['value']) for k, b in best.items()]}")
+check(CT.beyond_measured({"nh3_kg": 0.14, "lac_yield": 1.05, "doubling_h": 43.0, "mass_pg": 2000.0}) == [], "Published cells: nothing beyond")
+check(CT.beyond_measured(S.cell_traits(S.SCENARIOS["central"].choice)) == ["lac_yield"], "Selected cells: only the lactate is beyond")
+check(set(CT.beyond_measured({"nh3_kg": 0.0, "doubling_h": 13.0, "mass_pg": 3400.0})) == {"nh3_kg", "doubling_h", "mass_pg"}, "beyond_measured")
+for r in w:
+    if r["pick"] is not None:
+        others = [g for g in S.trait_grid() if g[0] <= r["need"]]
+        check(len(r["pick"][4]["beyond"]) == min(len(g[4]["beyond"]) for g in others),
+              "what it would take picks the set with the fewest traits beyond the best measured in meat cells")
+# the docs carry no route claims and no routes table (the author, 2026-11-19: "I would remove it")
+for fname in ("README.md", "RESULTS.md", "METHODS.md"):
+    text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()
+    check(CT.markdown().splitlines()[0] not in text, f"{fname} still carries the routes table")
+    for bad in ("No genetic engineering needed", "shown only with genetic engineering", "shown without engineering", "only in other cells",
+                "not yet together in one meat cell", "least intrusive", "routes_needed", "selection or adaptation", "[genetic engineering]"):
+        check(bad not in text, f"{fname} still makes a route claim: '{bad}'")
+
+# 14. RESULTS carries what it would take and the plant-cost axis (generated, by line)
+for lab, md, docs in (("what it would take", S.what_it_would_take_markdown(), ("RESULTS.md",)),
                       ("plant axis", S.plant_axis_markdown(), ("RESULTS.md",))):
     for fname in docs:
         text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()

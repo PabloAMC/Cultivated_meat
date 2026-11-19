@@ -37,8 +37,8 @@ SHARE_MIN = (0.2, 2.0)   # percentage points of world meat, at Selected cells' c
 PLAIN = {
     "pf_nh3_limit": "Ammonia the cells tolerate in the tank (Humbird's design)",
     "sc_nh3_limit": "Ammonia the cells tolerate in the tank",
-    "sc_nh3_selected": "Ammonia the selected cells make per kilo grown",
-    "sc_nh3_engineered": "Ammonia the engineered cells make per kilo grown",
+    "sc_nh3_selected": "Ammonia the cells of Selected cells make per kilo grown",
+    "sc_nh3_engineered": "Ammonia the low-waste cells make per kilo grown",
     "sc_mass_selected_pg": "Weight of one cell (every kind of cells since 2026-11-19)",
     "sc_p_top": "Pressure at the top of the tank, where the pressure trick is used",
     "rt_membrane_life": "Litres a m² of cell filter passes before it is replaced",
@@ -50,7 +50,7 @@ PLAIN = {
     "pf_protectant_dose": "Dose of bubble protectant in the medium",
     "rt_membrane_price": "Price of cell-filter membrane",
     "pf_maintenance_share": "Share of a cell's oxygen use that is upkeep, not growth",
-    "pf_glc_kg": "Glucose the engineered cells use per kg grown",
+    "pf_glc_kg": "Glucose Humbird's efficient cell uses per kg grown",
     "aa_intensity": "Amino acids a kilo of cells takes up (the nutrient floor)",
     "aa_bulk_price": "Price of amino acids (the nutrient floor)",
     "pf_capex_escalation": "Rise in plant construction costs since 2018",
@@ -78,12 +78,12 @@ PLAIN = {
 
 # where the value comes from, in a few words; the input's own source tag otherwise
 EVIDENCE = {
-    "sc_nh3_limit": "the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density",
+    "sc_nh3_limit": "the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density",
     "sc_nh3_selected": "measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine",
-    "sc_nh3_engineered": "Humbird's enhanced cell; seen only in engineered CHO cells",
+    "sc_nh3_engineered": "Humbird's enhanced cell; the best measured in meat cells is 0.14 (Hubalek 2023)",
     "sc_mass_selected_pg": "judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng",
     "sc_p_top": "vendor data sheets (vessels rated to 3–4 bar); no culture has been run at 1 bar",
-    "pf_nh3_limit": "Humbird's choice within 2–10 mmol/L reported for mammalian cells; unadapted meat-relevant cells lose 10–55% of growth at 2.5–5 mM, none measured at density",
+    "pf_nh3_limit": "Humbird's choice within 2–10 mmol/L reported for mammalian cells; meat-relevant cells measured lose 10–55% of growth at 2.5–5 mM, none measured at density",
     "rt_membrane_life": "derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price",
     "pf_protectant_price": "assumed: only catalogue prices ($230–260/kg) found",
     "pf_min_perfusion": "judgement within CHO measurements",

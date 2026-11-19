@@ -15,9 +15,9 @@ language (“How the model works”, at the bottom of the page).
   on the EA Forum.
 
 **Cells as traits.** The cost rests on four traits of the cells (ammonia made per kilo, lactate per glucose, doubling time, cell
-mass), set directly; `cell_traits.py` says, for any set, which routes (a feed change, selection, genetic engineering) have shown each
-level, without saying any route is necessary. RESULTS leads with what it would take: the cost of cells a 1% or 10% share needs, and
-trait sets that reach it. **Reference points** describe the cost of a kilo of cells, each by its traits and the plant and process
+mass), set directly; `cell_traits.py` gives the best value of each measured in meat cells, with its source, and which traits of a set
+go beyond those measurements. It says nothing about how cells would come to have a trait. RESULTS leads with what it would take: the
+cost of cells a 1% or 10% share needs, and trait sets that reach it. **Reference points** describe the cost of a kilo of cells, each by its traits and the plant and process
 around it: Published cells grown in batches (what has been shown), Selected cells in perfusion, Engineered cells, all favourable,
 Humbird's optimistic design and the process one company reports. Each is a preset of eleven switches, and each states what has to
 go right for it. See [RESULTS.md](RESULTS.md) and the page.

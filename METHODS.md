@@ -191,7 +191,7 @@ to commodity meat's own spread, but the shelf price of anything dearer rises: at
 to $49.0. Selected cells' share of world meat and seafood at that cost would be 0.56% under the flat $5 and is 0.21% under the
 present rule; at the Engineered cells, all favourable case's cost, with Selected cells' demand, 4.77% and 3.16%. Both parts are drawn in the uncertainty bands.
 
-**Humbird's optimistic design (`cost_floor`, `scenarios.reference()`; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, engineered cells, no lost runs and no growth factors:
+**Humbird's optimistic design (`cost_floor`, `scenarios.reference()`; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, Humbird's enhanced cells, no lost runs and no growth factors:
 
 | component | value | basis |
 |---|---|---|
@@ -228,9 +228,10 @@ Table 4.4 in 2025 prices; he expects them to vanish at much larger scale). Feeds
 
 The cost of a kilo of cells is not one number: it depends on assumptions nobody has tested together. `scenarios.py` describes them in one
 place. A **switch** is a decision that moves the cost; it has a few **settings**, each an argument set for `floor_physics.explore`, a
-plain-language label, and a tag for what it needs (genetic engineering; selection or adaptation of cells; a change of feed, process or
-plant; nothing new). The eleven switches: how the tank is run (perfusion at 20 m³ / fed-batch at 100, 50 or 20 m³; added 2026-11-19),
-kind of cells (engineered / selected on a low-waste feed / the best meat cells in the
+plain-language label, and a tag for what it needs (cells with other traits than those published; a change of feed, process or plant;
+nothing new: since 2026-11-19 no tag names a route by which cells would get a trait). The eleven switches: how the tank is run
+(perfusion at 20 m³ / fed-batch at 100, 50 or 20 m³; added 2026-11-19), kind of cells (almost no ammonia or lactate / less lactate on a
+low-ammonia feed / the best meat cells in the
 published record / ordinary), growth speed (24 / 30 / 36 / 43 hours), the plant (food-grade with shared medium / food-grade / pharma-style), gas the cells tolerate (6 / 4 / 2 mm/s), tank
 tricks (none / a column on a pumped loop / the column and 1 bar of pressure / and recycled oxygen), tank shape (liquid 0.5 / 0.75 / 1.0 /
 1.6 times as deep as wide), runs lost (0.2 / 0.6 / 1 / 2% a day), restart after a loss (4 / 14 / 21 / 30 days), growth factors (none / 30% / 60% /
@@ -243,8 +244,8 @@ plant is not offered by any switch: the judgement is that nothing shows animal c
 
 A **scenario** is a preset of the eleven switches. **The Engineered cells, all favourable case:** cells, speed, plant, gas, medium and growth factors at their cheapest
 setting, losses at the low end of what makers report (0.6% a day, not pharma's 0.2%) with a 14-day restart, tank design the cheapest the
-loop checks allow; it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.5% of meat buyers). **Selected cells:** cells made low-waste by
-feed and selection (no genetic engineering), 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
+loop checks allow; it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.5% of meat buyers). **Selected cells:** cells fed without glutamine
+that make 0.14 mol of ammonia a kilo and 0.42 mol of lactate per mol of glucose, 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
 **Published cells** (key `today`): the published cells (below) grown as a fed-batch in an ordinary 20 m³ tank with no tricks, 43 hours,
 a food-grade plant, 2 mm/s, 1% a day with 21 days to restart, 60% of growth-factor price, $0.30 a litre. Selected cells and every rung above
 it run in perfusion. The **tank design** (tricks and
@@ -252,17 +253,17 @@ shape) of every other scenario is the cheapest pair whose loop passes the checks
 earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures have taken (`scenarios.design`).
 
 **The kinds of cell** are two numbers each, the ammonia made per kilo of cells grown and the lactate yield; every kind has the same
-cell weight, 2 ng (`sc_mass_selected_pg`, 1–3 ng, drawn in the bands; the engineered cells had Humbird's 3 ng until 2026-11-19).
+cell weight, 2 ng (`sc_mass_selected_pg`, 1–3 ng, drawn in the bands; the low-waste cells had Humbird's 3 ng until 2026-11-19).
 
 | kind of cells | ammonia, mol per kg wet | lactate, mol per mol of all glucose taken up | cell, ng | glucose taken up, mol per kg (derived, at the speed shown) | lactate made, mol per kg | what sets the medium |
 |---|---|---|---|---|---|---|
-| engineered | 0.055 | 0.279 | 2 (Humbird's 3 until 2026-11-19; engineering changes the metabolism, not the size) | 2.1 (24 h) | 0.59 | ammonia, 13.8 L/kg in Engineered cells, all favourable (lactate 11.8, the least flow 10.8) |
-| selected on a low-waste feed | 0.14 (range 0.04–0.25, `sc_nh3_selected`) | 0.42 | 2 | 2.6 (36 h) | 1.1 | ammonia, 35 L/kg (lactate 21.5) |
+| almost no ammonia or lactate (`engineered`) | 0.055 | 0.279 | 2 (Humbird's 3 until 2026-11-19; the setting changes the metabolism, not the size) | 2.1 (24 h) | 0.59 | ammonia, 13.8 L/kg in Engineered cells, all favourable (lactate 11.8, the least flow 10.8) |
+| less lactate, low-ammonia feed (`selected`) | 0.14 (range 0.04–0.25, `sc_nh3_selected`) | 0.42 | 2 | 2.6 (36 h) | 1.1 | ammonia, 35 L/kg (lactate 21.5) |
 | published | 0.14 | 1.05 | 2 | 4.5 (43 h) | 4.8 | lactate, 95 L/kg (ammonia 35) |
 | ordinary | 0.70 | 1.05 | 2 | 3.8 (36 h) | 4.0 | ammonia, 175 L/kg (lactate 80) |
 
 The glucose depends on the speed because slower cells burn more per kilo grown. In a 20 m³ batch the published cells stop at 14 g/L
-(lactate) and the selected cells at 37 g/L (ammonia); the engineered cells at 62 g/L at 36 hours and 92 g/L at 24 (the least flow).
+(lactate) and the less-lactate cells at 37 g/L (ammonia); the almost-no-waste cells at 62 g/L at 36 hours and 92 g/L at 24 (the least flow).
 
 **The published cells are not one cell line.** They combine the best published figure for each trait, never measured together in
 one line: ammonia, 0.14 mol a kilo, and a 43-hour doubling from primary bovine fibro-adipogenic progenitor (fat-precursor) cells fed
@@ -289,8 +290,8 @@ not move. No glucose uptake has been measured for a meat cell on the low-waste f
 
 **Doubling time** is an explicit assumption. The measured low-waste meat-cell cultures (bovine fibro-adipogenic cells with glutamine replaced,
 Hubalek et al. 2023) doubled in 42.9 to 54.2 hours; the same cells with glutamine took 25.7 hours in a spinner and 38 in a shaker;
-nothing with ammonia as low as 0.14 mol/kg has doubled in 24 hours. Selection acts most directly on growth rate, so the Selected cells case takes 36 hours,
-between the two (my odds, labelled judgement in `inputs.py`: 24 hours with this little waste about 10%, 30 hours or faster about 25%,
+the fastest doubling measured in meat cells is 15 hours (Stout 2023, immortalised bovine muscle cells, with serum). The Selected
+cells case takes 36 hours, between the two Hubalek figures (my odds, labelled judgement in `inputs.py`: 24 hours with this little waste about 10%, 30 hours or faster about 25%,
 36 or faster about 45%, 43 or faster about 70%). The page shows the cost at 24, 30 and 36 hours.
 
 **What to prioritise** (`scenarios.priorities`): around a scenario, each switch is moved alone to each of its settings; the table
@@ -317,7 +318,7 @@ reinforce each other").
   0.85), clipped to 0.5%–80%. The draws' 5th and 95th percentiles are 3% and 52% (3.4% and 55.5% of meat buyers), and their 10th
   and 90th 4% and 38% (4.5% and 41% of meat buyers). Until 2026-11-19 it was a triangular 5–13–49%, whose median was
   21%. The Engineered cells, all favourable case's own setting is a triangular 35–55–70%.
-- *Not drawn:* the kind of cells, their speed and their lactate yield (what the scenarios differ in), the engineered cells'
+- *Not drawn:* the kind of cells, their speed and their lactate yield (what the scenarios differ in), the low-waste cells'
   ammonia, the salt the cells tolerate and the gas flow (a switch).
 
 **The headline numbers of a scenario are the medians of its draws**, with the 10th and 90th percentiles as "8 in 10 draws
@@ -372,48 +373,45 @@ with the tank tricks and gas at 2 mm/s ($92.2), and stands in for the old rung 1
 of the headline table gives the medians of its draws and the most-likely-values figures; `bands(None)` draws Humbird's optimistic
 design (`reference()`) the same way, and `reported_band` takes the company's process from `meat_market.monte_carlo`.
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
-| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | none |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | none |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | lactate |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | ammonia, lactate |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
 The page's JavaScript (`page_scenarios.js`) recomputes all of this live from `floorExplore`; `tests/run_parity.py` checks sixteen choices of
 the switches, the ranking of priorities, the interactions and the tank design against `scenarios.py`, and `tests/test_scenarios.py` checks the scenarios'
 assumptions (no yeast-class plant, the tags, the ordering of costs) and that this prose quotes the model's numbers.
 
-### Cells as traits, and the routes that have shown them (`cell_traits.py`, added 2026-11-19)
+### Cells as traits, against what has been measured in meat cells (`cell_traits.py`, added 2026-11-19)
 
 The cost model uses four traits of the cells: ammonia made per kilo grown (`nh3_kg`, mol/kg wet), lactate per glucose taken up
 (`lac_yield`, mol/mol), doubling time (`doubling_h`) and the mass of a cell (`mass_pg`). `scenarios.run(choice, **traits)`,
 `scenarios.cell_traits(choice)` and `scenario_mc(choice, traits=...)` take them directly; a trait set by the reader is held in the
-draws, the other draws unchanged. The named cases are reference points defined by their trait values; the route is only in their
-description. `cell_traits.routes_needed(traits)` gives, for each trait, the least intrusive route that has shown that level (inputs
-`cr_*`; `research_notes/cell_trait_routes.md`), and a verdict for the set: "No genetic engineering needed: each trait has been
-shown without it" (naming any shown only in other cells), "These traits have so far been shown only with genetic engineering: ..."
-or "Not yet shown by any route: ...". It never says engineering is necessary. `combination` adds what has not been shown together
-(low ammonia with a doubling under 42.9 hours). The headline table's last column is this verdict, in place of "the hardest thing it
-needs". The page carries the routes and each reference point's verdict (`MODEL.sc.cell_routes`, `trait_verdicts`) for a slider view.
-
-| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
-|---|---|---|---|---|---|
-| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
-| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
-| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
-| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
+draws, the other draws unchanged. The named cases are reference points defined by their trait values. `cell_traits.best_in_meat_cells()`
+gives, for each trait, the best value measured in meat cells and its source: 0.14 mol of ammonia a kilo (Hubalek 2023, bovine
+fat-precursor cells fed without glutamine; inputs `cr_nh3_feed`), 1.05 mol of lactate per mol of glucose (Pasitka 2024, chicken
+fibroblasts in perfusion; `cr_lac_feed`), a doubling every 15 hours (Stout 2023, immortalised bovine muscle cells, with serum;
+`cr_td_engineering`) and 3.3 ng a cell (Pasitka 2024, chicken cells, from their density; `cr_mass_feed`). Measurements in other
+cells (CHO, HEK) are left out, and so is a 2025 conference poster's zero ammonia, whose cell type is not recorded.
+`beyond_measured(traits)` lists the traits set better than those measurements. Since 2026-11-19 (the author's direction) neither the
+page nor RESULTS.md, METHODS.md or README.md say how cells would come to have a trait; the headline table's last column lists the
+traits beyond the best measured in meat cells. The evidence behind each measurement stays in `cell_traits.py` (`ROUTES`) and
+`research_notes/cell_trait_routes.md`.
 
 **What it would take** (`scenarios.what_it_would_take`). For a long-run share of 1% and 10% of world meat and seafood, at the model's
 14.5% of meat buyers at equal price and at 50% (no preference), the cost of cells that reaches it (`cost_for_share`, a bisection on
-the point estimate of `world_share`), and the least intrusive set of traits that reaches it among those tried (`trait_grid`: ammonia
-0.14 / 0.055 / 0, lactate 1.05 / 0.42 / 0.279 / 0, doubling 43 / 36 / 25.7 / 20 / 15 h, 2 ng; a food-grade plant or one with shared
-medium; perfusion or fed-batch at 20 m³; the Selected cells case's other switches; tank design chosen; most likely values). Least
-intrusive: the lowest route rank, then traits shown together, then the least ambitious set that still reaches the cost. No odds.
+the point estimate of `world_share`), and, among the sets of traits tried (`trait_grid`: ammonia 0.14 / 0.055 / 0, lactate 1.05 / 0.42
+/ 0.279 / 0, doubling 43 / 36 / 25.7 / 20 / 15 h, 2 ng; a food-grade plant or one with shared medium; perfusion or fed-batch at 20 m³;
+the Selected cells case's other switches; tank design chosen; most likely values), the set that reaches it with the fewest traits
+beyond the best measured in meat cells, then the shortest way beyond (each such trait's distance past its measurement, as a fraction
+of it, summed), then the dearest that still reaches the cost. No odds.
 
 ### The plant-cost axis (`scenarios.plant_axis`, added 2026-11-19)
 
@@ -436,7 +434,7 @@ What `vm` changes in `explore`:
   build-up and the least medium flow cap the density, and the medium per kg is 1000 / density. Since 2026-11-19 the waste cap
   is the mass balance of "Cost scenarios" above: `pf_batch_end_x` × min(ammonia limit / ammonia per kg, lactate room / lactate per
   kg), with the end factor 1 for a chemostat (`dil_frac`), and the last doublings slowed above the level. Selected cells' unwashed tank
-  stops at 37 g/L and the published cells' at 14 g/L. Before, it was the engineered cells' 120 g/L divided by whichever waste was
+  stops at 37 g/L and the published cells' at 14 g/L. Before, it was the enhanced cells' 120 g/L divided by whichever waste was
   further above theirs, which stopped them at 56 and 25 g/L, at 7.8 mmol/L of ammonia and about 120 of lactate.
 - **Cycles** (`kind = "cyclic"`): batch, fed-batch, and any vessel whose cells sit on a support. A cycle is n doublings from
   the seed plus a turnaround: `cycle = n x t_d + turnaround`, output per m3 = working volume x density x recovery / cycle.
@@ -893,8 +891,8 @@ Cell side, same table continued:
 | `do_mmol` | the dissolved oxygen the tank is held at; default the 0.28 mmol/L Humbird's numbers imply; lower widens the oxygen driving force (oxygen and mixing caps) | pharma holds 30–50% of air saturation |
 | outputs `o2_kg`, `o2_kg_upkeep`, `o2_kg_growth`, `co2_kg` | oxygen and CO₂ per kg of cells grown, split into upkeep (per hour) and growth (per kg) | follows from `Cells.qo2` |
 
-Each trick carries a tag in the page's text and in RESULTS.md: feed or process, selection or adaptation, or
-genetic engineering (`gas_exchange.CELL_CASES`, note section 10.4). Since 2026-11-19 every cell case but Humbird's engineered
+Each trick is a change of feed or process; since 2026-11-19 the cell cases in RESULTS.md carry no route tag, only their traits
+(`gas_exchange.CELL_CASES`, note section 10.4). Since 2026-11-19 every cell case but Humbird's enhanced
 cell takes its glucose from the cells' own balance (`glc_balance=True`), as the scenarios do, in place of a fixed 0.84 or 1.116
 mol a kilo; that moved "best shown in meat cells" from $26.2 to $62.3, with lactate setting its medium at 90 litres a kilo. The
 packed column takes in culture at the tank's dissolved oxygen.
