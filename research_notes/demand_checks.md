@@ -84,7 +84,7 @@ alike it kept steepening with the price (−10.4 at three times).
   product.
 - The last is the model as it stood on 2026-11-18 and through the audit batch, a normal spread of 5 utils. Against it the
   Student's t gives Central twice the share (0.16% against 0.08%) and the best case's cells about the same (2.7% against 2.8%).
-- **Across one-kind responses Central's share runs from 0.03% to 1.5%**, a fifty-fold range. The model's 0.2% (0.16%), and 2.7% for
+- **Across one-kind responses Central's share runs from 0.06% to 1.8%**, a fifty-fold range. The model's 0.2% (0.21%), and 3.2% for
   the best case's cells, are its own reading; the share at equal price (`liking_spread.md`) carries most of what remains uncertain. The best
   case's column is its cells ($11.46 a kilo) with the model's ordinary demand, not its own 55% at equal price.
 
