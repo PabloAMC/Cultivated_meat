@@ -1496,11 +1496,12 @@ REGISTRY: dict[str, Input] = {
              "or more times meat's price, where a heavier tail leaves more buyers than any premium meat shows, and the best "
              "case, which a narrower middle lowers. lo-hi: 3 is the least-misfit value; 6 is about 45% above it. Used only "
              "when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
-    "equal_price_share": Input(0.13, "of buyers", "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar "
-        "and costs the same as conventional meat, the share of a meat's buyers who choose it, at neutral settings (tastes as "
-        "good, seen as real meat, no health or slaughter-free credit). At first contact it is about 5% (Van Loo, Caputo & Lusk "
-        "2020). 13% is a third of the first-contact aversion fading: the model's own novelty term (2.8 of 8.6 utils), and the "
-        "survey corrections' novelty fading by half while an 'unnatural' image persists (15 of 45 points of meat's price).",
+    "equal_price_share": Input(0.13, "of all choices", "[judgement, research_notes/liking_spread.md] once cultivated meat is "
+        "familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based "
+        "meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free "
+        "credit); 14.5% of those who buy a meat. It is first contact plus the model's own fading of novelty (2.8 utils). With the "
+        "Student's t spread, 13% in the long run implies 4.3% of all choices at first contact, 4.8% of those who buy a meat: the "
+        "experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
         lo=0.03, hi=0.49, mode=0.13, kind="lognormal", clip=(0.005, 0.80),
         note="THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the "
              "draws are below the point value and half above. 0.03 and 0.49 are its 5th and 95th percentiles in the sense that "
@@ -1509,7 +1510,9 @@ REGISTRY: dict[str, Input] = {
              "0.5%-80%. 0.49: shoppers end up indifferent on average, the "
              "model's implicit premise before 2026-11-18. The literature review (research_notes/what_drives_choice.md) puts the "
              "10th, 50th and 90th percentiles at 2%, 10% and 35%. CHANGED 2026-11-19 (audit D1) from a triangular 0.05-0.13-0.49, "
-             "whose median was 21%, well above the point value it was meant to surround."),
+             "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
+             "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
+             "buyers; its share of all choices is 4%, and 13% reproduces both."),
     "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
         "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
