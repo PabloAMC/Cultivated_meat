@@ -54,7 +54,7 @@ import matplotlib.pyplot as plt
 from common import setup_style, _save
 from inputs import value, prior
 from cost_model import CostParams, cost_floor, media_cost
-from price_ratio import shelf_price
+from price_ratio import shelf_price, structured_cost
 from market_share import DemandParams, share
 
 
@@ -67,10 +67,9 @@ class MeatType:
     cost_mult: float = 1.0  # cultivated biomass-cost multiplier (HOOK; default 1.0, no firm data)
 
 
-# SCAF: scaffold cost $/kg for a STRUCTURED cut. ASSUMED — no published TEA covers
-# scaffolding/structuring cost (Humbird 2021, CE Delft 2021 and Risner 2021 all stop at
-# unstructured slurry); material side qualitatively guided by Gu et al. 2025 (no cost figure),
-# process side ungrounded. Treat $6/kg as a judgement, not data. Defined in inputs.py (datasheet).
+# SCAF: assembly cost $/kg for a STRUCTURED cut. A cut is CUT_CELL_SHARE cells plus a plant-protein matrix, assembled after
+# harvest (price_ratio.structured_cost; research_notes/structuring_cost.md, 2026-11-19). No study costs it for cultivated
+# meat; the figures come from plant-protein extrusion, surimi and binder prices. Defined in inputs.py (datasheet).
 
 # --- The PRICE-TIER demand model (the key insight) --------------------------
 # Authenticity and price-sensitivity are NOT uniform across the meat spectrum; they
@@ -101,7 +100,7 @@ class MeatType:
 # EPS_MULT_CUT=0.8, EPS_MULT_PREMIUM=0.3. "Premium" is defined PER SPECIES by a within-species
 # price ratio: a structured product priced >= PREMIUM_RATIO x its own species' everyday
 # (cheapest) form is "premium", so every species can have one (wagyu beef, sushi seafood, ...).
-from inputs import (SCAF, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
+from inputs import (SCAF, CUT_CELL_SHARE, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
                     EPS_MULT_CUT, EPS_MULT_PREMIUM,
                     MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS)
 
@@ -300,7 +299,8 @@ REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
 def _rollup(market, biomass, markup, res, share_of, margin=None):
     """The shared per-type roll-up used by BOTH the point estimate (penetration) and the
     Monte-Carlo band (monte_carlo): for each meat type compute its price ratio
-    R = shelf_price(biomass*cost_mult + scaffold, markup, margin) / p_conv, get its cultivated share via the
+    R = shelf_price(cut_cost, markup, margin) / p_conv, with cut_cost = biomass*cost_mult for mince and
+    price_ratio.structured_cost(biomass*cost_mult) for a cut; get its cultivated share via the
     `share_of(mt, R, species_base, res)` callback (scalar for the point estimate, a per-draw
     NumPy array for the MC), then sum by VOLUME (mass) and by VALUE (price*volume, normalised).
     Keeping this in one place means the two paths can't drift. `biomass`, `markup`, `res` and the
@@ -314,7 +314,8 @@ def _rollup(market, biomass, markup, res, share_of, margin=None):
     rows, tot_vol, tot_val = [], 0.0, 0.0
     for mt in market:
         base = bases[animal_of(mt)]
-        R = shelf_price(biomass * mt.cost_mult + mt.scaffold, markup, margin) / mt.p_conv
+        cells = biomass * mt.cost_mult
+        R = shelf_price(structured_cost(cells, assembly=mt.scaffold) if mt.scaffold > 0 else cells, markup, margin) / mt.p_conv
         s = share_of(mt, R, base, res)
         rows.append((mt, R, s))
         tot_vol = tot_vol + (mt.w_vol / Wvol) * s
@@ -456,7 +457,7 @@ def summarise(region: str, theta_free: float) -> None:
     for label, biomass in scenarios:
         rows, tv, tval = penetration(market, biomass, theta_free_M=theta_free,
                                      income=REGION_INCOME[region])
-        print(f"\n  {label}  (p_cult = (biomass + scaffold + ${value('markup_add'):.1f}) / (1 - {value('retail_margin'):.0%})):")
+        print(f"\n  {label}  (p_cult = (biomass, or for cuts {1 - value('scaffold_frac'):.0%} biomass + matrix + assembly, + ${value('markup_add'):.1f}) / (1 - {value('retail_margin'):.0%})):")
         print(f"    {'meat type':<20}{'$/kg':>6}{'vol%':>6}{'R':>7}{'cult share':>12}  tier")
         for mt, R, s in rows:
             print(f"    {mt.name:<20}{mt.p_conv:>6.0f}{mt.w_vol*100:>5.0f}%{R:>7.2f}{s*100:>10.1f}%  {tier(mt, bases[animal_of(mt)])}")

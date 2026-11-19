@@ -9,23 +9,22 @@ not because the data is now solid (it isn't), but because real companies
 (Wildtype cultivated salmon, BlueNalu cultivated seafood) are building
 *structured* products, and their strategy has a quantifiable logic worth seeing.
 
-The cost of a structured product
+The cost of a structured product (rebuilt 2026-11-19, research_notes/structuring_cost.md)
 --------------------------------
-        structured_cost = biomass_cost + scaffold_cost
+        structured_cost = (1 - scaffold_frac) * biomass_cost + scaffold_cost
         scaffold_cost   = scaffold_frac[kg/kg] * material_price[$/kg] + process[$/kg]
         p_cult          = (structured_cost + markup_add) / (1 - retail_margin)
         R               = p_cult / p_conv_TARGET
 
-What we can ground vs. what we cannot:
-  * MATERIAL price IS anchored. Gu25 (review): synthetic scaffolds (PLA, PCL)
-    are "under $10/kg"; natural gels run "up to $200/kg" (research-grade, not
-    bulk); plant-based scaffolds are the cheap end. So bulk scaffold material is
-    ~$2-20/kg, and it is a MINORITY of product mass (cells dominate).
-  * PROCESS cost is NOT grounded anywhere. Seeding cells onto the scaffold,
-    perfusing during maturation (days-weeks), and any removal/degradation step
-    add bioprocess cost with no TEA behind it. Lower bound ~ plant-based-meat
-    structuring/extrusion (cheap, ~$1/kg); upper bound ~ tissue-engineering
-    (expensive). We carry it as a WIDE band, ~$1-15/kg, and say so.
+The matrix REPLACES cells: a kilo of cut holds (1 - scaffold_frac) kg of cells. Companies now assemble cuts from
+suspension-grown cells after harvest (Wildtype since 2023, Aleph since 2025, Upside 2026), not by growing tissue on a
+scaffold in a second bioreactor.
+  * MATRIX price: textured or extruded plant protein with binders, about $2/kg (1-5).
+  * ASSEMBLY (process) cost: binding, setting, slicing and yield loss beyond the forming every product pays in the shop
+    add-on, about $2/kg (0.5-7), from plant-protein
+    extrusion and surimi forming. No study costs it for cultivated meat. Growing tissue on a scaffold would add about
+    $10/kg (3-35) instead.
+  * The larger unknown is the cell share: cuts sold so far are 10-30% cells; 80% is assumed here.
 
 The strategic point (why premium matters)
 ------------------------------------------
@@ -36,10 +35,7 @@ scaffold cost lands at a much lower price RATIO. That is precisely the Wildtype 
 BlueNalu bet: target an expensive conventional product, and the structuring cost
 is absorbed by the high benchmark.
 
-Result preview (biomass ~$14/kg, a flat $5/kg markup as before 2026-11-18, scaffold ~$6/kg):
-  * vs commodity meat ($12/kg):      R ~ 2.1  (never competitive)
-  * vs premium fish ($25/kg):        R ~ 1.0  (around parity)
-  * vs sushi salmon ($40/kg):        R ~ 0.6  (well BELOW parity, even with scaffold)
+Run it for the current figures (the preview that stood here used the old $6 scaffold on a full kilo of cells).
 So a structured cultivated-seafood product can reach price parity MORE easily
 than a basic commodity-meat product -- the opposite of the naive intuition --
 because the target is a $40/kg product, not a $12/kg one.
@@ -76,12 +72,12 @@ class ScaffoldParams:
     biomass_cost: float = value("biomass_cost_nearterm")  # $/kg near-term (media $0.2/L, current cells)
     markup_add: float = value("markup_add")   # $/kg per-kg costs to the shelf; the retail margin is inputs.py's
 
-    # --- scaffold material (ANCHORED: Gu25) --------------------------------
-    scaffold_frac: float = value("scaffold_frac")    # kg scaffold material per kg product (minority mass)
-    material_price: float = value("material_price")  # $/kg; synthetic/plant ~<$10 (Gu25); band ~2-20
+    # --- plant-protein matrix (structuring_cost.md) -------------------------
+    scaffold_frac: float = value("scaffold_frac")    # kg plant-protein matrix and binder per kg cut (replaces cells)
+    material_price: float = value("material_price")  # $/kg of matrix; band 1-5
 
-    # --- scaffold process (NOT grounded — wide band) -----------------------
-    process_cost: float = value("process_cost")      # $/kg extra bioprocess (seed+mat+removal); band 1-15
+    # --- assembly after harvest (analogues only, wide band) ----------------
+    process_cost: float = value("process_cost")      # $/kg to assemble the cut beyond mince; band 0.5-7
 
 
 def scaffold_cost(pr: ScaffoldParams, process=None, material=None) -> float:
@@ -92,7 +88,7 @@ def scaffold_cost(pr: ScaffoldParams, process=None, material=None) -> float:
 
 def structured_R(pr: ScaffoldParams, p_conv: float, scaff: float | None = None) -> float:
     sc = scaffold_cost(pr) if scaff is None else scaff
-    return shelf_price(pr.biomass_cost + sc, pr.markup_add) / p_conv
+    return shelf_price((1.0 - pr.scaffold_frac) * pr.biomass_cost + sc, pr.markup_add) / p_conv
 
 
 # ----------------------------------------------------------------------------
@@ -103,7 +99,7 @@ def summarise(pr: ScaffoldParams) -> None:
     print(f"  biomass ${pr.biomass_cost:.0f}/kg + scaffold ${sc:.0f}/kg "
           f"(material {pr.scaffold_frac*pr.material_price:.1f} + process {pr.process_cost:.0f}) "
           f"+ ${pr.markup_add:.1f}/kg to the shelf, over (1 - {value('retail_margin'):.0%}) = "
-          f"p_cult ${shelf_price(pr.biomass_cost + sc, pr.markup_add):.0f}/kg")
+          f"p_cult ${shelf_price((1.0 - pr.scaffold_frac) * pr.biomass_cost + sc, pr.markup_add):.0f}/kg")
     print("  structured-product price ratio R vs different conventional targets:")
     for name, pc, _ in COMPARATORS:
         R = structured_R(pr, pc)
@@ -137,11 +133,11 @@ def fig_scaffolding(pr: ScaffoldParams, outdir, fmts) -> None:
     hi = scaffold_cost(pr, process=proc_hi, material=mat_hi)
     ax.axvspan(lo, hi, color="#029E73", alpha=0.10)
     ax.text((lo + hi) / 2, ax.get_ylim()[1] * 0.93,
-            "plausible scaffold cost\n(process unmodelled in literature)",
+            "plausible matrix + assembly cost\n(from plant-protein and surimi analogues)",
             fontsize=6.8, color="#029E73", ha="center", va="top")
     ax.axvline(scaffold_cost(pr), ls=":", lw=0.7, color="0.5")
 
-    ax.set_xlabel(r"Scaffold cost (\$/kg) — material (anchored) + process (speculative)")
+    ax.set_xlabel(r"Matrix + assembly cost (\$/kg of cut), with the cells it replaces")
     ax.set_ylabel(r"Structured-product price ratio $R$")
     ax.set_title("Scaffolding vs a premium target: why Wildtype/BlueNalu chase seafood")
     ax.legend(fontsize=7.5, frameon=False)

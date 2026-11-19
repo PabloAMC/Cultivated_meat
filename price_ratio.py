@@ -66,6 +66,16 @@ def shelf_price(cost, markup_add=None, retail_margin=None):
     return (cost + a) / (1.0 - m)
 
 
+def structured_cost(cells, cell_share=None, matrix_price=None, assembly=None):
+    """Cost of a kilo of structured cut from the cost of a kilo of cells, $/kg: the cut is cell_share cells and the rest a
+    plant-protein matrix with binders, plus the cost of assembling it after harvest (research_notes/structuring_cost.md).
+    THE one place this rule lives in Python (the page mirrors it as cutCost). Scalars or numpy arrays; None takes inputs.py."""
+    c = 1.0 - value("scaffold_frac") if cell_share is None else cell_share
+    mp = value("material_price") if matrix_price is None else matrix_price
+    a = value("process_cost") if assembly is None else assembly
+    return c * cells + (1.0 - c) * mp + a
+
+
 def cost_from_shelf(price, markup_add=None, retail_margin=None):
     """Inverse of shelf_price: the cost before the shelf that gives this shelf price."""
     a = value("markup_add") if markup_add is None else markup_add

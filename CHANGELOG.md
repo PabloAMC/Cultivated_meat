@@ -2,6 +2,20 @@
 
 ## 2026-11-19
 
+**What a cut costs: cells bound with plant protein, assembled after harvest** (`price_ratio.structured_cost`, `inputs.py`,
+`meat_market.py`, `uncertainty.py`, `scaffolding.py`, the page's `cutCost` and a new slider; `research_notes/structuring_cost.md`;
+**defaults changed**)
+- A cut was charged a full kilo of cells plus a $6 scaffold, so the 0.2 kg of scaffold sat on top of the cells it replaces. Now a
+  kilo of cut is 0.8 kg of cells (range 0.5-0.9), 0.2 kg of plant-protein matrix and binder at $2 a kilo (1-5), and $2 to assemble
+  it (0.5-7) beyond the $1 of forming and packing every product already pays in the shop add-on. Evidence: Wildtype (FDA memo, 2025), Aleph Farms (2025) and Upside (2026) dropped growing tissue on a scaffold for binding
+  harvested cells with plant protein; assembly is costed from plant-protein extrusion (GFI 2021), surimi forming and binder prices.
+  Growing tissue on a scaffold would add about $10 a kilo (3-35). The cell share is the larger unknown: cuts sold so far are 10-30%
+  cells. Above about $12 a kilo of cells a cut now costs less than mince.
+- The page: slider c (share of a cut that is cells) beside k (now the assembly cost, $2).
+- Shares: Central 0.13% -> **0.53%** of world meat (median 0.55%, 0.07-2.8%); best case 21.4% -> **30.1%** (median 18.3%, 9.2-30.4%;
+  5.0% with Central's demand); forecast 0.2% -> **0.8%** (median); Humbird's optimistic design median 1.3% -> 3.2%. Steaks and fish
+  fillets carry the gain. Sushi-grade salmon: median price ratio 1.57 -> 1.08. Side studies repinned (notes carry a dated line).
+
 **The medium: growth factors inside announced prices, the nutrient floor from GFI, simpler settings** (`inputs.py`, `scenarios.py`,
 `floor_physics.py`, `research_notes/nutrient_floor.md` §6, `research_notes/growth_factors_in_medium_price.md`; **defaults changed**)
 - Growth factors: announced and reported medium prices ($0.20, $0.30, $0.50 a litre) are complete media with growth factors inside

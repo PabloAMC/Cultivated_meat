@@ -1871,17 +1871,25 @@ REGISTRY: dict[str, Input] = {
     # --- Rung 6: scaffold / structured product (most speculative) -----------
     "biomass_cost_nearterm": Input(25.2, "$/kg", "[derived] near-term achievable biomass: the default "
         "with medium at $0.20/L (30.5 x 0.20 + 19.1)"),
-    "scaffold_frac": Input(0.2, "kg/kg", "[Gu25-qual/assumed] scaffold material per kg product "
-        "(minority mass); Gu et al. 2025 gives the materials picture but no mass fraction",
-        lo=0.1, hi=0.3, mode=0.2),
-    "material_price": Input(5.0, "$/kg", "[assumed/round] synthetic PLA/PCL <$10/kg, plant "
-        "cheaper, gels higher (Gu et al. 2025 ranks materials but gives no $/kg); Gelatex vendor claim "
-        "~<$1/kg of meat. Centred so the structured-scaffold mode 0.2*5 + process 5 = $6/kg == SCAF (the "
-        "round datasheet scaffold cost) — the decomposition is illustrative, pinned to that one number.",
-        lo=2.0, hi=20.0, mode=5.0),
-    "process_cost": Input(5.0, "$/kg", "[UNGROUNDED] seed+maturation+removal bioprocess; no TEA",
-        lo=1.0, hi=15.0, mode=5.0,
-        note="widest, most speculative input; dominates the structured-product spread"),
+    # Rebuilt 2026-11-19 from research_notes/structuring_cost.md. A cut made from suspension-grown cells is assembled after
+    # harvest (Wildtype since 2023, Aleph since 2025, Upside 2026): cells bound with a plant-protein matrix and binders, then
+    # formed. A kilo of cut holds (1 - scaffold_frac) kg of cells; the matrix REPLACES cells, it is not added on top of a kilo of
+    # them (before 2026-11-19 the model charged a full kilo of cells plus a $6 scaffold).
+    "scaffold_frac": Input(0.2, "kg/kg", "[assumed; products: structuring_cost.md] share of a cut that is plant-protein matrix "
+        "and binder rather than cells. 0.2 keeps the cut mostly cells, the product the shopper model describes. Whole cuts sold "
+        "or approved so far are 10-30% cells (Aleph 10-20%, Upside 'double-digit'); no cut that is mostly suspension-grown cells "
+        "has been shown to have the texture of meat",
+        lo=0.1, hi=0.5, mode=0.2),
+    "material_price": Input(2.0, "$/kg", "[TVP, extrusion, binders: structuring_cost.md] price of the matrix: textured or "
+        "extruded plant protein $0.7-2.8/kg all in (GFI 2021), TVP $0.5-5.6/kg dry (Tridge), binders $0.1-0.6/kg of product",
+        lo=1.0, hi=5.0, mode=2.0),
+    "process_cost": Input(2.0, "$/kg", "[analogues: structuring_cost.md] what assembling a cut costs ON TOP OF the forming, "
+        "packing and quality control every product already pays in the shop add-on (au_processing, about $1): binding, setting, "
+        "slicing, extra packing and yield loss. All-in estimates are $1-8 a kilo (plant-protein extrusion $0.44-1.58, surimi forming "
+        "about $1, batch forming and tighter hygiene more), central $3; less the $1 already counted. Growing tissue on a scaffold "
+        "in a second bioreactor would add about $10 (3-35), the route companies dropped",
+        lo=0.5, hi=7.0, mode=2.0,
+        note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown"),
 
     # --- premium comparators (Rung 5 targets / Rung 6) ----------------------
     "p_conv_premium_fish": Input(25.0, "$/kg", "[market] premium fish / BlueNalu target",
@@ -2112,15 +2120,11 @@ PLANT_CONFIGS: dict[str, float] = {
 # the same numbers it documents. NOT swept individually (premium_resistance sweeps
 # the whole ladder); judgement-to-target, no external per-tier data exists.
 # ----------------------------------------------------------------------------
-SCAF: float = 6.0            # scaffold cost $/kg for a STRUCTURED cut (ASSUMED; no published TEA)
-# The cost rung (cuts, §1, the JS) uses the round scalar SCAF; the foothold/uncertainty rungs build
-# the SAME scaffold cost from a 3-input decomposition so they can sample a band. The two MUST agree on
-# the central (mode) value or the foothold R silently drifts from the rest of the model — guard it here.
-_SCAF_DECOMP = (REGISTRY["scaffold_frac"].value * REGISTRY["material_price"].value
-                + REGISTRY["process_cost"].value)
-assert abs(SCAF - _SCAF_DECOMP) < 1e-9, (
-    f"scaffold cost out of sync: SCAF={SCAF} but the decomposition mode "
-    f"(scaffold_frac*material_price + process_cost) = {_SCAF_DECOMP}. Re-centre one so they match.")
+# A cut costs CUT_CELL_SHARE x cells + (1 - CUT_CELL_SHARE) x CUT_MATRIX_PRICE + SCAF (price_ratio.structured_cost).
+# SCAF is the assembly cost only since 2026-11-19 (was a $6 scaffold added to a full kilo of cells).
+SCAF: float = REGISTRY["process_cost"].value                 # $/kg to assemble a cut after harvest
+CUT_CELL_SHARE: float = 1.0 - REGISTRY["scaffold_frac"].value  # kg of cells in a kg of cut
+CUT_MATRIX_PRICE: float = REGISTRY["material_price"].value     # $/kg of plant-protein matrix and binder
 PREMIUM_RATIO: float = 2.5   # a structured product priced >= this x its species' base form is "premium"
 AUTH_BASIC: float = +0.2     # per-tier authenticity offset (utils): everyday staple — cleaner-meat pull, no hang-up
 AUTH_CUT: float = -0.4       #   cut (steak/fillet): some "want the real cut" attachment

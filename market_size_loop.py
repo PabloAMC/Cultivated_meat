@@ -23,10 +23,11 @@ What this module does
    no learning) and from above (starting at the floors): if the two differ there are two resting points, and the upper one needs
    someone to carry the industry across the gap.
 4. `ladder(choice)`: cost against volume, with the share that cost would buy beside the share that volume is.
-5. `composition(cost)`: which products the volume comes from. The loop runs on premium products first (Pablo, 2026-11-18): at
-   Central's cost nearly all sales are sushi-grade seafood and prime or wagyu beef, where cultivated meat is nearest the price it
-   competes with. Their volume is what can carry the industry past the membrane switch, and the cheaper cells that follow take
-   cultivated meat below those products' prices, which unlocks more of them (`premium_start`).
+5. `composition(cost)`: which products the volume comes from. The idea was that the loop runs on premium products first
+   (Pablo, 2026-11-18): sushi-grade seafood and prime or wagyu beef are where cultivated meat is nearest the price it competes
+   with. Since the cut cost was rebuilt (2026-11-19) they are only about a tenth of Central's sales at its own cost; most are
+   ordinary cuts (beef steaks, fish fillets). `premium_start` asks whether the premium products' volume alone carries the industry
+   past the membrane switch (for Central it just does); the cheaper cells that follow unlock more of every product.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables

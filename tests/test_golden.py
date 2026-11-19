@@ -125,9 +125,11 @@ GOLDEN = {
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
     # weights (14/24 -> 11.2/20.4), which moves only the world roll-up (pinned from now on).
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
-    "us_pen_vol_pct":      0.246504,
-    "us_pen_val_pct":      0.613635,
-    "world_pen_vol_pct":   0.0416619,
+    # 2026-11-19 (a cut = 0.8 cells + $2 plant-protein matrix + $2 assembly beyond mince, was a full kilo of cells + $6 scaffold;
+    # research_notes/structuring_cost.md): vol 0.246504 -> 0.612519, val 0.613635 -> 1.31535, world 0.0416619 -> 0.182953.
+    "us_pen_vol_pct":      0.612519,
+    "us_pen_val_pct":      1.31535,
+    "world_pen_vol_pct":   0.182953,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  28,      # was "~25" when measured as 90% of the year-30 value
 }
