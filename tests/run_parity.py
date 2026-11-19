@@ -607,9 +607,31 @@ def check_first_screen() -> tuple:
         ppar = pavg * (1 - value("retail_margin")) - value("markup_add")
         if abs(pavg - avg) > 1e-9 or abs(ppar - par) > 1e-9:
             fails.append(f"average kilo, {r}: python {pavg:.4f} (cells {ppar:.4f}) js {avg:.4f} ({par:.4f})")
+    # where the money goes, by what drives it: each item is floor_physics.explore's component, and the groups add up to its total
+    worst_g = 0.0
+    for i, ((ch, tr), jg) in enumerate(zip(stat, tp["groups"])):
+        r = S.run(ch, **tr) if ch is not None else S.reference()
+        want = {"membranes": ("litres", r["membranes"]), "medium": ("litres", r["feedstock"]), "protectant": ("litres", r["protectant"]),
+                "gf": ("litres", r["growth_factors"]), "capital": ("time", r["capital"]), "labour": ("time", r["labour"]),
+                "energy": ("other", r["utilities"] + r["extra_opex"]), "supplies": ("other", r["consumables"] - r["membranes"] - r["protectant"])}
+        for k, comp in (("gf", "growth_factors"), ("membranes", "membranes"), ("protectant", "protectant")):
+            if r[comp] <= 0:
+                want.pop(k)                         # the page leaves out a line that costs nothing (no filter, no bubbles, no growth factors)
+        got = {k: tuple(v) for k, v in jg["items"].items()}
+        if set(got) != set(want):
+            fails.append(f"cost groups, case {i}: items {sorted(got)} != {sorted(want)}")
+            continue
+        for k, (grp, v) in want.items():
+            d = abs(got[k][1] - v) / max(1.0, abs(r["total"]))
+            worst_g = max(worst_g, d)
+            if got[k][0] != grp or d > 1e-6:
+                fails.append(f"cost groups, case {i}, {k}: python ({grp}, {v:.6f}) js ({got[k][0]}, {got[k][1]:.6f})")
+        if abs(sum(v for _g, v in want.values()) - r["total"]) > 1e-9 * max(1.0, r["total"]) \
+                or abs(jg["sum"] - r["total"]) > 1e-6 * max(1.0, r["total"]) or abs(jg["ml"] - r["medium_l"]) > 1e-6 * r["medium_l"]:
+            fails.append(f"cost groups, case {i}: they add up to {jg['sum']:.6f}, explore's total is {r['total']:.6f}")
     msg = (f"first screen: cloud on Python's draws max rel diff {worst:.1e} ({len(cases)} cases x {len(cases[0]['draws'])} draws); "
            f"cloud median max rel diff {worst_m:.3f} (tol {CLOUD_MED_TOL}, {len(stat)} cases); {len(routes)} routes verdicts; "
-           f"{len(design)} tank designs; map share max diff {worst_s:.4f} pp")
+           f"{len(design)} tank designs; map share max diff {worst_s:.4f} pp; cost groups max rel diff {worst_g:.1e} ({len(stat)} cases)")
     return fails, msg
 
 

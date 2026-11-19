@@ -1777,11 +1777,23 @@ select{font:inherit;font-size:.88rem;padding:5px 6px;border:1px solid var(--axis
 .btn{font:inherit;font-size:.86rem;padding:6px 12px;border:1px solid var(--axis);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;}
 .btn:hover{background:var(--sunk);} .btn.on{background:var(--ink);color:var(--bg);} .btn.small{padding:3px 9px;font-size:.8rem;}
 /* ---- first screen ---- */
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0;}
-.tile{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:12px 14px;}
-.tile .tl{font-size:.86rem;color:var(--ink2);} .tile .tb{font-size:1.9rem;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;margin:2px 0 4px;}
-.tile .td{font-size:.86rem;color:var(--ink2);line-height:1.4;margin:0;}
-@media(max-width:700px){.tiles{grid-template-columns:1fr;gap:8px;} .tile .tb{font-size:1.6rem;}}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.refrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;}
+.figrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:12px 0;} .figrow .chart{margin:0;}
+@media(max-width:760px){.figrow{grid-template-columns:1fr;}}
+.chart .say{font-size:.9rem;margin:6px 0 8px;max-width:74ch;} .clnote{margin:6px 0 0;}
+#tp_costline .clstrip{fill:var(--sunk);stroke:var(--rule);} #tp_costline circle.cldot{fill:var(--s1);fill-opacity:.45;}
+#tp_costline circle.clme{fill:var(--card);stroke:var(--ink);stroke-width:3;}
+.legend .dn.dash{border-top:1.5px dashed var(--ink2);}
+table.grp{width:100%;margin:4px 0 0;} table.grp td{padding:3px 0 3px 8px;} table.grp td:first-child{padding-left:0;white-space:normal;}
+table.grp tr.gh td{font-weight:600;color:var(--ink);padding-top:7px;} table.grp td.it{padding-left:20px;color:var(--ink2);}
+table.grp .gn{font-weight:400;color:var(--muted);} table.grp tr.gh .gn{display:block;font-size:.78rem;padding-left:18px;} table.grp tr.gt td{font-weight:700;border-bottom:0;border-top:1px solid var(--axis);}
+table.grp .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:7px;vertical-align:-1px;}
+.animals .anrow{padding:7px 0;border-top:1px solid var(--grid);} .animals .anrow:first-child{border-top:0;}
+.anhd{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;} .anv{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;}
+.antr{height:12px;background:var(--sunk);border-radius:3px;margin:4px 0 3px;position:relative;overflow:hidden;}
+.anbar{position:absolute;left:0;top:0;bottom:0;background:var(--s1);border-radius:3px;min-width:2px;}
+.ansub{font-size:.8rem;color:var(--ink2);} .antot{border-top:1px solid var(--axis) !important;}
 .chart{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:12px 14px;margin:12px 0;}
 .chart h3{margin:0 0 2px;font-size:1rem;} .chart .sub{font-size:.86rem;color:var(--ink2);margin:0 0 8px;max-width:74ch;}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--ink2);margin:6px 0 4px;align-items:center;}
@@ -1810,7 +1822,6 @@ input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
 .levelnav .lv{color:var(--muted);font-size:.8rem;min-width:52px;padding-top:2px;} .levelnav .ld{color:var(--ink2);}
 /* ---- the first screen: reference points, the map, the cells and the plant ---- */
 .tag.res{border-color:var(--accent);color:var(--accent);} .tag.asm{border-style:dashed;}
-.tile .tl .tag{margin-left:4px;vertical-align:1px;}
 .refbar{margin:14px 0 6px;} .refbar .rl{font-size:.9rem;font-weight:600;display:block;margin-bottom:6px;}
 .refbtns{display:flex;flex-wrap:wrap;gap:6px;}
 .refbtn{font:inherit;font-size:.88rem;padding:6px 12px;border:1px solid var(--axis);border-radius:16px;background:var(--card);color:var(--ink);cursor:pointer;line-height:1.25;}
@@ -1968,16 +1979,47 @@ cells like yours have been made without genetic engineering. It is a model of wh
 <p class="deck" id="deck" aria-live="polite"></p>
 </header>
 
-<section id="first" aria-label="Your cells on the map">
-<div class="tiles" id="tiles" aria-live="polite"></div>
-
+<section id="first" aria-label="Your cells: the cost, what drives it, where it would sell, and the map">
 <div class="refbar"><span class="rl">Start from a reference point (it loads the cells, the plant and the shoppers):</span>
-<div class="refbtns" id="tp_refs" role="group" aria-label="Reference points"></div>
+<div class="refrow"><div class="refbtns" id="tp_refs" role="group" aria-label="Reference points"></div>
+<label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
 <p class="small refnote" id="tp_refnote"></p></div>
 
+<div class="chart" id="tp_clcard">
+<h3 id="tp_cl_title">How far the cost is from what matters <span class="tag res">result</span></h3>
+<div class="legend" id="tp_cl_legend">
+<span class="li"><span class="sw hatchd"></span><span id="tp_cl_fl"></span></span>
+<span class="li"><span class="sw hatchl"></span><span id="tp_cl_fr"></span></span>
+<span class="li"><span class="dn dash"></span>price parity</span>
+<span class="li"><span class="ln" style="border-top-color:#D85A30"></span>cost a long-run share needs</span>
+<span class="li"><span class="dt me"></span>your point: the median of the draws</span>
+<span class="li"><span class="dt cl"></span>one dot per draw</span></div>
+<div class="plot" id="tp_costline_plot"><svg id="tp_costline" role="img" aria-labelledby="tp_cl_title" aria-describedby="tp_cl_alt"></svg></div>
+<p class="small clnote" id="tp_cl_note"></p>
+<p class="sr" id="tp_cl_alt"></p>
+</div>
+
+<div class="figrow">
+<div class="chart" id="tp_grcard">
+<h3 id="tp_groups_title">Where the money goes, by what drives it <span class="tag res">result</span></h3>
+<p class="sub" id="tp_groups_sub"></p>
+<div class="plot" id="tp_groups_plot"><svg id="tp_groups" role="img" aria-labelledby="tp_groups_title" aria-describedby="tp_groups_alt"></svg></div>
+<p class="say" id="tp_groups_say" aria-live="polite"></p>
+<div id="tp_groups_table"></div>
+<p class="sr" id="tp_groups_alt"></p>
+</div>
+<div class="chart" id="tp_ancard">
+<h3 id="tp_animals_title">Where it would sell: share within each kind of meat <span class="tag res">result</span></h3>
+<p class="sub" id="tp_animals_sub"></p>
+<p class="say" id="tp_animals_say" aria-live="polite"></p>
+<div class="animals" id="tp_animals" role="group" aria-labelledby="tp_animals_title" aria-describedby="tp_animals_alt"></div>
+<p class="note" id="tp_animals_scale"></p>
+<p class="sr" id="tp_animals_alt"></p>
+</div>
+</div>
+
 <div class="chart mapcard" id="tpcard">
-<div class="maphead"><h3 id="tptitle">Where your cells land <span class="tag res">result</span></h3>
-<label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<div class="maphead"><h3 id="tptitle">Where your cells land <span class="tag res">result</span></h3><span class="small" id="tp_map_region"></span></div>
 <div class="callout readme" id="tp_read"><span id="tp_read_txt"></span> <button type="button" class="lnk" onclick="tpDismissRead()">Hide this</button></div>
 <div class="legend" id="tplegend">
 <span class="li">Long-run share of meat and seafood:</span><span class="li ramp" id="tpramp"></span>
@@ -2125,7 +2167,8 @@ Four kinds of thing can move: <span class="tag">a trait of the cells</span> is o
 <div class="lb">
 <p id="l3_intro"></p>
 <div class="chart">
-<h3 id="l3atitle">Share by type of meat</h3>
+<h3 id="l3atitle">Share by type of meat, product by product</h3>
+<p class="small">The first screen gathers these by animal. Here each product stands alone: mince, cuts and premium cuts of each animal.</p>
 <p class="sub" id="l3asub"></p>
 <div class="hbars" id="l3types" role="group" aria-labelledby="l3atitle" aria-describedby="l3aalt"></div>
 <p class="alt" id="l3aalt"></p>
@@ -2156,7 +2199,8 @@ hold the decisions that move it. Each reference point is a preset of these switc
 <p><button class="btn" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
 <span class="fxn">This tries every tank trick and shape, and keeps the cheapest one that passes two checks on the column's loop: how often the
 culture passes through it, and how long it stays alkaline there.</span></p>
-<h3>Where the cost goes</h3>
+<h3>Where the cost goes, line by line, against another reference point</h3>
+<p class="small">The first screen groups the same cost by what drives it. Here each accounting line is set beside another reference point.</p>
 <div id="sc_parts" class="scrollx"></div>
 <p class="small" id="sc_parts_note"></p>
 <h3>Two switches together</h3>

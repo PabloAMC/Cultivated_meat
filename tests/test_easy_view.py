@@ -1,20 +1,23 @@
 """test_easy_view.py — the page's first screen (build_interactive.py, page_scenarios.js), rebuilt 2026-11-19 around the reader's cells.
 
-The page opens on a live sentence, three tiles, reference points that load the cells, a contour map with the reader's point and a cloud
-of draws, the slider for meat buyers who would pick it at the same price (the map's y), "Change the cells" (four traits and the routes
+The page opens on a live sentence, reference points that load the cells, three figures (how far the cost is from what matters, on one
+log axis; where the money goes, grouped by what drives it; where it would sell, the share within each kind of meat), a contour map with
+the reader's point and a cloud of draws, the slider for meat buyers who would pick it at the same price (the map's y), "Change the cells" (four traits and the routes
 verdict), "Change the plant" and "What it would take"; everything else sits in six levels that open in place. This test reads the BUILT
 page (interactive.html), so run `python build_interactive.py` first. It checks
 
-  * the structure: those pieces, in that order, the six levels after them, and none of the pieces the rebuild cut (the case bar, the
-    banded chart, the forecast);
+  * the structure: those pieces, in that order, the six levels after them, and none of the pieces the rebuilds cut (the case bar, the
+    banded chart, the forecast, the three context-free tiles);
   * the names: Published cells, Selected cells, Engineered cells, all favourable, Humbird's optimistic design, as a company reports;
     never "Today's cells", "Central case" or "Best case" in what a reader sees;
   * the numbers the page's own JavaScript writes (run here under Node), for each reference point and for settings the reader moved:
-    the cost tile is the median of the page's cloud and its most-likely-values figure is scenarios.run's; the shop price is the shelf
-    price of the median; the share is scenarios.world_share at the median and the reader's meat buyers; the sentence states the routes
-    verdict cell_traits.routes_needed gives, and never says engineering is necessary;
+    the cost is the median of the page's cloud and its most-likely-values figure is scenarios.run's; the costs 1% and 10% need are
+    scenarios.cost_for_share's; the share is scenarios.world_share at the median and the reader's meat buyers; the cost split by driver
+    adds up to the most-likely-values cost; the share by animal adds up to the share, its weights and prices are meat_market's grouped
+    by animal_of; the sentence gives the yardsticks and the routes verdict cell_traits.routes_needed gives, and never says engineering
+    is necessary; every number in the figures' words has its yardstick beside it;
   * "What it would take" carries scenarios.what_it_would_take;
-  * the words: no build stamp in the visible text, and no nonzero share printed as 0%.
+  * the words: no build stamp in the visible text, no em dash, and no nonzero share printed as 0%.
 
 Runs as a script or under pytest.
 """
@@ -32,6 +35,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import scenarios as S  # noqa: E402
+import meat_market as mm  # noqa: E402
 import cell_traits as CT  # noqa: E402
 from price_ratio import shelf_price  # noqa: E402
 
@@ -39,7 +43,7 @@ HTML = os.path.join(ROOT, "interactive.html")
 REFS = (("today", "Published cells"), ("central", "Selected cells"), ("best", "Engineered cells, all favourable"),
         ("humbird", "Humbird's optimistic design"), ("company", "As a company reports"))
 LEVELS = ("assumes", "moves", "where", "engineering", "shoppers", "method")
-FIRST = ('id="deck"', 'id="tiles"', 'id="tp_refs"', 'id="tpmap"', 'id="tp_buyers"', 'id="tp_traits"', 'id="tp_verdict"', 'id="pl_perf"',
+FIRST = ('id="deck"', 'id="tp_refs"', 'id="regionsel"', 'id="tp_costline"', 'id="tp_groups"', 'id="tp_animals"', 'id="tpmap"', 'id="tp_buyers"', 'id="tp_traits"', 'id="tp_verdict"', 'id="pl_perf"',
          'id="pl_capex"', 'id="pl_cpl"', 'id="pl_med"', 'id="tp_wit"')
 
 # Runs in the same scope as the page's script (the DOM stubbed, the auto-run tail cut off): loads each reference point, then a few
@@ -48,9 +52,15 @@ PROBE = r"""
 ;(function(){
   const def={}; MODEL.sliders.forEach(s=>def[s.key]=s.default);
   Object.assign(state,def,{region:"global",income:C.REGION_INCOME.global}); KP=effConsts(state);
+  // the words the three figures write, caught from a stand-in document
+  const words=f=>{ const cap={}, get=document.getElementById;
+    document.getElementById=id=>new Proxy({}, {set(t,p,v){ if(p==="innerHTML") cap[id]=v; return true; }, get(t,p){ return p==="innerHTML"?cap[id]:undefined; }});
+    try{ tpLineText(f); tpGroupsText(f); tpAnimalsRender(f); } finally{ document.getElementById=get; }
+    return cap; };
   const show=()=>{ PGS.cloud=null; tpExtraNow(); const f=pgFacts();
     return {key:f.key, label:f.label, cost:f.cost, cb:f.cb, point:f.point, retail:f.retail, mult:f.mult, share:f.share, sb:f.sb, buyers:f.buyers,
-            traits:tpTraitsShown(), rank:f.rn.rank, verdict:tpVerdictPlain(f.rn), tiles:pgTilesHTML(f), deck:pgDeck(f), choice:SCS.choice, base:SCS.base}; };
+            one:f.one, ten:f.ten, parity:f.parity, groups:f.groups, animals:f.animals, words:words(f),
+            traits:tpTraitsShown(), rank:f.rn.rank, verdict:tpVerdictPlain(f.rn), deck:pgDeck(f), choice:SCS.choice, base:SCS.base}; };
   const load=k=>{ const r=tpRef(k); SCS.ref=k; SCS.from=k; SCS.traits={}; SCS.held={};
     if(r.kind==="humbird"){ SCS.base="humbird"; SCS.hb={mode:"perfusion",plant:"sterile"}; } else { SCS.base="switches"; SCS.choice=Object.assign({},r.choice); SCS.redesign=r.redesign; }
     tpSetBuyers(r.buyers); };
@@ -141,7 +151,7 @@ def check() -> list:
             fails.append(f"level #{lv} comes before the first screen")
         if f'href="#{lv}"' not in html:
             fails.append(f"nothing links to level #{lv}")
-    for gone in ('id="casebtns"', 'id="casebar"', 'id="l0chart"', 'id="eqs"', 'id="view_easy"', "setView(", 'id="pie"', 'id="sc_presets"',
+    for gone in ('id="tiles"', 'class="tile"', 'pgTilesHTML', 'id="casebtns"', 'id="casebar"', 'id="l0chart"', 'id="eqs"', 'id="view_easy"', "setView(", 'id="pie"', 'id="sc_presets"',
                  'class="chain"', 'onclick="fxApply()"'):
         if gone in html:
             fails.append(f"the page still carries a piece the rebuild cut: {gone}")
@@ -201,16 +211,64 @@ def check() -> list:
         for t in (w["deck"], w["verdict"]):
             if re.search(r"engineering is (necessary|needed|required)|needs? genetic engineering|must be engineered", t, re.I):
                 fails.append(f"{lab}: the page says engineering is necessary: {t[:160]}")
-        tiles = _text(w["tiles"])
-        for want in ("Median of", "8 in 10 draws", "if every estimate lands on its most likely value", "kilo of everyday meat",
-                     "Plant-based meat today: about", "result"):
-            if want not in tiles:
-                fails.append(f"{lab}: the tiles do not say '{want}' (they say: {tiles[:230]})")
-        for t in (tiles, _text(w["deck"])):
+        # the yardsticks: the costs 1% and 10% of world meat need, at the reader's meat buyers
+        for t, got in ((1.0, w["one"]), (10.0, w["ten"])):
+            want = S.cost_for_share(t, w["buyers"])
+            if (want is None) != (got is None) or (want is not None and abs(want - got) / want > 0.003):
+                fails.append(f"{lab}: the cost {t:g}% needs is {got}, scenarios.cost_for_share gives {want}")
+        # where the money goes: the groups add up to the most-likely-values cost, and the litres are stated
+        g = w["groups"]
+        if abs(g["sum"] - w["point"]) > 1e-9 * max(1.0, w["point"]) or abs(g["total"] - w["point"]) > 1e-9 * max(1.0, w["point"]):
+            fails.append(f"{lab}: the cost by driver adds up to {g['sum']:.4f}, the most-likely-values cost is {w['point']:.4f}")
+        if [x["key"] for x in g["groups"]] != ["litres", "time", "other"]:
+            fails.append(f"{lab}: the cost should be grouped by litres, time in the tank, everything else")
+        for x in g["groups"]:
+            if abs(sum(i["v"] for i in x["items"]) - x["v"]) > 1e-9:
+                fails.append(f"{lab}: the items of '{x['name']}' do not add up to it")
+        # where it would sell: by animal, from the per-type roll-up
+        a = w["animals"]
+        if abs(a["total"] - w["share"]) > 1e-9 * max(1.0, w["share"]):
+            fails.append(f"{lab}: the share by animal adds up to {a['total']:.5f}%, the share is {w['share']:.5f}%")
+        if w["share"] > 0 and abs(sum(r["part"] for r in a["rows"]) - 1) > 1e-9:
+            fails.append(f"{lab}: the animals' parts of the sales do not add up to all of it")
+        if abs(sum(r["x"] for r in a["rows"]) * 100 - a["total"]) > 1e-9 * max(1.0, a["total"]):
+            fails.append(f"{lab}: the animals' shares do not roll up to the total")
+        names = [r["name"] for r in a["rows"]]
+        for n in ("Beef", "Sheep and goat", "Seafood", "Pork", "Chicken"):
+            if n not in names:
+                fails.append(f"{lab}: the share by animal has no row for {n}")
+        mk = mm.MARKETS["global"]
+        W = sum(t.w_vol for t in mk)
+        for r in a["rows"]:
+            keys = [r["key"]] if r["key"] != "Other" else ["Duck", "Rabbit", "Turkey"]
+            ts = [t for t in mk if mm.animal_of(t).replace("/\n", "/") in keys]
+            pw = sum(t.w_vol for t in ts) / W
+            pp = sum(t.w_vol * t.p_conv for t in ts) / sum(t.w_vol for t in ts)
+            if abs(pw - r["w"]) > 1e-9 or abs(pp - r["price"]) > 1e-9:
+                fails.append(f"{lab}: {r['name']} is {r['w']:.4f} of world meat at ${r['price']:.2f}; meat_market gives {pw:.4f} at ${pp:.2f}")
+        # the words: the sentence carries its yardsticks; each figure says what it compares with
+        deck = _text(w["deck"])
+        for want in ("8 in 10 draws", "1% of the world's meat and seafood", "a kilo of cells that would match the price of the average kilo eaten",
+                     "of the cost scales with", "of meat buyers would pick it at the same price"):
+            if want not in deck:
+                fails.append(f"{lab}: the sentence does not say '{want}': {deck[:240]}")
+        ws_ = {k: _text(v) for k, v in w["words"].items()}
+        for k, want in (("tp_cl_note", "Price parity: at"), ("tp_cl_note", "draws of the estimates nobody has measured"),
+                        ("tp_cl_note", "most likely value"), ("tp_groups_sub", "every estimate at its most likely value"),
+                        ("tp_groups_say", "1% of"), ("tp_groups_table", "litres a kilo of cells"), ("tp_animals_sub", "at the median cost of"),
+                        ("tp_animals", "Plant-based meat today: about"), ("tp_animals_say", "of its sales"),
+                        ("tp_cl_alt", "8 in 10 draws"), ("tp_groups_alt", "split by what drives the cost"), ("tp_animals_alt", "Long-run share within each kind of meat")):
+            if want not in ws_.get(k, ""):
+                fails.append(f"{lab}: #{k} does not say '{want}': {ws_.get(k, '')[:200]}")
+        for t in [deck] + list(ws_.values()):
             if "~0%" in t or re.search(r"(?<![\d.])0(\.0+)?%", t):
                 fails.append(f"{lab}: a share is printed as 0%: {t[:200]}")
             if "most likely between" in t:
                 fails.append(f"{lab}: a range still reads 'most likely between'")
+            if "\u2014" in t:
+                fails.append(f"{lab}: an em dash in the first screen's words: {t[:200]}")
+            if re.search(r"engineering is (necessary|needed|required)|needs? genetic engineering|must be engineered", t, re.I):
+                fails.append(f"{lab}: the page says engineering is necessary: {t[:160]}")
     if probe["moved3"]["rank"] != 3:
         fails.append("a doubling every 13 hours has not been shown by any route; the page should say so")
 

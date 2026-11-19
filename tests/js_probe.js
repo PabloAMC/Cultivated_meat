@@ -75,7 +75,10 @@ if (TP_IN) js += `
   const shares = IN.shares.map(([c, b]) => tpShare(c, b, "global"));
   const costfor = IN.costfor.map(([t, b]) => tpCostFor(t, b, "global"));
   const parity = ["global", "us", "eu"].map(r => [tpAvgPrice(r), tpParity(r)]);
-  realLog(JSON.stringify({ tp: { exact, stat, points, routes, design, dial, shares, costfor, parity,
+  // the first screen's "where the money goes": the engine's cost result grouped by what drives it
+  const groups = IN.stat.map(c => { const G = tpCostGroups(floorExplore(tpParamsFor(st(c)))), items = {};
+    G.groups.forEach(g => g.items.forEach(i => { items[i.key] = [g.key, i.v]; })); return { items, sum: G.sum, total: G.total, ml: G.ml }; });
+  realLog(JSON.stringify({ tp: { exact, stat, points, routes, design, dial, shares, costfor, parity, groups,
     humbird: floorExplore(Object.assign({}, tpRef("humbird").base)).total } }));
 })();
 `;
