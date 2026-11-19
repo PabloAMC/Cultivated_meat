@@ -24,16 +24,16 @@ all favourable (`best`). A new switch, "How the tank is run", holds perfusion at
 by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scenario keeps the published cells in perfusion
 (`scenarios.ORDER`).
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
-| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | none |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | none |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | lactate |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | ammonia, lactate |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
 *History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off

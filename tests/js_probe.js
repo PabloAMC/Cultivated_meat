@@ -56,8 +56,9 @@ js = js.replace(/console\.log\([^\n]*\);/, "");            // drop the build-sta
 js = js.replace(/buildRail\(\);[\s\S]*$/, "");             // drop everything from the auto-run tail
 
 // FIRST SCREEN (page_scenarios.js): with a second argument, a JSON file of cases from tests/run_parity.py, the probe runs only
-// the first screen's functions: the cloud of cost draws (on Python's own draws, and on the page's), the routes verdict, the tank
-// design for set traits, and the meat-buyers scale of the contour map. Prints { tp: ... }.
+// the first screen's functions: the draws of the cost (on Python's own draws, and on the page's), the traits beyond the best
+// measured in meat cells, the tank design for set traits, the meat-buyers scale of the contour map, and the plant's capital per m3
+// and the nutrient floor the plant sliders show. Prints { tp: ... }.
 const TP_IN = process.argv[3] ? JSON.parse(fs.readFileSync(process.argv[3], "utf8")) : null;
 if (TP_IN) js += `
 ;(function(){
@@ -69,7 +70,9 @@ if (TP_IN) js += `
   const exact = IN.exact.map(c => tpCloudFor(st(c), c.draws.length, c.draws).cost);
   const stat = IN.stat.map(c => tpCloudFor(st(c)).q);
   const points = IN.stat.map(c => floorExplore(tpParamsFor(st(c))).total);
-  const routes = IN.routes.map(t => { const r = tpRoutesNeeded(t); return [r.verdict, r.short, r.rank, TRAIT_KEYS.map(k => r.traits[k] ? r.traits[k].route : "-")]; });
+  const beyond = IN.routes.map(t => tpBeyond(t));
+  const best = Object.fromEntries(TRAIT_KEYS.map(k => [k, [TP.traits[k].best, TP.traits[k].best_src]]));
+  const plant = IN.stat.map(c => { const r = floorExplore(tpParamsFor(st(c))); return [r.capex, r.nutrients]; });
   const design = IN.design.map(c => { const d = scWithExtra(c.traits, () => scDesign(c.choice)); return [d.tricks, d.shape]; });
   const dial = IN.buyers.map(b => tpDial(b));
   const shares = IN.shares.map(([c, b]) => tpShare(c, b, "global"));
@@ -78,7 +81,7 @@ if (TP_IN) js += `
   // the first screen's "where the money goes": the engine's cost result grouped by what drives it
   const groups = IN.stat.map(c => { const G = tpCostGroups(floorExplore(tpParamsFor(st(c)))), items = {};
     G.groups.forEach(g => g.items.forEach(i => { items[i.key] = [g.key, i.v]; })); return { items, sum: G.sum, total: G.total, ml: G.ml }; });
-  realLog(JSON.stringify({ tp: { exact, stat, points, routes, design, dial, shares, costfor, parity, groups,
+  realLog(JSON.stringify({ tp: { exact, stat, points, beyond, best, plant, design, dial, shares, costfor, parity, groups,
     humbird: floorExplore(Object.assign({}, tpRef("humbird").base)).total } }));
 })();
 `;

@@ -21,8 +21,8 @@ priorities()   for one scenario, what each switch is worth if it moved to its be
 grid()         two switches against each other.
 interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
 cell_traits()  the four cell traits a choice gives (ammonia, lactate, doubling time, cell mass); run(choice, **traits) and
-               scenario_mc(choice, traits=...) take them directly, and cell_traits.routes_needed says what they have been shown with
-               (2026-11-19). The named cases are reference points defined by their traits.
+               scenario_mc(choice, traits=...) take them directly (2026-11-19); cell_traits.best_in_meat_cells gives the best level of each
+               measured in meat cells. The named cases are reference points defined by their traits.
 what_it_would_take()  the cost of cells a 1% or 10% share needs, and trait sets that reach it, deterministic (2026-11-19).
 plant_axis()   perfusion against fed-batch as the plant gets cheaper (2026-11-19).
 scenario_mc()  the uncertainty in the estimates behind a scenario (plant cost, financing, retention membranes, upkeep,
@@ -47,10 +47,13 @@ import plant_items
 from inputs import value, prior, draw
 from price_ratio import shelf_price
 
-FEED, SELECT, GE, NOTHING = "feed or process", "selection or adaptation", "genetic engineering", "nothing new"
-TAG_ORDER = (NOTHING, FEED, SELECT, GE)            # the most demanding tag a scenario needs is the last one it uses
-TAG_PLAIN = {GE: "needs genetic engineering", SELECT: "needs selection or adaptation of cells",
-             FEED: "needs a change of feed, process or plant", NOTHING: "needs nothing new"}
+# What a setting needs (2026-11-19, the author's direction): cells with traits other than the published ones are tagged CELLS,
+# with no claim about the route (selection, adaptation or engineering) that would give them; the page and the docs say only what
+# has been measured in meat cells (cell_traits.best_in_meat_cells).
+FEED, CELLS, NOTHING = "feed or process", "cells", "nothing new"
+TAG_ORDER = (NOTHING, FEED, CELLS)                  # the most demanding tag a scenario needs is the last one it uses
+TAG_PLAIN = {CELLS: "needs cells with other traits than those published", FEED: "needs a change of feed, process or plant",
+             NOTHING: "needs nothing new"}
 
 
 @dataclass(frozen=True)
@@ -104,16 +107,18 @@ SWITCHES = (
                       "17 Nov 2026; mode not disclosed, most likely fed-batch)."))),
     Switch("cells", "Kind of cells",
            "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
-        Setting("engineered", "Engineered to make almost no waste",
+        Setting("engineered", "Almost no ammonia or lactate",
                 {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": value("sc_mass_selected_pg")},
-                GE, "The metabolism of Humbird's efficient cell: ammonia 0.055 mol per kilo of cells, lactate 0.28 mol per mol of the "
-                    "glucose taken up. Only genetically engineered pharma cells have shown it. The cell weighs 2 ng, as every other "
-                    "setting's does: engineering changes what a cell makes of its food, not its size (Humbird's 3 ng is an assumed "
-                    "cell; chicken cells are reported at 1.0 to 1.75 ng). Changed 2026-11-19; it was 3 ng."),
-        Setting("selected", "Selected on a low-waste feed",
+                CELLS, "The metabolism of Humbird's efficient cell: ammonia 0.055 mol per kilo of cells, lactate 0.28 mol per mol of the "
+                       "glucose taken up. Neither level has been measured in meat cells: the best measured there are 0.14 mol of "
+                       "ammonia a kilo (Hubalek 2023) and 1.05 mol of lactate per mol of glucose (Pasitka 2024). The cell weighs 2 ng, "
+                       "as every other setting's does (Humbird's 3 ng is an assumed cell; chicken cells are reported at 1.0 to 1.75 "
+                       "ng). Changed 2026-11-19; it was 3 ng."),
+        Setting("selected", "Less lactate, on a low-ammonia feed",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
-                SELECT, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells). Lactate is 0.42 per "
-                        "glucose, as in adapted CHO cells. A cell weighs 2 ng. These differ from the best meat cells in the published "
+                CELLS, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells, Hubalek 2023). Lactate "
+                       "is 0.42 per glucose, below the 1.05 measured in meat cells (Pasitka 2024). A cell weighs 2 ng. These differ "
+                       "from the best meat cells in the published "
                         "record only in lactate, and that is worth a great deal: the published cells turn most of their glucose into "
                         "lactate, so they need about three times the glucose and far more medium to wash the lactate out."),
         Setting("measured", "The best meat cells measured",
@@ -132,12 +137,13 @@ SWITCHES = (
                  "mass_pg": value("sc_mass_selected_pg")},
                 NOTHING, "Ammonia is 0.70 in bovine cells with glutamine. Lactate is 1.05 per glucose. A cell weighs 2 ng."))),
     Switch("growth", "Growth speed", "How long the cells take to double", (
-        Setting("24", "Cells double every 24 hours", {"doubling_h": value("pf_doubling_h")}, SELECT,
-                "Humbird's model cell doubles this fast. No meat-cell culture with low waste has."),
-        Setting("30", "Every 30 hours", {"doubling_h": value("sc_td_fast")}, SELECT,
+        Setting("24", "Cells double every 24 hours", {"doubling_h": value("pf_doubling_h")}, CELLS,
+                "Humbird's model cell doubles this fast. The fastest measured in meat cells is 15 hours (Stout 2023, with serum); "
+                "bovine cells on the low-ammonia feed doubled in 42.9 hours (Hubalek 2023)."),
+        Setting("30", "Every 30 hours", {"doubling_h": value("sc_td_fast")}, CELLS,
                 "Between the model cell and the central value."),
-        Setting("36", "Every 36 hours", {"doubling_h": value("sc_td_central")}, SELECT,
-                "Selection wins back part of the slowdown that the low-waste feed caused. Cells doubled in 43 hours on that feed and in 25.7 hours with glutamine."),
+        Setting("36", "Every 36 hours", {"doubling_h": value("sc_td_central")}, CELLS,
+                "Between the 43 hours measured on the low-ammonia feed and the 25.7 hours measured with glutamine, in the same bovine cells (Hubalek 2023)."),
         Setting("43", "Every 43 hours", {"doubling_h": value("sc_td_measured")}, NOTHING,
                 "The best low-waste meat-cell culture measured doubled in 42.9 hours (Hubalek 2023)."))),
     Switch("plant", "The plant", "How much the buildings and equipment around the tanks cost", (
@@ -190,8 +196,7 @@ SWITCHES = (
         Setting("30", "30 days", {"restart_fail_days": value("sc_restart_long")}, NOTHING,
                 "One failure reaches every tank."))),
     Switch("gf", "Growth factors", "How much must be paid for the proteins that tell cells to grow", (
-        Setting("none", "None bought", {"growth_factors": 0.0}, GE, "The cells need none or make their own. "
-                                                                     "Genetic engineering has done this in cattle cells."),
+        Setting("none", "None bought", {"growth_factors": 0.0}, CELLS, "The cells need none or make their own."),
         Setting("30", "30% of Humbird's price per litre", {"growth_factors": value("sc_gf_part")}, FEED,
                 "Cheaper factors, or lines that need fewer."),
         Setting("60", "60% of his price", {"growth_factors": value("sc_gf_most")}, NOTHING, "Most of his price."),
@@ -214,7 +219,7 @@ SWITCHES = (
 _SHORT = {
     ("mode", "perfusion"): "perfusion", ("mode", "fedbatch100"): "fed-batch, 100 m³", ("mode", "fedbatch50"): "fed-batch, 50 m³",
     ("mode", "fedbatch"): "fed-batch, 20 m³",
-    ("cells", "engineered"): "engineered", ("cells", "selected"): "selected on low-waste feed", ("cells", "measured"): "best measured",
+    ("cells", "engineered"): "almost no waste", ("cells", "selected"): "less lactate, low-ammonia feed", ("cells", "measured"): "best measured",
     ("cells", "ordinary"): "ordinary", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
     ("plant", "lean"): "food-grade, shared medium", ("plant", "sterile"): "food-grade plant", ("plant", "pharma"): "pharma-style plant",
     ("gas", "6"): "6 mm/s", ("gas", "4"): "4 mm/s", ("gas", "2"): "2 mm/s",
@@ -353,20 +358,18 @@ SCENARIOS = {
                 "gf": "30", "medium": "0.20"})),
     "selected": Scenario(
         "selected", "3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches",
-        "Selecting the best lines on the low-waste feed wins back part of the speed (a doubling every 36 hours, not 43) and cuts "
-        "their lactate to 0.42 mol per mol of glucose, as adapted CHO cells reach. Still in batches in a 20 m³ tank: the batch "
-        "now ends near 37 g/L, held by ammonia, not 14 g/L held by lactate.",
-        "the Selected cells case's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). Selection needs no genetic engineering, and "
-        "it is likelier by 2035 (about 65%) than perfusion at 20 m³ (about 30%), and it needs no new equipment.",
+        "Cells on the low-ammonia feed that double every 36 hours (not 43) and make 0.42 mol of lactate per mol of glucose (the "
+        "best measured in meat cells is 1.05). Grown in batches in a 20 m³ tank: the batch ends near 37 g/L, held by ammonia, not "
+        "14 g/L held by lactate.",
+        "the Selected cells case's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). It needs no new equipment.",
         design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
         "central", "4. Plus perfusion (Selected cells): waste washed out through a cell filter",
         "Selected cells, a reference point defined by its traits: 0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, "
-        "a doubling every 36 hours and 2 ng a cell (routes: a feed change in meat cells, and selection, which has shown that lactate "
-        "only in CHO cells). The cells, doubling every 36 hours, run in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
+        "a doubling every 36 hours and 2 ng a cell (the lactate is below the 1.05 measured in meat cells). The cells, doubling every 36 hours, run in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
         "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
-        "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
+        "Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design(dict(_BASE)),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
@@ -380,16 +383,16 @@ SCENARIOS = {
     "engineered": Scenario(
         "engineered", "6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose)",
         "Cells that make almost no waste: 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose (Humbird's efficient "
-        "cell's metabolism), 2 ng a cell. That ammonia has been shown without engineering only in CHO cells at a plateau, and by "
-        "engineering; that lactate without engineering only in CHO cells (cell_traits.routes_needed). Everything else is as in Rung 5, "
+        "cell's metabolism), 2 ng a cell. The best measured in meat cells are 0.14 mol of ammonia a kilo and 1.05 mol of lactate per "
+        "mol of glucose. Everything else is as in Rung 5, "
         "so the cells still double every 36 hours and the medium costs $0.20 a litre.",
         "Rung 5 with the kind of cells at its cheapest setting; tank design chosen again.",
         design({**_BASE, "plant": "lean", "cells": "engineered"})),
     "best": Scenario(
         "best", "7. Plus everything else at its favourable end (Engineered cells, all favourable)",
         "Engineered cells, all favourable, a reference point defined by its traits: 0.055 mol of ammonia a kilo, 0.28 mol of lactate "
-        "per mol of glucose, a doubling every 24 hours and 2 ng a cell; the name says how such cells would most likely be made, not "
-        "that they must be. The cells need no bought growth factors, the medium costs only what the cells eat, "
+        "per mol of glucose, a doubling every 24 hours and 2 ng a cell; the name is a label, not a claim about how such cells "
+        "would be made. The cells need no bought growth factors, the medium costs only what the cells eat, "
         "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
         "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
         "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
@@ -424,7 +427,7 @@ def alt_cost(key: str, change: dict) -> float:
     return run(design({**SCENARIOS[key].choice, **change}))["total"]
 
 
-REFERENCE_NAME = "Humbird's optimistic design: engineered cells in an ordinary perfusion tank"
+REFERENCE_NAME = "Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank"
 # Humbird's enhanced cell as traits (explore() at its defaults; lactate 0.5 per glucose burned or fermented = 0.279 on all glucose)
 HUMBIRD_TRAITS = {"nh3_kg": 0.054, "lac_yield": 0.279, "doubling_h": 24.0, "mass_pg": 3000.0}
 
@@ -804,9 +807,19 @@ WIT_CHOICES = tuple((p, m) for p in ("sterile", "lean") for m in ("perfusion", "
 _WIT: list = []
 
 
-def trait_grid() -> list:
-    """[(cost, traits, plant, mode, routes_needed)] for every set in WIT_GRID x WIT_CHOICES, at most likely values, cells of 2 ng."""
+def beyond_measured(tr: dict) -> dict:
+    """How far a trait set goes beyond what has been measured in meat cells (cell_traits.best_in_meat_cells): the traits set better
+    than the best measurement, how far as a fraction of it, and the words. Data only: no route."""
     import cell_traits as CT
+    best = CT.best_in_meat_cells()
+    ks = CT.beyond_measured(tr)
+    gap = sum((best[t]["value"] - tr[t]) / best[t]["value"] if best[t]["dir"] < 0 else (tr[t] - best[t]["value"]) / best[t]["value"]
+              for t in ks)
+    return {"beyond": ks, "gap": gap, "text": CT.beyond_text(tr)}
+
+
+def trait_grid() -> list:
+    """[(cost, traits, plant, mode, beyond_measured)] for every set in WIT_GRID x WIT_CHOICES, at most likely values, cells of 2 ng."""
     if not _WIT:
         base = {k: v for k, v in SCENARIOS["central"].choice.items() if k not in ("tricks", "shape", "plant", "mode")}
         mass = value("sc_mass_selected_pg")
@@ -814,7 +827,7 @@ def trait_grid() -> list:
             for l in WIT_GRID["lac_yield"]:
                 for t in WIT_GRID["doubling_h"]:
                     tr = {"nh3_kg": a, "lac_yield": l, "doubling_h": t, "mass_pg": mass}
-                    rn = CT.routes_needed(tr)
+                    rn = beyond_measured(tr)
                     for p, m in WIT_CHOICES:
                         c = _design_traits({**base, "plant": p, "mode": m}, tr)
                         _WIT.append((run(c, **tr)["total"], tr, p, m, rn, c))
@@ -837,18 +850,19 @@ def _design_traits(choice: dict, traits: dict) -> dict:
 
 
 def what_it_would_take() -> list:
-    """For each target share and each level of liking: the cost of cells needed, and the least intrusive trait set in the grid
-    that reaches it (lowest routes rank, then the least ambitious, i.e. the dearest that still reaches it)."""
+    """For each target share and each level of liking: the cost of cells needed, and the trait set in the grid that reaches it
+    with the fewest traits beyond the best measured in meat cells, then the shortest way beyond (the sum of each such trait's
+    distance past its measurement, as a fraction of it), then the least ambitious (the dearest that still reaches it). Since
+    2026-11-19 the rule rests on measurements only, not on which route might give a trait (the author's direction)."""
     rows = []
     grid = trait_grid()
     for b in WIT_BUYERS:
         for tgt in WIT_TARGETS:
             need = cost_for_share(tgt, b)
             ok = [g for g in grid if need is not None and g[0] <= need]
-            pick = min(ok, key=lambda g: (g[4]["rank"], bool(g[4]["together"]), -g[0])) if ok else None
-            free = [g for g in ok if g[4]["rank"] <= 1]
+            pick = min(ok, key=lambda g: (len(g[4]["beyond"]), round(g[4]["gap"], 9), -g[0])) if ok else None
             rows.append({"target": tgt, "buyers": meat_buyers_at_equal_price() if b is None else b, "need": need, "pick": pick,
-                         "no_engineering": bool(free)})
+                         "within_measured": any(not g[4]["beyond"] for g in ok)})
     return rows
 
 
@@ -861,7 +875,8 @@ def what_it_would_take_markdown() -> str:
     """The table RESULTS.md leads with (section 1 and the Summary)."""
     plant = {"sterile": "a food-grade plant", "lean": "a food-grade plant with shared medium"}
     out = ["| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost "
-           "(most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |",
+           "(most likely values) | the cells tried that reach it with the fewest traits beyond the best measured in meat cells | at | "
+           "traits beyond the best measured in meat cells (each against its own best measurement) |",
            "|---|---|---|---|---|---|"]
     for r in what_it_would_take():
         need = "out of reach: not even at $0.5" if r["need"] is None else f"${r['need']:.1f} a kilo or less"
@@ -871,7 +886,7 @@ def what_it_would_take_markdown() -> str:
             cost, tr, p, m, rn, _c = r["pick"]
             pk = _traits_text(tr)
             at = f"${cost:.1f}, {plant[p]}, {'perfusion' if m == 'perfusion' else 'fed-batch at 20 m³'}"
-            ver = rn["short"]
+            ver = rn["text"]
         out.append(f"| {r['target']:g}% | {r['buyers']:.1%} | {need} | {pk} | {at} | {ver} |")
     return "\n".join(out)
 
@@ -952,10 +967,8 @@ def js_model() -> dict:
             "always": _js_params(always()),
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
             "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band,
-            # cells as traits (2026-11-19): the routes table and each reference point's traits and verdict, for the page to come
-            "cell_routes": __import__("cell_traits").js_model(),
-            "traits": {k: cell_traits(SCENARIOS[k].choice) for k in SCENARIOS},
-            "trait_verdicts": {k: __import__("cell_traits").routes_needed(cell_traits(SCENARIOS[k].choice))["verdict"] for k in SCENARIOS}}
+            # cells as traits (2026-11-19): each reference point's traits (the page shows only what has been measured in meat cells)
+            "traits": {k: cell_traits(SCENARIOS[k].choice) for k in SCENARIOS}}
 
 
 def reported_band(n: int = 30000) -> tuple:
@@ -970,16 +983,18 @@ def reported_band(n: int = 30000) -> tuple:
 
 def table_rows() -> list:
     """Every row of the headline table: the ladder, Humbird's optimistic design, the reported process.
-    Each row: name, cost point, cost band (or None), ratio, share at the point cost, share band (P10, P50, P90), and what its cells'
-    traits have been shown with (cell_traits.routes_needed; since 2026-11-19, in place of the hardest thing it needs)."""
+    Each row: name, cost point, cost band (or None), ratio, share at the point cost, share band (P10, P50, P90), and which of its
+    cells' traits are set beyond the best measured in meat cells (cell_traits.best_in_meat_cells; data only, since 2026-11-19)."""
     import cell_traits as CT
+    names = {"nh3_kg": "ammonia", "lac_yield": "lactate", "doubling_h": "doubling time", "mass_pg": "cell mass"}
+    beyond = lambda tr: ", ".join(names[t] for t in CT.beyond_measured(tr)) or "none"
     rows = []
     for key in PAGE_ORDER:
         sc = SCENARIOS[key]
         sm, b = summary(sc.choice, eqs=sc.equal_price_share), bands(sc.choice, eqs=sc.equal_price_share)
-        rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], CT.routes_needed(cell_traits(sc.choice))["short"]))
+        rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], beyond(cell_traits(sc.choice))))
     rs, b = summary(r=reference()), bands(None)
-    rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], CT.routes_needed(HUMBIRD_TRAITS)["short"]))
+    rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], beyond(HUMBIRD_TRAITS)))
     rc = reported_cost()
     rows.append(("As a company reports (SuperMeat 2024)", rc, None, shelf_price(rc) / value("p_conv"),
                  shares(rc)["global"], reported_band(), "a company's own report"))
@@ -998,7 +1013,7 @@ def markdown_table() -> str:
     share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
     out = ["| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | "
            "shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | "
-           "share at the most-likely-values cost | its cells' traits have been |", "|---|---|---|---|---|---|---|"]
+           "share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |", "|---|---|---|---|---|---|---|"]
     for name, cost, cb, ratio, world, sb, need in table_rows():
         if cb is not None:                   # the headline is the median of the draws; the point is the most-likely-values figure
             head, ratio = f"**${cb[1]:.0f}** (${cb[0]:.0f}\u2013{cb[2]:.0f})", shelf_price(cb[1]) / value("p_conv")

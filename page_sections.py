@@ -24,7 +24,7 @@ def bands(key: str) -> dict:
 
 
 def chip(tag: str) -> str:
-    cls = {S.GE: "ge", S.SELECT: "sel", S.FEED: "feed", S.NOTHING: "none"}[tag]
+    cls = {S.CELLS: "sel", S.FEED: "feed", S.NOTHING: "none"}[tag]
     return f"<span class='tagchip {cls}'>{_esc(S.TAG_PLAIN[tag])}</span>"
 
 
@@ -82,10 +82,10 @@ def scenario_table() -> str:
                                 "medium_set_by": "", "uptime": float("nan"), "output": float("nan")})
     rows.append(
         f"<tr class='ref'><td class='scname'><b>{_esc(S.REFERENCE_NAME)}</b><br><span class='story'>"
-        f"Humbird's 20,000-litre stirred tank run in perfusion at 120 g/L, as he designed it, with his engineered cells. The plant is "
+        f"Humbird's 20,000-litre stirred tank run in perfusion at 120 g/L, as he designed it, with his enhanced cells. The plant is "
         f"food-grade, and there are no growth factors and no lost runs. Earlier versions of this page called this number the floor. "
-        f"It is not a rung of the ladder above: it assumes the hardest change, engineered cells, and none of the easy ones, the tank "
-        f"tricks. It is kept because it reproduces Humbird's analysis.</span></td><td>{chip(S.GE)}</td>"
+        f"It is not a rung of the ladder above: it assumes his enhanced cells and none of the tank "
+        f"tricks. It is kept because it reproduces Humbird's analysis.</span></td><td>{chip(S.CELLS)}</td>"
         f"<td class='n'><b>{money(rs['cost'])}</b><br><span class='alt'>{money(rb['cost'][0])}–{money(rb['cost'][2])} "
         f"(10th–90th percentile of the estimates behind it)</span></td><td class='n'>{money(rs['retail'], 0)}<br><span class='alt'>{rs['ratio']:.2f}×</span></td>"
         f"<td class='n'><b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between {S.pct_num(rb['share'][0])}% and "
@@ -140,12 +140,12 @@ def bottlenecks() -> str:
     rows = [
         ("Waste the cells make",
          "Ammonia and lactate are what cells give off as they grow. They slow growth, so fresh medium must wash them out. The "
-         f"central case assumes a low-waste feed and selected cells. These make 0.14 mol of ammonia per kilo of cells and need {r0['medium_l']:.0f} litres of medium a kilo.",
+         f"central case assumes a low-ammonia feed and cells that make 0.42 mol of lactate per glucose. These make 0.14 mol of ammonia per kilo of cells and need {r0['medium_l']:.0f} litres of medium a kilo.",
          f"The cost is {cost({'cells': 'measured'})} with the best meat cells measured, which make more lactate. It is {cost({'cells': 'ordinary'})} with ordinary "
          f"meat cells, which need {ordinary['medium_l']:.0f} litres of medium a kilo.",
-         "Replace glutamine in the feed. Select or adapt cells that make less waste. Engineer the cells, which is this switch's best setting "
+         "Cells that make less waste: this switch's best setting, 0.055 mol of ammonia a kilo and 0.28 lactate per glucose "
          f"({cost({'cells': 'engineered'})}). Or take the ammonium out of the used medium.",
-         "The feed change was measured once, in cattle cells. The engineered level has been seen only in pharma cells."),
+         "Best measured in meat cells: 0.14 mol of ammonia a kilo without glutamine (Hubalek 2023) and 1.05 lactate per glucose (Pasitka 2024)."),
         ("Clearing CO₂ from a dense tank",
          "Cells give off CO₂, which leaves a tank only in the gas bubbled through it. The central case uses a column beside the "
          "tank. A pump sends the culture over a packed tower, and CO₂ leaves without bubbles. The case also uses extra pressure and recycled oxygen.",
@@ -173,7 +173,7 @@ def bottlenecks() -> str:
          "Proteins that tell cells to grow. The central case buys 30% of Humbird's price per litre.",
          f"The cost is {cost({'gf': 'all'})} if all are bought at his price.",
          f"Use cheaper factors, lines that need fewer, or cells that make their own. With none bought, the cost is {cost({'gf': 'none'})}.",
-         "Genetic engineering has made cattle cells that make their own."),
+         "Company announcements; nothing at scale."),
         ("Price of the medium",
          "The central case assumes $0.20 a litre, what several companies announced for 2025.",
          f"The cost is {cost({'medium': '0.50'})} at $0.50 a litre, what SuperMeat reports.",
@@ -191,8 +191,8 @@ def bottlenecks() -> str:
 
 
 # the cells x tank grid: each cell a case, with the limit that binds, in plain words
-_GRID_CELLS = (("engineered", "24", "Engineered cells (24 h doubling)"),
-               ("selected", "36", "Selected cells on a low-waste feed (36 h)"),
+_GRID_CELLS = (("engineered", "24", "Almost no ammonia or lactate (24 h doubling)"),
+               ("selected", "36", "Less lactate, low-ammonia feed (36 h)"),
                ("measured", "43", "The best meat cells measured (43 h)"),
                ("ordinary", "30", "Ordinary meat cells (26 h measured, 30 h used)"))
 _GRID_TANKS = (("none", "Gas bubbled in only", "the standard tank"),
@@ -387,9 +387,9 @@ def experiments() -> str:
     base_sh = S.shares(base)["global"]
     plan = (
         ("A culture of low-waste meat cells that doubles every 24 hours in a stirred tank", {"growth": "24"},
-         "Nobody has shown this combination. The central case takes 36 hours."),
+         "Bovine cells on the low-ammonia feed doubled in 42.9 hours (Hubalek 2023). The central case takes 36 hours."),
         ("Cells that need no growth factors, or that make their own, at scale", {"gf": "none"},
-         "Genetic engineering has made cattle cells that need none. The central case buys 30% of Humbird's price."),
+         "The central case buys 30% of Humbird's price."),
         ("Medium at the nutrient floor: only what the cells eat", {"medium": "floor"},
          "Companies announced $0.20 a litre. The floor, at GFI's feed-grade amino-acid prices, is about $0.07 a litre at Central's litres."),
         ("A food-grade plant with shared medium built and run for animal cells", {"plant": "lean"}, "Nobody has built one."),

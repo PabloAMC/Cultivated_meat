@@ -459,8 +459,9 @@ def check_parity() -> list:
 
 
 # ---------------------------------------------------------------------------
-# The first screen (page_scenarios.js, 2026-11-19): the cloud, the routes verdict, the tank design for set traits, and the
-# meat-buyers scale of the contour map, against scenarios.py and cell_traits.py.
+# The first screen (page_scenarios.js, 2026-11-19): the draws, the traits beyond the best measured in meat cells (no routes since
+# 2026-11-19), the tank design for set traits, the meat-buyers scale of the contour map, and the plant's capital per m3 and the
+# nutrient floor, against scenarios.py, floor_physics.py and cell_traits.py.
 # ---------------------------------------------------------------------------
 CLOUD_EXACT_TOL = 1e-6        # relative, per draw, on Python's own draws
 CLOUD_MED_TOL = 0.05          # relative: the page's 300 draws against Python's 4,000 (sampling noise is about 2% at 300)
@@ -574,11 +575,22 @@ def check_first_screen() -> tuple:
                 break
         if abs(ppt - jpt) > 1e-6 * max(1.0, ppt):
             fails.append(f"most-likely-values cost, case {i}: python {ppt:.6f} js {jpt:.6f}")
-    for t, (verdict, short, rank, rt) in zip(routes, tp["routes"]):
-        pr = CT.routes_needed(t)
-        prt = [pr["traits"][k]["route"] for k in ("nh3_kg", "lac_yield", "doubling_h", "mass_pg")]
-        if (verdict, short, rank) != (pr["verdict"], pr["short"], pr["rank"]) or rt != prt:
-            fails.append(f"routes {t}: python=({pr['verdict']!r}, {pr['rank']}, {prt}) js=({verdict!r}, {rank}, {rt})")
+    for t, jb in zip(routes, tp["beyond"]):
+        pb = CT.beyond_measured(t)
+        if sorted(pb) != sorted(jb):
+            fails.append(f"beyond the best measured in meat cells, {t}: python {pb} js {jb}")
+    for k, (v, src) in tp["best"].items():
+        b = CT.best_in_meat_cells()[k]
+        if v != b["value"] or src != b["short"]:
+            fails.append(f"best measured in meat cells, {k}: python {b['value']} ({b['short']}) js {v} ({src})")
+    # the plant sliders' words: capital per m3 of tank (explore()'s 'capex', $k) and the nutrient floor (floor_physics.feedstock)
+    import floor_physics as fp
+    for i, ((ch, tr), (jcap, jnut)) in enumerate(zip(stat, tp["plant"])):
+        r = S.run(ch, **tr) if ch is not None else S.reference()
+        kw = {**(S.explore_kwargs(ch) if ch is not None else {}), **tr}
+        nut = fp.feedstock(fp.Cells(mass_pg=kw.get("mass_pg", 3000.0), doubling_h=kw.get("doubling_h", 24.0)))
+        if abs(r["capex"] - jcap) > 1e-6 * r["capex"] or abs(nut - jnut) > 1e-9 * nut:
+            fails.append(f"plant sliders, case {i}: python capex {r['capex']:.4f} nutrients {nut:.5f}; js {jcap:.4f} {jnut:.5f}")
     for (c, t), (tk, sh) in zip(design, tp["design"]):
         d = S._design_traits(c, t)
         if (d["tricks"], d["shape"]) != (tk, sh):
@@ -630,7 +642,7 @@ def check_first_screen() -> tuple:
                 or abs(jg["sum"] - r["total"]) > 1e-6 * max(1.0, r["total"]) or abs(jg["ml"] - r["medium_l"]) > 1e-6 * r["medium_l"]:
             fails.append(f"cost groups, case {i}: they add up to {jg['sum']:.6f}, explore's total is {r['total']:.6f}")
     msg = (f"first screen: cloud on Python's draws max rel diff {worst:.1e} ({len(cases)} cases x {len(cases[0]['draws'])} draws); "
-           f"cloud median max rel diff {worst_m:.3f} (tol {CLOUD_MED_TOL}, {len(stat)} cases); {len(routes)} routes verdicts; "
+           f"cloud median max rel diff {worst_m:.3f} (tol {CLOUD_MED_TOL}, {len(stat)} cases); {len(routes)} trait sets against the meat-cell measurements; "
            f"{len(design)} tank designs; map share max diff {worst_s:.4f} pp; cost groups max rel diff {worst_g:.1e} ({len(stat)} cases)")
     return fails, msg
 

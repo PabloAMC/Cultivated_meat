@@ -105,6 +105,50 @@ def routes_needed(traits: dict) -> dict:
             "rank": 3 if none else 2 if eng else 1 if other else 0}
 
 
+# The best level of each trait MEASURED IN MEAT CELLS, with its source (2026-11-19, the author's direction: "I still think we are
+# sometimes saying 'this is possible with engineering and this with selection' without having actual data for that. I would remove
+# it."). The page, RESULTS.md, METHODS.md and README.md carry only these measurements, never a route. Only meat-cell measurements
+# count: the CHO and HEK figures in ROUTES are left out, and so is the 2025 conference poster's zero ammonia (its cell type is not
+# recorded in inputs.py). `short` is the source in the page's words.
+MEAT_CELL_BEST = {
+    "nh3_kg": ("cr_nh3_feed", "Hubalek 2023, bovine fat-precursor cells fed without glutamine"),
+    "lac_yield": ("cr_lac_feed", "Pasitka 2024, chicken fibroblasts in perfusion"),
+    "doubling_h": ("cr_td_engineering", "Stout 2023, immortalised bovine muscle cells, with serum"),
+    "mass_pg": ("cr_mass_feed", "Pasitka 2024, chicken cells, from their density"),
+}
+
+
+def best_in_meat_cells() -> dict:
+    """{trait: {"value", "source", "short", "unit", "dir"}}: the best level measured in meat cells (None where nothing is measured)."""
+    out = {}
+    for t, (name, short) in MEAT_CELL_BEST.items():
+        inp = REGISTRY.get(name)
+        out[t] = {"value": None if inp is None else value(name), "source": None if inp is None else inp.source, "short": short,
+                  "unit": TRAITS[t][1], "dir": TRAITS[t][2]}
+    return out
+
+
+def beyond_measured(traits: dict) -> list:
+    """The traits in `traits` set better than the best level measured in meat cells (a statement about data, not about routes)."""
+    best = best_in_meat_cells()
+    out = []
+    for t, v in traits.items():
+        b = best.get(t)
+        if b is None or b["value"] is None:
+            continue
+        if (b["dir"] < 0 and float(v) < b["value"] - 1e-12) or (b["dir"] > 0 and float(v) > b["value"] + 1e-12):
+            out.append(t)
+    return out
+
+
+def beyond_text(traits: dict) -> str:
+    """The traits beyond what has been measured in meat cells, in words ('lactate 0.42 mol/mol, against 1.05 measured')."""
+    best = best_in_meat_cells()
+    parts = [f"{TRAITS[t][0].split(' made')[0].split(' time')[0]} {float(traits[t]):g} {TRAITS[t][1]}, against {best[t]['value']:g} measured"
+             for t in TRAITS if t in beyond_measured(traits)]
+    return "; ".join(parts) if parts else "none: each trait at or within the best measured in meat cells"
+
+
 def js_model() -> dict:
     """What the page needs to say what a set of traits has been shown with (the page agent builds the UI)."""
     return {"routes": {t: [[r, lv, src] for r, lv, src in rows] for t, rows in routes().items()},
