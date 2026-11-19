@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 from common import setup_style, _save
 from inputs import prior, MC_COST_INPUTS, MC_DEMAND_INPUTS
 from cost_model import CostParams, media_cost
-from price_ratio import shelf_price, cost_from_shelf
+from price_ratio import shelf_price, cost_from_shelf, structured_cost
 from market_share import DemandParams, share
 
 
@@ -105,10 +105,11 @@ def R_from_inputs(media_price, efficiency, overhead, markup_add, p_conv,
     media can never fall below the irreducible amino-acid floor (AA_FLOOR). overhead
     is the plant knob (floor plant ~$9.8 -> cautious ~$34/kg), so the total
     cost floats from its own prior rather than cost_model's single point floor.
-    Scaffold terms are 0 for the basic product, nonzero for structured targets. The shelf price is
+    Scaffold terms are 0 for the basic product (all cells, no matrix, no assembly), nonzero for structured targets. The shelf price is
     price_ratio.shelf_price (per-kg costs plus the retailer's margin; None = inputs.py's margin)."""
-    cost = (media_cost(CostParams(), media_price, efficiency)
-            + overhead + scaffold_frac * material_price + process_cost)
+    cells = media_cost(CostParams(), media_price, efficiency) + overhead
+    # a structured cut is (1 - scaffold_frac) cells plus matrix and assembly (price_ratio.structured_cost); mince is all cells
+    cost = structured_cost(cells, 1.0 - scaffold_frac, material_price, process_cost)
     return shelf_price(cost, markup_add, retail_margin) / p_conv
 
 

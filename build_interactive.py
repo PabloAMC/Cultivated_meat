@@ -19,7 +19,7 @@ import os
 from inputs import (value, prior, AA_FLOOR, GLUCOSE_OTHER_FLOOR, PLANT_CONFIGS, MC_COST_INPUTS, MC_DEMAND_INPUTS,
                     MC_TIER_INPUTS, MC_TIMING_INPUTS)
 import meat_market as mm
-from price_ratio import shelf_price, cost_from_shelf
+from price_ratio import shelf_price, cost_from_shelf, structured_cost
 import floor_physics
 import plant_items
 import contamination
@@ -212,6 +212,8 @@ def build_model() -> dict:
         "REGION_INCOME": mm.REGION_INCOME,
         # demand calibration constants (surfaced so the methods section can show them)
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
+        # a cut = cut_cells x cells + (1 - cut_cells) x matrix price + assembly (price_ratio.structured_cost; cutCost below)
+        "matrix_price": value("material_price"),
         # WHICH inputs the page's bands sample: the SAME lists the Python bands use (inputs.MC_*),
         # so the page's band and the numbers quoted in RESULTS.md cannot sample different sets.
         # the short version of the page (page_scenarios.js, easyRender): three cases in plain words, no numbers typed here
@@ -338,6 +340,7 @@ def build_model() -> dict:
             "efficiency":    ["&eta;", "medium cost &iota;&eta;p<sub>med</sub> in Eq. (1)"],
             "overhead":      ["h", "plant running cost in Eq. (1)"],
             "scaffold":      ["k", "Eq. (1), structured cuts only"],
+            "cut_cells":     ["c", "Eq. (1), structured cuts only"],
             "markup_add":    ["a", "Eq. (1)"],
             "retail_margin": ["m", "Eq. (1)"],
             "meat_tax":      ["t", "denominator of Eq. (1)"],
@@ -388,7 +391,7 @@ def build_model() -> dict:
         ("Key assumptions",
          ["media_price", "overhead", "markup_add", "retail_margin", "equal_price_share", "meat_tax",
           "real_tissue_x", "accept_x", "premium_resistance"], False),
-        ("Step 1 · cost and price", ["efficiency", "scaffold"], True),
+        ("Step 1 · cost and price", ["efficiency", "cut_cells", "scaffold"], True),
         ("Step 2 · how shoppers choose",
          ["eps_own", "cult_sub_mult", "liking_sd", "theta_free_M", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
           "health_x", "neophobia_x"], True),
@@ -468,11 +471,20 @@ def build_model() -> dict:
                tip="This is the medium used per kg, relative to the reported process, where 1 is the default. A value of 0.25 means four "
                "times leaner, like the CHO cells used in pharma. Nobody has shown this for food cells. The Monte "
                "Carlo samples 0.25 to 1, so its median assumes some improvement."),
-        slider("scaffold", "Scaffold cost for cuts (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
+        slider("cut_cells", "Share of a cut that is cells (<i>c</i>)", "", 0.1, 1.0, 0.05, mm.CUT_CELL_SHARE,
                "assumed",
-               tip="This is the extra cost of turning cells into a structured cut (steak or fillet). Mince does not need it. "
-               "No published study covers it, because Humbird, CE Delft and Risner all stop at unstructured "
-               "cells. The $6 default is a guess."),
+               fmt="pct",
+               tip="A cut (steak or fillet) is made by binding harvested cells with plant protein. The rest of the cut is that "
+               "plant protein, at $" + f"{value('material_price'):.0f}" + "/kg. Cuts sold or approved so far are 10 to 30% cells. "
+               "Nobody has shown a cut that is mostly cells grown in suspension with the texture of meat. The default keeps the cut "
+               "mostly cells, the product the shopper model describes. Lower shares make a cut cheaper, but shoppers may see it "
+               "as a different product, and the model does not capture that."),
+        slider("scaffold", "Cost of assembling a cut (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
+               "analogues",
+               tip="This is the cost of binding, forming, setting and slicing a cut after the cells are harvested. Mince does not need it. "
+               "No study has costed it for cultivated meat, so the figure comes from plant-protein extrusion ($0.4 to $1.6 a kilo), "
+               "surimi forming (about $1) and binder prices. The range is $1 to $8. Growing the cells into tissue on a scaffold "
+               "instead would add about $10 a kilo, which is why companies have dropped it."),
         # ---- step 2: how shoppers choose -----------------------------------------------------
         slider("eps_own", "Price sensitivity of meat (&epsilon;)", "", -1.4, -0.5, 0.05,
                value("eps_own"), "scanner data",
@@ -1052,9 +1064,11 @@ def derived_numbers() -> dict:
         "MEDIA_TODAY": f"{media:.0f}",
         "BIOMASS_TODAY": f"{bio:.0f}",
         "RETAIL_TODAY": f"{shelf_price(bio):.0f}",
-        "CUT_RETAIL_TODAY": f"{shelf_price(bio + mm.SCAF):.0f}",
+        "CUT_RETAIL_TODAY": f"{shelf_price(structured_cost(bio)):.0f}",
         "PCONV": f"{p_conv:.0f}",
         "MARKUP": f"{markup:.1f}",
+        "CUT_CELLS_PCT": f"{mm.CUT_CELL_SHARE * 100:.0f}",
+        "SCAF": f"{mm.SCAF:.0f}",
         "MARGIN_PCT": f"{value('retail_margin') * 100:.0f}",
         "PARITY_BIOMASS": f"{cost_from_shelf(p_conv):.1f}",
         "COST_FLOOR": f"{floor:.1f}",
@@ -1708,8 +1722,9 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
         sterility [2].</li>
         <li><b>Getting it to the shelf</b> adds ${{MARKUP}}/kg for forming, packing and cold chain, and then the shop's margin,
         {{MARGIN_PCT}}% of the shelf price. Fitted to conventional meat's wholesale-to-retail spreads, this form gives the
-        shop more dollars on a dearer product, as shops' percentage margins do. Structured cuts add $6/kg of scaffold. That figure is a guess, because no
-        study has costed it [6].</li>
+        shop more dollars on a dearer product, as shops' percentage margins do. A structured cut is {{CUT_CELLS_PCT}}% cells bound with
+        plant protein, plus ${{SCAF}}/kg to assemble it. No study has costed this for cultivated meat; the figures come from plant-protein
+        extrusion, surimi and binder prices [6].</li>
       </ul>
       <p><b>What the default cost is.</b> The default cost is what one company reports for its own process, scaled up on paper.
       The model puts the cost of capital on the same footing as the other cases. The result is about ${{BIOMASS_TODAY}} per kilo of cells [1].
@@ -1936,9 +1951,10 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       <h5>A0. The equations</h5>
       <p><b>Step 1, the price ratio.</b></p>
       \[ R \;=\; \frac{\Big(\overbrace{\iota\,\eta\,p_{\rm med}}^{\text{medium}} \;+\; \overbrace{h}^{\text{plant}}
-         \;+\; \overbrace{k}^{\text{scaffold (cuts)}} \;+\; \overbrace{a}^{\text{to the shelf}}\Big)\Big/\big(1-\overbrace{m}^{\text{shop's margin}}\big)}{p_c\,t} \tag{1} \]
+         \;+\; \overbrace{k}^{\text{assembly (cuts)}} \;+\; \overbrace{a}^{\text{to the shelf}}\Big)\Big/\big(1-\overbrace{m}^{\text{shop's margin}}\big)}{p_c\,t} \tag{1} \]
       <p>\(\iota\): litres of medium per kilo; \(\eta\): cell efficiency (1 = as reported); \(p_{\rm med}\): medium
-      price; \(h\): plant running cost; \(k\): scaffold (cuts only); \(a\): forming, packing and cold chain per kilo; \(m\): the shop's
+      price; \(h\): plant running cost; \(k\): assembling a cut (cuts only). For a cut the cell cost (medium plus plant) is
+      multiplied by \(c\), the share of the cut that is cells, and the plant protein that makes up the rest is added at its price; \(a\): forming, packing and cold chain per kilo; \(m\): the shop's
       gross margin as a share of the shelf price; \(p_c\): conventional price;
       \(t\): meat-tax multiplier. The medium cost never falls below the feedstock dissolved in it.</p>
       <p><b>Step 2, the score and the shares.</b></p>
@@ -2141,8 +2157,11 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
         <i>Appl. Econ. Perspect. Policy</i> <b>38</b>, 673 (2016).
         <a href="https://doi.org/10.1093/aepp/ppv050" target="_blank" rel="noopener">doi:10.1093/aepp/ppv050</a>.
         Species elasticities across regions: Gallet, C.&nbsp;A., meta-analyses (2010, 2012).</li>
-        <li id="ref6"><b>[6]</b> <b>Scaffold cost ($6/kg) is our assumption:</b> no cost study covers scaffolding
-        or structuring; Humbird 2021, CE Delft 2021 and Risner <i>et al.</i> 2021 all stop at unstructured cells.</li>
+        <li id="ref6"><b>[6]</b> <b>The cost of a cut is built from analogues:</b> no cost study covers structuring cultivated
+        meat; Humbird 2021, CE Delft 2021 and Risner <i>et al.</i> 2021 all stop at unstructured cells. Wildtype (FDA memo, 2025),
+        Aleph Farms (2025) and Upside (2026) now bind cells with plant protein after harvest instead of growing tissue on a scaffold.
+        The assembly cost comes from GFI's 2021 costing of plant-protein extrusion, surimi forming and binder prices; the cell share
+        from products on sale (10 to 30% cells). Sources in the model's <code>research_notes/structuring_cost.md</code>.</li>
         <li id="ref7"><b>[7]</b> <b>Plant-based taste (only ~16% reach blind-taste parity):</b>
         <a href="https://www.nectar.org/sensory-research/2025-taste-of-the-industry" target="_blank" rel="noopener">NECTAR, Taste of the Industry (2025)</a>.
         <b>5% vegetarian or vegan:</b>
@@ -2502,6 +2521,8 @@ function biomass(s){
   return mediaCost(s.media_price,s.efficiency)+s.overhead+(s.cleanroom?C.cleanroom_cost:0);}
 // Shelf price from the cost before the shelf: per-kg costs plus the shop's percentage margin. THE one place this
 // rule lives in the page (mirror of price_ratio.shelf_price); `mk`/`mg` default to the settings `s`.
+// a kilo of cut: cut_cells of cells, the rest plant-protein matrix, plus assembly (mirror of price_ratio.structured_cost)
+function cutCost(cells,s){return s.cut_cells*cells+(1-s.cut_cells)*C.matrix_price+s.scaffold;}
 function shelfPrice(x,s,mk,mg){mk=(mk===undefined?s.markup_add:mk); mg=(mg===undefined?s.retail_margin:mg); return (x+mk)/(1-mg);}
 function parityCost(s){return C.p_conv_anchor*s.meat_tax*(1-s.retail_margin)-s.markup_add;}
 function basicR(s){return shelfPrice(biomass(s),s)/(C.p_conv_anchor*s.meat_tax);}
@@ -2509,11 +2530,11 @@ function speciesBases(market){const b={};market.forEach(mt=>{const a=animalOf(mt
   b[a]=Math.min((a in b)?b[a]:Infinity,mt.p_conv);});return b;}
 function tierOf(mt,base){return !mt.structured?"basic":(mt.p_conv>=C.PREMIUM_RATIO*base?"premium":"cut");}
 // per-type price ratio + tier, shared by penetration / monteCarlo / perTypeMC so the
-// R = shelfPrice(biomass*cost_mult + scaffold) / (p_conv*meat_tax) formula lives in ONE place
+// R = shelfPrice(cells, or cutCost(cells) for a cut) / (p_conv*meat_tax), cells = biomass*cost_mult, lives in ONE place
 // (mirror of meat_market._rollup's per-type R). `b` biomass $/kg, `mk` per-kg costs to the shelf, `mg` the shop's margin.
 function typeR(mt,b,mk,s,bases,mg){
-  const scaf=mt.structured?s.scaffold:0, price=mt.p_conv*s.meat_tax;
-  return {R:shelfPrice(b*mt.cost_mult+scaf,s,mk,mg)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
+  const cells=b*mt.cost_mult, price=mt.p_conv*s.meat_tax;
+  return {R:shelfPrice(mt.structured?cutCost(cells,s):cells,s,mk,mg)/price, t:tierOf(mt,bases[animalOf(mt.name)])};
 }
 // per-tier authenticity offset and elasticity multiplier, scaled by the premium-resistance
 // dial r (r=1 central; r=0 no tier effect; mirrors meat_market.tier_authenticity/tier_eps_mult).
@@ -2758,7 +2779,7 @@ function addQ(parent,text){const q=document.createElement("span");q.className="q
 /* ---------- the four live views ---------- */
 function drawHeads(s){
   const b=biomass(s), p=penetration(s), R=basicR(s);
-  const retail=shelfPrice(b,s), conv=C.p_conv_anchor*s.meat_tax, cut=shelfPrice(b+s.scaffold,s);
+  const retail=shelfPrice(b,s), conv=C.p_conv_anchor*s.meat_tax, cut=shelfPrice(cutCost(b,s),s);
   const reg=MODEL.regions.find(r=>r[0]===s.region)[1];
   // Each cell = [big number, label HTML, second line, colour, tooltip]. The tooltip uses the same addQ()
   // "?" badge as the sliders (a styled #tip popup), not a native title= attribute.
@@ -2769,7 +2790,7 @@ function drawHeads(s){
   const pbTip="This is the same figure for plant-based meat. The model is fitted to reproduce it (~1.2% of US meat).";
   const rTip="This is cultivated meat's retail price divided by the price of everyday conventional meat. It uses a round "+
     "benchmark of $"+conv.toFixed(0)+"/kg. (In the charts of share by type of meat, share of all meat and which products first, each meat type uses its own local price.) "+
-    "A ratio of 1&times; means price parity. The ratio is the same for every region. Structured cuts also need a scaffold, so a cut costs $"+cut.toFixed(0)+"/kg.";
+    "A ratio of 1&times; means price parity. The ratio is the same for every region. A structured cut is part cells, part plant protein, plus the cost of assembling it, so a cut costs $"+cut.toFixed(0)+"/kg.";
   const cells=[
     [(p.tv*100).toFixed(1)+"%","<b>cultivated</b>: long-run share of the meat market by weight ("+reg+")",
      (p.tval*100).toFixed(1)+"% by value","var(--accent)",cultTip],
@@ -3300,11 +3321,11 @@ function fillCmpSel(){
 }
 
 /* ---------- FOOTHOLD: the reachability waterline (foothold.py strategic layer) ----------
-   Cultivated retail cost = a waterline set by the live cost sliders (medium/overhead/markup/scaffold),
+   Cultivated retail cost = a waterline set by the live cost sliders (medium/overhead/markup/cut cell share and assembly),
    via the SAME stack as the cost chart. Products are islands at their conventional price; above the
    line = price-reachable (R<1). Two reference lines: the current sea and the best-case sea. */
-function footRetail(s,structured){return shelfPrice(biomass(s)+(structured?s.scaffold:0),s);}
-function footFloor(s,structured){return shelfPrice(SC.best_cost+(structured?s.scaffold:0),s);}   // the best case's cost
+function footRetail(s,structured){const b=biomass(s);return shelfPrice(structured?cutCost(b,s):b,s);}
+function footFloor(s,structured){return shelfPrice(structured?cutCost(SC.best_cost,s):SC.best_cost,s);}   // the best case's cost
 function footR(s,pd){return footRetail(s,pd.structure==="structured")/pd.p_base;}   // vs the ACCESSIBLE price (rent stripped)
 function footHasRent(p){return p.p_base!=null && p.p_conv!=null && p.p_base<p.p_conv;}   // a distinct, cheaper accessible tier exists
 function footPhi(p){return footHasRent(p) ? (state.phi===undefined?0.25:state.phi) : 0;}  // global prestige share φ where a rent tier exists
@@ -3343,14 +3364,16 @@ function drawFootWaterline(s,svg){
   [10,30,100,300,1000,2500].forEach(v=>{el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f2f2f2"},svg);
     tx(svg,mL-6,Y(v)+3,"$"+v,{"font-size":8.5,"text-anchor":"end",fill:"#888"});});
   const seaU=footRetail(s,false), seaS=footRetail(s,true), floorU=footFloor(s,false), floorS=footFloor(s,true);
-  // underwater shading (below the lower, unstructured cost) + the cost BAND (unstructured edge -> +scaffold
-  // edge) so STRUCTURED products' stems land on a visible line, not in mid-air.
+  // underwater shading (below the unstructured cost) + the BAND between the unstructured and the cut cost, so STRUCTURED
+  // products' stems land on a visible line. Since 2026-11-19 a cut can cost LESS than mince (a fifth of it is plant protein),
+  // so the band runs whichever way the two lie.
   el("rect",{x:mL,y:Y(seaU),width:W-mL-mR,height:(H-mB)-Y(seaU),fill:"#0072B2",opacity:0.05},svg);
-  el("rect",{x:mL,y:Y(seaS),width:W-mL-mR,height:Y(seaU)-Y(seaS),fill:"#0072B2",opacity:0.12},svg);
+  el("rect",{x:mL,y:Math.min(Y(seaS),Y(seaU)),width:W-mL-mR,height:Math.abs(Y(seaU)-Y(seaS)),fill:"#0072B2",opacity:0.12},svg);
   el("line",{x1:mL,y1:Y(seaU),x2:W-mR,y2:Y(seaU),stroke:"#0072B2","stroke-width":1.8},svg);
   el("line",{x1:mL,y1:Y(seaS),x2:W-mR,y2:Y(seaS),stroke:"#0072B2","stroke-width":1.1,"stroke-dasharray":"5 2"},svg);
-  tx(svg,W-mR+4,Y(seaS)-1,"+scaffold $"+seaS.toFixed(0),{"font-size":8,fill:"#0072B2"});
-  tx(svg,W-mR+4,Y(seaU)+9,"cult. cost $"+seaU.toFixed(0),{"font-size":8,fill:"#0072B2","font-weight":700});
+  const cutAbove=seaS>=seaU;
+  tx(svg,W-mR+4,Y(seaS)+(cutAbove?-1:9),"cuts $"+seaS.toFixed(0),{"font-size":8,fill:"#0072B2"});
+  tx(svg,W-mR+4,Y(seaU)+(cutAbove?9:-1),"cult. cost $"+seaU.toFixed(0),{"font-size":8,fill:"#0072B2","font-weight":700});
   el("line",{x1:mL,y1:Y(floorU),x2:W-mR,y2:Y(floorU),stroke:"#0072B2","stroke-width":1,"stroke-dasharray":"2 3",opacity:0.6},svg);
   tx(svg,W-mR+4,Y(floorU)+3,"best case $"+floorU.toFixed(0),{"font-size":8,fill:"#0072B2",opacity:0.8});
   P.forEach((p,i)=>{

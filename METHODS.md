@@ -79,7 +79,7 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    leverage). One equation per unknown: calibration, not fitting.
 4. **Judgement, shown as a range:** `cult_sub_mult` (κ; set by six premium products within the Lusk 2020 bracket), the acceptance dials
    `accept_x`/`theta_free_M`, long-run novelty `neophobia_x`, health image `health_x`, the tier ladder (scaled
-   by `premium_resistance`), `markup_add` and `retail_margin` (fitted to USDA's spreads and meat-department margins), the scaffold cost, and
+   by `premium_resistance`), `markup_add` and `retail_margin` (fitted to USDA's spreads and meat-department margins), the cut's cell share and assembly cost, and
    `loss_aversion` (symmetric by default).
 5. **Assumed, with modest leverage** (the calibration re-solves around each): across their full slider
    ranges, the long-run share in the reference case against $12 meat (20.8%) moves by 3.1 pp for `w_realtissue_E` (0–4),
@@ -136,7 +136,8 @@ Shared: `inputs.py` (the datasheet), `common.py` (plotting), `report_figures.py`
 ```
 media_cost   = media_intensity [L/kg] × efficiency × media_price [$/L]   (never below the feedstock floor)
 biomass_cost = media_cost + overhead                                     (+ clean-room cost, if toggled)
-p_cult       = (biomass_cost + scaffold (structured cuts only) + markup_add) / (1 − retail_margin)
+cut_cost     = 0.8 × biomass_cost + 0.2 × matrix_price + assembly            (structured cuts only; mince = biomass_cost)
+p_cult       = (biomass_cost or cut_cost + markup_add) / (1 − retail_margin)
 R            = p_cult / (p_conv × meat_tax)
 parity (R=1) ⟺ biomass_cost ≤ p_conv × (1 − retail_margin) − markup_add = $6.14/kg   (mince, $12 meat, $2.5, 28%)
 ```
@@ -178,9 +179,8 @@ wholesale values at a 28% margin, the per-kg part is $1.6 for broilers, $2.9 for
 to form cells into a product. Until 2026-11-18 the model added a flat $5 (range $3.0–8.7), the whole wholesale-to-retail
 spread. That spread starts after the packing plant, so it already leaves out slaughter. No study gives the
 cost per kg of forming, packaging or chilling a cultivated product, and none costs the structuring of a whole
-cut: the published analyses all stop at harvested cells. A bottom-up estimate for cells on a textured plant
-scaffold is $0.5–2.5/kg, but it leaves out any tissue-growing stage; the $6 scaffold figure stays a labelled
-guess (`research_notes/post_harvest_costs.md`). Products sold so far range from 3% to over 99% cells.
+cut: the published analyses all stop at harvested cells. Since 2026-11-19 a cut is costed from analogues
+(`research_notes/structuring_cost.md`; Structured products below). Products sold so far range from 3% to over 99% cells.
 Against the flat $5 the new rule moves parity little ($7.0 to $6.1 a kilo of cells), because both are fitted to commodity
 meat's own spread, but it raises the shelf price of anything dearer: Central's (then $29.4 a kilo of cells) from $34 to $44, and its long-run share
 from 0.41% to 0.16% of world meat. Both parts are drawn in the uncertainty bands.
@@ -1306,15 +1306,23 @@ premium; chicken and pork stay above parity even in the reference case. Regional
 mixes and income (`REGION_INCOME`); the low-income markets are rough. Biomass cost is the same for every species
 (a per-type multiplier, 1 by default, is the hook for a species-specific cost study).
 
-**Structured products (`scaffolding.py`):**
+**Structured products (`scaffolding.py`; `price_ratio.structured_cost`):**
 
 ```
-structured_cost = biomass_cost + scaffold_frac × material_price + process_cost
+structured_cost = (1 − scaffold_frac) × biomass_cost + scaffold_frac × material_price + process_cost
+                = 0.8 × biomass_cost + 0.2 × $2 + $3                          (central values)
 ```
 
-The material price is a judgement range ($2–20/kg; Gu et al. 2025 describe the materials but give no costs),
-and the process cost ($1–15/kg) has no published cost study behind it: the most speculative numbers in the
-model. At the central values they add $6/kg, the scaffold cost the page uses. A structured product competes
+Rebuilt 2026-11-19 (`research_notes/structuring_cost.md`). Companies now make cuts from suspension-grown cells by binding them
+with plant protein after harvest (Wildtype since 2023, Aleph Farms since 2025, Upside in 2026), not by growing tissue on a
+scaffold in a second bioreactor. A kilo of cut is 0.8 kg of cells (range 0.5–0.9) and 0.2 kg of plant-protein matrix and binder
+at $2/kg (range 1–5: textured and extruded plant protein, binders). Assembly (binding, forming, setting, slicing, yield loss) is
+$3/kg (range 1–8), from GFI's 2021 costing of plant-protein extrusion ($0.44–1.58/kg), surimi forming (about $1/kg) and binder
+prices. Growing tissue on a scaffold would add about $10/kg instead (range 3–35, from CE Delft's 2021 perfusion reactors and the
+medium a maturation stage uses). Until 2026-11-19 the model charged a full kilo of cells plus a $6 scaffold, counting the
+scaffold on top of the cells it replaces. The cell share is the larger unknown: the whole cuts sold or approved so far are
+10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When cells cost more
+than about $17/kg a cut costs less than mince, because a fifth of it is plant protein. The page's slider c sets the share. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
 premium species: against sushi-grade salmon, R has a median of 1.57, with 1% of draws at or below parity.
 

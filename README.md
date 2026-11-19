@@ -62,7 +62,7 @@ it is always a band.
 | 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; the filter loop it prices is the model's default |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
-| 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets) and their scaffold cost; the most speculative part |
+| 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets): cells bound with plant protein, and the cost of assembling them |
 | 3 | [`foothold.py`](foothold.py) | entry points: which specific products cultivated can reach first, and what each displaces |
 | 4 | [`adoption_timing.py`](adoption_timing.py) | rollout (Bass diffusion), fading novelty, cost-milestone paths over 30 years |
 | – | [`uncertainty.py`](uncertainty.py) | Monte Carlo over R and share |
@@ -174,7 +174,7 @@ model/
 ├── page_vessels.js      ← the page's vessel-by-mode table (a JavaScript mirror of vessels.py)
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
-├── scaffolding.py       ← step 3: structured products and their scaffold cost
+├── scaffolding.py       ← step 3: structured products and the cost of assembling them
 ├── foothold.py          ← step 3: entry points (specific products)
 ├── adoption_timing.py   ← step 4: rollout, fading novelty, cost-milestone paths
 ├── uncertainty.py       ← Monte Carlo over R and share
