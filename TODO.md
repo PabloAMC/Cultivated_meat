@@ -110,8 +110,8 @@ Raised by Pablo on 2026-11-16 (open):
       A forecast drawn from odds was built and dropped at the author's direction.
 - [ ] **The page**: rebuild around traits as sliders with the routes verdict (`MODEL.sc.cell_routes`, `trait_verdicts`), the clouds,
       what it would take, and the contour chart the author approved; the page still shows the old case names and five-rung texts.
-- [ ] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng engineered cell (their generated tables
-      are current; some side-study figures in the prose are from before).
+- [x] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng engineered cell (2026-11-19: RESULTS,
+      METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia in a meat cell selected
       for it; whether the spinner/shaker gap in Hubalek 2023 is real.
 - [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor

@@ -417,7 +417,8 @@ basic product vs commodity meat ($12/kg), Monte Carlo over the cost inputs (N=20
   0% of draws reach parity (R ≤ 1)
 ```
 
-This draw is around the reported cost, for mince against $12 meat in the US. The median is close to the reported 4.27: the
+This draw is around the reported cost, for mince against $12 meat in the US. Its share is of all choices, as `uncertainty.py`
+computes it; as a share of meat buyers it would be about an eighth higher. The median R is close to the reported 4.27: the
 plant-cost range is wider on the high side (reported harvests are less dense than Humbird's optimistic design assumes), while the
 medium price and cell efficiency can improve on the report. It does not include the scenarios or a yeast-class plant.
 
@@ -781,7 +782,7 @@ the ordinary one plus a virtue, at a higher price:
 | all organic meat | 1.50× | 2.2% | 29.9% | 14.6% |
 
 κ is how many times more price-sensitive a cultivated product is than meat as a whole. This table is the model with every shopper
-alike, which is how κ was set. At 4 it over-predicted these products about sixfold. The best fit is κ = 10. The model uses 8.5,
+alike, which is how κ was set, and its shares are of all choices. At 4 it over-predicted these products about sixfold. The best fit is κ = 10. The model uses 8.5,
 where the typical miss is a factor of 2.6. κ acts only on cultivated meat's price difference from the conventional meat beside it,
 so it moves nothing at equal price. What remains wrong: with every shopper alike the model over-predicts at small premiums and
 under-predicts at large ones. Ten more products up to 3.6 times the price (below) show that share does fall with the premium,
@@ -817,8 +818,8 @@ keenest, so the share falls off slowly as the price rises, though each shopper i
 - **Three worries remain** (the note's section 6): the Engineered cells, all favourable case's fall; a response to a falling price still more than twice
   farmed salmon's; and the tail above five times the price of meat, which is an extrapolation (the premium data stop at 3.6
   times), although 15% of Selected cells' first sales come from products above five times and 28% from products above four.
-  The note lists a fourth, first contact at 4.3% against a measured 5%; read as 4% of all choices and 5% of those who buy a
-  meat, the experiment is matched (next paragraph).
+  The note lists a fourth, first contact at 4.3% against a measured 5%; read as 5% of meat buyers and 4% of all choices,
+  the experiment is matched (next paragraph).
 
 What the model had been assuming about the long run, and what three readings of it give. In this table and the next, the share at
 equal price and the share of a meat at each price are shares of all choices, the scale of the choice experiment and of the model's
