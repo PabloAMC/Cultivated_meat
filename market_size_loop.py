@@ -27,10 +27,10 @@ What this module does
    (Pablo, 2026-11-18): sushi-grade seafood and prime or wagyu beef are where cultivated meat is nearest the price it competes
    with. Premium products are the ones `meat_market.tier` labels premium. Since world seafood was re-priced on 2026-11-19 they
    are five: organic chicken, heritage pork, prime or wagyu beef, sushi-grade seafood, and the new row of premium fillets and
-   shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. After the audit batch of that day (cells
-   dearer, the tier rule gone) Central sells little at its own cost, and premium products are about half of it, beef steaks the
-   other half. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
-   for Central the five just do and the four small ones do not.
+   shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. With the Student's t spread of liking
+   (2026-11-19) premium products are about a quarter of Central's sales at its own cost; most are ordinary cuts, a third beef
+   steaks. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
+   for Central the five do and the four small ones do not, and its whole sales need nearly five times the switch.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables
@@ -306,6 +306,13 @@ def _pct(x: float) -> str:
     return "under 0.01%" if x < 0.01 else f"{x:.2f}%"
 
 
+def _mt(x: float) -> str:
+    """A volume in Mt a year as text: two decimals, three below 0.01 Mt (so a few thousand tonnes do not print as 0.00)."""
+    if 0.0 < x < 0.0005:
+        return "under 0.001"
+    return f"{x:.2f}" if x >= 0.00995 or x == 0.0 else f"{x:.3f}"
+
+
 def markdown_ladder() -> str:
     s = summary()
     out = []
@@ -328,7 +335,7 @@ def markdown_solved() -> str:
         for case in CASES:
             lo, hi = s["solved"][(k, case, "below")], s["solved"][(k, case, "above")]
             out.append(f"| {_name(k)} | {case} | ${s['base'][k]['cost']:.2f}, {_pct(s['model_share'][k])} | "
-                       f"${lo['cost']:.2f}, {_pct(lo['share'])}, {lo['volume_mt']:.2f} | ${hi['cost']:.2f}, {_pct(hi['share'])}, {hi['volume_mt']:.2f} |")
+                       f"${lo['cost']:.2f}, {_pct(lo['share'])}, {_mt(lo['volume_mt'])} | ${hi['cost']:.2f}, {_pct(hi['share'])}, {_mt(hi['volume_mt'])} |")
     return "\n".join(out)
 
 
@@ -346,7 +353,7 @@ def markdown_composition() -> str:
             cost = c["cost"]
             part = (f"{c['premium_of_sales']:.0%} ({c['premium_small_of_sales']:.0%})" if c["total"] >= 0.005
                     else "almost nothing is sold")          # under 5,000 t a year the split says nothing
-            out.append(f"| {_name(k)} | {stage} | ${cost:.2f} | {c['premium']:.2f}, {c['cut']:.2f}, {c['basic']:.2f} | {part} | " +
+            out.append(f"| {_name(k)} | {stage} | ${cost:.2f} | {_mt(c['premium'])}, {_mt(c['cut'])}, {_mt(c['basic'])} | {part} | " +
                        " | ".join(f"{c['products'][n]['R']:.2f}×, {_pct(c['products'][n]['share'])}" for n in names) + " |")
     return "\n".join(out)
 
@@ -361,7 +368,7 @@ def markdown_start() -> str:
         for case in CASES:
             st = s["start"][(k, case)]
             sw = "never" if st["switch_m2"] == NEVER else f"{st['switch_m2'] / 1e6:.1f}"
-            out.append(f"| {_name(k)} | {case} | {st['premium_mt']:.2f}, {st['small_mt']:.2f}, {st['whole_mt']:.2f} | "
+            out.append(f"| {_name(k)} | {case} | {_mt(st['premium_mt'])}, {_mt(st['small_mt'])}, {_mt(st['whole_mt'])} | "
                        f"{st['area_m2'] / 1e6:.2f}, {st['small_area_m2'] / 1e6:.2f}, {st['whole_area_m2'] / 1e6:.2f} | {sw} | "
                        f"{yn(st['crosses'])}, {yn(st['small_crosses'])}, {yn(st['whole_crosses'])} |")
     return "\n".join(out)

@@ -16,6 +16,7 @@ sys.path.insert(0, ROOT)
 
 import demand_checks as D  # noqa: E402
 import market_size_loop as L  # noqa: E402
+import premium_curve as P  # noqa: E402
 import scenarios as S  # noqa: E402
 
 
@@ -32,20 +33,27 @@ def check() -> list:
     i3 = D.R_GRID.index(3.0)
     if not (0.4 * s["premium_3x"] < v[0]["curve"][i3] < 2.0 * s["premium_3x"] and v[1]["curve"][i3] < 0.2 * s["premium_3x"]):
         fails.append("at 3 times the price the model should be near premium meats and the model before far below; rewrite the note")
-    # 2026-11-19 audit batch: the tier rule is gone, so premium products are as price-sensitive as any other, and cells are dearer.
-    # The check against farmed salmon now FAILS, and the note says so: the premium products still dearer than their meat (organic
-    # chicken 3.3x, heritage pork 2.7x, premium fillets and shrimp 2.2x, a row new with the seafood re-pricing) respond at 5.2-7.5,
-    # more than three times the top of salmon's range (1.5); prime beef (0.96x) and sushi-grade seafood (1.24x), near equal price,
-    # respond at 2.6 and 3.3, also above it. (Was: the dearer pair inside salmon's range at 1.3-1.5, the near-parity pair below it.)
+    # 2026-11-19 second round (Student's t spread of liking). The check against farmed salmon still FAILS, by less, and the note
+    # says so: the premium products still dearer than their meat (organic chicken 3.3x, heritage pork 2.7x, premium fillets and
+    # shrimp 2.2x) respond at 3.6-3.7, between two and three times the top of salmon's range (1.5); prime beef (0.96x) and
+    # sushi-grade seafood (1.24x), near equal price, respond at 3.3 and 3.6, also above it. (With the audit batch's normal spread:
+    # 5.2-7.5, over three times the range. Before the audit batch: 1.3-1.5, a pass, by way of the tier rule.)
     resp, (lo, hi) = L.summary()["response"]["products"], D.SALMON_ALONG_CURVE
     dearer = [n for n, v in resp.items() if v["R"][0] > 1.5]
     if sorted(dearer) != ["chicken (organic)", "pork (heritage)", "seafood (premium fillet, shrimp)"]:
         fails.append("the premium products still dearer than their meat at Central's cost have changed; rewrite the note")
-    if not all(resp[n]["response"] > 3.0 * hi for n in dearer):
-        fails.append("the premium products still dearer than their meat no longer respond at over three times salmon's range; "
-                     "the salmon check may pass again: rewrite the note")
+    if not all(2.0 * hi < resp[n]["response"] < 3.0 * hi for n in dearer):
+        fails.append("the premium products still dearer than their meat no longer respond at two to three times the top of salmon's "
+                     "range; rewrite the note")
     if not all(resp[n]["R"][0] < 1.3 and hi < resp[n]["response"] < 3.0 * hi for n in ("beef (prime/wagyu)", "seafood (sushi)")):
         fails.append("prime beef and sushi-grade seafood are no longer near equal price with a response above salmon's range; rewrite the note")
+    # 2026-11-19 second round: the model's first-contact elasticity is inside the experiment's range across its arms (-1.37 in
+    # -1.65 to -1.1), and at 2, 3 and 4 times the price it holds between half and all of what premium real meats hold.
+    if not D.VANLOO_ARMS[0] <= v[0]["cold"] <= D.VANLOO_ARMS[1]:
+        fails.append("the model's first-contact elasticity has left the range across the experiment's arms; rewrite the note")
+    main = P.summary()["main"]
+    if not all(0.5 < v[0]["curve"][D.R_GRID.index(R)] / (P.curve(R, main) * 100.0) < 1.0 for R in (2.0, 3.0, 4.0)):
+        fails.append("at 2, 3 and 4 times the price the model no longer holds between half and all of premium meats' share; rewrite the note")
     for k in D.SCEN:
         if abs(v[0]["world"][k] - s["model_world"][k]) > 1e-9:
             fails.append(f"{k}: the first variant is not the model's own share")
