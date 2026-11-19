@@ -1989,10 +1989,11 @@ cells like yours have been made without genetic engineering. It is a model of wh
 <span class="li"><span class="dt rf"></span>reference points</span></div>
 <div class="plot" id="tpplot"><svg id="tpmap" role="img" aria-labelledby="tptitle" aria-describedby="tp_alt"></svg></div>
 <p class="hover" id="tp_hover" aria-live="polite"></p>
+<details class="tv"><summary>More about this map</summary>
 <p class="alt" id="tp_alt"></p>
 <p class="note">The cloud is {{CLOUD_N}} draws of the estimates nobody has measured: what the plant costs to build, how long the filter
 membranes last, the ammonia the cells tolerate, the price of the medium and of the bubble protectant, and more. Anything you set yourself
-leaves the cloud. The dots are spread up and down a little only so that they can be seen. The 50% dashed line is no preference.</p>
+leaves the cloud. The dots are spread up and down a little only so that they can be seen.</p></details>
 <details class="tv"><summary>Show the map's numbers as a table</summary><div class="scrollx" id="tp_table"></div></details>
 </div>
 
