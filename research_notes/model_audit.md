@@ -1,5 +1,7 @@
 # Model audit: drift, accuracy and whether the costs are reasonable price points
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after the scenarios' lower dissolved-oxygen setpoint. Code: `audit.py` (global uncertainty and the retail translation), `audit_history.py` (the history of the headline

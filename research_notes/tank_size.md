@@ -2,7 +2,9 @@
 
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
-> 2026-11-19 (scenario restructure): the perfusion scan below does not move. Section 10 is new: fed-batch against tank size, now that
+> 2026-11-19 (scenario restructure): the perfusion scan does not move, except for the best case (Engineered cells, all favourable),
+> whose cells now weigh 2 ng, not Humbird's 3: oxygen limits its tank at about 218 g/L, and its 20 m³ design (column + 1 bar,
+> squat) passes the loop checks up to 32.4 m³. Its rows and its line in the summary are recomputed; the prose about it is from before. Section 10 is new: fed-batch against tank size, now that
 > fed-batch is a setting of the scenarios ("How the tank is run") and the first rungs of the ladder.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
@@ -24,7 +26,7 @@ has, from $36.42 to $92.17: its published cells now need 95 litres of medium a k
 
 | Scenario | Cost at 20 m³ | Cheapest size the model finds | Cost there | Saving | Sizes within 1% of the minimum |
 |---|---|---|---|---|---|
-| Best | $11.46 | 71 m³ | $11.31 | $0.15 (1.3%) | 23 to 158 m³ |
+| Best | $11.67 | 71 m³ | $11.48 | $0.19 (1.6%) | 25 to 158 m³ |
 | Selected cells | $32.80 | 43 m³ | $32.29 | $0.52 (1.6%) | 23 to 96 m³ |
 | Selected cells, food-grade plant with shared medium | $29.94 | 43 m³ | $29.62 | $0.33 (1.1%) | 21 to 96 m³ |
 | Cautious | $92.17 | 111 m³ | $90.23 | $1.94 (2.1%) | 29 to 194 m³ |
@@ -65,13 +67,13 @@ no longer lifts the limit.
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **14.33** | 5.06 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | none |
-| 5 | column + 1 bar, square 1.0 | **12.39** | 3.11 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | none |
-| 10 | column + 1 bar, squat 0.75 | **11.75** | 2.48 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | $0.02 (pH) |
-| 20 | column + 1 bar + O₂, squat 0.75 | **11.46** | 2.06 | 0.08 | 0.61 | 3.99 | 2.02 | 2.70 | 258 | thickness | $0.14 (pH) |
-| 50 | column + 1 bar + O₂, flat 0.5 | **11.34** | 1.94 | 0.08 | 0.61 | 3.99 | 2.02 | 2.70 | 258 | thickness | $0.30 (pH) |
-| 100 | column, squat 0.75 | **11.46** | 2.61 | 0.07 | 0.93 | 3.18 | 2.02 | 2.66 | 170 | oxygen supply | $0.47 (pH) |
-| 200 | column, flat 0.5 | **11.60** | 2.76 | 0.07 | 0.93 | 3.16 | 2.02 | 2.66 | 169 | oxygen supply | $0.61 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **14.83** | 5.60 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | none |
+| 5 | column + 1 bar, square 1.0 | **12.68** | 3.45 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | $0.10 (pH) |
+| 10 | column + 1 bar, squat 0.75 | **11.97** | 2.74 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | $0.12 (pH) |
+| 20 | column + 1 bar, squat 0.75 | **11.67** | 2.43 | 0.08 | 0.72 | 3.69 | 2.03 | 2.72 | 218 | oxygen supply | $0.19 (pH) |
+| 50 | column + 1 bar, flat 0.5 | **11.54** | 2.29 | 0.08 | 0.72 | 3.70 | 2.03 | 2.72 | 218 | oxygen supply | $0.35 (pH) |
+| 100 | column, squat 0.75 | **11.65** | 2.89 | 0.06 | 1.02 | 2.92 | 2.03 | 2.73 | 154 | oxygen supply | $0.52 (pH) |
+| 200 | column, flat 0.5 | **11.81** | 3.05 | 0.06 | 1.03 | 2.91 | 2.03 | 2.73 | 153 | oxygen supply | $0.69 (pH) |
 
 #### Selected cells
 
@@ -226,7 +228,7 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 
 | Scenario | The 20 m³ design | Its limit with the model's checks | Limit with the pH check at twice the safe dose | Largest size that keeps the 20 m³ density, with the design chosen again |
 |---|---|---|---|---|
-| Best | column + 1 bar + O₂, squat | 24.8 m³ | 34.7 m³ | 24.6 m³ |
+| Best | column + 1 bar, squat | 32.4 m³ | 44.6 m³ | 32.1 m³ |
 | Selected cells | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
 | Selected cells, shared medium | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
 | Cautious | column + 1 bar, tall | 43.9 m³ | 157.2 m³ | 43.1 m³ |

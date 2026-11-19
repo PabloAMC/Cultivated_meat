@@ -1,5 +1,7 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.

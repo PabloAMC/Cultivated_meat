@@ -1,5 +1,7 @@
 # Exploring the tank's design options: price the limits first, then search the designs
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 > 2026-11-19 (scenario restructure): rungs 1-3 of the ladder are now batches (fed-batch at 20 m³), held by their waste, which no tank

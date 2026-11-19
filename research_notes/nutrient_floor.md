@@ -1,5 +1,7 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 > **Decided 2026-11-19 (Pablo): the model's floor is now GFI's cheapest, $2.00 a kilo** (section 6). Sections 1-5 are the analysis

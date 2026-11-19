@@ -23,7 +23,7 @@ from inputs import value
 # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (Selected cells 28 -> 35 L/kg, Best 11.16 -> 13.75), lost runs pay for their
 # membranes, and glucose from the cells' own balance (the cautious case, the published cells, 28 -> 95.5 L/kg, set by lactate)
 GOLDEN_SCAN = {
-    "best": {16.0: 10.5260, 24.0: 11.4569, 43.0: 16.3851},
+    "best": {16.0: 10.5385, 24.0: 11.6738, 43.0: 16.5504},   # 2026-11-19: best's cells 2 ng (were 3)
     "central": {16.0: 28.3001, 24.0: 30.3220, 36.0: 32.8028, 43.0: 34.1441},
     "cautious": {16.0: 63.1348, 36.0: 84.9106, 43.0: 92.1653},
 }

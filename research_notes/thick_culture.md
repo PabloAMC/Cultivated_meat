@@ -1,5 +1,7 @@
 # How thick can a stirred or airlift culture be?
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case (Engineered cells, all favourable) is no longer Humbird's 3 ng cell: its design is the column and 1 bar without recycled oxygen, oxygen limits it at 218 g/L, oxygen with viscosity binds first near 167 g/L, and a thicker limit no longer lowers its cost ($11.84 / $11.82 at 180 g/L; $11.67 at 258 g/L and above). The body below keeps the earlier best-case figures where it quotes them.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.

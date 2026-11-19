@@ -51,7 +51,7 @@ def check() -> list:
     # 2026-11-19 repin: growth factors inside complete media prices (Selected cells -$2.99), nutrient floor $2.00 (Best +$0.30)
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (the Selected cells case filters 35 L/kg, was 28) and a lost run
     # throws its membranes away early, so every litre filtered carries more membrane; both grow as the life shortens
-    for (k, f, l), want in {("central", 5.0, 1200.0): 62.2305, ("central", 2.5, 450.0): 132.8657, ("best", 5.0, 1200.0): 20.6229}.items():
+    for (k, f, l), want in {("central", 5.0, 1200.0): 62.2305, ("central", 2.5, 450.0): 132.8657, ("best", 5.0, 1200.0): 20.1702}.items():   # best: 2 ng cells (2026-11-19)
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")

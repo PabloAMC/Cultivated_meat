@@ -20,8 +20,9 @@ from inputs import REGISTRY, value
 # because a lost run now throws its filter membranes away early (floor_physics run_frac), by $0.05-0.72 for Best and
 # $0.07-1.27 for Selected cells, more where more litres are filtered
 GOLDEN = {
-    "best": {"bath": (23.0754, 15.860), "physical": (5.8, 7.703), "practical": (5.8, 7.703), "measured_flow": (5.338, 7.485),
-             "no_waste": (10.8202, 10.074), "no_waste_low_flow": (8.0, 8.742)},
+    # 2026-11-19 restructure: the best case's cells weigh 2 ng (were Humbird's 3 ng), so they burn more per kilo and the tank is thinner
+    "best": {"bath": (23.6497, 16.348), "physical": (5.9707, 8.001), "practical": (5.9707, 8.001), "measured_flow": (5.338, 7.702),
+             "no_waste": (10.8202, 10.291), "no_waste_low_flow": (8.0, 8.959)},
     "central": {"bath": (25.1388, 25.868), "physical": (6.4134, 14.161), "practical": (8.007, 15.130),
                 "measured_flow": (8.007, 15.130), "no_waste": (16.2303, 20.128), "no_waste_low_flow": (8.007, 15.130)},
 }

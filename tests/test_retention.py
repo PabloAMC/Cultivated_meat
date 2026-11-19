@@ -175,7 +175,9 @@ def check_particles() -> list:
         a_, m_ = R.scenario_cost("aggregates", kw), R.scenario_cost("microcarriers", kw)
         if not (a_["beyond"] and m_["beyond"] and m_["note"]["capped"] and a_["note"]["capped"] == (name == "best")):
             fails.append(f"{name}: particle verdicts moved")
-        if a_["note"]["penalty"] > 1e-5 or a_["impossible"] or m_["impossible"]:      # best: 300 um just above its 295 um
+        # 2026-11-19 restructure: the best case's cells weigh 2 ng (were 3), so their oxygenated size is 281 um and its 300 um
+        # aggregates lose a little growth (0.04%); allowed up to 0.1% there
+        if a_["note"]["penalty"] > (1e-3 if name == "best" else 1e-5) or a_["impossible"] or m_["impossible"]:
             fails.append(f"{name}: expected no growth lost and a possible settler")
         if not m_["total"] > R.scenario_cost("tff", kw)["total"]:
             fails.append(f"{name}: carriers should cost more than the filter loop")
@@ -185,20 +187,20 @@ def check_particles() -> list:
         if not ag < R.scenario_cost(dev, cen)["total"]:
             fails.append(f"central: aggregates should cost less than {dev}")
     # every figure the note quotes (research_notes/retention_aggregates.md)
-    pins = {("aggregates", "reference"): 12.12, ("aggregates", "central"): 20.39, ("aggregates", "best"): 8.34,
-            ("microcarriers", "reference"): 37.43, ("microcarriers", "central"): 84.39, ("microcarriers", "best"): 28.53}
+    pins = {("aggregates", "reference"): 12.12, ("aggregates", "central"): 20.39, ("aggregates", "best"): 8.52,
+            ("microcarriers", "reference"): 37.43, ("microcarriers", "central"): 84.39, ("microcarriers", "best"): 39.45}   # 2026-11-19: best's 2 ng cells (were 3 ng)
     for (dev, name), want in pins.items():
         got = R.scenario_cost(dev, cs[name])["total"]
         if abs(got - want) > 0.005:
             fails.append(f"{name} {dev}: ${got:.2f} != pinned ${want}")
-    rng = {("aggregates", "central"): (19.95, 29.08), ("aggregates", "best"): (7.46, 12.12),
-           ("microcarriers", "central"): (28.98, 451.86), ("microcarriers", "best"): (10.31, 213.19)}
+    rng = {("aggregates", "central"): (19.95, 29.08), ("aggregates", "best"): (7.98, 12.37),
+           ("microcarriers", "central"): (28.98, 451.86), ("microcarriers", "best"): (12.25, 315.89)}   # 2026-11-19: 2 ng
     for (dev, name), want in rng.items():
         r = R.scenario_range(dev, cs[name])
         if max(abs(r["low"]["total"] - want[0]), abs(r["high"]["total"] - want[1])) > 0.005:
             fails.append(f"{name} {dev} range: ${r['low']['total']:.2f}-{r['high']['total']:.2f} != pinned {want}")
     ox = R.oxygen_sizes()
-    for name, key, want in (("reference", "own", 543), ("central", "own", 307), ("best", "own", 295),
+    for name, key, want in (("reference", "own", 543), ("central", "own", 307), ("best", "own", 281),
                             ("central", 0.21, 485), ("central", 0.28, 570)):
         got = ox[name][key][1] if key == "own" else ox[name][key]
         if round(got) != want:
@@ -238,7 +240,7 @@ def check_note_figures() -> list:
     cs = R.cases()
     cen = cs["central"]
     ox = R.oxygen_sizes()
-    for name, row in (("reference", (295, 466, 547)), ("central", (307, 485, 570)), ("best", (295, 466, 547))):
+    for name, row in (("reference", (295, 466, 547)), ("central", (307, 485, 570)), ("best", (281, 443, 520))):   # 2026-11-19: best's cells 2 ng, as Selected cells' ... (respire more per gram)
         got = tuple(round(ox[name][x]) for x in (0.10, 0.21, 0.28))
         if got != row:
             fails.append(f"{name}: oxygenated sizes {got} != pinned {row}")
@@ -248,8 +250,8 @@ def check_note_figures() -> list:
         with R._with(st):
             if round(R.critical_diameter(c, 0.10, **kw)) != want:
                 fails.append(f"central oxygenated size, {label}: {R.critical_diameter(c, 0.10, **kw):.0f} != {want}")
-    if not (abs(c.qo2 - 0.137) < 0.0005 and abs(R._cells(cs["best"]).qo2 - 0.149) < 0.0005 and abs(R.uptake_per_volume(c) - 0.030) < 0.0005):
-        fails.append("uptake figures moved (0.137, 0.149 mmol/g/h; 0.030 mol/m3/s)")
+    if not (abs(c.qo2 - 0.137) < 0.0005 and abs(R._cells(cs["best"]).qo2 - 0.165) < 0.0005 and abs(R.uptake_per_volume(c) - 0.030) < 0.0005):
+        fails.append("uptake figures moved (0.137, 0.165 mmol/g/h; 0.030 mol/m3/s)")   # best 0.149 -> 0.165 (2 ng, 2026-11-19)
     # one input at a time, at the ends of its range (section 4)
     one = {("aggregates", "rt_agg_cell_share", 0.60): 22.44, ("aggregates", "rt_part_phi_max", 0.20): 22.38,
            ("aggregates", "rt_part_loss", 0.01): 19.98, ("aggregates", "rt_part_loss", 0.08): 21.50,
@@ -282,9 +284,10 @@ def check_note_figures() -> list:
         fails.append("single-cell settler: 488 m2 and 8.3 m3")
     # carriers for the 3 ng cells of the reference and best cases; Selected cells' layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
     pb, pc = R.particle("microcarriers", cs["best"]), R.particle("microcarriers", cen)
-    if not (round(pb["carrier_kg"], 2) == 0.41 and round(pb["bead_l_kg"], 1) == 5.9 and round(pb["carrier_wet_share"], 2) == 0.86
-            and round(pb["cap"]) == 36 and round(pc["layer_um"], 1) == 3.5 and 4500 < pc["carrier_kg"] * 7600 * 1.08 < 5500):
-        fails.append("carrier figures moved (0.41 kg, 5.9 L, 86%, 36 g/L; 3.5 um; about $5,000)")
+    # 2026-11-19 restructure: the best case's cells weigh 2 ng like Selected cells', so its carriers are theirs (0.62 kg, 8.8 L, 90%, 26 g/L)
+    if not (round(pb["carrier_kg"], 2) == 0.62 and round(pb["bead_l_kg"], 1) == 8.8 and round(pb["carrier_wet_share"], 2) == 0.90
+            and round(pb["cap"]) == 26 and round(pc["layer_um"], 1) == 3.5 and 4500 < pc["carrier_kg"] * 7600 * 1.08 < 5500):
+        fails.append("carrier figures moved (0.62 kg, 8.8 L, 90%, 26 g/L; 3.5 um; about $5,000)")
     if not 7.0 < R.duty(cen)["kg_year"] / R.duty(R.particle_case("microcarriers", cen)[0])["kg_year"] < 8.0:
         fails.append("carriers: the central tank should make about a seventh of the kilos")
     return fails

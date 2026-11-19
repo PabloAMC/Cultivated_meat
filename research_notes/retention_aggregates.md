@@ -1,5 +1,7 @@
 # Holding the cells back without a membrane: aggregates and carriers
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng. Its figures: aggregates $8.52 (range $7.98–12.37), carriers $39.45 (range $12.25–315.89, the beads hold it to 26 g/L), oxygenated aggregate 281 um at 0.10 mmol/L (443 and 520 um at 0.21 and 0.28), uptake 0.165 mmol/g/h; its 300 um aggregates lose 0.04% of growth. The body below keeps the earlier best-case figures where it quotes them.
+
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
 Research date: 2026-11-19. Code: `retention.py` (devices `aggregates` and `microcarriers`; `particle`, `particle_case`,

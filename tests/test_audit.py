@@ -48,7 +48,9 @@ def check() -> list:
     # it draws today. Its docstring lists three ways the draws lag the scenarios (growth factors bought on top of Selected cells'
     # complete medium, a price per litre for the Engineered cells, all favourable case's floor medium, the ammonia tolerance not drawn); put right,
     # Selected cells' median is about $38 and the Engineered cells, all favourable case's about $14, close to the scenario bands.
-    for name, s, want in (("central P50", cen["p50"], 47.57), ("central P10", cen["p10"], 34.38), ("best P50", best["p50"], 19.35)):
+    # 2026-11-19 restructure: the selected cells' ammonia range widened (low end 0.07 -> 0.04 mol/kg) and every cell weighs 2 ng:
+    # central P50 47.57 -> 45.77, P10 34.38 -> 32.38, best P50 19.35 -> 19.57
+    for name, s, want in (("central P50", cen["p50"], 45.77), ("central P10", cen["p10"], 32.38), ("best P50", best["p50"], 19.57)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
     # the retail translation: the model's rule is per-kg costs plus a percentage margin; it sits between the old flat $5
@@ -62,8 +64,9 @@ def check() -> list:
         fails.append("at Selected cells' cost the model's shelf price should sit between the flat and the proportional rule")
     # since the audit batch Selected cells' point sits below the 10th percentile of these draws (it was the 19th percentile on
     # 16 November), and the Engineered cells, all favourable case's below the 1st
-    if not (cen["point"] < cen["p10"] and best["point_percentile"] < 0.01):
-        fails.append("Selected cells' point should sit below the 10th percentile of its draws, and the Engineered cells, all favourable case's below the 1st")
+    # 2026-11-19 restructure: with the wider ammonia range Selected cells' point sits at about the 10th percentile (it was below it)
+    if not (cen["point_percentile"] < 0.12 and best["point_percentile"] < 0.01):
+        fails.append("Selected cells' point should sit near the 10th percentile of its draws, and the Engineered cells, all favourable case's below the 1st")
     if not close(A.retail(A.parity_cost()), value("p_conv"), 1e-9):
         fails.append("the parity cost should give a shelf price equal to meat's")
     return fails

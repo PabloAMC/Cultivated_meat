@@ -23,7 +23,7 @@ def check() -> list:
         fails.append("the model's nutrient floor moved, or is no longer GFI's feed-grade, efficient floor")
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (best 11.16 -> 13.75 L/kg, central 28 -> 35) and lost runs pay for
     # their membranes: best 9.9613 -> 11.4569, central 26.4296 -> 32.8028
-    for k, want in (("best", 11.4569), ("central", 32.8028)):
+    for k, want in (("best", 11.6738), ("central", 32.8028)):   # 2026-11-19: best's cells 2 ng, 11.4569 -> 11.6738
         if not close(S.run(S.SCENARIOS[k].choice)["total"], want, 1e-4):
             fails.append(f"{k}: default cost moved")
     # GFI's headline: amino acids below about $5 a kilo at low food-grade prices and the better bioconversion estimates
@@ -60,7 +60,7 @@ def check() -> list:
         fails.append("the Engineered cells, all favourable case should move dollar for dollar with the floor")
     # pinned
     # 2026-11-19 audit batch: the same two changes move all three (9.9613, 12.5648, 39.7235 before)
-    for (k, t, n), want in {("best", "feed", "eff"): 11.4569, ("best", "low", "mid"): 14.0604, ("central", "high", "low"): 45.4289}.items():
+    for (k, t, n), want in {("best", "feed", "eff"): 11.6738, ("best", "low", "mid"): 14.2773, ("central", "high", "low"): 45.4289}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")

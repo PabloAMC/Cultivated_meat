@@ -101,7 +101,7 @@ def check() -> list:
     # switches as the old rung 1; same pinned figures).
     # New pins: today's cheapest designs and its ideal with fat fed, which now sit below its scenario-feed ideal
     for (k, what), want in {("central", "ideal"): 30.6623, ("central", "no_cage"): 31.3999, ("central", "cage"): 31.0906,
-                            ("cautious", "ideal"): 84.8548, ("best", "ideal"): 11.1313,
+                            ("cautious", "ideal"): 84.8548, ("best", "ideal"): 11.2023,   # 2026-11-19: best's cells 2 ng (were 3)
                             ("cautious", "no_cage"): 64.9412, ("cautious", "cage"): 61.7755, ("cautious", "ideal_fed"): 61.2604}.items():
         if what == "ideal_fed":
             got = ideal_fat_fed(k)["total"]

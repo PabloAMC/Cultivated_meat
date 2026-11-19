@@ -23,7 +23,8 @@ from inputs import value
 # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (more medium and membranes a kilo), membranes for lost runs, and glucose
 # from the cells' balance (cautious: the published cells' lactate sets 95 L/kg, $36.42 -> $92.17)
 GOLDEN_CAP = {
-    "best":         {180.0: (11.7171, 11.6378), 320.0: (11.3508, 11.4816), 400.0: (11.2660, 11.4816)},
+    # 2026-11-19 restructure: the best case's cells weigh 2 ng (were 3): oxygen limits its tank at 218 g/L, so a thicker limit no longer helps
+    "best":         {180.0: (11.8378, 11.8185), 320.0: (11.6738, 11.6738), 400.0: (11.6738, 11.6738)},
     "central":      {180.0: (33.1795, 33.1795), 320.0: (32.8028, 32.8028), 400.0: (32.8028, 32.8028)},
     "central_lean": {180.0: (30.1249, 30.1249), 320.0: (29.9417, 29.9417), 400.0: (29.9417, 29.9417)},
     "cautious":     {180.0: (92.1653, 92.1653), 320.0: (92.1653, 92.1653), 400.0: (92.1653, 92.1653)},
@@ -108,8 +109,10 @@ def check() -> list:
     if Lc["first"] != "oxygen supply, with viscosity" or not (148.0 < Lc["x"] < 154.0):
         fails.append(f"Selected cells: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
-    if Lb["first"] != "column loop checks" or not (265.0 < Lb["x"] < 275.0):
-        fails.append(f"Best: the column loop's checks should bind first near 271 g/L, got {Lb['first']} at {Lb['x']:.0f}")
+    # 2026-11-19 restructure: with 2 ng cells (were Humbird's 3 ng) the best case's design is column + 1 bar without recycled oxygen,
+    # and oxygen with viscosity binds first, near 167 g/L (it was the column loop's checks near 271)
+    if Lb["first"] != "oxygen supply, with viscosity" or not (162.0 < Lb["x"] < 172.0):
+        fails.append(f"Best: oxygen with viscosity should bind first near 167 g/L, got {Lb['first']} at {Lb['x']:.0f}")
     # the cost at other density limits
     for k in S.ORDER:
         own = S.run(S.SCENARIOS[k].choice)["total"]
