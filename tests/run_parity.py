@@ -240,7 +240,9 @@ def check_parity() -> list:
             fails.append(f"floorExplore items case {i} {mo}: python={r['total']:.6f} js={tot:.6f}")
 
     # the tricks: floorExplore (JS) against explore with column, pressure, explicit wastes and a sorbent
-    FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}, {'fat_fed': 1.0}, {'do_mmol': 0.05, 'doubling_h': 48, 'maint': 0.31}, {'rq': 1.0, 'gas_v': 0.003}, {'column': 'o2_closed', 'do_mmol': 0.08, 'gas_v': 0.002, 'fat_fed': 0.5, 'fat_price': 10.0}, {'column': 'co2', 'p_top': 0.5, 'do_mmol': 0.15, 'aspect': 1.2}, {'aspect': 1.0}, {'aspect': 0.8, 'shape_cost': False}, {'aspect': 2.5, 'vessel_m3': 100}]
+    FX_TRICKS = [{'column': 'co2'}, {'column': 'o2_closed', 'p_top': 1.0, 'gas_v': 0.002, 'col_pout': 55.0}, {'p_top': 0.5, 'aspect': 1.0}, {'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_kg': 0.84, 'doubling_h': 42.9}, {'nh3_kg': 0.7, 'sorbent': 0.8, 'sorbent_price': 0.3}, {'column': 'co2', 'plant': 'microbial', 'vessel_m3': 50, 'p_top': 0.0}, {'mode': 'filldraw', 'nh3_kg': 0.2}, {'sorbent': 0.5, 'nh3_kg': 0.3, 'lac_yield': 0.4, 'osm_limit': 380, 'sorbent_cycles': 10}, {'column': 'o2_closed', 'p_top': 1.0, 'aspect': 0.8, 'doubling_h': 30, 'mass_pg': 2000, 'nh3_kg': 0.1}, {'fat_fed': 1.0}, {'do_mmol': 0.05, 'doubling_h': 48, 'maint': 0.31}, {'rq': 1.0, 'gas_v': 0.003}, {'column': 'o2_closed', 'do_mmol': 0.08, 'gas_v': 0.002, 'fat_fed': 0.5, 'fat_price': 10.0}, {'column': 'co2', 'p_top': 0.5, 'do_mmol': 0.15, 'aspect': 1.2}, {'aspect': 1.0}, {'aspect': 0.8, 'shape_cost': False}, {'aspect': 2.5, 'vessel_m3': 100},
+                 # a tank that is not washed, with the cells' lactate yield set: lactate can cap the density (2026-11-19)
+                 {'mode': 'filldraw', 'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_balance': True, 'doubling_h': 43.0, 'mass_pg': 2000.0}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
              "restart_fail": "restart_fail_days"}
     js_tr = js.get("fxTricks", [])
@@ -339,21 +341,25 @@ def check_parity() -> list:
         if d > TOL:
             fails.append(f"foothold[{label}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
-    # AUTHENTICITY ladder: tAuth(tier, r, τ) must mirror meat_market.tier_authenticity. Build one
-    # MeatType per tier (basic = unstructured; cut/premium by price vs a $10 base) and compare.
-    from meat_market import MeatType, tier_authenticity
+    # OFFSET of a cut / premium product: tierOffset(premiumRamp(...)) must mirror meat_market.tier_offset. One MeatType per
+    # case (unstructured, or a cut priced against a $10 species base), at several premium resistances and cell shares, with
+    # the default premium penalty ("def") and a custom one set through the page's slider ("cust").
+    from meat_market import MeatType, tier_offset
+    from market_share import DemandParams as _DPa
     from inputs import SCAF
-    _mt = {"basic": MeatType("x", 10.0, 0.0), "cut": MeatType("x", 10.0, 0.0, scaffold=SCAF),
-           "premium": MeatType("x", 30.0, 0.0, scaffold=SCAF)}
-    _CUST = {"basic": 0.5, "cut": -1.0, "premium": -2.5}
+    _CUST_EXTRA = -2.5
+    _pra = _DPa()
     worst_a = 0.0
-    for kind, t, r, jv in js.get("authCheck", []):
-        auth = None if kind == "def" else _CUST
-        pv = tier_authenticity(_mt[t], 10.0, r, auth)
+    if len(js.get("authCheck", [])) < 10:
+        fails.append("authCheck: not emitted by the JS probe")
+    for kind, structured, price, r, cells, jv in js.get("authCheck", []):
+        mt = MeatType("x", float(price), 0.0, scaffold=SCAF if structured else 0.0)
+        pv = float(tier_offset(mt, 10.0, r, _pra, cell_share=cells, premium_extra=None if kind == "def" else _CUST_EXTRA))
         d = abs(pv - jv)
         worst_a = max(worst_a, d)
         if d > TOL:
-            fails.append(f"authCheck[{kind} {t} r={r}]: python={pv:.6f} js={jv:.6f} diff={d:.2e}")
+            fails.append(f"authCheck[{kind} structured={structured} price={price} r={r} cells={cells}]: "
+                         f"python={pv:.6f} js={jv:.6f} diff={d:.2e}")
 
     # IMPORTANCE BREAKDOWN: the per-factor utils decomposition must mirror utility_breakdown.
     from market_share import utility_breakdown, DemandParams as _DP
@@ -395,8 +401,8 @@ def check_parity() -> list:
     if mc:
         import numpy as np
         from meat_market import monte_carlo as pen_mc
-        from inputs import MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS
-        want = list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS)
+        from inputs import MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS, MC_CUT_INPUTS
+        want = list(MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS)
         if list(mc["inputs"]) != want:
             fails.append(f"MC sampled inputs differ: page={mc['inputs']} python={want}")
         m = pen_mc(mc["region"], int(mc["n"]))
@@ -408,6 +414,18 @@ def check_parity() -> list:
                 fails.append(f"MC {mc['region']} {key}: python={pv:.2f}% page={jv:.2f}% "
                              f"diff={abs(pv - jv):.2f} pp (> {MC_TOL} pp: do they sample the same inputs?)")
         mc_msg = f"MC median max diff = {max(diffs):.2f} pp (tol {MC_TOL})"
+
+    # the samplers: percentiles of the page's draws of each sampled input against inputs.draw (different PRNGs, so within
+    # sampling noise: 2% of the prior's lo-hi width). Catches a prior kind the page does not mirror (lognormal).
+    import numpy as _np
+    from inputs import draw as _draw, REGISTRY as _REG
+    if not js.get("drawCheck"):
+        fails.append("drawCheck: not emitted by the JS probe")
+    for k, *jq in js.get("drawCheck", []):
+        pq = _np.percentile(_draw(k, _np.random.default_rng(5), 40000), [10, 50, 90])
+        tol = 0.02 * (_REG[k].hi - _REG[k].lo)
+        if max(abs(a - b) for a, b in zip(pq, jq)) > tol:
+            fails.append(f"draws of {k}: 10th/50th/90th python={[round(float(x), 4) for x in pq]} page={[round(x, 4) for x in jq]}")
 
     # years to 90% of the long-run share (accept_rate 0.05, 0.15, 0.5): must be identical integers
     if [int(x) for x in js["timing"].get("tstabs", [])] != py["tstabs"]:

@@ -20,10 +20,12 @@ from inputs import value
 # $/kg of cells, each scenario's tank design held fixed, at other doubling times
 # 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (Central and Cautious lose their
 # growth-factor cost), Best's medium at the nutrient floor in place of $0.15 a litre
+# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (Central 28 -> 35 L/kg, Best 11.16 -> 13.75), lost runs pay for their
+# membranes, and glucose from the cells' own balance (the cautious case, the published cells, 28 -> 95.5 L/kg, set by lactate)
 GOLDEN_SCAN = {
-    "best": {16.0: 9.0304, 24.0: 9.9613, 43.0: 15.8043},
-    "central": {16.0: 22.1112, 24.0: 24.0261, 36.0: 26.4296, 43.0: 27.7430},
-    "cautious": {16.0: 27.0395, 36.0: 34.2364, 43.0: 36.4185},
+    "best": {16.0: 10.5260, 24.0: 11.4569, 43.0: 16.3851},
+    "central": {16.0: 28.3001, 24.0: 30.3220, 36.0: 32.8028, 43.0: 34.1441},
+    "cautious": {16.0: 63.1348, 36.0: 84.9106, 43.0: 92.1653},
 }
 
 def close(a, b, tol=1e-6):
@@ -122,12 +124,29 @@ def check() -> list:
         for h, want in GOLDEN_SCAN[k].items():
             if not close(G.scan_doubling(k, (h,))[h]["total"], want, 1e-4):
                 fails.append(f"{k} at {h} h: {G.scan_doubling(k, (h,))[h]['total']:.4f} != pinned {want}")
+    # 2026-11-19 audit batch: the cautious case no longer shares Central's litres (95.5 against 35 L/kg), so it needs lower
+    # prices than Central, and Best (13.75 L/kg) allows higher ones. The note's table has a row for each.
+    if not (tab["cautious"]["litres"] > tab["central"]["litres"] > tab["best"]["litres"]):
+        fails.append("litres should rise from Best to Central to the cautious case")
+    if not (tab["cautious"][1.0]["x_humbird"] < tab["central"][1.0]["x_humbird"] < tab["best"][1.0]["x_humbird"]):
+        fails.append("the cautious case should need the lowest prices and Best the highest")
+    # lactate sets the cautious case's medium, and glucose follows oxygen use, so its litres fall with speed; ammonia holds
+    # Central's litres whatever the doubling time
+    sc_c = G.scan_doubling("cautious", (16.0, 43.0))
+    if not (sc_c[43.0]["medium_set_by"] == "lactate" and sc_c[16.0]["medium_l"] < sc_c[43.0]["medium_l"]):
+        fails.append("the cautious case's medium should be set by lactate and shrink with speed")
+    sc_m = G.scan_doubling("central", (16.0, 43.0))
+    if not (sc_m[43.0]["medium_set_by"] == "ammonia" and close(sc_m[16.0]["medium_l"], sc_m[43.0]["medium_l"], 1e-9)):
+        fails.append("Central's medium should be set by ammonia at every doubling time")
     # --- pins ---
-    pins = [("central $1 insulin", tab["central"][1.0]["insulin"]["shared"], 0.6816),
-            ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 1.1685),
-            ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 63.1958),
-            ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1834.2358),
-            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 5.1305),
+    # 2026-11-19 audit batch: Central's litres 28 -> 35 (ammonia tolerance 5 -> 4 mmol/L) lower every required price by a
+    # fifth; Best's litres 11.16 -> 13.75 (ammonia now sets them, not lactate) lower its prices by 19%
+    pins = [("central $1 insulin", tab["central"][1.0]["insulin"]["shared"], 0.5453),
+            ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 0.9348),
+            ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 50.5566),
+            ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1467.3886),
+            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.1641),
+            ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1998),
             ("central reuse, full price", G.reuse("central")["full_reuse"], 1.9871),
             # 0 since 2026-11-19 (were 0.5961 and 1.9183): their complete media carry the growth factors in the price
             ("central own, reuse", G.reuse("central")["own_reuse"], 0.0),

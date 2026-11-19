@@ -2,6 +2,10 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
+> Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
+
+> Repinned 2026-11-19 (second round): shoppers' liking is a Student's t spread (standard deviation 3.9 utils, 4 degrees of freedom) on a 67-point grid, not a normal spread of 5 on fifteen points; see liking_spread.md.
+
 Compiled 2026-11-18, after Pablo asked whether the model's flat $5/kg markup should be multiplicative, as Gemini argued. The
 answer changed the model: since this note the shelf price is **(cost + a) / (1 − m)**, with per-kg costs a = $2.5/kg
 (`markup_add`) and the shop's gross margin m = 28% of the shelf price (`retail_margin`). The numbers in sections 2 and 4 come
@@ -65,16 +69,19 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | best case: shelf price, share | Central: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $15.0, 6.63% | $31.4, 1.29% |
-| per-kg $2.5 + a 15% margin | $7.70 | $14.7, 6.83% | $34.0, 1.00% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $17.3, 4.97% | $40.2, 0.53% |
-| per-kg $2.5 + a 40% margin | $4.70 | $20.8, 3.29% | $48.2, 0.22% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $19.9, 3.61% | $49.9, 0.19% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $16.5, 4.15% | $37.8, 0.44% |
+| per-kg $2.5 + a 15% margin | $7.70 | $16.4, 4.16% | $41.5, 0.32% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $19.4, 2.74% | $49.0, 0.16% |
+| per-kg $2.5 + a 40% margin | $4.70 | $23.3, 1.62% | $58.8, 0.08% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $22.6, 1.75% | $61.5, 0.07% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
-point share by three-fifths, from 1.29% to 0.53%, and the best case's by a quarter, from 6.63% to 4.97%. (These shares use the
-spread of liking, the costs of 2026-11-19 and the rebuilt cut cost; before the cut cost was rebuilt they were 0.50% to 0.13% and
+point share by nearly two-thirds, from 0.44% to 0.16%, and the best case's by a third, from 4.15% to 2.74%. The best case here is
+its cells ($11.46 a kilo) with the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the
+costs of the 2026-11-19 audit batch and the Student's t spread of liking fitted later that day. With the audit batch's normal
+spread they were 0.34% to 0.08% and 4.29% to 2.81%; with a heavier tail of liking the rule matters less where cultivated meat is
+far dearer than meat. Before that batch, with the rebuilt cut cost, they were 1.29% to 0.53% and 6.63% to 4.97%; before the cut cost was rebuilt, 0.50% to 0.13% and
 4.48% to 2.74%; when the rule was changed, 0.41% to 0.16% and 8.0% to 3.7%; and with the premium markets sized from data and every
 shopper alike, 0.14% to 0.04% and 7.4% to 3.1%.)
 

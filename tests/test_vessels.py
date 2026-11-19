@@ -28,7 +28,9 @@ GOLDEN_REF = {
     ("airlift", "fedbatch"): 20.8887, ("airlift", "perfusion"): 15.1712,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 26.4296, ("stirred", "fedbatch"): 41.6730, ("airlift", "perfusion"): 27.8954}
+# 2026-11-19 audit batch: the reference grid does not move (Humbird's design keeps his 5 mmol/L and loses no runs). Central:
+# ammonia tolerance 4 mmol/L (35 L/kg in perfusion, was 28; fed-batch stops at 56 g/L, was 62) and lost runs pay for their membranes
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 32.8028, ("stirred", "fedbatch"): 45.8086, ("airlift", "perfusion"): 34.1429}
 
 
 def close(a, b, tol=1e-3):

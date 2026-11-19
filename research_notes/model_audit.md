@@ -3,6 +3,62 @@
 Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after the scenarios' lower dissolved-oxygen setpoint. Code: `audit.py` (global uncertainty and the retail translation), `audit_history.py` (the history of the headline
 numbers), `tests/test_audit.py`. Costs are 2025 dollars per kg of wet cells. This note changes no default.
 
+> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
+> Sections 1 to 6 are the audit as written on 2026-11-16, when Central cost $29.42 and the best case $9.66. They are a snapshot and
+> were not rewritten. Section 0 gives the same figures on the model of 2026-11-19.
+
+## 0. On the model of 2026-11-19 (after the audit batch)
+
+**The points.** Humbird's optimistic design $12.81, Central $32.80, the best case $11.46, Published cells $111.89.
+
+**Drift since section 2 was written.** Two more rows, added by hand:
+
+| When | Reference | Central | Best | What changed |
+|---|---|---|---|---|
+| 19 Nov, first repin | $12.81 | $26.43 | $9.96 | nutrient floor $2.00; growth factors counted inside the announced medium prices (Central's first large step down) |
+| 19 Nov, audit batch | $12.81 | **$32.80** | **$11.46** | cells tolerate 4 mmol/L of ammonia, not 5; a lost run throws its membranes away; glucose from the cells' own balance |
+
+So the last correction was upward again, by 24% for Central and 15% for the best case. Section 2's warning stands: a model whose
+corrections mostly go one way was optimistic, and may still be.
+
+**Everything uncertain at once (`audit.py` as it draws today; 4,000 draws, two seeds agree).**
+
+| | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
+|---|---|---|---|---|---|---|
+| Central | $32.80 | $34.1 | **$46.2** | $64.7 | 7th | 0% / 0% |
+| Best case | $11.46 | $14.0 | **$18.9** | $27.5 | below the 1st | 1% / 43% |
+
+Rank correlation with cost (Central): the ammonia the cells make +0.75, membrane life −0.39, medium price +0.26, growth factors
++0.22, plant estimate +0.18.
+
+**These draws lag the scenarios in three ways, and overstate the cost.** I found this in the repin and did not change the draws.
+
+1. Central's $0.20 a litre is now a complete medium, with its growth factors in the price. The draws still buy growth factors on
+   top of it. That counts them twice, about $5 at the median.
+2. The best case's medium is now at the nutrient floor. The draws still charge it $0.15 to $0.50 a litre.
+3. The ammonia the cells tolerate is now an input with a range (2 to 8 mmol/L, most likely 4). The draws hold it at 4.
+
+With the three put right (a side calculation, same seeds, with the amino-acid price behind the floor drawn too):
+
+| | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
+|---|---|---|---|---|---|---|
+| Central | $32.80 | $28.2 | **$38.3** | $58.0 | 27th | 0% / 0% |
+| Best case | $11.46 | $10.8 | **$14.4** | $21.7 | 17th | 23% / 77% |
+
+This agrees with the scenario bands the results now report (Central $27 / $37 / $57, best case $11 / $14 / $20), which draw the
+tolerance too. The top driver for Central is then the ammonia the cells tolerate (−0.55), ahead of the ammonia they make (+0.49)
+and membrane life (−0.37).
+
+**What changes in the reading below.**
+
+- Section 1, item 3, and section 4: Central's median is about **$38** and its middle 80% **$28–58** (it was $36 and $27–50). The
+  median moved less than the point because the tolerance's range leans to the tolerant side. The top of the band rose by $8.
+- Section 4, item 3: no draw of Central reaches $12 either way. The best case reaches $12 in 1% of draws as drawn and 23% with the
+  three points put right (16% on 16 November).
+- Section 3e: Central's shelf price is **$49** under the model's rule, (cost + $2.5) ÷ (1 − 28%); $38 with the old flat $5; $61
+  with the whole spread as a percentage. Parity with $12 meat still needs cells at $6.1.
+- Section 3d was not recomputed. Its membrane-life row is larger now, since Central filters 30 litres a kilo and not 23.
+
 ## 1. The short answer
 
 1. **Yes, the costs have drifted, and only upward.** The company-reported default went from $24.01 to $34.35 (+43%) on 14 November. Central

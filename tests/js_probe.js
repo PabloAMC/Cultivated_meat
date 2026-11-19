@@ -141,16 +141,20 @@ js += `
               pb: shareCalc(1.0, K, { present: false, which: "pb" }) };
   });
 
-  // AUTHENTICITY ladder parity: the per-tier offset = premium-resistance r × τ_tier, with τ either
-  // the datasheet ladder (default) or the user's authenticity sliders. Mirror of
-  // meat_market.tier_authenticity. Read tAuth for each tier at default τ and at a custom τ.
+  // OFFSET of a cut / premium product (mirror of meat_market.tier_offset): 0 for mince; for a structured product the blend
+  // penalty -(1 - cell share) x w_realtissue_M plus premium-resistance r x the full premium penalty x a ramp in the product's
+  // price against its species' cheapest form ($10 here). Each case: [kind, structured, price, r, cell share, offset], at the
+  // default premium penalty ("def") and at a custom one set through the page's slider ("cust").
   const authCheck = [];
-  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["cut", 1.5], ["premium", 0.5]].forEach(
-    ([t, r]) => authCheck.push(["def", t, r, tAuth(t, r)]));
-  state.auth_basic = 0.5; state.auth_cut = -1.0; state.auth_premium = -2.5;   // custom τ via the sliders
-  [["basic", 1.0], ["cut", 1.0], ["premium", 1.0], ["premium", 0.8]].forEach(
-    ([t, r]) => authCheck.push(["cust", t, r, tAuth(t, r)]));
-  delete state.auth_basic; delete state.auth_cut; delete state.auth_premium;  // restore defaults
+  const offCase = (kind, structured, price, r, cells) => {
+    const mt = { name: "x", p_conv: price, structured: structured };
+    authCheck.push([kind, structured, price, r, cells, tierOffset(structured, premiumRamp(mt, 10.0), r, cells, KP)]); };
+  [[false, 10, 1.0, 0.8], [false, 60, 1.5, 0.5], [true, 10, 1.0, 0.8], [true, 19.9, 1.0, 0.8], [true, 20, 1.0, 0.8],
+   [true, 24, 1.0, 0.8], [true, 25, 1.5, 0.8], [true, 30, 0.5, 0.8], [true, 39.9, 1.0, 1.0], [true, 40, 1.0, 0.8],
+   [true, 80, 2.0, 0.3], [true, 28.3, 0.0, 0.6], [true, 12, 1.0, 1.0]].forEach(c => offCase("def", ...c));
+  state.auth_premium_extra = -2.5;                                           // a custom premium penalty via the slider
+  [[false, 10, 1.0, 0.8], [true, 10, 1.0, 0.8], [true, 30, 1.0, 0.8], [true, 50, 0.8, 0.5]].forEach(c => offCase("cust", ...c));
+  delete state.auth_premium_extra;                                           // restore the default
 
   // IMPORTANCE BREAKDOWN parity (mirror of market_share.utility_breakdown): the per-factor utils
   // decomposition of cultivated vs conventional (mainstream). Sample a few operating points/dials.
@@ -183,6 +187,11 @@ js += `
   const mcUS = monteCarlo(Object.assign({}, def, { region: "us", income: C.income_ref }), 3000);
   const mcCheck = { region: "us", n: 3000, inputs: C.mc_inputs,
                     vol_p50: med(mcUS.vol), val_p50: med(mcUS.val) };
+  // the samplers themselves: 10th / 50th / 90th percentile of 40,000 draws of every input the bands sample (mirror of inputs.draw)
+  _seedRng(11);
+  const drawCheck = Array.from(new Set(C.mc_inputs.concat(C.mc_timing_inputs))).map(k => {
+    const a = []; for (let i = 0; i < 40000; i++) a.push(priorDraw(k)); a.sort((x, y) => x - y);
+    return [k, pctl(a, 10), pctl(a, 50), pctl(a, 90)]; });
 
   const fxGrid = [];
   [16, 24, 48].forEach(dh => [550, 3000].forEach(m => [5, 20, 200].forEach(v =>
@@ -211,7 +220,7 @@ js += `
   fxTor.push(fxTornadoRows({ doubling_h: 24, mass_pg: 2500, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: 0.173, pco2: 50 },
                            [10, 100]).map(r => [r[0], r[1], r[2]]));
   // the tricks (column, pressure, explicit wastes, sorbent): the same cases as tests/run_parity.py FX_TRICKS
-  const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}, {"fat_fed": 1.0}, {"do_mmol": 0.05, "doubling_h": 48, "maint": 0.31}, {"rq": 1.0, "gas_v": 0.003}, {"column": "o2_closed", "do_mmol": 0.08, "gas_v": 0.002, "fat_fed": 0.5, "fat_price": 10.0}, {"column": "co2", "p_top": 0.5, "do_mmol": 0.15, "aspect": 1.2}, {"aspect": 1.0}, {"aspect": 0.8, "shape_cost": false}, {"aspect": 2.5, "vessel_m3": 100}].map(c => {
+  const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}, {"fat_fed": 1.0}, {"do_mmol": 0.05, "doubling_h": 48, "maint": 0.31}, {"rq": 1.0, "gas_v": 0.003}, {"column": "o2_closed", "do_mmol": 0.08, "gas_v": 0.002, "fat_fed": 0.5, "fat_price": 10.0}, {"column": "co2", "p_top": 0.5, "do_mmol": 0.15, "aspect": 1.2}, {"aspect": 1.0}, {"aspect": 0.8, "shape_cost": false}, {"aspect": 2.5, "vessel_m3": 100}, {"mode": "filldraw", "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": true, "doubling_h": 43.0, "mass_pg": 2000.0}].map(c => {
     const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
                                            charge: 0.173 }, c));
     return [r.total, r.density, r.limit, r.medium_l, r.medium_set_by, r.limits, r.o2_kg, r.o2_kg_upkeep, r.co2_kg,
@@ -231,7 +240,7 @@ js += `
   const vmCases = vmBases.map(b => VM.vorder.map(v => VM.morder.map(m => { const c = vmCell(v, m, b);
     return c.possible ? [v, m, true, c.cost, c.limit, c.density, c.tricks_fallback, c.unchecked_cost, c.density_unshown] : [v, m, false]; })));
   realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
-                           mcCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
+                           mcCheck, drawCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();
 `;
 

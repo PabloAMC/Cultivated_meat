@@ -15,7 +15,9 @@ culture does. Two passes, cheapest first:
    has run with animal cells. `frontier(key)` is the cheapest design for each number of unproven elements.
 
 `ideal(key)` is the scenario in the ordinary tall tank with every gas and mixing limit lifted for free: a lower bound on what
-any of these designs can reach. The gap between a design and the ideal is what is left to gain from the tank.
+any of these designs can reach on the scenario's own feed. The gap between a design and the ideal is what is left to gain from
+the tank's gas exchange. Since 2026-11-19 (glucose from the cells' balance) fat taken from the feed also cuts the glucose and
+the lactate, so where lactate sets the medium (the published cells, rungs 1 and 2) a fat-fed design costs less than the ideal.
 
 Nothing here changes a default. The scenarios' own tank designs (scenarios.design) are a subset of this search. Every design
 carries what every scenario carries (scenarios.always): dissolved oxygen held at about half of air saturation. The first version of
@@ -123,7 +125,8 @@ def frontier(key: str, cage: bool = True) -> list:
 
 def ideal(key: str) -> dict:
     """The scenario in the ordinary tall tank with every gas and mixing limit lifted for free: the thickness of the culture
-    binds. No design of OPTIONS can cost less."""
+    binds. No design of OPTIONS that keeps the scenario's feed can cost less; one that takes fat from the feed can, where lactate
+    sets the litres of medium (tests/test_design_space.py checks both)."""
     kw = V.explore_kwargs("stirred", "perfusion", base_kwargs(key))
     kw["vm"] = {**kw["vm"], **_FREE_GAS}
     r = fp.explore(**kw)
@@ -185,7 +188,7 @@ def summary(key: str) -> dict:
 
 # ----------------------------------------------------------------------------
 LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "thickness of the culture": "thickness"}
-SHORT = {"today": "1. Today's cells", "process": "2. Plus process changes", "central": "3. Central", "central_lean": "4. Shared-medium plant",
+SHORT = {"today": "1. Published cells", "process": "2. Plus process changes", "central": "3. Central", "central_lean": "4. Shared-medium plant",
          "best": "5. Best case", "forecast": "Forecast for 2035"}
 
 

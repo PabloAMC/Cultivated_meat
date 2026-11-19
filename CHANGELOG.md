@@ -2,6 +2,68 @@
 
 ## 2026-11-19
 
+**Shoppers' liking: a Student's t spread, and an integration error found** (`market_share.py`, `inputs.py`,
+`liking_spread.py --families`, `research_notes/liking_spread.md`; **defaults changed**)
+- The normal spread of 5 utils fitted on 2026-11-18 was integrated on 15 points, too few for a spread that wide. Integrated properly it
+  gives a first-contact elasticity of -1.34, not -1.53, and misses the choice experiment (0.29, not 0.15).
+- A normal tail also falls too fast far above price parity: against sixteen premium real meats at 4 times the price (0.6%) it gave 0.1%,
+  and against farmed salmon's history (1-1.5% more volume per 1% lower price) it gave 5.2-7.5.
+- Now a Student's t spread, standard deviation **3.9 utils**, **4 degrees of freedom**, on a 67-point grid, fitted to the choice
+  experiment and the premium meats together. Shares at 2, 3, 4 times the price: 3.3%, 1.0%, 0.35% (premium meats 3.7%, 1.5%, 0.6%);
+  salmon response 3.6-3.7 (still fails, by half as much); first contact 4.3% of all choices, 4.8% of those who buy a meat (the
+  experiment: 4% and 5%), so the 13% at equal price stays. At half the price of meat 24.5%; if free 41.5%.
+- Compared and not chosen: logistic (helps little), a two-group mixture (fits best, but with two parameters on a ridge and a block of
+  shoppers who ignore price).
+- Shares: Central 0.08% -> **0.16%** at the most-likely-values cost, median **0.11%** (0.02-0.6%); best case 20% -> **13.8%**, median
+  **6.8%** (2.5-14.8%), 2.7% with Central's demand; forecast median 0.07% -> 0.2%. The best case fell because the fitted spread is
+  narrower in the middle, which no data pin. Years to nine-tenths of the long-run share at the reported cost: 28 -> 21.
+
+**The page rebuilt** (`build_interactive.py`, `page_scenarios.js`; spec and review in the audit note)
+- One page, one case selector (Published cells, Central case, Best case, Your own settings), no short and detailed modes.
+- First screen: one generated sentence, three numbers (cost, shop price, long-run share: medians with their ranges), and one chart of
+  long-run share against the cost of cells, shaded by the share of shoppers who would choose it at equal price.
+- Six levels that open in place: what each case assumes (with a ladder), what would move it most (switches, unmeasured estimates and
+  shopper judgements in one ranking), where and when, check the engineering, check the shopper model, method and sources.
+- One link style; the reviewer's text errors fixed; no build stamp.
+
+**The audit before sending: one batch of fixes** (`research_notes/audit_2026-11-19.md`; four reviewers with no prior context read
+the cost side, the demand side, the page and the literature on shoppers' choices; **defaults changed**)
+
+Cost of cells:
+- Ammonia the cells tolerate: 5 -> **4 mmol/L** in every scenario (`sc_nh3_limit`, 2-8), the evidence note's own median. Humbird's
+  optimistic design keeps his 5.
+- A lost run throws its filter membranes away early; they were charged for a full run (`floor_physics.explore`, `retention.sizing`).
+- Glucose from the cells' own balance (`floor_physics.glucose_balance`; lactate yields are now per mol of all glucose taken up). The
+  published cells, which ferment most of their glucose, need about 4.5 mol a kilo, not the 0.84 they were given (which could not supply
+  their own oxygen use), so lactate sets their medium: about 95 litres a kilo, not 28. Reported runs use 140-230.
+- A tank that is not perfused is capped by lactate as well as ammonia.
+- "What the answer rests on" could not see scenario settings (they are read when `scenarios.py` is imported); it reloads now. The
+  ammonia the selected cells make (measured once; $23.5-52.1 across its range) is the third-largest estimate and is drawn in the bands.
+- Costs at the most likely value of every estimate: published cells $57.0 -> **$111.9**; process changes $27.7 -> $76.7; Central
+  $26.4 -> **$32.8**; shared-medium plant $23.6 -> $29.9; best case $10.0 -> **$11.5**; forecast $23.2 -> $28.8; Humbird's optimistic
+  design $12.8 (unchanged). The largest step on the ladder is now selecting cells that make less lactate.
+
+Demand:
+- World seafood re-priced by who eats the fish (`research_notes/world_seafood_prices.md`): a mass market near $7 a kilo edible and a
+  premium tier (salmon, shrimp, tuna) near $20, in place of one "fillet" row at $16 for 64% of seafood. China's fillet row $14 -> $9,
+  the EU's $28 -> $21, India's $8 -> $6.
+- The tier rule is gone. It made cuts and premium products less sensitive to price, which raised cultivated meat's share whenever
+  it was the dearer product, and flipped a product to "premium" at 2.5 times its species' cheapest form. Now: mince has no offset; a
+  cut carries a penalty for the part that is not cells (its cell share times the model's real-meat credit: 0.45 utils at 80% cells);
+  premium products carry a further offset that rises smoothly from 2 to 4 times the cheapest form.
+- The share at equal price is drawn around its own 13% setting (lognormal, 5th-95th about 3-52%), not from a triangle whose median
+  was 21%. A cut's cell share (50-90%) and assembly cost ($0.5-7) are drawn too.
+- Shares of world meat and seafood: Central 0.53% -> **0.08%** at the most-likely-values cost, **0.04%** median (under 0.001-0.7%);
+  best case 30% -> **20%**, 11% median (4-23%), 2.8% with Central's demand; forecast 0.8% -> 0.07% median.
+- Cost of the removal: the model now responds to price more strongly than farmed salmon's history and premium meats' slope far above
+  parity (two of four demand checks fail; three passed). The premium-meat anchoring still agrees at Central (0.10% against 0.08%).
+
+Presentation:
+- The scenario table leads with the median of the draws; the cost with every estimate at its most likely value is second. The best
+  case's point ($11.5) sat below the 10th percentile of its own draws.
+- The first case is **"Published cells"**: the best meat cells in the published record. Companies may hold better ones.
+- RESULTS and METHODS rewritten against the new figures; names unified; "share" defined once.
+
 **What a cut costs: cells bound with plant protein, assembled after harvest** (`price_ratio.structured_cost`, `inputs.py`,
 `meat_market.py`, `uncertainty.py`, `scaffolding.py`, the page's `cutCost` and a new slider; `research_notes/structuring_cost.md`;
 **defaults changed**)

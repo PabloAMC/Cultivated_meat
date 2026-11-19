@@ -38,7 +38,9 @@ cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
 # 2026-11-19: growth factors inside complete media prices (Central -$3.0), nutrient floor $2.00 (best +$0.30)
-for k, (lo, hi) in {"best": (9.7, 10.2), "central": (26.0, 26.8), "central_lean": (23.2, 23.9), "cautious": (36.0, 36.9)}.items():
+# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Central +$4.9, best +$1.2), a lost run pays for its membranes (Central
+# +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
+for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs: the best case needs engineering, the central one does not
@@ -129,13 +131,23 @@ for fname in ("RESULTS.md", "METHODS.md"):
     for row in table_rows:
         check(row in text, f"{fname} does not carry the scenario table row: {row[:70]}")
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
+# The page (rebuilt 2026-11-19) has three named cases; its first screen is written by the page's own script from the bands it
+# carries, which tests/test_easy_view.py checks against scenarios.bands. Here: the page carries each scenario's band, its
+# method text states the Central and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
+import json as _json
+_model = _json.JSONDecoder().raw_decode(page[page.index("const MODEL = ") + len("const MODEL = "):])[0]
 for k in S.PAGE_ORDER:
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
-    sm = S.summary(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
-    check(f"<b>{S.pct_num(bk['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
-          f"the page's answer table does not headline {k}'s median share {S.pct_num(bk['share'][1])}%")
-    check(f"At the point cost the share is {S.pct_num(sm['world'])}%" in page, f"the page does not label {k}'s point estimate")
+    check(max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["share"], bk["share"])) < 1e-9
+          and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
+          f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
+for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):
+    bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
+    check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
+bf = S.bands(S.SCENARIOS["forecast"].choice, eqs=S.eqs_of("forecast"))
+check(f"<b>{S.pct_num(bf['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should give the forecast's median share under Other estimates")
+check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
 # the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
       "best case: median share should be below the point estimate")
@@ -149,7 +161,7 @@ for a, b in zip(S.LADDER, S.LADDER[1:]):
     check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
 check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
 rb = S.bands(None)
-check(f"<b>{rb['share'][1]:.1f}%</b><br><span class='alt'>The median." in page, "the page should headline the median for Humbird's design too")
+check(f"<b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should headline the median for Humbird's design too")
 
 # 13. what the tank design relies on is stated, with the cost without it
 for k in ("best", "central", "process"):
@@ -161,7 +173,8 @@ for k in ("best", "central", "process"):
           f"{k}: story does not give the cost without the tricks")
     check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
 trc = S.tricks_report(S.SCENARIOS["central"].choice)
-check(abs(trc["d_no_tricks"] - 3.72) < 0.05, f"central: expected about +$3.72 without the tricks, got {trc['d_no_tricks']:.2f}")
+# 2026-11-19 audit batch: 3.72 -> 3.52 (more litres of medium per kilo at 4 mM ammonia, so the tricks' denser tank saves a little less)
+check(abs(trc["d_no_tricks"] - 3.52) < 0.05, f"central: expected about +$3.52 without the tricks, got {trc['d_no_tricks']:.2f}")
 check(len(trc["used"]) == 3, "central should list the column, the pressure and the squarer tank")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")

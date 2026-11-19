@@ -87,6 +87,26 @@ Raised by Pablo on 2026-11-16 (open):
       authenticity offset to the cell share, or calibrate blends against plant-based whole cuts (Redefine Meat, Planted).
 - [ ] **Mince is 100% cells while a cut is 80%.** Commercial mince products are blends too (GOOD Meat 3%, Upside's soy blend); decide
       whether mince should carry the same cell share, or say why not.
+- [x] **The audit batch** (2026-11-19, `audit_2026-11-19.md`): ammonia tolerance 4 mM, lost-run membranes, glucose balance, seafood
+      prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
+- [x] **The tail of shoppers' liking** (2026-11-19): Student's t, sd 3.9, 4 degrees of freedom; the 15-point rule replaced.
+- [ ] **Farmed salmon's response still fails** (3.6-3.7 against 1-1.5). No spread that keeps the choice experiment's elasticities reaches
+      it without a block of shoppers who ignore price (the mixture's corner). The best case's share with its own demand is the least
+      pinned consequence of the fit (shapes that fit give 14-17%).
+- [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
+      zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
+- [ ] **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
+      `sc_nh3_limit` not drawn): as drawn Central $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
+- [ ] **The nutrient floor's glucose** is a third glucose figure (0.32 kg a kilo, all burned); tie it to the balance (a few cents).
+- [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
+- [ ] **The filter pair.** Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
+      stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
+- [ ] **A tank that is not perfused breaks the waste mass balance** (found 2026-11-19). Litres per kilo must be at least the waste made
+      per kilo over the waste level allowed, in any mode. The unwashed cap is scaled from Humbird's fed-batch figure (120 g/L), so
+      Central's fed-batch ends at 7.8 mmol/L ammonia against the 4 its perfusion is held to, and seems to need half the medium (18
+      against 35 L/kg). Derive the cap from the same balance, with an explicit input for how far above the steady-state limit a batch
+      may end (only its last doublings feel it; evidence: 50% growth loss at 3-10 mM, 10% at 1-3 mM). Held to 4 mM, Central's
+      fed-batch reaches about 29 g/L and costs about $90. Do this inside the scenario restructure, which compares the two modes.
 - [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
       what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
       as a second axis. Waiting on Pablo: the forecast's year(s).

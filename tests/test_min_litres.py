@@ -16,11 +16,14 @@ from inputs import REGISTRY, value
 # 2026-11-19 repin: nutrient floor $1.70 -> $2.00 (+$0.30 wherever the floor binds); growth factors inside complete media
 # prices (Central's bounds fall, but a complete medium never costs less than its nutrients plus its growth factors,
 # gf_in_medium); Best's medium is now the nutrient floor, not $0.15 a litre (its bath bound falls $1.47)
+# 2026-11-19 audit batch: the litres at the bounds did not move (none depends on the ammonia tolerance); every cost rose
+# because a lost run now throws its filter membranes away early (floor_physics run_frac), by $0.05-0.72 for Best and
+# $0.07-1.27 for Central, more where more litres are filtered
 GOLDEN = {
-    "best": {"bath": (23.0754, 15.141), "physical": (5.8, 7.631), "practical": (5.8, 7.631), "measured_flow": (5.338, 7.430),
-             "no_waste": (10.8202, 9.814), "no_waste_low_flow": (8.0, 8.588)},
-    "central": {"bath": (25.1388, 24.600), "physical": (6.4134, 14.087), "practical": (8.007, 14.954),
-                "measured_flow": (8.007, 14.954), "no_waste": (16.2303, 19.428), "no_waste_low_flow": (8.007, 14.954)},
+    "best": {"bath": (23.0754, 15.860), "physical": (5.8, 7.703), "practical": (5.8, 7.703), "measured_flow": (5.338, 7.485),
+             "no_waste": (10.8202, 10.074), "no_waste_low_flow": (8.0, 8.742)},
+    "central": {"bath": (25.1388, 25.868), "physical": (6.4134, 14.161), "practical": (8.007, 15.130),
+                "measured_flow": (8.007, 15.130), "no_waste": (16.2303, 20.128), "no_waste_low_flow": (8.007, 15.130)},
 }
 
 def close(a, b, tol=2e-3):
@@ -38,11 +41,35 @@ def check() -> list:
         fails.append("the stoichiometric floor should be zero")
     if not close(M.bounds(leak=0.01)["terms"]["nitrogen"], 2 * M.bounds(leak=0.005)["terms"]["nitrogen"], 1e-9):
         fails.append("nitrogen litres should be proportional to the leak")
-    # the model's own ammonia settings: Best 0.055 mol/kg is 11 L/kg and Central 0.14 is 28 L/kg at 5 mM
-    for nh3, want in ((value("sc_nh3_engineered"), 11.0), (value("sc_nh3_selected"), 28.0)):
+    # the model's own ammonia settings: Best 0.055 mol/kg is 13.75 L/kg and Central 0.14 is 35 L/kg at the scenarios' 4 mM
+    # 2026-11-19 audit batch: these were 11 and 28 L/kg at 5 mM. The scenarios' tolerance is now the input sc_nh3_limit (4).
+    # The module's nitrogen term still divides by Humbird's 5 (pf_nh3_limit), which no scenario uses any more, so the check
+    # rescales it to the scenarios' limit. (The module should read sc_nh3_limit; that is a change to its logic, left to the
+    # author. No cost here depends on it: the default leak is zero.)
+    to_scenarios = value("pf_nh3_limit") / value("sc_nh3_limit")
+    if not close(value("sc_nh3_limit"), 4.0, 1e-12) or not close(S.always()["nh3_limit"], value("sc_nh3_limit"), 1e-12):
+        fails.append("the scenarios' ammonia limit should be sc_nh3_limit, 4 mmol/L")
+    for nh3, want in ((value("sc_nh3_engineered"), 13.75), (value("sc_nh3_selected"), 35.0)):
         leak = nh3 / M.nitrogen_in()
-        if not close(M.bounds(leak=leak)["terms"]["nitrogen"], want, 1e-6):
-            fails.append(f"ammonia {nh3} should need {want} L/kg")
+        if not close(M.bounds(leak=leak)["terms"]["nitrogen"] * to_scenarios, want, 1e-6):
+            fails.append(f"ammonia {nh3} should need {want} L/kg at the scenarios' limit")
+    # and that figure is explore's own ammonia term, which now sets both scenarios' litres
+    for key in M.SCENARIOS:
+        kw = S.explore_kwargs(S.SCENARIOS[key].choice)
+        r = fp.explore(**kw)
+        if not close(M.bounds(leak=kw["nh3_kg"] / M.nitrogen_in())["terms"]["nitrogen"] * to_scenarios,
+                     r["medium_terms"]["ammonia"], 1e-9):
+            fails.append(f"{key}: the nitrogen term at the scenario's ammonia and limit is not explore's ammonia term")
+        if r["medium_set_by"] != "ammonia":
+            fails.append(f"{key}: ammonia should set the scenario's litres")
+    # 2026-11-19 audit batch: the glucose a cell making no lactate takes up, by the cells' own balance, is within 3% of the
+    # feedstock count this module uses (1.74 against 1.78 mol for Best, 2.07 against 2.12 for Central)
+    for key in M.SCENARIOS:
+        kw = S.explore_kwargs(S.SCENARIOS[key].choice)
+        d, m = kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0)
+        g0 = fp.glucose_balance(fp.Cells(mass_pg=m, doubling_h=d).o2_per_kg * 1000.0 / 32.0, 0.0, 0.0, kw.get("fat_fed", 0.0))
+        if not close(g0, M.nutrients(d, m)["n_glc"], 0.03):
+            fails.append(f"{key}: glucose with no lactate {g0:.3f} mol is not within 3% of the feedstock count")
     for key in M.SCENARIOS:
         kw = S.explore_kwargs(S.SCENARIOS[key].choice)
         d, m = kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0)
@@ -63,6 +90,11 @@ def check() -> list:
         w = M.waste_allowed(t["physical"], d, m)
         if not (0 < w["nh3_share"] < 0.05 and 0 < w["lac_yield"] < 0.5):
             fails.append(f"{key}: waste allowed at the floor out of range: {w}")
+        # the waste that fits at the floor is below what the scenario's cells make, on the scenarios' own basis for lactate
+        # (mol per mol of all the glucose taken up)
+        y_total = w["lac_kg"] / (M.nutrients(d, m)["n_glc"] + w["lac_kg"] / 2.0)
+        if not (w["nh3_kg"] / to_scenarios < kw["nh3_kg"] and y_total < kw["lac_yield"]):
+            fails.append(f"{key}: the floor litres should need less waste than the scenario's cells make")
         # the scenario's cost is not moved by this module, and fewer litres cost less
         c = M.costs_at(key)
         if not close(c["scenario"]["cost"], S.run(S.SCENARIOS[key].choice)["total"], 1e-12):

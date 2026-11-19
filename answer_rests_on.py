@@ -35,7 +35,12 @@ SHARE_MIN = (0.2, 2.0)   # percentage points of world meat, at Central's cost an
 
 # plain names for the inputs that can appear in the tables (the test checks every row has one)
 PLAIN = {
-    "pf_nh3_limit": "Ammonia the cells tolerate in the tank",
+    "pf_nh3_limit": "Ammonia the cells tolerate in the tank (Humbird's design)",
+    "sc_nh3_limit": "Ammonia the cells tolerate in the tank",
+    "sc_nh3_selected": "Ammonia the selected cells make per kilo grown",
+    "sc_nh3_engineered": "Ammonia the engineered cells make per kilo grown",
+    "sc_mass_selected_pg": "Weight of one selected cell",
+    "sc_p_top": "Pressure at the top of the tank, where the pressure trick is used",
     "rt_membrane_life": "Litres a m² of cell filter passes before it is replaced",
     "pf_protectant_price": "Price of the bubble protectant (poloxamer 188), bought by the tonne",
     "pf_min_perfusion": "Least medium flow the cells need for everything but ammonia and lactate",
@@ -55,6 +60,7 @@ PLAIN = {
     "cult_sub_mult": "How much more price-sensitive cultivated meat is than meat in general",
     "equal_price_share": "Share of buyers who choose cultivated meat at equal price, once familiar",
     "liking_sd": "How much shoppers differ in liking cultivated meat",
+    "liking_tail": "How heavy the tails of that spread are (few shoppers who like it far more than most)",
     "markup_add": "Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg",
     "retail_margin": "Retailer's gross margin, as a share of the shelf price",
     "eps_own": "Price elasticity of meat demand",
@@ -62,7 +68,9 @@ PLAIN = {
     "income_gradient": "How price sensitivity falls with income",
     "loss_aversion": "Whether a price above meat's hurts more than a price below helps (off by default)",
     "p_conv": "Price of everyday meat",
-    "premium_resistance": "How much steaks and premium cuts resist cultivated meat, against mince",
+    "premium_resistance": "How much less buyers of premium products (wagyu, sushi-grade fish) like a cultivated version, beyond what applies to any cut",
+    "scaffold_frac": "Share of a cut that is plant protein, not cells",
+    "process_cost": "Cost of assembling a cut, beyond what mince pays",
     "w_ratio": "Weight on the price compared with meat's",
     "theta_free_M": "Value mainstream buyers put on meat without slaughter",
     "accept_x": "How fully mainstream buyers credit cultivated meat's taste",
@@ -70,6 +78,11 @@ PLAIN = {
 
 # where the value comes from, in a few words; the input's own source tag otherwise
 EVIDENCE = {
+    "sc_nh3_limit": "the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density",
+    "sc_nh3_selected": "measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine",
+    "sc_nh3_engineered": "Humbird's enhanced cell; seen only in engineered CHO cells",
+    "sc_mass_selected_pg": "judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng",
+    "sc_p_top": "vendor data sheets (vessels rated to 3–4 bar); no culture has been run at 1 bar",
     "pf_nh3_limit": "Humbird's choice within 2–10 mmol/L reported for mammalian cells; unadapted meat-relevant cells lose 10–55% of growth at 2.5–5 mM, none measured at density",
     "rt_membrane_life": "derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price",
     "pf_protectant_price": "assumed: only catalogue prices ($230–260/kg) found",
@@ -88,8 +101,9 @@ EVIDENCE = {
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
     "neophobia_x": "a judgement on long-run behaviour",
     "cult_sub_mult": "bracketed by data on close substitutes",
-    "equal_price_share": "a judgement: a third of first-contact aversion fading; analogues put the median near 18%",
-    "liking_sd": "fitted to the one random-parameter choice experiment",
+    "equal_price_share": "a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`)",
+    "liking_sd": "fitted to the one random-parameter choice experiment, premium real meats and farmed salmon, jointly",
+    "liking_tail": "fitted with the spread, jointly; the data bound it loosely (`liking_spread.profile`)",
     "markup_add": "fitted to USDA ERS meat spreads, plus forming",
     "retail_margin": "US meat-department margins (28–32%) and French supermarket data",
     "eps_own": "scanner-data meta-analysis",
@@ -98,6 +112,8 @@ EVIDENCE = {
     "loss_aversion": "an alternative model of price, not a measured value; with it, part of the price response moves from dollars to the ratio to meat's price",
     "p_conv": "market prices",
     "premium_resistance": "assumed",
+    "scaffold_frac": "assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`)",
+    "process_cost": "analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`)",
     "w_ratio": "judgement: how much of the price response is a ratio to meat's price rather than dollars",
     "theta_free_M": "a scenario dial: surveys disagree",
     "accept_x": "a scenario dial",
@@ -105,15 +121,19 @@ EVIDENCE = {
 
 # what the scenarios' uncertainty bands draw (scenarios.scenario_mc and meat_market.monte_carlo)
 IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add", "retail_margin"}
-           | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS))
+           | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS) | set(I.MC_CUT_INPUTS))
 if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
-    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS)
+    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected"}
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
 NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
+             "sc_nh3_engineered": "no: the best case assumes cells that reach it",
+             "sc_mass_selected_pg": "no: a trait of the cells, held by the kind-of-cells switch",
+             "sc_p_top": "no: a design choice",
              "aa_intensity": "no: a trait of the cells, as glucose use is; the best case takes the efficient end",
              "pf_osm_limit": "no: moves the best case's median by about $0.1, at forty times the computing time",
              "loss_aversion": "no: each value re-solves the demand model's calibration",
              "liking_sd": "no: the share at equal price is set given it",
+             "liking_tail": "no: the share at equal price is set given it",
              "theta_free_M": "no: part of the share at equal price, which is drawn",
              "neophobia_x": "no: part of the share at equal price, which is drawn",
              "health_x": "no: part of the share at equal price, which is drawn",
@@ -123,11 +143,17 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
 # inputs left out of the tables, and why
 EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
                               "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
-                              "($24.7 to $28.9 in Central) without changing any tank; it is left out."}
+                              "($31.2 to $35.2 in Central) without changing any tank; it is left out.",
+           **{k: None for k in ("sc_medium_mid", "sc_gf_part", "sc_hazard_cm", "sc_gas_mid", "sc_td_central", "sc_td_fast",
+                                "sc_restart_base", "sc_hazard_mid", "sc_medium_high")}}
+EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, "
+                "gas flow, doubling time, restart time). \"What to prioritise\" shows what each switch is worth.")
 
 # demand inputs applied as overrides after the demand model is calibrated, as the uncertainty band applies them
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
 _PENETRATION_ARGS = {"markup_add", "retail_margin", "premium_resistance"}
+# a cut's make-up: they move the share (a cut's cost and how much shoppers like it), not the cost of a kilo of cells
+_CUT_ARGS = set(I.MC_CUT_INPUTS)                     # scaffold_frac, process_cost
 
 
 def share_at(cost: float, region: str = "global", **over) -> float:
@@ -139,15 +165,18 @@ def share_at(cost: float, region: str = "global", **over) -> float:
     eps = over.get("eps_own", pr.eps_own)
     income = mm.REGION_INCOME[region]
 
+    cell_share = 1.0 - over.get("scaffold_frac", value("scaffold_frac"))     # the cut's cost and its liking: one figure for both
+
     def share_of(mt, R, base, res):
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
-                     tier_offset=mm.tier_authenticity(mt, base, res, None), eps_own=eps * mm.tier_eps_mult(mt, base, res),
+                     tier_offset=mm.tier_offset(mt, base, res, pr, cell_share), eps_own=eps,
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
                      kappa=over.get("cult_sub_mult"))
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
     margin = over.get("retail_margin", value("retail_margin"))
-    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin)[1] * 100.0
+    return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin, cell_share=cell_share,
+                      assembly=over.get("process_cost"))[1] * 100.0
 
 
 def _cost(key: str) -> float:
@@ -181,14 +210,22 @@ def cost_drivers() -> list:
     if "cost" in _CACHE:
         return _CACHE["cost"]
     rows = []
+    # The scenarios' settings read their inputs when scenarios.py is imported, so moving one in the registry changes nothing
+    # until the module is read again (audit 2026-11-19: the scan showed no swing for any of them). Reload for those inputs.
+    import importlib, pathlib
+    at_import = set(re.findall(r'value\("([A-Za-z0-9_]+)"\)', pathlib.Path(S.__file__).read_text()))
     for k, v in _ranged():
         out = []
         for end in (v.lo, v.hi):
             I.REGISTRY[k] = replace(v, value=end)
             try:
+                if k in at_import:
+                    importlib.reload(S)
                 out.append((_cost("central"), _cost("best")))
             finally:
                 I.REGISTRY[k] = v
+        if k in at_import:
+            importlib.reload(S)
         c, b = (out[0][0], out[1][0]), (out[0][1], out[1][1])
         if max(abs(c[1] - c[0]), abs(b[1] - b[0])) >= COST_MIN:
             rows.append({"key": k, "lo": v.lo, "hi": v.hi, "value": v.value, "central": c, "best": b})
@@ -201,9 +238,10 @@ def cost_drivers() -> list:
 
 def demand_inputs() -> list:
     """The demand inputs that have a range: the demand model's own fields, the spread to the shelf, premium resistance,
-    and the two scenario dials the headline holds at their neutral settings."""
+    a cut's make-up (its plant-protein share and assembly cost), and the two scenario dials the headline holds at their
+    neutral settings."""
     fields = {f.name for f in dataclasses.fields(DemandParams)}
-    keys = [k for k, _v in _ranged() if k in fields or k in _PENETRATION_ARGS]
+    keys = [k for k, _v in _ranged() if k in fields or k in _PENETRATION_ARGS or k in _CUT_ARGS]
     return keys + [k for k in ("theta_free_M", "accept_x") if k not in keys and k in I.REGISTRY]
 
 
@@ -253,7 +291,7 @@ def markdown_cost() -> str:
         out.append(f"| {PLAIN[k]} | {_num(r['lo'])}–{_num(r['hi'])} {u} ({_num(r['value'])}) | "
                    f"${r['central'][0]:.1f} to ${r['central'][1]:.1f} | {S.pct_num(r['share'][0])}% to {S.pct_num(r['share'][1])}% | "
                    f"${r['best'][0]:.1f} to ${r['best'][1]:.1f} | {EVIDENCE.get(k, _tag(k))} | {_band(k)} |")
-    out += ["", *(f"*Left out: {why}*" for why in EXCLUDE.values())]
+    out += ["", *(f"*Left out: {why}*" for why in EXCLUDE.values() if why), f"*{EXCLUDE_NOTE}*"]
     return "\n".join(out)
 
 

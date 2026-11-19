@@ -2,7 +2,7 @@
 """
 floor_physics.py — the cost of a kilo of cultivated cells from tank physics and published plant costs,
 by reactor type and plant class (`explore`). The cost scenarios (scenarios.py) are sets of `explore` arguments;
-its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($12.51/kg), which earlier
+its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($12.81/kg), which earlier
 versions called the floor. (NOT used in the default cost of the share model.)
 
 Why
@@ -193,6 +193,16 @@ def density(cells: Cells, otr: float, washed: bool) -> float:
     return x if washed else min(x, waste_cap(cells))
 
 
+def glucose_balance(o2_kg: float, nh3_kg: float, lac_yield: float, fat_fed: float = 0.0) -> float:
+    """Glucose a kilo of wet cells takes up, mol, from what it builds, burns and ferments (audit 2026-11-19):
+        G = [anabolic x (1 - 0.75 fat_fed) + (O2 - 2.25 NH3) / 6] / (1 - Y / 2)
+    anabolic: glucose built into lipid, carbohydrate and nucleotides (pf_glc_anabolic; three-quarters of it is lipid);
+    O2 / 6: glucose burned for the oxygen the cell uses, less the part burned from amino acids (2.25 O2 per NH3 released);
+    Y: mol lactate per mol of ALL glucose taken up (two lactate per glucose fermented). Reproduces Humbird's enhanced cell."""
+    burned = max(0.0, o2_kg - 2.25 * nh3_kg) / 6.0
+    return (value("pf_glc_anabolic") * (1.0 - 0.75 * fat_fed) + burned) / max(0.05, 1.0 - lac_yield / 2.0)
+
+
 def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: float | None = None,
                   x_cap: float | None = None) -> float:
     """Tonnes of wet cells per m3 of production vessel per year.
@@ -379,6 +389,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             capex_2018: float | None = None, extra_opex: float = 0.0, start_fail: float = 0.0,
             salvage: float = 0.0, items: dict | None = None,
             nh3_kg: float | None = None, lac_yield: float | None = None, glc_kg: float | None = None,
+            glc_balance: bool = False,
             sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
@@ -437,7 +448,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         with it the mixing limit, scale with the driving force; CO2 removal does not change.
       * `nh3_kg` (mol ammonia per kg wet cells) and `lac_yield` x `glc_kg` (mol lactate per mol glucose x mol
         glucose per kg) set the two wastes explicitly, as measured, with no scaling; left unset, `waste` sets
-        both as before (0 = Humbird's enhanced cells, 1 = ordinary cells).
+        both as before (0 = Humbird's enhanced cells, 1 = ordinary cells). With `glc_balance` (the scenarios) and no
+        `glc_kg`, glucose per kg comes from `glucose_balance` and `lac_yield` is per mol of all the glucose taken up.
       * `sorbent` (the filter still passes the liquid the exchanger treats, so only medium, growth factors and
         protectant are saved, not membranes; corrected 2026-11-16, medium_reuse.py): the share of the ammonium taken out
         of the cell-free permeate by an exchanger before it
@@ -514,6 +526,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         return best
     charge = value("plant_charge_mature") if charge is None else charge
     lost = 0.0                                          # share of output lost with contaminated tanks
+    run_frac = 1.0                                      # share of the planned run an average start completes (filter membranes)
     cycle_h = runs_yr = None
     if cyclic:
         # a cycle: n doublings from the seed to the final density, then the tank is emptied, cleaned and refilled.
@@ -540,6 +553,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         down += start_fail * value("ct_start_detect_days")              # a bad start runs until it shows
         uptime = T / (T + down)
         runs_yr = 365.0 / (T + down)
+        run_frac = T / L                                # a lost run throws its membranes away early (audit 2026-11-19)
         # a tankful per run lost in mid-run (less what is salvaged); a bad start loses its seed
         tankfuls = p_late * (1.0 - salvage) + start_fail * value("ct_seed_share")
         lost = min(0.9, tankfuls / (cells.mu * 24.0 * T))
@@ -590,12 +604,19 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if lac_yield is None:
         lac = lac_w
     else:
+        if glc_kg is None and glc_balance:      # glucose from what the cells build, burn and ferment (yield on total glucose)
+            glc_kg = glucose_balance(cells.o2_per_kg * 1000.0 / 32.0, nh3, lac_yield, fat_fed)   # kg O2 -> mol
         lac = lac_yield * (value("pf_glc_kg") if glc_kg is None else glc_kg)
     wf = nh3 / waste_per_kg(cells, 0.0)[0]             # ammonia relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
     if not washed:
-        limits["waste build-up"] = waste_cap(cells) / wf
+        # A tank that is not washed out holds what its cells make. The reference density (waste_cap) is for enhanced cells, whose
+        # ammonia and lactate reach their limits together; scale it by whichever waste is further above theirs. Lactate counts
+        # only where the yield is set explicitly (audit 2026-11-19: with glucose from the cells' balance, the published cells
+        # make 8 times the enhanced cells' lactate, and a fed-batch tank priced by ammonia alone held 246 mmol/L against a limit of 50).
+        lf = lac / waste_per_kg(cells, 0.0)[1] if lac_yield is not None else 0.0
+        limits["waste build-up"] = waste_cap(cells) / max(wf, lf)
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
         # caps the density: 1000 / (flow / growth rate per day)
         limits["other by-products"] = 1000.0 * cells.mu * 24.0 / flow
@@ -658,7 +679,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         kg_h = out * 1000.0 / (HOURS * uptime)                                          # kg per hour per m3 of tank
         area = perm * kg_h / (value("rt_flux_lmh") if flux is None else flux)           # m2 of membrane per m3 of tank
         ret_capex = area * value("rt_tff_hw") * value("rt_install")                     # $k per m3 of tank
-        membranes = perm * value("rt_membrane_price") / (value("rt_membrane_life") if membrane_life is None else membrane_life)
+        # the membrane's life is the litres it filters over a full planned run; a run that ends early filters fewer
+        membranes = perm * value("rt_membrane_price") / ((value("rt_membrane_life") if membrane_life is None else membrane_life) * run_frac)
         capex += ret_capex
         capital += charge * ret_capex / out
         consumables += membranes
@@ -696,7 +718,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "gas": float(gas), "gas_extra": float(gas_extra),
             "consumables": consumables, "extra_opex": float(extra_opex), "feedstock": float(feed), "growth_factors": float(gf),
-            "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
+            "uptime": float(uptime), "run_frac": float(run_frac), "medium_l": float(medium_l), "total": float(total),
             "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm),
             "limits": {k: float(v) for k, v in limits.items()},
             "medium_terms": {k: float(v) for k, v in terms.items()},

@@ -12,7 +12,9 @@ The bounds (per kg of wet cells)
 nitrogen     Ammonia is nitrogen the cells take in and do not build into protein or nucleic acid. If amino acids come in
              the proportion the cell builds protein, no nitrogen need leave as ammonia, so stoichiometry sets the floor
              at zero. `leak` is the share of the cell's 2.86 mol N that leaves as ammonia anyway; litres = leak x 2.86 /
-             the ammonia limit.
+             the ammonia limit. STALE SINCE 2026-11-19: the limit used here is Humbird's 5 mmol/L (`pf_nh3_limit`); the
+             scenarios now hold 4 (`sc_nh3_limit`, through `scenarios.always()`), so at a scenario's own leak this term is
+             4/5 of explore's ammonia term. The default leak is zero, so no cost in this module depends on it.
 lactate      Glucose can be burned whole (6 O2 and 6 CO2 each), so the floor yield is zero. Litres = yield x glucose /
              the lactate limit.
 bath         The medium is what the cells sit in, and its salts may not pass `pf_osm_limit`. The salts of a
@@ -84,7 +86,11 @@ def bounds(doubling_h: float = 24.0, mass_pg: float = 3000.0, leak: float = 0.0,
 
 def waste_allowed(litres: float, doubling_h: float = 24.0, mass_pg: float = 3000.0) -> dict:
     """The most waste a kg of cells may make if `litres` of permeate are to carry it away at the model's limits:
-    ammonia in mol/kg, and the lactate yield (mol per mol glucose) that fits."""
+    ammonia in mol/kg, and the lactate yield that fits, in mol per mol of the glucose a cell making no lactate takes up
+    (`nutrients`). STALE SINCE 2026-11-19 on two counts: the ammonia limit is Humbird's 5 mmol/L (`pf_nh3_limit`), where the
+    scenarios hold 4 (`sc_nh3_limit`), so the scenarios allow 4/5 of `nh3_kg`; and the scenarios state the lactate yield per
+    mol of all the glucose taken up (`floor_physics.glucose_balance`), on which basis the same lactate is a yield of
+    lac / (n_glc + lac / 2)."""
     n_glc = nutrients(doubling_h, mass_pg)["n_glc"]
     nh3 = litres * value("pf_nh3_limit") / 1000.0
     lac = litres * value("pf_lac_limit") / 1000.0
@@ -123,7 +129,8 @@ def costs_at(key: str) -> dict:
 
 def main() -> None:
     n = nitrogen_in()
-    print(f"nitrogen in a kg of cells: {n:.2f} mol; litres per unit leak at 5 mM: {n / (value('pf_nh3_limit') / 1000.0):.0f}")
+    print(f"nitrogen in a kg of cells: {n:.2f} mol; litres per unit leak at {value('pf_nh3_limit'):g} mM (Humbird's limit; "
+          f"the scenarios hold {S.always()['nh3_limit']:g}): {n / (value('pf_nh3_limit') / 1000.0):.0f}")
     for key in SCENARIOS:
         kw = S.explore_kwargs(S.SCENARIOS[key].choice)
         d, m = kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0)

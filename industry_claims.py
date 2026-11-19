@@ -112,7 +112,7 @@ def summary() -> dict:
 
 
 # ----------------------------------------------------------------------------
-NAMES = {"reference": "Humbird's optimistic design", "today": "1. Today's cells, ordinary tank", "process": "2. Plus process changes",
+NAMES = {"reference": "Humbird's optimistic design", "today": "1. Published cells, ordinary tank", "process": "2. Plus process changes",
          "central": "3. Central (selected cells)", "central_lean": "4. Plus a plant with shared medium", "best": "5. Best case (engineered cells)",
          "forecast": "Forecast for 2035"}
 

@@ -15,7 +15,8 @@ silently drift apart. Here each input is a SINGLE record carrying both facets:
           lo=0.20, hi=1.00, mode=0.50, note="company figures; none verified at scale")
 
   * `value`            -> the point/base-case default the dataclasses use.
-  * `lo, mode, hi`     -> the triangular Monte-Carlo prior uncertainty.py samples.
+  * `lo, mode, hi`     -> the triangular Monte-Carlo prior uncertainty.py samples (`kind="lognormal"`: mode is the median and
+                          lo, hi set the spread as the 5th and 95th percentiles; see `sample`).
   * `unit, source, note` -> provenance, so the datasheet is self-documenting.
 
 So the point estimate and the uncertainty band can never diverge: change the
@@ -48,8 +49,10 @@ class Input:
     lo: float | None = None       # MC prior low  (None -> not sampled / fixed)
     hi: float | None = None       # MC prior high
     mode: float | None = None     # MC prior mode (defaults to `value` if omitted)
-    kind: str = "triangular"      # MC prior distribution
+    kind: str = "triangular"      # MC prior distribution: "triangular" (lo, mode, hi) or "lognormal" (median = mode; lo, hi =
+                                  # 5th, 95th percentiles: sigma = ln(hi/lo) / (2 x 1.645)); drawn by `sample` / `draw` below
     note: str = ""                # one-line justification / caveat
+    clip: tuple | None = None     # lognormal only: draws are clipped to (low, high)
 
     @property
     def has_prior(self) -> bool:
@@ -394,6 +397,14 @@ REGISTRY: dict[str, Input] = {
         note="used only when the lactate yield is set explicitly (explore lac_yield). lo-1.0 = 0.4-0.6 kg glucose "
              "per kg dry x 0.30 dry/wet (waste_tricks_sizing.md, consistent with CHO at a yield of 1.41); hi = "
              "Humbird's wild-type cell (6.4 mol lactate at 1.77). Which applies to a meat cell is unmeasured"),
+    "pf_glc_anabolic": Input(0.884, "mol glucose/kg wet", "[Humbird-R, reaction 2.11, derived] glucose built into a kilo of cells "
+        "(lipid, carbohydrate, nucleotides): 0.065 of his 0.147 mol glucose per C-mol of dry cells, at 13.6 C-mol per kg wet. "
+        "Protein comes from the amino acids. With all lipid fed it falls by three-quarters",
+        note="GLUCOSE BALANCE (audit 2026-11-19, glucose check): the scenarios derive glucose per kilo from what the cells build, "
+             "burn and ferment: G = [anabolic x (1 - 0.75 fat fed) + (O2 - 2.25 NH3)/6] / (1 - Y/2), with Y the lactate yield on "
+             "total glucose. It reproduces Humbird's enhanced cell (2.0 mol/kg at Y 0.28) and gives 4.8 against his 4.53 for his "
+             "wild type. The cells measured so far (Y 1.05) need about 4.5 mol/kg, not the 0.84 they were given, which could "
+             "not supply their own oxygen use."),
     "pf_sorbent_q": Input(0.15, "mmol/g = mol/kg", "[derived, not measured; waste_tricks_sizing.md A2] ammonium a "
         "sorbent holds at 3-5 mM against 140 mM sodium", lo=0.10, hi=0.25, mode=0.15,
         note="mass-action exchange with selectivities of 0.6-3 for clinoptilolite, zirconium phosphate and cation "
@@ -943,9 +954,11 @@ REGISTRY: dict[str, Input] = {
     "sc_nh3_ordinary": Input(0.70, "mol/kg wet", "[Hubalek et al. 2023, full text] the same cells with glutamine: "
         "56.3 fmol/cell/h at a 25.7 h doubling", lo=0.09, hi=0.95, mode=0.70,
         note="0.09 is the same paper's shaker value; 0.95 is Humbird's ordinary wild-type cell"),
-    "sc_lac_engineered": Input(0.5, "mol lactate / mol glucose", "[Humbird-R] his stated lactate:glucose ratio for "
-        "enhanced cells", lo=0.1, hi=0.5, mode=0.5,
-        note="GENETIC ENGINEERING for values near 0 (knocked-out genes); 0.5 is his assumption"),
+    "sc_lac_engineered": Input(0.279, "mol lactate / mol glucose", "[Humbird-R, reaction 2.11] lactate per mol of ALL the glucose "
+        "his enhanced cells take up: 0.041 lactate per 0.147 glucose. His stated 0.50 is per mol of glucose burned or fermented "
+        "(0.082 of the 0.147); the rest is built into the cells", lo=0.06, hi=0.28, mode=0.279,
+        note="GENETIC ENGINEERING for values near 0 (knocked-out genes). On total glucose since 2026-11-19, as the other cells' "
+             "yields are; the lactate per kilo is unchanged (0.56 mol)"),
     "sc_lac_selected": Input(0.42, "mol lactate / mol glucose", "[waste_tricks_sizing.md] 0.39 was reached by "
         "adapting CHO to low-lactate culture; 0.42 allows a little for meat cells, for which nothing is measured",
         lo=0.39, hi=0.6, mode=0.42,
@@ -954,7 +967,8 @@ REGISTRY: dict[str, Input] = {
         "waste_tricks_sizing.md] chicken cells in perfusion; bovine cells similar", lo=0.8, hi=1.4, mode=1.05,
         note="ordinary pharma cells make about 1.4"),
     "sc_glc_measured": Input(0.84, "mol glucose/kg wet", "[waste_tricks_sizing.md section C2: 0.4-0.6 kg glucose per kg dry "
-        "cells, cross-checked by Freund's CHO, 0.98 mol/kg] glucose used per kg of meat cells grown", lo=0.67, hi=3.6, mode=0.84,
+        "cells, cross-checked by Freund's CHO, 0.98 mol/kg] glucose used per kg of meat cells grown. NOT USED BY THE SCENARIOS since 2026-11-19: glucose is derived from the cells' own balance (pf_glc_anabolic), "
+        "which gives about 4.5 for these cells", lo=0.67, hi=3.6, mode=0.84,
         note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
              "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
              "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "
@@ -1038,6 +1052,13 @@ REGISTRY: dict[str, Input] = {
         "estimates the cost rests on most (scenarios.MC_ESTIMATES: ammonia tolerated, protectant price and dose, least medium "
         "flow, antifoam, membrane price); 0: only plant cost, financing, membrane life, upkeep, "
         "medium price and loss rate, as before"),
+    "sc_nh3_limit": Input(4.0, "mmol/L", "[research_notes/ammonia_tolerance_and_filter_life.md, judgement] ammonia the scenarios' "
+        "cells tolerate in the tank with little loss of growth. The evidence note's median for selected meat cells is 3.5-4 mM "
+        "(80% interval 2-8): unadapted meat-relevant cells lose 10% of growth at about 1-3 mM, meat-cell processes hold 2-3 mM, "
+        "and selection could raise it (hybridomas reach 10-21 mM)",
+        lo=2.0, hi=8.0, mode=4.0,
+        note="Set 2026-11-19 (audit): every scenario took Humbird's 5 mM (pf_nh3_limit), above the note's own median. Humbird's "
+             "optimistic design keeps his 5. Drawn in every scenario's band."),
     "sc_do_setpoint": Input(0.10, "mmol O2/L", "[gas_exchange_study.md 10.2; pharma practice, snippet-level sources] dissolved "
         "oxygen the scenarios hold the tank at: about 47% of air saturation (air at 37 C: 0.21 mmol/L)",
         lo=0.05, hi=0.28, mode=0.10,
@@ -1443,24 +1464,55 @@ REGISTRY: dict[str, Input] = {
              "the conventional meat beside it. At cult_sub_mult = kappa_base the model is exactly the "
              "published one"),
     # --- SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18; research_notes/liking_spread.md). Each shopper's
-    # liking for cultivated meat is the model's plus a normal draw with spread liking_sd; its mean is set so that, once familiar
-    # and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings). liking_sd = 0 is the model
-    # before (every shopper alike, no shift).
-    "liking_sd": Input(5.0, "utils", "[fitted, liking_spread.fit] spread (standard deviation) across shoppers of liking for "
-        "cultivated meat, in the model's utils. Fitted to the one random-parameter choice experiment on cultivated meat (Van Loo, "
-        "Caputo & Lusk 2020): with it, the model reproduces that experiment's own-price elasticity at four prices (miss 0.15, "
-        "against 2.56 with every shopper alike). The experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
-        lo=3.5, hi=6.0, mode=5.0,
-        note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18."),
-    "equal_price_share": Input(0.13, "of buyers", "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar "
-        "and costs the same as conventional meat, the share of a meat's buyers who choose it, at neutral settings (tastes as "
-        "good, seen as real meat, no health or slaughter-free credit). At first contact it is about 5% (Van Loo, Caputo & Lusk "
-        "2020). 13% is a third of the first-contact aversion fading: the model's own novelty term (2.8 of 8.6 utils), and the "
-        "survey corrections' novelty fading by half while an 'unnatural' image persists (15 of 45 points of meat's price).",
-        lo=0.05, hi=0.49, mode=0.13,
-        note="THE MODEL'S LARGEST UNKNOWN. 0.05: nothing fades. 0.49: shoppers end up indifferent on average, the model's "
-             "implicit premise before 2026-11-18. It moves Central's long-run share about fifteen-fold across its range. Drawn "
-             "in the bands."),
+    # liking for cultivated meat is the model's plus a draw from a spread with standard deviation liking_sd; its mean is set so
+    # that, once familiar and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings).
+    # liking_sd = 0 is the model before (every shopper alike, no shift). Since 2026-11-19 the spread is a Student's t
+    # (LIKING_FAMILY below, liking_tail), heavier-tailed than the normal it replaced: audit finding D3.
+    "liking_sd": Input(3.9, "utils", "[fitted, liking_spread.families] spread (standard deviation) across shoppers of liking for "
+        "cultivated meat, in the model's utils. Fitted with liking_tail, jointly, to the one random-parameter choice experiment "
+        "on cultivated meat (Van Loo, Caputo & Lusk 2020: its own-price elasticity at four prices, miss 0.13 against 2.56 with "
+        "every shopper alike), to the share sixteen premium real meats hold at 2, 3 and 4 times the ordinary price, and to "
+        "farmed salmon's response to its falling price. The choice experiment alone would put it at 3.6 (miss 0.01). The "
+        "experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
+        lo=3.6, hi=4.2, mode=3.9,
+        note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18. lo-hi: "
+             "about the values whose joint misfit is within 20% of the best (3.45-4.15 with liking_tail re-fitted, "
+             "liking_spread.profile); above 4.0 at liking_tail = 4 the first-contact elasticity at equal price leaves "
+             "-1.5 +/- 0.15. CHANGED 2026-11-19 from 5.0 with a normal spread: that fit (miss 0.15, elasticity -1.53) rested on "
+             "fifteen integration points; integrated properly a normal spread of 5 misses by 0.29 with an elasticity of -1.34, "
+             "and no normal spread meets both -1.5 +/- 0.15 and a miss under 0.30. With LIKING_FAMILY = 'normal' and "
+             "liking_sd = 5.0 the model of 2026-11-18 is reproduced exactly."),
+    "liking_tail": Input(4.0, "dof", "[fitted, liking_spread.families] how heavy the tails of the spread of "
+        "liking are: the degrees of freedom of a Student's t. The smaller, the more shoppers who like (or dislike) cultivated "
+        "meat far more than the typical spread, so the more who still buy at three or four times meat's price; at 30 or more "
+        "it is a normal spread. With liking_sd it is fitted jointly to the choice experiment, the premium real meats and "
+        "farmed salmon (see liking_sd). At 4 the share of a meat's buyers at 3, 4 and 5 times its price falls by about 0.9 "
+        "per unit of price ratio, as the premium meats' does.",
+        lo=3.0, hi=6.0, mode=4.0,
+        note="Must be above 2 (below, the spread has no standard deviation). Not drawn in the bands. LOOSELY PINNED: the "
+             "joint misfit is least at 3 and within 20% of the least from 2.5 to 4.5 (liking_spread.profile); 4 is 10% above "
+             "the least. 4 and not 3 because the misfit cannot tell them apart and three things it does not count favour the "
+             "lighter tail: the model's first-contact share at equal price (4.3% at 4, 3.9% at 3, measured 5%), shares at ten "
+             "or more times meat's price, where a heavier tail leaves more buyers than any premium meat shows, and the best "
+             "case, which a narrower middle lowers. lo-hi: 3 is the least-misfit value; 6 is about 45% above it. Used only "
+             "when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
+    "equal_price_share": Input(0.13, "of all choices", "[judgement, research_notes/liking_spread.md] once cultivated meat is "
+        "familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based "
+        "meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free "
+        "credit); 14.5% of those who buy a meat. It is first contact plus the model's own fading of novelty (2.8 utils). With the "
+        "Student's t spread, 13% in the long run implies 4.3% of all choices at first contact, 4.8% of those who buy a meat: the "
+        "experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
+        lo=0.03, hi=0.49, mode=0.13, kind="lognormal", clip=(0.005, 0.80),
+        note="THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the "
+             "draws are below the point value and half above. 0.03 and 0.49 are its 5th and 95th percentiles in the sense that "
+             "they set its spread (sigma = ln(0.49/0.03) / 3.29 = 0.85); because 13% is a little above their geometric mean (12%), "
+             "the percentiles of the draws themselves are 3.2% and 53% (10th and 90th: 4.4% and 39%). Draws are clipped to "
+             "0.5%-80%. 0.49: shoppers end up indifferent on average, the "
+             "model's implicit premise before 2026-11-18. The literature review (research_notes/what_drives_choice.md) puts the "
+             "10th, 50th and 90th percentiles at 2%, 10% and 35%. CHANGED 2026-11-19 (audit D1) from a triangular 0.05-0.13-0.49, "
+             "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
+             "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
+             "buyers; its share of all choices is 4%, and 13% reproduces both."),
     "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
         "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
@@ -1583,19 +1635,17 @@ REGISTRY: dict[str, Input] = {
         lo=0.6, hi=1.0, mode=1.0,
         note="The taste-FRICTION half of cultivated's standing. In the MNL the utility offset is "
              "w_taste*(accept_x-1) utils, weighted by the shared taste coefficient w_taste."),
-    "premium_resistance": Input(1.0, "x", "[assumed] JUDGEMENT DIAL scaling how much premium/cut meat "
-        "resists cultivated, relative to everyday mince. It multiplies BOTH per-tier demand levers in "
-        "meat_market together (they encode one belief): the authenticity offset tau_type "
-        "(basic +0.2, cut -0.4, premium -1.5 utils) AND the deviation of the elasticity multiplier from 1 "
-        "(cut 0.8, premium 0.3). At 1.0 = the central ladder; 0 = no tier effect (cultivated penetrates "
-        "premium as easily as mince); 2 = doubly resistant premium.",
+    "premium_resistance": Input(1.0, "x", "[assumed] how much less buyers of premium products (wagyu, sushi-grade fish) like a "
+        "cultivated version, beyond what applies to any cut. It multiplies the premium part of a product's offset only "
+        "(meat_market.tier_offset): AUTH_PREMIUM_EXTRA (-1.1 utils) times how far the product's price sits between "
+        "PREMIUM_START (2x) and PREMIUM_FULL (4x) its species' cheapest form. 1 = as set; 0 = a premium product is liked as "
+        "much as any other cut; 2 = twice the penalty. It does not touch mince, the blend penalty every cut carries "
+        "(-(1 - cell share) x the real-meat weight), or price sensitivity.",
         lo=0.5, hi=1.5, mode=1.0,
-        note="The model's most JUDGEMENT-TO-TARGET demand assumption: the tier offsets have NO external "
-             "data source — they encode the belief that premium stays demand-capped even at a deep price "
-             "discount. (With the current calibration, premium still has the highest within-category share at "
-             "today's cost; cuts lead only near the cost floor.) Exposed and SWEPT (prior 0.5-1.5) so that judgement's "
-             "leverage is visible rather than hidden. Scales (tau_type) and (eps_mult - 1) about their "
-             "neutral points, so resistance=0 removes the tier effect entirely."),
+        note="A judgement with no external data: the belief that people buy wagyu or sushi-grade fish partly for the genuine "
+             "article. Drawn in the bands (0.5-1.5). CHANGED 2026-11-19 (audit D3): until then it also scaled a +0.2 offset for "
+             "mince, a -0.4 offset for cuts and LOWER price sensitivity for cuts and premium products (x0.8, x0.3), which raised "
+             "cultivated meat's share wherever it was the dearer product, so more 'resistance' gave a higher share."),
     "real_tissue_x": Input(1.0, "0/1", "[IDENTIFYING PREMISE, now a DIAL] whether CULTIVATED meat counts as "
         "'real animal tissue' (1) or not (0). =1 is the model's load-bearing premise: cultivated, being "
         "actual cells, INHERITS conventional meat's real-tissue standing and so escapes the plant-based "
@@ -1879,7 +1929,10 @@ REGISTRY: dict[str, Input] = {
         "and binder rather than cells. 0.2 keeps the cut mostly cells, the product the shopper model describes. Whole cuts sold "
         "or approved so far are 10-30% cells (Aleph 10-20%, Upside 'double-digit'); no cut that is mostly suspension-grown cells "
         "has been shown to have the texture of meat",
-        lo=0.1, hi=0.5, mode=0.2),
+        lo=0.1, hi=0.5, mode=0.2,
+        note="Drawn in the bands (MC_CUT_INPUTS) since 2026-11-19. It sets the cut's cost (price_ratio.structured_cost) AND how "
+             "much shoppers like it: a cut that is part plant protein gets that much less of the real-meat credit "
+             "(meat_market.tier_offset)."),
     "material_price": Input(2.0, "$/kg", "[TVP, extrusion, binders: structuring_cost.md] price of the matrix: textured or "
         "extruded plant protein $0.7-2.8/kg all in (GFI 2021), TVP $0.5-5.6/kg dry (Tridge), binders $0.1-0.6/kg of product",
         lo=1.0, hi=5.0, mode=2.0),
@@ -1889,7 +1942,8 @@ REGISTRY: dict[str, Input] = {
         "about $1, batch forming and tighter hygiene more), central $3; less the $1 already counted. Growing tissue on a scaffold "
         "in a second bioreactor would add about $10 (3-35), the route companies dropped",
         lo=0.5, hi=7.0, mode=2.0,
-        note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown"),
+        note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown. Drawn in the bands (MC_CUT_INPUTS) "
+             "since 2026-11-19."),
 
     # --- premium comparators (Rung 5 targets / Rung 6) ----------------------
     "p_conv_premium_fish": Input(25.0, "$/kg", "[market] premium fish / BlueNalu target",
@@ -2113,29 +2167,40 @@ PLANT_CONFIGS: dict[str, float] = {
 }
 
 # ----------------------------------------------------------------------------
-# Demand-model tier ladder & scaffold (model constants, not sliders).
-# These are scaled live by the `premium_resistance` slider in meat_market; they are
-# defined HERE so the datasheet is the single source of truth (meat_market and
-# market_share read them rather than redefining), and so the methods text can quote
-# the same numbers it documents. NOT swept individually (premium_resistance sweeps
-# the whole ladder); judgement-to-target, no external per-tier data exists.
+# How much less shoppers like a cultivated CUT than cultivated mince, and the cut's make-up (model constants).
+# Defined HERE so the datasheet is the single source of truth (meat_market reads them, the page is handed them).
+# REBUILT 2026-11-19 (audit D3, D4). Before: a ladder by tier (mince +0.2, cut -0.4, premium -1.5 utils, with a cliff at 2.5x the
+# species' cheapest form) and LOWER price sensitivity for cuts (x0.8) and premium (x0.3). The lower price sensitivity raised
+# cultivated meat's share wherever it was the dearer product, so "resistance" worked backwards. Now (meat_market.tier_offset):
+#   mince and other unstructured products: 0;
+#   every cut: -(1 - cell share) x the mainstream real-meat weight (derived: a cut that is one-fifth plant protein gets four-fifths
+#     of the real-meat credit; about -0.45 utils at 80% cells), not scaled by premium_resistance;
+#   premium cuts: plus premium_resistance x AUTH_PREMIUM_EXTRA x a ramp that rises from 0 at PREMIUM_START x the species' cheapest
+#     form to 1 at PREMIUM_FULL x (on a log scale of price), so there is no cliff.
+# Every product uses the model's own price sensitivity.
 # ----------------------------------------------------------------------------
 # A cut costs CUT_CELL_SHARE x cells + (1 - CUT_CELL_SHARE) x CUT_MATRIX_PRICE + SCAF (price_ratio.structured_cost).
 # SCAF is the assembly cost only since 2026-11-19 (was a $6 scaffold added to a full kilo of cells).
 SCAF: float = REGISTRY["process_cost"].value                 # $/kg to assemble a cut after harvest
 CUT_CELL_SHARE: float = 1.0 - REGISTRY["scaffold_frac"].value  # kg of cells in a kg of cut
 CUT_MATRIX_PRICE: float = REGISTRY["material_price"].value     # $/kg of plant-protein matrix and binder
-PREMIUM_RATIO: float = 2.5   # a structured product priced >= this x its species' base form is "premium"
-AUTH_BASIC: float = +0.2     # per-tier authenticity offset (utils): everyday staple — cleaner-meat pull, no hang-up
-AUTH_CUT: float = -0.4       #   cut (steak/fillet): some "want the real cut" attachment
-AUTH_PREMIUM: float = -1.5   #   luxury (wagyu/sushi): strong authenticity, weak welfare pull
-EPS_MULT_CUT: float = 0.8    # per-tier elasticity multiplier: cuts a bit less price-sensitive
-EPS_MULT_PREMIUM: float = 0.3  #   premium buyers barely price-sensitive -> caps premium share
+PREMIUM_RATIO: float = 2.5   # a LABEL only (charts, tables): a structured product priced >= this x its species' base form is "premium"
+PREMIUM_START: float = 2.0   # the premium penalty starts at this multiple of the species' cheapest form ...
+PREMIUM_FULL: float = 4.0    # ... and is complete at this one
+AUTH_PREMIUM_EXTRA: float = -1.1   # utils: the full premium penalty, on top of the blend penalty (about -0.45): about -1.5 in all,
+                                   # the old premium offset. Judgement; scaled by premium_resistance
 
 # Loss-aversion asymmetry constant (Tversky-Kahneman 1992 median ~2.25). The LIVE loss-aversion
 # coefficient is the `loss_aversion` slider (canonical form, lambda IS the coefficient); this
 # constant is the literature anchor surfaced for the methods text / interactive `const`.
 LOSS_AVERSION_RATIO: float = 2.25
+
+# The shape of the spread of liking for cultivated meat across shoppers (market_share.spread_quadrature; its standard deviation
+# is the input liking_sd and its tail weight liking_tail). "student": a Student's t, the default since 2026-11-19 (audit finding
+# D3: a normal's tail falls too fast far above price parity). "normal": the model of 2026-11-18, with its fifteen Gauss-Hermite
+# nodes; set liking_sd to 5.0 with it to reproduce that model exactly. "logistic" and "mixture" are there for comparison
+# (liking_spread.families).
+LIKING_FAMILY: str = "student"
 
 # ----------------------------------------------------------------------------
 # Which inputs the Monte-Carlo bands sample. ONE list for every band — the Python roll-ups
@@ -2152,6 +2217,9 @@ MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail
 # counted the same uncertainty twice. They stay on the page as what-if dials on top. Taste (accept_x) is separate and still drawn.
 MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "accept_x", "equal_price_share")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
+# 2026-11-19 (audit D4): a cut's make-up and assembly cost. Cuts are most of what the scenarios sell, and these two were drawn
+# nowhere. Sampled AFTER the lists above wherever meat types are rolled up, so the other inputs' draws are unchanged.
+MC_CUT_INPUTS = ("scaffold_frac", "process_cost")
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
 MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit",
@@ -2173,6 +2241,50 @@ def prior(name: str) -> tuple:
     if not inp.has_prior:
         raise KeyError(f"input '{name}' has no MC prior (it is fixed at {inp.value})")
     return (inp.kind, inp.lo, inp.hi, inp.prior_mode, inp.source if not inp.note else inp.note)
+
+
+# ----------------------------------------------------------------------------
+# Sampling: THE one place a prior is turned into draws (meat_market, uncertainty, audit, adoption_timing all call it; the
+# page mirrors it in mcDraw).
+# ----------------------------------------------------------------------------
+LOGNORMAL_Z90: float = 1.645      # standard normal's 95th percentile: lo and hi of a lognormal prior are its 5th and 95th percentiles
+
+
+def _inv_norm(u):
+    """Standard normal quantile of uniform draws `u` (an array). Used instead of rng.standard_normal so that a lognormal input
+    takes exactly one uniform number per draw, as a triangular one does: changing an input's kind leaves the draws of the
+    inputs sampled after it unchanged."""
+    import numpy as np
+    from statistics import NormalDist
+    inv = NormalDist().inv_cdf
+    u = np.clip(np.asarray(u, dtype=float), 1e-12, 1.0 - 1e-12)
+    return np.array([inv(float(x)) for x in u.ravel()]).reshape(u.shape)
+
+
+def sample(kind: str, lo: float, hi: float, mode: float, rng, n: int, clip=None):
+    """n draws from a prior given as (kind, lo, hi, mode), the order `prior()` returns. `rng` is a numpy Generator.
+      triangular: low lo, mode `mode`, high hi.
+      lognormal:  median `mode`; sigma = ln(hi/lo) / (2 x 1.645), so hi/lo is the ratio of the 95th to the 5th percentile (they
+                  are lo and hi themselves when `mode` is their geometric mean; otherwise mode x (lo/hi)^0.5 and
+                  mode x (hi/lo)^0.5); clipped to `clip` = (low, high) if given.
+      uniform:    between lo and hi."""
+    import numpy as np
+    if kind == "triangular":
+        return rng.triangular(lo, mode, hi, n)
+    if kind == "lognormal":
+        sigma = np.log(hi / lo) / (2.0 * LOGNORMAL_Z90)
+        x = mode * np.exp(sigma * _inv_norm(rng.random(n)))
+        return np.clip(x, *clip) if clip is not None else x
+    if kind == "uniform":
+        return rng.uniform(lo, hi, n)
+    raise ValueError(f"unknown prior kind '{kind}'")
+
+
+def draw(name: str, rng, n: int):
+    """n Monte-Carlo draws of the input `name` from its prior (triangular unless the input says otherwise)."""
+    inp = REGISTRY[name]
+    kind, lo, hi, mode, _note = prior(name)
+    return sample(kind, lo, hi, mode, rng, n, clip=inp.clip)
 
 
 # ----------------------------------------------------------------------------

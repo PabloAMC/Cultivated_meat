@@ -15,7 +15,7 @@ membranes), `gf_doubling_bounds` (growth factors returned by the filter), `thick
 `nutrient_floor` (GFI's amino-acid prices). Nothing here changes a default.
 
 Held fixed: the scenario's tank design (tricks and shape, chosen for the central case), the 20 m3 tank (`tank_size`
-finds the cheapest size within 0.5% of it), and the stirred tank in perfusion. If perfusion fails, see `downside.py`.
+finds Central's cheapest size, 43 m3, 1.6% below it), and the stirred tank in perfusion. If perfusion fails, see `downside.py`.
 
 Run
 ---
@@ -138,7 +138,8 @@ def summarise() -> None:
         print(f"    ${cost:6.2f}  ({d:+6.2f})  {name}")
     last = rows[-1]
     print(f"  with GFI's cheapest amino-acid floor: ${with_gfi_amino_acids(last['state']):.2f}")
-    print(f"  price parity needs about $7 a kilo of cells; the frontier is ${last['cost']:.2f}")
+    print(f"  price parity with $12 meat needs about $6.1 a kilo of cells (the shelf rule: cost plus $2.5, over 72%); "
+          f"the frontier is ${last['cost']:.2f}")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
+> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
+
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Research date: 2026-11-15. Code: `retention.py`; inputs `rt_*` in `inputs.py`; tests `tests/test_retention.py`. Costs are 2025
@@ -37,15 +39,16 @@ what the device is. This note asks which real devices can do the job, and what t
 | case | density | cells by volume | harvest | medium in | bleed | permeate | permeate a day |
 |---|---|---|---|---|---|---|---|
 | Reference | 120 g/L | 12% | 55.5 kg/h | 0.62 m3/h (0.93 tank volumes a day) | 0.46 m3/h | **0.16 m3/h** | 0.24 tank volumes |
-| Central | 191 g/L | 18% | 57.5 kg/h | 1.61 m3/h (2.4) | 0.30 m3/h | **1.31 m3/h** | 2.0 tank volumes |
-| Best case | 258 g/L | 25% | 118 kg/h | 1.32 m3/h (2.0) | 0.46 m3/h | **0.86 m3/h** | 1.3 tank volumes |
+| Central | 191 g/L | 18% | 57.5 kg/h | 2.01 m3/h (3.0) | 0.30 m3/h | **1.71 m3/h** | 2.6 tank volumes |
+| Best case | 258 g/L | 25% | 118 kg/h | 1.63 m3/h (2.4) | 0.46 m3/h | **1.17 m3/h** | 1.8 tank volumes |
 
 Two things follow.
 
 - **The reference duty is light.** The product is the cells, so the bleed carries most of the liquid out. The device only clears
   2.8 litres of permeate per kg.
-- **The central duty is eight times heavier.** The central cells make more ammonia, so each kg needs 28 litres of medium. At 191
-  g/L the bleed carries only 5.2 of them. The device must clear 23 litres per kg at 18% cells by volume.
+- **The central duty is ten times heavier.** The central cells make more ammonia and are held to 4 mmol/L of it, so each kg needs
+  35 litres of medium (28 before the 2026-11-19 audit, at 5 mmol/L). At 191 g/L the bleed carries only 5.2 of them. The device
+  must clear 30 litres per kg at 18% cells by volume.
 
 Viscosity: a culture that is 12% cells is about 1.4 times as viscous as medium. At 25% it is about 2.2 to 2.3 times. Cell
 suspensions turn elastic from about 40% (Iordan et al. 2007, part; Thomas's and Krieger's formulas).
@@ -54,13 +57,13 @@ suspensions turn elastic from about 40% (Iordan et al. 2007, part; Thomas's and 
 
 | Device | Densest culture and largest scale shown | Central: what it takes | Central: capital per m3 of tank | Central: cost per kg (range) | Verdict |
 |---|---|---|---|---|---|
-| Hoped-for device (the old default) | nothing: the device is not named | - | $89k | **$18.64** ($17.89-21.76) | Not a real device |
-| ATF hollow-fibre filter | 50 days on 50 L at volume fraction 0.13 (Ott 2024, full); 1.3e8 cells/mL for days in 4 L, where its vacuum failed (Clincke 2013, full); units rated to 5,000 L | 24 ATF 10s, 264 m2 | $442k | **$29.94** ($23.18-76.61) | Possible at the edge; costly |
-| TFF hollow-fibre loop | 2.14e8 cells/mL (half the volume) for days in 4 L; one fibre lasted 30 days (Clincke 2013, full); nothing published above pilot scale | 262 m2 of membrane | $24k | **$26.43** ($22.29-56.63) | Possible at the edge; membranes set the cost |
-| Inclined (lamella) settler | 5e7 cells/mL (Coronel 2020); a 2,000 L tank (Romann 2023) | 373 m2 of plate; 6.3 m3 of culture outside the tank | $65k | - | **Not possible**: two-fifths of the culture would sit without oxygen |
-| Acoustic settler | 200-400 L/day tested; 1,000 L/day the largest sold | 32 units | $294k | ($18.90-51.06) | Beyond what is shown; heat limits larger units |
-| Disc-stack separator on the outflow | CHO feed at 28% packed volume; yeast recycled 2-3 times a day for 250-280 days (not animal cells) | 1 running + 1 spare; the culture passes 2.7 times a day | $80k | **$23.15** ($20.34-36.95) | Possible; burst cells set the cost |
-| Hydrocyclone | 5e7 cells/mL in a 40 L bag (Bettinardi 2020, abstract) | feed 2.6 m3/h | $7k | ($21.24-47.12) | Beyond what is shown; loses a quarter of the cells |
+| Hoped-for device (the old default) | nothing: the device is not named | - | $89k | **$20.49** ($19.74-23.61) | Not a real device |
+| ATF hollow-fibre filter | 50 days on 50 L at volume fraction 0.13 (Ott 2024, full); 1.3e8 cells/mL for days in 4 L, where its vacuum failed (Clincke 2013, full); units rated to 5,000 L | 32 ATF 10s, 352 m2 | $589k | **$37.48** ($27.61-104.70) | Possible at the edge; costly |
+| TFF hollow-fibre loop | 2.14e8 cells/mL (half the volume) for days in 4 L; one fibre lasted 30 days (Clincke 2013, full); nothing published above pilot scale | 343 m2 of membrane | $32k | **$32.80** ($26.48-78.74) | Possible at the edge; membranes set the cost |
+| Inclined (lamella) settler | 5e7 cells/mL (Coronel 2020); a 2,000 L tank (Romann 2023) | 488 m2 of plate; 8.3 m3 of culture outside the tank | $85k | - | **Not possible**: half of the culture would sit without oxygen |
+| Acoustic settler | 200-400 L/day tested; 1,000 L/day the largest sold | 42 units | $386k | ($21.07-62.99) | Beyond what is shown; heat limits larger units |
+| Disc-stack separator on the outflow | CHO feed at 28% packed volume; yeast recycled 2-3 times a day for 250-280 days (not animal cells) | 2 running + 1 spare; the culture passes 3.5 times a day | $120k | **$27.49** ($23.32-47.61) | Possible; burst cells set the cost |
+| Hydrocyclone | 5e7 cells/mL in a 40 L bag (Bettinardi 2020, abstract) | feed 3.4 m3/h | $9k | ($24.58-61.99) | Beyond what is shown; loses a third of the cells |
 | Spin filter | about 1e7 cells/mL | - | - | - | Not possible: its screen does not grow with the tank's volume, and it clogs |
 | Fluidized-bed centrifuge (kSep) | cell harvests | about 86 cycles an hour | - | - | Not possible: one cycle holds 2.9 kg of cells |
 
@@ -69,26 +72,31 @@ other part of the scenario stays as it is.
 
 The same devices in the other two cases:
 
-| Device | Reference ($12.45 with the hoped-for device) | Best case ($7.58 with the hoped-for device) |
+| Device | Reference ($12.45 with the hoped-for device) | Best case ($7.74 with the hoped-for device) |
 |---|---|---|
-| ATF | $13.22 (3 units) | $11.05 (16 units) |
-| TFF | $12.81 | $9.96 |
-| Settler | $11.79 (23 m2, 0.4 m3 outside the tank) | not possible (29% of the culture outside the tank) |
-| Acoustic | $12.04 (4 units) | $7.99, beyond what is shown |
-| Disc stack | $12.74 (1.6% of cells lost) | $8.51 (10% lost) |
-| Hydrocyclone | $12.08 (2.6% lost) | $8.34, beyond what is shown |
+| ATF | $13.22 (3 units) | $12.96 (22 units) |
+| TFF | $12.81 | $11.46 |
+| Settler | $11.79 (23 m2, 0.4 m3 outside the tank) | not possible (40% of the culture outside the tank) |
+| Acoustic | $12.04 (4 units) | $8.43, beyond what is shown |
+| Disc stack | $12.74 (1.6% of cells lost) | $9.01 (14% lost) |
+| Hydrocyclone | $12.08 (2.6% lost) | $8.92, beyond what is shown |
 
 ## 4. How each device is costed
 
 - **ATF**: units = permeate / (flux x 11 m2), rounded up. Flux 5 L/m2/h (`rt_flux_lmh`, 2-8.3). Each unit costs $200k (Humbird's
   $38.5M for 192 units; Pasitka implies $350k), times 1.84 to install. Membranes as below.
 - **TFF**: membrane area = permeate / flux. Pumps, housings and skids at $1k per m2 (assumed; it gave Pasitka's $35k per m3 at
-  the central duty when that case ran at 258 g/L, and gives $24k now), times 1.84.
+  the central duty when that case ran at 258 g/L, and gives $32k now), times 1.84.
 - **Membranes** (ATF and TFF): litres of permeate per kg x $1,450 per m2 / 3,960 litres per m2 over a membrane's life, about
   $0.37 per litre of permeate. The life spans 900 litres per m2 (fouled in 4.5 days at 8.3 L/m2/h, Veje 2024, full) to 5,500
-  (one TFF fibre for 30 days, Clincke 2013). In the central case this is $8.33 per kg. **Membranes, not hardware, set the cost of
-  filtering a thick, fast-fed culture.** Filtering adds about $0.37 per litre of permeate, close to twice the $0.20 a litre the
-  central case pays for medium.
+  (one TFF fibre for 30 days, Clincke 2013). **Membranes, not hardware, set the cost of filtering a thick, fast-fed culture.**
+- **Membranes of lost runs** (since the 2026-11-19 audit; ATF, TFF, reused modules and dialysers). A run lost to contamination
+  throws its membranes away before they have filtered the litres they were bought for. `explore()` and `retention.sizing` multiply
+  the membrane's life by the share of a planned run an average start completes: 85% in the central case (1% of runs lost a day,
+  33-day runs), 91% in the best case, 100% in the reference case. So the central case pays $0.43 per litre of permeate, $12.80 per
+  kg (it was $8.33: 23 litres at $0.37). That is more than twice the $0.20 a litre it pays for medium. The ATF filter pays the same
+  membranes as the TFF loop, so its extra cost is its hardware: $4.68 a kilo in the central case. Ceramic elements are cleaned in
+  place and kept, so a lost run does not shorten their life.
 - **Inclined settler**: one cell settles at Stokes' speed, slowed by crowding as (1 - fraction)^4.65. The plates are designed for
   half that speed. Plate area = permeate / design speed, at $3.5k per m2 installed (assumed). A settler holds 17 litres of culture
   per m2 (Romann's 2,000 L settler). It is marked not possible when it would hold more than 5% of the tank's culture outside the
@@ -97,7 +105,7 @@ The same devices in the other two cases:
 - **Disc-stack separator on the outflow**: it takes the permeate plus enough culture to send the cells back as a concentrate at
   70% packed volume (Hundley and Konigsson 2020, part). Feed = permeate x (1 + fraction / (0.70 - fraction)). Each pass bursts
   4% of the cells it carries (2-12.5% measured on CHO by the vendor's staff). The share of grown cells lost is lysis x passes a day
-  / (bleed a day + lysis x passes a day). In the central case the culture passes 2.7 times a day and 19% of the grown cells are
+  / (bleed a day + lysis x passes a day). In the central case the culture passes 3.5 times a day and 24% of the grown cells are
   lost. Units at 2 m3/h each, one spare, $800k each installed (assumed; no sterile price found), 10 kW each, maintenance 4% a year.
 - **Hydrocyclone**: feed = permeate / 0.5 (half leaves as overflow). It returns 96% of the cells; the rest are lost. $50k per m3/h
   of feed (assumed).
@@ -128,34 +136,38 @@ rows that name 258 g/L describe the best case's density, not today's central dut
 
 1. **The reference case is safe.** Several devices meet its light duty. With any of them the reference case costs $11.79 to
    $13.22 against $12.45.
-2. **The central case is not.** Its 191 g/L and 28 litres of medium a kilo ask a device to clear 1.31 m3 an hour of permeate from
-   a culture that is 18% cells. The devices shown at that density cost $23.15 to $29.94 a kilo in place of $18.64. The
-   range is $20 to $77. The hoped-for device hides this, because it charges only capital, and the real cost is membranes or burst
+2. **The central case is not.** Its 191 g/L and 35 litres of medium a kilo ask a device to clear 1.71 m3 an hour of permeate from
+   a culture that is 18% cells. The devices shown at that density cost $27.49 to $37.48 a kilo in place of $20.49. The
+   range is $23 to $105. The gap between a real device and the hoped-for one grew from $4.5–11.3 to $7.0–17.0 a kilo with the
+   2026-11-19 audit: more litres to clear, and membranes for lost runs. The hoped-for device hides this, because it charges only capital, and the real cost is membranes or burst
    cells.
 3. **Applied as the model's default on 2026-11-15, at Pablo's request:** retention is priced as a TFF hollow-fibre loop: capital of about $1k per m2 of membrane,
-   times 1.84, plus $0.37 per litre of permeate for membranes. The scenarios would become:
+   times 1.84, plus $0.37 per litre of permeate for membranes ($0.43 in the central case once lost runs are counted). The scenarios would become:
 
    | scenario | before | with TFF (now the default) | with a disc stack |
    |---|---|---|---|
-   | Best case | $7.58 | $9.96 | $8.51 |
-   | Central | $18.64 | $26.43 | $23.15 |
-   | Central, food-grade plant with shared medium | $15.78 | $23.57 | $19.62 |
-   | Cautious | $30.53 | $36.42 | $34.20 |
+   | Best case | $7.74 | $11.46 | $9.01 |
+   | Central | $20.49 | $32.80 | $27.49 |
+   | Central, food-grade plant with shared medium | $17.63 | $29.94 | $23.75 |
+   | Cautious (published cells) | $55.37 | $92.17 | $84.76 |
    | Reference | $12.45 | $12.81 | $12.74 |
 
-   ("before" is the hoped-for device on the model of 2026-11-19, not the figures of 2026-11-15.)
+   ("before" is the hoped-for device on the model of 2026-11-19 after the audit batch, not the figures of 2026-11-15.) The
+   cautious case filters 87 of its 95 litres a kilo, so membranes alone are $37.48 of its $92.17. Its disc stack would lose a third
+   of the cells.
 
    The scenarios' tank designs are chosen again under the new cost (`scenarios.design` runs on the model's default), and they
    come out the same. A thinner culture does not pay (`retention.density_scan`). Held at 180 g/L in place of the 191 g/L its tank
-   allows, the central case filters 1.4% fewer litres a kilo and saves $0.1 of membranes, but the plant's capital per kilo
-   rises by $0.4, because each tank makes fewer kilos: $26.83 against $26.43. At the worst membrane life (900 L/m2) the cost
-   is $54.5 to $54.8 at any density from 100 to 258 g/L; there, unlike before, the thinnest culture (100 g/L) is the cheapest,
-   by $0.25. Membrane life matters far more than density: it moves the central case by about $28. The exception this note
-   used to give no longer holds: at 180 g/L none of the cautious case's designs with all three tank tricks now passes the
-   loop's checks. The model has no density setpoint switch in any case.
+   allows, the central case filters 1.1% fewer litres a kilo and saves $0.1 of membranes, but the plant's capital per kilo
+   rises by $0.4, because each tank makes fewer kilos: $33.18 against $32.80. At the worst membrane life (900 L/m2) the cost
+   is $74.7 to $76.3 at any density from 100 to 258 g/L; there the thinnest culture (100 g/L) is the cheapest, by $1.58.
+   Membrane life matters far more than density: it moves the central case by about $43. In the cautious case a thinner
+   culture costs more too ($94.77 at 100 g/L against $92.17 at the 120 g/L its tank allows), and at 180 g/L none of its
+   designs with all three tank tricks passes the loop's checks (`thick_culture.md`, section 7). The model has no density
+   setpoint switch in any case.
 4. **What would lower it.** Cells that need less medium per kg (less ammonia), so less permeate: the "kind of cells" switch now
    also decides the retention cost. Membranes that last longer at this density. A separator that bursts under 1% of the cells per
-   pass: at 1% the central case costs $19.84. None is shown.
+   pass: at 1% the central case costs $22.63. None is shown.
 
 ## 7. What was not found
 

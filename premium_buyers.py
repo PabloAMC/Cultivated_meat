@@ -119,7 +119,9 @@ def shares(R_x: float, p: dict, *, d: float = 0.0, R_L: float | None = LABEL_PRE
 def world_share(cost: float, p: dict, *, d: float, region: str = "global", R_L: float | None = LABEL_PREMIUM) -> dict:
     """Long-run share of meat by weight, %, for cells costing `cost`, and where cultivated meat's sales come from (fractions of its
     sales taken from conventional meat, from the label and from the rest), by the main model's roll-up (meat_market._rollup).
-    Premium tiers (wagyu, sushi salmon) get no label beside them: they are the premium product already."""
+    Products the model labels premium (meat_market.tier: prime or wagyu beef, sushi-grade seafood, organic chicken, heritage pork and,
+    since seafood was re-priced on 2026-11-19, premium fillets and shrimp) get no label beside them: they are the premium product
+    already."""
     pr = P.demand()
     income = mm.REGION_INCOME[region]
     res = value("premium_resistance")
@@ -128,7 +130,7 @@ def world_share(cost: float, p: dict, *, d: float, region: str = "global", R_L: 
     sold = {"all": 0.0, "premium": 0.0}
 
     def share_of(mt, R, base, r):
-        kw = dict(tier_offset=mm.tier_authenticity(mt, base, r, None), eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, r),
+        kw = dict(tier_offset=mm.tier_offset(mt, base, r, pr), eps_own=pr.eps_own,
                   income=income, p_ref=mt.p_conv, R_L=None if mm.tier(mt, base) == "premium" else R_L, d=d)
         w = mt.w_vol
         on, off = shares(R, p, **kw), shares(R, p, cultivated=False, **kw)

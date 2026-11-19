@@ -20,14 +20,17 @@ from inputs import value
 
 # $/kg: the design held, loop checks off ('fixed') and the design chosen again with the loop checks ('checked'), at each density limit
 # repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds), growth factors inside complete media prices
+# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (more medium and membranes a kilo), membranes for lost runs, and glucose
+# from the cells' balance (cautious: the published cells' lactate sets 95 L/kg, $36.42 -> $92.17)
 GOLDEN_CAP = {
-    "best":         {180.0: (10.2844, 10.2051), 320.0: (9.8271, 9.9964), 400.0: (9.7188, 9.9964)},
-    "central":      {180.0: (26.8266, 26.8266), 320.0: (26.4296, 26.4296), 400.0: (26.4296, 26.4296)},
-    "central_lean": {180.0: (23.7719, 23.7719), 320.0: (23.5685, 23.5685), 400.0: (23.5685, 23.5685)},
-    "cautious":     {180.0: (36.4185, 36.4185), 320.0: (36.4185, 36.4185), 400.0: (36.4185, 36.4185)},
+    "best":         {180.0: (11.7171, 11.6378), 320.0: (11.3508, 11.4816), 400.0: (11.2660, 11.4816)},
+    "central":      {180.0: (33.1795, 33.1795), 320.0: (32.8028, 32.8028), 400.0: (32.8028, 32.8028)},
+    "central_lean": {180.0: (30.1249, 30.1249), 320.0: (29.9417, 29.9417), 400.0: (29.9417, 29.9417)},
+    "cautious":     {180.0: (92.1653, 92.1653), 320.0: (92.1653, 92.1653), 400.0: (92.1653, 92.1653)},
 }
 # cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
-GOLDEN_O2 = {"central": (28.1667, 150.69), "cautious": (38.7037, 102.72)}
+# 2026-11-19 audit batch: the same three changes; the viscosity-corrected oxygen limits (151 and 103 g/L) do not move
+GOLDEN_O2 = {"central": (34.4508, 150.69), "cautious": (94.3605, 102.72)}
 
 
 def close(a, b, tol=1e-6):

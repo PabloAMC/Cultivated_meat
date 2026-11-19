@@ -66,7 +66,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior, MC_TIMING_INPUTS
+from inputs import value, prior, MC_TIMING_INPUTS, draw as draw_input
 from cost_model import CostParams, biomass_cost, cost_floor, ratio as cost_ratio
 from market_share import DemandParams, share
 
@@ -255,8 +255,7 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
     yrs = int(value("years")) if years is None else years
 
     def draw(k):
-        kind, lo, hi, mode, _ = prior(k)
-        return rng.triangular(lo, mode, hi, n)
+        return draw_input(k, rng, n)        # inputs.draw: THE one sampler (equal_price_share is lognormal)
 
     s = {k: draw(k) for k in MC_TIMING_INPUTS}
     base = DemandParams()                       # calibrate ONCE (neophobia_x is an additive

@@ -14,14 +14,15 @@ language (“How the model works”, at the bottom of the page).
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
   on the EA Forum.
 
-**Scenarios** describe the cost of a kilo of cells. They form a ladder ordered by how hard each change is: today's measured cells, then process
-changes and cheaper inputs, then selected cells (the central case), then a cheaper plant, then engineered cells (the best case). A forecast for
+**Scenarios** describe the cost of a kilo of cells. They form a ladder ordered by how hard each change is: the published cells (the best
+meat cells in the published record), then process changes and cheaper inputs, then cells selected to make less lactate and grow faster
+(Central), then a cheaper plant, then engineered cells (the best case). A forecast for
 2035, Humbird's optimistic design and the process one company reports sit beside the ladder.
-Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page's "What decides it".
-Earlier versions called the reference case the floor. It was then $11.5/kg; it is now $12.5, with the filter loop and the protectant counted.
-The model keeps it as a labelled reference, not a limit.
+Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page.
+Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $12.8, with the filter loop and the protectant counted.
+The model keeps it as a labelled comparison, not a limit.
 
-The default cost is what a company reports for its own process (SuperMeat 2024). The physics of oxygen and CO₂ exchange and Humbird's plant design (2021) bound the scenarios.
+The reported cost is what a company reports for its own process (SuperMeat 2024). The physics of oxygen and CO₂ exchange and Humbird's plant design (2021) bound the scenarios.
 Every number is sourced and lives in one place, and every result reproduces from the code.
 
 > **Disclaimer.** The views expressed here are purely those of the author, Pablo Antonio Moreno Casares, and may
@@ -41,7 +42,8 @@ copies, while conventional prices vary about fivefold (cheap chicken to sushi). 
    it, gives the price ratio **R**.
 2. **Price → choice.** Shoppers choose between conventional meat, plant-based meat, cultivated meat and
    beans. They weigh price, taste, “is it real meat?”, health and animal welfare. This is a two-segment logit
-   calibrated to plant-based meat's observed ~1.2% share.
+   calibrated to plant-based meat's observed ~1.2% share. How much shoppers like cultivated meat differs from one shopper
+   to the next (a Student's t spread, fitted to a choice experiment and to premium real meats).
 3. **Every meat, every region.** The model repeats the choice at each meat type's local price, then adds up by volume and by value.
 4. **Over time.** The share starts from wary shoppers and grows as the product spreads and becomes familiar.
 
@@ -56,10 +58,10 @@ it is always a band.
 | step | module | what it adds |
 |---|---|---|
 | 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (per-kg costs plus the shop's percentage margin) |
-| 1 | [`cost_model.py`](cost_model.py) | Pasitka's cost stack, the reactor scale-up lever, the reference case, the cost waterfall |
+| 1 | [`cost_model.py`](cost_model.py) | the reported cost stack (medium and plant), three plant cases, Humbird's optimistic design, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
-| 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; the filter loop it prices is the model's default |
+| 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; every scenario uses the filter loop it prices |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
 | 3 | [`scaffolding.py`](scaffolding.py) | structured products (cuts, fillets): cells bound with plant protein, and the cost of assembling them |
@@ -68,7 +70,7 @@ it is always a band.
 | – | [`uncertainty.py`](uncertainty.py) | Monte Carlo over R and share |
 | – | [`sensitivity.py`](sensitivity.py) | which inputs move R and share most (tornado) |
 | – | [`growth_rate.py`](growth_rate.py) | side-study: does growing the cells slower ever lower the cost per kg? |
-| – | [`floor_physics.py`](floor_physics.py) | the cost of a kilo of cells from oxygen and CO₂ physics, by reactor type and plant class (its defaults are the labelled reference case) |
+| – | [`floor_physics.py`](floor_physics.py) | the cost of a kilo of cells from oxygen and CO₂ physics, by reactor type and plant class (with no arguments it gives Humbird's optimistic design) |
 | – | [`design_space.py`](design_space.py) | what each tank limit is worth, and a search over every combination of tank design options |
 | – | [`medium_reuse.py`](medium_reuse.py) | cleaning and reusing the medium: an ammonium exchanger, electrodialysis and dialysis, priced with the cell filter counted |
 | – | [`industry_claims.py`](industry_claims.py) | the model against company cost claims, on the same basis: plant charge and operating cost split |
@@ -127,8 +129,8 @@ What makes the model trustworthy, and what to preserve when editing (details in 
    with its point value, Monte Carlo range, unit, source and a note, so the point estimate and the
    uncertainty band can't drift apart. The inputs each Monte Carlo band samples are also listed once there.
 2. **No free knobs.** Every number is sourced, derived, solved to a published fact, a judgement shown as a
-   range, or an assumption whose leverage is reported. The cost side is anchored to Pasitka throughout;
-   company reports are treated as directional evidence.
+   range, or an assumption whose leverage is reported. The scenarios are built from tank physics and Humbird's plant
+   design; the reported cost is one company's report (SuperMeat 2024), treated as directional evidence.
 3. **Three forms, kept in sync by tests.** The Python source of truth, the generated JavaScript, and the
    prose:
    - **Python ↔ JS:** `tests/run_parity.py`, including a statistical check that the page's Monte Carlo band
@@ -166,7 +168,7 @@ More in [`tests/README.md`](tests/README.md).
 model/
 ├── inputs.py            ← the datasheet: every number, source and Monte Carlo range (start here)
 ├── price_ratio.py       ← step 1: R and the parity threshold
-├── cost_model.py        ← step 1: Pasitka's costs, the scale-up lever, the reference case
+├── cost_model.py        ← step 1: the reported cost stack, the plant cases, Humbird's optimistic design
 ├── scenarios.py         ← step 1: the cost scenarios (switches, presets, priorities, interactions, bands)
 ├── page_sections.py     ← the page's computed tables (answer table, bottlenecks, cells by tank, vessels, evidence)
 ├── page_scenarios.js    ← the page's live switches (a JavaScript mirror of scenarios.py)
@@ -203,7 +205,8 @@ model/
 
 ## Sources
 
-Cost: **Pasitka et al. 2024** (*Nature Food*) for the cost stack and reactor designs; **Humbird 2021** for the
-the feedstock and why scale-up is hard. Demand: calibrated to observed plant-based shares (GFI/SPINS/NIQ),
+Cost: **Humbird 2021** for the plant design, the feedstock and the physics of scale-up; **SuperMeat 2024** (a company
+report) for the reported cost; **Hubalek et al. 2023** and **Pasitka et al. 2024** (*Nature Food*) for what the published cells
+make (Pasitka is no longer the cost anchor: METHODS.md, "Why Pasitka is not the anchor"). Demand: calibrated to observed plant-based shares (GFI/SPINS/NIQ),
 price sensitivity from grocery scanner meta-analyses and a cultivated-meat choice experiment (Van Loo, Caputo &
 Lusk 2020), the ethical segment from Gallup. Every parameter's source is tagged in [`inputs.py`](inputs.py).

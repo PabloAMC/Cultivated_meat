@@ -14,19 +14,13 @@ share, differ enormously by meat type:
   * vs beef / mid cuts: parity around the cost floor.
   * vs ultra-premium (sushi): R < 1 already, BUT demand resists (see below).
 
-BUT price is only half the story — demand runs OPPOSITE to price.
-Authenticity and price-sensitivity are tier-dependent (see AUTH_* / EPS_MULT_*):
-  * BASIC everyday meat: cultivated is price-UNcompetitive but demand-FRIENDLY
-    (cleaner-meat pull on staples; a nugget has no "authenticity"). Authenticity offset +.
-  * PREMIUM/luxury meat: cultivated is price-COMPETITIVE but demand-HOSTILE
-    (bought for the authentic experience; weak welfare pull on indulgence; buyers
-    price-INsensitive). Authenticity offset -; low elasticity.
-So there is NO easy entry point: cultivated is cheapest exactly where demand
-resists (luxury) and demand-friendly exactly where it is dear (basics). At today's
-cost the premium tier still has the highest WITHIN-category share (it is already
-price-cheap), but it is a small market, so beef and seafood CUTS displace the most
-volume; near the cost floor the cuts (and ground beef) overtake premium outright.
-Chicken and pork stay above parity even at the floor.
+BUT price is only half the story. Shoppers like a cultivated CUT less than cultivated mince (tier_offset below):
+  * mince and other unstructured products: no offset (a nugget has no "genuine article" to miss);
+  * every cut: a cut is part plant protein, so it gets that much less of the real-meat credit;
+  * premium cuts (wagyu, sushi-grade fish): a further penalty that grows with how far the product's price sits above its
+    species' cheapest form, because part of what the buyer pays for is the genuine article.
+Every product uses the model's own price sensitivity. So cultivated meat is cheapest, against the conventional product,
+exactly where shoppers like it least (premium), and liked most where it is dearest (basics).
 
 Total cultivated penetration of meat = a weighted roll-up over the types. We
 report BOTH weightings:
@@ -52,7 +46,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from common import setup_style, _save
-from inputs import value, prior
+from inputs import value
 from cost_model import CostParams, cost_floor, media_cost
 from price_ratio import shelf_price, structured_cost
 from market_share import DemandParams, share
@@ -71,38 +65,22 @@ class MeatType:
 # harvest (price_ratio.structured_cost; research_notes/structuring_cost.md, 2026-11-19). No study costs it for cultivated
 # meat; the figures come from plant-protein extrusion, surimi and binder prices. Defined in inputs.py (datasheet).
 
-# --- The PRICE-TIER demand model (the key insight) --------------------------
-# Authenticity and price-sensitivity are NOT uniform across the meat spectrum; they
-# run OPPOSITE to the price ratio, which is why there is no easy entry point:
+# --- How liking differs across the meat spectrum (the key insight) ---------
+# Liking runs OPPOSITE to the price ratio, which is why there is no easy entry point:
 #
-#   * BASIC everyday meat (mince/ground/processed, cheap): cultivated is price-
-#     UNcompetitive but demand-FRIENDLY — the cleaner/no-slaughter pull is
-#     exercised on routine staples, and a nugget has no "authenticity". Authenticity offset
-#     +; price matters (elastic).
-#   * PREMIUM meat (structured, dear: sushi, fine cuts): cultivated is price-
-#     COMPETITIVE (R<1) but demand-HOSTILE — bought for the AUTHENTIC experience,
-#     the welfare pull is weak on indulgence, and buyers are price-INsensitive.
-#     Authenticity offset −; price barely matters (inelastic).
-#   * CUTS in between.
+#   * BASIC everyday meat (mince/ground/processed, cheap): cultivated is price-UNcompetitive but liked as much as the
+#     model's reference product: a nugget has no "genuine article" to miss. No offset.
+#   * CUTS: a cut is part plant protein, so shoppers give it that much less of the real-meat credit.
+#   * PREMIUM meat (structured, dear: sushi, fine cuts): cultivated is price-COMPETITIVE (R<1) but part of what the buyer
+#     pays for is the genuine article. A further penalty, growing with the product's price against its species' cheapest form.
 #
-# So the tier-dependent AUTHENTICITY OFFSET (added to cultivated's utility) and the
-# elasticity MULTIPLIER are derived from (structured?, price). All DIALS.
-# Calibrated for the WTP curve (market_share): premium must stay DEMAND-CAPPED even
-# at a deep price discount (R<<1), so its authenticity offset is strongly negative AND it is
-# very price-INelastic (a low EPS_MULT -> a flat WTP curve that the low R barely
-# lifts). So cultivated is cheapest exactly where authentic-experience demand resists
-# most: premium is held to roughly a quarter of its (small) category, and near the cost
-# floor the mid-cuts overtake it. (The old nested logit produced this cap structurally;
-# here it is the two premium dials.)
-# The tier ladder (AUTH_* authenticity offsets in utils, EPS_MULT_* elasticity multipliers)
-# and PREMIUM_RATIO, SCAF live in inputs.py (the datasheet) — imported below so the numbers
-# exist in exactly one place. AUTH_BASIC=+0.2, AUTH_CUT=-0.4, AUTH_PREMIUM=-1.5;
-# EPS_MULT_CUT=0.8, EPS_MULT_PREMIUM=0.3. "Premium" is defined PER SPECIES by a within-species
-# price ratio: a structured product priced >= PREMIUM_RATIO x its own species' everyday
-# (cheapest) form is "premium", so every species can have one (wagyu beef, sushi seafood, ...).
-from inputs import (SCAF, CUT_CELL_SHARE, PREMIUM_RATIO, AUTH_BASIC, AUTH_CUT, AUTH_PREMIUM,
-                    EPS_MULT_CUT, EPS_MULT_PREMIUM,
-                    MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS)
+# REBUILT 2026-11-19 (audit D3, D4; the constants and the reasons are in inputs.py). Until then a ladder by tier (mince +0.2,
+# cut -0.4, premium -1.5 utils, with a cliff at PREMIUM_RATIO) came with LOWER price sensitivity for cuts and premium products,
+# which raised cultivated meat's share wherever it was the dearer product. Now the offset is tier_offset() below and every
+# product uses the model's own price sensitivity. "Premium" is judged PER SPECIES, by the product's price against its own
+# species' cheapest form, so every species can have one (wagyu beef, sushi seafood, ...).
+from inputs import (SCAF, CUT_CELL_SHARE, PREMIUM_RATIO, PREMIUM_START, PREMIUM_FULL, AUTH_PREMIUM_EXTRA,
+                    MC_COST_INPUTS, MC_DEMAND_INPUTS, MC_TIER_INPUTS, MC_CUT_INPUTS, draw as _draw_input)
 
 
 def species_bases(market) -> dict:
@@ -116,27 +94,39 @@ def species_bases(market) -> dict:
 
 
 def tier(mt: "MeatType", base: float) -> str:
-    """basic = unstructured; premium = structured and priced >= PREMIUM_RATIO (=2.5x) its
-    species' base everyday form; cut = structured but below that ratio. `base` = species_bases[...]"""
+    """A LABEL for charts and tables, nothing numeric depends on it: basic = unstructured; premium = structured and priced
+    >= PREMIUM_RATIO (=2.5x) its species' cheapest form; cut = structured but below that ratio. `base` = species_bases[...]"""
     if mt.scaffold == 0:
         return "basic"
     return "premium" if mt.p_conv >= PREMIUM_RATIO * base else "cut"
 
 
-def tier_authenticity(mt: "MeatType", base: float, resistance: float = 1.0, auth=None) -> float:
-    """Per-tier authenticity offset (utils), scaled by the `premium_resistance` dial.
-    resistance=1 -> the central ladder; 0 -> no tier effect; 2 -> doubly resistant.
-    `auth` optionally overrides the per-tier offsets {basic, cut, premium} (the interactive's
-    authenticity sliders); None = the datasheet ladder (AUTH_BASIC / AUTH_CUT / AUTH_PREMIUM)."""
-    a = auth or {"basic": AUTH_BASIC, "cut": AUTH_CUT, "premium": AUTH_PREMIUM}
-    return resistance * a[tier(mt, base)]
+def premium_ramp(mt: "MeatType", base: float) -> float:
+    """How far a product sits in its species' premium range, 0 to 1: 0 at PREMIUM_START (2x) the species' cheapest form or
+    below, 1 at PREMIUM_FULL (4x) or above, linear in the logarithm of price between. 0 for unstructured products."""
+    if mt.scaffold == 0:
+        return 0.0
+    x = np.log(mt.p_conv / base / PREMIUM_START) / np.log(PREMIUM_FULL / PREMIUM_START)
+    return float(min(max(x, 0.0), 1.0))
 
 
-def tier_eps_mult(mt: "MeatType", base: float, resistance: float = 1.0) -> float:
-    """Per-tier own-price-elasticity multiplier, with its DEVIATION from 1 scaled by
-    `premium_resistance` (so resistance=0 -> multiplier 1 = no tier effect; =1 -> central)."""
-    mult = {"basic": 1.0, "cut": EPS_MULT_CUT, "premium": EPS_MULT_PREMIUM}[tier(mt, base)]
-    return 1.0 + resistance * (mult - 1.0)
+def tier_offset(mt: "MeatType", base: float, resistance, pr, cell_share=None, premium_extra=None):
+    """Utils added to cultivated meat's utility for this product (market_share.share's tier_offset), against cultivated mince.
+      mince and other unstructured products: 0.
+      a structured product: BLEND + PREMIUM, with
+        BLEND   = -(1 - cell_share) x pr.w_realtissue_M: the cut is part plant protein, so it gets that much less of the
+                  mainstream real-meat credit of the calibrated demand model `pr` (at 80% cells about -0.45). Not scaled by
+                  `resistance`.
+        PREMIUM = resistance x premium_extra x premium_ramp(mt, base): what buyers of premium products hold against a
+                  cultivated version, continuous in price.
+    cell_share    = kg of cells in a kg of cut, THE SAME figure the cut's cost uses (None = 1 - inputs.py's scaffold_frac).
+    premium_extra = None for inputs.AUTH_PREMIUM_EXTRA (the page's slider overrides it).
+    `resistance` and `cell_share` may be scalars or per-draw arrays."""
+    if mt.scaffold == 0:
+        return 0.0
+    cs = 1.0 - value("scaffold_frac") if cell_share is None else cell_share
+    extra = AUTH_PREMIUM_EXTRA if premium_extra is None else premium_extra
+    return -(1.0 - cs) * pr.w_realtissue_M + resistance * extra * premium_ramp(mt, base)
 
 # Prices: GlobalProductPrices (Jan 2026) + USDA/BLS (US); mixes: USDA ERS (US),
 # FAO/OECD (regional). Cultivated cost is ~global; the LOCAL price it competes
@@ -144,7 +134,7 @@ def tier_eps_mult(mt: "MeatType", base: float, resistance: float = 1.0) -> float
 
 # US — per-capita retail lbs (USDA ERS ~2023): chicken 100, beef 57, pork 50,
 # turkey 14, seafood ~19; each split mince/cut.
-# A premium variant per major species (priced >= PREMIUM_RATIO=2.5x the species' everyday form).
+# A premium variant per major species (labelled premium where priced >= PREMIUM_RATIO=2.5x the species' everyday form).
 # Beef wagyu/prime and seafood sushi are well-attested premiums; organic chicken and
 # heritage pork are real but smaller, lower-confidence categories — kept at small w_vol,
 # carved out of the species' cut form so regional volume sums are unchanged.
@@ -187,7 +177,7 @@ EU_MARKET = [
     MeatType("beef (steak/cuts)",     30.0,  0.095, scaffold=SCAF),
     MeatType("beef (wagyu/prime)",    55.0,  0.005, scaffold=SCAF),   # premium [high conf]
     MeatType("seafood (mince/canned)",13.0,  0.04),
-    MeatType("seafood (fillet)",      28.0,  0.105, scaffold=SCAF),
+    MeatType("seafood (fillet)",      21.0,  0.105, scaffold=SCAF),   # was $28; households' own spend gives $14-18 for all seafood (EUMOFA)
     MeatType("seafood (sushi)",       45.0,  0.005, scaffold=SCAF),  # premium: raw salmon and sashimi tuna, about 0.25 Mt [inference]
     MeatType("rabbit (cuts)",         15.0,  0.02, scaffold=SCAF),
 ]
@@ -209,7 +199,7 @@ CHINA_MARKET = [
     MeatType("beef (steak/cuts)",     25.0,  0.059, scaffold=SCAF),
     MeatType("beef (wagyu)",          40.0,  0.001, scaffold=SCAF),   # premium: Japanese wagyu barred, imported premium beef tens of kt; was $50, 0.5%
     MeatType("seafood (mince/canned)", 8.0,  0.06),
-    MeatType("seafood (fillet)",      14.0,  0.132, scaffold=SCAF),
+    MeatType("seafood (fillet)",       9.0,  0.132, scaffold=SCAF),   # was $14; carp $3-7, hairtail $6-9 a kilo edible (world_seafood_prices.md)
     MeatType("seafood (sushi)",       35.0,  0.008, scaffold=SCAF),   # premium: salmon 0.12 Mt, lobster, crab, grouper, abalone, about 0.7 Mt edible; was 4%
     MeatType("rabbit (cuts)",         12.0,  0.025, scaffold=SCAF),
 ]
@@ -239,8 +229,13 @@ GLOBAL_MARKET = [
     MeatType("beef (steak/cuts)",     20.4,  0.0734, scaffold=SCAF),
     MeatType("beef (prime/wagyu)",    45.0,  0.0017, scaffold=SCAF),   # premium: about 0.5 Mt at $45 or more (0.25-0.9): US Prime rib and loin, wagyu, Hanwoo
     MeatType("sheep/goat",            14.0,  0.0417, scaffold=SCAF),
-    MeatType("seafood (mince/canned)", 8.0,  0.0837),
-    MeatType("seafood (fillet)",      16.0,  0.1563, scaffold=SCAF),
+    # Seafood re-priced by who eats the fish, 2026-11-19 (research_notes/world_seafood_prices.md). Before: canned $8 (34% of
+    # seafood), one "fillet" row at $16 (64%), from no weighted source. Weighted by consumption (China 36%, at $3-9 a kilo edible),
+    # seafood averages about $10: a mass market near $7 (whole fish and ordinary fillets, per kg edible) and a premium tier near $20
+    # (salmon, shrimp, cod, tuna loins; about 16% of edible weight). The seafood total (0.244) is unchanged.
+    MeatType("seafood (mince/canned)", 7.0,  0.0659),
+    MeatType("seafood (whole fish, ordinary fillet)", 7.0, 0.1341, scaffold=SCAF),
+    MeatType("seafood (premium fillet, shrimp)", 20.0, 0.0400, scaffold=SCAF),
     MeatType("seafood (sushi)",       35.0,  0.0040, scaffold=SCAF),   # premium: about 1.2 Mt edible (0.6-2.5): raw salmon 0.5, sashimi tuna 0.25, others
     MeatType("rabbit (cuts)",         14.0,  0.0100, scaffold=SCAF),
 ]
@@ -259,7 +254,7 @@ INDIA_MARKET = [
     MeatType("goat (cuts)",            9.0,  0.10, scaffold=SCAF),
     MeatType("goat (premium)",        23.0,  0.01, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 4.0,  0.05),
-    MeatType("seafood (fillet)",       8.0,  0.09, scaffold=SCAF),
+    MeatType("seafood (fillet)",       6.0,  0.09, scaffold=SCAF),    # was $8; bone-in rohu $4.5-6 a kilo edible
     MeatType("seafood (premium)",     20.0,  0.01, scaffold=SCAF),
 ]
 # Brazil: beef-heavy and CHEAP (major exporter); big poultry.
@@ -296,16 +291,19 @@ REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
                  "india": 11159, "brazil": 22333, "nigeria": 6440}
 
 
-def _rollup(market, biomass, markup, res, share_of, margin=None):
+def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None):
     """The shared per-type roll-up used by BOTH the point estimate (penetration) and the
     Monte-Carlo band (monte_carlo): for each meat type compute its price ratio
     R = shelf_price(cut_cost, markup, margin) / p_conv, with cut_cost = biomass*cost_mult for mince and
     price_ratio.structured_cost(biomass*cost_mult) for a cut; get its cultivated share via the
     `share_of(mt, R, species_base, res)` callback (scalar for the point estimate, a per-draw
     NumPy array for the MC), then sum by VOLUME (mass) and by VALUE (price*volume, normalised).
-    Keeping this in one place means the two paths can't drift. `biomass`, `markup`, `res` and the
+    Keeping this in one place means the two paths can't drift. `biomass`, `markup`, `res`, `cell_share`, `assembly` and the
     callback's return may each be a scalar or an array; the arithmetic is the same either way. `margin` is the
-    retailer's gross margin (None = inputs.py's retail_margin)."""
+    retailer's gross margin (None = inputs.py's retail_margin). `cell_share` is the kg of cells in a kg of cut (None = 1 -
+    inputs.py's scaffold_frac) and `assembly` what assembling a cut costs, $/kg (None = each type's own mt.scaffold, which is
+    inputs.py's process_cost). A callback that applies tier_offset must be given the SAME cell_share: the cut is one product
+    in cost and in liking."""
     bases = species_bases(market)                                   # per-species reference price
     Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
     # volume-weight normaliser: the listed w_vol sum to 1.00-1.025 by region (premium variants were
@@ -315,7 +313,9 @@ def _rollup(market, biomass, markup, res, share_of, margin=None):
     for mt in market:
         base = bases[animal_of(mt)]
         cells = biomass * mt.cost_mult
-        R = shelf_price(structured_cost(cells, assembly=mt.scaffold) if mt.scaffold > 0 else cells, markup, margin) / mt.p_conv
+        cut = (structured_cost(cells, cell_share=cell_share, assembly=mt.scaffold if assembly is None else assembly)
+               if mt.scaffold > 0 else cells)
+        R = shelf_price(cut, markup, margin) / mt.p_conv
         s = share_of(mt, R, base, res)
         rows.append((mt, R, s))
         tot_vol = tot_vol + (mt.w_vol / Wvol) * s
@@ -325,33 +325,34 @@ def _rollup(market, biomass, markup, res, share_of, margin=None):
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
-                auth=None, pr=None):
+                premium_extra=None, pr=None, cell_share=None, assembly=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
     theta_free_M = mainstream value of the slaughter-free attribute (headline dial).
     accept_x     = how fully the mainstream credits cultivated's taste (the other dial).
     income       = region income ($/yr) for the BLP price term (None -> reference/US).
-    premium_resistance = scales BOTH per-tier demand levers (authenticity offset and the
-                   elasticity multiplier's deviation from 1); 1 = central, 0 = no tier effect.
-    auth         = optional per-tier authenticity offsets {basic, cut, premium} (the interactive's
-                   authenticity sliders); None = the datasheet ladder. premium_resistance still
-                   scales whatever ladder is in force.
+    premium_resistance = how much less buyers of premium products like a cultivated version, beyond what applies to
+                   any cut: scales the premium part of tier_offset only; 1 = as set, 0 = none.
+    premium_extra = optional full premium penalty in utils (the interactive's slider); None = inputs.AUTH_PREMIUM_EXTRA.
+                   premium_resistance still scales it.
     pr           = optional DemandParams (e.g. a w_ratio or loss_aversion variant); None = the defaults.
-    The per-tier demand resistance enters as share()'s tier_offset (in utils).
+    cell_share   = kg of cells in a kg of cut (None = 1 - inputs.py's scaffold_frac): sets BOTH the cut's cost and how much
+                   less shoppers like it than a product that is all cells.
+    assembly     = what assembling a cut costs, $/kg (None = inputs.py's process_cost, carried by each type).
+    The per-product offset enters as share()'s tier_offset (in utils); every product uses pr's own price sensitivity.
     """
     markup = value("markup_add") if markup is None else markup
     pr = DemandParams() if pr is None else pr
-    base_eps = pr.eps_own
     res = value("premium_resistance") if premium_resistance is None else premium_resistance
+    cs = 1.0 - value("scaffold_frac") if cell_share is None else cell_share
 
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                     tier_offset=tier_authenticity(mt, base, res, auth),
-                     eps_own=base_eps * tier_eps_mult(mt, base, res), income=income,
+                     tier_offset=tier_offset(mt, base, res, pr, cs, premium_extra), income=income,
                      p_ref=mt.p_conv)        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
-    rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of)
+    rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly)
     return rows, tot_vol, tot_val
 
 
@@ -360,8 +361,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
 # penetration (volume and value), rolled up across meat types.
 # ----------------------------------------------------------------------------
 def _draw(name, rng, n):
-    kind, lo, hi, mode, _ = prior(name)
-    return rng.triangular(lo, mode, hi, n)
+    return _draw_input(name, rng, n)        # inputs.draw: THE one sampler (triangular, or lognormal where the input says so)
 
 
 def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_share_input: str = "equal_price_share") -> dict:
@@ -369,9 +369,10 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
     biomass cost, retail markup, the acceptance dials, price elasticity, premium
-    resistance. The sampled set is inputs.MC_* — the same list the page's band uses."""
+    resistance, and a cut's make-up (its cell share, which moves both its cost and how much shoppers like it, and its
+    assembly cost). The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
-    s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
+    s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS}
     if equal_share_input != "equal_price_share":   # a scenario with its own demand setting (the best case): drawn on its own
         s["equal_price_share"] = _draw(equal_share_input, np.random.default_rng(seed + 7), n)   # stream, the others unchanged
     cp = CostParams()
@@ -385,16 +386,17 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
     market = MARKETS[region]
     income = REGION_INCOME[region]              # region income for the BLP price term
     res = s["premium_resistance"]               # per-draw premium-resistance multiplier (array)
+    cell_share = 1.0 - s["scaffold_frac"]       # per-draw kg of cells in a kg of cut: the cut's cost AND its liking
 
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
-        toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
-        eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
-        return np.array([share(R[i], base, accept_x=s["accept_x"][i], tier_offset=toff[i],
-                               eps_own=eps[i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
+        toff = np.broadcast_to(tier_offset(mt, b, res, base, cell_share), (n,))   # per-draw (utils)
+        return np.array([share(R[i], base, accept_x=s["accept_x"][i], tier_offset=float(toff[i]),
+                               eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
                                equal_share=s["equal_price_share"][i])   # novelty, no-slaughter, health: in equal_price_share
                          for i in range(n)])
 
-    _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"])
+    _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"],
+                                      cell_share=cell_share, assembly=s["process_cost"])
     return dict(vol=tot_vol * 100, val=tot_val * 100)
 
 

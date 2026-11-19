@@ -2,6 +2,10 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > The 2026-11-14 settings below now run with the $2.00 floor: every figure where the floor binds is $0.30 higher.
+> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
+> What this changed here: one cell case. "Best shown in meat cells" now takes its glucose from the cells' own balance, so lactate
+> sets its medium at 89.8 L/kg (was 28, set by ammonia) and it costs $62.31 with the sparger alone (was $26.2). The tank tricks do
+> little for such cells. Section 10.4 has the table. The floor's cell, with and without engineering, and ordinary cells did not move.
 
 > **Note, 2026-11-15.** The figures in this note were computed with the model as it was on 2026-11-14: the old hoped-for
 > device that holds the cells back ($89k per m3 of tank, no membranes), no bubble protectant, no antifoam effect, no oxygen cost for
@@ -1026,6 +1030,42 @@ parent session's estimate (about 2%) is right: nothing worth having.
 RESULTS.md gives the cells-by-tank table twice: with every trick, and without any that needs genetic
 engineering. Without engineering the floor's cell needs 28 L of medium per kg, and the tricks take it from $14.0
 to $9.8 in the sterile plant and to $7.5 in a yeast-style plant.
+
+**The cells against the tank, on the model of 2026-11-19** (`cases_table`; food-grade plant, no runs lost; $ per kg of
+cells, density, what binds, litres of medium per kg). These run `explore()` as Humbird's optimistic design does: his 5 mmol/L
+ammonia limit, gas at 6 mm/s, medium at $0.15 a litre. They are not the scenarios.
+
+| cells | sparger only | sparger, fat in the feed, oxygen held at 0.08 | packed column on a loop | column with oxygen sweep, 1 bar gauge |
+|---|---|---|---|---|
+| the floor's assumption (Humbird's enhanced cells) | $12.81; 120 g/L CO₂; 11.2 L/kg | $12.00; 150 g/L CO₂; 11.2 | $12.17; 146 g/L oxygen; 11.2 | $10.66; 258 g/L thickness; 11.2 |
+| the floor's cell by selection and feed only | $22.32; 120 g/L CO₂; 28.0 L/kg | $21.51; 150 g/L CO₂; 28.0 | $21.67; 146 g/L oxygen; 28.0 | $20.17; 258 g/L thickness; 28.0 |
+| best shown in meat cells (bovine, glutamine replaced) | **$62.31**; 154 g/L CO₂; 89.8 L/kg | **$43.64**; 192 g/L CO₂; 60.5 | $61.06; 187 g/L oxygen; 89.8 | $59.33; 258 g/L thickness; 89.8 |
+| ordinary meat cells (bovine, with glutamine) | $88.14; 124 g/L CO₂; 140 L/kg | $87.25; 155 g/L CO₂; 140 | $87.43; 151 g/L oxygen; 140 | $85.87; 258 g/L thickness; 140 |
+
+In the yeast-style plant the best-shown meat cells cost $55.84, $38.52, $55.81 and $55.61.
+
+What changed, and what it means:
+
+- **The best-shown meat cells cost $62, not $26.** Until 2026-11-19 this case fixed their glucose at 0.84 mol a kilo. Their own
+  balance gives 4.3 mol (a 3 ng cell doubling in 42.9 h): a cell that turns 1.05 mol of lactate out per mol of glucose must take up
+  far more glucose to burn and build the same amounts. That is 4.5 mol of lactate a kilo, and at the 50 mmol/L limit it needs 89.8
+  litres of medium.
+  Lactate sets their medium now, not ammonia (28 litres).
+- **The tank tricks do little for these cells.** The column with an oxygen sweep and 1 bar takes them from $62.31 to $59.33, 5%.
+  It takes the floor's cell from $12.81 to $10.66, 17%. The tricks raise the density, which cuts the plant's cost per kilo. They
+  do not cut the litres, and the litres are most of what these cells cost. An earlier reading of this table, that the tricks
+  bring the best-shown meat cells into the mid-$20s, no longer holds.
+- **Fed fat is the one tank-side case that helps them: $62.31 to $43.64.** Fat in the feed spares the glucose that would be built
+  into fat (three quarters of the 0.88 mol built in). With a yield fixed per mol of glucose taken up, less glucose means less
+  lactate: glucose falls from 4.3 to 2.9 mol, lactate from 4.5 to 3.0, and the medium from 89.8 to 60.5 litres. This rests on the lactate yield staying at 1.05 when fat is fed, which
+  nobody has measured.
+- **Ordinary cells and the floor's cell did not move.** Ammonia sets their medium (140 and 28 litres), and the balance does not
+  change ammonia.
+- **For cells like these the first job is the cells, not the tank.** Lactate at 0.39 per glucose with the same ammonia (the
+  second row) costs $22.32 in the same tank, $40 less than the best shown.
+
+The figures elsewhere in this note are on the 2026-11-14 settings (see the top). On those the same case moved from $17.47 to
+$26.74 with the sparger, and from $13.13 to $22.39 with every trick; fed fat gives $20.13.
 
 ---
 

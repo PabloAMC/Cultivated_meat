@@ -2,10 +2,13 @@
 """test_market_size_loop.py — cost falling with market size, solved with the share (market_size_loop.py).
 
 Checks that with no learning the module returns each scenario's own cost, that cost falls with volume and never below the cost at the
-floors, that a resting point is one (its cost buys the share its volume is), that premium products alone just carry Central past the
-membrane switch while ordinary cuts make most of its sales, that Central crosses even a slow-learning switch on its own (one resting
-point), how the premium products respond to price against history, and that the note and RESULTS.md carry the module's tables and
-the figures their prose quotes. Runs as a script or under pytest.
+floors, that a resting point is one (its cost buys the share its volume is), and the conclusions the note draws since shoppers'
+liking became a Student's t spread (2026-11-19, second round): Central's whole sales need four to six times the membrane switch; its
+premium products alone reach it, but only with premium fillets and shrimp counted; premium products are about a quarter of its first
+sales and cuts most of them; with slow learning it has one resting point; published cells never start on their own; about a quarter
+of Central's gain comes from later rounds; and the premium products respond to price more than twice as strongly as farmed salmon did
+along its demand curve, inside history's totals. Also that the note and RESULTS.md carry the module's tables and the figures their
+prose quotes. Runs as a script or under pytest.
 """
 from __future__ import annotations
 
@@ -48,40 +51,78 @@ def check() -> list:
         c = s["comp"][(k, "resting point")]
         if abs(c["total"] - lo["volume_mt"]) > 1e-3 * lo["volume_mt"] + 1e-6:
             fails.append(f"{k}: the volumes by tier do not add to the resting point's volume")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly, so cuts are cheaper and Central sells more than four times as much.
-    # Premium products alone now just reach the switch for Central (1.11 million m2 against 1.0), not for today's cells or the
-    # best case; Central's and the best case's whole sales cross it by far.
+    # 2026-11-19 second round (Student's t spread of liking; first sales doubled by the heavier tail). Central sells 0.55 Mt a year
+    # at its own cost (0.26 with the audit batch's normal spread, 1.78 before the batch), needing 4.86 million m2 of membrane: 4.9
+    # times the switch (was 2.3 times; ten before the batch). Premium products alone reach the switch (1.31 million m2) only because
+    # the new row of premium fillets and shrimp counts as premium; the four small premium markets alone fall short (0.62). Without
+    # any premium product its other sales still cross (3.55). The best case's cells cross on premium products alone (5.13);
+    # published cells do not (0.12 million m2 for all their sales).
+    W = value("ms_world_meat")
     for k in L.SCEN:
         st = s["start"][(k, "central")]
-        whole = s["base"][k]["area_per_kg"] * s["model_share"][k] / 100.0 * value("ms_world_meat") * 1e9
-        if st["crosses"] != (k == "central") or (k != "today") != (whole > st["switch_m2"]):
+        if abs(st["whole_mt"] - s["model_share"][k] / 100.0 * W) > 1e-6 + 1e-6 * st["whole_mt"]:
+            fails.append(f"{k}: the volumes by tier at its own cost do not add to the model's share")
+        if st["crosses"] != (k != "today") or st["whole_crosses"] != (k != "today"):
             fails.append(f"{k}: premium products alone, or the whole sales, now stand differently against the membrane switch; rewrite the note")
-        if k == "central" and not st["area_m2"] < 1.25 * st["switch_m2"]:
-            fails.append("Central's premium products alone are now well past the switch, not just at it; rewrite the note")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; Central with slow learning crosses a 3 million m2 switch on its own sales,
-    # so it has one resting point (well below its own cost), not two.
+    st = s["start"][("central", "central")]
+    if not (st["switch_m2"] < st["area_m2"] < 1.5 * st["switch_m2"] and not st["small_crosses"]):
+        fails.append("Central's premium products alone no longer reach the switch by under half, and only with premium fillets and "
+                     "shrimp; rewrite the note")
+    if not 4.0 * st["switch_m2"] < st["whole_area_m2"] < 6.0 * st["switch_m2"]:
+        fails.append("Central's whole sales no longer need four to six times the switch's membrane area; rewrite the note")
+    if not st["whole_area_m2"] - st["area_m2"] > _case("slow learning")["ms_switch_area"]:
+        fails.append("without premium products Central's other sales no longer pass even a 3 million m2 switch; rewrite the note")
+    if not s["start"][("best", "central")]["small_crosses"]:
+        fails.append("the best case's four small premium markets alone no longer cross the switch; rewrite the note")
+    # 2026-11-19 second round: a switch at 3 million m2 is again below what Central's sales need (4.86 million), so with slow
+    # learning it crosses on its own and has ONE resting point, $21.91 and 0.59%. (With the audit batch's normal spread: two,
+    # $32.48 left alone and $22.07 if pushed. After the cut-cost repin: one, $18.69.) With everything else central a 3 million m2
+    # switch costs it 21 cents (was: stopped it at $31.66).
     lo, hi = s["solved"][("central", "slow learning", "below")], s["solved"][("central", "slow learning", "above")]
-    if not (abs(hi["volume_mt"] - lo["volume_mt"]) < 1e-3 * hi["volume_mt"] and lo["area_m2"] > _case("slow learning")["ms_switch_area"]
-            and lo["cost"] < 0.8 * s["base"]["central"]["cost"]):
+    own, slow_switch = s["base"]["central"]["cost"], _case("slow learning")["ms_switch_area"]
+    if not (abs(hi["volume_mt"] - lo["volume_mt"]) < 1e-3 * hi["volume_mt"] and lo["area_m2"] > slow_switch and lo["cost"] < 0.8 * own):
         fails.append("Central with slow learning no longer crosses the switch on its own to one resting point; rewrite the note's section 3")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; premium products are now a small part of Central's sales (11%), ordinary
-    # cuts most of it.
+    sw = s["sens"]["central"][0]["cost"]
+    if not (sw[1] < 0.6 * own and sw[1] - sw[0] < 0.5):
+        fails.append("the switch's level now moves Central's resting cost by 50 cents or more; the note says it matters little")
+    # 2026-11-19 second round: published cells cost $111.89 and sell 0.002% of world meat (about 6,000 t a year). Left alone they
+    # stay within $2 of their own cost in every case; only fast learning has an upper resting point ($75.43), which needs a push.
+    # (With the normal spread they sold nothing and had one resting point everywhere.)
+    t0 = s["base"]["today"]["cost"]
+    if not all(s["solved"][("today", case, "below")]["cost"] > t0 - 2.0 for case in L.CASES) or not all(
+            s["solved"][("today", case, start)]["share"] < 0.01 for case in L.CASES for start in ("below", "above")):
+        fails.append("published cells now leave their own cost unaided, or reach 0.01% of world meat; the note says they never start on their own")
+    up = s["solved"][("today", "fast learning", "above")]
+    if not (up["cost"] < 0.8 * t0 and all(abs(s["solved"][("today", case, "above")]["cost"] - s["solved"][("today", case, "below")]["cost"]) < 0.01
+                                          for case in L.CASES if case != "fast learning")):
+        fails.append("published cells no longer have an upper resting point with fast learning only; rewrite the note's section 3")
+    # 2026-11-19 second round: premium products are about a quarter of Central's first sales (27%; 13% without premium fillets and
+    # shrimp) and ordinary cuts most of them (62%). (With the normal spread: premium 47%, beef steaks the other half. Before the
+    # audit batch: premium 11%.)
     c0 = s["comp"][("central", "no learning")]
-    if not (0.05 < c0["premium_of_sales"] < 0.2 and c0["cut"] > 0.5 * c0["total"]):
-        fails.append("premium products' part of Central's sales has left 5-20%, or cuts are no longer most of it; rewrite the note")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly; where cultivated meat is still dearer than the premium product at both
-    # costs it responds within history's range (along the curve to the totals); where it undercuts it once the membrane is cheap
-    # (prime beef 0.52x, sushi 0.67x at $15.05) it responds less than history along the curve; none above the totals.
-    for n, v in s["response"]["products"].items():
-        dearer = v["R"][1] > 1.0
-        if dearer and not L.HISTORY_ALONG_CURVE[0] <= v["response"] < L.HISTORY_TOTAL[1]:
-            fails.append(f"{n}: the response to price where cultivated meat is dearer has left history's range; rewrite the note")
-        if not dearer and not 0.5 * L.HISTORY_ALONG_CURVE[0] < v["response"] < L.HISTORY_ALONG_CURVE[0]:
-            fails.append(f"{n}: the response to price where cultivated meat undercuts is no longer below history's; rewrite the note")
+    if not (0.2 < c0["premium_of_sales"] < 0.35 and 0.08 < c0["premium_small_of_sales"] < 0.2 and c0["cut"] > 0.5 * c0["total"]):
+        fails.append("premium products are no longer about a quarter of Central's sales at its own cost, or cuts no longer most of them; "
+                     "rewrite the note")
+    # 2026-11-19 second round: all five premium products respond to price at 3.3-3.7, whether cultivated meat stays dearer or ends
+    # cheaper: more than twice the top of farmed salmon's range along the demand curve (1-1.5), so the check still fails, but inside
+    # history's totals (1.3-4.1). (With the normal spread: 5.2-7.5 where dearer, above the totals; 2.6 and 3.3 where cheaper.)
+    resp = s["response"]["products"]
+    if sorted(resp) != ["beef (prime/wagyu)", "chicken (organic)", "pork (heritage)", "seafood (premium fillet, shrimp)", "seafood (sushi)"]:
+        fails.append("the model's premium products are no longer the five the note lists; rewrite the note")
+    for n, v in resp.items():
+        if not 2.0 * L.HISTORY_ALONG_CURVE[1] < v["response"] < L.HISTORY_TOTAL[1]:
+            fails.append(f"{n}: the response to price is no longer more than twice salmon's range along the curve and inside history's "
+                         "totals; rewrite the note")
 
-    for k in ("central", "best"):
-        if not s["passes"][k]["later_rounds"] < 0.35:
-            fails.append(f"{k}: later rounds now give 35% or more of the share gain; the note says it is mostly one step")
+    # 2026-11-19 second round: Central's own volume is 4.9 times the switch, so the first pass buys most of the learning: later
+    # rounds give 25% of its share gain (35% with the normal spread; 19% before the audit batch). The best case's cells: 5%.
+    if not 0.15 < s["passes"]["central"]["later_rounds"] < 0.35:
+        fails.append("later rounds no longer give about a quarter of Central's share gain; rewrite the note's section 5")
+    if not s["passes"]["best"]["later_rounds"] < 0.15:
+        fails.append("best: later rounds now give 15% or more of the share gain; the note says it is one step")
+    # 2026-11-19 second round: at Central's own cost the model now gives more than the curve fitted to premium meats (0.16% against 0.10%)
+    if not s["anchored"]["central"]["own"] < s["model_share"]["central"]:
+        fails.append("at Central's own cost the demand anchored on premium meats is no longer below the model's; rewrite the note")
     if not s["anchored"]["best"]["share"] < 0.7 * s["passes"]["best"]["rest"][1]:
         fails.append("the best case's share with demand anchored on premium meats is no longer well below the main model's; rewrite the note")
 
@@ -90,8 +131,15 @@ def check() -> list:
     for k in L.SCEN:
         for case in L.CASES:
             r = sv[(k, case, "below")]
-            quoted += [f"${r['cost']:.2f}", f"{r['share']:.2f}%"]
+            quoted += [f"${r['cost']:.2f}", L._pct(r["share"])]       # 2026-11-19 audit batch: shares under 0.01% are written so
         quoted.append(f"${s['floor'][k]['cost']:.2f}")
+    # 2026-11-19 audit batch: every share in this study uses the model's ordinary demand (13% at equal price). The note also gives
+    # the best case's cells with the best case's own demand (55%): they rest at the floors.
+    own_demand = lambda cost: S.shares(cost, regions=("global",), eqs="best_equal_price_share")["global"]
+    r = L.solve(S.SCENARIOS["best"].choice, share=own_demand)
+    if abs(r["cost"] - s["floor"]["best"]["cost"]) > 0.01:
+        fails.append("with its own demand the best case's cells no longer rest at the floors; rewrite the note")
+    quoted += [f"{own_demand(s['base']['best']['cost']):.1f}%", f"{r['share']:.1f}%"]
     for name, tables in (("research_notes/market_size_loop.md", [L.markdown_ladder(), L.markdown_solved(), L.markdown_composition(), L.markdown_start(), L.markdown_passes(),
                           L.markdown_sensitivity(), L.markdown_response()]), ("RESULTS.md", [])):
         text = open(os.path.join(ROOT, name), encoding="utf-8").read()
@@ -100,8 +148,8 @@ def check() -> list:
                 fails.append(f"{name} does not carry: {line[:90]}")
         up = sv[("central", "central", "above")]
         for q in (quoted if name.startswith("research") else
-                  [f"${sv[('central', 'central', 'below')]['cost']:.2f}", f"${up['cost']:.2f}", f"{up['share']:.2f}%",
-                   f"${sv[('best', 'central', 'below')]['cost']:.2f}", f"{sv[('best', 'central', 'below')]['share']:.2f}%"]):
+                  [f"${sv[('central', 'central', 'below')]['cost']:.2f}", f"${up['cost']:.2f}", L._pct(up["share"]),
+                   f"${sv[('best', 'central', 'below')]['cost']:.2f}", L._pct(sv[("best", "central", "below")]["share"])]):
             if q not in text:
                 fails.append(f"{name} does not quote {q}")
     return fails
