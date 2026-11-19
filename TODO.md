@@ -89,10 +89,12 @@ Raised by Pablo on 2026-11-16 (open):
       whether mince should carry the same cell share, or say why not.
 - [x] **The audit batch** (2026-11-19, `audit_2026-11-19.md`): ammonia tolerance 4 mM, lost-run membranes, glucose balance, seafood
       prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
-- [ ] **The tail of shoppers' liking.** A normal spread makes the share fall too fast far above parity: against farmed salmon's history
-      the model responds 5.2-7.5 where 1-1.5 was measured, and its slope between 2 and 3 times the price is 3.8 against premium meats'
-      2.2. A heavier-tailed spread (logistic or Student's t), fitted to the choice experiment and the sixteen premium meats together,
-      would fix both and would raise Central's share (probably to 0.1-0.2%). Needs the quadrature changed in Python and on the page.
+- [x] **The tail of shoppers' liking** (2026-11-19): Student's t, sd 3.9, 4 degrees of freedom; the 15-point rule replaced.
+- [ ] **Farmed salmon's response still fails** (3.6-3.7 against 1-1.5). No spread that keeps the choice experiment's elasticities reaches
+      it without a block of shoppers who ignore price (the mixture's corner). The best case's share with its own demand is the least
+      pinned consequence of the fit (shapes that fit give 14-17%).
+- [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
+      zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
 - [ ] **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
       `sc_nh3_limit` not drawn): as drawn Central $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
 - [ ] **The nutrient floor's glucose** is a third glucose figure (0.32 kg a kilo, all burned); tie it to the balance (a few cents).

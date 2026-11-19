@@ -2,6 +2,30 @@
 
 ## 2026-11-19
 
+**Shoppers' liking: a Student's t spread, and an integration error found** (`market_share.py`, `inputs.py`,
+`liking_spread.py --families`, `research_notes/liking_spread.md`; **defaults changed**)
+- The normal spread of 5 utils fitted on 2026-11-18 was integrated on 15 points, too few for a spread that wide. Integrated properly it
+  gives a first-contact elasticity of -1.34, not -1.53, and misses the choice experiment (0.29, not 0.15).
+- A normal tail also falls too fast far above price parity: against sixteen premium real meats at 4 times the price (0.6%) it gave 0.1%,
+  and against farmed salmon's history (1-1.5% more volume per 1% lower price) it gave 5.2-7.5.
+- Now a Student's t spread, standard deviation **3.9 utils**, **4 degrees of freedom**, on a 67-point grid, fitted to the choice
+  experiment and the premium meats together. Shares at 2, 3, 4 times the price: 3.3%, 1.0%, 0.35% (premium meats 3.7%, 1.5%, 0.6%);
+  salmon response 3.6-3.7 (still fails, by half as much); first contact 4.3% of all choices, 4.8% of those who buy a meat (the
+  experiment: 4% and 5%), so the 13% at equal price stays. At half the price of meat 24.5%; if free 41.5%.
+- Compared and not chosen: logistic (helps little), a two-group mixture (fits best, but with two parameters on a ridge and a block of
+  shoppers who ignore price).
+- Shares: Central 0.08% -> **0.16%** at the most-likely-values cost, median **0.11%** (0.02-0.6%); best case 20% -> **13.8%**, median
+  **6.8%** (2.5-14.8%), 2.7% with Central's demand; forecast median 0.07% -> 0.2%. The best case fell because the fitted spread is
+  narrower in the middle, which no data pin. Years to nine-tenths of the long-run share at the reported cost: 28 -> 21.
+
+**The page rebuilt** (`build_interactive.py`, `page_scenarios.js`; spec and review in the audit note)
+- One page, one case selector (Published cells, Central case, Best case, Your own settings), no short and detailed modes.
+- First screen: one generated sentence, three numbers (cost, shop price, long-run share: medians with their ranges), and one chart of
+  long-run share against the cost of cells, shaded by the share of shoppers who would choose it at equal price.
+- Six levels that open in place: what each case assumes (with a ladder), what would move it most (switches, unmeasured estimates and
+  shopper judgements in one ranking), where and when, check the engineering, check the shopper model, method and sources.
+- One link style; the reviewer's text errors fixed; no build stamp.
+
 **The audit before sending: one batch of fixes** (`research_notes/audit_2026-11-19.md`; four reviewers with no prior context read
 the cost side, the demand side, the page and the literature on shoppers' choices; **defaults changed**)
 
