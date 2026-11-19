@@ -94,7 +94,7 @@ def build_model() -> dict:
             "tff": {"on": value("rt_tff_default") >= 0.5, "flux": value("rt_flux_lmh"), "hw": value("rt_tff_hw"), "install": value("rt_install"),
                     "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life")},
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
-            "x_waste": value("pf_x_unperfused"),
+            "batch_end": value("pf_batch_end_x"), "batch_half": value("pf_batch_half_x"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
             "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"), "antifoam": value("pf_antifoam_otr"), "protect_dose": value("pf_protectant_dose"),
             "protect_price": value("pf_protectant_price"), "o2_microbial": value("pf_o2_microbial") >= 0.5,
@@ -1033,7 +1033,7 @@ def _scenario_tokens() -> dict:
             out["RETAIL_CENTRAL"] = f"{AU.retail(r['total']):.0f}"
             out["RETAIL_CENTRAL_FLAT"] = f"{AU.retail(r['total'], 'flat'):.0f}"
             out["RETAIL_CENTRAL_PROP"] = f"{AU.retail(r['total'], 'proportional'):.0f}"
-        if key in ("process", "central", "best"):
+        if key in ("central", "best"):
             tr = S.tricks_report(choice)
             out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
             out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
@@ -1224,13 +1224,14 @@ def page_data() -> dict:
         "today": (
             f"<p><b>What it assumes.</b> The best meat cells in the published record: cattle cells fed without glutamine, which "
             f"double every {hours('today')} hours and turn most of their glucose into lactate (Hubalek 2023). Companies may hold "
-            f"better cells that they have not shown. The plant is food-grade. The tank is an ordinary stirred tank of {tank:.0f} "
-            f"cubic metres, run in perfusion with no more gas than anyone has run. Medium costs "
+            f"better cells that they have not shown. The plant is food-grade. The cells are grown in batches (fed-batch) in an "
+            f"ordinary stirred tank of {tank:.0f} cubic metres, the mode and size pharma runs and Upside Foods reports. Medium costs "
             f"{_money(kw('today')['medium_price'], 2)} a litre, with growth factors in that price, as companies report today.</p>"
-            f"<p><b>What has to go right.</b> Nothing new in the cells. But nobody has run animal cells in perfusion above about "
-            f"{perf_max:.0f} cubic metres, and no device yet holds cells back at this size.</p>"
-            f"<p><b>Why it is dear.</b> Each kilo of cells needs about {r['today']['medium_l']:.0f} litres of medium, set by "
-            f"{med('today')}. The filter that holds the cells back is paid for by the litre, so its cost grows with the medium.</p>"
+            f"<p><b>What has to go right.</b> Nothing new: this has been done at this size. Nobody has run animal cells in "
+            f"perfusion above about {perf_max:.0f} cubic metres.</p>"
+            f"<p><b>Why it is dear.</b> Nothing washes the waste out of a batch, and these cells make so much lactate that the "
+            f"batch stops at about {r['today']['density']:.0f} g of cells a litre. Each kilo then carries the plant's cost of a "
+            f"thin tank, and leaves with about {r['today']['medium_l']:.0f} litres of medium.</p>"
             + _odds_html(("perf20",))),
         "central": (
             f"<p><b>What it assumes.</b> The same low-ammonia feed, with cells selected on it until they double every "
@@ -1259,7 +1260,7 @@ def page_data() -> dict:
             + f"<p>The author gives no odds for the {eqs_b:.0%}. This case is the favourable end of what the model allows, not what to expect.</p>"),
     }
     one_line = {
-        "today": "The best meat cells anyone has published, in an ordinary tank.",
+        "today": "The best meat cells anyone has published, grown in batches in an ordinary tank.",
         "central": "A changed feed and tank, cheaper inputs, and cells selected to grow faster. No genetic engineering.",
         "best": "Everything works, including engineered cells and shoppers who slightly favour it.",
     }
@@ -1281,12 +1282,13 @@ def page_data() -> dict:
 
     # the ladder: each step adds one kind of change to the one before (scenarios.LADDER)
     step_text = {
-        "today": ("Published cells in an ordinary tank", "needs nothing new"),
+        "today": ("Published cells, grown in batches in an ordinary tank", "needs nothing new"),
         "process": ("Change the process and buy cheaper inputs", "needs a change of process and cheaper inputs"),
-        "central": ("Select cells that grow faster on the low-waste feed. This is the Central case", "needs selected cells"),
+        "selected": ("Select cells that make less waste and grow faster on the low-waste feed", "needs selected cells"),
+        "central": ("Run the tank in perfusion: a filter holds the cells back. This is the Central case", "needs perfusion at 20 m³"),
         "central_lean": ("Build a cheaper plant: food-grade, with shared medium", "needs a cheaper plant"),
-        "best": ("Engineer the cells, and put every other switch at its cheapest plausible setting. This is the Best case",
-                 "needs genetic engineering"),
+        "engineered": ("Engineer the cells to make almost no waste", "needs genetic engineering"),
+        "best": ("Put every other switch at its favourable end. This is the Best case", "needs everything to work"),
     }
     ladder = []
     for k in S.LADDER:
@@ -1359,11 +1361,9 @@ def _tank_note() -> str:
 def _other_estimates_html() -> str:
     """Level 1's small table: the 2035 forecast, Humbird's optimistic design and a company's own report, on the cases' basis."""
     import scenarios as S
-    rows = S.table_rows()[len(S.PAGE_ORDER) - 1:]                 # the forecast, Humbird's design, the reported process
-    names = ("The author's forecast for 2035", "Humbird's optimistic design", "As a company reports")
-    what = ("Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035: Central's "
-            "cells in a food-grade plant with shared medium and fewer lost runs. A first draft.",
-            "Humbird's 2021 design: his engineered cells in an ordinary perfusion tank, a food-grade plant, no tank tricks and no lost "
+    rows = S.table_rows()[len(S.PAGE_ORDER):]                     # Humbird's design, the reported process (no forecast since 2026-11-19)
+    names = ("Humbird's optimistic design", "As a company reports")
+    what = ("Humbird's 2021 design: his engineered cells in an ordinary perfusion tank, a food-grade plant, no tank tricks and no lost "
             "runs. It assumes the hardest change and none of the easy ones.",
             "SuperMeat's 2024 report of its own process, scaled up on paper, with a yearly charge on its plant added. "
             "The company's figures have not been peer reviewed.")
@@ -1562,9 +1562,10 @@ def _industry_html() -> str:
     import html as _h
     import industry_claims as IC
     import page_sections as ps
-    names = {"today": "Published cells", "process": "Step 2: process changes and cheaper inputs", "central": "Central case",
-             "central_lean": "Step 4: a cheaper plant, with shared medium", "best": "Best case",
-             "forecast": "The author's forecast for 2035", "reference": "Humbird's optimistic design"}
+    names = {"today": "Published cells", "process": "Step 2: process changes and cheaper inputs",
+             "selected": "Step 3: selected cells, in batches", "central": "Central case",
+             "central_lean": "Step 5: a cheaper plant, with shared medium", "engineered": "Step 6: engineered cells", "best": "Best case",
+             "reference": "Humbird's optimistic design"}
     out = ps.industry_claims()
     for k, new in names.items():
         old = f"<tr><td>{_h.escape(IC.NAMES[k])}</td>"
@@ -1841,7 +1842,7 @@ expert has reviewed the model yet. It is not investment or business advice. <a h
 <li><span class="lv">Level 1</span><span><a href="#assumes">What each case assumes</a> <span class="ld">What has to go right, and the steps from the published cells to the best case.</span></span></li>
 <li><span class="lv">Level 2</span><span><a href="#moves">What would move it most</a> <span class="ld">Choices, unmeasured estimates and judgements about shoppers, ranked.</span></span></li>
 <li><span class="lv">Level 3</span><span><a href="#where">Where and when</a> <span class="ld">By type of meat, by region, and over time.</span></span></li>
-<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The ten switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
+<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The eleven switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
 <li><span class="lv">Level 5</span><span><a href="#shoppers">Check the shopper model</a> <span class="ld">The shopper settings, share against price, and other products.</span></span></li>
 <li><span class="lv">Level 6</span><span><a href="#method">Method, sources, limits</a> <span class="ld">Equations, inputs, references and the questions a sceptic would ask.</span></span></li>
 </ul>
@@ -1860,9 +1861,9 @@ holds 8 in 10 draws. The tag says what the step needs.</p>
 <details class="tv"><summary>Show the steps as a table</summary><div class="scrollx" id="l1table"></div></details>
 </div>
 <p class="small">{{TANK_NOTE}}</p>
-<p class="small"><b>What the cases assume about the tank.</b> Nobody has run any of these tank designs with animal cells. The Published cells
-case has no tank tricks. From the second step on, the tank clears CO&#8322; without more bubbles. The second step uses {{TRICKS_PROCESS_LIST}}.
-Without these it costs ${{TRICKS_PROCESS_NO}} a kilo in a tank of the same shape, and ${{TRICKS_PROCESS_ORD}} in the ordinary tall tank. The
+<p class="small"><b>What the cases assume about the tank.</b> The Published cells case and the next two steps grow the cells in
+batches in an ordinary 20 m&sup3; tank (fed-batch), as pharma and Upside Foods do; a batch this thin needs no tank tricks. From the
+Central case on, the tank is run in perfusion, which nobody has run with animal cells above about 4 m&sup3;. The
 Central case uses {{TRICKS_CENTRAL_LIST}}: ${{TRICKS_CENTRAL_NO}} without them, and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. The Best
 case uses {{TRICKS_BEST_LIST}}: ${{TRICKS_BEST_NO}} without them, and ${{TRICKS_BEST_ORD}} in the ordinary tall tank. These are costs with
 every estimate at its most likely value, calculated, not measured. The switches &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; in
@@ -1886,7 +1887,7 @@ its single most likely value instead.</p></details>
 <span class="ls">The kind of cells moves the cost most. How much shoppers like it moves the share as much as cost does.</span></summary>
 <div class="lb">
 <p>Each row moves one thing and leaves the rest alone. The start is the selected case with every estimate at its most likely value.
-Three kinds of thing can move: <span class="tag">a choice</span> is one of the ten switches, something a company decides or achieves;
+Three kinds of thing can move: <span class="tag">a choice</span> is one of the eleven switches, something a company decides or achieves;
 <span class="tag">an estimate nobody has measured at scale</span> is a number the model had to take from other cells, from small cultures or from calculation;
 <span class="tag">a judgement about shoppers</span> cannot be measured before the product is on sale.</p>
 <div class="chart">
@@ -1969,7 +1970,7 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
 <details class="sub" id="fxwrap"><summary>All the levers: build your own case from the physics</summary>
       <div class="fx" id="fx">
         <p>When you move a lever, the model applies the physics. The tank holds only as many cells as it can supply with oxygen, clear of
-        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The ten switches above are
+        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The eleven switches above are
         ten of these levers. The rest are here.</p>
         <div class="ctl"><label for="fx_sc"><span class="nm">Start from a case</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
@@ -2157,7 +2158,8 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         assumption. How many litres carry the feed depends on the waste the cells make. Fresh medium must wash ammonia out before it
         passes {{NH3_LIMIT}} mmol a litre, the level the cases' cells are taken to tolerate, and lactate likewise. The model works out
         the glucose a kilo of cells takes up from the cells' own balance: what they build, what they burn and what they turn into
-        lactate. The published cells need about {{MEDIUM_L_TODAY}} litres of medium a kilo, set by lactate. The Central case's
+        lactate. Grown in batches, the published cells stop thin, held by their lactate, so each kilo leaves with about {{MEDIUM_L_TODAY}}
+        litres of medium. The Central case's
         selected cells need {{MEDIUM_L_CENTRAL}}, set by ammonia, and the engineered cells {{MEDIUM_L_BEST}}. Companies reported medium at
         $0.20 a litre or less in 2025, and an amino-acid cost analysis by GFI and MG Consulting supports that level [3]. Nobody has
         verified it at production scale.</li>
@@ -2173,7 +2175,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         plant protein, plus ${{SCAF}}/kg to assemble it. No study has costed this for cultivated meat. The figures come from plant-protein
         extrusion, surimi and binder prices [6].</li>
       </ul>
-      <p><b>The cases.</b> How these parts come out depends on ten decisions, the switches in
+      <p><b>The cases.</b> How these parts come out depends on eleven decisions, the switches in
       <a href="#engineering">Check the engineering</a>. A case is a preset of them. Every cost on this page is for one kilo of real
       cells, which are about 70% water and 20% protein, like meat, in 2025 prices. At the median of the draws a kilo costs
       ${{TODAY_COST_P50}} with the published cells (8 in 10 draws between ${{TODAY_COST_P10}} and ${{TODAY_COST_P90}}),
@@ -2854,6 +2856,8 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
            income:(income===undefined?K.income_ref:income),
            pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, lsd:sd, lmean:mean};
   const M=segShares(R,K,"M",o), E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
+  if(which==="x_meat"){ const x=K.w_eth*E.x+(1-K.w_eth)*M.x;     // share of the meat sold, x/(x+c) (mirror of market_share.share)
+    return x/Math.max(x+K.w_eth*E.c+(1-K.w_eth)*M.c,1e-300); }
   return K.w_eth*E[key]+(1-K.w_eth)*M[key];
 }
 /* re-solve the calibration (mirror of market_share.solve_calibration): three monotone
@@ -3011,7 +3015,7 @@ function penetration(s){
   const rows=market.map(mt=>{
     const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
     const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv};
-    const sh=shareCalc(R,K,o);                                      // cultivated share of this type
+    const sh=shareCalc(R,K,Object.assign({},o,{which:"x_meat"}));  // cultivated share of the meat of this type sold, x/(x+c)
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
     return {mt,R,sh,shp,t};
   });
@@ -3744,7 +3748,7 @@ function monteCarlo(s,N){
     for(const mt of market){
       const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,ramp,sd);
-      const sh=shareCalc(R,KP,o);
+      const sh=shareCalc(R,KP,Object.assign({},o,{which:"x_meat"}));   // share of the meat sold (mirror of meat_market.monte_carlo)
       // plant-based share of this type, in the SAME sampled world (same cultivated draw), with PB's
       // own sampled positions.
       const shp=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
@@ -3768,7 +3772,7 @@ function perTypeMC(s,N){
     for(const mt of market){
       const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,ramp,sd);
-      acc[mt.name][d]=shareCalc(R,KP,o);
+      acc[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{which:"x_meat"}));
       accP[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
     }
   }
@@ -4207,6 +4211,12 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom,se,af){
           loop_volume:loopVol, ph_rise:dph, ph_vs_safe:dose/safe, ph_vs_paul:dose/paul, passes_tested:passes<=G.passes_tested+1e-9,
           energy_kg:energy, gas_kg:gas, co2_loop:co2loop, o2_short:o2short};
 }
+function fxBatchSlow(endX,doublings){   // mirror of floor_physics.batch_slowdown: the last doublings of a batch that ends above the level
+  if(endX<=1||doublings<=0) return 1;
+  const K=C.fx.batch_half, h=Math.log(9)/Math.log(K), span=doublings*Math.LN2, n=40; let tot=0;
+  for(let i=0;i<n;i++){ const c=endX*Math.exp(-span*(i+0.5)/n); tot+=c<=1?1:(1+Math.pow(c/K,h))/(1+1/9); }
+  return tot/n;
+}
 function floorExplore(p,noSearch){
   const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)
   const perf=vm.washed!==undefined?vm.washed:p.mode==="perfusion", cyclic=vm.kind==="cyclic", wv=vm.wv!==undefined?vm.wv:F.wv;
@@ -4236,10 +4246,11 @@ function floorExplore(p,noSearch){
   if(perf&&!vm.own_retention&&!tff) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0, cycleH=null, runsYr=null, runFrac=1;
-  if(cyclic){                       // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
-    const h=p.hazard||0, grow=vm.n_doublings*cell.td; cycleH=grow+vm.turnaround_h;
+  const cyc=slow=>{                 // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
+    const h=p.hazard||0, grow=vm.n_doublings*cell.td*slow; cycleH=grow+vm.turnaround_h;
     const pFail=h<=0?0:1-Math.exp(-h*cycleH/24);
-    cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH;
+    cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH; };
+  if(cyclic){ cyc(1);
   } else if(uptime===undefined){
     const clean=vm.clean_uptime!==undefined?vm.clean_uptime:(p.mode==="perfusion"?F.uptime_perfusion:F.uptime_filldraw), restart=F.run_days*(1/clean-1);
     const L=p.run_days===undefined?(vm.run_days!==undefined?vm.run_days:F.run_days):p.run_days, h=p.hazard||0;
@@ -4269,17 +4280,17 @@ function floorExplore(p,noSearch){
   const glcBal=(F.glc_anabolic*(1-0.75*(p.fat_fed||0))+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6)/Math.max(0.05,1-(p.lac_yield||0)/2);
   const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:(p.glc_balance?glcBal:F.glc_kg)):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
   const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
-  // ammonia relative to enhanced cells, at the ammonia limit in force (mirror of floor_physics.explore: a tank that is not
-  // washed builds waste up to the limit, so a lower limit caps the density sooner)
-  const wf=nh3/(F.nh3[0]*burn)*(F.nh3_limit/nh3Lim);
   const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
-  // a tank that is not washed is capped by whichever waste builds up first: ammonia (wf) or, when the cells' lactate yield is
-  // set explicitly, lactate relative to the enhanced cells at the same oxygen burn (lf). Mirror of floor_physics.explore.
-  const lf=p.lac_yield!==undefined?lac/(F.lac[0]*burn):0;
-  if(!perf){ limits.push(["waste build-up",F.x_waste/load/Math.max(wf,lf)]);
+  // a tank that is not washed out holds what its cells make: the litres a kilo leaves with must hold its ammonia and lactate at
+  // the level perfusion is held to, times batch_end for a batch that ends above it (mirror of floor_physics.explore, 2026-11-19)
+  const steady=!!vm.dil_frac, endX=steady?1:F.batch_end;
+  if(!perf){ limits.push(["waste build-up",endX*Math.min(nh3Lim/Math.max(nh3,1e-12),lacRoom/Math.max(lac,1e-12))]);
     limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
-  const shape=vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))), rec=vm.recovery===undefined?1:vm.recovery;
+  let slow=1;
+  if(!perf){ const endRatio=steady?1:lim[1]*Math.max(nh3/nh3Lim,lac/lacRoom);
+    slow=fxBatchSlow(endRatio,cyclic?vm.n_doublings:Math.log2(1/(1-F.draw))); if(cyclic) cyc(slow); }
+  const shape=(vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))))/(cyclic?1:slow), rec=vm.recovery===undefined?1:vm.recovery;
   const out=cyclic?wv*lim[1]*rec*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost)*rec;
   let colR=null;
   if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol,p.strip_eff,p.antifoam_otr); capex+=colR.capex_k_m3; }
@@ -4295,6 +4306,7 @@ function floorExplore(p,noSearch){
       if(sorb>0) terms["salt"]=1000*(2*lac+sorb*nh3)/Math.max(2,osmLim-F.osm_base-osmCo2);
       if(!vm.own_retention) terms["harvest"]=1000/lim[1];      // the culture that leaves with the harvested cells must be replaced
       need=Math.max.apply(null,Object.keys(terms).map(k=>terms[k])); }
+    else terms["harvest"]=1000/lim[1];          // all the medium leaves with the cells (mirror of floor_physics.explore, 2026-11-19)
     terms["nutrients"]=F.medium_l; }
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):((perf&&!vm.own_retention)?Math.max(p.medium_l,1000/lim[1]):p.medium_l), mp=p.medium_price===undefined?0.15:p.medium_price;

@@ -6,8 +6,8 @@ The model has about 500 inputs. Most serve side studies or a detail of the tank,
 finds the few that matter: it moves every input that has a range to the low and then the high end of that range, one at a
 time, and records what happens to
 
-  * the cost of a kilo of cells in Central and in the best case (each scenario's tank design held as it is), and
-  * the long-run share of world meat at Central's cost and at the best case's cost.
+  * the cost of a kilo of cells in Selected cells and in the Engineered cells, all favourable case (each scenario's tank design held as it is), and
+  * the long-run share of world meat at Selected cells' cost and at the Engineered cells, all favourable case's cost.
 
 It keeps the inputs that move either by more than a set amount, and says for each where its value comes from and whether the
 scenarios' uncertainty bands (`scenarios.bands`) already draw it. An input that moves the answer a lot, rests on an assumption,
@@ -30,8 +30,8 @@ import scenarios as S
 from inputs import value
 from market_share import DemandParams, share
 
-COST_MIN = 1.0           # $/kg in Central or the best case
-SHARE_MIN = (0.2, 2.0)   # percentage points of world meat, at Central's cost and at the best case's cost
+COST_MIN = 1.0           # $/kg in Selected cells or the Engineered cells, all favourable case
+SHARE_MIN = (0.2, 2.0)   # percentage points of world meat, at Selected cells' cost and at the Engineered cells, all favourable case's cost
 
 # plain names for the inputs that can appear in the tables (the test checks every row has one)
 PLAIN = {
@@ -39,7 +39,7 @@ PLAIN = {
     "sc_nh3_limit": "Ammonia the cells tolerate in the tank",
     "sc_nh3_selected": "Ammonia the selected cells make per kilo grown",
     "sc_nh3_engineered": "Ammonia the engineered cells make per kilo grown",
-    "sc_mass_selected_pg": "Weight of one selected cell",
+    "sc_mass_selected_pg": "Weight of one cell (every kind of cells since 2026-11-19)",
     "sc_p_top": "Pressure at the top of the tank, where the pressure trick is used",
     "rt_membrane_life": "Litres a m² of cell filter passes before it is replaced",
     "pf_protectant_price": "Price of the bubble protectant (poloxamer 188), bought by the tonne",
@@ -123,14 +123,13 @@ EVIDENCE = {
 IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add", "retail_margin"}
            | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS) | set(I.MC_CUT_INPUTS))
 if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
-    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected"}
+    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected", "sc_mass_selected_pg"}
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
 NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
-             "sc_nh3_engineered": "no: the best case assumes cells that reach it",
-             "sc_mass_selected_pg": "no: a trait of the cells, held by the kind-of-cells switch",
+             "sc_nh3_engineered": "no: the Engineered cells, all favourable case assumes cells that reach it",
              "sc_p_top": "no: a design choice",
-             "aa_intensity": "no: a trait of the cells, as glucose use is; the best case takes the efficient end",
-             "pf_osm_limit": "no: moves the best case's median by about $0.1, at forty times the computing time",
+             "aa_intensity": "no: a trait of the cells, as glucose use is; the Engineered cells, all favourable case takes the efficient end",
+             "pf_osm_limit": "no: moves the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time",
              "loss_aversion": "no: each value re-solves the demand model's calibration",
              "liking_sd": "no: the share at equal price is set given it",
              "liking_tail": "no: the share at equal price is set given it",
@@ -143,7 +142,7 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
 # inputs left out of the tables, and why
 EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
                               "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
-                              "($31.2 to $35.2 in Central) without changing any tank; it is left out.",
+                              "($31.2 to $35.2 in Selected cells) without changing any tank; it is left out.",
            **{k: None for k in ("sc_medium_mid", "sc_gf_part", "sc_hazard_cm", "sc_gas_mid", "sc_td_central", "sc_td_fast",
                                 "sc_restart_base", "sc_hazard_mid", "sc_medium_high")}}
 EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, "
@@ -171,7 +170,7 @@ def share_at(cost: float, region: str = "global", **over) -> float:
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
                      tier_offset=mm.tier_offset(mt, base, res, pr, cell_share), eps_own=eps,
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
-                     kappa=over.get("cult_sub_mult"))
+                     kappa=over.get("cult_sub_mult"), which="x_meat")
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
     margin = over.get("retail_margin", value("retail_margin"))
@@ -205,8 +204,8 @@ _CACHE: dict = {}
 
 
 def cost_drivers() -> list:
-    """Inputs that move Central's or the best case's cost by at least COST_MIN, largest swing in Central first. Each row:
-    {key, lo, hi, value, central: (at lo, at hi), best: (at lo, at hi), share: (Central's share at lo, at hi)}."""
+    """Inputs that move Selected cells' or the Engineered cells, all favourable case's cost by at least COST_MIN, largest swing in Selected cells first. Each row:
+    {key, lo, hi, value, central: (at lo, at hi), best: (at lo, at hi), share: (Selected cells' share at lo, at hi)}."""
     if "cost" in _CACHE:
         return _CACHE["cost"]
     rows = []
@@ -246,7 +245,7 @@ def demand_inputs() -> list:
 
 
 def demand_drivers() -> list:
-    """Demand inputs that move the share by at least SHARE_MIN at Central's or the best case's cost, largest at the best
+    """Demand inputs that move the share by at least SHARE_MIN at Selected cells' or the Engineered cells, all favourable case's cost, largest at the best
     case first. Each row: {key, lo, hi, value, central: (share at lo, at hi), best: (share at lo, at hi)}."""
     if "demand" in _CACHE:
         return _CACHE["demand"]
@@ -284,7 +283,7 @@ def _num(x: float) -> str:
 
 
 def markdown_cost() -> str:
-    out = ["| input | its range (model's value) | Central, $/kg | Central's share of world meat | best case, $/kg | "
+    out = ["| input | its range (model's value) | Selected cells, $/kg | Selected cells' share of world meat | Engineered cells, all favourable, $/kg | "
            "where the value comes from | in the uncertainty band? |", "|---|---|---|---|---|---|---|"]
     for r in cost_drivers():
         k, u = r["key"], I.REGISTRY[r["key"]].unit
@@ -296,7 +295,7 @@ def markdown_cost() -> str:
 
 
 def markdown_demand() -> str:
-    out = ["| input | its range (model's value) | share at Central's cost | share at the best case's cost | "
+    out = ["| input | its range (model's value) | share at Selected cells' cost | share at the Engineered cells, all favourable case's cost | "
            "where the value comes from | in the uncertainty band? |", "|---|---|---|---|---|---|"]
     for r in demand_drivers():
         k, u = r["key"], I.REGISTRY[r["key"]].unit
@@ -311,12 +310,12 @@ def main() -> None:
         print(markdown_cost() + "\n\n" + markdown_demand())
         return
     s = summary()
-    print(f"{s['inputs']} inputs, {s['ranged']} with a range. Central ${s['central']:.2f} ({s['central_share']:.2f}%), "
+    print(f"{s['inputs']} inputs, {s['ranged']} with a range. Selected cells ${s['central']:.2f} ({s['central_share']:.2f}%), "
           f"best ${s['best']:.2f} ({s['best_share']:.2f}%).")
-    print(f"{len(s['cost_rows'])} move a cost by ${COST_MIN:g} or more; {s['over_3']} move Central by more than $3.")
+    print(f"{len(s['cost_rows'])} move a cost by ${COST_MIN:g} or more; {s['over_3']} move Selected cells by more than $3.")
     print(f"{len(s['demand_rows'])} demand inputs move the share by {SHARE_MIN[0]:g} / {SHARE_MIN[1]:g} points or more.")
-    print(f"Share at Central's cost, across them: {s['central_share_span'][0]:.2f}–{s['central_share_span'][1]:.2f}%; "
-          f"at the best case's: {s['best_share_span'][0]:.1f}–{s['best_share_span'][1]:.1f}%.")
+    print(f"Share at Selected cells' cost, across them: {s['central_share_span'][0]:.2f}–{s['central_share_span'][1]:.2f}%; "
+          f"at the Engineered cells, all favourable case's: {s['best_share_span'][0]:.1f}–{s['best_share_span'][1]:.1f}%.")
     print("Not in the uncertainty band:", ", ".join(s["not_in_band"]))
     print()
     print(markdown_cost())

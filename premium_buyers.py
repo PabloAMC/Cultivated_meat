@@ -139,7 +139,7 @@ def world_share(cost: float, p: dict, *, d: float, region: str = "global", R_L: 
         took["rest"] += w * (off["p"] + off["w"] - on["p"] - on["w"])
         sold["all"] += w * on["x"]
         sold["premium"] += w * on["x_premium"]
-        return on["x"]
+        return on["x"] / max(on["x"] + on["c"] + on["L"], 1e-300)   # share of the meat sold (2026-11-19, as meat_market)
 
     _rows, vol, _val = mm._rollup(mm.MARKETS[region], cost, value("markup_add"), res, share_of)
     tot = sum(took.values()) or 1.0

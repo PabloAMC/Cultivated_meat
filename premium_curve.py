@@ -200,7 +200,7 @@ def cultivated_share(cost: float, p: dict, delta: float = 0.0, region: str = "gl
 
     def share_of(mt, R, base, r):
         return curve(max(R - d_price, 0.05), p, tier_offset=mm.tier_offset(mt, base, r, pr) + delta,
-                     eps_own=pr.eps_own, income=income, p_ref=mt.p_conv)
+                     eps_own=pr.eps_own, income=income, p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (2026-11-19)
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), res, share_of)[1] * 100.0
 
 
@@ -217,7 +217,7 @@ def summary() -> dict:
     sets = {"the six used so far": data(high=False), "all sixteen": data(), "sixteen plus Ibérico": data() + ANALOGUES_IBERICO}
     fits = {name: {k: fit(k, rows) for k in ("one", "loyal")} for name, rows in sets.items()}
     main = fits["all sixteen"]["one"]["params"]
-    costs = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in ("today", "central", "forecast", "best")}
+    costs = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in ("today", "central", "best")}
     cases = delta_cases()
     shares = {k: {lab: cultivated_share(c, main, d_price=d) for lab, d in cases.items()} for k, c in costs.items()}
     _SUM.update(model=model, sets=sets, fits=fits, main=main, costs=costs, cases=cases, shares=shares,

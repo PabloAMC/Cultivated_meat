@@ -28,9 +28,9 @@ What this module does
    with. Premium products are the ones `meat_market.tier` labels premium. Since world seafood was re-priced on 2026-11-19 they
    are five: organic chicken, heritage pork, prime or wagyu beef, sushi-grade seafood, and the new row of premium fillets and
    shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. With the Student's t spread of liking
-   (2026-11-19) premium products are about a quarter of Central's sales at its own cost; most are ordinary cuts, a third beef
+   (2026-11-19) premium products are about a quarter of Selected cells' sales at its own cost; most are ordinary cuts, a third beef
    steaks. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
-   for Central the five do and the four small ones do not, and its whole sales need nearly five times the switch.
+   for Selected cells the five do and the four small ones do not, and its whole sales need nearly five times the switch.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables
@@ -51,7 +51,7 @@ VOLUMES = (0.01, 0.1, 0.5, 2.0, 10.0, 35.0)      # Mt of cultivated meat a year
 # the tables also give the count without it, so the four small premium markets the study began with can be read on their own.
 LARGE_PREMIUM = ("seafood (premium fillet, shrimp)",)
 LARGE_PREMIUM_NAME = "premium fillets and shrimp"
-SCEN = ("today", "central", "best")
+SCEN = ("cautious", "central", "best")   # 2026-11-19 restructure: rung 1 ("today") is a fed-batch with no filter to learn on; the published cells in perfusion are "cautious"
 NEVER = float("inf")
 CASES = {"central": {},
          "no food-grade membrane supplier, slow plant learning": {"ms_switch_area": NEVER, "ms_lr_plant": "lo"},
@@ -172,7 +172,8 @@ def premium_start(choice: dict, over: dict | None = None) -> dict:
     return {"premium_mt": comp["premium"], "area_m2": area, "switch_m2": switch, "crosses": area >= switch,
             "small_mt": comp["premium_small"], "small_area_m2": small, "small_crosses": small >= switch,
             "whole_mt": comp["total"], "whole_area_m2": whole, "whole_crosses": whole >= switch,
-            "switch_mt": switch / base["area_per_kg"] / 1e9}
+            # a fed-batch case filters nothing (2026-11-19 restructure: rung 1 is fed-batch), so no volume reaches the switch
+            "switch_mt": switch / base["area_per_kg"] / 1e9 if base["area_per_kg"] > 0 else NEVER}
 
 
 def ladder(choice: dict, over: dict | None = None) -> list:

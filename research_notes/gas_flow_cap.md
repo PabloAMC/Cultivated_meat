@@ -1,5 +1,7 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > **Current figures** (`floor_physics.explore`, 2026-11-19). The costs in the body were computed on 2026-11-14, when the case
@@ -156,7 +158,7 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
 | Humbird, Sect. 2.3 | Guidance on maximum sparge rate "is usually <0.1 vvm", citing Ozturk 1996 and Pörtner 2015; margin note: "0.01 vvm is common" (citing Nienow 2010), and protectant at more than 0.5 g/L is recommended in vigorously sparged cultures | [1] FT |
 | Humbird, Sect. 2.3 | He recasts the limit as a superficial velocity of 0.006 m/s at the top of the vessel, equal to 0.1 vvm in a 20 m³ tank of his shape with 5 psig back pressure | [1] FT. CALC check: 0.1 vvm of standard gas on 16 m³, at 37 °C and 1.34 bar, over 4.28 m² is 5.3 mm/s; on the full 20 m³ it is 6.7. Consistent |
 | Humbird, Sect. 5 | The limits "generally exceed the requirements of typical cell-culture processes"; at these extremes they are "dubious" and may be "needlessly conservative" (citing Nienow 2006) | [1] FT |
-| Ozturk 1996 | Not readable (paywalled, not in PubMed Central). The abstract has no gas-flow number | [2] ABS |
+| Ozturk 1996 | Not readable (paywalled, not in PubMed Selected cells). The abstract has no gas-flow number | [2] ABS |
 | Ozturk 1996, as restated | Cell lysis and foaming limit sparging to about 0.1 vvm. No scale or density | 2nd, via Sieblist 2011 [5] (one passage, read by automated extraction) |
 | Pörtner 2015 | Not readable. Abstract has no numbers | [3] ABS |
 | Nienow 2006 | No numeric maximum anywhere. Typical in 8–20 m³ tanks: velocity 0.1 to 2 mm/s, 0.005–0.01 vvm; 0.003 vvm at 20 m³. The upper limit on velocity with protectant present "is not established" and cannot be tested at bench scale; he calls for pilot-scale work including foam | [4] FT |
@@ -464,7 +466,7 @@ full texts not read: about 60%.
 Gas velocity in mm/s for the reference tank (20 m³, liquid 3.74 m deep, 120 g/L, protectant at 2–5 g/L, drilled
 holes). Divide by 62 for vvm.
 
-| Mechanism | Low | Central | High | Scales with | Basis |
+| Mechanism | Low | Selected cells | High | Scales with | Basis |
 |---|---|---|---|---|---|
 | 1a. Bursting bubbles, with protectant | 2 | 14 | above 20 | vvm | Killing-volume model with X′ = 0.004 / 0.0005 / under 0.0003, death rate held to a quarter of growth. Direct support: 0.2 vvm harmless at up to 200 L. Sourced (bench scale) |
 | 1a. The same without protectant | under 0.5 | | | vvm | X′ = 0.05. Sourced |

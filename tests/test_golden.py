@@ -134,9 +134,11 @@ GOLDEN = {
     # premium offset (no tier is less price-sensitive any more), world seafood re-priced by consumption:
     # vol 0.612519 -> 0.363114, val 1.31535 -> 0.848201, world 0.182953 -> 0.0594949.
     # with the Student's t spread: vol 0.363114 -> 0.440886, val 0.848201 -> 0.862196, world 0.0594949 -> 0.139634.
-    "us_pen_vol_pct":      0.440886,
-    "us_pen_val_pct":      0.862196,
-    "world_pen_vol_pct":   0.139634,
+    # 2026-11-19 (restructure, audit 6a): the roll-ups report cultivated meat's share of the meat sold, x / (x + c), not of all four
+    # choices: vol 0.440886 -> 0.514012, val 0.862196 -> 1.023453, world 0.139634 -> 0.179202. The calibration does not move.
+    "us_pen_vol_pct":      0.514012,
+    "us_pen_val_pct":      1.023453,
+    "world_pen_vol_pct":   0.179202,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  21,      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
 }

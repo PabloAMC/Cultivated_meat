@@ -4,7 +4,7 @@ min_litres.py — the least medium, in litres per kg of cells, that physics and 
 
 `floor_physics.explore` sets the litres per kg from four terms: ammonia, lactate, the least flow a cell needs, and a
 nutrient floor of 8 L/kg. This module asks how low each term could go, with the arithmetic in the open, and what the
-Best and Central scenarios would cost at those litres. It changes no default and adds no logic to `explore`: costs
+Best and Selected cells scenarios would cost at those litres. It changes no default and adds no logic to `explore`: costs
 come from `explore(medium_l=...)`.
 
 The bounds (per kg of wet cells)

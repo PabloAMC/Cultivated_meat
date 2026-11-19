@@ -25,7 +25,8 @@ import tank_size as T                       # noqa: E402
 GOLDEN = {
     "reference": (20.5430, 14.8609, 12.9669, 12.8122, 13.5329, 15.8790, 19.3675),
     "reference_redesigned": (16.2225, 12.8053, 11.6782, 11.0259, 10.9678, 11.5972, 11.4955),
-    "best": (14.3341, 12.3876, 11.7533, 11.4569, 11.3433, 11.4594, 11.6028),
+    # 2026-11-19 restructure: every kind of cell weighs 2 ng (the best case's were Humbird's 3 ng): oxygen now limits it near 218 g/L
+    "best": (14.8307, 12.6764, 11.9745, 11.6738, 11.5375, 11.6492, 11.8079),
     "central": (43.7184, 36.5912, 34.2748, 32.8028, 32.7546, 33.7123, 33.8613),
     "central_lean": (35.8885, 31.9539, 30.7940, 29.9417, 29.8530, 30.2197, 30.2894),
     "cautious": (117.7848, 101.0026, 95.2051, 92.1653, 91.1604, 90.3250, 91.8886),
@@ -76,7 +77,9 @@ for c in T.CASES:
 #    the same loop capital and membranes at different sizes (best: the same 258 g/L design with recycled oxygen at 20 and 50 m3;
 #    cautious: the same 120 g/L design at 50 and 200 m3). Until 2026-11-16 the central case's 153 g/L column design at 50, 100
 #    and 200 m3 was the example; on the current model its density differs between those sizes (189, 137, 138 g/L).
-for c, a, b in (("best", 3, 4), ("cautious", 4, 6)):
+# 2026-11-19 restructure: the best case's 2 ng cells are oxygen-limited, and its density now moves a little with size (218 g/L at
+# 20 m3, 218.0 at 50), so only the cautious case serves as the example
+for c, a, b in (("cautious", 4, 6),):
     sc = scan[c]
     check(sc[a]["density"] == sc[b]["density"], f"{c}: the {sizes[a]:g} and {sizes[b]:g} m3 designs should hold one density")
     check(close(sc[a]["parts"]["loop"], sc[b]["parts"]["loop"], 1e-9) and close(sc[a]["parts"]["membranes"], sc[b]["parts"]["membranes"], 1e-9),
@@ -89,7 +92,7 @@ check(close(cen[6]["loop_area_m2"] / cen[3]["loop_area_m2"], cen[6]["loop_area_m
 # 4. where the 20 m3 design stops passing: it passes just below the limit and fails just above, and the limit is above 20 m3
 #    (between 20 and 30 m3 for the best and central designs; the cautious design, column + 1 bar in a tall tank, passes to 44 m3
 #    since 2026-11-16, when it was 26 m3)
-LIMIT_RANGE = {"cautious": (40.0, 50.0)}
+LIMIT_RANGE = {"cautious": (40.0, 50.0), "best": (30.0, 35.0)}   # 2026-11-19: best's 2 ng design (column + 1 bar) passes to 32.4 m3
 for k in S.ORDER:
     lim = T.design_limit(k)
     ch = S.SCENARIOS[k].choice
@@ -116,7 +119,7 @@ check(90.0 < oq["size"] < 130.0 and 1.8 < oq["saving_pct"] < 2.4 and 1.8 < oq["s
       f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
 check(60.0 < ob["size"] < 85.0 and 1.0 < ob["saving_pct"] < 2.0, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
 check(35.0 < oc["size"] < 55.0 and 1.0 < oc["saving_pct"] < 2.5, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
-# without the loop checks the best case keeps falling to the end of the range (the checks, not the density limits, stop it)
+# without the loop checks the Engineered cells, all favourable case keeps falling to the end of the range (the checks, not the density limits, stop it)
 ub = T.optimum("best", {"checks": False})
 check(ub["at_edge"] and ub["size"] >= 199.0, f"best without checks: optimum {ub['size']:.0f} m3 should be the 200 m3 end of the range")
 check(ub["saving_pct"] > ob["saving_pct"], "best: removing the checks should save more")
@@ -140,9 +143,10 @@ WI = dict(T.WHAT_IFS)
 crew = T.optimum("best", WI["labour follows Humbird's crew rule"])
 haz = T.optimum("best", WI["chance of losing a run grows with tank size"])
 relax = T.optimum("best", WI["pH check relaxed to twice the safe dose"])
-check(crew["size"] > ob["size"], "crew rule should favour a larger tank for the best case")
+check(crew["size"] > ob["size"], "crew rule should favour a larger tank for the Engineered cells, all favourable case")
 check(haz["size"] < ob["size"], "a hazard that grows with size should favour a smaller tank")
-check(relax["saving_pct"] > ob["saving_pct"], "a looser pH check should save more")
+# 2026-11-19 restructure: with the 2 ng cells the looser check also lowers the 20 m3 cost, so compare the costs, not the % saved
+check(relax["total"] < ob["total"], "a looser pH check should reach a lower cost")
 
 # 8. the note quotes the model: the 20 m3 and the cheapest costs, the sizes, the limits
 if not os.path.exists(NOTE):
@@ -153,6 +157,20 @@ else:
         o = opt[k]
         for want in (f"${scan[k][i20]['total']:.2f}", f"${o['total']:.2f}", f"{T.design_limit(k):.1f} m\u00b3"):
             check(want in text, f"the note does not quote {want} ({k})")
+
+# 9. fed-batch against size (2026-11-19 restructure): a bigger batch is cheaper, never cheaper than perfusion at 20 m3, and the
+# note carries the table
+FB_GOLDEN = {"central": (64.8950, 58.0934), "best": (15.7082, 14.5923)}   # best: 2 ng cells (2026-11-19)     # $/kg at 20 and 100 m3
+for k, (a, b) in FB_GOLDEN.items():
+    c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
+    check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")
+    check(c100 < c20 and T.fedbatch_at(k, 200.0)["total"] > S.run(S.SCENARIOS[k].choice)["total"], f"{k}: fed-batch against size")
+check(abs(T.fedbatch_at("central", 20.0)["total"] - S.run(S.SCENARIOS["selected"].choice)["total"]) < 1e-9,
+      "Selected cells' switches in fed-batch at 20 m3 should be rung 3")
+if os.path.exists(NOTE):
+    text = open(NOTE, encoding="utf-8").read()
+    for ln in T.fedbatch_markdown().splitlines():
+        check(ln in text, f"the note does not carry the fed-batch size table line: {ln[:70]}")
 
 
 def test_tank_size():

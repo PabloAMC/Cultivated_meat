@@ -37,15 +37,15 @@ check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "refe
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-# 2026-11-19: growth factors inside complete media prices (Central -$3.0), nutrient floor $2.00 (best +$0.30)
-# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Central +$4.9, best +$1.2), a lost run pays for its membranes (Central
+# 2026-11-19: growth factors inside complete media prices (Selected cells -$3.0), nutrient floor $2.00 (best +$0.30)
+# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Selected cells +$4.9, best +$1.2), a lost run pays for its membranes (Selected cells
 # +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
 for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
-# 3. what each scenario needs: the best case needs engineering, the central one does not
+# 3. what each scenario needs: the Engineered cells, all favourable case needs engineering, the central one does not
 need = {k: S.hardest_need(S.SCENARIOS[k].choice) for k in S.ORDER}
-check(need["best"] == S.GE, f"best case should need genetic engineering, needs {need['best']}")
+check(need["best"] == S.GE, f"Engineered cells, all favourable should need genetic engineering, needs {need['best']}")
 check(need["central"] == S.SELECT and need["central_lean"] == S.SELECT, "central should need selection, not engineering")
 check(need["cautious"] in (S.FEED, S.NOTHING), f"cautious needs {need['cautious']}")
 for k in S.ORDER:
@@ -133,7 +133,7 @@ for fname in ("RESULTS.md", "METHODS.md"):
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
 # The page (rebuilt 2026-11-19) has three named cases; its first screen is written by the page's own script from the bands it
 # carries, which tests/test_easy_view.py checks against scenarios.bands. Here: the page carries each scenario's band, its
-# method text states the Central and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
+# method text states the Selected cells and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
 import json as _json
 _model = _json.JSONDecoder().raw_decode(page[page.index("const MODEL = ") + len("const MODEL = "):])[0]
 for k in S.PAGE_ORDER:
@@ -142,29 +142,87 @@ for k in S.PAGE_ORDER:
           and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
           f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
-for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):
+for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):   # the page keeps its old names until rebuilt
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
-bf = S.bands(S.SCENARIOS["forecast"].choice, eqs=S.eqs_of("forecast"))
-check(f"<b>{S.pct_num(bf['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should give the forecast's median share under Other estimates")
 check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
-# the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
+# the median sits below the point estimate for the Engineered cells, all favourable case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
-      "best case: median share should be below the point estimate")
+      "Engineered cells, all favourable: median share should be below the point estimate")
 
-# 12b. the ladder (2026-11-16): each rung adds to the one before, so the cost falls down the ladder; rungs 3-5 are the old scenarios
+# 12b. the ladder (2026-11-16; rebuilt 2026-11-19 restructure): it starts from what has been shown (fed-batch at 20 m3), adds one
+# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are Selected cells, Selected cells with shared medium, the Engineered cells, all favourable case
 lad = [S.run(S.SCENARIOS[k].choice)["total"] for k in S.LADDER]
 check(all(a > b for a, b in zip(lad, lad[1:])), f"the ladder's cost should fall rung by rung: {[round(x, 2) for x in lad]}")
-check(S.LADDER[2:] == ("central", "central_lean", "best"), "rungs 3-5 should be Central, Central with shared medium, the best case")
+check(S.LADDER == ("today", "process", "selected", "central", "central_lean", "engineered", "best"), f"ladder: {S.LADDER}")
 for a, b in zip(S.LADDER, S.LADDER[1:]):
     ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
     check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
+STEP = {("today", "process"): {"gas", "restart", "gf", "medium"}, ("process", "selected"): {"cells", "growth"},
+        ("selected", "central"): {"mode"}, ("central", "central_lean"): {"plant"}, ("central_lean", "engineered"): {"cells"},
+        ("engineered", "best"): {"growth", "gas", "losses", "gf", "medium"}}
+for (a, b), want in STEP.items():
+    ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
+    got = {k for k in S.KEYS if ca[k] != cb[k]} - {"tricks", "shape"}         # the tank design is chosen again at each rung
+    check(got == want, f"rung {a} -> {b} changes {sorted(got)}, expected {sorted(want)}")
 check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
-rb = S.bands(None)
-check(f"<b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should headline the median for Humbird's design too")
+for k in ("today", "process", "selected"):
+    check(S.SCENARIOS[k].choice["mode"] == "fedbatch", f"{k} should be fed-batch at 20 m3, what has been shown")
+for k in ("central", "central_lean", "engineered", "best", "cautious"):
+    check(S.SCENARIOS[k].choice["mode"] == "perfusion", f"{k} should be in perfusion")
 
-# 13. what the tank design relies on is stated, with the cost without it
-for k in ("best", "central", "process"):
+# 12c. the mass balance (2026-11-19): a batch ends at no more than pf_batch_end_x times the waste level perfusion is held to
+from inputs import value as _v
+for k in ("today", "process", "selected"):
+    c = S.SCENARIOS[k].choice
+    if c["mode"] == "perfusion":
+        continue
+    r = S.run(c)
+    nh3_end = r["density"] * r["nh3_kg"]                         # mmol/L at the end of the batch
+    lac_end = r["density"] * r["lac_kg"]
+    check(nh3_end <= _v("pf_batch_end_x") * _v("sc_nh3_limit") + 1e-6 and lac_end <= _v("pf_batch_end_x") * _v("pf_lac_limit") + 1e-6,
+          f"{k}: the batch ends at {nh3_end:.2f} mM ammonia and {lac_end:.1f} mM lactate, above the allowed level")
+    check(abs(r["medium_l"] - 1000.0 / r["density"]) < 1e-6 or r["medium_l"] == _v("pf_medium_l_floor"), f"{k}: a batch's medium is 1000/density")
+# the published cells stop below the densities companies report at 20 m3 (Vow 27 g/L; Upside's capacity needs 33 g/L or more in
+# fed-batch), and the selected cells reach the bottom of Upside's range: so the companies' cells make less lactate than the published
+check(S.run(S.SCENARIOS["today"].choice)["density"] < _v("vm_x_meat_shown"), "the published cells should stop below 27 g/L in a batch")
+check(S.run(S.SCENARIOS["selected"].choice)["density"] >= 33.0, "the selected cells should reach Upside's 33 g/L in a batch")
+# a fed-batch plant keeps Humbird's full seed train when the plant is the shared-medium one
+check(S.explore_kwargs({**S.SCENARIOS["central_lean"].choice, "mode": "fedbatch"})["items"]["seed"] == "full", "fed-batch lean plant: full seed train")
+check(S.explore_kwargs(S.SCENARIOS["central_lean"].choice)["items"]["seed"] == "two", "perfusion lean plant: two seed trains")
+
+# 12d. cells as traits (2026-11-19, the author's direction: no forecast, no framing that makes engineering look necessary).
+# routes_needed says what each trait level has been shown with, never that engineering is needed
+import cell_traits as CT
+for k in S.LADDER:
+    tr = S.cell_traits(S.SCENARIOS[k].choice)
+    check(set(tr) == set(CT.TRAITS), f"{k}: four traits expected")
+    v = CT.routes_needed(tr)["verdict"]
+    check(not any(w in v.lower() for w in ("necessary", "is needed", "requires", "must be engineered")), f"{k}: verdict says engineering is needed")
+check(CT.routes_needed(S.cell_traits(S.SCENARIOS["today"].choice))["rank"] == 0, "the published cells' traits are shown in meat cells")
+check(CT.routes_needed({"nh3_kg": 0.0, "lac_yield": 1.05, "doubling_h": 43.0, "mass_pg": 2000.0})["rank"] == 2, "zero ammonia: engineering only")
+check(CT.routes_needed({"nh3_kg": 0.14, "lac_yield": 1.05, "doubling_h": 10.0, "mass_pg": 2000.0})["rank"] == 3, "10 h: not shown")
+check(CT.trait_route("lac_yield", 0.42) == "select_other" and CT.trait_route("doubling_h", 20.0) == "select_meat", "trait routes")
+check(CT.routes_needed({"nh3_kg": 0.14, "doubling_h": 36.0})["together"], "low ammonia with fast growth: not shown together")
+# the clouds take traits directly: a trait set by the reader is held, and the other draws do not move
+a = S.scenario_mc(S.SCENARIOS["central"].choice, 200, traits={"nh3_kg": 0.14})
+b = S.scenario_mc(S.SCENARIOS["central"].choice, 200)
+check("nh3_kg" not in a and abs(a["capex_x"] - b["capex_x"]).max() == 0.0, "scenario_mc(traits=...) should hold the trait and keep the other draws")
+# what it would take: the cost of cells a share needs falls as the share rises, and rises with the liking
+w = S.what_it_would_take()
+need = {(round(r["buyers"], 3), r["target"]): r["need"] for r in w}
+lo_b = min(b_ for b_, _t in need)
+check(need[(lo_b, 1.0)] > (need[(lo_b, 10.0)] or 0.0) and need[(0.5, 1.0)] > need[(lo_b, 1.0)], f"what it would take: {need}")
+check(abs(S.meat_buyers_at_equal_price() - 0.145) < 0.002, "the model's 13% of all choices is 14.5% of meat buyers")
+check(abs(S.world_share(S.run(S.SCENARIOS["central"].choice)["total"], None) - S.shares(S.run(S.SCENARIOS["central"].choice)["total"])["global"]) < 1e-12,
+      "world_share at the model's own liking is shares()")
+for r in w:
+    if r["pick"] is not None:
+        check(r["pick"][0] <= r["need"] + 1e-9, "a picked trait set must reach the cost")
+
+# 13. what the tank design relies on is stated, with the cost without it (rung 2 is fed-batch since 2026-11-19 and uses no tricks)
+check(S.tricks_report(S.SCENARIOS["process"].choice)["used"] == [], "rung 2 (fed-batch) should use no tank tricks")
+for k in ("best", "central"):
     tr = S.tricks_report(S.SCENARIOS[k].choice)
     check(len(tr["used"]) > 0, f"{k}: expected tank tricks to be listed")
     check(abs(tr["no_tricks"] - S.run({**S.SCENARIOS[k].choice, "tricks": "none"})["total"]) < 1e-9, f"{k}: no-tricks cost")
@@ -180,6 +238,17 @@ check("36 hours" in S.story_text("central") and "10%" in S.story_text("central")
       "central's story should give the reasoning for 36 h")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
 check(2.2 <= gain <= 2.9 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $2.2-2.9 a kilo ({gain:.2f})")
+
+# 14. RESULTS carries the routes table, what it would take and the plant-cost axis; METHODS the routes table (generated, by line)
+for lab, md, docs in (("routes", CT.markdown(), ("RESULTS.md", "METHODS.md")), ("what it would take", S.what_it_would_take_markdown(), ("RESULTS.md",)),
+                      ("plant axis", S.plant_axis_markdown(), ("RESULTS.md",))):
+    for fname in docs:
+        text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()
+        for ln in md.splitlines():
+            if ln.strip():
+                check(ln in text, f"{fname} does not carry the {lab} table line: {ln[:80]}")
+check("forecast for 2035" not in open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read().split("## 1.")[0].lower(),
+      "the Summary should not lead with a forecast (the author's direction, 2026-11-19)")
 
 if fails:
     print("FAIL — scenarios:")

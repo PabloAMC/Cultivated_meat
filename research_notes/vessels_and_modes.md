@@ -1,5 +1,10 @@
 # Vessel types and operating modes
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
+> 2026-11-19 (scenario restructure): a tank that is not washed out is capped by the waste mass balance (section 10); the central
+> grid's fed-batch, fill-and-draw and chemostat columns are recomputed. Upside Foods' report is in section 11.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -102,14 +107,14 @@ Details:
 | Packed bed (0.065 m3) | **$3,730** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$3,726** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$610,043** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$610,039** (13 g/L, room between the fibres; done at this size) |
 
-### Central scenario (the stirred tank in perfusion is $32.80)
+### Selected cells scenario (the stirred tank in perfusion is $32.80)
 
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
-| Stirred tank (20 m3) | **$98.86** (25 g/L, the food in one fill; done at this size) | **$45.81** (56 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$49.51** (56 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$87.51** (37 g/L, other waste and spent food; only done smaller) | **$32.80** (191 g/L, getting oxygen in; only done smaller) |
-| Stirred tank with a bubble cage (20 m3) | **$102.37** (25 g/L, the food in one fill; only done smaller) | **$47.39** (56 g/L, waste building up; only done smaller) | **$51.24** (56 g/L, waste building up; never done with animal cells) | **$90.69** (37 g/L, other waste and spent food; never done with animal cells) | **$31.19** (258 g/L, how thick the culture can be; never done with animal cells) |
-| Airlift (bubble column) (20 m3) | **$90.68** (25 g/L, the food in one fill; only done smaller) | **$42.13** (56 g/L, waste building up; only done smaller) | **$45.48** (56 g/L, waste building up; never done with animal cells) | **$80.12** (37 g/L, other waste and spent food; never done with animal cells) | **$34.14** (139 g/L, what the column can strip safely; never done with animal cells, with A column beside the tank that strips CO₂ without bubbles, with the culture run thinner ($31.70 if the loop passed)) |
-| Single-use bag (5 m3) | **$1,152** (25 g/L, the food in one fill; done at this size) | **$520.03** (56 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$107.90** (56 g/L, waste building up; only done smaller) | **$194.56** (37 g/L, other waste and spent food; only done smaller) | **$54.07** (126 g/L, getting oxygen in; only done smaller) |
+| Stirred tank (20 m3) | **$98.86** (25 g/L, the food in one fill; done at this size) | **$67.42** (37 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$73.40** (37 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$112.62** (29 g/L, waste building up; only done smaller) | **$32.80** (191 g/L, getting oxygen in; only done smaller) |
+| Stirred tank with a bubble cage (20 m3) | **$102.37** (25 g/L, the food in one fill; only done smaller) | **$69.80** (37 g/L, waste building up; only done smaller) | **$76.03** (37 g/L, waste building up; never done with animal cells) | **$116.73** (29 g/L, waste building up; never done with animal cells) | **$31.19** (258 g/L, how thick the culture can be; never done with animal cells) |
+| Airlift (bubble column) (20 m3) | **$90.68** (25 g/L, the food in one fill; only done smaller) | **$61.89** (37 g/L, waste building up; only done smaller) | **$67.30** (37 g/L, waste building up; never done with animal cells) | **$103.05** (29 g/L, waste building up; never done with animal cells) | **$34.14** (139 g/L, what the column can strip safely; never done with animal cells, with A column beside the tank that strips CO₂ without bubbles, with the culture run thinner ($31.70 if the loop passed)) |
+| Single-use bag (5 m3) | **$1,152** (25 g/L, the food in one fill; done at this size) | **$776.75** (37 g/L, waste building up; done at this size; this density is not shown for meat cells) | **$161.76** (37 g/L, waste building up; only done smaller) | **$251.13** (29 g/L, waste building up; only done smaller) | **$54.07** (126 g/L, getting oxygen in; only done smaller) |
 | Packed bed (0.065 m3) | **$5,173** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$5,172** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$685,149** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$685,148** (13 g/L, room between the fibres; done at this size) |
 
@@ -128,11 +133,15 @@ with animal cells" means no record was found.
    the central scenario. Nobody has run animal cells in perfusion above about 4 m3 (Genzyme's 4,000 L tanks at Geel). We put 2-3% on
    anyone having run it at 20 m3 for a month (operating_modes.md, section 5e).
 2. **The modes that run at 20 m3 today cost more.** Fed-batch and fill-and-draw cost about $19 in the reference case. In the central
-   scenario they cost $46-50. The gap grows because the central cells make more ammonia and are held to 4 mmol/L of it: without
-   washing it out, the culture stops at 56 g/L instead of 92. These costs assume 56-92 g of cells a litre. Nobody has shown that density for meat cells at this
-   size. The one 20 m3 plant for meat cells reports harvests of about 27 g/L. So $19.16 is not a demonstrated cost.
+   scenario they cost $67-73 (with the perfusion tank's design held; chosen again, $65-71, `no_perfusion_downside.md`). Since the
+   2026-11-19 mass balance (section 10) a batch of the central cells stops at 37 g/L: 1.3 times the 4 mmol/L of ammonia perfusion is held
+   to, at 0.14 mol a kilo. It stopped at 56 g/L before, at 7.8 mmol/L. The reference case's batch is held at 92 g/L by other by-products
+   and barely moves (its last doublings now grow slightly slower: $19.16). These costs assume 37-92 g of cells a litre. The one 20 m3
+   plant for meat cells reports harvests of about 27 g/L, and Upside's capacity implies 33-136 g/L (section 11). So $19.16 is not a
+   demonstrated cost.
 3. **A chemostat costs more than fill-and-draw** ($34.75 against $18.76 in the reference case). It must run below the top growth
-   rate, and the least medium a cell needs then caps the density lower.
+   rate, and the least medium a cell needs then caps the density lower. It also sits at its density all the time, so since
+   2026-11-19 it is held to the steady-state waste level itself, with no end-of-batch allowance (29 g/L in the central scenario).
 4. **Batch is the dearest stirred-tank mode.** One fill of medium feeds only a thin culture ($65.35), and the unspent medium leaves with
    the cells.
 5. **An airlift costs about what a stirred tank costs when waste is not washed out.** In perfusion it costs more ($15.17 against
@@ -227,3 +236,67 @@ gas-exchange study set aside because no membrane was found that is both priced a
 | Stirred airlift (draft tube plus impeller) | impeller inside or around a draft tube | not found with animal cells at scale | CFD target A5 (`roadmap_2026-11-15.md`) |
 | Microspargers and ceramic spargers | many fine bubbles: more oxygen per litre of gas, more foam | common in pharma | not a separate row |
 | Oxygen carriers in the medium (perfluorocarbons) | the medium holds more oxygen | lab | not in the model |
+
+## 10. The waste mass balance of a tank that is not washed out (added 2026-11-19, scenario restructure)
+
+**The defect.** In any mode, the litres of medium a kilo of cells leaves with must hold the waste that kilo made, at no more than the
+level the cells tolerate: litres per kilo ≥ waste made per kilo / level allowed. In perfusion the model already did this (the
+"ammonia" and "lactate" medium terms). A tank that is not washed out leaves with 1000 / density litres a kilo, so its density can be at
+most level / waste per kilo (mmol/L divided by mol/kg is g/L). The model instead scaled Humbird's fed-batch figure (120 g/L for his
+enhanced cells) by the cells' waste. That let Central's fed-batch end at 7.8 mmol/L of ammonia, against the 4 its perfusion is held
+to, and seem to need half the medium (18 against 35 L/kg).
+
+**The fix** (`floor_physics.explore`, mirrored in the page's `floorExplore`). The density of a tank that is not washed out is at most
+
+    end factor x min(ammonia limit / ammonia per kilo, lactate room / lactate per kilo)
+
+with the same ammonia limit (4 mmol/L in the scenarios, Humbird's 5 in his design) and the same lactate room (50 mmol/L, or less where
+the salt limit binds) as perfusion. A chemostat sits at its density all the time, so its end factor is 1. A batch, or a
+fill-and-draw tank at the top of its cycle, may end above the steady-state level, because only its last doublings see it: the end
+factor is `pf_batch_end_x`. Above the level the last doublings grow slower (`floor_physics.batch_slowdown`): growth is the switch's
+speed up to the level and falls as 1 / (1 + (c / K)^h) above it, with a 10% loss at the level and 50% at K = `pf_batch_half_x` times
+it. The other caps on an unwashed tank (other by-products, CO₂, oxygen) are unchanged. `pf_x_unperfused` is kept only for Humbird's
+own fed-batch design (the tiers, and the labour per m³ of his fed-batch plant, which sets every case's crew).
+
+**The end factor, 1.3 (range 1.0–2.0).** Humbird's own fed-batch design ends at 1.3 times his perfusion limits: 120 g/L of his
+enhanced cells, which make 0.054 mol of ammonia and 0.56 mol of lactate a kilo, hold 6.5 mmol/L of ammonia and 67 mmol/L of lactate
+at harvest, against the 5 and 50 he holds perfusion to. A short evidence check, both ways:
+
+- *For a factor above 1.* CHO fed-batch cultures end at 5–15 mmol/L of ammonia and peak at 10–94 mmol/L of lactate (Freund and
+  Croughan 2018: 94 in the unadapted line, 10 in the lactate-adapted one; `waste_and_medium_evidence.md`); harm from lactate begins
+  near 20–40 mmol/L in CHO (patent and review snippets found this pass). Pig muscle stem cells' growth fell with ammonium but not
+  with lactate (Qiu 2026); mouse myoblasts grew faster with 5 mmol/L of lactate added (search snippet). Only the last doubling or so
+  sees the end level, and the model charges the slower growth there.
+- *Against.* Unadapted meat-relevant cells lose about 10% of their growth at 1–3 mmol/L of ammonia and about 50% at 3–10
+  (`ammonia_tolerance_and_filter_life.md`), and the scenarios' 4 mmol/L is already the note's median for selected cells. Meat-cell
+  processes hold lactate under 30 mmol/L (Pasitka 2024), below the model's 50; catfish cells slowed 14% at 2.5 mmol/L of lactate.
+- *Reading.* 1.3 is Humbird's own implicit choice and sits inside both bodies of evidence. 1.0 (held to the perfusion level) is the
+  cautious end; 2.0 is where the last doubling would grow about a quarter slower. The growth loss above the level is charged: at
+  1.3 it lengthens a two-doubling batch by 0.6%; at 2.0 by 6%.
+
+**K, 3 (range 2–5).** The ratio of the level that halves growth to the level with a small loss: catfish ovary cells about 0.6 and 3
+mmol/L, 3T3 about 1.5 and 8, HFF-1 about 2 and 10 (ratios of 2.5 to 5).
+
+**What it does.** Held to 1.3 times 4 mmol/L, Central's selected cells end a batch at 37 g/L (it was 56; at 1.0 they would stop at
+29). The published cells, whose lactate is 4.8 mol a kilo, end at 14 g/L, held by lactate. Humbird's engineered cells are held by
+other by-products at 92 g/L, as before, so his design and the reference case do not move.
+
+## 11. What Upside Foods reports (added 2026-11-19)
+
+Source: AgFunderNews, 17 November 2026 (trade press, company statements; read as reported to the author). Upside Foods says it has
+validated a single-vessel process at 20,000 litres over 18 months, in "multiple 20,000+ liter bioreactors", taking about three weeks
+from cells to meat, for a capacity of "more than one million pounds" a year (454 t). It does not say how the tanks are run; a
+scientific memo to the FDA is promised. Its product is "a double-digit percentage" cells.
+
+**Arithmetic.** If the 454 t is product with 10–25% cells, from 3 to 5 tanks of 16 m³ of liquid harvested once every three weeks
+(17.3 harvests a year), each harvest must hold 33 to 136 g of cells a litre. If the 454 t were cells, a fed-batch would need 326 g/L
+even with five tanks, above the 258 g/L at which a culture becomes too thick; one 20 m³ perfusion tank at Central's productivity
+(20.6 t of cells per m³ a year, 412 t a tank) would come close. The capacity is almost certainly product. **Best guess: fed-batch,
+about 75%.**
+
+**What it anchors.** Fed-batch at 20 m³ is shown for meat cells, so it is the first rung of the ladder (`scenarios.LADDER`). The
+density it implies says something about the cells. In the model the best published meat cells stop a 20 m³ batch at 14 g/L, held
+by their lactate (1.05 mol per mol of glucose, about 4.8 mol a kilo). Reaching 33 g/L, the bottom of Upside's range, needs a
+lactate yield of about 0.6 mol per mol of glucose; the selected cells of the scenarios (0.42) reach 37 g/L. Vow's reported 27 g/L
+needs about 0.7. So the two companies that report densities at 20 m³ hold cells that make less lactate than any published meat cell,
+or run their batches at higher lactate than the model allows.

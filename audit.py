@@ -14,15 +14,15 @@ Held fixed (no documented range): the tank design, the 20 m3 size, the plant cla
 cell traits tend to come together (floor_physics.CELL_QUALITY), which would fatten both tails.
 
 STALE SINCE 2026-11-19 (found in the audit-batch repin; the draws were left as they were, so read the figures with this):
-  * Central's medium is now a complete medium with its growth factors inside the price (scenarios.explore_kwargs sets
+  * Selected cells' medium is now a complete medium with its growth factors inside the price (scenarios.explore_kwargs sets
     `gf_in_medium` and `growth_factors` = 0). The growth-factor draw here still goes to `growth_factors`, so it is bought on
-    top: the growth factors are counted twice, about $5 at Central's median.
-  * The best case's medium is now at the nutrient floor (no price per litre). The medium-price draw here still gives it
+    top: the growth factors are counted twice, about $5 at Selected cells' median.
+  * The Engineered cells, all favourable case's medium is now at the nutrient floor (no price per litre). The medium-price draw here still gives it
     $0.15-0.50 a litre.
   * The ammonia the cells tolerate (sc_nh3_limit, 2-8 mmol/L, which every scenario now passes to explore and
     scenarios.scenario_mc draws) is not drawn here.
-  With the three put right (a side calculation, 4,000 draws; the amino-acid price behind the floor drawn too): Central
-  $28 / $38 / $58 at the 10th, 50th and 90th percentile, against $34 / $46 / $65 as drawn here; the best case $11 / $14 / $22,
+  With the three put right (a side calculation, 4,000 draws; the amino-acid price behind the floor drawn too): Selected cells
+  $28 / $38 / $58 at the 10th, 50th and 90th percentile, against $34 / $46 / $65 as drawn here; the Engineered cells, all favourable case $11 / $14 / $22,
   against $14 / $19 / $28. Both are then close to the scenario bands ($27 / $37 / $57 and $11 / $14 / $20).
 
 Run

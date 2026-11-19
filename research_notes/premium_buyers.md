@@ -1,5 +1,7 @@
 # Cultivated meat as an even more premium meat, competing with welfare labels for premium buyers
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -14,7 +16,7 @@ price-insensitive buyers is contradicted by the two studies that split shoppers 
 and the model now has a spread of liking across all shoppers instead (`liking_spread.md`). The study is kept for what it says about
 a welfare label on the same shelf. Its prices are the model's as it now stands, but its main class is the model before the spread
 (every shopper alike): with no premium buyers and no label it gives 0.03% at Central and 5.4% for the best case's cells, against the
-model's 0.16% and 2.74%. Compare its shares with that base, not with the model's. "The best case" here is its cells ($11.46 a kilo)
+model's 0.21% and 3.16%. Compare its shares with that base, not with the model's. "The best case" here is its cells ($11.46 a kilo)
 with the model's ordinary demand, not the best case's own 55% at equal price, which gives 13.8%. The change of the model's
 spread to a Student's t on 2026-11-19 moved only the model's own figures; this study's shares, built on shoppers who are all alike,
 did not move.
@@ -56,35 +58,35 @@ So the size has to come from who buys labels (section 4).
 
 ## 3. What it gives (long-run share of world meat by weight; premium buyers 10% of shoppers)
 
-| no killing, valued over a welfare label (share of meat's price) | 3. Plus cells selected to grow faster on the low-waste feed (Central): share; sold to premium buyers; taken from the label, from conventional meat | 5. Plus engineered cells: share; sold to premium buyers; taken from the label, from conventional meat |
+| no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (Selected cells): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (Engineered cells, all favourable): share; sold to premium buyers; taken from the label, from conventional meat |
 |---|---|---|
-| +5% | 0.13%; 77%; 15%, 66% | 5.92%; 18%; 5%, 79% |
-| +25% | 0.16%; 81%; 15%, 67% | 6.15%; 21%; 5%, 79% |
-| +50% | 0.21%; 86%; 16%, 68% | 6.48%; 26%; 6%, 78% |
-| +100% | 0.37%; 92%; 16%, 69% | 7.28%; 34%; 8%, 77% |
-| the main model | 0.16% | 2.74% |
-| +5%, no label on the shelf | 0.15% | 6.24% |
+| +5% | 0.17%; 77%; 15%, 66% | 6.52%; 19%; 5%, 79% |
+| +25% | 0.21%; 81%; 15%, 67% | 6.77%; 22%; 5%, 79% |
+| +50% | 0.27%; 86%; 16%, 68% | 7.14%; 26%; 6%, 78% |
+| +100% | 0.47%; 92%; 16%, 69% | 8.02%; 34%; 8%, 77% |
+| the main model | 0.21% | 3.16% |
+| +5%, no label on the shelf | 0.20% | 6.89% |
 
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come
 from: the drop in each product's share when cultivated meat is added.
 
-| premium buyers, share of shoppers | 3. Plus cells selected to grow faster on the low-waste feed (Central) | 5. Plus engineered cells |
+| premium buyers, share of shoppers | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|
-| 5% | 0.14% | 5.98% |
-| 10% | 0.13% | 5.92% |
-| 20% | 0.11% | 5.57% |
+| 5% | 0.19% | 6.57% |
+| 10% | 0.17% | 6.52% |
+| 20% | 0.16% | 6.18% |
 
-- **Premium buyers raise Central's share four times, but from very little**: from the base's 0.03% to 0.13%, with the evidence's
-  +5% value of no killing. **That is now below the model's 0.16%**: the model's spread of liking, with its heavier tail since
+- **Premium buyers raise Central's share four times, but from very little**: from the base's 0.03% to 0.17%, with the evidence's
+  +5% value of no killing. **That is now below the model's 0.21%**: the model's spread of liking, with its heavier tail since
   2026-11-19, already gives more buyers at a high price than this study's premium class adds to shoppers who are all alike. (With
-  the normal spread the model gave 0.08% and the study was above it.) The best case's cells rise less, from 5.4% to 5.92%,
-  because near parity the mainstream already decides the share. That is twice the model's 2.74% because the base has every shopper
+  the normal spread the model gave 0.08% and the study was above it.) The best case's cells rise less, from 5.4% to 6.52%,
+  because near parity the mainstream already decides the share. That is twice the model's 3.16% because the base has every shopper
   alike, not because of premium buyers. (Before the 2026-11-19 audit batch made cells dearer: 0.25% to 0.61% at Central, 10.7% to 11.35% in the best
   case.)
-- **"Even more premium" helps, but slowly.** Valuing no killing at a whole extra meat price (+100%) takes Central to 0.37% and the best
-  case's cells to 7.28%. Cultivated chicken at Central's price is 5.4 times chicken cuts' and 9.8 times processed chicken's, so even
+- **"Even more premium" helps, but slowly.** Valuing no killing at a whole extra meat price (+100%) takes Central to 0.47% and the best
+  case's cells to 8.02%. Cultivated chicken at Central's price is 5.4 times chicken cuts' and 9.8 times processed chicken's, so even
   shoppers who value it highly mostly don't pay.
-- **Competing for the same shoppers costs little in this model**: Central is 0.15% with no label on the shelf and 0.13% with one. Cultivated
+- **Competing for the same shoppers costs little in this model**: Central is 0.15% with no label on the shelf and 0.17% with one. Cultivated
   meat takes 15–16% of its sales from the label and about 66–69% from conventional meat.
 - **But that last figure is the logit's assumption, and it is the weak point.** Within a class, a logit takes share from each product in
   proportion to its share. If premium buyers instead treated cultivated meat and the label as close substitutes, most of what cultivated
@@ -119,21 +121,21 @@ is probably partial, and may run more through people who want premium meat than 
 
 ## 5. What this says
 
-- With premium buyers and a welfare label on the shelf Central's share is 0.13%, against 0.03% without them and the model's 0.16%. With
-  a strong no-killing value, a whole meat price against the evidence's +5% (−5% to +20%), it is 0.37%. Nothing here takes it past 1%
+- With premium buyers and a welfare label on the shelf Central's share is 0.17%, against 0.03% without them and the model's 0.21%. With
+  a strong no-killing value, a whole meat price against the evidence's +5% (−5% to +20%), it is 0.47%. Nothing here takes it past 1%
   (before the audit batch the strong value did, at 1.16%): at 5.4–9.8 times chicken's price no segment is big enough or keen
   enough to change the answer.
-- Near parity (the best case's cells) the effect is smaller in relative terms: 5.92% against the base's 5.4% (7.28% with the strong
+- Near parity (the best case's cells) the effect is smaller in relative terms: 6.52% against the base's 5.4% (8.02% with the strong
   value).
 - What cultivated meat displaces matters for its animal impact: between about a sixth and three-quarters of its sales at Central could
   come from welfare-labelled meat rather than factory-farmed meat.
 - **Judgement:** that premium buyers raise Central's long-run share above the main model's: about 0.4 (provisional; lowered from
-  0.65 on 2026-11-19, second round). The study no longer shows it: its 0.13% is below the model's 0.16%, and only a no-killing
-  value of about a third of meat's price or more takes it past the model (0.16% at +25%, 0.21% at +50%). The model's own spread of liking now does the work the
+  0.65 on 2026-11-19, second round). The study no longer shows it: its 0.17% is below the model's 0.21%, and only a no-killing
+  value of about a third of meat's price or more takes it past the model (0.21% at +25%, 0.21% at +50%). The model's own spread of liking now does the work the
   premium class was meant to do. (The alternative, as before, is that novelty and the "unnatural" image keep premium buyers
   away, which the corrections' unfavourable end gives.) That the share at
   Central exceeds 1% by this route: about 0.03 (provisional; revised from 0.1 at the 2026-11-19 audit batch, when cells got dearer:
-  even a no-killing value of a whole meat price now gives 0.37%).
+  even a no-killing value of a whole meat price now gives 0.47%).
 
 ## Sources
 

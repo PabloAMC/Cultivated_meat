@@ -1,5 +1,7 @@
 # Holding the cells back in a 20 m3 perfusion tank
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -39,8 +41,8 @@ what the device is. This note asks which real devices can do the job, and what t
 | case | density | cells by volume | harvest | medium in | bleed | permeate | permeate a day |
 |---|---|---|---|---|---|---|---|
 | Reference | 120 g/L | 12% | 55.5 kg/h | 0.62 m3/h (0.93 tank volumes a day) | 0.46 m3/h | **0.16 m3/h** | 0.24 tank volumes |
-| Central | 191 g/L | 18% | 57.5 kg/h | 2.01 m3/h (3.0) | 0.30 m3/h | **1.71 m3/h** | 2.6 tank volumes |
-| Best case | 258 g/L | 25% | 118 kg/h | 1.63 m3/h (2.4) | 0.46 m3/h | **1.17 m3/h** | 1.8 tank volumes |
+| Selected cells | 191 g/L | 18% | 57.5 kg/h | 2.01 m3/h (3.0) | 0.30 m3/h | **1.71 m3/h** | 2.6 tank volumes |
+| Engineered cells, all favourable | 258 g/L | 25% | 118 kg/h | 1.63 m3/h (2.4) | 0.46 m3/h | **1.17 m3/h** | 1.8 tank volumes |
 
 Two things follow.
 
@@ -55,7 +57,7 @@ suspensions turn elastic from about 40% (Iordan et al. 2007, part; Thomas's and 
 
 ## 3. The devices
 
-| Device | Densest culture and largest scale shown | Central: what it takes | Central: capital per m3 of tank | Central: cost per kg (range) | Verdict |
+| Device | Densest culture and largest scale shown | Selected cells: what it takes | Selected cells: capital per m3 of tank | Selected cells: cost per kg (range) | Verdict |
 |---|---|---|---|---|---|
 | Hoped-for device (the old default) | nothing: the device is not named | - | $89k | **$20.49** ($19.74-23.61) | Not a real device |
 | ATF hollow-fibre filter | 50 days on 50 L at volume fraction 0.13 (Ott 2024, full); 1.3e8 cells/mL for days in 4 L, where its vacuum failed (Clincke 2013, full); units rated to 5,000 L | 32 ATF 10s, 352 m2 | $589k | **$37.48** ($27.61-104.70) | Possible at the edge; costly |
@@ -67,7 +69,7 @@ suspensions turn elastic from about 40% (Iordan et al. 2007, part; Thomas's and 
 | Spin filter | about 1e7 cells/mL | - | - | - | Not possible: its screen does not grow with the tank's volume, and it clogs |
 | Fluidized-bed centrifuge (kSep) | cell harvests | about 86 cycles an hour | - | - | Not possible: one cycle holds 2.9 kg of cells |
 | Cells grown as aggregates, gravity settler (added 2026-11-19) | 33-35e6 iPSC/mL (about 40 g/L) in 150 mL for 7 days (Manstein 2021, full); aggregates held back in 8 L (Huang 2020, full) | 22 m2 of plate; 0.38 m3 outside the tank | $4k | **$20.39** ($19.95-29.08) | Beyond what is shown; the cells must grow as aggregates and keep their size for a month |
-| Cells on edible carriers, gravity settler (added 2026-11-19) | 8e6 Vero/mL (about 20 g/L) in 3 L (Eppendorf, snippet); carriers at up to 6,000 L | the beads hold the tank to 26 g/L, where the harvest carries all the medium out | $0k | **$84.39** ($28.98-451.86) | Not a route to Central: beads take the volume |
+| Cells on edible carriers, gravity settler (added 2026-11-19) | 8e6 Vero/mL (about 20 g/L) in 3 L (Eppendorf, snippet); carriers at up to 6,000 L | the beads hold the tank to 26 g/L, where the harvest carries all the medium out | $0k | **$84.39** ($28.98-451.86) | Not a route to Selected cells: beads take the volume |
 
 The ranges move each device's own inputs to their favourable and unfavourable ends together (`retention.scenario_range`). Every
 other part of the scenario stays as it is.
@@ -77,7 +79,7 @@ what limits them, the oxygen inside an aggregate, the evidence and the probabili
 
 The same devices in the other two cases:
 
-| Device | Reference ($12.45 with the hoped-for device) | Best case ($7.74 with the hoped-for device) |
+| Device | Reference ($12.45 with the hoped-for device) | Engineered cells, all favourable ($7.74 with the hoped-for device) |
 |---|---|---|
 | ATF | $13.22 (3 units) | $12.96 (22 units) |
 | TFF | $12.81 | $11.46 |

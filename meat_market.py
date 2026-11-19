@@ -350,7 +350,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
                      tier_offset=tier_offset(mt, base, res, pr, cs, premium_extra), income=income,
-                     p_ref=mt.p_conv)        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
+                     p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (x / (x + c)), since 2026-11-19        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
     rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly)
     return rows, tot_vol, tot_val
@@ -373,7 +373,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
     assembly cost). The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS + MC_CUT_INPUTS}
-    if equal_share_input != "equal_price_share":   # a scenario with its own demand setting (the best case): drawn on its own
+    if equal_share_input != "equal_price_share":   # a scenario with its own demand setting (the Engineered cells, all favourable case): drawn on its own
         s["equal_price_share"] = _draw(equal_share_input, np.random.default_rng(seed + 7), n)   # stream, the others unchanged
     cp = CostParams()
     if biomass is None:
@@ -392,7 +392,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
         toff = np.broadcast_to(tier_offset(mt, b, res, base, cell_share), (n,))   # per-draw (utils)
         return np.array([share(R[i], base, accept_x=s["accept_x"][i], tier_offset=float(toff[i]),
                                eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
-                               equal_share=s["equal_price_share"][i])   # novelty, no-slaughter, health: in equal_price_share
+                               equal_share=s["equal_price_share"][i], which="x_meat")   # novelty, no-slaughter, health: in equal_price_share
                          for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"],

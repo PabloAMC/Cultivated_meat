@@ -43,8 +43,8 @@ from inputs import prior, value
 SIZES = (2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0)       # m3, the scan the page of results is built on
 CASES = ("reference", "reference_redesigned", "best", "central", "central_lean", "cautious")
 LABELS = {"reference": "Reference (Humbird's tank, no tricks)", "reference_redesigned": "Reference, tank design chosen again",
-          "best": "Best", "central": "Central", "central_lean": "Central, food-grade plant with shared medium",
-          "cautious": "Cautious"}
+          "best": "Best", "central": "Selected cells", "central_lean": "Selected cells, food-grade plant with shared medium",
+          "cautious": "Cautious", "engineered": "Engineered cells (rung 6)"}
 SEARCH_RANGE = (2.0, 200.0)                              # the sizes the optimum is searched over
 GRID_RATIO = 1.03                                        # step of the geometric search grid
 HOURS = fp.HOURS
@@ -299,6 +299,38 @@ def what_ifs(cases=CASES) -> list:
 
 
 # ----------------------------------------------------------------------------
+FB_SIZES = (20.0, 50.0, 100.0, 200.0)
+FB_CASES = ("central", "central_lean", "engineered", "best")
+
+
+def fedbatch_at(case: str, v: float) -> dict:
+    """A scenario's switches run in fed-batch at `v` m3 (2026-11-19 restructure: bigger tanks help fed-batch, whose handicap is
+    capital), tank design chosen again under the loop checks. explore()'s result, with the design."""
+    import vessels as V
+    base = {k: x for k, x in S.SCENARIOS[case].choice.items() if k not in ("tricks", "shape")}
+    best = None
+    for tk in S.SW["tricks"].settings:
+        for sh in S.SW["shape"].settings:
+            r = S.run({**base, "mode": "fedbatch", "tricks": tk.key, "shape": sh.key}, vessel_m3=v)
+            if not V._loop_ok(r):
+                continue
+            if best is None or r["total"] < best["total"] - 1e-12:
+                best = {**r, "tricks": tk.key, "shape": sh.key}
+    return best
+
+
+def fedbatch_markdown(cases=FB_CASES, sizes=FB_SIZES) -> str:
+    out = ["| switches as in | perfusion at 20 m³, $/kg | " + " | ".join(f"fed-batch at {v:.0f} m³" for v in sizes) + " |",
+           "|---|---|" + "---|" * len(sizes)]
+    for c in cases:
+        cells = []
+        for v in sizes:
+            r = fedbatch_at(c, v)
+            cells.append(f"${r['total']:.2f} ({r['density']:.0f} g/L)")
+        out.append(f"| {LABELS[c]} | ${S.run(S.SCENARIOS[c].choice)['total']:.2f} | " + " | ".join(cells) + " |")
+    return "\n".join(out)
+
+
 def main() -> None:
     scan = size_scan()
     for c in CASES:

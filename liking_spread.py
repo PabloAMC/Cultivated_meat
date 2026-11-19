@@ -145,7 +145,7 @@ def world_share(cost: float, mu: float, sd: float, kappa: float | None = None, r
     income = mm.REGION_INCOME[region]
 
     def share_of(mt, R, base, res):
-        return share(R, mu, sd, kappa, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv)
+        return share(R, mu, sd, kappa, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv, which="x_meat")
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), value("premium_resistance"), share_of)[1] * 100.0
 
 
@@ -189,7 +189,7 @@ COLD_BAND, MISS_MAX = (-1.65, -1.35), 0.30
 PREMIUM_AT = (2.0, 3.0, 4.0)
 CURVE_AT = (1.25, 1.5, 2.0, 3.0, 4.0)
 STILL_DEARER = 1.5                               # the salmon check takes the premium products above this price ratio (demand_checks.py)
-WORLD_CASES = ("today", "central", "forecast", "best")
+WORLD_CASES = ("today", "central", "best")
 # The fitted parameters of each shape (`fit_family` finds them; `python liking_spread.py --families` prints the table).
 FITTED = {
     "normal, as it was (15 integration points)": dict(liking_family="normal", liking_sd=5.0),
@@ -218,7 +218,7 @@ def _world(pr: M.DemandParams, cost: float) -> float:
 
 def salmon_response(pr: M.DemandParams) -> dict:
     """market_size_loop.premium_response for a demand model: percent more share per percent lower price ratio of each premium
-    product, between Central's cost and its cost once a food-grade membrane exists; {name: (price ratio at Central's cost, response)}."""
+    product, between Selected cells' cost and its cost once a food-grade membrane exists; {name: (price ratio at Selected cells' cost, response)}."""
     import market_size_loop as L
     choice = S.SCENARIOS["central"].choice
     c0 = L.base_run(choice)["cost"]

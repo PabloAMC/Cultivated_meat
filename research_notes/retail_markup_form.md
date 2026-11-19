@@ -1,5 +1,7 @@
 # From a kilo of cells to a shelf price: is the retail markup a fixed $/kg or a percentage?
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
 > Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
@@ -67,13 +69,13 @@ Shelf price = (cost + a) / (1 − m), with a = $2.5/kg (range $1.5–3.5) and m 
 uncertainty bands. The per-kg part is fitted to USDA's 2025 spreads at a 28% margin (table above: chicken $1.6, beef $2.9;
 pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a product (`au_processing`).
 
-| rule | cells' cost for parity with $12 meat | best case: shelf price, share | Central: shelf price, share |
+| rule | cells' cost for parity with $12 meat | Engineered cells, all favourable: shelf price, share | Selected cells: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $16.5, 4.15% | $37.8, 0.44% |
-| per-kg $2.5 + a 15% margin | $7.70 | $16.4, 4.16% | $41.5, 0.32% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $19.4, 2.74% | $49.0, 0.16% |
-| per-kg $2.5 + a 40% margin | $4.70 | $23.3, 1.62% | $58.8, 0.08% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $22.6, 1.75% | $61.5, 0.07% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $16.7, 4.77% | $37.8, 0.56% |
+| per-kg $2.5 + a 15% margin | $7.70 | $16.7, 4.77% | $41.5, 0.40% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $19.7, 3.16% | $49.0, 0.21% |
+| per-kg $2.5 + a 40% margin | $4.70 | $23.6, 1.89% | $58.8, 0.10% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $23.0, 2.03% | $61.5, 0.08% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's

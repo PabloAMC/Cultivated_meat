@@ -1,5 +1,7 @@
 # Cost scenarios: settings, why, what each needs, and what would move them
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > **Updated 2026-11-15 (late), second time.** Every figure in this note is recomputed with the model as it now stands: the hollow-fibre
 > filter loop with its membranes (`retention.py`), the bubble protectant (poloxamer 188, 2 g/L at an assumed $30/kg), antifoam's
 > quarter cut to the sparger's oxygen transfer, and bought oxygen for a yeast-style plant. Earlier versions are in git history (best case
@@ -10,29 +12,35 @@ Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_sc
 Inputs: `inputs.py`, the `sc_*` block (each with source, range, note). Every cost below is computed by `floor_physics.explore`; run
 `python scenarios.py` to reproduce this note's numbers and `python scenarios.py --markdown` for the table.
 
-## The ladder (2026-11-16)
+## The ladder (rebuilt 2026-11-19, scenario restructure)
 
-The page and RESULTS now lead with a ladder: each rung adds one kind of change to the one before, easiest first. Rungs 3 to 5 are
-exactly Central, Central with shared medium and the best case below, so the rest of this note stands. Rung 1 (`today`) is the
-cautious scenario's cells, plant, gas and prices with no tank tricks in the ordinary tall tank; rung 2 (`process`) adds the tricks,
-4 mm/s, a 14-day restart, growth factors at 30% and $0.20 medium. The cautious scenario is no longer on the page; `scenarios.ORDER`
-keeps it for the side studies. The forecast row is the author's median for each switch by 2035 (RESULTS, "The forecast").
+Since 2026-11-19 RESULTS leads with what it would take (`scenarios.what_it_would_take`) and cells as traits (`cell_traits.py`). The
+ladder of reference points
+starts from what has been shown and adds one kind of change per rung, likeliest first: 1. Published cells in a 20 m³ fed-batch (key
+`today`; fed-batch is what pharma runs and Upside Foods reports at 20 m³); 2. process changes and cheaper inputs, still a batch
+(`process`); 3. selected cells, still a batch (`selected`); 4. perfusion: the Selected cells case (`central`, unchanged); 5. the
+shared-medium plant (`central_lean`); 6. engineered cells (`engineered`); 7. everything else at its favourable end: Engineered cells,
+all favourable (`best`). A new switch, "How the tank is run", holds perfusion at 20 m³ or fed-batch at 20, 50 or 100 m³. A batch is held
+by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scenario keeps the published cells in perfusion
+(`scenarios.ORDER`).
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | hardest thing it needs |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, in an ordinary 20 m³ perfusion tank | **$128** ($105–160) | $111.9 | 15.1× | **under 0.001%** | under 0.001% | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$91** ($73–122) | $76.7 | 10.8× | **under 0.001%** (under 0.001–0.002%) | under 0.001% | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$37** ($27–57) | $32.8 | 4.6× | **0.04%** (under 0.001–0.7%) | 0.08% | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$34** ($24–54) | $29.9 | 4.2× | **0.06%** (under 0.001–0.9%) | 0.1% | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$14** ($11–20) | $11.5 | 1.9× | **11.2%** (4.3–22.5%) | 19.9% | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$33** ($23–52) | $28.8 | 4.1× | **0.07%** (0.001–1.1%) | 0.2% | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **0.9%** (0.1–5.6%) | 2.2% | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.07%** (0.004–1.0%) | 0.06% | a company's own report |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
-What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
+*History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
 (chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
 medium $2.87; together, with the tank design chosen again, $32.23, to $30.73. Selection then takes $1.31 off (Central $29.42), the
-plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66).
+plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66). *Now (2026-11-19, at most likely values):* $209.1,
+$201.4, $64.9, $32.8, $29.9, $16.9 and $11.5 for the seven rungs; the steps are in RESULTS.md, "The ladder".
 
 **Since 2026-11-16 every scenario holds dissolved oxygen at about half of air saturation** (`scenarios.always`, `sc_do_setpoint`), which
 took Central from $29.92 to $29.42 and let the best case reach the thickness limit with recycled oxygen and a squat tank ($9.66). **The
@@ -69,9 +77,9 @@ plant design; **nothing new** has been done.
 
 | scenario | settings | rule |
 |---|---|---|
-| Best case: everything works | engineered cells, 24 h, food-grade plant with shared medium, 6 mm/s, 0.6% a day, 14-day restart, no growth factors, $0.15 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells, speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers report (0.2% is pharma's and is not assumed); tank design the cheapest pair whose loop passes the checks. |
-| Central: selection and feed only, food-grade plant | selected cells, 36 h, food-grade plant, 4 mm/s, 1% a day, 14-day restart, growth factors 30%, $0.20 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells that have been measured or that selection can reach (no genetic engineering); every other switch at the setting nearest the middle of what is reported; tank design as above. |
-| Central, food-grade plant with shared medium | the same in a food-grade plant with shared medium | As Central. |
+| Engineered cells, all favourable: everything works | engineered cells, 24 h, food-grade plant with shared medium, 6 mm/s, 0.6% a day, 14-day restart, no growth factors, $0.15 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells, speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers report (0.2% is pharma's and is not assumed); tank design the cheapest pair whose loop passes the checks. |
+| Selected cells: selection and feed only, food-grade plant | selected cells, 36 h, food-grade plant, 4 mm/s, 1% a day, 14-day restart, growth factors 30%, $0.20 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells that have been measured or that selection can reach (no genetic engineering); every other switch at the setting nearest the middle of what is reported; tank design as above. |
+| Selected cells, food-grade plant with shared medium | the same in a food-grade plant with shared medium | As Selected cells. |
 | Cautious: the best meat cells measured so far | best measured cells, 43 h, food-grade plant, 2 mm/s, 1% a day, 21-day restart, growth factors 60%, $0.30 a litre, **tank design: the column and 1 bar, the ordinary tall tank** | Each switch at the setting that has actually been measured; tank design as above. |
 
 "The checks" (`scenarios.design`): the loop must be pH-safe (the alkaline exposure within the 55 mbar, 0.5 m3 design) and at a pass rate dense
@@ -85,9 +93,9 @@ Computed results, 2026-11-15 (cells $/kg; shop; R against $12 meat; long-run sha
 
 | scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the tank tricks | ordinary tall tank |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Best case | $9.71 | $9.2–12.2 | $14.7 | 1.23 | **3.8%** | 1.2–9.7% | 7.9% | 13.5% | 25.3% | $10.2 | $10.4 |
-| Central, food-grade plant | $29.92 | $27.4–38.1 | $34.9 | 2.91 | **0.2%** | 0.1–0.6% | 0.4% | 0.9% | 2.3% | $33.5 | $36.2 |
-| Central, food-grade plant with shared medium | $26.81 | $25.4–34.8 | $31.8 | 2.65 | **0.3%** | 0.1–0.7% | 0.5% | 1.2% | 3.5% | $28.5 | $29.9 |
+| Engineered cells, all favourable | $9.71 | $9.2–12.2 | $14.7 | 1.23 | **3.8%** | 1.2–9.7% | 7.9% | 13.5% | 25.3% | $10.2 | $10.4 |
+| Selected cells, food-grade plant | $29.92 | $27.4–38.1 | $34.9 | 2.91 | **0.2%** | 0.1–0.6% | 0.4% | 0.9% | 2.3% | $33.5 | $36.2 |
+| Selected cells, food-grade plant with shared medium | $26.81 | $25.4–34.8 | $31.8 | 2.65 | **0.3%** | 0.1–0.7% | 0.5% | 1.2% | 3.5% | $28.5 | $29.9 |
 | Cautious | $43.79 | $39.2–54.5 | $48.8 | 4.07 | **0.1%** | 0.0–0.2% | 0.1% | 0.3% | 0.5% | $63.0 | $63.0 |
 | Reference (standard tank, no tricks) | $12.51 | | $17.5 | 1.46 | | | 4.3% | 8.5% | 19.6% | | |
 | As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |

@@ -1,5 +1,7 @@
 # Cheaper ways to hold the cells back
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -25,7 +27,7 @@ price for small pharma volumes, not a floor set by materials. What decides the a
 
 Central case, the culture at 191 g/L, 1.71 m³/h of permeate. The default TFF loop costs $32.80.
 
-| Route | Membrane price | Membrane life | Central $/kg (range) | Reference / best | What has been shown |
+| Route | Membrane price | Membrane life | Selected cells $/kg (range) | Reference / best | What has been shown |
 |---|---|---|---|---|---|
 | Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **24.23** (22.02–28.26) | 12.12 / 8.79 | no reuse data with animal cells; steam limits a module to about 10 cycles |
 | Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **20.29** (19.86–22.68) | 11.80 / 7.56 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |

@@ -1,5 +1,12 @@
 # Tank size: is 20 m³ the right size?
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
+> 2026-11-19 (scenario restructure): the perfusion scan does not move, except for the best case (Engineered cells, all favourable),
+> whose cells now weigh 2 ng, not Humbird's 3: oxygen limits its tank at about 218 g/L, and its 20 m³ design (column + 1 bar,
+> squat) passes the loop checks up to 32.4 m³. Its rows and its line in the summary are recomputed; the prose about it is from before. Section 10 is new: fed-batch against tank size, now that
+> fed-batch is a setting of the scenarios ("How the tank is run") and the first rungs of the ladder.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -19,9 +26,9 @@ has, from $36.42 to $92.17: its published cells now need 95 litres of medium a k
 
 | Scenario | Cost at 20 m³ | Cheapest size the model finds | Cost there | Saving | Sizes within 1% of the minimum |
 |---|---|---|---|---|---|
-| Best | $11.46 | 71 m³ | $11.31 | $0.15 (1.3%) | 23 to 158 m³ |
-| Central | $32.80 | 43 m³ | $32.29 | $0.52 (1.6%) | 23 to 96 m³ |
-| Central, food-grade plant with shared medium | $29.94 | 43 m³ | $29.62 | $0.33 (1.1%) | 21 to 96 m³ |
+| Best | $11.67 | 71 m³ | $11.48 | $0.19 (1.6%) | 25 to 158 m³ |
+| Selected cells | $32.80 | 43 m³ | $32.29 | $0.52 (1.6%) | 23 to 96 m³ |
+| Selected cells, food-grade plant with shared medium | $29.94 | 43 m³ | $29.62 | $0.33 (1.1%) | 21 to 96 m³ |
 | Cautious | $92.17 | 111 m³ | $90.23 | $1.94 (2.1%) | 29 to 194 m³ |
 | Reference (Humbird's tank, no tricks) | $12.81 | 14 m³ | $12.75 | $0.06 (0.5%) | 11 to 23 m³ |
 
@@ -60,15 +67,15 @@ no longer lifts the limit.
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 2 | column + 1 bar, tall 1.6 | **14.33** | 5.06 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | none |
-| 5 | column + 1 bar, square 1.0 | **12.39** | 3.11 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | none |
-| 10 | column + 1 bar, squat 0.75 | **11.75** | 2.48 | 0.08 | 0.66 | 3.85 | 2.02 | 2.66 | 238 | oxygen supply | $0.02 (pH) |
-| 20 | column + 1 bar + O₂, squat 0.75 | **11.46** | 2.06 | 0.08 | 0.61 | 3.99 | 2.02 | 2.70 | 258 | thickness | $0.14 (pH) |
-| 50 | column + 1 bar + O₂, flat 0.5 | **11.34** | 1.94 | 0.08 | 0.61 | 3.99 | 2.02 | 2.70 | 258 | thickness | $0.30 (pH) |
-| 100 | column, squat 0.75 | **11.46** | 2.61 | 0.07 | 0.93 | 3.18 | 2.02 | 2.66 | 170 | oxygen supply | $0.47 (pH) |
-| 200 | column, flat 0.5 | **11.60** | 2.76 | 0.07 | 0.93 | 3.16 | 2.02 | 2.66 | 169 | oxygen supply | $0.61 (pH) |
+| 2 | column + 1 bar, tall 1.6 | **14.83** | 5.60 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | none |
+| 5 | column + 1 bar, square 1.0 | **12.68** | 3.45 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | $0.10 (pH) |
+| 10 | column + 1 bar, squat 0.75 | **11.97** | 2.74 | 0.08 | 0.73 | 3.67 | 2.03 | 2.72 | 215 | oxygen supply | $0.12 (pH) |
+| 20 | column + 1 bar, squat 0.75 | **11.67** | 2.43 | 0.08 | 0.72 | 3.69 | 2.03 | 2.72 | 218 | oxygen supply | $0.19 (pH) |
+| 50 | column + 1 bar, flat 0.5 | **11.54** | 2.29 | 0.08 | 0.72 | 3.70 | 2.03 | 2.72 | 218 | oxygen supply | $0.35 (pH) |
+| 100 | column, squat 0.75 | **11.65** | 2.89 | 0.06 | 1.02 | 2.92 | 2.03 | 2.73 | 154 | oxygen supply | $0.52 (pH) |
+| 200 | column, flat 0.5 | **11.81** | 3.05 | 0.06 | 1.03 | 2.91 | 2.03 | 2.73 | 153 | oxygen supply | $0.69 (pH) |
 
-#### Central
+#### Selected cells
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -80,7 +87,7 @@ no longer lifts the limit.
 | 100 | column, square 1.0 | **33.71** | 8.74 | 0.25 | 1.82 | 11.91 | 7.15 | 3.84 | 137 | oxygen supply | $3.47 (pH) |
 | 200 | column, squat 0.75 | **33.86** | 8.88 | 0.25 | 1.81 | 11.93 | 7.15 | 3.84 | 138 | oxygen supply | $3.48 (pH) |
 
-#### Central, food-grade plant with shared medium
+#### Selected cells, food-grade plant with shared medium
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -157,7 +164,7 @@ m² and last 3,960 litres. Since the 2026-11-19 audit a lost run throws its memb
 **What this does at each size.** The area per m³ of tank, and so the loop's cost per kilo, is the same at every size for the same density and medium (the test checks it). The loop is not what
 decides the size.
 
-| | Best, 20 m³ | Best, 200 m³ | Central, 20 m³ | Central, 200 m³ |
+| | Best, 20 m³ | Best, 200 m³ | Selected cells, 20 m³ | Selected cells, 200 m³ |
 |---|---|---|---|---|
 | Membrane area | 233 m² | 1,215 m² | 343 m² | 2,308 m² |
 | ATF-10 equivalents (11 m² each) | 21 | 110 | 31 | 210 |
@@ -193,7 +200,7 @@ The plant model scales only the bioreactor share with size. The rest (buildings,
 
 The what-ifs below change one at a time and report the cheapest size and the saving against 20 m³. Each is zero at 20 m³ by construction (the test checks it).
 
-| What-if | Best | Central | Central, shared medium | Cautious | Reference, redesigned |
+| What-if | Best | Selected cells | Selected cells, shared medium | Cautious | Reference, redesigned |
 |---|---|---|---|---|---|
 | As modelled | 71 m³, 1.3% | 43 m³, 1.6% | 43 m³, 1.1% | 111 m³, 2.1% | 44 m³, 2.3% |
 | No loop checks (physics only) | 200 m³, 2.9% | 104 m³, 2.7% | 104 m³, 1.8% | 153 m³, 1.5% | 200 m³, 3.7% |
@@ -221,9 +228,9 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 
 | Scenario | The 20 m³ design | Its limit with the model's checks | Limit with the pH check at twice the safe dose | Largest size that keeps the 20 m³ density, with the design chosen again |
 |---|---|---|---|---|
-| Best | column + 1 bar + O₂, squat | 24.8 m³ | 34.7 m³ | 24.6 m³ |
-| Central | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
-| Central, shared medium | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
+| Best | column + 1 bar, squat | 32.4 m³ | 44.6 m³ | 32.1 m³ |
+| Selected cells | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
+| Selected cells, shared medium | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
 | Cautious | column + 1 bar, tall | 43.9 m³ | 157.2 m³ | 43.1 m³ |
 
 - **The limit sits 22% to 24% above 20 m³ for the best and central designs, and 120% above for the cautious one.** A design fails when its pH dose passes 1.0 times the safe dose. At 20 m³
@@ -290,3 +297,28 @@ answer favours 10 to 20 m³. At 10 m³ the cost is 3% to 5% higher and R rises f
 - No separate price for a tank built to a different shape beyond the model's steel and floor factor (`gas_exchange.shape_capex_factor`).
 - No seed-train sizing, no heat exchanger, no impeller design, no run-length effect on membrane life with size.
 - The search offers 16 designs per size. Intermediate pressures and a column outlet other than 55 mbar (`ge_col_pout`) are not searched; either could extend the sizes that pass the pH check.
+
+## 10. Fed-batch and tank size (added 2026-11-19, scenario restructure)
+
+Since 2026-11-19 the scenarios can run the tank in fed-batch (`scenarios.SW["mode"]`), and the first three rungs of the ladder do.
+A batch is held by its waste (the mass balance, `vessels_and_modes.md` section 10), not by gas exchange, so a deeper tank costs
+it no density. Its handicap against perfusion is capital: the same plant makes a fifth to a half of the kilos. A bigger tank makes
+the capital cheaper per m³, so size matters more to fed-batch than to perfusion. `tank_size.fedbatch_at` prices each scenario's
+switches in fed-batch at each size, tank design chosen again (it always comes out the ordinary tall tank with no tricks):
+
+| switches as in | perfusion at 20 m³, $/kg | fed-batch at 20 m³ | fed-batch at 50 m³ | fed-batch at 100 m³ | fed-batch at 200 m³ |
+|---|---|---|---|---|---|
+| Selected cells | $32.80 | $64.89 (37 g/L) | $59.79 (37 g/L) | $58.09 (37 g/L) | $57.24 (37 g/L) |
+| Selected cells, food-grade plant with shared medium | $29.94 | $49.51 (37 g/L) | $46.11 (37 g/L) | $44.98 (37 g/L) | $44.42 (37 g/L) |
+| Engineered cells (rung 6) | $17.27 | $31.07 (62 g/L) | $29.03 (62 g/L) | $28.54 (62 g/L) | $28.17 (62 g/L) |
+| Best | $11.67 | $15.71 (92 g/L) | $14.93 (92 g/L) | $14.59 (92 g/L) | $14.41 (92 g/L) |
+
+- **A 100 m³ batch costs about 10% less than a 20 m³ one** with the scenarios' switches ($64.89 to $58.09 in Central, $15.64 to
+  $14.50 with the best case's). Beyond 100 m³ the gain is small: only the bioreactor share of the plant (32%) gets cheaper with
+  size in the model.
+- **No size closes the gap to perfusion.** Central in fed-batch at 200 m³ costs $57.24, against $32.80 in perfusion at 20 m³; a bigger
+  perfusion tank saves at most 1.6% (section 1).
+- **The same caveats as for perfusion, in the other direction.** The crew per m³ is held constant: if it fell with tank size as
+  between Humbird's two plants, fed-batch would gain more (section 5). The chance of losing a batch is the same per tank-day at every
+  size, and no animal cells have been grown above about 25 m³ (section 7: about 12% for 50 m³ and 5% for 100 m³ by the end of 2035,
+  judged on 2026-11-19 and recorded in `cell_trait_routes.md`, not used by the model).

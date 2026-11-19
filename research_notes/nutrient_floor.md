@@ -1,5 +1,9 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 > **Decided 2026-11-19 (Pablo): the model's floor is now GFI's cheapest, $2.00 a kilo** (section 6). Sections 1-5 are the analysis
 > as of 2026-11-15, when the floor was $1.70; their figures are on the model of that date.
 
@@ -44,8 +48,8 @@ are also left out.
 
 | Scenario | Now | Feed-grade, 232 g/kg | Low food-grade, 350 g/kg | High food-grade, 650 g/kg |
 |---|---|---|---|---|
-| Best case | $9.66 | $10.47 | $13.07 | $24.18 |
-| Central | $29.42 | $29.42 | $29.42 | $40.17 |
+| Engineered cells, all favourable | $9.66 | $10.47 | $13.07 | $24.18 |
+| Selected cells | $29.42 | $29.42 | $29.42 | $40.17 |
 
 - **The best case is sensitive.** Its medium is set by the floor (11 L/kg at $0.15), so every dollar of the floor is a dollar of
   cost. At GFI's cheapest tier it would cost $0.8 more; at the low food-grade tier and 350 g/kg, $3.4 more.
@@ -105,7 +109,7 @@ of Humbird's price). The table is on this model:
 
 | amino acids | need 232 g | need 350 g | need 650 g |
 |---|---|---|---|
-| feed-grade ($6.36) | floor $2.00; best $11.46; Central $32.80 | $2.75; $12.21; $32.80 | $4.66; $14.14; $34.25 |
+| feed-grade ($6.36) | floor $2.00; best $11.46; Selected cells $32.80 | $2.75; $12.21; $32.80 | $4.66; $14.14; $34.25 |
 | low food-grade ($11.59) | $3.22; $12.68; $32.80 | $4.58; $14.06; $34.17 | $8.06; $17.57; $37.73 |
 | high food-grade ($23.18) | $5.91; $15.39; $35.53 | $8.64; $18.15; $38.32 | $15.60; $25.17; $45.43 |
 

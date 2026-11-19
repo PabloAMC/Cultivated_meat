@@ -10,18 +10,68 @@ Everything below reproduces from the code.*
 
 *Last revised 2026-11-19. What changed, and when, is in [CHANGELOG.md](CHANGELOG.md).*
 
-**The answer.** Cultivated meat stays a niche unless engineered cells and nearly everything else work, and shoppers come to favour
-it. With the central assumptions (Central) a kilo of cells costs about **$37** to grow (8 in 10 draws between $27 and $57; $32.8
-with every estimate at its most likely value). Cultivated meat then takes about **0.11% of world meat and seafood** in the long run
-(8 in 10 draws between 0.02% and 0.6%; 0.16% at the most-likely-values cost), over half of it as beef steaks and premium fish.
-The best case costs about **$14** a kilo ($11–20; $11.5 at most likely values). It takes about **6.8%** (2.5–14.8%; 13.8% at the
-most-likely-values cost) if shoppers also come to favour it, so that 55% would choose it at equal price. With Central's 13% at
-equal price the same cells take about 1.3% (0.4–5.1%; 2.7% at the most-likely-values cost). Price parity with everyday meat needs
-about **$6.1** a kilo of cells. No scenario reaches it, unless the supply industry gets cheaper as the market grows (section 2).
-The cost rests on a handful of numbers, and the weakest of them have never been measured on meat cells ("What the answer rests
-on", below).
+**The answer.** With the best meat cells in the published record, grown as they are grown today (in batches, in a 20 m³ tank), a
+kilo of cells costs about **$219** (median; 8 in 10 draws between $162 and $282; $209.1 at most likely values), 26 times the shop
+price of everyday meat, and cultivated meat takes under 0.001% of world meat and seafood. What it would take to matter:
 
-**What moved the answer on 2026-11-19.** An audit (`research_notes/audit_2026-11-19.md`) led to eight changes. The figures before
+| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |
+|---|---|---|---|---|---|
+| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $19.3, a food-grade plant with shared medium, fed-batch at 20 m³ | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 10% | 14.5% | $4.9 a kilo or less | none of the sets tried |  |  |
+| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 43 h, 2 ng | $25.9, a food-grade plant, perfusion | shown without engineering, some only in other cells |
+| 10% | 50.0% | $12.9 a kilo or less | ammonia 0 mol/kg, lactate 0 mol/mol, a doubling every 25.7 h, 2 ng | $12.9, a food-grade plant with shared medium, perfusion | some traits shown only with genetic engineering; not yet together in one meat cell |
+
+- **A 1% share needs cells at about $20 a kilo** with the model's 14.5% of meat buyers picking cultivated meat at equal price, and
+  about $30 if half of meat buyers did. Both are reached by cells whose traits have each been shown without genetic engineering:
+  less ammonia (0.055 mol a kilo) and less lactate (0.42 mol per mol of glucose) than the published cells, in a food-grade plant.
+  Those two levels have so far been shown only in CHO cells, not in meat cells. The first set also doubles every 20 hours, and low
+  ammonia has not been shown together with a doubling under 43 hours in one meat cell; the second keeps the 43 hours. The first
+  reaches the cost in a 20 m³ batch, the mode that has been shown, not in perfusion.
+- **A 10% share needs cells at $4.9 a kilo at 14.5% of meat buyers**, below every set of traits tried, and below the $6.1 of parity
+  with a $12 kilo of everyday meat. At 50% of meat buyers it needs $12.9, which the sets tried reach only with no ammonia and no
+  lactate at all, so far shown only with genetic engineering (and, for lactate, by feeding glucose slowly in CHO cells).
+- **Nothing here says engineering is necessary.** For each trait, `cell_traits.routes_needed` says what has been shown and by which
+  route; the routes table is below. Each trait is judged alone, and the text says what has not been shown together.
+
+| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
+|---|---|---|---|---|---|
+| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
+| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
+| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
+| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
+
+The reference points, each defined by its cells' traits and the plant and process around them (`scenarios.py`), are in the table
+below. With the Selected cells case's traits (ammonia 0.14 mol a kilo, lactate 0.42 mol per mol of glucose, a doubling every 36 hours,
+2 ng a cell) in perfusion a kilo costs about **$36** (8 in 10 draws between $26 and $55; $32.8 at most likely values), and cultivated
+meat takes about **0.17%** of world meat and seafood (0.03–0.9%; 0.21% at the most-likely-values cost). With Engineered cells, all
+favourable (0.055, 0.28, 24 hours, 2 ng, every other setting at its favourable end) it costs about **$15** ($12–20; $11.7) and takes
+**7.7%** (3.1–16.2%; 15.1%) if 58.5% of meat buyers come to pick it at equal price, or 1.5% (0.5–5.7%; 3.2%) at the ordinary 14.5%. No
+case reaches price parity with a $12 kilo of everyday meat, which needs about **$6.1** a kilo of cells (the world's average kilo, at
+$9.43, needs about $4.29). The cost rests on a handful of numbers, and the weakest of them have never been measured on meat cells
+("What the answer rests on", below).
+
+**What changed on 2026-11-19 (scenario restructure).** CHANGELOG.md has the figures before and after.
+
+- **A batch is held by a mass balance.** In any mode, the litres a kilo of cells leaves with must hold its waste at the level the
+  cells tolerate. A tank that is not washed out may end its batch 1.3 times above the level perfusion is held to, as Humbird's own
+  fed-batch design does, and its last doublings grow slower there. Before, Humbird's fed-batch density was scaled by the cells'
+  waste, which let the Selected cells case's batch end at 7.8 mmol/L of ammonia against the 4 its perfusion is held to. Those cells
+  now stop a batch at 37 g/L, not 56, and the published cells at 14 g/L, not 25 (`research_notes/vessels_and_modes.md`, section 10).
+- **How the tank is run is a switch**: fed-batch at 20, 50 or 100 m³, or perfusion at 20 m³. Fed-batch at 20 m³ is what has been shown
+  for meat cells (Upside Foods, 2026); perfusion has not been run with animal cells above about 4 m³.
+- **Cells are four traits**, set directly, with a table of the routes that have shown each level (`cell_traits.py`,
+  `research_notes/cell_trait_routes.md`). The named cases are reference points defined by their traits.
+- **The share is the share of the meat sold**: cultivated over cultivated plus conventional meat, for each product. It was the share of
+  all four choices (with plant-based meat and no meat). Every share rose, by about 16–28% of itself.
+- **Every kind of cell weighs 2 ng** (range 1–3 ng, drawn in the bands). The engineered setting changes the metabolism, not the size;
+  it was Humbird's 3 ng. Engineered cells, all favourable costs $11.7 at most likely values, not $11.5.
+- **The ammonia the selected cells make** keeps its value (0.14 mol a kilo, the one stirred measurement), with its low end widened
+  from 0.07 to 0.04 after a two-sided evidence pass (`research_notes/ammonia_tolerance_and_filter_life.md`, section 10).
+- **Names.** "Central" is now Selected cells, and "the best case" Engineered cells, all favourable.
+- **No forecast.** A forecast drawn from the author's odds for 2035 was built and dropped on the same day: the uncertainty is shown as
+  clouds of draws over the estimates nobody has measured, for any setting of traits and choices, not as odds on the choices.
+
+**What moved the answer earlier on 2026-11-19.** An audit (`research_notes/audit_2026-11-19.md`) led to eight changes. The figures before
 and after each are in CHANGELOG.md.
 
 - **Ammonia.** The scenarios' cells tolerate 4 mmol/L of ammonia, the evidence note's own median, in place of Humbird's 5.
@@ -39,241 +89,269 @@ and after each are in CHANGELOG.md.
 - **The spread of liking.** How much shoppers like cultivated meat is now spread as a Student's t (standard deviation 3.9 utils, 4
   degrees of freedom), in place of a normal spread of 5 utils. The normal spread, fitted on 2026-11-18, rested on an integration
   that was too coarse. The new shape has more shoppers very far from the average, more very close to it, and fewer in between.
-  More buy at several times meat's price, which doubled Central's share. Fewer are moderately keener than average, and those
-  are the buyers at one to three times the price, which cut the best case's share by a third.
+  More buy at several times meat's price, which doubled Selected cells' share. Fewer are moderately keener than average, and those
+  are the buyers at one to three times the price, which cut the Engineered cells, all favourable case's share by a third.
 
 > **What the words mean**
 >
 > - **Cost** is per kilo of real cells, which are about 70% water and 20% protein, like meat. Plant costs are in 2025 prices.
 > - **Share** is cultivated meat's share of all meat and seafood sold, by weight, in the long run: once it is on every shelf and
 >   no longer feels new. It is not a forecast of when. Seafood is about a quarter of that total (24%). A fifth of a cultivated
->   cut is plant protein, and the share counts the whole cut.
-> - **Share at equal price** is set at 13%. It is the share of all shoppers' choices among meat, cultivated meat, plant-based
->   meat and no meat that goes to cultivated meat when it costs the same as the meat beside it and is familiar. That is about
->   14.5% of the choices that go to meat or cultivated meat. It is a judgement, not a measurement: the bands draw it between 3%
+>   cut is plant protein, and the share counts the whole cut. Since 2026-11-19 it is exactly that: for each product, cultivated
+>   over cultivated plus conventional meat. Before, it was cultivated meat's share of all four choices (with plant-based meat and
+>   no meat), which understated it: a market where every product costs the same and half of meat buyers prefer cultivated meat
+>   showed 46.5%, and now shows 50.0%. Plant-based meat's own share keeps its definition.
+> - **Share at equal price.** Of the shoppers who buy meat, the share who would pick cultivated meat when it costs the same as the
+>   meat beside it and is familiar: **14.5% of meat buyers**, in every case but one; 50% would mean no preference either way. The
+>   model works with all shoppers' choices among meat, cultivated meat, plant-based meat and no meat, where the same setting is
+>   13% (the figure the inputs and tables use). Engineered cells, all favourable takes 58.5% of meat buyers (55% of all choices).
+>   It is a judgement, not a measurement: the bands draw it between 3%
 >   and 52% (5th to 95th percentile; median 13%). At half the price of meat the model gives 24.5%, and 41.5% if cultivated
 >   meat were free. So about 58% of choices never go to it at any price. With every product at the price of its
 >   own meat the world share would be 11.5%, a little under 13%, because a cut is liked a little less than mince.
 > - **Median of draws.** Each headline number is the median of 4,000 draws in which the estimates behind a case vary, and "8 in 10
 >   draws between" is their 10th to 90th percentile. Cost, shop price and share are all given this way.
 > - **At most likely values** puts every estimate at its single most likely value. It is given second. It is lower than the median
->   cost, because most estimates have more room to fall short than to improve: 33% of Central's draws and 12% of the best case's
->   come in below it. Steps of the ladder and the side tables use it, so that they can be subtracted from one another.
+>   cost, because most estimates have more room to fall short than to improve: 37% of the Selected cells case's draws and 10% of those of
+>   Engineered cells, all favourable come in below it. Steps of the ladder and the side tables use it, so that they can be subtracted from one another.
 
-| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | hardest thing it needs |
+| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | its cells' traits have been |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, in an ordinary 20 m³ perfusion tank | **$128** ($105–160) | $111.9 | 15.1× | **0.002%** (under 0.001–0.008%) | 0.002% | needs a change of feed, process or plant |
-| 2. Plus process changes and cheaper inputs | **$91** ($73–122) | $76.7 | 10.8× | **0.005%** (0.001–0.03%) | 0.007% | needs a change of feed, process or plant |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$37** ($27–57) | $32.8 | 4.6× | **0.1%** (0.02–0.6%) | 0.2% | needs selection or adaptation of cells |
-| 4. Plus a food-grade plant with shared medium | **$34** ($24–54) | $29.9 | 4.2× | **0.1%** (0.02–0.8%) | 0.2% | needs selection or adaptation of cells |
-| 5. Plus engineered cells: the best case, everything works | **$14** ($11–20) | $11.5 | 1.9× | **6.8%** (2.5–14.8%) | 13.8% | needs genetic engineering |
-| Forecast for 2035: a first draft of the author's medians | **$33** ($23–52) | $28.8 | 4.1× | **0.2%** (0.03–0.9%) | 0.3% | needs selection or adaptation of cells |
-| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.0%** (0.3–4.0%) | 2.2% | needs genetic engineering |
-| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.04–0.8%) | 0.1% | a company's own report |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | shown in meat cells |
+| 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | shown in meat cells |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | shown without engineering, some only in other cells; not yet together in one meat cell |
+| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
-**The ladder.** The first five rows add one kind of change at a time, easiest first. In this section every cost is at most likely
-values unless it says "median", so that the steps can be subtracted; the table gives the medians.
+**The steps between the reference points.** The first seven rows change one kind of thing at a time, from what has been shown to
+every setting at its favourable end. They explain what each change is worth; they are not a path anyone must follow, and the order
+says nothing about which route gets the cells there. In this section every cost is at most likely values unless it says "median",
+so that the steps can be subtracted; the table gives the medians.
 
-- **Row 1, Published cells ($111.9).** The best meat cells in the published record: glutamine replaced in the feed, a doubling
-  every 43 hours. Companies may hold better cells they have not shown. The tank is the ordinary tall tank with no tricks, with gas
-  at 2 mm/s. Medium costs $0.30 a litre, between the $0.20 companies announce and the $0.50 one company reports.
-- **Row 2, Plus process changes and cheaper inputs ($76.7).** The same cells. The tank gets its tricks, gas at 4 mm/s with a
-  protectant, a faster restart after a lost run, and medium at the announced $0.20 a litre.
-- **Row 3, Central ($32.8).** Cells selected on the low-waste feed to make less lactate and to double every 36 hours.
-- **Row 4, Plus a food-grade plant with shared medium ($29.9).**
-- **Row 5, the best case ($11.5).** Engineered cells that make almost no waste and double every 24 hours, gas at 6 mm/s, and a
+- **Row 1, Published cells ($209.1).** The cells are not one cell line. They combine the best published figure for each trait, never
+  measured together in one line: ammonia (0.14 mol a kilo) and a 43-hour doubling from primary bovine fibro-adipogenic progenitor
+  (fat-precursor) cells fed alpha-ketoglutarate in place of glutamine (Hubalek et al. 2023, Mosa Meat and Maastricht University,
+  spinner flasks, five donors); lactate (1.05 mol per mol of glucose) from chicken fibroblasts in perfusion (Pasitka et al. 2024,
+  Believer Meats); a cell mass of 2 ng (chicken cells are reported at 1.0–1.75 ng and about 3.3 ng; Humbird assumed 3 ng); and glucose
+  from the cells' own balance. Companies may hold better cells they have not published. They are grown as a fed-batch in an ordinary
+  20 m³ tank, the mode and size pharma runs and Upside Foods reports (`research_notes/vessels_and_modes.md`, section 11). Medium
+  costs $0.30 a litre, between the $0.20 companies announce and the $0.50 one company reports.
+- **Row 2, Plus process changes and cheaper inputs ($201.4).** The same cells and mode. Medium at the announced $0.20 a litre and
+  growth factors at 30% of Humbird's price; more gas, the tank tricks and a faster restart do nothing for a batch held by its waste.
+- **Row 3, less lactate and faster growth ($64.9).** Cells that make 0.42 mol of lactate per mol of glucose (shown without engineering
+  in adapted CHO cells, not yet in meat cells) and double every 36 hours. Still a 20 m³ batch.
+- **Row 4, Selected cells ($32.8).** The same cells in perfusion.
+- **Row 5, Plus a food-grade plant with shared medium ($29.9).** Its two small seed trains serve only long runs, so it follows
+  perfusion; a fed-batch plant with shared medium keeps Humbird's full seed train.
+- **Row 6, almost no ammonia or lactate ($17.3).** 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, the
+  metabolism of Humbird's efficient cell, at 2 ng a cell, still doubling every 36 hours, with $0.20 medium. Each level has been
+  shown without engineering only in CHO cells, and with engineering.
+- **Row 7, Engineered cells, all favourable ($11.7).** The cells double every 24 hours and need no bought growth factors, gas at 6 mm/s, and a
   medium that costs only what the cells eat (the nutrient floor, $2.00 a kilo of cells at GFI's feed-grade amino-acid prices). It
-  takes the favourable end of demand too: once cultivated meat is familiar, 55% of choices go to it at equal price, against 13%
+  takes the favourable end of demand too: once cultivated meat is familiar, 58.5% of meat buyers (55% of all choices) pick it at equal price, against 14.5% (13%)
   in every other row. It is not every switch at its cheapest: it loses 0.6% of runs a day, not pharma's 0.2%, and restarts in 14
-  days, not 4. With both it would cost $11.0.
+  days, not 4.
+
+**Why this order.** Each row needs nothing from the one after it, and the early rows need the least that is new: fed-batch at 20 m³
+is shown, cheaper inputs need no new biology, and perfusion at 20 m³ has not been run with animal cells. The shared-medium plant
+comes after perfusion because its saving on seed trains needs long runs. Perfusion is worth the most after the cells: $32.1 a kilo
+with the Selected cells case's traits, $124.7 with the published ones (row 2, $201.4, against the same cells in perfusion with the
+process changes, $76.7).
 
 An announced or reported medium price is taken to include its growth factors (`growth_factors_in_medium_price.md`), so no row
-with such a medium buys growth factors on top. Only the best case's medium would have them added, and its cells need none. The
-forecast row is the author's median for each switch by 2035 (below). Humbird's optimistic design is not a row of the ladder: it
-assumes the hardest change (engineered cells) and none of the easy ones (the tank tricks).
+with such a medium buys growth factors on top. Only the Engineered cells, all favourable case's medium would have them added, and its cells need none. Humbird's optimistic
+design is not a row of the steps: it assumes cells with almost no waste (Humbird's 3 ng cell) and none of the tank tricks.
 
 **The bands.** Each row's switches stay fixed, and the estimates behind it are drawn (4,000 draws). On the cost side: the plant's
 cost and financing, the life and price of the filter membranes, the upkeep share of respiration, the medium price, the loss
 rate, the ammonia the cells tolerate, the ammonia the selected and published cells make, the protectant's price and dose, the
-least medium flow, antifoam's cost to oxygen transfer and the price of amino acids. On the demand side: the share at equal price,
+least medium flow, antifoam's cost to oxygen transfer, the price of amino acids and the weight of a cell. On the demand side: the share at equal price,
 the two price sensitivities, taste, the costs of reaching the shelf, the shop's margin, how much less buyers of premium products
 like a cultivated version, and a cut's cell share and assembly cost. The kind of cells and their speed are not drawn: they are
 what the rows differ in.
 
-- **The published cells cost $111.9 a kilo, and lactate is the reason.** They turn most of their glucose into lactate (1.05 mol
-  per mol of glucose taken up). By their own balance they need about 4.5 mol of glucose a kilo and make 4.8 mol of lactate.
-  Washing that out takes 95 litres of medium a kilo; their ammonia alone would need 35. Every litre is bought, passes the cell
-  filter and carries protectant: $29.4 of medium, $31.8 of membranes and $5.7 of protectant a kilo. The ordinary tank holds only
-  46 g/L of these cells (CO₂ limits it), so the plant charge is $36.3.
-- **Process changes and cheaper inputs take $35.1 off, to $76.7, without touching the cells.** Alone, each is worth: the tank
-  tricks $18.7, more gas $16.5, the cheaper medium $9.8 and the faster restart $2.3. They overlap, because the tricks and the gas
-  both clear CO₂. The tank now holds 204 g/L and the plant charge falls to $9.2. The litres do not change. The medium is still 95
-  litres a kilo, and membranes now cost $39.0: a denser culture carries less liquid out with the cells, so more passes the filter.
-- **The largest step is cells selected to make less lactate and grow faster: $43.9 off, to $32.8 (Central).** The selected cells
-  make 0.42 mol of lactate per mol of glucose, as adapted CHO cells do. They need 2.6 mol of glucose a kilo and make 1.1 mol of
-  lactate. Ammonia then sets the medium, at 35 litres a kilo. The lower lactate alone is worth $42.6. The 36-hour doubling in
-  place of 43 adds the rest; on the published cells it would be worth $5.7. Nobody has run the central tank design with animal
-  cells. Oxygen limits it, at 191 g/L: antifoam is taken to cost a quarter of the sparger's oxygen transfer, worth $1.6 a kilo
-  here. Without the tricks a kilo costs $36.3 in a tank of the same shape, and $39.2 in the ordinary tall tank. At 30 hours
-  Central costs $31.6, and at 24 hours $30.3. The author puts the odds of 24 hours at this waste level at about 10%.
+- **The published cells cost $209.1 a kilo in a batch, and lactate is the reason.** They turn most of their glucose into lactate
+  (1.05 mol per mol of glucose taken up). By their own balance they need about 4.5 mol of glucose a kilo and make 4.8 mol of
+  lactate. Nothing washes it out of a batch, so held to 1.3 times the 50 mmol/L perfusion allows, the batch stops at 14 g/L. The
+  plant then makes few kilos: its charge is $151.0 a kilo and labour $28.9. Each kilo leaves with 73 litres of medium ($22.9). In
+  perfusion with the tank tricks the same cells would cost $76.7: 95 litres of medium a kilo, but a tank 15 times denser.
+- **Process changes and cheaper inputs take $7.6 off, to $201.4, without touching the cells.** All of it is the cheaper medium. A
+  batch this thin is not held by gas, so more gas, the tank tricks and a faster restart are worth nothing (a lost batch costs its
+  cells and 2 days, whatever the restart switch says).
+- **Selected cells take $136.5 off, to $64.9: the largest step in dollars.** The selected cells make 0.42 mol of lactate per mol of
+  glucose, as adapted CHO cells do: 1.1 mol a kilo, against 4.8. Ammonia (0.14 mol a kilo, held to 1.3 times 4 mmol/L) then holds
+  the batch at 37 g/L, nearly three times denser. The lower lactate alone is worth $126.4; the 36-hour doubling in place of 43 adds
+  $10.1. Upside's reported capacity implies 33–136 g/L a batch, and Vow reports 27 g/L, so the companies' cells already make less
+  lactate than the published ones (about 0.6–0.7 mol per mol of glucose would do).
+- **Perfusion takes $32.1 off, to $32.8 (Selected cells).** Washing the waste out lets the tank hold 191 g/L, five times the batch, so the
+  plant charge falls from $47.0 to $7.7 a kilo. It adds what a batch does not pay: 35 litres of medium a kilo where the batch used
+  27, of which 30 pass a filter at $12.8 a kilo. Nobody has run the central tank design with animal cells. Oxygen limits it, at
+  191 g/L: antifoam is taken to cost a quarter of the sparger's oxygen transfer, worth $1.6 a kilo here. Without the tricks a kilo
+  costs $36.3 in a tank of the same shape, and $39.2 in the ordinary tall tank. At 30 hours the Selected cells case costs $31.6, and at 24 hours
+  $30.3. The author puts the odds of 24 hours at this waste level at about 10%.
 - **A cheaper plant takes $2.9 off, to $29.9.** It is Humbird's plant without a clean hall, an oxygen plant or eight seed tanks,
-  and with one medium line for all the tanks. Nobody has built one.
-- **Engineered cells and the rest of the best case take $18.5 off, to $11.5.** The engineered cells make so little waste that they
-  need 14 litres of medium a kilo, not 35, and every litre less is also a litre less through the filter and less protectant. The
-  tank reaches the thickness limit (258 g/L) with the column, 1 bar of pressure, recycled oxygen and a squat tank. The median of
-  its draws is $14, and only 12% of draws come in below $11.5. Its three medium limits (ammonia, lactate and the least flow) ask
-  for 11 to 14 litres a kilo, so an estimate that goes against it raises the cost and one that goes for it lowers it little.
-- **The best case's share is two numbers, and the demand judgement sets the gap.** With shoppers who favour it (55% at equal
-  price) the median is 6.8% of world meat and seafood (8 in 10 draws between 2.5% and 14.8%; 13.8% at the most-likely-values cost,
-  with 22.5% in the US and 29.6% in Europe). With Central's 13% the same cells give a median of 1.3% (0.4–5.1%; 2.7% at the
-  most-likely-values cost). The 55% is the favourable end of a judgement: the literature review puts about 3% odds on more than
-  49% (`research_notes/what_drives_choice.md`). It also means 20% of choices at twice the price of meat; plant-based milk, the
-  most successful comparable product, holds about 15% of its market. At 55% its sales are spread across every meat: beef 39%,
-  seafood 23%, pork 15%, chicken 11%, sheep and goat 8%. Ordinary chicken and pork sell although they stay 2.2 to 3.9 times the
-  price of their meats. The 13.8% depends on the shape of the spread of liking near its middle, which no data pin: shapes that
-  fit the evidence about as well give 14% to 17% (section 2).
-- **The forecast for 2035 costs about $33 a kilo (median; 8 in 10 draws $23–52; $28.8 at most likely values) and takes about
-  0.17% (0.03–0.9%; 0.25% at the most-likely-values cost).** It is row 4 with fewer lost runs: selected cells, not engineered
-  ones, and the announced $0.20 medium. It is conditional on holding cells back in a 20 m³ tank. See "The forecast for 2035".
-- **Humbird's optimistic design costs about $16 (median; $13–22; $12.8 at most likely values) and takes 1.0% (0.3–4.0%; 2.2% at
-  the most-likely-values cost).** It has engineered cells but no tank tricks. It already uses perfusion and pays the same nutrient
-  floor as the best case. The best case beats it on density and plant ($4.2 a kilo less plant charge) and gives back $2.9, mostly
-  on filter membranes ($4.0 against $1.0): the best case holds ammonia at 4 mmol/L, not 5, and loses 0.6% of its runs a day.
-- **Holding the cells back is the largest single cost in Central.** Every scenario uses a 20 m³ tank in perfusion. A filter loop
+  and with one medium line for all the tanks. Nobody has built one. In a batch it would save more ($15.4, to $49.5), because a
+  batch's cost is mostly plant; but a batch needs a fresh seed every three or four days, so it keeps Humbird's seed train.
+- **Almost no ammonia or lactate takes $12.7 off, to $17.3.** Such cells need 16 litres of medium a kilo, not 35, set by the least
+  flow a cell needs; every litre less is also a litre less through the filter and less protectant ($4.7 of membranes, not $12.8).
+  The median of their draws is $24, and only 7% of draws come in below $17.3: almost every estimate has more room to hurt than to
+  help. Those levels have been shown without engineering only in CHO cells (the ammonia at a plateau), and with engineering.
+- **Everything else at its favourable end takes $5.6 off, to $11.7 (Engineered cells, all favourable).** A 24-hour doubling alone is
+  worth $3.3. Oxygen limits the tank, at 218 g/L, with the column, 1 bar of pressure and a squat tank (2 ng cells respire more per
+  gram than Humbird's 3 ng, so the tank no longer reaches the thickness limit). The median of its draws is $15, and only 10% of draws
+  come in below $11.7.
+- **Engineered cells, all favourable has two shares, and the demand judgement sets the gap.** With 58.5% of meat buyers picking it
+  at equal price (55% of all choices) the median is 7.7% of world meat and seafood (8 in 10 draws between 3.1% and 16.2%; 15.1% at the
+  most-likely-values cost, with 24.1% in the US and 31.7% in Europe). With the ordinary 14.5% the same cells give a median of 1.5%
+  (0.5–5.7%; 3.2% at the most-likely-values cost). The 55% is the favourable end of a judgement: the literature review puts about 3%
+  odds on more than 49% of all choices (`research_notes/what_drives_choice.md`). It depends on the shape of the spread of liking
+  near its middle, which no data pin (section 2).
+- **Humbird's optimistic design costs about $16 (median; $13–22; $12.8 at most likely values) and takes 1.3% (0.4–4.7%; 2.7% at
+  the most-likely-values cost).** It has cells with almost no waste, of 3 ng, but no tank tricks. It already uses perfusion and pays
+  the same nutrient floor as Engineered cells, all favourable, which beats it on density and plant and holds ammonia at 4 mmol/L, not
+  5, with lost runs.
+- **Holding the cells back is the largest single cost in the Selected cells case.** Selected cells and the rungs above it use a 20 m³ tank in perfusion. A filter loop
   must clear the medium that the bleed of cells does not carry out. Its membranes cost $0.37 per litre they filter if every run
-  lasts its planned 33 days, and $0.43 in Central, where a run has a 1% chance a day of being lost. The central cells need 35 litres of medium
+  lasts its planned 33 days, and $0.43 in the Selected cells case, where a run has a 1% chance a day of being lost. The central cells need 35 litres of medium
   a kilo at 191 g/L, so the filter clears 30 litres a kilo and the membranes cost $12.8 a kilo. Humbird's optimistic design clears
-  2.8 litres a kilo and pays $1.0. A disc-stack separator on the outflow would cost $27.49 in Central, $5.3 less, even though
+  2.8 litres a kilo and pays $1.0. A disc-stack separator on the outflow would cost $27.49 in the Selected cells case, $5.3 less, even though
   about a quarter of the cells are lost in it; its sterile price is assumed, because none was found. Nobody has held animal cells
   in perfusion above about 4 m³ (`research_notes/retention_devices.md`).
 - **Cells grown as clumps could be held back without membranes, but the biology is unshown.** Aggregates of 100–300 µm settle
-  30–280 times faster than single cells, so a plain settler of about 22 m² could hold Central's culture back for about $4k per m³
-  of tank. Central would then cost $20.4 a kilo ($20–29 across the study's inputs) against $32.8 with the filter loop. Oxygen does
+  30–280 times faster than single cells, so a plain settler of about 22 m² could hold Selected cells' culture back for about $4k per m³
+  of tank. The Selected cells case would then cost $20.4 a kilo ($20–29 across the study's inputs) against $32.8 with the filter loop. Oxygen does
   not limit it: at the scenarios' 0.10 mmol/L an aggregate's middle keeps dividing up to about 300 µm. What nobody has shown is the
   culture. The densest aggregate culture found is about 40 g/L, for a week, in 150 mL, and every process breaks the aggregates up
-  every 5–8 days. Our judgement is about 8% that aggregates hold Central's 191 g/L in a 20 m³ tank for a month by 2035 (15% at
-  120 g/L), so the default stays the filter loop. Edible microcarriers do not help: the beads take up the tank, which holds Central
+  every 5–8 days. Our judgement is about 8% that aggregates hold Selected cells' 191 g/L in a 20 m³ tank for a month by 2035 (15% at
+  120 g/L), so the default stays the filter loop. Edible microcarriers do not help: the beads take up the tank, which holds Selected cells
   to 26 g/L ($84 a kilo), and the product would be 90% bead by weight (`research_notes/retention_aggregates.md`).
 - **The bubble protectant is a real cost.** At 2 g/L it is 22 g a kilo of cells in Humbird's optimistic design, 28 g in the best
-  case and 70 g in Central, which needs 35 litres of medium a kilo. That is $0.7, $0.8 and $2.1 a kilo at the assumed $30 a kilo
+  case and 70 g in the Selected cells case, which needs 35 litres of medium a kilo. That is $0.7, $0.8 and $2.1 a kilo at the assumed $30 a kilo
   of protectant, or $5.8, $7.2 and $18 at the catalogue price ($260). A bulk quote would settle it.
 - **Company cost claims are operating cost, and the scenarios include the plant.** On operating cost alone the central cells cost
-  $13.4–13.7 a kilo in a tank run as Vow runs its 20 m³ tank. That is inside the $10–15 an investor reports for several
+  $18.8–19.1 a kilo in a tank run as Vow runs its 20 m³ tank, a little above the $10–15 an investor reports for several
   companies. The plant charge is the difference (section 1, "Against what companies report").
-- **No scenario reaches price parity.** Parity with $12 meat needs $6.1 a kilo of cells ($2.5 a kilo to reach the shelf and the
-  shop's 28% margin). The best case costs $11.5 at most likely values and $11–20 across 8 in 10 draws; none of its 4,000 draws is
+- **No scenario reaches price parity with a $12 kilo of everyday meat (the US anchor).** That needs $6.1 a kilo of cells ($2.5 a
+  kilo to reach the shelf and the shop's 28% margin): the shop price of a $12 kilo of everyday meat. For the world the bar is
+  lower still: the volume-weighted world price is $9.43 a kilo, so the same shop price as the average kilo eaten in the world needs
+  about $4.29 of cells (the US $10.93 needs $5.37; Europe's $13.63, $7.31). Engineered cells, all favourable costs $11.7 at most likely values and $12–20 across 8 in 10 draws; none of its 4,000 draws is
   at or below $6.1. No scenario uses a plant as cheap as a yeast plant, because nothing shows that animal cells can grow in one.
-- **What decides it.** Each switch is moved alone from Central ($32.8) to its best and its worst setting. The kind of cells
-  matters most: −$13.4 with engineered cells, +$38.2 with the published cells, +$98.5 with ordinary meat cells. Next come the
-  medium price (−$1.4 at the nutrient floor, +$10.7 at $0.50 a litre), the gas the cells tolerate (−$1.7 at 6 mm/s, +$4.7 at 2),
-  runs lost (−$2.5 at 0.2% a day, +$3.4 at 2%), the tank tricks (+$3.5 if none work), growth speed (−$2.5 at 24 hours, +$1.3
-  at 43) and the plant (−$2.9 with shared medium). Growth factors are inside Central's medium price. Their
-  switch still sets the least such a medium can cost: nothing at 30% of Humbird's price or less, +$2.5 at 60% and +$7.6 if all
-  were bought at his price. The kind of cells matters most because waste sets the litres of medium a kilo, and each litre must
-  also pass the filter and carries protectant. The switches interact, and the page ranks them around any scenario you choose.
-- **At equal price,** once cultivated meat is familiar, 13% of choices go to it if shoppers see it as real meat, and about 6% if
+- **What decides it.** Each switch is moved alone from the Selected cells case ($32.8) to its best and its worst setting. The kind of cells
+  matters most: −$12.7 with cells that make almost no ammonia or lactate, +$38.2 with the published cells, +$98.5 with ordinary meat cells. Next comes how the
+  tank is run: in a 20 m³ batch, with Selected cells' tank design held, a kilo costs $34.6 more (with the design chosen again, $32.1 more;
+  in a 100 m³ batch, $25.3 more). Then the medium price (−$1.4 at the nutrient floor, +$10.7 at $0.50 a litre), the gas the cells
+  tolerate (−$1.7 at 6 mm/s, +$4.7 at 2), runs lost (−$2.5 at 0.2% a day, +$3.4 at 2%), the tank tricks (+$3.5 if none work),
+  growth speed (−$2.5 at 24 hours, +$1.3 at 43) and the plant (−$2.9 with shared medium). Growth factors are inside Selected cells'
+  medium price. Their switch still sets the least such a medium can cost: nothing at 30% of Humbird's price or less, +$2.5 at 60%
+  and +$7.6 if all were bought at his price. The kind of cells matters most because waste sets the litres of medium a kilo, and
+  each litre must also pass the filter and carries protectant; in a batch, waste sets the density instead. The switches interact,
+  and the page ranks them around any scenario you choose.
+- **At equal price,** once cultivated meat is familiar, 14.5% of meat buyers (13% of all choices) pick it if shoppers see it as real meat, and about 6% of choices if
   they do not. The 13% is a judgement: about 5% was measured at first contact, and about half the market would need the average
   shopper to end up indifferent. A worse taste lowers it to 6–9%; a value on "no slaughter" raises it to 15–21%.
 - **As a company reports its process, with capital counted,** cultivated chicken costs about **$34 a kilo of cells, 4.3 times
   everyday meat** ($51 in the shop). This is SuperMeat's 2024 process for 100% cell mass, from 10-litre runs scaled on paper to
   25,000-litre tanks, with a yearly charge on the plant. The company's own figure, with depreciation only, is $29.5 a kilo. Nobody
-  has peer reviewed it. With its cost and demand both drawn, the share is 0.17% of world meat and seafood (median; 8 in 10 draws
-  0.04–0.8%), and 0.14% at the reported cost itself (0.4% in the US). Beef steaks are 32% of those sales, premium fish and shrimp
+  has peer reviewed it. With its cost and demand both drawn, the share is 0.22% of world meat and seafood (median; 8 in 10 draws
+  0.06–1.0%), and 0.18% at the reported cost itself (0.5% in the US). Beef steaks are 32% of those sales, premium fish and shrimp
   14%, pork cuts 9%, chicken cuts 7%, and prime beef and sushi-grade fish 6% each.
-- **Where.** In Central, mostly beef and premium fish: beef is 44% of sales and seafood 26%. Pork is 11% and chicken 8%, sold to
-  the few shoppers who like cultivated meat enough to pay about five times the price of the cut beside it. A third of Central's
+- **Where.** In the Selected cells case, mostly beef and premium fish: beef is 44% of sales and seafood 26%. Pork is 11% and chicken 8%, sold to
+  the few shoppers who like cultivated meat enough to pay about five times the price of the cut beside it. A third of Selected cells'
   sales are of products at more than four times the price of their meat. That rests on the far tail of the spread of liking,
   which is an extrapolation: the premium meats it was fitted to stop at 3.6 times. In the
-  best case every meat sells (above). A few luxury products are already within reach on price, but their markets are tiny.
+  Engineered cells, all favourable every meat sells (above). A few luxury products are already within reach on price, but their markets are tiny.
 - **When.** These are long-run ceilings. If nothing stalls and supply keeps up, adoption reaches 90% of the long-run share after
-  21 years in Central (14 to 46 across the speeds at which wariness fades) and 22 in the best case (14 to 51). The speeds come
+  21 years in the Selected cells case (14 to 46 across the speeds at which wariness fades) and 22 in the Engineered cells, all favourable case (14 to 51). The speeds come
   from durable goods; they are assumed, not estimated for a food.
 
-**What the answer rests on** (`answer_rests_on.py`). The model has 544 inputs, 255 of them with a range. Moving
-each across its range, one at a time, with each scenario's tank design held as it is: only 18 move Central's or the best
-case's cost by $1 or more, and 11 move Central by more than $3. The rest serve side studies or tank detail. Costs in the table are
+**What the answer rests on** (`answer_rests_on.py`). The model has 556 inputs, 257 of them with a range. Moving
+each across its range, one at a time, with each scenario's tank design held as it is: only 18 move Selected cells' or the best
+case's cost by $1 or more, and 11 move Selected cells by more than $3. The rest serve side studies or tank detail. Costs in the table are
 at most likely values.
 
-| input | its range (model's value) | Central, $/kg | Central's share of world meat | best case, $/kg | where the value comes from | in the uncertainty band? |
+| input | its range (model's value) | Selected cells, $/kg | Selected cells' share of world meat | Engineered cells, all favourable, $/kg | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|---|
-| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $76.3 to $29.2 | 0.007% to 0.2% | $25.0 to $10.3 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
-| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $57.4 to $23.3 | 0.02% to 0.5% | $17.9 to $10.2 | the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
-| Ammonia the selected cells make per kilo grown | 0.07–0.25 mol/kg wet (0.14) | $23.5 to $52.1 | 0.5% to 0.03% | $11.5 to $11.5 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
-| Price of the bubble protectant (poloxamer 188), bought by the tonne | 10–120 $/kg (30) | $31.4 to $39.1 | 0.2% to 0.09% | $10.9 to $13.9 | assumed: only catalogue prices ($230–260/kg) found | yes |
-| Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $38.4 to $32.8 | 0.09% to 0.2% | $15.5 to $11.5 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the best case's median by about $0.1, at forty times the computing time |
-| Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $30.6 to $35.6 | 0.2% to 0.1% | $10.8 to $12.2 | derived from Humbird's financing, at a mature industry's rates | yes |
-| Oxygen transfer the sparger keeps with antifoam present | 0.5–1 - (0.75) | $35.9 to $31.2 | 0.1% to 0.2% | $11.6 to $11.5 | judgement: reported effects range from none to half | yes |
-| Dose of bubble protectant in the medium | 1–5 g/L (2) | $31.8 to $36.0 | 0.2% to 0.1% | $11.0 to $12.7 | dense pharma cultures (`gas_flow_cap.md`) | yes |
-| Least medium flow the cells need for everything but ammonia and lactate | 3.7–18.5 mL per g wet cells per day (7.5) | $32.8 to $36.3 | 0.2% to 0.1% | $11.5 to $17.6 | judgement within CHO measurements | yes |
-| Price of cell-filter membrane | 1050–1450 $/m2 (1450) | $29.3 to $32.8 | 0.2% to 0.2% | $10.4 to $11.5 | Humbird's ATF price; retail modules a quarter less | yes |
-| Pressure at the top of the tank, where the pressure trick is used | 0.33–2 bar gauge (1) | $35.1 to $31.7 | 0.1% to 0.2% | $11.7 to $11.4 | vendor data sheets (vessels rated to 3–4 bar); no culture has been run at 1 bar | no: a design choice |
-| Weight of one selected cell | 1000–3000 pg wet per cell (2000) | $34.2 to $32.1 | 0.1% to 0.2% | $11.5 to $11.5 | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | no: a trait of the cells, held by the kind-of-cells switch |
-| Share of a cell's oxygen use that is upkeep, not growth | 0.31–1 of O2 uptake (0.5) | $32.2 to $34.3 | 0.2% to 0.1% | $11.5 to $11.5 | judgement from GFI and Miller 1987 | yes |
-| Amino acids a kilo of cells takes up (the nutrient floor) | 0.2–0.65 kg amino acids/kg wet (0.232) | $32.8 to $34.3 | 0.2% to 0.1% | $11.3 to $14.1 | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | no: a trait of the cells, as glucose use is; the best case takes the efficient end |
-| Rise in plant construction costs since 2018 | 1.17–1.4 x (1.33) | $31.9 to $33.2 | 0.2% to 0.2% | $11.2 to $11.6 | construction cost index, 2024 estimated | partly: the plant's cost is drawn, not this index |
-| Density a tank reaches without perfusion | 50–150 g wet/L (120) | $32.0 to $33.1 | 0.2% to 0.2% | $11.1 to $11.6 | Humbird's fed-batch limit | **no** |
-| Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $32.8 to $32.8 | 0.2% to 0.2% | $11.1 to $12.7 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
-| Ammonia the engineered cells make per kilo grown | 0.054–0.14 mol/kg wet (0.055) | $32.8 to $32.8 | 0.2% to 0.2% | $11.3 to $21.5 | Humbird's enhanced cell; seen only in engineered CHO cells | no: the best case assumes cells that reach it |
+| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (3960) | $76.3 to $29.2 | 0.009% to 0.3% | $24.2 to $10.6 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
+| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $57.4 to $23.3 | 0.03% to 0.6% | $18.2 to $10.7 | the evidence note's median for selected meat cells, 3.5–4 mmol/L (80% interval 2–8): unadapted meat-relevant cells lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
+| Ammonia the selected cells make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $23.6 to $52.1 | 0.6% to 0.04% | $11.7 to $11.7 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
+| Price of the bubble protectant (poloxamer 188), bought by the tonne | 10–120 $/kg (30) | $31.4 to $39.1 | 0.2% to 0.1% | $11.1 to $14.1 | assumed: only catalogue prices ($230–260/kg) found | yes |
+| Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $38.4 to $32.8 | 0.1% to 0.2% | $16.3 to $11.7 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time |
+| Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $30.6 to $35.6 | 0.3% to 0.2% | $11.0 to $12.6 | derived from Humbird's financing, at a mature industry's rates | yes |
+| Oxygen transfer the sparger keeps with antifoam present | 0.5–1 - (0.75) | $35.9 to $31.2 | 0.2% to 0.2% | $12.1 to $11.5 | judgement: reported effects range from none to half | yes |
+| Dose of bubble protectant in the medium | 1–5 g/L (2) | $31.8 to $36.0 | 0.2% to 0.2% | $11.3 to $12.9 | dense pharma cultures (`gas_flow_cap.md`) | yes |
+| Least medium flow the cells need for everything but ammonia and lactate | 3.7–18.5 mL per g wet cells per day (7.5) | $32.8 to $36.3 | 0.2% to 0.1% | $11.7 to $17.8 | judgement within CHO measurements | yes |
+| Price of cell-filter membrane | 1050–1450 $/m2 (1450) | $29.3 to $32.8 | 0.3% to 0.2% | $10.7 to $11.7 | Humbird's ATF price; retail modules a quarter less | yes |
+| Pressure at the top of the tank, where the pressure trick is used | 0.33–2 bar gauge (1) | $35.1 to $31.7 | 0.2% to 0.2% | $11.9 to $11.6 | vendor data sheets (vessels rated to 3–4 bar); no culture has been run at 1 bar | no: a design choice |
+| Weight of one cell (every kind of cells since 2026-11-19) | 1000–3000 pg wet per cell (2000) | $34.2 to $32.1 | 0.2% to 0.2% | $12.1 to $11.5 | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | yes |
+| Share of a cell's oxygen use that is upkeep, not growth | 0.31–1 of O2 uptake (0.5) | $32.2 to $34.3 | 0.2% to 0.2% | $11.7 to $11.7 | judgement from GFI and Miller 1987 | yes |
+| Amino acids a kilo of cells takes up (the nutrient floor) | 0.2–0.65 kg amino acids/kg wet (0.232) | $32.8 to $34.3 | 0.2% to 0.2% | $11.5 to $14.4 | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | no: a trait of the cells, as glucose use is; the Engineered cells, all favourable case takes the efficient end |
+| Rise in plant construction costs since 2018 | 1.17–1.4 x (1.33) | $31.9 to $33.2 | 0.2% to 0.2% | $11.4 to $11.8 | construction cost index, 2024 estimated | partly: the plant's cost is drawn, not this index |
+| Density a tank reaches without perfusion | 50–150 g wet/L (120) | $32.0 to $33.1 | 0.2% to 0.2% | $11.3 to $11.9 | Humbird's fed-batch limit | **no** |
+| Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $32.8 to $32.8 | 0.2% to 0.2% | $11.4 to $12.9 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
+| Ammonia the engineered cells make per kilo grown | 0.054–0.14 mol/kg wet (0.055) | $32.8 to $32.8 | 0.2% to 0.2% | $11.6 to $21.7 | Humbird's enhanced cell; seen only in engineered CHO cells | no: the Engineered cells, all favourable case assumes cells that reach it |
 
-*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($31.2 to $35.2 in Central) without changing any tank; it is left out.*
+*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($31.2 to $35.2 in Selected cells) without changing any tank; it is left out.*
 *Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, gas flow, doubling time, restart time). "What to prioritise" shows what each switch is worth.*
 
-- **Four numbers carry most of Central's uncertainty, and none has been measured on meat cells at production density.** The life
+- **Four numbers carry most of Selected cells' uncertainty, and none has been measured on meat cells at production density.** The life
   of the cell filter ($76.3 to $29.2), the ammonia the cells tolerate ($57.4 to $23.3), the ammonia the selected cells make
-  ($23.5 to $52.1) and the price of the bubble protectant ($31.4 to $39.1). The first three dwarf the rest. The filter life is
+  ($23.6 to $52.1) and the price of the bubble protectant ($31.4 to $39.1). The first three dwarf the rest. The filter life is
   derived from pharma runs, the tolerance is the median of an evidence note, the ammonia made was measured once, in flasks, and the
   protectant's price is assumed.
-- **Central sits at the generous end on the filter.** The evidence note (`research_notes/ammonia_tolerance_and_filter_life.md`)
+- **the Selected cells case sits at the generous end on the filter.** The evidence note (`research_notes/ammonia_tolerance_and_filter_life.md`)
   finds that small-pore fibres in dense culture last about 180–2,500 L/m², against the model's 3,960. Its median is about 1,500,
   and it puts about 20% on 3,960 being within a factor of 1.5 of the truth. Life and price go together: a membrane costs its price
   divided by its life per litre. A life of 1,500 costs nothing extra if the membrane sells at $549 a m² or less, and takes
-  Central to $53.8 at today's $1,450 (`filter_flux.break_even_price`). The model keeps the pair as it is on the judgement that a
+  Selected cells to $53.8 at today's $1,450 (`filter_flux.break_even_price`). The model keeps the pair as it is on the judgement that a
   shorter life would come with a cheaper membrane; the band draws both.
 - **The ammonia tolerance is the note's own median.** The meat-relevant cells measured so far (catfish ovary, 3T3 fibroblasts, pig
   muscle stem cells, bovine fibro-adipogenic cells) lose 10–55% of growth at 2.5–5 mmol/L when ammonia is added. They were
   unadapted and none was run at density. For selected cells the note gives a median of 3.5–4 mmol/L, with 8 in 10 odds on 2–8. The
-  scenarios use 4. At Humbird's 5, Central would cost $27.9.
+  scenarios use 4. At Humbird's 5, the Selected cells case would cost $27.9.
 - **The bands draw all four,** and the other estimates listed under "The bands". Not drawn: the salt the cells tolerate (it moves
-  the best case's median by about $0.1, at forty times the computing time), the pressure at the top of the tank (a design choice)
-  and the traits the kind-of-cells switch holds (cell weight, amino-acid uptake, the engineered cells' ammonia). The protectant's
+  the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time), the pressure at the top of the tank (a design choice)
+  and the traits the kind-of-cells switch holds (amino-acid uptake, the engineered cells' ammonia); the weight of a cell is drawn since 2026-11-19. The protectant's
   prior stops at $120 a kilo, about half the small-pack catalogue price ($260); that is a judgement, and a quote would settle it.
 - **Each of the four is cheaper to settle by a measurement or a quote than by more modelling**: a weeks-long filter run at high
   density, the ammonia limit of a meat-cell line, the ammonia a selected line makes per kilo grown, and a tonne price for
   poloxamer.
 
-| input | its range (model's value) | share at Central's cost | share at the best case's cost | where the value comes from | in the uncertainty band? |
+| input | its range (model's value) | share at Selected cells' cost | share at the Engineered cells, all favourable case's cost | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|
-| Share of buyers who choose cultivated meat at equal price, once familiar | 0.03 to 0.49 of all choices (0.13) | 0.07% to 0.6% | 0.7% to 11.7% | a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | yes |
-| How wary people are of a novel food, in the long run | -2 to 1 utils (0) | 0.1% to 0.2% | 1.3% to 3.9% | a judgement on long-run behaviour | no: part of the share at equal price, which is drawn |
-| Retailer's gross margin, as a share of the shelf price | 0.15 to 0.4 of shelf price (0.28) | 0.3% to 0.08% | 4.2% to 1.6% | US meat-department margins (28–32%) and French supermarket data | yes |
-| How much more price-sensitive cultivated meat is than meat in general | 4 to 11 x (8.5) | 0.8% to 0.09% | 4.8% to 2.4% | bracketed by data on close substitutes | yes |
-| Price elasticity of meat demand | -1.4 to -0.5 elasticity (-0.9) | 0.05% to 0.6% | 2.0% to 4.4% | scanner-data meta-analysis | yes |
-| Cost of assembling a cut, beyond what mince pays | 0.5 to 7 $/kg (2) | 0.2% to 0.1% | 3.4% to 1.4% | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | yes |
-| How price sensitivity falls with income | 0 to 1 exponent (0.5) | 0.3% to 0.05% | 3.3% to 2.1% | USDA demand estimates | no: each value re-solves the demand model's calibration |
-| Share of a cut that is plant protein, not cells | 0.1 to 0.5 kg/kg (0.2) | 0.1% to 0.5% | 2.5% to 3.4% | assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`) | yes |
-| Weight on the price compared with meat's | 0.5 to 1.5 utils per unit ratio (1) | 0.1% to 0.3% | 2.6% to 2.9% | judgement: how much of the price response is a ratio to meat's price rather than dollars | no: each value re-solves the demand model's calibration |
+| Share of buyers who choose cultivated meat at equal price, once familiar | 0.03 to 0.49 of all choices (0.13) | 0.08% to 0.7% | 0.9% to 12.9% | a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | yes |
+| How wary people are of a novel food, in the long run | -2 to 1 utils (0) | 0.1% to 0.3% | 1.6% to 4.5% | a judgement on long-run behaviour | no: part of the share at equal price, which is drawn |
+| Retailer's gross margin, as a share of the shelf price | 0.15 to 0.4 of shelf price (0.28) | 0.4% to 0.1% | 4.8% to 1.9% | US meat-department margins (28–32%) and French supermarket data | yes |
+| How much more price-sensitive cultivated meat is than meat in general | 4 to 11 x (8.5) | 1.0% to 0.1% | 5.5% to 2.7% | bracketed by data on close substitutes | yes |
+| Cost of assembling a cut, beyond what mince pays | 0.5 to 7 $/kg (2) | 0.3% to 0.1% | 4.0% to 1.7% | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | yes |
+| Price elasticity of meat demand | -1.4 to -0.5 elasticity (-0.9) | 0.1% to 0.7% | 2.8% to 4.8% | scanner-data meta-analysis | yes |
+| Share of a cut that is plant protein, not cells | 0.1 to 0.5 kg/kg (0.2) | 0.2% to 0.6% | 2.9% to 4.0% | assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`) | yes |
+| How price sensitivity falls with income | 0 to 1 exponent (0.5) | 0.4% to 0.2% | 3.6% to 3.0% | USDA demand estimates | no: each value re-solves the demand model's calibration |
 
-- **The demand side cannot rescue Central.** At Central's cost ($32.8), no single demand input moved across its range takes the
-  share above 0.8%: the nine inputs span 0.05–0.8%. The low end is set by meat's own price elasticity and the high end by how
-  price-sensitive cultivated meat is. At the best case's cost, with Central's demand, the same inputs span 0.7–11.7%. There, how
+- **The demand side cannot rescue Selected cells.** At Selected cells' cost ($32.8), no single demand input moved across its range takes the
+  share above 1.0%: the eight inputs span 0.08–1.0%. The low end is set by the share at equal price and the high end by how
+  price-sensitive cultivated meat is. At the Engineered cells, all favourable case's cost, with the ordinary demand, the same inputs span 0.9–12.9%. There, how
   people take to a new food matters as much as the cost.
 - **The share at equal price is the widest row, and it is a judgement.** There are no sales data for cultivated meat. The
   literature review puts its median at 10% and its 10th and 90th percentiles at 2% and 35% (`what_drives_choice.md`).
-- **The cut is the product, and it is not yet shown.** About nine-tenths of Central's sales are cuts that are 80% cells. The
+- **The cut is the product, and it is not yet shown.** About nine-tenths of Selected cells' sales are cuts that are 80% cells. The
   cut's cell share and its assembly cost are both drawn in the bands. Fewer cells make a cut cheaper and less liked: at half
-  plant protein Central's share is 0.5%, at a tenth 0.1%. Only one survey has asked shoppers about blends.
+  plant protein Selected cells' share is 0.5%, at a tenth 0.1%. Only one survey has asked shoppers about blends.
 - **The shape of the spread of liking is fitted, loosely.** Its two numbers (a standard deviation of 3.9 utils and a tail of 4
-  degrees of freedom) are not table rows, because across their ranges they move Central only from 0.13% to 0.20% and from 0.10%
-  to 0.22%. The shape matters more than that suggests: it replaced a normal spread on 2026-11-19, and Central doubled.
+  degrees of freedom) are not table rows, because across their ranges they move Selected cells only from 0.13% to 0.20% and from 0.10%
+  to 0.22%. The shape matters more than that suggests: it replaced a normal spread on 2026-11-19, and Selected cells doubled.
 - **Far above parity the two cross-checks disagree.** Products still dearer than their meat respond to price more strongly than
   farmed salmon did (3.6–3.7 against 1–1.5; section 2), which says the model's share falls too fast as the price rises. The
-  curve anchored on premium real meats gives Central 0.10% (0.03–0.19%), below the model's 0.16%, which says the opposite.
+  curve anchored on premium real meats gives Selected cells 0.12% (0.04–0.24%), below the model's 0.21%, which says the opposite.
   Above about four times the price of meat there are no data at all.
 - **A floor on the dollar channel.** Price enters through dollars (scaled by income) and through the ratio to meat's price, and the
   two are calibrated together. The dollar coefficient stops at zero (`market_share._derive_beta`), so a strong loss aversion cannot
   make shoppers gain from paying more.
 - **Left open: dollars or ratios.** How much of the price response is in dollars and how much is a ratio to the cut's own price is
-  not pinned by the data the model uses. Toward ratios, cultivated steak and fillet look cheaper, and Central's share rises from
+  not pinned by the data the model uses. Toward ratios, cultivated steak and fillet look cheaper, and Selected cells' share rises from
   0.1% to 0.3% across the weight's range. Each value re-solves the calibration, so it is not in the bands. It does not change
   the answer.
 
@@ -281,35 +359,6 @@ at most likely values.
 filter, or another way of holding cells back, that lasts in a dense culture; the two ammonia measurements; the price of medium at
 production scale; tank tricks that clear CO₂ without bubbles; and a cheaper class of plant for animal cells. Section 6 gives the
 reasons.
-
-## The forecast for 2035
-
-The forecast row puts each switch at the setting the author thinks as likely as not to be reached at production scale by 2035.
-It is a judgement built from the odds in the research notes, and a first draft for Pablo to adjust. It costs about $33 a kilo
-(median; 8 in 10 draws $23–52; $28.8 at most likely values) and takes about 0.17% of world meat and seafood (0.03–0.9%).
-
-| switch | median by 2035 | the odds behind it |
-|---|---|---|
-| kind of cells | selected for low waste (glutamine replaced, lactate 0.42 per glucose taken up) | engineered low-waste lines in production by 2035: about 25% (judgement); feed and selection already shown in flasks (Hubalek 2023) |
-| growth speed | 36 hours | low-waste cells at 24 h about 10%, at 30 h or faster 25%, 36 h 45%, 43 h 70% (`cost_scenarios.md`) |
-| plant | food-grade with shared medium | a food-grade plant at or below that cost, about 65% (`cheap_plant_study.md`) |
-| gas the cells tolerate | 4 mm/s | about even odds for 6 mm/s at 20 m³ (`gas_flow_cap.md`) |
-| tank tricks | the column and 1 bar, as the loop checks allow | cells on a stripping column 60%, at 2 bar absolute 85% (`gas_exchange_study.md`) |
-| runs lost | 0.6% a day | makers report 0.6–2.2% a day today; the low end by 2035 (judgement) |
-| restart after a loss | 14 days | |
-| growth factors | inside the medium's price | about 0.85 that announced prices include them (`growth_factors_in_medium_price.md`); GFI's target is growth factors at 10% of cost |
-| medium | $0.20 a litre | announced for 2025; lowest report $0.07; the nutrient floor is $0.06 at 35 litres a kilo (`medium_cost_gfi.md`, `nutrient_floor.md`) |
-| **not a switch: cells held back in a 20 m³ tank** | assumed to work | about 35% that any filter holds a dense culture at 20 m³ for a month. That was judged at 258 g/L; the forecast's tank runs at 191 g/L and has not been judged again (`no_perfusion_downside.md`) |
-
-Three cautions.
-
-- **The forecast is conditional on perfusion working at 20 m³,** and the note's odds are against it. Without it the same plant
-  costs $30.0–31.6 a kilo in fed-batch or fill-and-draw if the unwashed tank reaches the model's cap (56 g/L), and $59–62 at the
-  27 g/L reported for meat cells at this size, against $28.8 in perfusion. The note puts about 25% on reaching the cap. So the
-  row is a forecast given perfusion, not the author's median outcome.
-- **The median of each switch is not the median outcome.** The switches are linked (good cells tend to come together) and cost is
-  not linear in them, so a forecast should draw the switches from these odds. This row does not yet.
-- **The band varies only the estimates behind the row,** not the switches, so it is narrower than the forecast's real uncertainty.
 
 ## 1. Cost and the price ratio
 
@@ -352,9 +401,10 @@ pharma-style rows use it. His own report gives the food-processing sector's cost
 20-year life for a yeast plant; that makes the charge 17.3%. The scenarios are long-run cases set
 against meat, a mature industry, so they use 17.3%. It is worth $2.3/kg in Humbird's optimistic design.
 
-**How the tank is run matters less than the plant and the cells.** Perfusion is worth about $6/kg in Humbird's optimistic design
-against tanks that are drained and refilled (the vessel grid below). Removing clean rooms saves about a tenth of the plant cost.
-A plant as cheap as a yeast plant cuts the design's cost by about a third.
+**How the tank is run matters as much as anything but the cells.** Perfusion is worth about $6/kg in Humbird's optimistic design
+against tanks that are drained and refilled (the vessel grid below), and $32.1 with the Selected cells case's switches, whose batch
+is held at 37 g/L by the waste mass balance. The plant-cost axis below compares the two modes on the same assumptions. Removing
+clean rooms saves about a tenth of the plant cost. A plant as cheap as a yeast plant cuts the design's cost by about a third.
 
 The medium and the plant matter most. No single lever reaches parity on its own. From the reported cost (R = 4.27): the plant
 cost of Humbird's optimistic design gives R ≈ 3.30, medium at $0.20/L 3.21, and efficient cells 2.94.
@@ -452,18 +502,71 @@ one). **Within those limits Humbird's optimistic design depends on the gas the c
 gauge") runs at 22 passes an hour for the engineered cells, beyond the tested range. None of the tricks has been
 tried with meat cells.
 
+### What it would take, and which routes have shown the cells' traits (`scenarios.what_it_would_take`, `cell_traits.py`)
+
+The cost of cells a long-run share needs, at the model's 14.5% of meat buyers picking cultivated meat at equal price and at 50% (no
+preference), with every estimate at its most likely value; and the least intrusive set of traits, among those tried, that reaches
+it (ammonia 0.14, 0.055 or 0 mol a kilo; lactate 1.05, 0.42, 0.28 or 0 mol per mol of glucose; a doubling every 43, 36, 25.7, 20 or 15
+hours; 2 ng cells; a food-grade plant with or without shared medium; perfusion or a 20 m³ batch; the Selected cells case's other
+switches). "Least intrusive" ranks the traits by the routes that have shown them, never by odds:
+
+| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost (most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |
+|---|---|---|---|---|---|
+| 1% | 14.5% | $19.7 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 20 h, 2 ng | $19.3, a food-grade plant with shared medium, fed-batch at 20 m³ | shown without engineering, some only in other cells; not yet together in one meat cell |
+| 10% | 14.5% | $4.9 a kilo or less | none of the sets tried |  |  |
+| 1% | 50.0% | $29.8 a kilo or less | ammonia 0.055 mol/kg, lactate 0.42 mol/mol, a doubling every 43 h, 2 ng | $25.9, a food-grade plant, perfusion | shown without engineering, some only in other cells |
+| 10% | 50.0% | $12.9 a kilo or less | ammonia 0 mol/kg, lactate 0 mol/mol, a doubling every 25.7 h, 2 ng | $12.9, a food-grade plant with shared medium, perfusion | some traits shown only with genetic engineering; not yet together in one meat cell |
+
+| trait | a feed change, in meat cells | selection or adaptation, in meat cells | no engineering, other cells only | genetic engineering, any cells | not shown by any route |
+|---|---|---|---|---|---|
+| ammonia made per kilo of cells grown (mol/kg wet) | 0.14 | nothing better | 0.054 | 0 | nothing: zero has been shown |
+| lactate made per glucose taken up (mol/mol) | 1.05 | nothing better | 0 | 0 | nothing: zero has been shown |
+| doubling time (h) | 25.7 | 20 | nothing better | 15 | below 15 |
+| mass of a cell (pg wet) | 3300 | nothing better | nothing better | nothing better | above 3300 |
+
+A 1% share is within reach of traits that have each been shown without genetic engineering, though two of them (ammonia 0.055 and
+lactate 0.42) only in CHO cells, and low ammonia never together with fast growth in one meat cell. A 10% share needs $4.9 a kilo of cells
+at the model's own liking, below every set tried and below parity's $6.1, and, with half of meat buyers favouring it, cells with no ammonia
+and no lactate, which have so far been shown only with genetic engineering. Each trait is judged alone; `research_notes/cell_trait_routes.md`
+gives the evidence both ways. The clouds of draws (`scenario_mc(choice, traits=...)`) can be drawn for any of these sets.
+
+### Perfusion against fed-batch as the plant gets cheaper (`scenarios.plant_axis`)
+
+The two ways of running the tank are compared here with the same assumptions on both sides: the same cells, plant, losses, medium
+and estimates, each with its own tank design. Fed-batch's handicap is capital only: a batch held by its waste makes a fifth to a half
+of the kilos a perfusion tank makes, and pays no filter. So a cheaper plant narrows the gap. The table moves the plant's cost
+(buildings and tanks, not the filter loop or the column) from its modelled value down to a third of it, the bands' range:
+
+| switches as in | $/kg with the plant at its modelled cost: perfusion / fed-batch 20 m³ / fed-batch 100 m³ | plant at 0.75× | plant at 0.5× | plant at 0.34× | fed-batch at 20 m³ is cheaper with the plant below | fed-batch at 100 m³, below |
+|---|---|---|---|---|---|---|
+| Published cells (rung 2's switches) | 76.7 / 201.4 / 179.5 | 74.7 / 163.7 / 147.3 | 72.7 / 125.9 / 115.0 | 71.4 / 101.8 / 94.3 | 0.13× | 0.15× |
+| Selected cells (Selected cells' switches, rungs 3–4) | 32.8 / 64.9 / 58.1 | 31.0 / 53.1 / 48.0 | 29.2 / 41.4 / 38.0 | 28.1 / 33.9 / 31.6 | 0.19× | 0.23× |
+| Selected cells, plant with shared medium (rung 5) | 29.9 / 49.5 / 45.0 | 28.9 / 41.7 / 38.3 | 27.9 / 33.9 / 31.6 | 27.3 / 28.9 / 27.3 | 0.28× | 0.34× |
+| Engineered cells (rung 6) | 17.3 / 31.1 / 28.5 | 16.3 / 26.4 / 24.5 | 15.3 / 21.7 / 20.5 | 14.6 / 18.7 / 18.0 | 0.06× | 0.06× |
+| The Engineered cells, all favourable case's switches (rung 7) | 11.7 / 15.7 / 14.6 | 11.1 / 13.5 / 12.7 | 10.5 / 11.4 / 10.9 | 10.2 / 10.0 / 9.7 | 0.36× | 0.43× |
+
+- **With the mass balance, fed-batch wins only on a very cheap plant.** With Selected cells' switches a 20 m³ batch is cheaper than
+  perfusion only below 0.19 times the modelled plant cost, and a 100 m³ batch below 0.23; with the shared-medium plant, below 0.28
+  and 0.34; with the Engineered cells, all favourable case's switches, below 0.38 and 0.44. Engineered cells at 36 hours favour perfusion most (0.07): their batch
+  is held at 62 g/L by the least flow a cell needs, while perfusion reaches 211 g/L.
+- **This reverses an earlier reading.** Before the mass balance a batch of the Selected cells case's cells reached 56 g/L, and the same comparison
+  had fed-batch winning at about half the plant's cost. At 37 g/L it needs a fifth. Which is likelier to work is a separate question:
+  fed-batch at 20 m³ is shown, perfusion is not.
+- **A bigger batch helps a little.** 100 m³ is about 10% cheaper than 20 m³ (`research_notes/tank_size.md`, section 10); no size
+  closes the gap at the modelled plant cost.
+
 ### The frontier: every lever at its limit
 
-Moving Central's levers one at a time to the limits the research notes support, each kept moved, takes it from $32.80 to
+Moving Selected cells' levers one at a time to the limits the research notes support, each kept moved, takes it from $32.80 to
 **$7.16** a kilo. The least medium the physics allows (6.4 L/kg) is the largest step: it saves $18.64 on its own and takes
-Central to $14.16. Then come cells doubling in 16 hours, a food-grade plant with shared medium, runs lost at pharma's 0.2% a day
+Selected cells to $14.16. Then come cells doubling in 16 hours, a food-grade plant with shared medium, runs lost at pharma's 0.2% a day
 and gas at 6 mm/s. The levers share what they save, because fewer litres of medium also mean less to filter: a cheaper filter
 saves $12.52 alone and nothing once the litres are cut. With antifoam counted, oxygen limits the tank, so a thicker culture adds
 nothing. The frontier is about $1 above the $6.1 that parity needs.
 
-The frontier is below the best case ($11.5) because it is a different thing. The best case puts each switch at a favourable
+The frontier is below the Engineered cells, all favourable case ($11.5) because it is a different thing. The Engineered cells, all favourable case puts each switch at a favourable
 setting. The frontier also moves estimates to the limit the notes think physically possible: 6.4 litres of medium a kilo where the
-best case needs 14, a doubling every 16 hours where the best case has 24, and 0.2% of runs lost a day where the best case has
+Engineered cells, all favourable needs 14, a doubling every 16 hours where the Engineered cells, all favourable case has 24, and 0.2% of runs lost a day where the Engineered cells, all favourable case has
 0.6%. No step is shown for meat cells, and the odds of all of them together are far below any single one
 (`research_notes/frontier.md`).
 
@@ -475,34 +578,36 @@ combination of the tank options the model has, 144 designs a scenario, keeping t
 
 | case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | perfect gas exchange |
 |---|---|---|---|---|---|
-| 1. Published cells | $111.89 (46 g/L, CO₂) | $111.89 | $64.94 (175 g/L, oxygen; 4 unproven) | $61.78 (258 g/L, thickness; 4 unproven) | **$84.85** (258 g/L) |
-| 2. Plus process changes | $84.41 (93 g/L, CO₂) | $76.74 | $54.58 (258 g/L, thickness; 4 unproven) | $54.39 (254 g/L, CO₂; 3 unproven) | **$74.59** (258 g/L) |
-| 3. Central | $39.18 (87 g/L, CO₂) | $32.80 | $31.40 (258 g/L, thickness; 5 unproven) | $31.09 (258 g/L, thickness; 3 unproven) | **$30.66** (258 g/L) |
-| 4. Shared-medium plant | $32.85 (87 g/L, CO₂) | $29.94 | $29.27 (258 g/L, thickness; 5 unproven) | $29.04 (258 g/L, thickness; 2 unproven) | **$28.75** (258 g/L) |
-| 5. Best case | $12.03 (120 g/L, CO₂) | $11.46 | $11.40 (258 g/L, thickness; 4 unproven) | $11.28 (258 g/L, thickness; 3 unproven) | **$11.13** (258 g/L) |
-| Forecast for 2035 | $31.61 (87 g/L, CO₂) | $28.81 | $28.17 (258 g/L, thickness; 5 unproven) | $27.95 (258 g/L, thickness; 2 unproven) | **$27.67** (258 g/L) |
+| Published cells, in perfusion | $111.89 (46 g/L, CO₂) | $92.17 | $64.94 (175 g/L, oxygen; 4 unproven) | $61.78 (258 g/L, thickness; 4 unproven) | **$84.85** (258 g/L) |
+| 4. Selected cells | $39.18 (87 g/L, CO₂) | $32.80 | $31.40 (258 g/L, thickness; 5 unproven) | $31.09 (258 g/L, thickness; 3 unproven) | **$30.66** (258 g/L) |
+| 5. Shared-medium plant | $32.85 (87 g/L, CO₂) | $29.94 | $29.27 (258 g/L, thickness; 5 unproven) | $29.04 (258 g/L, thickness; 2 unproven) | **$28.75** (258 g/L) |
+| 6. Engineered cells | $20.17 (87 g/L, CO₂) | $17.27 | $16.60 (258 g/L, thickness; 5 unproven) | $16.37 (258 g/L, thickness; 2 unproven) | **$16.08** (258 g/L) |
+| 7. Engineered cells, all favourable | $12.29 (108 g/L, CO₂) | $11.67 | $11.48 (258 g/L, thickness; 4 unproven) | $11.39 (258 g/L, thickness; 2 unproven) | **$11.20** (258 g/L) |
 
+- **The search covers the cases run in perfusion** (since 2026-11-19). Rungs 1–3 of the ladder are batches held by their waste,
+  which no tank design moves; the published cells are searched in perfusion as the cautious scenario, which has the old rung 1's
+  switches.
 - **Tank design matters most for the published cells:** $27 a kilo between the ordinary tank and perfect gas exchange ($111.89 to
   $84.85). The cheapest designs for these cells ($64.94 and $61.78) are below that ideal, because the search also lets the cells
   take their fat from the feed, which cuts their glucose, their lactate and so their medium, from 95 to 66 litres a kilo. From
-  row 2 on, the scenarios' designs are within $1.1–2.2 of the ideal, and the best case within $0.3.
+  row 2 on, the scenarios' designs are within $1.1–2.2 of the ideal, and the Engineered cells, all favourable case within $0.3.
 - **Designs that leave only the thickness limit exist on paper:** with a bubble cage and 1 bar of pressure, or without a cage at 2
   bar. Each needs two to five elements nobody has run with animal cells. The cage's numbers are judgements.
 - **The search found one free improvement, and the scenarios now use it:** holding dissolved oxygen at half of air saturation, as
-  pharma does. It is worth $0.5 a kilo in Central.
-- **After the gas limits, the litres of medium are what is left.** In Central perfect gas exchange saves $2.1 a kilo; medium at the
+  pharma does. It is worth $0.5 a kilo in the Selected cells case.
+- **After the gas limits, the litres of medium are what is left.** In the Selected cells case perfect gas exchange saves $2.1 a kilo; medium at the
   least the physics allows saves $18.6. Tables and method: `research_notes/design_space.md`.
 
 ### Cleaning and reusing the medium (`medium_reuse.py`)
 
-After the gas limits, the litres of medium are the largest cost left. Ammonia sets them: 35 litres per kg in Central. Can the
+After the gas limits, the litres of medium are the largest cost left. Ammonia sets them: 35 litres per kg in the Selected cells case. Can the
 ammonia be taken out and the liquid reused? Partly, and the limit is the cell filter. A litre that leaves the tank costs $0.70 in
-Central, and $0.44 of that is the membranes that hold the cells back. A device that cleans the filtered liquid (the permeate)
+Selected cells, and $0.44 of that is the membranes that hold the cells back. A device that cleans the filtered liquid (the permeate)
 and returns it saves the medium, the growth factors and the protectant, but the liquid has passed the filter either way. Only
 a device that takes the waste out with no liquid drawn through the cell filter, such as dialysis across the culture, saves the
 filter too.
 
-| what sets the litres of medium (3. Plus cells selected to grow faster on the low-waste feed (Central)) | litres per kg of cells |
+| what sets the litres of medium (4. Plus perfusion (Selected cells): waste washed out through a cell filter) | litres per kg of cells |
 |---|---|
 | ammonia, held at 4 mmol/L | 35.0 |
 | the least flow the cells need for everything else | 16.2 |
@@ -524,37 +629,38 @@ filter too.
 
 | scenario | no reuse | exchanger on the permeate | electrodialysis of the permeate | dialysis of the permeate, dialysate reused | dialysis across the culture, at the filter's cost | the same, at twice the filter's clearance | perfect and free, on the permeate | perfect and free, across the culture |
 |---|---|---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, in an ordinary 20 m³ perfusion tank | **$111.89** | $111.89 | $88.27 | $99.28 | $95.17 | $77.13 | $84.87 | $52.37 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
-| 5. Plus engineered cells: the best case, everything works | **$11.46** | $11.46 | $11.46 | $11.46 | $11.46 | $10.53 | $11.11 | $8.74 |
+| Cautious: the best meat cells measured so far, in perfusion | **$92.17** | $92.17 | $68.05 | $78.44 | $73.60 | $52.32 | $61.45 | $23.14 |
+| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
+| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$11.67** | $11.67 | $11.67 | $11.67 | $11.67 | $10.74 | $11.33 | $8.96 |
 
-- **Cleaning the permeate is worth about $1–3 a kilo in Central:** $1.7 with an ammonium exchanger, $2.9 with electrodialysis (to
+- **Cleaning the permeate is worth about $1–3 a kilo in the Selected cells case:** $1.7 with an ammonium exchanger, $2.9 with electrodialysis (to
   $29.92), $1.1 with dialysis if the dialysate is itself cleaned. A perfect, free device would save $5.8. A device on the
   permeate must take more than 62% of the waste from a litre in one pass before it saves anything.
 - **Cleaning across the culture is worth more, and is less proven:** $2.3 if the exchange membrane costs what the cell filter
   does, $8.9 (to $23.88) if it clears twice the litres per m², as a haemodialyser does on blood for a few hours. The limit
   is $17.7.
-- **For the published cells the waste is lactate, and the routes differ.** An ammonium exchanger saves them nothing.
-  Electrodialysis, which also takes lactate, saves $23.6, and the best route $34.8. That still leaves them at $77, against
-  Central's $32.80 with no reuse.
+- **For the published cells the waste is lactate, and the routes differ.** Priced in perfusion (the cautious scenario, $92.17; rung
+  1 is a batch with nothing to reuse), an ammonium exchanger saves them nothing. Electrodialysis, which also takes lactate, saves
+  $24.1, and the best route modelled $39.9. That still leaves them at $52, against the Selected cells case's $32.80 with no reuse.
 - **The evidence is thin.** Electrodialysis took over 90% of ammonium and 99% of lactate from medium in one report, cited in a
   book and not found; dialysis held a dense CHO culture for 10 days at the bench; a reused dialysate exists only in patent claims.
   The cost of electrodialysis per litre is my arithmetic. What these devices do to growth factors and nutrients over many passes
   has not been measured.
-- **Reuse does not replace better cells.** In the best case the cells make so little waste that the routes priced here save at
+- **Reuse does not replace better cells.** In the Engineered cells, all favourable case the cells make so little waste that the routes priced here save at
   most $0.9, and a perfect, free device $2.7.
 - The model's own sorbent lever counted the filter as saved; it no longer does (no scenario used it). Sources, sensitivity and
   the experiments that would settle it: `research_notes/medium_reuse.md`.
 
 ### If perfusion cannot be run at 20 m³
 
-Every scenario uses a perfusion tank, which nobody has run above about 4 m³. Without cell retention a tank is capped by waste.
-Ammonia or lactate, whichever is further above the engineered cells' level, sets the cap. Central costs **$44–48** a kilo in a
-stirred tank in fed-batch or fill-and-draw at the model's own cap (56 g/L), and **$88–96** at the 27 g/L reported for meat cells
-at 20 m³, against $32.80 in perfusion. The best case goes from $11.46 to $14.18 (or $39). The food-grade plant with shared medium
-cushions it most: $29.94 to $30.59. The published cells stop at 25 g/L unwashed, because of their lactate. We put about 65% on
-perfusion failing at 20 m³ for the best case and Central; that was judged at 258 g/L and has not been judged again at Central's
-191 g/L (`research_notes/no_perfusion_downside.md`).
+The Selected cells case and the rungs above it use a perfusion tank, which nobody has run above about 4 m³. Without cell
+retention a tank is held by the waste mass balance: its density is at most 1.3 times the waste level perfusion is held to, over the
+waste a kilo makes. The Selected cells case costs **$65–71** a kilo in a stirred tank in fed-batch or fill-and-draw at that cap
+(37 g/L), and **$88–96** at the 27 g/L reported for meat cells at 20 m³, against $32.80 in perfusion. Engineered cells, all
+favourable goes from $11.46 to $14.37–15.64 (or $40–44 at 27 g/L). The food-grade plant with shared medium cushions it most:
+$29.94 to $47.94 (fill-and-draw, which keeps its two small seed trains). The published cells stop at 14 g/L unwashed, because of
+their lactate. Re-judged at the Selected cells case's 191 g/L, a filter holding the culture for a month is about 45% possible, and
+about 20% in production by 2035, a judgement the model does not use (`research_notes/no_perfusion_downside.md`).
 
 ### Against what companies report (`industry_claims.py`)
 
@@ -563,19 +669,20 @@ scenario cost here includes a yearly charge on the plant. Split the same way:
 
 | case | cells, $/kg | of which: charge on the plant | operating cost | of which: filter membranes | medium and growth factors |
 |---|---|---|---|---|---|
-| 1. Published cells, ordinary tank | $111.9 | $36.3 | **$75.6** | $31.8 | $29.4 |
-| 2. Plus process changes | $76.7 | $9.2 | **$67.6** | $39.0 | $19.6 |
-| 3. Central (selected cells) | $32.8 | $7.7 | **$25.1** | $12.8 | $7.2 |
-| 4. Plus a plant with shared medium | $29.9 | $4.5 | **$25.4** | $12.8 | $7.2 |
-| 5. Best case (engineered cells) | $11.5 | $2.1 | **$9.3** | $4.0 | $2.0 |
-| Forecast for 2035 | $28.8 | $4.3 | **$24.5** | $12.0 | $7.1 |
+| 1. Published cells, fed-batch | $209.1 | $151.0 | **$58.1** | $0.0 | $22.9 |
+| 2. Plus process changes | $201.4 | $151.0 | **$50.4** | $0.0 | $15.3 |
+| 3. Plus cells that make less lactate, fed-batch | $64.9 | $47.0 | **$17.9** | $0.0 | $5.6 |
+| 4. Selected cells (perfusion) | $32.8 | $7.7 | **$25.1** | $12.8 | $7.2 |
+| 5. Plus a plant with shared medium | $29.9 | $4.5 | **$25.4** | $12.8 | $7.2 |
+| 6. Plus cells that make almost no ammonia or lactate | $17.3 | $4.4 | **$12.9** | $4.7 | $3.8 |
+| 7. Engineered cells, all favourable | $11.7 | $2.5 | **$9.2** | $3.7 | $2.0 |
 | Humbird's optimistic design | $12.8 | $6.4 | **$6.4** | $1.0 | $2.0 |
 
-| Central's cells, 20 m³ tank drained and refilled (as Vow runs), in | cells, $/kg | charge on the plant | operating cost | at the 27 g/L reported for meat cells |
+| the Selected cells case's cells, 20 m³ tank drained and refilled (as Vow runs), in | cells, $/kg | charge on the plant | operating cost | at the 27 g/L reported for meat cells |
 |---|---|---|---|---|
-| the scenario's food-grade plant ($856k per m³) | $49.5 (56 g/L) | $36.1 | **$13.4** | $99.3 (operating $25.0) |
-| a food-grade plant with shared medium ($476k per m³) | $33.8 (56 g/L) | $20.1 | **$13.7** | $66.7 (operating $25.3) |
-| a yeast plant with what animal cells need ($246k per m³) | $24.1 (56 g/L) | $10.4 | **$13.7** | $46.6 (operating $25.3) |
+| the scenario's food-grade plant ($856k per m³) | $73.4 (37 g/L) | $54.6 | **$18.8** | $99.3 (operating $25.0) |
+| a food-grade plant with shared medium ($476k per m³) | $49.5 (37 g/L) | $30.4 | **$19.1** | $66.7 (operating $25.3) |
+| a yeast plant with what animal cells need ($246k per m³) | $34.8 (37 g/L) | $15.7 | **$19.1** | $46.6 (operating $25.3) |
 
 | who | figure | a cost of | capital in it? | kind | checked by | date |
 |---|---|---|---|---|---|---|
@@ -588,17 +695,20 @@ scenario cost here includes a yearly charge on the plant. Split the same way:
 
 Reading it (company figures are claims; none has been audited):
 
-- **On operating cost the model agrees with what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several companies,
-  some below $10. Central's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost $13.4–13.7 a kilo to operate. With
-  engineered cells in perfusion the operating cost is $12.6, and the best case $9.3. Central itself, in perfusion, costs $25.1
-  to operate, half of it filter membranes.
-- **The difference is the plant.** A tank drained and refilled at 56 g/L makes little in a year, so the plant charge is $10–36 a kilo
-  depending on what the plant costs. Company COGS leave this out. Gourmey's €7/kg does not say whether it includes it.
+- **On operating cost the model is a little above what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several
+  companies, some below $10. The Selected cells case's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost
+  $18.8–19.1 a kilo to operate (it was $13.4–13.7 before the waste mass balance of 2026-11-19: a batch held at 37 g/L, not 56,
+  spreads the crew over fewer kilos). With engineered cells in perfusion the operating cost is $12.6, and Engineered cells, all
+  favourable $9.3. The Selected cells case itself, in perfusion, costs $25.1 to operate, half of it filter membranes. Cells that make
+  less waste than the selected ones, or a batch run to higher waste levels, would bring the batch's figure into the investor's range.
+- **The difference is the plant.** A tank drained and refilled at 37 g/L makes little in a year, so the plant charge is $16–55 a
+  kilo depending on what the plant costs. Company COGS leave this out. Gourmey's €7/kg does not say whether it includes it.
 - **The plant's price is the number most worth checking against industry.** In a plant built like a yeast plant with what animal
-  cells need ($246k per m³), Central's cells drained and refilled cost $24.1, below Central in perfusion ($32.8) and with no filter
-  to hold the cells back. Nobody has published what such a plant costs to build for animal cells; Vow says its 20 m³ vessel cost
-  well under $1 million, without saying whether piping and installation are in that.
-- **The density is the other open number.** The 56 g/L above is the model's waste limit for these cells. At the 27 g/L reported for
+  cells need ($246k per m³), the Selected cells case's cells drained and refilled cost $34.8, just above the Selected cells case in
+  perfusion ($32.8), with no filter to hold the cells back. Before the mass balance this route came out below perfusion. Nobody has
+  published what such a plant costs to build for animal cells; Vow says its 20 m³ vessel cost well under $1 million, without saying
+  whether piping and installation are in that.
+- **The density is the other open number.** The 37 g/L above is the model's waste limit for these cells. At the 27 g/L reported for
   meat cells at 20 m³ the same cases cost $47–99 a kilo, $25 of it operating cost.
 
 ### Vessel types and operating modes
@@ -615,25 +725,27 @@ those two and holds the rest (research_notes/vessels_and_modes.md has both grids
 | Packed bed, 65 L | 3,730 | as batch | not possible | not possible | 3,726 |
 | Hollow fibres, 0.5 L | 610,043 | as batch | not possible | not possible | 610,039 |
 
-In Central the stirred tank costs $98.86, $45.81, $49.51, $87.51 and $32.80 across the same modes. Perfusion
+In the Selected cells case the stirred tank costs $98.86, $67.42, $73.40, $112.62 and $32.80 across the same modes (with the perfusion tank's design held; the waste mass balance since 2026-11-19). Perfusion
 includes the filter loop that holds the cells back (`retention.py`); the other modes need no such device.
 
 - Perfusion is the cheapest mode in both settings, in a stirred tank ($12.81 and $32.80) or in one with a bubble cage ($11.38
   and $31.19). Nobody has run animal cells in perfusion above about 4 m3, and nobody has run the cage with cells in suspension.
-- Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $19 in Humbird's optimistic design and $46-50 in Central.
-  The central cells make more ammonia, and a culture that is not washed out stops at 56 g/L. These costs assume
-  56-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
+- Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $19 in Humbird's optimistic design and $67-73 in the Selected cells case.
+  The selected cells make more ammonia, and a culture that is not washed out stops at 37 g/L, 1.3 times the waste level perfusion is
+  held to. These costs assume 37-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
   reports harvests of about 27 g/L.
 - An airlift costs about what a stirred tank costs when waste is not washed out. In perfusion its tall shape clears less CO2.
 - A stirred tank with a bubble cage (Pablo's design, 2026-11-16): an inner cylinder of fine mesh holds a strong sparger, and the cells
   live in the ring around it with soft bubbling. Only medium crosses the mesh, so the cage's gas counts at 80% of its
-  strength (a judgement). In perfusion it costs $11.38 in Humbird's optimistic design and $31.19 in Central, against
+  strength (a judgement). In perfusion it costs $11.38 in Humbird's optimistic design and $31.19 in the Selected cells case, against
   $12.81 and $32.80 in the plain tank. Caged aeration exists only with microcarriers in small tanks.
 - A single-use bag pays for a bag each run; it comes close to steel only in perfusion.
 - Packed beds and hollow fibres cost thousands of dollars a kilo as built. A 20 m3 bed at a stirred tank's price, with free
   carriers, still costs $42.49 in Humbird's optimistic design: it is seeded thin and emptied every run.
 
 ## 2. What share a price buys
+
+*Since 2026-11-19 the share is cultivated meat's share of the meat sold (cultivated over cultivated plus conventional), which raised every share by about a quarter, and every kind of cell weighs 2 ng. The generated tables in this section are current; figures in its prose that come from the side studies were computed before and are being refreshed (TODO.md).*
 
 | if cultivated meat, at equal price and once familiar… | share of choices |
 |---|---|
@@ -644,7 +756,7 @@ includes the filter loop that holds the cells back (`retention.py`); the other m
 
 At first contact it gets 4.3% of all choices, which is 4.8% of the choices that go to a meat; the US choice experiment found 4%
 and 5%. For mince against $12 everyday meat (US, long run) it gets 4.5% at the cost of Humbird's optimistic design (1.8 times the
-price), 0.32% at Central's (4.1 times) and 0.28% at the reported cost (4.3 times). The share does not reach everyone as the
+price), 0.32% at Selected cells' (4.1 times) and 0.28% at the reported cost (4.3 times). The share does not reach everyone as the
 price falls: 24.5% at half the price of meat and 41.5% if free, so about 58% of choices never go to it.
 
 Checks. At equal price cultivated meat takes 11.7 points from conventional meat, 0.15 from plant-based meat and 1.1 from meals
@@ -693,25 +805,25 @@ keenest, so the share falls off slowly as the price rises, though each shopper i
 - **The data pin the shape loosely.** The misfit is least at a tail of 3 and a spread of 3.7; the model's 4 and 3.9 are 10% above
   that, and 4 rather than 3 is a choice, not a fit. A mixture of two groups fits better still (2.5) and was not chosen: its best
   fit is a small block of shoppers who buy at almost any price, which nothing measured shows.
-- **The best case fell by a third, because the fitted spread is narrower in the middle.** With its own 55% at equal price the
-  best case took 19.9% under the normal spread and takes 13.8% now. Most of its products are still one to four times the price
+- **The Engineered cells, all favourable case fell by a third, because the fitted spread is narrower in the middle.** With its own 55% at equal price the
+  Engineered cells, all favourable took 19.9% under the normal spread and takes 13.8% now. Most of its products are still one to four times the price
   of their meat, and what matters there is how many shoppers are moderately keener than average. The t puts more shoppers close
   to the average and fewer moderately above it. No data measure that part of the spread beyond the one experiment, and the
-  shapes that fit give 14% to 17%. Central went the other way, from 0.08% to 0.16%, because its sales are in the tail.
-- **Three worries remain** (the note's section 6): the best case's fall; a response to a falling price still more than twice
+  shapes that fit give 14% to 17%. Selected cells went the other way, from 0.08% to 0.16%, because its sales are in the tail (0.21% since the share became the share of the meat sold).
+- **Three worries remain** (the note's section 6): the Engineered cells, all favourable case's fall; a response to a falling price still more than twice
   farmed salmon's; and the tail above five times the price of meat, which is an extrapolation (the premium data stop at 3.6
-  times), although a sixth of Central's first sales come from products above five times and a third from products above four.
+  times), although a sixth of Selected cells' first sales come from products above five times and a third from products above four.
   The note lists a fourth, first contact at 4.3% against a measured 5%; read as 4% of all choices and 5% of those who buy a
   meat, the experiment is matched (next paragraph).
 
 What the model had been assuming about the long run, and what three readings of it give:
 
-| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
+| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.6%, 2.5%, 1.4%, 0.5%, 0.2% | 0.001% | 0.09% | 1.2% |
-| novelty fades by what the model assumes | 15% | 10.8%, 7.7%, 3.8%, 1.1%, 0.4% | 0.002% | 0.2% | 3.2% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 39.2%, 30.4%, 16.7%, 4.2%, 1.2% | 0.002% | 0.6% | 11.6% |
-| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | under 0.001% | 0.03% | 5.4% |
+| first contact (as measured) | 5% | 3.6%, 2.5%, 1.4%, 0.5%, 0.2% | under 0.001% | 0.1% | 1.4% |
+| novelty fades by what the model assumes | 15% | 10.8%, 7.7%, 3.8%, 1.1%, 0.4% | under 0.001% | 0.2% | 3.6% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 39.2%, 30.4%, 16.7%, 4.2%, 1.2% | under 0.001% | 0.7% | 12.8% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | under 0.001% | 0.06% | 5.9% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 With every shopper alike, the fading of first-contact wariness took cultivated meat from 5% to half the market at equal price.
@@ -719,11 +831,11 @@ With the spread, the same fading (2.8 utils) takes it to 15% if the experiment's
 model's setting stays at 13% (`equal_price_share`): read back through the t spread it gives 4.3% of all choices at first contact
 and 4.8% of those who buy a meat, and the experiment measured 4% and 5%, so 13% reproduces both. Half the market needs the
 average shopper to end up indifferent between the two meats, with the appeal of no killing outweighing the "unnatural" image.
-Across the three readings Central's share runs from 0.09% to 0.6% and, at the best case's cost, from 1.2% to 11.6%; the model
-gives 0.16% and 2.7%. The long-run share at equal price is the model's largest unknown on the demand side. The bands draw it
+Across the three readings Selected cells' share runs from 0.1% to 0.7% and, at the Engineered cells, all favourable case's cost, from 1.4% to 12.8%; the model
+gives 0.21% and 3.2%. The long-run share at equal price is the model's largest unknown on the demand side. The bands draw it
 from a distribution whose median is 13% and whose 5th and 95th percentiles are 3% and 52%. Two outside readings bracket the
 setting: the literature review puts the median at 10% (`research_notes/what_drives_choice.md`), and a reading of how other foods
-made by distrusted processes fared puts it near 18% (`research_notes/demand_heterogeneity_evidence.md` §6). For Central the cost
+made by distrusted processes fared puts it near 18% (`research_notes/demand_heterogeneity_evidence.md` §6). For Selected cells the cost
 matters as much: across its cost range ($27–57) the share runs from 0.3% to 0.02%.
 
 **The model's response to price, against four measurements** (`demand_checks.py`, `research_notes/demand_checks.md`). The model
@@ -746,59 +858,61 @@ passes two and fails two. The first three rows are now what the spread was fitte
   minority that a spread of liking for cultivated meat does not represent (TODO).
 
 Once familiar, the model's response to its own price is −1.3 at equal price, −2.7 at twice the price, −3.4 at three times and
-−3.6 at four times. With every shopper alike, across the single price responses the measurements could support, Central's share
-runs from 0.03% to 1.5%; the model gives 0.16%, and at the best case's cost 2.7%.
+−3.6 at four times. With every shopper alike, across the single price responses the measurements could support, Selected cells' share
+runs from 0.06% to 1.8%; the model gives 0.21%, and at the Engineered cells, all favourable case's cost 3.2%.
 
 **Anchored on premium real meats** (`premium_curve.py`, `research_notes/premium_curve.md`). Ten more premium products, up to
 3.6× the price (pasture-raised eggs, organic and Label Rouge chicken in France, Britain, Denmark and Switzerland), show share falling
 as the premium rises: US eggs from 8.6% at 2.0× to 0.3% at 3.2×; French chicken from 13% at 1.8× to 1% at 2.7×. A curve fitted to
 the sixteen products misses them by a typical factor of about 2.4, with shoppers about a quarter as price-sensitive as in the
 model with every shopper alike. Placing cultivated meat on that curve, corrected for what differs from a welfare label (no killing
-+5% of meat's price, novelty −30% with half of it fading, unnatural −20%; hypothetical studies), gives Central **0.10%** of world
-meat and seafood in the long run (0.03–0.19%), against the model's 0.16%. The curve is two-fifths below the model; the model is
-inside the curve's range, near its top. At the best case's cost the curve gives 1.4% (0.6–2.5%) against the model's 2.7% with
-Central's demand: the model is about twice the curve and above its range. The premium data start at 1.5× the price, and limited
++5% of meat's price, novelty −30% with half of it fading, unnatural −20%; hypothetical studies), gives Selected cells **0.12%** of world
+meat and seafood in the long run (0.04–0.24%), against the model's 0.21%. The curve is two-fifths below the model; the model is
+inside the curve's range, near its top. At the Engineered cells, all favourable case's cost the curve gives 1.6% (0.7–2.8%) against the model's 3.2% with
+Selected cells' demand: the model is about twice the curve and above its range. The premium data start at 1.5× the price, and limited
 distribution holds premium labels down, so the curve is weakest near parity.
 
 **Premium buyers, and a welfare label on the same shelf** (`premium_buyers.py`, `research_notes/premium_buyers.md`; on the model
-with every shopper alike, which gives Central 0.03% and the best case's cost 5.4%). If about 10% of shoppers were habitual premium
-buyers who treat cultivated meat as a premium meat, with a welfare label at 2× beside it, Central's long-run share would be 0.13%
-of world meat and seafood (0.37% if they value no killing at a whole extra meat price), and at the best case's cost 5.92% (7.28%).
-For comparison the main model, with its spread of liking, gives 0.16% and 2.74%: its tail now does for Central more than this
+with every shopper alike, which gives Selected cells 0.03% and the Engineered cells, all favourable case's cost 5.4%). If about 10% of shoppers were habitual premium
+buyers who treat cultivated meat as a premium meat, with a welfare label at 2× beside it, Selected cells' long-run share would be 0.17%
+of world meat and seafood (0.47% if they value no killing at a whole extra meat price), and at the Engineered cells, all favourable case's cost 6.52% (8.02%).
+For comparison the main model, with its spread of liking, gives 0.21% and 3.16%: its tail now does for the Selected cells case more than this
 group of buyers would. Cultivated meat would take 15% of its sales from the label (16% at the high value) on the logit's
-proportional assumption. Nothing in this study takes Central past 1%. Its premise, that buyers of organic and welfare meat are
+proportional assumption. Nothing in this study takes Selected cells past 1%. Its premise, that buyers of organic and welfare meat are
 cultivated meat's keenest buyers, is contradicted by the evidence (`research_notes/demand_heterogeneity_evidence.md`). No
 setting of the model was changed by it.
 
-**Cost falling as the market grows** (`market_size_loop.py`, `research_notes/market_size_loop.md`; every share here uses Central's
+**Cost falling as the market grows** (`market_size_loop.py`, `research_notes/market_size_loop.md`; every share here uses Selected cells'
 demand, 13% at equal price). The membrane is priced at a pharma price ($1,450 a m²) and the plant at today's equipment prices. If a
 food-grade membrane supplier appears once demand passes a million m² a year ($150 a m², then 18% cheaper for each doubling, to
 $50) and the plant gets 10% cheaper for each doubling of installed tanks, cost and share can be solved together.
 
-- **Central comes to rest at $17.69 a kilo of cells and 1.06%** (from $32.80 and 0.16%). There is one resting point: started from
-  above it also ends at $17.69. The best case's cells come to rest at $6.67 and 6.21% (from $11.46 and 2.74%): close to parity
-  ($6.14) but not at it. With its own demand the best case rests at the lowest cost the two learning curves allow, $6.63, and 29.0%.
-- **The margin over the membrane switch is now wide.** Central's first sales, 0.16% of the world's meat and seafood, need 4.9
-  times the membrane area that brings a food-grade supplier, and Central would pass a switch up to 5.8 times higher unaided.
+- **the Selected cells case comes to rest at $17.50 a kilo of cells and 1.34%** (from $32.80 and 0.21%). There is one resting point: started from
+  above it also ends at $17.50. The Engineered cells, all favourable case's cells come to rest at $6.95 and 6.89% (from $11.67 and 3.16%): close to parity
+  ($6.14) but not at it. With its own demand the Engineered cells, all favourable case rests at the lowest cost the two learning curves allow, $6.63, and 29.0%.
+- **The margin over the membrane switch is now wide.** Selected cells' first sales, 0.16% of the world's meat and seafood, need 4.9
+  times the membrane area that brings a food-grade supplier, and the Selected cells case would pass a switch up to 5.8 times higher unaided.
   Cuts are 62% of those first sales (beef steaks 32%), premium products 27% and mince 11%. Most of the gain is one step: later
   rounds add a quarter of it. With slow learning there is still one resting point ($21.91 and 0.59%).
-- **This depends on the far tail of the spread of liking.** Central's first sales are what the tail decides, and the slow-learning
+- **This depends on the far tail of the spread of liking.** Selected cells' first sales are what the tail decides, and the slow-learning
   result flipped three times in a day as the demand model changed. The response to price over the whole fall is 3.8; the model's
   five premium products respond at 3.3–3.7. That is above farmed salmon's 1 to 1.5 and inside the range of history's totals
-  (1.3–4.1). At a response of 1.5 Central would end near 0.34%. Anchored on premium real meats it ends at $18.18 and 0.59%.
+  (1.3–4.1). At a response of 1.5 the Selected cells case would end near 0.34%. Anchored on premium real meats it ends at $18.18 and 0.59%.
 - **The published cells sell too little to start.** They take 0.002% and stay within $2 of their own cost unaided.
 - The switch itself is a judgement (about 65% that such a supplier appears once demand passes a million m² a year); no price is
-  published for a steam-tolerant food-grade module. The note puts about 65% on Central passing the switch with no outside push,
-  and about 20% on learning taking Central above 1% (both provisional). The study changes no setting of the model.
+  published for a steam-tolerant food-grade module. The note puts about 65% on the Selected cells case passing the switch with no outside push,
+  and about 20% on learning taking Selected cells above 1% (both provisional). The study changes no setting of the model.
 
 ## 3. By type of meat
+
+*Since 2026-11-19 the share is cultivated meat's share of the meat sold (cultivated over cultivated plus conventional), which raised every share by about a quarter, and every kind of cell weighs 2 ng. The generated tables in this section are current; figures in its prose that come from the side studies were computed before and are being refreshed (TODO.md).*
 
 Shares in this section are at most likely values. "Price against that meat" is the shop price of the cultivated product over the
 price of the meat it sits beside. A cut costs less than mince per kilo here, because a fifth of it is plant protein.
 
-**Central and the best case, world.**
+**Selected cells and the Engineered cells, all favourable case, world.**
 
-| type of meat (world) | its price, $/kg | its share of all meat and seafood | Central: price against that meat | Central: share of that meat | best case: price against that meat | best case: share of that meat, shoppers favouring it (55%) | best case: share of that meat, Central's demand (13%) |
+| type of meat (world) | its price, $/kg | its share of all meat and seafood | Selected cells: price against that meat | Selected cells: share of that meat | Engineered cells, all favourable: price against that meat | Engineered cells, all favourable: share of that meat, shoppers favouring it (55%) | Engineered cells, all favourable: share of that meat, Selected cells' demand (13%) |
 |---|---|---|---|---|---|---|---|
 | chicken, minced or processed | 5 | 11.1% | 9.8× | 0.02% | 3.9× | 2.3% | 0.5% |
 | chicken cuts | 8 | 15.1% | 5.4× | 0.08% | 2.4× | 7.9% | 1.3% |
@@ -819,18 +933,18 @@ price of the meat it sits beside. A cut costs less than mince per kilo here, bec
 | rabbit | 14 | 1.0% | 3.1× | 0.3% | 1.4× | 28.3% | 4.8% |
 | **all meat and seafood** | | 100% | | **0.16%** | | **13.8%** | **2.7%** |
 
-- **Central sells most where meat is dear, and a little everywhere.** Beef steaks are 32% of its sales, premium fillets and
+- **Selected cells sells most where meat is dear, and a little everywhere.** Beef steaks are 32% of its sales, premium fillets and
   shrimp 14%, prime beef 6% and sushi-grade fish 6%. Pork cuts are 9%, chicken cuts 7%, and sheep and goat 7%, although
   cultivated meat costs three to five times as much as they do: these are large markets, and the tail of the spread of liking
   leaves about one choice in a thousand to cultivated meat at five times the price. It takes 0.16% of meat proper and 0.18% of
   seafood. A third of these sales are at more than four times the price of the meat, beyond the 3.6 times at which the premium
   meats behind the fit stop.
-- **The best case sells everywhere, if shoppers favour it.** Its sales are 39% beef, 23% seafood, 15% pork, 11% chicken and 8%
-  sheep and goat. It takes 8% of chicken cuts at 2.4 times their price and 4% of processed pork at 3.2 times. With Central's
+- **The Engineered cells, all favourable case sells everywhere, if shoppers favour it.** Its sales are 39% beef, 23% seafood, 15% pork, 11% chicken and 8%
+  sheep and goat. It takes 8% of chicken cuts at 2.4 times their price and 4% of processed pork at 3.2 times. With Selected cells'
   demand the same cost gives 1.3% and 0.8% of those two, and the total is 2.7%, not 13.8%.
 
 **The reported cost and Humbird's optimistic design, US.** At the cost a company reports ($34.4 a kilo of cells) and at Humbird's
-optimistic design ($12.8), with Central's demand:
+optimistic design ($12.8), with Selected cells' demand:
 
 ```
                             reported cost       Humbird's optimistic design
@@ -859,7 +973,7 @@ from plant-protein extrusion, surimi forming and binder prices. The larger unkno
 approved so far are 10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When
 cells cost more than about $12 a kilo, a cut costs less than mince, because a fifth of it is plant protein. Shoppers are taken
 to like a cut less than mince in proportion to the plant protein in it (METHODS.md, "Step 3"), so fewer cells are cheaper and
-less liked. Central's share is 0.10% if a cut is all cells, 0.16% at 80%, 0.47% at 50% and 1.1% at 30%. Both the cell share and
+less liked. Selected cells' share is 0.10% if a cut is all cells, 0.16% at 80%, 0.47% at 50% and 1.1% at 30%. Both the cell share and
 the assembly cost are drawn in the bands (`research_notes/structuring_cost.md`).
 
 **With the cells that have been published.** Humbird's optimistic design assumes an efficient model cell for every species. Using
@@ -873,25 +987,27 @@ tolerate as much dissolved CO₂ as pharma cells do. Fish live with about 2–4 
 mammals, and nobody has measured how fish cells grow against CO₂. If they tolerate 50 mbar, not 100, fish cells cost $21/kg in
 that plant and the fillet share falls to 6%. No shrimp cell line exists at all.
 
-**Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 69 land animals in Central and at the
+**Animals.** A tonne of cultivated meat, sold where the model says it sells, spares about 69 land animals in the Selected cells case and at the
 reported cost (US), against about 250 for a tonne of the average US meat mix. A tenth of those sales are chicken, and a
-chicken is where the animals are. In Humbird's optimistic design it is about 97, and in the best case, with shoppers favouring
-it, about 120. Seafood animals are not counted. Seafood is about three-tenths of sales in Central and at the reported cost,
-about a fifth in Humbird's optimistic design and about a sixth in the best case (US).
+chicken is where the animals are. In Humbird's optimistic design it is about 97, and in the Engineered cells, all favourable case, with shoppers favouring
+it, about 120. Seafood animals are not counted. Seafood is about three-tenths of sales in the Selected cells case and at the reported cost,
+about a fifth in Humbird's optimistic design and about a sixth in the Engineered cells, all favourable case (US).
 
 ## 4. By region
+
+*Since 2026-11-19 the share is cultivated meat's share of the meat sold (cultivated over cultivated plus conventional), which raised every share by about a quarter, and every kind of cell weighs 2 ng. The generated tables in this section are current; figures in its prose that come from the side studies were computed before and are being refreshed (TODO.md).*
 
 At the reported cost, with its cost and demand both drawn:
 
 ```
 total cultivated share of meat and seafood (N=30,000), 80% CI [P10, P90]:
   region   income/cap   by VOLUME (impact)        by VALUE ($ market)
-  Europe    $62k        P50  0.7%  [0.2,  3.1]    P50  1.3%  [ 0.4,  5.7]  <- easiest (rich + priciest meat)
-  US        $86k        P50  0.5%  [0.1,  2.0]    P50  0.8%  [ 0.2,  3.6]
-  Global    $24k        P50  0.2%  [0.0,  0.8]    P50  0.3%  [ 0.1,  1.5]
-  China     $27k        P50  0.2%  [0.0,  0.8]    P50  0.4%  [ 0.1,  1.9]
-  Brazil    $22k        P50  0.1%  [0.0,  0.4]    P50  0.1%  [ 0.0,  0.5]
-  India     $11k        P50  0.0%  [0.0,  0.1]    P50  0.1%  [ 0.0,  0.3]
+  Europe    $62k        P50  0.9%  [0.3,  3.7]    P50  1.7%  [ 0.5,  6.9]  <- easiest (rich + priciest meat)
+  US        $86k        P50  0.5%  [0.2,  2.3]    P50  1.0%  [ 0.3,  4.2]
+  Global    $24k        P50  0.2%  [0.1,  1.0]    P50  0.5%  [ 0.1,  1.9]
+  China     $27k        P50  0.2%  [0.1,  1.0]    P50  0.5%  [ 0.1,  2.5]
+  Brazil    $22k        P50  0.1%  [0.0,  0.4]    P50  0.1%  [ 0.0,  0.6]
+  India     $11k        P50  0.0%  [0.0,  0.2]    P50  0.1%  [ 0.0,  0.4]
   Nigeria    $6k        P50  0.0%  [0.0,  0.1]    P50  0.0%  [ 0.0,  0.1]  <- hardest (cheap meat + price-sensitive)
 ```
 
@@ -903,12 +1019,12 @@ seafood are priced by who eats them (METHODS.md, "World beef price" and "World s
 
 | the two headline cases | world | US | Europe |
 |---|---|---|---|
-| Central: median of draws (8 in 10 between) | 0.11% (0.02–0.6%) | 0.3% (0.07–1.6%) | 0.5% (0.10–2.5%) |
-| Central: at the most-likely-values cost | 0.16% | 0.5% | 0.8% |
-| best case, shoppers favouring it: median of draws (8 in 10 between) | 6.8% (2.5–14.8%) | 12.5% (6.0–22.7%) | 17.8% (9.5–28.7%) |
-| best case, shoppers favouring it: at the most-likely-values cost | 13.8% | 22.5% | 29.6% |
-| best case, Central's demand: median of draws (8 in 10 between) | 1.3% (0.4–5.1%) | | |
-| best case, Central's demand: at the most-likely-values cost | 2.7% | 4.4% | 6.9% |
+| Selected cells: median of draws (8 in 10 between) | 0.11% (0.02–0.6%) | 0.3% (0.07–1.6%) | 0.5% (0.10–2.5%) |
+| Selected cells: at the most-likely-values cost | 0.16% | 0.5% | 0.8% |
+| Engineered cells, all favourable, shoppers favouring it: median of draws (8 in 10 between) | 6.8% (2.5–14.8%) | 12.5% (6.0–22.7%) | 17.8% (9.5–28.7%) |
+| Engineered cells, all favourable, shoppers favouring it: at the most-likely-values cost | 13.8% | 22.5% | 29.6% |
+| Engineered cells, all favourable, Selected cells' demand: median of draws (8 in 10 between) | 1.3% (0.4–5.1%) | | |
+| Engineered cells, all favourable, Selected cells' demand: at the most-likely-values cost | 2.7% | 4.4% | 6.9% |
 
 Against sushi-grade salmon, a structured product at the reported cost is at or below parity in 37% of draws (median R 1.08). How
 much of a cut can be cells, and what assembling it costs, are unmeasured.
@@ -917,12 +1033,12 @@ much of a cut can be cells, and what assembling it costs, are unmeasured.
 
 At the reported cost, a few luxury products are already within reach on price when compared at their everyday grade (farmed
 salmon, crossbred wagyu): foie gras, bluefin tuna, sea urchin, wagyu. Lobster is close (R ≈ 1.1). Each is a small market.
-Commodity pork and chicken, where the volume is, stay above parity even in the best case. Foie gras stands out: unstructured,
+Commodity pork and chicken, where the volume is, stay above parity even in the Engineered cells, all favourable case. Foie gras stands out: unstructured,
 expensive, and increasingly banned on welfare grounds.
 
-From a near-zero start, cultivated meat reaches 90% of its long-run share after 21 years at the reported cost and in Central
+From a near-zero start, cultivated meat reaches 90% of its long-run share after 21 years at the reported cost and in Selected cells
 (14 to 46 across the plausible speeds at which wariness fades), 24 in Humbird's optimistic design (14 to 55) and 22 in the
-best case (14 to 51). This
+Engineered cells, all favourable (14 to 51). This
 assumes that nothing stalls and that supply keeps up. The rollout speeds are the usual ones for durable goods, so the years are
 assumed, not estimated; history puts the chance of a stall at roughly one in three (METHODS.md, "How fast"). Current wariness
 (surveys: 5–60%) sets the speed, not the ceiling.
@@ -931,35 +1047,36 @@ assumed, not estimated; history puts the chance of a stall at roughly one in thr
 
 Costs here are at most likely values. The swings are from "What the answer rests on" and "What decides it" in the Summary.
 
-1. **Cells that make less lactate and ammonia, and still grow fast.** This is the ladder's largest step: $43.9 a kilo, from $76.7
-   to $32.8, almost all of it from lower lactate. Engineered cells are worth another $13.4 from Central. Low waste and fast growth
+1. **Cells that make less lactate and ammonia, and still grow fast.** This is the ladder's largest step: $136.5 a kilo in a 20 m³
+   batch, from $201.4 to $64.9, almost all of it from lower lactate ($126.4); in perfusion it would be $43.9. Cells that make almost no ammonia or lactate are worth another $12.7 from the Selected cells case, by whatever route they come (`research_notes/cell_trait_routes.md`). Low waste and fast growth
    have each been shown, never together in one culture. A culture that does both, with the glucose taken up and the lactate and
    ammonia made reported per kilo of real cells, is the single most useful measurement. The published cells' glucose is derived
    from their energy balance here, because nobody has reported it on the low-waste feed.
 2. **A way to hold cells back in large tanks, and a filter that lasts.** Nobody has run animal cells in perfusion above about
-   4 m³. Every scenario prices a hollow-fibre filter loop whose membranes have never filtered a culture this thick for a month.
-   Membranes are Central's largest cost ($12.8 of $32.8), and the filter's life moves Central between $29 and $76. A weeks-long
+   4 m³. It is worth $32.1 a kilo with the Selected cells case's traits (row 3 to row 4). Every scenario from the Selected cells case on prices a hollow-fibre filter loop whose membranes have never filtered a culture this thick for a month.
+   Membranes are Selected cells' largest cost ($12.8 of $32.8), and the filter's life moves Selected cells between $29 and $76. A weeks-long
    run at high density, and a price for a food-grade membrane, would settle most of it.
-3. **The two ammonia numbers:** how much ammonia meat cells tolerate at density ($23 to $57 in Central across its range) and how
+3. **The two ammonia numbers:** how much ammonia meat cells tolerate at density ($23 to $57 in the Selected cells case across its range) and how
    much the selected cells make per kilo grown ($24 to $52; measured once, in flasks).
 4. **The price of medium and of the bubble protectant at production scale:** verify the $0.20 a litre reports and what is in the
-   medium, on a stated mass basis. Medium at $0.50 adds $10.7 to Central. A tonne quote for poloxamer 188 would settle $31 to $39.
+   medium, on a stated mass basis. Medium at $0.50 adds $10.7 to the Selected cells case. A tonne quote for poloxamer 188 would settle $31 to $39.
 5. **Tank tricks that clear CO₂ without bubbles** (a column on a pumped loop, pressure, recycled oxygen) and **the gas flow cells
-   tolerate:** calculated, never tried with meat cells. Without the tricks Central costs $3.5 more in a tank of the same shape and
-   $6.4 more in the ordinary tall tank. For the published cells they are worth $18.7.
+   tolerate:** calculated, never tried with meat cells. Without the tricks the Selected cells case costs $3.5 more in a tank of the same shape and
+   $6.4 more in the ordinary tall tank. For the published cells in perfusion they are worth $18.7; in a batch, nothing.
 6. **A cheaper class of plant for animal cells:** a food-grade plant with shared medium (no clean room, shared medium line, bought
-   oxygen) is worth $2.9 a kilo in Central, and nobody has built one. A plant as cheap as a yeast plant is not counted: nothing
+   oxygen) is worth $2.9 a kilo in the Selected cells case, and nobody has built one. A plant as cheap as a yeast plant is not counted: nothing
    shows animal cells can be grown that way.
 7. **Contamination is not the main obstacle to a cheaper plant, on this model:** the food-grade plant with shared medium stays
    cheaper than a sterile one until it loses a run per tank about every 32 days (3.1% a day). Measured loss rates in food-grade
    tanks would test this.
 8. **How much of a cut can be cells, and whether shoppers accept a blend:** cuts sold today are 10–30% cells. Whether a steak or
    fillet can be mostly suspension-grown cells, with the texture of meat, sets most of what a cut costs and how shoppers see it.
-   Across the cell share's range Central's share runs from 0.1% to 0.5%. The cost of assembling a cut is unmeasured too ($0.5–7
+   Across the cell share's range Selected cells' share runs from 0.1% to 0.5%. The cost of assembling a cut is unmeasured too ($0.5–7
    a kilo beyond mince).
-9. **How shoppers respond once they can buy it:** the share at equal price is a judgement (13%, drawn between 3% and 52%). The
+9. **How shoppers respond once they can buy it:** the share at equal price is a judgement (14.5% of meat buyers, 13% of all
+   choices, drawn between 3% and 52% of all choices). The
    spread of liking is fitted to one choice experiment, sixteen premium meats and farmed salmon, and it decides both ends of the answer: its
-   tail gives Central its sales and its middle sets the best case. Repeat-purchase data from the first markets, at known prices,
+   tail gives Selected cells its sales and its middle sets the Engineered cells, all favourable case. Repeat-purchase data from the first markets, at known prices,
    would replace both.
 10. **Open, comparable data:** cost claims per kg of dry matter or protein, with capital included (METHODS.md, "A
    checklist for cost claims"). Most published analyses leave out all or part of the cost of capital.
@@ -985,25 +1102,25 @@ numbers do not add up (METHODS.md, "Back-test against reported runs").
 - **Up:** a meat-cell line shown to make little lactate and ammonia while doubling in 36 hours or less, with a full mass balance;
   perfusion at 20 m³ with a filter that lasts a month in a dense culture, or a cheaper way to hold cells back; medium at
   $0.20 a litre or less confirmed at scale with its growth factors; animal cells grown in a plant built like a microbial
-  fermentation plant; shoppers who come to favour cultivated meat, which is worth more than any cost in the best case.
-- **Down:** a filter life near the evidence note's median (1,500 L/m²) with membranes still at pharma prices (Central $53.8);
-  cells that tolerate 2 mmol/L of ammonia, not 4 (Central $57.4); perfusion failing at 20 m³ (Central $44–96); cuts that cannot
+  fermentation plant; shoppers who come to favour cultivated meat, which is worth more than any cost in the Engineered cells, all favourable case.
+- **Down:** a filter life near the evidence note's median (1,500 L/m²) with membranes still at pharma prices (Selected cells $53.8);
+  cells that tolerate 2 mmol/L of ammonia, not 4 (Selected cells $57.4); perfusion failing at 20 m³ (the Selected cells case $65–96); cuts that cannot
   be mostly cells; frequent contamination with slow restarts (METHODS.md, "Losing runs"); the reported figures not surviving
   review or scale-up.
 - **Demand is the weakest part, at both ends.** The share at equal price is a judgement with no sales data behind it. The spread
   of liking was refitted on 2026-11-19 as a Student's t, to one choice experiment, sixteen premium products and farmed salmon
   together, so those are no longer independent checks. Its tail, above about four times the price of meat, is an extrapolation
-  that carries a third of Central's sales. Its middle, which no data pin, sets the best case: 13.8% here, 19.9% under the normal
+  that carries a third of Selected cells' sales. Its middle, which no data pin, sets the Engineered cells, all favourable case: 15.1% here, 19.9% under the normal
   spread it replaced. The model still responds to a falling price more than twice as strongly as farmed salmon did (3.6–3.7
-  against 1–1.5). Central's share is 0.11% at the median and 0.16% at most likely values; the cross-check anchored on premium
-  meats gives 0.10% (0.03–0.19%). In 5% of Central's draws the share is above 1%.
+  against 1–1.5). Selected cells' share is 0.17% at the median and 0.21% at most likely values; the cross-check anchored on premium
+  meats gives 0.12% (0.04–0.24%). In 5% of Selected cells' draws the share is above 1%.
 - **What rests on one source.** The reported cost is one company's report, with a capital charge that assumes a
   10-year depreciation period (20 years would add $8/kg). The scenarios' plant costs are one engineer's design
   (Humbird 2021) in 2025 prices. The ammonia the low-waste cells make is one paper's flask measurement (Hubalek 2023). None has
   been reproduced.
-- **The cells' glucose is derived, not measured.** The published cells' $112 follows from a lactate yield measured in chicken
+- **The cells' glucose is derived, not measured.** The published cells' $209 in a batch ($112 in perfusion) follows from a lactate yield measured in chicken
   cells and a glucose need computed from the model's own oxygen use. A cell on the low-waste feed may ferment less than that. A
-  measured glucose and lactate balance for such a cell would move rows 1 and 2 by tens of dollars; Central would not move unless
+  measured glucose and lactate balance for such a cell would move rows 1 and 2 by tens of dollars; the Selected cells case would not move unless
   its cells made more than about 0.6 mol of lactate per mol of glucose.
 
 Figures: `python report_figures.py` (cost vs inputs, cost waterfall, share tornado, share vs price, timing paths,

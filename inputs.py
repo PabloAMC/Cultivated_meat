@@ -314,7 +314,32 @@ REGISTRY: dict[str, Input] = {
     "pf_x_visc": Input(258.0, "g wet/L", "[Humbird-R] Table 2.2: density at volume fraction 0.25, the viscosity limit"),
     "pf_x_unperfused": Input(120.0, "g wet/L", "[Humbird-R] Fig. 2.8b: fed-batch limit at 20 m3 with 90% O2 and "
         "enhanced metabolism (ammonia and CO2 bind together)", lo=50.0, hi=150.0, mode=120.0,
-        note="applies to any culture whose waste is not washed out: fed-batch, fill-and-draw, chemostat"),
+        note="since 2026-11-19 used only for Humbird's own fed-batch design (floor_physics.tiers, density, and the labour "
+             "per m3 of his fed-batch plant). explore() caps a tank that is not washed out by the mass balance instead "
+             "(pf_batch_end_x): the litres a kilo leaves with must hold its waste at the level the tank allows"),
+    "pf_batch_end_x": Input(1.3, "x the steady-state limit", "[Humbird-R, derived; judgement] how far above the waste "
+        "level a perfusion tank is held at (the ammonia limit, and the lactate the salt allows) a tank that is not washed out "
+        "may end its cycle. Its waste builds up with its cells, so only the last doublings see the higher level. Humbird's own "
+        "fed-batch design (120 g/L of his enhanced cells, Fig. 2.8b: 0.054 mol ammonia and 0.56 mol lactate a kilo) ends at "
+        "6.5 mmol/L of ammonia and 67 mmol/L of lactate, 1.3 times the 5 and 50 he holds perfusion to",
+        lo=1.0, hi=2.0, mode=1.3,
+        note="ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
+             "in any mode, so the density of an unwashed tank is this factor x the level / the waste made per kilo (mmol/L / "
+             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let Selected cells' fed-batch end at "
+             "7.8 mmol/L of ammonia against the 4 its perfusion is held to. Evidence, both ways (research_notes/vessels_and_modes.md "
+             "section 10): ammonia: unadapted meat-relevant cells lose about 10% of growth at 1-3 mM and 50% at 3-10 mM "
+             "(ammonia_tolerance_and_filter_life.md); CHO fed-batch ends at 5-15 mM. Lactate: CHO fed-batch peaks at 10-94 mM "
+             "(Freund 2018), harm begins near 20-40 mM in CHO, meat-cell processes hold under 30 mM (Pasitka 2024), myoblasts "
+             "grow faster at 5 mM. 1.0 holds the batch to the perfusion level; 2.0 lets the last doubling run where growth is "
+             "about a quarter slower (pf_batch_half_x), a cost the model charges"),
+    "pf_batch_half_x": Input(3.0, "x the steady-state limit", "[ammonia_tolerance_and_filter_life.md, judgement] the waste "
+        "level at which growth halves, as a multiple of the level a perfusion tank is held at (where growth loss is small, "
+        "about 10%). Sets how much slower the last doublings of a batch that ends above that level grow: growth falls as "
+        "1 / (1 + (c / K)^h), with h = ln 9 / ln(this), so the loss is 10% at the limit and 50% at this multiple of it",
+        lo=2.0, hi=5.0, mode=3.0,
+        note="ADDED 2026-11-19. Unadapted meat-relevant cells: 10% loss at about 1-3 mM ammonia and 50% at about 3-10 mM (catfish "
+             "ovary about 0.6 and 3; 3T3 about 1.5 and 8; HFF-1 about 2 and 10), ratios of 2.5-5. Charged only above the "
+             "steady-state level, as perfusion is charged nothing at it"),
     "pf_x_co2_20m3": Input(120.0, "g wet/L", "[Humbird-R] Sect. 2.3: at 20 m3 the CO2 limit falls at about 120 g/L "
         "(40e6 cells/mL); 'At larger volume, the pCO2 limit is incurred'",
         note="the density a 20 m3 tank can hold even when waste is washed out by perfusion. Small tanks are "
@@ -421,7 +446,7 @@ REGISTRY: dict[str, Input] = {
         "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0,
         note="evidence pass 2026-11-16 (research_notes/ammonia_tolerance_and_filter_life.md): unadapted meat-relevant cells "
              "(catfish ovary, 3T3, pig muscle stem cells, bovine FAPs) lose 10-55% of growth rate at 2.5-5 mM when spiked; CHO and "
-             "adapted hybridomas tolerate more. Kept at 5 because Central assumes selected cells and no meat cell has been "
+             "adapted hybridomas tolerate more. Kept at 5 because the Selected cells case assumes selected cells and no meat cell has been "
              "measured at density; P(within 1.5x of the truth) about 45%, with the risk mostly below"),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
@@ -948,9 +973,17 @@ REGISTRY: dict[str, Input] = {
     "sc_nh3_selected": Input(0.14, "mol/kg wet", "[Hubalek et al. 2023, full text; waste_tricks_sizing.md] ammonia "
         "made by bovine fibro-adipogenic cells when glutamine is replaced by alpha-ketoglutarate, pyruvate or "
         "glutamate: 'more than 5-fold' below the 0.70 with glutamine, so under 0.14",
-        lo=0.07, hi=0.25, mode=0.14,
+        lo=0.04, hi=0.25, mode=0.14,
         note="FEED CHANGE, then SELECTION. Measured once, in one cell type, in spinner flasks; the same paper's "
-             "shaker value for ordinary cells is ten times lower than its spinner value, cause unexplained"),
+             "shaker value for ordinary cells is ten times lower than its spinner value, cause unexplained. RANGE WIDENED "
+             "2026-11-19 (lo 0.07 -> 0.04; mode and hi kept), after a two-sided pass (ammonia_tolerance_and_filter_life.md, "
+             "section 10). Lower: the shaker runs found the replacement substrates made no ammonia; other lines on pyruvate "
+             "released none; CHO adapted to glutamine-free medium by selection grow on glutamate and aspartate with ammonia "
+             "'greatly decreased', and the cells' own glutamine synthetase can take ammonia up; so selection plausibly reaches "
+             "the engineered cells' 0.055 (about 20%), and the ranges overlap. Higher or kept: 0.14 is the one measurement in a "
+             "stirred vessel of growing cells, an upper bound on a mean of five donors; adaptation slows growth (US 9714293) and "
+             "slower cells burn more amino acids per kilo; FAPs, not muscle cells; the knock-outs that remove ammonia entirely "
+             "(ISCCM11 2025 poster: glutaminases and asparaginase) are engineering. So the mode stays at the measurement"),
     "sc_nh3_ordinary": Input(0.70, "mol/kg wet", "[Hubalek et al. 2023, full text] the same cells with glutamine: "
         "56.3 fmol/cell/h at a 25.7 h doubling", lo=0.09, hi=0.95, mode=0.70,
         note="0.09 is the same paper's shaker value; 0.95 is Humbird's ordinary wild-type cell"),
@@ -972,12 +1005,13 @@ REGISTRY: dict[str, Input] = {
         note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
              "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
              "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "
-             "does not move Central (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
+             "does not move Selected cells (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
     "sc_mass_selected_pg": Input(2000.0, "pg wet per cell", "[judgement] between the 1.0-1.75 ng reported for "
         "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
         lo=1000.0, hi=3000.0, mode=2000.0,
         note="smaller cells respire more per gram (West's law), so the tank holds fewer of them. Used for every "
-             "cell setting except the engineered one, which is Humbird's cell"),
+             "cell setting, the engineered one too since 2026-11-19 (engineering changes the metabolism, not the size); drawn in "
+             "the scenarios' bands. Humbird's optimistic design keeps his 3 ng"),
     "sc_td_central": Input(36.0, "h", "[Hubalek et al. 2023; judgement] the speed taken for cells that make this "
         "little waste by selection and feed alone: cells with glutamine replaced doubled in 42.9-54.2 h "
         "(38 h unchanged, 25.7 h in the spinner), never 24 h", lo=26.0, hi=43.0, mode=36.0,
@@ -1113,6 +1147,42 @@ REGISTRY: dict[str, Input] = {
         "when the pressure trick is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
         lo=0.33, hi=2.0, mode=1.0, note="no culture has been run at 1 bar gauge"),
 
+    # --- Cell traits: the best level shown so far by each route (cell_traits.py; research_notes/cell_trait_routes.md; 2026-11-19) ---
+    # Routes, least intrusive first: "feed" = meat cells, as they are or with a change of feed; "select_meat" = meat cells selected,
+    # adapted or spontaneously immortalised, no genetic engineering; "select_other" = no genetic engineering, in other cells only
+    # (CHO and the like: selection, adaptation or a process change); "engineering" = genetic engineering, any cells. A route that has
+    # shown nothing better than a less intrusive one has no input. Each is a level SHOWN, not a judgement of what is possible.
+    "cr_nh3_feed": Input(0.14, "mol/kg wet", "[Hubalek et al. 2023, full text] bovine fibro-adipogenic progenitors with glutamine "
+        "replaced by alpha-ketoglutarate, pyruvate or glutamate, spinner flasks: 'more than 5-fold' below the 0.70 with glutamine",
+        note="an upper bound; in the same paper's orbital-shaker runs the replacement substrates made no detectable ammonia (a tenfold "
+             "spinner/shaker disagreement, unexplained). The stirred figure is used, as a production tank is stirred"),
+    "cr_nh3_select_other": Input(0.054, "mol/kg wet", "[Mayrhofer et al. 2020, FT-sum; Humbird 2021] CHO perfused with a glucose-limited "
+        "feed held about 0.5 fmol of ammonium a cell an hour at 130 million cells/mL, the figure behind Humbird's enhanced cell",
+        note="cells at a plateau, not net-growing, so a bound for a growing culture; CHO-K1 adapted to glutamine-free medium by selection "
+             "grow with 'greatly decreased' ammonia (no figure found). No engineering"),
+    "cr_nh3_engineering": Input(0.0, "mol/kg wet", "[ISCCM11 poster, 2025, culturedmeatconference.com] knocking out glutaminases and "
+        "asparaginase eliminated ammonia during growth; an Upside Foods patent describes glutamine-synthetase lines (about 20% less, "
+        "GFI bioprocess deep dive)", note="a conference poster, not peer reviewed; cell type as reported there"),
+    "cr_lac_feed": Input(1.05, "mol/mol glucose", "[Pasitka et al. 2024, snippet] chicken fibroblasts in TFF perfusion, animal-free "
+        "medium: 76 g lactate per 145 g glucose", note="no lower lactate yield found for a meat cell, by feed or otherwise"),
+    "cr_lac_select_other": Input(0.0, "mol/mol glucose", "[Gagnon et al. 2011, abstract; Mayrhofer et al. 2020, FT-sum; Freund and "
+        "Croughan 2018] CHO: glucose fed only as the pH rises (HIPDOG) eliminated lactate build-up in fed-batch up to 2,500 L, and "
+        "glucose-limited perfusion turned the cells to consuming lactate; lactate-adapted CHO 0.39 mol/mol",
+        note="process changes and adaptation, no engineering, in CHO only"),
+    "cr_lac_engineering": Input(0.0, "mol/mol glucose", "[Hefzi et al. 2024, preprint] Ldha and Pdk knockouts in CHO-S, CHO-K1 and "
+        "HEK293: peak lactate sub-mM to single mM, growth comparable", note="a preprint; not shown in meat cells"),
+    "cr_td_feed": Input(25.7, "h", "[Hubalek et al. 2023] bovine fibro-adipogenic progenitors with glutamine, spinner flasks",
+        note="with the low-ammonia feed the same cells doubled in 42.9 h (alpha-ketoglutarate) to 54.2 h: fast and low-ammonia have not "
+             "been shown together in one meat-cell culture (cell_traits.combination)"),
+    "cr_td_select_meat": Input(20.0, "h", "[Pasitka et al. 2023, Nature Food, snippet of figure text] spontaneously immortalised chicken "
+        "fibroblasts, 20 +/- 2 h after immortalisation, on a surface", note="selection without engineering; Atlantic mackerel Mack1 "
+        "24 h (spontaneously immortalised, 20% serum, Saad 2023); feed with glutamine"),
+    "cr_td_engineering": Input(15.0, "h", "[Stout et al. 2023, ACS Synth Biol / preprint; species_cell_parameters.md] immortalised "
+        "bovine satellite cells, 15-17 h with serum", note="engineered for immortality, not for metabolism"),
+    "cr_mass_feed": Input(3300.0, "pg wet per cell", "[Pasitka et al. 2024 abstract, converted in species_cell_parameters.md] chicken "
+        "cells at 108 million cells/mL = 36% w/v, about 3.3 ng a cell; SuperMeat 2024 reports 1.0-1.75 ng",
+        note="a cell's mass is measured, not chosen: every route below this mass has been seen in meat cells. Larger cells are "
+             "cheaper (they respire less per gram)"),
     # --- Vessel types and operating modes (vessels.py; research_notes/vessels_and_modes.md) ---------------
     # Each vessel is priced at the largest unit it has been built or designed at, up to 20 m3. Sizes are working
     # volumes where `wv` is 1, else vessel volumes. Everything not listed is the model's stirred tank.
@@ -1571,13 +1641,13 @@ REGISTRY: dict[str, Input] = {
              "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
              "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
              "buyers; its share of all choices is 4%, and 13% reproduces both."),
-    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the best case: once "
-        "familiar and at equal price, shoppers slightly favour cultivated meat. The best case takes the favourable end of every "
+    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the Engineered cells, all favourable case: once "
+        "familiar and at equal price, shoppers slightly favour cultivated meat. The Engineered cells, all favourable case takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
         "antibiotics, disease) none of the precedents for distrusted foods had to face (irradiated food, margarine, modified "
         "crops, all against a natural product), and decades of familiarity and a new generation of shoppers are part of it.",
         lo=0.35, hi=0.70, mode=0.55,
-        note="Used only by the best case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
+        note="Used only by the Engineered cells, all favourable case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
              "Every other scenario uses equal_price_share."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "

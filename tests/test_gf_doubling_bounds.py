@@ -18,12 +18,12 @@ import scenarios as S
 from inputs import value
 
 # $/kg of cells, each scenario's tank design held fixed, at other doubling times
-# 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (Central and Cautious lose their
+# 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (Selected cells and Cautious lose their
 # growth-factor cost), Best's medium at the nutrient floor in place of $0.15 a litre
-# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (Central 28 -> 35 L/kg, Best 11.16 -> 13.75), lost runs pay for their
+# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (Selected cells 28 -> 35 L/kg, Best 11.16 -> 13.75), lost runs pay for their
 # membranes, and glucose from the cells' own balance (the cautious case, the published cells, 28 -> 95.5 L/kg, set by lactate)
 GOLDEN_SCAN = {
-    "best": {16.0: 10.5260, 24.0: 11.4569, 43.0: 16.3851},
+    "best": {16.0: 10.5385, 24.0: 11.6738, 43.0: 16.5504},   # 2026-11-19: best's cells 2 ng (were 3)
     "central": {16.0: 28.3001, 24.0: 30.3220, 36.0: 32.8028, 43.0: 34.1441},
     "cautious": {16.0: 63.1348, 36.0: 84.9106, 43.0: 92.1653},
 }
@@ -124,22 +124,22 @@ def check() -> list:
         for h, want in GOLDEN_SCAN[k].items():
             if not close(G.scan_doubling(k, (h,))[h]["total"], want, 1e-4):
                 fails.append(f"{k} at {h} h: {G.scan_doubling(k, (h,))[h]['total']:.4f} != pinned {want}")
-    # 2026-11-19 audit batch: the cautious case no longer shares Central's litres (95.5 against 35 L/kg), so it needs lower
-    # prices than Central, and Best (13.75 L/kg) allows higher ones. The note's table has a row for each.
+    # 2026-11-19 audit batch: the cautious case no longer shares Selected cells' litres (95.5 against 35 L/kg), so it needs lower
+    # prices than Selected cells, and Best (13.75 L/kg) allows higher ones. The note's table has a row for each.
     if not (tab["cautious"]["litres"] > tab["central"]["litres"] > tab["best"]["litres"]):
-        fails.append("litres should rise from Best to Central to the cautious case")
+        fails.append("litres should rise from Best to Selected cells to the cautious case")
     if not (tab["cautious"][1.0]["x_humbird"] < tab["central"][1.0]["x_humbird"] < tab["best"][1.0]["x_humbird"]):
         fails.append("the cautious case should need the lowest prices and Best the highest")
     # lactate sets the cautious case's medium, and glucose follows oxygen use, so its litres fall with speed; ammonia holds
-    # Central's litres whatever the doubling time
+    # Selected cells' litres whatever the doubling time
     sc_c = G.scan_doubling("cautious", (16.0, 43.0))
     if not (sc_c[43.0]["medium_set_by"] == "lactate" and sc_c[16.0]["medium_l"] < sc_c[43.0]["medium_l"]):
         fails.append("the cautious case's medium should be set by lactate and shrink with speed")
     sc_m = G.scan_doubling("central", (16.0, 43.0))
     if not (sc_m[43.0]["medium_set_by"] == "ammonia" and close(sc_m[16.0]["medium_l"], sc_m[43.0]["medium_l"], 1e-9)):
-        fails.append("Central's medium should be set by ammonia at every doubling time")
+        fails.append("Selected cells' medium should be set by ammonia at every doubling time")
     # --- pins ---
-    # 2026-11-19 audit batch: Central's litres 28 -> 35 (ammonia tolerance 5 -> 4 mmol/L) lower every required price by a
+    # 2026-11-19 audit batch: Selected cells' litres 28 -> 35 (ammonia tolerance 5 -> 4 mmol/L) lower every required price by a
     # fifth; Best's litres 11.16 -> 13.75 (ammonia now sets them, not lactate) lower its prices by 19%
     pins = [("central $1 insulin", tab["central"][1.0]["insulin"]["shared"], 0.5453),
             ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 0.9348),

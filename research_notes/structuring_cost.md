@@ -1,5 +1,7 @@
 # What it costs to turn cells into a cut
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Date: 2026-11-19. Two bounded web searches (about 100 tool calls), building on `post_harvest_costs.md` (2026-11-14), which
 found no costed source for structuring and is not repeated here. Access tags: FT full text, PART partly read, SNIP search
 snippet only, PRESS company or trade press. [conv] marks a unit conversion of mine, [inference] a judgement of mine. Section 4 records
@@ -79,7 +81,7 @@ high $8.0 per kg of product. P(under $2) about 35%, P($2–5) about 45%, P(over 
 
 **Estimate for route B, on top of suspension cells** [inference, second search agent]:
 
-| | Low | Central | High |
+| | Low | Selected cells | High |
 |---|---|---|---|
 | Scaffold material | 0.05 | 0.5 | 3 |
 | Maturation reactor capital and upkeep | 1.5 | 4 | 12 |
@@ -106,7 +108,7 @@ Cut cost and the cell cost a cut needs for price parity (shelf = (cost + $2.5)/0
 
 | | Before (cells + $6) | Now (0.8 cells + $0.4 + $2) |
 |---|---|---|
-| Central cut, cells $26.43 | $32.43 | $23.54 |
+| Selected cells cut, cells $26.43 | $32.43 | $23.54 |
 | Best-case cut, cells $9.96 | $15.96 | $10.37 |
 | Beef steak and cuts ($20.4): cells needed | $6.19 | $12.23 |
 | Seafood fillet ($16.0): cells needed | $3.02 | $8.27 |

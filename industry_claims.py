@@ -75,7 +75,7 @@ def _split(r: dict) -> dict:
 
 
 def scenario_split() -> dict:
-    """{key: split} for the reference case and each scenario, as the model runs them (perfusion, 20 m3)."""
+    """{key: split} for the reference case and each scenario, as the model runs them (each in its own mode since 2026-11-19)."""
     out = {"reference": _split(fp.explore())}
     for k in S.PAGE_ORDER:
         out[k] = _split(S.run(S.SCENARIOS[k].choice))
@@ -89,7 +89,7 @@ PLANTS = (("the scenario's food-grade plant", {}),
 
 
 def central_as_vow(cap: float | None = None) -> list:
-    """Central's cells and settings in a 20 m3 stirred tank drained and refilled (no cell retention), in each plant of
+    """the Selected cells case's cells and settings in a 20 m3 stirred tank drained and refilled (no cell retention), in each plant of
     PLANTS. `cap` caps the density (g/L), for the 27 g/L reported for meat cells at 20 m3. Returns [(plant, split)]."""
     kw = S.explore_kwargs(S.SCENARIOS["central"].choice)
     rows = []
@@ -112,9 +112,9 @@ def summary() -> dict:
 
 
 # ----------------------------------------------------------------------------
-NAMES = {"reference": "Humbird's optimistic design", "today": "1. Published cells, ordinary tank", "process": "2. Plus process changes",
-         "central": "3. Central (selected cells)", "central_lean": "4. Plus a plant with shared medium", "best": "5. Best case (engineered cells)",
-         "forecast": "Forecast for 2035"}
+NAMES = {"reference": "Humbird's optimistic design", "today": "1. Published cells, fed-batch", "process": "2. Plus process changes",
+         "selected": "3. Plus cells that make less lactate, fed-batch", "central": "4. Selected cells (perfusion)", "central_lean": "5. Plus a plant with shared medium",
+         "engineered": "6. Plus cells that make almost no ammonia or lactate", "best": "7. Engineered cells, all favourable"}
 
 
 def markdown() -> str:
@@ -125,7 +125,7 @@ def markdown() -> str:
         d = s["split"][k]
         out.append(f"| {NAMES[k]} | ${d['total']:.1f} | ${d['capital']:.1f} | **${d['operating']:.1f}** | ${d['membranes']:.1f} | "
                    f"${d['medium_gf']:.1f} |")
-    out += ["", "| Central's cells, 20 m³ tank drained and refilled (as Vow runs), in | cells, $/kg | charge on the plant | operating cost | "
+    out += ["", "| the Selected cells case's cells, 20 m³ tank drained and refilled (as Vow runs), in | cells, $/kg | charge on the plant | operating cost | "
             "at the 27 g/L reported for meat cells |", "|---|---|---|---|---|"]
     for (name, d), (_n, d27) in zip(s["vow"], s["vow27"]):
         out.append(f"| {name} (${d['capex_k_m3']:.0f}k per m³) | ${d['total']:.1f} ({d['density']:.0f} g/L) | ${d['capital']:.1f} | "
@@ -145,12 +145,12 @@ def main() -> None:
         d = s["split"][k]
         print(f"  {k:<13} total ${d['total']:6.2f}  plant charge ${d['capital']:5.2f}  operating ${d['operating']:5.2f}"
               f"  (membranes ${d['membranes']:.2f}, medium+GF ${d['medium_gf']:.2f})")
-    print("  Central's cells, drained and refilled:")
+    print("  the Selected cells case's cells, drained and refilled:")
     for (name, d), (_n, d27) in zip(s["vow"], s["vow27"]):
         print(f"    {name:<44} ${d['total']:6.2f} (plant ${d['capital']:.2f}, operating ${d['operating']:.2f}, {d['density']:.0f} g/L); "
               f"at 27 g/L ${d27['total']:.2f}")
     e = s["central_engineered"]
-    print(f"  Central with engineered cells: ${e['total']:.2f}, operating ${e['operating']:.2f}")
+    print(f"  Selected cells with engineered cells: ${e['total']:.2f}, operating ${e['operating']:.2f}")
 
 
 if __name__ == "__main__":

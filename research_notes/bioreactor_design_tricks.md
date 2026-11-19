@@ -1,5 +1,7 @@
 # Design tricks for a 20 m³ animal-cell tank: what each relieves, and whether it scales
 
+> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+
 Compiled 2026-11-16 at Pablo's request ("explore the possible tricks on the design of the bioreactor"). Reading, arithmetic and
 the model only; nothing measured. Access levels: **model** (computed with this repository's code), **repo** (an earlier research
 note, which carries its own sources), **search** (a search-engine summary, not read), **memory** (my background knowledge, not
@@ -11,8 +13,8 @@ checked this session; treat as a lead). The CFD plan that would test several of 
 |---|---|---|---|---|
 | Rung 1, today's cells, ordinary tank, 2 mm/s | $63.0 | 46 g/L | CO₂ removal | oxygen 70, mixing 219, thickness 258 g/L |
 | Humbird's optimistic design, 6 mm/s | $12.5 | 120 g/L | CO₂ removal | oxygen 146 (with antifoam), mixing 189 |
-| Central (column, 1 bar, squarer tank, oxygen held at half of air saturation) | $29.4 | 191 g/L | oxygen supply | thickness 258 |
-| Best case (the same, with recycled oxygen and a squat tank) | $9.7 | 258 g/L | thickness of the culture | — |
+| Selected cells (column, 1 bar, squarer tank, oxygen held at half of air saturation) | $29.4 | 191 g/L | oxygen supply | thickness 258 |
+| Engineered cells, all favourable (the same, with recycled oxygen and a squat tank) | $9.7 | 258 g/L | thickness of the culture | — |
 
 So there are two regimes. **Without a bubble-free way to remove CO₂, CO₂ binds**, and every trick that removes CO₂ without bubbles
 pays a lot (the column with 1 bar of pressure is worth $20.6/kg for today's cells). **Once CO₂ is dealt with, oxygen binds** (antifoam is taken to

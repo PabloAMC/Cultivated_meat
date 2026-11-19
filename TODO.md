@@ -13,10 +13,10 @@ Open pull requests (each says "no default changes" unless noted):
 - [x] **The spread of liking is in the shopper model** (done 2026-11-18, `research_notes/liking_spread.md`). The long-run share at
       equal price is a visible setting, `equal_price_share` (13%, drawn 5–49%), and the only demand dial for the long-run level in the
       bands. The model passes three of four price-response checks. Branch `claude/recalibrate-demand` is superseded; do not merge.
-- [ ] **The best case's demand (55%) and Central's range (5–49%)**: Central's range almost excludes shoppers favouring cultivated meat
-      (under 1% of draws above 45%), while the best case now assumes it. Decide whether Central's range should reach about 60%.
-- [ ] **Conventional meat's price response** (METHODS, "When conventional meat's price responds"): with the best case's demand it is
-      worth a tenth to an eighth of the share; model it if the best case's demand stays.
+- [ ] **The Engineered cells, all favourable case's demand (55%) and Selected cells' range (5–49%)**: Selected cells' range almost excludes shoppers favouring cultivated meat
+      (under 1% of draws above 45%), while the Engineered cells, all favourable case now assumes it. Decide whether Selected cells' range should reach about 60%.
+- [ ] **Conventional meat's price response** (METHODS, "When conventional meat's price responds"): with the Engineered cells, all favourable case's demand it is
+      worth a tenth to an eighth of the share; model it if the Engineered cells, all favourable case's demand stays.
 - [ ] **Plant-based meat's own-price elasticity** still fails (-2.85 against about -1.3): its buyers are a committed minority the
       model does not represent. A spread of liking for plant-based meat, refitted to the 1.2% share, is the candidate fix.
 - [ ] **Evidence on the long-run share at equal price** (`demand_heterogeneity_evidence.md` §6): one reading of foods made by
@@ -32,15 +32,15 @@ Open pull requests (each says "no default changes" unless noted):
 - [ ] #19 Plain, direct sentences for all page text (wording only).
 - [ ] #29 The frontier: every lever at its limit, one at a time ($26.64 → $5.49).
 - [ ] #30 Filter flux: the flux is not the limit, the membrane's throughput is. **Decision inside:** move `rt_membrane_life`
-      (3,960 L/m²) towards the measured 450–1,200? At 1,200 Central is $46.95.
+      (3,960 L/m²) towards the measured 450–1,200? At 1,200 the Selected cells case is $46.95.
 - [ ] #45 Ammonia and filter-life evidence (`research_notes/ammonia_tolerance_and_filter_life.md`; no default changed). **Decisions
       inside:** (a) `rt_membrane_life` (3,960) is probably the generous end (median about 1,500; 20% that it is within 1.5x), but a
       membrane adds price / life per litre, so moving life alone ($29.42 → $43.09 at 1,500) would pair a pessimistic life with
       today's $1,450 a m². Move life and price together, or leave both. This replaces the framing of #30. (b) `pf_nh3_limit`
-      (5) stays: the evidence is spiked, unadapted cells and Central assumes selection (45% that 5 is within 1.5x).
+      (5) stays: the evidence is spiked, unadapted cells and the Selected cells case assumes selection (45% that 5 is within 1.5x).
       (c) The bands draw life with mode 3,960 and price from $1,050–1,450, so both are one-sided; moving the modes (or drawing
       price / life as one quantity) changes every band and share figure.
-- [ ] #31 Model audit: costs have only drifted up; Central's median over all ranges is $33. **Decisions inside:** show
+- [ ] #31 Model audit: costs have only drifted up; Selected cells' median over all ranges is $33. **Decisions inside:** show
       the spread beside each point; membrane life; first-plant or mature financing; ~~a markup that is a share of price~~ (done 2026-11-18: per-kg costs plus a 28% margin, `research_notes/retail_markup_form.md`).
 
 Decisions taken 2026-11-15 (late), on Pablo's instruction to pick the long-term option (numbers moved; CHANGELOG has them):
@@ -48,8 +48,8 @@ Decisions taken 2026-11-15 (late), on Pablo's instruction to pick the long-term 
 - [x] The plant ladder's perfusion rows are now `explore()` itself; `plant_floor` 9.8 → 10.8, `plant_floor_lo` 4.9 → 6.3.
 - [x] The yeast-style plant buys its oxygen ($0.33/kg).
 - [x] Poloxamer is costed: 2 g/L at an assumed $30/kg (catalogue $230–260). **Replace the price with a supplier quote.**
-- [x] Antifoam's central value is 0.75 (the middle of 0–50%). Oxygen now limits Central and Cautious. **A measurement in dense
-      meat-cell culture would replace this judgement**; it is worth about $1.8/kg in Central and $3.7 in Cautious.
+- [x] Antifoam's central value is 0.75 (the middle of 0–50%). Oxygen now limits Selected cells and Cautious. **A measurement in dense
+      meat-cell culture would replace this judgement**; it is worth about $1.8/kg in the Selected cells case and $3.7 in Cautious.
 
 Found while doing it (not changed):
 
@@ -66,19 +66,19 @@ Found while doing it (not changed):
 
 Raised by Pablo on 2026-11-16 (open):
 
-- [x] **What Central is for.** Done 2026-11-16: the scenarios are a ladder ordered by difficulty; Central is rung 3, and a dated forecast row sits beside it.
+- [x] **What the Selected cells case is for.** Done 2026-11-16: the scenarios are a ladder ordered by difficulty; the Selected cells case is rung 3, and a dated forecast row sits beside it.
 - [x] **The reference case** is now "Humbird's optimistic design", shown beside the ladder, not on it; tank tricks come at rung 2.
-- [x] **Comparable shares:** every row gives the share at its point cost and the median of draws (Humbird's design 2.4% median, best case 3.8%).
+- [x] **Comparable shares:** every row gives the share at its point cost and the median of draws (Humbird's design 2.4% median, Engineered cells, all favourable 3.8%).
 - [x] **Growth factors are a separate line from the medium.** Done 2026-11-19: announced and reported medium prices are complete media
       with growth factors inside (`sc_medium_complete` on); the growth-factor line applies only to the medium at the nutrient floor.
-- [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap; `cfd_plan.md` step 3). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Central,
+- [ ] **Hybrid vessels and stirring** (CFD target A5 in the roadmap; `cfd_plan.md` step 3). A stirred tank with a draft tube and sparging, or other impellers. Now that oxygen limits Selected cells,
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
 
-- [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
-- [x] **`sc_medium_complete` on** (2026-11-19): Central $29.42 -> $26.43. A complete medium cannot cost less than the nutrients plus its
+- [x] **The forecast's medians**: dropped with the forecast (2026-11-19).
+- [x] **`sc_medium_complete` on** (2026-11-19): Selected cells $29.42 -> $26.43. A complete medium cannot cost less than the nutrients plus its
       growth factors (`floor_physics.explore`, `gf_in_medium`).
 - [x] **The nutrient floor from GFI** (2026-11-19, `nutrient_floor.md` §6): $1.70 -> $2.00 a kilo (feed-grade amino acids, 232 g/kg);
-      medium settings $0.05 and $0.15 replaced by "at the nutrient floor". Best case $9.66 -> $9.96.
+      medium settings $0.05 and $0.15 replaced by "at the nutrient floor". Engineered cells, all favourable $9.66 -> $9.96.
 - [ ] **A supplier's tonne quote for the five amino acids hydrolysate cannot supply** (glutamine, arginine, asparagine, cystine,
       serine), and GFI's need-weighted mean price: both would firm up the floor.
 - [x] **What a cut costs** (2026-11-19, `structuring_cost.md`): 0.8 cells + $2 matrix + $2 assembly beyond mince, in place of cells + $6.
@@ -91,30 +91,51 @@ Raised by Pablo on 2026-11-16 (open):
       prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
 - [x] **The tail of shoppers' liking** (2026-11-19): Student's t, sd 3.9, 4 degrees of freedom; the 15-point rule replaced.
 - [ ] **Farmed salmon's response still fails** (3.6-3.7 against 1-1.5). No spread that keeps the choice experiment's elasticities reaches
-      it without a block of shoppers who ignore price (the mixture's corner). The best case's share with its own demand is the least
+      it without a block of shoppers who ignore price (the mixture's corner). The Engineered cells, all favourable case's share with its own demand is the least
       pinned consequence of the fit (shapes that fit give 14-17%).
 - [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
       zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
 - [ ] **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
-      `sc_nh3_limit` not drawn): as drawn Central $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
+      `sc_nh3_limit` not drawn): as drawn Selected cells $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
 - [ ] **The nutrient floor's glucose** is a third glucose figure (0.32 kg a kilo, all burned); tie it to the balance (a few cents).
 - [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
 - [ ] **The filter pair.** Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
       stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
-- [ ] **A tank that is not perfused breaks the waste mass balance** (found 2026-11-19). Litres per kilo must be at least the waste made
-      per kilo over the waste level allowed, in any mode. The unwashed cap is scaled from Humbird's fed-batch figure (120 g/L), so
-      Central's fed-batch ends at 7.8 mmol/L ammonia against the 4 its perfusion is held to, and seems to need half the medium (18
-      against 35 L/kg). Derive the cap from the same balance, with an explicit input for how far above the steady-state limit a batch
-      may end (only its last doublings feel it; evidence: 50% growth loss at 3-10 mM, 10% at 1-3 mM). Held to 4 mM, Central's
-      fed-batch reaches about 29 g/L and costs about $90. Do this inside the scenario restructure, which compares the two modes.
-- [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
-      what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
-      as a second axis. Waiting on Pablo: the forecast's year(s).
+- [x] **A tank that is not perfused breaks the waste mass balance** (found and fixed 2026-11-19, scenario restructure). An unwashed
+      tank's density is now end factor x level allowed / waste made per kilo (`pf_batch_end_x` 1.3, Humbird's own fed-batch design;
+      the last doublings above the level grow slower, `pf_batch_half_x`). Selected cells' batch stops at 37 g/L (was 56) and costs $64.9;
+      the published cells' at 14 g/L. `research_notes/vessels_and_modes.md` section 10.
+- [x] **Restructure the scenarios** (2026-11-19): a switch for how the tank is run; cells as four traits with a routes table and
+      `routes_needed`; what it would take; reference points from fed-batch to Engineered cells, all favourable; the plant-cost axis.
+      A forecast drawn from odds was built and dropped at the author's direction.
+- [ ] **The page**: rebuild around traits as sliders with the routes verdict (`MODEL.sc.cell_routes`, `trait_verdicts`), the clouds,
+      what it would take, and the contour chart the author approved; the page still shows the old case names and five-rung texts.
+- [ ] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng engineered cell (their generated tables
+      are current; some side-study figures in the prose are from before).
+- [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia in a meat cell selected
+      for it; whether the spinner/shaker gap in Hubalek 2023 is real.
+- [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor
+      rung 1 and `pf_batch_end_x` (research_notes/vessels_and_modes.md section 11; best guess fed-batch, 75%).
+- [ ] **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
+      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if a batch plant should take the cheaper of the two draws should take the
+      cheaper of the two.
+- [ ] **Aggregates in the scenarios**: priced in `retention.scenario_cost("aggregates")`, offered by no switch.
+- [ ] **SciFi Foods' bovine cell lines, open through Tufts.** GFI bought SciFi Foods' eight bovine lines at auction (August 2024) and
+      released them through the Tufts open cell bank (October 2025): fibroblasts immortalised by CRISPR (p53 knockout and TERT
+      insertion), adapted to suspension and grown serum-free; TU-GFI-SCL4 reportedly run in a 500 L bioreactor, SCL3 used in an FDA
+      submission; two serum-free media (FSF4, FSF6) published. No growth or metabolism data are public yet (doubling time, density,
+      ammonia, lactate). When Tufts or users publish them, they would be the first single, publicly available line to anchor
+      "Published cells" on, in place of today's mix of traits from two lines. Their immortalisation is genetic engineering, though
+      not the metabolic engineering the "engineered cells" setting means. Sources:
+      https://gfi.org/resource/suspension-adapted-bovine-cell-lines/ ,
+      https://cellularagriculture.tufts.edu/resources/open-cell-bank ,
+      https://agfundernews.com/exclusive-open-source-moment-for-cultivated-meat-as-gfi-releases-scifi-foods-cell-lines-to-academia
+      (16 Oct 2025).
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
 From the design search (`design_space.py`):
 
-- [x] The lower dissolved-oxygen setpoint is in every scenario (`sc_do_setpoint`, 2026-11-16): Central $29.92 → $29.42, best $9.71 → $9.66.
+- [x] The lower dissolved-oxygen setpoint is in every scenario (`sc_do_setpoint`, 2026-11-16): Selected cells $29.92 → $29.42, best $9.71 → $9.66.
 - [ ] The design search and `scenarios.design` drop a design whose column loop fails at full density; running it thinner might pass
       (the vessel grid now does, `vessels._thinned`).
 - [ ] Add the missing options to the search as levers: two spargers, gas exchange on the filter loop, restart from a neighbour.
@@ -122,7 +143,7 @@ From the design search (`design_space.py`):
 
 From the design-tricks survey (`bioreactor_design_tricks.md`):
 
-- [ ] **Two spargers** (a microsparger for oxygen, a drilled pipe for CO₂) as a lever: standard practice, and oxygen now binds Central.
+- [ ] **Two spargers** (a microsparger for oxygen, a drilled pipe for CO₂) as a lever: standard practice, and oxygen now binds Selected cells.
 - [ ] **Gas exchange on the filter loop**: cost the column or a membrane module sharing the perfusion loop's pump and piping.
 - [ ] **A non-bicarbonate buffer or a different base**, to test whether the salt limit is real where CO₂ tolerance should help.
 
@@ -139,32 +160,33 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **Schneider, Marison and von Stockar 1996**, "The importance of ammonia in mammalian cell culture": the review both books cite for
       ion exchange, gas-permeable membranes and electrodialysis. Read it in full.
 - [x] Electrodialysis and dialysis priced (`medium_reuse.py`, `research_notes/medium_reuse.md`, 2026-11-16). Cleaning the permeate
-      saves $2–4 a kilo in Central, because the liquid still passes the cell filter ($0.38 of the $0.75 a litre costs); dialysis
+      saves $2–4 a kilo in the Selected cells case, because the liquid still passes the cell filter ($0.38 of the $0.75 a litre costs); dialysis
       across the culture saves $4–9 if its membrane holds up. The sorbent lever counted the filter as saved and was corrected
       (the $22.97 quoted here before is $28.22).
 - [ ] **Bench tests the reuse study asks for**: electrodialysis of real spent medium (removal per pass, nutrients and growth factors
       lost, energy); a dialyser on a dense culture for weeks (clearance against time); a dialysate cleaned to under 10% make-up.
-- [ ] **What the least medium flow is made of** (16 of Central's 28 L/kg): nutrients, small by-products or large ones. It decides
+- [ ] **What the least medium flow is made of** (16 of Selected cells' 28 L/kg): nutrients, small by-products or large ones. It decides
       which reuse route can go below 16 L.
 - [ ] **Add reuse to the page** as a lever (litres cleaned, on the permeate or across the culture), once a route has a measured input.
 - [x] **Bands widened** (2026-11-16, `scenarios.MC_ESTIMATES`): they draw the ammonia the cells tolerate, the protectant's price and
-      dose, the least medium flow, antifoam and the membrane price. Central $27–38 → $25–47; best case $9–12 → $10–19, median share
+      dose, the least medium flow, antifoam and the membrane price. Selected cells $27–38 → $25–47; Engineered cells, all favourable $9–12 → $10–19, median share
       3.8% → 1.9%. The protectant prior now stops at $120/kg (was the $260 catalogue price): a judgement until a quote arrives.
 - [x] **Wrong-way demand inputs** (2026-11-16): a real flaw (the dollar channel's price coefficient could turn positive at high loss
       aversion) is fixed; the rest is an open question below.
 - [ ] **Dollars or ratios**: how much of the price response is in dollars and how much is a ratio to the cut's price is not pinned by
-      the data; it moves Central's share 0.3–0.7%. Find data that separates them (premium-cut elasticities against commodity ones),
+      the data; it moves Selected cells' share 0.3–0.7%. Find data that separates them (premium-cut elasticities against commodity ones),
       or draw `w_ratio` in the bands with a precomputed calibration grid.
-- [ ] **The best case's point cost is at the 3rd–4th percentile of its draws**: its limits are tied at about 11 L/kg. Say so on the page
-      next to the best case, or define the best case by its median.
-- [ ] **Re-judge the probabilities** in `tank_size.md` (section 7, column D), `no_perfusion_downside.md` and `retention_devices.md`
-      (section 5): they were judged when Central ran at 258 g/L; it now runs at 191, limited by oxygen.
+- [ ] **The Engineered cells, all favourable case's point cost is at the 3rd–4th percentile of its draws**: its limits are tied at about 11 L/kg. Say so on the page
+      next to the Engineered cells, all favourable case, or define the Engineered cells, all favourable case by its median.
+- [x] **Re-judge the probabilities** at Selected cells' 191 g/L (2026-11-19 restructure): `no_perfusion_downside.md` section 3 and the
+      odds recorded in `cell_trait_routes.md` (45% possible). Still to do: `tank_size.md` section 7, column D, and `retention_devices.md` section 5,
+      which keep their 258 g/L wording.
 - [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
       loop and the protectant switched off (`floor_physics.BEFORE_FILTER_LOOP`). Recompute them, or mark those sections as history.
 - [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,
       "harvest"); no scenario moved, the airlift in perfusion went from $14.78 to $15.07.
 
-- [ ] **Demand near price parity** (`premium_curve.md`): anchored on premium real meats the best case takes 2.5%, against the model's
+- [ ] **Demand near price parity** (`premium_curve.md`): anchored on premium real meats the Engineered cells, all favourable case takes 2.5%, against the model's
       8.0%. The premium data start at 1.5×. Find data on labels sold at or near parity (cage-free eggs after retailer pledges, Dutch
       Beter Leven 1 star, Label Rouge promotions) to see which is closer.
 - [ ] **Show the premium-meat anchoring on the page**, or refit κ to the sixteen premium products? Open; nothing changed so far.
@@ -183,7 +205,7 @@ Bench measurements that would settle the two biggest inputs (from #45; each is c
       Until then life and price stay as they are; nobody has offered a price (Pablo, 2026-11-16).
 
 - [x] **`sc_glc_measured` re-derived** (2026-11-18): the central 0.84 rests on CHO data, not Pasitka; the range is now 0.67–3.6, and
-      the high end moves today's cells by $92 a kilo, not Central.
+      the high end moves today's cells by $92 a kilo, not Selected cells.
 
 Things only Pablo can do:
 

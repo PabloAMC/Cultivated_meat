@@ -14,11 +14,13 @@ language (“How the model works”, at the bottom of the page).
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
   on the EA Forum.
 
-**Scenarios** describe the cost of a kilo of cells. They form a ladder ordered by how hard each change is: the published cells (the best
-meat cells in the published record), then process changes and cheaper inputs, then cells selected to make less lactate and grow faster
-(Central), then a cheaper plant, then engineered cells (the best case). A forecast for
-2035, Humbird's optimistic design and the process one company reports sit beside the ladder.
-Each is a preset of ten switches, and each states what has to go right for it. See [RESULTS.md](RESULTS.md) and the page.
+**Cells as traits.** The cost rests on four traits of the cells (ammonia made per kilo, lactate per glucose, doubling time, cell
+mass), set directly; `cell_traits.py` says, for any set, which routes (a feed change, selection, genetic engineering) have shown each
+level, without saying any route is necessary. RESULTS leads with what it would take: the cost of cells a 1% or 10% share needs, and
+trait sets that reach it. **Reference points** describe the cost of a kilo of cells, each by its traits and the plant and process
+around it: Published cells grown in batches (what has been shown), Selected cells in perfusion, Engineered cells, all favourable,
+Humbird's optimistic design and the process one company reports. Each is a preset of eleven switches, and each states what has to
+go right for it. See [RESULTS.md](RESULTS.md) and the page.
 Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $12.8, with the filter loop and the protectant counted.
 The model keeps it as a labelled comparison, not a limit.
 
