@@ -87,20 +87,22 @@ litre thrown away.
 | 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
 | 7. Plus everything else at its favourable end (the Engineered cells, all favourable case) | **$11.46** | $11.46 | $11.46 | $11.46 | $11.46 | $10.53 | $11.11 | $8.74 |
 
-**The published cells: this conclusion reversed.** Before the audit batch they used 28 litres, 22 of which left with the
-harvested cells (the culture is thin, 46 g/L), so little passed the filter and reuse was capped at $4.6. Their glucose now comes
-from their own balance. At a lactate yield of 1.05 they take up 4.5 mol of glucose a kilo and make 4.8 mol of lactate, so lactate
-sets their medium at 95.5 litres, of which 74 pass the filter. Reuse is now worth more here than anywhere:
+**The published cells: this conclusion reversed.** (Since the 2026-11-19 restructure the published cells are priced in perfusion as
+the cautious scenario, whose switches are the old rung 1's, with the tank tricks: $92.17 with no reuse, at 120 g/L. Rung 1 of the
+ladder is now a batch, which has no permeate to clean.) Before the audit batch they used 28 litres, 22 of which left with the
+harvested cells, so little passed the filter and reuse was capped at $4.6. Their glucose now comes from their own balance. At a
+lactate yield of 1.05 they take up 4.5 mol of glucose a kilo and make 4.8 mol of lactate, so lactate sets their medium at 95.5
+litres, of which 87 pass the filter. Reuse is worth more here than anywhere:
 
 - An ammonium exchanger saves nothing. Ammonia asks for only 35 litres; lactate sets the 95.5.
-- Electrodialysis of the permeate, which takes lactate too, saves $23.6 (to $88.27).
-- Dialysis of the permeate with a cleaned dialysate saves $12.6; across the culture, $16.7 at the filter's cost and $34.8 at
-  twice the filter's clearance (to $77.13).
-- A perfect, free device saves $27.0 on the permeate and $59.5 across the culture.
+- Electrodialysis of the permeate, which takes lactate too, saves $24.1 (to $68.05).
+- Dialysis of the permeate with a cleaned dialysate saves $13.7; across the culture, $18.6 at the filter's cost and $39.9 at
+  twice the filter's clearance (to $52.32).
+- A perfect, free device saves $30.7 on the permeate and $69.0 across the culture.
 
-These rest on the same unmeasured inputs as Central's, at three times the litres: 99% of the lactate taken in a pass
+These rest on the same unmeasured inputs as the Selected cells case's, at three times the litres: 99% of the lactate taken in a pass
 (`mr_ed_lac`, a figure cited second-hand), and growth factors that survive. And the best route modelled still leaves the
-published cells at $77, against $32.80 for Central's cells with no device. Cells that make less lactate do more than any device.
+published cells at $52, against $32.80 for the selected cells with no device. Cells that make less lactate do more than any device.
 
 In the best case the engineered cells make so little waste that reuse is worth at most $2.7 (a perfect, free device across the
 culture); of the routes modelled only dialysis across the culture at twice the filter's clearance saves anything ($0.9).
@@ -193,9 +195,9 @@ half, which is worse than no exchanger, and $31.06 at the best share (38%).
 - Reuse and a cheaper cell filter attack the same $0.44 a litre. A filter that lasts longer makes permeate-side reuse better and
   the across-the-culture route less necessary. The two should be studied together.
 - Reuse does not replace cells that make less waste: the best case gets to 14 L/kg with no device at all, and Central's cells
-  cost $32.80 with no device where the published cells cost $77 with the best route modelled.
-- For the published cells the model now puts $13–35 on a route that takes lactate. I have not put odds on it. It needs the
-  lactate removal the citation claims, held over many passes at 74 litres filtered per kilo.
+  cost $32.80 with no device where the published cells cost $52 with the best route modelled.
+- For the published cells the model now puts $14–40 on a route that takes lactate. I have not put odds on it. It needs the
+  lactate removal the citation claims, held over many passes at 87 litres filtered per kilo.
 
 ## 9. What would settle it
 

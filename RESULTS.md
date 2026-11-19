@@ -225,7 +225,7 @@ what the rows differ in.
   case and 70 g in the Selected cells case, which needs 35 litres of medium a kilo. That is $0.7, $0.8 and $2.1 a kilo at the assumed $30 a kilo
   of protectant, or $5.8, $7.2 and $18 at the catalogue price ($260). A bulk quote would settle it.
 - **Company cost claims are operating cost, and the scenarios include the plant.** On operating cost alone the central cells cost
-  $13.4–13.7 a kilo in a tank run as Vow runs its 20 m³ tank. That is inside the $10–15 an investor reports for several
+  $18.8–19.1 a kilo in a tank run as Vow runs its 20 m³ tank, a little above the $10–15 an investor reports for several
   companies. The plant charge is the difference (section 1, "Against what companies report").
 - **No scenario reaches price parity.** Parity with $12 meat needs $6.1 a kilo of cells ($2.5 a kilo to reach the shelf and the
   shop's 28% margin). The Engineered cells, all favourable case costs $11.5 at most likely values and $11–20 across 8 in 10 draws; none of its 4,000 draws is
@@ -249,7 +249,7 @@ what the rows differ in.
   has peer reviewed it. With its cost and demand both drawn, the share is 0.17% of world meat and seafood (median; 8 in 10 draws
   0.04–0.8%), and 0.14% at the reported cost itself (0.4% in the US). Beef steaks are 32% of those sales, premium fish and shrimp
   14%, pork cuts 9%, chicken cuts 7%, and prime beef and sushi-grade fish 6% each.
-- **Where.** In Selected cells, mostly beef and premium fish: beef is 44% of sales and seafood 26%. Pork is 11% and chicken 8%, sold to
+- **Where.** In the Selected cells case, mostly beef and premium fish: beef is 44% of sales and seafood 26%. Pork is 11% and chicken 8%, sold to
   the few shoppers who like cultivated meat enough to pay about five times the price of the cut beside it. A third of Selected cells'
   sales are of products at more than four times the price of their meat. That rests on the far tail of the spread of liking,
   which is an extrapolation: the premium meats it was fitted to stop at 3.6 times. In the
@@ -483,9 +483,10 @@ pharma-style rows use it. His own report gives the food-processing sector's cost
 20-year life for a yeast plant; that makes the charge 17.3%. The scenarios are long-run cases set
 against meat, a mature industry, so they use 17.3%. It is worth $2.3/kg in Humbird's optimistic design.
 
-**How the tank is run matters less than the plant and the cells.** Perfusion is worth about $6/kg in Humbird's optimistic design
-against tanks that are drained and refilled (the vessel grid below). Removing clean rooms saves about a tenth of the plant cost.
-A plant as cheap as a yeast plant cuts the design's cost by about a third.
+**How the tank is run matters as much as anything but the cells.** Perfusion is worth about $6/kg in Humbird's optimistic design
+against tanks that are drained and refilled (the vessel grid below), and $32.1 with the Selected cells case's switches, whose batch
+is held at 37 g/L by the waste mass balance. The plant-cost axis below compares the two modes on the same assumptions. Removing
+clean rooms saves about a tenth of the plant cost. A plant as cheap as a yeast plant cuts the design's cost by about a third.
 
 The medium and the plant matter most. No single lever reaches parity on its own. From the reported cost (R = 4.27): the plant
 cost of Humbird's optimistic design gives R ≈ 3.30, medium at $0.20/L 3.21, and efficient cells 2.94.
@@ -637,6 +638,9 @@ combination of the tank options the model has, 144 designs a scenario, keeping t
 | 6. Engineered cells | $19.49 (96 g/L, CO₂) | $16.86 | $16.39 (258 g/L, thickness; 4 unproven) | $16.19 (258 g/L, thickness; 2 unproven) | **$15.99** (258 g/L) |
 | 7. Engineered cells, all favourable | $12.03 (120 g/L, CO₂) | $11.46 | $11.40 (258 g/L, thickness; 4 unproven) | $11.28 (258 g/L, thickness; 3 unproven) | **$11.13** (258 g/L) |
 
+- **The search covers the cases run in perfusion** (since 2026-11-19). Rungs 1–3 of the ladder are batches held by their waste,
+  which no tank design moves; the published cells are searched in perfusion as the cautious scenario, which has the old rung 1's
+  switches.
 - **Tank design matters most for the published cells:** $27 a kilo between the ordinary tank and perfect gas exchange ($111.89 to
   $84.85). The cheapest designs for these cells ($64.94 and $61.78) are below that ideal, because the search also lets the cells
   take their fat from the feed, which cuts their glucose, their lactate and so their medium, from 95 to 66 litres a kilo. From
@@ -645,7 +649,7 @@ combination of the tank options the model has, 144 designs a scenario, keeping t
   bar. Each needs two to five elements nobody has run with animal cells. The cage's numbers are judgements.
 - **The search found one free improvement, and the scenarios now use it:** holding dissolved oxygen at half of air saturation, as
   pharma does. It is worth $0.5 a kilo in the Selected cells case.
-- **After the gas limits, the litres of medium are what is left.** In Selected cells perfect gas exchange saves $2.1 a kilo; medium at the
+- **After the gas limits, the litres of medium are what is left.** In the Selected cells case perfect gas exchange saves $2.1 a kilo; medium at the
   least the physics allows saves $18.6. Tables and method: `research_notes/design_space.md`.
 
 ### Cleaning and reusing the medium (`medium_reuse.py`)
@@ -689,9 +693,9 @@ filter too.
 - **Cleaning across the culture is worth more, and is less proven:** $2.3 if the exchange membrane costs what the cell filter
   does, $8.9 (to $23.88) if it clears twice the litres per m², as a haemodialyser does on blood for a few hours. The limit
   is $17.7.
-- **For the published cells the waste is lactate, and the routes differ.** An ammonium exchanger saves them nothing.
-  Electrodialysis, which also takes lactate, saves $23.6, and the best route $34.8. That still leaves them at $77, against
-  Selected cells' $32.80 with no reuse.
+- **For the published cells the waste is lactate, and the routes differ.** Priced in perfusion (the cautious scenario, $92.17; rung
+  1 is a batch with nothing to reuse), an ammonium exchanger saves them nothing. Electrodialysis, which also takes lactate, saves
+  $24.1, and the best route modelled $39.9. That still leaves them at $52, against the Selected cells case's $32.80 with no reuse.
 - **The evidence is thin.** Electrodialysis took over 90% of ammonium and 99% of lactate from medium in one report, cited in a
   book and not found; dialysis held a dense CHO culture for 10 days at the bench; a reused dialysate exists only in patent claims.
   The cost of electrodialysis per litre is my arithmetic. What these devices do to growth factors and nutrients over many passes
@@ -703,13 +707,14 @@ filter too.
 
 ### If perfusion cannot be run at 20 m³
 
-Every scenario uses a perfusion tank, which nobody has run above about 4 m³. Without cell retention a tank is capped by waste.
-Ammonia or lactate, whichever is further above the engineered cells' level, sets the cap. The Selected cells case costs **$44–48** a kilo in a
-stirred tank in fed-batch or fill-and-draw at the model's own cap (56 g/L), and **$88–96** at the 27 g/L reported for meat cells
-at 20 m³, against $32.80 in perfusion. The Engineered cells, all favourable case goes from $11.46 to $14.18 (or $39). The food-grade plant with shared medium
-cushions it most: $29.94 to $30.59. The published cells stop at 25 g/L unwashed, because of their lactate. We put about 65% on
-perfusion failing at 20 m³ for the Engineered cells, all favourable case and Selected cells; that was judged at 258 g/L and has not been judged again at Selected cells'
-191 g/L (`research_notes/no_perfusion_downside.md`).
+The Selected cells case and the rungs above it use a perfusion tank, which nobody has run above about 4 m³. Without cell
+retention a tank is held by the waste mass balance: its density is at most 1.3 times the waste level perfusion is held to, over the
+waste a kilo makes. The Selected cells case costs **$65–71** a kilo in a stirred tank in fed-batch or fill-and-draw at that cap
+(37 g/L), and **$88–96** at the 27 g/L reported for meat cells at 20 m³, against $32.80 in perfusion. Engineered cells, all
+favourable goes from $11.46 to $14.37–15.64 (or $40–44 at 27 g/L). The food-grade plant with shared medium cushions it most:
+$29.94 to $47.94 (fill-and-draw, which keeps its two small seed trains). The published cells stop at 14 g/L unwashed, because of
+their lactate. Re-judged at the Selected cells case's 191 g/L, a filter holding the culture for a month is about 45% possible, and
+about 20% in production by 2035 (`research_notes/no_perfusion_downside.md`; the forecast above uses these odds).
 
 ### Against what companies report (`industry_claims.py`)
 
@@ -745,17 +750,20 @@ scenario cost here includes a yearly charge on the plant. Split the same way:
 
 Reading it (company figures are claims; none has been audited):
 
-- **On operating cost the model agrees with what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several companies,
-  some below $10. The Selected cells case's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost $13.4–13.7 a kilo to operate. With
-  engineered cells in perfusion the operating cost is $12.6, and the Engineered cells, all favourable case $9.3. Selected cells itself, in perfusion, costs $25.1
-  to operate, half of it filter membranes.
-- **The difference is the plant.** A tank drained and refilled at 56 g/L makes little in a year, so the plant charge is $10–36 a kilo
-  depending on what the plant costs. Company COGS leave this out. Gourmey's €7/kg does not say whether it includes it.
+- **On operating cost the model is a little above what companies claim.** Lever VC reports $10–15 a kilo of cell mass for several
+  companies, some below $10. The Selected cells case's cells in a tank drained and refilled, as Vow runs its 20 m³ tank, cost
+  $18.8–19.1 a kilo to operate (it was $13.4–13.7 before the waste mass balance of 2026-11-19: a batch held at 37 g/L, not 56,
+  spreads the crew over fewer kilos). With engineered cells in perfusion the operating cost is $12.6, and Engineered cells, all
+  favourable $9.3. The Selected cells case itself, in perfusion, costs $25.1 to operate, half of it filter membranes. Cells that make
+  less waste than the selected ones, or a batch run to higher waste levels, would bring the batch's figure into the investor's range.
+- **The difference is the plant.** A tank drained and refilled at 37 g/L makes little in a year, so the plant charge is $16–55 a
+  kilo depending on what the plant costs. Company COGS leave this out. Gourmey's €7/kg does not say whether it includes it.
 - **The plant's price is the number most worth checking against industry.** In a plant built like a yeast plant with what animal
-  cells need ($246k per m³), the Selected cells case's cells drained and refilled cost $24.1, below the Selected cells case in perfusion ($32.8) and with no filter
-  to hold the cells back. Nobody has published what such a plant costs to build for animal cells; Vow says its 20 m³ vessel cost
-  well under $1 million, without saying whether piping and installation are in that.
-- **The density is the other open number.** The 56 g/L above is the model's waste limit for these cells. At the 27 g/L reported for
+  cells need ($246k per m³), the Selected cells case's cells drained and refilled cost $34.8, just above the Selected cells case in
+  perfusion ($32.8), with no filter to hold the cells back. Before the mass balance this route came out below perfusion. Nobody has
+  published what such a plant costs to build for animal cells; Vow says its 20 m³ vessel cost well under $1 million, without saying
+  whether piping and installation are in that.
+- **The density is the other open number.** The 37 g/L above is the model's waste limit for these cells. At the 27 g/L reported for
   meat cells at 20 m³ the same cases cost $47–99 a kilo, $25 of it operating cost.
 
 ### Vessel types and operating modes
@@ -772,14 +780,14 @@ those two and holds the rest (research_notes/vessels_and_modes.md has both grids
 | Packed bed, 65 L | 3,730 | as batch | not possible | not possible | 3,726 |
 | Hollow fibres, 0.5 L | 610,043 | as batch | not possible | not possible | 610,039 |
 
-In Selected cells the stirred tank costs $98.86, $45.81, $49.51, $87.51 and $32.80 across the same modes. Perfusion
+In the Selected cells case the stirred tank costs $98.86, $67.42, $73.40, $112.62 and $32.80 across the same modes (with the perfusion tank's design held; the waste mass balance since 2026-11-19). Perfusion
 includes the filter loop that holds the cells back (`retention.py`); the other modes need no such device.
 
 - Perfusion is the cheapest mode in both settings, in a stirred tank ($12.81 and $32.80) or in one with a bubble cage ($11.38
   and $31.19). Nobody has run animal cells in perfusion above about 4 m3, and nobody has run the cage with cells in suspension.
-- Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $19 in Humbird's optimistic design and $46-50 in the Selected cells case.
-  The central cells make more ammonia, and a culture that is not washed out stops at 56 g/L. These costs assume
-  56-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
+- Fed-batch and fill-and-draw, which run at 20 m3 today, cost about $19 in Humbird's optimistic design and $67-73 in the Selected cells case.
+  The selected cells make more ammonia, and a culture that is not washed out stops at 37 g/L, 1.3 times the waste level perfusion is
+  held to. These costs assume 37-92 g of cells a litre. Nobody has shown that density for meat cells at this size: the one 20 m3 plant for meat cells
   reports harvests of about 27 g/L.
 - An airlift costs about what a stirred tank costs when waste is not washed out. In perfusion its tall shape clears less CO2.
 - A stirred tank with a bubble cage (Pablo's design, 2026-11-16): an inner cylinder of fine mesh holds a strong sparger, and the cells
@@ -1088,13 +1096,14 @@ assumed, not estimated; history puts the chance of a stall at roughly one in thr
 
 Costs here are at most likely values. The swings are from "What the answer rests on" and "What decides it" in the Summary.
 
-1. **Cells that make less lactate and ammonia, and still grow fast.** This is the ladder's largest step: $43.9 a kilo, from $76.7
-   to $32.8, almost all of it from lower lactate. Engineered cells are worth another $13.4 from the Selected cells case. Low waste and fast growth
+1. **Cells that make less lactate and ammonia, and still grow fast.** This is the ladder's largest step: $136.5 a kilo in a 20 m³
+   batch, from $201.4 to $64.9, almost all of it from lower lactate ($126.4); in perfusion it would be $43.9. Engineered cells are worth another $13.4 from the Selected cells case. Low waste and fast growth
    have each been shown, never together in one culture. A culture that does both, with the glucose taken up and the lactate and
    ammonia made reported per kilo of real cells, is the single most useful measurement. The published cells' glucose is derived
    from their energy balance here, because nobody has reported it on the low-waste feed.
 2. **A way to hold cells back in large tanks, and a filter that lasts.** Nobody has run animal cells in perfusion above about
-   4 m³. Every scenario prices a hollow-fibre filter loop whose membranes have never filtered a culture this thick for a month.
+   4 m³. It is worth $32.1 a kilo with selected cells (the ladder's rung 3 to 4), and it decides the forecast: only about 3 draws in
+   10 hold the cells back. Every scenario from the Selected cells case on prices a hollow-fibre filter loop whose membranes have never filtered a culture this thick for a month.
    Membranes are Selected cells' largest cost ($12.8 of $32.8), and the filter's life moves Selected cells between $29 and $76. A weeks-long
    run at high density, and a price for a food-grade membrane, would settle most of it.
 3. **The two ammonia numbers:** how much ammonia meat cells tolerate at density ($23 to $57 in the Selected cells case across its range) and how
@@ -1103,7 +1112,7 @@ Costs here are at most likely values. The swings are from "What the answer rests
    medium, on a stated mass basis. Medium at $0.50 adds $10.7 to the Selected cells case. A tonne quote for poloxamer 188 would settle $31 to $39.
 5. **Tank tricks that clear CO₂ without bubbles** (a column on a pumped loop, pressure, recycled oxygen) and **the gas flow cells
    tolerate:** calculated, never tried with meat cells. Without the tricks the Selected cells case costs $3.5 more in a tank of the same shape and
-   $6.4 more in the ordinary tall tank. For the published cells they are worth $18.7.
+   $6.4 more in the ordinary tall tank. For the published cells in perfusion they are worth $18.7; in a batch, nothing.
 6. **A cheaper class of plant for animal cells:** a food-grade plant with shared medium (no clean room, shared medium line, bought
    oxygen) is worth $2.9 a kilo in the Selected cells case, and nobody has built one. A plant as cheap as a yeast plant is not counted: nothing
    shows animal cells can be grown that way.
@@ -1114,7 +1123,8 @@ Costs here are at most likely values. The swings are from "What the answer rests
    fillet can be mostly suspension-grown cells, with the texture of meat, sets most of what a cut costs and how shoppers see it.
    Across the cell share's range Selected cells' share runs from 0.1% to 0.5%. The cost of assembling a cut is unmeasured too ($0.5–7
    a kilo beyond mince).
-9. **How shoppers respond once they can buy it:** the share at equal price is a judgement (13%, drawn between 3% and 52%). The
+9. **How shoppers respond once they can buy it:** the share at equal price is a judgement (14.5% of meat buyers, 13% of all
+   choices, drawn between 3% and 52% of all choices). The
    spread of liking is fitted to one choice experiment, sixteen premium meats and farmed salmon, and it decides both ends of the answer: its
    tail gives Selected cells its sales and its middle sets the Engineered cells, all favourable case. Repeat-purchase data from the first markets, at known prices,
    would replace both.
@@ -1139,12 +1149,13 @@ numbers do not add up (METHODS.md, "Back-test against reported runs").
 
 ## 7. What would change the conclusions
 
-- **Up:** a meat-cell line shown to make little lactate and ammonia while doubling in 36 hours or less, with a full mass balance;
+- **Up:** a meat-cell line shown to make little lactate and ammonia while doubling in 36 hours or less, with a full mass balance
+  (it would also lift the forecast, most of whose draws are batches held by their waste);
   perfusion at 20 m³ with a filter that lasts a month in a dense culture, or a cheaper way to hold cells back; medium at
   $0.20 a litre or less confirmed at scale with its growth factors; animal cells grown in a plant built like a microbial
   fermentation plant; shoppers who come to favour cultivated meat, which is worth more than any cost in the Engineered cells, all favourable case.
 - **Down:** a filter life near the evidence note's median (1,500 L/m²) with membranes still at pharma prices (Selected cells $53.8);
-  cells that tolerate 2 mmol/L of ammonia, not 4 (Selected cells $57.4); perfusion failing at 20 m³ (Selected cells $44–96); cuts that cannot
+  cells that tolerate 2 mmol/L of ammonia, not 4 (Selected cells $57.4); perfusion failing at 20 m³ (the Selected cells case $65–96); cuts that cannot
   be mostly cells; frequent contamination with slow restarts (METHODS.md, "Losing runs"); the reported figures not surviving
   review or scale-up.
 - **Demand is the weakest part, at both ends.** The share at equal price is a judgement with no sales data behind it. The spread
@@ -1158,7 +1169,7 @@ numbers do not add up (METHODS.md, "Back-test against reported runs").
   10-year depreciation period (20 years would add $8/kg). The scenarios' plant costs are one engineer's design
   (Humbird 2021) in 2025 prices. The ammonia the low-waste cells make is one paper's flask measurement (Hubalek 2023). None has
   been reproduced.
-- **The cells' glucose is derived, not measured.** The published cells' $112 follows from a lactate yield measured in chicken
+- **The cells' glucose is derived, not measured.** The published cells' $209 in a batch ($112 in perfusion) follows from a lactate yield measured in chicken
   cells and a glucose need computed from the model's own oxygen use. A cell on the low-waste feed may ferment less than that. A
   measured glucose and lactate balance for such a cell would move rows 1 and 2 by tens of dollars; the Selected cells case would not move unless
   its cells made more than about 0.6 mol of lactate per mol of glucose.

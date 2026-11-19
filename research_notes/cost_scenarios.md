@@ -12,13 +12,17 @@ Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_sc
 Inputs: `inputs.py`, the `sc_*` block (each with source, range, note). Every cost below is computed by `floor_physics.explore`; run
 `python scenarios.py` to reproduce this note's numbers and `python scenarios.py --markdown` for the table.
 
-## The ladder (2026-11-16)
+## The ladder (rebuilt 2026-11-19, scenario restructure)
 
-The page and RESULTS now lead with a ladder: each rung adds one kind of change to the one before, easiest first. Rungs 3 to 5 are
-exactly Central, Central with shared medium and the best case below, so the rest of this note stands. Rung 1 (`today`) is the
-cautious scenario's cells, plant, gas and prices with no tank tricks in the ordinary tall tank; rung 2 (`process`) adds the tricks,
-4 mm/s, a 14-day restart, growth factors at 30% and $0.20 medium. The cautious scenario is no longer on the page; `scenarios.ORDER`
-keeps it for the side studies. The forecast row is the author's median for each switch by 2035 (RESULTS, "The forecast").
+RESULTS leads with a forecast for 2035 drawn from the switches' odds (`scenarios.forecast_mc`), and the ladder explains it. The ladder
+starts from what has been shown and adds one kind of change per rung, likeliest first: 1. Published cells in a 20 m³ fed-batch (key
+`today`; fed-batch is what pharma runs and Upside Foods reports at 20 m³); 2. process changes and cheaper inputs, still a batch
+(`process`); 3. selected cells, still a batch (`selected`); 4. perfusion: the Selected cells case (`central`, unchanged); 5. the
+shared-medium plant (`central_lean`); 6. engineered cells (`engineered`); 7. everything else at its favourable end: Engineered cells,
+all favourable (`best`). A new switch, "How the tank is run", holds perfusion at 20 m³ or fed-batch at 20, 50 or 100 m³. A batch is held
+by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scenario keeps the published cells in perfusion
+(`scenarios.ORDER`). The forecast row is each switch at its median under the forecast's odds: a batch, since the cells are held back
+at 20 m³ with odds under a half.
 
 | scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | hardest thing it needs |
 |---|---|---|---|---|---|---|
@@ -33,10 +37,11 @@ keeps it for the side studies. The forecast row is the author's median for each 
 | Humbird's optimistic design: engineered cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.0%** (0.3–4.0%) | 2.2% | needs genetic engineering |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.04–0.8%) | 0.1% | a company's own report |
 
-What each step is worth, from `scenarios.run`: today's cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
+*History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
 (chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
 medium $2.87; together, with the tank design chosen again, $32.23, to $30.73. Selection then takes $1.31 off (Central $29.42), the
-plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66).
+plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66). *Now (2026-11-19, at most likely values):* $209.1,
+$201.4, $64.9, $32.8, $29.9, $16.9 and $11.5 for the seven rungs; the steps are in RESULTS.md, "The ladder".
 
 **Since 2026-11-16 every scenario holds dissolved oxygen at about half of air saturation** (`scenarios.always`, `sc_do_setpoint`), which
 took Central from $29.92 to $29.42 and let the best case reach the thickness limit with recycled oxygen and a squat tank ($9.66). **The

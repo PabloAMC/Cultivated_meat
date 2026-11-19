@@ -2,6 +2,11 @@
 
 > Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
 
+> 2026-11-19 (scenario restructure): rungs 1-3 of the ladder are now batches (fed-batch at 20 m³), held by their waste, which no tank
+> design moves, so the search covers the cases run in perfusion. The published cells are searched in perfusion as the cautious scenario
+> (the old rung 1's switches; same figures). The old rung 2 (published cells in perfusion with the process changes) is no longer a case;
+> its figures below are kept as history. Rung numbers in the text are the old ladder's.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -128,9 +133,9 @@ The cheapest design for each number of unproven elements:
 
 ## 4. What this says
 
-1. **The aim is reachable on paper, and it is worth little beyond rung 1.** Designs exist that leave only the thickness limit binding:
+1. **The aim is reachable on paper, and it is worth little beyond the published cells.** Designs exist that leave only the thickness limit binding:
    with a bubble cage and 1 bar of pressure (2–4 unproven elements), or without a cage at 2 bar (4–5; the published cells then reach
-   only 175 g/L). But from rung 2 on the scenario's own design is already within $1.1–2.2 of the ideal, and the best case within $0.3.
+   only 175 g/L). But for the selected and engineered cells the scenario's own design is already within $0.3–2.1 of the ideal, and the best case within $0.3.
 2. **For the published cells gas exchange is still worth $27 a kilo, but it is no longer what matters most.** Perfect gas exchange
    takes them from $111.89 to $84.85. Before the 2026-11-19 audit it took them from $56.99 to $28.82: the same dollars, then half
    the cost, now a quarter. A column and 1 bar of pressure give $92.17, which is $19.7 of it with two unproven elements. What changed
