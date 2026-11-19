@@ -18,10 +18,12 @@ import scenarios as S
 from inputs import value
 
 # $/kg of cells, each scenario's tank design held fixed, at other doubling times
+# 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (Central and Cautious lose their
+# growth-factor cost), Best's medium at the nutrient floor in place of $0.15 a litre
 GOLDEN_SCAN = {
-    "best": {16.0: 8.7272, 24.0: 9.6571, 43.0: 16.6972},
-    "central": {16.0: 25.0979, 24.0: 27.0127, 36.0: 29.4162, 43.0: 30.7296},
-    "cautious": {16.0: 33.0129, 36.0: 40.2097, 43.0: 42.3918},
+    "best": {16.0: 9.0304, 24.0: 9.9613, 43.0: 15.8043},
+    "central": {16.0: 22.1112, 24.0: 24.0261, 36.0: 26.4296, 43.0: 27.7430},
+    "cautious": {16.0: 27.0395, 36.0: 34.2364, 43.0: 36.4185},
 }
 
 def close(a, b, tol=1e-6):
@@ -127,8 +129,9 @@ def check() -> list:
             ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1834.2358),
             ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 5.1305),
             ("central reuse, full price", G.reuse("central")["full_reuse"], 1.9871),
-            ("central own, reuse", G.reuse("central")["own_reuse"], 0.5961),
-            ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 1.9183),
+            # 0 since 2026-11-19 (were 0.5961 and 1.9183): their complete media carry the growth factors in the price
+            ("central own, reuse", G.reuse("central")["own_reuse"], 0.0),
+            ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 0.0),
             ("bottom-up ATP per g wet", G.biosynthesis_atp()["wet"], 15.7986),
             ("energy limit at 2x, bottom-up", G.energy_limit(2.0)["doubling_h"], 9.1139),
             ("energy limit at 2x, model split", G.model_energy_limit(2.0)["doubling_h"], 8.0),

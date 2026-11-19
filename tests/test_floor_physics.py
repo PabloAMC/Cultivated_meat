@@ -69,10 +69,12 @@ def check() -> list:
         fails.append("capital per m3 should fall with vessel size")
 
     # --- pinned tier totals ($/kg of real wet cells, 2025 prices), quoted in METHODS.md ----------
-    want = {"Humbird fed-batch, as designed": 24.6, "Humbird perfusion, as designed": 45.5,
-            "Same fed-batch plant, small slow cells": 48.4, "Pharma-style plant, half the density": 35.6,
-            "Pharma-style plant, fill-and-draw": 19.4, "No clean rooms, fill-and-draw": 17.9,
-            "No clean rooms, perfusion": 14.84, "Microbial-fermentation-class plant": 8.52, "Rough lower bound": 3.2}
+    # repinned 2026-11-19: nutrient floor $1.70 -> $2.00 (+$0.30 in every tier); the rough lower bound's cheap amino acids
+    # ($1/kg) now multiply 0.232 kg of amino acids instead of 0.337 kg of hydrolysate (-$0.105)
+    want = {"Humbird fed-batch, as designed": 24.9, "Humbird perfusion, as designed": 45.78,
+            "Same fed-batch plant, small slow cells": 48.7, "Pharma-style plant, half the density": 35.91,
+            "Pharma-style plant, fill-and-draw": 19.71, "No clean rooms, fill-and-draw": 18.19,
+            "No clean rooms, perfusion": 15.14, "Microbial-fermentation-class plant": 8.82, "Rough lower bound": 3.08}
     got = {r["name"]: r["total"] for r in fp.tiers()}
     for name, w in want.items():
         if abs(got[name] - w) > 0.06:
@@ -100,7 +102,7 @@ def check() -> list:
     near("explore() = the floor tier", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-9)
     near("explore(plant='microbial') = the frontier tier", fp.explore(plant="microbial")["total"],
          by["Microbial-fermentation-class plant"]["total_mature"], 1e-9)
-    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 12.51, 1e-3)
+    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 12.81, 1e-3)   # 12.51 before the $2.00 floor
     for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
         if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):

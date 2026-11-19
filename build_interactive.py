@@ -937,7 +937,7 @@ _CASE_TEXT = {
     "Rough lower bound": (
         "A rough lower bound",
         "This is not a design. It combines the cheapest modelled fermentation plant, the density of a small tank, the most oxygen "
-        "animal cells are thought to take, and amino acids at half price.",
+        "animal cells are thought to take, and amino acids at about the price of soybean protein ($1 a kilo, against $6.36 for feed-grade amino acids).",
         "A rough bound"),
 }
 
@@ -1494,7 +1494,7 @@ After that it compares <b>vessels and ways of running a tank</b>. It ends with e
           <div class="ctl"><label><span class="nm">Waste the cells make</span><span class="val" id="fx_ws_v"></span></label>
             <input type="range" id="fx_ws" min="0" max="100" step="0.5" value="0" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Medium price</span><span class="val" id="fx_mp_v"></span></label>
-            <input type="range" id="fx_mp" min="0.1" max="1" step="0.01" value="0.15" oninput="fxRender()"></div>
+            <input type="range" id="fx_mp" min="0" max="1" step="0.01" value="0.15" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Share of the product that is cells</span><span class="val" id="fx_cs_v"></span></label>
             <input type="range" id="fx_cs" min="30" max="100" step="5" value="100" oninput="fxRender()"></div>
           <div class="ctl"><label><span class="nm">Growth factors bought</span><span class="val" id="fx_gf_v"></span></label>
@@ -4109,7 +4109,8 @@ function floorExplore(p,noSearch){
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
   let protectant=0;                                     // poloxamer leaves with every litre of a sparged tank's medium
   if((vm.o2_gas!==false||vm.co2_gas!==false)&&!vm.no_protectant){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
-  const feed=Math.max(eat,ml*mp)/(1-lost), gf=F.gf*ml/F.gf_litres*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
+  const gfPer=F.gf*ml/F.gf_litres, gf=gfPer*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
+  const feed=Math.max(eat+gfPer*(+p.gf_in_medium||0),ml*mp)/(1-lost);   // a complete medium cannot cost less than nutrients + its growth factors
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
@@ -4317,7 +4318,7 @@ function fxRender(){
   g("fx_rf_v").textContent=p.restart_fail.toFixed(0)+" days"; g("fx_pc_v").textContent=p.pco2.toFixed(0)+" mbar"; g("fx_gv_v").textContent=(p.gas_v*1000).toFixed(1)+" mm/s";
   g("fx_ar_v").textContent=p.aspect.toFixed(1); g("fx_os_v").textContent=p.osm_limit.toFixed(0)+" mOsm/kg";
   g("fx_ph_v").textContent=p.ph.toFixed(2); g("fx_mf_v").textContent=p.min_perfusion.toFixed(1)+" mL per g a day"; g("fx_ws_v").textContent=(p.waste*100).toFixed(0)+"% of the way to ordinary cells";
-  g("fx_gf_v").textContent=(p.growth_factors*100).toFixed(0)+"%"; g("fx_mp_v").textContent="$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
+  g("fx_gf_v").textContent=(p.growth_factors*100).toFixed(0)+"%"; g("fx_mp_v").textContent=p.medium_price<0.005?"at the nutrient floor":"$"+p.medium_price.toFixed(2)+" a litre"; g("fx_cs_v").textContent=(p.cell_share*100).toFixed(0)+"%";
   const r=floorExplore(p), def=MODEL.sliders.reduce((d,s)=>{d[s.key]=s.default;return d;},{});
   fxLast=r; { const m=document.getElementById("fx_apply_msg"); if(m) m.innerHTML=""; }
   const R=shelfPrice(r.product,def)/C.p_conv_anchor, blend=p.cell_share<1;

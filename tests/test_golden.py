@@ -92,7 +92,9 @@ GOLDEN = {
     # floor = physics-based (plant 11.5). biomass_base 24.0120 -> 29.4500, basic_R 2.41767 -> 2.87083,
     # cost_floor 7.7020 -> 13.2020. The demand calibration is UNCHANGED (anchor fixed at 29.012,
     # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
-    "cost_floor":          12.5020,
+    # 2026-11-19: nutrient floor $1.70 -> $2.00 (GFI feed-grade amino acids, research_notes/nutrient_floor.md): cost_floor
+    # 12.5020 -> 12.8035. Nothing else in this list moves: the default (reported) stack is above the floor.
+    "cost_floor":          12.8035,
     "biomass_base":        34.3500,
     # 2026-11-18: shelf price = (cost + $2.5) / (1 - 28% shop margin), was cost + $5 (research_notes/retail_markup_form.md).
     # basic_R 3.27917 -> 4.26505; US vol 0.584202 -> 0.233623, US val 1.7793 -> 0.80766, world vol 0.274195 -> 0.0914556.
@@ -244,12 +246,12 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−1.0"),
         ("elasticity at R=1.5",          elas(1.5),  "−1.8"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.2"),
-        ("reference cost $/kg",      cost_floor, "12.5"),
+        ("reference cost $/kg",      cost_floor, "12.8"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.0",
               "elasticity at R=1.5": "−1.8", "elasticity at R=2.42 (anchor)": "−3.2",
-              "reference cost $/kg": "12.5"}
+              "reference cost $/kg": "12.8"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

@@ -29,14 +29,16 @@ def check(ok: bool, msg: str) -> None:
 ref = S.reference()
 # since 2026-11-15 the reference prices its retention device as a TFF loop (retention.py): $11.84, not the old $11.48;
 # since 2026-11-15 (late) it also pays for the bubble protectant and loses a quarter of its oxygen transfer to antifoam: $12.51
-check(abs(ref["total"] - 12.5107) < 5e-3, f"reference cost {ref['total']:.4f} != 12.5107 (explore() defaults moved)")
+# since 2026-11-19 the nutrient floor is $2.00 (GFI feed-grade amino acids), not $1.70, and the reference's medium sits on it: $12.81
+check(abs(ref["total"] - 12.8122) < 5e-3, f"reference cost {ref['total']:.4f} != 12.8122 (explore() defaults moved)")
 check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "reference: 120 g/L limited by CO2 removal")
 
 # 2. the scenarios come out in order, with the numbers quoted in the docs
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-for k, (lo, hi) in {"best": (9.4, 9.9), "central": (29.0, 29.8), "central_lean": (26.2, 26.9), "cautious": (41.9, 42.9)}.items():
+# 2026-11-19: growth factors inside complete media prices (Central -$3.0), nutrient floor $2.00 (best +$0.30)
+for k, (lo, hi) in {"best": (9.7, 10.2), "central": (26.0, 26.8), "central_lean": (23.2, 23.9), "cautious": (36.0, 36.9)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs: the best case needs engineering, the central one does not

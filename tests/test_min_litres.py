@@ -13,11 +13,14 @@ import scenarios as S
 from inputs import REGISTRY, value
 
 # L/kg and $/kg at the bounds, per scenario (the scenarios' own costs are pinned in test_scenarios and test_golden)
+# 2026-11-19 repin: nutrient floor $1.70 -> $2.00 (+$0.30 wherever the floor binds); growth factors inside complete media
+# prices (Central's bounds fall, but a complete medium never costs less than its nutrients plus its growth factors,
+# gf_in_medium); Best's medium is now the nutrient floor, not $0.15 a litre (its bath bound falls $1.47)
 GOLDEN = {
-    "best": {"bath": (23.0754, 16.61), "physical": (5.8, 7.33), "practical": (5.8, 7.33), "measured_flow": (5.338, 7.13),
-             "no_waste": (10.8202, 9.51), "no_waste_low_flow": (8.0, 8.28)},
-    "central": {"bath": (25.1388, 27.28), "physical": (6.4134, 13.76), "practical": (8.007, 14.63), "measured_flow": (8.007, 14.63),
-                "no_waste": (16.2303, 20.63), "no_waste_low_flow": (8.007, 14.63)},
+    "best": {"bath": (23.0754, 15.141), "physical": (5.8, 7.631), "practical": (5.8, 7.631), "measured_flow": (5.338, 7.430),
+             "no_waste": (10.8202, 9.814), "no_waste_low_flow": (8.0, 8.588)},
+    "central": {"bath": (25.1388, 24.600), "physical": (6.4134, 14.087), "practical": (8.007, 14.954),
+                "measured_flow": (8.007, 14.954), "no_waste": (16.2303, 19.428), "no_waste_low_flow": (8.007, 14.954)},
 }
 
 def close(a, b, tol=2e-3):

@@ -1,5 +1,7 @@
 # Growth-factor prices and the fastest doubling time
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `gf_doubling_bounds.py`; tests: `tests/test_gf_doubling_bounds.py`; numbers: `inputs.py` (`gb_*`). Costs are 2025 dollars
@@ -16,13 +18,15 @@ judgement, not forecasts of the industry.
   $3,668 or $5,503. The Best case (11.2 L/kg) allows prices 2.5 times higher, and the cautious case (28 L/kg) needs the same prices as Central.
 - **What dominates.** Insulin and transferrin dominate the cost at Humbird's prices (72%), because the cells use grams of them. TGF-beta and FGF
   dominate the price gap: bought at the prices found, they are 3,000 to 16,000 times too dear for $1 a kilo, against 36 times for insulin.
-- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 28 to 5.6 per kilo in Central. At the model's own 30% price that saves
-  $2.39 of the $2.99. FGF2 that decays (half-life under 10 h) cuts that saving by about 15%. No source shows a filter that holds these proteins back in a
+- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 28 to 5.6 per kilo in Central. At Humbird's full price that saves
+  $7.97 of $9.96. In the model it now saves nothing in Central or the cautious case: since 2026-11-19 their media are complete, priced
+  with the growth factors in ($0.20 and $0.30 a litre), so the model charges no growth factors to save (it saved $2.39 of $2.99 in Central
+  when 30% of Humbird's price was bought on top). It applies only to a medium at the nutrient floor, with growth factors bought on top. FGF2 that decays (half-life under 10 h) cuts that saving by about 15%. No source shows a filter that holds these proteins back in a
   perfusion tank.
 - **Doubling time.** The energy and biosynthesis budget lets an animal cell double in about 8 to 9 h if it can burn twice the oxygen West's law gives
   at 24 h. The range is 5 to 13 h for 3 to 1.5 times. The ribosomes give a similar bound. So physics allows doubling far faster than any
   scenario assumes. Biology and waste, not energy, stop 24 h cells.
-- **Cost of speed.** Central costs $29.42 at 36 h, $27.01 at 24 h and $25.10 at 16 h. This changed: speed past 16 h no longer adds little. Central
+- **Cost of speed.** Central costs $26.43 at 36 h, $24.03 at 24 h and $22.11 at 16 h. This changed: speed past 16 h no longer adds little. Central
   saves another $3.08 from 16 h to 8 h, more than the $1.91 from 24 h to 16 h; oxygen supply now limits Central at every doubling time.
 
 ## 2. Growth factors
@@ -56,8 +60,9 @@ the budget as Humbird's prices do, so all four fall by the same fraction. "Alone
 | Central, $1, one protein alone | 1.84 | 3.34 | 357 | 17,857 | |
 | Humbird's price, 2025 dollars | 8.96 | 15.36 | 831 | 24,111 | 100% |
 
-Best buys no growth factors in the scenario; the Best rows say what it would take if it did. Central already assumes $2.99 and cautious $5.97, so
-cautious needs a price 2 to 6 times below its assumption to reach $1 to $3.
+Best buys no growth factors in the scenario; the Best rows say what it would take if it did. Central and cautious buy none on top either since
+2026-11-19: their complete media carry the growth factors in the litre price. Before, Central assumed $2.99 (30% of Humbird's price) and cautious
+$5.97 (60%), so cautious needed a price 2 to 6 times below its assumption to reach $1 to $3.
 
 GFI's three medium uses (8, 13, 42 L/kg) at $1 give, for insulin: $2.39, $1.47, $0.45 a gram; for transferrin $4.09, $2.52, $0.78. GFI's own targets
 (insulin and transferrin $1/g, growth factors $100/g; Table 1, FT) cost $0.45 a kilo at Best's litres and $1.13 at 28 L/kg. So the targets hold at 8 to 13 L/kg
@@ -99,7 +104,7 @@ A bulk protein made by microbes or in plants has a cost set by titre, recovery a
 Three readings.
 1. The price of a protein falls with its volume on Humbird's line (Eq. 3.4: log10 price = 4.90 - 0.861 log10 volume, $/kg and MT/y). A $1 kilo
    in Central needs insulin at about 335 t/y and transferrin at 180 t/y. That is 0.6 Mt of cells a year at 28 L/kg. FGF and TGF-beta need the same
-   volume, because the line has one slope for every protein. A $3 kilo needs 0.17 Mt (93 t/y of insulin); the model's own $2.99 sits at that scale. The
+   volume, because the line has one slope for every protein. A $3 kilo needs 0.17 Mt (93 t/y of insulin); the $2.99 Central assumed before 2026-11-19 sits at that scale. The
    world makes about 3 t a year of recombinant human insulin (Humbird footnote 113), so the demand is 30 to 100 times the whole insulin market.
 2. My transferrin model gives $0.3 to $0.9 a gram at 100 t/y. That is below the $1.17 Central needs for a $1 kilo and the $2.93 Best needs. At
    10 t/y it costs $1.9 a gram: enough for Best, not for Central. I have no bottom-up model for insulin, FGF or TGF-beta.
@@ -115,10 +120,13 @@ Three readings.
 | Scenario | Medium L/kg | Permeate L/kg (share) | Full price, no reuse | Full price, reuse | Scenario's own assumption, no reuse | With reuse |
 |---|---|---|---|---|---|---|
 | Best | 11.2 | 7.3 (65%) | $3.97 | $1.44 | $0 (none bought) | $0 |
-| Central | 28.0 | 22.8 (81%) | $9.96 | $1.99 | $2.99 | $0.60 |
-| Cautious | 28.0 | 19.7 (70%) | $9.96 | $3.20 | $5.97 | $1.92 |
+| Central | 28.0 | 22.8 (81%) | $9.96 | $1.99 | $0 (in the $0.20 medium) | $0 |
+| Cautious | 28.0 | 19.7 (70%) | $9.96 | $3.20 | $0 (in the $0.30 medium) | $0 |
 
-So reuse saves $2.39 of $2.99 in Central, $4.06 of $5.97 in the cautious case, and $2.53 if Best bought growth factors at Humbird's price.
+At Humbird's full price reuse saves $7.97 in Central, $6.76 in the cautious case and $2.53 in Best. Against the scenarios' own assumptions it
+saves nothing since 2026-11-19, because the growth factors are inside the complete media prices and not charged on their own. Before, it saved
+$2.39 of $2.99 in Central and $4.06 of $5.97 in the cautious case. Whatever share of a complete medium's price is growth factors would still be
+saved by such a filter, but the price does not say how much that share is, so the model cannot count it.
 
 Four limits on this number.
 - **Decay.** The tank holds a retained protein for 35 h (Best), 53 h (Central) or 64 h (cautious), the time the bleed takes to turn over the liquid.
@@ -195,16 +203,16 @@ Other limits sit outside this budget: DNA replication (S phase of 6 to 8 h in mo
 
 | Doubling time | Best | Central | Cautious |
 |---|---|---|---|
-| 8 h (beyond any meat cell shown) | 7.80 | 22.02 | 27.83 |
-| 12 h | 8.27 | 23.85 | 30.92 |
-| 16 h | 8.73 | 25.10 | 33.01 |
-| 20 h | 9.18 | 26.11 | 34.71 |
-| 24 h | **9.66** (own) | 27.01 | 36.21 |
-| 30 h | 11.73 | 28.25 | 38.27 |
-| 36 h | 14.03 | **29.42** (own) | 40.21 |
-| 43 h | 16.70 | 30.73 | **42.39** (own) |
+| 8 h (beyond any meat cell shown) | 8.10 | 19.03 | 21.86 |
+| 12 h | 8.57 | 20.86 | 24.95 |
+| 16 h | 9.03 | 22.11 | 27.04 |
+| 20 h | 9.49 | 23.13 | 28.74 |
+| 24 h | **9.96** (own) | 24.03 | 30.24 |
+| 30 h | 11.72 | 25.26 | 32.30 |
+| 36 h | 13.61 | **26.43** (own) | 34.24 |
+| 43 h | 15.80 | 27.74 | **36.42** (own) |
 
-- Central saves $2.41 from 36 h to 24 h, $4.32 to 16 h and $7.40 to 8 h. Best saves $0.93 from 24 h to 16 h.
+- Central saves $2.40 from 36 h to 24 h, $4.32 to 16 h and $7.40 to 8 h. Best saves $0.93 from 24 h to 16 h.
 - Medium does not shrink with speed. Ammonia sets Central's 28 L/kg whatever the doubling time. Capital and labour fall instead.
 - Oxygen supply now binds Central and cautious at every doubling time, so their density falls with speed: Central from 204 g/L (43 h) and 191 (36 h, own) to
   159 at 24 h, 127 at 16 h and 80 at 8 h; cautious from 120 (43 h) to 75 (16 h) and 47 g/L (8 h). Best holds 258 g/L down to 8 h; the thickness of the culture
@@ -231,7 +239,7 @@ Other limits sit outside this budget: DNA replication (S phase of 6 to 8 h in mo
 | All four at the prices that give Central $3 a kilo at 28 L/kg, at a scale of 0.2 Mt of cells a year | 55% |
 | ... $1 a kilo (0.6 Mt of cells a year) | 25% |
 | Cultivated meat reaches 0.2 Mt a year by 2040 | 8% |
-| A filter that holds back insulin and transferrin cuts Central's growth-factor cost by half or more at 20 m3 | 20% |
+| A filter that holds back insulin and transferrin cuts Central's growth-factor cost by half or more at 20 m3 (the cost of the proteins, wherever it is charged; the model now charges it inside the medium's price) | 20% |
 | ... by a quarter or more | 30% |
 
 The doubling-time odds are for the speed alone. The scenario notes (`inputs.py`, `sc_td_central`) put about 10% on 24 h together with ammonia at or below
@@ -243,8 +251,9 @@ industry will reach that scale, which is the last-but-one row.
 - A measured price of insulin or transferrin at 100 t/y or more (a quote or a plant cost). It would replace my transferrin model and fill the insulin gap.
 - A measurement of growth-factor retention and decay in a perfusion culture of meat cells. It would settle section 2.5.
 - Oxygen uptake of a fast cultivated-meat line (GFI names this a data gap). It would replace the 2x scope with a measurement.
-- The Humbird gap (section 2.1): either his 8.65 L/kg or the model's 11.2 sets the price per litre. Using his per-litre price would change Central's growth-factor cost
-  from $2.99 to $3.94. It was not moved here.
+- The Humbird gap (section 2.1): either his 8.65 L/kg or the model's 11.2 sets the price per litre. Using his per-litre price would change a growth-factor cost of 30%
+  of his price at 28 L/kg from $2.99 to $3.94. It was not moved here. Since 2026-11-19 it moves only a medium at the nutrient floor, the one
+  setting that buys growth factors on top.
 
 ## 6. Sources
 

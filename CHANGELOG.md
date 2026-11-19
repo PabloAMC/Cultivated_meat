@@ -2,6 +2,24 @@
 
 ## 2026-11-19
 
+**The medium: growth factors inside announced prices, the nutrient floor from GFI, simpler settings** (`inputs.py`, `scenarios.py`,
+`floor_physics.py`, `research_notes/nutrient_floor.md` §6, `research_notes/growth_factors_in_medium_price.md`; **defaults changed**)
+- Growth factors: announced and reported medium prices ($0.20, $0.30, $0.50 a litre) are complete media with growth factors inside
+  (about 0.85 likely); `sc_medium_complete` is on. A complete medium cannot cost less than the nutrients plus its growth factors
+  (`explore(gf_in_medium=...)`; found while repinning: without it, a culture under about 20 litres a kilo got its growth factors free).
+- The nutrient floor: $1.70 -> **$2.00** a kilo of cells (Pablo, following GFI). Amino acids 232 g at $6.36 a kilo (GFI December 2025,
+  feed grade, the most efficient need) in place of soy hydrolysate, which cannot supply glutamine, arginine, asparagine, cystine
+  or serine; other nutrients $0.40 (was $0.90, assumed). The amino-acid price is drawn in the scenarios' bands ($5.0-11.6).
+- The medium switch: $0.05 and $0.15 a litre dropped; new setting "at the nutrient floor" (growth factors bought on top). The best case
+  takes it; the forecast takes $0.20.
+- Costs: Central $29.42 -> **$26.43** (0.13% of world meat at the point cost, median 0.14%); best case $9.66 -> **$9.96** (21.4%,
+  median 11.5%; 2.7% with Central's demand); rung 4 $26.56 -> $23.57; today $62.96 -> $56.99; forecast $24.80 -> $23.24; Humbird's
+  optimistic design $12.51 -> $12.81.
+- What changed in the side studies: the best case no longer reaches parity by learning ($6.49 against $6.14; was $6.17); Central's
+  resting point is $15.83 and 0.86%. Cleaning the permeate is worth $0.5-1.7 a kilo in Central (was $2-4), because a litre saved no
+  longer saves bought growth factors. The physical frontier is $7.16 (was $6.86), about $1 above parity. Every cost study repinned
+  (notes carry a dated line). Parity was quoted as "$7" in places; it is $6.1 under the shelf rule.
+
 **The best case takes the favourable end of demand too** (`inputs.best_equal_price_share`, `scenarios.py`; **default changed for the
 best case only**)
 - Pablo: "best" should mean the favourable end of every uncertain input, and demand is one of them; the precedents for distrusted

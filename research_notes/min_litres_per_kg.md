@@ -1,5 +1,7 @@
 # The least medium per kg of cells that physics allows
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Compiled 2026-11-15. Code: `min_litres.py` (bounds and costs), `tests/test_min_litres.py`. New inputs: `ml_*` in `inputs.py`. No default moved. Costs are 2025 dollars per kg of wet cells; every scenario is a 20 m3 stirred tank in perfusion with a TFF loop.
@@ -36,18 +38,18 @@ Central's litres are set by ammonia alone. With zero waste and the default flow 
 
 ## Cost at the bounds
 
-`explore(medium_l=...)` with each scenario's other settings held. Scenario costs as they stand: Best $9.66, Central $29.42.
+`explore(medium_l=...)` with each scenario's other settings held. Scenario costs as they stand: Best $9.96, Central $26.43.
 
 | Litres per kg | Best | Central |
 |---|---|---|
-| Bath, typical salts (23.1 / 25.1) | $16.61 | $27.28 |
-| Zero waste, default flow (10.8 / 16.2) | $9.51 | $20.63 |
-| Model's litres (11.2 / 28.0) | $9.66 | $29.42 |
-| Physical floor, 100 g/L feed (5.8 / 6.4) | $7.33 | $13.76 |
-| Lowest measured flow (5.3 / 8.0) | $7.13 | $14.63 |
-| Zero waste, lowest measured flow, model floor of 8 L/kg | $8.28 | $14.63 |
+| Bath, typical salts (23.1 / 25.1) | $15.14 | $24.60 |
+| Zero waste, default flow (10.8 / 16.2) | $9.81 | $19.43 |
+| Model's litres (11.2 / 28.0) | $9.96 | $26.43 |
+| Physical floor, 100 g/L feed (5.8 / 6.4) | $7.63 | $14.09 |
+| Lowest measured flow (5.3 / 8.0) | $7.43 | $14.95 |
+| Zero waste, lowest measured flow, model floor of 8 L/kg | $8.59 | $14.95 |
 
-Best gains $2.33 at its floor. Central gains $14.79 at 8 L/kg, mostly in medium ($5.72 to $1.76 of feedstock) and the filter loop ($8.33 of membranes to $1.01). Central at 11 L/kg costs $16.73 (INF, same call). These costs assume the waste fits in the litres; at 5.8 L/kg that needs ammonia at or below 0.029 mol/kg and a lactate yield at or below 0.16.
+Best gains $2.33 at its floor. Central gains $11.48 at 8 L/kg, mostly in medium ($5.72 to $2.95 of feedstock: below about 22 L/kg the $0.20 complete medium is charged its nutrients plus its growth factors) and the filter loop ($8.33 of membranes to $1.01). Central at 11 L/kg costs $16.58 (INF, same call). These costs assume the waste fits in the litres; at 5.8 L/kg that needs ammonia at or below 0.029 mol/kg and a lactate yield at or below 0.16.
 
 ## The four bounds
 

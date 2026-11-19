@@ -1,5 +1,7 @@
 # Cheaper ways to hold the cells back
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Research date: 2026-11-15. Code: `retention.py` (devices `reuse`, `dialyser`, `ceramic`); inputs `rt_reuse_*`, `rt_dial_*`,
@@ -11,7 +13,7 @@ full, and the report marks each one. No price comes from a quote. Costs are 2025
 
 After `retention_devices.md`, the model prices perfusion's retention as a TFF hollow-fibre loop. Its hardware is cheap. Its
 membranes are not: $1,450 per m², replaced after 3,960 litres, about $0.37 per litre of permeate. In the central case that is
-$8.3 of the $29.42 a kilo. Could membranes from other industries cut the cost per litre?
+$8.3 of the $26.43 a kilo. Could membranes from other industries cut the cost per litre?
 
 Prices differ enormously. The same polymers cost $3 to $150 per m² in dialysers and wastewater plants. The model's $1,450 is a
 price for small pharma volumes, not a floor set by materials. What decides the answer is how long a membrane lasts with cells at
@@ -19,13 +21,13 @@ price for small pharma volumes, not a floor set by materials. What decides the a
 
 ## 2. Results
 
-Central case, the culture at 191 g/L, 1.31 m³/h of permeate. The default TFF loop costs $29.42.
+Central case, the culture at 191 g/L, 1.31 m³/h of permeate. The default TFF loop costs $26.43.
 
 | Route | Membrane price | Membrane life | Central $/kg (range) | Reference / best | What has been shown |
 |---|---|---|---|---|---|
-| Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **23.83** (22.37–26.74) | 11.82 / 7.87 | no reuse data with animal cells; steam limits a module to about 10 cycles |
-| Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **21.26** (20.96–22.89) | 11.50 / 7.05 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |
-| Ceramic membranes, run as a slow TFF loop | $1,500/m² (500–3,000) | 40,000 L/m² (15,000–200,000) | **22.34** (21.04–29.56) | 11.63 / 7.39 | nothing with animal cells; beyond the density any filter has held |
+| Reused pharma modules | $1,450/m² | 12,000 L/m² (first run + 4 reuses) | **20.85** (19.38–23.75) | 12.12 / 8.17 | no reuse data with animal cells; steam limits a module to about 10 cycles |
+| Dialyser-grade hollow fibres, replaced often | $8/m² (3–14) | 1,000 L/m² (240–2,000) | **18.28** (17.98–19.91) | 11.80 / 7.35 | whole blood at 32–40% cells by volume, for hours; nothing with animal cells |
+| Ceramic membranes, run as a slow TFF loop | $1,500/m² (500–3,000) | 40,000 L/m² (15,000–200,000) | **19.35** (18.05–26.57) | 11.93 / 7.69 | nothing with animal cells; beyond the density any filter has held |
 | Wastewater membrane bioreactor | $11–150/m² | 10–16 years | not costed | | it cannot be steamed, is built for a quarter of the solids, and needs coarse bubbles in the culture |
 | Food and beverage hollow fibres | not found | 6–8 years in wine | not costed | | sanitised, not sterilised; fluids with under 1% solids |
 
@@ -64,8 +66,8 @@ The ranges move each route's own inputs together to their favourable and unfavou
 1. **The price of membranes is not the obstacle; their life is.** At $14 per m², a tenfold saving needs only about 400 litres per
    m² of life, 3 to 4 days at 5 litres per m² an hour. That is about what the pharma membranes in Veje 2024 reached before they
    fouled. No one has measured any of these routes with a culture this thick for a month.
-2. **If membranes did that, Central would fall from $29.42 to about $21 to $22.** That is near the old $21.63 that assumed
-   retention was free, but it rests on a 15% chance, and it leaves out extra capital that reusable systems need and that could
+2. **If membranes did that, Central would fall from $26.43 to about $19.** That is near the $18.64 of the hoped-for device that
+   assumed retention was free of membranes, but it rests on a 15% chance, and it leaves out extra capital that reusable systems need and that could
    not be priced.
 3. **The experiment that would settle it:** run dialyser fibres and a ceramic element on a small perfusion culture of a meat cell
    line at 10–25% cells by volume for 33 days. Measure flux against time, cells lost, and flux recovered after cleaning. This is

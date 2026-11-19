@@ -23,7 +23,8 @@ sys.path.insert(0, os.path.dirname(HERE))
 def check() -> list:
     """The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
     (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
-    run with those settings (floor_physics.BEFORE_FILTER_LOOP)."""
+    run with those settings (floor_physics.BEFORE_FILTER_LOOP). Repinned 2026-11-19 for the $2.00 nutrient floor: +$0.30 where the
+    floor binds, less where $0.15 a litre of medium already covered part of it (2 mm/s cells, fish cells)."""
     import retention
     import floor_physics
     with retention._with(floor_physics.BEFORE_FILTER_LOOP):
@@ -112,12 +113,12 @@ def _check() -> list:
     rb = ge.loop_design(190.0, sparge_velocity=us, buffer=b)
     near("note: CO2 per pass with the cells' buffer", rb["per_pass"], 1.71, 0.02)
     near("note: passes with the cells' buffer", rb["passes"], 7.4, 0.02)
-    near("note: floor with loop and cells' buffer", ge.floor_with_loop(buffer=ge.suspension_buffer(189.0))["total"], 8.95, 0.02)
+    near("note: floor with loop and cells' buffer", ge.floor_with_loop(buffer=ge.suspension_buffer(189.0))["total"], 9.25, 0.02)
     one_run = value("pf_run_days") / value("pf_uptime") / 365.0
-    near("note: silicone at $704, replaced each run", ge.floor_with_loop(cost_m2=704.0, life_y=one_run)["total"], 34.8, 0.02)
-    near("note: silicone at $704, 2 years", ge.floor_with_loop(cost_m2=704.0)["total"], 11.0, 0.02)
-    near("note: contactor at $160, 2 years", ge.floor_with_loop(cost_m2=160.0)["total"], 9.06, 0.02)
-    near("note: more gas, 12.5 mm/s (0.2 vvm)", fp.explore(gas_velocity=0.0125)["total"], 8.47, 0.02)
+    near("note: silicone at $704, replaced each run", ge.floor_with_loop(cost_m2=704.0, life_y=one_run)["total"], 35.06, 0.02)
+    near("note: silicone at $704, 2 years", ge.floor_with_loop(cost_m2=704.0)["total"], 11.32, 0.02)
+    near("note: contactor at $160, 2 years", ge.floor_with_loop(cost_m2=160.0)["total"], 9.36, 0.02)
+    near("note: more gas, 12.5 mm/s (0.2 vvm)", fp.explore(gas_velocity=0.0125)["total"], 8.77, 0.02)
     ac = ge.acid_side(190.0, 10.0)
     near("acid side: passes x per pass = load", ac["passes"] * ac["per_pass"], rb["co2_by_loop"], 1e-9)
     near("note: acid side, medium L/kg at 10 mmol/L", ac["medium_l"], 84.0, 0.02)
@@ -151,13 +152,13 @@ def _check() -> list:
          fp.explore()["total"], 1e-9)
     mx = ge.loop_mixing(189.0, col["passes"])
     near("note: the loop's jet barely helps mixing", mx["mix_x"], 1.06, 0.02)
-    cases = (("note: floor, column at 6 mm/s", dict(), 8.60, "mixing"),
-             ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 7.18, "thickness of the culture"),
-             ("note: 2 mm/s, column for CO2 only", dict(sparge_velocity=0.002), 15.76, "oxygen supply"),
-             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 8.99, "mixing"),
-             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 7.50,
+    cases = (("note: floor, column at 6 mm/s", dict(), 8.90, "mixing"),
+             ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 7.48, "thickness of the culture"),
+             ("note: 2 mm/s, column for CO2 only", dict(sparge_velocity=0.002), 16.06, "oxygen supply"),
+             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 9.29, "mixing"),
+             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 7.80,
               "thickness of the culture"),
-             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 5.00,
+             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 5.30,
               "thickness of the culture"))
     for name, kw, want, lim in cases:
         r = ge.floor_with_column(p_out=20.0, **kw)
@@ -177,15 +178,15 @@ def _check() -> list:
     hard, soft = ge.loop_ph_exposure(20.0, 1.0), ge.loop_ph_exposure(55.0, 0.5)
     near("note: hard design vs Paul's pH dose", hard["vs_paul"], 1.57, 0.02)
     near("note: gentle design vs Paul's pH dose", soft["vs_paul"], 0.29, 0.03)
-    near("note: floor, gentle column", ge.floor_with_column(p_out=55.0)["total"], 8.62, 0.02)
+    near("note: floor, gentle column", ge.floor_with_column(p_out=55.0)["total"], 8.92, 0.02)
     near("note: floor, gentle column + oxygen + 1 bar", ge.floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
-         p_top_barg=1.0)["total"], 7.29, 0.02)
+         p_top_barg=1.0)["total"], 7.59, 0.02)
     near("note: same at 2 mm/s", ge.floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed",
-         p_top_barg=1.0)["total"], 7.52, 0.02)
+         p_top_barg=1.0)["total"], 7.83, 0.02)
 
     # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
     r0 = fp.explore()
-    near("explore: default floor unchanged", r0["total"], 11.48, 0.001)
+    near("explore: default floor unchanged", r0["total"], 11.78, 0.001)
     near("explore: default medium unchanged", r0["medium_l"], 11.16, 1e-6)
     if set(r0["limits"]) != {"oxygen supply", "thickness of the culture", "mixing", "CO2 removal"} or r0["medium_set_by"] != "lactate":
         fails.append("explore: limits or medium terms missing at the floor")
@@ -203,12 +204,12 @@ def _check() -> list:
         fails.append("sorbent: the sodium it gives back must count as salt")
     near("note: ordinary bovine ammonia, L/kg", s0["medium_l"], 140.0, 1e-6)
     # (plant, loss per day, genetic engineering allowed, cell row, tank column, $/kg); 4 tank columns per cell row
-    pins = [("sanitary", 0.0, True, 0, 0, 11.48), ("sanitary", 0.0, True, 0, 1, 9.91), ("sanitary", 0.0, True, 0, 2, 8.62),
-            ("sanitary", 0.0, True, 0, 3, 7.29), ("sanitary", 0.0, True, 1, 0, 17.47), ("sanitary", 0.0, True, 1, 3, 13.13),
-            ("sanitary", 0.0, True, 2, 0, 31.09), ("sanitary", 0.0, True, 2, 3, 26.89), ("sanitary", 0.002, True, 0, 0, 11.70),
-            ("sanitary", 0.002, True, 0, 3, 7.40), ("microbial", 0.0, True, 0, 0, 6.61), ("microbial", 0.0, True, 0, 3, 5.02),
-            ("microbial", 0.0, True, 1, 3, 9.08), ("microbial", 0.006, True, 0, 3, 5.17), ("microbial", 0.022, True, 0, 0, 7.66),
-            ("microbial", 0.022, True, 0, 3, 5.58), ("microbial", 0.022, True, 1, 3, 10.32),
+    pins = [("sanitary", 0.0, True, 0, 0, 11.78), ("sanitary", 0.0, True, 0, 1, 10.21), ("sanitary", 0.0, True, 0, 2, 8.92),
+            ("sanitary", 0.0, True, 0, 3, 7.59), ("sanitary", 0.0, True, 1, 0, 17.47), ("sanitary", 0.0, True, 1, 3, 13.13),
+            ("sanitary", 0.0, True, 2, 0, 31.09), ("sanitary", 0.0, True, 2, 3, 26.89), ("sanitary", 0.002, True, 0, 0, 12.00),
+            ("sanitary", 0.002, True, 0, 3, 7.70), ("microbial", 0.0, True, 0, 0, 6.91), ("microbial", 0.0, True, 0, 3, 5.325),
+            ("microbial", 0.0, True, 1, 3, 9.08), ("microbial", 0.006, True, 0, 3, 5.475), ("microbial", 0.022, True, 0, 0, 7.97),
+            ("microbial", 0.022, True, 0, 3, 5.895), ("microbial", 0.022, True, 1, 3, 10.32),
             ("sanitary", 0.0, False, 0, 0, 13.98), ("sanitary", 0.0, False, 0, 3, 9.79), ("sanitary", 0.002, False, 0, 3, 9.90),
             ("microbial", 0.0, False, 0, 3, 7.52), ("microbial", 0.022, False, 0, 3, 8.16)]
     tabs = {}
@@ -221,18 +222,18 @@ def _check() -> list:
     lr = ge.lactate_relief()
     near("note: lactate could supply this share of the energy", lr["share_of_energy"], 0.021, 0.03)
 
-    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 9.50, 0.002)
-    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 9.25, 0.002)
+    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 9.81, 0.002)
+    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 9.56, 0.002)
 
     # --- circulation and the pH rule (review of PR 10) -------------------------------------------------------
-    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 8.62, 0.002)
+    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 8.92, 0.002)
     for kw, passes, safe in ((dict(column="co2"), 11.1, 0.92), (dict(column="o2_closed", p_top_barg=1.0), 22.4, 1.89),
                              (dict(column="o2_closed", p_top_barg=1.0, gas_velocity=0.002), 61.0, 5.16)):
         d = fp.explore(**kw)["column"]
         near(f"note: passes an hour {kw}", d["passes"], passes, 0.01)
         near(f"note: alkaline exposure vs the safe design {kw}", d["ph_vs_safe"], safe, 0.02)
-    for cap, plant, want in ((0.001, "sanitary", 17.57), (0.002, "sanitary", 11.70), (0.004, "sanitary", 8.49),
-                             (0.006, "sanitary", 7.45), (0.002, "microbial", 6.78), (0.006, "microbial", 4.91)):
+    for cap, plant, want in ((0.001, "sanitary", 17.57), (0.002, "sanitary", 12.00), (0.004, "sanitary", 8.79),
+                             (0.006, "sanitary", 7.75), (0.002, "microbial", 7.08), (0.006, "microbial", 5.21)):
         b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
         near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)
         if b["column"] is not None and (b["column"]["ph_vs_safe"] > 1 + 1e-9 or not b["column"]["passes_tested"]):
@@ -250,8 +251,8 @@ def _check() -> list:
     near("upkeep + growth = oxygen per kg", r0["o2_kg_upkeep"] + r0["o2_kg_growth"], r0["o2_kg"], 1e-9)
     near("note: oxygen per kg at 48 h", fp.explore(doubling_h=48)["o2_kg"], 7.74, 0.005)
     near("CO2 per kg = RQ x oxygen", r0["co2_kg"], 1.204 * r0["o2_kg"], 1e-3)
-    for cap, plant, want in ((0.001, "sanitary", 7.66), (0.002, "sanitary", 7.52), (0.006, "sanitary", 7.20),
-                             (0.002, "microbial", 5.26), (0.006, "microbial", 4.91)):
+    for cap, plant, want in ((0.001, "sanitary", 7.96), (0.002, "sanitary", 7.83), (0.006, "sanitary", 7.50),
+                             (0.002, "microbial", 5.56), (0.006, "microbial", 5.21)):
         near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
 
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
@@ -277,13 +278,13 @@ def _check() -> list:
     for name, got, want in (
             ("note: passes/h, CO2 loop at 190 g/L", r["passes"], 11.3), ("note: m2 per m3 of culture", r["area_m2_m3"], 156.0),
             ("note: flux, mmol/m2/h", r["flux_co2"], 80.0), ("note: loop capital, $k/m3", r["capex_k_m3"], 78.0),
-            ("note: floor with CO2 loop", f["total"], 9.2), ("note: floor, CO2 limit gone", f["no_co2_limit"], 8.5),
-            ("note: floor, no sparging", ge.floor_with_loop(oxygen=True)["total"], 11.6),
-            ("note: 2 mm/s cells, CO2 loop", ge.floor_with_loop(gas_velocity=0.002)["total"], 16.5),
-            ("note: fish cells, CO2 loop", ge.floor_with_loop(pco2_mbar=50.0, mass_pg=2500.0)["total"], 12.0),
-            ("note: cheapest shape, $/kg", ge.best_shape()["total"], 8.69), ("note: cheapest shape", ge.best_shape()["aspect"], 0.75),
-            ("note: squat tank 0.8, $/kg", ge.shape_case(0.8)["total"], 8.8),
-            ("note: 200 m3 in ten compartments", ge.shape_case(0.8, 200.0, cells_in_shell=10)["total"], 8.05),
+            ("note: floor with CO2 loop", f["total"], 9.5), ("note: floor, CO2 limit gone", f["no_co2_limit"], 8.8),
+            ("note: floor, no sparging", ge.floor_with_loop(oxygen=True)["total"], 11.9),
+            ("note: 2 mm/s cells, CO2 loop", ge.floor_with_loop(gas_velocity=0.002)["total"], 16.8),
+            ("note: fish cells, CO2 loop", ge.floor_with_loop(pco2_mbar=50.0, mass_pg=2500.0)["total"], 12.3),
+            ("note: cheapest shape, $/kg", ge.best_shape()["total"], 8.99), ("note: cheapest shape", ge.best_shape()["aspect"], 0.75),
+            ("note: squat tank 0.8, $/kg", ge.shape_case(0.8)["total"], 9.07),
+            ("note: 200 m3 in ten compartments", ge.shape_case(0.8, 200.0, cells_in_shell=10)["total"], 8.36),
             ("note: airlift gas, paper, mm/s", al["paper"]["gas_velocity"] * 1000.0, 9.7),
             ("note: airlift gas, model, mm/s", al["model"]["gas_velocity"] * 1000.0, 14.0),
             ("note: airlift density at 6 mm/s, paper", al["paper"]["density_at_limit"], 62.0),

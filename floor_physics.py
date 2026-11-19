@@ -372,7 +372,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             uptime: float | None = None, maintenance_share: float | None = None,
             capex_x: float = 1.0, retention: float | None = None, x_scale: float = 1.0,
             hazard: float = 0.0, run_days: float | None = None, restart_fail_days: float | None = None,
-            medium_l: float | None = None, medium_price: float = 0.15, growth_factors: float = 0.0,
+            medium_l: float | None = None, medium_price: float = 0.15, growth_factors: float = 0.0, gf_in_medium: float = 0.0,
             cell_share: float = 1.0, waste: float = 0.0, nh3_limit: float | None = None,
             pco2_mbar: float | None = None, gas_velocity: float | None = None, aspect: float | None = None,
             osm_limit: float | None = None, ph: float | None = None, min_perfusion: float | None = None,
@@ -673,10 +673,13 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         protectant = medium_l * value("pf_protectant_dose") / 1000.0 * (
             value("pf_protectant_price") if protectant_price is None else protectant_price)
         consumables += protectant
-    feed = max(feedstock(cells), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
     # figure is taken at the efficient cells' 11 L/kg)
-    gf = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS) * float(growth_factors)
+    gf_per = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS)
+    gf = gf_per * float(growth_factors)
+    # a complete medium (scenarios.explore_kwargs, sc_medium_complete) carries `gf_in_medium` of the growth factors inside its
+    # price: it cannot cost less than the nutrients the cells eat plus those growth factors (2026-11-19)
+    feed = max(feedstock(cells) + gf_per * float(gf_in_medium), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
     # the sparge gas: oxygen fed per kg of cells x its price, REPORTED but not added. The plant prices
     # (capital per m3, utilities) already contain the oxygen supply of the design they come from (20 m3,
     # Humbird's tank shape, his gas limit and back pressure). `gas` is what that supply costs per kg in
@@ -1130,7 +1133,7 @@ def tiers() -> list:
                  "each piece shown or claimed separately, never together")
     from_explore("Microbial-fermentation-class plant", "the frontier: the reference case in a plant that costs what microbial fermentation plants cost when built, buying its oxygen",
                  "such plants exist for microbes; not costed or built for animal cells", plant="microbial")
-    add("Rough lower bound", "the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at half price",
+    add("Rough lower bound", "the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at $1 a kilo (about the price of soybean-meal protein; GFI's feed grade is $6.36)",
         "a rough bound, not a design", GOOD_CELLS, "perfusion", value("pf_bound_capex"), low, 0.0,
         cheap=True, otr=value("pf_bound_otr"), humbird_capex=False, uptime=design_uptime)
     return rows

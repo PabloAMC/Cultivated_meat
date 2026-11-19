@@ -1,5 +1,7 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 Date: 2026-11-15; costs recomputed 2026-11-16 on the model after PR #32 (protectant, antifoam). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
 its URL and how much of it was read is `filter_flux_sources/flux_limit_sources.md`. Costs are 2025 dollars per kg of wet cells. No default changed.
 
@@ -63,18 +65,18 @@ by volume with a standard microfiltration fibre.
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|
-| Best case | **$9.66** | $15.79 | $15.85 | $30.52 |
-| Central | **$29.42** | $48.59 | $48.79 | $94.63 |
+| Best case | **$9.96** | $16.10 | $16.16 | $30.83 |
+| Central | **$26.43** | $45.60 | $45.80 | $91.64 |
 
 - **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.2. The
   membrane's throughput moves it by $19 to $65.
-- **At the measured CHO throughput, Central costs $49–95.** That is not a forecast: the data are from thinner cultures of a pharma line.
+- **At the measured CHO throughput, Central costs $46–92.** That is not a forecast: the data are from thinner cultures of a pharma line.
   It says the default sits at the generous end of the evidence, and the retention note's 35% for a filter holding 258 g/L for a
   month is the right order of magnitude.
 
 ## 5. What this means
 
-1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $48.59. The note leaves it at
+1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $45.60. The note leaves it at
    3,960, the model's value since PR 18, because the measured data are for CHO at thinner densities. The model's range already
    spans 900–5,500.
 2. **The experiment that settles it:** run a hollow-fibre filter on a meat cell line at 10–25% cells by volume at 2–5 L/m²/h and

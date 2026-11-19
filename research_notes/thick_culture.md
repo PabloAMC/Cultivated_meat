@@ -1,5 +1,7 @@
 # How thick can a stirred or airlift culture be?
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
 Date: 2026-11-15. Code: `thick_culture.py`; tests: `tests/test_thick_culture.py`; new inputs: `tc_*` in `inputs.py`. Costs are 2025
@@ -25,7 +27,7 @@ shared medium also held 258 g/L.) The question has two parts, and they have diff
   with a sparger, the model's oxygen limit is already under 258 (191 g/L Central, 120 g/L Cautious), and viscosity cuts the oxygen
   transfer further: the tank stops at 151 g/L (Central) or 103 g/L (Cautious). With no tricks CO2 stops a tank at 120 g/L.
 - **The cost is not sensitive to this number.** In Central, oxygen binds at 191 g/L, so a limit of 320 or 400 g/L changes nothing, and
-  180 g/L costs +$0.40 (+1.3%). In Best, 180 g/L costs +$0.32 (+3.3%); 320 or 400 g/L saves $0.13 or $0.24 (1.4% and 2.5%) if the loop's
+  180 g/L costs +$0.40 (+1.5%). In Best, 180 g/L costs +$0.32 (+3.2%); 320 or 400 g/L saves $0.13 or $0.24 (1.3% and 2.4%) if the loop's
   checks are ignored, and costs $0.04 more (+0.4%) if they are kept.
 - **Probabilities that a 20 m3 tank holds the density for a month with everything else solved, at any cost** (JUDG, section 8): 258 g/L
   **18%**, 320 g/L **6%**, 400 g/L about 1%. Most of that risk is the retention device (35% for 258 g/L, from `retention_devices.md`), not
@@ -178,25 +180,25 @@ thicker culture can force a design that gives up density). $/kg.
 
 | scenario | 180 | 258 (model) | 320 | 400 |
 |---|---|---|---|---|
-| Best, fixed | 9.98 | **9.66** | 9.52 | 9.41 |
-| Best, checked | 9.90 (column + 1 bar, tall) | 9.66 | 9.69 (241, oxygen; column + 1 bar) | 9.69 (241) |
-| Central, fixed | 29.81 | **29.42** (oxygen binds at 191) | 29.42 (191) | 29.42 (191) |
-| Central, checked | 29.81 | 29.42 (191) | 29.42 (191) | 29.42 (191) |
-| Central, shared medium, fixed | 26.76 | **26.56** (191) | 26.56 (191) | 26.56 (191) |
-| Central, shared medium, checked | 26.76 | 26.56 (191) | 26.56 (191) | 26.56 (191) |
-| Cautious, fixed | 42.39 (oxygen binds at 120) | **42.39** | 42.39 | 42.39 |
-| Cautious, checked | 42.39 (120) | 42.39 | 42.39 | 42.39 |
+| Best, fixed | 10.28 | **9.96** | 9.83 | 9.72 |
+| Best, checked | 10.21 (column + 1 bar, tall) | 9.96 | 10.00 (241, oxygen; column + 1 bar) | 10.00 (241) |
+| Central, fixed | 26.83 | **26.43** (oxygen binds at 191) | 26.43 (191) | 26.43 (191) |
+| Central, checked | 26.83 | 26.43 (191) | 26.43 (191) | 26.43 (191) |
+| Central, shared medium, fixed | 23.77 | **23.57** (191) | 23.57 (191) | 23.57 (191) |
+| Central, shared medium, checked | 23.77 | 23.57 (191) | 23.57 (191) | 23.57 (191) |
+| Cautious, fixed | 36.42 (oxygen binds at 120) | **36.42** | 36.42 | 36.42 |
+| Cautious, checked | 36.42 (120) | 36.42 | 36.42 | 36.42 |
 
-- Best: 180 g/L costs +$0.32 (+3.3%) held and +$0.24 checked; 320 g/L saves $0.13 (1.4%) held and costs $0.04 (0.4%) checked; 400 g/L saves $0.24 (2.5%) held.
-- Central: 180 g/L costs +$0.40 (+1.3%), held or checked; 320 and 400 g/L change nothing.
+- Best: 180 g/L costs +$0.32 (+3.2%) held and +$0.24 checked; 320 g/L saves $0.13 (1.3%) held and costs $0.04 (0.4%) checked; 400 g/L saves $0.24 (2.4%) held.
+- Central: 180 g/L costs +$0.40 (+1.5%), held or checked; 320 and 400 g/L change nothing.
 - **Central, shared medium and Cautious do not benefit from a thicker culture at all**: oxygen from the sparger binds at 191 and 120 g/L, under the 258 limit.
   (Before the recompute, Central gained from a thicker culture and Best and Cautious did not.)
-- If the sparger's oxygen falls with viscosity (`cost_viscous_oxygen`): Central $29.42 to $31.15 (+6%, 151 g/L); Central, shared medium $26.56 to $27.44 (+3%);
-  Cautious $42.39 to $44.68 (+5%, 103 g/L); Best unchanged (its oxygen comes through the loop).
+- If the sparger's oxygen falls with viscosity (`cost_viscous_oxygen`): Central $26.43 to $28.17 (+7%, 151 g/L); Central, shared medium $23.57 to $24.45 (+4%);
+  Cautious $36.42 to $38.70 (+6%, 103 g/L); Best unchanged (its oxygen comes through the loop).
 - **The gain from thickness is small** because capital is a smaller share than the medium and retention. A thicker culture also asks more of the retention device: Clincke's growth rate
   fell 60% above 1.5e8 cells/mL (phi 0.37). Output is density x growth rate, so 400 g/L (phi 0.39) could make less than 320. The scan holds growth fixed.
-- With all three tank tricks at 180 g/L the Cautious case would cost $38.09 to $39.72, but none of those designs passes the loop's checks (pH dose 1.55 to 1.68 times the safe
-  dose), so the checked row at 180 g/L is the Cautious case's own design ($42.39). `retention_devices.md` reaches the same answer.
+- With all three tank tricks at 180 g/L the Cautious case would cost $32.12 to $33.74, but none of those designs passes the loop's checks (pH dose 1.55 to 1.68 times the safe
+  dose), so the checked row at 180 g/L is the Cautious case's own design ($36.42). `retention_devices.md` reaches the same answer.
 - `explore(x_scale=...)` scales only the CO2 limit, so it is not a density limit for the whole tank; the scan uses the `vm` cap.
 
 ## 8. Probabilities (JUDG)

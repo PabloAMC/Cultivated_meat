@@ -1,14 +1,17 @@
 # Gas exchange for a 20 m³ tank of animal cells: membrane loop, tank shape, and a published airlift
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+> The 2026-11-14 settings below now run with the $2.00 floor: every figure where the floor binds is $0.30 higher.
+
 > **Note, 2026-11-15.** The figures in this note were computed with the model as it was on 2026-11-14: the old hoped-for
 > device that holds the cells back ($89k per m3 of tank, no membranes), no bubble protectant, no antifoam effect, no oxygen cost for
 > the yeast-style class. `tests/test_gas_exchange.py` checks them with those settings (`floor_physics.BEFORE_FILTER_LOOP`).
 > **The tank tricks are worth much less now.** The filter loop charges for the permeate a denser culture sends through the
 > membranes, and antifoam's quarter cut to oxygen transfer makes oxygen bind soon after CO₂ is dealt with: the gentler column saves
-> $0.65 a kilo in the reference tank, not $2.86. **Current figures** (recomputed 2026-11-15, late; the note's in brackets): reference
-> $12.51 ($11.48); twice the gas, 0.2 vvm, $10.89 ($8.47); 2 mm/s $26.61 ($28.03); squat tank at today's gas speed
-> (`shape_case(0.8)`) $12.17 ($8.76); the gentler column (`floor_with_column(p_out=55)`) $11.86 ($8.62), with the sparger cut to
-> 2 mm/s and recycled oxygen $11.51 ($9.02); liquid as deep as wide $12.00 ($9.50); fat fed in place of fat made $11.79 ($9.91).
+> $0.65 a kilo in the reference tank, not $2.86. **Current figures** (recomputed 2026-11-15, late, and 2026-11-19 where the floor moved them; the note's in brackets): reference
+> $12.81 ($11.78); twice the gas, 0.2 vvm, $11.19 ($8.77); 2 mm/s $26.61 ($28.03); squat tank at today's gas speed
+> (`shape_case(0.8)`) $12.47 ($9.07); the gentler column (`floor_with_column(p_out=55)`) $12.17 ($8.92), with the sparger cut to
+> 2 mm/s and recycled oxygen $11.81 ($9.32); liquid as deep as wide $12.30 ($9.81); fat fed in place of fat made $12.09 ($10.21).
 > The scenarios (`cost_scenarios.md`) use the current model throughout.
 
 Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every table). Tests:
@@ -32,18 +35,18 @@ Compiled 2026-11-14. Calculations: `gas_exchange.py` (run it to reproduce every 
 
 *Revised after section 7.* Three unknowns stay open, and all three are about the cells; the engineering is settled
 by calculation. Floor numbers are $/kg of cells from `floor_physics.explore` (today's floor: `explore()` =
-$11.5) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
-packed column and headspace pressure of unknowns 2 and 3, the floor is $7.2–7.5 at any gas flow only if the culture
+$11.8) or `gas_exchange.floor_with_column`. **Dependence on the gas-flow session (what-caps-gas-flow):** with the
+packed column and headspace pressure of unknowns 2 and 3, the floor is $7.5–7.8 at any gas flow only if the culture
 may be pumped through the column 22–85 times an hour, beyond the 15–24 tested and beyond the safe pH exposure
-(section 11). Within those limits it is $7.45 at 6 mm/s, $8.5 at 4, $11.7 at 2 and $17.6 at 1 ($17.2 before the medium was floored at the culture that leaves with the cells, 2026-11-16); without the
-tricks, $11.5 at 6 mm/s and $28 at 2. The membrane loop of the earlier version is
+(section 11). Within those limits it is $7.75 at 6 mm/s, $8.8 at 4, $12.0 at 2 and $17.6 at 1 ($17.2 before the medium was floored at the culture that leaves with the cells, 2026-11-16); without the
+tricks, $11.8 at 6 mm/s and $28 at 2. The membrane loop of the earlier version is
 superseded: a steel column does the same job without the module problems (section 7).
 
 **1. More gas per litre of culture**
 - *Unknown:* Can a 20 m³ tank of dense cells (120–190 g/L) be sparged at 0.15–0.2 litres of gas per litre of
   culture per minute, twice today's assumption, without bubbles killing cells or foam stopping the run?
-- *Worth:* well, **$8.5** (`explore(gas_velocity=0.0125)`, 0.2 vvm in the floor's tank) or **$8.8** for a
-  squat tank at today's gas speed (`gas_exchange.shape_case(0.8)`); badly, **$11.5** (`explore()`). Neither
+- *Worth:* well, **$8.8** (`explore(gas_velocity=0.0125)`, 0.2 vvm in the floor's tank) or **$9.1** for a
+  squat tank at today's gas speed (`gas_exchange.shape_case(0.8)`); badly, **$11.8** (`explore()`). Neither
   number includes the protectant (see the note below the list).
 - *Probability it resolves well:* **50%**. Vendors rate 2,000-litre tanks to 0.2 vvm, and dense pharma
   cultures have run at 0.1–0.2 vvm with 2–5 g/L of protectant at 50–200 litres; foam at 20 m³ and at these
@@ -59,9 +62,9 @@ superseded: a steel column does the same job without the module problems (sectio
 - *Unknown:* With the culture pumped 11 times an hour over stainless packing as a 0.3 mm film, laid on without
   drips, and stripped only to 55 mbar (pH up 0.26 while in the loop), do meat cells keep growing for a month
   without coating the packing?
-- *Worth:* well, **$8.6** (`floor_with_column(p_out=55.0)`, sparger at 6 mm/s) and **$9.0** if the sparger is cut
+- *Worth:* well, **$8.9** (`floor_with_column(p_out=55.0)`, sparger at 6 mm/s) and **$9.3** if the sparger is cut
   to 2 mm/s (`floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed")`); badly,
-  **$11.5** (`explore()`), or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
+  **$11.8** (`explore()`), or **$28** at 2 mm/s (`explore(gas_velocity=0.002)`).
 - *Probability it resolves well:* **60%**. Calculation and literature settle the shear (below what CHO took for
   weeks), the drips (avoidable by design) and the pH pulse (the gentler design is 3–6 times below the exposure
   that hurt CHO); bubble-free surface aeration is how rocking bags reach the highest CHO densities. Deposits on
@@ -78,9 +81,9 @@ superseded: a steel column does the same job without the module problems (sectio
 **3. Cells at 2 bar absolute** (revised in section 8)
 - *Unknown:* With dissolved oxygen and CO₂ held at their usual levels, do the cells grow as well with the
   headspace at 1 bar gauge as at Humbird's 0.33?
-- *Worth:* together with unknown 2, well, **$7.3** (`floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
-  p_top_barg=1.0)`; $7.5 at 2 mm/s; $5.0 in a yeast-style plant); badly, **$8.6** (the column alone, 189 g/L,
-  mixing-limited). Alone it does nothing ($11.5), because CO₂ still binds.
+- *Worth:* together with unknown 2, well, **$7.6** (`floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
+  p_top_barg=1.0)`; $7.8 at 2 mm/s; $5.3 in a yeast-style plant); badly, **$8.9** (the column alone, 189 g/L,
+  mixing-limited). Alone it does nothing ($11.8), because CO₂ still binds.
 - *Probability it resolves well:* **85%**. Cells at the bottom of today's tank already sit at 1.7 bar absolute;
   the design adds at most 0.67 bar, about 6 times below the lowest pressure with any reported effect on
   cultured cells. One small CHO study saw odd effects at tiny extra pressures.
@@ -103,8 +106,8 @@ dose-finding run, and it affects unknown 1, since more gas needs more protectant
 
 0. **Latest (section 7): drop the membrane, keep the loop.** A short packed column of stainless steel on the
    pumped loop strips the CO₂ with no bubbles and no membrane: 1.8 m across, half a metre of packing, $26k per
-   m³ of tank, floor **$8.6/kg**. With 1 bar of headspace pressure added and an oxygen sweep, every gas-side
-   limit clears up to the culture's thickness (258 g/L): **$7.3/kg** in the floor's plant, $5.0 in a
+   m³ of tank, floor **$8.9/kg**. With 1 bar of headspace pressure added and an oxygen sweep, every gas-side
+   limit clears up to the culture's thickness (258 g/L): **$7.6/kg** in the floor's plant, $5.3 in a
    yeast-style plant, whatever gas flow the cells tolerate. Section 8: calculation and literature settle most
    of the cell side too (shear, drips, the pH pulse once the column strips gently, pressure); what is left is
    deposits on the packing and how meat cells, not CHO, respond. Items 1–2 below are the earlier membrane design.
@@ -115,13 +118,13 @@ dose-finding run, and it affects unknown 1, since more gas needs more protectant
    cannot at 190 g/L, and about 30–50 if nothing is sparged at all.
 2. **The sensible design is a loop for CO₂ only, with the sparger kept.** For a 20 m³ tank at 190 g/L: about
    180 m³/h of culture through about 2,500 m² of fibre, 9 kPa of pressure drop, 45 W per m³. At an assumed
-   $200 per m² it adds about $78k per m³ of tank and takes the floor from $11.5 to about **$9.2/kg**
-   (range $8.6 to $13.8 across the membrane prices found). Removing CO₂ for free would give $8.5.
+   $200 per m² it adds about $78k per m³ of tank and takes the floor from $11.8 to about **$9.5/kg**
+   (range $8.9 to $14.1 across the membrane prices found). Removing CO₂ for free would give $8.8.
    *Stress test (section 6):* no module both survives repeated steaming and has a price; the one priced
    silicone module can be steamed once, which would put the floor at $35. Workable: 35%; pays $1/kg or
    more: 15%.
 3. **A squat tank does about the same with no new equipment, by passing more gas per litre.** Liquid
-   0.75–0.8 times as deep as the tank is wide gives **$8.7–8.8/kg** with the extra steel and floor counted.
+   0.75–0.8 times as deep as the tank is wide gives **$9.0–9.1/kg** with the extra steel and floor counted.
    Measured bubble damage goes with gas per litre, not with velocity (three papers, read in full), so the
    squat tank pays in dead cells: about 13% of growth against 8%, roughly $0.3/kg, if the protectant works
    at scale as in small columns. Section 2.3, revised after reading the primary papers.
@@ -337,27 +340,27 @@ and membranes and power per kg.
 
 | case | today | CO₂ removal free | with the loop paid for | density, what binds | loop |
 |---|---|---|---|---|---|
-| floor, loop for the CO₂ above 120 g/L | 11.5 | 8.5 | **9.2** | 189 g/L, mixing | 11 passes/h, 2,450 m², $77k/m³ |
-| … membranes at $40 per m² | 11.5 | 8.5 | 8.6 | | $18k/m³ |
-| … membranes at $1,480 per m² | 11.5 | 8.5 | 13.8 | | $548k/m³ |
-| … membranes last 6 months | 11.5 | 8.5 | 10.3 | | |
-| floor, nothing sparged | 11.5 | 8.5 | 11.6 | 189 g/L, mixing | 47 passes/h, 10,400 m², $320k/m³ |
-| … with oxygen at 2 bar | 11.5 | 8.5 | 10.5 | | 31 passes/h, 6,700 m² |
-| cells that tolerate only 2 mm/s of gas, CO₂ loop | 28.0 | 15.5 | 16.5 | 81 g/L, oxygen supply | 7 passes/h |
-| cells that tolerate only 2 mm/s, nothing sparged | 28.0 | 8.5 | 11.6 | 189 g/L, mixing | 47 passes/h |
-| fish cells (50 mbar), CO₂ loop | 20.6 | 8.8 | 12.0 | 180 g/L, mixing | 47 passes/h, 10,300 m² |
-| yeast-style plant, CO₂ loop | 6.6 | 5.4 | 6.1 | 189 g/L, mixing | as the first row |
+| floor, loop for the CO₂ above 120 g/L | 11.8 | 8.8 | **9.5** | 189 g/L, mixing | 11 passes/h, 2,450 m², $77k/m³ |
+| … membranes at $40 per m² | 11.8 | 8.8 | 8.9 | | $18k/m³ |
+| … membranes at $1,480 per m² | 11.8 | 8.8 | 14.1 | | $548k/m³ |
+| … membranes last 6 months | 11.8 | 8.8 | 10.6 | | |
+| floor, nothing sparged | 11.8 | 8.8 | 11.9 | 189 g/L, mixing | 47 passes/h, 10,400 m², $320k/m³ |
+| … with oxygen at 2 bar | 11.8 | 8.8 | 10.8 | | 31 passes/h, 6,700 m² |
+| cells that tolerate only 2 mm/s of gas, CO₂ loop | 28.0 | 15.8 | 16.8 | 81 g/L, oxygen supply | 7 passes/h |
+| cells that tolerate only 2 mm/s, nothing sparged | 28.0 | 8.8 | 11.9 | 189 g/L, mixing | 47 passes/h |
+| fish cells (50 mbar), CO₂ loop | 20.6 | 9.0 | 12.3 | 180 g/L, mixing | 47 passes/h, 10,300 m² |
+| yeast-style plant, CO₂ loop | 6.9 | 5.7 | 6.4 | 189 g/L, mixing | as the first row |
 
 Reading the table:
 - At the floor the loop is worth about $2.3/kg at the assumed price, and nothing at pharma-filter prices.
   The break-even membrane price is about $800 per m².
 - **Its larger value is as insurance against the gas-flow assumption**, the largest risk on the floor. If
-  cells tolerate 2 mm/s and not 6, the floor is $28. A tank with no sparging at all costs about $11.6
+  cells tolerate 2 mm/s and not 6, the floor is $28. A tank with no sparging at all costs about $11.9
   whatever gas the cells tolerate. That design needs 47 passes an hour, three times what has been shown
   at 4 litres.
 - **It is weakest where it is needed most.** At 50 mbar a litre carries half as much CO₂ and the driving
   force halves, so fish cells need four times the area and flow. The loop still takes them from $20.6 to
-  $12.0.
+  $12.3.
 - With the loop, mixing binds at 189 g/L, just under oxygen at 195. The loop does not make large tanks
   attractive, as already found.
 
@@ -405,27 +408,27 @@ reference tank (0.096 vvm).
 
 | liquid depth ÷ width | width, m | depth, m | density, g/L (what binds) | $/kg, shape free | $/kg, with steel and floor | plant × | per-litre rule: g/L, $/kg |
 |---|---|---|---|---|---|---|---|
-| 0.25 | 4.34 | 1.08 | 195 (oxygen) | 8.3 | 9.8 | 1.37 | 72, 20.8 |
-| 0.50 | 3.44 | 1.72 | 195 (oxygen) | 8.3 | 9.0 | 1.17 | 105, 14.0 |
-| **0.80** | 2.94 | 2.35 | 190 (CO₂) | 8.4 | **8.8** | 1.09 | 120, 12.0 |
-| 1.00 | 2.73 | 2.73 | 164 (CO₂) | 9.3 | 9.5 | 1.05 | 120, 11.8 |
-| 1.30 | 2.50 | 3.25 | 138 (CO₂) | 10.4 | 10.5 | 1.02 | 120, 11.6 |
-| 1.60 (the model's) | 2.34 | 3.74 | 120 (CO₂) | 11.5 | 11.5 | 1.00 | 120, 11.5 |
-| 2.00 | 2.17 | 4.34 | 103 (CO₂) | 12.8 | 12.7 | 0.98 | 114, 11.8 |
+| 0.25 | 4.34 | 1.08 | 195 (oxygen) | 8.6 | 10.1 | 1.37 | 72, 20.8 |
+| 0.50 | 3.44 | 1.72 | 195 (oxygen) | 8.6 | 9.3 | 1.17 | 105, 14.3 |
+| **0.80** | 2.94 | 2.35 | 190 (CO₂) | 8.7 | **9.1** | 1.09 | 120, 12.3 |
+| 1.00 | 2.73 | 2.73 | 164 (CO₂) | 9.6 | 9.8 | 1.05 | 120, 12.1 |
+| 1.30 | 2.50 | 3.25 | 138 (CO₂) | 10.7 | 10.8 | 1.02 | 120, 11.9 |
+| 1.60 (the model's) | 2.34 | 3.74 | 120 (CO₂) | 11.8 | 11.8 | 1.00 | 120, 11.8 |
+| 2.00 | 2.17 | 4.34 | 103 (CO₂) | 13.1 | 13.0 | 0.98 | 114, 12.1 |
 | 3.00 | 1.89 | 5.68 | 45 (mixing) | 25.2 | 24.4 | 0.95 | 45, 24.4 |
 
-- **Velocity rule: the cheapest shape is liquid 0.75 times as deep as wide, $8.7/kg, $2.8 below the
+- **Velocity rule: the cheapest shape is liquid 0.75 times as deep as wide, $9.0/kg, $2.8 below the
   floor.** Below that the oxygen limit binds, so a shallower tank only adds steel and floor. Counting
   steel and floor costs $0.4/kg at the optimum and moves it from "as squat as possible" to about 0.75.
 - **Per-litre rule, taken as a hard limit: shape does nothing for CO₂** (section 2.3 finds it is a cost,
   not a hard limit). The gas a tank may pass falls with its depth exactly as
-  fast as the gas it needs. The cheapest shape is then slightly taller than the model's (1.95, $11.4),
+  fast as the gas it needs. The cheapest shape is then slightly taller than the model's (1.95, $11.7),
   because a deeper tank is allowed more gas velocity, which helps oxygen.
 - **200 m³:** under the velocity rule only a very shallow tank works (0.25: 9.3 m wide, 2.3 m deep,
-  $9.2/kg). Depth, not volume, is what matters: the answer is always a liquid depth of about 2.3 m.
+  $9.5/kg). Depth, not volume, is what matters: the answer is always a liquid depth of about 2.3 m.
 - **Horizontal vessel.** A long horizontal shell divided into stirred, sparged compartments keeps that
   depth at any volume. Ten 20 m³ compartments in one 200 m³ shell, priced as one vessel with the squat
-  shape's steel penalty: 190 g/L and **$8.0/kg**. Seider's correlation prices a horizontal vessel a third
+  shape's steel penalty: 190 g/L and **$8.4/kg**. Seider's correlation prices a horizontal vessel a third
   below a vertical one of the same weight [18], but ten agitators are not counted, so this is a sketch, not
   an estimate. No animal-cell example was found.
 - **Several spargers in a tall tank.** In the balance they add nothing. The exhaust already leaves at
@@ -477,7 +480,7 @@ Pablo downloaded the five papers and the thesis; four were read in full text for
    Raising the gas flow by half in the reference tank is the same thing by the damage measure.
 3. **The model's penalty on large tanks is probably too harsh.** At a fixed 6 mm/s a 200 m³ tank gets
    half the gas per litre that the damage evidence allows. At 0.096 vvm it would hold the same 120 g/L as
-   the 20 m³ tank (the "per-litre rule" columns in 2.2: $10.5–10.9 against $18.8). But that needs 13 mm/s
+   the 20 m³ tank (the "per-litre rule" columns in 2.2: $10.9–11.3 against $18.8). But that needs 13 mm/s
    through its surface, and whether foam allows it is not in any of these papers. Humbird's own fall of
    density with size has the same origin.
 4. **The protectant is the parameter that matters.** At 0.1 g/L the same gas costs 64% of growth. Cells
@@ -596,9 +599,9 @@ gas per litre and a protectant cuts it twentyfold, so more gas per litre, in a s
 be affordable. Measure the killing volume and the foam at 0.1–0.2 vvm in a dense culture first. If both are
 acceptable, build squat tanks and skip the loop.
 
-**The model's floor with it.** $9.2/kg with a CO₂ loop at the assumed price (range $8.6–13.8 across
-membrane prices; $6.1 in a yeast-style plant), against $11.5 today and $8.7 for a squat tank under the
-velocity rule. Neither reaches the $7 that parity needs in the floor's plant.
+**The model's floor with it.** $9.5/kg with a CO₂ loop at the assumed price (range $8.9–14.1 across
+membrane prices; $6.4 in a yeast-style plant), against $11.8 today and $9.0 for a squat tank under the
+velocity rule. Neither reaches the about $6.1 that parity with $12 meat needs in the floor's plant.
 
 ---
 
@@ -615,8 +618,8 @@ safeguard and rerun on another model.
 - The cells: their insides buffer about 10–50 mmol/L per pH unit of cell water (a physiology review,
   snippet; about 10 in a muscle-like line, snippet). At 18% of the volume, 70% of it water, that is 1.3–4.3
   mmol/L per pH unit of culture. If it acts within the 6 seconds in the fibre, a pass gives up 1.55–2.16
-  mmol/L, the loop needs 6–8 passes an hour in place of 11, and the floor with the loop goes from $9.2 to
-  $9.0. It acts only if the cells carry carbonic anhydrase, which speeds the reaction; without it the
+  mmol/L, the loop needs 6–8 passes an hour in place of 11, and the floor with the loop goes from $9.5 to
+  $9.2. It acts only if the cells carry carbonic anhydrase, which speeds the reaction; without it the
   reaction takes 5–10 seconds (textbook constants, snippet). No data were found on the enzyme in CHO,
   fibroblast or muscle cells.
 - Blood does better because its red cells are 45% of the volume and full of haemoglobin, which buffers
@@ -647,8 +650,8 @@ for cell-culture debris or antifoam on gas fibres.
 
 No module was found that is both rated for repeated steaming and priced. The cheap ones are polypropylene,
 which leaks in protein-rich liquid. With the priced silicone module replaced every run, the floor with the
-loop is $34.8/kg; at $704 lasting 2 years it is $11.0, which is no gain; large contactors at $160 lasting 2
-years give $9.1.
+loop is $35.1/kg; at $704 lasting 2 years it is $11.3, which is no gain; large contactors at $160 lasting 2
+years give $9.4.
 
 **5. The acid-side option. Rules it out with bought acid; leaves a salt-free version that needs a filter
 the size of 400–2,300 pharma units.** (`acid_side`)
@@ -671,7 +674,7 @@ bubbles, 5 g/L for fine ones) dense CHO cultures showed no extra deaths up to 0.
 2,000-litre single-use tanks are rated to 0.2 vvm in all (Sartorius data sheet, full text; Thermo note,
 full text). Damage at scale comes mainly from gas leaving sparger holes faster than about 30 m/s (Zhu 2008,
 abstract), which more protectant does not fix. If the floor's tank could run at 0.2 vvm, CO₂ would stop
-binding and the floor would be $8.5 without a loop, before the cost of the protectant. Foam is the open
+binding and the floor would be $8.8 without a loop, before the cost of the protectant. Foam is the open
 limit: it scales with gas speed through the surface (Pilon 2001, full text), and no measured foam ceiling
 for cell-culture media was found. This is the gas-flow session's question.
 
@@ -717,11 +720,11 @@ Floor, with the column's capital on the plant:
 
 | case | today | with the column | density, what binds |
 |---|---|---|---|
-| sparger at 6 mm/s | 11.5 | **8.6** | 189 g/L, mixing |
-| sparger at 2 mm/s (the gas-flow session's bad case), column for CO₂ only | 28.0 | 15.8 | 81 g/L, oxygen |
+| sparger at 6 mm/s | 11.8 | **8.9** | 189 g/L, mixing |
+| sparger at 2 mm/s (the gas-flow session's bad case), column for CO₂ only | 28.0 | 16.1 | 81 g/L, oxygen |
 | 2 mm/s, column also carries oxygen, air sweep | 28.0 | not possible | air holds 0.2 mmol/L of oxygen, less than the 0.28 the tank is held at, so an air sweep takes oxygen out (an earlier version of this note, with the culture entering at 0.05, gave $8.9) |
-| 2 mm/s, oxygen sweep recycled through a lime scrubber | 28.0 | **9.0** | 189, mixing (29 passes, 471 m³/h, 3.9 m across; oxygen and lime $0.28/kg) |
-| 2 mm/s, oxygen sweep once through and vented | 28.0 | 10.6 | the vented oxygen costs $1.9/kg |
+| 2 mm/s, oxygen sweep recycled through a lime scrubber | 28.0 | **9.3** | 189, mixing (29 passes, 471 m³/h, 3.9 m across; oxygen and lime $0.28/kg) |
+| 2 mm/s, oxygen sweep once through and vented | 28.0 | 10.9 | the vented oxygen costs $1.9/kg |
 
 So: a closed oxygen sweep with a lime scrubber is affordable. The lime (at $240/t, USGS snippet, 70% used)
 costs about $0.20 per kg of cells; the oxygen the column hands over costs about $0.01 at Humbird's $0.15/kg.
@@ -733,8 +736,8 @@ optimistic price). Its cost is small enough that a factor of three error moves t
 
 **Verdict, packed column.**
 - *Settled by calculation:* size, flow, power, sweep and cost, and that it removes the CO₂ limit for about
-  $0.1–0.2/kg; with an oxygen sweep and a scrubber it also covers a sparger cut to 2 mm/s. Floor $8.6 (6 mm/s)
-  or $9.0 (2 mm/s).
+  $0.1–0.2/kg; with an oxygen sweep and a scrubber it also covers a sparger cut to 2 mm/s. Floor $8.9 (6 mm/s)
+  or $9.3 (2 mm/s).
 - *Settled by literature:* nothing either way for animal cells. No one was found to have run animal or insect
   cells through a falling-film, packed or trickle contactor; blood disc oxygenators of the 1950s–60s destroyed
   far fewer red cells than bubble oxygenators (secondary source, snippet); damage in sparging is tied to
@@ -774,7 +777,7 @@ The mixing limit rises by the same factor because, in the model's own rule, tran
 oxygen moved at that kLa scales with the driving force.
 
 - *CO₂ is not helped:* at a fixed gas velocity at the top the gas carries pCO₂/RT per unit volume whatever the
-  pressure, so overpressure alone leaves the floor at $11.5. (If instead the gas mass flow were held fixed, the
+  pressure, so overpressure alone leaves the floor at $11.8. (If instead the gas mass flow were held fixed, the
   dissolved CO₂ would rise with pressure.) Holding the velocity means 1.5 times more gas by mass at 1 bar gauge,
   so more oxygen bought; the model does not price the sparge oxygen.
 - *The tank allows it:* steaming at 121 °C already takes 1.0 bar gauge, and stainless culture vessels are
@@ -797,17 +800,18 @@ then above the thickness of the culture (258 g/L):
 
 | | sterile plant without clean rooms | yeast-style plant |
 |---|---|---|
-| sparger at 6 mm/s | **$7.2/kg** (12.6 passes, 201 m³/h, a 2.5 m column, $33k per m³) | **$5.0/kg** |
-| sparger at 2 mm/s | **$7.5/kg** (36 passes, 580 m³/h, 4.3 m across, $50k per m³) | **$5.2/kg** |
-| for reference, today | $11.5 (at 2 mm/s: $28.0) | $6.6 (at 2 mm/s: $13.4) |
+| sparger at 6 mm/s | **$7.5/kg** (12.6 passes, 201 m³/h, a 2.5 m column, $33k per m³) | **$5.3/kg** |
+| sparger at 2 mm/s | **$7.8/kg** (36 passes, 580 m³/h, 4.3 m across, $50k per m³) | **$5.5/kg** |
+| for reference, today | $11.8 (at 2 mm/s: $28.0) | $6.9 (at 2 mm/s: $13.4) |
 
 With these tricks the floor depends little on how much gas the cells tolerate, but only at high pass rates
 (section 11 limits this). In the sterile plant it
-lands at about $7, the parity mark. What remains is the culture's thickness limit, the plant class, and the
+lands at $7.5–7.8, about $1.5 above the $6.1 that parity with $12 meat needs (under the shelf rule since 2026-11-18; an earlier
+version compared it with $7, the parity under the old rule of cost plus $5). What remains is the culture's thickness limit, the plant class, and the
 cells (doubling time, waste, medium), plus the protectant cost that the floor leaves out.
 
 **Verdict, the combination.**
-- *Settled by calculation:* $7.2–7.5/kg in the floor's plant and $5.0–5.2 in a yeast-style plant, whatever the
+- *Settled by calculation:* $7.5–7.8/kg in the floor's plant and $5.3–5.5 in a yeast-style plant, whatever the
   gas-flow cap, for $33–50k per m³ of added capital.
 - *Settled by literature:* the parts exist as industrial equipment (packing, scrubbers, pressure-rated tanks);
   none has been used with animal cells.
@@ -856,7 +860,7 @@ What this settles:
   tank's, whatever the flow. Stripped to 20 mbar with 1 m³ in the loop, the exposure (rise × share) is 1.6 times
   the one that hurt CHO. Stripped only to 55 mbar (+0.26 pH) with 0.5 m³ in the loop it is 0.29 times
   (0.18 with 0.3 m³). The gentler column needs 11 passes an hour, 178 m³/h, 2.4 m across and 0.18 m of packing,
-  $30k per m³ of tank, and leaves the floor at **$8.6**. Taking "rise × share" as the measure is my inference
+  $30k per m³ of tank, and leaves the floor at **$8.9**. Taking "rise × share" as the measure is my inference
   from one study.
 - **Not settled: deposits on the packing over a month, and meat cells rather than CHO.** Anchorage-dependent
   CHO stick to steel (patent snippet); suspension-adapted lines are selected not to. Nothing was found for
@@ -887,7 +891,7 @@ What this settles:
   and did better in a stirred tank (2026, snippet).
 - **Foam cannot be simulated reliably:** it depends on the medium's proteins and protectant. It needs a test.
 - **Verdict:** this one still needs an experiment, but it matters less now: with the column and pressure the
-  floor is $7.3–7.5 whatever the gas rate.
+  floor is $7.6–7.8 whatever the gas rate.
 
 ### 8.4 What changes in the experiments list
 
@@ -925,13 +929,13 @@ wide):
 | vessel surface | 46.1 m² | 45.5 m² (−1%) | a cylinder with dished heads is close to its least surface at this shape |
 | steel | 1 | **+15%** | wall thickness grows with diameter (pressure and minimum-thickness rules), so steel is diameter × surface |
 | plant cost | 1 | +5.4% (shell +9%, floor space +19%) | `shape_capex_factor` |
-| floor cost | $11.48 | **$9.25** (shape free), **$9.50** with the steel and floor | CO₂ still binds, at 164 g/L instead of 120 |
+| floor cost | $11.78 | **$9.56** (shape free), **$9.81** with the steel and floor | CO₂ still binds, at 164 g/L instead of 120 |
 
 So Pablo is right on CO₂ (+37% density) and on the direction for oxygen, which is small (−4%, not in the model).
 The least-area shape does not minimise cost, though: steel goes with diameter × area, not area, and the
 cheapest shape is squatter still (0.75; section 2.2). The page's shape lever shows the CO₂, oxygen and mixing
 bars moving through the new chart, and since a later change it also adds the extra steel and floor (about
-$0.25/kg at 1.0), so the page shows $9.50 there.
+$0.25/kg at 1.0), so the page shows $9.81 there.
 
 ---
 
@@ -961,7 +965,7 @@ the excess over 1.0** (0.090 against 0.077); nucleotides take a little back.
 If all the lipid comes from the feed: CO₂ = 0.455 − 0.090 = 0.365, oxygen unchanged (Humbird sizes catabolism
 from the cell's power, not from the ATP lipogenesis costs, so this is slightly cautious), **CO₂ per oxygen 0.966**,
 and the CO₂-limited density rises from 120 to **150 g/L** (+25%; the parent session estimated about 144). The
-floor goes from $11.48 to **$9.91**, with fat at an assumed $1.5/kg (45 g per kg of cells: 15% lipid in 300 g
+floor goes from $11.78 to **$10.21**, with fat at an assumed $1.5/kg (45 g per kg of cells: 15% lipid in 300 g
 of dry mass). Evidence on the cell side: lipid is 11–15% of dry mass in CHO biomass equations (Széliová 2020,
 Selvarasu 2012, via snippets), consistent with Humbird's 15%. Whether fed fatty acids actually stop cells
 making their own was not found as a number; CHO cells make fatty acids from glucose in both growth and
@@ -987,7 +991,7 @@ The mixing cap moves too, because in the model's rule oxygen transfer is capped 
 kLa scales with the driving force. At the floor CO₂ binds, so the setpoint alone changes nothing; it matters
 once CO₂ is dealt with. A consistency fix came with it: the packed column now takes in culture at the tank's
 dissolved oxygen (0.28) rather than an assumed 0.05, so an oxygen sweep gives less per pass. That moved the
-oxygen-sweep cases by up to $0.13/kg (for example $7.43 → $7.52 at 2 mm/s) and showed that an air sweep cannot
+oxygen-sweep cases by up to $0.13/kg (for example $7.43 → $7.52 at 2 mm/s, on the floor of the time) and showed that an air sweep cannot
 add oxygen to a culture held above air saturation (section 7.1).
 
 ### 10.3 Oxygen and CO₂ per kg of cells
@@ -1045,9 +1049,9 @@ The tested range is Clincke 2013 (15 tank volumes an hour for 48 days at 4 L, th
 (12–24 an hour for three weeks at 1–2 L). Both are bench scale and through filter fibres, not packing.
 
 Keeping the loop within the safe exposure and the tested passes (`cheapest_tricks(..., ph_safe=True,
-tested=True)`), the cheapest combinations in the sterile plant are $7.45 at 6 mm/s (column for CO₂, liquid 0.75
-as deep as wide, 1 bar gauge, 10 passes), $8.5 at 4, $11.7 at 2 and $17.6 at 1 mm/s; in a yeast-style plant
-$4.91, $5.3, $6.8 and $9.2. So the earlier claim that the tricks make the floor independent of the gas the cells
+tested=True)`), the cheapest combinations in the sterile plant are $7.75 at 6 mm/s (column for CO₂, liquid 0.75
+as deep as wide, 1 bar gauge, 10 passes), $8.8 at 4, $12.0 at 2 and $17.6 at 1 mm/s; in a yeast-style plant
+$5.21, $5.6, $7.1 and $9.2. So the earlier claim that the tricks make the floor independent of the gas the cells
 tolerate holds only if cells take 3–6 times the tested circulation and twice to seven times the safe alkaline
 exposure. The 8 s outside the tank is an assumption; halving it would halve the exposure but not the passes.
 

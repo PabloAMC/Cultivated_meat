@@ -1,14 +1,16 @@
 # Cheap-plant study: what animal cells need of a sterile plant, and how much contamination a cheaper one can afford
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 > **Note, 2026-11-15.** The figures in this note were computed with the model as it was on 2026-11-14: the old hoped-for
 > device that holds the cells back ($89k per m3 of tank, no membranes), no bubble protectant, no antifoam effect, no oxygen cost for
 > the yeast-style class. `tests/test_plant_items.py` checks them with those settings (`floor_physics.BEFORE_FILTER_LOOP`). The
-> comparisons between plants hold; the levels are about $1 a kilo higher now. **Current figures** (recomputed 2026-11-15, late;
-> the note's in brackets): sterile plant $12.51 ($11.48), at pharma's 0.2% a day $12.71 ($11.70); yeast-style class, now buying its
-> oxygen, $7.97 ($6.61); yeast plant with what animal cells need $8.30 ($7.27); lean plant $10.02 ($8.99); lean plant losing 0.6 /
-> 1.5 / 5% a day with a 14-day restart $10.40 / $10.99 / $13.52 ($9.42 / $10.10 / $12.97), 1.5% with a 30-day restart $12.06 ($11.31);
-> break-even loss rate against the sterile plant at 0.2% a day: **3.9% a day** for the lean plant (3.5%) and **8.9%** for the yeast
-> plant with additions (7.6%).
+> comparisons between plants hold; the levels are about $1 a kilo higher now. **Current figures** (recomputed 2026-11-19;
+> the note's in brackets): sterile plant $12.81 ($11.78), at pharma's 0.2% a day $13.02 ($12.00); yeast-style class, now buying its
+> oxygen, $8.27 ($6.91); yeast plant with what animal cells need $8.61 ($7.58); lean plant $10.32 ($9.29); lean plant losing 0.6 /
+> 1.5 / 5% a day with a 14-day restart $10.71 / $11.30 / $13.84 ($9.73 / $10.41 / $13.29), 1.5% with a 30-day restart $12.37 ($11.62);
+> break-even loss rate against the sterile plant at 0.2% a day: **3.9% a day** for the lean plant (3.5%) and **8.8%** for the yeast
+> plant with additions (7.5%).
 
 Compiled 2026-11-14. Calculations: `plant_items.py` (part 1), `contamination.py` (part 2), checked by
 `tests/test_plant_items.py`, which also checks that the figures quoted here match the code. Sources are
@@ -22,19 +24,19 @@ settings: perfusion, 20 m³ tanks, 120 g/L, food-industry financing.
 ## For the experiments list
 
 Two unknowns are left open by this study. Costs per kg are from `floor_physics.explore` with everything else
-at the floor (perfusion, 20 m³ tanks, 120 g/L, food-industry financing). The model gives $11.5 for the
-sterile plant (`explore()`) and $6.6 for the yeast-style class (`explore(plant="microbial")`).
+at the floor (perfusion, 20 m³ tanks, 120 g/L, food-industry financing). The model gives $11.8 for the
+sterile plant (`explore()`) and $6.9 for the yeast-style class (`explore(plant="microbial")`).
 
 ### A. What a food-grade sterile plant for animal cells costs to build
 
 - **Unknown:** the installed cost of a 20 m³ line that is food-grade but still sealed and steam-sterilised
   (tank with its sterile piping and instruments, seed vessels, medium sterilisation, cleaning), which nobody
   has published.
-- **Worth:** $7.3 per kg if it comes in near a yeast plant with the additions animal cells must have
-  (`explore(items=plant_items.PLANTS["yeastplus"])`, $233k per m³ in today's prices); $9.0 if only the
-  clearly unnecessary items go (`explore(items=plant_items.PLANTS["lean"])`, $452k); $11.5 if it comes in at
+- **Worth:** $7.6 per kg if it comes in near a yeast plant with the additions animal cells must have
+  (`explore(items=plant_items.PLANTS["yeastplus"])`, $233k per m³ in today's prices); $9.3 if only the
+  clearly unnecessary items go (`explore(items=plant_items.PLANTS["lean"])`, $452k); $11.8 if it comes in at
   Humbird's level without the clean room (`explore()`, $813k).
-- **Probability it resolves well:** about 30% for $7.3 or near it, about 65% for $9.0 or better. The bare
+- **Probability it resolves well:** about 30% for $7.6 or near it, about 65% for $9.3 or better. The bare
   tank is not in dispute ($300k to $330k in three studies); the doubt is the piping and installation round
   it, where the one published vendor quote (Garrison 2022) is as high as Humbird.
 - **Deciding record:** an as-built cost breakdown of one food-grade 20 m³ animal-cell line, split into tank,
@@ -53,10 +55,10 @@ sterile plant (`explore()`) and $6.6 for the yeast-style class (`explore(plant="
 - **Unknown:** the chance per day that a 20 m³ tank in a food-grade plant without a clean room is lost to
   contamination over runs of weeks, and the days needed to restart after a loss.
 - **Worth, in the lean plant** (`explore(items=plant_items.PLANTS["lean"], hazard=h, restart_fail_days=d)`):
-  $9.4 per kg at 0.6% a day with a 14-day restart; $10.1 at 1.5%; $13.0 at 5%, which is worse than the
-  sterile plant's $11.7 at pharma's 0.2%. A 30-day restart turns $10.1 into $11.3. In the yeast plant with
-  additions the same three rates give $7.6, $8.0 and $10.0. The break-even is 3.5% a day for the lean plant
-  and 7.6% for the yeast plant with additions.
+  $9.7 per kg at 0.6% a day with a 14-day restart; $10.4 at 1.5%; $13.3 at 5%, which is worse than the
+  sterile plant's $12.0 at pharma's 0.2%. A 30-day restart turns $10.4 into $11.6. In the yeast plant with
+  additions the same three rates give $7.9, $8.4 and $10.4. The break-even is 3.5% a day for the lean plant
+  and 7.5% for the yeast plant with additions.
 - **Probability it resolves well** (at or under 2.2% a day, the top of what makers report today, with a
   restart of about two weeks): about 55%. Today's reported losses are 0.6 to 2.2% a day, but from small
   vessels and short batches, and pharma loses three times more batches above 1,000 L than below.
@@ -81,15 +83,15 @@ sterile plant (`explore()`) and $6.6 for the yeast-style class (`explore(plant="
 2. **About three fifths of the gap buys things animal cells do not need, or need less of.** The clean room
    (pharma itself no longer requires one round closed tanks), an owned oxygen plant (oxygen can be bought),
    seed capacity for a restart every 57 hours (runs of weeks need a fifth of it), and electropolish and
-   triple probes on the tanks. Removing these gives a "lean" plant at $340k per m³ and cells at $9.0 per kg,
-   against $11.5 at the floor.
+   triple probes on the tanks. Removing these gives a "lean" plant at $340k per m³ and cells at $9.3 per kg,
+   against $11.8 at the floor.
 3. **What animal cells certainly need is cheap in itself.** A yeast plant plus cell labs, sterilisation of all
-   the medium and bought oxygen is $175k per m³ and $7.3 per kg. The open question between $175k and $340k is
+   the medium and bought oxygen is $175k per m³ and $7.6 per kg. The open question between $175k and $340k is
    almost entirely the installed cost of a sealed, steam-sterilised tank with its piping, and how much
    cleaning plant goes with it.
 4. **Contamination does not decide it at the loss rates seen today.** The lean plant stays cheaper than the
-   floor's sterile plant until each tank loses a run about every 28 days (3.5% a day); the yeast plant with
-   additions until one every 13 days (7.6% a day). Pharma loses about 0.2% a day. Cultivated-meat makers
+   floor's sterile plant until each tank loses a run about every 29 days (3.5% a day); the yeast plant with
+   additions until one every 13 days (7.5% a day). Pharma loses about 0.2% a day. Cultivated-meat makers
    report 11 to 20% of batches, which is 0.6 to 2.2% a day if their batches run 10 to 20 days.
 5. **Ordinary sensors stop the run but do not protect the product.** A contaminant needs about 51 doublings
    to show on oxygen readings: 17 hours at a 20-minute doubling time, 51 hours at 60 minutes. The food limits
@@ -192,11 +194,11 @@ food-grade label alone does not make the plant cheap.
 
 | Plant | What it is | $k per m³ | Today's prices | Cells, $/kg (perfusion) | Cells, $/kg (drained and refilled) |
 |---|---|---|---|---|---|
-| Humbird's | every item as designed | 683 | 909 | $12.2 | $19.3 |
-| The floor's | the same in a sanitary hall | 611 | 813 | $11.5 | $17.8 |
-| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $9.0 | $12.7 |
-| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $7.3 | $9.4 |
-| Yeast | every item as in his yeast plant | 130 | 172 | $6.5 | $8.2 |
+| Humbird's | every item as designed | 683 | 909 | $12.5 | $19.6 |
+| The floor's | the same in a sanitary hall | 611 | 813 | $11.8 | $18.1 |
+| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $9.3 | $13.0 |
+| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $7.6 | $9.7 |
+| Yeast | every item as in his yeast plant | 130 | 172 | $6.8 | $8.5 |
 
 The model's existing frontier class, $190k in today's prices from built microbial plants, sits between yeast
 and yeast+. Bought oxygen is charged at $0.33 per kg in the lean and yeast+ plants. Each $100k per m³
@@ -267,11 +269,11 @@ losing runs at pharma's 0.2% a day. Fourteen days to restart after a loss; nothi
 
 | Run length planned | Lean | Yeast+ | Yeast |
 |---|---|---|---|
-| 5 days | 5.1% a day (one loss per tank every 20 days) | 10.7% (9 days) | 13.4% (7 days) |
-| 10 days | 4.2% (24 days) | 9.0% (11 days) | 11.4% (9 days) |
-| 20 days | 3.7% (27 days) | 8.0% (12 days) | 10.3% (10 days) |
-| 33 days | **3.5%** (28 days) | **7.6%** (13 days) | **9.7%** (10 days) |
-| 60 days | 3.3% (30 days) | 7.2% (14 days) | 9.3% (11 days) |
+| 5 days | 5.0% a day (one loss per tank every 20 days) | 10.6% (9 days) | 13.3% (8 days) |
+| 10 days | 4.2% (24 days) | 8.9% (11 days) | 11.4% (9 days) |
+| 20 days | 3.7% (27 days) | 8.0% (13 days) | 10.2% (10 days) |
+| 33 days | **3.5%** (29 days) | **7.5%** (13 days) | **9.7%** (10 days) |
+| 60 days | 3.3% (30 days) | 7.1% (14 days) | 9.2% (11 days) |
 
 The threshold barely moves with run length once runs are longer than the time between losses, because the
 loss then ends the run whatever was planned. Drained-and-refilled tanks tolerate more (lean 4.7%, yeast+ 10.2%
@@ -281,8 +283,8 @@ What moves the 33-day threshold:
 
 | Change | Lean | Yeast+ |
 |---|---|---|
-| Base | 3.5% | 7.6% |
-| 30 days to restart, not 14 | 1.9% | 4.2% |
+| Base | 3.5% | 7.5% |
+| 30 days to restart, not 14 | 1.9% | 4.1% |
 | All 24 tanks lost together, two seed tanks | 2.8% | 6.1% |
 | Cells of a lost run salvaged | 4.3% | 9.9% |
 | Or, with running losses at pharma's rate, the share of starts that may fail | 51% | 71% |
@@ -295,7 +297,7 @@ What moves the 33-day threshold:
 | Cultivated meat, all respondents [6] | 11.2% (range 0–52%, 11 companies) | 0.6–1.2% if batches ran 20 or 10 days | 3 to 12 times under |
 | Cultivated meat, beyond flasks [6] | 19.5% (6 companies) | 1.1–2.2% | 1.6 to 7 times under |
 
-At 1.5% a day the lean plant makes cells at $10.1, yeast+ at $8.0 and the yeast plant at $7.1, against $11.7
+At 1.5% a day the lean plant makes cells at $10.4, yeast+ at $8.4 and the yeast plant at $7.5, against $12.0
 for the floor's plant at pharma's rate. So if the cheaper plants can be built at these prices and lose runs
 no more often than cultivated-meat makers do today, in whatever plants they have, they win. The survey's worst
 respondent (52% of batches) would be over the lean threshold if its batches ran under about 20 days.
@@ -316,7 +318,7 @@ thresholds: the model says what a plant must achieve, not what it will.
   food-grade build, which must come to roughly $500k to $650k against Humbird's $1,414k and Vow's "under $1
   million"; (b) that such a plant keeps losses under about 7% a day, which I rate likely (about 75%) given
   that today's makers report 0.6 to 2.2%.
-- **The loss rate it must stay under: one run per tank every two weeks (7.6% a day) at yeast+ cost, every
+- **The loss rate it must stay under: one run per tank every two weeks (7.5% a day) at yeast+ cost, every
   four weeks (3.5%) at lean cost.** Half those if a loss takes a month to recover from.
 - **The measurement that would settle it:** the as-built cost of one food-grade 20 m³ line, split into tank,
   piping and instruments, seed vessels, medium sterilisation and cleaning, together with its run log (runs

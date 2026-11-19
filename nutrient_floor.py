@@ -5,14 +5,13 @@ nutrient_floor.py — the cheapest the medium can be per kg of cells, built from
 Why
 ---
 The model's medium cost is the larger of two things: litres of medium per kg x price per litre, and a floor, what the cells
-must eat. The floor is $1.70 a kilo: $0.67 of amino acids (0.337 kg of bulk soy hydrolysate at $2 a kilo, Humbird's cheaper
-option), $0.13 of glucose and $0.90 of everything else (assumed). In the central scenario litres x price ($5.72) is the larger,
-so the floor does not bind. In the best case it does. GFI's December 2025 analysis gives amino-acid prices per kilo for three
-tiers (feed-grade, low and high food-grade) and a range of amino acid needs per kilo of cells (200-650 g). This module prices the
-amino acids that way and shows what the floor and the scenarios would be.
+must eat. GFI's December 2025 analysis gives amino-acid prices per kilo for three tiers (feed-grade, low and high food-grade) and
+a range of amino acid needs per kilo of cells (200-650 g). This module prices the floor that way.
 
-It changes no default. Hydrolysate cannot supply glutamine, arginine, asparagine, cystine and serine (GFI), so the model's
-$0.67 leaves out amino acids that fermentation must supply at the prices below.
+Since 2026-11-19 the model's own floor IS the cheapest of these: feed-grade amino acids at the most efficient need (232 g at
+$6.36, $1.48), glucose ($0.13) and other nutrients ($0.40): $2.00 a kilo. Before, it was $1.70, with the amino acids as 0.337 kg
+of soy hydrolysate at $2 ($0.67), which cannot supply glutamine, arginine, asparagine, cystine and serine (GFI). The module now
+shows what the dearer tiers and needs would do.
 
 Run
 ---

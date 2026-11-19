@@ -1,5 +1,7 @@
 # Vessel types and operating modes
 
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+
 > **Updated 2026-11-15 (late), second time.** The grids and the figures in section 5 are recomputed with the model as it now stands:
 > the hollow-fibre filter loop in perfusion (`retention.py`), the bubble protectant in every sparged vessel (packed beds and hollow
 > fibres are not sparged), and antifoam's quarter cut to the sparger's oxygen. Earlier versions are in git history.
@@ -29,10 +31,10 @@ The grid below changes only the vessel and the mode. It holds the cells, the pla
 fixed, in one of two settings:
 
 - **the reference case**: `floor_physics.explore()` at its defaults (engineered cells doubling every 24 h, a food-grade plant
-  without clean rooms, no tank tricks, no losses). The stirred tank in perfusion gives $12.51.
+  without clean rooms, no tank tricks, no losses). The stirred tank in perfusion gives $12.81.
 - **the central scenario** (`scenarios.py`): selected cells on a low-waste feed, doubling every 36 h, a food-grade plant, gas
   at up to 4 mm/s, the column with 1 bar of pressure, a tank as deep as wide, 1% of runs lost a day, a 14-day restart,
-  30% of growth factors bought, medium at $0.20 a litre, dissolved oxygen held at half of air saturation. The stirred tank in perfusion gives $29.42.
+  medium at $0.20 a litre with the growth factors in its price, dissolved oxygen held at half of air saturation. The stirred tank in perfusion gives $26.43.
 
 Each vessel is priced at the largest unit that has been built for animal cells, up to 20 m3. A bag is 5 m3, a fixed bed
 65 litres, a hollow-fibre unit half a litre. So the rows also differ in unit size where the vessel cannot reach 20 m3. A plant of
@@ -87,27 +89,27 @@ Details:
 
 ## 4. Results
 
-### Reference case (the stirred tank in perfusion is $12.51)
+### Reference case (the stirred tank in perfusion is $12.81)
 
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
-| Stirred tank (20 m3) | **$65.35** (25 g/L, the food in one fill; done at this size) | **$18.85** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$18.46** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$34.75** (55 g/L, other waste and spent food; only done smaller) | **$12.51** (120 g/L, clearing CO₂; only done smaller) |
-| Stirred tank with a bubble cage (20 m3) | **$67.59** (25 g/L, the food in one fill; only done smaller) | **$19.46** (92 g/L, other waste and spent food; only done smaller) | **$19.05** (92 g/L, other waste and spent food; never done with animal cells) | **$35.93** (55 g/L, other waste and spent food; never done with animal cells) | **$11.08** (189 g/L, mixing; never done with animal cells) |
-| Airlift (bubble column) (20 m3) | **$62.37** (25 g/L, the food in one fill; only done smaller) | **$20.79** (79 g/L, clearing CO₂; only done smaller) | **$20.35** (79 g/L, clearing CO₂; never done with animal cells) | **$33.18** (55 g/L, other waste and spent food; never done with animal cells) | **$15.07** (79 g/L, clearing CO₂; never done with animal cells) |
-| Single-use bag (5 m3) | **$1,080** (25 g/L, the food in one fill; done at this size) | **$293.45** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$38.83** (92 g/L, other waste and spent food; only done smaller) | **$75.58** (55 g/L, other waste and spent food; only done smaller) | **$20.91** (146 g/L, getting oxygen in; only done smaller) |
+| Stirred tank (20 m3) | **$65.35** (25 g/L, the food in one fill; done at this size) | **$19.16** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$18.76** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$34.75** (55 g/L, other waste and spent food; only done smaller) | **$12.81** (120 g/L, clearing CO₂; only done smaller) |
+| Stirred tank with a bubble cage (20 m3) | **$67.59** (25 g/L, the food in one fill; only done smaller) | **$19.76** (92 g/L, other waste and spent food; only done smaller) | **$19.35** (92 g/L, other waste and spent food; never done with animal cells) | **$35.93** (55 g/L, other waste and spent food; never done with animal cells) | **$11.38** (189 g/L, mixing; never done with animal cells) |
+| Airlift (bubble column) (20 m3) | **$62.37** (25 g/L, the food in one fill; only done smaller) | **$20.89** (79 g/L, clearing CO₂; only done smaller) | **$20.45** (79 g/L, clearing CO₂; never done with animal cells) | **$33.18** (55 g/L, other waste and spent food; never done with animal cells) | **$15.17** (79 g/L, clearing CO₂; never done with animal cells) |
+| Single-use bag (5 m3) | **$1,080** (25 g/L, the food in one fill; done at this size) | **$293.75** (92 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$39.14** (92 g/L, other waste and spent food; only done smaller) | **$75.58** (55 g/L, other waste and spent food; only done smaller) | **$21.21** (146 g/L, getting oxygen in; only done smaller) |
 | Packed bed (0.065 m3) | **$3,730** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$3,726** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
 | Hollow fibres (0.00048 m3) | **$610,043** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$610,039** (13 g/L, room between the fibres; done at this size) |
 
-### Central scenario (the stirred tank in perfusion is $29.42)
+### Central scenario (the stirred tank in perfusion is $26.43)
 
 | vessel (unit size) | Batch | Fed-batch | Fill-and-draw | Chemostat | Perfusion |
 |---|---|---|---|---|---|
-| Stirred tank (20 m3) | **$103.12** (25 g/L, the food in one fill; done at this size) | **$42.87** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$46.21** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$90.40** (37 g/L, other waste and spent food; only done smaller) | **$29.42** (191 g/L, getting oxygen in; only done smaller) |
-| Stirred tank with a bubble cage (20 m3) | **$106.63** (25 g/L, the food in one fill; only done smaller) | **$44.30** (62 g/L, other waste and spent food; only done smaller) | **$47.77** (62 g/L, other waste and spent food; never done with animal cells) | **$93.57** (37 g/L, other waste and spent food; never done with animal cells) | **$27.72** (258 g/L, how thick the culture can be; never done with animal cells) |
-| Airlift (bubble column) (20 m3) | **$94.95** (25 g/L, the food in one fill; only done smaller) | **$40.05** (62 g/L, other waste and spent food; only done smaller) | **$43.12** (62 g/L, other waste and spent food; never done with animal cells) | **$83.00** (37 g/L, other waste and spent food; never done with animal cells) | **$30.88** (139 g/L, what the column can strip safely; never done with animal cells, with A column beside the tank that strips CO₂ without bubbles, with the culture run thinner ($28.29 if the loop passed)) |
-| Single-use bag (5 m3) | **$1,157** (25 g/L, the food in one fill; done at this size) | **$470.37** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$98.85** (62 g/L, other waste and spent food; only done smaller) | **$197.45** (37 g/L, other waste and spent food; only done smaller) | **$50.86** (126 g/L, getting oxygen in; only done smaller) |
-| Packed bed (0.065 m3) | **$5,178** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$5,174** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
-| Hollow fibres (0.00048 m3) | **$685,153** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$685,149** (13 g/L, room between the fibres; done at this size) |
+| Stirred tank (20 m3) | **$98.86** (25 g/L, the food in one fill; done at this size) | **$41.67** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$45.01** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$87.51** (37 g/L, other waste and spent food; only done smaller) | **$26.43** (191 g/L, getting oxygen in; only done smaller) |
+| Stirred tank with a bubble cage (20 m3) | **$102.37** (25 g/L, the food in one fill; only done smaller) | **$43.10** (62 g/L, other waste and spent food; only done smaller) | **$46.57** (62 g/L, other waste and spent food; never done with animal cells) | **$90.69** (37 g/L, other waste and spent food; never done with animal cells) | **$24.73** (258 g/L, how thick the culture can be; never done with animal cells) |
+| Airlift (bubble column) (20 m3) | **$90.68** (25 g/L, the food in one fill; only done smaller) | **$38.85** (62 g/L, other waste and spent food; only done smaller) | **$41.91** (62 g/L, other waste and spent food; never done with animal cells) | **$80.12** (37 g/L, other waste and spent food; never done with animal cells) | **$27.90** (139 g/L, what the column can strip safely; never done with animal cells, with A column beside the tank that strips CO₂ without bubbles, with the culture run thinner ($25.30 if the loop passed)) |
+| Single-use bag (5 m3) | **$1,152** (25 g/L, the food in one fill; done at this size) | **$469.17** (62 g/L, other waste and spent food; done at this size; this density is not shown for meat cells) | **$97.64** (62 g/L, other waste and spent food; only done smaller) | **$194.56** (37 g/L, other waste and spent food; only done smaller) | **$47.87** (126 g/L, getting oxygen in; only done smaller) |
+| Packed bed (0.065 m3) | **$5,173** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) | as batch | not possible | not possible | **$5,171** (113 g/L, room on the carriers; done at this size; this density is not shown for meat cells) |
+| Hollow fibres (0.00048 m3) | **$685,149** (13 g/L, room between the fibres; done at this size) | as batch | not possible | not possible | **$685,146** (13 g/L, room between the fibres; done at this size) |
 
 Tags: "done at this size" means animal cells have been grown this way at this unit size, for any product. The tag is about
 the vessel, the mode and the size. It does not say that anyone has reached the density in the cell. In both grids, the stirred
@@ -120,31 +122,31 @@ with animal cells" means no record was found.
 
 ## 5. What the grid says
 
-1. **Perfusion in a stirred tank is the cheapest combination in both settings.** It costs $12.51 in the reference case and $29.42 in
+1. **Perfusion in a stirred tank is the cheapest combination in both settings.** It costs $12.81 in the reference case and $26.43 in
    the central scenario. Nobody has run animal cells in perfusion above about 4 m3 (Genzyme's 4,000 L tanks at Geel). We put 2-3% on
    anyone having run it at 20 m3 for a month (operating_modes.md, section 5e).
-2. **The modes that run at 20 m3 today cost more.** Fed-batch and fill-and-draw cost about $18-19 in the reference case. In the central
-   scenario they cost $43-46. The gap grows because the central cells make more ammonia: without washing it out, the culture stops
+2. **The modes that run at 20 m3 today cost more.** Fed-batch and fill-and-draw cost about $19 in the reference case. In the central
+   scenario they cost $42-45. The gap grows because the central cells make more ammonia: without washing it out, the culture stops
    at 62 g/L instead of 92. These costs assume 62-92 g of cells a litre. Nobody has shown that density for meat cells at this
-   size. The one 20 m3 plant for meat cells reports harvests of about 27 g/L. So $18.85 is not a demonstrated cost.
-3. **A chemostat costs more than fill-and-draw** ($34.75 against $18.46 in the reference case). It must run below the top growth
+   size. The one 20 m3 plant for meat cells reports harvests of about 27 g/L. So $19.16 is not a demonstrated cost.
+3. **A chemostat costs more than fill-and-draw** ($34.75 against $18.76 in the reference case). It must run below the top growth
    rate, and the least medium a cell needs then caps the density lower.
 4. **Batch is the dearest stirred-tank mode.** One fill of medium feeds only a thin culture ($65.35), and the unspent medium leaves with
    the cells.
-5. **An airlift costs about what a stirred tank costs when waste is not washed out.** In perfusion it costs more ($15.07 against
-   $12.51), because its taller shape passes less gas per litre and clears less CO2. At 79 g/L, the 12.7 litres of culture that leave
+5. **An airlift costs about what a stirred tank costs when waste is not washed out.** In perfusion it costs more ($15.17 against
+   $12.81), because its taller shape passes less gas per litre and clears less CO2. At 79 g/L, the 12.7 litres of culture that leave
    with each kg of harvested cells also set the medium (since 2026-11-16 the medium cannot be less than that; it was $14.78 before). In the central scenario, the column loop runs
    over the pH-safe dose in the taller tank. The grid then uses the cheapest setting that passes: the column, with the culture run thinner (139 g/L) so that the loop
-   stays within its checks ($30.88). If the loop were allowed at full density, the airlift would cost $28.29, below the stirred
-   tank's $29.42: whether that loop can be run safely on a tall airlift decides between the two.
-6. **A single-use bag pays for a new bag every run.** That makes it close to a stirred tank only in perfusion ($20.91), where a run
+   stays within its checks ($27.90). If the loop were allowed at full density, the airlift would cost $25.30, below the stirred
+   tank's $26.43: whether that loop can be run safely on a tall airlift decides between the two.
+6. **A single-use bag pays for a new bag every run.** That makes it close to a stirred tank only in perfusion ($21.21), where a run
    lasts a month. In two-day batch cycles the bags alone cost hundreds of dollars a kilo. At a 10-14-day pharma fed-batch the bag cost
    per kilo would be about 5 times lower, still far above a steel tank.
 7. **Packed beds and hollow fibres are not a route to cheap cells.** Built as they exist (65 litres and half a litre a unit), they
    cost thousands and hundreds of thousands of dollars a kilo. Even a 20 m3 bed priced like a stirred tank, with carriers that cost
-   nothing, every cell recovered and a stirred tank's crew, costs $42.19 in the reference case (`vessels.what_if_bed`), against $12.51
+   nothing, every cell recovered and a stirred tank's crew, costs $42.49 in the reference case (`vessels.what_if_bed`), against $12.81
    in perfusion. The bed is seeded thin and emptied every run, so it makes 4.3 tonnes per m3 a year against 22.1. Ever After Foods
-   claims 286-400 g/L of cells plus edible scaffold in a packed bed; at 258 g/L the same best case costs about $20. That claim is
+   claims 286-400 g/L of cells plus edible scaffold in a packed bed; at 258 g/L the same best case costs about $21. That claim is
    unpublished and counts the scaffold.
 
 ## 6. What Pablo should check
@@ -197,9 +199,9 @@ than that, which clogs; this was not found at any size.
 the scenario's gas setting, so the protectant and its cost stay. The cage adds gas at `vm_cage_gas` (6 mm/s over the tank's
 cross-section, 3–12; capped by foam, not by cells), discounted by `vm_cage_exchange` (0.8, 0.5–1) because its oxygen and CO₂ reach
 the cells only with the medium that crosses the mesh. Capital 1.15 times a stirred tank (1.05–1.4). Every one of these is a
-judgement: no exchange rate across a cage, no 20 m³ cage and no price were found. Results, perfusion: reference case $11.08 against
-$12.51 in the plain tank (189 g/L, mixing now binds); Central $27.72 against $29.42 (258 g/L, the thickness limit); today's cells
-(rung 1, no tricks) $39.23 against $62.96. The cage is worth most where the gas the cells tolerate is low, because it adds gas the
+judgement: no exchange rate across a cage, no 20 m³ cage and no price were found. Results, perfusion: reference case $11.38 against
+$12.81 in the plain tank (189 g/L, mixing now binds); Central $24.73 against $26.43 (258 g/L, the thickness limit); today's cells
+(rung 1, no tricks) $33.25 against $56.99. The cage is worth most where the gas the cells tolerate is low, because it adds gas the
 cells never feel.
 
 **Variant: the inner cylinder full of gas, under pressure.** Then the wall must hold liquid out and let gas through: a gas-permeable

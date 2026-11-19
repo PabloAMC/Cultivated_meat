@@ -18,13 +18,14 @@ import scenarios as S                       # noqa: E402
 import tank_size as T                       # noqa: E402
 
 # $/kg at 2, 5, 10, 20, 50, 100, 200 m3, tank design chosen again at each size
+# repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds), growth factors inside complete media prices
 GOLDEN = {
-    "reference": (20.2415, 14.5594, 12.6653, 12.5107, 13.2314, 15.8790, 19.3675),
-    "reference_redesigned": (15.9210, 12.5038, 11.3766, 10.7243, 10.6663, 11.2957, 11.1939),
-    "best": (12.5468, 10.6003, 9.9658, 9.6571, 9.5436, 9.7347, 9.8792),
-    "central": (40.3402, 33.2078, 30.8929, 29.4162, 29.3713, 30.4568, 30.6029),
-    "central_lean": (32.5102, 28.5758, 27.4121, 26.5552, 26.4697, 26.9642, 27.0310),
-    "cautious": (68.0377, 51.2471, 45.4415, 42.3918, 41.3873, 40.5400, 42.1154),
+    "reference": (20.5430, 14.8609, 12.9669, 12.8122, 13.5329, 15.8790, 19.3675),
+    "reference_redesigned": (16.2225, 12.8053, 11.6782, 11.0259, 10.9678, 11.5972, 11.4955),
+    "best": (12.8510, 10.9045, 10.2699, 9.9613, 9.8477, 10.0388, 10.1834),
+    "central": (37.3535, 30.2211, 27.9063, 26.4296, 26.3846, 27.4701, 27.6162),
+    "central_lean": (29.5235, 25.5891, 24.4254, 23.5685, 23.4830, 23.9775, 24.0443),
+    "cautious": (62.0644, 45.2737, 39.4681, 36.4185, 35.4139, 34.5667, 36.1421),
 }
 NOTE = os.path.join(MODEL_DIR, "research_notes", "tank_size.md")
 
@@ -96,7 +97,7 @@ for k in S.ORDER:
     check(T.design_limit(k, {"ph_max": "ph_relaxed"}) > lim, f"{k}: a looser pH check should raise the limit")
 
 # 5. the answer: 20 m3 is near the flat bottom of the curve, and no scenario but the cautious one gains more than 3% from another
-#    size. Since 2026-11-16 the cautious case saves 4.6% at 111 m3 (its oxygen-limited 120 g/L culture holds at every size), so
+#    size. Since 2026-11-16 the cautious case saves 4.6% (5.4% since 2026-11-19) at 111 m3 (its oxygen-limited 120 g/L culture holds at every size), so
 #    20 m3 is not within 3% of its minimum; the note says so, and the check pins that it stays between 4% and 5.5%.
 opt = {k: T.optimum(k) for k in S.ORDER}
 for k in S.ORDER:

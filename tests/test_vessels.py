@@ -19,13 +19,16 @@ import vessels as V
 from inputs import value
 
 # the reference-case grid, $/kg (None = not possible). Update in the same commit as an intended change.
+# repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds, less where medium at $0.15 a litre partly covers it; batch and
+# chemostat buy more than the floor and do not move); central: growth factors inside the $0.20 complete medium, which cannot
+# cost less than the nutrients plus those growth factors (fed-batch, at 16 L/kg, pays that floor)
 GOLDEN_REF = {
-    ("stirred", "batch"): 65.3527, ("stirred", "fedbatch"): 18.8538, ("stirred", "filldraw"): 18.4583,
-    ("stirred", "chemostat"): 34.7532, ("stirred", "perfusion"): 12.5107,
-    ("airlift", "fedbatch"): 20.7859, ("airlift", "perfusion"): 15.0683,
+    ("stirred", "batch"): 65.3527, ("stirred", "fedbatch"): 19.1553, ("stirred", "filldraw"): 18.7598,
+    ("stirred", "chemostat"): 34.7532, ("stirred", "perfusion"): 12.8122,
+    ("airlift", "fedbatch"): 20.8887, ("airlift", "perfusion"): 15.1712,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 29.4162, ("stirred", "fedbatch"): 42.8732, ("airlift", "perfusion"): 30.8821}
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 26.4296, ("stirred", "fedbatch"): 41.6730, ("airlift", "perfusion"): 27.8954}
 
 
 def close(a, b, tol=1e-3):
