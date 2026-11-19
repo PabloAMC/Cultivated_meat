@@ -75,7 +75,7 @@ def _split(r: dict) -> dict:
 
 
 def scenario_split() -> dict:
-    """{key: split} for the reference case and each scenario, as the model runs them (perfusion, 20 m3)."""
+    """{key: split} for the reference case and each scenario, as the model runs them (each in its own mode since 2026-11-19)."""
     out = {"reference": _split(fp.explore())}
     for k in S.PAGE_ORDER:
         out[k] = _split(S.run(S.SCENARIOS[k].choice))

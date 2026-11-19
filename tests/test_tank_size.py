@@ -154,6 +154,20 @@ else:
         for want in (f"${scan[k][i20]['total']:.2f}", f"${o['total']:.2f}", f"{T.design_limit(k):.1f} m\u00b3"):
             check(want in text, f"the note does not quote {want} ({k})")
 
+# 9. fed-batch against size (2026-11-19 restructure): a bigger batch is cheaper, never cheaper than perfusion at 20 m3, and the
+# note carries the table
+FB_GOLDEN = {"central": (64.8950, 58.0934), "best": (15.6371, 14.5032)}     # $/kg at 20 and 100 m3
+for k, (a, b) in FB_GOLDEN.items():
+    c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
+    check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")
+    check(c100 < c20 and T.fedbatch_at(k, 200.0)["total"] > S.run(S.SCENARIOS[k].choice)["total"], f"{k}: fed-batch against size")
+check(abs(T.fedbatch_at("central", 20.0)["total"] - S.run(S.SCENARIOS["selected"].choice)["total"]) < 1e-9,
+      "Central's switches in fed-batch at 20 m3 should be rung 3")
+if os.path.exists(NOTE):
+    text = open(NOTE, encoding="utf-8").read()
+    for ln in T.fedbatch_markdown().splitlines():
+        check(ln in text, f"the note does not carry the fed-batch size table line: {ln[:70]}")
+
 
 def test_tank_size():
     assert not fails, fails

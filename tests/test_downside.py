@@ -20,11 +20,15 @@ from inputs import value
 # central_lean, model cap); best (capped by the least medium flow) and its 27 g/L figures do not move. Cautious: glucose from the
 # cells' balance gives the published cells 4.8 mol of lactate a kilo, and an unwashed tank is now capped by whichever waste is
 # further above the enhanced cells' (lactate here), so its cap falls from 52 to 25 g/L, below the 27 g/L shown for meat cells
+# 2026-11-19 restructure: an unwashed tank is capped by the waste mass balance (pf_batch_end_x times the level perfusion is held
+# to), not by Humbird's 120 g/L scaled. Central's selected cells stop at 37 g/L (was 56), the published cells (cautious) at 13.6 g/L
+# (was 25); the best case is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
+# seed train (best and central_lean, fed-batch), so there fill-and-draw, which needs a seed only to restart, is the cheaper fallback.
 GOLDEN = {
-    "best": {("fedbatch", "model"): 14.1793, ("fedbatch", "shown"): 39.1678, ("filldraw", "model"): 14.2754},
-    "central": {("fedbatch", "model"): 44.1295, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 47.6679},
-    "central_lean": {("fedbatch", "model"): 30.5932, ("filldraw", "model"): 32.7951},
-    "cautious": {("fedbatch", "model"): 113.5649, ("filldraw", "model"): 130.6077, ("filldraw", "shown"): 130.6077},
+    "best": {("fedbatch", "model"): 15.6371, ("fedbatch", "shown"): 44.0019, ("filldraw", "model"): 14.3709},
+    "central": {("fedbatch", "model"): 64.8950, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 70.6191},
+    "central_lean": {("fedbatch", "model"): 49.5107, ("filldraw", "model"): 47.9440},
+    "cautious": {("fedbatch", "model"): 209.0520, ("filldraw", "model"): 242.0239, ("filldraw", "shown"): 242.0239},
 }
 
 
@@ -41,7 +45,8 @@ def check() -> list:
             fails.append(f"{k}: the perfusion cost is not the scenario's own")
         for m in D.MODES:
             # the design chosen again is never dearer than the one chosen for perfusion (vessels.cell holds it fixed)
-            if c[(m, "model")]["cost"] > V.cell("stirred", m, base)["cost"] + 1e-9:
+            b = S.explore_kwargs({**S.SCENARIOS[k].choice, "mode": "fedbatch"}) if m == "fedbatch" else base   # 2026-11-19: seed train
+            if c[(m, "model")]["cost"] > V.cell("stirred", m, b)["cost"] + 1e-9:
                 fails.append(f"{k} {m}: re-chosen design dearer than the perfusion design")
             # a thinner culture is dearer, and its density is the one shown for meat cells.
             # 2026-11-19 audit batch: unless the model's own cap is already below it (cautious: lactate stops the published

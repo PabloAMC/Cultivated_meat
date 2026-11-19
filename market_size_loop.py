@@ -172,7 +172,8 @@ def premium_start(choice: dict, over: dict | None = None) -> dict:
     return {"premium_mt": comp["premium"], "area_m2": area, "switch_m2": switch, "crosses": area >= switch,
             "small_mt": comp["premium_small"], "small_area_m2": small, "small_crosses": small >= switch,
             "whole_mt": comp["total"], "whole_area_m2": whole, "whole_crosses": whole >= switch,
-            "switch_mt": switch / base["area_per_kg"] / 1e9}
+            # a fed-batch case filters nothing (2026-11-19 restructure: rung 1 is fed-batch), so no volume reaches the switch
+            "switch_mt": switch / base["area_per_kg"] / 1e9 if base["area_per_kg"] > 0 else NEVER}
 
 
 def ladder(choice: dict, over: dict | None = None) -> list:

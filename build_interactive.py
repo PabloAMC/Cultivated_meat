@@ -4306,6 +4306,7 @@ function floorExplore(p,noSearch){
       if(sorb>0) terms["salt"]=1000*(2*lac+sorb*nh3)/Math.max(2,osmLim-F.osm_base-osmCo2);
       if(!vm.own_retention) terms["harvest"]=1000/lim[1];      // the culture that leaves with the harvested cells must be replaced
       need=Math.max.apply(null,Object.keys(terms).map(k=>terms[k])); }
+    else terms["harvest"]=1000/lim[1];          // all the medium leaves with the cells (mirror of floor_physics.explore, 2026-11-19)
     terms["nutrients"]=F.medium_l; }
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
   const ml=p.medium_l===undefined?Math.max(F.medium_l,need):((perf&&!vm.own_retention)?Math.max(p.medium_l,1000/lim[1]):p.medium_l), mp=p.medium_price===undefined?0.15:p.medium_price;

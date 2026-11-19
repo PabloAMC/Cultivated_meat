@@ -8,7 +8,7 @@ fed-batch or in fill-and-draw (vessels.py), where waste and the least medium flo
 plant for meat cells reports harvests of about 27 g/L (`vm_x_meat_shown`).
 
 For each scenario this module prices both modes in the stirred tank, at two densities:
-  * the model's own cap (what waste allows: 25-92 g/L), and
+  * the model's own cap (what the waste mass balance allows, since 2026-11-19: 14-92 g/L), and
   * the density shown for meat cells in a vessel of 1 m3 or more (`vm_x_meat_shown`).
 Everything else is the scenario's: cells, plant, losses, gas the cells tolerate, medium and growth factors. The tank design
 (tricks, shape) is chosen again for each mode, because a trick that lifts the perfusion tank's gas limits adds capital
@@ -34,7 +34,10 @@ def _run(choice: dict, mode: str, cap: str) -> dict:
     best = None
     for tk in S.SW["tricks"].settings:
         for sh in S.SW["shape"].settings:
-            kw = V.explore_kwargs("stirred", mode, S.explore_kwargs({**choice, "tricks": tk.key, "shape": sh.key}))
+            # 2026-11-19 restructure: the scenario's own fed-batch setting where it has one (a fed-batch plant with shared medium keeps
+            # Humbird's full seed train, scenarios.explore_kwargs)
+            m = {"mode": "fedbatch"} if mode == "fedbatch" else {}
+            kw = V.explore_kwargs("stirred", mode, S.explore_kwargs({**choice, **m, "tricks": tk.key, "shape": sh.key}))
             if cap == "shown":
                 kw["vm"] = {**kw["vm"], "caps": {"shown for meat cells": value("vm_x_meat_shown")}}
             r = fp.explore(**kw)

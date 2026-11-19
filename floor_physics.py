@@ -24,8 +24,10 @@ The chain of reasoning
 
        X_O2 = OTR / qO2            and never above the viscosity limit X_visc (258 g/L)
 
-   If waste is not washed out (fed-batch, fill-and-draw, chemostat), ammonia and CO2 cap
-   the density lower still (X_unperfused, 120 g/L for efficient cells in 20 m3).
+   If waste is not washed out (fed-batch, fill-and-draw, chemostat), the waste mass balance caps
+   the density lower still: X <= end factor x level allowed / waste made per kg (explore; since
+   2026-11-19). Humbird's own fed-batch design (X_unperfused, 120 g/L for efficient cells in 20 m3)
+   is kept for his tiers and for the labour per m3 of his fed-batch plant.
 
 3. Output per m3 of vessel per year follows from density and growth rate mu = ln2 / t_d:
 
@@ -129,7 +131,8 @@ def _per_cell_load(cells: Cells) -> float:
 
 
 def waste_cap(cells: Cells) -> float:
-    """Density (g/L) at which waste stops a culture that is not washed out (efficient cells)."""
+    """Density (g/L) at which waste stops a culture that is not washed out, scaled from Humbird's fed-batch design. Used only by
+    his own designs (tiers, density, output_per_m3); explore() uses the waste mass balance instead (2026-11-19)."""
     return value("pf_x_unperfused") / _per_cell_load(cells)
 
 
@@ -692,7 +695,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             if suspended:                              # the culture that leaves with the harvested cells must be replaced
                 terms["harvest"] = 1000.0 / x
             need = max(terms.values())
-        else:
+        else:                                           # all the medium leaves with the cells (2026-11-19: named as such)
+            terms = {"harvest": 1000.0 / x}
             need = 1000.0 / x
         terms["nutrients"] = value("pf_medium_l_floor")
         medium_l = max(value("pf_medium_l_floor"), need)

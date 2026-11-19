@@ -58,12 +58,12 @@ $6.41 and 8.30%.)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 2,533 | 1,450 | 0.96× | $110.41 | under 0.01% |
-| 0.1 | 0.0298% | 25,335 | 120 | 0.80× | $75.65 | under 0.01% |
-| 0.5 | 0.149% | 126,674 | 76 | 0.65× | $69.09 | 0.01% |
-| 2 | 0.595% | 506,698 | 51 | 0.53× | $64.19 | 0.01% |
-| 10 | 2.98% | 2,533,490 | 50 | 0.42× | $60.01 | 0.02% |
-| 35 | 10.4% | 8,867,215 | 50 | 0.34× | $57.39 | 0.02% |
+| 0.01 | 0.00298% | 10,739 | 1,450 | 0.88× | $190.73 | under 0.01% |
+| 0.1 | 0.0298% | 107,388 | 1,450 | 0.67× | $158.71 | under 0.01% |
+| 0.5 | 0.149% | 536,938 | 1,450 | 0.53× | $137.56 | under 0.01% |
+| 2 | 0.595% | 2,147,752 | 1,450 | 0.43× | $122.56 | under 0.01% |
+| 10 | 2.98% | 10,738,759 | 1,450 | 0.33× | $108.59 | under 0.01% |
+| 35 | 10.4% | 37,585,658 | 1,450 | 0.29× | $101.38 | under 0.01% |
 
 **3. Plus cells selected to grow faster on the low-waste feed (Central)** (no learning: $32.80)
 
@@ -95,18 +95,18 @@ $6.63 (the best case).
 
 | scenario | learning | the main model: cells, share | resting point from below: cells, share, Mt a year | from above: cells, share, Mt a year |
 |---|---|---|---|---|
-| 1. Published cells | central | $111.89, under 0.01% | $110.99, under 0.01%, 0.006 | $110.99, under 0.01%, 0.006 |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | $111.89, under 0.01% | $111.63, under 0.01%, 0.006 | $111.63, under 0.01%, 0.006 |
-| 1. Published cells | slow learning | $111.89, under 0.01% | $111.63, under 0.01%, 0.006 | $111.63, under 0.01%, 0.006 |
-| 1. Published cells | fast learning | $111.89, under 0.01% | $110.16, under 0.01%, 0.006 | $75.43, under 0.01%, 0.03 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | $32.80, 0.16% | $17.69, 1.06%, 3.56 | $17.69, 1.06%, 3.56 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | $32.80, 0.16% | $32.33, 0.17%, 0.58 | $32.33, 0.17%, 0.58 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | $32.80, 0.16% | $21.91, 0.59%, 1.99 | $21.91, 0.59%, 1.99 |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | $32.80, 0.16% | $15.53, 1.45%, 4.88 | $15.53, 1.45%, 4.88 |
-| 5. Plus engineered cells | central | $11.46, 2.74% | $6.67, 6.21%, 20.88 | $6.67, 6.21%, 20.88 |
-| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | $11.46, 2.74% | $11.18, 2.86%, 9.61 | $11.18, 2.86%, 9.61 |
-| 5. Plus engineered cells | slow learning | $11.46, 2.74% | $7.88, 5.01%, 16.82 | $7.88, 5.01%, 16.82 |
-| 5. Plus engineered cells | fast learning | $11.46, 2.74% | $6.54, 6.36%, 21.36 | $6.54, 6.36%, 21.36 |
+| 1. Published cells | central | $209.05, under 0.01% | $207.78, under 0.01%, under 0.001 | $207.78, under 0.01%, under 0.001 |
+| 1. Published cells | no food-grade membrane supplier, slow plant learning | $209.05, under 0.01% | $208.69, under 0.01%, under 0.001 | $208.69, under 0.01%, under 0.001 |
+| 1. Published cells | slow learning | $209.05, under 0.01% | $208.69, under 0.01%, under 0.001 | $208.69, under 0.01%, under 0.001 |
+| 1. Published cells | fast learning | $209.05, under 0.01% | $206.61, under 0.01%, under 0.001 | $206.61, under 0.01%, under 0.001 |
+| 4. Plus perfusion (Central) | central | $32.80, 0.16% | $17.69, 1.06%, 3.56 | $17.69, 1.06%, 3.56 |
+| 4. Plus perfusion (Central) | no food-grade membrane supplier, slow plant learning | $32.80, 0.16% | $32.33, 0.17%, 0.58 | $32.33, 0.17%, 0.58 |
+| 4. Plus perfusion (Central) | slow learning | $32.80, 0.16% | $21.91, 0.59%, 1.99 | $21.91, 0.59%, 1.99 |
+| 4. Plus perfusion (Central) | fast learning | $32.80, 0.16% | $15.53, 1.45%, 4.88 | $15.53, 1.45%, 4.88 |
+| 7. Plus everything else at its favourable end (the best case) | central | $11.46, 2.74% | $6.67, 6.21%, 20.88 | $6.67, 6.21%, 20.88 |
+| 7. Plus everything else at its favourable end (the best case) | no food-grade membrane supplier, slow plant learning | $11.46, 2.74% | $11.18, 2.86%, 9.61 | $11.18, 2.86%, 9.61 |
+| 7. Plus everything else at its favourable end (the best case) | slow learning | $11.46, 2.74% | $7.88, 5.01%, 16.82 | $7.88, 5.01%, 16.82 |
+| 7. Plus everything else at its favourable end (the best case) | fast learning | $11.46, 2.74% | $6.54, 6.36%, 21.36 | $6.54, 6.36%, 21.36 |
 
 "From below" starts with no learning; "from above" starts with everything at its floor. Where the two differ there are two resting
 points, and reaching the upper one needs someone to carry the industry across the gap.
@@ -135,27 +135,27 @@ points, and reaching the upper one needs someone to carry the industry across th
 
 | scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales (without premium fillets and shrimp) | chicken (organic): price against it, share of it | pork (heritage): price against it, share of it | beef (prime/wagyu): price against it, share of it | seafood (premium fillet, shrimp): price against it, share of it | seafood (sushi): price against it, share of it |
 |---|---|---|---|---|---|---|---|---|---|
-| 1. Published cells | no learning | $111.89 | 0.001, 0.004, 0.001 | 22% (7%) | 10.09×, under 0.01% | 8.20×, under 0.01% | 2.91×, 0.02% | 6.56×, under 0.01% | 3.75×, 0.02% |
-| 1. Published cells | resting point | $110.99 | 0.001, 0.004, 0.001 | 22% (7%) | 10.01×, under 0.01% | 8.13×, under 0.01% | 2.89×, 0.03% | 6.51×, under 0.01% | 3.72×, 0.02% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no learning | $32.80 | 0.15, 0.34, 0.06 | 27% (13%) | 3.33×, 0.22% | 2.70×, 0.35% | 0.96×, 6.30% | 2.16×, 0.59% | 1.24×, 2.50% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | resting point | $17.69 | 0.88, 2.20, 0.48 | 25% (11%) | 2.04×, 1.33% | 1.65×, 2.17% | 0.59×, 31.34% | 1.32×, 3.69% | 0.76×, 14.98% |
-| 5. Plus engineered cells | no learning | $11.46 | 1.87, 5.60, 1.73 | 20% (8%) | 1.50×, 3.44% | 1.22×, 5.44% | 0.43×, 50.20% | 0.98×, 8.83% | 0.56×, 28.99% |
-| 5. Plus engineered cells | resting point | $6.67 | 3.26, 11.98, 5.64 | 16% (5%) | 1.09×, 7.58% | 0.89×, 11.28% | 0.32×, 64.82% | 0.71×, 16.97% | 0.41×, 43.72% |
+| 1. Published cells | no learning | $209.05 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.39×, under 0.01% | 14.94×, under 0.01% | 5.31×, under 0.01% | 11.95×, under 0.01% | 6.83×, under 0.01% |
+| 1. Published cells | resting point | $207.78 | under 0.001, under 0.001, under 0.001 | almost nothing is sold | 18.28×, under 0.01% | 14.85×, under 0.01% | 5.28×, under 0.01% | 11.88×, under 0.01% | 6.79×, under 0.01% |
+| 4. Plus perfusion (Central) | no learning | $32.80 | 0.15, 0.34, 0.06 | 27% (13%) | 3.33×, 0.22% | 2.70×, 0.35% | 0.96×, 6.30% | 2.16×, 0.59% | 1.24×, 2.50% |
+| 4. Plus perfusion (Central) | resting point | $17.69 | 0.88, 2.20, 0.48 | 25% (11%) | 2.04×, 1.33% | 1.65×, 2.17% | 0.59×, 31.34% | 1.32×, 3.69% | 0.76×, 14.98% |
+| 7. Plus everything else at its favourable end (the best case) | no learning | $11.46 | 1.87, 5.60, 1.73 | 20% (8%) | 1.50×, 3.44% | 1.22×, 5.44% | 0.43×, 50.20% | 0.98×, 8.83% | 0.56×, 28.99% |
+| 7. Plus everything else at its favourable end (the best case) | resting point | $6.67 | 3.26, 11.98, 5.64 | 16% (5%) | 1.09×, 7.58% | 0.89×, 11.28% | 0.32×, 64.82% | 0.71×, 16.97% | 0.41×, 43.72% |
 
 | scenario | learning | sold at the scenario's own cost, Mt a year: premium products, premium products without premium fillets and shrimp, everything | membrane each needs, million m² a year | the switch, million m² a year | which of the three cross it alone? |
 |---|---|---|---|---|---|
-| 1. Published cells | central | 0.001, under 0.001, 0.006 | 0.03, 0.01, 0.12 | 1.0 | no, no, no |
-| 1. Published cells | no food-grade membrane supplier, slow plant learning | 0.001, under 0.001, 0.006 | 0.03, 0.01, 0.12 | never | no, no, no |
-| 1. Published cells | slow learning | 0.001, under 0.001, 0.006 | 0.03, 0.01, 0.12 | 3.0 | no, no, no |
-| 1. Published cells | fast learning | 0.001, under 0.001, 0.006 | 0.03, 0.01, 0.12 | 0.3 | no, no, no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | central | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 1.0 | yes, no, yes |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | no food-grade membrane supplier, slow plant learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | never | no, no, no |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | slow learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 3.0 | no, no, yes |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | fast learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 0.3 | yes, yes, yes |
-| 5. Plus engineered cells | central | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 1.0 | yes, yes, yes |
-| 5. Plus engineered cells | no food-grade membrane supplier, slow plant learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | never | no, no, no |
-| 5. Plus engineered cells | slow learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 3.0 | yes, no, yes |
-| 5. Plus engineered cells | fast learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 0.3 | yes, yes, yes |
+| 1. Published cells | central | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 1.0 | no, no, no |
+| 1. Published cells | no food-grade membrane supplier, slow plant learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | never | no, no, no |
+| 1. Published cells | slow learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 3.0 | no, no, no |
+| 1. Published cells | fast learning | under 0.001, under 0.001, under 0.001 | 0.00, 0.00, 0.00 | 0.3 | no, no, no |
+| 4. Plus perfusion (Central) | central | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 1.0 | yes, no, yes |
+| 4. Plus perfusion (Central) | no food-grade membrane supplier, slow plant learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | never | no, no, no |
+| 4. Plus perfusion (Central) | slow learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 3.0 | no, no, yes |
+| 4. Plus perfusion (Central) | fast learning | 0.15, 0.07, 0.55 | 1.31, 0.62, 4.86 | 0.3 | yes, yes, yes |
+| 7. Plus everything else at its favourable end (the best case) | central | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 1.0 | yes, yes, yes |
+| 7. Plus everything else at its favourable end (the best case) | no food-grade membrane supplier, slow plant learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | never | no, no, no |
+| 7. Plus everything else at its favourable end (the best case) | slow learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 3.0 | yes, no, yes |
+| 7. Plus everything else at its favourable end (the best case) | fast learning | 1.87, 0.70, 9.19 | 5.13, 1.92, 25.26 | 0.3 | yes, yes, yes |
 
 **Which products count as premium (decided 2026-11-19).** Premium products are the rows the model labels premium: a cut priced at
 2.5 times its species' cheapest form or more. When world seafood was re-priced by consumption the single fillet row ($16) was split
@@ -196,10 +196,10 @@ So the tables give every count twice: with it, and for the four small premium ma
 
 | scenario | its own cost and share | first pass: the learning its own volume brings | resting point | part of the share gain from later rounds | resting point with demand anchored on premium meats (its own share there) |
 |---|---|---|---|---|---|
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $32.80, 0.16% | $19.36, 0.84% | $17.69, 1.06% | 25% | $18.18, 0.59% (0.10%) |
-| 5. Plus engineered cells | $11.46, 2.74% | $6.84, 6.03% | $6.67, 6.21% | 5% | $6.83, 2.76% (1.44%) |
+| 4. Plus perfusion (Central) | $32.80, 0.16% | $19.36, 0.84% | $17.69, 1.06% | 25% | $18.18, 0.59% (0.10%) |
+| 7. Plus everything else at its favourable end (the best case) | $11.46, 2.74% | $6.84, 6.03% | $6.67, 6.21% | 5% | $6.83, 2.76% (1.44%) |
 
-| input, across its range | 3. Plus cells selected to grow faster on the low-waste feed (Central): cells, share | 5. Plus engineered cells: cells, share |
+| input, across its range | 4. Plus perfusion (Central): cells, share | 7. Plus everything else at its favourable end (the best case): cells, share |
 |---|---|---|
 | Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $17.63 to $17.90, 1.07% to 1.03% | $6.67 to $6.71, 6.21% to 6.17% |
 | That supplier's first price (60 to 400 $/m2) | $17.63 to $18.66, 1.07% to 0.92% | $6.67 to $6.89, 6.21% to 5.97% |

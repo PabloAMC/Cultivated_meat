@@ -112,9 +112,14 @@ SWITCHES = (
         Setting("measured", "The best meat cells measured",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
-                FEED, "Ammonia is 0.14 with glutamine replaced (Hubalek 2023). Lactate is 1.05 per glucose in meat cells. A cell weighs 2 ng. "
-                      "The ammonia is the same as for the selected cells. Fermenting most of their glucose, these cells need about "
-                      "4.5 mol of glucose a kilo, by their own energy balance, and the lactate from it sets the litres of medium."),
+                FEED, "Not one cell line: the best published figure for each trait, never measured together in one line. Ammonia "
+                      "0.14 mol a kilo and a 43-hour doubling come from primary bovine fibro-adipogenic progenitor (fat-precursor) "
+                      "cells fed alpha-ketoglutarate in place of glutamine (Hubalek et al. 2023, Mosa Meat and Maastricht University, "
+                      "spinner flasks, five donors). Lactate, 1.05 mol per mol of glucose, comes from chicken fibroblasts in perfusion "
+                      "(Pasitka et al. 2024, Believer Meats). A cell weighs 2 ng, a judgement between SuperMeat's chicken cells "
+                      "(1.0 to 1.75 ng) and Humbird's 3 ng. Glucose comes from the cells' own balance: fermenting most of it, they need "
+                      "about 4.5 mol a kilo, and the lactate from it sets the litres of medium. Companies may hold better cells they "
+                      "have not published."),
         Setting("ordinary", "Ordinary meat cells",
                 {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
@@ -309,8 +314,10 @@ SCENARIOS = {
     # --- the ladder (2026-11-19 restructure): from what has been shown, one kind of change per step, likeliest first -------
     "today": Scenario(
         "today", "1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank",
-        "The cells are the best meat cells anyone has published measurements of: glutamine replaced in the feed, doubling every 43 "
-        "hours, and most of their glucose turned into lactate. Companies may hold better cells they have not shown. They are grown "
+        "The cells are the best published figure for each trait, never measured together in one line: ammonia and a 43-hour "
+        "doubling from bovine fat-precursor cells fed without glutamine (Hubalek 2023), lactate from chicken fibroblasts that turn "
+        "most of their glucose into it (Pasitka 2024), and a 2 ng cell (a judgement). Companies may hold better cells they have not "
+        "published. They are grown "
         "as a 20 m³ fed-batch: the mode and size that pharma runs and that Upside Foods reports for its process. Nothing washes "
         "their waste out, so the lactate they make stops the batch thin. The plant is food-grade. Medium and growth factors cost "
         "what companies report today.",
@@ -336,8 +343,8 @@ SCENARIOS = {
         "it is likelier by 2035 (about 65%) than perfusion at 20 m³ (about 30%), and it needs no new equipment.",
         design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
-        "central", "4. Plus perfusion: waste washed out through a cell filter (Central)",
-        "The same selected cells, now in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
+        "central", "4. Plus perfusion (Central): waste washed out through a cell filter",
+        "The same selected cells, doubling every 36 hours, now in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
         "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
@@ -358,7 +365,7 @@ SCENARIOS = {
         "Rung 5 with the kind of cells at its cheapest setting; tank design chosen again.",
         design({**_BASE, "plant": "lean", "cells": "engineered"})),
     "best": Scenario(
-        "best", "7. Plus everything else at its favourable end: the best case",
+        "best", "7. Plus everything else at its favourable end (the best case)",
         "The engineered cells double every day and need no bought growth factors, the medium costs only what the cells eat, "
         "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
         "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
@@ -902,6 +909,173 @@ def forecast(n: int = FORECAST_N, seed: int = 0) -> dict:
 SCENARIOS["forecast"] = replace(SCENARIOS["forecast"], choice=forecast_choice())
 
 
+FC_SWITCH_NAMES = {"cells": "Kind of cells", "growth": "Growth speed", "plant": "The plant", "gas": "Gas the cells tolerate",
+                   "tricks": "Tank tricks that work", "losses": "Runs lost", "restart": "Restart after a loss",
+                   "gf": "Growth factors", "medium": "Price of the medium", "vessel": "Tank size, if run in fed-batch"}
+
+
+def _fc_label(sw: str, st: str) -> str:
+    if sw == "vessel":
+        return {"fedbatch100": "100 m³", "fedbatch50": "50 m³", "fedbatch": "20 m³"}[st]
+    if sw == "tricks":
+        return {"oxygen": "all three", "pressure": "column and pressure", "column": "column only", "none": "none"}[st]
+    return setting(sw, st).short
+
+
+def forecast_odds_markdown() -> str:
+    """The odds behind the forecast, one row per switch (RESULTS.md, METHODS.md)."""
+    out = ["| switch | settings, favourable first, with the author's odds for 2035 | median | where the odds come from |",
+           "|---|---|---|---|"]
+    src = {"cells": "judgement: engineering has no meat-cell result yet; selection and the feed change are shown in flasks",
+           "growth": "`cost_scenarios.md`: 24 h 10%, 30 h or faster 25%, 36 h or faster 45%, 43 h or faster 70% (slower is put at 43 h)",
+           "plant": "`cheap_plant_study.md`: about 65% for a plant at or below the shared-medium plant's cost",
+           "gas": "`gas_exchange_study.md`: 6 mm/s tolerable at 20 m³ about 50%",
+           "tricks": "`gas_exchange_study.md`: a column 60%, then 1 bar 85%, then recycled oxygen 50% (judgement)",
+           "losses": "makers report 0.6–2.2% a day (Powell 2025); judgement for 2035",
+           "restart": "judgement; reseeding from a neighbour has not been reported",
+           "gf": "judgement; tied to the kind of cells",
+           "medium": "`medium_cost_gfi.md`: $0.20 announced for 2025, $0.07 the lowest report, $0.50 reported",
+           "vessel": "`tank_size.md` section 7: 50 m³ about 12% and 100 m³ about 5% by the end of 2035"}
+    for sw, rows in forecast_odds().items():
+        txt = ", ".join(f"{_fc_label(sw, st)} {p:.0%}" for st, p in rows)
+        out.append(f"| {FC_SWITCH_NAMES[sw]} | {txt} | {_fc_label(sw, _median(sw))} | {src[sw]} |")
+    h = {d: held_back_odds(d) for d in FC_DENSITIES}
+    out.append("| Cells held back at 20 m³ for a month (perfusion) | at " + ", ".join(
+        f"{d:.0f} g/L: filter {h[d]['filter']:.0%}, aggregates {h[d]['aggregates']:.0%}, either {h[d]['either']:.0%}" for d in FC_DENSITIES)
+        + f" | fed-batch | a filter possible at 75% / {value('fc_perf_191'):.0%} / 35% (`retention_devices.md`; 191 g/L re-judged), "
+        f"times {value('fc_perf_by_2035'):.0%} that it runs in production by 2035; aggregates by 2035 (`retention_aggregates.md`) |")
+    return "\n".join(out)
+
+
+def forecast_markdown(fc: dict | None = None) -> str:
+    """The forecast's cost and share as a distribution (RESULTS.md Summary and "The forecast for 2035")."""
+    fc = forecast() if fc is None else fc
+    sm = fc["summary"]
+    c, sh = sm["cost"], sm["share"]
+    pct = lambda x: f"{x:.0%}" if x >= 0.005 or x == 0 else "under 1%"
+    out = ["| the forecast for 2035 | 10th percentile | median | 90th percentile |", "|---|---|---|---|",
+           f"| cells, $/kg | ${c[0]:.0f} | **${c[1]:.0f}** | ${c[2]:.0f} |",
+           f"| share of world meat and seafood, long run | {pct_num(sh[0])}% | **{pct_num(sh[1])}%** | {pct_num(sh[2])}% |",
+           "", "| the forecast for 2035: chance that | probability |", "|---|---|",
+           f"| cells cost no more than parity with $12 meat (${sm['parity']:.1f} a kilo) | {pct(sm['p_parity'])} |",
+           f"| the long-run share exceeds 1% of world meat and seafood | {pct(sm['p_share_1'])} |",
+           f"| the long-run share exceeds 10% | {pct(sm['p_share_10'])} |",
+           f"| the cells are held back at 20 m³, so the tank runs in perfusion (a filter or aggregates) | {pct(sm['p_perfusion'])} |",
+           f"| of which aggregates on a settler | {pct(sm['p_aggregates'])} |"]
+    if sm["cost_held"] and sm["cost_fedbatch"]:
+        a, b = sm["cost_held"], sm["cost_fedbatch"]
+        out += ["", "| the forecast for 2035, by how the tank is run | share of draws | cells, $/kg: median (8 in 10 between) |",
+                "|---|---|---|",
+                f"| perfusion | {sm['p_perfusion']:.0%} | ${a[1]:.0f} (${a[0]:.0f}–{a[2]:.0f}) |",
+                f"| fed-batch | {1 - sm['p_perfusion']:.0%} | ${b[1]:.0f} (${b[0]:.0f}–{b[2]:.0f}) |"]
+    return "\n".join(out)
+
+
+# what the forecast rests on: each odds input (or the batch end factor) moved to the ends of its range, the rest of its switch
+# rescaled so the odds still sum to 1
+FC_RESTS_ON = ("fc_perf_by_2035", "fc_perf_191", "fc_cells_engineered", "fc_cells_measured", "fc_plant_lean", "fc_medium_0.20",
+               "fc_vessel_100", "fc_rho_cells", "fc_rho_industry", "pf_batch_end_x")
+
+
+FC_RESTS_LABEL = {"fc_perf_by_2035": "a perfusion that can hold the culture is in production at 20 m³ by 2035",
+                  "fc_perf_191": "a filter can hold Central's 191 g/L at 20 m³ for a month",
+                  "fc_cells_engineered": "engineered cells in production by 2035",
+                  "fc_cells_measured": "cells no better than the published ones",
+                  "fc_plant_lean": "a plant at or below the shared-medium plant's cost",
+                  "fc_medium_0.20": "medium at the announced $0.20 a litre",
+                  "fc_vessel_100": "fed-batch tanks of 100 m³",
+                  "fc_rho_cells": "how strongly the cell switches move together (correlation)",
+                  "fc_rho_industry": "how strongly the plant and process switches move together (correlation)",
+                  "pf_batch_end_x": "how far above the perfusion level a batch may end (x the level)"}
+
+
+def _odds_override(name: str, v: float) -> dict:
+    """{input: value}: `name` set to v, and if it is one of a switch's odds, that switch's other odds scaled to fill 1 - v."""
+    out = {name: v}
+    for sw, sts in FC_ORDER.items():
+        names = [fc_input(sw, st) for st in sts]
+        if name in names:
+            rest = [n for n in names if n != name]
+            tot = sum(value(n) for n in rest)
+            out.update({n: value(n) * (1.0 - v) / tot for n in rest})
+    return out
+
+
+def forecast_rests_on(n: int = 1000, seed: int = 0) -> list:
+    """[(input, lo, hi, summary at lo, summary at hi)] for FC_RESTS_ON, at n draws."""
+    from inputs import REGISTRY
+    rows = []
+    for name in FC_RESTS_ON:
+        r = REGISTRY[name]
+        res = []
+        for v in (r.lo, r.hi):
+            with fp._inputs_set(_odds_override(name, v)):
+                _FC_DESIGN.clear()
+                res.append(forecast_mc(n, seed)["summary"])
+        _FC_DESIGN.clear()
+        rows.append((name, r.lo, r.hi, res[0], res[1]))
+    return rows
+
+
+def forecast_rests_on_markdown(rows: list | None = None, n: int = 1000) -> str:
+    from inputs import REGISTRY
+    rows = forecast_rests_on(n) if rows is None else rows
+    base = forecast_mc(n, 0)["summary"]
+    out = [f"| odds or input moved across its range ({n:,} draws each) | its range (model's value) | forecast median cost, $/kg | "
+           "median share | chance the share exceeds 1% | chance of perfusion |", "|---|---|---|---|---|---|",
+           f"| as set | | ${base['cost'][1]:.0f} | {pct_num(base['share'][1])}% | {base['p_share_1']:.0%} | {base['p_perfusion']:.0%} |"]
+    for name, lo, hi, a, b in rows:
+        lab = FC_RESTS_LABEL.get(name, name)
+        out.append(f"| {lab} (`{name}`) | {lo:g}–{hi:g} ({value(name):g}) | ${a['cost'][1]:.0f} to ${b['cost'][1]:.0f} | "
+                   f"{pct_num(a['share'][1])}% to {pct_num(b['share'][1])}% | {a['p_share_1']:.0%} to {b['p_share_1']:.0%} | "
+                   f"{a['p_perfusion']:.0%} to {b['p_perfusion']:.0%} |")
+    return "\n".join(out)
+
+
+# ----------------------------------------------------------------------------
+# The plant-cost axis: perfusion against fed-batch as the plant gets cheaper (2026-11-19 restructure)
+# ----------------------------------------------------------------------------
+PLANT_MULTS = (1.0, 0.75, 0.5, 0.34)            # the bands' range for the plant estimate: as modelled down to a third
+PLANT_AXIS_CASES = (("process", "Published cells (rung 2's switches)"), ("central", "Selected cells (Central's switches, rungs 3–4)"),
+                    ("central_lean", "Selected cells, plant with shared medium (rung 5)"),
+                    ("engineered", "Engineered cells (rung 6)"), ("best", "The best case's switches (rung 7)"))
+AXIS_MODES = ("perfusion", "fedbatch", "fedbatch100")
+
+
+def plant_axis(key: str, mults=PLANT_MULTS) -> dict:
+    """For a rung's switches: cost in perfusion and in fed-batch at 20 and 100 m³, each with its tank design chosen at the plant's
+    modelled cost, at each multiplier on the plant's cost (capex_x: buildings and tanks; not the filter loop or the column), and
+    the multiplier below which each fed-batch is cheaper than perfusion (None if not between 0.05 and 1.5)."""
+    base = {k: v for k, v in SCENARIOS[key].choice.items() if k not in ("mode", "tricks", "shape")}
+    ch = {m: design({**base, "mode": m}) for m in AXIS_MODES}
+    cost = lambda m, x: run(ch[m], capex_x=x)["total"]
+    out = {"choices": ch, "cost": {m: {x: cost(m, x) for x in mults} for m in AXIS_MODES}, "cross": {}}
+    for m in ("fedbatch", "fedbatch100"):
+        f = lambda x: cost("perfusion", x) - cost(m, x)
+        lo, hi = 0.05, 1.5
+        if f(lo) * f(hi) > 0:
+            out["cross"][m] = None
+            continue
+        for _ in range(40):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if f(mid) * f(lo) > 0 else (lo, mid)
+        out["cross"][m] = 0.5 * (lo + hi)
+    return out
+
+
+def plant_axis_markdown() -> str:
+    out = ["| switches as in | $/kg with the plant at its modelled cost: perfusion / fed-batch 20 m³ / fed-batch 100 m³ | "
+           + " | ".join(f"plant at {x:g}×" for x in PLANT_MULTS[1:])
+           + " | fed-batch at 20 m³ is cheaper with the plant below | fed-batch at 100 m³, below |",
+           "|---|" + "---|" * (len(PLANT_MULTS) + 2)]
+    for key, lab in PLANT_AXIS_CASES:
+        a = plant_axis(key)
+        cells = [" / ".join(f"{a['cost'][m][x]:.1f}" for m in AXIS_MODES) for x in PLANT_MULTS]
+        cr = lambda m: "never (0.05–1.5×)" if a["cross"][m] is None else f"{a['cross'][m]:.2f}×"
+        out.append(f"| {lab} | " + " | ".join(cells) + f" | {cr('fedbatch')} | {cr('fedbatch100')} |")
+    return "\n".join(out)
+
+
 # ----------------------------------------------------------------------------
 # For the page
 # ----------------------------------------------------------------------------
@@ -981,6 +1155,9 @@ def markdown_table() -> str:
         else:
             head = f"**${cost:.0f}** (its own point figure)"
         rng = "" if sb[2] < 0.00095 else f" ({pct_num(sb[0])}\u2013{pct_num(sb[2])}%)"      # nothing to show when it is all under 0.001%
+        if sb[0] < 0.00095 and 0.00095 <= sb[2] < 0.0095:          # the range would read "under 0.001-0.001%": say where 9 in 10 fall
+            e = 10.0 ** np.floor(np.log10(sb[2]))
+            rng = f" (9 in 10 draws under {np.ceil(sb[2] / e) * e:.3f}%)"
         out.append(f"| {name} | {head} | ${cost:.1f} | {ratio:.1f}\u00d7 | **{pct_num(sb[1])}%**{rng} | {pct_num(world)}% | {need} |")
     return "\n".join(out)
 

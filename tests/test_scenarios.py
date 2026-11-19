@@ -152,19 +152,78 @@ check("Today's cells" not in page and "Today’s cells" not in page, "the first 
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
       "best case: median share should be below the point estimate")
 
-# 12b. the ladder (2026-11-16): each rung adds to the one before, so the cost falls down the ladder; rungs 3-5 are the old scenarios
+# 12b. the ladder (2026-11-16; rebuilt 2026-11-19 restructure): it starts from what has been shown (fed-batch at 20 m3), adds one
+# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are Central, Central with shared medium, the best case
 lad = [S.run(S.SCENARIOS[k].choice)["total"] for k in S.LADDER]
 check(all(a > b for a, b in zip(lad, lad[1:])), f"the ladder's cost should fall rung by rung: {[round(x, 2) for x in lad]}")
-check(S.LADDER[2:] == ("central", "central_lean", "best"), "rungs 3-5 should be Central, Central with shared medium, the best case")
+check(S.LADDER == ("today", "process", "selected", "central", "central_lean", "engineered", "best"), f"ladder: {S.LADDER}")
 for a, b in zip(S.LADDER, S.LADDER[1:]):
     ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
     check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
+STEP = {("today", "process"): {"gas", "restart", "gf", "medium"}, ("process", "selected"): {"cells", "growth"},
+        ("selected", "central"): {"mode"}, ("central", "central_lean"): {"plant"}, ("central_lean", "engineered"): {"cells"},
+        ("engineered", "best"): {"growth", "gas", "losses", "gf", "medium"}}
+for (a, b), want in STEP.items():
+    ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
+    got = {k for k in S.KEYS if ca[k] != cb[k]} - {"tricks", "shape"}         # the tank design is chosen again at each rung
+    check(got == want, f"rung {a} -> {b} changes {sorted(got)}, expected {sorted(want)}")
 check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
+for k in ("today", "process", "selected"):
+    check(S.SCENARIOS[k].choice["mode"] == "fedbatch", f"{k} should be fed-batch at 20 m3, what has been shown")
+for k in ("central", "central_lean", "engineered", "best", "cautious"):
+    check(S.SCENARIOS[k].choice["mode"] == "perfusion", f"{k} should be in perfusion")
+
+# 12c. the mass balance (2026-11-19): a batch ends at no more than pf_batch_end_x times the waste level perfusion is held to
+from inputs import value as _v
+for k in ("today", "process", "selected", "forecast"):
+    c = S.SCENARIOS[k].choice
+    if c["mode"] == "perfusion":
+        continue
+    r = S.run(c)
+    nh3_end = r["density"] * r["nh3_kg"]                         # mmol/L at the end of the batch
+    lac_end = r["density"] * r["lac_kg"]
+    check(nh3_end <= _v("pf_batch_end_x") * _v("sc_nh3_limit") + 1e-6 and lac_end <= _v("pf_batch_end_x") * _v("pf_lac_limit") + 1e-6,
+          f"{k}: the batch ends at {nh3_end:.2f} mM ammonia and {lac_end:.1f} mM lactate, above the allowed level")
+    check(abs(r["medium_l"] - 1000.0 / r["density"]) < 1e-6 or r["medium_l"] == _v("pf_medium_l_floor"), f"{k}: a batch's medium is 1000/density")
+# the published cells stop below the densities companies report at 20 m3 (Vow 27 g/L; Upside's capacity needs 33 g/L or more in
+# fed-batch), and the selected cells reach the bottom of Upside's range: so the companies' cells make less lactate than the published
+check(S.run(S.SCENARIOS["today"].choice)["density"] < _v("vm_x_meat_shown"), "the published cells should stop below 27 g/L in a batch")
+check(S.run(S.SCENARIOS["selected"].choice)["density"] >= 33.0, "the selected cells should reach Upside's 33 g/L in a batch")
+# a fed-batch plant keeps Humbird's full seed train when the plant is the shared-medium one
+check(S.explore_kwargs({**S.SCENARIOS["central_lean"].choice, "mode": "fedbatch"})["items"]["seed"] == "full", "fed-batch lean plant: full seed train")
+check(S.explore_kwargs(S.SCENARIOS["central_lean"].choice)["items"]["seed"] == "two", "perfusion lean plant: two seed trains")
+
+# 12d. the forecast for 2035 (2026-11-19): every switch drawn from the author's odds
+odds = S.forecast_odds()
+check(all(abs(sum(p for _s, p in v) - 1.0) < 1e-9 for v in odds.values()), "forecast odds should sum to 1 per switch")
+h = [S.held_back_odds(d)["either"] for d in (100.0, 120.0, 191.0, 258.0, 300.0)]
+check(all(a >= b for a, b in zip(h, h[1:])) and abs(S.held_back_odds(191.0)["filter"] - _v("fc_perf_191") * _v("fc_perf_by_2035")) < 1e-12,
+      "the odds of holding the cells back should fall with density")
+fc = S.forecast()
+sm = fc["summary"]
+check(sm["cost"][0] < sm["cost"][1] < sm["cost"][2] and sm["share"][0] < sm["share"][1] < sm["share"][2], "forecast bands not ordered")
+check(0.0 <= sm["p_share_10"] <= sm["p_share_1"] <= 1.0 and 0.0 <= sm["p_parity"] <= 1.0, "forecast probabilities out of order")
+check(abs(sm["p_cells"]["engineered"] - _v("fc_cells_engineered")) < 0.03, "the draws should reproduce the odds of engineered cells")
+check(sm["cost_held"][1] < sm["cost_fedbatch"][1], "perfusion draws should be cheaper than fed-batch draws at the median")
+check(all(w["route"] != "fedbatch" or w["choice"]["mode"] != "perfusion" for w in fc["switches"]), "a draw that is not held back is fed-batch")
+# the link between good cells: with the cell factor at 0.8, engineered cells come with fast growth more often than at 0
+def _joint(rho):
+    from floor_physics import _inputs_set
+    with _inputs_set({"fc_rho_cells": rho}):
+        S._FC_DESIGN.clear()
+        d = S.forecast_switch_draws(1500, 3)
+    S._FC_DESIGN.clear()
+    return sum(w["draw"]["cells"] == "engineered" and w["draw"]["growth"] in ("24", "30") for w in d) / 1500
+check(_joint(0.8) > _joint(0.0) + 0.03, "the cell factor should tie engineered cells to fast growth")
+# the forecast's preset is each switch at its median
+for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium"):
+    check(S.SCENARIOS["forecast"].choice[k] == S._median(k), f"forecast preset: {k} is not at its median")
 rb = S.bands(None)
 check(f"<b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should headline the median for Humbird's design too")
 
-# 13. what the tank design relies on is stated, with the cost without it
-for k in ("best", "central", "process"):
+# 13. what the tank design relies on is stated, with the cost without it (rung 2 is fed-batch since 2026-11-19 and uses no tricks)
+check(S.tricks_report(S.SCENARIOS["process"].choice)["used"] == [], "rung 2 (fed-batch) should use no tank tricks")
+for k in ("best", "central"):
     tr = S.tricks_report(S.SCENARIOS[k].choice)
     check(len(tr["used"]) > 0, f"{k}: expected tank tricks to be listed")
     check(abs(tr["no_tricks"] - S.run({**S.SCENARIOS[k].choice, "tricks": "none"})["total"]) < 1e-9, f"{k}: no-tricks cost")
@@ -180,6 +239,16 @@ check("36 hours" in S.story_text("central") and "10%" in S.story_text("central")
       "central's story should give the reasoning for 36 h")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
 check(2.2 <= gain <= 2.9 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $2.2-2.9 a kilo ({gain:.2f})")
+
+# 14. RESULTS and METHODS carry the forecast, its odds and the plant-cost axis (generated tables, by line)
+res = open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read()
+for lab, md, docs in (("forecast", S.forecast_markdown(), ("RESULTS.md",)), ("forecast odds", S.forecast_odds_markdown(), ("RESULTS.md", "METHODS.md")),
+                      ("plant axis", S.plant_axis_markdown(), ("RESULTS.md",))):
+    for fname in docs:
+        text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()
+        for ln in md.splitlines():
+            if ln.strip():
+                check(ln in text, f"{fname} does not carry the {lab} table line: {ln[:80]}")
 
 if fails:
     print("FAIL — scenarios:")

@@ -101,15 +101,37 @@ Raised by Pablo on 2026-11-16 (open):
 - [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
 - [ ] **The filter pair.** Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
       stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
-- [ ] **A tank that is not perfused breaks the waste mass balance** (found 2026-11-19). Litres per kilo must be at least the waste made
-      per kilo over the waste level allowed, in any mode. The unwashed cap is scaled from Humbird's fed-batch figure (120 g/L), so
-      Central's fed-batch ends at 7.8 mmol/L ammonia against the 4 its perfusion is held to, and seems to need half the medium (18
-      against 35 L/kg). Derive the cap from the same balance, with an explicit input for how far above the steady-state limit a batch
-      may end (only its last doublings feel it; evidence: 50% growth loss at 3-10 mM, 10% at 1-3 mM). Held to 4 mM, Central's
-      fed-batch reaches about 29 g/L and costs about $90. Do this inside the scenario restructure, which compares the two modes.
-- [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
-      what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
-      as a second axis. Waiting on Pablo: the forecast's year(s).
+- [x] **A tank that is not perfused breaks the waste mass balance** (found and fixed 2026-11-19, scenario restructure). An unwashed
+      tank's density is now end factor x level allowed / waste made per kilo (`pf_batch_end_x` 1.3, Humbird's own fed-batch design;
+      the last doublings above the level grow slower, `pf_batch_half_x`). Central's batch stops at 37 g/L (was 56) and costs $64.9;
+      the published cells' at 14 g/L. `research_notes/vessels_and_modes.md` section 10.
+- [x] **Restructure the scenarios** (2026-11-19): forecast for 2035 drawn from the switches' odds as the headline
+      (`scenarios.forecast_mc`, odds `fc_*`); a switch for how the tank is run (fed-batch at 20/50/100 m³, perfusion at 20 m³); a
+      seven-rung ladder from Published cells in a 20 m³ batch to the best case, perfusion its own rung; the plant-cost axis
+      (`scenarios.plant_axis`). Demand as a second axis of the ladder was not done (the page agent's contour chart covers it).
+- [ ] **The page**: rebuild the case selector around the forecast (its distribution, the ladder of seven rungs, the mode switch);
+      the page still describes the old five-rung ladder in places and shows the forecast only as its median preset.
+- [ ] **Score the forecast's odds.** Every `fc_*` input is the author's first draft. The two that move it most are the odds that a
+      filter holds Central's density at 20 m³ (`fc_perf_191`, 45%) and that it runs in production by 2035 (`fc_perf_by_2035`, 45%),
+      and the cells (`fc_cells_*`). Write them as resolvable forecasts and review yearly.
+- [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor
+      rung 1 and `pf_batch_end_x` (research_notes/vessels_and_modes.md section 11; best guess fed-batch, 75%).
+- [ ] **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
+      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if the forecast's fed-batch draws should take the
+      cheaper of the two.
+- [ ] **A slower growth setting** than 43 hours: the forecast's growth odds put 30% on slower cells, now lumped at 43 h.
+- [ ] **Aggregates in the scenarios**: the forecast prices them (`retention.scenario_cost("aggregates")`) but no switch offers them.
+- [ ] **SciFi Foods' bovine cell lines, open through Tufts.** GFI bought SciFi Foods' eight bovine lines at auction (August 2024) and
+      released them through the Tufts open cell bank (October 2025): fibroblasts immortalised by CRISPR (p53 knockout and TERT
+      insertion), adapted to suspension and grown serum-free; TU-GFI-SCL4 reportedly run in a 500 L bioreactor, SCL3 used in an FDA
+      submission; two serum-free media (FSF4, FSF6) published. No growth or metabolism data are public yet (doubling time, density,
+      ammonia, lactate). When Tufts or users publish them, they would be the first single, publicly available line to anchor
+      "Published cells" on, in place of today's mix of traits from two lines. Their immortalisation is genetic engineering, though
+      not the metabolic engineering the "engineered cells" setting means. Sources:
+      https://gfi.org/resource/suspension-adapted-bovine-cell-lines/ ,
+      https://cellularagriculture.tufts.edu/resources/open-cell-bank ,
+      https://agfundernews.com/exclusive-open-source-moment-for-cultivated-meat-as-gfi-releases-scifi-foods-cell-lines-to-academia
+      (16 Oct 2025).
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
 From the design search (`design_space.py`):
@@ -157,8 +179,9 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
       or draw `w_ratio` in the bands with a precomputed calibration grid.
 - [ ] **The best case's point cost is at the 3rd–4th percentile of its draws**: its limits are tied at about 11 L/kg. Say so on the page
       next to the best case, or define the best case by its median.
-- [ ] **Re-judge the probabilities** in `tank_size.md` (section 7, column D), `no_perfusion_downside.md` and `retention_devices.md`
-      (section 5): they were judged when Central ran at 258 g/L; it now runs at 191, limited by oxygen.
+- [x] **Re-judge the probabilities** at Central's 191 g/L (2026-11-19 restructure): `no_perfusion_downside.md` section 3 and the
+      forecast's `fc_perf_191` (45% possible). Still to do: `tank_size.md` section 7, column D, and `retention_devices.md` section 5,
+      which keep their 258 g/L wording.
 - [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
       loop and the protectant switched off (`floor_physics.BEFORE_FILTER_LOOP`). Recompute them, or mark those sections as history.
 - [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,

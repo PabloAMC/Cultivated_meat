@@ -1,5 +1,8 @@
 # Tank size: is 20 m³ the right size?
 
+> 2026-11-19 (scenario restructure): the perfusion scan below does not move. Section 10 is new: fed-batch against tank size, now that
+> fed-batch is a setting of the scenarios ("How the tank is run") and the first rungs of the ladder.
+
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -290,3 +293,28 @@ answer favours 10 to 20 m³. At 10 m³ the cost is 3% to 5% higher and R rises f
 - No separate price for a tank built to a different shape beyond the model's steel and floor factor (`gas_exchange.shape_capex_factor`).
 - No seed-train sizing, no heat exchanger, no impeller design, no run-length effect on membrane life with size.
 - The search offers 16 designs per size. Intermediate pressures and a column outlet other than 55 mbar (`ge_col_pout`) are not searched; either could extend the sizes that pass the pH check.
+
+## 10. Fed-batch and tank size (added 2026-11-19, scenario restructure)
+
+Since 2026-11-19 the scenarios can run the tank in fed-batch (`scenarios.SW["mode"]`), and the first three rungs of the ladder do.
+A batch is held by its waste (the mass balance, `vessels_and_modes.md` section 10), not by gas exchange, so a deeper tank costs
+it no density. Its handicap against perfusion is capital: the same plant makes a fifth to a half of the kilos. A bigger tank makes
+the capital cheaper per m³, so size matters more to fed-batch than to perfusion. `tank_size.fedbatch_at` prices each scenario's
+switches in fed-batch at each size, tank design chosen again (it always comes out the ordinary tall tank with no tricks):
+
+| switches as in | perfusion at 20 m³, $/kg | fed-batch at 20 m³ | fed-batch at 50 m³ | fed-batch at 100 m³ | fed-batch at 200 m³ |
+|---|---|---|---|---|---|
+| Central | $32.80 | $64.89 (37 g/L) | $59.79 (37 g/L) | $58.09 (37 g/L) | $57.24 (37 g/L) |
+| Central, food-grade plant with shared medium | $29.94 | $49.51 (37 g/L) | $46.11 (37 g/L) | $44.98 (37 g/L) | $44.42 (37 g/L) |
+| Engineered cells (rung 6) | $16.86 | $30.98 (62 g/L) | $28.94 (62 g/L) | $28.41 (62 g/L) | $28.06 (62 g/L) |
+| Best | $11.46 | $15.64 (92 g/L) | $14.81 (92 g/L) | $14.50 (92 g/L) | $14.33 (92 g/L) |
+
+- **A 100 m³ batch costs about 10% less than a 20 m³ one** with the scenarios' switches ($64.89 to $58.09 in Central, $15.64 to
+  $14.50 with the best case's). Beyond 100 m³ the gain is small: only the bioreactor share of the plant (32%) gets cheaper with
+  size in the model.
+- **No size closes the gap to perfusion.** Central in fed-batch at 200 m³ costs $57.24, against $32.80 in perfusion at 20 m³; a bigger
+  perfusion tank saves at most 1.6% (section 1).
+- **The same caveats as for perfusion, in the other direction.** The crew per m³ is held constant: if it fell with tank size as
+  between Humbird's two plants, fed-batch would gain more (section 5). The chance of losing a batch is the same per tank-day at every
+  size, and no animal cells have been grown above about 25 m³ (section 7: about 12% for 50 m³ and 5% for 100 m³ by the end of 2035,
+  the odds the forecast uses for a fed-batch plant's tank size).
