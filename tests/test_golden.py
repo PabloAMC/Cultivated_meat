@@ -252,14 +252,15 @@ def check_derived_prose_numbers() -> list:
     # verbatim in interactive.html; if the live value drifts so the rounded string changes, update both.
     derived = [
         ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
-        ("elasticity at R=1.0",          elas(1.0),  "−1.0"),
-        ("elasticity at R=1.5",          elas(1.5),  "−1.8"),
-        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.2"),
+        # 2026-11-19: with the Student's t spread of liking these moved from −1.0, −1.8, −3.2 (steeper near parity, flatter far above it)
+        ("elasticity at R=1.0",          elas(1.0),  "−1.3"),
+        ("elasticity at R=1.5",          elas(1.5),  "−2.1"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.0"),
         ("reference cost $/kg",      cost_floor, "12.8"),
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.0",
-              "elasticity at R=1.5": "−1.8", "elasticity at R=2.42 (anchor)": "−3.2",
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.3",
+              "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.0",
               "reference cost $/kg": "12.8"}
 
     fails = []

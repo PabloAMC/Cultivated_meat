@@ -131,13 +131,23 @@ for fname in ("RESULTS.md", "METHODS.md"):
     for row in table_rows:
         check(row in text, f"{fname} does not carry the scenario table row: {row[:70]}")
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
+# The page (rebuilt 2026-11-19) has three named cases; its first screen is written by the page's own script from the bands it
+# carries, which tests/test_easy_view.py checks against scenarios.bands. Here: the page carries each scenario's band, its
+# method text states the Central and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
+import json as _json
+_model = _json.JSONDecoder().raw_decode(page[page.index("const MODEL = ") + len("const MODEL = "):])[0]
 for k in S.PAGE_ORDER:
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
-    sm = S.summary(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
-    check(f"<b>{S.pct_num(bk['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
-          f"the page's answer table does not headline {k}'s median share {S.pct_num(bk['share'][1])}%")
-    check(f"At the point cost the share is {S.pct_num(sm['world'])}%" in page, f"the page does not label {k}'s point estimate")
+    check(max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["share"], bk["share"])) < 1e-9
+          and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
+          f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
+for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):
+    bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
+    check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
+bf = S.bands(S.SCENARIOS["forecast"].choice, eqs=S.eqs_of("forecast"))
+check(f"<b>{S.pct_num(bf['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should give the forecast's median share under Other estimates")
+check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
 # the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
       "best case: median share should be below the point estimate")
@@ -151,7 +161,7 @@ for a, b in zip(S.LADDER, S.LADDER[1:]):
     check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
 check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
 rb = S.bands(None)
-check(f"<b>{rb['share'][1]:.1f}%</b><br><span class='alt'>The median." in page, "the page should headline the median for Humbird's design too")
+check(f"<b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should headline the median for Humbird's design too")
 
 # 13. what the tank design relies on is stated, with the cost without it
 for k in ("best", "central", "process"):

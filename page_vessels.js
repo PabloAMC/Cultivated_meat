@@ -1,7 +1,7 @@
 /* ===== vessel types against operating modes =====
    A mirror of vessels.py (vm_for, explore_kwargs, cell); tests/run_parity.py checks the two agree. Each cell is
    floorExplore (the mirror of floor_physics.explore) with the vessel's and the mode's numbers in MODEL.vm.
-   The table shows the scenario chosen in "What decides it" or the reference case, and is redrawn when a switch moves. */
+   The table shows the selected case or Humbird's optimistic design, and is redrawn when a switch moves. */
 const VM=MODEL.vm;
 let vmShow="scenario";                          // "scenario" | "reference"
 function vmFor(v,m){                            // mirror of vessels.vm_for (null if the combination is not possible)
@@ -65,9 +65,9 @@ function vmMoney(x){ return "$"+(x>=1000?Math.round(x).toLocaleString("en-US"):x
 function vmTagChip(t){ const cls=t===VM.tag_order[0]?"vt-today":t===VM.tag_order[1]?"vt-pilot":"vt-paper";
   return '<span class="vtag '+cls+'">'+t+'</span>'; }
 function vmFallbackText(c){      // mirror of page_sections._vm_fallback_text
-  return 'The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go '+
+  return 'The case clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go '+
     'with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost '+
-    'here uses what passes that check: “'+c.tricks_fallback+'”. With the scenario’s own tricks at full density it would be '+vmMoney(c.unchecked_cost)+'.'; }
+    'here uses what passes that check: “'+c.tricks_fallback+'”. With the case’s own tricks at full density it would be '+vmMoney(c.unchecked_cost)+'.'; }
 function vmCellHTML(c,v,m){
   if(!c.possible) return '<td class="vno"><b>Not possible</b><br><span class="alt">'+c.reason+'</span></td>';
   if(c.same_as) return '<td class="vsame"><b>As batch</b><br><span class="alt">'+VM.same_as[v+"|"+m][1]+'</span></td>';
@@ -91,7 +91,7 @@ function vmRender(){
   const host=document.getElementById("vm_grid"); if(!host) return;
   host.innerHTML=vmGridHTML(vmBase());
   const lab=document.getElementById("vm_case");
-  if(lab) lab.textContent=vmShow==="reference"?"the reference case (a standard perfusion tank, no tricks)":scOwnName();
+  if(lab) lab.textContent=vmShow==="reference"?"Humbird's optimistic design (a standard perfusion tank, no tricks)":pgCaseWords(pgFacts());
   document.querySelectorAll(".vmbtn").forEach(b=>b.classList.toggle("on",b.getAttribute("data-vm")===vmShow));
 }
 function vmSet(k){ vmShow=k; vmRender(); }
