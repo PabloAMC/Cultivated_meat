@@ -98,3 +98,34 @@ The model's first-contact elasticity at equal price is −3.27: inside the old b
 2. Carzedda & Troiano 2021, University of Udine working paper (FT); Washio et al. 2023, Meat Science (FT); Asioli et al. 2022, Food Policy (ABS); Slade 2018, Appetite (ABS); Carlsson, Kataria & Lampi 2022 (ABS).
 3. Lusk, report to FFAR and FMI on cage-free eggs (the survey behind Agribusiness 2019) (FT); Finnish broiler welfare study, Poultry Science 2023 (FT); Van Loo et al. 2011, Food Quality and Preference (ABS); Tonsor & Lusk 2021 (FT, summary).
 4. GFI/NielsenIQ plant-based pricing fact sheet, November 2024 (FT); Circana household panel report, 2024 (FT); GFI/NielsenIQ migration analysis, 2022 (FT); Neuhofer & Lusk 2022, Scientific Reports (FT); Zhao et al. 2023, AEPP (ABS); Caputo, Lusk & Blaustein-Rejto 2025 (FT); Tonsor, Lusk & Schroeder 2021 (FT).
+
+## 6. How far does first-contact aversion fade? (added 2026-11-18)
+
+The question the spread of liking leaves open: once cultivated meat is familiar and costs the same, what share of buyers choose it?
+A reading pass on foods made by a distrusted process (five sources read in full; the rest snippets or memory).
+
+| case | what persisted | access |
+|---|---|---|
+| Margarine against butter, US | per person 2.9 against 16.4 lb (1942), 11.1 against 5.0 (1972); below butter again by 2005 "despite butter's higher price" once health beliefs turned | FT (USDA ERS) |
+| Lean finely textured beef, US | in about 75% of patties by 2008; after 2012 the fall in demand "may be permanent" | FT (CHOICES) |
+| Irradiated beef, US | under 0.1% of the market (2011), though about 80% said they would buy | SNIP |
+| GM food, real-money experiment, France | 35% refuse at any price, 23% indifferent or prefer it, 42% buy if cheap enough (Noussair et al. 2004) | ABS |
+| GM labels as exposure, Vermont | mandatory labels cut opposition by 19% (Kolodinsky & Lusk 2018) | ABS |
+| UHT milk | about 95% of milk in France and Spain, 8% in the UK: stable national equilibria | SNIP |
+| Cultivated meat, UK | willingness unchanged between 2021/22 and 2023/24 (p = 0.64); half name unnaturalness as a concern | FT (FSA 2024) |
+| Cultivated meat, UK, by age | would eat it: Gen Z 47%, Millennials 39%, Gen X 22%, Boomers 21% (Ipsos 2025) | FT (news report) |
+| Cultivated meat, US | assuming it is identical: 50% prefer animal meat, 14% neither (YouGov 2024, n = 9,272) | FT (news report) |
+| Stated against real willingness to pay | stated overstates real, commonly 2–3 times (median about 1.35 in Murphy et al. 2005) | SNIP, MEM |
+
+No repeat-purchase data for cultivated meat sold in Singapore, the US or Australia was found.
+
+- **For fading:** cohorts (younger shoppers about twice as willing), exposure through labelling, real purchases of GM food less averse
+  than surveys, UK willingness rising 2017–2021.
+- **Against:** UK willingness flat 2021–2024; process aversion that has not converged in decades (UHT in the UK, GM in Europe,
+  butter's comeback); stigma that wiped out cheaper, invisible products (lean finely textured beef, irradiation); stated willingness
+  overstating purchase.
+- **Judgement of the reading pass:** the long-run share at equal price is below 8% with probability 0.17, 8–25% with 0.45, 25–40% with
+  0.24, above 40% with 0.14; median about 18%. The model's band (triangular, 5% to 49%, most likely 13%) has a median of about 19%.
+- Closest analogues: GM food under labelling (same product, distrusted process; 10–20% at equal price in early-2000s France), UHT milk
+  (same product, any outcome from 8% to 95% depending on country and history), margarine (the only case where the distrusted product
+  reached a majority, with a lasting price gap and health endorsement, and it reversed).

@@ -204,43 +204,46 @@ CHINA_MARKET = [
     MeatType("duck (whole/proc.)",     6.0,  0.05),
     MeatType("duck (cuts)",            9.0,  0.025, scaffold=SCAF),
     MeatType("pork (processed)",       5.0,  0.25),
-    MeatType("pork (cuts)",            7.0,  0.245, scaffold=SCAF),
-    MeatType("pork (heritage)",       14.0,  0.005, scaffold=SCAF),   # premium [med conf]
+    MeatType("pork (cuts)",            7.0,  0.235, scaffold=SCAF),
+    MeatType("pork (heritage)",       10.0,  0.015, scaffold=SCAF),   # black pigs: about 3-5% of head, 2-4x standard pork (AgroPortal 2026); was $14, 0.5%
     MeatType("beef (ground)",         18.0,  0.02),
-    MeatType("beef (steak/cuts)",     25.0,  0.055, scaffold=SCAF),
-    MeatType("beef (wagyu)",          50.0,  0.005, scaffold=SCAF),   # premium [high conf]
+    MeatType("beef (steak/cuts)",     25.0,  0.059, scaffold=SCAF),
+    MeatType("beef (wagyu)",          40.0,  0.001, scaffold=SCAF),   # premium: Japanese wagyu barred, imported premium beef tens of kt; was $50, 0.5%
     MeatType("seafood (mince/canned)", 8.0,  0.06),
-    MeatType("seafood (fillet)",      14.0,  0.10, scaffold=SCAF),
-    MeatType("seafood (sushi)",       35.0,  0.04, scaffold=SCAF),
+    MeatType("seafood (fillet)",      14.0,  0.132, scaffold=SCAF),
+    MeatType("seafood (sushi)",       35.0,  0.008, scaffold=SCAF),   # premium: salmon 0.12 Mt, lobster, crab, grouper, abalone, about 0.7 Mt edible; was 4%
     MeatType("rabbit (cuts)",         12.0,  0.025, scaffold=SCAF),
 ]
 
 # Global — world-average prices (GPP world avg) + FAO global mix.
 GLOBAL_MARKET = [
-    MeatType("chicken (ground/proc.)", 5.0,  0.135),
-    MeatType("chicken (cuts)",         8.0,  0.1838, scaffold=SCAF),
-    MeatType("chicken (organic)",     13.0,  0.0012, scaffold=SCAF),  # premium: about 0.35 Mt (France, US, EU organic and Label Rouge)
+    # 2026-11-18: seafood raised from 9% to 24% of the table's volume, its share of world meat plus seafood by edible weight
+    # (FAO SOFIA: about 170 Mt live weight eaten, about half edible; meat about 380 Mt carcass, about two-thirds boneless;
+    # research_notes/premium_market_sizes.md section 6). Meat rows scaled down in proportion; sushi-grade kept at 0.4%.
+    MeatType("chicken (ground/proc.)", 5.0,  0.1126),
+    MeatType("chicken (cuts)",         8.0,  0.1532, scaffold=SCAF),
+    MeatType("chicken (organic)",     13.0,  0.0010, scaffold=SCAF),  # premium: about 0.35 Mt (France, US, EU organic and Label Rouge)
     # Duck + goose ~3.3% of world meat (~12 of 365 Mt; China ~88%). World-avg price ~$7 whole.
     # Carved from chicken so the global volume total is unchanged.
-    MeatType("duck/goose (whole)",     7.0,  0.025),
-    MeatType("duck/goose (cuts)",     10.0,  0.010, scaffold=SCAF),
-    MeatType("pork (processed)",       6.0,  0.16),
-    MeatType("pork (cuts)",            9.0,  0.1685, scaffold=SCAF),
-    MeatType("pork (heritage)",       16.0,  0.0015, scaffold=SCAF),  # premium: Iberico about 0.25 Mt, EU organic 0.05; Chinese black pig not counted
+    MeatType("duck/goose (whole)",     7.0,  0.0208),
+    MeatType("duck/goose (cuts)",     10.0,  0.0083, scaffold=SCAF),
+    MeatType("pork (processed)",       6.0,  0.1334),
+    MeatType("pork (cuts)",            9.0,  0.1405, scaffold=SCAF),
+    MeatType("pork (heritage)",       16.0,  0.0013, scaffold=SCAF),  # premium: Iberico about 0.25 Mt, EU organic 0.05; Chinese black pig not counted
     # Beef (revised 2026-11-13): GPP's own "average price" (17.59 USD/kg, Jan 2026) is an UNWEIGHTED mean
     # over 76 countries, so Switzerland (64.64) counts as much as China or Brazil; the earlier $14/$24 sat
     # ABOVE the US $11/$20 for that reason. Weighting each country's GPP beef price by its 2025 beef
     # consumption (USDA FAS PSD 'Meat, Beef and Veal', Domestic Consumption; 90% of world use matched;
     # EU = mean of DE, FR, IT, ES, PL, NL) gives 19.15 USD/kg against GPP USA 18.80: world = 1.019 x US.
     # So both beef rows are the US rows x 1.019. Method and country table: METHODS.md, "World beef price".
-    MeatType("beef (ground)",         11.2,  0.09),
-    MeatType("beef (steak/cuts)",     20.4,  0.088, scaffold=SCAF),
-    MeatType("beef (prime/wagyu)",    45.0,  0.002, scaffold=SCAF),   # premium: about 0.5 Mt at $45 or more (0.25-0.9): US Prime rib and loin, wagyu, Hanwoo
-    MeatType("sheep/goat",            14.0,  0.05, scaffold=SCAF),
-    MeatType("seafood (mince/canned)", 8.0,  0.03),
-    MeatType("seafood (fillet)",      16.0,  0.056, scaffold=SCAF),
-    MeatType("seafood (sushi)",       35.0,  0.004, scaffold=SCAF),   # premium: about 1.2 Mt edible (0.6-2.5): raw salmon 0.5, sashimi tuna 0.25, others
-    MeatType("rabbit (cuts)",         14.0,  0.012, scaffold=SCAF),
+    MeatType("beef (ground)",         11.2,  0.0750),
+    MeatType("beef (steak/cuts)",     20.4,  0.0734, scaffold=SCAF),
+    MeatType("beef (prime/wagyu)",    45.0,  0.0017, scaffold=SCAF),   # premium: about 0.5 Mt at $45 or more (0.25-0.9): US Prime rib and loin, wagyu, Hanwoo
+    MeatType("sheep/goat",            14.0,  0.0417, scaffold=SCAF),
+    MeatType("seafood (mince/canned)", 8.0,  0.0837),
+    MeatType("seafood (fillet)",      16.0,  0.1563, scaffold=SCAF),
+    MeatType("seafood (sushi)",       35.0,  0.0040, scaffold=SCAF),   # premium: about 1.2 Mt edible (0.6-2.5): raw salmon 0.5, sashimi tuna 0.25, others
+    MeatType("rabbit (cuts)",         14.0,  0.0100, scaffold=SCAF),
 ]
 
 # Low-income markets — to exploit the income channel (price-sensitivity scales with
@@ -250,8 +253,8 @@ GLOBAL_MARKET = [
 # India: poultry/dairy-heavy, little beef (buffalo/carabeef instead), low per-capita.
 INDIA_MARKET = [
     MeatType("chicken (ground/proc.)", 3.5,  0.30),
-    MeatType("chicken (cuts)",         5.0,  0.28, scaffold=SCAF),
-    MeatType("chicken (premium)",      9.0,  0.01, scaffold=SCAF),
+    MeatType("chicken (cuts)",         5.0,  0.289, scaffold=SCAF),
+    MeatType("chicken (premium)",      9.0,  0.001, scaffold=SCAF),   # branded chilled lines, 0.1% or less (unsourced estimate); was 1%
     MeatType("buffalo (ground)",       4.0,  0.10),
     MeatType("buffalo (cuts)",         7.0,  0.05, scaffold=SCAF),
     MeatType("goat (cuts)",            9.0,  0.10, scaffold=SCAF),
@@ -265,8 +268,8 @@ BRAZIL_MARKET = [
     MeatType("chicken (ground/proc.)", 3.5,  0.18),
     MeatType("chicken (cuts)",         5.0,  0.20, scaffold=SCAF),
     MeatType("beef (ground)",          7.0,  0.20),
-    MeatType("beef (steak/cuts)",     12.0,  0.18, scaffold=SCAF),
-    MeatType("beef (picanha/prime)",  22.0,  0.02, scaffold=SCAF),
+    MeatType("beef (steak/cuts)",     12.0,  0.195, scaffold=SCAF),
+    MeatType("beef (picanha/prime)",  22.0,  0.005, scaffold=SCAF),   # certified Angus and branded lines, about 0.5% (Canal Rural 2026, snippet); was 2%
     MeatType("pork (processed)",       5.0,  0.08),
     MeatType("pork (cuts)",            8.0,  0.07, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 6.0,  0.03),
@@ -277,8 +280,8 @@ NIGERIA_MARKET = [
     MeatType("chicken (ground/proc.)", 4.5,  0.22),
     MeatType("chicken (cuts)",         6.5,  0.20, scaffold=SCAF),
     MeatType("goat (ground)",          5.5,  0.18),
-    MeatType("goat (cuts)",            8.0,  0.15, scaffold=SCAF),
-    MeatType("goat (premium)",        16.0,  0.01, scaffold=SCAF),
+    MeatType("goat (cuts)",            8.0,  0.158, scaffold=SCAF),
+    MeatType("goat (premium)",        16.0,  0.002, scaffold=SCAF),   # 0.2% or less (unsourced estimate; imports banned, trade informal); was 1%
     MeatType("beef (cuts)",            8.0,  0.10, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 5.0,  0.06),
     MeatType("seafood (fillet)",      10.0,  0.08, scaffold=SCAF),
@@ -360,7 +363,7 @@ def _draw(name, rng, n):
     return rng.triangular(lo, mode, hi, n)
 
 
-def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dict:
+def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_share_input: str = "equal_price_share") -> dict:
     """Distribution of TOTAL cultivated penetration (volume- and value-weighted),
     sampling the achievable cost inputs + the demand dials. Meat prices/mix are
     held fixed (observed market data); the band reflects the genuine unknowns:
@@ -368,6 +371,8 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dic
     resistance. The sampled set is inputs.MC_* — the same list the page's band uses."""
     rng = np.random.default_rng(seed)
     s = {k: _draw(k, rng, n) for k in MC_COST_INPUTS + MC_DEMAND_INPUTS + MC_TIER_INPUTS}
+    if equal_share_input != "equal_price_share":   # a scenario with its own demand setting (the best case): drawn on its own
+        s["equal_price_share"] = _draw(equal_share_input, np.random.default_rng(seed + 7), n)   # stream, the others unchanged
     cp = CostParams()
     if biomass is None:
         biomass = media_cost(cp, s["media_price"], s["efficiency"]) + s["overhead"]
@@ -383,10 +388,9 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None) -> dic
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
         toff = np.array([tier_authenticity(mt, b, res[i]) for i in range(n)])   # per-draw (utils)
         eps = s["eps_own"] * np.array([tier_eps_mult(mt, b, res[i]) for i in range(n)])
-        return np.array([share(R[i], base, theta_free_M=s["theta_free_M"][i],
-                               accept_x=s["accept_x"][i], tier_offset=toff[i],
+        return np.array([share(R[i], base, accept_x=s["accept_x"][i], tier_offset=toff[i],
                                eps_own=eps[i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
-                               neophobia_x=s["neophobia_x"][i], health_x=s["health_x"][i])
+                               equal_share=s["equal_price_share"][i])   # novelty, no-slaughter, health: in equal_price_share
                          for i in range(n)])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"])
@@ -502,7 +506,7 @@ def species_market(market, **explore_kw) -> list:
     mult = {}
     for animal, key in SPECIES_OF.items():
         _label, dh, mass, _med, pco2, _rng, _extra, _note = fp.SPECIES_PRESETS[key]
-        mult[animal] = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **explore_kw)["total"] / base
+        mult[animal] = fp.explore(**{**explore_kw, "doubling_h": dh, "mass_pg": mass, "pco2_mbar": pco2})["total"] / base   # the species' cells replace the case's
     return [_rep(mt, cost_mult=mult.get(animal_of(mt), 1.0)) for mt in market]
 
 

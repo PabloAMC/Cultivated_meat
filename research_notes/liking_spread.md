@@ -1,24 +1,24 @@
-# Shoppers differ in how much they like cultivated meat: the price response re-derived
+# Shoppers differ in how much they like cultivated meat
 
-Date: 2026-11-18. Code: `liking_spread.py`; test: `tests/test_liking_spread.py`. Evidence: `demand_heterogeneity_evidence.md`. Nothing
-here changes a default; it sets out the change that should be made and the one decision it needs.
+Date: 2026-11-18. **The model's default since that day** (`market_share.share`: `liking_sd`, `equal_price_share`). This module,
+`liking_spread.py`, fits the spread and compares readings of the long run; test: `tests/test_liking_spread.py`. Evidence:
+`demand_heterogeneity_evidence.md`.
 
 ## 1. The problem and the cause
 
-The model's share falls two to four times too fast as the price rises above meat's (`demand_checks.md`). The model gives every
-mainstream shopper the same liking for cultivated meat. The one experiment that estimated shoppers one by one (Van Loo, Caputo & Lusk
-2020) found liking spread very widely: about half of respondents prefer the lab-grown burger to nothing and half do not. With a wide
-spread, the buyers left at a high price are the ones who like it most, so the total falls off slowly, though each shopper is as
-price-sensitive as before.
+With every shopper alike, the model's share fell two to four times too fast as the price rose above meat's (`demand_checks.md`). The
+one experiment that estimated shoppers one by one (Van Loo, Caputo & Lusk 2020) found liking for the lab-grown burger spread very
+widely: about half of respondents prefer it to buying nothing and half do not. With a wide spread the buyers left at a high price are
+the ones who like it most, so the total falls off slowly, though each shopper is as price-sensitive as before.
 
-An earlier attempt the same day gave the slow tail to "premium buyers", shoppers who buy organic and free-range meat. The evidence is
-against it: in the two studies that split shoppers into groups, the price-insensitive organic buyers are the most hostile to cultivated
-meat (`demand_heterogeneity_evidence.md` §2). That work was not merged.
+An earlier attempt the same day gave the slow tail to "premium buyers" who buy organic and free-range meat. The evidence is against
+it: in the two studies that split shoppers into groups, the price-insensitive organic buyers are the most hostile to cultivated meat
+(`demand_heterogeneity_evidence.md` §2). It was not merged.
 
 ## 2. The fit
 
-Cultivated meat's utility gets a normal spread across shoppers; the mean is set so that 5% buy at equal price, as in the experiment.
-The table gives the model's own-price elasticity at four prices of the lab-grown burger against the experiment's.
+Cultivated meat's utility gets a normal spread across shoppers; the mean is set so that 5% buy at equal price at first contact, as in
+the experiment. The table gives the model's own-price elasticity at four prices of the lab-grown burger against the experiment's.
 
 | each shopper's price sensitivity (times meat's) | spread of liking, utils | elasticity at 0.6×, 1×, 1.4×, 1.8× beef's price | miss |
 |---|---|---|---|
@@ -41,45 +41,49 @@ The table gives the model's own-price elasticity at four prices of the lab-grown
 
 - **A spread of 5 utils at the model's own price sensitivity (8.5) fits best** (miss 0.15). With no spread the model misses by
   2.56: its elasticity at equal price is -3.29 against the measured -1.5.
-- The experiment itself estimated a spread of 3.75 on its scale, which is about 3.3 to 4.7 of the model's utils. The fit agrees.
+- The experiment estimated a spread of 3.75 on its scale, about 3.3 to 4.7 of the model's utils. The fit agrees.
 - A lower price sensitivity with a smaller spread fits nearly as well (4 with 2: 0.21; 6 with 4: 0.24). The data
-  pin a combination, not each number. Keeping 8.5 changes nothing else in the model.
+  pin a combination; keeping 8.5 changes nothing else in the model.
 
-## 3. What it exposes: the share at equal price in the long run
+## 3. The share at equal price in the long run
 
 | the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Today | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.02% | 0.7% |
-| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.01% | 0.07% | 2.6% |
-| shoppers indifferent on average (the model's premise) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.07% | 1.0% | 17.3% |
-| the model today (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.00% | 0.04% | 3.1% |
+| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.00% | 0.02% | 0.8% |
+| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.01% | 0.08% | 2.9% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.07% | 1.1% | 18.8% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.00% | 0.04% | 3.2% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
-- **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) takes cultivated meat from 5%
-  to about half the market at equal price. That is how the model gets its 49%.
-- **With the spread, the same removal takes it from 5% to 13%.** For half the market the average shopper's liking has to recover by
-  8.6 utils, three times the wariness the model assumes. So "about half at equal price" is a premise: that familiarity leaves the
-  average shopper indifferent between cultivated and conventional meat.
-- **The second row lands on premium real meats without being fitted to them**: 3.7% at twice the price against their 3.7%,
+- **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) took cultivated meat from 5% to
+  about half the market at equal price.
+- **With the spread, the same removal takes it from 5% to 13%.** Half the market needs the average shopper's liking to recover by
+  8.6 utils, three times the wariness the model assumes: shoppers indifferent between the two meats on average.
+- **The middle reading lands on premium real meats without being fitted to them**: 3.7% at twice the price against their 3.7%,
   0.8% at three times against 1.5%.
-- **The long-run share at equal price moves the answer more than anything else**: Central from 0.02% to 1.0% of world meat and
-  the best case from 0.7% to 17.3%, across the three readings.
+- **It moves the answer more than any cost**: Central from 0.02% to 1.1% of world meat and the best case from
+  0.8% to 18.8% across the three readings.
 
-## 4. What should be the default
+## 4. The default chosen
 
-- **The spread should go into the model.** It is the only reading that reproduces the experiment's price response, and it replaces a
-  check the model only appeared to pass.
-- **The share at equal price should become an explicit setting**, shown with the headline, in place of a premise buried in the
-  novelty term. Evidence on where it ends up is thin and points below a half: products that are physically the same but made by a
-  process people distrust keep a lasting discount (lab-grown diamonds sell at a fraction of mined ones' price; irradiated meat never
-  sold; from memory, unchecked), and in the experiment about half of respondents would not take the burger at any price tested.
-- A central value near the second row, with the first and third as its range, is my judgement: about 0.5 that the long-run share at
-  equal price is between 8% and 25%, about 0.25 that it is above, about 0.25 below.
+- `liking_sd` = 5 utils (fitted; range 3.5–6) and `equal_price_share` = 13% (judgement; range 5–49%, drawn in the bands as a
+  triangle with that mode, median about 19%).
+- Why 13%: a third of first-contact aversion fading, by two routes. The model's own novelty term is 2.8 of the 8.6 utils between first
+  contact and indifference. In the survey corrections (`premium_curve.CORRECTIONS`), first contact is 45% of meat's price dearer
+  (novelty 30, "unnatural" 20, less 5 for no killing) and the long-run central case is 30% (novelty halved, "unnatural" kept): 15 of
+  45 points close.
+- A reading of foods made by distrusted processes (`demand_heterogeneity_evidence.md` §6) puts the median near 18%: below 8% with
+  0.17, 8–25% with 0.45, 25–40% with 0.24, above 40% with 0.14.
+- Against premium meats' fall with price, combinations of a low share at equal price with a wide spread fit better than half the market
+  with a narrower spread (rms log miss 0.63 at 13% and spread 5; 0.65 at 25% and 4; 1.11 at 49% and 3). Modest evidence: labels are
+  not cultivated meat.
+- The share at equal price is now the long-run dial; the no-slaughter, long-run novelty and health dials are parts of it, are no longer
+  drawn in the bands, and stay on the page as what-ifs on top.
 
 ## 5. Limits
 
-- One experiment, hypothetical choices, burgers, first contact. The spread in the long run may be narrower than at first contact.
+- One experiment, hypothetical choices, burgers, first contact, and the name "lab-grown". The spread in the long run may be narrower.
 - The fit uses elasticities simulated from the paper's published coefficients, since the paper reports none.
-- Price sensitivity also differs across shoppers (4 to 10 times between groups, `demand_heterogeneity_evidence.md` §3). It is not in
-  this study, and is not needed to match the experiment.
-- Fifteen integration points are used; seven are not enough (shares off by up to 27%), which matters for the page.
+- Price sensitivity also differs across shoppers (4 to 10 times between groups, `demand_heterogeneity_evidence.md` §3); not in the
+  model, and not needed to match the experiment. Plant-based meat's own elasticity is still too strong (`demand_checks.md`).
+- Fifteen integration points are used; seven are not enough (shares off by up to 27%).

@@ -22,7 +22,7 @@ def check() -> list:
     fails = []
     pr = LS.demand()
     for R in (1.0, 2.0, 3.5):
-        if abs(LS.share(R, 0.0, 0.0) - M.share(R, pr)) > 1e-12:
+        if abs(LS.share(R, 0.0, 0.0) - M.share(R, pr, liking_sd=0.0)) > 1e-12:
             fails.append("with no spread and no shift the share is not the model's")
     s = LS.summary()
     f = s["fit"]
@@ -39,8 +39,8 @@ def check() -> list:
         w = [r["world"][k] for r in lev]
         if w != sorted(w):
             fails.append(f"{k}: the world share should rise across the three readings")
-        if not lev[1]["world"][k] < 4.0 * s["model"]["world"][k]:
-            fails.append(f"{k}: the middle reading is no longer near the model's share; rewrite the note")
+        if abs(lev[1]["world"][k] / s["default"]["world"][k] - 1.0) > 0.1:
+            fails.append(f"{k}: the middle reading is no longer the model's default; rewrite the note")
     if not 0.5 < lev[1]["curve"][3] / s["premium"][3] < 2.0:
         fails.append("the middle reading no longer lands near premium meats at twice the price; rewrite the note")
 

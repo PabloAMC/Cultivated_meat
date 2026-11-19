@@ -83,3 +83,31 @@ no figure was found), Brazil, India and Nigeria; Europe's wagyu row (0.5% at $55
 4. MLA Japan market snapshot, January 2025 (FT); Beef Central on the Australian Wagyu Association survey (FT).
 5. Réussir on Label Rouge poultry, 2025 (FT); WATT and FranceAgriMer on organic chicken (SNIP).
 6. FAO Food Outlook, November 2025; FAO SOFIA 2024 (SNIP).
+
+## 6. China, the low-income tables and seafood's weight (added 2026-11-18)
+
+A second pass (FAO SOFIA 2024 press release and USDA GAIN China poultry report CH2025-0031 read in full; the rest snippets or memory).
+The China rows rest heavily on unchecked tonnages and are order-of-magnitude.
+
+| table | row | was | now | basis | access |
+|---|---|---|---|---|---|
+| China | seafood (sushi and high-end fresh), $35 | 4.0% | 0.8% | imported salmon 0.12 Mt round weight (2024), lobster 0.06 Mt, crab, grouper, abalone: about 1.5–2 Mt live, 0.6–0.8 Mt edible, of about 100 Mt of meat plus seafood | SNIP, MEM |
+| China | beef (wagyu), $50 → $40 | 0.5% | 0.1% | Japanese wagyu barred; imported premium beef tens of kt against about 10.7 Mt of beef | MEM |
+| China | pork (heritage), $14 → $10 | 0.5% | 1.5% | black pigs about 3–5% of the herd, priced 2–4 times standard pork (AgroPortal, Feb 2026) | FT |
+| China | chicken (premium), $13 | 0.5% | unchanged | slow-growing yellow-feather birds are the $13 slice; their volume was not found (all yellow-feather is about 4.3 Mt, mostly at 1.5–2 times white broiler) | FT (GAIN), SNIP |
+| Brazil | beef (picanha/prime), $22 | 2.0% | 0.5% | certified Angus about 51 kt (2024) plus branded lines | SNIP |
+| India | chicken (premium), $9 | 1.0% | 0.1% | branded chilled lines | MEM |
+| Nigeria | goat (premium), $16 | 1.0% | 0.2% | imports banned, trade informal | MEM |
+| Global | all seafood | 9% | **24%** | below | SNIP, MEM |
+
+What was removed went to the same species' cut row. India's premium goat and seafood rows were not checked.
+
+**Seafood is about a quarter of the world's meat plus seafood by edible weight.** About 170 Mt of aquatic animals (live weight) are eaten
+a year (FAO SOFIA: 89% of 185 Mt in 2022; 21.3 kg a person in 2024), about half of it edible (an assumption: fillet yields 0.35–0.55,
+whole fish eaten in Asia more, bivalves about 0.2), so about 87 Mt (70–104). Meat is about 380 Mt of carcass weight, about two-thirds
+boneless, so about 250 Mt. Seafood's share: 26% (20–31%) against boneless meat, 22% against retail-weight meat. The Global table now
+has seafood at 24% (mince 8.4%, fillet 15.6%, sushi-grade 0.4%), meat rows scaled down in proportion, and `ms_world_meat` (the
+market-size study's total) is meat plus seafood, 336 Mt. Cross-check: fish supplies about 15% of animal protein worldwide (MEM).
+
+**Effect:** with seafood weighted correctly cultivated meat sells more, because seafood fillets are dearer than the meat the volume
+moved from; see CHANGELOG for the figures.

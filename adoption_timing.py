@@ -138,6 +138,7 @@ class TimingParams:
     theta_free_M: float = value("theta_free_M")  # long-run cleaner-meat upside (Gate-2 upside dial)
     accept_rate: float = value("accept_rate")  # how fast initial neophobia decays per unit cumulative exposure
     sensory_parity: bool = True         # gate: if False, novelty does NOT fade (the PB-meat case)
+    equal_share: float | None = None    # long-run share at equal price for this path (a draw); None = the demand model's
 
     years: int = int(value("years"))
 
@@ -174,7 +175,7 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool,
         if which == "pb":
             ceiling = share(Rk, dp, neophobia_p=nb, which="pb", cultivated_present=False)
         else:
-            ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb)
+            ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share)
         s = F * ceiling
         shares.append(s); ceilings.append(ceiling); nbs.append(nb); Rs.append(Rk)
         if k < tp.years:
@@ -222,7 +223,7 @@ def years_to_stabilize(R, dp: DemandParams, tp: TimingParams, frac=0.9, which="x
     def ceil(nb):
         if which == "pb":
             return share(R, dp, neophobia_p=nb, which="pb", cultivated_present=False)
-        return share(R, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb)
+        return share(R, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share)
 
     L = ceil(nb_end)
     if L <= 1e-9:
@@ -264,13 +265,11 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
     paths = np.zeros((n, yrs + 1))
     tstab = np.zeros(n, dtype=int)
     for i in range(n):
-        dp_i = replace(base, neophobia_x=float(s["neophobia_x"][i]),
-                       health_x=float(s["health_x"][i]))   # neither enters the calibration
+        dp_i = base                     # the long-run destination is drawn as equal_price_share (inputs.MC_TIMING_INPUTS)
         tp_i = TimingParams(neophobia_x0=float(s["neophobia_x0"][i]),
                             accept_rate=float(s["accept_rate"][i]),
                             p_innov=float(s["p_innov"][i]), q_imit=float(s["q_imit"][i]),
-                            accept_x=float(s["accept_x"][i]),
-                            theta_free_M=float(s["theta_free_M"][i]), years=yrs)
+                            accept_x=float(s["accept_x"][i]), equal_share=float(s["equal_price_share"][i]), years=yrs)
         paths[i] = _run(lambda k: R, dp_i, tp_i, acceptance_grows=True)["share"] * 100
         tstab[i] = years_to_stabilize(R, dp_i, tp_i)
     t = np.arange(yrs + 1)

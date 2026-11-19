@@ -68,6 +68,7 @@ LABELS = {
     "media_price":   "medium price",
     "markup_add":    "per-kg costs to the shelf",
     "retail_margin": "retailer's margin",
+    "equal_price_share": "long-run share at equal price",
     "theta_free_M":  "mainstream slaughter-free value",
     "accept_x":      "cultivated taste-acceptance",
     "eps_own":       "price elasticity",
@@ -103,10 +104,8 @@ def _share_at(target: str, overrides: dict) -> float:
     m = _modes(target); m.update(overrides)
     R = _R_at(target, overrides)
     dp = DemandParams(w_ratio=m["w_ratio"]) if "w_ratio" in m else DemandParams()   # w_ratio: beta re-derived
-    return float(share(R, dp, theta_free_M=m["theta_free_M"],
-                       accept_x=m["accept_x"],
-                       eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
-                       neophobia_x=m["neophobia_x"], health_x=m["health_x"]))
+    return float(share(R, dp, accept_x=m["accept_x"], eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
+                       equal_share=m["equal_price_share"]))
 
 
 # ----------------------------------------------------------------------------
