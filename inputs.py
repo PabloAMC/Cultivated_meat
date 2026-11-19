@@ -1138,6 +1138,111 @@ REGISTRY: dict[str, Input] = {
         "when the pressure trick is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
         lo=0.33, hi=2.0, mode=1.0, note="no culture has been run at 1 bar gauge"),
 
+    # --- The forecast for 2035 (scenarios.forecast_mc; RESULTS.md "The forecast for 2035"; added 2026-11-19) --------------
+    # The author's odds that each switch setting is the one reached at production scale by 2035. Each is [judgement]; the
+    # settings of a switch sum to 1 (scenarios.forecast_odds normalises them, so one can be swept alone). Sources per switch.
+    "fc_cells_engineered": Input(0.25, "probability", "[judgement] cells engineered to make almost no waste in production by 2035",
+        lo=0.10, hi=0.40, mode=0.25, note="GFI-funded engineering of a bovine line without lactate or ammonia starts 2026-27 with no "
+        "results; Ldha/Pdk knockouts reach near-zero lactate in CHO (preprint); growth-factor-free cattle cells by engineering "
+        "(cost_scenarios.md). RESULTS' earlier forecast table: about 25%"),
+    "fc_cells_selected": Input(0.40, "probability", "[judgement] cells selected or adapted to the selected setting (ammonia 0.14 "
+        "mol/kg, lactate 0.42 per glucose), and no better", lo=0.25, hi=0.55, mode=0.40,
+        note="the feed change is shown in flasks (Hubalek 2023); lactate-adapted CHO reach 0.39 (Freund 2018); no meat cell yet"),
+    "fc_cells_measured": Input(0.30, "probability", "[judgement] cells no better than the best published meat cells", lo=0.15,
+        hi=0.45, mode=0.30, note="Upside's and Vow's reported densities need cells that make less lactate than the published "
+        "ones, so companies may already hold better cells (research_notes/vessels_and_modes.md, section 11)"),
+    "fc_cells_ordinary": Input(0.05, "probability", "[judgement] ordinary meat cells fed glutamine", lo=0.0, hi=0.15, mode=0.05),
+    "fc_growth_24": Input(0.10, "probability", "[judgement, cost_scenarios.md] low-waste cells doubling every 24 hours", lo=0.05, hi=0.25,
+        mode=0.10, note="cost_scenarios.md: 24 h about 10%, 30 h or faster 25%, 36 h or faster 45%, 43 h or faster 70%"),
+    "fc_growth_30": Input(0.15, "probability", "[judgement, cost_scenarios.md] every 30 hours (25% for 30 h or faster)", lo=0.05,
+        hi=0.25, mode=0.15),
+    "fc_growth_36": Input(0.20, "probability", "[judgement, cost_scenarios.md] every 36 hours (45% for 36 h or faster)", lo=0.10,
+        hi=0.30, mode=0.20),
+    "fc_growth_43": Input(0.55, "probability", "[judgement, cost_scenarios.md] every 43 hours or slower: 25% for 43 h and 30% "
+        "for slower, which the switch has no setting for, so they are put at 43 h (this flatters the forecast)", lo=0.35, hi=0.75,
+        mode=0.55),
+    "fc_plant_lean": Input(0.65, "probability", "[cheap_plant_study.md] a food-grade plant at or below the shared-medium plant's "
+        "cost: about 65% (45-80%)", lo=0.45, hi=0.80, mode=0.65),
+    "fc_plant_sterile": Input(0.30, "probability", "[judgement] a food-grade plant as Humbird's, with a sanitary hall", lo=0.15,
+        hi=0.50, mode=0.30),
+    "fc_plant_pharma": Input(0.05, "probability", "[judgement] a pharma-style plant with clean rooms", lo=0.0, hi=0.15, mode=0.05),
+    "fc_gas_6": Input(0.45, "probability", "[gas_exchange_study.md] 6 mm/s of gas tolerable at 20 m3: 50% (35-65%), a little "
+        "less for production by 2035", lo=0.30, hi=0.60, mode=0.45),
+    "fc_gas_4": Input(0.35, "probability", "[judgement] 4 mm/s and no more", lo=0.25, hi=0.45, mode=0.35),
+    "fc_gas_2": Input(0.20, "probability", "[judgement] no more than the 2 mm/s that has been run at 8-20 m3", lo=0.10, hi=0.35,
+        mode=0.20),
+    "fc_tricks_oxygen": Input(0.25, "probability", "[gas_exchange_study.md, judgement] all three tank tricks work: a column on the "
+        "loop 60%, 1 bar of pressure given the column 85%, the recycled oxygen given both 50% (judgement)", lo=0.10, hi=0.40,
+        mode=0.25),
+    "fc_tricks_pressure": Input(0.25, "probability", "[as above] the column and the pressure, not the recycled oxygen", lo=0.15,
+        hi=0.35, mode=0.25),
+    "fc_tricks_column": Input(0.10, "probability", "[as above] the column only (60% x 15%)", lo=0.05, hi=0.20, mode=0.10),
+    "fc_tricks_none": Input(0.40, "probability", "[as above] no trick: no animal cells have gone through a stripping column",
+        lo=0.25, hi=0.60, mode=0.40),
+    "fc_losses_0.2": Input(0.10, "probability", "[judgement] pharma's 0.2% of runs lost a day", lo=0.05, hi=0.20, mode=0.10),
+    "fc_losses_0.6": Input(0.45, "probability", "[judgement] 0.6% a day, the low end of what makers report today (Powell 2025)",
+        lo=0.30, hi=0.55, mode=0.45),
+    "fc_losses_1": Input(0.30, "probability", "[judgement] about 1% a day", lo=0.20, hi=0.40, mode=0.30),
+    "fc_losses_2": Input(0.15, "probability", "[judgement] 2% a day, the top of what makers report", lo=0.05, hi=0.25, mode=0.15),
+    "fc_restart_4": Input(0.20, "probability", "[judgement] restart in 4 days from a neighbouring tank; nobody has reported it",
+        lo=0.05, hi=0.35, mode=0.20),
+    "fc_restart_14": Input(0.55, "probability", "[judgement] 14 days with a ready seed train", lo=0.40, hi=0.70, mode=0.55),
+    "fc_restart_21": Input(0.15, "probability", "[judgement] 21 days: seed trains regrown", lo=0.05, hi=0.25, mode=0.15),
+    "fc_restart_30": Input(0.10, "probability", "[judgement] 30 days: one failure reaches every tank", lo=0.0, hi=0.20, mode=0.10),
+    "fc_gf_none": Input(0.25, "probability", "[judgement] cells that need no bought growth factors (engineering has done it in "
+        "cattle cells)", lo=0.10, hi=0.40, mode=0.25),
+    "fc_gf_30": Input(0.45, "probability", "[judgement] growth factors at 30% of Humbird's price per litre or less; GFI's target "
+        "is a tenth of cost", lo=0.30, hi=0.60, mode=0.45),
+    "fc_gf_60": Input(0.20, "probability", "[judgement] 60% of his price", lo=0.10, hi=0.30, mode=0.20),
+    "fc_gf_all": Input(0.10, "probability", "[judgement] all at his large-scale price", lo=0.0, hi=0.20, mode=0.10),
+    "fc_medium_floor": Input(0.10, "probability", "[medium_cost_gfi.md, nutrient_floor.md] medium at the nutrient floor (lowest "
+        "company report $0.07 a litre; nobody reports the floor)", lo=0.05, hi=0.25, mode=0.10),
+    "fc_medium_0.20": Input(0.50, "probability", "[GFI 2026 report] the $0.20 a litre several companies announced for 2025",
+        lo=0.35, hi=0.60, mode=0.50),
+    "fc_medium_0.30": Input(0.25, "probability", "[judgement] $0.30", lo=0.15, hi=0.35, mode=0.25),
+    "fc_medium_0.50": Input(0.15, "probability", "[SuperMeat 2024] $0.50, what one company reports", lo=0.05, hi=0.25, mode=0.15),
+    # how the tank is run: perfusion where it holds the culture, else fed-batch at a tank size drawn from the odds below
+    "fc_perf_120": Input(0.75, "probability", "[retention_devices.md section 5] a filter holds 120 g/L at 20 m3 for a month, "
+        "module swaps allowed (possible, with a development programme; not dated)", lo=0.55, hi=0.85, mode=0.75),
+    "fc_perf_191": Input(0.45, "probability", "[judgement, re-judged 2026-11-19] a filter holds Central's 191 g/L (18% cells by "
+        "volume, 30 litres of permeate a kilo) at 20 m3 for a month, at any cost (possible, not dated)", lo=0.25, hi=0.60, mode=0.45,
+        note="between the 75% at 120 g/L and the 35% at 258 g/L of retention_devices.md: the density factor tank_size.md uses "
+             "(0.59 of the 120 g/L odds at 191 g/L) gives 44%. For: Clincke 2013 held 2.14e8 cells/mL (about half the volume) in 4 L "
+             "for days and one fibre lasted 30 days; pharma perfusion is routine at 2 m3. Against: nothing above about 4 m3 "
+             "(Genzyme) in thirty years of pharma; Merck at 85-100 million cells/mL says a filter swap at scale extends a culture "
+             "only a couple of days; Central's duty is ten times the reference's permeate"),
+    "fc_perf_258": Input(0.35, "probability", "[retention_devices.md section 5] a filter holds 258 g/L at 20 m3 for a month, at any "
+        "cost", lo=0.20, hi=0.50, mode=0.35),
+    "fc_perf_by_2035": Input(0.45, "probability", "[judgement, 2026-11-19] that a perfusion that can be made to hold the culture is "
+        "running in production at 20 m3 by 2035", lo=0.20, hi=0.80, mode=0.45,
+        note="tank_size.md section 7 puts a public demonstration by the end of 2035 at 12% against 75% possible (a ratio of 0.16); "
+             "production use need not be published, and perfusion is the cheaper mode if it works, so the ratio is higher. Against: "
+             "Upside chose a single-vessel process at 20 m3, most likely fed-batch (vessels_and_modes.md section 11); about 2-3% "
+             "that anyone has run animal-cell perfusion at 20 m3 for a month today. So filter perfusion at Central's density is "
+             "about 0.45 x 0.45 = 20% by 2035"),
+    "fc_agg_120": Input(0.15, "probability", "[retention_aggregates.md section 6] by 2035, aggregates of a meat cell line held at "
+        "120 g/L in a 20 m3 perfusion tank for a month", lo=0.05, hi=0.30, mode=0.15),
+    "fc_agg_191": Input(0.08, "probability", "[retention_aggregates.md section 6] the same at Central's 191 g/L", lo=0.02, hi=0.20,
+        mode=0.08),
+    "fc_agg_258": Input(0.05, "probability", "[judgement, extrapolated from retention_aggregates.md] the same at 258 g/L (aggregates "
+        "taking a third of the volume)", lo=0.01, hi=0.15, mode=0.05),
+    "fc_vessel_20": Input(0.80, "probability", "[tank_size.md section 7] fed-batch tanks of 20-25 m3, the largest run with animal "
+        "cells", lo=0.65, hi=0.90, mode=0.80),
+    "fc_vessel_50": Input(0.13, "probability", "[tank_size.md section 7] a 50 m3 tank built and run with animal cells by the end of "
+        "2035: about 12%", lo=0.05, hi=0.25, mode=0.13),
+    "fc_vessel_100": Input(0.07, "probability", "[tank_size.md section 7] a 100 m3 tank: about 5%; the 100,000 L plans were paused",
+        lo=0.02, hi=0.15, mode=0.07),
+    "fc_rho_cells": Input(0.5, "correlation", "[judgement] how strongly the cell switches move together (kind of cells, growth "
+        "speed, growth factors): the share of each one's latent spread that is a common 'cell biology' factor",
+        lo=0.0, hi=0.8, mode=0.5,
+        note="good cells tend to come together: the firm with an engineered low-waste line is the one likeliest to have it fast and "
+             "free of bought growth factors (cattle cells that make their own were engineered). Against: within one line, the "
+             "low-waste feed slowed growth by 13-43% (Hubalek 2023), a trade-off, not a link. 0 = independent"),
+    "fc_rho_industry": Input(0.3, "correlation", "[judgement] how strongly the plant and process switches move together (plant, "
+        "medium price, gas, tank tricks, losses, restart, whether perfusion holds at 20 m3, tank size): a common 'industry scale' "
+        "factor", lo=0.0, hi=0.6, mode=0.3,
+        note="an industry that grows buys cheaper plants and medium (GFI's announced prices are volume prices), runs cleaner plants "
+             "and has the money to scale perfusion; the two factors are taken as independent of each other"),
     # --- Vessel types and operating modes (vessels.py; research_notes/vessels_and_modes.md) ---------------
     # Each vessel is priced at the largest unit it has been built or designed at, up to 20 m3. Sizes are working
     # volumes where `wv` is 1, else vessel volumes. Everything not listed is the model's stirred tank.

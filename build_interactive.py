@@ -1033,7 +1033,7 @@ def _scenario_tokens() -> dict:
             out["RETAIL_CENTRAL"] = f"{AU.retail(r['total']):.0f}"
             out["RETAIL_CENTRAL_FLAT"] = f"{AU.retail(r['total'], 'flat'):.0f}"
             out["RETAIL_CENTRAL_PROP"] = f"{AU.retail(r['total'], 'proportional'):.0f}"
-        if key in ("process", "central", "best"):
+        if key in ("central", "best"):
             tr = S.tricks_report(choice)
             out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
             out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
@@ -1224,13 +1224,14 @@ def page_data() -> dict:
         "today": (
             f"<p><b>What it assumes.</b> The best meat cells in the published record: cattle cells fed without glutamine, which "
             f"double every {hours('today')} hours and turn most of their glucose into lactate (Hubalek 2023). Companies may hold "
-            f"better cells that they have not shown. The plant is food-grade. The tank is an ordinary stirred tank of {tank:.0f} "
-            f"cubic metres, run in perfusion with no more gas than anyone has run. Medium costs "
+            f"better cells that they have not shown. The plant is food-grade. The cells are grown in batches (fed-batch) in an "
+            f"ordinary stirred tank of {tank:.0f} cubic metres, the mode and size pharma runs and Upside Foods reports. Medium costs "
             f"{_money(kw('today')['medium_price'], 2)} a litre, with growth factors in that price, as companies report today.</p>"
-            f"<p><b>What has to go right.</b> Nothing new in the cells. But nobody has run animal cells in perfusion above about "
-            f"{perf_max:.0f} cubic metres, and no device yet holds cells back at this size.</p>"
-            f"<p><b>Why it is dear.</b> Each kilo of cells needs about {r['today']['medium_l']:.0f} litres of medium, set by "
-            f"{med('today')}. The filter that holds the cells back is paid for by the litre, so its cost grows with the medium.</p>"
+            f"<p><b>What has to go right.</b> Nothing new: this has been done at this size. Nobody has run animal cells in "
+            f"perfusion above about {perf_max:.0f} cubic metres.</p>"
+            f"<p><b>Why it is dear.</b> Nothing washes the waste out of a batch, and these cells make so much lactate that the "
+            f"batch stops at about {r['today']['density']:.0f} g of cells a litre. Each kilo then carries the plant's cost of a "
+            f"thin tank, and leaves with about {r['today']['medium_l']:.0f} litres of medium.</p>"
             + _odds_html(("perf20",))),
         "central": (
             f"<p><b>What it assumes.</b> The same low-ammonia feed, with cells selected on it until they double every "
@@ -1259,7 +1260,7 @@ def page_data() -> dict:
             + f"<p>The author gives no odds for the {eqs_b:.0%}. This case is the favourable end of what the model allows, not what to expect.</p>"),
     }
     one_line = {
-        "today": "The best meat cells anyone has published, in an ordinary tank.",
+        "today": "The best meat cells anyone has published, grown in batches in an ordinary tank.",
         "central": "A changed feed and tank, cheaper inputs, and cells selected to grow faster. No genetic engineering.",
         "best": "Everything works, including engineered cells and shoppers who slightly favour it.",
     }
@@ -1281,12 +1282,13 @@ def page_data() -> dict:
 
     # the ladder: each step adds one kind of change to the one before (scenarios.LADDER)
     step_text = {
-        "today": ("Published cells in an ordinary tank", "needs nothing new"),
+        "today": ("Published cells, grown in batches in an ordinary tank", "needs nothing new"),
         "process": ("Change the process and buy cheaper inputs", "needs a change of process and cheaper inputs"),
-        "central": ("Select cells that grow faster on the low-waste feed. This is the Central case", "needs selected cells"),
+        "selected": ("Select cells that make less waste and grow faster on the low-waste feed", "needs selected cells"),
+        "central": ("Run the tank in perfusion: a filter holds the cells back. This is the Central case", "needs perfusion at 20 m³"),
         "central_lean": ("Build a cheaper plant: food-grade, with shared medium", "needs a cheaper plant"),
-        "best": ("Engineer the cells, and put every other switch at its cheapest plausible setting. This is the Best case",
-                 "needs genetic engineering"),
+        "engineered": ("Engineer the cells to make almost no waste", "needs genetic engineering"),
+        "best": ("Put every other switch at its favourable end. This is the Best case", "needs everything to work"),
     }
     ladder = []
     for k in S.LADDER:
@@ -1562,8 +1564,9 @@ def _industry_html() -> str:
     import html as _h
     import industry_claims as IC
     import page_sections as ps
-    names = {"today": "Published cells", "process": "Step 2: process changes and cheaper inputs", "central": "Central case",
-             "central_lean": "Step 4: a cheaper plant, with shared medium", "best": "Best case",
+    names = {"today": "Published cells", "process": "Step 2: process changes and cheaper inputs",
+             "selected": "Step 3: selected cells, in batches", "central": "Central case",
+             "central_lean": "Step 5: a cheaper plant, with shared medium", "engineered": "Step 6: engineered cells", "best": "Best case",
              "forecast": "The author's forecast for 2035", "reference": "Humbird's optimistic design"}
     out = ps.industry_claims()
     for k, new in names.items():
@@ -1841,7 +1844,7 @@ expert has reviewed the model yet. It is not investment or business advice. <a h
 <li><span class="lv">Level 1</span><span><a href="#assumes">What each case assumes</a> <span class="ld">What has to go right, and the steps from the published cells to the best case.</span></span></li>
 <li><span class="lv">Level 2</span><span><a href="#moves">What would move it most</a> <span class="ld">Choices, unmeasured estimates and judgements about shoppers, ranked.</span></span></li>
 <li><span class="lv">Level 3</span><span><a href="#where">Where and when</a> <span class="ld">By type of meat, by region, and over time.</span></span></li>
-<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The ten switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
+<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The eleven switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
 <li><span class="lv">Level 5</span><span><a href="#shoppers">Check the shopper model</a> <span class="ld">The shopper settings, share against price, and other products.</span></span></li>
 <li><span class="lv">Level 6</span><span><a href="#method">Method, sources, limits</a> <span class="ld">Equations, inputs, references and the questions a sceptic would ask.</span></span></li>
 </ul>
@@ -1860,9 +1863,9 @@ holds 8 in 10 draws. The tag says what the step needs.</p>
 <details class="tv"><summary>Show the steps as a table</summary><div class="scrollx" id="l1table"></div></details>
 </div>
 <p class="small">{{TANK_NOTE}}</p>
-<p class="small"><b>What the cases assume about the tank.</b> Nobody has run any of these tank designs with animal cells. The Published cells
-case has no tank tricks. From the second step on, the tank clears CO&#8322; without more bubbles. The second step uses {{TRICKS_PROCESS_LIST}}.
-Without these it costs ${{TRICKS_PROCESS_NO}} a kilo in a tank of the same shape, and ${{TRICKS_PROCESS_ORD}} in the ordinary tall tank. The
+<p class="small"><b>What the cases assume about the tank.</b> The Published cells case and the next two steps grow the cells in
+batches in an ordinary 20 m&sup3; tank (fed-batch), as pharma and Upside Foods do; a batch this thin needs no tank tricks. From the
+Central case on, the tank is run in perfusion, which nobody has run with animal cells above about 4 m&sup3;. The
 Central case uses {{TRICKS_CENTRAL_LIST}}: ${{TRICKS_CENTRAL_NO}} without them, and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. The Best
 case uses {{TRICKS_BEST_LIST}}: ${{TRICKS_BEST_NO}} without them, and ${{TRICKS_BEST_ORD}} in the ordinary tall tank. These are costs with
 every estimate at its most likely value, calculated, not measured. The switches &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; in
@@ -1886,7 +1889,7 @@ its single most likely value instead.</p></details>
 <span class="ls">The kind of cells moves the cost most. How much shoppers like it moves the share as much as cost does.</span></summary>
 <div class="lb">
 <p>Each row moves one thing and leaves the rest alone. The start is the selected case with every estimate at its most likely value.
-Three kinds of thing can move: <span class="tag">a choice</span> is one of the ten switches, something a company decides or achieves;
+Three kinds of thing can move: <span class="tag">a choice</span> is one of the eleven switches, something a company decides or achieves;
 <span class="tag">an estimate nobody has measured at scale</span> is a number the model had to take from other cells, from small cultures or from calculation;
 <span class="tag">a judgement about shoppers</span> cannot be measured before the product is on sale.</p>
 <div class="chart">
@@ -1969,7 +1972,7 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
 <details class="sub" id="fxwrap"><summary>All the levers: build your own case from the physics</summary>
       <div class="fx" id="fx">
         <p>When you move a lever, the model applies the physics. The tank holds only as many cells as it can supply with oxygen, clear of
-        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The ten switches above are
+        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The eleven switches above are
         ten of these levers. The rest are here.</p>
         <div class="ctl"><label for="fx_sc"><span class="nm">Start from a case</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
@@ -2157,7 +2160,8 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         assumption. How many litres carry the feed depends on the waste the cells make. Fresh medium must wash ammonia out before it
         passes {{NH3_LIMIT}} mmol a litre, the level the cases' cells are taken to tolerate, and lactate likewise. The model works out
         the glucose a kilo of cells takes up from the cells' own balance: what they build, what they burn and what they turn into
-        lactate. The published cells need about {{MEDIUM_L_TODAY}} litres of medium a kilo, set by lactate. The Central case's
+        lactate. Grown in batches, the published cells stop thin, held by their lactate, so each kilo leaves with about {{MEDIUM_L_TODAY}}
+        litres of medium. The Central case's
         selected cells need {{MEDIUM_L_CENTRAL}}, set by ammonia, and the engineered cells {{MEDIUM_L_BEST}}. Companies reported medium at
         $0.20 a litre or less in 2025, and an amino-acid cost analysis by GFI and MG Consulting supports that level [3]. Nobody has
         verified it at production scale.</li>
@@ -2173,7 +2177,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         plant protein, plus ${{SCAF}}/kg to assemble it. No study has costed this for cultivated meat. The figures come from plant-protein
         extrusion, surimi and binder prices [6].</li>
       </ul>
-      <p><b>The cases.</b> How these parts come out depends on ten decisions, the switches in
+      <p><b>The cases.</b> How these parts come out depends on eleven decisions, the switches in
       <a href="#engineering">Check the engineering</a>. A case is a preset of them. Every cost on this page is for one kilo of real
       cells, which are about 70% water and 20% protein, like meat, in 2025 prices. At the median of the draws a kilo costs
       ${{TODAY_COST_P50}} with the published cells (8 in 10 draws between ${{TODAY_COST_P10}} and ${{TODAY_COST_P90}}),

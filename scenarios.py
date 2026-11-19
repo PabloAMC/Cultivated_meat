@@ -71,7 +71,32 @@ _COL = {"column": "co2", "col_pout": value("ge_col_pout")}
 _P1 = {"p_top_barg": value("sc_p_top")}
 _O2 = {"column": "o2_closed", "col_pout": value("ge_col_pout")}
 
+# Fed-batch: Humbird's cycle (two doublings from the seed, 10 hours to clean and refill), waste not washed out (vessels.MODES)
+FEDBATCH_VM = {"kind": "cyclic", "n_doublings": value("pf_fedbatch_doublings"), "turnaround_h": value("pf_turnaround_h"),
+               "restart_days": value("vm_restart_cycle_days"), "washed": False}
+_FB = "Waste is not washed out, so it caps the density: a batch may end 1.3 times above the level perfusion is held to " \
+      "(pf_batch_end_x), and its last doublings grow a little slower there. A lost batch costs its cells and 2 days; the next " \
+      "seed is ready, so the restart switch does not apply. "
+
 SWITCHES = (
+    Switch("mode", "How the tank is run",
+           "Whether the cells are grown in a batch and harvested at the end, or waste is washed out continuously while a filter "
+           "holds the cells back", (
+        Setting("perfusion", "Perfusion in a 20 m³ tank: waste washed out continuously through a cell filter",
+                {"mode": "perfusion"}, FEED,
+                "Fresh medium flows through while a filter loop holds the cells back, and cells are bled off as they grow. The "
+                "waste never builds up, so oxygen and CO₂ set the density. Animal-cell perfusion has been run up to about 4 m³ "
+                "(Genzyme), meat cells only in about 10 litres. A bigger tank barely helps it (tank_size.md)."),
+        Setting("fedbatch100", "Fed-batch in a 100 m³ tank", {"mode": "filldraw", "vm": dict(FEDBATCH_VM), "vessel_m3": 100.0}, FEED,
+                _FB + "A bigger tank costs less per m³. No animal cells have been grown above about 25 m³; plans for 100,000 litres "
+                      "were paused or abandoned."),
+        Setting("fedbatch50", "Fed-batch in a 50 m³ tank", {"mode": "filldraw", "vm": dict(FEDBATCH_VM), "vessel_m3": 50.0}, FEED,
+                _FB + "Twice the largest tank animal cells have been grown in."),
+        Setting("fedbatch", "Fed-batch in a 20 m³ tank: cells grown in a batch and harvested at the end",
+                {"mode": "filldraw", "vm": dict(FEDBATCH_VM)}, NOTHING,
+                _FB + "Shown at this size: pharma runs fed-batch in tanks of up to about 25 m³, and Upside Foods reports a "
+                      "single-vessel process validated at 20,000 litres for 18 months, in several 20,000+ litre tanks (AgFunderNews, "
+                      "17 Nov 2026; mode not disclosed, most likely fed-batch)."))),
     Switch("cells", "Kind of cells",
            "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
         Setting("engineered", "Engineered to make almost no waste",
@@ -175,6 +200,8 @@ SWITCHES = (
 )
 
 _SHORT = {
+    ("mode", "perfusion"): "perfusion", ("mode", "fedbatch100"): "fed-batch, 100 m³", ("mode", "fedbatch50"): "fed-batch, 50 m³",
+    ("mode", "fedbatch"): "fed-batch, 20 m³",
     ("cells", "engineered"): "engineered", ("cells", "selected"): "selected on low-waste feed", ("cells", "measured"): "best measured",
     ("cells", "ordinary"): "ordinary", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
     ("plant", "lean"): "food-grade, shared medium", ("plant", "sterile"): "food-grade plant", ("plant", "pharma"): "pharma-style plant",
@@ -210,7 +237,11 @@ def explore_kwargs(choice: dict) -> dict:
     input sc_medium_complete (on since 2026-11-19)."""
     kw = {}
     for s in SWITCHES:
-        kw.update(setting(s.key, choice[s.key]).kw)
+        kw.update(setting(s.key, choice.get(s.key, "perfusion") if s.key == "mode" else choice[s.key]).kw)
+    if kw.get("vm", {}).get("kind") == "cyclic" and kw.get("items", {}).get("seed") == "two":
+        # the shared-medium plant's two small seed trains serve runs of ten days or more (plant_items); a fed-batch plant restarts
+        # each tank every 3 to 4 days, so it keeps Humbird's full seed train (2026-11-19 restructure)
+        kw["items"] = {**kw["items"], "seed": "full"}
     if kw.pop("medium_complete", False) and value("sc_medium_complete") >= 0.5:
         kw["gf_in_medium"] = kw.get("growth_factors", 0.0)   # in the price, and a floor on it: nutrients + growth factors
         kw["growth_factors"] = 0.0
@@ -248,12 +279,18 @@ class Scenario:
     equal_price_share: str = "equal_price_share"   # the input that sets the long-run share at equal price (demand)
 
 
-def design(choice: dict) -> dict:
+_TRICK_LEVELS = ("none", "column", "pressure", "oxygen")     # each setting needs the ones before it to work (forecast_mc)
+
+
+def design(choice: dict, tricks_max: str = "oxygen") -> dict:
     """Fill the two tank-design switches (tricks, shape) with the cheapest pair among the settings offered
     that a loop could actually run: a pH-safe loop at a pass rate dense cultures have taken. Everything else
-    is as in `choice`."""
+    is as in `choice`. `tricks_max`: the most the tricks can do (the forecast draws which of them work)."""
     best = None
+    allowed = _TRICK_LEVELS[:_TRICK_LEVELS.index(tricks_max) + 1]
     for tk in SW["tricks"].settings:
+        if tk.key not in allowed:
+            continue
         for sh in SW["shape"].settings:
             c = {**choice, "tricks": tk.key, "shape": sh.key}
             r = run(c)
@@ -265,79 +302,93 @@ def design(choice: dict) -> dict:
     return best[1]
 
 
-_BASE = {"cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
+_BASE = {"mode": "perfusion", "cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
          "gf": "30", "medium": "0.20"}
+_PUBLISHED = {"cells": "measured", "growth": "43"}
 SCENARIOS = {
-    "best": Scenario(
-        "best", "5. Plus engineered cells: the best case, everything works",
-        "The cells are engineered to make almost no waste, and they double every day. The plant is a food-grade plant with shared medium. "
-        "The tank clears CO₂ without more bubbles. The cells need no bought growth factors.",
-        "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
-        "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
-        "design is the cheapest one that passes the checks on the CO₂ loop.",
-        design({"cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6", "restart": "14",
-                "gf": "none", "medium": "floor"}),
-        equal_price_share="best_equal_price_share"),
+    # --- the ladder (2026-11-19 restructure): from what has been shown, one kind of change per step, likeliest first -------
+    "today": Scenario(
+        "today", "1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank",
+        "The cells are the best meat cells anyone has published measurements of: glutamine replaced in the feed, doubling every 43 "
+        "hours, and most of their glucose turned into lactate. Companies may hold better cells they have not shown. They are grown "
+        "as a 20 m³ fed-batch: the mode and size that pharma runs and that Upside Foods reports for its process. Nothing washes "
+        "their waste out, so the lactate they make stops the batch thin. The plant is food-grade. Medium and growth factors cost "
+        "what companies report today.",
+        "Each switch at what has been measured, reported or run at this size. Only the medium price and the growth factors are "
+        "judgements, because nobody has measured them at scale.",
+        {"mode": "fedbatch", **_PUBLISHED, "plant": "sterile", "gas": "2", "tricks": "none", "shape": "tall", "losses": "1",
+         "restart": "21", "gf": "60", "medium": "0.30"}),
+    "process": Scenario(
+        "process", "2. Plus process changes and cheaper inputs",
+        "The same cells, still grown in batches in a 20 m³ tank. Medium and growth factors fall to the prices companies announce, "
+        "and the tank may take more gas and the tank tricks. A batch this thin needs no more gas, so in fed-batch this step is "
+        "mostly the cheaper medium.",
+        "Rung 1 with every switch that needs only a change of feed, process or supply moved to the middle of what is reported; "
+        "tank design the cheapest the loop checks allow.",
+        design({"mode": "fedbatch", **_PUBLISHED, "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
+                "gf": "30", "medium": "0.20"})),
+    "selected": Scenario(
+        "selected", "3. Plus cells selected to make less waste and grow faster on the low-waste feed",
+        "Selecting the best lines on the low-waste feed wins back part of the speed (a doubling every 36 hours, not 43) and cuts "
+        "their lactate to 0.42 mol per mol of glucose, as adapted CHO cells reach. Still in batches in a 20 m³ tank: the batch "
+        "now ends near 37 g/L, held by ammonia, not 14 g/L held by lactate.",
+        "Central's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). Selection needs no genetic engineering, and "
+        "it is likelier by 2035 (about 65%) than perfusion at 20 m³ (about 30%), and it needs no new equipment.",
+        design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
-        "central", "3. Plus cells selected to grow faster on the low-waste feed (Central)",
-        "The cells of rows 1 and 2 already make little ammonia, on a changed feed, but that feed slowed them. Selecting the best lines "
-        "on it wins back part of the speed: the cells double every 36 hours, not 43. This needs no engineering. They also make less "
-        "lactate, and that is the largest saving on the ladder: the published cells turn most of their glucose into lactate, which "
-        "sets their litres of medium. The plant is food-grade. The tank clears CO₂ without "
-        "more bubbles.",
+        "central", "4. Plus perfusion: waste washed out through a cell filter (Central)",
+        "The same selected cells, now in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
+        "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
+        "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design(dict(_BASE)),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}), ("in a food-grade plant with shared medium", {"plant": "lean"}))),
     "central_lean": Scenario(
-        "central_lean", "4. Plus a food-grade plant with shared medium",
-        "This is the central case in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
-        "has built one.",
+        "central_lean", "5. Plus a food-grade plant with shared medium",
+        "This is Central in a food-grade plant with a shared medium line, two seed trains and bought oxygen. Nobody "
+        "has built one. Its two small seed trains serve only long runs, so it comes after perfusion.",
         "The same as Central, but with a food-grade plant with shared medium.",
         design({**_BASE, "plant": "lean"}),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}))),
+    "engineered": Scenario(
+        "engineered", "6. Plus engineered cells",
+        "The cells are engineered to make almost no waste: Humbird's efficient cell, which only engineered pharma cells have shown. "
+        "Everything else is as in Rung 5, so the cells still double every 36 hours and the medium costs $0.20 a litre.",
+        "Rung 5 with the kind of cells at its cheapest setting; tank design chosen again.",
+        design({**_BASE, "plant": "lean", "cells": "engineered"})),
+    "best": Scenario(
+        "best", "7. Plus everything else at its favourable end: the best case",
+        "The engineered cells double every day and need no bought growth factors, the medium costs only what the cells eat, "
+        "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
+        "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
+        "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
+        "design is the cheapest one that passes the checks on the CO₂ loop.",
+        design({"mode": "perfusion", "cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6",
+                "restart": "14", "gf": "none", "medium": "floor"}),
+        equal_price_share="best_equal_price_share"),
+    # --- off the ladder ------------------------------------------------------------------------------------------------
     "cautious": Scenario(
-        "cautious", "Cautious: the best meat cells measured so far",
+        "cautious", "Cautious: the best meat cells measured so far, in perfusion",
         "The cells are meat cells as they have been measured. They double every 43 hours, and glutamine is replaced in the feed. "
         "The plant is food-grade. The tank gets no more gas than anyone has run. Each lost run is followed by a slow restart.",
         "Each switch is at a setting that has been measured or reported. For growth factors and medium price, nobody has measured "
         "it, so the setting is a cautious judgement. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
-        design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1", "restart": "21",
-                "gf": "60", "medium": "0.30"})),
-    # --- the ladder (2026-11-16): each rung adds one kind of change, easiest first ----------------------------
-    "today": Scenario(
-        "today", "1. Published cells: the best meat cells in the published record, in an ordinary 20 m³ perfusion tank",
-        "The cells are the best meat cells anyone has published measurements of: glutamine replaced in the feed, doubling every 43 "
-        "hours, and most of their glucose turned into lactate. Companies may hold better cells they have not shown. The plant is "
-        "food-grade. The tank is the ordinary tall stirred tank with no tricks, run with no more gas than anyone has run. Medium and "
-        "growth factors cost what companies report today. Perfusion itself has not been run at this size.",
-        "Each switch at what has been measured or reported, and nothing new in the tank. Only the medium price and the growth "
-        "factors are judgements, because nobody has measured them at scale.",
-        {"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "tricks": "none", "shape": "tall", "losses": "1",
-         "restart": "21", "gf": "60", "medium": "0.30"}),
-    "process": Scenario(
-        "process", "2. Plus process changes and cheaper inputs",
-        "The same cells. The tank clears CO₂ without more bubbles (a column beside it) and takes more gas with a protectant, runs "
-        "restart faster, and medium and growth factors fall to the prices companies announce. None of this changes the cells.",
-        "Rung 1 with every switch that needs only a change of feed, process or supply moved to the middle of what is reported; "
-        "tank design the cheapest the loop checks allow.",
-        design({"cells": "measured", "growth": "43", "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
-                "gf": "30", "medium": "0.20"})),
+        design({"mode": "perfusion", "cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1",
+                "restart": "21", "gf": "60", "medium": "0.30"})),
     "forecast": Scenario(
-        "forecast", "Forecast for 2035: a first draft of the author's medians",
-        "Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035: selected cells "
-        "doubling every 36 hours, a food-grade plant with shared medium, 4 mm/s of gas with the column and pressure, 0.6% of runs "
-        "lost a day, and medium at the $0.20 a litre companies announced, growth factors in the price.",
-        "The median of a forecast for each switch, from the odds in the research notes (RESULTS.md, \"The forecast\"). A judgement, "
-        "not a measurement; the draws behind its band do not include the forecast's own uncertainty about the switches.",
-        design({"cells": "selected", "growth": "36", "plant": "lean", "gas": "4", "losses": "0.6", "restart": "14",
-                "gf": "30", "medium": "0.20"})),
+        "forecast", "Forecast for 2035, each switch at the author's median",
+        "Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035 (forecast_odds). "
+        "This is not the forecast's median outcome: the forecast draws every switch from its odds (forecast_mc).",
+        "The median of each switch's odds, with the tank run in fed-batch because perfusion at 20 m³ is judged less likely than "
+        "not; tank design the cheapest the loop checks allow among the tricks the odds make likelier than not.",
+        {}),       # filled in below, from the odds (forecast_choice)
 }
-# The four scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
+# The scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
-# The ladder the page and RESULTS lead with: each rung adds one kind of change to the one before, easiest first. Rungs 3-5 are
-# exactly Central, Central with shared medium and the best case. The forecast is a separate row.
-LADDER = ("today", "process", "central", "central_lean", "best")
+# The ladder RESULTS leads with after the forecast: each rung adds one kind of change to the one before, likeliest first
+# (RESULTS.md, "The ladder"). Rungs 4, 5 and 7 are exactly Central, Central with shared medium and the best case.
+LADDER = ("today", "process", "selected", "central", "central_lean", "engineered", "best")
 PAGE_ORDER = LADDER + ("forecast",)
 
 
@@ -656,6 +707,199 @@ def bands(choice: dict | None, n: int = BAND_N, eqs: str = "equal_price_share") 
         q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
         _BANDS[key] = {"cost": q(mc["cost"]), "share": q(mc["vol"])}
     return _BANDS[key]
+
+
+# ----------------------------------------------------------------------------
+# The forecast for 2035: every switch drawn from the author's odds (2026-11-19 restructure)
+# ----------------------------------------------------------------------------
+# Each switch's settings from favourable to unfavourable, and the inputs that hold the odds of each (inputs.py fc_*). "tricks"
+# is which of the tank tricks work (each needs the ones before it); the tank design is then chosen among them. "vessel" is the
+# tank size of a fed-batch plant. How the tank is run is not drawn from odds of its own: perfusion is used when the cells are
+# held back at the drawn density (a filter, or aggregates on a settler), and fed-batch otherwise.
+FC_ORDER = {"cells": ("engineered", "selected", "measured", "ordinary"), "growth": ("24", "30", "36", "43"),
+            "plant": ("lean", "sterile", "pharma"), "gas": ("6", "4", "2"), "tricks": ("oxygen", "pressure", "column", "none"),
+            "losses": ("0.2", "0.6", "1", "2"), "restart": ("4", "14", "21", "30"), "gf": ("none", "30", "60", "all"),
+            "medium": ("floor", "0.20", "0.30", "0.50"), "vessel": ("fedbatch100", "fedbatch50", "fedbatch")}
+_FC_VESSEL = {"fedbatch100": "100", "fedbatch50": "50", "fedbatch": "20"}
+# which common factor each draw loads on (inputs fc_rho_cells, fc_rho_industry): good cells come together, and a bigger
+# industry gets a cheaper plant, cheaper medium, cleaner runs and the money to make perfusion work together
+FC_FACTOR = {"cells": "cells", "growth": "cells", "gf": "cells", "aggregates": "cells",
+             "plant": "industry", "gas": "industry", "tricks": "industry", "losses": "industry", "restart": "industry",
+             "medium": "industry", "vessel": "industry", "perfusion": "industry"}
+FC_DENSITIES = (120.0, 191.0, 258.0)          # g/L at which the odds of holding the cells back are judged
+FORECAST_N = 4000
+
+
+def fc_input(sw: str, st: str) -> str:
+    return f"fc_vessel_{_FC_VESSEL[st]}" if sw == "vessel" else f"fc_{sw}_{st}"
+
+
+def forecast_odds() -> dict:
+    """{switch: [(setting, probability)]}, favourable first, each switch's odds normalised to sum to 1."""
+    out = {}
+    for sw, sts in FC_ORDER.items():
+        p = np.array([value(fc_input(sw, st)) for st in sts], dtype=float)
+        out[sw] = list(zip(sts, p / p.sum()))
+    return out
+
+
+def _interp(d: float, names: tuple) -> float:
+    return float(np.interp(d, FC_DENSITIES, [value(n) for n in names]))
+
+
+def held_back_odds(density: float) -> dict:
+    """Odds that the cells are held back at `density` g/L in a 20 m3 tank for a month, in production by 2035: a filter (judged
+    possible at fc_perf_*, times fc_perf_by_2035), aggregates on a settler (fc_agg_*, already by 2035), and either."""
+    f = _interp(density, ("fc_perf_120", "fc_perf_191", "fc_perf_258")) * value("fc_perf_by_2035")
+    a = _interp(density, ("fc_agg_120", "fc_agg_191", "fc_agg_258"))
+    return {"filter": f, "aggregates": a, "either": 1.0 - (1.0 - f) * (1.0 - a)}
+
+
+def _median(sw: str) -> str:
+    cum = 0.0
+    for st, p in forecast_odds()[sw]:
+        cum += p
+        if cum >= 0.5 - 1e-12:
+            return st
+    return FC_ORDER[sw][-1]
+
+
+def forecast_choice() -> dict:
+    """Each switch at its median under the odds (the 'forecast' preset). Perfusion if the cells are held back at its density
+    with odds of a half or more (filter or aggregates, as the forecast draws them); fed-batch at the median tank size otherwise."""
+    base = {k: _median(k) for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium")}
+    tmax = _median("tricks")
+    perf = design({**base, "mode": "perfusion"}, tricks_max=tmax)
+    if held_back_odds(run(perf)["density"])["either"] >= 0.5:
+        return perf
+    return design({**base, "mode": _median("vessel")}, tricks_max=tmax)
+
+
+def _phi(z):
+    from math import erf, sqrt
+    return np.array([0.5 * (1.0 + erf(float(x) / sqrt(2.0))) for x in np.atleast_1d(z)])
+
+
+_FC_DESIGN: dict = {}
+
+
+def _fc_design(base: dict, mode: str, tmax: str) -> dict:
+    key = (tuple(sorted(base.items())), mode, tmax)
+    if key not in _FC_DESIGN:
+        c = design({**base, "mode": mode}, tricks_max=tmax)
+        _FC_DESIGN[key] = (c, run(c))
+    return _FC_DESIGN[key]
+
+
+def forecast_switch_draws(n: int = FORECAST_N, seed: int = 0) -> list:
+    """The switches of n forecast draws: [{choice, route, held}], route 'filter', 'aggregates' or 'fedbatch'. Each setting is
+    drawn from its odds through a Gaussian copula: a latent normal per switch, sqrt(rho) of it common to its group (FC_FACTOR)."""
+    rng = np.random.default_rng(seed)
+    odds = forecast_odds()
+    F = {"cells": rng.standard_normal(n), "industry": rng.standard_normal(n)}
+    rho = {"cells": value("fc_rho_cells"), "industry": value("fc_rho_industry")}
+
+    def u_of(name):
+        g = FC_FACTOR[name]
+        return _phi(np.sqrt(rho[g]) * F[g] + np.sqrt(1.0 - rho[g]) * rng.standard_normal(n))
+    idx = {}
+    for sw in FC_ORDER:
+        cum = np.cumsum([p for _s, p in odds[sw]])
+        idx[sw] = np.minimum(np.searchsorted(cum, u_of(sw), side="left"), len(cum) - 1)
+    u_perf, u_agg = u_of("perfusion"), u_of("aggregates")
+    out = []
+    for i in range(n):
+        st = {sw: FC_ORDER[sw][idx[sw][i]] for sw in FC_ORDER}
+        base = {k: st[k] for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium")}
+        cp, rp = _fc_design(base, "perfusion", st["tricks"])
+        held = held_back_odds(rp["density"])
+        f_ok, a_ok = u_perf[i] < held["filter"], u_agg[i] < held["aggregates"]
+        if f_ok or a_ok:
+            route = "filter" if not a_ok else ("aggregates" if not f_ok else "both")
+            out.append({"choice": cp, "route": route, "held": held, "draw": st})
+        else:
+            out.append({"choice": _fc_design(base, st["vessel"], st["tricks"])[0], "route": "fedbatch", "held": held, "draw": st})
+    return out
+
+
+def _aggregates_cost(kw: dict) -> float:
+    import retention
+    return retention.scenario_cost("aggregates", kw)["total"]
+
+
+def forecast_mc(n: int = FORECAST_N, seed: int = 0, demand: bool = True) -> dict:
+    """The forecast for 2035 as a distribution: each draw takes its switches from the author's odds (forecast_switch_draws), the
+    estimates behind the cost from their priors as scenario_mc draws them, and the demand dials from theirs (meat_market.
+    monte_carlo, Central's demand with its lognormal share at equal price). Where both a filter and aggregates hold the
+    cells back, the cheaper is used. Returns the arrays and `summary`."""
+    from cost_model import CostParams, parity_cost
+    sw = forecast_switch_draws(n, seed)
+    rng = np.random.default_rng(seed + 101)
+    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
+    u_cap = rng.random(n)
+    d = {"medium_price": tri(*MC_PRIORS["medium_price"]), "hazard": tri(*MC_PRIORS["hazard"])}
+    for key, name in (("charge", "plant_charge_mature"), ("membrane_life", "rt_membrane_life"),
+                      ("maintenance_share", "pf_maintenance_share"), ("nh3_kg", "sc_nh3_selected"), ("nh3_limit", "sc_nh3_limit"),
+                      ("protectant_price", "pf_protectant_price"), ("min_perfusion", "pf_min_perfusion"),
+                      ("antifoam_otr", "pf_antifoam_otr")):
+        d[key] = draw(name, rng, n)
+    reg = {name: draw(name, rng, n) for name in MC_ESTIMATE_INPUTS}
+    lean_lo = min(1.0, plant_items.capital("yeastplus")["total"] / plant_items.capital("lean")["total"])
+    cost = np.empty(n)
+    for i, w in enumerate(sw):
+        c = w["choice"]
+        kw0 = explore_kwargs(c)
+        lo = lean_lo if c["plant"] == "lean" else MC_PRIORS["capex_x"][0]
+        kw = {**kw0, "capex_x": float(fp._tri_ppf(np.array([u_cap[i]]), lo, 1.0, MC_PRIORS["capex_x"][2])[0]),
+              "medium_price": float(d["medium_price"][i]) * kw0.get("medium_price", 0.15),
+              "hazard": float(d["hazard"][i]) * kw0.get("hazard", 0.0)}
+        for k in ("charge", "membrane_life", "maintenance_share", "nh3_limit"):
+            kw[k] = float(d[k][i])
+        if c["cells"] in ("selected", "measured"):
+            kw["nh3_kg"] = float(d["nh3_kg"][i])
+        for k in ("protectant_price", "min_perfusion", "antifoam_otr"):
+            if k not in kw0:
+                kw[k] = float(d[k][i])
+        with fp._inputs_set({k: float(v[i]) for k, v in reg.items()}):
+            tot = fp.explore(**kw)["total"]
+            if w["route"] in ("aggregates", "both"):
+                agg = _aggregates_cost(kw)
+                tot = agg if w["route"] == "aggregates" else min(tot, agg)
+        cost[i] = tot
+    out = {"cost": cost, "switches": sw, "route": np.array([w["route"] for w in sw])}
+    if demand:
+        import meat_market as mm
+        out["share"] = mm.monte_carlo("global", n, seed=seed + 1, biomass=cost)["vol"]
+    out["summary"] = forecast_summary(out, parity_cost(CostParams()))
+    return out
+
+
+def forecast_summary(mc: dict, parity: float) -> dict:
+    q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
+    cost, route = mc["cost"], mc["route"]
+    held = np.isin(route, ("filter", "aggregates", "both"))
+    s = {"cost": q(cost), "p_parity": float(np.mean(cost <= parity)), "parity": float(parity),
+         "p_perfusion": float(held.mean()), "p_aggregates": float(np.isin(route, ("aggregates", "both")).mean()),
+         "cost_held": q(cost[held]) if held.any() else None, "cost_fedbatch": q(cost[~held]) if (~held).any() else None,
+         "p_cells": {st: float(np.mean([w["draw"]["cells"] == st for w in mc["switches"]])) for st in FC_ORDER["cells"]}}
+    if "share" in mc:
+        sh = mc["share"]
+        s.update(share=q(sh), p_share_1=float(np.mean(sh > 1.0)), p_share_10=float(np.mean(sh > 10.0)))
+    return s
+
+
+_FC: dict = {}
+
+
+def forecast(n: int = FORECAST_N, seed: int = 0) -> dict:
+    """forecast_mc, cached (RESULTS, the page and the tests share one run)."""
+    key = (n, seed, tuple(value(k) for k in sorted(k for k in __import__("inputs").REGISTRY if k.startswith("fc_"))))
+    if key not in _FC:
+        _FC[key] = forecast_mc(n, seed)
+    return _FC[key]
+
+
+SCENARIOS["forecast"] = replace(SCENARIOS["forecast"], choice=forecast_choice())
 
 
 # ----------------------------------------------------------------------------

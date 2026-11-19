@@ -19,6 +19,8 @@ function scParams(ch){          // the explore arguments of a choice (mirror of 
   Object.assign(p,SC.always);                 // what every scenario carries (scenarios.always: the dissolved-oxygen setpoint)
   if(p.plantKey){ if(p.plantKey==="lean"){ p.plant="sanitary"; p.items=C.fx.plant_items.lean; }
     else p.plant=(p.plantKey==="sterile"?"sanitary":p.plantKey); delete p.plantKey; }
+  // a fed-batch plant restarts each tank every few days, so the shared-medium plant keeps Humbird's full seed train (scenarios.explore_kwargs)
+  if(p.vm&&p.vm.kind==="cyclic"&&p.items&&p.items.seed==="two") p.items=Object.assign({},p.items,{seed:"full"});
   return p;
 }
 function scEval(ch){

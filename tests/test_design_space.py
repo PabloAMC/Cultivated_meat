@@ -34,7 +34,7 @@ def ideal_fat_fed(key: str) -> dict:
 
 def check() -> list:
     fails = []
-    for k in S.PAGE_ORDER:
+    for k in D.CASES:      # 2026-11-19 restructure: the perfusion scenarios; the cautious case carries the old rung 1's switches
         ch = S.SCENARIOS[k].choice
         own = S.run(ch)["total"]
         col, prs = TRICKS[ch["tricks"]]
@@ -45,7 +45,7 @@ def check() -> list:
         if len(all_) != 144:
             fails.append(f"{k}: expected 144 designs, got {len(all_)}")
         # the scenarios' tank designs are the cheapest of their own subset (scenarios.design), for every scenario that used it
-        if k != "today":
+        if True:                                   # every case searched uses scenarios.design
             sub = [d for d in all_ if d["ok"] and d["design"]["vessel"] == "stirred"
                    and d["design"]["fat"] == "made" and (d["design"]["column"], d["design"]["pressure"]) in TRICKS.values()]
             if not close(sub[0]["cost"], own):
@@ -97,10 +97,12 @@ def check() -> list:
     # best's medium at the $2.00 nutrient floor, +$0.30)
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L and membranes for lost runs (Central +$6.46, best +$1.50); glucose from the
     # cells' balance (today's ideal +$56.03: the published cells' lactate sets 95 L/kg, and no gas exchange changes that).
+    # 2026-11-19 restructure: rung 1 is now fed-batch, so the published cells in perfusion are searched as "cautious" (the same
+    # switches as the old rung 1; same pinned figures).
     # New pins: today's cheapest designs and its ideal with fat fed, which now sit below its scenario-feed ideal
     for (k, what), want in {("central", "ideal"): 30.6623, ("central", "no_cage"): 31.3999, ("central", "cage"): 31.0906,
-                            ("today", "ideal"): 84.8548, ("best", "ideal"): 11.1313,
-                            ("today", "no_cage"): 64.9412, ("today", "cage"): 61.7755, ("today", "ideal_fed"): 61.2604}.items():
+                            ("cautious", "ideal"): 84.8548, ("best", "ideal"): 11.1313,
+                            ("cautious", "no_cage"): 64.9412, ("cautious", "cage"): 61.7755, ("cautious", "ideal_fed"): 61.2604}.items():
         if what == "ideal_fed":
             got = ideal_fat_fed(k)["total"]
         else:

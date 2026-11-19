@@ -34,7 +34,7 @@ import floor_physics as fp
 import scenarios as S
 from inputs import value
 
-KEYS = ("today", "central", "best")
+KEYS = ("cautious", "central", "best")    # 2026-11-19 restructure: rung 1 ("today") is fed-batch, which has no permeate to clean; the published cells in perfusion are "cautious"
 
 
 def base(key: str = "central") -> tuple:

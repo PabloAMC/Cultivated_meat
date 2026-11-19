@@ -188,26 +188,31 @@ def summary(key: str) -> dict:
 
 # ----------------------------------------------------------------------------
 LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "thickness of the culture": "thickness"}
-SHORT = {"today": "1. Published cells", "process": "2. Plus process changes", "central": "3. Central", "central_lean": "4. Shared-medium plant",
-         "best": "5. Best case", "forecast": "Forecast for 2035"}
+# The cases searched: the scenarios run in perfusion. A batch (fed-batch) is held by its waste, not by gas exchange, so the tank's
+# gas design does not move it (2026-11-19 restructure: rungs 1-3 and the forecast's preset are fed-batch; the published cells in
+# perfusion are the cautious scenario, whose switches are the old rung 1's, so its search gives the old rung 1's figures).
+CASES = ("cautious", "central", "central_lean", "engineered", "best")
+SHORT = {"cautious": "Published cells, in perfusion", "today": "1. Published cells", "process": "2. Plus process changes", "selected": "3. Selected cells", "central": "4. Central",
+         "central_lean": "5. Shared-medium plant", "engineered": "6. Engineered cells", "best": "7. Best case",
+         "forecast": "Forecast for 2035 (medians)"}
 
 
 def markdown() -> str:
     cell = lambda d: f"${d['cost']:.2f} ({d['density']:.0f} g/L, {LIM[d['limit']]}; {d['unproven']} unproven)"
     out = ["| case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | "
            "perfect gas exchange |", "|---|---|---|---|---|---|"]
-    for k in S.PAGE_ORDER:
+    for k in CASES:
         s = summary(k)
         p, i = s["plain"], s["ideal"]
         out.append(f"| {SHORT[k]} | ${p['cost']:.2f} ({p['density']:.0f} g/L, {LIM[p['limit']]}) | ${s['scenario']:.2f} | "
                    f"{cell(s['best_no_cage'])} | {cell(s['best'])} | **${i['cost']:.2f}** ({i['density']:.0f} g/L) |")
-    for k in ("today", "central"):
+    for k in ("cautious", "central"):
         for cage, lab in ((False, "no cage"), (True, "with a bubble cage")):
             out += ["", f"| {SHORT[k]}, {lab}: unproven elements | cheapest design that passes the checks | cost | density, limit |",
                     "|---|---|---|---|"]
             for d in frontier(k, cage):
                 out.append(f"| {d['unproven']} | {describe(d['design'])} | ${d['cost']:.2f} | {d['density']:.0f} g/L, {LIM[d['limit']]} |")
-    for k in ("today", "central", "best"):
+    for k in ("cautious", "central", "best"):
         out += ["", f"| {SHORT[k]}: if this were free | cost | change | density, what then binds |", "|---|---|---|---|"]
         for lab, cost, d, x, lim in limit_prices(k):
             ch = "" if abs(d) < 0.005 else f"−${-d:.2f}" if d < 0 else f"+${d:.2f}"
@@ -219,7 +224,7 @@ def main() -> None:
     if "--markdown" in sys.argv:
         print(markdown())
         return
-    for k in S.PAGE_ORDER:
+    for k in CASES:
         s = summary(k)
         print(f"\n{SHORT[k]}: {s['n']} designs, {s['n_ok']} pass the loop checks. Ordinary tank ${s['plain']['cost']:.2f}, the scenario's "
               f"design ${s['scenario']:.2f}, perfect gas exchange ${s['ideal']['cost']:.2f}")
