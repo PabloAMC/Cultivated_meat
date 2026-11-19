@@ -2,8 +2,8 @@
 
 Date: 2026-11-19. Two bounded web searches (about 100 tool calls), building on `post_harvest_costs.md` (2026-11-14), which
 found no costed source for structuring and is not repeated here. Access tags: FT full text, PART partly read, SNIP search
-snippet only, PRESS company or trade press. [conv] marks a unit conversion of mine, [inference] a judgement of mine. No model
-input is changed by this note.
+snippet only, PRESS company or trade press. [conv] marks a unit conversion of mine, [inference] a judgement of mine. Section 4 records
+what the model adopted.
 
 The model today: a cut costs a full kilo of cells plus $6 (0.2 kg of scaffold at $5/kg plus $5 of "process", the process figure
 unsourced). Its kilo of wet cells is 30% dry matter (`gb_dry_per_wet`), firmer than muscle (about 25%), so dewatering is
@@ -89,25 +89,29 @@ high $8.0 per kg of product. P(under $2) about 35%, P($2–5) about 45%, P(over 
 
 P(over $6) about 65%, P(over $20) about 20%, P(under $3) about 15%.
 
-## 4. What this means for the model
+## 4. What this means for the model (adopted 2026-11-19)
 
-1. **The cut's cost formula counts the scaffold on top of a full kilo of cells.** If 20% of a cut is matrix, a kilo of cut holds
-   0.8 kg of cells: cost = 0.8 × cells + 0.2 × matrix + structuring. Under today's formula a cut in Central costs $32.43; with
-   the cells replaced, a $2 matrix and $3 of structuring it is $24.54, and in the best case $11.37 against $15.96.
-2. **The $5 process figure sits between the route A central ($3) and high ($8).** The $1 material term is consistent with a
-   plant-protein matrix plus binder.
+1. **The cut's cost formula counted the scaffold on top of a full kilo of cells.** If 20% of a cut is matrix, a kilo of cut holds
+   0.8 kg of cells: cost = 0.8 × cells + 0.2 × matrix + assembly (`price_ratio.structured_cost`).
+2. **Assembly is charged beyond what mince already pays.** The shop add-on ($2.5 a kilo) already carries about $1 of dewatering,
+   forming, packing and quality control for every product (`au_processing`). Route A's all-in estimate is $1–8, central $3, so the
+   model takes **$2 (range $0.5–7)** on top. Matrix **$2 a kilo (1–5)**; cell share **0.8 (0.5–0.9)**.
 3. **Route B is about $10 on top of the cells**, so the old $6 was too low for scaffold-grown tissue and too high for assembly.
 4. **Cell share is the real uncertainty.** Products sold today are 10–30% cells; a cut that is 80% suspension cells has not been
-   shown to have the texture of meat. A 20%-cell blend costs mostly plant protein, but is a different product for shoppers.
+   shown to have the texture of meat (BlueNalu says its toro will be all cells, not yet sold). A 20%-cell blend costs mostly plant
+   protein, but is a different product for shoppers. The model keeps 0.8 by default and exposes it as a slider.
+5. When cells cost more than about $12 a kilo a cut now costs less than mince, because a fifth of it is $2 plant protein.
 
-Cell cost a cut needs for price parity (shelf = (cost + $2.5)/0.72) [conv]:
+Cut cost and the cell cost a cut needs for price parity (shelf = (cost + $2.5)/0.72) [conv]:
 
-| World cut | Price | Today's formula | Cells replaced, $2 matrix, $3 structuring |
-|---|---|---|---|
-| Beef, steak and cuts | $20.4 | $6.19 | $10.98 |
-| Seafood fillet | $16.0 | $3.02 | $7.02 |
-| Pork cuts | $9.0 | below zero | $0.72 |
-| Chicken cuts | $8.0 | below zero | below zero |
+| | Before (cells + $6) | Now (0.8 cells + $0.4 + $2) |
+|---|---|---|
+| Central cut, cells $26.43 | $32.43 | $23.54 |
+| Best-case cut, cells $9.96 | $15.96 | $10.37 |
+| Beef steak and cuts ($20.4): cells needed | $6.19 | $12.23 |
+| Seafood fillet ($16.0): cells needed | $3.02 | $8.27 |
+| Pork cuts ($9.0): cells needed | below zero | $1.97 |
+| Chicken cuts ($8.0): cells needed | below zero | $1.07 |
 
 ## Sources
 

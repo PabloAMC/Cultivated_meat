@@ -1,6 +1,6 @@
 # Is the model's response to price as strong as measured ones?
 
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $3 assembly), cuts cheaper.
 
 Date: 2026-11-18; revised the same day when the model gained a spread of liking across shoppers (`liking_spread.md`). Code:
 `demand_checks.py`; test: `tests/test_demand_checks.py`.
@@ -25,7 +25,10 @@ Central's shop price is 1.1 to 8 times the meat it sits beside.
 - **Sixteen premium real meats** hold about 1.5% of their category at three times the ordinary price. **Passes now, within a
   factor of two.**
 - **Farmed salmon** (`market_size_loop.md` §6): while it was still a premium product each 1% off its price brought 1.0–1.5% more volume
-  along the demand curve. **Passes now.**
+  along the demand curve. **Passes for products still at a premium.** Since cuts got cheaper (2026-11-19), the table's two picks are
+  no longer at one: at Central cultivated prime beef sells at 0.83 times wagyu's price and sushi-grade seafood at 1.07 times, and near
+  or below parity the response is weaker, 0.7–0.8. The premium products still above their meat's price, organic chicken (2.9×) and
+  heritage pork (2.3×), give 1.4–1.5, at the top of salmon's range. Before the change the two picks gave 1.0–1.2.
 - **Plant-based meat**: the measured −1.23 is an item-level figure for plant-based beef (GFI/NielsenIQ 2024); the category is about
   −1.3 to −1.5. The model's is -2.85. **Still fails.** It belongs to the price terms all products share, and the remaining
   buyers are a concentrated minority (7% of households make 82% of spending) whom the model does not represent (TODO).
@@ -48,7 +51,7 @@ With every shopper alike it kept steepening with the price (−10.4 at three tim
   meat's price they give 16–28%, where premium real meats take 3–4%.
 - The last takes slope and level from premium labels: too little near parity, because labels are never cheaper than the ordinary
   product.
-- **Across one-kind responses Central's share runs from 0.06% to 3.0%.** The model's 0.1% and 2.7% are its own reading; the share at equal
+- **Across one-kind responses Central's share runs from 0.2% to 5.6%.** The model's 0.5% and 4.5% are its own reading; the share at equal
   price (`liking_spread.md`) carries most of what remains uncertain.
 
 ## 3. Two smaller things from the same reading

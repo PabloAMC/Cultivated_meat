@@ -1310,19 +1310,20 @@ mixes and income (`REGION_INCOME`); the low-income markets are rough. Biomass co
 
 ```
 structured_cost = (1 − scaffold_frac) × biomass_cost + scaffold_frac × material_price + process_cost
-                = 0.8 × biomass_cost + 0.2 × $2 + $3                          (central values)
+                = 0.8 × biomass_cost + 0.2 × $2 + $2                          (central values)
 ```
 
 Rebuilt 2026-11-19 (`research_notes/structuring_cost.md`). Companies now make cuts from suspension-grown cells by binding them
 with plant protein after harvest (Wildtype since 2023, Aleph Farms since 2025, Upside in 2026), not by growing tissue on a
 scaffold in a second bioreactor. A kilo of cut is 0.8 kg of cells (range 0.5–0.9) and 0.2 kg of plant-protein matrix and binder
-at $2/kg (range 1–5: textured and extruded plant protein, binders). Assembly (binding, forming, setting, slicing, yield loss) is
-$3/kg (range 1–8), from GFI's 2021 costing of plant-protein extrusion ($0.44–1.58/kg), surimi forming (about $1/kg) and binder
-prices. Growing tissue on a scaffold would add about $10/kg instead (range 3–35, from CE Delft's 2021 perfusion reactors and the
+at $2/kg (range 1–5: textured and extruded plant protein, binders). Assembly (binding, setting, slicing, yield loss) is
+$2/kg (range 0.5–7) on top of the $1 of forming, packing and quality control that every product already pays in the shop add-on
+(`au_processing`): all-in estimates are $1–8 (central $3), from GFI's 2021 costing of plant-protein extrusion ($0.44–1.58/kg),
+surimi forming (about $1/kg) and binder prices. Growing tissue on a scaffold would add about $10/kg instead (range 3–35, from CE Delft's 2021 perfusion reactors and the
 medium a maturation stage uses). Until 2026-11-19 the model charged a full kilo of cells plus a $6 scaffold, counting the
 scaffold on top of the cells it replaces. The cell share is the larger unknown: the whole cuts sold or approved so far are
 10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When cells cost more
-than about $17/kg a cut costs less than mince, because a fifth of it is plant protein. The page's slider c sets the share. A structured product competes
+than about $12/kg a cut costs less than mince, because a fifth of it is plant protein. The page's slider c sets the share. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
 premium species: against sushi-grade salmon, R has a median of 1.11, with 32% of draws at or below parity (1.57 and 1% before
 cuts were rebuilt on 2026-11-19).

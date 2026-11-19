@@ -1,6 +1,6 @@
 # Shoppers differ in how much they like cultivated meat
 
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $3 assembly), cuts cheaper.
 
 Date: 2026-11-18. **The model's default since that day** (`market_share.share`: `liking_sd`, `equal_price_share`). This module,
 `liking_spread.py`, fits the spread and compares readings of the long run; test: `tests/test_liking_spread.py`. Evidence:
@@ -63,8 +63,8 @@ the experiment. The table gives the model's own-price elasticity at four prices 
   8.6 utils, three times the wariness the model assumes: shoppers indifferent between the two meats on average.
 - **The middle reading lands on premium real meats without being fitted to them**: 3.7% at twice the price against their 3.7%,
   0.8% at three times against 1.5%.
-- **It moves the answer more than any cost**: Central from 0.03% to 1.6% of world meat and the best case from
-  0.8% to 18.1% across the three readings.
+- **It moves the answer more than any cost**: Central from 0.1% to 4.3% of world meat and the best case from
+  1.4% to 24.1% across the three readings.
 
 ## 4. The default chosen
 

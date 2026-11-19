@@ -483,7 +483,8 @@ def build_model() -> dict:
                "analogues",
                tip="This is the cost of binding, forming, setting and slicing a cut after the cells are harvested. Mince does not need it. "
                "No study has costed it for cultivated meat, so the figure comes from plant-protein extrusion ($0.4 to $1.6 a kilo), "
-               "surimi forming (about $1) and binder prices. The range is $1 to $8. Growing the cells into tissue on a scaffold "
+               "surimi forming (about $1) and binder prices: $1 to $8 all in, less the $1 of forming and packing that every product already pays "
+               "in the shop add-on. Growing the cells into tissue on a scaffold "
                "instead would add about $10 a kilo, which is why companies have dropped it."),
         # ---- step 2: how shoppers choose -----------------------------------------------------
         slider("eps_own", "Price sensitivity of meat (&epsilon;)", "", -1.4, -0.5, 0.05,

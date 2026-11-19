@@ -20,7 +20,8 @@ The matrix REPLACES cells: a kilo of cut holds (1 - scaffold_frac) kg of cells. 
 suspension-grown cells after harvest (Wildtype since 2023, Aleph since 2025, Upside 2026), not by growing tissue on a
 scaffold in a second bioreactor.
   * MATRIX price: textured or extruded plant protein with binders, about $2/kg (1-5).
-  * ASSEMBLY (process) cost: binding, forming, setting, slicing and yield loss, about $3/kg (1-8), from plant-protein
+  * ASSEMBLY (process) cost: binding, setting, slicing and yield loss beyond the forming every product pays in the shop
+    add-on, about $2/kg (0.5-7), from plant-protein
     extrusion and surimi forming. No study costs it for cultivated meat. Growing tissue on a scaffold would add about
     $10/kg (3-35) instead.
   * The larger unknown is the cell share: cuts sold so far are 10-30% cells; 80% is assumed here.
@@ -76,7 +77,7 @@ class ScaffoldParams:
     material_price: float = value("material_price")  # $/kg of matrix; band 1-5
 
     # --- assembly after harvest (analogues only, wide band) ----------------
-    process_cost: float = value("process_cost")      # $/kg to assemble the cut after harvest; band 1-8
+    process_cost: float = value("process_cost")      # $/kg to assemble the cut beyond mince; band 0.5-7
 
 
 def scaffold_cost(pr: ScaffoldParams, process=None, material=None) -> float:

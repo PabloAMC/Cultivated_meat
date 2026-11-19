@@ -1,6 +1,6 @@
 # Anchoring cultivated meat's demand on premium real meats
 
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
+> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $3 assembly), cuts cheaper.
 
 Date: 2026-11-17. Code: `premium_curve.py`; test: `tests/test_premium_curve.py`. Data: `high_premium_analogues_data.md` (ten new
 premium/share pairs, 1.7–3.6×) and `premium_meat_analogues.md` (the six the model already used); the corrections:
@@ -61,25 +61,26 @@ World long-run share, by the model's own roll-up across meat types and regions:
 
 ## 3. What this says
 
-- **At Central's price the premium curve gives nearly twice the model's share.** Anchored on premium meats, Central takes 0.23% in the
-  long run (0.10–0.37% across the corrections), against the model's 0.13%. Since 2026-11-18 the model has a spread of liking across
-  shoppers (`liking_spread.md`), which gives it a slow tail like the premium meats' (0.8% of a meat's buyers at three times the price,
-  against their 1.5%); the two now differ by a factor of under two, not five.
-- **Near price parity they disagree the other way.** The best case takes 1.8% anchored on premium meats (0.8–2.9%),
-  against the model's 2.7%. The single curve takes its level at equal price from premium labels (7%), which are never cheaper than
+- **At Central's price the premium curve and the model agree.** Anchored on premium meats, Central takes 0.44% in the long run
+  (0.19–0.71% across the corrections), against the model's 0.45%. Since 2026-11-18 the model has a spread of liking across shoppers
+  (`liking_spread.md`), which gives it a slow tail like the premium meats' (0.8% of a meat's buyers at three times the price, against
+  their 1.5%). Since the cut cost was rebuilt on 2026-11-19, cuts sell nearer meat's price. The model's share rose 3.5-fold
+  (0.13% to 0.45%), the anchored share 1.9-fold (0.23% to 0.44%): the premium curve is about a quarter as sensitive to price (κ 2.2
+  against 8.5), so the same price cut buys it less. The anchored share was nearly twice the model's; now the two are equal.
+- **Near price parity they disagree the other way.** The best case takes 2.4% anchored on premium meats (1.1–3.8%),
+  against the model's 4.5%. The single curve takes its level at equal price from premium labels (7%), which are never cheaper than
   the ordinary product, and the premium data start at 1.5×. The model sets that level as a judgement (13%, `liking_spread.md`).
   (History: with the flat $5 markup Central was 0.40% against 0.41% and the best case 2.5% against 8.0%; with the shop's percentage
   margin, 0.16% against 0.16% and 1.8% against 3.7%; with the premium markets sized from data and every shopper alike, 0.14% against
   0.04% and 1.8% against 3.1%; with a spread of liking, before the medium was repriced on 2026-11-19, 0.16% against 0.08% and 1.9%
-  against 2.9%.)
+  against 2.9%; before the cut cost was rebuilt on 2026-11-19, 0.23% against 0.13% and 1.8% against 2.7%.)
 - **The no-killing bonus is small, and the penalties win.** In stated preferences "without harming animals" counts for about as much as a
   health claim, so the corrections net out against cultivated meat in every case but the favourable one.
-- **Other fits change little.** The loyal-minority fit gives Central 0.22%; adding Ibérico ham (a share of
-  ibérico ham only, a luxury niche) gives 0.29%.
+- **Other fits change little.** The loyal-minority fit gives Central 0.43%; adding Ibérico ham (a share of
+  ibérico ham only, a luxury niche) gives 0.53%.
 
-Probabilities (judgement): Central's long-run share is within a factor of 2 of 0.4%: about 65%. Anchoring on premium meats raises it above
-0.6%: about 20%; before this study I had put about 55% on it rising, which the high-premium data did not bear out. The best case's
-long-run share is below 4%: about 55%.
+Probabilities (judgement): Central's long-run share is within a factor of 2 of 0.45%: about 65%. Anchoring on premium meats raises it above
+0.6%: about 20%; before this study I had put about 55% on it rising, which the high-premium data did not bear out. The best case's long-run share is below 4%: about 50% (the model gives 4.5%, the anchored curve 2.4%).
 
 ## 4. Caveats
 

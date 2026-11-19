@@ -1883,11 +1883,12 @@ REGISTRY: dict[str, Input] = {
     "material_price": Input(2.0, "$/kg", "[TVP, extrusion, binders: structuring_cost.md] price of the matrix: textured or "
         "extruded plant protein $0.7-2.8/kg all in (GFI 2021), TVP $0.5-5.6/kg dry (Tridge), binders $0.1-0.6/kg of product",
         lo=1.0, hi=5.0, mode=2.0),
-    "process_cost": Input(3.0, "$/kg", "[analogues: structuring_cost.md] assembling a cut after harvest: binding, forming, "
-        "setting, slicing, extra packing and yield loss. Plant-protein extrusion $0.44-1.58/kg, surimi forming about $1/kg, "
-        "batch forming and tighter hygiene more. Low 1, high 8. Growing tissue on a scaffold in a second bioreactor would add "
-        "about $10 (3-35), the route companies dropped",
-        lo=1.0, hi=8.0, mode=3.0,
+    "process_cost": Input(2.0, "$/kg", "[analogues: structuring_cost.md] what assembling a cut costs ON TOP OF the forming, "
+        "packing and quality control every product already pays in the shop add-on (au_processing, about $1): binding, setting, "
+        "slicing, extra packing and yield loss. All-in estimates are $1-8 a kilo (plant-protein extrusion $0.44-1.58, surimi forming "
+        "about $1, batch forming and tighter hygiene more), central $3; less the $1 already counted. Growing tissue on a scaffold "
+        "in a second bioreactor would add about $10 (3-35), the route companies dropped",
+        lo=0.5, hi=7.0, mode=2.0,
         note="widest input on a cut; the cell share (scaffold_frac) is the larger unknown"),
 
     # --- premium comparators (Rung 5 targets / Rung 6) ----------------------

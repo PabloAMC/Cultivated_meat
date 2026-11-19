@@ -15,7 +15,7 @@ Everything below reproduces from the code.*
 80% of them 0.06–2.5%), almost all of it as steaks and fish fillets. With engineered cells and the cheapest plausible setting of everything else it costs **$10.0**; if
 shoppers also slightly favour it once it is familiar, it takes about **15–30%** (the median of draws 17.0%, 80% of them 8.2–29.0%;
 28.3% at the point cost). With Central's demand the same cost gives 4.5%. Since 2026-11-19 a cut is 80% cells bound with plant
-protein, plus $3 a kilo to assemble it; before, it was charged a full kilo of cells plus a $6 scaffold, and Central took 0.13%
+protein, plus $2 a kilo to assemble it beyond what mince pays; before, it was charged a full kilo of cells plus a $6 scaffold, and Central took 0.13%
 ("What a cut costs", below). Price parity with everyday meat needs about **$6**, and no scenario reaches it unless the supply industry gets cheaper as it
 grows (below). At Central's cost, no single demand input, moved across its range, takes the share above 4.4%. The input that
 moves it most is a judgement: the share of shoppers who would choose cultivated meat at equal price once it is familiar. The model
@@ -633,11 +633,12 @@ At the reported cost only products priced like wagyu and sushi-grade fish sell, 
 small. In the reference case seafood and beef cuts lead, at 10–12% each; beef mince takes 5%, pork 2% and chicken almost nothing.
 
 **What a cut costs.** A steak or fillet made from cells grown in suspension is 80% cells bound with plant protein ($2 a kilo), plus
-$3 a kilo to assemble it after harvest (binding, forming, setting, slicing). Companies have dropped growing tissue on a scaffold in a
-second bioreactor; it would add about $10 a kilo. No study has costed assembly for cultivated meat, so the $3 (range $1–8) comes
+$2 a kilo to assemble it after harvest (binding, setting, slicing, yield loss), on top of the forming and packing every product
+already pays in the shop add-on. Companies have dropped growing tissue on a scaffold in a
+second bioreactor; it would add about $10 a kilo. No study has costed assembly for cultivated meat, so the $2 (range $0.5–7) comes
 from plant-protein extrusion, surimi forming and binder prices. The larger unknown is the cell share: the whole cuts sold or
 approved so far are 10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When
-cells cost more than about $17 a kilo, a cut costs less than mince, because a fifth of it is plant protein. Until 2026-11-19 a cut
+cells cost more than about $12 a kilo, a cut costs less than mince, because a fifth of it is plant protein. Until 2026-11-19 a cut
 was charged a full kilo of cells plus a $6 scaffold, which put Central at 0.13% of world meat instead of 0.45%
 (`research_notes/structuring_cost.md`).
 
@@ -709,7 +710,7 @@ the plausible speeds at which wariness fades), in the reference case as at the r
    checklist for cost claims"). Most published analyses leave out all or part of the cost of capital.
 7. **How much of a cut can be cells:** cuts sold today are 10–30% cells. Whether a steak or fillet can be mostly suspension-grown
    cells, with the texture of meat, sets most of what a cut costs and whether shoppers see it as cultivated meat. The cost of
-   assembling it is unmeasured too ($1–8 a kilo).
+   assembling it is unmeasured too ($0.5–7 a kilo beyond mince).
 
 A meat tax also works: raising conventional prices 25% lowers R as much as a 20% cut in every cost. Most of these
 are public goods that industry underfunds.

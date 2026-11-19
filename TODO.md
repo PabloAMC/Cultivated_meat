@@ -81,7 +81,7 @@ Raised by Pablo on 2026-11-16 (open):
       medium settings $0.05 and $0.15 replaced by "at the nutrient floor". Best case $9.66 -> $9.96.
 - [ ] **A supplier's tonne quote for the five amino acids hydrolysate cannot supply** (glutamine, arginine, asparagine, cystine,
       serine), and GFI's need-weighted mean price: both would firm up the floor.
-- [x] **What a cut costs** (2026-11-19, `structuring_cost.md`): 0.8 cells + $2 matrix + $3 assembly, in place of cells + $6.
+- [x] **What a cut costs** (2026-11-19, `structuring_cost.md`): 0.8 cells + $2 matrix + $2 assembly beyond mince, in place of cells + $6.
 - [ ] **How much of a cut can be cells, and whether shoppers treat a blend as cultivated meat.** Cuts sold are 10-30% cells; the model
       takes 80%. A lower share makes cuts cheaper, but the shopper model would then overstate demand. Options: tie the cut tier's
       authenticity offset to the cell share, or calibrate blends against plant-based whole cuts (Redefine Meat, Planted).
