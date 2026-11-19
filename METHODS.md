@@ -1324,7 +1324,8 @@ scaffold on top of the cells it replaces. The cell share is the larger unknown: 
 10–30% cells, and no cut made mostly of suspension-grown cells has been shown to have the texture of meat. When cells cost more
 than about $17/kg a cut costs less than mince, because a fifth of it is plant protein. The page's slider c sets the share. A structured product competes
 with $25–40/kg premium cuts rather than $12 commodity meat, which is why cultivated-seafood companies target
-premium species: against sushi-grade salmon, R has a median of 1.57, with 1% of draws at or below parity.
+premium species: against sushi-grade salmon, R has a median of 1.11, with 32% of draws at or below parity (1.57 and 1% before
+cuts were rebuilt on 2026-11-19).
 
 ## Step 3 — entry points (`foothold.py`, the page's chart 7)
 
