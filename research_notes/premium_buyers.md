@@ -74,7 +74,7 @@ from: the drop in each product's share when cultivated meat is added.
 |---|---|---|
 | 5% | 0.19% | 6.57% |
 | 10% | 0.17% | 6.52% |
-| 20% | 0.21% | 6.18% |
+| 20% | 0.16% | 6.18% |
 
 - **Premium buyers raise Central's share four times, but from very little**: from the base's 0.03% to 0.17%, with the evidence's
   +5% value of no killing. **That is now below the model's 0.21%**: the model's spread of liking, with its heavier tail since
