@@ -2858,6 +2858,8 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
            income:(income===undefined?K.income_ref:income),
            pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, lsd:sd, lmean:mean};
   const M=segShares(R,K,"M",o), E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
+  if(which==="x_meat"){ const x=K.w_eth*E.x+(1-K.w_eth)*M.x;     // share of the meat sold, x/(x+c) (mirror of market_share.share)
+    return x/Math.max(x+K.w_eth*E.c+(1-K.w_eth)*M.c,1e-300); }
   return K.w_eth*E[key]+(1-K.w_eth)*M[key];
 }
 /* re-solve the calibration (mirror of market_share.solve_calibration): three monotone
@@ -3015,7 +3017,7 @@ function penetration(s){
   const rows=market.map(mt=>{
     const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
     const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv};
-    const sh=shareCalc(R,K,o);                                      // cultivated share of this type
+    const sh=shareCalc(R,K,Object.assign({},o,{which:"x_meat"}));  // cultivated share of the meat of this type sold, x/(x+c)
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
     return {mt,R,sh,shp,t};
   });
@@ -3748,7 +3750,7 @@ function monteCarlo(s,N){
     for(const mt of market){
       const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,ramp,sd);
-      const sh=shareCalc(R,KP,o);
+      const sh=shareCalc(R,KP,Object.assign({},o,{which:"x_meat"}));   // share of the meat sold (mirror of meat_market.monte_carlo)
       // plant-based share of this type, in the SAME sampled world (same cultivated draw), with PB's
       // own sampled positions.
       const shp=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
@@ -3772,7 +3774,7 @@ function perTypeMC(s,N){
     for(const mt of market){
       const {R,ramp}=typeR(mt,b,dr.markup_add,sd,bases,dr.retail_margin);
       const o=mcShareOpts(dr,mt,ramp,sd);
-      acc[mt.name][d]=shareCalc(R,KP,o);
+      acc[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{which:"x_meat"}));
       accP[mt.name][d]=shareCalc(R,KP,Object.assign({},o,{aP:aps,nbp:nbps,hp:hps,which:"p"}));
     }
   }

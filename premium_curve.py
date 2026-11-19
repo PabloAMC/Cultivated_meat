@@ -200,7 +200,7 @@ def cultivated_share(cost: float, p: dict, delta: float = 0.0, region: str = "gl
 
     def share_of(mt, R, base, r):
         return curve(max(R - d_price, 0.05), p, tier_offset=mm.tier_offset(mt, base, r, pr) + delta,
-                     eps_own=pr.eps_own, income=income, p_ref=mt.p_conv)
+                     eps_own=pr.eps_own, income=income, p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (2026-11-19)
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), res, share_of)[1] * 100.0
 
 

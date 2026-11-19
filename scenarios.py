@@ -100,9 +100,11 @@ SWITCHES = (
     Switch("cells", "Kind of cells",
            "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
         Setting("engineered", "Engineered to make almost no waste",
-                {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": fp.GOOD_CELLS.mass_pg},
-                GE, "Ammonia is 0.055 mol per kilo of cells, lactate is 0.28 per glucose taken up, and a cell weighs 3 ng. This is "
-                    "Humbird's efficient cell. Only genetically engineered pharma cells have shown it."),
+                {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": value("sc_mass_selected_pg")},
+                GE, "The metabolism of Humbird's efficient cell: ammonia 0.055 mol per kilo of cells, lactate 0.28 mol per mol of the "
+                    "glucose taken up. Only genetically engineered pharma cells have shown it. The cell weighs 2 ng, as every other "
+                    "setting's does: engineering changes what a cell makes of its food, not its size (Humbird's 3 ng is an assumed "
+                    "cell; chicken cells are reported at 1.0 to 1.75 ng). Changed 2026-11-19; it was 3 ng."),
         Setting("selected", "Selected on a low-waste feed",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
                 SELECT, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells). Lactate is 0.42 per "
@@ -679,6 +681,8 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
                 d[key] = reg_draw(name)
         for name in MC_ESTIMATE_INPUTS:
             reg[name] = reg_draw(name)
+        if choice is not None:                         # 2026-11-19: the weight of a cell, the same for every kind of cells, drawn
+            d["mass_pg"] = reg_draw("sc_mass_selected_pg")   # last, so the other draws are unchanged
 
     def one(i: int) -> float:
         kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
@@ -851,6 +855,7 @@ def forecast_mc(n: int = FORECAST_N, seed: int = 0, demand: bool = True) -> dict
                       ("antifoam_otr", "pf_antifoam_otr")):
         d[key] = draw(name, rng, n)
     reg = {name: draw(name, rng, n) for name in MC_ESTIMATE_INPUTS}
+    d["mass_pg"] = draw("sc_mass_selected_pg", rng, n)        # the weight of a cell, as scenario_mc draws it
     lean_lo = min(1.0, plant_items.capital("yeastplus")["total"] / plant_items.capital("lean")["total"])
     cost = np.empty(n)
     for i, w in enumerate(sw):
@@ -860,7 +865,7 @@ def forecast_mc(n: int = FORECAST_N, seed: int = 0, demand: bool = True) -> dict
         kw = {**kw0, "capex_x": float(fp._tri_ppf(np.array([u_cap[i]]), lo, 1.0, MC_PRIORS["capex_x"][2])[0]),
               "medium_price": float(d["medium_price"][i]) * kw0.get("medium_price", 0.15),
               "hazard": float(d["hazard"][i]) * kw0.get("hazard", 0.0)}
-        for k in ("charge", "membrane_life", "maintenance_share", "nh3_limit"):
+        for k in ("charge", "membrane_life", "maintenance_share", "nh3_limit", "mass_pg"):
             kw[k] = float(d[k][i])
         if c["cells"] in ("selected", "measured"):
             kw["nh3_kg"] = float(d["nh3_kg"][i])

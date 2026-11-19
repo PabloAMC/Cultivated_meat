@@ -39,7 +39,7 @@ PLAIN = {
     "sc_nh3_limit": "Ammonia the cells tolerate in the tank",
     "sc_nh3_selected": "Ammonia the selected cells make per kilo grown",
     "sc_nh3_engineered": "Ammonia the engineered cells make per kilo grown",
-    "sc_mass_selected_pg": "Weight of one selected cell",
+    "sc_mass_selected_pg": "Weight of one cell (every kind of cells since 2026-11-19)",
     "sc_p_top": "Pressure at the top of the tank, where the pressure trick is used",
     "rt_membrane_life": "Litres a m² of cell filter passes before it is replaced",
     "pf_protectant_price": "Price of the bubble protectant (poloxamer 188), bought by the tonne",
@@ -123,11 +123,10 @@ EVIDENCE = {
 IN_BAND = ({"plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "markup_add", "retail_margin"}
            | set(I.MC_DEMAND_INPUTS) | set(I.MC_TIER_INPUTS) | set(I.MC_CUT_INPUTS))
 if value("sc_wide_bands") >= 0.5:                    # since 2026-11-16 the bands also draw the estimates the cost rests on most
-    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected"}
+    IN_BAND |= {name for _key, name in S.MC_ESTIMATES} | set(S.MC_ESTIMATE_INPUTS) | set(S.MC_SCENARIO_PRIORS.values()) | {"sc_nh3_selected", "sc_mass_selected_pg"}
 PARTLY_IN_BAND = {"pf_capex_escalation": "the plant's cost is drawn, not this index"}
 NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells switch",
              "sc_nh3_engineered": "no: the Engineered cells, all favourable case assumes cells that reach it",
-             "sc_mass_selected_pg": "no: a trait of the cells, held by the kind-of-cells switch",
              "sc_p_top": "no: a design choice",
              "aa_intensity": "no: a trait of the cells, as glucose use is; the Engineered cells, all favourable case takes the efficient end",
              "pf_osm_limit": "no: moves the Engineered cells, all favourable case's median by about $0.1, at forty times the computing time",
@@ -171,7 +170,7 @@ def share_at(cost: float, region: str = "global", **over) -> float:
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
                      tier_offset=mm.tier_offset(mt, base, res, pr, cell_share), eps_own=eps,
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
-                     kappa=over.get("cult_sub_mult"))
+                     kappa=over.get("cult_sub_mult"), which="x_meat")
     markup = over.get("markup_add", value("markup_add"))
     res = over.get("premium_resistance", value("premium_resistance"))
     margin = over.get("retail_margin", value("retail_margin"))

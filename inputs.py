@@ -973,9 +973,17 @@ REGISTRY: dict[str, Input] = {
     "sc_nh3_selected": Input(0.14, "mol/kg wet", "[Hubalek et al. 2023, full text; waste_tricks_sizing.md] ammonia "
         "made by bovine fibro-adipogenic cells when glutamine is replaced by alpha-ketoglutarate, pyruvate or "
         "glutamate: 'more than 5-fold' below the 0.70 with glutamine, so under 0.14",
-        lo=0.07, hi=0.25, mode=0.14,
+        lo=0.04, hi=0.25, mode=0.14,
         note="FEED CHANGE, then SELECTION. Measured once, in one cell type, in spinner flasks; the same paper's "
-             "shaker value for ordinary cells is ten times lower than its spinner value, cause unexplained"),
+             "shaker value for ordinary cells is ten times lower than its spinner value, cause unexplained. RANGE WIDENED "
+             "2026-11-19 (lo 0.07 -> 0.04; mode and hi kept), after a two-sided pass (ammonia_tolerance_and_filter_life.md, "
+             "section 10). Lower: the shaker runs found the replacement substrates made no ammonia; other lines on pyruvate "
+             "released none; CHO adapted to glutamine-free medium by selection grow on glutamate and aspartate with ammonia "
+             "'greatly decreased', and the cells' own glutamine synthetase can take ammonia up; so selection plausibly reaches "
+             "the engineered cells' 0.055 (about 20%), and the ranges overlap. Higher or kept: 0.14 is the one measurement in a "
+             "stirred vessel of growing cells, an upper bound on a mean of five donors; adaptation slows growth (US 9714293) and "
+             "slower cells burn more amino acids per kilo; FAPs, not muscle cells; the knock-outs that remove ammonia entirely "
+             "(ISCCM11 2025 poster: glutaminases and asparaginase) are engineering. So the mode stays at the measurement"),
     "sc_nh3_ordinary": Input(0.70, "mol/kg wet", "[Hubalek et al. 2023, full text] the same cells with glutamine: "
         "56.3 fmol/cell/h at a 25.7 h doubling", lo=0.09, hi=0.95, mode=0.70,
         note="0.09 is the same paper's shaker value; 0.95 is Humbird's ordinary wild-type cell"),
@@ -1002,7 +1010,8 @@ REGISTRY: dict[str, Input] = {
         "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
         lo=1000.0, hi=3000.0, mode=2000.0,
         note="smaller cells respire more per gram (West's law), so the tank holds fewer of them. Used for every "
-             "cell setting except the engineered one, which is Humbird's cell"),
+             "cell setting, the engineered one too since 2026-11-19 (engineering changes the metabolism, not the size); drawn in "
+             "the scenarios' bands. Humbird's optimistic design keeps his 3 ng"),
     "sc_td_central": Input(36.0, "h", "[Hubalek et al. 2023; judgement] the speed taken for cells that make this "
         "little waste by selection and feed alone: cells with glutamine replaced doubled in 42.9-54.2 h "
         "(38 h unchanged, 25.7 h in the spinner), never 24 h", lo=26.0, hi=43.0, mode=36.0,

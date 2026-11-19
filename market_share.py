@@ -599,7 +599,8 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
           kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None, spread=None) -> float:
-    """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
+    """Total market share of `which` in {w, c, p, x} (pb is an alias for p), or "x_meat": cultivated meat's share of the meat
+    sold, x / (x + c), the share the long-run roll-up reports (2026-11-19; "x" is its share of all four choices),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
 
     SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18): cultivated meat's utility for each shopper is the model's
@@ -668,6 +669,9 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                  cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
                  slaughter_free_x=slaughter_free_x, liking=liking)
     w = pr.w_eth
+    if which == "x_meat":           # cultivated meat's share of the meat sold: x / (x + c), both segments mixed (2026-11-19, audit 6a)
+        x = w * E["x"] + (1.0 - w) * M["x"]
+        return float(x / max(x + w * E["c"] + (1.0 - w) * M["c"], 1e-300))
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
 

@@ -295,3 +295,41 @@ checks fail in `test_golden`, `test_floor_physics`, `test_scenarios`, `test_rete
 Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank tricks, which crashes `scenarios.plain_list`.
 A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
 METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.
+
+## 10. Can selection, not engineering, bring the ammonia the cells make down to the engineered cells' level? (2026-11-19)
+
+The question (Pablo): "Can't you select cells to produce less ammonia?" The ammonia the selected cells make (`sc_nh3_selected`,
+0.14 mol a kilo, range 0.07–0.25) is the largest estimate under Selected cells, and the engineered cells' 0.055 is set apart from it
+by judgement. A short pass in both directions (search summaries and the repo's notes; no source read in full in this pass).
+
+**Toward lower ammonia without engineering.**
+- Hubalek et al. 2023 (bovine fibro-adipogenic progenitors): replacing glutamine with alpha-ketoglutarate, pyruvate or glutamate cut
+  ammonia "more than 5-fold" in spinner flasks; in the same paper's orbital-shaker runs the replacement substrates made none (about 5
+  fmol a cell an hour with GlutaMAX). The spinner and shaker figures differ tenfold, unexplained (`waste_tricks_sizing.md`).
+- Other lines: 2 mM glutamine replaced by 10 mM pyruvate released no ammonia (as cited by Hubalek 2023).
+- CHO-K1 adapted to glutamine-free, chemically defined medium by FACS-assisted evolution in about three weeks grew at comparable rates
+  and took up more glutamate and aspartate; in glutamine-free conditions the glutamate dehydrogenase flux reverses and fixes ammonia
+  into glutamate (dynamic flux analysis of CHO-K1, PMC3980355); glutamine-synthetase lines grown without glutamine make "greatly
+  decreased" ammonia (search summaries). Meat cells have their own glutamine synthetase.
+- After glutamine is removed, the ammonia left comes from the catabolism of other amino acids, which a feed balanced to what the cells
+  build limits; glucose-limited CHO perfusion reached about 0.5 fmol a cell an hour, a hundred times below the spinner control
+  (Mayrhofer 2020, at a plateau, not growing).
+
+**Toward keeping 0.14 or higher.**
+- 0.14 is the only figure for growing meat-relevant cells in a stirred vessel, which a production tank resembles more than a shaker.
+- Adaptation away from glutamine slows growth (US 9714293: slower growth, more cells in G0/G1); Hubalek's replacements were 13–43%
+  slower. Slower cells burn more amino acids for upkeep per kilo grown, which adds ammonia.
+- The cells were fibro-adipogenic progenitors from five donors, not muscle cells, in serum-reduced medium; n = 5.
+- The routes that remove ammonia entirely are engineering: knocking out glutaminases and asparaginase eliminated ammonia during growth
+  (ISCCM11 poster, 2025); an Upside Foods patent describes glutamine-synthetase lines (GFI's bioprocess deep dive cites about a 20%
+  reduction).
+
+**Reading.** Selection on a glutamine-free feed plausibly reaches the engineered cells' level: I put about 20% on a selected meat-cell
+line making 0.055 mol a kilo or less while growing at production density, and about 50% on 0.14 or less. The evidence for lower
+values is shaker and CHO data; the evidence for the measured value is the one stirred, growing meat-relevant culture. So:
+**mode kept at 0.14, low end widened from 0.07 to 0.04, so the selected and engineered settings overlap; high end kept at 0.25.**
+The bands draw the wider range. At 0.04 or 0.055 Selected cells costs $23.6 or $23.5 a kilo at most likely values, against $32.8
+at 0.14: below about 0.085 its lactate, not its ammonia, sets the litres (22 a kilo, not 35). The same switches with the engineered
+cells' ammonia and lactate cost $20.1, so most of the gap between the two kinds of cells is ammonia, and selection could close two
+thirds of it; the rest is lactate. The effect on the bands and the forecast is in
+RESULTS.md (CHANGELOG, 2026-11-19).
