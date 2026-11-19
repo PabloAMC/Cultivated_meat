@@ -101,6 +101,12 @@ Raised by Pablo on 2026-11-16 (open):
 - [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
 - [ ] **The filter pair.** Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
       stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
+- [ ] **A tank that is not perfused breaks the waste mass balance** (found 2026-11-19). Litres per kilo must be at least the waste made
+      per kilo over the waste level allowed, in any mode. The unwashed cap is scaled from Humbird's fed-batch figure (120 g/L), so
+      Central's fed-batch ends at 7.8 mmol/L ammonia against the 4 its perfusion is held to, and seems to need half the medium (18
+      against 35 L/kg). Derive the cap from the same balance, with an explicit input for how far above the steady-state limit a batch
+      may end (only its last doublings feel it; evidence: 50% growth loss at 3-10 mM, 10% at 1-3 mM). Held to 4 mM, Central's
+      fed-batch reaches about 29 g/L and costs about $90. Do this inside the scenario restructure, which compares the two modes.
 - [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
       what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
       as a second axis. Waiting on Pablo: the forecast's year(s).
