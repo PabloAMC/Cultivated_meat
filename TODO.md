@@ -13,6 +13,10 @@ Open pull requests (each says "no default changes" unless noted):
 - [x] **The spread of liking is in the shopper model** (done 2026-11-18, `research_notes/liking_spread.md`). The long-run share at
       equal price is a visible setting, `equal_price_share` (13%, drawn 5–49%), and the only demand dial for the long-run level in the
       bands. The model passes three of four price-response checks. Branch `claude/recalibrate-demand` is superseded; do not merge.
+- [ ] **Three side analyses still count shares of all four choices**, not of the meat sold: `uncertainty.py`, `sensitivity.py`,
+      `adoption_timing.py`. Move them to x / (x + c) as the roll-up did, and repin.
+- [ ] **Stale prose in two notes** that no test checks: `market_size_loop.md` (4.9 times, $21.91 and 0.59%, $6.63, 3.8, 0.34%) and
+      `premium_buyers.md` (base 0.03% and 5.4%).
 - [ ] **The Engineered cells, all favourable case's demand (55%) and Selected cells' range (5–49%)**: Selected cells' range almost excludes shoppers favouring cultivated meat
       (under 1% of draws above 45%), while the Engineered cells, all favourable case now assumes it. Decide whether Selected cells' range should reach about 60%.
 - [ ] **Conventional meat's price response** (METHODS, "When conventional meat's price responds"): with the Engineered cells, all favourable case's demand it is
@@ -110,8 +114,8 @@ Raised by Pablo on 2026-11-16 (open):
       A forecast drawn from odds was built and dropped at the author's direction.
 - [ ] **The page**: rebuild around traits as sliders with the routes verdict (`MODEL.sc.cell_routes`, `trait_verdicts`), the clouds,
       what it would take, and the contour chart the author approved; the page still shows the old case names and five-rung texts.
-- [ ] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng engineered cell (their generated tables
-      are current; some side-study figures in the prose are from before).
+- [x] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng engineered cell (2026-11-19: RESULTS,
+      METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia in a meat cell selected
       for it; whether the spinner/shaker gap in Hubalek 2023 is real.
 - [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor

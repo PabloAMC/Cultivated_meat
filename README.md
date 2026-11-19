@@ -47,6 +47,7 @@ copies, while conventional prices vary about fivefold (cheap chicken to sushi). 
    calibrated to plant-based meat's observed ~1.2% share. How much shoppers like cultivated meat differs from one shopper
    to the next (a Student's t spread, fitted to a choice experiment and to premium real meats).
 3. **Every meat, every region.** The model repeats the choice at each meat type's local price, then adds up by volume and by value.
+   The share it reports is cultivated meat's share of the meat sold: cultivated over cultivated plus conventional.
 4. **Over time.** The share starts from wary shoppers and grows as the product spreads and becomes familiar.
 
 The two outputs deserve different levels of trust. **R** is a cost built from measured data over an observed
@@ -61,7 +62,7 @@ it is always a band.
 |---|---|---|
 | 1 | [`price_ratio.py`](price_ratio.py) | R and the parity threshold (per-kg costs plus the shop's percentage margin) |
 | 1 | [`cost_model.py`](cost_model.py) | the reported cost stack (medium and plant), three plant cases, Humbird's optimistic design, the cost waterfall |
-| 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: ten switches, what has to go right for each scenario, what to prioritise, interactions, bands |
+| 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: eleven switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
 | 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; every scenario uses the filter loop it prices |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |

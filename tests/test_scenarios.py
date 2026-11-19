@@ -142,7 +142,8 @@ for k in S.PAGE_ORDER:
           and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
           f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
-for k, words in (("central", "in the Central case at the median"), ("best", "in the Best case")):   # the page keeps its old names until rebuilt
+# 2026-11-19: the page was rebuilt with the new names (Selected cells; Engineered cells, all favourable)
+for k, words in (("central", "in the Selected cells case at the median"), ("best", "in the Engineered cells, all favourable case")):
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
 check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
