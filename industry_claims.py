@@ -113,8 +113,8 @@ def summary() -> dict:
 
 # ----------------------------------------------------------------------------
 NAMES = {"reference": "Humbird's optimistic design", "today": "1. Published cells, fed-batch", "process": "2. Plus process changes",
-         "selected": "3. Plus selected cells, fed-batch", "central": "4. Selected cells (perfusion)", "central_lean": "5. Plus a plant with shared medium",
-         "engineered": "6. Plus engineered cells", "best": "7. Engineered cells, all favourable", "forecast": "Forecast for 2035, switches at their medians"}
+         "selected": "3. Plus cells that make less lactate, fed-batch", "central": "4. Selected cells (perfusion)", "central_lean": "5. Plus a plant with shared medium",
+         "engineered": "6. Plus cells that make almost no ammonia or lactate", "best": "7. Engineered cells, all favourable"}
 
 
 def markdown() -> str:

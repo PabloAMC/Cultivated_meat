@@ -145,8 +145,6 @@ for k in S.PAGE_ORDER:
 for k, words in (("central", "in the Selected cells case at the median"), ("best", "in the Engineered cells, all favourable")):
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
-bf = S.bands(S.SCENARIOS["forecast"].choice, eqs=S.eqs_of("forecast"))
-check(f"<b>{S.pct_num(bf['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should give the forecast's median share under Other estimates")
 check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
 # the median sits below the point estimate for the Engineered cells, all favourable case (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
@@ -175,7 +173,7 @@ for k in ("central", "central_lean", "engineered", "best", "cautious"):
 
 # 12c. the mass balance (2026-11-19): a batch ends at no more than pf_batch_end_x times the waste level perfusion is held to
 from inputs import value as _v
-for k in ("today", "process", "selected", "forecast"):
+for k in ("today", "process", "selected"):
     c = S.SCENARIOS[k].choice
     if c["mode"] == "perfusion":
         continue
@@ -193,33 +191,34 @@ check(S.run(S.SCENARIOS["selected"].choice)["density"] >= 33.0, "the selected ce
 check(S.explore_kwargs({**S.SCENARIOS["central_lean"].choice, "mode": "fedbatch"})["items"]["seed"] == "full", "fed-batch lean plant: full seed train")
 check(S.explore_kwargs(S.SCENARIOS["central_lean"].choice)["items"]["seed"] == "two", "perfusion lean plant: two seed trains")
 
-# 12d. the forecast for 2035 (2026-11-19): every switch drawn from the author's odds
-odds = S.forecast_odds()
-check(all(abs(sum(p for _s, p in v) - 1.0) < 1e-9 for v in odds.values()), "forecast odds should sum to 1 per switch")
-h = [S.held_back_odds(d)["either"] for d in (100.0, 120.0, 191.0, 258.0, 300.0)]
-check(all(a >= b for a, b in zip(h, h[1:])) and abs(S.held_back_odds(191.0)["filter"] - _v("fc_perf_191") * _v("fc_perf_by_2035")) < 1e-12,
-      "the odds of holding the cells back should fall with density")
-fc = S.forecast()
-sm = fc["summary"]
-check(sm["cost"][0] < sm["cost"][1] < sm["cost"][2] and sm["share"][0] < sm["share"][1] < sm["share"][2], "forecast bands not ordered")
-check(0.0 <= sm["p_share_10"] <= sm["p_share_1"] <= 1.0 and 0.0 <= sm["p_parity"] <= 1.0, "forecast probabilities out of order")
-check(abs(sm["p_cells"]["engineered"] - _v("fc_cells_engineered")) < 0.03, "the draws should reproduce the odds of engineered cells")
-check(sm["cost_held"][1] < sm["cost_fedbatch"][1], "perfusion draws should be cheaper than fed-batch draws at the median")
-check(all(w["route"] != "fedbatch" or w["choice"]["mode"] != "perfusion" for w in fc["switches"]), "a draw that is not held back is fed-batch")
-# the link between good cells: with the cell factor at 0.8, engineered cells come with fast growth more often than at 0
-def _joint(rho):
-    from floor_physics import _inputs_set
-    with _inputs_set({"fc_rho_cells": rho}):
-        S._FC_DESIGN.clear()
-        d = S.forecast_switch_draws(1500, 3)
-    S._FC_DESIGN.clear()
-    return sum(w["draw"]["cells"] == "engineered" and w["draw"]["growth"] in ("24", "30") for w in d) / 1500
-check(_joint(0.8) > _joint(0.0) + 0.03, "the cell factor should tie engineered cells to fast growth")
-# the forecast's preset is each switch at its median
-for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium"):
-    check(S.SCENARIOS["forecast"].choice[k] == S._median(k), f"forecast preset: {k} is not at its median")
-rb = S.bands(None)
-check(f"<b>{S.pct_num(rb['share'][1])}%</b><br><span class='alt'>Median." in page, "the page should headline the median for Humbird's design too")
+# 12d. cells as traits (2026-11-19, the author's direction: no forecast, no framing that makes engineering look necessary).
+# routes_needed says what each trait level has been shown with, never that engineering is needed
+import cell_traits as CT
+for k in S.LADDER:
+    tr = S.cell_traits(S.SCENARIOS[k].choice)
+    check(set(tr) == set(CT.TRAITS), f"{k}: four traits expected")
+    v = CT.routes_needed(tr)["verdict"]
+    check(not any(w in v.lower() for w in ("necessary", "is needed", "requires", "must be engineered")), f"{k}: verdict says engineering is needed")
+check(CT.routes_needed(S.cell_traits(S.SCENARIOS["today"].choice))["rank"] == 0, "the published cells' traits are shown in meat cells")
+check(CT.routes_needed({"nh3_kg": 0.0, "lac_yield": 1.05, "doubling_h": 43.0, "mass_pg": 2000.0})["rank"] == 2, "zero ammonia: engineering only")
+check(CT.routes_needed({"nh3_kg": 0.14, "lac_yield": 1.05, "doubling_h": 10.0, "mass_pg": 2000.0})["rank"] == 3, "10 h: not shown")
+check(CT.trait_route("lac_yield", 0.42) == "select_other" and CT.trait_route("doubling_h", 20.0) == "select_meat", "trait routes")
+check(CT.routes_needed({"nh3_kg": 0.14, "doubling_h": 36.0})["together"], "low ammonia with fast growth: not shown together")
+# the clouds take traits directly: a trait set by the reader is held, and the other draws do not move
+a = S.scenario_mc(S.SCENARIOS["central"].choice, 200, traits={"nh3_kg": 0.14})
+b = S.scenario_mc(S.SCENARIOS["central"].choice, 200)
+check("nh3_kg" not in a and abs(a["capex_x"] - b["capex_x"]).max() == 0.0, "scenario_mc(traits=...) should hold the trait and keep the other draws")
+# what it would take: the cost of cells a share needs falls as the share rises, and rises with the liking
+w = S.what_it_would_take()
+need = {(round(r["buyers"], 3), r["target"]): r["need"] for r in w}
+lo_b = min(b_ for b_, _t in need)
+check(need[(lo_b, 1.0)] > (need[(lo_b, 10.0)] or 0.0) and need[(0.5, 1.0)] > need[(lo_b, 1.0)], f"what it would take: {need}")
+check(abs(S.meat_buyers_at_equal_price() - 0.145) < 0.002, "the model's 13% of all choices is 14.5% of meat buyers")
+check(abs(S.world_share(S.run(S.SCENARIOS["central"].choice)["total"], None) - S.shares(S.run(S.SCENARIOS["central"].choice)["total"])["global"]) < 1e-12,
+      "world_share at the model's own liking is shares()")
+for r in w:
+    if r["pick"] is not None:
+        check(r["pick"][0] <= r["need"] + 1e-9, "a picked trait set must reach the cost")
 
 # 13. what the tank design relies on is stated, with the cost without it (rung 2 is fed-batch since 2026-11-19 and uses no tricks)
 check(S.tricks_report(S.SCENARIOS["process"].choice)["used"] == [], "rung 2 (fed-batch) should use no tank tricks")
@@ -240,15 +239,16 @@ check("36 hours" in S.story_text("central") and "10%" in S.story_text("central")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
 check(2.2 <= gain <= 2.9 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $2.2-2.9 a kilo ({gain:.2f})")
 
-# 14. RESULTS and METHODS carry the forecast, its odds and the plant-cost axis (generated tables, by line)
-res = open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read()
-for lab, md, docs in (("forecast", S.forecast_markdown(), ("RESULTS.md",)), ("forecast odds", S.forecast_odds_markdown(), ("RESULTS.md", "METHODS.md")),
+# 14. RESULTS carries the routes table, what it would take and the plant-cost axis; METHODS the routes table (generated, by line)
+for lab, md, docs in (("routes", CT.markdown(), ("RESULTS.md", "METHODS.md")), ("what it would take", S.what_it_would_take_markdown(), ("RESULTS.md",)),
                       ("plant axis", S.plant_axis_markdown(), ("RESULTS.md",))):
     for fname in docs:
         text = open(os.path.join(MODEL_DIR, fname), encoding="utf-8").read()
         for ln in md.splitlines():
             if ln.strip():
                 check(ln in text, f"{fname} does not carry the {lab} table line: {ln[:80]}")
+check("forecast for 2035" not in open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read().split("## 1.")[0].lower(),
+      "the Summary should not lead with a forecast (the author's direction, 2026-11-19)")
 
 if fails:
     print("FAIL — scenarios:")

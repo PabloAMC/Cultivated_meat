@@ -217,7 +217,7 @@ def summary() -> dict:
     sets = {"the six used so far": data(high=False), "all sixteen": data(), "sixteen plus Ibérico": data() + ANALOGUES_IBERICO}
     fits = {name: {k: fit(k, rows) for k in ("one", "loyal")} for name, rows in sets.items()}
     main = fits["all sixteen"]["one"]["params"]
-    costs = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in ("today", "central", "forecast", "best")}
+    costs = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in ("today", "central", "best")}
     cases = delta_cases()
     shares = {k: {lab: cultivated_share(c, main, d_price=d) for lab, d in cases.items()} for k, c in costs.items()}
     _SUM.update(model=model, sets=sets, fits=fits, main=main, costs=costs, cases=cases, shares=shares,

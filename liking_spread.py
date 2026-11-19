@@ -189,7 +189,7 @@ COLD_BAND, MISS_MAX = (-1.65, -1.35), 0.30
 PREMIUM_AT = (2.0, 3.0, 4.0)
 CURVE_AT = (1.25, 1.5, 2.0, 3.0, 4.0)
 STILL_DEARER = 1.5                               # the salmon check takes the premium products above this price ratio (demand_checks.py)
-WORLD_CASES = ("today", "central", "forecast", "best")
+WORLD_CASES = ("today", "central", "best")
 # The fitted parameters of each shape (`fit_family` finds them; `python liking_spread.py --families` prints the table).
 FITTED = {
     "normal, as it was (15 integration points)": dict(liking_family="normal", liking_sd=5.0),

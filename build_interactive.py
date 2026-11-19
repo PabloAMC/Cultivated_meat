@@ -1361,11 +1361,9 @@ def _tank_note() -> str:
 def _other_estimates_html() -> str:
     """Level 1's small table: the 2035 forecast, Humbird's optimistic design and a company's own report, on the cases' basis."""
     import scenarios as S
-    rows = S.table_rows()[len(S.PAGE_ORDER) - 1:]                 # the forecast, Humbird's design, the reported process
-    names = ("The author's forecast for 2035", "Humbird's optimistic design", "As a company reports")
-    what = ("Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035: Central's "
-            "cells in a food-grade plant with shared medium and fewer lost runs. A first draft.",
-            "Humbird's 2021 design: his engineered cells in an ordinary perfusion tank, a food-grade plant, no tank tricks and no lost "
+    rows = S.table_rows()[len(S.PAGE_ORDER):]                     # Humbird's design, the reported process (no forecast since 2026-11-19)
+    names = ("Humbird's optimistic design", "As a company reports")
+    what = ("Humbird's 2021 design: his engineered cells in an ordinary perfusion tank, a food-grade plant, no tank tricks and no lost "
             "runs. It assumes the hardest change and none of the easy ones.",
             "SuperMeat's 2024 report of its own process, scaled up on paper, with a yearly charge on its plant added. "
             "The company's figures have not been peer reviewed.")
@@ -1567,7 +1565,7 @@ def _industry_html() -> str:
     names = {"today": "Published cells", "process": "Step 2: process changes and cheaper inputs",
              "selected": "Step 3: selected cells, in batches", "central": "Central case",
              "central_lean": "Step 5: a cheaper plant, with shared medium", "engineered": "Step 6: engineered cells", "best": "Best case",
-             "forecast": "The author's forecast for 2035", "reference": "Humbird's optimistic design"}
+             "reference": "Humbird's optimistic design"}
     out = ps.industry_claims()
     for k, new in names.items():
         old = f"<tr><td>{_h.escape(IC.NAMES[k])}</td>"

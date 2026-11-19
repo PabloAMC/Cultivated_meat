@@ -267,6 +267,16 @@ def always() -> dict:
     return kw
 
 
+TRAIT_KEYS = ("nh3_kg", "lac_yield", "doubling_h", "mass_pg")
+
+
+def cell_traits(choice: dict, **extra) -> dict:
+    """The four cell traits a choice gives (cell_traits.TRAITS): ammonia per kilo, lactate per glucose, doubling time, cell mass;
+    `extra` overrides them, as run() does."""
+    kw = {**explore_kwargs(choice), **extra}
+    return {k: float(kw[k]) for k in TRAIT_KEYS}
+
+
 def run(choice: dict, **extra) -> dict:
     """The model's answer for a choice of settings (floor_physics.explore's result)."""
     return fp.explore(**{**explore_kwargs(choice), **extra})
@@ -337,7 +347,7 @@ SCENARIOS = {
         design({"mode": "fedbatch", **_PUBLISHED, "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
                 "gf": "30", "medium": "0.20"})),
     "selected": Scenario(
-        "selected", "3. Plus cells selected to make less waste and grow faster, still in batches",
+        "selected", "3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches",
         "Selecting the best lines on the low-waste feed wins back part of the speed (a doubling every 36 hours, not 43) and cuts "
         "their lactate to 0.42 mol per mol of glucose, as adapted CHO cells reach. Still in batches in a 20 m³ tank: the batch "
         "now ends near 37 g/L, held by ammonia, not 14 g/L held by lactate.",
@@ -346,7 +356,9 @@ SCENARIOS = {
         design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
         "central", "4. Plus perfusion (Selected cells): waste washed out through a cell filter",
-        "The same selected cells, doubling every 36 hours, now in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
+        "Selected cells, a reference point defined by its traits: 0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, "
+        "a doubling every 36 hours and 2 ng a cell (routes: a feed change in meat cells, and selection, which has shown that lactate "
+        "only in CHO cells). The cells, doubling every 36 hours, run in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
         "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
@@ -361,14 +373,18 @@ SCENARIOS = {
         design({**_BASE, "plant": "lean"}),
         alt=(("at 30 hours", {"growth": "30"}), ("at 24 hours", {"growth": "24"}))),
     "engineered": Scenario(
-        "engineered", "6. Plus engineered cells",
-        "The cells are engineered to make almost no waste: Humbird's efficient cell, which only engineered pharma cells have shown. "
-        "Everything else is as in Rung 5, so the cells still double every 36 hours and the medium costs $0.20 a litre.",
+        "engineered", "6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose)",
+        "Cells that make almost no waste: 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose (Humbird's efficient "
+        "cell's metabolism), 2 ng a cell. That ammonia has been shown without engineering only in CHO cells at a plateau, and by "
+        "engineering; that lactate without engineering only in CHO cells (cell_traits.routes_needed). Everything else is as in Rung 5, "
+        "so the cells still double every 36 hours and the medium costs $0.20 a litre.",
         "Rung 5 with the kind of cells at its cheapest setting; tank design chosen again.",
         design({**_BASE, "plant": "lean", "cells": "engineered"})),
     "best": Scenario(
         "best", "7. Plus everything else at its favourable end (Engineered cells, all favourable)",
-        "The engineered cells double every day and need no bought growth factors, the medium costs only what the cells eat, "
+        "Engineered cells, all favourable, a reference point defined by its traits: 0.055 mol of ammonia a kilo, 0.28 mol of lactate "
+        "per mol of glucose, a doubling every 24 hours and 2 ng a cell; the name says how such cells would most likely be made, not "
+        "that they must be. The cells need no bought growth factors, the medium costs only what the cells eat, "
         "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
         "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
         "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
@@ -385,20 +401,13 @@ SCENARIOS = {
         "it, so the setting is a cautious judgement. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
         design({"mode": "perfusion", "cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "losses": "1",
                 "restart": "21", "gf": "60", "medium": "0.30"})),
-    "forecast": Scenario(
-        "forecast", "Forecast for 2035, each switch at the author's median",
-        "Each switch at the setting the author thinks as likely as not to be reached at production scale by 2035 (forecast_odds). "
-        "This is not the forecast's median outcome: the forecast draws every switch from its odds (forecast_mc).",
-        "The median of each switch's odds, with the tank run in fed-batch because perfusion at 20 m³ is judged less likely than "
-        "not; tank design the cheapest the loop checks allow among the tricks the odds make likelier than not.",
-        {}),       # filled in below, from the odds (forecast_choice)
 }
 # The scenarios the side studies (tank size, thick culture, frontier, audit, ...) were run on; their tests iterate these.
 ORDER = ("best", "central", "central_lean", "cautious")
 # The ladder RESULTS leads with after the forecast: each rung adds one kind of change to the one before, likeliest first
 # (RESULTS.md, "The ladder"). Rungs 4, 5 and 7 are exactly Selected cells, Selected cells with shared medium and the Engineered cells, all favourable case.
 LADDER = ("today", "process", "selected", "central", "central_lean", "engineered", "best")
-PAGE_ORDER = LADDER + ("forecast",)
+PAGE_ORDER = LADDER
 
 
 def scenario_choice(key: str, **change) -> dict:
@@ -411,6 +420,8 @@ def alt_cost(key: str, change: dict) -> float:
 
 
 REFERENCE_NAME = "Humbird's optimistic design: engineered cells in an ordinary perfusion tank"
+# Humbird's enhanced cell as traits (explore() at its defaults; lactate 0.5 per glucose burned or fermented = 0.279 on all glucose)
+HUMBIRD_TRAITS = {"nh3_kg": 0.054, "lac_yield": 0.279, "doubling_h": 24.0, "mass_pg": 3000.0}
 
 
 def reference() -> dict:
@@ -650,13 +661,17 @@ MC_SCENARIO_PRIORS = {"nh3_limit": "sc_nh3_limit"}      # set by always() for ev
 MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price", "aa_bulk_price")    # no explore() argument: set in the datasheet per draw
 
 
-def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
+def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict | None = None) -> dict:
     """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
     share of respiration, medium price and loss rate, and (MC_ESTIMATES) the estimates the cost rests on most, drawn from
     their priors; the scenario's switches held. `choice=None` is
-    Humbird's optimistic design (`reference()`, explore() at its defaults), drawn the same way."""
+    Humbird's optimistic design (`reference()`, explore() at its defaults), drawn the same way.
+    `traits` ({nh3_kg, lac_yield, doubling_h, mass_pg}, any subset) sets cell traits directly (2026-11-19): a trait set by the reader
+    is held, not drawn (the draws are still made, so the other draws do not move)."""
     rng = np.random.default_rng(seed)
     kw0 = explore_kwargs(choice) if choice is not None else {}
+    traits = dict(traits or {})
+    kw0.update(traits)
     pri = dict(MC_PRIORS)
     if choice is not None and choice["plant"] == "lean":                       # not below a plant with everything animal cells must have
         lean = plant_items.capital("lean")["total"]
@@ -684,6 +699,9 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
         if choice is not None:                         # 2026-11-19: the weight of a cell, the same for every kind of cells, drawn
             d["mass_pg"] = reg_draw("sc_mass_selected_pg")   # last, so the other draws are unchanged
 
+    for k in traits:                                   # held at the reader's value
+        d.pop(k, None)
+
     def one(i: int) -> float:
         kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
         if not reg:
@@ -695,10 +713,10 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
 
 
 def scenario_share_mc(choice: dict | None, region: str = "global", n: int = 1000, seed: int = 0,
-                      eqs: str = "equal_price_share") -> dict:
+                      eqs: str = "equal_price_share", traits: dict | None = None) -> dict:
     """Cost and demand uncertain together: each draw takes a cost from scenario_mc and the demand dials from their priors."""
     import meat_market as mm
-    cost = scenario_mc(choice, n, seed)["total"]
+    cost = scenario_mc(choice, n, seed, traits=traits)["total"]
     mc = mm.monte_carlo(region, n, seed=seed + 1, biomass=cost, equal_share_input=eqs)
     return dict(vol=mc["vol"], val=mc["val"], cost=cost)
 
@@ -708,332 +726,148 @@ BAND_N = 4000
 _BANDS: dict = {}
 
 
-def bands(choice: dict | None, n: int = BAND_N, eqs: str = "equal_price_share") -> dict:
+def bands(choice: dict | None, n: int = BAND_N, eqs: str = "equal_price_share", traits: dict | None = None) -> dict:
     """10th / 50th / 90th percentile of cost and of the world's long-run share by weight (cost and demand both
     uncertain). The 50th percentile of the share is the page's headline share for a scenario; the share at the
     scenario's own point cost (`summary(...)['world']`) is a different number and is labelled a point estimate."""
-    key = (tuple(sorted(choice.items())) if choice is not None else "reference", n, eqs)
+    key = (tuple(sorted(choice.items())) if choice is not None else "reference", n, eqs, tuple(sorted((traits or {}).items())))
     if key not in _BANDS:
-        mc = scenario_share_mc(choice, "global", n, eqs=eqs)
+        mc = scenario_share_mc(choice, "global", n, eqs=eqs, traits=traits)
         q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
         _BANDS[key] = {"cost": q(mc["cost"]), "share": q(mc["vol"])}
     return _BANDS[key]
 
 
 # ----------------------------------------------------------------------------
-# The forecast for 2035: every switch drawn from the author's odds (2026-11-19 restructure)
+# What it would take (2026-11-19): the cost of cells a share needs, and trait sets that reach it, deterministic, no odds
 # ----------------------------------------------------------------------------
-# Each switch's settings from favourable to unfavourable, and the inputs that hold the odds of each (inputs.py fc_*). "tricks"
-# is which of the tank tricks work (each needs the ones before it); the tank design is then chosen among them. "vessel" is the
-# tank size of a fed-batch plant. How the tank is run is not drawn from odds of its own: perfusion is used when the cells are
-# held back at the drawn density (a filter, or aggregates on a settler), and fed-batch otherwise.
-FC_ORDER = {"cells": ("engineered", "selected", "measured", "ordinary"), "growth": ("24", "30", "36", "43"),
-            "plant": ("lean", "sterile", "pharma"), "gas": ("6", "4", "2"), "tricks": ("oxygen", "pressure", "column", "none"),
-            "losses": ("0.2", "0.6", "1", "2"), "restart": ("4", "14", "21", "30"), "gf": ("none", "30", "60", "all"),
-            "medium": ("floor", "0.20", "0.30", "0.50"), "vessel": ("fedbatch100", "fedbatch50", "fedbatch")}
-_FC_VESSEL = {"fedbatch100": "100", "fedbatch50": "50", "fedbatch": "20"}
-# which common factor each draw loads on (inputs fc_rho_cells, fc_rho_industry): good cells come together, and a bigger
-# industry gets a cheaper plant, cheaper medium, cleaner runs and the money to make perfusion work together
-FC_FACTOR = {"cells": "cells", "growth": "cells", "gf": "cells", "aggregates": "cells",
-             "plant": "industry", "gas": "industry", "tricks": "industry", "losses": "industry", "restart": "industry",
-             "medium": "industry", "vessel": "industry", "perfusion": "industry"}
-FC_DENSITIES = (120.0, 191.0, 258.0)          # g/L at which the odds of holding the cells back are judged
-FORECAST_N = 4000
+WIT_TARGETS = (1.0, 10.0)                 # long-run share of world meat and seafood, %
+WIT_BUYERS = (None, 0.50)                 # share of meat buyers who pick cultivated meat at equal price: the model's own, and 50%
+_EQ_ALL: dict = {}
+_DP_V: dict = {}
 
 
-def fc_input(sw: str, st: str) -> str:
-    return f"fc_vessel_{_FC_VESSEL[st]}" if sw == "vessel" else f"fc_{sw}_{st}"
+def all_choices_for_meat_buyers(f: float) -> float:
+    """The share-at-equal-price dial (of all choices) that gives `f` of meat buyers, x / (x + c), at neutral settings."""
+    if f not in _EQ_ALL:
+        import market_share as M
+        pr = _demand()
+        g = lambda e: M.share(1.0, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, equal_share=e, which="x_meat")
+        lo, hi = 0.001, 0.79
+        for _ in range(60):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if g(mid) < f else (lo, mid)
+        _EQ_ALL[f] = 0.5 * (lo + hi)
+    return _EQ_ALL[f]
 
 
-def forecast_odds() -> dict:
-    """{switch: [(setting, probability)]}, favourable first, each switch's odds normalised to sum to 1."""
-    out = {}
-    for sw, sts in FC_ORDER.items():
-        p = np.array([value(fc_input(sw, st)) for st in sts], dtype=float)
-        out[sw] = list(zip(sts, p / p.sum()))
-    return out
+def meat_buyers_at_equal_price(eq_all: float | None = None) -> float:
+    """The share of meat buyers who pick cultivated meat at equal price, at the dial `eq_all` (None: the model's own)."""
+    import market_share as M
+    pr = _demand()
+    e = value("equal_price_share") if eq_all is None else eq_all
+    return M.share(1.0, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, equal_share=e, which="x_meat")
 
 
-def _interp(d: float, names: tuple) -> float:
-    return float(np.interp(d, FC_DENSITIES, [value(n) for n in names]))
+def world_share(cost: float, buyers: float | None = None) -> float:
+    """Long-run share of world meat and seafood, %, at `cost` $/kg of cells, with `buyers` of meat buyers picking it at equal price
+    (None: the model's own 14.5%)."""
+    import meat_market as mm
+    if buyers is None:
+        return shares(cost)["global"]
+    if buyers not in _DP_V:
+        from market_share import DemandParams
+        _DP_V[buyers] = DemandParams(equal_price_share=all_choices_for_meat_buyers(buyers))
+    return mm.penetration(mm.MARKETS["global"], cost, income=mm.REGION_INCOME["global"], pr=_DP_V[buyers])[1] * 100.0
 
 
-def held_back_odds(density: float) -> dict:
-    """Odds that the cells are held back at `density` g/L in a 20 m3 tank for a month, in production by 2035: a filter (judged
-    possible at fc_perf_*, times fc_perf_by_2035), aggregates on a settler (fc_agg_*, already by 2035), and either."""
-    f = _interp(density, ("fc_perf_120", "fc_perf_191", "fc_perf_258")) * value("fc_perf_by_2035")
-    a = _interp(density, ("fc_agg_120", "fc_agg_191", "fc_agg_258"))
-    return {"filter": f, "aggregates": a, "either": 1.0 - (1.0 - f) * (1.0 - a)}
+def cost_for_share(target: float, buyers: float | None = None) -> float | None:
+    """The cost of cells, $/kg, at which the long-run world share is `target` % (None if not reached even at $0.5)."""
+    lo, hi = 0.5, 400.0
+    if world_share(lo, buyers) < target:
+        return None
+    for _ in range(50):
+        mid = (lo * hi) ** 0.5
+        lo, hi = (mid, hi) if world_share(mid, buyers) >= target else (lo, mid)
+    return lo
 
 
-def _median(sw: str) -> str:
-    cum = 0.0
-    for st, p in forecast_odds()[sw]:
-        cum += p
-        if cum >= 0.5 - 1e-12:
-            return st
-    return FC_ORDER[sw][-1]
+# the trait sets tried (each with the Selected cells case's other switches, a plant and a mode, tank design chosen): the published
+# value of each trait, the selected cells', the engineered cells' and one better still
+WIT_GRID = {"nh3_kg": (0.14, 0.055, 0.0), "lac_yield": (1.05, 0.42, 0.279, 0.0), "doubling_h": (43.0, 36.0, 25.7, 20.0, 15.0)}
+WIT_CHOICES = tuple((p, m) for p in ("sterile", "lean") for m in ("perfusion", "fedbatch"))
+_WIT: list = []
 
 
-def forecast_choice() -> dict:
-    """Each switch at its median under the odds (the 'forecast' preset). Perfusion if the cells are held back at its density
-    with odds of a half or more (filter or aggregates, as the forecast draws them); fed-batch at the median tank size otherwise."""
-    base = {k: _median(k) for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium")}
-    tmax = _median("tricks")
-    perf = design({**base, "mode": "perfusion"}, tricks_max=tmax)
-    if held_back_odds(run(perf)["density"])["either"] >= 0.5:
-        return perf
-    return design({**base, "mode": _median("vessel")}, tricks_max=tmax)
+def trait_grid() -> list:
+    """[(cost, traits, plant, mode, routes_needed)] for every set in WIT_GRID x WIT_CHOICES, at most likely values, cells of 2 ng."""
+    import cell_traits as CT
+    if not _WIT:
+        base = {k: v for k, v in SCENARIOS["central"].choice.items() if k not in ("tricks", "shape", "plant", "mode")}
+        mass = value("sc_mass_selected_pg")
+        for a in WIT_GRID["nh3_kg"]:
+            for l in WIT_GRID["lac_yield"]:
+                for t in WIT_GRID["doubling_h"]:
+                    tr = {"nh3_kg": a, "lac_yield": l, "doubling_h": t, "mass_pg": mass}
+                    rn = CT.routes_needed(tr)
+                    for p, m in WIT_CHOICES:
+                        c = _design_traits({**base, "plant": p, "mode": m}, tr)
+                        _WIT.append((run(c, **tr)["total"], tr, p, m, rn, c))
+    return _WIT
 
 
-def _phi(z):
-    from math import erf, sqrt
-    return np.array([0.5 * (1.0 + erf(float(x) / sqrt(2.0))) for x in np.atleast_1d(z)])
+def _design_traits(choice: dict, traits: dict) -> dict:
+    """design() for a choice with its cell traits set directly."""
+    best = None
+    for tk in SW["tricks"].settings:
+        for sh in SW["shape"].settings:
+            c = {**choice, "tricks": tk.key, "shape": sh.key}
+            r = run(c, **traits)
+            d = r["column"]
+            if d is not None and (d["ph_vs_safe"] > 1.0 + 1e-9 or not d["passes_tested"]):
+                continue
+            if best is None or r["total"] < best[0] - 1e-12:
+                best = (r["total"], c)
+    return best[1]
 
 
-_FC_DESIGN: dict = {}
-
-
-def _fc_design(base: dict, mode: str, tmax: str) -> dict:
-    key = (tuple(sorted(base.items())), mode, tmax)
-    if key not in _FC_DESIGN:
-        c = design({**base, "mode": mode}, tricks_max=tmax)
-        _FC_DESIGN[key] = (c, run(c))
-    return _FC_DESIGN[key]
-
-
-def forecast_switch_draws(n: int = FORECAST_N, seed: int = 0) -> list:
-    """The switches of n forecast draws: [{choice, route, held}], route 'filter', 'aggregates' or 'fedbatch'. Each setting is
-    drawn from its odds through a Gaussian copula: a latent normal per switch, sqrt(rho) of it common to its group (FC_FACTOR)."""
-    rng = np.random.default_rng(seed)
-    odds = forecast_odds()
-    F = {"cells": rng.standard_normal(n), "industry": rng.standard_normal(n)}
-    rho = {"cells": value("fc_rho_cells"), "industry": value("fc_rho_industry")}
-
-    def u_of(name):
-        g = FC_FACTOR[name]
-        return _phi(np.sqrt(rho[g]) * F[g] + np.sqrt(1.0 - rho[g]) * rng.standard_normal(n))
-    idx = {}
-    for sw in FC_ORDER:
-        cum = np.cumsum([p for _s, p in odds[sw]])
-        idx[sw] = np.minimum(np.searchsorted(cum, u_of(sw), side="left"), len(cum) - 1)
-    u_perf, u_agg = u_of("perfusion"), u_of("aggregates")
-    out = []
-    for i in range(n):
-        st = {sw: FC_ORDER[sw][idx[sw][i]] for sw in FC_ORDER}
-        base = {k: st[k] for k in ("cells", "growth", "plant", "gas", "losses", "restart", "gf", "medium")}
-        cp, rp = _fc_design(base, "perfusion", st["tricks"])
-        held = held_back_odds(rp["density"])
-        f_ok, a_ok = u_perf[i] < held["filter"], u_agg[i] < held["aggregates"]
-        if f_ok or a_ok:
-            route = "filter" if not a_ok else ("aggregates" if not f_ok else "both")
-            out.append({"choice": cp, "route": route, "held": held, "draw": st})
-        else:
-            out.append({"choice": _fc_design(base, st["vessel"], st["tricks"])[0], "route": "fedbatch", "held": held, "draw": st})
-    return out
-
-
-def _aggregates_cost(kw: dict) -> float:
-    import retention
-    return retention.scenario_cost("aggregates", kw)["total"]
-
-
-def forecast_mc(n: int = FORECAST_N, seed: int = 0, demand: bool = True) -> dict:
-    """The forecast for 2035 as a distribution: each draw takes its switches from the author's odds (forecast_switch_draws), the
-    estimates behind the cost from their priors as scenario_mc draws them, and the demand dials from theirs (meat_market.
-    monte_carlo, Selected cells' demand with its lognormal share at equal price). Where both a filter and aggregates hold the
-    cells back, the cheaper is used. Returns the arrays and `summary`."""
-    from cost_model import CostParams, parity_cost
-    sw = forecast_switch_draws(n, seed)
-    rng = np.random.default_rng(seed + 101)
-    tri = lambda lo, mode, hi: rng.triangular(lo, mode, hi, n)
-    u_cap = rng.random(n)
-    d = {"medium_price": tri(*MC_PRIORS["medium_price"]), "hazard": tri(*MC_PRIORS["hazard"])}
-    for key, name in (("charge", "plant_charge_mature"), ("membrane_life", "rt_membrane_life"),
-                      ("maintenance_share", "pf_maintenance_share"), ("nh3_kg", "sc_nh3_selected"), ("nh3_limit", "sc_nh3_limit"),
-                      ("protectant_price", "pf_protectant_price"), ("min_perfusion", "pf_min_perfusion"),
-                      ("antifoam_otr", "pf_antifoam_otr")):
-        d[key] = draw(name, rng, n)
-    reg = {name: draw(name, rng, n) for name in MC_ESTIMATE_INPUTS}
-    d["mass_pg"] = draw("sc_mass_selected_pg", rng, n)        # the weight of a cell, as scenario_mc draws it
-    lean_lo = min(1.0, plant_items.capital("yeastplus")["total"] / plant_items.capital("lean")["total"])
-    cost = np.empty(n)
-    for i, w in enumerate(sw):
-        c = w["choice"]
-        kw0 = explore_kwargs(c)
-        lo = lean_lo if c["plant"] == "lean" else MC_PRIORS["capex_x"][0]
-        kw = {**kw0, "capex_x": float(fp._tri_ppf(np.array([u_cap[i]]), lo, 1.0, MC_PRIORS["capex_x"][2])[0]),
-              "medium_price": float(d["medium_price"][i]) * kw0.get("medium_price", 0.15),
-              "hazard": float(d["hazard"][i]) * kw0.get("hazard", 0.0)}
-        for k in ("charge", "membrane_life", "maintenance_share", "nh3_limit", "mass_pg"):
-            kw[k] = float(d[k][i])
-        if c["cells"] in ("selected", "measured"):
-            kw["nh3_kg"] = float(d["nh3_kg"][i])
-        for k in ("protectant_price", "min_perfusion", "antifoam_otr"):
-            if k not in kw0:
-                kw[k] = float(d[k][i])
-        with fp._inputs_set({k: float(v[i]) for k, v in reg.items()}):
-            tot = fp.explore(**kw)["total"]
-            if w["route"] in ("aggregates", "both"):
-                agg = _aggregates_cost(kw)
-                tot = agg if w["route"] == "aggregates" else min(tot, agg)
-        cost[i] = tot
-    out = {"cost": cost, "switches": sw, "route": np.array([w["route"] for w in sw])}
-    if demand:
-        import meat_market as mm
-        out["share"] = mm.monte_carlo("global", n, seed=seed + 1, biomass=cost)["vol"]
-    out["summary"] = forecast_summary(out, parity_cost(CostParams()))
-    return out
-
-
-def forecast_summary(mc: dict, parity: float) -> dict:
-    q = lambda a: tuple(float(x) for x in np.percentile(a, [10, 50, 90]))
-    cost, route = mc["cost"], mc["route"]
-    held = np.isin(route, ("filter", "aggregates", "both"))
-    s = {"cost": q(cost), "p_parity": float(np.mean(cost <= parity)), "parity": float(parity),
-         "p_perfusion": float(held.mean()), "p_aggregates": float(np.isin(route, ("aggregates", "both")).mean()),
-         "cost_held": q(cost[held]) if held.any() else None, "cost_fedbatch": q(cost[~held]) if (~held).any() else None,
-         "p_cells": {st: float(np.mean([w["draw"]["cells"] == st for w in mc["switches"]])) for st in FC_ORDER["cells"]}}
-    if "share" in mc:
-        sh = mc["share"]
-        s.update(share=q(sh), p_share_1=float(np.mean(sh > 1.0)), p_share_10=float(np.mean(sh > 10.0)))
-    return s
-
-
-_FC: dict = {}
-
-
-def forecast(n: int = FORECAST_N, seed: int = 0) -> dict:
-    """forecast_mc, cached (RESULTS, the page and the tests share one run)."""
-    key = (n, seed, tuple(value(k) for k in sorted(k for k in __import__("inputs").REGISTRY if k.startswith("fc_"))))
-    if key not in _FC:
-        _FC[key] = forecast_mc(n, seed)
-    return _FC[key]
-
-
-SCENARIOS["forecast"] = replace(SCENARIOS["forecast"], choice=forecast_choice())
-
-
-FC_SWITCH_NAMES = {"cells": "Kind of cells", "growth": "Growth speed", "plant": "The plant", "gas": "Gas the cells tolerate",
-                   "tricks": "Tank tricks that work", "losses": "Runs lost", "restart": "Restart after a loss",
-                   "gf": "Growth factors", "medium": "Price of the medium", "vessel": "Tank size, if run in fed-batch"}
-
-
-def _fc_label(sw: str, st: str) -> str:
-    if sw == "vessel":
-        return {"fedbatch100": "100 m³", "fedbatch50": "50 m³", "fedbatch": "20 m³"}[st]
-    if sw == "tricks":
-        return {"oxygen": "all three", "pressure": "column and pressure", "column": "column only", "none": "none"}[st]
-    return setting(sw, st).short
-
-
-def forecast_odds_markdown() -> str:
-    """The odds behind the forecast, one row per switch (RESULTS.md, METHODS.md)."""
-    out = ["| switch | settings, favourable first, with the author's odds for 2035 | median | where the odds come from |",
-           "|---|---|---|---|"]
-    src = {"cells": "judgement: engineering has no meat-cell result yet; selection and the feed change are shown in flasks",
-           "growth": "`cost_scenarios.md`: 24 h 10%, 30 h or faster 25%, 36 h or faster 45%, 43 h or faster 70% (slower is put at 43 h)",
-           "plant": "`cheap_plant_study.md`: about 65% for a plant at or below the shared-medium plant's cost",
-           "gas": "`gas_exchange_study.md`: 6 mm/s tolerable at 20 m³ about 50%",
-           "tricks": "`gas_exchange_study.md`: a column 60%, then 1 bar 85%, then recycled oxygen 50% (judgement)",
-           "losses": "makers report 0.6–2.2% a day (Powell 2025); judgement for 2035",
-           "restart": "judgement; reseeding from a neighbour has not been reported",
-           "gf": "judgement; tied to the kind of cells",
-           "medium": "`medium_cost_gfi.md`: $0.20 announced for 2025, $0.07 the lowest report, $0.50 reported",
-           "vessel": "`tank_size.md` section 7: 50 m³ about 12% and 100 m³ about 5% by the end of 2035"}
-    for sw, rows in forecast_odds().items():
-        txt = ", ".join(f"{_fc_label(sw, st)} {p:.0%}" for st, p in rows)
-        out.append(f"| {FC_SWITCH_NAMES[sw]} | {txt} | {_fc_label(sw, _median(sw))} | {src[sw]} |")
-    h = {d: held_back_odds(d) for d in FC_DENSITIES}
-    out.append("| Cells held back at 20 m³ for a month (perfusion) | at " + ", ".join(
-        f"{d:.0f} g/L: filter {h[d]['filter']:.0%}, aggregates {h[d]['aggregates']:.0%}, either {h[d]['either']:.0%}" for d in FC_DENSITIES)
-        + f" | fed-batch | a filter possible at 75% / {value('fc_perf_191'):.0%} / 35% (`retention_devices.md`; 191 g/L re-judged), "
-        f"times {value('fc_perf_by_2035'):.0%} that it runs in production by 2035; aggregates by 2035 (`retention_aggregates.md`) |")
-    return "\n".join(out)
-
-
-def forecast_markdown(fc: dict | None = None) -> str:
-    """The forecast's cost and share as a distribution (RESULTS.md Summary and "The forecast for 2035")."""
-    fc = forecast() if fc is None else fc
-    sm = fc["summary"]
-    c, sh = sm["cost"], sm["share"]
-    pct = lambda x: f"{x:.0%}" if x >= 0.005 else ("none of the draws" if x == 0 else "under 1%")
-    out = ["| the forecast for 2035 | 10th percentile | median | 90th percentile |", "|---|---|---|---|",
-           f"| cells, $/kg | ${c[0]:.0f} | **${c[1]:.0f}** | ${c[2]:.0f} |",
-           f"| share of world meat and seafood, long run | {pct_num(sh[0])}% | **{pct_num(sh[1])}%** | {pct_num(sh[2])}% |",
-           "", "| the forecast for 2035: chance that | probability |", "|---|---|",
-           f"| cells cost no more than parity with a $12 kilo of everyday meat, the US anchor (${sm['parity']:.1f} a kilo of cells) | {pct(sm['p_parity'])} |",
-           f"| the long-run share exceeds 1% of world meat and seafood | {pct(sm['p_share_1'])} |",
-           f"| the long-run share exceeds 10% | {pct(sm['p_share_10'])} |",
-           f"| the cells are held back at 20 m³, so the tank runs in perfusion (a filter or aggregates) | {pct(sm['p_perfusion'])} |",
-           f"| of which aggregates on a settler | {pct(sm['p_aggregates'])} |"]
-    if sm["cost_held"] and sm["cost_fedbatch"]:
-        a, b = sm["cost_held"], sm["cost_fedbatch"]
-        out += ["", "| the forecast for 2035, by how the tank is run | share of draws | cells, $/kg: median (8 in 10 between) |",
-                "|---|---|---|",
-                f"| perfusion | {sm['p_perfusion']:.0%} | ${a[1]:.0f} (${a[0]:.0f}–{a[2]:.0f}) |",
-                f"| fed-batch | {1 - sm['p_perfusion']:.0%} | ${b[1]:.0f} (${b[0]:.0f}–{b[2]:.0f}) |"]
-    return "\n".join(out)
-
-
-# what the forecast rests on: each odds input (or the batch end factor) moved to the ends of its range, the rest of its switch
-# rescaled so the odds still sum to 1
-FC_RESTS_ON = ("fc_perf_by_2035", "fc_perf_191", "fc_cells_engineered", "fc_cells_measured", "fc_plant_lean", "fc_medium_0.20",
-               "fc_vessel_100", "fc_rho_cells", "fc_rho_industry", "pf_batch_end_x")
-
-
-FC_RESTS_LABEL = {"fc_perf_by_2035": "a perfusion that can hold the culture is in production at 20 m³ by 2035",
-                  "fc_perf_191": "a filter can hold Selected cells' 191 g/L at 20 m³ for a month",
-                  "fc_cells_engineered": "engineered cells in production by 2035",
-                  "fc_cells_measured": "cells no better than the published ones",
-                  "fc_plant_lean": "a plant at or below the shared-medium plant's cost",
-                  "fc_medium_0.20": "medium at the announced $0.20 a litre",
-                  "fc_vessel_100": "fed-batch tanks of 100 m³",
-                  "fc_rho_cells": "how strongly the cell switches move together (correlation)",
-                  "fc_rho_industry": "how strongly the plant and process switches move together (correlation)",
-                  "pf_batch_end_x": "how far above the perfusion level a batch may end (x the level)"}
-
-
-def _odds_override(name: str, v: float) -> dict:
-    """{input: value}: `name` set to v, and if it is one of a switch's odds, that switch's other odds scaled to fill 1 - v."""
-    out = {name: v}
-    for sw, sts in FC_ORDER.items():
-        names = [fc_input(sw, st) for st in sts]
-        if name in names:
-            rest = [n for n in names if n != name]
-            tot = sum(value(n) for n in rest)
-            out.update({n: value(n) * (1.0 - v) / tot for n in rest})
-    return out
-
-
-def forecast_rests_on(n: int = 1000, seed: int = 0) -> list:
-    """[(input, lo, hi, summary at lo, summary at hi)] for FC_RESTS_ON, at n draws."""
-    from inputs import REGISTRY
+def what_it_would_take() -> list:
+    """For each target share and each level of liking: the cost of cells needed, and the least intrusive trait set in the grid
+    that reaches it (lowest routes rank, then the least ambitious, i.e. the dearest that still reaches it)."""
     rows = []
-    for name in FC_RESTS_ON:
-        r = REGISTRY[name]
-        res = []
-        for v in (r.lo, r.hi):
-            with fp._inputs_set(_odds_override(name, v)):
-                _FC_DESIGN.clear()
-                res.append(forecast_mc(n, seed)["summary"])
-        _FC_DESIGN.clear()
-        rows.append((name, r.lo, r.hi, res[0], res[1]))
+    grid = trait_grid()
+    for b in WIT_BUYERS:
+        for tgt in WIT_TARGETS:
+            need = cost_for_share(tgt, b)
+            ok = [g for g in grid if need is not None and g[0] <= need]
+            pick = min(ok, key=lambda g: (g[4]["rank"], bool(g[4]["together"]), -g[0])) if ok else None
+            free = [g for g in ok if g[4]["rank"] <= 1]
+            rows.append({"target": tgt, "buyers": meat_buyers_at_equal_price() if b is None else b, "need": need, "pick": pick,
+                         "no_engineering": bool(free)})
     return rows
 
 
-def forecast_rests_on_markdown(rows: list | None = None, n: int = 1000) -> str:
-    from inputs import REGISTRY
-    rows = forecast_rests_on(n) if rows is None else rows
-    base = forecast_mc(n, 0)["summary"]
-    out = [f"| odds or input moved across its range ({n:,} draws each) | its range (model's value) | forecast median cost, $/kg | "
-           "median share | chance the share exceeds 1% | chance of perfusion |", "|---|---|---|---|---|---|",
-           f"| as set | | ${base['cost'][1]:.0f} | {pct_num(base['share'][1])}% | {base['p_share_1']:.0%} | {base['p_perfusion']:.0%} |"]
-    for name, lo, hi, a, b in rows:
-        lab = FC_RESTS_LABEL.get(name, name)
-        out.append(f"| {lab} (`{name}`) | {lo:g}–{hi:g} ({value(name):g}) | ${a['cost'][1]:.0f} to ${b['cost'][1]:.0f} | "
-                   f"{pct_num(a['share'][1])}% to {pct_num(b['share'][1])}% | {a['p_share_1']:.0%} to {b['p_share_1']:.0%} | "
-                   f"{a['p_perfusion']:.0%} to {b['p_perfusion']:.0%} |")
+def _traits_text(tr: dict) -> str:
+    return (f"ammonia {tr['nh3_kg']:g} mol/kg, lactate {tr['lac_yield']:g} mol/mol, a doubling every {tr['doubling_h']:g} h, "
+            f"{tr['mass_pg'] / 1000:g} ng")
+
+
+def what_it_would_take_markdown() -> str:
+    """The table RESULTS.md leads with (section 1 and the Summary)."""
+    plant = {"sterile": "a food-grade plant", "lean": "a food-grade plant with shared medium"}
+    out = ["| long-run share of world meat and seafood | with this share of meat buyers picking it at equal price | cells must cost "
+           "(most likely values) | the least intrusive cells that reach it, among those tried | at | its cells' traits have been |",
+           "|---|---|---|---|---|---|"]
+    for r in what_it_would_take():
+        need = "out of reach: not even at $0.5" if r["need"] is None else f"${r['need']:.1f} a kilo or less"
+        if r["pick"] is None:
+            pk, at, ver = "none of the sets tried", "", ""
+        else:
+            cost, tr, p, m, rn, _c = r["pick"]
+            pk = _traits_text(tr)
+            at = f"${cost:.1f}, {plant[p]}, {'perfusion' if m == 'perfusion' else 'fed-batch at 20 m³'}"
+            ver = rn["short"]
+        out.append(f"| {r['target']:g}% | {r['buyers']:.1%} | {need} | {pk} | {at} | {ver} |")
     return "\n".join(out)
 
 
@@ -1112,7 +946,11 @@ def js_model() -> dict:
             "medium_complete_on": value("sc_medium_complete") >= 0.5,
             "always": _js_params(always()),
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
-            "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band}
+            "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band,
+            # cells as traits (2026-11-19): the routes table and each reference point's traits and verdict, for the page to come
+            "cell_routes": __import__("cell_traits").js_model(),
+            "traits": {k: cell_traits(SCENARIOS[k].choice) for k in SCENARIOS},
+            "trait_verdicts": {k: __import__("cell_traits").routes_needed(cell_traits(SCENARIOS[k].choice))["verdict"] for k in SCENARIOS}}
 
 
 def reported_band(n: int = 30000) -> tuple:
@@ -1126,15 +964,17 @@ def reported_band(n: int = 30000) -> tuple:
 
 
 def table_rows() -> list:
-    """Every row of the headline table: the ladder, the forecast, Humbird's optimistic design, the reported process.
-    Each row: name, cost point, cost band (or None), ratio, share at the point cost, share band (P10, P50, P90), hardest need."""
+    """Every row of the headline table: the ladder, Humbird's optimistic design, the reported process.
+    Each row: name, cost point, cost band (or None), ratio, share at the point cost, share band (P10, P50, P90), and what its cells'
+    traits have been shown with (cell_traits.routes_needed; since 2026-11-19, in place of the hardest thing it needs)."""
+    import cell_traits as CT
     rows = []
     for key in PAGE_ORDER:
         sc = SCENARIOS[key]
         sm, b = summary(sc.choice, eqs=sc.equal_price_share), bands(sc.choice, eqs=sc.equal_price_share)
-        rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], TAG_PLAIN[hardest_need(sc.choice)]))
+        rows.append((sc.name, sm["cost"], b["cost"], sm["ratio"], sm["world"], b["share"], CT.routes_needed(cell_traits(sc.choice))["short"]))
     rs, b = summary(r=reference()), bands(None)
-    rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], TAG_PLAIN[GE]))
+    rows.append((REFERENCE_NAME, rs["cost"], b["cost"], rs["ratio"], rs["world"], b["share"], CT.routes_needed(HUMBIRD_TRAITS)["short"]))
     rc = reported_cost()
     rows.append(("As a company reports (SuperMeat 2024)", rc, None, shelf_price(rc) / value("p_conv"),
                  shares(rc)["global"], reported_band(), "a company's own report"))
@@ -1153,7 +993,7 @@ def markdown_table() -> str:
     share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
     out = ["| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | "
            "shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | "
-           "share at the most-likely-values cost | hardest thing it needs |", "|---|---|---|---|---|---|---|"]
+           "share at the most-likely-values cost | its cells' traits have been |", "|---|---|---|---|---|---|---|"]
     for name, cost, cb, ratio, world, sb, need in table_rows():
         if cb is not None:                   # the headline is the median of the draws; the point is the most-likely-values figure
             head, ratio = f"**${cb[1]:.0f}** (${cb[0]:.0f}\u2013{cb[2]:.0f})", shelf_price(cb[1]) / value("p_conv")
