@@ -187,7 +187,7 @@ EU_MARKET = [
     MeatType("beef (steak/cuts)",     30.0,  0.095, scaffold=SCAF),
     MeatType("beef (wagyu/prime)",    55.0,  0.005, scaffold=SCAF),   # premium [high conf]
     MeatType("seafood (mince/canned)",13.0,  0.04),
-    MeatType("seafood (fillet)",      28.0,  0.105, scaffold=SCAF),
+    MeatType("seafood (fillet)",      21.0,  0.105, scaffold=SCAF),   # was $28; households' own spend gives $14-18 for all seafood (EUMOFA)
     MeatType("seafood (sushi)",       45.0,  0.005, scaffold=SCAF),  # premium: raw salmon and sashimi tuna, about 0.25 Mt [inference]
     MeatType("rabbit (cuts)",         15.0,  0.02, scaffold=SCAF),
 ]
@@ -209,7 +209,7 @@ CHINA_MARKET = [
     MeatType("beef (steak/cuts)",     25.0,  0.059, scaffold=SCAF),
     MeatType("beef (wagyu)",          40.0,  0.001, scaffold=SCAF),   # premium: Japanese wagyu barred, imported premium beef tens of kt; was $50, 0.5%
     MeatType("seafood (mince/canned)", 8.0,  0.06),
-    MeatType("seafood (fillet)",      14.0,  0.132, scaffold=SCAF),
+    MeatType("seafood (fillet)",       9.0,  0.132, scaffold=SCAF),   # was $14; carp $3-7, hairtail $6-9 a kilo edible (world_seafood_prices.md)
     MeatType("seafood (sushi)",       35.0,  0.008, scaffold=SCAF),   # premium: salmon 0.12 Mt, lobster, crab, grouper, abalone, about 0.7 Mt edible; was 4%
     MeatType("rabbit (cuts)",         12.0,  0.025, scaffold=SCAF),
 ]
@@ -239,8 +239,13 @@ GLOBAL_MARKET = [
     MeatType("beef (steak/cuts)",     20.4,  0.0734, scaffold=SCAF),
     MeatType("beef (prime/wagyu)",    45.0,  0.0017, scaffold=SCAF),   # premium: about 0.5 Mt at $45 or more (0.25-0.9): US Prime rib and loin, wagyu, Hanwoo
     MeatType("sheep/goat",            14.0,  0.0417, scaffold=SCAF),
-    MeatType("seafood (mince/canned)", 8.0,  0.0837),
-    MeatType("seafood (fillet)",      16.0,  0.1563, scaffold=SCAF),
+    # Seafood re-priced by who eats the fish, 2026-11-19 (research_notes/world_seafood_prices.md). Before: canned $8 (34% of
+    # seafood), one "fillet" row at $16 (64%), from no weighted source. Weighted by consumption (China 36%, at $3-9 a kilo edible),
+    # seafood averages about $10: a mass market near $7 (whole fish and ordinary fillets, per kg edible) and a premium tier near $20
+    # (salmon, shrimp, cod, tuna loins; about 16% of edible weight). The seafood total (0.244) is unchanged.
+    MeatType("seafood (mince/canned)", 7.0,  0.0659),
+    MeatType("seafood (whole fish, ordinary fillet)", 7.0, 0.1341, scaffold=SCAF),
+    MeatType("seafood (premium fillet, shrimp)", 20.0, 0.0400, scaffold=SCAF),
     MeatType("seafood (sushi)",       35.0,  0.0040, scaffold=SCAF),   # premium: about 1.2 Mt edible (0.6-2.5): raw salmon 0.5, sashimi tuna 0.25, others
     MeatType("rabbit (cuts)",         14.0,  0.0100, scaffold=SCAF),
 ]
@@ -259,7 +264,7 @@ INDIA_MARKET = [
     MeatType("goat (cuts)",            9.0,  0.10, scaffold=SCAF),
     MeatType("goat (premium)",        23.0,  0.01, scaffold=SCAF),
     MeatType("seafood (mince/canned)", 4.0,  0.05),
-    MeatType("seafood (fillet)",       8.0,  0.09, scaffold=SCAF),
+    MeatType("seafood (fillet)",       6.0,  0.09, scaffold=SCAF),    # was $8; bone-in rohu $4.5-6 a kilo edible
     MeatType("seafood (premium)",     20.0,  0.01, scaffold=SCAF),
 ]
 # Brazil: beef-heavy and CHEAP (major exporter); big poultry.

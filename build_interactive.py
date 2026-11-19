@@ -4066,7 +4066,7 @@ function floorExplore(p,noSearch){
   const tff=perf&&!vm.own_retention&&p.retention===undefined&&F.tff.on;   // the default device, priced after the medium
   if(perf&&!vm.own_retention&&!tff) capex+=(p.retention===undefined?F.retention:p.retention);
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
-  let uptime=p.uptime, lost=0, cycleH=null, runsYr=null;
+  let uptime=p.uptime, lost=0, cycleH=null, runsYr=null, runFrac=1;
   if(cyclic){                       // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
     const h=p.hazard||0, grow=vm.n_doublings*cell.td; cycleH=grow+vm.turnaround_h;
     const pFail=h<=0?0:1-Math.exp(-h*cycleH/24);
@@ -4077,6 +4077,7 @@ function floorExplore(p,noSearch){
     const T=h<=0?L:(1-Math.exp(-h*L))/h, pFail=h<=0?0:1-Math.exp(-h*L);
     const down=p.restart_fail===undefined?restart:(1-pFail)*restart+pFail*Math.max(restart,p.restart_fail);
     uptime=T/(T+down); runsYr=365/(T+down); lost=Math.min(0.9,pFail/(cell.mu*24*T));
+    runFrac=T/L;                    // a lost run throws its membranes away early
   }
   // tank shape, then the CO2 balance: removal = (gas velocity / liquid depth) x pCO2/RT; production = RQ x qO2
   const ar=p.aspect===undefined?F.aspect:p.aspect, us=p.gas_v===undefined?F.gas_v:p.gas_v, pc=p.pco2===undefined?F.pco2:p.pco2;
@@ -4111,9 +4112,10 @@ function floorExplore(p,noSearch){
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
   // least flow a cell needs for everything else
   const sorb=perf?(p.sorbent||0):0; const terms={};
+  const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
   let need=1000/lim[1];
   if(p.medium_l===undefined){
-    if(perf){ terms["ammonia"]=nh3*(1-sorb)/(F.nh3_limit/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);
+    if(perf){ terms["ammonia"]=nh3*(1-sorb)/(nh3Lim/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);
       if(sorb>0) terms["salt"]=1000*(2*lac+sorb*nh3)/Math.max(2,osmLim-F.osm_base-osmCo2);
       if(!vm.own_retention) terms["harvest"]=1000/lim[1];      // the culture that leaves with the harvested cells must be replaced
       need=Math.max.apply(null,Object.keys(terms).map(k=>terms[k])); }
@@ -4123,9 +4125,9 @@ function floorExplore(p,noSearch){
   let consumables=F.consumables, retCapex=0, membranes=0;
   if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
     let perm=Math.max(0,ml-1000/lim[1]); const kgH=out*1000/(8760*uptime);
-    if(sorb>0) perm+=sorb*nh3/(F.nh3_limit/1000);     // the permeate sent through the exchanger and back passes the filter too
+    if(sorb>0) perm+=sorb*nh3/(nh3Lim/1000);     // the permeate sent through the exchanger and back passes the filter too
     const area=perm*kgH/(p.flux===undefined?F.tff.flux:p.flux);
-    retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/(p.membrane_life===undefined?F.tff.mem_life:p.membrane_life);
+    retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/((p.membrane_life===undefined?F.tff.mem_life:p.membrane_life)*runFrac);
     capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes; }
   if(vm.cons_run) consumables+=vm.cons_run*(runsYr!==null?runsYr:365/(p.run_days||F.run_days))/out;   // what the vessel throws away
   if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);

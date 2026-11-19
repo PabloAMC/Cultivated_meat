@@ -220,9 +220,13 @@ def explore_kwargs(choice: dict) -> dict:
 
 def always() -> dict:
     """explore() arguments every scenario carries whatever its switches: the dissolved-oxygen setpoint (sc_do_setpoint,
-    about half of air saturation, as pharma holds it; Humbird's tank implies 130%). Read at call time, so a test can set
+    about half of air saturation, as pharma holds it; Humbird's tank implies 130%) and the ammonia the cells tolerate
+    (sc_nh3_limit, 4 mM since 2026-11-19; Humbird's design keeps his 5). Read at call time, so a test can set
     sc_do_scenarios to 0 to reproduce earlier figures."""
-    return {"do_mmol": value("sc_do_setpoint")} if value("sc_do_scenarios") >= 0.5 else {}
+    kw = {"nh3_limit": value("sc_nh3_limit")}
+    if value("sc_do_scenarios") >= 0.5:
+        kw["do_mmol"] = value("sc_do_setpoint")
+    return kw
 
 
 def run(choice: dict, **extra) -> dict:
@@ -580,6 +584,7 @@ MC_PRIORS = {
 # `sc_wide_bands` = 0 restores the narrower bands.
 MC_ESTIMATES = (("nh3_limit", "pf_nh3_limit"), ("protectant_price", "pf_protectant_price"),
                 ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"))
+MC_SCENARIO_PRIORS = {"nh3_limit": "sc_nh3_limit"}      # set by always() for every scenario; Humbird's design draws pf_nh3_limit
 MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price", "aa_bulk_price")    # no explore() argument: set in the datasheet per draw
 
 
@@ -602,9 +607,17 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0) -> dict:
         _kind, lo, hi, mode, _note = prior(name)
         d[key] = tri(lo, mode, hi)
     reg = {}
+    if value("sc_wide_bands") >= 0.5 and choice is not None and choice["cells"] in ("selected", "measured"):
+        # the ammonia these cells make was measured once (audit 2026-11-19: the third-largest estimate under Central). The
+        # engineered cells' is not drawn: the best case assumes cells that reach Humbird's figure.
+        _kind, lo, hi, mode, _note = prior("sc_nh3_selected")
+        d["nh3_kg"] = tri(lo, mode, hi)
     if value("sc_wide_bands") >= 0.5:                  # drawn after the others, so their draws are unchanged
         for key, name in MC_ESTIMATES:
-            if key not in kw0:
+            if key in MC_SCENARIO_PRIORS and choice is not None:      # the scenarios' own setting, with its own range
+                _kind, lo, hi, mode, _note = prior(MC_SCENARIO_PRIORS[key])
+                d[key] = tri(lo, mode, hi)
+            elif key not in kw0:
                 _kind, lo, hi, mode, _note = prior(name)
                 d[key] = tri(lo, mode, hi)
         for name in MC_ESTIMATE_INPUTS:

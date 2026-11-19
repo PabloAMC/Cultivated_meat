@@ -514,6 +514,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         return best
     charge = value("plant_charge_mature") if charge is None else charge
     lost = 0.0                                          # share of output lost with contaminated tanks
+    run_frac = 1.0                                      # share of the planned run an average start completes (filter membranes)
     cycle_h = runs_yr = None
     if cyclic:
         # a cycle: n doublings from the seed to the final density, then the tank is emptied, cleaned and refilled.
@@ -540,6 +541,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         down += start_fail * value("ct_start_detect_days")              # a bad start runs until it shows
         uptime = T / (T + down)
         runs_yr = 365.0 / (T + down)
+        run_frac = T / L                                # a lost run throws its membranes away early (audit 2026-11-19)
         # a tankful per run lost in mid-run (less what is salvaged); a bad start loses its seed
         tankfuls = p_late * (1.0 - salvage) + start_fail * value("ct_seed_share")
         lost = min(0.9, tankfuls / (cells.mu * 24.0 * T))
@@ -658,7 +660,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         kg_h = out * 1000.0 / (HOURS * uptime)                                          # kg per hour per m3 of tank
         area = perm * kg_h / (value("rt_flux_lmh") if flux is None else flux)           # m2 of membrane per m3 of tank
         ret_capex = area * value("rt_tff_hw") * value("rt_install")                     # $k per m3 of tank
-        membranes = perm * value("rt_membrane_price") / (value("rt_membrane_life") if membrane_life is None else membrane_life)
+        # the membrane's life is the litres it filters over a full planned run; a run that ends early filters fewer
+        membranes = perm * value("rt_membrane_price") / ((value("rt_membrane_life") if membrane_life is None else membrane_life) * run_frac)
         capex += ret_capex
         capital += charge * ret_capex / out
         consumables += membranes
