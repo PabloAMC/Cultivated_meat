@@ -130,8 +130,8 @@ page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read(
 for k in S.PAGE_ORDER:
     bk = S.bands(S.SCENARIOS[k].choice)
     sm = S.summary(S.SCENARIOS[k].choice)
-    check(f"<b>{bk['share'][1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
-          f"the page's answer table does not headline {k}'s median share {bk['share'][1]:.1f}%")
+    check(f"<b>{S.pct_num(bk['share'][1])}%</b><br><span class='alt'>The median. 80% of draws fall between" in page,
+          f"the page's answer table does not headline {k}'s median share {S.pct_num(bk['share'][1])}%")
     check(f"At the point cost the share is {S.pct_num(sm['world'])}%" in page, f"the page does not label {k}'s point estimate")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
 # the median sits below the point estimate for the best case (the cost draws fall short more often than they improve)

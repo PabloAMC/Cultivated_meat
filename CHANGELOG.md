@@ -2,6 +2,37 @@
 
 ## 2026-11-18
 
+**Shoppers differ in how much they like cultivated meat: now the default** (`market_share.py`, `liking_spread.py`,
+`research_notes/liking_spread.md`; **defaults changed**)
+- The shopper model has a normal spread of liking for cultivated meat across shoppers (`liking_sd` 5 utils, fifteen integration
+  points), fitted to the one choice experiment that estimated shoppers one by one. Its mean is set so that the share at equal price,
+  once cultivated meat is familiar, is a new visible setting, `equal_price_share`: **13%** (5% at first contact, as measured; 49% if
+  the average shopper ends up indifferent). The calibration (price coefficient, solved weights, plant-based share) is unchanged.
+- The bands draw `equal_price_share` (triangular 5/13/49%, median about 19%) and no longer draw the no-killing value, first-contact
+  wariness or the health dial, which were parts of the same thing. Taste acceptance is still drawn.
+- The model now passes three of four price-response checks (first contact -1.53 against about -1.5; farmed salmon; three times the
+  share at a third of the premium). Plant-based meat's elasticity still fails (-2.85 against about -1.3; TODO).
+- Central: **0.08%** of world meat at the point cost (was 0.04%), median 0.1% (80% of draws 0.01–0.8%). Best case: **2.9%** (was
+  3.1%), median 2.1% (0.4–7.6%; was 0.5%). Forecast for 2035: median 0.2% (0.02–1.4%). Market-size loop: Central $19.35 and 0.45%,
+  best case $6.17 and 5.69%. Animals spared per tonne in the reference case: about 80 (was 17).
+- Page: the spread is mirrored in the page's JavaScript (parity test passes) and the setting is a slider.
+
+Market tables: China, the low-income regions and seafood's weight (`meat_market.py`, `research_notes/premium_market_sizes.md` §6)
+- China's sushi-grade seafood row 4% → 0.8%, wagyu 0.5% → 0.1%, heritage pork 0.5% → 1.5% (black pigs); Brazil's picanha/prime 2% →
+  0.5%; India's premium chicken 1% → 0.1%; Nigeria's premium goat 1% → 0.2%.
+- Seafood is about a quarter of the world's meat plus seafood by edible weight; the Global table had it at 9% and now has 24%.
+  `ms_world_meat` (the market-size study's total) is meat plus seafood, 336 Mt.
+
+Smaller fixes
+- `sc_glc_measured` re-derived: the central 0.84 rests on CHO data, not Pasitka; range 0.67–3.6 (was narrower). It moves today's
+  cells, not Central.
+- `meat_market.species_market` crashed when the cost case already set the cells (a keyword passed twice); the species' cells now replace the case's.
+- Growth factors in the medium price: about 0.85 that announced prices include them (`research_notes/growth_factors_in_medium_price.md`).
+  The rule is in the code behind `sc_medium_complete`, **off**; turning it on (Central $29.42 → $26.43) is the next change.
+- METHODS: a bound on joint products (displacing prime cuts makes the herd smaller, so the rest of the carcass is dearer, not
+  cheaper; the effect is 10–20% at best and not modelled) and a check of adoption speed against history (the model's hundredfold
+  rise over 17 years is at the fast end of 15–30 years, with no stall).
+
 Shoppers differ in how much they like cultivated meat: evidence, a corrected check and a side study (`liking_spread.py`,
 `research_notes/demand_heterogeneity_evidence.md`, `research_notes/liking_spread.md`; **no default changed**)
 - Three reading passes on how shoppers differ. (1) The choice experiment the model was set against reports no elasticity: the

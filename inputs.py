@@ -946,10 +946,12 @@ REGISTRY: dict[str, Input] = {
     "sc_lac_measured": Input(1.05, "mol lactate / mol glucose", "[Pasitka et al. 2024, snippet; "
         "waste_tricks_sizing.md] chicken cells in perfusion; bovine cells similar", lo=0.8, hi=1.4, mode=1.05,
         note="ordinary pharma cells make about 1.4"),
-    "sc_glc_measured": Input(0.84, "mol glucose/kg wet", "[waste_tricks_sizing.md, from Hubalek 2023 and the "
-        "chicken data] glucose used per kg of meat cells grown", lo=0.67, hi=1.2, mode=0.84,
-        note="Humbird's efficient cell uses 1.116 (pf_glc_kg); measured pharma cells 0.67-1.0. Unmeasured for "
-             "meat cells at density"),
+    "sc_glc_measured": Input(0.84, "mol glucose/kg wet", "[waste_tricks_sizing.md section C2: 0.4-0.6 kg glucose per kg dry "
+        "cells, cross-checked by Freund's CHO, 0.98 mol/kg] glucose used per kg of meat cells grown", lo=0.67, hi=3.6, mode=0.84,
+        note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
+             "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
+             "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "
+             "does not move Central (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
     "sc_mass_selected_pg": Input(2000.0, "pg wet per cell", "[judgement] between the 1.0-1.75 ng reported for "
         "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
         lo=1000.0, hi=3000.0, mode=2000.0,
@@ -1057,6 +1059,10 @@ REGISTRY: dict[str, Input] = {
         lo=0.0, hi=1.0, mode=0.3,
         note="his price assumes an industry far larger than today's; cells that make their own were shown in "
              "cattle cells by genetic engineering"),
+    "sc_medium_complete": Input(0.0, "switch", "[research_notes/growth_factors_in_medium_price.md] 1: the medium prices of $0.15 a "
+        "litre and above are complete media, with growth factors in the price, so the growth-factor switch adds nothing to them "
+        "(about 0.85 likely). 0: growth factors are added on top, as before 2026-11-18",
+        note="OFF in this change; it is turned on, with every cost study repinned (Central $29.42 to $26.43), in the next one."),
     "sc_gf_most": Input(0.6, "of Humbird's growth-factor cost", "[judgement] most of his price", lo=0.0, hi=1.0,
         mode=0.6),
     "sc_medium_aspire": Input(0.05, "$/L", "[Pablo's aspiration, 2026-11-15; GFI Dec 2025] a medium at $0.05 a litre: GFI puts "
@@ -1334,9 +1340,10 @@ REGISTRY: dict[str, Input] = {
     "au_processing": Input(1.0, "$/kg", "[assumed] dewatering, forming, packing and quality control of cell mass before it enters "
         "the retail chain; none is published for cultivated meat (post_harvest_costs.md section 4)", lo=0.3, hi=3.0, mode=1.0),
     # --- Cost falling with market size (market_size_loop.py; research_notes/market_size_loop.md) ------------------------------
-    "ms_world_meat": Input(270.0, "Mt a year", "[FAO Food Outlook Nov 2025, snippet; conversion assumed] world meat as boneless "
-        "weight: 384 Mt of carcass weight in 2025 (378 in 2024), of which about 70% is meat sold", lo=250.0, hi=384.0, mode=270.0,
-        note="the high end counts carcass weight as if all of it were sold as meat"),
+    "ms_world_meat": Input(336.0, "Mt a year", "[FAO Food Outlook Nov 2025, FAO SOFIA 2024/2026, snippets; conversions assumed] "
+        "world meat plus seafood eaten, edible weight: meat about 380 Mt carcass weight at about two-thirds boneless (about 250 Mt), "
+        "seafood about 170 Mt live weight at about half edible (about 87 Mt)", lo=300.0, hi=384.0, mode=336.0,
+        note="the Global market table's volume shares are of this total; seafood is 24% of it (meat_market.GLOBAL_MARKET)"),
     "ms_switch_area": Input(1.0e6, "m2 a year", "[judgement, research pass] yearly demand for cell-filter membrane above which a "
         "food-grade supplier exists and pharma pricing ends; about 65% that this happens once demand passes 1 million m2 a year",
         lo=3.0e5, hi=3.0e6, mode=1.0e6,
@@ -1432,6 +1439,25 @@ REGISTRY: dict[str, Input] = {
              "category's), and cult_sub_mult / kappa_base multiplies only cultivated's price DIFFERENCE from "
              "the conventional meat beside it. At cult_sub_mult = kappa_base the model is exactly the "
              "published one"),
+    # --- SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18; research_notes/liking_spread.md). Each shopper's
+    # liking for cultivated meat is the model's plus a normal draw with spread liking_sd; its mean is set so that, once familiar
+    # and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings). liking_sd = 0 is the model
+    # before (every shopper alike, no shift).
+    "liking_sd": Input(5.0, "utils", "[fitted, liking_spread.fit] spread (standard deviation) across shoppers of liking for "
+        "cultivated meat, in the model's utils. Fitted to the one random-parameter choice experiment on cultivated meat (Van Loo, "
+        "Caputo & Lusk 2020): with it, the model reproduces that experiment's own-price elasticity at four prices (miss 0.15, "
+        "against 2.56 with every shopper alike). The experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
+        lo=3.5, hi=6.0, mode=5.0,
+        note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18."),
+    "equal_price_share": Input(0.13, "of buyers", "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar "
+        "and costs the same as conventional meat, the share of a meat's buyers who choose it, at neutral settings (tastes as "
+        "good, seen as real meat, no health or slaughter-free credit). At first contact it is about 5% (Van Loo, Caputo & Lusk "
+        "2020). 13% is a third of the first-contact aversion fading: the model's own novelty term (2.8 of 8.6 utils), and the "
+        "survey corrections' novelty fading by half while an 'unnatural' image persists (15 of 45 points of meat's price).",
+        lo=0.05, hi=0.49, mode=0.13,
+        note="THE MODEL'S LARGEST UNKNOWN. 0.05: nothing fades. 0.49: shoppers end up indifferent on average, the model's "
+             "implicit premise before 2026-11-18. It moves Central's long-run share about fifteen-fold across its range. Drawn "
+             "in the bands."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "
         "buyers, versus 0.9% for meat-in-general. WHY > 1: the measured -0.9 is the elasticity of the meat "
@@ -2106,12 +2132,15 @@ LOSS_AVERSION_RATIO: float = 2.25
 MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail_margin")
 # cult_sub_mult (kappa) is sampled since 2026-11-13: a kappa draw enters as the price-sensitivity override
 # eps_own*kappa_draw/kappa, which scales both price channels (market_share ratio_scale).
-MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "theta_free_M", "accept_x", "neophobia_x", "health_x")
+# 2026-11-18: the long-run share at equal price (equal_price_share) is the net of novelty, an "unnatural" image, the value of no
+# killing and the health image, so the long-run novelty, no-slaughter and health dials are no longer drawn beside it: drawing both
+# counted the same uncertainty twice. They stay on the page as what-if dials on top. Taste (accept_x) is separate and still drawn.
+MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "accept_x", "equal_price_share")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
 MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit",
-                    "accept_x", "theta_free_M", "neophobia_x", "health_x")
+                    "accept_x", "equal_price_share")
 
 
 # ----------------------------------------------------------------------------

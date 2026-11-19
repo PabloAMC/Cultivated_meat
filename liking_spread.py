@@ -21,7 +21,9 @@ What this module does
    `neophobia_x0`) takes cultivated meat from 5% to about half the market at equal price. With a wide spread the same removal takes it
    to about an eighth. So "about half at equal price" is a premise about how far the average shopper's liking recovers, and the
    module reports the shares under three readings of it.
-Nothing here changes a default.
+Since 2026-11-18 the spread is in the model itself (market_share.share; liking_sd, equal_price_share): this module now fits it and
+compares the readings of the long run. Its own shares are computed on the model with the spread switched off (liking_sd=0), with the
+spread added here, so the fit does not count the spread twice.
 
     python liking_spread.py
 """
@@ -65,7 +67,7 @@ def share(R: float, mu: float, sd: float, kappa: float | None = None, nodes=None
     pr = demand()
     off = kw.pop("tier_offset", 0.0)
     x, w = (_X, _W) if nodes is None else nodes
-    return float(sum(wi * M.share(R, pr, kappa=kappa, tier_offset=off + mu + sd * xi, **kw) for xi, wi in zip(x, w)))
+    return float(sum(wi * M.share(R, pr, kappa=kappa, tier_offset=off + mu + sd * xi, liking_sd=0.0, **kw) for xi, wi in zip(x, w)))
 
 
 def solve_mu(target: float, sd: float, kappa: float | None = None, R: float = 1.0, **kw) -> float:
@@ -106,16 +108,16 @@ def fit() -> dict:
 def levels() -> dict:
     """Three readings of the long run, at the fitted spread and the model's price sensitivity. Each: the mean liking and the share
     at equal price. 'first contact' is the experiment; 'novelty fades' removes the model's first-contact wariness (neophobia_x0)
-    from every shopper; 'indifferent on average' is the model's premise, its own share at equal price."""
+    from every shopper; 'indifferent on average' was the model's premise before 2026-11-18, its share at equal price with every shopper alike."""
     f = fit()["own"]
     sd, k = f["sd"], f["kappa"]
     mu0 = f["mu"]
     mu1 = mu0 - value("neophobia_x0")
-    par = M.share(1.0, demand())
+    par = M.share(1.0, demand(), liking_sd=0.0)          # the model's premise before 2026-11-18: every shopper alike
     mu2 = solve_mu(par, sd, k)
     return {"first contact (as measured)": {"mu": mu0, "parity": share(1.0, mu0, sd, k)},
             "novelty fades by what the model assumes": {"mu": mu1, "parity": share(1.0, mu1, sd, k)},
-            "shoppers indifferent on average (the model's premise)": {"mu": mu2, "parity": share(1.0, mu2, sd, k)}}
+            "shoppers indifferent on average (the premise before 2026-11-18)": {"mu": mu2, "parity": share(1.0, mu2, sd, k)}}
 
 
 def world_share(cost: float, mu: float, sd: float, kappa: float | None = None, region: str = "global") -> float:
@@ -144,9 +146,11 @@ def summary() -> dict:
     seven = (seven[0], seven[1] / seven[1].sum())
     mu1 = lev["novelty fades by what the model assumes"]["mu"]
     _SUM["summary"] = {"fit": f, "sd": sd, "kappa": k, "levels": rows, "costs": costs,
-                       "model": {"curve": [M.share(R, demand()) * 100.0 for R in R_GRID],
-                                 "world": {key: S.shares(c, regions=("global",))["global"] for key, c in costs.items()},
-                                 "cold": M.lusk_at_parity_elasticity(demand())},
+                       "model": {"curve": [M.share(R, demand(), liking_sd=0.0) * 100.0 for R in R_GRID],
+                                 "world": {key: world_share(c, 0.0, 0.0, k) for key, c in costs.items()},
+                                 "cold": M.lusk_at_parity_elasticity(M.DemandParams(liking_sd=0.0))},
+                       "default": {"world": {key: S.shares(c, regions=("global",))["global"] for key, c in costs.items()},
+                                   "parity": M.share(1.0, demand()) * 100.0},
                        "premium": [P.curve(R, P.summary()["main"]) * 100.0 if R >= 1.5 else None for R in R_GRID],
                        "nodes_error": max(abs(share(R, mu1, sd, k, nodes=seven) / share(R, mu1, sd, k) - 1.0) for R in R_GRID)}
     return _SUM["summary"]
@@ -179,7 +183,7 @@ def markdown_levels() -> str:
         out.append(f"| {name} | {r['parity']:.0f}% | " + ", ".join(f"{S.pct_num(v)}%" for v in r["curve"][1:]) + " | " +
                    " | ".join(f"{S.pct_num(r['world'][k])}%" for k in SCEN) + " |")
     m = s["model"]
-    out.append(f"| the model today (every shopper alike) | {m['curve'][0]:.0f}% | " + ", ".join(f"{S.pct_num(v)}%" for v in m["curve"][1:]) + " | " +
+    out.append(f"| the model before 2026-11-18 (every shopper alike) | {m['curve'][0]:.0f}% | " + ", ".join(f"{S.pct_num(v)}%" for v in m["curve"][1:]) + " | " +
                " | ".join(f"{S.pct_num(m['world'][k])}%" for k in SCEN) + " |")
     out.append("| premium real meats (the curve fitted to sixteen) | | " +
                ", ".join("—" if v is None else f"{S.pct_num(v)}%" for v in s["premium"][1:]) + " | " + " | ".join("" for _ in SCEN) + " |")

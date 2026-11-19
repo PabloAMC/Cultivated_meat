@@ -218,6 +218,12 @@ class DemandParams:
     pinned_weights: frozenset = frozenset()
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
+    # --- shoppers differ in how much they like cultivated meat (2026-11-18) --------------------------------------
+    liking_sd: float = value("liking_sd")                   # spread of liking across shoppers (utils); 0 = every shopper alike
+    equal_price_share: float = value("equal_price_share")   # long-run share at equal price, neutral settings; sets liking_mean
+    liking_mean: float = field(default=0.0, repr=False)     # DERIVED: the mean liking shift that gives equal_price_share
+    liking_table: tuple = field(default=(), repr=False)     # DERIVED: (means, shares at equal price), for per-draw overrides
+
     # --- DERIVED (set in __post_init__ by _derive_beta; never user inputs) ----
     beta_ref: float = field(default=0.0, repr=False)      # the shared logit price coefficient ($/kg^-1)
     anchor_price: float = field(default=0.0, repr=False)  # the beta anchor ($/kg) = inputs elasticity_anchor_price
@@ -236,6 +242,7 @@ class DemandParams:
         if not self.calibrated:
             _derive_beta(self)            # sets beta_ref + anchor_price; calibrates at the converged beta
             self.calibrated = True
+        _solve_liking(self)               # the mean liking shift for the spread (after the calibration, which does not use it)
 
     @property
     def beta_price(self) -> float:
@@ -405,15 +412,31 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
             + components["real_meat"] + components["health"] + components["asc"])
 
 
+# Gauss-Hermite nodes and weights for a standard normal: the spread of liking is integrated over these. Fifteen: seven change a
+# share by up to a quarter at the default spread (liking_spread.py).
+SPREAD_NODES, SPREAD_WEIGHTS = np.polynomial.hermite_e.hermegauss(15)
+SPREAD_WEIGHTS = SPREAD_WEIGHTS / SPREAD_WEIGHTS.sum()
+
+
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
-             cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0) -> dict:
+             cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0,
+             liking=None) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
-    drops x from the choice set."""
+    drops x from the choice set. `liking` = (mean, sd): shoppers' liking for cultivated meat is spread normally around the
+    model's utility plus `mean`; the shares are averaged over shoppers (Gauss-Hermite). None or sd = 0: every shopper alike."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
                    p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa, slaughter_free_x=slaughter_free_x)
+    if cultivated_present and liking is not None and liking[1] > 0.0:
+        Vx = V[3] + liking[0] + liking[1] * SPREAD_NODES            # cultivated meat's utility for each kind of shopper
+        m = max(float(np.max(V[:3])), float(np.max(Vx)))
+        e = np.exp(V[:3] - m)
+        ex = np.exp(Vx - m)
+        inv = SPREAD_WEIGHTS / (e.sum() + ex)                          # weight / denominator, per kind of shopper
+        return {"w": float(e[0] * inv.sum()), "c": float(e[1] * inv.sum()), "p": float(e[2] * inv.sum()),
+                "x": float((ex * inv).sum())}
     if cultivated_present:
         P = _softmax(V)
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
@@ -492,9 +515,18 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
-          kappa=None, slaughter_free_x=1.0) -> float:
+          kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
+
+    SHOPPERS DIFFER IN HOW MUCH THEY LIKE CULTIVATED MEAT (2026-11-18): cultivated meat's utility for each shopper is the model's
+    plus a normal draw with mean pr.liking_mean and spread pr.liking_sd, averaged over shoppers. liking_mean is set so that at
+    equal price, once familiar and at neutral settings, cultivated meat takes pr.equal_price_share (_solve_liking).
+      liking_sd=0  -> every shopper alike and no shift: the model before 2026-11-18 (the calibration, and every check on a real
+                      premium meat, uses this).
+      equal_share  -> a different long-run share at equal price for this call (a Monte-Carlo draw); mapped to a mean shift
+                      through pr.liking_table, at the model's spread.
+      liking_mean  -> set the mean shift directly (liking_spread.py).
 
     The override knobs map cleanly onto the four-product / two-segment model:
       accept_x      -> cultivated taste credit (taste_x = accept_x - 1)
@@ -534,17 +566,52 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     nbx = pr.neophobia_x if neophobia_x is None else neophobia_x   # cultivated novelty attitude
     nbp = pr.neophobia_p if neophobia_p is None else neophobia_p   # plant-based novelty attitude
 
+    sd = pr.liking_sd if liking_sd is None else liking_sd
+    if sd > 0.0:
+        mean = (liking_mean if liking_mean is not None else
+                pr.liking_mean if equal_share is None else liking_mean_for(pr, equal_share))
+        liking = (mean, sd)
+    else:
+        liking = None
     M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
                  cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x)
+                 slaughter_free_x=slaughter_free_x, liking=liking)
     E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
                  neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
                  cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x)
+                 slaughter_free_x=slaughter_free_x, liking=liking)
     w = pr.w_eth
     key = "p" if which == "pb" else which
     return float(w * E[key] + (1.0 - w) * M[key])
+
+
+LIKING_GRID = np.linspace(-30.0, 15.0, 181)     # mean shifts tabulated for per-draw overrides (utils)
+
+
+def _neutral_parity(pr: DemandParams, mean: float) -> float:
+    """Cultivated meat's share at equal price, familiar, neutral settings, reference income, with the spread at mean shift `mean`."""
+    return share(1.0, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, liking_mean=mean)
+
+
+def _solve_liking(pr: DemandParams) -> None:
+    """Set pr.liking_mean so that the neutral share at equal price is pr.equal_price_share (bisection), and tabulate the
+    share against the mean (LIKING_GRID) for per-draw overrides. Nothing to do when liking_sd is 0."""
+    if pr.liking_sd <= 0.0:
+        pr.liking_mean, pr.liking_table = 0.0, ()
+        return
+    lo, hi = float(LIKING_GRID[0]), float(LIKING_GRID[-1])
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if _neutral_parity(pr, mid) < pr.equal_price_share else (lo, mid)
+    pr.liking_mean = 0.5 * (lo + hi)
+    pr.liking_table = (LIKING_GRID, np.array([_neutral_parity(pr, m) for m in LIKING_GRID]))
+
+
+def liking_mean_for(pr: DemandParams, equal_share: float) -> float:
+    """The mean shift that gives `equal_share` at equal price, read off the table (linear interpolation)."""
+    means, shares = pr.liking_table
+    return float(np.interp(equal_share, shares, means))
 
 
 def _rate(pr: DemandParams, seg: str, which: str) -> float:
@@ -700,7 +767,7 @@ def _derive_beta(pr: DemandParams, iters: int = 40, tol: float = 1e-9) -> None:
         try:
             # at kappa_base, so that beta (and the whole calibration) does not depend on kappa
             s_new = share(R_today, pr, accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, neophobia_p=0.0,
-                          kappa=pr.kappa_base)
+                          kappa=pr.kappa_base, liking_sd=0.0)       # every shopper alike: the spread does not move beta
         finally:
             pr.real_tissue_x = rtx
         if abs(s_new - s) < tol:
@@ -782,7 +849,7 @@ def analogue_check(pr: DemandParams) -> dict:
     every attribute except price, at each analogue's premium (neutral dials, the reference price).
     Returns the predicted shares (%) and the root-mean-square error of log share (0.7 = a typical
     miss of a factor of two)."""
-    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, liking_sd=0.0)   # a real premium meat, not cultivated
     pred = [share(R, pr, **neutral) * 100 for _n, R, _o, _s in ANALOGUES]
     err = float(np.sqrt(np.mean([(np.log(p) - np.log(o)) ** 2 for p, (_n, _R, o, _s) in zip(pred, ANALOGUES)])))
     return {"predicted": pred, "observed": [o for _n, _R, o, _s in ANALOGUES], "rms_log_error": err}
@@ -798,7 +865,7 @@ def organic_premium_check(pr: DemandParams) -> dict:
     This is why kappa's range reaches 9 (inputs.py) and why shares at a premium should be read as upper
     estimates. Returns predicted shares (%) at both comparisons and the observed share."""
     o = ORGANIC_CHICKEN
-    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0)
+    neutral = dict(accept_x=1.0, theta_free_M=0.0, neophobia_x=0.0, health_x=0.0, liking_sd=0.0)   # a real premium meat, not cultivated
     return dict(vs_cuts=share(o["price"] / o["cuts"], pr, p_ref=o["cuts"], **neutral) * 100,
                 vs_mince=share(o["price"] / o["mince"], pr, p_ref=o["mince"], **neutral) * 100,
                 observed=o["observed_pct"])
@@ -831,7 +898,10 @@ def organic_premium_check(pr: DemandParams) -> dict:
 # fitted random-parameter logit, which reproduces its published shares, gives an aggregate own-price elasticity of about -1.5 at
 # equal price (-1.1 to -1.65 across its four arms). The model's -3.27 is inside this bracket but about twice that. The bracket is
 # kept so the check below still runs; liking_spread.py and demand_checks.py use the simulated figure.
-LUSK_ELAS_BRACKET = (-3.4, -0.84)   # at-parity, cold-survey own-price elasticity of lab-grown
+# 2026-11-18: the check now uses the experiment's aggregate own-price elasticity at equal price, simulated from its fitted
+# random-parameter logit (-1.5 in the control arm; -1.1 to -1.65 across its four arms). With the spread of liking the model gives
+# about -1.5 at first contact; with every shopper alike it gave -3.27.
+LUSK_ELAS_BRACKET = (-1.65, -1.1)   # at-parity, first-contact own-price elasticity of lab-grown (simulated, across the four arms)
 
 
 def lusk_at_parity_elasticity(pr: DemandParams, R: float = 1.0, h: float = 1e-4) -> float:

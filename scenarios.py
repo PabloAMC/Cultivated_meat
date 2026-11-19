@@ -160,16 +160,19 @@ SWITCHES = (
         Setting("60", "60% of his price", {"growth_factors": value("sc_gf_most")}, NOTHING, "Most of his price."),
         Setting("all", "All bought at his price", {"growth_factors": 1.0}, NOTHING,
                 "Humbird's large-scale price. It assumes an industry far larger than the current one."))),
+    # (with a complete-medium price, $0.20 and above, growth factors are in that price and this switch adds nothing: explore_kwargs)
     Switch("medium", "Price of the medium", "What a litre of the nutrient liquid costs", (
         Setting("0.05", "$0.05 a litre (an aspiration)", {"medium_price": value("sc_medium_aspire")}, FEED,
                 "no one has reported it: the lowest company report is $0.07 and GFI's amino acids alone cost $0.02-0.17; "
                 "the medium then costs what the cells must eat"),
-        Setting("0.15", "$0.15 a litre", {"medium_price": 0.15}, FEED,
-                "The cost of the nutrients the cells eat. The medium cannot cost less."),
-        Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid")}, FEED,
-                "What several companies announced for 2025."),
-        Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high")}, NOTHING, "Between the announced and the reported price."),
-        Setting("0.50", "$0.50 a litre", {"medium_price": value("media_price")}, NOTHING, "What SuperMeat reports."))),
+        Setting("0.15", "$0.15 a litre", {"medium_price": 0.15, "medium_complete": True}, FEED,
+                "A complete medium at little more than the nutrients the cells eat; growth factors are in the price."),
+        Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid"), "medium_complete": True}, FEED,
+                "What several companies announced for 2025. A complete medium: growth factors are in the price."),
+        Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high"), "medium_complete": True}, NOTHING,
+                "Between the announced and the reported price. A complete medium: growth factors are in the price."),
+        Setting("0.50", "$0.50 a litre", {"medium_price": value("media_price"), "medium_complete": True}, NOTHING,
+                "What SuperMeat reports. A complete medium: growth factors are in the price."))),
 )
 
 _SHORT = {
@@ -199,10 +202,19 @@ def setting(switch: str, key: str) -> Setting:
 
 
 def explore_kwargs(choice: dict) -> dict:
-    """The floor_physics.explore() arguments for a choice {switch: setting key}."""
+    """The floor_physics.explore() arguments for a choice {switch: setting key}.
+
+    GROWTH FACTORS IN THE MEDIUM'S PRICE (2026-11-18, research_notes/growth_factors_in_medium_price.md): the announced and reported
+    medium prices ($0.20, $0.30, $0.50 a litre) are complete media, with whatever growth factors the process uses in the price
+    (about 0.85 likely; SuperMeat 2024, Pasitka 2024 Table S5, GFI 2020), and so is $0.15, the author's view of a complete medium
+    at little more than its nutrients. With one of those, the growth-factor switch adds nothing: its cost is already paid. It still
+    applies to the $0.05 aspiration, which is the nutrients alone. Gated by the input sc_medium_complete (off until the cost
+    studies are repinned in their own change)."""
     kw = {}
     for s in SWITCHES:
         kw.update(setting(s.key, choice[s.key]).kw)
+    if kw.pop("medium_complete", False) and value("sc_medium_complete") >= 0.5:
+        kw["growth_factors"] = 0.0
     kw.update(always())
     return kw
 
@@ -642,6 +654,7 @@ def js_model() -> dict:
                for k in SCENARIOS}
     band = {k: bands(SCENARIOS[k].choice) for k in SCENARIOS}
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
+            "medium_complete_on": value("sc_medium_complete") >= 0.5,
             "always": _js_params(always()),
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
             "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band}

@@ -95,7 +95,7 @@ def scenario_table() -> str:
         f"<button class='btn scbtn small' onclick=\"scApply('reported');return false\">Use this in the charts</button></td>"
         f"<td><span class='tagchip none'>a company's own report</span></td>"
         f"<td class='n'><b>{money(rp['cost'])}</b></td><td class='n'>{money(rp['retail'], 0)}<br><span class='alt'>{rp['ratio']:.2f}×</span></td>"
-        f"<td class='n'><b>{pb[1]:.1f}%</b><br><span class='alt'>The median. 80% of draws fall between {pb[0]:.1f}% and {pb[2]:.1f}%. "
+        f"<td class='n'><b>{S.pct_num(pb[1])}%</b><br><span class='alt'>The median. 80% of draws fall between {S.pct_num(pb[0])}% and {S.pct_num(pb[2])}%. "
         f"At the point cost the share is {S.pct_num(rp['world'])}% (US {S.pct_num(rp['us'])}%, Europe {S.pct_num(rp['eu'])}%).</span></td>"
         f"<td class='s'>The process uses 30.5 litres of medium a kilo at $0.50 a litre. The company reports no tank limit.</td></tr>")
     head = ("<thead><tr><th>Scenario: what has to go right</th><th>What it needs</th><th>Cost of a kilo of cells</th>"

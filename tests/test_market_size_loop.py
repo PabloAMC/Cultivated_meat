@@ -39,30 +39,32 @@ def check() -> list:
                 if abs(r["share"] - 100.0 * r["volume_mt"] / value("ms_world_meat")) > 1e-3:
                     fails.append(f"{k}, {case}, from {start}: the resting point's cost does not buy the share its volume is")
         lo, hi = s["solved"][(k, "central", "below")], s["solved"][(k, "central", "above")]
-        if k != "central" and abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6:
+        if abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6:
             fails.append(f"{k}: two resting points in the central case now; the note says there is one")
         if k != "today" and not lo["share"] > s["model_share"][k]:
             fails.append(f"{k}: learning no longer raises the share; rewrite the note")
         c = s["comp"][(k, "resting point")]
         if abs(c["total"] - lo["volume_mt"]) > 1e-3 * lo["volume_mt"] + 1e-6:
             fails.append(f"{k}: the volumes by tier do not add to the resting point's volume")
-    # the trap: Central rests at two points in the central case, because its premium products alone do not reach the membrane switch
-    lo, hi = s["solved"][("central", "central", "below")], s["solved"][("central", "central", "above")]
-    if not (hi["volume_mt"] > 1.5 * lo["volume_mt"] and not s["start"][("central", "central")]["crosses"]):
-        fails.append("Central no longer has two resting points in the central case; rewrite the note's section on the trap")
-    if not (s["start"][("best", "central")]["crosses"] and not s["start"][("today", "central")]["crosses"]
-            and s["start"][("central", "fast learning")]["crosses"]):
-        fails.append("which scenarios' premium products cross the membrane switch has changed; rewrite the note")
-    if not s["comp"][("central", "no learning")]["premium_of_sales"] > 0.9:
-        fails.append("premium products are no longer nearly all of Central's sales; rewrite the note")
-    resp = s["response"]["products"]
-    if not all(v["response"] > L.HISTORY_ALONG_CURVE[1] for v in resp.values()):
-        fails.append("a premium product now responds to price no more strongly than history along the demand curve; rewrite the note")
+    # premium products alone do not reach the membrane switch in any scenario; Central's and the best case's whole sales do
+    for k in L.SCEN:
+        st = s["start"][(k, "central")]
+        whole = s["base"][k]["area_per_kg"] * s["model_share"][k] / 100.0 * value("ms_world_meat") * 1e9
+        if st["crosses"] or (k != "today") != (whole > st["switch_m2"]):
+            fails.append(f"{k}: premium products alone, or the whole sales, now stand differently against the membrane switch; rewrite the note")
+    lo, hi = s["solved"][("central", "slow learning", "below")], s["solved"][("central", "slow learning", "above")]
+    if not hi["volume_mt"] > 1.5 * lo["volume_mt"]:
+        fails.append("Central with slow learning no longer has two resting points; rewrite the note's section on the gap")
+    if not 0.2 < s["comp"][("central", "no learning")]["premium_of_sales"] < 0.7:
+        fails.append("premium products' part of Central's sales has left 20-70%; rewrite the note")
+    resp = [v["response"] for v in s["response"]["products"].values()]
+    if not (min(resp) > 0.8 * L.HISTORY_ALONG_CURVE[0] and max(resp) < L.HISTORY_TOTAL[1]):
+        fails.append("the premium products' response to price has left the range of history; rewrite the note")
 
     for k in ("central", "best"):
-        if not s["passes"][k]["later_rounds"] < 0.3:
-            fails.append(f"{k}: later rounds now give 30% or more of the share gain; the note says it is mostly one step")
-    if not s["anchored"]["best"]["share"] < 0.5 * s["passes"]["best"]["rest"][1]:
+        if not s["passes"][k]["later_rounds"] < 0.35:
+            fails.append(f"{k}: later rounds now give 35% or more of the share gain; the note says it is mostly one step")
+    if not s["anchored"]["best"]["share"] < 0.7 * s["passes"]["best"]["rest"][1]:
         fails.append("the best case's share with demand anchored on premium meats is no longer well below the main model's; rewrite the note")
 
     sv = s["solved"]

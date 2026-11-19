@@ -69,25 +69,28 @@ def _world(share_of_cost) -> dict:
 
 
 def variants() -> list:
-    """The long-run share under the price responses the measurements point to. Each row: name, the curve (share at each price
-    ratio in R_GRID, %), the cold at-parity elasticity, and the world share at Central's and the best case's cost."""
+    """The long-run share under different price responses. Each row: name, the curve (share at each price ratio in R_GRID, %),
+    the first-contact elasticity at equal price, and the world share at Central's and the best case's cost. The first row is the
+    model (a spread of liking since 2026-11-18); the others have every shopper alike (liking_sd=0)."""
     pr = S._demand()
-    rows = []
-    for name, kappa in (("the model (cultivated meat 8.5 times as price-sensitive as meat in general)", pr.cult_sub_mult),
-                        ("no extra sensitivity for cultivated meat (4 times, as for any one product)", pr.kappa_base),
-                        ("the slope of the sixteen premium meats (2.2 times), at the model's level", P.summary()["main"]["kappa"])):
-        curve = [M.share(R, pr, kappa=kappa) * 100.0 for R in R_GRID]
+    income = mm.REGION_INCOME["global"]
 
-        def world(cost, kappa=kappa):
-            income = mm.REGION_INCOME["global"]
-
+    def row(name, **kw):
+        def world(cost):
             def share_of(mt, R, base, res):
-                return M.share(R, pr, kappa=kappa, tier_offset=mm.tier_authenticity(mt, base, res, None),
-                               eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, res), income=income, p_ref=mt.p_conv)
+                return M.share(R, pr, tier_offset=mm.tier_authenticity(mt, base, res, None),
+                               eps_own=pr.eps_own * mm.tier_eps_mult(mt, base, res), income=income, p_ref=mt.p_conv, **kw)
             return mm._rollup(mm.MARKETS["global"], cost, value("markup_add"), value("premium_resistance"), share_of)[1] * 100.0
-        rows.append({"name": name, "curve": curve, "cold": cold_parity_elasticity(kappa=kappa), "world": _world(world)})
+        return {"name": name, "curve": [M.share(R, pr, **kw) * 100.0 for R in R_GRID],
+                "cold": elasticity_at(1.0, pr, neophobia_x=value("neophobia_x0"), **kw), "world": _world(world)}
+
+    rows = [row("**the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)**"),
+            row("the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general", liking_sd=0.0),
+            row("every shopper alike, 4 times (no extra sensitivity for cultivated meat)", liking_sd=0.0, kappa=pr.kappa_base),
+            row("every shopper alike, with the slope of the sixteen premium meats (2.2 times)", liking_sd=0.0,
+                kappa=P.summary()["main"]["kappa"])]
     main, d = P.summary()["main"], P.delta_cases()["long run, central"]
-    rows.append({"name": "the curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections",
+    rows.append({"name": "one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections",
                  "curve": [P.curve(max(R - d, 0.05), main) * 100.0 for R in R_GRID], "cold": P.parity_elasticity(main),
                  "world": _world(lambda c: P.cultivated_share(c, main, d_price=d))})
     return rows
@@ -100,27 +103,29 @@ def summary() -> dict:
     if not _SUM:
         pr = S._demand()
         _SUM.update(pb=pb_elasticity(), cold=cold_parity_elasticity(), at={R: elasticity_at(R) for R in R_GRID},
+                    premium_3x=P.curve(3.0, P.summary()["main"]) * 100.0,
                     kappa_fit=P.summary()["main"]["kappa"], kappa=pr.cult_sub_mult, variants=variants(),
                     model_world=_world(lambda c: S.shares(c, regions=("global",))["global"]))
     return _SUM
 
 
 def markdown_checks() -> str:
+    """The model and the model before 2026-11-18 (every shopper alike) against each measurement."""
     s = summary()
     import market_size_loop as L
     resp = L.summary()["response"]["products"]
-    lo = min(v["response"] for n, v in resp.items() if n in ("beef (prime/wagyu)", "seafood (sushi)"))
-    hi = max(v["response"] for n, v in resp.items() if n in ("beef (prime/wagyu)", "seafood (sushi)"))
-    out = ["| what was measured | measured | the model | verdict |", "|---|---|---|---|",
-           f"| Plant-based meat's own-price elasticity (US retail) | {PB_ELASTICITY_MEASURED:.2f} | {s['pb']['elasticity']:.2f} | "
-           f"{s['pb']['elasticity'] / PB_ELASTICITY_MEASURED:.1f} times too strong |",
-           f"| Slope of share against price across sixteen premium real meats (as a multiple of meat's own elasticity) | {s['kappa_fit']:.1f} | "
-           f"{s['kappa']:.1f} | {s['kappa'] / s['kappa_fit']:.1f} times too strong |",
-           f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
-           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {lo:.1f}–{hi:.1f} (prime beef, sushi-grade seafood) | 2 to 3 times too strong |",
+    pick = [v["response"] for n, v in resp.items() if n in ("beef (prime/wagyu)", "seafood (sushi)")]
+    v = s["variants"]
+    i3 = R_GRID.index(3.0)
+    out = ["| what was measured | measured | the model | the model before 2026-11-18 |", "|---|---|---|---|",
            f"| Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | "
-           f"about {VANLOO_AT_PARITY:g} ({VANLOO_ARMS[1]:g} to {VANLOO_ARMS[0]:g} across its arms) | {s['cold']:.2f} | "
-           f"{s['cold'] / VANLOO_AT_PARITY:.1f} times too strong |"]
+           f"about {VANLOO_AT_PARITY:g} ({VANLOO_ARMS[1]:g} to {VANLOO_ARMS[0]:g} across its arms) | {v[0]['cold']:.2f} | {v[1]['cold']:.2f} |",
+           f"| Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | {s['premium_3x']:.1f}% | "
+           f"{S.pct_num(v[0]['curve'][i3])}% | {S.pct_num(v[1]['curve'][i3])}% |",
+           f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
+           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} (prime beef, sushi-grade seafood) | 3.0–3.4 |",
+           f"| Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | {PB_ELASTICITY_MEASURED:.2f} | "
+           f"{s['pb']['elasticity']:.2f} | {s['pb']['elasticity']:.2f} |"]
     return "\n".join(out)
 
 

@@ -10,20 +10,21 @@ Last updated 2026-11-16.
 
 Open pull requests (each says "no default changes" unless noted):
 
-- [ ] **Put the spread of liking into the shopper model** (2026-11-18, `research_notes/liking_spread.md`,
-      `research_notes/demand_heterogeneity_evidence.md`). A normal spread of liking for cultivated meat (5 utils, κ unchanged)
-      reproduces the one random-parameter choice experiment; the model fails all four price-response checks without it.
-      **Decision inside (Pablo's):** the long-run share at equal price, which stops being a consequence of novelty fading: 13% if only
-      the model's first-contact wariness fades, 49% if shoppers end up indifferent on average. It should become a visible setting.
-      Then: mirror on the page (fifteen integration points; seven are not enough), repin, and drop the "−0.84 to −3.4" check for the
-      simulated −1.5. Branch `claude/recalibrate-demand` (premium buyers) is superseded and should not be merged.
+- [x] **The spread of liking is in the shopper model** (done 2026-11-18, `research_notes/liking_spread.md`). The long-run share at
+      equal price is a visible setting, `equal_price_share` (13%, drawn 5–49%), and the only demand dial for the long-run level in the
+      bands. The model passes three of four price-response checks. Branch `claude/recalibrate-demand` is superseded; do not merge.
+- [ ] **Plant-based meat's own-price elasticity** still fails (-2.85 against about -1.3): its buyers are a committed minority the
+      model does not represent. A spread of liking for plant-based meat, refitted to the 1.2% share, is the candidate fix.
+- [ ] **Evidence on the long-run share at equal price** (`demand_heterogeneity_evidence.md` §6): one reading of foods made by
+      distrusted processes puts it near 18%. A repeated-exposure or tasting experiment with prices is the measurement that would
+      settle it.
 - [ ] Price sensitivity differs across shoppers too (4 to 10 times between groups), and plant-based meat's buyers are a concentrated
       minority (7% of households make 82% of spending). Both belong in the same rebuild; plant-based meat's elasticity is -2.85 in
       the model against about -1.3 measured for the category.
 - [ ] Adoption over time has first purchase but no repeat or drop-out: plant-based meat's household penetration fell from 20% to 11%
       (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
-- [ ] The market tables of China, Brazil, India and Nigeria have unsourced premium rows (`premium_market_sizes.md`); the Global table
-      under-weights seafood.
+- [x] The market tables of China, Brazil, India and Nigeria checked, and seafood weighted at 24% of the Global table (done 2026-11-18,
+      `premium_market_sizes.md` §6; China's rows are order-of-magnitude). India's premium goat and seafood rows are unchecked.
 - [ ] #19 Plain, direct sentences for all page text (wording only).
 - [ ] #29 The frontier: every lever at its limit, one at a time ($26.64 → $5.49).
 - [ ] #30 Filter flux: the flux is not the limit, the membrane's throughput is. **Decision inside:** move `rt_membrane_life`
@@ -70,7 +71,9 @@ Raised by Pablo on 2026-11-16 (open):
       oxygen transfer per watt (impeller, sparger design) matters; in the model only the vessel's oxygen multiplier would change.
 
 - [ ] **Set the forecast's medians** (RESULTS, "The forecast"): a first draft; and draw the switches from their odds instead of taking each median.
-- [ ] **Do announced medium prices include growth factors?** Sources rarely say. If they do, Central double-counts up to $3.0 a kilo.
+- [ ] **Turn on `sc_medium_complete`** (2026-11-18, `research_notes/growth_factors_in_medium_price.md`): about 0.85 that announced
+      medium prices include growth factors. The rule is in the code, off; turning it on takes Central from $29.42 to $26.43 and needs
+      every cost study repinned. Next PR.
 - [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
 
 From the design search (`design_space.py`):
@@ -143,10 +146,8 @@ Bench measurements that would settle the two biggest inputs (from #45; each is c
       a thick animal-cell culture. A quote alone cannot settle it, so the filter bench run above should include one of them.
       Until then life and price stay as they are; nobody has offered a price (Pablo, 2026-11-16).
 
-- [ ] **Re-derive `sc_glc_measured`** (0.84 mol of glucose per kg of meat cells): it draws partly on Pasitka's "145 g glucose per kg of
-      wet biomass", which is per kilo of a biomass about 18 times the cells' mass (METHODS, "Why Pasitka is not the anchor"). Per kilo of
-      real cells that run used about 15 mol of glucose and made about 15 mol of lactate and 2.6 mol of ammonia, far above the model's
-      "ordinary meat cells". Check what Hubalek 2023 alone supports, and what that does to rung 1.
+- [x] **`sc_glc_measured` re-derived** (2026-11-18): the central 0.84 rests on CHO data, not Pasitka; the range is now 0.67–3.6, and
+      the high end moves today's cells by $92 a kilo, not Central.
 
 Things only Pablo can do:
 
