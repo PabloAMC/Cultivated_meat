@@ -87,6 +87,18 @@ Raised by Pablo on 2026-11-16 (open):
       authenticity offset to the cell share, or calibrate blends against plant-based whole cuts (Redefine Meat, Planted).
 - [ ] **Mince is 100% cells while a cut is 80%.** Commercial mince products are blends too (GOOD Meat 3%, Upside's soy blend); decide
       whether mince should carry the same cell share, or say why not.
+- [x] **The audit batch** (2026-11-19, `audit_2026-11-19.md`): ammonia tolerance 4 mM, lost-run membranes, glucose balance, seafood
+      prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
+- [ ] **The tail of shoppers' liking.** A normal spread makes the share fall too fast far above parity: against farmed salmon's history
+      the model responds 5.2-7.5 where 1-1.5 was measured, and its slope between 2 and 3 times the price is 3.8 against premium meats'
+      2.2. A heavier-tailed spread (logistic or Student's t), fitted to the choice experiment and the sixteen premium meats together,
+      would fix both and would raise Central's share (probably to 0.1-0.2%). Needs the quadrature changed in Python and on the page.
+- [ ] **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
+      `sc_nh3_limit` not drawn): as drawn Central $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
+- [ ] **The nutrient floor's glucose** is a third glucose figure (0.32 kg a kilo, all burned); tie it to the balance (a few cents).
+- [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
+- [ ] **The filter pair.** Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
+      stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
 - [ ] **Restructure the scenarios** (discussed 2026-11-19): a forecast drawn from the switches' odds as the headline; a ladder from
       what is shown today (fed-batch, 27 g/L at 20 m³), with perfusion as its own step and engineered cells and the rest split; demand
       as a second axis. Waiting on Pablo: the forecast's year(s).
