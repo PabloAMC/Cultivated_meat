@@ -19,13 +19,16 @@ import tank_size as T                       # noqa: E402
 
 # $/kg at 2, 5, 10, 20, 50, 100, 200 m3, tank design chosen again at each size
 # repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds), growth factors inside complete media prices
+# 2026-11-19 audit batch: the two reference rows do not move (Humbird's design keeps his 5 mmol/L and loses no runs). The
+# scenarios: ammonia tolerance 4 mmol/L (more medium and membranes a kilo), membranes for lost runs, and glucose from the
+# cells' balance (cautious: the published cells' lactate sets 95 L/kg, +$55.7 at every size)
 GOLDEN = {
     "reference": (20.5430, 14.8609, 12.9669, 12.8122, 13.5329, 15.8790, 19.3675),
     "reference_redesigned": (16.2225, 12.8053, 11.6782, 11.0259, 10.9678, 11.5972, 11.4955),
-    "best": (12.8510, 10.9045, 10.2699, 9.9613, 9.8477, 10.0388, 10.1834),
-    "central": (37.3535, 30.2211, 27.9063, 26.4296, 26.3846, 27.4701, 27.6162),
-    "central_lean": (29.5235, 25.5891, 24.4254, 23.5685, 23.4830, 23.9775, 24.0443),
-    "cautious": (62.0644, 45.2737, 39.4681, 36.4185, 35.4139, 34.5667, 36.1421),
+    "best": (14.3341, 12.3876, 11.7533, 11.4569, 11.3433, 11.4594, 11.6028),
+    "central": (43.7184, 36.5912, 34.2748, 32.8028, 32.7546, 33.7123, 33.8613),
+    "central_lean": (35.8885, 31.9539, 30.7940, 29.9417, 29.8530, 30.2197, 30.2894),
+    "cautious": (117.7848, 101.0026, 95.2051, 92.1653, 91.1604, 90.3250, 91.8886),
 }
 NOTE = os.path.join(MODEL_DIR, "research_notes", "tank_size.md")
 
@@ -96,20 +99,21 @@ for k in S.ORDER:
     check(not T.evaluate(k, ch["tricks"], ch["shape"], lim * 1.001)["ok"], f"{k}: the design passes just above its limit {lim:.2f}")
     check(T.design_limit(k, {"ph_max": "ph_relaxed"}) > lim, f"{k}: a looser pH check should raise the limit")
 
-# 5. the answer: 20 m3 is near the flat bottom of the curve, and no scenario but the cautious one gains more than 3% from another
-#    size. Since 2026-11-16 the cautious case saves 4.6% (5.4% since 2026-11-19) at 111 m3 (its oxygen-limited 120 g/L culture holds at every size), so
-#    20 m3 is not within 3% of its minimum; the note says so, and the check pins that it stays between 4% and 5.5%.
+# 5. the answer: 20 m3 is near the flat bottom of the curve, and no scenario gains more than 3% from another size.
+#    2026-11-19 audit batch: the cautious case was the exception (5.4% at 111 m3, pinned between 4% and 5.5%). Its saving is
+#    still $1.94 a kilo at 111 m3 (its oxygen-limited 120 g/L culture holds at every size), but glucose from the cells' balance
+#    raised its cost from $36.42 to $92.17 through medium and membranes, which do not depend on size, so the saving is now 2.1%
+#    and 20 m3 is within 3% of its minimum like the others. The exception is gone; the note says so.
 opt = {k: T.optimum(k) for k in S.ORDER}
 for k in S.ORDER:
     o = opt[k]
     check(o["saving"] >= -1e-12, f"{k}: the optimum is dearer than 20 m3")
     check(not o["at_edge"], f"{k}: the optimum sits at the end of the search range")
-    if k == "cautious":
-        check(4.0 < o["saving_pct"] < 5.5 and 90.0 < o["size"] < 130.0, f"cautious: optimum {o['size']:.1f} m3, {o['saving_pct']:.2f}%")
-        continue
     check(o["saving_pct"] < 3.0, f"{k}: another size saves {o['saving_pct']:.1f}%, more than the 3% the note says")
     check(o["within_3pct"][0] <= 20.0 <= o["within_3pct"][1], f"{k}: 20 m3 is not within 3% of the minimum")
-ob, oc = opt["best"], opt["central"]
+ob, oc, oq = opt["best"], opt["central"], opt["cautious"]
+check(90.0 < oq["size"] < 130.0 and 1.8 < oq["saving_pct"] < 2.4 and 1.8 < oq["saving"] < 2.1,
+      f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
 check(60.0 < ob["size"] < 85.0 and 1.0 < ob["saving_pct"] < 2.0, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
 check(35.0 < oc["size"] < 55.0 and 1.0 < oc["saving_pct"] < 2.5, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
 # without the loop checks the best case keeps falling to the end of the range (the checks, not the density limits, stop it)

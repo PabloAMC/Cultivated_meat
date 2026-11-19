@@ -33,6 +33,8 @@ def check() -> list:
     if cen["at_or_below"][12.0] > 0.0 or cen["at_or_below"][7.0] > 0.0:
         fails.append("central draws should not reach $12")
     # the cells' ammonia is what moves the cost most, then the membranes' life (negatively)
+    # 2026-11-19 audit batch: still true of these draws, which do not draw the ammonia the cells tolerate (sc_nh3_limit, new).
+    # With it drawn the tolerance ranks first and the ammonia second (audit.py's docstring; a side calculation, not pinned)
     top = list(cen["rank"])[:2]
     if top[0] != "nh3_kg" or "rt_membrane_life" not in top or not cen["rank"]["rt_membrane_life"] < 0:
         fails.append(f"the main drivers should be ammonia and membrane life: {top}")
@@ -41,7 +43,12 @@ def check() -> list:
     if abs(other["p50"] - cen["p50"]) > 1.0:
         fails.append("the median should not move by $1 between seeds")
     # pinned (seed 0, 1,000 draws)
-    for name, s, want in (("central P50", cen["p50"], 37.44), ("central P10", cen["p10"], 27.03), ("best P50", best["p50"], 15.48)):
+    # 2026-11-19 audit batch: ammonia tolerance 5 -> 4 mmol/L (Central 28 -> 35 L/kg, best 11.2 -> 13.75) and lost runs pay
+    # for their membranes: central P50 37.44 -> 47.57, P10 27.03 -> 34.38, best P50 15.48 -> 19.35. These pin the module as
+    # it draws today. Its docstring lists three ways the draws lag the scenarios (growth factors bought on top of Central's
+    # complete medium, a price per litre for the best case's floor medium, the ammonia tolerance not drawn); put right,
+    # Central's median is about $38 and the best case's about $14, close to the scenario bands.
+    for name, s, want in (("central P50", cen["p50"], 47.57), ("central P10", cen["p10"], 34.38), ("best P50", best["p50"], 19.35)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
     # the retail translation: the model's rule is per-kg costs plus a percentage margin; it sits between the old flat $5
@@ -49,8 +56,14 @@ def check() -> list:
     want = (10.0 + value("markup_add")) / (1.0 - value("retail_margin"))
     if not close(A.retail(10.0), want, 1e-12):
         fails.append("the model's retail price is (cost + markup_add) / (1 - retail_margin)")
-    if not (A.retail(26.64, "flat") < A.retail(26.64) < A.retail(26.64, "proportional")):
+    # 2026-11-19 audit batch: at Central's own cost ($32.80; the check used $26.64, Central's cost on 15 November)
+    c_cost = S.run(S.SCENARIOS["central"].choice)["total"]
+    if not (A.retail(c_cost, "flat") < A.retail(c_cost) < A.retail(c_cost, "proportional")):
         fails.append("at Central's cost the model's shelf price should sit between the flat and the proportional rule")
+    # since the audit batch Central's point sits below the 10th percentile of these draws (it was the 19th percentile on
+    # 16 November), and the best case's below the 1st
+    if not (cen["point"] < cen["p10"] and best["point_percentile"] < 0.01):
+        fails.append("Central's point should sit below the 10th percentile of its draws, and the best case's below the 1st")
     if not close(A.retail(A.parity_cost()), value("p_conv"), 1e-9):
         fails.append("the parity cost should give a shelf price equal to meat's")
     return fails

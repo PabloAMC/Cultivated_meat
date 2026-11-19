@@ -2,7 +2,7 @@
 """
 floor_physics.py — the cost of a kilo of cultivated cells from tank physics and published plant costs,
 by reactor type and plant class (`explore`). The cost scenarios (scenarios.py) are sets of `explore` arguments;
-its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($12.51/kg), which earlier
+its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($12.81/kg), which earlier
 versions called the floor. (NOT used in the default cost of the share model.)
 
 Why
@@ -611,7 +611,12 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
     if not washed:
-        limits["waste build-up"] = waste_cap(cells) / wf
+        # A tank that is not washed out holds what its cells make. The reference density (waste_cap) is for enhanced cells, whose
+        # ammonia and lactate reach their limits together; scale it by whichever waste is further above theirs. Lactate counts
+        # only where the yield is set explicitly (audit 2026-11-19: with glucose from the cells' balance, the published cells
+        # make 8 times the enhanced cells' lactate, and a fed-batch tank priced by ammonia alone held 246 mmol/L against a limit of 50).
+        lf = lac / waste_per_kg(cells, 0.0)[1] if lac_yield is not None else 0.0
+        limits["waste build-up"] = waste_cap(cells) / max(wf, lf)
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
         # caps the density: 1000 / (flow / growth rate per day)
         limits["other by-products"] = 1000.0 * cells.mu * 24.0 / flow
@@ -713,7 +718,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "gas": float(gas), "gas_extra": float(gas_extra),
             "consumables": consumables, "extra_opex": float(extra_opex), "feedstock": float(feed), "growth_factors": float(gf),
-            "uptime": float(uptime), "medium_l": float(medium_l), "total": float(total),
+            "uptime": float(uptime), "run_frac": float(run_frac), "medium_l": float(medium_l), "total": float(total),
             "product": float(product), "pco2_used": float(pco2_tol), "osmolality": float(osm),
             "limits": {k: float(v) for k, v in limits.items()},
             "medium_terms": {k: float(v) for k, v in terms.items()},

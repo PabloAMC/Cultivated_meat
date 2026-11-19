@@ -49,7 +49,9 @@ def check() -> list:
     if not close(FF.time_limited_life(5.0), value("rt_membrane_life"), 1e-3):
         fails.append("the default life is a 33-day run at 5 L/m2/h")
     # 2026-11-19 repin: growth factors inside complete media prices (Central -$2.99), nutrient floor $2.00 (Best +$0.30)
-    for (k, f, l), want in {("central", 5.0, 1200.0): 45.5993, ("central", 2.5, 450.0): 91.6424, ("best", 5.0, 1200.0): 16.0957}.items():
+    # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (Central filters 35 L/kg, was 28) and a lost run
+    # throws its membranes away early, so every litre filtered carries more membrane; both grow as the life shortens
+    for (k, f, l), want in {("central", 5.0, 1200.0): 62.2305, ("central", 2.5, 450.0): 132.8657, ("best", 5.0, 1200.0): 20.6229}.items():
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")
@@ -63,8 +65,9 @@ def check() -> list:
             fails.append(f"central at life {life:g} and its break-even price: {got:.4f} != default {default:.4f}")
     if not FF.cost_at_life_price("central", 1500.0, 1450.0) > default > FF.cost_at_life_price("central", 1500.0, 200.0):
         fails.append("a shorter life should cost more at the default price and less at a much lower one")
-    for (k, life, price), want in {("central", 2000.0, 1450.0): 34.5976, ("central", 1500.0, 1450.0): 40.0984,
-                                   ("central", 1500.0, 550.0): 26.4411, ("central", 1000.0, 200.0): 22.6474}.items():
+    # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L and membranes for lost runs (Central 26.43 -> 32.80 at the defaults)
+    for (k, life, price), want in {("central", 2000.0, 1450.0): 45.3415, ("central", 1500.0, 1450.0): 53.7860,
+                                   ("central", 1500.0, 550.0): 32.8204, ("central", 1000.0, 200.0): 26.9967}.items():
         got = FF.cost_at_life_price(k, life, price)
         if not close(got, want, 1e-3):
             fails.append(f"{k} life {life:g} price {price:g}: {got:.4f} != pinned {want}")

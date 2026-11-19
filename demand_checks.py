@@ -114,9 +114,11 @@ def markdown_checks() -> str:
     import market_size_loop as L
     resp = L.summary()["response"]["products"]
     # farmed salmon was measured while still a premium product, so compare the model's products that are still dearer than their meat
-    # at Central's cost (price ratio above 1.5). Since 2026-11-19 prime beef and sushi-grade seafood are near equal price and drop out.
+    # at Central's cost (price ratio above 1.5). Prime beef (0.96 times its meat's price) and sushi-grade seafood (1.24 times) are
+    # near equal price and drop out. Since seafood was re-priced on 2026-11-19 the model has a fifth premium product, premium
+    # fillets and shrimp ($20 a kilo, 2.2 times at Central's cost), which is in.
     names = {"chicken (organic)": "organic chicken", "pork (heritage)": "heritage pork", "beef (prime/wagyu)": "prime beef",
-             "seafood (sushi)": "sushi-grade seafood"}
+             "seafood (premium fillet, shrimp)": "premium fish fillets and shrimp", "seafood (sushi)": "sushi-grade seafood"}
     still = [n for n, v in resp.items() if v["R"][0] > 1.5]
     pick = [resp[n]["response"] for n in still]
     label = ", ".join(names.get(n, n) for n in still)

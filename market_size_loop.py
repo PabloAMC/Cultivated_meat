@@ -25,9 +25,12 @@ What this module does
 4. `ladder(choice)`: cost against volume, with the share that cost would buy beside the share that volume is.
 5. `composition(cost)`: which products the volume comes from. The idea was that the loop runs on premium products first
    (Pablo, 2026-11-18): sushi-grade seafood and prime or wagyu beef are where cultivated meat is nearest the price it competes
-   with. Since the cut cost was rebuilt (2026-11-19) they are only about a tenth of Central's sales at its own cost; most are
-   ordinary cuts (beef steaks, fish fillets). `premium_start` asks whether the premium products' volume alone carries the industry
-   past the membrane switch (for Central it just does); the cheaper cells that follow unlock more of every product.
+   with. Premium products are the ones `meat_market.tier` labels premium. Since world seafood was re-priced on 2026-11-19 they
+   are five: organic chicken, heritage pork, prime or wagyu beef, sushi-grade seafood, and the new row of premium fillets and
+   shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. After the audit batch of that day (cells
+   dearer, the tier rule gone) Central sells little at its own cost, and premium products are about half of it, beef steaks the
+   other half. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
+   for Central the five just do and the four small ones do not.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables
@@ -42,6 +45,12 @@ import scenarios as S
 from inputs import REGISTRY, value
 
 VOLUMES = (0.01, 0.1, 0.5, 2.0, 10.0, 35.0)      # Mt of cultivated meat a year
+# Premium products are the rows meat_market.tier labels premium: a cut priced at 2.5 times its species' cheapest form or more.
+# Since world seafood was re-priced by consumption (2026-11-19) that includes this row, $20 a kilo and 4% of world volume
+# (13 Mt a year against 2.6 Mt for the other four together). It is a premium product by the model's own rule, so it is counted;
+# the tables also give the count without it, so the four small premium markets the study began with can be read on their own.
+LARGE_PREMIUM = ("seafood (premium fillet, shrimp)",)
+LARGE_PREMIUM_NAME = "premium fillets and shrimp"
 SCEN = ("today", "central", "best")
 NEVER = float("inf")
 CASES = {"central": {},
@@ -146,17 +155,23 @@ def composition(cost: float, over: dict | None = None) -> dict:
     out["total"] = out["premium"] + out["cut"] + out["basic"]
     out["premium_market_mt"] = market["premium"]
     out["premium_of_sales"] = out["premium"] / out["total"] if out["total"] else 0.0
+    out["premium_small"] = sum(v["mt"] for n, v in out["products"].items() if n not in LARGE_PREMIUM)   # without the large row
+    out["premium_small_of_sales"] = out["premium_small"] / out["total"] if out["total"] else 0.0
     return out
 
 
 def premium_start(choice: dict, over: dict | None = None) -> dict:
     """Do premium products alone carry the industry past the membrane switch? Their volume at the scenario's own cost (no learning),
-    the membrane area that needs, and the switch."""
+    the membrane area that needs, and the switch; the same without the large premium row (`LARGE_PREMIUM`), and for all sales."""
     base = base_run(choice)
     comp = composition(base["cost"], over)
     area = comp["premium"] * 1e9 * base["area_per_kg"]
+    small = comp["premium_small"] * 1e9 * base["area_per_kg"]
+    whole = comp["total"] * 1e9 * base["area_per_kg"]
     switch = (over or {}).get("ms_switch_area", value("ms_switch_area"))
     return {"premium_mt": comp["premium"], "area_m2": area, "switch_m2": switch, "crosses": area >= switch,
+            "small_mt": comp["premium_small"], "small_area_m2": small, "small_crosses": small >= switch,
+            "whole_mt": comp["total"], "whole_area_m2": whole, "whole_crosses": whole >= switch,
             "switch_mt": switch / base["area_per_kg"] / 1e9}
 
 
@@ -286,6 +301,11 @@ def _name(k: str) -> str:
     return S.SCENARIOS[k].name.split(":")[0]
 
 
+def _pct(x: float) -> str:
+    """A share in percent as text, two decimals; below 0.01% it says so and does not print a string of zeros."""
+    return "under 0.01%" if x < 0.01 else f"{x:.2f}%"
+
+
 def markdown_ladder() -> str:
     s = summary()
     out = []
@@ -295,7 +315,7 @@ def markdown_ladder() -> str:
                 "cells, $/kg | share that cost would buy |", "|---|---|---|---|---|---|---|"]
         for r in s["ladder"][k]:
             out.append(f"| {r['volume_mt']:g} | {r['share_is']:.3g}% | {r['tanks_m3']:,.0f} | {r['membrane_price']:,.0f} | "
-                       f"{r['plant_x']:.2f}× | ${r['cost']:.2f} | {r['share_bought']:.2f}% |")
+                       f"{r['plant_x']:.2f}× | ${r['cost']:.2f} | {_pct(r['share_bought'])} |")
         out.append("")
     return "\n".join(out).rstrip()
 
@@ -307,15 +327,16 @@ def markdown_solved() -> str:
     for k in SCEN:
         for case in CASES:
             lo, hi = s["solved"][(k, case, "below")], s["solved"][(k, case, "above")]
-            out.append(f"| {_name(k)} | {case} | ${s['base'][k]['cost']:.2f}, {s['model_share'][k]:.2f}% | "
-                       f"${lo['cost']:.2f}, {lo['share']:.2f}%, {lo['volume_mt']:.2f} | ${hi['cost']:.2f}, {hi['share']:.2f}%, {hi['volume_mt']:.2f} |")
+            out.append(f"| {_name(k)} | {case} | ${s['base'][k]['cost']:.2f}, {_pct(s['model_share'][k])} | "
+                       f"${lo['cost']:.2f}, {_pct(lo['share'])}, {lo['volume_mt']:.2f} | ${hi['cost']:.2f}, {_pct(hi['share'])}, {hi['volume_mt']:.2f} |")
     return "\n".join(out)
 
 
 def markdown_composition() -> str:
     s = summary()
     names = list(s["comp"][(SCEN[0], "no learning")]["products"])
-    out = ["| scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales | " +
+    out = ["| scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales "
+           f"(without {LARGE_PREMIUM_NAME}) | " +
            " | ".join(f"{n}: price against it, share of it" for n in names) + " |", "|---|---|---|---|---|" + "---|" * len(names)]
     for k in SCEN:
         for stage in ("no learning", "resting point", "upper resting point"):
@@ -323,20 +344,26 @@ def markdown_composition() -> str:
                 continue
             c = s["comp"][(k, stage)]
             cost = c["cost"]
-            out.append(f"| {_name(k)} | {stage} | ${cost:.2f} | {c['premium']:.2f}, {c['cut']:.2f}, {c['basic']:.2f} | {c['premium_of_sales']:.0%} | " +
-                       " | ".join(f"{c['products'][n]['R']:.2f}×, {c['products'][n]['share']:.1f}%" for n in names) + " |")
+            part = (f"{c['premium_of_sales']:.0%} ({c['premium_small_of_sales']:.0%})" if c["total"] >= 0.005
+                    else "almost nothing is sold")          # under 5,000 t a year the split says nothing
+            out.append(f"| {_name(k)} | {stage} | ${cost:.2f} | {c['premium']:.2f}, {c['cut']:.2f}, {c['basic']:.2f} | {part} | " +
+                       " | ".join(f"{c['products'][n]['R']:.2f}×, {_pct(c['products'][n]['share'])}" for n in names) + " |")
     return "\n".join(out)
 
 
 def markdown_start() -> str:
     s = summary()
-    out = ["| scenario | learning | premium products sold at the scenario's own cost, Mt a year | membrane that needs, million m² a year | "
-           "the switch, million m² a year | do premium products alone cross it? |", "|---|---|---|---|---|---|"]
+    out = ["| scenario | learning | sold at the scenario's own cost, Mt a year: premium products, premium products without "
+           f"{LARGE_PREMIUM_NAME}, everything | membrane each needs, million m² a year | the switch, million m² a year | "
+           "which of the three cross it alone? |", "|---|---|---|---|---|---|"]
+    yn = lambda b: "yes" if b else "no"
     for k in SCEN:
         for case in CASES:
             st = s["start"][(k, case)]
             sw = "never" if st["switch_m2"] == NEVER else f"{st['switch_m2'] / 1e6:.1f}"
-            out.append(f"| {_name(k)} | {case} | {st['premium_mt']:.2f} | {st['area_m2'] / 1e6:.2f} | {sw} | {'yes' if st['crosses'] else 'no'} |")
+            out.append(f"| {_name(k)} | {case} | {st['premium_mt']:.2f}, {st['small_mt']:.2f}, {st['whole_mt']:.2f} | "
+                       f"{st['area_m2'] / 1e6:.2f}, {st['small_area_m2'] / 1e6:.2f}, {st['whole_area_m2'] / 1e6:.2f} | {sw} | "
+                       f"{yn(st['crosses'])}, {yn(st['small_crosses'])}, {yn(st['whole_crosses'])} |")
     return "\n".join(out)
 
 
@@ -346,8 +373,8 @@ def markdown_passes() -> str:
            "from later rounds | resting point with demand anchored on premium meats (its own share there) |", "|---|---|---|---|---|---|"]
     for k in ("central", "best"):
         p, a = s["passes"][k], s["anchored"][k]
-        out.append(f"| {_name(k)} | ${p['own'][0]:.2f}, {p['own'][1]:.2f}% | ${p['first'][0]:.2f}, {p['first'][1]:.2f}% | ${p['rest'][0]:.2f}, {p['rest'][1]:.2f}% | "
-                   f"{p['later_rounds']:.0%} | ${a['cost']:.2f}, {a['share']:.2f}% ({a['own']:.2f}%) |")
+        out.append(f"| {_name(k)} | ${p['own'][0]:.2f}, {_pct(p['own'][1])} | ${p['first'][0]:.2f}, {_pct(p['first'][1])} | ${p['rest'][0]:.2f}, {_pct(p['rest'][1])} | "
+                   f"{p['later_rounds']:.0%} | ${a['cost']:.2f}, {_pct(a['share'])} ({_pct(a['own'])}) |")
     return "\n".join(out)
 
 
@@ -359,7 +386,7 @@ def markdown_sensitivity() -> str:
         cells = []
         for k in ("central", "best"):
             r = s["sens"][k][i]
-            cells.append(f"${r['cost'][0]:.2f} to ${r['cost'][1]:.2f}, {r['share'][0]:.2f}% to {r['share'][1]:.2f}%")
+            cells.append(f"${r['cost'][0]:.2f} to ${r['cost'][1]:.2f}, {_pct(r['share'][0])} to {_pct(r['share'][1])}")
         out.append(f"| {SENS_NAMES[name]} ({v.lo:g} to {v.hi:g} {v.unit}) | " + " | ".join(cells) + " |")
     return "\n".join(out)
 
@@ -369,7 +396,7 @@ def markdown_response() -> str:
     out = [f"| premium product | price against it: at ${r['costs'][0]:.2f} a kilo of cells, at ${r['costs'][1]:.2f} | cultivated meat's share of it | "
            "percent more share per percent lower price |", "|---|---|---|---|"]
     for n, v in r["products"].items():
-        out.append(f"| {n} | {v['R'][0]:.2f}×, {v['R'][1]:.2f}× | {v['share'][0]:.2f}%, {v['share'][1]:.2f}% | {v['response']:.1f} |")
+        out.append(f"| {n} | {v['R'][0]:.2f}×, {v['R'][1]:.2f}× | {_pct(v['share'][0])}, {_pct(v['share'][1])} | {v['response']:.1f} |")
     out.append(f"| history, along the demand curve (farmed salmon while still a premium product) | | | {HISTORY_ALONG_CURVE[0]:g}–{HISTORY_ALONG_CURVE[1]:g} |")
     out.append(f"| history, in total, with demand growth mixed in (salmon, US broilers, US catfish) | | | {HISTORY_TOTAL[0]:g}–{HISTORY_TOTAL[1]:g} |")
     return "\n".join(out)

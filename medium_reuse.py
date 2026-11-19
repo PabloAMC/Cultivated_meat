@@ -11,7 +11,8 @@ back. A device that takes the waste out of the liquid and returns it could save 
 
 The accounting that matters
 ---------------------------
-To take a mole of ammonia out of a tank held at 5 mmol/L, 200 litres of liquid must leave the tank through the cell filter,
+To take a mole of ammonia out of a tank held at 4 mmol/L (the scenarios' limit, `sc_nh3_limit`), 250 litres of liquid must leave
+the tank through the cell filter,
 whether they are thrown away or cleaned and returned. So a device ON THE PERMEATE (the cell-free liquid the filter passes)
 saves the medium, the growth factors and the protectant in the liquid it returns, but not the filter. Only a device that
 takes the waste out with no liquid drawn through the cell filter (dialysis across the culture, a sorbent or an exchange
@@ -214,8 +215,9 @@ def markdown(key: str = "central") -> str:
     r0, t = s["base"], s["base"]["medium_terms"]
     bleed = 1000.0 / r0["density"]
     name = S.SCENARIOS[key].name
+    nh3_limit = base(key)[0].get("nh3_limit", value("pf_nh3_limit"))     # the scenarios' own limit (sc_nh3_limit, 4 mmol/L)
     out = [f"| what sets the litres of medium ({name}) | litres per kg of cells |", "|---|---|",
-           f"| ammonia, held at {value('pf_nh3_limit'):.0f} mmol/L | {t['ammonia']:.1f} |",
+           f"| ammonia, held at {nh3_limit:.0f} mmol/L | {t['ammonia']:.1f} |",
            f"| the least flow the cells need for everything else | {t['least flow']:.1f} |",
            f"| lactate, within the salt limit | {t['lactate']:.1f} |",
            f"| the nutrients, as a concentrate | {t['nutrients']:.1f} |",

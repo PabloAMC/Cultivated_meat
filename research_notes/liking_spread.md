@@ -2,6 +2,8 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
+> Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
+
 Date: 2026-11-18. **The model's default since that day** (`market_share.share`: `liking_sd`, `equal_price_share`). This module,
 `liking_spread.py`, fits the spread and compares readings of the long run; test: `tests/test_liking_spread.py`. Evidence:
 `demand_heterogeneity_evidence.md`.
@@ -49,12 +51,12 @@ the experiment. The table gives the model's own-price elasticity at four prices 
 
 ## 3. The share at equal price in the long run
 
-| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Today | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
+| the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | 0.01% | 0.1% | 1.6% |
-| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | 0.02% | 0.5% | 4.9% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | 0.2% | 4.8% | 25.8% |
-| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | 0.01% | 0.2% | 10.7% |
+| first contact (as measured) | 5% | 3.4%, 2.4%, 1.1%, 0.2%, 0.02% | under 0.001% | 0.02% | 0.9% |
+| novelty fades by what the model assumes | 13% | 10.1%, 7.7%, 3.7%, 0.8%, 0.1% | under 0.001% | 0.08% | 2.8% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 49% | 41.7%, 35.8%, 25.4%, 9.4%, 2.3% | under 0.001% | 1.0% | 16.7% |
+| the model before 2026-11-18 (every shopper alike) | 49% | 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | under 0.001% | 0.03% | 5.4% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 - **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) took cultivated meat from 5% to
@@ -63,13 +65,19 @@ the experiment. The table gives the model's own-price elasticity at four prices 
   8.6 utils, three times the wariness the model assumes: shoppers indifferent between the two meats on average.
 - **The middle reading lands on premium real meats without being fitted to them**: 3.7% at twice the price against their 3.7%,
   0.8% at three times against 1.5%.
-- **It moves the answer more than any cost**: Central from 0.1% to 4.8% of world meat and the best case from
-  1.6% to 25.8% across the three readings.
+- **It moves the answer about fifty-fold for Central**: from 0.02% to 1.0% of world meat across the three readings, and
+  the best case's cells from 0.9% to 16.7%. Until the 2026-11-19 audit batch this was more than any cost did. For Central that
+  no longer holds: across the 8-in-10 range of its cost of cells ($27 to $57 a kilo) the share at the 13% setting runs from 0.2%
+  to under 0.001%. At $33 a kilo of cells most products sit at two to ten times their meat's price, where the share falls
+  fast with every dollar.
+- The world shares in the table use each scenario's cost of cells with the reading's own demand. The best case's row is its cells
+  at these readings, not the best case's own 55% at equal price (`scenarios.py`), which gives 19.9%.
 
 ## 4. The default chosen
 
-- `liking_sd` = 5 utils (fitted; range 3.5–6) and `equal_price_share` = 13% (judgement; range 5–49%, drawn in the bands as a
-  triangle with that mode, median about 19%).
+- `liking_sd` = 5 utils (fitted; range 3.5–6) and `equal_price_share` = 13% (judgement). Since 2026-11-19 it is drawn in the bands
+  from a lognormal with median 13% (5th–95th percentile about 3–52%). Before, it was drawn from a triangle from 5% to 49% with
+  its mode at 13%, whose median was 21%, well above the setting (audit finding D1).
 - Why 13%: a third of first-contact aversion fading, by two routes. The model's own novelty term is 2.8 of the 8.6 utils between first
   contact and indifference. In the survey corrections (`premium_curve.CORRECTIONS`), first contact is 45% of meat's price dearer
   (novelty 30, "unnatural" 20, less 5 for no killing) and the long-run central case is 30% (novelty halved, "unnatural" kept): 15 of

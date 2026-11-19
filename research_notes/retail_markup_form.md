@@ -2,6 +2,8 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
+> Repinned 2026-11-19 (audit batch): cells dearer (ammonia tolerance 4 mM), seafood re-priced by consumption, the tier rule replaced by a blend penalty, the equal-price share drawn around its 13% setting; see audit_2026-11-19.md.
+
 Compiled 2026-11-18, after Pablo asked whether the model's flat $5/kg markup should be multiplicative, as Gemini argued. The
 answer changed the model: since this note the shelf price is **(cost + a) / (1 − m)**, with per-kg costs a = $2.5/kg
 (`markup_add`) and the shop's gross margin m = 28% of the shelf price (`retail_margin`). The numbers in sections 2 and 4 come
@@ -73,8 +75,10 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
-point share by three-fifths, from 1.29% to 0.53%, and the best case's by a quarter, from 6.63% to 4.97%. (These shares use the
-spread of liking, the costs of 2026-11-19 and the rebuilt cut cost; before the cut cost was rebuilt they were 0.50% to 0.13% and
+point share by three-quarters, from 0.34% to 0.08%, and the best case's by a third, from 4.29% to 2.81%. The best case here is its
+cells ($11.46 a kilo) with the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the
+costs and demand of the 2026-11-19 audit batch: cells dearer, seafood re-priced, the tier rule replaced. Before that batch, with
+the rebuilt cut cost, they were 1.29% to 0.53% and 6.63% to 4.97%; before the cut cost was rebuilt, 0.50% to 0.13% and
 4.48% to 2.74%; when the rule was changed, 0.41% to 0.16% and 8.0% to 3.7%; and with the premium markets sized from data and every
 shopper alike, 0.14% to 0.04% and 7.4% to 3.1%.)
 

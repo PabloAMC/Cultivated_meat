@@ -16,11 +16,15 @@ from inputs import value
 # repinned 2026-11-19: best's medium is now the nutrient floor ($2.00 a kilo whatever the litres, against $0.15 a litre before);
 # the other scenarios' growth factors are inside their complete-medium price, which cannot cost less than the nutrients plus those
 # growth factors (it binds at the model cap's 16 L/kg, not at 27 g/L's 37 L/kg)
+# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L lowers the selected cells' unwashed cap from 62 to 56 g/L (central and
+# central_lean, model cap); best (capped by the least medium flow) and its 27 g/L figures do not move. Cautious: glucose from the
+# cells' balance gives the published cells 4.8 mol of lactate a kilo, and an unwashed tank is now capped by whichever waste is
+# further above the enhanced cells' (lactate here), so its cap falls from 52 to 25 g/L, below the 27 g/L shown for meat cells
 GOLDEN = {
     "best": {("fedbatch", "model"): 14.1793, ("fedbatch", "shown"): 39.1678, ("filldraw", "model"): 14.2754},
-    "central": {("fedbatch", "model"): 40.1594, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 43.3466},
-    "central_lean": {("fedbatch", "model"): 27.9892, ("filldraw", "model"): 29.9716},
-    "cautious": {("fedbatch", "model"): 57.3257, ("filldraw", "shown"): 121.6584},
+    "central": {("fedbatch", "model"): 44.1295, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 47.6679},
+    "central_lean": {("fedbatch", "model"): 30.5932, ("filldraw", "model"): 32.7951},
+    "cautious": {("fedbatch", "model"): 113.5649, ("filldraw", "model"): 130.6077, ("filldraw", "shown"): 130.6077},
 }
 
 
@@ -39,16 +43,26 @@ def check() -> list:
             # the design chosen again is never dearer than the one chosen for perfusion (vessels.cell holds it fixed)
             if c[(m, "model")]["cost"] > V.cell("stirred", m, base)["cost"] + 1e-9:
                 fails.append(f"{k} {m}: re-chosen design dearer than the perfusion design")
-            # a thinner culture is dearer, and its density is the one shown for meat cells
-            if not c[(m, "shown")]["cost"] > c[(m, "model")]["cost"]:
-                fails.append(f"{k} {m}: the 27 g/L cost should exceed the model-cap cost")
-            if not close(c[(m, "shown")]["density"], value("vm_x_meat_shown"), 1e-9):
-                fails.append(f"{k} {m}: density at the cap should be {value('vm_x_meat_shown')}")
+            # a thinner culture is dearer, and its density is the one shown for meat cells.
+            # 2026-11-19 audit batch: unless the model's own cap is already below it (cautious: lactate stops the published
+            # cells' unwashed tank at 25 g/L, under the 27 g/L shown); then the two columns are the same tank
+            model_x = c[(m, "model")]["density"]
+            if model_x > value("vm_x_meat_shown") + 1e-9:
+                if not c[(m, "shown")]["cost"] > c[(m, "model")]["cost"]:
+                    fails.append(f"{k} {m}: the 27 g/L cost should exceed the model-cap cost")
+                if not close(c[(m, "shown")]["density"], value("vm_x_meat_shown"), 1e-9):
+                    fails.append(f"{k} {m}: density at the cap should be {value('vm_x_meat_shown')}")
+            elif not (close(c[(m, "shown")]["density"], model_x, 1e-9) and close(c[(m, "shown")]["cost"], c[(m, "model")]["cost"], 1e-9)):
+                fails.append(f"{k} {m}: the model's cap ({model_x:.1f} g/L) is under the density shown, so both columns should be that tank")
             # no perfusion is dearer than perfusion in every scenario
             if not c[(m, "model")]["cost"] > c["perfusion"]:
                 fails.append(f"{k} {m}: the fallback should cost more than perfusion")
             if not c[(m, "shown")]["share"] <= c[(m, "model")]["share"] <= c["perfusion_share"] + 1e-9:
                 fails.append(f"{k} {m}: shares out of order")
+        # only the cautious case's own cap is under the density shown for meat cells
+        if (c[("fedbatch", "model")]["density"] < value("vm_x_meat_shown")) != (k == "cautious"):
+            fails.append(f"{k}: fed-batch cap {c[('fedbatch', 'model')]['density']:.1f} g/L against {value('vm_x_meat_shown')} shown: "
+                         "rewrite section 2 of research_notes/no_perfusion_downside.md")
         for key, want in GOLDEN.get(k, {}).items():
             if not close(c[key]["cost"], want, 1e-4):
                 fails.append(f"{k} {key}: {c[key]['cost']:.4f} != pinned {want}")

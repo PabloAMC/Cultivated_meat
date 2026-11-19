@@ -2,6 +2,8 @@
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
+> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
+
 Date: 2026-11-15; costs recomputed 2026-11-16 on the model after PR #32 (protectant, antifoam). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
 its URL and how much of it was read is `filter_flux_sources/flux_limit_sources.md`. Costs are 2025 dollars per kg of wet cells. No default changed.
 
@@ -65,18 +67,22 @@ by volume with a standard microfiltration fibre.
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|
-| Best case | **$9.96** | $16.10 | $16.16 | $30.83 |
-| Central | **$26.43** | $45.60 | $45.80 | $91.64 |
+| Best case | **$11.46** | $20.62 | $20.71 | $42.63 |
+| Central | **$32.80** | $62.23 | $62.50 | $132.87 |
 
-- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.2. The
-  membrane's throughput moves it by $19 to $65.
-- **At the measured CHO throughput, Central costs $46–92.** That is not a forecast: the data are from thinner cultures of a pharma line.
+- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.3. The
+  membrane's throughput moves it by $29 to $100.
+- **These rows grew with the 2026-11-19 audit.** Central now filters 35 litres a kilo (28 before), and a lost run throws its
+  membranes away part-used.
+- **Caveat:** the short-life columns include the lost-run factor (life × 85% in Central), as the default does; a membrane replaced
+  several times a run loses less than that to a lost run, so they are high by up to about 15% of the membrane cost.
+- **At the measured CHO throughput, Central costs $62–133.** That is not a forecast: the data are from thinner cultures of a pharma line.
   It says the default sits at the generous end of the evidence, and the retention note's 35% for a filter holding 258 g/L for a
   month is the right order of magnitude.
 
 ## 5. What this means
 
-1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $45.60. The note leaves it at
+1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $62.23. The note leaves it at
    3,960, the model's value since PR 18, because the measured data are for CHO at thinner densities. The model's range already
    spans 900–5,500.
 2. **The experiment that settles it:** run a hollow-fibre filter on a meat cell line at 10–25% cells by volume at 2–5 L/m²/h and

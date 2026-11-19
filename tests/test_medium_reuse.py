@@ -52,8 +52,32 @@ def check() -> list:
     if abs(M.exchange_share() - 0.5) > 1e-9:
         fails.append("the exchange membrane's share of the filter's cost has moved; the route's name says 'twice'")
 
-    c, p = s["central"], M.per_litre("central")
+    # 2026-11-19 audit batch: the published cells' glucose comes from their own balance (4.5 mol a kilo at a lactate yield
+    # of 1.05), so lactate, not ammonia, sets their litres (95.5, was 28). An ammonium exchanger then saves nothing, and a
+    # route that takes lactate saves more than it does in Central. Before, reuse was capped at $4.6 for these cells.
     names = list(M.routes())
+    t0, c0 = s["today"], s["central"]
+    if t0["base"]["medium_set_by"] != "lactate" or c0["base"]["medium_set_by"] != "ammonia":
+        fails.append("lactate should set the published cells' litres and ammonia Central's")
+    if t0["sorbent"]["saving"] > 1e-9:
+        fails.append("an ammonium exchanger should save nothing where lactate sets the litres")
+    if not t0["routes"][names[0]]["saving"] > c0["routes"][names[0]]["saving"] > 0:
+        fails.append("electrodialysis should save more for the published cells than in Central")
+    if not t0["bounds"]["across the culture"]["saving"] > c0["bounds"]["across the culture"]["saving"]:
+        fails.append("a perfect device should be worth more for the published cells than in Central")
+    # reuse does not replace better cells: the published cells with the best route modelled cost more than Central with none
+    if not min(c["total"] for c in t0["routes"].values()) > c0["base"]["total"]:
+        fails.append("the published cells with the best route should still cost more than Central with no device")
+    # in Central the routes keep their order: electrodialysis beats dialysis across the culture at the filter's cost, and the
+    # exchanger beats dialysis of the permeate with a cleaned dialysate
+    if not (c0["routes"][names[0]]["total"] < c0["routes"][names[3]]["total"]
+            and c0["sorbent"]["total"] < c0["routes"][names[2]]["total"]):
+        fails.append("the order of Central's routes has changed; rewrite section 2 of the note")
+    # the table's ammonia row names the limit the scenarios use
+    if f"| ammonia, held at {M.base('central')[0]['nh3_limit']:.0f} mmol/L |" not in M.markdown():
+        fails.append("the ammonia row should name the scenarios' own limit (sc_nh3_limit)")
+
+    c, p = s["central"], M.per_litre("central")
     ed, dp, dc, dh = (c["routes"][names[i]] for i in (0, 2, 3, 4))
     quoted = [f"${p['all']:.2f}", f"${p['filter']:.2f}", f"{p['removal_to_pay'] * 100:.0f}%",
               f"${c['sorbent']['saving']:.1f}", f"${ed['saving']:.1f}", f"${dp['saving']:.1f}", f"${dc['saving']:.1f}",

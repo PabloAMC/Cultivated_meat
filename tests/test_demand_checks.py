@@ -32,13 +32,20 @@ def check() -> list:
     i3 = D.R_GRID.index(3.0)
     if not (0.4 * s["premium_3x"] < v[0]["curve"][i3] < 2.0 * s["premium_3x"] and v[1]["curve"][i3] < 0.2 * s["premium_3x"]):
         fails.append("at 3 times the price the model should be near premium meats and the model before far below; rewrite the note")
-    # 2026-11-19: cuts cost 0.8 cells + matrix + assembly, so at Central cultivated prime beef and sushi-grade seafood sell at about their
-    # meat's price or below. There the response is under farmed salmon's range; the products still at a premium stay inside it.
+    # 2026-11-19 audit batch: the tier rule is gone, so premium products are as price-sensitive as any other, and cells are dearer.
+    # The check against farmed salmon now FAILS, and the note says so: the premium products still dearer than their meat (organic
+    # chicken 3.3x, heritage pork 2.7x, premium fillets and shrimp 2.2x, a row new with the seafood re-pricing) respond at 5.2-7.5,
+    # more than three times the top of salmon's range (1.5); prime beef (0.96x) and sushi-grade seafood (1.24x), near equal price,
+    # respond at 2.6 and 3.3, also above it. (Was: the dearer pair inside salmon's range at 1.3-1.5, the near-parity pair below it.)
     resp, (lo, hi) = L.summary()["response"]["products"], D.SALMON_ALONG_CURVE
-    if not all(resp[n]["R"][0] < 1.1 and resp[n]["response"] < lo for n in ("beef (prime/wagyu)", "seafood (sushi)")):
-        fails.append("prime beef and sushi-grade seafood are no longer near equal price with a response below salmon's range; rewrite the note")
-    if not all(resp[n]["R"][0] > 2.0 and lo <= resp[n]["response"] <= hi for n in ("chicken (organic)", "pork (heritage)")):
-        fails.append("organic chicken and heritage pork no longer respond inside salmon's range; rewrite the note")
+    dearer = [n for n, v in resp.items() if v["R"][0] > 1.5]
+    if sorted(dearer) != ["chicken (organic)", "pork (heritage)", "seafood (premium fillet, shrimp)"]:
+        fails.append("the premium products still dearer than their meat at Central's cost have changed; rewrite the note")
+    if not all(resp[n]["response"] > 3.0 * hi for n in dearer):
+        fails.append("the premium products still dearer than their meat no longer respond at over three times salmon's range; "
+                     "the salmon check may pass again: rewrite the note")
+    if not all(resp[n]["R"][0] < 1.3 and hi < resp[n]["response"] < 3.0 * hi for n in ("beef (prime/wagyu)", "seafood (sushi)")):
+        fails.append("prime beef and sushi-grade seafood are no longer near equal price with a response above salmon's range; rewrite the note")
     for k in D.SCEN:
         if abs(v[0]["world"][k] - s["model_world"][k]) > 1e-9:
             fails.append(f"{k}: the first variant is not the model's own share")

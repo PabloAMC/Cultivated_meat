@@ -67,7 +67,7 @@ def duty(kw: dict | None = None) -> dict:
     return {"vessel_m3": v, "liquid_m3": liquid, "density": r["density"], "phi": phi, "kg_h": harvest,
             "kg_year": tonnes * 1000.0, "medium_m3_h": medium, "bleed_m3_h": bleed, "permeate_m3_h": permeate,
             "outflow_m3_h": medium, "vvd_medium": medium * 24.0 / liquid, "vvd_permeate": permeate * 24.0 / liquid,
-            "uptime": r["uptime"], "result": r}
+            "uptime": r["uptime"], "run_frac": r.get("run_frac", 1.0), "result": r}
 
 
 # ----------------------------------------------------------------------------
@@ -128,7 +128,10 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     kg = d["kg_year"]
     out = {"device": device, "units": 0.0, "area_m2": 0.0, "capex_k_m3": 0.0, "cons_kg": 0.0, "loss": 0.0, "holdup_m3": 0.0}
     perm_l_kg = P * 1000.0 / d["kg_h"]                                     # litres of permeate per kg grown
-    membranes = perm_l_kg * value("rt_membrane_price") / value("rt_membrane_life")
+    # a lost run throws its membranes away early: their life is the litres of a full planned run times the share of it an
+    # average start completes (as floor_physics.explore charges since 2026-11-19). Ceramics are cleaned and kept.
+    run_frac = d.get("run_frac", 1.0)
+    membranes = perm_l_kg * value("rt_membrane_price") / (value("rt_membrane_life") * run_frac)
     if device == "hoped":
         out["capex_k_m3"] = value("pf_capex_retention")
     elif device == "atf":
@@ -141,6 +144,8 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     elif device in _MEMB:
         flux, hw, price, life = (value(k) for k in _MEMB[device])
         area = P * 1000.0 / flux
+        if device != "ceramic":
+            life *= run_frac
         out.update(area_m2=area, cons_kg=perm_l_kg * price / life, capex_k_m3=area * hw * value("rt_install") / v)
     elif device == "settler":
         cells = fp.Cells(mass_pg=kw.get("mass_pg", 3000.0) if kw else 3000.0, doubling_h=24.0)

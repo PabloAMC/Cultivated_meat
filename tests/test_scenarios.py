@@ -38,7 +38,9 @@ cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
 # 2026-11-19: growth factors inside complete media prices (Central -$3.0), nutrient floor $2.00 (best +$0.30)
-for k, (lo, hi) in {"best": (9.7, 10.2), "central": (26.0, 26.8), "central_lean": (23.2, 23.9), "cautious": (36.0, 36.9)}.items():
+# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Central +$4.9, best +$1.2), a lost run pays for its membranes (Central
+# +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
+for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs: the best case needs engineering, the central one does not
@@ -161,7 +163,8 @@ for k in ("best", "central", "process"):
           f"{k}: story does not give the cost without the tricks")
     check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
 trc = S.tricks_report(S.SCENARIOS["central"].choice)
-check(abs(trc["d_no_tricks"] - 3.72) < 0.05, f"central: expected about +$3.72 without the tricks, got {trc['d_no_tricks']:.2f}")
+# 2026-11-19 audit batch: 3.72 -> 3.52 (more litres of medium per kilo at 4 mM ammonia, so the tricks' denser tank saves a little less)
+check(abs(trc["d_no_tricks"] - 3.52) < 0.05, f"central: expected about +$3.52 without the tricks, got {trc['d_no_tricks']:.2f}")
 check(len(trc["used"]) == 3, "central should list the column, the pressure and the squarer tank")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")

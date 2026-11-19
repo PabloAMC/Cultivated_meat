@@ -230,6 +230,11 @@ def summary() -> dict:
     return _SUM
 
 
+def _pct(x: float) -> str:
+    """A share in percent as text, two decimals; below 0.01% it says so and does not print a string of zeros."""
+    return "under 0.01%" if x < 0.01 else f"{x:.2f}%"
+
+
 def _p(p: dict) -> str:
     names = {"kappa": "κ", "v": "v", "pi": "loyal share", "v_l": "v loyal", "kappa_l": "κ loyal"}
     return ", ".join(f"{names[a]} {b * 100:.0f}%" if a == "pi" else f"{names[a]} {b:.2f}" for a, b in p.items())
@@ -250,8 +255,8 @@ def markdown_fits() -> str:
 def markdown_curve() -> str:
     s = summary()
     out = ["| share of the category at premium R | " + " | ".join(f"{R:g}×" for R in R_GRID) + " |", "|---|" + "---|" * len(R_GRID)]
-    out.append("| the main model | " + " | ".join(f"{curve(R, s['model']) * 100:.2f}%" for R in R_GRID) + " |")
-    out.append("| fitted to all sixteen premium products | " + " | ".join(f"{curve(R, s['main']) * 100:.2f}%" for R in R_GRID) + " |")
+    out.append("| the main model | " + " | ".join(_pct(curve(R, s['model']) * 100) for R in R_GRID) + " |")
+    out.append("| fitted to all sixteen premium products | " + " | ".join(_pct(curve(R, s['main']) * 100) for R in R_GRID) + " |")
     return "\n".join(out)
 
 
@@ -262,8 +267,8 @@ def markdown_shares() -> str:
     out = ["| scenario | cells, $/kg | the main model | " + " | ".join(f"{lab} ({s['cases'][lab]:+.0%})" for lab in labs) + " |",
            "|---|---|---|" + "---|" * len(labs)]
     for k, c in s["costs"].items():
-        out.append(f"| {S.SCENARIOS[k].name.split(':')[0]} | ${c:.2f} | **{s['model_share'][k]:.2f}%** | " +
-                   " | ".join(f"{s['shares'][k][lab]:.2f}%" for lab in labs) + " |")
+        out.append(f"| {S.SCENARIOS[k].name.split(':')[0]} | ${c:.2f} | **{_pct(s['model_share'][k])}** | " +
+                   " | ".join(_pct(s['shares'][k][lab]) for lab in labs) + " |")
     return "\n".join(out)
 
 

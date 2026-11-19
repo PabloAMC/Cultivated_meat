@@ -5,6 +5,10 @@
 
 > Recomputed 2026-11-16 on the current model (bubble protectant, antifoam's cost to oxygen transfer, bought oxygen in a yeast-style plant, dissolved oxygen held at half of air saturation, medium at least the culture that leaves with the cells).
 
+> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
+> What this changed here (section 6 only): the best case is $11.46 and Central $32.80. Central uses 35 litres a kilo, so its $0.20 medium
+> costs $7.00, and it takes a dearer amino-acid floor than before to move it. The floor itself is still $2.00.
+
 Date: 2026-11-15. Code: `nutrient_floor.py`; tests: `tests/test_nutrient_floor.py`; inputs `nf_*` in `inputs.py`. The source is
 GFI, *Amino acid cost and supply chain analysis for cultivated meat* (December 2025; Table 1 and Fig. 9), read in full from the
 PDF (text saved in `medium_cost_gfi_sources/`). Costs are 2025 dollars per kg of wet cells. No default changed.
@@ -86,23 +90,30 @@ arginine, asparagine, cystine and serine, which the cells need, so they must com
 
 **Why the cheapest tier.** The floor binds only where the medium costs no more than what the cells eat: the best case, Humbird's
 optimistic design and the setting "at the nutrient floor". The best case takes the favourable end of every input, so its floor is
-GFI's favourable end. Central and the other rungs pay the announced $0.20 a litre (28 litres a kilo, $5.72), above any floor below
-the high food-grade tier. The amino-acid price is drawn in the scenarios' bands ($5.0-11.6 a kilo, mode $6.36).
+GFI's favourable end. Central and the other rungs pay the announced $0.20 a litre (35 litres a kilo since the audit batch, $7.00, or $7.15 with the
+medium lost in lost tanks; it was 28 litres and $5.72), above any floor below the high food-grade tier. The amino-acid price is drawn in the scenarios' bands ($5.0-11.6 a kilo, mode $6.36).
 
 **What it does.** The best case $9.66 to $9.96; Humbird's optimistic design $12.51 to $12.81. Central does not move on this account
 (it moved from $29.42 to $26.43 the same day, because growth factors are now counted inside the announced medium price,
 `growth_factors_in_medium_price.md`). The medium switch's $0.05 and $0.15 a litre settings were replaced by one setting, "at the
-nutrient floor": at Central's 28 litres a kilo the floor is $0.07 a litre, and with it Central costs $25.77 (growth factors bought on
+nutrient floor": at Central's 28 litres a kilo the floor was $0.07 a litre, and with it Central cost $25.77 (growth factors bought on
 top, at 30% of Humbird's price).
+
+**After the audit batch (2026-11-19).** The best case costs $11.46 and Central $32.80. At Central's 35 litres a kilo the floor is
+$0.06 a litre, and with the setting "at the nutrient floor" Central costs $31.45 ($1.35 less; growth factors bought on top, at 30%
+of Humbird's price). The table is on this model:
 
 | amino acids | need 232 g | need 350 g | need 650 g |
 |---|---|---|---|
-| feed-grade ($6.36) | floor $2.00; best $9.96; Central $26.43 | $2.75; $10.72; $26.60 | $4.66; $12.64; $28.55 |
-| low food-grade ($11.59) | $3.22; $11.19; $27.07 | $4.58; $12.56; $28.47 | $8.06; $16.07; $32.02 |
-| high food-grade ($23.18) | $5.91; $13.90; $29.82 | $8.64; $16.66; $32.62 | $15.60; $23.67; $39.72 |
+| feed-grade ($6.36) | floor $2.00; best $11.46; Central $32.80 | $2.75; $12.21; $32.80 | $4.66; $14.14; $34.25 |
+| low food-grade ($11.59) | $3.22; $12.68; $32.80 | $4.58; $14.06; $34.17 | $8.06; $17.57; $37.73 |
+| high food-grade ($23.18) | $5.91; $15.39; $35.53 | $8.64; $18.15; $38.32 | $15.60; $25.17; $45.43 |
 
-Central's $0.20 a litre is a complete medium, so it cannot cost less than the nutrients plus the growth factors its price includes
-(about $3.0 a kilo at 28 litres). Above GFI's cheapest floor that sum passes its $5.72, and Central rises with the floor.
+The best case still moves dollar for dollar with the floor. Central's $0.20 a litre is a complete medium, so it cannot cost less than
+the nutrients plus the growth factors its price includes (about $3.7 a kilo at 35 litres). That sum passes its $7.00 only when the
+floor is above about $3.3 a kilo. So Central is now less sensitive to amino-acid prices than before the audit batch: it does not
+move at feed-grade prices and 350 g, or at low food-grade prices and 232 g (it rose at both when it used 28 litres), and it rises
+with the floor from $4.58 up.
 
 Still open: the weighted mean price (serine, arginine and glutamine are needed most; serine is dear), and a supplier's tonne quote
 for the five amino acids hydrolysate cannot supply.

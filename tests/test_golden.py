@@ -127,9 +127,12 @@ GOLDEN = {
     # 2026-11-14 (cost side re-anchored): vol 5.73401 -> 3.56104, val 9.26091 -> 6.37199, world 2.46298 -> 1.36033.
     # 2026-11-19 (a cut = 0.8 cells + $2 plant-protein matrix + $2 assembly beyond mince, was a full kilo of cells + $6 scaffold;
     # research_notes/structuring_cost.md): vol 0.246504 -> 0.612519, val 0.613635 -> 1.31535, world 0.0416619 -> 0.182953.
-    "us_pen_vol_pct":      0.612519,
-    "us_pen_val_pct":      1.31535,
-    "world_pen_vol_pct":   0.182953,
+    # 2026-11-19 audit batch (research_notes/audit_2026-11-19.md): the tier rule replaced by a blend penalty and a continuous
+    # premium offset (no tier is less price-sensitive any more), world seafood re-priced by consumption:
+    # vol 0.612519 -> 0.363114, val 1.31535 -> 0.848201, world 0.182953 -> 0.0594949.
+    "us_pen_vol_pct":      0.363114,
+    "us_pen_val_pct":      0.848201,
+    "world_pen_vol_pct":   0.0594949,
     "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  28,      # was "~25" when measured as 90% of the year-30 value
 }

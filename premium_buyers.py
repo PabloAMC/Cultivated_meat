@@ -119,7 +119,9 @@ def shares(R_x: float, p: dict, *, d: float = 0.0, R_L: float | None = LABEL_PRE
 def world_share(cost: float, p: dict, *, d: float, region: str = "global", R_L: float | None = LABEL_PREMIUM) -> dict:
     """Long-run share of meat by weight, %, for cells costing `cost`, and where cultivated meat's sales come from (fractions of its
     sales taken from conventional meat, from the label and from the rest), by the main model's roll-up (meat_market._rollup).
-    Premium tiers (wagyu, sushi salmon) get no label beside them: they are the premium product already."""
+    Products the model labels premium (meat_market.tier: prime or wagyu beef, sushi-grade seafood, organic chicken, heritage pork and,
+    since seafood was re-priced on 2026-11-19, premium fillets and shrimp) get no label beside them: they are the premium product
+    already."""
     pr = P.demand()
     income = mm.REGION_INCOME[region]
     res = value("premium_resistance")
