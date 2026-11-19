@@ -98,7 +98,8 @@ def check() -> list:
     if (lo_k, hi_k) != ("eps_own", "cult_sub_mult"):
         fails.append(f"the ends of Central's share span are now set by {lo_k} and {hi_k}; rewrite the summary")
     # pinned (2026-11-19 audit batch; before it 15 inputs moved a cost by $1 or more and 7 moved Central by more than $3)
-    pins = [("inputs", s["inputs"], 528), ("with a range", s["ranged"], 241),      # liking_tail added in the second round
+    # 2026-11-19: the retention study's aggregate and microcarrier inputs (16, 14 with a range) take 528 / 241 to 544 / 255
+    pins = [("inputs", s["inputs"], 544), ("with a range", s["ranged"], 255),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 18), ("over $3", s["over_3"], 11),
             ("move Central by $1 or more", sum(swing(k) >= 1.0 for k in order), 16),
             ("demand rows", len(s["demand_rows"]), 9)]

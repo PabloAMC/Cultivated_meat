@@ -1338,6 +1338,64 @@ REGISTRY: dict[str, Input] = {
     "rt_hc_phi_max": Input(0.12, "volume fraction", "[Bettinardi et al. 2020, abstract] the densest hydrocyclone perfusion: "
         "5e7 cells/mL in a 40 L bag", lo=0.06, hi=0.2, mode=0.12),
 
+    # --- Cells grown as aggregates or on carriers, held back by a gravity settler (retention.py `aggregates`,
+    # `microcarriers`; research_notes/retention_aggregates.md). Not used by any default. ---
+    "rt_part_phi_max": Input(0.249, "volume fraction", "[model rule, pf_x_visc] the most of the tank's volume that aggregates "
+        "or loaded carriers, with the liquid inside them, may take: the model's own thickness limit for single cells (258 g/L "
+        "is a quarter of the volume), applied to the particles, since the viscosity of a suspension follows the volume its "
+        "particles take, not their size", lo=0.20, hi=0.35, mode=0.249,
+        note="Vero cultures ran at 10 g/L of Cytodex 3, about 15% of the volume in beads (Eppendorf note 414, snippet); no "
+             "source gives a firm upper limit for beads or aggregates in a stirred tank"),
+    "rt_part_loss": Input(0.03, "of cells grown", "[settling-tube patent, snippet: every bead held, over 95% of cells held; "
+        "Huang 2020, full: a plain dip-tube settler let aggregates go] share of the grown cells that leave with the cleared "
+        "liquid as single cells or small clumps", lo=0.01, hi=0.08, mode=0.03),
+    "rt_agg_d_min_um": Input(100.0, "um", "[Huang 2020 and Manstein 2021, full: aggregates are reseeded at 100-150 um and "
+        "grow to 250-300 um] the smallest aggregate the settler must hold: a freshly broken-up aggregate",
+        lo=60.0, hi=150.0, mode=100.0),
+    "rt_agg_d_max_um": Input(300.0, "um", "[Huang 2020, full: mean held below 300 um by stirring, passaged every 5 days; "
+        "Manstein 2021, full: 250-280 um at 80 rpm, 320-480 um at 60 rpm] the largest aggregate before it is broken up",
+        lo=200.0, hi=450.0, mode=300.0,
+        note="aggregates grow about 40-50 um a day and neither split nor merge on their own (Manstein 2021); a 33-day run "
+             "needs a break-up step every 3-5 days, which nobody has shown in continuous culture"),
+    "rt_agg_cell_share": Input(0.75, "of aggregate volume", "[spheroid extracellular space about 15% (arXiv 2011.01131, "
+        "snippet); random packing of spheres 0.64; iPSC aggregates hold cavities (Manstein 2021, full)] share of an "
+        "aggregate's volume that is cells; the rest is liquid that moves with it", lo=0.60, hi=0.85, mode=0.75),
+    "rt_agg_phi_shown": Input(0.04, "volume fraction", "[Manstein 2021, full: 33-35e6 iPSC/mL in 150 mL, 7 days, 20-40 um "
+        "outflow filter] the densest aggregate culture in perfusion found; about 40 g/L. The largest held back in perfusion: "
+        "8 L (Huang 2020, full, a spiral settler with a back-flushed 20 um filter)", lo=0.03, hi=0.06, mode=0.04),
+    "rt_o2_diff_tissue": Input(2.0e-9, "m2/s", "[Grimes & Currell, bioRxiv 271890, full: 2e-9 used for spheroids] "
+        "oxygen's diffusivity inside an aggregate; water at 37 C is about 3e-9, tissue is lower",
+        lo=1.5e-9, hi=2.5e-9, mode=2.0e-9),
+    "rt_o2_diff_water": Input(3.0e-9, "m2/s", "[typical] oxygen's diffusivity in medium at 37 C (about 3e-9)"),
+    "rt_o2_sherwood": Input(10.0, "-", "[calculation: Kolmogorov-scale mass transfer to a 200 um particle in a stirred tank at "
+        "0.01-0.1 W/kg gives Sh of about 6-15; Sh = 2 in still liquid] Sherwood number of the liquid film around an "
+        "aggregate", lo=3.0, hi=20.0, mode=10.0,
+        note="at Sh = 10 the film takes about a fifth of the oxygen's drop from the liquid to an aggregate's middle"),
+    "rt_o2_prolif": Input(0.026, "mmol O2/L", "[Gomes et al. 2016, PLoS ONE, PMC5004916, full: about 20 mmHg sustains "
+        "proliferation, half of it is lost below] dissolved oxygen below which a cell inside an aggregate is taken not to "
+        "grow; 20 mmHg at 1.3 umol/L per mmHg", lo=0.013, hi=0.065, mode=0.026,
+        note="10 mmHg is where hypoxia stains appear; 42-57 mmHg is where necrosis began in tumour spheroids in "
+             "air-saturated medium (Mueller-Klieser 1982, snippet)"),
+    "rt_mc_d_um": Input(190.0, "um", "[Cytiva Cytodex 1 datasheet, snippet: median 190 um, 147-248] diameter of a "
+        "swollen carrier bead; Bodiou 2020 (full) advises no less than 100 um for edible carriers",
+        lo=100.0, hi=250.0, mode=190.0),
+    "rt_mc_cells_cm2": Input(1.8e5, "cells/cm2", "[El Wajgali 2011, full: 3.9e6 Vero/mL on 5 g/L Cytodex 1, 106-311 cells "
+        "a bead; Eppendorf note 414, snippet: 8e6/mL on 10 g/L Cytodex 3, about 3e5/cm2] cells per cm2 of bead surface "
+        "at harvest; above about 1.5e5 the layer is more than one cell deep", lo=1.0e5, hi=3.0e5, mode=1.8e5),
+    "rt_mc_solids": Input(0.07, "g dry/mL of bead", "[Cytiva datasheet, snippet: 4,400 cm2/g and 4.3e6 beads/g at 190 um "
+        "give 0.07 g of dextran per mL of swollen bead] dry carrier per mL of swollen bead; an edible hydrogel bead of "
+        "gelatin, alginate or plant protein is taken alike", lo=0.04, hi=0.20, mode=0.07),
+    "rt_mc_density": Input(1.03, "g/mL", "[Cytiva datasheet, snippet: Cytodex 1 1.03, Cytodex 3 1.04] density of a "
+        "swollen carrier bead"),
+    "rt_mc_price": Input(10.0, "$/kg dry", "[assumed; no price for an edible carrier was found] an edible carrier made "
+        "from food gelatin, chitosan or plant protein, which trade at a few to tens of dollars a kg before they are made "
+        "into beads. Cytodex 1 sells at about EUR 7,600 a kg (Fisher, 500 g pack, snippet)", lo=3.0, hi=50.0, mode=10.0,
+        note="the carrier is eaten with the cells: it stays in the product and is not reused"),
+    "rt_mc_phi_shown": Input(0.02, "volume fraction", "[Eppendorf note 414, snippet: 8e6 Vero/mL on Cytodex 3 in 3 L with a "
+        "spin filter; El Wajgali 2011, full: 3.9e6/mL] the densest microcarrier perfusion found, about 20 g/L; a patent "
+        "claims 1-2e7/mL (snippet). Carriers have run at up to 6,000 L in vaccine plants (snippet)",
+        lo=0.01, hi=0.04, mode=0.02),
+
     # --- The nutrient floor, bottom-up from GFI's amino-acid prices (nutrient_floor.py; research_notes/nutrient_floor.md) ---
     # Not used by any default: nutrient_floor.py reprices the scenarios through explore()'s own `aa_bulk_price`.
     "nf_aa_price_feed": Input(6.36, "$/kg AA", "[GFI amino acid analysis, Dec 2025, Table 1, read in full; unweighted mean of 22 "

@@ -2,6 +2,12 @@
 
 ## 2026-11-19
 
+**Cell retention: aggregates and edible microcarriers** (`retention.py`, `research_notes/retention_aggregates.md`; defaults unchanged)
+- Two membrane-free routes added to the retention study. Cells grown as 100-300 µm aggregates settle fast enough for a plain settler:
+  Central $20.4 a kilo against $32.8 with the filter loop; oxygen does not limit aggregates under about 300 µm. Unshown: the densest
+  aggregate culture is about 40 g/L for a week; about 8% by 2035 at Central's density. Edible microcarriers hold Central to 26 g/L
+  ($84) because the beads fill the tank.
+
 **Shoppers' liking: a Student's t spread, and an integration error found** (`market_share.py`, `inputs.py`,
 `liking_spread.py --families`, `research_notes/liking_spread.md`; **defaults changed**)
 - The normal spread of 5 utils fitted on 2026-11-18 was integrated on 15 points, too few for a spread that wide. Integrated properly it
