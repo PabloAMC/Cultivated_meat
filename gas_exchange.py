@@ -655,11 +655,11 @@ FEED, SELECT, GE = "feed or process", "selection or adaptation", "genetic engine
 CELL_CASES = {
     "floor": ("the floor's assumption (Humbird's enhanced cells)", {}, GE),
     "floor_noge": ("the floor's cell by selection and feed only (ammonia 0.14 with glutamine replaced, lactate "
-                   "0.39 per glucose as adapted CHO)", {"nh3_kg": 0.14, "lac_yield": 0.39}, SELECT),
+                   "0.39 per glucose as adapted CHO)", {"nh3_kg": 0.14, "lac_yield": 0.39, "glc_balance": True}, SELECT),
     "best_meat": ("best shown in meat cells (bovine, glutamine replaced)",
-                  {"doubling_h": 42.9, "nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84}, FEED),
+                  {"doubling_h": 42.9, "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": True}, FEED),      # glucose from the cells' balance (2026-11-19)
     "ordinary": ("ordinary meat cells (bovine, with glutamine)",
-                 {"doubling_h": 25.7, "nh3_kg": 0.70, "lac_yield": 1.05, "glc_kg": 0.84}, "none"),
+                 {"doubling_h": 25.7, "nh3_kg": 0.70, "lac_yield": 1.05, "glc_balance": True}, "none"),
 }
 TANK_CASES = {
     "sparger": ("sparger only", {}, FEED),

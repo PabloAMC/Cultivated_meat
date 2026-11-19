@@ -165,7 +165,7 @@ SWITCHES = (
         Setting("floor", "At the nutrient floor: only what the cells eat", {"medium_price": 0.0}, FEED,
                 "No one has reported it. The medium costs what the cells take up, at GFI's feed-grade amino-acid prices: $2.00 a "
                 "kilo of cells (232 g of amino acids at $6.36, glucose, salts and vitamins), whatever the litres; growth factors "
-                "are bought on top (the growth-factor switch). At Central's 28 litres a kilo that is about $0.07 a litre."),
+                "are bought on top (the growth-factor switch). At Central's 35 litres a kilo that is about $0.06 a litre."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid"), "medium_complete": True}, FEED,
                 "What several companies announced for 2025. A complete medium: growth factors are in the price."),
         Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high"), "medium_complete": True}, NOTHING,
@@ -282,7 +282,8 @@ SCENARIOS = {
         "central", "3. Plus cells selected to grow faster on the low-waste feed (Central)",
         "The cells of rows 1 and 2 already make little ammonia, on a changed feed, but that feed slowed them. Selecting the best lines "
         "on it wins back part of the speed: the cells double every 36 hours, not 43. This needs no engineering. They also make less "
-        "lactate, which saves nothing while ammonia sets the litres of medium. The plant is food-grade. The tank clears CO₂ without "
+        "lactate, and that is the largest saving on the ladder: the published cells turn most of their glucose into lactate, which "
+        "sets their litres of medium. The plant is food-grade. The tank clears CO₂ without "
         "more bubbles.",
         "The cells have been measured, or selection can reach them. Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
@@ -581,7 +582,7 @@ MC_PRIORS = {
 # their ammonia and lactate; drawn, it would double the best case's median); and the salt the cells tolerate (drawn, it
 # moves the best case's median by about $0.1 and makes each band forty times slower, because a lower limit sets off the
 # CO2-level search in explore). The ammonia the cells tolerate is drawn because no switch sets it: every scenario takes
-# Humbird's 5 mmol/L.
+# sc_nh3_limit (4 mmol/L since 2026-11-19; Humbird's optimistic design keeps his 5).
 # `sc_wide_bands` = 0 restores the narrower bands.
 MC_ESTIMATES = (("nh3_limit", "pf_nh3_limit"), ("protectant_price", "pf_protectant_price"),
                 ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"))
