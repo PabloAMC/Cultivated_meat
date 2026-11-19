@@ -227,7 +227,7 @@ def build_model() -> dict:
         # so the page's band and the numbers quoted in RESULTS.md cannot sample different sets.
         # the short version of the page (page_scenarios.js, easyRender): three cases in plain words, no numbers typed here
         "easy": {"cases": [
-            {"key": "today", "label": "Today's cells",
+            {"key": "today", "label": "Published cells",
              "say": "The best meat cells measured so far, in an ordinary tank. Nothing in it is new, but nobody has run it at this size."},
             {"key": "central", "label": "Central case",
              "say": "Changes to the feed and the tank, cheaper inputs, and cells selected to grow faster. No genetic engineering. "
@@ -1407,7 +1407,7 @@ what it would cost to grow, what it would cost in the shop, and how much of the 
 
 <section id="answer" data-easy>
 <h2 class="sech">What cultivated meat could cost, and what it would take</h2>
-<p class="easysum">The table of cases, from today's cells to the best case, with what each one assumes and how sure the numbers are.</p>
+<p class="easysum">The table of cases, from the published cells to the best case, with what each one assumes and how sure the numbers are.</p>
 <p class="lede2">There is no single cost. How cheap a kilo of cells can get depends on assumptions that nobody has tested together. These include how
 little waste the cells make, how fast they grow, how the plant is built and how much gas the cells can stand. Each row below is one
 <b>scenario</b>. A scenario is a complete set of those assumptions, together with what has to go right for it. <b>The first five rows are a
@@ -1777,12 +1777,12 @@ which the model was tuned to, are left out.) An observed-to-model ratio far from
       <b>How firm are they?</b> Each scenario's switches stay fixed, but the estimates behind it can be off. These are the plant
       estimate, the retention device, the financing, the upkeep share of respiration, the medium price and the loss rate.
       With those uncertain, the central case costs ${{CENTRAL_COST_P50}}/kg at the median (80% range ${{CENTRAL_COST_P10}}&ndash;{{CENTRAL_COST_P90}}).
-      The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}), today's cells ${{TODAY_COST_P50}}
+      The best case costs ${{BEST_COST_P50}} (${{BEST_COST_P10}}&ndash;{{BEST_COST_P90}}), the published cells ${{TODAY_COST_P50}}
       (${{TODAY_COST_P10}}&ndash;{{TODAY_COST_P90}}) and the forecast ${{FORECAST_COST_P50}} (${{FORECAST_COST_P10}}&ndash;{{FORECAST_COST_P90}}).
       When demand varies as well (price sensitivity, acceptance and the costs of reaching the
       shelf), the long-run share of world meat is {{CENTRAL_SHARE_P50}}% in the central case at the median (80% range
       {{CENTRAL_SHARE_P10}}&ndash;{{CENTRAL_SHARE_P90}}%). It is {{BEST_SHARE_P50}}% in the best case ({{BEST_SHARE_P10}}&ndash;{{BEST_SHARE_P90}}%) and
-      {{FORECAST_SHARE_P50}}% in the forecast ({{FORECAST_SHARE_P10}}&ndash;{{FORECAST_SHARE_P90}}%). With today's cells it is
+      {{FORECAST_SHARE_P50}}% in the forecast ({{FORECAST_SHARE_P10}}&ndash;{{FORECAST_SHARE_P90}}%). With the published cells it is
       {{TODAY_SHARE_P50}}% ({{TODAY_SHARE_P10}}&ndash;{{TODAY_SHARE_P90}}%). The draws do not vary what the cells are like, how fast they grow or the other switches.
       The scenarios differ in exactly those things, and the chart &ldquo;What to prioritise&rdquo; shows what each is worth.
       <b>A plant as cheap as a yeast plant</b> is not used in any scenario. Plants for yeast and other microbes cost about a

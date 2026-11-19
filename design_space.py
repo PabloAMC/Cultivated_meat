@@ -185,7 +185,7 @@ def summary(key: str) -> dict:
 
 # ----------------------------------------------------------------------------
 LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "thickness of the culture": "thickness"}
-SHORT = {"today": "1. Today's cells", "process": "2. Plus process changes", "central": "3. Central", "central_lean": "4. Shared-medium plant",
+SHORT = {"today": "1. Published cells", "process": "2. Plus process changes", "central": "3. Central", "central_lean": "4. Shared-medium plant",
          "best": "5. Best case", "forecast": "Forecast for 2035"}
 
 

@@ -305,10 +305,11 @@ SCENARIOS = {
                 "gf": "60", "medium": "0.30"})),
     # --- the ladder (2026-11-16): each rung adds one kind of change, easiest first ----------------------------
     "today": Scenario(
-        "today", "1. Today: the best meat cells measured, in an ordinary 20 m³ perfusion tank",
-        "The cells are meat cells as they have been measured: glutamine replaced in the feed, doubling every 43 hours. The plant is "
+        "today", "1. Published cells: the best meat cells in the published record, in an ordinary 20 m³ perfusion tank",
+        "The cells are the best meat cells anyone has published measurements of: glutamine replaced in the feed, doubling every 43 "
+        "hours, and most of their glucose turned into lactate. Companies may hold better cells they have not shown. The plant is "
         "food-grade. The tank is the ordinary tall stirred tank with no tricks, run with no more gas than anyone has run. Medium and "
-        "growth factors cost what they cost today. Perfusion itself has not been run at this size.",
+        "growth factors cost what companies report today. Perfusion itself has not been run at this size.",
         "Each switch at what has been measured or reported, and nothing new in the tank. Only the medium price and the growth "
         "factors are judgements, because nobody has measured them at scale.",
         {"cells": "measured", "growth": "43", "plant": "sterile", "gas": "2", "tricks": "none", "shape": "tall", "losses": "1",
@@ -717,18 +718,25 @@ def table_rows() -> list:
 
 
 def pct_num(x: float) -> str:
-    """A share in percent as text: two decimals below 0.1 (so 0.04 does not print as 0.0), one above."""
-    return f"{x:.2f}" if x < 0.095 else f"{x:.1f}"
+    """A share in percent as text: one decimal from 0.1 up, two below it, three below 0.01 (so 0.04 does not print as 0.0)."""
+    if x < 0.00095:
+        return "under 0.001"
+    return f"{x:.3f}" if x < 0.0095 else f"{x:.2f}" if x < 0.095 else f"{x:.1f}"
 
 
 def markdown_table() -> str:
     """The headline table as Markdown (RESULTS.md, METHODS.md and research_notes/cost_scenarios.md quote it). Every row gives both the
     share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
-    out = ["| scenario | cells, $/kg (10th\u201390th percentile) | R vs $12 meat | share of world meat, long run: at the point cost | "
-           "median of draws (10th\u201390th) | hardest thing it needs |", "|---|---|---|---|---|---|"]
+    out = ["| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | "
+           "shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | "
+           "share at the most-likely-values cost | hardest thing it needs |", "|---|---|---|---|---|---|---|"]
     for name, cost, cb, ratio, world, sb, need in table_rows():
-        band = f" (${cb[0]:.0f}\u2013{cb[2]:.0f})" if cb is not None else ""
-        out.append(f"| {name} | **${cost:.1f}**{band} | {ratio:.2f} | {pct_num(world)}% | **{pct_num(sb[1])}%** ({pct_num(sb[0])}\u2013{pct_num(sb[2])}%) | {need} |")
+        if cb is not None:                   # the headline is the median of the draws; the point is the most-likely-values figure
+            head, ratio = f"**${cb[1]:.0f}** (${cb[0]:.0f}\u2013{cb[2]:.0f})", shelf_price(cb[1]) / value("p_conv")
+        else:
+            head = f"**${cost:.0f}** (its own point figure)"
+        rng = "" if sb[2] < 0.00095 else f" ({pct_num(sb[0])}\u2013{pct_num(sb[2])}%)"      # nothing to show when it is all under 0.001%
+        out.append(f"| {name} | {head} | ${cost:.1f} | {ratio:.1f}\u00d7 | **{pct_num(sb[1])}%**{rng} | {pct_num(world)}% | {need} |")
     return "\n".join(out)
 
 

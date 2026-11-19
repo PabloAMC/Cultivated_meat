@@ -54,10 +54,10 @@ World long-run share, by the model's own roll-up across meat types and regions:
 
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
-| 1. Today | $56.99 | **0.02%** | 0.05% | 0.03% | 0.04% | 0.06% | 0.02% |
-| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $26.43 | **0.53%** | 0.66% | 0.41% | 0.48% | 0.78% | 0.20% |
-| Forecast for 2035 | $23.24 | **0.80%** | 0.89% | 0.55% | 0.65% | 1.05% | 0.28% |
-| 5. Plus engineered cells | $9.96 | **4.97%** | 3.51% | 2.24% | 2.60% | 4.07% | 1.17% |
+| 1. Published cells | $111.89 | **0.00%** | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
+| 3. Plus cells selected to grow faster on the low-waste feed (Central) | $32.80 | **0.08%** | 0.16% | 0.08% | 0.10% | 0.19% | 0.03% |
+| Forecast for 2035 | $28.81 | **0.16%** | 0.24% | 0.13% | 0.16% | 0.30% | 0.06% |
+| 5. Plus engineered cells | $11.46 | **2.81%** | 2.05% | 1.21% | 1.44% | 2.45% | 0.58% |
 
 ## 3. What this says
 

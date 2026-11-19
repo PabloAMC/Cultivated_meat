@@ -49,21 +49,21 @@ So the size has to come from who buys labels (section 4).
 
 | no killing, valued over a welfare label (share of meat's price) | 3. Plus cells selected to grow faster on the low-waste feed (Central): share; sold to premium buyers; taken from the label, from conventional meat | 5. Plus engineered cells: share; sold to premium buyers; taken from the label, from conventional meat |
 |---|---|---|
-| +5% | 0.61%; 64%; 17%, 75% | 11.35%; 15%; 5%, 86% |
-| +25% | 0.70%; 68%; 18%, 74% | 11.63%; 17%; 5%, 85% |
-| +50% | 0.82%; 73%; 20%, 73% | 12.03%; 20%; 6%, 84% |
-| +100% | 1.16%; 81%; 22%, 71% | 12.93%; 26%; 8%, 83% |
-| the main model | 0.53% | 4.97% |
-| +5%, no label on the shelf | 0.75% | 11.90% |
+| +5% | 0.13%; 77%; 15%, 66% | 5.92%; 18%; 5%, 79% |
+| +25% | 0.16%; 81%; 15%, 67% | 6.15%; 21%; 5%, 79% |
+| +50% | 0.21%; 86%; 16%, 68% | 6.48%; 26%; 6%, 78% |
+| +100% | 0.37%; 92%; 16%, 69% | 7.28%; 34%; 8%, 77% |
+| the main model | 0.08% | 2.81% |
+| +5%, no label on the shelf | 0.15% | 6.24% |
 
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come
 from: the drop in each product's share when cultivated meat is added.
 
 | premium buyers, share of shoppers | 3. Plus cells selected to grow faster on the low-waste feed (Central) | 5. Plus engineered cells |
 |---|---|---|
-| 5% | 0.59% | 11.41% |
-| 10% | 0.61% | 11.35% |
-| 20% | 0.61% | 10.75% |
+| 5% | 0.14% | 5.98% |
+| 10% | 0.13% | 5.92% |
+| 20% | 0.11% | 5.57% |
 
 - **Premium buyers raise Central's share two and a half times**, from the base's 0.25% to 0.61%, with the evidence's +5% value of no
   killing. That is above the model's 0.53%. The best case rises less, from 10.7% to 11.35%, because near parity the mainstream already

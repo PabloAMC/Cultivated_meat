@@ -16,7 +16,7 @@ Central's shop price is 0.8 to 8 times the meat it sits beside.
 |---|---|---|---|
 | Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -1.53 | -3.27 |
 | Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | 1.5% | 0.8% | 0.09% |
-| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 1.3–1.5 (organic chicken, heritage pork: the premium products still dearer than their meat) | 3.0–3.4 |
+| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 5.2–7.5 (organic chicken, heritage pork, seafood (premium fillet, shrimp): the premium products still dearer than their meat) | 3.0–3.4 |
 | Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | -1.23 | -2.85 | -2.85 |
 
 - **The choice experiment** (Van Loo, Caputo & Lusk 2020) reports no elasticity. Simulated from its fitted model it is about −1.5 at
@@ -41,11 +41,11 @@ With every shopper alike it kept steepening with the price (−10.4 at three tim
 
 | price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 3. Plus cells selected to grow faster on the low-waste feed (Central) | world share, 5. Plus engineered cells |
 |---|---|---|---|---|
-| **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 10.3%, 7.8%, 3.8%, 0.8%, 0.1% | -1.53 | 0.5% | 5.0% |
-| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 48.8%, 28.8%, 14.6%, 2.9%, 0.09%, 0.00% | -3.27 | 0.2% | 10.7% |
-| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 48.8%, 38.9%, 29.9%, 15.9%, 3.6%, 0.7% | -1.54 | 1.8% | 17.6% |
-| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 48.8%, 43.2%, 37.9%, 28.1%, 13.7%, 6.1% | -0.85 | 6.0% | 25.8% |
-| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.5% | 2.6% |
+| **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 10.3%, 7.8%, 3.8%, 0.8%, 0.1% | -1.53 | 0.08% | 2.8% |
+| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 48.8%, 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | -3.27 | 0.03% | 5.4% |
+| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 48.8%, 38.9%, 29.9%, 15.9%, 3.6%, 0.7% | -1.54 | 0.2% | 9.2% |
+| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 48.8%, 43.2%, 37.9%, 28.1%, 13.7%, 6.1% | -0.85 | 1.5% | 16.6% |
+| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.1% | 1.4% |
 
 - The first row is the model. The second is the model before: too few buyers above twice the price.
 - The third and fourth weaken the slope for every shopper and keep half the market at equal price. They are too generous: at twice
