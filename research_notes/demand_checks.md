@@ -95,12 +95,12 @@ alike it kept steepening with the price (−10.4 at three times).
 - **A plant that sells less than it was built for costs more per kilo** (`market_size_loop.underused`): the plant's charge and its
   labour are paid whatever it makes.
 
-| share of the plant's capacity that is sold | 1. Published cells | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
+| share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
 |---|---|---|---|
-| 100% | $209.05 | $32.80 | $11.67 |
-| 80% | $254.02 | $35.06 | $12.48 |
-| 60% | $328.97 | $38.81 | $13.83 |
-| 40% | $478.86 | $46.33 | $16.52 |
+| 100% | $92.17 | $32.80 | $11.67 |
+| 80% | $96.59 | $35.06 | $12.48 |
+| 60% | $103.97 | $38.81 | $13.83 |
+| 40% | $118.72 | $46.33 | $16.52 |
 
   Every scenario is at 100%. Beyond Meat's sales fell about 40% from their peak after its plants were built, and its costs run about 70%
   above a right-sized plant's (Knowles 2026). The market-size loop runs backwards as well as forwards.

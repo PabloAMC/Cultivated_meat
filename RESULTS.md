@@ -294,7 +294,7 @@ at most likely values.
 | Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $32.8 to $32.8 | 0.2% to 0.2% | $11.4 to $12.9 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
 | Ammonia the engineered cells make per kilo grown | 0.054–0.14 mol/kg wet (0.055) | $32.8 to $32.8 | 0.2% to 0.2% | $11.6 to $21.7 | Humbird's enhanced cell; seen only in engineered CHO cells | no: the Engineered cells, all favourable case assumes cells that reach it |
 
-*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($31.2 to $35.2 in the Selected cells case) without changing any tank; it is left out.*
+*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($31.2 to $35.2 in Selected cells) without changing any tank; it is left out.*
 *Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, gas flow, doubling time, restart time). "What to prioritise" shows what each switch is worth.*
 
 - **Four numbers carry most of Selected cells' uncertainty, and none has been measured on meat cells at production density.** The life
