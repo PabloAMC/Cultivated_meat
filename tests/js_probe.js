@@ -55,10 +55,34 @@ let js = fs.readFileSync(jsPath, "utf8");
 js = js.replace(/console\.log\([^\n]*\);/, "");            // drop the build-stamp log
 js = js.replace(/buildRail\(\);[\s\S]*$/, "");             // drop everything from the auto-run tail
 
+// FIRST SCREEN (page_scenarios.js): with a second argument, a JSON file of cases from tests/run_parity.py, the probe runs only
+// the first screen's functions: the cloud of cost draws (on Python's own draws, and on the page's), the routes verdict, the tank
+// design for set traits, and the meat-buyers scale of the contour map. Prints { tp: ... }.
+const TP_IN = process.argv[3] ? JSON.parse(fs.readFileSync(process.argv[3], "utf8")) : null;
+if (TP_IN) js += `
+;(function(){
+  const IN = ${JSON.stringify(TP_IN)};
+  const def = {}; MODEL.sliders.forEach(s => def[s.key] = s.default);
+  Object.assign(state, def, { region: "global", income: C.REGION_INCOME.global });
+  KP = effConsts(state);
+  const st = c => ({ base: c.base, choice: c.choice, hb: c.hb || { mode: "perfusion", plant: "sterile" }, traits: c.traits || {}, held: c.held || {} });
+  const exact = IN.exact.map(c => tpCloudFor(st(c), c.draws.length, c.draws).cost);
+  const stat = IN.stat.map(c => tpCloudFor(st(c)).q);
+  const points = IN.stat.map(c => floorExplore(tpParamsFor(st(c))).total);
+  const routes = IN.routes.map(t => { const r = tpRoutesNeeded(t); return [r.verdict, r.short, r.rank, TRAIT_KEYS.map(k => r.traits[k] ? r.traits[k].route : "-")]; });
+  const design = IN.design.map(c => { const d = scWithExtra(c.traits, () => scDesign(c.choice)); return [d.tricks, d.shape]; });
+  const dial = IN.buyers.map(b => tpDial(b));
+  const shares = IN.shares.map(([c, b]) => tpShare(c, b, "global"));
+  const costfor = IN.costfor.map(([t, b]) => tpCostFor(t, b, "global"));
+  const parity = ["global", "us", "eu"].map(r => [tpAvgPrice(r), tpParity(r)]);
+  realLog(JSON.stringify({ tp: { exact, stat, points, routes, design, dial, shares, costfor, parity,
+    humbird: floorExplore(Object.assign({}, tpRef("humbird").base)).total } }));
+})();
+`;
 // The probe runs IN THE SAME SCOPE as the page JS (so it can see effConsts, shareCalc, …).
 // It builds the default-slider constants, then samples the demand model over a grid plus
 // the headline self-check numbers and a timing-rung trajectory.
-js += `
+if (!TP_IN) js += `
 ;(function(){
   const def = {}; MODEL.sliders.forEach(s => def[s.key] = s.default);
   def.region = "us"; def.income = C.income_ref;
