@@ -85,7 +85,7 @@ and after each are in CHANGELOG.md.
 - **Premium products.** The rule that made buyers of cuts and premium products less sensitive to price is gone: it raised the share
   whenever cultivated meat was the dearer product. In its place a cut is liked less in proportion to the plant protein in it, and a
   premium product is liked less by an amount that rises smoothly with its price.
-- **Share at equal price.** The bands draw it around the model's own 13%, not from a range whose median was 21%.
+- **Share at equal price.** The bands draw it around the model's own setting (14.5% of meat buyers, 13% of all choices), not from a range whose median was 21% of all choices.
 - **The spread of liking.** How much shoppers like cultivated meat is now spread as a Student's t (standard deviation 3.9 utils, 4
   degrees of freedom), in place of a normal spread of 5 utils. The normal spread, fitted on 2026-11-18, rested on an integration
   that was too coarse. The new shape has more shoppers very far from the average, more very close to it, and fewer in between.
