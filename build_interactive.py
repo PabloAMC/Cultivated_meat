@@ -122,7 +122,7 @@ def build_model() -> dict:
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: list(v) for k, v in floor_physics.SPECIES_PRESETS.items()},
             # the tricks (gas_exchange.column_design / headspace_pressure; sorbent and explicit wastes)
-            "glc_kg": value("pf_glc_kg"), "sorbent_q": value("pf_sorbent_q"), "sorbent_price": value("pf_sorbent_price"),
+            "glc_kg": value("pf_glc_kg"), "glc_anabolic": value("pf_glc_anabolic"), "sorbent_q": value("pf_sorbent_q"), "sorbent_price": value("pf_sorbent_price"),
             "sorbent_cycles": value("pf_sorbent_cycles"), "pco2_design": value("pf_pco2_limit"),
             "rq_lipid": value("pf_rq_lipid"), "fat_kg": value("pf_fat_kg"), "fat_price": value("pf_fat_price"),
             "do_implied": __import__("gas_exchange").headspace_pressure()["c_liquid_implied"],
@@ -4142,7 +4142,9 @@ function floorExplore(p,noSearch){
     Object.keys(vm.caps||{}).forEach(k=>limits.push([k,vm.caps[k]])); }
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
-  const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:F.glc_kg):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
+  // glucose from what the cells build, burn and ferment (mirror of floor_physics.glucose_balance), when the scenarios ask
+  const glcBal=(F.glc_anabolic*(1-0.75*(p.fat_fed||0))+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6)/Math.max(0.05,1-(p.lac_yield||0)/2);
+  const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:(p.glc_balance?glcBal:F.glc_kg)):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
   const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
   // ammonia relative to enhanced cells, at the ammonia limit in force (mirror of floor_physics.explore: a tank that is not
   // washed builds waste up to the limit, so a lower limit caps the density sooner)

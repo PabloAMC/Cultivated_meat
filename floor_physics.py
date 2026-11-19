@@ -193,6 +193,16 @@ def density(cells: Cells, otr: float, washed: bool) -> float:
     return x if washed else min(x, waste_cap(cells))
 
 
+def glucose_balance(o2_kg: float, nh3_kg: float, lac_yield: float, fat_fed: float = 0.0) -> float:
+    """Glucose a kilo of wet cells takes up, mol, from what it builds, burns and ferments (audit 2026-11-19):
+        G = [anabolic x (1 - 0.75 fat_fed) + (O2 - 2.25 NH3) / 6] / (1 - Y / 2)
+    anabolic: glucose built into lipid, carbohydrate and nucleotides (pf_glc_anabolic; three-quarters of it is lipid);
+    O2 / 6: glucose burned for the oxygen the cell uses, less the part burned from amino acids (2.25 O2 per NH3 released);
+    Y: mol lactate per mol of ALL glucose taken up (two lactate per glucose fermented). Reproduces Humbird's enhanced cell."""
+    burned = max(0.0, o2_kg - 2.25 * nh3_kg) / 6.0
+    return (value("pf_glc_anabolic") * (1.0 - 0.75 * fat_fed) + burned) / max(0.05, 1.0 - lac_yield / 2.0)
+
+
 def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: float | None = None,
                   x_cap: float | None = None) -> float:
     """Tonnes of wet cells per m3 of production vessel per year.
@@ -379,6 +389,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             capex_2018: float | None = None, extra_opex: float = 0.0, start_fail: float = 0.0,
             salvage: float = 0.0, items: dict | None = None,
             nh3_kg: float | None = None, lac_yield: float | None = None, glc_kg: float | None = None,
+            glc_balance: bool = False,
             sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
             col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
@@ -437,7 +448,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         with it the mixing limit, scale with the driving force; CO2 removal does not change.
       * `nh3_kg` (mol ammonia per kg wet cells) and `lac_yield` x `glc_kg` (mol lactate per mol glucose x mol
         glucose per kg) set the two wastes explicitly, as measured, with no scaling; left unset, `waste` sets
-        both as before (0 = Humbird's enhanced cells, 1 = ordinary cells).
+        both as before (0 = Humbird's enhanced cells, 1 = ordinary cells). With `glc_balance` (the scenarios) and no
+        `glc_kg`, glucose per kg comes from `glucose_balance` and `lac_yield` is per mol of all the glucose taken up.
       * `sorbent` (the filter still passes the liquid the exchanger treats, so only medium, growth factors and
         protectant are saved, not membranes; corrected 2026-11-16, medium_reuse.py): the share of the ammonium taken out
         of the cell-free permeate by an exchanger before it
@@ -592,6 +604,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if lac_yield is None:
         lac = lac_w
     else:
+        if glc_kg is None and glc_balance:      # glucose from what the cells build, burn and ferment (yield on total glucose)
+            glc_kg = glucose_balance(cells.o2_per_kg * 1000.0 / 32.0, nh3, lac_yield, fat_fed)   # kg O2 -> mol
         lac = lac_yield * (value("pf_glc_kg") if glc_kg is None else glc_kg)
     wf = nh3 / waste_per_kg(cells, 0.0)[0]             # ammonia relative to enhanced cells
     wf *= value("pf_nh3_limit") / (value("pf_nh3_limit") if nh3_limit is None else nh3_limit)

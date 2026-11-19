@@ -397,6 +397,14 @@ REGISTRY: dict[str, Input] = {
         note="used only when the lactate yield is set explicitly (explore lac_yield). lo-1.0 = 0.4-0.6 kg glucose "
              "per kg dry x 0.30 dry/wet (waste_tricks_sizing.md, consistent with CHO at a yield of 1.41); hi = "
              "Humbird's wild-type cell (6.4 mol lactate at 1.77). Which applies to a meat cell is unmeasured"),
+    "pf_glc_anabolic": Input(0.884, "mol glucose/kg wet", "[Humbird-R, reaction 2.11, derived] glucose built into a kilo of cells "
+        "(lipid, carbohydrate, nucleotides): 0.065 of his 0.147 mol glucose per C-mol of dry cells, at 13.6 C-mol per kg wet. "
+        "Protein comes from the amino acids. With all lipid fed it falls by three-quarters",
+        note="GLUCOSE BALANCE (audit 2026-11-19, glucose check): the scenarios derive glucose per kilo from what the cells build, "
+             "burn and ferment: G = [anabolic x (1 - 0.75 fat fed) + (O2 - 2.25 NH3)/6] / (1 - Y/2), with Y the lactate yield on "
+             "total glucose. It reproduces Humbird's enhanced cell (2.0 mol/kg at Y 0.28) and gives 4.8 against his 4.53 for his "
+             "wild type. The cells measured so far (Y 1.05) need about 4.5 mol/kg, not the 0.84 they were given, which could "
+             "not supply their own oxygen use."),
     "pf_sorbent_q": Input(0.15, "mmol/g = mol/kg", "[derived, not measured; waste_tricks_sizing.md A2] ammonium a "
         "sorbent holds at 3-5 mM against 140 mM sodium", lo=0.10, hi=0.25, mode=0.15,
         note="mass-action exchange with selectivities of 0.6-3 for clinoptilolite, zirconium phosphate and cation "
@@ -946,9 +954,11 @@ REGISTRY: dict[str, Input] = {
     "sc_nh3_ordinary": Input(0.70, "mol/kg wet", "[Hubalek et al. 2023, full text] the same cells with glutamine: "
         "56.3 fmol/cell/h at a 25.7 h doubling", lo=0.09, hi=0.95, mode=0.70,
         note="0.09 is the same paper's shaker value; 0.95 is Humbird's ordinary wild-type cell"),
-    "sc_lac_engineered": Input(0.5, "mol lactate / mol glucose", "[Humbird-R] his stated lactate:glucose ratio for "
-        "enhanced cells", lo=0.1, hi=0.5, mode=0.5,
-        note="GENETIC ENGINEERING for values near 0 (knocked-out genes); 0.5 is his assumption"),
+    "sc_lac_engineered": Input(0.279, "mol lactate / mol glucose", "[Humbird-R, reaction 2.11] lactate per mol of ALL the glucose "
+        "his enhanced cells take up: 0.041 lactate per 0.147 glucose. His stated 0.50 is per mol of glucose burned or fermented "
+        "(0.082 of the 0.147); the rest is built into the cells", lo=0.06, hi=0.28, mode=0.279,
+        note="GENETIC ENGINEERING for values near 0 (knocked-out genes). On total glucose since 2026-11-19, as the other cells' "
+             "yields are; the lactate per kilo is unchanged (0.56 mol)"),
     "sc_lac_selected": Input(0.42, "mol lactate / mol glucose", "[waste_tricks_sizing.md] 0.39 was reached by "
         "adapting CHO to low-lactate culture; 0.42 allows a little for meat cells, for which nothing is measured",
         lo=0.39, hi=0.6, mode=0.42,
@@ -957,7 +967,8 @@ REGISTRY: dict[str, Input] = {
         "waste_tricks_sizing.md] chicken cells in perfusion; bovine cells similar", lo=0.8, hi=1.4, mode=1.05,
         note="ordinary pharma cells make about 1.4"),
     "sc_glc_measured": Input(0.84, "mol glucose/kg wet", "[waste_tricks_sizing.md section C2: 0.4-0.6 kg glucose per kg dry "
-        "cells, cross-checked by Freund's CHO, 0.98 mol/kg] glucose used per kg of meat cells grown", lo=0.67, hi=3.6, mode=0.84,
+        "cells, cross-checked by Freund's CHO, 0.98 mol/kg] glucose used per kg of meat cells grown. NOT USED BY THE SCENARIOS since 2026-11-19: glucose is derived from the cells' own balance (pf_glc_anabolic), "
+        "which gives about 4.5 for these cells", lo=0.67, hi=3.6, mode=0.84,
         note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
              "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
              "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "

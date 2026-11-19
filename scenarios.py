@@ -76,22 +76,22 @@ SWITCHES = (
            "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
         Setting("engineered", "Engineered to make almost no waste",
                 {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": fp.GOOD_CELLS.mass_pg},
-                GE, "Ammonia is 0.055 mol per kilo of cells, lactate is 0.5 per glucose, and a cell weighs 3 ng. This is Humbird's "
-                    "efficient cell. Only genetically engineered pharma cells have shown it."),
+                GE, "Ammonia is 0.055 mol per kilo of cells, lactate is 0.28 per glucose taken up, and a cell weighs 3 ng. This is "
+                    "Humbird's efficient cell. Only genetically engineered pharma cells have shown it."),
         Setting("selected", "Selected on a low-waste feed",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
                 SELECT, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells). Lactate is 0.42 per "
-                        "glucose, as in adapted CHO cells. A cell weighs 2 ng. These differ from the best meat cells measured only "
-                        "in lactate. While ammonia sets the litres of medium, as it does in every scenario here, the two cost the "
-                        "same. Less lactate pays once the ammonia is removed or the cells tolerate more of it."),
+                        "glucose, as in adapted CHO cells. A cell weighs 2 ng. These differ from the best meat cells in the published "
+                        "record only in lactate, and that is worth a great deal: the published cells turn most of their glucose into "
+                        "lactate, so they need about three times the glucose and far more medium to wash the lactate out."),
         Setting("measured", "The best meat cells measured",
-                {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
+                {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
                 FEED, "Ammonia is 0.14 with glutamine replaced (Hubalek 2023). Lactate is 1.05 per glucose in meat cells. A cell weighs 2 ng. "
-                      "The ammonia is the same as for the selected cells, and ammonia sets the litres of medium, so the extra lactate "
-                      "costs nothing in these scenarios."),
+                      "The ammonia is the same as for the selected cells. Fermenting most of their glucose, these cells need about "
+                      "4.5 mol of glucose a kilo, by their own energy balance, and the lactate from it sets the litres of medium."),
         Setting("ordinary", "Ordinary meat cells",
-                {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"), "glc_kg": value("sc_glc_measured"),
+                {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
                 NOTHING, "Ammonia is 0.70 in bovine cells with glutamine. Lactate is 1.05 per glucose. A cell weighs 2 ng."))),
     Switch("growth", "Growth speed", "How long the cells take to double", (
@@ -223,7 +223,7 @@ def always() -> dict:
     about half of air saturation, as pharma holds it; Humbird's tank implies 130%) and the ammonia the cells tolerate
     (sc_nh3_limit, 4 mM since 2026-11-19; Humbird's design keeps his 5). Read at call time, so a test can set
     sc_do_scenarios to 0 to reproduce earlier figures."""
-    kw = {"nh3_limit": value("sc_nh3_limit")}
+    kw = {"nh3_limit": value("sc_nh3_limit"), "glc_balance": True}      # glucose from the cells' own balance (2026-11-19)
     if value("sc_do_scenarios") >= 0.5:
         kw["do_mmol"] = value("sc_do_setpoint")
     return kw
