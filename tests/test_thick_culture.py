@@ -107,7 +107,7 @@ def check() -> list:
         fails.append(f"in Humbird's plain tank CO2 binds first at 120 g/L, got {L['first']} at {L['x']:.0f}")
     Lc = TC.limits_at(S.explore_kwargs(S.SCENARIOS["central"].choice))
     if Lc["first"] != "oxygen supply, with viscosity" or not (148.0 < Lc["x"] < 154.0):
-        fails.append(f"Selected cells: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
+        fails.append(f"the low-lactate example: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
     # 2026-11-19 restructure: with 2 ng cells (were Humbird's 3 ng) the best case's design is column + 1 bar without recycled oxygen,
     # and oxygen with viscosity binds first, near 167 g/L (it was the column loop's checks near 271)

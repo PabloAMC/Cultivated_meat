@@ -37,8 +37,8 @@ check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "refe
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
 check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
-# 2026-11-19: growth factors inside complete media prices (Selected cells -$3.0), nutrient floor $2.00 (best +$0.30)
-# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (Selected cells +$4.9, best +$1.2), a lost run pays for its membranes (Selected cells
+# 2026-11-19: growth factors inside complete media prices (the low-lactate example -$3.0), nutrient floor $2.00 (best +$0.30)
+# 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (the low-lactate example +$4.9, best +$1.2), a lost run pays for its membranes (the low-lactate example
 # +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
 for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
@@ -47,7 +47,7 @@ for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean
 # CELLS, never "selection" or "genetic engineering", the author's direction)
 need = {k: S.hardest_need(S.SCENARIOS[k].choice) for k in S.ORDER}
 check(need["best"] == S.CELLS and need["central"] == S.CELLS and need["central_lean"] == S.CELLS,
-      f"Selected cells and Engineered cells, all favourable need cells with other traits than those published: {need}")
+      f"the low-lactate example and the all-favourable example need cells with other traits than those published: {need}")
 check(need["cautious"] in (S.FEED, S.NOTHING), f"cautious needs {need['cautious']}")
 for k in ("today", "process"):
     check(S.CELLS not in [t for _n, _l, t in S.needs(S.SCENARIOS[k].choice)], f"{k} uses cells with other traits than those published")
@@ -136,7 +136,7 @@ for fname in ("RESULTS.md", "METHODS.md"):
 page = open(os.path.join(MODEL_DIR, "interactive.html"), encoding="utf-8").read()
 # The page (rebuilt 2026-11-19) has three named cases; its first screen is written by the page's own script from the bands it
 # carries, which tests/test_easy_view.py checks against scenarios.bands. Here: the page carries each scenario's band, its
-# method text states the Selected cells and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
+# method text states the low-lactate example and Best cases' median shares, and the forecast sits in "Other estimates" on its median.
 import json as _json
 _model = _json.JSONDecoder().raw_decode(page[page.index("const MODEL = ") + len("const MODEL = "):])[0]
 for k in S.PAGE_ORDER:
@@ -145,17 +145,17 @@ for k in S.PAGE_ORDER:
           and max(abs(a - b) for a, b in zip(_model["sc"]["bands"][k]["cost"], bk["cost"])) < 1e-9,
           f"the page does not carry {k}'s band")
     check(bk["share"][0] < bk["share"][1] < bk["share"][2], f"{k}: band not ordered")
-# 2026-11-19: the page was rebuilt with the new names (Selected cells; Engineered cells, all favourable)
-for k, words in (("central", "in the Selected cells case at the median"), ("best", "in the Engineered cells, all favourable case")):
+# 2026-11-19: the page was rebuilt with the new names (the low-lactate example; the all-favourable example)
+for k, words in (("central", "in the low-lactate example at the median"), ("best", "in the all-favourable example")):
     bk = S.bands(S.SCENARIOS[k].choice, eqs=S.eqs_of(k))
     check(f"{S.pct_num(bk['share'][1])}% {words}" in page, f"the page's method text does not state {k}'s median share {S.pct_num(bk['share'][1])}%")
 check("Today's cells" not in page and "Today’s cells" not in page, "the first case is 'Published cells', never 'Today's cells'")
-# the median sits below the point estimate for the Engineered cells, all favourable case (the cost draws fall short more often than they improve)
+# the median sits below the point estimate for the all-favourable example (the cost draws fall short more often than they improve)
 check(S.bands(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["share"][1] < S.summary(S.SCENARIOS["best"].choice, eqs=S.eqs_of("best"))["world"],
-      "Engineered cells, all favourable: median share should be below the point estimate")
+      "the all-favourable example: median share should be below the point estimate")
 
 # 12b. the ladder (2026-11-16; rebuilt 2026-11-19 restructure): it starts from what has been shown (fed-batch at 20 m3), adds one
-# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are Selected cells, Selected cells with shared medium, the Engineered cells, all favourable case
+# kind of change per rung, and the cost falls rung by rung. Rungs 4, 5 and 7 are the low-lactate example, the low-lactate example with shared medium, the all-favourable example
 lad = [S.run(S.SCENARIOS[k].choice)["total"] for k in S.LADDER]
 check(all(a > b for a, b in zip(lad, lad[1:])), f"the ladder's cost should fall rung by rung: {[round(x, 2) for x in lad]}")
 check(S.LADDER == ("today", "process", "selected", "central", "central_lean", "engineered", "best"), f"ladder: {S.LADDER}")
@@ -188,9 +188,9 @@ for k in ("today", "process", "selected"):
           f"{k}: the batch ends at {nh3_end:.2f} mM ammonia and {lac_end:.1f} mM lactate, above the allowed level")
     check(abs(r["medium_l"] - 1000.0 / r["density"]) < 1e-6 or r["medium_l"] == _v("pf_medium_l_floor"), f"{k}: a batch's medium is 1000/density")
 # the published cells stop below the densities companies report at 20 m3 (Vow 27 g/L; Upside's capacity needs 33 g/L or more in
-# fed-batch), and the selected cells reach the bottom of Upside's range: so the companies' cells make less lactate than the published
+# fed-batch), and the low-lactate cells reach the bottom of Upside's range: so the companies' cells make less lactate than the published
 check(S.run(S.SCENARIOS["today"].choice)["density"] < _v("vm_x_meat_shown"), "the published cells should stop below 27 g/L in a batch")
-check(S.run(S.SCENARIOS["selected"].choice)["density"] >= 33.0, "the selected cells should reach Upside's 33 g/L in a batch")
+check(S.run(S.SCENARIOS["selected"].choice)["density"] >= 33.0, "the low-lactate cells should reach Upside's 33 g/L in a batch")
 # a fed-batch plant keeps Humbird's full seed train when the plant is the shared-medium one
 check(S.explore_kwargs({**S.SCENARIOS["central_lean"].choice, "mode": "fedbatch"})["items"]["seed"] == "full", "fed-batch lean plant: full seed train")
 check(S.explore_kwargs(S.SCENARIOS["central_lean"].choice)["items"]["seed"] == "two", "perfusion lean plant: two seed trains")
@@ -249,7 +249,7 @@ check(set(best) == set(CT.TRAITS), "a best meat-cell measurement (or none) for e
 check(best["nh3_kg"]["value"] == 0.14 and best["lac_yield"]["value"] == 1.05 and best["doubling_h"]["value"] == 15.0
       and best["mass_pg"]["value"] == 3300.0, f"best measured in meat cells: {[(k, b['value']) for k, b in best.items()]}")
 check(CT.beyond_measured({"nh3_kg": 0.14, "lac_yield": 1.05, "doubling_h": 43.0, "mass_pg": 2000.0}) == [], "Published cells: nothing beyond")
-check(CT.beyond_measured(S.cell_traits(S.SCENARIOS["central"].choice)) == ["lac_yield"], "Selected cells: only the lactate is beyond")
+check(CT.beyond_measured(S.cell_traits(S.SCENARIOS["central"].choice)) == ["lac_yield"], "the low-lactate example: only the lactate is beyond")
 check(set(CT.beyond_measured({"nh3_kg": 0.0, "doubling_h": 13.0, "mass_pg": 3400.0})) == {"nh3_kg", "doubling_h", "mass_pg"}, "beyond_measured")
 for r in w:
     if r["pick"] is not None:

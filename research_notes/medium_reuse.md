@@ -1,6 +1,6 @@
 # Cleaning and reusing the medium: what each route could save
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -35,9 +35,9 @@ One consequence: a device on the permeate must take more than 62% of the waste f
 saves anything, even if the device is free. Each litre it cleans is filtered once and stands in for only that share of a
 litre thrown away.
 
-## 2. The routes, in Selected cells
+## 2. The routes, in the low-lactate example
 
-| what sets the litres of medium (4. Plus perfusion (Selected cells): waste washed out through a cell filter) | litres per kg of cells |
+| what sets the litres of medium (4. Plus perfusion (the low-lactate example): waste washed out through a cell filter) | litres per kg of cells |
 |---|---|
 | ammonia, held at 4 mmol/L | 35.0 |
 | the least flow the cells need for everything else | 16.2 |
@@ -84,8 +84,8 @@ litre thrown away.
 | scenario | no reuse | exchanger on the permeate | electrodialysis of the permeate | dialysis of the permeate, dialysate reused | dialysis across the culture, at the filter's cost | the same, at twice the filter's clearance | perfect and free, on the permeate | perfect and free, across the culture |
 |---|---|---|---|---|---|---|---|---|
 | Cautious: the best meat cells measured so far, in perfusion | **$92.17** | $92.17 | $68.05 | $78.44 | $73.60 | $52.32 | $61.45 | $23.14 |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$11.67** | $11.67 | $11.67 | $11.67 | $11.67 | $10.74 | $11.33 | $8.96 |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$32.80** | $31.06 | $29.92 | $31.74 | $30.46 | $23.88 | $26.97 | $15.13 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | **$11.67** | $11.67 | $11.67 | $11.67 | $11.67 | $10.74 | $11.33 | $8.96 |
 
 **The published cells: this conclusion reversed.** (Since the 2026-11-19 restructure the published cells are priced in perfusion as
 the cautious scenario, whose switches are the old rung 1's, with the tank tricks: $92.17 with no reuse, at 120 g/L. Rung 1 of the
@@ -100,11 +100,11 @@ litres, of which 87 pass the filter. Reuse is worth more here than anywhere:
   twice the filter's clearance (to $52.32).
 - A perfect, free device saves $30.7 on the permeate and $69.0 across the culture.
 
-These rest on the same unmeasured inputs as the Selected cells case's, at three times the litres: 99% of the lactate taken in a pass
+These rest on the same unmeasured inputs as the low-lactate example's, at three times the litres: 99% of the lactate taken in a pass
 (`mr_ed_lac`, a figure cited second-hand), and growth factors that survive. And the best route modelled still leaves the
-published cells at $52, against $32.80 for the selected cells with no device. Cells that make less lactate do more than any device.
+published cells at $52, against $32.80 for the low-lactate example with no device. Cells that make less lactate do more than any device.
 
-In the best case the engineered cells make so little waste that reuse is worth at most $2.7 (a perfect, free device across the
+In the all-favourable example the cells make so little waste that reuse is worth at most $2.7 (a perfect, free device across the
 culture); of the routes modelled only dialysis across the culture at twice the filter's clearance saves anything ($0.9).
 
 ## 4. What moves the answer
@@ -194,7 +194,7 @@ half, which is worse than no exchanger, and $31.06 at the best share (38%).
   (`filter_flux.md`): what a dense culture does to a membrane over a run.
 - Reuse and a cheaper cell filter attack the same $0.44 a litre. A filter that lasts longer makes permeate-side reuse better and
   the across-the-culture route less necessary. The two should be studied together.
-- Reuse does not replace cells that make less waste: the best case gets to 14 L/kg with no device at all, and Central's cells
+- Reuse does not replace cells that make less waste: the all-favourable example gets to 14 L/kg with no device at all, and Central's cells
   cost $32.80 with no device where the published cells cost $52 with the best route modelled.
 - For the published cells the model now puts $14–40 on a route that takes lactate. I have not put odds on it. It needs the
   lactate removal the citation claims, held over many passes at 87 litres filtered per kilo.

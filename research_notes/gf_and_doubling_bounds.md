@@ -1,8 +1,8 @@
 # Growth-factor prices and the fastest doubling time
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the best case's (Engineered cells, all favourable) cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The selected cells' ammonia range now runs from 0.04 mol/kg.
+> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 > Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
@@ -23,7 +23,7 @@ judgement, not forecasts of the industry.
 
 - **Growth factors.** In Central (35 L/kg), growth factors cost $1, $2 or $3 a kilo if all four proteins sell at 6.1%, 12.2% or 18.3% of Humbird's price. That is
   insulin at $0.55, $1.09 or $1.64 a gram and transferrin at $0.93, $1.87 or $2.80. FGF needs $51, $101 or $152 a gram and TGF-beta $1,467,
-  $2,935 or $4,402. The Best case (13.75 L/kg) allows prices 2.5 times higher. The cautious case (the published cells, 95.5 L/kg) needs prices
+  $2,935 or $4,402. The all-favourable example (13.75 L/kg) allows prices 2.5 times higher. The cautious case (the published cells, 95.5 L/kg) needs prices
   2.7 times lower than Central: 2.2% of Humbird's price for $1 a kilo. Before the audit batch it needed the same prices as Central, since both used 28 L/kg.
 - **What dominates.** Insulin and transferrin dominate the cost at Humbird's prices (72%), because the cells use grams of them. TGF-beta and FGF
   dominate the price gap: bought at the prices found, they are 3,900 to 19,800 times too dear for $1 a kilo in Central, against 45 times for insulin.
@@ -65,13 +65,13 @@ the budget as Humbird's prices do, so all four fall by the same fraction. "Alone
 | Best (13.75 L/kg), $1 | 1.39 | 2.38 | 129 | 3,735 | 15.5% |
 | Best, $2 | 2.78 | 4.76 | 257 | 7,470 | 31.0% |
 | Best, $3 | 4.16 | 7.14 | 386 | 11,206 | 46.5% |
-| Selected cells (35 L/kg), $1 | 0.55 | 0.93 | 51 | 1,467 | 6.1% |
-| Selected cells, $2 | 1.09 | 1.87 | 101 | 2,935 | 12.2% |
-| Selected cells, $3 | 1.64 | 2.80 | 152 | 4,402 | 18.3% |
+| Low-lactate example (35 L/kg), $1 | 0.55 | 0.93 | 51 | 1,467 | 6.1% |
+| Low-lactate example, $2 | 1.09 | 1.87 | 101 | 2,935 | 12.2% |
+| Low-lactate example, $3 | 1.64 | 2.80 | 152 | 4,402 | 18.3% |
 | Cautious (95.5 L/kg), $1 | 0.20 | 0.34 | 19 | 538 | 2.2% |
 | Cautious, $2 | 0.40 | 0.69 | 37 | 1,076 | 4.5% |
 | Cautious, $3 | 0.60 | 1.03 | 56 | 1,613 | 6.7% |
-| Selected cells, $1, one protein alone | 1.47 | 2.67 | 286 | 14,286 | |
+| Low-lactate example, $1, one protein alone | 1.47 | 2.67 | 286 | 14,286 | |
 | Humbird's price, 2025 dollars | 8.96 | 15.36 | 831 | 24,111 | 100% |
 
 Best buys no growth factors in the scenario; the Best rows say what it would take if it did. Central and cautious buy none on top either since
@@ -84,7 +84,7 @@ and fail at 35.
 
 ### 2.3 Against the prices found
 
-| Protein | Price found, $/g | Access | Needed, Selected cells $1 | Times too dear |
+| Protein | Price found, $/g | Access | Needed, the low-lactate example $1 | Times too dear |
 |---|---|---|---|---|
 | Insulin | 24.75 (Indian exports, 2013-16, falling about 18% a year; 484-793 kg a year) | FT (Europe PMC) | 0.55 | 45 |
 | Transferrin | 182 (InVitria, 10 g); 352 at 1 g | FT of the supplement, via the pf-tea evidence file | 0.93 | 195 |
@@ -136,7 +136,7 @@ Three readings.
 | Scenario | Medium L/kg | Permeate L/kg (share) | Full price, no reuse | Full price, reuse | Scenario's own assumption, no reuse | With reuse |
 |---|---|---|---|---|---|---|
 | Best | 13.75 | 9.9 (72%) | $4.89 | $1.44 | $0 (none bought) | $0 |
-| Selected cells | 35.0 | 29.8 (85%) | $12.44 | $1.99 | $0 (in the $0.20 medium) | $0 |
+| Low-lactate example | 35.0 | 29.8 (85%) | $12.44 | $1.99 | $0 (in the $0.20 medium) | $0 |
 | Cautious | 95.5 | 87.2 (91%) | $33.96 | $3.20 | $0 (in the $0.30 medium) | $0 |
 
 At Humbird's full price reuse saves $10.46 in Central, $30.76 in the cautious case and $3.45 in Best. The cost with reuse did not move, because
@@ -218,7 +218,7 @@ Other limits sit outside this budget: DNA replication (S phase of 6 to 8 h in mo
 
 `scan_doubling`: `explore(doubling_h=...)` with each scenario's own settings and tank design held fixed. $/kg.
 
-| Doubling time | Best | Selected cells | Cautious |
+| Doubling time | Best | Low-lactate example | Cautious |
 |---|---|---|---|
 | 8 h (beyond any meat cell shown) | 9.60 | 24.91 | 51.76 |
 | 12 h | 10.06 | 26.95 | 58.03 |
@@ -257,10 +257,10 @@ Other limits sit outside this budget: DNA replication (S phase of 6 to 8 h in mo
 | Transferrin, the same | 70% |
 | FGF2 at $100/g or less at 1 t/y or more | 65% |
 | TGF-beta at $2,000/g or less at 10 kg/y or more | 45% |
-| All four at the prices that give Selected cells $3 a kilo (judged at 28 L/kg; see below), at a scale of 0.2 Mt of cells a year | 55% |
+| All four at the prices that give the low-lactate example $3 a kilo (judged at 28 L/kg; see below), at a scale of 0.2 Mt of cells a year | 55% |
 | ... $1 a kilo (0.6 Mt of cells a year) | 25% |
 | Cultivated meat reaches 0.2 Mt a year by 2040 | 8% |
-| A filter that holds back insulin and transferrin cuts Selected cells' growth-factor cost by half or more at 20 m3 (the cost of the proteins, wherever it is charged; the model now charges it inside the medium's price) | 20% |
+| A filter that holds back insulin and transferrin cuts the low-lactate example's growth-factor cost by half or more at 20 m3 (the cost of the proteins, wherever it is charged; the model now charges it inside the medium's price) | 20% |
 | ... by a quarter or more | 30% |
 
 The two Central rows were judged at 28 L/kg. At 35 L/kg the prices asked are 20% lower (18.3% of Humbird's price for $3 a kilo, not 22.8%)

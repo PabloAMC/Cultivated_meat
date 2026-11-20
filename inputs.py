@@ -325,7 +325,7 @@ REGISTRY: dict[str, Input] = {
         lo=1.0, hi=2.0, mode=1.3,
         note="ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
              "in any mode, so the density of an unwashed tank is this factor x the level / the waste made per kilo (mmol/L / "
-             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let Selected cells' fed-batch end at "
+             "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let the low-lactate example's fed-batch end at "
              "7.8 mmol/L of ammonia against the 4 its perfusion is held to. Evidence, both ways (research_notes/vessels_and_modes.md "
              "section 10): ammonia: unadapted meat-relevant cells lose about 10% of growth at 1-3 mM and 50% at 3-10 mM "
              "(ammonia_tolerance_and_filter_life.md); CHO fed-batch ends at 5-15 mM. Lactate: CHO fed-batch peaks at 10-94 mM "
@@ -446,7 +446,7 @@ REGISTRY: dict[str, Input] = {
         "lactate'; he cites 2-10 mmol/L reported for mammalian cells", lo=2.0, hi=10.0, mode=5.0,
         note="evidence pass 2026-11-16 (research_notes/ammonia_tolerance_and_filter_life.md): unadapted meat-relevant cells "
              "(catfish ovary, 3T3, pig muscle stem cells, bovine FAPs) lose 10-55% of growth rate at 2.5-5 mM when spiked; CHO and "
-             "adapted hybridomas tolerate more. Kept at 5 because the Selected cells case assumes selected cells and no meat cell has been "
+             "adapted hybridomas tolerate more. Kept at 5 because the low-lactate example assumes cells that tolerate it and no meat cell has been "
              "measured at density; P(within 1.5x of the truth) about 45%, with the risk mostly below"),
     "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
@@ -966,7 +966,7 @@ REGISTRY: dict[str, Input] = {
     # registered here with its source and plausible range. The scenarios are presets of these switches
     # (scenarios.py), so no scenario carries a number of its own. Evidence: research_notes/cost_scenarios.md.
     "sc_nh3_engineered": Input(0.055, "mol/kg wet", "[Humbird-R, derived; waste_tricks_sizing.md] ammonia made by "
-        "engineered cells: his enhanced cell, 0.054, rounded; seen only in engineered (glutamine-synthetase) CHO",
+        "cells that make almost no ammonia: his enhanced cell, 0.054, rounded; seen only in engineered (glutamine-synthetase) CHO",
         lo=0.054, hi=0.14, mode=0.055,
         note="GENETIC ENGINEERING. The CHO plateau rate that clears this (0.54 fmol/cell/h) is an upper bound "
              "from cells that were not net-growing; nothing at a 24 h doubling"),
@@ -979,8 +979,8 @@ REGISTRY: dict[str, Input] = {
              "2026-11-19 (lo 0.07 -> 0.04; mode and hi kept), after a two-sided pass (ammonia_tolerance_and_filter_life.md, "
              "section 10). Lower: the shaker runs found the replacement substrates made no ammonia; other lines on pyruvate "
              "released none; CHO adapted to glutamine-free medium by selection grow on glutamate and aspartate with ammonia "
-             "'greatly decreased', and the cells' own glutamine synthetase can take ammonia up; so selection plausibly reaches "
-             "the engineered cells' 0.055 (about 20%), and the ranges overlap. Higher or kept: 0.14 is the one measurement in a "
+             "'greatly decreased', and the cells' own glutamine synthetase can take ammonia up; so meat cells plausibly reach "
+             "the lower setting's 0.055 (about 20%), and the ranges overlap. Higher or kept: 0.14 is the one measurement in a "
              "stirred vessel of growing cells, an upper bound on a mean of five donors; adaptation slows growth (US 9714293) and "
              "slower cells burn more amino acids per kilo; FAPs, not muscle cells; the knock-outs that remove ammonia entirely "
              "(ISCCM11 2025 poster: glutaminases and asparaginase) are engineering. So the mode stays at the measurement"),
@@ -1005,7 +1005,7 @@ REGISTRY: dict[str, Input] = {
         note="RE-DERIVED 2026-11-18: the value rests on CHO data, not on Pasitka 2024 (whose 145 g of glucose per kg of 'biomass' "
              "is about 15 mol per kg of real cells; its lactate yield, a ratio, is used and is not affected). Humbird's efficient "
              "cell uses 1.116 (pf_glc_kg); his wild-type cell implies 3.6, now the top of the range. Unmeasured for meat cells. It "
-             "does not move Selected cells (ammonia sets its litres); today's cells cost $67 at 2.0 and $92 at 3.6."),
+             "does not move the low-lactate example (ammonia sets its litres); the published cells cost $67 at 2.0 and $92 at 3.6."),
     "sc_mass_selected_pg": Input(2000.0, "pg wet per cell", "[judgement] between the 1.0-1.75 ng reported for "
         "chicken cells (SuperMeat 2024) and Humbird's 3 ng; no mass was found for the bovine cells",
         lo=1000.0, hi=3000.0, mode=2000.0,
@@ -1180,7 +1180,8 @@ REGISTRY: dict[str, Input] = {
     "cr_td_engineering": Input(15.0, "h", "[Stout et al. 2023, ACS Synth Biol / preprint; species_cell_parameters.md] immortalised "
         "bovine satellite cells, 15-17 h with serum", note="engineered for immortality, not for metabolism"),
     "cr_mass_feed": Input(3300.0, "pg wet per cell", "[Pasitka et al. 2024 abstract, converted in species_cell_parameters.md] chicken "
-        "cells at 108 million cells/mL = 36% w/v, about 3.3 ng a cell; SuperMeat 2024 reports 1.0-1.75 ng",
+        "cells at 130 million cells/mL = 43% w/v (the 2024 abstract; the 2023 paper gives 108 million = 36% w/v), both about 3.3 ng a cell; "
+        "SuperMeat 2024 reports 1.0-1.75 ng",
         note="a cell's mass is measured, not chosen: every route below this mass has been seen in meat cells. Larger cells are "
              "cheaper (they respire less per gram)"),
     # --- Vessel types and operating modes (vessels.py; research_notes/vessels_and_modes.md) ---------------
@@ -1641,13 +1642,13 @@ REGISTRY: dict[str, Input] = {
              "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
              "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
              "buyers; its share of all choices is 4%, and 13% reproduces both."),
-    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the Engineered cells, all favourable case: once "
-        "familiar and at equal price, shoppers slightly favour cultivated meat. The Engineered cells, all favourable case takes the favourable end of every "
+    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the all-favourable example: once "
+        "familiar and at equal price, shoppers slightly favour cultivated meat. The all-favourable example takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
         "antibiotics, disease) none of the precedents for distrusted foods had to face (irradiated food, margarine, modified "
         "crops, all against a natural product), and decades of familiarity and a new generation of shoppers are part of it.",
         lo=0.35, hi=0.70, mode=0.55,
-        note="Used only by the Engineered cells, all favourable case (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
+        note="Used only by the all-favourable example (scenarios.SCENARIOS['best'].equal_price_share); drawn in its band from 35% to 70%. "
              "Every other scenario uses equal_price_share."),
     "cult_sub_mult": Input(8.5, "x", "[data-bracketed] kappa: HOW MANY TIMES more own-price-elastic CULTIVATED "
         "meat is than meat as a CATEGORY. Plain meaning: a 1% rise in cultivated's price loses kappa x 0.9% of its "

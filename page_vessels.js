@@ -57,6 +57,26 @@ function vmCell(v,m,base){                      // mirror of vessels.cell
           density_unshown:tag[0]===VM.tag_order[0]&&r.density>VM.x_meat_shown+1e-9,
           same_as:VM.same_as[key]?VM.same_as[key][0]:null, tag:tag[0], evidence:tag[1]};
 }
+// Is the combination one the model can price (not "not possible")?
+function vmPossible(v,m){ return !VM.not_possible[v+"|"+m]; }
+// The floorExplore arguments of a vessel and a way of running it on top of a case, after the same fallback as vmCell: if the case's
+// tank tricks fail the column's checks in this vessel, the cheapest trick setting that passes, run thinner if it must be.
+function vmResolve(v,m,base){
+  const p=vmKwargs(v,m,base); if(p===null) return null;
+  if(vmLoopOk(floorExplore(p))) return {kw:p, fallback:""};
+  let best=null;
+  scSwitch("tricks").settings.forEach(st=>{
+    const b=Object.assign({},base); VM.trick_args.forEach(k=>{ delete b[k]; });
+    let kw2=vmKwargs(v,m,Object.assign(b,st.p)), rr=floorExplore(kw2), thin=false;
+    if(!vmLoopOk(rr)){ let lo=0, hi=rr.density, ok=null;
+      for(let i=0;i<24;i++){ const mid=0.5*(lo+hi), caps=Object.assign({},kw2.vm.caps||{}); caps[VM.loop_limit]=mid;
+        const kw3=Object.assign({},kw2,{vm:Object.assign({},kw2.vm,{caps:caps})}), r3=floorExplore(kw3);
+        if(vmLoopOk(r3)){ lo=mid; ok=[kw3,r3]; } else hi=mid; }
+      if(ok===null) return; kw2=ok[0]; rr=ok[1]; thin=true; }
+    if(best===null||rr.total<best[1].total-1e-12) best=[kw2,rr,st.label+(thin?VM.thin_note:"")];
+  });
+  return best?{kw:best[0], fallback:best[2]}:{kw:p, fallback:""};
+}
 function vmBase(){                              // the case the table holds fixed
   if(vmShow==="reference") return {doubling_h:24, mass_pg:3000, vessel_m3:20, plant:"sanitary", mode:"perfusion", charge:C.fx.charge_mature};
   return scParams(SCS.choice);

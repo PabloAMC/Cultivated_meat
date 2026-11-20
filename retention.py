@@ -369,6 +369,39 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
     return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"]}
 
 
+# What sizing() reads for each device, by the short key the page's JavaScript uses (page_retention.js): {device: {short: input}}
+_JS_INPUTS = {
+    "atf": dict(flux="rt_flux_lmh", area="rt_atf_area", price="rt_atf_price", install="rt_install",
+                mem_price="rt_membrane_price", mem_life="rt_membrane_life"),
+    "tff": dict(flux="rt_flux_lmh", hw="rt_tff_hw", install="rt_install", mem_price="rt_membrane_price",
+                mem_life="rt_membrane_life"),
+    **{dev: dict(flux=f, hw=h, price=p, life=l, install="rt_install") for dev, (f, h, p, l) in _MEMB.items()},
+    "settler": dict(v_frac="rt_settle_v_frac", holdup="rt_settle_holdup", price="rt_settle_price"),
+    "acoustic": dict(cap="rt_acoustic_cap", price="rt_acoustic_price", install="rt_install"),
+    "discstack": dict(conc="rt_ds_conc", cap="rt_ds_cap", spares="rt_ds_spares", price="rt_ds_price", lysis="rt_ds_lysis",
+                      power="rt_ds_power", maint="rt_maint", power_price="ge_power_price"),
+    "hydrocyclone": dict(split="rt_hc_split", eff="rt_hc_eff", price="rt_hc_price"),
+}
+
+
+def js_model() -> dict:
+    """What the page's JavaScript needs to size and price a device (page_retention.js mirrors duty, sizing and
+    scenario_cost; tests/run_parity.py checks the two agree). Every device of ORDER but the hoped-for one and the two
+    particle routes, which need the oxygen profile of an aggregate and stay in Python (`python_only`)."""
+    ported = [k for k in ORDER if k != "hoped" and k not in PARTICLES]
+    devices = {}
+    for k in ported:
+        D = DEVICES[k]
+        devices[k] = {"key": k, "name": D["name"], "how": D["how"], "shown": D["shown"],
+                      "inputs": {short: value(name) for short, name in _JS_INPUTS[k].items()},
+                      "phi_max": value(D["phi_max"]) if D["phi_max"] else None}
+    return {"order": ported, "devices": devices, "memb": list(_MEMB), "default": "tff",
+            "particles": {k: {"key": k, "name": DEVICES[k]["name"], "how": DEVICES[k]["how"], "shown": DEVICES[k]["shown"],
+                              "python_only": True} for k in PARTICLES},
+            "not_costed": {k: {"name": n, "reason": why} for k, (n, why) in NOT_COSTED.items()},
+            "holdup_max": value("rt_settle_holdup_max"), "hours": HOURS}
+
+
 # The inputs behind each device, and which way is cheaper (+1: a higher value is cheaper; -1: a lower one is)
 _DRIVERS = {
     "hoped": (("pf_capex_retention", -1),),

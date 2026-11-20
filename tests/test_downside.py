@@ -16,16 +16,16 @@ from inputs import value
 # repinned 2026-11-19: best's medium is now the nutrient floor ($2.00 a kilo whatever the litres, against $0.15 a litre before);
 # the other scenarios' growth factors are inside their complete-medium price, which cannot cost less than the nutrients plus those
 # growth factors (it binds at the model cap's 16 L/kg, not at 27 g/L's 37 L/kg)
-# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L lowers the selected cells' unwashed cap from 62 to 56 g/L (central and
+# 2026-11-19 audit batch: ammonia tolerance 4 mmol/L lowers the low-lactate cells' unwashed cap from 62 to 56 g/L (central and
 # central_lean, model cap); best (capped by the least medium flow) and its 27 g/L figures do not move. Cautious: glucose from the
 # cells' balance gives the published cells 4.8 mol of lactate a kilo, and an unwashed tank is now capped by whichever waste is
 # further above the enhanced cells' (lactate here), so its cap falls from 52 to 25 g/L, below the 27 g/L shown for meat cells
 # 2026-11-19 restructure: an unwashed tank is capped by the waste mass balance (pf_batch_end_x times the level perfusion is held
-# to), not by Humbird's 120 g/L scaled. Selected cells' selected cells stop at 37 g/L (was 56), the published cells (cautious) at 13.6 g/L
-# (was 25); the Engineered cells, all favourable case is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
+# to), not by Humbird's 120 g/L scaled. The low-lactate example's low-lactate cells stop at 37 g/L (was 56), the published cells (cautious) at 13.6 g/L
+# (was 25); the all-favourable example is still held at 92 g/L by other by-products. A fed-batch plant with shared medium keeps Humbird's full
 # seed train (best and central_lean, fed-batch), so there fill-and-draw, which needs a seed only to restart, is the cheaper fallback.
 GOLDEN = {
-    # 2026-11-19: every kind of cell weighs 2 ng (the engineered cells were Humbird's 3 ng)
+    # 2026-11-19: every kind of cell weighs 2 ng (the low-waste cells were Humbird's 3 ng)
     "best": {("fedbatch", "model"): 15.7082, ("fedbatch", "shown"): 44.0730, ("filldraw", "model"): 14.4420},
     "central": {("fedbatch", "model"): 64.8950, ("fedbatch", "shown"): 88.2078, ("filldraw", "model"): 70.6191},
     "central_lean": {("fedbatch", "model"): 49.5107, ("filldraw", "model"): 47.9440},

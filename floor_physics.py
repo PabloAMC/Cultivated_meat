@@ -639,7 +639,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # A tank that is not washed out holds what its cells make: the litres a kilo leaves with (1000 / density) must hold its
         # ammonia and its lactate at the level the tank allows, the level perfusion is held to (the ammonia limit; the lactate
         # the salt leaves room for) times pf_batch_end_x for a batch that ends above it (2026-11-19 restructure; it was
-        # Humbird's fed-batch 120 g/L scaled by the waste, which let Selected cells' fed-batch end at 7.8 mmol/L of ammonia).
+        # Humbird's fed-batch 120 g/L scaled by the waste, which let the low-lactate example's fed-batch end at 7.8 mmol/L of ammonia).
         # mmol/L / (mol/kg) = g/L.
         limits["waste build-up"] = end_x * min(nh3_lim / max(nh3, 1e-12), lac_room / max(lac, 1e-12))
         # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
@@ -923,8 +923,8 @@ TORNADO = [
      "proportional to the gas flow. <b>Range:</b> the reference case uses 6 mm/s, Humbird's reading of a rule of thumb "
      "[2]. It is not a measured limit. Large pharma tanks run at 0.1 to 2 mm/s because their thin cultures need "
      "no more, and 2 is about the most that has been run with cells. 9 is what bubble damage would allow with "
-     "enough protectant. <b>What caps it:</b> bursting bubbles kill cells, but a protectant cuts that at least "
-     "100-fold, and small tanks at 60 to 80 million cells per mL took twice the reference case's gas per litre. Foam is "
+     "enough protectant. <b>What caps it:</b> bursting bubbles kill cells, but a protectant cuts that about "
+     "20-fold at 1 g a litre in the one small culture measured, and small tanks at 60 to 80 million cells per mL took twice the reference case's gas per litre. Foam is "
      "the likelier cap. It grows with gas velocity, and the antifoam that controls it slows growth and oxygen "
      "transfer. <b>Evidence:</b> weak. Nobody has run cells this dense at this size, or any culture at 6 mm/s. "
      "The author puts the odds that 6 mm/s works at this size at about even."),

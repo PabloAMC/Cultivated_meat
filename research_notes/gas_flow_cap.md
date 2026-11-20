@@ -1,6 +1,6 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
 
@@ -158,7 +158,7 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
 | Humbird, Sect. 2.3 | Guidance on maximum sparge rate "is usually <0.1 vvm", citing Ozturk 1996 and Pörtner 2015; margin note: "0.01 vvm is common" (citing Nienow 2010), and protectant at more than 0.5 g/L is recommended in vigorously sparged cultures | [1] FT |
 | Humbird, Sect. 2.3 | He recasts the limit as a superficial velocity of 0.006 m/s at the top of the vessel, equal to 0.1 vvm in a 20 m³ tank of his shape with 5 psig back pressure | [1] FT. CALC check: 0.1 vvm of standard gas on 16 m³, at 37 °C and 1.34 bar, over 4.28 m² is 5.3 mm/s; on the full 20 m³ it is 6.7. Consistent |
 | Humbird, Sect. 5 | The limits "generally exceed the requirements of typical cell-culture processes"; at these extremes they are "dubious" and may be "needlessly conservative" (citing Nienow 2006) | [1] FT |
-| Ozturk 1996 | Not readable (paywalled, not in PubMed Selected cells). The abstract has no gas-flow number | [2] ABS |
+| Ozturk 1996 | Not readable (paywalled, not in PubMed the low-lactate example). The abstract has no gas-flow number | [2] ABS |
 | Ozturk 1996, as restated | Cell lysis and foaming limit sparging to about 0.1 vvm. No scale or density | 2nd, via Sieblist 2011 [5] (one passage, read by automated extraction) |
 | Pörtner 2015 | Not readable. Abstract has no numbers | [3] ABS |
 | Nienow 2006 | No numeric maximum anywhere. Typical in 8–20 m³ tanks: velocity 0.1 to 2 mm/s, 0.005–0.01 vvm; 0.003 vvm at 20 m³. The upper limit on velocity with protectant present "is not established" and cannot be tested at bench scale; he calls for pilot-scale work including foam | [4] FT |
@@ -466,7 +466,7 @@ full texts not read: about 60%.
 Gas velocity in mm/s for the reference tank (20 m³, liquid 3.74 m deep, 120 g/L, protectant at 2–5 g/L, drilled
 holes). Divide by 62 for vvm.
 
-| Mechanism | Low | Selected cells | High | Scales with | Basis |
+| Mechanism | Low | Low-lactate example | High | Scales with | Basis |
 |---|---|---|---|---|---|
 | 1a. Bursting bubbles, with protectant | 2 | 14 | above 20 | vvm | Killing-volume model with X′ = 0.004 / 0.0005 / under 0.0003, death rate held to a quarter of growth. Direct support: 0.2 vvm harmless at up to 200 L. Sourced (bench scale) |
 | 1a. The same without protectant | under 0.5 | | | vvm | X′ = 0.05. Sourced |
@@ -530,7 +530,7 @@ from a dense culture, with and without antifoam, would by itself move my 45% by 
    behind a paywall. No bulk price. Poloxamer is dissolved in the medium, so it leaves with every litre unless recovered. The model
    now charges `pf_protectant_dose` (2 g/L, range 1–5) × litres × `pf_protectant_price` ($30/kg assumed for tonnes, range $10–260,
    the top being the catalogue price) in every sparged vessel, with a tornado bar. At $30 that is $0.67 a kilo of cells in the
-   reference case and the best case (11.2 L/kg) and $1.68 in Central and Cautious (28 L/kg); at the catalogue price $5.6 and
+   reference case and the all-favourable example (11.2 L/kg) and $1.68 in Central and Cautious (28 L/kg); at the catalogue price $5.6 and
    $14. Medium prices are taken to exclude it. A web search found no EU food-additive authorisation for poloxamers and no EFSA
    opinion; cultivated meat is assessed as a novel food, so the residue would be dealt with in that dossier. Not verified in the
    Union list itself. A supplier quote would replace the assumed price.
@@ -539,7 +539,7 @@ from a dense culture, with and without antifoam, would by itself move my 45% by 
    *Done 2026-11-15 (late):* `explore(antifoam_otr=)` and input `pf_antifoam_otr`, applied to the sparger's oxygen only, with a
    tornado bar. **The default is 0.75**, the middle of the reported 0–50% cut (a judgement; it was 1). At 0.75 the reference tank is
    unchanged (CO₂ still binds at 120 g/L), but oxygen now limits Central (177 g/L in place of 236; +$1.8) and Cautious (+$3.7).
-   Halved: reference $13.55 (oxygen binds at 97 g/L), best case $10.16, Central $33.18, Cautious $51.18. With no effect: $12.51,
+   Halved: reference $13.55 (oxygen binds at 97 g/L), the all-favourable example $10.16, Central $33.18, Cautious $51.18. With no effect: $12.51,
    $9.56, $28.15, $40.07. The effect on growth and the food limit are still not in the model.
 3. **Stripping efficiency.** 0.7–0.96 against the model's 0.96; worth a tornado bar.
    *Done 2026-11-15 (late):* `explore(strip_eff=)` with a tornado bar (0.70 to 0.96). At 0.70 the reference tank holds 87 g/L in

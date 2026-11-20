@@ -14,8 +14,8 @@ Every step uses an existing model: `min_litres` (the least medium per kg), `rete
 membranes), `gf_doubling_bounds` (growth factors returned by the filter), `thick_culture` (the density limit),
 `nutrient_floor` (GFI's amino-acid prices). Nothing here changes a default.
 
-Held fixed: the scenario's tank design (tricks and shape, chosen for the central case), the 20 m3 tank (`tank_size`
-finds Selected cells' cheapest size, 43 m3, 1.6% below it), and the stirred tank in perfusion. If perfusion fails, see `downside.py`.
+Held fixed: the scenario's tank design (tricks and shape, chosen for the low-lactate example), the 20 m3 tank (`tank_size`
+finds the low-lactate example's cheapest size, 43 m3, 1.6% below it), and the stirred tank in perfusion. If perfusion fails, see `downside.py`.
 
 Run
 ---
@@ -63,7 +63,7 @@ def evaluate(state: dict) -> dict:
 def steps() -> list:
     """(name, change, evidence and odds) for each lever, from the central scenario."""
     return [
-        ("Selected cells scenario", {}, "the model as it stands: cells that make little waste, 36 h, TFF filter loop, $0.20 a litre"),
+        ("Low-lactate example", {}, "the model as it stands: cells that make little waste, 36 h, TFF filter loop, $0.20 a litre"),
         ("Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate",
          {"waste_floor": "physical"},
          "physically possible 60% (6 L/kg or less); a meat-cell process reporting 11 L/kg or less by 2030: 10% (min_litres_per_kg.md)"),

@@ -28,10 +28,10 @@ GOLDEN_REF = {
     ("airlift", "fedbatch"): 20.8887, ("airlift", "perfusion"): 15.1712,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
-# 2026-11-19 audit batch: the reference grid does not move (Humbird's design keeps his 5 mmol/L and loses no runs). Selected cells:
+# 2026-11-19 audit batch: the reference grid does not move (Humbird's design keeps his 5 mmol/L and loses no runs). The low-lactate example:
 # ammonia tolerance 4 mmol/L (35 L/kg in perfusion, was 28; fed-batch stops at 56 g/L, was 62) and lost runs pay for their membranes
 # 2026-11-19 restructure: an unwashed tank is held by the waste mass balance (1.3 times the 4 mmol/L perfusion is held to), so
-# Selected cells' fed-batch stops at 37 g/L, not 56 ($45.81 -> $67.42); the reference grid does not move (other by-products hold it at 92)
+# the low-lactate example's fed-batch stops at 37 g/L, not 56 ($45.81 -> $67.42); the reference grid does not move (other by-products hold it at 92)
 GOLDEN_CENTRAL = {("stirred", "perfusion"): 32.8028, ("stirred", "fedbatch"): 67.4193, ("airlift", "perfusion"): 34.1429}
 
 

@@ -8,8 +8,13 @@ const INIT_HASH=(typeof location!=="undefined")?location.hash.slice(1):"";   // 
 // ref: the reference point loaded and not changed since (null once anything moves); from: the last one loaded; traits: the cell
 // traits the reader has set (held, not drawn); held: the plant estimates the reader has set (capex_x, cpl = filter cost per
 // litre, medium_price); hb: Humbird's tank mode and plant; buyers: meat buyers who would pick it at the same price (the map's y).
-const SCS={choice:Object.assign({},SC.presets[SC.start].choice), preset:SC.start, src:"scenario", customCost:null,
-  base:"switches", ref:SC.start, from:SC.start, redesign:true, traits:{}, held:{}, hb:{mode:"perfusion",plant:"sterile"}, buyers:null};
+// vessel, vmode: the vessel type and the way it is run when they are not a stirred tank in perfusion or fed-batch (vessels.py);
+// device: the device that holds the cells back in perfusion (retention.py; "tff" is the model's own membrane loop).
+const TP_START=MODEL.tp.start;                    // the page opens on the published measurements, not on a hypothetical set of cells
+const SCS={choice:Object.assign({},SC.presets[TP_START].choice), preset:TP_START, src:"scenario", customCost:null,
+  base:"switches", ref:TP_START, from:TP_START, redesign:false, traits:{}, held:{}, hb:{mode:"perfusion",plant:"sterile"}, buyers:null,
+  vessel:"stirred", vmode:null, device:"tff"};
+let TP_FXSIG="";                                  // the datasheet constants the reader has set (part of every cache key)
 // what every scEval adds to a choice's explore arguments: the reader's traits and plant estimates (empty unless the reader set
 // them, so the pure mirror of scenarios.run that tests/run_parity.py checks is unchanged)
 let SC_EXTRA={};
@@ -33,7 +38,7 @@ function scParams(ch){          // the explore arguments of a choice (mirror of 
   return Object.assign(p,SC_EXTRA);
 }
 function scEval(ch){
-  const k=SC.keys.map(x=>ch[x]).join("|")+JSON.stringify(SC_EXTRA);
+  const k=SC.keys.map(x=>ch[x]).join("|")+JSON.stringify(SC_EXTRA)+TP_FXSIG;
   if(!(k in scCache)) scCache[k]=floorExplore(scParams(ch));
   return scCache[k];
 }
@@ -140,11 +145,35 @@ const TP_TRAIT_WORD={nh3_kg:"ammonia",lac_yield:"lactate",doubling_h:"doubling t
 /* ---------- the reader's explore arguments ---------- */
 function tpResolvePlant(p){ if(p.plantKey){ if(p.plantKey==="lean"){ p.plant="sanitary"; p.items=C.fx.plant_items.lean; }
   else p.plant=(p.plantKey==="sterile"?"sanitary":p.plantKey); delete p.plantKey; } return p; }
+// The reader's further settings (MODEL.tp.params, from build_interactive.PAGE_PARAMS). A "kw" setting is a floorExplore argument;
+// an "fx" setting replaces a constant of the datasheet (C.fx) and an "fxx" one multiplies it, as inputs.py would if the input were
+// changed there. Values are held in the slider's unit (the model's unit times `scale`).
+const TP_PAR={}; TP.params.forEach(q=>{ TP_PAR[q.key]=q; });
+const TP_FX0={};
+function tpFxAt(path){ const ks=path.split("."); let o=C.fx; for(let i=0;i<ks.length-1;i++) o=o[ks[i]]; return [o,ks[ks.length-1]]; }
+function tpFx0(path){ if(!(path in TP_FX0)){ const a=tpFxAt(path); TP_FX0[path]=a[0][a[1]]; } return TP_FX0[path]; }
+function tpApplyFx(h){ h=h||{}; const sig=[];
+  TP.params.forEach(q=>{ if(q.kind==="kw") return; const a=tpFxAt(q.arg), v0=tpFx0(q.arg), v=h[q.key];
+    a[0][a[1]]=v===undefined?v0:(q.kind==="fxx"?v0*v:v/q.scale); if(v!==undefined) sig.push(q.key+"="+v); });
+  TP_FXSIG=sig.length?"|fx:"+sig.join(";"):""; }
 function tpHeldKw(h){ const o={}; h=h||{};
   if(h.capex_x!==undefined) o.capex_x=h.capex_x;
-  if(h.cpl!==undefined) o.membrane_life=TP.plant.mem_price/h.cpl;     // a held cost per litre: membrane life at the model's membrane price
   if(h.medium_price!==undefined) o.medium_price=h.medium_price;
+  TP.params.forEach(q=>{ if(q.kind==="kw"&&h[q.key]!==undefined) o[q.arg]=h[q.key]/q.scale; });
   return o; }
+// the value a setting has when the reader has not set it, in the slider's unit
+function tpParamDefault(q,p){ if(q.kind==="fxx") return 1; if(q.kind==="fx") return tpFx0(q.arg)*q.scale;
+  const v=p[q.arg]; return (v!==undefined?v:tpFx0(q.dflt))*q.scale; }
+// the vessel and the way it is run, when they are not the stirred tank's own perfusion or fed-batch (page_vessels.js)
+function tpVesselKw(st,p){ const v=st.vessel||"stirred", m=st.vmode;
+  if(!m||(v==="stirred"&&(m==="perfusion"||m==="fedbatch"))) return p;
+  const r=vmResolve(v,m,p); return r?r.kw:p; }
+// one case with the reader's retention device (page_retention.js); the membrane loop is floorExplore itself
+function tpEval(st,p){ const d=st.device;
+  if(d&&d!=="tff"&&typeof rtCost==="function"){ const vm=p.vm||{}, washed=vm.washed!==undefined?vm.washed:p.mode==="perfusion";
+    if(washed&&!vm.own_retention){ const c=rtCost(d,p);
+      if(c&&c.res) return Object.assign({},c.res,{device:d, device_running:c.device_running_kg||0, device_capital:c.device_capital_kg||0, device_loss:c.loss, device_impossible:c.impossible||"", device_beyond:!!c.beyond}); } }
+  return floorExplore(p); }
 // explore arguments for a state {base, choice, hb, traits, held}; without traits or held: the reference point itself
 function tpParamsFor(st){
   const extra=Object.assign({},st.traits||{},tpHeldKw(st.held));
@@ -154,12 +183,15 @@ function tpParamsFor(st){
     if(st.hb.plant!=="sterile") Object.assign(p,scSetting("plant",st.hb.plant).p);
     tpResolvePlant(p);
     if(p.vm&&p.vm.kind==="cyclic"&&p.items&&p.items.seed==="two") p.items=Object.assign({},p.items,{seed:"full"});
-    return Object.assign(p,extra);
+    return tpVesselKw(st,Object.assign(p,extra));
   }
-  return scWithExtra(extra,()=>scParams(st.choice));
+  return tpVesselKw(st,scWithExtra(extra,()=>scParams(st.choice)));
 }
 function tpParams(){ return tpParamsFor(SCS); }
 function tpMode(){ return SCS.base==="humbird"?SCS.hb.mode:SCS.choice.mode; }
+// the way the tank is run, in the vessel table's words (batch, fedbatch, filldraw, chemostat, perfusion)
+function tpVMode(){ return SCS.vmode||(tpMode()==="perfusion"?"perfusion":"fedbatch"); }
+function tpWashed(p){ const vm=p.vm||{}; return vm.washed!==undefined?vm.washed:p.mode==="perfusion"; }
 function tpPlant(){ return SCS.base==="humbird"?SCS.hb.plant:SCS.choice.plant; }
 // the four traits as the page shows them: the reader's where set, else the reference point's (or the switches')
 function tpTraitsShown(){
@@ -186,41 +218,51 @@ function tpCloudDraw(isScen,kw0,cells,lean){
   return o;
 }
 // the cost of one draw: the reader's arguments with the drawn estimates in place
-function tpCloudCost(p,o){
+function tpCloudCost(p,o,st){
   const q=Object.assign({},p), F=C.fx, sv=[F.protect_dose,F.tff.mem_price,F.aa];
   for(const k in o) if(k.charAt(0)!=="_") q[k]=o[k];
   if(o._dose!==undefined) F.protect_dose=o._dose;
   if(o._memprice!==undefined) F.tff.mem_price=o._memprice;
   if(o._aa!==undefined) F.aa=TP.cloud.aa_intensity*o._aa;
-  try{ return floorExplore(q).total; } finally{ F.protect_dose=sv[0]; F.tff.mem_price=sv[1]; F.aa=sv[2]; }
+  try{ return tpEval(st||SCS,q).total; } finally{ F.protect_dose=sv[0]; F.tff.mem_price=sv[1]; F.aa=sv[2]; }
 }
 // which draws a state's own settings remove from the cloud: the traits and plant estimates the reader has set
 function tpDrop(o,st){
   Object.keys(st.traits||{}).forEach(k=>{ delete o[k]; });
   const h=st.held||{};
   if(h.capex_x!==undefined) delete o.capex_x;
-  if(h.cpl!==undefined){ delete o.membrane_life; delete o._memprice; }
   if(h.medium_price!==undefined) delete o.medium_price;
+  TP.params.forEach(q=>{ if(h[q.key]!==undefined) q.drop.forEach(k=>{ delete o[k]; }); });
   return o;
 }
 // n draws for a state (the same seed for every state, so the cloud moves smoothly as a setting moves): the costs, sorted, and
 // the 10th, 50th and 90th percentiles; `draws` lets a test pass in Python's draws
+// the cost at the settings shown, every estimate at its value on the page (no draws): what the first screen reports
+function tpPointFor(st){ tpApplyFx(st.held); try{ const r=tpEval(st,tpParamsFor(st)); return {point:r.total, res:r, q:[r.total,r.total,r.total], n:0, sorted:[r.total], light:true}; } finally{ tpApplyFx(SCS.held); } }
 function tpCloudFor(st,n,draws){
   n=n||TP.cloud.n;
+  tpApplyFx(st.held);                // the datasheet constants this state sets (put back to the reader's own below)
+  try{ return tpCloudFor_(st,n,draws); } finally{ tpApplyFx(SCS.held); }
+}
+function tpCloudFor_(st,n,draws){
   const p=tpParamsFor(st), isScen=st.base!=="humbird";
   const kw0=isScen?scWithExtra({},()=>scParams(st.choice)):Object.assign({},tpRef("humbird").base);
   const cells=isScen?st.choice.cells:null, lean=isScen&&st.choice.plant==="lean";
   if(!draws){ _seedRng(TP.cloud.seed); draws=[]; for(let i=0;i<n;i++) draws.push(tpDrop(tpCloudDraw(isScen,kw0,cells,lean),st)); }
   else draws=draws.map(o=>tpDrop(Object.assign({},o),st));
-  const cost=draws.map(o=>tpCloudCost(p,o)), srt=cost.slice().sort((a,b)=>a-b), r0=floorExplore(p);
+  const cost=draws.map(o=>tpCloudCost(p,o,st)), srt=cost.slice().sort((a,b)=>a-b), r0=tpEval(st,p);
   return {cost:cost, sorted:srt, q:[pctl(srt,10),pctl(srt,50),pctl(srt,90)], point:r0.total, res:r0, n:draws.length};
 }
+const TP_REFP={};
+function tpRefPoint(k){ if(!(k in TP_REFP)){ const r=tpRef(k);
+  TP_REFP[k]=r.kind==="company"?r.cost:tpPointFor(r.kind==="humbird"?{base:"humbird",hb:{mode:"perfusion",plant:"sterile"},traits:{},held:{},device:"tff"}:{base:"switches",choice:r.choice,traits:{},held:{},device:"tff"}).point; }
+  return TP_REFP[k]; }
 const TP_REFC={};
 function tpRefCloud(k){            // a reference point's own cloud (its traits drawn as scenario_mc draws them)
   if(!TP_REFC[k]){ const r=tpRef(k);
     if(r.kind==="company") TP_REFC[k]={q:[r.cost,r.cost,r.cost], point:r.cost, sorted:[r.cost]};
-    else TP_REFC[k]=tpCloudFor(r.kind==="humbird"?{base:"humbird",hb:{mode:"perfusion",plant:"sterile"},traits:{},held:{}}
-                                              :{base:"switches",choice:r.choice,traits:{},held:{}}); }
+    else TP_REFC[k]=tpCloudFor(r.kind==="humbird"?{base:"humbird",hb:{mode:"perfusion",plant:"sterile"},traits:{},held:{},device:"tff"}
+                                              :{base:"switches",choice:r.choice,traits:{},held:{},device:"tff"}); }
   return TP_REFC[k];
 }
 
@@ -268,7 +310,7 @@ function pgPlantBased(){ return penetration(Object.assign({},state,{cost_overrid
 function tpChanged(){ return SCS.ref===null; }
 function tpWho(){ return SCS.ref?tpLabel(SCS.ref):"Your settings"; }
 function pgFacts(){
-  const cl=PGS.cloud||(PGS.cloud=tpCloudFor(SCS)), b=SCS.buyers, q=cl.q, cost=q[1];
+  const cl=PGS.cloud||(PGS.cloud=tpPointFor(SCS)), b=SCS.buyers, q=cl.q, cost=cl.point;
   const retail=shelfPrice(cost,state), conv=C.p_conv_anchor*state.meat_tax;
   const sh=[tpShare(q[2],b),tpShare(q[1],b),tpShare(q[0],b)];
   const one=tpCostFor(1,b), ten=tpCostFor(10,b);
@@ -276,8 +318,8 @@ function pgFacts(){
           avg:tpAvgPrice(), share:sh[1], sb:sh, pb:pgPlantBased(), parity:tpParity(), buyers:b, eqs:state.equal_price_share, cloud:cl,
           one:one, ten:ten, groups:tpCostGroups(cl.res||floorExplore(tpParams())), animals:tpByAnimal(cost,b)};
 }
-function pgPointCost(){ return (PGS.cloud||(PGS.cloud=tpCloudFor(SCS))).point; }
-function pgHeadCost(){ return (PGS.cloud||(PGS.cloud=tpCloudFor(SCS))).q[1]; }
+function pgPointCost(){ return (PGS.cloud||(PGS.cloud=tpPointFor(SCS))).point; }
+function pgHeadCost(){ return pgPointCost(); }
 function pgSetCost(){ state.cost_override=pgHeadCost(); }      // the cost every shopper chart runs at: the median of the cloud
 function pgCaseWords(f){ return f.key==="own"?"your settings":f.label; }
 function scOwnName(){ return tpWho(); }
@@ -318,7 +360,7 @@ function tpCostGroups(r){
   const ml=r.medium_l, perL=v=>ml>0?" ($"+(v/ml).toFixed(2)+" a litre)":"";
   const groups=[
     {key:"litres", name:"Scales with the litres of medium", what:"the litres of medium the cells need", note:ml.toFixed(0)+" litres a kilo of cells", items:[
-      {key:"membranes", name:"Filter membranes", note:perL(r.membranes), v:r.membranes},
+      {key:"membranes", name:r.device?"The retention device's running cost ("+MODEL.rt.devices[r.device].name.toLowerCase()+")":"Filter membranes", note:perL(r.membranes+(r.device_running||0)), v:r.membranes+(r.device_running||0)},
       {key:"medium", name:"The medium itself", note:perL(r.feedstock), v:r.feedstock},
       {key:"protectant", name:"Bubble protectant", note:perL(r.protectant), v:r.protectant},
       {key:"gf", name:"Growth factors bought on top", note:perL(r.growth_factors), v:r.growth_factors}]},
@@ -326,7 +368,7 @@ function tpCostGroups(r){
       {key:"capital", name:"The plant's yearly capital charge", note:"", v:r.capital},
       {key:"labour", name:"Labour", note:"", v:r.labour}]},
     {key:"other", name:"Everything else", what:"neither", note:"", items:[
-      {key:"energy", name:"Energy and gas", note:"", v:r.utilities+(r.extra_opex||0)},
+      {key:"energy", name:"Energy and gas", note:"", v:r.utilities+(r.extra_opex||0)-(r.device_running||0)},
       {key:"supplies", name:"Other supplies", note:"", v:r.consumables-r.membranes-r.protectant}]}];
   groups.forEach(g=>{ g.items=g.items.filter(i=>(i.key!=="gf"&&i.key!=="membranes"&&i.key!=="protectant")||i.v>0); g.v=g.items.reduce((a,i)=>a+i.v,0); });
   const sum=groups.reduce((a,g)=>a+g.v,0);
@@ -364,6 +406,16 @@ function tpSellers(A){
 }
 const tpAnd=l=>l.length<2?l.join(""):l.slice(0,-1).join(", ")+" and "+l[l.length-1];
 
+/* ---------- the page's opening: only the best the model can find, as a range (the author, 2026-11-19: "I would not lead with any
+   number except perhaps the best we can possibly do (if only a range)"; published cells are not the state of the art, because
+   companies do not publish theirs) ---------- */
+function pgLead(){
+  const fl=C.FEEDSTOCK_FLOOR, fr=TP.frontier, ms=tpMeats(), a=ms[0], b=ms.find(m=>/steak/i.test(m.name))||ms[ms.length-1];
+  return "The best this model can find: a kilo of cells cannot cost less than about $"+fl.toFixed(1)+", the price of the nutrients it is built from, and with every lever at the limit of what is known it costs about $"+fr.toFixed(1)+
+    ". In the shop that would be about "+tpUSD(shelfPrice(fl,state))+" to "+tpUSD(shelfPrice(fr,state))+" a kilo as mince; for comparison, "+a.plain+" costs $"+a.price.toFixed(2)+" a kilo "+tpEatenWhere()+" and "+b.plain+" $"+b.price.toFixed(2)+
+    ". How far above that range a real process sits depends on the cells, the reactor and the medium, which you set below. The sliders start at the best values published for meat cells. Companies say their own cells do better, and have not published them.";
+}
+
 /* ---------- the live sentence ---------- */
 function pgDeck(f){
   const who=f.key==="own"?"With your settings":"With "+f.label, c=f.cost;
@@ -372,16 +424,16 @@ function pgDeck(f){
   else if(c>=1.1*f.one) one=tpTimes(c/f.one)+" what it would need to reach 1% of "+tpRegionMeat()+" ("+tpUSDk(f.one)+")";
   else if(c>0.9*f.one) one="about what 1% of "+tpRegionMeat()+" needs ("+tpUSDk(f.one)+")";
   else one="below the "+tpUSDk(f.one)+" that 1% of "+tpRegionMeat()+" needs"+(f.ten!==null&&c<0.9*f.ten?", and below even the "+tpUSDk(f.ten)+" that 10% needs":"");
-  const pr=c/f.parity, eaten="the price of the average kilo eaten "+tpEatenWhere()+" ($"+f.avg.toFixed(2)+" in the shop)";
-  const par=pr>=1.1?tpTimes(pr)+" the "+tpUSD(f.parity)+" a kilo of cells that would match "+eaten
-           :(pr>0.9?"about the "+tpUSD(f.parity)+" a kilo of cells that would match "+eaten:"below the "+tpUSD(f.parity)+" a kilo of cells that would match "+eaten);
+  const ms=tpMeats(), m0=ms[0], m1=ms[ms.length-1], rr=m=>m.shop(c)/m.price;
+  const cmp=m=>(rr(m)>=1.1?tpX(rr(m))+" the price of ":(rr(m)>0.9?"about the price of ":"cheaper than "))+m.plain+" ($"+m.price.toFixed(2)+" a kilo "+tpEatenWhere()+")";
+  const par="in the shop it would cost "+cmp(m0)+" and "+cmp(m1);
   const G=f.groups, big=G.groups.reduce((a,g)=>g.v>a.v?g:a);
   const drv=big.key==="other"?"Most of the cost is energy, gas and other supplies.":
     tpCap(tpFrac(big.v/G.total))+" of the cost scales with "+big.what+(big.key==="litres"?" ("+G.ml.toFixed(0)+" litres a kilo)":"")+".";
   const A=f.animals, sl=tpSellers(A);
   const sh=f.sb[2]<0.00095?"under 0.001% of "+tpRegionMeat():"about "+tpPct2(A.total)+" of "+tpRegionMeat()+" by weight of product ("+tpPct2(A.cells)+" by weight of cells)";
   const sold=sl.part>=0.45?", sold mostly as "+tpAnd(sl.top.map(r=>r.word))+(sl.dear?", where meat is dear":""):", spread across many kinds of meat";
-  return who+", a kilo of cells costs about "+tpUSD(c)+" to grow (8 in 10 draws, if the estimates you have not set vary: "+tpUSD(f.cb[0])+" to "+tpUSD(f.cb[2])+"): "+one+", and "+par+". "+drv+
+  return who+", a kilo of cells costs about "+tpUSD(c)+" to grow: "+one+"; "+par+". "+drv+
     " If "+tpPctB(f.buyers)+" of meat buyers would pick it at the same price, it would take "+sh+" in the long run"+sold+". "+tpCutWords(A.cut)+".";
 }
 // how a steak or fillet is made up, in the sentence's words
@@ -393,20 +445,83 @@ function tpVaried(st){
   st=st||SCS; const isScen=st.base!=="humbird", h=st.held||{}, tr=st.traits||{}, out=[];
   const p=tpParamsFor(st), perf=(p.mode||"perfusion")==="perfusion"&&!(p.vm&&p.vm.kind==="cyclic");
   if(h.capex_x===undefined) out.push("what the plant costs to build");
-  out.push("the yearly charge on the plant");
+  if(h.charge===undefined) out.push("the yearly charge on the plant");
   if(h.medium_price===undefined) out.push("the price of the medium");
   if(isScen&&(p.hazard||0)>0) out.push("how often runs are lost");
-  if(perf&&h.cpl===undefined) out.push("how long the filter membranes last and what they cost");
-  out.push("the share of a cell's oxygen spent on upkeep");
+  const memb=perf&&(st.device||"tff")==="tff"&&!(p.vm&&p.vm.own_retention);
+  if(memb&&h.mem_life===undefined) out.push("how long the filter membranes last");
+  if(memb&&h.mem_price===undefined&&TP.cloud.wide) out.push("what the filter membranes cost");
+  if(h.maint===undefined) out.push("the share of a cell's oxygen spent on upkeep");
   if(TP.cloud.wide){
-    out.push("the ammonia the cells tolerate","the price and dose of the bubble protectant","the least medium flow the cells need",
-             "what antifoam costs the oxygen transfer","the price of amino acids");
+    if(h.nh3_limit===undefined) out.push("the ammonia the cells tolerate");
+    if(h.protect_dose===undefined||h.protect_price===undefined) out.push("the price and dose of the bubble protectant");
+    if(h.min_perfusion===undefined) out.push("the least medium flow the cells need");
+    out.push("what antifoam costs the oxygen transfer");
+    if(h.aa_price===undefined) out.push("the price of amino acids");
     if(isScen&&tr.mass_pg===undefined) out.push("the weight of a cell");
     if(isScen&&tr.nh3_kg===undefined&&(st.choice.cells==="selected"||st.choice.cells==="measured")) out.push("the ammonia the cells make");
   }
   return out;
 }
 function tpVariedTip(st){ return "The 8 in 10 range: the draws vary "+tpAnd(tpVaried(st))+". Whatever you set yourself leaves the list."; }
+
+// published costs shown for comparison on the cost axis only (they are costs, not shares): the published cells as this model prices
+// them, Humbird's 2021 design as this model prices it, and one company's own report
+// The kinds of meat a cost is compared with, by name (the author, 2026-11-19: "different meats have different prices"): the cheapest
+// large kind, the one most eaten, a steak and the dearest, each with its shop price and the cost of cells at which the cultivated
+// product would sell at that price (its shop price is linear in the cost of cells, so two evaluations give it).
+function tpMeats(region){
+  const key=(region||state.region)+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells+"|"+state.scaffold;
+  if(PGS.meatsKey===key) return PGS.meats;
+  const at=c=>tpByAnimal(c,0.5,region).types, a=at(10), b=at(20);
+  const all=a.map((t,i)=>{ const sl=(b[i].R-t.R)/10, c0=10+(1-t.R)/sl; return {name:t.name, plain:l3Name(t.name).toLowerCase(), price:t.price, w:t.w, structured:t.structured, parity:c0, shop:c=>(t.R+sl*(c-10))*t.price}; });
+  const big=all.filter(t=>t.w>0.02), pick=[];
+  const add=t=>{ if(t&&pick.indexOf(t)<0) pick.push(t); };
+  add(big.slice().sort((x,y)=>x.price-y.price)[0]); { const an=animalOf(pick[0].name), rest=all.filter(t=>animalOf(t.name)!==an&&!/steak/i.test(t.name)); if(rest.length) add(rest.reduce((x,y)=>y.w>x.w?y:x)); }   // the most eaten kind of another animal
+  add(all.filter(t=>/steak/i.test(t.name))[0]); add(all.filter(t=>t.w>0.003).sort((x,y)=>y.price-x.price)[0]);
+  PGS.meatsKey=key; return PGS.meats=pick.sort((x,y)=>x.price-y.price);
+}
+const tpX=r=>(r>=9.5?r.toFixed(0):r.toFixed(1))+" times";
+const TP_PUBS=["today","humbird","company"];
+const TP_PUBL={today:"Published cells",humbird:"Humbird's 2021 design",company:"A company's report"};
+// what cultivated mince at `cost` a kilo of cells costs against the cheapest and the dearest large kinds of meat, in words
+function tpMultAt(cost,which){ const A=tpByAnimal(cost,SCS.buyers), ts=A.types.filter(t=>!t.structured&&t.w>0.02).sort((a,b)=>a.price-b.price);
+  const t=which==="cheap"?ts[0]:A.types.slice().sort((a,b)=>b.price-a.price).find(x=>x.w>0.005), r=shelfPrice(cost,state)/t.price;
+  return r.toFixed(1)+" times the price of "+l3Name(t.name).toLowerCase(); }
+
+/* ---------- the shoppers' result for one kind of meat: the share of its buyers who pick the cultivated one, by price ---------- */
+// At the same price the share IS the reader's setting (that is its definition), so the curve passes through (1x, setting). Each kind
+// of meat sits at its own multiple for one cost of cells, which is why the world total differs from the setting.
+function tpOneDraw(f){
+  const svg=document.getElementById("tp_one"); if(!svg||!KP) return;
+  const W=Math.max(300,pgWidth("tp_one_plot",860)), small=W<560, H=small?290:310, L=small?44:56, R=W-14, T=62, B=H-52, fs=small?11:12;
+  const lm=tpLmean(f.buyers), at=r=>shareCalc(r,KP,{ax:state.accept_x,tfM:state.theta_free_M,income:C.income_ref,nbx:state.neophobia_x,hx:state.health_x,lmean:lm,which:"x_meat"})*100;
+  const types=f.animals.types.filter(t=>t.w>0.004), rmax=Math.max(8,Math.min(200,Math.max.apply(null,types.map(t=>t.R))*1.3)), x0=0.25, x1=rmax;
+  const X=r=>L+(Math.log(Math.max(x0,Math.min(x1,r)))-Math.log(x0))/(Math.log(x1)-Math.log(x0))*(R-L), Y=v=>B-v/100*(B-T);
+  let g='';
+  [0,25,50,75,100].forEach(v=>{ g+='<line x1="'+L+'" x2="'+R+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--grid)"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="'+fs+'" class="m">'+v+'%</text>'; });
+  [0.25,0.5,1,2,5,10,20,50,100].filter(r=>r>=x0&&r<=x1).forEach(r=>{ g+='<line x1="'+X(r).toFixed(1)+'" x2="'+X(r).toFixed(1)+'" y1="'+B+'" y2="'+(B+4)+'" class="ax"/><text x="'+X(r).toFixed(1)+'" y="'+(B+fs+6)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+(r<1?(small?r+"×":(r===0.5?"half the price":"a quarter")):(r===1&&!small?"the same price":r+"×"))+'</text>'; });
+  g+='<text x="'+((L+R)/2)+'" y="'+(B+2*fs+14)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+(small?"Shop price against the meat beside it":"Price in the shop, against the conventional meat beside it (log scale)")+'</text>';
+  const pts=[]; for(let i=0;i<=80;i++){ const r=x0*Math.pow(x1/x0,i/80); pts.push(X(r).toFixed(1)+","+Y(at(r)).toFixed(1)); }
+  g+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="#378ADD" stroke-width="2.5"/>';
+  const b=f.buyers*100;
+  g+='<line x1="'+X(1).toFixed(1)+'" x2="'+X(1).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="var(--ink2)" stroke-dasharray="4 3"/>'+
+     '<line x1="'+L+'" x2="'+X(1).toFixed(1)+'" y1="'+Y(b).toFixed(1)+'" y2="'+Y(b).toFixed(1)+'" stroke="var(--ink2)" stroke-dasharray="4 3"/>'+
+     '<circle cx="'+X(1).toFixed(1)+'" cy="'+Y(b).toFixed(1)+'" r="6" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/>'+
+     '<text x="'+(X(1)+10).toFixed(1)+'" y="'+(Y(b)-9).toFixed(1)+'" font-size="'+fs+'" class="b">same price: '+tpPctB(f.buyers)+' (your setting)</text>';
+  // where each kind of meat sits at your cost of cells: a mark on the axis, three of them named
+  const srt=types.slice().sort((a,c)=>a.R-c.R), big=types.reduce((a,c)=>c.w>a.w?c:a), named=[srt[0],big,srt[srt.length-1]].filter((t,i,a)=>a.indexOf(t)===i);
+  types.forEach(t=>{ const x=X(t.R), over=t.R>x1; g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+(B-10)+'" y2="'+B+'" stroke="#D85A30" stroke-width="'+(1+Math.min(4,t.w*20)).toFixed(1)+'" opacity="'+(over?0.35:0.85)+'"><title>'+pgEsc(l3Name(t.name)+": "+t.R.toFixed(1)+" times the price of the conventional one; "+pgPctS(t.sh*100)+" of it would be cultivated")+'</title></line>'; });
+  let ly=fs+2; named.forEach(t=>{ const x=X(t.R), end=x>(L+R)/2; g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+(ly+3)+'" y2="'+(B-10)+'" stroke="#D85A30" stroke-width="1" opacity="0.6"/>'+
+    '<text x="'+(x+(end?-5:5)).toFixed(1)+'" y="'+ly+'" text-anchor="'+(end?"end":"start")+'" font-size="'+fs+'" fill="#D85A30">'+pgEsc(l3Name(t.name)+(t.R>x1?" (off the scale)":"")+": "+(t.R>=10?t.R.toFixed(0):t.R.toFixed(1))+"×")+'</text>'; ly+=fs+5; });
+  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.innerHTML=g;
+  const set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
+  const txt="At the same price as the conventional meat beside it, "+tpPctB(f.buyers)+" of that meat's buyers pick the cultivated one: that is what your setting means, so the curve passes through it. "+
+    "At twice the price, "+at(2).toFixed(at(2)<10?1:0)+"%; at five times, "+at(5).toFixed(at(5)<10?1:0)+"%; at half the price, "+at(0.5).toFixed(0)+"%. "+
+    "The orange marks show where each kind of meat sits with cells at "+tpUSD(f.cost)+" a kilo (thicker marks: more of the meat eaten): from "+l3Name(srt[0].name).toLowerCase()+" at "+srt[0].R.toFixed(1)+
+    " times its conventional price to "+l3Name(srt[srt.length-1].name).toLowerCase()+" at "+srt[srt.length-1].R.toFixed(0)+" times. One cost of cells puts every meat at a different point of this curve, and the total for all meat is their sum.";
+  set("tp_one_note",txt); set("tp_one_alt",txt);
+}
 
 /* ---------- figure 1: how far the cost is from what matters (one log axis) ---------- */
 function tpTextW(t,fs,bold){            // the width of a label in px at the page's font (an estimate where there is no canvas)
@@ -446,7 +561,8 @@ function tpTiersBest(labs,W,pad,gap){
 function tpLineDraw(f){
   const svg=document.getElementById("tp_costline"); if(!svg) return;
   const W=Math.max(300,pgWidth("tp_costline_plot",900)), small=W<560, fs=small?11:12, pad=6, lh=fs+4;
-  const refTop=Math.max.apply(null,TP.refs.map(r=>tpRefCloud(r.key).q[1]).concat([f.cb[2]]))*1.05;
+  const pubs=TP_PUBS.filter(k=>k!==SCS.ref).map(k=>({key:k, cost:tpRefPoint(k), label:TP_PUBL[k]}));
+  const refTop=Math.max.apply(null,TP_PUBS.map(tpRefPoint).concat([f.cost]))*1.05;
   const lo=1, hi=[10,20,30,50,100,200,300,500,1000,2000,5000].find(v=>v>=refTop)||refTop;
   const X=v=>pad+(Math.log(Math.max(lo,Math.min(hi,v)))-Math.log(lo))/(Math.log(hi)-Math.log(lo))*(W-2*pad);
   const fl=C.FEEDSTOCK_FLOOR, fr=TP.frontier, inR=v=>v!==null&&v>=lo&&v<=hi;
@@ -457,8 +573,9 @@ function tpLineDraw(f){
   const up=[], dn=[];
   if(inR(f.one)) up.push({kind:"one", x:X(f.one), lines:["1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one),"at "+bt]});
   if(inR(f.ten)) up.push({kind:"ten", x:X(f.ten), lines:["10% needs "+tpUSDk(f.ten),"at "+bt]});
-  dn.push({kind:"me", x:X(f.cost), bold:true, lines:[meName+": "+tpUSD(f.cost),"8 in 10: "+tpUSD(f.cb[0])+" to "+tpUSD(f.cb[2])+" if the","estimates you have not set vary"]});
-  if(inR(f.parity)) dn.push({kind:"par", x:X(f.parity), lines:["Price parity",tpUSD(f.parity)]});
+  dn.push({kind:"me", x:X(f.cost), bold:true, lines:[meName+": "+tpUSD(f.cost)]});
+  tpMeats().forEach(m=>{ if(inR(m.parity)) dn.push({kind:"par", x:X(m.parity), lines:["same price as "+m.plain,tpUSD(m.parity)+" ($"+m.price.toFixed(2)+" in the shop)"]}); });
+
   [up,dn].forEach(L=>L.forEach(l=>{ l.w=Math.max.apply(null,l.lines.map((t,i)=>tpTextW(t,fs,l.bold&&i===0))); }));
   // 10% always sits left of 1% (it needs a lower cost): its label goes to the left of its line and 1%'s to the right, so neither
   // line crosses the other's label; if 1%'s label has no room on the right, 10% is placed first and 1% goes above it, to the left
@@ -474,7 +591,7 @@ function tpLineDraw(f){
   // below it stay put as that slider moves the 1% and 10% lines
   const upH=Math.max(tierTop(hu,hu.length),2*(2*lh+8)), dnH=tierTop(hd,hd.length);
   const sy=6+upH+(upH?4:0), sh=small?30:34, sb=sy+sh, ay=sb+8+dnH+6, H=ay+2*fs+20;
-  const col={me:"var(--ink)",one:"#D85A30",ten:"#D85A30",par:"var(--ink2)"}, dash={par:' stroke-dasharray="4 3"',ten:' stroke-dasharray="6 3"'};
+  const col={me:"var(--ink)",one:"#D85A30",ten:"#D85A30",par:"var(--ink2)",ref:"var(--ink2)"}, dash={par:' stroke-dasharray="4 3"',ten:' stroke-dasharray="6 3"'};
   let g='<defs><pattern id="clhd" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#444441"/><line x1="0" y1="0" x2="0" y2="5" stroke="#B4B2A9" stroke-width="1.5"/></pattern>'+
     '<pattern id="clhl" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#85B7EB"/><line x1="0" y1="0" x2="0" y2="6" stroke="#185FA5" stroke-width="1.3"/></pattern></defs>';
   g+='<rect x="'+pad+'" y="'+sy+'" width="'+(W-2*pad)+'" height="'+sh+'" class="clstrip"/>';
@@ -486,12 +603,16 @@ function tpLineDraw(f){
     l.lines.forEach((t,i)=>{ g+='<text x="'+l.x0.toFixed(1)+'" y="'+(top+fs+i*lh)+'" font-size="'+fs+'">'+pgEsc(t)+'</text>'; }); });
   // the range for 8 in 10 draws: a thin whisker through your point, with the estimates it varies in its tooltip
   const a=X(f.cb[0]), b=X(f.cb[2]), my=sy+sh/2, px=X(f.cost), tip=pgEsc(tpVariedTip());
-  g+='<g class="clwh"><title>'+tip+'</title><path d="M'+a.toFixed(1)+' '+(my-6)+' V'+(my+6)+' M'+a.toFixed(1)+' '+my+' H'+b.toFixed(1)+' M'+b.toFixed(1)+' '+(my-6)+' V'+(my+6)+'" fill="none" stroke="var(--ink)" stroke-width="1.5"/>'+
+  if(b-a>1) g+='<g class="clwh"><title>'+tip+'</title><path d="M'+a.toFixed(1)+' '+(my-6)+' V'+(my+6)+' M'+a.toFixed(1)+' '+my+' H'+b.toFixed(1)+' M'+b.toFixed(1)+' '+(my-6)+' V'+(my+6)+'" fill="none" stroke="var(--ink)" stroke-width="1.5"/>'+
      '<rect x="'+a.toFixed(1)+'" y="'+(my-8)+'" width="'+Math.max(4,b-a).toFixed(1)+'" height="16" fill="transparent"/></g>';
   // the lines below the strip and their labels (rows go down from the strip)
   dn.forEach(l=>{ const top=sb+8+tierTop(hd,l.tier);
     g+='<line x1="'+l.x.toFixed(1)+'" x2="'+l.x.toFixed(1)+'" y1="'+(l.kind==="me"?my+8:sy)+'" y2="'+(top+4)+'" stroke="'+col[l.kind]+'" stroke-width="'+(l.kind==="me"?1:1.5)+'"'+(dash[l.kind]||"")+'/>';
     l.lines.forEach((t,i)=>{ g+='<text x="'+l.x0.toFixed(1)+'" y="'+(top+fs+i*lh)+'" font-size="'+fs+'"'+(l.bold&&i===0?' class="b"':'')+'>'+pgEsc(t)+'</text>'; }); });
+  // published costs: a short tick across the strip with a letter; the note under the chart names each with its cost
+  pubs.forEach(q=>{ if(!inR(q.cost)) return; const x=X(q.cost);
+    g+='<g><title>'+pgEsc(q.label+": "+tpUSD(q.cost)+" a kilo of cells")+'</title><line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+(sy+3)+'" y2="'+(sb-3)+'" stroke="var(--ink2)" stroke-width="2"/>'+
+       '<text x="'+(x+4).toFixed(1)+'" y="'+(sy+fs+2)+'" font-size="'+(fs-1)+'" class="b">'+q.label.charAt(0)+'</text></g>'; });
   g+='<circle class="clme" cx="'+px.toFixed(1)+'" cy="'+my+'" r="'+(small?6:7)+'"><title>'+tip+'</title></circle>';
   // the axis, under everything
   const mut='class="ax"';
@@ -510,15 +631,16 @@ function tpLineText(f){
   set("tp_cl_fl","below $"+fl.toFixed(2)+": below what the cells must eat");
   set("tp_cl_fr","$"+fl.toFixed(2)+" to $"+fr.toFixed(2)+": beyond every known limit");
   const q=document.getElementById("tp_cl_wq"); if(q&&q.setAttribute) q.setAttribute("data-tip",tpVariedTip());
-  set("tp_cl_note","Price parity: at "+scMoney(f.parity,2)+" a kilo of cells, it would sell at the price of the average kilo eaten "+tpEatenWhere()+" ($"+f.avg.toFixed(2)+
-    "), after "+scMoney(state.markup_add)+" a kilo to reach the shelf and the shop's "+(state.retail_margin*100).toFixed(0)+"% margin. It does not depend on shoppers. "+
-    "The 1% and 10% lines are the costs those long-run shares need with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price (your assumption, below the map): move that slider and they move"+
+  const ms=tpMeats(), plist=tpAnd(ms.map(m=>m.plain+" at "+tpUSD(m.parity)+" a kilo of cells ($"+m.price.toFixed(2)+" a kilo in the shop)"));
+  set("tp_cl_note","<b>Each kind of meat has its own price</b>, so there is no single cost at which cultivated meat matches meat. It would sell at the same shop price as "+plist+
+    ", after "+scMoney(state.markup_add)+" a kilo to reach the shelf and the shop's "+(state.retail_margin*100).toFixed(0)+"% margin (a steak or fillet also carries its plant protein and assembly). These do not depend on shoppers. "+
+    "The 1% and 10% lines are the costs those long-run shares of all meat and seafood need with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price (your setting in section 4): move that slider and they move"+
     (f.one===null?"; with these shoppers no cost reaches 1%":(f.ten===null?"; with these shoppers no cost reaches 10%":(f.ten<1?"; 10% would need under $1":"")))+". "+
-    "Your point is the median of "+f.cloud.n+" draws of the estimates nobody has measured; the whisker holds 8 in 10 of them. With every estimate at its most likely value, it is "+scMoney(f.point)+".");
+    "Your point is the cost at your settings. The lettered ticks are published costs: "+tpAnd(TP_PUBS.filter(k=>k!==SCS.ref).map(k=>TP_PUBL[k].charAt(0)+", "+TP_PUBL[k]+" as this model prices it, "+tpUSD(tpRefPoint(k))).map(t=>t.replace("A company's report as this model prices it","a company's own report")))+".");
   set("tp_cl_alt","A log scale of the cost to grow a kilo of cells, from $1 up. Below $"+fl.toFixed(2)+" is impossible (what the cells must eat); up to $"+fr.toFixed(2)+
-    " needs some lever past every known limit. Price parity with the average kilo eaten "+tpEatenWhere()+": "+scMoney(f.parity,2)+". "+
+    " needs some lever past every known limit. Same shop price as "+plist+". "+
     (f.one===null?"No cost reaches 1% with these shoppers. ":"With "+tpPctB(f.buyers)+" of meat buyers, 1% of "+tpRegionMeat()+" needs "+tpUSDk(f.one)+(f.ten!==null?"; 10% needs "+tpUSDk(f.ten):"")+". ")+
-    f.label+": median "+tpUSD(f.cost)+", 8 in 10 draws "+tpUSD(f.cb[0])+" to "+tpUSD(f.cb[2])+" if the estimates you have not set vary.");
+    f.label+": "+tpUSD(f.cost)+".");
 }
 
 /* ---------- figure 2: where the money goes, by what drives it ---------- */
@@ -721,8 +843,8 @@ function pgResetShoppers(){          // every shopper setting back to the model'
 function tpSetBuyers(b){ SCS.buyers=Math.min(0.99,Math.max(0.01,b)); }
 function tpLoad(k){
   const r=tpRef(k); if(!r||r.kind==="company") return;
-  SCS.ref=k; SCS.from=k; SCS.traits={}; SCS.held={}; SCS.src="scenario";
-  if(r.kind==="humbird"){ SCS.base="humbird"; SCS.hb={mode:"perfusion",plant:"sterile"}; SCS.choice=Object.assign({},SC.presets[SC.start].choice); SCS.redesign=false; }
+  SCS.ref=k; SCS.from=k; SCS.traits={}; SCS.held={}; SCS.src="scenario"; SCS.vessel="stirred"; SCS.vmode=null; SCS.device="tff";
+  if(r.kind==="humbird"){ SCS.base="humbird"; SCS.hb={mode:"perfusion",plant:"sterile"}; SCS.choice=Object.assign({},SC.presets[TP_START].choice); SCS.redesign=false; }
   else { SCS.base="switches"; SCS.choice=Object.assign({},r.choice); SCS.redesign=r.redesign; }
   SCS.preset=scPresetOf(SCS.choice);
   tpSetBuyers(r.buyers); tpCommit();
@@ -735,9 +857,9 @@ function tpRedesign(){
   SCS.choice=scWithExtra(Object.assign({},SCS.traits),()=>scDesign(SCS.choice));
 }
 function tpTouched(){ SCS.ref=null; SCS.src="scenario"; }
-function tpExtraNow(){ SC_EXTRA=Object.assign({},SCS.traits,tpHeldKw(SCS.held)); }
+function tpExtraNow(){ tpApplyFx(SCS.held); SC_EXTRA=Object.assign({},SCS.traits,tpHeldKw(SCS.held)); }
 // a light update while a slider moves: the cloud, the map's point and the numbers (no new calibration)
-function tpLive(){ tpSchedule(()=>{ tpExtraNow(); PGS.cloud=tpCloudFor(SCS); pgSetCost(); tpRenderFirst(); }); }
+function tpLive(){ tpSchedule(()=>{ tpExtraNow(); PGS.cloud=tpPointFor(SCS); pgSetCost(); tpRenderFirst(); }); }
 // slider moves are drawn at most once a frame
 function tpSchedule(fn){ PGS.rafFn=fn; if(typeof requestAnimationFrame==="undefined"){ fn(); return; }
   if(!PGS.raf) PGS.raf=requestAnimationFrame(()=>{ PGS.raf=null; const f=PGS.rafFn; PGS.rafFn=null; if(f) f(); }); }
@@ -759,25 +881,41 @@ function scPick(k,v){                // a switch in "Check the engineering"
   tpTouched(); tpCommit(); }
 function scDesignNow(){ SCS.redesign=true; tpTouched(); tpCommit(); }
 function scPickTwo(a,i,b,j){ SCS.choice[a]=i; SCS.choice[b]=j; if([a,b].some(k=>k==="tricks"||k==="shape")) SCS.redesign=false; tpTouched(); tpCommit(); }
-function scApplyChoice(o){ SCS.base="switches"; SCS.choice=Object.assign({},SC.presets[SC.start].choice,o); SCS.traits={}; SCS.held={}; SCS.redesign=false; tpTouched(); tpCommit(); }
+function scApplyChoice(o){ SCS.base="switches"; SCS.choice=Object.assign({},SC.presets[TP_START].choice,o); SCS.traits={}; SCS.held={}; SCS.redesign=false; tpTouched(); tpCommit(); }
 function tpSetTrait(k,v,live){ SCS.traits[k]=v; tpTouched(); if(live) tpLive(); else tpCommit(); }
 function tpFreeTrait(k){ delete SCS.traits[k]; tpTouched(); tpCommit(); }
 function tpSetHeld(k,v,live){ SCS.held[k]=v; tpTouched(); if(live) tpLive(); else tpCommit(); }
 function tpFreeHeld(k){ delete SCS.held[k]; tpTouched(); tpCommit(); }
 function tpSetMode(m){
   if(SCS.base==="humbird") SCS.hb.mode=m; else SCS.choice.mode=m;
-  if(m!=="perfusion") delete SCS.held.cpl;
+  SCS.vessel="stirred"; SCS.vmode=null;
   tpTouched(); tpCommit(); }
+// the vessel and the way it is run (either may be null: keep the current one). A stirred tank in perfusion or fed-batch is the
+// switches' own case; anything else is the vessel table's combination on top of the perfusion case.
+function tpSetVM(v,m){
+  v=v||SCS.vessel||"stirred"; m=m||tpVMode();
+  if(!vmPossible(v,m)) m=VM.morder.slice().reverse().find(x=>vmPossible(v,x));
+  const plain=v==="stirred"&&(m==="perfusion"||m==="fedbatch");
+  const base=plain?(m==="perfusion"?"perfusion":(tpMode()==="perfusion"?"fedbatch":tpMode())):"perfusion";
+  if(SCS.base==="humbird") SCS.hb.mode=base; else SCS.choice.mode=base;
+  SCS.vessel=v; SCS.vmode=plain?null:m;
+  tpTouched(); tpCommit(); }
+function tpSetSize(k){ tpSetMode(k); }
+function tpSetDevice(d){ SCS.device=d; tpTouched(); tpCommit(); }
 function tpSetPlant(v){ if(SCS.base==="humbird") SCS.hb.plant=v; else SCS.choice.plant=v; tpTouched(); tpCommit(); }
 
 /* ---------- the address: the settings in the hash (#tp=...) ---------- */
+// the address names a setting of the cells by its traits, never by a kind of cell
+const TP_HASHW={selected:"lowlactate", engineered:"lowwaste", measured:"published"}, TP_HASHR={lowlactate:"selected", lowwaste:"engineered", published:"measured"};
 function scSettingsHash(){
-  if(SCS.ref&&Math.abs(SCS.buyers-tpRef(SCS.ref).buyers)<1e-9) return SCS.ref===SC.start?"":SCS.ref;
+  if(SCS.ref&&Math.abs(SCS.buyers-tpRef(SCS.ref).buyers)<1e-9) return SCS.ref===TP_START?"":SCS.ref;
   const parts=["from:"+SCS.from,"base:"+SCS.base,"buyers:"+(+SCS.buyers.toFixed(4))];
   if(SCS.ref) parts.push("ref:"+SCS.ref);
-  if(SCS.base==="humbird") parts.push("hb:"+SCS.hb.mode+"/"+SCS.hb.plant); else parts.push("ch:"+SC.keys.map(k=>SCS.choice[k]).join("/"), "rd:"+(SCS.redesign?1:0));
+  if(SCS.base==="humbird") parts.push("hb:"+SCS.hb.mode+"/"+SCS.hb.plant); else parts.push("ch:"+SC.keys.map(k=>TP_HASHW[SCS.choice[k]]||SCS.choice[k]).join("/"), "rd:"+(SCS.redesign?1:0));
   Object.keys(SCS.traits).forEach(k=>parts.push("t."+k+":"+(+SCS.traits[k].toPrecision(6))));
   Object.keys(SCS.held).forEach(k=>parts.push("h."+k+":"+(+SCS.held[k].toPrecision(6))));
+  if(SCS.vmode) parts.push("vs:"+SCS.vessel+"/"+SCS.vmode);
+  if(SCS.device&&SCS.device!=="tff") parts.push("dv:"+SCS.device);
   return parts.join(",");
 }
 function scReadHash(v){
@@ -789,27 +927,46 @@ function scReadHash(v){
   SCS.base=kv.base==="humbird"?"humbird":"switches"; SCS.ref=tpRef(kv.ref)?kv.ref:null;
   const b=parseFloat(kv.buyers); if(isFinite(b)) tpSetBuyers(b);
   if(kv.hb){ const [m,p]=kv.hb.split("/"); if(scSetting("mode",m)) SCS.hb.mode=m; if(scSetting("plant",p)) SCS.hb.plant=p; }
-  if(kv.ch){ const vals=kv.ch.split("/"); SC.keys.forEach((k,i)=>{ if(vals[i]&&scSetting(k,vals[i])) SCS.choice[k]=vals[i]; }); }
+  if(kv.ch){ const vals=kv.ch.split("/").map(v=>TP_HASHR[v]||v); SC.keys.forEach((k,i)=>{ if(vals[i]&&scSetting(k,vals[i])) SCS.choice[k]=vals[i]; }); }
   SCS.redesign=kv.rd==="1";
   SCS.traits={}; SCS.held={};
   Object.keys(kv).forEach(k=>{ const x=parseFloat(kv[k]); if(!isFinite(x)) return;
     if(k.indexOf("t.")===0&&TRAIT_KEYS.indexOf(k.slice(2))>=0) SCS.traits[k.slice(2)]=x;
-    if(k.indexOf("h.")===0&&["capex_x","cpl","medium_price"].indexOf(k.slice(2))>=0) SCS.held[k.slice(2)]=x; });
+    if(k.indexOf("h.")===0&&(["capex_x","medium_price"].indexOf(k.slice(2))>=0||TP_PAR[k.slice(2)])) SCS.held[k.slice(2)]=x; });
+  if(kv.vs){ const a=kv.vs.split("/"); if(VM.vessels[a[0]]&&VM.modes[a[1]]&&vmPossible(a[0],a[1])){ SCS.vessel=a[0]; SCS.vmode=a[1]; } }
+  if(kv.dv&&MODEL.rt&&MODEL.rt.devices&&MODEL.rt.devices[kv.dv]) SCS.device=kv.dv;
   SCS.preset=scPresetOf(SCS.choice);
 }
 
 /* ---------- the first screen: the controls ---------- */
 function tpFmtTrait(k,v){ const T=TP.traits[k], x=v*T.scale; return (k==="doubling_h"?x.toFixed(1).replace(/\.0$/,""):(k==="mass_pg"?x.toFixed(2):x.toFixed(k==="nh3_kg"?3:2)))+" "+T.unit; }
+const TP_SHOWN=["today","humbird"];             // the starting points offered: what has been published, and Humbird's 2021 design
+const TP_GROUPS=["cells","reactor","medium"];
+// the reference values under a lever: chips that set it (MODEL.tp.lever_refs, from build_interactive.LEVER_REFS)
+function tpRefChips(key,call,fmt){ const L=(TP.lever_refs||{})[key]; if(!L||!L.length) return "";
+  return '<div class="refs">References: '+L.map(r=>'<button type="button" class="chip" onclick="'+call(r[0])+'" title="Set this lever to '+pgEsc(fmt(r[0]))+'"><b>'+pgEsc(fmt(r[0]))+'</b> '+pgEsc(r[1])+'</button>').join("")+'</div>'; }
+function tpWhy(text){ return '<details class="why"><summary>What this is</summary><p>'+pgEsc(text)+'</p></details>'; }
+function tpBuyersTo(v){ tpSetBuyers(v/100); tpTouched(); tpCommit(); }
+function tpParamHTML(q){
+  return '<div class="ctl tr"><label for="pp_'+q.key+'"><span class="nm">'+q.name+(q.unit==="×"?"":", "+q.unit)+'</span><span class="q" tabindex="0" data-tip="'+pgEsc(q.help+" The model's source: "+q.source)+'">?</span><span class="val" id="ppv_'+q.key+'"></span></label>'+
+    '<input type="range" id="pp_'+q.key+'" min="'+q.min+'" max="'+q.max+'" step="'+q.step+'" aria-describedby="pps_'+q.key+'"><div class="trs" id="pps_'+q.key+'"></div>'+
+    tpRefChips(q.key,v=>"tpSetHeld('"+q.key+"',"+v+",false)",v=>tpFmtParam(q,v).replace(" "+q.unit,""))+tpWhy(q.help+" The model's source: "+q.source)+'</div>'; }
+function tpFmtParam(q,v){ return (q.unit==="×"?v.toFixed(2)+"×":(q.unit.charAt(0)==="$"?"$"+v.toLocaleString("en-US",{minimumFractionDigits:q.digits,maximumFractionDigits:q.digits})+q.unit.slice(1):v.toFixed(q.digits)+(q.unit==="%"?"%":" "+q.unit))); }
 function tpBuildControls(){
   const refs=document.getElementById("tp_refs");
-  if(refs) refs.innerHTML=TP.refs.filter(r=>r.kind!=="company").map(r=>'<button type="button" class="refbtn" id="ref_'+r.key+'" onclick="tpLoad(\''+r.key+'\')" title="'+pgEsc(r.text)+'">'+r.label+'</button>').join("");
+  if(refs) refs.innerHTML=TP.refs.filter(r=>TP_SHOWN.indexOf(r.key)>=0).map(r=>'<button type="button" class="refbtn" id="ref_'+r.key+'" onclick="tpLoad(\''+r.key+'\')" title="'+pgEsc(r.text)+'">'+r.label+'</button>').join("");
   const host=document.getElementById("tp_traits");
   if(host) host.innerHTML=TRAIT_KEYS.map(k=>{ const T=TP.traits[k];
     return '<div class="ctl tr"><label for="tr_'+k+'"><span class="nm">'+T.name+', '+T.unit+'</span><span class="q" tabindex="0" data-tip="'+pgEsc(T.help+" "+tpBestText(k))+'">?</span><span class="val" id="trv_'+k+'"></span></label>'+
       '<div class="slw"><input type="range" id="tr_'+k+'" min="'+T.min+'" max="'+T.max+'" step="'+T.step+'" aria-describedby="trs_'+k+' trb_'+k+'">'+tpMarkHTML(T.best===null?null:T.best*T.scale,T.min,T.max,"best measured in meat cells")+'</div>'+
-      '<p class="fxn best" id="trb_'+k+'">'+pgEsc(tpBestText(k))+'</p><div class="trs" id="trs_'+k+'"></div></div>'; }).join("")+
-    '<div class="ctl tr"><label for="tp_cut"><span class="nm">Plant protein in a steak or fillet; the rest is cells</span><span class="q" tabindex="0" data-tip="A steak or fillet is made by binding harvested cells with plant protein. Products on sale are 10 to 30% plant protein and binder. More plant protein makes a cut cheaper, and shoppers like it less. Mince is all cells. The model\'s setting is '+Math.round((1-MODEL.sliders.find(x=>x.key==="cut_cells").default)*100)+'%.">?</span><span class="val" id="tp_cut_v"></span></label>'+
-      '<input type="range" id="tp_cut" min="0" max="90" step="5" aria-describedby="tp_cut_s"><p class="fxn" id="tp_cut_s" aria-live="polite"></p></div>';
+      '<div class="trs" id="trs_'+k+'"></div>'+tpRefChips(k,v=>"tpSetTrait('"+k+"',"+(v/T.scale)+",false)",v=>String(v))+tpWhy(T.help+" "+tpBestText(k))+'<p class="sr" id="trb_'+k+'">'+pgEsc(tpBestText(k))+'</p></div>'; }).join("");
+  const setH=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
+  setH("pl_capex_refs",tpRefChips("capex_x",v=>"tpSetHeld('capex_x',"+v+",false)",v=>v+"×").replace('<div class="refs">',"").replace(/<\/div>$/,""));
+  setH("pl_med_refs",tpRefChips("medium_price",v=>"tpSetHeld('medium_price',"+v+",false)",v=>"$"+v.toFixed(2)).replace('<div class="refs">',"").replace(/<\/div>$/,""));
+  setH("tp_buyers_refs",tpRefChips("buyers",v=>"tpBuyersTo("+v+")",v=>v+"%").replace('<div class="refs">',"").replace(/<\/div>$/,""));
+  const cuth=document.getElementById("tp_cuthost");
+  if(cuth) cuth.innerHTML='<div class="ctl tr"><label for="tp_cut"><span class="nm">Plant protein in a steak or fillet; the rest is cells</span><span class="q" tabindex="0" data-tip="A steak or fillet is made by binding harvested cells with plant protein. Products on sale are 10 to 30% plant protein and binder. More plant protein makes a cut cheaper, and shoppers like it less. Mince is all cells. The model\'s setting is '+Math.round((1-MODEL.sliders.find(x=>x.key==="cut_cells").default)*100)+'%.">?</span><span class="val" id="tp_cut_v"></span></label>'+
+      '<input type="range" id="tp_cut" min="0" max="90" step="5" aria-describedby="tp_cut_s"><p class="fxn" id="tp_cut_s" aria-live="polite"></p>'+tpRefChips("cut",v=>"tpSetCut("+(1-v/100)+",false)",v=>v+"%")+'</div>';
   TRAIT_KEYS.forEach(k=>{ const e=document.getElementById("tr_"+k); if(!e||!e.addEventListener) return; const T=TP.traits[k];
     e.addEventListener("input",()=>tpSetTrait(k,parseFloat(e.value)/T.scale,true));
     e.addEventListener("change",()=>tpSetTrait(k,parseFloat(e.value)/T.scale,false)); });
@@ -818,7 +975,14 @@ function tpBuildControls(){
     by.addEventListener("change",()=>{ tpSetBuyers(parseFloat(by.value)/100); tpTouched(); tpCommit(); }); }
   const wire=(id,fn)=>{ const e=document.getElementById(id); if(!e||!e.addEventListener) return;
     e.addEventListener("input",()=>fn(parseFloat(e.value),true)); e.addEventListener("change",()=>fn(parseFloat(e.value),false)); };
-  wire("pl_capex",(v,l)=>tpSetHeld("capex_x",v,l)); wire("pl_cpl",(v,l)=>tpSetHeld("cpl",v,l)); wire("pl_med",(v,l)=>tpSetHeld("medium_price",v,l));
+  TP_GROUPS.forEach(g=>{ const h=document.getElementById("tp_g_"+g); if(h) h.innerHTML=TP.params.filter(q=>q.group===g).map(tpParamHTML).join(""); });
+  TP.params.forEach(q=>wire("pp_"+q.key,(v,l)=>tpSetHeld(q.key,v,l)));
+  wire("pl_capex",(v,l)=>tpSetHeld("capex_x",v,l)); wire("pl_med",(v,l)=>tpSetHeld("medium_price",v,l));
+  const vsl=document.getElementById("pl_vessel"); if(vsl) vsl.innerHTML=VM.vorder.map(v=>'<option value="'+v+'">'+VM.vessels[v].name+' ('+vmSize(VM.vessels[v].size).replace(" a unit","")+')</option>').join("");
+  const vmd=document.getElementById("pl_vmode"); if(vmd) vmd.innerHTML=VM.morder.map(m=>'<option value="'+m+'">'+VM.modes[m].name+(m==="chemostat"?" (continuous, no cell retention)":(m==="perfusion"?" (continuous, cells held back)":""))+'</option>').join("");
+  const dvs=document.getElementById("pl_device"); if(dvs&&MODEL.rt) dvs.innerHTML=MODEL.rt.order.map(d=>'<option value="'+d+'">'+MODEL.rt.devices[d].name.replace(" (the model's default)","")+'</option>').join("");
+  ["cmp_vm","cmp_rt"].forEach(id=>{ const d=document.getElementById(id); if(d&&d.addEventListener) d.addEventListener("toggle",()=>{ if(d.open) tpCompareRender(); }); });
+  const un=document.getElementById("unc"); if(un&&un.addEventListener) un.addEventListener("toggle",()=>{ if(un.open) tpUncRender(); });
   wire("tp_cut",(v,l)=>tpSetCut(1-v/100,l));
   try{ const sv=localStorage.getItem("tp_sell_view"); if(sv==="bars"||sv==="disk") PGS.sellView=sv; }catch(e){}
   const sel=document.getElementById("regionsel");
@@ -858,36 +1022,54 @@ function tpRenderControls(f){
     set("trv_"+k,tpFmtTrait(k,v));
     const isDrawn=!(k in SCS.traits)&&drawn&&(k==="mass_pg"||(k==="nh3_kg"&&(SCS.choice.cells==="selected"||SCS.choice.cells==="measured")));
     const q=TP.cloud.priors[k==="mass_pg"?"sc_mass_selected_pg":"sc_nh3_selected"];
-    set("trs_"+k,(isDrawn?'<span class="drawn">The draws take it between '+tpFmtTrait(k,q[0]).split(" ")[0]+' and '+tpFmtTrait(k,q[2])+' until you move it.</span> ':"")+
+    set("trs_"+k,
       ((k in SCS.traits)?'<button type="button" class="lnk" onclick="tpFreeTrait(\''+k+'\')">Back to '+tpLabel(SCS.from)+'</button>':"")); });
   // the plant
   const mode=tpMode(), fb=mode!=="perfusion", plant=tpPlant();
-  const pr=document.getElementById("pl_perf"), fr=document.getElementById("pl_fbr"), sz=document.getElementById("pl_size"), ps=document.getElementById("pl_plant");
-  if(pr) pr.checked=!fb; if(fr) fr.checked=fb; if(sz){ sz.disabled=!fb; if(fb) sz.value=mode; } if(ps) ps.value=plant;
-  const p=tpParams(), hd=SCS.held;
+  const sz=document.getElementById("pl_size"), ps=document.getElementById("pl_plant");
+  const vNow=SCS.vessel||"stirred", mNow=tpVMode(), plainFb=vNow==="stirred"&&mNow==="fedbatch";
+  if(sz&&plainFb) sz.value=mode; if(ps) ps.value=plant;
+  const show=(id,on)=>{ const e=document.getElementById(id); if(e&&e.style) e.style.display=on?"":"none"; };
+  show("pl_size_ctl",plainFb);
+  const p=tpParams(), hd=SCS.held, washed=tpWashed(p), ownRet=!!(p.vm&&p.vm.own_retention);
+  const vsl=document.getElementById("pl_vessel"); if(vsl) vsl.value=vNow;
+  const vmd=document.getElementById("pl_vmode"); if(vmd){ vmd.value=mNow;
+    if(vmd.options) Array.prototype.forEach.call(vmd.options,o=>{ o.disabled=!vmPossible(vNow,o.value); }); }
+  const V=VM.vessels[vNow], Mo=VM.modes[mNow], tag=VM.tags[vNow+"|"+mNow];
+  set("pl_vessel_s",pgEsc(V.what)+" "+pgEsc(V.limits||""));
+  set("pl_vmode_s",pgEsc(Mo.what)+(tag?" <b>"+pgEsc(tag[0].charAt(0).toUpperCase()+tag[0].slice(1))+"</b>: "+pgEsc(tag[1]):""));
+  show("pl_device_ctl",washed&&!ownRet);
+  const dvs=document.getElementById("pl_device"), dev=SCS.device||"tff"; if(dvs) dvs.value=dev;
+  if(MODEL.rt&&washed&&!ownRet){ const D=MODEL.rt.devices[dev], rc=dev==="tff"?null:rtCost(dev,p);
+    set("pl_device_s",pgEsc(tpCap(D.how))+". Shown so far: "+pgEsc(D.shown)+"."+
+      (rc&&rc.impossible?" <b>Not possible at these settings:</b> "+pgEsc(rc.impossible):"")+
+      (rc&&rc.beyond?" <b>This culture is denser than the device has been shown to hold.</b>":"")+
+      (rc&&rc.loss>0?" It destroys or lets go "+(rc.loss*100).toFixed(1)+"% of the cells grown.":"")); }
+  TP.params.forEach(q=>{ const e=document.getElementById("pp_"+q.key), d0=tpParamDefault(q,scWithExtra(Object.assign({},SCS.traits),()=>tpParamsFor(Object.assign({},SCS,{held:{}})))), v=hd[q.key]===undefined?d0:hd[q.key];
+    if(e&&document.activeElement!==e) e.value=v;
+    let extra="";
+    if(q.key==="o2x"){ const rr=f.cloud.res, td=tpTraitsShown(); extra=" With your cells: "+(rr.o2_kg*Math.LN2/td.doubling_h*td.mass_pg*1e-12*1e9*24).toFixed(1)+" pmol of oxygen a cell a day ("+rr.o2_kg.toFixed(0)+" mol a kilo of cells grown)."; }
+    if(q.key==="mem_price"||q.key==="mem_life") extra=" Price over life: $"+((hd.mem_price===undefined?tpFx0("tff.mem_price"):hd.mem_price)/(hd.mem_life===undefined?(p.membrane_life||tpFx0("tff.mem_life")):hd.mem_life)).toFixed(2)+" of membrane for each litre filtered.";
+    set("ppv_"+q.key,tpFmtParam(q,v));
+    set("pps_"+q.key,(hd[q.key]===undefined?"":'<button type="button" class="lnk" onclick="tpFreeHeld(\''+q.key+'\')">Back to '+tpFmtParam(q,d0)+'</button>')+extra); });
+  tpCellsRender(f); tpCompareRender();
   const cx=document.getElementById("pl_capex"); if(cx&&document.activeElement!==cx) cx.value=hd.capex_x===undefined?1:hd.capex_x;
-  const r0=floorExplore(p);
+  const r0=f.cloud.res;
   set("pl_capex_v","$"+Math.round(r0.capex).toLocaleString("en-US")+"k per m³ of tank ("+(hd.capex_x===undefined?1:hd.capex_x).toFixed(2)+"× the model's estimate)");
   const other=Object.assign({},SCS,{choice:Object.assign({},SCS.choice,{mode:fb?"perfusion":"fedbatch"}),hb:Object.assign({},SCS.hb,{mode:fb?"perfusion":"fedbatch"})});
-  const otherCost=floorExplore(tpParamsFor(other)).total;
-  set("pl_capex_s",(hd.capex_x===undefined?'<span class="drawn">Drawn between '+(SCS.base!=="humbird"&&plant==="lean"?TP.cloud.lean_capex_lo.toFixed(2):TP.plant.capex[0].toFixed(2))+'× and '+TP.plant.capex[1]+'× until you set it.</span> ':'<button type="button" class="lnk" onclick="tpFreeHeld(\'capex_x\')">Let it vary again</button> ')+
-    'At these settings, every estimate at its most likely value: '+(fb?'fed-batch '+scMoney(f.point)+', perfusion '+scMoney(otherCost):'perfusion '+scMoney(f.point)+', fed-batch at 20 m³ '+scMoney(otherCost))+' a kilo.');
-  const cp=document.getElementById("pl_cpl"), cplNow=hd.cpl===undefined?TP.plant.mem_price/TP.plant.mem_life:hd.cpl;
-  if(cp){ cp.disabled=fb; if(document.activeElement!==cp) cp.value=cplNow; }
-  set("pl_cpl_v",fb?"no filter":"$"+cplNow.toFixed(2)+" a litre (membranes last "+Math.round(TP.plant.mem_price/cplNow).toLocaleString("en-US")+" litres a m² at $"+TP.plant.mem_price.toLocaleString("en-US")+" a m²)");
-  set("pl_cpl_s",fb?"Fed-batch has no filter: the cells stay in the tank until the harvest."
-    :(hd.cpl===undefined?'<span class="drawn">Drawn: membranes last 900–5,500 litres per m² until you set it.</span> ':'<button type="button" class="lnk" onclick="tpFreeHeld(\'cpl\')">Let it vary again</button> ')+
-     (r0.membranes>0&&r0.medium_l>0?'With runs lost early, the membranes add $'+(r0.membranes/r0.medium_l).toFixed(2)+' to each litre of medium here.':''));
-  const md=document.getElementById("pl_med"), mNow=hd.medium_price===undefined?(p.medium_price===undefined?0.15:p.medium_price):hd.medium_price;
-  if(md&&document.activeElement!==md) md.value=mNow;
+  const otherCost=tpEval(SCS,tpParamsFor(Object.assign(other,{vessel:"stirred",vmode:null}))).total;
+  set("pl_capex_s",(hd.capex_x===undefined?'':'<button type="button" class="lnk" onclick="tpFreeHeld(\'capex_x\')">Let it vary again</button> ')+
+    'At these settings, every estimate at its most likely value: '+scMoney(f.point)+' a kilo of cells; in a stirred tank run '+(fb?'in perfusion':'as a 20 m³ fed-batch')+' instead, '+scMoney(otherCost)+'.');
+  const md=document.getElementById("pl_med"), medNow=hd.medium_price===undefined?(p.medium_price===undefined?0.15:p.medium_price):hd.medium_price;
+  if(md&&document.activeElement!==md) md.value=medNow;
   const flL=r0.nutrients/r0.medium_l, flT="$"+(flL<0.1?flL.toFixed(3):flL.toFixed(2));
-  set("pl_med_v",(mNow<0.005?"at the nutrient floor":"$"+mNow.toFixed(2)+" a litre")+" (nutrient floor "+flT+" a litre)");
+  set("pl_med_v",(medNow<0.005?"at the nutrient floor":"$"+medNow.toFixed(2)+" a litre")+" (nutrient floor "+flT+" a litre)");
   const mk=document.getElementById("pl_med_mark"); if(mk) mk.outerHTML=tpMarkHTML(flL,0,0.60,"nutrient floor "+flT,"pl_med_mark");
   const mq=document.getElementById("pl_med_q"); if(mq&&mq.setAttribute) mq.setAttribute("data-tip","The nutrient liquid the cells grow in. Companies announce $0.20 a litre and report $0.30 to $0.50, with growth factors in that price. "+
     "The nutrient floor is what the cells must eat: $"+r0.nutrients.toFixed(2)+" a kilo of cells (amino acids, "+Math.round(TP.cloud.aa_intensity*1000)+" g at $"+(C.fx.aa/TP.cloud.aa_intensity).toFixed(2)+" a kilo, feed grade, GFI December 2025, $"+C.fx.aa.toFixed(2)+
     "; glucose, $"+(r0.nutrients-C.fx.aa-C.fx.other).toFixed(2)+", more for cells that burn more; salts, buffer and vitamins, $"+C.fx.other.toFixed(2)+"), "+
     "over the "+r0.medium_l.toFixed(1)+" litres a kilo needs here: "+flT+" a litre. It moves with the cells' traits. Growth factors are on top of it.");
-  set("pl_med_s",(hd.medium_price===undefined?'<span class="drawn">Drawn between 0.6 and 1.5 times this until you set it.</span> ':'<button type="button" class="lnk" onclick="tpFreeHeld(\'medium_price\')">Let it vary again</button> ')+
+  set("pl_med_s",(hd.medium_price===undefined?'':'<button type="button" class="lnk" onclick="tpFreeHeld(\'medium_price\')">Let it vary again</button> ')+
     "The nutrient floor: the $"+r0.nutrients.toFixed(2)+" of nutrients a kilo of cells must eat, over the "+r0.medium_l.toFixed(0)+" litres it takes here, is "+flT+" a litre; growth factors are on top of it. "+
     (r0.medium_floor?"Below it the medium costs the floor, so the floor sets it here.":""));
   // the plant protein in a steak or fillet (the shopper model's cut_cells, also under Check the shopper model)
@@ -905,9 +1087,53 @@ function tpRenderControls(f){
   const lm=tpLmean(SCS.buyers), at=R=>shareCalc(R,KP,{ax:state.accept_x,tfM:state.theta_free_M,income:C.income_ref,nbx:state.neophobia_x,hx:state.health_x,lmean:lm,which:"x_meat"})*100;
   const free=at(0);
   set("tp_buyers_read","If it cost half as much as meat, "+at(0.5).toFixed(0)+"% of meat buyers would pick it; if it were free, "+free.toFixed(0)+"%, so "+(100-free).toFixed(0)+
-    "% would not take it at any price. Nobody has measured this. Surveys run from about 5% to 60%. The model's own setting is "+tpPctB(tpRef("central").buyers)+
-    "; Engineered cells, all favourable assumes "+tpPctB(tpRef("best").buyers)+"; 50% means no preference.");
+    "% would not take it at any price. Nobody has measured this. Surveys run from about 5% to 60%. The page starts at "+tpPctB(tpRef(TP_START).buyers)+
+    ", the model's reading of the one choice experiment with prices; 50% means no preference between it and conventional meat.");
   const sel=document.getElementById("regionsel"); if(sel) sel.value=state.region;
+}
+
+/* ---------- section 1's result: what the cells allow in the tank (the engine's own limits and litres) ---------- */
+const TP_LIMW={"oxygen supply":"getting oxygen in","CO2 removal":"clearing CO₂","mixing":"mixing","thickness of the culture":"how thick a culture can be and still flow",
+  "waste build-up":"ammonia and lactate building up (nothing washes them out)","other by-products":"other by-products building up","food in one fill":"the food in one fill of medium"};
+const TP_TERMW={"ammonia":"washing out ammonia","lactate":"washing out lactate","least flow":"the least flow the cells need","harvest":"the liquid that leaves with the cells",
+  "nutrients":"carrying the nutrients","salt":"keeping the salt strength down"};
+function tpCellsRender(f){
+  const host=document.getElementById("tp_cellres"); if(!host) return;
+  const r=f.cloud.res, tr=tpTraitsShown(), lw=k=>TP_LIMW[k]||(typeof VM!=="undefined"&&VM.limit_plain[k])||k;
+  const cells=r.density/(tr.mass_pg*1e-12)/1000, lims=Object.keys(r.limits).map(k=>[k,r.limits[k]]).filter(x=>isFinite(x[1])).sort((a,b)=>a[1]-b[1]);
+  const terms=Object.keys(r.medium_terms||{}).map(k=>[k,r.medium_terms[k]]).sort((a,b)=>b[1]-a[1]);
+  const qo2=r.o2_kg*Math.LN2/tr.doubling_h;     // mmol of oxygen a gram of cells an hour
+  host.innerHTML='<div class="cellres"><div><span class="big">'+r.density.toFixed(0)+' g of cells a litre</span>'+
+    'the densest this tank can run ('+(cells/1e6).toFixed(0)+' million cells a mL), limited by '+pgEsc(lw(r.limit))+'.'+
+    '<ul>'+lims.slice(0,5).map(x=>'<li'+(x[0]===r.limit?' class="on"':'')+'>'+pgEsc(tpCap(lw(x[0])))+': '+x[1].toFixed(0)+' g a litre</li>').join("")+'</ul></div>'+
+    '<div><span class="big">'+r.medium_l.toFixed(0)+' litres of medium a kilo of cells</span>'+
+    (terms.length?'set by '+pgEsc(TP_TERMW[r.medium_set_by]||r.medium_set_by)+'.<ul>'+terms.map(x=>'<li'+(x[0]===r.medium_set_by?' class="on"':'')+'>'+pgEsc(tpCap(TP_TERMW[x[0]]||x[0]))+': '+x[1].toFixed(1)+' litres</li>').join("")+'</ul>':'as set.')+'</div>'+
+    '<div><span class="big">'+(r.output).toFixed(1)+' tonnes a year from each m³ of tank</span>'+
+    'The cells make '+r.nh3_kg.toFixed(3)+' mol of ammonia and '+r.lac_kg.toFixed(1)+' mol of lactate a kilo, and use '+qo2.toFixed(3)+' mmol of oxygen a gram an hour ('+
+    (qo2*tr.mass_pg*1e-12*1e9*24).toFixed(1)+' pmol a cell a day). The tank is in use '+(r.uptime*100).toFixed(0)+'% of the time.</div></div>'+
+    '<p class="small">Every figure here is calculated from your settings, with each estimate at its most likely value. The costs follow in the next sections.</p>';
+}
+/* ---------- section 2's comparisons: every vessel and mode, and every retention device, at the reader's settings ---------- */
+function tpCompareRender(){
+  const dv=document.getElementById("cmp_vm"), dr=document.getElementById("cmp_rt");
+  if(dv&&dv.open){ const base=tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
+    const vN=SCS.vessel||"stirred", mN=tpVMode();
+    const head='<thead><tr><th>Vessel ↓ &nbsp; How it is run →</th>'+VM.morder.map(m=>'<th>'+VM.modes[m].name+'</th>').join("")+'</tr></thead>';
+    const rows=VM.vorder.map(v=>'<tr><th>'+VM.vessels[v].name+'<br><span class="alt">'+vmSize(VM.vessels[v].size)+'</span></th>'+VM.morder.map(m=>{ const c=vmCell(v,m,base), on=(v===vN&&m===mN)?" on":"";
+      if(!c.possible) return '<td class="vno'+on+'"><span class="alt">Not possible</span></td>';
+      if(c.same_as) return '<td class="vsame'+on+'"><span class="alt">As batch</span></td>';
+      return '<td class="pick'+on+'" onclick="tpSetVM(\''+v+'\',\''+m+'\')" title="'+pgEsc(c.evidence)+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+' g/L, limited by '+pgEsc(VM.limit_plain[c.limit]||c.limit)+'</span><br>'+vmTagChip(c.tag)+'</td>'; }).join("")+'</tr>').join("");
+    document.getElementById("tp_vmgrid").innerHTML='<div class="scrollx"><table class="sctab vmtab">'+head+'<tbody>'+rows+'</tbody></table></div>'+
+      '<p class="small">The tag says whether animal cells have been grown this way at this size. A stirred tank run as a fed-batch here is 20 m³; larger fed-batch tanks are under “Tank size”.</p>'; }
+  if(dr&&dr.open&&MODEL.rt){ const p=tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
+    const rows=MODEL.rt.order.map(d=>{ const D=MODEL.rt.devices[d], c=rtCost(d,p), on=(SCS.device||"tff")===d?' class="on"':'';
+      return '<tr'+on+'><td class="pick" onclick="tpSetDevice(\''+d+'\')"><b>'+pgEsc(D.name.replace(" (the model's default)",""))+'</b><br><span class="alt">'+pgEsc(D.how)+'</span></td>'+
+        '<td class="num"><b>'+(c.impossible?"not possible":vmMoney(c.total))+'</b>'+(c.beyond?'<br><span class="alt">denser than it has held</span>':'')+'</td>'+
+        '<td class="num">$'+Math.round(c.capex_k_m3)+'k</td><td class="num">'+vmMoney(c.cons_kg)+'</td><td class="num">'+(c.loss*100).toFixed(1)+'%</td><td><span class="alt">'+pgEsc(D.shown)+'</span></td></tr>'; }).join("");
+    const more=Object.keys(MODEL.rt.particles||{}).map(k=>'<li><b>'+pgEsc(MODEL.rt.particles[k].name)+'</b>: '+pgEsc(MODEL.rt.particles[k].how)+'. Priced in the Python model (retention.py), not on this page.</li>').join("")+
+      Object.keys(MODEL.rt.not_costed||{}).map(k=>'<li><b>'+pgEsc(MODEL.rt.not_costed[k].name)+'</b>: not priced. '+pgEsc(MODEL.rt.not_costed[k].reason)+'</li>').join("");
+    document.getElementById("tp_rtgrid").innerHTML='<div class="scrollx"><table class="sctab"><thead><tr><th>Device</th><th>Cost of a kilo of cells</th><th>Its capital, per m³ of tank</th><th>Its running cost, a kilo</th><th>Cells lost</th><th>Shown so far</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<p class="small">In a stirred tank in perfusion, with your other settings.</p><ul class="small">'+more+'</ul>'; }
 }
 
 /* ---------- the contour map ---------- */
@@ -971,7 +1197,7 @@ function tpMapDraw(f){
   const svg=document.getElementById("tpmap"); if(!svg||!KP) return;
   f=f||pgFacts();
   const W=Math.max(300,pgWidth("tpplot",860)), small=W<560, H=small?Math.round(W*0.95):Math.min(520,Math.round(W*0.66));
-  const L=small?50:62, R=W-(small?10:18), T=small?46:58, B=H-(small?44:46);
+  const L=small?50:62, R=W-(small?10:18), T=small?64:70, B=H-(small?44:46);
   const lx=v=>L+(Math.log(v)-Math.log(TPM.x0))/(Math.log(TPM.x1)-Math.log(TPM.x0))*(R-L), ly=v=>B-v*(B-T);
   const G=PGS.grid&&PGS.grid.done&&PGS.gridKey===tpGridKey()?PGS.grid:null;
   const fl=C.FEEDSTOCK_FLOOR, fr=TP.frontier, par=f.parity, avg=f.avg, mut='class="ax"';
@@ -991,10 +1217,11 @@ function tpMapDraw(f){
     g+='<polyline points="'+s+'" fill="none" stroke="#fff" stroke-width="4" stroke-opacity="0.5"/><polyline points="'+s+'" fill="none" stroke="'+TPM.line+'" stroke-width="2"/>'; });
   g+='<line x1="'+L+'" x2="'+R+'" y1="'+ly(0.5)+'" y2="'+ly(0.5)+'" stroke="#fff" stroke-width="1.2" stroke-dasharray="5 4"/>';
   [fl,fr].forEach(v=>{ g+='<line x1="'+lx(v).toFixed(1)+'" x2="'+lx(v).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="1.5"/>'; });
-  g+='<line x1="'+lx(par).toFixed(1)+'" x2="'+lx(par).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 3"/>';
+  const meats=tpMeats().filter(m=>m.parity>TPM.x0&&m.parity<TPM.x1);
+  meats.forEach(m=>{ g+='<line x1="'+lx(m.parity).toFixed(1)+'" x2="'+lx(m.parity).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.8"/>'; });
   // your point's range for 8 in 10 draws: a thin whisker across its cost, under everything else
   const yp=ly(f.buyers), cl=f.cloud, wa=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cb[0]))), wb=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cb[2]))), tip=pgEsc(tpVariedTip());
-  g+='<g class="mwh"><title>'+tip+'</title><path d="M'+wa.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+' M'+wa.toFixed(1)+' '+yp.toFixed(1)+' H'+wb.toFixed(1)+' M'+wb.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+'" fill="none" stroke="#fff" stroke-width="4" stroke-opacity="0.7"/>'+
+  if(wb-wa>1) g+='<g class="mwh"><title>'+tip+'</title><path d="M'+wa.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+' M'+wa.toFixed(1)+' '+yp.toFixed(1)+' H'+wb.toFixed(1)+' M'+wb.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+'" fill="none" stroke="#fff" stroke-width="4" stroke-opacity="0.7"/>'+
      '<path d="M'+wa.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+' M'+wa.toFixed(1)+' '+yp.toFixed(1)+' H'+wb.toFixed(1)+' M'+wb.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+'" fill="none" stroke="#1a1a19" stroke-width="1.6"/></g>';
   g+='</g>';
   // Labels that do not depend on your point are placed first, in a fixed order, so that moving your point (the meat-buyers slider
@@ -1004,9 +1231,9 @@ function tpMapDraw(f){
   const zf=11;
   const zl=[[lx(fl)+zf+2,B-6,small?"floor: what cells eat":"$"+fl.toFixed(2)+" floor: what the cells must eat","start"],
             [lx(fr)+zf+2,T+6,small?"every lever at its limit":"$"+fr.toFixed(2)+": every lever at its limit","end"],
-            [lx(par)-4,B-6,small?"same price as average kilo":"same price as the average kilo eaten here","start"]];
+            ];
   zl.forEach(([x,y,t,a])=>{ const c=pl.tryPut([{x:x,y:y,t:t,fs:zf,anchor:a,rot:true}],[L,T,R,B]); if(c) labs.push(tpLabelSVG(c)); });
-  const dots=TP.refs.map(r=>{ const q=tpRefCloud(r.key).q; return {x:lx(Math.min(TPM.x1,q[1])), y:ly(r.buyers), lab:short(r.label), key:r.key}; });
+  const dots=[];        // no reference points here: a published cost says nothing about shoppers, so it has no height on this map
   dots.forEach(d=>{ pl.block(d.x-5,d.y-5,d.x+5,d.y+5); });
   dots.forEach(d=>{ const t=d.lab;
     const rf=Math.max(11,fs-1);
@@ -1033,10 +1260,11 @@ function tpMapDraw(f){
   const xt=small?[2,5,10,20,50,100,400]:[2,5,10,20,50,100,200,400];
   xt.forEach(v=>{ const tw=tpTextW("$"+v,11), xc=Math.min(W-2-tw/2,lx(v)); g+='<line x1="'+lx(v).toFixed(1)+'" x2="'+lx(v).toFixed(1)+'" y1="'+B+'" y2="'+(B+5)+'" '+mut+'/><text x="'+xc.toFixed(1)+'" y="'+(B+18)+'" text-anchor="middle" font-size="11">$'+v+'</text>'; });
   g+='<text x="'+((L+R)/2)+'" y="'+(B+36)+'" text-anchor="middle" font-size="12">Cost to grow a kilo of cells (log scale)</text>';
-  const mults=(small?[1,2,5,10,30]:[1,2,3,5,10,20,40]).filter(r=>{ const c=r*avg*(1-state.retail_margin)-state.markup_add; return c>TPM.x0&&c<TPM.x1; });
-  mults.forEach(r=>{ const c=r*avg*(1-state.retail_margin)-state.markup_add, x=lx(c).toFixed(1);
-    g+='<line x1="'+x+'" x2="'+x+'" y1="'+(T-5)+'" y2="'+T+'" '+mut+'/><text x="'+x+'" y="'+(T-9)+'" text-anchor="middle" font-size="11">'+r+'×</text>'; });
-  g+='<text x="'+((L+R)/2)+'" y="'+(T-(small?28:30))+'" text-anchor="middle" font-size="'+(small?11:12)+'">'+(small?'Shop price against the average kilo eaten here':'Price in the shop, as a multiple of the average kilo eaten here ($'+avg.toFixed(2)+')')+'</text>';
+  // along the top: the cost of cells at which it sells at each kind of meat's own shop price (staggered so the names do not collide)
+  let lastTop=-1e9, row=0; meats.forEach(m=>{ const x=lx(m.parity), t=(small?m.plain.replace(/ \(.*\)/,""):m.plain)+" $"+m.price.toFixed(m.price>=20?0:2), w=tpTextW(t,11);
+    row=(x-w/2<lastTop+6)?(row+1)%3:0; const y=T-9-row*13, xc=Math.max(L+w/2,Math.min(R-w/2,x));
+    g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+(y+3)+'" y2="'+T+'" '+mut+'/><text x="'+xc.toFixed(1)+'" y="'+y+'" text-anchor="middle" font-size="11">'+pgEsc(t)+'</text>'; lastTop=xc+w/2; });
+  g+='<text x="'+((L+R)/2)+'" y="'+(T-(small?46:48))+'" text-anchor="middle" font-size="'+(small?11:12)+'">'+(small?'Same shop price as (a kilo):':'The cost at which it would sell at the shop price of each kind of meat (a kilo, in '+pgRegionName()+')')+'</text>';
   [0,0.25,0.5,0.75,1].forEach(v=>{ g+='<line x1="'+(L-5)+'" x2="'+L+'" y1="'+ly(v)+'" y2="'+ly(v)+'" '+mut+'/><text x="'+(L-8)+'" y="'+(ly(v)+4)+'" text-anchor="end" font-size="11">'+(v*100)+'%</text>'; });
   g+='<text x="'+(small?10:16)+'" y="'+((T+B)/2)+'" text-anchor="middle" font-size="'+(small?11:12)+'" transform="rotate(-90 '+(small?10:16)+' '+((T+B)/2)+')">'+(small?'Meat buyers picking it at equal price':'Meat buyers who would pick it at the same price')+'</text>';
   g+='<rect id="tphit" x="'+L+'" y="'+T+'" width="'+(R-L)+'" height="'+(B-T)+'" fill="transparent"/>';
@@ -1052,7 +1280,7 @@ function tpZone(c){ const fl=C.FEEDSTOCK_FLOOR, fr=TP.frontier;
          (c<fr?"Beyond every known limit: below $"+fr.toFixed(2)+" a kilo needs some lever past what the evidence supports.":""); }
 function tpReadAt(cx,cy){
   const z=tpInterp(cx,Math.max(TPM.ys[0],Math.min(TPM.ys[TPM.ys.length-1],cy))), shop=shelfPrice(cx,state);
-  return "Cells at "+tpUSD(cx)+" a kilo (shop price "+tpUSD(shop)+", "+(shop/tpAvgPrice()).toFixed(1)+" times the average kilo eaten here), "+tpPctB(cy)+
+  return "Cells at "+tpUSD(cx)+" a kilo (shop price "+tpUSD(shop)+", "+(shop/tpMeats()[0].price).toFixed(1)+" times the price of "+tpMeats()[0].plain+"), "+tpPctB(cy)+
     " of meat buyers picking it at the same price: long-run share about "+(z===null?"(still computing)":pgPctS(z))+" of "+pgRegionOf()+" meat and seafood. "+tpZone(cx);
 }
 function tpMapWire(svg){
@@ -1070,8 +1298,10 @@ function tpMapText(f,G){
   const one=tpCostFor(1,f.buyers), ten=tpCostFor(10,f.buyers);
   set("tp_read_txt","<b>How to read the map.</b> Follow the orange 1% line. To its right, cultivated meat stays a niche. To cross it with "+tpPctB(f.buyers)+
     " of meat buyers picking it at the same price, cells must cost under about "+(one===null?"(out of reach)":tpUSDk(one))+" a kilo; for 10%, under about "+(ten===null?"$0.5: out of reach":tpUSDk(ten))+
-    ". Your point sits at "+tpUSD(f.cost)+"; its whisker holds 8 in 10 draws ("+tpUSD(f.cb[0])+" to "+tpUSD(f.cb[2])+") if the estimates you have not set vary. "+
-    "Moving up the map is a judgement about shoppers; moving left is cheaper cells. The lines of equal share do not move with the meat-buyers slider: it moves your point up and down.");
+    ". Your point sits at "+tpUSD(f.cost)+". "+
+    "Moving up the map is a judgement about shoppers; moving left is cheaper cells. The lines of equal share do not move with the meat-buyers slider: it moves your point up and down. "+
+    "<b>The dashed lines</b> mark the cost of cells at which it would sell at the shop price of each kind of meat named along the top. For one kind of meat at its own price, the share of its buyers who pick the cultivated one is your setting exactly (the chart above). This map adds up every kind of meat at one cost of cells, each at its own price, so its lines of equal share cross each dashed line below that setting for the dearer meats to its right and above it for the cheaper ones.");
+
   const rd=document.getElementById("tp_read"); if(rd) rd.style.display=PGS.readDismissed?"none":"";
   set("tp_map_region",pgRegionName());
   const mq=document.getElementById("tp_map_wq"); if(mq&&mq.setAttribute) mq.setAttribute("data-tip",tpVariedTip());
@@ -1081,17 +1311,53 @@ function tpMapText(f,G){
     tb.innerHTML='<table class="num"><thead><tr><th>Cost of a kilo of cells</th>'+bs.map(b=>'<th>'+tpPctB(b)+' of meat buyers</th>').join("")+'</tr></thead><tbody>'+
       cs.map(c=>'<tr><td>$'+c+'</td>'+bs.map(b=>'<td>'+pgPctS(tpInterp(c,b))+'</td>').join("")+'</tr>').join("")+'</tbody></table>'+
       '<p class="note">Long-run share of '+pgRegionOf()+' meat and seafood, read from the map\'s grid, at the shopper settings as set.</p>'; }
-  set("tp_alt","Upright lines: the nutrient floor ($"+C.FEEDSTOCK_FLOOR.toFixed(2)+" a kilo of cells: nothing can cost less), the cost at which the shop price matches the average kilo eaten here ("+
-    scMoney(f.parity,2)+", dashed), and every lever at its limit ($"+TP.frontier.toFixed(2)+"). The map shades the long-run share of "+pgRegionOf()+" meat and seafood for every cost of cells (across) and every share of meat buyers who would pick it at the same price (up). "+
-    "Your point: "+tpUSD(f.cost)+" and "+tpPctB(f.buyers)+", a share of "+pgPctS(f.share)+"; 8 in 10 draws between "+tpUSD(f.cb[0])+" and "+tpUSD(f.cb[2])+" if the estimates you have not set vary. Reference points: "+
-    TP.refs.map(r=>r.label+" about "+tpUSD(tpRefCloud(r.key).q[1])).join("; ")+".");
+  set("tp_alt","Upright lines: the nutrient floor ($"+C.FEEDSTOCK_FLOOR.toFixed(2)+" a kilo of cells: nothing can cost less), the cost at which it would sell at the shop price of each kind of meat ("+tpAnd(tpMeats().map(m=>m.plain+" "+tpUSD(m.parity)))+", dashed), and every lever at its limit ($"+TP.frontier.toFixed(2)+"). The map shades the long-run share of "+pgRegionOf()+" meat and seafood for every cost of cells (across) and every share of meat buyers who would pick it at the same price (up). "+
+    "Your point: "+tpUSD(f.cost)+" and "+tpPctB(f.buyers)+", a share of "+pgPctS(f.share)+".");
+}
+// three figures that stay in view while any slider moves: the cost, the shop price against two named meats, the long-run share
+function tpSummaryHTML(f){
+  const ms=tpMeats(), a=ms[0], b=ms.find(m=>/steak/i.test(m.name))||ms[ms.length-1], r=f.cloud.res, x=m=>{ const q=m.shop(f.cost)/m.price; return (q>=9.5?q.toFixed(0):q.toFixed(1))+"×"; };
+  const mince=shelfPrice(f.cost,state);
+  return '<p class="sumlab">At your settings</p><div><b>'+tpUSD(f.cost)+'</b><span>to grow a kilo of cells ('+r.density.toFixed(0)+' g a litre, '+r.medium_l.toFixed(0)+' litres of medium a kilo)</span></div>'+
+    '<div><b>'+tpUSD(mince)+'</b><span>a kilo in the shop as mince: '+x(a)+' '+pgEsc(a.plain)+', '+x(b)+' '+pgEsc(b.plain)+'</span></div>'+
+    '<div><b>'+(f.share<0.00095?"under 0.001%":tpPct2(f.share))+'</b><span>of '+tpRegionMeat()+' in the long run, if '+tpPctB(f.buyers)+' of meat buyers pick it at the same price</span></div>';
+}
+// "how uncertain is this cost": only when the reader opens it, the estimates nobody has measured are varied over the ranges listed
+function tpUncRender(){
+  const d=document.getElementById("unc"), host=document.getElementById("tp_unc"); if(!d||!host||!d.open) return;
+  const cl=tpCloudFor(SCS), P=TP.cloud.priors, M=TP.cloud.mc, h=SCS.held, tr=SCS.traits, p=tpParams(), isScen=SCS.base!=="humbird";
+  const perf=tpWashed(p)&&(SCS.device||"tff")==="tff"&&!(p.vm&&p.vm.own_retention), base=p.medium_price===undefined?0.15:p.medium_price;
+  const n=(v,d)=>(+v).toLocaleString("en-US",{maximumFractionDigits:d});
+  const rows=[];
+  const add=(on,name,lo,mode,hi,unit,d)=>{ if(on) rows.push('<tr><td>'+name+'</td><td class="num">'+n(lo,d)+'</td><td class="num">'+n(mode,d)+'</td><td class="num">'+n(hi,d)+'</td><td>'+unit+'</td></tr>'); };
+  add(h.capex_x===undefined,"What the plant costs to build",M.capex_x[0],M.capex_x[1],M.capex_x[2],"× the model's estimate",2);
+  add(h.charge===undefined,"The yearly charge on the plant",P.plant_charge_mature[0]*100,P.plant_charge_mature[1]*100,P.plant_charge_mature[2]*100,"% a year",1);
+  add(h.medium_price===undefined&&base>0,"The price of the medium",M.medium_price[0]*base,M.medium_price[1]*base,M.medium_price[2]*base,"$ a litre",2);
+  add(isScen&&(p.hazard||0)>0,"Runs lost to contamination",M.hazard[0]*p.hazard*100,M.hazard[1]*p.hazard*100,M.hazard[2]*p.hazard*100,"% of runs a day",2);
+  add(perf&&h.mem_life===undefined,"Litres a m² of membrane filters",P.rt_membrane_life[0],P.rt_membrane_life[1],P.rt_membrane_life[2],"litres a m²",0);
+  add(perf&&h.mem_price===undefined,"Price of the membranes",P.rt_membrane_price[0],P.rt_membrane_price[1],P.rt_membrane_price[2],"$ a m²",0);
+  add(h.maint===undefined,"Share of a cell's oxygen spent on upkeep",P.pf_maintenance_share[0]*100,P.pf_maintenance_share[1]*100,P.pf_maintenance_share[2]*100,"%",0);
+  const nl=P[isScen?"sc_nh3_limit":"pf_nh3_limit"];
+  add(h.nh3_limit===undefined,"Ammonia the cells tolerate",nl[0],nl[1],nl[2],"mmol a litre",1);
+  add(h.protect_price===undefined,"Price of the bubble protectant",P.pf_protectant_price[0],P.pf_protectant_price[1],P.pf_protectant_price[2],"$ a kilo",0);
+  add(h.protect_dose===undefined,"Bubble protectant in the medium",P.pf_protectant_dose[0],P.pf_protectant_dose[1],P.pf_protectant_dose[2],"grams a litre",1);
+  add(h.min_perfusion===undefined,"Least medium flow the cells need",P.pf_min_perfusion[0],P.pf_min_perfusion[1],P.pf_min_perfusion[2],"mL a gram a day",1);
+  add(true,"Oxygen transfer left once antifoam is added",P.pf_antifoam_otr[0]*100,P.pf_antifoam_otr[1]*100,P.pf_antifoam_otr[2]*100,"%",0);
+  add(h.aa_price===undefined,"Price of amino acids",P.aa_bulk_price[0],P.aa_bulk_price[1],P.aa_bulk_price[2],"$ a kilo",2);
+  add(isScen&&tr.mass_pg===undefined,"Weight of one cell",P.sc_mass_selected_pg[0]/1000,P.sc_mass_selected_pg[1]/1000,P.sc_mass_selected_pg[2]/1000,"ng",1);
+  add(isScen&&tr.nh3_kg===undefined&&(SCS.choice.cells==="selected"||SCS.choice.cells==="measured"),"Ammonia the cells make",P.sc_nh3_selected[0],P.sc_nh3_selected[1],P.sc_nh3_selected[2],"mol a kilo of cells",3);
+  host.innerHTML='<p>The cost above, <b>'+scMoney(cl.point)+'</b>, puts every setting at the value its slider shows. Some of those values are estimates that nobody has measured at this scale. '+
+    'If each of them is drawn at random from the range below ('+cl.n+' draws; the value in the middle column is the most likely), half the draws cost less than <b>'+tpUSD(cl.q[1])+'</b> and 8 in 10 fall between <b>'+tpUSD(cl.q[0])+'</b> and <b>'+tpUSD(cl.q[2])+'</b>. '+
+    'The middle draw is '+(cl.q[1]>cl.point*1.02?"above":(cl.q[1]<cl.point*0.98?"below":"close to"))+' the cost above because several ranges reach further on their costly side. A setting you move yourself leaves this list.</p>'+
+    '<div class="scrollx"><table class="sctab"><thead><tr><th>Estimate varied</th><th>From</th><th>Most likely</th><th>To</th><th></th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>'+
+    '<p class="small">The cells\' traits you set in section 1 and the shoppers are not varied here. The documents\' tables give the middle draw and this range for their examples.</p>';
 }
 function tpRenderFirst(){
   if(typeof document==="undefined") return;
   const f=pgFacts(), set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
-  set("deck",pgDeck(f));
+  set("deck",pgLead()); set("tp_yours",pgDeck(f)); set("sumbar",tpSummaryHTML(f)); tpUncRender();
   tpLineDraw(f); tpLineText(f); tpGroupsDraw(f); tpGroupsText(f); tpAnimalsRender(f);
-  tpRenderControls(f); tpMapDraw(f);
+  tpRenderControls(f); tpOneDraw(f); tpMapDraw(f);
 }
 const pgRenderFirst=tpRenderFirst;
 function pgWidth(id,dflt){ const e=document.getElementById(id); const w=e&&e.clientWidth?e.clientWidth:0; return w>0?w:(dflt||720); }
@@ -1180,7 +1446,7 @@ function l2Rows(){
     rows.push({kind:"choice", id:"sw_"+r.switch, name:sw.name, what:sw.q+".", now:scSetting(r.switch,r.now).label,
       lo:r.costs[r.best], hi:r.costs[r.worst], loT:lab(r.switch,r.best), hiT:lab(r.switch,r.worst),
       why:scSetting(r.switch,r.now).note, tag:"a choice"}); });
-  // the four traits, each from Published cells' level to that of Engineered cells, all favourable (a cell's weight over the range the draws take)
+  // the four traits, each from Published cells' level to that of the all-favourable example (a cell's weight over the range the draws take)
   const pub=tpRef("today").traits, eng=tpRef("best").traits, mq=TP.cloud.priors.sc_mass_selected_pg;
   TRAIT_KEYS.forEach(k=>{ const T=TP.traits[k], ends=k==="mass_pg"?[mq[0],mq[2]]:[pub[k],eng[k]];
     const c=ends.map(v=>floorExplore(Object.assign({},p0,{[k]:v})).total), lo=Math.min(c[0],c[1]), hi=Math.max(c[0],c[1]);
@@ -1282,10 +1548,10 @@ function l3Render(){
   set("l3atable",'<table class="num"><thead><tr><th>Type of meat</th><th>Kind</th><th>Conventional price, a kilo</th><th>Cultivated price, as a multiple</th><th>Share of the type</th><th>The type\'s share of all meat and seafood</th><th>Adds to the total</th></tr></thead><tbody>'+
     rows.map(r=>'<tr><td>'+r.name+'</td><td>'+r.kind+'</td><td>$'+r.price.toFixed(1)+'</td><td>'+r.R.toFixed(2)+'</td><td>'+pgPctS(r.sh)+'</td><td>'+r.w.toFixed(1)+'%</td><td>'+pgPctS(r.part)+'</td></tr>').join("")+'</tbody></table>');
   // regions: the same cloud of cost draws, at each region's own prices and incomes
-  set("l3rsub","The median of the "+f.cloud.n+" cost draws, with the range that holds 8 in 10 of them, at "+tpPctB(f.buyers)+" of meat buyers picking it at the same price and the other shopper settings as set.");
-  set("l3regions",'<table class="num"><thead><tr><th>Region</th><th>Average kilo of meat and seafood</th><th>Long-run share, median</th><th>8 in 10 draws</th></tr></thead><tbody>'+
-    PG.regions.map(r=>{ const sh=[tpShare(f.cb[2],f.buyers,r[0]),tpShare(f.cb[1],f.buyers,r[0]),tpShare(f.cb[0],f.buyers,r[0])];
-      return '<tr><td>'+r[1]+'</td><td>$'+tpAvgPrice(r[0]).toFixed(2)+'</td><td><b>'+pgPctS(sh[1])+'</b></td><td>'+(sh[2]<0.00095?"under 0.001%":pgPct(sh[0])+"% to "+pgPct(sh[2])+"%")+'</td></tr>'; }).join("")+'</tbody></table>');
+  set("l3rsub","At "+tpUSD(f.cost)+" a kilo of cells and "+tpPctB(f.buyers)+" of meat buyers picking it at the same price, with the other shopper settings as set. Each region has its own prices and incomes; the two meats named are its cheapest large kind and its steak.");
+  set("l3regions",'<table class="num"><thead><tr><th>Region</th><th>Shop price of a kilo there</th><th>Long-run share of its meat and seafood</th></tr></thead><tbody>'+
+    PG.regions.map(r=>{ const ms=tpMeats(r[0]), a=ms[0], b=ms.find(m=>/steak/i.test(m.name))||ms[ms.length-1];
+      return '<tr><td>'+r[1]+'</td><td>'+pgEsc(a.plain)+' $'+a.price.toFixed(2)+'; '+pgEsc(b.plain)+' $'+b.price.toFixed(2)+'</td><td><b>'+pgPctS(tpShare(f.cost,f.buyers,r[0]))+'</b></td></tr>'; }).join("")+'</tbody></table>');
   l3Time(f,total);
 }
 let l3Geo=null;
@@ -1367,9 +1633,9 @@ function scResultHTML(ch,r){
   const lim=(SC.limit_plain[r.limit]||r.limit).replace("CO2","CO₂");
   const med=(SC.medium_plain[r.medium_set_by]||r.medium_set_by);
   const need=scNeeds(ch).filter(x=>x[2]!=="nothing new");
-  let h=(SCS.base==="humbird"?'<p class="callout">The page is on Humbird\'s optimistic design, which is not built from these switches. They show Selected cells\' switches; moving one starts your own settings from them.</p>':'')+
-    '<p><b>'+f.label+': '+scMoney(cost)+' a kilo of cells with every estimate at its most likely value.</b> '+
-    'The median of the draws is '+tpUSD(f.cb[1])+' (8 in 10 draws '+tpRangeUSD(f.cb[0],f.cb[2])+'), and that is the figure the rest of the page uses.'+
+  let h=(SCS.base==="humbird"?'<p class="callout">The page is on Humbird\'s optimistic design, which is not built from these switches. They show the low-lactate example\'s switches; moving one starts your own settings from them.</p>':'')+
+    '<p><b>'+f.label+': '+scMoney(cost)+' a kilo of cells, with every setting at the value shown.</b> '+
+    'The first screen\'s section “How uncertain is this cost” varies the estimates nobody has measured.'+
     (Object.keys(SCS.traits).length?' Your cell traits stand in for the kind of cells and the growth speed.':'')+'</p>'+
     '<p>The tank holds '+r.density.toFixed(0)+' g of cells a litre, limited by <b>'+lim+'</b>, and works '+(r.uptime*100).toFixed(0)+'% of the year. '+
     ((r.column&&r.limit==="oxygen supply")?'Oxygen, not CO₂, limits it because the column beside the tank takes the CO₂ out, and antifoam takes a quarter of the oxygen the bubbles deliver. Without the column, CO₂ would limit it first. ':'')+
@@ -1449,9 +1715,12 @@ function l4Render(){
   const ch=SCS.choice, r=SCS.base==="humbird"?floorExplore(tpParams()):scEval(ch), p=SCS.base==="humbird"?tpParams():scParams(ch);
   SC.keys.forEach(k=>{ const e=document.getElementById("sc_sel_"+k); if(e) e.value=ch[k];
     const n=document.getElementById("sc_note_"+k); if(n) n.innerHTML=scTagChip(scSetting(k,ch[k]).tag)+' '+scSetting(k,ch[k]).note; });
-  host.innerHTML=scResultHTML(ch,r);
+  const other=SCS.vmode||(SCS.device&&SCS.device!=="tff");
+  host.innerHTML=(other?'<p class="callout">On the first screen you chose '+(SCS.vmode?pgEsc(VM.vessels[SCS.vessel].name.toLowerCase()+", run as "+VM.modes[SCS.vmode].name.toLowerCase()):"")+
+    (SCS.vmode&&SCS.device!=="tff"?" and ":"")+(SCS.device&&SCS.device!=="tff"&&MODEL.rt?pgEsc(MODEL.rt.devices[SCS.device].name.toLowerCase())+" to hold the cells back":"")+
+    '. The switches below describe a stirred tank with a membrane loop, so the cost in this section ('+scMoney(r.total)+') is that tank\'s, not the '+scMoney(pgPointCost())+' of your choice.</p>':"")+scResultHTML(ch,r);
   const gfIn=(p.gf_in_medium||0)>0&&r.growth_factors<0.005;
-  const ph=document.getElementById("sc_parts");      // where the cost goes, against Central (or the best case when Central is chosen)
+  const ph=document.getElementById("sc_parts");      // where the cost goes, against the low-lactate example (or the all-favourable example when that one is loaded)
   if(ph){ const refKey=SCS.ref==="central"?"best":"central"; ph.innerHTML=scPartsSVG(r,scWithExtra({},()=>scEval(SC.presets[refKey].choice)),tpLabel(refKey),gfIn); }
   const pn=document.getElementById("sc_parts_note");
   if(pn) pn.innerHTML=gfIn?"The medium's price is taken to include the growth factors, so they show as $0.00 here. The growth-factor switch then acts as a floor: the medium cannot cost less than its nutrients plus the growth factors bought. "+
@@ -1491,6 +1760,8 @@ function pgGoto(id,scroll){
   if(scroll!==false&&t.scrollIntoView) setTimeout(()=>t.scrollIntoView({block:"start"}),30);
 }
 function pgInit(){
+  // labels are measured in the page's font: draw the charts again once the web font has arrived
+  try{ if(typeof document!=="undefined"&&document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ if(KP) tpRenderFirst(); }); }catch(e){}
   if(typeof document==="undefined"||!document.querySelectorAll) return;
   tpBuildControls(); tpWitRender();
   KP=effConsts(state);

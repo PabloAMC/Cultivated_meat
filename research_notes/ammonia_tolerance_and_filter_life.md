@@ -1,6 +1,6 @@
 # Ammonia the cells tolerate, and how long a cell filter lasts
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Research date: 2026-11-16. A literature pass on the two inputs that move Central most (`answer_rests_on.py`, RESULTS.md "What
 the answer rests on"): `pf_nh3_limit` (5 mmol/L, range 2–10) and `rt_membrane_life` (3,960 L/m², range 900–5,500). **No input
@@ -29,11 +29,11 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
    CHO, the source of the 5 mM figure, is more tolerant (IC50 33 mM in one study). Hybridomas raised gradually or adapted grow at
    10–21 mM. Meat-cell processes that state a set-point hold ammonium at 2–3 mM.
 2. **What the model's number has to mean.** In perfusion the cells live at the limit all the time, and, as far as I read the code, the
-   model charges no slower growth there. So the value should be the level at which Central's selected cells lose little growth, about 10%. That is
+   model charges no slower growth there. So the value should be the level at which Central's cells lose little growth, about 10%. That is
    not an IC50. For unadapted meat-relevant cells that level is about 1–3 mM. Selection, which Central assumes, could raise it.
    Only hybridoma data show by how much.
 3. **Ammonia verdict.** 5 mM is at the generous end of the meat-relevant evidence, but that evidence is weak: every
-   dose-response is a sudden spike on unadapted cells, mostly in serum at low density, and Central assumes selected cells.
+   dose-response is a sudden spike on unadapted cells, mostly in serum at low density, and Central assumes cells that grow on the low-waste feed.
    - My median for Central's cells is about 3.5–4 mM.
    - P(true value within a factor of 1.5 of 5 mM, i.e. 3.3–7.5 mM) ≈ **45%**; P(below 3.3) ≈ 45%; P(above 7.5) ≈ 10%.
    - **I do not recommend moving it.** At 4 mM Central would be $34.0 (from $29.4), on evidence I rate as too thin for that.
@@ -57,7 +57,7 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
 ## 1. Ammonia: what the model assumes
 
 `floor_physics.washout_litres` sets the medium per kg so that ammonia made per kg divided by medium per kg equals
-`pf_nh3_limit`. Central's selected cells make 0.14 mol/kg (`sc_nh3_selected`, Hubalek 2023, bovine FAPs fed alpha-ketoglutarate
+`pf_nh3_limit`. Central's cells make 0.14 mol/kg (`sc_nh3_selected`, Hubalek 2023, bovine FAPs fed alpha-ketoglutarate
 in place of glutamine). At 5 mM that is 28 L/kg. The tank sits at the limit at steady state. As far as I read `floor_physics.py`, the model charges no slower growth
 at the limit (my reading of the washout function only). Halving the limit doubles the medium and the permeate.
 
@@ -128,7 +128,7 @@ literature (Pakbin 2025).
 | Meat-relevant unadapted cells, 50% growth loss | about 3–10 mM (catfish about 3; 3T3 about 8; HFF-1 about 10; pig and bovine FAPs unknown) |
 | Meat-cell process set-points and levels reached | 2–3 mM held (Pasitka, quail); above 3 mM reached at 3–6 million cells/mL (Bodiou) |
 | After selection or slow adaptation (hybridoma only) | 10–21 mM, with a growth cost in continuous culture |
-| My median for Selected cells' selected cells, at the level where growth loss is small | **3.5–4 mM** |
+| My median for the low-lactate example's cells, at the level where growth loss is small | **3.5–4 mM** |
 | My 80% interval | 2–8 mM |
 
 - **Probability the model's 5 mM is within a factor of 1.5 of the truth** (3.3–7.5 mM) for meat cells at production density:
@@ -140,14 +140,14 @@ literature (Pakbin 2025).
   sources contradict the pattern (IMR-90 at 0.1 mM; mesenchymal stem cells growing faster at 5 mM). The pig result has two
   conditions and a confounded uptake change. The 10% loss level is my interpretation of what the model needs, not something any
   paper measured.
-- **Cost of moving it** (Central, tank design held; best case in brackets where computed):
+- **Cost of moving it** (Central, tank design held; the all-favourable example in brackets where computed):
 
   | `pf_nh3_limit` | 7.5 | 5 (now) | 4 | 3.5 | 3.33 | 3 |
   |---|---|---|---|---|---|---|
   | Central $/kg | 22.45 | 29.42 | 33.99 | 37.19 | 38.50 | 41.45 |
-  | Best case $/kg | 9.66 | 9.66 | 11.15 | | | 13.83 |
+  | All-favourable example $/kg | 9.66 | 9.66 | 11.15 | | | 13.83 |
 
-  The best case is unchanged above 5 mM, which I take to mean its cells make so little ammonia that lactate sets the medium (inferred from the numbers, not traced in the code).
+  The all-favourable example is unchanged above 5 mM, which I take to mean its cells make so little ammonia that lactate sets the medium (inferred from the numbers, not traced in the code).
 - **The experiment that settles it.** Run the real cell line in a 1–2 L perfusion at 10–20% cells by volume, serum-free, with
   the medium made to hold ammonium constant at 2, 3, 4, 5 and 7 mM (add NH4Cl to the feed), tank pH fixed at the pH the model
   assumes. Run each level for at least 10 days, and record growth rate, viability and lactate. Repeat the 4 and 7 mM levels on
@@ -226,7 +226,7 @@ L/m².
   | `rt_membrane_life` L/m² | 5,940 | 3,960 (now) | 3,000 | 2,640 | 2,000 | 1,500 | 1,200 | 900 |
   |---|---|---|---|---|---|---|---|---|
   | Central $/kg | 26.64 | 29.42 | 32.08 | 33.58 | 37.58 | 43.09 | 48.59 | 57.75 |
-  | Best case $/kg | | 9.66 | 10.51 | | 12.27 | | 15.79 | 18.73 |
+  | All-favourable example $/kg | | 9.66 | 10.51 | | 12.27 | | 15.79 | 18.73 |
 
 - **The experiment that settles it.** Run 0.025 m² hollow-fibre modules (0.2 µm, and one wide-pore) on a 1–2 L meat-cell
   perfusion held at 15–20% cells by volume with the model's antifoam and protectant doses. Test at 2.5 and 5 L/m²/h, one module
@@ -284,9 +284,9 @@ scenario ladder. Nothing was committed or pushed. I report it because it shows h
 |---|---|---|
 | Today | 62.96 | 73.19 |
 | Process changes | 30.73 | 46.11 |
-| Selected cells | 29.42 | 44.67 |
-| Selected cells, lean | 26.56 | 41.81 |
-| Engineered cells, all favourable | 9.66 | 13.83 |
+| Low-lactate example | 29.42 | 44.67 |
+| Low-lactate example, lean | 26.56 | 41.81 |
+| All-favourable example | 9.66 | 13.83 |
 | Cautious | 42.39 | 57.37 |
 
 The ladder keeps its order and gaps and rises by about $15 in the middle rungs. The move is not a two-number edit. The repo's
@@ -296,10 +296,10 @@ Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank 
 A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
 METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.
 
-## 10. Can selection, not engineering, bring the ammonia the cells make down to the engineered cells' level? (2026-11-19)
+## 10. Can selection, not engineering, bring the ammonia the cells make down to 0.055 mol a kilo? (2026-11-19)
 
-The question (Pablo): "Can't you select cells to produce less ammonia?" The ammonia the selected cells make (`sc_nh3_selected`,
-0.14 mol a kilo, range 0.07–0.25) is the largest estimate under Selected cells, and the engineered cells' 0.055 is set apart from it
+The question (Pablo): "Can't you select cells to produce less ammonia?" The ammonia the low-lactate example's cells make (`sc_nh3_selected`,
+0.14 mol a kilo, range 0.07–0.25) is the largest estimate under the low-lactate example, and the 0.055 of the cells that make almost no ammonia is set apart from it
 by judgement. A short pass in both directions (search summaries and the repo's notes; no source read in full in this pass).
 
 **Toward lower ammonia without engineering.**
@@ -324,12 +324,11 @@ by judgement. A short pass in both directions (search summaries and the repo's n
   (ISCCM11 poster, 2025); an Upside Foods patent describes glutamine-synthetase lines (GFI's bioprocess deep dive cites about a 20%
   reduction).
 
-**Reading.** Selection on a glutamine-free feed plausibly reaches the engineered cells' level: I put about 20% on a selected meat-cell
+**Reading.** Selection on a glutamine-free feed plausibly reaches 0.055 mol a kilo: I put about 20% on a selected meat-cell
 line making 0.055 mol a kilo or less while growing at production density, and about 50% on 0.14 or less. The evidence for lower
 values is shaker and CHO data; the evidence for the measured value is the one stirred, growing meat-relevant culture. So:
 **mode kept at 0.14, low end widened from 0.07 to 0.04, so the selected and engineered settings overlap; high end kept at 0.25.**
-The bands draw the wider range. At 0.04 or 0.055 Selected cells costs $23.6 or $23.5 a kilo at most likely values, against $32.8
-at 0.14: below about 0.085 its lactate, not its ammonia, sets the litres (22 a kilo, not 35). The same switches with the engineered
-cells' ammonia and lactate cost $20.1, so most of the gap between the two kinds of cells is ammonia, and selection could close two
+The bands draw the wider range. At 0.04 or 0.055 the low-lactate example costs $23.6 or $23.5 a kilo at most likely values, against $32.8
+at 0.14: below about 0.085 its lactate, not its ammonia, sets the litres (22 a kilo, not 35). The same switches with 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose cost $20.1, so most of the gap between the two kinds of cells is ammonia, and selection could close two
 thirds of it; the rest is lactate. The effect on the bands is in
 RESULTS.md (CHANGELOG, 2026-11-19).

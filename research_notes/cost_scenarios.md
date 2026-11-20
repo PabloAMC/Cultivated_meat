@@ -1,11 +1,10 @@
 # Cost scenarios: settings, why, what each needs, and what would move them
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > **Updated 2026-11-15 (late), second time.** Every figure in this note is recomputed with the model as it now stands: the hollow-fibre
 > filter loop with its membranes (`retention.py`), the bubble protectant (poloxamer 188, 2 g/L at an assumed $30/kg), antifoam's
-> quarter cut to the sparger's oxygen transfer, and bought oxygen for a yeast-style plant. Earlier versions are in git history (best case
-> $6.57 and central $18.14 with the old device; $8.95 and $26.64 with the filter loop alone). With antifoam counted, oxygen limits the
+> quarter cut to the sparger's oxygen transfer, and bought oxygen for a yeast-style plant. Earlier versions are in git history (the all-favourable example $6.57 and the low-lactate example $18.14 with the old device; $8.95 and $26.64 with the filter loop alone). With antifoam counted, oxygen limits the
 > central and cautious cases, and each scenario's tank design was chosen again.
 
 Code: `scenarios.py` (the switches and presets), `page_sections.py` and `page_scenarios.js` (the page), `tests/test_scenarios.py`.
@@ -18,9 +17,9 @@ Since 2026-11-19 RESULTS leads with what it would take (`scenarios.what_it_would
 ladder of reference points
 starts from what has been shown and adds one kind of change per rung, likeliest first: 1. Published cells in a 20 m³ fed-batch (key
 `today`; fed-batch is what pharma runs and Upside Foods reports at 20 m³); 2. process changes and cheaper inputs, still a batch
-(`process`); 3. selected cells, still a batch (`selected`); 4. perfusion: the Selected cells case (`central`, unchanged); 5. the
-shared-medium plant (`central_lean`); 6. engineered cells (`engineered`); 7. everything else at its favourable end: Engineered cells,
-all favourable (`best`). A new switch, "How the tank is run", holds perfusion at 20 m³ or fed-batch at 20, 50 or 100 m³. A batch is held
+(`process`); 3. cells that make less lactate (0.42), still a batch (`selected`); 4. perfusion: the low-lactate example (`central`, unchanged); 5. the
+shared-medium plant (`central_lean`); 6. cells that make almost no ammonia or lactate (`engineered`); 7. everything else at its favourable end: the all-favourable
+example (`best`). A new switch, "How the tank is run", holds perfusion at 20 m³ or fed-batch at 20, 50 or 100 m³. A batch is held
 by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scenario keeps the published cells in perfusion
 (`scenarios.ORDER`).
 
@@ -29,29 +28,29 @@ by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scen
 | 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$219** ($162–282) | $209.1 | 25.6× | **under 0.001%** (9 in 10 draws under 0.002%) | under 0.001% | none |
 | 2. Plus process changes and cheaper inputs | **$210** ($153–274) | $201.4 | 24.6× | **under 0.001%** (9 in 10 draws under 0.003%) | under 0.001% | none |
 | 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$67** ($43–105) | $64.9 | 8.0× | **0.02%** (0.003–0.2%) | 0.02% | lactate |
-| 4. Plus perfusion (Selected cells): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | lactate |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$36** ($26–55) | $32.8 | 4.4× | **0.2%** (0.03–0.9%) | 0.2% | lactate |
 | 5. Plus a food-grade plant with shared medium | **$33** ($24–52) | $29.9 | 4.1× | **0.2%** (0.04–1.1%) | 0.3% | lactate |
 | 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$24** ($18–34) | $17.3 | 3.0× | **0.5%** (0.1–2.3%) | 1.4% | ammonia, lactate |
-| 7. Plus everything else at its favourable end (Engineered cells, all favourable) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (the all-favourable example) | **$15** ($12–20) | $11.7 | 2.0× | **7.7%** (3.1–16.2%) | 15.1% | ammonia, lactate |
 | Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$16** ($13–22) | $12.8 | 2.2× | **1.3%** (0.4–4.7%) | 2.7% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
 
 *History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
 (chosen by `design` with today's other switches), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
 medium $2.87; together, with the tank design chosen again, $32.23, to $30.73. Selection then takes $1.31 off (Central $29.42), the
-plant with shared medium $2.86 ($26.56), and engineered cells with every switch at its cheapest plausible setting $16.90 ($9.66). *Now (2026-11-19, at most likely values):* $209.1,
+plant with shared medium $2.86 ($26.56), and cells that make almost no ammonia or lactate with every switch at its cheapest plausible setting $16.90 ($9.66). *Now (2026-11-19, at most likely values):* $209.1,
 $201.4, $64.9, $32.8, $29.9, $16.9 and $11.5 for the seven rungs; the steps are in RESULTS.md, "The ladder".
 
 **Since 2026-11-16 every scenario holds dissolved oxygen at about half of air saturation** (`scenarios.always`, `sc_do_setpoint`), which
-took Central from $29.92 to $29.42 and let the best case reach the thickness limit with recycled oxygen and a squat tank ($9.66). **The
-sections below this one were computed before that change** and keep their figures (Central $29.92, best case $9.71); the differences are
+took Central from $29.92 to $29.42 and let the all-favourable example reach the thickness limit with recycled oxygen and a squat tank ($9.66). **The
+sections below this one were computed before that change** and keep their figures (Central $29.92, the all-favourable example $9.71); the differences are
 under $0.6 a kilo.
 
 ## Why scenarios, not a floor
 
 Until 2026-11-15 the model quoted one number, "the floor", $11.5/kg of cells. It was `explore()` at its defaults: a standard 20 m3
-stirred tank in perfusion at 120 g/L, a food-grade plant, engineered cells, no tank tricks, no lost runs, no growth
-factors. That is neither a best case (the model has since gained tank tricks, a plant built item by item, explicit ammonia and lactate)
+stirred tank in perfusion at 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no tank tricks, no lost runs, no growth
+factors. That is neither the most favourable case (the model has since gained tank tricks, a plant built item by item, explicit ammonia and lactate)
 nor a typical one (it assumes cells nobody has shown and ignores contamination). It stays as the labelled reference
 (`scenarios.reference()`), and the cost is described by scenarios, each a preset of ten switches.
 
@@ -77,9 +76,9 @@ plant design; **nothing new** has been done.
 
 | scenario | settings | rule |
 |---|---|---|
-| Engineered cells, all favourable: everything works | engineered cells, 24 h, food-grade plant with shared medium, 6 mm/s, 0.6% a day, 14-day restart, no growth factors, $0.15 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells, speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers report (0.2% is pharma's and is not assumed); tank design the cheapest pair whose loop passes the checks. |
-| Selected cells: selection and feed only, food-grade plant | selected cells, 36 h, food-grade plant, 4 mm/s, 1% a day, 14-day restart, growth factors 30%, $0.20 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells that have been measured or that selection can reach (no genetic engineering); every other switch at the setting nearest the middle of what is reported; tank design as above. |
-| Selected cells, food-grade plant with shared medium | the same in a food-grade plant with shared medium | As Selected cells. |
+| All-favourable example: everything works | cells that make almost no ammonia or lactate, 24 h, food-grade plant with shared medium, 6 mm/s, 0.6% a day, 14-day restart, no growth factors, $0.15 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells, speed, plant, gas, medium and growth factors at their cheapest setting; losses at the low end of what makers report (0.2% is pharma's and is not assumed); tank design the cheapest pair whose loop passes the checks. |
+| Low-lactate example: food-grade plant | cells that make less lactate (0.42), 36 h, food-grade plant, 4 mm/s, 1% a day, 14-day restart, growth factors 30%, $0.20 a litre, **tank design: the column and 1 bar, a tank as deep as wide** | Cells that have been measured or that selection can reach (no genetic engineering); every other switch at the setting nearest the middle of what is reported; tank design as above. |
+| Low-lactate example, food-grade plant with shared medium | the same in a food-grade plant with shared medium | As the low-lactate example. |
 | Cautious: the best meat cells measured so far | best measured cells, 43 h, food-grade plant, 2 mm/s, 1% a day, 21-day restart, growth factors 60%, $0.30 a litre, **tank design: the column and 1 bar, the ordinary tall tank** | Each switch at the setting that has actually been measured; tank design as above. |
 
 "The checks" (`scenarios.design`): the loop must be pH-safe (the alkaline exposure within the 55 mbar, 0.5 m3 design) and at a pass rate dense
@@ -93,26 +92,26 @@ Computed results, 2026-11-15 (cells $/kg; shop; R against $12 meat; long-run sha
 
 | scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the tank tricks | ordinary tall tank |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Engineered cells, all favourable | $9.71 | $9.2–12.2 | $14.7 | 1.23 | **3.8%** | 1.2–9.7% | 7.9% | 13.5% | 25.3% | $10.2 | $10.4 |
-| Selected cells, food-grade plant | $29.92 | $27.4–38.1 | $34.9 | 2.91 | **0.2%** | 0.1–0.6% | 0.4% | 0.9% | 2.3% | $33.5 | $36.2 |
-| Selected cells, food-grade plant with shared medium | $26.81 | $25.4–34.8 | $31.8 | 2.65 | **0.3%** | 0.1–0.7% | 0.5% | 1.2% | 3.5% | $28.5 | $29.9 |
+| All-favourable example | $9.71 | $9.2–12.2 | $14.7 | 1.23 | **3.8%** | 1.2–9.7% | 7.9% | 13.5% | 25.3% | $10.2 | $10.4 |
+| Low-lactate example, food-grade plant | $29.92 | $27.4–38.1 | $34.9 | 2.91 | **0.2%** | 0.1–0.6% | 0.4% | 0.9% | 2.3% | $33.5 | $36.2 |
+| Low-lactate example, food-grade plant with shared medium | $26.81 | $25.4–34.8 | $31.8 | 2.65 | **0.3%** | 0.1–0.7% | 0.5% | 1.2% | 3.5% | $28.5 | $29.9 |
 | Cautious | $43.79 | $39.2–54.5 | $48.8 | 4.07 | **0.1%** | 0.0–0.2% | 0.1% | 0.3% | 0.5% | $63.0 | $63.0 |
 | Reference (standard tank, no tricks) | $12.51 | | $17.5 | 1.46 | | | 4.3% | 8.5% | 19.6% | | |
 | As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |
 
 **Why the median and not the point estimate.** Each point cost sits below its band's median cost, because the estimates behind a scenario are drawn with
 more room to fall short than to improve. The share rises steeply as the price falls, so the share at the point cost is higher than the median share.
-A headline of 7.9% for the best case would be a number most draws do not reach, since the median is 3.8%. The page keeps the point estimate where
+A headline of 7.9% for the all-favourable example would be a number most draws do not reach, since the median is 3.8%. The page keeps the point estimate where
 it is labelled as one. The band exists for the four scenarios. Once a reader changes a switch, the live strip shows the point estimate and says so.
-At 1,000 draws the best case's median moved by 0.3 points between seeds (7.8 to 8.15, with the old device), so the bands use 4,000.
+At 1,000 draws the all-favourable example's median moved by 0.3 points between seeds (7.8 to 8.15, with the old device), so the bands use 4,000.
 
 **Tank design nobody has run with animal cells.** Each scenario's tank design is the cheapest the loop checks allow. Each rests on tricks
-that are calculated, not measured. Best case and Central: a column, 1 bar of extra pressure, and a tank as deep as it is wide. Cautious: the
+that are calculated, not measured. The all-favourable example and Central: a column, 1 bar of extra pressure, and a tank as deep as it is wide. Cautious: the
 column and the pressure in the ordinary tall tank. Recycled pure oxygen through the column would be cheaper still in Central (−$2.0) but fails the
 loop checks. "Without the tank tricks" sets the tricks switch to "none" and keeps the tank shape (Central: +$3.6). "Ordinary tall tank" also takes
 the shape back to Humbird's 1.6 (Central: +$6.3). The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
 
-Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the life of the filter membranes) are drawn with more room to fall short than to improve: the best case's point ($9.71) is at the 25th percentile of its draws (median $10.3), the central point ($29.92) at the 31st (median $31.7), the central point with shared medium at the 25th (median $28.6) and the cautious point at the 34th (median $46.2).
+Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the life of the filter membranes) are drawn with more room to fall short than to improve: the all-favourable example's point ($9.71) is at the 25th percentile of its draws (median $10.3), the central point ($29.92) at the 31st (median $31.7), the central point with shared medium at the 25th (median $28.6) and the cautious point at the 34th (median $46.2).
 
 ### What the bands vary, and what they do not
 
@@ -120,7 +119,7 @@ Each scenario's switches are held. The draws are the estimates behind a scenario
 not below a plant with everything animal cells must have), the financing charge (12.3 to 23.6%, mode 17.3%), the life of the filter
 membranes (900 to 5,500 litres per m², mode 3,960), the upkeep share of respiration (31 to 100%), the medium price (0.6 to 1.5 times the setting) and the loss
 rate (0.3 to 2 times). The cell traits and speed are not drawn: they are what the scenarios differ in, and "What to prioritise" shows what each is
-worth. This differs from the earlier `floor_mc`, which drew the cell traits too (it was a band around engineered cells); that run is unchanged and kept.
+worth. This differs from the earlier `floor_mc`, which drew the cell traits too (it was a band around cells that make almost no ammonia or lactate); that run is unchanged and kept.
 
 ## Doubling time: the evidence, my choice, the alternative
 
@@ -134,13 +133,13 @@ The measured low-waste meat-cell cultures never doubled in 24 hours:
 - Other measured meat cells: chicken in perfusion about 48 h (SuperMeat 2024); chicken in animal-free medium 61 h (Pasitka 2024); bovine muscle stem
   cells in serum-free medium 39 h (Stout 2022); fish (Mack1) 24 h on a surface with serum.
 
-**Choice: 36 hours for the central case.** Selection acts most directly on growth rate, so the central value should sit nearer the ordinary cells'
+**Choice: 36 hours for the low-lactate example.** Selection acts most directly on growth rate, so the central value should sit nearer the ordinary cells'
 speed (25.7 h) than the one measured low-waste culture (42.9 h), but the combination has never been shown. My odds (labelled judgement): 24 h together
 with ammonia at or below 0.14 about 10%; 30 h or faster about 25%; 36 h or faster about 45%; 43 h or faster about 70%. **Alternative:** 24 h, as the
 engineered-cell scenario assumes, costs $27.35 instead of $29.92 (−$2.6, about 9%); 30 h costs $28.68. For the food-grade plant with shared medium, $24.95 at 24 h, $25.92 at
-30 h, $26.81 at 36 h. So speed is worth about $1.9 to 2.6 a kilo here, against $9.6 for engineered cells, $3.0 for no growth factors, $1.4 for medium at $0.15 a litre.
+30 h, $26.81 at 36 h. So speed is worth about $1.9 to 2.6 a kilo here, against $9.6 for cells that make almost no ammonia or lactate, $3.0 for no growth factors, $1.4 for medium at $0.15 a litre.
 
-## What decides the central case
+## What decides the low-lactate example
 
 Each switch moved alone (cost change; change in world share in percentage points; `scenarios.priorities`):
 
@@ -160,7 +159,7 @@ Each switch moved alone (cost change; change in world share in percentage points
 The share changes are at the point cost and are small because the central share is small (0.4% at the point cost). Gas matters more than it
 did, because oxygen, not CO₂, now limits the central tank: more gas means more oxygen.
 
-Interactions (computed, `scenarios.interactions`): engineered cells save $9.6 as things stand and $13.1 if cells also doubled every 24 h (they reinforce
+Interactions (computed, `scenarios.interactions`): cells that make almost no ammonia or lactate save $9.6 as things stand and $13.1 if cells also doubled every 24 h (they reinforce
 each other); they save $8.3 with no growth factors and $7.2 at $0.05 a litre (they overlap: all three attack the same medium cost, and each litre of
 medium must also pass the filter and carries protectant). 6 mm/s of gas would save $2.0 in Central but only $0.2 with recycled oxygen in the column;
 in the cautious case $8.7 but only $0.5. The tricks do the job of the gas. A tank trick matters little if the cells waste a lot: with ordinary cells
@@ -168,9 +167,9 @@ no tank trick reaches the medium cost that washing out ammonia sets (the cells-b
 
 ## What would move each scenario
 
-- **Best case** (needs GE): a culture of engineered cells that doubles in 24 hours at ammonia of 0.055 mol/kg and lactate 0.5 per glucose at density (one mass balance
+- **All-favourable example**: a culture that doubles in 24 hours at ammonia of 0.055 mol/kg and lactate 0.5 per glucose at density (one mass balance
   run); a food-grade plant with shared medium costed and built for animal cells; a column run with dense meat cells (passes, pH, shear); cells that need no growth factors at scale.
-  The tank tricks alone are worth only $0.7 here, so the best case rests on the cells.
+  The tank tricks alone are worth only $0.7 here, so the all-favourable example rests on the cells.
 - **Central** (needs SELECT): the doubling time of low-waste meat cells after adaptation (does it return to 26 to 30 h?); ammonia and lactate per kilo
   at a 36 h doubling in a stirred tank, not a spinner flask (the same paper's shaker value is ten times lower: cause unexplained); the price of medium and of
   growth factors at production scale on a stated mass basis; the gas flow dense meat cells tolerate at 20 m3 (4 mm/s) and whether a column is needed at all.
@@ -180,7 +179,7 @@ no tank trick reaches the medium cost that washing out ammonia sets (the cells-b
 ## Caveats
 
 - The central values (36 h, 2 ng, 4 mm/s, 30% growth factors, $0.20 a litre, 1% a day) are judgement between measured points; each is labelled in `inputs.py`.
-- The share is a long-run ceiling at the model's central demand settings, not a forecast, and falls steeply with cost: the central case's band spans 0.2% to 2.4%.
+- The share is a long-run ceiling at the model's central demand settings, not a forecast, and falls steeply with cost: the low-lactate example's band spans 0.2% to 2.4%.
 - Tank design is optimised (cheapest pair that passes the loop checks); a reader who moves a switch by hand can leave the checks, and the page says so.
 - The scenarios inherit every limit of `floor_physics.explore`: perfusion at 20 m3 is not shown with a retention device, the gas-flow ceiling is a rule of thumb, and the model does not
   yet describe other vessels (airlift, bubble column) or operating modes (batch, fed-batch, chemostat), which a later session will add (`research_notes/page_structure.md`).

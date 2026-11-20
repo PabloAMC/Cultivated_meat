@@ -1,6 +1,6 @@
 # From a kilo of cells to a shelf price: is the retail markup a fixed $/kg or a percentage?
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
@@ -69,7 +69,7 @@ Shelf price = (cost + a) / (1 − m), with a = $2.5/kg (range $1.5–3.5) and m 
 uncertainty bands. The per-kg part is fitted to USDA's 2025 spreads at a 28% margin (table above: chicken $1.6, beef $2.9;
 pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a product (`au_processing`).
 
-| rule | cells' cost for parity with $12 meat | Engineered cells, all favourable: shelf price, share | Selected cells: shelf price, share |
+| rule | cells' cost for parity with $12 meat | All-favourable example: shelf price, share | Low-lactate example: shelf price, share |
 |---|---|---|---|
 | flat $5 a kilo (the model before 2026-11-18) | $7.00 | $16.7, 4.77% | $37.8, 0.56% |
 | per-kg $2.5 + a 15% margin | $7.70 | $16.7, 4.77% | $41.5, 0.40% |
@@ -79,7 +79,7 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
-point share by nearly two-thirds, from 0.44% to 0.16%, and the best case's by a third, from 4.15% to 2.74%. The best case here is
+point share by nearly two-thirds, from 0.44% to 0.16%, and the all-favourable example's by a third, from 4.15% to 2.74%. The all-favourable example here is
 its cells ($11.46 a kilo) with the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the
 costs of the 2026-11-19 audit batch and the Student's t spread of liking fitted later that day. With the audit batch's normal
 spread they were 0.34% to 0.08% and 4.29% to 2.81%; with a heavier tail of liking the rule matters less where cultivated meat is

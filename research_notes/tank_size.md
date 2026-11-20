@@ -1,8 +1,8 @@
 # Tank size: is 20 m³ the right size?
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
-> 2026-11-19 (scenario restructure): the perfusion scan does not move, except for the best case (Engineered cells, all favourable),
+> 2026-11-19 (scenario restructure): the perfusion scan does not move, except for the all-favourable example,
 > whose cells now weigh 2 ng, not Humbird's 3: oxygen limits its tank at about 218 g/L, and its 20 m³ design (column + 1 bar,
 > squat) passes the loop checks up to 32.4 m³. Its rows and its line in the summary are recomputed; the prose about it is from before. Section 10 is new: fed-batch against tank size, now that
 > fed-batch is a setting of the scenarios ("How the tank is run") and the first rungs of the ladder.
@@ -27,19 +27,19 @@ has, from $36.42 to $92.17: its published cells now need 95 litres of medium a k
 | Scenario | Cost at 20 m³ | Cheapest size the model finds | Cost there | Saving | Sizes within 1% of the minimum |
 |---|---|---|---|---|---|
 | Best | $11.67 | 71 m³ | $11.48 | $0.19 (1.6%) | 25 to 158 m³ |
-| Selected cells | $32.80 | 43 m³ | $32.29 | $0.52 (1.6%) | 23 to 96 m³ |
-| Selected cells, food-grade plant with shared medium | $29.94 | 43 m³ | $29.62 | $0.33 (1.1%) | 21 to 96 m³ |
+| Low-lactate example | $32.80 | 43 m³ | $32.29 | $0.52 (1.6%) | 23 to 96 m³ |
+| Low-lactate example, food-grade plant with shared medium | $29.94 | 43 m³ | $29.62 | $0.33 (1.1%) | 21 to 96 m³ |
 | Cautious | $92.17 | 111 m³ | $90.23 | $1.94 (2.1%) | 29 to 194 m³ |
 | Reference (Humbird's tank, no tricks) | $12.81 | 14 m³ | $12.75 | $0.06 (0.5%) | 11 to 23 m³ |
 
 - **Smaller tanks cost more, and the penalty grows fast below 10 m³.** At 10 m³ a kilo costs 3% to 5% more (best $11.75, central $34.27, cautious $95.21). At 5 m³ it
   costs 7% to 12% more. At 2 m³ it costs 20% to 33% more. The percentages are smaller than before the audit because the costs that do not depend on size grew; the dollars are the same.
 - **Larger tanks save little because the loop checks rule out the tricks, not because gas transfer fails.** Without the checks, the cheapest design holds the culture at 258 g/L
-  (central; cautious up to 100 m³) or 238 to 258 g/L (best) up to 200 m³, and the best case would save 2.9% at 200 m³, the central case 2.7% at 104 m³. The pH check on the column loop rules out
+  (central; cautious up to 100 m³) or 238 to 258 g/L (best) up to 200 m³, and the all-favourable example would save 2.9% at 200 m³, the low-lactate example 2.7% at 104 m³. The pH check on the column loop rules out
   those designs already at 20 m³, and the scenarios' own 20 m³ designs above about 24 to 44 m³. Relaxing it to twice the safe dose moves that limit to 35 m³ (best), 40 m³ (central)
   and 157 m³ (cautious).
 - **The model's one assumption that would move the answer is labour.** It charges the same crew per m³ at every size. If staff per m³ fell with tank size as they do between
-  Humbird's 2 m³ and 20 m³ plants, the best case would be 5.8% cheaper at 158 m³. Section 5 says why that is an upper bound.
+  Humbird's 2 m³ and 20 m³ plants, the all-favourable example would be 5.8% cheaper at 158 m³. Section 5 says why that is an upper bound.
 - **The cautious scenario gains the most, 2.1% at 111 m³, and is no longer an exception to the 3% bound.** Oxygen holds its culture at about
   120 g/L at every size, so a larger tank's cheaper steel is not offset by a thinner culture. That saves $1.94 a kilo, as before. It is now 2.1% of a $92.17 kilo, not 5.4% of a $36.42
   one. Without the loop checks, 153 m³ saves 1.5%.
@@ -75,7 +75,7 @@ no longer lifts the limit.
 | 100 | column, squat 0.75 | **11.65** | 2.89 | 0.06 | 1.02 | 2.92 | 2.03 | 2.73 | 154 | oxygen supply | $0.52 (pH) |
 | 200 | column, flat 0.5 | **11.81** | 3.05 | 0.06 | 1.03 | 2.91 | 2.03 | 2.73 | 153 | oxygen supply | $0.69 (pH) |
 
-#### Selected cells
+#### The low-lactate example
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -87,7 +87,7 @@ no longer lifts the limit.
 | 100 | column, square 1.0 | **33.71** | 8.74 | 0.25 | 1.82 | 11.91 | 7.15 | 3.84 | 137 | oxygen supply | $3.47 (pH) |
 | 200 | column, squat 0.75 | **33.86** | 8.88 | 0.25 | 1.81 | 11.93 | 7.15 | 3.84 | 138 | oxygen supply | $3.48 (pH) |
 
-#### Selected cells, food-grade plant with shared medium
+#### The low-lactate example, food-grade plant with shared medium
 
 | m³ | design | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit | loop checks cost |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -137,16 +137,16 @@ no longer lifts the limit.
 
 ### What binds at each size
 
-- **2 to 10 m³: capital.** A small tank costs more per m³. Capital per kilo falls from $5.06 at 2 m³ to $2.48 at 10 m³ in the best case. The tricks lift the CO₂ limit, and oxygen supply
-  sets the density: 238 g/L (best, column + 1 bar), 186 to 188 g/L (central) and 114 to 118 g/L (cautious). The loop check does not bind at 2 or 5 m³ in the best case and costs $0.02
-  at 10 m³; in the central case it costs $2.18 to $3.49 at 2 to 10 m³.
-- **20 m³: the pH check.** The check already costs $0.14 (best), $1.72 (central) and $6.59 (cautious): a cheaper design exists (a tall tank with column + 1 bar for the best case, and with
+- **2 to 10 m³: capital.** A small tank costs more per m³. Capital per kilo falls from $5.06 at 2 m³ to $2.48 at 10 m³ in the all-favourable example. The tricks lift the CO₂ limit, and oxygen supply
+  sets the density: 238 g/L (best, column + 1 bar), 186 to 188 g/L (central) and 114 to 118 g/L (cautious). The loop check does not bind at 2 or 5 m³ in the all-favourable example and costs $0.02
+  at 10 m³; in the low-lactate example it costs $2.18 to $3.49 at 2 to 10 m³.
+- **20 m³: the pH check.** The check already costs $0.14 (best), $1.72 (central) and $6.59 (cautious): a cheaper design exists (a tall tank with column + 1 bar for the all-favourable example, and with
   recycled oxygen too for the central and cautious cases) and fails the pH check. The culture sits at 258 g/L (best, set by thickness), 191 g/L (central, set by oxygen supply) or 120 g/L
   (cautious, set by oxygen supply because it runs at 2 mm/s of gas).
 - **50 m³ and above: the pH check, then oxygen supply.** A deeper tank clears less CO₂ through the sparger, so the loop must make more passes, and the alkaline dose rises with
-  the passes. The 20 m³ designs fail the check at 24 to 44 m³. At 50 m³ the best and central cases move to the flat tank and keep their density (258 and 189 g/L). At 100 m³ and above the
-  cheapest passing design drops the pressure (and, for the best case, the recycled oxygen) and keeps the column alone, so the density falls to 169 to 170 g/L (best) and 137 to 138 g/L
-  (central). The loop checks cost $2.30 to $3.48 a kilo in the central case at 50 to 200 m³. The cautious case keeps column + 1 bar at every size and holds about 120 g/L.
+  the passes. The 20 m³ designs fail the check at 24 to 44 m³. At 50 m³ the all-favourable and low-lactate examples move to the flat tank and keep their density (258 and 189 g/L). At 100 m³ and above the
+  cheapest passing design drops the pressure (and, for the all-favourable example, the recycled oxygen) and keeps the column alone, so the density falls to 169 to 170 g/L (best) and 137 to 138 g/L
+  (central). The loop checks cost $2.30 to $3.48 a kilo in the low-lactate example at 50 to 200 m³. The cautious case keeps column + 1 bar at every size and holds about 120 g/L.
 - **Mixing never binds** in a chosen design: a flat tank mixes fast. In the reference case as defined (tall tank, no tricks), oxygen supply binds at 2 to 10 m³ and CO₂ removal from 20 m³ up,
   and the culture thins from 146 g/L to 56 g/L. That is why the reference's own cost curve turns up above 14 m³.
 - **Heat is not modelled.** The cells give off 5.2 kW per m³ of culture at 258 g/L (best), 3.5 kW/m³ at 191 g/L (central) and 2.1 kW/m³ at 120 g/L (cautious). The wall of a 200 m³ tank
@@ -164,7 +164,7 @@ m² and last 3,960 litres. Since the 2026-11-19 audit a lost run throws its memb
 **What this does at each size.** The area per m³ of tank, and so the loop's cost per kilo, is the same at every size for the same density and medium (the test checks it). The loop is not what
 decides the size.
 
-| | Best, 20 m³ | Best, 200 m³ | Selected cells, 20 m³ | Selected cells, 200 m³ |
+| | Best, 20 m³ | Best, 200 m³ | Low-lactate example, 20 m³ | Low-lactate example, 200 m³ |
 |---|---|---|---|---|
 | Membrane area | 233 m² | 1,215 m² | 343 m² | 2,308 m² |
 | ATF-10 equivalents (11 m² each) | 21 | 110 | 31 | 210 |
@@ -176,7 +176,7 @@ decides the size.
 1. *Hardware per m² does not fall with size.* A big skid costs less per m² than a small one. That penalises large tanks. The what-if (`ts_loop_hw_exp` = 0.3, hardware as V^0.7) changes the best
    optimum from 1.3% to 1.5% and the central from 1.6% to 1.7%. The hardware is under 1% of the cost, so this barely matters.
 2. *Membranes cost the same per litre at every size.* They are 27% to 39% of the cost, and they set the loop's cost. They fall at large sizes only because the thinner culture needs less
-   permeate per kilo ($12.79 to $11.93 in the central case). The price per m² would fall with a bigger order, but that has nothing to do with tank size.
+   permeate per kilo ($12.79 to $11.93 in the low-lactate example). The price per m² would fall with a bigger order, but that has nothing to do with tank size.
 3. *Flux is 5 L/m²/h whatever the density.* A thinner culture at large size would hold a higher flux. That favours large tanks slightly, through hardware only, so the effect is under $0.05 a kilo.
 4. *No unit rounding.* A 2 m³ tank needs 1 to 3 ATF-10 units' worth of membrane; the model charges the fraction. That flatters the smallest tanks by a few cents.
 5. *Not charged at any size:* pumping power for the loop, labour and downtime to change membranes (a full set per 33-day run, so 110 to 210 ATF-10 equivalents at 200 m³), sterile connections, and the time culture spends in
@@ -200,7 +200,7 @@ The plant model scales only the bioreactor share with size. The rest (buildings,
 
 The what-ifs below change one at a time and report the cheapest size and the saving against 20 m³. Each is zero at 20 m³ by construction (the test checks it).
 
-| What-if | Best | Selected cells | Selected cells, shared medium | Cautious | Reference, redesigned |
+| What-if | Best | Low-lactate example | Low-lactate example, shared medium | Cautious | Reference, redesigned |
 |---|---|---|---|---|---|
 | As modelled | 71 m³, 1.3% | 43 m³, 1.6% | 43 m³, 1.1% | 111 m³, 2.1% | 44 m³, 2.3% |
 | No loop checks (physics only) | 200 m³, 2.9% | 104 m³, 2.7% | 104 m³, 1.8% | 153 m³, 1.5% | 200 m³, 3.7% |
@@ -213,13 +213,13 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 | Favourable to large tanks (pH check relaxed, crew rule, loop economies) | 140 m³, 6.5% | 71 m³, 4.8% | 125 m³, 4.7% | 153 m³, 5.8% | 78 m³, 5.2% |
 
 - **The pass limit never binds first.** The pH check fails before the pass count reaches 15.
-- **The crew rule is the largest single effect for the best case, and the least supported above 20 m³.** It would put the best case at 158 m³ and 5.8% cheaper. For the central and cautious
+- **The crew rule is the largest single effect for the all-favourable example, and the least supported above 20 m³.** It would put the all-favourable example at 158 m³ and 5.8% cheaper. For the central and cautious
   cases, gas per litre moves the answer more (6.3% and 5.2%). No source gives crew against tank size above 20 m³.
-- **A chance of loss that grows with size removes the large-tank gain.** At V^0.33 the best case's optimum drops to 32 m³ and 0.3%, the central case's to 24 m³ and 0.2%, and the
+- **A chance of loss that grows with size removes the large-tank gain.** At V^0.33 the all-favourable example's optimum drops to 32 m³ and 0.3%, the low-lactate example's to 24 m³ and 0.2%, and the
   shared-medium and cautious cases do best at 19 m³. (Before the audit the cautious case still saved 2.6% at 43 m³.) A lost run now also throws its membranes away, so more losses cost more.
-- **The most favourable mix saves 4.8% for the central case, at 71 m³.** The best and cautious cases save 6.5% and 5.8%, at 140 m³ and 153 m³,
+- **The most favourable mix saves 4.8% for the low-lactate example, at 71 m³.** The best and cautious cases save 6.5% and 5.8%, at 140 m³ and 153 m³,
   sizes nobody has run with animal cells. (Before the audit the cautious case saved 14.0% there.)
-- **A flatter tank helps only at 100 m³ and above.** At 50 m³ the scenarios' flat tank (0.5) is already the cheapest shape for the central case ($32.75, against $32.80 at 20 m³); flatter
+- **A flatter tank helps only at 100 m³ and above.** At 50 m³ the scenarios' flat tank (0.5) is already the cheapest shape for the low-lactate example ($32.75, against $32.80 at 20 m³); flatter
   costs more ($33.63 at 0.3). At 100 m³ a tank with the liquid 0.4 times as deep as wide (6.3 m across, 2.5 m deep) passes the check with column + 1 bar for $32.79, the 20 m³ price; the scan's
   own choice there (column alone, square) costs $33.71. At 200 m³ the best aspect (0.3) gives $33.20. So flatter tanks hold the cost flat out to 100 m³ and add 1.2% at 200 m³
   (`tank_size.flatter`). The scenarios do not offer these shapes, and nobody has built a tank this wide for cells.
@@ -229,14 +229,14 @@ The what-ifs below change one at a time and report the cheapest size and the sav
 | Scenario | The 20 m³ design | Its limit with the model's checks | Limit with the pH check at twice the safe dose | Largest size that keeps the 20 m³ density, with the design chosen again |
 |---|---|---|---|---|
 | Best | column + 1 bar, squat | 32.4 m³ | 44.6 m³ | 32.1 m³ |
-| Selected cells | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
-| Selected cells, shared medium | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
+| Low-lactate example | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
+| Low-lactate example, shared medium | column + 1 bar, square | 24.3 m³ | 40.3 m³ | 23.9 m³ |
 | Cautious | column + 1 bar, tall | 43.9 m³ | 157.2 m³ | 43.1 m³ |
 
 - **The limit sits 22% to 24% above 20 m³ for the best and central designs, and 120% above for the cautious one.** A design fails when its pH dose passes 1.0 times the safe dose. At 20 m³
   the dose is 0.81 (best), 0.90 (central) and 0.84 (cautious). So each 20 m³ design already runs at 81% to 90% of the check, and 20 m³ is close to the largest size the best and central
   designs allow. (Before the recompute the cautious limit was 26.3 m³.)
-- **A re-chosen design holds 258 g/L (best) to 24.6 m³, and the central case's 191 g/L to 23.9 m³.** Above that the central case thins only slightly at first (189 g/L at 50 m³, $32.75), then
+- **A re-chosen design holds 258 g/L (best) to 24.6 m³, and the low-lactate example's 191 g/L to 23.9 m³.** Above that the low-lactate example thins only slightly at first (189 g/L at 50 m³, $32.75), then
   drops to 137 g/L at 100 m³ and costs $0.91 a kilo more there ($33.71) than at 20 m³ ($32.80).
 - **The check is a judgement, not a physical limit.** The safe dose is 0.29 of the dose that slowed CHO cells (Paul et al. 2020, via a summary in `gas_exchange_study.md` section 8): one study, and a measure
   (rise × share) the study did not use. At 3.4 times the safe dose the loop would reach that harm. Between 1.0 and 3.4 nothing is measured.
@@ -285,15 +285,14 @@ answer favours 10 to 20 m³. At 10 m³ the cost is 3% to 5% higher and R rises f
 
 ## 8. What would change the answer
 
-1. **A measured pH limit for the column loop.** The largest size depends on one check set at 0.29 of the dose that slowed CHO cells. If cells tolerate twice the safe dose, the best and central
-   cases run to 44 m³ and 71 m³ and save 1.5% and 2.6%. The experiment is the bench test in `gas_exchange_study.md` section 8.
-2. **Labour by tank size above 20 m³.** If crew falls as Humbird's plants suggest, the best case saves 5.8% at 158 m³. A plant design with 100 m³ tanks and a crew count would settle it.
+1. **A measured pH limit for the column loop.** The largest size depends on one check set at 0.29 of the dose that slowed CHO cells. If cells tolerate twice the safe dose, the all-favourable and low-lactate examples run to 44 m³ and 71 m³ and save 1.5% and 2.6%. The experiment is the bench test in `gas_exchange_study.md` section 8.
+2. **Labour by tank size above 20 m³.** If crew falls as Humbird's plants suggest, the all-favourable example saves 5.8% at 158 m³. A plant design with 100 m³ tanks and a crew count would settle it.
 3. **Whether bubbles hurt by surface speed or by gas per litre.** The second rule moves every scenario toward 111 to 200 m³ (4% to 6%). `gas_exchange_study.md` section 2.3 puts 85% on bubble death scaling with gas per litre, but foam at 13 mm/s is unmeasured.
 4. **A retention device that scales with the tank.** A settler or disc-stack separator has fewer parallel units, which would make large tanks more likely. The retention note puts 5% on a settler at 258 g/L.
 
 ## 9. Not done
 
-- No size above 200 m³. Without the loop checks the best case still falls slowly at 200 m³ (2.9% below 20 m³), and Humbird's vessel cost (`30.7 V + 800` $k) is extrapolated above his range.
+- No size above 200 m³. Without the loop checks the all-favourable example still falls slowly at 200 m³ (2.9% below 20 m³), and Humbird's vessel cost (`30.7 V + 800` $k) is extrapolated above his range.
 - No separate price for a tank built to a different shape beyond the model's steel and floor factor (`gas_exchange.shape_capex_factor`).
 - No seed-train sizing, no heat exchanger, no impeller design, no run-length effect on membrane life with size.
 - The search offers 16 designs per size. Intermediate pressures and a column outlet other than 55 mbar (`ge_col_pout`) are not searched; either could extend the sizes that pass the pH check.
@@ -308,13 +307,13 @@ switches in fed-batch at each size, tank design chosen again (it always comes ou
 
 | switches as in | perfusion at 20 m³, $/kg | fed-batch at 20 m³ | fed-batch at 50 m³ | fed-batch at 100 m³ | fed-batch at 200 m³ |
 |---|---|---|---|---|---|
-| Selected cells | $32.80 | $64.89 (37 g/L) | $59.79 (37 g/L) | $58.09 (37 g/L) | $57.24 (37 g/L) |
-| Selected cells, food-grade plant with shared medium | $29.94 | $49.51 (37 g/L) | $46.11 (37 g/L) | $44.98 (37 g/L) | $44.42 (37 g/L) |
-| Engineered cells (rung 6) | $17.27 | $31.07 (62 g/L) | $29.03 (62 g/L) | $28.54 (62 g/L) | $28.17 (62 g/L) |
+| Low-lactate example | $32.80 | $64.89 (37 g/L) | $59.79 (37 g/L) | $58.09 (37 g/L) | $57.24 (37 g/L) |
+| Low-lactate example, food-grade plant with shared medium | $29.94 | $49.51 (37 g/L) | $46.11 (37 g/L) | $44.98 (37 g/L) | $44.42 (37 g/L) |
+| Cells that make almost no ammonia or lactate (rung 6) | $17.27 | $31.07 (62 g/L) | $29.03 (62 g/L) | $28.54 (62 g/L) | $28.17 (62 g/L) |
 | Best | $11.67 | $15.71 (92 g/L) | $14.93 (92 g/L) | $14.59 (92 g/L) | $14.41 (92 g/L) |
 
 - **A 100 m³ batch costs about 10% less than a 20 m³ one** with the scenarios' switches ($64.89 to $58.09 in Central, $15.64 to
-  $14.50 with the best case's). Beyond 100 m³ the gain is small: only the bioreactor share of the plant (32%) gets cheaper with
+  $14.50 with the all-favourable example's). Beyond 100 m³ the gain is small: only the bioreactor share of the plant (32%) gets cheaper with
   size in the model.
 - **No size closes the gap to perfusion.** Central in fed-batch at 200 m³ costs $57.24, against $32.80 in perfusion at 20 m³; a bigger
   perfusion tank saves at most 1.6% (section 1).

@@ -49,7 +49,7 @@ and they are NOT one value:
   * COMMODITY / processed (OUR scope -- minced, basic): provenance matters far less, so
     accept_x ~ 1 (sensory parity, physically attainable since it is real tissue) ...
   * ... and cultivated's cleaner/safer/no-slaughter profile is the upside theta_free_M > 0.
-Because we model the basic commodity product, the central case is accept_x=1, theta_free=0,
+Because we model the basic commodity product, the middle setting is accept_x=1, theta_free=0,
 and the upside is live. fig_acceptance_spectrum sweeps the whole range.
 
 Usage

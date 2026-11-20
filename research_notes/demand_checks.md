@@ -1,6 +1,6 @@
 # Is the model's response to price as strong as measured ones?
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 > Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50; cut cost rebuilt (0.8 cells + $2 matrix + $2 assembly beyond mince), cuts cheaper.
 
@@ -13,7 +13,7 @@ Date: 2026-11-18; revised the same day when the model gained a spread of liking 
 
 Access levels: **FT** full text read; **ABS** abstract only; **SNIP** search snippet.
 
-**Why.** How fast cultivated meat's share falls as its price rises above meat's decides the share in every scenario but the best case:
+**Why.** How fast cultivated meat's share falls as its price rises above meat's decides the share in every scenario but the all-favourable example:
 Central's shop price is 1 to 10 times the meat it sits beside (0.96 times prime beef, 9.8 times processed chicken).
 
 **In short (2026-11-19, second round: shoppers' liking is a Student's t spread).** Two of the four checks pass and two fail,
@@ -68,7 +68,7 @@ alike it kept steepening with the price (−10.4 at three times).
 
 ## 2. The price responses compared
 
-| price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (Selected cells) | world share, 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
+| price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (the low-lactate example) | world share, 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|---|
 | **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 9.2%, 6.5%, 3.3%, 1.0%, 0.3% | -1.37 | 0.2% | 3.2% |
 | the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 48.8%, 28.8%, 14.6%, 2.9%, 0.09%, 0.003% | -3.27 | 0.06% | 5.9% |
@@ -83,10 +83,10 @@ alike it kept steepening with the price (−10.4 at three times).
 - The fifth takes slope and level from premium labels: too little near parity, because labels are never cheaper than the ordinary
   product.
 - The last is the model as it stood on 2026-11-18 and through the audit batch, a normal spread of 5 utils. Against it the
-  Student's t gives Central twice the share (0.16% against 0.08%) and the best case's cells about the same (2.7% against 2.8%).
+  Student's t gives Central twice the share (0.16% against 0.08%) and the all-favourable example's cells about the same (2.7% against 2.8%).
 - **Across one-kind responses Central's share runs from 0.06% to 1.8%**, a fifty-fold range. The model's 0.2% (0.21%), and 3.2% for
-  the best case's cells, are its own reading; the share at equal price (`liking_spread.md`) carries most of what remains uncertain. The best
-  case's column is its cells ($11.46 a kilo) with the model's ordinary demand, not its own 55% at equal price.
+  the all-favourable example's cells, are its own reading; the share at equal price (`liking_spread.md`) carries most of what remains uncertain. The all-favourable
+  example's column is its cells ($11.46 a kilo) with the model's ordinary demand, not its own 55% at equal price.
 
 ## 3. Two smaller things from the same reading
 
@@ -95,7 +95,7 @@ alike it kept steepening with the price (−10.4 at three times).
 - **A plant that sells less than it was built for costs more per kilo** (`market_size_loop.underused`): the plant's charge and its
   labour are paid whatever it makes.
 
-| share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (Selected cells) | 7. Plus everything else at its favourable end (Engineered cells, all favourable) |
+| share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (the low-lactate example) | 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|
 | 100% | $92.17 | $32.80 | $11.67 |
 | 80% | $96.59 | $35.06 | $12.48 |

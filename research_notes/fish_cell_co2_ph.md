@@ -1,6 +1,6 @@
 # CO2 tolerance and pH of fish, crustacean and insect cells: literature lookup
 
-> Names (2026-11-19): "Selected cells" was called Central; "Engineered cells, all favourable" was called the best case.
+> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Date: 2026-11-14. Web search and reading only. Question: should the model's single dissolved-CO2 limit (100 mbar = 75 mmHg, from CHO practice) differ for fish, crustacean or insect cells, and what pH are they cultured at.
 
@@ -193,7 +193,7 @@ The model's 100 mbar sits at the top of the Gray et al. optimum window (101 mbar
 
 Tolerance means the dissolved-CO2 partial pressure at which growth is not materially slowed.
 
-| Cell type | Low | Selected cells | High | pH range | Basis |
+| Cell type | Low | Low-lactate example | High | pH range | Basis |
 |---|---|---|---|---|---|
 | **Fish** | 10 mbar: **inferred from whole-animal data** (chronic salmonid limits 5-10 mbar; in-vivo arterial 2-4 mbar) | 50 mbar: **inferred from culture practice** (salmonid lines grow well in 26 mM bicarbonate medium, which implies about 40-50 mbar; my calculation in 3a) | 100 mbar: **unknown** (the mammalian default; no fish-cell measurement supports or refutes it) | 7.0-7.6 handled range (**measured/practice**, supplier documents); RTG-2 reported inhibited above 7.4; in-vivo blood 7.8-7.95 | No growth-versus-pCO2 measurement exists that I could find. One cell study shows trout cells do not recover intracellular pH under sustained high CO2 (level unknown). |
 | **Insect (Sf-9)** | 50 mbar: **measured** (no slowdown at 0-37 mmHg) | 100 mbar: **measured** (growth rate about 72% of maximum at 73 mmHg = 97 mbar) | 200 mbar: **measured** (about 61% at 147 mmHg = 196 mbar; 33% at 293 mbar; viability stays above 90%) | 6.2 (**measured** condition of the CO2 study); 6.0-6.4 typical is unverified background | Single lab, wide confidence intervals, one cell line. High Five and S2 not separately measured. |
