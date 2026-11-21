@@ -1305,9 +1305,9 @@ REGISTRY: dict[str, Input] = {
         "flow, antifoam, membrane price); 0: only plant cost, financing, membrane life, upkeep, "
         "medium price and loss rate, as before"),
     "sc_nh3_limit": Input(4.0, "mmol/L", "[research_notes/ammonia_tolerance_and_filter_life.md, judgement] ammonia the scenarios' "
-        "cells tolerate in the tank with little loss of growth. The evidence note's median for selected meat cells is 3.5-4 mM "
+        "cells tolerate in the tank with little loss of growth. The evidence note's median for meat cells is 3.5-4 mM "
         "(80% interval 2-8): unadapted meat-relevant cells lose 10% of growth at about 1-3 mM, meat-cell processes hold 2-3 mM, "
-        "and selection could raise it (hybridomas reach 10-21 mM)",
+        "and some other animal cell lines grow at more (hybridomas at 10-21 mM)",
         lo=2.0, hi=8.0, mode=4.0,
         note="Set 2026-11-19 (audit): every scenario took Humbird's 5 mM (pf_nh3_limit), above the note's own median. Humbird's "
              "optimistic design keeps his 5. Drawn in every scenario's band."),

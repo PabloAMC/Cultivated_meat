@@ -495,7 +495,7 @@ SPECIES_PRESETS = {
                 "animal-free medium took 61 hours [20]."),
     "cattle": ("Cattle, serum-free", 39.0, 3000.0, None, None, (100.0, 200.0), None,
                "Primary bovine muscle stem cells in serum-free medium on a surface doubled in 39 hours on average "
-               "(Stout et al. 2022). Engineered lines reach 15 to 17 hours with serum. No cell mass was found, so the "
+               "(Stout et al. 2022). Immortalised lines (Stout 2023) reach 15 to 17 hours with serum. No cell mass was found, so the "
                "preset uses the model cell's mass. Nobody has published a suspension culture at density."),
     "fish": ("Fish (Atlantic mackerel)", 24.0, 2500.0, None, 50.0, (10.0, 100.0), None,
              "The Mack1 line doubles in 24 hours at 27 °C. Its cells are 16.8 µm across, and it grows on a surface with 20% serum (Saad et al. "

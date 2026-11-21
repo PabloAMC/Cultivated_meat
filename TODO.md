@@ -95,7 +95,10 @@ Open pull requests (each says "no default changes" unless noted):
       (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
 - [x] The market tables of China, Brazil, India and Nigeria checked, and seafood weighted at 24% of the Global table (done 2026-11-18,
       `premium_market_sizes.md` §6; China's rows are order-of-magnitude). India's premium goat and seafood rows are unchecked.
-- [ ] #19 Plain, direct sentences for all page text (wording only).
+- [x] #19 Plain, direct sentences for all page text (wording only): done 2026-11-21 (fourth batch, CHANGELOG). Every meat price names
+      its meat ("same shop price as US minced beef or pork cuts", "the price of the conventional meat it copies"); no "out of reach",
+      "beat", "path", "ladder" or "frame"; dollars are 2025 dollars. Kept: the setting's name "tank tricks" (a rename is a naming
+      decision for Pablo, since the name is defined where it is used).
 - [x] #29 The frontier: replaced on 2026-11-20 by the path from Humbird's design to the all-favourable example (`frontier.py`, $15.95 → $7.62).
 - [x] #30 Filter flux: the flux is not the limit, the membrane's throughput is. Settled on 2026-11-20 with #45: `rt_membrane_life`
       is Humbird's 2,415 L/m² at his price.
@@ -163,8 +166,10 @@ Raised by Pablo on 2026-11-16 (open):
 - [ ] **Farmed salmon's response still fails** (3.7-4.3 against 1-1.5 since 2026-11-20; it was 3.6-3.7). No spread that keeps the choice experiment's elasticities reaches
       it without a block of shoppers who ignore price (the mixture's corner). The all-favourable example's share with its own demand is the least
       pinned consequence of the fit.
-- [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
-      zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
+- [x] **Page leftovers** (done 2026-11-21, fourth batch): the charts of levels 4-5 are drawn at the screen's width on a phone (under
+      560 px; `lvW`, `lvBox`), with their names and keys moved inside or under the plot; the entry-points chart has one colour, no
+      zones; `tests/render_probe.js` draws the first screen's bars of each kind of meat (`tpSellBars`); the unused generators of
+      `page_sections.py` are gone. Tables (the vessel grid, the steps, the parameters) still scroll sideways on a phone.
 - [x] (2026-11-21: put right in `audit.py`, plus the lactate tolerated, the bubble kill and the harvest recovery; `min_litres.py` still
       uses Humbird's 5 mM, which is its stated reference) **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
       `sc_nh3_limit` not drawn): as drawn the low-lactate example $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
@@ -181,8 +186,20 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **Restructure the scenarios** (2026-11-19): a switch for how the tank is run; cells as four traits with a routes table and
       `routes_needed`; what it would take; reference points from fed-batch to the all-favourable example; the plant-cost axis.
       A forecast drawn from odds was built and dropped at the author's direction.
-- [ ] **The page**: rebuild around traits as sliders with the routes verdict (`MODEL.sc.cell_routes`, `trait_verdicts`), the clouds,
-      what it would take, and the contour chart the author approved; the page still shows the old case names and five-rung texts.
+- [x] **The page, rebuilt around traits** (stale wording replaced 2026-11-21; Pablo's later decisions override the first plan of a
+      routes verdict and clouds). Done: the levers in a bar at the side with references and context, by section (cells; reactor and
+      how it is run; medium; shoppers), many in collapsible groups, each section's result beside them; vessels, retention devices and
+      modes chosen with the cost each gives; each trait shows only the best value measured in meat cells, with its source; no routes
+      verdict, no route claims, no cloud of dots (the point and the range for 8 in 10 draws); the cost shown is the point, not a median
+      (since the fourth batch also in level 1's cards, steps and table, and the methods prose); no named kinds of cell (the
+      level-4 switch and the cells-by-tank rows are named by their ammonia and lactate since the fourth batch); the page opens at
+      Humbird's best estimate and leads with no number but the floor and the best the model finds; no reference that gives only a
+      cost is drawn on the share map; white background, Computer Modern. `tests/test_easy_view.py` checks most of this.
+- [ ] **The page, what is left** (each needs a decision): (a) level 4 keeps two explorers of its own, the eleven scenario switches
+      and "Every cell and tank setting" (its own sliders and a "Start from a kind of cell" list of reported cells), beside the first
+      screen's levers: fold them into the levers, or keep them as a second view; (b) the methods prose and the shopper histogram
+      quote shares as the median of draws with the shopper settings drawn too (a band statement, not a cost); (c) "tank tricks"
+      as a name.
 - [x] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng weight of the cells that make almost no ammonia or lactate (2026-11-19: RESULTS,
       METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia below 0.14 mol a kilo in any meat
