@@ -1,5 +1,45 @@
 # Change log
 
+## 2026-11-21 (fourth batch), documents
+
+No change to the model's behaviour or inputs. Prose that quoted figures the engine had moved past, recomputed from the modules
+(tables by their header line). Old → new:
+
+- **RESULTS and METHODS.** The all-favourable example's draws in METHODS $8.6 ($7.2–10.4) and $9 ($8–11) → $8.3 ($7.1–10.0), as
+  the table has; the low-lactate example's $53 ($40–77) → $52 ($39–76); Humbird's optimistic design takes 1.6% (0.8%, 0.2–3.0%)
+  → 1.4% (0.7%, 0.2–2.6%); the all-favourable cells with the ordinary demand, middle draw 4.4% (1.5–13.8%) → 3.9% (1.4–12.7%);
+  conventional meat's price response takes 4.5 (and 3.9) points off the all-favourable example → 4.1 (fixed price 26.4% → 27.4%;
+  supply-elasticity range 19.3–25.3% → 19.9–26.2%); closed markets 22.8% → 22.6% became 23.6% → 23.4%; the flat-$5 comparison
+  at the low-lactate example's cost (shelf $54.5/$72.2 → $53.7/$71.1, share 0.05% → 0.045%; the all-favourable example 6.9%/5.4% →
+  6.8%/5.6%); mince against US minced beef or pork cuts at the all-favourable example's cost 11.5% (1.2×) → 12.7% (1.1×), at the
+  low-lactate example's 0.08% (6.0×) → 0.09% (5.9×); the spread's misfits 4.3/9.8/16.6/20.6 → 4.2/10.0/17.1/21.3, least 3.75 →
+  3.69, the all-favourable example with the t and the normal spread 22.6%/29.3% → 23.4%/30.2%, other shapes 25.3–26.0% →
+  26.2–26.9%; salmon's response 3.7–4.3 → 3.7–4.2; first-contact elasticity −1.37 → −1.38; the adoption curve 70- to 100-fold,
+  half in 10–12 years, 90% in 19–24 → 72- to 105-fold, 11–13, 20–24; the sensitivity tornado (plant's cost 2.34 → 2.73, width
+  19% → 24%; share swings 1.5/1.1/0.8/0.7/0.7/0.4 → 1.7/1.2/0.8/0.8/0.8/0.5 pp, in shares of the meat sold); glucose 0.32 →
+  0.311 kg a kilo where quoted as current; the vessel grid's fill-and-draw $19.98 → $16.50 and airlift $30.48 → $29.96 against
+  $15.72; cleaning routes $48.70/$46.03/$45.59 → $47.89/$45.24/$44.83; per-tank rule $16.03/$49.63 → $15.82/$48.80; seven days of
+  maturation $98.25/$22.32 → $95.34/$19.71. RESULTS gains one line on the demand anchored on premium meats (below).
+- **A conclusion that moved with the fourth batch, now written down** (`market_size_loop.md` section 5, RESULTS section 2): with
+  the share taken from the curve fitted to premium real meats, the low-lactate example's own sales need 0.76 million m² of
+  membrane, short of the switch, so it no longer crosses (rests at $48.25 and 0.015%; in the third batch it reached the switch
+  exactly and rested at $24.69 and 0.27%).
+- **`market_size_loop.md`**: the prose kept under a box since the third batch is recomputed (rest $23.91/0.54% → $24.05/0.48%; the
+  all-favourable cells $6.29/6.81% → $6.30/6.27%; 2.6 → 2.4 times the switch; first sales 0.17 → 0.15 Mt; premium 0.75/0.38 →
+  0.68/0.34 million m²; slow learning $30.17/0.27% → $30.30/0.24%; the 8-in-10 cost range $41–79 → $39–76).
+- **`liking_spread.md`**: sections 2, 4 and 6 recomputed (31.0% → 29.8% with the normal spread, shapes that fit 24.7–28.1% →
+  23.4–26.9%, the band ends $41–82 → $39–76 and fourteen- → elevenfold).
+- **Side-study notes** (TODO "Side-study notes are snapshots" narrowed): `min_litres_per_kg.md` tables and prose (the
+  all-favourable example at 219 g/L: its physical floor now binds, $7.01 → $6.21), `filter_flux.md` section 4 ($49.50 → $48.68,
+  1,200 L/m² $72.05 → $71.67), `gf_and_doubling_bounds.md` sections 1-2 (the all-favourable example's litres 11.7 → 12.1),
+  `gas_flow_cap.md` (Humbird's design at 6 mm/s $15.93 → $15.72, at 2 mm/s $35.25 → $34.67), the status box of
+  `ammonia_tolerance_and_filter_life.md`, `demand_checks.md` section 5's salmon products; tables regenerated in `cost_scenarios.md`
+  and `study_comparison.md` (Humbird's own perfusion plant +$16.98 → +$23.49 on his best estimate; a box says the rest is as of
+  2026-11-20).
+- **Prose strings in code**: the page's tornado notes now compute their figures (`floor_physics.tornado_rows`, used by
+  `build_interactive.py`): growth factors at Humbird's price "about $4" → $5.7 a kilo, the oxygen limit with antifoam halved
+  "97 g/L" → 86, the protectant's $0.7 and the 120 g/L; `frontier.py`'s printout computes the parity cost ($6.1). `figures/` regenerated (`report_figures.py`, `sensitivity.py`).
+
 ## 2026-11-21 (fourth batch): the demand model's open items
 
 **Plant-based meat's committed buyers, repeat buying, and the side analyses on the share of the meat sold.** Evidence:

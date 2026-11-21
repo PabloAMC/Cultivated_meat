@@ -152,9 +152,9 @@ def build_model() -> dict:
             "pk1": value("pf_pk1"), "co2_henry": value("pf_co2_henry"), "hco3_base": value("pf_hco3_base"),
             "min_perfusion": value("pf_min_perfusion"),
             "gf_litres": value("pf_medium_prep_l_kg"),      # Humbird's growth-factor cost is for his fed-batch's litres per kilo
-            # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
+            # tornado factors: [label, JS argument, low, high, low text, high text, info] (floor_physics.tornado_rows: TORNADO with its figures computed)
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint", "p_top_barg": "p_top"}.get(arg, arg),
-                         lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
+                         lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.tornado_rows()],
             "maint_share": value("pf_maintenance_share"), "mix_ratio": value("pf_mix_ratio_20m3"),
             "species": {k: [x.replace("The efficient cell every case on this page assumes", "Humbird's efficient cell") if isinstance(x, str) else x for x in v]
                         for k, v in floor_physics.SPECIES_PRESETS.items()},

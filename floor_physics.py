@@ -1432,13 +1432,13 @@ TORNADO = [
     ("Oxygen transfer left with antifoam", "antifoam_otr", 0.5, 1.0, "halved", "no effect",
      "Bubbling hard makes foam. The antifoam that controls it coats the bubbles and slows the oxygen they pass to the liquid. "
      "<b>Range:</b> reported effects run from none to about half (research_notes/gas_flow_cap.md). The model takes the middle, "
-     "a quarter lost. Halved, the tank of Humbird's optimistic design is limited by oxygen at about 97 g/L instead of by CO\u2082 at 120. "
+     "a quarter lost. Halved, the tank of Humbird's optimistic design is limited by oxygen at about {antifoam_half_x} g/L instead of by CO\u2082 at {ref_x}. "
      "<b>Evidence:</b> weak. It depends on the antifoam, its dose and the medium, and it has not been measured in dense "
      "meat-cell cultures. Only the sparger is affected here, not a column or the mixing rule."),
     ("Price of the bubble protectant", "protectant_price", 10.0, 260.0, "$10 a kilo", "$260 a kilo (catalogue)",
      "A protectant (poloxamer 188, 2 g per litre) keeps bursting bubbles from killing cells. It leaves with every litre of "
      "medium. <b>Range:</b> only catalogue prices were found, $230 to $260 a kilo in 25 kg packs. The model assumes $30 for "
-     "tonnes. At $30 it adds $0.06 a litre, about $0.7 a kilo of cells here. <b>Evidence:</b> no bulk price. A supplier "
+     "tonnes. At $30 it adds $0.06 a litre, about {protectant_kg} a kilo of cells here. <b>Evidence:</b> no bulk price. A supplier "
      "quote would settle it."),
     ("Tank shape (liquid depth / width)", "aspect", 1.0, 3.0, "1.0", "3.0",
      "A deeper tank passes less gas per litre of liquid, so it clears less CO\u2082, and it mixes more slowly. "
@@ -1503,7 +1503,7 @@ TORNADO = [
      "for a month at 20 m\u00b3."),
     ("Growth factors", "growth_factors", 0.0, 1.0, "none", "all bought",
      "Proteins that tell cells to grow. Humbird's optimistic design leaves them out, which assumes cells that need none or make their own. "
-     "<b>Range:</b> bought at Humbird's large-scale price, they add about $4 a kilo [2]. <b>Evidence:</b> that "
+     "<b>Range:</b> bought at Humbird's large-scale price, they add about {gf_all} a kilo [2]. <b>Evidence:</b> that "
      "price assumes an industry far larger than the current one."),
     ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre",
      "What a litre of the nutrient liquid costs. It can never cost less than the nutrients the cells eat, so "
@@ -1542,6 +1542,16 @@ TORNADO = [
      "when the doubling time is not 24 hours. <b>Range:</b> measurements put the upkeep share at 31% to 62%. "
      "Humbird assumes 100% [2]. <b>Evidence:</b> there are few measurements, and none for meat cells."),
 ]
+
+
+def tornado_rows() -> list:
+    """TORNADO with the figures its texts quote computed from `explore()` at Humbird's optimistic design (since 2026-11-22; they
+    were typed in and had gone stale: the growth factors' "$4" was $5.7, the oxygen limit with antifoam halved "97 g/L" was 86)."""
+    ref = explore()
+    fig = {"gf_all": f"${explore(growth_factors=1.0)['growth_factors']:.1f}",
+           "antifoam_half_x": f"{explore(antifoam_otr=0.5)['density']:.0f}",
+           "ref_x": f"{ref['density']:.0f}", "protectant_kg": f"${ref['protectant']:.1f}"}
+    return [(*row[:6], row[6].format(**fig)) for row in TORNADO]
 
 
 def floor_tornado(pco2_range: tuple | None = None, **case) -> list:

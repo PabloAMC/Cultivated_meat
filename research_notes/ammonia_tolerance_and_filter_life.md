@@ -1,32 +1,32 @@
 # Ammonia the cells tolerate, and how long a cell filter lasts
 
-> **Status on the final model (2026-11-20): both inputs this note studied have since moved, so every "now" and every "what adopting X would do" figure below has an earlier baseline.** The note is kept as the evidence pass it was; this block gives the same figures on the final model.
+> **Status on the current model (figures recomputed 2026-11-22; first written 2026-11-20): both inputs this note studied have since moved, so every "now" and every "what adopting X would do" figure below has an earlier baseline.** The note is kept as the evidence pass it was; this block gives the same figures on the final model.
 >
 > - **Ammonia tolerated.** The scenarios take 4 mmol/L since 2026-11-19 (`sc_nh3_limit`, range 2–8); Humbird's optimistic design keeps his 5. This is the note's own median. The note's advice not to move it (summary item 3, section 7 item 1) was overruled in the audit of 2026-11-19.
 > - **Membrane life.** The default is 2,415 L/m² since 2026-11-20 (`rt_membrane_life`, range 900–5,500), the life Humbird's replacement schedule implies, so that life and price ($1,450 a m²) are one source's pair. This is close to option (c) of section 7 (move life alone), with a source for the pair. A litre filtered carries $0.60 of membrane (it was $0.37). 2,415 is 1.6 times this note's median of 1,500 and inside its 80% interval (500–4,000). The chance in summary item 5 was judged for 3,960 and is withdrawn (see there).
-> - **The costs moved for other reasons too** (the lactate tolerated is 35 mmol/L, not 50; bubble deaths and a harvest loss are charged; twice the crew in a washed continuous tank; medium preparation capital with the medium passed; thick cultures take up oxygen more slowly). At most likely values the low-lactate example is **$49.50** (it was $29.42 when this note was written). Its membranes are $22.3 of the $49.50. The all-favourable example ($7.62) now holds its cells back with dialyser-grade fibres of its own (`scenarios.all_favourable`), so the cell filter's life does not move it.
+> - **The costs moved for other reasons too** (the lactate tolerated is 35 mmol/L, not 50; bubble deaths and a harvest loss are charged; twice the crew in a washed continuous tank; medium preparation capital with the medium passed; thick cultures take up oxygen more slowly). At most likely values the low-lactate example is **$48.68** (it was $29.42 when this note was written, $49.50 on 2026-11-20). Its membranes are $22.7 of the $48.68. The all-favourable example ($6.97) now holds its cells back with dialyser-grade fibres of its own (`scenarios.all_favourable`), so the cell filter's life does not move it.
 >
-> Cost of moving the membrane life on the final model (tank design held, `filter_flux.cost_at`), replacing the table in section 6:
+> Cost of moving the membrane life on the current model (tank design held, `filter_flux.cost_at`), replacing the table in section 6:
 >
 > | `rt_membrane_life` L/m² | 5,500 | 3,960 | 3,000 | 2,415 (now) | 2,000 | 1,500 | 1,200 | 1,000 | 900 |
 > |---|---|---|---|---|---|---|---|---|---|
-> | Low-lactate example $/kg | 37.00 | 40.81 | 45.15 | 49.50 | 54.12 | 63.09 | 72.05 | 81.02 | 87.00 |
+> | Low-lactate example $/kg | 35.94 | 39.82 | 44.25 | 48.68 | 53.39 | 62.53 | 71.67 | 80.81 | 86.91 |
 >
 > The low-lactate example by membrane life (rows) and membrane price (columns), $/kg, replacing the table in section 7:
 >
 > | life, L/m² | $1,450 (now) | $1,050 | $550 | $200 | $50 | break-even price |
 > |---|---|---|---|---|---|---|
-> | 3,960 | 40.81 | 37.06 | 32.37 | 29.10 | 27.69 | $2,378 |
-> | 2,415 (now) | 49.50 | 43.35 | 35.67 | 30.29 | 27.99 | $1,450 |
-> | 2,000 | 54.12 | 46.70 | 37.42 | 30.93 | 28.15 | $1,201 |
-> | 1,500 | 63.09 | 53.19 | 40.83 | 32.17 | 28.46 | $901 |
-> | 1,000 | 81.02 | 66.18 | 47.63 | 34.64 | 29.08 | $600 |
+> | 3,960 | 39.82 | 36.00 | 31.23 | 27.88 | 26.45 | $2,378 |
+> | 2,415 (now) | 48.68 | 42.42 | 34.59 | 29.11 | 26.76 | $1,450 |
+> | 2,000 | 53.39 | 45.83 | 36.37 | 29.76 | 26.92 | $1,201 |
+> | 1,500 | 62.53 | 52.45 | 39.84 | 31.02 | 27.23 | $901 |
+> | 1,000 | 80.81 | 65.69 | 46.77 | 33.54 | 27.86 | $600 |
 >
-> So this note's median life of 1,500 L/m² would put the low-lactate example at $63.09 at the default price (the note said $43.1), and costs nothing extra at $901 a m² or less (the note said $549). The retail modules at $1,050–1,260 are close to that line; before they were about twice it.
+> So this note's median life of 1,500 L/m² would put the low-lactate example at $62.53 at the default price (the note said $43.1), and costs nothing extra at $901 a m² or less (the note said $549). The retail modules at $1,050–1,260 are close to that line; before they were about twice it.
 >
-> The low-lactate example by the ammonia its cells tolerate: $89.91 at 2 mmol/L, $63.01 at 3, **$49.50 at 4 (now)**, $44.65 at 5 and at every level above. Above 5 mmol/L a higher tolerance saves nothing, because lactate (tolerated to 35 mmol/L) then sets the medium.
+> The low-lactate example by the ammonia its cells tolerate: $89.05 at 2 mmol/L, $62.18 at 3, **$48.68 at 4 (now)**, $43.84 at 5 and at every level above. Above 5 mmol/L a higher tolerance saves nothing, because lactate (tolerated to 35 mmol/L) then sets the medium.
 >
-> Section 9 (what adopting 4 mM and 2,000 L/m² would do) has in effect happened, with 2,415 in place of 2,000. Its "now" column is the model of 2026-11-16. The same scenarios on the final model: Published cells in fed-batch $322.55, with process changes $311.29, the low-lactate example $49.50, with a plant with shared medium $45.04, the all-favourable example $7.62 (a different case since 2026-11-20), the cautious case $185.59, Humbird's optimistic design $15.93. Most of the rise since section 9 is from the 2026-11-19 and 2026-11-20 batches, not from these two inputs.
+> Section 9 (what adopting 4 mM and 2,000 L/m² would do) has in effect happened, with 2,415 in place of 2,000. Its "now" column is the model of 2026-11-16. The same scenarios on the current model: Published cells in fed-batch $316.11, with process changes $304.85, the low-lactate example $48.68, with a plant with shared medium $44.53, the all-favourable example $6.97 (a different case since 2026-11-20), the cautious case $181.13, Humbird's optimistic design $15.72. Most of the rise since section 9 is from the 2026-11-19 and 2026-11-20 batches, not from these two inputs.
 >
 > Section 7, item 4 (the band): the bands draw the life from a triangle with its most likely value at 2,415 (median about 2,840), and draw the ammonia tolerated (2–8, most likely 4). The price draw is unchanged ($1,050–1,450).
 
@@ -361,8 +361,8 @@ is shaker and CHO data; the evidence for the measured value is the one stirred, 
 at 0.14, low end widened from 0.07 to 0.04, so this range and the 0.055 of the cells that make almost no ammonia overlap; high end
 kept at 0.25.** The bands draw the wider range.
 
-On the final model (2026-11-20) the low-lactate example costs $45.2 a kilo at 0.04 or 0.055 mol of ammonia, against $49.50 at
+On the current model (recomputed 2026-11-22) the low-lactate example costs $44.4 a kilo at 0.04 or 0.055 mol of ammonia, against $48.68 at
 0.14: below about 0.12 its lactate, not its ammonia, sets the litres (34.6 a kilo harvested, not 38.8). The same switches with
-0.055 mol of ammonia and 0.28 mol of lactate per mol of glucose cost $31.9. So, since lactate is tolerated only to 35 mmol/L,
+0.055 mol of ammonia and 0.28 mol of lactate per mol of glucose cost $31.0. So, since lactate is tolerated only to 35 mmol/L,
 about a quarter of the gap between the two kinds of cells is ammonia and three quarters is lactate. (On 2026-11-19, with lactate
 tolerated to 50 mmol/L, it was the other way round: $23.6 against $32.8 and $20.1.)

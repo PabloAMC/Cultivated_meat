@@ -1,7 +1,8 @@
 # Growth-factor prices and the fastest doubling time
 
-Date: 2026-11-15; every figure regenerated 2026-11-20 on the final model (litres per kilo harvested; the all-favourable example
-is `scenarios.all_favourable`, $7.62). Code: `gf_doubling_bounds.py`; tests: `tests/test_gf_doubling_bounds.py`; numbers:
+Date: 2026-11-15; every figure regenerated 2026-11-20 on the final model, and sections 1 and 2 again on 2026-11-22 from `python
+gf_doubling_bounds.py` (litres per kilo harvested; the all-favourable example is `scenarios.all_favourable`, $6.97). Sections
+beyond 2 are as of 2026-11-20 where they quote a cost. Code: `gf_doubling_bounds.py`; tests: `tests/test_gf_doubling_bounds.py`; numbers:
 `inputs.py` (`gb_*`). Costs are 2025 dollars per kg of wet cells. Humbird's prices are 2018 dollars; the model scales them by
 1.28 (`pf_opex_escalation`). Nothing in the model changes: the module calls `floor_physics.explore`, `floor_physics.Cells` and
 `retention.duty`.
@@ -13,26 +14,27 @@ Access levels: **FT** = read in full text. **ABS** = abstract only. **SNIP** = s
 - **Growth factors.** In the low-lactate example (38.8 L per kilo harvested), growth factors cost $1, $2 or $3 a kilo if all four
   proteins sell at 5.5%, 11.0% or 16.5% of Humbird's price. That is insulin at $0.49, $0.98 or $1.47 a gram and transferrin at
   $0.84, $1.69 or $2.53. FGF needs $46, $91 or $137 a gram and TGF-beta $1,323, $2,646 or $3,969. The all-favourable example
-  (11.7 L/kg) allows prices 3.3 times higher. The cautious case (the published cells, 146 L/kg) needs prices 3.8 times lower than
+  (12.1 L/kg) allows prices 3.2 times higher. The cautious case (the published cells, 146 L/kg) needs prices 3.8 times lower than
   the low-lactate example: 1.5% of Humbird's price for $1 a kilo.
 - **What dominates.** Insulin and transferrin dominate the cost at Humbird's prices (72%), because the cells use grams of them.
   TGF-beta and FGF dominate the price gap: bought at the prices found, they are 4,300 to 21,900 times too dear for $1 a kilo in
   the low-lactate example, against 50 times for insulin.
-- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 38.8 to 7.7 per kilo in the low-lactate
-  example. At Humbird's full price that saves $14.33 of $17.88. In the model it saves nothing in any case shown: the low-lactate
+- **Reuse.** A filter that returns the proteins cuts the litres that carry them from 38.8 to 7.1 per kilo in the low-lactate
+  example. At Humbird's full price that saves $14.63 of $17.88. In the model it saves nothing in any case shown: the low-lactate
   example's and the cautious case's media are complete, priced with the growth factors in ($0.20 and $0.30 a litre), and the
   all-favourable example buys none. It applies only to a medium at the nutrient floor with growth factors bought on top. FGF2
-  that decays (half-life under 10 h) cuts the saving from 80% to 68%. No source shows a filter that holds these proteins back in
+  that decays (half-life under 10 h) cuts the saving from 82% to 71%. No source shows a filter that holds these proteins back in
   a perfusion tank.
 - **Doubling time.** The energy and biosynthesis budget lets an animal cell double in about 8 to 9 h if it can burn twice the
   oxygen West's law gives at 24 h. The range is 5 to 13 h for 3 to 1.5 times. The ribosomes give a similar bound. So physics
   allows doubling far faster than any scenario assumes. Biology and waste, not energy, stop 24 h cells.
-- **Cost of speed.** The low-lactate example costs $49.50 at 36 h, $44.14 at 24 h and $40.08 at 16 h. It saves another $6.20
-  from 16 h to 8 h, more than the $4.06 from 24 h to 16 h; oxygen supply limits it at every doubling time. Part of the gain is the
+- **Cost of speed.** The low-lactate example costs $48.68 at 36 h, $43.19 at 24 h and $39.65 at 16 h. It saves another $3.71
+  from 16 h to 8 h, a little more than the $3.54 from 24 h to 16 h; its CO₂ loop's checks hold it at 168 g/L down to 16 h, and mixing at
+  146 g/L at 8 h (oxygen supply until 2026-11-21). Part of the gain is the
   bubbles: they kill the same culture per hour whatever the growth, so they take 8% of the cells grown at 36 h and under 4% at
-  16 h. The published cells gain far more: $185.59 at 43 h, $142.91 at 24 h and $124.33 at 16 h. Lactate sets their medium, and a
+  16 h. The published cells gain far more: $181.13 at 43 h, $139.53 at 24 h and $122.61 at 16 h. Lactate sets their medium, and a
   faster cell burns less glucose on upkeep per kilo made, so their litres fall with speed. The all-favourable example, at 16 h,
-  costs $7.62; at 24 h it would cost $8.85.
+  costs $6.97; at 24 h it would cost $8.65.
 
 ## 2. Growth factors
 
@@ -59,9 +61,9 @@ budget. Prices in $/g.
 
 | Scenario, target | Insulin | Transferrin | FGF | TGF-beta | Fraction of Humbird's price |
 |---|---|---|---|---|---|
-| All-favourable example (11.7 L/kg), $1 | 1.63 | 2.80 | 151 | 4,395 | 18.2% |
-| All-favourable example, $2 | 3.27 | 5.60 | 303 | 8,789 | 36.5% |
-| All-favourable example, $3 | 4.90 | 8.40 | 454 | 13,184 | 54.7% |
+| All-favourable example (12.1 L/kg), $1 | 1.58 | 2.70 | 146 | 4,238 | 17.6% |
+| All-favourable example, $2 | 3.15 | 5.40 | 292 | 8,477 | 35.2% |
+| All-favourable example, $3 | 4.73 | 8.10 | 438 | 12,715 | 52.7% |
 | Low-lactate example (38.8 L/kg), $1 | 0.49 | 0.84 | 46 | 1,323 | 5.5% |
 | Low-lactate example, $2 | 0.98 | 1.69 | 91 | 2,646 | 11.0% |
 | Low-lactate example, $3 | 1.47 | 2.53 | 137 | 3,969 | 16.5% |
@@ -76,7 +78,7 @@ cautious case buy none on top either since 2026-11-19: their complete media carr
 at the 28 L/kg both then used, the low-lactate example assumed $2.99 (30% of Humbird's price) and the cautious case $5.97 (60%).
 
 GFI's three medium uses (8, 13, 42 L/kg) at $1 give, for insulin: $2.39, $1.47, $0.45 a gram; for transferrin $4.09, $2.52, $0.78.
-GFI's own targets (insulin and transferrin $1/g, growth factors $100/g; Table 1, FT) cost $0.47 a kilo at the all-favourable
+GFI's own targets (insulin and transferrin $1/g, growth factors $100/g; Table 1, FT) cost $0.49 a kilo at the all-favourable
 example's litres, $1.56 at the low-lactate example's 38.8 L/kg and $5.89 at the cautious case's 146.2. So the targets hold at 8 to
 12 L/kg and fail at 39.
 
@@ -120,7 +122,7 @@ Three readings.
    0.18 Mt (137 t/y of insulin). The world makes about 3 t a year of recombinant human insulin (Humbird footnote 113), so the
    demand is 45 to 160 times the whole insulin market.
 2. The pf-tea transferrin model gives $0.31 to $0.95 a gram at 100 t/y. The low-lactate example needs $0.84 for a $1 kilo. So the
-   design-point titre clears it and the best published titre just misses it. Both clear the $2.80 the all-favourable example
+   design-point titre clears it and the best published titre just misses it. Both clear the $2.70 the all-favourable example
    needs. Neither clears the $0.22 the cautious case needs. At 10 t/y it costs $1.9 a gram: enough for the all-favourable example,
    not for the low-lactate example. There is no bottom-up model here for insulin, FGF or TGF-beta.
 3. Venkatesan et al. made TGF-beta and FGF2 in-house for $0.82 per litre of medium (GFI page, FT; the paper itself not read). At

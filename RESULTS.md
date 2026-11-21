@@ -218,12 +218,12 @@ of cells and their speed are not drawn: they are what the rows differ in.
 - **The all-favourable example has two shares, and the demand judgement sets the gap.** With 58.6% of meat buyers picking it at
   equal price it takes 23.4% of world meat and seafood at its most-likely-values cost (28.4% in the US and 36.9% in Europe); the
   middle draw is 17.4% and 8 in 10 fall between 10.7% and 26.3%. With the ordinary 14.4% the same cells take 5.6% (middle draw
-  4.4%; 1.5–13.8%). The 58.6% is the favourable end of a judgement: the literature review puts about 3% odds on more than 49% of
+  3.9%; 1.4–12.7%). The 58.6% is the favourable end of a judgement: the literature review puts about 3% odds on more than 49% of
   all choices, about 52.5% of meat buyers (`research_notes/what_drives_choice.md`). It depends on the shape of the spread of liking
-  near its middle, which no data pin (section 2). Conventional meat's lower price, as cultivated meat takes its sales, takes 4.5
+  near its middle, which no data pin (section 2). Conventional meat's lower price, as cultivated meat takes its sales, takes 4.1
   points off the 23.4% (its prices fall by about a tenth).
-- **Humbird's optimistic design costs $15.7 (middle draw $22; 8 in 10 between $17 and $29) and takes 1.6% at that cost (middle
-  draw 0.8%; 0.2–3.0%).** It has cells with almost no waste, of 3 ng, but no tank tricks, a 24-hour doubling, the engine's own
+- **Humbird's optimistic design costs $15.7 (middle draw $22; 8 in 10 between $17 and $29) and takes 1.4% at that cost (middle
+  draw 0.7%; 0.2–2.6%).** It has cells with almost no waste, of 3 ng, but no tank tricks, a 24-hour doubling, the engine's own
   filter loop and a plant without shared medium. The all-favourable example is by construction never dearer than it, because it
   takes every lever on which his design is the more favourable.
 - **Holding the cells back is the largest single cost in the low-lactate example.** A filter loop must clear the medium that the
@@ -367,7 +367,7 @@ Costs in the table are at most likely values.
   degrees of freedom) are not table rows, because across their ranges they move the low-lactate example's share little. The shape
   matters more than that suggests: it replaced a normal spread on 2026-11-19, and the share far above parity doubled.
 - **Far above parity the two cross-checks disagree.** Products still dearer than their meat respond to price more strongly than
-  farmed salmon did (3.7–4.3 against 1–1.5; section 2), which says the model's share falls too fast as the price rises. The
+  farmed salmon did (3.7–4.2 against 1–1.5; section 2), which says the model's share falls too fast as the price rises. The
   curve anchored on premium real meats gives the low-lactate example 0.02% (0.01–0.04%), below the model's 0.05%, which says the
   opposite. Above about four times the price of meat there are no data at all, and at $48.7 a kilo of cells two-fifths of the sales
   are there.
@@ -976,9 +976,9 @@ second where a reader needs it to match the inputs.
 | tastes as good but isn't seen as real meat (liking otherwise held) | 4.0% | 4% |
 
 At first contact it gets 4.3% of all choices; the US choice experiment found 5% of meat buyers and 4% of all choices. For mince
-against US minced beef or pork cuts at $12 a kilo (US, long run) it gets 11.5% of meat buyers at the all-favourable example's cost
-(1.2 times the price), 3.1% at the cost of Humbird's optimistic design (2.1 times), 0.31% at the reported cost (4.3 times) and 0.08%
-at the low-lactate example's (6.0 times). The share does not reach everyone as the price
+against US minced beef or pork cuts at $12 a kilo (US, long run) it gets 12.7% of meat buyers at the all-favourable example's cost
+(1.1 times the price), 3.1% at the cost of Humbird's optimistic design (2.1 times), 0.30% at the reported cost (4.3 times) and 0.09%
+at the low-lactate example's (5.9 times). The share does not reach everyone as the price
 falls: 27% of meat buyers at half the price of meat and 45% if free, so about 55% of meat buyers never pick it.
 
 Checks, in shares of all choices. At equal price cultivated meat takes 11.9 points from conventional meat, 0.05 from plant-based
@@ -986,7 +986,7 @@ meat (whose share is anchored at 0.4% of meat by volume since 2026-11-20) and 1.
 about the same from each: 13% of conventional's sales, 12% of plant-based's and 9% of the meatless meals'. So total meat eaten,
 conventional and cultivated, rises by about 1%. The model has no switching between kinds of meat. Since 2026-11-20 conventional
 meat's price falls as cultivated meat takes its sales: by (1 − share)^0.38, from the supply and demand elasticities
-(`meat_market.conv_exponent`), which matters only where the share is large (the all-favourable example loses 3.9 points to it). The same model predicts about 15% for plant-based milk, close to reality (a weak test, since milk's inputs
+(`meat_market.conv_exponent`), which matters only where the share is large (the all-favourable example loses 4.1 points to it). The same model predicts about 15% for plant-based milk, close to reality (a weak test, since milk's inputs
 are set by hand).
 
 **A harder check, and what it changed.** Six premium animal products show what share a product takes when it is
@@ -1024,11 +1024,11 @@ keenest, so the share falls off slowly as the price rises, though each shopper i
   spread gave 0.1%.
 - **The t was fitted to three things together:** the choice experiment's response at four prices, the share sixteen premium real
   meats hold at two, three and four times the ordinary price, and farmed salmon's response to its falling price. Its joint
-  misfit is 4.3, against 16.6 for the normal as it was and 9.8 for a logistic (4.0, 13.7 and 8.3 on 2026-11-19: the salmon
+  misfit is 4.2, against 17.1 for the normal as it was and 10.0 for a logistic (4.0, 13.7 and 8.3 on 2026-11-19: the salmon
   part is computed on the model's premium products at the scenarios' costs, which rose; the shape was not refitted). So the experiment and the premium meats are no
   longer independent checks of the model: it was fitted to them.
-- **The data pin the shape loosely.** The misfit is least at a tail of 3 and a spread of 3.7; the model's 4 and 3.9 are 13% above
-  that, and 4 rather than 3 is a choice, not a fit. A mixture of two groups fits better still (2.8) and was not chosen: its best
+- **The data pin the shape loosely.** The misfit is least at a tail of 3 and a spread of 3.7; the model's 4 and 3.9 are 14% above
+  that, and 4 rather than 3 is a choice, not a fit. A mixture of two groups fits better still (2.7) and was not chosen: its best
   fit is a small block of shoppers who buy at almost any price, which nothing measured shows.
 - **Between one and four times the price of meat the fitted spread gives less than the normal spread it replaced, because it is
   narrower in the middle.** What matters there is how many shoppers are moderately keener than average, and the t puts more
@@ -1136,6 +1136,9 @@ together.
   from its own cost stays there ($48.38 and 0.05%), and only a start from above the switch ends lower ($30.30 and 0.24%).
 - **This depends on the far tail of the spread of liking.** The low-lactate example's first sales are what the tail decides:
   two-fifths of them are of products at more than four times the price of their meat, where there are no data.
+- **With the demand anchored on premium real meats there is no crossing.** The curve fitted to premium real meats gives the
+  low-lactate example 0.015% at its own cost, a third of the model's 0.045%; those sales need 0.76 million m² of membrane, short
+  of the switch, so it stays at $48.25 and 0.015% (`research_notes/market_size_loop.md` section 5).
 - **The published cells sell too little to start.** About a thousand tonnes, and learning barely moves their cost.
 - The switch itself is a judgement: no price is published for a steam-tolerant food-grade module. The study changes no setting of
   the model.

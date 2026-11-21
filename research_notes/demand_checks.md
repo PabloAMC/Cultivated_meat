@@ -60,16 +60,16 @@ shape of the spread is fitted to the first three of these (`liking_spread.md` §
 - **Farmed salmon** (`market_size_loop.md` §6): while it was still a premium product each 1% off its price brought 1.0–1.5% more volume
   along the demand curve. **Still fails, by more since 2026-11-20.** The check takes the premium products still dearer than
   their meat at the low-lactate example's cost (a price ratio above 1.5). Since 2026-11-20 they are four: organic chicken
-  (4.75×), heritage pork (3.86×), premium fish fillets and shrimp (3.09×) and sushi-grade seafood (1.77×, which was near equal
-  price and left out before). Between the low-lactate example's own cost ($49.50 a kilo of cells) and its cost once a
-  food-grade membrane exists ($24.95) their shares rise by 3.7–4.3% for each 1% off the price, about two and a half to three
-  times the top of salmon's range. Prime beef (1.37×) is the one product near equal price and is left out; it gives 4.2. The
+  (4.69×), heritage pork (3.81×), premium fish fillets and shrimp (3.05×) and sushi-grade seafood (1.74×, which was near equal
+  price and left out before). Between the low-lactate example's own cost ($48.68 a kilo of cells) and its cost once a
+  food-grade membrane exists ($24.05) their shares rise by 3.7–4.2% for each 1% off the price, about two and a half to three
+  times the top of salmon's range. Prime beef (1.35×) is the one product near equal price and is left out; it gives 4.2. The
   model before 2026-11-18 gave 3.0–3.4 on 2026-11-18, at that day's costs; that value is recorded, not recomputed.
   - The history of this row. Until the audit batch the tier rule made buyers of cuts and premium products less sensitive to
     price, and organic chicken and heritage pork gave 1.3–1.5: a pass. The audit removed that rule because it raised cultivated
     meat's share wherever it was the dearer product (`audit_2026-11-19.md`, D3). With the normal spread alone the three products
     gave 5.2–7.5. The Student's t spread, with more buyers left at a high price, gave 3.6–3.7 at the cells' cost of 2026-11-19
-    ($32.80 falling to $17.50). At the dearer cells of 2026-11-20 it gives 3.7–4.3: the demand curve is the same, but every
+    ($32.80 falling to $17.50). At the dearer cells of 2026-11-20 it gives 3.7–4.3 (3.7–4.2 since the fourth batch of 2026-11-21): the demand curve is the same, but every
     product starts further from its meat's price, where the model's own elasticity is larger (-3.4 at three times the price
     and -3.6 at four, against -2.7 at twice).
   - How to read it. Salmon was measured as a product that already held a visible part of its market at a modest premium.

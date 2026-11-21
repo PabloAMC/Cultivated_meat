@@ -1,12 +1,14 @@
 # Does cultivated meat get cheaper as it sells more? Cost and share solved together
 
-> **Current figures (2026-11-21, fourth batch; the tables below are regenerated, the prose is as of the third batch).** Plant-based
+> **Current figures (2026-11-21, fourth batch; tables regenerated, prose recomputed on 2026-11-22).** Plant-based
 > meat's committed buyers raised the ordinary shoppers' real-meat weight and with it the blend penalty on cuts
 > (`demand_checks.md` section 5). The low-lactate example comes to rest at $24.05 and 0.48% of world meat (from $48.68 and
-> 0.05%; the prose's $23.91 and 0.54%); its first sales need 2.4 times the switch's membrane area (2.6); premium products alone
+> 0.05%; $23.91 and 0.54% in the third batch); its first sales need 2.4 times the switch's membrane area (2.6); premium products alone
 > need 0.68 and 0.34 million m² with and without premium fillets and shrimp (0.75 and 0.38). With slow learning: $48.38 and
 > 0.05% left alone, $30.30 and 0.24% if pushed ($48.37, 0.05%; $30.17, 0.27%). The all-favourable example's cells rest at $6.30
-> and 6.27% (from $6.97 and 5.58%; the prose's $6.29, 6.81% from 6.07%), $0.16 above parity.
+> and 6.27% (from $6.97 and 5.58%; $6.29, 6.81% from 6.07% in the third batch), $0.16 above parity. **One conclusion changed:**
+> with the demand anchored on premium real meats the low-lactate example's own sales need 0.76 million m², short of the switch,
+> so it does not cross (it rests at $48.25 and 0.015%); in the third batch they reached the switch exactly (section 5).
 
 > 2026-11-19 (scenario restructure): the published cells are priced in perfusion as the cautious scenario (rung 1 of the ladder is a batch, with no filter to learn on); shares are the share of the meat sold; every kind of cell weighs 2 ng.
 
@@ -36,22 +38,24 @@ cultivated meat first undercuts the premium product it competes with (Wildtype's
 unlocks is the volume that makes everything cheaper.
 
 **In short (2026-11-21).** At its point cost the low-lactate example sells enough to bring a food-grade membrane
-supplier into being, and gets much cheaper for it: its cells fall from $48.68 to $23.91 and its share rises from 0.05% to 0.54%
+supplier into being, and gets much cheaper for it: its cells fall from $48.68 to $24.05 and its share rises from 0.05% to 0.48%
 of world meat. The all-favourable example's cells barely use the process membrane (they are kept with haemodialyser fibres at
-$8 a m²), so the switch plays no part for them: the plant's learning alone takes them from $6.97 to $6.29 and from 6.07% to
-6.81%, short of the $6.14 that price parity with US minced beef or pork cuts ($12 a kilo) needs. (2026-11-20, final pass: the
+$8 a m²), so the switch plays no part for them: the plant's learning alone takes them from $6.97 to $6.30 and from 5.58% to
+6.27%, short of the $6.14 that price parity with US minced beef or pork cuts ($12 a kilo) needs. (Third batch of 2026-11-21: $23.91
+and 0.54%; $6.29 and 6.07% to 6.81%. 2026-11-20, final pass: the
 low-lactate example $49.50 to $24.95 and 0.05% to 0.48%; the all-favourable example $7.62 to $6.77 and 5.44% to 6.28%.)
 
-- **The low-lactate example's margin over the switch is thin.** Its sales need 2.6 times the switch's membrane area. With slow
-  learning, where the switch is at 3 million m², it does not cross on its own and has two resting points: $48.37 and 0.05% left
-  alone, $30.17 and 0.27% if pushed.
-- **Premium products alone do not reach the switch**, with or without premium fillets and shrimp (0.75 and 0.38 million m²
+- **The low-lactate example's margin over the switch is thin.** Its sales need 2.4 times the switch's membrane area. With slow
+  learning, where the switch is at 3 million m², it does not cross on its own and has two resting points: $48.38 and 0.05% left
+  alone, $30.30 and 0.24% if pushed. With the demand anchored on premium real meats it does not cross the switch at all
+  (section 5).
+- **Premium products alone do not reach the switch**, with or without premium fillets and shrimp (0.68 and 0.34 million m²
   against 1.0). Ordinary cuts carry it.
 - **Where the switch sits matters most** among the market-size inputs: at the top of its range it leaves the low-lactate example
-  at $47.60.
+  at $47.66.
 
 About a third of the low-lactate example's gain is a loop, the rest one step. The model's response to price is well above what
-history shows along a demand curve (3.7–4.3 against 1–1.5), and for prime beef and sushi-grade seafood just above history's
+history shows along a demand curve (3.7–4.2 against 1–1.5), and for prime beef and sushi-grade seafood just above history's
 totals too (section 6). The size of the gain rests on it.
 
 Premium products are about three-tenths of the low-lactate example's first sales, beef steaks about a third, other cuts most of
@@ -137,28 +141,28 @@ process membrane a kilo (the low-lactate example uses 0.015) its demand never re
 "From below" starts with no learning; "from above" starts with everything at its floor. Where the two differ there are two resting
 points, and reaching the upper one needs someone to carry the industry across the gap.
 
-- **The all-favourable example's cells do not reach parity by this route: $6.29 against the $6.14 parity needs, and 6.81% of
-  world meat** (6.07% without learning). They rest 4 cents above the cost with both items at their floors ($6.25); fast learning
+- **The all-favourable example's cells do not reach parity by this route: $6.30 against the $6.14 parity needs, and 6.27% of
+  world meat** (5.58% without learning). They rest 5 cents above the cost with both items at their floors ($6.25); fast learning
   gives $6.25, and without plant learning they would stay near $6.97. With the all-favourable example's own demand (55% at equal
   price, 23.4% without learning; 24.7% before the fourth batch of 2026-11-21) they rest at the floors, $6.25, and take 25.8% of
   world meat (27.2% before). (2026-11-20, final pass, at
   $7.62: $6.77 and 6.28%; with its own demand $6.75 and 25.4%.) (After the engine batch, at
   $18.71: $9.78 and 4.28%. Before it: $6.95 and 6.89%.)
-- **The low-lactate example: cells fall from $48.68 to $23.91 and the share rises from 0.05% to 0.54%**, about eleven times. Its
-  0.17 Mt a year needs 2.61 million m² of membrane, 2.6 times the switch at 1.0, so it crosses on its own sales and has one
-  resting point. It would cross on its own with a switch up to about 2.6 million m², inside the switch's range (0.3–3).
-- **With slow learning the low-lactate example has two resting points**: $48.37 and 0.05% left alone, $30.17 and 0.27% if
-  pushed. A switch at 3 million m² is above the 2.61 million its sales need, so someone has to carry it across the gap. This
+- **The low-lactate example: cells fall from $48.68 to $24.05 and the share rises from 0.05% to 0.48%**, about ten times. Its
+  0.15 Mt a year needs 2.39 million m² of membrane, 2.4 times the switch at 1.0, so it crosses on its own sales and has one
+  resting point. It would cross on its own with a switch up to about 2.4 million m², inside the switch's range (0.3–3).
+- **With slow learning the low-lactate example has two resting points**: $48.38 and 0.05% left alone, $30.30 and 0.24% if
+  pushed. A switch at 3 million m² is above the 2.39 million its sales need, so someone has to carry it across the gap. This
   has flipped four times. After the cut-cost repin: one point ($18.69 and 1.48%). After the audit batch, with its sales at
   0.26 Mt: two points ($32.48 and 0.08% left alone, $22.07 and 0.47% if pushed). With the heavier tail of liking: one ($21.74
   and 0.76%). Since the engine batch of 2026-11-20: two. The conclusion follows the low-lactate example's sales at its own cost,
   which its cost and the model's far tail decide. It is not robust.
 - **Published cells never start on their own.** At $181.13 a kilo they sell 0.0003% of world meat, about a thousand tonnes a
-  year, which needs 0.07 million m² of membrane. Left alone they stay within 10 cents of their own cost in every case. Only with
-  fast learning and an outside push is there an upper resting point, at $84.79 and under 0.01% of world meat. With central
+  year, which needs 0.06 million m² of membrane. Left alone they stay within 10 cents of their own cost in every case. Only with
+  fast learning and an outside push is there an upper resting point, at $84.91 and under 0.01% of world meat. With central
   learning there is no second resting point. With both items at their floors they would cost $76.83.
-- **Without a food-grade membrane supplier little changes for the low-lactate example**: $48.37 and 0.05%. The all-favourable
-  example, which does not need the supplier, gets $6.73 and 6.31% from slow plant learning.
+- **Without a food-grade membrane supplier little changes for the low-lactate example**: $48.38 and 0.05%. The all-favourable
+  example, which does not need the supplier, gets $6.74 and 5.81% from slow plant learning.
 
 ## 4. The loop runs on ordinary cuts more than on premium products
 
@@ -196,30 +200,30 @@ So the tables give every count twice: with it, and for the four small premium ma
 - **Premium products are where cultivated meat is closest to the price it competes with**: at the low-lactate example's cost
   it is 1.35 times prime or wagyu beef's price and 1.74 times sushi-grade seafood's. Those two markets are small
   (`premium_market_sizes.md`: about 0.5 Mt and 1.2 Mt a year). Against premium fillets and shrimp it is 3.05 times the price.
-- **Most of the low-lactate example's first sales are ordinary cuts.** Of 0.17 Mt a year at its own cost, 0.10 Mt are cuts
-  (62%): beef steaks about a third of all its sales at 3.03 times their price, then pork cuts, chicken cuts and sheep and goat at
-  four and a half to eight times theirs. Premium products are 0.05 Mt (29%): premium fillets and shrimp about half of that,
-  prime beef and sushi-grade seafood most of the rest. Without premium fillets and shrimp the four small premium markets are 15%
-  of sales. Mince and processed meat are 0.02 Mt (9%). Two-fifths of these first sales (40%) are of products at more than four
+- **Most of the low-lactate example's first sales are ordinary cuts.** Of 0.15 Mt a year at its own cost, 0.09 Mt are cuts
+  (62%): beef steaks about a third of all its sales (31%) at 2.99 times their price, then pork cuts, chicken cuts and sheep and goat at
+  four to eight times theirs. Premium products are 0.04 Mt (28%): premium fillets and shrimp about half of that,
+  prime beef and sushi-grade seafood most of the rest. Without premium fillets and shrimp the four small premium markets are 14%
+  of sales. Mince and processed meat are 0.015 Mt (10%). Two-fifths of these first sales (41%) are of products at more than four
   times their meat's price. Nothing measures demand that far out (`liking_spread.md` §6).
 - A cut still costs less to make than mince whenever cells cost more than about $12 a kilo, as the low-lactate example's do: a
   cut is 0.8 kg of cells, a plant-protein matrix and $2 of assembly beyond what mince pays (`structuring_cost.md`).
   The buyers are the upper end of the spread of liking (`liking_spread.md`), not buyers of organic meat, who are the most hostile
   to it (`demand_heterogeneity_evidence.md`).
-- **Premium products alone do not reach the switch.** The five need 0.75 million m² of membrane a year, a quarter short of
-  the switch at 1.0. The four small markets alone need 0.38 million. All of the low-lactate example's sales need 2.61 million. So
-  the premium start is neither enough nor needed at the central switch: without any premium product the other sales need 1.86
-  million m², past a switch at 1.0 but short of one at 3 million. The all-favourable example needs 0.79 million m² for all its
-  20.4 Mt a year (0.48 million for 18.3 Mt before 2026-11-21: its denser, thinned-design tank sends more permeate a kilo), and
+- **Premium products alone do not reach the switch.** The five need 0.68 million m² of membrane a year, a third short of
+  the switch at 1.0. The four small markets alone need 0.34 million. All of the low-lactate example's sales need 2.39 million. So
+  the premium start is neither enough nor needed at the central switch: without any premium product the other sales need 1.72
+  million m², past a switch at 1.0 but short of one at 3 million. The all-favourable example needs 0.72 million m² for all its
+  18.8 Mt a year (0.79 million for 20.4 Mt before the fourth batch of 2026-11-21; 0.48 million for 18.3 Mt before 2026-11-21: its denser, thinned-design tank sends more permeate a kilo), and
   does not cross the central switch at all.
-- **The unlocking is large once the membrane is cheap.** At $24.95 a kilo of cells cultivated meat costs 0.77 times prime beef,
-  0.99 times sushi-grade seafood and 1.73 times premium fillets and shrimp. Its share of prime beef rises from 2.16% to 25.2%, of
-  sushi-grade seafood from 0.74% to 8.75%, and of premium fillets and shrimp from 0.17% to 1.66%. These rises are steeper than
+- **The unlocking is large once the membrane is cheap.** At $24.05 a kilo of cells cultivated meat costs 0.75 times prime beef,
+  0.96 times sushi-grade seafood and 1.68 times premium fillets and shrimp. Its share of prime beef rises from 2.08% to 25.0%, of
+  sushi-grade seafood from 0.71% to 8.56%, and of premium fillets and shrimp from 0.16% to 1.62%. These rises are steeper than
   farmed salmon's history supports (section 6).
 - **The loop reaches prime beef and sushi-grade fish; the rest stays above its meat's price.** At the low-lactate example's
-  resting point organic chicken is 2.66 times, heritage pork 2.16 times and premium fillets 1.73 times their price. Of its 1.61
-  Mt a year, 0.95 Mt are cuts, 0.48 Mt premium products and 0.18 Mt mince and processed meat, for 0.48% of world meat. Only the
-  all-favourable example's cells take the loop far into mince and processed meat (5.90 Mt a year at their resting point).
+  resting point organic chicken is 2.58 times, heritage pork 2.10 times and premium fillets 1.68 times their price. Of its 1.61
+  Mt a year, 0.94 Mt are cuts, 0.47 Mt premium products and 0.20 Mt mince and processed meat, for 0.48% of world meat. Only the
+  all-favourable example's cells take the loop far into mince and processed meat (6.64 Mt a year at their resting point).
 
 ## 5. How strong is the loop, and how well is that known?
 
@@ -238,33 +242,34 @@ So the tables give every count twice: with it, and for the four small premium ma
 | Animal-cell tanks installed today (6500 to 11800 m3) | $23.85 to $24.43, 0.49% to 0.46% | $6.28 to $6.35, 6.30% to 6.22% |
 | World meat, boneless (300 to 384 Mt a year) | $24.20 to $23.88, 0.47% to 0.49% | $6.32 to $6.29, 6.25% to 6.29% |
 
-- **It is mostly one step, not a loop.** 69% of the low-lactate example's gain in share comes on the first pass: the 0.17 Mt
-  it already sells crosses the membrane switch, cells fall to $26.73 and the share rises to 0.39%. Later rounds, where cheaper
-  cells sell more and more sales make cells cheaper again, add the other 31% (to $23.91 and 0.54%). For the all-favourable
+- **It is mostly one step, not a loop.** 69% of the low-lactate example's gain in share comes on the first pass: the 0.15 Mt
+  it already sells crosses the membrane switch, cells fall to $26.83 and the share rises to 0.35%. Later rounds, where cheaper
+  cells sell more and more sales make cells cheaper again, add the other 31% (to $24.05 and 0.48%). For the all-favourable
   example's cells the first pass gives 98%. (2026-11-20, final pass: 68%, $27.87, 0.34%, then $24.95 and 0.48%; 97%.) (After the engine batch later rounds gave 32% and 10%; before it 24% and 5%; after the
   audit batch, with the normal spread, 35% of the low-lactate example's gain; before it, 19%.) So the result rests mostly on
   whether one event happens, a food-grade membrane supplier, and at what price, and for a third on the strength of a feedback
   that cannot be measured.
 - **The switch's level matters most, then the plant's learning rate, the food-grade supplier's first price and the membrane's
-  floor**; the speed of the membrane's later fall matters little (table above). A 3 million m² switch is above the 2.61 million
-  m² the low-lactate example's sales need, so it leaves it at $47.60 and 0.05%; a switch anywhere up to about 2.6 million gives
+  floor**; the speed of the membrane's later fall matters little (table above). A 3 million m² switch is above the 2.39 million
+  m² the low-lactate example's sales need, so it leaves it at $47.66 and 0.05%; a switch anywhere up to about 2.4 million gives
   about $24. Before the engine batch of 2026-11-20 a 3 million m² switch cost it 21 cents.
-- **The all-favourable example's cells are sturdy on cost**: $6.25–6.73 across every input; only the plant's learning rate moves
+- **The all-favourable example's cells are sturdy on cost**: $6.25–6.74 across every input; only the plant's learning rate moves
   them.
 - **The share side is weaker than the cost side.** With the share taken from the single curve fitted to premium real meats
-  (`premium_curve.md`) in place of the model's, the cells cost about the same ($24.69 and $6.40) but the low-lactate example's
-  share is 0.27%, not 0.54%, and the all-favourable example's 2.96%, not 6.81%. At the low-lactate example's own cost the model
-  gives more than twice the fitted curve (0.05% against 0.02%). On the fitted curve its own sales need about 1.0 million m², at
-  the central switch itself, and far short of a switch at 3 million. So whether it crosses at all depends on which demand side
-  is right, with nothing to spare on the fitted curve.
+  (`premium_curve.md`) in place of the model's, the low-lactate example does not cross the switch: at its own cost the fitted curve gives 0.015% of
+  world meat, a third of the model's 0.045%, and those sales need about 0.76 million m², a quarter short of the central switch,
+  so it rests at $48.25 and 0.015%, not $24.05 and 0.48%. The all-favourable example's cells cost about the same ($6.42) and take
+  2.53%, not 6.27%. So whether the low-lactate example crosses at all depends on which demand side is right, and on the fitted
+  curve it does not. (In the third batch of 2026-11-21 its sales on the fitted curve needed about 1.0 million m², the central
+  switch itself, and it rested at $24.69 and 0.27%; the fourth batch's demand changes moved it below the switch.)
 
 ## 6. The checks (2026-11-18)
 
 **How big are the premium markets?** Several times smaller than the model's tables had them (`premium_market_sizes.md`): sushi-grade
 seafood about 1.2 Mt a year (the table had 5.4) and prime or wagyu beef about 0.5 Mt (1.35). The tables were corrected. Since the
 seafood re-pricing of 2026-11-19 the model also has premium fillets and shrimp, about 13 Mt a year at $20 a kilo
-(`world_seafood_prices.md`). The four small premium markets alone do not carry the low-lactate example past the switch (0.35
-million m² against 1.0); nor do the premium products with premium fillets and shrimp (0.69 million m²); ordinary cuts carry it
+(`world_seafood_prices.md`). The four small premium markets alone do not carry the low-lactate example past the switch (0.34
+million m² against 1.0); nor do the premium products with premium fillets and shrimp (0.68 million m²); ordinary cuts carry it
 (section 4).
 
 **Would a food-grade membrane exist, and at what price?** No price is published for any steam- or caustic-tolerant food-grade
@@ -308,11 +313,11 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
   has been demand shifting at flat prices. US broilers: real price −67% and consumption per person up fourfold, 1955–87 (Bishop &
   Christensen, USDA 1989, FT).
 - **The model's premium products respond to price more strongly than farmed salmon did along its demand curve. This check
-  fails.** All five respond at 3.7–4.3. That is about two and a half to three times the top of salmon's range along the curve
+  fails.** All five respond at 3.7–4.2. That is about two and a half to three times the top of salmon's range along the curve
   (1–1.5). Organic chicken, heritage pork and premium fillets and shrimp (3.7–3.9) are inside history's totals, where demand
-  growth is mixed in (1.3–4.1); prime beef (4.2) and sushi-grade seafood (4.3) are just above them. After the engine batch of
+  growth is mixed in (1.3–4.1); prime beef and sushi-grade seafood (4.2 each) are just above them. After the engine batch of
   2026-11-20 the five gave 3.8–4.3; before it 2.7–3.7, all inside the totals. The responses rose with the engine batch because
-  dearer cells put every product further from its meat's price: prime beef starts at 1.37 times its price with 2.2% of its
+  dearer cells put every product further from its meat's price: prime beef starts at 1.35 times its price with 2.1% of its
   market, where before it started below its price with 13%, and a share that small has more room to rise for each percent off.
   With the normal spread of the audit batch the dearer three gave 5.2–7.5. Before the audit batch the four products then listed
   gave 0.6–1.5.
@@ -322,9 +327,10 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
   with, so fewer are added by each percent off (`liking_spread.md`). Its fit counts this check as one of three, and the best joint fit still leaves it
   outside the range.
 - **What it means for the loop.** Between the low-lactate example's own cost and its resting point shop prices fall by about
-  44% and its sales rise about ten times, a response of about 4 overall. At the top of salmon's range along the curve (1.5) the
-  same fall in price would multiply its sales by about two and a half (to about 0.11% of world meat); at the top of history's
-  totals (4.1) it would give about ten times. The demand anchored on premium real meats gives 0.24% (section 5). Salmon was
+  48% and its sales rise about ten times, a response of about 3.6 overall. At the top of salmon's range along the curve (1.5) the
+  same fall in price would multiply its sales by about two and a half (to about 0.12% of world meat); at the top of history's
+  totals (4.1) it would give about fifteen times. With the demand anchored on premium real meats there is no fall in price: it
+  does not cross the switch (section 5). Salmon was
   measured as a product that already held part of its market at a modest premium, so the comparison is not exact. But the size
   of the low-lactate example's gain rests on a response at the very top of what history shows, and is more likely too large
   than too small.
@@ -354,14 +360,15 @@ is 15–30 years, with something like a one-in-three chance of stalling as Quorn
   1.78 to 0.26 Mt a year and its margin over the switch from ten times to 2.3. The Student's t spread of liking and the
   restructure of the scenarios then raised them to 0.71 Mt and 6.2 times. The engine batch of 2026-11-20 (cells at $49.96, a
   shorter membrane life) cut them to 0.15 Mt and 2.5 times; the final pass (cells at $49.50, the demand anchor and nominal
-  incomes, conventional meat's price falling with the share) left them at 0.16 Mt and 2.4 times. Its resting point went from
-  $15.05 and 2.49% to $17.75 and 0.98%, then $17.50 and 1.34%, $24.00 and 0.57%, and now $24.95 and 0.48%.
+  incomes, conventional meat's price falling with the share) left them at 0.16 Mt and 2.4 times, and the batches of 2026-11-21 at 0.15 Mt and 2.4 times. Its resting point went from
+  $15.05 and 2.49% to $17.75 and 0.98%, then $17.50 and 1.34%, $24.00 and 0.57%, $24.95 and 0.48%, $23.91 and 0.54%, and now
+  $24.05 and 0.48%.
 - **The far tail of liking.** Two-fifths of the low-lactate example's first sales are of products at more than four times
   their meat's price, where the spread of liking is an extrapolation. Without them its sales would need about 1.4 million m²:
   past the central switch, short of one at 3 million.
-- **The low-lactate example's cost is itself uncertain.** Across draws its cells cost $41–79 a kilo (8 in 10), with a median of
-  $54, above the $49.50 at most likely values. At $54 its sales need about 1.7 million m² of membrane, 1.7 times the switch;
-  above about $63, between the median and the 90th percentile of the draws, they fall short of it; at $79 they need about 0.4
+- **The low-lactate example's cost is itself uncertain.** Across draws its cells cost $39–76 a kilo (8 in 10), with a median of
+  $52, above the $48.68 at most likely values. At $52 its sales need about 1.9 million m² of membrane, 1.9 times the switch;
+  above about $62, between the median and the 90th percentile of the draws, they fall short of it; at $76 they need about 0.5
   million.
 - **The cut cost.** Since 2026-11-19 a cut costs 0.8 kg of cells, a $2 plant-protein matrix and $2 of assembly beyond what
   mince pays (`structuring_cost.md`). With the old rule (a full kilo of cells and a $6 scaffold) the low-lactate example rested
@@ -372,12 +379,12 @@ is 15–30 years, with something like a one-in-three chance of stalling as Quorn
 - **Resting points, not a path.** Learning is counted on yearly scale, not cumulative output, and nothing says who pays for the early
   years.
 - **What would have to be true.** For the all-favourable example's cells to reach $6.14 (price parity) by learning: the plant
-  would have to learn faster than the fast case (which gives $6.75, the floors), since the membrane plays no part in them. For
-  the low-lactate example's sales to pass the switch with no outside push: its cells must cost under about $63 and the switch
-  sit under about 2.4 million m², on the model's demand; on the curve fitted to premium real meats its sales only reach the
-  switch. For learning to take the low-lactate example above 1% of world meat: no learning case does at its point cost (the
-  middle case rests at 0.48%, fast learning at 0.69%; slow learning 0.05% unaided, no supplier 0.05%, the demand anchored on
-  premium meats 0.24%), and the response to price behind these gains is already at the top of what history shows.
+  would have to learn faster than the fast case (which gives $6.25, the floors), since the membrane plays no part in them. For
+  the low-lactate example's sales to pass the switch with no outside push: its cells must cost under about $62 and the switch
+  sit under about 2.4 million m², on the model's demand; on the curve fitted to premium real meats its sales fall short of the
+  switch (0.76 million m²). For learning to take the low-lactate example above 1% of world meat: no learning case does at its point cost (the
+  middle case rests at 0.48%, fast learning at 0.67%; slow learning 0.05% unaided, no supplier 0.05%, the demand anchored on
+  premium meats 0.015%), and the response to price behind these gains is already at the top of what history shows.
 
 ## Sources
 

@@ -206,16 +206,17 @@ cost per kg of forming, packaging or chilling a cultivated product, and none cos
 cut: the published analyses all stop at harvested cells. A cut is costed from analogues
 (`research_notes/structuring_cost.md`; Structured products below). Products sold so far range from 3% to over 99% cells.
 Against a flat $5 a kilo, the rule this replaced, parity moves little ($7.0 to $6.1 a kilo of cells), because both are fitted
-to commodity meat's own spread, but the shelf price of anything dearer rises: at the low-lactate example's $49.5 a kilo of cells (2026-11-20; $48.7 since 2026-11-21), from $54.5
-to $72.2. The low-lactate example's share of world meat and seafood at that cost would be 0.14% under the flat $5 and is 0.05% under the
-present rule; at the all-favourable example's cost ($6.97 since 2026-11-21, $7.62 when this was computed; shelf prices $12.6 and $14.1), with the low-lactate example's demand, 6.9% and 5.4%. Both parts are drawn in the uncertainty bands.
+to commodity meat's own spread, but the shelf price of anything dearer rises: at the low-lactate example's $48.7 a kilo of cells, from $53.7
+to $71.1. The low-lactate example's share of world meat and seafood at that cost would be 0.14% under the flat $5 and is 0.045% under the
+present rule; at the all-favourable example's cost ($6.97; shelf prices $12.0 and $13.2), with the low-lactate example's demand, 6.8% and 5.6%
+(recomputed 2026-11-21, fourth batch). Both parts are drawn in the uncertainty bands.
 
 **Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.7 a kilo at most likely values ($15.9 before 2026-11-21, when a sanitary hall's lower power was first counted); if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $29.
 
 | component | value | basis |
 |---|---|---|
 | amino acids | ~$1.48 per kilo grown | 0.232 kg of amino acids per kg (GFI's most efficient of eight estimates) × $6.36/kg, GFI's feed-grade mean (`nutrient_floor.md`); Humbird's stoichiometry gives 0.26 kg [Table 3.4] |
-| glucose | ~$0.13 per kilo grown | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
+| glucose | ~$0.12 per kilo grown | 0.311 kg per kg at full respiration (`glucose_intensity`, the mass balance of `floor_physics.glucose_balance`; 0.32 before 2026-11-21) × $0.40/kg [GFI & Hawkwood 2025] |
 | salts, buffer, vitamins, trace elements | ~$0.4 per kilo grown | assumed (Humbird leaves them out as low-cost) |
 | the three together, per kilo harvested | ~$2.2/kg | $2.0 divided by the 90% of the cells grown that are harvested (8% killed by bubbles, 2% lost at harvest; below) |
 | running a plant | ~$13.5/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section): the plant's yearly charge $7.4, labour $2.6, utilities $0.5, filter membranes $1.9, bubble protectant $0.7, other supplies $0.3 |
@@ -239,7 +240,7 @@ the page's `{{TOKEN}}` for the reference cost. Everything that says "Humbird's o
 `cost_floor` is $0.2 below it because it adds the nutrient floor per kilo grown, not per kilo harvested.
 
 Humbird's optimistic design is not a limit. The all-favourable example (below) costs $6.97 at most likely values (middle draw
-$9; 8 in 10 between $8 and $11), $8.3 less than his design, and it is below his design by construction: since 2026-11-20 it takes,
+$8.3; 8 in 10 between $7.1 and $10.0), $8.8 less than his design, and it is below his design by construction: since 2026-11-20 it takes,
 lever by lever, the most favourable value among this model's own favourable end, Humbird's design and nine other published
 cost studies, where a study's value does not break one of the model's limits. From Humbird it takes a 3 ng cell, 5 mmol/L of ammonia and 50 of
 lactate tolerated and no lost runs; from this model's own favourable end a doubling every 16 hours, a food-grade plant with
@@ -256,8 +257,8 @@ runs. What the cost could be, and what has to go right for it, is described by t
 carbohydrate and nucleotides, 0.065 mol per mol of dry cell mass (Humbird's Reaction 2.6). The rest is burned to pay
 the cell's metabolic power, which runs whether or not the cell grows. Per kilo of cells that cost scales with the
 time a kilo takes to grow, 1/μ. Fully respired (no lactate) at Humbird's μ = 0.029/h, the total is 0.13 mol/mol, or
-0.32 kg of glucose per kg of wet cells; faster growth would cut the respired half, toward 0.16 kg/kg. At $0.40/kg
-that is ~$0.13/kg: glucose barely matters. The feedstock as a whole (~$2.0/kg) is close to a chicken's feed bill
+0.311 kg of glucose per kg of wet cells (0.32 before 2026-11-21); faster growth would cut the respired half, toward 0.16 kg/kg. At $0.40/kg
+that is ~$0.12/kg: glucose barely matters. The feedstock as a whole (~$2.0/kg) is close to a chicken's feed bill
 (US broilers: ~4.6 kg of feed and ~$1.4 per kg of edible meat in 2025, ~$1.9 in the EU; from breeder targets,
 USDA and Wageningen data in the pf-tea evidence, `data/evidence/feed.yaml`).
 
@@ -301,7 +302,7 @@ did to the examples is in RESULTS.md ("What changed on 2026-11-20") and CHANGELO
 At most likely values the day moved Published cells from $209.1 to $322.6, the low-lactate example from $32.8 to $49.5 and
 Humbird's optimistic design from $12.8 to $15.9. The low-lactate example's culture runs at 154 g/L, not 191: a thick culture
 takes up oxygen more slowly. The all-favourable example cost $11.7 as it was defined before that day; it is now the one most
-favourable case and costs $7.62.
+favourable case and cost $7.62 that day ($6.97 since the second batch of 2026-11-21).
 
 ### Cost scenarios (`scenarios.py`)
 
@@ -338,7 +339,7 @@ most favourable cases: the example of this name ($18.7: the switches at their ch
 4 mmol/L of ammonia and 35 of lactate tolerated, 2 ng cells and a doubling every 24 hours) and the "frontier" of `frontier.py`
 ($7.86). The first cost more than Humbird's optimistic design, because it did not take the levers on which his design is the
 more favourable. There is now one. It costs **$6.97** a kilo at most likely values ($7.62 before the second batch of 2026-11-21);
-the middle draw is $8.6 and 8 in 10 fall between $7.2 and $10.4. `scenarios.run(SCENARIOS["best"].choice)`, the last row of `frontier.ladder()` and the page's "best level
+the middle draw is $8.3 and 8 in 10 fall between $7.1 and $10.0. `scenarios.run(SCENARIOS["best"].choice)`, the last row of `frontier.ladder()` and the page's "best level
 known" are the same call.
 
 `scenarios.favourable_levers()` is the table of sources: one row for each lever, with the value each source gives (`FAV_SOURCES`:
@@ -347,7 +348,7 @@ of the nine other studies in `study_assumptions.STUDIES`: CE Delft 2021, Risner 
 SuperMeat 2024, Lever VC 2025, GFI 2021 and GFI 2026). A study's value is what it assumes on that lever, with its page
 (`study_assumptions.STUDY_LEVERS`); a value that breaks one of the model's limits is not a source (`study_assumptions.REJECTED`).
 The limits (`study_assumptions.limits()`; `research_notes/study_comparison.md`, section 2): the nutrient floor ($2.00 a kilo of
-cells), the mass balance (320 g of glucose a kilo), the thickest culture that still flows (Humbird's 258 g/L), oxygen transfer and
+cells), the mass balance (311 g of glucose a kilo), the thickest culture that still flows (Humbird's 258 g/L), oxygen transfer and
 CO₂ removal as the engine computes them, the waste the cells tolerate against what they make, no doubling faster than the
 fastest measured in animal cells (15 hours), no meat cell heavier than any measured growing in suspension (3 ng, the larger of
 Humbird's 3 ng and SuperMeat's 2.3 ng; `cr_mass_measured_max_pg`) and a plant repaid at a market rate of interest (8.3% of its
@@ -521,8 +522,8 @@ when the page began to show the cost at the settings shown, with the draws in th
 values is `scenarios.run(choice)["total"]`, every estimate at the mode of its prior. The median of the draws and their 10th and
 90th percentiles ("8 in 10 fall between") follow in the same sentence or table row, with the shop price at the median cost and
 the share. The low-lactate example costs $48.7 a kilo; if the unmeasured estimates are drawn from their ranges, the middle draw
-is $53 and 8 in 10 fall between $40 and $77. The all-favourable example costs $7.0 ($6.97); the middle draw is $8.6 and 8 in 10
-fall between $7.2 and $10.4. The most-likely-values cost is below the median, because most estimates have more room to fall short
+is $52 and 8 in 10 fall between $39 and $76. The all-favourable example costs $7.0 ($6.97); the middle draw is $8.3 and 8 in 10
+fall between $7.1 and $10.0. The most-likely-values cost is below the median, because most estimates have more room to fall short
 than to improve: it is below about 95% of the all-favourable example's draws (`research_notes/model_audit.md`, section 3f). The scenario table below is printed by `scenarios.markdown_table()` and keeps both columns, the
 median first. The ladder's steps, the switch tables and the side studies use most likely values, so that they can be subtracted. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
@@ -597,8 +598,8 @@ design (`reference()`) the same way, and `reported_band` takes the company's pro
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.05–0.8%) | 0.2% | a company's own report |
 
 Read with the costs at most likely values first (third column), as everywhere in this document. The second batch of 2026-11-21
-moved the table again (Published cells $316.1, the low-lactate example $48.7, the all-favourable example $7.0 with 24.7% (23.4% since the fourth batch) of world
-meat and seafood, Humbird's optimistic design $15.7; RESULTS.md has the steps); the rest of this paragraph gives the figures of
+moved the table again (Published cells $316.1, the low-lactate example $48.7, the all-favourable example $7.0 with 23.4% of world
+meat and seafood (24.7% before the fourth batch), Humbird's optimistic design $15.7; RESULTS.md has the steps); the rest of this paragraph gives the figures of
 2026-11-20. Three things in the table changed on 2026-11-20. The published cells in a batch cost $322.6, not $209.1: lactate held under 35 mmol/L stops
 their batch at 10 g/L, not 14, and a tank that thin now pays its own utilities ($18.1 a kilo, where a flat $0.94 was charged).
 The low-lactate example costs $49.5, not $32.8: its filter membranes cost $22.3 a kilo, not $12.8, its culture runs at 154 g/L,
@@ -651,7 +652,7 @@ A grid of five vessels (stirred tank, airlift, single-use bag, packed bed, hollo
 fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, tank tricks
 and losses are those of Humbird's optimistic design or of a scenario. Each cell is one call to `floor_physics.explore` with a `vm`
 dict built from `inputs.py` `vm_*`. With no `vm`, `explore` is unchanged: the stirred tank in perfusion is Humbird's optimistic
-design ($15.93) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($19.98).
+design ($15.72) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($16.50).
 
 What `vm` changes in `explore`:
 
@@ -678,8 +679,8 @@ What `vm` changes in `explore`:
   shape: its rising gas gives about the power per litre a stirrer gives (39–59 W/m³ at 4–6 mm/s, `thick_culture.gas_power`,
   against the stirrer's 43), and no mixing time has been measured in an animal-cell airlift above 2 m³. Until then it was
   exempt from any mixing limit, which, with its taller shape and so fewer bubble deaths per litre, made it cheaper than the
-  stirred tank in perfusion. It is now mixing-limited at 45 g/L and costs $30.48 in perfusion at Humbird's optimistic design,
-  against the stirred tank's $15.93. A stirred tank with a bubble cage (its sparger inside a mesh cylinder) exchanges gas on
+  stirred tank in perfusion. It is now mixing-limited at 45 g/L and costs $29.96 in perfusion at Humbird's optimistic design,
+  against the stirred tank's $15.72. A stirred tank with a bubble cage (its sparger inside a mesh cylinder) exchanges gas on
   all of its bubbles, but only the gas outside the cage meets cells and kills them (`gas_away`, `gas_cells`; fixed 2026-11-20:
   the cage's own gas had been charged deaths as well).
 - **Cost**: the vessel's unit costs `capex_ratio` times Humbird's packaged stirred vessel of the same size (his Eq. 3.1). Since
@@ -838,11 +839,11 @@ never costs more than no route. The result reports `clean_loop` (litres cleaned 
 `clean_capex` and `clean_opex` (the hardware and running cost the route adds, with the parts inside `retention_capex` and
 `membranes` named), `clean_parts`, and `medium_l_unclean` beside `medium_l`.
 
-In the low-lactate example ($49.50 with no route) the exchanger gives $48.70 (it takes 12% of the ammonia), electrodialysis
-$46.03 (23.1 litres a kilo cleaned, fresh medium 18.0 litres) and dialysis across the culture $45.59 (33.2 litres cleaned,
+In the low-lactate example ($48.68 with no route) the exchanger gives $47.89 (it takes 12% of the ammonia), electrodialysis
+$45.24 (23.1 litres a kilo cleaned, fresh medium 18.0 litres) and dialysis across the culture $44.83 (33.2 litres cleaned,
 fresh medium 8.9). `medium_reuse.py` gives the same figures and prices more variants, among them dialysis with an exchange
-membrane that clears twice the litres per m² ($33.71), which rests on a clearance figure taken from haemodialysis that has not
-been checked for a dense culture (TODO); a perfect, free device across the culture would save $30.0, to $19.54. `tests/test_medium_reuse.py` checks that the engine and the side study agree. The
+membrane that clears twice the litres per m² ($32.95), which rests on a clearance figure taken from haemodialysis that has not
+been checked for a dense culture (TODO); a perfect, free device across the culture would save $29.9, to $18.77. `tests/test_medium_reuse.py` checks that the engine and the side study agree. The
 separate lever `wash_price` is described under "Medium use from waste".
 
 ### The plant term of Humbird's optimistic design (`floor_physics.py`)
@@ -984,7 +985,7 @@ own items against his, and has no makeup tanks or housings per tank if its mediu
 sterilisers, centrifuges and the utilities outside the process stay per m³ of tank. It replaced a rule that scaled only the
 bioreactor share (32%) of the 20 m³ plant with Eq. 3.1. It reproduces his fed-batch plant ($683k per m³) and comes to $3,244k per
 m³ for his perfusion plant of 2 m³ tanks, against his $3,451k (−6.0%; the old rule gave $1,891k). At 20 m³ it moves the cases
-little (Humbird's optimistic design $15.93, $16.03 by the old rule; the low-lactate example $49.50, $49.63). Larger tanks now pay:
+little (Humbird's optimistic design $15.72, $15.82 by the old rule; the low-lactate example $48.68, $48.80). Larger tanks now pay:
 with the tank design chosen again at each size every scenario saves 5.3% to 7.4% in a larger tank (`tank_size.py`,
 `research_notes/tank_size.md`), and the all-favourable example takes 42 m³. Humbird's optimistic design is the exception: CO₂
 holds a deeper tank thinner, and it costs $22.2 at 200 m³.
@@ -995,7 +996,7 @@ harvested stream in a maturation vessel, priced as tank capacity (`mature_capex`
 upkeep rate and use medium at that rate, which is added to the litres (`mature_l`). The default is 0 because the products near
 market are bulk cell mass (the GOOD Meat, Believer, Wildtype and Vow filings). References: 4 days (Meatable 2024, a company
 claim), 7 days for muscle (the Cultivated Meat book; Mattick 2015; Tuomisto 2022), 14 and 28 days for fat. Seven days would take
-the low-lactate example from $49.50 to $98.25 and the all-favourable example from $7.62 to $22.32.
+the low-lactate example from $48.68 to $95.34 and the all-favourable example from $6.97 to $19.71.
 
 **Financing (`plant_charge_mature`).** Humbird's capital charge is money at 7.5% repaid over 10 years (his
 Eq. 3.2), which he chose from Beyond Meat's cost of capital and a short plant life. The same section of his
@@ -1995,13 +1996,13 @@ the normal, scaled to a standard deviation of 1 and then multiplied by `liking_s
 experiment's own-price elasticity at four prices; the share premium real meats hold at 2, 3 and 4 times the ordinary price (3.7%,
 1.5%, 0.6%, from the curve fitted to sixteen products); and farmed salmon's response to its falling price (1–1.5). Two
 requirements on top: a first-contact elasticity at equal price within −1.5 ± 0.15, and a miss on the experiment of at most 0.30.
-The joint misfit is 4.3 for the t, 9.8 for a logistic, 16.6 for the normal spread as it was and 20.6 for that normal integrated
+The joint misfit is 4.2 for the t, 10.0 for a logistic, 17.1 for the normal spread as it was and 21.3 for that normal integrated
 properly (`python liking_spread.py --families`). A mixture of two normals fits better (2.7) and was not chosen: it needs two more numbers, and its best fit is a small
 block of shoppers who buy at almost any price, which nothing measured shows. The data pin the t loosely: the misfit is least at a
-tail of 3 with a spread of 3.7 (3.75), and is within 20% of that from a spread of 3.45 to 4.2 and a tail of 2.5 to 4. The model's
+tail of 3 with a spread of 3.7 (3.69), and is within 20% of that from a spread of 3.45 to 4.2 and a tail of 2.5 to 4. The model's
 values are 14% above the least; 4 rather than 3 is a choice. These misfits were 4.0, 8.3, 13.8, 17.7 and 2.5 before 2026-11-20:
 the spread did not change, but the salmon part of the misfit is computed on the model's premium products at the scenarios'
-costs, which rose, and the response there is now 3.7–4.3 where it was 3.6–3.7. The shape was not refitted, and in the fourth batch of 2026-11-21 it was checked again with plant-based meat's committed buyers in the model (misfit 4.20, unchanged). A price-insensitive class of shoppers for every product, with the spread refitted, lowers the misfit to 1.7–3.0 but leaves farmed salmon failing and raises the low-lactate example's share 2 to 8 times, by how much those shoppers like cultivated meat, which nothing measures; it is not in the model (`research_notes/demand_checks.md` section 6). The model misses the experiment by 0.11 (2.56 with every shopper
+costs, which rose, and the response there is now 3.7–4.2 (3.7–4.3 before the fourth batch of 2026-11-21) where it was 3.6–3.7. The shape was not refitted, and in the fourth batch of 2026-11-21 it was checked again with plant-based meat's committed buyers in the model (misfit 4.20, unchanged). A price-insensitive class of shoppers for every product, with the spread refitted, lowers the misfit to 1.7–3.0 but leaves farmed salmon failing and raises the low-lactate example's share 2 to 8 times, by how much those shoppers like cultivated meat, which nothing measures; it is not in the model (`research_notes/demand_checks.md` section 6). The model misses the experiment by 0.11 (2.56 with every shopper
 alike). The experiment alone would put the spread at 3.6 utils, and its own estimate, 3.6–4.6 on its scale, is about 3.3–4.7
 utils here, so 3.9 sits inside it. Neither number is drawn in the bands; across their ranges they move
 the low-lactate example's share (0.05%) from 0.04% to 0.06% and from 0.02% to 0.08%. In proportion the tail's range moves it
@@ -2024,21 +2025,21 @@ where premium real meats hold 0.6%. The textbook rules do no better for a heavy 
 points and is erratic beyond about six times the price), hence the stretched grid. `LIKING_FAMILY = "normal"` with
 `liking_sd = 5.0` still reproduces the model of 2026-11-18 to the last digit, on its fifteen points, for comparison only.
 
-*What it gives.* The first-contact elasticity at equal price is −1.37 (experiment: about −1.5, −1.1 to −1.65 across its arms).
+*What it gives.* The first-contact elasticity at equal price is −1.38 (experiment: about −1.5, −1.1 to −1.65 across its arms).
 First contact takes 4.8% of meat buyers at equal price, 4.3% of all choices (experiment: 5% and 4%). Once
 familiar, its share of all choices at 1.25, 1.5, 2, 3 and 4 times the price of meat is 9.2%, 6.5%, 3.3%, 1.0% and 0.35%
 (premium meats from 1.5 times: 5.7%, 3.7%, 1.5%, 0.6%; one kind of shopper at three times: 0.09%), and its elasticity is −1.3 at parity,
 −2.1 at R = 1.5, −2.7 at R = 2, −3.1 at the calibration price (R = 2.42), −3.4 at R = 3 and −3.6 at R = 4 (the first, second and
 fourth are golden-guarded). The spread also gives a group that never buys: for mince against US minced beef or pork cuts at $12 a kilo, 27% of meat buyers pick
-cultivated meat at half the price and 45% if it is free (24.5% and 41.5% of all choices), so about 55% of meat buyers never pick
+cultivated meat at half the price and 45% if it is free (24.6% and 41.7% of all choices), so about 55% of meat buyers never pick
 it. What it does not fix: the response of premium products
-to a falling price is 3.7–4.3 against farmed salmon's 1–1.5, and above about four times the price of meat the tail is an
+to a falling price is 3.7–4.2 against farmed salmon's 1–1.5, and above about four times the price of meat the tail is an
 extrapolation (the premium data stop at 3.6 times). The all-favourable example, with its own 58.6% of meat buyers
-at equal price, takes 22.6% of world meat and seafood with this shape and would take 29.3% with the normal spread it replaced
-(28.9% on that spread's fifteen points): between one and four times the price of meat the answer depends on how many shoppers
+at equal price, takes 23.4% of world meat and seafood with this shape and would take 30.2% with the normal spread it replaced
+(29.8% on that spread's fifteen points): between one and four times the price of meat the answer depends on how many shoppers
 are moderately keener than average, which the t puts lower and no data measure beyond the one experiment. Shapes that fit the
-evidence about as well (a logistic, mixtures of two normals) give the all-favourable example 25.3% to 26.0%
-(`liking_spread.variant` with each shape's fitted numbers, at $7.62 a kilo of cells). As the example was defined before
+evidence about as well (a logistic, mixtures of two normals) give the all-favourable example 26.2% to 26.9%
+(`liking_spread.variant` with each shape's fitted numbers, at $6.97 a kilo of cells; recomputed 2026-11-22). As the example was defined before
 2026-11-20 ($18.7) these figures were 5.6%, 9.0% and 6.8% to 7.2%: the shape moved its share by up to three-fifths then and
 moves it by up to about a quarter now, because most of its products now sell at one to two times the price of their meat or
 below it.
@@ -2070,15 +2071,15 @@ elasticity (`mk_demand_elast` = −0.65, range −0.8 to −0.5: beef −0.56, p
 1956). The exponent is 1 / 2.65 = 0.38. The price applies to every kind of meat in the region (the same s and the same factor:
 shifts between cuts of one carcass largely cancel, and what remains is the herd), and it is solved with the share by the secant
 method from a fixed price, since a lower price lowers the share. `supply_elast=inf` holds the price fixed. It replaced a fixed
-price, with only a first-order bound in this section. The all-favourable example, with its own 58.6% of meat buyers, takes 26.4%
-of world meat and seafood at a fixed price and 22.6% with the response (conventional meat's prices fall by 9%); across the supply
-elasticity's range, 19.3% (0.5) to 25.3% (10). With the ordinary 14.4% its cells take 5.7% at a fixed price and 5.4% with the
-response. The low-lactate example's share (0.047%) is too small for it to matter. The inputs have ranges but are not drawn in the
+price, with only a first-order bound in this section. The all-favourable example, with its own 58.6% of meat buyers, takes 27.4%
+of world meat and seafood at a fixed price and 23.4% with the response (conventional meat's prices fall by 10%); across the supply
+elasticity's range, 19.9% (0.5) to 26.2% (10). With the ordinary 14.4% its cells take 5.8% at a fixed price and 5.6% with the
+response. The low-lactate example's share (0.045%) is too small for it to matter (recomputed 2026-11-22). The inputs have ranges but are not drawn in the
 bands.
 
-**How fast: the adoption curve against history.** At its usual settings the model's share grows 70-fold (the low-lactate example) to about
-95- to 100-fold (the all-favourable example and Humbird's optimistic design) between the first year and the seventeenth, reaching half its long-run
-value in 10–12 years and 90% in 19–24. Industries
+**How fast: the adoption curve against history.** At its usual settings the model's share grows about 72-fold (the low-lactate example) to about
+93- to 105-fold (the all-favourable example and Humbird's optimistic design) between the first year and the seventeenth, reaching half its long-run
+value in 11–13 years and 90% in 20–24 (`adoption_timing.simulate`, `years_to_stabilize`; recomputed 2026-11-22 with repeat buying and dropping out). Industries
 that did grow a hundred-fold took 15–30 years: farmed salmon about 18 (13 kt in 1980 to over 1 Mt in 1999), US corn ethanol about 29
 for 76-fold with a mandate, US broilers 45–50; Quorn has not done it in 40 years. So the model is at the fast end of history, and it
 has no chance of stalling, which history puts at roughly one in three (a rough judgement made while building the model with an
@@ -2086,7 +2087,7 @@ AI assistant, not measured and not reviewed by an expert, from the industries li
 
 The anchor price `p_x` ($29.01, `elasticity_anchor_price`) is a calibration device, not a cost. What it pins
 down is how sharply shoppers respond to price. With this anchor and every shopper alike, the first-contact elasticity at
-parity is −1.54 at κ = 4 and −3.27 at κ = 8.5; with the spread of liking it is −1.37 at κ = 8.5. So the anchor is best read as
+parity is −1.54 at κ = 4 and −3.27 at κ = 8.5; with the spread of liking it is −1.38 at κ = 8.5. So the anchor is best read as
 "the price coefficient that puts the at-parity elasticity there". No cost input changes it: it is a fixed input, not derived
 from the costs. The uncertainty in the price response is carried by the κ range (4–11), not by the anchor.
 
@@ -2205,7 +2206,7 @@ the two contested EU laws (US 21.8%, EU 13.9%, world 3.77%); 3, for the world al
 have ruled against it sits (5.31%); 4, for the world also the populations whose religious authorities have set conditions, counted
 as if those conditions were not met (15.9%). China, India, Brazil and Nigeria have no such law. A price fall of conventional meat
 (above) uses the share actually sold. It replaced every market open; at the default it takes the all-favourable example's world
-share from 22.8% to 22.6%. Biomass cost is the same for every species
+share from 23.6% to 23.4%. Biomass cost is the same for every species
 (a per-type multiplier, 1 unless set, is the hook for a species-specific cost study).
 
 **The Monte Carlo** (`meat_market.monte_carlo`) draws, per draw: the cost (the reported cost's inputs, or a cost array handed in
@@ -2329,10 +2330,10 @@ Two views that can legitimately differ:
   inputs whose mode is at the edge of their range.
 
 Both are around the reported cost (R = 4.27). For R: medium price has the largest swing (2.82), then the plant's cost
-(2.34; 2.69 before its low end rose to $13.8 on 2026-11-20), which has the largest share of the band's width (19%, against 16%); cell efficiency has a large swing (1.32) but ~0%
-width (its range can only improve). For share at the reported cost (0.3% of all choices for mince against US minced beef or pork cuts at $12 a kilo), the demand inputs lead: κ
-(1.5 pp), the price elasticity of meat (1.1 pp) and the share at equal price (0.8 pp); then cell efficiency (0.7 pp), medium
-price (0.7 pp) and the plant's cost (0.4 pp). Figures: `sensitivity_tornado_R`, `sensitivity_tornado_share`. For the scenarios the same question is answered
+(2.73; 2.34 in this paragraph's previous version, 2.69 before its low end rose to $13.8 on 2026-11-20), which has the largest share of the band's width (24%, against 14%); cell efficiency has a large swing (1.32) but ~0%
+width (its range can only improve). For share at the reported cost (0.3% of the meat sold, for mince against US minced beef or pork cuts at $12 a kilo), the demand inputs lead: κ
+(1.7 pp), the price elasticity of meat (1.2 pp) and the share at equal price (0.8 pp); then cell efficiency (0.8 pp), medium
+price (0.8 pp) and the plant's cost (0.5 pp) (`python sensitivity.py`, recomputed 2026-11-22). Figures: `sensitivity_tornado_R`, `sensitivity_tornado_share`. For the scenarios the same question is answered
 by `answer_rests_on.py` (RESULTS, "What the answer rests on").
 
 ---
@@ -2340,8 +2341,8 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
 ## Cruxes
 
 - **Cost (dominates):** does cost reach parity? Most likely not: parity needs $6.1 a kilo of cells; the low-lactate example costs $48.7
-  at most likely values (middle draw $52, 8 in 10 between $39 and $76) and the all-favourable example $7.0 (middle draw $8,
-  8 in 10 between $7 and $10); R against US minced beef or pork cuts ($12 a kilo) is 5.9 and 1.10 (6.3 and 1.3 at the median). The
+  at most likely values (middle draw $52, 8 in 10 between $39 and $76) and the all-favourable example $7.0 (middle draw $8.3,
+  8 in 10 between $7.1 and $10.0); R against US minced beef or pork cuts ($12 a kilo) is 5.9 and 1.10 (6.3 and 1.3 at the median). The
   all-favourable example is the one most favourable case: lever by lever it is no worse than Humbird's design or any published
   study whose values respect the model's limits, and the one published estimate below it (Risner 2021's scenario 4) breaks four
   of them. The unsettled numbers are the waste the cells make (lactate and ammonia), the ammonia and lactate they tolerate, how
@@ -2351,8 +2352,8 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
   between 3.4% and 55.5%. Around it, taste, acceptance as real meat and the value of “no slaughter” move it between 6% and 27%.
   The all-favourable example takes 58.6%.
 - **The spread of liking:** a Student's t fitted loosely to one experiment, sixteen premium meats and farmed salmon. Its tail decides the low-lactate example
-  (above four times the price of meat it is an extrapolation, and the example's mince now sells at six times) and its middle decides the all-favourable example (22.6%;
-  29.3% with the normal spread it replaced). The response to a falling price is still more than twice farmed salmon's.
+  (above four times the price of meat it is an extrapolation, and the example's mince now sells at six times) and its middle decides the all-favourable example (23.4%;
+  30.2% with the normal spread it replaced). The response to a falling price is still more than twice farmed salmon's.
 
 ## Running it
 

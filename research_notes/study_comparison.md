@@ -4,6 +4,13 @@ Date: 2026-11-20. Code: `study_assumptions.py` (`STUDIES`, `STUDY_LEVERS`, `REJE
 
 The owner's rule (2026-11-20): the all-favourable case "should not lose to Humbird nor to any newer TEA", and "we should be rigorous, I think Risner had issues that conflicted with what Humbird showed was necessary".
 
+> **Current figures (2026-11-22).** The tables of sections 5 and 8 are regenerated from `study_assumptions.markdown()`. The
+> all-favourable case costs **$6.97** (section 1 below gives $7.62, as of 2026-11-20; the second batch of 2026-11-21 moved it).
+> The mass-balance limit is 311 g of glucose a kilo (320 until 2026-11-21). In section 8, Humbird's own perfusion plant now adds
+> $23.49 to his best estimate (+$16.98 on 2026-11-20), Negulescu's 211 m³ tanks
+> $16.38 (+$18.80), every raising modification together $353.31 (+$275.01) and all together $335.48 (+$295.71). Prose figures
+> outside the tables are as of 2026-11-20.
+
 ## 1. Result
 
 - The all-favourable case is **$7.62** a kilo (2026-11-20, after the model's additions and the three corrections of section 12; it was
@@ -26,7 +33,7 @@ For every lever the engine has, the all-favourable case takes the most favourabl
 | limit | value | source |
 |---|---|---|
 | The nutrient floor: cells cannot cost less than the nutrients they are built from | $2.00 a kilo of cells | `inputs.py`: 232 g of amino acids at feed-grade prices (GFI 2025), glucose, salts and vitamins; `nutrient_floor.md` |
-| The mass balance: cells cannot be built and fuelled from less sugar than they burn | 320 g of glucose a kilo of cells | `inputs.py` `glucose_intensity`; Humbird 2021, Section 2.2: 0.36 kg a kilo of wet cells for his enhanced cell |
+| The mass balance: cells cannot be built and fuelled from less sugar than they burn | 311 g of glucose a kilo of cells (320 until 2026-11-21) | `inputs.py` `glucose_intensity`; Humbird 2021, Section 2.2: 0.36 kg a kilo of wet cells for his enhanced cell |
 | The thickest culture that still flows | 258 g/L (cells at 25% of the volume) | Humbird 2021, Section 2.1 and Table 2.2, PDF pages 19 and 20. He takes a packing limit of 65% and stops where the culture is about twice as viscous as water |
 | Oxygen transfer and CO₂ removal for the tank | computed by the engine | Humbird 2021, Section 2.3, PDF pages 29 to 34: gas at 0.006 m/s at most, 100 mbar of CO₂; a 20 m³ tank on 90% oxygen holds 120 g/L |
 | The waste the cells tolerate against what they make | computed by the engine | Humbird 2021, Section 2.3, PDF page 31: 5 mmol/L of ammonia, 50 of lactate |
@@ -264,8 +271,8 @@ Not stated by: SuperMeat 2024, Lever VC 2025, GFI 2021, GFI 2026.
 | Risner 2021 | 200 million cells a mL, each of 5,000 µm³ (scenario 4). The cells fill 100% of the tank, with no room for medium, which the study itself notes (Appendix A, PDF page 12). Humbird's limit for a culture that still flows is 25% of the volume. | Tables A1 and A2, PDF page 19 | 1060 g of wet cells a litre | 258 | the thickest culture that still flows | Humbird 2021, Section 2.1 and Table 2.2, PDF pages 19 and 20: cells at 25% of the volume, where the culture is about twice as viscous as water; spheres cannot pack beyond 65%. The all-favourable case allows 320 g/L (31%), this model's own stretch (research_notes/thick_culture.md gives a 20 m³ tank at 320 g/L a 6% chance); no study's value between 258 and 320 depends on it |
 | Risner 2021 | 95 million cells a mL, each of 5,000 µm³ (scenarios 2 and 3). The cells are 47.5% of the tank's volume, against Humbird's limit of 25%. | Tables A1 and A2, PDF page 19 | 504 g of wet cells a litre | 258 | the thickest culture that still flows | Humbird 2021, Section 2.1 and Table 2.2, PDF pages 19 and 20: cells at 25% of the volume, where the culture is about twice as viscous as water; spheres cannot pack beyond 65%. The all-favourable case allows 320 g/L (31%), this model's own stretch (research_notes/thick_culture.md gives a 20 m³ tank at 320 g/L a 6% chance); no study's value between 258 and 320 depends on it |
 | Risner 2021 | cells that double every 8 hours (scenario 4). No animal cell line has been measured doubling faster than about 15 hours. | Table A2, PDF page 19 | 8 hours to double | 15 | a growth rate faster than any measured in animal cells | inputs.py cr_td_engineering: immortalised bovine muscle cells with serum, Stout 2023, the fastest doubling of a meat cell line found; Humbird 2021, Section 2.2, PDF page 24, adds that fast growth and little waste do not go together |
-| Risner 2021 | 0.0356 mol of glucose a litre in 7.1 litres of medium a kilo of cells (scenario 4). The medium holds 45 g of glucose for a kilo of cells, a seventh of what Humbird's most efficient cell burns. | Table A4, PDF page 20; Table 2, PDF page 9 | 45 g of glucose a kilo of cells | 320 | the mass balance: cells cannot be built and fuelled from less sugar than they burn | inputs.py glucose_intensity, from Humbird 2021, Section 2.2: 0.36 kg of glucose a kilo of wet cells for his enhanced cell (Reaction 2.11) |
-| CE Delft 2021 | 15 g of sugars for a kilo of meat (low medium use). The medium holds 15 g of sugars for a kilo of meat, about a twentieth of what Humbird's most efficient cell burns. | Table 11, PDF page 41 | 15 g of glucose a kilo of cells | 320 | the mass balance: cells cannot be built and fuelled from less sugar than they burn | inputs.py glucose_intensity, from Humbird 2021, Section 2.2: 0.36 kg of glucose a kilo of wet cells for his enhanced cell (Reaction 2.11) |
+| Risner 2021 | 0.0356 mol of glucose a litre in 7.1 litres of medium a kilo of cells (scenario 4). The medium holds 45 g of glucose for a kilo of cells, a seventh of what Humbird's most efficient cell burns. | Table A4, PDF page 20; Table 2, PDF page 9 | 45 g of glucose a kilo of cells | 311 | the mass balance: cells cannot be built and fuelled from less sugar than they burn | inputs.py glucose_intensity, from Humbird 2021, Section 2.2: 0.36 kg of glucose a kilo of wet cells for his enhanced cell (Reaction 2.11) |
+| CE Delft 2021 | 15 g of sugars for a kilo of meat (low medium use). The medium holds 15 g of sugars for a kilo of meat, about a twentieth of what Humbird's most efficient cell burns. | Table 11, PDF page 41 | 15 g of glucose a kilo of cells | 311 | the mass balance: cells cannot be built and fuelled from less sugar than they burn | inputs.py glucose_intensity, from Humbird 2021, Section 2.2: 0.36 kg of glucose a kilo of wet cells for his enhanced cell (Reaction 2.11) |
 | CE Delft 2021 | the plant paid back over 30 years with no interest (scenarios 6 to 8). The plant must be repaid at a market rate of interest: money lent for 30 years at no interest is not a cost of production. The study calls it a social criterion. | Section 3.2.3, PDF page 24 | 0.03333 share of the plant's cost a year | 0.083 | the plant must be repaid at a market rate of interest | an economic condition, not a physical limit: a long-run price must pay for the money a plant ties up, at a market rate. Humbird 2021, Section 3.1, PDF page 44, quotes 5.4% as the cost of capital of food processing, the lowest he gives; this model's 5.4% over 20 years is a payment of 8.3% a year. The interest lever still goes to 0%, with a chip 'no interest (CE Delft 2021)', so the effect can be seen |
 | Pasitka 2024 | 130 million cells a mL, 43% weight per volume, in 5-litre glass tanks with serum. 43% is a weight of wet pellet in a 5-litre tank, not a culture stirred at scale; the study's own cell counts give 3.3 ng and 9.8 ng a cell. Its cost projection does not use it: it rests on a run held at 10 to 28 million cells a mL. | Abstract and Figure 1, PDF pages 1 and 3 | 430 g of wet cells a litre | 258 | the thickest culture that still flows | Humbird 2021, Section 2.1 and Table 2.2, PDF pages 19 and 20: cells at 25% of the volume, where the culture is about twice as viscous as water; spheres cannot pack beyond 65%. The all-favourable case allows 320 g/L (31%), this model's own stretch (research_notes/thick_culture.md gives a 20 m³ tank at 320 g/L a 6% chance); no study's value between 258 and 320 depends on it |
 | Pasitka 2024 | no payment on the plant among its cost lines. The plant must be repaid at a market rate of interest: a plant that is never repaid is not a cost of production. Its Table S4 computes a charge of 14.6% of the plant a year, but Table S10 leaves it out of the total: with it, the large-scale case is $26.99 a kilo of cells in 2024 dollars, not $21.49. | Figure 4, PDF page 7; Supplementary Tables S4 and S10 | 0 share of the plant's cost a year | 0.083 | the plant must be repaid at a market rate of interest | an economic condition, not a physical limit: a long-run price must pay for the money a plant ties up, at a market rate. Humbird 2021, Section 3.1, PDF page 44, quotes 5.4% as the cost of capital of food processing, the lowest he gives; this model's 5.4% over 20 years is a payment of 8.3% a year. The interest lever still goes to 0%, with a chip 'no interest (CE Delft 2021)', so the effect can be seen |
@@ -301,23 +308,23 @@ A sensitivity value is not a study's assumption. Negulescu's 12-hour doubling wi
 
 | modification | cost alone | change | the study's own reported cost |
 |---|---:|---:|---|
-| CE Delft 2021 and Negulescu 2023: Humbird 2021 design but with a food-grade plant without clean rooms | $25.43 | -1.56 | $6.43 a kilo of meat (CE Delft); $35 a kilo (Negulescu, 42 m³ tanks) |
+| CE Delft 2021 and Negulescu 2023: Humbird 2021 design but with a food-grade plant without clean rooms | $25.15 | -1.84 | $6.43 a kilo of meat (CE Delft); $35 a kilo (Negulescu, 42 m³ tanks) |
 | Humbird 2021, Appendix A: his design but with the financing of his baker's-yeast benchmark, 10% interest over 20 years | $25.22 | -1.77 | $21.00 a kilo (his best estimate) |
 | CE Delft 2021: Humbird 2021 design but with the plant paid back over 30 years at no interest | $19.95 | -7.04 | $6.43 a kilo of meat |
 | CE Delft 2021 and Negulescu 2023: Humbird 2021 design but with a plant that costs a third as much to build | $17.23 | -9.76 | $6.43 a kilo of meat (CE Delft); $35 a kilo (Negulescu, 42 m³ tanks) |
-| GFI 2026: Humbird 2021 design but with a complete medium at the $0.20 a litre companies announced | $24.66 | -2.34 | no cost a kilo reported |
+| GFI 2026: Humbird 2021 design but with a complete medium at the $0.20 a litre companies announced | $24.65 | -2.34 | no cost a kilo reported |
 | SuperMeat 2024 and Lever VC 2025: Humbird 2021 design but with a complete medium at $0.50 a litre | $26.82 | -0.17 | $29.5 a kilo (SuperMeat); $10 to $15 (Lever VC) |
-| SuperMeat 2024: Humbird 2021 design but with perfusion through a membrane filter in 25 m³ tanks | $24.59 | -2.41 | $29.5 a kilo with depreciation (derived from $13.4 a pound) |
-| Humbird 2021, Table 4.13: his design but with his own perfusion plant, 2 m³ tanks with an alternating-flow filter | $43.97 | +16.98 | $51.29 a kilo (his perfusion case, amino acids bought one by one) |
-| Negulescu 2023: Humbird 2021 design but with stirred tanks of 211 m³ | $45.79 | +18.80 | $25 a kilo (211 m³ tanks) |
+| SuperMeat 2024: Humbird 2021 design but with perfusion through a membrane filter in 25 m³ tanks | $24.51 | -2.48 | $29.5 a kilo with depreciation (derived from $13.4 a pound) |
+| Humbird 2021, Table 4.13: his design but with his own perfusion plant, 2 m³ tanks with an alternating-flow filter | $50.48 | +23.49 | $51.29 a kilo (his perfusion case, amino acids bought one by one) |
+| Negulescu 2023: Humbird 2021 design but with stirred tanks of 211 m³ | $43.37 | +16.38 | $25 a kilo (211 m³ tanks) |
 | SuperMeat 2024 and Lever VC 2025: Humbird 2021 design but with a culture no denser than the 83 g/L companies report | $37.05 | +10.05 | $29.5 a kilo (SuperMeat); $10 to $15 (Lever VC) |
 | Humbird 2021, Table 4.6: his design but with amino acids bought one by one at his prices | $47.54 | +20.55 | $36.79 a kilo |
 | Humbird 2021, Table 4.7: his design but with the waste of his wild-type cells, not his enhanced ones | $384.84 | +357.85 | $225.03 a kilo (fed-batch on hydrolysate) |
 | Pasitka 2024: Humbird 2021 design but with the cells they measured in continuous perfusion | $685.04 | +658.04 | about $21 to $24 a kilo of wet cells (derived) |
 | SuperMeat 2024: Humbird 2021 design but with the cells they report, 1.04 ng each and doubling every 48 hours | $58.02 | +31.03 | $29.5 a kilo with depreciation (derived from $13.4 a pound) |
-| Every modification that lowers the cost alone, together | $17.37 | -9.62 | |
-| Every modification that raises the cost alone, together | $302.01 | +275.01 | |
-| All together (where two set the same lever, the later is used) | $322.71 | +295.71 | |
+| Every modification that lowers the cost alone, together | $17.10 | -9.89 | |
+| Every modification that raises the cost alone, together | $380.30 | +353.31 | |
+| All together (where two set the same lever, the later is used) | $362.47 | +335.48 | |
 
 ## 9. Levers added or widened on the page
 

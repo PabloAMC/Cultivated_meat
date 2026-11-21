@@ -81,7 +81,7 @@ The floor is now feed-grade amino acids at GFI's most efficient need, with the o
 | part of the floor | per kilo of wet cells | basis |
 |---|---|---|
 | amino acids: 232 g at $6.36 a kilo | $1.48 | GFI, feed-grade mean of 22 (unweighted); the most efficient of eight need estimates |
-| glucose | $0.13 | 0.32 kg at $0.40 (unchanged) |
+| glucose | $0.13 | 0.32 kg at $0.40 (unchanged; 0.311 kg and $0.12 since 2026-11-21, the mass balance's figure) |
 | salts, buffer, vitamins, trace elements | $0.40 | was $0.90, assumed; DMEM/F12's salts, bicarbonate and vitamins at bulk prices are about $0.005-0.01 a litre, $0.1-0.3 a kilo at 11-28 litres |
 | **total** | **$2.00** | was $1.70 |
 

@@ -1,16 +1,17 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
-> **Current figures (2026-11-20, final model).** The body's costs were computed on 2026-11-14, when Humbird's optimistic design (then
+> **Current figures (recomputed 2026-11-22; first written for the final model of 2026-11-20).** The body's costs were computed on 2026-11-14, when Humbird's optimistic design (then
 > called the floor) cost $11.5 a kilo. Since then the model added the cell filter, the bubble protectant (charged: $0.74 a kilo
 > at $30/kg), antifoam's cut to oxygen transfer, the $2.00 nutrient floor, a 2% harvest loss, twice the fed-batch crew in a
 > washed continuous tank and, from this note's section 1, the cells that bursting bubbles kill: death rate = the protected kill
 > volume (`ge_kill_protected`) times the gas passed per litre of culture. `floor_physics.explore` now gives, with the body's
-> 2026-11-14 figures in brackets: Humbird's optimistic design at 6 mm/s $15.93 ($11.5), 8% of the cells grown killed; at 5 mm/s $16.47
-> ($13.1); at 2 mm/s $35.25 ($28.0); at 9 mm/s $15.66 ($8.7), 12% killed; at 12.5 mm/s $15.91, 16% killed; at 0.5 mm/s $137
-> ($100); with the exhaust 70% saturated with CO₂ $17.61 ($14.6), 85% $16.44 ($12.6).
+> 2026-11-14 figures in brackets: Humbird's optimistic design at 6 mm/s $15.72 ($11.5), 8% of the cells grown killed; at 5 mm/s $16.23
+> ($13.1); at 2 mm/s $34.67 ($28.0); at 9 mm/s $15.50 ($8.7), 12% killed; at 12.5 mm/s $15.76, 16% killed; at 0.5 mm/s $135
+> ($100); with the exhaust 70% saturated with CO₂ $17.33 ($14.6), 85% $16.20 ($12.6). (On 2026-11-20: $15.93, $16.47, $35.25,
+> $15.66, $15.91, $137, $17.61 and $16.44.)
 > **What this changes in the reading.** Too little gas costs as much as before: 2 mm/s more than doubles the cost. More gas than
-> 6 mm/s is now worth almost nothing: 9 mm/s saves $0.27 a kilo and 12.5 mm/s $0.02, because the extra bubbles kill as many cells
-> as the extra density saves. So the gas bar runs from $35.3 at 2 mm/s to $15.7 at 9, around $15.9, and its upper half no longer
+> 6 mm/s is now worth almost nothing: 9 mm/s saves $0.22 a kilo and 12.5 mm/s costs $0.04 more, because the extra bubbles kill as many cells
+> as the extra density saves. So the gas bar runs from $34.7 at 2 mm/s to $15.5 at 9, around $15.7, and its upper half no longer
 > matters. Summary point 7, the experiments list, section 8 and section 9 are rewritten for this. The kill volume is one bench rule
 > applied at 20 m³ (range 0.0001–0.0012 L of culture per L of gas; the scenario bands draw it).
 
@@ -34,15 +35,15 @@ About half of the primary papers are paywalled and were read as abstracts; this 
 
 ## For the experiments list
 
-Figures are from `floor_physics.explore` (final model, 2026-11-20) with only the named argument changed from Humbird's optimistic design
-($15.93/kg). Costs and times of experiments are rough estimates, not quotes.
+Figures are from `floor_physics.explore` (recomputed 2026-11-22) with only the named argument changed from Humbird's optimistic design
+($15.72/kg). Costs and times of experiments are rough estimates, not quotes.
 
 **1. How much gas a large, dense tank can take**
 - Unknown: whether a 20 m³ tank of cells at 120 g/L can be bubbled at 6 mm/s (0.1 volumes of gas per volume of
   liquid per minute) without foam or bubble damage stopping it.
-- Worth: resolves well, $15.93/kg (`gas_velocity=0.006`), or $15.66 if 9 mm/s works (`gas_velocity=0.009`);
-  resolves badly, $35.25/kg (`gas_velocity=0.002`, the most that has been run with cells). At the central
-  5 mm/s, $16.47. The value is all on the downside: the experiment is worth running to rule out a cap near 2 mm/s.
+- Worth: resolves well, $15.72/kg (`gas_velocity=0.006`), or $15.50 if 9 mm/s works (`gas_velocity=0.009`);
+  resolves badly, $34.67/kg (`gas_velocity=0.002`, the most that has been run with cells). At the central
+  5 mm/s, $16.23. The value is all on the downside: the experiment is worth running to rule out a cap near 2 mm/s.
 - Chance it resolves well (6 mm/s usable): about even, between 30% and 60% (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert). The reasoning: bubble damage
   looks manageable with a protectant, but foam grows with gas velocity and has never been measured against it in a cell culture.
 - Deciding experiment: in a tall vessel (2–4 m of liquid, 100–500 L, ring sparger with 1–2 mm holes), step the
@@ -112,8 +113,8 @@ detection); EU status was not verified. So it belongs on the experiments list as
 not as a physics question.
 
 **Which way this points for the membrane loop.** The evidence does not show that sparging can run at the
-model's default velocity (about even odds, section 8), and at the central 5 mm/s Humbird's optimistic design is $16.47, not
-$15.93. So a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
+model's default velocity (about even odds, section 8), and at the central 5 mm/s Humbird's optimistic design is $16.23, not
+$15.72. So a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
 sparged tank must run thinner. Two things soften this. First, the most likely cap is foam, and a loop that
 only removes CO₂ still leaves the oxygen to be sparged, so it lowers the gas flow needed but does not remove
 foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on going beyond 120 g/L.
@@ -146,8 +147,8 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
    120 g/L is about even, between 30% and 60% (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert; reasoning in section 8).
 7. **The model keeps 6 mm/s for the floor**, because the floor takes the favourable end of each range and the
    evidence neither refutes 6 mm/s nor supports a specific lower number. The tornado range becomes 2–9 mm/s.
-   On the final model (2026-11-20) Humbird's optimistic design is $15.93 at 6 mm/s, $16.47 at the central 5 mm/s, $35.25 at
-   2 mm/s and $15.66 at 9 mm/s: below 6 mm/s the cost rises steeply, above it bubble deaths cancel the gain.
+   On the current model (2026-11-22) Humbird's optimistic design is $15.72 at 6 mm/s, $16.23 at the central 5 mm/s, $34.67 at
+   2 mm/s and $15.50 at 9 mm/s: below 6 mm/s the cost rises steeply, above it bubble deaths cancel the gain.
 8. **Three costs or limits the model does not carry were found on the way**: the protectant (poloxamer 188) is
    not costed and is not a clearly permitted food additive; antifoam may cut oxygen transfer by up to half; and
    the exhaust gas may leave less saturated with CO₂ than the model's 96%. They are listed under "Follow-ups".
@@ -505,7 +506,7 @@ the evidence above leans to (foam is the more likely cap) without settling.
   even odds, and no specific lower value is supported. Its range is now 0.002–0.009 (was 0.0006–0.006) and its
   note says what the evidence is.
 - Tornado bar "Gas flow the cells tolerate": 2 to 9 mm/s (was 2 to 6), $28.0 to $8.7 around the floor's $11.5 on
-  2026-11-14; on the final model (2026-11-20) $35.25 to $15.66 around $15.93, so only its lower half matters.
+  2026-11-14; on the current model (2026-11-22) $34.67 to $15.50 around $15.72, so only its lower half matters.
 - New: `oxygen_fed`, inputs `pf_o2_price`, `pf_o2_purity`, `pf_back_pressure`, and `gas` / `gas_extra` in
   `explore`'s result (section 5), reported and not added to the total. **The floor did not move**, and no
   other case did.

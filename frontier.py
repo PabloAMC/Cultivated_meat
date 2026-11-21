@@ -161,8 +161,11 @@ def summarise() -> None:
     last = rows[-1]
     print(f"  scenarios.reference(): ${S.reference()['total']:.2f}; the all-favourable case: ${S.all_favourable()['cost']:.2f}")
     print(f"  with GFI's cheapest amino-acid floor: ${with_gfi_amino_acids(last['kw']):.2f}")
-    print(f"  price parity with US minced beef or pork cuts ($12 a kilo) needs about $6.1 a kilo of cells (the shelf rule: cost "
-          f"plus $2.5, over 72%); the all-favourable case is ${last['cost']:.2f}")
+    from inputs import value
+    from price_ratio import parity_cost
+    pc = parity_cost(value("markup_add"), value("p_conv"), value("retail_margin"))
+    print(f"  price parity with US minced beef or pork cuts (${value('p_conv'):g} a kilo) needs about ${pc:.1f} a kilo of cells (the "
+          f"shelf rule: cost plus ${value('markup_add'):g}, over {1 - value('retail_margin'):.0%}); the all-favourable case is ${last['cost']:.2f}")
     print()
     print(lever_table())
 

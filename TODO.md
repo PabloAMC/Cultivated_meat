@@ -4,7 +4,7 @@ The one list of open work, decisions and project ideas. Keep it current: tick or
 does it. Reasons and estimates for the projects are in [`research_notes/roadmap_2026-11-15.md`](research_notes/roadmap_2026-11-15.md);
 the earlier idea list (A–T, M1–M8) is in [`research_notes/project_review.md`](research_notes/project_review.md).
 
-Last updated 2026-11-21.
+Last updated 2026-11-22.
 
 Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
 
@@ -34,6 +34,9 @@ effects in RESULTS.md, "What changed on 20 and 21 November"):
 - [x] **Levers**: maturation (`mature_h`, default 0); cleaning the medium (`clean`, `wash_price`), off by default.
 - [x] **The page** opens on Humbird's best estimate as he counts it ($26.99 in 2025 dollars), with five additions as levers.
 - [x] **The documents** (RESULTS, METHODS, README, the retention notes) refreshed to the final model (2026-11-21).
+- [x] **Older METHODS and RESULTS paragraphs that quoted 2026-11-20 figures** recomputed (2026-11-22): the shelf-price rule, the
+      draws of the all-favourable example, the spread's misfits and shares, conventional meat's price response, the adoption curve,
+      the sensitivity tornado, the vessel, cleaning, per-tank and maturation figures; paragraphs kept as history now say so.
 
 Still open:
 
@@ -144,8 +147,14 @@ Found while doing it (not changed):
       default's plant range) comes from one of them.
 - [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched. (2026-11-21:
       regenerated or given a box of current figures: `no_perfusion_downside.md`, `vessels_and_modes.md` section 4,
-      `gas_exchange_study.md`, `cheap_plant_study.md`, the three retention notes. Not done: `tank_size.md`, `thick_culture.md`,
-      `filter_flux.md`, `min_litres_per_kg.md`, `gf_and_doubling_bounds.md`, `gas_flow_cap.md`, `model_audit.md`, the demand notes.)
+      `gas_exchange_study.md`, `cheap_plant_study.md`, the three retention notes. 2026-11-22 (documents sweep): `min_litres_per_kg.md`
+      (both tables and their prose), `filter_flux.md` (section 4), `gf_and_doubling_bounds.md` (sections 1 and 2),
+      `gas_flow_cap.md` (the box and the experiments), the status box of `ammonia_tolerance_and_filter_life.md`, the tables of
+      `cost_scenarios.md` and `study_comparison.md` (with a box), and the demand notes `liking_spread.md` and `market_size_loop.md`
+      (prose recomputed). Still snapshots, each saying so in its header: `tank_size.md` and `thick_culture.md` outside their
+      recomputed sections, `model_audit.md` sections 1-6, the bodies of the retention notes and of `vessels_and_modes.md`,
+      `nutrient_floor.md`'s 2026-11-20 section, and inline costs of 2026-11-20 in `design_space.md`, `medium_reuse.md`,
+      `premium_curve.md`, `retail_markup_form.md` and `demand_checks.md` sections 1-4.)
 - [x] Rebuilt `figures/` with LaTeX (2026-11-16); fixed five labels whose bare `$` broke the LaTeX build.
 
 - [x] "Food-grade plant with shared medium": name kept (Pablo prefers explanatory names); the switch note and RESULTS now say what it removes and that the shared medium line is the smallest saving.
