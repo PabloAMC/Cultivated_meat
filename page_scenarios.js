@@ -50,6 +50,7 @@ function scParams(ch){          // the explore arguments of a choice (mirror of 
   delete p.medium_complete;
   Object.assign(p,SC.always);                 // what every scenario carries (scenarios.always: the dissolved-oxygen setpoint, the ammonia and lactate the cells tolerate)
   Object.assign(p,scExtraKw(ch));             // the case's own extra settings (scenarios.EXTRAS: the all-favourable example's)
+  { const mp=scSetting("mode",ch.mode||"perfusion").p; if(mp.vessel_m3!=null) p.vessel_m3=mp.vessel_m3; }   // a mode setting that names a tank size keeps it (scenarios.explore_kwargs)
   if(p.plantKey){ if(p.plantKey==="lean"){ p.plant="sanitary"; p.items=C.fx.plant_items.lean; }
     else p.plant=(p.plantKey==="sterile"?"sanitary":p.plantKey); delete p.plantKey; }
   // a fed-batch plant restarts each tank every few days, so the shared-medium plant keeps Humbird's full seed train (scenarios.explore_kwargs)

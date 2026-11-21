@@ -102,7 +102,7 @@ SWITCHES = (
         Setting("fedbatch50", "Fed-batch in a 50 m³ tank", {"mode": "filldraw", "vm": dict(FEDBATCH_VM), "vessel_m3": 50.0}, FEED,
                 _FB + "Twice the largest tank animal cells have been grown in."),
         Setting("fedbatch", "Fed-batch in a 20 m³ tank: cells grown in a batch and harvested at the end",
-                {"mode": "filldraw", "vm": dict(FEDBATCH_VM)}, NOTHING,
+                {"mode": "filldraw", "vm": dict(FEDBATCH_VM), "vessel_m3": value("vm_str_m3")}, NOTHING,
                 _FB + "Shown at this size: pharma runs fed-batch in tanks of up to about 25 m³, and Upside Foods reports a "
                       "single-vessel process validated at 20,000 litres for 18 months, in several 20,000+ litre tanks (AgFunderNews, "
                       "17 Nov 2026; mode not disclosed, most likely fed-batch)."))),
@@ -265,6 +265,11 @@ def explore_kwargs(choice: dict) -> dict:
         kw["growth_factors"] = 0.0
     kw.update(always())
     kw.update(extra_kwargs(choice))
+    # A mode setting that names a tank size keeps it (2026-11-21): the all-favourable example's extras carry its own 42 m3 tank,
+    # which used to override "fed-batch in a 100 m3 tank" and "in a 20 m3 tank" alike, so both ran at 42 m3.
+    mode_kw = setting("mode", choice.get("mode", "perfusion")).kw
+    if "vessel_m3" in mode_kw:
+        kw["vessel_m3"] = mode_kw["vessel_m3"]
     if choice.get("thin"):                 # the culture held thinner than its limits allow, so the CO2 loop passes (design())
         vm = dict(kw.get("vm") or {})
         vm["caps"] = {**vm.get("caps", {}), LOOP_CAP: float(choice["thin"])}
