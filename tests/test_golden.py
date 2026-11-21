@@ -118,7 +118,7 @@ GOLDEN = {
     # income_china 0.155473 -> 1.07862, income_nigeria 0.00390188 -> 0.138745, US vol 0.132224 -> 0.246504, US val 0.458047 ->
     # 0.613635, world vol 0.0251659 -> 0.0416619, years_to_stabilize 30 -> 28.
     "basic_R":             4.26505,
-    "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
+    "beta_ref":           -0.054036,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
     # 2026-11-21 (the final state of 2026-11-20): plant-based meat's share target 1.2% -> 0.4% of meat by volume
     # (pb_share_target), nominal incomes (REGION_INCOME, income_ref 85,810 -> 86,170, income_gradient 0.5 -> 0.32), conventional
@@ -127,20 +127,29 @@ GOLDEN = {
     # plant-based target), pb_share_pct 1.2 -> 0.4, lusk_elas_parity_cold -1.3685 -> -1.37392, income_us 1.904789 -> 1.89075,
     # income_china 1.122423 -> 1.38545, income_nigeria 0.372591 -> 0.799218, health_x_half 15.387776 -> 16.9996, us_pen_vol
     # 0.514012 -> 0.423594, us_pen_val 1.023453 -> 0.83839, world_pen_vol 0.179202 -> 0.172079, organic_vs_cuts 19.4854 -> 20.1926.
-    "w_realtissue_M":      3.39863,
-    "w_health_M":          1.39169,
-    "w_health_E":          2.36651,
+    # 2026-11-21 (fourth batch): plant-based meat's committed buyers (market_share segment "K": 7% of shoppers buy 82% of the
+    # mainstream's plant-based meat and respond 0.25 times as strongly to its price; research_notes/demand_checks.md section 5).
+    # The ordinary shoppers buy plant-based meat less, so their solved real-meat weight rises and, with it, the blend penalty on
+    # cuts: w_realtissue_M 3.39863 -> 5.11335, w_health_M 1.39169 -> 2.20457, w_health_E 2.36651 -> 2.35875, beta_ref -0.052663
+    # -> -0.054036 (the old pin was within tolerance of -0.05319), lusk_elas_parity_cold -1.37392 -> -1.38249, income_us 1.89075
+    # -> 1.86976, income_china 1.38545 -> 1.36397, income_nigeria 0.799218 -> 0.781302, health_x_half 16.9996 -> 19.656 (the
+    # larger solved health weight), us_pen_vol 0.423594 -> 0.379082, us_pen_val 0.83839 -> 0.741859, world_pen_vol 0.172079 ->
+    # 0.15554, organic_vs_cuts 20.1926 -> 21.397. years_to_stabilize stays 21 with repeat buying (repeat_rate 0.62, lapse_rate
+    # 0.14) and the share of the meat sold.
+    "w_realtissue_M":      5.11335,
+    "w_health_M":          2.20457,
+    "w_health_E":          2.35875,
     "pb_share_pct":        0.4000,
     "parity_pct":          13.0000,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
     # 2026-11-19, later: shoppers' liking is a Student's t spread (sd 3.9, 4 degrees of freedom) on a 67-point grid; the 15-point
     # rule had been too coarse (research_notes/liking_spread.md). Elasticity -1.53133 -> -1.3685; the income and health shares, the
     # roll-ups and the years to 90% below all moved with it (old values in the comments).
-    "lusk_elas_parity_cold": -1.37392,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
-    "income_us_pct":       1.89075,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    1.38545,   # was 1.07862   # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.799218,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
-    "health_x_half_pct":   16.9996,   # was 14.7346
+    "lusk_elas_parity_cold": -1.38249,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
+    "income_us_pct":       1.86976,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    1.36397,   # was 1.07862   # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.781302,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "health_x_half_pct":   19.6560,   # was 14.7346
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
@@ -154,10 +163,10 @@ GOLDEN = {
     # with the Student's t spread: vol 0.363114 -> 0.440886, val 0.848201 -> 0.862196, world 0.0594949 -> 0.139634.
     # 2026-11-19 (restructure, audit 6a): the roll-ups report cultivated meat's share of the meat sold, x / (x + c), not of all four
     # choices: vol 0.440886 -> 0.514012, val 0.862196 -> 1.023453, world 0.139634 -> 0.179202. The calibration does not move.
-    "us_pen_vol_pct":      0.423594,
-    "us_pen_val_pct":      0.83839,
-    "world_pen_vol_pct":   0.172079,
-    "organic_vs_cuts_pct": 20.1926,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "us_pen_vol_pct":      0.379082,
+    "us_pen_val_pct":      0.741859,
+    "world_pen_vol_pct":   0.155540,
+    "organic_vs_cuts_pct": 21.3970,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  21,      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
 }
 
@@ -273,7 +282,7 @@ def check_derived_prose_numbers() -> list:
     derived = [
         ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
         # 2026-11-19: with the Student's t spread of liking these moved from −1.0, −1.8, −3.2 (steeper near parity, flatter far above it)
-        ("elasticity at R=1.0",          elas(1.0),  "−1.3"),
+        ("elasticity at R=1.0",          elas(1.0),  "−1.4"),   # 2026-11-21 (fourth batch): −1.349 -> −1.354, was "−1.3"
         ("elasticity at R=1.5",          elas(1.5),  "−2.1"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.1"),  # 2026-11-21: was −3.0; the model gives −3.06
         # 2026-11-21: was "15.8" (plant_floor 13.8 -> 13.5: the building's power follows its floor and class, so Humbird's
@@ -282,7 +291,7 @@ def check_derived_prose_numbers() -> list:
         ("reference cost $/kg",      cost_floor, "15.49"),     # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.3",
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.4",
               "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.1",
               "reference cost $/kg": "15.5"}      # 2026-11-21: was "15.8"
 

@@ -106,7 +106,7 @@ def _share_at(target: str, overrides: dict) -> float:
     dp = DemandParams(w_ratio=m["w_ratio"]) if "w_ratio" in m else DemandParams()   # w_ratio: beta re-derived
     # accept_x left inputs.MC_DEMAND_INPUTS on 2026-11-20: unless a caller overrides it, it is at its point value
     return float(share(R, dp, accept_x=m.get("accept_x"), eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
-                       equal_share=m["equal_price_share"]))
+                       equal_share=m["equal_price_share"], which="x_meat"))   # share of the meat sold (2026-11-21, fourth batch)
 
 
 # ----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ def _tornado_fig(target, which, base, rows, title, fname, outdir, fmts):
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([LABELS.get(r[0], r[0]) for r in rows], fontsize=8.5)
     ax.set_xlabel(r"price ratio $R$" if which == "R"
-                  else r"long-run cultivated share (%)")
+                  else r"long-run cultivated share of the meat sold (%)")
     ax.set_title(title, fontsize=9.5)
     if which == "share":
         from matplotlib.patches import Patch
@@ -198,7 +198,7 @@ def key_knobs(target: str, n: int = 20000) -> None:
     print("     under-credits one-sided priors (e.g. efficiency, whose mode is at its range edge).")
 
     base_s, rowsS = oat(target, "share")
-    print(f"\n  KEY KNOBS — drivers of long-run SHARE   (baseline all-at-mode share = {base_s*100:.1f}%)")
+    print(f"\n  KEY KNOBS — drivers of long-run SHARE OF THE MEAT SOLD   (baseline all-at-mode share = {base_s*100:.1f}%)")
     print(f"    {'input':<15}{'share(lo)':>11}{'share(hi)':>11}{'swing(pp)':>11}   lever")
     for name, o_lo, o_hi, swing, opt in rowsS:
         kind = "demand" if name in DEMAND_INPUTS else "cost->R"

@@ -3,7 +3,7 @@
 
 Checks that the model's plant-based elasticity, cultivated elasticity and premium slope are computed and stand where the note says
 (the choice experiment matched; premium meats within a factor of two; salmon's range exceeded two and a half to three times
-by the products still at a premium; plant-based meat too strong), where the low-lactate example's share stands across the price
+by the products still at a premium; plant-based meat inside its measured range since its committed buyers, 2026-11-21), where the low-lactate example's share stands across the price
 responses, and that the note and
 RESULTS.md carry the module's tables and the figures their prose quotes. Runs as a script or under pytest.
 """
@@ -22,11 +22,26 @@ import scenarios as S  # noqa: E402
 from inputs import value  # noqa: E402
 
 
+COMMITTED_BEFORE = "no committed buyers (the model before 2026-11-21's fourth batch)"
+
+
 def check() -> list:
     fails = []
     s = D.summary()
-    if not s["pb"]["elasticity"] < 1.5 * D.PB_ELASTICITY_MEASURED:
-        fails.append("plant-based meat's elasticity in the model is no longer well above the measured one; rewrite the note")
+    # 2026-11-21 (fourth batch): plant-based meat's committed buyers (market_share segment "K") take its elasticity from -2.89 to
+    # about -1.3, inside the category's range (-2.5 to -0.6) and within 0.15 of the measured item-level -1.23: the check PASSES.
+    # Their price response (pb_committed_price_x) is a measured input, not fitted to this elasticity. Without them it fails as before.
+    lo_pb, hi_pb = D.PB_CATEGORY_RANGE
+    if not (lo_pb < s["pb"]["elasticity"] < hi_pb and abs(s["pb"]["elasticity"] - D.PB_ELASTICITY_MEASURED) < 0.15):
+        fails.append("plant-based meat's elasticity has left the measured range; rewrite the note")
+    if not s["pb_before"]["elasticity"] < 2.0 * D.PB_ELASTICITY_MEASURED:
+        fails.append("without committed buyers plant-based meat's elasticity is no longer about twice the measured one; rewrite the note")
+    c = {r["name"]: r for r in s["pb_committed"]}
+    ends = [r["elasticity"] for r in s["pb_committed"] if r["name"] != COMMITTED_BEFORE]
+    if not all(lo_pb < e < hi_pb for e in ends):
+        fails.append("at an end of a committed-buyer input plant-based meat's elasticity leaves the category's range; rewrite the note")
+    if abs(c[COMMITTED_BEFORE]["elasticity"] - s["pb_before"]["elasticity"]) > 1e-9:
+        fails.append("the committed-buyer table's 'no committed buyers' row is not the model before")
     # 2026-11-20 final pass: the anchor is plant-based meat's share of meat by volume, 0.4% (pb_share_target; was 1.2% of choices)
     if abs(s["pb"]["share"] - 100.0 * value("pb_share_target")) > 0.01:
         fails.append("plant-based meat's share in the check is not the calibrated pb_share_target")
@@ -81,9 +96,9 @@ def check() -> list:
     if u != sorted(u) or abs(u[0] - S.run(S.SCENARIOS["central"].choice)["total"]) > 1e-9:
         fails.append("the cost of an under-used plant should rise as less is sold, from the scenario's own cost")
 
-    quoted = [f"{s['pb']['elasticity']:.2f}", f"{S.pct_num(v[0]['world']['central'])}%", f"{S.pct_num(v[0]['world']['best'])}%",
+    quoted = [f"{s['pb']['elasticity']:.2f}", f"{s['pb_before']['elasticity']:.2f}", f"{S.pct_num(v[0]['world']['central'])}%", f"{S.pct_num(v[0]['world']['best'])}%",
               f"{S.pct_num(v[1]['world']['central'])}% to {S.pct_num(v[3]['world']['central'])}%"]
-    for name, tables in (("research_notes/demand_checks.md", [D.markdown_checks(), D.markdown_variants(), L.markdown_underused()]),
+    for name, tables in (("research_notes/demand_checks.md", [D.markdown_checks(), D.markdown_variants(), D.markdown_committed(), L.markdown_underused()]),
                          ("RESULTS.md", [D.markdown_checks()])):
         text = open(os.path.join(ROOT, name), encoding="utf-8").read()
         for line in "\n".join(tables).splitlines():

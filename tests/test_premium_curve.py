@@ -41,10 +41,13 @@ def check() -> list:
     # model's is just ABOVE the corrections' favourable end (was inside the range). A correct consequence of the dearer cells:
     # chicken and pork cuts, mince and processed meat are now 7 to 15 times their meat's price, where the model's Student's t
     # tail holds more than the premium curve (for one shopper the two cross at about 7 times the price).
+    # 2026-11-21 (fourth batch): plant-based meat's committed buyers raise the blend penalty on cuts, which cuts the curve with
+    # every shopper alike more than the model: 0.015% (0.005-0.029%) anchored against 0.045%, a third, and the model 1.6 times the
+    # favourable end (was 0.019% against 0.047%, two-fifths, just above it).
     m = s["model_share"]["central"]
-    if not (0.35 * m < sh["central"][lr] < 0.55 * m and sh["central"][fav] < m < 1.3 * sh["central"][fav]):
-        fails.append("the low-lactate example's anchored share is no longer a little under half the model's, with the model's just above the "
-                     "corrections' favourable end; rewrite the note's conclusion")
+    if not (0.25 * m < sh["central"][lr] < 0.4 * m and 1.3 * sh["central"][fav] < m < 1.8 * sh["central"][fav]):
+        fails.append("the low-lactate example's anchored share is no longer about a third of the model's, with the model's about 1.6 "
+                     "times the corrections' favourable end; rewrite the note's conclusion")
     # 2026-11-19 audit batch, unchanged by the second round: the all-favourable example's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
     # (0.6-2.5%). The model is about twice the curve's central figure and above its favourable end. (Was: anchored below the model's.)
     # 2026-11-20 (engine batch, $11.67 to $18.71): 1.13% in the model against 0.66% anchored (0.24-1.17%). The model is 1.7 times
@@ -57,7 +60,9 @@ def check() -> list:
     # market are at 0.35 to 2.9 times their meat's price (beef cuts, premium seafood and dearer below it), where the model's level
     # at equal price (14.4% of meat buyers) sits above the premium labels' 8.7% and its spread of liking holds more shoppers.
     mb = s["model_share"]["best"]
-    if not (0.4 * mb < sh["best"][lr] < 0.55 * mb and 1.2 * sh["best"][fav] < mb < 1.5 * sh["best"][fav]):
+    # 2026-11-21 (fourth batch): 5.58% against 2.33% anchored (1.02-3.73%): 2.4 times, and 1.50 times the favourable end (upper
+    # bound widened from 1.5 to 1.6, which 5.58 / 3.73 = 1.496 sat on)
+    if not (0.4 * mb < sh["best"][lr] < 0.55 * mb and 1.2 * sh["best"][fav] < mb < 1.6 * sh["best"][fav]):
         fails.append("the all-favourable example's model share is no longer about twice the anchored one and above the curve's "
                      "favourable end; rewrite the note's conclusion")
 

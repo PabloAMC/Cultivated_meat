@@ -90,7 +90,11 @@ The model's first-contact elasticity at equal price is −3.27: inside the old b
 3. **With a spread of liking, "about half the market at equal price" stops following from novelty fading.** It becomes a premise about
    how far the average shopper's liking recovers, and it is the model's largest unknown.
 4. Price sensitivity also differs across shoppers (section 3), and plant-based meat's buyers are a concentrated minority (section 4).
-   Both belong in a later rebuild; neither is needed to explain cultivated meat's curve.
+   Neither is needed to explain cultivated meat's curve. **2026-11-21 (fourth batch):** plant-based meat's committed buyers are in
+   the model (7% of shoppers, 82% of the mainstream's plant-based meat, 0.25 times other shoppers' response to its price; its
+   elasticity -1.30, `demand_checks.md` section 5). A price-insensitive class for every product was tried and left out: it fits
+   the spread's targets better but does not fix farmed salmon, and its liking for cultivated meat is unmeasured (section 6 there).
+   The 2025 repeat rate, 62% (GFI/SPINS consumer panel to 30 November 2025), is the model's `repeat_rate`.
 
 ## Sources
 
