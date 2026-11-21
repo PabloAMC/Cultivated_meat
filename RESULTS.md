@@ -308,8 +308,8 @@ Costs in the table are at most likely values.
 | CO₂ level at which the culture leaves the stripping column | 20–70 mbar (55) | $50.5 to $49.3 | 0.04% to 0.05% | $7.2 to $7.0 | design choice | **no** |
 | Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $48.7 to $49.9 | 0.05% to 0.05% | $6.6 to $8.3 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
 
-*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($46.1 to $51.9 in the low-lactate example) without changing any tank; it is left out.*
-*Left out: Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days to mature muscle or fat would take the low-lactate example from $48.68 to $75.46 (4 days) or $232.75 (28 days; 2026-11-21). It is a lever on the page; it is left out here.*
+*Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($48.56 to $48.68 in the low-lactate example) without changing any tank; it is left out.*
+*Left out: Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days to mature muscle or fat would take the low-lactate example from $48.68 to $75.46 (4 days) or $232.75 (28 days). It is a lever on the page; it is left out here.*
 *Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, gas flow, doubling time, restart time). "What to prioritise" shows what each switch is worth.*
 
 - **Five numbers carry most of the low-lactate example's uncertainty, and none has been measured on meat cells at production
@@ -724,7 +724,7 @@ bubbles. So a cheaper plant narrows the gap. The table moves the plant's cost
 | Low-lactate example (the low-lactate example's switches, rungs 3–4) | 48.7 / 45.9 / 70.3 / 54.6 | 46.6 / 43.8 / 57.9 / 44.9 | 44.4 / 41.8 / 45.5 / 35.3 | 43.1 / 40.5 / 37.6 / 29.1 | 0.47× | 0.71× |
 | Low-lactate example, plant with shared medium (rung 5) | 44.5 / 42.0 / 53.9 / 43.6 | 43.3 / 40.8 / 45.6 / 36.8 | 42.1 / 39.6 / 37.4 / 29.9 | 41.4 / 38.9 / 32.1 / 25.5 | 0.67× | 0.93× |
 | Cells that make almost no ammonia or lactate (rung 6) | 27.3 / 25.3 / 31.6 / 25.6 | 26.1 / 24.1 / 27.0 / 21.9 | 24.9 / 22.9 / 22.3 / 18.1 | 24.1 / 22.2 / 19.4 / 15.7 | 0.68× | 0.96× |
-| The all-favourable example's switches (rung 7) | 7.0 / 7.1 / 9.8 / 9.8 | 6.6 / 6.7 / 8.7 / 8.7 | 6.2 / 6.3 / 7.6 / 7.6 | 6.0 / 6.0 / 6.9 / 6.9 | never (0.05–1.5×) | never (0.05–1.5×) |
+| The all-favourable example's switches (rung 7) | 7.0 / 7.1 / 11.0 / 9.3 | 6.6 / 6.7 / 9.8 / 8.3 | 6.2 / 6.3 / 8.5 / 7.2 | 6.0 / 6.0 / 7.7 / 6.6 | never (0.05–1.5×) | 0.13× |
 
 - **Fed-batch wins only on a plant at about half to nine tenths of the modelled cost, comparing tanks of the same size.**
   Perfusion is cheaper than fed-batch at the modelled plant cost in every row, at 20 m³ and at 100 m³. With the low-lactate
@@ -736,9 +736,11 @@ bubbles. So a cheaper plant narrows the gap. The table moves the plant's cost
   20 m³, which made a 100 m³ batch look cheaper than perfusion with the shared-medium plant ($43.6 against $44.5); in a 100 m³
   tank perfusion costs $42.0. A larger tank helps both ways of running from 20 to 100 m³: perfusion by 6% to 7% (not the all-favourable example's, which costs
   $0.1 more), fed-batch by 19% to 23%.
-- **With the all-favourable example's switches perfusion wins at any plant cost** ($7.0 against $9.8 and $9.8 at the modelled
-  cost, and still ahead at a third of it). Its dialyser-grade fibres make holding the cells back almost free, so a batch has no
-  filter cost to save.
+- **With the all-favourable example's switches perfusion wins at any plant cost the bands draw** ($7.0 against $11.0 at 20 m³
+  and $7.1 against $9.3 at 100 m³ at the modelled cost, and still ahead at a third of it; a 100 m³ batch would win only below 0.13
+  times the modelled plant cost). Its dialyser-grade fibres make holding the cells back almost free, so a batch has no filter cost
+  to save. Its perfusion columns run in its own 42 m³ tank, the size its search chose. Until 2026-11-21 its fed-batch columns ran
+  in that 42 m³ tank too ($9.8 at both sizes), because the example's own tank size overrode the fed-batch settings' 20 and 100 m³.
 - **Perfusion's advantage over fed-batch is smaller than on 2026-11-19** where the filter is the engine's own loop: then a batch of
   the low-lactate example's cells needed a plant at a fifth of the modelled cost to win. The changes of 2026-11-20 fall mostly on
   perfusion: membranes that last 2,415 litres a m², not 3,960; a crew twice the fed-batch crew; bubbles, which kill 8% of the cells
