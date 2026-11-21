@@ -114,7 +114,7 @@ Osmolality (mOsm/kg), fresh medium baseline 290-320:
 | Growth starts to fall (about 10% loss) | 320 (linear from baseline, no threshold) | 345 | 400 | Linear fits in [9], [10]; high value from production runs in [10] showing no visible effect at 400-450 |
 | Growth roughly halved | 430 | 450 | 465 | [10] 430 (INF), [8] 435, Takagi 450, [9] 464 (INF) |
 
-Culture pH: setpoint 7.0 [3]; tested range 6.85-7.80 [15]. A model range of 6.8-7.4 is my judgement of conventional practice, not a sourced growth-tolerance window.
+Culture pH: setpoint 7.0 [3]; tested range 6.85-7.80 [15]. A model range of 6.8-7.4 is the model's rough judgement (made while building the model with an AI assistant) of conventional practice, not a sourced growth-tolerance window.
 
 ---
 

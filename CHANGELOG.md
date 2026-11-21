@@ -39,6 +39,13 @@ $1.9999).
 - **Why the all-favourable example's point is below most of its draws** (95% now): its estimates sit at the modes of priors skewed
   to the costly side (protectant price and dose, bubble kill, amino-acid price, the plant estimate). Not a defect; said in its story.
 - Tests repinned on purpose with the old values in dated comments; side-study notes' tables regenerated.
+- **Documents after the batch** (2026-11-21): RESULTS.md's prose recomputed from the code outside the summary table (Humbird back-test,
+  frontier, study comparison, cells-by-tank and gas-cap tables, vessels, reuse, fallback, plant axis, design search, regions, meat
+  types; the species-cell and 50-mbar fish figures recomputed: US 1.2%, world 0.6%, fish cells $24.6); METHODS' tier table,
+  tornado and frontier regenerated; scenario table rows and the protectant row repinned for its $5-100 band (`test_answer_rests_on`
+  pin $46.74-54.12); "the reference case" renamed in the notes; judgement tables labelled as the model's rough judgement and dated
+  (the odds appendix of `cell_trait_routes.md` deleted); owner-attributed comments in `inputs.py` reworded; `test_gas_exchange`
+  and `test_plant_items` mark their `BEFORE_FILTER_LOOP` pins as history and pin current figures (`_check_current`). No value changed.
 
 ## 2026-11-20 and 2026-11-21
 

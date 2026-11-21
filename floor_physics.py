@@ -526,7 +526,7 @@ SPECIES_PRESETS = {
             "27 g of cells per litre. The company publishes no cell traits, plant cost or loss rates, so this "
             "preset is a reconstruction. It sets the waste lever so that the tank holds 27 g per litre, prices the plant like a "
             "yeast plant (its vessel is said to have cost under $50k per m\u00b3), and uses first-plant financing. "
-            "To return to the reference case, choose perfusion and the food-grade plant again."),
+            "To return to Humbird's optimistic design, choose perfusion and the food-grade plant again."),
 }
 SPECIES_MISSING = ""
 
@@ -1416,14 +1416,14 @@ CELL_QUALITY = {"x_scale": +1, "doubling_h": -1, "mass_pg": +1, "waste": -1}
 TORNADO = [
     ("Gas flow the cells tolerate", "gas_velocity", 0.002, 0.009, "2 mm/s", "9 mm/s",
      "CO\u2082 leaves the tank only in the gas bubbled through it, so the density a tank can hold is "
-     "proportional to the gas flow. <b>Range:</b> the reference case uses 6 mm/s, Humbird's reading of a rule of thumb "
+     "proportional to the gas flow. <b>Range:</b> Humbird's optimistic design uses 6 mm/s, his reading of a rule of thumb "
      "[2]. It is not a measured limit. Large pharma tanks run at 0.1 to 2 mm/s because their thin cultures need "
      "no more, and 2 is about the most that has been run with cells. 9 is what bubble damage would allow with "
      "enough protectant. <b>What caps it:</b> bursting bubbles kill cells, but a protectant cuts that about "
-     "20-fold at 1 g a litre in the one small culture measured, and small tanks at 60 to 80 million cells per mL took twice the reference case's gas per litre. Foam is "
+     "20-fold at 1 g a litre in the one small culture measured, and small tanks at 60 to 80 million cells per mL took twice Humbird's optimistic design's gas per litre. Foam is "
      "the likelier cap. It grows with gas velocity, and the antifoam that controls it slows growth and oxygen "
      "transfer. <b>Evidence:</b> weak. Nobody has run cells this dense at this size, or any culture at 6 mm/s. "
-     "The author puts the odds that 6 mm/s works at this size at about even."),
+     "The model's rough judgement is an even chance that 6 mm/s works at this size."),
     ("CO\u2082 carried off by the exhaust gas", "strip_eff", 0.70, 0.9605, "70% of the most it could carry", "96%",
      "Gas bubbled through the tank leaves carrying CO\u2082, but the bubbles do not quite reach balance with the liquid. "
      "<b>Range:</b> 96% makes the model's CO\u2082 balance reproduce Humbird's density limits [2]. Stripping models of "
@@ -1432,7 +1432,7 @@ TORNADO = [
     ("Oxygen transfer left with antifoam", "antifoam_otr", 0.5, 1.0, "halved", "no effect",
      "Bubbling hard makes foam. The antifoam that controls it coats the bubbles and slows the oxygen they pass to the liquid. "
      "<b>Range:</b> reported effects run from none to about half (research_notes/gas_flow_cap.md). The model takes the middle, "
-     "a quarter lost. Halved, the reference tank is limited by oxygen at about 97 g/L instead of by CO\u2082 at 120. "
+     "a quarter lost. Halved, the tank of Humbird's optimistic design is limited by oxygen at about 97 g/L instead of by CO\u2082 at 120. "
      "<b>Evidence:</b> weak. It depends on the antifoam, its dose and the medium, and it has not been measured in dense "
      "meat-cell cultures. Only the sparger is affected here, not a column or the mixing rule."),
     ("Price of the bubble protectant", "protectant_price", 10.0, 260.0, "$10 a kilo", "$260 a kilo (catalogue)",
@@ -1458,7 +1458,7 @@ TORNADO = [
      "cells. The efficient cell is an assumption."),
     ("Tank size", "vessel_m3", 5.0, 200.0, "5 m\u00b3", "200 m\u00b3",
      "A larger tank costs less per litre but is deeper, so it clears less CO\u2082 and must run thinner. "
-     "<b>Range:</b> 5 to 200 m\u00b3, and the reference case uses 20. <b>Evidence:</b> the vessel cost and the CO\u2082 limit "
+     "<b>Range:</b> 5 to 200 m\u00b3, and Humbird's optimistic design uses 20. <b>Evidence:</b> the vessel cost and the CO\u2082 limit "
      "both follow Humbird [2]. Nobody has grown animal cells above about 25 m\u00b3, and only in pharma."),
     ("Plant estimate", "capex_x", 0.34, 1.5, "a third of Humbird's", "+50%",
      "What the whole plant costs per cubic metre of tank. <b>Range:</b> Humbird calls his own estimate good to "
@@ -1466,7 +1466,7 @@ TORNADO = [
      "third of his cost. <b>Evidence:</b> design studies only. No built plant publishes both its cost and its "
      "tank volume."),
     ("Class of plant", "plant", "microbial", "pharma", "built like a yeast plant", "pharma-style",
-     "This sets how clean the plant is built. The reference case uses a food-grade plant ($810k per m\u00b3). "
+     "This sets how clean the plant is built. Humbird's optimistic design uses a food-grade plant ($810k per m\u00b3). "
      "<b>Range:</b> from a plant built like a yeast plant ($190k) to a pharma-style plant with clean rooms ($910k). "
      "Humbird's own yeast plant with 20 m\u00b3 tanks costs about the lower figure, and two published "
      "cultivated-meat designs assume it. <b>Evidence:</b> nobody has run animal cells in the cheaper kind of plant."),
@@ -1489,10 +1489,10 @@ TORNADO = [
      "100 mbar is a pharma limit that also protects protein quality [2]. Pharma cells lose about a tenth of "
      "their growth at 200. Fish, shrimp and insect cells get their own, lower ranges (choose one in the first "
      "control). <b>Evidence:</b> nothing is published for muscle or fish cells. This is the measurement that "
-     "would change the reference case most."),
+     "would change Humbird's optimistic design most."),
     ("Yearly charge on the plant", "charge", 0.123, 0.236, "12.3%", "23.6%",
      "The share of the plant's cost charged each year: return on capital, maintenance, insurance. "
-     "<b>Range:</b> 23.6% is Humbird's first-plant figure. The reference case's 17.3% uses the food industry's cost of "
+     "<b>Range:</b> 23.6% is Humbird's first-plant figure. Humbird's optimistic design's 17.3% uses the food industry's cost of "
      "capital over 20 years. 12.3% is a 30-year payback with no return. <b>Evidence:</b> this is a financing choice, "
      "not a scientific unknown. Loan guarantees change it."),
     ("Life of the filter membranes", "membrane_life", 5500.0, 900.0, "5,500 litres per m\u00b2", "900 litres per m\u00b2",
@@ -1502,7 +1502,7 @@ TORNADO = [
      "pushed harder fouled after about 900. <b>Evidence:</b> small vessels only. Nobody has filtered a culture this thick "
      "for a month at 20 m\u00b3."),
     ("Growth factors", "growth_factors", 0.0, 1.0, "none", "all bought",
-     "Proteins that tell cells to grow. The reference case leaves them out, which assumes cells that need none or make their own. "
+     "Proteins that tell cells to grow. Humbird's optimistic design leaves them out, which assumes cells that need none or make their own. "
      "<b>Range:</b> bought at Humbird's large-scale price, they add about $4 a kilo [2]. <b>Evidence:</b> that "
      "price assumes an industry far larger than the current one."),
     ("Medium price", "medium_price", 0.10, 0.50, "$0.10 a litre", "$0.50 a litre",
@@ -1522,7 +1522,7 @@ TORNADO = [
      "Holding the pH against dissolved CO\u2082 takes bicarbonate, and lactate comes with the base that "
      "neutralises it. Both add salt, and cells stop growing when the total is too high. So the more CO\u2082 "
      "a tank runs at, the less lactate it may hold, and the more medium it needs. <b>Range:</b> fresh medium "
-     "is about 300. The reference case's 415 is what Humbird's own CO\u2082 and lactate limits imply together [2]. "
+     "is about 300. Humbird's optimistic design's 415 is what Humbird's own CO\u2082 and lactate limits imply together [2]. "
      "Across four studies of pharma cells, growth starts to fall at about 320 to 400 and is halved at about "
      "430 to 465. <b>Evidence:</b> pharma cells only. A single limit stands in for a gradual decline."),
     ("pH held in the tank", "ph", 6.9, 7.4, "6.9", "7.4",
@@ -1535,7 +1535,7 @@ TORNADO = [
      "flow of medium per day. Litres per kilo are that flow divided by the growth rate, so slow cells need "
      "more. <b>Range:</b> pharma perfusion runs measured this. 50 picolitres per cell a day sustained very dense "
      "cultures, 14 to 30 did so at slow growth, and 8 to 10 only kept cells alive. For cells of that size, "
-     "this is about 3.7 to 18.5 mL per gram a day, typically 9. The reference case's 7.5 is better than typical "
+     "this is about 3.7 to 18.5 mL per gram a day, typically 9. Humbird's optimistic design's 7.5 is better than typical "
      "practice. <b>Evidence:</b> pharma cells only. One company's chicken process works out to about 10.6."),
     ("Oxygen used for upkeep", "maintenance_share", 0.31, 1.0, "31%", "100%",
      "Part of a cell's oxygen use goes on whether or not it grows, and the rest rises with growth. It matters only "
@@ -1682,9 +1682,9 @@ def tiers() -> list:
                  "fill-and-draw is filed as an option at 20 m3; this density is not shown", mode="filldraw", plant="pharma")
     from_explore("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
                  "food-grade 20 m3 tanks run today; this density is not shown", mode="filldraw", plant="sanitary")
-    from_explore("No clean rooms, perfusion", "the reference case: food-grade plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; efficient cells; 91% uptime",
+    from_explore("No clean rooms, perfusion", "Humbird's optimistic design: food-grade plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; efficient cells; 91% uptime",
                  "each piece shown or claimed separately, never together")
-    from_explore("Microbial-fermentation-class plant", "the frontier: the reference case in a plant that costs what microbial fermentation plants cost when built, buying its oxygen",
+    from_explore("Microbial-fermentation-class plant", "the frontier: Humbird's optimistic design in a plant that costs what microbial fermentation plants cost when built, buying its oxygen",
                  "such plants exist for microbes; not costed or built for animal cells", plant="microbial")
     add("Rough lower bound", "the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at $1 a kilo (about the price of soybean-meal protein; GFI's feed grade is $6.36)",
         "a rough bound, not a design", GOOD_CELLS, "perfusion", value("pf_bound_capex"), low, 0.0,
@@ -1761,7 +1761,7 @@ def main():
     setup_style(use_latex=not args.no_latex)
     fmts = [f.strip() for f in args.formats.split(",") if f.strip()]
     pr = CostParams()
-    print("Physics-based cost of cells, per kg of real wet cells (the reference case is explore() at its defaults):")
+    print("Physics-based cost of cells, per kg of real wet cells (Humbird's optimistic design is explore() at its defaults):")
     summarise(pr)
     fig_floor_tiers(pr, args.outdir, fmts)
     print("Done.")

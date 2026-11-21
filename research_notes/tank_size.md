@@ -84,7 +84,7 @@ and recycled oxygen) and tank shape (liquid 1.6, 1.0, 0.75 or 0.5 times as deep 
 
 At 20 m³ the scan returns each scenario's own design, and its cost for the scenarios whose own tank is 20 m³; for the
 all-favourable example the same design at its own 42 m³ gives the scenario's $7.62 (the test checks both). Everything else about
-the scenario is held fixed. The reference case is shown twice: as defined (Humbird's tall tank, no tricks) and with the design
+the scenario is held fixed. Humbird's optimistic design is shown twice: as defined (Humbird's tall tank, no tricks) and with the design
 chosen again.
 
 Two things set what a design costs at a size. The plant's capital per m³ of tank falls with size through the per-tank items
@@ -231,7 +231,7 @@ fewer cells with bubbles, so the cost per kilo harvested falls a little with dep
    200 m³ in the low-lactate example, 622 in the cautious one), sterile connections, and the time culture spends in the loop
    outside the tank. The column loop has a pH and a pass check; the TFF loop pumps the whole culture through fibres and has none.
    All of these grow with area, so they would penalise large tanks, but nothing in the repo prices them.
-6. *In the reference case as defined, the model charges no loop at 50 m³ and above.* The bleed at 88, 70 and 56 g/L carries out
+6. *In Humbird's optimistic design as defined, the model charges no loop at 50 m³ and above.* The bleed at 88, 70 and 56 g/L carries out
    at least the medium the cells need, so permeate is zero. Since 2026-11-16 `explore` buys at least the liquid the bleed removes
    (the test checks it in every case).
 

@@ -9,14 +9,16 @@
 > loss rates higher (3.5% a day for the lean plant, 7.5% for the yeast plant with additions): the batch added costs that a
 > cheaper plant does not remove, so a cheaper plant now affords fewer lost runs.
 >
-> **Current figures** (the model's own settings, 2026-11-20, third pass; the note's in brackets): sterile plant $15.93 ($14.05),
-> at pharma's 0.2% a day $16.25 ($14.32); yeast-style class, now buying its oxygen, $10.99 ($8.74); yeast plant with what animal
-> cells need $11.16 ($9.28); lean plant $13.06 ($11.19); lean plant losing 0.6 / 1.5 / 5% a day with a 14-day restart $13.79 /
-> $14.93 / $19.91 ($11.78 / $12.70 / $16.60), 1.5% with a 30-day restart $16.42 ($14.35); break-even loss rate against the sterile
-> plant at 0.2% a day: **2.5% a day** for the lean plant (3.0%) and **4.7%** for the yeast plant with additions (6.1%). At the
-> current settings the lean plant's break-even is just above the top of what cultivated-meat makers report (2.2% a day), and a
-> drained and refilled tank is cheaper than perfusion in the two yeast-style plants ($10.83 against $11.16 in the yeast plant
-> with additions).
+> **Current figures** (the model's own settings: the filter loop, the protectant and antifoam on, the yeast-style class buying
+> its oxygen; recomputed 2026-11-21 after the second batch of engine fixes; `tests/test_plant_items.py` pins them in
+> `_check_current`): sterile (food-grade) plant $15.72, at pharma's 0.2% a day $16.03; yeast-style class $10.72; yeast plant
+> with what animal cells need $10.92; lean plant $12.83; lean plant losing 0.6 / 1.5 / 5% a day with a 14-day restart $13.54 /
+> $14.65 / $19.51, 1.5% with a 30-day restart $16.09; break-even loss rate against the sterile plant at 0.2% a day: **2.56% a
+> day** for the lean plant, **4.81%** for the yeast plant with additions and 5.97% for the yeast plant. The lean plant's
+> break-even is just above the top of what cultivated-meat makers report (2.2% a day). A drained and refilled tank is cheaper
+> than perfusion in the lean plant and in both yeast-style plants ($12.00 against $12.83 in the lean plant, $9.05 against
+> $10.92 in the yeast plant with additions); in the sterile plant perfusion is cheaper ($15.72 against $16.51). (On 2026-11-20,
+> third pass: sterile $15.93, lean $13.06, break-even 2.5% and 4.7%.)
 >
 > Third pass, 2026-11-20: the named plants' costs (`plant_items.cost_per_kg(plant)`) now pass the plant's items to `explore`
 > (`items=`), so each plant scales its own medium preparation item with the medium passed, not Humbird's, and what each tank

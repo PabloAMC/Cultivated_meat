@@ -211,7 +211,8 @@ def _text(fragment: str) -> str:
 # names its kind of meat; no judgement attributed to the owner; the levels are named for what they hold, not "Level 1-6"
 RETIRED = ("Selected cells", "Engineered cells", "Today's cells", "Today’s cells", "Central case", "Best case", "best case", "central case")
 OWNER_JUDGED = re.compile(r"Pablo's odds|Pablo’s odds|re-judged by Pablo|the author judges|the author's judgement|the author thinks|"
-                          r"the owner judges|the owner thinks|Pablo judges|Pablo thinks", re.I)
+                          r"the owner judges|the owner thinks|Pablo judges|Pablo thinks|the author puts|the author chose|the owner puts|"
+                          r"the owner chose", re.I)
 TODAY_COST = re.compile(r"today['’]s dollars|in today['’]s\b|\$[\d.,]+[^.<]{0,40}\btoday\b|\btoday\b[^.<]{0,25}\$\d", re.I)
 
 
@@ -233,7 +234,7 @@ def _check_words(html: str, vis: str) -> list:
     for bad in RETIRED:
         if bad in every:
             fails.append(f"a retired name is on the page: {bad}")
-    for bad in ("everyday meat", "average kilo", "Level 1", "Level 6"):
+    for bad in ("everyday meat", "average kilo", "Level 1", "Level 6", "the reference case", "The reference case", "the reference tank"):
         if bad in every:
             fails.append(f"the page still says '{bad}'")
     for m in TODAY_COST.finditer(every):

@@ -199,8 +199,8 @@ A quick run before this work gave, for his fed-batch conditions, 92 g/L and 11.2
    housings ($62k and $28k), in his accounting (ISBL = 1.2556 × bioreactors + 2.5556 × other equipment; TCI = direct cost × 1.84),
    and buildings at $74.4k per m³ + $533k per tank of direct cost (a fit to his two plants, not his rule). Seed trains, fill tanks,
    sterilisers, centrifuges and outside utilities stay at the fed-batch plant's cost per m³ of tank. His ATF units are added in his
-   own accounting ($38,530k bare × 2.5556 × 1.84 = $940k per m³; the retention module's ATF takes only ×1.84 on the bare price, 2.56
-   times less). Result: fed-batch $683k per m³ (his $683k and $688k), perfusion **$3,244k** against his **$3,451k (−6.0%)**: his 2 m³
+   own accounting ($38,530k bare × 2.5556 × 1.84 = $940k per m³; until 2026-11-20 the retention module's ATF took only ×1.84 on the bare price, 2.56
+   times less; since then `retention.atf_factor` prices it in his accounting too). Result: fed-batch $683k per m³ (his $683k and $688k), perfusion **$3,244k** against his **$3,451k (−6.0%)**: his 2 m³
    plant spends $493k per m³ on the seed train, sterilisers, centrifuges and outside utilities, the engine $286k. His wild-type plants
    ($596k, $600k) are **14% below** the engine's $683k: their oxygen plant, utilities and medium equipment serve 6% of the output.
    Those three residuals are in `humbird_check.RESIDUALS`. At larger tanks (480 m³ of tank in all, fed-batch) the rule gives $570k per

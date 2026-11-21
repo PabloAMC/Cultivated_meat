@@ -186,9 +186,10 @@ def check() -> list:
     # 2026-11-21, at $48.68: filter life (87.00, 37.00) -> (86.91, 35.94), ammonia tolerated (89.91, 44.65) -> (89.05, 43.84),
     # ammonia made (45.27, 81.28) -> (44.46, 80.42), lactate tolerated (71.18, 49.50) -> (70.33, 48.68), bubble kill
     # (46.46, 59.93) -> (45.70, 58.94), protectant price (47.94, 56.49) -> (47.13, 55.67), osmolality (58.76, 49.50) -> (57.93, 48.68)
+    # 2026-11-21, the protectant's price band $10-120 -> $5-100 (evidence_poloxamer_price.md): (47.13, 55.67) -> (46.74, 54.12)
     for k, want in (("rt_membrane_life", (86.91, 35.94)), ("sc_nh3_limit", (89.05, 43.84)), ("sc_nh3_selected", (44.46, 80.42)),   # low end 0.07 -> 0.04 (2026-11-19)
                     ("sc_lac_limit", (70.33, 48.68)), ("ge_kill_protected", (45.70, 58.94)),
-                    ("pf_protectant_price", (47.13, 55.67)), ("pf_osm_limit", (57.93, 48.68))):
+                    ("pf_protectant_price", (46.74, 54.12)), ("pf_osm_limit", (57.93, 48.68))):
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
             fails.append(f"{k}: the low-lactate example {cr[k]['central'][0]:.2f} to {cr[k]['central'][1]:.2f} != pinned {want}")
     # the share's span across the demand rows, % of world meat and seafood

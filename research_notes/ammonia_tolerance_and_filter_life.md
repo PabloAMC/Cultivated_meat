@@ -303,7 +303,8 @@ L/m².
   Stern 2017/2019, Doyle & Butler 1990, McQueen & Bailey 1990, Clincke Part II, Meissner, the patent and Wang 2019, Walther,
   Karst 2020, Pasitka's supplement. The agents' L/m² conversions are marked *mine* and I have not re-derived them.
 - The free-NH3 fractions in Section 2 use a pKa I did not source.
-- Probabilities are my judgement from the evidence above, not from a model.
+- Probabilities are the model's rough judgement (made while building the model with an AI assistant) from the evidence above,
+  not measured and not computed by the model.
 
 ## 9. What adopting 4 mM and 2,000 L/m² would do (tried on a scratch branch, discarded)
 
@@ -321,7 +322,7 @@ scenario ladder. Nothing was committed or pushed. I report it because it shows h
 
 The ladder keeps its order and gaps and rises by about $15 in the middle rungs. The move is not a two-number edit. The repo's
 checks fail in `test_golden`, `test_floor_physics`, `test_scenarios`, `test_retention`, `test_filter_flux`,
-`test_answer_rests_on` and `test_audit`, because they pin the old costs (the reference case $12.51 becomes $15.70, the floor
+`test_answer_rests_on` and `test_audit`, because they pin the old costs (Humbird's optimistic design $12.51 becomes $15.70, the floor
 Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank tricks, which crashes `scenarios.plain_list`.
 A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
 METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.

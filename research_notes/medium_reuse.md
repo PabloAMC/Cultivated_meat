@@ -210,6 +210,12 @@ nothing.
 4. **What the least medium flow is made of.** It is 18 of the low-lactate example's 39 litres. If it is nutrients, a concentrate lowers it; if it is
    small by-products, dialysis does; if it is larger than 500 Da, nothing here does.
 
+*Evidence pass 2026-11-21* ([evidence_medium_cleaning.md](evidence_medium_cleaning.md)): ammonia removal has been shown at
+bench scale, none with a cost. Haraguchi 2021: the alga *C. littorale* took up 80% of the ammonia in 7 days. Thyden 2024:
+*C. sorokiniana* removed all of it at 37 °C, and QM7 cells grew at 81% of the rate on fresh medium. Pakbin 2025: air stripping
+at pH 12 removed 82%. An ion-concentration-polarisation device (2025) reused 75% of a CHO medium. Schneider 1994/1997: a
+gas-permeable membrane cut ammonia by about half. Nir 2023 remains unlocated. No input changes.
+
 ## 10. Not found
 
 - The Nir 2023 report, or any other measurement of selective electrodialysis on animal-cell medium with the nutrients tracked.

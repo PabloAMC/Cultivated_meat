@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 
 def check() -> list:
-    """The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
+    """HISTORY (the pins in `_check`). The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
     (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
     run with those settings (floor_physics.BEFORE_FILTER_LOOP). Repinned 2026-11-19 for the $2.00 nutrient floor: +$0.30 where the
     floor binds, less where $0.15 a litre of medium already covered part of it (2 mm/s cells, fish cells).
@@ -53,8 +53,45 @@ def check() -> list:
     oxygen limit with a 1 m/s gas velocity, which explore would otherwise charge as bubbles)."""
     import retention
     import floor_physics
+    # HISTORY: every pin in _check is the note's dated snapshot on its own 2026-11-14 settings (BEFORE_FILTER_LOOP), not a figure
+    # of the model. The model's own figures are pinned in _check_current (2026-11-21).
     with retention._with(floor_physics.BEFORE_FILTER_LOOP):
-        return _check()
+        fails = _check()
+    return fails + _check_current()
+
+
+def _check_current() -> list:
+    """The note's box "At the model's own settings (2026-11-21)": the same figures with the filter loop, the protectant, antifoam
+    and bought oxygen on, after the second batch of engine fixes of 2026-11-21. RESULTS.md section 1 quotes them too."""
+    import floor_physics as fp
+    import gas_exchange as ge
+    fails = []
+    got = {"floor": fp.explore()["total"], "12.5 mm/s": fp.explore(gas_velocity=0.0125)["total"]}
+    for cap in (0.001, 0.002, 0.006):
+        got[f"cheapest tricks at {cap * 1000:.0f} mm/s"] = ge.cheapest_tricks(cap)["total"]
+    for cap in (0.001, 0.002, 0.004, 0.006):
+        got[f"cheapest within the checks at {cap * 1000:.0f} mm/s"] = ge.cheapest_tricks(cap, ph_safe=True, tested=True)["total"]
+    rows = ge.cases_table("sanitary", 0.0) + ge.cases_table("sanitary", 0.0, genetic=False)[:4]
+    for i, label in ((4, "best meat cells, sparger"), (5, "best meat cells, fat fed"), (7, "best meat cells, every trick"),
+                     (8, "ordinary cells, sparger"), (11, "ordinary cells, every trick"), (12, "low-waste feed, sparger"),
+                     (15, "low-waste feed, every trick")):
+        got[label] = rows[i][2]
+    want = {"floor": 15.72, "12.5 mm/s": 15.76, "cheapest tricks at 1 mm/s": 13.41, "cheapest tricks at 2 mm/s": 13.49,
+            "cheapest tricks at 6 mm/s": 13.92, "cheapest within the checks at 1 mm/s": 27.49,
+            "cheapest within the checks at 2 mm/s": 17.22, "cheapest within the checks at 4 mm/s": 14.92,
+            "cheapest within the checks at 6 mm/s": 14.49, "best meat cells, sparger": 105.03, "best meat cells, fat fed": 73.20,
+            "best meat cells, every trick": 100.55, "ordinary cells, sparger": 141.91, "ordinary cells, every trick": 138.77,
+            "low-waste feed, sparger": 32.05, "low-waste feed, every trick": 30.01}
+    for k, w in want.items():
+        if abs(got[k] - w) > 0.006:
+            fails.append(f"current figures, {k}: want ${w:.2f} got ${got[k]:.2f}")
+    here = os.path.dirname(os.path.abspath(__file__))
+    note = open(os.path.join(os.path.dirname(here), "research_notes", "gas_exchange_study.md"), encoding="utf-8").read()
+    box = note.split("> **At the model's own settings (2026-11-21).**")[1].split("> **Conclusions that changed in kind**")[0]
+    for w in want.values():
+        if f"${w:.2f}" not in box:
+            fails.append(f"gas_exchange_study.md's box at the model's own settings does not quote ${w:.2f}")
+    return fails
 
 
 def _check() -> list:

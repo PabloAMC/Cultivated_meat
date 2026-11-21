@@ -240,7 +240,7 @@ How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the tricks (
   cells), and the measured shear thinning, which reaches 3 times.
 - The gas side is the repo's untested tricks: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 258 g/L the recycled-oxygen loop needs about 30 passes an hour in the all-favourable example; the low-lactate example's sparger cannot feed more than 154 g/L.
 - Retention is the largest risk. The ATF stopped at 1.3e8 cells/mL (phi 0.31); only the TFF has gone beyond, and only for days at 4 L.
-- Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, the reference case, `retention_devices.md` gives 75%.
+- Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, Humbird's optimistic design, `retention_devices.md` gives 75%.
 
 ## 9. What would settle it
 

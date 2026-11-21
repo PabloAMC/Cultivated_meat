@@ -76,7 +76,7 @@ The history was measured by checking out each commit that touched the cost code 
 | e92504c | 14 Nov 00:23 | $32.61 | | | | Pasitka's capital charge added to the plant cost (it had been left out) |
 | 04ca52d | 14 Nov 12:01 | $29.45 | | | | cost side re-anchored on a company's report; plant classes grounded |
 | 6dba0c8 | 14 Nov 12:29 | **$34.35** | | | | an independent audit of the cost side applied |
-| 164b78c | 14 Nov 12:54 | $34.35 | $11.48 | | | the reference case financed like a mature food industry |
+| 164b78c | 14 Nov 12:54 | $34.35 | $11.48 | | | Humbird's optimistic design financed like a mature food industry |
 | da06954 | 15 Nov 00:19 | $34.35 | $11.48 | **$18.14** | **$6.57** | cost scenarios in place of one number |
 | 563024d | 15 Nov 12:57 | $34.35 | $11.84 | **$26.64** | **$8.95** | the filter loop's membranes added to perfusion |
 | 80b5411 | 16 Nov 00:35 | $34.35 | $12.51 | **$29.92** | **$9.71** | bubble protectant, antifoam's cut to oxygen transfer, the yeast-style plant's oxygen (PR #32) |

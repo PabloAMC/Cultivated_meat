@@ -165,9 +165,11 @@ REGISTRY: dict[str, Input] = {
         "(Table 2: FSF4 medium $5.74, modified CHO medium $6.47) it is bracketed, so the unweighted mean is kept "
         "(research_notes/nutrient_floor.md section 7); Humbird's base case paid $15-16",
         lo=5.0, hi=11.59, mode=6.36,
-        note="the floor: what the cells must eat at the cheapest grade GFI prices. The mean is unweighted; serine, arginine and "
-             "glutamine are needed most and serine is among the dearest, so a weighted mean is probably higher (the range "
-             "reaches low food-grade). Drawn in the scenarios' bands (scenarios.MC_ESTIMATE_INPUTS)"),
+        note="the floor: what the cells must eat at the cheapest grade GFI prices, in the long run at industry scale. Serine is "
+             "the largest single cost (30% of FSF4's amino-acid cost) and GFI's $10/kg for it is hypothetical: world output is "
+             "about 400 t a year and no tonne quote is public. So $6.36 assumes new serine capacity; at today's quotes (serine "
+             "near $20-30/kg) the floor would be about $2.35-2.45, not $2.00 (research_notes/evidence_amino_acid_prices.md, "
+             "2026-11-21). Drawn in the scenarios' bands (scenarios.MC_ESTIMATE_INPUTS)"),
     "glucose_intensity": Input(0.311, "kg/kg wet", "[derived 2026-11-21: floor_physics.glucose_balance for Humbird's enhanced "
         "cell (3 ng, 24 h, 0.054 mol of ammonia a kilo) making no lactate: 1.724 mol x 0.180 kg] glucose a kilo of cells takes up "
         "when none is fermented",
@@ -274,7 +276,8 @@ REGISTRY: dict[str, Input] = {
              "4.7), not the premium. The default's source does not say what class of building it assumes"),
 
     # --- Rung 2 side-study: doubling-time envelope (growth_rate.py; NOT used in the cost) ------
-    # Every number here is OUR JUDGEMENT, not a measurement: no public series gives these rates for
+    # Every number here is the model's rough judgement (made while building the model with an AI assistant), not a
+    # measurement: no public series gives these rates for
     # meat cells. They bound a what-if (does growing slower ever pay?), they do not feed the headline.
     "gr_tau_ref": Input(24.0, "h", "[assumed] doubling time of the base process",
         note="fixed; the envelope depends only on the RATIO tau/tau_ref, so this sets the axis, not the result"),
@@ -588,10 +591,14 @@ REGISTRY: dict[str, Input] = {
              "cells/mL up to 200 L (abstract), without protectant 0.1 vvm kills cells ten times faster than they "
              "grow; (2) foam scales with velocity, is unmeasured against it, and is the likeliest cap; (3) no "
              "published culture at 6 mm/s at any scale, and none above 200 L combines 50 million cells/mL with "
-             "0.05 vvm; tanks of 1-25 m3 are reported at 0.002-0.02 vvm. Defensible range 2 / 5 / 9 mm/s; our "
-             "probability that 6 mm/s is usable at 20 m3 and 120 g/L is about 45%. The floor keeps 6 because it "
+             "0.05 vvm; tanks of 1-25 m3 are reported at 0.002-0.02 vvm. Defensible range 2 / 5 / 9 mm/s; the "
+             "model's rough judgement (made while building the model with an AI assistant, for the reasons above) that 6 mm/s "
+             "is usable at 20 m3 and 120 g/L is about 45%. Humbird's optimistic design keeps 6 because it "
              "takes the favourable end of each range. The exhaust gas leaves tall tanks close to saturated with "
-             "CO2 (four sources), which is what the balance assumes"),
+             "CO2 (four sources), which is what the balance assumes. "
+             "Vendors and the published CO2 scale-up rule state the limit in vvm (0.1, up to 0.2 in enhanced single-use designs, "
+             "to 2 m3); foam, the likeliest real cap, scales with velocity, so the cap stays a velocity. A vvm reading would let "
+             "a taller tank take more gas (research_notes/evidence_gas_flow_units.md)"),
     "pf_aspect": Input(1.6, "H/T", "[Humbird-R] Fig. 2.5: a tank built twice as tall as wide, filled to 80%, so the "
         "liquid is 1.6 times as deep as the tank is wide", lo=0.8, hi=2.5, mode=1.6),
     "pf_rq": Input(1.204, "mol CO2/mol O2", "[Humbird-R, derived] Reaction 2.11: 0.455 mol CO2 made per 0.378 mol O2 used"),
@@ -614,11 +621,12 @@ REGISTRY: dict[str, Input] = {
              "(research_notes/gas_flow_cap.md). It passes the filter and leaves with the medium."),
     "pf_protectant_price": Input(30.0, "$/kg", "[assumed] poloxamer 188 bought by the tonne: no bulk price found; catalogue "
         "prices are $230-260/kg in 10-25 kg packs (Sigma-Aldrich, search summary), tonne-scale excipients sell at a fraction",
-        lo=10.0, hi=120.0, mode=30.0,
-        note="hi = about half the small-pack catalogue price: a tonne buyer is unlikely to pay more. It was the catalogue "
+        lo=5.0, hi=100.0, mode=30.0,
+        note="Since 2026-11-21 (research_notes/evidence_poloxamer_price.md): lo $5 = industrial-grade EO/PO copolymer near "
+             "commodity surfactant prices (BASF sells one in 600 kg containers); hi $100 = pharma grade by the tonne at about "
+             "a third of the 25 kg catalogue price (a guess). Before: lo 10, hi 120, about half the small-pack catalogue price. It was the catalogue "
              "price itself ($260) until 2026-11-16, when the scenarios' bands began to draw this input; at 260 the draws' "
-             "median tonne price was $87/kg, above what the catalogue-to-bulk gap of excipients suggests (a judgement, "
-             "median about $45 now). The catalogue price stays in RESULTS as a what-if. At 2 g/L and $30/kg it is $0.06 a "
+             "median tonne price was $87/kg, above what the catalogue-to-bulk gap of excipients suggests. The catalogue price stays in RESULTS as a what-if. At 2 g/L and $30/kg it is $0.06 a "
              "litre of medium: $0.67/kg of cells at 11 L/kg, $1.7 at 28 L/kg. A supplier quote would replace the "
              "assumption (TODO.md)."),
     "pf_o2_microbial": Input(1.0, "switch", "[model choice, 2026-11-15] 1: the yeast-style plant class buys its oxygen "
@@ -1240,7 +1248,7 @@ REGISTRY: dict[str, Input] = {
         "batches lost, about 1% a day if runs last 10-20 days", lo=0.006, hi=0.022, mode=0.01),
     "sc_hazard_high": Input(0.02, "per day", "[Powell et al. 2025] the upper end of what makers report",
         lo=0.015, hi=0.022, mode=0.02),
-    # --- a stirred tank with the sparger inside a fine-mesh inner cylinder (vessels.py "caged"; Pablo's design, 2026-11-16) ---
+    # --- a stirred tank with the sparger inside a fine-mesh inner cylinder (vessels.py "caged"; a design added 2026-11-16) ---
     "vm_cage_exchange": Input(0.8, "-", "[judgement] how much of the gas exchange inside the cage reaches the cells' ring: oxygen "
         "and CO2 move between the two only with the medium that crosses the mesh",
         lo=0.5, hi=1.0, mode=0.8,
@@ -1323,7 +1331,7 @@ REGISTRY: dict[str, Input] = {
         "neighbouring tank, in place of a new seed train: about 2 days to empty, clean and steam the tank, about 1 doubling to regrow "
         "both tanks to working density, and the neighbour's lost output counted as about 1 more day of the lost tank's time",
         lo=3.0, hi=7.0, mode=4.0,
-        note="Pablo's question (2026-11-16): why 14 days and not 1? Regrowing from a seed at about 1 g/L to 120 g/L is about 7 doublings, "
+        note="The question (2026-11-16): why 14 days and not 1? Regrowing from a seed at about 1 g/L to 120 g/L is about 7 doublings, "
              "7-10 days at 24-36 h, plus cleaning and checks; a neighbour's dense culture skips most of that. The risk is a donor carrying "
              "a contaminant not yet detected (a fast contaminant shows on oxygen readings only after 17-51 h, cheap_plant_study.md), so the "
              "donor must test clean first. Needs several tanks running; nobody has reported doing it with animal cells at scale."),
@@ -1410,7 +1418,9 @@ REGISTRY: dict[str, Input] = {
         "up to about 25 m3 (pharma; Vow's 20 m3 for food)"),
     "vm_perf_max_m3": Input(4.0, "m3", "[research pass, read part] the largest animal-cell perfusion run found: Genzyme's "
         "4,000 L tanks at Geel; Humbird's perfusion design stops at 2 m3",
-        note="our probability that anyone has run animal cells in perfusion at 20 m3 for a month: 2-3%"),
+        note="the model's rough judgement (made while building the model with an AI assistant, not measured) that anyone has run "
+             "animal cells in perfusion at 20 m3 for a month: 2-3%, because no report above about 4 m3 was found and companies "
+             "running 20 m3 tanks report batches"),
     "vm_x_meat_shown": Input(27.0, "g wet/L", "[research_notes/Continuous harvest bioreactor progress/"
         "cultivated_meat_reactor_progress.md, company and press reports] the densest culture of meat cells reported in a vessel "
         "of 1 m3 or more: Vow's record 538 kg harvest from its 20,000 L tank is about 27 g/L if the tank was full",
@@ -1560,7 +1570,9 @@ REGISTRY: dict[str, Input] = {
              "(research_notes/ammonia_tolerance_and_filter_life.md): small-pore fibres in dense CHO perfusion foul in about 6-30 "
              "days, about 180-2,500 L/m2, and industry designs for 1,000 (median about 1,500). Read with rt_membrane_price: a "
              "membrane adds price / life per litre, so 1,500 L/m2 costs nothing extra at $900/m2 or less "
-             "(filter_flux.break_even_price)"),
+             "(filter_flux.break_even_price). Pasitka 2024's Table S6 (600 ATF membranes a year on 50 ATF-10s, one change a "
+             "month) implies 3,640-9,240 L/m2, the only meat-cell figure and in the upper half of the range, but it is a "
+             "company's cost assumption, not a measurement (research_notes/evidence_ammonia_and_filter_life.md)"),
     # alternatives to the pharma membrane: research_notes/retention_alternatives.md, retention_alternatives_sources/
     "rt_reuse_life": Input(12000.0, "L/m2", "[Cobetter and Sartorius reuse guidance, snippets; patent US 6,261,457, snippet] "
         "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 (this model's membrane life until 2026-11-19) x (1 + 4 x 0.3 to 0.8), "
