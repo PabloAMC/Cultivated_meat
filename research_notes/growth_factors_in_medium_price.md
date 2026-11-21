@@ -1,7 +1,5 @@
 # Do announced medium prices include growth factors?
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Compiled 2026-11-18. The rule below is in the code behind the input `sc_medium_complete`, **on since 2026-11-19**, with every cost
 study repinned. The same day the $0.15 a litre setting was dropped and the $0.05 aspiration became "at the nutrient floor"
 (`nutrient_floor.md` §6), so the table in section 3 is on the model before those two changes.
@@ -12,7 +10,7 @@ search snippet; **MEM** background knowledge, unchecked.
 
 The model priced the medium per litre from announced and modelled figures ($0.15–0.50) and added growth factors (insulin, transferrin,
 FGF2, TGF-β and similar) on top, as a fraction of Humbird's $3 per kg of cells. If the announced prices already include growth factors,
-the model counted them twice: $3.0 a kilo in Central.
+the model counted them twice: $3.0 a kilo in the low-lactate example (figure of 2026-11-18).
 
 ## 2. What each source includes
 

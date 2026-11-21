@@ -23,7 +23,7 @@ def check() -> list:
     for key in M.KEYS:
         kw, r0 = M.base(key)
         d = s[key]
-        bleed = 1000.0 / r0["density"]
+        bleed = 1000.0 / r0["density"] / r0["harvested_share"]   # litres per kilo harvested, as explore reports them
         none = M.cost(key, loop=0.0)
         if abs(none["total"] - r0["total"]) > 1e-9 or abs(none["fresh"] - r0["medium_l"]) > 1e-9:
             fails.append(f"{key}: no reuse should reproduce the scenario")
@@ -70,11 +70,20 @@ def check() -> list:
     # reuse does not replace better cells: the published cells with the best route modelled cost more than the low-lactate example with none
     if not min(c["total"] for c in t0["routes"].values()) > c0["base"]["total"]:
         fails.append("the published cells with the best route should still cost more than the low-lactate example with no device")
-    # in the low-lactate example the routes keep their order: electrodialysis beats dialysis across the culture at the filter's cost, and the
-    # exchanger beats dialysis of the permeate with a cleaned dialysate
-    if not (c0["routes"][names[0]]["total"] < c0["routes"][names[3]]["total"]
-            and c0["sorbent"]["total"] < c0["routes"][names[2]]["total"]):
+    # the order of the low-lactate example's routes. Until 2026-11-20 electrodialysis beat dialysis across the culture at the filter's
+    # cost ($29.92 against $30.46) and the exchanger beat dialysis of the permeate with a cleaned dialysate ($31.06 against $31.74).
+    # 2026-11-20 model batch: both reversed ($46.46 against $46.06; $49.16 against $47.78), a consequence of the batch and not a
+    # defect. (1) The cells tolerate 35 mmol/L of lactate, not 50, so lactate asks for 35.2 of the 40.1 litres: an exchanger, which
+    # takes ammonia alone, can cut 5 litres (it cut 13), and electrodialysis stops at the least flow (18.6 L) while the dialysis
+    # routes, which take the other by-products too, reach 9.2. (2) A litre passed costs more (membrane $0.60 a litre filtered, was
+    # $0.37; medium preparation capital with the litres), so the routes that cut the most litres gained the most.
+    # Section 2 of the note is rewritten for the new order.
+    if not (c0["routes"][names[3]]["total"] < c0["routes"][names[0]]["total"]
+            and c0["routes"][names[2]]["total"] < c0["sorbent"]["total"] < c0["base"]["total"]):
         fails.append("the order of the low-lactate example's routes has changed; rewrite section 2 of the note")
+    # the exchanger's best share stops where lactate takes over: its fresh litres are lactate's
+    if abs(c0["sorbent"]["fresh"] - c0["base"]["medium_terms"]["lactate"]) > 0.15:
+        fails.append("the exchanger's best share should leave the litres lactate asks for")
     # the table's ammonia row names the limit the scenarios use
     if f"| ammonia, held at {M.base('central')[0]['nh3_limit']:.0f} mmol/L |" not in M.markdown():
         fails.append("the ammonia row should name the scenarios' own limit (sc_nh3_limit)")

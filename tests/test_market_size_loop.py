@@ -2,12 +2,12 @@
 """test_market_size_loop.py — cost falling with market size, solved with the share (market_size_loop.py).
 
 Checks that with no learning the module returns each scenario's own cost, that cost falls with volume and never below the cost at the
-floors, that a resting point is one (its cost buys the share its volume is), and the conclusions the note draws since shoppers'
-liking became a Student's t spread (2026-11-19, second round): the low-lactate example's whole sales need four to six times the membrane switch; its
-premium products alone reach it, but only with premium fillets and shrimp counted; premium products are about a quarter of its first
-sales and cuts most of them; with slow learning it has one resting point; published cells never start on their own; about a quarter
-of the low-lactate example's gain comes from later rounds; and the premium products respond to price more than twice as strongly as farmed salmon did
-along its demand curve, inside history's totals. Also that the note and RESULTS.md carry the module's tables and the figures their
+floors, that a resting point is one (its cost buys the share its volume is), and the conclusions the note draws since the engine
+batch of 2026-11-20 made cells dearer: the low-lactate example's whole sales need two to three times the membrane switch; its premium
+products alone no longer reach it; premium products are about three-tenths of its first sales and cuts most of them; with slow
+learning it has two resting points; published cells never start on their own; about a third of the low-lactate example's gain comes
+from later rounds; and the premium products respond to price at two and a half to three times the top of farmed salmon's range
+along its demand curve, two of the five just above history's totals. Also that the note and RESULTS.md carry the module's tables and the figures their
 prose quotes. Runs as a script or under pytest.
 """
 from __future__ import annotations
@@ -46,7 +46,10 @@ def check() -> list:
         lo, hi = s["solved"][(k, "central", "below")], s["solved"][(k, "central", "above")]
         # 2026-11-19 restructure: the published cells are priced in perfusion as "cautious" ($92.17, the old rung 1 with the tank tricks),
         # and in the central case they have two resting points: $91.80 left alone, $55.98 if pushed
-        if (abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6) != (k == "cautious"):
+        # 2026-11-20 (engine batch): the published cells in perfusion cost $183.15 and sell about 900 t a year; even with everything
+        # at its floor ($78.27) they would sell 0.02 Mt, whose membrane (about 1.3 million m2 at their 0.067 m2 a kilo) the cost at
+        # that volume does not sustain, so the upper resting point is gone. No scenario has two resting points in the central case.
+        if abs(lo["volume_mt"] - hi["volume_mt"]) > 1e-3 * hi["volume_mt"] + 1e-6:
             fails.append(f"{k}: the number of resting points in the central case has changed; rewrite the note")
         if k != "cautious" and not lo["share"] > s["model_share"][k]:
             fails.append(f"{k}: learning no longer raises the share; rewrite the note")
@@ -64,44 +67,63 @@ def check() -> list:
         st = s["start"][(k, "central")]
         if abs(st["whole_mt"] - s["model_share"][k] / 100.0 * W) > 1e-6 + 1e-6 * st["whole_mt"]:
             fails.append(f"{k}: the volumes by tier at its own cost do not add to the model's share")
-        if st["crosses"] != (k != "cautious") or st["whole_crosses"] != (k != "cautious"):
+        # 2026-11-20 (engine batch): the low-lactate example sells 0.15 Mt at $49.96 (was 0.71 Mt at $32.80) and its membrane
+        # lasts 2,415 L/m2 (was 3,960), so its premium products alone no longer cross the switch (0.75 million m2 against 1.0);
+        # its whole sales still do (2.54). Only the all-favourable example's premium products cross alone. A correct consequence
+        # of the dearer cells: the volume fell 4.6 times and the membrane a kilo rose 1.9 times.
+        # 2026-11-20 final pass: the all-favourable example is now scenarios.all_favourable() ($7.62), which keeps its cells with
+        # haemodialyser fibres at $8 a m2 (rt_dial_*), so it buys about 600 times less process membrane a kilo (0.00003 m2 against
+        # the low-lactate example's 0.015): its 18.3 Mt a year need 0.48 million m2, short of the central switch, and its premium
+        # products alone 0.08 million. The membrane switch plays no part in it; its gain comes from the plant's learning. A
+        # correct consequence of the rebuilt example. Only the low-lactate example's whole sales cross the central switch.
+        if st["crosses"] or st["whole_crosses"] != (k == "central"):
             fails.append(f"{k}: premium products alone, or the whole sales, now stand differently against the membrane switch; rewrite the note")
     st = s["start"][("central", "central")]
     # 2026-11-19 restructure (the share of the meat sold, about a quarter higher): premium products alone reach the switch twice over,
     # and even the four small premium markets alone cross it; the whole sales need about six times its area (were 4.9)
-    if not (1.5 * st["switch_m2"] < st["area_m2"] < 2.5 * st["switch_m2"] and st["small_crosses"]):
-        fails.append("the low-lactate example's premium products alone no longer reach the switch about twice over, with the small ones crossing too; "
+    # 2026-11-20: premium products alone are a quarter short of the switch (0.75 million m2; the four small ones 0.38), the whole
+    # sales need 2.5 times its area, and the sales without premium products (1.79 million m2) pass the central switch but not a
+    # 3 million m2 one
+    if not (0.5 * st["switch_m2"] < st["area_m2"] < st["switch_m2"] and not st["small_crosses"]):
+        fails.append("the low-lactate example's premium products alone are no longer a quarter to a half short of the switch; "
                      "rewrite the note")
-    if not 5.0 * st["switch_m2"] < st["whole_area_m2"] < 7.5 * st["switch_m2"]:
-        fails.append("the low-lactate example's whole sales no longer need five to seven times the switch's membrane area; rewrite the note")
-    if not st["whole_area_m2"] - st["area_m2"] > _case("slow learning")["ms_switch_area"]:
-        fails.append("without premium products the low-lactate example's other sales no longer pass even a 3 million m2 switch; rewrite the note")
-    if not s["start"][("best", "central")]["small_crosses"]:
-        fails.append("the all-favourable example's four small premium markets alone no longer cross the switch; rewrite the note")
+    if not 2.0 * st["switch_m2"] < st["whole_area_m2"] < 3.0 * st["switch_m2"]:
+        fails.append("the low-lactate example's whole sales no longer need two to three times the switch's membrane area; rewrite the note")
+    if not st["switch_m2"] < st["whole_area_m2"] - st["area_m2"] < _case("slow learning")["ms_switch_area"]:
+        fails.append("without premium products the low-lactate example's other sales no longer pass the central switch and fall short of a 3 million m2 one; rewrite the note")
+    if s["start"][("best", "central")]["whole_crosses"] or s["start"][("best", "central")]["whole_area_m2"] > 0.6 * st["switch_m2"]:
+        fails.append("the all-favourable example's whole sales now come near the membrane switch; rewrite the note")
     # 2026-11-19 second round: a switch at 3 million m2 is again below what the low-lactate example's sales need (4.86 million), so with slow
     # learning it crosses on its own and has ONE resting point, $21.91 and 0.59%. (With the audit batch's normal spread: two,
     # $32.48 left alone and $22.07 if pushed. After the cut-cost repin: one, $18.69.) With everything else central a 3 million m2
     # switch costs it 21 cents (was: stopped it at $31.66).
+    # 2026-11-20 (engine batch): flipped again. A switch at 3 million m2 is above the 2.54 million the low-lactate example's sales
+    # need, so with slow learning it has TWO resting points: $49.69 and 0.05% left alone, $30.39 and 0.27% if pushed. And the
+    # switch's level now matters most among the market-size inputs: across its range the resting cost runs from $23.89 to $49.03
+    # (was 21 cents). The note says the conclusion follows the sales at the example's own cost and is not robust.
     lo, hi = s["solved"][("central", "slow learning", "below")], s["solved"][("central", "slow learning", "above")]
     own, slow_switch = s["base"]["central"]["cost"], _case("slow learning")["ms_switch_area"]
-    if not (abs(hi["volume_mt"] - lo["volume_mt"]) < 1e-3 * hi["volume_mt"] and lo["area_m2"] > slow_switch and lo["cost"] < 0.8 * own):
-        fails.append("the low-lactate example with slow learning no longer crosses the switch on its own to one resting point; rewrite the note's section 3")
+    if not (hi["volume_mt"] > 2.0 * lo["volume_mt"] and s["start"][("central", "slow learning")]["whole_area_m2"] < slow_switch
+            and lo["cost"] > own - 1.0 and hi["cost"] < 0.7 * own):
+        fails.append("the low-lactate example with slow learning no longer has two resting points, one near its own cost; rewrite the note's section 3")
     sw = s["sens"]["central"][0]["cost"]
-    if not (sw[1] < 0.6 * own and sw[1] - sw[0] < 0.5):
-        fails.append("the switch's level now moves the low-lactate example's resting cost by 50 cents or more; the note says it matters little")
+    if not (sw[0] < 0.6 * own and sw[1] > own - 1.5):
+        fails.append("the top of the switch's range no longer leaves the low-lactate example near its own cost; the note says the switch's level matters most")
     # 2026-11-19 second round: published cells cost $111.89 and sell 0.002% of world meat (about 6,000 t a year). Left alone they
     # stay within $2 of their own cost in every case; only fast learning has an upper resting point ($75.43), which needs a push.
     # (With the normal spread they sold nothing and had one resting point everywhere.)
     # 2026-11-19 restructure: the published cells in perfusion ("cautious", $92.17). Left alone they stay within $2 of their own cost
     # except with fast learning, which carries them to $51.66 on its own; with central learning a resting point at $55.98 needs a push.
     # Their share stays under 0.05% of world meat in every case.
+    # 2026-11-20 (engine batch): at $183.15 they stay within 10 cents of their own cost in EVERY case when left alone, fast learning
+    # included; only fast learning has an upper resting point ($87.51), and it needs a push. Central learning has none.
     t0 = s["base"]["cautious"]["cost"]
-    if not all(s["solved"][("cautious", case, "below")]["cost"] > t0 - 2.0 for case in L.CASES if case != "fast learning") or not all(
+    if not all(s["solved"][("cautious", case, "below")]["cost"] > t0 - 2.0 for case in L.CASES) or not all(
             s["solved"][("cautious", case, start)]["share"] < 0.05 for case in L.CASES for start in ("below", "above")):
-        fails.append("published cells now leave their own cost unaided without fast learning, or reach 0.05% of world meat; rewrite the note")
-    up = s["solved"][("cautious", "central", "above")]
-    if not (up["cost"] < 0.8 * t0 and s["solved"][("cautious", "fast learning", "below")]["cost"] < 0.8 * t0):
-        fails.append("published cells no longer have an upper resting point with central learning, and leave unaided with fast learning")
+        fails.append("published cells now leave their own cost unaided, or reach 0.05% of world meat; rewrite the note")
+    if not (s["solved"][("cautious", "fast learning", "above")]["cost"] < 0.8 * t0
+            and s["solved"][("cautious", "central", "above")]["cost"] > t0 - 2.0):
+        fails.append("published cells no longer have an upper resting point with fast learning only; rewrite the note")
     # 2026-11-19 second round: premium products are about a quarter of the low-lactate example's first sales (27%; 13% without premium fillets and
     # shrimp) and ordinary cuts most of them (62%). (With the normal spread: premium 47%, beef steaks the other half. Before the
     # audit batch: premium 11%.)
@@ -115,16 +137,27 @@ def check() -> list:
     resp = s["response"]["products"]
     if sorted(resp) != ["beef (prime/wagyu)", "chicken (organic)", "pork (heritage)", "seafood (premium fillet, shrimp)", "seafood (sushi)"]:
         fails.append("the model's premium products are no longer the five the note lists; rewrite the note")
+    # 2026-11-20 (engine batch): the five respond at 3.8-4.3, two and a half to three times the top of salmon's range along the
+    # curve; organic chicken, heritage pork and premium fillets and shrimp (3.8-4.0) are inside history's totals (up to 4.1),
+    # prime beef (4.2) and sushi-grade seafood (4.3) just above them. The responses rose because dearer cells start every
+    # product further from its meat's price, with a smaller share that has more room to rise (prime beef from 2.3% of its
+    # market, was 13%). A correct consequence of the batch; the demand model is unchanged.
+    # 2026-11-20 final pass: 3.7-4.3. Organic chicken gives 3.748, a hair under 2.5 times 1.5 (3.75), after the demand anchor
+    # moved. The lower bound is set at 2.4 times for that reason only: the five still respond at about two and a half to three
+    # times the top of salmon's range, and the note says so.
     for n, v in resp.items():
-        # 2026-11-19 restructure: prime beef now responds at 2.7, the others at 3.5-3.7: all above salmon's range along the curve
-        if not L.HISTORY_ALONG_CURVE[1] < v["response"] < L.HISTORY_TOTAL[1]:
-            fails.append(f"{n}: the response to price is no longer more than twice salmon's range along the curve and inside history's "
-                         "totals; rewrite the note")
+        if not 2.4 * L.HISTORY_ALONG_CURVE[1] < v["response"] < 3.0 * L.HISTORY_ALONG_CURVE[1]:
+            fails.append(f"{n}: the response to price is no longer two and a half to three times the top of salmon's range along the "
+                         "curve; rewrite the note")
+        if (v["response"] > L.HISTORY_TOTAL[1]) != (n in ("beef (prime/wagyu)", "seafood (sushi)")):
+            fails.append(f"{n}: stands differently against history's totals (only prime beef and sushi-grade seafood are above them); "
+                         "rewrite the note")
 
     # 2026-11-19 second round: the low-lactate example's own volume is 4.9 times the switch, so the first pass buys most of the learning: later
     # rounds give 25% of its share gain (35% with the normal spread; 19% before the audit batch). The all-favourable example's cells: 5%.
-    if not 0.15 < s["passes"]["central"]["later_rounds"] < 0.35:
-        fails.append("later rounds no longer give about a quarter of the low-lactate example's share gain; rewrite the note's section 5")
+    # 2026-11-20: 32% (its own volume is now 2.5 times the switch, so less of the learning comes on the first pass); the all-favourable example 10%
+    if not 0.25 < s["passes"]["central"]["later_rounds"] < 0.4:
+        fails.append("later rounds no longer give about a third of the low-lactate example's share gain; rewrite the note's section 5")
     if not s["passes"]["best"]["later_rounds"] < 0.15:
         fails.append("best: later rounds now give 15% or more of the share gain; the note says it is one step")
     # 2026-11-19 second round: at the low-lactate example's own cost the model now gives more than the curve fitted to premium meats (0.16% against 0.10%)

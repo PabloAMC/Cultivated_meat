@@ -189,6 +189,66 @@ def mixing_time_ratio(vessel_m3: float, aspect: float | None = None) -> float:
     return (T / T0) ** (2.0 / 3.0) * (a / value("pf_aspect")) ** 2.5
 
 
+def rel_viscosity(phi: float, law: str = "thomas", phi_max: float | None = None) -> float:
+    """Viscosity of a suspension of cells over that of the medium, at high shear, at a volume fraction `phi` of cells.
+    'thomas':  1 + 2.5 phi + 10.05 phi^2 + 0.00273 exp(16.6 phi), the equation Clincke et al. 2013 used for CHO and the one the
+               model uses everywhere (gas_exchange.viscosity).
+    'krieger': (1 - phi/phi_max)^(-2.5 phi_max), Krieger and Dougherty; Iordan et al. 2007 fitted it to CHO at 1,000 per second
+               with phi_max = 0.65 (`tc_phi_max`). Infinite at phi_max. (Moved here from thick_culture.py, 2026-11-20.)"""
+    if law == "thomas":
+        return 1.0 + 2.5 * phi + 10.05 * phi ** 2 + 0.00273 * float(np.exp(16.6 * phi))
+    if law == "krieger":
+        pm = value("tc_phi_max") if phi_max is None else phi_max
+        return float("inf") if phi >= pm else (1.0 - phi / pm) ** (-2.5 * pm)
+    raise ValueError(f"unknown viscosity law {law!r}")
+
+
+def apparent_rel_viscosity(x: float, law: str = "thomas", thin: float | None = None) -> float:
+    """Viscosity the impeller and the bubbles see at x g of wet cells a litre, over the medium's: the high-shear value, with its
+    excess over the medium raised by `thin` (`tc_thin`, 1.33: CHO at 1e8 cells/mL is 2.4 mPa s at the shear of 50 rpm in a
+    250 mL tank against 1.8 at 45 per second). The volume fraction is x / (cell density x 1000)."""
+    thin = value("tc_thin") if thin is None else thin
+    phi = x / (value("pf_cell_density") * 1000.0)
+    return 1.0 + (rel_viscosity(phi, law) - 1.0) * thin
+
+
+def kla_factor(x: float, law: str = "thomas", thin: float | None = None, exponent: float | None = None) -> float:
+    """kLa of a culture at x g/L over the kLa in medium: the apparent viscosity to the power -`tc_kla_exp` (0.40: Yagi and
+    Yoshida's net viscosity exponent, -1.5 + 0.5 + 0.6, in stirred tanks)."""
+    n = value("tc_kla_exp") if exponent is None else exponent
+    if n == 0.0:
+        return 1.0
+    return apparent_rel_viscosity(x, law, thin) ** (-n)
+
+
+def oxygen_limit(x_base: float, law: str = "thomas", thin: float | None = None, exponent: float | None = None) -> float:
+    """Density (g/L) a sparger can feed once viscosity is counted. `x_base` is the density the oxygen supply gives with the kLa
+    of medium. Oxygen use rises in proportion to density and kLa falls with it, so the limit is the fixed point
+    x = x_base x kla_factor(x), found by bisection (60 halvings; the page's fxO2Visc mirrors it). Infinite stays infinite."""
+    if not np.isfinite(x_base):
+        return float("inf")
+    n = value("tc_kla_exp") if exponent is None else exponent
+    if n == 0.0:
+        return float(x_base)
+    lo, hi = 0.0, float(x_base)
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if mid > x_base * kla_factor(mid, law, thin, n):
+            hi = mid
+        else:
+            lo = mid
+    return 0.5 * (lo + hi)
+
+
+def _kla_exponent(viscous_kla) -> float:
+    """explore's `viscous_kla`: True = the datasheet's tc_kla_exp, False = 0 (Humbird: no effect), a number = that exponent."""
+    if viscous_kla is True:
+        return value("tc_kla_exp")
+    if viscous_kla is False or viscous_kla is None:
+        return 0.0
+    return float(viscous_kla)
+
+
 def density(cells: Cells, otr: float, washed: bool) -> float:
     """Highest cell density (g wet/L) the reactor supports: oxygen, viscosity and, if waste is not
     washed out, the ammonia/CO2 limit."""
@@ -254,9 +314,68 @@ def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: flo
     raise ValueError(f"unknown mode {mode!r}")
 
 
-def capex_at_size(capex_20m3: float, vessel_m3: float) -> float:
-    """Scale an aseptic plant's capital per m3 from 20 m3 vessels to another size. Only the
-    bioreactor share scales, with Humbird's packaged-vessel cost (Eq. 3.1: $k = 30.7 V + 800)."""
+def humbird_fedbatch_output() -> float:
+    """Tonnes of wet cells a year per m3 of production tank in Humbird's fed-batch plant, from his tables: 6.8 kTA from 24 tanks
+    of 20 m3 (Tables 4.1, 4.7) = 14.2. His crew, his utilities and his medium preparation equipment are for this output.
+    (output_per_m3(GOOD_CELLS, "fedbatch") gives 14.5: a 58-hour cycle at a nominal 120 g/L; back-test 2026-11-20.)"""
+    return value("humbird_output_fedbatch") / (value("pi_n_tanks") * value("pi_tank_m3")) / 1000.0
+
+
+_RATIOS: dict = {}
+
+
+def plant_ratios(choices: dict | None = None) -> tuple:
+    """(vessel, buildings, dedicated medium) of a plant built item by item against Humbird's: its production tanks' cost per m3
+    over his, its buildings (hall, labs, support) over his, and whether each tank has its own makeup tanks and filter housings
+    (plant_items 'medium' = 'dedicated'). None is Humbird's plant: (1, 1, True). Memoised on the pi_ inputs."""
+    import inputs as I
+    import plant_items as PI
+    c = PI.choices_for("humbird", **(choices or {}))
+    key = (tuple(sorted(c.items())), tuple((k, I.REGISTRY[k].value) for k in sorted(I.REGISTRY) if k.startswith("pi_")))
+    if key not in _RATIOS:
+        o, h = PI.options(), PI.humbird()
+        bh = h["hall"] + h["labs"] + h["support"]
+        _RATIOS[key] = (o["vessels"][c["vessels"]][0] / h["vessels"],
+                        (o["hall"][c["hall"]][0] + o["labs"][c["labs"]][0] + o["support"][c["support"]][0]) / bh,
+                        c["medium"] == "dedicated")
+    return _RATIOS[key]
+
+
+def tank_items(vessel_m3: float, perfusion: bool = False, choices: dict | None = None) -> dict:
+    """What the production tanks bring with them, $k per m3 of production tank (2018 dollars, total investment), in Humbird's
+    accounting (2026-11-20): the tank itself (Eq. 3.1, $30.7k x V + $800k installed, times 1.2556 for minor equipment and its
+    installation), its makeup tanks and filter housings (bare, times 2.5556; fed-batch three makeup tanks and $62k of housings
+    per tank, perfusion two and $28k: pi_makeup_*, pi_filters_*), and the buildings ($74.4k per m3 + $533k per tank of direct
+    cost, a fit to his two plants: pi_bldg_*), all times 1.84 for engineering, construction, fees and contingency. A plant
+    built item by item (`choices`, plant_items) scales the tank and the buildings by its own items against his, and has no
+    makeup tanks or housings per tank if its medium line is shared. Seed trains, fill tanks, sterilisers, centrifuges and the
+    utilities outside the process are not here: they stay in the plant's cost per m3 of tank (and the medium preparation
+    grows with the medium a case passes: explore's medium_prep_capex). Cell-retention devices are priced by explore itself."""
+    import plant_items as PI
+    vr, br, dedicated = plant_ratios(choices)
+    ind = PI.indirect()
+    bio = PI._bioreactor_direct(1.0)                                   # 1.2556
+    eqp = PI._equipment_direct(1.0)                                    # 2.5556
+    vessel = ind * bio * PI.eq31(vessel_m3) / vessel_m3 * vr
+    per_tank = (value("pi_makeup_pf_tank") + value("pi_filters_pf_tank")) if perfusion else \
+        (value("pi_makeup_fb_tank") + value("pi_filters_fb_tank"))
+    items = ind * eqp * per_tank / vessel_m3 if dedicated else 0.0
+    bldg = ind * (value("pi_bldg_per_m3") + value("pi_bldg_per_tank") / vessel_m3) * br
+    return {"vessel": vessel, "items": items, "buildings": bldg, "total": vessel + items + bldg}
+
+
+def capex_at_size(capex_20m3: float, vessel_m3: float, perfusion: bool = False, choices: dict | None = None,
+                  vessel_ratio: float = 1.0) -> float:
+    """A sterile plant's capital per m3 of production tank (2018 dollars) at another tank size or way of running, from its
+    figure for 20 m3 tanks in fed-batch: plus the change in what the tanks bring with them (tank_items), the tank itself at
+    `vessel_ratio` times a packaged stirred tank's price (another vessel type). Until 2026-11-20 only the bioreactor share
+    (pf_bioreactor_capex_share) was scaled, with Eq. 3.1."""
+    a, b = tank_items(vessel_m3, perfusion, choices), tank_items(20.0, False, choices)
+    return capex_20m3 + a["vessel"] * vessel_ratio + a["items"] + a["buildings"] - b["total"]
+
+
+def capex_at_size_old(capex_20m3: float, vessel_m3: float) -> float:
+    """The rule before 2026-11-20 (explore's per_tank=False): only the bioreactor share scales, with Eq. 3.1."""
     per_m3 = lambda v: (30.7 * v + 800.0) / v
     share = value("pf_bioreactor_capex_share")
     return capex_20m3 * ((1.0 - share) + share * per_m3(vessel_m3) / per_m3(20.0))
@@ -399,6 +518,39 @@ def _inputs_set(settings: dict):
     return cm()
 
 
+CLEAN_NAMES = ("none", "exchanger", "electrodialysis", "dialysis")
+
+
+def clean_route(clean) -> dict | None:
+    """The numbers of a route that cleans the medium so it can be used again, as explore() takes them (`clean`): None for
+    "none"; {"sorbent": True} for the ammonium exchanger on the permeate (explore's `sorbent` lever, priced by its sorbent);
+    the side study's own inputs (medium_reuse.routes(), the mr_ inputs) for electrodialysis of the permeate and for dialysis
+    across the culture with the dialysate cleaned and reused, its exchange membrane at the cost of the cell filter. A dict
+    is taken as it is. Read at call time, so a test can move an mr_ input."""
+    if clean is None or clean == "none":
+        return None
+    if isinstance(clean, dict):
+        return clean
+    if clean == "exchanger":
+        return {"sorbent": True}
+    if clean == "electrodialysis":
+        return {"nh3": value("mr_ed_nh3"), "lac": value("mr_ed_lac"), "device_l": value("mr_ed_cost_l")}
+    if clean == "dialysis":
+        d = value("mr_dial_removal")
+        return {"nh3": d, "lac": d, "other": d, "in_tank": True, "exchange_membrane": 1.0,
+                "dialysate_l": value("mr_dialysate_makeup") * value("mr_dialysate_l"),      # basal medium bought, per litre cleaned
+                "device_l": value("mr_dialysate_l") * value("mr_ed_cost_l")}               # cleaning the dialysate, per litre cleaned
+    raise KeyError(f"no cleaning route {clean!r}")
+
+
+def clean_loops(terms: dict, route: dict) -> list:
+    """The litres cleaned per kilo of cells harvested that the search for the cheapest tries: every 0.1 litre from none up to
+    the litres that take out all of the waste the route handles (`terms`: explore's `medium_terms` with nothing cleaned)."""
+    takes = (("ammonia", route.get("nh3", 0.0)), ("lactate", route.get("lac", 0.0)), ("least flow", route.get("other", 0.0)))
+    top = max([terms[n] / sh for n, sh in takes if sh > 0] or [0.0])
+    return [i * 0.1 for i in range(int(top * 10) + 2)]
+
+
 def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float = 20.0,
             plant: str = "sanitary", mode: str = "perfusion", charge: float | None = None,
             uptime: float | None = None, maintenance_share: float | None = None,
@@ -418,7 +570,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
             vm: dict | None = None, membrane_life: float | None = None, flux: float | None = None,
             strip_eff: float | None = None, antifoam_otr: float | None = None,
-            protectant_price: float | None = None, _search: bool = True) -> dict:
+            protectant_price: float | None = None, lac_limit: float | None = None, kill: float | None = None,
+            wash_price: float | None = None, clean: str | dict = "none", clean_share: float | None = None,
+            clean_loop: float | None = None, x_visc: float | None = None,
+            membrane_price: float | None = None, membrane_hw: float | None = None, viscous_kla=True,
+            mature_h: float | None = None, per_tank: bool = True, _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -508,6 +664,69 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
       A plant of the yeast-style class (`plant="microbial"`) has no oxygen unit in its price, so it buys its oxygen as
       a plant built item by item does (pi_o2_feed x pi_o2_price, `o2_bought` in the result).
 
+      Since 2026-11-20 (research_notes/full_review_2026-11-19.md, section 2):
+      * `lac_limit`: the lactate the cells tolerate, mmol/L (default Humbird's pf_lac_limit; the scenarios pass sc_lac_limit).
+      * medium preparation: the plant's capital is Humbird's fed-batch plant, whose medium preparation and sterilising
+        equipment (plant_items 'medium') is sized for pf_medium_prep_l_kg litres per kilo at his fed-batch output. A case that
+        passes more medium per m3 of tank a year pays for more of it: the plant's own medium item x (ratio ^
+        pf_medium_prep_exp - 1), never less than nothing (`medium_prep_capex`, $k per m3, added like the filter loop's).
+      * bubble deaths: cells die at `kill` (default ge_kill_protected, L of culture per L of gas) x the gas passed per litre of
+        culture, in every tank whose cells meet sparged gas. The dead cells lyse and are not harvested: the share
+        `death_share` = death rate / growth rate (at most 0.5) comes off the output, and every cost per kilo and the litres
+        of medium per kilo are per kilo harvested (divided by 1 - death_share: the dead cells used their medium too).
+        The gas passed is the gas the culture needs from its sparger (corrected 2026-11-20, second pass): the gas-velocity cap
+        x min(1, density / the smaller of the two densities the SPARGER ALONE could serve, for oxygen and for CO2). A column
+        does not change those two: it is sized for the CO2 (and, with an oxygen sweep, the oxygen) the sparger at its cap
+        cannot handle (gas_exchange.column_design), so a column that strips nothing leaves the gas, and the deaths, as they
+        were, and a culture beyond what the sparger alone could serve bubbles the full cap whatever the column. A vessel whose
+        sparger passes oxygen or CO2 better (`otr_mult`, `co2_mult`) needs that much less gas. A vessel that sparges nothing
+        through the culture (`o2_gas` and `co2_gas` both off) has no bubble deaths and buys no protectant. `gas_used`, m/s.
+        `vm["gas_away"]` (m/s; the bubble cage): that part of the gas velocity is sparged where there are no cells. It counts
+        for oxygen and CO2 as the rest does, but only the remainder kills cells (`gas_cells`, m/s, in the same proportion).
+      * labour: Humbird's fed-batch crew per m3 of tank (pf_labour at his fed-batch output), times pf_labour_perfusion_x for a
+        tank in perfusion (washed, run continuously). pf_labour_perfusion, his perfusion design's own figure, is a cross-check.
+      * harvest: pf_harvest_recovery of the cells grown are recovered, times a vessel's own `recovery` (cells left on a
+        support). The cells lost were grown with their share of medium, membranes and everything else, so both are treated as
+        the death share is: every cost per kilo and the litres of medium per kilo are divided by them (a vessel's `recovery`
+        scaled only the output until 2026-11-20, which left its medium and growth factors per kilo too low).
+      * `x_visc`: the thickest culture the tank can stir, g/L (default pf_x_visc).
+      * `membrane_price` ($ per m2, default rt_membrane_price) and `membrane_hw` ($k of hardware per m2, default rt_tff_hw):
+        with `flux` and `membrane_life` they make the filter loop another membrane device (retention._MEMB: dialyser-grade
+        fibres are flux rt_dial_flux, life rt_dial_life, price rt_dial_price, hardware rt_dial_hw), priced by the same lines.
+
+      Cleaning and reusing the medium (medium_reuse.py, research_notes/medium_reuse.md; all off by default):
+      * `wash_price` ($ a litre; None: every litre at `medium_price`): the litres that carry the nutrients (pf_medium_l_floor,
+        'nutrients' in `medium_terms`) are charged at `medium_price` and the rest, which only wash waste out, at `wash_price`.
+        The nutrient floor (what the cells eat, plus the growth factors inside a complete medium for every litre) still applies.
+      * `clean`: a route that takes waste out of the medium so it can be used again: "none", "exchanger" (the ammonium
+        exchanger on the permeate: the same calculation as `sorbent`), "electrodialysis" (of the permeate), "dialysis" (across
+        the culture, the dialysate cleaned and reused) or a dict of a route's own numbers (medium_reuse.routes(): `nh3`,
+        `lac`, `other` = share of each waste a litre cleaned gives up; `in_tank`; `gf_kept`; `device_l` $ per litre cleaned;
+        `dialysate_l` litres of basal medium bought per litre cleaned; `exchange_membrane`, for a device across the culture,
+        its membrane and hardware as a share of the cell filter's for the same litres). CLEAN_ROUTES holds the named ones.
+        Each litre cleaned and returned stands in for that share of a litre thrown away, so the litres each waste asks for
+        fall by litres cleaned x share. A device on the permeate does not lower the litres through the cell filter: what it
+        cleans passes the filter too. Only a device across the culture does, and then its own membrane meets the cells.
+        `clean_share` (0 to 1): the litres cleaned, as a share of the litres that would take out all of the waste the route
+        handles (for the exchanger, the share of the ammonia taken). None: the litres that cost least, searched as the side
+        study searches them (`clean_loops`: every 0.1 litre per kilo; the exchanger: its share in hundredths up to 90%).
+        `clean_loop` sets the litres cleaned per kilo of cells grown directly (medium_reuse.cost).
+        The result reports `clean_capex` ($k per m3 of tank: the membrane hardware the route adds, of which
+        `clean_filter_capex` is inside `retention_capex`; `clean_capital` is its yearly charge per kilo, inside `capital`), `clean_opex` ($ per kilo: membranes for the litres cleaned, the
+        device, the dialysate, the growth factors lost, the sorbent; of which `clean_filter_membranes` is inside `membranes`),
+        `clean_loop` (L/kg cleaned and returned, per kilo harvested), and the litres of medium without the route (`medium_l_unclean`) beside `medium_l`.
+
+      Since 2026-11-20 (additions brief):
+      * `viscous_kla` (True: the exponent tc_kla_exp; False or 0: none, as Humbird; a number: that exponent): a thick culture takes
+        up oxygen more slowly, kLa x (apparent viscosity / medium's)^-n, the apparent viscosity from Thomas's law with its excess
+        raised by tc_thin; the oxygen limit is then the fixed point of `oxygen_limit`.
+      * `per_tank` (default True): the plant's cost per m3 at another tank size or way of running is the 20 m3 fed-batch plant's
+        plus the change in what each tank brings with it (`tank_items`: the tank, its makeup tanks and filter housings,
+        buildings); False restores the bioreactor-share rule (capex_at_size_old).
+      * `mature_h` (default pf_mature_h, 0): hours at no growth before harvest. A cycle lasts that much longer; a continuous tank
+        holds its harvested stream in a maturation vessel (`mature_capex`, $k per m3 of tank); the medium the cells use while
+        maturing, at their upkeep rate, is added to the litres (`mature_l`).
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
     if strip_eff is not None or antifoam_otr is not None:   # run the case with those two inputs set, then restore them
@@ -515,19 +734,33 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         kw = {k: v for k, v in locals().items() if k not in ("strip_eff", "antifoam_otr", "over")}
         with _inputs_set(over):
             return explore(**kw)
-    args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search")}
     vm = vm or {}
+    mature_h = value("pf_mature_h") if mature_h is None else float(mature_h)
     washed = vm.get("washed", mode == "perfusion")     # is waste washed out (cells retained, or fixed to a support)?
+    if clean != "none" and washed and medium_l is None and clean_share is None and clean_loop is None:
+        # the litres cleaned that cost least, on the side study's own grids (medium_reuse.best, sorbent_best). None cleaned is
+        # on both, so a route never costs more than no route
+        kw = {k: v for k, v in locals().items() if k not in ("kw", "washed", "clean_share", "clean_loop")}
+        if clean_route(clean).get("sorbent"):          # the exchanger: the share of the ammonia taken, 0 to 90% in hundredths
+            return min((explore(clean_share=i / 100.0, **kw) for i in range(91)), key=lambda r: r["total"])
+        r0 = explore(clean_share=0.0, **kw)            # the others: every 0.1 litre per kilo harvested, up to all it handles
+        return min((explore(clean_loop=loop * r0["harvested_share"], **kw) if loop > 0 else r0
+                    for loop in clean_loops(r0["medium_terms"], clean_route(clean))), key=lambda r: r["total"])
+    args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search", "washed")}
     cyclic = vm.get("kind") == "cyclic"                # cycles (batch, fed-batch) in place of a continuous run
     wv = vm.get("wv", value("pf_working_volume"))
     if vm.get("dil_frac"):                             # a chemostat grows at its dilution rate, below the maximum
         doubling_h = doubling_h / vm["dil_frac"]
     cells = Cells(mass_pg=mass_pg, doubling_h=doubling_h,
                   maintenance_share=value("pf_maintenance_share") if maintenance_share is None else maintenance_share)
+    prep_item = None                                   # a plant class has no item breakdown: Humbird's item (set below)
+    item_choices = {"hall": "sanitary"} if plant == "sanitary" else None   # the class's items, for what each tank brings (tank_items)
     if items is not None:                              # a plant built item by item
         import plant_items
         cap = plant_items.capital(**items)
+        item_choices = dict(items)
         capex_2018, extra_opex, items = cap["total"], extra_opex + cap["extra_opex"], None
+        prep_item = cap["items"]["medium"]             # this plant's own medium preparation equipment, $k per m3 (2018)
     elif plant == "microbial" and capex_2018 is None and vm.get("o2_gas", True) and value("pf_o2_microbial") >= 0.5:
         extra_opex = extra_opex + value("pi_o2_feed") * value("pi_o2_price")   # no oxygen unit in this class's price
     # --- salt strength: how much lactate the culture may hold at this CO2 level and pH ----------------
@@ -536,8 +769,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     ph = value("pf_ph") if ph is None else ph
     hco3 = value("pf_co2_henry") * pco2_tol * 10.0 ** (ph - value("pf_pk1"))          # mmol/L at this CO2 and pH
     osm_co2 = 2.0 * max(0.0, hco3 - value("pf_hco3_base"))                             # mOsm/kg from added bicarbonate
-    lac_room = min(value("pf_lac_limit"), max(1.0, (osm_limit - value("pf_osm_base") - osm_co2) / 2.0))
-    if _search and washed and medium_l is None and lac_room < value("pf_lac_limit"):
+    lac_lim = value("pf_lac_limit") if lac_limit is None else lac_limit                # the lactate the cells tolerate
+    lac_room = min(lac_lim, max(1.0, (osm_limit - value("pf_osm_base") - osm_co2) / 2.0))
+    if _search and washed and medium_l is None and lac_room < lac_lim:
         # the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
         kw = dict(args, _search=False)
         best = None
@@ -555,7 +789,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # A contamination loses the cycle's cells and adds a restart; the seed train for the next cycle is ready.
         # `slow`: the last doublings take longer when the batch ends above the steady-state waste level (batch_slowdown).
         grow_h = vm["n_doublings"] * cells.doubling_h * slow
-        cycle_h = grow_h + vm["turnaround_h"]
+        cycle_h = grow_h + vm["turnaround_h"] + mature_h      # maturation: hours in the tank at no growth before harvest
         ok = 1.0 - start_fail
         p_late = 0.0 if hazard <= 0 else ok * (1.0 - np.exp(-hazard * cycle_h / 24.0))
         p_fail = start_fail + p_late
@@ -565,8 +799,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if cyclic:
         cycle_h, lost, uptime, runs_yr = _cycle()
     elif uptime is None:
-        clean = vm.get("clean_uptime", value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic"))
-        restart = value("pf_run_days") * (1.0 / clean - 1.0)            # days to clean, restart and regrow
+        clean_up = vm.get("clean_uptime", value("pf_uptime") if mode == "perfusion" else value("pf_uptime_realistic"))
+        restart = value("pf_run_days") * (1.0 / clean_up - 1.0)            # days to clean, restart and regrow
         L = vm.get("run_days", value("pf_run_days")) if run_days is None else run_days
         ok = 1.0 - start_fail                                          # share of starts that are clean
         T = ok * (L if hazard <= 0 else (1.0 - np.exp(-hazard * L)) / hazard)   # expected productive days per start
@@ -583,14 +817,20 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         lost = min(0.9, tankfuls / (cells.mu * 24.0 * T))
     key, escalate, sized = PLANT_CLASSES[plant]
     capex = value(key) * (value("pf_capex_escalation") if escalate else 1.0)
-    if capex_2018 is not None:                         # a plant built item by item (plant_items)
+    if capex_2018 is not None:                         # a plant built item by item (plant_items), or its cost given directly
         capex, sized = capex_2018 * value("pf_capex_escalation"), True
-    if "capex_ratio" in vm:                            # another vessel type: its unit costs `capex_ratio` times a
+    tank_perf = washed and not cyclic                  # a tank run continuously in perfusion: its own makeup tanks and housings
+    if per_tank and sized:
+        # the 20 m3 fed-batch plant's cost plus the change in what each tank brings with it (2026-11-20): the tank (at
+        # `capex_ratio` times a stirred tank's price for another vessel type), its makeup tanks and filter housings, buildings
+        esc = value("pf_capex_escalation")
+        capex = capex_at_size(capex / esc, vessel_m3, tank_perf, item_choices, vm.get("capex_ratio", 1.0)) * esc
+    elif "capex_ratio" in vm:                          # another vessel type: its unit costs `capex_ratio` times a
         share = value("pf_bioreactor_capex_share")     # packaged stirred vessel of its size (bioreactor share only)
         size_f = (30.7 * vessel_m3 + 800.0) / vessel_m3 / ((30.7 * 20.0 + 800.0) / 20.0) if sized else 1.0
         capex *= (1.0 - share) + share * size_f * vm["capex_ratio"]
     elif sized:
-        capex = capex_at_size(capex, vessel_m3)
+        capex = capex_at_size_old(capex, vessel_m3)
     capex *= capex_x                                  # uncertainty in the plant estimate (floor_mc)
     if shape_cost and aspect is not None:              # a squatter tank needs more steel and floor (gas_exchange.py)
         from gas_exchange import shape_capex_factor
@@ -606,11 +846,14 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         f_p = headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
     rq_eff = (value("pf_rq") - value("pf_rq_lipid") * fat_fed) if rq is None else rq
     x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * f_p * value("pf_antifoam_otr")
+    x_co2 = x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect, rq_eff)
     limits = {"oxygen supply": float("inf") if column == "o2_closed" else x_o2,
-              "thickness of the culture": value("pf_x_visc"),
+              "thickness of the culture": value("pf_x_visc") if x_visc is None else x_visc,
               "mixing": value("pf_otr_cap") / cells.qo2 * value("pf_mix_ratio_20m3") / mixing_time_ratio(vessel_m3, aspect) * f_p,
-              "CO2 removal": float("inf") if column != "none"
-                             else x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect, rq_eff)}
+              "CO2 removal": float("inf") if column != "none" else x_co2}
+    # the densities the sparger alone could serve at the gas cap, whatever a column adds: they set the gas the culture needs
+    sparger = [x_o2 * vm.get("otr_mult", 1.0) if vm.get("o2_gas", True) else float("inf"),
+               x_co2 * vm.get("co2_mult", 1.0) if vm.get("co2_gas", True) else float("inf")]
     if vm:                                             # the vessel's own gas exchange (vessels.py)
         limits["oxygen supply"] *= vm.get("otr_mult", 1.0)
         if not vm.get("mixing", True):
@@ -620,6 +863,13 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         limits["CO2 removal"] *= vm.get("co2_mult", 1.0)    # gas exchanged away from the cells (a bubble cage)
         if not vm.get("o2_gas", True):
             limits["oxygen supply"] = float("inf")
+    # a thick culture takes up oxygen more slowly: kLa x (apparent viscosity / medium's)^-n, so the oxygen limit is a fixed point in
+    # density (2026-11-20; thick_culture.py had it as a side study). Off (n = 0) in Humbird's like-for-like reproduction
+    kexp = _kla_exponent(viscous_kla)
+    if kexp > 0.0:
+        limits["oxygen supply"] = oxygen_limit(limits["oxygen supply"], exponent=kexp)
+        sparger[0] = oxygen_limit(sparger[0], exponent=kexp)
+    if vm:
         for name, cap in vm.get("caps", {}).items():   # density caps of the vessel or the mode, g per litre of vessel
             limits[name] = cap
     burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
@@ -660,11 +910,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     shape = vm.get("shape", shape)
     if not cyclic:
         shape /= slow                                  # fill-and-draw climbs back to its cap more slowly
-    rec = vm.get("recovery", 1.0)                      # share of the grown cells the harvest gives back
+    rec = vm.get("recovery", 1.0)                      # share of the grown cells the vessel's own harvest gives back (in `live`, below)
     if cyclic:                                         # a tankful per cycle
-        out = wv * x * rec * HOURS / cycle_h / 1000.0 * (1.0 - lost)
+        out = wv * x * HOURS / cycle_h / 1000.0 * (1.0 - lost)
     else:
-        out = wv * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost) * rec
+        out = wv * x * cells.mu * shape * HOURS * uptime / 1000.0 * (1.0 - lost)
     ox = value("pf_opex_escalation")
     col = None
     if column != "none":                               # the column is sized for the density it allows
@@ -674,26 +924,51 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
                             vessel_m3=vessel_m3, aspect=aspect, cells=cells, rq=rq_eff, do_mmol=do_mmol)
         capex += col["capex_k_m3"]
     capital = charge * capex / out
-    labour = value("pf_labour") * output_per_m3(GOOD_CELLS, "fedbatch") / out * ox * vm.get("labour_mult", 1.0)
-    utilities = value("pf_utilities") * ox * (0.5 + 0.5 * burn)
-    if col is not None:
-        utilities += col["energy_kg"] + col["gas_kg"]
+    # Humbird's fed-batch crew per m3 of tank; a tank in perfusion (washed, run continuously) takes pf_labour_perfusion_x
+    # times it (staff per thousand tonnes in analyses that assume perfusion against his fed-batch crew; 2026-11-20)
+    crew = value("pf_labour") * humbird_fedbatch_output()
+    if washed and not cyclic:
+        crew *= value("pf_labour_perfusion_x")
+    labour = crew / out * ox * vm.get("labour_mult", 1.0)
     consumables = value("pf_consumables_low")
     if vm.get("cons_run"):                             # what the vessel throws away each run ($k per m3 of vessel)
         consumables += vm["cons_run"] * (runs_yr if runs_yr is not None else 365.0 / (run_days or value("pf_run_days"))) / out
     osm = float("nan")
     terms = {}
     sorb = sorbent if washed else 0.0
+    # a route that cleans the medium so it can be used again (medium_reuse.py): only where waste is washed out and the litres
+    # are derived. The ammonium exchanger is the `sorbent` lever; the others clean `loop` litres per kilo grown and return them
+    route = clean_route(clean) if (washed and medium_l is None) else None
+    loop = 0.0                                         # litres cleaned and returned, per kilo of cells grown
+    medium_l_unclean = None
+    amm_all = nh3 / (nh3_lim / 1000.0)                 # litres that carry all the ammonia out at the tank's level
+    share_used = 0.0                                   # the share cleaned, as `clean_share`
+    if route is not None and route.get("sorbent"):
+        sorb = (clean_loop / amm_all) if clean_loop is not None else float(clean_share)
+        share_used, route = sorb, None
     suspended = not vm.get("own_retention")            # cells in suspension leave with their liquid; cells on a support do not
     if medium_l is None:                                # derived: nutrients need a minimum; waste needs more
         if washed:
-            terms = {"ammonia": nh3 * (1.0 - sorb) / (nh3_lim / 1000.0), "lactate": lac / (lac_room / 1000.0),
+            terms = {"ammonia": nh3 / (nh3_lim / 1000.0), "lactate": lac / (lac_room / 1000.0),
                      "least flow": flow / (cells.mu * 24.0)}
-            if sorb > 0:                               # sodium given back by the exchanger stays in the medium
-                room = max(2.0, osm_limit - value("pf_osm_base") - osm_co2)
-                terms["salt"] = 1000.0 * (2.0 * lac + sorb * nh3) / room
             if suspended:                              # the culture that leaves with the harvested cells must be replaced
                 terms["harvest"] = 1000.0 / x
+            medium_l_unclean = max(value("pf_medium_l_floor"), max(terms.values()))     # with no sorbent and no route
+            terms["ammonia"] *= (1.0 - sorb)
+            if sorb > 0:                               # sodium given back by the exchanger stays in the medium
+                room = max(2.0, osm_limit - value("pf_osm_base") - osm_co2)
+                terms = {**{k: terms[k] for k in ("ammonia", "lactate", "least flow")},
+                         "salt": 1000.0 * (2.0 * lac + sorb * nh3) / room, **{k: v for k, v in terms.items() if k == "harvest"}}
+            if route is not None:
+                # each litre cleaned stands in for the share of a litre thrown away that the device takes of each waste
+                takes = (("ammonia", route.get("nh3", 0.0)), ("lactate", route.get("lac", 0.0)),
+                         ("least flow", route.get("other", 0.0)))
+                top = max([terms[n] / sh for n, sh in takes if sh > 0] or [0.0])    # litres that take out all it handles
+                loop = float(clean_loop) if clean_loop is not None else float(clean_share) * top
+                share_used = loop / top if top > 0 else 0.0
+                lac_out = min(terms["lactate"], loop * route.get("lac", 0.0)) * lac_room / 1000.0   # mol of lactate taken per kg
+                for n, sh in takes:
+                    terms[n] = max(0.0, terms[n] - loop * sh)
             need = max(terms.values())
         else:                                           # all the medium leaves with the cells (2026-11-19: named as such)
             terms = {"harvest": 1000.0 / x}
@@ -701,40 +976,119 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         terms["nutrients"] = value("pf_medium_l_floor")
         medium_l = max(value("pf_medium_l_floor"), need)
         if washed:
-            osm = value("pf_osm_base") + osm_co2 + (2.0 * lac + sorb * nh3) / medium_l * 1000.0
+            osm = value("pf_osm_base") + osm_co2 + (2.0 * (lac - (lac_out if loop > 0 else 0.0)) + sorb * nh3) / medium_l * 1000.0
     elif washed and suspended:                          # a set figure cannot be less than the culture that leaves either
         medium_l = max(medium_l, 1000.0 / x)
     ret_capex = membranes = 0.0
+    in_tank = bool(route and route.get("in_tank"))
+    # litres per kg that pass the cell filter a second time: what a device on the permeate cleans and returns (the exchanger:
+    # the litres that hold the ammonium it takes, at the tank's level)
+    loop_filtered = sorb * amm_all + (0.0 if in_tank else loop)
+    clean_parts = {}                                   # what the route adds, $ per kg of cells, capital charge included
+    clean_capex = clean_filter_capex = clean_filter_membranes = clean_opex = 0.0
     if tff:                                            # the TFF loop clears what the bleed of cells does not carry out
-        perm = max(0.0, medium_l - 1000.0 / x)                                         # litres per kg grown
-        if sorb > 0:        # the permeate sent through the exchanger and back passes the filter too: the ammonium it takes
-            perm += sorb * nh3 / ((value("pf_nh3_limit") if nh3_limit is None else nh3_limit) / 1000.0)   # / tank level
+        perm = max(0.0, medium_l - 1000.0 / x) + loop_filtered                         # litres per kg grown
         kg_h = out * 1000.0 / (HOURS * uptime)                                          # kg per hour per m3 of tank
-        area = perm * kg_h / (value("rt_flux_lmh") if flux is None else flux)           # m2 of membrane per m3 of tank
-        ret_capex = area * value("rt_tff_hw") * value("rt_install")                     # $k per m3 of tank
+        hw_l = kg_h / (value("rt_flux_lmh") if flux is None else flux) * (value("rt_tff_hw") if membrane_hw is None else membrane_hw) * value("rt_install")   # $k per m3 of tank, per L/kg
         # the membrane's life is the litres it filters over a full planned run; a run that ends early filters fewer
-        membranes = perm * value("rt_membrane_price") / ((value("rt_membrane_life") if membrane_life is None else membrane_life) * run_frac)
+        mem_l = (value("rt_membrane_price") if membrane_price is None else membrane_price) / ((value("rt_membrane_life") if membrane_life is None else membrane_life) * run_frac)   # $ per litre
+        ret_capex = perm * hw_l                                                         # $k per m3 of tank
+        membranes = perm * mem_l
         capex += ret_capex
         capital += charge * ret_capex / out
         consumables += membranes
+        clean_filter_capex, clean_filter_membranes = loop_filtered * hw_l, loop_filtered * mem_l
+        clean_capex, clean_opex = clean_filter_capex, clean_filter_membranes
+        if loop_filtered > 0:
+            clean_parts["filter for the loop"] = clean_filter_membranes + charge * clean_filter_capex / out
+        if in_tank:        # a membrane across the culture: the cell filter's fibre and hardware for the litres cleaned, times its share
+            xm = loop * route.get("exchange_membrane", 0.0)
+            capex += xm * hw_l
+            capital += charge * xm * hw_l / out
+            consumables += xm * mem_l
+            clean_capex += xm * hw_l
+            clean_opex += xm * mem_l
+            clean_parts["exchange membrane"] = xm * mem_l + charge * xm * hw_l / out
+    # maturation (2026-11-20; `mature_h`, default 0: bulk cell mass, as in the regulatory filings): hours at no growth before harvest.
+    # The cells respire at their upkeep rate, so they use medium at that rate: the litres of growth times the upkeep oxygen of
+    # those hours over the oxygen of growing a kilo, and the glucose they burn. A continuous tank holds its harvested stream that
+    # long in a maturation vessel at the harvest density, priced as tank capacity at the plant's cost per m3; a cycle simply
+    # lasts that much longer (_cycle). The maturation vessel's crew and utilities are not counted.
+    mat_ratio = mat_capex = mat_l = 0.0
+    if mature_h > 0:
+        up, gr = o2_split(cells)
+        mat_ratio = up * cells.mu * mature_h / (up + gr)
+        mat_l = medium_l * mat_ratio
+        medium_l += mat_l
+        if not cyclic:
+            mat_vol = out * 1000.0 / (HOURS * uptime) * mature_h / x        # m3 of maturation vessel per m3 of production tank
+            mat_capex = mat_vol * (capex - ret_capex)
+            capex += mat_capex
+            capital += charge * mat_capex / out
+    if loop > 0:
+        # growth factors per litre, whether bought on top or inside a complete medium's price
+        gf_l = value("pf_growth_factors") * ox / value("pf_medium_prep_l_kg") * (float(growth_factors) + float(gf_in_medium))
+        # the dialysate is basal medium: the medium's price without its growth factors, never below the nutrients a litre carries
+        basal_l = max(medium_price - (gf_l if gf_in_medium else 0.0), feedstock(GOOD_CELLS) / medium_l_unclean)
+        clean_parts["growth factors lost"] = loop * (1.0 - route.get("gf_kept", value("mr_gf_kept"))) * gf_l
+        clean_parts["dialysate"] = loop * route.get("dialysate_l", 0.0) * basal_l
+        clean_parts["device"] = loop * route.get("device_l", 0.0)
+        running = clean_parts["growth factors lost"] + clean_parts["dialysate"] + clean_parts["device"]
+        consumables += running
+        clean_opex += running
+    # medium preparation and sterilising: Humbird's fed-batch plant is sized for pf_medium_prep_l_kg litres per kilo at its own
+    # output; a case that passes more medium per m3 of tank a year buys more of that equipment (never less)
+    if prep_item is None:
+        import plant_items
+        prep_item = plant_items.humbird()["medium"]
+    prep_ratio = medium_l * out / (value("pf_medium_prep_l_kg") * humbird_fedbatch_output())
+    prep_capex = prep_item * value("pf_capex_escalation") * (max(1.0, prep_ratio) ** value("pf_medium_prep_exp") - 1.0)
+    capex += prep_capex
+    capital += charge * prep_capex / out
+    # utilities in Humbird's four parts (his Table 4.4; inputs pf_util_*; back-test 2026-11-20): building power by the year and
+    # cleaning water and steam by the run, both per m3 of tank; the water of the medium by the litre; power for oxygen,
+    # stirring, cooling and dewatering by the kilo, with the oxygen burned
+    runs = runs_yr if runs_yr is not None else 365.0 / (run_days or value("pf_run_days"))
+    utilities = ox * ((value("pf_util_time") + value("pf_util_run") * runs) / out
+                      + value("pf_util_water") * medium_l + value("pf_util_kg") * burn)
+    if col is not None:
+        utilities += col["energy_kg"] + col["gas_kg"]
     if fat_fed > 0:                                    # lipid bought instead of made from glucose
         consumables += fat_fed * value("pf_fat_kg") * (value("pf_fat_price") if fat_price is None else fat_price)
     if sorb > 0:                                       # exchanger bought per mol of ammonium taken, over its uses
         q = value("pf_sorbent_q") if sorbent_q is None else sorbent_q                     # mol per kg of sorbent
-        consumables += sorb * nh3 / q * (value("pf_sorbent_price") if sorbent_price is None else sorbent_price) \
+        sorbent_cost = sorb * nh3 / q * (value("pf_sorbent_price") if sorbent_price is None else sorbent_price) \
             / (value("pf_sorbent_cycles") if sorbent_cycles is None else sorbent_cycles)
+        consumables += sorbent_cost
+        clean_opex += sorbent_cost
+        clean_parts["sorbent"] = sorbent_cost
     protectant = 0.0
+    death = 0.0                                        # share of the cells grown that bursting bubbles kill
+    gas_used = 0.0                                     # gas velocity the culture needs from its sparger, m/s
+    gas_cells = 0.0                                    # the part of it bubbled where the cells are, m/s
     if (vm.get("o2_gas", True) or vm.get("co2_gas", True)) and not vm.get("no_protectant"):   # bubbles meet the cells
+        # the gas the culture needs: the cap x density / the smaller of the densities the sparger alone could serve (oxygen,
+        # CO2). A column takes only what the sparger at its cap cannot, so it does not lower this
+        served = [v for v in sparger if np.isfinite(v)]
+        gas_used = us * (min(1.0, x / min(served)) if served else 0.0)
+        gas_cells = gas_used * max(0.0, 1.0 - vm.get("gas_away", 0.0) / us) if us > 0 else 0.0   # a cage's gas meets no cells
+        # death rate per hour = killing volume x gas passed per litre of culture per hour (gas_exchange.sparge_death)
+        death_h = (value("ge_kill_protected") if kill is None else kill) * gas_cells / tank_shape(vessel_m3, aspect)[1] * 3600.0
+        death = min(0.5, death_h / cells.mu)
         protectant = medium_l * value("pf_protectant_dose") / 1000.0 * (
             value("pf_protectant_price") if protectant_price is None else protectant_price)
         consumables += protectant
-    # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's
-    # figure is taken at the efficient cells' 11 L/kg)
-    gf_per = value("pf_growth_factors") * ox * medium_l / washout_litres(GOOD_CELLS)
+    # growth factors are dosed per litre of medium, so their cost scales with the litres used (Humbird's figure is for his
+    # fed-batch's 8.65 L/kg: he doses by concentration and counts what leaves with the emptied tank; back-test 2026-11-20)
+    gf_per = value("pf_growth_factors") * ox * medium_l / value("pf_medium_prep_l_kg")
     gf = gf_per * float(growth_factors)
     # a complete medium (scenarios.explore_kwargs, sc_medium_complete) carries `gf_in_medium` of the growth factors inside its
     # price: it cannot cost less than the nutrients the cells eat plus those growth factors (2026-11-19)
-    feed = max(feedstock(cells) + gf_per * float(gf_in_medium), medium_l * medium_price) / (1.0 - lost)   # medium in a lost tank is lost too
+    # `wash_price`: the litres that carry the nutrients at the medium's price, the rest (they only wash waste out) at the wash price
+    carry = min(medium_l, value("pf_medium_l_floor"))
+    bought = medium_l * medium_price if wash_price is None else carry * medium_price + (medium_l - carry) * wash_price
+    eat = feedstock(cells) + 0.5 * GLUCOSE_FLOOR * burn * mat_ratio      # the glucose burned while maturing
+    feed = max(eat + gf_per * float(gf_in_medium), bought) / (1.0 - lost)   # medium in a lost tank is lost too
     # the sparge gas: oxygen fed per kg of cells x its price, REPORTED but not added. The plant prices
     # (capital per m3, utilities) already contain the oxygen supply of the design they come from (20 m3,
     # Humbird's tank shape, his gas limit and back pressure). `gas` is what that supply costs per kg in
@@ -744,10 +1098,31 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     o2_cost = value("pf_o2_price") * ox * value("pf_working_volume") * HOURS / (out * 1000.0)   # $ per kg cells per (kg O2/m3/h)
     gas = o2_cost * oxygen_fed(vessel_m3, gas_velocity, aspect, p_top_barg)
     gas_extra = gas - o2_cost * oxygen_fed()
+    # the cells bubbles kill lyse and are not harvested, and pf_harvest_recovery of the rest is recovered: the cells lost were
+    # grown with their share of everything, so output and every cost per kilo (and the litres) are per kilo harvested
+    clean_capital = charge * clean_capex / out         # the yearly charge on the route's hardware, $ per kg (inside `capital`)
+    live = (1.0 - death) * value("pf_harvest_recovery") * rec
+    if medium_l_unclean is None:
+        medium_l_unclean = medium_l
+    if live != 1.0:
+        out *= live
+        capital, labour, utilities, consumables, feed, gf, extra_opex = (
+            v / live for v in (capital, labour, utilities, consumables, feed, gf, extra_opex))
+        membranes, protectant, gas, gas_extra, medium_l = (v / live for v in (membranes, protectant, gas, gas_extra, medium_l))
+        clean_opex, clean_capital, clean_filter_membranes, loop, loop_filtered, medium_l_unclean = (
+            v / live for v in (clean_opex, clean_capital, clean_filter_membranes, loop, loop_filtered, medium_l_unclean))
+        clean_parts = {k: v / live for k, v in clean_parts.items()}
+        terms = {k: v / live for k, v in terms.items()}
     total = capital + labour + utilities + consumables + feed + gf + extra_opex
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "retention_capex": float(ret_capex), "membranes": float(membranes), "protectant": float(protectant),
+            "medium_prep_capex": float(prep_capex), "mature_capex": float(mat_capex), "mature_l": float(mat_l / live), "death_share": float(death), "gas_used": float(gas_used), "gas_cells": float(gas_cells),
+            "harvested_share": float(live), "clean_capex": float(clean_capex), "clean_opex": float(clean_opex),
+            "clean_capital": float(clean_capital),
+            "clean_filter_capex": float(clean_filter_capex), "clean_filter_membranes": float(clean_filter_membranes),
+            "clean_loop": float(loop_filtered if not in_tank else loop), "clean_share": float(share_used), "clean_parts": {k: float(v) for k, v in clean_parts.items()},
+            "medium_l_unclean": float(medium_l_unclean),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "gas": float(gas), "gas_extra": float(gas_extra),
             "consumables": consumables, "extra_opex": float(extra_opex), "feedstock": float(feed), "growth_factors": float(gf),
@@ -1002,7 +1377,7 @@ TORNADO = [
     ("Life of the filter membranes", "membrane_life", 5500.0, 900.0, "5,500 litres per m\u00b2", "900 litres per m\u00b2",
      "Perfusion needs a device that holds the cells in the tank while spent medium leaves. The model prices a hollow-fibre "
      "filter loop. Its membranes, not its hardware, set the cost: about $1,450 per m\u00b2, replaced after filtering "
-     "3,960 litres per m\u00b2. <b>Range:</b> one fibre filtered about 5,500 litres per m\u00b2 over 30 days. Membranes "
+     "2,415 litres per m\u00b2. <b>Range:</b> one fibre filtered about 5,500 litres per m\u00b2 over 30 days. Membranes "
      "pushed harder fouled after about 900. <b>Evidence:</b> small vessels only. Nobody has filtered a culture this thick "
      "for a month at 20 m\u00b3."),
     ("Growth factors", "growth_factors", 0.0, 1.0, "none", "all bought",

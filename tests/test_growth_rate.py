@@ -79,7 +79,9 @@ def check() -> list:
     mc = monte_carlo(20000, 0)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), prior medium price", np.mean(mc > 1), 0.062, tol=0.01)
     mc1 = monte_carlo(20000, 0, 1.00)["byproduct-threshold"]["saving"]
-    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.237, tol=0.01)
+    # 0.237 until 2026-11-20, when the overhead prior's low end moved from 10.8 to 13.8 with plant_floor (inputs.py): fewer
+    # cheap-plant draws, so slowing pays in fewer of them. The module is unchanged; the pin was stale.
+    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.2085, tol=0.01)
     mc02 = monte_carlo(20000, 0, 0.20)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), medium $0.20/L", np.mean(mc02 > 1), 0.0, tol=0.005)
 

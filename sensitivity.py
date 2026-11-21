@@ -104,7 +104,8 @@ def _share_at(target: str, overrides: dict) -> float:
     m = _modes(target); m.update(overrides)
     R = _R_at(target, overrides)
     dp = DemandParams(w_ratio=m["w_ratio"]) if "w_ratio" in m else DemandParams()   # w_ratio: beta re-derived
-    return float(share(R, dp, accept_x=m["accept_x"], eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
+    # accept_x left inputs.MC_DEMAND_INPUTS on 2026-11-20: unless a caller overrides it, it is at its point value
+    return float(share(R, dp, accept_x=m.get("accept_x"), eps_own=m["eps_own"], kappa=m["cult_sub_mult"],
                        equal_share=m["equal_price_share"]))
 
 

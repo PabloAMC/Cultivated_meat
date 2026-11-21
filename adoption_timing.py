@@ -246,9 +246,8 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
       - neophobia_x   (long-run destination)
       - accept_rate   (how fast novelty fades)
       - p_innov, q_imit (Bass rollout speed)
-      - accept_x, theta_free_M (long-run sensory / cleaner-meat acceptance)
-      - health_x (cultivated health perception)
-    i.e. inputs.MC_TIMING_INPUTS — the same list the page's timing band samples.
+      - equal_price_share (the long-run share at equal price: the net of taste, novelty and image)
+    i.e. inputs.MC_TIMING_INPUTS (accept_x is held at its point value since 2026-11-20) — the same list the page's timing band samples.
     `R` is held fixed (the price ratio); use the cost rung to pick it.
     Returns dict(t, share_p10/p50/p90 [%], tstab [array of years], final [array %])."""
     rng = np.random.default_rng(seed)
@@ -268,7 +267,7 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
         tp_i = TimingParams(neophobia_x0=float(s["neophobia_x0"][i]),
                             accept_rate=float(s["accept_rate"][i]),
                             p_innov=float(s["p_innov"][i]), q_imit=float(s["q_imit"][i]),
-                            accept_x=float(s["accept_x"][i]), equal_share=float(s["equal_price_share"][i]), years=yrs)
+                            equal_share=float(s["equal_price_share"][i]), years=yrs)
         paths[i] = _run(lambda k: R, dp_i, tp_i, acceptance_grows=True)["share"] * 100
         tstab[i] = years_to_stabilize(R, dp_i, tp_i)
     t = np.arange(yrs + 1)

@@ -23,7 +23,10 @@ def check() -> list:
         fails.append("the model's nutrient floor moved, or is no longer GFI's feed-grade, efficient floor")
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (best 11.16 -> 13.75 L/kg, central 28 -> 35) and lost runs pay for
     # their membranes: best 9.9613 -> 11.4569, central 26.4296 -> 32.8028
-    for k, want in (("best", 11.6738), ("central", 32.8028)):   # 2026-11-19: best's cells 2 ng, 11.4569 -> 11.6738
+    # 2026-11-20 batch: best 11.6738 -> 18.7144, central 32.8028 -> 49.9616
+    # 2026-11-20 final pass: the all-favourable example is now scenarios.all_favourable() (18.7144 -> 7.6209); the low-lactate
+    # example 49.9616 -> 49.4977 (the fixes to bubble deaths and viscous oxygen transfer)
+    for k, want in (("best", 7.6209), ("central", 49.4977)):
         if not close(S.run(S.SCENARIOS[k].choice)["total"], want, 1e-4):
             fails.append(f"{k}: default cost moved")
     # GFI's headline: amino acids below about $5 a kilo at low food-grade prices and the better bioconversion estimates
@@ -47,20 +50,31 @@ def check() -> list:
     # 2026-11-19 audit batch: at 35 L/kg the low-lactate example's $0.20 medium costs $7.00, above its nutrients plus its growth factors until
     # the floor passes about $3.3 a kilo. So the low-lactate example no longer moves at feed-grade prices and 350 g, or at low food-grade
     # prices and 232 g (it rose at both at 28 L/kg); it does at low food-grade prices and 350 g.
-    base_c = S.run(S.SCENARIOS["central"].choice)["total"]
-    for t, n in (("feed", "mid"), ("low", "eff")):
-        if not close(N.scenario_cost("central", t, n)["total"], base_c, 1e-9):
-            fails.append(f"central should not move at {t} prices and the {n} need: litres x price still binds")
-    if not N.scenario_cost("central", "low", "mid")["total"] > base_c + 1.0:
-        fails.append("central should rise at low food-grade prices and 350 g/kg")
+    # 2026-11-20 batch: CHANGED. Growth factors are now dosed per litre from Humbird's fed-batch 8.65 L/kg (it was 11.2), so the
+    # 30% of them inside the low-lactate example's complete medium cost more: its nutrients plus those growth factors come to within
+    # 3 cents a kilo of its 35 litres at $0.20 ($7.00). So ANY dearer amino-acid floor now raises its cost, by nearly the
+    # floor's rise over the share of the cells harvested; before the batch it did not move until the floor passed about $3.3.
+    base_r = S.run(S.SCENARIOS["central"].choice)
+    base_c = base_r["total"]
+    for t, n in (("feed", "mid"), ("low", "eff"), ("low", "mid")):
+        rise = N.scenario_cost("central", t, n)["total"] - base_c
+        d = N.floor(t, n) - N.floor("feed", "eff")
+        if not (0.9 * d < rise <= 1.02 * d / base_r["harvested_share"] / 0.8):
+            fails.append(f"central should rise by about the floor's rise (${d:.2f}) at {t} prices and the {n} need, got ${rise:.2f}")
     # the all-favourable example moves dollar for dollar with the floor (over the share of output not lost with lost tanks)
     d_floor = N.floor("low", "mid") - N.floor("feed", "eff")
     d_best = N.scenario_cost("best", "low", "mid")["total"] - N.scenario_cost("best", "feed", "eff")["total"]
-    if not (d_floor <= d_best <= 1.02 * d_floor):
+    d_best *= S.run(S.SCENARIOS["best"].choice)["harvested_share"]     # 2026-11-20: costs are per kilo harvested; the floor is per kilo grown
+    # 2026-11-20 final pass: the all-favourable example now loses no runs (Humbird's design loses none, and the case takes the
+    # more favourable source), so it moves EXACTLY dollar for dollar per kilo grown; before, lost tanks made it move a little
+    # more. The lower bound allows 1e-9 for floating-point rounding only (the two differed by 4e-16 and the check failed on that).
+    if not (d_floor - 1e-9 <= d_best <= 1.02 * d_floor):
         fails.append("the all-favourable example should move dollar for dollar with the floor")
     # pinned
     # 2026-11-19 audit batch: the same two changes move all three (9.9613, 12.5648, 39.7235 before)
-    for (k, t, n), want in {("best", "feed", "eff"): 11.6738, ("best", "low", "mid"): 14.2773, ("central", "high", "low"): 45.4289}.items():
+    # 2026-11-20 batch: 11.6738, 14.2773, 45.4289 before
+    # 2026-11-20 final pass: 18.7144, 21.6023, 65.7209 before (the all-favourable example redefined; viscous oxygen, bubble deaths)
+    for (k, t, n), want in {("best", "feed", "eff"): 7.6209, ("best", "low", "mid"): 10.4139, ("central", "high", "low"): 64.7523}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")

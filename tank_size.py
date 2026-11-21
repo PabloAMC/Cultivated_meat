@@ -4,11 +4,13 @@ tank_size.py — is 20 m3 the right tank size?
 
 Why
 ---
-Every scenario uses a 20 m3 stirred tank in perfusion. Larger tanks cost less per m3 (Humbird's vessel cost, bioreactor
-share only: floor_physics.capex_at_size) but are deeper, so they clear less CO2 and mix more slowly. The scenarios'
+The scenarios use a 20 m3 stirred tank in perfusion (the all-favourable example chooses its own size among the published
+ones: 42 m3). Larger tanks cost less per m3 (since 2026-11-20 the tank, its makeup tanks and filter housings and the
+buildings are charged per tank as well as per m3: floor_physics.tank_items, capex_at_size) but are deeper, so they clear
+less CO2 and mix more slowly. The scenarios'
 tank tricks (a stripping column, extra pressure, recycled oxygen, a squat shape) are meant to lift those limits. This
-module scans cost against tank size, 2 to 200 m3, for each scenario and for the reference case. At each size it chooses
-the tank design again, as `scenarios.design` does at 20 m3: the cheapest pair of tricks and shape (16 pairs) whose
+module scans cost against tank size, 2 to 200 m3, for each scenario's switches and for the reference case. At each size
+it chooses the tank design again, as `scenarios.design` does: the cheapest pair of tricks and shape (16 pairs) whose
 column loop is pH-safe and runs at a pass rate dense cultures have taken. It calls `floor_physics.explore` and adds no
 physics of its own: the what-if rows adjust a result after the call (labour, loop hardware) or change an argument
 (`hazard`, `gas_velocity`).
@@ -43,7 +45,7 @@ from inputs import prior, value
 SIZES = (2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0)       # m3, the scan the page of results is built on
 CASES = ("reference", "reference_redesigned", "best", "central", "central_lean", "cautious")
 LABELS = {"reference": "Reference (Humbird's tank, no tricks)", "reference_redesigned": "Reference, tank design chosen again",
-          "best": "Best", "central": "Low-lactate example", "central_lean": "Low-lactate example, food-grade plant with shared medium",
+          "best": "All-favourable example", "central": "Low-lactate example", "central_lean": "Low-lactate example, food-grade plant with shared medium",
           "cautious": "Cautious", "engineered": "Cells that make almost no ammonia or lactate (rung 6)"}
 SEARCH_RANGE = (2.0, 200.0)                              # the sizes the optimum is searched over
 GRID_RATIO = 1.03                                        # step of the geometric search grid
@@ -320,7 +322,7 @@ def fedbatch_at(case: str, v: float) -> dict:
 
 
 def fedbatch_markdown(cases=FB_CASES, sizes=FB_SIZES) -> str:
-    out = ["| switches as in | perfusion at 20 m³, $/kg | " + " | ".join(f"fed-batch at {v:.0f} m³" for v in sizes) + " |",
+    out = ["| switches as in | perfusion in the scenario's own tank, $/kg | " + " | ".join(f"fed-batch at {v:.0f} m³" for v in sizes) + " |",
            "|---|---|" + "---|" * len(sizes)]
     for c in cases:
         cells = []
@@ -353,8 +355,8 @@ def main() -> None:
     print("\nFlatter tanks than the scenarios offer ($/kg of the cheapest tricks that pass the checks; liquid depth / width = 0.2 ... 0.5)")
     for c in ("best", "central", "cautious"):
         for v in (20.0, 50.0, 100.0, 200.0):
-            print(f"  {c:<8}{v:5g} m3  " + "  ".join(f"{a:g}: {r['total']:6.2f} ({r['tricks']})" for a, r in flatter(c, v)))
-    print("\nWhat-ifs: cost-minimising size (saving against 20 m3, %)")
+            print(f"  {LABELS[c][:22]:<23}{v:5g} m3  " + "  ".join(f"{a:g}: {r['total']:6.2f} ({r['tricks']})" for a, r in flatter(c, v)))
+    print("\nWhat-ifs: cost-minimising size (saving against 20 m3, %); columns: " + ", ".join(LABELS[c] for c in CASES))
     for label, res in what_ifs():
         print(f"  {label:<72}" + "".join(f"{c.split('_')[0][:5]:>7}:{r['size']:5.0f} ({r['saving_pct']:4.1f})" for c, r in res.items()))
 

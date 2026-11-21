@@ -1,89 +1,76 @@
 # Model audit: drift, accuracy and whether the costs are reasonable price points
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
+Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after
+the scenarios' lower dissolved-oxygen setpoint. Section 0 is the audit on the final model of 2026-11-20. Sections 1 to 6 are the
+audit as written on 2026-11-16, when the low-lactate example cost $29.42 and the all-favourable example $9.66; they are a snapshot
+and were not rewritten. Code: `audit.py` (global uncertainty and the retail translation), `audit_history.py` (the history of the
+headline numbers), `tests/test_audit.py`. Costs are 2025 dollars per kg of wet cells. This note changes no default.
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
+## 0. On the final model (2026-11-20)
 
-Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after the scenarios' lower dissolved-oxygen setpoint. Code: `audit.py` (global uncertainty and the retail translation), `audit_history.py` (the history of the headline
-numbers), `tests/test_audit.py`. Costs are 2025 dollars per kg of wet cells. This note changes no default.
+**The points.** Humbird's optimistic design as this model prices it (`scenarios.reference()`) $15.93, the low-lactate example
+$49.50, the all-favourable example $7.62, Published cells $322.55.
 
-> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
-> Sections 1 to 6 are the audit as written on 2026-11-16, when Central cost $29.42 and the all-favourable example $9.66. They are a snapshot and
-> were not rewritten. Section 0 gives the same figures on the model of 2026-11-19.
+**Drift since section 2 was written.** Rows added by hand:
 
-## 0. On the model of 2026-11-19 (after the audit batch)
-
-**The points.** Humbird's optimistic design $12.81, Central $32.80, the all-favourable example $11.46, Published cells $111.89.
-
-**Drift since section 2 was written.** Two more rows, added by hand:
-
-| When | Reference | Low-lactate example | Best | What changed |
+| When | Reference | Low-lactate example | All-favourable example | What changed |
 |---|---|---|---|---|
 | 19 Nov, first repin | $12.81 | $26.43 | $9.96 | nutrient floor $2.00; growth factors counted inside the announced medium prices (the low-lactate example's first large step down) |
-| 19 Nov, audit batch | $12.81 | **$32.80** | **$11.46** | cells tolerate 4 mmol/L of ammonia, not 5; a lost run throws its membranes away; glucose from the cells' own balance |
+| 19 Nov, audit batch | $12.81 | $32.80 | $11.46 | cells tolerate 4 mmol/L of ammonia, not 5; a lost run throws its membranes away; glucose from the cells' own balance |
+| 20 Nov, model batch | $15.93 | **$49.50** | **$7.62** | lactate tolerated 35 mmol/L, not 50; bubble deaths and a 2% harvest loss charged; twice the crew in perfusion; membrane life 2,415 L/m²; medium preparation sized by the medium passed; thick cultures take up oxygen more slowly. The all-favourable example was redefined as one case, the most favourable value of every lever among this model's ranges, Humbird's design and ten published studies (`scenarios.all_favourable`, 42 m³ tank, dialyser-grade fibres) |
 
-So the last correction was upward again, by 24% for Central and 15% for the all-favourable example. Section 2's warning stands: a model whose
-corrections mostly go one way was optimistic, and may still be.
+So the last corrections went up again for the low-lactate example, by 51%, as section 2 warned. The all-favourable example fell
+because it is now a different case, not because a cost was removed.
 
-**Everything uncertain at once (`audit.py` as it draws today; 4,000 draws, two seeds agree).**
-
-| | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
-|---|---|---|---|---|---|---|
-| Low-lactate example | $32.80 | $34.1 | **$46.2** | $64.7 | 7th | 0% / 0% |
-| All-favourable example | $11.46 | $14.0 | **$18.9** | $27.5 | below the 1st | 1% / 43% |
-
-Rank correlation with cost (Central): the ammonia the cells make +0.75, membrane life −0.39, medium price +0.26, growth factors
-+0.22, plant estimate +0.18.
-
-**These draws lag the scenarios in three ways, and overstate the cost.** I found this in the repin and did not change the draws.
-
-1. Central's $0.20 a litre is now a complete medium, with its growth factors in the price. The draws still buy growth factors on
-   top of it. That counts them twice, about $5 at the median.
-2. The all-favourable example's medium is now at the nutrient floor. The draws still charge it $0.15 to $0.50 a litre.
-3. The ammonia the cells tolerate is now an input with a range (2 to 8 mmol/L, most likely 4). The draws hold it at 4.
-
-With the three put right (a side calculation, same seeds, with the amino-acid price behind the floor drawn too):
+**Everything uncertain at once (`audit.py` as it draws today; 4,000 draws, seeds 0 and 1 agree within 1%).**
 
 | | Point | 10th percentile | Median | 90th percentile | Point's percentile | Chance at or below $12 / $18 |
 |---|---|---|---|---|---|---|
-| Low-lactate example | $32.80 | $28.2 | **$38.3** | $58.0 | 27th | 0% / 0% |
-| All-favourable example | $11.46 | $10.8 | **$14.4** | $21.7 | 17th | 23% / 77% |
+| Low-lactate example | $49.50 | $50 | **$64** | $86 | 10th | 0% / 0% |
+| All-favourable example | $7.62 | $8.9 | **$11.3** | $15.0 | below the 1st | 62% / 99% |
 
-This agrees with the scenario bands the results now report (Central $27 / $37 / $57, the all-favourable example $11 / $14 / $20), which draw the
-tolerance too. The top driver for Central is then the ammonia the cells tolerate (−0.55), ahead of the ammonia they make (+0.49)
-and membrane life (−0.37).
+Rank correlation with cost, the low-lactate example: membrane life −0.51, the ammonia the cells make +0.47, the lactate they make
++0.27, growth factors +0.27, medium price +0.23. The all-favourable example: the ammonia the cells make +0.76, medium price +0.57,
+plant estimate +0.22.
 
-**What changes in the reading below.**
+**These draws lag the scenarios, and overstate the cost.** Found in the repins and not changed in the draws:
 
-- Section 1, item 3, and section 4: Central's median is about **$38** and its middle 80% **$28–58** (it was $36 and $27–50). The
-  median moved less than the point because the tolerance's range leans to the tolerant side. The top of the band rose by $8.
-- Section 4, item 3: no draw of Central reaches $12 either way. The all-favourable example reaches $12 in 1% of draws as drawn and 23% with the
-  three points put right (16% on 16 November).
-- Section 3e: Central's shelf price is **$49** under the model's rule, (cost + $2.5) ÷ (1 − 28%); $38 with the old flat $5; $61
-  with the whole spread as a percentage. Parity with $12 meat still needs cells at $6.1.
-- Section 3d was not recomputed. Its membrane-life row is larger now, since Central filters 30 litres a kilo and not 23.
+1. The low-lactate example's $0.20 a litre is a complete medium, with its growth factors in the price. The draws still buy growth
+   factors on top of it.
+2. The all-favourable example takes the favourable end of every lever: its medium is at the nutrient floor, it loses no runs, its
+   cells make Humbird's 0.054 mol of ammonia a kilo. The draws charge its medium $0.15 to $0.50 a litre, draw runs lost and draw its
+   ammonia from a wider range, so almost every draw costs more than its point. Its membrane life is passed to the engine directly,
+   so the membrane-life draw does not reach it.
+3. The ammonia and the lactate the cells tolerate, the culture bubbles kill and the harvest recovery are inputs with ranges that
+   the scenario bands draw; these draws hold them.
+
+The side calculation of 19 November that put the first three right was not redone. Read the scenario bands of the results, which
+draw the tolerances, for the uncertainty of each case.
+
+**Shelf price.** The low-lactate example's shelf price is **$72** under the model's rule, (cost + $2.5) ÷ (1 − 28%); $55 with the
+old flat $5; $92 with the whole spread as a percentage. Parity with US minced beef or pork cuts ($12 a kilo) needs cells at $6.1.
 
 ## 1. The short answer
 
-1. **Yes, the costs have drifted, and only upward.** The company-reported default went from $24.01 to $34.35 (+43%) on 14 November. Central
+1. **Yes, the costs have drifted, and only upward.** The company-reported default went from $24.01 to $34.35 (+43%) on 14 November. The low-lactate example
    went from $18.14 to $26.64 (+47%) and the all-favourable example from $6.57 to $8.95 (+36%) in the last half day; then
-   Central to $29.92 (+12%) and the all-favourable example to $9.71 (+9%) when the protectant and antifoam were counted (PR #32). Every step up to then
+   the low-lactate example to $29.92 (+12%) and the all-favourable example to $9.71 (+9%) when the protectant and antifoam were counted (PR #32). Every step up to then
    added a cost that an earlier version left out. The first step down came on 16 November: holding dissolved oxygen at half of air
-   saturation, as pharma does, took Central to $29.42 and the all-favourable example to $9.66.
+   saturation, as pharma does, took the low-lactate example to $29.42 and the all-favourable example to $9.66.
 2. **The model has been optimistic, and the evidence says it still is, in a few known places.** Its own back-test finds it needs less
    medium than every reported perfusion run (1.2 to 2.8 times less) and predicts more than twice the output of the one working 20 m³ plant.
-3. **Central's $29.42 is the most likely value of each input, not the most likely cost.** Draw every documented range at once and
-   Central's median is **$36**, with 80% of draws between **$27 and $50**. The $29.42 point sits at the **19th percentile**. The all-favourable
+3. **The low-lactate example's $29.42 is the most likely value of each input, not the most likely cost.** Draw every documented range at once and
+   the low-lactate example's median is **$36**, with 80% of draws between **$27 and $50**. The $29.42 point sits at the **19th percentile**. The all-favourable
    example's $9.66 sits at the 1st.
-4. **The $49–94 for Central is a sensitivity, not a new central value.** It is the cost if membranes last as long as CHO membranes did.
-5. **Costs are cell cost, not shelf price.** A flat $5 markup gives Central a shelf price of $34. A markup that is a share of the price
+4. **The $49–94 for the low-lactate example is a sensitivity, not a new central value.** It is the cost if membranes last as long as CHO membranes did.
+5. **Costs are cell cost, not shelf price.** A flat $5 markup gives the low-lactate example a shelf price of $34. A markup that is a share of the price
    (as conventional spreads are) gives $55, and lowers the cost at which cultivated meat reaches parity from $7 to $5.6.
 
 ## 2. Drift
 
 The history was measured by checking out each commit that touched the cost code and running the model (`audit_history.py`).
 
-| Commit | Time | Default | Reference | Low-lactate example | Best | What changed |
+| Commit | Time | Default | Reference | Low-lactate example | All-favourable example (then) | What changed |
 |---|---|---|---|---|---|---|
 | 503fb37 | 10 Jun | $24.01 | | | | first model |
 | e92504c | 14 Nov 00:23 | $32.61 | | | | Pasitka's capital charge added to the plant cost (it had been left out) |
@@ -100,7 +87,7 @@ analysis and left every pinned value alone, by design. The last two rows are add
 
 - **Each step was a correction.** The capital charge, the audit's findings and the membranes were real omissions. The filter loop is the
   clearest: the model had priced the device that holds the cells back at $89k per m³ and nothing for its membranes, which come to $8.33 a
-  kilo in Central. That is 28% of the cost.
+  kilo in the low-lactate example. That is 28% of the cost.
 - **A pattern of one-way corrections is a warning.** If a model is unbiased, corrections go both ways. These did not, which says the early model
   was optimistic. It would be wrong to assume the last correction was the last. Sections 3 and 4 look for what remains.
 - **The model changed fast.** The headline numbers moved only on 14 and 15 November, driven by successive reviews, and have not moved
@@ -140,7 +127,7 @@ Reported runs against what the model gives for the same cells and vessel. Nothin
 | PARIMA on Vow's line (press) | the low €40s a kilo of finished product | tonne-scale run in a 22,000 L vessel, partly plant-based |
 
 The model's range ($10–30) sits between the modelled claims ($5–15) and the cost of what has actually been run ($46–110 a kilo).
-Central's shelf price, $34 to $55 depending on the markup rule, is near PARIMA's finished-product figure. The reactor-progress note
+The low-lactate example's shelf price, $34 to $55 depending on the markup rule, is near PARIMA's finished-product figure. The reactor-progress note
 puts the gap between real runs and modelled claims at 3 to 6 times. **None of these is an audited cost of goods from a plant.**
 
 ### 3c. Everything uncertain at once (`audit.py`)
@@ -156,7 +143,7 @@ filter loop's flux, membrane price, hardware and membrane life. 4,000 draws; two
 
 - **The point is at the low end because the ranges are skewed up.** Each input's most likely value is its point; its high end is far
   further from the point than its low end. So the median is above the point.
-- **The cells' ammonia drives it.** Rank correlation with cost (Central): ammonia +0.78, membrane life −0.32, medium price +0.26, plant estimate
+- **The cells' ammonia drives it.** Rank correlation with cost (the low-lactate example): ammonia +0.78, membrane life −0.32, medium price +0.26, plant estimate
   +0.23, growth factors +0.22, gas −0.13.
 - **What this leaves out makes the true spread wider and more skewed.** The draws are independent (good cell traits come together, which
   fattens both tails). The tank design, the 20 m³ size, the plant class and the density limit are held. The omissions in 3d are not in it.
@@ -187,24 +174,24 @@ wholesale-to-retail spread is 42–65% of the retail price (`post_harvest_costs.
 | All-favourable example | $9.66 | $14.66 | $19.38 |
 | Low-lactate example, shared-medium plant | $26.56 | $31.56 | $50.10 |
 | Low-lactate example | $29.42 | $34.42 | $55.30 |
-| **Cost of cells at parity with $12 meat** | | **$7.0** | **$5.6** (3.2 to 6.0 across shares of 42–65%) |
+| **Cost of cells at parity with US minced beef or pork cuts ($12 a kilo)** | | **$7.0** | **$5.6** (3.2 to 6.0 across shares of 42–65%) |
 
 Which is right is open. A flat spread is plausible if the retail chain's work does not scale with the product's price. The conventional
 spread does scale. **Settled 2026-11-18** (`retail_markup_form.md`): neither. The model now uses per-kg costs plus a percentage margin,
-(cost + $2.5)/(1 − 28%), which gives Central a $44 shelf price and parity at $6.1; the whole-spread percentage above double-counts the
+(cost + $2.5)/(1 − 28%), which gives the low-lactate example a $44 shelf price and parity at $6.1; the whole-spread percentage above double-counts the
 per-kg part. At the proportional rule parity needs the cost of cells to fall below about $5.6, a level no single lever reaches.
 
 ## 4. Are the costs reasonable price points?
 
 My reading, as judgement and not as a forecast:
 
-1. **Central ($29.42) is a fair "if these things work" number, and a poor expectation.** It assumes cells that make 0.14 mol of ammonia a kilo,
+1. **The low-lactate example ($29.42) is a fair "if these things work" number, and a poor expectation.** It assumes cells that make 0.14 mol of ammonia a kilo,
    36-hour doubling, a food-grade plant, a filter that lasts 3,960 litres a m², and perfusion at 20 m³. Given the documented ranges the
    median is about **$36**, and the middle 80% runs **$27–50**.
 2. **The all-favourable example ($9.66) is an everything-works number.** Under the model's own ranges it is a 1st-percentile result. It is a bound on
    what the levers could give if all went right (`frontier.md`, after PR #32, reaches about $7, with levers each of which has low odds).
 3. **Parity (a cost of cells near $7, or $5.6 on a proportional markup) is not reached by any scenario.** Under the global draws the chance
-   that Central falls to $12 is under 0.1%, and the all-favourable example's is 16%.
+   that the low-lactate example falls to $12 is under 0.1%, and the all-favourable example's is 16%.
 4. **A realistic band for a first 20 m³ perfusion plant's cell cost is therefore $27–50, with the all-favourable example the lower tail.** Real
    runs so far are at $46–110 a kilo, which the model's gap of 3 to 6 times to modelled claims already leads one to expect.
 5. **Perfusion at 20 m³ is itself unshown.** If it fails, the fed-batch fallback costs $41–45 at the model's density cap and $92–99 at the
@@ -214,8 +201,8 @@ My reading, as judgement and not as a forecast:
 
 1. **Show the spread, not just the point.** Replace the scenario bands (which draw six inputs) with this global spread, and say that each
    scenario's headline is the most likely value of its inputs. A reader sees "$29, most likely about $36".
-2. **Decide three defaults:** the membrane life (`filter_flux.md`), first-plant or mature financing (+$2.8 in Central), and the nutrient
-   floor (`nutrient_floor.md`). Each is a judgement, and each moves Central by $2 or more.
+2. **Decide three defaults:** the membrane life (`filter_flux.md`), first-plant or mature financing (+$2.8 in the low-lactate example), and the nutrient
+   floor (`nutrient_floor.md`). Each is a judgement, and each moves the low-lactate example by $2 or more.
 3. **Close the medium gap in the back-test.** The model's litres per kilo are below every reported run. Either the model's waste
    assumption is optimistic or the runs were not optimised. This is the largest single source of possible bias.
 4. **Treat the markup rule as a scenario switch**: flat or proportional. It decides whether parity needs $7 or $5.6.

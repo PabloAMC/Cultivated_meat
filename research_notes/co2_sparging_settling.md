@@ -1,7 +1,5 @@
 # CO2 tolerance, CO2 stripping, sparging limits, tank geometry and cell settling
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Research notes, compiled 2026-11-14. Web search and reading only.
 
 **How to read this file**

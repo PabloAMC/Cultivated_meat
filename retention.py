@@ -58,7 +58,10 @@ def cases() -> dict:
 
 def duty(kw: dict | None = None) -> dict:
     """What the retention device must do in a case (explore arguments): flows in m3/h, vessel volumes a day, the cells'
-    volume fraction, and the case's own result."""
+    volume fraction, and the case's own result. `kg_h` and `kg_year` are kilos HARVESTED, as explore's output is; the bleed
+    carries out the cells GROWN (the harvested over `harvested_share`: cells killed by bubbles or lost at harvest were grown
+    and bled too), as explore's own filter loop counts it (corrected 2026-11-20: it was the kilos harvested, which showed
+    permeate, and charged membranes, where explore has none)."""
     kw = dict(kw or {})
     r = fp.explore(**kw)
     v = kw.get("vessel_m3", 20.0)
@@ -66,8 +69,10 @@ def duty(kw: dict | None = None) -> dict:
     tonnes = r["output"] * v                                                 # t of wet cells per tank-year
     harvest = tonnes * 1000.0 / (HOURS * r["uptime"])                        # kg/h while the tank runs
     medium = r["medium_l"] * harvest / 1000.0                                # m3/h
-    bleed = harvest / r["density"]                                           # m3/h of whole culture (kg/h over kg/m3)
+    bleed = harvest / r["harvested_share"] / r["density"]                    # m3/h of whole culture (kg grown an hour over kg/m3)
     permeate = max(0.0, medium - bleed)
+    if permeate < 1e-9 * medium:                                             # the bleed carries out all the liquid (rounding apart)
+        permeate = 0.0
     phi = r["density"] / (value("pf_cell_density") * 1000.0)                # volume fraction of cells
     return {"vessel_m3": v, "liquid_m3": liquid, "density": r["density"], "phi": phi, "kg_h": harvest,
             "kg_year": tonnes * 1000.0, "medium_m3_h": medium, "bleed_m3_h": bleed, "permeate_m3_h": permeate,
@@ -123,6 +128,17 @@ NOT_COSTED = {"spin": ("Spin filter", "Its screen sits inside the tank, so its a
                                                          "about 250 kg an hour, about 86 cycles an hour. The 6000S is discontinued.")}
 ORDER = ("hoped", "atf", "tff", "reuse", "dialyser", "ceramic", "settler", "acoustic", "discstack", "hydrocyclone",
          "aggregates", "microcarriers")
+
+
+def atf_factor(escalate: bool = True) -> float:
+    """Capital per dollar of an ATF unit's bare price, in 2025 dollars: Humbird's accounting for bought equipment, as
+    floor_physics.tank_items prices each tank's makeup tanks and filter housings (bare x 1/0.9 for minor equipment x 2.3 for
+    installation = 2.5556; x 1.84 for engineering, construction, fees and contingency), times pf_capex_escalation from his 2018
+    prices (rt_atf_price is his bare price). Until 2026-11-20 the module took only rt_install = 1.84 on the bare price and did not
+    escalate: 3.4 times less. `escalate=False` gives his own 2018 dollars, which humbird_check.atf_capex_2018 uses, so the two
+    cannot drift apart."""
+    import plant_items as PI
+    return PI._equipment_direct(1.0) * PI.indirect() * (value("pf_capex_escalation") if escalate else 1.0)
 PARTICLES = ("aggregates", "microcarriers")      # cells in particles that settle fast: research_notes/retention_aggregates.md
 NOT_COSTED["mbr"] = ("Wastewater membrane (submerged, air-scoured)", "It cannot be steamed (rated to 40 C), is made for 3-20 g/L of "
                      "solids against 50-75 g/L dry here, and needs coarse bubbles in the culture.")
@@ -271,7 +287,8 @@ def particle_case(device: str, kw: dict | None = None) -> tuple:
 
 def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     """Size a device for a case's duty. Returns: what it takes (units, m2), capital per m3 of tank ($k), running cost per kg of
-    wet cells grown ($: membranes, power, maintenance), the share of grown cells it destroys or lets go (`loss`), the culture
+    wet cells harvested (`cons_kg`, $: membranes, power, maintenance; `cons_kg_grown` is the same per kilo grown, which is what
+    explore's `extra_opex` takes), the share of grown cells it destroys or lets go (`loss`), the culture
     held outside the tank (m3), and whether the case's density is beyond what the device has held (`beyond`).
     For cells in particles (`PARTICLES`) the duty is the case as it would run with them (`particle_case`): `note` says
     whether its density was held to the particles' cap and how much growth the aggregates' oxygen costs."""
@@ -285,7 +302,8 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     v, liq, P, B, phi = d["vessel_m3"], d["liquid_m3"], d["permeate_m3_h"], d["bleed_m3_h"], d["phi"]
     kg = d["kg_year"]
     out = {"device": device, "units": 0.0, "area_m2": 0.0, "capex_k_m3": 0.0, "cons_kg": 0.0, "loss": 0.0, "holdup_m3": 0.0}
-    perm_l_kg = P * 1000.0 / d["kg_h"]                                     # litres of permeate per kg grown
+    perm_l_kg = P * 1000.0 / d["kg_h"]                                     # litres of permeate per kg harvested
+    hs = d["result"]["harvested_share"]                                    # kilos harvested per kilo grown
     # a lost run throws its membranes away early: their life is the litres of a full planned run times the share of it an
     # average start completes (as floor_physics.explore charges since 2026-11-19). Ceramics are cleaned and kept.
     run_frac = d.get("run_frac", 1.0)
@@ -295,10 +313,14 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     elif device == "atf":
         n = math.ceil(P * 1000.0 / (value("rt_flux_lmh") * value("rt_atf_area")))
         out.update(units=n, area_m2=n * value("rt_atf_area"), cons_kg=membranes,
-                   capex_k_m3=n * value("rt_atf_price") * value("rt_install") / v)
+                   capex_k_m3=n * value("rt_atf_price") * atf_factor() / v)
     elif device == "tff":
-        area = P * 1000.0 / value("rt_flux_lmh")
-        out.update(area_m2=area, cons_kg=membranes, capex_k_m3=area * value("rt_tff_hw") * value("rt_install") / v)
+        # the engine's own loop: the case's own flux, membrane life, price and hardware where it sets them (explore's arguments)
+        k = kw or {}
+        own = lambda arg, name: value(name) if k.get(arg) is None else k[arg]
+        area = P * 1000.0 / own("flux", "rt_flux_lmh")
+        out.update(area_m2=area, cons_kg=perm_l_kg * own("membrane_price", "rt_membrane_price") / (own("membrane_life", "rt_membrane_life") * run_frac),
+                   capex_k_m3=area * own("membrane_hw", "rt_tff_hw") * value("rt_install") / v)
     elif device in _MEMB:
         flux, hw, price, life = (value(k) for k in _MEMB[device])
         area = P * 1000.0 / flux
@@ -337,13 +359,15 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
         v1 = fp._stokes(p["settle_um"], p["drho"])                          # cm/h, the smallest particle held
         vd = v1 * (1.0 - phi_p) ** 4.65 * value("rt_settle_v_frac")         # design overflow, cm/h
         area = P / (vd / 100.0)
-        carriers = p.get("carrier_kg", 0.0) * value("rt_mc_price") if device == "microcarriers" else 0.0
+        # carriers are bought for the cells grown; per kilo harvested, as every other cost here
+        carriers = p.get("carrier_kg", 0.0) * value("rt_mc_price") / hs if device == "microcarriers" else 0.0
         out.update(area_m2=area, holdup_m3=area * value("rt_settle_holdup") / 1000.0, settle_cm_h=vd, particle_cm_h=v1,
                    stay_min=value("pf_plate_gap") / (vd * 0.5) * 60.0,                    # on plates at 60 degrees, no oxygen
                    phi_particles=phi_p, capex_k_m3=area * value("rt_settle_price") / v, cons_kg=carriers,
                    carriers_kg=carriers, loss=value("rt_part_loss"), particle=p, note=note, density=d["density"])
     else:
         raise KeyError(device)
+    out["cons_kg_grown"] = out["cons_kg"] * hs
     key = DEVICES[device]["phi_max"]
     out["phi_max"] = value(key) if key else None
     out["beyond"] = key is not None and phi > value(key) + 1e-9
@@ -355,7 +379,8 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
 
 def scenario_cost(device: str, kw: dict | None = None) -> dict:
     """The case's cost per kg with this device: explore() with the device's capital (`retention`, a flat charge with no
-    membranes) and running cost (`extra_opex`), then every cost per kg divided by the share of grown cells that survive
+    membranes) and running cost (`extra_opex`, per kilo grown: explore divides it by the harvested share itself; until
+    2026-11-20 the cost per kilo harvested was passed and so divided twice), then every cost per kg divided by the share of grown cells that survive
     the device. The TFF loop is explore()'s own default, so it is explore() itself (its sizing here gives the same numbers)."""
     kw = dict(kw or {})
     d = duty(kw)
@@ -364,14 +389,14 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
     if device == "tff":
         r = fp.explore(**kw)
     else:
-        r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg"]})
+        r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg_grown"]})
     total = r["total"] / (1.0 - sz["loss"])
     return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"]}
 
 
 # What sizing() reads for each device, by the short key the page's JavaScript uses (page_retention.js): {device: {short: input}}
 _JS_INPUTS = {
-    "atf": dict(flux="rt_flux_lmh", area="rt_atf_area", price="rt_atf_price", install="rt_install",
+    "atf": dict(flux="rt_flux_lmh", area="rt_atf_area", price="rt_atf_price",
                 mem_price="rt_membrane_price", mem_life="rt_membrane_life"),
     "tff": dict(flux="rt_flux_lmh", hw="rt_tff_hw", install="rt_install", mem_price="rt_membrane_price",
                 mem_life="rt_membrane_life"),
@@ -393,7 +418,8 @@ def js_model() -> dict:
     for k in ported:
         D = DEVICES[k]
         devices[k] = {"key": k, "name": D["name"], "how": D["how"], "shown": D["shown"],
-                      "inputs": {short: value(name) for short, name in _JS_INPUTS[k].items()},
+                      "inputs": {short: value(name) for short, name in _JS_INPUTS[k].items()}
+                                | ({"factor": atf_factor()} if k == "atf" else {}),
                       "phi_max": value(D["phi_max"]) if D["phi_max"] else None}
     return {"order": ported, "devices": devices, "memb": list(_MEMB), "default": "tff",
             "particles": {k: {"key": k, "name": DEVICES[k]["name"], "how": DEVICES[k]["how"], "shown": DEVICES[k]["shown"],
@@ -408,7 +434,7 @@ _DRIVERS = {
     "reuse": (("rt_flux_lmh", +1), ("rt_tff_hw", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_reuse_life", +1)),
     "dialyser": (("rt_dial_flux", +1), ("rt_dial_hw", -1), ("rt_install", -1), ("rt_dial_price", -1), ("rt_dial_life", +1)),
     "ceramic": (("rt_flux_lmh", +1), ("rt_ceramic_hw", -1), ("rt_install", -1), ("rt_ceramic_price", -1), ("rt_ceramic_life", +1)),
-    "atf": (("rt_flux_lmh", +1), ("rt_atf_price", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_membrane_life", +1)),
+    "atf": (("rt_flux_lmh", +1), ("rt_atf_price", -1), ("rt_membrane_price", -1), ("rt_membrane_life", +1)),
     "tff": (("rt_flux_lmh", +1), ("rt_tff_hw", -1), ("rt_install", -1), ("rt_membrane_price", -1), ("rt_membrane_life", +1)),
     "settler": (("rt_settle_price", -1), ("rt_settle_v_frac", +1), ("rt_settle_holdup", -1)),
     "acoustic": (("rt_acoustic_cap", +1), ("rt_acoustic_price", -1), ("rt_install", -1)),

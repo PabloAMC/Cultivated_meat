@@ -26,9 +26,10 @@ sys.path.insert(0, ROOT)
 
 
 def check() -> list:
-    """The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
-    (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
-    run with those settings (floor_physics.BEFORE_FILTER_LOOP)."""
+    """The study's note quotes figures computed at the settings it was written with on 2026-11-14: the old hoped-for retention
+    device (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
+    run with those settings (floor_physics.BEFORE_FILTER_LOOP) on the engine as it now stands (the note was recomputed on
+    2026-11-20: bubble deaths, harvest loss, perfusion crew, utilities and medium preparation capital apply in it)."""
     import retention
     import floor_physics
     with retention._with(floor_physics.BEFORE_FILTER_LOOP):
@@ -94,8 +95,25 @@ def _check() -> list:
     near("explore(items=floor) = the floor", fp.explore(items=pi.PLANTS["floor"])["total"], fp.explore()["total"], 1e-3)
     near("explore(items={}) = the pharma class", fp.explore(items={})["total"], fp.explore(plant="pharma")["total"], 1e-3)
     lean = fp.explore(items=pi.PLANTS["lean"])
-    near("bought oxygen is charged", lean["total"] - pi.capital("lean")["extra_opex"],
-         fp.explore(capex_2018=tot["lean"])["total"], 1e-9)
+    # 2026-11-20: every cost is per kilo harvested, so the oxygen bought per kilo grown is divided by the harvested share; and a
+    # plant built from items scales its OWN medium preparation item with the medium passed, where a plant given as a total
+    # (capex_2018=) scales Humbird's. So the two cases differ in capital by that item's scaling and in nothing else but the oxygen.
+    whole = fp.explore(capex_2018=tot["lean"])
+    near("bought oxygen is charged, per kilo harvested", lean["extra_opex"],
+         pi.capital("lean")["extra_opex"] / lean["harvested_share"], 1e-9)
+    near("bought oxygen is the only running cost the items add", lean["total"] - lean["extra_opex"] - lean["capital"],
+         whole["total"] - whole["capital"], 1e-9)
+    # 2026-11-20, third pass: and by what each tank brings with it in perfusion against fed-batch (floor_physics.tank_items): a
+    # plant given as a total has Humbird's dedicated makeup tanks and filter housings, fewer in perfusion (-$8.3k per m3 in 2018
+    # dollars), where the lean plant shares its medium line and has none per tank, so nothing changes for it
+    def _mode_shift(choices):
+        a, b = fp.tank_items(20.0, True, choices), fp.tank_items(20.0, False, choices)
+        return (a["total"] - b["total"]) * v("pf_capex_escalation")
+    near("items and a total differ in capital by the medium preparation item's scaling and the tanks' items",
+         whole["capex"] - lean["capex"], whole["medium_prep_capex"] - lean["medium_prep_capex"]
+         + _mode_shift(None) - _mode_shift(dict(pi.PLANTS["lean"])), 1e-9)
+    if not lean["medium_prep_capex"] < whole["medium_prep_capex"]:
+        fails.append("the lean plant's shared medium lines should scale a smaller medium item than Humbird's")
     if pi.capital("lean", oxygen="owned")["extra_opex"] != 0.0:
         fails.append("no oxygen purchase when the plant owns its oxygen plant")
     try:

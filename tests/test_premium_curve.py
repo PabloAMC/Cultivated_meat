@@ -36,15 +36,30 @@ def check() -> list:
     # 0.16%); the anchored share does not depend on the spread (0.10%). So the anchored share is now two-fifths BELOW the model's,
     # and the model's is still inside the range the corrections span (0.03-0.19%), near its favourable end. (After the audit batch,
     # with the normal spread: anchored a third above the model's. Before it: a tenth below.)
+    # 2026-11-20 (engine batch: cells dearer, the low-lactate example $32.80 to $49.96): the model gives 0.046% and the anchored
+    # curve 0.020% (0.006-0.041%). The anchored share is now a little under half the model's (was two-fifths below), and the
+    # model's is just ABOVE the corrections' favourable end (was inside the range). A correct consequence of the dearer cells:
+    # chicken and pork cuts, mince and processed meat are now 7 to 15 times their meat's price, where the model's Student's t
+    # tail holds more than the premium curve (for one shopper the two cross at about 7 times the price).
     m = s["model_share"]["central"]
-    if not (0.5 * m < sh["central"][lr] < 0.8 * m and sh["central"][unf] < m < sh["central"][fav]):
-        fails.append("the low-lactate example's anchored share is no longer two-fifths below the model's, with the model's inside the corrections' range; "
-                     "rewrite the note's conclusion")
+    if not (0.35 * m < sh["central"][lr] < 0.55 * m and sh["central"][fav] < m < 1.3 * sh["central"][fav]):
+        fails.append("the low-lactate example's anchored share is no longer a little under half the model's, with the model's just above the "
+                     "corrections' favourable end; rewrite the note's conclusion")
     # 2026-11-19 audit batch, unchanged by the second round: the all-favourable example's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
     # (0.6-2.5%). The model is about twice the curve's central figure and above its favourable end. (Was: anchored below the model's.)
-    if not (sh["best"][lr] < 0.6 * s["model_share"]["best"] and sh["best"][fav] < s["model_share"]["best"]):
-        fails.append("the all-favourable example's model share is no longer about twice the anchored one and above the curve's favourable end; "
-                     "rewrite the note's conclusion")
+    # 2026-11-20 (engine batch, $11.67 to $18.71): 1.13% in the model against 0.66% anchored (0.24-1.17%). The model is 1.7 times
+    # the curve's central figure and now just INSIDE its favourable end (it was above: 3.16% against 2.81%). The margin is
+    # small either way; the note says so.
+    # 2026-11-20 final pass (the all-favourable example rebuilt as scenarios.all_favourable(), $18.71 to $7.62; the demand anchor at
+    # plant-based 0.4% by volume, nominal incomes, conventional meat's price falling with the share, the closed share weighted by
+    # meat eaten): 5.44% in the model against 2.49% anchored (1.07-4.03%). The model is now 2.2 times the curve's central figure and
+    # ABOVE its favourable end again (1.35 times it). A correct consequence: at $7.62 a kilo of cells the products in the world
+    # market are at 0.35 to 2.9 times their meat's price (beef cuts, premium seafood and dearer below it), where the model's level
+    # at equal price (14.4% of meat buyers) sits above the premium labels' 8.7% and its spread of liking holds more shoppers.
+    mb = s["model_share"]["best"]
+    if not (0.4 * mb < sh["best"][lr] < 0.55 * mb and 1.2 * sh["best"][fav] < mb < 1.5 * sh["best"][fav]):
+        fails.append("the all-favourable example's model share is no longer about twice the anchored one and above the curve's "
+                     "favourable end; rewrite the note's conclusion")
 
     quoted = [f"{sh['central'][lr]:.2f}%", f"{sh['central'][unf]:.2f}–{sh['central'][fav]:.2f}%", f"{s['model_share']['central']:.2f}%",
               f"{sh['best'][lr]:.1f}%", f"{sh['best'][unf]:.1f}–{sh['best'][fav]:.1f}%", f"{s['model_share']['best']:.1f}%"]

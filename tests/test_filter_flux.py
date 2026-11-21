@@ -44,14 +44,28 @@ def check() -> list:
     if not (c[0] < c[1] < c[2]):
         fails.append("a shorter life should cost more")
     # the default life is above the measured throughput
-    if not value("rt_membrane_life") > 3.0 * value("ff_throughput_hi"):
-        fails.append("the default life should be more than three times the measured throughput")
-    if not close(FF.time_limited_life(5.0), value("rt_membrane_life"), 1e-3):
-        fails.append("the default life is a 33-day run at 5 L/m2/h")
+    # 2026-11-20 model batch: the default life moved from 3,960 L/m2 (one 33-day run at 5 L/m2/h, a time limit) to 2,415
+    # (Humbird's replacement schedule: 51.0 million litres of perfusate over 1,920 membranes of 11 m2 a year, so the life and the
+    # price are one source's pair). It was 3.3 to 8.8 times the measured CHO throughput (450-1,200 L/m2); it is 2.0 to 5.4 times.
+    # The two checks that said "more than three times" and "a 33-day run at 5 L/m2/h" are rewritten to what is true now.
+    if not 2.0 * value("ff_throughput_hi") < value("rt_membrane_life") < 3.0 * value("ff_throughput_hi"):
+        fails.append("the default life should be between two and three times the most a measured membrane filtered")
+    if not close(value("rt_membrane_life"), 51.0e6 / (1920.0 * 11.0), 1e-3):
+        fails.append("the default life is Humbird's 51.0 million litres over 1,920 membranes of 11 m2")
+    if not close(FF.time_limited_life(5.0), 3960.0, 1e-9) or not FF.time_limited_life(5.0) > 1.6 * value("rt_membrane_life"):
+        fails.append("a membrane kept for a whole 33-day run at 5 L/m2/h would filter 3,960 L/m2, over 1.6 times the default life")
     # 2026-11-19 repin: growth factors inside complete media prices (the low-lactate example -$2.99), nutrient floor $2.00 (Best +$0.30)
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (the low-lactate example filters 35 L/kg, was 28) and a lost run
     # throws its membranes away early, so every litre filtered carries more membrane; both grow as the life shortens
-    for (k, f, l), want in {("central", 5.0, 1200.0): 62.2305, ("central", 2.5, 450.0): 132.8657, ("best", 5.0, 1200.0): 20.1702}.items():   # best: 2 ng cells (2026-11-19)
+    # 2026-11-20 model batch: every cost is per kilo harvested (bubble deaths, harvest loss), and the rest of the batch raised the
+    # cost outside the filter: central (5, 1200) 62.2305 -> 74.3037, (2.5, 450) 132.8657 -> 155.2466, best (5, 1200) 20.1702 -> 26.3570
+    # 2026-11-20 final model: central (5, 1200) 74.3037 -> 72.0527, (2.5, 450) 155.2466 -> 147.0528 (the last engine fixes:
+    # the low-lactate example $49.96 -> $49.50 at the defaults). The all-favourable example is no longer pinned here: it
+    # holds its cells back with dialyser-grade hollow fibres whose flux, life and price it passes to explore directly
+    # (scenarios.all_favourable), so the cell filter's flux and life do not reach it. The check says so.
+    if not close(FF.cost_at("best", 5.0, 1200.0), S.run(S.SCENARIOS["best"].choice)["total"], 1e-12):
+        fails.append("the cell filter's flux and life should not move the all-favourable example, which uses its own device")
+    for (k, f, l), want in {("central", 5.0, 1200.0): 72.0527, ("central", 2.5, 450.0): 147.0528}.items():
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")
@@ -66,8 +80,11 @@ def check() -> list:
     if not FF.cost_at_life_price("central", 1500.0, 1450.0) > default > FF.cost_at_life_price("central", 1500.0, 200.0):
         fails.append("a shorter life should cost more at the default price and less at a much lower one")
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L and membranes for lost runs (the low-lactate example 26.43 -> 32.80 at the defaults)
-    for (k, life, price), want in {("central", 2000.0, 1450.0): 45.3415, ("central", 1500.0, 1450.0): 53.7860,
-                                   ("central", 1500.0, 550.0): 32.8204, ("central", 1000.0, 200.0): 26.9967}.items():
+    # 2026-11-20 model batch (the low-lactate example 32.80 -> 49.96 at the defaults; the break-even price of a 1,500 L/m2 membrane
+    # is now $901 a m2, not $549, so $550 no longer reproduces the default: it is $9.36 below it)
+    # 2026-11-20 final model: 54.9502 -> 54.1201, 64.6270 -> 63.0864, 40.6019 -> 40.8253, 33.9283 -> 34.6416
+    for (k, life, price), want in {("central", 2000.0, 1450.0): 54.1201, ("central", 1500.0, 1450.0): 63.0864,
+                                   ("central", 1500.0, 550.0): 40.8253, ("central", 1000.0, 200.0): 34.6416}.items():
         got = FF.cost_at_life_price(k, life, price)
         if not close(got, want, 1e-3):
             fails.append(f"{k} life {life:g} price {price:g}: {got:.4f} != pinned {want}")

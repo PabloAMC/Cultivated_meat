@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""test_frontier.py — the cheapest a kilo of cells could cost with every lever at its limit (frontier.py)."""
+"""test_frontier.py — the path from Humbird's design to the all-favourable case (frontier.py).
+
+Rewritten 2026-11-20: frontier.py no longer holds a second "every lever at its limit" case. Its ladder is the step-by-step path
+from Humbird's design (scenarios.reference()) to scenarios.all_favourable(), and its last row IS that case. The earlier ladder
+started from the low-lactate example ($49.96) and ended at $7.86; its pins are in the file's history. tests/test_ordering.py holds
+the checks on the case itself (one number, the order of the reference points, lever by lever)."""
 from __future__ import annotations
 
 import os
@@ -7,7 +12,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import floor_physics as fp
 import frontier as F
+import retention as R
 import scenarios as S
 
 
@@ -18,56 +25,66 @@ def close(a, b, tol=1e-3):
 def check() -> list:
     fails = []
     rows = F.ladder()
-    base = S.run(S.SCENARIOS["central"].choice)["total"]
-    if not close(rows[0]["cost"], base, 1e-12):
-        fails.append("the first step is not the central scenario")
-    # moving a lever to its limit never costs more
-    for a, b in zip(rows, rows[1:]):
-        if b["cost"] > a["cost"] + 1e-9:
-            fails.append(f"'{b['name']}' raised the cost")
-    # 2026-11-19: the low-lactate example fell $3.0 (growth factors inside its medium price) and the frontier rose $0.30 (the nutrient floor),
-    # so the frontier was about 27% of the low-lactate example, not under a quarter
-    # 2026-11-19 audit batch: the low-lactate example rose to $32.80 (ammonia tolerance 4 mmol/L, lost runs pay for their membranes) and the
-    # frontier did not move (no ammonia and no permeate at its litres), so the frontier is 22% of the low-lactate example: under a quarter again
-    if not rows[-1]["cost"] < 0.25 * rows[0]["cost"]:
-        fails.append("the frontier should be under a quarter of the central cost")
-    # the frontier's last state filters nothing: the bleed carries out all the liquid, so a lost run has no membrane to throw away
-    import min_litres as _M
-    import retention as _R
-    _st = rows[-1]["state"]
-    _kw = {**S.explore_kwargs(_st["choice"]), **_st.get("kw", {})}
-    with _R._with(_st.get("patch", {})):
-        _kw["medium_l"] = _M.bounds(_kw.get("doubling_h", 24.0), _kw.get("mass_pg", 3000.0))[_st["waste_floor"]]
-        _d = _R.duty(_kw)
-    if _d["permeate_m3_h"] > 1e-9:
-        fails.append("the frontier should have no permeate (the bleed carries out all the liquid)")
-    # the single levers, pinned (since PR #32 the studies' own notes are snapshots of the earlier model)
+    a = S.all_favourable()
+    # the last row is the all-favourable case: the same explore() arguments, so the same number
+    if rows[-1]["kw"] != a["kw"] or rows[-1]["cost"] != a["cost"] or rows[-1]["cost"] != S.run(S.SCENARIOS["best"].choice)["total"]:
+        fails.append("the last row is not scenarios.all_favourable() / the `best` scenario")
+    # the first row is Humbird's design with his cell written as its four traits: scenarios.reference() to within 0.2%
+    # (the traits are his to three decimals: 0.054 mol of ammonia a kilo, 0.279 mol of lactate per mol of glucose)
+    ref = S.reference()["total"]
+    if not close(rows[0]["cost"], ref, 2e-3):
+        fails.append(f"the first row (${rows[0]['cost']:.4f}) is not scenarios.reference() (${ref:.4f})")
+    # moving a lever to its favourable value never costs more, in the path's order
+    for x, y in zip(rows, rows[1:]):
+        if y["cost"] > x["cost"] + 1e-9:
+            fails.append(f"'{y['name']}' raised the cost")
+    # every explore() argument of the case is set by exactly one step
+    used = [k for _n, keys, _w in F.steps() for k in keys]
+    if sorted(used) != sorted(a["kw"]):
+        fails.append("the steps do not cover the all-favourable case's arguments exactly once")
+    # the path, pinned (the model's own output, 2026-11-20)
+    # repinned 2026-11-20 (published studies as sources: a 5.3 ng cell from Risner 2021 and CE Delft 2021, 25 m³ tanks from SuperMeat 2024)
+    # repinned 2026-11-20 (additions: viscosity lowers oxygen transfer, per-tank plant items; the cell's weight held at 3 ng, the
+    # heaviest measured rule; 42 m³ tanks now cost least)
+    want = [15.945, 12.2424, 12.2424, 9.9371, 9.6923, 9.6923, 8.0977, 7.6209, 7.6209, 7.6209, 7.6209]
+    got = [r["cost"] for r in rows]
+    if len(got) != len(want) or any(not close(g, w, 1e-4) for g, w in zip(got, want)):
+        fails.append(f"the path moved: {[round(g, 4) for g in got]} != pinned {want}")
+    # each lever alone, from Humbird's design, pinned
     alone = {n: c for n, c, _d in F.alone()}
-    # 2026-11-19 repin: nutrient floor $2.00, growth factors inside complete media prices (central $29.42 -> $26.43);
-    # the "$0.05 a litre" lever is now "Medium at the nutrient floor" (growth factors bought on top); a complete medium no
-    # longer costs less than its nutrients plus its growth factors (gf_in_medium), so 6.4 L/kg pays them: 13.3873 -> 14.0865
-    # 2026-11-19 audit batch: the low-lactate example $26.43 -> $32.80 (ammonia tolerance 5 -> 4 mmol/L, so 28 -> 35 L/kg; lost runs pay for
-    # their membranes). Every single lever starts from the higher the low-lactate example; 6.4 L/kg moved only by the membranes of lost runs
-    # (14.0865 -> 14.1614). Runs lost 0.2% a day is pinned too: it now saves $2.53, not $0.97, and ranks above the gas.
-    # The dialyser-grade fibres: 18.2770 -> 20.2877, with retention.sizing also charging a lost run's membranes (run_frac).
-    want = {"Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate": 14.1614,
-            "Dialyser-grade hollow fibres as the filter": 20.2877, "Medium at the nutrient floor": 31.4542,
-            "Cells double in 16 hours": 28.3001, "Culture at 320 g/L in place of 258": 32.8028,
-            "A food-grade plant with shared medium": 29.9417,
-            "Runs lost 0.2% a day, as in pharma": 30.2700, "Gas at up to 6 mm/s": 31.1313}
+    want = {"Cells double in 16 hours": 12.2424, "Cells of 3 ng, Humbird's, the heaviest allowed": 15.945,
+            "Tanks of 42 m³ in place of 20 m³": 15.4927,
+            "A food-grade plant with shared medium": 13.0789,
+            "Dialyser-grade hollow fibres as the filter": 14.0752,
+            "Dissolved oxygen held at about half of air saturation": 15.945,
+            "The cheapest tank design that passes the checks on the CO₂ loop": 15.5965,
+            "The least medium flow at the lowest measured": 15.945, "Culture up to 320 g/L in place of 258": 15.945,
+            "Medium at the nutrient floor": 15.945}
     for n, w in want.items():
-        if not close(alone[n], w, 1e-4):
-            fails.append(f"{n}: {alone[n]:.4f} != {w}")
-    # the largest lever alone is the least medium
-    if min(alone, key=alone.get) != "Medium at the least the physics allows: 6.4 L/kg, fed as a concentrate":
-        fails.append("the least-medium lever should be the largest on its own")
-    # the pinned frontier, and the one with GFI's amino-acid floor
-    # 6.8551 before 2026-11-19: the nutrient floor rose $0.30. 2026-11-19 audit batch: unchanged at 7.1572
-    if not close(rows[-1]["cost"], 7.1572, 1e-4):
-        fails.append(f"frontier {rows[-1]['cost']:.4f} != pinned 7.1572")
+        if n not in alone or not close(alone[n], w, 1e-4):
+            fails.append(f"{n} alone: {alone.get(n, float('nan')):.4f} != {w}")
+    # the largest lever alone is the doubling time
+    if min(alone, key=alone.get) != "Cells double in 16 hours":
+        fails.append("the doubling time should be the largest lever on its own")
+    # the all-favourable case is under half of Humbird's design and under a quarter of the low-lactate example
+    central = S.run(S.SCENARIOS["central"].choice)["total"]
+    if not (rows[-1]["cost"] < 0.5 * ref and rows[-1]["cost"] < 0.25 * central):
+        fails.append("the all-favourable case should be under half of Humbird's design and under a quarter of the low-lactate example")
+    # retention.duty and explore agree on the bleed (corrected 2026-11-20): with only the litres that leave with the cells, the
+    # bleed carries out all the liquid, so there is no permeate and explore charges no membrane
+    kw = {**a["kw"], "medium_l": 1.0}                         # explore raises it to 1000 / density
+    d = R.duty(kw)
+    if d["permeate_m3_h"] != 0.0 or d["result"]["membranes"] != 0.0 or R.sizing("tff", kw, d)["cons_kg"] != 0.0:
+        fails.append(f"a case fed only the litres that leave with its cells should have no permeate and no membranes "
+                     f"(permeate {d['permeate_m3_h']:.3g} m3/h, membranes ${d['result']['membranes']:.3g})")
+    # with its own litres the case's filter sizing is explore's own (the dialyser's numbers, as explore's arguments)
+    d = R.duty(a["kw"])
+    sz = R.sizing("tff", a["kw"], d)
+    if not (close(sz["cons_kg"], d["result"]["membranes"], 1e-9) and close(sz["capex_k_m3"], d["result"]["retention_capex"], 1e-9)):
+        fails.append("retention.sizing('tff') does not give explore's membranes and filter capital for the all-favourable case")
     # since 2026-11-19 the model's floor IS GFI's cheapest (feed grade, efficient need), so at the defaults they coincide
-    if not close(F.with_gfi_amino_acids(rows[-1]["state"]), rows[-1]["cost"], 1e-9):
-        fails.append("GFI's cheapest amino-acid floor should equal the model's frontier")
+    if not close(F.with_gfi_amino_acids(rows[-1]["kw"]), rows[-1]["cost"], 1e-9):
+        fails.append("GFI's cheapest amino-acid floor should equal the model's all-favourable case")
     return fails
 
 
@@ -79,5 +96,5 @@ if __name__ == "__main__":
     fails = check()
     for f in fails:
         print("FAIL:", f)
-    print("PASS — the frontier holds." if not fails else f"{len(fails)} failure(s)")
+    print("PASS — the path to the all-favourable case holds." if not fails else f"{len(fails)} failure(s)")
     sys.exit(1 if fails else 0)

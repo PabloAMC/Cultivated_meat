@@ -20,9 +20,10 @@ go beyond those measurements. It says nothing about how cells would come to have
 cost of cells a 1% or 10% share needs, and trait sets that reach it. **Reference points** describe the cost of a kilo of cells, each by its traits and the plant and process
 around it: Published cells grown in batches (what has been shown), the low-lactate example in perfusion, the all-favourable example,
 Humbird's optimistic design and the process one company reports. Each is a preset of eleven switches, and each states what has to
-go right for it. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means cells that make 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 24 hours, with every other setting at its favourable end (a food-grade plant with shared medium, medium at the cost of its nutrients, more gas, fewer lost runs) and 58.5% of meat buyers picking it at the same price. See [RESULTS.md](RESULTS.md) and the page.
-Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $12.8, with the filter loop and the protectant counted.
-The model keeps it as a labelled comparison, not a limit.
+go right for it. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre: $49.5 a kilo of cells at most likely values. The all-favourable example (`scenarios.all_favourable`) is the one most favourable case: every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published cost studies, taking no value that breaks one of the model's limits (`study_assumptions.py`, `research_notes/study_comparison.md`): cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.6% of meat buyers picking it at the same price: $7.62 a kilo. See [RESULTS.md](RESULTS.md) and the page.
+Earlier versions called Humbird's optimistic design the floor. It was then $11.5/kg; it is now $15.9, with the filter loop, the protectant, the cells that bubbles kill, the cells lost at harvest and the plant's items per tank counted.
+
+**What the page does, and where it starts (since 2026-11-20).** The page shows the cost of a kilo of cells at the settings shown, the share of world meat and seafood that cost buys, and the draws over the unmeasured estimates in their own section. It opens on Humbird's best estimate (2021) as he counts it: his fed-batch design with enhanced cells on soy hydrolysate, $21.00 a kilo in 2018 dollars, $26.99 in 2025 dollars as the engine reproduces it (`humbird_check.py`, `research_notes/humbird_backtest.md`). What this model counts and he does not (cells killed by bubbles, cells lost at harvest, a least medium flow, the bubble protectant, slower oxygen uptake in a thick culture) are levers, with one button to switch them all on ($37.38). Published cells and the other reference points can be chosen as starts. The levers sit at the side, each with reference values (Humbird's, the best measured in meat cells, the examples', the published studies'). The vessel, the way the tank is run, the device that holds the cells back, the tank size, maturation and cleaning the medium for reuse are choices; the interest rate, the years of repayment and the upkeep replace the single yearly charge; a worked calculation and a glossary explain each figure.
 
 The reported cost is what a company reports for its own process (SuperMeat 2024). The physics of oxygen and CO₂ exchange and Humbird's plant design (2021) bound the scenarios.
 Every number is sourced and lives in one place, and every result reproduces from the code.
@@ -44,10 +45,11 @@ copies, while conventional prices vary about fivefold (cheap chicken to sushi). 
    it, gives the price ratio **R**.
 2. **Price → choice.** Shoppers choose between conventional meat, plant-based meat, cultivated meat and
    beans. They weigh price, taste, “is it real meat?”, health and animal welfare. This is a two-segment logit
-   calibrated to plant-based meat's observed ~1.2% share. How much shoppers like cultivated meat differs from one shopper
+   calibrated to plant-based meat's observed share, 0.4% of meat by volume. How much shoppers like cultivated meat differs from one shopper
    to the next (a Student's t spread, fitted to a choice experiment and to premium real meats).
-3. **Every meat, every region.** The model repeats the choice at each meat type's local price, then adds up by volume and by value.
-   The share it reports is cultivated meat's share of the meat sold: cultivated over cultivated plus conventional.
+3. **Every meat, every region.** The model repeats the choice at each meat type's local price and nominal income, then adds up by
+   volume and by value. The share it reports is cultivated meat's share of the meat sold: cultivated over cultivated plus
+   conventional. Conventional meat's price falls as it loses sales, and markets closed by law (weighted by meat eaten) take none.
 4. **Over time.** The share starts from wary shoppers and grows as the product spreads and becomes familiar.
 
 The two outputs deserve different levels of trust. **R** is a cost built from measured data over an observed
@@ -64,6 +66,9 @@ it is always a band.
 | 1 | [`cost_model.py`](cost_model.py) | the reported cost stack (medium and plant), three plant cases, Humbird's optimistic design, the cost waterfall |
 | 1 | [`scenarios.py`](scenarios.py) | the cost scenarios: eleven switches, what has to go right for each scenario, what to prioritise, interactions, bands |
 | 1 | [`vessels.py`](vessels.py) | vessel type against operating mode, everything else held: cost, limit and maturity of each combination |
+| 1 | [`humbird_check.py`](humbird_check.py) | the back-test: the engine at Humbird's own conditions against his Tables 4.7 and 4.13, line by line; the page's start and its additions |
+| 1 | [`study_assumptions.py`](study_assumptions.py) | ten published cost studies lever by lever, the limits a study value must respect, the all-favourable case's sources, and Humbird's best estimate with each study's assumptions |
+| 1 | [`frontier.py`](frontier.py) | the path from Humbird's optimistic design to the all-favourable example, one lever at a time |
 | 1 | [`retention.py`](retention.py) | holding the cells back in a 20 m³ perfusion tank: the duty and each real device's cost; every scenario uses the filter loop it prices |
 | 2 | [`market_share.py`](market_share.py) | the four-product, two-segment demand model, its calibration and self-checks |
 | 3 | [`meat_market.py`](meat_market.py) | share by meat type and region; volume and value totals; the regional Monte Carlo |
@@ -77,6 +82,9 @@ it is always a band.
 | – | [`design_space.py`](design_space.py) | what each tank limit is worth, and a search over every combination of tank design options |
 | – | [`medium_reuse.py`](medium_reuse.py) | cleaning and reusing the medium: an ammonium exchanger, electrodialysis and dialysis, priced with the cell filter counted |
 | – | [`industry_claims.py`](industry_claims.py) | the model against company cost claims, on the same basis: plant charge and operating cost split |
+| – | [`answer_rests_on.py`](answer_rests_on.py) | every ranged input moved alone: which ones the answer rests on |
+| – | [`tank_size.py`](tank_size.py), [`downside.py`](downside.py), [`thick_culture.py`](thick_culture.py), [`gas_exchange.py`](gas_exchange.py) | side-studies: tank size, the fallback without perfusion, thick cultures, the CO₂ column |
+| – | [`premium_curve.py`](premium_curve.py), [`premium_buyers.py`](premium_buyers.py), [`liking_spread.py`](liking_spread.py), [`demand_checks.py`](demand_checks.py), [`market_size_loop.py`](market_size_loop.py) | demand side-studies: premium real meats, premium buyers, the spread of liking, the checks on the price response, cost falling as the market grows |
 | – | [`plant_items.py`](plant_items.py), [`contamination.py`](contamination.py) | side-study: the plant's capital item by item, and the contamination a cheaper plant can afford |
 
 ---
@@ -178,6 +186,10 @@ model/
 ├── vessels.py           ← step 1: vessel type against operating mode
 ├── page_vessels.js      ← the page's vessel-by-mode table (a JavaScript mirror of vessels.py)
 ├── page_retention.js    ← the page's retention devices (a JavaScript mirror of retention.py)
+├── page_studies.js      ← the page's published studies and their levers (data from study_assumptions.py)
+├── humbird_check.py     ← the back-test against Humbird's tables; the page's start
+├── study_assumptions.py ← published cost studies, lever by lever, and the limits
+├── frontier.py          ← the path from Humbird's design to the all-favourable example
 ├── market_share.py      ← step 2: the four-product, two-segment demand model
 ├── meat_market.py       ← step 3: share by meat type and region
 ├── scaffolding.py       ← step 3: structured products and the cost of assembling them

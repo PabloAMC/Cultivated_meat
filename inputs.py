@@ -137,20 +137,21 @@ REGISTRY: dict[str, Input] = {
     "overhead": Input(19.1, "$/kg", "[SuperMeat, capital restated] everything except medium. Running costs as the "
         "company reports them, $10.8/kg ($11.8/lb 'without depreciation' = $26.0/kg, less 30.5 L x $0.50 of "
         "medium), plus a full yearly charge on the plant, $8.3/kg",
-        lo=10.8, hi=34.0, mode=19.1,
+        lo=13.8, hi=34.0, mode=19.1,
         note="THE PLANT knob. CAPITAL: the report gives depreciation of $1.6/lb ($3.5/kg) but neither the plant's "
              "cost nor the depreciation period. Assuming straight-line over 10 years (Humbird's plant life), the "
              "plant costs $35 per kg of yearly output, and at the 23.6%-a-year charge used for every other case "
              "(humbird_plant_charge) that is $8.3/kg. Over 20 years it would be $16.7/kg. The company's own "
              "figure with depreciation only is $29.5/kg in all; this default is $34.3. CAUTION: the report's "
              "stated tank volumes, densities and bleed rate reproduce about half its stated output, so its "
-             "plant cost per kg cannot be checked. lo=10.8 = the plant floor (floor_physics: no clean rooms, "
-             "perfusion, efficient cells). hi=34 = the cautious case with cells at half the density "
+             "plant cost per kg cannot be checked. lo=13.8 = the plant floor (floor_physics: no clean rooms, "
+             "perfusion, efficient cells; it was 10.8 until 2026-11-20, when plant_floor moved to what the engine gives, "
+             "and is not the company's $10.8 of running costs above, which it happened to equal). hi=34 = the cautious case with cells at half the density "
              "(floor_physics: pharma-style plant, tanks drained and refilled, 60 g/L). PIVOTAL: with the "
              "medium price, the top driver of R."),
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
-    "aa_intensity": Input(0.232, "kg amino acids/kg wet", "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; Pablo "
+    "aa_intensity": Input(0.232, "kg amino acids/kg wet", "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; chosen "
         "2026-11-19] amino acids a kilo of wet cells takes up, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g "
         "is the middle). Humbird's stoichiometry (Reaction 2.11) gives 0.26 kg of pure amino acids (Table 3.4); a kilo of wet cells "
         "is about 15-20% protein",
@@ -159,7 +160,9 @@ REGISTRY: dict[str, Input] = {
              "($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, arginine, asparagine, cystine or serine, so those "
              "come from fermentation at the prices of aa_bulk_price"),
     "aa_bulk_price": Input(6.36, "$/kg amino acids", "[GFI Dec 2025, Table 1, read in full] feed-grade amino acids, the "
-        "unweighted mean of 22 (low food-grade 11.59, high food-grade 23.18); Humbird's base case paid $15-16",
+        "unweighted mean of 22 (low food-grade 11.59, high food-grade 23.18); weighted by GFI's own need profiles "
+        "(Table 2: FSF4 medium $5.74, modified CHO medium $6.47) it is bracketed, so the unweighted mean is kept "
+        "(research_notes/nutrient_floor.md section 7); Humbird's base case paid $15-16",
         lo=5.0, hi=11.59, mode=6.36,
         note="the floor: what the cells must eat at the cheapest grade GFI prices. The mean is unweighted; serine, arginine and "
              "glutamine are needed most and serine is among the dearest, so a weighted mean is probably higher (the range "
@@ -173,32 +176,38 @@ REGISTRY: dict[str, Input] = {
     "glucose_price": Input(0.40, "$/kg", "[GFI25] US Midwest DE95 glucose, GFI & Hawkwood 2025 "
         "(Driving down costs of fermentation-derived ingredients, Table 6: $0.35-0.56)",
         note="Humbird quotes ~$0.25-0.26/kg contract prices"),
-    "other_nutrients_floor": Input(0.4, "$/kg", "[assumed, Pablo 2026-11-19] mineral salts, buffer, vitamins and "
+    "other_nutrients_floor": Input(0.4, "$/kg", "[assumed, 2026-11-19] mineral salts, buffer, vitamins and "
         "trace elements at the floor: DMEM/F12's salts, bicarbonate and vitamins at bulk prices come to about $0.005-0.01 a "
         "litre, $0.1-0.3 a kilo of cells at 11-28 litres; 0.9 before 2026-11-19",
         note="the remainder of the earlier $1 'glucose and other nutrients' assumption. Humbird "
              "leaves buffers and mineral salts out of his medium cost as low-cost (his footnote 26), "
              "so this leans conservative"),
-    "plant_floor": Input(10.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
+    "plant_floor": Input(13.8, "$/kg", "[floor_physics] plant cost per kg of real cells if everything that has "
         "been costed for animal cells works together, financed like a mature food industry: a food-grade plant "
         "without clean rooms ($810k per m3 in 2025 prices) plus a hollow-fibre filter loop to hold cells back "
         "(retention.py), 20 m3 tanks in perfusion at the density CO2 removal allows (120 g/L), efficient 3 ng cells, "
-        "91% uptime: capital, maintenance and insurance $6.4 + labour $1.2 + utilities $1.2 + consumables $2.0 (of "
-        "which filter membranes $1.0 and bubble protectant $0.7). Until 2026-11-15 (late) it was $9.8, with a "
-        "hoped-for device at $89k per m3 and no protectant",
+        "91% uptime: capital, maintenance and insurance $7.5 + labour $2.6 + utilities $0.7 + consumables $3.0 (of "
+        "which filter membranes $1.9 and bubble protectant $0.7), per kilo of cells harvested. MOVED 2026-11-20 from "
+        "$10.8 to $13.8, to what floor_physics.tiers() gives after that day's model batch (the value had been left "
+        "behind): bubbles kill 8% of the cells grown and 2% are lost at harvest, so every line is per kilo harvested; "
+        "a tank in perfusion takes twice the fed-batch crew; the filter membrane lasts 2,415 litres a m2; the plant "
+        "buys more medium-preparation equipment for the litres it passes; utilities are counted in Humbird's four "
+        "parts. Until 2026-11-15 (late) it was $9.8, with a hoped-for device at $89k per m3 and no protectant",
         note="THE FLOOR'S PLANT TERM (2026-11-14). Each element is allowed by physics and claimed or shown "
              "somewhere, never together: food-grade 20 m3 tanks run today (Vow); perfusion above 100 g/L is "
              "shown at 10 L (SuperMeat, Pasitka); a way to hold cells back at 20 m3 is not shown; efficient "
              "cells are not shown; 91% uptime is Humbird's figure, which he calls 'rather aggressive'. "
              "FINANCING: the yearly charge is plant_charge_mature (17.3%), because the floor is a long-run "
-             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $13.1. "
+             "case compared with meat, a mature industry; at the first-plant rate (23.6%) this term is $16.5. "
              "tests/test_floor_physics.py ties this value to the module"),
-    "plant_floor_lo": Input(6.3, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
+    "plant_floor_lo": Input(8.76, "$/kg", "[floor_physics] THE FRONTIER: the same case in a plant that costs what "
         "microbial fermentation plants cost today ($190k per m3: Liberation Labs, Quorn), at the same financing, "
-        "buying its oxygen (such plants have no oxygen unit). $4.9 before 2026-11-15 (late): no filter membranes, "
-        "no protectant, no oxygen",
+        "buying its oxygen (such plants have no oxygen unit). MOVED 2026-11-20 from $6.3 to $8.76, to what "
+        "floor_physics.tiers() gives after that day's model batch, for the reasons given under plant_floor (cells "
+        "killed by bubbles and lost at harvest, twice the crew in perfusion, the membrane's life, medium preparation, "
+        "utilities in four parts). $4.9 before 2026-11-15 (late): no filter membranes, no protectant, no oxygen",
         note="such plants exist, for microbes, with 150 m3 vessels. Nobody has costed or built one for "
-             "animal cells, whose cultures are far easier to contaminate. $6.8 at the first-plant rate. "
+             "animal cells, whose cultures are far easier to contaminate. $9.5 at the first-plant rate. "
              "CROSS-CHECK (research_notes/plant_capital_crosscheck.md): the price holds at small tanks. "
              "Humbird's own baker's-yeast plant costs $57k per m3 with 200 m3 fermentors and $130k with "
              "27 x 20 m3 (his Table A.5; about $175k in 2025 prices). And two published designs FOR ANIMAL "
@@ -216,11 +225,13 @@ REGISTRY: dict[str, Input] = {
         note="GROUNDING, all from Humbird's report: Sect. 3.1 gives the 2019 cost of capital of the food "
              "processing sector as 5.4% (against 8.5% for pharma and biotech, and the 7.5% of Beyond Meat that "
              "he adopts); his baker's-yeast benchmark (Appendix A) uses a 20-year plant life, where his "
-             "cultivated-meat plants use 10. CCF = i / (1 - (1 + i)^-n) = 0.083. Maintenance and insurance are "
+             "cultivated-meat plants use 10 (the benchmark's interest rate is 10%, HIGHER than his 7.5%: it supports the 20 "
+             "years, not a cheaper rate; its payment is 11.7% a year. Corrected 2026-11-20, research_notes/study_comparison.md). "
+             "CCF = i / (1 - (1 + i)^-n) = 0.083. Maintenance and insurance are "
              "kept at his 4% and 5%, which he also applies to the yeast plant. Used for the floor and the "
              "frontier, which are long-run cases set against meat; the default and the cautious cases keep the "
              "first-plant rate (humbird_plant_charge). lo: CE Delft 2021's 30-year payback with no return "
-             "(3.3% + 9%). hi: the first-plant rate"),
+             "(3.3% + 9%; the study states payback years, 4 or 30, and no interest rate). hi: the first-plant rate"),
     "humbird_plant_cost": Input(14.5, "$/kg", "[Humbird] Table 4.7, fed-batch on hydrolysate (enhanced "
         "metabolism): consumables 0.81 + utilities 0.93 + labour 1.42 + bioreactor, building and rest-of-plant "
         "capital 3.56 + 3.11 + 4.66 = $14.5/kg wet",
@@ -300,7 +311,23 @@ REGISTRY: dict[str, Input] = {
              "per m3 in floor_physics, not to figures that are already recent"),
     "pf_opex_escalation": Input(1.28, "x", "[pf-tea] US CPI-U 2025 (321.9) over 2018 (251.1): labour, utilities, "
         "consumables and growth factors since Humbird's price basis"),
+    # US consumer prices, all urban consumers (CPI-U, series CUUR0000SA0, U.S. city average, 1982-84 = 100, not seasonally
+    # adjusted), annual averages, fetched from the BLS public API v2 on 2026-11-20
+    # (api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?startyear=2018&endyear=2025&annualaverage=true). BLS has no October
+    # 2025 figure (the API returns '-'); the 2025 average is BLS's own. Used to bring every study's dollars to today's
+    # (study_assumptions.cpi). pf_opex_escalation, 1.28, is 2025 over 2018 rounded.
+    **{f"cpi_u_{y}": Input(v, "index", "[BLS CPI-U annual average, series CUUR0000SA0, BLS API v2, fetched 2026-11-20]")
+       for y, v in ((2018, 251.107), (2019, 255.657), (2020, 258.811), (2021, 270.970), (2022, 292.655), (2023, 304.702),
+                    (2024, 313.689), (2025, 321.943))},
     "pf_cell_mass_pg": Input(3000.0, "pg wet", "[Humbird-R] Sect. 2.1 model cell: 3,000 pg hydrated, 17.7 um"),
+    "cr_mass_measured_max_pg": Input(3000.0, "pg wet", "[2026-11-20: the larger of Humbird's 3 ng and the heaviest credible "
+        "measurement of a meat cell growing in suspension] no suspension measurement above 3 ng was found: the heaviest is "
+        "SuperMeat 2024's fat-differentiated chicken cells in a scaffold-free bioreactor, 1.75 ng weighed (2.2-2.3 ng from their "
+        "16 um diameter), company report", note="the heaviest meat cell measured in any culture is the Atlantic mackerel line "
+        "Mack1 before its crisis, 18.3 um (3.3-3.4 ng), on a surface with serum (Saad et al. 2023). Pasitka 2024's own figures "
+        "imply 3.3 and 9.8 ng, are inconsistent with each other and are wet-pellet weight over cell count, so not a measurement "
+        "of a cell. The 5.3 ng of Risner 2021 and CE Delft 2021 (3.6 and 5.2 ng) are assumptions in those analyses. The Cultivated "
+        "Meat book's 3.5 ng is calculated from a techno-economic analysis (Myers et al. 2023), not measured"),
     "pf_cell_mass_small_pg": Input(550.0, "pg wet", "[Pasitka, derived] 10 um measured diameter (Extended Data "
         "Fig. 4b) as a sphere at 1.05 g/mL", note="Pasitka's own biomass figures use 10 ng per cell; see METHODS "
         "'Wet mass per cell'"),
@@ -320,10 +347,18 @@ REGISTRY: dict[str, Input] = {
     "pf_batch_end_x": Input(1.3, "x the steady-state limit", "[Humbird-R, derived; judgement] how far above the waste "
         "level a perfusion tank is held at (the ammonia limit, and the lactate the salt allows) a tank that is not washed out "
         "may end its cycle. Its waste builds up with its cells, so only the last doublings see the higher level. Humbird's own "
-        "fed-batch design (120 g/L of his enhanced cells, Fig. 2.8b: 0.054 mol ammonia and 0.56 mol lactate a kilo) ends at "
-        "6.5 mmol/L of ammonia and 67 mmol/L of lactate, 1.3 times the 5 and 50 he holds perfusion to",
+        "fed-batch design (1,849 kg in 16 m3, 116 g/L of his enhanced cells: 0.056 mol ammonia and 0.56 mol lactate a kilo) holds "
+        "6.5 mmol/L of ammonia and 65 mmol/L of lactate if all the waste its cells made is counted, 1.3 times the 5 "
+        "and 50 he holds perfusion to",
         lo=1.0, hi=2.0, mode=1.3,
-        note="ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
+        note="HOW HUMBIRD COUNTS IT (back-test 2026-11-20, research_notes/humbird_backtest.md): his simulation ends at 5 and 50 "
+             "by his own count (Sect. 4.1, Fig. 4.2), because it starts each tank from fresh medium and 482 kg of seed cells and "
+             "counts only the waste the 1,367 kg grown in the production tank make: 120 g/L x 0.739 x 0.0563 = 5.0 mmol/L (Fig. "
+             "2.8b); his wild-type cells the same way, 7.1 g/L x 0.75 x 0.952 = 5.0. The seed cells arrive in about 4 m3 of "
+             "seed culture that ended at the same level, which he leaves out. This model counts all of it (the litres a kilo "
+             "leaves with hold all the waste it made), so his design sits at 1.3 to 1.35 times the level. humbird_check.py sets "
+             "this input to 1 / (1 - 482/1,849) = 1.35 and switches the slowdown off to price his design as he counts it. "
+             "ADDED 2026-11-19 (scenario restructure): litres per kilo must be at least waste made per kilo / level allowed, "
              "in any mode, so the density of an unwashed tank is this factor x the level / the waste made per kilo (mmol/L / "
              "(mol/kg) = g/L). Before, the cap was Humbird's 120 g/L scaled by the waste, which let the low-lactate example's fed-batch end at "
              "7.8 mmol/L of ammonia against the 4 its perfusion is held to. Evidence, both ways (research_notes/vessels_and_modes.md "
@@ -362,6 +397,12 @@ REGISTRY: dict[str, Input] = {
              "0.50 at 0.8, because the culture spends each cycle climbing back to the cap. Patents describe draws "
              "of up to 80%"),
     "pf_turnaround_h": Input(10.0, "h", "[Humbird-R] Sect. 4.2: 10 h offline per turnaround for cleaning and refill"),
+    "pf_mature_h": Input(0.0, "h", "[GOOD Meat, Believer, Wildtype and Vow regulatory filings: bulk cell mass, no maturation] hours "
+        "the cells spend in the tank at no growth before harvest, to mature muscle or fat (floor_physics.explore's mature_h)",
+        lo=0.0, hi=672.0, mode=0.0,
+        note="references: 0 for the products near market; 4 days, Meatable 2024 (company claim); 7 days for muscle (Cultivated "
+             "Meat book; Mattick 2015; Tuomisto 2022); 14 and 28 days for fat. While maturing the cells respire at their upkeep "
+             "rate and use medium at that rate; a continuous tank holds its harvest in a maturation vessel priced as tank capacity"),
     "pf_fedbatch_doublings": Input(2.0, "doublings", "[Humbird-R] Fig. 4.3: production batch grows 482 -> 1,849 kg "
         "(1.9 doublings); seed splits of 2-3 doublings are the recommended range"),
     "pf_capex_aseptic_fedbatch": Input(683.0, "$k/m3", "[Humbird-R] Tables 4.1 and 4.3: TCI $327.9M for 24 x 20 m3 "
@@ -410,6 +451,8 @@ REGISTRY: dict[str, Input] = {
     "pf_nh3_efficient": Input(0.054, "mol/kg wet", "[Humbird-R, derived] ammonia made per kg of cells grown by his "
         "enhanced cells: Reaction 2.11, 0.004 mol per mol of dry cell mass, x 13.6 mol per kg wet",
         note="13.6 mol/kg = 300 g dry matter per kg wet over 22.06 g/mol for CH1.68 O0.34 N0.21 (his Table 2.1). "
+             "The 0.004 is rounded: Reaction 2.10 makes one ammonia for ten lactate (his note 67), which with 0.558 mol of "
+             "lactate gives 0.056. Left at 0.054 (back-test 2026-11-20): lactate sets the litres in his design either way. "
              "All of it comes from catabolism, so per kg it scales with the upkeep burned (slower cells make more)"),
     "pf_nh3_wild": Input(0.952, "mol/kg wet", "[Humbird-R, derived] the same for ordinary (wild-type) cells: "
         "Reaction 2.9, 0.070 mol per mol of dry cell mass"),
@@ -448,7 +491,10 @@ REGISTRY: dict[str, Input] = {
              "(catfish ovary, 3T3, pig muscle stem cells, bovine FAPs) lose 10-55% of growth rate at 2.5-5 mM when spiked; CHO and "
              "adapted hybridomas tolerate more. Kept at 5 because the low-lactate example assumes cells that tolerate it and no meat cell has been "
              "measured at density; P(within 1.5x of the truth) about 45%, with the risk mostly below"),
-    "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above"),
+    "pf_lac_limit": Input(50.0, "mmol/L", "[Humbird-R] Sect. 2.3, as above", lo=20.0, hi=50.0, mode=50.0,
+        note="Humbird's own figure, kept for his design (explore()'s default for `lac_limit`) and drawn in its band since "
+             "2026-11-20. The scenarios take sc_lac_limit. lo: the upper end of the textbook range (under 10 to 22 mM, "
+             "Cultivated Meat, Table 2, citing Hassell 1991)"),
     "pf_maintenance_share": Input(0.5, "of O2 uptake", "[GFI 2025 / Miller 1987, judgement] share of a cell's oxygen "
         "uptake at a 24 h doubling time that is upkeep (it runs whether or not the cell grows); the rest rises "
         "in proportion to the growth rate",
@@ -735,11 +781,16 @@ REGISTRY: dict[str, Input] = {
     "ge_clearance_m": Input(2.0, "m", "[assumed] floor taken per tank is (width + this)^2"),
     "ge_kill_protected": Input(4.0e-4, "L of culture per L of gas", "[Jobses, Martens, Tramper 1991, read in full] "
         "volume of culture whose cells die per volume of gas sparged, hybridoma with 1 g/L Pluronic F68: death "
-        "rate 0.05 per hour at 10 L/h of gas through 80 mL", lo=4.0e-4, hi=3.2e-3, mode=4.0e-4,
+        "rate 0.05 per hour at 10 L/h of gas through 80 mL", lo=1.0e-4, hi=1.2e-3, mode=4.0e-4,
         note="death rate = this x gas flow per litre of culture ('the cell death rate is linearly proportional to "
              "the gas flow rate per unit volume'); independent of sparger and, in Tramper 1988, of bubble size. "
-             "hi = the same at 0.1 g/L (0.4 per hour). 3 cm columns, 4-6 mm bubbles, 2.0-12 cm deep: a long "
-             "extrapolation to 20 m3"),
+             "3 cm columns, 4-6 mm bubbles, 2.0-12 cm deep: a long "
+             "extrapolation to 20 m3. Charged since 2026-11-20 (floor_physics.explore, `kill`, `death_share`, on the gas the "
+             "culture needs, `gas_used`): the cells killed lyse and are not harvested; drawn in the scenarios' bands. "
+             "Range set 2026-11-20: the earlier high end (3.2e-3) was the same measurement at a tenth of the protectant dose "
+             "(0.1 g/L, 0.4 per hour), which the model's 2 g/L (pf_protectant_dose) does not correspond to. lo, a quarter of "
+             "the bench value: pharma runs dense cultures at similar gas flows without reporting such losses. hi, three times "
+             "it: protection may weaken over weeks at high density"),
     "ge_kill_unprotected": Input(8.8e-3, "L of culture per L of gas", "[Jobses et al. 1991, read in full] the same "
         "with no protectant: 1.1 per hour", note="Tramper et al. 1988 give 4e-3 for insect cells"),
     "ge_alr_volume": Input(261.754, "m3", "[Negulescu et al. 2023, read in full] 'the ALR is 261,754 L with a "
@@ -763,20 +814,91 @@ REGISTRY: dict[str, Input] = {
     "pf_bioreactor_capex_share": Input(0.32, "of direct cost", "[Humbird-R] Table 4.3: bioreactors $56.6M of "
         "$178.2M total direct cost", note="the share of plant cost that scales with vessel size (Eq. 3.1)"),
     "pf_labour": Input(1.45, "$/kg", "[Humbird-R] Table 4.6, fed-batch: burdened labour",
-        note="scaled with vessel-time per kg in floor_physics"),
-    "pf_utilities": Input(0.94, "$/kg", "[Humbird-R] Table 4.6, fed-batch: water, power, gas"),
+        note="scaled with vessel-time per kg in floor_physics: the crew per m3 of tank of every case. A tank in perfusion "
+             "takes pf_labour_perfusion_x times it (2026-11-20). The crew per m3 is this figure times what his plant makes per "
+             "m3 of production tank, 6.8 kTA from 24 x 20 m3 = 14.2 t a year (floor_physics.humbird_fedbatch_output): $9.9M a "
+             "year for 480 m3 (Table 4.5). Until the back-test of 2026-11-20 explore() multiplied by 14.5, the output of a "
+             "58-hour cycle at a nominal 120 g/L, which put the crew 2% above his table"),
+    "pf_labour_perfusion_x": Input(2.0, "x the fed-batch crew", "[Humbird 2021; CE Delft 2021; SuperMeat 2024, derived] staff a "
+        "plant in perfusion needs against a fed-batch plant, per m3 of tank: staff per thousand tonnes a year in analyses "
+        "that assume perfusion, against the 9.6 of Humbird's fed-batch plant. Humbird's perfusion design 19 (2.0 times), CE "
+        "Delft 2021 20 (2.1 times), SuperMeat 2024 37 (3.9 times)", lo=1.4, hi=3.9, mode=2.0,
+        note="multiplies the fed-batch crew per m3 of tank (pf_labour) for a tank that is washed and run continuously "
+             "(floor_physics.explore). lo: Humbird's labour cost per kilo, $1.99 in perfusion against $1.45 in fed-batch (1.4 "
+             "times). Set 2026-11-20 in place of his perfusion crew per m3 of tank (pf_labour_perfusion at his perfusion "
+             "output), which comes from 96 tanks of 2 m3 and gave his own reference design $4.58 a kilo"),
+    "pf_medium_prep_l_kg": Input(8.7, "L/kg", "[Humbird-R] Table 4.4, fed-batch: 16 m3 of medium for a batch of 1,849 kg of "
+        "wet cells",
+        note="the medium Humbird's fed-batch plant prepares and sterilises per kilo. Its medium preparation equipment "
+             "(plant_items 'medium') is sized for this times its output per m3 of tank a year; a case that passes more "
+             "medium per m3 a year pays for more of that equipment (floor_physics.explore, `medium_prep_capex`; "
+             "research_notes/full_review_2026-11-19.md, section 2, item 2)"),
+    "pf_medium_prep_exp": Input(0.6, "exponent", "[assumed] how the cost of medium preparation and sterilising equipment "
+        "rises with the medium passed: the six-tenths rule", lo=0.6, hi=1.0, mode=0.6,
+        note="hi: in proportion (more units of the same size). Humbird's own two designs: $18.0M of medium equipment for "
+             "192 m3 of perfusion tank (Table 4.8) against $7.2M for 480 m3 in fed-batch (Table 4.1). In-line dilution of a "
+             "concentrate would cut it"),
+    "pf_harvest_recovery": Input(0.98, "fraction", "[SuperMeat 2024; Negulescu 2023; Pasitka 2024] share of the cells "
+        "grown that the harvest step gives back: SuperMeat rejects 3%, Negulescu loses about 2% in the decanter, Pasitka "
+        "1.3%", lo=0.97, hi=0.99, mode=0.98,
+        note="the cells lost were grown with their share of medium, membranes and everything else, so every cost per kilo "
+             "and the litres of medium per kilo are divided by this, as they are by the share bubbles kill "
+             "(floor_physics.explore, `harvested_share`); a vessel's own recovery (vessels.py) applies on top. Set "
+             "2026-11-20: the model had no loss at harvest"),
+    "pf_wash_price": Input(0.066, "$/L", "[derived from glucose_intensity, glucose_price, other_nutrients_floor and "
+        "pf_medium_l_floor] a solution of salts, buffer and glucose with no amino acids, vitamins or proteins: the glucose "
+        "(0.32 kg x $0.40) and the salts, buffer and trace elements ($0.4) a kilo of cells needs, in the 8 litres that carry "
+        "a kilo's nutrients: (0.128 + 0.4) / 8", lo=0.01, hi=0.066, mode=0.066,
+        note="a reference value for explore()'s `wash_price` lever, not a default: with the lever unset every litre is "
+             "charged at the full medium price. It prices the litres beyond the pf_medium_l_floor that carry the nutrients, "
+             "which only wash waste out. lo: DMEM/F12's salts and bicarbonate at bulk prices, $0.005-0.01 a litre (the source "
+             "of other_nutrients_floor). The value leans high: other_nutrients_floor includes the vitamins, and a wash "
+             "solution needs glucose only at the tank's level. Growth factors and bubble protectant are dosed in every "
+             "litre and are charged apart"),
+    "pf_utilities": Input(0.94, "$/kg", "[Humbird-R] Table 4.6, fed-batch: water, power, gas",
+        note="his fed-batch plant's total, kept for his own designs (floor_physics.tiers) and as the check on its four parts "
+             "below (pf_util_time, pf_util_run, pf_util_water, pf_util_kg), which explore() charges since 2026-11-20"),
+    "pf_util_time": Input(4.07, "$k per m3 of tank a year", "[Humbird-R, Table 4.4, derived] power for the building (clean-room air "
+        "and lighting): $543 per batch of a 20 m3 tank, 150 batches a year (3,600 batches in 24 tanks)",
+        note="UTILITIES IN FOUR PARTS (back-test against Humbird's Table 4.7, 2026-11-20, research_notes/humbird_backtest.md). "
+             "explore() charged his $0.94 a kilo to every case, whatever the tank made. His own table is mostly per batch and per "
+             "year, not per kilo: of $1,700 a batch, $543 is building power (by the year), $773 is water and steam to clean and "
+             "sterilise the tank (by the run), $326 is the water the medium is made with (by the litre) and $123 is power for "
+             "oxygen, stirring, cooling and dewatering (by the kilo). His wild-type column shows it: the same plant making 6% as "
+             "much pays $14.52 a kilo for utilities (Table 4.7), which these four parts give ($14.5) and a flat $0.94 does not. "
+             "At his fed-batch output (14.2 t per m3 a year, 8.65 L a kilo) the parts sum to $0.94. Not closed: his perfusion "
+             "plant of 2 m3 tanks pays $0.98 (Table 4.11), about twice what the parts give, because its clean room is 2.9 times "
+             "larger per m3 of tank and its water use (26 L a kilo) is more than its medium and cleaning account for"),
+    "pf_util_run": Input(0.0386, "$k per m3 of tank per run", "[Humbird-R, Table 4.4 and Sect. 4.1, derived] water and steam to clean, "
+        "sterilise and refill a tank: 52.5 m3 of water a batch less the 16 m3 the culture holds, at $20.4 a m3 (water for "
+        "injection $20, waste water $0.40), plus $29 of natural gas: $773 per batch of a 20 m3 tank",
+        note="charged per run: each cycle of a batch or fed-batch tank, each restart of a tank run continuously"),
+    "pf_util_water": Input(0.0204, "$/L of medium", "[Humbird-R, Sect. 3.2 'Water' and Table 4.4] the water a litre of medium is made "
+        "with: water for injection at about $20 a m3, plus $0.40 a m3 for waste-water treatment",
+        note="medium prices in the model are for the nutrients; a case that passes more litres per kilo pays for more water"),
+    "pf_util_kg": Input(0.0665, "$/kg", "[Humbird-R, Table 4.4, derived] power for the oxygen plant, compressor, stirrer, chiller "
+        "and dewatering: $123 per batch of 1,849 kg",
+        note="scales with the oxygen burned per kilo, as the whole figure did"),
     "pf_consumables_fedbatch": Input(0.85, "$/kg", "[Humbird-R] Table 4.4: sterile and virus filters per batch"),
     "pf_consumables_perfusion": Input(4.56, "$/kg", "[Humbird-R] Table 4.14: filters plus ATF membranes"),
-    "pf_labour_perfusion": Input(1.99, "$/kg", "[Humbird-R] Table 4.13, perfusion: burdened labour (132 staff for "
-        "96 small tanks, against 95 for the fed-batch plant)"),
+    "pf_labour_perfusion": Input(1.99, "$/kg", "[Humbird-R] Table 4.12 (cost summary: Table 4.13), perfusion: burdened "
+        "labour at his perfusion design's own output (132 staff for 96 small tanks, against 95 for the fed-batch plant)",
+        note="a cross-check only: the model's labour for a tank in perfusion is the fed-batch crew per m3 of tank (pf_labour) "
+             "times pf_labour_perfusion_x. His perfusion plant has 0.69 staff per m3 of tank (2 m3 tanks) against 0.20 in "
+             "fed-batch (20 m3 tanks), so charging this figure per m3 of tank overstates the crew of a 20 m3 tank"),
     "pf_bound_capex": Input(70.0, "$k/m3", "[pf-tea] the model fermentation plant at 7,200 m3, used only for the "
         "rough lower bound"),
     "pf_bound_otr": Input(50.0, "mmol O2/L/h", "[pf-tea, citing Humbird 2021] '<50' for animal cells, used only "
         "for the rough lower bound"),
     "pf_consumables_low": Input(0.3, "$/kg", "[assumed] continuous or food-grade operation with few filter changes"),
-    "pf_growth_factors": Input(3.1, "$/kg", "[Humbird-R] Table 4.4: insulin, transferrin, FGF, TGF-beta at a "
-        "100 kTA industry", note="Humbird: 'At much larger scale, their contribution vanishes entirely'. The "
-        "model's floor leaves them out; cells that make their own growth factors would do the same"),
+    "pf_growth_factors": Input(3.13, "$/kg", "[Humbird-R] Table 4.4: insulin, transferrin, FGF, TGF-beta at a "
+        "100 kTA industry, $5,800 per fed-batch of 16 m3 and 1,849 kg", note="Humbird: 'At much larger scale, their contribution vanishes entirely'. The "
+        "model's floor leaves them out; cells that make their own growth factors would do the same. PER LITRE (back-test "
+        "2026-11-20, research_notes/humbird_backtest.md): he doses them by concentration (Sect. 3.2: insulin 19.4 mg/L; "
+        "Table 4.4: 310 g per batch = 19.4 mg/L x 16,000 L) and counts what leaves when the tank is emptied, so $3.13 a kilo "
+        "is for his fed-batch's 8.65 litres a kilo (pf_medium_prep_l_kg): $0.36 a litre. explore() had divided it by the "
+        "11.2 litres his cells need in perfusion ($0.28 a litre), which under-priced his own fed-batch design by a quarter "
+        "($2.39 against his $3.12). Was 3.1 (rounded)"),
     "pf_aa_price_cheap": Input(1.0, "$/kg amino acids", "[assumed] the physical bound: amino acids at about the price of "
         "protein in soybean meal, far below GFI's feed-grade amino acids (aa_bulk_price)", note="soybean meal is roughly $0.4/kg at ~47% protein, so ~$0.85 per kg of protein before "
         "hydrolysis and clean-up; microbial or gas-fermentation protein would have to beat that"),
@@ -835,6 +957,27 @@ REGISTRY: dict[str, Input] = {
     "pi_eq31_fixed": Input(800.0, "$k", "[Humbird-R] Eq. 3.1: the fixed part (piping, instruments), per vessel"),
     "pi_eq31_small_slope": Input(2285.0, "$k/m3", "[Humbird-R] Eq. 3.1 below 0.33 m3: $k = 2285 V + 49.5"),
     "pi_eq31_small_fixed": Input(49.5, "$k", "[Humbird-R] Eq. 3.1 below 0.33 m3"),
+    # --- what each production tank brings with it (floor_physics.tank_items, 2026-11-20): the plant's cost per m3 of tank at
+    # another size or way of running is the 20 m3 fed-batch plant's, plus the change in these items. Humbird's accounting: ISBL =
+    # 1.2556 x bioreactors installed + 2.5556 x other equipment bare; total investment = direct cost x 1.84 (plant_items).
+    "pi_makeup_fb_tank": Input(140.4, "$k bare per production tank", "[Humbird-R] Table 4.1: makeup tanks $3,370k for 24 "
+        "production tanks, three makeup tanks per production tank (72 x 2.8 m3 and smaller, one per production and seed bioreactor)",
+        lo=100.0, hi=180.0, mode=140.4, note="range assumed: the table gives one figure; per production tank, because each "
+        "production tank comes with its seed train's makeup tanks"),
+    "pi_makeup_pf_tank": Input(139.0, "$k bare per production tank", "[Humbird-R] Table 4.8: day and makeup tanks $13,345k for "
+        "96 perfusion tanks of 2 m3 (two per tank)", lo=100.0, hi=180.0, mode=139.0, note="range assumed, as pi_makeup_fb_tank"),
+    "pi_filters_fb_tank": Input(61.7, "$k bare per production tank", "[Humbird-R] Table 4.1: filter housings $1,481k for 24 "
+        "production tanks (216 x 0.7 m2 and smaller)", lo=40.0, hi=90.0, mode=61.7, note="range assumed"),
+    "pi_filters_pf_tank": Input(27.7, "$k bare per production tank", "[Humbird-R] Table 4.8: filter housings $2,663k for 96 "
+        "perfusion tanks", lo=15.0, hi=45.0, mode=27.7, note="range assumed"),
+    "pi_bldg_per_m3": Input(74.4, "$k direct per m3 of production tank", "[derived: a fit to Humbird's two plants, not his "
+        "rule] buildings $48,482k for 24 x 20 m3 (Table 4.2) and $65,445k for 96 x 2 m3 (Table 4.9) solved as area per m3 of "
+        "tank plus area per tank: $74.4k per m3 + $533k per tank", lo=50.0, hi=100.0, mode=74.4,
+        note="two plants, two unknowns: an exact fit with no check left; it makes a plant of many small tanks dearer in "
+             "buildings (his perfusion plant has 2.9 times the clean-room floor per m3) and one of few large tanks cheaper. "
+             "Range assumed"),
+    "pi_bldg_per_tank": Input(533.0, "$k direct per production tank", "[derived: the same fit to Humbird's two plants] "
+        "see pi_bldg_per_m3", lo=300.0, hi=800.0, mode=533.0, note="range assumed"),
     "pi_bare_coef": Input(51.0, "$k", "[Humbird-R] note 127: bare bioreactor cost $k = 51 x V^0.69"),
     "pi_bare_exp": Input(0.69, "exponent", "[Humbird-R] note 127"),
     # Table 3.3: what the installed cost of one sterile 20 m3 bioreactor is made of
@@ -1093,6 +1236,13 @@ REGISTRY: dict[str, Input] = {
         lo=2.0, hi=8.0, mode=4.0,
         note="Set 2026-11-19 (audit): every scenario took Humbird's 5 mM (pf_nh3_limit), above the note's own median. Humbird's "
              "optimistic design keeps his 5. Drawn in every scenario's band."),
+    "sc_lac_limit": Input(35.0, "mmol/L", "[Cultivated Meat (book), Table 2, citing Hassell 1991; Pasitka 2024; Humbird 2021, "
+        "judgement] lactate the scenarios' cells tolerate in the tank with little loss of growth. The book gives under 10 to "
+        "22 mM; Pasitka 2024 held 30 mM in a running culture; Humbird 2021 takes 50",
+        lo=20.0, hi=50.0, mode=35.0,
+        note="Set 2026-11-20 (research_notes/full_review_2026-11-19.md, section 2, item 1): every scenario took Humbird's 50 mM "
+             "(pf_lac_limit), which had no range, so no band drew it. Passed by scenarios.always() as `lac_limit`, as "
+             "sc_nh3_limit is. Humbird's optimistic design keeps his 50. Drawn in every scenario's band."),
     "sc_do_setpoint": Input(0.10, "mmol O2/L", "[gas_exchange_study.md 10.2; pharma practice, snippet-level sources] dissolved "
         "oxygen the scenarios hold the tank at: about 47% of air saturation (air at 37 C: 0.21 mmol/L)",
         lo=0.05, hi=0.28, mode=0.10,
@@ -1183,7 +1333,9 @@ REGISTRY: dict[str, Input] = {
         "cells at 130 million cells/mL = 43% w/v (the 2024 abstract; the 2023 paper gives 108 million = 36% w/v), both about 3.3 ng a cell; "
         "SuperMeat 2024 reports 1.0-1.75 ng",
         note="a cell's mass is measured, not chosen: every route below this mass has been seen in meat cells. Larger cells are "
-             "cheaper (they respire less per gram)"),
+             "cheaper (they respire less per gram). CAVEAT (2026-11-20, research_notes/study_comparison.md): the 130 million "
+             "cells/mL are from 5 L glass tanks with 10% serum (Pasitka 2024, Fig. 1), and the same paper's continuous run gives "
+             "1.7 kg from 173e9 cells, 9.8 ng a cell; both are weights of wet pellet, so 3.3 ng is not a measured cell mass"),
     # --- Vessel types and operating modes (vessels.py; research_notes/vessels_and_modes.md) ---------------
     # Each vessel is priced at the largest unit it has been built or designed at, up to 20 m3. Sizes are working
     # volumes where `wv` is 1, else vessel volumes. Everything not listed is the model's stirred tank.
@@ -1319,23 +1471,32 @@ REGISTRY: dict[str, Input] = {
         lo=0.25, hi=0.35, mode=0.31),
     "rt_tff_hw": Input(1.0, "$k per m2", "[assumed, research pass] pumps, housings and skid per m2 of hollow-fibre membrane "
         "for a recirculating TFF loop; at the central duty this gives $35k per m3 of tank, Pasitka's own TFF figure",
-        lo=0.5, hi=3.0, mode=1.0),
+        lo=0.5, hi=3.0, mode=1.0,
+        note="An INSTALLED (direct) cost, not a bare price: it was set so that, times rt_install (1.84, engineering, "
+             "construction, fees and contingency only, Humbird's and Pasitka's indirect factor), it gives Pasitka's total "
+             "investment per m3 for his TFF case, whose direct costs carry no separate installation line. So it takes no "
+             "installation factor, unlike the ATF unit (rt_atf_price is Humbird's bare price: retention.atf_factor). Whether "
+             "Pasitka's own line included installation could not be checked (his SI is not in the repo). Were $1k a bare price, "
+             "installing it (x 2.56) would raise the low-lactate example by $0.43 a kilo (2026-11-20)"),
     "rt_tff_phi_max": Input(0.5, "volume fraction", "[Clincke et al. 2013, read in full] a TFF loop with a positive-pressure "
         "pump reached 2.14e8 CHO cells/mL (about half the volume) for days in a 4 L bag, at about 1 bar at the inlet",
         lo=0.3, hi=0.5, mode=0.5),
     "rt_membrane_price": Input(1450.0, "$/m2", "[Humbird 2021, read in part, derived] $16,000 per ATF membrane of 11 m2; a "
         "retail 0.2 um module lists at $1,050-1,260 per m2 (snippet)", lo=1050.0, hi=1450.0, mode=1450.0),
-    "rt_membrane_life": Input(3960.0, "L/m2", "[research pass, derived] litres of permeate a m2 of membrane filters before it "
-        "is replaced: 5 L/m2/h for a 33-day run", lo=900.0, hi=5500.0, mode=3960.0,
-        note="lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
+    "rt_membrane_life": Input(2415.0, "L/m2", "[Humbird 2021, Table 4.11, derived] litres of permeate a m2 of membrane filters "
+        "before it is replaced, in Humbird's own perfusion design: 1,920 ATF membranes a year (at $16,300 each, 11 m2 each) "
+        "for 51.0 million litres of perfusate, so 51.0e6 / (1,920 x 11) = 2,415 L/m2", lo=900.0, hi=5500.0, mode=2415.0,
+        note="Set 2026-11-20 so that the price and the life are one source's pair (rt_membrane_price is Humbird's): $0.61 of "
+             "membrane a litre. The earlier value, 3,960 (5 L/m2/h for a 33-day run, from a research pass), gave $0.37. "
+             "lo: fouled in about 4.5 days at 8.3 L/m2/h (Veje 2024); hi: one TFF hollow fibre lasted 30 days at 7.6 (Clincke "
              "2013). Membranes, not hardware, set the cost of filtering a thick, fast-fed culture. Evidence pass 2026-11-16 "
              "(research_notes/ammonia_tolerance_and_filter_life.md): small-pore fibres in dense CHO perfusion foul in about 6-30 "
-             "days, about 180-2,500 L/m2, and industry designs for 1,000; 3,960 is at the generous end (P within 1.5x about "
-             "20%, median about 1,500). Read with rt_membrane_price: a membrane adds price / life per litre, so 1,500 L/m2 costs "
-             "nothing extra at $549/m2 or less (filter_flux.break_even_price)"),
+             "days, about 180-2,500 L/m2, and industry designs for 1,000 (median about 1,500). Read with rt_membrane_price: a "
+             "membrane adds price / life per litre, so 1,500 L/m2 costs nothing extra at $900/m2 or less "
+             "(filter_flux.break_even_price)"),
     # alternatives to the pharma membrane: research_notes/retention_alternatives.md, retention_alternatives_sources/
     "rt_reuse_life": Input(12000.0, "L/m2", "[Cobetter and Sartorius reuse guidance, snippets; patent US 6,261,457, snippet] "
-        "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 x (1 + 4 x 0.3 to 0.8), "
+        "litres a reusable pharma hollow-fibre module filters over a first run and four reuses: 3,960 (this model's membrane life until 2026-11-19) x (1 + 4 x 0.3 to 0.8), "
         "after cleaning with sodium hydroxide; flux recovers 70-80% and a patent saw reuse life fall to 30-40% of the first",
         lo=8700.0, hi=16600.0, mode=12000.0,
         note="the same polymer, price and sterility as the model's membrane. No reuse data with animal-cell fouling; steam "
@@ -1548,7 +1709,7 @@ REGISTRY: dict[str, Input] = {
         "900-1,200 for a 0.2 um fibre at 1-2 L/m2/h (Pinto); about 1,200 over 5.9 days at 8.3 L/m2/h (Veje, the authors' "
         "arithmetic as read by the research pass)", lo=900.0, hi=1200.0, mode=1200.0,
         note="CHO at 50-75e6 cells/mL, a volume fraction of about 0.13-0.16, with antifoam and cell debris. The model's "
-             "default is 3,960 (rt_membrane_life), 3 to 9 times this"),
+             "default is 2,415 (rt_membrane_life), 2 to 5 times this"),
     "ff_flux_typical": Input(2.5, "L/m2/h", "[Veje 2024 (full text, citing the literature: 2-3); Radoniqi 2018 (full text: 2); "
         "Pinto 2020 (1-2)] the sustained permeate flux hollow-fibre perfusion filters are run at", lo=1.0, hi=3.0, mode=2.5,
         note="the model's rt_flux_lmh is 5"),
@@ -1642,7 +1803,7 @@ REGISTRY: dict[str, Input] = {
              "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
              "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
              "buyers; its share of all choices is 4%, and 13% reproduces both."),
-    "best_equal_price_share": Input(0.55, "of buyers", "[judgement, Pablo 2026-11-19] the same share in the all-favourable example: once "
+    "best_equal_price_share": Input(0.55, "of buyers", "[the model's rough judgement, 2026-11-19] the same share in the all-favourable example: once "
         "familiar and at equal price, shoppers slightly favour cultivated meat. The all-favourable example takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "
         "antibiotics, disease) none of the precedents for distrusted foods had to face (irradiated food, margarine, modified "
@@ -1873,16 +2034,21 @@ REGISTRY: dict[str, Input] = {
     # richer consumers are LESS price-sensitive. alpha is derived in market_share from
     # beta_price so the US-reference behaviour is unchanged; income_eff = income_ref *
     # (income/income_ref)**income_gradient damps the cross-region gradient. See market_share.py.
-    "income_ref": Input(85810, "$/yr", "[World Bank] US GDP per capita PPP 2023 ($85,810) — the "
+    "income_ref": Input(86170, "$/yr", "[World Bank API, NY.GDP.PCAP.CD] US GDP per head in nominal dollars, 2024 ($86,170; "
+        "it was the PPP figure $85,810 until 2026-11-20, see meat_market.REGION_INCOME) — the "
         "REFERENCE income at which the price coefficient is anchored (so the US/commodity case is "
         "unchanged). Only income RATIOS across regions matter, so the absolute level is absorbed by alpha."),
-    "income_gradient": Input(0.5, "exponent", "[Muhammad/ERS] phi: the DAMPING exponent on the BLP income "
+    "income_gradient": Input(0.32, "exponent", "[Muhammad/ERS] phi: the DAMPING exponent on the BLP income "
         "term. Income enters the price utility as genuine Berry-Levinsohn-Pakes V_price = alpha*ln(y_eff - "
         "price_j), with the EFFECTIVE income y_eff = income_ref*(income/income_ref)**phi. phi controls how "
         "strongly the BLP curvature is expressed across regions: phi=1 = raw BLP (y_eff = actual income); "
         "phi=0 = no income effect (y_eff = income_ref everywhere); 0<phi<1 damps it.",
-        lo=0.0, hi=1.0, mode=0.5,
-        note="phi=0.5 (DEFAULT) gives a Nigeria/US own-price-elasticity ratio ~2.2x (India ~1.8x), matching "
+        lo=0.0, hi=1.0, mode=0.32,
+        note="RE-SOLVED 2026-11-20 when incomes became nominal dollars (World Bank 2024: US 86,170, EU 43,314, China 13,293, "
+             "Brazil 10,311, India 2,592, Nigeria 1,084, world 13,717; the PPP figures were 85,810, 62,266, 27,105, 22,333, 11,159, "
+             "6,440, 24,248): phi=0.32 gives a Nigeria/US ratio of cultivated meat's own-price elasticity at equal price of 2.20 "
+             "(India 1.81, China 1.32), the ~2.2 the note below states. (With PPP incomes, phi=0.5 gave 2.04 at equal price in the "
+             "current demand model; 0.30 would keep that 2.04.) EARLIER: phi=0.5 gave a Nigeria/US own-price-elasticity ratio ~2.2x (India ~1.8x), matching "
              "the empirical food-price-elasticity gradient (poor countries ~2-3x more responsive for meat; "
              "Muhammad et al. 2011 USDA ERS, food income-elasticity 0.78 low- vs 0.50 high-income). WHY DAMP: "
              "RAW BLP (phi=1) is TOO STEEP for food — it implies a ~6.4x rich->poor elasticity ratio, far "
@@ -1958,11 +2124,58 @@ REGISTRY: dict[str, Input] = {
     "w_slaughter_E": Input(4.0, "utils", "[assumed] ETHICAL-segment utility weight on the SLAUGHTER-FREE "
         "attribute (=1 for p, x, w; =0 for conventional). Large => segment E strongly avoids conventional "
         "and is drawn to no-slaughter options; this is what lets cultivated win an early beachhead at R>1"),
-    "pb_share_target": Input(0.012, "share", "[GFI] plant-based meat's mature share of TOTAL meat "
-        "(~0.8% of all meat by $, ~1.7% of packaged, <1% by volume; ~13% household penetration; declining "
-        "since the ~2020-21 peak), SPINS/Circana via GFI 2024",
-        lo=0.008, hi=0.017, mode=0.012,
-        note="the calibration ANCHOR: the whole-food health weight w_health is solved at runtime so the model reproduces this with "
+    # --- conventional meat's price as cultivated meat takes sales (meat_market._rollup, 2026-11-20) -------------------------------
+    "mk_supply_elast": Input(2.0, "-", "[Brester, Marsh and Atwood 2004: 10-year supply elasticities cattle 3.24, hogs 1.8, poultry "
+        "14; Geibel et al. 2021, Table 1: simulated combined elasticities 0.4 to 4.6] long-run supply elasticity of conventional "
+        "meat: with demand elasticity ed, conventional's price falls as p0 x (1 - s)^(1 / (es - ed)) when cultivated meat takes a "
+        "share s of a region's meat", lo=0.5, hi=10.0, mode=2.0,
+        note="applied to each region's market as a whole: the same s, the region's share by volume, for all its kinds of meat. "
+             "Solved with the share (a lower price lowers the share). Very large = a fixed price"),
+    "mk_demand_elast": Input(-0.65, "-", "[USDA ERS Technical Bulletin 1956: beef -0.56, pork -0.79, chicken -0.58] own-price "
+        "elasticity of demand for conventional meat in the price fall above", lo=-0.8, hi=-0.5, mode=-0.65,
+        note="a round middle of the three"),
+    # --- markets it cannot be sold into (meat_market.closed_share, research_notes/closed_markets.md, 2026-11-20) ---------------
+    # each closed jurisdiction is weighted by its share of the region's meat eaten: US states by population (meat a head taken as
+    # equal between states, an assumption), Italy and Hungary by their meat in the EU's, the US and EU by their meat in the world's
+    # (FAO food balance sheets 2023, meat_market.MEAT_KG_HEAD)
+    "mk_closed_us_permanent": Input(0.1017, "share of the US", "[US Census Vintage 2025] Florida (SB 1084, 2024), Alabama (SB 23, "
+        "2024), Mississippi (HB 1006, 2025), Montana (HB 401, 2025), Nebraska (LB 246, 2025): 34.77M of 341.78M people",
+        note="population share as the proxy for the share of US meat eaten: no state-level figure for meat eaten a head was found, "
+             "so meat a head is assumed equal between states"),
+    "mk_closed_us_temporary": Input(0.1159, "share of the US", "[US Census Vintage 2025] Texas (SB 261, to 1 Sep 2027), Indiana "
+        "(HB 1425, to 30 Jun 2027), South Dakota (SB 124, 2026-2031): 39.62M people", note="population share as the proxy"),
+    "mk_closed_eu_contested": Input(0.1389, "share of the EU-27's meat", "[Eurostat, 1 Jan 2025; FAO food balance sheets 2023] Italy "
+        "(Law 172/2023, 58.94M people at 71.2 kg of meat a head) and Hungary (Act LXXXIX of 2025, 9.54M at 76.3 kg) against the "
+        "EU-27 (451.28M at 78.55 kg)", note="both contested under EU law (Italy adopted its law during the TRIS "
+        "standstill; the Commission and four member states objected to Hungary's notification). By population alone it was 15.18%"),
+    "mk_world_pop_m": Input(8231.6, "million people", "[UN World Population Prospects 2024] world population in 2025",
+        note="the world's meat is this times 45.12 kg a head (meat_market.MEAT_KG_HEAD)"),
+    "mk_closed_religious_against": Input(0.0154, "share of world meat", "[FAO food balance sheets 2023; Our World in Data population "
+        "2023] Indonesia's meat (281.2M people at 19.95 kg a head), where the one religious body found to have ruled against "
+        "cultivated meat sits: Nahdlatul Ulama, national conference of 26 Sep 2021 (secondary source)",
+        lo=0.007, hi=0.0154, mode=0.0154,
+        note="the world only. All of Indonesia is counted; Nahdlatul Ulama's followers are roughly half of Indonesians (a rough "
+             "figure), which gives the low end"),
+    "mk_closed_religious_conditions": Input(0.106, "share of world meat", "[FAO food balance sheets 2023, latest year for Sudan, "
+        "Somalia, Mali, Chad and Brunei; Our World in Data population 2023] the meat of the populations whose religious "
+        "authorities have ruled it permissible on conditions (halal or kosher donor cells, no blood or pig products in the medium, "
+        "supervision): 47 Muslim-majority countries other than Indonesia, half of Nigeria, and Israel",
+        lo=0.08, hi=0.13, mode=0.106,
+        note="the world only, and closed only if those conditions were not met. Rulings: International Islamic Fiqh Academy "
+             "Resolution 265, 2025; Singapore MUIS 2024; Malaysia JAKIM 2025; Israel's Chief Rabbi 2023; OU 2023. Whole countries "
+             "are counted, so non-Muslims in Muslim-majority countries are in and Muslims elsewhere (India, Europe, Russia, China) "
+             "and observant Jews outside Israel are out; the range allows for both"),
+    "mk_closed_level": Input(1.0, "level", "[the brief's default] which laws close a market: 0 none; 1 permanent bans; 2 every law in "
+        "force, the temporary ones and the two contested EU laws included; 3 the same and, for the world, Indonesia "
+        "(mk_closed_religious_against); 4 the same and, for the world, mk_closed_religious_conditions",
+        note="default: permanent bans only"),
+    "pb_share_target": Input(0.004, "share", "[GFI/SPINS; GFI/NIQ; derived] plant-based meat's share of TOTAL meat BY VOLUME: "
+        "0.7% of US meat dollars in 2025 and 0.8% in 2024 (GFI/SPINS), at a price 77% (2023) and 65% (2022) above meat per pound "
+        "(GFI/NIQ): volume share = dollar share / price ratio = 0.7/1.77 to 0.8/1.65 = 0.35-0.45%",
+        lo=0.0025, hi=0.006, mode=0.004,
+        note="2026-11-20: was 0.012 (1.2%), although its own note said '<1% by volume'. No direct volume figure exists: the share "
+             "is derived from dollar shares and price ratios, US retail with foodservice taken alike. World about 0.3%; Germany "
+             "1-2%. The calibration ANCHOR: the whole-food health weight w_health is solved at runtime so the model reproduces this with "
              "cultivated absent (market_share.solve_calibration) — a solved calibration target, not a static floor."),
     "w_health_E": Input(2.3, "utils", "[calibration, SOLVED] ETHICAL-segment weight on the HEALTH attribute — "
         "SOLVED so the ethical-segment plant-based rate hits its target (the residual ~11% of PB buyers / the "
@@ -2343,24 +2556,70 @@ MC_COST_INPUTS = ("media_price", "efficiency", "overhead", "markup_add", "retail
 # eps_own*kappa_draw/kappa, which scales both price channels (market_share ratio_scale).
 # 2026-11-18: the long-run share at equal price (equal_price_share) is the net of novelty, an "unnatural" image, the value of no
 # killing and the health image, so the long-run novelty, no-slaughter and health dials are no longer drawn beside it: drawing both
-# counted the same uncertainty twice. They stay on the page as what-if dials on top. Taste (accept_x) is separate and still drawn.
-MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "accept_x", "equal_price_share")
+# counted the same uncertainty twice. They stay on the page as what-if dials on top.
+# 2026-11-20: taste (accept_x) leaves the band for the same reason (it was drawn 0.6-1.0 on top of equal_price_share, which is
+# the net of every taste effect: the equal-price median fell from 14.5% to 11.9%). It is held at its slider value.
+MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "equal_price_share")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
 # 2026-11-19 (audit D4): a cut's make-up and assembly cost. Cuts are most of what the scenarios sell, and these two were drawn
 # nowhere. Sampled AFTER the lists above wherever meat types are rolled up, so the other inputs' draws are unchanged.
 MC_CUT_INPUTS = ("scaffold_frac", "process_cost")
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
-MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit",
-                    "accept_x", "equal_price_share")
+# 2026-11-20: accept_x left this list as it left MC_DEMAND_INPUTS (equal_price_share is the net of every taste effect); the
+# timing band holds it at its point value.
+MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit", "equal_price_share")
 
 
 # ----------------------------------------------------------------------------
 # Accessors
 # ----------------------------------------------------------------------------
+_READS: list = []   # stacks of sets: while one is open, value() records the names it is asked for (memo_on_inputs)
+
+
 def value(name: str) -> float:
     """The point / base-case value of an input (used as dataclass defaults)."""
+    if _READS:
+        for reads in _READS:
+            reads.add(name)
     return REGISTRY[name].value
+
+
+def memo_on_inputs(fn):
+    """Memoise a function of no arguments whose result depends only on inputs read through value(). The first call records
+    which inputs it reads; later calls reuse the result while those inputs hold the same values, and recompute when any of
+    them is changed (answer_rests_on, floor_physics and retention swap REGISTRY entries for a while). The result is a dict of
+    dicts or tuples; each call gets its own copy of the outer two levels, so a caller that edits it cannot change the cache."""
+    cache: dict = {}
+    deps: list = []
+
+    def copy(r):
+        return {k: (dict(v) if isinstance(v, dict) else v) for k, v in r.items()} if isinstance(r, dict) else r
+
+    def wrapped():
+        if deps:
+            key = tuple(REGISTRY[k].value for k in deps[0])
+            if key in cache:
+                for reads in _READS:           # an outer memoised function depends on what this one read
+                    reads.update(deps[0])
+                return copy(cache[key])
+        reads: set = set()
+        _READS.append(reads)
+        try:
+            out = fn()
+        finally:
+            _READS.pop()                       # a stack: nested calls open and close in order
+        names = tuple(sorted(reads))
+        if not deps or deps[0] != names:
+            deps[:] = [names]
+            cache.clear()
+        cache[tuple(REGISTRY[k].value for k in names)] = out
+        return copy(out)
+
+    wrapped.__wrapped__ = fn
+    wrapped.__doc__ = fn.__doc__
+    wrapped.__name__ = fn.__name__
+    return wrapped
 
 
 def prior(name: str) -> tuple:

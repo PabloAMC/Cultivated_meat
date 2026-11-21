@@ -3,15 +3,15 @@
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
 Date: 2026-11-18. Changes defaults: the premium rows of `meat_market.py`'s US, Europe and Global tables. Found while checking
-`market_size_loop.md`, which rests on premium products' volume; the main model's Central share rests on it too.
+`market_size_loop.md`, which rests on premium products' volume; the main model's share for the low-lactate example rests on it too.
 
 Access levels: **FT** full text read; **SNIP** search snippet; **MEM** background knowledge, unchecked.
 
 ## 1. What was wrong
 
 Every region's table carried sushi-grade seafood at 2% of volume (4% in China) and each other premium row (prime or wagyu beef,
-heritage pork, organic chicken) at 0.5–1%, with no source. At Central's cost these rows are 99% of cultivated meat's sales, because they
-are the only products priced near it. With world meat at about 270 Mt a year of boneless weight, the Global table's rows meant 5.4 Mt
+heritage pork, organic chicken) at 0.5–1%, with no source. At the low-lactate example's cost (as it stood on 2026-11-18) these rows were 99% of cultivated meat's sales, because they
+were the only products priced near it. With world meat at about 270 Mt a year of boneless weight, the Global table's rows meant 5.4 Mt
 of sushi-grade seafood at $35 a kilo and 1.35 Mt of prime or wagyu beef at $45.
 
 ## 2. What the data say
@@ -25,7 +25,7 @@ of sushi-grade seafood at $35 a kilo and 1.35 Mt of prime or wagyu beef at $45.
 | All tuna caught | 5.2 Mt, of which bluefin 1% and bigeye 7% (2023) | ISSF via Perishable News | FT (secondary) |
 | Yellowtail, eel, sea urchin | about 0.25, 0.28 and 0.07 Mt live weight | — | MEM |
 | US beef grading Prime | about 10% of fed cattle (2024); US beef 12.2 Mt carcass weight | Angus/CAB, USDA | SNIP |
-| Wagyu | Japan about 0.17 Mt; Australia about 0.07 Mt (2022 projection) | commercial report; AWA via Beef the low-lactate example | SNIP; FT |
+| Wagyu | Japan about 0.17 Mt; Australia about 0.07 Mt (2022 projection) | commercial report; AWA via Beef Central | SNIP; FT |
 | Organic chicken | 0.67% of US chicken output (2020); 1% of French (2023); Label Rouge 13% of French poultry (2024) | WATT; FranceAgriMer; Réussir | SNIP; SNIP; FT |
 | Organic pork | 0.3% of EU output (about 2015); Ibérico about 3.7 million head | Pig World; trade press | SNIP |
 | World meat | 378 Mt carcass weight (2024); about 70% of it is boneless meat | FAO Food Outlook Nov 2025; USDA ERS | SNIP |
@@ -62,11 +62,11 @@ no figure was found), Brazil, India and Nigeria; Europe's wagyu row (0.5% at $55
 
 ## 4. What it does
 
-- **The main model's Central share falls from 0.16% to 0.04% of world meat**, because nearly all of Central's sales were to premium
+- **The main model's share for the low-lactate example fell from 0.16% to 0.04% of world meat** (figures of 2026-11-18), because nearly all of its sales were to premium
   rows that were three to five times too large. The US falls from 0.35% to 0.21% and Europe from 0.62% to 0.45%.
 - **The all-favourable example moves little**, 3.69% to 3.11%: near parity most of its sales are ordinary cuts and mince.
 - The uncertainty bands, the tables in RESULTS.md and the side studies were recomputed (CHANGELOG).
-- `market_size_loop.md`: premium products alone no longer carry Central past the membrane switch.
+- `market_size_loop.md`: premium products alone no longer carried the low-lactate example past the membrane switch (they did again for a time on 2026-11-19, and since 2026-11-20 they do not).
 
 ## 5. What is still weak
 

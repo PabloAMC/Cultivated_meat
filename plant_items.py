@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-plant_items.py — the plant's capital as a sum of switchable items.  (Side-study; NOT used in the
-headline cost. Write-up: research_notes/cheap_plant_study.md.)
+plant_items.py — the plant's capital as a sum of switchable items.  (Write-up: research_notes/cheap_plant_study.md. The
+shared-medium plant of the scenarios is built from these items, and since 2026-11-20 floor_physics.explore scales the
+'medium' item with the medium a case passes and prices what each tank brings with it (tank_items) by the plant's own items;
+cost_per_kg passes the items, not the total, so both follow the plant.)
 
 Why
 ---
@@ -41,7 +43,7 @@ What it does
        floor     the same in a sanitary hall, no clean room         ($611k; the model's floor plant)
        lean      everything plausibly unnecessary removed           ($340k)
        yeastplus his yeast plant plus what animal cells must have:
-                 cell labs, all medium sterilised, oxygen (bought)  ($180k)
+                 cell labs, all medium sterilised, oxygen (bought)  ($175k)
        yeast     every item as in his yeast plant with 20 m3 tanks  ($130k)
    The first, second and last reproduce published or already-used figures; the two in between are new.
 
@@ -56,7 +58,7 @@ Run
 
 from __future__ import annotations
 
-from inputs import value
+from inputs import value, memo_on_inputs
 
 ITEMS = ("hall", "labs", "support", "vessels", "seed", "medium", "oxygen", "harvest", "cleaning")
 ITEM_LABELS = {
@@ -157,6 +159,7 @@ def restart_queue_days(tanks_lost: float, f4: float) -> float:
 # ----------------------------------------------------------------------------
 # Humbird's two plants on the same item list
 # ----------------------------------------------------------------------------
+@memo_on_inputs
 def humbird() -> dict:
     """Humbird's fed-batch animal-cell plant by item, $k per m3 of production tank (total investment)."""
     v = value
@@ -244,6 +247,7 @@ def yeast20(vessel_exp: float | None = None) -> dict:
 # ----------------------------------------------------------------------------
 # Options per item
 # ----------------------------------------------------------------------------
+@memo_on_inputs
 def options() -> dict:
     """{item: {option: (capital $k per m3, description)}}. The first option of each item is Humbird's;
     the last is the yeast plant's."""
@@ -401,7 +405,9 @@ def cost_per_kg(plant: str = "humbird", **kw) -> dict:
     import floor_physics as fp
     items = kw.pop("items", {})
     cap = capital(plant, **items)
-    r = fp.explore(capex_2018=cap["total"], extra_opex=cap["extra_opex"], **kw)
+    # explore(items=...) builds the same plant itself, and scales THIS plant's medium-preparation item for a case that passes
+    # more medium (2026-11-20: passing only the total let explore scale Humbird's item, $13.26 for the lean plant against $13.06)
+    r = fp.explore(items=dict(cap["choices"]), **kw)
     return {**r, "capex_2018": cap["total"]}
 
 

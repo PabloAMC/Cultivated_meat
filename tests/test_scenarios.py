@@ -30,17 +30,42 @@ ref = S.reference()
 # since 2026-11-15 the reference prices its retention device as a TFF loop (retention.py): $11.84, not the old $11.48;
 # since 2026-11-15 (late) it also pays for the bubble protectant and loses a quarter of its oxygen transfer to antifoam: $12.51
 # since 2026-11-19 the nutrient floor is $2.00 (GFI feed-grade amino acids), not $1.70, and the reference's medium sits on it: $12.81
-check(abs(ref["total"] - 12.8122) < 5e-3, f"reference cost {ref['total']:.4f} != 12.8122 (explore() defaults moved)")
+# since 2026-11-20 it loses 8% of its cells to bursting bubbles and 2% at harvest, carries twice the fed-batch crew, buys more
+# medium preparation equipment for its 12 L/kg and replaces its membranes after 2,415 L/m2: $16.03
+# since 2026-11-20 (final pass) each tank brings its own plant items (floor_physics.tank_items, capex_at_size) and the harvested
+# share scales every cost line: $15.93
+check(abs(ref["total"] - 15.9293) < 5e-3, f"reference cost {ref['total']:.4f} != 15.9293 (explore() defaults moved)")
 check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "reference: 120 g/L limited by CO2 removal")
 
 # 2. the scenarios come out in order, with the numbers quoted in the docs
 cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in S.ORDER}
 check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], f"scenario costs out of order: {cost}")
-check(cost["best"] < ref["total"] < cost["central"], "the reference should sit between the best and the central case")
+# 2026-11-20: Humbird's optimistic design ($16.0) is now CHEAPER than the all-favourable example ($18.7); before the batch it sat
+# between the all-favourable ($11.7) and the low-lactate example. Three reasons, all intended parts of the batch: the scenarios'
+# cells tolerate 35 mmol/L of lactate and his design keeps his 50, so the all-favourable example washes with 18.7 litres a kilo
+# against his 12.4; every one of those litres now wears out membranes replaced after 2,415 L/m2 (3,960 before), and the
+# all-favourable example loses 0.6% of its runs a day with their membranes where his design loses none; and its cells weigh 2 ng,
+# not his 3 ng. His design is not a rung of the ladder (scenarios.reference).
+# 2026-11-20 (final pass): the two checks the comment above explained are replaced. There is now ONE all-favourable case
+# (scenarios.all_favourable): every lever takes the most favourable value among the model's favourable end, Humbird's design and
+# the published studies (his 5 mmol/L of ammonia and 50 of lactate, his 3 ng cell, no lost runs, dialyser-grade fibres, 42 m3
+# tanks). So it cannot cost more than his design: $7.62 against $15.93. What is now true, lever by lever: no cost line of the
+# all-favourable example is above his design's, and it washes with no more litres a kilo (11.7 against 12.4)
+r_best = S.run(S.SCENARIOS["best"].choice)
+check(cost["best"] < ref["total"] < cost["central"], "the all-favourable example should cost less than Humbird's design, which costs less than the low-lactate example")
+for line in ("capital", "feedstock", "consumables", "labour", "utilities", "growth_factors", "membranes"):
+    check(r_best[line] <= ref[line] + 1e-9, f"the all-favourable example's {line} ({r_best[line]:.2f}) is above Humbird's design's ({ref[line]:.2f})")
+check(r_best["medium_l"] <= ref["medium_l"] + 1e-9, "the all-favourable example should wash with no more litres a kilo than Humbird's design")
 # 2026-11-19: growth factors inside complete media prices (the low-lactate example -$3.0), nutrient floor $2.00 (best +$0.30)
 # 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (the low-lactate example +$4.9, best +$1.2), a lost run pays for its membranes (the low-lactate example
 # +$1.5), and glucose from the cells' own balance, which makes the cautious case's measured cells lactate-bound ($36.4 -> $92.2)
-for k, (lo, hi) in {"best": (11.2, 11.7), "central": (32.4, 33.2), "central_lean": (29.5, 30.3), "cautious": (91.0, 93.5)}.items():
+# 2026-11-20 batch (lactate tolerance 35 mM, bubble deaths, harvest loss, perfusion crew, membrane life 2,415 L/m2, medium preparation
+# capital, growth factors and utilities from the Humbird back-test): best 11.7 -> 18.7, the low-lactate example 32.8 -> 50.0, with
+# shared medium 29.9 -> 45.7, cautious 92.2 -> 183.1 (its lactate at 35 mM needs 146 litres a kilo)
+# 2026-11-20 (final pass): best 18.7 -> 7.62 (the one all-favourable case above), the low-lactate example 50.0 -> 49.50, with shared
+# medium 45.7 -> 45.04, cautious 183.1 -> 185.59 (per-tank plant items; recovery on every cost line; the tank design chosen again).
+# The bands keep the earlier half-widths (about 1% of the cost)
+for k, (lo, hi) in {"best": (7.55, 7.70), "central": (49.1, 49.9), "central_lean": (44.65, 45.45), "cautious": (184.0, 187.2)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs (since 2026-11-19 no tag names a route: cells with other traits than the published ones are tagged
@@ -164,7 +189,8 @@ for a, b in zip(S.LADDER, S.LADDER[1:]):
     check(S.TAG_ORDER.index(S.hardest_need(cb)) >= S.TAG_ORDER.index(S.hardest_need(ca)), f"rung {b} needs less than rung {a}")
 STEP = {("today", "process"): {"gas", "restart", "gf", "medium"}, ("process", "selected"): {"cells", "growth"},
         ("selected", "central"): {"mode"}, ("central", "central_lean"): {"plant"}, ("central_lean", "engineered"): {"cells"},
-        ("engineered", "best"): {"growth", "gas", "losses", "gf", "medium"}}
+        ("engineered", "best"): {"growth", "gas", "losses", "gf", "medium", "restart"}}   # 2026-11-20: the one all-favourable case
+# restarts in 4 days from a neighbouring tank (its own favourable setting); it carries its other levers as extra settings
 for (a, b), want in STEP.items():
     ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
     got = {k for k in S.KEYS if ca[k] != cb[k]} - {"tricks", "shape"}         # the tank design is chosen again at each rung
@@ -184,9 +210,12 @@ for k in ("today", "process", "selected"):
     r = S.run(c)
     nh3_end = r["density"] * r["nh3_kg"]                         # mmol/L at the end of the batch
     lac_end = r["density"] * r["lac_kg"]
-    check(nh3_end <= _v("pf_batch_end_x") * _v("sc_nh3_limit") + 1e-6 and lac_end <= _v("pf_batch_end_x") * _v("pf_lac_limit") + 1e-6,
+    # 2026-11-20: the scenarios' lactate tolerance (sc_lac_limit, 35 mM), not Humbird's 50
+    check(nh3_end <= _v("pf_batch_end_x") * _v("sc_nh3_limit") + 1e-6 and lac_end <= _v("pf_batch_end_x") * _v("sc_lac_limit") + 1e-6,
           f"{k}: the batch ends at {nh3_end:.2f} mM ammonia and {lac_end:.1f} mM lactate, above the allowed level")
-    check(abs(r["medium_l"] - 1000.0 / r["density"]) < 1e-6 or r["medium_l"] == _v("pf_medium_l_floor"), f"{k}: a batch's medium is 1000/density")
+    # 2026-11-20: litres are per kilo HARVESTED, so the tankful is divided by the share of the cells grown that is harvested
+    check(abs(r["medium_l"] * r["harvested_share"] - 1000.0 / r["density"]) < 1e-6 or r["medium_l"] * r["harvested_share"] == _v("pf_medium_l_floor"),
+          f"{k}: a batch's medium is 1000/density per kilo grown")
 # the published cells stop below the densities companies report at 20 m3 (Vow 27 g/L; Upside's capacity needs 33 g/L or more in
 # fed-batch), and the low-lactate cells reach the bottom of Upside's range: so the companies' cells make less lactate than the published
 check(S.run(S.SCENARIOS["today"].choice)["density"] < _v("vm_x_meat_shown"), "the published cells should stop below 27 g/L in a batch")
@@ -236,12 +265,20 @@ for k in ("best", "central"):
     check(f"${tr['no_tricks']:.1f}" in page, f"the page does not show {k}'s cost without the tricks")
 trc = S.tricks_report(S.SCENARIOS["central"].choice)
 # 2026-11-19 audit batch: 3.72 -> 3.52 (more litres of medium per kilo at 4 mM ammonia, so the tricks' denser tank saves a little less)
-check(abs(trc["d_no_tricks"] - 3.52) < 0.05, f"central: expected about +$3.52 without the tricks, got {trc['d_no_tricks']:.2f}")
-check(len(trc["used"]) == 3, "central should list the column, the pressure and the squarer tank")
+# 2026-11-20 batch: 3.52 -> 4.09 (the crew is doubled in perfusion and the medium preparation capital is per m3, so a denser tank saves more)
+# 2026-11-20 (final pass): 4.09 -> 5.71. The design rule now picks the column and 1 bar in Humbird's tall tank, not a squarer one:
+# with both, oxygen holds the tall tank at 154 g/L against 151 in the squarer one, at a plant charge of $11.57 a kilo against
+# $12.59 ($49.50 against $51.75). Without the tricks the tall tank is held by CO2 at 87 g/L ($55.21); before, the comparison was
+# with a squarer tank, which clears CO2 better without the tricks
+check(abs(trc["d_no_tricks"] - 5.71) < 0.05, f"central: expected about +$5.71 without the tricks, got {trc['d_no_tricks']:.2f}")
+check(trc["used"] == list(S._TRICK_PARTS["pressure"]) and S.SCENARIOS["central"].choice["shape"] == "tall",
+      "central should list the column and the pressure, in the ordinary tall tank")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
-check(2.2 <= gain <= 2.9 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $2.2-2.9 a kilo ({gain:.2f})")
+# 2026-11-20 batch: $2.5 -> $5.2 (faster cells lose a smaller share to bursting bubbles, which kill per hour, and the doubled crew and
+# the dearer membranes are spread over more kilos)
+check(5.0 <= gain <= 5.5 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $5.0-5.5 a kilo ({gain:.2f})")
 
 # 12e. what has been measured in meat cells, with its source (data only; since 2026-11-19 the page and the docs carry no routes)
 best = CT.best_in_meat_cells()

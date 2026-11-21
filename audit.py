@@ -21,9 +21,19 @@ STALE SINCE 2026-11-19 (found in the audit-batch repin; the draws were left as t
     $0.15-0.50 a litre.
   * The ammonia the cells tolerate (sc_nh3_limit, 2-8 mmol/L, which every scenario now passes to explore and
     scenarios.scenario_mc draws) is not drawn here.
-  With the three put right (a side calculation, 4,000 draws; the amino-acid price behind the floor drawn too): the low-lactate example
-  $28 / $38 / $58 at the 10th, 50th and 90th percentile, against $34 / $46 / $65 as drawn here; the all-favourable example $11 / $14 / $22,
-  against $14 / $19 / $28. Both are then close to the scenario bands ($27 / $37 / $57 and $11 / $14 / $20).
+  With the three put right (a side calculation on the model of 2026-11-19, 4,000 draws; the amino-acid price behind the floor
+  drawn too): the low-lactate example $28 / $38 / $58 at the 10th, 50th and 90th percentile, against $34 / $46 / $65 as drawn
+  here then; the all-favourable example $11 / $14 / $22, against $14 / $19 / $28. Both were then close to the scenario bands of
+  that day ($27 / $37 / $57 and $11 / $14 / $20).
+  2026-11-20 (final model): as drawn here the low-lactate example is $50 / $64 / $86 at the 10th, 50th and 90th percentile
+  (4,000 draws; its point, $49.50, sits at about the 10th) and the all-favourable example $9 / $11 / $15 (its point, $7.62, sits
+  below the 1st). The all-favourable example takes the favourable end of every lever (scenarios.all_favourable): Humbird's
+  0.054 mol of ammonia a kilo, no runs lost, the medium at the nutrient floor, dialyser-grade membranes. The draws here put a
+  price per litre on its medium ($0.15-0.50), draw runs lost and draw its ammonia from sc_nh3_engineered's range, so almost
+  every draw costs more than the point; its membrane life is passed to explore directly, so the membrane-life draw does not
+  reach it. The side calculation above was not redone. Not drawn here either: the lactate the cells tolerate (sc_lac_limit),
+  the culture bubbles kill (ge_kill_protected) and the harvest recovery (pf_harvest_recovery). Membrane life (most likely
+  2,415 L/m2) ranks first for the low-lactate example, ahead of the ammonia the cells make.
 
 Run
 ---

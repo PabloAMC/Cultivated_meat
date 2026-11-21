@@ -22,8 +22,10 @@ function vmKwargs(v,m,base){                    // mirror of vessels.explore_kwa
   if(!V.tricks) VM.trick_args.forEach(k=>{ delete p[k]; });
   if(!V.shape) delete p.aspect;
   if(V.aspect!==null&&V.aspect!==undefined){ p.aspect=V.aspect; p.shape_cost=false; }
-  if(V.gas_add!==null&&V.gas_add!==undefined) p.gas_v=(p.gas_v===undefined?C.fx.gas_v:p.gas_v)+V.gas_add;   // the cage's gas adds to the ring's
-  p.vessel_m3=V.size; p.mode=M.mode; p.vm=vm;
+  let vm2=vm;
+  if(V.gas_add!==null&&V.gas_add!==undefined){ p.gas_v=(p.gas_v===undefined?C.fx.gas_v:p.gas_v)+V.gas_add;   // the cage's gas adds to the ring's
+    vm2=Object.assign({},vm,{gas_away:V.gas_add}); }           // and meets no cells: no bubble deaths on it (vessels.explore_kwargs)
+  p.vessel_m3=V.size; p.mode=M.mode; p.vm=vm2;
   if(V.fixed&&(m==="batch"||m==="fedbatch")) p.medium_l=1000/VM.batch_x;
   return p;
 }

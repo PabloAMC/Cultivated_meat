@@ -8,7 +8,7 @@ fed-batch or in fill-and-draw (vessels.py), where waste and the least medium flo
 plant for meat cells reports harvests of about 27 g/L (`vm_x_meat_shown`).
 
 For each scenario this module prices both modes in the stirred tank, at two densities:
-  * the model's own cap (what the waste mass balance allows, since 2026-11-19: 14-92 g/L), and
+  * the model's own cap (what the waste mass balance allows, since 2026-11-19; 9.5-120 g/L on 2026-11-20), and
   * the density shown for meat cells in a vessel of 1 m3 or more (`vm_x_meat_shown`).
 Everything else is the scenario's: cells, plant, losses, gas the cells tolerate, medium and growth factors. The tank design
 (tricks, shape) is chosen again for each mode, because a trick that lifts the perfusion tank's gas limits adds capital

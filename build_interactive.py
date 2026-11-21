@@ -91,18 +91,41 @@ def build_model() -> dict:
                       for k, v in floor_physics.PLANT_CLASSES.items()},
             "sized": {k: v[2] for k, v in floor_physics.PLANT_CLASSES.items()},
             "retention": value("pf_capex_retention"), "bioreactor_share": value("pf_bioreactor_capex_share"),
+            # what each production tank brings with it (floor_physics.tank_items, 2026-11-20), 2018 $k
+            "tank": {"ind": plant_items.indirect(), "bio": plant_items._bioreactor_direct(1.0), "eqp": plant_items._equipment_direct(1.0),
+                     "eq31": [value("pi_eq31_slope"), value("pi_eq31_fixed"), value("pi_eq31_small_slope"), value("pi_eq31_small_fixed")],
+                     "fb": value("pi_makeup_fb_tank") + value("pi_filters_fb_tank"), "pf": value("pi_makeup_pf_tank") + value("pi_filters_pf_tank"),
+                     "bldg_m3": value("pi_bldg_per_m3"), "bldg_tank": value("pi_bldg_per_tank")},
             # the default retention device, a TFF hollow-fibre loop (floor_physics.explore, retention.py)
             "tff": {"on": value("rt_tff_default") >= 0.5, "flux": value("rt_flux_lmh"), "hw": value("rt_tff_hw"), "install": value("rt_install"),
                     "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life")},
             "otr": value("pf_otr_cap"), "x_visc": value("pf_x_visc"), "x_co2_20": value("pf_x_co2_20m3"),
+            # a thick culture takes up oxygen more slowly (floor_physics.oxygen_limit, 2026-11-20): kLa x apparent viscosity^-kla_exp
+            "kla_exp": value("tc_kla_exp"), "kla_thin": value("tc_thin"), "cell_density": value("pf_cell_density"),
+            "mature_h": value("pf_mature_h"),
             "batch_end": value("pf_batch_end_x"), "batch_half": value("pf_batch_half_x"),
             "pco2": value("pf_pco2_limit"), "gas_v": value("pf_gas_velocity"), "aspect": value("pf_aspect"),
             "rq": value("pf_rq"), "strip_eff": value("pf_co2_strip_eff"), "antifoam": value("pf_antifoam_otr"), "protect_dose": value("pf_protectant_dose"),
             "protect_price": value("pf_protectant_price"), "o2_microbial": value("pf_o2_microbial") >= 0.5,
             "draw": value("pf_draw_fraction"), "wv": value("pf_working_volume"),
-            "labour_ref": value("pf_labour") * floor_physics.output_per_m3(floor_physics.GOOD_CELLS, "fedbatch")
-                          * value("pf_opex_escalation"),
-            "utilities": value("pf_utilities") * value("pf_opex_escalation"),
+            "labour_ref": value("pf_labour") * floor_physics.humbird_fedbatch_output() * value("pf_opex_escalation"),
+            # a tank in perfusion takes labour_perf_x times the fed-batch crew per m3 of tank (floor_physics.explore, 2026-11-20);
+            # labour_x is the reader's multiplier on either crew (the page's labour lever)
+            "labour_perf_x": value("pf_labour_perfusion_x"),
+            "labour_x": 1.0,
+            # cleaning and reusing the medium (floor_physics.explore's `clean`, `wash_price`; medium_reuse.py): the named routes'
+            # numbers, the growth factors that survive a pass, and the reference price of a wash solution
+            "clean_routes": {k: floor_physics.clean_route(k) for k in floor_physics.CLEAN_NAMES if k not in ("none", "exchanger")},
+            "mr_gf_kept": value("mr_gf_kept"), "wash_price": value("pf_wash_price"),
+            # 2026-11-20: cells lost at harvest, cells killed by bursting bubbles, and the medium preparation equipment's
+            # reference throughput (litres per kilo x tonnes per m3 a year in Humbird's fed-batch plant) and scaling exponent
+            "harvest_loss": 1.0 - value("pf_harvest_recovery"), "kill": value("ge_kill_protected"),
+            "medium_prep_ref": value("pf_medium_prep_l_kg") * floor_physics.humbird_fedbatch_output(),
+            "medium_prep_exp": value("pf_medium_prep_exp"),
+            # utilities in Humbird's four parts (floor_physics.explore, inputs pf_util_*), in today's dollars; `utilities` is the
+            # reader's multiplier on all four (the page's energy lever)
+            "utilities": 1.0,
+            "util": {k: value("pf_util_" + k) * value("pf_opex_escalation") for k in ("time", "run", "water", "kg")},
             "consumables": value("pf_consumables_low"),
             "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
             "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
@@ -116,7 +139,7 @@ def build_model() -> dict:
             "osm_base": value("pf_osm_base"), "osm_limit": value("pf_osm_limit"), "ph": value("pf_ph"),
             "pk1": value("pf_pk1"), "co2_henry": value("pf_co2_henry"), "hco3_base": value("pf_hco3_base"),
             "min_perfusion": value("pf_min_perfusion"),
-            "gf_litres": floor_physics.washout_litres(floor_physics.GOOD_CELLS),
+            "gf_litres": value("pf_medium_prep_l_kg"),      # Humbird's growth-factor cost is for his fed-batch's litres per kilo
             # tornado factors: [label, JS argument, low, high, low text, high text] (floor_physics.TORNADO)
             "tornado": [[lab, {"pco2_mbar": "pco2", "gas_velocity": "gas_v", "maintenance_share": "maint", "p_top_barg": "p_top"}.get(arg, arg),
                          lo, hi, lo_t, hi_t, info] for lab, arg, lo, hi, lo_t, hi_t, info in floor_physics.TORNADO],
@@ -223,6 +246,10 @@ def build_model() -> dict:
         "cleanroom_cost": value("cleanroom_cost"),
         # per-region income (GDP/cap PPP) for the BLP price term
         "REGION_INCOME": mm.REGION_INCOME,
+        # 2026-11-20: conventional meat's price falls as cultivated meat takes sales (meat_market._rollup), and the share of each
+        # region's market closed by law, by level (meat_market.closed_share): none, permanent bans, every law, and religious (world)
+        "mk_supply": value("mk_supply_elast"), "mk_demand": value("mk_demand_elast"), "closed_level": int(round(value("mk_closed_level"))),
+        "closed": {r: [mm.closed_share(r, lv) for lv in range(len(mm.CLOSED_LEVELS))] for r in mm.MARKETS},
         # "premium" as a LABEL for charts (nothing numeric depends on it), and the premium penalty's price range (tierOffset)
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
         "PREMIUM_START": mm.PREMIUM_START, "PREMIUM_FULL": mm.PREMIUM_FULL,
@@ -554,7 +581,7 @@ def build_model() -> dict:
                value("w_eth"), "Gallup",
                tip="This is the share of vegetarians and vegans, who strongly value “no slaughter” and mostly eat "
                "beans and other whole foods. The default is 5% (Gallup 2023). Moving it makes the model re-fit, so "
-               "plant-based meat stays at its observed ~1.2%."),
+               "plant-based meat stays at its observed {{PB_TARGET}}% of meat by volume."),
         slider("health_x", "Cultivated health image (&zeta;<sub>x</sub>)", "points of score", -1.0, 1.0, 0.05,
                0.0, "scenario",
                tip="This is how healthy shoppers think cultivated meat is. A plus means “clean, no antibiotics”, and a minus means "
@@ -653,7 +680,7 @@ def build_model() -> dict:
                6.0, 0.05, round(dp.w_health_E, 2), "solved",
                tip="This is the ethical shoppers' health weight. The model solves it (~{{HEALTH_E}}) so that a 5% ethical "
                "group adds only a little to plant-based meat, because most of them choose beans. Override it to set "
-               "your own value, and plant-based meat then moves away from its ~1.2%."),
+               "your own value, and plant-based meat then moves away from its {{PB_TARGET}}% of meat by volume."),
         slider("w_slaughter_E", "Ethical no-slaughter weight (<i>w</i><sup>s</sup><sub>E</sub>)",
                "points of score", 1.0, 8.0, 0.5, value("w_slaughter_E"), "assumed",
                tip="This is how strongly the 5% ethical shoppers value “no animal killed” (default 4, assumed). "
@@ -680,7 +707,7 @@ def build_model() -> dict:
         "w_health_M": "Override on: this weight is pinned, so the ~6% mainstream meatless rate is no "
                       "longer matched.",
         "w_health_E": "Override on: this weight is pinned, so plant-based no longer stays at its "
-                      "observed ~1.2%.",
+                      "observed {{PB_TARGET}}% of meat by volume.",
     }
     for _s in sliders:
         if _s["key"] in _SOLVED_WARN:
@@ -756,11 +783,12 @@ TRAIT_PAGE = {   # trait: plain name first, the unit, the slider (in the slider'
                "Ammonia given off as a kilo of cells grows. It poisons the culture, so fresh medium must wash it out. Lower is better."),
     "lac_yield": ("Lactate made per glucose taken up", "mol per mol", 0.0, 1.5, 0.01, 1.0,
                   "How much of the sugar the cells turn into lactate, a waste acid, instead of burning it. Lower is better."),
-    "doubling_h": ("Doubling time", "hours", 12.0, 60.0, 0.5, 1.0,
+    "doubling_h": ("Doubling time", "hours", 12.0, 61.0, 0.5, 1.0,
                    "Hours for the cells to double in number. Faster cells fill the tank sooner. Lower is better."),
-    "mass_pg": ("Weight of one cell", "ng", 1.0, 3.5, 0.05, 0.001,
+    "mass_pg": ("Weight of one cell", "ng", 1.0, 5.5, 0.01, 0.001,
                 "Weight of one wet cell in nanograms. Small cells breathe more per gram, so a tank holds fewer grams of them. Higher is better."),
 }
+REF_ORDER = ("humbird_best", "today", "central", "best", "humbird", "company")
 REF_TEXT = {   # the reference points: what each is, in plain words, and its sources. Each stands alone (the author, 2026-11-19: "The
     # same as what?"): it says what the cells are and how the tank is run, never "the same", "plus" or "still", and makes no claim
     # about how cells with these traits would be made (only what has been measured in meat cells)
@@ -776,18 +804,101 @@ REF_TEXT = {   # the reference points: what each is, in plain words, and its sou
                 "filter holds the cells back while fresh medium washes the waste out. A food-grade plant, medium at $0.20 a litre. "
                 "Nobody has run animal cells in perfusion above about 4 m³."),
     "best": ("All-favourable example",
-             "Cells that make 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose (Humbird's efficient cell), "
-             "double every 24 hours and weigh 2 ng, with every other setting at its favourable end. Grown in perfusion in a 20 m³ tank "
-             "in a food-grade plant with shared medium, with medium at the cost of the nutrients alone, no bought growth factors, "
-             "more gas and fewer lost runs. Shoppers slightly favour it."),
+             "Every lever at the most favourable value among this model's own favourable end, Humbird's design and what any "
+             "published cost study assumes without breaking a limit of the model. Cells that make "
+             "0.054 mol of ammonia a kilo and 0.279 mol of lactate per mol of glucose (Humbird's efficient cell), weigh 3 ng "
+             "(Humbird's cell: no meat cell growing in suspension has been measured heavier), double every 16 hours, and tolerate 5 mmol "
+             "of ammonia and 50 mmol of lactate a litre. Grown in perfusion in a 42 m³ tank (Negulescu 2023's smaller size) "
+             "in a food-grade plant with shared medium, with dialyser-grade hollow fibres holding the cells back, medium at the cost "
+             "of the nutrients alone, no bought growth factors and no lost runs. Shoppers slightly favour it."),
+    # the page's start (2026-11-20, the author: "start with Humbird ... his best estimate"); its text carries the back-test's
+    # figures, so it is written at build time by humbird_best_text()
+    "humbird_best": ("Humbird's best estimate (2021)", ""),
     "humbird": ("Humbird's optimistic design",
-                "Humbird's 2021 design: cells of 3 ng that double every 24 hours and make 0.054 mol of ammonia a kilo and 0.28 mol of "
-                "lactate per mol of glucose (his enhanced cell), grown in perfusion in an ordinary 20 m³ tank, in a food-grade "
-                "plant, with no tank tricks and no lost runs."),
+                "This model's variation on Humbird's cells, not a figure from his report: cells of 3 ng that double every 24 hours "
+                "and make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose (his enhanced cell), grown in "
+                "perfusion in an ordinary 20 m³ tank, in a food-grade plant, with no growth factors bought, no tank tricks and no "
+                "lost runs. His own designs are a fed-batch plant of 20 m³ tanks and a perfusion plant of 2 m³ tanks, both with "
+                "clean rooms."),
     "company": ("As a company reports",
                 "SuperMeat's 2024 report of its own process, scaled up on paper, with a yearly charge on its plant added. Not peer "
                 "reviewed. It is a cost, not a set of traits, so it cannot be loaded."),
 }
+def humbird_best_text() -> str:
+    """What the page's start is, in plain sentences, with the back-test's figures (humbird_check.py): his own figure, the same in
+    today's dollars, that the page starts there, that no meat cell has his cells' traits, and what this model would add."""
+    import humbird_check as HC
+    h = HC.HIS[HC.BEST]
+    today, like18, p0, tr = HC.his_today(), HC.reproduce(HC.BEST, "2018"), HC.page_start(), HC.page_traits()
+    added = HC.page_with_additions()["total"] - p0["total"]
+    return (f"The lowest-cost design in Humbird's 2021 report: cells of 3 ng that double every 24 hours and make "
+            f"{tr['nh3_kg']:g} mol of ammonia a kilo and {tr['lac_yield']:.2f} mol of lactate per mol of "
+            f"glucose, grown in batches (fed-batch) in 20 m³ tanks, in a pharma-style plant with clean rooms, fed on soy hydrolysate, "
+            f"with growth factors bought, the plant financed at 7.5% over 10 years. No meat cell has been shown to have these traits. "
+            f"His own figure is ${h['total']:.2f} a kilo of cells in 2018 dollars (his Table 4.7), about ${today['total']:.0f} in 2025 dollars. "
+            f"The page starts there: counting only what he counts, this model gives ${like18['total']:.1f} in 2018 dollars and "
+            f"${p0['total']:.1f} in 2025 dollars. This model would also count a slower uptake of oxygen in a thick culture, a least flow of "
+            f"medium the cells need, cells killed by bursting bubbles, cells lost at harvest and a bubble protectant in the medium, about ${added:.0f} a kilo together: each "
+            f"is a lever that starts at zero here, and the button “Add what this model counts and he does not” turns all five on. "
+            f"His sterile filter sets (${h['lines']['consumables'] * value('pf_opex_escalation'):.2f} a kilo) are kept in place of this "
+            f"model's flat ${value('pf_consumables_low'):.2f} of supplies. The medium is at his nutrient cost, "
+            f"${h['lines']['nutrients']:.2f} a kilo of cells in 2018 dollars, which is ${p0['medium_price']:.2f} a litre at the start.")
+
+
+def humbird_backtest_html() -> str:
+    """Level 1's table: Humbird's best estimate line by line (his figure in 2018 dollars and in today's, the engine like for like
+    = the page's start, the engine with the page's five additions switched on), with a sentence on each line that differs by more
+    than 5%, and one row for each of his other designs."""
+    import humbird_check as HC
+    start, add = HC.page_with_additions(), {k: d for k, _n, d in HC.page_additions()}
+    like_r = HC.reproduce(HC.BEST, "today")
+    thin = like_r["density"] / start["density"]
+    why = {
+        "nutrients": f"The same medium for fewer cells harvested: {(1 - start['harvested_share']) * 100:.0f}% of the cells grown are killed by bubbles or lost at harvest.",
+        "growth_factors": f"Growth factors leave with every litre. The culture is {start['density']:.0f} g a litre, not {like_r['density']:.0f}, so a kilo of cells leaves with {thin:.1f} times the litres, and some of the cells are lost.",
+        "consumables": f"His filter sets, and the bubble protectant (${start['protectant']:.2f}).",
+        "utilities": "Power for the building and water to clean the tanks are paid by the year and by the batch, and each batch gives fewer cells.",
+        "labour": "The same crew for the same tanks, which give fewer cells.",
+        "capital": "The same plant, which gives fewer cells: a thinner culture, and cells killed by bubbles or lost at harvest.",
+        "total": f"Switched on alone, the slower uptake of oxygen in a thick culture adds ${add['kla_exp']:.1f} (his 120 g/L is held by CO₂, not oxygen), the least medium flow ${add['min_perfusion']:.1f}, the cells that bubbles kill ${add['killx']:.1f}, the cells lost at harvest ${add['harvest_loss']:.1f} and the protectant ${add['protect_dose']:.1f}. His yearly charge and filter sets are kept.",
+    }
+    names = dict(HC.LINE_NAMES, nutrients="Nutrients", growth_factors="Growth factors", capital="Plant: yearly charge, maintenance, insurance")
+    rows = []
+    for k, his, today, like, st in HC.page_table():
+        note = ("<br><span class='alt'>" + why[k] + "</span>") if abs(st / like - 1.0) > 0.05 else ""
+        b0, b1 = ("<b>", "</b>") if k == "total" else ("", "")
+        cells = ((names[k], None), (f"${his:.2f}", "Humbird, 2018 dollars"), (f"${today:.2f}", "Humbird, 2025 dollars"),
+                 (f"${like:.2f}", "This model, his count"), (f"${st:.2f}", "This model, with its five additions"))
+        rows.append("<tr><td>" + b0 + cells[0][0] + b1 + note + "</td>" +
+                    "".join('<td class="n" data-label="' + lab + '">' + b0 + v + b1 + "</td>" for v, lab in cells[1:]) + "</tr>")
+    t1 = ("<div class='scrollx'><table class='sctab stack'><thead><tr><th rowspan='2'>A kilo of cells</th><th colspan='2'>Humbird</th><th colspan='2'>This model, 2025 dollars</th></tr>"
+          "<tr><th>2018 dollars</th><th>2025 dollars</th><th>His count (the page's start)</th><th>With its five additions</th></tr></thead><tbody>"
+          + "".join(rows) + "</tbody></table></div>")
+    rows = []
+    for case in HC.ORDER:
+        h, r = HC.HIS[case], HC.reproduce(case, "2018")
+        gaps = [f"{names[k].split(':')[0].lower()} ${r[k]:.2f} against his ${h['lines'][k]:.2f}" for k in HC.LINES
+                if abs(r[k] / h["lines"][k] - 1.0) > HC.LINE_TOL and abs(r[k] - h["lines"][k]) > HC.LINE_ABS]
+        rows.append(f"<tr><td>{h['label']}<br><span class='alt'>{h['table']}</span></td><td class='n' data-label='Humbird'>${h['total']:.2f}</td>"
+                    f"<td class='n' data-label='This model'>${r['total']:.2f}</td><td class='n' data-label='Difference'>{(r['total'] / h['total'] - 1) * 100:+.1f}%</td>"
+                    f"<td data-label='Lines more than 5% apart'>{'; '.join(gaps) if gaps else 'none'}</td></tr>")
+    t2 = ("<div class='scrollx'><table class='sctab stack'><thead><tr><th>His design</th><th>Humbird, 2018 dollars a kilo</th><th>This model at his conditions</th>"
+          "<th>Difference</th><th>Lines more than 5% apart</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>")
+    pf, pfr = HC.HIS["pf_aa"], HC.reproduce("pf_aa", "2018")
+    wt, wtr = HC.HIS["fb_wt_hydro"], HC.reproduce("fb_wt_hydro", "2018")
+    return (t1 + "<p class='small'>2025 dollars: his plant figures times " + f"{value('pf_capex_escalation'):.2f}" + " (plant construction costs since 2018), "
+            "everything else times " + f"{value('pf_opex_escalation'):.2f}" + " (consumer prices). His count: his cells, tanks, yearly charge, "
+            "limits, nutrient cost and growth-factor price, with nothing the model adds. The five additions are a slower uptake of oxygen "
+            "in a thick culture, a least flow of medium, cells killed by bubbles, cells lost at harvest and a bubble protectant.</p>"
+            "<h4>All five of his designs, in his 2018 dollars</h4>" + t2 +
+            "<p class='small'>In each row the nutrient cost and the filter sets are his; the plant, the density, the output, the litres and every "
+            "cost that follows from them are the model's. The model prices a plant from what each tank brings with it: the tank, its makeup "
+            "tanks and filter housings, and buildings (a rule fitted to his two plants). For his perfusion plant of 2 m³ tanks it gives "
+            f"${pfr['capex']:,.0f}k per m³ against his ${pf['capex']:,.0f}k, his filter units included. His wild-type plants cost less than his "
+            f"enhanced one for the same tanks (${wt['capex']:,.0f}k per m³ against the model's ${wtr['capex']:,.0f}k), because their oxygen plant "
+            "and utilities serve a sixteenth of the output.</p>")
+
+
 # The first screen's further settings (the author, 2026-11-19: "a collapsible section with many of the parameters ... the catabolite
 # and ammonia production and resistance, the doubling time, the CO2 resistance and the O2 consumption, prices of filters, reactors or
 # media components"). Each is one input of the datasheet the reader may set: key, section, plain name, unit, how the page's engine
@@ -797,7 +908,7 @@ REF_TEXT = {   # the reference points: what each is, in plain words, and its sou
 PAGE_PARAMS = (
     ("nh3_limit", "cells", "Ammonia the cells tolerate", "mmol a litre", "kw", "nh3_limit", "nh3_limit", 1.0, 1.0, 12.0, 0.25, 2, ("nh3_limit",), "sc_nh3_limit",
      "The ammonia level in the culture above which growth slows. The more the cells tolerate, the less medium has to wash through. Higher is better."),
-    ("lac_limit", "cells", "Lactate the cells tolerate", "mmol a litre", "fx", "lac_limit", None, 1.0, 20.0, 120.0, 5.0, 0, (), "pf_lac_limit",
+    ("lac_limit", "cells", "Lactate the cells tolerate", "mmol a litre", "kw", "lac_limit", "lac_limit", 1.0, 10.0, 120.0, 1.0, 0, ("lac_limit",), "sc_lac_limit",
      "The lactate level in the culture above which growth slows. Higher is better."),
     ("osm_limit", "cells", "Salt strength the cells tolerate (osmolality)", "mOsm a kilo", "kw", "osm_limit", "osm_limit", 1.0, 340.0, 500.0, 5.0, 0, (), "pf_osm_limit",
      "Lactate and the bicarbonate that holds the pH against CO₂ both add salt. Above this salt strength growth stops, so it limits how much lactate and CO₂ the culture can hold together. Higher is better."),
@@ -809,24 +920,40 @@ PAGE_PARAMS = (
      "At a 24-hour doubling time. The larger the share spent on upkeep, the more oxygen and sugar a slow-growing cell burns per kilo made."),
     ("gas_v", "cells", "Gas flow the cells tolerate", "mm a second", "kw", "gas_v", "gas_v", 1000.0, 1.0, 10.0, 0.5, 1, (), "pf_gas_velocity",
      "The speed of the gas rising through the tank. Bursting bubbles and foam kill cells, so the cells cap the gas flow, and with it the oxygen supplied and the CO₂ removed. Higher is better."),
-    ("min_perfusion", "cells", "Least medium flow the cells need", "mL a gram of cells a day", "kw", "min_perfusion", "min_perfusion", 1.0, 2.0, 20.0, 0.5, 1, ("min_perfusion",), "pf_min_perfusion",
-     "Even with ammonia and lactate dealt with, cells need some fresh medium for the other by-products and the nutrients that run out. Lower is better."),
+    ("killx", "cells", "Bubble deaths, against the model's estimate", "×", "fxx", "kill", None, 1.0, 0.0, 8.0, 0.25, 2, ("kill",), "ge_kill_protected",
+     "Bubbles that burst at the surface kill some of the cells near them, and dead cells are not harvested. The model's estimate is a bench measurement with protectant in the medium; 0 means no cells are killed. The deaths follow the gas the culture needs: a tank at its oxygen or CO₂ limit bubbles the most gas the cells tolerate, a thin culture less. Lower is better."),
+    ("kla_exp", "cells", "Thick cultures take up oxygen more slowly", "exponent", "kw", "kla_exp", "kla_exp", 1.0, 0.0, 0.6, 0.05, 2, ("_kla",), "tc_kla_exp",
+     "A thick culture is more viscous, and bubbles in it pass oxygen to the liquid more slowly: the transfer falls as the viscosity, raised to this power. The tank's oxygen limit then falls more than in proportion as the culture thickens. 0 means no effect, as in Humbird's design. Lower is better."),
+    ("min_perfusion", "cells", "Least medium flow the cells need", "mL a gram of cells a day", "kw", "min_perfusion", "min_perfusion", 1.0, 0.0, 20.0, 0.5, 1, ("min_perfusion",), "pf_min_perfusion",
+     "Even with ammonia and lactate dealt with, cells need some fresh medium for the other by-products and the nutrients that run out. The model's figure is a rule from pharma perfusion; Humbird's design counts none, which is 0 here. Lower is better."),
+    ("tank_m3", "reactor", "Size of a stirred tank", "m³", "kw", "vessel_m3", "wv", 1.0, 2.0, 250.0, 1.0, 0, (), "vm_str_m3",
+     "The volume of one stirred tank, in any way of running it. A larger tank costs less per litre to build, and with the cost mostly plant (fed-batch) that matters; in perfusion most of the cost follows the litres of medium, so size matters little. The model counts the larger batch lost when a big tank is contaminated, but gives every size the same chance of losing a run; at least one industry report says large tanks are riskier, so the saving at large sizes is probably overstated. Other vessels keep their own size."),
+    ("x_cap", "reactor", "Densest culture allowed", "g of cells a litre", "kw", "x_visc", "x_visc", 1.0, 20.0, 450.0, 1.0, 0, (), "pf_x_visc",
+     "A ceiling on how dense the culture may get, in grams of wet cells a litre. The model works the density out from oxygen, CO₂ and waste, and stops at the thickest culture that still flows: a quarter of the volume as cells, 258 g/L (Humbird). Set this lower to hold the tank at the densities companies report. Setting it higher changes nothing unless oxygen, CO₂ and waste allow more."),
+    ("mature_d", "reactor", "Days in the tank without growth before harvest (to mature muscle or fat)", "days", "kw", "mature_h", "mature_h", 1.0 / 24.0, 0.0, 30.0, 0.5, 1, (), "pf_mature_h",
+     "Products on sale or near it are bulk cell mass, harvested as soon as the cells have grown. Muscle or fat tissue would need days at no growth first. A batch then lasts that much longer; in perfusion the harvested cells wait in a maturation vessel. While they wait the cells breathe at their upkeep rate and use medium at that rate. Lower is cheaper."),
     ("mem_price", "reactor", "Price of the filter membranes", "$ a m²", "fx", "tff.mem_price", None, 1.0, 50.0, 2500.0, 50.0, 0, ("_memprice",), "rt_membrane_price",
      "Hollow-fibre membranes hold the cells back in perfusion. This is the pharma price; membranes made for dialysis or for food cost far less but have not been run with dense animal cells."),
     ("mem_life", "reactor", "Litres a m² of membrane filters before it is replaced", "litres a m²", "kw", "membrane_life", "tff.mem_life", 1.0, 200.0, 8000.0, 5.0, 0, ("membrane_life",), "rt_membrane_life",
      "Membranes foul and are thrown away. Price divided by this life is the filter cost of each litre of medium."),
     ("flux", "reactor", "Flow through a m² of membrane", "litres a m² an hour", "kw", "flux", "tff.flux", 1.0, 1.0, 15.0, 0.5, 1, (), "rt_flux_lmh",
      "Sets how much membrane area and pumping hardware the plant must buy."),
-    ("charge", "reactor", "Yearly charge on the money the plant cost", "% a year", "kw", "charge", "charge_mature", 100.0, 8.0, 30.0, 0.5, 1, ("charge",), "plant_charge_mature",
-     "Interest, the investors' return and depreciation, as a share of what the plant cost to build. A first plant of a new kind pays more than a mature industry."),
+    ("fin_rate", "reactor", "Interest rate on the money the plant cost", "% a year", "fin", "rate", None, 1.0, 0.0, 15.0, 0.1, 1, ("charge",), "plant_charge_mature",
+     "A plant is paid for with borrowed and invested money, which expects a return. This rate and the years below give a yearly payment, like a mortgage: at 5.4% over 20 years it is 8.3% of what the plant cost, every year. A first plant of a new kind pays a higher rate than a mature industry."),
+    ("fin_life", "reactor", "Years to pay the plant back", "years", "fin", "life", None, 1.0, 5.0, 30.0, 1.0, 0, ("charge",), "plant_charge_mature",
+     "The years over which the plant is paid off. Fewer years mean a larger payment each year."),
+    ("fin_upkeep", "reactor", "Maintenance and insurance, of the plant's cost", "% a year", "fin", "upkeep", None, 1.0, 2.0, 15.0, 0.5, 1, ("charge",), "plant_charge_mature",
+     "Paid every year whatever the plant makes. Humbird takes 4% for maintenance and 5% for insurance. The payment above plus this is the yearly charge on the plant."),
     ("kla", "reactor", "How fast a stirred tank passes oxygen into the culture (kLa)", "per hour", "fx", "ge.kla_20m3", None, 1.0, 5.0, 60.0, 1.0, 0, (), "ge_kla_20m3",
      "The oxygen transfer coefficient of a 20 m³ stirred tank at the gas flow of Humbird's design. Oxygen supplied is this times the gap between the oxygen the gas can dissolve and the level the culture is held at. Dense animal-cell cultures have been run at 5 to 55 per hour. Higher is better."),
-    ("labourx", "reactor", "Labour, against the model's estimate", "×", "fxx", "labour_ref", None, 1.0, 0.25, 4.0, 0.05, 2, (), "pf_labour",
-     "The staff a plant needs, from Humbird's design, paid by the year and shared over what the tanks make."),
+    ("labourx", "reactor", "Labour, against the model's estimate", "×", "fxx", "labour_x", None, 1.0, 0.25, 4.0, 0.05, 2, (), "pf_labour_perfusion_x",
+     f"The staff a plant needs, paid by the year and shared over what the tanks make. The model takes the staff per m³ of tank from Humbird's fed-batch plant, and {value('pf_labour_perfusion_x'):g} times that for a tank in perfusion, which is what analyses that assume perfusion count."),
+    ("harvest_loss", "reactor", "Cells lost at harvest", "%", "fx", "harvest_loss", None, 100.0, 0.0, 10.0, 0.5, 1, (), "pf_harvest_recovery",
+     "The share of the cells grown that is lost when they are separated from the medium and washed. Lower is better."),
     ("energyx", "reactor", "Energy and gas, against the model's estimate", "×", "fxx", "utilities", None, 1.0, 0.25, 3.0, 0.05, 2, (), "pf_utilities",
      "Power, cooling, water and gases, from Humbird's design."),
-    ("aa_price", "medium", "Price of amino acids", "$ a kilo", "fx", "aa", None, 1.0 / value("aa_intensity"), 2.0, 20.0, 0.25, 2, ("_aa",), "aa_bulk_price",
-     f"Cells are built from amino acids: about {value('aa_intensity') * 1000:.0f} g for each kilo of cells. This is the largest part of what the cells must eat. Feed-grade amino acids cost $5 to $12 a kilo; pharma grade several times more."),
+    ("aa_price", "medium", "Price of amino acids", "$ a kilo", "fx", "aa", None, 1.0 / value("aa_intensity"), 2.0, 110.0, 0.25, 2, ("_aa",), "aa_bulk_price",
+     f"Cells are built from amino acids: about {value('aa_intensity') * 1000:.0f} g for each kilo of cells. This is the largest part of what the cells must eat. Feed-grade amino acids cost $5 to $12 a kilo; bought one by one at the purity pharma uses, as in Humbird's first design, about ten times more."),
     ("glucose_price", "medium", "Price of glucose", "$ a kilo", "fx", "glucose", None, 1.0 / value("glucose_intensity"), 0.2, 1.5, 0.05, 2, (), "glucose_price",
      "The sugar the cells burn and ferment."),
     ("gfx", "medium", "Price of growth factors, against Humbird's large-scale estimate", "×", "fxx", "gf", None, 1.0, 0.0, 3.0, 0.05, 2, (), "pf_growth_factors",
@@ -838,6 +965,16 @@ PAGE_PARAMS = (
 )
 
 
+def _finance() -> dict:
+    """The yearly charge on the plant as its three parts (inputs.py, plant_charge_mature): the payment that repays the plant with
+    interest (5.4% over 20 years) plus maintenance and insurance, which is the rest of the charge."""
+    rate, life = 5.4, 20.0
+    crf = rate / 100.0 / (1.0 - (1.0 + rate / 100.0) ** -life)
+    upkeep = (value("plant_charge_mature") - crf) * 100.0
+    assert abs(upkeep - 9.0) < 0.05, "plant_charge_mature is no longer 5.4% over 20 years plus 9%"
+    return {"rate": rate, "life": life, "upkeep": upkeep}
+
+
 def page_params() -> list:
     """PAGE_PARAMS as the page reads them, with each input's value, range and source from the datasheet."""
     from inputs import REGISTRY as REG
@@ -845,6 +982,9 @@ def page_params() -> list:
     for key, group, name, unit, kind, arg, dflt, scale, lo, hi, step, digits, drop, inp, hlp in PAGE_PARAMS:
         i = REG[inp]
         src = re.sub(r"\s+", " ", (i.source or "")).strip()
+        m = re.match(r"^\[([^\]]*)\]\s*(.*)$", src)            # "[Humbird-R, derived] Sect. 2.3 ..." in plain form
+        if m:
+            src = m.group(1).replace("Humbird-R", "Humbird 2021").replace("research_notes/", "the note ") + ": " + m.group(2)
         out.append({"key": key, "group": group, "name": name, "unit": unit, "kind": kind, "arg": arg, "dflt": dflt, "scale": scale,
                     "min": lo, "max": hi, "step": step, "digits": digits, "drop": list(drop), "input": inp, "help": hlp,
                     "source": src[:220] + ("…" if len(src) > 220 else "")})
@@ -854,32 +994,49 @@ def page_params() -> list:
 # Reference values shown under a lever (the author, 2026-11-20: "some references to help make sensible choices"): the value in the
 # slider's unit and who published it. Sources: inputs.py and research_notes/full_review_2026-11-19.md.
 LEVER_REFS = {
-    "nh3_kg": [(0.055, "Humbird's 2021 design"), (0.14, "bovine cells fed without glutamine, Hubalek 2023"), (0.7, "ordinary cells fed glutamine")],
+    "nh3_kg": [(0.055, "Humbird's 2021 design"), (0.14, "bovine cells fed without glutamine, Hubalek 2023; chicken cells, Pasitka 2024"), (0.7, "ordinary cells fed glutamine")],
     "lac_yield": [(0.28, "Humbird's 2021 design"), (1.05, "chicken fibroblasts, Pasitka 2024"), (1.5, "typical animal cells, 1 to 2, Ozturk 1996")],
-    "doubling_h": [(15, "bovine muscle cells with serum, Stout 2023"), (24, "Humbird's 2021 design"), (30, "Believer's cell-bank limit, FDA memo 2025"), (43, "bovine fat-precursor cells, Hubalek 2023"), (55, "the 15-hour cells without serum, Goodwin 2024")],
-    "mass_pg": [(1.0, "chicken fibroblasts, SuperMeat 2024 and Tufts 2025"), (3.0, "Humbird's 2021 design"), (3.3, "chicken cells, Pasitka 2024")],
-    "nh3_limit": [(2, "textbook low end"), (4, "this model"), (5, "Humbird 2021; the usual textbook figure"), (10, "textbook high end")],
-    "lac_limit": [(22, "textbook upper figure, Cultivated Meat"), (30, "the level Pasitka 2024 held"), (50, "Humbird 2021")],
+    "doubling_h": [(15, "bovine muscle cells with serum, Stout 2023"), (16, "assumed by Risner 2021, middle scenarios"), (23, "assumed by Negulescu 2023"), (24, "Humbird's 2021 design"), (30, "Believer's cell-bank limit, FDA memo 2025; assumed by CE Delft 2021"), (43, "bovine fat-precursor cells, Hubalek 2023"), (48, "chicken cells while bled off, SuperMeat 2024"), (55, "the 15-hour cells without serum, Goodwin 2024"), (61, "chicken fibroblasts in continuous perfusion, Pasitka 2024")],
+    "mass_pg": [(1.0, "chicken fibroblasts, Tufts 2025"), (1.04, "chicken stem cells, SuperMeat 2024"), (3.0, "Humbird's 2021 design; Negulescu 2023"), (3.6, "assumed by CE Delft 2021: 3,500 µm³"), (5.3, "assumed by Risner 2021, and CE Delft 2021's larger cell: 5,000 µm³")],
+    "nh3_limit": [(2, "textbook low end"), (3, "the level Pasitka 2024 held"), (4, "this model"), (5, "Humbird 2021; the usual textbook figure"), (10, "textbook high end")],
+    "lac_limit": [(22, "textbook upper figure, Cultivated Meat"), (30, "the level Pasitka 2024 held"), (35, "this model"), (50, "Humbird 2021")],
     "osm_limit": [(350, "cautious"), (415, "this model, from Humbird's limits"), (450, "high end")],
     "pco2": [(100, "Humbird 2021; top of the textbook's optimum"), (130, "inhibitory above this, textbook"), (250, "this model's high end")],
     "maint": [(31, "GFI's 2025 growth modelling"), (50, "this model")],
     "gas_v": [(2, "about the most run with animal cells"), (4, "this model"), (6, "Humbird's 2021 design")],
-    "min_perfusion": [(3.7, "low end"), (7.5, "this model"), (18.5, "high end")],
+    "kla_exp": [(0, "Humbird 2021: no effect"), (0.4, "this model's estimate: the Yagi-Yoshida correlation for stirred tanks")],
+    "min_perfusion": [(0, "Humbird 2021: none counted"), (3.7, "low end"), (7.5, "this model's estimate"), (18.5, "high end")],
+    "tank_m3": [(2, "Humbird 2021's perfusion tanks; Pasitka 2024"), (4, "about the largest perfusion run with animal cells"), (10, "CE Delft 2021"), (20, "the largest pharma fed-batch tanks, and Upside Foods'; Humbird 2021, Risner 2021, Garrison 2022"), (25, "SuperMeat 2024"), (42, "Negulescu 2023, smallest tanks"), (100, "never done with animal cells"), (211, "Negulescu 2023, stirred tanks"), (250, "the size of a published airlift design, Negulescu 2023")],
+    "x_cap": [(55, "low end of what companies report, A. D. Little 2026"), (60, "low end reported to Lever VC 2025"), (90, "high end reported to Lever VC 2025"), (83, "SuperMeat 2024"), (100, "high end reported by companies, A. D. Little 2026; assumed by Negulescu 2023"), (195, "Humbird 2021, perfusion in 2 m³ tanks"), (258, "this model's limit: a quarter of the volume as cells, Humbird 2021"), (430, "Pasitka 2024: a weight of wet pellet from a 5-litre tank with serum")],
+    "mature_d": [(0, "products near market: bulk cell mass (GOOD Meat, Believer, Wildtype, Vow filings)"), (4, "Meatable 2024, a company claim"), (7, "muscle: Cultivated Meat book; Mattick 2015; Tuomisto 2022"), (14, "fat"), (28, "fat, long")],
     "mem_price": [(50, "food and water hollow fibres, a market summary"), (1450, "pharma hollow fibres, Humbird 2021")],
-    "mem_life": [(750, "a perfusion-filter patent, 500 to 1,000"), (2415, "implied by Humbird's own table"), (3960, "this model")],
+    "mem_life": [(750, "a perfusion-filter patent, 500 to 1,000"), (2415, "this model, from Humbird's own table"), (3960, "this model until 2026-11-19")],
     "flux": [(2, "low end"), (5, "supplier guidance"), (8.3, "high end")],
-    "charge": [(12.3, "cheap finance"), (17.3, "a mature food industry"), (23.6, "a first plant, Humbird 2021")],
+    "fin_rate": [(0, "no interest (CE Delft 2021)"), (5.4, "food processing, 2019"), (6, "Risner 2021: nine-tenths debt at 5%"), (7.5, "Humbird's choice, a young food company"), (8.5, "pharma and biotech"), (10, "Humbird's yeast plant; Garrison 2022")],
+    "fin_life": [(10, "Humbird's cultivated-meat plants; Negulescu 2023; Garrison 2022"), (20, "Humbird's yeast plant; this model; Risner 2021"), (30, "CE Delft 2021's social criterion")],
+    "fin_upkeep": [(9, "Humbird: 4% maintenance, 5% insurance")],
     "kla": [(5, "low end in dense cultures, Ozturk 1996"), (26, "Humbird's design"), (55, "high end, Ozturk 1996")],
-    "labourx": [(1, "Humbird's fed-batch crew"), (2, "Humbird's perfusion crew; CE Delft 2021"), (3.9, "SuperMeat's 2024 report")],
+    "labourx": [(0.7, "in perfusion: Humbird's own labour cost a kilo"), (1, "this model: Humbird's fed-batch staff per m³ of tank, twice that in perfusion"), (1.95, "in perfusion: SuperMeat 2024's staff")],
+    "wash_price": [(round(value("pf_wash_price"), 3), "salts, buffer and glucose only, from this model's nutrient prices")],
+    "killx": [(0, "Humbird 2021: no cells killed"), (1, "this model's estimate: Jöbses 1991, with 1 g of protectant a litre"), (8, "the same with 0.1 g a litre")],
+    "harvest_loss": [(0, "Humbird 2021: none counted"), (1.3, "Pasitka 2024"), (2, "this model's estimate; Negulescu 2023"), (3, "SuperMeat 2024")],
     "energyx": [(1, "Humbird 2021"), (2.1, "CE Delft's electricity use and price")],
-    "aa_price": [(5, "cheapest feed grade"), (6.36, "feed-grade mean, GFI 2025"), (11.6, "dearest feed grade")],
+    "aa_price": [(2, "plant hydrolysate, Humbird 2021 and CE Delft 2021"), (5, "cheapest feed grade"), (6.36, "feed-grade mean, GFI 2025"), (11.6, "dearest feed grade"),
+                 (__import__("study_assumptions").humbird_aa_price(), "bought one by one, Humbird 2021: his $19.08 a kilo of cells less $0.10 of glucose, in 2025 dollars, over this model's 232 g of amino acids a kilo of cells ($18.39 in his perfusion design)")],
     "gfx": [(0, "none in production: Believer's and Wildtype's FDA memos"), (1, "Humbird's large-scale estimate")],
-    "protect_dose": [(1, "the dose Jöbses 1991 measured"), (2, "dense pharma cultures")],
+    "protect_dose": [(0, "Humbird 2021: none counted"), (1, "the dose Jöbses 1991 measured"), (2, "this model's estimate: dense pharma cultures")],
     "protect_price": [(20, "bulk market summaries"), (30, "this model"), (120, "towards catalogue prices")],
     "capex_x": [(0.34, "two published designs"), (1, "this model, from Humbird's plant"), (1.5, "high end")],
-    "medium_price": [(0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported")],
+    "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported")],
     "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model: novelty faded"), (30, "stated intent in UK and US surveys"), (50, "no preference")],
     "cut": [(20, "this model"), (80, "products on sale are 70 to 97% plant")],
+    # the closed-market lever: the value is the level of meat_market.closed_share (CLOSED_LEVELS); each level adds to the one before
+    "closed": [(0, "none"), (1, "permanent bans: five US states (this model)"),
+               (2, "every law in force: also three US temporary bans and Italy's and Hungary's contested laws"),
+               (3, "world: also the one religious body that has ruled against it (Nahdlatul Ulama, Indonesia; all of Indonesia counted, "
+                   "about %.1f%% of world meat)" % (100 * value("mk_closed_religious_against"))),
+               (4, "world: also populations whose religious authorities have set conditions (halal or kosher inputs and supervision), "
+                   "if those conditions were not met (about %.0f%% of world meat)" % (100 * value("mk_closed_religious_conditions")))],
 }
 
 CLOUD_N = 300          # draws in the page's cloud (scenarios.scenario_mc draws the same estimates)
@@ -896,9 +1053,44 @@ def traits_page_data() -> dict:
     from inputs import REGISTRY as REG
     eqs_input = {"today": "equal_price_share", "central": "equal_price_share", "best": "best_equal_price_share"}
     refs = []
-    for k in ("today", "central", "best", "humbird", "company"):
+    import humbird_check as HC
+    for k in REF_ORDER:
         label, text = REF_TEXT[k]
         e = {"key": k, "label": label, "text": text}
+        if k == "humbird_best":
+            # his best estimate like for like in today's dollars (humbird_check.conditions; the owner, 2026-11-20: "stick to
+            # Humbird design unless he missed something important"). `base` holds the explore arguments the page's selects do
+            # not (his cell as the four traits, his yearly charge, growth factors bought); `hb` the way the tank is run and the
+            # plant; `finance` what the three finance levers show; `levers` the levers that start at his value, not the
+            # model's (the five additions, at none); `own` what else is his and has no lever: his plant's cost while the plant
+            # is his (`plant_p`), and, while the tank is run his way (a stirred tank in fed-batch), his filter sets a batch
+            # (`vm`), no antifoam effect on oxygen and the datasheet constants in `fxo` (floorExplore's own copy: his count of
+            # the end of a batch, growth at full speed to the end, no extra medium-preparation equipment, no flat supplies);
+            # `nutrients_kg` his nutrient cost for a kilo of cells grown, which the page turns into a price a litre.
+            kw, over = HC.conditions(HC.BEST, "today")
+            tr = HC.page_traits()
+            assert kw["mode"] == "filldraw" and {k: v for k, v in kw["vm"].items() if k != "cons_run"} == S.setting("mode", "fedbatch").kw["vm"]
+            assert (kw["nh3_limit"], kw["lac_limit"], kw["pco2_mbar"], kw["gas_velocity"], kw["hazard"], kw["waste"]) == \
+                (value("pf_nh3_limit"), value("pf_lac_limit"), value("pf_pco2_limit"), value("pf_gas_velocity"), 0.0, 0.0), "explore's defaults are no longer Humbird's limits"
+            assert set(over) == {"pf_harvest_recovery", "pf_protectant_dose", "pf_antifoam_otr", "pf_medium_prep_exp", "pf_batch_half_x",
+                                 "pf_consumables_low", "pf_batch_end_x"}, "humbird_check.conditions sets an input the page's start does not mirror"
+            assert set(kw) == {"doubling_h", "mass_pg", "vessel_m3", "waste", "charge", "nh3_limit", "lac_limit", "pco2_mbar", "gas_velocity",
+                               "kill", "min_perfusion", "hazard", "plant", "viscous_kla", "mode", "vm", "growth_factors"}, "humbird_check.conditions passes an argument the page's start does not mirror"
+            base = {"doubling_h": kw["doubling_h"], "mass_pg": kw["mass_pg"], "nh3_kg": tr["nh3_kg"], "lac_yield": tr["lac_yield"], "glc_balance": True,
+                    "vessel_m3": kw["vessel_m3"], "charge": kw["charge"], "growth_factors": kw["growth_factors"], "plant": "sanitary", "mode": "perfusion"}
+            own = {"plant": "pharma", "plant_p": {}, "vm": {"cons_run": kw["vm"]["cons_run"]},
+                   "kw": {"antifoam_otr": over["pf_antifoam_otr"],
+                          "fxo": {"batch_end": over["pf_batch_end_x"], "batch_half": over["pf_batch_half_x"],
+                                  "medium_prep_exp": over["pf_medium_prep_exp"], "consumables": over["pf_consumables_low"]}},
+                   "nutrients_kg": HC.page_nutrients_kg()}
+            levers = {"kla_exp": 0.0, "min_perfusion": 0.0, "killx": 0.0, "harvest_loss": (1.0 - over["pf_harvest_recovery"]) * 100.0, "protect_dose": over["pf_protectant_dose"]}
+            assert kw["kill"] == 0.0 and kw["min_perfusion"] < 1e-6 and kw["viscous_kla"] is False and set(levers) == {a[0] for a in HC.PAGE_ADDITIONS}
+            e.update(kind="humbird", text=humbird_best_text(), traits=tr, buyers=S.meat_buyers_at_equal_price(),
+                     eqs=value("equal_price_share"), base=base, hb={"mode": "fedbatch", "plant": "pharma"}, own=own, levers=levers,
+                     adds=[[a[0], a[1]] for a in HC.PAGE_ADDITIONS],
+                     finance=HC.page_finance(), point=HC.page_start()["total"], point_adds=HC.page_with_additions()["total"])
+            refs.append(e)
+            continue
         if k in eqs_input:
             e.update(kind="scenario", choice=S.SCENARIOS[k].choice, redesign=(k != "today"),
                      traits=S.cell_traits(S.SCENARIOS[k].choice),
@@ -906,7 +1098,8 @@ def traits_page_data() -> dict:
         elif k == "humbird":
             e.update(kind="humbird", traits=dict(S.HUMBIRD_TRAITS), buyers=S.meat_buyers_at_equal_price(), eqs=value("equal_price_share"),
                      base={"doubling_h": 24.0, "mass_pg": 3000.0, "vessel_m3": 20.0, "plant": "sanitary", "mode": "perfusion",
-                           "charge": value("plant_charge_mature")}, point=S.reference()["total"])
+                           "charge": value("plant_charge_mature")}, hb={"mode": "perfusion", "plant": "sterile"},
+                     point=S.reference()["total"])
         else:
             e.update(kind="company", cost=S.reported_cost(), buyers=S.meat_buyers_at_equal_price(), eqs=value("equal_price_share"))
         refs.append(e)
@@ -916,8 +1109,8 @@ def traits_page_data() -> dict:
         clip = REG[name].clip or (None, None)
         return [lo, mode, hi, kind, clip[0], clip[1]]
     reg_names = ("plant_charge_mature", "rt_membrane_life", "pf_maintenance_share", "sc_nh3_selected", "sc_nh3_limit", "pf_nh3_limit",
-                 "pf_protectant_price", "pf_min_perfusion", "pf_antifoam_otr", "pf_protectant_dose", "rt_membrane_price",
-                 "aa_bulk_price", "sc_mass_selected_pg")
+                 "sc_lac_limit", "pf_lac_limit", "ge_kill_protected", "pf_protectant_price", "pf_min_perfusion", "pf_antifoam_otr", "pf_protectant_dose", "rt_membrane_price",
+                 "aa_bulk_price", "sc_mass_selected_pg", "tc_kla_exp", "tc_thin")
     import plant_items
     cloud = {"n": CLOUD_N, "seed": CLOUD_SEED, "priors": {n: pri(n) for n in reg_names}, "mc": S.MC_PRIORS,
              "lean_capex_lo": min(1.0, plant_items.capital("yeastplus")["total"] / plant_items.capital("lean")["total"]),
@@ -937,12 +1130,15 @@ def traits_page_data() -> dict:
             row["pick"] = {"cost": cost, "traits": tr, "plant": p, "mode": m, "beyond": rn["beyond"], "choice": ch}
         wit.append(row)
     life, price = value("rt_membrane_life"), value("rt_membrane_price")
-    return {"traits": traits, "refs": refs, "cloud": cloud, "wit": wit, "params": page_params(), "start": "today", "lever_refs": {k: [[v, t] for v, t in r] for k, r in LEVER_REFS.items()},
+    import medium_reuse
+    clean = {"order": list(floor_physics.CLEAN_NAMES), "routes": medium_reuse.page_routes(), "wash_ref": value("pf_wash_price")}
+    return {"traits": traits, "refs": refs, "cloud": cloud, "wit": wit, "clean": clean, "params": page_params(), "start": "humbird_best", "start_choice": "today", "studies": __import__("study_assumptions").page_data(), "finance": _finance(), "lever_refs": {k: [[v, t] for v, t in r] for k, r in LEVER_REFS.items()},
             "plant_names": plant_names,
             "plant": {"capex": [S.MC_PRIORS["capex_x"][0], S.MC_PRIORS["capex_x"][2]], "cpl": [0.10, 1.60],
                       "mem_price": price, "mem_life": life, "break_even_1500": filter_flux.break_even_price(1500.0),
                       "medium": [0.0, 0.60]},
-            "frontier": frontier.ladder()[-1]["cost"], "n_wit_sets": len(S.trait_grid())}
+            # the one most favourable case (scenarios.all_favourable): the all-favourable example and the last row of frontier.ladder()
+            "frontier": S.all_favourable()["cost"], "n_wit_sets": len(S.trait_grid())}
 
 
 # ---------------------------------------------------------------------------
@@ -1119,7 +1315,7 @@ def illustrative_numbers() -> dict:
 _CASE_TEXT = {
     "Humbird fed-batch, as designed": (
         "Humbird's fed-batch design",
-        "This is a detailed engineering design [2] with twenty-four 20,000-litre stirred tanks in a food-grade plant. Each tank is "
+        "This is a detailed engineering design [2] with twenty-four 20,000-litre stirred tanks in a plant with clean rooms. Each tank is "
         "filled, the cells grow for about two days, and then the tank is emptied (&ldquo;fed-batch&rdquo;). The cells are efficient, and "
         "growth factors are bought.",
         "Designed on paper. Nobody has built it."),
@@ -1239,7 +1435,8 @@ def _scenario_tokens() -> dict:
         if key in ("central", "best"):
             tr = S.tricks_report(choice)
             out[f"TRICKS_{tag}_NO"] = f"{tr['no_tricks']:.1f}"
-            out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
+            if key == "best":                     # only the all-favourable example's sentence quotes the ordinary tall tank
+                out[f"TRICKS_{tag}_ORD"] = f"{tr['ordinary_tank']:.1f}"
             out[f"TRICKS_{tag}_LIST"] = S.plain_list(tr["used"])
     sb = ps.bands("today")["share"]
     out["TODAY_SHARE_SENTENCE"] = (
@@ -1253,8 +1450,21 @@ def first_screen_tokens() -> dict:
     """The first screen's few numbers in the markup (the rest is written by the page's script from MODEL.tp)."""
     import scenarios as S
     import filter_flux
+    import humbird_check as HC
+    import meat_market as MM
+    words = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen").split()
+    n_sw = words[len(S.SWITCHES)]
+    pct1 = lambda x: f"{x * 100:.1f}".rstrip("0").rstrip(".")
     return {"CLOUD_N": str(CLOUD_N), "CAPEX_LO": f"{S.MC_PRIORS['capex_x'][0]:g}", "CAPEX_HI": f"{S.MC_PRIORS['capex_x'][2]:g}",
-            "BE_1500": f"${filter_flux.break_even_price(1500.0):.0f}", "CPL_1500": f"${value('rt_membrane_price') / 1500.0:.2f}", "WIT_SETS": str(len(S.trait_grid()))}
+            "BE_1500": f"${filter_flux.break_even_price(1500.0):.0f}", "CPL_1500": f"${value('rt_membrane_price') / 1500.0:.2f}", "WIT_SETS": str(len(S.trait_grid())),
+            # the method's words on what the model counts (2026-11-20): every number from the model
+            "N_SWITCHES": n_sw, "N_SWITCHES_CAP": n_sw.capitalize(),
+            "BUYERS_CENTRAL": pct1(S.meat_buyers_at_equal_price(None)), "BUYERS_BEST": pct1(S.meat_buyers_at_equal_price(value("best_equal_price_share"))),
+            "PB_TARGET": f"{value('pb_share_target') * 100:.1f}", "PHI": f"{value('income_gradient'):g}",
+            "HB_HIS": f"{HC.HIS[HC.BEST]['total']:.2f}", "HB_LIKE18": f"{HC.reproduce(HC.BEST, '2018')['total']:.2f}",
+            "HB_START": f"{HC.page_start()['total']:.2f}", "HB_ADDS": f"{HC.page_with_additions()['total']:.2f}",
+            "KLA_EXP": f"{value('tc_kla_exp'):g}", "MK_ES": f"{value('mk_supply_elast'):g}", "MK_ED": f"{value('mk_demand_elast'):g}",
+            "CLOSED_US": f"{MM.closed_share('us', 1) * 100:.1f}"}
 
 
 def derived_numbers() -> dict:
@@ -1330,6 +1540,7 @@ def derived_numbers() -> dict:
         **_scenario_tokens(),
         "TANK_NOTE": _tank_note(),
         "OTHER_ESTIMATES_HTML": _other_estimates_html(),
+        "HUMBIRD_BACKTEST_HTML": humbird_backtest_html(),
         "HOW_MET_HTML": _how_met_html(),
         "GRID_HTML": _cells_by_tank_html(),
         "VESSELS_HTML": _vessels_html(),
@@ -1437,7 +1648,7 @@ def page_data() -> dict:
         "central": ("Cells that make 0.42 mol of lactate per glucose and double every 36 hours, in perfusion: a filter holds them back while fresh medium washes the waste out. This is the low-lactate example", "perfusion at 20 m³"),
         "central_lean": ("The low-lactate example in a cheaper plant: food-grade, with shared medium", "a cheaper plant"),
         "engineered": ("Cells that make almost no ammonia or lactate (0.055 mol a kilo, 0.28 per glucose), doubling every 36 hours, in perfusion in a food-grade plant with shared medium", "the cells' ammonia and lactate"),
-        "best": ("Every switch at its favourable end, cells doubling every 24 hours. This is the all-favourable example", "speed, gas, losses, growth factors, medium"),
+        "best": ("Every lever at its most favourable value among this model's own, Humbird's design and the published cost studies, cells doubling every 16 hours. This is the all-favourable example", "speed, cell size, tolerated waste, filter, losses, growth factors, medium"),
     }
     ladder = []
     for k in S.LADDER:
@@ -1502,7 +1713,9 @@ def _plain_switch_words(sc: dict) -> dict:
 
 def _tank_note() -> str:
     """The tank the reference points assume, in plain sentences (Level 1 and the vessel section)."""
-    return (f"<b>The tank.</b> Every reference point uses a stirred tank of {value('vm_str_m3'):.0f} m³. Published cells grow in batches "
+    import scenarios as S
+    return (f"<b>The tank.</b> Every reference point uses a stirred tank, of {value('vm_str_m3'):.0f} m³ except the all-favourable "
+            f"example's {S.explore_kwargs(S.SCENARIOS['best'].choice)['vessel_m3']:.0f} m³. Published cells grow in batches "
             "(fed-batch), as pharma and Upside Foods run; the low-lactate example and the all-favourable example run it in perfusion: a "
             "filter holds the cells back while fresh medium washes the waste out, and cells leave the tank in a steady bleed. Nobody has "
             f"run animal cells in perfusion above about {value('vm_perf_max_m3'):.0f} m³.")
@@ -1513,8 +1726,8 @@ def _other_estimates_html() -> str:
     import scenarios as S
     rows = S.table_rows()[len(S.PAGE_ORDER):]                     # Humbird's design, the reported process (no forecast since 2026-11-19)
     names = ("Humbird's optimistic design", "As a company reports")
-    what = ("Humbird's 2021 design: his enhanced cells (3 ng, doubling every 24 hours, 0.054 mol of ammonia a kilo) in an ordinary "
-            "perfusion tank, a food-grade plant, no tank tricks and no lost runs.",
+    what = ("This model's variation on Humbird's cells, not a figure from his report: his enhanced cells (3 ng, doubling every 24 "
+            "hours, 0.054 mol of ammonia a kilo) in an ordinary 20 m³ perfusion tank, a food-grade plant, no tank tricks and no lost runs.",
             "SuperMeat's 2024 report of its own process, scaled up on paper, with a yearly charge on its plant added. "
             "The company's figures have not been peer reviewed.")
     out = []
@@ -1531,9 +1744,9 @@ def _other_estimates_html() -> str:
         out.append(f"<tr><td><b>{nm}</b><br><span class='alt'>{wh}</span></td><td class='n'>{c1}</td>"
                    f"<td class='n'>{_money(cost)}</td><td class='n'>{_money(shop, 0)}<br><span class='alt'>{ratio:.1f} times US minced beef or pork cuts ($12 a kilo)</span></td>"
                    f"<td class='n'><b>{S.pct_num(sb[1])}%</b><br><span class='alt'>Median. {rng}</span></td></tr>")
-    head = ("<thead><tr><th>Estimate</th><th>Cost to grow a kilo of cells</th><th>If every estimate lands on its most likely value</th>"
-            "<th>Price in the shop, a kilo</th><th>Long-run share of world meat and seafood</th></tr></thead>")
-    labels = ("", "Cost to grow a kilo of cells", "If every estimate lands on its most likely value", "Price in the shop, a kilo",
+    head = ("<thead><tr><th rowspan='2'>Estimate</th><th colspan='2'>A kilo of cells</th><th rowspan='2'>Shop price, a kilo</th>"
+            "<th rowspan='2'>Long-run share of world meat</th></tr><tr><th>Median of the draws</th><th>Most likely values</th></tr></thead>")
+    labels = ("", "A kilo of cells, median of the draws", "A kilo of cells, most likely values", "Shop price, a kilo",
               "Long-run share of world meat and seafood")
     out = ["<tr>" + "".join((f"<td data-label='{labels[i]}'" if labels[i] else "<td") + part
                             for i, part in enumerate(row.split("<td")[1:])) for row in out]
@@ -1588,21 +1801,33 @@ def _how_met_html() -> str:
          "One survey of makers gives this rate, and it does not state run lengths."),
         ("Medium price and growth factors",
          f"The low-lactate example pays $0.20 a litre, what several companies announced for 2025, and takes that price to include the growth "
-         f"factors (the proteins that tell cells to grow). The growth-factor switch then sets a floor: medium cannot cost less than its "
-         f"nutrients plus the growth factors bought. At that setting the floor is below $0.20, so the switch adds nothing. With "
+         f"factors (the proteins that tell cells to grow). The growth-factor setting then sets a floor: medium cannot cost less than its "
+         f"nutrients plus the growth factors bought. At that setting the floor is below $0.20, so it adds nothing. With "
          f"all growth factors bought at Humbird's price the cost is {cost({'gf': 'all'})}. At $0.50 a litre, what SuperMeat reports, it "
          f"is {cost({'medium': '0.50'})}. At the cost of the nutrients alone it is {cost({'medium': 'floor', 'gf': 'none'})}.",
          "Cheaper amino acids, recycled medium, cheaper growth factors or cells that make their own.",
          "Company announcements. Nobody has verified them at scale."),
     ]
-    h = ["<table><thead><tr><th>What the cost rests on</th><th>What the low-lactate example assumes, and the cost if it fails</th>"
-         "<th>How it could be met</th><th>How solid</th></tr></thead><tbody>"]
+    h = ["<table><thead><tr><th>What the cost rests on</th><th>What is assumed, and the cost if it fails</th>"
+         "<th>How it could be met</th><th>How solid the evidence is</th></tr></thead><tbody>"]
     for name, assumes, met, solid in rows:
         h.append(f"<tr><td><b>{name}</b></td><td>{assumes}</td><td>{met}</td><td>{solid}</td></tr>")
     h.append("</tbody></table>")
     return (f"<p class='small'>Written for the low-lactate example, which costs {_money(r0['total'])} a kilo of cells when every estimate is at its "
             "most likely value. Each row moves one thing and leaves the rest alone. All costs are dollars a kilo of wet cells.</p>"
             "<div class='blk scrollx'>" + "".join(h).replace("<table>", "<table style='min-width:720px'>") + "</div>")
+
+
+def _tricks_sentence(save: dict, best: dict) -> str:
+    """What all three tank tricks do in the cells-by-tank table, with the sign said in words (they can raise the cost)."""
+    parts = []
+    for key, name in (("engineered", "cells that make almost no waste"), ("ordinary", "ordinary meat cells")):
+        d, f = save[key]
+        parts.append(f"{'lower' if d >= 0 else 'raise'} it by {_money(abs(d))} ({abs(f):.0%}) with {name}")
+    text = ("<p class='small'>Compared with gas bubbled in only, all three tank tricks together " + " and ".join(parts) + ".")
+    if any(v[0] < 0 for v in save.values()):
+        text += " Where they raise it, what the column and the pressure cost is more than the denser culture saves."
+    return text + (f" In the all-favourable example the column and the pressure save {_money(best['d_no_tricks'])} a kilo.</p>")
 
 
 def _cells_by_tank_html() -> str:
@@ -1633,12 +1858,9 @@ def _cells_by_tank_html() -> str:
     best = S.tricks_report(S.SCENARIOS["best"].choice)
     return ("<p class='small'>The cost of a kilo of cells for each kind of cell in each kind of tank, at its most likely values. The first "
             "figure is for a food-grade plant. The figure in brackets is for a food-grade plant with shared medium. Everything else is as "
-            "in the low-lactate example. Click a figure to load it into the switches.</p>"
+            "in the low-lactate example. Click a figure to load it into the settings above.</p>"
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(head)}</table></div>"
-            f"<p class='small'>All three tank tricks together save between {_money(lo)} and {_money(hi)} a kilo in this table. As a share of "
-            f"the cost they matter more when the cells are good: {save['engineered'][1]:.0%} with cells that make almost no waste, "
-            f"{save['ordinary'][1]:.0%} with ordinary meat cells, where the medium that washes the waste out sets most of the cost and "
-            f"no tank trick lowers that. In the all-favourable example, where the plant is cheap, the tricks are worth {_money(best['d_no_tricks'])}.</p>")
+            + _tricks_sentence(save, best))
 
 
 def _vessels_html() -> str:
@@ -1771,7 +1993,7 @@ PAGE_HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
  --up:#0a7d5a;--down:#b3321c;--s1:#2a78d6;--s2:#1baf7a;--s3:#eda100;--s4:#9a9890;
  --orange:#E69F00;--green:#117733;--red:#CC3311;
  /* where the money goes: a hue per group, a shade per item, and the text colour that reads on each (-i) */
- --g-l1:#0b4f8a;--g-l1-i:#ffffff;--g-l2:#2f7ccc;--g-l2-i:#ffffff;--g-l3:#7fb4ea;--g-l3-i:#0b0b0b;--g-l4:#c4ddf6;--g-l4-i:#0b0b0b;
+ --g-l1:#0b4f8a;--g-l1-i:#ffffff;--g-l2:#2f7ccc;--g-l2-i:#ffffff;--g-l3:#7fb4ea;--g-l3-i:#0b0b0b;--g-l4:#c4ddf6;--g-l4-i:#0b0b0b;--g-l5:#17777e;--g-l5-i:#ffffff;--g-l6:#86cdd1;--g-l6-i:#0b0b0b;
  --g-t1:#9c4a00;--g-t1-i:#ffffff;--g-t2:#f2a93b;--g-t2-i:#0b0b0b;--g-o1:#57554f;--g-o1-i:#ffffff;--g-o2:#bdbab1;--g-o2-i:#0b0b0b;
  /* where it would sell: mince, cuts, premium (Okabe-Ito), and plant-based meat's totals */
  --t-basic:#E69F00;--t-cut:#0072B2;--t-prem:#882255;--pbg:#117733;}
@@ -1794,7 +2016,8 @@ p,li,dd,.measure{max-width:70ch;} td p,td li,th p{max-width:none;}
 header p,#first p,#first .callout,.chart p,.chart li,.chart .sub,.chart .say,.chart .alt,.chart .hover,.chart .callout{max-width:none;}
 h1{font-size:1.6rem;line-height:1.2;margin:22px 0 6px;}
 h2{font-size:1.2rem;margin:0;} h3{font-size:1.02rem;margin:22px 0 4px;} h4{font-size:.95rem;margin:16px 0 4px;} h5{font-size:.95rem;margin:18px 0 4px;}
-.deck{font-size:1.05rem;margin:0 0 10px;}
+.deck{font-size:1.05rem;margin:0 0 10px;} .deck p{margin:0 0 .6em;max-width:86ch;}
+.calcsteps{margin:6px 0 4px;padding-left:1.4em;} .calcsteps li{margin:0 0 7px;max-width:none;}
 .small{font-size:.86rem;color:var(--ink2);} .note{font-size:.84rem;color:var(--muted);}
 /* one callout style */
 .callout,.fxcard,.scwarn,.example,.aside,.intro,.wovr,.selftest .stanchor{border-left:3px solid var(--axis);background:var(--sunk);padding:8px 12px;margin:10px 0;
@@ -1869,6 +2092,7 @@ input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
 .refbtns{display:flex;flex-wrap:wrap;gap:6px;}
 .refbtn{font:inherit;font-size:.88rem;padding:6px 12px;border:1px solid var(--axis);border-radius:16px;background:var(--card);color:var(--ink);cursor:pointer;line-height:1.25;}
 .refbtn:hover{background:var(--sunk);} .refbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;}
+.refadd{margin:8px 0 0;} .refadd p{margin:4px 0 0;}
 .refnote{margin:6px 0 0;} @media(max-width:600px){.refnote .long{display:none;} .legend .li{font-size:.76rem;}}
 .maphead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 14px;}
 .maphead h3{margin:0;} .regl{font-size:.86rem;color:var(--ink2);display:flex;align-items:center;gap:6px;}
@@ -2025,6 +2249,7 @@ section[id],h3[id],details[id]{scroll-margin-top:12px;}
 details.more{margin:8px 0;border:1px solid var(--rule);border-radius:8px;padding:6px 12px;}
 details.more>summary{cursor:pointer;font-weight:600;font-size:.9rem;padding:4px 0;}
 details.more[open]>summary{margin-bottom:6px;}
+.stmod{margin:8px 0;padding:6px 0;border-top:1px solid var(--rule);} .stmod p{margin:4px 0 0 24px;} .stmod label{cursor:pointer;}
 details.cmp table td.pick{cursor:pointer;} details.cmp table td.pick:hover{outline:2px solid #D85A30;outline-offset:-2px;}
 details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 .cellres{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 22px;}
@@ -2058,6 +2283,9 @@ details.grp>summary::-webkit-details-marker{display:none;} details.grp>summary:a
 .refs{font-size:.78rem;color:var(--ink2);margin:3px 0 0;line-height:1.7;}
 .refs .chip{font:inherit;font-size:.76rem;border:1px solid var(--rule);background:#fff;border-radius:10px;padding:0 7px;margin:0 3px 3px 0;cursor:pointer;color:var(--ink);}
 .refs .chip b{color:var(--accent);} .refs .chip:hover{border-color:var(--accent);}
+.ctl.idle input[type=range]{opacity:.4;} .ctl.idle .nm,.ctl.idle .val{color:var(--muted);} .idlenote{color:var(--muted);font-style:italic;} .idlenote:empty{display:none;}
+.sumbar b.in{display:inline;font-size:1em !important;}
+details.gloss p{margin:5px 0 0;} details.gloss{margin:6px 0 2px;}
 details.why{font-size:.78rem;color:var(--ink2);margin-top:2px;} details.why>summary{cursor:pointer;color:var(--accent);} details.why p{margin:3px 0 0;}
 .main .sumbar{top:10px;margin-top:0;} .reshead.first{margin-top:12px;border-top:0;padding-top:0;}
 @media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr);} .lrail{position:static;max-height:none;overflow-y:visible;}}
@@ -2068,11 +2296,8 @@ details.why{font-size:.78rem;color:var(--ink2);margin-top:2px;} details.why>summ
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body><div id="tip" class="tip" role="tooltip"></div><div class="wrap">
 <header>
-<h1>Cultivated meat: what the cells would have to do</h1>
-<p class="small">Cultivated meat is animal meat grown from cells in tanks, without slaughter. Set the cells, the plant and how shoppers
-feel, and this open model shows what a kilo of cells would cost, how much meat and seafood it could replace in the long run, and how
-your cells compare with the best measured in meat cells. It is a model of what would follow, not a forecast.</p>
-<p class="deck" id="deck" aria-live="polite"></p>
+<h1>Cultivated meat: what it would cost, and how much meat it could replace</h1>
+<div class="deck" id="deck" aria-live="polite"></div>
 </header>
 
 <section id="first" aria-label="The levers at the side, the results beside them">
@@ -2081,9 +2306,27 @@ your cells compare with the best measured in meat cells. It is a model of what w
 <p class="railhead">The levers</p>
 <p class="small">Set each one yourself. Under a lever, the <b>references</b> are values someone has published: click one to take it.
 <b>What this is</b> explains the lever and gives the model's source.</p>
+<details class="why gloss"><summary>Words used on this page</summary>
+<p><b>A kilo of cells</b>: a kilo of wet cells as harvested from the tank. Mince is taken to be all cells, so it is also a kilo of mince.</p>
+<p><b>Medium</b>: the nutrient liquid the cells grow in (sugar, amino acids, salts, vitamins and a few signalling proteins).</p>
+<p><b>Waste</b>: the ammonia and lactate cells give off as they grow. Both slow growth above a certain level.</p>
+<p><b>Batch and fed-batch</b>: fill the tank, let the cells grow, empty it. In fed-batch, concentrated food is added on the way.</p>
+<p><b>Perfusion</b>: fresh medium flows through the tank all the time and washes the waste out, while a <b>retention device</b> (a filter, a settler or a centrifuge) holds the cells back.</p>
+<p><b>Chemostat</b>: medium flows in and culture flows out all the time, with nothing holding the cells back.</p>
+<p><b>Growth factors</b>: the signalling proteins (such as insulin) that tell cells to grow. They are the dearest part of a medium by weight.</p>
+<p><b>Bubble protectant</b>: a mild detergent (poloxamer) that keeps cells from dying when gas bubbles burst.</p>
+<p><b>Upkeep</b>: the oxygen and sugar a cell uses just to stay alive, whether or not it grows.</p>
+<p><b>mmol a litre, mOsm a kilo, mbar</b>: measures of how much of something is dissolved in the culture. Only their size against the reference values matters here.</p>
+<p><b>kLa</b>: how fast a tank passes oxygen from gas bubbles into the liquid.</p>
+<p><b>Humbird</b>: David Humbird's 2021 study of the process and its costs, the most detailed public analysis of what cultivated meat would cost at scale. Many of the model's starting numbers are his.</p>
+<p><b>Published cells</b>: the best value published for each trait of meat cells, taken from different cell lines.</p>
+<p><b>Long-run share</b>: the share of the meat sold once the product is on every shelf and no longer feels new. It is a ceiling, not a figure for any year.</p>
+<p><b>× the model's estimate</b>: 1.00× leaves the model's own figure; 2.00× doubles it.</p></details>
 <div class="refbar"><span class="rl">Start again from a published set:</span>
 <div class="refrow"><div class="refbtns" id="tp_refs" role="group" aria-label="Starting points"></div>
 <label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<div class="refadd" id="tp_adds" style="display:none"><button type="button" class="refbtn" id="tp_adds_btn" aria-pressed="false" onclick="tpToggleAdds()">Add what this model counts and he does not</button>
+<p class="small" id="tp_adds_text" aria-live="polite"></p></div>
 <p class="small refnote" id="tp_refnote"></p></div>
 <details class="grp" open id="st_cells"><summary><span class="stn">1</span> The cells</summary>
 <p class="small">What the cells make, how fast they grow and what they tolerate set how dense a tank can run and how much medium a kilo needs.</p>
@@ -2097,7 +2340,7 @@ your cells compare with the best measured in meat cells. It is a model of what w
 <p class="fxn" id="pl_vessel_s"></p></div>
 <div class="ctl"><label for="pl_vmode"><span class="nm">How it is run</span></label><select id="pl_vmode" onchange="tpSetVM(null,this.value)"></select>
 <p class="fxn" id="pl_vmode_s"></p></div>
-<div class="ctl" id="pl_size_ctl"><label for="pl_size"><span class="nm">Tank size (fed-batch in a stirred tank)</span></label><select id="pl_size" onchange="tpSetSize(this.value)" aria-label="Fed-batch tank size"></select></div>
+<div class="ctl" id="pl_size_ctl" style="display:none"><label for="pl_size"><span class="nm">Tank size (fed-batch in a stirred tank)</span></label><select id="pl_size" onchange="tpSetSize(this.value)" aria-label="Fed-batch tank size"></select></div>
 <div class="ctl" id="pl_device_ctl"><label for="pl_device"><span class="nm">The device that holds the cells back (perfusion)</span></label><select id="pl_device" onchange="tpSetDevice(this.value)"></select>
 <p class="fxn" id="pl_device_s"></p></div>
 <div class="ctl"><label for="pl_plant"><span class="nm">The plant around the tanks</span></label><select id="pl_plant" onchange="tpSetPlant(this.value)"></select></div>
@@ -2119,6 +2362,15 @@ fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run a
 <div class="slw"><input type="range" id="pl_med" min="0" max="0.60" step="0.01" aria-describedby="pl_med_s"><span class="slmark none" id="pl_med_mark"></span></div>
 <p class="fxn" id="pl_med_s"></p></div>
 <div class="refs" id="pl_med_refs"></div>
+<p class="fxn" id="pl_med_why" aria-live="polite"></p>
+<p class="grphdr">Cleaning and reusing the medium</p>
+<p class="small">A price a litre charges every litre as fresh, full-strength medium. In perfusion most of the litres only wash waste out. Two things can make them cheaper: taking the waste out of the medium so it can be used again, and washing with a leaner solution. Both are off until you set them.</p>
+<div class="ctl" id="pl_clean_ctl"><label for="pl_clean"><span class="nm">Cleaning the medium so it can be used again</span></label><select id="pl_clean" onchange="tpSetClean(this.value)"></select>
+<p class="fxn" id="pl_clean_why" aria-live="polite"></p></div>
+<div class="ctl tr" id="pl_clean_share_ctl" style="display:none"><label for="pl_clean_share"><span class="nm">Share of the waste the route handles that it takes out, %</span><span class="q" tabindex="0" data-tip="How much liquid is cleaned and returned: 100% is the litres that would take out all of the ammonia (and, for the routes that take it, the lactate) the cells make. Cleaning more saves more fresh medium and costs more for the device and its membranes. The lever starts at the share that costs least.">?</span><span class="val" id="pl_clean_share_v"></span></label>
+<input type="range" id="pl_clean_share" min="0" max="100" step="1" aria-describedby="pl_clean_share_s"><p class="fxn" id="pl_clean_share_s" aria-live="polite"></p></div>
+<div class="ctl tr" id="pl_wash_ctl"><label for="pl_wash"><span class="nm">Price of the litres that only wash waste out, $ a litre</span><span class="q" tabindex="0" data-tip="The first litres of medium for each kilo of cells carry its nutrients and are charged at the price of the medium. The litres beyond them only wash waste out, and could be a solution of salts, buffer and glucose with no amino acids, vitamins or proteins. This lever starts at the full price of the medium. Growth factors and bubble protectant are dosed in every litre whatever its price, and the medium never costs less than the nutrients the cells eat.">?</span><span class="val" id="pl_wash_v"></span></label>
+<input type="range" id="pl_wash" min="0" max="0.60" step="0.002" aria-describedby="pl_wash_s"><p class="fxn" id="pl_wash_s" aria-live="polite"></p><div class="refs" id="pl_wash_refs"></div></div>
 <p class="grphdr">What the medium is made of</p>
 <div id="tp_g_medium"></div>
 </details>
@@ -2132,17 +2384,22 @@ fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run a
 </div>
 <div class="refs" id="tp_buyers_refs"></div>
 <div id="tp_cuthost"></div>
+<div id="tp_mkhost"></div>
 </details>
 </aside>
 
 <div class="main" id="first2">
 <div class="sumbar" id="sumbar" aria-live="polite" aria-label="The cost, the shop price and the long-run share at your settings"></div>
-<h2 class="reshead first"><span class="stn res">1</span> What the cells allow in the tank</h2>
+<details class="more" id="calc"><summary>How these three figures are worked out, step by step</summary>
+<div id="tp_calc" aria-live="polite"></div></details>
+<details class="more" id="studies"><summary>Why published cost studies disagree: Humbird's design with one study's assumptions at a time</summary>
+<div id="tp_studies"></div></details>
+<h2 class="reshead first"><span class="stn res">1</span> How dense the tank can run, and how much medium a kilo needs</h2>
 <div class="chart" id="tp_cellcard">
-<h3 id="tp_cell_title">What these cells allow in the tank <span class="tag res">result</span></h3>
+<h3 id="tp_cell_title">The tank with your cells <span class="tag res">result</span></h3>
 <div id="tp_cellres" aria-live="polite"></div>
 </div>
-<h2 class="reshead"><span class="stn res">2</span> What each reactor and way of running it would cost</h2>
+<h2 class="reshead"><span class="stn res">2</span> The cost in each kind of reactor</h2>
 <details class="more cmp" id="cmp_vm" open><summary>Compare every vessel and way of running it, at your settings</summary>
 <p class="small">Each cell is the cost of a kilo of cells with only the vessel (row) and the way it is run (column) changed, every estimate
 at its most likely value, with the membrane loop as the retention device. Click a cost to choose that combination.</p>
@@ -2154,7 +2411,7 @@ Click a row to choose it.</p>
 <h2 class="reshead"><span class="stn res">3</span> What a kilo of cells costs</h2>
 <p class="deck" id="tp_yours" aria-live="polite"></p>
 <div class="chart" id="tp_clcard">
-<h3 id="tp_cl_title">How far the cost is from what matters <span class="tag res">result</span></h3>
+<h3 id="tp_cl_title">The cost, against the price of each meat and the cost a 1% or 10% share needs <span class="tag res">result</span></h3>
 <div class="legend" id="tp_cl_legend">
 <span class="li"><span class="sw hatchd"></span><span id="tp_cl_fl"></span></span>
 <span class="li"><span class="sw hatchl"></span><span id="tp_cl_fr"></span></span>
@@ -2169,7 +2426,7 @@ Click a row to choose it.</p>
 </div>
 
 <div class="chart" id="tp_grcard">
-<h3 id="tp_groups_title">Where the money goes, by what drives it <span class="tag res">result</span></h3>
+<h3 id="tp_groups_title">What the cost is made of <span class="tag res">result</span></h3>
 <p class="sub" id="tp_groups_sub"></p>
 <div class="plot" id="tp_groups_plot"><svg id="tp_groups" role="img" aria-labelledby="tp_groups_title" aria-describedby="tp_groups_alt"></svg></div>
 <p class="say" id="tp_groups_say" aria-live="polite"></p>
@@ -2185,7 +2442,7 @@ Click a row to choose it.</p>
 <p class="small" id="tp_one_note" aria-live="polite"></p><p class="sr" id="tp_one_alt"></p>
 </div>
 <div class="chart mapcard" id="tpcard">
-<div class="maphead"><h3 id="tptitle">Long-run share of the meat sold, for any cost of cells and any preference of shoppers <span class="tag res">result</span></h3><span class="small" id="tp_map_region"></span></div>
+<div class="maphead"><h3 id="tptitle">Share of all meat sold, by cost of cells and by shoppers' preference <span class="tag res">result</span></h3><span class="small" id="tp_map_region"></span></div>
 <div class="callout readme" id="tp_read"><span id="tp_read_txt"></span> <button type="button" class="lnk" onclick="tpDismissRead()">Hide this</button></div>
 <div class="legend" id="tplegend">
 <span class="li">Long-run share of meat and seafood:</span><span class="li ramp" id="tpramp"></span>
@@ -2201,7 +2458,7 @@ Click a row to choose it.</p>
 </div>
 
 <div class="chart" id="tp_ancard">
-<div class="cardhead"><h3 id="tp_animals_title">Where it would sell: by kind and type of meat <span class="tag res">result</span></h3>
+<div class="cardhead"><h3 id="tp_animals_title">Share of each kind of meat <span class="tag res">result</span></h3>
 <span class="toggle" role="group" aria-label="Show as"><button type="button" id="tp_sv_bars" onclick="tpSetSellView('bars')">Bars</button><button type="button" id="tp_sv_disk" onclick="tpSetSellView('disk')">Disk</button></span></div>
 <p class="sub" id="tp_animals_sub"></p>
 <p class="say" id="tp_animals_total" aria-live="polite"></p>
@@ -2226,48 +2483,58 @@ It is a ceiling the market moves towards, not a figure for any year.</div>
 </div>
 
 <section id="wit" aria-labelledby="wit_h">
-<h3 id="wit_h">What it would take</h3>
+<h3 id="wit_h">The cost each share needs</h3>
 <p class="small">The cost of cells that a long-run share needs, and, among the {{WIT_SETS}} trait sets the model tried (for each trait the
 published value, the values of the reference points and one better still, in four plants), the set that gets there with the fewest
 traits beyond the best measured in meat cells, every estimate at its most likely value. Generated by the model; no odds.</p>
 <div class="scrollx" id="tp_wit"></div>
 </section>
 <p class="note">These are long-run ceilings, not a forecast of when. Nobody has run any of these processes at production scale, and no human
-expert has reviewed the model yet. It is not investment or business advice. <a href="#method">Method, sources and limits</a>.</p>
+expert has reviewed the model yet. It is not investment or business advice. <a href="#method">How the model works, its sources and its limits</a>.</p>
 </section>
 
 <ul class="levelnav" aria-label="The rest of this page">
-<li><span class="lv">Level 1</span><span><a href="#assumes">The reference points</a> <span class="ld">What each assumes, and the steps from the published cells to every favourable setting.</span></span></li>
-<li><span class="lv">Level 2</span><span><a href="#moves">What would move it most</a> <span class="ld">Traits, choices, unmeasured estimates and judgements about shoppers, ranked.</span></span></li>
-<li><span class="lv">Level 3</span><span><a href="#where">Where and when</a> <span class="ld">By type of meat, by region, and over time.</span></span></li>
-<li><span class="lv">Level 4</span><span><a href="#engineering">Check the engineering</a> <span class="ld">The switches, the cost breakdown, tanks, vessels and reported runs.</span></span></li>
-<li><span class="lv">Level 5</span><span><a href="#shoppers">Check the shopper model</a> <span class="ld">The shopper settings, share against price, and other products.</span></span></li>
-<li><span class="lv">Level 6</span><span><a href="#method">Method, sources, limits</a> <span class="ld">Equations, inputs, references and the questions a sceptic would ask.</span></span></li>
+<li><span><a href="#assumes">Published cost estimates, and the examples on this page</a> <span class="ld">Humbird's 2021 estimate and one company's report, line by line, and the cost after each step from the published cells to the all-favourable example.</span></span></li>
+<li><span><a href="#moves">Which settings change the cost and the share most</a> <span class="ld">Each setting moved on its own from where you are, largest effect first, with how solid the evidence for each is.</span></span></li>
+<li><span><a href="#where">Share by type of meat, by region and over time</a> <span class="ld">Which meats it would replace first, how the share differs between regions, and how many years it takes.</span></span></li>
+<li><span><a href="#engineering">How the tank and the plant set the cost</a> <span class="ld">The plant's {{N_SWITCHES}} settings one by one, other vessels and ways of running a tank, and the model beside reported runs and company figures.</span></span></li>
+<li><span><a href="#shoppers">How a shop price becomes a share: the shopper model</a> <span class="ld">How shoppers choose between conventional meat, plant-based meat, cultivated meat and beans, and the same model tried on other products.</span></span></li>
+<li><span><a href="#method">How the model works, its sources and its limits</a> <span class="ld">The steps of the calculation, what the model now counts, what it leaves out, the equations, every input and the references.</span></span></li>
 </ul>
 
 <details class="level" id="assumes">
-<summary><span class="lv">Level 1</span><h2>The reference points</h2>
-<span class="ls">Five fixed points to compare your cells with. They are not forecasts: each says what a set of cells and a plant would give.</span></summary>
+<summary><h2>Published cost estimates, and the examples on this page</h2>
+<span class="ls">Six fixed sets of cells and plant to compare your settings with. None is a forecast: each gives what that set of cells and plant would cost.</span></summary>
 <div class="lb">
 <div id="l1_refs"></div>
 <div class="chart">
-<h3 id="l1title">From the published cells to every setting at its favourable end, one step at a time</h3>
-<p class="sub">Each bar is the cost of a kilo of cells after one more step: the median of the draws, with a thin line for the range that
-holds 8 in 10 draws. The tag says what the step needs.</p>
+<h3 id="l1title">The cost after each step, from the published cells to the all-favourable example</h3>
+<p class="sub">Each bar is the cost of a kilo of cells after one more change. The bar is the median of the model's draws, and the thin
+line is the range that holds 8 in 10 of them. The tag says what the step changes.</p>
 <div class="hbars" id="l1chart" role="group" aria-labelledby="l1title" aria-describedby="l1alt"></div>
 <p class="alt" id="l1alt"></p>
 <details class="tv"><summary>Show the steps as a table</summary><div class="scrollx" id="l1table"></div></details>
 </div>
 <p class="small">{{TANK_NOTE}}</p>
 <p class="small"><b>What the reference points assume about the tank.</b> Published cells and the next two steps grow the cells in
-batches in an ordinary 20 m&sup3; tank (fed-batch), as pharma and Upside Foods do; a batch this thin needs no tank tricks. From
-the low-lactate example on, the tank is run in perfusion, which nobody has run with animal cells above about 4 m&sup3;. The
-low-lactate example uses {{TRICKS_CENTRAL_LIST}}: ${{TRICKS_CENTRAL_NO}} without them, and ${{TRICKS_CENTRAL_ORD}} in the ordinary tall tank. The
-all-favourable example uses {{TRICKS_BEST_LIST}}: ${{TRICKS_BEST_NO}} without them, and ${{TRICKS_BEST_ORD}} in the ordinary tall tank. These are costs with
-every estimate at its most likely value, calculated, not measured. The switches &ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; in
-<a href="#engineering">Check the engineering</a> take the tricks away.</p>
-<h3>Humbird's design and a company's own report, as the model's build computes them</h3>
-<p class="small">The same two reference points, from the Python model's own 4,000 draws (the page draws {{CLOUD_N}}), with the shopper settings drawn too.</p>
+batches in an ordinary 20 m&sup3; tank (fed-batch), as pharma and Upside Foods do. A culture this thin needs no tank tricks (ways to
+move more oxygen and CO&#8322; than bubbles alone can). From the low-lactate example on, the tank is run in perfusion, which nobody has
+run with animal cells above about 4 m&sup3;. The low-lactate example uses {{TRICKS_CENTRAL_LIST}}. Without them it costs
+${{TRICKS_CENTRAL_NO}} a kilo of cells instead of ${{COST_CENTRAL}}. The all-favourable example uses {{TRICKS_BEST_LIST}}. Without the
+column and the pressure it costs ${{TRICKS_BEST_NO}}, and in an ordinary tall tank with neither, ${{TRICKS_BEST_ORD}}, instead of
+${{COST_BEST}}. These are calculated costs with every estimate at its most likely value; none has been measured. The settings
+&ldquo;Tank tricks&rdquo; and &ldquo;Tank shape&rdquo; under <a href="#engineering">How the tank and the plant set the cost</a> take the
+tricks away.</p>
+<h3>Humbird's best estimate (2021), line by line</h3>
+<p class="small">The page starts from the lowest-cost design in Humbird's 2021 report: a fed-batch plant of 24 tanks of 20 m&sup3; with clean
+rooms, his enhanced cells, soy hydrolysate (his Table 4.7, second column). The table sets his figure beside what this model gives for the
+same design, first counting only what he counts (where the page starts), and then with the five things this model adds (the button
+under the starting points turns them on). Costs are for a kilo of cells. A line carries a sentence where the last two columns differ by
+more than 5%.</p>
+{{HUMBIRD_BACKTEST_HTML}}
+<h3>Two more reference points: Humbird's cells in a perfusion tank, and one company's report</h3>
+<p class="small">Computed when the page was built, from 4,000 draws of the model (the page itself draws {{CLOUD_N}}), with the shopper
+settings drawn too. Costs are in 2025 dollars.</p>
 {{OTHER_ESTIMATES_HTML}}
 <details class="sub"><summary>Words used on this page</summary>
 <p><b>Medium</b> is the nutrient liquid the cells grow in. <b>Waste</b> means the ammonia and lactate that cells give off as they grow. Waste
@@ -2278,22 +2545,22 @@ second. Bubbles and foam hurt cells, so the cells set how much gas can pass. A <
 empties the tank and takes days to restart. A <b>draw</b> is one run of the model with its uncertain estimates picked at random from their
 ranges. The <b>median</b> is the middle draw: half give less and half give more. A <b>most-likely-values figure</b> puts every estimate at
 its single most likely value instead. A <b>reference point</b> is a fixed set of cells and plant to compare with, not a
-forecast. The <b>cloud</b> on the map is the draws for your settings, one dot each. <b>Meat buyers who would pick it at the same price</b> is
+forecast. <b>Meat buyers who would pick it at the same price</b> is
 the share of people buying meat who would choose cultivated meat over the conventional kind if the two cost the same and it no longer felt
 new: 50% means no preference.</p></details>
 </div></details>
 
 <details class="level" id="moves">
-<summary><span class="lv">Level 2</span><h2>What would move it most</h2>
-<span class="ls">The cells' traits move the cost most. How many meat buyers would pick it at the same price moves the share as much as cost does.</span></summary>
+<summary><h2>Which settings change the cost and the share most</h2>
+<span class="ls">Each setting moved on its own from your settings. The cells' traits move the cost most. The share of meat buyers who would pick it at the same price moves the share as much as the cost does.</span></summary>
 <div class="lb">
 <p>Each row moves one thing and leaves the rest alone. The start is your settings with every estimate at its most likely value.
 Four kinds of thing can move: <span class="tag">a trait of the cells</span> is one of the four on the first screen;
-<span class="tag">a choice</span> is one of the switches, something a company decides or achieves;
+<span class="tag">a choice</span> is one of the plant's settings, something a company decides or achieves;
 <span class="tag">an estimate nobody has measured at scale</span> is a number the model had to take from pharma cells, from small cultures or from calculation;
 <span class="tag">a judgement about shoppers</span> cannot be measured before the product is on sale.</p>
 <div class="chart">
-<h3 id="l2title">One change at a time, largest first</h3>
+<h3 id="l2title">The cost and the share when one thing changes, largest effect first</h3>
 <p class="sub" id="l2sub"></p>
 <div class="hbars" id="l2chart" role="group" aria-labelledby="l2title"></div>
 <div class="callout" id="l2card" aria-live="polite"></div>
@@ -2305,77 +2572,79 @@ Four kinds of thing can move: <span class="tag">a trait of the cells</span> is o
 </div></details>
 
 <details class="level" id="where">
-<summary><span class="lv">Level 3</span><h2>Where and when</h2>
-<span class="ls">Steaks and fish fillets first. Chicken and pork stay dearer even in the all-favourable example.</span></summary>
+<summary><h2>Share by type of meat, by region and over time</h2>
+<span class="ls">Beef steaks and fish fillets are replaced first, because they are the dearest meats. Chicken and pork stay cheaper than cultivated meat even in the all-favourable example.</span></summary>
 <div class="lb">
 <p id="l3_intro"></p>
 <div class="chart">
-<h3 id="l3atitle">Share by type of meat, product by product</h3>
+<h3 id="l3atitle">Share of each type of meat</h3>
 <p class="small">The first screen gathers these by animal. Here each product stands alone: mince, cuts and premium cuts of each animal.</p>
 <p class="sub" id="l3asub"></p>
 <div class="hbars" id="l3types" role="group" aria-labelledby="l3atitle" aria-describedby="l3aalt"></div>
 <p class="alt" id="l3aalt"></p>
 <details class="tv"><summary>Show the types as a table</summary><div class="scrollx" id="l3atable"></div></details>
 </div>
-<h3>By region</h3>
+<h3>Share by region</h3>
 <p class="small" id="l3rsub"></p>
 <div class="scrollx" id="l3regions"></div>
 <div class="chart">
-<h3 id="l3ttitle">How fast: the path to the long-run share</h3>
+<h3 id="l3ttitle">Share year by year after it goes on sale</h3>
 <p class="sub" id="l3tsub"></p>
 <div class="plot" id="l3tplot"><svg id="l3time" role="img" aria-labelledby="l3ttitle" aria-describedby="l3talt"></svg><div class="tipbox" id="l3ttip"></div></div>
 <p class="alt" id="l3talt"></p>
 </div>
 <p class="small">The path uses the way other new products have spread (first a few early adopters, then word of mouth) and lets wariness of a
-new food fade as people meet it. The cost stays fixed along the path. The timing is rougher than the ceiling. The settings are under
-<a href="#shoppers">Check the shopper model</a>.</p>
+new food fade as people meet it. The cost stays fixed along the path. The timing is less certain than the long-run share. The settings are under
+<a href="#shoppers">How a shop price becomes a share</a>.</p>
 </div></details>
 
 <details class="level" id="engineering">
-<summary><span class="lv">Level 4</span><h2>Check the engineering</h2>
-<span class="ls">Ten switches set the cost. Change any of them and see what limits the tank and where the money goes.</span></summary>
+<summary><h2>How the tank and the plant set the cost</h2>
+<span class="ls">{{N_SWITCHES_CAP}} settings of the plant and the process. Change any of them to see what limits the tank and what each part of the cost comes to.</span></summary>
 <div class="lb">
-<p>The cost of a kilo of cells is the cost of the plant, the medium and the losses, divided by what a tank produces in a year. Ten switches
-hold the decisions that move it. Each reference point is a preset of these switches. Moving one makes the page your own settings, and the first screen follows.</p>
+<p>The cost of a kilo of cells is what the plant, the medium and the lost runs cost in a year, divided by the kilos of cells the tanks
+make in that year. The {{N_SWITCHES}} settings below hold the decisions that change it. Each reference point is one combination of them.
+Changing one turns the page to your own settings, and the first screen follows.</p>
 <div class="fxcard" id="sc_result"></div>
 <div class="railgrid scsw" id="sc_switches"></div>
 <p><button class="btn" onclick="scDesignNow()">Pick the cheapest tank design for these settings</button>
-<span class="fxn">This tries every tank trick and shape, and keeps the cheapest one that passes two checks on the column's loop: how often the
-culture passes through it, and how long it stays alkaline there.</span></p>
-<h3>Where the cost goes, line by line, against another reference point</h3>
-<p class="small">The first screen groups the same cost by what drives it. Here each accounting line is set beside another reference point.</p>
+<span class="fxn">This tries every combination of the tank tricks (a column beside the tank that strips CO&#8322; without bubbles, extra
+pressure, recycled oxygen) and the tank shapes, and keeps the cheapest that passes two checks on the column's loop: how many times an hour
+the culture passes through it, and how long it stays alkaline there.</span></p>
+<h3>The cost in six parts, beside another reference point</h3>
+<p class="small">The first screen groups the same cost by what drives it. Here it is split into six parts and set beside another reference point.</p>
 <div id="sc_parts" class="scrollx"></div>
 <p class="small" id="sc_parts_note"></p>
-<h3>Two switches together</h3>
-<p class="small">The cost for every pair of settings of two switches, with the others as set above. Click a figure to set both.
-<label>First switch <select id="sc_ga" onchange="scGridSet()" style="width:auto"></select></label>
-<label>second switch <select id="sc_gb" onchange="scGridSet()" style="width:auto"></select></label></p>
+<h3>The cost for every combination of two settings</h3>
+<p class="small">Pick two settings. The table gives the cost for every combination of their values, with the others as set above. Click a figure to set both.
+<label>First setting <select id="sc_ga" onchange="scGridSet()" style="width:auto"></select></label>
+<label>second setting <select id="sc_gb" onchange="scGridSet()" style="width:auto"></select></label></p>
 <div id="sc_grid" class="scrollx"></div>
-<h3>Which switches interact</h3>
-<p class="small">A pair appears here when moving one switch is worth a different amount once the other has moved.</p>
+<h3>Settings whose effects depend on each other</h3>
+<p class="small">A pair is listed when changing one setting saves a different amount once the other has changed.</p>
 <div id="sc_notes"></div>
-<div class="blk" id="cellsxtank"><h3>Cells against tank</h3>
+<div class="blk" id="cellsxtank"><h3>The cost for each kind of cell in each kind of tank</h3>
 {{GRID_HTML}}
 </div>
-<h3>Cost against the price of medium</h3>
+<h3>The cost as the medium gets cheaper</h3>
 <div class="chart"><p class="sub" data-help="The three solid lines are three plants running the process one company reports (SuperMeat, 2024): the plant of Humbird's optimistic design, the plant that company reports, and a pharma-style plant with cells at half the density. The dashed lines mark the costs of the page's cases at their most likely values, named at the right. Below the dotted line, cultivated meat costs the same in the shop as US minced beef or pork cuts ($12 a kilo) or less.">The cost of a kilo of cells as the medium gets
-cheaper, for three plants running the process one company reports. The dot is the case set by the switches above.</p>
+cheaper, for three plants running the process one company reports. The dot is the case set by the settings above.</p>
 <div class="scrollx"><svg id="cost" class="w720" viewBox="0 0 720 300" role="img" aria-label="Cost of a kilo of cells against the price of a litre of medium, for three plants, with the cases as dashed lines"></svg></div></div>
-<h3 id="vessels">Vessel types and operating modes</h3>
+<h3 id="vessels">The cost in each vessel and each way of running it</h3>
 {{VESSELS_HTML}}
-<h3>The cost model against reported runs</h3>
+<h3>The model beside reported runs</h3>
 <p class="small">Reported runs beside what the cost model gives for the same cells and vessel. Nobody tuned the model to these runs. (Humbird's
 two designs, which the model was tuned to, are left out.) An observed-to-model ratio far from 1 shows where the model is not reliable.</p>
 {{BACKTEST_HTML}}
-<h3>Against what companies report</h3>
+<h3>The model beside companies' own cost figures</h3>
 {{INDUSTRY_HTML}}
 <h3>What has and has not been measured</h3>
 {{MEASURED_HTML}}
-<details class="sub" id="fxwrap"><summary>All the levers: build your own case from the physics</summary>
+<details class="sub" id="fxwrap"><summary>Every cell and tank setting, and the limit each one hits</summary>
       <div class="fx" id="fx">
         <p>When you move a lever, the model applies the physics. The tank holds only as many cells as it can supply with oxygen, clear of
-        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The switches above are
-        some of these levers. The rest are here.</p>
+        CO&#8322;, mix and feed. The chart &ldquo;What limits this tank&rdquo; below shows which limit applies. The settings above are
+        some of these. The rest are here.</p>
         <div class="ctl"><label for="fx_sc"><span class="nm">Start from a reference point</span></label>
           <select id="fx_sc" onchange="fxFromScenario(this.value)"></select></div>
         <div class="ctl"><label for="fx_sp"><span class="nm">Start from a kind of cell</span></label>
@@ -2496,8 +2765,8 @@ two designs, which the model was tuned to, are left out.) An observed-to-model r
 </div></details>
 
 <details class="level" id="shoppers">
-<summary><span class="lv">Level 5</span><h2>Check the shopper model</h2>
-<span class="ls">How a price becomes a share: the settings, share against price, why the share is what it is, and other products.</span></summary>
+<summary><h2>How a shop price becomes a share: the shopper model</h2>
+<span class="ls">The shopper settings, the share at each price, what raises or lowers it, and the same model tried on other products.</span></summary>
 <div class="lb">
 <p>For each meal, a shopper picks conventional meat, plant-based meat, cultivated meat, or beans and other whole foods. Each option gets a
 score that adds up its price, its taste, its health image, whether it is real meat and whether an animal was killed. Tastes vary, so each
@@ -2505,11 +2774,11 @@ option's share rises smoothly with its score. Of every hundred shoppers, 95 are 
 The other 5 are vegetarian or vegan and care about slaughter. Shoppers also differ in how much they like cultivated meat. Most sit near
 the typical liking, and a few are far from it in either direction, so some never buy it at any price.</p>
 <h3>The shopper settings</h3>
-<p class="small">The cost comes from your cells and plant on the first screen (the median of the cloud). These settings are about shoppers and shops.</p>
+<p class="small">The cost of cells is the one your cells and plant give on the first screen, with every estimate at its most likely value. The settings here are about shoppers and shops.</p>
 <div id="rail"></div>
 <h3>From the cost of cells to the price in the shop</h3>
 <div class="calc" id="calc" aria-live="polite"></div>
-<h3>Share against price, and why</h3>
+<h3>Share against price, and what raises or lowers it</h3>
 <p class="small"><label for="curveSel">Type of meat for the two charts below</label> <select id="curveSel" style="width:auto"></select></p>
 <div class="chart"><p class="sub" data-help="The marked point on the cultivated line is cultivated meat at your settings' price. The marked point on the plant-based line is plant-based meat at its own price, 1.77 times meat. To compare the two at equal prices, read the cultivated line at that price.">How the four options' shares change as cultivated meat's price changes. The price is given as a
 multiple of the conventional product's price: 1 means the same price.</p>
@@ -2522,16 +2791,16 @@ the 5% of vegetarians and vegans are counted.</p>
 <b>real meat</b>, <b>health</b> and <b>no slaughter</b> are each a difference between the two products times the weight shoppers give it
 (w with a superscript in the equations); <b>novelty</b> is wariness of a new food (&nu;); <b>cut, premium</b> is how much less shoppers
 like a cultivated cut or premium product than cultivated mince (&tau;).</p></div>
-<h3>The spread when the shopper settings are uncertain</h3>
+<h3>The range of the share when the shopper settings are uncertain</h3>
 <div class="chart"><p class="sub" id="mcsub"></p>
 <div class="scrollx"><svg id="mc" class="w720" viewBox="0 0 720 250" role="img" aria-label="Histogram of the long-run share over 2,000 draws of the shopper settings, for cultivated meat by weight and by value and for plant-based meat"></svg></div></div>
-<h3>Other products, and which could go first</h3>
-<div class="chart"><h3>Does the same shopper model explain other products?</h3>
+<h3>Other products, and the products it could enter first</h3>
+<div class="chart"><h3>The same shopper model applied to other products</h3>
 <p class="sub" id="cmpsub" data-help="The model was not fitted to plant-based milk. It predicts about 15%, close to milk's market share. That is a weak test, because the milk facts are set by hand. Margarine and plant-based nuggets fit less well. The model was fitted to plant-based meat, so plant-based meat is not a test. Eggs test a different lever (animal welfare), and laws largely set their share.">The same shopper model, with only the product's facts changed.</p>
 <p class="small"><label for="cmpSel">Product</label> <select id="cmpSel" style="width:auto"></select></p>
 <div class="scrollx"><svg id="milk" class="w720" viewBox="0 0 720 320" role="img" aria-label="The model's share for another product beside its observed share"></svg></div></div>
-<div class="chart"><h3>Which products could it enter first?</h3>
-<p class="sub" data-help="The chart compares each product with the price of its everyday grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. The words beside each product say whether cultivated meat is already cheaper, about equal, cheaper only in the all-favourable example, or not even then. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat can already beat luxury products on price, but those markets are tiny. Commodity meat, where the volume is,
+<div class="chart"><h3>Products it could enter first</h3>
+<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. The words beside each product say whether cultivated meat is already cheaper, about equal, cheaper only in the all-favourable example, or not even then. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat can already beat luxury products on price, but those markets are tiny. Commodity meat, where the volume is,
 stays out of reach.</p>
 <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
 <p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
@@ -2540,14 +2809,58 @@ stays out of reach.</p>
 </div></details>
 
 <details class="level methods" id="method">
-<summary><span class="lv">Level 6</span><h2>Method, sources, limits</h2>
-<span class="ls">How the model works step by step, what it leaves out, the equations, every input and the references.</span></summary>
+<summary><h2>How the model works, its sources and its limits</h2>
+<span class="ls">The calculation step by step, what the model now counts, what it leaves out, the equations, every input and the references.</span></summary>
 <div class="lb">
 <p>Each step below has a one-line summary. Open it for the detail. The equations are in appendix A0. A number with a bracketed reference,
 like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are labelled. The model computes everything else.</p>
-<h3>Reality checks</h3>
-<p class="small">Numbers from the model at its central settings beside real ones. <b>Matches</b> means that the model was not fitted to that number.</p>
+<h3>The model's results beside measured figures</h3>
+<p class="small">Figures the model gives at its own settings, beside figures measured in the real world. A check marked <b>matches</b> is one the model was not fitted to.</p>
 <div class="selftest" id="selftest"></div>
+
+      <details class="step" id="counts"><summary><b>What the model counts.</b> The cost starts from Humbird's 2021 design, which the
+      model reproduces to within about 2%, and adds what he does not count. The share comes from a shopper model fitted to meat and
+      plant-based meat sales.</summary>
+      <ul>
+        <li><b>Humbird's design as the start.</b> Counting only what he counts, the model gives ${{HB_LIKE18}} a kilo of cells for his
+        best estimate, against his own ${{HB_HIS}} (2018 dollars), or ${{HB_START}} in 2025 dollars. It reproduces his other four designs
+        as well; the table is under <a href="#assumes">Published cost estimates, and the examples on this page</a>
+        (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/humbird_backtest.md">note</a>).</li>
+        <li><b>What it adds to his count.</b> Five things, each a lever that starts at zero on his design: thick cultures take up oxygen
+        more slowly, the cells need a least flow of fresh medium, bursting bubbles kill some cells, some cells are lost at harvest, and
+        the medium carries a bubble protectant. Together they bring his design to ${{HB_ADDS}} in 2025 dollars.</li>
+        <li><b>Thick cultures take up oxygen more slowly.</b> A dense culture is more viscous, and the rate at which bubbles pass oxygen
+        into it falls as the viscosity to the power {{KLA_EXP}} (Yagi and Yoshida, 1975). So a tank's oxygen limit falls faster than the
+        culture thickens (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/thick_culture.md">note</a>).</li>
+        <li><b>The plant, tank by tank.</b> The plant's cost is built from what each tank brings with it: the tank, its makeup tanks and
+        filter housings, and its share of the buildings, a rule fitted to Humbird's two plants. A larger tank, or another way of
+        running it, changes the plant with it
+        (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/tank_size.md">note</a>).</li>
+        <li><b>Maturation.</b> Days in the tank at no growth before harvest, which muscle or fat tissue would need. None by default,
+        because the products on sale or near it are bulk cell mass harvested as soon as it has grown.</li>
+        <li><b>Cleaning the medium.</b> Ways to take the waste out of used medium so it can be used again, and a leaner solution for the
+        litres that only wash waste out. Both are off until you set them, in section 3 of the first screen
+        (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/medium_reuse.md">note</a>).</li>
+        <li><b>Incomes in nominal dollars.</b> Each region's income is its GDP per head in current US dollars, the same units as its
+        meat prices (A2).</li>
+        <li><b>Plant-based meat by volume.</b> The shopper model is fitted to plant-based meat's share of meat by volume,
+        {{PB_TARGET}}%: 0.7% of US meat sales by value, at a price 77% above meat [14].</li>
+        <li><b>Conventional meat's price responds.</b> As cultivated meat takes a share of a region's meat, conventional meat's prices
+        fall, by the factor (1 &minus; share) to the power 1/(supply elasticity &minus; demand elasticity), with a supply elasticity of
+        {{MK_ES}} and a demand elasticity of {{MK_ED}}. The cheaper meat holds the share back, most where the share is large.</li>
+        <li><b>Markets closed by law.</b> By default the five US states with permanent bans ({{CLOSED_US}}% of the US population) buy
+        none. A setting adds the temporary US bans and Italy's and Hungary's laws and, for the world, the meat eaten where a religious
+        body has ruled against it, and then where religious authorities have set conditions that might not be met
+        (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/closed_markets.md">note</a>).</li>
+        <li><b>One all-favourable example.</b> Every lever at its most favourable value among this model's own favourable end,
+        Humbird's design and what ten published cost studies assume, unless the value breaks a physical limit: the cost of the
+        nutrients the cells are built from, the sugar they must burn, and the thickest culture that still flows. It costs
+        ${{COST_BEST}} a kilo of cells. One published estimate is lower, scenario 4 of Risner and colleagues (2021), and it breaks those
+        limits. The box &ldquo;Why published cost studies disagree&rdquo; on the first screen compares each study with Humbird's design
+        (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/study_comparison.md">note</a>).</li>
+        <li><b>What is still missing</b> is listed under &ldquo;What the model leaves out&rdquo; below.</li>
+      </ul>
+      </details>
 
       <details class="step" id="step1"><summary><b>Step 1 · From cost to price.</b> The cost of a kilo of cells is medium, plant and
       losses. The shop price adds the costs of reaching the shelf and the shop's margin. At the median cost that is {{R_CENTRAL}} times
@@ -2577,31 +2890,33 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         plant protein, plus ${{SCAF}}/kg to assemble it. No study has costed this for cultivated meat. The figures come from plant-protein
         extrusion, surimi and binder prices [6].</li>
       </ul>
-      <p><b>The cases.</b> How these parts come out depends on eleven decisions, the switches in
-      <a href="#engineering">Check the engineering</a>. A reference point is a preset of them. Every cost on this page is for one kilo of real
+      <p><b>The cases.</b> How these parts come out depends on {{N_SWITCHES}} decisions, the settings under
+      <a href="#engineering">How the tank and the plant set the cost</a>. A reference point is one combination of them. Every cost on this page is for one kilo of real
       cells, which are about 70% water and 20% protein, like meat, in 2025 prices. At the median of the draws a kilo costs
       ${{TODAY_COST_P50}} with the published cells (8 in 10 draws between ${{TODAY_COST_P10}} and ${{TODAY_COST_P90}}),
       ${{CENTRAL_COST_P50}} for the low-lactate example (${{CENTRAL_COST_P10}} to ${{CENTRAL_COST_P90}}) and ${{BEST_COST_P50}} for the all-favourable example
       (${{BEST_COST_P10}} to ${{BEST_COST_P90}}). With every estimate at its most likely value the figures are ${{COST_TODAY}},
       ${{COST_CENTRAL}} and ${{COST_BEST}}. The most-likely-values figure is below the median in every case, because most of the
-      estimates have more room to come in worse than better. Matching ${{PCONV}} meat in the shop needs ${{PARITY_BIOMASS}} a kilo
-      of cells.</p>
-      <p><b>What the draws vary.</b> Each case's switches stay fixed, but the estimates behind it can be off. These are the plant
+      estimates have more room to come in worse than better. To sell at the shop price of US minced beef or pork cuts (${{PCONV}} a
+      kilo), a kilo of cells must cost ${{PARITY_BIOMASS}}.</p>
+      <p><b>What the draws vary.</b> Each case's settings stay fixed, but the estimates behind it can be off. These are the plant
       estimate, the yearly charge on it, the life and price of the filter membranes, the share of a cell's oxygen that goes to upkeep,
       the medium price, the loss rate, the ammonia the cells tolerate and (for the published cells and the low-lactate example) make, the least
       medium flow, the bubble protectant and antifoam. Each draw picks all of them from their ranges. When the shopper settings vary
       as well (price sensitivity, the share at equal price, taste, the costs of reaching the shelf and a cut's make-up), the long-run
       share of world meat and seafood is {{CENTRAL_SHARE_P50}}% in the low-lactate example at the median (8 in 10 draws between
       {{CENTRAL_SHARE_P10}}% and {{CENTRAL_SHARE_P90}}%) and {{BEST_SHARE_P50}}% in the all-favourable example ({{BEST_SHARE_P10}}% to
-      {{BEST_SHARE_P90}}%). {{TODAY_SHARE_SENTENCE}} The draws do not vary the switches themselves.
-      <a href="#moves">What would move it most</a> shows what each is worth.</p>
+      {{BEST_SHARE_P90}}%). {{TODAY_SHARE_SENTENCE}} The draws do not change the settings themselves.
+      <a href="#moves">Which settings change the cost and the share most</a> shows what each is worth.</p>
       <p><b>Financing.</b> Humbird charges {{HUMBIRD_CHARGE_PCT}}% of a plant's cost a year. This covers money at 7.5% repaid in
       10 years, plus maintenance and insurance. That fits a first plant. His own report gives the food industry's
       cost of capital as 5.4% and uses a 20-year life for a yeast plant. Those figures make the yearly charge
       {{MATURE_CHARGE_PCT}}% [2]. The cases are long-run cases set against meat, a mature industry, so they use the
       lower rate, and the draws vary it. The table below gives every row at both rates.</p>
-      <p><b>Other estimates.</b> <b>Humbird's optimistic design</b> is his perfusion tank with his enhanced cells, no tank tricks
-      and no lost runs. Earlier versions of this page called it the floor. The plant costs about ${{PLANT_FLOOR}}/kg and the cells
+      <p><b>Other estimates.</b> <b>Humbird's optimistic design</b> is this model's variation on his cells, not a figure from his
+      report: his enhanced cells in a 20 m&sup3; perfusion tank in a food-grade plant, with no tank tricks
+      and no lost runs. His own best estimate, a fed-batch plant with clean rooms, is the page's start and is compared line by line
+      under <a href="#assumes">Published cost estimates, and the examples on this page</a>. The plant costs about ${{PLANT_FLOOR}}/kg and the cells
       ${{COST_FLOOR}}/kg at its most likely values. It assumes his enhanced cells and none of the tank tricks, so it is
       not a step between the reference points. The page keeps it because the cross-checks against Humbird's own analysis use it. At the
       first-plant rate it would cost about ${{COST_FLOOR_FIRST}}/kg. <b>As a company reports.</b> SuperMeat reports {{MEDIA_L}} litres
@@ -2621,8 +2936,8 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       the cost of a kilo of cells and, in brackets, the shop price against US minced beef or pork cuts at ${{PCONV}} a kilo after ${{MARKUP}}/kg to the shelf and
       the shop's {{MARGIN_PCT}}% margin. The first of them finances the plant as a first plant ({{HUMBIRD_CHARGE_PCT}}% of its cost a
       year), and the second as a mature food industry ({{MATURE_CHARGE_PCT}}%).</p>
-      <div class="scrollx"><table class="pt"><tr><th>case</th><th>what it means</th><th>has anyone done it?</th>
-        <th>cells, $/kg (vs meat), first-plant financing</th><th>the same with food-industry financing</th></tr>
+      <div class="scrollx"><table class="pt"><tr><th rowspan="2">case</th><th rowspan="2">what it means</th><th rowspan="2">has anyone done it?</th>
+        <th colspan="2">a kilo of cells, $ (times US minced beef or pork cuts in the shop)</th></tr><tr><th>first plant</th><th>mature industry</th></tr>
         {{COST_CASES_ROWS}}
       </table></div>
       <p><b>Reading the table.</b> The cells and the class of plant matter far more than how the tank is run. The rows
@@ -2633,9 +2948,10 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </details>
 
       <details class="step" id="step2"><summary><b>Step 2 · From price to choice.</b> Shoppers choose among four options.
-      They weigh price, taste, health, &ldquo;is it real meat?&rdquo; and &ldquo;no slaughter&rdquo;. The share who choose cultivated
-      meat at equal price, once it is familiar, is a setting: {{PARITY_NEUTRAL}}% for Published cells and the low-lactate example,
-      {{BEST_EQS}}% for the all-favourable example.</summary>
+      They weigh price, taste, health, &ldquo;is it real meat?&rdquo; and &ldquo;no slaughter&rdquo;. The share of meals in which
+      shoppers choose cultivated meat at equal price, once it is familiar, is a setting: {{PARITY_NEUTRAL}}% for Published cells and the
+      low-lactate example, {{BEST_EQS}}% for the all-favourable example. Counted among the meals that contain meat only, these are
+      {{BUYERS_CENTRAL}}% and {{BUYERS_BEST}}%: the figure the first screen calls meat buyers who would pick it at the same price.</summary>
       <p>This is a standard discrete-choice model [12]. For each meal, a shopper picks conventional meat, plant-based meat,
       cultivated meat, or beans and other whole foods. The shares therefore include the bean meals. Each option gets a score
       that adds up its price, taste, health, whether it is real meat and whether an animal was killed. Tastes vary,
@@ -2674,10 +2990,10 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </table></div>
       <p><b>Tied to data.</b> Price sensitivity follows grocery data for meat (1% dearer, 0.9% fewer purchases [4]).
       It is steeper for cultivated meat because an almost identical product is next to it (A1). Three weights are solved
-      so that the model reproduces plant-based meat's ~1.2% share and ~89% mainstream buyers [14], plus an assumed ~6%
+      so that the model reproduces plant-based meat's share ({{PB_TARGET}}% of meat by volume) and ~89% mainstream buyers [14], plus an assumed ~6%
       of mainstream meals that skip meat (A4). Taste sets the scale for the rest. As a check, the same model with
       only the product's facts changed to plant-based milk's predicts about 15%, close to milk's share (see the chart of other
-      products in <a href="#shoppers">Check the shopper model</a>). This is a weak test, because the milk facts are set by hand.
+      products in <a href="#shoppers">How a shop price becomes a share</a>). This is a weak test, because the milk facts are set by hand.
       <b>A harder test.</b> Six premium animal products (organic milk, cage-free, organic and omega-3 eggs, organic chicken and organic
       meat) take 2–7% of sales at 1.5 to 2.2 times the conventional price. Each is the ordinary product plus a virtue, which is what
       cultivated meat above equal price would be. With cultivated meat 8.5 times as price-sensitive as meat in general (the model's
@@ -2706,7 +3022,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       {{PREMIUM_EXTRA}} points, at {{PREMIUM_FULL}} times (wagyu, sushi-grade fish). Its size is a judgement, scaled by one setting
       that the draws take from 0.5 to 1.5. Every product has the same price sensitivity. The charts label a cut
       &ldquo;premium&rdquo; from {{PREMIUM_RATIO}} times its species' cheapest form. The label changes no number.</p>
-      <p><b>What comes out</b> (the chart of share by type of meat in <a href="#where">Where and when</a>):</p>
+      <p><b>What comes out</b> (the chart of share by type of meat in <a href="#where">Share by type of meat, by region and over time</a>):</p>
       <ul>
         <li><b>Beef and seafood</b> are where cultivated meat can compete. Chicken and pork stay dearer even in
         the all-favourable example.</li>
@@ -2718,20 +3034,23 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       {{CENTRAL_EU_P50}}%, against {{CENTRAL_US_P50}}% in the United States and {{CENTRAL_CHINA_P50}}% in China. Cheap chicken and pork
       lower the figures for China and for the world. Low-income regions are hardest, because meat is cheap and shoppers are
       price-sensitive (A2). The prices and mixes for low-income regions are rough (A7).</p>
+      <p><b>Markets closed by law, and conventional meat's price.</b> Every share is of the region's whole market, and the parts closed
+      by law buy none (see &ldquo;What the model counts&rdquo;). As cultivated meat takes sales, conventional meat gets cheaper, which
+      holds the share back. At the low-lactate example's share the effect is too small to see; it matters only when the share is large.</p>
       </details>
 
       <details class="step" id="step4"><summary><b>Step 4 · Over time.</b> The share starts near zero. It rises as the product
-      spreads and stops feeling new. One product sold at the price of meat gets nine tenths of the way in about {{STAB_YEAR}} years.</summary>
+      spreads and stops feeling new. One product sold at the price of the conventional meat it copies gets nine tenths of the way in about {{STAB_YEAR}} years.</summary>
       <ul>
         <li><b>Rollout.</b> Availability spreads like it does for other new products, first among early adopters and then by word of mouth
         (Bass diffusion [11], with standard rates from durable goods).</li>
         <li><b>Familiarity.</b> In a US choice experiment, only ~5% chose lab-grown meat at the same price as beef [8].
         The model starts about there ({{COLD_PARITY}}% at equal price) and lets the wariness fade with exposure.</li>
       </ul>
-      <p class="example"><b>Worked example</b> (a US shopper, one everyday product held at the price of meat). The share starts
+      <p class="example"><b>Worked example</b> (a US shopper, and one cultivated product always sold at the price of the conventional meat it copies). The share starts
       from nothing at launch. It is {{Y10_SHARE}}% after 10 years and {{Y30_SHARE}}% after 30. The long-run ceiling is
       {{PARITY_NEUTRAL}}%. The path reaches nine tenths of it in year {{STAB_YEAR}}. The chart in
-      <a href="#where">Where and when</a> draws the same path for your settings' whole market, and prints its own year.</p>
+      <a href="#where">Share by type of meat, by region and over time</a> draws the same path for your settings' whole market, and prints its own year.</p>
       <p><b>For timing, the biggest unknown</b> is how wary people are at the start. Surveys range from ~5% (a cold choice
       experiment) to ~60% (&ldquo;cultivated chicken in a restaurant&rdquo;) [10]. The &ldquo;starting wariness&rdquo; setting
       runs from {{NX0_MIN}}% at &minus;3.5 to {{NX0_WARM}}% at +1.5, with {{NX0_NEUTRAL}}% at 0 (each at equal price). The warmest
@@ -2743,7 +3062,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       but those markets are tiny. Commodity meat is out of reach, even in the all-favourable example.</summary>
       <p>A luxury price is mostly not cost. A5 wagyu or caviar is dear because of breed, origin and scarcity
       (<i>economic rent</i>). Cultivated meat can copy the meat but not the pedigree. So the model compares its cost with
-      the product's <b>everyday grade</b> (farmed salmon, crossbred wagyu). A <b>prestige core</b> of buyers never
+      the product's <b>ordinary grade</b> (farmed salmon, crossbred wagyu). A <b>prestige core</b> of buyers never
       switches. The setting is 25%, a proxy taken from the only two published splits (wild salmon and bellota ibérico).</p>
       <p>Cultivated meat is already cheaper than foie gras, bluefin tuna, sea urchin and wagyu, and lobster is close. Each of these markets is only thousands to
       hundreds of thousands of tonnes a year. Commodity beef, pork and chicken are tens of millions of tonnes each, and
@@ -2763,19 +3082,27 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         shown at pilot scale with a full mass balance, perfusion with a scalable way to hold cells back at 20,000
         litres, independently confirmed medium below $0.30/L at scale, or a meat tax.</li>
         <li><b>Down:</b> cells that reach only half the density in a pharma-style plant (the table in Step 1 gives that cost), or
-        more runs lost to contamination than the reference points assume. The &ldquo;Runs lost&rdquo; switch covers 0.2% to 2% of runs a day.</li>
+        more runs lost to contamination than the reference points assume. The &ldquo;Runs lost&rdquo; setting covers a chance of 0.2% to 2% a day.</li>
         <li><b>Shoppers:</b> the share at equal price is a judgement. The draws take it from about {{EQS_P05}}% to {{EQS_P95}}% around
         the {{PARITY_NEUTRAL}}% setting, and the all-favourable example sets it at {{BEST_EQS}}%. Taste and the value of &ldquo;no slaughter&rdquo;
         move it between {{AX_06}}% and {{TH_10}}% around that setting. Nobody can measure these before launch, so they stay settings.</li>
       </ul>
       </details>
 
-      <details class="step" id="limits"><summary><b>What the model leaves out.</b> The model leaves out supply and competition, a full spread
-      of tastes, niche entry routes, and eggs and dairy.</summary>
+      <details class="step" id="limits"><summary><b>What the model leaves out.</b> Competition between makers, how fast plants can be
+      built, repeat buying, a full spread of tastes, niche entry routes, and eggs and dairy.</summary>
       <ul>
         <li><b>Calibrated, not estimated.</b> No purchase data exist yet, so the shopper side is a set of stated judgements, not a
         forecast.</li>
-        <li><b>Prices are given.</b> The model has no supply response, competition or capacity limits.</li>
+        <li><b>Prices are given, with one response.</b> Conventional meat's price falls as it loses sales (Step 3). The model has no
+        competition between makers of cultivated meat and no limit on how fast plants can be built.</li>
+        <li><b>First purchase only.</b> Shoppers who try it are not followed: there is no repeat buying or dropping out, which plant-based
+        meat shows (its US household reach fell from 20% to 11%).</li>
+        <li><b>One price sensitivity for every shopper.</b> Studies find it differs four to tenfold between groups.</li>
+        <li><b>Still open.</b> The least medium flow, a rule from pharma perfusion, also caps a fed-batch tank that is never washed
+        out. Plant-based meat responds to its price about twice as strongly in the model as in sales data. Each region outside the
+        world table has a single seafood row. The full open list is in
+        <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/TODO.md">TODO.md</a>.</li>
         <li><b>Two kinds of shopper</b>, with a spread of liking for cultivated meat among them, and one price sensitivity.
         Convenience enters only through the rollout.</li>
         <li><b>Timing is rougher than the ceilings.</b> It uses a durable-goods Bass curve plus a familiarity fade, and the two may
@@ -2865,10 +3192,12 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
 
       <h5>A2. Income</h5>
       <p>The income part of the price score, \(\alpha\ln(y_{\rm eff}-p_j)\), has the Berry–Levinsohn–Pakes form [12].
-      The same premium is a bigger bite of a smaller income, so poorer shoppers are more sensitive to price. Taken
-      literally, this makes poor shoppers about six times as price-sensitive as rich ones, which is too steep for
-      food. So the model damps income, \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi=0.5\) matching the
-      roughly twofold gap in the data [15]. (\(\phi=0\) removes income. US results do not depend on \(\phi\).) For
+      The same premium is a bigger bite of a smaller income, so poorer shoppers are more sensitive to price. Income is GDP per head in
+      nominal US dollars (World Bank, 2024), because the meat prices it is set against are nominal dollars too. Taken literally, the
+      form makes poor shoppers far more price-sensitive than food data show. So the model damps income,
+      \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi={{PHI}}\), chosen so that a shopper in Nigeria is about
+      2.2 times as price-sensitive as one in the US at equal price, the gap in the data [15]. (\(\phi=0\) removes income. US results
+      do not depend on \(\phi\).) For
       the same product at one and a half times the price of meat, this gives {{SHARE_15_US}}% in the US, {{SHARE_15_CHINA}}% in
       China and {{SHARE_15_NIGERIA}}% in Nigeria. Wealth relaxes price sensitivity but does not erase the other differences. Even a very rich shopper
       buys cultivated meat only {{INCOME_CAP}}% of the time at that price.</p>
@@ -2887,7 +3216,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       share (5% [7]). <b>Solved:</b> the mainstream real-meat weight and the two health weights, so that the model
       reproduces (i) the ~89% of plant-based buyers who are mainstream [14], (ii) ~6% of mainstream meals skipping meat
       by choice, and (iii) the ethical shoppers' small plant-based share. Together these give plant-based meat its
-      observed ~1.2%. Moving the ethical share, \(\lambda\), \(\kappa\) or income re-solves them live, so plant-based
+      observed share, {{PB_TARGET}}% of meat by volume. Moving the ethical share, \(\lambda\), \(\kappa\) or income re-solves them live, so plant-based
       stays anchored.</p>
       <p>Only differences between scores matter in this kind of model, so one weight has to set the scale. Taste sets it
       (\(w^t = 5\)). This is anchored to willingness-to-pay studies that rank taste first (taste about twice health and three
@@ -2967,7 +3296,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       <p><b>Isn't {{PARITY_NEUTRAL}}% at equal price just assumed?</b> Yes. It is a judgement, and the model says so. Until
       November 2026 two real meats at the same price split the market about evenly, which no survey supports. The share is now a
       setting with a wide range ({{EQS_P05}}% to {{EQS_P95}}% in the draws), the first screen's chart shows the answer across that range,
-      and <a href="#moves">What would move it most</a> ranks it against the cost.</p>
+      and <a href="#moves">Which settings change the cost and the share most</a> ranks it against the cost.</p>
       <p><b>Why not a nested logit?</b> The shared real-meat attribute and the two kinds of shopper already make
       cultivated take its share almost entirely from conventional meat, which is what a nest would do, with fewer
       unobservable parameters.</p>
@@ -2977,7 +3306,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       <p><b>Isn't the premium penalty just novelty again?</b> No. Novelty is the same for every product and fades.
       Wanting the genuine article depends on how premium the product is, and is permanent (A5).</p>
       <p><b>The experiment behind the ~5% also had plant-based at 23% at equal price. Why doesn't the model?</b>
-      The model is fitted to what plant-based meat actually sells (~1.2%). It predicts about {{PB_PARITY}}% for plant-based meat
+      The model is fitted to what plant-based meat actually sells ({{PB_TARGET}}% of meat by volume). It predicts about {{PB_PARITY}}% for plant-based meat
       among mainstream shoppers at equal price and taste. Hypothetical choice experiments tend to overstate adoption of new products. The model uses that
       experiment only for cultivated meat's starting wariness and price sensitivity.</p>
       <p><b>Why no habit term?</b> Habit cannot be separated from preference without panel data (Heckman [13]). In
@@ -3054,13 +3383,13 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         <a href="https://doi.org/10.1287/mksc.12.4.378" target="_blank" rel="noopener">doi:10.1287/mksc.12.4.378</a>.
         <b>Habit vs preference:</b> Heckman, J.,
         <a href="https://www.nber.org/system/files/chapters/c8909/c8909.pdf" target="_blank" rel="noopener">Heterogeneity and state dependence</a>, NBER (1981).</li>
-        <li id="ref14"><b>[14]</b> <b>Plant-based share ~1.2%, ~89% mainstream buyers, +77% price premium:</b>
+        <li id="ref14"><b>[14]</b> <b>Plant-based meat 0.7% of US meat sales by value in 2025, so about 0.4% by volume at its 77% price premium; ~89% mainstream buyers:</b>
         <a href="https://gfi.org/marketresearch/" target="_blank" rel="noopener">GFI market research</a>
         (GFI/SPINS, GFI&ndash;Morning Consult, GFI/NIQ, 2024).
         <b>Displacement at parity:</b> Peacock, J.,
         <a href="https://forum.effectivealtruism.org/posts/iukeBPYNhKcddfFki/price-taste-and-convenience-competitive-plant-based-meat" target="_blank" rel="noopener">Price, taste &amp; convenience</a> (2023).</li>
         <li id="ref15"><b>[15]</b> <b>Income by region and its effect on food price sensitivity:</b>
-        <a href="https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD" target="_blank" rel="noopener">World Bank (2023&ndash;24)</a>;
+        <a href="https://data.worldbank.org/indicator/NY.GDP.PCAP.CD" target="_blank" rel="noopener">World Bank, GDP per head in current US dollars (2024)</a>;
         Muhammad <i>et al.</i>,
         <a href="https://www.ers.usda.gov/publications/pub-details?pubid=47581" target="_blank" rel="noopener">International evidence on food consumption patterns</a>,
         USDA ERS TB-1929 (2011). <b>Bean prices:</b>
@@ -3343,7 +3672,20 @@ function deriveBeta(K){
   return solveCalibration(K);                  // final calibration at the converged beta
 }
 /* effective constants from the current sliders, then derive beta + run the calibration solve. */
+// effConsts re-solves the calibration (about 70 ms in a browser) and its result depends only on the inputs read below. Keep the
+// last few results by those inputs, so a redraw that moved none of them gets the same object back: the same numbers, and the
+// caches keyed on KP (TP_LM, TP_CF, MC_MEMO) stay warm.
+const EC_KEYS=["cult_sub_mult","loss_aversion","w_ratio","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
+   "w_taste","w_slaughter_E","w_realtissue_E","w_realtissue_M","w_health_M","w_health_E","w_realtissue_M_ovr","w_health_M_ovr","w_health_E_ovr",
+   "liking_sd","equal_price_share"], EC_MEMO=new Map();
 function effConsts(s){
+  const key=JSON.stringify(EC_KEYS.map(k=>(k in s)?s[k]:"(unset)"));
+  if(EC_MEMO.has(key)) return EC_MEMO.get(key);
+  const K=effConstsSolve(s);
+  if(EC_MEMO.size>=24) EC_MEMO.delete(EC_MEMO.keys().next().value);
+  EC_MEMO.set(key,K); return K;
+}
+function effConstsSolve(s){
   const K=Object.assign({},C);
   ["cult_sub_mult","loss_aversion","w_ratio","w_eth","eps_own","real_tissue_x","real_tissue_p","health_x","health_p","income_gradient",
    "w_taste","w_slaughter_E","w_realtissue_E"].forEach(k=>{if(k in s)K[k]=s[k];});
@@ -3409,21 +3751,36 @@ function tierOffset(structured,ramp,r,cells,K){
   if(!structured) return 0;
   r=(r===undefined?1:r);
   return -(1-cells)*K.w_realtissue_M + r*_auth("auth_premium_extra",C.AUTH_PREMIUM_EXTRA)*ramp;}
+// the share of the region's market closed by law (mirror of meat_market.closed_share; a share set by the reader holds for the region
+// on show) and the exponent of conventional meat's price fall (mirror of meat_market.conv_exponent)
+function closedShare(s){ if(s.closed_custom!==undefined&&s.closed_custom!==null&&s.region===state.region) return s.closed_custom;
+  const lv=s.closed_level===undefined?C.closed_level:s.closed_level, t=C.closed[s.region]; return t?t[lv]:0; }
+function convExp(s){ const es=s.mk_supply===undefined?C.mk_supply:s.mk_supply; return (es===null||!isFinite(es))?0:1/(es-C.mk_demand); }
+// conventional meat's prices fall as cultivated meat takes sales, solved with the share (mirror of meat_market._rollup's fixed
+// point); the closed share of the market takes its part off cultivated meat's volume and value shares
 function penetration(s){
-  const K=KP||effConsts(s);                                         // current calibrated constants
-  const market=MODEL.markets[s.region], b=biomass(s), bases=speciesBases(market);
+  const K=KP||effConsts(s), market=MODEL.markets[s.region], b=biomass(s), cl=closedShare(s), k=convExp(s);
+  let f=1, out=penOnce(s,K,market,b,1);
+  if(k!==0){ let f0=1, h0=1-Math.pow(1-out.tv*(1-cl),k); f=f0-h0;      // the secant method from f = 1 (mirror of meat_market._rollup)
+    for(let it=0;it<30;it++){ out=penOnce(s,K,market,b,f); const h=f-Math.pow(1-out.tv*(1-cl),k);
+      if(Math.abs(h)<1e-8) break; const d=h-h0, step=Math.abs(d)>1e-14?h*(f-f0)/d:h; f0=f; h0=h; f=f-step; } }
+  out.tv*=(1-cl); out.tval*=(1-cl); out.conv_f=f; out.closed=cl; out.rows.forEach(r=>{ r.sh*=(1-cl); });
+  return out;
+}
+function penOnce(s,K,market0,b,f){
+  const market=f===1?market0:market0.map(mt=>Object.assign({},mt,{p_conv:mt.p_conv*f})), bases=speciesBases(market);
   const r=(s.premium_resistance===undefined?1:s.premium_resistance);
-  let Wval=0, Wvol=0; market.forEach(mt=>{Wval+=mt.p_conv*mt.w_vol; Wvol+=mt.w_vol;});   // Wvol: listed weights sum to 1.00-1.025
+  let Wval=0, Wvol=0; market0.forEach(mt=>{Wval+=mt.p_conv*mt.w_vol; Wvol+=mt.w_vol;});   // Wvol: listed weights sum to 1.00-1.025
   const rows=market.map(mt=>{
     const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
     const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv,lmean:s.lmean};   // lmean: the page's first screen sets the liking directly (undefined: the calibration's)
     const sh=shareCalc(R,K,Object.assign({},o,{which:"x_meat"}));  // cultivated share of the meat of this type sold, x/(x+c)
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
-    return {mt,R,sh,shp,t};
+    return {mt:market0[market.indexOf(mt)],R,sh,shp,t};     // the kind of meat at its own price (the fall is in R)
   });
   let tv=0,tval=0,tvp=0,tvalp=0;                                     // cultivated AND plant-based roll-ups
-  rows.forEach(r=>{tv+=r.mt.w_vol/Wvol*r.sh; tval+=(r.mt.p_conv*r.mt.w_vol/Wval)*r.sh;
-                   tvp+=r.mt.w_vol/Wvol*r.shp; tvalp+=(r.mt.p_conv*r.mt.w_vol/Wval)*r.shp;});
+  rows.forEach(r=>{const pv=r.mt.p_conv; tv+=r.mt.w_vol/Wvol*r.sh; tval+=(pv*r.mt.w_vol/Wval)*r.sh;
+                   tvp+=r.mt.w_vol/Wvol*r.shp; tvalp+=(pv*r.mt.w_vol/Wval)*r.shp;});
   return {rows,tv,tval,tvp,tvalp};
 }
 /* ---- TIMING RUNG: Bass rollout x food-neophobia fading (mirror of adoption_timing._run) ----
@@ -3478,7 +3835,7 @@ function trajectoryMC(s,N,which){
          nbL:triang.apply(null,P.neophobia_p), nb0:triang.apply(null,P.neophobia_p0),
          rate:triang.apply(null,P.accept_rate), p:triang.apply(null,P.p_innov), q:triang.apply(null,P.q_imit),
          hp:triang.apply(null,P.health_p), income:s.income, which:"pb"}
-      : (dr=>({R:s._Rtiming, ax:dr.accept_x, tfM:s.theta_free_M, nbL:s.neophobia_x, nb0:dr.neophobia_x0,
+      : (dr=>({R:s._Rtiming, ax:s.accept_x, tfM:s.theta_free_M, nbL:s.neophobia_x, nb0:dr.neophobia_x0,
                rate:dr.accept_rate, p:dr.p_innov, q:dr.q_imit, hx:s.health_x, income:s.income, eqs:dr.equal_price_share,
                which:"x"}))(mcDraw(C.mc_timing_inputs));   // C.mc_timing_inputs = inputs.MC_TIMING_INPUTS
     const tr=bassTrajectory(o); const sh=tr.share.map(x=>x*100);
@@ -3968,7 +4325,7 @@ function drawFootWaterline(s,svg){
       el("line",{x1:x,y1:yp,x2:x,y2:y,stroke:"#CCC","stroke-width":1,"stroke-dasharray":"1 3"},svg);
       tip(el("circle",{cx:x,cy:yp,r:3,fill:"#CCC"},svg),
         p.label+"\nThe headline price is $"+p.p_conv+" a kilo, the luxury grade."
-        +"\nCultivated meat competes $"+rent+" a kilo lower, at $"+p.p_base+" (the everyday grade)."
+        +"\nCultivated meat competes $"+rent+" a kilo lower, at $"+p.p_base+" (the ordinary grade)."
         +"\nThe gap is paid for the brand and the scarcity. Cultivated meat cannot capture it, because it is not the original.");
       if(p.label===selLabel) tx(svg,x+5,(yp+y)/2+3,"rent $"+rent,{"font-size":8,fill:"#999","font-style":"italic"});}
     // the vertical bar is the cost→accessible-price gap (reachability headroom): solid up when reachable, dotted-grey deficit
@@ -4074,7 +4431,7 @@ function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) 
     if(p.label===selLabel){el("circle",{cx:x,cy:y,r:r+6,fill:"none",stroke:"#CC3311","stroke-width":1.8},svg);
       tx(svg,x,y-r-6,selLabel.replace("cultivated ",""),{"font-size":8.5,"text-anchor":"middle",fill:"#CC3311","font-weight":700});}
   });
-  tx(svg,(mL+W-mR)/2,H-3,"Cultivated meat's price as a multiple of the product's everyday grade (log scale). Hover over a bubble for its name.",
+  tx(svg,(mL+W-mR)/2,H-3,"Cultivated meat's price as a multiple of the product's ordinary grade (log scale). Hover over a bubble for its name.",
     {"font-size":8.5,"text-anchor":"middle",fill:"#666"});
   tx(svg,15,(mT+H-mB)/2,"share of the reachable market, %",{"font-size":8.5,"text-anchor":"middle",fill:"#666",transform:"rotate(-90 15 "+((mT+H-mB)/2)+")"});
   footSizeKey(svg,W-mR+18,W-mR+40,mT+22);   // quantified volume legend (top-right)
@@ -4086,7 +4443,7 @@ function footCaption(s){
   const disp=footDisplace(s,pd), dispTxt=disp>=1000?(disp/1000).toFixed(1)+" Mt/yr":disp.toFixed(0)+" kt/yr";
   // one line of key numbers; the price basis and notes live in the bubble's hover card (footTip)
   document.getElementById("footcap").innerHTML=
-    "<b>"+pd.label.replace("cultivated ","")+"</b>: cultivated meat costs "+R.toFixed(2)+" times its everyday grade ("+zone+"). It takes about "+pgPctS(100*footShare(s,pd))+
+    "<b>"+pd.label.replace("cultivated ","")+"</b>: cultivated meat costs "+R.toFixed(2)+" times its ordinary grade ("+zone+"). It takes about "+pgPctS(100*footShare(s,pd))+
     " of the reachable market and displaces about "+dispTxt.replace("/yr"," a year")+(pd.launched_by?". Led by "+pd.launched_by:"")+
     ". Hover over a bubble for the price basis. The share stays below 100% even when cultivated meat is far cheaper: once the price is low next to income, taste and the other attributes decide the rest.";
 }
@@ -4127,14 +4484,14 @@ function mcCutSettings(s,dr){return Object.assign({},s,{cut_cells:1-dr.scaffold_
 // cultivated's shareCalc options for one draw of C.mc_inputs, for meat type mt (premium ramp `ramp`); `s` carries the
 // draw's cut (mcCutSettings). Same options as penetration()'s point estimate, including pRef = this cut's own price (the
 // income log needs the dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
-function mcShareOpts(dr,mt,ramp,s){return {ax:dr.accept_x,tfM:s.theta_free_M,
+function mcShareOpts(dr,mt,ramp,s){return {ax:s.accept_x,tfM:s.theta_free_M,
   toff:tierOffset(mt.structured,ramp,dr.premium_resistance,s.cut_cells,KP),
   eps:dr.eps_own, kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
   income:s.income,pricePb:s.R_p,aP:s.a_p,
   nbx:s.neophobia_x,nbp:s.neophobia_p,hx:s.health_x,pRef:mt.p_conv,eqs:dr.equal_price_share};}   // novelty, no-slaughter, health: the slider values (not drawn)
 function monteCarlo(s,N){
   // bands TOTAL penetration for BOTH novel meats on equal footing: cultivated (samples C.mc_inputs:
-  // cost, acceptance, elasticity, the share at equal price, premium resistance, a cut's make-up) and plant-based (also
+  // cost, elasticity, the share at equal price, premium resistance, a cut's make-up; taste is the reader's slider value) and plant-based (also
   // its own a_p, ν_p, health_p; PB has no cost stack, its price is the R_p slider). Returns vol/val
   // for cultivated and pvol/pval for plant-based.
   const P=C.priors, market=MODEL.markets[s.region], bases=speciesBases(market);
@@ -4184,8 +4541,13 @@ function perTypeMC(s,N){
             pp10:pctl(ap,10),pp50:pctl(ap,50),pp90:pctl(ap,90)};}
   return out;
 }
+// the shopper Monte Carlo (2,000 draws, seeded) is the slowest thing on the page (about 0.3 s): redraw it from the last result while
+// neither the state nor the calibration KP has changed, so a redraw that changes nothing else costs nothing (same numbers exactly)
+const MC_MEMO=new WeakMap();
+function monteCarloMemo(s,N){ const key=JSON.stringify(s)+"|"+N+"|"+biomass(s); let m=MC_MEMO.get(KP);
+  if(!m||m.key!==key){ m={key:key,val:monteCarlo(s,N)}; MC_MEMO.set(KP,m); } return m.val; }
 function drawMC(s){
-  const mc=monteCarlo(s,2000);
+  const mc=monteCarloMemo(s,2000);
   const svg=document.getElementById("mc");clear(svg);
   const W=720,H=270,mL=24,mR=14,mT=58,mB=34;
   svg.setAttribute("viewBox","0 0 "+W+" "+H);
@@ -4217,7 +4579,7 @@ function drawMC(s){
   tx(svg,(mL+W-mR)/2,H-2,"Long-run share of all meat and seafood, %. Solid line: the median. Dashed lines: the range for 8 in 10 draws.",
     {"font-size":9,"text-anchor":"middle",fill:"#444"});
   document.getElementById("mcsub").textContent=
-    pgRegionName()+": the long-run share over 2,000 draws of the shopper settings (price sensitivity, the share at equal price, taste, the costs of "+
+    pgRegionName()+": the long-run share over 2,000 draws of the shopper settings (price sensitivity, the share at equal price, the costs of "+
     "reaching the shelf, a cut's make-up, and plant-based meat's own taste and image). The cost of the cells is held at "+scMoney(biomass(s))+
     " a kilo (the median of the first screen's cloud). The first screen's range does the opposite: it varies the cost and holds the shopper settings.";
 }
@@ -4347,7 +4709,7 @@ function drawCalc(s,b,retail,conv,R){
     '<li><b>Against one kind of meat.</b> Divide by the price of US minced beef or pork cuts ($12 a kilo)'+tax+': '+
       '<span class="eq">'+d1(retail)+' &divide; '+d1(conv)+' = '+R.toFixed(2)+' times</span></li>'+
     '<li><b>Share.</b> Shoppers then choose by price, taste, whether it is real meat, health and welfare. '+
-      'The two charts below show that step for one type of meat. <a href="#where">Where and when</a> repeats it for every type.</li></ol>'+
+      'The two charts below show that step for one type of meat. <a href="#where">Share by type of meat, by region and over time</a> repeats it for every type.</li></ol>'+
     '<div class="note">The page uses the same formulas as the Python model. A test checks that the two agree '+
     '(tests/run_parity.py).</div>';
 }
@@ -4544,7 +4906,7 @@ function selfTest(){
     "<td class='stval'>"+val+"</td>"+
     "<td style='text-align:right;white-space:nowrap'>"+TAG[tag]+"</td></tr>";
   document.getElementById("selftest").innerHTML=
-    "<div class='stanchor'>The model is fitted to plant-based meat's ~1.2% US share (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
+    "<div class='stanchor'>The model is fitted to plant-based meat's share, {{PB_TARGET}}% of US meat by volume (model: "+(pb*100).toFixed(1)+"%) and ~89% "+
     "mainstream buyers, plus an assumed ~6% meatless rate (A4). It is not fitted to the rows below.</div>"+
     "<table><tr class='stsecrow'><td colspan='3' class='stsec'>Demand</td></tr>"+rows.map(rowHTML).join("")+
     "<tr class='stsecrow'><td colspan='3' class='stsec'>Cost</td></tr>"+costRows.map(rowHTML).join("")+"</table>"+
@@ -4558,6 +4920,7 @@ console.log("interactive.html JS build __BUILD_STAMP__ — loss-aversion canonic
 /*__SC_JS__*/
 /*__VM_JS__*/
 /*__RT_JS__*/
+/*__ST_JS__*/
 readHash();
 pgSetCost();
 // ---- build your own case: mirrors floor_physics.explore (checked by tests/run_parity.py) ----
@@ -4614,36 +4977,76 @@ function fxColumn(x,us,pout,oxygen,pt,v,a,cell,rq,dom,se,af){
           loop_volume:loopVol, ph_rise:dph, ph_vs_safe:dose/safe, ph_vs_paul:dose/paul, passes_tested:passes<=G.passes_tested+1e-9,
           energy_kg:energy, gas_kg:gas, co2_loop:co2loop, o2_short:o2short};
 }
-function fxBatchSlow(endX,doublings){   // mirror of floor_physics.batch_slowdown: the last doublings of a batch that ends above the level
+function fxBatchSlow(endX,doublings,half){   // mirror of floor_physics.batch_slowdown: the last doublings of a batch that ends above the level
   if(endX<=1||doublings<=0) return 1;
-  const K=C.fx.batch_half, h=Math.log(9)/Math.log(K), span=doublings*Math.LN2, n=40; let tot=0;
+  const K=half===undefined?C.fx.batch_half:half, h=Math.log(9)/Math.log(K), span=doublings*Math.LN2, n=40; let tot=0;
   for(let i=0;i<n;i++){ const c=endX*Math.exp(-span*(i+0.5)/n); tot+=c<=1?1:(1+Math.pow(c/K,h))/(1+1/9); }
   return tot/n;
 }
+function fxCleanRoute(c){   // mirror of floor_physics.clean_route: the numbers of a route that cleans the medium for reuse
+  if(c===undefined||c===null||c==="none") return null;
+  if(typeof c==="object") return c;
+  if(c==="exchanger") return {sorbent:true};
+  return C.fx.clean_routes[c];
+}
+// what the production tanks bring with them, $k per m3 (2018), and a plant's cost at another size (mirror of floor_physics.tank_items,
+// plant_ratios and capex_at_size): the tank, its makeup tanks and filter housings, the buildings
+function fxTankItems(v,perf,ch,F){ const T=F.tank, it=F.items, first=k=>Object.keys(it[k])[0], opt=k=>it[k][ch[k]||first(k)][0];
+  const vr=opt("vessels")/it.vessels[first("vessels")][0];
+  const br=(opt("hall")+opt("labs")+opt("support"))/(it.hall[first("hall")][0]+it.labs[first("labs")][0]+it.support[first("support")][0]);
+  const ded=(ch.medium||first("medium"))===first("medium"), e31=v>=0.33?T.eq31[0]*v+T.eq31[1]:T.eq31[2]*v+T.eq31[3];
+  const vessel=T.ind*T.bio*e31/v*vr, items=ded?T.ind*T.eqp*(perf?T.pf:T.fb)/v:0, bldg=T.ind*(T.bldg_m3+T.bldg_tank/v)*br;
+  return {vessel:vessel, items:items, buildings:bldg, total:vessel+items+bldg}; }
+function fxCapexAtSize(c20,v,perf,ch,ratio,F){ const a=fxTankItems(v,perf,ch,F), b=fxTankItems(20,false,ch,F);
+  return c20+a.vessel*ratio+a.items+a.buildings-b.total; }
+// viscosity of the culture and its oxygen limit (mirror of floor_physics.rel_viscosity, kla_factor and oxygen_limit)
+function fxKlaF(x,n,F){ const phi=x/(F.cell_density*1000), rv=1+2.5*phi+10.05*phi*phi+0.00273*Math.exp(16.6*phi);
+  return Math.pow(1+(rv-1)*F.kla_thin,-n); }
+function fxO2Visc(xb,n,F){ if(!isFinite(xb)||n===0) return xb; let lo=0, hi=xb;
+  for(let i=0;i<60;i++){ const m=0.5*(lo+hi); if(m>xb*fxKlaF(m,n,F)) hi=m; else lo=m; } return 0.5*(lo+hi); }
 function floorExplore(p,noSearch){
-  const F=C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)
+  // p.fxo: datasheet constants this case sets for itself (Humbird's own way of counting, at the page's start; as inputs.py would if changed there)
+  const F=p.fxo?Object.assign({},C.fx,p.fxo):C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)
   const perf=vm.washed!==undefined?vm.washed:p.mode==="perfusion", cyclic=vm.kind==="cyclic", wv=vm.wv!==undefined?vm.wv:F.wv;
+  const matH=p.mature_h===undefined?F.mature_h:p.mature_h;     // maturation: hours at no growth before harvest
   const cell=fxCell(p.mass_pg,vm.dil_frac?p.doubling_h/vm.dil_frac:p.doubling_h,ms), ref=fxCell(F.ref_mass,F.ref_doubling,F.maint_share);
   const load=cell.qo2/ref.qo2, burn=cell.o2kg/ref.o2kg;
+  if(p.clean!==undefined&&p.clean!==null&&p.clean!=="none"&&perf&&p.medium_l===undefined&&p.clean_share===undefined&&p.clean_loop===undefined){
+    // a cleaning route with no share given: the litres cleaned that cost least, on the side study's own grids (mirror of
+    // floor_physics.explore and clean_loops): the exchanger's share in hundredths up to 90%; the others every 0.1 litre per kilo
+    // harvested, up to the litres that take out all the route handles
+    const rt=fxCleanRoute(p.clean); let best=null; const keep=r=>{ if(best===null||r.total<best.total) best=r; };
+    if(rt.sorbent){ for(let i=0;i<=90;i++) keep(floorExplore(Object.assign({},p,{clean_share:i/100}),noSearch)); return best; }
+    const r0=floorExplore(Object.assign({},p,{clean_share:0}),noSearch), t=r0.medium_terms; let top=0;
+    [["ammonia",rt.nh3||0],["lactate",rt.lac||0],["least flow",rt.other||0]].forEach(x=>{ if(x[1]>0) top=Math.max(top,t[x[0]]/x[1]); });
+    keep(r0);
+    for(let i=1;i<Math.floor(top*10)+2;i++) keep(floorExplore(Object.assign({},p,{clean_loop:i*0.1*r0.harvested_share}),noSearch));
+    return best;
+  }
   // salt strength: how much lactate the culture may hold at this CO2 level and pH (mirror of floor_physics.explore)
   const pcTol=p.pco2===undefined?F.pco2:p.pco2, osmLim=p.osm_limit===undefined?F.osm_limit:p.osm_limit, ph=p.ph===undefined?F.ph:p.ph;
   const hco3=F.co2_henry*pcTol*Math.pow(10,ph-F.pk1), osmCo2=2*Math.max(0,hco3-F.hco3_base);
-  const lacRoom=Math.min(F.lac_limit,Math.max(1,(osmLim-F.osm_base-osmCo2)/2));
-  if(!noSearch&&perf&&p.medium_l===undefined&&lacRoom<F.lac_limit){
+  const lacLim=p.lac_limit===undefined?F.lac_limit:p.lac_limit;      // the lactate the cells tolerate (the scenarios carry their own)
+  const lacRoom=Math.min(lacLim,Math.max(1,(osmLim-F.osm_base-osmCo2)/2));
+  if(!noSearch&&perf&&p.medium_l===undefined&&lacRoom<lacLim){
     // the salt limit binds: run the tank at the CO2 level, up to what the cells tolerate, that costs least
     let best=null;
     for(let i=0;i<60;i++){ const r=floorExplore(Object.assign({},p,{pco2:pcTol*(i+1)/60}),true); if(best===null||r.total<best.total) best=r; }
     return best;
   }
   let capex=F.capex[p.plant], sized=F.sized[p.plant], extra=0;
+  let prepItem=F.items.medium[Object.keys(F.items.medium)[0]][0];   // medium preparation equipment, $k per m3 (2018): Humbird's, unless the plant is built item by item
   if(p.items){ let k=0;                                          // a plant built item by item (plant_items.capital)
     Object.keys(F.items).forEach(it=>{ k+=F.items[it][p.items[it]||Object.keys(F.items[it])[0]][0]; });
+    prepItem=F.items.medium[p.items.medium||Object.keys(F.items.medium)[0]][0];
     capex=k*F.escalation; sized=true; extra=p.items.oxygen==="bought"?F.o2_opex:0; }
+  else if(p.capex_2018!==undefined){ capex=p.capex_2018*F.escalation; sized=true; }   // the plant's cost given directly (explore's capex_2018)
   else if(p.plant==="microbial"&&vm.o2_gas!==false&&F.o2_microbial) extra=F.o2_opex;   // no oxygen unit in this class's price
   extra+=(p.extra_opex||0);                                      // a running cost per kilo set by the caller (explore's extra_opex; page_retention.js)
-  { const per=v=>(30.7*v+800)/v, sf=sized?per(p.vessel_m3)/per(20):1;             // another vessel: its unit price ratio
-    if(vm.capex_ratio!==undefined) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf*vm.capex_ratio;
-    else if(sized) capex*=(1-F.bioreactor_share)+F.bioreactor_share*sf; }
+  if(sized){   // the 20 m3 fed-batch plant plus the change in what each tank brings with it (mirror of floor_physics.capex_at_size)
+    const ch=p.items?p.items:(p.plant==="sanitary"?{hall:"sanitary"}:{});
+    capex=fxCapexAtSize(capex/F.escalation,p.vessel_m3,perf&&!cyclic,ch,vm.capex_ratio===undefined?1:vm.capex_ratio,F)*F.escalation; }
+  else if(vm.capex_ratio!==undefined) capex*=(1-F.bioreactor_share)+F.bioreactor_share*vm.capex_ratio;   // another vessel: its unit price ratio
   capex*=(p.capex_x===undefined?1:p.capex_x);                    // uncertainty in the plant estimate (tornado)
   if(p.shape_cost!==false&&p.aspect!==undefined) capex*=fxShapeCost(p.vessel_m3,p.aspect);   // steel and floor of a squat tank
   const tff=perf&&!vm.own_retention&&p.retention===undefined&&F.tff.on;   // the default device, priced after the medium
@@ -4651,7 +5054,7 @@ function floorExplore(p,noSearch){
   // a run ends at its planned length or when contaminated; then the tank is cleaned and regrown
   let uptime=p.uptime, lost=0, cycleH=null, runsYr=null, runFrac=1;
   const cyc=slow=>{                 // cycles: n doublings, then empty, clean and refill; a loss costs the cycle and a restart
-    const h=p.hazard||0, grow=vm.n_doublings*cell.td*slow; cycleH=grow+vm.turnaround_h;
+    const h=p.hazard||0, grow=vm.n_doublings*cell.td*slow; cycleH=grow+vm.turnaround_h+matH;   // maturation: hours at no growth
     const pFail=h<=0?0:1-Math.exp(-h*cycleH/24);
     cycleH+=24*pFail*vm.restart_days; lost=Math.min(0.9,pFail); uptime=grow/cycleH; runsYr=8760/cycleH; };
   if(cyclic){ cyc(1);
@@ -4671,13 +5074,18 @@ function floorExplore(p,noSearch){
   const tmRel=Math.pow(T/tankT(20,F.aspect),2/3)*Math.pow(ar/F.aspect,2.5);
   const col=p.column||"none", fP=(p.p_top===undefined&&p.do_mmol===undefined)?1:fxHead(p.p_top,p.vessel_m3,ar,p.do_mmol).f;   // the tricks
   const rq=p.rq!==undefined?p.rq:F.rq-F.rq_lipid*(p.fat_fed||0);   // fat from the feed releases no lipogenic CO2
-  const limits=[["oxygen supply",col==="o2_closed"?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP*AF],["thickness of the culture",F.x_visc],
+  const limits=[["oxygen supply",col==="o2_closed"?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP*AF],["thickness of the culture",p.x_visc===undefined?F.x_visc:p.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio/tmRel*fP],
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
+  // the densities the sparger alone could serve at the gas cap, whatever a column adds: they set the gas the culture needs
+  const sparger=[vm.o2_gas===false?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP*AF*(vm.otr_mult===undefined?1:vm.otr_mult),
+                 vm.co2_gas===false?Infinity:xCo2*(vm.co2_mult===undefined?1:vm.co2_mult)];
   if(p.vm){ limits[0][1]*=(vm.otr_mult===undefined?1:vm.otr_mult);         // the vessel's own gas exchange
     if(vm.mixing===false) limits[2][1]=Infinity; if(vm.co2_gas===false) limits[3][1]=Infinity; if(vm.o2_gas===false) limits[0][1]=Infinity;
     limits[3][1]*=(vm.co2_mult===undefined?1:vm.co2_mult);
     Object.keys(vm.caps||{}).forEach(k=>limits.push([k,vm.caps[k]])); }
+  { const n=p.kla_exp===undefined?F.kla_exp:p.kla_exp;      // a thick culture takes up oxygen more slowly (mirror of floor_physics.oxygen_limit)
+    if(n>0){ limits[0][1]=fxO2Visc(limits[0][1],n,F); sparger[0]=fxO2Visc(sparger[0],n,F); } }
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
   // glucose from what the cells build, burn and ferment (mirror of floor_physics.glucose_balance), when the scenarios ask
@@ -4693,49 +5101,116 @@ function floorExplore(p,noSearch){
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
   let slow=1;
   if(!perf){ const endRatio=steady?1:lim[1]*Math.max(nh3/nh3Lim,lac/lacRoom);
-    slow=fxBatchSlow(endRatio,cyclic?vm.n_doublings:Math.log2(1/(1-F.draw))); if(cyclic) cyc(slow); }
-  const shape=(vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))))/(cyclic?1:slow), rec=vm.recovery===undefined?1:vm.recovery;
-  const out=cyclic?wv*lim[1]*rec*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost)*rec;
+    slow=fxBatchSlow(endRatio,cyclic?vm.n_doublings:Math.log2(1/(1-F.draw)),F.batch_half); if(cyclic) cyc(slow); }
+  const shape=(vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))))/(cyclic?1:slow), rec=(vm.recovery===undefined?1:vm.recovery);
+  let out=cyclic?wv*lim[1]*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);   // the vessel's recovery is in `live`, below
   let colR=null;
   if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol,p.strip_eff,p.antifoam_otr); capex+=colR.capex_k_m3; }
-  let capital=p.charge*capex/out; const labour=F.labour_ref/out*(vm.labour_mult===undefined?1:vm.labour_mult);
-  let utilities=F.utilities*(0.5+0.5*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg;
-  const eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
+  let capital=p.charge*capex/out;      // labour: Humbird's fed-batch crew per m3 of tank, times labour_perf_x for a tank in perfusion
+  let labour=F.labour_ref*((perf&&!cyclic)?F.labour_perf_x:1)*F.labour_x/out*(vm.labour_mult===undefined?1:vm.labour_mult);
+  let utilities=0;                     // set below, once the litres of medium are known
+  let eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
   // least flow a cell needs for everything else
-  const sorb=perf?(p.sorbent||0):0; const terms={};
+  let sorb=perf?(p.sorbent||0):0; const terms={};
+  // a route that cleans the medium so it can be used again (mirror of floor_physics.explore's `clean`; medium_reuse.py): the
+  // ammonium exchanger is the sorbent lever; the others clean `loop` litres per kilo grown and return them
+  let route=(perf&&p.medium_l===undefined)?fxCleanRoute(p.clean):null, loop=0, lacOut=0, mlUnclean=null;
+  const ammAll=nh3/(nh3Lim/1000);                 // litres that carry all the ammonia out at the tank's level
+  let shareUsed=0;                                // the share cleaned, as explore's clean_share
+  if(route&&route.sorbent){ sorb=p.clean_loop!==undefined?p.clean_loop/ammAll:p.clean_share; shareUsed=sorb; route=null; }
   let need=1000/lim[1];
   if(p.medium_l===undefined){
-    if(perf){ terms["ammonia"]=nh3*(1-sorb)/(nh3Lim/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);
+    if(perf){ terms["ammonia"]=nh3/(nh3Lim/1000); terms["lactate"]=lac/(lacRoom/1000); terms["least flow"]=flow/(cell.mu*24);
+      const harvest=vm.own_retention?null:1000/lim[1];        // the culture that leaves with the harvested cells must be replaced
+      mlUnclean=Math.max(F.medium_l,terms["ammonia"],terms["lactate"],terms["least flow"],harvest===null?0:harvest);   // with no sorbent and no route
+      terms["ammonia"]*=(1-sorb);
       if(sorb>0) terms["salt"]=1000*(2*lac+sorb*nh3)/Math.max(2,osmLim-F.osm_base-osmCo2);
-      if(!vm.own_retention) terms["harvest"]=1000/lim[1];      // the culture that leaves with the harvested cells must be replaced
+      if(route){   // each litre cleaned stands in for the share of a litre thrown away that the device takes of each waste
+        const takes=[["ammonia",route.nh3||0],["lactate",route.lac||0],["least flow",route.other||0]];
+        let top=0; takes.forEach(t=>{ if(t[1]>0) top=Math.max(top,terms[t[0]]/t[1]); });
+        loop=p.clean_loop!==undefined?p.clean_loop:p.clean_share*top; shareUsed=top>0?loop/top:0;
+        lacOut=Math.min(terms["lactate"],loop*(route.lac||0))*lacRoom/1000;
+        takes.forEach(t=>{ terms[t[0]]=Math.max(0,terms[t[0]]-loop*t[1]); }); }
+      if(harvest!==null) terms["harvest"]=harvest;
       need=Math.max.apply(null,Object.keys(terms).map(k=>terms[k])); }
     else terms["harvest"]=1000/lim[1];          // all the medium leaves with the cells (mirror of floor_physics.explore, 2026-11-19)
     terms["nutrients"]=F.medium_l; }
   let setBy=""; Object.keys(terms).forEach(k=>{ if(setBy===""||terms[k]>terms[setBy]) setBy=k; });
-  const ml=p.medium_l===undefined?Math.max(F.medium_l,need):((perf&&!vm.own_retention)?Math.max(p.medium_l,1000/lim[1]):p.medium_l), mp=p.medium_price===undefined?0.15:p.medium_price;
+  let ml=p.medium_l===undefined?Math.max(F.medium_l,need):((perf&&!vm.own_retention)?Math.max(p.medium_l,1000/lim[1]):p.medium_l), mp=p.medium_price===undefined?0.15:p.medium_price;
+  // utilities in Humbird's four parts (mirror of floor_physics.explore): building power by the year and cleaning by the run, per
+  // m3 of tank; the water of the medium by the litre; power for oxygen, stirring and cooling by the kilo
+  { const runs=runsYr!==null?runsYr:365/(p.run_days||F.run_days);
+    utilities=F.utilities*((F.util.time+F.util.run*runs)/out+F.util.water*ml+F.util.kg*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg; }
   let consumables=F.consumables, retCapex=0, membranes=0;
+  // litres per kilo that pass the cell filter a second time: what a device on the permeate cleans and returns
+  const inTank=!!(route&&route.in_tank), cleanParts={}; let loopF=sorb*ammAll+(inTank?0:loop);
+  let cleanCapex=0, cleanOpex=0, cleanFCapex=0, cleanFMem=0;
   if(tff){                                   // the TFF loop clears what the bleed of cells does not carry out
-    let perm=Math.max(0,ml-1000/lim[1]); const kgH=out*1000/(8760*uptime);
-    if(sorb>0) perm+=sorb*nh3/(nh3Lim/1000);     // the permeate sent through the exchanger and back passes the filter too
-    const area=perm*kgH/(p.flux===undefined?F.tff.flux:p.flux);
-    retCapex=area*F.tff.hw*F.tff.install; membranes=perm*F.tff.mem_price/((p.membrane_life===undefined?F.tff.mem_life:p.membrane_life)*runFrac);
-    capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes; }
+    const perm=Math.max(0,ml-1000/lim[1])+loopF, kgH=out*1000/(8760*uptime);
+    const hwL=kgH/(p.flux===undefined?F.tff.flux:p.flux)*(p.membrane_hw===undefined?F.tff.hw:p.membrane_hw)*F.tff.install;                          // $k per m3 of tank, per L/kg
+    const memL=(p.membrane_price===undefined?F.tff.mem_price:p.membrane_price)/((p.membrane_life===undefined?F.tff.mem_life:p.membrane_life)*runFrac);    // $ per litre
+    retCapex=perm*hwL; membranes=perm*memL;
+    capex+=retCapex; capital+=p.charge*retCapex/out; consumables+=membranes;
+    cleanFCapex=loopF*hwL; cleanFMem=loopF*memL; cleanCapex=cleanFCapex; cleanOpex=cleanFMem;
+    if(loopF>0) cleanParts["filter for the loop"]=cleanFMem+p.charge*cleanFCapex/out;
+    if(inTank){ const xm=loop*(route.exchange_membrane||0);   // a membrane across the culture: the cell filter's, times its share
+      capex+=xm*hwL; capital+=p.charge*xm*hwL/out; consumables+=xm*memL; cleanCapex+=xm*hwL; cleanOpex+=xm*memL;
+      cleanParts["exchange membrane"]=xm*memL+p.charge*xm*hwL/out; } }
+  // maturation (mirror of floor_physics.explore's mature_h): medium and glucose at the upkeep rate; a continuous tank's maturation vessel
+  let matCapex=0, matL=0;
+  if(matH>0){ const m24=Math.LN2/F.ref_doubling, q=cell.qo2/(ms+(1-ms)*cell.mu/m24), up=q*ms/cell.mu, gr=q*(1-ms)/m24;
+    const ratio=up*cell.mu*matH/(up+gr); matL=ml*ratio; ml+=matL; eat+=0.5*F.glucose*burn*ratio; utilities+=F.utilities*F.util.water*matL;
+    if(!cyclic){ const vol=out*1000/(8760*uptime)*matH/lim[1]; matCapex=vol*(capex-retCapex); capex+=matCapex; capital+=p.charge*matCapex/out; } }
+  if(loop>0){   // growth factors lost in the litres cleaned, the dialysate (basal medium) and the device
+    const gfIn=(+p.gf_in_medium||0), gfL=F.gf/F.gf_litres*((+p.growth_factors||0)+gfIn);
+    const basalL=Math.max(mp-(gfIn?gfL:0),(F.aa+F.glucose+F.other)/mlUnclean);
+    cleanParts["growth factors lost"]=loop*(1-(route.gf_kept===undefined?F.mr_gf_kept:route.gf_kept))*gfL;
+    cleanParts["dialysate"]=loop*(route.dialysate_l||0)*basalL; cleanParts["device"]=loop*(route.device_l||0);
+    const running=cleanParts["growth factors lost"]+cleanParts["dialysate"]+cleanParts["device"];
+    consumables+=running; cleanOpex+=running; }
+  // medium preparation and sterilising: Humbird's fed-batch plant is sized for its own litres per m3 of tank a year; more costs more
+  const prepCapex=prepItem*F.escalation*(Math.pow(Math.max(1,ml*out/F.medium_prep_ref),F.medium_prep_exp)-1);
+  capex+=prepCapex; capital+=p.charge*prepCapex/out;
   if(vm.cons_run) consumables+=vm.cons_run*(runsYr!==null?runsYr:365/(p.run_days||F.run_days))/out;   // what the vessel throws away
   if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
-  if(sorb>0) consumables+=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
+  if(sorb>0){ const sc=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
-  let protectant=0;                                     // poloxamer leaves with every litre of a sparged tank's medium
-  if((vm.o2_gas!==false||vm.co2_gas!==false)&&!vm.no_protectant){ protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
-  const gfPer=F.gf*ml/F.gf_litres, gf=gfPer*(+p.growth_factors||0), cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
-  const feed=Math.max(eat+gfPer*(+p.gf_in_medium||0),ml*mp)/(1-lost);   // a complete medium cannot cost less than nutrients + its growth factors
+    consumables+=sc; cleanOpex+=sc; cleanParts["sorbent"]=sc; }
+  let protectant=0, death=0, gasUsed=0, gasCells=0;     // poloxamer leaves with every litre of a sparged tank's medium
+  if((vm.o2_gas!==false||vm.co2_gas!==false)&&!vm.no_protectant){
+    // the gas the culture needs: the cap x density / the smaller of the densities the sparger alone could serve (oxygen, CO2);
+    // a column takes only what the sparger at its cap cannot, so it does not lower this (mirror of floor_physics.explore)
+    const served=sparger.filter(v=>isFinite(v));
+    gasUsed=us*(served.length?Math.min(1,lim[1]/Math.min.apply(null,served)):0);
+    gasCells=us>0?gasUsed*Math.max(0,1-(vm.gas_away||0)/us):0;      // a cage's gas meets no cells
+    // bursting bubbles kill cells at: killing volume x gas passed per litre of culture per hour; as a share of growth, at most half
+    death=Math.min(0.5,(p.kill===undefined?F.kill:p.kill)*gasCells/depth*3600/cell.mu);
+    protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
+  const gfPer=F.gf*ml/F.gf_litres, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
+  let gf=gfPer*(+p.growth_factors||0);
+  // wash_price: the litres that carry the nutrients at the medium's price, the rest (they only wash waste out) at the wash price
+  const carry=Math.min(ml,F.medium_l), bought=(p.wash_price===undefined||p.wash_price===null)?ml*mp:carry*mp+(ml-carry)*p.wash_price;
+  let feed=Math.max(eat+gfPer*(+p.gf_in_medium||0),bought)/(1-lost);   // a complete medium cannot cost less than nutrients + its growth factors
+  const mediumFloor=eat>=bought, osm=perf&&p.medium_l===undefined?F.osm_base+osmCo2+(2*(lac-(loop>0?lacOut:0))+sorb*nh3)/ml*1000:NaN;
+  // the cells bubbles kill are not harvested and the harvest loses some of the rest: the cells lost were grown with their share of
+  // everything, so output and every cost per kilo (and the litres) are per kilo harvested
+  const live=(1-death)*(1-F.harvest_loss)*rec;
+  let cleanCapital=p.charge*cleanCapex/out;      // the yearly charge on the route's hardware, $ per kilo (inside capital)
+  if(mlUnclean===null) mlUnclean=ml;
+  if(live!==1){
+    out*=live; capital/=live; labour/=live; utilities/=live; consumables/=live; feed/=live; gf/=live; extra/=live;
+    membranes/=live; protectant/=live; ml/=live; Object.keys(terms).forEach(k=>{ terms[k]/=live; });
+    cleanOpex/=live; cleanCapital/=live; cleanFMem/=live; loop/=live; loopF/=live; mlUnclean/=live; Object.keys(cleanParts).forEach(k=>{ cleanParts[k]/=live; }); }
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
-  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, protectant:protectant, capital:capital, labour:labour,
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, protectant:protectant, medium_prep_capex:prepCapex, mature_capex:matCapex, mature_l:matL/live, death_share:death, gas_used:gasUsed, gas_cells:gasCells, harvested_share:live,
+          clean_capex:cleanCapex, clean_opex:cleanOpex, clean_capital:cleanCapital, clean_filter_capex:cleanFCapex, clean_filter_membranes:cleanFMem, clean_loop:inTank?loop:loopF,
+          clean_share:shareUsed, clean_parts:cleanParts, medium_l_unclean:mlUnclean, capital:capital, labour:labour,
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime, run_frac:runFrac,
-          medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:eat>=ml*mp, nutrients:eat,
-          pco2_used:pcTol, osmolality:perf&&p.medium_l===undefined?F.osm_base+osmCo2+(2*lac+sorb*nh3)/ml*1000:NaN,
+          medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:mediumFloor, nutrients:eat,
+          pco2_used:pcTol, osmolality:osm,
           limits:lims, medium_terms:terms, medium_set_by:setBy, nh3_kg:nh3, lac_kg:lac, column:colR,
           rq:rq, o2_kg:cell.qo2/cell.mu, o2_kg_upkeep:o2up, o2_kg_growth:o2gr, co2_kg:rq*cell.qo2/cell.mu};
 }
@@ -4911,6 +5386,7 @@ function fxRender(){
   if(sep){ p.nh3_kg=num("fx_nh"); p.lac_yield=num("fx_ly"); p.glc_kg=num("fx_gk"); }
   if(fxCarry){                     // loaded from a case: what the case carries and the panel has no lever for (page_scenarios.js)
     if(fxCarry.nh3_limit!==undefined) p.nh3_limit=fxCarry.nh3_limit;
+    if(fxCarry.lac_limit!==undefined) p.lac_limit=fxCarry.lac_limit;
     if(fxCarry.gf_in_medium&&p.growth_factors===0) p.gf_in_medium=fxCarry.gf_in_medium;
     if(fxCarry.glc_balance&&sep&&g("fx_gk").value===fxCarry.gk){ delete p.glc_kg; p.glc_balance=true; } }
   ["fx_nh","fx_ly","fx_gk"].forEach(id=>{ g(id).disabled=!sep; });
@@ -4967,7 +5443,7 @@ function fxRender(){
       (pl==="microbial"?" The class above is priced at what yeast plants cost when built ($"+C.fx.capex.microbial.toFixed(0)+"k), not at this sum.":""); }
   const n=[];
   if(byItems) n.push("Plant by items. The tanks must still be sealed and steam-sterilised. A cheaper plant pays off only while each tank loses a run less often than about once every "+(1/C.fx.breakeven.lean).toFixed(0)+" days (for the food-grade plant with shared medium) or once every "+(1/C.fx.breakeven.yeastplus).toFixed(0)+" days (for the yeast plant with additions). This compares each plant with a food-grade plant at pharma's loss rate. Cultivated-meat makers report losses that work out to about one every "+(1/C.fx.hazard_cm).toFixed(0)+" days. Nobody has built either plant for animal cells.");
-  if(fxCarry) n.push("Loaded from a case. The panel also carries three things it has no lever for: the ammonia the case's cells tolerate ("+fxCarry.nh3_limit+" mmol a litre), glucose worked out from the cells' own balance (until you move the glucose lever), and growth factors inside the medium's price.");
+  if(fxCarry) n.push("Loaded from a case. The panel also carries four things it has no lever for: the ammonia the case's cells tolerate ("+fxCarry.nh3_limit+" mmol a litre), the lactate they tolerate ("+fxCarry.lac_limit+" mmol a litre), glucose worked out from the cells' own balance (until you move the glucose lever), and growth factors inside the medium's price.");
   if(p.mode==="perfusion") n.push("Perfusion at more than 2 m&sup3; needs a device to hold the cells back, and that device does not exist. The model prices it at what one study hopes it will cost.");
   if(p.plant==="microbial") n.push("This is what yeast plants cost, what Humbird's own yeast plant costs with 20 m&sup3; tanks, and about what two published cultivated-meat designs assume. Humbird's design for animal cells costs four to five times more. The extra cost comes from sterile starter cultures, medium handling, oxygen supply and clean rooms. Nobody has run animal cells in the cheaper kind of plant.");
   if(p.doubling_h<20) n.push("Few animal cell lines double in under 20 hours.");
@@ -4996,6 +5472,25 @@ if(PGS.anchor) pgGoto(PGS.anchor);
 </script></body></html>"""
 
 
+# Words the page shows that other modules write (scenarios' notes, study_assumptions' page data), put in the page's wording rules
+# (2026-11-20): converted costs are in 2025 dollars, and a judgement is never attributed to the owner. Once the modules say it
+# themselves, drop the line (tests/test_easy_view.py checks the built page's words either way).
+PAGE_WORDS = (
+    ("like for like in today's dollars", "like for like in 2025 dollars"),
+    ("in today's dollars", "in 2025 dollars"),
+    ("The 36-hour doubling time is the author's judgement.",
+     "The 36-hour doubling time is a rough judgement made while building the model with an AI assistant; it is not measured and "
+     "has not been reviewed by an expert."),
+    ("The author thinks 24 hours at this waste level has about a 10% chance. ", ""),
+)
+
+
+def _page_words(text: str) -> str:
+    for old, new in PAGE_WORDS:
+        text = text.replace(old, new)
+    return text
+
+
 def main() -> None:
     # --dev-cache PATH (development only): reuse the slow part of the build (the model's draws and the prose numbers) from PATH
     # if it exists, else compute and save it there; the first screen's data (traits_page_data) is always recomputed.
@@ -5016,10 +5511,11 @@ def main() -> None:
     crosscheck(model)
     import datetime as _dt
     html = PAGE_HTML + JS_ENGINE                         # page markup + the JS engine (two strings, one file)
-    html = html.replace("__MODEL_JSON__", json.dumps(model))
+    html = html.replace("__MODEL_JSON__", _page_words(json.dumps(model)))
     html = html.replace("/*__SC_JS__*/", open(os.path.join(HERE, "page_scenarios.js"), encoding="utf-8").read())
     html = html.replace("/*__VM_JS__*/", open(os.path.join(HERE, "page_vessels.js"), encoding="utf-8").read())
     html = html.replace("/*__RT_JS__*/", open(os.path.join(HERE, "page_retention.js"), encoding="utf-8").read())
+    html = html.replace("/*__ST_JS__*/", open(os.path.join(HERE, "page_studies.js"), encoding="utf-8").read())
     html = html.replace("__BUILD_STAMP__", _dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # Substitute the illustrative numbers COMPUTED FROM THE MODEL (no hand-typed shares in the
     # prose/tooltips — they can never drift from the live calibration). See illustrative_numbers().

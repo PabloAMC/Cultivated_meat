@@ -64,7 +64,7 @@ from inputs import value
 # the keys explore() reads from a vm dict (floor_physics.explore)
 VM_KEYS = ("washed", "kind", "wv", "dil_frac", "n_doublings", "turnaround_h", "restart_days", "run_days",
            "clean_uptime", "shape", "recovery", "otr_mult", "mixing", "co2_gas", "o2_gas", "caps", "capex_ratio",
-           "own_retention", "cons_run", "labour_mult", "co2_mult", "no_protectant")
+           "own_retention", "cons_run", "labour_mult", "co2_mult", "no_protectant", "gas_away")
 
 TODAY, PILOT, PAPER = "done at this size", "only done smaller", "never done with animal cells"
 TAG_ORDER = (TODAY, PILOT, PAPER)
@@ -85,8 +85,14 @@ VESSELS = {
         name="Airlift (bubble column)", size=value("vm_str_m3"),
         what="A tall tank with a tube inside. Gas rises in the tube and moves the culture round. It has no stirrer.",
         limits="The same bubble rules apply as in a stirred tank. The tank is taller, so the same gas flow passes less "
-               "gas per litre and clears less CO₂. The gas mixes the culture, not a stirrer.",
-        vm={"mixing": False, "capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult")},
+               "gas per litre and clears less CO₂. The gas mixes the culture, not a stirrer. Its rising gas gives about the "
+               "power per litre a stirrer gives, so the model holds it to the stirred tank's mixing rule at its own tall shape; "
+               "no mixing time has been measured in an animal-cell airlift above 2 m³.",
+        # 2026-11-20 (airlift trace): until then "mixing": False exempted the airlift from any mixing limit, which with its taller
+        # shape (fewer bubble deaths per litre) made it cheaper than the stirred tank in perfusion although a stirred tank of the
+        # same shape is held at about 85 g/L by mixing. Its gas power at 4-6 mm/s (39-59 W/m3, thick_culture.gas_power) is about
+        # the stirrer's 43 W/m3, so the same rule at its own shape applies.
+        vm={"capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult")},
         aspect=value("vm_alr_aspect"), tricks=True, shape=False),
     "caged": dict(
         name="Stirred tank with a bubble cage", size=value("vm_str_m3"),
@@ -237,6 +243,7 @@ def explore_kwargs(vessel: str, mode: str, base: dict | None = None) -> dict | N
         kw["aspect"], kw["shape_cost"] = v["aspect"], False
     if "gas_add" in v:      # the cage's gas, discounted by the medium that crosses its mesh, adds to the ring's own bubbling
         kw["gas_velocity"] = kw.get("gas_velocity", value("pf_gas_velocity")) + v["gas_add"]
+        vm = {**vm, "gas_away": v["gas_add"]}          # it exchanges oxygen and CO2 but meets no cells: no bubble deaths on it
     kw["vessel_m3"] = v["size"]
     kw["mode"] = m.get("mode", "filldraw")
     kw["vm"] = vm

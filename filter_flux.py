@@ -5,8 +5,9 @@ filter_flux.py — can a hollow-fibre filter hold a flux of 5 L/m2/h at 25% cell
 Why
 ---
 The default retention device is a TFF hollow-fibre loop (retention.py) at a permeate flux of 5 L/m2/h (`rt_flux_lmh`), with
-membranes replaced after 3,960 litres a m2 (`rt_membrane_life`, one 33-day run at 5 L/m2/h). Two questions follow. Is 5 L/m2/h
-above a physical limit? And is a life of 3,960 litres consistent with what has been measured?
+membranes replaced after 2,415 litres a m2 (`rt_membrane_life`, what Humbird's own Table 4.11 implies; until 2026-11-19 it was
+3,960, one 33-day run at 5 L/m2/h). Two questions follow. Is 5 L/m2/h above a physical limit? And is such a life consistent
+with what has been measured?
 
 The physical limit
 ------------------
@@ -78,13 +79,13 @@ def margin(phi_b: float, flux_lmh: float | None = None, **kw) -> dict:
 
 
 def cost_at(key: str, flux_lmh: float, life_l_m2: float) -> float:
-    """A scenario's cost with the filter at this flux and membrane life (the model's defaults are 5 and 3,960)."""
+    """A scenario's cost with the filter at this flux and membrane life (the model's defaults are 5 and 2,415)."""
     with retention._with({"rt_flux_lmh": flux_lmh, "rt_membrane_life": life_l_m2}):
         return retention.scenario_cost("tff", S.explore_kwargs(S.SCENARIOS[key].choice))["total"]
 
 
 def cost_at_life_price(key: str, life_l_m2: float, price_per_m2: float) -> float:
-    """A scenario's cost with the cell filter at this membrane life and this membrane price (defaults: 3,960 L/m2 and $1,450/m2).
+    """A scenario's cost with the cell filter at this membrane life and this membrane price (defaults: 2,415 L/m2 and $1,450/m2).
     What the membrane adds to a litre of permeate is price / life, so the two have to be read together."""
     with retention._with({"rt_membrane_life": life_l_m2, "rt_membrane_price": price_per_m2}):
         return retention.scenario_cost("tff", S.explore_kwargs(S.SCENARIOS[key].choice))["total"]
@@ -92,12 +93,12 @@ def cost_at_life_price(key: str, life_l_m2: float, price_per_m2: float) -> float
 
 def break_even_price(life_l_m2: float) -> float:
     """The membrane price ($/m2) at which a membrane of this life adds the same cost per litre of permeate as the model's
-    defaults (price / life = $0.366 a litre). A shorter life raises the low-lactate example's cost only if membranes stay dearer than this."""
+    defaults (price / life = $0.60 a litre). A shorter life raises the low-lactate example's cost only if membranes stay dearer than this."""
     return life_l_m2 * value("rt_membrane_price") / value("rt_membrane_life")
 
 
 def time_limited_life(flux_lmh: float, days: float | None = None) -> float:
-    """Litres a membrane filters if it is replaced once a run: flux x hours. The default life is this at 5 L/m2/h and 33 days."""
+    """Litres a membrane filters if it is replaced once a run: flux x hours. At 5 L/m2/h and 33 days it is 3,960, the model's membrane life until 2026-11-19."""
     return flux_lmh * 24.0 * (value("pf_run_days") if days is None else days)
 
 
@@ -113,13 +114,13 @@ def summarise() -> None:
     print("  The low-lactate example, $/kg, by membrane life (rows, L/m2) and membrane price (columns, $/m2); what counts is price / life:")
     prices = (1450.0, 550.0, 200.0, 50.0)
     print("    life      " + "".join(f"{pr:>9.0f}" for pr in prices) + "   break-even price")
-    for life in (3960.0, 2000.0, 1500.0, 1000.0):
+    for life in (3960.0, value("rt_membrane_life"), 2000.0, 1500.0, 1000.0):     # the second row is the default life
         print(f"    {life:6.0f}    " + "".join(f"{cost_at_life_price('central', life, pr):9.2f}" for pr in prices)
               + f"   ${break_even_price(life):.0f}")
-    print("  cost per kg with the measured membrane throughput (flux, life):")
+    print("  cost per kg at the default (flux, life), at the life before 2026-11-20, and with the measured membrane throughput:")
     for key in ("best", "central"):
         row = "; ".join(f"({f:g}, {l:g}) ${cost_at(key, f, l):.2f}" for f, l in
-                        ((5.0, 3960.0), (5.0, 1200.0), (2.5, 1200.0), (2.5, 450.0), (1.5, 450.0)))
+                        ((5.0, value("rt_membrane_life")), (5.0, 3960.0), (5.0, 1200.0), (2.5, 1200.0), (2.5, 450.0), (1.5, 450.0)))
         print(f"    {key:<8} {row}")
 
 

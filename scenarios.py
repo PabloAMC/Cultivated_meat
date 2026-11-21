@@ -44,7 +44,8 @@ import numpy as np
 
 import floor_physics as fp
 import plant_items
-from inputs import value, prior, draw
+import study_assumptions as SA
+from inputs import value, prior, draw, REGISTRY
 from price_ratio import shelf_price
 
 # What a setting needs (2026-11-19, the author's direction): cells with traits other than the published ones are tagged CELLS,
@@ -94,7 +95,7 @@ SWITCHES = (
                 {"mode": "perfusion"}, FEED,
                 "Fresh medium flows through while a filter loop holds the cells back, and cells are bled off as they grow. The "
                 "waste never builds up, so oxygen and CO₂ set the density. Animal-cell perfusion has been run up to about 4 m³ "
-                "(Genzyme), meat cells only in about 10 litres. A bigger tank barely helps it (tank_size.md)."),
+                "(Genzyme), meat cells only in about 10 litres. A tank three times the size lowers the cost by about 5% (tank_size.md)."),
         Setting("fedbatch100", "Fed-batch in a 100 m³ tank", {"mode": "filldraw", "vm": dict(FEDBATCH_VM), "vessel_m3": 100.0}, FEED,
                 _FB + "A bigger tank costs less per m³. No animal cells have been grown above about 25 m³; plans for 100,000 litres "
                       "were paused or abandoned."),
@@ -207,7 +208,7 @@ SWITCHES = (
         Setting("floor", "At the nutrient floor: only what the cells eat", {"medium_price": 0.0}, FEED,
                 "No one has reported it. The medium costs what the cells take up, at GFI's feed-grade amino-acid prices: $2.00 a "
                 "kilo of cells (232 g of amino acids at $6.36, glucose, salts and vitamins), whatever the litres; growth factors "
-                "are bought on top (the growth-factor switch). At the low-lactate example's 35 litres a kilo that is about $0.06 a litre."),
+                "are bought on top (the growth-factor switch). At the low-lactate example's 40 litres a kilo harvested that is about $0.06 a litre."),
         Setting("0.20", "$0.20 a litre", {"medium_price": value("sc_medium_mid"), "medium_complete": True}, FEED,
                 "What several companies announced for 2025. A complete medium: growth factors are in the price."),
         Setting("0.30", "$0.30 a litre", {"medium_price": value("sc_medium_high"), "medium_complete": True}, NOTHING,
@@ -263,15 +264,38 @@ def explore_kwargs(choice: dict) -> dict:
         kw["gf_in_medium"] = kw.get("growth_factors", 0.0)   # in the price, and a floor on it: nutrients + growth factors
         kw["growth_factors"] = 0.0
     kw.update(always())
+    kw.update(extra_kwargs(choice))
+    return kw
+
+
+# What the ten switches cannot say (2026-11-20). A choice may name, under the key "extra", a set of further explore() arguments:
+# `always` applies whatever the switches; each `when` entry (switch, setting, arguments) applies only while that switch is at that
+# setting, so moving the switch (priorities(), the page) moves the lever with it. Set after always(), so a case can carry its own
+# tolerated ammonia and lactate. The page mirrors it (page_scenarios.js scParams, SC.extras); scenario_mc holds what it sets.
+EXTRAS: dict = {}
+
+
+def extra_kwargs(choice: dict) -> dict:
+    """The explore() arguments a choice's `extra` adds to its switches' (empty for a choice without one)."""
+    name = choice.get("extra")
+    if not name:
+        return {}
+    ex = EXTRAS[name]
+    kw = dict(ex.get("always", {}))
+    for sw, st, args in ex.get("when", ()):
+        if choice.get(sw) == st:
+            kw.update(args)
     return kw
 
 
 def always() -> dict:
     """explore() arguments every scenario carries whatever its switches: the dissolved-oxygen setpoint (sc_do_setpoint,
     about half of air saturation, as pharma holds it; Humbird's tank implies 130%) and the ammonia the cells tolerate
-    (sc_nh3_limit, 4 mM since 2026-11-19; Humbird's design keeps his 5). Read at call time, so a test can set
+    (sc_nh3_limit, 4 mM since 2026-11-19; Humbird's design keeps his 5) and the lactate they tolerate (sc_lac_limit, 35 mM
+    since 2026-11-20; Humbird's design keeps his 50). Read at call time, so a test can set
     sc_do_scenarios to 0 to reproduce earlier figures."""
-    kw = {"nh3_limit": value("sc_nh3_limit"), "glc_balance": True}      # glucose from the cells' own balance (2026-11-19)
+    kw = {"nh3_limit": value("sc_nh3_limit"), "lac_limit": value("sc_lac_limit"),
+          "glc_balance": True}                                          # glucose from the cells' own balance (2026-11-19)
     if value("sc_do_scenarios") >= 0.5:
         kw["do_mmol"] = value("sc_do_setpoint")
     return kw
@@ -331,6 +355,201 @@ def design(choice: dict, tricks_max: str = "oxygen") -> dict:
 
 _BASE = {"mode": "perfusion", "cells": "selected", "growth": "36", "plant": "sterile", "gas": "4", "losses": "1", "restart": "14",
          "gf": "30", "medium": "0.20"}
+
+# ----------------------------------------------------------------------------
+# The all-favourable case, defined once (2026-11-20)
+# ----------------------------------------------------------------------------
+# Humbird's enhanced cell as traits (explore() at its defaults; lactate 0.5 per glucose burned or fermented = 0.279 on all glucose)
+HUMBIRD_TRAITS = {"nh3_kg": 0.054, "lac_yield": 0.279, "doubling_h": 24.0, "mass_pg": 3000.0}
+ALL_FAVOURABLE = "all_favourable"            # the name of its extra settings in EXTRAS
+FAV_DOUBLING_H = 16.0                        # research_notes/gf_and_doubling_bounds.md: physics allows about 8 h; the frontier took 16
+FAV_X_VISC = 320.0                           # research_notes/thick_culture.md: the thickest culture considered (the model holds 258)
+# The sources compared, in the order of the table's columns: this model's own favourable end, Humbird's design, then one column
+# for every published study in study_assumptions.STUDIES (2026-11-20, the owner: "It should not lose to Humbird nor to any newer
+# TEA"). A study's value is what it assumes on that lever, with its page reference (study_assumptions.STUDY_LEVERS); a value that
+# breaks a named limit (study_assumptions.REJECTED, LIMITS) is not a source. A new study is one more entry there.
+FAV_SOURCES = (("model", "this model's own favourable end"), ("humbird", "Humbird's design (2021)")) + \
+    tuple((k, st["name"]) for k, st in SA.STUDIES.items() if k != "humbird2021")
+# The tank sizes the published designs use (m3): Humbird's and Pasitka's 2, Pasitka's 5, CE Delft's 10, the model's 20, SuperMeat's
+# 25, Negulescu's 42 and 211. The size is a lever without a direction: the case takes the one that costs least.
+FAV_TANK_M3 = (2.0, 5.0, 10.0, 20.0, 25.0, 42.0, 211.0)
+_ALL_FAV: dict = {}
+
+
+def favourable_levers() -> list:
+    """Every lever the all-favourable case sets, one row each: `lever` (plain name), `args` (the explore() arguments it sets),
+    `better` ("lower", "higher": the direction that is favourable; or "cost": no direction, the setting that costs least is
+    taken), `unit`, and `sources`: {source: (value, where it comes from)} for each of FAV_SOURCES. For a "cost" lever the
+    values are settings of a switch (or, for the device, of retention._MEMB). A value of None means the source has no such
+    lever (the engine's default applies)."""
+    v = value
+    dial = {"flux": v("rt_dial_flux"), "membrane_life": v("rt_dial_life"), "membrane_price": v("rt_dial_price"),
+            "membrane_hw": v("rt_dial_hw")}
+    H = HUMBIRD_TRAITS
+    row = lambda lever, args, better, unit, model, humbird: {"lever": lever, "args": args, "better": better, "unit": unit,
+                                                             "sources": {"model": model, "humbird": humbird}}
+    rows = [
+        row("Ammonia the cells make", ("nh3_kg",), "lower", "mol a kilo of cells",
+            (v("sc_nh3_engineered"), "the kind-of-cells switch at 'almost no ammonia or lactate' (sc_nh3_engineered)"),
+            (H["nh3_kg"], "his enhanced cell (pf_nh3_efficient)")),
+        row("Lactate the cells make", ("lac_yield",), "lower", "mol per mol of glucose",
+            (v("sc_lac_engineered"), "the same setting (sc_lac_engineered)"),
+            (H["lac_yield"], "his enhanced cell: 0.5 per glucose burned or fermented")),
+        row("Weight of a cell", ("mass_pg",), "higher", "pg",
+            (v("sc_mass_selected_pg"), "every setting of the kind-of-cells switch (sc_mass_selected_pg)"),
+            (H["mass_pg"], "his assumed cell: a bigger cell uses less oxygen per gram")),
+        row("Doubling time", ("doubling_h",), "lower", "hours",
+            (FAV_DOUBLING_H, "the old frontier's lever (gf_and_doubling_bounds.md); the growth switch stops at 24"),
+            (H["doubling_h"], "his model cell")),
+        row("Ammonia the cells tolerate", ("nh3_limit",), "higher", "mmol a litre",
+            (v("sc_nh3_limit"), "what every scenario takes (sc_nh3_limit)"), (v("pf_nh3_limit"), "his limit (pf_nh3_limit)")),
+        row("Lactate the cells tolerate", ("lac_limit",), "higher", "mmol a litre",
+            (v("sc_lac_limit"), "what every scenario takes (sc_lac_limit)"), (v("pf_lac_limit"), "his limit (pf_lac_limit)")),
+        row("Runs lost to contamination", ("hazard",), "lower", "share of runs a day",
+            (v("pf_hazard_pharma"), "the losses switch at pharma's 0.2% a day"), (0.0, "his design loses none")),
+        row("Growth factors bought", ("growth_factors",), "lower", "share of Humbird's price",
+            (0.0, "the growth-factor switch at 'none bought'"), (0.0, "scenarios.reference() buys none")),
+        row("Price of the medium", ("medium_price",), "lower", "$ a litre above the nutrients the cells eat",
+            (0.0, "the medium switch at the nutrient floor: $2.00 a kilo of cells at GFI's feed-grade prices"),
+            (0.15, "explore()'s default, which meets the same floor; his own nutrients cost $4.34 a kilo today, more")),
+        row("Dissolved oxygen the tank is held at", ("do_mmol",), "lower", "mmol a litre",
+            (v("sc_do_setpoint"), "what every scenario takes (sc_do_setpoint): a lower level passes more oxygen"),
+            (None, "his tank implies about 0.28")),
+        row("Least medium flow the cells need", ("min_perfusion",), "lower", "mL a gram of cells a day",
+            (REGISTRY["pf_min_perfusion"].lo, "the low end of pf_min_perfusion's range: the lowest flow measured (min_litres)"),
+            (None, "scenarios.reference() takes the model's own (pf_min_perfusion)")),
+        row("Thickest culture the tank can stir", ("x_visc",), "higher", "g a litre",
+            (FAV_X_VISC, "the old frontier's lever (thick_culture.md)"), (None, "scenarios.reference() takes the model's 258 (pf_x_visc)")),
+        row("The plant", ("plant", "items"), "cost", "setting of the plant switch",
+            ("lean", "the plant switch at 'a food-grade plant with shared medium'"),
+            ("sterile", "scenarios.reference(): his plant in a food-grade hall")),
+        row("The device that holds the cells back", tuple(dial), "cost", "membrane device",
+            ("dialyser", "the old frontier's lever: dialyser-grade hollow fibres (retention_alternatives.md), as explore() arguments " + repr(dial)),
+            ("tff", "scenarios.reference(): the engine's own filter loop")),
+        row("How the tank is run", ("mode", "vm", "vessel_m3"), "cost", "setting of the mode switch",
+            (tuple(st.key for st in SW["mode"].settings), "every setting of the mode switch"), ("perfusion", "scenarios.reference()")),
+        row("Gas flow the cells tolerate", ("gas_velocity",), "cost", "setting of the gas switch",
+            (tuple(st.key for st in SW["gas"].settings), "every setting of the gas switch: more gas passes more oxygen and kills more cells"),
+            ("6", "his 6 mm a second")),
+        row("Tank tricks and tank shape", ("column", "col_pout", "p_top_barg", "aspect"), "cost", "settings of the two tank-design switches",
+            ("design()", "the cheapest pair that passes the checks on the CO₂ loop"), (("none", "tall"), "an ordinary tall tank")),
+        row("Size of the tank", ("vessel_m3",), "cost", "m³",
+            (value("vm_str_m3"), "the model's tank (vm_str_m3)"), (20.0, "his fed-batch tanks; his perfusion tanks are 2 m³ (Sect. 4.2)")),
+        row("Yearly payment that repays the plant", ("recovery",), "lower", "share of the plant's cost a year",
+            (_recovery(5.4, 20.0), "5.4% over 20 years, the food-processing cost of capital Humbird quotes (plant_charge_mature, less "
+                                   "the 9% of maintenance and insurance)"),
+            (_recovery(7.5, 10.0), "7.5% over 10 years (Sect. 3.1); his yeast benchmark, 10% over 20 years, is 11.7%")),
+    ]
+    for r in rows:                       # one more source per published study: its most favourable value that breaks no limit
+        for study, _name in FAV_SOURCES[2:]:
+            r["sources"][study] = SA.favourable_value(r["args"][0], study, r["better"])
+    return rows
+
+
+def _recovery(rate_pct: float, years: float) -> float:
+    """The yearly payment that repays a plant with interest, as a share of its cost (a mortgage's payment)."""
+    i = rate_pct / 100.0
+    return i / (1.0 - (1.0 + i) ** -years) if i > 1e-12 else 1.0 / years
+
+
+def all_favourable() -> dict:
+    """THE most favourable case, defined here and nowhere else (2026-11-20; the owner: "I would not keep two of them"). For every
+    lever the engine has, the most favourable value among (i) this model's own favourable end (the favourable setting of each
+    switch; the favourable end of an input's range where the old frontier used it) and (ii) Humbird's design
+    (scenarios.reference() and humbird_check). `favourable_levers()` is the table of sources; a later source is one more column.
+
+    Returns {'choice': the scenario choice (SCENARIOS['best'].choice, with its `extra`), 'kw': explore_kwargs(choice), the
+    explore() arguments, 'result': explore's result, 'cost': $/kg, 'levers': [favourable_levers() rows with 'value' and 'source'
+    (the source whose value was taken; 'model' on a tie)]}. scenarios.run(SCENARIOS['best'].choice), frontier.ladder()[-1] and
+    the page's "best level known" are this call.
+
+    Levers with a direction take the better value among the sources (a study's value that breaks a named limit is not a
+    source: study_assumptions.REJECTED). Levers without one (the plant, the device, the way the tank is run, the gas flow, the
+    tank design, the size of the tank) take the setting that costs least with every other lever at its favourable value; the
+    tank design is chosen again, with its checks on the CO₂ loop, for every size.
+    Held at the model's own value, as Humbird's design as this model prices it holds them too: the yearly charge on the plant
+    (no study that charges interest repays a plant on better terms than the model's 5.4% over 20 years), cells killed by
+    bubbles, cells lost at harvest, the bubble protectant, the CO₂ and the salt the cells tolerate. Not used: the old
+    frontier's 6.4 litres of medium a kilo (it assumes cells that make no waste at all; with this case's 0.054 mol of ammonia a
+    kilo the tank would stand at twice the ammonia tolerated), so the litres are what the engine derives; cleaning the medium
+    for reuse; fat fed to the cells."""
+    if _ALL_FAV:
+        return _ALL_FAV
+    rows = favourable_levers()
+    pick = {"lower": min, "higher": max}
+    always, fixed = {}, {}
+    for r in rows:
+        if r["better"] == "cost":
+            continue
+        got = {s: val for s, (val, _w) in r["sources"].items() if val is not None}
+        val = pick[r["better"]](got.values())
+        r["value"], r["source"] = val, next(s for s, _n in FAV_SOURCES if got.get(s) == val)
+        fixed[r["args"][0]] = val
+    # the switches say what they can; the rest is the case's extra settings. A lever a switch owns moves with that switch
+    choice = {"cells": "engineered", "growth": "24", "losses": "0.2", "restart": "4", "gf": "none", "medium": "floor",
+              "extra": ALL_FAVOURABLE}
+    owned = {"cells": ("nh3_kg", "lac_yield", "mass_pg"), "growth": ("doubling_h",), "losses": ("hazard",)}
+    when = tuple((sw, choice[sw], {k: fixed[k] for k in keys}) for sw, keys in owned.items())
+    always = {k: fixed[k] for k in ("nh3_limit", "lac_limit", "min_perfusion", "x_visc")}
+    assert fixed["growth_factors"] == setting("gf", "none").kw["growth_factors"] and fixed["medium_price"] == 0.0
+    assert fixed["do_mmol"] == globals()["always"]().get("do_mmol", fixed["do_mmol"])
+    dial = dict(zip(rows[13]["args"], (value("rt_dial_flux"), value("rt_dial_life"), value("rt_dial_price"), value("rt_dial_hw"))))
+    size_row = next(r for r in rows if r["args"] == ("vessel_m3",))
+    sizes = sorted({float(v) for v, _w in size_row["sources"].values() if v is not None} | set(FAV_TANK_M3))
+    own_size = value("vm_str_m3")
+
+    def search(size, devs, plants, modes, gases):
+        best = None
+        for dev, dkw in devs:
+            EXTRAS[ALL_FAVOURABLE] = {"always": {**always, **dkw, **({} if size == own_size else {"vessel_m3": size})}, "when": when}
+            for plant in plants:
+                for mode in modes:
+                    for gas in gases:
+                        c = design({**choice, "plant": plant, "mode": mode, "gas": gas})
+                        t = run(c)["total"]
+                        if best is None or t < best[0] - 1e-12:
+                            best = (t, c, dev, dkw, size)
+        return best
+    every = ((("tff", {}), ("dialyser", dial)), ("lean", "sterile"), tuple(m.key for m in SW["mode"].settings),
+             tuple(g.key for g in SW["gas"].settings))
+    best = search(own_size, *every)
+    # the size of the tank: each published size with the other choices as found, the tank design chosen again for it; then
+    # every choice again at the size that costs least
+    for size in sizes:
+        if size != own_size:
+            b = search(size, ((best[2], best[3]),), (best[1]["plant"],), (best[1]["mode"],), (best[1]["gas"],))
+            if b[0] < best[0] - 1e-12:
+                best = b
+    if best[4] != own_size:
+        best = search(best[4], *every)
+    cost, c, dev, dkw, size = best
+    EXTRAS[ALL_FAVOURABLE] = {"always": {**always, **dkw, **({} if size == own_size else {"vessel_m3": size})}, "when": when}
+    for r in rows:
+        if r["better"] != "cost":
+            continue
+        r["value"] = {"The plant": c["plant"], "The device that holds the cells back": dev, "How the tank is run": c["mode"],
+                      "Gas flow the cells tolerate": c["gas"], "Tank tricks and tank shape": (c["tricks"], c["shape"]),
+                      "Size of the tank": size}[r["lever"]]
+        r["source"] = next((s for s, _n in FAV_SOURCES[1:] if r["sources"][s][0] == r["value"]), "model") \
+            if r["sources"]["model"][0] != r["value"] else "model"
+    kw = explore_kwargs(c)
+    _ALL_FAV.update(choice=c, kw=kw, result=fp.explore(**kw), cost=cost, levers=rows, device=dev)
+    return _ALL_FAV
+
+
+def _best_story() -> str:
+    a = all_favourable()
+    k, r = a["kw"], a["result"]
+    return ("The all-favourable example, a reference point defined by its traits: "
+            f"{k['nh3_kg']:g} mol of ammonia a kilo, {k['lac_yield']:g} mol of lactate per mol of glucose, a doubling every "
+            f"{k['doubling_h']:g} hours and {k['mass_pg'] / 1000:g} ng a cell. Every lever is at the most favourable value among this "
+            "model's own favourable end, Humbird's design and what any published cost study assumes without breaking a limit of "
+            "the model: the cells tolerate his 5 mmol of ammonia and 50 mmol of lactate a "
+            "litre, they need no bought growth factors, the medium costs only what the cells eat, no runs are lost, the tanks hold "
+            f"{k.get('vessel_m3', value('vm_str_m3')):g} m³, the plant is "
+            + {"lean": "food-grade with shared medium", "sterile": "food-grade"}[a["choice"]["plant"]] + ", and "
+            + {"dialyser": "dialyser-grade hollow fibres hold", "tff": "a hollow-fibre filter loop holds"}[a["device"]] + " the cells back. "
+            f"The culture runs at {r['density']:.0f} g/L. Everything works.")
 _PUBLISHED = {"cells": "measured", "growth": "43"}
 SCENARIOS = {
     # --- the ladder (2026-11-19 restructure): from what has been shown, one kind of change per step, likeliest first -------
@@ -360,14 +579,14 @@ SCENARIOS = {
         "selected", "3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches",
         "Cells on the low-ammonia feed that double every 36 hours (not 43) and make 0.42 mol of lactate per mol of glucose (the "
         "best measured in meat cells is 1.05). Grown in batches in a 20 m³ tank: the batch ends near 37 g/L, held by ammonia, not "
-        "14 g/L held by lactate.",
+        "9.5 g/L held by lactate.",
         "the low-lactate example's cells and switches, run as Rung 2 runs (fed-batch in a 20 m³ tank). It needs no new equipment.",
         design({**_BASE, "mode": "fedbatch"})),
     "central": Scenario(
         "central", "4. Plus perfusion (the low-lactate example): waste washed out through a cell filter",
         "The low-lactate example, a reference point defined by its traits: 0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, "
         "a doubling every 36 hours and 2 ng a cell (the lactate is below the 1.05 measured in meat cells). The cells, doubling every 36 hours, run in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
-        "back, so the waste is washed out and oxygen sets the density (191 g/L, five times the batch's). Nobody has run "
+        "back, so the waste is washed out and oxygen sets the density (154 g/L, four times the batch's). Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
@@ -390,14 +609,12 @@ SCENARIOS = {
         design({**_BASE, "plant": "lean", "cells": "engineered"})),
     "best": Scenario(
         "best", "7. Plus everything else at its favourable end (the all-favourable example)",
-        "The all-favourable example, a reference point defined by its traits: 0.055 mol of ammonia a kilo, 0.28 mol of lactate "
-        "per mol of glucose, a doubling every 24 hours and 2 ng a cell. The cells need no bought growth factors, the medium costs only what the cells eat, "
-        "the tank takes 6 mm/s of gas, and runs are lost less often. Everything works.",
-        "Cells, growth speed, plant, gas, growth factors and the medium are at their cheapest setting: the medium costs only what the "
-        "cells eat. Losses are at the low end of what makers report, because pharma's 0.2% a day is not assumed. The tank "
-        "design is the cheapest one that passes the checks on the CO₂ loop.",
-        design({"mode": "perfusion", "cells": "engineered", "growth": "24", "plant": "lean", "gas": "6", "losses": "0.6",
-                "restart": "14", "gf": "none", "medium": "floor"}),
+        _best_story(),
+        "One case, defined once (scenarios.all_favourable): for every lever of the engine, the most favourable value among this "
+        "model's own favourable end and Humbird's design. The way the tank is run, the gas flow, the device that holds the cells "
+        "back and the tank design are the cheapest of their settings; the tank design must pass the checks on the CO₂ loop. "
+        "The switches cannot say some of these levers, so the case carries them as extra settings (scenarios.EXTRAS).",
+        dict(all_favourable()["choice"]),
         equal_price_share="best_equal_price_share"),
     # --- off the ladder ------------------------------------------------------------------------------------------------
     "cautious": Scenario(
@@ -427,8 +644,6 @@ def alt_cost(key: str, change: dict) -> float:
 
 
 REFERENCE_NAME = "Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank"
-# Humbird's enhanced cell as traits (explore() at its defaults; lactate 0.5 per glucose burned or fermented = 0.279 on all glucose)
-HUMBIRD_TRAITS = {"nh3_kg": 0.054, "lac_yield": 0.279, "doubling_h": 24.0, "mass_pg": 3000.0}
 
 
 def reference() -> dict:
@@ -500,8 +715,8 @@ def tricks_sentence(choice: dict) -> str:
     if not t["used"]:
         return ""
     return (f"Nobody has run this tank design with animal cells. It uses {plain_list(t['used'])}. "
-            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape. That is ${t['d_no_tricks']:.1f} more. "
-            f"In the ordinary tall tank, a kilo costs ${t['ordinary_tank']:.1f}.")
+            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape. That is ${t['d_no_tricks']:.1f} more."
+            + ("" if choice["shape"] == "tall" else f" In the ordinary tall tank, a kilo costs ${t['ordinary_tank']:.1f}."))
 
 
 def growth_sentence(key: str) -> str:
@@ -512,9 +727,11 @@ def growth_sentence(key: str) -> str:
     base = run(design(c))["total"]
     fast = alt_cost(key, {"growth": "24"})
     mid = alt_cost(key, {"growth": "30"})
-    return ("The 36-hour doubling time is the author's judgement. Meat-cell cultures that make little waste have doubled in 43 to 54 hours. "
+    return ("The 36-hour doubling time is a rough judgement made while building the model with an AI assistant; it is not measured "
+            "and not reviewed by an expert. Meat-cell cultures that make little waste have doubled in 43 to 54 hours. "
             "Only cultures fed glutamine have doubled in about 26 hours, and glutamine is what makes the waste (Hubalek 2023). "
-            "The author thinks 24 hours at this waste level has about a 10% chance. "
+            "A 24-hour doubling at this waste level would need cells as fast as the glutamine-fed ones without their waste; no "
+            "culture has shown both, so the same kind of rough judgement puts it at about 10%. "
             f"A 24-hour doubling would save ${base - fast:.1f} a kilo. A 30-hour doubling would save ${base - mid:.1f}.")
 
 
@@ -661,11 +878,19 @@ MC_PRIORS = {
 # moves the all-favourable example's median by about $0.1 and makes each band forty times slower, because a lower limit sets off the
 # CO2-level search in explore). The ammonia the cells tolerate is drawn because no switch sets it: every scenario takes
 # sc_nh3_limit (4 mmol/L since 2026-11-19; Humbird's optimistic design keeps his 5).
+# Since 2026-11-20 two more, at the end of the list (the draws before them are unchanged; the datasheet inputs and the cell's
+# weight, drawn after them, take new random numbers): the lactate the cells tolerate (sc_lac_limit for
+# the scenarios, pf_lac_limit for Humbird's design) and the cells that bursting bubbles kill (ge_kill_protected, whose range
+# runs from a quarter of the bench value at 1 g/L of protectant to three times it).
 # `sc_wide_bands` = 0 restores the narrower bands.
 MC_ESTIMATES = (("nh3_limit", "pf_nh3_limit"), ("protectant_price", "pf_protectant_price"),
-                ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"))
-MC_SCENARIO_PRIORS = {"nh3_limit": "sc_nh3_limit"}      # set by always() for every scenario; Humbird's design draws pf_nh3_limit
+                ("min_perfusion", "pf_min_perfusion"), ("antifoam_otr", "pf_antifoam_otr"),
+                ("lac_limit", "pf_lac_limit"), ("kill", "ge_kill_protected"))
+# set by always() for every scenario; Humbird's design draws pf_nh3_limit and pf_lac_limit
+MC_SCENARIO_PRIORS = {"nh3_limit": "sc_nh3_limit", "lac_limit": "sc_lac_limit"}
 MC_ESTIMATE_INPUTS = ("pf_protectant_dose", "rt_membrane_price", "aa_bulk_price")    # no explore() argument: set in the datasheet per draw
+# 2026-11-20: the oxygen a thick culture takes up (floor_physics.oxygen_limit): the viscosity exponent of kLa and the shear thinning
+MC_VISCOUS_INPUTS = ("tc_kla_exp", "tc_thin")
 
 
 def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict | None = None) -> dict:
@@ -705,9 +930,14 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict 
             reg[name] = reg_draw(name)
         if choice is not None:                         # 2026-11-19: the weight of a cell, the same for every kind of cells, drawn
             d["mass_pg"] = reg_draw("sc_mass_selected_pg")   # last, so the other draws are unchanged
+        for name in MC_VISCOUS_INPUTS:                 # 2026-11-20: how much a thick culture slows oxygen uptake, drawn after all
+            reg[name] = reg_draw(name)                 # the others (a case that sets viscous_kla itself holds its exponent)
 
     for k in traits:                                   # held at the reader's value
         d.pop(k, None)
+    if choice is not None:                             # what the case's extra settings fix is held too (the draws are still
+        for k in extra_kwargs(choice):                 # made, so the other draws do not move)
+            d.pop(k, None)
 
     def one(i: int) -> float:
         kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
@@ -937,7 +1167,7 @@ def plant_axis_markdown() -> str:
 # ----------------------------------------------------------------------------
 # For the page
 # ----------------------------------------------------------------------------
-_JS_NAME = {"gas_velocity": "gas_v", "p_top_barg": "p_top", "restart_fail_days": "restart_fail"}
+_JS_NAME = {"gas_velocity": "gas_v", "p_top_barg": "p_top", "restart_fail_days": "restart_fail", "viscous_kla": "kla_exp"}
 
 
 def _js_params(kw: dict) -> dict:
@@ -964,6 +1194,9 @@ def js_model() -> dict:
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
             "medium_complete_on": value("sc_medium_complete") >= 0.5,
             "always": _js_params(always()),
+            # the extra settings a choice may name (EXTRAS): [always, [[switch, setting, arguments], ...]] in the page's names
+            "extras": {n: {"always": _js_params(e.get("always", {})),
+                           "when": [[sw, st, _js_params(a)] for sw, st, a in e.get("when", ())]} for n, e in EXTRAS.items()},
             "tags": list(TAG_ORDER), "tag_plain": TAG_PLAIN, "limit_plain": LIMIT_PLAIN, "medium_plain": MEDIUM_PLAIN,
             "best_cost": run(SCENARIOS["best"].choice)["total"], "mc_priors": MC_PRIORS, "bands": band,
             # cells as traits (2026-11-19): each reference point's traits (the page shows only what has been measured in meat cells)
@@ -1011,7 +1244,7 @@ def markdown_table() -> str:
     """The headline table as Markdown (RESULTS.md, METHODS.md and research_notes/cost_scenarios.md quote it). Every row gives both the
     share at its own point cost and the median of draws in which cost and demand are uncertain, so rows can be compared."""
     out = ["| scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | "
-           "shop price against $12 meat, at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | "
+           "shop price against US minced beef or pork cuts ($12 a kilo), at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | "
            "share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |", "|---|---|---|---|---|---|---|"]
     for name, cost, cb, ratio, world, sb, need in table_rows():
         if cb is not None:                   # the headline is the median of the draws; the point is the most-likely-values figure

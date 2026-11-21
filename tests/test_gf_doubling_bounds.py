@@ -22,10 +22,17 @@ from inputs import value
 # growth-factor cost), Best's medium at the nutrient floor in place of $0.15 a litre
 # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (the low-lactate example 28 -> 35 L/kg, Best 11.16 -> 13.75), lost runs pay for their
 # membranes, and glucose from the cells' own balance (the cautious case, the published cells, 28 -> 95.5 L/kg, set by lactate)
+# 2026-11-20 model batch: lactate tolerated 35 mmol/L (the cautious case 95.5 -> 146 L per kilo harvested; lactate now sets Best's
+# litres too), bubble deaths and the harvest loss charged (a larger share of the cells grown the slower they grow), twice the crew,
+# membrane life 2,415 L/m2, medium preparation with the medium passed. Before: best 10.5385 / 11.6738 / 16.5504, central 28.3001 /
+# 30.3220 / 32.8028 / 34.1441, cautious 63.1348 / 84.9106 / 92.1653.
+# 2026-11-20 final model: "best" is now the all-favourable case (scenarios.all_favourable, $7.62 at its own 16 h: Humbird's
+# cell traits and lactate tolerance, 42 m3, dialyser-grade fibres), so its scan fell from 14.7554 / 18.7144 / 27.1815; the
+# last engine fixes moved central (40.7736 / 44.7155 / 49.9616 / 53.0032) and cautious (124.1438 / 167.9874 / 183.1481).
 GOLDEN_SCAN = {
-    "best": {16.0: 10.5385, 24.0: 11.6738, 43.0: 16.5504},   # 2026-11-19: best's cells 2 ng (were 3)
-    "central": {16.0: 28.3001, 24.0: 30.3220, 36.0: 32.8028, 43.0: 34.1441},
-    "cautious": {16.0: 63.1348, 36.0: 84.9106, 43.0: 92.1653},
+    "best": {16.0: 7.6209, 24.0: 8.8480, 43.0: 12.2433},
+    "central": {16.0: 40.0833, 24.0: 44.1421, 36.0: 49.4977, 43.0: 52.5557},
+    "cautious": {16.0: 124.3331, 36.0: 169.8311, 43.0: 185.5915},
 }
 
 def close(a, b, tol=1e-6):
@@ -126,6 +133,7 @@ def check() -> list:
                 fails.append(f"{k} at {h} h: {G.scan_doubling(k, (h,))[h]['total']:.4f} != pinned {want}")
     # 2026-11-19 audit batch: the cautious case no longer shares the low-lactate example's litres (95.5 against 35 L/kg), so it needs lower
     # prices than the low-lactate example, and Best (13.75 L/kg) allows higher ones. The note's table has a row for each.
+    # (2026-11-20, final model: 146.2, 38.8 and 11.7 L per kilo harvested; the order holds.)
     if not (tab["cautious"]["litres"] > tab["central"]["litres"] > tab["best"]["litres"]):
         fails.append("litres should rise from Best to the low-lactate example to the cautious case")
     if not (tab["cautious"][1.0]["x_humbird"] < tab["central"][1.0]["x_humbird"] < tab["best"][1.0]["x_humbird"]):
@@ -135,19 +143,39 @@ def check() -> list:
     sc_c = G.scan_doubling("cautious", (16.0, 43.0))
     if not (sc_c[43.0]["medium_set_by"] == "lactate" and sc_c[16.0]["medium_l"] < sc_c[43.0]["medium_l"]):
         fails.append("the cautious case's medium should be set by lactate and shrink with speed")
+    # 2026-11-20 model batch: ammonia still sets it at every doubling time, and the litres per kilo GROWN are still the same
+    # (35.0). The litres explore reports are per kilo HARVESTED, and bubbles kill a larger share of slow cells (13% of the cells
+    # grown at 43 h, 5% at 16 h), so those now rise with the doubling time: 37.5 at 16 h, 41.1 at 43 h. The check compares per
+    # kilo grown, and asks for the rise per kilo harvested.
     sc_m = G.scan_doubling("central", (16.0, 43.0))
-    if not (sc_m[43.0]["medium_set_by"] == "ammonia" and close(sc_m[16.0]["medium_l"], sc_m[43.0]["medium_l"], 1e-9)):
-        fails.append("the low-lactate example's medium should be set by ammonia at every doubling time")
+    grown = {h: sc_m[h]["medium_l"] * sc_m[h]["harvested_share"] for h in sc_m}
+    if not (sc_m[43.0]["medium_set_by"] == sc_m[16.0]["medium_set_by"] == "ammonia" and close(grown[16.0], grown[43.0], 1e-9)):
+        fails.append("the low-lactate example's medium should be set by ammonia at every doubling time, at the same litres per kilo grown")
+    if not sc_m[16.0]["medium_l"] < sc_m[43.0]["medium_l"]:
+        fails.append("per kilo harvested, slower cells should need more medium (bubbles kill a larger share of them)")
     # --- pins ---
     # 2026-11-19 audit batch: the low-lactate example's litres 28 -> 35 (ammonia tolerance 5 -> 4 mmol/L) lower every required price by a
     # fifth; Best's litres 11.16 -> 13.75 (ammonia now sets them, not lactate) lower its prices by 19%
-    pins = [("central $1 insulin", tab["central"][1.0]["insulin"]["shared"], 0.5453),
-            ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 0.9348),
-            ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 50.5566),
-            ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1467.3886),
-            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.1641),
-            ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1998),
-            ("central reuse, full price", G.reuse("central")["full_reuse"], 1.9871),
+    # 2026-11-20 model batch: litres per kilo harvested: the low-lactate example 35 -> 40.1, Best 13.75 -> 18.65 (lactate sets
+    # them at 35 mmol/L), the cautious case 95.5 -> 146.2, so every required price fell: central $1 insulin 0.5453 -> 0.4759,
+    # transferrin 0.9348 -> 0.8158, FGF 50.5566 -> 44.1185, TGF-beta 1467.3886 -> 1280.5239; best $3 insulin 4.1641 -> 3.0695;
+    # cautious $1 insulin 0.1998 -> 0.1305.
+    # Reuse at full price 1.9871 -> 2.5973: the model's price per litre is now Humbird's own (his $3.13 over his 8.65 L/kg, not
+    # over 11.2). This pin rests on retention.duty's bleed (5.24 L per kilo), which is per kilo harvested at the density, where
+    # explore's own is 6.00 (per kilo grown, over the harvested share): reported 2026-11-20 with test_frontier's two failing
+    # checks. With explore's bleed the figure would be about 2.95. Repin when the two agree.
+    # 2026-11-20 final model: retention.duty now bleeds per kilo grown, so its bleed is explore's (7.22 L per kilo harvested in
+    # the low-lactate example, the culture that leaves with the cells), and reuse at full price is 3.5484. The litres moved
+    # again (the low-lactate example 40.1 -> 38.8; the all-favourable case 18.65 -> 11.7, ammonia sets them, since it takes
+    # Humbird's 50 mmol/L of lactate tolerated): central $1 insulin 0.4759 -> 0.4916, transferrin 0.8158 -> 0.8427, FGF
+    # 44.1185 -> 45.5783, TGF-beta 1280.5239 -> 1322.8953; best $3 insulin 3.0695 -> 4.8992; cautious unchanged.
+    pins = [("central $1 insulin", tab["central"][1.0]["insulin"]["shared"], 0.4916),
+            ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 0.8427),
+            ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 45.5783),
+            ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1322.8953),
+            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.8992),
+            ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1305),
+            ("central reuse, full price", G.reuse("central")["full_reuse"], 3.5484),
             # 0 since 2026-11-19 (were 0.5961 and 1.9183): their complete media carry the growth factors in the price
             ("central own, reuse", G.reuse("central")["own_reuse"], 0.0),
             ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 0.0),

@@ -1,7 +1,5 @@
 # CFD plan: which tank questions simulation can answer, and how to set it up
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Compiled 2026-11-16. It turns the CFD track of `roadmap_2026-11-15.md` (targets A0–A5) and the design tricks in
 `bioreactor_design_tricks.md` into a plan with steps, tools, grids and the model input each step would replace. Section 5 records the
 first run of FluidX3D on this machine.
