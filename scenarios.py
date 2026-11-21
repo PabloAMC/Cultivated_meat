@@ -106,23 +106,25 @@ SWITCHES = (
                 _FB + "Shown at this size: pharma runs fed-batch in tanks of up to about 25 m³, and Upside Foods reports a "
                       "single-vessel process validated at 20,000 litres for 18 months, in several 20,000+ litre tanks (AgFunderNews, "
                       "17 Nov 2026; mode not disclosed, most likely fed-batch)."))),
-    Switch("cells", "Kind of cells",
+    # each setting is named by the traits it sets (2026-11-21: no named kinds of cell on the page; the keys are internal)
+    Switch("cells", "The cells' ammonia and lactate",
            "How much waste the cells make, and how big each cell is. Ammonia and lactate are the waste, and they slow growth", (
-        Setting("engineered", "Almost no ammonia or lactate",
+        Setting("engineered", f"{value('sc_nh3_engineered'):.3g} mol of ammonia a kilo, {value('sc_lac_engineered'):.2f} mol of lactate per glucose",
                 {"nh3_kg": value("sc_nh3_engineered"), "lac_yield": value("sc_lac_engineered"), "mass_pg": value("sc_mass_selected_pg")},
                 CELLS, "The metabolism of Humbird's efficient cell: ammonia 0.055 mol per kilo of cells, lactate 0.28 mol per mol of the "
                        "glucose taken up. Neither level has been measured in meat cells: the best measured there are 0.14 mol of "
                        "ammonia a kilo (Hubalek 2023) and 1.05 mol of lactate per mol of glucose (Pasitka 2024). The cell weighs 2 ng, "
                        "as every other setting's does (Humbird's 3 ng is an assumed cell; chicken cells are reported at 1.0 to 1.75 "
                        "ng). Changed 2026-11-19; it was 3 ng."),
-        Setting("selected", "Less lactate, on a low-ammonia feed",
+        Setting("selected", f"{value('sc_nh3_selected'):.3g} mol of ammonia a kilo, {value('sc_lac_selected'):.2f} mol of lactate per glucose",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_selected"), "mass_pg": value("sc_mass_selected_pg")},
                 CELLS, "Glutamine is replaced in the feed, so ammonia is 0.14 (measured once, in bovine cells, Hubalek 2023). Lactate "
                        "is 0.42 per glucose, below the 1.05 measured in meat cells (Pasitka 2024). A cell weighs 2 ng. These differ "
                        "from the best meat cells in the published "
                         "record only in lactate, and that is worth a great deal: the published cells turn most of their glucose into "
                         "lactate, so they need about three times the glucose and far more medium to wash the lactate out."),
-        Setting("measured", "The best meat cells measured",
+        Setting("measured", f"{value('sc_nh3_selected'):.3g} mol of ammonia a kilo, {value('sc_lac_measured'):.2f} mol of lactate per glucose: "
+                            "the best measured in meat cells",
                 {"nh3_kg": value("sc_nh3_selected"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
                 FEED, "Not one cell line: the best published figure for each trait, never measured together in one line. Ammonia "
@@ -133,18 +135,19 @@ SWITCHES = (
                       "(1.0 to 1.75 ng) and Humbird's 3 ng. Glucose comes from the cells' own balance: fermenting most of it, they need "
                       "about 4.5 mol a kilo, and the lactate from it sets the litres of medium. Companies may hold better cells they "
                       "have not published."),
-        Setting("ordinary", "Ordinary meat cells",
+        Setting("ordinary", f"{value('sc_nh3_ordinary'):.2f} mol of ammonia a kilo, {value('sc_lac_measured'):.2f} mol of lactate per glucose: "
+                            "meat cells fed glutamine",
                 {"nh3_kg": value("sc_nh3_ordinary"), "lac_yield": value("sc_lac_measured"),
                  "mass_pg": value("sc_mass_selected_pg")},
                 NOTHING, "Ammonia is 0.70 in bovine cells with glutamine. Lactate is 1.05 per glucose. A cell weighs 2 ng."))),
     Switch("growth", "Growth speed", "How long the cells take to double", (
         Setting("24", "Cells double every 24 hours", {"doubling_h": value("pf_doubling_h")}, CELLS,
                 "Humbird's model cell doubles this fast. The fastest measured in meat cells is 15 hours (Stout 2023, with serum); "
-                "bovine cells on the low-ammonia feed doubled in 42.9 hours (Hubalek 2023)."),
+                "bovine cells on a feed without glutamine doubled in 42.9 hours (Hubalek 2023)."),
         Setting("30", "Every 30 hours", {"doubling_h": value("sc_td_fast")}, CELLS,
-                "Between the model cell and the central value."),
+                "Between the model cell's 24 hours and 36 hours."),
         Setting("36", "Every 36 hours", {"doubling_h": value("sc_td_central")}, CELLS,
-                "Between the 43 hours measured on the low-ammonia feed and the 25.7 hours measured with glutamine, in the same bovine cells (Hubalek 2023)."),
+                "Between the 43 hours measured on a feed without glutamine and the 25.7 hours measured with glutamine, in the same bovine cells (Hubalek 2023)."),
         Setting("43", "Every 43 hours", {"doubling_h": value("sc_td_measured")}, NOTHING,
                 "The best low-waste meat-cell culture measured doubled in 42.9 hours (Hubalek 2023)."))),
     Switch("plant", "The plant", "How much the buildings and equipment around the tanks cost", (
@@ -220,8 +223,10 @@ SWITCHES = (
 _SHORT = {
     ("mode", "perfusion"): "perfusion", ("mode", "fedbatch100"): "fed-batch, 100 m³", ("mode", "fedbatch50"): "fed-batch, 50 m³",
     ("mode", "fedbatch"): "fed-batch, 20 m³",
-    ("cells", "engineered"): "almost no waste", ("cells", "selected"): "less lactate, low-ammonia feed", ("cells", "measured"): "best measured",
-    ("cells", "ordinary"): "ordinary", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
+    ("cells", "engineered"): f"ammonia {value('sc_nh3_engineered'):.3g}, lactate {value('sc_lac_engineered'):.2f}",
+    ("cells", "selected"): f"ammonia {value('sc_nh3_selected'):.3g}, lactate {value('sc_lac_selected'):.2f}",
+    ("cells", "measured"): f"ammonia {value('sc_nh3_selected'):.3g}, lactate {value('sc_lac_measured'):.2f} (best measured)",
+    ("cells", "ordinary"): f"ammonia {value('sc_nh3_ordinary'):.2f}, lactate {value('sc_lac_measured'):.2f} (fed glutamine)", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
     ("plant", "lean"): "food-grade, shared medium", ("plant", "sterile"): "food-grade plant", ("plant", "pharma"): "pharma-style plant",
     ("gas", "6"): "6 mm/s", ("gas", "4"): "4 mm/s", ("gas", "2"): "2 mm/s",
     ("tricks", "none"): "no tricks", ("tricks", "column"): "column", ("tricks", "pressure"): "column + pressure",
@@ -1161,7 +1166,7 @@ def what_it_would_take_markdown() -> str:
            "traits beyond the best measured in meat cells (each against its own best measurement) |",
            "|---|---|---|---|---|---|"]
     for r in what_it_would_take():
-        need = "out of reach: not even at $0.5" if r["need"] is None else f"${r['need']:.1f} a kilo or less"
+        need = "not reached, even at $0.5" if r["need"] is None else f"${r['need']:.1f} a kilo or less"
         if r["pick"] is None:
             pk, at, ver = "none of the sets tried", "", ""
         else:

@@ -562,7 +562,7 @@ def build_model() -> dict:
                value("cult_sub_mult"), "Lusk 2020",
                tip="This is how many times more price-sensitive a cultivated product is than meat as a whole, because it "
                "has a near-identical substitute on the same shelf. It matters mostly above equal price. At "
-               "one and a half times the price of meat, the share is ~{{KAPPA_LO}}% at 4, ~{{KAPPA_MID}}% at 8.5 and ~{{KAPPA_HI}}% at 10. "
+               "one and a half times the price of the conventional meat it copies, the share is ~{{KAPPA_LO}}% at 4, ~{{KAPPA_MID}}% at 8.5 and ~{{KAPPA_HI}}% at 10. "
                "The default 8.5 is the best fit to the shares that premium animal products (organic milk, eggs and chicken) "
                "take at their prices, within the range that Lusk 2020 measured (appendix A1). It changes nothing "
                "at equal price."),
@@ -570,7 +570,7 @@ def build_model() -> dict:
                value("loss_aversion"), "off by default",
                tip="This makes paying more than the conventional price hurt more than an equal discount helps. "
                "The default 1 is symmetric, and the slider goes up to Tversky and Kahneman's 2.25. It barely changes the result, "
-               "because the model re-fits the price weight. At one and a half times the price of meat, the share is ~{{LAMBDA_1}}% at 1 and "
+               "because the model re-fits the price weight. At one and a half times the price of the conventional meat it copies, the share is ~{{LAMBDA_1}}% at 1 and "
                "~{{LAMBDA_225}}% at 2.25."),
         slider("w_ratio", "Weight of the price-ratio term (<i>w</i><sub>r</sub>)", "points of score", 0.5, 1.5, 0.05,
                value("w_ratio"), "judgement",
@@ -1249,7 +1249,7 @@ def illustrative_numbers() -> dict:
     import scenarios as S
 
     base = DemandParams()                                     # central calibration
-    R_ILLUS = 1.5                                             # "one and a half times the price of meat": the worked examples' price
+    R_ILLUS = 1.5                                             # "one and a half times the price of the conventional meat it copies": the worked examples' price
 
     def pc(x):                                                # share as text: whole percent from 1%, pct_num's decimals below
         return f"{round(x * 100)}" if x >= 0.00995 else S.pct_num(x * 100)
@@ -1270,7 +1270,7 @@ def illustrative_numbers() -> dict:
     world = mm.MARKETS["global"]
     sea = sum(t.w_vol for t in world if t.name.startswith("seafood")) / sum(t.w_vol for t in world)
     bands_c = S.bands(S.SCENARIOS["central"].choice)
-    R_central = shelf_price(bands_c["cost"][1]) / value("p_conv")
+    R_central = shelf_price(S.run(S.SCENARIOS["central"].choice)["total"]) / value("p_conv")   # at the point cost
     lo5, hi95 = _lognormal_5_95("equal_price_share")
 
     N = {
@@ -1442,7 +1442,7 @@ def _scenario_tokens() -> dict:
             for i, q in enumerate(("P10", "P50", "P90")):
                 out[f"{tag}_COST_{q}"] = f"{b['cost'][i]:.0f}"
         if key in ("best", "central"):
-            out[f"R_{tag}"] = f"{shelf_price(b['cost'][1]) / value('p_conv'):.1f}"     # the shop price at the median cost
+            out[f"R_{tag}"] = f"{shelf_price(r['total']) / value('p_conv'):.1f}"     # the shop price at the point cost
             for i, q in enumerate(("P10", "P50", "P90")):
                 out[f"{tag}_SHARE_{q}"] = S.pct_num(b['share'][i])
         if key == "central":
@@ -1740,7 +1740,8 @@ def _tank_note() -> str:
 
 
 def _other_estimates_html() -> str:
-    """Level 1's small table: the 2035 forecast, Humbird's optimistic design and a company's own report, on the cases' basis."""
+    """Level 1's small table: Humbird's optimistic design and a company's own report, on the cases' basis. Each row leads with the
+    point (every estimate at its most likely value), with the range that holds 8 in 10 draws under it."""
     import scenarios as S
     rows = S.table_rows()[len(S.PAGE_ORDER):]                     # Humbird's design, the reported process (no forecast since 2026-11-19)
     names = ("Humbird's optimistic design", "As a company reports")
@@ -1751,21 +1752,20 @@ def _other_estimates_html() -> str:
     out = []
     for (name, cost, cb, ratio, world, sb, _need), nm, wh in zip(rows, names, what):
         if cb is not None:
-            c1 = f"<b>about {_money(cb[1], 0)}</b><br><span class='alt'>Median. 8 in 10 draws between {_money(cb[0], 0)} and {_money(cb[2], 0)}.</span>"
-            ratio = shelf_price(cb[1]) / value("p_conv")
-            shop = shelf_price(cb[1])
+            c1 = (f"<b>{_money(cost)}</b><br><span class='alt'>Every estimate at its most likely value. 8 in 10 draws between "
+                  f"{_money(cb[0], 0)} and {_money(cb[2], 0)}.</span>")
         else:
-            c1 = f"<b>{_money(cost, 0)}</b><br><span class='alt'>The report's own single figure. No draws.</span>"
-            shop = shelf_price(cost)
+            c1 = f"<b>{_money(cost)}</b><br><span class='alt'>The report's own single figure. No draws.</span>"
+        shop = shelf_price(cost)
+        ratio = shop / value("p_conv")
         rng = ("8 in 10 draws under 0.001%." if sb[2] < 0.00095 else
                f"8 in 10 draws between {S.pct_num(sb[0])}% and {S.pct_num(sb[2])}%.")
         out.append(f"<tr><td><b>{nm}</b><br><span class='alt'>{wh}</span></td><td class='n'>{c1}</td>"
-                   f"<td class='n'>{_money(cost)}</td><td class='n'>{_money(shop, 0)}<br><span class='alt'>{ratio:.1f} times US minced beef or pork cuts ($12 a kilo)</span></td>"
-                   f"<td class='n'><b>{S.pct_num(sb[1])}%</b><br><span class='alt'>Median. {rng}</span></td></tr>")
-    head = ("<thead><tr><th rowspan='2'>Estimate</th><th colspan='2'>A kilo of cells</th><th rowspan='2'>Shop price, a kilo</th>"
-            "<th rowspan='2'>Long-run share of world meat</th></tr><tr><th>Median of the draws</th><th>Most likely values</th></tr></thead>")
-    labels = ("", "A kilo of cells, median of the draws", "A kilo of cells, most likely values", "Shop price, a kilo",
-              "Long-run share of world meat and seafood")
+                   f"<td class='n'>{_money(shop, 0)}<br><span class='alt'>{ratio:.1f} times US minced beef or pork cuts ($12 a kilo)</span></td>"
+                   f"<td class='n'><b>{S.pct_num(world)}%</b><br><span class='alt'>At that cost. {rng}</span></td></tr>")
+    head = ("<thead><tr><th>Estimate</th><th>A kilo of cells</th><th>Shop price, a kilo</th>"
+            "<th>Long-run share of world meat and seafood</th></tr></thead>")
+    labels = ("", "A kilo of cells", "Shop price, a kilo", "Long-run share of world meat and seafood")
     out = ["<tr>" + "".join((f"<td data-label='{labels[i]}'" if labels[i] else "<td") + part
                             for i, part in enumerate(row.split("<td")[1:])) for row in out]
     return f"<div class='scrollx'><table class='sctab stack'>{head}<tbody>{''.join(out)}</tbody></table></div>"
@@ -1782,9 +1782,10 @@ def _how_met_html() -> str:
     used = S.plain_list(S.tricks_report(c0)["used"])
     rows = [
         ("Waste the cells make",
-         f"The low-lactate example assumes a low-waste feed: {r0['medium_l']:.0f} litres of medium a kilo. With the best "
-         f"meat cells in the published record, which make more lactate, the cost is {cost({'cells': 'measured'})}. With ordinary meat "
-         f"cells it is {cost({'cells': 'ordinary'})}.",
+         f"The low-lactate example assumes cells that make 0.14 mol of ammonia a kilo and 0.42 mol of lactate per glucose: "
+         f"{r0['medium_l']:.0f} litres of medium a kilo. With the best meat cells in the published record, which make more lactate, the "
+         f"cost is {cost({'cells': 'measured'})}. With meat cells fed glutamine, which also make 0.70 mol of ammonia a kilo, it is "
+         f"{cost({'cells': 'ordinary'})}.",
          f"Cells that make less ammonia and lactate: at 0.055 mol of ammonia a kilo and 0.28 lactate per glucose the cost is "
          f"{cost({'cells': 'engineered'})}. Or take the ammonium out of the used medium.",
          "Best measured in meat cells: 0.14 mol of ammonia a kilo without glutamine in the feed (Hubalek 2023, bovine cells) and 1.05 "
@@ -1808,8 +1809,8 @@ def _how_met_html() -> str:
         ("Growth speed",
          f"The low-lactate example's cells double every 36 hours while making little waste. At 43 hours, the pace of the best "
          f"low-waste culture measured, the cost is {cost({'growth': '43'})}. At 24 hours it is {cost({'growth': '24'})}.",
-         "Cells that double faster on the low-ammonia feed.",
-         "Measured in meat cells: 42.9 hours on the low-ammonia feed and 25.7 hours with glutamine (Hubalek 2023); 15 hours in "
+         "Cells that double faster on a feed without glutamine.",
+         "Measured in meat cells: 42.9 hours on a feed without glutamine and 25.7 hours with glutamine (Hubalek 2023); 15 hours in "
          "immortalised bovine muscle cells with serum (Stout 2023)."),
         ("Runs lost to contamination",
          f"The low-lactate example loses a run on {value('sc_hazard_cm') * 100:.0f}% of days, and a lost tank is out of use for "
@@ -1839,7 +1840,7 @@ def _how_met_html() -> str:
 def _tricks_sentence(save: dict, best: dict) -> str:
     """What all three tank tricks do in the cells-by-tank table, with the sign said in words (they can raise the cost)."""
     parts = []
-    for key, name in (("engineered", "cells that make almost no waste"), ("ordinary", "ordinary meat cells")):
+    for key, name in (("engineered", "the cells that make the least ammonia and lactate"), ("ordinary", "the cells fed glutamine")):
         d, f = save[key]
         parts.append(f"{'lower' if d >= 0 else 'raise'} it by {_money(abs(d))} ({abs(f):.0%}) with {name}")
     text = ("<p class='small'>Compared with gas bubbled in only, all three tank tricks together " + " and ".join(parts) + ".")
@@ -1857,7 +1858,10 @@ def _cells_by_tank_html() -> str:
     head = ["<thead><tr><th>Cells ↓ &nbsp; Tank →</th>" + "".join(f"<th>{t}<br><span class='alt'>{d}</span></th>" for _k, t, d in ps._GRID_TANKS)
             + "</tr></thead><tbody>"]
     save = {}
-    for ck, gk, clab in ps._GRID_CELLS:
+    for ck, gk, note in ps._GRID_CELLS:
+        t = S.cell_traits({**c0, "cells": ck, "growth": gk})          # the row is named by its traits, never by a kind of cell
+        clab = (f"{t['nh3_kg']:.3g} mol of ammonia a kilo, {t['lac_yield']:.2f} mol of lactate per glucose, doubling in "
+                f"{t['doubling_h']:.0f} h" + (f"<br><span class='alt'>{_h.escape(note)}</span>" if note else ""))
         head.append(f"<tr><th>{clab}</th>")
         costs = []
         for tk, _t, _d in ps._GRID_TANKS:
@@ -1874,7 +1878,7 @@ def _cells_by_tank_html() -> str:
     head.append("</tbody>")
     lo, hi = min(v[0] for v in save.values()), max(v[0] for v in save.values())
     best = S.tricks_report(S.SCENARIOS["best"].choice)
-    return ("<p class='small'>The cost of a kilo of cells for each kind of cell in each kind of tank, at its most likely values. The first "
+    return ("<p class='small'>The cost of a kilo of cells for four sets of cell traits in three kinds of tank, at the most likely values. The first "
             "figure is for a food-grade plant. The figure in brackets is for a food-grade plant with shared medium. Everything else is as "
             "in the low-lactate example. Click a figure to load it into the settings above.</p>"
             f"<div class='scrollx'><table class='sctab grid2'>{''.join(head)}</table></div>"
@@ -1987,8 +1991,8 @@ def _measured_html() -> str:
         f"Perfusion with animal cells above about {value('vm_perf_max_m3'):.0f} cubic metres, and a way to hold cells back at "
         f"{value('vm_str_m3'):.0f}.",
         f"Meat cells denser than about {value('vm_x_meat_shown'):.0f} g a litre in a tank of a cubic metre or more.",
-        "Meat cells that make under 0.14 mol of ammonia a kilo, or under 1.05 mol of lactate per mol of glucose. Bovine cells on the "
-        "low-ammonia feed doubling faster than 42.9 hours.",
+        "Meat cells that make under 0.14 mol of ammonia a kilo, or under 1.05 mol of lactate per mol of glucose. Bovine cells on a "
+        "feed without glutamine doubling faster than 42.9 hours.",
         "The ammonia and CO₂ that muscle or fish cells tolerate when dense. How much gas and foam dense cultures stand at 20 cubic metres.",
         "A pumped column, extra pressure or recycled oxygen with meat cells.",
         "The real cost of a food-grade plant for animal cells, with or without shared medium.",
@@ -2527,8 +2531,8 @@ expert has reviewed the model yet. It is not investment or business advice. <a h
 <div id="l1_refs"></div>
 <div class="chart">
 <h3 id="l1title">The cost after each step, from the published cells to the all-favourable example</h3>
-<p class="sub">Each bar is the cost of a kilo of cells after one more change. The bar is the median of the model's draws, and the thin
-line is the range that holds 8 in 10 of them. The tag says what the step changes.</p>
+<p class="sub">Each bar is the cost of a kilo of cells after one more change, with every estimate at its most likely value. The thin
+line is the range that holds 8 in 10 of the model's draws. The tag says what the step changes.</p>
 <div class="hbars" id="l1chart" role="group" aria-labelledby="l1title" aria-describedby="l1alt"></div>
 <p class="alt" id="l1alt"></p>
 <details class="tv"><summary>Show the steps as a table</summary><div class="scrollx" id="l1table"></div></details>
@@ -2611,8 +2615,8 @@ Each row is one of four kinds. <span class="tag">a trait of the cells</span>: on
 <div class="plot" id="l3tplot"><svg id="l3time" role="img" aria-labelledby="l3ttitle" aria-describedby="l3talt"></svg><div class="tipbox" id="l3ttip"></div></div>
 <p class="alt" id="l3talt"></p>
 </div>
-<p class="small">The path uses the way other new products have spread (first a few early adopters, then word of mouth) and lets wariness of a
-new food fade as people meet it. The cost stays fixed along the path. The timing is less certain than the long-run share. The settings are under
+<p class="small">The share year by year follows the way other new products have spread (first a few early adopters, then word of mouth) and lets wariness of a
+new food fade as people meet it. The cost stays fixed over the years. The timing is less certain than the long-run share. The settings are under
 <a href="#shoppers">How a shop price becomes a share</a>.</p>
 </div></details>
 
@@ -2641,7 +2645,7 @@ The culture must not pass through the loop too many times an hour, and must not 
 <h3>Settings whose effects depend on each other</h3>
 <p class="small">A pair is listed when changing one setting saves a different amount once the other has changed.</p>
 <div id="sc_notes"></div>
-<div class="blk" id="cellsxtank"><h3>The cost for each kind of cell in each kind of tank</h3>
+<div class="blk" id="cellsxtank"><h3>The cost for four sets of cell traits in three kinds of tank</h3>
 {{GRID_HTML}}
 </div>
 <h3>The cost as the medium gets cheaper</h3>
@@ -2818,8 +2822,8 @@ like a cultivated cut or premium product than cultivated mince (&tau;).</p></div
 <p class="small"><label for="cmpSel">Product</label> <select id="cmpSel" style="width:auto"></select></p>
 <div class="scrollx"><svg id="milk" class="w720" viewBox="0 0 720 320" role="img" aria-label="The model's share for another product beside its observed share"></svg></div></div>
 <div class="chart"><h3>Products it could enter first</h3>
-<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. The words beside each product say whether cultivated meat is already cheaper, about equal, cheaper only in the all-favourable example, or not even then. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat can already beat luxury products on price, but those markets are tiny. Commodity meat, where the volume is,
-stays out of reach.</p>
+<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. In the cost view, a bar runs from each product's price to cultivated meat's cost, so a bar that runs down means cultivated meat costs less. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat already costs less than some luxury products, but those markets are small. It costs more than
+commodity meat, which is most of the volume.</p>
 <div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
 <p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
 <div class="scrollx"><svg id="foothold" class="w720" viewBox="0 0 720 380" role="img" aria-label="Products cultivated meat could enter first, by price and size of market"></svg></div>
@@ -2862,7 +2866,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         <li><b>Incomes in nominal dollars.</b> Each region's income is its GDP per head in current US dollars, the same units as its
         meat prices (A2).</li>
         <li><b>Plant-based meat by volume.</b> The shopper model is fitted to plant-based meat's share of meat by volume,
-        {{PB_TARGET}}%: 0.7% of US meat sales by value, at a price 77% above meat [14].</li>
+        {{PB_TARGET}}%: 0.7% of US meat sales by value, at a price 77% above the conventional meat it copies [14].</li>
         <li><b>Conventional meat's price responds.</b> As cultivated meat takes a share of a region's meat, conventional meat's prices
         fall, by the factor (1 &minus; share) to the power 1/(supply elasticity &minus; demand elasticity), with a supply elasticity of
         {{MK_ES}} and a demand elasticity of {{MK_ED}}. The cheaper meat holds the share back, most where the share is large.</li>
@@ -2881,7 +2885,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </details>
 
       <details class="step" id="step1"><summary><b>Step 1 · From cost to price.</b> The cost of a kilo of cells is medium, plant and
-      losses. The shop price adds the costs of reaching the shelf and the shop's margin. At the median cost that is {{R_CENTRAL}} times
+      losses. The shop price adds the costs of reaching the shelf and the shop's margin. With every estimate at its most likely value that is {{R_CENTRAL}} times
       the price of US minced beef or pork cuts ($12 a kilo) for the low-lactate example and {{R_BEST}} times for the all-favourable example.</summary>
       <p>The <b>price ratio</b> <i>R</i> is cultivated meat's price in the shop divided by the price of the conventional
       meat beside it. A ratio of 1 means the same price, and 2 means twice the price. The shop price has three parts:</p>
@@ -2910,12 +2914,12 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </ul>
       <p><b>The cases.</b> How these parts come out depends on {{N_SWITCHES}} decisions, the settings under
       <a href="#engineering">How the tank and the plant set the cost</a>. A reference point is one combination of them. Every cost on this page is for one kilo of real
-      cells, which are about 70% water and 20% protein, like meat, in 2025 prices. At the median of the draws a kilo costs
-      ${{TODAY_COST_P50}} with the published cells (8 in 10 draws between ${{TODAY_COST_P10}} and ${{TODAY_COST_P90}}),
-      ${{CENTRAL_COST_P50}} for the low-lactate example (${{CENTRAL_COST_P10}} to ${{CENTRAL_COST_P90}}) and ${{BEST_COST_P50}} for the all-favourable example
-      (${{BEST_COST_P10}} to ${{BEST_COST_P90}}). With every estimate at its most likely value the figures are ${{COST_TODAY}},
-      ${{COST_CENTRAL}} and ${{COST_BEST}}. The most-likely-values figure is below the median in every case, because most of the
-      estimates have more room to come in worse than better. To sell at the shop price of US minced beef or pork cuts (${{PCONV}} a
+      cells, which are about 70% water and 20% protein, like meat, in 2025 prices. With every estimate at its most likely value a kilo
+      costs ${{COST_TODAY}} with the published cells, ${{COST_CENTRAL}} for the low-lactate example and ${{COST_BEST}} for the
+      all-favourable example. 8 in 10 draws fall between ${{TODAY_COST_P10}} and ${{TODAY_COST_P90}}, ${{CENTRAL_COST_P10}} and
+      ${{CENTRAL_COST_P90}}, and ${{BEST_COST_P10}} and ${{BEST_COST_P90}}; the middle draws are ${{TODAY_COST_P50}},
+      ${{CENTRAL_COST_P50}} and ${{BEST_COST_P50}}. The most-likely-values figure is below the middle draw in every case, because
+      most of the estimates have more room to come in worse than better. To sell at the shop price of US minced beef or pork cuts (${{PCONV}} a
       kilo), a kilo of cells must cost ${{PARITY_BIOMASS}}.</p>
       <p><b>What the draws vary.</b> Each case's settings stay fixed, but the estimates behind it can be off. The draws vary these estimates:
       the plant estimate and the yearly charge on it; the life and price of the filter membranes; the share of a cell's oxygen that goes to
@@ -2993,7 +2997,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       <p><b>At equal price</b>, once the product is familiar, {{PARITY_NEUTRAL}}% of shoppers choose cultivated meat and
       {{CONV_PARITY}}% choose conventional meat. The {{PARITY_NEUTRAL}}% is a judgement, not a result. At first contact a US choice
       experiment found about 5% [8], and the setting assumes that a third of that first wariness fades. Because shoppers differ so much
-      in how much they like it, a lower price wins fewer of them than one might expect. At half the price of meat {{HALF_PRICE}}% choose
+      in how much they like it, a lower price wins fewer of them than one might expect. At half the price of the conventional meat it copies {{HALF_PRICE}}% choose
       it, and if it were free {{FREE_PRICE}}% would, so {{NEVER_BUY}}% never take it. The first screen's slider sets this
       share, and the chart there shows what it does to the answer. Around the {{PARITY_NEUTRAL}}% setting, these other judgements move
       the share at equal price:</p>
@@ -3067,8 +3071,8 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </ul>
       <p class="example"><b>Worked example</b> (a US shopper, and one cultivated product always sold at the price of the conventional meat it copies). The share starts
       from nothing at launch. It is {{Y10_SHARE}}% after 10 years and {{Y30_SHARE}}% after 30. The long-run ceiling is
-      {{PARITY_NEUTRAL}}%. The path reaches nine tenths of it in year {{STAB_YEAR}}. The chart in
-      <a href="#where">Share by type of meat, by region and over time</a> draws the same path for your settings' whole market, and prints its own year.</p>
+      {{PARITY_NEUTRAL}}%. The share reaches nine tenths of it in year {{STAB_YEAR}}. The chart in
+      <a href="#where">Share by type of meat, by region and over time</a> draws the same curve for your settings' whole market, and prints its own year.</p>
       <p><b>For timing, the biggest unknown</b> is how wary people are at the start. Surveys range from ~5% (a cold choice
       experiment) to ~60% (&ldquo;cultivated chicken in a restaurant&rdquo;) [10]. The &ldquo;starting wariness&rdquo; setting
       runs from {{NX0_MIN}}% at &minus;3.5 to {{NX0_WARM}}% at +1.5, with {{NX0_NEUTRAL}}% at 0 (each at equal price). The warmest
@@ -3076,15 +3080,15 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       because its taste and price gaps do not fade.</p>
       </details>
 
-      <details class="step" id="entry"><summary><b>Which products first.</b> Cultivated meat can already beat luxury products on price,
-      but those markets are tiny. Commodity meat is out of reach, even in the all-favourable example.</summary>
+      <details class="step" id="entry"><summary><b>Which products first.</b> Cultivated meat already costs less than some luxury products,
+      but those markets are small. It costs more than commodity meat, even in the all-favourable example.</summary>
       <p>A luxury price is mostly not cost. A5 wagyu or caviar is dear because of breed, origin and scarcity
       (<i>economic rent</i>). Cultivated meat can copy the meat but not the pedigree. So the model compares its cost with
       the product's <b>ordinary grade</b> (farmed salmon, crossbred wagyu). A <b>prestige core</b> of buyers never
       switches. The setting is 25%, a proxy taken from the only two published splits (wild salmon and bellota ibérico).</p>
       <p>Cultivated meat is already cheaper than foie gras, bluefin tuna, sea urchin and wagyu, and lobster is close. Each of these markets is only thousands to
       hundreds of thousands of tonnes a year. Commodity beef, pork and chicken are tens of millions of tonnes each, and
-      the chart of which products it could enter first uses whole-category volumes. Cultivated meat stays out of reach for these at world prices. New technologies often start at the top
+      the chart of which products it could enter first uses whole-category volumes. At world prices cultivated meat costs more than these. New technologies often start at the top
       and move down-market as costs fall [18], [19]. Foie gras stands out. It is unstructured, it is expensive, and more places are
       banning it on welfare grounds that do not apply to a cultivated version.</p>
       <p>That chart gives luxury products higher shares than the chart of share by type of meat does. It removes the prestige core and treats the
@@ -3126,7 +3130,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         <li><b>Timing is rougher than the ceilings.</b> It uses a durable-goods Bass curve plus a familiarity fade, and the two may
         overlap. Costs stay fixed.</li>
         <li><b>A fixed mix of meats</b> in each region. A meat tax scales all prices equally.</li>
-        <li><b>The existing price ladder.</b> Niche routes (pet food, new species and &ldquo;no animal harmed&rdquo; products)
+        <li><b>The current range of meat prices.</b> Niche markets (pet food, new species and &ldquo;no animal harmed&rdquo; products)
         score as small.</li>
         <li><b>Meat only.</b> Cultivated egg and dairy proteins use precision fermentation and need their own
         model.</li>
@@ -3204,7 +3208,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       about sixfold. At 8.5 the typical miss is under threefold, and the best fit is at 10. So 8.5 is the best fit
       to the premium products within what the experiment allows. \(\kappa\) changes nothing at equal price. Once
       shoppers are familiar with the product, the model's elasticity is about {{ELAS_10}} at parity, {{ELAS_15}} at
-      \(R=1.5\) and {{ELAS_24}} at \(R=2.4\). At one and a half times the price of meat, \(\kappa=4\) gives a share of about {{KAPPA_LO}}%,
+      \(R=1.5\) and {{ELAS_24}} at \(R=2.4\). At one and a half times the price of the conventional meat it copies, \(\kappa=4\) gives a share of about {{KAPPA_LO}}%,
       8.5 about {{KAPPA_MID}}% and 10 about {{KAPPA_HI}}%. \(\kappa\) plays the role that a nested logit's
       similarity parameter would play for a &ldquo;real meat&rdquo; nest, but it applies to price only.</p>
 
@@ -3216,7 +3220,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       \(y_{\rm eff}=y_{\rm ref}\,(y/y_{\rm ref})^{\phi}\), with \(\phi={{PHI}}\), chosen so that a shopper in Nigeria is about
       2.2 times as price-sensitive as one in the US at equal price, the gap in the data [15]. (\(\phi=0\) removes income. US results
       do not depend on \(\phi\).) For
-      the same product at one and a half times the price of meat, this gives {{SHARE_15_US}}% in the US, {{SHARE_15_CHINA}}% in
+      the same product at one and a half times the price of the conventional meat it copies, this gives {{SHARE_15_US}}% in the US, {{SHARE_15_CHINA}}% in
       China and {{SHARE_15_NIGERIA}}% in Nigeria. Wealth relaxes price sensitivity but does not erase the other differences. Even a very rich shopper
       buys cultivated meat only {{INCOME_CAP}}% of the time at that price.</p>
 
@@ -3225,7 +3229,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       loss [13]. The term \(-\lambda(d_j)^{+}+(d_j)^{-}\) rewards a discount at rate 1 and penalises a premium at rate
       \(\lambda\). The default \(\lambda=1\) is symmetric, and the slider goes up to Tversky and Kahneman's 2.25. The model leaves it
       symmetric by default for three reasons. First, it barely changes the result once \(\beta\) is re-fitted (at one and a half
-      times the price of meat, {{LAMBDA_1}}% at \(\lambda=1\) against {{LAMBDA_225}}% at 2.25). Second, cultivated meat data cannot identify it. Third,
+      times the price of the conventional meat it copies, {{LAMBDA_1}}% at \(\lambda=1\) against {{LAMBDA_225}}% at 2.25). Second, cultivated meat data cannot identify it. Third,
       measured loss aversion largely reflects differences in price sensitivity between shoppers (Bell and Lattin,
       2000), and \(\kappa\) already contains those.</p>
 
@@ -3422,7 +3426,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         Wright, T.&nbsp;P. Factors affecting the cost of airplanes. <i>J. Aeronaut. Sci.</i> <b>3</b>, 122&ndash;128 (1936);
         Arrow, K.&nbsp;J. The economic implications of learning by doing. <i>Rev. Econ. Stud.</i> <b>29</b>, 155&ndash;173 (1962).
         <a href="https://doi.org/10.2307/2295952" target="_blank" rel="noopener">doi:10.2307/2295952</a></li>
-        <li id="ref19"><b>[19]</b> <b>Moving down a quality ladder as costs fall:</b>
+        <li id="ref19"><b>[19]</b> <b>Moving to cheaper grades as costs fall:</b>
         Spence, A.&nbsp;M. The learning curve and competition. <i>Bell J. Econ.</i> <b>12</b>, 49&ndash;70 (1981).
         <a href="https://doi.org/10.2307/3003508" target="_blank" rel="noopener">doi:10.2307/3003508</a></li>
 <li id="ref20"><b>[20]</b> <b>A measured 20-day run; no longer the cost anchor:</b> Pasitka, L. <i>et al.</i>
@@ -3996,6 +4000,12 @@ function txRsub(p,x,y,pre,sub,suf,a){const t=el("text",Object.assign({x,y},a||{}
   const mk=(txt,extra)=>{const s=el("tspan",extra||{},t);s.textContent=txt;};
   mk(pre); mk("R"); mk(sub,{"baseline-shift":"sub","font-size":"0.75em"}); mk(suf); return t;}
 function clear(svg){while(svg.firstChild)svg.removeChild(svg.firstChild);}
+// The width to draw a chart of the lower sections at: its usual width on a wide screen (the CSS scales it to the column), the
+// width of its box on a phone (under 560 px), so its text keeps its size there instead of shrinking with the whole chart.
+function lvW(svg,nominal,minW){ const p=svg&&svg.parentElement, w=p&&p.clientWidth?p.clientWidth:0;
+  return (!w||w>=560)?nominal:Math.max(minW||300,Math.floor(w)); }
+function lvBox(id,nominal){ const e=typeof document!=="undefined"&&document.getElementById(id), w=e&&e.clientWidth?e.clientWidth:0;
+  return (!w||w>=560)?nominal:Math.max(300,Math.floor(w)); }
 const fmtPct=v=>(v*100).toFixed(0)+"%";
 // Tooltip text is authored with light HTML markup (subscripts like R<sub>x</sub>, &times;, &rho;,
 // &sect; …) and is ENTIRELY build-time / author-controlled (no user input ever reaches it), so it is
@@ -4019,15 +4029,18 @@ function drawCost(s){
   const par=parityCost(s);
   const marks=TP.refs.filter(r=>r.kind==="scenario").map(r=>({c:scWithExtra({},()=>scEval(r.choice)).total,lab:r.label,col:"#117733"}));
   marks.forEach(m=>{ m.lab+=", $"+m.c.toFixed(1); });
-  marks.push({c:par,lab:"same shop price as meat, $"+par.toFixed(1),col:"#CC3311",par:true});
-  const W=720,H=300,mL=42,mT=14,mB=40, x0=0.10,x1=1.0;
-  const mR=Math.min(360,22+4.6*Math.max.apply(null,marks.map(m=>m.lab.length))), PR=W-mR;   // room for the longest name
+  marks.push({c:par,lab:"same shop price as US minced beef or pork cuts, $"+par.toFixed(1),col:"#CC3311",par:true});
+  // on a phone (lvW under 560) the names of the dashed lines go inside the plot, at its right end, so the plot keeps the width
+  const W=lvW(svg,720,300), nar=W<560, H=300,mL=42,mT=14,mB=40, x0=0.10,x1=1.0;
+  const mR=nar?8:Math.min(360,22+4.6*Math.max.apply(null,marks.map(m=>m.lab.length))), PR=W-mR;   // room for the longest name
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
   const own=pgPointCost();                                                                    // the reader's case, at its most likely values
   const y1=Math.max(50,10*Math.ceil((Math.max.apply(null,marks.map(m=>m.c).concat([own]))+3)/10));
   const X=v=>mL+(PR-mL)*(v-x0)/(x1-x0), Y=v=>H-mB-(H-mT-mB)*v/y1;
   el("line",{x1:mL,y1:H-mB,x2:PR,y2:H-mB,stroke:"#ccc"},svg);
   el("line",{x1:mL,y1:mT,x2:mL,y2:H-mB,stroke:"#ccc"},svg);
-  for(let v=0;v<=y1;v+=10){tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
+  const yst=[10,20,50,100,200].find(v=>y1/v<=8)||500;      // at most about eight labelled lines up the side
+  for(let v=0;v<=y1;v+=yst){tx(svg,mL-5,Y(v)+3,v,{"font-size":9,"text-anchor":"end",fill:"#666"});
     el("line",{x1:mL,y1:Y(v),x2:PR,y2:Y(v),stroke:"#f0f0f0"},svg);}
   [0.2,0.4,0.6,0.8,1.0].forEach(v=>tx(svg,X(v),H-mB+13,v.toFixed(2).replace(/0$/,""),
     {"font-size":9,"text-anchor":"middle",fill:"#666"}));
@@ -4045,9 +4058,10 @@ function drawCost(s){
   marks.forEach(m=>{ m.y=Y(m.c);
     el("line",{x1:mL,y1:m.y,x2:PR,y2:m.y,stroke:m.col,"stroke-dasharray":m.par?"1 3":"4 3",opacity:m.par?1:0.7},svg); });
   const gap=12, ord=marks.slice().sort((a,b)=>a.y-b.y);
-  ord.forEach((m,i)=>{ m.ly=Math.max(m.y+3,i?ord[i-1].ly+gap:mT+6); });
+  ord.forEach((m,i)=>{ m.ly=Math.max(m.y+(nar?-3:3),i?ord[i-1].ly+gap:mT+6); });
   for(let i=ord.length-1;i>=0;i--){ const cap=(i===ord.length-1)?H-mB:ord[i+1].ly-gap; if(ord[i].ly>cap) ord[i].ly=cap; }
   ord.forEach(m=>{
+    if(nar){ tx(svg,PR-2,m.ly,m.lab,{"font-size":8,fill:m.col,"text-anchor":"end",stroke:"#fff","stroke-width":2.5,"paint-order":"stroke"}); return; }
     el("path",{d:"M"+PR+" "+m.y.toFixed(1)+" L"+(PR+8)+" "+(m.ly-3).toFixed(1)+" L"+(PR+11)+" "+(m.ly-3).toFixed(1),fill:"none",stroke:m.col,"stroke-width":0.7,opacity:0.8},svg);
     tx(svg,PR+13,m.ly,m.lab,{"font-size":8,fill:m.col}); });
   // marker
@@ -4061,7 +4075,8 @@ function drawCost(s){
 }
 function drawCurve(s){
   const svg=document.getElementById("curve");clear(svg);
-  const W=420,H=300,mL=40,mR=14,mT=22,mB=40, x0=0.5,y1=90;
+  const W=lvW(svg,420,300),H=300,mL=40,mR=14,mT=22,mB=40, x0=0.5,y1=90;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
   // the chosen product: whether it is a cut, and how premium, sets its offset (tierOffset)
   const market=MODEL.markets[s.region];
   const mt=market.find(m=>m.name===state.curveType)||market[0];
@@ -4082,7 +4097,7 @@ function drawCurve(s){
     tx(svg,X(v),H-mB+13,(v%1?v.toFixed(1):v.toFixed(0)),{"font-size":9,"text-anchor":"middle",fill:"#666"});}
   // parity line
   el("line",{x1:X(1),y1:mT,x2:X(1),y2:H-mB,stroke:"#999","stroke-dasharray":"4 3"},svg);
-  tx(svg,X(1)+3,mT+9,"equal price",{"font-size":8,fill:"#999"});
+  tx(svg,X(1)+3,H-mB-4,"equal price",{"font-size":8,fill:"#999"});
   tx(svg,mL+34,mT-8,mt.name,{"font-size":9,fill:"#333","font-weight":700});
   // all four product shares vs cultivated's price ratio R_x (cultivated is the bold line)
   const LINES=[["c","conventional","#E69F00",1.3],["p","plant-based","#117733",1.3],
@@ -4111,7 +4126,7 @@ function drawCurve(s){
   const shp=evW(Rp,"p");
   const px=X(Math.max(x0,Math.min(Rp,x1))), py=Y(shp*100);
   el("circle",{cx:px,cy:py,r:4,fill:"#117733"},svg);
-  tx(svg,(mL+W-mR)/2,H-3,"Cultivated meat's price, as a multiple of the conventional price",{"font-size":9,"text-anchor":"middle",fill:"#444"});
+  tx(svg,(mL+W-mR)/2,H-3,W<400?"Its price, as a multiple of the conventional price":"Cultivated meat's price, as a multiple of the conventional price",{"font-size":9,"text-anchor":"middle",fill:"#444"});
   tx(svg,mL-30,mT-8,"share, %",{"font-size":9,fill:"#444"});
 }
 /* MILK vs MEAT: the cross-category validation, depicted. Plant-based MILK (~15%) vs plant-based
@@ -4146,7 +4161,7 @@ function cmpShare(pd){
    gap that sets the share, and every weight slider moves its bar. */
 function drawBreakdown(s){
   const svg=document.getElementById("breakdown"); if(!svg||!KP) return; clear(svg);
-  const xL=104, xR=412, xz=(xL+xR)/2, padTop=34, rowH=25;
+  const W=lvW(svg,420,300), xL=W<400?84:104, xR=W-8, xz=(xL+xR)/2, padTop=34, rowH=25;
   const market=MODEL.markets[s.region], bases=speciesBases(market);
   const mt=market.find(m=>m.name===s.curveType)||market[0];     // SHARED selector with panel 4a
   const b=biomass(s), rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
@@ -4183,26 +4198,27 @@ function drawBreakdown(s){
   const yN=padTop+FACT.length*rowH+16, net=bd._net;
   el("line",{x1:xL-6,y1:yN-11,x2:xR,y2:yN-11,stroke:"#eee","stroke-width":1},svg);
   tx(svg,xL-6,yN+3,"net",{"font-size":9.5,fill:"#111","text-anchor":"end","font-weight":700});
-  svg.setAttribute("viewBox","0 0 420 "+(yN+34));
+  svg.setAttribute("viewBox","0 0 "+W+" "+(yN+34));
   tx(svg,xz,yN+22,"Share of all shoppers, with the spread of liking: "+pgPctS(blended*100),{"font-size":9.5,fill:"#111","text-anchor":"middle"});
   tx(svg,xz,yN+3,(net>=0?"+":"")+net.toFixed(2)+" points for the average mainstream shopper",
      {"font-size":9.5,fill:"#111","text-anchor":"middle","font-weight":700});
 }
 function drawMilk(s){   // (id kept "milk"; now the general comparison-product chart, full width)
   const svg=document.getElementById("milk"); if(!svg) return; clear(svg);
-  const W=720,H=320,mT=26,mB=44;
+  // on a phone (lvW under 560) the bars come first and the product's facts go under them, at the screen's width
+  const W=lvW(svg,720,300), nar=W<560, H=nar?240:320, mT=nar?40:26, mB=nar?30:44;
   const PR=C.comparison_products, names=Object.keys(PR);
   const sel=s.cmpProduct||names[0], pd=PR[sel];
   const model=cmpShare(pd)*100, obs=pd.obs;
   // LEFT HALF: model-vs-observed bars; RIGHT HALF: the positions swapped in.
-  const bL=44, bR=W*0.46;                                            // bar-panel bounds
+  const bL=44, bR=nar?W-10:W*0.46;                                   // bar-panel bounds
   const ymax=Math.max(20, Math.ceil(Math.max(model,obs)/10)*10);
   const Y=v=>H-mB-(H-mT-mB)*v/ymax;
   el("line",{x1:bL,y1:H-mB,x2:bR,y2:H-mB,stroke:"#ccc"},svg);
   for(let v=0;v<=ymax;v+=ymax/5){tx(svg,bL-5,Y(v)+3,Math.round(v)+"%",{"font-size":8.5,"text-anchor":"end",fill:"#666"});
     el("line",{x1:bL,y1:Y(v),x2:bR,y2:Y(v),stroke:"#f3f3f3"},svg);}
   const bars=[["model",model,"#0173B2"],["observed",obs,"#5AAE61"]];
-  const bw=104, gap=(bR-bL-2*bw)/3;
+  const bw=nar?Math.min(90,(bR-bL)/3.2):104, gap=(bR-bL-2*bw)/3;
   bars.forEach(([lab,v,col],i)=>{
     const x=bL+gap+i*(bw+gap);
     el("rect",{x,y:Y(v),width:bw,height:(H-mB)-Y(v),fill:col,opacity:0.85},svg);
@@ -4219,10 +4235,11 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
   if(_isMeat){ title="The model is tuned to “"+sel+"”, so this is not a test"; tcol="#888"; }
   else if(_isEgg){ title=(ok?"✓ ":"")+"“"+sel+"”: this tests a different lever (welfare, not authenticity)"; tcol=ok?"#0173B2":"#666"; }
   else { title=(ok?"✓ Out of sample: the model reproduces “":"The model gives “")+sel+"”"+(ok?" (not tuned to it)":""); tcol=ok?"#0173B2":"#666"; }
-  tx(svg,W/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});  // center over FULL width (not the left bar-panel) so the long title doesn't clip off the left edge
+  if(nar) txWrap(svg,W/2,12,title,W-8,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700},13);
+  else tx(svg,W/2,mT-12,title,{"font-size":10,"text-anchor":"middle",fill:tcol,"font-weight":700});  // center over FULL width (not the left bar-panel) so the long title doesn't clip off the left edge
   // RIGHT HALF: positions swapped in (same β, income, q) + the note
-  const pX=W*0.52, pVal=W-18;
-  let ry=mT+10;
+  const pX=nar?2:W*0.52, pVal=nar?W-2:W-18;
+  let ry=nar?H+14:mT+10;
   tx(svg,pX,ry,"The product's facts. Only these change:",{"font-size":9,fill:"#888"}); ry+=20;
   const isMeat=(pd.w_rt===null);
   const hh=(pd.health!==undefined?pd.health:0);
@@ -4248,8 +4265,8 @@ function drawMilk(s){   // (id kept "milk"; now the general comparison-product c
     if(why){ry=txWrap(svg,pX+10,ry,String(why).replace(/\s*—\s*/g,": ").replace(/→/g,"so"),whyW,{"font-size":8,fill:"#999"},10); ry+=1;}
     el("line",{x1:pX+4,y1:ry-3,x2:pVal,y2:ry-3,stroke:"#f0f0f0"},svg); ry+=7;});
   ry+=4; ry=txWrap(svg,pX,ry,String(pd.note).replace(/\s*—\s*/g,": ").replace(/→/g,"so"),pVal-pX,{"font-size":8.5,fill:"#999"},11);
-  ry+=12; tx(svg,pX,ry,"The same shopper model with a different product is a test outside meat.",
-     {"font-size":8.5,fill:"#0173B2","font-style":"italic"});
+  ry+=12; ry=txWrap(svg,pX,ry,"The same shopper model with a different product is a test outside meat.",pVal-pX,
+     {"font-size":8.5,fill:"#0173B2","font-style":"italic"},11)-11;
   // grow the viewBox to fit the (now variable-height, wrapped) right-hand column
   svg.setAttribute("viewBox","0 0 "+W+" "+Math.max(H, ry+14));
 }
@@ -4288,14 +4305,6 @@ function footHasRent(p){return p.p_base!=null && p.p_conv!=null && p.p_base<p.p_
 function footPhi(p){return footHasRent(p) ? (state.phi===undefined?0.25:state.phi) : 0;}  // global prestige share φ where a rent tier exists
 function footAddr(p){return (1-footPhi(p))*p.volume_kt;}                              // addressable base (prestige core removed)
 function footDisplace(s,p){return footShare(s,p)*footAddr(p);}  // conventional volume DISPLACED (kt/yr) = break-even share × addressable. The rung's impact metric — NO margin/profit claim: cultivated is assumed to price at its own cost (0% margin), since cost, price and volume are too coupled to pin a credible $-figure.
-function footReach(s,p){   // reachability zone at the accessible price, with a ±$3 "at parity" band so
-  const structured=p.structure==="structured";   // knife-edge products (salmon vs unagi) don't look categorical
-  const cost=footRetail(s,structured), fl=footFloor(s,structured), b=p.p_base;
-  if(Math.abs(b-cost)<=3) return {zone:"par",  col:"#56B4E9"};   // borderline / essentially at parity
-  if(b>=cost)             return {zone:"now",  col:"#117733"};
-  if(b>=fl)               return {zone:"floor",col:"#E69F00"};
-  return {zone:"never", col:"#BBBBBB"};
-}
 function fillFootholdSel(){
   const sel=document.getElementById("footSel"); if(!sel) return;
   const P=C.foothold_products;
@@ -4312,7 +4321,8 @@ function drawFoothold(s){
   footCaption(s);
 }
 function drawFootWaterline(s,svg){
-  const W=720,H=380,mL=52,mR=156,mT=22,mB=84;
+  // on a phone (lvW below 560) the chart is drawn at the screen's width: the line names go inside the plot and the keys below it
+  const W=lvW(svg,720,300), nar=W<560, H=nar?360:380, mL=nar?40:52, mR=nar?8:156, mT=22, mB=nar?92:84;
   const P=C.foothold_products.slice().sort((a,b)=>b.p_base-a.p_base);   // by the ACCESSIBLE price cultivated competes at
   const selLabel=(C.foothold_products[state.footSel]||{}).label;        // highlight by identity (P is re-sorted)
   const n=P.length, yLo=6, yHi=2600;
@@ -4328,15 +4338,14 @@ function drawFootWaterline(s,svg){
   el("rect",{x:mL,y:Math.min(Y(seaS),Y(seaU)),width:W-mL-mR,height:Math.abs(Y(seaU)-Y(seaS)),fill:"#0072B2",opacity:0.12},svg);
   el("line",{x1:mL,y1:Y(seaU),x2:W-mR,y2:Y(seaU),stroke:"#0072B2","stroke-width":1.8},svg);
   el("line",{x1:mL,y1:Y(seaS),x2:W-mR,y2:Y(seaS),stroke:"#0072B2","stroke-width":1.1,"stroke-dasharray":"5 2"},svg);
-  const cutAbove=seaS>=seaU;
-  tx(svg,W-mR+4,Y(seaS)+(cutAbove?-3:11),"a cultivated cut $"+seaS.toFixed(0),{"font-size":8,fill:"#0072B2"});
-  tx(svg,W-mR+4,Y(seaU)+(cutAbove?9:-1),"cultivated mince $"+seaU.toFixed(0),{"font-size":8,fill:"#0072B2","font-weight":700});
+  const cutAbove=seaS>=seaU, lx=nar?W-mR-2:W-mR+4, la=nar?{"text-anchor":"end",stroke:"#fff","stroke-width":2.5,"paint-order":"stroke"}:{};
+  tx(svg,lx,Y(seaS)+(cutAbove?-3:11),"a cultivated cut $"+seaS.toFixed(0),Object.assign({"font-size":8,fill:"#0072B2"},la));
+  tx(svg,lx,Y(seaU)+(cutAbove?9:-1),"cultivated mince $"+seaU.toFixed(0),Object.assign({"font-size":8,fill:"#0072B2","font-weight":700},la));
   el("line",{x1:mL,y1:Y(floorU),x2:W-mR,y2:Y(floorU),stroke:"#0072B2","stroke-width":1,"stroke-dasharray":"2 3",opacity:0.6},svg);
-  tx(svg,W-mR+4,Y(floorU)+3,"all favourable $"+floorU.toFixed(0),{"font-size":8,fill:"#0072B2",opacity:0.8});
+  tx(svg,lx,Y(floorU)+3,"all favourable $"+floorU.toFixed(0),Object.assign({"font-size":8,fill:"#0072B2",opacity:0.8},la));
   P.forEach((p,i)=>{
     const structured=p.structure==="structured";
-    const cost=structured?seaS:seaU, fl=structured?floorS:floorU;
-    const rc=footReach(s,p), reach=rc.zone, col=rc.col;
+    const cost=structured?seaS:seaU, col="#0072B2";   // one colour: the bar's direction says whether it costs less (no zones)
     const r=footRad(footDisplace(s,p)), x=X(i), y=Y(p.p_base);
     // prestige core (rent cultivated can't capture): faint marker at the headline price, dotted down to the base
     if(p.p_conv>p.p_base*1.05){const yp=Y(p.p_conv), rent=p.p_conv-p.p_base;
@@ -4347,26 +4356,28 @@ function drawFootWaterline(s,svg){
         +"\nThe gap is paid for the brand and the scarcity. Cultivated meat cannot capture it, because it is not the original.");
       if(p.label===selLabel) tx(svg,x+5,(yp+y)/2+3,"rent $"+rent,{"font-size":8,fill:"#999","font-style":"italic"});}
     // the vertical bar is the cost→accessible-price gap (reachability headroom): solid up when reachable, dotted-grey deficit
-    if(reach!=="never") el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:col,"stroke-width":2.2,opacity:0.6},svg);
-    else el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:"#CCC","stroke-width":1,"stroke-dasharray":"2 2"},svg);
+    el("line",{x1:x,y1:Y(cost),x2:x,y2:y,stroke:col,"stroke-width":1.6,opacity:0.5},svg);
     tip(el("circle",{cx:x,cy:y,r,fill:col,opacity:0.9,stroke:"#fff","stroke-width":1},svg),footTip(s,p));
     if(p.launched_by) el("circle",{cx:x,cy:y,r:r+3,fill:"none",stroke:"#333","stroke-width":1,opacity:0.7},svg);
     if(p.label===selLabel){el("circle",{cx:x,cy:y,r:r+6,fill:"none",stroke:"#CC3311","stroke-width":1.6},svg);
       tx(svg,x+5,(Y(cost)+y)/2+3,footR(s,p).toFixed(2)+" times",{"font-size":9,fill:"#CC3311","font-weight":700});}
     const short=p.label.replace("cultivated ","").replace(/ \(.*\)/,"");
-    tx(svg,x,H-mB+12,short,{"font-size":7.5,"text-anchor":"end",fill:"#444",transform:"rotate(-42 "+x+" "+(H-mB+12)+")"});
+    const ang=nar?-62:-42;
+    tx(svg,x,H-mB+12,short,{"font-size":7.5,"text-anchor":"end",fill:"#444",transform:"rotate("+ang+" "+x+" "+(H-mB+12)+")"});
   });
   el("line",{x1:mL,y1:H-mB,x2:W-mR,y2:H-mB,stroke:"#ccc"},svg);
-  tx(svg,(mL+W-mR)/2,H-3,"Dot: the product at its everyday price, $ a kilo (log scale). Bar: the gap to cultivated meat's cost. Grey tick: its luxury price.",
-    {"font-size":8,"text-anchor":"middle",fill:"#666"});
-  [["#117733","cheaper now"],["#56B4E9","about equal (within $3)"],["#E69F00","only in the all-favourable example"],["#BBBBBB","not even then"]].forEach(([c,t],k)=>{
-    el("circle",{cx:W-mR+8,cy:mT+8+k*14,r:4,fill:c},svg);tx(svg,W-mR+16,mT+11+k*14,t,{"font-size":8,fill:"#555"});});
-  const _ky=mT+8+4*14;   // the grey tick above each island = the headline (rent) price cultivated can't capture
-  el("circle",{cx:W-mR+8,cy:_ky-3,r:2.5,fill:"#CCC"},svg);
-  el("line",{x1:W-mR+8,y1:_ky,x2:W-mR+8,y2:_ky+8,stroke:"#CCC","stroke-dasharray":"1 2"},svg);
-  tx(svg,W-mR+16,_ky+1,"luxury price (out",{"font-size":8,fill:"#555"});
-  tx(svg,W-mR+16,_ky+11,"of reach)",{"font-size":8,fill:"#555"});
-  footSizeKey(svg,W-mR+16,W-mR+38,mT+8+5*14+16);           // quantified volume legend
+  const cap="Dot: the product at its everyday price, $ a kilo (log scale). Bar: the gap to cultivated meat's cost. Grey tick: its luxury price.";
+  // the keys: the grey tick above a dot is the luxury price cultivated meat cannot take; the bubble sizes. Beside the plot, or under it on a phone
+  const kx=nar?mL:W-mR+8, ky=nar?H+10:mT+8;
+  el("circle",{cx:kx,cy:ky-3,r:2.5,fill:"#CCC"},svg);
+  el("line",{x1:kx,y1:ky,x2:kx,y2:ky+8,stroke:"#CCC","stroke-dasharray":"1 2"},svg);
+  tx(svg,kx+8,ky+1,"luxury price (cultivated",{"font-size":8,fill:"#555"});
+  tx(svg,kx+8,ky+11,"meat cannot take it)",{"font-size":8,fill:"#555"});
+  if(nar){ footSizeKey(svg,W-150,W-128,ky); const yE=txWrap(svg,0,ky+104,cap,W,{"font-size":8,fill:"#666"},11);
+    svg.setAttribute("viewBox","0 0 "+W+" "+Math.ceil(yE)); }
+  else { tx(svg,(mL+W-mR)/2,H-3,cap,{"font-size":8,"text-anchor":"middle",fill:"#666"});
+    footSizeKey(svg,W-mR+16,W-mR+38,mT+8+30);           // quantified volume legend
+    svg.setAttribute("viewBox","0 0 "+W+" "+H); }
 }
 /* per-product PREDICTED SHARE via the demand model (shareCalc), live to the acceptance/price sliders.
    NO new foothold parameter: it is the IDENTICAL Step-2 logit panel 1 uses, with the SAME per-product
@@ -4431,7 +4442,7 @@ function footSizeKey(svg,cx,labx,yTop){                            // quantified
     tx(svg,labx,cy+3,lab+" kt",{"font-size":7.5,fill:"#777"});});
 }
 function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) vs price ratio R (x); the SELECTED product's curve
-  const W=720,H=380,mL=58,mR=150,mT=26,mB=54;
+  const W=lvW(svg,720,300), nar=W<560, H=nar?320:380, mL=nar?40:58, mR=nar?10:150, mT=26, mB=nar?40:54;
   const P=C.foothold_products, sel=C.foothold_products[state.footSel]||P[0], selLabel=sel?sel.label:"";
   const rLo=0.05, rHi=5, yLo=0, yHi=100;
   const X=v=>mL+(W-mL-mR)*(Math.log(Math.max(v,rLo))-Math.log(rLo))/(Math.log(rHi)-Math.log(rLo));
@@ -4439,7 +4450,7 @@ function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) 
   [0,20,40,60,80,100].forEach(v=>{el("line",{x1:mL,y1:Y(v),x2:W-mR,y2:Y(v),stroke:"#f2f2f2"},svg);
     tx(svg,mL-6,Y(v)+3,v+"%",{"font-size":8,"text-anchor":"end",fill:"#aaa"});});
   [0.1,0.3,1,3].forEach(v=>{el("line",{x1:X(v),y1:mT,x2:X(v),y2:H-mB,stroke:v===1?"#bbb":"#f2f2f2","stroke-width":v===1?1.3:1},svg);
-    tx(svg,X(v),H-mB+13,v===1?"1 (equal price)":String(v),{"font-size":8,"text-anchor":"middle",fill:v===1?"#666":"#aaa"});});
+    tx(svg,X(v),H-mB+13,v===1?(nar?"1":"1 (equal price)"):String(v),{"font-size":8,"text-anchor":"middle",fill:v===1?"#666":"#aaa"});});
   P.forEach(p=>{
     if(p.p_base==null) return;
     const R=footR(s,p), sh=100*footShare(s,p);
@@ -4451,19 +4462,21 @@ function drawFootResponse(s,svg){   // demand RESPONSE: share (dependent → y) 
     if(p.label===selLabel){el("circle",{cx:x,cy:y,r:r+6,fill:"none",stroke:"#CC3311","stroke-width":1.8},svg);
       tx(svg,x,y-r-6,selLabel.replace("cultivated ",""),{"font-size":8.5,"text-anchor":"middle",fill:"#CC3311","font-weight":700});}
   });
-  tx(svg,(mL+W-mR)/2,H-3,"Cultivated meat's price as a multiple of the product's ordinary grade (log scale). Hover over a bubble for its name.",
-    {"font-size":8.5,"text-anchor":"middle",fill:"#666"});
-  tx(svg,15,(mT+H-mB)/2,"share of the reachable market, %",{"font-size":8.5,"text-anchor":"middle",fill:"#666",transform:"rotate(-90 15 "+((mT+H-mB)/2)+")"});
-  footSizeKey(svg,W-mR+18,W-mR+40,mT+22);   // quantified volume legend (top-right)
+  const cap="Cultivated meat's price as a multiple of the product's ordinary grade (log scale; 1 is the same price). Hover over a bubble for its name.";
+  tx(svg,12,(mT+H-mB)/2,"share of the market it can take, %",{"font-size":8.5,"text-anchor":"middle",fill:"#666",transform:"rotate(-90 12 "+((mT+H-mB)/2)+")"});
+  if(nar){ const yC=txWrap(svg,0,H-mB+30,cap,W,{"font-size":8.5,fill:"#666"},11); footSizeKey(svg,mL+20,mL+42,yC+8);
+    svg.setAttribute("viewBox","0 0 "+W+" "+Math.ceil(yC+8+3*28+14)); }
+  else { tx(svg,(mL+W-mR)/2,H-3,cap,{"font-size":8.5,"text-anchor":"middle",fill:"#666"});
+    footSizeKey(svg,W-mR+18,W-mR+40,mT+22);   // quantified volume legend (top-right)
+    svg.setAttribute("viewBox","0 0 "+W+" "+H); }
 }
 function footCaption(s){
   const pd=C.foothold_products[state.footSel]; if(!pd) return;
   const structured=pd.structure==="structured", R=footR(s,pd);
-  const zone=R<1?"already cheaper":(pd.p_base>=footFloor(s,structured)?"cheaper only in the all-favourable example":"not even then");
   const disp=footDisplace(s,pd), dispTxt=disp>=1000?(disp/1000).toFixed(1)+" Mt/yr":disp.toFixed(0)+" kt/yr";
   // one line of key numbers; the price basis and notes live in the bubble's hover card (footTip)
   document.getElementById("footcap").innerHTML=
-    "<b>"+pd.label.replace("cultivated ","")+"</b>: cultivated meat costs "+R.toFixed(2)+" times its ordinary grade ("+zone+"). It takes about "+pgPctS(100*footShare(s,pd))+
+    "<b>"+pd.label.replace("cultivated ","")+"</b>: cultivated meat costs "+R.toFixed(2)+" times the price of its ordinary grade. It takes about "+pgPctS(100*footShare(s,pd))+
     " of the reachable market and displaces about "+dispTxt.replace("/yr"," a year")+(pd.launched_by?". Led by "+pd.launched_by:"")+
     ". Hover over a bubble for the price basis. The share stays below 100% even when cultivated meat is far cheaper: once the price is low next to income, taste and the other attributes decide the rest.";
 }
@@ -4569,7 +4582,8 @@ function monteCarloMemo(s,N){ const key=JSON.stringify(s)+"|"+N+"|"+biomass(s); 
 function drawMC(s){
   const mc=monteCarloMemo(s,2000);
   const svg=document.getElementById("mc");clear(svg);
-  const W=720,H=270,mL=24,mR=14,mT=58,mB=34;
+  // on a phone (lvW under 560) the key's lines and the axis title wrap, and the chart is drawn at the screen's width
+  const W=lvW(svg,720,300), nar=W<560, mL=24, mR=14, mT=nar?112:58, mB=nar?48:34, H=mT+178+mB;
   svg.setAttribute("viewBox","0 0 "+W+" "+H);
   // x-axis covers BOTH products' volume distributions + cultivated value (so PB's band fits too)
   const all=mc.vol.concat(mc.val).concat(mc.pvol).sort((a,b)=>a-b), xmax=Math.max(6,pctl(all,99));
@@ -4593,15 +4607,16 @@ function drawMC(s){
     [[p10,0],[p50,1],[p90,0]].forEach(([q,solid])=>el("line",{x1:X(q),y1:mT,x2:X(q),y2:H-mB,
       stroke:c,"stroke-dasharray":solid?"":"3 3","stroke-width":solid?1.5:0.8,opacity:0.85},svg));
     el("rect",{x:mL,y:ty-8,width:10,height:9,fill:c,opacity:0.6},svg);
-    tx(svg,mL+15,ty,lab+": median "+pgPctS(p50)+", 8 in 10 draws between "+pgPct(p10)+"% and "+pgPct(p90)+"%",
-      {"font-size":9.5});ty+=14;
+    const kt=lab+": median "+pgPctS(p50)+", 8 in 10 draws between "+pgPct(p10)+"% and "+pgPct(p90)+"%";
+    if(nar) ty=txWrap(svg,mL+15,ty,kt,W-mL-15,{"font-size":9.5},12)+6; else { tx(svg,mL+15,ty,kt,{"font-size":9.5}); ty+=14; }
   });
-  tx(svg,(mL+W-mR)/2,H-2,"Long-run share of all meat and seafood, %. Solid line: the median. Dashed lines: the range for 8 in 10 draws.",
-    {"font-size":9,"text-anchor":"middle",fill:"#444"});
+  const at="Long-run share of all meat and seafood, %. Solid line: the median. Dashed lines: the range for 8 in 10 draws.";
+  if(nar) txWrap(svg,(mL+W-mR)/2,H-14,at,W-8,{"font-size":9,"text-anchor":"middle",fill:"#444"},11);
+  else tx(svg,(mL+W-mR)/2,H-2,at,{"font-size":9,"text-anchor":"middle",fill:"#444"});
   document.getElementById("mcsub").textContent=
     pgRegionName()+": the long-run share over 2,000 draws of the shopper settings (price sensitivity, the share at equal price, the costs of "+
     "reaching the shelf, a cut's make-up, and plant-based meat's own taste and image). The cost of the cells is held at "+scMoney(biomass(s))+
-    " a kilo (the median of the first screen's cloud). The first screen's range does the opposite: it varies the cost and holds the shopper settings.";
+    " a kilo (the first screen's cost, every estimate at its most likely value). The first screen's range does the opposite: it varies the cost and holds the shopper settings.";
 }
 
 /* ---------- wiring ---------- */
@@ -4722,7 +4737,7 @@ function drawCalc(s,b,retail,conv,R){
   const tax=s.meat_tax!==1?" (benchmark $"+C.p_conv_anchor.toFixed(1)+" &times; price multiplier "+s.meat_tax.toFixed(2)+")":"";
   const f=pgFacts();
   const costStep='<li><b>Cost to grow a kilo of cells.</b> From '+(f.key==="own"?"your settings":f.label)+': the cells, plant, tank, medium and losses together. '+
-      '<span class="eq">'+d1(b)+' a kilo</span> '+(f.cb?'This is the median of the draws.':'This is a single estimate.')+'</li>';
+      '<span class="eq">'+d1(b)+' a kilo</span> '+(f.cb?'Every estimate at its most likely value.':'This is a single estimate.')+'</li>';
   document.getElementById("calc").innerHTML='<ol>'+costStep+
     '<li><b>Price in the shop.</b> Add forming, packing and cold chain per kilo, then the shop\'s margin: '+
       '<span class="eq">('+d1(b)+' + '+d1(s.markup_add)+') &divide; (1 &minus; '+(s.retail_margin*100).toFixed(0)+'%) = '+d1(retail)+' a kilo</span></li>'+
@@ -5277,11 +5292,12 @@ function fxTornadoRows(p,pco2Range){
 let fxTorSel=null;     // index into C.fx.tornado of the factor whose card is open
 function fxTornadoDraw(p,base,parity){
   const allRows=fxTornadoRows(p,fxPco2Range), rows=allRows.filter(r=>Math.abs(r[1]-base)>=0.05||Math.abs(r[2]-base)>=0.05);
-  const W=640, L=218, R=14, rh=30, top=22, H=top+rows.length*rh+26;
+  // on a phone (under 560 px) each factor's name goes on its own line above its bars, at the screen's width
+  const W=lvBox("fx_tornado",640), nar=W<640, L=nar?6:218, R=14, rh=nar?44:30, dy=nar?15:0, top=22, H=top+rows.length*rh+26;
   const all=rows.reduce((a,r)=>a.concat([r[1],r[2]]),[base,parity]);
   const mn=Math.min.apply(null,all), hi=Math.min(Math.max.apply(null,all)*1.05,base*4), lo=Math.max(0,mn-0.12*(hi-mn));   // room for the value labels
   const X=v=>L+(Math.min(v,hi)-lo)/(hi-lo)*(W-L-R), esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:'+Math.round(W*1.22)+'px;max-width:100%;height:auto;display:block" role="img" aria-label="Tornado chart of limiting factors">';
+  let g='<svg viewBox="0 0 '+W+' '+H+'" style="width:'+Math.round(nar?W:W*1.22)+'px;max-width:100%;height:auto;display:block" role="img" aria-label="Tornado chart of limiting factors">';
   rows.forEach((r,i)=>{   // a wide, clickable band per factor (drawn first, under the bars)
     g+='<rect class="fxrow'+(r[5]===fxTorSel?" sel":"")+'" x="0" y="'+(top+i*rh-3)+'" width="'+W+'" height="'+rh+'" onclick="fxTorInfo('+r[5]+')"><title>Click for what this is and where its range comes from</title></rect>';
   });
@@ -5291,14 +5307,14 @@ function fxTornadoDraw(p,base,parity){
     g+='<text x="'+X(parity)+'" y="'+(H-10)+'" font-size="10" text-anchor="middle" fill="#CC3311">parity $'+parity.toFixed(0)+'</text>'; }
   rows.forEach((r,i)=>{
     const y=top+i*rh;
-    g+='<g pointer-events="none"><text x="'+(L-8)+'" y="'+(y+13)+'" font-size="11" text-anchor="end" fill="#1a1a1a"'+(r[5]===fxTorSel?' font-weight="700"':'')+'>'+esc(r[0])+'</text>';
+    g+='<g pointer-events="none"><text x="'+(nar?L:L-8)+'" y="'+(y+(nar?10:13))+'" font-size="11" text-anchor="'+(nar?"start":"end")+'" fill="#1a1a1a"'+(r[5]===fxTorSel?' font-weight="700"':'')+'>'+esc(r[0])+'</text>';
     [[r[1],r[3]],[r[2],r[4]]].forEach(e=>{
       const v=e[0]; if(Math.abs(v-base)<0.05) return;
       const x0=Math.min(X(v),X(base)), w=Math.abs(X(v)-X(base)), col=v<base?"#029E73":"#CC3311", clipped=v>hi;
-      g+='<rect x="'+x0+'" y="'+(y+2)+'" width="'+Math.max(w,1)+'" height="14" fill="'+col+'" opacity="0.85"/>';
-      g+='<text x="'+(v<base?x0-3:x0+w+3)+'" y="'+(y+13)+'" font-size="10" text-anchor="'+(v<base?"end":"start")+'" fill="'+col+'">$'+v.toFixed(1)+(clipped?"+":"")+'</text>';
+      g+='<rect x="'+x0+'" y="'+(y+2+dy)+'" width="'+Math.max(w,1)+'" height="14" fill="'+col+'" opacity="0.85"/>';
+      g+='<text x="'+(v<base?x0-3:x0+w+3)+'" y="'+(y+13+dy)+'" font-size="10" text-anchor="'+(v<base?"end":"start")+'" fill="'+col+'">$'+v.toFixed(1)+(clipped?"+":"")+'</text>';
       // range labels run away from the base line, so the two ends of a factor never collide
-      g+='<text x="'+(v<base?X(base)-4:X(base)+4)+'" y="'+(y+26)+'" font-size="9" text-anchor="'+(v<base?"end":"start")+'" fill="#777">'+esc(e[1])+'</text>';
+      g+='<text x="'+(v<base?X(base)-4:X(base)+4)+'" y="'+(y+26+dy)+'" font-size="9" text-anchor="'+(v<base?"end":"start")+'" fill="#777">'+esc(e[1])+'</text>';
     });
     g+='</g>';
   });
@@ -5376,37 +5392,42 @@ function fxLimitsDraw(r,f){
   const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
   const name={"CO2 removal":"CO\u2082 removal","oxygen supply":"Oxygen supply","mixing":"Mixing","thickness of the culture":"Thickness of the culture",
               "waste build-up":"Waste build-up","other by-products":"Other by-products"};
-  const keys=Object.keys(r.limits), W=640, L=170, R=60, rh=24, top=18;
+  // on a phone (under 560 px) each limit's name goes on its own line above its bar, at the screen's width
+  const keys=Object.keys(r.limits), W=lvBox("fx_limits",640), nar=W<640, L=nar?6:170, R=nar?78:60, rh=nar?36:24, dy=nar?14:0, top=18;
   const fin=keys.map(k=>r.limits[k]).concat(Object.keys(f.limits).map(k=>f.limits[k])).filter(v=>isFinite(v));
   const mx=Math.max(300,Math.ceil(Math.max.apply(null,fin)/50)*50), X=v=>L+Math.min(v,mx)/mx*(W-L-R);
   const XI=v=>isFinite(v)?X(v):L+0.8*(W-L-R);       // a limit the tricks remove: a bar to 80% of the axis
   const bar=(y,v,style)=>'<rect x="'+L+'" y="'+y+'" width="'+Math.max(1,XI(v)-L)+'" height="14" style="'+style+'"/>';
-  const H1=top+keys.length*rh+18;
-  let g='<svg viewBox="0 0 '+W+' '+H1+'" style="width:'+Math.round(W*1.22)+'px;max-width:100%;height:auto;display:block" role="img" aria-label="Density each limit allows">';
+  const H1=top+keys.length*rh+(nar?30:18), wpx=Math.round(nar?W:W*1.22);
+  const nameAt=(y,txt,bind)=>'<text x="'+(nar?L:L-8)+'" y="'+(y+(nar?9:11))+'" font-size="11" text-anchor="'+(nar?"start":"end")+'" style="fill:var(--ink)"'+(bind?' font-weight="700"':'')+'>'+esc(txt)+'</text>';
+  let g='<svg viewBox="0 0 '+W+' '+H1+'" style="width:'+wpx+'px;max-width:100%;height:auto;display:block" role="img" aria-label="Density each limit allows">';
   g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">g of cells per litre the tank can hold</text>';
   keys.forEach((k,i)=>{
     const y=top+i*rh, v=r.limits[k], fv=f.limits[k], bind=(k===r.limit);
-    g+='<text x="'+(L-8)+'" y="'+(y+11)+'" font-size="11" text-anchor="end" style="fill:var(--ink)"'+(bind?' font-weight="700"':'')+'>'+esc(name[k]||k)+'</text>';
-    if(fv!==undefined) g+=bar(y-3,fv,"fill:var(--muted);opacity:0.18");
-    g+=bar(y,v,bind?"fill:var(--accent)":"fill:var(--muted);opacity:0.55");
-    g+='<text x="'+(XI(v)+4)+'" y="'+(y+11)+'" font-size="10" style="fill:'+(bind?'var(--accent)':'var(--muted)')+'">'+
+    g+=nameAt(y,name[k]||k,bind);
+    if(fv!==undefined) g+=bar(y-3+dy,fv,"fill:var(--muted);opacity:0.18");
+    g+=bar(y+dy,v,bind?"fill:var(--accent)":"fill:var(--muted);opacity:0.55");
+    g+='<text x="'+(XI(v)+4)+'" y="'+(y+11+dy)+'" font-size="10" style="fill:'+(bind?'var(--accent)':'var(--muted)')+'">'+
        (isFinite(v)?v.toFixed(0)+" g/L":"none (column)")+(bind?" (binds)":"")+'</text>';
   });
-  g+='<text x="'+L+'" y="'+(H1-4)+'" font-size="9" style="fill:var(--muted)">faint: Humbird\'s optimistic design (holds '+f.density.toFixed(0)+' g/L, limited by '+esc(f.limit)+')</text></svg>';
+  const fnt='faint: Humbird\'s optimistic design (holds '+f.density.toFixed(0)+' g/L, limited by '+esc(f.limit)+')';
+  g+=(nar?'<text x="'+L+'" y="'+(H1-16)+'" font-size="9" style="fill:var(--muted)">faint: Humbird\'s optimistic design</text><text x="'+L+'" y="'+(H1-4)+'" font-size="9" style="fill:var(--muted)">'+fnt.slice(fnt.indexOf("(")+0)+'</text>'
+         :'<text x="'+L+'" y="'+(H1-4)+'" font-size="9" style="fill:var(--muted)">'+fnt+'</text>')+'</svg>';
   // medium litres per kilo, by what sets them
   const mk=Object.keys(r.medium_terms);
   if(mk.length){
     const mname={"ammonia":"Washing out ammonia","lactate":"Washing out lactate","salt":"Salt from the sorbent","least flow":"Least flow the cells need","harvest":"Liquid that leaves with the cells","nutrients":"Nutrients the cells eat"};
     const mvals=mk.map(k=>r.medium_terms[k]).concat(Object.keys(f.medium_terms).map(k=>f.medium_terms[k]));
-    const mm=Math.max(20,Math.ceil(Math.max.apply(null,mvals)/10)*10), XM=v=>L+Math.min(v,mm)/mm*(W-L-R), H2=top+mk.length*rh+6;
-    g+='<svg viewBox="0 0 '+W+' '+H2+'" style="width:'+Math.round(W*1.22)+'px;max-width:100%;height:auto;display:block;margin-top:6px" role="img" aria-label="Litres of medium per kilo and what sets them">';
-    g+='<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells that each need asks for. The largest sets the amount ('+r.medium_l.toFixed(1)+' L)</text>';
+    const t2=nar?14:0, mm=Math.max(20,Math.ceil(Math.max.apply(null,mvals)/10)*10), XM=v=>L+Math.min(v,mm)/mm*(W-L-R), H2=top+t2+mk.length*rh+6;
+    g+='<svg viewBox="0 0 '+W+' '+H2+'" style="width:'+wpx+'px;max-width:100%;height:auto;display:block;margin-top:6px" role="img" aria-label="Litres of medium per kilo and what sets them">';
+    g+=nar?'<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells that each need asks for;</text><text x="'+L+'" y="25" font-size="10" style="fill:var(--muted)">the largest sets the amount ('+r.medium_l.toFixed(1)+' L)</text>'
+          :'<text x="'+L+'" y="11" font-size="10" style="fill:var(--muted)">litres of medium per kilo of cells that each need asks for. The largest sets the amount ('+r.medium_l.toFixed(1)+' L)</text>';
     mk.forEach((k,i)=>{
-      const y=top+i*rh, v=r.medium_terms[k], fv=f.medium_terms[k], bind=(k===r.medium_set_by);
-      g+='<text x="'+(L-8)+'" y="'+(y+11)+'" font-size="11" text-anchor="end" style="fill:var(--ink)"'+(bind?' font-weight="700"':'')+'>'+esc(mname[k]||k)+'</text>';
-      if(fv!==undefined) g+='<rect x="'+L+'" y="'+(y-3)+'" width="'+Math.max(1,XM(fv)-L)+'" height="14" style="fill:var(--muted);opacity:0.18"/>';
-      g+='<rect x="'+L+'" y="'+y+'" width="'+Math.max(1,XM(v)-L)+'" height="14" style="'+(bind?"fill:var(--orange)":"fill:var(--muted);opacity:0.55")+'"/>';
-      g+='<text x="'+(XM(v)+4)+'" y="'+(y+11)+'" font-size="10" style="fill:'+(bind?'var(--ink)':'var(--muted)')+'">'+v.toFixed(1)+' L'+(v>mm?'+':'')+'</text>';
+      const y=top+t2+i*rh, v=r.medium_terms[k], fv=f.medium_terms[k], bind=(k===r.medium_set_by);
+      g+=nameAt(y,mname[k]||k,bind);
+      if(fv!==undefined) g+='<rect x="'+L+'" y="'+(y-3+dy)+'" width="'+Math.max(1,XM(fv)-L)+'" height="14" style="fill:var(--muted);opacity:0.18"/>';
+      g+='<rect x="'+L+'" y="'+(y+dy)+'" width="'+Math.max(1,XM(v)-L)+'" height="14" style="'+(bind?"fill:var(--orange)":"fill:var(--muted);opacity:0.55")+'"/>';
+      g+='<text x="'+(XM(v)+4)+'" y="'+(y+11+dy)+'" font-size="10" style="fill:'+(bind?'var(--ink)':'var(--muted)')+'">'+v.toFixed(1)+' L'+(v>mm?'+':'')+'</text>';
     });
     g+='</svg>';
   }

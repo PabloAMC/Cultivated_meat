@@ -1,5 +1,37 @@
 # Change log
 
+## 2026-11-21 (fourth batch), page
+
+No change to the model's outputs. The page's wording, its charts on a phone, and which figure it leads with (three quoted
+figures change because of that, below).
+
+- **Charts on a phone.** The charts of "How the tank and the plant set the cost" and "How a shop price becomes a share" (cost
+  against the price of medium, the cost in six parts, what limits the tank and the litres it needs, the tornado, the four options
+  against price, what helps and hurts, the shopper histogram, the other products, the products it could enter first) were drawn
+  at a fixed width and shrank to about half size on a 375 px screen. Under 560 px they are now drawn at the box's width
+  (`lvW`, `lvBox` in `build_interactive.py`; `scPartsSVG` takes the box's width): line names go inside the plot, keys and long
+  captions under it, and the bar charts put each name on its own line. Wide screens draw as before. Label overlaps fixed on the
+  way: the cost chart's side labels (at most eight), "equal price" under the legend, the six-part chart's column headings.
+- **The entry-points chart** has one colour for every product: no zones ("cheaper now", "only in the all-favourable example",
+  "not even then") and no zone words in its caption; the bar from price to cost says which is lower.
+- **The point, not the median.** Level 1's cards, its steps chart (the bar ends at the most-likely-values cost; the median dot is
+  gone), the steps table (columns: most likely values, 8 in 10 draws, median draw, saved), the table of Humbird's optimistic design
+  and the company's report, the methods prose on the cases and Step 1, and the price calculation's first line now give the cost with every
+  estimate at its most likely value, with the 8-in-10 range beside it. The ratios quoted in Step 1 follow: the low-lactate example
+  6.3 → 5.9 times US minced beef or pork cuts, the all-favourable example 1.3 → 1.1, and the share at the low-lactate example's
+  price 0.06% → 0.08%. The shopper histogram's caption no longer calls the cost "the median of the first screen's cloud".
+- **Cells named by traits.** Level 4's switch "Kind of cells" is "The cells' ammonia and lactate", its settings named by their
+  values (`scenarios.py`); the cells-by-tank table's rows are written from `scenarios.cell_traits`; "a low-ammonia feed" is "a feed
+  without glutamine"; "Engineered lines" (Stout 2023) is "Immortalised lines"; the ammonia-tolerance note no longer says
+  "selection could raise it".
+- **Wording (#19).** Every meat price names its meat: "same shop price as meat" → "as US minced beef or pork cuts"; "the price of
+  meat" → "the price of the conventional meat it copies". Literal verbs: "frame", "beat", "out of reach", "path", "price ladder",
+  "quality ladder" replaced.
+- **Leftovers.** `page_sections.py` loses nine unused generators (`scenario_table`, `bottlenecks`, `cells_by_tank`, `vessels`,
+  `experiments`, `measured`, `chip`, `limit_text`, `tank_in_every_scenario`); `tests/render_probe.js` drew the removed `drawBars`
+  and now draws the first screen's bars of each kind of meat (`tpSellBars`) at any width.
+- TODO: #19, the page leftovers and the page rebuild ticked; what is left of the page is one item with three decisions.
+
 ## 2026-11-21 (third batch): fed-batch against perfusion in a tank of the same size
 
 - `scenarios.plant_axis` now runs perfusion at 100 m³ too, and each fed-batch crosses perfusion of its own size. Before, fed-batch

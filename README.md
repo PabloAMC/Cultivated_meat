@@ -181,7 +181,7 @@ model/
 ├── price_ratio.py       ← step 1: R and the parity threshold
 ├── cost_model.py        ← step 1: the reported cost stack, the plant cases, Humbird's optimistic design
 ├── scenarios.py         ← step 1: the cost scenarios (switches, presets, priorities, interactions, bands)
-├── page_sections.py     ← the page's computed tables (answer table, bottlenecks, cells by tank, vessels, evidence)
+├── page_sections.py     ← the page's computed tables (cells by tank, vessels, the back-test, company claims)
 ├── page_scenarios.js    ← the page's live switches (a JavaScript mirror of scenarios.py)
 ├── vessels.py           ← step 1: vessel type against operating mode
 ├── page_vessels.js      ← the page's vessel-by-mode table (a JavaScript mirror of vessels.py)
