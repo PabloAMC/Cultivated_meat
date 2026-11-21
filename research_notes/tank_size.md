@@ -9,8 +9,9 @@
 > class, so small tanks pay more for it and large ones less. (3) Part of the crew is counted per tank, as Humbird counts it.
 > **Changed conclusions:** the low-lactate examples and the cautious case are now cheapest at the 200 m³ end of the range (3.7%
 > to 6.8% below 20 m³), with a thinner culture in a larger tank; the all-favourable example is cheapest at 44 m³, next to its own
-> 42 m³ (3.1% below its 20 m³ row); fed-batch with shared medium at 100 m³ or more now costs less than perfusion at 20 m³
-> ($43.62 at 100 m³ against $44.53).
+> 42 m³ (3.1% below its 20 m³ row); fed-batch with shared medium at 100 m³ or more costs less than perfusion at 20 m³
+> ($43.62 at 100 m³ against $44.53), but not than perfusion at the same size ($41.97 at 100 m³); only the cells that make almost
+> no ammonia or lactate, at 200 m³, are cheaper in fed-batch, by $0.31 ($24.63 against $24.94).
 >
 > **Updated 2026-11-20 (final pass).** Every table recomputed on the model as it now stands: per-tank plant items
 > (`floor_physics.tank_items`, `capex_at_size`: the tank, its makeup tanks and filter housings and the buildings are charged per
@@ -382,19 +383,24 @@ Its handicap against perfusion is capital: the same plant makes a sixth to a hal
 cheaper per m³, so size matters more to fed-batch than to perfusion. `tank_size.fedbatch_at` prices each scenario's switches in
 fed-batch at each size, tank design chosen again (the low-lactate examples come out the tall tank with no tricks; the
 all-favourable example's the column and the pressure, a column of no size in fed-batch: an open point, see
-`no_perfusion_downside.md`, section 2). The perfusion column is each scenario at its own tank (42 m³ for the all-favourable
-example, 20 m³ for the others):
+`no_perfusion_downside.md`, section 2). Since 2026-11-21 each size also shows perfusion in a tank of that size, its design
+chosen again (`tank_size.perfusion_at`); the first column is each scenario at its own tank:
 
-| switches as in | perfusion in the scenario's own tank, $/kg | fed-batch at 20 m³ | fed-batch at 50 m³ | fed-batch at 100 m³ | fed-batch at 200 m³ |
+| switches as in | perfusion in the scenario's own tank, $/kg | 20 m³: perfusion / fed-batch | 50 m³: perfusion / fed-batch | 100 m³: perfusion / fed-batch | 200 m³: perfusion / fed-batch |
 |---|---|---|---|---|---|
-| Low-lactate example | $48.68 | $70.32 (37 g/L) | $58.52 (37 g/L) | $54.58 (37 g/L) | $52.62 (37 g/L) |
-| Low-lactate example, food-grade plant with shared medium | $44.53 | $53.88 (37 g/L) | $46.19 (37 g/L) | $43.62 (37 g/L) | $42.34 (37 g/L) |
-| Cells that make almost no ammonia or lactate (rung 6) | $27.26 | $31.59 (68 g/L) | $27.40 (68 g/L) | $25.63 (68 g/L) | $24.63 (68 g/L) |
-| All-favourable example | $6.97 | $11.03 (120 g/L) | $9.65 (120 g/L) | $9.49 (120 g/L) | $9.19 (120 g/L) |
+| Low-lactate example | $48.68 | $48.68 (168 g/L) / $70.32 (37 g/L) | $46.60 (145 g/L) / $58.52 (37 g/L) | $45.89 (132 g/L) / $54.58 (37 g/L) | $45.53 (122 g/L) / $52.62 (37 g/L) |
+| Low-lactate example, food-grade plant with shared medium | $44.53 | $44.53 (168 g/L) / $53.88 (37 g/L) | $42.71 (145 g/L) / $46.19 (37 g/L) | $41.97 (132 g/L) / $43.62 (37 g/L) | $41.50 (122 g/L) / $42.34 (37 g/L) |
+| Cells that make almost no ammonia or lactate (rung 6) | $27.26 | $27.26 (168 g/L) / $31.59 (68 g/L) | $25.80 (145 g/L) / $27.40 (68 g/L) | $25.26 (132 g/L) / $25.63 (68 g/L) | $24.94 (122 g/L) / $24.63 (68 g/L) |
+| All-favourable example | $6.97 | $7.16 (218 g/L) / $11.03 (120 g/L) | $6.95 (213 g/L) / $9.65 (120 g/L) | $7.10 (182 g/L) / $9.49 (120 g/L) | $7.29 (156 g/L) / $9.19 (120 g/L) |
 
 - **A 100 m³ batch costs 7% to 15% less than a 20 m³ one** with the scenarios' switches ($71.76 to $60.71 in the low-lactate
   example, $11.28 to $10.44 with the all-favourable example's; for the all-favourable example 50 m³ is already as cheap). Beyond
   100 m³ the gain is 1% to 2.5%.
+- **Compared at the same size, perfusion stays cheaper up to 100 m³ (2026-11-21).** In every row perfusion costs less than
+  fed-batch at 20, 50 and 100 m³. At 200 m³ the cells that make almost no ammonia or lactate are $0.31 cheaper in fed-batch
+  ($24.63 against $24.94), within the uncertainty; the others still favour perfusion. A larger tank narrows the gap because it
+  cuts fed-batch's handicap, the plant per kilo, while perfusion's culture must run thinner (168 g/L at 20 m³, 122 g/L at
+  200 m³), held by what the column can strip safely.
 - **No size closes the gap to perfusion (changed back 2026-11-20).** With the all-favourable example's switches fed-batch at
   200 m³ costs $10.22 against $7.62 in perfusion: the example now uses membranes at $8 a m², so perfusion no longer pays for
   membranes. (Earlier on 2026-11-20, with membranes at $1,450 a m², fed-batch from 50 m³ cost less than perfusion at 20 m³.) The

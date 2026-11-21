@@ -1,5 +1,16 @@
 # Change log
 
+## 2026-11-21 (third batch): fed-batch against perfusion in a tank of the same size
+
+- `scenarios.plant_axis` now runs perfusion at 100 m³ too, and each fed-batch crosses perfusion of its own size. Before, fed-batch
+  at 100 m³ was set against perfusion at 20 m³, which made a 100 m³ batch look cheaper with the shared-medium plant ($43.6 against
+  $44.5). Like for like, perfusion is cheaper at the modelled plant cost in every rung ($42.0 against $43.6 at rung 5); the
+  crossings at 100 m³ move 0.61/0.80/1.04/1.16 → 0.56/0.71/0.93/0.96.
+- `tank_size.fedbatch_markdown` shows perfusion and fed-batch at each size (`tank_size.perfusion_at`). Only the cells that make
+  almost no ammonia or lactate, at 200 m³, are cheaper in fed-batch ($24.63 against $24.94).
+- RESULTS, `tank_size.md`, `no_perfusion_downside.md` and TODO corrected; `tests/test_tank_size.py` checks perfusion is cheaper at
+  the same size up to 100 m³.
+
 ## 2026-11-21 (second batch): Humbird's perfusion design reconciled, the least medium flow in a batch, thinner cultures in the design search, two new levers
 
 **The open TODO items that could move the long-run cost.** Evidence: `research_notes/humbird_backtest.md` (items 11 and 12),

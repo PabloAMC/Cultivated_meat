@@ -718,21 +718,24 @@ of the kilos a perfusion tank makes, so it pays more for the plant; it pays no f
 bubbles. So a cheaper plant narrows the gap. The table moves the plant's cost
 (buildings and tanks, not the filter loop or the column) from its modelled value down to a third of it, the bands' range:
 
-| switches as in | $/kg with the plant at its modelled cost: perfusion / fed-batch 20 m³ / fed-batch 100 m³ | plant at 0.75× | plant at 0.5× | plant at 0.34× | fed-batch at 20 m³ is cheaper with the plant below | fed-batch at 100 m³, below |
+| switches as in | $/kg with the plant at its modelled cost: perfusion 20 m³ / perfusion 100 m³ / fed-batch 20 m³ / fed-batch 100 m³ | plant at 0.75× | plant at 0.5× | plant at 0.34× | fed-batch is cheaper than perfusion, both at 20 m³, with the plant below | both at 100 m³, below |
 |---|---|---|---|---|---|---|
-| Published cells (rung 2's switches) | 170.0 / 304.8 / 234.4 | 167.6 / 249.3 / 191.2 | 165.2 / 193.7 / 148.0 | 163.6 / 158.2 / 120.4 | 0.37× | 0.61× |
-| Low-lactate example (the low-lactate example's switches, rungs 3–4) | 48.7 / 70.3 / 54.6 | 46.6 / 57.9 / 44.9 | 44.4 / 45.5 / 35.3 | 43.1 / 37.6 / 29.1 | 0.47× | 0.80× |
-| Low-lactate example, plant with shared medium (rung 5) | 44.5 / 53.9 / 43.6 | 43.3 / 45.6 / 36.8 | 42.1 / 37.4 / 29.9 | 41.4 / 32.1 / 25.5 | 0.67× | 1.04× |
-| Cells that make almost no ammonia or lactate (rung 6) | 27.3 / 31.6 / 25.6 | 26.1 / 27.0 / 21.9 | 24.9 / 22.3 / 18.1 | 24.1 / 19.4 / 15.7 | 0.68× | 1.16× |
-| The all-favourable example's switches (rung 7) | 7.0 / 9.8 / 9.8 | 6.6 / 8.7 / 8.7 | 6.2 / 7.6 / 7.6 | 6.0 / 6.9 / 6.9 | never (0.05–1.5×) | never (0.05–1.5×) |
+| Published cells (rung 2's switches) | 170.0 / 162.2 / 304.8 / 234.4 | 167.6 / 159.9 / 249.3 / 191.2 | 165.2 / 157.6 / 193.7 / 148.0 | 163.6 / 156.1 / 158.2 / 120.4 | 0.37× | 0.56× |
+| Low-lactate example (the low-lactate example's switches, rungs 3–4) | 48.7 / 45.9 / 70.3 / 54.6 | 46.6 / 43.8 / 57.9 / 44.9 | 44.4 / 41.8 / 45.5 / 35.3 | 43.1 / 40.5 / 37.6 / 29.1 | 0.47× | 0.71× |
+| Low-lactate example, plant with shared medium (rung 5) | 44.5 / 42.0 / 53.9 / 43.6 | 43.3 / 40.8 / 45.6 / 36.8 | 42.1 / 39.6 / 37.4 / 29.9 | 41.4 / 38.9 / 32.1 / 25.5 | 0.67× | 0.93× |
+| Cells that make almost no ammonia or lactate (rung 6) | 27.3 / 25.3 / 31.6 / 25.6 | 26.1 / 24.1 / 27.0 / 21.9 | 24.9 / 22.9 / 22.3 / 18.1 | 24.1 / 22.2 / 19.4 / 15.7 | 0.68× | 0.96× |
+| The all-favourable example's switches (rung 7) | 7.0 / 7.1 / 9.8 / 9.8 | 6.6 / 6.7 / 8.7 / 8.7 | 6.2 / 6.3 / 7.6 / 7.6 | 6.0 / 6.0 / 6.9 / 6.9 | never (0.05–1.5×) | never (0.05–1.5×) |
 
-- **Fed-batch wins on a plant at about half the modelled cost, and a 100 m³ batch can win already.** With the low-lactate
-  example's switches a 20 m³ batch is cheaper than perfusion below 0.47 times the modelled plant cost, and a 100 m³ batch below
-  0.80; with the shared-medium plant, below 0.67 and 1.04; with cells that make almost no ammonia or lactate, doubling every 36
-  hours, below 0.68 and 1.16 (their batch is held at 68 g/L by its waste, while perfusion reaches 168 g/L). So with the
-  shared-medium plant a 100 m³ batch is already a little cheaper than perfusion at the modelled plant cost ($43.6 against $44.5,
-  and $25.6 against $27.3 with the cells that make almost no waste). The published cells favour perfusion more (0.37 and 0.61):
-  their batch is held at 10 g/L by lactate, while perfusion reaches 179 g/L.
+- **Fed-batch wins only on a plant at about half to nine tenths of the modelled cost, comparing tanks of the same size.**
+  Perfusion is cheaper than fed-batch at the modelled plant cost in every row, at 20 m³ and at 100 m³. With the low-lactate
+  example's switches a 20 m³ batch is cheaper than 20 m³ perfusion below 0.47 times the modelled plant cost, and a 100 m³ batch
+  than 100 m³ perfusion below 0.71; with the shared-medium plant, below 0.67 and 0.93; with cells that make almost no ammonia or
+  lactate, doubling every 36 hours, below 0.68 and 0.96 (their batch is held at 68 g/L by its waste, while perfusion reaches
+  168 g/L at 20 m³ and 132 g/L at 100 m³). The published cells favour perfusion more (0.37 and 0.56): their batch is held at
+  10 g/L by lactate, while perfusion reaches 179 g/L. Until 2026-11-21 this table set fed-batch at 100 m³ against perfusion at
+  20 m³, which made a 100 m³ batch look cheaper than perfusion with the shared-medium plant ($43.6 against $44.5); in a 100 m³
+  tank perfusion costs $42.0. A larger tank helps both ways of running from 20 to 100 m³: perfusion by 6% to 7% (not the all-favourable example's, which costs
+  $0.1 more), fed-batch by 19% to 23%.
 - **With the all-favourable example's switches perfusion wins at any plant cost** ($7.0 against $9.8 and $9.8 at the modelled
   cost, and still ahead at a third of it). Its dialyser-grade fibres make holding the cells back almost free, so a batch has no
   filter cost to save.

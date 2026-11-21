@@ -61,8 +61,9 @@ buyers at equal price). All costs are per kilo of cells harvested.
   10 g/L.
 - **Fed-batch's handicap is capital, and a cheaper plant or a larger tank removes it.** Fed-batch at 20 m³ is cheaper than
   perfusion if the whole plant costs under 0.47 of its modelled cost with the low-lactate example's switches, and under 0.67 with
-  the shared-medium plant. Fed-batch at 100 m³ crosses at 0.80 and 1.04: with the shared-medium plant a 100 m³ batch is already
-  a little cheaper than perfusion ($43.6 against $44.5). With the all-favourable example's switches fed-batch is not cheaper
+  the shared-medium plant. Fed-batch at 100 m³ crosses perfusion at 100 m³ at 0.71 and 0.93: at the modelled plant cost perfusion is cheaper in a
+  tank of either size (with the shared-medium plant, $42.0 against $43.6 at 100 m³). Until 2026-11-21 this compared a 100 m³
+  batch with 20 m³ perfusion, which made the batch look cheaper ($43.6 against $44.5). With the all-favourable example's switches fed-batch is not cheaper
   anywhere between 0.05 and 1.5 times the modelled plant cost. `scenarios.plant_axis`; RESULTS, the plant-cost axis
   (`python -c "import scenarios as S; print(S.plant_axis_markdown())"`).
 - **The density companies report at 20 m³ is below the model's cap for cells that make less lactate (0.42).** At 27 g/L the

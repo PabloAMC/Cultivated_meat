@@ -1175,34 +1175,40 @@ PLANT_MULTS = (1.0, 0.75, 0.5, 0.34)            # the bands' range for the plant
 PLANT_AXIS_CASES = (("process", "Published cells (rung 2's switches)"), ("central", "Low-lactate example (the low-lactate example's switches, rungs 3–4)"),
                     ("central_lean", "Low-lactate example, plant with shared medium (rung 5)"),
                     ("engineered", "Cells that make almost no ammonia or lactate (rung 6)"), ("best", "The all-favourable example's switches (rung 7)"))
-AXIS_MODES = ("perfusion", "fedbatch", "fedbatch100")
+# Each mode of the axis: (the mode switch's setting, extra arguments). Perfusion is also run at 100 m³, so that each fed-batch is
+# compared with perfusion in a tank of the same size (2026-11-21; before, fed-batch at 100 m³ was set against perfusion at 20 m³).
+AXIS = {"perfusion": ("perfusion", {}), "perfusion100": ("perfusion", {"vessel_m3": 100.0}),
+        "fedbatch": ("fedbatch", {}), "fedbatch100": ("fedbatch100", {})}
+AXIS_MODES = tuple(AXIS)
+AXIS_PAIRS = (("fedbatch", "perfusion"), ("fedbatch100", "perfusion100"))   # (fed-batch, the perfusion of the same tank size)
 
 
 def plant_axis(key: str, mults=PLANT_MULTS) -> dict:
-    """For a rung's switches: cost in perfusion and in fed-batch at 20 and 100 m³, each with its tank design chosen at the plant's
-    modelled cost, at each multiplier on the plant's cost (capex_x: buildings and tanks; not the filter loop or the column), and
-    the multiplier below which each fed-batch is cheaper than perfusion (None if not between 0.05 and 1.5)."""
+    """For a rung's switches: cost in perfusion and in fed-batch, each at 20 and 100 m³, each with its tank design chosen at the
+    plant's modelled cost, at each multiplier on the plant's cost (capex_x: buildings and tanks; not the filter loop or the
+    column), and the multiplier below which each fed-batch is cheaper than perfusion in a tank of the same size (None if not
+    between 0.05 and 1.5)."""
     base = {k: v for k, v in SCENARIOS[key].choice.items() if k not in ("mode", "tricks", "shape")}
-    ch = {m: design({**base, "mode": m}) for m in AXIS_MODES}
-    cost = lambda m, x: run(ch[m], capex_x=x)["total"]
+    ch = {m: design({**base, "mode": AXIS[m][0]}, **AXIS[m][1]) for m in AXIS_MODES}
+    cost = lambda m, x: run(ch[m], capex_x=x, **AXIS[m][1])["total"]
     out = {"choices": ch, "cost": {m: {x: cost(m, x) for x in mults} for m in AXIS_MODES}, "cross": {}}
-    for m in ("fedbatch", "fedbatch100"):
-        f = lambda x: cost("perfusion", x) - cost(m, x)
+    for fb, pf in AXIS_PAIRS:
+        f = lambda x: cost(pf, x) - cost(fb, x)
         lo, hi = 0.05, 1.5
         if f(lo) * f(hi) > 0:
-            out["cross"][m] = None
+            out["cross"][fb] = None
             continue
         for _ in range(40):
             mid = 0.5 * (lo + hi)
             lo, hi = (mid, hi) if f(mid) * f(lo) > 0 else (lo, mid)
-        out["cross"][m] = 0.5 * (lo + hi)
+        out["cross"][fb] = 0.5 * (lo + hi)
     return out
 
 
 def plant_axis_markdown() -> str:
-    out = ["| switches as in | $/kg with the plant at its modelled cost: perfusion / fed-batch 20 m³ / fed-batch 100 m³ | "
-           + " | ".join(f"plant at {x:g}×" for x in PLANT_MULTS[1:])
-           + " | fed-batch at 20 m³ is cheaper with the plant below | fed-batch at 100 m³, below |",
+    out = ["| switches as in | $/kg with the plant at its modelled cost: perfusion 20 m³ / perfusion 100 m³ / fed-batch 20 m³ / "
+           "fed-batch 100 m³ | " + " | ".join(f"plant at {x:g}×" for x in PLANT_MULTS[1:])
+           + " | fed-batch is cheaper than perfusion, both at 20 m³, with the plant below | both at 100 m³, below |",
            "|---|" + "---|" * (len(PLANT_MULTS) + 2)]
     for key, lab in PLANT_AXIS_CASES:
         a = plant_axis(key)
