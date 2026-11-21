@@ -13,6 +13,12 @@ cost, the chance it falls at or below stated prices, and which inputs move it.
 Held fixed (no documented range): the tank design, the 20 m3 size, the plant class, the density limit. Draws are independent; good
 cell traits tend to come together (floor_physics.CELL_QUALITY), which would fatten both tails.
 
+PUT RIGHT ON 2026-11-21: the draws below lagged the scenarios; now the growth-factor draw goes inside a complete medium's price,
+a medium at the nutrient floor gets no price per litre, and the ammonia and lactate the cells tolerate (the scenarios' ranges for
+the low-lactate example, Humbird's for the all-favourable example, which takes his values), the cells bubbles kill and the harvest
+recovery are drawn (after the others, so their draws are unchanged). The all-favourable example's membrane life is still passed
+to explore directly (dialyser-grade fibres), so the membrane-life draw does not reach it. The history:
+
 STALE SINCE 2026-11-19 (found in the audit-batch repin; the draws were left as they were, so read the figures with this):
   * The low-lactate example's medium is now a complete medium with its growth factors inside the price (scenarios.explore_kwargs sets
     `gf_in_medium` and `growth_factors` = 0). The growth-factor draw here still goes to `growth_factors`, so it is bought on
@@ -59,9 +65,16 @@ CELL_INPUTS = {
     "best": {"nh3_kg": "sc_nh3_engineered", "lac_yield": "sc_lac_engineered",
              "hazard": "sc_hazard_mid", "restart_fail_days": "sc_restart_base", "medium_price": "sc_medium_mid"},
 }
-# inputs patched into the registry (the filter loop, plant and financing), with their priors
+# 2026-11-21: what the draws lagged (the docstring's list), now drawn. The waste the cells tolerate and the cells bubbles kill, as
+# explore() arguments: the scenarios' own ranges for the low-lactate example, Humbird's for the all-favourable example (it takes
+# his 5 and 50 mmol/L)
+LIMIT_INPUTS = {
+    "central": {"nh3_limit": "sc_nh3_limit", "lac_limit": "sc_lac_limit", "kill": "ge_kill_protected"},
+    "best": {"nh3_limit": "pf_nh3_limit", "lac_limit": "pf_lac_limit", "kill": "ge_kill_protected"},
+}
+# inputs patched into the registry (the filter loop, plant and financing), with their priors; the harvest recovery since 2026-11-21
 PATCH_INPUTS = ("rt_membrane_life", "rt_flux_lmh", "rt_membrane_price", "rt_tff_hw", "rt_install", "plant_charge_mature",
-                "pf_maintenance_share")
+                "pf_maintenance_share", "pf_harvest_recovery")
 PLANT_X = "capex_x"                                  # scenarios.MC_PRIORS: the plant estimate's accuracy
 
 
@@ -78,6 +91,8 @@ def draws(key: str, n: int = 1000, seed: int = 0) -> dict:
     for name in PATCH_INPUTS:
         d[name] = _tri(rng, name, n)
     d[PLANT_X] = rng.triangular(*S.MC_PRIORS["capex_x"], n)
+    for arg, name in LIMIT_INPUTS[key].items():         # drawn last (2026-11-21), so the draws above are unchanged
+        d[arg] = _tri(rng, name, n)
     return d
 
 
@@ -91,9 +106,17 @@ def run(key: str, n: int = 1000, seed: int = 0) -> dict:
         patch = {}
         for k, v in d.items():
             x = float(v[i])
-            if k in CELL_INPUTS[key]:
-                if k == "growth_factors" and "growth_factors" not in base:
+            if k in CELL_INPUTS[key] or k in LIMIT_INPUTS[key]:
+                if k == "growth_factors":
+                    # a complete medium carries its growth factors inside its price (scenarios.explore_kwargs): the draw goes
+                    # there, not on top (2026-11-21; it was bought twice)
+                    if base.get("gf_in_medium", 0.0) > 0.0:
+                        kw["gf_in_medium"] = x
+                    elif "growth_factors" in base and base["growth_factors"] > 0.0:
+                        kw["growth_factors"] = x
                     continue
+                if k == "medium_price" and base.get("medium_price", 0.15) == 0.0:
+                    continue                             # a medium at the nutrient floor has no price per litre to draw
                 kw[k] = x
             elif k == PLANT_X:
                 kw["capex_x"] = x

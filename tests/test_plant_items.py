@@ -101,8 +101,13 @@ def _check() -> list:
     whole = fp.explore(capex_2018=tot["lean"])
     near("bought oxygen is charged, per kilo harvested", lean["extra_opex"],
          pi.capital("lean")["extra_opex"] / lean["harvested_share"], 1e-9)
-    near("bought oxygen is the only running cost the items add", lean["total"] - lean["extra_opex"] - lean["capital"],
-         whole["total"] - whole["capital"], 1e-9)
+    # 2026-11-21: the building's power follows the plant's own halls (floor_physics.building_power): the lean plant's plain shed
+    # draws a tenth of the power of the sanitary hall a plant given as a total is taken to have, so the utilities differ too
+    near("bought oxygen is the only running cost the items add, beside the building's power",
+         lean["total"] - lean["extra_opex"] - lean["capital"] - lean["utilities"],
+         whole["total"] - whole["capital"] - whole["utilities"], 1e-9)
+    if not lean["utilities"] < whole["utilities"]:
+        fails.append("the lean plant's plain building should draw less power than a sanitary hall")
     # 2026-11-20, third pass: and by what each tank brings with it in perfusion against fed-batch (floor_physics.tank_items): a
     # plant given as a total has Humbird's dedicated makeup tanks and filter housings, fewer in perfusion (-$8.3k per m3 in 2018
     # dollars), where the lean plant shares its medium line and has none per tank, so nothing changes for it

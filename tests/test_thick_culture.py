@@ -32,11 +32,16 @@ from inputs import value
 # tank, 155 g/L). Its 'checked' reading at 180 g/L is CHEAPER than its own cost ($7.39 against $7.62): with recycled oxygen
 # (squat tank) the column loop passes its checks if the culture is held at 180 g/L, and fails them at the density the tank would
 # otherwise reach. scenarios.design does not consider holding a culture below its limits (reported, not fixed here).
+# 2026-11-21: every scenario's tank design is now the column with recycled oxygen, held thinner than its limits allow so its loop
+# passes its checks (scenarios.design): the loop's checks, not the density cap, hold each tank (central 168 g/L, cautious 134,
+# best 219), so only the 180 g/L cap moves the all-favourable example. Before (2026-11-20): best 7.6209/7.3892 at 180 and
+# 7.6209 above; central 49.4977; central_lean 45.0374; cautious 185.5915 (the building's power by floor and class, labour per
+# tank, the floor's glucose, the thinned designs and the column on the filter loop moved them)
 GOLDEN_CAP = {
-    "best":         {180.0: (7.6209, 7.3892), 320.0: (7.6209, 7.6209), 400.0: (7.6209, 7.6209)},
-    "central":      {180.0: (49.4977, 49.4977), 320.0: (49.4977, 49.4977), 400.0: (49.4977, 49.4977)},
-    "central_lean": {180.0: (45.0374, 45.0374), 320.0: (45.0374, 45.0374), 400.0: (45.0374, 45.0374)},
-    "cautious":     {180.0: (185.5915, 185.5915), 320.0: (185.5915, 185.5915), 400.0: (185.5915, 185.5915)},
+    "best":         {180.0: (7.4371, 7.1984), 320.0: (6.9686, 6.9686), 400.0: (6.9686, 6.9686)},
+    "central":      {180.0: (48.6815, 48.6815), 320.0: (48.6815, 48.6815), 400.0: (48.6815, 48.6815)},
+    "central_lean": {180.0: (44.5349, 44.5349), 320.0: (44.5349, 44.5349), 400.0: (44.5349, 44.5349)},
+    "cautious":     {180.0: (181.1270, 181.1270), 320.0: (181.1270, 181.1270), 400.0: (181.1270, 181.1270)},
 }
 # cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
 # 2026-11-19 audit batch: the same three changes; the viscosity-corrected oxygen limits (151 and 103 g/L) do not move
@@ -121,8 +126,10 @@ def check() -> list:
     if L["first"] != "CO2 removal" or not close(L["x"], 120.0, 1e-3):
         fails.append(f"in Humbird's plain tank CO2 binds first at 120 g/L, got {L['first']} at {L['x']:.0f}")
     Lc = TC.limits_at(S.explore_kwargs(S.SCENARIOS["central"].choice))
-    if Lc["first"] != "oxygen supply, with viscosity" or not (150.0 < Lc["x"] < 157.0):
-        fails.append(f"the low-lactate example: oxygen with viscosity should bind first near 154 g/L, got {Lc['first']} at {Lc['x']:.0f}")
+    # 2026-11-21: its design is now the column with recycled oxygen held at 168 g/L, the densest its loop passes (it was oxygen
+    # with viscosity at 154 g/L, the 1 bar design); the oxygen comes from the loop, so no oxygen limit binds
+    if Lc["first"] != "what the column can strip safely" or not (165.0 < Lc["x"] < 171.0):
+        fails.append(f"the low-lactate example: the loop's checks should hold it near 168 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
     # 2026-11-19 restructure: with 2 ng cells (were Humbird's 3 ng) the best case's design is column + 1 bar without recycled oxygen,
     # and oxygen with viscosity binds first, near 167 g/L (it was the column loop's checks near 271)
@@ -130,14 +137,16 @@ def check() -> list:
     # viscosity, 126 g/L
     # 2026-11-20 final pass: the case is scenarios.all_favourable(): the column and 1 bar in a square 42 m3 tank; the sparger's
     # oxygen limit is 198 g/L and, with viscosity, 155 g/L
-    if Lb["first"] != "oxygen supply, with viscosity" or not (150.0 < Lb["x"] < 160.0):
-        fails.append(f"the all-favourable example: oxygen with viscosity should bind first near 155 g/L, got {Lb['first']} at {Lb['x']:.0f}")
+    # 2026-11-21: the column with recycled oxygen in a flat 42 m3 tank, held at 219 g/L, the densest its loop passes
+    if Lb["first"] != "what the column can strip safely" or not (215.0 < Lb["x"] < 223.0):
+        fails.append(f"the all-favourable example: the loop's checks should hold it near 219 g/L, got {Lb['first']} at {Lb['x']:.0f}")
     # the cost at other density limits
     for k in S.ORDER:
         own = S.run(S.SCENARIOS[k].choice)["total"]
         c = TC.cost_by_cap(k, caps=(180.0, 258.0, 320.0, 400.0))
         for mode in ("fixed", "checked"):
-            if not close(c[258.0][mode]["cost"], own, 1e-9):
+            # 1e-6 since 2026-11-21: a thinned design is found again by bisection from another starting density
+            if not close(c[258.0][mode]["cost"], own, 1e-6):
                 fails.append(f"{k}: a cap of 258 g/L should give the scenario's own cost (${own:.4f}), got ${c[258.0][mode]['cost']:.4f}")
         costs = [c[x]["fixed"]["cost"] for x in (180.0, 258.0, 320.0, 400.0)]
         if any(b > a + 1e-9 for a, b in zip(costs, costs[1:])):

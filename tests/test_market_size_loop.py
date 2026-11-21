@@ -91,7 +91,10 @@ def check() -> list:
         fails.append("the low-lactate example's whole sales no longer need two to three times the switch's membrane area; rewrite the note")
     if not st["switch_m2"] < st["whole_area_m2"] - st["area_m2"] < _case("slow learning")["ms_switch_area"]:
         fails.append("without premium products the low-lactate example's other sales no longer pass the central switch and fall short of a 3 million m2 one; rewrite the note")
-    if s["start"][("best", "central")]["whole_crosses"] or s["start"][("best", "central")]["whole_area_m2"] > 0.6 * st["switch_m2"]:
+    # 2026-11-21: the all-favourable example ($7.62 -> $6.97; its tank design is now held thinner so its oxygen column passes its
+    # checks) sells 20.4 Mt at its own cost and needs 0.79 million m2 (was 0.48 million for 18.3 Mt): still short of the central
+    # switch, but no longer under 0.6 of it. The bound is now 0.9 of the switch; the note says 0.79 million and that it does not cross
+    if s["start"][("best", "central")]["whole_crosses"] or s["start"][("best", "central")]["whole_area_m2"] > 0.9 * st["switch_m2"]:
         fails.append("the all-favourable example's whole sales now come near the membrane switch; rewrite the note")
     # 2026-11-19 second round: a switch at 3 million m2 is again below what the low-lactate example's sales need (4.86 million), so with slow
     # learning it crosses on its own and has ONE resting point, $21.91 and 0.59%. (With the audit batch's normal spread: two,

@@ -13,6 +13,7 @@ function rtDuty(p){                             // mirror of retention.duty: flo
   const bleed=harvest/hs/r.density;                           // m3/h of whole culture: the cells grown leave in it (kg grown an hour over kg/m3)
   let permeate=Math.max(0,medium-bleed);
   if(permeate<1e-9*medium) permeate=0;                        // the bleed carries out all the liquid (rounding apart)
+  permeate+=(r.filter_extra_l||0)*harvest/1000;               // what a device on the permeate cleans passes the filter again (2026-11-21)
   const phi=r.density/(F.cell_density*1000);                  // volume fraction of cells
   return {vessel_m3:v, liquid_m3:liquid, density:r.density, phi:phi, kg_h:harvest, kg_year:tonnes*1000, medium_m3_h:medium,
           bleed_m3_h:bleed, permeate_m3_h:permeate, outflow_m3_h:medium, vvd_medium:medium*24/liquid, vvd_permeate:permeate*24/liquid,

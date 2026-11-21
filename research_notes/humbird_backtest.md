@@ -28,125 +28,141 @@ beyond ammonia and lactate, bubble protectant, antifoam, slower growth near the 
 
 ## Result (2018 dollars a kilo; `python humbird_check.py`)
 
+Regenerated 2026-11-21 (after items 11 and 12 below).
+
 ### Fed-batch, enhanced cells, amino acids (Table 4.7, column 1 (and Table 4.6), p. 57)
 
-| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |
+| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |
 |---|---:|---:|---:|---:|
 | Nutrients (his macronutrients) | 19.08 | 19.08 | +0.0% | 24.42 |
 | Growth factors (his micronutrients) | 3.13 | 3.00 | -4.2% | 3.84 |
 | Consumables | 0.85 | 0.84 | -1.6% | 1.07 |
 | Utilities | 0.94 | 0.92 | -2.2% | 1.18 |
 | Labour | 1.45 | 1.42 | -2.3% | 1.81 |
-| Plant (capital charge, maintenance, insurance) | 11.33 | 11.13 | -1.8% | 14.80 |
-| Total | 36.79 | 36.38 | -1.1% | 47.12 |
+| Plant (capital charge, maintenance, insurance) | 11.33 | 11.12 | -1.9% | 14.79 |
+| Total | 36.79 | 36.37 | -1.1% | 47.11 |
 | Density at harvest, g/L | 115.6 | 120.0 | +3.8% | 120.0 |
 | Output, t per m3 of tank a year | 14.2 | 14.5 | +2.3% | 14.5 |
-| Plant, $k per m3 of tank | 683 | 683 | +0.0% | 909 |
+| Plant, $k per m3 of tank | 683 | 683 | -0.0% | 908 |
 
 ### Fed-batch, enhanced cells, soy hydrolysate (his best estimate) (Table 4.7, column 2, p. 57)
 
-| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |
+| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |
 |---|---:|---:|---:|---:|
 | Nutrients (his macronutrients) | 3.39 | 3.39 | +0.0% | 4.34 |
 | Growth factors (his micronutrients) | 3.12 | 3.00 | -3.9% | 3.84 |
 | Consumables | 0.81 | 0.81 | -0.2% | 1.03 |
 | Utilities | 0.93 | 0.92 | -1.1% | 1.18 |
 | Labour | 1.42 | 1.42 | -0.2% | 1.81 |
-| Plant (capital charge, maintenance, insurance) | 11.33 | 11.19 | -1.2% | 14.89 |
-| Total | 21.00 | 20.73 | -1.3% | 27.09 |
+| Plant (capital charge, maintenance, insurance) | 11.33 | 11.12 | -1.9% | 14.79 |
+| Total | 21.00 | 20.65 | -1.7% | 26.99 |
 | Density at harvest, g/L | 115.6 | 120.0 | +3.8% | 120.0 |
 | Output, t per m3 of tank a year | 14.4 | 14.5 | +0.8% | 14.5 |
-| Plant, $k per m3 of tank | 688 | 688 | +0.0% | 914 |
+| Plant, $k per m3 of tank | 688 | 683 | -0.7% | 908 |
 
 ### Fed-batch, wild-type cells, amino acids (Table 4.7, column 3, p. 57)
 
-| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |
+| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |
 |---|---:|---:|---:|---:|
 | Nutrients (his macronutrients) | 18.24 | 18.24 | +0.0% | 23.35 |
 | Growth factors (his micronutrients) | 4.60 | 4.53 | -1.5% | 5.80 |
 | Consumables | 12.56 | 12.58 | +0.2% | 16.11 |
 | Utilities | 14.52 | 14.47 | -0.3% | 18.53 |
 | Labour | 20.70 | 23.94 | +15.6% | 30.64 |
-| Plant (capital charge, maintenance, insurance) | 165.94 | 163.87 | -1.2% | 217.95 |
-| Total | 236.58 | 237.64 | +0.4% | 312.37 |
+| Plant (capital charge, maintenance, insurance) | 165.94 | 187.84 | +13.2% | 249.83 |
+| Total | 236.58 | 261.61 | +10.6% | 344.25 |
 | Density at harvest, g/L | 7.0 | 7.1 | +1.5% | 7.1 |
 | Output, t per m3 of tank a year | 0.9 | 0.9 | +0.5% | 0.9 |
-| Plant, $k per m3 of tank | 596 | 596 | +0.0% | 792 |
+| Plant, $k per m3 of tank | 596 | 683 | +14.6% | 908 |
 
 ### Fed-batch, wild-type cells, soy hydrolysate (Table 4.7, column 4, p. 57)
 
-| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |
+| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |
 |---|---:|---:|---:|---:|
 | Nutrients (his macronutrients) | 4.27 | 4.27 | +0.0% | 5.47 |
 | Growth factors (his micronutrients) | 4.62 | 4.55 | -1.5% | 5.83 |
 | Consumables | 13.05 | 13.08 | +0.2% | 16.74 |
 | Utilities | 14.81 | 14.47 | -2.3% | 18.53 |
 | Labour | 20.86 | 23.94 | +14.8% | 30.64 |
-| Plant (capital charge, maintenance, insurance) | 167.43 | 165.01 | -1.4% | 219.47 |
-| Total | 225.03 | 225.32 | +0.1% | 296.67 |
+| Plant (capital charge, maintenance, insurance) | 167.43 | 187.84 | +12.2% | 249.83 |
+| Total | 225.03 | 248.15 | +10.3% | 327.03 |
 | Density at harvest, g/L | 7.0 | 7.1 | +1.5% | 7.1 |
 | Output, t per m3 of tank a year | 0.9 | 0.9 | +0.5% | 0.9 |
-| Plant, $k per m3 of tank | 600 | 600 | +0.0% | 798 |
+| Plant, $k per m3 of tank | 600 | 683 | +13.8% | 908 |
 
 ### Perfusion in 2 m3 tanks, enhanced cells, amino acids (Table 4.13 (and Table 4.14, column 1), p. 64)
 
-| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |
+| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |
 |---|---:|---:|---:|---:|
 | Nutrients (his macronutrients) | 18.39 | 18.39 | +0.0% | 23.54 |
-| Growth factors (his micronutrients) | 2.78 | 4.51 | +62.2% | 5.77 |
+| Growth factors (his micronutrients) | 2.78 | 2.66 | -4.1% | 3.41 |
 | Consumables | 4.56 | 4.61 | +1.1% | 5.90 |
-| Utilities | 0.98 | 0.45 | -54.4% | 0.57 |
-| Labour | 1.99 | 1.15 | -42.4% | 1.47 |
-| Plant (capital charge, maintenance, insurance) | 22.61 | 22.73 | +0.5% | 30.23 |
-| Total | 51.29 | 51.83 | +1.1% | 67.48 |
+| Utilities | 0.98 | 0.72 | -26.9% | 0.92 |
+| Labour | 1.99 | 2.00 | +0.3% | 2.55 |
+| Plant (capital charge, maintenance, insurance) | 22.61 | 21.36 | -5.5% | 28.41 |
+| Total | 51.29 | 49.74 | -3.0% | 64.73 |
 | Density at harvest, g/L | 195.0 | 194.6 | -0.2% | 194.6 |
 | Output, t per m3 of tank a year | 35.9 | 35.8 | -0.3% | 35.8 |
-| Plant, $k per m3 of tank | 3,451 | 3,451 | +0.0% | 4,590 |
+| Plant, $k per m3 of tank | 3,451 | 3,244 | -6.0% | 4,315 |
 
-### His best estimate against the page's start (today's dollars)
+### His best estimate against the model's own version of his design (2025 dollars)
 
-| Line | Humbird, 2018 $ | Humbird, today's $ | Engine like for like | Engine with the model's additions |
+| Line | Humbird, 2018 $ | Humbird, 2025 $ | Engine like for like | Engine with the model's additions |
 |---|---:|---:|---:|---:|
-| Nutrients (his macronutrients) | 3.39 | 4.34 | 4.34 | 4.72 |
-| Growth factors (his micronutrients) | 3.12 | 3.99 | 3.84 | 5.42 |
-| Consumables | 0.81 | 1.04 | 1.03 | 1.03 |
-| Utilities | 0.93 | 1.19 | 1.18 | 1.63 |
-| Labour | 1.42 | 1.82 | 1.81 | 2.56 |
-| Plant (capital charge, maintenance, insurance) | 11.33 | 15.07 | 14.89 | 20.85 |
-| Total | 21.00 | 27.45 | 27.09 | 36.21 |
+| Nutrients (his macronutrients) | 3.39 | 4.34 | 4.34 | 4.80 |
+| Growth factors (his micronutrients) | 3.12 | 3.99 | 3.84 | 4.38 |
+| Consumables | 0.81 | 1.04 | 1.03 | 0.90 |
+| Utilities | 0.93 | 1.19 | 1.18 | 1.34 |
+| Labour | 1.42 | 1.82 | 1.81 | 2.08 |
+| Plant (capital charge, maintenance, insurance) | 11.33 | 15.07 | 14.79 | 16.94 |
+| Total | 21.00 | 27.45 | 26.99 | 30.45 |
 
 ### All five designs: totals
 
-| Design | Humbird, 2018 $ | Engine like for like, 2018 $ | Engine like for like, today's $ | Engine with the model's additions, today's $ | Density with the additions, g/L |
+| Design | Humbird, 2018 $ | Engine like for like, 2018 $ | Engine like for like, 2025 $ | Engine with the model's additions, 2025 $ | Density with the additions, g/L |
 |---|---:|---:|---:|---:|---:|
-| Fed-batch, enhanced cells, amino acids | 36.79 | 36.38 | 47.12 | 59.28 | 92 |
-| Fed-batch, enhanced cells, soy hydrolysate (his best estimate) | 21.00 | 20.73 | 27.09 | 37.52 | 92 |
-| Fed-batch, wild-type cells, amino acids | 236.58 | 237.64 | 312.37 | 342.45 | 7 |
-| Fed-batch, wild-type cells, soy hydrolysate | 225.03 | 225.32 | 296.67 | 326.45 | 7 |
-| Perfusion in 2 m3 tanks, enhanced cells, amino acids | 51.29 | 51.83 | 67.48 | 99.45 | 146 |
+| Fed-batch, enhanced cells, amino acids | 36.79 | 36.37 | 47.11 | 53.54 | 116 |
+| Fed-batch, enhanced cells, soy hydrolysate (his best estimate) | 21.00 | 20.65 | 26.99 | 31.28 | 116 |
+| Fed-batch, wild-type cells, amino acids | 236.58 | 261.61 | 344.25 | 376.61 | 7 |
+| Fed-batch, wild-type cells, soy hydrolysate | 225.03 | 248.15 | 327.03 | 358.98 | 7 |
+| Perfusion in 2 m3 tanks, enhanced cells, amino acids | 51.29 | 49.74 | 64.73 | 112.45 | 121 |
 
 ### What the model adds to his best estimate, one at a time
 
 | Step | $ a kilo | Change |
 |---|---:|---:|
-| His design, like for like | 27.09 | +0.00 |
-| The model's own plant figure, its flat $0.30 of supplies in place of his filter sets, and his yearly charge unrounded | 26.24 | -0.85 |
-| The least medium flow the cells need (other by-products build up): it caps the density at 92 g/L | 32.65 | +6.41 |
-| All the waste a kilo made counted at the end of a batch, which may end 1.3 times above the limit | 32.65 | +0.00 |
-| Cells killed by bursting bubbles | 34.80 | +2.15 |
-| Cells lost at harvest (2%) | 35.51 | +0.71 |
-| Bubble protectant in the medium: the page's start | 36.21 | +0.71 |
+| His design, like for like | 26.99 | +0.00 |
+| The model's flat $0.30 of supplies in place of his filter sets, and his yearly charge unrounded | 26.24 | -0.75 |
+| A thick culture takes up oxygen more slowly (kLa falls with the viscosity) | 26.24 | +0.00 |
+| The least medium flow the cells need (other by-products build up, and a batch may end above their level as above the others') | 26.24 | +0.00 |
+| All the waste a kilo made counted at the end of a batch, which may end 1.3 times above the limit | 26.97 | +0.73 |
+| Cells killed by bursting bubbles | 29.24 | +2.27 |
+| Cells lost at harvest (2%) | 29.84 | +0.60 |
+| Bubble protectant in the medium: the model's own version of his design | 30.45 | +0.61 |
 
-Since 2026-11-20 the plant is the engine's own for all five designs (item 7): the tables above are of the run before that change.
-With it, his best estimate like for like is $20.65 in 2018 dollars and $26.99 today (was $20.73 and $27.09); his wild-type designs
-$261.61 and $248.15 (+10.6% and +10.3%, the plant); his perfusion design $50.47 (−1.6%).
+### The page's start, and what the page's five levers add (2025 dollars)
+
+| Setting | $ a kilo | Change |
+|---|---:|---:|
+| The page's start: his design, like for like | 26.99 | |
+| Thick cultures take up oxygen more slowly, switched on alone | 26.99 | +0.00 |
+| A least flow of medium the cells need, switched on alone | 26.99 | +0.00 |
+| Cells killed by bursting bubbles, switched on alone | 29.34 | +2.35 |
+| Cells lost at harvest, switched on alone | 27.54 | +0.55 |
+| A bubble protectant in the medium, switched on alone | 27.49 | +0.50 |
+| All five switched on (his yearly charge and filter sets kept) | 30.49 | +3.50 |
+
+Since 2026-11-20 the plant is the engine's own for all five designs (item 7). His best estimate like for like is $20.65 in 2018
+dollars and $26.99 in 2025 dollars; his wild-type designs $261.61 and $248.15 (+10.6% and +10.3%, the plant); his perfusion design
+$49.74 (−3.0%; it was $50.47, −1.6%, while its growth factors and labour residuals partly cancelled its utilities').
 
 ## Gaps found, their cause, and what was done
 
 A quick run before this work gave, for his fed-batch conditions, 92 g/L and 11.2 t per m³ a year against his 115.6 g/L (1,849 kg in
 16 m³; he rounds it to 120) and 14.2 to 14.4.
 
-1. **Density 92 g/L in fed-batch: a model addition, not a misreading. Switched off for the back-test.** The cap was "other
+1. **Density 92 g/L in fed-batch: a model addition, not a misreading. Switched off for the back-test** (and no longer binding
+   since 2026-11-21, item 11). The cap was "other
    by-products": the least medium flow a cell needs (`pf_min_perfusion`, 7.5 mL per gram a day), which in a tank that is not
    washed out caps the density at 1000 × 0.693 / 7.5 = 92 g/L. He has no such limit. With it off the engine gives 116 to 120 g/L.
    It was not the batch-end rule of 2026-11-19 (item 2).
@@ -189,16 +205,57 @@ A quick run before this work gave, for his fed-batch conditions, 92 g/L and 11.2
    ($596k, $600k) are **14% below** the engine's $683k: their oxygen plant, utilities and medium equipment serve 6% of the output.
    Those three residuals are in `humbird_check.RESIDUALS`. At larger tanks (480 m³ of tank in all, fed-batch) the rule gives $570k per
    m³ at 50 m³ and $532k at 100 m³, against $582k and $534k from the six-tenths rule in his accounting.
-8. **Perfusion residuals, left (each in `humbird_check.RESIDUALS`):** growth factors +62% (he counts those lost in the 7 litres a
-   kilo that pass the filters; the engine doses all 12.5 litres that leave, the liquid that goes out with the cells included);
-   utilities −54% (his 2 m³ plant has 2.9 times the clean-room floor per m³ and uses 26 litres of water a kilo); labour −42% (his
-   96 small tanks take 0.69 staff per m³; the engine gives a tank in perfusion twice his fed-batch crew, 0.40, a figure meant for
-   20 m³ tanks: `pf_labour_perfusion_x`). They partly cancel: the total is within 1.1%.
+8. **Perfusion residuals (2026-11-21, item 12 below): growth factors and labour closed, utilities halved.** They were growth
+   factors +62%, utilities −54%, labour −42%; they are now −4.1%, −26.9% and +0.3%.
 9. **Wild-type labour +15%: left.** His wild-type plant has 81 staff, not 95; the engine keeps the crew per m³ of tank.
 10. **Ammonia per kilo 0.054 against 0.056: left.** Reaction 2.11 prints 0.004 mol per mol; Reaction 2.10's one ammonia per ten
     lactate gives 0.0041. Lactate sets the litres in his design either way.
 
-## What the fixes did to the model's other cases (cost of a kilo of cells, today's dollars)
+11. **The least medium flow in a tank that is not washed out (2026-11-21): engine error in the counting. Fixed.** In fed-batch the
+    least flow (`pf_min_perfusion`, a perfusion measurement) capped the density at 1000 × 0.693 / 7.5 = 92 g/L and added $6.4 to
+    his design. Of its two parts, the nutrients that run out are supplied by a fed-batch's concentrated feeds, so they cannot
+    bind; the by-products that build up are waste like ammonia and lactate. The engine lets a batch end above the level
+    perfusion holds ammonia and lactate to (`pf_batch_end_x`, 1.3; his own design ends at 1.35 by the engine's count, item 2) but
+    held the other by-products to 1.0. Now the same factor applies to all three, and the by-products' level counts towards the
+    slower growth at the end of a batch. The cap is 120 g/L (124 at his count), so it no longer binds his design: switched on alone
+    at the page's start it adds nothing (it added $6.73), the model's own version of his design costs $30.45 (was $36.21) and
+    the page with its five additions $30.49 (was $37.38). Against applying it at all in fed-batch: nobody has measured it in a
+    dense fed-batch of meat cells; CHO fed-batch cultures top out near the same 30-40 million cells/mL, but there ammonia,
+    lactate and osmolality are the stated causes, which the engine counts separately. The fill-and-draw rows of the plant ladder
+    and the vessel grid's batch rows move with it (`floor_physics.tiers`, `vessels.py`).
+12. **Humbird's perfusion design (2026-11-21).** Each of the three residuals of item 8, traced in his report:
+    * **Growth factors +62%: a deliberate difference, now matched like for like.** His Table 4.11 buys 940 kg of insulin a year,
+      at 19.4 mg/L the 48 million litres that pass the filters (1,600 L a day per tank at 91% uptime: 51 million); the culture
+      bled out with the 9 kg an hour of cells (5.1 L a kilo at 195 g/L) is not counted, as it is not for his nutrients ("assuming
+      a perfusion rate of 1/d (1,600 L/d) at residual concentrations", Sect. 4.2). The growth factors in that culture are lost
+      with it, so the engine keeps dosing every litre that leaves. Like for like, `conditions` buys them only in his share of the
+      litres (7.4 of 12.5 L a kilo): $2.66 against his $2.78 (−4.1%; the rest is his perfusion plant's price per kilo of growth
+      factor at its global demand).
+    * **Labour −42%: an engine error in how the crew scales, fixed; the rest deliberate.** His perfusion crew is counted per tank
+      (Table 4.12): 8 hours per inoculation, 2 hours per change of the day tanks, 10% of the online time, over 80% efficiency,
+      194,789 hours a year for 96 tanks, 0.975 staff a tank, plus 38 continuous staff. The engine's crew per m³ did not depend on
+      the tank size. Now (`floor_physics.crew_multiplier`) a tank run continuously in perfusion takes `pf_labour_perfusion_x`
+      times the fed-batch crew per m³ at 20 m³ plus `pf_labour_tank_perfusion` (0.975) staff per tank for a smaller tank (fewer
+      for a larger), and a batch tank's crew has his batch workers' share (13 of 21 a shift, `pf_labour_tank_share`) counted per
+      tank. At 20 m³ nothing changes. Like for like, `conditions` takes his own rest of the crew (`his_perfusion_crew_x`, 1.26 times
+      the fed-batch crew per m³): $2.00 against $1.99. The model's own 2.0 (staff per thousand tonnes in analyses that assume
+      perfusion; SuperMeat 2024 has 0.41 staff per m³ of 25 m³ tanks) is kept as a deliberate difference: at his design it would
+      give 160 staff against his 132.
+    * **Utilities −54%: an engine error, half closed; the rest left.** His perfusion plant pays $0.36 a kilo of facility power
+      against $0.29 in fed-batch: 53.4 GWh for 13,073 m² of Class 8 hall, the same load per m² as the fed-batch hall. The engine
+      charged every plant the fed-batch plant's building power per m³ of tank, whatever its tank size or its class. Now
+      (`floor_physics.building_power`) the building's power follows the buildings' cost per m³ at that tank size (the $74.4k per
+      m³ + $533k per tank fit) and the electric load of each building's class in his Table 3.2 (a Class 8 hall 410 W/m², a
+      sanitary hall 50, a warehouse-like shed 5, Class 6 labs 1,000). His 2 m³ plant comes out at 3.4 times the fed-batch plant's
+      building power per m³ against his 3.2. Left: his process water, 183,020 t a year, 26.5 L a kilo ($0.53), against the
+      engine's medium (12.5 L) and tank cleaning (0.5 L). His report does not itemise the other 13.5 L; cleaning the 192 day
+      tanks each time they are refilled would fit, but he does not say so, so it is not charged. −26.9% is the residual.
+    * **What it did to the model's cases:** the sanitary hall's lower power takes $0.2-0.6 off every food-grade case (Humbird's
+      optimistic design $15.93 → $15.72, the low-lactate example $49.50 → $49.22, published cells $322.55 → $316.11 before the
+      design-search change); the per-tank crew changes only cases at other tank sizes (the all-favourable example's 42 m³ tanks;
+      the tank-size study, where large tanks now gain more).
+
+## What the fixes of 2026-11-20 did to the model's other cases (cost of a kilo of cells, 2025 dollars)
 
 | Case | Before | After | Change | Utilities | Labour |
 |---|---:|---:|---:|---|---|
@@ -219,12 +276,12 @@ more.
 
 ## The page's start
 
-`with_additions(case)` (the totals table above) keeps his plant cost, yearly charge and filter sets and turns the model's additions on; for his best estimate it gives $37.5. The page's start is $36.2: it takes the model's own plant figure ($683k per m³ in 2018 dollars against his $688k), its flat $0.30 of supplies in place of his filter sets, and 23.57% in place of his rounded 23.6%.
+`with_additions(case)` (the totals table above) keeps his plant cost, yearly charge and filter sets and turns the model's additions on; for his best estimate it gives $31.3 (2025 dollars; $37.5 before 2026-11-21, item 11). The model's own version of his design is $30.45 (was $36.21): it takes the model's own plant figure ($683k per m³ in 2018 dollars against his $688k), its flat $0.30 of supplies in place of his filter sets, and 23.57% in place of his rounded 23.6%. The page starts at his design like for like, $26.99, and its five additions together bring it to $30.49.
 
 `humbird_check.start_kwargs()`: his cell as the four traits, fed-batch in 20 m³ tanks, the plant with clean rooms, 7.5% over 10
 years plus 9% (23.57%; he rounds to 23.6%), limits of 5 and 50 mmol/L and 100 mbar, 6 mm/s of gas, growth factors bought, in
-today's dollars, with the model's own additions on. The medium is at his nutrient cost ($3.39 a kilo in 2018 dollars, $4.34
-today), not the model's ingredient floor ($2.00): it is his estimate, and his cost is the higher. The page's medium lever takes a
+2025 dollars, with the model's own additions on. The medium is at his nutrient cost ($3.39 a kilo in 2018 dollars, $4.34
+in 2025 dollars), not the model's ingredient floor ($2.00): it is his estimate, and his cost is the higher. The page's medium lever takes a
 price per litre, so it is entered as $0.40 a litre (his cost over the litres a kilo grown takes
 at the start).
 
@@ -233,5 +290,6 @@ at the start).
 * How buildings, support equipment and crew scale with tank size (item 7): the buildings rule is fitted to his two designs alone,
   and the seed train, sterilisers, centrifuges and outside utilities are held per m³ of tank, which neither design follows exactly
   (his 2 m³ plant spends more on them per m³, his wild-type plant less). It matters for every case that changes the tank size.
-* The least medium flow in a tank that is not washed out (item 1) is the largest of the model's additions to his design. It is a
-  pharma perfusion measurement applied to a fed-batch; nobody has measured it for a dense fed-batch of meat cells.
+* The least medium flow in a tank that is not washed out (items 1 and 11): since 2026-11-21 it is counted as the batch's other
+  waste is and no longer binds his design. Nobody has measured it in a dense fed-batch of meat cells.
+* His perfusion plant's process water (item 12): 13.5 L a kilo not itemised in his report.

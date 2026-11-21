@@ -34,11 +34,14 @@ from inputs import value
 # 120 g/L by its ammonia (1.3 x 5 mmol/L at 0.054 mol a kilo, Humbird's own fed-batch density), not 77 g/L by its lactate. The
 # fixes to bubble deaths (a column that strips nothing no longer lowers them) put every other fallback back in the ordinary tall
 # tank; the all-favourable example's fallbacks take the pressure, which lifts their oxygen limit (96 g/L) to the waste cap.
+# 2026-11-21: every figure falls a little, none changes its limit (the building's power by floor and class, the floor's glucose;
+# the least medium flow times pf_batch_end_x leaves these waste-held tanks alone). Before: best 11.2827 / 37.6200 / 9.3519,
+# central 71.7592 / 96.6177 / 76.3460, central_lean 55.5037 / 52.3868, cautious 322.5502 / 366.3655 / 366.3655.
 GOLDEN = {
-    "best": {("fedbatch", "model"): 11.2827, ("fedbatch", "shown"): 37.6200, ("filldraw", "model"): 9.3519},
-    "central": {("fedbatch", "model"): 71.7592, ("fedbatch", "shown"): 96.6177, ("filldraw", "model"): 76.3460},
-    "central_lean": {("fedbatch", "model"): 55.5037, ("filldraw", "model"): 52.3868},
-    "cautious": {("fedbatch", "model"): 322.5502, ("filldraw", "model"): 366.3655, ("filldraw", "shown"): 366.3655},
+    "best": {("fedbatch", "model"): 11.0319, ("fedbatch", "shown"): 36.5619, ("filldraw", "model"): 9.1250},
+    "central": {("fedbatch", "model"): 70.3150, ("fedbatch", "shown"): 94.6670, ("filldraw", "model"): 74.7529},
+    "central_lean": {("fedbatch", "model"): 53.8796, ("filldraw", "model"): 50.5951},
+    "cautious": {("fedbatch", "model"): 316.1052, ("filldraw", "model"): 358.7276, ("filldraw", "shown"): 358.7276},
 }
 # Fallbacks that cost LESS than perfusion. 2026-11-20 (first batch): the all-favourable example in fill-and-draw ($17.06 against
 # $18.71), because its perfusion paid $7.5 a kilo for membranes and twice the fed-batch crew. 2026-11-20 (final pass): none. The

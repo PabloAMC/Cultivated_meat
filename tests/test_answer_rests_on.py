@@ -70,8 +70,11 @@ def check() -> list:
     # 2 bar was the cheapest design ($31.7 against $32.8).
     # 2026-11-20 final model: sc_p_top is a row again. The pressure trick's design is chosen again at each end: at 0.33 bar
     # the low-lactate example costs $52.47 and at 2 bar $51.00, against $49.50 at 1 bar, both over the $1 threshold.
-    if "sc_p_top" not in cr or A._band("sc_p_top") != A.NOT_DRAWN["sc_p_top"]:
-        fails.append("sc_p_top should be a row, marked as a design choice not drawn")
+    # 2026-11-21: sc_p_top is no longer a row again. The design search now holds a culture thinner when its loop fails
+    # (scenarios.design), so the low-lactate example's tank design is the column with recycled oxygen, held at 168 g/L, which
+    # does not use the pressure trick: the pressure's range moves it by under $1. It keeps its reason for not being drawn
+    if "sc_p_top" in cr or A._band("sc_p_top") != A.NOT_DRAWN["sc_p_top"]:
+        fails.append("sc_p_top should not be a row (the thinned oxygen-column design does not use pressure), and stays marked as a design choice not drawn")
     # maturation (pf_mature_h, 0 to 28 days) is a choice of product, left out of the tables with a stated reason
     if "pf_mature_h" in cr or "pf_mature_h" not in A.EXCLUDE:
         fails.append("pf_mature_h should be left out of the tables, with its reason in EXCLUDE")
@@ -132,7 +135,9 @@ def check() -> list:
         fails.append("the liking spread is no longer sd 3.9 with 4 degrees of freedom; repin the shares")
     # the share at each scenario's own cost, % of world meat and seafood (0.0786 and 2.8149 with the normal spread)
     # 2026-11-20 final model: 0.0456 -> 0.0466 ($49.50) and 1.1345 -> 5.4388 ($7.62, the all-favourable case redefined)
-    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.0466), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 5.4388)):
+    # 2026-11-21: 0.0466 -> 0.0496 ($49.50 -> $48.68) and 5.4388 -> 6.0674 ($7.62 -> $6.97: the thinned tank design, the building's
+    # power by floor and class, the crew per tank)
+    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.0496), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 6.0674)):
         # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         # 2026-11-20 model batch: 0.2102 -> 0.0456 and 3.1617 -> 1.1345 (the costs rose from $32.80 to $49.96 and $11.67 to $18.71)
         if abs(got - want) > 2e-3:
@@ -159,9 +164,14 @@ def check() -> list:
     # 2026-11-20 final model: 591 inputs, 273 with a range (pf_mature_h, ranged, is left out); 25 cost rows, 14 over $3, all
     # 25 move the low-lactate example by $1 or more (new rows: tc_kla_exp, tc_thin, sc_p_top, pf_harvest_recovery, ...;
     # gone: rows under $1 since the fixes); 10 demand rows
-    pins = [("inputs", s["inputs"], 591), ("with a range", s["ranged"], 273),      # liking_tail added in the second round
-            ("rows", len(s["cost_rows"]), 25), ("over $3", s["over_3"], 14),
-            ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 25),
+    # 2026-11-21: 605 inputs, 276 with a range (new: the building's power by class, the crew per tank, two spargers, the column on
+    # the filter loop, the Class 6 rate); 25 -> 19 cost rows, 14 -> 13 over $3, all 19 move the low-lactate example by $1 or more.
+    # The six that fell under $1: antifoam's cost to oxygen transfer, tc_kla_exp, tc_thin, the upkeep share of a cell's oxygen and
+    # sc_p_top (the cases' tank designs now feed recycled oxygen from the column, held thinner so its loop passes, and oxygen no
+    # longer sets their density), and the harvest recovery (its 0.97-0.99 now moves the low-lactate example by just under $1)
+    pins = [("inputs", s["inputs"], 605), ("with a range", s["ranged"], 276),      # liking_tail added in the second round
+            ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
+            ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
             ("demand rows", len(s["demand_rows"]), 10)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
     for name, got, want in pins:
         if got != want:
@@ -173,9 +183,12 @@ def check() -> list:
     # 23.59-52.14 -> 45.61-82.70, protectant price 31.40-39.10 -> 48.36-57.18, osmolality 38.42-32.80 -> 59.50-49.96; and the two
     # new inputs
     # 2026-11-20 final model, at the low-lactate example $49.50
-    for k, want in (("rt_membrane_life", (87.00, 37.00)), ("sc_nh3_limit", (89.91, 44.65)), ("sc_nh3_selected", (45.27, 81.28)),   # low end 0.07 -> 0.04 (2026-11-19)
-                    ("sc_lac_limit", (71.18, 49.50)), ("ge_kill_protected", (46.46, 59.93)),
-                    ("pf_protectant_price", (47.94, 56.49)), ("pf_osm_limit", (58.76, 49.50))):
+    # 2026-11-21, at $48.68: filter life (87.00, 37.00) -> (86.91, 35.94), ammonia tolerated (89.91, 44.65) -> (89.05, 43.84),
+    # ammonia made (45.27, 81.28) -> (44.46, 80.42), lactate tolerated (71.18, 49.50) -> (70.33, 48.68), bubble kill
+    # (46.46, 59.93) -> (45.70, 58.94), protectant price (47.94, 56.49) -> (47.13, 55.67), osmolality (58.76, 49.50) -> (57.93, 48.68)
+    for k, want in (("rt_membrane_life", (86.91, 35.94)), ("sc_nh3_limit", (89.05, 43.84)), ("sc_nh3_selected", (44.46, 80.42)),   # low end 0.07 -> 0.04 (2026-11-19)
+                    ("sc_lac_limit", (70.33, 48.68)), ("ge_kill_protected", (45.70, 58.94)),
+                    ("pf_protectant_price", (47.13, 55.67)), ("pf_osm_limit", (57.93, 48.68))):
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
             fails.append(f"{k}: the low-lactate example {cr[k]['central'][0]:.2f} to {cr[k]['central'][1]:.2f} != pinned {want}")
     # the share's span across the demand rows, % of world meat and seafood
@@ -185,8 +198,9 @@ def check() -> list:
     # 2026-11-19 restructure (the share of the meat sold; best's cells 2 ng): 0.0504-0.8093 -> 0.0847-0.9709, 0.7398-11.6982 -> 0.8788-12.8533
     # 2026-11-20 model batch: 0.0847-0.9709 -> 0.0214-0.3316, 0.8788-12.8533 -> 0.3534-4.7193 (across the two demand rows left)
     # 2026-11-20 final model: 0.0214-0.3316 -> 0.0220-0.3278; 0.3534-4.7193 -> 1.4718-19.7075 (ten demand rows)
-    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0220, 0.3278)),
-                            ("the all-favourable example's share span", s["best_share_span"], (1.4718, 19.7075))):
+    # 2026-11-21: 0.0220-0.3278 -> 0.0234-0.3429; 1.4718-19.7075 -> 1.6331-21.6175 (the costs above)
+    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0234, 0.3429)),
+                            ("the all-favourable example's share span", s["best_share_span"], (1.6331, 21.6175))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 

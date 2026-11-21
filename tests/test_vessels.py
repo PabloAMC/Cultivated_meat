@@ -32,9 +32,13 @@ from inputs import value
 # (23.18 -> 39.14; 23.18 is what the old rule gives with today's other changes). Perfusion 18.12 -> 30.48 the same way
 # (capital 10.05 -> 17.18, labour 3.90 -> 6.66, medium 2.16 -> 3.50, utilities 0.87 -> 1.42, consumables 1.14 -> 1.72)
 GOLDEN_REF = {
-    ("stirred", "batch"): 71.8825, ("stirred", "fedbatch"): 21.0971, ("stirred", "filldraw"): 19.9801,
-    ("stirred", "chemostat"): 37.4347, ("stirred", "perfusion"): 15.9293,
-    ("airlift", "fedbatch"): 39.1422, ("airlift", "perfusion"): 30.4806,
+    # 2026-11-21: batch 71.8825 -> 70.4820, fed-batch 21.0971 -> 17.3153 and fill-and-draw 19.9801 -> 16.5048 (the least medium
+    # flow now caps an unwashed tank at pf_batch_end_x times its level, 120 g/L not 92, so CO2 and the waste hold them; and the
+    # building's power by floor and class), chemostat 37.4347 -> 36.6689, perfusion 15.9293 -> 15.7207, airlift fed-batch
+    # 39.1422 -> 38.3548, airlift perfusion 30.4806 -> 29.9640 (the building's power, labour per tank, the floor's glucose)
+    ("stirred", "batch"): 70.4820, ("stirred", "fedbatch"): 17.3153, ("stirred", "filldraw"): 16.5048,
+    ("stirred", "chemostat"): 36.6689, ("stirred", "perfusion"): 15.7207,
+    ("airlift", "fedbatch"): 38.3548, ("airlift", "perfusion"): 29.9640,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
 # 2026-11-19 audit batch: the reference grid does not move (Humbird's design keeps his 5 mmol/L and loses no runs). The low-lactate example:
@@ -47,7 +51,9 @@ GOLDEN_REF = {
 # recovery on every cost). The airlift in perfusion 47.6021 -> 53.1084: held at 87.4 g/L by the stirred tank's mixing rule at its
 # shape (it ran at 138.7 g/L with the column thinned), so it is again dearer than the stirred tank (capital 11.71 -> 17.15, labour
 # 3.78 -> 6.01; membranes and medium fall a little, consumables 23.69 -> 20.47)
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 49.4977, ("stirred", "fedbatch"): 71.7592, ("airlift", "perfusion"): 53.1084}
+# 2026-11-21: stirred perfusion 49.4977 -> 48.6815 (the thinned recycled-oxygen design), fed-batch 71.7592 -> 70.3150, airlift
+# perfusion 53.1084 -> 52.7303 (the building's power by floor and class, the floor's glucose)
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 48.6815, ("stirred", "fedbatch"): 70.3150, ("airlift", "perfusion"): 52.7303}
 
 
 def close(a, b, tol=1e-3):

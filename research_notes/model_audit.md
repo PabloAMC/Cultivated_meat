@@ -149,6 +149,29 @@ filter loop's flux, membrane price, hardware and membrane life. 4,000 draws; two
   fattens both tails). The tank design, the 20 m³ size, the plant class and the density limit are held. The omissions in 3d are not in it.
   The all-favourable example's ranges are partly unsourced: its 24-hour doubling has no range.
 
+### 3f. Why the all-favourable example's point cost is below most of its draws (2026-11-21)
+
+TODO item: the point ($7.62 then, $6.97 now) was below 89% of the draws of its own band (`scenarios.scenario_mc`); now 95%. The cause
+was looked for lever by lever: each drawn estimate alone, the rest at the point (4,000 draws, seed 0, model of 2026-11-21).
+
+| Drawn alone | Share of draws below the point | Median of the cost with only this drawn |
+|---|---:|---:|
+| price of the bubble protectant (most likely $30 a kilo, drawn up to $120; median draw $49) | 18% | $7.43 |
+| its dose (most likely 2 g/L, drawn 1-5; median 2.6) | 20% | above the point |
+| amino-acid price (most likely $6.36, drawn $5-11.59; median $7.39) | 21% | above the point |
+| cells bubbles kill (most likely the bench figure, drawn a quarter of it to three times) | 28% | $7.22 |
+| plant estimate (the shared-medium plant's range starts at the yeast-style plant's cost) | 48% | $6.99 |
+| yearly charge, antifoam | 45-50% | about the point |
+| upkeep share of respiration, slower oxygen uptake of a thick culture | 65-73% | below the point |
+
+It is not a defect. The point is every estimate at its most likely value (the mode of its prior); the all-favourable example takes
+the favourable end only of the levers the published studies and Humbird's design set, not of these estimates. Several priors are
+skewed to the costly side: the most likely value sits near the low end of the range. A cost at the modes then lies below the
+median of the draws. No draw is centred elsewhere than the case's own value, and the medium-price and runs-lost draws do not reach
+the case (its medium is at the nutrient floor, it loses no runs). The low-lactate example shows the same effect less strongly (its
+point at the 26th percentile in `audit.py`, and $48.68 against a band median of $52.93), because more of its drawn estimates are symmetric. The
+page's story of the all-favourable example now says so.
+
 ### 3d. What the cost leaves out
 
 | Item | Direction and size | Basis |

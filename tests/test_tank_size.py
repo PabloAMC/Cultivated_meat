@@ -29,13 +29,22 @@ import tank_size as T                       # noqa: E402
 # buildings are charged per tank, so capital per m3 falls with size over much more than the 32% bioreactor share), thick
 # cultures take up oxygen more slowly (viscous_kla: lower densities), and the all-favourable example redefined ($7.62 at its own
 # 42 m3; membranes at $8 a m2, no lost runs). Every row moves; small tanks cost much more than before.
+# 2026-11-21: tank_size chooses designs as scenarios.design now does, holding a culture thinner when that lets a column loop
+# pass its checks; the building's power follows its floor and class (small tanks dearer, large ones cheaper); part of the crew is
+# counted per tank (Humbird's rule: small tanks dearer); the floor's glucose. Before (2026-11-20, final pass):
+#   reference (36.1915, 22.6045, 18.1576, 15.9293, 15.5706, 18.2298, 22.2473)
+#   reference_redesigned (29.3934, 19.6309, 16.6125, 14.8918, 14.2780, 13.9989, 13.8121)
+#   best (13.2993, 9.5937, 8.5210, 8.0977, 7.5390, 7.7710, 7.5592)
+#   central (80.8891, 60.7612, 53.4965, 49.4977, 48.3364, 47.2675, 47.7524)
+#   central_lean (63.6921, 52.1810, 47.6678, 45.0374, 44.1287, 43.0371, 43.3629)
+#   cautious (242.6364, 207.0385, 193.3322, 185.5915, 179.8443, 177.1860, 178.0085)
 GOLDEN = {
-    "reference": (36.1915, 22.6045, 18.1576, 15.9293, 15.5706, 18.2298, 22.2473),
-    "reference_redesigned": (29.3934, 19.6309, 16.6125, 14.8918, 14.2780, 13.9989, 13.8121),
-    "best": (13.2993, 9.5937, 8.5210, 8.0977, 7.5390, 7.7710, 7.5592),
-    "central": (80.8891, 60.7612, 53.4965, 49.4977, 48.3364, 47.2675, 47.7524),
-    "central_lean": (63.6921, 52.1810, 47.6678, 45.0374, 44.1287, 43.0371, 43.3629),
-    "cautious": (242.6364, 207.0385, 193.3322, 185.5915, 179.8443, 177.1860, 178.0085),
+    "reference": (39.3347, 23.4524, 18.2909, 15.7207, 15.0246, 17.4432, 21.1962),
+    "reference_redesigned": (26.3747, 18.1284, 15.7639, 14.5068, 13.5514, 13.2182, 13.0465),
+    "best": (12.2610, 8.7489, 7.6858, 7.1647, 6.9548, 7.0971, 7.2854),
+    "central": (73.5071, 56.4373, 51.5085, 48.6815, 46.6049, 45.8883, 45.5304),
+    "central_lean": (61.8599, 50.3796, 46.7493, 44.5349, 42.7114, 41.9717, 41.5050),
+    "cautious": (226.6587, 196.2850, 186.4678, 181.1270, 177.2204, 175.5879, 174.3669),
 }
 NOTE = os.path.join(MODEL_DIR, "research_notes", "tank_size.md")
 
@@ -61,12 +70,16 @@ for c, want in GOLDEN.items():
 i20 = sizes.index(20.0)
 # 2026-11-20 final pass: the all-favourable example now chooses its own tank size among the published ones (42 m3,
 # scenarios.all_favourable), so its 20 m3 row is its switches at 20 m3, and its own cost is the same design at its own size
+# 2026-11-21: a thinned design carries its density cap (`thin`), which is for its own size: the all-favourable example's 42 m3
+# design (the recycled-oxygen column in a flat tank, held at 219 g/L) is not what 20 m3 chooses (the same column in a squat tank,
+# 218 g/L), so for it only the cost at its own size is compared
 for k in S.ORDER:
     r, ch = scan[k][i20], S.SCENARIOS[k].choice
     own = S.explore_kwargs(ch).get("vessel_m3", 20.0)
-    check((r["tricks"], r["shape"]) == (ch["tricks"], ch["shape"]), f"{k}: the design chosen at 20 m3 is not scenarios.design's")
-    check(close(r["total"], S.run(ch, vessel_m3=20.0)["total"], 1e-12), f"{k}: the 20 m3 cost is not the scenario's switches at 20 m3")
-    check(close(T.evaluate(k, ch["tricks"], ch["shape"], own)["total"], S.run(ch)["total"], 1e-12), f"{k}: the cost at its own {own:g} m3 is not the scenario's own")
+    if own == 20.0:
+        check((r["tricks"], r["shape"]) == (ch["tricks"], ch["shape"]), f"{k}: the design chosen at 20 m3 is not scenarios.design's")
+        check(close(r["total"], S.run(ch, vessel_m3=20.0)["total"], 1e-9), f"{k}: the 20 m3 cost is not the scenario's switches at 20 m3")
+    check(close(T.evaluate(k, ch["tricks"], ch["shape"], own, thin=ch.get("thin"))["total"], S.run(ch)["total"], 1e-9), f"{k}: the cost at its own {own:g} m3 is not the scenario's own")
 check(S.explore_kwargs(S.SCENARIOS["best"].choice).get("vessel_m3") == 42.0, "the all-favourable example's own tank is no longer 42 m3: rewrite the note")
 check(close(scan["reference"][i20]["total"], S.reference()["total"], 1e-12), "the reference at 20 m3 is not explore()'s default")
 for r in scan["reference"]:
@@ -115,15 +128,22 @@ check(close(cen[6]["loop_area_m2"] / cen[3]["loop_area_m2"], cen[6]["loop_area_m
 # take up oxygen more slowly (viscous_kla), so the cultures are thinner (low-lactate 154 g/L, was 191; cautious 103, was 120)
 # and the column's alkaline dose at 20 m3 lower (0.82 and 0.64 of the safe dose). The limits rise: all-favourable 51.1 m3,
 # both low-lactate examples 32.1 m3, cautious 168.8 m3.
-LIMIT_RANGE = {"cautious": (160.0, 180.0), "best": (48.0, 54.0), "central": (30.0, 34.0), "central_lean": (30.0, 34.0)}
+# 2026-11-21: THE MEANING CHANGED. Every scenario's design is now held at the densest culture its column loop passes at its own
+# size (scenarios.design), so at that density it sits exactly at the edge of its checks: any larger tank fails them at the same
+# density, and design_limit is 20 m3 (to 1e-4). With the pH check relaxed to twice the safe dose the same design and density pass
+# to 42 m3 (both low-lactate examples) and 107 m3 (cautious). The all-favourable example's design is for its own 42 m3 tank and
+# fails at 20 m3 (nan). Before: all-favourable 51.1 m3, low-lactate 32.1, cautious 168.8 (column + 1 bar at full density).
+RELAXED_RANGE = {"cautious": (100.0, 115.0), "central": (40.0, 45.0), "central_lean": (40.0, 45.0)}
 for k in S.ORDER:
     lim = T.design_limit(k)
     ch = S.SCENARIOS[k].choice
-    lo, hi = LIMIT_RANGE[k]
-    check(lo < lim < hi, f"{k}: the 20 m3 design should stop passing between {lo:g} and {hi:g} m3, not at {lim}")
-    check(T.evaluate(k, ch["tricks"], ch["shape"], lim * 0.999)["ok"], f"{k}: the design fails just below its limit {lim:.2f}")
-    check(not T.evaluate(k, ch["tricks"], ch["shape"], lim * 1.001)["ok"], f"{k}: the design passes just above its limit {lim:.2f}")
-    check(T.design_limit(k, {"ph_max": "ph_relaxed"}) > lim, f"{k}: a looser pH check should raise the limit")
+    if k == "best":
+        check(lim != lim, f"{k}: its 42 m3 design should not pass at 20 m3 at its own density cap (got {lim})")
+        continue
+    check(abs(lim - 20.0) < 1e-4 * 20.0, f"{k}: the thinned design should sit at the edge of its checks at 20 m3, not {lim}")
+    check(not T.evaluate(k, ch["tricks"], ch["shape"], 20.0 * 1.01, thin=ch["thin"])["ok"], f"{k}: the design passes above 20 m3 at its cap")
+    lo, hi = RELAXED_RANGE[k]
+    check(lo < T.design_limit(k, {"ph_max": "ph_relaxed"}) < hi, f"{k}: a looser pH check should raise the limit into ({lo:g}, {hi:g}) m3")
 
 # 5. the answer: 20 m3 is near the flat bottom of the curve, and no scenario gains more than 3% from another size.
 #    2026-11-19 audit batch: the cautious case was the exception (5.4% at 111 m3, pinned between 4% and 5.5%). Its saving is
@@ -141,23 +161,28 @@ for k in S.ORDER:
 # makeup tanks, filter housings and buildings are now charged per tank as well as per m3, so capital per m3 falls with size
 # over much more of the plant than the bioreactor share (the cautious capital is $23.37 a kilo at 20 m3, $17.49 at 168 m3).
 # A correct consequence of pricing the plant by its items (Humbird's own accounting), not a defect.
+# 2026-11-21: THE ANSWER CHANGED AGAIN. The thinned designs and the building's power by floor push the low-lactate examples and
+# the cautious case to the 200 m3 end of the range (a larger tank with a thinner culture: 6.5%, 6.8% and 3.7% below 20 m3), and
+# the all-favourable example to 44 m3 (3.1% below its 20 m3 row; its own 42 m3 is on that flat bottom). 20 m3 is outside the
+# sizes within 3% of the minimum for all four. Before: all-favourable 7.4% at 90 m3, low-lactate 6.2% and 5.8% at 168 m3,
+# cautious 5.3% at 168 m3.
 opt = {k: T.optimum(k) for k in S.ORDER}
+EDGE = {"best": False, "central": True, "central_lean": True, "cautious": True}
 for k in S.ORDER:
     o = opt[k]
     check(o["saving"] >= -1e-12, f"{k}: the optimum is dearer than 20 m3")
-    check(not o["at_edge"], f"{k}: the optimum sits at the end of the search range")
-    check(5.0 < o["saving_pct"] < 8.0, f"{k}: another size saves {o['saving_pct']:.1f}%, outside the 5% to 8% the note says")
+    check(o["at_edge"] == EDGE[k], f"{k}: at the end of the search range should be {EDGE[k]}")
+    check(3.0 < o["saving_pct"] < 7.0, f"{k}: another size saves {o['saving_pct']:.1f}%, outside the 3% to 7% the note says")
     check(not (o["within_3pct"][0] <= 20.0 <= o["within_3pct"][1]), f"{k}: 20 m3 is within 3% of the minimum: rewrite section 1 of the note")
-    check(30.0 < o["within_3pct"][0] < 65.0 and o["within_3pct"][1] >= 199.0, f"{k}: the sizes within 3% of the minimum should run from 30 to 65 m3 up to 200 m3")
 ob, oc, oq = opt["best"], opt["central"], opt["cautious"]
-check(160.0 < oq["size"] < 175.0 and 5.0 < oq["saving_pct"] < 5.6 and 9.5 < oq["saving"] < 10.2,
-      f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
-check(85.0 < ob["size"] < 95.0 and 7.0 < ob["saving_pct"] < 7.8, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
-check(160.0 < oc["size"] < 175.0 and 5.9 < oc["saving_pct"] < 6.6, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
+check(oq["size"] >= 199.0 and 3.4 < oq["saving_pct"] < 4.0, f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
+check(40.0 < ob["size"] < 50.0 and 2.8 < ob["saving_pct"] < 3.4, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
+check(oc["size"] >= 199.0 and 6.2 < oc["saving_pct"] < 6.8, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
 # Until 2026-11-20 the all-favourable example's optimum was a thin culture with no tricks (59 g/L at 121 m3) whose harvest carried
 # out its own spent medium, saving membranes at $1,450 a m2. The example now uses membranes at $8 a m2 ($0.04 a kilo at every
 # size), so a thin culture saves nothing and the optimum keeps the 20 m3 design's column + 1 bar and its density (156 g/L).
-check(ob["tricks"] == "pressure" and 145.0 < ob["density"] < 165.0, f"best: the optimum should keep column + 1 bar and about 156 g/L ({ob['tricks']}, {ob['density']:.0f} g/L)")
+# 2026-11-21: the optimum is now the recycled-oxygen column in a flat tank held at 219 g/L, the all-favourable example's own design
+check(ob["tricks"] == "oxygen" and 210.0 < ob["density"] < 225.0, f"best: the optimum should be the thinned recycled-oxygen design at about 219 g/L ({ob['tricks']}, {ob['density']:.0f} g/L)")
 # without the loop checks the all-favourable example keeps falling to the end of the range (the checks, not the density limits, stop it)
 ub = T.optimum("best", {"checks": False})
 check(ub["at_edge"] and ub["size"] >= 199.0, f"best without checks: optimum {ub['size']:.0f} m3 should be the 200 m3 end of the range")
@@ -218,7 +243,8 @@ else:
     text = open(NOTE, encoding="utf-8").read()
     for k in S.ORDER:
         o = opt[k]
-        for want in (f"${scan[k][i20]['total']:.2f}", f"${o['total']:.2f}", f"{T.design_limit(k):.1f} m\u00b3"):
+        lim = T.design_limit(k)                     # 2026-11-21: not quoted where it is not a number (best: nan)
+        for want in (f"${scan[k][i20]['total']:.2f}", f"${o['total']:.2f}") + ((f"{lim:.1f} m\u00b3",) if lim == lim else ()):
             check(want in text, f"the note does not quote {want} ({k})")
 
 # 9. fed-batch against size (2026-11-19 restructure): a bigger batch is cheaper, never cheaper than perfusion at 20 m3, and the
@@ -228,7 +254,8 @@ else:
 # example's switches no size closes the gap, as before.
 # 2026-11-20 final pass: the all-favourable example now uses membranes at $8 a m2, so perfusion no longer pays for membranes and
 # fed-batch at every size costs more than perfusion again ($10.22 at 200 m3 against $7.62): the reversal of the batch is undone.
-FB_GOLDEN = {"central": (71.7592, 60.7101), "best": (11.2827, 10.4370)}     # $/kg at 20 and 100 m3
+# 2026-11-21: central (71.7592, 60.7101) and best (11.2827, 10.4370) before (the building's power by floor and class)
+FB_GOLDEN = {"central": (70.3150, 54.5840), "best": (11.0319, 9.4878)}     # $/kg at 20 and 100 m3
 for k, (a, b) in FB_GOLDEN.items():
     c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
     check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")

@@ -79,10 +79,13 @@ def check() -> list:
     p0, p4, padd = HC.page_start(), HC.page_with_additions(), HC.page_additions()
     if abs(p0["total"] - b["total"]) > 1e-12 * b["total"]:
         fails.append(f"the page's start {p0['total']:.6f} should be the like-for-like figure in today's dollars {b['total']:.6f}")
-    # the viscosity lever adds nothing at his fed-batch, whose 120 g/L is held by CO2, not oxygen
+    # the viscosity lever adds nothing at his fed-batch, whose 120 g/L is held by CO2, not oxygen. 2026-11-21: nor does the least
+    # medium flow: in a tank that is not washed out its cap is 1.35 x 92 = 124 g/L at the end of a batch as he counts it (it added
+    # $6.7 when it capped his batch at 92 g/L; research_notes/humbird_backtest.md, item 11)
     if [k for k, _n, _d in padd] != ["kla_exp", "min_perfusion", "killx", "harvest_loss", "protect_dose"] \
-            or not all(d > 0.1 for k, _n, d in padd if k != "kla_exp") or not -1e-9 <= padd[0][2] < 0.05:
-        fails.append(f"each of the page's additions should add cost when switched on alone (viscosity: none at 120 g/L): {padd}")
+            or not all(d > 0.1 for k, _n, d in padd if k not in ("kla_exp", "min_perfusion")) \
+            or not all(-1e-9 <= d < 0.05 for k, _n, d in padd if k in ("kla_exp", "min_perfusion")):
+        fails.append(f"each of the page's additions should add cost when switched on alone (viscosity and least flow: none at 120 g/L): {padd}")
     if not p0["total"] + max(d for _k, _n, d in padd) < p4["total"] < p0["total"] + 1.2 * sum(d for _k, _n, d in padd):
         fails.append(f"the four additions together ({p4['total']:.2f}) should add about the sum of each alone ({[round(d, 2) for _k, _n, d in padd]})")
     if abs(p0["feedstock"] * p0["harvested_share"] - HC.page_nutrients_kg()) > 1e-9 or abs(p4["feedstock"] * p4["harvested_share"] - HC.page_nutrients_kg()) > 1e-9:
@@ -90,8 +93,12 @@ def check() -> list:
     fin = HC.page_finance()
     if abs(fin["rate"] / 100.0 / (1.0 - (1.0 + fin["rate"] / 100.0) ** -fin["life"]) + fin["upkeep"] / 100.0 - value("humbird_plant_charge")) > 1e-12:
         fails.append("the page's three finance levers should give his yearly charge of 23.6%")
-    if abs(p4["total"] - HC.with_additions(HC.BEST)["total"]) > 0.01:
-        fails.append("the page with its four additions should be within a cent of with_additions (which also counts the end of a batch, antifoam and medium preparation the model's way)")
+    # 2026-11-21: with the least-flow cap no longer holding both at 92 g/L they differ by how the end of a batch is counted: the
+    # page keeps his count (1.35 x the level, no slowdown), with_additions the model's (1.3, the last doublings slower), so the
+    # page's batch ends at 120 g/L and with_additions' at 116 ($30.49 against $31.28; within a cent before)
+    wa = HC.with_additions(HC.BEST)["total"]
+    if not 0.0 < wa - p4["total"] < 1.5:
+        fails.append(f"the page with its additions ({p4['total']:.2f}) should be a little below with_additions ({wa:.2f}), which counts the end of a batch the model's way")
     # --- the model's own version of his best estimate: its own plant figure and supplies, every addition on
     kw, s = HC.start_kwargs(), HC.start()
     if kw["plant"] != "pharma" or kw["vm"].get("kind") != "cyclic" or kw["vessel_m3"] != 20.0 or kw["growth_factors"] != 1.0:
@@ -111,10 +118,23 @@ def check() -> list:
         fails.append("each of the model's additions should add cost to his design")
     # pinned: the like-for-like figure and the start (2026-11-20)
     for name, got, want in (("his best estimate like for like, 2018 dollars", a["total"], 20.65), ("the same in today's dollars", like, 26.99),
-                            ("the page's start", p0["total"], 26.99), ("the page with its five additions on", p4["total"], 37.38),
-                            ("the model's own version of his design", s["total"], 36.21)):
+                            ("the page's start", p0["total"], 26.99), ("the page with its five additions on", p4["total"], 30.49),
+                            ("the model's own version of his design", s["total"], 30.45)):
+        # 2026-11-21: 37.38 -> 30.49 and 36.21 -> 30.45 (the least-flow cap times pf_batch_end_x in a tank not washed out)
         if abs(got - want) > 0.005 * want:
             fails.append(f"{name}: {got:.2f} != pinned {want}")
+    # 2026-11-21: his perfusion plant's building power and crew, from the rules that closed the residuals
+    bp = fp.building_power(2.0)
+    his_bp = 2521.0 / 192.0 / (543.0 * 150.0 / 20.0 / 1000.0)          # Table 4.11 facility power per m3 over Table 4.4's
+    if not (abs(fp.building_power(20.0) - 1.0) < 1e-12 and abs(bp / his_bp - 1.0) < 0.06):
+        fails.append(f"building power at 2 m3 should be his perfusion plant's {his_bp:.2f} times his fed-batch's within 6%, got {bp:.2f}")
+    if abs(fp.building_power(20.0, {"hall": "sanitary"}) - 0.218) > 0.01:
+        fails.append("a sanitary hall should draw about 22% of a clean-room plant's building power (Table 3.2: 50 against 410 W/m2)")
+    if abs(fp.crew_multiplier(20.0, False) - 1.0) > 1e-12 or abs(fp.crew_multiplier(20.0, True) - value("pf_labour_perfusion_x")) > 1e-12:
+        fails.append("at 20 m3 the crew should be his fed-batch crew, and pf_labour_perfusion_x times it in perfusion")
+    pr = HC.reproduce("pf_aa", "2018")
+    if abs(pr["labour"] / HC.HIS["pf_aa"]["lines"]["labour"] - 1.0) > 0.02 or abs(pr["growth_factors"] / HC.HIS["pf_aa"]["lines"]["growth_factors"] - 1.0) > 0.05:
+        fails.append(f"his perfusion design's labour and growth factors should close (got {pr['labour']:.2f}, {pr['growth_factors']:.2f})")
     md = HC.markdown()
     if "| Total | 21.00 |" not in md or "page's start" not in md:
         fails.append("the Markdown table should carry his total and the page's start")

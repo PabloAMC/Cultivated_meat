@@ -46,20 +46,26 @@ def check() -> list:
     # repinned 2026-11-20 (published studies as sources: a 5.3 ng cell from Risner 2021 and CE Delft 2021, 25 m³ tanks from SuperMeat 2024)
     # repinned 2026-11-20 (additions: viscosity lowers oxygen transfer, per-tank plant items; the cell's weight held at 3 ng, the
     # heaviest measured rule; 42 m³ tanks now cost least)
-    want = [15.945, 12.2424, 12.2424, 9.9371, 9.6923, 9.6923, 8.0977, 7.6209, 7.6209, 7.6209, 7.6209]
+    # repinned 2026-11-21 (building power by floor and class, labour per tank, floor glucose 0.311, the tank design held thinner so
+    # its oxygen-feeding loop passes, the column on the filter loop): was [15.945, 12.2424, 12.2424, 9.9371, 9.6923, 9.6923, 8.0977,
+    # 7.6209, 7.6209, 7.6209, 7.6209]
+    want = [15.7364, 12.0731, 12.0731, 9.7471, 9.5023, 9.5023, 7.4981, 6.9686, 6.9686, 6.9686, 6.9686]
     got = [r["cost"] for r in rows]
     if len(got) != len(want) or any(not close(g, w, 1e-4) for g, w in zip(got, want)):
         fails.append(f"the path moved: {[round(g, 4) for g in got]} != pinned {want}")
     # each lever alone, from Humbird's design, pinned
     alone = {n: c for n, c, _d in F.alone()}
-    want = {"Cells double in 16 hours": 12.2424, "Cells of 3 ng, Humbird's, the heaviest allowed": 15.945,
-            "Tanks of 42 m³ in place of 20 m³": 15.4927,
-            "A food-grade plant with shared medium": 13.0789,
-            "Dialyser-grade hollow fibres as the filter": 14.0752,
-            "Dissolved oxygen held at about half of air saturation": 15.945,
-            "The cheapest tank design that passes the checks on the CO₂ loop": 15.5965,
-            "The least medium flow at the lowest measured": 15.945, "Culture up to 320 g/L in place of 258": 15.945,
-            "Medium at the nutrient floor": 15.945}
+    # repinned 2026-11-21 (as above). The tank design alone now costs more than Humbird's design (16.34 against 15.74; it saved
+    # $0.35 before): the all-favourable case's design is a flat tank held at 219 g/L by its loop's checks, which pays only with
+    # its fast cells and cheap filter
+    want = {"Cells double in 16 hours": 12.0731, "Cells of 3 ng, Humbird's, the heaviest allowed": 15.7364,
+            "Tanks of 42 m³ in place of 20 m³": 15.0079,
+            "A food-grade plant with shared medium": 12.8447,
+            "Dialyser-grade hollow fibres as the filter": 13.8666,
+            "Dissolved oxygen held at about half of air saturation": 15.7364,
+            "The cheapest tank design that passes the checks on the CO₂ loop": 16.3359,
+            "The least medium flow at the lowest measured": 15.7364, "Culture up to 320 g/L in place of 258": 15.7364,
+            "Medium at the nutrient floor": 15.7364}
     for n, w in want.items():
         if n not in alone or not close(alone[n], w, 1e-4):
             fails.append(f"{n} alone: {alone.get(n, float('nan')):.4f} != {w}")

@@ -37,7 +37,7 @@ const scCache={};
 let scPair=null;                                   // the two switches shown against each other
 function scSwitch(k){ return SC.switches.find(s=>s.key===k); }
 function scSetting(k,v){ return scSwitch(k).settings.find(t=>t.key===v); }
-function scSame(a,b){ return SC.keys.every(k=>a[k]===b[k])&&(a.extra||null)===(b.extra||null); }
+function scSame(a,b){ return SC.keys.every(k=>a[k]===b[k])&&(a.extra||null)===(b.extra||null)&&(a.thin||null)===(b.thin||null); }
 // the extra settings a choice names (mirror of scenarios.extra_kwargs): what the switches cannot say. `always` applies whatever
 // the switches; a `when` entry applies only while its switch is at its setting, so moving the switch moves the lever with it
 function scExtraKw(ch){ const e=ch.extra&&SC.extras?SC.extras[ch.extra]:null, o={}; if(!e) return o;
@@ -54,10 +54,11 @@ function scParams(ch){          // the explore arguments of a choice (mirror of 
     else p.plant=(p.plantKey==="sterile"?"sanitary":p.plantKey); delete p.plantKey; }
   // a fed-batch plant restarts each tank every few days, so the shared-medium plant keeps Humbird's full seed train (scenarios.explore_kwargs)
   if(p.vm&&p.vm.kind==="cyclic"&&p.items&&p.items.seed==="two") p.items=Object.assign({},p.items,{seed:"full"});
+  if(ch.thin){ const vm=Object.assign({},p.vm||{}); vm.caps=Object.assign({},vm.caps||{},{[SC.loop_cap]:+ch.thin}); p.vm=vm; }   // a thinned design (scenarios.explore_kwargs)
   return Object.assign(p,SC_EXTRA);
 }
 function scEval(ch){
-  const k=SC.keys.map(x=>ch[x]).join("|")+"|"+(ch.extra||"")+JSON.stringify(SC_EXTRA)+TP_FXSIG;
+  const k=SC.keys.map(x=>ch[x]).join("|")+"|"+(ch.extra||"")+"|"+(ch.thin||"")+JSON.stringify(SC_EXTRA)+TP_FXSIG;
   if(!(k in scCache)) scCache[k]=floorExplore(scParams(ch));
   return scCache[k];
 }
@@ -66,12 +67,18 @@ function scShare(cost,region){      // long-run share of meat sold by weight (%)
   const s=Object.assign({},state,{region:region,income:C.REGION_INCOME[region],cost_override:cost});
   return penetration(s).tv*100;
 }
-// the cheapest pair of tank settings (tricks, shape) whose loop a pH-safe pass rate dense cultures have taken allows
+// the cheapest pair of tank settings (tricks, shape) whose loop a pH-safe pass rate dense cultures have taken allows; a pair whose
+// loop fails at full density is tried with the culture held thinner (mirror of scenarios.design and thinned, 2026-11-21)
+function scLoopOk(r){ const d=r.column; return !d||(d.ph_vs_safe<=1+1e-9&&d.passes_tested); }
+function scThinned(c,xHi){ let lo=0, hi=xHi, ok=null;
+  for(let i=0;i<SC.thin_steps;i++){ const mid=0.5*(lo+hi), r=scEval(Object.assign({},c,{thin:mid}));
+    if(scLoopOk(r)){ lo=mid; ok=[mid,r]; } else hi=mid; }
+  return ok; }
 function scDesign(ch){
-  let best=null;
+  let best=null; const base=Object.assign({},ch); delete base.thin;
   scSwitch("tricks").settings.forEach(a=>scSwitch("shape").settings.forEach(b=>{
-    const c=Object.assign({},ch,{tricks:a.key,shape:b.key}), r=scEval(c), d=r.column;
-    if(d && (d.ph_vs_safe>1+1e-9 || !d.passes_tested)) return;
+    let c=Object.assign({},base,{tricks:a.key,shape:b.key}), r=scEval(c);
+    if(!scLoopOk(r)){ const t=scThinned(c,r.density); if(t===null) return; c=Object.assign({},c,{thin:t[0]}); r=t[1]; }
     if(best===null || r.total<best[0]-1e-12) best=[r.total,c];
   }));
   return best[1];
@@ -960,13 +967,13 @@ function tpCommit(){
 function scCommit(){ tpCommit(); }
 function scPick(k,v){                // a switch in "The tank and plant in detail"
   if(SCS.base==="humbird"){ SCS.base="switches"; SCS.redesign=true; }
-  SCS.choice[k]=v;
+  SCS.choice[k]=v; delete SCS.choice.thin;                        // a thinned design is chosen again (tpRedesign) or dropped
   if(k==="cells") ["nh3_kg","lac_yield","mass_pg"].forEach(t=>delete SCS.traits[t]);
   if(k==="growth") delete SCS.traits.doubling_h;
   if(k==="tricks"||k==="shape") SCS.redesign=false;               // the reader chose the tank design
   tpTouched(); tpCommit(); }
 function scDesignNow(){ SCS.redesign=true; tpTouched(); tpCommit(); }
-function scPickTwo(a,i,b,j){ SCS.choice[a]=i; SCS.choice[b]=j; if([a,b].some(k=>k==="tricks"||k==="shape")) SCS.redesign=false; tpTouched(); tpCommit(); }
+function scPickTwo(a,i,b,j){ SCS.choice[a]=i; SCS.choice[b]=j; delete SCS.choice.thin; if([a,b].some(k=>k==="tricks"||k==="shape")) SCS.redesign=false; tpTouched(); tpCommit(); }
 function scApplyChoice(o){ SCS.base="switches"; SCS.choice=Object.assign({},SC.presets[TP_CH0].choice,o); SCS.traits={}; SCS.held={}; SCS.clean=tpCleanNone(); SCS.redesign=false; tpTouched(); tpCommit(); }
 function tpSetTrait(k,v,live){ SCS.traits[k]=v; tpTouched(); if(live) tpLive(); else tpCommit(); }
 function tpFreeTrait(k){ delete SCS.traits[k]; tpTouched(); tpCommit(); }

@@ -68,7 +68,8 @@ def check() -> list:
     # (central -$2.99, disc stack -$3.69 as it buys more medium)
     # 2026-11-20 batch: bubble deaths, harvest loss, twice the fed-batch crew, medium preparation capital, utilities ($12.45 -> $14.89)
     # 2026-11-20, third pass: plant items charged per tank (floor_physics.tank_items) and the plant floor ($14.89 -> $14.79)
-    if not close(R.scenario_cost("hoped", {})["total"], 14.7944, 1e-5):
+    # 2026-11-21: the building's power by floor and class, the floor's glucose ($14.79 -> $14.59)
+    if not close(R.scenario_cost("hoped", {})["total"], 14.5858, 1e-5):
         fails.append("the hoped-for device no longer gives the pinned reference cost ($14.79)")
     cen = R.cases()["central"]
     d = R.duty(cen)
@@ -110,7 +111,9 @@ def check() -> list:
     # 2026-11-20, third pass: the low-lactate example's design now holds 154 g/L (was 191; scenarios), plant items per tank, and
     # an ATF unit priced with Humbird's accounting for bought equipment, escalated to 2025 (retention.atf_factor, 6.25 x bare,
     # was rt_install 1.84): TFF $49.96 -> $49.50, disc stack $35.42 -> $34.34, ATF $55.32 -> $66.60
-    for dev, want in (("tff", 49.4977), ("discstack", 34.3402), ("atf", 66.5955)):
+    # 2026-11-21 (the low-lactate example's tank design is the thinned recycled-oxygen column at 168 g/L, was 1 bar at 154; the
+    # building's power by floor and class; labour per tank; the floor's glucose; the all-favourable example at 219 g/L): TFF 49.4977 -> 48.6815, disc stack 34.3402 -> 33.5335, ATF 66.5955 -> 66.2882
+    for dev, want in (("tff", 48.6815), ("discstack", 33.5335), ("atf", 66.2882)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-4):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
@@ -133,7 +136,9 @@ def check() -> list:
     # 2026-11-20 batch: 24.23 -> 31.60, 20.29 -> 26.30, 21.65 -> 28.05
     # 2026-11-20, second pass (as above): 31.60 -> 30.76, 26.30 -> 26.24, 28.05 -> 27.81
     # 2026-11-20, third pass (154 g/L, plant items per tank): 30.76 -> 31.70, 26.24 -> 27.52, 27.81 -> 28.97
-    for dev, want in (("reuse", 31.7044), ("dialyser", 27.5181), ("ceramic", 28.9683)):
+    # 2026-11-21 (the low-lactate example's tank design is the thinned recycled-oxygen column at 168 g/L, was 1 bar at 154; the
+    # building's power by floor and class; labour per tank; the floor's glucose; the all-favourable example at 219 g/L): 31.7044 -> 30.5433, 27.5181 -> 26.2759, 28.9683 -> 27.7542
+    for dev, want in (("reuse", 30.5433), ("dialyser", 26.2759), ("ceramic", 27.7542)):
         got = R.scenario_cost(dev, cen)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
@@ -203,7 +208,9 @@ def check_particles() -> list:
         # 2026-11-20: the all-favourable example's cheapest tank is now the tall one with the column alone, at 153 g/L (it was 258 g/L
         # with the pressure in a squarer tank: bubble deaths follow the gas passed per litre and a tall tank passes less), so
         # the aggregates' 193 g/L no longer holds it: no case is held by the aggregates' cap
-        if not (a_["beyond"] and m_["beyond"] and m_["note"]["capped"] and not a_["note"]["capped"]):
+        # 2026-11-21: the all-favourable example now runs at 219 g/L (its thinned recycled-oxygen design), above the aggregates'
+        # 193 g/L, so the aggregates' cap holds it again; no other case
+        if not (a_["beyond"] and m_["beyond"] and m_["note"]["capped"] and a_["note"]["capped"] == (name == "best")):
             fails.append(f"{name}: particle verdicts moved")
         # 2026-11-19 restructure: the best case's cells weigh 2 ng (were 3), so their oxygenated size is 281 um and its 300 um
         # aggregates lose a little growth (0.04%); allowed up to 0.1% there
@@ -223,14 +230,19 @@ def check_particles() -> list:
     # 2026-11-20, second pass: best is the new all-favourable case (11.42 -> 7.70, 46.93 -> 25.77); central carriers 99.26 ->
     # 100.17 (their thin culture bubbles the gas its CO2 needs, which the column no longer hides)
     # 2026-11-20, third pass (the low-lactate example at 154 g/L, plant items per tank)
-    pins = {("aggregates", "reference"): 14.46, ("aggregates", "central"): 27.80, ("aggregates", "best"): 7.79,
-            ("microcarriers", "reference"): 44.16, ("microcarriers", "central"): 96.46, ("microcarriers", "best"): 24.26}
+    # 2026-11-21 (the low-lactate example's tank design is the thinned recycled-oxygen column at 168 g/L, was 1 bar at 154; the
+    # building's power by floor and class; labour per tank; the floor's glucose; the all-favourable example at 219 g/L): aggregates 14.46 / 27.80 / 7.79,
+    # carriers 44.16 / 96.46 / 24.26 before
+    pins = {("aggregates", "reference"): 14.24, ("aggregates", "central"): 26.51, ("aggregates", "best"): 7.39,
+            ("microcarriers", "reference"): 43.50, ("microcarriers", "central"): 94.87, ("microcarriers", "best"): 24.35}
     for (dev, name), want in pins.items():
         got = R.scenario_cost(dev, cs[name])["total"]
         if abs(got - want) > 0.005:
             fails.append(f"{name} {dev}: ${got:.2f} != pinned ${want}")
-    rng = {("aggregates", "central"): (27.22, 36.77), ("aggregates", "best"): (7.62, 10.39),
-           ("microcarriers", "central"): (36.02, 491.52), ("microcarriers", "best"): (8.68, 206.02)}   # 2026-11-20 batch, third pass
+    # 2026-11-21: (27.22, 36.77), (7.62, 10.39), (36.02, 491.52), (8.68, 206.02) before, as above
+    rng = {("aggregates", "central"): (25.95, 36.41), ("aggregates", "best"): (6.93, 10.48),   # 6.94 with the column on the loop only beside the TFF loop (2026-11-21)
+          
+           ("microcarriers", "central"): (35.58, 486.92), ("microcarriers", "best"): (8.77, 206.29)}
     for (dev, name), want in rng.items():
         r = R.scenario_range(dev, cs[name])
         if max(abs(r["low"]["total"] - want[0]), abs(r["high"]["total"] - want[1])) > 0.005:
@@ -243,8 +255,8 @@ def check_particles() -> list:
             fails.append(f"{name}: oxygenated aggregate {got:.0f} um at {key} != pinned {want}")
     ca = R.scenario_cost("aggregates", cen)
     cm = R.scenario_cost("microcarriers", cen)
-    for label, got, want, tol in (("aggregate cap g/L", ca["note"]["cap"], 193.5, 0.05), ("plate area m2", ca["area_m2"], 12.9, 0.05),
-                                  ("aggregate cm/h alone", ca["particle_cm_h"], 57.0, 0.5), ("stay min", ca["stay_min"], 11.7, 0.5),
+    for label, got, want, tol in (("aggregate cap g/L", ca["note"]["cap"], 193.5, 0.05), ("plate area m2", ca["area_m2"], 16.0, 0.05),
+                                  ("aggregate cm/h alone", ca["particle_cm_h"], 57.0, 0.5), ("stay min", ca["stay_min"], 13.1, 0.5),
                                   ("carrier cap g/L", cm["note"]["cap"], 25.5, 0.05), ("carrier kg/kg", cm["particle"]["carrier_kg"], 0.62, 0.005),
                                   ("bead L/kg", cm["particle"]["bead_l_kg"], 8.8, 0.05), ("carrier share of product", cm["particle"]["carrier_wet_share"], 0.90, 0.005),
                                   # per kilo harvested since 2026-11-20 (6.16 per kilo grown, over the 95.7% harvested)
@@ -258,14 +270,17 @@ def check_particles() -> list:
     # larger aggregates lose growth; a higher setpoint keeps them oxygenated but lowers the tank's density
     scan = {(round(sp, 2), dm): (pen, x, tot) for sp, dm, pen, x, tot in R.aggregate_scan()}
     # 2026-11-20, third pass (the low-lactate example at 154 g/L, plant items per tank)
-    for key, want in (((0.1, 600.0), (0.0654, 28.68)), ((0.28, 600.0), (0.0001, 28.95))):
+    # 2026-11-21 (as above; the plate area 12.9 -> 16.0 m2 and the stay 11.7 -> 13.1 min, more permeate at 168 g/L): 28.68 -> 27.59,
+    # 28.95 -> 26.51. The tank's oxygen now comes from the column, so a higher setpoint no longer thins it (142 -> 168 g/L)
+    for key, want in (((0.1, 600.0), (0.0654, 27.59)), ((0.28, 600.0), (0.0001, 26.51))):
         pen, x, tot = scan[key]
         if abs(pen - want[0]) > 0.0005 or abs(tot - want[1]) > 0.005:
             fails.append(f"aggregate scan {key}: growth lost {pen:.4f}, ${tot:.2f} != pinned {want}")
-    if round(scan[(0.28, 600.0)][1]) != 142:
-        fails.append("aggregate scan: at 0.28 mmol/L the central tank should hold 142 g/L")
-    for key, want in (((0.1, 300.0), (0.0, 27.80)), ((0.1, 400.0), (0.009, 27.92)), ((0.1, 500.0), (0.035, 28.25)),
-                      ((0.28, 300.0), (0.0, 28.94))):
+    if round(scan[(0.28, 600.0)][1]) != 168:
+        fails.append("aggregate scan: at 0.28 mmol/L the central tank should hold 168 g/L")
+    # 2026-11-21: 27.80, 27.92, 28.25, 28.94 before
+    for key, want in (((0.1, 300.0), (0.0, 26.51)), ((0.1, 400.0), (0.009, 26.65)), ((0.1, 500.0), (0.035, 27.07)),
+                      ((0.28, 300.0), (0.0, 26.51))):
         pen, x, tot = scan[key]
         if abs(pen - want[0]) > 0.0005 or abs(tot - want[1]) > 0.005:
             fails.append(f"aggregate scan {key}: growth lost {pen:.4f}, ${tot:.2f} != pinned {want}")
@@ -294,13 +309,15 @@ def check_note_figures() -> list:
     # one input at a time, at the ends of its range (section 4)
     # repinned 2026-11-20 (model batch); third pass the same day (the low-lactate example at 154 g/L, which neither the
     # aggregates' cap at a cell share of 0.60 (155 g/L) nor at phi_max 0.20 holds any longer)
-    one = {("aggregates", "rt_agg_cell_share", 0.60): 27.82, ("aggregates", "rt_part_phi_max", 0.20): 27.80,
-           ("aggregates", "rt_part_loss", 0.01): 27.24, ("aggregates", "rt_part_loss", 0.08): 29.31,
-           ("aggregates", "rt_agg_d_max_um", 450.0): 28.07, ("aggregates", "rt_o2_prolif", 0.065): 28.10,
-           ("microcarriers", "rt_mc_cells_cm2", 1e5): 164.54, ("microcarriers", "rt_mc_cells_cm2", 3e5): 66.12,
-           ("microcarriers", "rt_mc_d_um", 100.0): 60.94, ("microcarriers", "rt_mc_d_um", 250.0): 123.33,
-           ("microcarriers", "rt_part_phi_max", 0.35): 73.88, ("microcarriers", "rt_mc_price", 3.0): 91.82,
-           ("microcarriers", "rt_mc_price", 50.0): 123.00}
+    # 2026-11-21 (the low-lactate example at 168 g/L with the thinned recycled-oxygen design, and the rest as above). Before:
+    # 27.82, 27.80, 27.24, 29.31, 28.07, 28.10; 164.54, 66.12, 60.94, 123.33, 73.88, 91.82, 123.00
+    one = {("aggregates", "rt_agg_cell_share", 0.60): 27.55, ("aggregates", "rt_part_phi_max", 0.20): 27.48,
+           ("aggregates", "rt_part_loss", 0.01): 25.98, ("aggregates", "rt_part_loss", 0.08): 27.95,
+           ("aggregates", "rt_agg_d_max_um", 450.0): 26.84, ("aggregates", "rt_o2_prolif", 0.065): 26.88,
+           ("microcarriers", "rt_mc_cells_cm2", 1e5): 161.82, ("microcarriers", "rt_mc_cells_cm2", 3e5): 65.09,
+           ("microcarriers", "rt_mc_d_um", 100.0): 60.01, ("microcarriers", "rt_mc_d_um", 250.0): 121.29,
+           ("microcarriers", "rt_part_phi_max", 0.35): 72.74, ("microcarriers", "rt_mc_price", 3.0): 90.22,
+           ("microcarriers", "rt_mc_price", 50.0): 121.40}
     for (dev, k, v), want in one.items():
         with R._with({k: v}):
             got = R.scenario_cost(dev, cen)["total"]
@@ -310,8 +327,9 @@ def check_note_figures() -> list:
     # so it no longer holds the example (it held it from 191 g/L)
     with R._with({"rt_agg_cell_share": 0.60}):
         ag60 = R.scenario_cost("aggregates", cen)
-        if round(ag60["note"]["cap"]) != 155 or ag60["note"]["capped"] or round(ag60["density"]) != 154:
-            fails.append("aggregates at a cell share of 0.60: cap 155 g/L, not holding the low-lactate example's 154 g/L")
+        # 2026-11-21: the example now runs at 168 g/L, so the 155 g/L cap holds it again
+        if round(ag60["note"]["cap"]) != 155 or not ag60["note"]["capped"] or round(ag60["density"]) != 155:
+            fails.append("aggregates at a cell share of 0.60: cap 155 g/L, holding the low-lactate example's 168 g/L")
     rg = R.scenario_range("aggregates", cen)["high"]
     if round(rg["density"]) != 124 or round(R.scenario_range("microcarriers", cen)["low"]["density"]) != 94:
         fails.append("range ends: aggregates 124 g/L, carriers 94 g/L")
@@ -321,13 +339,14 @@ def check_note_figures() -> list:
     a = R.scenario_cost("aggregates", cen)
     drho = R.particle("aggregates", cen)["drho"]
     if not (round(d_cell, 1) == 15.4 and round(v1, 1) == 1.8 and round(a["particle_cm_h"] / v1) == 31
-            and 270 <= fp._stokes(300.0, drho) / v1 <= 290 and round(a["holdup_m3"], 2) == 0.22 and round(drho) == 22):
-        fails.append("settling figures moved (15.4 um, 1.8 cm/h, 31x, about 280x, 0.22 m3, 22 kg/m3)")
+            and 270 <= fp._stokes(300.0, drho) / v1 <= 290 and round(a["holdup_m3"], 2) == 0.27 and round(drho) == 22):   # holdup 0.22 -> 0.27 m3 on 2026-11-21
+        fails.append("settling figures moved (15.4 um, 1.8 cm/h, 31x, about 280x, 0.27 m3, 22 kg/m3)")
     # 2026-11-20, third pass: the low-lactate example at 154 g/L sends 1.32 m3/h of permeate (less than at 191 g/L), so
     # the plates are smaller: 12.9 m2 for aggregates (was 22.3), 307 m2 and 5.2 m3 for single cells (were 488 and 8.3)
     s1 = R.sizing("settler", cen)
-    if round(s1["area_m2"]) != 307 or round(s1["holdup_m3"], 1) != 5.2:
-        fails.append("single-cell settler: 307 m2 and 5.2 m3")
+    # 2026-11-21: 369 m2 and 6.3 m3 (were 307 and 5.2): the example at 168 g/L sends more permeate
+    if round(s1["area_m2"]) != 369 or round(s1["holdup_m3"], 1) != 6.3:
+        fails.append("single-cell settler: 369 m2 and 6.3 m3")
     # carriers for the 3 ng cells of the reference and best cases; the low-lactate example's layer 3.5 um; Cytodex at EUR 7.6/g about $5,000/kg
     pb, pc = R.particle("microcarriers", cs["best"]), R.particle("microcarriers", cen)
     # 2026-11-20, second pass: the all-favourable example's cells weigh 3 ng again (Humbird's, the more favourable), so its carriers

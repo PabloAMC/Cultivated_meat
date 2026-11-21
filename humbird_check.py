@@ -126,6 +126,18 @@ def his_batch_end() -> float:
     return 1.0 / (1.0 - SEED_KG / BATCH_KG)
 
 
+def his_perfusion_crew_x() -> float:
+    """pf_labour_perfusion_x as his perfusion plant has it (2026-11-21): his crew per m3 of tank ($1.99 a kilo x 35.9 t per m3 a
+    year, Tables 4.12-4.14) over the engine's fed-batch crew per m3 (pf_labour x 14.2 t), less what crew_multiplier adds for
+    his 2 m3 tanks (pf_labour_tank_perfusion staff per tank). It is 1.26: the rest of his perfusion crew (dewatering,
+    utilities, maintenance, supervisors) per m3 of tank is about his fed-batch crew's. The model's own value, 2.0, is the
+    staff that analyses assuming perfusion count (inputs pf_labour_perfusion_x)."""
+    h = HIS["pf_aa"]
+    his_m = h["lines"]["labour"] * h["output"] / (value("pf_labour") * fp.humbird_fedbatch_output())
+    crew_m3 = value("pf_labour_staff_fedbatch") / (value("pi_n_tanks") * value("pi_tank_m3"))
+    return his_m - value("pf_labour_tank_perfusion") / crew_m3 * (1.0 / h["tank_m3"] - 1.0 / value("pi_tank_m3"))
+
+
 def _fedbatch_vm(filters_k_m3_run: float) -> dict:
     return {"kind": "cyclic", "n_doublings": value("pf_fedbatch_doublings"), "turnaround_h": value("pf_turnaround_h"),
             "restart_days": value("vm_restart_cycle_days"), "washed": False, "cons_run": filters_k_m3_run}
@@ -164,7 +176,11 @@ def conditions(case: str, dollars: str = "2018") -> tuple:
     else:
         kg_day = PERF_KG_H * 24.0
         kw["medium_l"] = PERF_L_DAY / kg_day + 1000.0 / h["density"]       # through the filters, plus what leaves with the cells
-        kw["growth_factors"] = 1.0
+        # he counts the growth factors lost in the litres that pass the filters, not in the culture bled out with the cells
+        # (Table 4.11: 940 kg of insulin a year at 19.4 mg/L is 48 million litres, the perfusate's 51 million at 91% uptime);
+        # the engine doses every litre that leaves (2026-11-21: like for like, his share of the litres)
+        kw["growth_factors"] = (PERF_L_DAY / kg_day) / kw["medium_l"]
+        over["pf_labour_perfusion_x"] = his_perfusion_crew_x()              # his crew (2026-11-21)
         filters = PERF_FILTERS_YR / 1000.0 / (h["tanks"] * h["tank_m3"]) / PERF_TURNS        # $k per m3 per turnaround
         atf = ATF_MEMBRANE * ATF_PER_TANK / 1000.0 / h["tank_m3"]                           # $k per m3 per turnaround
         # the engine's plant for 2 m3 tanks in perfusion, his ATF units as a flat charge in place of the engine's filter loop
@@ -268,7 +284,7 @@ def additions() -> list:
     kw.pop("viscous_kla")
     run("A thick culture takes up oxygen more slowly (kLa falls with the viscosity)")
     kw.pop("min_perfusion")
-    run("The least medium flow the cells need (other by-products build up): it caps the density at 92 g/L")
+    run("The least medium flow the cells need (other by-products build up, and a batch may end above their level as above the others')")
     over.pop("pf_batch_end_x"); over.pop("pf_batch_half_x")
     run("All the waste a kilo made counted at the end of a batch, which may end 1.3 times above the limit")
     kw.pop("kill")
@@ -294,6 +310,8 @@ def with_additions(case: str) -> dict:
     over = {k: v for k, v in over.items() if k == "pf_consumables_low"}
     for k in ("kill", "min_perfusion", "medium_l", "viscous_kla"):
         kw.pop(k, None)
+    if HIS[case]["mode"] != "fedbatch":
+        kw["growth_factors"] = 1.0                     # the model doses every litre that leaves, the bleed's included
     nutrients = HIS[case]["lines"]["nutrients"] * value("pf_opex_escalation")
     with fp._inputs_set(over):
         r0 = fp.explore(medium_price=0.0, **kw)
@@ -389,12 +407,11 @@ def page_table() -> list:
 # ----------------------------------------------------------------------------
 # Residuals that could not be closed from his report, as (case, line): (tolerance as a share of his figure, why)
 RESIDUALS = {
-    ("pf_aa", "growth_factors"): (0.75, "He counts the growth factors lost in the 7 litres a kilo that pass the filters; the engine "
-                                        "doses every litre that leaves, the 5 litres that go out with the cells included."),
-    ("pf_aa", "utilities"): (0.60, "His plant of 2 m3 tanks has 2.9 times the clean-room floor per m3 of tank of his fed-batch "
-                                   "plant, and uses 26 litres of water a kilo; the engine's utilities are his fed-batch plant's."),
-    ("pf_aa", "labour"): (0.50, "His 96 small tanks take 0.69 staff per m3 of tank; the engine gives a tank in perfusion twice "
-                                "his fed-batch crew (0.40 per m3), a figure for 20 m3 tanks (pf_labour_perfusion_x)."),
+    # 2026-11-21: the growth factors (+62%) and labour (-42%) closed (like for like: his share of the litres, his crew; the
+    # building's power follows its floor), the utilities from -54% to -27%
+    ("pf_aa", "utilities"): (0.30, "His plant of 2 m3 tanks uses 26.5 litres of process water a kilo ($0.53, Table 4.11); the "
+                                   "engine counts the medium (12.5 L) and the tank's cleaning at his fed-batch rate (0.5 L). His "
+                                   "report does not itemise the other 13.5 L; daily cleaning of the 192 day tanks would fit."),
     ("fb_wt_aa", "labour"): (0.20, "His wild-type plant has 81 staff where the enhanced one has 95; the engine keeps the crew "
                                    "per m3 of tank."),
     ("fb_wt_hydro", "labour"): (0.20, "As the amino-acid column: 81 staff against 95."),
@@ -448,21 +465,21 @@ def markdown() -> str:
     for case in ORDER:
         h = HIS[case]
         out.append(f"### {h['label']} ({h['table']}, p. {h['page']})\n")
-        out.append("| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, today's $ |")
+        out.append("| Line | Humbird, 2018 $ | Engine at his conditions, 2018 $ | Gap | Engine, 2025 $ |")
         out.append("|---|---:|---:|---:|---:|")
         for k, his, eng, gap, today in compare(case):
             name = LINE_NAMES.get(k) or _EXTRA_NAMES[k]
             f = (lambda v: f"{v:,.0f}") if k == "capex" else ((lambda v: f"{v:.1f}") if k in ("density", "output") else (lambda v: f"{v:.2f}"))
             out.append(f"| {name} | {f(his)} | {f(eng)} | {gap:+.1%} | {f(today)} |")
         out.append("")
-    out.append("### His best estimate against the model's own version of his design (today's dollars)\n")
-    out.append("| Line | Humbird, 2018 $ | Humbird, today's $ | Engine like for like | Engine with the model's additions |")
+    out.append("### His best estimate against the model's own version of his design (2025 dollars)\n")
+    out.append("| Line | Humbird, 2018 $ | Humbird, 2025 $ | Engine like for like | Engine with the model's additions |")
     out.append("|---|---:|---:|---:|---:|")
     for k, his, t, like, s in best_table():
         out.append(f"| {LINE_NAMES[k]} | {his:.2f} | {t:.2f} | {like:.2f} | {s:.2f} |")
     out.append("")
     out.append("### All five designs: totals\n")
-    out.append("| Design | Humbird, 2018 $ | Engine like for like, 2018 $ | Engine like for like, today's $ | Engine with the model's additions, today's $ | Density with the additions, g/L |")
+    out.append("| Design | Humbird, 2018 $ | Engine like for like, 2018 $ | Engine like for like, 2025 $ | Engine with the model's additions, 2025 $ | Density with the additions, g/L |")
     out.append("|---|---:|---:|---:|---:|---:|")
     for case in ORDER:
         a, b, c = reproduce(case, "2018"), reproduce(case, "today"), with_additions(case)
@@ -474,7 +491,7 @@ def markdown() -> str:
     for label, t, d in additions():
         out.append(f"| {label} | {t:.2f} | {d:+.2f} |")
     out.append("")
-    out.append("### The page's start, and what the page's five levers add (today's dollars)\n")
+    out.append("### The page's start, and what the page's five levers add (2025 dollars)\n")
     out.append("| Setting | $ a kilo | Change |")
     out.append("|---|---:|---:|")
     p0 = page_start()["total"]

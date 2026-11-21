@@ -331,7 +331,7 @@ def plant_ratios(choices: dict | None = None) -> tuple:
     import inputs as I
     import plant_items as PI
     c = PI.choices_for("humbird", **(choices or {}))
-    key = (tuple(sorted(c.items())), tuple((k, I.REGISTRY[k].value) for k in sorted(I.REGISTRY) if k.startswith("pi_")))
+    key = (tuple(sorted(c.items())), tuple((k, value(k)) for k in sorted(I.REGISTRY) if k.startswith("pi_")))
     if key not in _RATIOS:
         o, h = PI.options(), PI.humbird()
         bh = h["hall"] + h["labs"] + h["support"]
@@ -362,6 +362,64 @@ def tank_items(vessel_m3: float, perfusion: bool = False, choices: dict | None =
     items = ind * eqp * per_tank / vessel_m3 if dedicated else 0.0
     bldg = ind * (value("pi_bldg_per_m3") + value("pi_bldg_per_tank") / vessel_m3) * br
     return {"vessel": vessel, "items": items, "buildings": bldg, "total": vessel + items + bldg}
+
+
+# the shares of the gas through a fine-bubble sparger that explore(spargers=2) tries (2026-11-21): fine near 0, where the cost of
+# the cells it kills is small, then coarser; a share above what lifts oxygen to the next limit is cut to that share
+MICRO_GRID = (0.0, 0.0025, 0.005, 0.0075, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.065, 0.08, 0.1, 0.13, 0.16, 0.2, 0.25, 0.3,
+              0.4, 0.5, 0.65, 0.8, 1.0)
+_BPOWER: dict = {}
+
+
+def building_power_parts() -> dict:
+    """{item: {option: W}}: the electric load of the buildings of Humbird's fed-batch plant for each building option of
+    plant_items (hall, labs, support), from his Table 3.2 (W per m2-level) and his floor areas (Table 4.2: the hall's and the
+    labs' area are their cost over his rate per m2). A hall of another class has his hall's area at its own load; a yeast
+    plant's hall is mostly outdoors and its labs and support are not costed apart, so they draw nothing. Memoised on the inputs."""
+    import inputs as I
+    key = tuple((k, value(k)) for k in sorted(I.REGISTRY) if k.startswith("pi_"))
+    if key not in _BPOWER:
+        hall_m2 = value("pi_bldg_hall") * 1000.0 / value("pi_rate_class8")
+        labs_m2 = (value("pi_bldg_cell_lab") + value("pi_bldg_qc_lab")) * 1000.0 / value("pi_rate_class6")
+        _BPOWER.clear()
+        _BPOWER[key] = {
+            "hall": {"class8": hall_m2 * value("pi_w_class8"), "sanitary": hall_m2 * value("pi_w_sanitary"),
+                     "shed": hall_m2 * value("pi_w_warehouse"), "yeast": 0.0},
+            "labs": {"class6": labs_m2 * value("pi_w_class6"), "yeast": 0.0},
+            "support": {"humbird": value("pi_w_support") * 1000.0, "yeast": 0.0}}
+    return _BPOWER[key]
+
+
+def building_power(vessel_m3: float = 20.0, choices: dict | None = None, sized: bool = True) -> float:
+    """The power a plant's buildings draw per m3 of production tank, as a multiple of Humbird's fed-batch plant's (2026-11-21;
+    explore() charges pf_util_time times it). His 'facility power' is floor area times the load of each class (Table 3.2), so
+    it follows the floor: per m3 of tank it scales with the buildings' cost per m3 at this tank size (tank_items: $74.4k per
+    m3 + $533k per tank), and with the class of each building (`choices`, plant_items options; a sanitary hall draws 50 W per
+    m2 against the clean room's 410). His perfusion plant of 2 m3 tanks pays $13.1k a year per m3 of tank for it, 3.2 times
+    his fed-batch plant's $4.07k; this rule gives 3.4 times. `sized=False` (a plant class priced as quoted): no size term."""
+    import plant_items as PI
+    parts = building_power_parts()
+    c = PI.choices_for("humbird", **(choices or {}))
+    h = PI.choices_for("humbird")
+    p = sum(parts[k][c[k]] for k in ("hall", "labs", "support")) / sum(parts[k][h[k]] for k in ("hall", "labs", "support"))
+    if sized:
+        b = lambda v: value("pi_bldg_per_m3") + value("pi_bldg_per_tank") / v
+        p *= b(vessel_m3) / b(value("pi_tank_m3"))
+    return p
+
+
+def crew_multiplier(vessel_m3: float, perfusion: bool) -> float:
+    """The crew per m3 of tank as a multiple of Humbird's fed-batch crew per m3 at 20 m3 (2026-11-21). He counts most of the
+    hours per bioreactor (Sect. 3.3; Tables 4.5 and 4.12), so many small tanks need more staff per m3 than few large ones.
+    A tank that is not run continuously in perfusion: (1 - s) + s x 20 / size, s = pf_labour_tank_share (his batch workers'
+    share of his fed-batch crew). A tank run continuously in perfusion: pf_labour_perfusion_x (at 20 m3) plus
+    pf_labour_tank_perfusion staff per tank, counted against the 20 m3 tank's share of them."""
+    v0 = value("pi_tank_m3")
+    if perfusion:
+        crew_m3 = value("pf_labour_staff_fedbatch") / (value("pi_n_tanks") * v0)          # staff per m3 of his fed-batch plant
+        return value("pf_labour_perfusion_x") + value("pf_labour_tank_perfusion") / crew_m3 * (1.0 / vessel_m3 - 1.0 / v0)
+    s = value("pf_labour_tank_share")
+    return (1.0 - s) + s * v0 / vessel_m3
 
 
 def capex_at_size(capex_20m3: float, vessel_m3: float, perfusion: bool = False, choices: dict | None = None,
@@ -574,7 +632,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             wash_price: float | None = None, clean: str | dict = "none", clean_share: float | None = None,
             clean_loop: float | None = None, x_visc: float | None = None,
             membrane_price: float | None = None, membrane_hw: float | None = None, viscous_kla=True,
-            mature_h: float | None = None, per_tank: bool = True, _search: bool = True) -> dict:
+            mature_h: float | None = None, per_tank: bool = True, spargers: int | None = None,
+            micro_share: float | None = None, col_on_loop: bool | None = None, _search: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -727,6 +786,15 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         holds its harvested stream in a maturation vessel (`mature_capex`, $k per m3 of tank); the medium the cells use while
         maturing, at their upkeep rate, is added to the litres (`mature_l`).
 
+      Since 2026-11-21 (levers, off by default; research_notes/two_spargers_and_loop.md):
+      * `spargers` (default ge_spargers, 1): 2 puts a fine-bubble sparger for oxygen beside the drilled pipe. A share `micro`
+        of the gas cap goes through it, passing ge_micro_o2_x times the oxygen per litre of gas and killing ge_micro_kill_x
+        times the cells; both kinds of bubble strip CO2 alike. The oxygen limit is the cap's oxygen x (m s^0.8 + (1-s)^0.8).
+        `micro_share` sets the share (never more than lifts oxygen to the next limit: more would only kill more cells); left
+        unset, the share that costs least on MICRO_GRID. The second sparger costs ge_sparger2_k per tank.
+      * `col_on_loop` (default ge_col_on_loop, off): a CO2 column on a perfusion tank's filter loop shares its pump, so the
+        column's own pump (gas_exchange.column_design, flow up to what the filter loop carries) is not bought.
+
     `uptime`, if given, overrides the run-length calculation. The defaults reproduce the floor tier at the
     mature-industry capital charge."""
     if strip_eff is not None or antifoam_otr is not None:   # run the case with those two inputs set, then restore them
@@ -746,6 +814,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         r0 = explore(clean_share=0.0, **kw)            # the others: every 0.1 litre per kilo harvested, up to all it handles
         return min((explore(clean_loop=loop * r0["harvested_share"], **kw) if loop > 0 else r0
                     for loop in clean_loops(r0["medium_terms"], clean_route(clean))), key=lambda r: r["total"])
+    if (spargers if spargers is not None else value("ge_spargers")) >= 1.5 and micro_share is None:
+        # two spargers: the share of the gas through the fine-bubble one that costs least (MICRO_GRID; the page's floorExplore
+        # searches the same grid)
+        kw = {k: v for k, v in locals().items() if k not in ("kw", "washed", "micro_share")}
+        return min((explore(micro_share=sh, **kw) for sh in MICRO_GRID), key=lambda r: r["total"])
     args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search", "washed")}
     cyclic = vm.get("kind") == "cyclic"                # cycles (batch, fed-batch) in place of a continuous run
     wv = vm.get("wv", value("pf_working_volume"))
@@ -763,6 +836,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         prep_item = cap["items"]["medium"]             # this plant's own medium preparation equipment, $k per m3 (2018)
     elif plant == "microbial" and capex_2018 is None and vm.get("o2_gas", True) and value("pf_o2_microbial") >= 0.5:
         extra_opex = extra_opex + value("pi_o2_feed") * value("pi_o2_price")   # no oxygen unit in this class's price
+    # the buildings whose power the plant pays (building_power): the yeast-style class is a yeast plant's buildings
+    power_choices = item_choices
+    if items is None and plant == "microbial" and capex_2018 is None:
+        import plant_items
+        power_choices = dict(plant_items.PLANTS["yeast"])
     # --- salt strength: how much lactate the culture may hold at this CO2 level and pH ----------------
     pco2_tol = value("pf_pco2_limit") if pco2_mbar is None else pco2_mbar
     osm_limit = value("pf_osm_limit") if osm_limit is None else osm_limit
@@ -892,16 +970,44 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # Humbird's fed-batch 120 g/L scaled by the waste, which let the low-lactate example's fed-batch end at 7.8 mmol/L of ammonia).
         # mmol/L / (mol/kg) = g/L.
         limits["waste build-up"] = end_x * min(nh3_lim / max(nh3, 1e-12), lac_room / max(lac, 1e-12))
-        # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs
-        # caps the density: 1000 / (flow / growth rate per day)
-        limits["other by-products"] = 1000.0 * cells.mu * 24.0 / flow
+        # a drained-and-refilled tank gets 1/density litres per kg, so the least medium flow a cell needs caps the density:
+        # 1000 / (flow / growth rate per day). Since 2026-11-21 times pf_batch_end_x, as ammonia and lactate are: in a tank that
+        # is not washed out the least flow stands for by-products that build up (its other part, nutrients that run out, a
+        # fed-batch's feeds supply), and a batch may end above the level perfusion holds them to, as it may for the other two
+        # (research_notes/humbird_backtest.md, item 11). It capped Humbird's fed-batch at 92 g/L and added $6.4 to his design
+        limits["other by-products"] = end_x * 1000.0 * cells.mu * 24.0 / flow
+    # two spargers (2026-11-21): `micro_share` of the gas through the fine-bubble sparger, never more than lifts oxygen to the
+    # next limit
+    n_sparg = int(round(value("ge_spargers") if spargers is None else spargers))
+    micro = 0.0
+    if n_sparg >= 2 and (micro_share or 0.0) > 0.0 and vm.get("o2_gas", True) and np.isfinite(limits["oxygen supply"]):
+        m = value("ge_micro_o2_x")
+        x1 = x_o2 * vm.get("otr_mult", 1.0)                       # one drilled sparger, before the viscosity
+        g = lambda s_: m * s_ ** 0.8 + (1.0 - s_) ** 0.8
+        f = lambda s_: oxygen_limit(x1 * g(s_), exponent=kexp) if kexp > 0.0 else x1 * g(s_)
+        nxt = min(v for k, v in limits.items() if k != "oxygen supply")
+        if limits["oxygen supply"] < nxt:
+            s_max = min(float(micro_share), m ** 5 / (1.0 + m ** 5))   # m^5 / (1 + m^5): the share that gives the most oxygen
+            if f(s_max) <= nxt:
+                micro = s_max
+            else:
+                lo_s, hi_s = 0.0, s_max
+                for _ in range(40):
+                    mid = 0.5 * (lo_s + hi_s)
+                    if f(mid) >= nxt:
+                        hi_s = mid
+                    else:
+                        lo_s = mid
+                micro = hi_s
+            limits["oxygen supply"] = f(micro)
+            sparger[0] = f(micro)
     limit = min(limits, key=limits.get)
     x = limits[limit]
     shape = 1.0
     slow = 1.0
     if not washed:
         # the waste level at the end of a cycle, against the level perfusion is held to; above 1 the last doublings grow slower
-        end_ratio = 1.0 if steady else x * max(nh3 / nh3_lim, lac / lac_room)
+        end_ratio = 1.0 if steady else x * max(nh3 / nh3_lim, lac / lac_room, flow / (1000.0 * cells.mu * 24.0))
         f = value("pf_draw_fraction")
         shape = f / np.log(1.0 / (1.0 - f))
         slow = batch_slowdown(end_ratio, vm["n_doublings"] if cyclic else float(np.log2(1.0 / (1.0 - f))))
@@ -922,13 +1028,24 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         col = column_design(x, sparge_velocity=us, p_out=col_pout, oxygen=(column == "o2_closed"),
                             sweep="air" if column == "co2" else "o2_closed", p_top_barg=p_top_barg,
                             vessel_m3=vessel_m3, aspect=aspect, cells=cells, rq=rq_eff, do_mmol=do_mmol)
-        capex += col["capex_k_m3"]
+        loop_pump = 0.0
+        if washed and not vm.get("own_retention") and (value("ge_col_on_loop") >= 0.5 if col_on_loop is None else col_on_loop):
+            # on the filter loop (2026-11-21): the loop's pumps carry the column's flow, up to what a dense filter loop has run
+            fl = min(col["flow_m3h"], value("ge_passes_tested") * value("pf_working_volume") * vessel_m3)
+            loop_pump = value("ge_pump_cost") * (fl / value("ge_pump_flow")) ** 0.6 * value("ge_install_x") / 1000.0 / vessel_m3
+        col["loop_pump_k_m3"] = loop_pump
+        capex += col["capex_k_m3"] - loop_pump
+    sparger2_capex = 0.0
+    if n_sparg >= 2:
+        import plant_items as _PI
+        sparger2_capex = (value("ge_sparger2_k") * _PI.indirect() * _PI._bioreactor_direct(1.0) / vessel_m3
+                          * value("pf_capex_escalation"))
+        capex += sparger2_capex
     capital = charge * capex / out
     # Humbird's fed-batch crew per m3 of tank; a tank in perfusion (washed, run continuously) takes pf_labour_perfusion_x
-    # times it (staff per thousand tonnes in analyses that assume perfusion against his fed-batch crew; 2026-11-20)
-    crew = value("pf_labour") * humbird_fedbatch_output()
-    if washed and not cyclic:
-        crew *= value("pf_labour_perfusion_x")
+    # times it (staff per thousand tonnes in analyses that assume perfusion against his fed-batch crew; 2026-11-20). Since
+    # 2026-11-21 part of each crew is counted per tank, as he counts it (crew_multiplier): small tanks need more staff per m3
+    crew = value("pf_labour") * humbird_fedbatch_output() * crew_multiplier(vessel_m3, washed and not cyclic)
     labour = crew / out * ox * vm.get("labour_mult", 1.0)
     consumables = value("pf_consumables_low")
     if vm.get("cons_run"):                             # what the vessel throws away each run ($k per m3 of vessel)
@@ -1048,8 +1165,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     # utilities in Humbird's four parts (his Table 4.4; inputs pf_util_*; back-test 2026-11-20): building power by the year and
     # cleaning water and steam by the run, both per m3 of tank; the water of the medium by the litre; power for oxygen,
     # stirring, cooling and dewatering by the kilo, with the oxygen burned
+    # Since 2026-11-21 the building's power follows its floor and its class (building_power): per m3 of tank it grows for small
+    # tanks, and a sanitary hall or a plain shed draws a fraction of a clean room's
     runs = runs_yr if runs_yr is not None else 365.0 / (run_days or value("pf_run_days"))
-    utilities = ox * ((value("pf_util_time") + value("pf_util_run") * runs) / out
+    bpow = building_power(vessel_m3, power_choices, sized)
+    utilities = ox * ((value("pf_util_time") * bpow + value("pf_util_run") * runs) / out
                       + value("pf_util_water") * medium_l + value("pf_util_kg") * burn)
     if col is not None:
         utilities += col["energy_kg"] + col["gas_kg"]
@@ -1074,6 +1194,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         gas_cells = gas_used * max(0.0, 1.0 - vm.get("gas_away", 0.0) / us) if us > 0 else 0.0   # a cage's gas meets no cells
         # death rate per hour = killing volume x gas passed per litre of culture per hour (gas_exchange.sparge_death)
         death_h = (value("ge_kill_protected") if kill is None else kill) * gas_cells / tank_shape(vessel_m3, aspect)[1] * 3600.0
+        death_h *= 1.0 + micro * (value("ge_micro_kill_x") - 1.0)   # fine bubbles kill more cells per litre of gas
         death = min(0.5, death_h / cells.mu)
         protectant = medium_l * value("pf_protectant_dose") / 1000.0 * (
             value("pf_protectant_price") if protectant_price is None else protectant_price)
@@ -1117,11 +1238,11 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
     return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
             "retention_capex": float(ret_capex), "membranes": float(membranes), "protectant": float(protectant),
-            "medium_prep_capex": float(prep_capex), "mature_capex": float(mat_capex), "mature_l": float(mat_l / live), "death_share": float(death), "gas_used": float(gas_used), "gas_cells": float(gas_cells),
+            "medium_prep_capex": float(prep_capex), "mature_capex": float(mat_capex), "mature_l": float(mat_l / live), "death_share": float(death), "gas_used": float(gas_used), "gas_cells": float(gas_cells), "micro_share": float(micro), "sparger2_capex": float(sparger2_capex),
             "harvested_share": float(live), "clean_capex": float(clean_capex), "clean_opex": float(clean_opex),
             "clean_capital": float(clean_capital),
             "clean_filter_capex": float(clean_filter_capex), "clean_filter_membranes": float(clean_filter_membranes),
-            "clean_loop": float(loop_filtered if not in_tank else loop), "clean_share": float(share_used), "clean_parts": {k: float(v) for k, v in clean_parts.items()},
+            "clean_loop": float(loop_filtered if not in_tank else loop), "filter_extra_l": float(loop_filtered), "clean_share": float(share_used), "clean_parts": {k: float(v) for k, v in clean_parts.items()},
             "medium_l_unclean": float(medium_l_unclean),
             "capital": float(capital), "labour": float(labour), "utilities": float(utilities),
             "gas": float(gas), "gas_extra": float(gas_extra),
@@ -1542,12 +1663,6 @@ def tiers() -> list:
     add("Same fed-batch plant, small slow cells", "cells of 0.55 ng doubling every 61 h; each tank turns over far more slowly",
         "cells exist; this plant does not", PASITKA_CELLS, "fedbatch", fb, value("pf_consumables_fedbatch"),
         value("pf_growth_factors"), humbird_consumables=True)
-    add("Pharma-style plant, half the density", "the cautious case below with cells at 60 g/L, not 120",
-        "nearer to reported harvests (about 27 g/L)", GOOD_CELLS, "filldraw", fb, low, 0.0, x_cap=value("pf_x_half"))
-    add("Pharma-style plant, fill-and-draw", "Humbird's sterile plant with clean rooms; 20 m3 tanks half drained and refilled each cycle, no cell retention, 85% uptime; efficient cells",
-        "fill-and-draw is filed as an option at 20 m3; this density is not shown", GOOD_CELLS, "filldraw", fb, low, 0.0)
-    add("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
-        "food-grade 20 m3 tanks run today; this density is not shown", GOOD_CELLS, "filldraw", ncr, low, 0.0)
     def from_explore(name, assumes, shown, **kw):
         # the perfusion tiers are explore() itself, so the ladder and the explorer cannot drift apart: the same
         # filter loop, protectant and oxygen. `total` at the first-plant charge, `total_mature` at the mature one.
@@ -1559,6 +1674,14 @@ def tiers() -> list:
                      "feedstock": first["feedstock"], "growth_factors": first["growth_factors"], "total": first["total"],
                      "plant_mature": plant(mature), "total_mature": mature["total"]})
 
+    # the fill-and-draw tiers are explore() too since 2026-11-21 (they were plant_cost(), which skipped the waste build-up and
+    # the least medium flow, the bubble deaths and the harvest loss: $19.7 and $18.2 against explore's $24 and $22 then)
+    from_explore("Pharma-style plant, half the density", "the cautious case below with cells at 60 g/L, not 120",
+                 "nearer to reported harvests (about 27 g/L)", mode="filldraw", plant="pharma", x_visc=value("pf_x_half"))
+    from_explore("Pharma-style plant, fill-and-draw", "Humbird's sterile plant with clean rooms; 20 m3 tanks half drained and refilled each cycle, no cell retention, 85% uptime; efficient cells",
+                 "fill-and-draw is filed as an option at 20 m3; this density is not shown", mode="filldraw", plant="pharma")
+    from_explore("No clean rooms, fill-and-draw", "the same culture in a food-grade building: Humbird's plant with a sanitary hall in place of the clean room",
+                 "food-grade 20 m3 tanks run today; this density is not shown", mode="filldraw", plant="sanitary")
     from_explore("No clean rooms, perfusion", "the reference case: food-grade plant; 20 m3 tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; efficient cells; 91% uptime",
                  "each piece shown or claimed separately, never together")
     from_explore("Microbial-fermentation-class plant", "the frontier: the reference case in a plant that costs what microbial fermentation plants cost when built, buying its oxygen",

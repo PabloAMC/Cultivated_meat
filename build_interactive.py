@@ -113,6 +113,18 @@ def build_model() -> dict:
             # labour_x is the reader's multiplier on either crew (the page's labour lever)
             "labour_perf_x": value("pf_labour_perfusion_x"),
             "labour_x": 1.0,
+            # part of each crew is counted per tank (floor_physics.crew_multiplier, 2026-11-21): a batch tank's share of it, and a
+            # perfusion tank's own staff as m3 of the fed-batch crew per m3; the buildings' power by item and option, W
+            # (floor_physics.building_power), and Humbird's own choice of each
+            "labour_tank_share": value("pf_labour_tank_share"),
+            "labour_tank_pf": value("pf_labour_tank_perfusion") / (value("pf_labour_staff_fedbatch") / (value("pi_n_tanks") * value("pi_tank_m3"))),
+            "tank_m3": value("pi_tank_m3"),
+            "bpow": floor_physics.building_power_parts(),
+            "bpow_choice": {k: plant_items.choices_for("humbird")[k] for k in ("hall", "labs", "support")},
+            # two spargers and the CO2 column on the filter loop (floor_physics.explore, 2026-11-21; levers, off by default)
+            "spargers": value("ge_spargers"), "micro_o2": value("ge_micro_o2_x"), "micro_kill": value("ge_micro_kill_x"),
+            "sparger2_k": value("ge_sparger2_k"), "micro_grid": list(floor_physics.MICRO_GRID),
+            "col_on_loop": 1.0 if value("ge_col_on_loop") >= 0.5 else 0.0,
             # cleaning and reusing the medium (floor_physics.explore's `clean`, `wash_price`; medium_reuse.py): the named routes'
             # numbers, the growth factors that survive a pass, and the reference price of a wash solution
             "clean_routes": {k: floor_physics.clean_route(k) for k in floor_physics.CLEAN_NAMES if k not in ("none", "exchanger")},
@@ -946,8 +958,12 @@ PAGE_PARAMS = (
      "Paid every year whatever the plant makes. Humbird takes 4% for maintenance and 5% for insurance. The payment above plus this is the yearly charge on the plant."),
     ("kla", "reactor", "How fast a stirred tank passes oxygen into the culture (kLa)", "per hour", "fx", "ge.kla_20m3", None, 1.0, 5.0, 60.0, 1.0, 0, (), "ge_kla_20m3",
      "The oxygen transfer coefficient of a 20 m³ stirred tank at the gas flow of Humbird's design. Oxygen supplied is this times the gap between the oxygen the gas can dissolve and the level the culture is held at. Dense animal-cell cultures have been run at 5 to 55 per hour. Higher is better."),
+    ("spargers", "reactor", "Spargers in the tank", "spargers", "kw", "spargers", "spargers", 1.0, 1.0, 2.0, 1.0, 0, (), "ge_spargers",
+     "One sparger, as in Humbird's design, bubbles the gas that carries oxygen in and CO₂ out. With two, a fine-bubble sparger for oxygen sits beside the drilled pipe: fine bubbles pass about four times as much oxygen per litre of gas, but kill about ten times as many cells, so the model sends through it only the share of the gas that costs least. It helps only where oxygen sets the density, and adds a second gas line to each tank."),
+    ("col_loop", "reactor", "CO₂ column on the filter loop", "0 = its own pump, 1 = on the loop", "kw", "col_on_loop", "col_on_loop", 1.0, 0.0, 1.0, 1.0, 0, (), "ge_col_on_loop",
+     "In perfusion the culture already circulates through the cell filter's loop. A CO₂-stripping column (one of the tank tricks) can sit on that loop and share its pump and pipes, so it needs no pump of its own. The pumping power is still paid. It matters only with a column and a filter loop, and saves little."),
     ("labourx", "reactor", "Labour, against the model's estimate", "×", "fxx", "labour_x", None, 1.0, 0.25, 4.0, 0.05, 2, (), "pf_labour_perfusion_x",
-     f"The staff a plant needs, paid by the year and shared over what the tanks make. The model takes the staff per m³ of tank from Humbird's fed-batch plant, and {value('pf_labour_perfusion_x'):g} times that for a tank in perfusion, which is what analyses that assume perfusion count."),
+     f"The staff a plant needs, paid by the year and shared over what the tanks make. The model takes the staff per m³ of tank from Humbird's fed-batch plant, and {value('pf_labour_perfusion_x'):g} times that for a 20 m³ tank in perfusion, which is what analyses that assume perfusion count. As Humbird counts them, much of the hours go to each tank whatever its size, so small tanks need more staff per m³ and large ones fewer."),
     ("harvest_loss", "reactor", "Cells lost at harvest", "%", "fx", "harvest_loss", None, 100.0, 0.0, 10.0, 0.5, 1, (), "pf_harvest_recovery",
      "The share of the cells grown that is lost when they are separated from the medium and washed. Lower is better."),
     ("energyx", "reactor", "Energy and gas, against the model's estimate", "×", "fxx", "utilities", None, 1.0, 0.25, 3.0, 0.05, 2, (), "pf_utilities",
@@ -1006,6 +1022,8 @@ LEVER_REFS = {
     "gas_v": [(2, "about the most run with animal cells"), (4, "this model"), (6, "Humbird's 2021 design")],
     "kla_exp": [(0, "Humbird 2021: no effect"), (0.4, "this model's estimate: the Yagi-Yoshida correlation for stirred tanks")],
     "min_perfusion": [(0, "Humbird 2021: none counted"), (3.7, "low end"), (7.5, "this model's estimate"), (18.5, "high end")],
+    "spargers": [(1, "Humbird 2021: one sparger"), (2, "a fine-bubble sparger for oxygen beside a drilled pipe, common in dense pharma cultures")],
+    "col_loop": [(0, "the model's column, with its own pump"), (1, "on the perfusion filter loop")],
     "tank_m3": [(2, "Humbird 2021's perfusion tanks; Pasitka 2024"), (4, "about the largest perfusion run with animal cells"), (10, "CE Delft 2021"), (20, "the largest pharma fed-batch tanks, and Upside Foods'; Humbird 2021, Risner 2021, Garrison 2022"), (25, "SuperMeat 2024"), (42, "Negulescu 2023, smallest tanks"), (100, "never done with animal cells"), (211, "Negulescu 2023, stirred tanks"), (250, "the size of a published airlift design, Negulescu 2023")],
     "x_cap": [(55, "low end of what companies report, A. D. Little 2026"), (60, "low end reported to Lever VC 2025"), (90, "high end reported to Lever VC 2025"), (83, "SuperMeat 2024"), (100, "high end reported by companies, A. D. Little 2026; assumed by Negulescu 2023"), (195, "Humbird 2021, perfusion in 2 m³ tanks"), (258, "this model's limit: a quarter of the volume as cells, Humbird 2021"), (430, "Pasitka 2024: a weight of wet pellet from a 5-litre tank with serum")],
     "mature_d": [(0, "products near market: bulk cell mass (GOOD Meat, Believer, Wildtype, Vow filings)"), (4, "Meatable 2024, a company claim"), (7, "muscle: Cultivated Meat book; Mattick 2015; Tuomisto 2022"), (14, "fat"), (28, "fat, long")],
@@ -4997,6 +5015,12 @@ function fxTankItems(v,perf,ch,F){ const T=F.tank, it=F.items, first=k=>Object.k
   const ded=(ch.medium||first("medium"))===first("medium"), e31=v>=0.33?T.eq31[0]*v+T.eq31[1]:T.eq31[2]*v+T.eq31[3];
   const vessel=T.ind*T.bio*e31/v*vr, items=ded?T.ind*T.eqp*(perf?T.pf:T.fb)/v:0, bldg=T.ind*(T.bldg_m3+T.bldg_tank/v)*br;
   return {vessel:vessel, items:items, buildings:bldg, total:vessel+items+bldg}; }
+// the crew per m3 of tank against Humbird's fed-batch crew at 20 m3 (mirror of floor_physics.crew_multiplier): part of it per tank
+function fxCrew(v,perf,F){ return perf?F.labour_perf_x+F.labour_tank_pf*(1/v-1/F.tank_m3):(1-F.labour_tank_share)+F.labour_tank_share*F.tank_m3/v; }
+// the buildings' power per m3 of tank against Humbird's fed-batch plant's (mirror of floor_physics.building_power): floor x load
+function fxBldgPower(v,ch,sized,F){ const B=F.bpow, h=F.bpow_choice; let p=0, p0=0;
+  ["hall","labs","support"].forEach(k=>{ p+=B[k][(ch&&ch[k])||h[k]]; p0+=B[k][h[k]]; });
+  let r=p/p0; if(sized){ const b=x=>F.tank.bldg_m3+F.tank.bldg_tank/x; r*=b(v)/b(F.tank_m3); } return r; }
 function fxCapexAtSize(c20,v,perf,ch,ratio,F){ const a=fxTankItems(v,perf,ch,F), b=fxTankItems(20,false,ch,F);
   return c20+a.vessel*ratio+a.items+a.buildings-b.total; }
 // viscosity of the culture and its oxygen limit (mirror of floor_physics.rel_viscosity, kla_factor and oxygen_limit)
@@ -5023,6 +5047,11 @@ function floorExplore(p,noSearch){
     for(let i=1;i<Math.floor(top*10)+2;i++) keep(floorExplore(Object.assign({},p,{clean_loop:i*0.1*r0.harvested_share}),noSearch));
     return best;
   }
+  // two spargers: the share of the gas through the fine-bubble one that costs least on the grid (mirror of floor_physics.explore)
+  const nSp=p.spargers===undefined?F.spargers:p.spargers;
+  if(nSp>=1.5&&p.micro_share===undefined){ let best=null;
+    F.micro_grid.forEach(sh=>{ const r=floorExplore(Object.assign({},p,{micro_share:sh}),noSearch); if(best===null||r.total<best.total) best=r; });
+    return best; }
   // salt strength: how much lactate the culture may hold at this CO2 level and pH (mirror of floor_physics.explore)
   const pcTol=p.pco2===undefined?F.pco2:p.pco2, osmLim=p.osm_limit===undefined?F.osm_limit:p.osm_limit, ph=p.ph===undefined?F.ph:p.ph;
   const hco3=F.co2_henry*pcTol*Math.pow(10,ph-F.pk1), osmCo2=2*Math.max(0,hco3-F.hco3_base);
@@ -5097,17 +5126,32 @@ function floorExplore(p,noSearch){
   // the level perfusion is held to, times batch_end for a batch that ends above it (mirror of floor_physics.explore, 2026-11-19)
   const steady=!!vm.dil_frac, endX=steady?1:F.batch_end;
   if(!perf){ limits.push(["waste build-up",endX*Math.min(nh3Lim/Math.max(nh3,1e-12),lacRoom/Math.max(lac,1e-12))]);
-    limits.push(["other by-products",1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank
+    limits.push(["other by-products",endX*1000*cell.mu*24/flow]); }   // least medium flow caps the density of a drained-and-refilled tank (by-products: a batch may end above the level, 2026-11-21)
+  // two spargers: `micro_share` of the gas through the fine-bubble sparger, never more than lifts oxygen to the next limit
+  let micro=0;
+  if(nSp>=1.5&&(p.micro_share||0)>0&&vm.o2_gas!==false&&isFinite(limits[0][1])){
+    const m=F.micro_o2, x1=F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP*AF*(vm.otr_mult===undefined?1:vm.otr_mult);
+    const n=p.kla_exp===undefined?F.kla_exp:p.kla_exp, g=s=>m*Math.pow(s,0.8)+Math.pow(1-s,0.8), f=s=>n>0?fxO2Visc(x1*g(s),n,F):x1*g(s);
+    let nxt=Infinity; limits.forEach((l,i)=>{ if(i>0&&l[1]<nxt) nxt=l[1]; });
+    if(limits[0][1]<nxt){ const sMax=Math.min(+p.micro_share,Math.pow(m,5)/(1+Math.pow(m,5)));
+      if(f(sMax)<=nxt) micro=sMax;
+      else { let lo=0, hi=sMax; for(let i=0;i<40;i++){ const mid=0.5*(lo+hi); if(f(mid)>=nxt) hi=mid; else lo=mid; } micro=hi; }
+      limits[0][1]=f(micro); sparger[0]=f(micro); } }
   let lim=limits[0]; limits.forEach(l=>{if(l[1]<lim[1]) lim=l;});
   let slow=1;
-  if(!perf){ const endRatio=steady?1:lim[1]*Math.max(nh3/nh3Lim,lac/lacRoom);
+  if(!perf){ const endRatio=steady?1:lim[1]*Math.max(nh3/nh3Lim,lac/lacRoom,flow/(1000*cell.mu*24));
     slow=fxBatchSlow(endRatio,cyclic?vm.n_doublings:Math.log2(1/(1-F.draw)),F.batch_half); if(cyclic) cyc(slow); }
   const shape=(vm.shape!==undefined?vm.shape:(perf?1:F.draw/Math.log(1/(1-F.draw))))/(cyclic?1:slow), rec=(vm.recovery===undefined?1:vm.recovery);
   let out=cyclic?wv*lim[1]*8760/cycleH/1000*(1-lost):wv*lim[1]*cell.mu*shape*8760*uptime/1000*(1-lost);   // the vessel's recovery is in `live`, below
   let colR=null;
-  if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol,p.strip_eff,p.antifoam_otr); capex+=colR.capex_k_m3; }
+  if(col!=="none"){ colR=fxColumn(lim[1],us,p.col_pout,col==="o2_closed",p.p_top,p.vessel_m3,ar,cell,rq,p.do_mmol,p.strip_eff,p.antifoam_otr);
+    let loopPump=0; const G=F.ge;            // on the filter loop, the column shares the loop's pump (mirror of floor_physics.explore)
+    if(perf&&!vm.own_retention&&(p.col_on_loop===undefined?F.col_on_loop:p.col_on_loop)){ const fl=Math.min(colR.flow,G.passes_tested*F.wv*p.vessel_m3);
+      loopPump=G.pump_cost*Math.pow(fl/G.pump_flow,0.6)*G.install_x/1000/p.vessel_m3; }
+    colR.loop_pump_k_m3=loopPump; capex+=colR.capex_k_m3-loopPump; }
+  const sparger2Capex=nSp>=1.5?F.sparger2_k*F.tank.ind*F.tank.bio/p.vessel_m3*F.escalation:0; capex+=sparger2Capex;
   let capital=p.charge*capex/out;      // labour: Humbird's fed-batch crew per m3 of tank, times labour_perf_x for a tank in perfusion
-  let labour=F.labour_ref*((perf&&!cyclic)?F.labour_perf_x:1)*F.labour_x/out*(vm.labour_mult===undefined?1:vm.labour_mult);
+  let labour=F.labour_ref*fxCrew(p.vessel_m3,perf&&!cyclic,F)*F.labour_x/out*(vm.labour_mult===undefined?1:vm.labour_mult);
   let utilities=0;                     // set below, once the litres of medium are known
   let eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
@@ -5141,7 +5185,8 @@ function floorExplore(p,noSearch){
   // utilities in Humbird's four parts (mirror of floor_physics.explore): building power by the year and cleaning by the run, per
   // m3 of tank; the water of the medium by the litre; power for oxygen, stirring and cooling by the kilo
   { const runs=runsYr!==null?runsYr:365/(p.run_days||F.run_days);
-    utilities=F.utilities*((F.util.time+F.util.run*runs)/out+F.util.water*ml+F.util.kg*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg; }
+    const pch=p.items?p.items:(p.plant==="sanitary"?{hall:"sanitary"}:((p.plant==="microbial"&&p.capex_2018===undefined)?F.plant_items.microbial:{}));
+    utilities=F.utilities*((F.util.time*fxBldgPower(p.vessel_m3,pch,sized,F)+F.util.run*runs)/out+F.util.water*ml+F.util.kg*burn); if(colR) utilities+=colR.energy_kg+colR.gas_kg; }
   let consumables=F.consumables, retCapex=0, membranes=0;
   // litres per kilo that pass the cell filter a second time: what a device on the permeate cleans and returns
   const inTank=!!(route&&route.in_tank), cleanParts={}; let loopF=sorb*ammAll+(inTank?0:loop);
@@ -5185,7 +5230,7 @@ function floorExplore(p,noSearch){
     gasUsed=us*(served.length?Math.min(1,lim[1]/Math.min.apply(null,served)):0);
     gasCells=us>0?gasUsed*Math.max(0,1-(vm.gas_away||0)/us):0;      // a cage's gas meets no cells
     // bursting bubbles kill cells at: killing volume x gas passed per litre of culture per hour; as a share of growth, at most half
-    death=Math.min(0.5,(p.kill===undefined?F.kill:p.kill)*gasCells/depth*3600/cell.mu);
+    death=Math.min(0.5,(p.kill===undefined?F.kill:p.kill)*gasCells/depth*3600/cell.mu*(1+micro*(F.micro_kill-1)));   // fine bubbles kill more
     protectant=ml*F.protect_dose/1000*(p.protectant_price===undefined?F.protect_price:p.protectant_price); consumables+=protectant; }
   const gfPer=F.gf*ml/F.gf_litres, cs=p.cell_share===undefined?1:p.cell_share;   // growth factors scale with litres
   let gf=gfPer*(+p.growth_factors||0);
@@ -5205,8 +5250,8 @@ function floorExplore(p,noSearch){
   const total=capital+labour+utilities+consumables+feed+gf+extra;
   const mu24=Math.LN2/F.ref_doubling, q24=cell.qo2/(ms+(1-ms)*cell.mu/mu24), o2up=q24*ms/cell.mu, o2gr=q24*(1-ms)/mu24;
   const lims={}; limits.forEach(l=>{lims[l[0]]=l[1];});
-  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, protectant:protectant, medium_prep_capex:prepCapex, mature_capex:matCapex, mature_l:matL/live, death_share:death, gas_used:gasUsed, gas_cells:gasCells, harvested_share:live,
-          clean_capex:cleanCapex, clean_opex:cleanOpex, clean_capital:cleanCapital, clean_filter_capex:cleanFCapex, clean_filter_membranes:cleanFMem, clean_loop:inTank?loop:loopF,
+  return {density:lim[1], limit:lim[0], output:out, capex:capex, extra_opex:extra, retention_capex:retCapex, membranes:membranes, protectant:protectant, medium_prep_capex:prepCapex, mature_capex:matCapex, mature_l:matL/live, death_share:death, gas_used:gasUsed, gas_cells:gasCells, micro_share:micro, sparger2_capex:sparger2Capex, harvested_share:live,
+          clean_capex:cleanCapex, clean_opex:cleanOpex, clean_capital:cleanCapital, clean_filter_capex:cleanFCapex, clean_filter_membranes:cleanFMem, clean_loop:inTank?loop:loopF, filter_extra_l:loopF,
           clean_share:shareUsed, clean_parts:cleanParts, medium_l_unclean:mlUnclean, capital:capital, labour:labour,
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime, run_frac:runFrac,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:mediumFloor, nutrients:eat,

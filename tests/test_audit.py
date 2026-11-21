@@ -39,9 +39,12 @@ def check() -> list:
     # (Humbird's replacement schedule), so a litre filtered costs $0.60 of membrane, not $0.37, and the same 900-5,500 range
     # moves the cost further: membrane life -0.51, ammonia +0.48 (seed 0; the order is the same on seeds 1 and 2). The check
     # is that these two lead, in either order, with the signs they must have.
-    top = list(cen["rank"])[:2]
-    if set(top) != {"nh3_kg", "rt_membrane_life"} or not cen["rank"]["rt_membrane_life"] < 0 or not cen["rank"]["nh3_kg"] > 0:
-        fails.append(f"the main drivers should be membrane life and ammonia: {top}")
+    # 2026-11-21: the draws now include the lactate and ammonia the cells tolerate, the bubble kill and the harvest recovery
+    # (audit.LIMIT_INPUTS): membrane life -0.43 leads, then the lactate tolerated -0.35 and the ammonia tolerated -0.31, ahead of
+    # the lactate and the ammonia the cells make (+0.28, +0.27)
+    top = list(cen["rank"])[:3]
+    if top[0] != "rt_membrane_life" or set(top[1:]) != {"lac_limit", "nh3_limit"} or not all(cen["rank"][k] < 0 for k in top):
+        fails.append(f"the main drivers should be membrane life, then the lactate and ammonia the cells tolerate: {top}")
     # seeds agree
     # 2026-11-20: the allowance was $1 when the median was $46 and the 10th-to-90th spread $32. The median is now $65 and the
     # spread $38, so the sampling error of a 1,000-draw median grew with them (seeds 0, 1, 2 give 65.2, 67.0, 65.9). The
@@ -62,7 +65,10 @@ def check() -> list:
     # 19.57 -> 24.57. The draws do not draw the lactate tolerated, the bubble kill or the harvest recovery (all new).
     # 2026-11-20 final model: central P50 65.24 -> 64.62, P10 50.60 -> 50.31; best P50 24.57 -> 11.37 (the all-favourable case
     # is now scenarios.all_favourable, $7.62: Humbird's cell traits, dialyser-grade membranes, 42 m3, no runs lost)
-    for name, s, want in (("central P50", cen["p50"], 64.62), ("central P10", cen["p10"], 50.31), ("best P50", best["p50"], 11.37)):
+    # 2026-11-21: the draws put right (growth factors inside a complete medium, no price per litre on a floor medium, the
+    # tolerated waste, kill and harvest drawn) and the model of 2026-11-21: central P50 64.62 -> 57.68, P10 50.31 -> 42.62,
+    # best P50 11.37 -> 8.22
+    for name, s, want in (("central P50", cen["p50"], 57.68), ("central P10", cen["p10"], 42.62), ("best P50", best["p50"], 8.22)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
     # the retail translation: the model's rule is per-kg costs plus a percentage margin; it sits between the old flat $5
@@ -87,9 +93,12 @@ def check() -> list:
     # the favourable end of every lever (no runs lost, the medium at the nutrient floor, Humbird's 0.054 mol of ammonia a kilo),
     # and these draws put runs lost, a price per litre on the medium and the ammonia of sc_nh3_engineered's range on top, so
     # almost every draw costs more. Its membrane life is passed to explore directly, so that draw no longer reaches it.
-    if not (cen["point_percentile"] < 0.12 and best["point_percentile"] < 0.02):
-        fails.append("the low-lactate example's point should sit near the 10th percentile of its draws, and the all-favourable "
-                     "example's below the 2nd")
+    # 2026-11-21: with the draws put right the all-favourable example's point sits at about the 9th percentile (no price per litre
+    # on its floor medium, its ammonia and lactate tolerated drawn around Humbird's 5 and 50) and the low-lactate example's at the 26th
+    # (the growth factors are no longer bought twice)
+    if not (0.15 < cen["point_percentile"] < 0.35 and 0.03 < best["point_percentile"] < 0.15):
+        fails.append(f"the low-lactate example's point should sit near the 26th percentile of its draws ({cen['point_percentile']:.2f}), "
+                     f"and the all-favourable example's near the 9th ({best['point_percentile']:.2f})")
     if not close(A.retail(A.parity_cost()), value("p_conv"), 1e-9):
         fails.append("the parity cost should give a shelf price equal to meat's")
     return fails

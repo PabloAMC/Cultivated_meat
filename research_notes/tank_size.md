@@ -1,5 +1,17 @@
 # Tank size: is 20 m³ the right size?
 
+> **Updated 2026-11-21.** Section 1's table and section 10's fed-batch table are recomputed; the other sections are the
+> 2026-11-20 snapshot below. Three engine changes reach this note. (1) The tank design is chosen as `scenarios.design` now chooses
+> it: a column loop that fails its checks at full density is run with the culture held thinner, at the densest density it passes.
+> Every scenario's 20 m³ design is the recycled-oxygen column held thinner (low-lactate 168 g/L, cautious 134 g/L); at that
+> density it sits exactly at the edge of its checks, so `design_limit` is 20.0 m³ (with the pH check relaxed to twice the safe
+> dose: 42 m³ for the low-lactate examples, 107 m³ for the cautious case). (2) The building's power follows its floor and its
+> class, so small tanks pay more for it and large ones less. (3) Part of the crew is counted per tank, as Humbird counts it.
+> **Changed conclusions:** the low-lactate examples and the cautious case are now cheapest at the 200 m³ end of the range (3.7%
+> to 6.8% below 20 m³), with a thinner culture in a larger tank; the all-favourable example is cheapest at 44 m³, next to its own
+> 42 m³ (3.1% below its 20 m³ row); fed-batch with shared medium at 100 m³ or more now costs less than perfusion at 20 m³
+> ($43.62 at 100 m³ against $44.53).
+>
 > **Updated 2026-11-20 (final pass).** Every table recomputed on the model as it now stands: per-tank plant items
 > (`floor_physics.tank_items`, `capex_at_size`: the tank, its makeup tanks and filter housings and the buildings are charged per
 > tank as well as per m³), thick cultures take up oxygen more slowly (`viscous_kla`), twice the fed-batch crew in perfusion,
@@ -27,12 +39,12 @@ is unchanged: no animal cells have run above about 25 m³, and no animal-cell pe
 
 | Scenario | Cost at 20 m³ | Cheapest size the model finds | Cost there | Saving | Sizes within 1% of the minimum |
 |---|---|---|---|---|---|
-| All-favourable example (its own tank is 42 m³, $7.62) | $8.10 | 90 m³ | $7.50 | $0.60 (7.4%) | 47 to 200 m³ |
-| Low-lactate example | $49.50 | 168 m³ | $46.41 | $3.09 (6.2%) | 128 to 168 m³ |
-| Low-lactate example, food-grade plant with shared medium | $45.04 | 168 m³ | $42.44 | $2.60 (5.8%) | 118 to 168 m³ |
-| Cautious | $185.59 | 168 m³ | $175.71 | $9.88 (5.3%) | 93 to 168 m³ |
-| Reference (Humbird's tank, no tricks) | $15.93 | 47 m³ | $15.45 | $0.48 (3.0%) | 30 to 50 m³ |
-| Reference, tank design chosen again | $14.89 | 96 m³ | $13.77 | $1.12 (7.5%) | 78 to 200 m³ |
+| All-favourable example (its own tank is 42 m³, $6.97) | $7.16 | 44 m³ | $6.94 | $0.22 (3.1%) | 39 to 69 m³ |
+| Low-lactate example | $48.68 | 200 m³ (the end of the range) | $45.53 | $3.15 (6.5%) | 90 to 200 m³ |
+| Low-lactate example, food-grade plant with shared medium | $44.53 | 200 m³ (the end of the range) | $41.50 | $3.03 (6.8%) | 108 to 200 m³ |
+| Cautious | $181.13 | 200 m³ (the end of the range) | $174.37 | $6.76 (3.7%) | 78 to 200 m³ |
+| Reference (Humbird's tank, no tricks) | $15.72 | 47 m³ | $14.93 | $0.79 (5.0%) | 37 to 50 m³ |
+| Reference, tank design chosen again | $14.51 | 200 m³ (the end of the range) | $13.05 | $1.46 (10.1%) | 114 to 200 m³ |
 
 - **Why larger tanks now save more.** Since 2026-11-20 the plant's capital per m³ of tank follows Humbird's own accounting item
   by item (`floor_physics.tank_items`): each tank brings its own installed vessel (his Eq. 3.1, $30.7k per m³ + $800k a tank),
@@ -375,10 +387,10 @@ example, 20 m³ for the others):
 
 | switches as in | perfusion in the scenario's own tank, $/kg | fed-batch at 20 m³ | fed-batch at 50 m³ | fed-batch at 100 m³ | fed-batch at 200 m³ |
 |---|---|---|---|---|---|
-| Low-lactate example | $49.50 | $71.76 (37 g/L) | $63.47 (37 g/L) | $60.71 (37 g/L) | $59.33 (37 g/L) |
-| Low-lactate example, food-grade plant with shared medium | $45.04 | $55.50 (37 g/L) | $51.29 (37 g/L) | $49.89 (37 g/L) | $49.19 (37 g/L) |
-| Cells that make almost no ammonia or lactate (rung 6) | $27.75 | $35.39 (62 g/L) | $32.80 (62 g/L) | $31.80 (62 g/L) | $31.03 (62 g/L) |
-| All-favourable example | $7.62 | $11.28 (120 g/L) | $10.42 (120 g/L) | $10.44 (120 g/L) | $10.22 (120 g/L) |
+| Low-lactate example | $48.68 | $70.32 (37 g/L) | $58.52 (37 g/L) | $54.58 (37 g/L) | $52.62 (37 g/L) |
+| Low-lactate example, food-grade plant with shared medium | $44.53 | $53.88 (37 g/L) | $46.19 (37 g/L) | $43.62 (37 g/L) | $42.34 (37 g/L) |
+| Cells that make almost no ammonia or lactate (rung 6) | $27.26 | $31.59 (68 g/L) | $27.40 (68 g/L) | $25.63 (68 g/L) | $24.63 (68 g/L) |
+| All-favourable example | $6.97 | $11.03 (120 g/L) | $9.65 (120 g/L) | $9.49 (120 g/L) | $9.19 (120 g/L) |
 
 - **A 100 m³ batch costs 7% to 15% less than a 20 m³ one** with the scenarios' switches ($71.76 to $60.71 in the low-lactate
   example, $11.28 to $10.44 with the all-favourable example's; for the all-favourable example 50 m³ is already as cheap). Beyond

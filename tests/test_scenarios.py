@@ -34,7 +34,8 @@ ref = S.reference()
 # medium preparation equipment for its 12 L/kg and replaces its membranes after 2,415 L/m2: $16.03
 # since 2026-11-20 (final pass) each tank brings its own plant items (floor_physics.tank_items, capex_at_size) and the harvested
 # share scales every cost line: $15.93
-check(abs(ref["total"] - 15.9293) < 5e-3, f"reference cost {ref['total']:.4f} != 15.9293 (explore() defaults moved)")
+# 2026-11-21: 15.9293 -> 15.7207 (the building's power follows its floor and class: a sanitary hall draws 50 W per m2, not 410)
+check(abs(ref["total"] - 15.7207) < 5e-3, f"reference cost {ref['total']:.4f} != 15.7207 (explore() defaults moved)")
 check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "reference: 120 g/L limited by CO2 removal")
 
 # 2. the scenarios come out in order, with the numbers quoted in the docs
@@ -53,8 +54,13 @@ check(cost["best"] < cost["central_lean"] < cost["central"] < cost["cautious"], 
 # all-favourable example is above his design's, and it washes with no more litres a kilo (11.7 against 12.4)
 r_best = S.run(S.SCENARIOS["best"].choice)
 check(cost["best"] < ref["total"] < cost["central"], "the all-favourable example should cost less than Humbird's design, which costs less than the low-lactate example")
-for line in ("capital", "feedstock", "consumables", "labour", "utilities", "growth_factors", "membranes"):
+for line in ("capital", "consumables", "labour", "utilities", "growth_factors", "membranes"):
     check(r_best[line] <= ref[line] + 1e-9, f"the all-favourable example's {line} ({r_best[line]:.2f}) is above Humbird's design's ({ref[line]:.2f})")
+# 2026-11-21: its tank design now holds the culture at 219 g/L, the densest its column loop passes (scenarios.design), and bubbles
+# kill 9.1% of the cells grown against 8.0% in his design, so its nutrients per kilo HARVESTED are 0.6% above his ($2.24 against
+# $2.22); per kilo grown they are below. The trade costs less in total
+check(r_best["feedstock"] * r_best["harvested_share"] <= ref["feedstock"] * ref["harvested_share"] + 1e-9,
+      "the all-favourable example's nutrients per kilo grown should not be above Humbird's design's")
 check(r_best["medium_l"] <= ref["medium_l"] + 1e-9, "the all-favourable example should wash with no more litres a kilo than Humbird's design")
 # 2026-11-19: growth factors inside complete media prices (the low-lactate example -$3.0), nutrient floor $2.00 (best +$0.30)
 # 2026-11-19 audit batch: ammonia tolerance 4 mM, not 5 (the low-lactate example +$4.9, best +$1.2), a lost run pays for its membranes (the low-lactate example
@@ -65,7 +71,10 @@ check(r_best["medium_l"] <= ref["medium_l"] + 1e-9, "the all-favourable example 
 # 2026-11-20 (final pass): best 18.7 -> 7.62 (the one all-favourable case above), the low-lactate example 50.0 -> 49.50, with shared
 # medium 45.7 -> 45.04, cautious 183.1 -> 185.59 (per-tank plant items; recovery on every cost line; the tank design chosen again).
 # The bands keep the earlier half-widths (about 1% of the cost)
-for k, (lo, hi) in {"best": (7.55, 7.70), "central": (49.1, 49.9), "central_lean": (44.65, 45.45), "cautious": (184.0, 187.2)}.items():
+# 2026-11-21 (Humbird back-test: building power and labour per tank; thinned tank designs; floor glucose 0.311): best 7.62 -> 6.97,
+# the low-lactate example 49.50 -> 48.68, with shared medium 45.04 -> 44.53, cautious 185.59 -> 181.13. Old bands: best (7.55, 7.70),
+# central (49.1, 49.9), central_lean (44.65, 45.45), cautious (184.0, 187.2)
+for k, (lo, hi) in {"best": (6.90, 7.05), "central": (48.3, 49.1), "central_lean": (44.1, 44.9), "cautious": (179.5, 182.7)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs (since 2026-11-19 no tag names a route: cells with other traits than the published ones are tagged
@@ -270,15 +279,19 @@ trc = S.tricks_report(S.SCENARIOS["central"].choice)
 # with both, oxygen holds the tall tank at 154 g/L against 151 in the squarer one, at a plant charge of $11.57 a kilo against
 # $12.59 ($49.50 against $51.75). Without the tricks the tall tank is held by CO2 at 87 g/L ($55.21); before, the comparison was
 # with a squarer tank, which clears CO2 better without the tricks
-check(abs(trc["d_no_tricks"] - 5.71) < 0.05, f"central: expected about +$5.71 without the tricks, got {trc['d_no_tricks']:.2f}")
-check(trc["used"] == list(S._TRICK_PARTS["pressure"]) and S.SCENARIOS["central"].choice["shape"] == "tall",
-      "central should list the column and the pressure, in the ordinary tall tank")
+# 2026-11-21: 5.71 -> 6.05. The design search now holds a culture thinner when its loop fails at full density (scenarios.design):
+# the column that also feeds recycled oxygen, in the tall tank, at 168 g/L ($48.68), beats the column and 1 bar at 154 g/L ($49.22)
+check(abs(trc["d_no_tricks"] - 6.05) < 0.05, f"central: expected about +$6.05 without the tricks, got {trc['d_no_tricks']:.2f}")
+check(trc["used"] == list(S._TRICK_PARTS["oxygen"]) and S.SCENARIOS["central"].choice["shape"] == "tall"
+      and abs(S.SCENARIOS["central"].choice.get("thin", 0.0) - 167.8) < 0.5,
+      "central should list the column, the pressure and the recycled oxygen, in the ordinary tall tank held at about 168 g/L")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")
 gain = S.run(S.SCENARIOS["central"].choice)["total"] - S.alt_cost("central", {"growth": "24"})
 # 2026-11-20 batch: $2.5 -> $5.2 (faster cells lose a smaller share to bursting bubbles, which kill per hour, and the doubled crew and
 # the dearer membranes are spread over more kilos)
-check(5.0 <= gain <= 5.5 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $5.0-5.5 a kilo ({gain:.2f})")
+# 2026-11-21: $5.2 -> $4.9 (the thinned oxygen-column design holds both cases at the loop's limit)
+check(4.6 <= gain <= 5.2 and f"${gain:.1f}" in S.story_text("central"), f"central: 24 h should be worth $4.6-5.2 a kilo ({gain:.2f})")
 
 # 12e. what has been measured in meat cells, with its source (data only; since 2026-11-19 the page and the docs carry no routes)
 best = CT.best_in_meat_cells()

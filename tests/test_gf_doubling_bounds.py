@@ -30,9 +30,13 @@ from inputs import value
 # cell traits and lactate tolerance, 42 m3, dialyser-grade fibres), so its scan fell from 14.7554 / 18.7144 / 27.1815; the
 # last engine fixes moved central (40.7736 / 44.7155 / 49.9616 / 53.0032) and cautious (124.1438 / 167.9874 / 183.1481).
 GOLDEN_SCAN = {
-    "best": {16.0: 7.6209, 24.0: 8.8480, 43.0: 12.2433},
-    "central": {16.0: 40.0833, 24.0: 44.1421, 36.0: 49.4977, 43.0: 52.5557},
-    "cautious": {16.0: 124.3331, 36.0: 169.8311, 43.0: 185.5915},
+    # 2026-11-21 (the building's power by floor and class, labour per tank, the floor's glucose, thinned tank designs, the
+    # column on the filter loop): best 7.6209/8.8480/12.2433, central 40.0833/44.1421/49.4977/52.5557, cautious
+    # 124.3331/169.8311/185.5915 before. Best at 43 h rose: its thinned recycled-oxygen design is chosen at 16 h and does not
+    # suit slow cells
+    "best": {16.0: 6.9686, 24.0: 8.6524, 43.0: 13.6671},
+    "central": {16.0: 39.6525, 24.0: 43.1886, 36.0: 48.6815, 43.0: 52.0237},
+    "cautious": {16.0: 122.6137, 36.0: 165.5675, 43.0: 181.1270},
 }
 
 def close(a, b, tol=1e-6):
@@ -173,9 +177,9 @@ def check() -> list:
             ("central $1 transferrin", tab["central"][1.0]["transferrin"]["shared"], 0.8427),
             ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 45.5783),
             ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1322.8953),
-            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.8992),
+            ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.7252),   # 4.8992 until 2026-11-21
             ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1305),
-            ("central reuse, full price", G.reuse("central")["full_reuse"], 3.5484),
+            ("central reuse, full price", G.reuse("central")["full_reuse"], 3.2475),   # 3.5484 until 2026-11-21
             # 0 since 2026-11-19 (were 0.5961 and 1.9183): their complete media carry the growth factors in the price
             ("central own, reuse", G.reuse("central")["own_reuse"], 0.0),
             ("cautious own, reuse", G.reuse("cautious")["own_reuse"], 0.0),

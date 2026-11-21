@@ -230,7 +230,12 @@ def turbulence_limit(vessel_m3: float = 20.0, aspect: float | None = None, power
 
 
 def _loop_ok(kw: dict, cap: float) -> bool:
-    r = fp.explore(**kw, vm={"caps": {"thickness of the culture": float(cap)}})
+    # the case's own vessel settings, without a thinned design's cap on the loop (scenarios.design, 2026-11-21): this asks where
+    # the loop itself stops passing
+    vm = dict(kw.get("vm") or {})
+    caps = {k: v for k, v in vm.get("caps", {}).items() if k != "what the column can strip safely"}
+    vm["caps"] = {**caps, "thickness of the culture": float(cap)}
+    r = fp.explore(**{**kw, "vm": vm})
     d = r["column"]
     return d is None or (d["ph_vs_safe"] <= 1.0 + 1e-9 and d["passes_tested"])
 
@@ -299,13 +304,30 @@ def _best_design(choice: dict, cap: float, redesign: bool, checked: bool):
     tricks = S.SW["tricks"].settings if redesign else [S.setting("tricks", choice["tricks"])]
     shapes = S.SW["shape"].settings if redesign else [S.setting("shape", choice["shape"])]
     best = None
+
+    def run(c):
+        kw = S.explore_kwargs(c)
+        vm = dict(kw.get("vm") or {})
+        vm["caps"] = {**vm.get("caps", {}), "thickness of the culture": float(cap)}
+        return fp.explore(**{**kw, "vm": vm})
+    base = choice if not redesign else {k: v for k, v in choice.items() if k != "thin"}
     for tk in tricks:
         for sh in shapes:
-            c = {**choice, "tricks": tk.key, "shape": sh.key}
-            r = fp.explore(**S.explore_kwargs(c), vm={"caps": {"thickness of the culture": float(cap)}})
-            d = r["column"]
-            if checked and d is not None and (d["ph_vs_safe"] > 1.0 + 1e-9 or not d["passes_tested"]):
-                continue
+            c = {**base, "tricks": tk.key, "shape": sh.key}
+            r = run(c)
+            if checked and not S.loop_ok(r):
+                # as scenarios.design (2026-11-21): the same design with the culture held thinner, at the densest its loop passes
+                lo, hi, ok = 0.0, float(r["density"]), None
+                for _ in range(S.THIN_STEPS):
+                    mid = 0.5 * (lo + hi)
+                    rr = run({**c, "thin": mid})
+                    if S.loop_ok(rr):
+                        lo, ok = mid, (rr, {**c, "thin": mid})
+                    else:
+                        hi = mid
+                if ok is None:
+                    continue
+                r, c = ok
             if best is None or r["total"] < best[0]["total"] - 1e-12:
                 best = (r, c)
     return best

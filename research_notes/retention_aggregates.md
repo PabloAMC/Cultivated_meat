@@ -2,6 +2,14 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Second recomputation, 2026-11-21 (later the same day; `tests/test_retention.py` pins these).** The scenarios' tank designs now
+> hold the culture thinner when that lets the recycled-oxygen column pass its loop checks (`scenarios.design`): the low-lactate
+> example runs at 168 g/L ($48.68 with the filter loop), the all-favourable example at 219 g/L ($6.97). The building's power now
+> follows its floor and class. With aggregates and a gravity settler: Humbird's optimistic design $14.24, the low-lactate example
+> $26.51 (range $25.95-36.41; plates 16.0 m², 13 minutes in the settler), the all-favourable example $7.39 (held again by the
+> aggregates' 193 g/L cap; range $6.94-10.48), so aggregates still do not beat its dialyser-grade loop ($6.97). Carriers: $43.50,
+> $94.87, $24.35. A single-cell settler at the low-lactate duty needs 369 m² and 6.3 m³. The figures below are the earlier run.
+>
 > Figures recomputed 2026-11-21 on the model of 2026-11-20 (as in `retention_devices.md`): the low-lactate example's tank now holds
 > 154 g/L (was 191), so it sends less permeate and its plates are smaller; the all-favourable example is `scenarios.all_favourable()`,
 > whose cells weigh 3 ng and double in 16 hours (uptake 0.186 mmol/g/h); every cost is per kilo harvested. Statements that changed:

@@ -73,6 +73,9 @@ def duty(kw: dict | None = None) -> dict:
     permeate = max(0.0, medium - bleed)
     if permeate < 1e-9 * medium:                                             # the bleed carries out all the liquid (rounding apart)
         permeate = 0.0
+    # the litres a sorbent or another device on the permeate cleans pass the filter again (2026-11-21; explore's filter loop
+    # has charged them since 2026-11-16, this sizing did not)
+    permeate += r.get("filter_extra_l", 0.0) * harvest / 1000.0
     phi = r["density"] / (value("pf_cell_density") * 1000.0)                # volume fraction of cells
     return {"vessel_m3": v, "liquid_m3": liquid, "density": r["density"], "phi": phi, "kg_h": harvest,
             "kg_year": tonnes * 1000.0, "medium_m3_h": medium, "bleed_m3_h": bleed, "permeate_m3_h": permeate,

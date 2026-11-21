@@ -206,11 +206,16 @@ food-grade label alone does not make the plant cheap.
 
 | Plant | What it is | $k per m³ | Today's prices | Cells, $/kg (perfusion) | Cells, $/kg (drained and refilled) |
 |---|---|---|---|---|---|
-| Humbird's | every item as designed | 683 | 909 | $14.9 | $20.8 |
-| The floor's | the same in a sanitary hall | 611 | 813 | $14.1 | $19.3 |
-| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $11.2 | $13.7 |
-| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $9.3 | $10.1 |
-| Yeast | every item as in his yeast plant | 130 | 172 | $8.2 | $8.8 |
+| Humbird's | every item as designed | 683 | 909 | $14.9 | $17.5 |
+| The floor's | the same in a sanitary hall | 611 | 813 | $13.8 | $15.9 |
+| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $11.0 | $11.4 |
+| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $9.0 | $8.5 |
+| Yeast | every item as in his yeast plant | 130 | 172 | $7.9 | $7.3 |
+
+Recomputed 2026-11-21 (the building's power by floor and class, the least medium flow in a tank drained and refilled taken
+as the other wastes are, the floor's glucose). Before: perfusion $14.9 / $14.1 / $11.2 / $9.3 / $8.2, drained and refilled
+$20.8 / $19.3 / $13.7 / $10.1 / $8.8. A plant drained and refilled is no longer held at 92 g/L by the least medium flow, so its
+cost fell most; in the two yeast-style plants it is now below perfusion.
 
 The model's existing frontier class, $190k in today's prices from built microbial plants, sits between yeast
 and yeast+. Bought oxygen is charged at $0.33 per kg of cells grown ($0.37 per kg harvested at the floor's
@@ -281,11 +286,13 @@ losing runs at pharma's 0.2% a day. Fourteen days to restart after a loss; nothi
 
 | Run length planned | Lean | Yeast+ | Yeast |
 |---|---|---|---|
-| 5 days | 4.2% a day (one loss per tank every 24 days) | 8.2% (12 days) | 10.1% (10 days) |
-| 10 days | 3.5% (28 days) | 7.1% (14 days) | 8.8% (11 days) |
-| 20 days | 3.2% (31 days) | 6.4% (16 days) | 8.0% (13 days) |
-| 33 days | **3.0%** (33 days) | **6.1%** (16 days) | **7.6%** (13 days) |
-| 60 days | 2.9% (35 days) | 5.8% (17 days) | 7.2% (14 days) |
+| 5 days | 4.3% a day (one loss per tank every 23 days) | 8.6% (12 days) | 10.6% (9 days) |
+| 10 days | 3.7% (27 days) | 7.4% (14 days) | 9.2% (11 days) |
+| 20 days | 3.3% (30 days) | 6.7% (15 days) | 8.4% (12 days) |
+| 33 days | **3.1%** (32 days) | **6.3%** (16 days) | **8.0%** (13 days) |
+| 60 days | 3.0% (33 days) | 6.0% (17 days) | 7.6% (13 days) |
+
+(Recomputed 2026-11-21; at 33 days it was 3.0%, 6.1% and 7.6%.)
 
 The threshold barely moves with run length once runs are longer than the time between losses, because the
 loss then ends the run whatever was planned. Drained-and-refilled tanks tolerate more (lean 4.5%, yeast+ 9.6%
@@ -309,7 +316,7 @@ What moves the 33-day threshold:
 | Cultivated meat, all respondents [6] | 11.2% (range 0–52%, 11 companies) | 0.6–1.2% if batches ran 20 or 10 days | 2.5 to 10 times under |
 | Cultivated meat, beyond flasks [6] | 19.5% (6 companies) | 1.1–2.2% | 1.4 to 6 times under |
 
-At 1.5% a day the lean plant makes cells at $12.7, yeast+ at $10.4 and the yeast plant at $9.2, against $14.3
+At 1.5% a day the lean plant makes cells at $12.4, yeast+ at $10.1 and the yeast plant at $8.9 (2026-11-21; $12.7, $10.4 and $9.2 before), against $14.3
 for the floor's plant at pharma's rate. So if the cheaper plants can be built at these prices and lose runs
 no more often than cultivated-meat makers do today, in whatever plants they have, they win. The survey's worst
 respondent (52% of batches) would be over the lean threshold if its batches ran under about 23 days.

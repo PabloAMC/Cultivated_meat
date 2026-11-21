@@ -89,11 +89,17 @@ def _designs(case: str) -> list:
     return [(tk.key, sh.key) for tk in S.SW["tricks"].settings for sh in S.SW["shape"].settings]
 
 
-def _kwargs(case: str, tricks: str, shape: str, v: float, o: dict, aspect: float | None = None) -> dict:
+def _kwargs(case: str, tricks: str, shape: str, v: float, o: dict, aspect: float | None = None,
+            thin: float | None = None) -> dict:
+    # `thin`: the culture held at this density so the column loop passes (scenarios.design, 2026-11-21). The scenario's own
+    # thinned cap is for its own design at its own size, so it is dropped here unless passed
     if case.startswith("reference"):
         kw = {**S.setting("tricks", tricks).kw, **S.setting("shape", shape).kw}
+        if thin:
+            kw["vm"] = {"caps": {S.LOOP_CAP: float(thin)}}
     else:
-        kw = S.explore_kwargs({**S.SCENARIOS[case].choice, "tricks": tricks, "shape": shape})
+        base = {k: x for k, x in S.SCENARIOS[case].choice.items() if k != "thin"}
+        kw = S.explore_kwargs({**base, "tricks": tricks, "shape": shape, **({"thin": thin} if thin else {})})
     kw["vessel_m3"] = v
     if aspect is not None:                               # a shape the switch does not offer (see `flatter`)
         kw["aspect"] = aspect
@@ -145,11 +151,12 @@ def _heat(r: dict, v: float, kw: dict) -> dict:
     return {"heat_kw_m3": kw_m3, "wall_m2_m3": wall, "wall_flux_kw_m2": kw_m3 / wall}
 
 
-def evaluate(case: str, tricks: str, shape: str, v: float, change: dict | None = None, aspect: float | None = None) -> dict:
+def evaluate(case: str, tricks: str, shape: str, v: float, change: dict | None = None, aspect: float | None = None,
+             thin: float | None = None) -> dict:
     """One design at one size: explore()'s answer, the cost split, the loop checks. `aspect` overrides the shape's liquid
-    depth-to-width ratio."""
+    depth-to-width ratio; `thin` holds the culture at that density (g/L)."""
     o = _opts(change)
-    kw = _kwargs(case, tricks, shape, v, o, aspect)
+    kw = _kwargs(case, tricks, shape, v, o, aspect, thin)
     r = fp.explore(**kw)
     ok, kind, why = _check(r, o)
     sp = _split(r, v, o)
@@ -162,7 +169,22 @@ def evaluate(case: str, tricks: str, shape: str, v: float, change: dict | None =
             "passes": d["passes"] if d else 0.0, "ph": d["ph_vs_safe"] if d else 0.0,
             "width_m": T, "depth_m": depth, "loop_area_m2": area_m3 * v, "loop_area_m2_m3": area_m3,
             "loop_units": area_m3 * v / value("rt_atf_area"), "medium_l": r["medium_l"], "uptime": r["uptime"],
-            **_heat(r, v, kw)}
+            "thin": thin, **_heat(r, v, kw)}
+
+
+def thinned(case: str, tricks: str, shape: str, v: float, change: dict | None = None, x_hi: float | None = None):
+    """The design held at the densest culture its loop passes at size v (bisection, as scenarios.thinned): its row, or None."""
+    if x_hi is None:
+        x_hi = evaluate(case, tricks, shape, v, change)["density"]
+    lo, hi, ok = 0.0, float(x_hi), None
+    for _ in range(S.THIN_STEPS):
+        mid = 0.5 * (lo + hi)
+        r = evaluate(case, tricks, shape, v, change, thin=mid)
+        if r["ok"]:
+            lo, ok = mid, r
+        else:
+            hi = mid
+    return ok
 
 
 def design_at(case: str, v: float, change: dict | None = None) -> dict:
@@ -175,6 +197,12 @@ def design_at(case: str, v: float, change: dict | None = None) -> dict:
     for r in rows:
         if unchecked is None or r["total"] < unchecked["total"] - 1e-12:
             unchecked = r
+        if o["checks"] and not r["ok"] and r["tricks"] != "none":
+            # as scenarios.design since 2026-11-21: a design whose loop fails is tried with the culture held thinner
+            t = thinned(case, r["tricks"], r["shape"], v, change, r["density"])
+            if t is not None and (best is None or t["total"] < best["total"] - 1e-12):
+                best = t
+            continue
         if (r["ok"] or not o["checks"]) and (best is None or r["total"] < best["total"] - 1e-12):
             best = r
     return {"best": best, "unchecked": unchecked, "rows": rows}
@@ -217,7 +245,8 @@ def design_limit(case: str, change: dict | None = None, hi: float = 2000.0) -> f
     if case.startswith("reference"):
         return float("inf")
     ch = S.SCENARIOS[case].choice
-    ok = lambda v: evaluate(case, ch["tricks"], ch["shape"], v, change)["ok"]
+    # a thinned design (2026-11-21) is taken at its own density cap: it sits at the edge of its checks at its own size
+    ok = lambda v: evaluate(case, ch["tricks"], ch["shape"], v, change, thin=ch.get("thin"))["ok"]
     if not ok(20.0):
         return float("nan")
     if ch["tricks"] == "none":

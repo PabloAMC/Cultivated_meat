@@ -1,5 +1,45 @@
 # Change log
 
+## 2026-11-21 (second batch): Humbird's perfusion design reconciled, the least medium flow in a batch, thinner cultures in the design search, two new levers
+
+**The open TODO items that could move the long-run cost.** Evidence: `research_notes/humbird_backtest.md` (items 11 and 12),
+`research_notes/two_spargers_and_loop.md`, `research_notes/model_audit.md` (section 3f). Headline numbers, old → new (2025 dollars a
+kilo of cells): Humbird's best estimate on the page $26.99 → $26.99; with the model's five additions $37.38 → $30.49; Humbird's
+optimistic design $15.93 → $15.72; the all-favourable example $7.62 → $6.97; the low-lactate example $49.50 → $48.68; Published
+cells $322.55 → $316.11; Published cells in perfusion (cautious) $185.59 → $181.13; the nutrient floor $2.00 → $2.00 ($2.0035 →
+$1.9999).
+
+- **Engine** (`floor_physics.explore`, mirrored in the page's `floorExplore`):
+  1. Building power follows the floor and the class of each building (`building_power`; Humbird's Table 3.2 loads: Class 8 410
+     W/m², sanitary 50, warehouse 5, Class 6 1,000; inputs `pi_w_*`, `pi_rate_class6`). It was his clean-room fed-batch plant's at
+     every size and class. Closes half of his perfusion design's utilities gap (−54% → −27%).
+  2. Part of the crew is counted per tank, as Humbird counts it (`crew_multiplier`; `pf_labour_tank_share` 0.619,
+     `pf_labour_tank_perfusion` 0.975 staff a tank, `pf_labour_staff_fedbatch` 95). Nothing moves at 20 m³; small tanks need more
+     staff per m³, large ones fewer. His perfusion design's labour closes like for like (−42% → 0%) with his own rest of the crew
+     (`humbird_check.his_perfusion_crew_x`); the model's own 2.0 at 20 m³ stays.
+  3. In a tank that is not washed out the least medium flow's cap is times `pf_batch_end_x`, as ammonia's and lactate's are, and
+     counts towards the slower end of a batch. It capped Humbird's fed-batch at 92 g/L (+$6.4 on his design); it no longer binds it.
+  4. Two levers, off by default: `spargers=2` (a fine-bubble sparger for oxygen: `ge_micro_o2_x` 4, `ge_micro_kill_x` 10,
+     `ge_sparger2_k` $41k a tank; the share of gas through it searched on `MICRO_GRID`) and `col_on_loop` (the CO₂ column shares the
+     filter loop's pump). The all-favourable example takes the second ($6.98 → $6.97), not the first.
+  5. The floor's glucose is the mass balance's, 0.311 kg a kilo (`glucose_intensity`, was 0.32).
+- **Design search**: `scenarios.design` (and `_design_traits`, `design_space.run`, the page's `scDesign`) runs a design whose CO₂
+  loop fails at full density at the densest culture it passes (`thinned`, the choice's `thin`). The loop that feeds recycled oxygen
+  now wins in every perfusion case: the low-lactate example 168 g/L ($49.22 → $48.68), the all-favourable example 219 g/L in a flat
+  tank ($7.42 → $6.98), cautious $185.09 → $181.13.
+- **Humbird back-test**: his perfusion design's growth factors are bought, like for like, only in his share of the litres (+62% →
+  −4%); totals within 3.0%. The back-test tables are in 2025 dollars, not "today's".
+- **Smaller**: `retention.duty` counts the litres a sorbent cleans as permeate (`filter_extra_l`); the dialyser's clearance
+  (`mr_exchange_clearance`) checked against Fresenius's FX 80 table (278 mL/min at 300 mL/min over 1.8 m², 9.3 L/m²/h); `audit.py`
+  draws put right (growth factors inside a complete medium, no price per litre on a floor medium, the tolerated waste, the bubble
+  kill and the harvest recovery drawn: the low-lactate example's median $64.6 → $57.7, the all-favourable example's $11.4 → $8.2);
+  the plant ladder's fill-and-draw rows are `explore()` itself (`plant_floor_hi` $17.7 → $20.3; the plant knob's range $13.8-34.0
+  → $13.5-37.1; `plant_floor` $13.8 → $13.5, `plant_floor_lo` $8.76 → $8.50); METHODS no longer calls CO₂ tolerance the
+  measurement that would move Humbird's optimistic design most (above 100 mbar oxygen binds; the gas flow tolerated moves it more).
+- **Why the all-favourable example's point is below most of its draws** (95% now): its estimates sit at the modes of priors skewed
+  to the costly side (protectant price and dose, bubble kill, amino-acid price, the plant estimate). Not a defect; said in its story.
+- Tests repinned on purpose with the old values in dated comments; side-study notes' tables regenerated.
+
 ## 2026-11-20 and 2026-11-21
 
 **The model batch from the full review, the back-test against Humbird's tables, one most favourable case checked against ten
