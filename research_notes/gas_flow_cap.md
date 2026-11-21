@@ -1,11 +1,11 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
-> **Current figures (2026-11-20, final model).** The body's costs were computed on 2026-11-14, when the reference case (then
+> **Current figures (2026-11-20, final model).** The body's costs were computed on 2026-11-14, when Humbird's optimistic design (then
 > called the floor) cost $11.5 a kilo. Since then the model added the cell filter, the bubble protectant (charged: $0.74 a kilo
 > at $30/kg), antifoam's cut to oxygen transfer, the $2.00 nutrient floor, a 2% harvest loss, twice the fed-batch crew in a
 > washed continuous tank and, from this note's section 1, the cells that bursting bubbles kill: death rate = the protected kill
 > volume (`ge_kill_protected`) times the gas passed per litre of culture. `floor_physics.explore` now gives, with the body's
-> 2026-11-14 figures in brackets: the reference case at 6 mm/s $15.93 ($11.5), 8% of the cells grown killed; at 5 mm/s $16.47
+> 2026-11-14 figures in brackets: Humbird's optimistic design at 6 mm/s $15.93 ($11.5), 8% of the cells grown killed; at 5 mm/s $16.47
 > ($13.1); at 2 mm/s $35.25 ($28.0); at 9 mm/s $15.66 ($8.7), 12% killed; at 12.5 mm/s $15.91, 16% killed; at 0.5 mm/s $137
 > ($100); with the exhaust 70% saturated with CO₂ $17.61 ($14.6), 85% $16.44 ($12.6).
 > **What this changes in the reading.** Too little gas costs as much as before: 2 mm/s more than doubles the cost. More gas than
@@ -21,7 +21,7 @@ removal, which is proportional to the gas bubbled through the tank. The model ta
 velocity of 6 mm/s (0.1 tank volumes of gas per minute, "vvm", at 20 m³). This note asks where that limit comes
 from, what physically caps the gas flow, and what range is defensible at 20 m³ and 120 g/L.
 
-**Reference case used throughout** (from `floor_physics.py`): 16 m³ of liquid, tank 2.34 m wide, liquid 3.74 m
+**Humbird's optimistic design used throughout** (from `floor_physics.py`): 16 m³ of liquid, tank 2.34 m wide, liquid 3.74 m
 deep, 4.28 m² cross-section, stirring power about 43 W/m³. At 6 mm/s that is 93 m³ of gas an hour, 0.096 vvm,
 5.8 volumes of gas per volume of liquid per hour.
 
@@ -34,7 +34,7 @@ About half of the primary papers are paywalled and were read as abstracts; this 
 
 ## For the experiments list
 
-Figures are from `floor_physics.explore` (final model, 2026-11-20) with only the named argument changed from the reference case
+Figures are from `floor_physics.explore` (final model, 2026-11-20) with only the named argument changed from Humbird's optimistic design
 ($15.93/kg). Costs and times of experiments are rough estimates, not quotes.
 
 **1. How much gas a large, dense tank can take**
@@ -112,7 +112,7 @@ detection); EU status was not verified. So it belongs on the experiments list as
 not as a physics question.
 
 **Which way this points for the membrane loop.** The evidence does not show that sparging can run at the
-model's default velocity (about even odds, section 8), and at the central 5 mm/s the reference case is $16.47, not
+model's default velocity (about even odds, section 8), and at the central 5 mm/s Humbird's optimistic design is $16.47, not
 $15.93. So a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
 sparged tank must run thinner. Two things soften this. First, the most likely cap is foam, and a loop that
 only removes CO₂ still leaves the oxygen to be sparged, so it lowers the gas flow needed but does not remove
@@ -146,7 +146,7 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
    120 g/L is about even, between 30% and 60% (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert; reasoning in section 8).
 7. **The model keeps 6 mm/s for the floor**, because the floor takes the favourable end of each range and the
    evidence neither refutes 6 mm/s nor supports a specific lower number. The tornado range becomes 2–9 mm/s.
-   On the final model (2026-11-20) the reference case is $15.93 at 6 mm/s, $16.47 at the central 5 mm/s, $35.25 at
+   On the final model (2026-11-20) Humbird's optimistic design is $15.93 at 6 mm/s, $16.47 at the central 5 mm/s, $35.25 at
    2 mm/s and $15.66 at 9 mm/s: below 6 mm/s the cost rises steeply, above it bubble deaths cancel the gain.
 8. **Three costs or limits the model does not carry were found on the way**: the protectant (poloxamer 188) is
    not costed and is not a clearly permitted food additive; antifoam may cut oxygen transfer by up to half; and
@@ -534,7 +534,7 @@ from a dense culture, with and without antifoam, would by itself move the even o
    behind a paywall. No bulk price. Poloxamer is dissolved in the medium, so it leaves with every litre unless recovered. The model
    now charges `pf_protectant_dose` (2 g/L, range 1–5) × litres × `pf_protectant_price` ($30/kg assumed for tonnes, range $10–260,
    the top being the catalogue price) in every sparged vessel, with a tornado bar. At $30 that is $0.67 a kilo of cells in the
-   reference case and the all-favourable example (11.2 L/kg) and $1.68 in Central and Cautious (28 L/kg); at the catalogue price $5.6 and
+   Humbird's optimistic design and the all-favourable example (11.2 L/kg) and $1.68 in Central and Cautious (28 L/kg); at the catalogue price $5.6 and
    $14. Medium prices are taken to exclude it. A web search found no EU food-additive authorisation for poloxamers and no EFSA
    opinion; cultivated meat is assessed as a novel food, so the residue would be dealt with in that dossier. Not verified in the
    Union list itself. A supplier quote would replace the assumed price.
@@ -548,7 +548,7 @@ from a dense culture, with and without antifoam, would by itself move the even o
 3. **Stripping efficiency.** 0.7–0.96 against the model's 0.96; worth a tornado bar.
    *Done 2026-11-15 (late):* `explore(strip_eff=)` with a tornado bar (0.70 to 0.96). At 0.70 the reference tank holds 87 g/L in
    place of 120 and costs $14.27; the scenarios, whose columns take the CO₂, move by under $0.1.
-4. **Velocity or vvm.** If the cap is in vvm, tank shape and size stop mattering for CO₂.
+4. **Velocity or vvm.** If the cap is in vvm, tank shape and size stop mattering for CO₂. *Closed 2026-11-21* ([evidence_gas_flow_units.md](evidence_gas_flow_units.md)): vendors rate gas in vvm (0.1, up to 0.2 in enhanced single-use designs, to 2 m³), but foam, the likeliest real cap, scales with velocity, so the cap stays a velocity.
 5. **Yeast-style plant.** That plant class has no oxygen unit in its price; the oxygen ($0.5/kg) is not added
    there.
 6. **Read the paywalled primaries** if library access is available: Ozturk 1996, Xing 2009 and 2017, Xu et al.

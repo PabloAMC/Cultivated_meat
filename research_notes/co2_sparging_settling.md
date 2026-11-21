@@ -232,7 +232,7 @@ Inference (oxygen depletion time, mine): Hu 2011 [16] cites an oxygen uptake of 
 
 ## Ranges a model could defensibly use
 
-All three columns are my judgement, built from the tables above. "Basis" says which numbers are sourced and which are inferred.
+All three columns are the model's rough judgement (made while building the model with an AI assistant), built from the tables above. "Basis" says which numbers are sourced and which are inferred.
 
 | Parameter | Low | Low-lactate example | High | Basis and confidence |
 |---|---|---|---|---|

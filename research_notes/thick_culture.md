@@ -1,5 +1,11 @@
 # How thick can a stirred or airlift culture be?
 
+> **2026-11-21.** `scenarios.design` now holds a culture thinner when that lets a column loop pass its checks, which is the
+> finding of section 7 below, now adopted: every scenario runs the column with recycled oxygen at the densest culture its loop
+> passes (low-lactate example 168 g/L, $48.68; cautious 134 g/L, $181.13; all-favourable example 219 g/L in a flat 42 m³ tank,
+> $6.97). Oxygen comes from the loop, so no oxygen limit binds; the loop's checks do. The section 7 table is recomputed; the
+> rest of this note is the 2026-11-20 snapshot below.
+>
 > Repinned 2026-11-20 (final pass). Two changes reach this note. (1) `explore()` now lowers the sparger's oxygen transfer in a thick culture itself (`viscous_kla`, this note's section 5), so every scenario's own cost already counts it: the low-lactate example runs at 154 g/L (191 before), the cautious case at 103 g/L (120 before). (2) The all-favourable example is now the one case of `scenarios.all_favourable()` ($7.62): the column and 1 bar in a square 42 m³ tank, a density limit of 320 g/L, 155 g/L reached. Sections 1 and 5 to 8 are rewritten with the figures of `python thick_culture.py`. **Conclusion unchanged and stronger: no scenario's tank reaches 258 g/L, so a density limit of 180, 320 or 400 g/L costs no scenario anything with its own design.** **New finding:** the all-favourable example would cost $7.39 with recycled oxygen in a squat tank if its culture were held at 180 g/L, and $7.17 in a flat tank held at 215 g/L, against $7.62; the cautious case $181.93 at 130 g/L against $185.59. Held thinner, the recycled-oxygen loop passes the pH and pass-rate checks it fails at the density the tank would otherwise reach. `scenarios.design` never holds a culture below its limits, so it misses these designs.
 
 > Earlier repins (2026-11-20 first batch; 2026-11-19 scenario restructure, nutrient floor and audit batch; 2026-11-16 recompute) are recorded in the changelog.
@@ -188,11 +194,16 @@ applied. **Checked**: the tank tricks and shape chosen again among the scenario 
 
 | scenario | 180 | 258 (model) | 320 | 400 |
 |---|---|---|---|---|
-| All-favourable example, fixed | 7.62 (155) | **7.62** (155; its own limit is 320) | 7.62 (155) | 7.62 (155) |
-| All-favourable example, checked | **7.39** (180; recycled oxygen, squat) | 7.62 (155) | 7.62 (155) | 7.62 (155) |
-| Low-lactate example, fixed and checked | 49.50 (154) | **49.50** (154) | 49.50 (154) | 49.50 (154) |
-| Low-lactate example, shared medium, fixed and checked | 45.04 (154) | **45.04** (154) | 45.04 (154) | 45.04 (154) |
-| Cautious, fixed and checked | 185.59 (103) | **185.59** (103) | 185.59 (103) | 185.59 (103) |
+| All-favourable example, fixed | 7.44 (180) | **6.97** (219; its own limit is 320) | 6.97 (219) | 6.97 (219) |
+| All-favourable example, checked | 7.20 (180; recycled oxygen, squat) | 6.97 (219) | 6.97 (219) | 6.97 (219) |
+| Low-lactate example, fixed and checked | 48.68 (168) | **48.68** (168) | 48.68 (168) | 48.68 (168) |
+| Low-lactate example, shared medium, fixed and checked | 44.53 (168) | **44.53** (168) | 44.53 (168) | 44.53 (168) |
+| Cautious, fixed and checked | 181.13 (134) | **181.13** (134) | 181.13 (134) | 181.13 (134) |
+
+Since 2026-11-21 every scenario's own design is the column with recycled oxygen held thinner than its limits allow, at the densest
+culture its loop passes (168, 134 and 219 g/L), so the "checked" reading finds the same design as the scenario except where the cap
+binds. The table before that day (2026-11-20): all-favourable $7.62 at 155 g/L (checked $7.39 at 180), low-lactate $49.50 at
+154, shared medium $45.04, cautious $185.59 at 103.
 
 - **No scenario benefits from a thicker culture**: oxygen from the sparger binds at 103 to 155 g/L, under 180. A limit of 180 g/L costs nothing either.
   (Before 2026-11-20 the low-lactate example ran at 191 g/L and 180 g/L cost it $0.38.)
@@ -229,7 +240,7 @@ How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the tricks (
   cells), and the measured shear thinning, which reaches 3 times.
 - The gas side is the repo's untested tricks: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 258 g/L the recycled-oxygen loop needs about 30 passes an hour in the all-favourable example; the low-lactate example's sparger cannot feed more than 154 g/L.
 - Retention is the largest risk. The ATF stopped at 1.3e8 cells/mL (phi 0.31); only the TFF has gone beyond, and only for days at 4 L.
-- Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, the reference case, `retention_devices.md` gives 75%.
+- Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, Humbird's optimistic design, `retention_devices.md` gives 75%.
 
 ## 9. What would settle it
 

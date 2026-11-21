@@ -265,7 +265,38 @@ def explore_kwargs(choice: dict) -> dict:
         kw["growth_factors"] = 0.0
     kw.update(always())
     kw.update(extra_kwargs(choice))
+    if choice.get("thin"):                 # the culture held thinner than its limits allow, so the CO2 loop passes (design())
+        vm = dict(kw.get("vm") or {})
+        vm["caps"] = {**vm.get("caps", {}), LOOP_CAP: float(choice["thin"])}
+        kw["vm"] = vm
     return kw
+
+
+# The cap a thinned design carries (vessels.LOOP_LIMIT: the same name, so the vessel grid and the scenarios report it alike)
+LOOP_CAP = "what the column can strip safely"
+THIN_STEPS = 24
+
+
+def loop_ok(r: dict) -> bool:
+    """Does a result's column loop (if any) pass its checks: pH exposure within the safe dose, passes within what dense cultures
+    have taken (vessels._loop_ok)."""
+    d = r.get("column")
+    return d is None or (d["ph_vs_safe"] <= 1.0 + 1e-9 and bool(d["passes_tested"]))
+
+
+def thinned(choice: dict, x_hi: float, **extra):
+    """The densest culture (g/L) below `x_hi` at which the choice's column loop passes its checks, by bisection (THIN_STEPS
+    halvings from 0 to x_hi, as vessels._thinned); (density, result) or None if none passes. page_scenarios.js scThinned does the
+    same steps."""
+    lo, hi, ok = 0.0, float(x_hi), None
+    for _ in range(THIN_STEPS):
+        mid = 0.5 * (lo + hi)
+        r = run({**choice, "thin": mid}, **extra)
+        if loop_ok(r):
+            lo, ok = mid, (mid, r)
+        else:
+            hi = mid
+    return ok
 
 
 # What the ten switches cannot say (2026-11-20). A choice may name, under the key "extra", a set of further explore() arguments:
@@ -333,21 +364,28 @@ class Scenario:
 _TRICK_LEVELS = ("none", "column", "pressure", "oxygen")     # each setting needs the ones before it to work
 
 
-def design(choice: dict, tricks_max: str = "oxygen") -> dict:
+def design(choice: dict, tricks_max: str = "oxygen", **extra) -> dict:
     """Fill the two tank-design switches (tricks, shape) with the cheapest pair among the settings offered
     that a loop could actually run: a pH-safe loop at a pass rate dense cultures have taken. Everything else
-    is as in `choice`. `tricks_max`: the most the tricks can do."""
+    is as in `choice`. `tricks_max`: the most the tricks can do. A pair whose loop fails at the density the limits allow is tried
+    with the culture held thinner (`thinned`); the choice then carries the density as "thin" (g/L), which explore_kwargs applies
+    as a cap. Since 2026-11-21; before, such a pair was dropped."""
     best = None
     allowed = _TRICK_LEVELS[:_TRICK_LEVELS.index(tricks_max) + 1]
+    base = {k: v for k, v in choice.items() if k != "thin"}
     for tk in SW["tricks"].settings:
         if tk.key not in allowed:
             continue
         for sh in SW["shape"].settings:
-            c = {**choice, "tricks": tk.key, "shape": sh.key}
-            r = run(c)
-            d = r["column"]
-            if d is not None and (d["ph_vs_safe"] > 1.0 + 1e-9 or not d["passes_tested"]):
-                continue
+            c = {**base, "tricks": tk.key, "shape": sh.key}
+            r = run(c, **extra)
+            if not loop_ok(r):
+                # the loop fails at the density the limits allow: run the culture thinner, at the densest density it passes,
+                # and keep that if it costs less (2026-11-21; a thinner culture needs less gas and strips less CO2 per pass)
+                t = thinned(c, r["density"], **extra)
+                if t is None:
+                    continue
+                c, r = {**c, "thin": t[0]}, t[1]
             if best is None or r["total"] < best[0] - 1e-12:
                 best = (r["total"], c)
     return best[1]
@@ -523,7 +561,23 @@ def all_favourable() -> dict:
     if best[4] != own_size:
         best = search(best[4], *every)
     cost, c, dev, dkw, size = best
-    EXTRAS[ALL_FAVOURABLE] = {"always": {**always, **dkw, **({} if size == own_size else {"vessel_m3": size})}, "when": when}
+    fav_always = {**always, **dkw, **({} if size == own_size else {"vessel_m3": size})}
+    # the levers added on 2026-11-21, off everywhere else: the CO2 column on the filter loop (it shares the loop's pump) and a
+    # second, fine-bubble sparger for oxygen. Each is taken only where it makes the case cheaper, with the tank design chosen
+    # again; the share of gas through the fine-bubble sparger is then held at the one that cost least (MICRO_GRID)
+    added = {}
+    for extra in ({"col_on_loop": True}, {"spargers": 2}):
+        trial = {**fav_always, **added, **extra}
+        EXTRAS[ALL_FAVOURABLE] = {"always": trial, "when": when}
+        c2 = design({k: v for k, v in c.items() if k not in ("tricks", "shape", "thin")})
+        r2 = run(c2)
+        if r2["total"] < cost - 1e-9:
+            if "spargers" in extra:
+                extra = {**extra, "micro_share": r2["micro_share"]}
+            added.update(extra)
+            c, cost = c2, run(c2)["total"] if "spargers" in extra else r2["total"]
+    fav_always.update(added)
+    EXTRAS[ALL_FAVOURABLE] = {"always": fav_always, "when": when}
     for r in rows:
         if r["better"] != "cost":
             continue
@@ -549,7 +603,10 @@ def _best_story() -> str:
             f"{k.get('vessel_m3', value('vm_str_m3')):g} m³, the plant is "
             + {"lean": "food-grade with shared medium", "sterile": "food-grade"}[a["choice"]["plant"]] + ", and "
             + {"dialyser": "dialyser-grade hollow fibres hold", "tff": "a hollow-fibre filter loop holds"}[a["device"]] + " the cells back. "
-            f"The culture runs at {r['density']:.0f} g/L. Everything works.")
+            f"The culture runs at {r['density']:.0f} g/L. Everything works. Its cost takes the most likely value of each estimate "
+            "the model has not measured; several of these can turn out much worse than likely but only a little better (the price "
+            "of the bubble protectant and its dose, the cells bubbles kill, the price of amino acids, the plant's cost), so most "
+            "of its draws cost more than this figure.")
 _PUBLISHED = {"cells": "measured", "growth": "43"}
 SCENARIOS = {
     # --- the ladder (2026-11-19 restructure): from what has been shown, one kind of change per step, likeliest first -------
@@ -586,7 +643,8 @@ SCENARIOS = {
         "central", "4. Plus perfusion (the low-lactate example): waste washed out through a cell filter",
         "The low-lactate example, a reference point defined by its traits: 0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, "
         "a doubling every 36 hours and 2 ng a cell (the lactate is below the 1.05 measured in meat cells). The cells, doubling every 36 hours, run in perfusion: fresh medium flows through a 20 m³ tank while a filter loop holds the cells "
-        "back, so the waste is washed out and oxygen sets the density (154 g/L, four times the batch's). Nobody has run "
+        "back, so the waste is washed out. The tank is held at 168 g/L, 4.5 times the batch's: the densest culture at which the loop "
+        "that strips its CO₂ and feeds it oxygen passes its checks on pH and passes an hour. Nobody has run "
         "animal-cell perfusion above about 4 m³. The plant is food-grade. The tank clears CO₂ without more bubbles.",
         "Every other switch is at the setting nearest the middle "
         "of what is reported. The tank design is the cheapest one that passes the checks on the CO₂ loop.",
@@ -1064,18 +1122,8 @@ def trait_grid() -> list:
 
 
 def _design_traits(choice: dict, traits: dict) -> dict:
-    """design() for a choice with its cell traits set directly."""
-    best = None
-    for tk in SW["tricks"].settings:
-        for sh in SW["shape"].settings:
-            c = {**choice, "tricks": tk.key, "shape": sh.key}
-            r = run(c, **traits)
-            d = r["column"]
-            if d is not None and (d["ph_vs_safe"] > 1.0 + 1e-9 or not d["passes_tested"]):
-                continue
-            if best is None or r["total"] < best[0] - 1e-12:
-                best = (r["total"], c)
-    return best[1]
+    """design() for a choice with its cell traits set directly (since 2026-11-21 it thins a failing loop as design() does)."""
+    return design(choice, **traits)
 
 
 def what_it_would_take() -> list:
@@ -1192,7 +1240,7 @@ def js_model() -> dict:
                for k in SCENARIOS}
     band = {k: bands(SCENARIOS[k].choice, eqs=eqs_of(k)) for k in SCENARIOS}
     return {"switches": sw, "keys": list(KEYS), "presets": presets, "order": list(PAGE_ORDER), "start": "central",
-            "medium_complete_on": value("sc_medium_complete") >= 0.5,
+            "medium_complete_on": value("sc_medium_complete") >= 0.5, "loop_cap": LOOP_CAP, "thin_steps": THIN_STEPS,
             "always": _js_params(always()),
             # the extra settings a choice may name (EXTRAS): [always, [[switch, setting, arguments], ...]] in the page's names
             "extras": {n: {"always": _js_params(e.get("always", {})),

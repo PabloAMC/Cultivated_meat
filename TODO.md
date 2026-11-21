@@ -6,7 +6,7 @@ the earlier idea list (A–T, M1–M8) is in [`research_notes/project_review.md`
 
 Last updated 2026-11-21.
 
-Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($49.50 a kilo). The all-favourable example (`scenarios.all_favourable`, $7.62) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
+Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
 
 ## 1. Open work
 
@@ -37,25 +37,35 @@ effects in RESULTS.md, "What changed on 20 and 21 November"):
 
 Still open:
 
-- [ ] **The design search never holds a culture below the density its limits allow** (`design_space.py`, `scenarios.design`): a
-      thinner culture needs less gas and kills fewer cells, and may pass a column check a dense one fails.
+- [x] **The design search never holds a culture below the density its limits allow**: done 2026-11-21 (`scenarios.thinned`,
+      `design_space.run`, the page's `scDesign`); the oxygen-feeding loop held thinner now wins every perfusion case
+      (`research_notes/two_spargers_and_loop.md` section 1).
 - [ ] **The airlift is sensitive to its shape**: with the stirred tank's mixing rule a tall column mixes a thick culture poorly
       (45 g/L in Humbird's design); its cost should be scanned over height-to-width before any conclusion about vessels.
 - [ ] **The per-tank building split is a fit** ($74.4k per m³ + $533k a tank, fitted to Humbird's two plants), not his rule; a priced
       plant with 100 m³ tanks would test it. His wild-type plants come out 14% below the engine's plant per m³.
-- [ ] **Pasitka 2024's supplementary tables** were not available: its cost lines (no payment on the plant) are read from chart legends.
+- [x] **Pasitka 2024's supplementary tables** are public and read (2026-11-21, `evidence_pasitka_supplement.md`): Tables S4 and S10
+      compute a capital charge (14.6% of the plant a year) but leave it out of the total. With it, the large-scale case is $26.99
+      (2024 dollars), $27.7 in 2025 dollars, not $21.49. It also assumes 81 g of amino acids a kilo of cells, a third of the floor's 232 g.
 - [ ] **Judgement figures** in the research notes (odds on filters, aggregates, doublings): each should be labelled as a rough
       judgement made while building the model with an AI assistant, with its reasoning, or deleted if it adds nothing checkable.
-      Several were set at the low-lactate example's earlier 191 g/L.
-- [ ] **The least-medium-flow cap applied to fed-batch**: it caps a tank that is not washed out at 92 g/L and adds $6.4 to Humbird's
-      best estimate. It is a pharma perfusion measurement; nobody has measured it for a dense fed-batch of meat cells.
-- [ ] **Humbird's perfusion design**: growth factors +62%, utilities −54%, labour −42% against his table (they partly cancel).
-- [ ] **`retention.sizing` ignores a sorbent's extra permeate** (the litres an exchanger cleans pass the filter again).
-- [ ] **The dialysis variant at twice the filter's clearance** (10 L/m²/h) rests on an unchecked figure (a haemodialyser on blood).
-- [ ] **The page**: its methodology prose quotes the elasticity at R = 2.42 as −3.0 where the model gives −3.06 (−3.1), and
+      Several were set at the low-lactate example's earlier 191 g/L. (2026-11-21: done for the three retention notes,
+      `no_perfusion_downside.md` and `cell_trait_routes.md` (its appendix of odds by 2035 deleted), and the "my judgement" lines of
+      four more notes; still to read: the odds tables of `tank_size.md` section 7, `gas_flow_cap.md`, `gas_exchange_study.md`,
+      `frontier.md` and `gf_and_doubling_bounds.md`, which are labelled but not re-checked against the current densities.)
+- [x] **The least-medium-flow cap applied to fed-batch**: done 2026-11-21. In an unwashed tank it stands for by-products, which a batch
+      may end 1.3 times above as it may ammonia and lactate; it no longer binds Humbird's design (`humbird_backtest.md` item 11).
+- [x] **Humbird's perfusion design**: done 2026-11-21 (`humbird_backtest.md` item 12). Building power by floor and class, crew partly
+      per tank, growth factors on his litres like for like: −4%, −27%, 0%. Left: 13.5 L a kilo of process water he does not itemise.
+- [x] **`retention.sizing` ignores a sorbent's extra permeate**: done 2026-11-21 (`filter_extra_l` in `retention.duty`, and the page).
+- [x] **The dialysis variant at twice the filter's clearance**: the figure checked 2026-11-21 against Fresenius's FX 80 table (278 mL/min
+      of urea at 300 mL/min of blood over 1.8 m², 9.3 L/m²/h). How it holds over weeks of fouling in a culture is still unmeasured.
+- [x] **The page** (fixed 2026-11-21): its methodology prose quoted the elasticity at R = 2.42 as −3.0 where the model gives −3.06 (−3.1), and
       `{{TRICKS_CENTRAL_ORD}}` is computed but unused (`tests/test_golden.py` fails on both until `build_interactive.py` is fixed).
 - [ ] **`taste_quality_w`'s upper end** no longer re-solves cleanly with the plant-based anchor at 0.4% (METHODS.md).
-- [ ] **Owner-attributed comments** remain in `inputs.py` and `research_notes/humbird_backtest.md`, and an old ATF ×1.84 remark.
+- [x] **Owner-attributed comments** (done 2026-11-21): `inputs.py`'s "our probability", "OUR JUDGEMENT" and named credits now read as
+      the model's rough judgement or plain dates; `humbird_backtest.md`'s ATF ×1.84 remark dated (the ATF is priced in his accounting
+      since 2026-11-20); "my judgement" in four notes relabelled. `humbird_backtest.md` had no other owner attribution.
 - [ ] **Still to decide**: whether the meat-buyers setting should be redefined against the world total.
 - [ ] **Smaller**: a sentence each in METHODS on halal and kosher status and substitution across meats; cite the two FDA memos
       (Believer, Wildtype), Negulescu's measured yields and Gu's sorbent data; the research notes still say "Central" in places, and
@@ -106,13 +116,17 @@ Decisions taken 2026-11-15 (late), on Pablo's instruction to pick the long-term 
 
 Found while doing it (not changed):
 
-- [ ] **METHODS calls CO₂ tolerance "the single measurement that would move the reference case most", but the tornado now
+- [x] (2026-11-21: the claim is corrected; above 100 mbar oxygen, not the salt rule, holds the tank at 121 g/L, and the gas flow
+      tolerated moves the design more) **METHODS calls CO₂ tolerance "the single measurement that would move the reference case most", but the tornado now
       shows 100 → 200 mbar moving it by $0.2**: the salt limit (bicarbonate uses up the osmolality lactate needs) caps the CO₂
       level the tank can run at. Either the claim or the salt rule needs a second look.
-- [ ] **The fill-and-draw rows of the plant ladder are older than `explore`**: they cost $19.4 / $17.9 where `explore` gives about
+- [x] (2026-11-21: they are `explore()` itself; `plant_floor_hi` $17.7 → $20.3, the plant knob's range $13.5-37.1) **The fill-and-draw rows of the plant ladder are older than `explore`**: they cost $19.4 / $17.9 where `explore` gives about
       $24 / $22 for the same plants, because they skip the waste and least-flow caps. `plant_floor_hi` (the cautious end of the
       default's plant range) comes from one of them.
-- [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched.
+- [ ] Side-study notes are snapshots (header at the top of each). Regenerate them when each study is next touched. (2026-11-21:
+      regenerated or given a box of current figures: `no_perfusion_downside.md`, `vessels_and_modes.md` section 4,
+      `gas_exchange_study.md`, `cheap_plant_study.md`, the three retention notes. Not done: `tank_size.md`, `thick_culture.md`,
+      `filter_flux.md`, `min_litres_per_kg.md`, `gf_and_doubling_bounds.md`, `gas_flow_cap.md`, `model_audit.md`, the demand notes.)
 - [x] Rebuilt `figures/` with LaTeX (2026-11-16); fixed five labels whose bare `$` broke the LaTeX build.
 
 - [x] "Food-grade plant with shared medium": name kept (Pablo prefers explanatory names); the switch note and RESULTS now say what it removes and that the shared medium line is the smallest saving.
@@ -133,7 +147,10 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **The nutrient floor from GFI** (2026-11-19, `nutrient_floor.md` §6): $1.70 -> $2.00 a kilo (feed-grade amino acids, 232 g/kg);
       medium settings $0.05 and $0.15 replaced by "at the nutrient floor". The all-favourable example $9.66 -> $9.96.
 - [ ] **A supplier's tonne quote for the five amino acids hydrolysate cannot supply** (glutamine, arginine, asparagine, cystine,
-      serine), and GFI's need-weighted mean price: both would firm up the floor.
+      serine). The need-weighted mean is done (`nutrient_floor.md` §7). Evidence pass 2026-11-21 (`evidence_amino_acid_prices.md`):
+      serine decides it (30% of the amino-acid cost, about 400 t a year made, no tonne quote); at today's quotes the floor would be
+      about $2.35–2.45. $6.36 is kept as the long-run price, which assumes new serine capacity. Draft request in
+      `evidence_outreach_drafts.md` (a).
 - [x] **What a cut costs** (2026-11-19, `structuring_cost.md`): 0.8 cells + $2 matrix + $2 assembly beyond mince, in place of cells + $6.
 - [ ] **How much of a cut can be cells, and whether shoppers treat a blend as cultivated meat.** Cuts sold are 10-30% cells; the model
       takes 80%. A lower share makes cuts cheaper, but the shopper model would then overstate demand. Options: tie the cut tier's
@@ -148,10 +165,13 @@ Raised by Pablo on 2026-11-16 (open):
       pinned consequence of the fit.
 - [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
       zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
-- [ ] **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
+- [x] (2026-11-21: put right in `audit.py`, plus the lactate tolerated, the bubble kill and the harvest recovery; `min_litres.py` still
+      uses Humbird's 5 mM, which is its stated reference) **`audit.py` draws lag the scenarios** (growth factors bought on top of a complete medium; the floor medium charged a price;
       `sc_nh3_limit` not drawn): as drawn the low-lactate example $34/$46/$65, put right $28/$38/$58. `min_litres.py` still uses Humbird's 5 mM.
-- [ ] **The nutrient floor's glucose** is a third glucose figure (0.32 kg a kilo, all burned); tie it to the balance (a few cents).
-- [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were.
+- [x] **The nutrient floor's glucose**: tied to the balance 2026-11-21 (0.311 kg a kilo with no lactate; −$0.004).
+- [ ] **Regional seafood rows** are still single "fillet" rows; split them as the world's were. Not done 2026-11-21: the world split
+      rests on a premium share of edible weight (16%) with no regional counterpart in `world_seafood_prices.md`; it needs each
+      region's premium share and prices. It does not touch the cost estimate.
 - [x] **The filter pair** (life set to Humbird's 2,415 L/m² on 2026-11-20; the text below is the question as it stood). Life 3,960 L/m² at the pharma price $1,450 (2018 dollars, not escalated) is the generous end if membranes
       stay at pharma prices; settled as a pair on 2026-11-18, to revisit with a supplier's quote.
 - [x] **A tank that is not perfused breaks the waste mass balance** (found and fixed 2026-11-19, scenario restructure). An unwashed
@@ -167,12 +187,19 @@ Raised by Pablo on 2026-11-16 (open):
       METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia below 0.14 mol a kilo in any meat
       cell; whether the spinner/shaker gap in Hubalek 2023 is real.
-- [ ] **Upside Foods' FDA memo**, when published: the operating mode, density and waste levels of a 20 m³ process. It would anchor
+- [ ] **Upside Foods' FDA memo**, when published (2026-11-21: its first memo is public and silent on scale; the memo for the product
+      cleared in September 2026, with 20,000+ L tanks reported in the press, is not yet on FDA's site; re-check in December 2026): the operating mode, density and waste levels of a 20 m³ process. It would anchor
       rung 1 and `pf_batch_end_x` (research_notes/vessels_and_modes.md section 11; best guess fed-batch, 75%).
-- [ ] **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
-      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if a batch plant should take the cheaper of the two draws should take the
-      cheaper of the two.
-- [ ] **Aggregates in the scenarios**: priced in `retention.scenario_cost("aggregates")`, offered by no switch.
+- [ ] (2026-11-21: still not a setting. Perfusion is the cheapest mode in every perfusion-capable rung and in the all-favourable
+      search, and the batch rungs take fed-batch as the mode reported at 20 m³ (Upside Foods); adding it would change no
+      headline. Left for a decision on whether a batch plant should take the cheaper of the two) **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
+      in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if a batch plant should take the cheaper of the two.
+      (Found 2026-11-21: with the shared-medium plant a 100 m³ fed-batch is already a little cheaper than perfusion at the modelled
+      plant cost, $43.6 against $44.5 at rung 5 and $25.6 against $27.3 at rung 6, `scenarios.plant_axis`.)
+- [ ] **Aggregates in the scenarios**: priced in `retention.scenario_cost("aggregates")`, offered by no switch. Checked 2026-11-21:
+      they would not lower the all-favourable example ($7.39 against $6.97); they would take the low-lactate example to $26.51, but
+      the biology (aggregates of 100-300 µm held for a month at 150+ g/L) has not been shown (`retention_aggregates.md`), so they
+      stay a device on the page, not a switch.
 - [ ] **SciFi Foods' bovine cell lines, open through Tufts.** GFI bought SciFi Foods' eight bovine lines at auction (August 2024) and
       released them through the Tufts open cell bank (October 2025): fibroblasts immortalised by CRISPR (p53 knockout and TERT
       insertion), adapted to suspension and grown serum-free; TU-GFI-SCL4 reportedly run in a 500 L bioreactor, SCL3 used in an FDA
@@ -183,20 +210,24 @@ Raised by Pablo on 2026-11-16 (open):
       https://cellularagriculture.tufts.edu/resources/open-cell-bank ,
       https://agfundernews.com/exclusive-open-source-moment-for-cultivated-meat-as-gfi-releases-scifi-foods-cell-lines-to-academia
       (16 Oct 2025).
-- [ ] The sections below the summary still call Humbird's optimistic design "the reference case"; rename throughout, or keep the short name.
+- [x] The sections below the summary still call Humbird's optimistic design "the reference case": renamed throughout the documents
+      and notes on 2026-11-21 (the code's identifiers and docstrings keep "reference"; `audit_2026-11-19.md` keeps it as a quoted name).
 
 From the design search (`design_space.py`):
 
 - [x] The lower dissolved-oxygen setpoint is in every scenario (`sc_do_setpoint`, 2026-11-16): the low-lactate example $29.92 → $29.42, the all-favourable example $9.71 → $9.66.
-- [ ] The design search and `scenarios.design` drop a design whose column loop fails at full density; running it thinner might pass
-      (the vessel grid now does, `vessels._thinned`).
-- [ ] Add the missing options to the search as levers: two spargers, gas exchange on the filter loop, restart from a neighbour.
+- [x] The design search and `scenarios.design` drop a design whose column loop fails at full density: done 2026-11-21 (see above).
+- [ ] Add the missing options to the search as levers: two spargers and the column on the filter loop done 2026-11-21 (levers,
+      off by default; the all-favourable search tries both); restart from a neighbour is the restart switch's 4-day setting already.
+      A gas-exchange membrane module on the loop is not priced: no membrane is both priced and rated for steaming.
 - [ ] Weight "unproven elements" by the odds in the research notes, to rank designs by expected cost.
 
 From the design-tricks survey (`bioreactor_design_tricks.md`):
 
-- [ ] **Two spargers** (a microsparger for oxygen, a drilled pipe for CO₂) as a lever: standard practice, and oxygen now binds the low-lactate example.
-- [ ] **Gas exchange on the filter loop**: cost the column or a membrane module sharing the perfusion loop's pump and piping.
+- [x] **Two spargers**: a lever since 2026-11-21 (`spargers=2`); worth little, because fine bubbles kill ten times the cells per
+      litre of gas and the oxygen-feeding loop already lifts oxygen (`two_spargers_and_loop.md`).
+- [x] **Gas exchange on the filter loop**: the column on the loop is a lever since 2026-11-21 (`col_on_loop`, $0.01-0.06 a kilo); a
+      membrane module stays unpriced (no source).
 - [ ] **A non-bicarbonate buffer or a different base**, to test whether the salt limit is real where CO₂ tolerance should help.
 
 Leads on reusing the medium (project G), from two books Pablo downloaded on 2026-11-16 (kept outside the repository: *Cellular
@@ -228,12 +259,14 @@ Agriculture*, Fraser, Kaplan, Newman and Yada eds., 2024, and *Cultivated Meat*,
 - [ ] **Dollars or ratios**: how much of the price response is in dollars and how much is a ratio to the cut's price is not pinned by
       the data; it moves the low-lactate example's share 0.3–0.7%. Find data that separates them (premium-cut elasticities against commodity ones),
       or draw `w_ratio` in the bands with a precomputed calibration grid.
-- [ ] **The all-favourable example's point cost is below most of its draws** (11% of draws come in below $7.62; middle draw $9).
-      Say so on the page next to the all-favourable example.
-- [ ] **Judgements set at the low-lactate example's 191 g/L** (2026-11-19) now stand at 154 g/L: `no_perfusion_downside.md`,
-      `cell_trait_routes.md`, the retention notes' judgement tables (see "Judgement figures" above).
-- [ ] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` still check some figures with the filter
-      loop and the protectant switched off (`floor_physics.BEFORE_FILTER_LOOP`). Recompute them, or mark those sections as history.
+- [x] **The all-favourable example's point cost is below most of its draws** (5% of draws below $6.97 since 2026-11-21): explained in
+      `model_audit.md` section 3f (priors skewed to the costly side; not a defect) and said in its story on the page.
+- [x] **Judgements set at the low-lactate example's 191 g/L** (2026-11-19): done 2026-11-21. The example now runs at 168 g/L; the
+      tables in `no_perfusion_downside.md` and the retention notes are labelled as the model's rough judgement and marked as dated
+      snapshots (each row names its own density), and `cell_trait_routes.md`'s appendix of odds by 2035 is deleted.
+- [x] **The last snapshot parts**: `tests/test_gas_exchange.py` and `tests/test_plant_items.py` (done 2026-11-21): the checks run with
+      `floor_physics.BEFORE_FILTER_LOOP` are marked as history (the notes' dated snapshots), and each test gained `_check_current`,
+      which pins the note's box of figures at the model's own settings.
 - [x] `explore` let fresh medium fall below the liquid that leaves with the harvested cells. Floor added 2026-11-16 (a medium term,
       "harvest"); no scenario moved, the airlift in perfusion went from $14.78 to $15.07.
 
@@ -262,7 +295,8 @@ Things only Pablo can do:
 
 - [ ] Find one bioprocess engineer to read RESULTS and METHODS (GFI science team, Humbird, the Unjournal workshop).
 - [ ] Check the AI Office's rules on outside activities before publishing new work.
-- [ ] Ask a supplier (BASF or a distributor) for a tonne price of poloxamer 188 (the model assumes $30/kg).
+- [ ] Ask a supplier (BASF or a distributor) for a tonne price of poloxamer 188 (the model assumes $30/kg; band $5–100 since
+      2026-11-21, `evidence_poloxamer_price.md`). Draft request in `evidence_outreach_drafts.md` (b).
 
 ## 2. Housekeeping
 

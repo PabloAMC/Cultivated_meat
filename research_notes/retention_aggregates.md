@@ -2,6 +2,14 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Second recomputation, 2026-11-21 (later the same day; `tests/test_retention.py` pins these).** The scenarios' tank designs now
+> hold the culture thinner when that lets the recycled-oxygen column pass its loop checks (`scenarios.design`): the low-lactate
+> example runs at 168 g/L ($48.68 with the filter loop), the all-favourable example at 219 g/L ($6.97). The building's power now
+> follows its floor and class. With aggregates and a gravity settler: Humbird's optimistic design $14.24, the low-lactate example
+> $26.51 (range $25.95-36.41; plates 16.0 m², 13 minutes in the settler), the all-favourable example $7.39 (held again by the
+> aggregates' 193 g/L cap; range $6.94-10.48), so aggregates still do not beat its dialyser-grade loop ($6.97). Carriers: $43.50,
+> $94.87, $24.35. A single-cell settler at the low-lactate duty needs 369 m² and 6.3 m³. The figures below are the earlier run.
+>
 > Figures recomputed 2026-11-21 on the model of 2026-11-20 (as in `retention_devices.md`): the low-lactate example's tank now holds
 > 154 g/L (was 191), so it sends less permeate and its plates are smaller; the all-favourable example is `scenarios.all_favourable()`,
 > whose cells weigh 3 ng and double in 16 hours (uptake 0.186 mmol/g/h); every cost is per kilo harvested. Statements that changed:
@@ -104,7 +112,7 @@ The largest aggregate whose middle stays at 0.026 mmol/L (`oxygen_sizes`):
 
 | Cells | At the case's own setpoint | 0.10 mmol/L | 0.21 (air) | 0.28 (Humbird's tank) |
 |---|---|---|---|---|
-| Reference (3 ng, 24 h) | 543 um at 0.28 | 295 um | 466 um | 547 um |
+| Humbird's optimistic design (3 ng, 24 h) | 543 um at 0.28 | 295 um | 466 um | 547 um |
 | Low-lactate example (2 ng, 36 h) | 307 um at 0.10 | 307 um | 485 um | 570 um |
 | All-favourable example (3 ng, 16 h) | 264 um at 0.10 | 264 um | 416 um | 489 um |
 
@@ -184,9 +192,11 @@ Each input alone at the ends of its range:
 ## 6. Judgements
 
 Each figure below is a rough judgement made while building the model with an AI assistant from the evidence in section 5; not
-measured and not reviewed by an expert. They were made when the low-lactate example ran at 191 g/L; it now runs at 154.
+measured and not reviewed by an expert. A dated snapshot: they were made when the low-lactate example ran at 191 g/L and not
+re-judged since; it ran at 154 g/L from 2026-11-20 and runs at 168 g/L since the second batch of 2026-11-21. The rows that name
+191 g/L are statements about that density, not about the example as it now runs.
 
-| Statement | Probability |
+| Statement | Probability (the model's rough judgement) |
 |---|---|
 | A meat cell line grows as 100-300 um aggregates at 80% or more of its single-cell growth rate | 45% |
 | Aggregate size is held for 33 days by in-line break-up or shear, losing under 5% of the cells | 25% |

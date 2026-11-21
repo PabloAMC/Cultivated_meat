@@ -380,8 +380,10 @@ def check_parity() -> list:
     worst_sc = 0.0
     for vals, tot, lim, ml, wsh, ush in sc.get("cases", []):
         ch = dict(zip(_S.KEYS, vals))
-        if len(vals) > len(_S.KEYS) and vals[-1]:          # the choice's extra settings (scenarios.EXTRAS), after the switches
-            ch["extra"] = vals[-1]
+        if len(vals) > len(_S.KEYS) and vals[len(_S.KEYS)]:   # the choice's extra settings (scenarios.EXTRAS), after the switches
+            ch["extra"] = vals[len(_S.KEYS)]
+        if len(vals) > len(_S.KEYS) + 1 and vals[len(_S.KEYS) + 1]:   # a thinned tank design (scenarios.design, 2026-11-21)
+            ch["thin"] = vals[len(_S.KEYS) + 1]
         r = _S.run(ch)
         shs = _S.shares(r["total"], ("global", "us"))
         worst_sc = max(worst_sc, abs(r["total"] - tot))
@@ -402,10 +404,10 @@ def check_parity() -> list:
     if [(a, b) for a, b, _g in sc.get("inter", [])] != [(x["a"], x["b"]) for x in inter] or \
             any(abs(g - x["gap"]) > 1e-6 for (_a, _b, g), x in zip(sc.get("inter", []), inter)):
         fails.append(f"interactions: python={[(x['a'], x['b'], round(x['gap'], 4)) for x in inter]} js={sc.get('inter')}")
-    for k, (tk, sh) in zip(_S.PAGE_ORDER, sc.get("design", [])):
+    for k, (tk, sh, th) in zip(_S.PAGE_ORDER, sc.get("design", [])):
         d = _S.design({**_S.SCENARIOS[k].choice, "tricks": "none", "shape": "tall"})
-        if (d["tricks"], d["shape"]) != (tk, sh):
-            fails.append(f"design {k}: python=({d['tricks']}, {d['shape']}) js=({tk}, {sh})")
+        if (d["tricks"], d["shape"]) != (tk, sh) or abs((d.get("thin") or 0.0) - (th or 0.0)) > 1e-9:
+            fails.append(f"design {k}: python=({d['tricks']}, {d['shape']}, {d.get('thin')}) js=({tk}, {sh}, {th})")
 
     # foothold rung: per-product price ratio R (the cost->R machinery shared with foothold.product_R;
     # the corner the scaffold-cost mismatch slipped through). JS emits [label, R] per product.

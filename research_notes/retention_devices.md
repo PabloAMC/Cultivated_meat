@@ -2,6 +2,18 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Current figures (2026-11-21, second batch; `python retention.py`).** After the engine fixes of the second batch (the building's
+> power by floor and class, part of the crew per tank) and the thinner designs in the design search, the scenarios run the
+> recycled-oxygen column held thinner: the low-lactate example at 168 g/L (16% cells by volume, 1.47 m³ of permeate an hour,
+> $48.68 with the TFF loop, membranes $22.71 a kilo), the all-favourable example at 219 g/L ($6.97), Humbird's optimistic design
+> at 120 g/L ($15.72). With each device, Humbird's optimistic design / the low-lactate example / the all-favourable example:
+> hoped-for device $14.59 / $26.63 / $7.14; ATF $17.32 / $66.29 / $14.59; reused pharma modules $14.22 / $30.54 / $7.76;
+> dialyser-grade fibres $13.86 / $26.28 / $6.97; ceramic $14.01 / $27.75 / $7.29; inclined settler $13.85 / $26.37 (not
+> possible) / $6.99; acoustic $14.13 / $29.20 / $7.53; disc stack $14.92 / $33.53 (20% of the cells lost) / $7.64;
+> hydrocyclone $14.19 / $35.81 / $7.62. The ATF is the dearest real device, $17.61 a kilo above the loop in the low-lactate
+> example. The body below gives the figures of the morning of 2026-11-21 (the low-lactate example at 154 g/L, $49.50); its
+> conclusions stand.
+
 > Figures recomputed 2026-11-21 on the model of 2026-11-20: lactate tolerated 35 mmol/L, cells killed by bursting bubbles, a 2%
 > harvest loss, twice the fed-batch crew in perfusion, membrane life 2,415 L/m2 in place of 3,960, medium-preparation capital,
 > utilities in four parts, plant items charged per tank, thick cultures taking up oxygen more slowly (the low-lactate example's
@@ -45,7 +57,7 @@ they would cost.
 
 | case | density | cells by volume | harvest | medium in | bleed | permeate | permeate a day |
 |---|---|---|---|---|---|---|---|
-| Reference (Humbird's optimistic design) | 120 g/L | 12% | 50.0 kg/h | 0.62 m3/h (0.93 tank volumes a day) | 0.46 m3/h | **0.16 m3/h** (3.1 L/kg) | 0.24 tank volumes |
+| Humbird's optimistic design | 120 g/L | 12% | 50.0 kg/h | 0.62 m3/h (0.93 tank volumes a day) | 0.46 m3/h | **0.16 m3/h** (3.1 L/kg) | 0.24 tank volumes |
 | Low-lactate example | 154 g/L | 15% | 41.7 kg/h | 1.62 m3/h (2.43) | 0.30 m3/h | **1.32 m3/h** (32 L/kg) | 1.98 tank volumes |
 | All-favourable example (42 m3 tank) | 155 g/L | 15% | 209 kg/h | 2.44 m3/h (1.74) | 1.46 m3/h | **0.99 m3/h** (4.7 L/kg) | 0.71 tank volumes |
 
@@ -85,7 +97,7 @@ what limits them, the oxygen inside an aggregate, the evidence and the judgement
 
 The same devices in the other two cases:
 
-| Device | Reference ($15.93 with the TFF loop; $14.79 with the hoped-for device) | All-favourable example ($7.62 with its loop of dialyser-grade fibres; $7.93 with the hoped-for device) |
+| Device | Humbird's optimistic design ($15.93 with the TFF loop; $14.79 with the hoped-for device) | All-favourable example ($7.62 with its loop of dialyser-grade fibres; $7.93 with the hoped-for device) |
 |---|---|---|
 | ATF | $17.53 (3 units) | $12.72 (18 units) |
 | TFF (the model's default) | $15.93 | $7.62 |
@@ -113,7 +125,7 @@ The same devices in the other two cases:
 - **Membranes of lost runs** (since the 2026-11-19 audit; ATF, TFF, reused modules and dialysers). A run lost to contamination
   throws its membranes away before they have filtered the litres they were bought for. `explore()` and `retention.sizing` multiply
   the membrane's life by the share of a planned run an average start completes: 85% in the low-lactate example (1% of runs lost a
-  day, 33-day runs), 100% in the reference case and the all-favourable example, which lose no runs. So the low-lactate example pays
+  day, 33-day runs), 100% in Humbird's optimistic design and the all-favourable example, which lose no runs. So the low-lactate example pays
   $0.70 per litre of permeate, $22.28 per kg of its $49.50. That is three and a half times the $0.20 a litre it pays for medium.
   The ATF filter pays the same membranes as the TFF loop, so its extra cost is its hardware: $17.10 a kilo in the low-lactate
   example. Ceramic elements are cleaned in place and kept, so a lost run does not shorten their life.
@@ -139,7 +151,7 @@ The same devices in the other two cases:
 Each figure below is a rough judgement made while building the model with an AI assistant from the two research passes; not
 measured and not reviewed by an expert. The reasoning for each is in the source files named at the top.
 
-| Statement | Probability |
+| Statement | Probability (the model's rough judgement) |
 |---|---|
 | ATF or TFF holds 120 g/L at 20 m3 for a month at the reference duty, module swaps allowed | 75% |
 | The reference duty is met at $89k per m3 or less and $2 a kg of membranes or less | 45% |
@@ -153,12 +165,13 @@ measured and not reviewed by an expert. The reasoning for each is in the source 
 | A sterile hermetic separator runs closed for 33 days without contamination or seal failure | 55% |
 | A $89k per m3 device that loses no cells is right for the low-lactate example | 20% |
 
-These were judged when the low-lactate example ran at 258 g/L. Its tank now holds 154 g/L (15% cells by volume), so the rows
-that name 258 g/L describe a denser culture than either example now runs.
+A dated snapshot: these were judged when the low-lactate example ran at 258 g/L, and not re-judged since. Its tank held 154 g/L
+from 2026-11-20 and holds 168 g/L (16% cells by volume) since the second batch of 2026-11-21, so the rows that name 258 g/L
+describe a denser culture than the example now runs. Each row names its own density and duty, so it stays a checkable statement.
 
 ## 6. What this means for the model
 
-1. **The reference case is safe.** Several devices meet its light duty. With any of them the reference case costs $14.06 to
+1. **Humbird's optimistic design is safe.** Several devices meet its light duty. With any of them Humbird's optimistic design costs $14.06 to
    $17.53, against $15.93 with the default loop.
 2. **The low-lactate example is not.** Its 154 g/L and 39 litres of medium a kilo ask a device to clear 1.32 m3 an hour of
    permeate from a culture that is 15% cells. The real devices shown at that density cost $34.34 (disc stack) to $66.60 (ATF) a

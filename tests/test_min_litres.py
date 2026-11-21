@@ -29,11 +29,16 @@ from inputs import REGISTRY, value
 # that. The all-favourable example is now scenarios.all_favourable() (16 h doubling, 3 ng cells, Humbird's 5 mmol/L of ammonia and
 # 50 of lactate, 155 g/L, $7.62): the culture that leaves with its cells (6.96 L per kilo harvested) is above its feed, flow and
 # physical bounds, so those three rows are the same run. The low-lactate example's bounds per kilo grown did not move.
+# 2026-11-21: both examples now run the recycled-oxygen column held thinner so its loop passes (all-favourable 219 g/L, low-lactate
+# 168 g/L), so less culture leaves with the cells (all-favourable 4.6 L a kilo, against 6.5 at 155 g/L) and its bounds separate
+# again; the building's power by floor and class and the floor's glucose lower every cost. Before: best bath (23.9996, 9.139),
+# physical/practical/measured_flow (6.9638, 7.010), no_waste (8.6569, 7.232); central bath (27.8846, 38.552), physical (7.2215,
+# 17.934), practical/measured_flow/no_waste_low_flow (8.8815, 19.545), no_waste (18.0031, 28.731).
 GOLDEN = {
-    "best": {"bath": (23.9996, 9.139), "physical": (6.9638, 7.010), "practical": (6.9638, 7.010), "measured_flow": (6.9638, 7.010),
-             "no_waste": (8.6569, 7.232), "no_waste_low_flow": (8.6569, 7.232)},
-    "central": {"bath": (27.8846, 38.552), "physical": (7.2215, 17.934), "practical": (8.8815, 19.545),
-                "measured_flow": (8.8815, 19.545), "no_waste": (18.0031, 28.731), "no_waste_low_flow": (8.8815, 19.545)},
+    "best": {"bath": (24.5721, 8.471), "physical": (6.1157, 6.209), "practical": (6.1157, 6.209), "measured_flow": (5.1236, 6.078),
+             "no_waste": (8.9758, 6.576), "no_waste_low_flow": (8.9758, 6.576)},
+    "central": {"bath": (27.4844, 37.353), "physical": (6.9949, 16.903), "practical": (8.8815, 18.781),
+                "measured_flow": (8.8815, 18.781), "no_waste": (18.0031, 27.945), "no_waste_low_flow": (8.8815, 18.781)},
 }
 # What sets each scenario's litres. 2026-11-20 (first batch): lactate for the all-favourable example, at 35 mmol/L. 2026-11-20 (final
 # pass): ammonia again. The case now tolerates Humbird's 50 mmol/L of lactate and 5 of ammonia: its 0.054 mol of ammonia a kilo needs

@@ -35,19 +35,19 @@ litre thrown away.
 | the least flow the cells need for everything else | 18.0 |
 | lactate, within the salt limit | 34.1 |
 | the nutrients, as a concentrate | 8.9 |
-| leaves with the cells, unfiltered | 7.2 |
+| leaves with the cells, unfiltered | 6.6 |
 
 | route | fresh medium, L/kg | cleaned and returned, L/kg | through the cell filter, L/kg | cells, $/kg | saves | pays if the device costs under |
 |---|---|---|---|---|---|---|
-| No reuse | 38.8 | 0 | 31.6 | **$49.50** | | |
-| An ammonium exchanger on the permeate, taking 12% of the ammonia | 34.2 | 4.7 | 31.6 | **$48.70** | $0.80 | (priced by its sorbent: 0.15 mol/kg at $5/kg, used once) |
-| Electrodialysis of the permeate | 18.0 | 23.1 | 33.9 | **$46.03** | $3.47 | $0.22 a litre |
-| Dialysis of the permeate, dialysate thrown away | 36.4 | 2.7 | 31.9 | **$49.40** | $0.10 | $0.09 a litre |
-| Dialysis of the permeate, dialysate cleaned and reused | 8.9 | 33.2 | 34.9 | **$47.25** | $2.25 | $0.20 a litre |
-| Dialysis across the culture, dialysate cleaned and reused; the exchange membrane costs what the cell filter does | 8.9 | 33.2 | 1.7 | **$45.59** | $3.91 | $0.20 a litre |
-| The same; the exchange membrane clears 10 L/m²/h, twice what the filter passes | 8.9 | 33.3 | 1.7 | **$33.71** | $15.78 | $0.56 a litre |
-| *A perfect, free device on the permeate* | 8.9 | 29.9 | 31.6 | *$40.93* | *$8.57* | |
-| *A perfect, free device across the culture* | 8.9 | 30.0 | 1.7 | *$19.54* | *$29.96* | |
+| No reuse | 38.8 | 0 | 32.2 | **$48.68** | | |
+| An ammonium exchanger on the permeate, taking 12% of the ammonia | 34.2 | 4.7 | 32.2 | **$47.89** | $0.79 | (priced by its sorbent: 0.15 mol/kg at $5/kg, used once) |
+| Electrodialysis of the permeate | 18.0 | 23.1 | 34.5 | **$45.24** | $3.44 | $0.21 a litre |
+| Dialysis of the permeate, dialysate thrown away | 36.3 | 2.8 | 32.5 | **$48.59** | $0.09 | $0.08 a litre |
+| Dialysis of the permeate, dialysate cleaned and reused | 8.9 | 33.2 | 35.5 | **$46.49** | $2.20 | $0.20 a litre |
+| Dialysis across the culture, dialysate cleaned and reused; the exchange membrane costs what the cell filter does | 8.9 | 33.2 | 2.3 | **$44.83** | $3.86 | $0.20 a litre |
+| The same; the exchange membrane clears 10 L/m²/h, twice what the filter passes | 8.9 | 33.3 | 2.3 | **$32.95** | $15.73 | $0.56 a litre |
+| *A perfect, free device on the permeate* | 8.9 | 29.9 | 32.2 | *$40.17* | *$8.52* | |
+| *A perfect, free device across the culture* | 8.9 | 30.0 | 2.3 | *$18.77* | *$29.91* | |
 
 "Pays if the device costs under" is the cost per litre cleaned at which the route saves nothing. Litres are per kilo of cells harvested.
 
@@ -55,14 +55,14 @@ litre thrown away.
   (34.1 L/kg; the exchanger pays best taking 12% of the ammonia, at 34.2), and its sorbent holds little in salty medium
   (`waste_tricks_sizing.md`). Before 2026-11-20 it saved $1.7 taking 38%: lactate, then tolerated to 50 mmol/L, asked for only
   21.5 litres.
-- **Electrodialysis of the permeate** saves $3.5, to $46.03. It takes ammonium and lactate, so the litres fall to the
+- **Electrodialysis of the permeate** saves $3.4, to $45.24. It takes ammonium and lactate, so the litres fall to the
   least flow the cells need for everything else (18 L/kg), which it does not relieve.
 - **Dialysis of the permeate** saves $0.1 if the dialysate is thrown away (it uses 2.1 litres of basal medium to clean one),
   and $2.2 if the dialysate is itself cleaned and reused, as two patents claim.
 - **Dialysis across the culture** saves $3.9 if its exchange membrane costs what the cell filter does, litre for litre, and
-  $15.8 (to $33.71) if it clears twice the litres per m², as a haemodialyser does on blood.
+  $15.7 (to $32.95) if it clears twice the litres per m², as a haemodialyser does on blood.
 - **The order.** At the filter's cost, dialysis across the culture does a little better than electrodialysis of the permeate
-  ($45.59 against $46.03), and dialysis of the permeate with a cleaned dialysate beats the exchanger ($47.25 against $48.70).
+  ($44.83 against $45.24), and dialysis of the permeate with a cleaned dialysate beats the exchanger ($46.49 against $47.89).
   Before 2026-11-20 both were the other way round ($30.46 against $29.92; $31.74 against $31.06). Two changes did it. Lactate,
   tolerated to 35 mmol/L, not 50, now asks for 34 of the 39 litres, so a route that takes ammonia alone can cut only 5 litres,
   and electrodialysis, which stops at the least flow of 18, cuts 21; the two dialysis routes take the other by-products too and
@@ -78,9 +78,9 @@ litre thrown away.
 
 | scenario | no reuse | exchanger on the permeate | electrodialysis of the permeate | dialysis of the permeate, dialysate reused | dialysis across the culture, at the filter's cost | the same, at twice the filter's clearance | perfect and free, on the permeate | perfect and free, across the culture |
 |---|---|---|---|---|---|---|---|---|
-| Cautious: the best meat cells measured so far, in perfusion | **$185.59** | $185.59 | $139.47 | $157.87 | $150.33 | $96.45 | $128.30 | $31.30 |
-| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$49.50** | $48.70 | $46.03 | $47.25 | $45.59 | $33.71 | $40.93 | $19.54 |
-| 7. Plus everything else at its favourable end (the all-favourable example) | **$7.62** | $7.62 | $7.35 | $7.62 | $7.56 | $7.53 | $7.28 | $7.23 |
+| Cautious: the best meat cells measured so far, in perfusion | **$181.13** | $181.13 | $135.54 | $153.43 | $145.79 | $91.18 | $123.46 | $25.13 |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$48.68** | $47.89 | $45.24 | $46.49 | $44.83 | $32.95 | $40.17 | $18.77 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | **$6.97** | $6.97 | $6.70 | $6.97 | $6.91 | $6.89 | $6.63 | $6.58 |
 
 **The published cells.** (They are priced in perfusion as the cautious scenario: $185.59 with no reuse, at 103 g/L. Rung 1
 of the ladder is a batch, which has no permeate to clean.) At a lactate yield of 1.05 they make 4.8 mol of lactate a kilo. With
@@ -108,14 +108,14 @@ Each row sets one input to the ends of its range and gives the saving in the low
 
 | input | low | high | electrodialysis of the permeate saves | dialysis across the culture, at twice the filter's clearance, saves |
 |---|---|---|---|---|
-| electrodialysis, $ per litre treated (`mr_ed_cost_l`) | 0.005 | 0.1 | $3.81 to $1.62 | $16.83 to $10.19 |
-| growth factors that survive a pass (`mr_gf_kept`) | 0.5 | 1 | $2.19 to $3.79 | $13.94 to $16.24 |
-| ammonium electrodialysis takes in a pass (`mr_ed_nh3`) | 0.5 | 0.95 | nothing to $4.38 | $15.78 to $15.78 |
-| waste dialysis takes in a pass (`mr_dial_removal`) | 0.7 | 0.95 | $3.47 to $3.47 | $11.74 to $16.53 |
-| dialysate replaced per pass (`mr_dialysate_makeup`) | 0.05 | 0.5 | $3.47 to $3.47 | $16.00 to $14.05 |
-| exchange membrane clearance, L/m²/h (`mr_exchange_clearance`) | 5 | 15 | $3.47 to $3.47 | $3.91 to $19.75 |
-| litres a m² of cell filter lasts (`rt_membrane_life`) | 900 | 5500 | $0.73 to $4.38 | $31.56 to $10.53 |
-| least medium flow, mL per g a day (`pf_min_perfusion`) | 3.7 | 18.5 | $5.07 to nothing | $15.78 to $18.99 |
+| electrodialysis, $ per litre treated (`mr_ed_cost_l`) | 0.005 | 0.1 | $3.78 to $1.59 | $16.78 to $10.14 |
+| growth factors that survive a pass (`mr_gf_kept`) | 0.5 | 1 | $2.16 to $3.76 | $13.89 to $16.19 |
+| ammonium electrodialysis takes in a pass (`mr_ed_nh3`) | 0.5 | 0.95 | nothing to $4.35 | $15.73 to $15.73 |
+| waste dialysis takes in a pass (`mr_dial_removal`) | 0.7 | 0.95 | $3.44 to $3.44 | $11.69 to $16.47 |
+| dialysate replaced per pass (`mr_dialysate_makeup`) | 0.05 | 0.5 | $3.44 to $3.44 | $15.95 to $14.00 |
+| exchange membrane clearance, L/m²/h (`mr_exchange_clearance`) | 5 | 15 | $3.44 to $3.44 | $3.86 to $19.69 |
+| litres a m² of cell filter lasts (`rt_membrane_life`) | 900 | 5500 | $0.70 to $4.35 | $31.51 to $10.47 |
+| least medium flow, mL per g a day (`pf_min_perfusion`) | 3.7 | 18.5 | $5.02 to nothing | $15.73 to $18.93 |
 
 - Electrodialysis stops paying if it takes only half the ammonium in a pass (section 1), or if the least medium flow is at the
   top of its range, where ammonia no longer sets the litres.
@@ -209,6 +209,12 @@ nothing.
    by-products nobody measures.
 4. **What the least medium flow is made of.** It is 18 of the low-lactate example's 39 litres. If it is nutrients, a concentrate lowers it; if it is
    small by-products, dialysis does; if it is larger than 500 Da, nothing here does.
+
+*Evidence pass 2026-11-21* ([evidence_medium_cleaning.md](evidence_medium_cleaning.md)): ammonia removal has been shown at
+bench scale, none with a cost. Haraguchi 2021: the alga *C. littorale* took up 80% of the ammonia in 7 days. Thyden 2024:
+*C. sorokiniana* removed all of it at 37 °C, and QM7 cells grew at 81% of the rate on fresh medium. Pakbin 2025: air stripping
+at pH 12 removed 82%. An ion-concentration-polarisation device (2025) reused 75% of a CHO medium. Schneider 1994/1997: a
+gas-permeable membrane cut ammonia by about half. Nir 2023 remains unlocated. No input changes.
 
 ## 10. Not found
 

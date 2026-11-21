@@ -11,7 +11,8 @@ culture does. Two passes, cheapest first:
    so it says which limits deserve design work before any design is drawn.
 2. `designs(key)`: every combination of the tank options the model already has (OPTIONS: the column, headspace pressure,
    tank shape, fat in the feed, a bubble cage), run through `floor_physics.explore`, kept only
-   if a column loop passes its pH and pass-rate checks. Each design is scored by cost and by how many of its elements nobody
+   if a column loop passes its pH and pass-rate checks; a design whose loop fails at full density is run thinner, at the densest
+   culture its loop passes (2026-11-21). Each design is scored by cost and by how many of its elements nobody
    has run with animal cells. `frontier(key)` is the cheapest design for each number of unproven elements.
 
 `ideal(key)` is the scenario in the ordinary tall tank with every gas and mixing limit lifted for free: a lower bound on what
@@ -108,10 +109,17 @@ def run(key: str, design: dict) -> dict:
     """One design: explore()'s result plus `ok` (a column loop passes its checks) and `unproven` (elements never run)."""
     k = (key, tuple(design[d] for d in KEYS))
     if k not in _CACHE:
-        r = fp.explore(**design_kwargs(key, design))
+        kw = design_kwargs(key, design)
+        r, thin = fp.explore(**kw), False
+        if not V._loop_ok(r):
+            # the loop fails at the density the limits allow: the same design with the culture held thinner, at the densest
+            # density its loop passes (vessels._thinned; 2026-11-21, before which such a design was dropped)
+            rt = V._thinned(kw, r["density"])
+            if rt is not None:
+                r, thin = rt, True
         _CACHE[k] = {"design": dict(design), "cost": r["total"], "density": r["density"], "limit": r["limit"],
                      "ok": V._loop_ok(r), "unproven": sum(_option(d, design[d])[3] for d in KEYS),
-                     "medium_l": r["medium_l"]}
+                     "medium_l": r["medium_l"], "thin": thin}
     return _CACHE[k]
 
 
@@ -152,6 +160,11 @@ def describe(design: dict) -> str:
     """A design in words: only the options that differ from the ordinary tank."""
     parts = [_option(d, design[d])[1] for d in KEYS if design[d] != OPTIONS[d][0][0]]
     return S.plain_list(parts) if parts else "the ordinary tall tank, no tricks"
+
+
+def describe_run(d: dict) -> str:
+    """A design as `describe` says it, and whether its culture is held thinner than its limits allow so its loop passes."""
+    return describe(d["design"]) + (", the culture run thinner so the loop passes" if d.get("thin") else "")
 
 
 # ----------------------------------------------------------------------------
@@ -200,7 +213,8 @@ def summary(key: str) -> dict:
 
 
 # ----------------------------------------------------------------------------
-LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "thickness of the culture": "thickness"}
+LIM = {"CO2 removal": "CO₂", "oxygen supply": "oxygen", "mixing": "mixing", "thickness of the culture": "thickness",
+       V.LOOP_LIMIT: "the loop's checks"}
 # The cases searched: the scenarios run in perfusion. A batch (fed-batch) is held by its waste, not by gas exchange, so the tank's
 # gas design does not move it (2026-11-19 restructure: rungs 1-3 and the forecast's preset are fed-batch; the published cells in
 # perfusion are the cautious scenario, whose switches are the old rung 1's, so its search gives the old rung 1's figures).
@@ -210,7 +224,7 @@ SHORT = {"cautious": "Published cells, in perfusion", "today": "1. Published cel
 
 
 def markdown() -> str:
-    cell = lambda d: f"${d['cost']:.2f} ({d['density']:.0f} g/L, {LIM[d['limit']]}; {d['unproven']} unproven)"
+    cell = lambda d: f"${d['cost']:.2f} ({d['density']:.0f} g/L, {LIM.get(d['limit'], d['limit'])}; {d['unproven']} unproven{', run thinner' if d.get('thin') else ''})"
     out = ["| case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | "
            "perfect gas exchange |", "|---|---|---|---|---|---|"]
     for k in CASES:
@@ -223,7 +237,7 @@ def markdown() -> str:
             out += ["", f"| {SHORT[k]}, {lab}: unproven elements | cheapest design that passes the checks | cost | density, limit |",
                     "|---|---|---|---|"]
             for d in frontier(k, cage):
-                out.append(f"| {d['unproven']} | {describe(d['design'])} | ${d['cost']:.2f} | {d['density']:.0f} g/L, {LIM[d['limit']]} |")
+                out.append(f"| {d['unproven']} | {describe_run(d)} | ${d['cost']:.2f} | {d['density']:.0f} g/L, {LIM.get(d['limit'], d['limit'])} |")
     for k in ("cautious", "central", "best"):
         out += ["", f"| {SHORT[k]}: if this were free | cost | change | density, what then binds |", "|---|---|---|---|"]
         for lab, cost, d, x, lim in limit_prices(k):
@@ -242,7 +256,7 @@ def main() -> None:
               f"design ${s['scenario']:.2f}, perfect gas exchange ${s['ideal']['cost']:.2f}")
         for lab, fr in (("no cage", s["frontier_no_cage"]), ("with a cage", s["frontier"])):
             for d in fr:
-                print(f"   {lab:<11} {d['unproven']} unproven: ${d['cost']:6.2f}  {d['density']:.0f} g/L ({d['limit']})  {describe(d['design'])}")
+                print(f"   {lab:<11} {d['unproven']} unproven: ${d['cost']:6.2f}  {d['density']:.0f} g/L ({d['limit']})  {describe_run(d)}")
         for lab, cost, d, x, lim in limit_prices(k):
             print(f"      {lab:<62} ${cost:6.2f} ({d:+.2f})  {x:.0f} g/L, {lim}")
 

@@ -272,10 +272,10 @@ if (!TP_IN) js += `
   const scChoices = SC.order.map(k => SC.presets[k].choice);
   for (let i = 0; i < 12; i++) { const ch = {}; SC.switches.forEach((sw, j) => { ch[sw.key] = sw.settings[(i * 7 + j * 3 + (i >> 1)) % sw.settings.length].key; }); scChoices.push(ch); }
   const scCases = scChoices.map(ch => { const r = scEval(ch);
-    return [SC.keys.map(k => ch[k]).concat([ch.extra || null]), r.total, r.limit, r.medium_l, scShare(r.total, "global"), scShare(r.total, "us")]; });
+    return [SC.keys.map(k => ch[k]).concat([ch.extra || null, ch.thin || null]), r.total, r.limit, r.medium_l, scShare(r.total, "global"), scShare(r.total, "us")]; });
   const scPri = scPriorities(SC.presets.central.choice, true).map(r => [r.switch, r.best, r.worst, r.d_best, r.d_worst, r.share_best, r.share_worst]);
   const scInt = scInteractions(SC.presets.central.choice, 6, 0.25).map(x => [x.a, x.b, x.gap]);
-  const scDes = SC.order.map(k => { const d = scDesign(Object.assign({}, SC.presets[k].choice, { tricks: "none", shape: "tall" })); return [d.tricks, d.shape]; });
+  const scDes = SC.order.map(k => { const d = scDesign(Object.assign({}, SC.presets[k].choice, { tricks: "none", shape: "tall" })); return [d.tricks, d.shape, d.thin || null]; });
   // vessel types against operating modes (page_vessels.js): the reference case, the central scenario, two other presets
   const vmBases = [{ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: C.fx.charge_mature }]
     .concat(["central", "best", "cautious"].map(k => scParams(SC.presets[k].choice)));

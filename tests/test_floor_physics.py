@@ -76,10 +76,14 @@ def check() -> list:
     # designs and the fill-and-draw tiers are plant_cost() and do not move)
     # 2026-11-20, third pass: what each tank brings with it is charged per tank (floor_physics.tank_items: a 20 m3 perfusion
     # tank against the 20 m3 fed-batch reference), and plant_floor follows: no clean rooms, perfusion 18.76 -> 18.63
+    # 2026-11-21: the three fill-and-draw tiers are explore() itself (they were plant_cost(), which skipped the waste build-up, the
+    # least medium flow, bubble deaths and the harvest loss): half density 35.91 -> 39.77, fill-and-draw 19.71 -> 22.54, without
+    # clean rooms 18.19 -> 20.47; the building's power follows its floor and class: perfusion 18.63 -> 18.42, microbial-class
+    # 11.75 -> 11.48
     want = {"Humbird fed-batch, as designed": 24.9, "Humbird perfusion, as designed": 45.78,
-            "Same fed-batch plant, small slow cells": 48.7, "Pharma-style plant, half the density": 35.91,
-            "Pharma-style plant, fill-and-draw": 19.71, "No clean rooms, fill-and-draw": 18.19,
-            "No clean rooms, perfusion": 18.63, "Microbial-fermentation-class plant": 11.75, "Rough lower bound": 3.08}
+            "Same fed-batch plant, small slow cells": 48.7, "Pharma-style plant, half the density": 39.77,
+            "Pharma-style plant, fill-and-draw": 22.54, "No clean rooms, fill-and-draw": 20.47,
+            "No clean rooms, perfusion": 18.42, "Microbial-fermentation-class plant": 11.48, "Rough lower bound": 3.08}
     got = {r["name"]: r["total"] for r in fp.tiers()}
     for name, w in want.items():
         if abs(got[name] - w) > 0.06:
@@ -107,7 +111,7 @@ def check() -> list:
     near("explore() = the floor tier", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-9)
     near("explore(plant='microbial') = the frontier tier", fp.explore(plant="microbial")["total"],
          by["Microbial-fermentation-class plant"]["total_mature"], 1e-9)
-    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 15.929, 1e-3)   # 12.81 before the 2026-11-20 batch; 16.025 before tank_items (third pass)
+    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 15.721, 1e-3)   # 12.81 before the 2026-11-20 batch; 16.025 before tank_items (third pass); 15.929 before the building's power followed its floor and class (2026-11-21)
     for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
         if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):
@@ -211,10 +215,13 @@ def check() -> list:
     sm = bt[("Chicken, 10 L perfusion (SuperMeat 2024)", "medium, L per kg of cells")]
     if not (1.2 < sm[2] / sm[3] < 1.7):
         fails.append(f"back-test: SuperMeat medium ratio moved ({sm[2] / sm[3]:.2f})")
-    # drained-and-refilled tanks: the least medium flow caps the density; growth factors scale with medium
+    # drained-and-refilled tanks: the waste they hold caps the density; growth factors scale with medium. 2026-11-21: the least
+    # medium flow's cap is now times pf_batch_end_x, as the other wastes' are (92 -> 120 g/L), so ammonia and lactate set it at
+    # 116 g/L (the check was "the medium-flow cap near 92 g/L")
     fd = fp.explore(mode="filldraw")
-    if not (fd["limit"] == "other by-products" and 85 < fd["density"] < 100):
-        fails.append(f"fill-and-draw: expected the medium-flow cap near 92 g/L, got {fd['density']:.0f} ({fd['limit']})")
+    if not (fd["limit"] == "waste build-up" and 110 < fd["density"] < 120
+            and abs(fd["limits"]["other by-products"] - value("pf_batch_end_x") * 1000.0 * 0.693 / value("pf_min_perfusion")) < 1.0):
+        fails.append(f"fill-and-draw: expected the waste cap near 116 g/L and the least-flow cap at 1.3 x 92, got {fd['density']:.0f} ({fd['limit']})")
     if not fp.explore(growth_factors=True, waste=0.1)["growth_factors"] > 2 * fp.explore(growth_factors=True)["growth_factors"]:
         fails.append("growth factors should scale with the litres of medium")
     # cost and demand together: the median share is well below the point floor share

@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 
 def check() -> list:
-    """The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
+    """HISTORY (the pins in `_check`). The study's note quotes figures computed with the model as it was on 2026-11-14: the old hoped-for retention device
     (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
     run with those settings (floor_physics.BEFORE_FILTER_LOOP). Repinned 2026-11-19 for the $2.00 nutrient floor: +$0.30 where the
     floor binds, less where $0.15 a litre of medium already covered part of it (2 mm/s cells, fish cells).
@@ -53,8 +53,45 @@ def check() -> list:
     oxygen limit with a 1 m/s gas velocity, which explore would otherwise charge as bubbles)."""
     import retention
     import floor_physics
+    # HISTORY: every pin in _check is the note's dated snapshot on its own 2026-11-14 settings (BEFORE_FILTER_LOOP), not a figure
+    # of the model. The model's own figures are pinned in _check_current (2026-11-21).
     with retention._with(floor_physics.BEFORE_FILTER_LOOP):
-        return _check()
+        fails = _check()
+    return fails + _check_current()
+
+
+def _check_current() -> list:
+    """The note's box "At the model's own settings (2026-11-21)": the same figures with the filter loop, the protectant, antifoam
+    and bought oxygen on, after the second batch of engine fixes of 2026-11-21. RESULTS.md section 1 quotes them too."""
+    import floor_physics as fp
+    import gas_exchange as ge
+    fails = []
+    got = {"floor": fp.explore()["total"], "12.5 mm/s": fp.explore(gas_velocity=0.0125)["total"]}
+    for cap in (0.001, 0.002, 0.006):
+        got[f"cheapest tricks at {cap * 1000:.0f} mm/s"] = ge.cheapest_tricks(cap)["total"]
+    for cap in (0.001, 0.002, 0.004, 0.006):
+        got[f"cheapest within the checks at {cap * 1000:.0f} mm/s"] = ge.cheapest_tricks(cap, ph_safe=True, tested=True)["total"]
+    rows = ge.cases_table("sanitary", 0.0) + ge.cases_table("sanitary", 0.0, genetic=False)[:4]
+    for i, label in ((4, "best meat cells, sparger"), (5, "best meat cells, fat fed"), (7, "best meat cells, every trick"),
+                     (8, "ordinary cells, sparger"), (11, "ordinary cells, every trick"), (12, "low-waste feed, sparger"),
+                     (15, "low-waste feed, every trick")):
+        got[label] = rows[i][2]
+    want = {"floor": 15.72, "12.5 mm/s": 15.76, "cheapest tricks at 1 mm/s": 13.41, "cheapest tricks at 2 mm/s": 13.49,
+            "cheapest tricks at 6 mm/s": 13.92, "cheapest within the checks at 1 mm/s": 27.49,
+            "cheapest within the checks at 2 mm/s": 17.22, "cheapest within the checks at 4 mm/s": 14.92,
+            "cheapest within the checks at 6 mm/s": 14.49, "best meat cells, sparger": 105.03, "best meat cells, fat fed": 73.20,
+            "best meat cells, every trick": 100.55, "ordinary cells, sparger": 141.91, "ordinary cells, every trick": 138.77,
+            "low-waste feed, sparger": 32.05, "low-waste feed, every trick": 30.01}
+    for k, w in want.items():
+        if abs(got[k] - w) > 0.006:
+            fails.append(f"current figures, {k}: want ${w:.2f} got ${got[k]:.2f}")
+    here = os.path.dirname(os.path.abspath(__file__))
+    note = open(os.path.join(os.path.dirname(here), "research_notes", "gas_exchange_study.md"), encoding="utf-8").read()
+    box = note.split("> **At the model's own settings (2026-11-21).**")[1].split("> **Conclusions that changed in kind**")[0]
+    for w in want.values():
+        if f"${w:.2f}" not in box:
+            fails.append(f"gas_exchange_study.md's box at the model's own settings does not quote ${w:.2f}")
+    return fails
 
 
 def _check() -> list:
@@ -191,7 +228,7 @@ def _check() -> list:
              ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 10.30, "mixing"),
              ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 8.51,
               "thickness of the culture"),
-             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 6.23,
+             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 6.10,   # 6.23 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)
               "thickness of the culture"))
     for name, kw, want, lim in cases:
         r = ge.floor_with_column(p_out=20.0, **kw)
@@ -219,7 +256,8 @@ def _check() -> list:
 
     # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
     r0 = fp.explore()
-    near("explore: default floor", r0["total"], 14.052, 0.001)            # 11.78 before 2026-11-20; 14.148 before the final model
+    # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 14.052 -> 13.843
+    near("explore: default floor", r0["total"], 13.843, 0.001)            # 11.78 before 2026-11-20; 14.148 before the final model
     # the litres per kilo grown are what they were (11.16); explore reports them per kilo harvested (12.38)
     near("explore: default medium, per kilo grown, unchanged", r0["medium_l"] * r0["harvested_share"], 11.16, 1e-6)
     near("explore: default medium, per kilo harvested", r0["medium_l"], 12.379, 1e-4)
@@ -257,15 +295,8 @@ def _check() -> list:
     # they double in 43 hours, so the same bubbles kill 14% of them, and every litre of their 90 is passed for cells that die.
     # Final model (2026-11-20, later): the column case of the floor's cell 10.468 -> 11.982 (oxygen now binds at 153 g/L,
     # viscous_kla); the rest moved by under 1% with the day's engine fixes.
-    pins = [("sanitary", 0.0, True, 0, 0, 14.052), ("sanitary", 0.0, True, 0, 1, 12.076), ("sanitary", 0.0, True, 0, 2, 11.982),
-            ("sanitary", 0.0, True, 0, 3, 8.723), ("sanitary", 0.0, True, 1, 0, 39.35), ("sanitary", 0.0, True, 1, 3, 32.79),
-            ("sanitary", 0.0, True, 1, 1, 28.90),
-            ("sanitary", 0.0, True, 2, 0, 43.96), ("sanitary", 0.0, True, 2, 3, 37.50), ("sanitary", 0.002, True, 0, 0, 14.32),
-            ("sanitary", 0.002, True, 0, 3, 8.860), ("microbial", 0.0, True, 0, 0, 8.742), ("microbial", 0.0, True, 0, 3, 6.254),
-            ("microbial", 0.0, True, 1, 3, 28.05), ("microbial", 0.006, True, 0, 3, 6.476), ("microbial", 0.022, True, 0, 0, 10.278),
-            ("microbial", 0.022, True, 0, 3, 7.090), ("microbial", 0.022, True, 1, 3, 30.93),
-            ("sanitary", 0.0, False, 0, 0, 17.89), ("sanitary", 0.0, False, 0, 3, 12.318), ("sanitary", 0.002, False, 0, 3, 12.469),
-            ("microbial", 0.0, False, 0, 3, 9.849), ("microbial", 0.022, False, 0, 3, 10.837)]
+    # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): every pin below moved by 1-3% (before: the list as it stood on 2026-11-20, final model)
+    pins = [('sanitary', 0.0, True, 0, 0, 13.843), ('sanitary', 0.0, True, 0, 1, 11.908), ('sanitary', 0.0, True, 0, 2, 11.817), ('sanitary', 0.0, True, 0, 3, 8.624), ('sanitary', 0.0, True, 1, 0, 39.043), ('sanitary', 0.0, True, 1, 3, 32.603), ('sanitary', 0.0, True, 1, 1, 28.653), ('sanitary', 0.0, True, 2, 0, 43.75), ('sanitary', 0.0, True, 2, 3, 37.349), ('sanitary', 0.002, True, 0, 0, 14.108), ('sanitary', 0.002, True, 0, 3, 8.758), ('microbial', 0.0, True, 0, 0, 8.477), ('microbial', 0.0, True, 0, 3, 6.128), ('microbial', 0.0, True, 1, 3, 27.813), ('microbial', 0.006, True, 0, 3, 6.341), ('microbial', 0.022, True, 0, 0, 9.936), ('microbial', 0.022, True, 0, 3, 6.928), ('microbial', 0.022, True, 1, 3, 30.624), ('sanitary', 0.0, False, 0, 0, 17.683), ('sanitary', 0.0, False, 0, 3, 12.223), ('sanitary', 0.002, False, 0, 3, 12.371), ('microbial', 0.0, False, 0, 3, 9.727), ('microbial', 0.022, False, 0, 3, 10.68)]
     tabs = {}
     for plant, hz, genetic, ci, tj, want in pins:
         tabs.setdefault((plant, hz, genetic), ge.cases_table(plant, hz, genetic=genetic))
@@ -301,11 +332,11 @@ def _check() -> list:
     near("note: lactate could supply this share of the energy", lr["share_of_energy"], 0.021, 0.03)
 
     # final model: 11.99 -> 12.51 and 11.704 -> 12.207 (at depth = width oxygen now binds at 153 g/L)
-    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 12.51, 0.002)
-    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 12.207, 0.002)
+    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 12.340, 0.002)   # 12.51 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)
+    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 12.037, 0.002)   # 12.207 before
 
     # --- circulation and the pH rule (review of PR 10) -------------------------------------------------------
-    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 11.982, 0.002)   # 10.468 before the final model
+    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 11.817, 0.002)   # 11.982 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)   # 10.468 before the final model
     # final model: the column alone stops at 153 g/L (oxygen), so 11.1 -> 5.34 passes an hour and 0.92 -> 0.44 of the safe dose
     for kw, passes, safe in ((dict(column="co2"), 5.34, 0.44), (dict(column="o2_closed", p_top_barg=1.0), 22.4, 1.89),
                              (dict(column="o2_closed", p_top_barg=1.0, gas_velocity=0.002), 61.0, 5.16)):
@@ -314,8 +345,8 @@ def _check() -> list:
         near(f"note: alkaline exposure vs the safe design {kw}", d["ph_vs_safe"], safe, 0.02)
     # 2026-11-20: 17.57 / 12.00 / 8.79 / 7.75 / 7.08 / 5.21 before the batch
     # final model: 20.150 / 13.695 / 10.639 / 9.280 / 8.479 / 6.419 -> the figures below (viscous_kla)
-    for cap, plant, want in ((0.001, "sanitary", 21.972), (0.002, "sanitary", 14.622), (0.004, "sanitary", 11.481),
-                             (0.006, "sanitary", 9.478), (0.002, "microbial", 9.093), (0.006, "microbial", 6.605)):
+    # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 21.972 / 14.622 / 11.481 / 9.478 / 9.093 / 6.605 before
+    for cap, plant, want in ((0.001, 'sanitary', 21.622), (0.002, 'sanitary', 14.401), (0.004, 'sanitary', 11.332), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 8.811), (0.006, 'microbial', 6.472)):
         b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
         near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)
         if b["column"] is not None and (b["column"]["ph_vs_safe"] > 1 + 1e-9 or not b["column"]["passes_tested"]):
@@ -341,8 +372,8 @@ def _check() -> list:
     # tolerated moves the cost by under $0.05" no longer holds and is replaced: the thickness binds at every gas flow, so the
     # only thing the gas changes is the cells the bubbles kill (1.3%, 2.7% and 8.0% of the cells grown), and 2 mm/s, where
     # the oxygen column has the least to do beyond the sparger, is the cheapest; 6 mm/s costs $0.23 more.
-    for cap, plant, want in ((0.001, "sanitary", 8.518), (0.002, "sanitary", 8.491), (0.006, "sanitary", 8.723),
-                             (0.002, "microbial", 6.156), (0.006, "microbial", 6.254)):
+    # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 8.518 / 8.491 / 8.723 / 6.156 / 6.254 before
+    for cap, plant, want in ((0.001, 'sanitary', 8.426), (0.002, 'sanitary', 8.397), (0.006, 'sanitary', 8.624), (0.002, 'microbial', 6.038), (0.006, 'microbial', 6.128)):
         near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
     trio = [ge.cheapest_tricks(cap, "sanitary") for cap in (0.001, 0.002, 0.006)]
     if not (all(t["limit"] == "thickness of the culture" for t in trio) and trio[0]["death_share"] < trio[1]["death_share"]

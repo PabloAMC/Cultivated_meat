@@ -112,9 +112,13 @@ def check() -> list:
     # central ideal 42.2382 -> 42.9658, no cage 47.8603 -> 47.3902, cage -> 46.2582; cautious ideal 165.5830 -> 167.4510,
     # no cage 130.0061 -> 129.4021, cage -> 123.5281, ideal with fat fed 117.2610 -> 118.5639; best ideal 16.6859 -> 5.5871
     # (the all-favourable case is now $7.62 at 42 m³, not the old best).
-    for (k, what), want in {("central", "ideal"): 42.9658, ("central", "no_cage"): 47.3902, ("central", "cage"): 46.2582,
-                            ("cautious", "ideal"): 167.4510, ("best", "ideal"): 5.5871,   # 2026-11-19: best's cells 2 ng (were 3)
-                            ("cautious", "no_cage"): 129.4021, ("cautious", "cage"): 123.5281, ("cautious", "ideal_fed"): 118.5639}.items():
+    # 2026-11-21: a design whose loop fails at full density is now run thinner (design_space.run, as scenarios.design), and the
+    # building's power follows its floor and class, the floor's glucose is the mass balance's. central ideal 42.9658 -> 42.8135,
+    # no cage 47.3902 -> 47.1880, cage 46.2582 -> 46.0958; cautious ideal 167.4510 -> 167.2592, no cage 129.4021 -> 127.3644,
+    # cage 123.5281 -> 123.3291, ideal with fat fed 118.5639 -> 118.3721; best ideal 5.5871 -> 5.4895
+    for (k, what), want in {("central", "ideal"): 42.8135, ("central", "no_cage"): 47.1880, ("central", "cage"): 46.0958,
+                            ("cautious", "ideal"): 167.2592, ("best", "ideal"): 5.4895,   # 2026-11-19: best's cells 2 ng (were 3)
+                            ("cautious", "no_cage"): 127.3644, ("cautious", "cage"): 123.3291, ("cautious", "ideal_fed"): 118.3721}.items():
         if what == "ideal_fed":
             got = ideal_fat_fed(k)["total"]
         else:

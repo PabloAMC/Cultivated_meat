@@ -19,14 +19,16 @@ def close(a, b, tol=1e-3):
 def check() -> list:
     fails = []
     # since 2026-11-19 the model's own floor is GFI's cheapest: feed-grade amino acids at the most efficient need, $2.00
-    if not close(fp.feedstock(fp.GOOD_CELLS), 2.0035, 2e-3) or not close(N.floor("feed", "eff"), fp.feedstock(fp.GOOD_CELLS), 1e-6):
+    # 2026-11-21: 2.0035 -> 1.9999 (the floor's glucose is the mass balance's, 0.311 kg a kilo, not 0.32)
+    if not close(fp.feedstock(fp.GOOD_CELLS), 1.9999, 2e-3) or not close(N.floor("feed", "eff"), fp.feedstock(fp.GOOD_CELLS), 1e-6):
         fails.append("the model's nutrient floor moved, or is no longer GFI's feed-grade, efficient floor")
     # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (best 11.16 -> 13.75 L/kg, central 28 -> 35) and lost runs pay for
     # their membranes: best 9.9613 -> 11.4569, central 26.4296 -> 32.8028
     # 2026-11-20 batch: best 11.6738 -> 18.7144, central 32.8028 -> 49.9616
     # 2026-11-20 final pass: the all-favourable example is now scenarios.all_favourable() (18.7144 -> 7.6209); the low-lactate
     # example 49.9616 -> 49.4977 (the fixes to bubble deaths and viscous oxygen transfer)
-    for k, want in (("best", 7.6209), ("central", 49.4977)):
+    # 2026-11-21 (Humbird back-test fixes, thinned tank designs, floor glucose): best 7.6209 -> 6.9686, central 49.4977 -> 48.6815
+    for k, want in (("best", 6.9686), ("central", 48.6815)):
         if not close(S.run(S.SCENARIOS[k].choice)["total"], want, 1e-4):
             fails.append(f"{k}: default cost moved")
     # GFI's headline: amino acids below about $5 a kilo at low food-grade prices and the better bioconversion estimates
@@ -74,10 +76,17 @@ def check() -> list:
     # 2026-11-19 audit batch: the same two changes move all three (9.9613, 12.5648, 39.7235 before)
     # 2026-11-20 batch: 11.6738, 14.2773, 45.4289 before
     # 2026-11-20 final pass: 18.7144, 21.6023, 65.7209 before (the all-favourable example redefined; viscous oxygen, bubble deaths)
-    for (k, t, n), want in {("best", "feed", "eff"): 7.6209, ("best", "low", "mid"): 10.4139, ("central", "high", "low"): 64.7523}.items():
+    # 2026-11-21: 7.6209, 10.4139, 64.7523 before (the same causes)
+    for (k, t, n), want in {("best", "feed", "eff"): 6.9686, ("best", "low", "mid"): 9.8644, ("central", "high", "low"): 63.9312}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")
+    # 2026-11-21: the floor's glucose is the mass balance's for Humbird's enhanced cell with no lactate (inputs glucose_intensity)
+    import floor_physics as _fp
+    from inputs import value as _v
+    g0 = _fp.glucose_balance(_fp.GOOD_CELLS.o2_per_kg * 1000.0 / 32.0, _v("pf_nh3_efficient"), 0.0) * 0.18016
+    if abs(g0 - _v("glucose_intensity")) > 0.0015:
+        fails.append(f"the floor's glucose {_v('glucose_intensity')} kg a kilo should be the balance's {g0:.4f} (no lactate)")
     return fails
 
 

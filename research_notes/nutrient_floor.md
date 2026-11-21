@@ -146,3 +146,14 @@ price thresholds for one ($1.51-11.27 a kilo of hydrolysate) say the price is no
 0.7 kg of it crude protein, three times the 0.232 kg the cells take up. But soybean meal costs about $0.70 a kilo of protein,
 against $5.7-6.5 for purified amino acids. The chicken's gut breaks intact protein down for free, and its body makes the
 non-essential amino acids, serine among them, from grain. A culture medium must supply them already purified.
+
+## 8. Today's prices against the long run (2026-11-21)
+
+An evidence pass on the five amino acids hydrolysate cannot supply ([evidence_amino_acid_prices.md](evidence_amino_acid_prices.md))
+found tonne-scale prices for arginine ($3–4.6 a kilo, close to GFI's) and glutamine (about $7, food grade), and none for
+asparagine, cystine or serine. Serine decides the floor: it is 30% of the amino-acid cost, about 400 t a year are made, and
+GFI's $10 a kilo for it is hypothetical. At today's quotes the floor would be about $2.35–2.45 a kilo of cells, not $2.00.
+
+The floor is meant as a long-run price at industry scale, so $6.36 a kilo of amino acids is kept. That assumes new serine
+capacity is built; comparable fermentation amino acids made at scale (threonine, lysine, valine) sell at $1–3 a kilo. The
+band's top stays at $11.59 (GFI's low food-grade mean). A supplier's quote would settle it (TODO.md).

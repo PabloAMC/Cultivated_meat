@@ -65,7 +65,9 @@ def check() -> list:
     # (scenarios.all_favourable), so the cell filter's flux and life do not reach it. The check says so.
     if not close(FF.cost_at("best", 5.0, 1200.0), S.run(S.SCENARIOS["best"].choice)["total"], 1e-12):
         fails.append("the cell filter's flux and life should not move the all-favourable example, which uses its own device")
-    for (k, f, l), want in {("central", 5.0, 1200.0): 72.0527, ("central", 2.5, 450.0): 147.0528}.items():
+    # 2026-11-21: 72.0527 -> 71.6736, 147.0528 -> 148.1271 (the low-lactate example's design is now the thinned recycled-oxygen
+    # column; the building's power by floor and class; the floor's glucose)
+    for (k, f, l), want in {("central", 5.0, 1200.0): 71.6736, ("central", 2.5, 450.0): 148.1271}.items():
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")
@@ -83,8 +85,9 @@ def check() -> list:
     # 2026-11-20 model batch (the low-lactate example 32.80 -> 49.96 at the defaults; the break-even price of a 1,500 L/m2 membrane
     # is now $901 a m2, not $549, so $550 no longer reproduces the default: it is $9.36 below it)
     # 2026-11-20 final model: 54.9502 -> 54.1201, 64.6270 -> 63.0864, 40.6019 -> 40.8253, 33.9283 -> 34.6416
-    for (k, life, price), want in {("central", 2000.0, 1450.0): 54.1201, ("central", 1500.0, 1450.0): 63.0864,
-                                   ("central", 1500.0, 550.0): 40.8253, ("central", 1000.0, 200.0): 34.6416}.items():
+    # 2026-11-21: 54.1201 -> 53.3935, 63.0864 -> 62.5335, 40.8253 -> 39.8410, 34.6416 -> 33.5375 (as above)
+    for (k, life, price), want in {("central", 2000.0, 1450.0): 53.3935, ("central", 1500.0, 1450.0): 62.5335,
+                                   ("central", 1500.0, 550.0): 39.8410, ("central", 1000.0, 200.0): 33.5375}.items():
         got = FF.cost_at_life_price(k, life, price)
         if not close(got, want, 1e-3):
             fails.append(f"{k} life {life:g} price {price:g}: {got:.4f} != pinned {want}")

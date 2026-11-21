@@ -68,7 +68,7 @@ that is most likely about 18 times the mass of its cells, and its cost leaves ou
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
 directional evidence, not as the basis of the low-lactate example.
 
-Two examples are named throughout. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published cost studies, where a value respects the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.5% of meat buyers picking it at the same price.
+Two examples are named throughout. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published cost studies, where a value respects the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.6% of meat buyers picking it at the same price.
 
 ## Where every number comes from
 
@@ -88,8 +88,8 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    2026-11-20, Step 2) and a ~6% mainstream meatless rate (assumed; no clean source, under 0.1 pp of
    leverage). One equation per unknown: calibration, not fitting. **Fitted:** the two numbers of the spread of liking,
    `liking_sd` and `liking_tail`, jointly to a choice experiment, sixteen premium meats and farmed salmon (Step 2).
-4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 13% of all choices, which is 14.5% of
-   meat buyers; the all-favourable example's own `best_equal_price_share`, 55%, which is 58.5%), `cult_sub_mult` (κ; set by six premium products), the taste dial `accept_x`, the what-if dials
+4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 13% of all choices, which is 14.4% of
+   meat buyers; the all-favourable example's own `best_equal_price_share`, 55%, which is 58.6%), `cult_sub_mult` (κ; set by six premium products), the taste dial `accept_x`, the what-if dials
    `theta_free_M`, `neophobia_x` and `health_x`, the premium offset (scaled by `premium_resistance`), `markup_add` and
    `retail_margin` (fitted to USDA's spreads and meat-department margins), the cut's cell share and assembly cost, the ammonia and
    the lactate the scenarios' cells tolerate (`sc_nh3_limit`, `sc_lac_limit`), the crew of a tank in perfusion against a fed-batch
@@ -201,11 +201,11 @@ cost per kg of forming, packaging or chilling a cultivated product, and none cos
 cut: the published analyses all stop at harvested cells. A cut is costed from analogues
 (`research_notes/structuring_cost.md`; Structured products below). Products sold so far range from 3% to over 99% cells.
 Against a flat $5 a kilo, the rule this replaced, parity moves little ($7.0 to $6.1 a kilo of cells), because both are fitted
-to commodity meat's own spread, but the shelf price of anything dearer rises: at the low-lactate example's $49.5 a kilo of cells, from $54.5
+to commodity meat's own spread, but the shelf price of anything dearer rises: at the low-lactate example's $49.5 a kilo of cells (2026-11-20; $48.7 since 2026-11-21), from $54.5
 to $72.2. The low-lactate example's share of world meat and seafood at that cost would be 0.14% under the flat $5 and is 0.05% under the
-present rule; at the all-favourable example's cost ($7.62; shelf prices $12.6 and $14.1), with the low-lactate example's demand, 6.9% and 5.4%. Both parts are drawn in the uncertainty bands.
+present rule; at the all-favourable example's cost ($6.97 since 2026-11-21, $7.62 when this was computed; shelf prices $12.6 and $14.1), with the low-lactate example's demand, 6.9% and 5.4%. Both parts are drawn in the uncertainty bands.
 
-**Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.9 a kilo at most likely values; if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $30.
+**Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.7 a kilo at most likely values ($15.9 before 2026-11-21, when a sanitary hall's lower power was first counted); if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $29.
 
 | component | value | basis |
 |---|---|---|
@@ -213,10 +213,10 @@ present rule; at the all-favourable example's cost ($7.62; shelf prices $12.6 an
 | glucose | ~$0.13 per kilo grown | 0.32 kg per kg at full respiration [Humbird Table 2.3, derived] × $0.40/kg [GFI & Hawkwood 2025] |
 | salts, buffer, vitamins, trace elements | ~$0.4 per kilo grown | assumed (Humbird leaves them out as low-cost) |
 | the three together, per kilo harvested | ~$2.2/kg | $2.0 divided by the 90% of the cells grown that are harvested (8% killed by bubbles, 2% lost at harvest; below) |
-| running a plant | ~$13.7/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section): the plant's yearly charge $7.4, labour $2.6, utilities $0.7, filter membranes $1.9, bubble protectant $0.7, other supplies $0.3 |
-| **Humbird's optimistic design** | **$15.9/kg** | R ≈ 2.13 ($18.6 and 2.45 with first-plant financing) |
-| microbial-class plant (not used by any scenario) | ~$11.0/kg | R ≈ 1.56, buying its oxygen; if animal cells can be grown in plants that cost what microbial fermentation plants cost; nothing shows they can |
-| a pharma-style plant, tanks drained and refilled | ~$19.7/kg | R ≈ 2.57: first-plant financing; efficient cells |
+| running a plant | ~$13.5/kg | physics and published plant costs, with food-industry financing (`floor_physics.py`, next section): the plant's yearly charge $7.4, labour $2.6, utilities $0.5, filter membranes $1.9, bubble protectant $0.7, other supplies $0.3 |
+| **Humbird's optimistic design** | **$15.7/kg** | R ≈ 2.11 ($18.4 and 2.42 with first-plant financing) |
+| microbial-class plant (not used by any scenario) | ~$10.7/kg | R ≈ 1.53, buying its oxygen; if animal cells can be grown in plants that cost what microbial fermentation plants cost; nothing shows they can |
+| a pharma-style plant, tanks drained and refilled | ~$22.5/kg | R ≈ 2.90: first-plant financing; efficient cells |
 
 It was $12.8 before 2026-11-20. The changes of that day (below, "What changed in the engine on 2026-11-20") added $3.1: cells
 killed by bubbles and lost at harvest, a perfusion crew twice the fed-batch one, a shorter membrane life and more
@@ -227,13 +227,13 @@ each tank brings with it. Thick cultures taking up oxygen more slowly does not m
 model's own reference cost (`cost_model.cost_floor`) is built from two inputs that are set to follow `explore()`: `plant_floor`,
 the plant term of this design, and `plant_floor_lo`, the same term in a plant at the cost of a microbial one. For some hours on
 2026-11-20 they stood at their earlier values ($10.8 and $6.3, which gave $12.8 and R = 1.77) while `explore()` gave $13.8 and
-$8.8. They are now $13.8 and $8.76 (the engine now gives $13.7 and $8.76, within the test's tolerance), so `cost_floor` is $15.8 a kilo and R = 2.12 (band $10.8 to $19.7, R 1.54 to 2.57;
+$8.8. Since 2026-11-21 they are $13.5 and $8.50, so `cost_floor` is $15.5 a kilo and R = 2.08 (band $10.5 to $22.3, R 1.50 to 2.87;
 `tests/test_floor_physics.py` checks that the inputs follow `explore()`). Everything in this document that says "at $15.8 a
-kilo of cells" is computed from `cost_floor`: the self-checks of Step 2, the loss-aversion sweep, the cost paths of Step 4 and
-the page's `{{TOKEN}}` for the reference cost. Everything that says "Humbird's optimistic design" is `explore()`, $15.9.
-`cost_floor` is $0.1 below it because it adds the nutrient floor per kilo grown, not per kilo harvested.
+kilo of cells" (or $15.5 since 2026-11-21) is computed from `cost_floor`: the self-checks of Step 2, the loss-aversion sweep, the cost paths of Step 4 and
+the page's `{{TOKEN}}` for the reference cost. Everything that says "Humbird's optimistic design" is `explore()`, $15.7.
+`cost_floor` is $0.2 below it because it adds the nutrient floor per kilo grown, not per kilo harvested.
 
-Humbird's optimistic design is not a limit. The all-favourable example (below) costs $7.62 at most likely values (middle draw
+Humbird's optimistic design is not a limit. The all-favourable example (below) costs $6.97 at most likely values (middle draw
 $9; 8 in 10 between $8 and $11), $8.3 less than his design, and it is below his design by construction: since 2026-11-20 it takes,
 lever by lever, the most favourable value among this model's own favourable end, Humbird's design and nine other published
 cost studies, where a study's value does not break one of the model's limits. From Humbird it takes a 3 ng cell, 5 mmol/L of ammonia and 50 of
@@ -320,7 +320,7 @@ A **scenario** is a preset of the eleven switches. **The all-favourable example*
 defined once in `scenarios.all_favourable()` (next paragraphs): every lever of the engine at its most favourable value among this
 model's own favourable end, Humbird's design and nine other published cost studies, where a study's value breaks none of the
 model's limits. It carries the levers the switches cannot say as extra settings
-(`scenarios.EXTRAS`), and it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.5% of meat buyers). **The low-lactate example:** cells fed without glutamine
+(`scenarios.EXTRAS`), and it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.6% of meat buyers). **The low-lactate example:** cells fed without glutamine
 that make 0.14 mol of ammonia a kilo and 0.42 mol of lactate per mol of glucose, 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
 **Published cells** (key `today`): the published cells (below) grown as a fed-batch in an ordinary 20 m³ tank with no tricks, 43 hours,
 a food-grade plant, 2 mm/s, 1% a day with 21 days to restart, 60% of growth-factor price, $0.30 a litre. The low-lactate example and every rung above
@@ -332,8 +332,8 @@ earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures hav
 most favourable cases: the example of this name ($18.7: the switches at their cheapest settings, with runs lost at 0.6% a day,
 4 mmol/L of ammonia and 35 of lactate tolerated, 2 ng cells and a doubling every 24 hours) and the "frontier" of `frontier.py`
 ($7.86). The first cost more than Humbird's optimistic design, because it did not take the levers on which his design is the
-more favourable. There is now one. It costs **$7.62** a kilo at most likely values; the middle draw is $9 and 8 in 10 fall
-between $8 and $11. `scenarios.run(SCENARIOS["best"].choice)`, the last row of `frontier.ladder()` and the page's "best level
+more favourable. There is now one. It costs **$6.97** a kilo at most likely values ($7.62 before the second batch of 2026-11-21);
+the middle draw is $8.6 and 8 in 10 fall between $7.2 and $10.4. `scenarios.run(SCENARIOS["best"].choice)`, the last row of `frontier.ladder()` and the page's "best level
 known" are the same call.
 
 `scenarios.favourable_levers()` is the table of sources: one row for each lever, with the value each source gives (`FAV_SOURCES`:
@@ -413,13 +413,14 @@ harvest, the bubble protectant, and the CO₂ and the salt the cells tolerate. *
 a kilo, which assumes cells that make no waste at all (with this example's 0.054 mol of ammonia a kilo the tank would stand at
 twice the ammonia tolerated), so the litres are what the engine derives; cleaning the medium for reuse; and fat fed to the cells.
 
-*What it gives.* The culture runs at 155 g/L, limited by oxygen (198 g/L if a thick culture took up oxygen as easily as a thin
-one). Ammonia sets the medium at 11.7 litres a kilo harvested (lactate would need 11.1 and the least flow 3.9). The membranes cost
-$0.04 a kilo. Bubbles kill 6% of the cells and 92% are harvested. The $7.62 is $2.2 for the plant's yearly charge, $2.2 of
-nutrients, $1.3 of labour, $1.1 of supplies ($0.7 of it the bubble protectant), $0.5 of utilities and $0.4 of bought oxygen.
-With one lever put back at a time it costs $8.85 with a doubling every 24 hours, $8.14 with 35 mmol/L of lactate tolerated,
-$8.10 in a 20 m³ tank, $7.99 with 4 mmol/L of ammonia, $7.91 with 2 ng cells and $7.65 with runs lost at 0.2% a day. No step
-of it is shown for meat cells.
+*What it gives* (2026-11-21). The culture runs at 219 g/L in a flat tank (liquid half as deep as wide), held there by the checks on
+its column loop, which strips CO₂ and feeds recycled oxygen: the densest culture at which the loop's pH exposure stays at the dose
+judged safe (`scenarios.design`, which since 2026-11-21 holds a design thinner when its loop fails at full density). The column sits
+on the filter loop and shares its pump. Ammonia sets the medium at 12.1 litres a kilo harvested (lactate would need 11.5 and the
+least flow 4.0). The membranes cost $0.06 a kilo. Bubbles kill 9% of the cells and 89% are harvested. The $6.97 is $1.9 for the
+plant's yearly charge, $2.2 of nutrients, $0.9 of labour, $1.1 of supplies ($0.7 of it the bubble protectant), $0.5 of utilities
+and $0.4 of bought oxygen. `frontier.py` gives the path to it from Humbird's design, one lever at a time. No step of it is shown
+for meat cells.
 
 **The kinds of cell** are two numbers each, the ammonia made per kilo of cells grown and the lactate yield; every kind has the same
 cell weight, 2 ng (`sc_mass_selected_pg`, 1–3 ng, drawn in the bands; the low-waste cells had Humbird's 3 ng until 2026-11-19). The
@@ -502,7 +503,7 @@ settings fix is held, not drawn (the all-favourable example, above).
   Conventional meat's price response and the closed markets are applied in every draw at their set values; their inputs
   (`mk_supply_elast`, `mk_demand_elast`, `mk_closed_*`) have ranges but are not drawn.
 - *The share at equal price is drawn from a lognormal* (`inputs.draw`, `kind="lognormal"`), on the scale of all choices: its
-  median is the model's own 13% (14.5% of meat buyers), and the stated 3% and 49% set its spread (σ = ln(0.49 / 0.03) / 3.29 =
+  median is the model's own 13% (14.4% of meat buyers), and the stated 3% and 49% set its spread (σ = ln(0.49 / 0.03) / 3.29 =
   0.85), clipped to 0.5%–80%. The draws' 5th and 95th percentiles are 3% and 52% (3.4% and 55.5% of meat buyers), and their 10th
   and 90th 4% and 38% (4.5% and 41% of meat buyers). Until 2026-11-19 it was a triangular 5–13–49%, whose median was
   21%. The all-favourable example's own setting is a triangular 35–55–70%.
@@ -514,10 +515,10 @@ settings fix is held, not drawn (the all-favourable example, above).
 when the page began to show the cost at the settings shown, with the draws in their own section). The cost at most likely
 values is `scenarios.run(choice)["total"]`, every estimate at the mode of its prior. The median of the draws and their 10th and
 90th percentiles ("8 in 10 fall between") follow in the same sentence or table row, with the shop price at the median cost and
-the share. The low-lactate example costs $49.5 a kilo; if the unmeasured estimates are drawn from their ranges, the middle draw
-is $54 and 8 in 10 fall between $41 and $79. The all-favourable example costs $7.6 ($7.62); the middle draw is $9 and 8 in 10 fall
-between $8 and $11. The most-likely-values cost is below the median, because most estimates have more room to fall short than
-to improve: it is the 34th percentile of the low-lactate example's draws and the 11th of the all-favourable example's. The scenario table below is printed by `scenarios.markdown_table()` and keeps both columns, the
+the share. The low-lactate example costs $48.7 a kilo; if the unmeasured estimates are drawn from their ranges, the middle draw
+is $53 and 8 in 10 fall between $40 and $77. The all-favourable example costs $7.0 ($6.97); the middle draw is $8.6 and 8 in 10
+fall between $7.2 and $10.4. The most-likely-values cost is below the median, because most estimates have more room to fall short
+than to improve: it is below about 95% of the all-favourable example's draws (`research_notes/model_audit.md`, section 3f). The scenario table below is printed by `scenarios.markdown_table()` and keeps both columns, the
 median first. The ladder's steps, the switch tables and the side studies use most likely values, so that they can be subtracted. `scenarios.tricks_report` gives each scenario's cost
 with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
@@ -574,31 +575,33 @@ ammonia or lactate) and `best` (everything else at its favourable end: the all-f
 takes Humbird's 3 ng cell and his limits, a doubling every 16 hours, no lost runs and dialyser-grade fibres through its extra
 settings and a 42 m³ tank, so the last step changes more than switches). It is an explanation of
 what each change is worth, not a path anyone must follow. `ORDER` keeps the four scenarios the side studies were run on; `cautious` is the published cells in perfusion
-with the tank tricks and gas at 2 mm/s ($185.6 at most likely values; the middle draw is $198 and 8 in 10 fall between $147 and $276), and stands in for the old rung 1 in the design search and the reuse study. Every row
+with the tank tricks and gas at 2 mm/s ($181.1 at most likely values since 2026-11-21; $185.6 before), and stands in for the old rung 1 in the design search and the reuse study. Every row
 of the headline table gives the medians of its draws and the most-likely-values figures; `bands(None)` draws Humbird's optimistic
 design (`reference()`) the same way, and `reported_band` takes the company's process from `meat_market.monte_carlo`.
 
 | scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against US minced beef or pork cuts ($12 a kilo), at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$347** ($243–486) | $322.6 | 40.5× | **under 0.001%** | under 0.001% | none |
-| 2. Plus process changes and cheaper inputs | **$332** ($231–468) | $311.3 | 38.7× | **under 0.001%** | under 0.001% | none |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$82** ($57–118) | $71.8 | 9.7× | **0.01%** (0.002–0.08%) | 0.01% | lactate |
-| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$54** ($41–79) | $49.5 | 6.6× | **0.05%** (0.008–0.3%) | 0.05% | lactate |
-| 5. Plus a food-grade plant with shared medium | **$50** ($37–73) | $45.0 | 6.1× | **0.07%** (0.01–0.4%) | 0.07% | lactate |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$34** ($27–47) | $27.8 | 4.3× | **0.2%** (0.05–1.0%) | 0.3% | ammonia, lactate |
-| 7. Plus everything else at its favourable end (the all-favourable example) | **$9** ($8–11) | $7.6 | 1.3× | **17.4%** (10.5–26.8%) | 22.6% | ammonia, lactate |
-| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–30) | $15.9 | 2.9× | **0.7%** (0.2–2.9%) | 1.5% | ammonia, lactate |
-| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.06–1.0%) | 0.2% | a company's own report |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$337** ($235–475) | $316.1 | 39.3× | **under 0.001%** | under 0.001% | none |
+| 2. Plus process changes and cheaper inputs | **$322** ($223–458) | $304.8 | 37.6× | **under 0.001%** | under 0.001% | none |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$77** ($53–114) | $70.3 | 9.1× | **0.01%** (0.002–0.1%) | 0.01% | lactate |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$52** ($39–76) | $48.7 | 6.3× | **0.06%** (0.009–0.3%) | 0.05% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$48** ($35–71) | $44.5 | 5.8× | **0.08%** (0.01–0.4%) | 0.07% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$33** ($25–45) | $27.3 | 4.1× | **0.3%** (0.06–1.1%) | 0.4% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (the all-favourable example) | **$8** ($7–10) | $7.0 | 1.3× | **18.9%** (11.7–28.1%) | 24.7% | ammonia, lactate |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–29) | $15.7 | 2.8× | **0.8%** (0.2–3.0%) | 1.6% | ammonia, lactate |
+| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.05–1.0%) | 0.2% | a company's own report |
 
-Read with the costs at most likely values first (third column), as everywhere in this document. Three things in the table
-changed on 2026-11-20. The published cells in a batch cost $322.6, not $209.1: lactate held under 35 mmol/L stops
+Read with the costs at most likely values first (third column), as everywhere in this document. The second batch of 2026-11-21
+moved the table again (Published cells $316.1, the low-lactate example $48.7, the all-favourable example $7.0 with 24.7% of world
+meat and seafood, Humbird's optimistic design $15.7; RESULTS.md has the steps); the rest of this paragraph gives the figures of
+2026-11-20. Three things in the table changed on 2026-11-20. The published cells in a batch cost $322.6, not $209.1: lactate held under 35 mmol/L stops
 their batch at 10 g/L, not 14, and a tank that thin now pays its own utilities ($18.1 a kilo, where a flat $0.94 was charged).
 The low-lactate example costs $49.5, not $32.8: its filter membranes cost $22.3 a kilo, not $12.8, its culture runs at 154 g/L,
 not 191, because a thick culture takes up oxygen more slowly, and 10% of the cells it grows are not harvested. And the
 all-favourable example costs $7.6 (middle draw $9; 8 in 10 between $8 and $11), below Humbird's optimistic design ($15.9) by
 construction; the example of that name cost $11.7 before that day and $18.7 for some hours of it. At $7.6 it takes 22.6% of world
-meat and seafood with its own 58.5% of meat buyers at equal price (the United States 27.7%, Europe 36.3%; middle draw 17.4%, 8 in
-10 between 10.5% and 26.8%) and 5.4% with the ordinary 14.5% (middle draw 4.0%; 1.4% to 12.8%). The shares count the markets
+meat and seafood with its own 58.6% of meat buyers at equal price (the United States 27.7%, Europe 36.3%; middle draw 17.4%, 8 in
+10 between 10.5% and 26.8%) and 5.4% with the ordinary 14.4% (middle draw 4.0%; 1.4% to 12.8%). The shares count the markets
 where a law bans its sale as closed (1.14% of the world's meat) and let conventional meat's price fall as it loses sales (Step 2).
 Its mince sells at 1.17 times the price of US minced beef or pork cuts ($12 a kilo); parity needs $6.1 a kilo of cells.
 
@@ -623,7 +626,7 @@ traits beyond the best measured in meat cells. The evidence behind each measurem
 `research_notes/cell_trait_routes.md`.
 
 **What it would take** (`scenarios.what_it_would_take`). For a long-run share of 1% and 10% of world meat and seafood, at the model's
-14.5% of meat buyers at equal price and at 50% (no preference), the cost of cells that reaches it (`cost_for_share`, a bisection on
+14.4% of meat buyers at equal price and at 50% (no preference), the cost of cells that reaches it (`cost_for_share`, a bisection on
 the point estimate of `world_share`), and, among the sets of traits tried (`trait_grid`: ammonia 0.14 / 0.055 / 0, lactate 1.05 / 0.42
 / 0.279 / 0, doubling 43 / 36 / 25.7 / 20 / 15 h, 2 ng; a food-grade plant or one with shared medium; perfusion or fed-batch at 20 m³;
 the low-lactate example's other switches; tank design chosen; most likely values), the set that reaches it with the fewest traits
@@ -709,34 +712,35 @@ the history of the headline numbers. Findings: `research_notes/model_audit.md`.
 Until 2026-11-20 this module priced a second most favourable case: a ladder from the low-lactate example to "every lever at
 the limit the research notes support" ($7.86). The model now has one such case, `scenarios.all_favourable()` ("Cost scenarios",
 above), and `frontier.py` only shows the path to it. `frontier.ladder` starts from Humbird's optimistic design as this model
-prices it (`scenarios.reference()`, with his cell written as its four traits, which gives $15.95 in place of $15.93) and moves one
+prices it (`scenarios.reference()`, with his cell written as its four traits, which gives $15.74 in place of $15.72) and moves one
 lever at a time to its value in the all-favourable example, each kept moved (`frontier.steps`). The last row has the same
 `explore()` arguments as `all_favourable()["kw"]`, which the function asserts, so it is the same number. The path starts from his
 design, not from the low-lactate example, so that every step is one lever made more favourable. At most likely values:
 
 | step | cells, $/kg | change | the same lever alone, from Humbird's design |
 |---|---|---|---|
-| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | $15.95 | | |
-| Cells double in 16 hours | $12.24 | −$3.70 | −$3.70 |
-| Cells of 3 ng, Humbird's, the heaviest allowed | $12.24 | nothing | nothing |
-| A food-grade plant with shared medium | $9.94 | −$2.31 | −$2.87 |
-| Dialyser-grade hollow fibres as the filter | $9.69 | −$0.24 | −$1.87 |
-| Dissolved oxygen held at about half of air saturation | $9.69 | nothing | nothing |
-| The cheapest tank design that passes the checks on the CO₂ loop | $8.10 | −$1.59 | −$0.35 |
-| Tanks of 42 m³ in place of 20 m³ | $7.62 | −$0.48 | −$0.45 |
-| The least medium flow at the lowest measured | $7.62 | nothing | nothing |
-| Culture up to 320 g/L in place of 258 | $7.62 | nothing | nothing |
-| Medium at the nutrient floor | $7.62 | nothing | nothing |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | $15.74 | | |
+| Cells double in 16 hours | $12.07 | −$3.66 | −$3.66 |
+| Cells of 3 ng, Humbird's, the heaviest allowed | $12.07 | nothing | nothing |
+| A food-grade plant with shared medium | $9.75 | −$2.33 | −$2.89 |
+| Dialyser-grade hollow fibres as the filter | $9.50 | −$0.24 | −$1.87 |
+| Dissolved oxygen held at about half of air saturation | $9.50 | nothing | nothing |
+| The cheapest tank design that passes the checks on the CO₂ loop | $7.50 | −$2.00 | +$0.60 |
+| Tanks of 42 m³ in place of 20 m³ | $6.97 | −$0.53 | −$0.73 |
+| The least medium flow at the lowest measured | $6.97 | nothing | nothing |
+| Culture up to 320 g/L in place of 258 | $6.97 | nothing | nothing |
+| Medium at the nutrient floor | $6.97 | nothing | nothing |
 
-The order matters. The tank design is worth $1.59 at its place on the path and $0.35 alone: a denser culture sends more liquid
-through the filter, which pays once the filter is cheap. The dialyser fibres are worth $1.87 alone and $0.24 after the plant
+The order matters (regenerated 2026-11-21). The tank design is worth $2.00 at its place on the path and costs $0.60 more alone:
+it is the flat tank with the recycled-oxygen column, held thinner so its loop passes, which pays only once the cells grow fast and
+the filter is cheap. The dialyser fibres are worth $1.87 alone and $0.24 after the plant
 with shared medium. A larger tank pays because a plant's cost now follows what each tank brings with it ("The plant term",
 *What each tank brings with it*). Four levers change nothing at this point: Humbird's cell is already 3 ng; ammonia, not the
-least flow, sets the litres of medium; oxygen holds the culture at 155 g/L, below 258; and Humbird's design already pays only for
+least flow, sets the litres of medium; the loop's checks hold the culture at 219 g/L, below 258; and Humbird's design already pays only for
 what the cells eat. `frontier.alone` gives each lever on its own from Humbird's design, `frontier.lever_table` prints the table of
 sources with every study's column (`favourable_levers()`), and `frontier.with_gfi_amino_acids` reprices a case with the nutrient
 floor built from GFI's prices (`nutrient_floor`; since 2026-11-19 the model's own floor is GFI's feed grade, so it returns the
-same $7.62). The all-favourable example is $1.5 above the $6.1 a kilo of cells that parity with US minced beef or pork cuts ($12
+same $6.97). The all-favourable example is $0.9 above the $6.1 a kilo of cells that parity with US minced beef or pork cuts ($12
 a kilo) needs. Evidence and odds for each lever: `research_notes/frontier.md`, `study_comparison.md`, `gf_and_doubling_bounds.md`,
 `retention_alternatives.md`, `thick_culture.md`.
 
@@ -746,8 +750,8 @@ For each scenario, `downside.costs` prices the stirred tank in fed-batch and in 
 model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (tricks,
 shape) chosen again for each mode; for fed-batch through the scenario's own fed-batch setting, so a plant with shared medium keeps
 its full seed train (2026-11-19). Findings: `research_notes/no_perfusion_downside.md`. Since 2026-11-20 no fallback costs less than
-perfusion: the low-lactate example costs $71.76 in fed-batch and $76.35 in fill-and-draw at the model's cap (37 g/L), against
-$49.50 in perfusion; the all-favourable example $11.28 and $9.35 (120 g/L), against $7.62.
+perfusion: the low-lactate example costs $70.32 in fed-batch and $74.75 in fill-and-draw at the model's cap (37 g/L), against
+$48.68 in perfusion; the all-favourable example $11.03 and $9.13 (120 g/L), against $6.97 (2026-11-21).
 
 ### Holding the cells back (`retention.py`, added 2026-11-15)
 
@@ -890,6 +894,18 @@ tank (`pf_labour_perfusion` at his perfusion output), which comes from 96 tanks 
 his fed-batch plant) and gave Humbird's optimistic design $4.58 of labour a kilo; that input is now a cross-check only. Labour
 is $2.6 a kilo in Humbird's optimistic design and $3.5 in the low-lactate example.
 
+*Crew per tank and the building's power* (2026-11-21, `floor_physics.crew_multiplier` and `building_power`; back-test of his
+perfusion design, `research_notes/humbird_backtest.md` item 12). Humbird counts most of his crew per bioreactor (fixed hours per
+task and 10% of the online time, whatever the size): 13 of the 21 staff a shift of his fed-batch plant (`pf_labour_tank_share`)
+and 0.975 staff for each perfusion tank (`pf_labour_tank_perfusion`). The model now counts that part per tank: a batch tank's crew
+per m³ is his × (0.381 + 0.619 × 20 / size), a perfusion tank's is 2.0 times his at 20 m³ plus 0.975 staff a tank above or below
+the 20 m³ tank's share. At 20 m³ nothing changes; a plant of 2 m³ tanks needs 2.1 to 6.6 times the staff per m³, one of 100 m³ tanks
+0.5 to 0.9 times. The building's power (`pf_util_time`, $543 of his $1,700 of utilities a batch) is floor area times the load of
+its class in his Table 3.2: it now follows the buildings' floor at the tank size (the $74.4k per m³ + $533k per tank fit) and the
+class of each building (Class 8 hall 410 W/m², sanitary hall 50, a plain shed 5, Class 6 labs 1,000; the yeast-style plant's
+mostly outdoor buildings none). A food-grade plant's sanitary hall draws 22% of a clean-room plant's building power, which takes
+$0.2 off Humbird's optimistic design and $6.4 off Published cells, whose thin batch pays the building for few kilos.
+
 *Utilities in four parts* (changed 2026-11-20). `explore()` charged Humbird's $0.94 a kilo (`pf_utilities`, Table 4.6) to every
 case, whatever the tank made. His own Table 4.4 is mostly per batch and per year: of $1,700 a batch, $543 is power for the
 building (by the year), $773 is water and steam to clean, sterilise and refill the tank (by the run), $326 is the water the
@@ -991,11 +1007,11 @@ a mature industry, so the model uses 17.3% for them. The reported cost and the p
 | Humbird fed-batch, as designed | sterile 20 m³ stirred tanks with clean rooms, filled and emptied every ~2 days; efficient 3 ng cells | designed, not built | 14.5 | $18.9 | $2.0 + 4.0 | **$24.9** | 3.18 | $21.0 |
 | Humbird perfusion, as designed | sterile 2 m³ tanks, cells held back by ATF filters | perfusion at 2 m³ exists in pharma | 35.8 | $39.8 | $2.0 + 4.0 | **$45.8** | 5.59 | $37.7 |
 | same fed-batch plant, small slow cells | cells of 0.55 ng doubling every 61 h (the size and speed in Pasitka's run); they respire a little more per gram | the cells exist; the plant does not | 6.0 | $42.6 | $2.1 + 4.0 | **$48.7** | 5.93 | $39.2 |
-| pharma-style plant, half the density | the next row with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.4 | $33.9 | $2.0 | **$35.9** | 4.45 | $28.2 |
-| pharma-style plant, fill-and-draw | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 14.9 | $17.7 | $2.0 | **$19.7** | 2.57 | $15.9 |
-| no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 14.9 | $16.2 | $2.0 | **$18.2** | 2.39 | $14.8 |
-| **no clean rooms, perfusion (Humbird's optimistic design)** | food-grade plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; bubble protectant; efficient cells; 91% uptime; 8% of the cells killed by bubbles and 2% lost at harvest | each piece shown or claimed separately, never together; no filter has held animal cells at 20 m³ | 19.9 | $16.4 | $2.2 | **$18.6** | 2.45 | **$15.9** |
-| **microbial-fermentation-class plant (no scenario assumes it)** | Humbird's optimistic design in a plant at the cost of built microbial plants, buying its oxygen | such plants exist for microbes; none built or costed for animal cells | 19.9 | $9.5 | $2.2 | **$11.7** | 1.65 | **$11.0** |
+| pharma-style plant, half the density | the next row with cells at 60 g/L, not 120 | nearer to reported harvests (~27 g/L) | 7.0 | $37.1 | $2.7 | **$39.8** | 4.89 | $31.6 |
+| pharma-style plant, fill-and-draw | Humbird's plant; tanks half drained and refilled, no cell retention, 85% uptime; efficient cells | fill-and-draw is filed as an option at 20 m³; the density is not shown | 12.9 | $20.3 | $2.2 | **$22.5** | 2.90 | $18.1 |
+| no clean rooms, fill-and-draw | the same with a sanitary hall in place of the clean room | food-grade 20 m³ tanks run today; the density is not shown | 12.9 | $18.3 | $2.2 | **$20.5** | 2.66 | $16.5 |
+| **no clean rooms, perfusion (Humbird's optimistic design)** | food-grade plant with a sanitary hall; 20 m³ tanks in perfusion at 120 g/L, cells held back by a hollow-fibre filter loop; bubble protectant; efficient cells; 91% uptime; 8% of the cells killed by bubbles and 2% lost at harvest | each piece shown or claimed separately, never together; no filter has held animal cells at 20 m³ | 19.9 | $16.2 | $2.2 | **$18.4** | 2.42 | **$15.7** |
+| **microbial-fermentation-class plant (no scenario assumes it)** | Humbird's optimistic design in a plant at the cost of built microbial plants, buying its oxygen | such plants exist for microbes; none built or costed for animal cells | 19.9 | $9.3 | $2.2 | **$11.5** | 1.62 | **$10.7** |
 | rough lower bound | the cheapest modelled fermentation plant, small-tank density, oxygen at the animal-cell ceiling, amino acids at $1 a kilo (about the price of soybean-meal protein; GFI's feed grade is $6.36) | a rough bound, not a design | 47.5 | $2.4 | $0.7 | **$3.1** | 0.65 | $3.0 |
 
 What it says:
@@ -1003,22 +1019,22 @@ What it says:
 - **The rows are of two kinds.** The two perfusion rows in bold are `explore()` itself, so they carry everything the engine
   counts: the filter loop, the bubble protectant, antifoam, cells killed by bubbles, the harvest loss, the perfusion crew and
   the extra medium-preparation equipment. The other rows are `tiers()`' older arithmetic on Humbird's own figures and carry
-  none of those. So the fill-and-draw rows ($14.8 and $15.9 with food-industry financing) are at or below the perfusion row
-  ($15.9) in this table; like for like, in `explore()`, the same tank drained and refilled costs $20.0 ("Tanks that are drained and
-  refilled", below).
-- **With plants that have been costed for animal cells, Humbird's optimistic design is $15.9/kg with food-industry
-  financing ($18.6 for a first plant), well above the $6.1 parity threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and
+  none of those. Since 2026-11-21 the half-density and fill-and-draw rows are `explore()` too, so every row but the three
+  Humbird rows and the rough bound carries them; the fill-and-draw rows ($16.5 and $18.1 with food-industry financing) sit just
+  above the perfusion row ($15.7).
+- **With plants that have been costed for animal cells, Humbird's optimistic design is $15.7/kg with food-industry
+  financing ($18.4 for a first plant), well above the $6.1 parity threshold.** It needs perfusion at 20 m³ with a device to hold cells back, efficient cells and
   medium that costs no more than the nutrients the cells eat, together.
 - **A plant as cheap as a yeast plant is not used in any scenario.** At the cost of today's microbial fermentation plants
-  Humbird's optimistic design would be about $11.0/kg, above the parity line ($11.7 for a first plant), and nothing shows that animal cells can be
+  Humbird's optimistic design would be about $10.7/kg, above the parity line ($11.5 for a first plant), and nothing shows that animal cells can be
   grown in such plants. Contaminants double in 20 minutes, animal cells in a day or two.
 - **Clean rooms are not the main cost.** Removing them saves about a tenth. The cost is in sterile vessels,
   piping and the buildings and utilities around small tanks.
-- **Perfusion is worth about $4/kg in Humbird's optimistic design** against the same tank drained and refilled ($15.9 against
-  $20.0, both from `explore()`, with food-industry financing), because it holds the culture at its cap, where the least medium
-  flow caps a drained tank at 92 g/L. It was about $6 before 2026-11-20 ($12.8 against $18.8): perfusion now pays a crew twice
-  the fed-batch one and dearer membranes. In the low-lactate example perfusion is worth $22.3 against the same cells in a 20 m³
-  fed-batch ($49.50 against $71.76). It needs a
+- **Perfusion is worth about $0.8/kg in Humbird's optimistic design** against the same tank drained and refilled ($15.7 against
+  $16.5, both from `explore()`, with food-industry financing; it was $4 until 2026-11-21, when the least medium flow capped a
+  drained tank at 92 g/L; now his cells' batch reaches 116 g/L, held by its waste). It was about $6 before 2026-11-20 ($12.8 against $18.8): perfusion now pays a crew twice
+  the fed-batch one and dearer membranes. In the low-lactate example perfusion is worth $21.6 against the same cells in a 20 m³
+  fed-batch ($48.68 against $70.32). It needs a
   device that holds cells back at 20 m³, which does not exist, and cells that make little waste, or the medium bill rises.
 - **The cells matter as much as the plant.** Halving the density nearly doubles the pharma-style fill-and-draw row. Small, slow
   cells more than double the plant cost in Humbird's own design.
@@ -1046,40 +1062,41 @@ The density is the lowest of five limits (oxygen supply, mixing, CO₂ removal, 
 and the page says which one binds. With no lever moved the panel is Humbird's optimistic design.
 
 *What limits a case (`floor_tornado`, the tornado chart in the panel).* Each limiting factor is moved alone
-across its plausible range, the others held at the case being viewed. Around Humbird's optimistic design ($15.9/kg), widest first:
+across its plausible range, the others held at the case being viewed. Around Humbird's optimistic design ($15.7/kg), widest first
+(`floor_physics.floor_tornado`, regenerated 2026-11-21):
 
 | factor | range | cost at the two ends, $/kg |
 |---|---|---|
-| waste the cells make | efficient cells to a quarter of the way to ordinary | 15.9 – 59.3 |
-| doubling time | 18 h to 48 h | 12.3 – 35.9 |
-| gas flow the cells tolerate | 2 mm/s to 9 mm/s | 35.3 – 15.7 |
-| ammonia the cells make | 0.055 mol/kg to 0.14 mol/kg | 15.9 – 32.3 |
-| least medium flow the cells need | 3.7 mL per g a day to 18.5 mL per g a day | 15.9 – 31.0 |
-| tank shape (liquid depth / width) | 1.0 to 3.0 | 16.8 – 30.6 |
-| salt strength the cells tolerate | 350 mOsm/kg to 450 mOsm/kg | 27.8 – 15.9 |
-| plant estimate | a third of Humbird's to +50% | 11.3 – 19.4 |
-| price of the bubble protectant | $10 a kilo to $260 a kilo (catalogue) | 15.4 – 21.6 |
-| class of plant | built like a yeast plant to pharma-style | 11.0 – 16.8 |
-| growth factors | none to all bought | 15.9 – 21.6 |
-| yearly charge on the plant | 12.3% to 23.6% | 13.8 – 18.6 |
-| cell mass | 1 ng to 3 ng | 20.4 – 15.9 |
-| life of the filter membranes | 5,500 litres per m² to 900 litres per m² | 14.9 – 19.1 |
-| how the tank is run | perfusion to drained and refilled | 15.9 – 20.0 |
-| medium price | $0.10 a litre to $0.50 a litre | 15.9 – 19.9 |
-| runs lost to contamination | none to 2% a day | 15.9 – 19.2 |
-| pH held in the tank | 6.9 to 7.4 | 15.9 – 18.1 |
-| oxygen transfer left with antifoam | halved to no effect | 17.9 – 15.9 |
-| CO₂ carried off by the exhaust gas | 70% of the most it could carry to 96% | 17.6 – 15.9 |
-| pressure at the top of the tank | 0 bar gauge to 1 bar gauge | 17.1 – 15.9 |
-| tank size | 5 m³ to 200 m³ | 22.6 – 22.2 |
-| CO₂ the cells tolerate | 100 mbar to 200 mbar | 15.9 – 15.9 |
-| oxygen used for upkeep | 31% to 100% | 15.9 – 15.9 |
+| waste the cells make | efficient cells to a quarter of the way to ordinary | 15.7 – 59.1 |
+| doubling time | 18 h to 48 h | 12.2 – 35.5 |
+| gas flow the cells tolerate | 2 mm/s to 9 mm/s | 34.7 – 15.5 |
+| ammonia the cells make | 0.055 mol/kg to 0.14 mol/kg | 15.7 – 32.0 |
+| least medium flow the cells need | 3.7 mL per g a day to 18.5 mL per g a day | 15.7 – 30.8 |
+| tank shape (liquid depth / width) | 1.0 to 3.0 | 16.6 – 30.1 |
+| salt strength the cells tolerate | 350 mOsm/kg to 450 mOsm/kg | 27.5 – 15.7 |
+| plant estimate | a third of Humbird's to +50% | 11.1 – 19.2 |
+| price of the bubble protectant | $10 a kilo to $260 a kilo (catalogue) | 15.2 – 21.4 |
+| class of plant | built like a yeast plant to pharma-style | 10.7 – 16.8 |
+| growth factors | none to all bought | 15.7 – 21.4 |
+| yearly charge on the plant | 12.3% to 23.6% | 13.6 – 18.4 |
+| cell mass | 1 ng to 3 ng | 20.1 – 15.7 |
+| life of the filter membranes | 5,500 litres per m² to 900 litres per m² | 14.7 – 18.9 |
+| medium price | $0.10 a litre to $0.50 a litre | 15.7 – 19.7 |
+| runs lost to contamination | none to 2% a day | 15.7 – 19.0 |
+| tank size | 5 m³ to 200 m³ | 23.5 – 21.2 |
+| pH held in the tank | 6.9 to 7.4 | 15.7 – 17.8 |
+| oxygen transfer left with antifoam | halved to no effect | 17.7 – 15.7 |
+| CO₂ carried off by the exhaust gas | 70% of the most it could carry to 96% | 17.3 – 15.7 |
+| pressure at the top of the tank | 0 bar gauge to 1 bar gauge | 16.8 – 15.7 |
+| how the tank is run | perfusion to drained and refilled | 15.7 – 16.5 |
+| CO₂ the cells tolerate | 100 mbar to 200 mbar | 15.7 – 15.7 |
+| oxygen used for upkeep | 31% to 100% | 15.7 – 15.7 |
 
 Humbird's optimistic design sits at the favourable end of most ranges, which is why most bars point up. The widest bar is the
 waste the cells make. Wasteful cells need more medium per kilo, and in perfusion every litre the bleed of cells does not carry
 out must pass the filter's membranes, at $0.60 a litre or more (`retention.py`). The bars that point down furthest are the
 plant (a cheaper class or estimate), then faster cells, cheaper financing, a longer membrane life and more gas. A squat tank
-no longer points down ($16.8 against $15.9): it holds no more cells, because a thick culture takes up oxygen more slowly, and
+no longer points down ($16.6 against $15.7): it holds no more cells, because a thick culture takes up oxygen more slowly, and
 it passes more gas per litre, and since 2026-11-20 the cells that gas kills are charged. Tank size points up at both ends:
 CO₂ holds a deeper tank thinner, and smaller tanks cost more per m³. The gas flow is also a large risk: the design's 6 mm/s is
 a rule of thumb, not a measured limit; a rough judgement made while building the model with an AI assistant, not measured and
@@ -1178,7 +1195,13 @@ cells tolerate), and antifoam's quarter cut to oxygen transfer, which makes oxyg
 
 The 100 mbar limit is a pharma figure that protects protein quality as well as growth, and the gas limit is a
 rule of thumb against cell damage and foam (see "What caps the gas flow" below). How much CO₂ and gas meat cells
-tolerate while growing is not known; it is the single measurement that would move Humbird's optimistic design most.
+tolerate while growing is not known. The two move Humbird's optimistic design in different ways (2026-11-21, `floor_tornado`).
+Below 100 mbar the CO₂ tolerated matters a great deal: at 60 mbar the design costs $20.6 a kilo against $15.7. Above it, oxygen
+(with antifoam's quarter cut and the slower uptake of a thick culture) holds the tank at 121 g/L, so 200 mbar saves $0.03: more
+CO₂ tolerance is worth almost nothing until the oxygen supply rises with it. The gas flow the cells tolerate moves the design
+more in both directions ($34.7 a kilo at 2 mm/s, $15.5 at 9 mm/s), because it carries both the oxygen and the CO₂. (Until
+2026-11-21 this sentence called CO₂ tolerance the single measurement that would move the design most; the tornado had stopped
+agreeing with it once oxygen began to bind above 100 mbar.)
 
 *Three costs counted since 2026-11-15 (late).* (1) **The bubble protectant.** Poloxamer 188 keeps bursting bubbles from killing
 cells and is dissolved in the medium, so it leaves with every litre: `pf_protectant_dose` (2 g/L, the dose with which dense pharma
@@ -1248,11 +1271,11 @@ decline. The consequence is a trade:
 the more CO₂ a tank runs at, the less lactate it may hold, and the more medium must wash it out. When the salt
 limit binds, the model runs the tank at whichever CO₂ level, at or below what the cells tolerate, costs least.
 
-This changes what CO₂ tolerance is worth. Cells that tolerate 200 mbar take Humbird's optimistic design from $15.93 to $15.90:
+This changes what CO₂ tolerance is worth. Cells that tolerate 200 mbar take Humbird's optimistic design from $15.72 to $15.69:
 oxygen binds at about 121 g/L once a thick culture's slower oxygen uptake is counted, and the tank is run at about 103 mbar.
 Removing CO₂ by engineering (more gas, a squat tank, a membrane loop) raises the density without adding bicarbonate, so the salt
-limit does not take from it; what it is worth now depends on the cells the extra gas kills and on oxygen ($15.7 with gas at
-9 mm/s, $16.8 in a squat tank). Holding the tank at pH 6.9 changes nothing ($15.9), since CO₂ no longer binds once oxygen does.
+limit does not take from it; what it is worth now depends on the cells the extra gas kills and on oxygen ($15.5 with gas at
+9 mm/s, $16.6 in a squarer tank; 2026-11-21). Holding the tank at pH 6.9 changes nothing ($15.7), since CO₂ no longer binds once oxygen does.
 
 Least medium flow. Besides ammonia and lactate, other by-products build up and individual nutrients run out,
 so a cell needs a least flow of medium per day whatever it makes. Bioprocess engineers call it the
@@ -1521,14 +1544,15 @@ exponent is solved to give his total; it comes out at 0.49, an ordinary value. P
 
 Each item has options (`plant_items.options`), and `explore(items={...})` prices any choice of them; the
 panel's "class of plant" sets them all at once. Two plants are new. *Food-grade with shared medium* ($340k per m³; $452k in 2025
-prices; cells at $13.1 per kg against Humbird's optimistic design's $15.9) removes what animal cells plausibly do not need: the
+prices; cells at $12.8 per kg against Humbird's optimistic design's $15.7; $13.1 and $15.9 before 2026-11-21, when the building's
+power began to follow its floor and its class) removes what animal cells plausibly do not need: the
 clean room and the food-plant finish (closed, steam-sterilised tanks are the sterile boundary, which pharma's
 own industry group accepts, and Vow runs a 20 m³ tank so); the owned oxygen plant (oxygen is bought, at an
 assumed $0.10 per kg, $0.33 per kg of cells); six of the eight final seed tanks (Humbird sizes the seed train
 for a restart every 57 hours; runs of ten days need 1.4 final seed tanks for 24 production tanks, so two
 small trains are kept, one a spare); electropolish and spare probes on the tanks (taken at Vow's "well under
 $1 million" a tank against his $1.41M); and a makeup tank per bioreactor. *Yeast plant plus* ($175k per m³;
-$233k in 2025 prices; $11.2 per kg) is his yeast plant with what animal cells certainly need added: cell labs,
+$233k in 2025 prices; $10.9 per kg, $11.2 before 2026-11-21) is his yeast plant with what animal cells certainly need added: cell labs,
 sterilisation of all the medium, and oxygen. The gap between the two is mostly the installed cost of a
 sealed, steam-sterilised tank and its piping, for which no vendor price was found. One published vendor quote
 points the other way: Garrison 2022's food-grade plant is $750k per m³, for four tanks with a seed train each.
@@ -1632,7 +1656,7 @@ bubble-free gas exchange would matter most for these cells.
 No preset can be a cost estimate for shrimp, because no shrimp or other crustacean cell culture that keeps
 dividing exists. Several of the numbers were read only in abstracts; the notes mark which.
 
-**What the page opens on.** Since 2026-11-20 the page opens on Humbird's best estimate (2021) as he counts it: his fed-batch design with enhanced cells on soy hydrolysate, which the engine prices like for like at $26.99 a kilo in 2025 dollars (`humbird_check.page_start`; his own figure is $21.00 in 2018 dollars). Published cells is the other start. The levers sit at the side with their reference values, and the vessel, the mode, the retention device, the tank size, the interest rate, the years of repayment, the upkeep and the cleaning of the medium are choices. Five things the model counts and Humbird does not (a thick culture's slower oxygen uptake, a least medium flow, cells killed by bubbles, cells lost at harvest, the bubble protectant) are levers that start at his value, none, with one button that switches them all on; with all five on the same design costs $37.38 ("Back-test against Humbird's own tables", below). It opened on the low-lactate example (`scenarios.py`) before. The inputs registry, `uncertainty.py`'s Monte Carlo and the golden tests still start from the reported cost.
+**What the page opens on.** Since 2026-11-20 the page opens on Humbird's best estimate (2021) as he counts it: his fed-batch design with enhanced cells on soy hydrolysate, which the engine prices like for like at $26.99 a kilo in 2025 dollars (`humbird_check.page_start`; his own figure is $21.00 in 2018 dollars). Published cells is the other start. The levers sit at the side with their reference values, and the vessel, the mode, the retention device, the tank size, the interest rate, the years of repayment, the upkeep and the cleaning of the medium are choices. Five things the model counts and Humbird does not (a thick culture's slower oxygen uptake, a least medium flow, cells killed by bubbles, cells lost at harvest, the bubble protectant) are levers that start at his value, none, with one button that switches them all on; with all five on the same design costs $30.49 ($37.38 before 2026-11-21) ("Back-test against Humbird's own tables", below). It opened on the low-lactate example (`scenarios.py`) before. The inputs registry, `uncertainty.py`'s Monte Carlo and the golden tests still start from the reported cost.
 
 Limits. Capital per m³ is other people's engineering, not physics. The 120 g/L limits are Humbird's for
 efficient cells; less efficient cells hit ammonia far sooner. The last row is a rough bound, not a proof: it
@@ -1661,13 +1685,13 @@ and the plant's charge per kilo.
 
 | design | Humbird, 2018 $ | engine like for like, 2018 $ | engine like for like, 2025 $ | engine with the model's additions, 2025 $ |
 |---|---:|---:|---:|---:|
-| Fed-batch, enhanced cells, amino acids | 36.79 | 36.37 | 47.11 | 59.27 |
-| Fed-batch, enhanced cells, soy hydrolysate (his best estimate) | 21.00 | 20.65 | 26.99 | 37.38 |
+| Fed-batch, enhanced cells, amino acids | 36.79 | 36.37 | 47.11 | 53.54 |
+| Fed-batch, enhanced cells, soy hydrolysate (his best estimate) | 21.00 | 20.65 | 26.99 | 31.28 |
 | Fed-batch, wild-type cells, amino acids | 236.58 | 261.61 | 344.25 | 376.61 |
 | Fed-batch, wild-type cells, soy hydrolysate | 225.03 | 248.15 | 327.03 | 358.98 |
-| Perfusion in 2 m³ tanks, enhanced cells, amino acids | 51.29 | 50.47 | 65.66 | 108.54 |
+| Perfusion in 2 m³ tanks, enhanced cells, amino acids | 51.29 | 49.74 | 64.73 | 112.45 |
 
-Like for like the three designs with enhanced cells are within 1.7%, and in the four fed-batch designs every line but labour and
+(Regenerated 2026-11-21: the model's additions no longer cap his fed-batch at 92 g/L, and his perfusion design's growth factors and crew are his.) Like for like the three designs with enhanced cells are within 3.0%, and in the four fed-batch designs every line but labour and
 the plant of the wild-type designs is within 5%. His best estimate, line by line (2018 dollars, his figure then the engine's):
 nutrients 3.39 and 3.39 (entered), growth factors 3.12 and 3.00, consumables 0.81 and 0.81, utilities 0.93 and 0.92, labour
 1.42 and 1.42, plant 11.33 and 11.12, total 21.00 and 20.65. The wild-type designs are 10–11% high, and the cause is the plant:
@@ -1688,14 +1712,17 @@ per batch and per year. The crew per m³ of tank was 2% high (14.5 t per m³ a y
 described under "The plant term". One description was corrected with no change of value: by his own count his batch ends at
 his limits, not 1.3 times above them (`pf_batch_end_x`, "The mass balance of a tank that is not washed out").
 
-*Residuals left* (`humbird_check.RESIDUALS`, pinned by the test). In his perfusion design three lines are far off and partly
-cancel, so the total is within 1.6%: growth factors +62% (he counts those lost in the 7 litres a kilo that pass the filters;
-the engine doses all 12.5 litres that leave), utilities −54% (his plant of 2 m³ tanks has 2.9 times the clean-room floor per m³
-and uses 26 litres of water a kilo) and labour −42% (his 96 small tanks take 0.69 staff per m³; the engine gives a tank in
-perfusion twice his fed-batch crew, 0.40). His plant of 2 m³ tanks costs $3,451k per m³ and the engine's per-tank items give
-$3,244k (−6.0%): his plant spends $493k per m³ on the seed train, sterilisers, centrifuges and outside utilities, the engine
-$286k. Labour with his wild-type cells is 15% high (his wild-type plant has 81 staff, not 95), and their plant 14% high (above).
-How buildings, support equipment and crew scale with tank size is a fit to his two designs alone (TODO).
+*Residuals left* (`humbird_check.RESIDUALS`, pinned by the test). His perfusion design's three large gaps were traced on 2026-11-21
+(`research_notes/humbird_backtest.md`, item 12). Growth factors +62%: he counts those lost in the 7.4 litres a kilo that pass the
+filters, not the 5.1 that leave with the bled cells; the engine keeps counting all of them (they are lost with the culture), and the
+back-test buys them only in his share of the litres (−4%). Labour −42%: he counts most of his crew per tank (0.975 staff a tank for
+inoculation, day-tank changes and monitoring); the engine now does too (`floor_physics.crew_multiplier`), and the back-test takes his
+own rest of the crew (0%); the model's own perfusion crew at 20 m³ stays twice his fed-batch crew per m³. Utilities −54%: the
+building's power now follows its floor and its class (`floor_physics.building_power`, his Table 3.2), which closes half of it; the
+rest is 13.5 litres of process water a kilo his report does not itemise (−27%). The total is within 3.0%. His plant of 2 m³ tanks
+costs $3,451k per m³ and the engine's per-tank items give $3,244k (−6.0%): his plant spends $493k per m³ on the seed train,
+sterilisers, centrifuges and outside utilities, the engine $286k. Labour with his wild-type cells is 15% high (his wild-type plant
+has 81 staff, not 95), and their plant 14% high (above). How buildings, support equipment and crew scale with tank size is a fit to his two designs alone (TODO).
 
 *What the model adds to his best estimate* (2025 dollars, one at a time, each kept):
 
@@ -1704,21 +1731,25 @@ How buildings, support equipment and crew scale with tank size is a fit to his t
 | His design, like for like | 26.99 | |
 | The model's flat $0.30 of supplies in place of his filter sets, and his yearly charge unrounded | 26.24 | −0.75 |
 | A thick culture takes up oxygen more slowly | 26.24 | +0.00 |
-| The least medium flow the cells need: it caps the density at 92 g/L | 32.65 | +6.41 |
-| All the waste a kilo made counted at the end of a batch, which may end 1.3 times above the limit | 32.65 | +0.00 |
-| Cells killed by bursting bubbles | 34.80 | +2.15 |
-| Cells lost at harvest (2%) | 35.51 | +0.71 |
-| Bubble protectant in the medium: the model's own version of his design | 36.21 | +0.71 |
+| The least medium flow the cells need (by-products, which a batch may end above as it may the other wastes) | 26.24 | +0.00 |
+| All the waste a kilo made counted at the end of a batch, which may end 1.3 times above the limit | 26.97 | +0.73 |
+| Cells killed by bursting bubbles | 29.24 | +2.27 |
+| Cells lost at harvest (2%) | 29.84 | +0.60 |
+| Bubble protectant in the medium: the model's own version of his design | 30.45 | +0.61 |
 
-The largest addition, the least medium flow, is a pharma perfusion measurement applied to a fed-batch; nobody has measured it
-for a dense fed-batch of meat cells (TODO). The slower oxygen uptake adds nothing here: CO₂ and the least flow hold the batch
-below the density at which it would bind.
+Until 2026-11-21 the least medium flow capped his batch at 92 g/L here (+$6.41) and the model's own version cost $36.21.
+
+Since 2026-11-21 the least medium flow, a pharma perfusion measurement, is counted in a tank that is not washed out as the batch's
+other waste is: it stands for by-products that build up (a fed-batch's feeds supply the nutrients), and a batch may end 1.3 times
+above their level, as above ammonia's and lactate's. Its cap is then 120 g/L, so it no longer binds his design (it capped it at 92
+g/L and added $6.4). Nobody has measured it for a dense fed-batch of meat cells. The slower oxygen uptake adds nothing here: CO₂
+holds the batch below the density at which it would bind.
 
 *The page's start* (`humbird_check.page_start`) is his design like for like in 2025 dollars, $26.99 a kilo at 120 g/L, with
 his nutrient cost kept per kilo grown. Five of the additions are levers of the page that start at his value, none: switched on
-alone they add nothing (a thick culture's slower oxygen uptake), $6.73 (the least medium flow), $2.35 (bubble deaths), $0.55 (the
-harvest loss) and $0.50 (the protectant), and together $10.38, to $37.38 (`page_with_additions`; his yearly charge and filter
-sets kept, which is why it is not the $36.21 of the table above).
+alone they add nothing (a thick culture's slower oxygen uptake), nothing (the least medium flow; $6.73 before 2026-11-21), $2.35
+(bubble deaths), $0.55 (the harvest loss) and $0.50 (the protectant), and together $3.50, to $30.49 (`page_with_additions`; his
+yearly charge, filter sets and count of the end of a batch kept, which is why it is not the $30.45 of the table above).
 
 ### Back-test against reported runs (`floor_physics.backtest`)
 
@@ -1874,7 +1905,7 @@ uses its own price). Every product uses the same rule and there is no free fitte
 food's appeal is its health position, +2, times a solved weight). Cultivated meat alone carries ℓ, a liking that differs across
 shoppers and whose mean is set by the share at equal price (below). Here `share_j` is of all four products; the share the model
 reports is cultivated meat's share of the meat sold, x / (x + c) (below). At equal price cultivated meat's 13.0% of all four is
-14.5% of the choices that go to conventional or cultivated meat: of meat buyers.
+14.4% of the choices that go to conventional or cultivated meat: of meat buyers.
 
 **Why cultivated takes buyers from conventional meat, without a nest.** A single logit takes share from every
 option in proportion. Here the shared real-tissue attribute makes conventional meat own almost all of the
@@ -1922,7 +1953,7 @@ is fitted to this experiment among other things (next paragraph), so this is a f
 
 **Shoppers differ in how much they like cultivated meat** (`research_notes/liking_spread.md`; `market_share.spread_quadrature`).
 Each shopper's utility for cultivated meat is the model's plus a draw ℓ from a spread across shoppers. Its mean is set so that,
-once familiar and at equal price, at neutral settings, cultivated meat is picked by 14.5% of meat buyers, which is
+once familiar and at equal price, at neutral settings, cultivated meat is picked by 14.4% of meat buyers, which is
 `equal_price_share` = 13% of all choices among meat, cultivated meat, plant-based meat and no meat (`market_share._solve_liking`).
 **The reported share is the share of the meat sold** (since 2026-11-19, audit finding 6a): for each product,
 `share(..., which="x_meat")` = x / (x + c), cultivated over cultivated plus conventional, both segments mixed, then summed by
@@ -1930,7 +1961,7 @@ volume (`meat_market._rollup`, `penetration`, `monte_carlo`, and the side studie
 share of all four choices. A market where every product costs the same, at 50% of meat buyers and US income, now gives 50.0%
 (46.5% before). Plant-based meat's share keeps its definition (which="p").
 Readers are told the meat-buyers figure first: 50% of meat buyers would mean no preference; the all-favourable example takes
-58.5% of meat buyers (`best_equal_price_share` = 55% of all choices). The calibration (β, the solved weights, plant-based meat's 0.4%) and every check on an existing
+58.6% of meat buyers (`best_equal_price_share` = 55% of all choices). The calibration (β, the solved weights, plant-based meat's 0.4%) and every check on an existing
 product are computed with every shopper alike and do not move.
 
 *The shape: a Student's t* (`inputs.LIKING_FAMILY = "student"`, since 2026-11-19). It is a bell curve with heavier tails than
@@ -1986,7 +2017,7 @@ fourth are golden-guarded). The spread also gives a group that never buys: for m
 cultivated meat at half the price and 45% if it is free (24.5% and 41.5% of all choices), so about 55% of meat buyers never pick
 it. What it does not fix: the response of premium products
 to a falling price is 3.7–4.3 against farmed salmon's 1–1.5, and above about four times the price of meat the tail is an
-extrapolation (the premium data stop at 3.6 times). The all-favourable example, with its own 58.5% of meat buyers
+extrapolation (the premium data stop at 3.6 times). The all-favourable example, with its own 58.6% of meat buyers
 at equal price, takes 22.6% of world meat and seafood with this shape and would take 29.3% with the normal spread it replaced
 (28.9% on that spread's fifteen points): between one and four times the price of meat the answer depends on how many shoppers
 are moderately keener than average, which the t puts lower and no data measure beyond the one experiment. Shapes that fit the
@@ -1996,7 +2027,7 @@ evidence about as well (a logistic, mixtures of two normals) give the all-favour
 moves it by up to about a quarter now, because most of its products now sell at one to two times the price of their meat or
 below it.
 
-**The share at equal price is a judgement, and its prior is a lognormal.** It is 14.5% of meat buyers, set as 13% of all choices.
+**The share at equal price is a judgement, and its prior is a lognormal.** It is 14.4% of meat buyers, set as 13% of all choices.
 13% is a third of first-contact aversion fading (the
 model's own novelty term, 2.8 of 8.6 utils, and survey corrections in which novelty fades by half and an "unnatural" image
 persists). With the t spread, fading the experiment's 5% by 2.8 utils gives 15% if the 5% is read as a share of all choices;
@@ -2008,7 +2039,7 @@ buyers), and draws are clipped to 0.5%–80%. Until 2026-11-19 the prior was a t
 they were meant to surround. Outside readings: the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%
 (`research_notes/what_drives_choice.md`), and a reading of foods made by distrusted processes puts the median near 18%
 (`demand_heterogeneity_evidence.md` §6), both on the scale of all choices. The all-favourable example uses its own
-setting, 55% of all choices, 58.5% of meat buyers (`best_equal_price_share`, triangular 35–55–70%): shoppers who come to favour
+setting, 55% of all choices, 58.6% of meat buyers (`best_equal_price_share`, triangular 35–55–70%): shoppers who come to favour
 cultivated meat. The review puts about 3% on more than 49%. The share at equal price is
 the long-run dial: the no-slaughter, long-run novelty and health dials are not drawn in the bands, since they are parts of it,
 and stay on the page as what-ifs on top. Taste (`accept_x`) was drawn separately until 2026-11-20 and is no longer drawn, for
@@ -2023,9 +2054,9 @@ elasticity (`mk_demand_elast` = −0.65, range −0.8 to −0.5: beef −0.56, p
 1956). The exponent is 1 / 2.65 = 0.38. The price applies to every kind of meat in the region (the same s and the same factor:
 shifts between cuts of one carcass largely cancel, and what remains is the herd), and it is solved with the share by the secant
 method from a fixed price, since a lower price lowers the share. `supply_elast=inf` holds the price fixed. It replaced a fixed
-price, with only a first-order bound in this section. The all-favourable example, with its own 58.5% of meat buyers, takes 26.4%
+price, with only a first-order bound in this section. The all-favourable example, with its own 58.6% of meat buyers, takes 26.4%
 of world meat and seafood at a fixed price and 22.6% with the response (conventional meat's prices fall by 9%); across the supply
-elasticity's range, 19.3% (0.5) to 25.3% (10). With the ordinary 14.5% its cells take 5.7% at a fixed price and 5.4% with the
+elasticity's range, 19.3% (0.5) to 25.3% (10). With the ordinary 14.4% its cells take 5.7% at a fixed price and 5.4% with the
 response. The low-lactate example's share (0.047%) is too small for it to matter. The inputs have ranges but are not drawn in the
 bands.
 
@@ -2207,7 +2238,7 @@ share(t) = F(t) × ceiling(ν(t)),      ν(t) = ν_x + (ν_x0 − ν_x)·exp(−
 reached. The standard Bass rates come from durable goods, and the familiarity fade below may partly overlap
 with the word-of-mouth term, so timing is rougher than the ceilings. Novelty ν fades
 from the cold start `neophobia_x0` = −2.8 (4.8% of meat buyers at parity, 4.3% of all choices; Van Loo, Caputo & Lusk 2020
-measured 5% and 4%) toward the long-run `neophobia_x` (0, where the share at parity is the setting, 14.5% of meat buyers) as cumulative availability `E(t)` grows, at rate
+measured 5% and 4%) toward the long-run `neophobia_x` (0, where the share at parity is the setting, 14.4% of meat buyers) as cumulative availability `E(t)` grows, at rate
 `accept_rate` (mere exposure). The ceiling is the Step 2 share at the current novelty. Fading novelty cures
 “it's new”, not “it's worse”: a taste deficit (`accept_x` < 1) persists, which is why plant-based meat stalls
 on the same machinery. Neophobia is symmetric across the two novel meats (`neophobia_x`, `neophobia_p`).
@@ -2221,7 +2252,7 @@ start of the path, not the ceiling.
 rollout complete (F = 1) and novelty at its long-run value. That share is computed directly, and the simulation
 runs on past the 30 plotted years until it is reached (cap 200), so the answer does not depend on the horizon.
 At the reported cost it is 21 years (14 at `accept_rate` = 0.5, 46 at 0.05; golden-guarded); in the low-lactate example 19 (14 to 39), in
-Humbird's optimistic design 24 (14 to 54) and in the all-favourable example, with its own 58.5% of meat buyers at equal price, 21 (14 to 45).
+Humbird's optimistic design 24 (14 to 54) and in the all-favourable example, with its own 58.6% of meat buyers at equal price, 21 (14 to 45).
 Before 2026-11-20 the last three were 21 (14 to 46), 24 (14 to 55) and 22 (14 to 51), at other costs. It was 28 at the
 reported cost with the normal spread. These assume that nothing stalls and that supply keeps up; the Bass rates are those of
 durable goods, so the years are an assumption, not an estimate.
@@ -2238,14 +2269,15 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 
 ```
 basic product vs commodity meat (US minced beef or pork cuts, $12/kg):
-  price ratio R:   P50 = 4.32   80% CI [3.33, 5.57]   90% CI [3.08, 5.95]   0% of draws at or below parity
-  long-run share:  P50 = 0.3%   80% CI [0.1, 1.7]
+  price ratio R:   P50 = 4.42   80% CI [3.36, 5.75]   90% CI [3.11, 6.17]   0% of draws at or below parity
+  long-run share:  P50 = 0.3%   80% CI [0.1, 1.6]
 ```
 
 Two changes of 2026-11-20 moved it in opposite directions. Taste stopped being drawn 0.6–1.0 on top of the share at equal
 price, which raised the share's median from 0.3% (0.1–1.6) to 0.4% (0.1–2.0) and left R at 4.20 (3.17–5.49). Then the low end
 of the plant-cost range rose with `plant_floor`, from $10.8 to $13.8, which raised the median R to 4.32 and brought the share's
-median back to 0.3%.
+median back to 0.3%. On 2026-11-21 the range became $13.5–37.1 (the plant ladder's fill-and-draw and half-density rows are
+`explore()` itself, and the building's power follows its floor and class): the median R 4.32 -> 4.42, 80% of draws 3.36–5.75.
 
 This draw is around the reported cost, not a scenario. Its share is mince's share of all choices (`uncertainty.py` keeps that
 scale; as a share of meat buyers it would be about an eighth higher). The median is close to the reported 4.27. The plant-cost range
@@ -2274,17 +2306,17 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
 
 ## Cruxes
 
-- **Cost (dominates):** does cost reach parity? Most likely not: parity needs $6.1 a kilo of cells; the low-lactate example costs $49.5
-  at most likely values (middle draw $54, 8 in 10 between $41 and $79) and the all-favourable example $7.6 (middle draw $9,
-  8 in 10 between $8 and $11); R against US minced beef or pork cuts ($12 a kilo) is 6.0 and 1.17 (6.6 and 1.3 at the median). The
+- **Cost (dominates):** does cost reach parity? Most likely not: parity needs $6.1 a kilo of cells; the low-lactate example costs $48.7
+  at most likely values (middle draw $52, 8 in 10 between $39 and $76) and the all-favourable example $7.0 (middle draw $8,
+  8 in 10 between $7 and $10); R against US minced beef or pork cuts ($12 a kilo) is 5.9 and 1.10 (6.3 and 1.3 at the median). The
   all-favourable example is the one most favourable case: lever by lever it is no worse than Humbird's design or any published
   study whose values respect the model's limits, and the one published estimate below it (Risner 2021's scenario 4) breaks four
   of them. The unsettled numbers are the waste the cells make (lactate and ammonia), the ammonia and lactate they tolerate, how
   long a cell filter lasts in a dense culture, how many cells bubbles kill, how much a thick culture slows oxygen uptake, and
   whether perfusion runs at 20 m³ at all.
-- **Demand at parity:** the share at equal price is a judgement, set at 14.5% of meat buyers (13% of all choices) and drawn
+- **Demand at parity:** the share at equal price is a judgement, set at 14.4% of meat buyers (13% of all choices) and drawn
   between 3.4% and 55.5%. Around it, taste, acceptance as real meat and the value of “no slaughter” move it between 6% and 27%.
-  The all-favourable example takes 58.5%.
+  The all-favourable example takes 58.6%.
 - **The spread of liking:** a Student's t fitted loosely to one experiment, sixteen premium meats and farmed salmon. Its tail decides the low-lactate example
   (above four times the price of meat it is an extrapolation, and the example's mince now sells at six times) and its middle decides the all-favourable example (22.6%;
   29.3% with the normal spread it replaced). The response to a falling price is still more than twice farmed salmon's.

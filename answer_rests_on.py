@@ -164,8 +164,8 @@ EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch 
                               "($46.1 to $51.9 in the low-lactate example) without changing any tank; it is left out.",
            "pf_mature_h": "Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of "
                           "product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days "
-                          "to mature muscle or fat would take the low-lactate example from $49.50 to $77.48 (4 days) or "
-                          "$241.87 (28 days). It is a lever on the page; it is left out here.",
+                          "to mature muscle or fat would take the low-lactate example from $48.68 to $75.46 (4 days) or "
+                          "$232.75 (28 days; 2026-11-21). It is a lever on the page; it is left out here.",
            **{k: None for k in ("sc_medium_mid", "sc_gf_part", "sc_hazard_cm", "sc_gas_mid", "sc_td_central", "sc_td_fast",
                                 "sc_restart_base", "sc_hazard_mid", "sc_medium_high")}}
 EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, "

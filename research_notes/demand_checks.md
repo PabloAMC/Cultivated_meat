@@ -34,7 +34,7 @@ shape of the spread is fitted to the first three of these (`liking_spread.md` §
 |---|---|---|---|
 | Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -1.37 | -3.27 |
 | Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | 1.5% | 0.9% | 0.1% |
-| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 3.7–4.3 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
+| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 3.7–4.2 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
 | Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | -1.23 | -2.89 | -2.89 |
 
 - **The choice experiment** (Van Loo, Caputo & Lusk 2020) reports no elasticity. Simulated from its fitted model it is about −1.5 at
@@ -80,12 +80,12 @@ alike it kept steepening with the price (−10.4 at three times).
 
 | price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (the low-lactate example) | world share, 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|---|
-| **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 9.2%, 6.5%, 3.3%, 0.9%, 0.3% | -1.37 | 0.05% | 5.4% |
-| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 49.6%, 29.7%, 15.2%, 3.1%, 0.1%, 0.003% | -3.27 | under 0.001% | 11.4% |
-| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 49.6%, 39.9%, 30.7%, 16.5%, 3.7%, 0.7% | -1.54 | 0.02% | 16.6% |
-| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 49.6%, 44.2%, 38.9%, 29.0%, 14.3%, 6.4% | -0.85 | 0.3% | 23.8% |
-| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.02% | 2.5% |
-| the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points) | 13.0%, 10.2%, 7.8%, 3.8%, 0.8%, 0.1% | -1.53 | 0.006% | 5.7% |
+| **the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)** | 13.0%, 9.2%, 6.5%, 3.3%, 0.9%, 0.3% | -1.37 | 0.05% | 6.1% |
+| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 49.6%, 29.7%, 15.2%, 3.1%, 0.1%, 0.003% | -3.27 | under 0.001% | 13.0% |
+| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 49.6%, 39.9%, 30.7%, 16.5%, 3.7%, 0.7% | -1.54 | 0.02% | 18.5% |
+| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 49.6%, 44.2%, 38.9%, 29.0%, 14.3%, 6.4% | -0.85 | 0.3% | 25.5% |
+| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.02% | 2.7% |
+| the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points) | 13.0%, 10.2%, 7.8%, 3.8%, 0.8%, 0.1% | -1.53 | 0.007% | 6.3% |
 
 - The first row is the model. The second is the model before: too few buyers above twice the price.
 - The third and fourth weaken the slope for every shopper and keep half the market at equal price. They are too generous: at twice
@@ -116,10 +116,10 @@ alike it kept steepening with the price (−10.4 at three times).
 
 | share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (the low-lactate example) | 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|
-| 100% | $185.59 | $49.50 | $7.62 |
-| 80% | $193.36 | $53.27 | $8.50 |
-| 60% | $206.32 | $59.56 | $9.96 |
-| 40% | $232.23 | $72.13 | $12.89 |
+| 100% | $181.13 | $48.68 | $6.97 |
+| 80% | $187.45 | $52.18 | $7.67 |
+| 60% | $197.98 | $58.01 | $8.83 |
+| 40% | $219.05 | $69.68 | $11.15 |
 
   Every scenario is at 100%. Beyond Meat's sales fell about 40% from their peak after its plants were built, and its costs run about 70%
   above a right-sized plant's (Knowles 2026). The market-size loop runs backwards as well as forwards.

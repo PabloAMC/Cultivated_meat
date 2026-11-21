@@ -99,7 +99,7 @@ Status key: OPEN (no relevant work found), PARTLY (pieces exist, the cultivated-
 
 ## 3. Value: who would act on the result
 
-Ranked by how much the result could change a decision by a lab, company or funder; my judgement **[INF]**.
+Ranked by how much the result could change a decision by a lab, company or funder; the model's rough judgement, made while building the model with an AI assistant **[INF]**.
 
 1. **B (+K, A as sub-cases).** If required membrane area and cost per m3 come out small, a bioprocess engineer or funder has a concrete component to test (a membrane loop at 20-200 L with CHO or chicken cells). If they come out large or the loop cannot carry dense cells, it closes a hope cheaply. It is on the model's largest cost lever (CO2/gas).
 2. **J (plant-cost itemisation).** Funders choosing between "sterile plant" and "food-grade plant" research; companies like Vow or Believer building; TEA authors. The model's own result says this is the step from ~$11.5 to ~$6.6/kg.

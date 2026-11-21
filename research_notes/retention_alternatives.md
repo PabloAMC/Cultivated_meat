@@ -2,6 +2,12 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Current figures (2026-11-21, second batch; `python retention.py`).** The low-lactate example now runs at 168 g/L ($48.68
+> with the TFF loop), the all-favourable example at 219 g/L ($6.97), Humbird's optimistic design at 120 g/L ($15.72). With the
+> three alternatives, in that order: reused pharma modules $30.54 / $7.76 / $14.22; dialyser-grade fibres $26.28 / $6.97 /
+> $13.86; ceramic run as a slow TFF loop $27.75 / $7.29 / $14.01. The body below gives the figures of the morning of 2026-11-21
+> (the low-lactate example $49.50, the all-favourable example $7.62).
+
 > Figures recomputed 2026-11-21 on the model of 2026-11-20 (lactate tolerated 35 mmol/L, cells killed by bursting bubbles, a 2%
 > harvest loss, twice the fed-batch crew in perfusion, membrane life 2,415 L/m² in place of 3,960, medium-preparation capital,
 > utilities in four parts, plant items charged per tank, thick cultures taking up oxygen more slowly, the bleed carrying the
@@ -40,7 +46,7 @@ loop costs $49.50.
 
 The ranges move each route's own inputs together to their favourable and unfavourable ends. Reused modules and dialysers are
 thrown away with a lost run, so their life is cut by the same share as the default loop's (85% in the low-lactate example). Ceramic
-elements are cleaned and kept. With the TFF loop the reference case costs $15.93 and the all-favourable example $7.62; the
+elements are cleaned and kept. With the TFF loop Humbird's optimistic design costs $15.93 and the all-favourable example $7.62; the
 all-favourable example's loop already uses dialyser-grade fibres, so the dialyser row equals it there.
 
 - **Each alternative saves $18 to $22 a kilo in the low-lactate example**, because the loop's membranes, replaced after 2,415 L/m²,
@@ -65,12 +71,13 @@ all-favourable example's loop already uses dialyser-grade fibres, so the dialyse
 ## 3. Probabilities
 
 Each figure below is a rough judgement made while building the model with an AI assistant from the research pass; not measured
-and not reviewed by an expert. The reasoning is in the research report.
+and not reviewed by an expert. The reasoning is in the research report. A dated snapshot (2026-11-15/16, not re-judged since):
+each row names its own price or share of cells by volume, so it does not depend on the density the examples now run at.
 
-| Statement | Probability |
+| Statement | Probability (the model's rough judgement) |
 |---|---|
 | The low-lactate example gets membranes at $0.060 per litre or less (a tenth of the model's $0.60) | about 15% |
-| The reference case gets the same | about 40% |
+| Humbird's optimistic design gets the same | about 40% |
 | Dialyser or plasma-separator arrays hold the culture for 33 days: at 12% cells by volume / at 25% | 30% / 15% |
 | Ceramic run as a slow TFF loop holds 25% and recovers 80% of its flux for 10 runs | 15% |
 | Ceramic at the dairy flow keeps 90% of the cells alive | 5% |

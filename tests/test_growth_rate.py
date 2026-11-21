@@ -81,7 +81,9 @@ def check() -> list:
     mc1 = monte_carlo(20000, 0, 1.00)["byproduct-threshold"]["saving"]
     # 0.237 until 2026-11-20, when the overhead prior's low end moved from 10.8 to 13.8 with plant_floor (inputs.py): fewer
     # cheap-plant draws, so slowing pays in fewer of them. The module is unchanged; the pin was stale.
-    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.2085, tol=0.01)
+    # 0.2085 until 2026-11-21, when the overhead prior moved again with the plant ladder (13.8-34.0 -> 13.5-37.1: the building's
+    # power by floor and class, and the fill-and-draw tiers now explore() itself)
+    expect("MC P(saving > $1), medium $1.00/L", np.mean(mc1 > 1), 0.198, tol=0.01)
     mc02 = monte_carlo(20000, 0, 0.20)["byproduct-threshold"]["saving"]
     expect("MC P(saving > $1), medium $0.20/L", np.mean(mc02 > 1), 0.0, tol=0.005)
 

@@ -49,7 +49,7 @@ gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity
 | Pre-conditioned feed (CO₂-free, oxygen-saturated medium) | almost nothing: medium holds about 1 mmol/L of oxygen against an uptake of 18–40 mmol/L per hour (arithmetic) | — | — | not needed |
 
 The filter loop already carries the culture out of the tank and back. The medium it removes takes about 3% of the cells' CO₂ in the
-reference case and about 6% in the low-lactate example (model, with 15 mM of bicarbonate above the fresh medium's; the model leaves this out). The
+Humbird's optimistic design and about 6% in the low-lactate example (model, with 15 mM of bicarbonate above the fresh medium's; the model leaves this out). The
 useful trick is to put the CO₂ column, or a membrane module, on that same loop, so the gas exchange shares its pump, piping and
 sterile boundary. Whether the filter's flow rate (set by the permeate) and the column's (set by CO₂) can share a loop is a design
 question for the next pass.

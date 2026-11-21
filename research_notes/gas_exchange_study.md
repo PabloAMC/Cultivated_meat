@@ -28,6 +28,16 @@
 > | ordinary meat cells: sparger only; every trick | $31.09; $26.89 | $43.96; $37.45 |
 > | the floor's cell on the low-waste feed, no genetic change: sparger only; every trick | $13.98; $9.79 | $17.89; $12.32 |
 >
+> **At the model's own settings (2026-11-21).** The column above keeps the note's settings. With the model's own (the TFF filter
+> loop, the protectant, antifoam's effect on oxygen, the yeast-style plant buying its oxygen), after the second batch of engine
+> fixes of 2026-11-21 (`tests/test_gas_exchange.py`, `_check_current`, pins these): the floor (Humbird's optimistic design)
+> $15.72; more gas, 12.5 mm/s, $15.76 (the extra bubbles kill as much as the extra gas is worth); cheapest tricks at 1, 2 and
+> 6 mm/s $13.41, $13.49 and $13.92 (the column with an oxygen sweep and 1 bar, in the tall tank, at 94, 75 and 22 passes an hour);
+> cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s $27.49, $17.22, $14.92 and $14.49 (the CO₂ column in a tank
+> twice as deep as wide, 1 bar); best shown in meat cells: sparger only $105.03, fat fed $73.20, every trick $100.55; ordinary
+> meat cells: sparger only $141.91, every trick $138.77; the floor's cell on the low-waste feed: sparger only $32.05, every trick
+> $30.01. RESULTS.md section 1 quotes the same figures.
+>
 > **Conclusions that changed in kind** (the body's text says the earlier ones; read these in their place):
 > 1. **The column alone, or with 1 bar, no longer reaches the thickness limit.** Once it lifts the CO₂ limit the culture stops at
 >    the oxygen limit, 153 g/L (it reached the mixing limit at 189 g/L, or 258 g/L with 1 bar). So the column makes 5.3 passes an
@@ -975,7 +985,7 @@ wide):
 | plant cost | 1 | +5.4% (shell +9%, floor space +19%) | `shape_capex_factor` |
 | floor cost | $11.78 | **$9.56** (shape free), **$9.81** with the steel and floor | CO₂ still binds, at 164 g/L instead of 120 |
 
-So Pablo is right on CO₂ (+37% density) and on the direction for oxygen, which is small (−4%, not in the model).
+So the suggestion holds on CO₂ (+37% density) and on the direction for oxygen, which is small (−4%, not in the model).
 The least-area shape does not minimise cost, though: steel goes with diameter × area, not area, and the
 cheapest shape is squatter still (0.75; section 2.2). The page's shape lever shows the CO₂, oxygen and mixing
 bars moving through the new chart, and since a later change it also adds the extra steel and floor (about

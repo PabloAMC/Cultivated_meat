@@ -67,8 +67,11 @@ def steps() -> list:
          "nothing run with animal cells; holds 25% cells for a month: 15% (retention_alternatives.md)"),
         ("Dissolved oxygen held at about half of air saturation", ("do_mmol",),
          "as pharma holds it; it changes nothing until the tank design makes oxygen the limit"),
-        ("The cheapest tank design that passes the checks on the CO₂ loop", ("column", "col_pout", "p_top_barg", "aspect"),
-         "nobody has run a stripping column or 1 bar of extra pressure with animal cells (gas_exchange_study.md)"),
+        ("The cheapest tank design that passes the checks on the CO₂ loop", ("column", "col_pout", "p_top_barg", "aspect")
+         + tuple(k for k in ("vm", "col_on_loop", "spargers", "micro_share") if k in target()),
+         "nobody has run a stripping column or 1 bar of extra pressure with animal cells (gas_exchange_study.md). Since "
+         "2026-11-21 the culture may be held thinner than its limits allow so the loop passes its checks (the cap is in `vm`), "
+         "the column may sit on the filter loop and share its pump, and a second, fine-bubble sparger may carry oxygen"),
         (f"Tanks of {_size():g} m³ in place of 20 m³", ("vessel_m3",),
          "the published tank size that costs least with every other lever at its favourable value; the tank design is chosen "
          "again and passes the same checks. Since 2026-11-20 a plant's cost follows what each tank brings with it (the tank, its "

@@ -715,9 +715,10 @@ REJECTED = [
          why="43% is a weight of wet pellet in a 5-litre tank, not a culture stirred at scale; the study's own cell counts give "
              "3.3 ng and 9.8 ng a cell. Its cost projection does not use it: it rests on a run held at 10 to 28 million cells a mL."),
     dict(study="pasitka2024", lever="recovery", value=0.0, limit="capital", limit_value=None, unit="share of the plant's cost a year",
-         assumption="no payment on the plant among its cost lines", ref="Figure 4, PDF page 7",
+         assumption="no payment on the plant among its cost lines", ref="Figure 4, PDF page 7; Supplementary Tables S4 and S10",
          why="The plant must be repaid at a market rate of interest: a plant that is never repaid is not a cost of production. "
-             "(Read from the legends of its cost charts; its supplementary tables were not available.)"),
+             "Its Table S4 computes a charge of 14.6% of the plant a year, but Table S10 leaves it out of the total: with it, "
+             "the large-scale case is $26.99 a kilo of cells in 2024 dollars, not $21.49."),
     # 2026-11-20: cell weight follows the same rule as doubling time
     dict(study="risner2021", lever="mass_pg", value=5300.0, limit="mass", limit_value=None, unit="pg",
          assumption="a cell of 5.00e-15 m³ at 1,060 kg per m³, 5.3 ng (every scenario)", ref="Table A2, PDF page 19",

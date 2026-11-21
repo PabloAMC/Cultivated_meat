@@ -26,15 +26,57 @@ sys.path.insert(0, ROOT)
 
 
 def check() -> list:
-    """The study's note quotes figures computed at the settings it was written with on 2026-11-14: the old hoped-for retention
-    device (rt_tff_default = 0), no bubble protectant, no antifoam effect, no oxygen bought by the yeast-style plant. The checks
-    run with those settings (floor_physics.BEFORE_FILTER_LOOP) on the engine as it now stands (the note was recomputed on
-    2026-11-20: bubble deaths, harvest loss, perfusion crew, utilities and medium preparation capital apply in it)."""
+    """Three parts.
+
+    HISTORY (`_check`, run with floor_physics.BEFORE_FILTER_LOOP). The body of research_notes/cheap_plant_study.md is a dated
+    snapshot: its figures were computed at the settings the note was written with on 2026-11-14 (the old hoped-for retention
+    device, rt_tff_default = 0; no bubble protectant; no antifoam effect; no oxygen bought by the yeast-style plant), on the
+    engine as it stood when the note was last recomputed (2026-11-20: bubble deaths, harvest loss, perfusion crew, utilities and
+    medium preparation capital apply in it). These pins check that the snapshot still reproduces on those settings; they are not
+    the model's figures.
+
+    CURRENT (`_check_current`, the model's own settings): the note's box of current figures, recomputed 2026-11-21.
+
+    METHODS (`_check_methods`): what METHODS.md quotes, also at the model's own settings."""
     import retention
     import floor_physics
     with retention._with(floor_physics.BEFORE_FILTER_LOOP):
         fails = _check()
-    return fails + _check_methods()
+    return fails + _check_current() + _check_methods()
+
+
+def _check_current() -> list:
+    """The box of current figures at the top of cheap_plant_study.md, at the model's own settings (2026-11-21, after the second
+    batch of engine fixes: the building's power by floor and class, part of the crew per tank, the floor's glucose)."""
+    import floor_physics as fp
+    import plant_items as pi
+    import contamination as ct
+    fails = []
+    got = {"sterile plant": pi.cost_per_kg("floor")["total"], "sterile plant at 0.2% a day": ct.cost("floor", 0.002),
+           "yeast-style class": fp.explore(plant="microbial")["total"], "yeast plant with additions": pi.cost_per_kg("yeastplus")["total"],
+           "lean plant": pi.cost_per_kg("lean")["total"], "lean, 0.6% a day": ct.cost("lean", 0.006),
+           "lean, 1.5% a day": ct.cost("lean", 0.015), "lean, 5% a day": ct.cost("lean", 0.05),
+           "lean, 1.5% a day, 30-day restart": ct.cost("lean", 0.015, restart_fail_days=30.0),
+           "lean, drained and refilled": pi.cost_per_kg("lean", mode="filldraw")["total"],
+           "yeast plant with additions, drained and refilled": pi.cost_per_kg("yeastplus", mode="filldraw")["total"],
+           "sterile plant, drained and refilled": pi.cost_per_kg("floor", mode="filldraw")["total"]}
+    want = {"sterile plant": 15.72, "sterile plant at 0.2% a day": 16.03, "yeast-style class": 10.72,
+            "yeast plant with additions": 10.92, "lean plant": 12.83, "lean, 0.6% a day": 13.54, "lean, 1.5% a day": 14.65,
+            "lean, 5% a day": 19.51, "lean, 1.5% a day, 30-day restart": 16.09, "lean, drained and refilled": 12.00,
+            "yeast plant with additions, drained and refilled": 9.05, "sterile plant, drained and refilled": 16.51}
+    for k, w in want.items():
+        if abs(got[k] - w) > 0.006:
+            fails.append(f"current figures, {k}: want ${w:.2f} got ${got[k]:.2f}")
+    for p, w in (("lean", 2.56), ("yeastplus", 4.81), ("yeast", 5.97)):
+        g = ct.breakeven_hazard(p) * 100.0
+        if abs(g - w) > 0.006:
+            fails.append(f"current break-even loss rate, {p}: want {w:.2f}% got {g:.2f}%")
+    note = open(os.path.join(ROOT, "research_notes", "cheap_plant_study.md")).read()
+    box = note.split("> **Current figures**")[1].split("> Third pass")[0]
+    for q in [f"${w:.2f}" for w in want.values()] + ["2.56%", "4.81%", "5.97%"]:
+        if q not in box:
+            fails.append(f"cheap_plant_study.md's box of current figures does not quote {q!r}")
+    return fails
 
 
 def _check() -> list:
@@ -101,8 +143,13 @@ def _check() -> list:
     whole = fp.explore(capex_2018=tot["lean"])
     near("bought oxygen is charged, per kilo harvested", lean["extra_opex"],
          pi.capital("lean")["extra_opex"] / lean["harvested_share"], 1e-9)
-    near("bought oxygen is the only running cost the items add", lean["total"] - lean["extra_opex"] - lean["capital"],
-         whole["total"] - whole["capital"], 1e-9)
+    # 2026-11-21: the building's power follows the plant's own halls (floor_physics.building_power): the lean plant's plain shed
+    # draws a tenth of the power of the sanitary hall a plant given as a total is taken to have, so the utilities differ too
+    near("bought oxygen is the only running cost the items add, beside the building's power",
+         lean["total"] - lean["extra_opex"] - lean["capital"] - lean["utilities"],
+         whole["total"] - whole["capital"] - whole["utilities"], 1e-9)
+    if not lean["utilities"] < whole["utilities"]:
+        fails.append("the lean plant's plain building should draw less power than a sanitary hall")
     # 2026-11-20, third pass: and by what each tank brings with it in perfusion against fed-batch (floor_physics.tank_items): a
     # plant given as a total has Humbird's dedicated makeup tanks and filter housings, fewer in perfusion (-$8.3k per m3 in 2018
     # dollars), where the lean plant shares its medium line and has none per tank, so nothing changes for it

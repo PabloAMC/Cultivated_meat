@@ -211,7 +211,8 @@ def _text(fragment: str) -> str:
 # names its kind of meat; no judgement attributed to the owner; the levels are named for what they hold, not "Level 1-6"
 RETIRED = ("Selected cells", "Engineered cells", "Today's cells", "Today’s cells", "Central case", "Best case", "best case", "central case")
 OWNER_JUDGED = re.compile(r"Pablo's odds|Pablo’s odds|re-judged by Pablo|the author judges|the author's judgement|the author thinks|"
-                          r"the owner judges|the owner thinks|Pablo judges|Pablo thinks", re.I)
+                          r"the owner judges|the owner thinks|Pablo judges|Pablo thinks|the author puts|the author chose|the owner puts|"
+                          r"the owner chose", re.I)
 TODAY_COST = re.compile(r"today['’]s dollars|in today['’]s\b|\$[\d.,]+[^.<]{0,40}\btoday\b|\btoday\b[^.<]{0,25}\$\d", re.I)
 
 
@@ -233,7 +234,7 @@ def _check_words(html: str, vis: str) -> list:
     for bad in RETIRED:
         if bad in every:
             fails.append(f"a retired name is on the page: {bad}")
-    for bad in ("everyday meat", "average kilo", "Level 1", "Level 6"):
+    for bad in ("everyday meat", "average kilo", "Level 1", "Level 6", "the reference case", "The reference case", "the reference tank"):
         if bad in every:
             fails.append(f"the page still says '{bad}'")
     for m in TODAY_COST.finditer(every):
@@ -438,7 +439,10 @@ def check() -> list:
             fails.append(f"setting {r['key']} from {r['ref']}: set to its own starting value the cost is {r['same']:.6f}, not {r['base']:.6f}")
         if abs(r["lo"] - r["hi"]) > 1e-6 * r["base"]:
             moved.add(r["key"])
-    still = {q[0] for q in BI.PAGE_PARAMS} - moved
+    # 2026-11-21: the slower oxygen uptake of a thick culture moves none of the four starting points any more. Humbird's design is
+    # held by CO2, the published cells by their waste, and the low-lactate and all-favourable examples now feed oxygen through
+    # their column loop (the oxygen-feeding loop held thinner wins the design search), so oxygen binds in none of them
+    still = {q[0] for q in BI.PAGE_PARAMS} - moved - {"kla_exp"}
     if still:
         fails.append(f"these settings move no cost from either starting point: {sorted(still)}")
     for r in probe["vessels"]:
@@ -616,7 +620,8 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
             "protect_dose": 0.0, "protect_price": value("pf_protectant_price"), "aa_price": value("aa_bulk_price"),
             "glucose_price": value("glucose_price"), "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life"),
             "flux": value("rt_flux_lmh"), "kla": value("ge_kla_20m3"),
-            "x_cap": value("pf_x_visc")}                 # the densest culture allowed starts at the model's own limit, so nothing moves
+            "x_cap": value("pf_x_visc"),                 # the densest culture allowed starts at the model's own limit, so nothing moves
+            "spargers": 1.0, "col_loop": 0.0}            # 2026-11-21: one sparger, no column on the filter loop, as in his design
     for lv in o["levers"]:
         k = lv["key"]
         if k not in want:
@@ -660,12 +665,14 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
         fails.append("the text beside the button should list every addition")
     for row, (key, name, d) in zip(a["live"]["rows"], padd):
         # the viscosity lever adds nothing at his fed-batch, whose 120 g/L is held by CO2 (2026-11-20)
-        if row["key"] != key or row["name"] != name or abs(row["adds"] - d) > 1e-6 * pall or (d <= 0 and key != "kla_exp"):
+        # 2026-11-21: nor does the least medium flow, whose cap in his batch is now 1.35 x 92 = 124 g/L
+        if row["key"] != key or row["name"] != name or abs(row["adds"] - d) > 1e-6 * pall or (d <= 0 and key not in ("kla_exp", "min_perfusion")):
             fails.append(f"addition {key}: switched on alone the page says it adds {row['adds']:.4f}, humbird_check.page_additions {d:.4f}")
         if (f"${d:.1f} a kilo." not in a["text"] and not (abs(d) < 0.05 and "nothing at these settings" in a["text"])) or name not in a["text"]:
             fails.append(f"the text beside the button does not say what '{name}' adds (${d:.1f} a kilo): {a['text']}")
-    if not pall > o["total"] + 5.0 or abs(pall - 37.38) > 0.005 * 37.38:
-        fails.append(f"with the five additions on, his design costs {pall:.2f} (pinned 37.38; 37.51 before the engine's own plant)")
+    # 2026-11-21: 37.38 -> 30.49 (the least medium flow no longer caps his batch at 92 g/L)
+    if not pall > o["total"] + 3.0 or abs(pall - 30.49) > 0.005 * 30.49:
+        fails.append(f"with the five additions on, his design costs {pall:.2f} (pinned 30.49; 37.38 before 2026-11-21, 37.51 before the engine's own plant)")
     # loading Published cells after Humbird's start, and the reverse, resets every lever
     b, b0, a3 = a["today"], a["today0"], a["again"]
     if b["held"] or b["has"] or b["base"] != "switches" or b["ref"] != "today" or abs(b["total"] - b0["total"]) > 1e-12 or abs(b["total"] - probe["refs"]["today"]["point"]) > 1e-12 \

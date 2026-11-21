@@ -103,7 +103,9 @@ GOLDEN = {
     # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
     # 2026-11-19: nutrient floor $1.70 -> $2.00 (GFI feed-grade amino acids, research_notes/nutrient_floor.md): cost_floor
     # 12.5020 -> 12.8035. Nothing else in this list moves: the default (reported) stack is above the floor.
-    "cost_floor":          15.8035,
+    # 2026-11-21: plant_floor 13.8 -> 13.5 (floor_physics.tiers: the building's power follows its floor and its class; the
+    # floor glucose tied to the mass balance, 0.32 -> 0.311 kg a kilo): cost_floor 15.8035 -> 15.4999. No other pin moved.
+    "cost_floor":          15.4999,
     "biomass_base":        34.3500,
     # 2026-11-18: shelf price = (cost + $2.5) / (1 - 28% shop margin), was cost + $5 (research_notes/retail_markup_form.md).
     # basic_R 3.27917 -> 4.26505; US vol 0.584202 -> 0.233623, US val 1.7793 -> 0.80766, world vol 0.274195 -> 0.0914556.
@@ -274,12 +276,15 @@ def check_derived_prose_numbers() -> list:
         ("elasticity at R=1.0",          elas(1.0),  "−1.3"),
         ("elasticity at R=1.5",          elas(1.5),  "−2.1"),
         ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.1"),  # 2026-11-21: was −3.0; the model gives −3.06
-        ("reference cost $/kg",      cost_floor, "15.8"),      # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
+        # 2026-11-21: was "15.8" (plant_floor 13.8 -> 13.5: the building's power follows its floor and class, so Humbird's
+        # optimistic design is $15.72, not $15.93). The page carries the figure as MODEL.cost_reference (15.49992), which
+        # is where the old "15.8" was found too (15.80352); "15.49" is that literal's prefix
+        ("reference cost $/kg",      cost_floor, "15.49"),     # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.3",
               "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.1",
-              "reference cost $/kg": "15.8"}
+              "reference cost $/kg": "15.5"}      # 2026-11-21: was "15.8"
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")
