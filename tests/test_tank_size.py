@@ -255,7 +255,9 @@ else:
 # 2026-11-20 final pass: the all-favourable example now uses membranes at $8 a m2, so perfusion no longer pays for membranes and
 # fed-batch at every size costs more than perfusion again ($10.22 at 200 m3 against $7.62): the reversal of the batch is undone.
 # 2026-11-21: central (71.7592, 60.7101) and best (11.2827, 10.4370) before (the building's power by floor and class)
-FB_GOLDEN = {"central": (70.3150, 54.5840), "best": (11.0319, 9.4878)}     # $/kg at 20 and 100 m3
+# 2026-11-21 (fourth batch, repinned): best at 100 m3 9.4878 -> 9.3395. Not a demand change: the test already failed so at the
+# base commit (4e78588, "A mode setting that names a tank size keeps it"), which moved it without repinning.
+FB_GOLDEN = {"central": (70.3150, 54.5840), "best": (11.0319, 9.3395)}     # $/kg at 20 and 100 m3
 for k, (a, b) in FB_GOLDEN.items():
     c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
     check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")

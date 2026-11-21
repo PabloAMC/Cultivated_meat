@@ -92,7 +92,11 @@ def shares(R_x: float, p: dict, *, d: float = 0.0, R_L: float | None = LABEL_PRE
         if weight <= 0.0:
             continue
         kap, v = (p["kappa"], p["v"]) if cls == "main" else (p["kappa_l"], p["v_l"])
-        for seg, sw in (("M", 1.0 - pr.w_eth), ("E", pr.w_eth)):
+        kq = pr.pb_committed_share / (1.0 - pr.w_eth)   # the mainstream's committed buyers of plant-based meat (2026-11-21)
+        segs = (("M", (1.0 - pr.w_eth) * (1.0 - kq)), ("K", (1.0 - pr.w_eth) * kq), ("E", pr.w_eth))
+        for seg, sw in segs:
+            if sw <= 0.0:
+                continue
             base = dict(income=inc, p_ref=p_ref, ratio_scale=rs, accept_x=1.0, theta=0.0, neophobia_x=0.0, health_x=0.0)
             V = list(_slot(1.0, pr, beta, seg, kappa=kap, offset=0.0, sf=0.0, **base)[:3])     # w, c, p
             names = ["w", "c", "p"]

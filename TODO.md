@@ -62,7 +62,9 @@ Still open:
       of urea at 300 mL/min of blood over 1.8 m², 9.3 L/m²/h). How it holds over weeks of fouling in a culture is still unmeasured.
 - [x] **The page** (fixed 2026-11-21): its methodology prose quoted the elasticity at R = 2.42 as −3.0 where the model gives −3.06 (−3.1), and
       `{{TRICKS_CENTRAL_ORD}}` is computed but unused (`tests/test_golden.py` fails on both until `build_interactive.py` is fixed).
-- [ ] **`taste_quality_w`'s upper end** no longer re-solves cleanly with the plant-based anchor at 0.4% (METHODS.md).
+- [x] **`taste_quality_w`'s upper end** (checked 2026-11-21, fourth batch): it re-solves cleanly across its whole range (−1.0 to
+      −0.3; the solved health weights stay above zero, plant-based meat at 0.4%), and is back in METHODS.md's list of assumptions
+      with modest leverage. The remark was stale.
 - [x] **Owner-attributed comments** (done 2026-11-21): `inputs.py`'s "our probability", "OUR JUDGEMENT" and named credits now read as
       the model's rough judgement or plain dates; `humbird_backtest.md`'s ATF ×1.84 remark dated (the ATF is priced in his accounting
       since 2026-11-20); "my judgement" in four notes relabelled. `humbird_backtest.md` had no other owner attribution.
@@ -76,23 +78,37 @@ Open pull requests (each says "no default changes" unless noted):
 - [x] **The spread of liking is in the shopper model** (done 2026-11-18, `research_notes/liking_spread.md`). The long-run share at
       equal price is a visible setting, `equal_price_share` (13%, drawn 5–49%), and the only demand dial for the long-run level in the
       bands. The model passes three of four price-response checks. Branch `claude/recalibrate-demand` is superseded; do not merge.
-- [ ] **Three side analyses still count shares of all four choices**, not of the meat sold: `uncertainty.py`, `sensitivity.py`,
-      `adoption_timing.py`. Move them to x / (x + c) as the roll-up did, and repin.
+- [x] **Three side analyses count the share of the meat sold** (done 2026-11-21, fourth batch): `uncertainty.py`, `sensitivity.py`
+      and `adoption_timing.py` (and the page's timing curve) use x / (x + c), as the roll-up does.
 - [x] **Stale prose in two notes** (`market_size_loop.md`, `premium_buyers.md`): repinned on 2026-11-20.
 - [ ] **The all-favourable example's demand (58.6% of meat buyers) and the low-lactate example's range (3–52% of all choices)**: the low-lactate example's range almost excludes shoppers favouring cultivated meat
       (under 1% of draws above 45%), while the all-favourable example now assumes it. Decide whether the low-lactate example's range should reach about 60%.
 - [x] **Conventional meat's price response**: modelled on 2026-11-20 (`meat_market.conv_exponent`); it takes 3.9 points off the
       all-favourable example's 22.6%.
-- [ ] **Plant-based meat's own-price elasticity** still fails (-2.89 against about -1.3): its buyers are a committed minority the
-      model does not represent. A spread of liking for plant-based meat, refitted to the 0.4% share, is the candidate fix.
+- [x] **Plant-based meat's own-price elasticity** passes since 2026-11-21 (fourth batch): -1.30 against -1.23 measured (the category
+      about -1.3). A spread of liking alone could not do it: in a logit a buyer's elasticity falls only as their own share of
+      choices nears one, and 7% of households buying 82% gives them about 4%. The fix is a class of committed buyers (7% of
+      shoppers, 82% of the mainstream's plant-based meat, a solved liking) whose response to its price is 0.25 times other
+      shoppers' (Tonsor, Lusk & Schroeder 2021), a measured input, not fitted (`demand_checks.md` section 5).
 - [ ] **Evidence on the long-run share at equal price** (`demand_heterogeneity_evidence.md` §6): one reading of foods made by
       distrusted processes puts it near 18%. A repeated-exposure or tasting experiment with prices is the measurement that would
       settle it.
-- [ ] Price sensitivity differs across shoppers too (4 to 10 times between groups), and plant-based meat's buyers are a concentrated
-      minority (7% of households make 82% of spending). Both belong in the same rebuild; plant-based meat's elasticity is -2.89 in
-      the model against about -1.3 measured for the category.
-- [ ] Adoption over time has first purchase but no repeat or drop-out: plant-based meat's household penetration fell from 20% to 11%
-      (GFI, 2021-25) as repeat rates fell. Add a repeat rate to `adoption_timing.py`.
+- [ ] **The blend penalty after the committed buyers** (2026-11-21, fourth batch): with plant-based meat's committed buyers in the
+      model the ordinary shoppers' solved real-meat weight is 5.11 utils (3.40 before), and a cut that is 20% plant protein loses 20%
+      of it (1.02 utils, was 0.68). That alone takes the all-favourable example from 24.6% to 23.4% with its own demand. It is the
+      existing rule on a better-measured weight; whether a blend should lose that share of the ordinary shopper's dislike of
+      plant-based meat is unmeasured (see the cut's cell share below).
+- [ ] **Price sensitivity across all shoppers** (4 to 10 times between groups). Done for plant-based meat's committed buyers, for its
+      price only (above). Not done shopper-wide: it is not needed to pass a check, and its one free part, how much the
+      price-insensitive like cultivated meat, is unmeasured. Tried on 2026-11-21 (`demand_checks.md` section 6): a class of 8-30% of
+      shoppers at 0.10-0.25 times the price response, with the spread of liking refitted, lowers the spread's joint misfit (4.2 to
+      1.7-3.0) and multiplies the low-lactate example's share by about 2 to 8, but leaves salmon failing. **Decision for the
+      owner**: whether to add it, and how hostile to cultivated meat its shoppers are (the evidence says the price-insensitive are
+      the most hostile; no study measures by how much).
+- [x] **Repeat buying and dropping out** in `adoption_timing.py` (done 2026-11-21, fourth batch; `repeat_rate` 0.62, 0.50-0.75, from
+      GFI/SPINS 2025; `lapse_rate` 0.14 a year, 0.05-0.30, from plant-based meat's household reach falling from 20% to 11% in
+      2021-25, while its repeat rate stayed near 62%, not fell). The long run is unchanged; the path is slower in its first years.
+      No repeat data exist for cultivated meat.
 - [x] The market tables of China, Brazil, India and Nigeria checked, and seafood weighted at 24% of the Global table (done 2026-11-18,
       `premium_market_sizes.md` §6; China's rows are order-of-magnitude). India's premium goat and seafood rows are unchecked.
 - [ ] #19 Plain, direct sentences for all page text (wording only).
@@ -160,9 +176,12 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **The audit batch** (2026-11-19, `audit_2026-11-19.md`): ammonia tolerance 4 mM, lost-run membranes, glucose balance, seafood
       prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
 - [x] **The tail of shoppers' liking** (2026-11-19): Student's t, sd 3.9, 4 degrees of freedom; the 15-point rule replaced.
-- [ ] **Farmed salmon's response still fails** (3.7-4.3 against 1-1.5 since 2026-11-20; it was 3.6-3.7). No spread that keeps the choice experiment's elasticities reaches
-      it without a block of shoppers who ignore price (the mixture's corner). The all-favourable example's share with its own demand is the least
-      pinned consequence of the fit.
+- [ ] **Farmed salmon's response still fails** (3.7-4.2 against 1-1.5). Checked again 2026-11-21 (fourth batch) with the machinery of
+      the committed buyers applied to every shopper and the spread refitted (`demand_checks.md` section 6): the best fits that meet
+      the choice experiment's requirements give 1.3-4.3, never inside 1-1.5 for all four products; only with a tenth of the price
+      response does the cheapest get inside (1.3), and a fifth of shoppers at a tenth (1.1-3.1) breaks the first-contact requirement. Why, as far as the
+      model can say: farmed salmon had buyers who liked it and paid little attention to price; for cultivated meat the
+      price-insensitive are the most hostile. Left failing and documented.
 - [ ] **Page leftovers**: charts in levels 4-5 keep a fixed size and scroll sideways on a phone; the entry-points chart still colours
       zones; `tests/render_probe.js` calls a removed function; `page_sections.py` has unused generators.
 - [x] (2026-11-21: put right in `audit.py`, plus the lactate tolerated, the bubble kill and the harvest recovery; `min_litres.py` still

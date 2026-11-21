@@ -242,6 +242,10 @@ def build_model() -> dict:
         "pb_share_target": value("pb_share_target"),
         "pb_mainstream_frac": value("pb_mainstream_frac"),
         "wf_mainstream_target": value("wf_mainstream_target"),
+        # the committed buyers of plant-based meat (mirror of market_share: segment "K", solve_calibration; 2026-11-21)
+        "pb_committed_share": value("pb_committed_share"),
+        "pb_committed_volume": value("pb_committed_volume"),
+        "pb_committed_price_x": value("pb_committed_price_x"),
         # Python-SOLVED reference values (for the in-page self-check; JS re-solves and should match)
         "w_realtissue_M_ref": dp.w_realtissue_M,
         "w_health_M_ref": dp.w_health_M,
@@ -292,6 +296,8 @@ def build_model() -> dict:
                                                + MC_TIMING_INPUTS) if REGISTRY[k].kind != "triangular"},
         "lognormal_z90": LOGNORMAL_Z90,
         "years": int(value("years")),   # diffusion horizon for the timing rung
+        # repeat buying and dropping out (mirror of adoption_timing._step, buying_long_run; 2026-11-21)
+        "repeat_rate": value("repeat_rate"), "lapse_rate": value("lapse_rate"),
         # reactor configs for the cost chart: [short label, overhead $/kg]. The overhead
         # NUMBERS are read from inputs.PLANT_CONFIGS (the source of truth) so they can't
         # drift from the datasheet; only the short display labels live here.
@@ -1276,6 +1282,7 @@ def illustrative_numbers() -> dict:
     N = {
         # at-parity baseline (neutral dials) — the most-quoted figure
         "PARITY_NEUTRAL": pc(at_parity(accept_x=1.0, theta_free_M=0.0)),
+        "PARITY_MEAT": pc(at_parity(accept_x=1.0, theta_free_M=0.0, which="x_meat")),   # the same, as a share of the meat sold (the timing path's)
         # taste-acceptance ladder (a_x), at parity
         "AX_06": pc(at_parity(accept_x=0.6, theta_free_M=0.0)),
         "AX_08": pc(at_parity(accept_x=0.8, theta_free_M=0.0)),
@@ -2976,8 +2983,10 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       so the top score does not always win. Each option's share rises smoothly with its score, and one more point means
       about 2.7 times as often.</p>
       <p><b>Two kinds of shopper.</b> 95% are mainstream, and they choose mainly on price, taste and real meat. 5% are vegetarian
-      or vegan [7]. They care about slaughter and mostly eat beans. Within each kind, shoppers differ in how much they like
-      cultivated meat: most sit near the typical liking, and a few are far from it in either direction (A1).</p>
+      or vegan [7]. They care about slaughter and mostly eat beans. 7% of shoppers, counted among the mainstream, are the committed
+      buyers of plant-based meat: they buy 82% of the mainstream's plant-based meat and respond a quarter as strongly to its price.
+      Within each kind, shoppers differ in how much they like cultivated meat: most sit near the typical liking, and a few are far
+      from it in either direction (A1).</p>
       <div class="scrollx"><table class="attr">
         <tr><th>option</th><th>price</th><th>taste</th><th>real meat</th><th>no slaughter</th><th>health</th></tr>
         <tr><td><b>conventional</b> meat</td><td>1</td><td>1</td><td>yes</td><td>no</td><td>&minus;0.1</td></tr>
@@ -3064,10 +3073,13 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         (Bass diffusion [11], with standard rates from durable goods).</li>
         <li><b>Familiarity.</b> In a US choice experiment, only ~5% chose lab-grown meat at the same price as beef [8].
         The model starts about there ({{COLD_PARITY}}% at equal price) and lets the wariness fade with exposure.</li>
+        <li><b>Repeat buying.</b> 62% of first purchases turn into repeat buying, 14% of buyers stop each year and those who stopped
+        try again as others first try. The figures are plant-based meat's (GFI, SPINS consumer panel, 2021-25). They slow the climb
+        but leave the long-run share as it is.</li>
       </ul>
       <p class="example"><b>Worked example</b> (a US shopper, and one cultivated product always sold at the price of the conventional meat it copies). The share starts
-      from nothing at launch. It is {{Y10_SHARE}}% after 10 years and {{Y30_SHARE}}% after 30. The long-run ceiling is
-      {{PARITY_NEUTRAL}}%. The path reaches nine tenths of it in year {{STAB_YEAR}}. The chart in
+      from nothing at launch. As a share of the meat sold it is {{Y10_SHARE}}% after 10 years and {{Y30_SHARE}}% after 30. The long-run
+      ceiling is {{PARITY_MEAT}}% of the meat sold ({{PARITY_NEUTRAL}}% of all choices). The path reaches nine tenths of it in year {{STAB_YEAR}}. The chart in
       <a href="#where">Share by type of meat, by region and over time</a> draws the same path for your settings' whole market, and prints its own year.</p>
       <p><b>For timing, the biggest unknown</b> is how wary people are at the start. Surveys range from ~5% (a cold choice
       experiment) to ~60% (&ldquo;cultivated chicken in a restaurant&rdquo;) [10]. The &ldquo;starting wariness&rdquo; setting
@@ -3108,20 +3120,22 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       </details>
 
       <details class="step" id="limits"><summary><b>What the model leaves out.</b> Competition between makers, how fast plants can be
-      built, repeat buying, a full spread of tastes, niche entry routes, and eggs and dairy.</summary>
+      built, a full spread of tastes, niche entry routes, and eggs and dairy.</summary>
       <ul>
         <li><b>Calibrated, not estimated.</b> No purchase data exist yet, so the shopper side is a set of stated judgements, not a
         forecast.</li>
         <li><b>Prices are given, with one response.</b> Conventional meat's price falls as it loses sales (Step 3). The model has no
         competition between makers of cultivated meat and no limit on how fast plants can be built.</li>
-        <li><b>First purchase only.</b> Shoppers who try it are not followed: there is no repeat buying or dropping out, which plant-based
-        meat shows (its US household reach fell from 20% to 11%).</li>
-        <li><b>One price sensitivity for every shopper.</b> Studies find it differs four to tenfold between groups.</li>
+        <li><b>Repeat buying is borrowed from plant-based meat.</b> In the timing curve 62% of first purchases turn into repeat buying and
+        14% of buyers stop each year, plant-based meat's figures (its US household reach fell from 20% to 11% in 2021-25). They slow
+        the climb, not the long-run share. No repeat data exist for cultivated meat.</li>
+        <li><b>One price sensitivity for most shoppers.</b> Studies find it differs four to tenfold between groups. Only plant-based
+        meat's committed buyers (7% of shoppers, who buy most of it) respond less, and only to its price.</li>
         <li><b>Still open.</b> The least medium flow, a rule from pharma perfusion, also caps a fed-batch tank that is never washed
-        out. Plant-based meat responds to its price about twice as strongly in the model as in sales data. Each region outside the
+        out. Each region outside the
         world table has a single seafood row. The full open list is in
         <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/TODO.md">TODO.md</a>.</li>
-        <li><b>Two kinds of shopper</b>, with a spread of liking for cultivated meat among them, and one price sensitivity.
+        <li><b>Two kinds of shopper</b>, with a spread of liking for cultivated meat among them, and plant-based meat's committed buyers.
         Convenience enters only through the rollout.</li>
         <li><b>Timing is rougher than the ceilings.</b> It uses a durable-goods Bass curve plus a familiarity fade, and the two may
         overlap. Costs stay fixed.</li>
@@ -3524,10 +3538,12 @@ function utilities(R,K,seg,o){
   const health=[hW,hC,hP,hX];                                       // [w, c, p, x]
   // FOOD NEOPHOBIA (utils; - = neophobia penalty, + = neophilia bonus) on the two NOVEL products;
   // whole-food carries NO intercept now (health carries it), conventional 0.
-  const xi=[0,0,(o.nbp||0),(o.nbx||0)+o.toff];                      // xi_j per product [w,c,p,x]
-  const wSl=(seg==="M")?o.tfM:K.w_slaughter_E;
-  const wRt=(seg==="M")?K.w_realtissue_M:K.w_realtissue_E;
-  const wH=(seg==="M")?K.w_health_M:K.w_health_E;                   // segment-specific health weight (solved)
+  // seg "K": the committed buyers of plant-based meat, a class of the mainstream (mirror of market_share._utilities): mainstream
+  // weights, their own liking for plant-based meat (K.pb_committed_liking, solved) and their own response to its price (below).
+  const xi=[0,0,(o.nbp||0)+(seg==="K"?K.pb_committed_liking:0),(o.nbx||0)+o.toff];   // xi_j per product [w,c,p,x]
+  const wSl=(seg!=="E")?o.tfM:K.w_slaughter_E;
+  const wRt=(seg!=="E")?K.w_realtissue_M:K.w_realtissue_E;
+  const wH=(seg!=="E")?K.w_health_M:K.w_health_E;                   // segment-specific health weight (solved)
   const beta=betaPrice(K,o.eps,o.income,pRef);
   // per-tier / per-draw override scales the ratio term too (mirror of market_share ratio_scale = eps/eps_own)
   const rScale=(o.eps===undefined?1:o.eps/K.eps_own);
@@ -3558,6 +3574,10 @@ function utilities(R,K,seg,o){
   // conventional's counts kappa/kappa_base times, on both channels; nothing else moves.
   const kr=(o.kap===undefined?K.cult_sub_mult:o.kap)/C.kappa_base;
   if(kr!==1){ const px=CO._vp[1]+kr*(CO._vp[3]-CO._vp[1])+kr*CO._vl[3]; V[3]+=px-CO.price[3]; CO.price[3]=px; }
+  // the committed buyers' response to plant-based meat's price: its price utility measured from conventional's counts
+  // pb_committed_price_x times, on both channels (mirror of market_share._utilities)
+  const mK=K.pb_committed_price_x;
+  if(seg==="K" && mK!==1){ const pp=CO._vp[1]+mK*(CO._vp[2]-CO._vp[1])+mK*CO._vl[2]; V[2]+=pp-CO.price[2]; CO.price[2]=pp; }
   delete CO._vp; delete CO._vl;
   return o.components?CO:V;
 }
@@ -3593,6 +3613,15 @@ function segShares(R,K,seg,o){
   if(o.present){const P=softmax(V);return {w:P[0],c:P[1],p:P[2],x:P[3]};}
   const P=softmax(V.slice(0,3));return {w:P[0],c:P[1],p:P[2],x:0};
 }
+// the mainstream's shares: its ordinary shoppers and, a share pb_committed_share/(1-w_eth) of it, the committed buyers of
+// plant-based meat (mirror of market_share._mix)
+function mainShares(R,K,o){
+  const M=segShares(R,K,"M",o), q=K.pb_committed_share||0;
+  if(!(q>0)) return M;
+  const Kc=segShares(R,K,"K",o), k=q/(1-K.w_eth), out={};
+  for(const j in M) out[j]=(1-k)*M[j]+k*Kc[j];
+  return out;
+}
 // lsd / lmean / eqs: the spread of liking for cultivated meat (mirror of market_share.share). lsd 0: every shopper alike, no shift
 // (the calibration and the premium-meat checks). lmean sets the mean shift; eqs a long-run share at equal price (a draw), read off
 // K.liking_table; neither: K.liking_mean.
@@ -3604,7 +3633,8 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
   const o={ax,tfM,toff,present,nbx,nbp,eps:(eps===undefined?K.eps_own:eps),
            income:(income===undefined?K.income_ref:income),
            pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, lsd:sd, lmean:mean};
-  const M=segShares(R,K,"M",o), E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
+  const E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
+  const M=mainShares(R,K,o);                                        // ordinary mainstream shoppers and committed buyers together
   if(which==="x_meat"){ const x=K.w_eth*E.x+(1-K.w_eth)*M.x;     // share of the meat sold, x/(x+c) (mirror of market_share.share)
     return x/Math.max(x+K.w_eth*E.c+(1-K.w_eth)*M.c,1e-300); }
   return K.w_eth*E[key]+(1-K.w_eth)*M[key];
@@ -3618,7 +3648,9 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
 // NOT re-pin the calibration — otherwise raising bp forces w_realtissue_M to a bisection bound and the
 // plant-based share jumps non-monotonically. Forcing rtp:0,rtx:1 here keeps the solve stable in both
 // dials (mirrors deriveBeta, which already forces rtx:1 for the same reason).
-function _rate(K,seg,which){return segShares(1,K,seg,{ax:1,tfM:0,toff:0,eps:K.eps_own,income:K.income_ref,present:false,rtp:0,rtx:1,hp:0,hx:0})[which];}
+// seg: "M" ordinary mainstream shoppers, "K" committed buyers of plant-based meat, "E" ethical, "Mall" the whole mainstream
+function _rate(K,seg,which){const o={ax:1,tfM:0,toff:0,eps:K.eps_own,income:K.income_ref,present:false,rtp:0,rtx:1,hp:0,hx:0};
+  return (seg==="Mall"?mainShares(1,K,o):segShares(1,K,seg,o))[which];}
 /* re-solve the calibration (mirror of market_share.solve_calibration): solve the SEGMENT-SPECIFIC
    HEALTH WEIGHTS (w_health_M, w_health_E) — times the whole-food health premium, these REPLACE the
    old free whole-food intercept xi_w, so the model carries no free fitted constant. WF_M increases
@@ -3632,18 +3664,28 @@ function solveCalibration(K){
   if(!pinned("w_realtissue_M"))K.w_realtissue_M=2;       // seed only the weights we will solve
   if(!pinned("w_health_M"))K.w_health_M=1;
   if(!pinned("w_health_E"))K.w_health_E=1;
+  // the committed buyers of plant-based meat buy pb_committed_volume of the mainstream's plant-based meat; the ordinary
+  // shoppers the rest (mirror of market_share.solve_calibration)
+  const kq=(K.pb_committed_share||0)/(1-we), committed=kq>0;
+  const pbO=committed?(1-K.pb_committed_volume)*pbM/(1-kq):pbM, pbK=committed?K.pb_committed_volume*pbM/kq:0;
+  if(committed) K.pb_committed_liking=4;
   for(let r=0;r<12;r++){
     if(!pinned("w_realtissue_M")){
       let lo=0,hi=8;
-      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_realtissue_M=m;if(_rate(K,"M","p")>pbM)lo=m;else hi=m;}
+      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_realtissue_M=m;if(_rate(K,"M","p")>pbO)lo=m;else hi=m;}
       K.w_realtissue_M=0.5*(lo+hi);
+    }
+    if(committed){
+      let lo=-10,hi=30;                                              // PB_K increases in pb_committed_liking
+      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.pb_committed_liking=m;if(_rate(K,"K","p")>pbK)hi=m;else lo=m;}
+      K.pb_committed_liking=0.5*(lo+hi);
     }
     if(!pinned("w_health_M")){
       let lo=0,hi=16;                                                // WF_M increases in w_health_M
-      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_M=m;if(_rate(K,"M","w")>wfM)hi=m;else lo=m;}
+      for(let i=0;i<60;i++){const m=0.5*(lo+hi);K.w_health_M=m;if(_rate(K,"Mall","w")>wfM)hi=m;else lo=m;}
       K.w_health_M=0.5*(lo+hi);
     }
-    if(pinned("w_realtissue_M")&&pinned("w_health_M"))break;         // nothing left to coordinate-descend
+    if(pinned("w_realtissue_M")&&pinned("w_health_M")&&!committed)break;   // nothing left to coordinate-descend
   }
   if(!pinned("w_health_E")){
     let lo=0,hi=16;                                                  // ethical PB decreases in w_health_E
@@ -3808,16 +3850,22 @@ function penOnce(s,K,market0,b,f){
    o = {R, nb0, nbL, rate, p, q, ax, tfM, aP, income, which} ; returns per-year arrays.
    For the PB curve, o.aP carries the plant-based taste slider (a_p) so dragging it moves
    the green ceiling — same exploratory override as the static penetration bars. */
+// repeat buying and dropping out (mirror of adoption_timing): o.rr the share of first (and renewed) purchases that turn into
+// repeat buying, o.lr the share of buyers who lapse a year (undefined: the inputs' values). F the share reached, B buying.
+function repRates(o){return {rr:(o.rr===undefined?C.repeat_rate:o.rr), lr:(o.lr===undefined?C.lapse_rate:o.lr)};}
+function buyingLongRun(o){const {rr,lr}=repRates(o), h=o.p+o.q; return lr>0?rr*h/(rr*h+lr):1.0;}
+function repStep(F,B,o){const {rr,lr}=repRates(o), h=o.p+o.q*F, dF=h*(1.0-F);
+  B=B*(1.0-lr)+rr*(dF+h*Math.max(F-B,0.0)); return [Math.min(1.0,F+dF),Math.min(B,1.0)];}
 function bassTrajectory(o){
-  const yrs=MODEL.years||30, K=KP, which=o.which||"x";
-  let F=0.0, E=0.0; const share=[], ceiling=[], nb=[];
+  const yrs=MODEL.years||30, K=KP, which=o.which||"x", Bl=buyingLongRun(o);
+  let F=0.0, B=0.0, E=0.0; const share=[], ceiling=[], nb=[];
   for(let k=0;k<=yrs;k++){
     const nbk=o.nbL + (o.nb0-o.nbL)*Math.exp(-o.rate*E);             // cold-start fades onto long-run
     const ceil=(which==="pb")
       ? shareCalc(o.R,K,{toff:0,income:o.income,nbp:nbk,pricePb:o.R,aP:o.aP,hp:o.hp,present:false,which:"pb"})
-      : shareCalc(o.R,K,{ax:o.ax,tfM:o.tfM,toff:0,income:o.income,nbx:nbk,hx:o.hx,eqs:o.eqs});
-    share.push(F*ceil); ceiling.push(ceil); nb.push(nbk);
-    if(k<yrs){ const dF=(o.p+o.q*F)*(1.0-F); F=Math.min(1.0,F+dF); E+=F; }
+      : shareCalc(o.R,K,{ax:o.ax,tfM:o.tfM,toff:0,income:o.income,nbx:nbk,hx:o.hx,eqs:o.eqs,which:"x_meat"});   // share of the meat sold
+    share.push(B/Bl*ceil); ceiling.push(ceil); nb.push(nbk);
+    if(k<yrs){ [F,B]=repStep(F,B,o); E+=F; }
   }
   return {share,ceiling,nb};
 }
@@ -3827,13 +3875,13 @@ function bassTrajectory(o){
 function yearsToStabilize(o,frac){frac=frac||0.9; const K=KP, which=o.which||"x", MAX=200;
   const ceilAt=nbk=>(which==="pb")
       ? shareCalc(o.R,K,{toff:0,income:o.income,nbp:nbk,pricePb:o.R,aP:o.aP,hp:o.hp,present:false,which:"pb"})
-      : shareCalc(o.R,K,{ax:o.ax,tfM:o.tfM,toff:0,income:o.income,nbx:nbk,hx:o.hx,eqs:o.eqs});
+      : shareCalc(o.R,K,{ax:o.ax,tfM:o.tfM,toff:0,income:o.income,nbx:nbk,hx:o.hx,eqs:o.eqs,which:"x_meat"});
   const L=ceilAt(o.nbL); if(L<=1e-9) return MAX;
-  let F=0.0, E=0.0;
+  let F=0.0, B=0.0, E=0.0; const Bl=buyingLongRun(o);
   for(let k=0;k<=MAX;k++){
     const nbk=o.nbL+(o.nb0-o.nbL)*Math.exp(-o.rate*E);
-    if(F*ceilAt(nbk)>=frac*L) return k;
-    const dF=(o.p+o.q*F)*(1.0-F); F=Math.min(1.0,F+dF); E+=F;
+    if(B/Bl*ceilAt(nbk)>=frac*L) return k;
+    [F,B]=repStep(F,B,o); E+=F;
   }
   return MAX;}
 /* trajectory Monte-Carlo: sweep ALL timing+acceptance priors -> band on share(t) + tstab dist.
@@ -3855,7 +3903,7 @@ function trajectoryMC(s,N,which){
          hp:triang.apply(null,P.health_p), income:s.income, which:"pb"}
       : (dr=>({R:s._Rtiming, ax:s.accept_x, tfM:s.theta_free_M, nbL:s.neophobia_x, nb0:dr.neophobia_x0,
                rate:dr.accept_rate, p:dr.p_innov, q:dr.q_imit, hx:s.health_x, income:s.income, eqs:dr.equal_price_share,
-               which:"x"}))(mcDraw(C.mc_timing_inputs));   // C.mc_timing_inputs = inputs.MC_TIMING_INPUTS
+               rr:dr.repeat_rate, lr:dr.lapse_rate, which:"x"}))(mcDraw(C.mc_timing_inputs));   // C.mc_timing_inputs = inputs.MC_TIMING_INPUTS
     const tr=bassTrajectory(o); const sh=tr.share.map(x=>x*100);
     all.push(sh); tstab.push(yearsToStabilize(o)); finals.push(sh[sh.length-1]);
   }
@@ -4867,6 +4915,7 @@ function milkCheck(){
   // whole-food slot carries a NEGATIVE health position (unit weights) -> the old -2.0 intercept;
   // health_c=0 because DAIRY (not red meat) is milk's reference.
   K.price_wf_mult=1.2; K.health_w=-2.0; K.health_c=0; K.w_health_M=1; K.w_health_E=1;
+  K.pb_committed_share=0;   // the committed buyers are plant-based MEAT's (mirror of market_share.pb_milk_check)
   return shareCalc(1.0,K,{present:false,which:"pb"});
 }
 function selfTest(){

@@ -75,11 +75,11 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | All-favourable example: shelf price, share | Low-lactate example: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $12.0, 7.42% | $53.7, 0.15% |
-| per-kg $2.5 + a 15% margin | $7.70 | $11.1, 8.21% | $60.2, 0.10% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $13.2, 6.07% | $71.1, 0.05% |
-| per-kg $2.5 + a 40% margin | $4.70 | $15.8, 4.11% | $85.3, 0.02% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $14.5, 4.84% | $90.3, 0.02% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $12.0, 6.84% | $53.7, 0.14% |
+| per-kg $2.5 + a 15% margin | $7.70 | $11.1, 7.59% | $60.2, 0.09% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $13.2, 5.58% | $71.1, 0.05% |
+| per-kg $2.5 + a 40% margin | $4.70 | $15.8, 3.76% | $85.3, 0.02% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $14.5, 4.44% | $90.3, 0.02% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: the low-lactate

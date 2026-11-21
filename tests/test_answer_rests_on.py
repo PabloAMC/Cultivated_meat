@@ -137,7 +137,9 @@ def check() -> list:
     # 2026-11-20 final model: 0.0456 -> 0.0466 ($49.50) and 1.1345 -> 5.4388 ($7.62, the all-favourable case redefined)
     # 2026-11-21: 0.0466 -> 0.0496 ($49.50 -> $48.68) and 5.4388 -> 6.0674 ($7.62 -> $6.97: the thinned tank design, the building's
     # power by floor and class, the crew per tank)
-    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.0496), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 6.0674)):
+    # 2026-11-21 (fourth batch): 0.0496 -> 0.0455 and 6.0674 -> 5.5816 (plant-based meat's committed buyers raise the ordinary
+    # shoppers' real-meat weight, and with it the blend penalty on cuts; research_notes/demand_checks.md section 5)
+    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.0455), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 5.5816)):
         # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         # 2026-11-20 model batch: 0.2102 -> 0.0456 and 3.1617 -> 1.1345 (the costs rose from $32.80 to $49.96 and $11.67 to $18.71)
         if abs(got - want) > 2e-3:
@@ -169,7 +171,9 @@ def check() -> list:
     # The six that fell under $1: antifoam's cost to oxygen transfer, tc_kla_exp, tc_thin, the upkeep share of a cell's oxygen and
     # sc_p_top (the cases' tank designs now feed recycled oxygen from the column, held thinner so its loop passes, and oxygen no
     # longer sets their density), and the harvest recovery (its 0.97-0.99 now moves the low-lactate example by just under $1)
-    pins = [("inputs", s["inputs"], 605), ("with a range", s["ranged"], 276),      # liking_tail added in the second round
+    # 2026-11-21 (fourth batch): 611 inputs, 281 with a range (plant-based meat's committed buyers: pb_committed_share,
+    # pb_committed_volume, pb_committed_price_x ranged, pb_committed_liking solved; repeat_rate and lapse_rate, ranged)
+    pins = [("inputs", s["inputs"], 611), ("with a range", s["ranged"], 281),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
             ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
             ("demand rows", len(s["demand_rows"]), 10)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
@@ -200,8 +204,9 @@ def check() -> list:
     # 2026-11-20 model batch: 0.0847-0.9709 -> 0.0214-0.3316, 0.8788-12.8533 -> 0.3534-4.7193 (across the two demand rows left)
     # 2026-11-20 final model: 0.0214-0.3316 -> 0.0220-0.3278; 0.3534-4.7193 -> 1.4718-19.7075 (ten demand rows)
     # 2026-11-21: 0.0220-0.3278 -> 0.0234-0.3429; 1.4718-19.7075 -> 1.6331-21.6175 (the costs above)
-    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0234, 0.3429)),
-                            ("the all-favourable example's share span", s["best_share_span"], (1.6331, 21.6175))):
+    # 2026-11-21 (fourth batch): 0.0234-0.3429 -> 0.0216-0.3103; 1.6331-21.6175 -> 1.5030-20.4019 (the blend penalty above)
+    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0216, 0.3103)),
+                            ("the all-favourable example's share span", s["best_share_span"], (1.5030, 20.4019))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 
