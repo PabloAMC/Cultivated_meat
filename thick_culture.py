@@ -2,12 +2,14 @@
 """
 thick_culture.py — how thick can a stirred or airlift culture of 17 um animal cells be?
 
-Every strong scenario runs at 258 g/L: a volume fraction of 0.25, Humbird's "practical maximum" from the way viscosity
-climbs when cells collide (floor_physics `pf_x_visc`, the 'thickness of the culture' limit in `explore`). It is a rule of
+The model's density limit is 258 g/L (320 in the all-favourable example): a volume fraction of 0.25, Humbird's "practical
+maximum" from the way viscosity climbs when cells collide (floor_physics `pf_x_visc`, the 'thickness of the culture' limit in
+`explore`). Since 2026-11-20 no scenario's tank reaches it: the sparger's oxygen, lowered by viscosity, stops them first. It is a rule of
 thumb about viscosity. It is not a calculated limit of any machine. This module asks what viscosity does to a 20 m3 tank,
 limit by limit, with the model's own tank, and what each scenario costs if the density limit were another number.
 
-What it adds (nothing in `explore` changes; the cost scan sets the limit through `vm={"caps": ...}`):
+What it adds (the cost scan sets the limit through `vm={"caps": ...}`; since 2026-11-20 `explore` applies this module's
+oxygen-transfer correction itself, `viscous_kla`, and the viscosity laws live in floor_physics):
   * viscosity of the suspension at any volume fraction: Thomas (the model's law, `gas_exchange.viscosity`) and
     Krieger-Dougherty with a maximum packing, with a factor for the shear thinning a large tank sees;
   * the stirrer: Reynolds number at a fixed power per volume, the power that keeps the flow turbulent (so Humbird's mixing
@@ -56,24 +58,13 @@ def cell_diameter_um(cells: fp.Cells | None = None) -> float:
 # 1. Viscosity
 # ----------------------------------------------------------------------------
 def rel_viscosity(phi: float, law: str = "thomas", phi_max: float | None = None) -> float:
-    """Viscosity of the suspension over that of the medium, at high shear.
-    'thomas':   1 + 2.5 phi + 10.05 phi^2 + 0.00273 exp(16.6 phi), the equation Clincke et al. 2013 used for CHO and the one the
-                model uses everywhere (gas_exchange.viscosity).
-    'krieger':  (1 - phi/phi_max)^(-2.5 phi_max), Krieger and Dougherty; Iordan et al. 2007 fitted it to CHO at 1,000 per
-                second with phi_max = 0.65 (`tc_phi_max`). Infinite at phi_max."""
-    if law == "thomas":
-        return 1.0 + 2.5 * phi + 10.05 * phi ** 2 + 0.00273 * float(np.exp(16.6 * phi))
-    if law == "krieger":
-        pm = value("tc_phi_max") if phi_max is None else phi_max
-        return float("inf") if phi >= pm else (1.0 - phi / pm) ** (-2.5 * pm)
-    raise ValueError(f"unknown viscosity law {law!r}")
+    """The engine's (floor_physics.rel_viscosity; one implementation since 2026-11-20)."""
+    return fp.rel_viscosity(phi, law, phi_max)
 
 
 def apparent_rel_viscosity(x: float, law: str = "thomas", thin: float | None = None) -> float:
-    """Viscosity the impeller sees, over the medium's: the high-shear value, with its excess over the medium raised by `thin`
-    (`tc_thin`, 1.33: CHO at 1e8 cells/mL is 2.4 mPa s at the shear of 50 rpm in a 250 mL tank against 1.8 at 45 per second)."""
-    thin = value("tc_thin") if thin is None else thin
-    return 1.0 + (rel_viscosity(phi_of(x), law) - 1.0) * thin
+    """The engine's (floor_physics.apparent_rel_viscosity)."""
+    return fp.apparent_rel_viscosity(x, law, thin)
 
 
 def apparent_viscosity(x: float, law: str = "thomas", thin: float | None = None) -> float:
@@ -152,25 +143,14 @@ def gas_power(x: float, gas_velocity: float | None = None) -> float:
 # 3. Oxygen transfer, gas hold-up, settling, heat
 # ----------------------------------------------------------------------------
 def kla_factor(x: float, law: str = "thomas", thin: float | None = None, exponent: float | None = None) -> float:
-    """kLa of the thick culture over the kLa in medium: apparent viscosity to the power -`tc_kla_exp` (-0.4)."""
-    n = value("tc_kla_exp") if exponent is None else exponent
-    return apparent_rel_viscosity(x, law, thin) ** (-n)
+    """The engine's (floor_physics.kla_factor): kLa of the thick culture over the kLa in medium."""
+    return fp.kla_factor(x, law, thin, exponent)
 
 
 def oxygen_limit(x_base: float, law: str = "thomas", thin: float | None = None, exponent: float | None = None) -> float:
-    """Density (g/L) a sparger can feed once viscosity is counted. `x_base` is the density the model's oxygen limit gives with
-    the kLa of medium (explore's `limits['oxygen supply']`). Oxygen use rises in proportion to density and kLa falls with it,
-    so the limit solves x = x_base x kla_factor(x). Infinite if the oxygen comes by another route (the loop's column)."""
-    if not np.isfinite(x_base):
-        return float("inf")
-    lo, hi = 0.0, x_base
-    for _ in range(80):
-        mid = 0.5 * (lo + hi)
-        if mid > x_base * kla_factor(mid, law, thin, exponent):
-            hi = mid
-        else:
-            lo = mid
-    return 0.5 * (lo + hi)
+    """The engine's (floor_physics.oxygen_limit): the density a sparger can feed once viscosity is counted, from the limit
+    `x_base` with the kLa of medium. explore() applies it itself since 2026-11-20 (`viscous_kla`)."""
+    return fp.oxygen_limit(x_base, law, thin, exponent)
 
 
 def _rise_speed(d_m: float, mu: float, rho: float) -> float:
@@ -280,9 +260,9 @@ def cost_viscous_oxygen(key: str, law: str = "thomas", thin: float | None = None
     scenario's own tank, with its 'oxygen supply' limit replaced by `oxygen_limit`. {'cost', 'density', 'limit', 'base_cost',
     'oxygen_base', 'oxygen_viscous'}."""
     kw = S.explore_kwargs(S.SCENARIOS[key].choice)
-    r0 = fp.explore(**kw)
+    r0 = fp.explore(**kw, viscous_kla=False)          # the engine counts viscosity itself since 2026-11-20: off for the base
     xo = oxygen_limit(r0["limits"]["oxygen supply"], law, thin, exponent)
-    r = fp.explore(**kw, vm={"caps": {"oxygen supply": float(xo)}}) if np.isfinite(xo) else r0
+    r = fp.explore(**kw, viscous_kla=False, vm={"caps": {"oxygen supply": float(xo)}}) if np.isfinite(xo) else r0
     return {"cost": float(r["total"]), "density": float(r["density"]), "limit": r["limit"], "base_cost": float(r0["total"]),
             "oxygen_base": float(r0["limits"]["oxygen supply"]), "oxygen_viscous": float(xo)}
 
@@ -293,7 +273,7 @@ def limits_at(kw: dict | None = None, law: str = "thomas", thin: float | None = 
     heat, and the retention devices' ceilings (`rt_atf_phi_max`, `rt_tff_phi_max`). The viscosity rule of the model (258) is
     listed as 'model: thickness of the culture'. Returns {'limits': {name: g/L}, 'first': name, 'x': g/L, 'result': explore's}."""
     kw = {} if kw is None else kw
-    r = fp.explore(**kw)
+    r = fp.explore(**{**kw, "viscous_kla": False})   # the uncorrected oxygen limit; viscosity is applied below
     lim = dict(r["limits"])
     lim["oxygen supply, with viscosity"] = oxygen_limit(lim["oxygen supply"], law, thin, exponent)
     vessel, aspect = kw.get("vessel_m3", 20.0), kw.get("aspect")
@@ -384,8 +364,8 @@ def summarise() -> None:
     print(f"  jacket takes {cooling_w_m3():.0f} W/m3 (tall) and {cooling_w_m3(aspect=0.5):.0f} W/m3 (flat)")
     print("\nlimits of three tanks (g/L):")
     for name, kw in (("Humbird's tank, no tricks", {}),
-                     ("central design", S.explore_kwargs(S.SCENARIOS["central"].choice)),
-                     ("best design", S.explore_kwargs(S.SCENARIOS["best"].choice))):
+                     ("the low-lactate example's design", S.explore_kwargs(S.SCENARIOS["central"].choice)),
+                     ("the all-favourable example's design", S.explore_kwargs(S.SCENARIOS["best"].choice))):
         L = limits_at(kw)
         print(f"  {name}: first {L['first']} at {L['x']:.0f}; " +
               ", ".join(f"{k} {v:.0f}" for k, v in L["limits"].items() if np.isfinite(v)))

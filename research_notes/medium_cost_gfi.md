@@ -1,7 +1,5 @@
 # What GFI reports about the cost of medium
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Date: 2026-11-15. Two GFI reports were read in full (text extracted from the PDFs, saved in `medium_cost_gfi_sources/`). The
 fetch tool could not read them, so the 2026 State of the Industry report (10 MB, over the tool's limit) was **not** checked. Its
 page 8 is quoted from the December 2025 report, which cites the same company claims. No number in the model changed.
@@ -51,13 +49,13 @@ cheaper than his, and that is where GFI says the progress has been.
 | Litres per kg | 28 in the low-lactate example, 11 in the all-favourable example | 28–90 (CHO) or 57–183 (FSF4), from medium formulations |
 | Growth factors | $3.0 in the low-lactate example, 0 in the all-favourable example | 10% of cost: about $1 a kilo at $10 |
 
-- **Central matches GFI.** Its medium costs 28 L × $0.20 = $5.72 a kilo. That is the same order as GFI's amino acids "below $5"
+- **The low-lactate example matches GFI** (figures of 2026-11-15 in this section). Its medium costs 28 L × $0.20 = $5.72 a kilo. That is the same order as GFI's amino acids "below $5"
   plus the other components.
 - **The all-favourable example sits below GFI.** Its medium costs $1.72 a kilo, set by the model's $0.67 amino-acid floor. GFI's own range for the
   CHO formulation (28–90 L/kg at $0.02–0.17 per litre for amino acids alone) gives $1.4–15 a kilo. The all-favourable example's 11 L/kg uses
   less medium than any GFI formulation. This is the all-favourable example's biggest optimism on medium. I have not changed it.
-- **A lower price would matter in Central.** At $0.15, $0.10 and $0.07 a litre, Central costs $25.21, $23.78 and $22.92, against
-  $26.64 at $0.20. The all-favourable example does not move: the nutrient floor already binds.
+- **A lower price would matter in the low-lactate example.** At $0.15, $0.10 and $0.07 a litre, it cost $25.21, $23.78 and $22.92 on 2026-11-15, against
+  $26.64 at $0.20 (it is $49.50 on the model of 2026-11-20). The all-favourable example does not move: the nutrient floor already binds.
 
 ## 4. What the model could do
 

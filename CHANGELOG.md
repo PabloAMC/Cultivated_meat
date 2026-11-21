@@ -1,5 +1,62 @@
 # Change log
 
+## 2026-11-20 and 2026-11-21
+
+**The model batch from the full review, the back-test against Humbird's tables, one most favourable case checked against ten
+published studies, four changes to the shopper side, and the page opening on Humbird's best estimate.** The final state is
+described here; the evidence is in `research_notes/full_review_2026-11-19.md` (section 7), `humbird_backtest.md`,
+`study_comparison.md`, `frontier.md`, `thick_culture.md`, `tank_size.md` and `closed_markets.md`. In brackets, what each change
+adds to Published cells, the low-lactate example and the all-favourable example, undone alone in the final model.
+
+- **Engine and inputs** (`floor_physics.explore`, `inputs.py`, `scenarios.py`):
+  1. The scenarios' cells tolerate 35 mmol/L of lactate (`sc_lac_limit`, 20-50, drawn); Humbird's design keeps 50 (+$95.4; nothing; nothing).
+  2. Bubble deaths are charged on the gas the cells meet: death share = `ge_kill_protected` × gas per litre / growth rate, drawn in
+     the bands (+$3.2; +$4.0; +$0.4). A column that strips nothing no longer lowers them; the bubble cage is charged only on the
+     gas its cells meet.
+  3. A harvest loss, `pf_harvest_recovery` 0.98, on every cost and litre per kilo (+$6.5; +$1.0; +$0.2); a vessel's own recovery
+     now scales every cost too.
+  4. Membrane life `rt_membrane_life` 2,415 L/m², Humbird's replacement schedule at his price; it was 3,960 (nothing; +$8.7; nothing).
+  5. Labour in a washed, continuous tank is the fed-batch crew × `pf_labour_perfusion_x` (2.0) (nothing; +$1.8; +$0.7).
+  6. Medium-preparation capital scales with the medium passed (`pf_medium_prep_l_kg` 8.7, `pf_medium_prep_exp` 0.6) (nothing; +$1.7; +$0.3).
+  7. A thick culture takes up oxygen more slowly (`viscous_kla`: kLa × (viscosity ratio)^−`tc_kla_exp`, 0.40, with `tc_thin`
+     1.33); the low-lactate example runs at 154 g/L, not 191 (nothing; +$1.8; +$0.7).
+  8. Plant items per tank (`floor_physics.tank_items`, `capex_at_size`): each tank brings its vessel, makeup tanks, filter housings
+     and buildings, in Humbird's accounting (nothing; −$0.1; −$0.1). Larger tanks now save 5-7% (at about 90-170 m³).
+  9. From the back-test: growth factors are his $3.13 over his fed-batch's 8.65 L/kg; utilities are four inputs (`pf_util_time`,
+     `pf_util_run`, `pf_util_water`, `pf_util_kg`) in place of a flat $0.94; the crew per m³ uses his 14.2 t per m³.
+  10. The ATF is priced as Humbird charges bought equipment (6.25 times its bare price): $66.6 in the low-lactate example, the
+      dearest retention device. Defects fixed: `retention.duty` bleeds per kilo grown; `plant_items.cost_per_kg` uses
+      `explore(items)`; `min_litres` made consistent; the airlift follows the stirred tank's mixing rule, and no longer beats it.
+  11. `accept_x` is no longer drawn in the demand and timing bands. New levers, off by default: maturation (`mature_h`) and cleaning
+      the medium (`clean` = exchanger, electrodialysis or dialysis; `wash_price`, `pf_wash_price` $0.066 a litre).
+- **One most favourable case** (`scenarios.all_favourable`, `favourable_levers`): every lever at its most favourable value among
+  this model's favourable end, Humbird's design and nine other published studies (`study_assumptions.py`), taking no study value
+  that breaks a limit (nutrient floor, mass balance, 258 g/L, the engine's gas and waste limits, a 15-hour doubling, a 3 ng cell, a
+  market rate of interest). It is the all-favourable example, $7.62 (it was $11.67 on 19 November under the old definition), in
+  42 m³ tanks (Negulescu 2023); `frontier.ladder()` runs from Humbird's design ($15.95) to it. Risner 2021's scenario 4 ($2.46 in
+  2025 dollars) is the one published estimate below it, and breaks four limits (a culture that fills the tank, an 8-hour doubling,
+  45 g of glucose a kilo, a 5.3 ng cell); brought inside them its design costs $8.89. `plant_floor` 10.8 → 13.8, so `cost_floor`
+  12.8 → 15.8.
+- **Shopper side** (`market_share.py`, `meat_market.py`): plant-based meat's anchor is 0.4% of meat by volume (`pb_share_target`,
+  was 1.2%); incomes are nominal GDP per head (`REGION_INCOME`, `income_ref` 86,170, `income_gradient` 0.32 re-solved, was PPP
+  and 0.5); conventional meat's price falls as cultivated meat takes its sales (`conv_exponent`, (1 − share)^0.38); markets closed
+  by law take none (`closed_share`, weighted by meat eaten: 1.14% of the world, 10.2% of the US). The share at equal price reads
+  14.4% of meat buyers (13% of all choices, unchanged).
+- **Back-test** (`humbird_check.py`): like for like the engine gives $20.65 against his $21.00 (2018 dollars) for his best
+  estimate, $26.99 in 2025 dollars (capital by the plant-cost index ×1.33, the rest by consumer prices ×1.28), and is within 1.7%
+  on his three designs with enhanced cells; his wild-type plants come out 10% high (their plant per m³). With the model's additions
+  his design costs $36.2.
+- **Headline figures** (at most likely values; middle draw; 8 in 10 of the draws): Published cells $322.6 ($347; $243–486), was
+  $209.1; the low-lactate example $49.5 ($54; $41–79), share 0.05%, was $32.8 and 0.21%; the all-favourable example $7.6 ($9;
+  $8–11), 22.6% with its own demand (58.6% of meat buyers) and 5.4% with the ordinary 14.4%; Humbird's optimistic design $15.9,
+  was $12.8.
+- **The page** opens on Humbird's best estimate as he counts it ($26.99 in 2025 dollars), with what this model counts and he does
+  not as five levers and one button ($37.38 with all five); tank size, maturation and medium cleaning are levers; the interest
+  rate, the years and the upkeep replace the single yearly charge; a worked calculation, a glossary and the published studies'
+  values on each lever (`page_studies.js`) are added.
+- **Documents** (2026-11-21): RESULTS.md, METHODS.md, README.md, TODO.md and the three retention notes rewritten to the final
+  model; `tests/test_golden.py` repinned for the shopper-side changes.
+
 ## 2026-11-19
 
 **Full review; the first screen by sections; no named cell types (no model number changed).**

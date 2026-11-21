@@ -1,6 +1,6 @@
 # Cell traits and the routes that have shown them
 
-Date: 2026-11-19. Code: `cell_traits.py` (`routes`, `routes_needed`, `combination`); inputs `cr_*` in `inputs.py`; tests in
+Date: 2026-11-19; updated 2026-11-20 (the all-favourable example's traits, section 4; the appendix's labels). Code: `cell_traits.py` (`routes`, `routes_needed`, `combination`); inputs `cr_*` in `inputs.py`; tests in
 `tests/test_scenarios.py` (section 12d). Nothing here is a forecast or a probability: it records what has been shown, by which route.
 
 ## 1. Why traits, not routes
@@ -68,11 +68,13 @@ doubling under 42.9 hours). The verdict never says engineering is necessary.
 ## 4. What it does to the reference points
 
 - **Published cells** (0.14, 1.05, 43 h, 2 ng): each trait shown in meat cells.
-- **The low-lactate example** (0.14, 0.42, 36 h, 2 ng): no genetic engineering needed, but a lactate of 0.42 only in CHO; low ammonia with a
-  36-hour doubling not yet together in one meat cell.
-- **The all-favourable example** (0.055, 0.279, 24 h, 2 ng): no genetic engineering needed by this table, but its ammonia and
-  lactate only in CHO (the ammonia at a plateau) and not together with fast growth. The name says how such cells would most likely be
-  made, not that they must be.
+- **The low-lactate example** (0.14, 0.42, 36 h, 2 ng): a lactate of 0.42 has been shown only in CHO; low ammonia with a 36-hour
+  doubling has not yet been shown together in one meat cell.
+- **The all-favourable example** (since 2026-11-20 one case, `scenarios.all_favourable`: 0.054, 0.279, 16 h, 3 ng; before, 0.055,
+  0.279, 24 h, 2 ng): it takes Humbird's enhanced cell where that is more favourable. Its ammonia and lactate have been shown only in
+  CHO (the ammonia at a plateau); a doubling near 16 hours only in immortalised bovine satellite cells grown with serum (15-17 h); a
+  3 ng cell is near the 3.3 ng measured in chicken cells. None of these has been shown together with the others. This note does not
+  say how such cells would be obtained.
 
 ## 5. Not found
 
@@ -83,11 +85,11 @@ doubling under 42.9 hours). The verdict never says engineering is necessary.
 
 ## Appendix: judged odds by 2035 (not a forecast; not used by the model)
 
-On 2026-11-19 a forecast drawn from these odds was built and then dropped at the author's direction ("I like the idea of clouds,
-but I do not like the idea of forecasts"). The odds are kept as a record of how far each route has got, as judged that day. Nothing
-in the model reads them.
+On 2026-11-19 a forecast drawn from these odds was built and then dropped ("I like the idea of clouds, but I do not like the idea
+of forecasts"). The odds are kept as a record, as judged that day. Each is a rough judgement made while building the model with an AI
+assistant; not measured and not reviewed by an expert. The reasoning for each is in the last column. Nothing in the model reads them.
 
-| switch | settings, favourable first, with the author's odds for 2035 | median | where the odds come from |
+| switch | settings, favourable first, with rough judged odds for 2035 | median | where the odds come from |
 |---|---|---|---|
 | Kind of cells | engineered 25%, selected on low-waste feed 40%, best measured 30%, ordinary 5% | selected on low-waste feed | judgement: engineering has no meat-cell result yet; selection and the feed change are shown in flasks |
 | Growth speed | 24 h 10%, 30 h 15%, 36 h 20%, 43 h 55% | 43 h | `cost_scenarios.md`: 24 h 10%, 30 h or faster 25%, 36 h or faster 45%, 43 h or faster 70% (slower is put at 43 h) |

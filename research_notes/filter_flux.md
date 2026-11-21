@@ -1,20 +1,12 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng; it costs $11.67 at most likely values, not $11.46, and its figures here are the earlier ones unless a table says otherwise (the tests pin the new ones). The ammonia range of the low-lactate example's cells now runs from 0.04 mol/kg.
-
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
-
-> Repinned 2026-11-19 (audit batch): ammonia tolerance 4 mM, lost runs pay for their membranes, glucose from the cells' balance (published cells need about 95 L/kg); see audit_2026-11-19.md.
-
-Date: 2026-11-15; costs recomputed 2026-11-16 on the model after PR #32 (protectant, antifoam). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
+Date: 2026-11-15; costs recomputed 2026-11-20 on the final model (section 4). The default membrane life became 2,415 L/m² on 2026-11-20 (section 5). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
 its URL and how much of it was read is `filter_flux_sources/flux_limit_sources.md`. Costs are 2025 dollars per kg of wet cells. No default changed.
 
 ## 1. The question
 
-The default retention device is a TFF hollow-fibre loop at a permeate flux of 5 L/m²/h. Its membranes are replaced after 3,960
-litres a m², one 33-day run at 5 L/m²/h. Two questions. Is 5 L/m²/h above a physical limit? And is a life of 3,960 litres a m²
+The default retention device is a TFF hollow-fibre loop at a permeate flux of 5 L/m²/h. Its membranes are replaced after 2,415
+litres a m² (3,960, one 33-day run at 5 L/m²/h, until 2026-11-20). Two questions. Is 5 L/m²/h above a physical limit? And is such a life
 what has been measured?
 
 ## 2. The physical limit is not the problem
@@ -44,7 +36,9 @@ For 17 µm cells (Vyas's formula, the research pass's arithmetic; the module use
   (Veje 2024, full text read).
 - **The caveat:** the model is for rigid, non-sticking spheres, and its second form is valid only below 10% cells. The 12–25% here is an extrapolation.
 
-My odds (judgement): under 5% that 5 L/m²/h is above the back-transport limit.
+Rough judgement (made while building the model with an AI assistant; not measured and not reviewed by an expert): under 5%
+that 5 L/m²/h is above the back-transport limit. The reasoning: the worst corner of the table is 11 times above it, still about
+3 times after the yeast shortfall, and a CHO test ran at 69 L/m²/h without reaching its critical flux.
 
 ## 3. What has been measured is the problem
 
@@ -57,37 +51,39 @@ Real filters are limited by slow fouling, not by cells piling up at the wall.
 | Radoniqi et al. 2018, Veje 2024 | | 2–3 L/m²/h | the usual flux in perfusion |
 | Mostafavi et al. 2025 (reverse-asymmetric fibre) | up to 25e6 cells/mL (4–7%) | 152–229 L/m²/h | 14 days with no fouling, in 1.5 L |
 
-- **The default life is 3 to 9 times the measured throughput.** 3,960 L/m² against 450–1,200. It is a time limit: 5 L/m²/h for 33
-  days. Measured membranes fouled before 33 days at all but the lowest fluxes.
+- **The default life is 2 to 5 times the measured throughput.** 2,415 L/m² against 450–1,200 (the earlier default, 3,960, was 3 to 9 times). It is Humbird's
+  replacement schedule, about 20 days at 5 L/m²/h. Measured membranes fouled before that at all but the lowest fluxes.
 - **The measured cells were thinner** than 25% by volume, and the cultures had antifoam and cell debris. Meat cells may foul
   more or less. The one counter-example filtered 150–230 L/m²/h for two weeks at a low density.
 - **Life is a time in the model, and a throughput in the data.** The model's `rt_membrane_life` does not change with the flux.
-  A membrane replaced once per run at 2.5 L/m²/h filters 1,980 L/m², not 3,960.
+  A membrane replaced once per run at 2.5 L/m²/h filters 1,980 L/m², under the default.
 
-My odds (judgement from the research pass): about 15–25% that 5 L/m²/h holds for 3,960 L/m² of throughput at 12–25% cells
-by volume with a standard microfiltration fibre.
+What would have to be true for the default to hold: a meat-cell culture at 12–25% cells by volume fouls a standard
+microfiltration fibre no faster than the best measured CHO runs did at thinner densities, so that 5 L/m²/h holds for about 20
+days. The later evidence pass put the median life at about 1,500 L/m², with an 80% interval of 500–4,000
+(`ammonia_tolerance_and_filter_life.md`).
 
 ## 4. What it does to the cost
 
-| Cost per kg with the filter at (flux, membrane life) | Default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
-|---|---|---|---|---|
-| All-favourable example | **$11.46** | $20.62 | $20.71 | $42.63 |
-| Low-lactate example | **$32.80** | $62.23 | $62.50 | $132.87 |
+| Cost per kg with the filter at (flux, membrane life) | Default (5, 2,415) | The earlier default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
+|---|---|---|---|---|---|
+| Low-lactate example | **$49.50** | $40.81 | $72.05 | $72.33 | $147.05 |
 
-- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves Central by $0.3. The
-  membrane's throughput moves it by $29 to $100.
-- **These rows grew with the 2026-11-19 audit.** Central now filters 35 litres a kilo (28 before), and a lost run throws its
-  membranes away part-used.
-- **Caveat:** the short-life columns include the lost-run factor (life × 85% in Central), as the default does; a membrane replaced
+The all-favourable example ($7.62) is not in the table: it holds its cells back with dialyser-grade hollow fibres, whose flux,
+life and price it sets itself (`scenarios.all_favourable`), so the cell filter's flux and life do not move it.
+
+- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves the low-lactate example by $0.3. The
+  membrane's throughput moves it by $23 to $98.
+- **Moving the default from 3,960 to 2,415 added $8.69 to the low-lactate example.**
+- **Caveat:** the short-life columns include the lost-run factor, as the default does; a membrane replaced
   several times a run loses less than that to a lost run, so they are high by up to about 15% of the membrane cost.
-- **At the measured CHO throughput, Central costs $62–133.** That is not a forecast: the data are from thinner cultures of a pharma line.
-  It says the default sits at the generous end of the evidence, and the retention note's 35% for a filter holding 258 g/L for a
-  month is the right order of magnitude.
+- **At the measured CHO throughput, the low-lactate example costs $72–147.** That is not a forecast: the data are from thinner cultures of a pharma line.
+  It says the default still sits above the measured CHO range, by a factor of two at its top.
+- **Life and price act together.** A membrane adds price ÷ life to each litre filtered. A 1,500 L/m² membrane costs the low-lactate example nothing extra at $901 a m² or less, and a 1,000 L/m² membrane at $600 or less (`filter_flux.break_even_price`).
 
 ## 5. What this means
 
-1. **A decision for Pablo:** whether to move `rt_membrane_life` towards the measured range. At 1,200 L/m², Central is $62.23. The note leaves it at
-   3,960, the model's value since PR 18, because the measured data are for CHO at thinner densities. The model's range already
+1. **The decision was taken on 2026-11-20:** `rt_membrane_life` is 2,415 L/m², Humbird's own schedule, paired with his price. At 1,200 L/m² the low-lactate example would be $72.05. The model's range still
    spans 900–5,500.
 2. **The experiment that settles it:** run a hollow-fibre filter on a meat cell line at 10–25% cells by volume at 2–5 L/m²/h and
    record the pressure against litres filtered per m². Fouling is slow, so it takes weeks. A bench filter of 0.025 m² is enough.

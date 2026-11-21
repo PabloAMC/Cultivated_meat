@@ -231,6 +231,9 @@ def floor_with_loop(x_design: float | None = None, oxygen: bool = False, **case)
     free_kw = dict(case, x_scale=1e6)                                 # the CO2 limit taken away
     if oxygen:                                                        # ... and the sparger's oxygen limit:
         free_kw["gas_velocity"] = 1.0                                 # mixing (or thickness) then binds
+        # the 1 m/s only lifts the oxygen limit: this case has no sparger, so no bubbles and no cells killed by them
+        # (2026-11-20: explore now charges bubble deaths on the gas velocity it is given)
+        free_kw["kill"] = 0.0
     free = fp.explore(**free_kw)
     cells = fp.Cells(mass_pg=case.get("mass_pg", 3000.0), doubling_h=case.get("doubling_h", 24.0))
     design = loop_design(free["density"] if x_design is None else x_design, oxygen=oxygen,
@@ -288,7 +291,8 @@ def shape_case(aspect: float, vessel_m3: float = 20.0, cells_in_shell: int = 1, 
     capex_x = f["plant"]
     plant = case.get("plant", "sanitary")
     if cells_in_shell > 1 and fp.PLANT_CLASSES[plant][2]:              # priced as one vessel of the full size
-        capex_x *= fp.capex_at_size(1.0, vessel_m3) / fp.capex_at_size(1.0, v_cell)
+        c20 = value(fp.PLANT_CLASSES[plant][0])                       # the class's 2018 figure: the size rule adds per-tank items
+        capex_x *= fp.capex_at_size(c20, vessel_m3) / fp.capex_at_size(c20, v_cell)
     r = fp.explore(vessel_m3=v_cell, aspect=aspect, gas_velocity=us, capex_x=capex_x, shape_cost=False, **case)
     T, depth = fp.tank_shape(v_cell, aspect)
     return {"aspect": aspect, "vessel_m3": vessel_m3, "T": T, "depth": depth, "gas_velocity": us,
@@ -585,7 +589,11 @@ def lactate_relief(cells: fp.Cells | None = None, medium_l: float | None = None)
     and so how much oxygen (and CO2) it could spare. Textbook yields: 1 ATP per lactate made from glucose;
     about 5 ATP per O2 respired (P/O of 2.5)."""
     cells = fp.GOOD_CELLS if cells is None else cells
-    litres = fp.explore()["medium_l"] if medium_l is None else medium_l
+    if medium_l is None:      # litres per kilo GROWN, the basis of the ATP below (explore reports them per kilo harvested)
+        r = fp.explore()
+        litres = r["medium_l"] * r["harvested_share"]
+    else:
+        litres = medium_l
     lac_max = value("pf_lac_limit") / 1000.0 * litres            # mol lactate per kg the medium can carry away
     atp_resp = cells.qo2 / cells.mu * value("ge_atp_per_o2")     # mol ATP per kg from respiration
     share = lac_max / (atp_resp + lac_max)
@@ -598,7 +606,9 @@ def sparge_death(gas_velocity: float | None = None, depth: float | None = None, 
     """Cells killed by bursting bubbles, from the measured rule that the death rate is proportional to
     the gas flow per litre of culture (Tramper 1988, Jobses 1991): k_d = killing volume x (u_s / depth).
     Returns the gas per litre (per hour and as vvm), the death rate per hour and its share of the
-    growth rate. Defaults: the model's gas limit in its 20 m3 tank."""
+    growth rate. Defaults: the model's gas limit in its 20 m3 tank.
+    Since 2026-11-20 the cost model charges this: floor_physics.explore computes the same death rate for every tank whose
+    cells meet sparged gas and takes the share killed (`death_share`, at most 0.5) off the cells harvested."""
     cells = fp.GOOD_CELLS if cells is None else cells
     us = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
     depth = fp.tank_shape(20.0)[1] if depth is None else depth

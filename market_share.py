@@ -676,6 +676,72 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
     return float(w * E[key] + (1.0 - w) * M[key])
 
 
+def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, income, p_ref, equal_share) -> np.ndarray:
+    """share(R[i], pr, tier_offset=tier_offset[i], eps_own=eps_own[i], kappa=kappa[i], income=income, p_ref=p_ref[i],
+    equal_share=equal_share[i], which="x_meat") for every draw i at once (2026-11-21: the Monte Carlo called share() once per
+    draw, most of the suite's run time). The other dials are at their point values, as in that call. The same arithmetic
+    as share / _segment / _utilities / _effective_beta in arrays of shape (draws, 4 products); tests/test_share_many.py
+    checks it against share() draw by draw."""
+    R = np.asarray(R, dtype=float)
+    n = R.shape[0]
+    b = lambda a: np.broadcast_to(np.asarray(a, dtype=float), (n,))
+    toff, eps, kap, pref, eq = b(tier_offset), b(eps_own), b(kappa), b(p_ref), b(equal_share)
+    # _effective_beta
+    f = eps / pr.eps_own
+    beta = pr.beta_ref * f
+    y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient
+    denom = (pr.income_ref - pr.anchor_price) * pref
+    capped = np.minimum(beta, pr.w_ratio * f * (y_eff - pref) / np.where(denom > 0, denom, 1.0) - 1e-6)
+    beta = np.where(denom > 0, capped, beta)
+    ratio_scale = eps / pr.eps_own
+    # the product table, rows = draws, columns = [w, c, p, x]
+    one = np.ones(n)
+    price_ratio = np.stack([pr.price_wf_mult * one, one, pr.price_pb_mult * one, R], axis=1)
+    taste = np.array([pr.taste_quality_w, 0.0, pr.taste_quality_p, pr.accept_x - 1.0])
+    slaughter_free = np.array([1.0, 0.0, 1.0, 1.0])
+    real_tissue = np.array([0.0, 1.0, pr.real_tissue_p, pr.real_tissue_x])
+    health = np.array([pr.health_w, pr.health_c, pr.health_p, pr.health_x])
+    asc = np.stack([0.0 * one, 0.0 * one, pr.neophobia_p * one, pr.neophobia_x + toff], axis=1)
+    price = price_ratio * pref[:, None]
+    alpha = -beta * (pr.income_ref - pr.anchor_price)
+    V_price = alpha[:, None] * np.log(np.maximum(y_eff - price, 1.0))
+    premium = price_ratio - 1.0
+    V_loss = pr.w_ratio * ratio_scale[:, None] * (-pr.loss_aversion * np.maximum(0.0, premium) + np.maximum(0.0, -premium))
+    kr = kap / pr.kappa_base
+    moved = kr != 1.0
+    V_price[:, 3] = np.where(moved, V_price[:, 1] + kr * (V_price[:, 3] - V_price[:, 1]), V_price[:, 3])
+    V_loss[:, 3] = np.where(moved, kr * V_loss[:, 3], V_loss[:, 3])
+    # liking spread
+    sd = pr.liking_sd
+    if sd > 0.0:
+        means, shares_tab = pr.liking_table
+        mean = np.interp(eq, shares_tab, means)
+        nodes, weights = (np.asarray(a, dtype=float) for a in pr.spread)
+
+    def segment(seg):
+        if seg == "M":
+            w_sl, w_rt, w_h = pr.theta_free_M, pr.w_realtissue_M, pr.w_health_M
+        else:
+            w_sl, w_rt, w_h = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
+        V = ((V_price + V_loss) + pr.w_taste * taste + w_sl * slaughter_free + w_rt * real_tissue + w_h * health + asc)
+        if sd > 0.0:
+            Vx = V[:, 3:4] + mean[:, None] + sd * nodes[None, :]
+            m = np.maximum(V[:, :3].max(axis=1), Vx.max(axis=1))
+            e = np.exp(V[:, :3] - m[:, None])
+            ex = np.exp(Vx - m[:, None])
+            inv = weights[None, :] / (e.sum(axis=1)[:, None] + ex)
+            return e[:, 1] * inv.sum(axis=1), (ex * inv).sum(axis=1)
+        e = np.exp(V - V.max(axis=1)[:, None])
+        P = e / e.sum(axis=1)[:, None]
+        return P[:, 1], P[:, 3]
+
+    cM, xM = segment("M")
+    cE, xE = segment("E")
+    w = pr.w_eth
+    x = w * xE + (1.0 - w) * xM
+    return x / np.maximum(x + w * cE + (1.0 - w) * cM, 1e-300)
+
+
 LIKING_GRID = np.linspace(-30.0, 15.0, 181)     # mean shifts tabulated for per-draw overrides (utils)
 
 
@@ -1198,7 +1264,7 @@ def summarise(pr: DemandParams) -> None:
     # income channel: richer consumers are less price-sensitive (BLP log term)
     rx = cost_ratio(biomass_cost(cp, value("media_price"), 1.0), cp)            # R at the default cost
     print(f"  [income] cultivated share at R={rx:.2f} by region income (phi={pr.income_gradient:g}):")
-    for inc, lbl in [(85810, "US $86k"), (27105, "China $27k"), (6440, "Nigeria $6.4k")]:
+    for inc, lbl in [(86170, "US $86k"), (13293, "China $13k"), (1084, "Nigeria $1.1k")]:
         si = share(rx, pr, income=inc) * 100
         print(f"          income={lbl:<12} {si:4.1f}%   (lower income -> more price-sensitive)")
 

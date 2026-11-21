@@ -8,6 +8,10 @@
 
 > Repinned 2026-11-19 (second round): shoppers' liking is a Student's t spread (standard deviation 3.9 utils, 4 degrees of freedom) on a 67-point grid, not a normal spread of 5 on fifteen points; see liking_spread.md.
 
+> Repinned 2026-11-20 (engine batch): the scenarios' cells tolerate 35 mmol/L of lactate, bubble deaths and a harvest loss are charged, a washed tank takes twice the fed-batch crew, the membrane lasts 2,415 L/m2, and growth factors, utilities and the crew follow the Humbird back-test, so cells are dearer (the low-lactate example $32.80 to $49.96 a kilo, the all-favourable example $11.67 to $18.71, Published cells in fed-batch $209 to $323) and every share here fell; the demand model did not change; see full_review_2026-11-19.md and humbird_backtest.md.
+
+> Repinned 2026-11-20 (model batch): the all-favourable example keeps haemodialyser fibres for its cells, so it uses far less process membrane and its cells cost $7.62 a kilo, not $18.71 (the low-lactate example $49.50); see market_size_loop.md. The rules table and section 4 are regenerated.
+
 Compiled 2026-11-18, after Pablo asked whether the model's flat $5/kg markup should be multiplicative, as Gemini argued. The
 answer changed the model: since this note the shelf price is **(cost + a) / (1 − m)**, with per-kg costs a = $2.5/kg
 (`markup_add`) and the shop's gross margin m = 28% of the shelf price (`retail_margin`). The numbers in sections 2 and 4 come
@@ -71,17 +75,21 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | All-favourable example: shelf price, share | Low-lactate example: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $16.7, 4.77% | $37.8, 0.56% |
-| per-kg $2.5 + a 15% margin | $7.70 | $16.7, 4.77% | $41.5, 0.40% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $19.7, 3.16% | $49.0, 0.21% |
-| per-kg $2.5 + a 40% margin | $4.70 | $23.6, 1.89% | $58.8, 0.10% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $23.0, 2.03% | $61.5, 0.08% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $12.6, 6.85% | $54.5, 0.14% |
+| per-kg $2.5 + a 15% margin | $7.70 | $11.9, 7.47% | $61.2, 0.09% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $14.1, 5.44% | $72.2, 0.05% |
+| per-kg $2.5 + a 40% margin | $4.70 | $16.9, 3.62% | $86.7, 0.02% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $15.7, 4.21% | $91.8, 0.02% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
-rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: Central's
-point share by nearly two-thirds, from 0.44% to 0.16%, and the all-favourable example's by a third, from 4.15% to 2.74%. The all-favourable example here is
-its cells ($11.46 a kilo) with the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the
-costs of the 2026-11-19 audit batch and the Student's t spread of liking fitted later that day. With the audit batch's normal
+rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: the low-lactate
+example's point share ($49.50 a kilo of cells) by nearly two-thirds, from 0.14% to 0.05%. The all-favourable example's cells
+($7.62 a kilo) are only a little above the parity threshold, so the rule matters less for it: its share falls by about a fifth,
+from 6.85% to 5.44%, and a 15% margin would give it more than the flat rule. The all-favourable example here is its cells with
+the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the costs of the 2026-11-20 model batch,
+in which the all-favourable example keeps haemodialyser fibres for its cells. With the 2026-11-20 engine batch's costs ($18.71
+a kilo for the all-favourable example's cells) they were 0.14% to 0.05% and 2.18% to 1.13%. With the costs of the 2026-11-19 audit batch and the
+Student's t spread of liking fitted later that day they were 0.56% to 0.21% and 4.77% to 3.16%. With the audit batch's normal
 spread they were 0.34% to 0.08% and 4.29% to 2.81%; with a heavier tail of liking the rule matters less where cultivated meat is
 far dearer than meat. Before that batch, with the rebuilt cut cost, they were 1.29% to 0.53% and 6.63% to 4.97%; before the cut cost was rebuilt, 0.50% to 0.13% and
 4.48% to 2.74%; when the rule was changed, 0.41% to 0.16% and 8.0% to 3.7%; and with the premium markets sized from data and every

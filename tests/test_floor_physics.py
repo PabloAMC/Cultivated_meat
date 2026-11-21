@@ -71,10 +71,15 @@ def check() -> list:
     # --- pinned tier totals ($/kg of real wet cells, 2025 prices), quoted in METHODS.md ----------
     # repinned 2026-11-19: nutrient floor $1.70 -> $2.00 (+$0.30 in every tier); the rough lower bound's cheap amino acids
     # ($1/kg) now multiply 0.232 kg of amino acids instead of 0.337 kg of hydrolysate (-$0.105)
+    # repinned 2026-11-20 (the two perfusion tiers that are explore(): bubble deaths, the 2% harvest loss, twice the fed-batch
+    # crew in perfusion, medium preparation capital and utilities in four parts; 15.14 -> 18.76 and 8.82 -> 11.75. Humbird's own
+    # designs and the fill-and-draw tiers are plant_cost() and do not move)
+    # 2026-11-20, third pass: what each tank brings with it is charged per tank (floor_physics.tank_items: a 20 m3 perfusion
+    # tank against the 20 m3 fed-batch reference), and plant_floor follows: no clean rooms, perfusion 18.76 -> 18.63
     want = {"Humbird fed-batch, as designed": 24.9, "Humbird perfusion, as designed": 45.78,
             "Same fed-batch plant, small slow cells": 48.7, "Pharma-style plant, half the density": 35.91,
             "Pharma-style plant, fill-and-draw": 19.71, "No clean rooms, fill-and-draw": 18.19,
-            "No clean rooms, perfusion": 15.14, "Microbial-fermentation-class plant": 8.82, "Rough lower bound": 3.08}
+            "No clean rooms, perfusion": 18.63, "Microbial-fermentation-class plant": 11.75, "Rough lower bound": 3.08}
     got = {r["name"]: r["total"] for r in fp.tiers()}
     for name, w in want.items():
         if abs(got[name] - w) > 0.06:
@@ -102,7 +107,7 @@ def check() -> list:
     near("explore() = the floor tier", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-9)
     near("explore(plant='microbial') = the frontier tier", fp.explore(plant="microbial")["total"],
          by["Microbial-fermentation-class plant"]["total_mature"], 1e-9)
-    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 12.81, 1e-3)   # 12.51 before the $2.00 floor
+    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 15.929, 1e-3)   # 12.81 before the 2026-11-20 batch; 16.025 before tank_items (third pass)
     for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
         if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):
@@ -111,7 +116,7 @@ def check() -> list:
             fails.append(f"species preset {key}: implausible case {r}")
     # uncertainty on the floor: the point floor is the favourable end, so the median sits above it
     mc = fp.floor_mc()["total"]
-    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 27.5, 0.03)
+    near("floor Monte Carlo median, $/kg", float(np.median(mc)), 36.64, 0.03)   # 27.5 before the 2026-11-20 batch
     # premium-product analogues: the default over-predicts them; kappa = 9 fits far better
     from market_share import DemandParams, analogue_check
     e4, e9 = (analogue_check(DemandParams(cult_sub_mult=k))["rms_log_error"] for k in (4.0, 9.0))
@@ -149,16 +154,28 @@ def check() -> list:
     near("CO2-limited density at 200 m3", fp.co2_limited_density(good, 200.0), 70.0, 0.25)
     if not fp.co2_limited_density(good, 20.0, aspect=1.0) > fp.co2_limited_density(good, 20.0):
         fails.append("a squatter tank should hold a denser culture")
-    # sparge gas: the floor is unchanged by the gas term; while CO2 binds the oxygen fed per kg does not depend
+    # sparge gas: the floor is unchanged by the gas term; while CO2 binds the oxygen fed per kg of cells grown does not depend
     # on the gas velocity; less gas per litre is credited and more is charged
     base = fp.explore()
     near("oxygen fed, kg per m3 of liquid per hour", fp.oxygen_fed(), 8.59, 0.005)
     if abs(base["gas_extra"]) > 1e-12:
         fails.append("gas: the floor case must carry no gas adjustment")
-    near("gas cost per kg at the floor", base["gas"], 0.52, 0.02)
+    near("gas cost per kg at the floor", base["gas"], 0.58, 0.02)   # 0.52 per kilo grown / 0.90 harvested (2026-11-20)
     lo_gas, hi_gas = fp.explore(gas_velocity=0.002), fp.explore(gas_velocity=0.009)
-    if abs(lo_gas["gas"] - base["gas"]) > 1e-9 or abs(hi_gas["gas"] - base["gas"]) > 1e-9:
-        fails.append("gas: while CO2 binds, gas per kg should not depend on the gas velocity")
+    # 2026-11-20: bubble deaths rise with the gas passed and every cost is per kilo harvested, so the statement that holds is
+    # per kilo GROWN (gas x harvested share); per kilo harvested the gas cost rises with the gas velocity
+    # 2026-11-20, third pass: since a thick culture takes up oxygen more slowly (viscous_kla, tc_kla_exp), the default 0.006 m/s
+    # sits at the switch: above it the oxygen supply binds (157 g/L at 0.009 against CO2's 180), so the gas passed buys fewer
+    # kilos and gas per kilo grown rises. The statement holds where CO2 binds: below the default, and at 0.009 with medium's kLa
+    grown = [r["gas"] * r["harvested_share"] for r in (lo_gas, base)]
+    hi_thin = fp.explore(gas_velocity=0.009, viscous_kla=False)
+    if (lo_gas["limit"] != "CO2 removal" or base["limit"] != "CO2 removal" or hi_thin["limit"] != "CO2 removal"
+            or abs(grown[0] - grown[1]) > 1e-9 or abs(hi_thin["gas"] * hi_thin["harvested_share"] - grown[1]) > 1e-9):
+        fails.append("gas: while CO2 binds, gas per kg of cells grown should not depend on the gas velocity")
+    if not (hi_gas["limit"] == "oxygen supply" and hi_gas["gas"] * hi_gas["harvested_share"] > grown[1] + 1e-6):
+        fails.append("gas: at 0.009 m/s the thick culture's oxygen supply should bind, so gas per kg grown should rise")
+    if not (lo_gas["gas"] < base["gas"] < hi_gas["gas"] and lo_gas["death_share"] < base["death_share"] < hi_gas["death_share"]):
+        fails.append("gas: more gas should kill more cells, so gas per kg harvested should rise with the gas velocity")
     if not (lo_gas["gas_extra"] < 0 < hi_gas["gas_extra"] and fp.explore(aspect=1.0)["gas_extra"] > 0
             and fp.explore(vessel_m3=200.0)["gas_extra"] < 0):
         fails.append("gas: wrong sign of the oxygen-plant adjustment")

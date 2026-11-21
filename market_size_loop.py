@@ -27,10 +27,11 @@ What this module does
    (Pablo, 2026-11-18): sushi-grade seafood and prime or wagyu beef are where cultivated meat is nearest the price it competes
    with. Premium products are the ones `meat_market.tier` labels premium. Since world seafood was re-priced on 2026-11-19 they
    are five: organic chicken, heritage pork, prime or wagyu beef, sushi-grade seafood, and the new row of premium fillets and
-   shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. With the Student's t spread of liking
-   (2026-11-19) premium products are about a quarter of the low-lactate example's sales at its own cost; most are ordinary cuts, a third beef
-   steaks. `premium_start` asks whether the premium products' volume alone carries the industry past the membrane switch:
-   for the low-lactate example the five do and the four small ones do not, and its whole sales need nearly five times the switch.
+   shrimp (`LARGE_PREMIUM`), which is five times the size of the other four together. Premium products are about three-tenths
+   of the low-lactate example's sales at its own cost; most are ordinary cuts, a third beef steaks. `premium_start` asks whether
+   the premium products' volume alone carries the industry past the membrane switch: since the engine batch of 2026-11-20 made
+   cells dearer, for the low-lactate example neither the five nor the four small ones do, and its whole sales need two and a
+   half times the switch.
 Nothing here changes a default. With both learning rates at zero it reproduces the scenarios exactly (tested).
 
     python market_size_loop.py              # the tables

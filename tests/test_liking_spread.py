@@ -7,7 +7,7 @@ the notes and RESULTS.md carry the module's tables and the figures their prose q
 (market_share.spread_quadrature): that every shape's nodes are a standardised distribution, that the normal shape with a spread of
 5 is still the model of 2026-11-18 to the last digit, and that the model's integration rule is within 1% of a 20,001-point
 reference; and what the note says of the shapes: their order by joint misfit, that the model's two parameters are within 20% of the
-least misfit, that farmed salmon's response still fails, and that the all-favourable example falls by about a third. Runs as a script or under
+least misfit, that farmed salmon's response still fails, and that the all-favourable example falls by about a fifth. Runs as a script or under
 pytest.
 """
 from __future__ import annotations
@@ -41,7 +41,10 @@ def check_shape() -> list:
         var = float((wz * z * z).sum())
         if abs(wz.sum() - 1.0) > 1e-12 or abs(float((wz * z).sum())) > 1e-9 or not 0.95 < var < 1.0 + 1e-9:   # a heavy tail keeps a little variance beyond the last node
             fails.append(f"{fam}: the nodes are not a standardised distribution (weights {wz.sum()}, variance {var})")
-    old = LS.variant(liking_family="normal", liking_sd=5.0)
+    # 2026-11-20 (model batch): the plant-based share target fell from 1.2% to 0.4% and incomes became nominal dollars (income_ref
+    # $85,810 -> $86,170, phi 0.5 -> 0.32), so the model's own calibration has moved; the 2026-11-18 model is rebuilt with those three
+    # inputs at their old values and must still match to the last digit
+    old = M.DemandParams(liking_family="normal", liking_sd=5.0, pb_share_target=0.012, income_gradient=0.5, income_ref=85810)
     for R, v in NORMAL_2026_11_18.items():
         if abs(M.share(R, old) - v) > 1e-12:
             fails.append(f"the normal shape with a spread of 5 no longer reproduces the 2026-11-18 model at {R:g} times the price")
@@ -90,7 +93,7 @@ def check() -> list:
                      "first contact; rewrite the note")
     # 2026-11-19 second round: what the note says of the shapes (liking_spread.families). The t fits better than the normal and the
     # logistic; the mixture fits better still and was not chosen (two extra parameters, a price-insensitive block); the normal
-    # integrated properly fails the requirements; farmed salmon's response still fails; the all-favourable example falls by about a third.
+    # integrated properly fails the requirements; farmed salmon's response still fails; the all-favourable example falls by about a fifth (a third before 2026-11-20, nearly two-fifths in the engine batch).
     J = {n: m["J"] for n, m in fam.items()}
     t_, mix, nrm = "Student's t (the model)", "mixture of two normals", "normal, as it was (15 integration points)"
     if not (J[mix] < J[t_] < J["logistic"] < J[nrm] and fam[t_]["meets"] and not fam["normal, integrated properly"]["meets"]):
@@ -98,9 +101,14 @@ def check() -> list:
                      "properly now meets the requirements; rewrite the note's section 2")
     if not min(fam[t_]["response"].values()) > 2.0 * LS._salmon_range()[1]:
         fails.append("the model's response to a falling price is no longer more than twice farmed salmon's; rewrite the note's section 6")
-    if not 0.6 < fam[t_]["world"]["best, own demand"] / fam[nrm]["world"]["best, own demand"] < 0.75:
-        fails.append("the all-favourable example with its own demand no longer falls by about a third against the normal spread; rewrite the note")
-    # the note: a tail of 3 with a spread of 3.7 has the least joint misfit; the model's 4 and 3.9 are within 20% of it
+    # 2026-11-20 (engine batch, the all-favourable example's cells $11.67 to $18.71): 9.0% with the normal spread, 5.6% with the t,
+    # a fall of nearly two-fifths (was a third, 19.9% to 13.8%): further above meat's price the narrower middle of the t loses more.
+    # 2026-11-20 (model batch, the all-favourable example keeps haemodialyser fibres, cells $7.62): 28.9% to 22.6%, a fall of about a
+    # fifth; nearer meat's price the shape of the spread matters less
+    if not 0.7 < fam[t_]["world"]["best, own demand"] / fam[nrm]["world"]["best, own demand"] < 0.85:
+        fails.append("the all-favourable example with its own demand no longer falls by about a fifth against the normal spread; rewrite the note")
+    # the note: a tail of 3 with a spread of 3.7 has the least joint misfit; the model's 4 and 3.9 are within 20% of it (13% above
+    # since 2026-11-20, 10% before: the salmon part of the misfit is computed at the low-lactate example's cost of cells)
     least = LS.evaluate(liking_family="student", liking_sd=3.7, liking_tail=3.0)
     if not (least["meets"] and least["J"] < J[t_] < 1.2 * least["J"]):
         fails.append("the model's spread and tail are no longer within 20% of the least joint misfit (tail 3, spread 3.7); rewrite the note")

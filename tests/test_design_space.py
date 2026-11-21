@@ -27,13 +27,14 @@ def close(a, b, tol=1e-9):
 
 def ideal_fat_fed(key: str) -> dict:
     """design_space.ideal with fat taken from the feed: the ordinary tall tank, every gas and mixing limit lifted for free."""
-    kw = V.explore_kwargs("stirred", "perfusion", {**D.base_kwargs(key), **D._option("fat", "fed")[2]})
+    kw = D.vessel_kwargs("stirred", {**D.base_kwargs(key), **D._option("fat", "fed")[2]})
     kw["vm"] = {**kw["vm"], **D._FREE_GAS}
     return fp.explore(**kw)
 
 
 def check() -> list:
     fails = []
+    # The search compares designs at each case's own tank size (D.vessel_kwargs): it does not search the size of the tank.
     for k in D.CASES:      # 2026-11-19 restructure: the perfusion scenarios; the cautious case carries the old rung 1's switches
         ch = S.SCENARIOS[k].choice
         own = S.run(ch)["total"]
@@ -100,9 +101,20 @@ def check() -> list:
     # 2026-11-19 restructure: rung 1 is now fed-batch, so the published cells in perfusion are searched as "cautious" (the same
     # switches as the old rung 1; same pinned figures).
     # New pins: today's cheapest designs and its ideal with fat fed, which now sit below its scenario-feed ideal
-    for (k, what), want in {("central", "ideal"): 30.6623, ("central", "no_cage"): 31.3999, ("central", "cage"): 31.0906,
-                            ("cautious", "ideal"): 84.8548, ("best", "ideal"): 11.2023,   # 2026-11-19: best's cells 2 ng (were 3)
-                            ("cautious", "no_cage"): 64.9412, ("cautious", "cage"): 61.7755, ("cautious", "ideal_fed"): 61.2604}.items():
+    # 2026-11-20 model batch (lactate tolerated 35 mmol/L, bubble deaths and harvest loss charged, twice the crew, membrane life
+    # 2,415 L/m2, medium preparation with the medium passed): central ideal 30.6623 -> 42.2382, no cage 31.3999 -> 47.8603;
+    # cautious ideal 84.8548 -> 165.5830, no cage 64.9412 -> 130.0061, ideal with fat fed 61.2604 -> 117.2610; best ideal
+    # 11.2023 -> 16.6859.
+    # 2026-11-20 final pass: the cage's own gas no longer counts toward bubble deaths (vessels.explore_kwargs passes it as
+    # "gas_away"), so the two cage pins move from their defective values (central 31.0906, cautious 61.7755) to the module's;
+    # the other pins move with the last engine fixes. The search now runs at the case's own tank size (vessel_kwargs): the
+    # all-favourable case's 42 m³, the others' 20 m³. It does not search the size; the case has chosen it (scenarios.all_favourable).
+    # central ideal 42.2382 -> 42.9658, no cage 47.8603 -> 47.3902, cage -> 46.2582; cautious ideal 165.5830 -> 167.4510,
+    # no cage 130.0061 -> 129.4021, cage -> 123.5281, ideal with fat fed 117.2610 -> 118.5639; best ideal 16.6859 -> 5.5871
+    # (the all-favourable case is now $7.62 at 42 m³, not the old best).
+    for (k, what), want in {("central", "ideal"): 42.9658, ("central", "no_cage"): 47.3902, ("central", "cage"): 46.2582,
+                            ("cautious", "ideal"): 167.4510, ("best", "ideal"): 5.5871,   # 2026-11-19: best's cells 2 ng (were 3)
+                            ("cautious", "no_cage"): 129.4021, ("cautious", "cage"): 123.5281, ("cautious", "ideal_fed"): 118.5639}.items():
         if what == "ideal_fed":
             got = ideal_fat_fed(k)["total"]
         else:

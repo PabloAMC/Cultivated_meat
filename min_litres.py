@@ -12,8 +12,8 @@ The bounds (per kg of wet cells)
 nitrogen     Ammonia is nitrogen the cells take in and do not build into protein or nucleic acid. If amino acids come in
              the proportion the cell builds protein, no nitrogen need leave as ammonia, so stoichiometry sets the floor
              at zero. `leak` is the share of the cell's 2.86 mol N that leaves as ammonia anyway; litres = leak x 2.86 /
-             the ammonia limit. STALE SINCE 2026-11-19: the limit used here is Humbird's 5 mmol/L (`pf_nh3_limit`); the
-             scenarios now hold 4 (`sc_nh3_limit`, through `scenarios.always()`), so at a scenario's own leak this term is
+             the ammonia limit. The limit used here is Humbird's 5 mmol/L (`pf_nh3_limit`), which the all-favourable
+             example takes (2026-11-20); the low-lactate example holds 4 (`sc_nh3_limit`), so at its leak this term is
              4/5 of explore's ammonia term. The default leak is zero, so no cost in this module depends on it.
 lactate      Glucose can be burned whole (6 O2 and 6 CO2 each), so the floor yield is zero. Litres = yield x glucose /
              the lactate limit.
@@ -87,8 +87,8 @@ def bounds(doubling_h: float = 24.0, mass_pg: float = 3000.0, leak: float = 0.0,
 def waste_allowed(litres: float, doubling_h: float = 24.0, mass_pg: float = 3000.0) -> dict:
     """The most waste a kg of cells may make if `litres` of permeate are to carry it away at the model's limits:
     ammonia in mol/kg, and the lactate yield that fits, in mol per mol of the glucose a cell making no lactate takes up
-    (`nutrients`). STALE SINCE 2026-11-19 on two counts: the ammonia limit is Humbird's 5 mmol/L (`pf_nh3_limit`), where the
-    scenarios hold 4 (`sc_nh3_limit`), so the scenarios allow 4/5 of `nh3_kg`; and the scenarios state the lactate yield per
+    (`nutrients`). Two caveats: the ammonia limit is Humbird's 5 mmol/L (`pf_nh3_limit`), which the all-favourable example takes;
+    the low-lactate example holds 4 (`sc_nh3_limit`), so it allows 4/5 of `nh3_kg`; and the scenarios state the lactate yield per
     mol of all the glucose taken up (`floor_physics.glucose_balance`), on which basis the same lactate is a yield of
     lac / (n_glc + lac / 2)."""
     n_glc = nutrients(doubling_h, mass_pg)["n_glc"]
@@ -111,26 +111,32 @@ def energy_check(doubling_h: float = 24.0, mass_pg: float = 3000.0) -> dict:
 def costs_at(key: str) -> dict:
     """$/kg of a scenario at the bound litres, by `explore(medium_l=...)`, plus the scenario as it stands. Keys:
     `scenario` (the model's litres), `bath`, `measured_flow`, `physical`, `practical`; and two runs with waste set to zero and
-    the model's own rules left in place: `no_waste` (default flow) and `no_waste_low_flow` (the lowest measured flow)."""
+    the model's own rules left in place: `no_waste` (default flow) and `no_waste_low_flow` (the lowest measured flow).
+    In every row `litres` is per kilo of cells HARVESTED, as explore reports it and as the costs are, and `litres_grown` per
+    kilo grown, the basis of `bounds` (2026-11-20: the bound rows gave litres per kilo grown beside costs per kilo harvested).
+    explore raises a bound below the culture that leaves with the cells (1000 / density) to that."""
     kw = S.explore_kwargs(S.SCENARIOS[key].choice)
     b = bounds(kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0))
     base = fp.explore(**kw)
-    out = {"scenario": {"litres": base["medium_l"], "cost": base["total"], "set_by": base["medium_set_by"]}}
+    grown = lambda r: r["medium_l"] * r["harvested_share"]
+    out = {"scenario": {"litres": base["medium_l"], "litres_grown": grown(base), "cost": base["total"], "set_by": base["medium_set_by"]}}
     for name in ("bath", "measured_flow", "physical", "practical"):
         r = fp.explore(**{**kw, "medium_l": b[name]})
-        out[name] = {"litres": b[name], "cost": r["total"], "feedstock": r["feedstock"], "membranes": r["membranes"],
+        out[name] = {"litres": r["medium_l"], "litres_grown": grown(r), "bound": b[name], "cost": r["total"],
+                     "feedstock": r["feedstock"], "membranes": r["membranes"],
                      "retention_capex": r["retention_capex"]}
     clean = {k: v for k, v in kw.items() if k not in ("nh3_kg", "lac_yield", "glc_kg")}
     for name, extra in (("no_waste", {}), ("no_waste_low_flow", {"min_perfusion": REGISTRY["pf_min_perfusion"].lo})):
         r = fp.explore(**{**clean, "nh3_kg": 0.0, "lac_yield": 0.0, **extra})
-        out[name] = {"litres": r["medium_l"], "cost": r["total"], "set_by": r["medium_set_by"]}
+        out[name] = {"litres": r["medium_l"], "litres_grown": grown(r), "cost": r["total"], "set_by": r["medium_set_by"]}
     return out
 
 
 def main() -> None:
     n = nitrogen_in()
+    held = ", ".join(f"{k} {S.explore_kwargs(S.SCENARIOS[k].choice).get('nh3_limit', value('pf_nh3_limit')):g}" for k in SCENARIOS)
     print(f"nitrogen in a kg of cells: {n:.2f} mol; litres per unit leak at {value('pf_nh3_limit'):g} mM (Humbird's limit; "
-          f"the scenarios hold {S.always()['nh3_limit']:g}): {n / (value('pf_nh3_limit') / 1000.0):.0f}")
+          f"the examples hold {held}): {n / (value('pf_nh3_limit') / 1000.0):.0f}")
     for key in SCENARIOS:
         kw = S.explore_kwargs(S.SCENARIOS[key].choice)
         d, m = kw.get("doubling_h", 24.0), kw.get("mass_pg", 3000.0)
@@ -141,7 +147,7 @@ def main() -> None:
             print(f"  {k:<10}{v:7.1f} L/kg")
         print("  energy:", {k: round(v, 2) for k, v in energy_check(d, m).items()})
         for name, v in costs_at(key).items():
-            print(f"  {name:<18}{v['litres']:6.1f} L/kg  ${v['cost']:.2f}/kg")
+            print(f"  {name:<18}{v['litres']:6.1f} L/kg harvested  ${v['cost']:.2f}/kg")
         print("  waste allowed at the physical bound:", {k: round(v, 3) for k, v in waste_allowed(b["physical"], d, m).items()})
 
 

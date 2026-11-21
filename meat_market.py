@@ -49,7 +49,7 @@ from common import setup_style, _save
 from inputs import value
 from cost_model import CostParams, cost_floor, media_cost
 from price_ratio import shelf_price, structured_cost
-from market_share import DemandParams, share
+from market_share import DemandParams, share, share_x_meat_many
 
 
 @dataclass
@@ -106,8 +106,8 @@ def premium_ramp(mt: "MeatType", base: float) -> float:
     below, 1 at PREMIUM_FULL (4x) or above, linear in the logarithm of price between. 0 for unstructured products."""
     if mt.scaffold == 0:
         return 0.0
-    x = np.log(mt.p_conv / base / PREMIUM_START) / np.log(PREMIUM_FULL / PREMIUM_START)
-    return float(min(max(x, 0.0), 1.0))
+    x = np.clip(np.log(mt.p_conv / base / PREMIUM_START) / np.log(PREMIUM_FULL / PREMIUM_START), 0.0, 1.0)
+    return float(x) if np.ndim(x) == 0 else x
 
 
 def tier_offset(mt: "MeatType", base: float, resistance, pr, cell_share=None, premium_extra=None):
@@ -284,14 +284,109 @@ NIGERIA_MARKET = [
 MARKETS = {"us": US_MARKET, "eu": EU_MARKET, "china": CHINA_MARKET, "global": GLOBAL_MARKET,
            "india": INDIA_MARKET, "brazil": BRAZIL_MARKET, "nigeria": NIGERIA_MARKET}
 
-# Region income (GDP per capita, PPP, World Bank 2023-24) — feeds the BLP price term
-# in market_share.share(income=...): richer => less price-sensitive. The US is the
-# reference (income_ref in inputs.py), so the US result is unchanged.
-REGION_INCOME = {"us": 85810, "eu": 62266, "china": 27105, "global": 24248,
-                 "india": 11159, "brazil": 22333, "nigeria": 6440}
+# Region income — feeds the BLP price term in market_share.share(income=...): richer => less price-sensitive. The US is the
+# reference (income_ref in inputs.py), so the US result is unchanged. Since 2026-11-20: GDP per head in NOMINAL US dollars,
+# World Bank 2024 (API, indicator NY.GDP.PCAP.CD), because the meat prices it is set against are nominal dollars, and ln(y - p)
+# needs both in the same units. Until then GDP per head at purchasing-power parity (World Bank 2023-24): US 85,810, EU 62,266,
+# China 27,105, world 24,248, India 11,159, Brazil 22,333, Nigeria 6,440. income_gradient was re-solved to keep the Nigeria/US
+# own-price elasticity ratio at equal price at 2.2 (inputs.py).
+REGION_INCOME = {"us": 86170, "eu": 43314, "china": 13293, "global": 13717,
+                 "india": 2592, "brazil": 10311, "nigeria": 1084}
 
 
-def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None):
+# ----------------------------------------------------------------------------
+# Markets it cannot be sold into, and conventional meat's price as cultivated meat takes sales (2026-11-20)
+# ----------------------------------------------------------------------------
+US_POP_M, EU_POP_M = 341.78, 451.28         # US Census Vintage 2025; Eurostat 1 Jan 2025 (research_notes/closed_markets.md)
+# Meat eaten a head, kg a year: FAO food balance sheets, 2023 (meat supply per person, via Our World in Data's
+# "meat-supply-per-person" series, fetched 2026-11-20). The US and EU weights in the world are each region's people times its meat
+# a head, over the world's (research_notes/closed_markets.md).
+MEAT_KG_HEAD = {"us": 122.06, "eu": 78.55, "world": 45.12}
+CLOSED_LEVELS = ("none", "permanent", "all", "religious_against", "religious_conditions")
+
+
+def world_meat_weight(region: str) -> float:
+    """The region's share of the world's meat eaten: its people times its meat a head, over the world's (MEAT_KG_HEAD)."""
+    pop = {"us": US_POP_M, "eu": EU_POP_M}[region]
+    return pop * MEAT_KG_HEAD[region] / (value("mk_world_pop_m") * MEAT_KG_HEAD["world"])
+
+
+def closed_share(region: str, level=None) -> float:
+    """Share of a region's meat market cultivated meat cannot be sold into (research_notes/closed_markets.md), each closed
+    jurisdiction weighted by its share of the region's meat eaten: US states by their share of the US population (meat a head
+    taken as equal between states, an assumption), Italy and Hungary by their share of the EU's meat, the US and the EU by their
+    share of the world's meat (world_meat_weight). `level` (default the input mk_closed_level): 0 or "none"; 1 or "permanent": the
+    five US states with permanent bans; 2 or "all": every law in force, the three US temporary bans and Italy's and Hungary's
+    contested laws included; 3 or "religious_against": the same and, for the world only, Indonesia, where the one religious body
+    that has ruled against it (Nahdlatul Ulama, 2021) sits (mk_closed_religious_against); 4 or "religious_conditions": the same and,
+    for the world only, the populations whose religious authorities have set conditions (halal or kosher inputs and supervision),
+    counted as closed as if those conditions were not met (mk_closed_religious_conditions). Other regions: none."""
+    lv = int(round(value("mk_closed_level"))) if level is None else (CLOSED_LEVELS.index(level) if isinstance(level, str) else int(level))
+    if lv <= 0:
+        return 0.0
+    us = value("mk_closed_us_permanent") + (value("mk_closed_us_temporary") if lv >= 2 else 0.0)
+    eu = value("mk_closed_eu_contested") if lv >= 2 else 0.0
+    if region == "us":
+        return us
+    if region == "eu":
+        return eu
+    if region == "global":
+        laws = us * world_meat_weight("us") + eu * world_meat_weight("eu")
+        return (laws + (value("mk_closed_religious_against") if lv >= 3 else 0.0)
+                + (value("mk_closed_religious_conditions") if lv >= 4 else 0.0))
+    return 0.0
+
+
+def conv_exponent(supply_elast=None) -> float:
+    """1 / (es - ed): conventional meat's price falls as p0 x (1 - s)^this when cultivated meat takes a share s of the market
+    (mk_supply_elast, mk_demand_elast). None or inf supply elasticity: 0, a fixed price."""
+    es = value("mk_supply_elast") if supply_elast is None else supply_elast
+    if es is None or not np.isfinite(es):
+        return 0.0
+    return 1.0 / (es - value("mk_demand_elast"))
+
+
+def _region_of(market) -> str | None:
+    return next((k for k, m in MARKETS.items() if m is market), None)
+
+
+def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None, closed=None,
+            supply_elast=None):
+    """`_rollup_once` with two things a market does around it (2026-11-20):
+      * conventional meat's price falls as cultivated meat takes sales: every price of the region's meat is p0 x f with
+        f = (1 - s)^(1 / (es - ed)) (conv_exponent), s the region's volume share sold, solved with the share (the secant
+        method from f = 1, to 1e-8; a lower price lowers the share, so it converges). Applied to the market as a whole (the same s and f for every kind of meat);
+        `supply_elast` = inf holds the price fixed;
+      * the share of the market it cannot be sold into (`closed`, default closed_share(region)): the volume and value shares
+        are multiplied by (1 - closed). The price fall uses the share actually sold.
+    rows carry the per-type shares of the whole region (the closed part included, at none); so do the totals."""
+    region = _region_of(market)
+    cl = closed_share(region) if (closed is None and region is not None) else (closed or 0.0)
+    k = conv_exponent(supply_elast)
+    rows, tv, tval = _rollup_once(market, biomass, markup, res, share_of, margin, cell_share, assembly, 1.0)
+    if k != 0.0:
+        # solve h(f) = f - (1 - s(f) (1 - closed))^k = 0 by the secant method from f = 1 (to |h| < 1e-8; per draw for arrays)
+        f0, h0 = 1.0, 1.0 - (1.0 - np.asarray(tv) * (1.0 - cl)) ** k
+        f = f0 - h0
+        for _ in range(30):
+            rows, tv, tval = _rollup_once(market, biomass, markup, res, share_of, margin, cell_share, assembly, f)
+            h = f - (1.0 - np.asarray(tv) * (1.0 - cl)) ** k
+            if np.max(np.abs(h)) < 1e-8:
+                break
+            d = h - h0
+            step = np.where(np.abs(d) > 1e-14, h * (f - f0) / np.where(np.abs(d) > 1e-14, d, 1.0), h)
+            f0, h0, f = f, h, f - step
+    rows = [(mt, R, sh * (1.0 - cl)) for mt, R, sh in rows]       # each kind of meat's share of the whole region's sales
+    return rows, tv * (1.0 - cl), tval * (1.0 - cl)
+
+
+def conv_price_factor(market, biomass, **kw) -> float:
+    """The factor f on conventional meat's prices at the share cultivated meat takes (penetration's fixed point)."""
+    tv = penetration(market, biomass, **kw)[1]
+    return float((1.0 - tv) ** conv_exponent(kw.get("supply_elast")))
+
+
+def _rollup_once(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None, f=1.0):
     """The shared per-type roll-up used by BOTH the point estimate (penetration) and the
     Monte-Carlo band (monte_carlo): for each meat type compute its price ratio
     R = shelf_price(cut_cost, markup, margin) / p_conv, with cut_cost = biomass*cost_mult for mince and
@@ -305,27 +400,38 @@ def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None
     inputs.py's process_cost). A callback that applies tier_offset must be given the SAME cell_share: the cut is one product
     in cost and in liking."""
     bases = species_bases(market)                                   # per-species reference price
-    Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser
+    Wval = sum(mt.p_conv * mt.w_vol for mt in market)               # value-weight normaliser (at the prices before any fall)
+    scaled = (lambda mt: mt) if np.ndim(f) == 0 and f == 1.0 else (lambda mt: _Scaled(mt, f))
     # volume-weight normaliser: the listed w_vol sum to 1.00-1.025 by region (premium variants were
     # added without trimming the rest exactly), so normalise to make the total a true share.
     Wvol = sum(mt.w_vol for mt in market)
     rows, tot_vol, tot_val = [], 0.0, 0.0
-    for mt in market:
-        base = bases[animal_of(mt)]
+    for mt0 in market:
+        base = bases[animal_of(mt0)] * f                            # the premium ramp is a ratio: unchanged by a uniform fall
+        mt = scaled(mt0)
         cells = biomass * mt.cost_mult
         cut = (structured_cost(cells, cell_share=cell_share, assembly=mt.scaffold if assembly is None else assembly)
                if mt.scaffold > 0 else cells)
         R = shelf_price(cut, markup, margin) / mt.p_conv
         s = share_of(mt, R, base, res)
-        rows.append((mt, R, s))
+        rows.append((mt0, R, s))
         tot_vol = tot_vol + (mt.w_vol / Wvol) * s
-        tot_val = tot_val + (mt.p_conv * mt.w_vol / Wval) * s
+        tot_val = tot_val + (mt0.p_conv * mt0.w_vol / Wval) * s
     return rows, tot_vol, tot_val
+
+
+class _Scaled:
+    """A meat type whose conventional price is `f` times its own (f may be a per-draw array)."""
+    def __init__(self, mt, f):
+        self._mt, self.p_conv = mt, mt.p_conv * f
+
+    def __getattr__(self, name):
+        return getattr(self._mt, name)
 
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
-                premium_extra=None, pr=None, cell_share=None, assembly=None):
+                premium_extra=None, pr=None, cell_share=None, assembly=None, closed=None, supply_elast=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
@@ -352,7 +458,8 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
                      tier_offset=tier_offset(mt, base, res, pr, cs, premium_extra), income=income,
                      p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (x / (x + c)), since 2026-11-19        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
-    rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly)
+    rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly, closed=closed,
+                                     supply_elast=supply_elast)
     return rows, tot_vol, tot_val
 
 
@@ -390,10 +497,12 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
 
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
         toff = np.broadcast_to(tier_offset(mt, b, res, base, cell_share), (n,))   # per-draw (utils)
-        return np.array([share(R[i], base, accept_x=s["accept_x"][i], tier_offset=float(toff[i]),
-                               eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i], income=income, p_ref=mt.p_conv,
-                               equal_share=s["equal_price_share"][i], which="x_meat")   # novelty, no-slaughter, health: in equal_price_share
-                         for i in range(n)])
+        # taste (accept_x) is not drawn since 2026-11-20: it is held at its point value (equal_price_share is the net of it)
+        # share(R[i], base, tier_offset=toff[i], eps_own=..., kappa=..., income, p_ref=mt.p_conv, equal_share=..., which="x_meat")
+        # for every draw at once (novelty, no-slaughter, health: in equal_price_share); tests/test_share_many.py checks it is that
+        return share_x_meat_many(np.broadcast_to(np.asarray(R, dtype=float), (n,)), base, tier_offset=toff,
+                                 eps_own=s["eps_own"], kappa=s["cult_sub_mult"], income=income,
+                                 p_ref=np.broadcast_to(mt.p_conv, (n,)), equal_share=s["equal_price_share"])
 
     _rows, tot_vol, tot_val = _rollup(market, biomass, s["markup_add"], res, share_of, s["retail_margin"],
                                       cell_share=cell_share, assembly=s["process_cost"])
@@ -455,7 +564,7 @@ def summarise(region: str, theta_free: float) -> None:
                   value("biomass_cost_nearterm")),
                  ("cost FLOOR (central)", cost_floor(cp))]
     print(f"  region: {region.upper()}   theta_free_M (mainstream slaughter-free value) = {theta_free:+.1f}"
-          f"   income = ${REGION_INCOME[region]:,}/yr (PPP)")
+          f"   income = ${REGION_INCOME[region]:,}/yr (nominal)")
     for label, biomass in scenarios:
         rows, tv, tval = penetration(market, biomass, theta_free_M=theta_free,
                                      income=REGION_INCOME[region])

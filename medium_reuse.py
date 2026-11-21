@@ -19,9 +19,14 @@ takes the waste out with no liquid drawn through the cell filter (dialysis acros
 membrane in the tank) saves the filter too, and then its own membrane meets the cells.
 
 `balance` gives the litres: fresh medium bought, liquid cleaned and returned, liquid through the cell filter.
-`cost` prices a route for a scenario from `floor_physics.explore`, plus the loop's filter, the growth factors it loses, the
-dialysate and the device. `best` picks the litres to clean that cost least. `routes()` are the candidates, each with its
-evidence. Nothing here changes a default.
+`cost` prices a route for a scenario. Since 2026-11-20 the calculation itself lives in `floor_physics.explore` (its `clean`
+argument, with the litres cleaned as `clean_loop`): the litres each waste still asks for, the loop's passes through the cell
+filter, the growth factors it loses, the dialysate and the device. `cost` calls it, so there is one implementation, and the
+page's levers use the same one. `best` picks the litres to clean that cost least. `routes()` are the candidates, each with
+its evidence; `PAGE_ROUTES` are the three the page offers. Nothing here changes a default.
+
+All litres here are per kilo of cells harvested, as explore reports them (`harvested_share`: bubbles kill some of the cells
+grown and the harvest loses some).
 
     python medium_reuse.py              # the tables, as text
     python medium_reuse.py --markdown   # the tables the note and RESULTS.md quote
@@ -62,28 +67,28 @@ def cost(key: str = "central", loop: float = 0.0, nh3: float = 0.0, lac: float =
          exchange_membrane: float = 0.0) -> dict:
     """Cost per kg of cells of a scenario with `loop` litres per kg cleaned and returned. `device_l`: $ per litre cleaned;
     `dialysate_l`: litres of basal medium bought per litre cleaned (dialysis); `exchange_membrane`: for a device across the
-    culture, its membrane and hardware as a share of what filtering the same litres through the cell filter costs."""
+    culture, its membrane and hardware as a share of what filtering the same litres through the cell filter costs.
+    The calculation is floor_physics.explore's (`clean` as a dict of these numbers, `clean_loop` the litres per kilo grown)."""
     gf_kept = value("mr_gf_kept") if gf_kept is None else gf_kept
     kw, r0 = base(key)
-    bleed = 1000.0 / r0["density"]
-    b = balance(r0["medium_terms"], bleed, loop, nh3, lac, other, in_tank)
-    r = fp.explore(**{**kw, "medium_l": b["fresh"]})
+    live = r0["harvested_share"]                        # kilos harvested per kilo grown
+    route = {"nh3": nh3, "lac": lac, "other": other, "in_tank": in_tank, "gf_kept": gf_kept, "device_l": device_l,
+             "dialysate_l": dialysate_l, "exchange_membrane": exchange_membrane}
+    r = fp.explore(**{**kw, "clean": route, "clean_loop": loop * live}) if loop > 0 else r0
+    return _report(kw, r0, r, loop, in_tank)
+
+
+def _report(kw: dict, r0: dict, r: dict, loop: float, in_tank: bool) -> dict:
+    """A route's explore result `r` against the scenario's own `r0`, as the tables read it (litres per kilo harvested)."""
+    bleed = 1000.0 / r0["density"] / r0["harvested_share"]
     perm0 = max(1e-9, r0["medium_l"] - bleed)
     charge = kw.get("charge", value("plant_charge_mature"))
     filter_l = r0["membranes"] / perm0 + charge * r0["retention_capex"] / r0["output"] / perm0   # $ per litre filtered
-    # growth factors per litre, whether bought on top or inside a complete medium's price (scenarios.explore_kwargs)
-    gf_l = (value("pf_growth_factors") * value("pf_opex_escalation") / fp.washout_litres(fp.GOOD_CELLS)
-            * (kw.get("growth_factors", 0.0) + kw.get("gf_in_medium", 0.0)))
-    # basal medium for the dialysate: the medium's price without its growth factors, and never below the nutrients a litre carries
-    basal_l = max(kw.get("medium_price", 0.15) - (gf_l if kw.get("gf_in_medium", 0.0) else 0.0),
-                  fp.feedstock(fp.GOOD_CELLS) / r0["medium_l"])
-    extra = {"filter for the loop": 0.0 if in_tank else loop * filter_l,
-             "exchange membrane": loop * filter_l * exchange_membrane if in_tank else 0.0,
-             "growth factors lost": loop * (1.0 - gf_kept) * gf_l,
-             "dialysate": loop * dialysate_l * basal_l,
-             "device": loop * device_l}
-    total = r["total"] + sum(extra.values())
-    return {**b, "total": total, "saving": r0["total"] - total, "base": r0["total"], "extra": extra, "filter_l": filter_l,
+    extra = {k: r["clean_parts"].get(k, 0.0) for k in ("filter for the loop", "exchange membrane", "growth factors lost",
+                                                       "dialysate", "device")}
+    return {"fresh": r["medium_l"], "set_by": r["medium_set_by"], "loop": loop,
+            "filtered": max(0.0, r["medium_l"] - bleed) + (0.0 if in_tank else loop),
+            "total": r["total"], "saving": r0["total"] - r["total"], "base": r0["total"], "extra": extra, "filter_l": filter_l,
             "bleed": bleed, "parts": {k: r[k] for k in ("feedstock", "growth_factors", "protectant", "membranes")}}
 
 
@@ -93,7 +98,8 @@ def per_litre(key: str = "central") -> dict:
     one pass before it saves anything (each litre cleaned is filtered once and stands in for that share of a litre)."""
     hi, lo = cost(key, loop=0.0), None
     kw, r0 = base(key)
-    lo = fp.explore(**{**kw, "medium_l": r0["medium_l"] - 1.0})
+    live = r0["harvested_share"]                        # explore's `medium_l` argument is per kilo grown
+    lo = fp.explore(**{**kw, "medium_l": (r0["medium_l"] - 1.0) * live})
     parts = {k: r0[k] - lo[k] for k in ("feedstock", "growth_factors", "protectant")}
     parts["filter"] = hi["filter_l"]
     parts["all"] = sum(parts.values())
@@ -102,12 +108,12 @@ def per_litre(key: str = "central") -> dict:
 
 
 def best(key: str = "central", **args) -> dict:
-    """The route at the litres cleaned that cost least (none, if it never pays). The cost is piecewise linear in the litres,
-    so a grid of 0.1 L/kg is exact enough."""
-    t = base(key)[1]["medium_terms"]
-    shares = [args.get(k, 0.0) for k in ("nh3", "lac", "other")]
-    top = max(t[n] / s for n, s in zip(("ammonia", "lactate", "least flow"), shares) if s > 0)
-    return min((cost(key, loop=i * 0.1, **args) for i in range(int(top * 10) + 2)), key=lambda c: c["total"])
+    """The route at the litres cleaned that cost least (none, if it never pays): explore's own search (`clean` with no share
+    given), every 0.1 litre per kilo. The cost is piecewise linear in the litres, so that grid is exact enough."""
+    kw, r0 = base(key)
+    route = {"gf_kept": value("mr_gf_kept"), **args}
+    r = fp.explore(**{**kw, "clean": route})
+    return _report(kw, r0, r, r["clean_loop"], bool(route.get("in_tank")))
 
 
 def breakeven_device(key: str, args: dict) -> float:
@@ -135,7 +141,7 @@ def routes() -> dict:
             (ed, "over 90% of ammonium and 99% of lactate taken from medium by selective membranes (Nir 2023, as cited in "
                  "Soccol et al. 2024; the report itself was not found); hybridoma grew 30-50% better with ammonium and "
                  "lactate removed electrically (Chang et al. 1995, abstract)",
-             "the cost per litre is my arithmetic; 90% of growth factors survive a pass; the other by-products stay"),
+             "the cost per litre is an estimate from first principles (section 6 of the note); 90% of growth factors survive a pass; the other by-products stay"),
         "Dialysis of the permeate, dialysate thrown away":
             ({**dial, "dialysate_l": dl, "device_l": value("mr_dial_cost_l")},
              "CHO at 73 million cells/mL held 10 days with no medium change; lactate down 92% (YekrangSafakar et al. 2022, "
@@ -157,17 +163,57 @@ def routes() -> dict:
     }
 
 
+def page_routes() -> dict:
+    """The routes the page's lever offers (floor_physics.explore's `clean`): key -> name, what it is in one line, what has
+    been shown so far, and what limits it. The numbers behind each are floor_physics.clean_route(key); the dialysis route is
+    the fourth of `routes()` (across the culture, the dialysate cleaned and reused, its membrane at the cell filter's cost)."""
+    rt = routes()
+    names = list(rt)
+    return {
+        "none": {"name": "None: every litre is used once",
+                 "what": "Spent medium leaves the tank and is thrown away.", "shown": "", "limits": ""},
+        "exchanger": {
+            "name": "An ammonium exchanger",
+            "what": "The cell-free liquid the filter passes runs through a bed of mineral or resin that takes up ammonium and "
+                    "gives back sodium, then returns to the tank.",
+            "shown": "No one has measured how much ammonium such a bed holds in culture medium; the model's figure "
+                     f"({value('pf_sorbent_q'):.2f} mol a kilo of sorbent) is derived from measurements in simpler solutions.",
+            "limits": "It takes out ammonia only, so it saves nothing where lactate sets the litres. The liquid it cleans "
+                      "still passes the cell filter. The sodium it gives back adds salt."},
+        "electrodialysis": {
+            "name": "Electrodialysis",
+            "what": "The cell-free liquid the filter passes runs between membranes under a voltage, which pulls ammonium and "
+                    "lactate out of it, then returns to the tank.",
+            "shown": _plain(rt[names[0]][1]),
+            "limits": "The liquid it cleans still passes the cell filter. The other by-products stay in it. Its cost a litre "
+                      f"(${value('mr_ed_cost_l'):.2f}) is this model's arithmetic, not a quoted price."},
+        "dialysis": {
+            "name": "Dialysis across a membrane",
+            "what": "The culture, or its cell-free liquid, passes one side of a membrane and a cheap salt solution the other. "
+                    "Ammonia and lactate cross into the salt solution; proteins and cells do not. Here the culture itself "
+                    "passes the membrane, and the salt solution is cleaned and used again.",
+            "shown": _plain(rt[names[1]][1]) + ". Reusing the salt solution: " + rt[names[2]][1] + ".",
+            "limits": "Its membrane meets the cells, so it is priced as the cell filter is, litre for litre. Nobody has run "
+                      "one for weeks in a culture as dense as these. Ammonia and the other by-products are assumed to cross "
+                      "as lactate does; that has not been measured."},
+    }
+
+
+def _plain(text: str) -> str:
+    """A route's evidence in the page's words: the cell line named for what it is, a first capital."""
+    t = text.replace("CHO at", "hamster ovary cells (CHO) at").replace("hybridoma", "antibody-making cells (hybridoma)")
+    return t[0].upper() + t[1:]
+
+
 def sorbent_best(key: str = "central") -> dict:
-    """The ammonium exchanger on the permeate (explore's own `sorbent` lever), at the share that costs least."""
+    """The ammonium exchanger on the permeate (explore's `clean="exchanger"`, the same calculation as its `sorbent` lever), at
+    the share that costs least (explore's own search: hundredths, up to 90%)."""
     kw, r0 = base(key)
-    bleed = 1000.0 / r0["density"]                    # fresh medium cannot fall below the liquid that leaves with the cells
-    runs = {s: fp.explore(**{**kw, "sorbent": s / 100.0}) for s in range(0, 91)}
-    share = min((s for s, r in runs.items() if r["medium_l"] >= min(bleed, r0["medium_l"]) - 1e-9),
-                key=lambda s: runs[s]["total"]) / 100.0
-    r = runs[round(share * 100)]
-    loop = share * r0["medium_terms"]["ammonia"]
-    return {"share": share, "total": r["total"], "saving": r0["total"] - r["total"], "fresh": r["medium_l"], "loop": loop,
-            "filtered": r["medium_l"] - 1000.0 / r0["density"] + loop, "base": r0["total"]}
+    bleed = 1000.0 / r0["density"] / r0["harvested_share"]   # fresh medium cannot fall below the liquid that leaves with the cells
+    r = fp.explore(**{**kw, "clean": "exchanger"})
+    loop = r["clean_share"] * r0["medium_terms"]["ammonia"]
+    return {"share": r["clean_share"], "total": r["total"], "saving": r0["total"] - r["total"], "fresh": r["medium_l"], "loop": loop,
+            "filtered": r["medium_l"] - bleed + loop, "base": r0["total"]}
 
 
 def sensitivity(key: str = "central") -> list:
@@ -213,7 +259,7 @@ def _money(x: float) -> str:
 def markdown(key: str = "central") -> str:
     s = summary()[key]
     r0, t = s["base"], s["base"]["medium_terms"]
-    bleed = 1000.0 / r0["density"]
+    bleed = 1000.0 / r0["density"] / r0["harvested_share"]
     name = S.SCENARIOS[key].name
     nh3_limit = base(key)[0].get("nh3_limit", value("pf_nh3_limit"))     # the scenarios' own limit (sc_nh3_limit, 4 mmol/L)
     out = [f"| what sets the litres of medium ({name}) | litres per kg of cells |", "|---|---|",
@@ -286,7 +332,7 @@ def main() -> None:
         d = s[key]
         r0 = d["base"]
         print(f"\n{S.SCENARIOS[key].name}: ${r0['total']:.2f}, {r0['medium_l']:.1f} L/kg; terms "
-              f"{ {k: round(v, 1) for k, v in r0['medium_terms'].items()} }; bleed {1000 / r0['density']:.1f}")
+              f"{ {k: round(v, 1) for k, v in r0['medium_terms'].items()} }; bleed {1000 / r0['density'] / r0['harvested_share']:.1f}")
         sb = d["sorbent"]
         print(f"   exchanger on the permeate, {sb['share'] * 100:.0f}%: ${sb['total']:.2f} (saves {sb['saving']:.2f}), {sb['fresh']:.1f} L fresh")
         for n, c in d["routes"].items():

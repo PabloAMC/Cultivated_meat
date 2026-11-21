@@ -1,7 +1,5 @@
 # CO2 tolerance and pH of fish, crustacean and insect cells: literature lookup
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Date: 2026-11-14. Web search and reading only. Question: should the model's single dissolved-CO2 limit (100 mbar = 75 mmHg, from CHO practice) differ for fish, crustacean or insect cells, and what pH are they cultured at.
 
 Conventions
@@ -205,7 +203,7 @@ Caveats for the modeller **[my inference]**:
 3. For insect cells the measured curve is gradual with no cliff, so a 100 mbar limit costs roughly a quarter of growth rate rather than nothing.
 4. For shrimp, the dominant uncertainty is not CO2 but whether the cells divide at all.
 
-Suggested probabilities **[my judgement, low confidence]**: that fish muscle-lineage cells grow without material slowdown at 100 mbar at their culture temperature, about 35%; at 50 mbar, about 70%; at 10 mbar, above 95%.
+Probabilities, a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert: that fish muscle-lineage cells grow without material slowdown at 100 mbar at their culture temperature, about 35%; at 50 mbar, about 70%; at 10 mbar, above 95%. The reasoning: 50 mbar is the best-supported practice-based figure (caveat 1), 100 mbar is twice it and above the whole-animal limits found, and 10 mbar is a fifth of it.
 
 ---
 

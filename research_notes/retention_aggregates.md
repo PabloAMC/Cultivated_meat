@@ -1,8 +1,13 @@
 # Holding the cells back without a membrane: aggregates and carriers
 
-> Repinned 2026-11-19 (scenario restructure): every kind of cell weighs 2 ng, so the all-favourable example's cells are no longer Humbird's 3 ng. Its figures: aggregates $8.52 (range $7.98–12.37), carriers $39.45 (range $12.25–315.89, the beads hold it to 26 g/L), oxygenated aggregate 281 um at 0.10 mmol/L (443 and 520 um at 0.21 and 0.28), uptake 0.165 mmol/g/h; its 300 um aggregates lose 0.04% of growth. The body below keeps the earlier figures for the all-favourable example where it quotes them.
-
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
+
+> Figures recomputed 2026-11-21 on the model of 2026-11-20 (as in `retention_devices.md`): the low-lactate example's tank now holds
+> 154 g/L (was 191), so it sends less permeate and its plates are smaller; the all-favourable example is `scenarios.all_favourable()`,
+> whose cells weigh 3 ng and double in 16 hours (uptake 0.186 mmol/g/h); every cost is per kilo harvested. Statements that changed:
+> no case is now held by the aggregates' 193 g/L cap (the all-favourable example was held at it from 258 g/L), and a cell share of
+> 0.60 (cap 155 g/L) no longer holds the low-lactate example; the low-lactate tank makes about 5.7 times the kilos of the same tank
+> on carriers (a seventh before).
 
 Research date: 2026-11-19. Code: `retention.py` (devices `aggregates` and `microcarriers`; `particle`, `particle_case`,
 `critical_diameter`, `hypoxic_share`, `growth_penalty`, `oxygen_sizes`, `aggregate_scan`); inputs `rt_part_*`, `rt_agg_*`,
@@ -14,26 +19,29 @@ not checked in this pass. No source on carrier price was read in full, and no pr
 
 ## 1. The answer
 
-The question was: can cells be held back without a membrane? A single cell settles too slowly for a settler at 18% cells by
+The question was: can cells be held back without a membrane? A single cell settles too slowly for a settler at 15% cells by
 volume (`retention_devices.md`). Cells in a particle settle far faster. Two ways to put them in one:
 
 | Route | Reference | Low-lactate example | All-favourable example | Low-lactate example range | What limits it | What has been shown |
 |---|---|---|---|---|---|---|
-| TFF loop (the model's default) | $12.81 | $32.80 | $11.46 | $26.48-78.74 | membranes | 2.14e8 cells/mL for days in 4 L |
-| **Cells grown as aggregates, gravity settler** | **$12.12** | **$20.39** | **$8.34** (held to 193 g/L) | $19.95-29.08 | whether the cells grow as aggregates at all, and keep their size for a month | 33-35e6 iPSC/mL (about 40 g/L) in 150 mL for 7 days; aggregates held back in 8 L |
-| **Cells on edible carriers, gravity settler** | **$37.43** (held to 36 g/L) | **$84.39** (held to 26 g/L) | **$28.53** (held to 36 g/L) | $28.98-451.86 | the beads take the tank's volume | 8e6 Vero/mL (about 20 g/L) in 3 L |
+| TFF loop (the model's default) | $15.93 | $49.50 | $7.62 (dialyser-grade fibres) | $34.09-89.58 | membranes | 2.14e8 cells/mL for days in 4 L |
+| **Cells grown as aggregates, gravity settler** | **$14.46** | **$27.80** | **$7.79** | $27.22-36.77 | whether the cells grow as aggregates at all, and keep their size for a month | 33-35e6 iPSC/mL (about 40 g/L) in 150 mL for 7 days; aggregates held back in 8 L |
+| **Cells on edible carriers, gravity settler** | **$44.16** (held to 36 g/L) | **$96.46** (held to 26 g/L) | **$24.26** (held to 36 g/L) | $36.02-491.52 | the beads take the tank's volume | 8e6 Vero/mL (about 20 g/L) in 3 L |
 
 - **Aggregates would do what the hoped-for device assumed.** If a meat cell line grows as clumps of 100-300 um and keeps that
-  size, a plain settler of 22 m2 holds Central's culture back for $4k per m3 of tank. Central would cost $20.39 against $32.80
-  with the filter loop, and against the $20.49 the old hoped-for device charged. The physics allows it. The biology has not been
-  shown: the densest aggregate culture found is about a fifth of Central's density, for a week, in 150 mL.
+  size, a plain settler of 13 m2 holds the low-lactate example's culture back for $2k per m3 of tank. The low-lactate example
+  would cost $27.80 against $49.50 with the filter loop, and against the $27.97 the old hoped-for device charges. In the
+  all-favourable example, whose loop already uses cheap dialyser-grade fibres, aggregates cost $7.79 against $7.62 and save
+  nothing. The physics allows it. The biology has not been shown: the densest aggregate culture found is about a quarter of the
+  low-lactate example's density, for a week, in 150 mL.
 - **Carriers solve retention but not density.** A layer of cells 3.5 um thick on a bead of 190 um is a tenth of the bead's
-  volume. When the beads fill the quarter of the tank the model allows any suspension, the cells reach 26 g/L in Central. At
-  that density the harvest carries all the medium out, so no device is needed at all, and the tank makes a seventh of the
-  kilos. Even with every carrier input at its favourable end the cells reach 94 g/L, half of Central's 191. The product
-  would be 86-90% bead by wet weight.
-- **Oxygen does not bind at the default sizes.** At 0.10 mmol/L the middle of an aggregate of Central's cells stays above the
-  level cells need to divide up to 307 um across. Aggregates are broken up at 300 um. Larger ones lose a little growth (section 4).
+  volume. When the beads fill the quarter of the tank the model allows any suspension, the cells reach 26 g/L in the
+  low-lactate example. At that density the harvest carries all the medium out, so no device is needed at all, and the tank
+  makes about a sixth of the kilos (the dense tank makes 5.7 times as many). Even with every carrier input at its favourable end
+  the cells reach 94 g/L, about six-tenths of the low-lactate example's 154. The product would be 86-90% bead by wet weight.
+- **Oxygen does not bind at the default sizes.** At 0.10 mmol/L the middle of an aggregate of the low-lactate example's cells
+  stays above the level cells need to divide up to 307 um across. Aggregates are broken up at 300 um. Larger ones lose a little
+  growth (section 3).
 
 ## 2. How each route is modelled
 
@@ -54,25 +62,27 @@ designed to overflow at half the crowded settling speed), sized on the speed of 
 **The thickness rule.** The model lets single cells take a quarter of the tank's volume (258 g/L, Humbird's viscosity limit).
 The viscosity of a suspension follows the volume its particles take, not their size, so here the particles, with the liquid
 inside them, may take the same 0.249 (`rt_part_phi_max`, 0.20-0.35). The densest culture is then 0.249 x the cells' share of a
-particle x 1,036 g/L: 193 g/L for aggregates, 26 g/L for carriers of Central's 2 ng cells, 36 g/L for the 3 ng cells of the reference design and the all-favourable example. When a case's density is above this, the case is costed at the cap (an `explore` density cap).
+particle x 1,036 g/L: 193 g/L for aggregates, 26 g/L for carriers of the low-lactate example's 2 ng cells, 36 g/L for the 3 ng cells of the reference design and the all-favourable example. When a case's density is above this, the case is costed at the cap (an `explore` density cap).
 Microcarrier cultures have run at 10 g/L of Cytodex 3, about 15% of the volume in beads (SNIP); no source gave a firm upper
 limit.
 
-**Settling.** Stokes' speed goes as diameter squared times density excess. Central's 2 ng cell (15.4 um) settles at 1.8 cm/h.
+**Settling.** Stokes' speed goes as diameter squared times density excess. The low-lactate example's 2 ng cell (15.4 um) settles at 1.8 cm/h.
 The smallest aggregate the settler must hold, a freshly broken one of 100 um (`rt_agg_d_min_um`), settles at 57 cm/h, 31 times
-faster; one of 300 um, about 280 times. A loaded bead settles at 239 cm/h. Crowding slows them as (1 - particle fraction)^4.65. In Central the aggregates take 25% of the volume, so the design speed is 57 x 0.27 x 0.5 = 7.7 cm/h, the plates
-need 22 m2, they hold 0.38 m3 of culture outside the tank (2.4% of it) and an aggregate spends about 16 minutes on them without
-oxygen. A settler for single cells would need 488 m2 and hold 8.3 m3, half the culture.
+faster; one of 300 um, about 280 times. A loaded bead settles at 239 cm/h. Crowding slows them as (1 - particle fraction)^4.65.
+In the low-lactate example the aggregates take 20% of the volume, so the design speed is 57 x 0.36 x 0.5 = 10.2 cm/h, the plates
+need 12.9 m2, they hold 0.22 m3 of culture outside the tank (1.4% of it) and an aggregate spends about 12 minutes on them without
+oxygen. A settler for single cells would need 307 m2 and hold 5.2 m3, a third of the culture.
 
 **Cells lost.** 3% of the grown cells leave with the cleared liquid as single cells or small clumps (`rt_part_loss`, 1-8%). A
 settling-tube patent for Cytodex 3 held every bead and over 95% of the cells (SNIP). Huang 2020 (FT) found that a plain dip-tube
 settler let aggregates go, and ended with a spiral settler plus a 20 um filter back-flushed for 10 s every 7 minutes. The model
-costs the settler only; a polishing screen of that kind is small next to 22 m2 of plate.
+costs the settler only; a polishing screen of that kind is small next to 13 m2 of plate.
 
 **Carriers in the product.** The carrier is taken to be edible and to stay in the product, as in Yen 2023 (FT), where whole
 cell-coated chitosan-collagen beads went into the food. It is bought once at $10 a kg dry (`rt_mc_price`, 3-50; assumed, since
 no price for an edible carrier was found: food gelatin, chitosan and plant protein trade at a few to tens of dollars a kg, MEM).
-The cost per kg is charged per kg of cells; the carrier's own mass is not counted as product. Cytodex 1 sells at about EUR 7.6
+The cost is charged per kg of cells harvested ($6.43, $6.16 per kg grown, in the low-lactate example); the carrier's own mass is
+not counted as product. Cytodex 1 sells at about EUR 7.6
 a gram (Fisher, 500 g pack, SNIP), which at 0.62 kg a kilo of cells would be about $5,000 per kg.
 
 ## 3. The oxygen limit
@@ -82,7 +92,8 @@ oxygen C in the liquid around it, the middle of a sphere of radius R sits at C -
 diffusion inside (D = 2e-9 m2/s, `rt_o2_diff_tissue`, 1.5-2.5e-9; Grimes and Currell, bioRxiv 271890, FT). The second is the
 liquid film around it (D_w = 3e-9 m2/s; Sherwood number 10, `rt_o2_sherwood`, 3-20, from mass transfer to a 200 um particle at
 the Kolmogorov scale of a stirred tank at 0.01-0.1 W/kg; 2 in still liquid). Q is the model's own uptake: Cells.qo2 (0.137
-mmol/g/h for Central's cells, 0.149 for the 3 ng cells) x 0.75 x 1,036 g/L, about 0.030 mol/m3/s.
+mmol/g/h for the low-lactate example's cells, 0.186 for the all-favourable example's 3 ng cells doubling in 16 hours) x 0.75 x
+1,036 g/L, about 0.030 mol/m3/s for the low-lactate example.
 
 Cells below 0.026 mmol/L (20 mmHg, `rt_o2_prolif`, 0.013-0.065) are taken not to divide. Gomes et al. 2016 (PLoS ONE, FT) put
 the level that sustains proliferation in HCT116 spheroids at about 20 mmHg, with half of it lost below; hypoxia stains appear
@@ -95,9 +106,9 @@ The largest aggregate whose middle stays at 0.026 mmol/L (`oxygen_sizes`):
 |---|---|---|---|---|
 | Reference (3 ng, 24 h) | 543 um at 0.28 | 295 um | 466 um | 547 um |
 | Low-lactate example (2 ng, 36 h) | 307 um at 0.10 | 307 um | 485 um | 570 um |
-| All-favourable example (3 ng, 24 h) | 295 um at 0.10 | 295 um | 466 um | 547 um |
+| All-favourable example (3 ng, 16 h) | 264 um at 0.10 | 264 um | 416 um | 489 um |
 
-Without the film Central's size would be 346 um; with a film of Sherwood number 2 (still liquid), 227 um. At the unfavourable
+Without the film the low-lactate example's size would be 346 um; with a film of Sherwood number 2 (still liquid), 227 um. At the unfavourable
 end of the proliferation level (0.065 mmol/L) it is 211 um; at the favourable end, 333 um.
 
 **What the model does with it** (`growth_penalty`): a growth penalty, not a flag. Aggregates grow from 100 um to the size at
@@ -107,16 +118,17 @@ size, because each aggregate spends the same time in each doubling of its mass. 
 averaged that way, is taken not to grow, and the case's doubling time is divided by one minus that share. It is worked out
 once with the case's cells as they are. Inside the starved core the uptake is set to zero, so the core does not deepen the drop.
 
-At the default sizes nothing is lost: Central's aggregates stop at 300 um against 307 um. The all-favourable example's 3 ng cells reach
-295 um, so its largest aggregates lose 2e-6 of their growth. **The model keeps the scenarios' 0.10 mmol/L.** A higher setpoint
-raises the size that stays oxygenated but costs oxygen transfer (`aggregate_scan`, Central):
+At the default sizes nothing is lost in the low-lactate example: its aggregates stop at 300 um against 307 um. The all-favourable
+example's 3 ng cells, which double in 16 hours and so respire more per gram, stay oxygenated to 264 um, so its aggregates lose
+0.2% of their growth. **The model keeps the scenarios' 0.10 mmol/L.** A higher setpoint raises the size that stays oxygenated but
+costs oxygen transfer (`aggregate_scan`, the low-lactate example):
 
 | Largest aggregate | At 0.10 mmol/L: growth lost, density, cost | At 0.28 mmol/L |
 |---|---|---|
-| 300 um | 0%, 191 g/L, $20.39 | 0%, 172 g/L, $21.34 |
-| 400 um | 0.9%, 192 g/L, $20.45 | 0%, 172 g/L, $21.34 |
-| 500 um | 3.5%, 193 g/L, $20.62 | 0%, 172 g/L, $21.34 |
-| 600 um | 6.5%, 193 g/L, $20.95 | 0%, 172 g/L, $21.34 |
+| 300 um | 0%, 154 g/L, $27.80 | 0%, 142 g/L, $28.94 |
+| 400 um | 0.9%, 154 g/L, $27.92 | 0%, 142 g/L, $28.94 |
+| 500 um | 3.5%, 155 g/L, $28.25 | 0%, 142 g/L, $28.94 |
+| 600 um | 6.5%, 157 g/L, $28.68 | 0%, 142 g/L, $28.95 |
 
 At 0.28 mmol/L the tank's oxygen transfer falls and so does its density, which costs more than oxygen starvation at any size up
 to 600 um. Oxygen is not what limits this route. A layer of cells 3.5-5 um thick on a solid bead is far too thin for it to
@@ -126,13 +138,13 @@ matter for carriers.
 
 Each input alone at the ends of its range:
 
-- **Aggregates:** the cells' share of an aggregate (0.60: the cap falls to 155 g/L, $22.44) and the volume the particles may
-  take (0.20: also 155 g/L, $22.38) matter most; cells lost with the cleared liquid ($19.98 at 1%, $21.50 at 8%); the size at
-  break-up (450 um: 2.1% of growth lost, $20.52) and the proliferation level (0.065 mmol/L: $20.54) matter little. All
-  unfavourable together: $29.08 at 124 g/L, still below the filter loop's $32.80.
-- **Carriers:** cells per cm2 ($144.44 at 1e5, $57.07 at 3e5), bead size ($52.26 at 100 um, $108.09 at 250 um), the volume
-  the beads may take ($64.33 at 0.35) and the carrier's price ($79.95 at $3 a kg, $109.78 at $50). All favourable together:
-  $28.98 at 94 g/L.
+- **Aggregates:** cells lost with the cleared liquid matter most ($27.24 at 1%, $29.31 at 8%). The cells' share of an
+  aggregate (0.60: the cap falls to 155 g/L, just above the example's 154, $27.82) and the volume the particles may take (0.20:
+  $27.80) no longer hold the example below its own density; the size at break-up (450 um: $28.07) and the proliferation level
+  (0.065 mmol/L: $28.10) matter little. All unfavourable together: $36.77 at 124 g/L, still below the filter loop's $49.50.
+- **Carriers:** cells per cm2 ($164.54 at 1e5, $66.12 at 3e5), bead size ($60.94 at 100 um, $123.33 at 250 um), the volume
+  the beads may take ($73.88 at 0.35) and the carrier's price ($91.82 at $3 a kg, $123.00 at $50). All favourable together:
+  $36.02 at 94 g/L.
 
 ## 5. Evidence
 
@@ -150,7 +162,7 @@ Each input alone at the ends of its range:
   every bead that was measured (El Wajgali 2011, FT).
 
 **That it fails or is limited.**
-- No aggregate culture comes near 191 g/L. The best is about 40 g/L, at 150 mL, for 7 days (Manstein 2021). Growth there slowed
+- No aggregate culture comes near 154 g/L. The best is about 40 g/L, at 150 mL, for 7 days (Manstein 2021). Growth there slowed
   from day 4, and the aggregates held cavities below 300 um, which the authors put down to glucose, not oxygen.
 - Size is not held in continuous culture. Aggregates grow 32-48 um a day in diameter and neither split nor merge on their own
   (Huang 2020; Manstein 2021, FT); merging gets worse at larger scale (PBS poster, SNIP). Every pluripotent process found runs
@@ -169,7 +181,10 @@ Each input alone at the ends of its range:
 - No measured settling speed of a cell aggregate against its diameter was found. Stokes' law was off by more than 30% for live
   cells in long perfusion runs (Cleveland State, SNIP).
 
-## 6. Probabilities (judgement)
+## 6. Judgements
+
+Each figure below is a rough judgement made while building the model with an AI assistant from the evidence in section 5; not
+measured and not reviewed by an expert. They were made when the low-lactate example ran at 191 g/L; it now runs at 154.
 
 | Statement | Probability |
 |---|---|
@@ -177,21 +192,22 @@ Each input alone at the ends of its range:
 | Aggregate size is held for 33 days by in-line break-up or shear, losing under 5% of the cells | 25% |
 | A gravity settler, with a back-flushed screen, holds 97% or more of the cells of an aggregate culture at 20 m3 | 50% |
 | By 2035, aggregates of a meat cell line are held at the reference's 120 g/L in a 20 m3 perfusion tank for a month | 15% |
-| By 2035, the same at the low-lactate example's 191 g/L (aggregates taking a quarter of the volume) | 8% |
+| By 2035, the same at 191 g/L (aggregates taking a quarter of the volume) | 8% |
 | By 2035, carriers of any kind hold 100 g/L of meat cells in perfusion | 4% |
-| By 2035, carriers hold the low-lactate example's 191 g/L | under 1% |
+| By 2035, carriers hold 191 g/L | under 1% |
 
-The 8% for aggregates at Central is above the 5% given to a settler for single cells at that density, and below the 35% for a
-filter, because the physics works but every step past 40 g/L and a week is unshown. Most of the risk is biology (growth in
+The 8% for aggregates at 191 g/L is above the 5% given to a settler for single cells at a similar density, and below the 35%
+for a filter, because the physics works but every step past 40 g/L and a week is unshown. Most of the risk is biology (growth in
 aggregates, size held for a month), not engineering.
 
 ## 7. What this means for the model
 
-1. **Aggregates are the only membrane-free route with a cost near the hoped-for device.** If they work, Central costs $20.39
-   (range $19.95-29.08) in place of $32.80, the all-favourable example $8.34 (held to 193 g/L) in place of $11.46, and the reference $12.12
-   in place of $12.81. No default changes: the route rests on an 8% chance at Central's density.
-2. **Microcarriers are not a route to Central.** They cost $84.39 in Central because the beads hold the tank to 26 g/L. The
-   cells' share of a loaded bead, not the device, sets the cost.
+1. **Aggregates are the only membrane-free route with a cost near the hoped-for device.** If they work, the low-lactate example
+   costs $27.80 (range $27.22-36.77) in place of $49.50, and the reference $14.46 in place of $15.93; the all-favourable example,
+   whose loop already uses dialyser-grade fibres, would cost $7.79 against $7.62. No default changes: the culture has not been
+   shown at any density near the examples'.
+2. **Microcarriers are not a route to the low-lactate example.** They cost $96.46 there because the beads hold the tank to 26 g/L.
+   The cells' share of a loaded bead, not the device, sets the cost.
 3. **The experiment that would settle it:** grow a meat cell line (chicken fibroblasts or bovine satellite cells) as aggregates
    in a 2-10 L perfused stirred tank for 30 days, with a settler and an in-line break-up step. Measure density reached, growth
    rate against aggregate size, cells lost over the settler, and whether size holds. This is a pilot experiment, not a plant.

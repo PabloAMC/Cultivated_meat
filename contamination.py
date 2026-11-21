@@ -21,8 +21,8 @@ The chain of reasoning
 
    At the floor's 120 g/L this is about 2e8 bacteria per mL; at 27 g/L about 4e7.
 
-3. Food limits for the harvested cells (1e2 to 1e4 per gram in the filings) are crossed about 15 to 20
-   doublings BEFORE that, so the sensors that every tank has do not protect the product; they only stop
+3. Food limits for the harvested cells (1e2 to 1e4 per gram in the filings) are crossed about 17 to 24
+   doublings BEFORE that (at 120 g/L), so the sensors that every tank has do not protect the product; they only stop
    the run. Product harvested in the hours between the two must be held back and discarded.
 
 4. At detection the contaminant is still under 0.2% of the biomass: the cells are all there. Whether

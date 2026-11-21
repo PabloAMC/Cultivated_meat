@@ -1,7 +1,5 @@
 # Design tricks for a 20 m³ animal-cell tank: what each relieves, and whether it scales
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
 Compiled 2026-11-16 at Pablo's request ("explore the possible tricks on the design of the bioreactor"). Reading, arithmetic and
 the model only; nothing measured. Access levels: **model** (computed with this repository's code), **repo** (an earlier research
 note, which carries its own sources), **search** (a search-engine summary, not read), **memory** (my background knowledge, not
@@ -51,7 +49,7 @@ gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity
 | Pre-conditioned feed (CO₂-free, oxygen-saturated medium) | almost nothing: medium holds about 1 mmol/L of oxygen against an uptake of 18–40 mmol/L per hour (arithmetic) | — | — | not needed |
 
 The filter loop already carries the culture out of the tank and back. The medium it removes takes about 3% of the cells' CO₂ in the
-reference case and about 6% in Central (model, with 15 mM of bicarbonate above the fresh medium's; the model leaves this out). The
+reference case and about 6% in the low-lactate example (model, with 15 mM of bicarbonate above the fresh medium's; the model leaves this out). The
 useful trick is to put the CO₂ column, or a membrane module, on that same loop, so the gas exchange shares its pump, piping and
 sterile boundary. Whether the filter's flow rate (set by the permeate) and the column's (set by CO₂) can share a loop is a design
 question for the next pass.
@@ -98,7 +96,7 @@ question for the next pass.
 1. **For Published cells (CO₂-bound): any bubble-free CO₂ removal.** The column with pressure ($20.6/kg), the bubble cage ($23.7/kg, a
    judgement-heavy estimate), or more gas the cells tolerate. The deciding experiments are cell-side: a film of dense culture on packing, and gas steps
    with protectant (`gas_exchange_study.md`).
-2. **For Central (oxygen-bound): oxygen per watt and per litre of gas.** Two spargers, impeller choice, the antifoam's
+2. **For the low-lactate example (oxygen-bound): oxygen per watt and per litre of gas.** Two spargers, impeller choice, the antifoam's
    real cost to transfer, and pressure. (The dissolved-oxygen setpoint is now in every scenario; with it the all-favourable example reaches the
    thickness limit.) Two-sparger operation is the one not yet in the model, and it is
    standard practice; it should be a lever.

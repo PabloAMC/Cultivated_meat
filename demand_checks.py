@@ -120,9 +120,10 @@ def markdown_checks() -> str:
     import market_size_loop as L
     resp = L.summary()["response"]["products"]
     # farmed salmon was measured while still a premium product, so compare the model's products that are still dearer than their meat
-    # at the low-lactate example's cost (price ratio above 1.5). Prime beef (0.96 times its meat's price) and sushi-grade seafood (1.24 times) are
-    # near equal price and drop out. Since seafood was re-priced on 2026-11-19 the model has a fifth premium product, premium
-    # fillets and shrimp ($20 a kilo, 2.2 times at the low-lactate example's cost), which is in.
+    # at the low-lactate example's cost (price ratio above 1.5). Since 2026-11-20 only prime beef (1.37 times its meat's price) is
+    # near equal price and drops out; sushi-grade seafood (1.77 times) and premium fillets and shrimp (3.09 times) are in.
+    # The last column is a recorded value: the model before 2026-11-18 run through the market-size study on 2026-11-18. It is not
+    # recomputed, because that study's response is the model's own; the column says so.
     names = {"chicken (organic)": "organic chicken", "pork (heritage)": "heritage pork", "beef (prime/wagyu)": "prime beef",
              "seafood (premium fillet, shrimp)": "premium fish fillets and shrimp", "seafood (sushi)": "sushi-grade seafood"}
     still = [n for n, v in resp.items() if v["R"][0] > 1.5]
@@ -136,7 +137,7 @@ def markdown_checks() -> str:
            f"| Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | {s['premium_3x']:.1f}% | "
            f"{S.pct_num(v[0]['curve'][i3])}% | {S.pct_num(v[1]['curve'][i3])}% |",
            f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
-           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} ({label}: the premium products still dearer than their meat) | 3.0–3.4 |",
+           f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} ({label}: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |",
            f"| Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | {PB_ELASTICITY_MEASURED:.2f} | "
            f"{s['pb']['elasticity']:.2f} | {s['pb']['elasticity']:.2f} |"]
     return "\n".join(out)

@@ -17,7 +17,8 @@ culture does. Two passes, cheapest first:
 `ideal(key)` is the scenario in the ordinary tall tank with every gas and mixing limit lifted for free: a lower bound on what
 any of these designs can reach on the scenario's own feed. The gap between a design and the ideal is what is left to gain from
 the tank's gas exchange. Since 2026-11-19 (glucose from the cells' balance) fat taken from the feed also cuts the glucose and
-the lactate, so where lactate sets the medium (the published cells, rungs 1 and 2) a fat-fed design costs less than the ideal.
+the lactate, so where lactate sets the medium (the published cells; since 2026-11-20, with lactate tolerated to 35 mmol/L, also
+rungs 6 and 7) a fat-fed design costs less than the ideal.
 
 Nothing here changes a default. The scenarios' own tank designs (scenarios.design) are a subset of this search. Every design
 carries what every scenario carries (scenarios.always): dissolved oxygen held at about half of air saturation. The first version of
@@ -84,13 +85,23 @@ def base_kwargs(key: str) -> dict:
     return S.explore_kwargs({**S.SCENARIOS[key].choice, "tricks": "none", "shape": "tall"})
 
 
+def vessel_kwargs(vessel: str, base: dict) -> dict:
+    """vessels.explore_kwargs for a perfusion tank, at the case's own tank size (2026-11-20). vessels.explore_kwargs gives every
+    vessel the model's 20 m³ tank; the all-favourable case takes the size that costs least (42 m³), so the search keeps the
+    size the case carries and compares its designs at that size. It does not search the size: the case has already chosen it."""
+    kw = V.explore_kwargs(vessel, "perfusion", base)
+    if "vessel_m3" in base:
+        kw["vessel_m3"] = base["vessel_m3"]
+    return kw
+
+
 def design_kwargs(key: str, design: dict) -> dict:
     """explore() arguments for a scenario with a design {dimension: option key}."""
     kw = base_kwargs(key)
     for dim in KEYS:
         if dim != "vessel":
             kw.update(_option(dim, design[dim])[2])
-    return V.explore_kwargs(design["vessel"], "perfusion", kw)
+    return vessel_kwargs(design["vessel"], kw)
 
 
 def run(key: str, design: dict) -> dict:
@@ -127,7 +138,7 @@ def ideal(key: str) -> dict:
     """The scenario in the ordinary tall tank with every gas and mixing limit lifted for free: the thickness of the culture
     binds. No design of OPTIONS that keeps the scenario's feed can cost less; one that takes fat from the feed can, where lactate
     sets the litres of medium (tests/test_design_space.py checks both)."""
-    kw = V.explore_kwargs("stirred", "perfusion", base_kwargs(key))
+    kw = vessel_kwargs("stirred", base_kwargs(key))
     kw["vm"] = {**kw["vm"], **_FREE_GAS}
     r = fp.explore(**kw)
     return {"cost": r["total"], "density": r["density"], "limit": r["limit"], "medium_l": r["medium_l"]}
@@ -154,7 +165,7 @@ def limit_prices(key: str) -> list:
     base = fp.explore(**kw0)
 
     def with_vm(extra: dict, **more) -> dict:
-        kw = V.explore_kwargs("stirred", "perfusion", {**kw0, **more})
+        kw = vessel_kwargs("stirred", {**kw0, **more})
         kw["vm"] = {**kw["vm"], **extra}
         return fp.explore(**kw)
 
@@ -167,7 +178,9 @@ def limit_prices(key: str) -> list:
         rows.append(("every gas limit lifted, and the culture as thick as 320 g/L", with_vm(_FREE_GAS)))
     least = min_litres.bounds(kw0.get("doubling_h", 24.0), kw0.get("mass_pg", 3000.0))["physical"]
     r_least = fp.explore(**{**kw0, "medium_l": least})   # explore raises it to the culture that leaves with the cells, if thin
-    held = "" if r_least["medium_l"] <= least + 1e-9 else f"; this thin culture needs {r_least['medium_l']:.1f}, what leaves with the cells"
+    # explore reports litres per kilo harvested (2026-11-20); `least` is per kilo grown, so compare on that basis
+    grown_l = r_least["medium_l"] * r_least.get("harvested_share", 1.0)
+    held = "" if grown_l <= least + 1e-9 else f"; this thin culture needs {r_least['medium_l']:.1f}, what leaves with the cells"
     rows.append((f"medium at the least the physics allows ({least:.1f} L/kg{held})", r_least))
     rows.append(("filter membranes that never wear out", fp.explore(**{**kw0, "membrane_life": 1e9})))
     rows.append(("no bubble protectant to buy", fp.explore(**{**kw0, "protectant_price": 0.0})))

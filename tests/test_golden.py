@@ -81,6 +81,15 @@ def _golden_values() -> dict:
 # The pinned numbers. Captured from the current model; update deliberately (in the same
 # commit) if a model change is intended, so the output move is explicit in the diff.
 GOLDEN = {
+    # 2026-11-20 (the engine batch: lactate tolerated 35 mM, medium-preparation capital, bubble deaths, labour in perfusion,
+    # harvest loss, accept_x out of the bands, membrane life 2,415 L/m2, the Humbird back-test's three fixes): NO pin below moved.
+    # Every pin is computed from cost_model's defaults (the reported cost and `cost_floor`) and from the demand model at its
+    # point values, and the batch changed floor_physics.explore, the scenarios and what the bands draw. What the batch moved in
+    # this file's scope is the prose check: with accept_x no longer drawn, the regional medians of RESULTS.md section 4 rose
+    # (US volume 0.5% -> 0.7%, Europe 0.9% -> 1.1%, world 0.2% -> 0.3%) and the commodity share median 0.3% -> 0.4%.
+    # 2026-11-20, later: `plant_floor` 10.8 -> 13.8 (the plant term of Humbird's optimistic design, which explore() now prices
+    # at $16.0 with bubble deaths, the harvest loss, the 2,415 L/m2 membranes, the perfusion crew and the medium-preparation
+    # capital): cost_floor 12.8035 -> 15.8035. No other pin moved (the default stack is the reported cost, above the floor).
     # The 2026-06-12 demand refactor moved several of these DELIBERATELY (old value in the comment):
     #  - loss_aversion default 2.25 -> 1.0 (symmetric price response, no kink): shifts beta_ref (now
     #    negative), parity 49.87 -> 48.76, the solved health weights, and the at-parity elasticities.
@@ -94,7 +103,7 @@ GOLDEN = {
     # `elasticity_anchor_price`), so beta_ref, the solved weights and every at-parity figure keep their values.
     # 2026-11-19: nutrient floor $1.70 -> $2.00 (GFI feed-grade amino acids, research_notes/nutrient_floor.md): cost_floor
     # 12.5020 -> 12.8035. Nothing else in this list moves: the default (reported) stack is above the floor.
-    "cost_floor":          12.8035,
+    "cost_floor":          15.8035,
     "biomass_base":        34.3500,
     # 2026-11-18: shelf price = (cost + $2.5) / (1 - 28% shop margin), was cost + $5 (research_notes/retail_markup_form.md).
     # basic_R 3.27917 -> 4.26505; US vol 0.584202 -> 0.233623, US val 1.7793 -> 0.80766, world vol 0.274195 -> 0.0914556.
@@ -109,20 +118,27 @@ GOLDEN = {
     "basic_R":             4.26505,
     "beta_ref":           -0.052663,   # the BLP slope at the anchor (alpha = -beta*(y_ref - anchor))
     "anchor_price":        29.0120,
-    "w_realtissue_M":      2.24236,
-    "w_health_M":          0.847148,
-    "w_health_E":          1.81164,
-    "pb_share_pct":        1.2000,
+    # 2026-11-21 (the final state of 2026-11-20): plant-based meat's share target 1.2% -> 0.4% of meat by volume
+    # (pb_share_target), nominal incomes (REGION_INCOME, income_ref 85,810 -> 86,170, income_gradient 0.5 -> 0.32), conventional
+    # meat's price falling as it loses sales (conv_exponent) and markets closed by law (closed_share). Each moved by design:
+    # w_realtissue_M 2.24236 -> 3.39863, w_health_M 0.847148 -> 1.39169, w_health_E 1.81164 -> 2.36651 (re-solved to the new
+    # plant-based target), pb_share_pct 1.2 -> 0.4, lusk_elas_parity_cold -1.3685 -> -1.37392, income_us 1.904789 -> 1.89075,
+    # income_china 1.122423 -> 1.38545, income_nigeria 0.372591 -> 0.799218, health_x_half 15.387776 -> 16.9996, us_pen_vol
+    # 0.514012 -> 0.423594, us_pen_val 1.023453 -> 0.83839, world_pen_vol 0.179202 -> 0.172079, organic_vs_cuts 19.4854 -> 20.1926.
+    "w_realtissue_M":      3.39863,
+    "w_health_M":          1.39169,
+    "w_health_E":          2.36651,
+    "pb_share_pct":        0.4000,
     "parity_pct":          13.0000,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
     # 2026-11-19, later: shoppers' liking is a Student's t spread (sd 3.9, 4 degrees of freedom) on a 67-point grid; the 15-point
     # rule had been too coarse (research_notes/liking_spread.md). Elasticity -1.53133 -> -1.3685; the income and health shares, the
     # roll-ups and the years to 90% below all moved with it (old values in the comments).
-    "lusk_elas_parity_cold": -1.3685,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
-    "income_us_pct":       1.904789,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    1.122423,   # was 1.07862   # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.372591,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
-    "health_x_half_pct":   15.387776,   # was 14.7346
+    "lusk_elas_parity_cold": -1.37392,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
+    "income_us_pct":       1.89075,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    1.38545,   # was 1.07862   # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  0.799218,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "health_x_half_pct":   16.9996,   # was 14.7346
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
@@ -136,10 +152,10 @@ GOLDEN = {
     # with the Student's t spread: vol 0.363114 -> 0.440886, val 0.848201 -> 0.862196, world 0.0594949 -> 0.139634.
     # 2026-11-19 (restructure, audit 6a): the roll-ups report cultivated meat's share of the meat sold, x / (x + c), not of all four
     # choices: vol 0.440886 -> 0.514012, val 0.862196 -> 1.023453, world 0.139634 -> 0.179202. The calibration does not move.
-    "us_pen_vol_pct":      0.514012,
-    "us_pen_val_pct":      1.023453,
-    "world_pen_vol_pct":   0.179202,
-    "organic_vs_cuts_pct": 19.4854,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "us_pen_vol_pct":      0.423594,
+    "us_pen_val_pct":      0.83839,
+    "world_pen_vol_pct":   0.172079,
+    "organic_vs_cuts_pct": 20.1926,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  21,      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
 }
 
@@ -257,13 +273,13 @@ def check_derived_prose_numbers() -> list:
         # 2026-11-19: with the Student's t spread of liking these moved from −1.0, −1.8, −3.2 (steeper near parity, flatter far above it)
         ("elasticity at R=1.0",          elas(1.0),  "−1.3"),
         ("elasticity at R=1.5",          elas(1.5),  "−2.1"),
-        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.0"),
-        ("reference cost $/kg",      cost_floor, "12.8"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.1"),  # 2026-11-21: was −3.0; the model gives −3.06
+        ("reference cost $/kg",      cost_floor, "15.8"),      # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.3",
-              "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.0",
-              "reference cost $/kg": "12.8"}
+              "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.1",
+              "reference cost $/kg": "15.8"}
 
     fails = []
     html_path = os.path.join(MODEL_DIR, "interactive.html")

@@ -37,6 +37,22 @@ SHARE_MIN = (0.2, 2.0)   # percentage points of world meat, at the low-lactate e
 PLAIN = {
     "pf_nh3_limit": "Ammonia the cells tolerate in the tank (Humbird's design)",
     "sc_nh3_limit": "Ammonia the cells tolerate in the tank",
+    "pf_lac_limit": "Lactate the cells tolerate in the tank (Humbird's design)",
+    "sc_lac_limit": "Lactate the cells tolerate in the tank",
+    "ge_kill_protected": "Culture whose cells bursting bubbles kill, per volume of gas passed",
+    "pf_medium_prep_exp": "How the cost of medium preparation equipment rises with the medium passed (exponent)",
+    "pf_harvest_recovery": "Share of the cells grown that the harvest gives back",
+    "pf_labour_perfusion_x": "Staff a plant in perfusion needs, against a fed-batch plant",
+    "pf_mature_h": "Hours the cells spend in the tank without growing before harvest (to mature muscle or fat)",
+    "tc_kla_exp": "How fast oxygen uptake falls as the culture thickens (exponent on its viscosity)",
+    "tc_thin": "How much thicker a dense culture is at the low shear of a large tank",
+    # rows that crossed the $1 threshold when the costs rose on 2026-11-20
+    "sc_lac_selected": "Lactate the cells of the low-lactate example make per mol of glucose",
+    "sc_lac_engineered": "Lactate the low-waste cells make per mol of glucose",
+    "pf_otr_cap": "Oxygen a stirred tank passes into the culture",
+    "ge_col_pout": "CO₂ level at which the culture leaves the stripping column",
+    "sc_do_setpoint": "Dissolved oxygen the tank is held at",
+    "pi_vessel_food_k": "Price of a food-grade 20 m³ tank, installed",
     "sc_nh3_selected": "Ammonia the cells of the low-lactate example make per kilo grown",
     "sc_nh3_engineered": "Ammonia the low-waste cells make per kilo grown",
     "sc_mass_selected_pg": "Weight of one cell (every kind of cells since 2026-11-19)",
@@ -99,6 +115,8 @@ EVIDENCE = {
     "pf_capex_escalation": "construction cost index, 2024 estimated",
     "pf_x_unperfused": "Humbird's fed-batch limit",
     "pf_osm_limit": "CHO measurements (`perfusion_rate_osmolality.md`)",
+    "tc_kla_exp": "one correlation for stirred tanks (Yagi and Yoshida 1975); CHO perfusion data show almost no loss (`thick_culture.md`)",
+    "tc_thin": "one CHO study at 1e8 cells/mL (Tregidgo 2023); up to 3 times at shear rates below 40 per second",
     "neophobia_x": "a judgement on long-run behaviour",
     "cult_sub_mult": "bracketed by data on close substitutes",
     "equal_price_share": "a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`)",
@@ -134,6 +152,7 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
              "liking_sd": "no: the share at equal price is set given it",
              "liking_tail": "no: the share at equal price is set given it",
              "theta_free_M": "no: part of the share at equal price, which is drawn",
+             "accept_x": "no: part of the share at equal price, which is drawn (left the bands on 2026-11-20)",
              "neophobia_x": "no: part of the share at equal price, which is drawn",
              "health_x": "no: part of the share at equal price, which is drawn",
              "w_ratio": "no: each value re-solves the demand model's calibration",
@@ -142,7 +161,11 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
 # inputs left out of the tables, and why
 EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
                               "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
-                              "($31.2 to $35.2 in the low-lactate example) without changing any tank; it is left out.",
+                              "($46.1 to $51.9 in the low-lactate example) without changing any tank; it is left out.",
+           "pf_mature_h": "Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of "
+                          "product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days "
+                          "to mature muscle or fat would take the low-lactate example from $49.50 to $77.48 (4 days) or "
+                          "$241.87 (28 days). It is a lever on the page; it is left out here.",
            **{k: None for k in ("sc_medium_mid", "sc_gf_part", "sc_hazard_cm", "sc_gas_mid", "sc_td_central", "sc_td_fast",
                                 "sc_restart_base", "sc_hazard_mid", "sc_medium_high")}}
 EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, "

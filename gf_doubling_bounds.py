@@ -56,9 +56,10 @@ def humbird_per_litre(escalate: bool = True) -> float:
 
 
 def model_per_litre() -> float:
-    """$/L the model charges for all four proteins (growth_factors = 1): pf_growth_factors over Humbird's 11.2 L/kg, in 2025
-    dollars. About a quarter below `humbird_per_litre()`: his $3.13/kg is taken at 8.65 L/kg, the model's at 11.2 L/kg."""
-    return value("pf_growth_factors") * value("pf_opex_escalation") / fp.washout_litres(fp.GOOD_CELLS)
+    """$/L the model charges for all four proteins (growth_factors = 1): pf_growth_factors over the 8.7 L/kg of Humbird's
+    fed-batch (pf_medium_prep_l_kg), in 2025 dollars. The same as `humbird_per_litre()` since the back-test of 2026-11-20;
+    before, the model divided by the 11.2 L/kg of his cells in perfusion and came out a quarter below."""
+    return value("pf_growth_factors") * value("pf_opex_escalation") / value("pf_medium_prep_l_kg")
 
 
 def shares() -> dict:
@@ -164,7 +165,8 @@ def reuse(key: str, fgf_half_life_h: float | None = None) -> dict:
     """What a filter that returns the growth factors saves in a scenario (all per kg of cells, 2025 dollars).
 
     The proteins are dosed per litre of fresh medium in the model. If the filter returns them, the permeate (retention.duty's
-    flow) carries none out and only the bleed does: litres = 1000 / density instead of all of `medium_l`. A first fill of the tank
+    flow) carries none out and only the bleed does: litres = 1000 / density per kilo grown (retention.duty's bleed, which since
+    2026-11-20 carries the cells grown, not only those harvested) instead of all of `medium_l`. Every figure is per kilo harvested. A first fill of the tank
     adds a little. `fgf_half_life_h` lets one protein decay: FGF dosed per hour = c V (bleed rate + decay rate), so its litres
     rise to (bleed + 1000 V ln2 / (t_half x kg/h)), capped at the full medium (no saving left).
     Returns both the scenario's own growth-factor assumption and Humbird's full price."""

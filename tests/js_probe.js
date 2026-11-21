@@ -250,17 +250,29 @@ if (!TP_IN) js += `
   fxTor.push(fxTornadoRows({ doubling_h: 24, mass_pg: 2500, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: 0.173, pco2: 50 },
                            [10, 100]).map(r => [r[0], r[1], r[2]]));
   // the tricks (column, pressure, explicit wastes, sorbent): the same cases as tests/run_parity.py FX_TRICKS
-  const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}, {"fat_fed": 1.0}, {"do_mmol": 0.05, "doubling_h": 48, "maint": 0.31}, {"rq": 1.0, "gas_v": 0.003}, {"column": "o2_closed", "do_mmol": 0.08, "gas_v": 0.002, "fat_fed": 0.5, "fat_price": 10.0}, {"column": "co2", "p_top": 0.5, "do_mmol": 0.15, "aspect": 1.2}, {"aspect": 1.0}, {"aspect": 0.8, "shape_cost": false}, {"aspect": 2.5, "vessel_m3": 100}, {"mode": "filldraw", "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": true, "doubling_h": 43.0, "mass_pg": 2000.0}, {"mode": "filldraw", "vm": {"kind": "cyclic", "washed": false, "n_doublings": 2.0, "turnaround_h": 10.0, "restart_days": 2.0}, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true, "doubling_h": 36.0, "mass_pg": 2000.0, "nh3_limit": 4.0, "hazard": 0.01}, {"mode": "filldraw", "vm": {"washed": false, "shape": 1.0, "dil_frac": 0.6}, "nh3_kg": 0.2, "nh3_limit": 3.0}, {"mode": "filldraw", "nh3_kg": 0.3, "nh3_limit": 4.0, "doubling_h": 30.0}].map(c => {
+  const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}, {"fat_fed": 1.0}, {"do_mmol": 0.05, "doubling_h": 48, "maint": 0.31}, {"rq": 1.0, "gas_v": 0.003}, {"column": "o2_closed", "do_mmol": 0.08, "gas_v": 0.002, "fat_fed": 0.5, "fat_price": 10.0}, {"column": "co2", "p_top": 0.5, "do_mmol": 0.15, "aspect": 1.2}, {"aspect": 1.0}, {"aspect": 0.8, "shape_cost": false}, {"aspect": 2.5, "vessel_m3": 100}, {"mode": "filldraw", "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": true, "doubling_h": 43.0, "mass_pg": 2000.0}, {"mode": "filldraw", "vm": {"kind": "cyclic", "washed": false, "n_doublings": 2.0, "turnaround_h": 10.0, "restart_days": 2.0}, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true, "doubling_h": 36.0, "mass_pg": 2000.0, "nh3_limit": 4.0, "hazard": 0.01}, {"mode": "filldraw", "vm": {"washed": false, "shape": 1.0, "dil_frac": 0.6}, "nh3_kg": 0.2, "nh3_limit": 3.0}, {"mode": "filldraw", "nh3_kg": 0.3, "nh3_limit": 4.0, "doubling_h": 30.0},
+    {"lac_limit": 22.0, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true, "doubling_h": 36.0, "mass_pg": 2000.0},
+    {"kill": 1.6e-3, "gas_v": 0.004}, {"kill": 0.01, "doubling_h": 48.0}, {"medium_l": 60.0, "kill": 8e-4},
+    {"mode": "filldraw", "lac_limit": 30.0, "lac_yield": 1.05, "glc_balance": true, "kill": 0.0}].map(c => {
     const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
                                            charge: 0.173 }, c));
     return [r.total, r.density, r.limit, r.medium_l, r.medium_set_by, r.limits, r.o2_kg, r.o2_kg_upkeep, r.co2_kg,
             r.column ? [r.column.passes, r.column.loop_volume, r.column.ph_vs_safe] : null];
   });
+  // cleaning and reusing the medium, and a leaner feed for the washing litres: the same cases as tests/run_parity.py FX_CLEAN
+  const fxCleanCases = [{clean: "none"}, {clean: "exchanger"}, {clean: "electrodialysis"}, {clean: "dialysis"},
+    {clean: "exchanger", clean_share: 0.3}, {clean: "electrodialysis", clean_share: 0.5}, {clean: "dialysis", clean_share: 0.9},
+    {wash_price: 0.066}, {wash_price: 0.02, clean: "dialysis", clean_share: 0.7}, {wash_price: 0.0, clean: "electrodialysis"}];
+  const fxClean = ["central", "cautious", "today"].map(k => scParams(SC.presets[k].choice))
+    .concat([{ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion", charge: C.fx.charge_mature }])
+    .map(b => fxCleanCases.map(c => { const r = floorExplore(Object.assign({}, b, c));
+      return [r.total, r.medium_l, r.medium_l_unclean, r.clean_capex, r.clean_opex, r.clean_capital, r.clean_filter_membranes,
+              r.clean_loop, r.clean_share, r.gas_used, r.harvested_share, r.membranes, r.feedstock]; }));
   // the scenarios (page_scenarios.js): the presets, twelve spread-out choices of the switches, what to prioritise, interactions, design
   const scChoices = SC.order.map(k => SC.presets[k].choice);
   for (let i = 0; i < 12; i++) { const ch = {}; SC.switches.forEach((sw, j) => { ch[sw.key] = sw.settings[(i * 7 + j * 3 + (i >> 1)) % sw.settings.length].key; }); scChoices.push(ch); }
   const scCases = scChoices.map(ch => { const r = scEval(ch);
-    return [SC.keys.map(k => ch[k]), r.total, r.limit, r.medium_l, scShare(r.total, "global"), scShare(r.total, "us")]; });
+    return [SC.keys.map(k => ch[k]).concat([ch.extra || null]), r.total, r.limit, r.medium_l, scShare(r.total, "global"), scShare(r.total, "us")]; });
   const scPri = scPriorities(SC.presets.central.choice, true).map(r => [r.switch, r.best, r.worst, r.d_best, r.d_worst, r.share_best, r.share_worst]);
   const scInt = scInteractions(SC.presets.central.choice, 6, 0.25).map(x => [x.a, x.b, x.gap]);
   const scDes = SC.order.map(k => { const d = scDesign(Object.assign({}, SC.presets[k].choice, { tricks: "none", shape: "tall" })); return [d.tricks, d.shape]; });
@@ -281,7 +293,7 @@ if (!TP_IN) js += `
     const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
                                            charge: 0.173 }, c));
     return [r.total, r.extra_opex, r.capex, r.consumables, r.run_frac]; });
-  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks,
+  realLog(JSON.stringify({ headline, grid, healthGrid, foothold, weightCases, authCheck, bdCases, fxGrid, fxItems, fxTor, fxTricks, fxClean,
                            rt: { cases: rtCases, fx: rtFx, order: RT.order },
                            mcCheck, drawCheck, premise, timing: { R: Rx, share: tr.share, tstabs }, vm: vmCases, sc: { cases: scCases, pri: scPri, inter: scInt, design: scDes } }));
 })();

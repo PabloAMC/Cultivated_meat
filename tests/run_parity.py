@@ -248,7 +248,12 @@ def check_parity() -> list:
                  {'mode': 'filldraw', 'vm': {'kind': 'cyclic', 'washed': False, 'n_doublings': 2.0, 'turnaround_h': 10.0, 'restart_days': 2.0},
                   'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True, 'doubling_h': 36.0, 'mass_pg': 2000.0, 'nh3_limit': 4.0, 'hazard': 0.01},
                  {'mode': 'filldraw', 'vm': {'washed': False, 'shape': 1.0, 'dil_frac': 0.6}, 'nh3_kg': 0.2, 'nh3_limit': 3.0},
-                 {'mode': 'filldraw', 'nh3_kg': 0.3, 'nh3_limit': 4.0, 'doubling_h': 30.0}]
+                 {'mode': 'filldraw', 'nh3_kg': 0.3, 'nh3_limit': 4.0, 'doubling_h': 30.0},
+                 # 2026-11-20: the lactate the cells tolerate as an argument; bubble deaths (a set kill constant, the cap at half
+                 # of growth, and with the litres of medium set)
+                 {'lac_limit': 22.0, 'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True, 'doubling_h': 36.0, 'mass_pg': 2000.0},
+                 {'kill': 1.6e-3, 'gas_v': 0.004}, {'kill': 0.01, 'doubling_h': 48.0}, {'medium_l': 60.0, 'kill': 8e-4},
+                 {'mode': 'filldraw', 'lac_limit': 30.0, 'lac_yield': 1.05, 'glc_balance': True, 'kill': 0.0}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
              "restart_fail": "restart_fail_days"}
     js_tr = js.get("fxTricks", [])
@@ -269,6 +274,36 @@ def check_parity() -> list:
         if d > 1e-6 or r["limit"] != lim or r["medium_set_by"] != setby or bad_lims:
             fails.append(f"floorExplore tricks {case}: python={r['total']:.6f} ({r['limit']}, {r['medium_set_by']}) "
                          f"js={tot:.6f} ({lim}, {setby}) limits differ: {bad_lims}")
+
+    # 2026-11-20: cleaning and reusing the medium (explore's `clean`, `clean_share`) and a leaner feed for the litres that only
+    # wash waste out (`wash_price`), on two scenarios in perfusion, a fed-batch one and Humbird's reference design. A route with
+    # no share given takes the share that costs least. The same cases as tests/js_probe.js fxClean.
+    import scenarios as _S1
+    FX_CLEAN = [{'clean': 'none'}, {'clean': 'exchanger'}, {'clean': 'electrodialysis'}, {'clean': 'dialysis'},
+                {'clean': 'exchanger', 'clean_share': 0.3}, {'clean': 'electrodialysis', 'clean_share': 0.5},
+                {'clean': 'dialysis', 'clean_share': 0.9}, {'wash_price': 0.066},
+                {'wash_price': 0.02, 'clean': 'dialysis', 'clean_share': 0.7}, {'wash_price': 0.0, 'clean': 'electrodialysis'}]
+    clean_bases = [_S1.explore_kwargs(_S1.SCENARIOS[k].choice) for k in ("central", "cautious", "today")] + [{}]
+    js_cl = js.get("fxClean", [])
+    if len(js_cl) != len(clean_bases) or any(len(x) != len(FX_CLEAN) for x in js_cl):
+        fails.append("fxClean: not emitted by the JS probe")
+    CLEAN_OUT = ("total", "medium_l", "medium_l_unclean", "clean_capex", "clean_opex", "clean_capital", "clean_filter_membranes",
+                 "clean_loop", "clean_share", "gas_used", "harvested_share", "membranes", "feedstock")
+    worst_cl = 0.0
+    for bi, (b, rows) in enumerate(zip(clean_bases, js_cl)):
+        for case, jr in zip(FX_CLEAN, rows):
+            r = _fp.explore(**{**b, **case})
+            d = max(abs(r[k] - jv) / max(1.0, abs(r[k])) for k, jv in zip(CLEAN_OUT, jr))
+            worst_cl = max(worst_cl, d)
+            if d > 1e-6:
+                fails.append(f"floorExplore cleaning, base {bi}, {case}: python "
+                             f"{[round(r[k], 6) for k in CLEAN_OUT]} js {[round(v, 6) for v in jr]}")
+        if abs(_fp.explore(**{**b, 'clean': 'none'})["total"] - _fp.explore(**b)["total"]) > 0:
+            fails.append(f"cleaning, base {bi}: 'none' does not give the case itself")
+        # the exchanger route is the sorbent lever, the same calculation
+        a_, b_ = _fp.explore(**{**b, 'clean': 'exchanger', 'clean_share': 0.3}), _fp.explore(**{**b, 'sorbent': 0.3})
+        if abs(a_["total"] - b_["total"]) > 1e-12 or abs(a_["medium_l"] - b_["medium_l"]) > 1e-12:
+            fails.append(f"cleaning, base {bi}: the exchanger route is not explore's sorbent lever")
 
     # tornado of limiting factors: fxTornadoRows (JS) against floor_physics.floor_tornado
     cases = [dict(), dict(doubling_h=40.0, mass_pg=1500.0, vessel_m3=50.0, plant="microbial", charge=0.2, waste=0.1),
@@ -345,6 +380,8 @@ def check_parity() -> list:
     worst_sc = 0.0
     for vals, tot, lim, ml, wsh, ush in sc.get("cases", []):
         ch = dict(zip(_S.KEYS, vals))
+        if len(vals) > len(_S.KEYS) and vals[-1]:          # the choice's extra settings (scenarios.EXTRAS), after the switches
+            ch["extra"] = vals[-1]
         r = _S.run(ch)
         shs = _S.shares(r["total"], ("global", "us"))
         worst_sc = max(worst_sc, abs(r["total"] - tot))
@@ -503,7 +540,8 @@ def check_parity() -> list:
 CLOUD_EXACT_TOL = 1e-6        # relative, per draw, on Python's own draws
 CLOUD_MED_TOL = 0.05          # relative: the page's 300 draws against Python's 4,000 (sampling noise is about 2% at 300)
 CLOUD_TAIL_TOL = 0.10         # relative, on the 10th and 90th percentiles
-_JS_DRAW = {"maintenance_share": "maint", "pf_protectant_dose": "_dose", "rt_membrane_price": "_memprice", "aa_bulk_price": "_aa"}
+_JS_DRAW = {"maintenance_share": "maint", "pf_protectant_dose": "_dose", "rt_membrane_price": "_memprice", "aa_bulk_price": "_aa",
+            "tc_kla_exp": "_kla", "tc_thin": "_thin"}
 
 
 
@@ -548,7 +586,7 @@ def _first_screen_cases():
                 if "capex_x" in held: kw["capex_x"] = held["capex_x"]
                 if "cpl" in held: kw["membrane_life"] = value("rt_membrane_price") / held["cpl"]
                 if "medium_price" in held: kw["medium_price"] = held["medium_price"]
-                reg = {name: d[js] for name, js in (("pf_protectant_dose", "_dose"), ("rt_membrane_price", "_memprice"), ("aa_bulk_price", "_aa")) if js in d}
+                reg = {name: d[js] for name, js in (("pf_protectant_dose", "_dose"), ("rt_membrane_price", "_memprice"), ("aa_bulk_price", "_aa"), ("tc_kla_exp", "_kla"), ("tc_thin", "_thin")) if js in d}
                 with fp._inputs_set(reg):
                     costs.append(fp.explore(**kw)["total"])
             # the page drops the held keys itself (tpDrop), so it gets the full draws

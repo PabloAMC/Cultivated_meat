@@ -127,7 +127,8 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
     cost = cost_from_shelf(R * s["p_conv"], s["markup_add"], s["retail_margin"])
 
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
-    sh = np.array([share(R[i], base, accept_x=s["accept_x"][i], eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i],
+    # taste (accept_x) is not drawn since 2026-11-20: held at its point value (equal_price_share is the net of it)
+    sh = np.array([share(R[i], base, eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i],
                          equal_share=s["equal_price_share"][i])
                    for i in range(n)])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)

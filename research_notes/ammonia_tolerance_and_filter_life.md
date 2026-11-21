@@ -1,8 +1,36 @@
 # Ammonia the cells tolerate, and how long a cell filter lasts
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
+> **Status on the final model (2026-11-20): both inputs this note studied have since moved, so every "now" and every "what adopting X would do" figure below has an earlier baseline.** The note is kept as the evidence pass it was; this block gives the same figures on the final model.
+>
+> - **Ammonia tolerated.** The scenarios take 4 mmol/L since 2026-11-19 (`sc_nh3_limit`, range 2–8); Humbird's optimistic design keeps his 5. This is the note's own median. The note's advice not to move it (summary item 3, section 7 item 1) was overruled in the audit of 2026-11-19.
+> - **Membrane life.** The default is 2,415 L/m² since 2026-11-20 (`rt_membrane_life`, range 900–5,500), the life Humbird's replacement schedule implies, so that life and price ($1,450 a m²) are one source's pair. This is close to option (c) of section 7 (move life alone), with a source for the pair. A litre filtered carries $0.60 of membrane (it was $0.37). 2,415 is 1.6 times this note's median of 1,500 and inside its 80% interval (500–4,000). The chance in summary item 5 was judged for 3,960 and is withdrawn (see there).
+> - **The costs moved for other reasons too** (the lactate tolerated is 35 mmol/L, not 50; bubble deaths and a harvest loss are charged; twice the crew in a washed continuous tank; medium preparation capital with the medium passed; thick cultures take up oxygen more slowly). At most likely values the low-lactate example is **$49.50** (it was $29.42 when this note was written). Its membranes are $22.3 of the $49.50. The all-favourable example ($7.62) now holds its cells back with dialyser-grade fibres of its own (`scenarios.all_favourable`), so the cell filter's life does not move it.
+>
+> Cost of moving the membrane life on the final model (tank design held, `filter_flux.cost_at`), replacing the table in section 6:
+>
+> | `rt_membrane_life` L/m² | 5,500 | 3,960 | 3,000 | 2,415 (now) | 2,000 | 1,500 | 1,200 | 1,000 | 900 |
+> |---|---|---|---|---|---|---|---|---|---|
+> | Low-lactate example $/kg | 37.00 | 40.81 | 45.15 | 49.50 | 54.12 | 63.09 | 72.05 | 81.02 | 87.00 |
+>
+> The low-lactate example by membrane life (rows) and membrane price (columns), $/kg, replacing the table in section 7:
+>
+> | life, L/m² | $1,450 (now) | $1,050 | $550 | $200 | $50 | break-even price |
+> |---|---|---|---|---|---|---|
+> | 3,960 | 40.81 | 37.06 | 32.37 | 29.10 | 27.69 | $2,378 |
+> | 2,415 (now) | 49.50 | 43.35 | 35.67 | 30.29 | 27.99 | $1,450 |
+> | 2,000 | 54.12 | 46.70 | 37.42 | 30.93 | 28.15 | $1,201 |
+> | 1,500 | 63.09 | 53.19 | 40.83 | 32.17 | 28.46 | $901 |
+> | 1,000 | 81.02 | 66.18 | 47.63 | 34.64 | 29.08 | $600 |
+>
+> So this note's median life of 1,500 L/m² would put the low-lactate example at $63.09 at the default price (the note said $43.1), and costs nothing extra at $901 a m² or less (the note said $549). The retail modules at $1,050–1,260 are close to that line; before they were about twice it.
+>
+> The low-lactate example by the ammonia its cells tolerate: $89.91 at 2 mmol/L, $63.01 at 3, **$49.50 at 4 (now)**, $44.65 at 5 and at every level above. Above 5 mmol/L a higher tolerance saves nothing, because lactate (tolerated to 35 mmol/L) then sets the medium.
+>
+> Section 9 (what adopting 4 mM and 2,000 L/m² would do) has in effect happened, with 2,415 in place of 2,000. Its "now" column is the model of 2026-11-16. The same scenarios on the final model: Published cells in fed-batch $322.55, with process changes $311.29, the low-lactate example $49.50, with a plant with shared medium $45.04, the all-favourable example $7.62 (a different case since 2026-11-20), the cautious case $185.59, Humbird's optimistic design $15.93. Most of the rise since section 9 is from the 2026-11-19 and 2026-11-20 batches, not from these two inputs.
+>
+> Section 7, item 4 (the band): the bands draw the life from a triangle with its most likely value at 2,415 (median about 2,840), and draw the ammonia tolerated (2–8, most likely 4). The price draw is unchanged ($1,050–1,450).
 
-Research date: 2026-11-16. A literature pass on the two inputs that move Central most (`answer_rests_on.py`, RESULTS.md "What
+Research date: 2026-11-16. A literature pass on the two inputs that move the low-lactate example most (`answer_rests_on.py`, RESULTS.md "What
 the answer rests on"): `pf_nh3_limit` (5 mmol/L, range 2–10) and `rt_membrane_life` (3,960 L/m², range 900–5,500). **No input
 was changed.** Costs are 2025 dollars per kg of wet cells. I computed them on the model as it stood on 2026-11-16 by moving one
 input with each scenario's tank design held, as `answer_rests_on.py` does. No test pins them, so they will drift as the model
@@ -29,14 +57,14 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
    CHO, the source of the 5 mM figure, is more tolerant (IC50 33 mM in one study). Hybridomas raised gradually or adapted grow at
    10–21 mM. Meat-cell processes that state a set-point hold ammonium at 2–3 mM.
 2. **What the model's number has to mean.** In perfusion the cells live at the limit all the time, and, as far as I read the code, the
-   model charges no slower growth there. So the value should be the level at which Central's cells lose little growth, about 10%. That is
-   not an IC50. For unadapted meat-relevant cells that level is about 1–3 mM. Selection, which Central assumes, could raise it.
-   Only hybridoma data show by how much.
+   model charges no slower growth there. So the value should be the level at which the low-lactate example's cells lose little growth, about 10%. That is
+   not an IC50. For unadapted meat-relevant cells that level is about 1–3 mM. Cells held at the limit for long may tolerate more;
+   only hybridoma data show by how much.
 3. **Ammonia verdict.** 5 mM is at the generous end of the meat-relevant evidence, but that evidence is weak: every
-   dose-response is a sudden spike on unadapted cells, mostly in serum at low density, and Central assumes cells that grow on the low-waste feed.
-   - My median for Central's cells is about 3.5–4 mM.
-   - P(true value within a factor of 1.5 of 5 mM, i.e. 3.3–7.5 mM) ≈ **45%**; P(below 3.3) ≈ 45%; P(above 7.5) ≈ 10%.
-   - **I do not recommend moving it.** At 4 mM Central would be $34.0 (from $29.4), on evidence I rate as too thin for that.
+   dose-response is a sudden spike on unadapted cells, mostly in serum at low density.
+   - Median for the low-lactate example's cells about 3.5–4 mM, 80% interval 2–8 mM (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert; the reasoning is in section 3).
+   - This pass advised against moving it (at 4 mM the low-lactate example would then have cost $34.0, from $29.4). The audit of
+     2026-11-19 moved the scenarios to 4 mM (`sc_nh3_limit`).
 4. **Filter life.** Small-pore fibres (0.2–0.65 µm) in dense CHO perfusion usually foul or lose sieving after about 6–30 days.
    That is a few hundred to about 2,500 L/m². Clincke's best fibre (about 5,500 L/m²) is the only one at or above the model's
    3,960. An industry design framework assumes **1,000 L/m²** for cell-retention filtration at 50–120 million cells/mL. A Merck
@@ -44,20 +72,22 @@ as NH4Cl, unless a row says otherwise. No meat-relevant source measured free NH3
    duration by a couple of days". Large-pore ceramic fibres (5–7 µm) reached 4,600–16,000 L/m², but at a density not given and
    with CHO.
 5. **Filter verdict.** 3,960 L/m² is optimistic for the pharma fibre the model prices.
-   - My median for one fibre at 18% cells by volume over a month is about 1,500 L/m² (80% interval 500–4,000).
-   - P(true value within a factor of 1.5 of 3,960, i.e. 2,640–5,940 L/m²) ≈ **20%**.
-   - **But life and price act together.** A membrane adds price ÷ life to each litre of permeate. At today's $1,450 per m², a life
-     of 1,500 puts Central at $43.1. At $549 per m² or less it costs Central nothing extra. A cheaper membrane (retail modules
+   - Median for one fibre at 18% cells by volume over a month about 1,500 L/m², 80% interval 500–4,000 (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert). The
+     reasoning: the measured CHO fibres foul at a few hundred to about 2,500 L/m², one design framework assumes 1,000, and only
+     one fibre reached 5,500.
+   - **But life and price act together.** A membrane adds price ÷ life to each litre of permeate. At the default $1,450 per m², a
+     life of 1,500 put the low-lactate example at $43.1 on the model of 2026-11-16 ($63.09 on the final model). At $549 per m²
+     or less ($901 since the default life became 2,415) it costs nothing extra. A cheaper membrane (retail modules
      $1,050–1,260; dialyser fibre $3–14, with no animal-cell data) offsets the shorter life. So the evidence does not
      show the model's cost is too low; it shows one of two paired inputs is at its generous end.
 6. **What I did.** No default changed. I added the pairing to the code (`filter_flux.cost_at_life_price`,
    `break_even_price`, with a test), put the evidence in the two inputs' notes and in RESULTS.md's "What the answer rests on",
-   and left the choice of default to Pablo (section 7).
+   and left the choice of default open (section 7). It was taken on 2026-11-20: 2,415 L/m², Humbird's own schedule.
 
 ## 1. Ammonia: what the model assumes
 
 `floor_physics.washout_litres` sets the medium per kg so that ammonia made per kg divided by medium per kg equals
-`pf_nh3_limit`. Central's cells make 0.14 mol/kg (`sc_nh3_selected`, Hubalek 2023, bovine FAPs fed alpha-ketoglutarate
+`pf_nh3_limit`. The low-lactate example's cells make 0.14 mol/kg (`sc_nh3_selected`, Hubalek 2023, bovine FAPs fed alpha-ketoglutarate
 in place of glutamine). At 5 mM that is 28 L/kg. The tank sits at the limit at steady state. As far as I read `floor_physics.py`, the model charges no slower growth
 at the limit (my reading of the washout function only). Halving the limit doubles the medium and the permeate.
 
@@ -116,8 +146,8 @@ literature (Pakbin 2025).
   Free NH3 is about 1% of total at pH 7.4 and about 2% at pH 7.7 (my arithmetic from a pKa near 9.25 at 37 °C, which I did
   not source). So at tank pH it is a few tenths of a mM. McQueen & Bailey found external pH hardly mattered. Together the two
   papers suggest both forms contribute, and I cannot say how much of the effect is free NH3. The pig cells ran at pH 7.5. I did not check what tank pH the model assumes, so this is a gap, not a correction.
-- **Selecting for tolerance is plausible but unshown.** Central already assumes cells selected for growth on the low-waste
-  feed. Whether selection also lifts ammonia tolerance is open. I found no meat-cell evidence either way.
+- **Whether cells that grow on the low-waste feed also tolerate more ammonia is unshown.** No meat-cell evidence was found
+  either way.
 
 ## 3. Ammonia: what the evidence supports
 
@@ -128,23 +158,22 @@ literature (Pakbin 2025).
 | Meat-relevant unadapted cells, 50% growth loss | about 3–10 mM (catfish about 3; 3T3 about 8; HFF-1 about 10; pig and bovine FAPs unknown) |
 | Meat-cell process set-points and levels reached | 2–3 mM held (Pasitka, quail); above 3 mM reached at 3–6 million cells/mL (Bodiou) |
 | After selection or slow adaptation (hybridoma only) | 10–21 mM, with a growth cost in continuous culture |
-| My median for the low-lactate example's cells, at the level where growth loss is small | **3.5–4 mM** |
-| My 80% interval | 2–8 mM |
+| Median for the low-lactate example's cells, at the level where growth loss is small (rough judgement, below) | **3.5–4 mM** |
+| 80% interval (rough judgement, below) | 2–8 mM |
 
-- **Probability the model's 5 mM is within a factor of 1.5 of the truth** (3.3–7.5 mM) for meat cells at production density:
-  **about 45%**. P(true value below 3.3 mM) ≈ 45%; P(above 7.5 mM) ≈ 10%. The evidence leans one way because every
-  meat-relevant dose-response is at or below the model's value. The probability stays well above that of a random guess
-  because Central's cells are selected, glutamine-free and fed gradually, all of which favour the model.
+- **The median and interval above are a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert.** The evidence leans low because every meat-relevant dose-response
+  is at or below Humbird's 5 mM. The median is not lower because the low-lactate example's cells are glutamine-free and fed
+  gradually, which favour a higher tolerance than a sudden spike in serum shows.
 - **Weak spots in this reading.** Most meat-relevant doses were applied as a sudden spike on cells growing in serum, at low
   density, over days, with pH not reported. High-density serum-free perfusion has never been tested with meat cells. Two
   sources contradict the pattern (IMR-90 at 0.1 mM; mesenchymal stem cells growing faster at 5 mM). The pig result has two
   conditions and a confounded uptake change. The 10% loss level is my interpretation of what the model needs, not something any
   paper measured.
-- **Cost of moving it** (Central, tank design held; the all-favourable example in brackets where computed):
+- **Cost of moving it** (the low-lactate example, tank design held; the all-favourable example in brackets where computed):
 
   | `pf_nh3_limit` | 7.5 | 5 (now) | 4 | 3.5 | 3.33 | 3 |
   |---|---|---|---|---|---|---|
-  | Central $/kg | 22.45 | 29.42 | 33.99 | 37.19 | 38.50 | 41.45 |
+  | The low-lactate example $/kg | 22.45 | 29.42 | 33.99 | 37.19 | 38.50 | 41.45 |
   | All-favourable example $/kg | 9.66 | 9.66 | 11.15 | | | 13.83 |
 
   The all-favourable example is unchanged above 5 mM, which I take to mean its cells make so little ammonia that lactate sets the medium (inferred from the numbers, not traced in the code).
@@ -160,7 +189,7 @@ literature (Pakbin 2025).
 ## 4. Filter life: what the model assumes
 
 `rt_membrane_life` = 3,960 L/m² = 5 L/m²/h for a 33-day run, one membrane per run. It is a throughput in the cost
-(`$/L = price / life`) but a time in its derivation, and it does not move with flux. Central's membranes cost $8.3 of $29.4 a
+(`$/L = price / life`) but a time in its derivation, and it does not move with flux. The low-lactate example's membranes cost $8.3 of $29.4 a
 kg. Prior notes already set the measured range: 450–1,200 L/m² for CHO at 50–75 million cells/mL (Veje, Pinto), 5,500 for
 Clincke's best fibre (`filter_flux.md`, `retention_devices.md`).
 
@@ -197,9 +226,9 @@ L/m².
   day. The model's single number cannot represent that. It treats life as litres per m², so lower flux would lower the
   area and not change the life.
 - **Antifoam matters, and the model uses it.** Madabhushi's excess-antifoam run died at day 14 while the one without it ran to
-  28. Central runs with bubble protectant and antifoam. I have not checked how their doses compare with the paper's.
-- **The cell density in the best data is close to Central's.** Madabhushi's 85–100 million cells/mL is the same range as
-  Central's 18% by volume, so this is not just the "thinner than 25%" caveat from `filter_flux.md`. The meat cells' size and
+  28. The low-lactate example runs with bubble protectant and antifoam. I have not checked how their doses compare with the paper's.
+- **The cell density in the best data is close to the low-lactate example's.** Madabhushi's 85–100 million cells/mL is the same range as
+  the low-lactate example's 18% by volume, so this is not just the "thinner than 25%" caveat from `filter_flux.md`. The meat cells' size and
   stickiness are still unmeasured.
 - **One counter-signal.** Pasitka's cost analysis implies filters lasting about 3,600 L/m², close to the model's value. That is a
   company's cost assumption, from my arithmetic with two assumed inputs, not a measurement. Large-pore ceramic fibres show
@@ -214,18 +243,18 @@ L/m².
 | Small-pore fibres, dense CHO, range of reports | about 180–2,500; best single fibre about 5,500 |
 | Pasitka's cost assumption (my arithmetic) | about 3,600 |
 | Large-pore ceramic (Wang 2019) | 4,600–16,000 |
-| My median, one standard fibre at 18% cells by volume over a month | **about 1,500** (80% interval 500–4,000) |
+| Median, one standard fibre at 18% cells by volume over a month (rough judgement, summary item 5) | **about 1,500** (80% interval 500–4,000) |
 
 - **Probability the model's 3,960 L/m² is within a factor of 1.5 of the truth** (2,640–5,940) for meat cells at production
   density: **about 20%**. P(true value below 2,640) ≈ 70%; P(above 5,940) ≈ 10%. The two research passes agree with each other
   and with the earlier 15–25% in `filter_flux.md`.
 - **Why not lower.** Clincke's fibre, Pasitka's cost line and the large-pore data all sit at or above 3,960. If wide-pore
   fibres or backflushing are adopted, the model's value is fair.
-- **Cost of moving it** (Central, tank design held):
+- **Cost of moving it** (the low-lactate example, tank design held):
 
   | `rt_membrane_life` L/m² | 5,940 | 3,960 (now) | 3,000 | 2,640 | 2,000 | 1,500 | 1,200 | 900 |
   |---|---|---|---|---|---|---|---|---|
-  | Central $/kg | 26.64 | 29.42 | 32.08 | 33.58 | 37.58 | 43.09 | 48.59 | 57.75 |
+  | The low-lactate example $/kg | 26.64 | 29.42 | 32.08 | 33.58 | 37.58 | 43.09 | 48.59 | 57.75 |
   | All-favourable example $/kg | | 9.66 | 10.51 | | 12.27 | | 15.79 | 18.73 |
 
 - **The experiment that settles it.** Run 0.025 m² hollow-fibre modules (0.2 µm, and one wide-pore) on a 1–2 L meat-cell
@@ -233,16 +262,16 @@ L/m².
   per condition and one replicate. Record pressure and product sieving against litres per m² and against days, to the point
   the pressure reaches the limit or day 33. Include one module that is backflushed daily. That separates the time limit from
   the throughput limit and gives the number the model uses. It takes about six weeks on a bench rig (my guess $20–50k). The
-  cheaper partial test is the same run on CHO at Central's density, to check that meat cells foul no worse than CHO.
+  cheaper partial test is the same run on CHO at the low-lactate example's density, to check that meat cells foul no worse than CHO.
 
 ## 7. What it means for the model
 
-1. **Ammonia: leave `pf_nh3_limit` at 5.** The evidence leans low, but it is on unadapted cells under a sudden spike, and
-   Central assumes selection. A meat-cell perfusion held at a constant ammonium level (Section 3) is the experiment that would
-   justify a move.
-2. **Filter: the life is probably too high, and the price may be too, in the other direction.** Central at today's price:
+1. **Ammonia (as advised on 2026-11-16): leave `pf_nh3_limit` at 5.** The evidence leans low, but it is on unadapted cells
+   under a sudden spike. The audit of 2026-11-19 moved the scenarios to 4 mM (`sc_nh3_limit`) and kept 5 for Humbird's design.
+   A meat-cell perfusion held at a constant ammonium level (Section 3) is the experiment that would settle it.
+2. **Filter: the life is probably too high, and the price may be too, in the other direction.** the low-lactate example at the default price:
    $29.4 at 3,960 L/m², $37.6 at 2,000, $43.1 at 1,500, $54.1 at 1,000. At a lower membrane price the same lives cost much less.
-   Central by membrane life (rows) and membrane price (columns), $/kg, from `filter_flux.py`:
+   the low-lactate example by membrane life (rows) and membrane price (columns), $/kg, from `filter_flux.py`:
 
    | life, L/m² | $1,450 (now) | $550 | $200 | $50 | break-even price |
    |---|---|---|---|---|---|
@@ -254,14 +283,15 @@ L/m².
    The break-even column is the price at which that life costs the same per litre as the model's defaults. At 1,500 L/m² it is
    $549, about 40% of Humbird's $1,450 and about half of the retail $1,050–1,260. Nothing I found shows a meat-grade
    membrane at that price lasting 1,500 L/m² in a thick culture, so I cannot say which side of the line the truth is on.
-3. **The choice for Pablo.** (a) Leave both defaults. The headline stays at $29.4, and the two inputs' notes and RESULTS.md say
+3. **The choice of default, as it stood on 2026-11-16** (taken on 2026-11-20: life 2,415 L/m², Humbird's own replacement
+   schedule, paired with his price, close to (c) with a source for the pair). (a) Leave both defaults. The headline stays at $29.4, and the two inputs' notes and RESULTS.md say
    the pair is uncertain in both directions. This is what I did. (b) Move life to 1,500–2,000 and price down together, using
-   a named cheaper route, so Central moves little. That needs a source for the price, which I do not have. (c) Move life
+   a named cheaper route, so the low-lactate example moves little. That needs a source for the price, which I do not have. (c) Move life
    alone. That is the cautious move, and it mismatches the pair. I advise against it.
 4. **The band is the other open point.** The scenario bands draw life from a triangle with mode 3,960 (range 900–5,500), whose
-   median is about 3,300. My median is 1,500, and the band's price draw tops out at $1,450 with nothing below $1,050. So the
+   median is about 3,300. This pass's median is 1,500, and the band's price draw tops out at $1,450 with nothing below $1,050. So the
    band is one-sided in both inputs. I did not change it, because that moves every band and share figure in RESULTS.md.
-5. **What would change my view.** A bovine or chicken line shown to hold 10% growth at 5 mM or more in perfusion, or a month on
+5. **What would change this reading.** A bovine or chicken line shown to hold 10% growth at 5 mM or more in perfusion, or a month on
    one filter at 15–20% cells by volume. Each of the two experiments above could settle its input.
 
 ## 8. How far this was checked
@@ -296,13 +326,13 @@ Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank 
 A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
 METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.
 
-## 10. Can selection, not engineering, bring the ammonia the cells make down to 0.055 mol a kilo? (2026-11-19)
+## 10. How low can the ammonia the cells make go? (2026-11-19; costs on the final model, 2026-11-20)
 
-The question (Pablo): "Can't you select cells to produce less ammonia?" The ammonia the low-lactate example's cells make (`sc_nh3_selected`,
+The question: can cells make less ammonia than the 0.14 mol a kilo measured? The ammonia the low-lactate example's cells make (`sc_nh3_selected`,
 0.14 mol a kilo, range 0.07–0.25) is the largest estimate under the low-lactate example, and the 0.055 of the cells that make almost no ammonia is set apart from it
 by judgement. A short pass in both directions (search summaries and the repo's notes; no source read in full in this pass).
 
-**Toward lower ammonia without engineering.**
+**Toward lower ammonia, in published cells and media.**
 - Hubalek et al. 2023 (bovine fibro-adipogenic progenitors): replacing glutamine with alpha-ketoglutarate, pyruvate or glutamate cut
   ammonia "more than 5-fold" in spinner flasks; in the same paper's orbital-shaker runs the replacement substrates made none (about 5
   fmol a cell an hour with GlutaMAX). The spinner and shaker figures differ tenfold, unexplained (`waste_tricks_sizing.md`).
@@ -320,15 +350,18 @@ by judgement. A short pass in both directions (search summaries and the repo's n
 - Adaptation away from glutamine slows growth (US 9714293: slower growth, more cells in G0/G1); Hubalek's replacements were 13–43%
   slower. Slower cells burn more amino acids for upkeep per kilo grown, which adds ammonia.
 - The cells were fibro-adipogenic progenitors from five donors, not muscle cells, in serum-reduced medium; n = 5.
-- The routes that remove ammonia entirely are engineering: knocking out glutaminases and asparaginase eliminated ammonia during growth
-  (ISCCM11 poster, 2025); an Upside Foods patent describes glutamine-synthetase lines (GFI's bioprocess deep dive cites about a 20%
-  reduction).
+- The published routes that remove ammonia entirely changed the cells' genes: knocking out glutaminases and asparaginase
+  eliminated ammonia during growth (ISCCM11 poster, 2025); an Upside Foods patent describes glutamine-synthetase lines (GFI's
+  bioprocess deep dive cites about a 20% reduction).
 
-**Reading.** Selection on a glutamine-free feed plausibly reaches 0.055 mol a kilo: I put about 20% on a selected meat-cell
-line making 0.055 mol a kilo or less while growing at production density, and about 50% on 0.14 or less. The evidence for lower
-values is shaker and CHO data; the evidence for the measured value is the one stirred, growing meat-relevant culture. So:
-**mode kept at 0.14, low end widened from 0.07 to 0.04, so the selected and engineered settings overlap; high end kept at 0.25.**
-The bands draw the wider range. At 0.04 or 0.055 the low-lactate example costs $23.6 or $23.5 a kilo at most likely values, against $32.8
-at 0.14: below about 0.085 its lactate, not its ammonia, sets the litres (22 a kilo, not 35). The same switches with 0.055 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose cost $20.1, so most of the gap between the two kinds of cells is ammonia, and selection could close two
-thirds of it; the rest is lactate. The effect on the bands is in
-RESULTS.md (CHANGELOG, 2026-11-19).
+**Reading.** A meat-cell line making 0.055 mol a kilo or less while growing at production density on a glutamine-free feed is
+possible but unlikely (about 20%), and 0.14 or less is about even (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert). The reasoning: the evidence for lower values
+is shaker and CHO data; the evidence for the measured value is the one stirred, growing meat-relevant culture. So: **mode kept
+at 0.14, low end widened from 0.07 to 0.04, so this range and the 0.055 of the cells that make almost no ammonia overlap; high end
+kept at 0.25.** The bands draw the wider range.
+
+On the final model (2026-11-20) the low-lactate example costs $45.2 a kilo at 0.04 or 0.055 mol of ammonia, against $49.50 at
+0.14: below about 0.12 its lactate, not its ammonia, sets the litres (34.6 a kilo harvested, not 38.8). The same switches with
+0.055 mol of ammonia and 0.28 mol of lactate per mol of glucose cost $31.9. So, since lactate is tolerated only to 35 mmol/L,
+about a quarter of the gap between the two kinds of cells is ammonia and three quarters is lactate. (On 2026-11-19, with lactate
+tolerated to 50 mmol/L, it was the other way round: $23.6 against $32.8 and $20.1.)

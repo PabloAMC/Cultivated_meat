@@ -3,6 +3,12 @@
 Compiled 2026-11-14. Purpose: independent check on the model's three capital anchors
 (Humbird fed-batch $683k/m3, Humbird perfusion $3.45M/m3, microbial "as built" $190k/m3).
 
+> Note, 2026-11-20: the source figures below are unchanged. How the model uses the perfusion anchor changed: a plant at another
+> tank size or way of running is the 20 m3 fed-batch plant plus the change in what each tank brings with it
+> (`floor_physics.tank_items`: the tank, its makeup tanks and filter housings, buildings), and ATF units are priced in Humbird's
+> accounting for bought equipment (`retention.atf_factor`: bare x 2.5556 x 1.84 = 4.70, times 1.33 to 2025 dollars). With these
+> the engine gives $940k per m3 of tank for his 2 m3 ATF units against his $944k (`humbird_check.atf_capex_2018`).
+
 Conventions
 - "m3" is PRODUCTION (final-stage) vessel volume. Nominal vessel volume unless the source only gives working volume (WV); the basis is stated per row.
 - Prices are as stated by the source, in the source's price year. Nothing is escalated or currency-converted.

@@ -1,15 +1,18 @@
 # What caps the sparge gas flow in a large animal-cell tank
 
-> Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
-
-> Repinned 2026-11-19: nutrient floor $2.00 (GFI feed grade), growth factors inside complete media prices, medium settings floor/$0.20/$0.30/$0.50.
-
-> **Current figures** (`floor_physics.explore`, 2026-11-19). The costs in the body were computed on 2026-11-14, when the case
-> called "the floor" (now the reference case) was $11.5; since then the filter loop, the bubble protectant, antifoam's cut to oxygen
-> transfer and the $2.00 nutrient floor have been added. Now, with the body's figures in brackets: the reference case at 6 mm/s
-> $12.81 ($11.5); at 5 mm/s $13.70 ($13.1); at 2 mm/s $29.49 ($28.0); at 9 mm/s $11.33 ($8.7); at 0.5 mm/s $113 ($100); with the
-> exhaust 70% saturated with CO₂ $14.59 ($14.6), 85% $13.39 ($12.6). The protectant is now charged ($0.67 a kilo at $30/kg). The
-> 45% odds on 6 mm/s and the 2 / 5 / 9 mm/s range are unchanged.
+> **Current figures (2026-11-20, final model).** The body's costs were computed on 2026-11-14, when the reference case (then
+> called the floor) cost $11.5 a kilo. Since then the model added the cell filter, the bubble protectant (charged: $0.74 a kilo
+> at $30/kg), antifoam's cut to oxygen transfer, the $2.00 nutrient floor, a 2% harvest loss, twice the fed-batch crew in a
+> washed continuous tank and, from this note's section 1, the cells that bursting bubbles kill: death rate = the protected kill
+> volume (`ge_kill_protected`) times the gas passed per litre of culture. `floor_physics.explore` now gives, with the body's
+> 2026-11-14 figures in brackets: the reference case at 6 mm/s $15.93 ($11.5), 8% of the cells grown killed; at 5 mm/s $16.47
+> ($13.1); at 2 mm/s $35.25 ($28.0); at 9 mm/s $15.66 ($8.7), 12% killed; at 12.5 mm/s $15.91, 16% killed; at 0.5 mm/s $137
+> ($100); with the exhaust 70% saturated with CO₂ $17.61 ($14.6), 85% $16.44 ($12.6).
+> **What this changes in the reading.** Too little gas costs as much as before: 2 mm/s more than doubles the cost. More gas than
+> 6 mm/s is now worth almost nothing: 9 mm/s saves $0.27 a kilo and 12.5 mm/s $0.02, because the extra bubbles kill as many cells
+> as the extra density saves. So the gas bar runs from $35.3 at 2 mm/s to $15.7 at 9, around $15.9, and its upper half no longer
+> matters. Summary point 7, the experiments list, section 8 and section 9 are rewritten for this. The kill volume is one bench rule
+> applied at 20 m³ (range 0.0001–0.0012 L of culture per L of gas; the scenario bands draw it).
 
 Research note, compiled 2026-11-14. Reading, search and arithmetic only; no experiment.
 
@@ -31,17 +34,17 @@ About half of the primary papers are paywalled and were read as abstracts; this 
 
 ## For the experiments list
 
-Floor figures are from `floor_physics.explore` with only the named argument changed from the floor case
-($11.5/kg). Costs and times of experiments are my rough estimates, not quotes.
+Figures are from `floor_physics.explore` (final model, 2026-11-20) with only the named argument changed from the reference case
+($15.93/kg). Costs and times of experiments are rough estimates, not quotes.
 
 **1. How much gas a large, dense tank can take**
 - Unknown: whether a 20 m³ tank of cells at 120 g/L can be bubbled at 6 mm/s (0.1 volumes of gas per volume of
   liquid per minute) without foam or bubble damage stopping it.
-- Worth: resolves well, $11.5/kg (`gas_velocity=0.006`), or $8.7 if 9 mm/s works (`gas_velocity=0.009`);
-  resolves badly, $28.0/kg (`gas_velocity=0.002`, the most that has been run with cells). At my central
-  5 mm/s, $13.1.
-- Probability it resolves well (6 mm/s usable): about 45%. Bubble damage looks manageable with a protectant
-  (75–80%), but foam grows with gas velocity and has never been measured against it in a cell culture.
+- Worth: resolves well, $15.93/kg (`gas_velocity=0.006`), or $15.66 if 9 mm/s works (`gas_velocity=0.009`);
+  resolves badly, $35.25/kg (`gas_velocity=0.002`, the most that has been run with cells). At the central
+  5 mm/s, $16.47. The value is all on the downside: the experiment is worth running to rule out a cap near 2 mm/s.
+- Chance it resolves well (6 mm/s usable): about even, between 30% and 60% (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert). The reasoning: bubble damage
+  looks manageable with a protectant, but foam grows with gas velocity and has never been measured against it in a cell culture.
 - Deciding experiment: in a tall vessel (2–4 m of liquid, 100–500 L, ring sparger with 1–2 mm holes), step the
   gas through 1, 2, 4, 6 and 9 mm/s for two to three days each, in perfusion at 50 million cells per mL or
   more, and measure death rate, foam height, antifoam needed per day, oxygen transfer and CO₂ in liquid and
@@ -109,8 +112,8 @@ detection); EU status was not verified. So it belongs on the experiments list as
 not as a physics question.
 
 **Which way this points for the membrane loop.** The evidence does not show that sparging can run at the
-model's default velocity: I put that at about 45%, and at my central 5 mm/s the floor is $13.1, not $11.5. So
-a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
+model's default velocity (about even odds, section 8), and at the central 5 mm/s the reference case is $16.47, not
+$15.93. So a membrane loop is not made redundant; it remains a hedge worth pricing against a roughly even chance that the
 sparged tank must run thinner. Two things soften this. First, the most likely cap is foam, and a loop that
 only removes CO₂ still leaves the oxygen to be sparged, so it lowers the gas flow needed but does not remove
 foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on going beyond 120 g/L.
@@ -139,11 +142,12 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
 5. **No published run combines high density with gas flow near the limit at scale.** Tanks of 1 to 25 m³ are
    reported at 0.002–0.02 vvm and 7–40 million cells per mL. Runs at 0.05 vvm or more with 50 million cells per
    mL or more exist only at 200 L or less, which is 1–3 mm/s. No culture at 6 mm/s was found at any scale.
-6. **Defensible range: 2 / 5 / 9 mm/s** (low / my central estimate / high). My probability that 6 mm/s is usable
-   at 20 m³ with cells at 120 g/L is about 45% (I would not defend a figure outside 30–60%).
+6. **Defensible range: 2 / 5 / 9 mm/s** (low / central / high). Whether 6 mm/s is usable at 20 m³ with cells at
+   120 g/L is about even, between 30% and 60% (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert; reasoning in section 8).
 7. **The model keeps 6 mm/s for the floor**, because the floor takes the favourable end of each range and the
    evidence neither refutes 6 mm/s nor supports a specific lower number. The tornado range becomes 2–9 mm/s.
-   At my central 5 mm/s the floor is $13.1/kg; at 2 mm/s, $28.0; at 9 mm/s, $8.7.
+   On the final model (2026-11-20) the reference case is $15.93 at 6 mm/s, $16.47 at the central 5 mm/s, $35.25 at
+   2 mm/s and $15.66 at 9 mm/s: below 6 mm/s the cost rises steeply, above it bubble deaths cancel the gain.
 8. **Three costs or limits the model does not carry were found on the way**: the protectant (poloxamer 188) is
    not costed and is not a clearly permitted food additive; antifoam may cut oxygen transfer by up to half; and
    the exhaust gas may leave less saturated with CO₂ than the model's 96%. They are listed under "Follow-ups".
@@ -162,7 +166,7 @@ foam. Second, if experiment 1 shows 6 mm/s works, the loop's case rests only on 
 | Ozturk 1996, as restated | Cell lysis and foaming limit sparging to about 0.1 vvm. No scale or density | 2nd, via Sieblist 2011 [5] (one passage, read by automated extraction) |
 | Pörtner 2015 | Not readable. Abstract has no numbers | [3] ABS |
 | Nienow 2006 | No numeric maximum anywhere. Typical in 8–20 m³ tanks: velocity 0.1 to 2 mm/s, 0.005–0.01 vvm; 0.003 vvm at 20 m³. The upper limit on velocity with protectant present "is not established" and cannot be tested at bench scale; he calls for pilot-scale work including foam | [4] FT |
-| Xing 2009 (source of the oxygen-transfer formula) | Not readable. The range of gas velocity it was fitted over was not found. A later paper says its data lie below the usual range for such correlations (2nd, via [6]); so using it at 6 mm/s is probably an extrapolation (my estimate 80%) | [7] ABS |
+| Xing 2009 (source of the oxygen-transfer formula) | Not readable. The range of gas velocity it was fitted over was not found. A later paper says its data lie below the usual range for such correlations (2nd, via [6]); so using it at 6 mm/s is probably an extrapolation | [7] ABS |
 
 **Conclusion.** The 0.1 vvm figure is a rule of thumb from the 1990s. Humbird turned it into a velocity for one
 tank. Converting it to a velocity matters: 0.1 vvm is 6 mm/s at 20 m³ but under 1 mm/s in a bench tank, so a rule
@@ -477,21 +481,21 @@ holes). Divide by 62 for vvm.
 | 5. Gas cost | no cap | | | per kg, fixed | $0.52/kg at any velocity while CO₂ binds. Arithmetic on Humbird's prices |
 | 6. Sparger type | no cap | | | | Sets efficiency of stripping at 0.7–0.96 |
 | Oxygen supply and mixing at this gas flow | | bind near 10–12 | | | In the model (at 12 mm/s mixing binds at 189 g/L). Sooner if antifoam or the bubble-column regime cut oxygen transfer by half |
-| **Overall** | **2** | **5** | **9** | | Binding mechanism: foam (my estimate 60%), bubble damage through too little or unsuitable protectant (25%), something not listed (15%) |
+| **Overall** | **2** | **5** | **9** | | Binding mechanism: foam most likely, then bubble damage through too little or unsuitable protectant, then something not listed |
 
-**Why 2 / 5 / 9.**
+**Why 2 / 5 / 9.** The odds here are each a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert.
 - 2 mm/s is the top of what large tanks are documented to use and about the highest velocity found with cells.
-  I put about 12% on the true cap being below it.
-- 9 mm/s is just below where mixing and oxygen supply start to bind in the model and is still below the damage estimate with good
-  protection. I put about 25% on it being usable.
-- 6 mm/s: about 45%. The damage evidence supports it (75–80%), the foam evidence is absent (my 60% that foam can
-  be handled), and the two are not independent.
-- For CHO in a pharma medium I would say 55%; for meat cells with food-acceptable additives, 40%.
+  A true cap below it is unlikely (about 10–15%): it would need a culture that cannot take what pharma tanks run today.
+- 9 mm/s is just below where oxygen supply binds in the model (157 g/L at 9 mm/s) and is still below the damage estimate with
+  good protection. It is less likely than not to be usable (about 25%): no culture has been run near it, and foam grows with
+  velocity. Since 2026-11-20 it barely matters: it saves $0.27 a kilo against 6 mm/s.
+- 6 mm/s: about even (30–60%). The damage evidence supports it, the foam evidence is absent, and the two are not
+  independent. It is likelier for CHO in a pharma medium than for meat cells with food-acceptable additives.
 
 **One structural consequence.** If bubble damage is the cap, the limit is in vvm and the density a tank can hold
 does not depend on its size or shape. If foam is the cap, the limit is a velocity through the surface, as the
-model assumes, and squat tanks gain. The model's tornado bars for tank shape and tank size assume the second. My
-split is about 60:40 for a velocity cap.
+model assumes, and squat tanks gain. The model's tornado bars for tank shape and tank size assume the second, which
+the evidence above leans to (foam is the more likely cap) without settling.
 
 ---
 
@@ -500,8 +504,8 @@ split is about 60:40 for a velocity cap.
 - `pf_gas_velocity` stays at 0.006 m/s. The floor takes the favourable end of each input, 6 mm/s has roughly
   even odds, and no specific lower value is supported. Its range is now 0.002–0.009 (was 0.0006–0.006) and its
   note says what the evidence is.
-- Tornado bar "Gas flow the cells tolerate": 2 to 9 mm/s (was 2 to 6), $28.0 to $8.7 around the floor's $11.5.
-  It is still the widest bar.
+- Tornado bar "Gas flow the cells tolerate": 2 to 9 mm/s (was 2 to 6), $28.0 to $8.7 around the floor's $11.5 on
+  2026-11-14; on the final model (2026-11-20) $35.25 to $15.66 around $15.93, so only its lower half matters.
 - New: `oxygen_fed`, inputs `pf_o2_price`, `pf_o2_purity`, `pf_back_pressure`, and `gas` / `gas_extra` in
   `explore`'s result (section 5), reported and not added to the total. **The floor did not move**, and no
   other case did.
@@ -517,7 +521,7 @@ volume), a ring sparger with 1–2 mm holes, a meat-relevant suspension line (or
 two to three days each and record: death rate (released LDH against growth), foam height with and without
 antifoam, antifoam needed per day, oxygen transfer, and CO₂ in liquid and exhaust (which gives the stripping
 efficiency directly). The first half can be done without cells: foam height against velocity in spent medium
-from a dense culture, with and without antifoam, would by itself move my 45% by 15–20 points either way.
+from a dense culture, with and without antifoam, would by itself move the even odds on 6 mm/s by 15–20 points either way.
 
 ## Follow-ups (not done here)
 

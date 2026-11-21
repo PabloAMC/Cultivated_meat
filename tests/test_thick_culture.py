@@ -22,16 +22,31 @@ from inputs import value
 # repinned 2026-11-19: nutrient floor $2.00 (+$0.30 where it binds), growth factors inside complete media prices
 # 2026-11-19 audit batch: ammonia tolerance 4 mmol/L (more medium and membranes a kilo), membranes for lost runs, and glucose
 # from the cells' balance (cautious: the published cells' lactate sets 95 L/kg, $36.42 -> $92.17)
+# 2026-11-20 batch (lactate tolerance 35 mmol/L, bubble deaths, harvest loss, perfusion crew, membrane life 2,415 L/m2, medium
+# preparation capital, utilities). Only the low-lactate example, at 191 g/L, is still above 180 g/L: the all-favourable example's
+# cheapest tank is now the column alone in a tall tank at 153 g/L and the shared-medium plant's 133 g/L, so a limit of 180 g/L
+# costs them nothing (it cost the all-favourable example $0.16 before, at 218 g/L)
+# 2026-11-20 final pass: explore() now lowers the sparger's oxygen transfer in a thick culture itself (viscous_kla), so the
+# low-lactate example runs at 154 g/L and the cautious case at 103 g/L, and a limit of 180 g/L or more costs no scenario
+# anything with its own design. The all-favourable example is now scenarios.all_favourable() (column and 1 bar, square 42 m3
+# tank, 155 g/L). Its 'checked' reading at 180 g/L is CHEAPER than its own cost ($7.39 against $7.62): with recycled oxygen
+# (squat tank) the column loop passes its checks if the culture is held at 180 g/L, and fails them at the density the tank would
+# otherwise reach. scenarios.design does not consider holding a culture below its limits (reported, not fixed here).
 GOLDEN_CAP = {
-    # 2026-11-19 restructure: the best case's cells weigh 2 ng (were 3): oxygen limits its tank at 218 g/L, so a thicker limit no longer helps
-    "best":         {180.0: (11.8378, 11.8185), 320.0: (11.6738, 11.6738), 400.0: (11.6738, 11.6738)},
-    "central":      {180.0: (33.1795, 33.1795), 320.0: (32.8028, 32.8028), 400.0: (32.8028, 32.8028)},
-    "central_lean": {180.0: (30.1249, 30.1249), 320.0: (29.9417, 29.9417), 400.0: (29.9417, 29.9417)},
-    "cautious":     {180.0: (92.1653, 92.1653), 320.0: (92.1653, 92.1653), 400.0: (92.1653, 92.1653)},
+    "best":         {180.0: (7.6209, 7.3892), 320.0: (7.6209, 7.6209), 400.0: (7.6209, 7.6209)},
+    "central":      {180.0: (49.4977, 49.4977), 320.0: (49.4977, 49.4977), 400.0: (49.4977, 49.4977)},
+    "central_lean": {180.0: (45.0374, 45.0374), 320.0: (45.0374, 45.0374), 400.0: (45.0374, 45.0374)},
+    "cautious":     {180.0: (185.5915, 185.5915), 320.0: (185.5915, 185.5915), 400.0: (185.5915, 185.5915)},
 }
 # cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
 # 2026-11-19 audit batch: the same three changes; the viscosity-corrected oxygen limits (151 and 103 g/L) do not move
-GOLDEN_O2 = {"central": (34.4508, 150.69), "cautious": (94.3605, 102.72)}
+# 2026-11-20 batch: the limits of the low-lactate example and the cautious case do not move; the all-favourable example (the column
+# alone since the batch, oxygen from the sparger at 153 g/L) and the shared-medium plant (133 g/L) are pinned too
+# 2026-11-20 final pass: explore() applies the viscosity correction itself (viscous_kla), so cost_viscous_oxygen now turns the
+# correction off for its base and on again by the cap: the corrected cost IS the scenario's own cost (checked below), and the
+# pinned figures are the scenario's cost and its viscosity-corrected oxygen limit. The all-favourable example now feeds its
+# oxygen with a sparger (column and 1 bar), 198 -> 155 g/L.
+GOLDEN_O2 = {"central": (49.4977, 153.60), "cautious": (185.5915, 102.72), "best": (7.6209, 155.39), "central_lean": (45.0374, 153.60)}
 
 
 def close(a, b, tol=1e-6):
@@ -106,13 +121,17 @@ def check() -> list:
     if L["first"] != "CO2 removal" or not close(L["x"], 120.0, 1e-3):
         fails.append(f"in Humbird's plain tank CO2 binds first at 120 g/L, got {L['first']} at {L['x']:.0f}")
     Lc = TC.limits_at(S.explore_kwargs(S.SCENARIOS["central"].choice))
-    if Lc["first"] != "oxygen supply, with viscosity" or not (148.0 < Lc["x"] < 154.0):
-        fails.append(f"the low-lactate example: oxygen with viscosity should bind first near 151 g/L, got {Lc['first']} at {Lc['x']:.0f}")
+    if Lc["first"] != "oxygen supply, with viscosity" or not (150.0 < Lc["x"] < 157.0):
+        fails.append(f"the low-lactate example: oxygen with viscosity should bind first near 154 g/L, got {Lc['first']} at {Lc['x']:.0f}")
     Lb = TC.limits_at(S.explore_kwargs(S.SCENARIOS["best"].choice))
     # 2026-11-19 restructure: with 2 ng cells (were Humbird's 3 ng) the best case's design is column + 1 bar without recycled oxygen,
     # and oxygen with viscosity binds first, near 167 g/L (it was the column loop's checks near 271)
-    if Lb["first"] != "oxygen supply, with viscosity" or not (162.0 < Lb["x"] < 172.0):
-        fails.append(f"Best: oxygen with viscosity should bind first near 167 g/L, got {Lb['first']} at {Lb['x']:.0f}")
+    # 2026-11-20 batch: its design is the column alone (no extra pressure), so the sparger's oxygen limit is 153 g/L and, with
+    # viscosity, 126 g/L
+    # 2026-11-20 final pass: the case is scenarios.all_favourable(): the column and 1 bar in a square 42 m3 tank; the sparger's
+    # oxygen limit is 198 g/L and, with viscosity, 155 g/L
+    if Lb["first"] != "oxygen supply, with viscosity" or not (150.0 < Lb["x"] < 160.0):
+        fails.append(f"the all-favourable example: oxygen with viscosity should bind first near 155 g/L, got {Lb['first']} at {Lb['x']:.0f}")
     # the cost at other density limits
     for k in S.ORDER:
         own = S.run(S.SCENARIOS[k].choice)["total"]
@@ -132,7 +151,9 @@ def check() -> list:
         if v["oxygen_base"] == float("inf"):
             if not close(v["cost"], v["base_cost"], 1e-12):
                 fails.append(f"{k}: oxygen by the loop does not depend on kLa; the cost should not move")
-        elif k in GOLDEN_O2:
+        elif not close(v["cost"], S.run(S.SCENARIOS[k].choice)["total"], 1e-6):
+            fails.append(f"{k}: explore() counts viscosity in oxygen transfer itself; the corrected cost should be the scenario's own")
+        if v["oxygen_base"] != float("inf") and k in GOLDEN_O2:
             want_cost, want_x = GOLDEN_O2[k]
             if not (close(v["cost"], want_cost, 1e-4) and abs(v["oxygen_viscous"] - want_x) < 1.0):
                 fails.append(f"{k}: viscous-oxygen cost ${v['cost']:.4f} at {v['oxygen_viscous']:.0f} g/L != pinned ${want_cost} at {want_x}")

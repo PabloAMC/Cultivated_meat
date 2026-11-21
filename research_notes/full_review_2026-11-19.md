@@ -13,8 +13,8 @@ this review: section 5 lists what I propose to change in one batch, because any 
 - **Nothing found overturns the qualitative answer.** The model's inputs sit inside the ranges of the books and the cost analyses for
   every parameter that could be checked (table in section 6).
 - **The perfusion cases are optimistic in six places that the page did not show**, each worth $1 to $8 a kilo, all in the same
-  direction (section 2). Together they would move the low-lactate example from about $33 to roughly $40-50 (my estimate, 60%
-  that the sum is in that range; the items overlap, so they do not simply add).
+  direction (section 2). Together they would move the low-lactate example from about $33 to roughly $40-50 (a rough judgement made while building the model with an AI assistant; not measured and not reviewed by an expert;
+  the items overlap, so they do not simply add). Adopted on 2026-11-20 with the rest of the batch, they took it to $49.50 (section 7).
 - **Published cells in a fed-batch tank barely depend on those six**, because their cost is almost all tank time. They depend on one
   number with no range in the model: the lactate the cells tolerate (section 2, item 1).
 - **The shopper model's arithmetic is right**, but its uncertainty band draws shoppers' acceptance twice, and the "price parity" line
@@ -33,7 +33,7 @@ this review: section 5 lists what I propose to change in one batch, because any 
 | 7 | **No loss at harvest.** SuperMeat rejects 3%; Negulescu loses 2% in the decanter; Pasitka 1.3%. | `recovery` = 1 | +$0.7 to +$1.0 | Proposed: 2% |
 | 8 | **The least medium flow is below Ozturk's range** (100 pL a cell a day in standard media, "several fold" less in concentrated media; the model allows 15). | `pf_min_perfusion` | $33.60 at 16.7 mL/g/day (**re-run**); the all-favourable example +42% | Already drawn (3.7-18.5); now a slider |
 | 9 | **Viscosity**: Ozturk reports a 2-3 fold rise at 5e7 cells/mL; the model has no viscosity term below 258 g/L. | `thick_culture.py` is a side study | $34.5 to $37.1 | Overlaps item 4 |
-| 10 | **Electricity**: CE Delft 21.7 kWh/kg at $0.095; the model about 7.6 kWh/kg at $0.064. | `pf_utilities` | +$0.15 to +$1.6 (35% that it is over $1) | Now a slider |
+| 10 | **Electricity**: CE Delft 21.7 kWh/kg at $0.095; the model about 7.6 kWh/kg at $0.064. | `pf_utilities` | +$0.15 to +$1.6 | Now a slider |
 
 Also found, with no number attached: antifoam and protectant interact, and protection degrades over weeks at high density
 (van der Pol thesis); a finite lifespan of 35-70 doublings means only immortal lines can fill and run a 20 m³ tank, while the
@@ -52,7 +52,7 @@ reader's estimate); anchorage-dependent cells on carriers fall to fed-batch dens
   the same price, with a mark for where each kind of meat sits at the reader's cost; the map's line is relabelled "mince at the
   price of the average kilo" and its note gives the total there and why. **Not done** (a decision): redefining the setting against
   the world total would make the map's property exact but would make the setting depend on region, retail margin and cell share,
-  and today's 14.5% would have to be relabelled 11.1%.
+  and the current 14.5% would have to be relabelled 11.1%.
 - **The band draws acceptance twice.** `MC_DEMAND_INPUTS` still draws `accept_x` (0.6-1.0, one-sided) on top of
   `equal_price_share`, which the datasheet calls the net of everything. The equal-price median falls from 14.5% to 11.9%, and the
   share band is about a fifth lower than intended (0.42% against 0.54% at $26.4). It was left out when the other three dials were
@@ -60,7 +60,8 @@ reader's estimate); anchorage-dependent cells on carriers fall to fed-batch dens
 - **Evidence on the setting itself** (13% of all choices, 14.5% of meat buyers): Van Loo 2020 gives 5% at first contact, Slade 2018
   11%; the step from 4.8% to 14.5% is the model's judgement that novelty fades. Plant-based meat's record runs against it (US
   household penetration 20% in 2021, 11% in 2025). No post-tasting choice share exists. 55-58% (the all-favourable example) has no
-  empirical support. 55% that 13% is within a factor of two.
+  empirical support. For 13% to be within a factor of two, novelty would have to fade about as far as the model assumes and
+  tasting would have to confirm it; no study measures either.
 - **Blends.** A cut is 80% cells and loses 20% of the real-meat credit. Products on sale are 3-30% cells, and one was received as
   "another class of plant-based". If cuts lost half the credit the world share at $26.4 would fall from 0.43% to 0.36%.
 - **Plant-based meat's share target** (1.2% by volume) looks about twice too high (0.7% of meat dollars in 2025 at 1.76 times the
@@ -79,7 +80,7 @@ reader's estimate); anchorage-dependent cells on carriers fall to fed-batch dens
 - **Believer's 20 m³ plant never validated its process** (trade press, December 2025): the only attempt at perfusion at that size.
 - **Lever VC 2025**: 60-90 g/L, cells at $10-15 a kilo (investor claims); most companies choose fed-batch.
 - **A. D. Little 2026** (trade press): product in the "low €40s" a kilo, medium near €0.20 a litre, 55-100 g/L.
-- **Vow / Parima 2026** (press): a 1,500 kg harvest from a 22 m³ line, 68-85 g/L if it is one drain of wet cells (40% that it is).
+- **Vow / Parima 2026** (press): a 1,500 kg harvest from a 22 m³ line, 68-85 g/L if it is one drain of wet cells (the press does not say).
 - **Poloxamer 188** at about $20-25 a kilo in bulk (market summaries): supports `pf_protectant_price` $30.
 - **Meatly 2025** (press): protein-free medium at £0.22 a litre; a 320 L vessel for £12,500.
 - **Tufts DF-1 chicken fibroblasts** (preprint, September 2025): 30-hour doubling in suspension, about 1.0 ng a cell: both chicken
@@ -110,11 +111,13 @@ reader's estimate); anchorage-dependent cells on carriers fall to fed-batch dens
 - Two source texts corrected: the protectant cuts bubble deaths about 20-fold at 1 g/L (Jöbses 1991; the text said "at least
   100-fold", against the model's own inputs); Pasitka's 2024 abstract gives 130 million cells/mL at 43% w/v.
 
-**Proposed as one batch with one repin (waits on the author):** items 1, 2, 5, 6 and 7 of section 2; `accept_x` out of the band;
-the filter pair (item 3) decided as a pair. Each is small; together they move every figure in RESULTS.
+**Proposed as one batch with one repin:** items 1, 2, 5, 6 and 7 of section 2; `accept_x` out of the band; the filter pair
+(item 3) decided as a pair. **Done on 2026-11-20** (branch `claude/model-batch`), with more besides; section 7 lists each item
+and how it was adopted.
 
-**Open questions for the author:** whether the page should open on Published cells in fed-batch ($209 a kilo) as it now does; whether
-the meat-buyers setting should be redefined against the world total; the range for lactate tolerance.
+**Open questions as they stood on 2026-11-19:** whether the page should open on Published cells in fed-batch ($209 a kilo then);
+whether the meat-buyers setting should be redefined against the world total; the range for lactate tolerance. The first and the
+last were settled on 2026-11-20 (section 7); the second was not changed.
 
 ## 6. Checked and consistent
 
@@ -129,3 +132,26 @@ margin applied once; volume weights; the plant-based calibration (1.200%); first
 
 Not checked: Pasitka's and Negulescu's supplementary tables (not in the folder); Risner, Ashizawa and GFI 2021 were skimmed; the
 books were read by contents and keyword, not cover to cover.
+
+## 7. Adopted on 2026-11-20
+
+The batch of section 5 was made on 2026-11-20 (branch `claude/model-batch`). The low-lactate example went from $32.80 to $49.50 a
+kilo at most likely values. One line per finding:
+
+- Item 1, lactate tolerance: adopted. The scenarios take `sc_lac_limit`, 35 mmol/L with a range of 20-50, drawn in the bands; Humbird's design keeps his 50.
+- Item 2, medium preparation: adopted. Its capital scales with the medium passed (`pf_medium_prep_exp`).
+- Item 3, the membrane pair: adopted. Life 2,415 L/m², Humbird's replacement schedule, paired with his $1,450 a m² (`rt_membrane_life`).
+- Item 4, density: no cap was imposed; a thick culture now takes up oxygen more slowly (`viscous_kla`), so the low-lactate example runs at 154 g/L, not 191.
+- Item 5, bubble deaths: adopted. Charged on the gas the cells meet (`ge_kill_protected`, drawn in the bands); 8% of the cells grown in the low-lactate example.
+- Item 6, labour: adopted. A washed continuous tank takes twice the fed-batch crew (`pf_labour_perfusion_x`).
+- Item 7, harvest loss: adopted. 2% (`pf_harvest_recovery` 0.98); every cost and litre is per kilo harvested.
+- Item 8, least medium flow: unchanged; it was already drawn.
+- Item 9, viscosity: adopted as oxygen uptake that falls with the culture's viscosity (`tc_kla_exp`, `tc_thin`; `thick_culture.md`).
+- Item 10, electricity: utilities in four parts, from the Humbird back-test (`humbird_backtest.md`).
+- Acceptance drawn twice: adopted. `accept_x` left the band.
+- Plant-based meat's share target: adopted. 0.4% by volume.
+- Regional income: adopted. Nominal incomes (`REGION_INCOME`, `income_gradient` 0.32).
+- Left out of the shopper model: conventional meat's price now falls as it loses sales (`conv_exponent`); markets it cannot be sold into are a lever (`closed_share`, `closed_markets.md`).
+- Maturation (section 2, "also found"): a lever, `mature_h`, default 0 (the products near market are bulk cell mass).
+- The page's opening: it opens on Humbird's best estimate as he counts it ($26.99 in 2025 dollars), with what this model counts and he does not as levers.
+- The all-favourable example: redefined as one case, the most favourable value of every lever among this model's ranges, Humbird's design and ten published studies (`scenarios.all_favourable`, $7.62; `study_comparison.md`).
