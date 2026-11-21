@@ -350,14 +350,25 @@ def fedbatch_at(case: str, v: float) -> dict:
     return best
 
 
+def perfusion_at(case: str, v: float) -> dict:
+    """A scenario's switches run in perfusion at `v` m3, tank design chosen again (scenarios.design, with the culture held
+    thinner where the loop fails at full density). explore()'s result. For comparing fed-batch with perfusion in a tank of the
+    same size (2026-11-21)."""
+    d = S.design(S.SCENARIOS[case].choice, vessel_m3=v)
+    return S.run(d, vessel_m3=v)
+
+
 def fedbatch_markdown(cases=FB_CASES, sizes=FB_SIZES) -> str:
-    out = ["| switches as in | perfusion in the scenario's own tank, $/kg | " + " | ".join(f"fed-batch at {v:.0f} m³" for v in sizes) + " |",
+    """Perfusion / fed-batch at each size, both with the tank design chosen again at that size (since 2026-11-21; before, one
+    perfusion column at the scenario's own tank was set against fed-batch at every size)."""
+    out = ["| switches as in | perfusion in the scenario's own tank, $/kg | "
+           + " | ".join(f"{v:.0f} m³: perfusion / fed-batch" for v in sizes) + " |",
            "|---|---|" + "---|" * len(sizes)]
     for c in cases:
         cells = []
         for v in sizes:
-            r = fedbatch_at(c, v)
-            cells.append(f"${r['total']:.2f} ({r['density']:.0f} g/L)")
+            p, f = perfusion_at(c, v), fedbatch_at(c, v)
+            cells.append(f"${p['total']:.2f} ({p['density']:.0f} g/L) / ${f['total']:.2f} ({f['density']:.0f} g/L)")
         out.append(f"| {LABELS[c]} | ${S.run(S.SCENARIOS[c].choice)['total']:.2f} | " + " | ".join(cells) + " |")
     return "\n".join(out)
 

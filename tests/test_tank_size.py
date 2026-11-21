@@ -263,6 +263,14 @@ for k, (a, b) in FB_GOLDEN.items():
     check(c20 > S.run(S.SCENARIOS[k].choice)["total"], f"{k}: fed-batch at 20 m3 should cost more than perfusion at 20 m3")
 check(abs(T.fedbatch_at("central", 20.0)["total"] - S.run(S.SCENARIOS["selected"].choice)["total"]) < 1e-9,
       "the low-lactate example's switches in fed-batch at 20 m3 should be rung 3")
+# 2026-11-21: fed-batch compared with perfusion in a tank of the same size. Perfusion is cheaper up to 100 m3 with these switches
+# (before, a 100 m3 batch was set against 20 m3 perfusion and looked cheaper with the shared-medium plant).
+for k in ("central", "central_lean", "engineered"):
+    for v in (20.0, 100.0):
+        p_, f_ = T.perfusion_at(k, v)["total"], T.fedbatch_at(k, v)["total"]
+        check(p_ < f_, f"{k} at {v:g} m3: perfusion {p_:.2f} should cost less than fed-batch {f_:.2f}")
+check(abs(T.perfusion_at("central", 20.0)["total"] - S.run(S.SCENARIOS["central"].choice)["total"]) < 1e-9,
+      "perfusion_at at 20 m3 should be the low-lactate example itself")
 if os.path.exists(NOTE):
     text = open(NOTE, encoding="utf-8").read()
     for ln in T.fedbatch_markdown().splitlines():

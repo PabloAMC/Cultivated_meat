@@ -194,8 +194,9 @@ Raised by Pablo on 2026-11-16 (open):
       search, and the batch rungs take fed-batch as the mode reported at 20 m³ (Upside Foods); adding it would change no
       headline. Left for a decision on whether a batch plant should take the cheaper of the two) **Fill-and-draw as a setting?** In a plant with shared medium it beats fed-batch by about 3% (it needs a seed only to restart),
       in Humbird's plant fed-batch wins by 8%. Not offered as a setting; add it if a batch plant should take the cheaper of the two.
-      (Found 2026-11-21: with the shared-medium plant a 100 m³ fed-batch is already a little cheaper than perfusion at the modelled
-      plant cost, $43.6 against $44.5 at rung 5 and $25.6 against $27.3 at rung 6, `scenarios.plant_axis`.)
+      (2026-11-21: a 100 m³ fed-batch looked cheaper than perfusion with the shared-medium plant, but that set it against 20 m³
+      perfusion. In a tank of the same size perfusion is cheaper at 20, 50 and 100 m³ in every rung: $42.0 against $43.6 at
+      100 m³, rung 5. Only rung 6's cells at 200 m³ favour fed-batch, by $0.31. `scenarios.plant_axis`, `tank_size.perfusion_at`.)
 - [ ] **Aggregates in the scenarios**: priced in `retention.scenario_cost("aggregates")`, offered by no switch. Checked 2026-11-21:
       they would not lower the all-favourable example ($7.39 against $6.97); they would take the low-lactate example to $26.51, but
       the biology (aggregates of 100-300 µm held for a month at 150+ g/L) has not been shown (`retention_aggregates.md`), so they
