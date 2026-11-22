@@ -20,17 +20,25 @@
 
 > Repinned 2026-11-20 (model batch): the all-favourable example keeps haemodialyser fibres for its cells, so its cells cost $7.62 a kilo, not $18.71 (the low-lactate example $49.50); the plant-based share target fell from 1.2% to 0.4%; incomes became nominal dollars (income_ref $86,170, phi 0.32); and the share of the world's market closed to cultivated meat is weighted by meat eaten (1.14%, was 0.42%). The spread was not refitted; every table here is regenerated, and the 2026-11-18 model is reproduced to the last digit only with those three demand inputs at their old values (tested).
 
-Date: 2026-11-18; the shape of the spread re-fitted on 2026-11-19 (section 2). **The model's default** (`market_share.share`:
+> Refitted 2026-11-22 (fifth batch): the model now has price-insensitive shoppers (8% of every segment, responding 0.11 times as
+> strongly to every price, liking cultivated meat as much as other shoppers in utils; `demand_checks.md` section 7). The spread
+> was refitted with them in: a standard deviation of 3.55 utils (was 3.9) and a tail of 7 (was 4), joint misfit 0.87 (was 4.20).
+> The other shapes were refitted to their best spread with them in; every table here is regenerated.
+
+Date: 2026-11-18; the shape of the spread re-fitted on 2026-11-19 and on 2026-11-22 (section 2). **The model's default** (`market_share.share`:
 `liking_sd`, `liking_tail`, `equal_price_share`; `inputs.LIKING_FAMILY`). This module, `liking_spread.py`, fits the spread and
 compares readings of the long run; test: `tests/test_liking_spread.py`. Evidence: `demand_heterogeneity_evidence.md`.
 
 **In short.** Shoppers differ widely in how much they like cultivated meat, so the buyers left at a high price are the keenest, and
-the share falls off slowly. Since 2026-11-19 the spread is a Student's t with a standard deviation of 3.9 utils and 4 degrees of
-freedom, in place of a normal spread of 5 utils. Two things forced the change. The normal fit of 2026-11-18 rested on a numerical
-error: its fifteen integration points were too few. And a normal tail falls too fast far above meat's price. The t fits the choice
-experiment, the premium real meats and farmed salmon together better than the normal or the logistic. It leaves four worries
-(section 6): the all-favourable example's share falls by about a fifth, first contact comes out at 4.3% against the measured 5%, the response to a
-falling price is two and a half to three times farmed salmon's, and above five times meat's price the tail is an extrapolation.
+the share falls off slowly. Since 2026-11-19 the spread is a Student's t, in place of a normal spread of 5 utils. Two things forced
+the change. The normal fit of 2026-11-18 rested on a numerical error: its fifteen integration points were too few. And a normal
+tail falls too fast far above meat's price. Since 2026-11-22 the model also has price-insensitive shoppers, who hold buyers far
+above meat's price on their own, and the t was refitted with them: a standard deviation of 3.55 utils and 7 degrees of freedom
+(3.9 and 4 before). It fits the choice experiment, the premium real meats and farmed salmon together a little better than the
+logistic and far better than the normal or a mixture. It leaves four worries (section 6): the all-favourable example's share is
+about a fifth below the normal spread's, first contact comes out at 3.8% of all choices against the measured 4%, the response to a
+falling price is still above farmed salmon's for three of four products, and above five times meat's price the tail is an
+extrapolation, now carried by the price-insensitive shoppers.
 
 ## 1. The problem and the cause
 
@@ -41,7 +49,9 @@ the ones who like it most, so the total falls off slowly, though each shopper is
 
 An earlier attempt the same day gave the slow tail to "premium buyers" who buy organic and free-range meat. The evidence is against
 it: in the two studies that split shoppers into groups, the price-insensitive organic buyers are the most hostile to cultivated meat
-(`demand_heterogeneity_evidence.md` §2). It was not merged.
+(`demand_heterogeneity_evidence.md` §2). It was not merged. Since 2026-11-22 the model has price-insensitive shoppers of its own (8% of
+shoppers), but not as the slow tail of liking: their liking for cultivated meat is the other shoppers' in utils, which, at their
+small price response, makes them the most hostile in money, as those two studies found (`demand_checks.md` section 7).
 
 ## 2. The shape of the spread (2026-11-19)
 
@@ -72,121 +82,119 @@ elasticity at equal price within -1.5 ± 0.15, and a miss on the experiment's fo
 | shape of the spread | parameters | choice experiment: miss | first contact, equal price: share, elasticity | share at 1.25×, 1.5×, 2×, 3×, 4× | salmon response | at half price, if free | joint misfit (experiment, premium, salmon) | meets both requirements | world share: 1. Published cells, 4. Plus perfusion (the low-lactate example), 7. Plus everything else at its favourable end (the all-favourable example), best with its own demand |
 |---|---|---|---|---|---|---|---|---|---|
 | **measured** | | | 5%, -1.5 | —, 5.7%, 3.7%, 1.5%, 0.6% (premium real meats) | 1–1.5 | | | | |
-| normal, as it was (15 integration points) | spread 5 | 0.16 | 5.2%, -1.54 | 10.2%, 7.8%, 3.8%, 0.8%, 0.1% | 5.9–12.3 | 22%, 33% | 17.1 (1.1, 9.1, 6.9) | yes | under 0.001%, 0.006%, 5.9%, 29.8% |
-| normal, integrated properly | spread 5 | 0.30 | 4.9%, -1.35 | 9.8%, 7.3%, 3.7%, 0.7%, 0.1% | 5.8–12.4 | 21%, 32% | 21.3 (4.1, 10.4, 6.9) | no | under 0.001%, 0.006%, 5.8%, 30.2% |
-| logistic | spread 4.25 | 0.13 | 4.6%, -1.37 | 9.5%, 6.9%, 3.5%, 0.8%, 0.2% | 5.0–7.3 | 23%, 37% | 10.0 (0.8, 5.0, 4.2) | yes | under 0.001%, 0.01%, 5.7%, 26.3% |
-| Student's t (the model) | spread 3.9, tail 4 | 0.11 | 4.3%, -1.38 | 9.2%, 6.5%, 3.2%, 0.9%, 0.3% | 3.7–4.2 | 25%, 42% | 4.2 (0.5, 1.8, 1.9) | yes | under 0.001%, 0.05%, 5.6%, 23.4% |
-| mixture of two normals | spread 4.4; 5% of shoppers at 3 times the others' spread | 0.09 | 4.3%, -1.44 | 9.4%, 6.6%, 3.2%, 0.9%, 0.4% | 3.0–3.9 | 23%, 37% | 2.7 (0.3, 1.0, 1.3) | yes | under 0.001%, 0.06%, 5.5%, 26.2% |
-| mixture, best on the grid (its corner) | spread 5.2; 2% of shoppers at 6 times the others' spread | 0.06 | 4.4%, -1.46 | 9.4%, 6.7%, 3.3%, 0.9%, 0.5% | 1.2–3.8 | 23%, 36% | 1.4 (0.1, 0.8, 0.5) | yes | under 0.001%, 0.2%, 5.5%, 26.9% |
+| normal, as it was (15 integration points) | spread 5 | 0.20 | 5.2%, -1.43 | 10.4%, 8.2%, 4.4%, 1.6%, 0.9% | 1.4–4.0 | 21%, 31% | 2.9 (1.8, 0.4, 0.7) | yes | under 0.001%, 0.4%, 6.3%, 31.1% |
+| normal, integrated properly | spread 5 | 0.17 | 5.0%, -1.25 | 10.1%, 7.7%, 4.4%, 1.5%, 0.8% | 1.4–4.0 | 21%, 30% | 2.2 (1.3, 0.3, 0.7) | no | under 0.001%, 0.3%, 6.2%, 31.6% |
+| logistic | spread 3.65 | 0.04 | 4.0%, -1.47 | 9.4%, 6.8%, 3.5%, 1.3%, 0.8% | 1.5–4.1 | 24%, 39% | 0.9 (0.1, 0.2, 0.7) | yes | under 0.001%, 0.3%, 5.6%, 25.6% |
+| Student's t (the model) | spread 3.55, tail 7 | 0.02 | 3.8%, -1.51 | 9.3%, 6.6%, 3.4%, 1.3%, 0.8% | 1.5–4.0 | 24%, 40% | 0.9 (0.0, 0.2, 0.6) | yes | 0.001%, 0.3%, 5.5%, 25.1% |
+| mixture of two normals | spread 3.5; 5% of shoppers at 3 times the others' spread | 0.17 | 3.5%, -1.59 | 9.1%, 6.3%, 3.2%, 1.3%, 0.9% | 1.9–3.5 | 25%, 41% | 2.2 (1.2, 0.4, 0.5) | yes | 0.004%, 0.2%, 5.3%, 24.5% |
+| mixture with a small wide block (2% of shoppers at 6 times the others' spread) | spread 4.2; 2% of shoppers at 6 times the others' spread | 0.18 | 3.5%, -1.60 | 9.2%, 6.4%, 3.2%, 1.4%, 1.1% | 1.2–3.2 | 24%, 40% | 2.5 (1.4, 0.8, 0.3) | yes | 0.02%, 0.4%, 5.3%, 25.3% |
 
 The world shares use each scenario's cost of cells. "Best with its own demand" is the all-favourable example with its own 55% at equal price;
 the column before it is the all-favourable example's cells with the model's ordinary 13%.
 
-- **The t fits far better than the normal or the logistic**: a joint misfit of 4.2 against 17.1 (the normal as it was), 21.3 (the
-  normal integrated properly, which fails the requirements) and 10.0 (logistic). It matches the experiment as well as the old fit
-  claimed to (miss 0.11). It holds 0.9% and 0.3% of a meat's buyers at three and four times the price, against the premium meats'
-  1.5% and 0.6% and the normal's 0.8% and 0.1%. The response to a falling price drops from 5.9–12.3 to 3.7–4.2.
-  (These misfits are a little larger than on 2026-11-19, when they read 4.0, 13.7, 17.7 and 8.3, and the responses 5.2–7.4 and
-  3.6–3.7. The experiment and premium-meat parts barely moved. The salmon part is computed between the low-lactate example's
-  own cost of cells and its cost once a food-grade membrane exists, $48.68 and $24.05 since 2026-11-21 ($49.50 and $24.95 in the
-  2026-11-20 model batch, $49.96 and $24.00 in the engine batch), where every premium product is further from its meat's price and responds more steeply. The
-  order of the shapes is unchanged.)
-- **The mixture fits better still, and was not chosen.** With 5% of shoppers at three times the others' spread its misfit is 2.7;
-  the best on its grid is 1.4. Two reasons against it. It needs two extra parameters where the t needs one. And its best fit runs
-  to the corner of the grid: 2% of shoppers with six times the others' spread. That is a small block of shoppers who buy at almost
-  any price. It leaves 0.22% of a meat's buyers at eight times the price and 0.13% at ten times (the t: 0.02% and 0.01%), and it
-  gives the low-lactate example, at $50 a kilo of cells, 0.2% of world meat (the t: 0.05%). Nothing measured shows such a block;
-  the evidence on price-insensitive shoppers is that they are the most hostile to cultivated meat (section 1).
+- **With the price-insensitive shoppers in, the t fits best, the logistic nearly as well**: a joint misfit of 0.87 against 0.90
+  (logistic), 2.2 (a mixture of two normals), 2.5 (a mixture with a small wide block), 2.9 (the normal as it was) and 2.2 (the
+  normal integrated properly, which fails the first-contact requirement). It matches the experiment almost exactly (miss 0.02). It
+  holds 1.3% and 0.8% of a meat's buyers at three and four times the price, against the premium meats' 1.5% and 0.6%. The response
+  to a falling price is 1.5–4.0.
+- **Before the price-insensitive shoppers** (2026-11-19 to 2026-11-21) the t at 3.9 and 4 had a misfit of 4.2, against 17.1 for
+  the normal as it was, 21.3 for the normal integrated properly and 10.0 for the logistic; the mixtures fitted better (2.7, and
+  1.4 at the corner of their grid, 2% of shoppers at six times the others' spread) and were not chosen, because their best fit was
+  a small block of shoppers who buy at almost any price, which nothing measured shows. The price-insensitive shoppers are such a
+  block, but one the evidence does show (`demand_heterogeneity_evidence.md` section 3) and whose liking is read from two studies
+  (`demand_checks.md` section 7). With them in, the mixtures' extra block is not needed and they fit worse than the t.
+- The salmon part of the misfit is computed between the low-lactate example's own cost of cells and its cost once a food-grade
+  membrane exists ($48.68 and $23.52 since 2026-11-22; $24.05 before).
 
 **What the two numbers mean.**
 
-- `liking_sd` = 3.9 utils: how far apart shoppers are. A shopper one standard deviation keener than another will pay about twice
-  as much (2.1 times) for the same chance of buying. For comparison, the wariness at first contact is 2.8 utils.
-- `liking_tail` = 4: how many shoppers sit far from the average. Against a normal spread of the same standard deviation, more
-  shoppers are close to the average (77% within one standard deviation, against 68%) and more are very far from it: 1 in 150 is
-  more than three standard deviations keener than average, against 1 in 740; 1 in 420 more than four, against 1 in 32,000.
-  Those few are who still buys at three or four times meat's price.
+- `liking_sd` = 3.55 utils: how far apart shoppers are. A shopper one standard deviation keener than another will pay about twice
+  as much (2.0 times) for the same chance of buying. For comparison, the wariness at first contact is 2.8 utils.
+- `liking_tail` = 7: how many shoppers sit far from the average. Against a normal spread of the same standard deviation, more
+  shoppers are close to the average (73% within one standard deviation, against 68%) and more are very far from it: 1 in 210 is
+  more than three standard deviations keener than average, against 1 in 740; 1 in 940 more than four, against 1 in 32,000.
+  (At a tail of 4: 77%, 1 in 150 and 1 in 420.) Far above meat's price the buyers left are now mostly price-insensitive shoppers
+  (`demand_checks.md` section 7), not the far tail of this spread.
 
 **How well the data pin them.** Loosely (`liking_spread.profile`; `python liking_spread.py --families` prints it, the test does
 not re-run it):
 
 | tail (degrees of freedom) | best spread, utils | joint misfit |
 |---|---|---|
-| 2.2 | 4.6 | 4.66 |
-| 2.5 | 3.9 | 3.87 |
-| 3 | 3.7 | 3.75 |
-| 3.5 | 3.8 | 3.95 |
-| **4** | **3.95** | **4.27** |
-| 4.5 | 4 | 4.64 |
-| 5 | 4.1 | 5.02 |
-| 6 | 4.2 | 6.01 |
-| 8 | 4.35 | 8.01 |
-| 12 | 4.55 | 10.84 |
-| 30 (nearly normal) | 4.6 | 20.27 |
+| 3 | 3 (the lowest spread searched) | 2.46 |
+| 4 | 3.1 | 1.39 |
+| 5 | 3.3 | 1.03 |
+| 6 | 3.45 | 0.90 |
+| **7** | **3.55** | **0.87** |
+| 8 | 3.65 | 0.88 |
+| 10 | 3.85 | 0.94 |
+| 12 | 3.95 | 1.00 |
+| 30 (nearly normal) | 4.35 | 1.33 |
 
-- The misfit is least at a tail of 3 with a spread of 3.7 (3.69). Within 20% of that: a spread of 3.45 to 4.2 and a tail of 2.5
-  to 4. The model's 3.9 and 4 are inside, 14% above the least (at a tail of 4 a spread of 3.95 is as good, 4.18 against 4.20), and the
-  tail of 4 is the upper edge of that band. (On 2026-11-19 the band ran to a tail of 4.5 and the model was 10% above the least;
-  the dearer cells of the 2026-11-20 engine batch raised the salmon part of the misfit, more for lighter tails.)
-- **4 and not 3 is a choice, not a fit.** The misfit favours 3 only slightly, and three things it does not count favour the lighter
-  tail: first contact (4.3% at a tail of 4, 3.9% at 3, measured 5%); shares at ten or more times meat's price, where a heavier tail
-  leaves more buyers than any premium meat shows; and the all-favourable example with its own demand, which a narrower middle
-  lowers (22.6% at 4, 20.4% at 3).
-  The low-lactate example would be 0.07% at a tail of 3, against 0.05%.
-- The experiment alone would put the spread at 3.6 (miss 0.01, section 3). Its own estimate was 3.6–4.6 on its scale, about 3.3–4.7
-  of the model's utils.
+(With the price-insensitive shoppers in, at the model's 8% and 0.11; spreads from 3.0 to 4.6 in steps of 0.05.)
+
+- The misfit is least at a tail of 7 with a spread of 3.55 (0.87): the model. Within 20% of that: a spread of 3.25 to 4.0 and a
+  tail of 5 to 12. At a tail of 7, spreads from 3.45 to 3.65 are within 20%.
+- **The tail moved from 4 to 7 with the price-insensitive shoppers.** Before them, the misfit was least at a tail of 3 with a spread
+  of 3.7 (3.69), and 4 was chosen over 3 on three grounds the misfit does not count: first contact nearer the measured, fewer
+  buyers at ten or more times meat's price, and a higher all-favourable example. All three still favour the lighter tail, and the
+  misfit now does too. First contact is 3.8% of all choices at a tail of 7 (3.6% at 5, 4.1% at 10; measured 4%).
+- The experiment alone puts the spread near the model's (miss 0.02 at 3.55, section 3). Its own estimate was 3.6–4.6 on its scale,
+  about 3.3–4.7 of the model's utils.
 
 **The integration rule.** The model now integrates every shape but the normal over 67 points on a stretched grid
 (`market_share.grid_quadrature`). Against a 20,001-point reference:
 
 | shape | rule | points | largest error of the share at 1 to 5 times the price | error at 8 times |
 |---|---|---|---|---|
-| normal, spread 5 | Gauss-Hermite (the model of 2026-11-18) | 15 | 4.87% | 3.1% |
-| normal, spread 5 | Gauss-Hermite | 61 | 0.03% | 0.0% |
-| Student's t | Gauss-Legendre in probability | 60 | 11.09% | 85.8% |
-| Student's t | Gauss-Legendre in probability | 120 | 0.21% | 2.2% |
-| Student's t | stretched grid (the model's rule) | 67 | 0.03% | 0.3% |
-| mixture | Gauss-Hermite per component | 62 | 5.47% | 0.6% |
-| mixture | stretched grid | 67 | 0.01% | 0.6% |
+| normal, spread 5 | Gauss-Hermite (the model of 2026-11-18) | 15 | 3.36% | 1.0% |
+| normal, spread 5 | Gauss-Hermite | 61 | 0.02% | 0.0% |
+| Student's t (tail 7) | Gauss-Legendre in probability | 60 | 1.42% | 0.4% |
+| Student's t (tail 7) | Gauss-Legendre in probability | 120 | 0.08% | 0.4% |
+| Student's t (tail 7) | stretched grid (the model's rule) | 67 | 0.00% | 0.0% |
+| mixture | Gauss-Hermite per component | 62 | 1.44% | 1.0% |
+| mixture | stretched grid | 67 | 0.00% | 0.0% |
 
-The model's rule is within 0.03% at 1 to 5 times the price and 0.3% at eight times. The textbook rules need 120 points or more for
-a heavy tail and are erratic far out. With `LIKING_FAMILY = "normal"` and `liking_sd = 5.0`, and the plant-based share target,
-the reference income and its exponent at their values of 2026-11-18 (1.2%, $85,810, 0.5), the model of 2026-11-18 is reproduced
-to the last digit (tested).
+(Since 2026-11-22, with the price-insensitive shoppers in and the refitted spreads; `liking_spread.markdown_quadrature`.) The model's
+rule is within 0.01% at 1 to 5 times the price and at eight times. The errors are smaller than with a tail of 4 (0.03% and 0.3%;
+Gauss-Legendre with 60 points 11.1% and 86%), and the price-insensitive shoppers, who buy far above meat's price on the middle of
+the spread rather than its tail, make the share less sensitive to the rule. With `LIKING_FAMILY = "normal"`, `liking_sd = 5.0`, no
+price-insensitive shoppers, no committed buyers of plant-based meat, and the plant-based share target, the reference income and its
+exponent at their values of 2026-11-18 (1.2%, $85,810, 0.5), the model of 2026-11-18 is reproduced to the last digit (tested).
 
 ## 3. The fit to the choice experiment alone
 
-Cultivated meat's utility gets the t spread (tail 4) across shoppers; the mean is set so that 5% buy at equal price at first
+Cultivated meat's utility gets the t spread (tail 7) across shoppers, with the model's price-insensitive shoppers; the mean is set so that 5% buy at equal price at first
 contact, as in the experiment. The table gives the model's own-price elasticity at four prices of the lab-grown burger against
 the experiment's, for several spreads and for three values of each shopper's price sensitivity.
 
 | each shopper's price sensitivity (times meat's) | spread of liking, utils | elasticity at 0.6×, 1×, 1.4×, 1.8× beef's price | miss |
 |---|---|---|---|
 | **measured (Van Loo, Caputo & Lusk 2020, simulated from its fitted model)** | | -0.87, -1.50, -2.00, -2.40 | |
-| 4 | 0 | -0.89, -1.56, -2.24, -2.92 | 0.29 |
-| 4 | 2 | -0.63, -1.09, -1.53, -1.96 | 0.40 |
-| 4 | 3.6 | -0.42, -0.70, -0.97, -1.22 | 0.90 |
-| 4 | 3.9 | -0.40, -0.66, -0.90, -1.14 | 0.97 |
-| 4 | 5 | -0.32, -0.52, -0.72, -0.90 | 1.14 |
-| 4 | 6 | -0.26, -0.44, -0.60, -0.76 | 1.24 |
+| 4 | 0 | -0.89, -1.56, -2.24, -2.93 | 0.29 |
+| 4 | 2 | -0.61, -1.04, -1.46, -1.83 | 0.47 |
+| 4 | 3.6 | -0.41, -0.69, -0.96, -1.21 | 0.92 |
+| 4 | 3.55 | -0.41, -0.70, -0.97, -1.23 | 0.91 |
+| 4 | 5 | -0.31, -0.52, -0.72, -0.91 | 1.13 |
+| 4 | 6 | -0.26, -0.43, -0.60, -0.77 | 1.24 |
 | 6 | 0 | -1.29, -2.34, -3.39, -4.42 | 1.31 |
-| 6 | 2 | -0.93, -1.63, -2.30, -2.87 | 0.29 |
-| 6 | 3.6 | -0.63, -1.06, -1.44, -1.78 | 0.49 |
-| 6 | 3.9 | -0.59, -0.98, -1.34, -1.66 | 0.58 |
-| 6 | 5 | -0.47, -0.78, -1.06, -1.32 | 0.82 |
-| 6 | 6 | -0.40, -0.65, -0.89, -1.12 | 0.98 |
-| 8.5 | 0 | -1.72, -3.32, -4.84, -6.28 | 2.61 |
-| 8.5 | 2 | -1.27, -2.31, -3.23, -3.89 | 1.07 |
-| 8.5 | 3.6 | -0.89, -1.50, -2.02, -2.42 | 0.02 |
-| **8.5** | **3.9** | -0.84, -1.39, -1.87, -2.26 | **0.11** |
-| 8.5 | 5 | -0.67, -1.11, -1.49, -1.81 | 0.45 |
-| 8.5 | 6 | -0.57, -0.93, -1.25, -1.53 | 0.66 |
+| 6 | 2 | -0.89, -1.57, -2.18, -2.58 | 0.13 |
+| 6 | 3.6 | -0.61, -1.03, -1.43, -1.77 | 0.50 |
+| 6 | 3.55 | -0.62, -1.05, -1.45, -1.79 | 0.49 |
+| 6 | 5 | -0.46, -0.77, -1.07, -1.34 | 0.82 |
+| 6 | 6 | -0.39, -0.65, -0.90, -1.14 | 0.97 |
+| 8.5 | 0 | -1.72, -3.32, -4.84, -6.29 | 2.61 |
+| 8.5 | 2 | -1.21, -2.22, -3.01, -3.20 | 0.76 |
+| 8.5 | 3.6 | -0.85, -1.46, -2.00, -2.36 | 0.03 |
+| **8.5** | **3.55** | -0.86, -1.48, -2.02, -2.38 | **0.02** |
+| 8.5 | 5 | -0.65, -1.10, -1.50, -1.83 | 0.44 |
+| 8.5 | 6 | -0.55, -0.92, -1.27, -1.56 | 0.65 |
 
-- **At the model's own price sensitivity (8.5) a spread of 3.6 fits the experiment almost exactly** (miss 0.01). The model's 3.9,
-  the joint fit with premium meats and salmon, misses by 0.13. With no spread the model misses by 2.56: its elasticity at equal
-  price is -3.29 against the measured -1.5.
-- A lower price sensitivity fits only with little or no spread, and worse (4 with none: 0.27; 6 with 2: 0.27). Keeping 8.5
-  changes nothing else in the model.
+- **At the model's own price sensitivity (8.5) the model's spread, 3.55, fits the experiment almost exactly** (miss 0.02; 3.6:
+  0.03). Since 2026-11-22 the joint fit with premium meats and salmon and the fit to the experiment alone agree (before, 3.9 against
+  3.6). With no spread the model misses by 2.61: its elasticity at equal price is -3.32 against the measured -1.5.
+- A lower price sensitivity fits only with little or no spread (4 with none: 0.29; 6 with 2: 0.13). Keeping 8.5 changes nothing
+  else in the model.
 - The table of 2026-11-18, for a normal spread, had 5 utils as the best fit with a miss of 0.15. That was the fifteen-point error
   (section 2).
 
@@ -194,41 +202,44 @@ the experiment's, for several spreads and for three values of each shopper's pri
 
 | the long run | share at equal price | share of a meat at 1.25×, 1.5×, 2×, 3×, 4× its price | world share, 1. Published cells | world share, 4. Plus perfusion (the low-lactate example) | world share, 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|---|---|
-| first contact (as measured) | 5% | 3.5%, 2.5%, 1.3%, 0.5%, 0.2% | under 0.001% | 0.03% | 2.4% |
-| novelty fades by what the model assumes | 15% | 10.8%, 7.6%, 3.8%, 1.1%, 0.4% | under 0.001% | 0.05% | 6.4% |
-| shoppers indifferent on average (the premise before 2026-11-18) | 52% | 41.9%, 32.7%, 18.2%, 4.6%, 1.3% | under 0.001% | 0.1% | 21.6% |
+| first contact (as measured) | 5% | 3.5%, 2.4%, 1.2%, 0.5%, 0.3% | under 0.001% | 0.09% | 2.2% |
+| novelty fades by what the model assumes | 16% | 11.9%, 8.6%, 4.5%, 1.6%, 1.0% | 0.001% | 0.3% | 6.9% |
+| shoppers indifferent on average (the premise before 2026-11-18) | 52% | 42.9%, 34.6%, 20.9%, 7.4%, 3.9% | 0.005% | 1.7% | 23.2% |
 | the model before 2026-11-18 (every shopper alike) | 52% | 31.3%, 16.1%, 3.2%, 0.1%, 0.003% | under 0.001% | under 0.001% | 12.2% |
 | premium real meats (the curve fitted to sixteen) | | —, 5.7%, 3.7%, 1.5%, 0.6% |  |  |  |
 
 The world shares use each scenario's cost of cells with the reading's own demand. The all-favourable example's column is its cells at these
-readings, not the all-favourable example's own 55% at equal price, which gives 23.4%.
+readings, not the all-favourable example's own 55% at equal price, which gives 25.1%.
 
 - **With every shopper alike**, removing first-contact wariness (the model's `neophobia_x0`, -2.8 utils) took cultivated meat from 5% to
   about half the market at equal price.
-- **With the spread, the same removal takes it from 5% to 15%.** Half the market needs the average shopper's liking to recover by
-  6.5 utils, more than twice the wariness the model assumes: shoppers indifferent between the two meats on average.
+- **With the spread, the same removal takes it from 5% to 16%** (15% before the price-insensitive shoppers of 2026-11-22). Half the
+  market needs the average shopper's liking to recover by 6.6 utils, more than twice the wariness the model assumes: shoppers
+  indifferent between the two meats on average.
 - **The model's setting stays at 13%, a little below this reading.** With the normal spread the same removal gave 13%, and that is
-  where the setting came from. With the t it gives 15%. The setting was kept: it is a judgement with two other supports (section
-  5). Read backwards, 13% in the long run means 4.3% at first contact, against the measured 5%. The middle row's world shares
-  are therefore a little above the model's: 0.049% against 0.045% for the low-lactate example, 6.4% against 5.6% for the all-favourable example's cells (7.0% against 6.1% before the fourth batch of 2026-11-21; 6.2% against 5.4% at its $7.62 before 2026-11-21).
-- **The middle reading lands near premium real meats**: 3.8% at twice the price against their 3.7%, 1.1% at three times against
-  1.5%, 0.4% at four times against 0.6%. Since 2026-11-19 the shape is fitted to them, so this is no longer an independent check.
-- **Across the three readings the low-lactate example runs from 0.03% to 0.1% of world meat**, about four-fold, and the
-  all-favourable example's cells from 2.4% to 21.6%, about nine-fold (2.6% to 21.9% before the fourth batch of 2026-11-21; 2.3% to 20.0% at $7.62 a kilo of cells, before 2026-11-21). (With the all-favourable example's cells at $18.71, in the
-  2026-11-20 engine batch: 0.5% to 4.7%. Before that batch made cells dearer: 0.1% to 0.7% and 1.4% to 12.8%.) The reading
-  matters less for the low-lactate example than it did, because at $48.68 a kilo of cells its
-  buyers are the far tail of the spread in every reading. Its cost matters more: across the 8-in-10 range of its cost of cells
-  ($39 to $76 a kilo) the share at the 13% setting runs from 0.10% to 0.009%, about elevenfold.
+  where the setting came from. With the t it gives 16%. The setting was kept: it is a judgement with two other supports (section
+  5). Read backwards, 13% in the long run means 3.8% of all choices at first contact (4.3% of meat buyers), against the measured
+  4% (5%). The middle row's world shares are therefore above the model's: 0.34% against 0.26% for the low-lactate example, 6.9%
+  against 5.5% for the all-favourable example's cells (before 2026-11-22: 0.049% against 0.045%, 6.4% against 5.6%).
+- **The middle reading lands near premium real meats**: 4.5% at twice the price against their 3.7%, 1.6% at three times against
+  1.5%, 1.0% at four times against 0.6%. Since 2026-11-19 the shape is fitted to them, so this is no longer an independent check.
+- **Across the three readings the low-lactate example runs from 0.09% to 1.7% of world meat**, about nineteen-fold, and the
+  all-favourable example's cells from 2.2% to 23.2%, about elevenfold (before 2026-11-22: 0.03% to 0.1% and 2.4% to 21.6%). The
+  reading matters more for the low-lactate example than it did: at $48.68 a kilo of cells its buyers are now mostly the
+  price-insensitive shoppers, whose liking moves with the mean, not the far tail of the spread. Its cost matters less: across the
+  8-in-10 range of its cost of cells ($39 to $76 a kilo) the share at the 13% setting runs from 0.36% to 0.12%, about threefold
+  (elevenfold before).
 
 ## 5. The default chosen
 
-- `LIKING_FAMILY` = Student's t, `liking_sd` = 3.9 utils (fitted; range 3.6–4.2), `liking_tail` = 4 (fitted loosely; range 3–6).
-  Neither is drawn in the bands.
+- `LIKING_FAMILY` = Student's t, `liking_sd` = 3.55 utils (fitted; range 3.3–3.9), `liking_tail` = 7 (fitted loosely; range
+  5–12), with the price-insensitive shoppers (`price_insensitive_share` 8%, `price_insensitive_response` 0.11,
+  `price_insensitive_liking` 0 utils; `demand_checks.md` section 7). None of these is drawn in the bands.
 - `equal_price_share` = 13% (judgement). Since 2026-11-19 it is drawn in the bands from a lognormal with median 13% (5th–95th
   percentile about 3–52%). Before, it was drawn from a triangle from 5% to 49% with its mode at 13%, whose median was 21%, well
   above the setting (audit finding D1).
-- Why 13%: a little over a third of first-contact aversion fading, by two routes. On the model's scale, 13% is 2.4 of the 6.5
-  utils between first contact and indifference; the model's own novelty term is 2.8 utils, which would give 15%. In the survey
+- Why 13%: a little over a third of first-contact aversion fading, by two routes. On the model's scale, 13% is 2.2 of the 6.6
+  utils between first contact and indifference; the model's own novelty term is 2.8 utils, which would give 16%. In the survey
   corrections (`premium_curve.CORRECTIONS`), first contact is 45% of meat's price dearer (novelty 30, "unnatural" 20, less 5 for
   no killing) and the long-run middle case is 30% (novelty halved, "unnatural" kept): 15 of 45 points close.
 - A reading of foods made by distrusted processes (`demand_heterogeneity_evidence.md` §6) puts the median near 18%: below 8% with
@@ -240,32 +251,29 @@ readings, not the all-favourable example's own 55% at equal price, which gives 2
 
 ## 6. Worries and limits
 
-- **The all-favourable example falls by about a fifth against the normal spread: 29.8% to 23.4% of world meat with its own
-  demand** (31.0% to 24.7% before the fourth batch of 2026-11-21; 28.9% to 22.6% at $7.62 a kilo of cells, before 2026-11-21). (At the engine batch's $18.71 a kilo of cells it fell by nearly two-fifths, 9.0% to 5.6%; before 2026-11-20 by a
-  third, 19.9% to 13.8%.) Nothing about the all-favourable example's demand changed. The fitted t is narrower in the middle: a
-  smaller standard deviation (3.9 against 5) with more shoppers close to the average. With 55% buying at equal price most
-  shoppers sit near the tipping point, so a price above meat's loses them faster; at $6.97 a kilo of cells most of its products
-  are near their meat's price, so the shape matters less than it did. No data measure the middle of the spread beyond the one
-  experiment. The logistic gives 26.3% and the mixtures 26.2–26.9%, so the shapes that fit span about 23.4–26.9%; the normal
-  gave 29.8%. With the model's ordinary 13% the all-favourable example's cells barely move (5.9% to 5.6%).
-- **First contact comes out at 4.3%, against the measured 5%**, with an elasticity of -1.38 against -1.5 (inside the experiment's
-  range across its arms, -1.1 to -1.65). Every shape that fits the tail has this: 4.3–4.6%.
-- **Farmed salmon's response still fails**: 3.7–4.2% more share per 1% off the price, against 1–1.5%. Better than the normal's
-  5.9–12.3, and two and a half to three times the top of the range (`demand_checks.md`). The mixture is a little lower
-  (3.0–3.9) and fails too.
-- **Above five times meat's price the tail is an extrapolation.** The dearest premium meat in the data sits at 3.6 times its
-  ordinary product, and the fit uses the curve at 2, 3 and 4 times. The model gives 0.15% of a meat's buyers at five times the
-  price, 0.02% at eight and 0.01% at ten; nothing measures these. They matter where cells are dear: three-tenths of the
-  low-lactate example's sales at its own cost come from products at more than five times their meat's price, and two-fifths
-  from above four times (a sixth and a third before the 2026-11-20 batch made cells dearer). Published cells sell under
-  0.001% of world meat in every shape.
-- **The tail is loosely pinned** (2.5 to 4.5), and 4 was chosen over the least-misfit 3 on grounds the fit does not count.
+- **The all-favourable example is about a fifth below the normal spread: 31.1% against 25.1% of world meat with its own demand**
+  (29.8% against 23.4% before the price-insensitive shoppers of 2026-11-22). The fitted t is narrower in the middle than a normal of
+  5: with 55% buying at equal price most shoppers sit near the tipping point, so a price above meat's loses them faster. No data
+  measure the middle of the spread beyond the one experiment. The logistic gives 25.6% and the mixtures 24.5–25.3%, so the shapes
+  that fit span 24.5–25.6%. With the model's ordinary 13% the all-favourable example's cells barely move (6.3% with the normal,
+  5.5% with the t).
+- **First contact comes out at 3.8% of all choices (4.3% of meat buyers), against the measured 4% (5%)**, with an elasticity of
+  -1.51 against -1.5. Every shape that fits has 3.5–4.0%; the normal of 5 gives 5.0–5.2% but fails elsewhere.
+- **Farmed salmon's response still fails, by less**: 1.5–4.0% more share per 1% off the price, against 1–1.5%. The dearest product
+  (organic chicken) is now at the top of the range; sushi-grade seafood, nearest its meat's price, is still at 4.0
+  (`demand_checks.md` section 7).
+- **Above five times meat's price the tail is an extrapolation, now carried by the price-insensitive shoppers.** The dearest
+  premium meat in the data sits at 3.6 times its ordinary product, and the fit uses the curve at 2, 3 and 4 times. The model gives
+  0.58% of a meat's buyers at five times the price, 0.33% at eight and 0.23% at ten (0.15%, 0.02% and 0.01% before 2026-11-22);
+  nothing measures these. They matter where cells are dear: 72% of the low-lactate example's sales at its own cost come from
+  products at more than five times their meat's price, and 79% from above four times (three-tenths and two-fifths before), and 97%
+  of them go to the price-insensitive shoppers. Published cells sell 0.001% of world meat with the t.
+- **The tail is loosely pinned** (5 to 12); since 2026-11-22 the least misfit and the three grounds it does not count agree on 7.
 - One experiment, hypothetical choices, burgers, first contact, and the name "lab-grown". The spread in the long run may be narrower.
 - The fit uses elasticities simulated from the paper's published coefficients, since the paper reports none.
-- Price sensitivity also differs across shoppers (4 to 10 times between groups, `demand_heterogeneity_evidence.md` §3); not in the
-  model for every shopper, and not needed to match the experiment. Since 2026-11-21 (fourth batch) plant-based meat's committed
-  buyers respond less to its price, and its elasticity passes (`demand_checks.md` section 5). Section 6 there refits this spread
-  with a price-insensitive class for every product: the joint misfit falls to 1.7-3.0 with a narrower spread (3.0-3.5), salmon
-  still fails, and the low-lactate example's share rises 2 to 8 times; it is left out because how much those shoppers like
-  cultivated meat is unmeasured. With the committed buyers in the model the spread's own fit is unchanged (misfit 4.20 at 3.9
-  and 4).
+- Price sensitivity also differs across shoppers (4 to 10 times between groups, `demand_heterogeneity_evidence.md` §3). Since
+  2026-11-21 (fourth batch) plant-based meat's committed buyers respond less to its price (`demand_checks.md` section 5); since
+  2026-11-22 (fifth batch) 8% of shoppers respond 0.11 times as strongly to every price (section 7 there). Their liking for
+  cultivated meat is read from two stated-choice studies as no different from other shoppers' in utils; at -2 or +2 utils the
+  low-lactate example would be 0.11% or 0.58% of world meat, against 0.26%. That is now the demand side's largest unknown for the
+  low-lactate example, after the share at equal price.

@@ -45,8 +45,9 @@ def check_shape() -> list:
     # $85,810 -> $86,170, phi 0.5 -> 0.32), so the model's own calibration has moved; the 2026-11-18 model is rebuilt with those three
     # inputs at their old values and must still match to the last digit
     # 2026-11-21 (fourth batch): and with no committed buyers of plant-based meat (pb_committed_share 0).
+    # 2026-11-22 (fifth batch): and with no price-insensitive shoppers (price_insensitive_share 0).
     old = M.DemandParams(liking_family="normal", liking_sd=5.0, pb_share_target=0.012, income_gradient=0.5, income_ref=85810,
-                         pb_committed_share=0.0)
+                         pb_committed_share=0.0, price_insensitive_share=0.0)
     for R, v in NORMAL_2026_11_18.items():
         if abs(M.share(R, old) - v) > 1e-12:
             fails.append(f"the normal shape with a spread of 5 no longer reproduces the 2026-11-18 model at {R:g} times the price")
@@ -86,34 +87,44 @@ def check() -> list:
         # 2026-11-19 second round (Student's t spread): fading the model's first-contact wariness from the measured 5% now gives 15%
         # at equal price, not 13%. The setting stays at 13% (a judgement), so the middle reading's world share is a little ABOVE
         # the default's: 0.18% against 0.16% for the low-lactate example, 3.2% against 2.7% for the all-favourable example's cells. (Was: within 10% of it.)
-        if not 1.0 < lev[1]["world"][k] / s["default"]["world"][k] < 1.25:
+        # 2026-11-22 (fifth batch, the price-insensitive shoppers): 16% at equal price; 0.34% against 0.26%, 6.9% against 5.5%
+        # (ratios 1.31 and 1.26; was within 1.25)
+        if not 1.0 < lev[1]["world"][k] / s["default"]["world"][k] < 1.35:
             fails.append(f"{k}: the middle reading is no longer a little above the model's default; rewrite the note")
     if not 0.5 < lev[1]["curve"][3] / s["premium"][3] < 2.0:
         fails.append("the middle reading no longer lands near premium meats at twice the price; rewrite the note")
-    if not (14.5 < lev[1]["parity"] < 15.5 and 4.0 < fam["Student's t (the model)"]["first"] < 4.6):
-        fails.append("the middle reading is no longer 15% at equal price, or the model's 13% no longer reads back as about 4.3% at "
+    # 2026-11-22 (fifth batch): 15% -> 16.4% and 4.3% -> 3.8% (the price-insensitive shoppers and the refitted spread)
+    if not (15.9 < lev[1]["parity"] < 16.9 and 3.5 < fam["Student's t (the model)"]["first"] < 4.1):
+        fails.append("the middle reading is no longer 16% at equal price, or the model's 13% no longer reads back as about 3.8% at "
                      "first contact; rewrite the note")
     # 2026-11-19 second round: what the note says of the shapes (liking_spread.families). The t fits better than the normal and the
     # logistic; the mixture fits better still and was not chosen (two extra parameters, a price-insensitive block); the normal
     # integrated properly fails the requirements; farmed salmon's response still fails; the all-favourable example falls by about a fifth (a third before 2026-11-20, nearly two-fifths in the engine batch).
     J = {n: m["J"] for n, m in fam.items()}
     t_, mix, nrm = "Student's t (the model)", "mixture of two normals", "normal, as it was (15 integration points)"
-    if not (J[mix] < J[t_] < J["logistic"] < J[nrm] and fam[t_]["meets"] and not fam["normal, integrated properly"]["meets"]):
-        fails.append("the shapes no longer rank mixture, Student's t, logistic, normal by joint misfit, or the normal integrated "
+    # 2026-11-22 (fifth batch): with the price-insensitive shoppers in, the t fits best, the logistic next, the mixtures worse (they
+    # fitted best before, by way of a small block of shoppers who buy at almost any price, which the class now is)
+    if not (J[t_] < J["logistic"] < J[mix] < J[nrm] and fam[t_]["meets"] and not fam["normal, integrated properly"]["meets"]):
+        fails.append("the shapes no longer rank Student's t, logistic, mixture, normal by joint misfit, or the normal integrated "
                      "properly now meets the requirements; rewrite the note's section 2")
-    if not min(fam[t_]["response"].values()) > 2.0 * LS._salmon_range()[1]:
-        fails.append("the model's response to a falling price is no longer more than twice farmed salmon's; rewrite the note's section 6")
+    hi = LS._salmon_range()[1]
+    rs = fam[t_]["response"].values()
+    if not (hi < min(rs) < 1.1 * hi and max(rs) > 2.4 * hi):     # 1.52-4.00 since 2026-11-22 (3.7-4.2 before: over twice salmon's)
+        fails.append("the model's response to a falling price no longer runs from just above salmon's range to over twice it; "
+                     "rewrite the note's section 6")
     # 2026-11-20 (engine batch, the all-favourable example's cells $11.67 to $18.71): 9.0% with the normal spread, 5.6% with the t,
     # a fall of nearly two-fifths (was a third, 19.9% to 13.8%): further above meat's price the narrower middle of the t loses more.
     # 2026-11-20 (model batch, the all-favourable example keeps haemodialyser fibres, cells $7.62): 28.9% to 22.6%, a fall of about a
     # fifth; nearer meat's price the shape of the spread matters less
     if not 0.7 < fam[t_]["world"]["best, own demand"] / fam[nrm]["world"]["best, own demand"] < 0.85:
         fails.append("the all-favourable example with its own demand no longer falls by about a fifth against the normal spread; rewrite the note")
-    # the note: a tail of 3 with a spread of 3.7 has the least joint misfit; the model's 4 and 3.9 are within 20% of it (13% above
-    # since 2026-11-20, 10% before: the salmon part of the misfit is computed at the low-lactate example's cost of cells)
-    least = LS.evaluate(liking_family="student", liking_sd=3.7, liking_tail=3.0)
-    if not (least["meets"] and least["J"] < J[t_] < 1.2 * least["J"]):
-        fails.append("the model's spread and tail are no longer within 20% of the least joint misfit (tail 3, spread 3.7); rewrite the note")
+    # the note: since 2026-11-22 (fifth batch) the model's 3.55 and 7 have the least joint misfit (0.87); before, a tail of 3 with a
+    # spread of 3.7 had it and the model's 4 and 3.9 were within 20%. The neighbours on the profile fit worse.
+    for sd, tail in ((3.45, 6.0), (3.65, 8.0), (3.5, 7.0), (3.6, 7.0)):
+        near = LS.evaluate(liking_family="student", liking_sd=sd, liking_tail=tail)
+        if not J[t_] <= near["J"] < 1.2 * J[t_]:
+            fails.append(f"the model's spread and tail no longer have the least joint misfit (spread {sd:g}, tail {tail:g} fits "
+                         f"{near['J']:.2f} against {J[t_]:.2f}); rewrite the note")
 
     quoted = [f"{lev[1]['parity']:.0f}%", f"{S.pct_num(lev[0]['world']['central'])}% to {S.pct_num(lev[2]['world']['central'])}%",
               f"{S.pct_num(lev[0]['world']['best'])}% to {S.pct_num(lev[2]['world']['best'])}%"]

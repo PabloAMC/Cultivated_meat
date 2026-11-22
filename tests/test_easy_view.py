@@ -51,9 +51,10 @@ import humbird_check as HC  # noqa: E402
 LEVELS = ("assumes", "moves", "where", "engineering", "shoppers", "method")
 # the first screen runs by sections, each with its settings before its result (the author, 2026-11-19): the cells and what they allow
 # in the tank; the reactor, how it is run and the plant; the medium; then the cost; the shoppers; then the share
-FIRST = ('id="deck"', 'id="levers"', 'id="tp_refs"', 'id="regionsel"', 'id="st_cells"', 'id="tp_traits"', 'id="tp_g_cells"',
-         'id="st_reactor"', 'id="pl_vessel"', 'id="pl_vmode"', 'id="pl_size"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_capex"',
-         'id="tp_g_reactor"', 'id="st_medium"', 'id="pl_med"', 'id="tp_g_medium"', 'id="st_shoppers"', 'id="tp_buyers"', 'id="tp_cuthost"',
+FIRST = ('id="deck"', 'id="levers"', 'id="tp_refs"', 'id="regionsel"', 'id="tp_refs_more"', 'id="st_cells"', 'id="tp_traits"', 'id="tp_cellrefs"',
+         'id="tp_g_cells"', 'id="tp_g_cells_more"',
+         'id="st_reactor"', 'id="pl_vessel"', 'id="pl_vmode"', 'id="pl_size"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_items"', 'id="pl_capex"',
+         'id="pl_tricks"', 'id="pl_shape"', 'id="pl_design_btn"', 'id="tp_g_reactor"', 'id="tp_g_reactor_more"', 'id="st_medium"', 'id="pl_med"', 'id="tp_g_medium"', 'id="st_shoppers"', 'id="tp_buyers"', 'id="tp_cuthost"',
          'id="sumbar"', 'id="tp_calc"', 'id="studies"', 'id="tp_studies"', 'id="tp_cellres"', 'id="tp_vmgrid"', 'id="tp_rtgrid"', 'id="tp_yours"', 'id="tp_costline"', 'id="tp_groups"',
          'id="tp_unc"', 'id="tp_one"', 'id="tpmap"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"', 'id="tp_wit"')
 # words that claim a route by which cells would get a trait (the author, 2026-11-19: remove them all); a case's name is not one
@@ -148,6 +149,22 @@ PROBE = r"""
     state.closed_custom=0.3; r.custom=sh(); state.closed_level=cl0[0]; state.closed_custom=cl0[1]; r.cback=sh(); return r; })();
   load("today"); out.lead=pgLead(); out.pubs=TP_PUBS; out.publ=TP_PUBL; out.frontier=TP.frontier; out.floor=C.FEEDSTOCK_FLOOR;
   out.shown=TP_SHOWN; out.start=TP_START; out.npar=TP.params.length;
+  // 2026-11-22 (fifth batch): the level "How the tank and the plant set the cost" has no settings of its own; its result card is the
+  // side bar's case, priced as the first screen prices it, whatever the side bar holds (and the address carries the new settings)
+  { const rc=recompute; recompute=()=>{}; try{
+    const l4=()=>{ PGS.cloud=null; tpExtraNow(); const c=pgPointCost(); return {point:c, text:scResultHTML(SCS.choice,PGS.cloud.res), res:PGS.cloud.res.total}; };
+    out.l4=[];
+    tpLoad("humbird_best"); out.l4.push(l4());
+    tpLoad("central"); tpSetHeld("hazard",1.5,false); tpSetHeld("p_top",0.6,false); tpSetTrait("doubling_h",30,false); out.l4.push(l4());
+    tpSetPlant("yeastplus"); tpSetItem("hall","shed"); tpSetDevice(MODEL.rt.order[MODEL.rt.order.length-1]); out.l4.push(l4());
+    tpTakeCells("chicken"); scPick("tricks","column"); out.l4.push(l4());
+    const h=scSettingsHash(), c0=pgPointCost(), keep={pc:SCS.plantClass, it:JSON.stringify(SCS.items)};
+    tpLoad("today"); scReadHash(h); PGS.cloud=null; tpExtraNow();
+    out.hash={h:h, before:c0, after:pgPointCost(), pc:[keep.pc,SCS.plantClass], it:[keep.it,JSON.stringify(SCS.items)]};
+    // a link written before 2026-11-22 (switches, traits and levers only) still reads
+    tpLoad("today"); scReadHash("from:central,base:switches,buyers:0.2,ch:perfusion/lowlactate/36/sterile/4/column/tall/1/14/none/0.20,rd:0,t.doubling_h:30,h.capex_x:0.8");
+    PGS.cloud=null; tpExtraNow(); out.oldhash={cost:pgPointCost(), base:SCS.base, dh:SCS.traits.doubling_h, cx:SCS.held.capex_x, pc:SCS.plantClass};
+  } finally{ recompute=rc; } }
   console.log=__realLog; console.log(JSON.stringify(out));
 })();
 """
@@ -273,7 +290,8 @@ def check() -> list:
         if f'href="#{lv}"' not in html:
             fails.append(f"nothing links to level #{lv}")
     for gone in ('id="tiles"', 'class="tile"', 'pgTilesHTML', 'id="casebtns"', 'id="casebar"', 'id="l0chart"', 'id="eqs"', 'id="view_easy"', "setView(", 'id="sc_presets"', 'id="tp_verdict"', 'tpRoutesNeeded', 'tpVerdict', 'cldot',
-                 'class="chain"', 'onclick="fxApply()"'):
+                 'class="chain"', 'onclick="fxApply()"', 'id="sc_switches"', 'id="fxwrap"', 'id="fx_sc"', 'id="fx_sp"', 'fxFromScenario', 'fxSpecies(',
+                 'oninput="fxRender()"'):
         if gone in html:
             fails.append(f"the page still carries a piece the rebuild cut: {gone}")
 
@@ -511,6 +529,22 @@ def check() -> list:
                 fails.append(f"lever {k}: the reference {v} ({who}) is outside its slider ({rng[k][0]} to {rng[k][1]})")
     if len(BI.LEVER_REFS) < 20:
         fails.append("most levers should carry published reference values")
+    # the level on the tank and the plant: its result card gives the side bar's cost; the address keeps the settings that moved there
+    for i, w in enumerate(probe["l4"]):
+        if abs(w["res"] - w["point"]) > 1e-12 or f"${w['point']:.1f} a kilo of cells" not in w["text"]:
+            fails.append(f"the level on the tank and the plant (case {i}) does not show the side bar's cost ${w['point']:.2f}: {w['text'][:160]}")
+    hs = probe["hash"]
+    if abs(hs["after"] - hs["before"]) > 1e-9 * hs["before"] or hs["pc"][0] != hs["pc"][1] or hs["it"][0] != hs["it"][1]:
+        fails.append(f"the address does not carry the class of plant, its items or the new levers: {hs}")
+    oh = probe["oldhash"]
+    if not (oh["base"] == "switches" and oh["dh"] == 30 and oh["cx"] == 0.8 and oh["pc"] is None and 0 < oh["cost"] < 1e6):
+        fails.append(f"a link written before 2026-11-22 no longer reads: {oh}")
+    eng = html[html.find('<details class="level" id="engineering">'):html.find('<details class="level" id="shoppers">')]
+    ctl = [m for m in re.findall(r'<(?:input|select)[^>]*id="(\w+)"', eng) if m not in ("sc_ga", "sc_gb")]
+    if ctl:
+        fails.append(f"the level on the tank and the plant should show results only (the side bar sets them), but it has controls: {ctl}")
+    if "side bar sets everything in this section" not in _text(eng):
+        fails.append("the level on the tank and the plant should say that the side bar sets it")
     if probe["start"] != "humbird_best" or probe["shown"] != ["humbird_best", "today"]:
         fails.append(f"the page should open on Humbird's best estimate and offer it and the published cells only (got {probe['start']}, {probe['shown']})")
     fails += _check_start(probe, html, vis)
@@ -621,7 +655,15 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
             "glucose_price": value("glucose_price"), "mem_price": value("rt_membrane_price"), "mem_life": value("rt_membrane_life"),
             "flux": value("rt_flux_lmh"), "kla": value("ge_kla_20m3"),
             "x_cap": value("pf_x_visc"),                 # the densest culture allowed starts at the model's own limit, so nothing moves
-            "spargers": 1.0, "col_loop": 0.0}            # 2026-11-21: one sparger, no column on the filter loop, as in his design
+            "spargers": 1.0, "col_loop": 0.0,            # 2026-11-21: one sparger, no column on the filter loop, as in his design
+            # 2026-11-22 (fifth batch): the settings that moved into the side bar from "Every cell and tank setting". Each shows the
+            # engine's own value at his design: his growth factors bought at his price, glucose from his cell's own balance, no fat fed,
+            # no lost runs, the engine's restart after a loss and run length, his top pressure, the column's design outlet, the
+            # dissolved oxygen his oxygen supply implies, and the model's pH
+            "gf_buy": 100.0, "glc_kg": py["lac_kg"] / tr["lac_yield"], "fat_fed": 0.0, "hazard": 0.0,
+            "restart_fail": value("pf_run_days") * (1.0 / value("pf_uptime_realistic") - 1.0), "run_days": value("pf_run_days"),
+            "p_top": value("ge_p_top_base"), "col_pout": value("ge_col_pout"),
+            "do_mmol": __import__("gas_exchange").headspace_pressure()["c_liquid_implied"], "ph": value("pf_ph")}
     for lv in o["levers"]:
         k = lv["key"]
         if k not in want:

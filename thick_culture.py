@@ -385,7 +385,7 @@ def summarise() -> None:
               f"eddies at gas+stirrer power {eddy_um(x, 43.0 + gas_power(x)):.0f} um")
     print(f"  jacket takes {cooling_w_m3():.0f} W/m3 (tall) and {cooling_w_m3(aspect=0.5):.0f} W/m3 (flat)")
     print("\nlimits of three tanks (g/L):")
-    for name, kw in (("Humbird's tank, no tricks", {}),
+    for name, kw in (("Humbird's tank, no added equipment for oxygen and CO₂", {}),
                      ("the low-lactate example's design", S.explore_kwargs(S.SCENARIOS["central"].choice)),
                      ("the all-favourable example's design", S.explore_kwargs(S.SCENARIOS["best"].choice))):
         L = limits_at(kw)

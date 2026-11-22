@@ -38,11 +38,11 @@ a single-use bag. The operating mode is how the vessel is run: batch, fed-batch,
 this work the model priced one vessel, the stirred tank. It also gave the same $17.81 to batch, fed-batch, chemostat and
 fill-and-draw, because all of them were treated as "waste not washed out".
 
-The grid below changes only the vessel and the mode. It holds the cells, the plant class, the tank tricks and the losses
+The grid below changes only the vessel and the mode. It holds the cells, the plant class, the added equipment for oxygen and CO₂ and the losses
 fixed, in one of two settings:
 
 - **Humbird's optimistic design**: `floor_physics.explore()` at its defaults (cells that make almost no ammonia or lactate, doubling every 24 h, a food-grade plant
-  without clean rooms, no tank tricks, no losses). The stirred tank in perfusion gives $15.93.
+  without clean rooms, no added equipment for oxygen and CO₂, no losses). The stirred tank in perfusion gives $15.93.
 - **the low-lactate example** (`scenarios.py`, `central`): cells that make less lactate (0.42) on a low-waste feed, doubling every 36 h, a food-grade plant, gas
   at up to 4 mm/s, the column with 1 bar of pressure, a tank as deep as wide, 1% of runs lost a day, a 14-day restart,
   medium at $0.20 a litre with the growth factors in its price, dissolved oxygen held at half of air saturation, ammonia held to 4 mmol/L and lactate to 35 mmol/L, glucose from the cells' own balance. The stirred tank in perfusion gives $49.50.
@@ -165,7 +165,7 @@ with animal cells" means no record was found.
    of a stirred one). In perfusion mixing holds it at 87 g/L: $53.11 against $49.50. **Changed 2026-11-20 (final pass):** before,
    the airlift had no mixing limit, was held by CO2 (79 g/L) and, in the low-lactate example, by the column's checks (139 g/L with
    the culture run thinner, $47.60), which made it cheaper than the stirred tank there. Held at 87 g/L, the column loop passes its
-   checks with the example's own tricks. The result moves steeply with the airlift's shape (section 6), and nobody has run animal
+   checks with the example's own added equipment. The result moves steeply with the airlift's shape (section 6), and nobody has run animal
    cells in an airlift in perfusion.
 6. **A single-use bag pays for a new bag every run.** That makes it closest to a stirred tank in perfusion ($33.58), where a run
    lasts a month. In two-day batch cycles the bags alone cost hundreds of dollars a kilo. At a 10-14-day pharma fed-batch the bag cost
@@ -234,7 +234,7 @@ cross-section, 3–12; capped by foam, not by cells), discounted by `vm_cage_exc
 the cells only with the medium that crosses the mesh. Capital 1.15 times a stirred tank (1.05–1.4). Every one of these is a
 judgement: no exchange rate across a cage, no 20 m³ cage and no price were found. Results, perfusion (recomputed 2026-11-20, final
 pass): Humbird's optimistic design $14.84 against $15.93 in the plain tank (176 g/L against 120, oxygen now binds); the low-lactate example $46.51
-against $49.50 (246 g/L against 154, oxygen); published cells (rung 1, no tricks) $179.10 against $205.78 (158 g/L against 46). The
+against $49.50 (246 g/L against 154, oxygen); published cells (rung 1, no added equipment for oxygen and CO₂) $179.10 against $205.78 (158 g/L against 46). The
 cage does not touch the medium: the published cells' litres (146 a kilo at 35 mmol/L of lactate) and their membranes cost the same
 with or without it; the denser tank still takes 13% off their cost. **Closed 2026-11-20:** the model had charged the cells killed by
 bursting bubbles on all the gas passed, the cage's included (12.6% of the cells in Humbird's optimistic design against 8% in the plain tank),
@@ -242,7 +242,7 @@ although the cage's bubbles do not meet the cells. That was a defect: since the 
 is not charged for bubble deaths (`vm["gas_away"]`), and the cage loses the same 8% as the plain tank.
 
 **Variant: the inner cylinder full of gas, under pressure.** Then the wall must hold liquid out and let gas through: a gas-permeable
-membrane, which is membrane aeration. Pressure raises the oxygen driving force (as the model's 1 bar trick does) but does not help
+membrane, which is membrane aeration. Pressure raises the oxygen driving force (as the model's 1 bar of extra pressure does) but does not help
 CO₂, which leaves in proportion to the difference between its pressure in the liquid and in the sweep gas. The difficulty is area.
 An inner cylinder 0.8 m across in the 20 m³ tank (liquid 3.74 m deep) has about 9.4 m² of wall. Removing Humbird's optimistic design's CO₂
 needs roughly 1,200–1,500 m² of membrane at the fluxes reached in blood CO₂-removal devices (`project_review.md`, item B), over 100
@@ -254,7 +254,7 @@ gas-exchange study set aside because no membrane was found that is both priced a
 | design | how it works | largest scale found | in the model |
 |---|---|---|---|
 | Caged aeration | sparger inside a fine-mesh cage | bench and pilot, microcarriers | the bubble-cage row (this section) |
-| Packed stripping column beside the tank | culture runs down packing as a film; no bubbles | not with animal cells | the "column" tank trick (`gas_exchange_study.md`) |
+| Packed stripping column beside the tank | culture runs down packing as a film; no bubbles | not with animal cells | the "column" added equipment for oxygen and CO₂ (`gas_exchange_study.md`) |
 | Membrane aeration (silicone tubing, hollow fibres, rotating membranes) | gas diffuses through a membrane | 50 L tubular pilot; dynamic membrane aeration to about 200 L | not a row; needs large area (above) |
 | Surface aeration: rocking bags, orbitally shaken tanks | gas enters through a moving free surface | rocking bags of tens of litres hold the densest CHO; orbital shakers to about 1–2.5 m³ (vendor) | not a row |
 | Airlift, internal or external loop | gas in a riser drives circulation; cells meet the bubbles | 2 m³ with animal cells (Lonza); 155 m³ for fungus (Quorn) | the airlift row |

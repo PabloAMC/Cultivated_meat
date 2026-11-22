@@ -34,7 +34,7 @@ different answers.
   rises 3,000 times faster. Viscosity first bites in the pumps and filters (Clincke 2013), and in oxygen transfer.
 - **As the density a tank can hold, 258 is too high for every design the scenarios use.** They feed oxygen with a sparger, and
   viscosity cuts the oxygen transfer: the sparger's limit falls from 196 to 154 g/L in the low-lactate example's tank, from 198 to
-  155 g/L in the all-favourable example's and from 120 to 103 g/L in the cautious case's. With no tricks CO2 stops a tank at 120 g/L.
+  155 g/L in the all-favourable example's and from 120 to 103 g/L in the cautious case's. With no added equipment for oxygen and CO₂ CO2 stops a tank at 120 g/L.
   A closed loop of recycled oxygen avoids the sparger's limit, but it fails the model's pH and pass-rate checks above about 215 g/L
   in the all-favourable example (section 6).
 - **The cost is not sensitive to this number.** A limit of 180, 320 or 400 g/L in place of 258 changes no scenario's cost with its
@@ -164,7 +164,7 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 
 `thick_culture.limits_at`, printed by `python thick_culture.py` ("limits of three tanks").
 
-| limit | Humbird's tank, no tricks | Low-lactate example's design | All-favourable example's design |
+| limit | Humbird's tank, no added equipment for oxygen and CO₂ | Low-lactate example's design | All-favourable example's design |
 |---|---|---|---|
 | CO2 removal | **120** (0.12) | none (column) | none (column) |
 | mixing rule (oxygen transfer vs mixing time) | 189 (0.18) | 350 | 635 |
@@ -177,7 +177,7 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 | stirrer leaves turbulent flow | 603 (0.58) | 603 | 629 |
 | TFF filter, Clincke | 518 (0.50) | 518 | 518 |
 
-- **Without tricks, the plain tank stops at 120 g/L from CO2**, then oxygen with viscosity at 121 (146 without) and the mixing rule at 189. It never reaches 258.
+- **Without the added equipment for oxygen and CO₂, the plain tank stops at 120 g/L from CO2**, then oxygen with viscosity at 121 (146 without) and the mixing rule at 189. It never reaches 258.
 - **With the column and 1 bar, oxygen with viscosity comes first** (154 and 155 g/L in the two examples, 103 in the cautious case). **Then heat** at about
   290-400 g/L, **then the ATF's vacuum** at 321 (4 L, Clincke), **then the TFF at 518**. Stirring, the thing the 258 rule was meant to protect, comes last at about 600.
 - **With recycled oxygen (the closed loop), the first limit is the loop's own checks.** The column must pass the CO2 the sparger cannot, which grows faster than
@@ -189,7 +189,7 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 ## 7. What the cost does if the density limit is 180, 258, 320 or 400 g/L
 
 `thick_culture.cost_by_cap(key)`, printed by `python thick_culture.py`. Two readings. **Fixed**: the scenario's own tank design, the loop's checks not
-applied. **Checked**: the tank tricks and shape chosen again among the scenario switches' settings, as `scenarios.design` does, with the loop's checks applied
+applied. **Checked**: the added equipment for oxygen and CO₂ and shape chosen again among the scenario switches' settings, as `scenarios.design` does, with the loop's checks applied
 (a design whose column breaks the pH or pass-rate rules is refused). $/kg; the density reached in brackets.
 
 | scenario | 180 | 258 (model) | 320 | 400 |
@@ -231,14 +231,14 @@ Evidence for the densities shown: Clincke 4 L, 2.14e8 cells/mL (phi 0.5) with a 
 | statement | 258 g/L | 320 g/L | 400 g/L |
 |---|---|---|---|
 | A. Viscosity, stirrer and cavern do not stop the tank (phi 0.25 / 0.31 / 0.39) | 97% | 94% | 85% |
-| B. A, and heat and gas transfer (oxygen, CO2) work with the tricks, at any cost | 51% | 28% | 12% |
+| B. A, and heat and gas transfer (oxygen, CO2) work with the added equipment, at any cost | 51% | 28% | 12% |
 | C. B, and a retention device holds it a month at the low-lactate example duty (`retention_devices.md`: 35% at 258) | **18%** | **6%** | 1% |
-| a plain sparged tank, no tricks, holds it | 1% | under 1% | under 1% |
+| a plain sparged tank, no added equipment for oxygen and CO₂, holds it | 1% | under 1% | under 1% |
 
-How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the tricks (55%, 33%, 17%); C = B x retention (35%, 20%, 8%).
+How the rows combine: B = A x heat (95%, 90%, 80%) x gas side given the added equipment (55%, 33%, 17%); C = B x retention (35%, 20%, 8%).
 - A is high because the Reynolds number is 2e5 to 9e4 and the yield stress is tiny. The risk in A is meat cells, which may clump and rise in viscosity in ways CHO does not (fibroblasts, DNA from lysed
   cells), and the measured shear thinning, which reaches 3 times.
-- The gas side is the repo's untested tricks: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 258 g/L the recycled-oxygen loop needs about 30 passes an hour in the all-favourable example; the low-lactate example's sparger cannot feed more than 154 g/L.
+- The gas side is the repo's untested added equipment for oxygen and CO₂: a column loop at the pass rate and pH exposure needed, 1 bar of headspace and recycled oxygen. At 258 g/L the recycled-oxygen loop needs about 30 passes an hour in the all-favourable example; the low-lactate example's sparger cannot feed more than 154 g/L.
 - Retention is the largest risk. The ATF stopped at 1.3e8 cells/mL (phi 0.31); only the TFF has gone beyond, and only for days at 4 L.
 - Two comparison points. At 180 g/L: A 98%, B 70%, C about 40% (retention 55%). At 120 g/L, Humbird's optimistic design, `retention_devices.md` gives 75%.
 

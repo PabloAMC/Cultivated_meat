@@ -123,9 +123,9 @@ def check() -> list:
     if not V.what_if_bed(ref)["total"] > gr[("stirred", "perfusion")]["cost"]:
         fails.append("even the most favourable packed bed should cost more than a stirred tank in perfusion")
     # 2026-11-20 (final pass): before, the central airlift ran dense enough (139 g/L) that the column loop failed its check and fell
-    # back to a lesser trick; held by mixing at 87 g/L, the column strips a thinner culture and passes with the case's own tricks
+    # back to a lesser trick; held by mixing at 87 g/L, the column strips a thinner culture and passes with the case's own added equipment
     if gc[("airlift", "perfusion")]["tricks_fallback"] not in (None, "") or gc[("airlift", "perfusion")]["limit"] != "mixing":
-        fails.append("central airlift perfusion: held by mixing, the loop should pass with the case's own tricks")
+        fails.append("central airlift perfusion: held by mixing, the loop should pass with the case's own added equipment")
     # 6. every combination has a maturity tag and evidence
     for k in [(v, m) for v in V.VESSEL_ORDER for m in V.MODE_ORDER]:
         if k not in V.TAGS:

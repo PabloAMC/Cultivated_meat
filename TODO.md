@@ -101,13 +101,17 @@ Open pull requests (each says "no default changes" unless noted):
       of it (1.02 utils, was 0.68). That alone takes the all-favourable example from 24.6% to 23.4% with its own demand. It is the
       existing rule on a better-measured weight; whether a blend should lose that share of the ordinary shopper's dislike of
       plant-based meat is unmeasured (see the cut's cell share below).
-- [ ] **Price sensitivity across all shoppers** (4 to 10 times between groups). Done for plant-based meat's committed buyers, for its
-      price only (above). Not done shopper-wide: it is not needed to pass a check, and its one free part, how much the
-      price-insensitive like cultivated meat, is unmeasured. Tried on 2026-11-21 (`demand_checks.md` section 6): a class of 8-30% of
-      shoppers at 0.10-0.25 times the price response, with the spread of liking refitted, lowers the spread's joint misfit (4.2 to
-      1.7-3.0) and multiplies the low-lactate example's share by about 2 to 8, but leaves salmon failing. **Decision for the
-      owner**: whether to add it, and how hostile to cultivated meat its shoppers are (the evidence says the price-insensitive are
-      the most hostile; no study measures by how much).
+- [x] **Price sensitivity across all shoppers** (4 to 10 times between groups). Done 2026-11-22 (fifth batch;
+      `demand_checks.md` section 7): 8% of every segment's shoppers (`price_insensitive_share`, 8-15%) respond 0.11 times as
+      strongly to every price (`price_insensitive_response`, 0.10-0.25), both fitted within the evidence to the demand checks
+      jointly, with the spread of liking refitted (3.55 utils, tail 7). Their liking for cultivated meat
+      (`price_insensitive_liking`) is 0 utils above other shoppers' (range -2 to +2), read in utils from the two latent-class
+      studies (Washio 2023, Carzedda & Troiano 2021), in which the price-insensitive are the most hostile in money but not in utils.
+      The joint misfit fell from 4.20 to 0.87; the low-lactate example's share rose from 0.045% to 0.26% of world meat.
+- [ ] **How much the price-insensitive shoppers like cultivated meat** (2026-11-22). 97% of the low-lactate example's sales go to
+      them, and across the input's range (-2 to +2 utils) its share runs from 0.11% to 0.58%. Two stated-choice latent-class
+      studies are the only evidence. A latent-class or mixed-logit study that reports the joint distribution of the price
+      coefficient and the liking for cultivated meat, ideally in a real-purchase setting, would pin it.
 - [x] **Repeat buying and dropping out** in `adoption_timing.py` (done 2026-11-21, fourth batch; `repeat_rate` 0.62, 0.50-0.75, from
       GFI/SPINS 2025; `lapse_rate` 0.14 a year, 0.05-0.30, from plant-based meat's household reach falling from 20% to 11% in
       2021-25, while its repeat rate stayed near 62%, not fell). The long run is unchanged; the path is slower in its first years.
@@ -116,8 +120,8 @@ Open pull requests (each says "no default changes" unless noted):
       `premium_market_sizes.md` §6; China's rows are order-of-magnitude). India's premium goat and seafood rows are unchecked.
 - [x] #19 Plain, direct sentences for all page text (wording only): done 2026-11-21 (fourth batch, CHANGELOG). Every meat price names
       its meat ("same shop price as US minced beef or pork cuts", "the price of the conventional meat it copies"); no "out of reach",
-      "beat", "path", "ladder" or "frame"; dollars are 2025 dollars. Kept: the setting's name "tank tricks" (a rename is a naming
-      decision for Pablo, since the name is defined where it is used).
+      "beat", "path", "ladder" or "frame"; dollars are 2025 dollars. The setting's name was renamed on 2026-11-22 (fifth batch):
+      "Added equipment for oxygen and CO₂".
 - [x] #29 The frontier: replaced on 2026-11-20 by the path from Humbird's design to the all-favourable example (`frontier.py`, $15.95 → $7.62).
 - [x] #30 Filter flux: the flux is not the limit, the membrane's throughput is. Settled on 2026-11-20 with #45: `rt_membrane_life`
       is Humbird's 2,415 L/m² at his price.
@@ -188,12 +192,13 @@ Raised by Pablo on 2026-11-16 (open):
 - [x] **The audit batch** (2026-11-19, `audit_2026-11-19.md`): ammonia tolerance 4 mM, lost-run membranes, glucose balance, seafood
       prices, the tier rule replaced, the equal-price share's range, the cut's inputs in the bands, the median as headline.
 - [x] **The tail of shoppers' liking** (2026-11-19): Student's t, sd 3.9, 4 degrees of freedom; the 15-point rule replaced.
-- [ ] **Farmed salmon's response still fails** (3.7-4.2 against 1-1.5). Checked again 2026-11-21 (fourth batch) with the machinery of
-      the committed buyers applied to every shopper and the spread refitted (`demand_checks.md` section 6): the best fits that meet
-      the choice experiment's requirements give 1.3-4.3, never inside 1-1.5 for all four products; only with a tenth of the price
-      response does the cheapest get inside (1.3), and a fifth of shoppers at a tenth (1.1-3.1) breaks the first-contact requirement. Why, as far as the
-      model can say: farmed salmon had buyers who liked it and paid little attention to price; for cultivated meat the
-      price-insensitive are the most hostile. Left failing and documented.
+- [ ] **Farmed salmon's response still fails, narrowed** (1.5-4.0 against 1-1.5 since 2026-11-22; 3.7-4.2 before). With the
+      price-insensitive shoppers in the model (`demand_checks.md` section 7) the dearest premium product (organic chicken, 4.7
+      times its meat's price) responds at 1.52, the top of salmon's range; heritage pork 1.84, premium fillets and shrimp 2.36 and
+      sushi-grade seafood, nearest its meat's price, 4.00. No setting of the class within the evidence puts all four inside: with
+      a tenth of the price response the range is 1.42-3.96, with 15% of shoppers 1.23-3.29 (at a misfit of 4.4). Why, as far as the
+      model can say: near meat's price a product's buyers are mostly ordinary shoppers, whose response is steep; farmed salmon's
+      buyers liked it and paid little attention to price at a modest premium. Left failing and documented.
 - [x] **Page leftovers** (done 2026-11-21, fourth batch): the charts of levels 4-5 are drawn at the screen's width on a phone (under
       560 px; `lvW`, `lvBox`), with their names and keys moved inside or under the plot; the entry-points chart has one colour, no
       zones; `tests/render_probe.js` draws the first screen's bars of each kind of meat (`tpSellBars`); the unused generators of
@@ -223,11 +228,14 @@ Raised by Pablo on 2026-11-16 (open):
       level-4 switch and the cells-by-tank rows are named by their ammonia and lactate since the fourth batch); the page opens at
       Humbird's best estimate and leads with no number but the floor and the best the model finds; no reference that gives only a
       cost is drawn on the share map; white background, Computer Modern. `tests/test_easy_view.py` checks most of this.
-- [ ] **The page, what is left** (each needs a decision): (a) level 4 keeps two explorers of its own, the eleven scenario switches
-      and "Every cell and tank setting" (its own sliders and a "Start from a kind of cell" list of reported cells), beside the first
-      screen's levers: fold them into the levers, or keep them as a second view; (b) the methods prose and the shopper histogram
-      quote shares as the median of draws with the shopper settings drawn too (a band statement, not a cost); (c) "tank tricks"
-      as a name.
+- [x] **The page: one set of controls** (a): done 2026-11-22 (fifth batch, CHANGELOG). The side bar is the page's only set of
+      controls: the level "How the tank and the plant set the cost" lost its eleven switches and "Every cell and tank setting"; what
+      the side bar lacked moved into it by section (the tank design and its button, the plant item by item and two more plant
+      classes, reported cells, the other reference points, ten more levers); the level shows results only, from the side bar's state.
+- [x] **"Tank tricks" renamed** (c): done 2026-11-22 (fifth batch). The setting is "Added equipment for oxygen and CO₂" on the
+      page, in scenarios.py and in the documents; code keys (`tricks`, "none"/"column"/"pressure"/"oxygen") unchanged.
+- [ ] **The page, what is left**: (b) the methods prose and the shopper histogram quote shares as the median of draws with the
+      shopper settings drawn too (a band statement, not a cost).
 - [x] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng weight of the cells that make almost no ammonia or lactate (2026-11-19: RESULTS,
       METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia below 0.14 mol a kilo in any meat

@@ -224,6 +224,13 @@ class DemandParams:
     pb_committed_volume: float = value("pb_committed_volume")
     pb_committed_price_x: float = value("pb_committed_price_x")
     pb_committed_liking: float = value("pb_committed_liking")   # SOLVED (solve_calibration)
+    # The price-insensitive shoppers (2026-11-22, fifth batch): a share price_insensitive_share of every segment's shoppers whose
+    # response to every price is price_insensitive_response times other shoppers' (both channels, every product) and whose
+    # liking for cultivated meat is price_insensitive_liking utils above other shoppers'. In the calibration and in every share
+    # with a spread of liking; not with liking_sd = 0 (every shopper alike). price_insensitive_share = 0 gives the model before.
+    price_insensitive_share: float = value("price_insensitive_share")
+    price_insensitive_response: float = value("price_insensitive_response")
+    price_insensitive_liking: float = value("price_insensitive_liking")
     pinned_weights: frozenset = frozenset()
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
@@ -548,8 +555,8 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
 
 
 def _mix(M: dict, K: dict, k: float) -> dict:
-    """The mainstream's shares: its ordinary shoppers' M and, a share k of the segment, the committed buyers of plant-based
-    meat's K."""
+    """Shares of a group of shoppers made of two classes: M and, a share k of the group, K (the mainstream's ordinary shoppers
+    and the committed buyers of plant-based meat; or a segment's other shoppers and its price-insensitive shoppers)."""
     return {j: (1.0 - k) * M[j] + k * K[j] for j in M}
 
 
@@ -686,21 +693,27 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
         liking = (mean, sd, nodes, weights)
     else:
         liking = None
-    M = _segment(R, pr, beta, "M", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x, liking=liking)
-    E = _segment(R, pr, beta, "E", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                 neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                 cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                 slaughter_free_x=slaughter_free_x, liking=liking)
+    kw = dict(accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset, neophobia_x=nbx, neophobia_p=nbp, income=inc,
+              health_x=health_x, health_p=health_p, cultivated_present=cultivated_present, p_ref=p_ref, kappa=kappa,
+              slaughter_free_x=slaughter_free_x)
+    # THE PRICE-INSENSITIVE SHOPPERS (2026-11-22, fifth batch): a share q of every segment responds m times as strongly to every
+    # price (their price sensitivity is an elasticity override eps * m: both channels, the cap included) and likes cultivated
+    # meat by d utils more. Only with a spread of liking: liking_sd = 0 is every shopper alike.
+    q = pr.price_insensitive_share if liking is not None else 0.0
+    if q > 0.0:
+        m = pr.price_insensitive_response
+        beta_q = _effective_beta(pr, eps * m, inc, p_ref)
+        liking_q = (liking[0] + pr.price_insensitive_liking,) + liking[1:]
+
+    def seg(sg):
+        s = _segment(R, pr, beta, sg, ratio_scale=eps / pr.eps_own, liking=liking, **kw)
+        if q > 0.0:
+            s = _mix(s, _segment(R, pr, beta_q, sg, ratio_scale=eps * m / pr.eps_own, liking=liking_q, **kw), q)
+        return s
+    M, E = seg("M"), seg("E")
     w = pr.w_eth
     if pr.pb_committed_share > 0.0:   # the mainstream is its ordinary shoppers and the committed buyers of plant-based meat
-        K = _segment(R, pr, beta, "K", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
-                     neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
-                     cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
-                     slaughter_free_x=slaughter_free_x, liking=liking)
-        M = _mix(M, K, pr.pb_committed_share / (1.0 - w))
+        M = _mix(M, seg("K"), pr.pb_committed_share / (1.0 - w))
     if which == "x_meat":           # cultivated meat's share of the meat sold: x / (x + c), both segments mixed (2026-11-19, audit 6a)
         x = w * E["x"] + (1.0 - w) * M["x"]
         return float(x / max(x + w * E["c"] + (1.0 - w) * M["c"], 1e-300))
@@ -718,15 +731,8 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
     n = R.shape[0]
     b = lambda a: np.broadcast_to(np.asarray(a, dtype=float), (n,))
     toff, eps, kap, pref, eq = b(tier_offset), b(eps_own), b(kappa), b(p_ref), b(equal_share)
-    # _effective_beta
-    f = eps / pr.eps_own
-    beta = pr.beta_ref * f
-    y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient
-    denom = (pr.income_ref - pr.anchor_price) * pref
-    capped = np.minimum(beta, pr.w_ratio * f * (y_eff - pref) / np.where(denom > 0, denom, 1.0) - 1e-6)
-    beta = np.where(denom > 0, capped, beta)
-    ratio_scale = eps / pr.eps_own
-    # the product table, rows = draws, columns = [w, c, p, x]
+    # the price-insensitive shoppers (share): a share q of every segment at an elasticity override eps * m, liking shifted by d
+    q = pr.price_insensitive_share if pr.liking_sd > 0.0 else 0.0
     one = np.ones(n)
     price_ratio = np.stack([pr.price_wf_mult * one, one, pr.price_pb_mult * one, R], axis=1)
     taste = np.array([pr.taste_quality_w, 0.0, pr.taste_quality_p, pr.accept_x - 1.0])
@@ -735,14 +741,27 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
     health = np.array([pr.health_w, pr.health_c, pr.health_p, pr.health_x])
     asc = np.stack([0.0 * one, 0.0 * one, pr.neophobia_p * one, pr.neophobia_x + toff], axis=1)
     price = price_ratio * pref[:, None]
-    alpha = -beta * (pr.income_ref - pr.anchor_price)
-    V_price = alpha[:, None] * np.log(np.maximum(y_eff - price, 1.0))
     premium = price_ratio - 1.0
-    V_loss = pr.w_ratio * ratio_scale[:, None] * (-pr.loss_aversion * np.maximum(0.0, premium) + np.maximum(0.0, -premium))
+    y_eff = pr.income_ref * (income / pr.income_ref) ** pr.income_gradient
+    denom = (pr.income_ref - pr.anchor_price) * pref
     kr = kap / pr.kappa_base
     moved = kr != 1.0
-    V_price[:, 3] = np.where(moved, V_price[:, 1] + kr * (V_price[:, 3] - V_price[:, 1]), V_price[:, 3])
-    V_loss[:, 3] = np.where(moved, kr * V_loss[:, 3], V_loss[:, 3])
+
+    def price_terms(e):
+        """V_price, V_loss (draws x products) at elasticity e per draw: _effective_beta and _utilities' price part."""
+        f = e / pr.eps_own
+        beta = pr.beta_ref * f
+        capped = np.minimum(beta, pr.w_ratio * f * (y_eff - pref) / np.where(denom > 0, denom, 1.0) - 1e-6)
+        beta = np.where(denom > 0, capped, beta)
+        alpha = -beta * (pr.income_ref - pr.anchor_price)
+        V_price = alpha[:, None] * np.log(np.maximum(y_eff - price, 1.0))
+        V_loss = pr.w_ratio * f[:, None] * (-pr.loss_aversion * np.maximum(0.0, premium) + np.maximum(0.0, -premium))
+        V_price[:, 3] = np.where(moved, V_price[:, 1] + kr * (V_price[:, 3] - V_price[:, 1]), V_price[:, 3])
+        V_loss[:, 3] = np.where(moved, kr * V_loss[:, 3], V_loss[:, 3])
+        return V_price, V_loss
+    terms = {0: price_terms(eps)}
+    if q > 0.0:
+        terms[1] = price_terms(eps * pr.price_insensitive_response)
     # liking spread
     sd = pr.liking_sd
     if sd > 0.0:
@@ -750,11 +769,12 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
         mean = np.interp(eq, shares_tab, means)
         nodes, weights = (np.asarray(a, dtype=float) for a in pr.spread)
 
-    def segment(seg):
+    def segment_one(seg, cls):
         if seg in ("M", "K"):
             w_sl, w_rt, w_h = pr.theta_free_M, pr.w_realtissue_M, pr.w_health_M
         else:
             w_sl, w_rt, w_h = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
+        V_price, V_loss = terms[cls]
         Vp, Vl, a = V_price, V_loss, asc
         if seg == "K":                 # the committed buyers of plant-based meat (_utilities)
             a = asc.copy()
@@ -765,7 +785,8 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
                 Vl[:, 2] = pr.pb_committed_price_x * Vl[:, 2]
         V = ((Vp + Vl) + pr.w_taste * taste + w_sl * slaughter_free + w_rt * real_tissue + w_h * health + a)
         if sd > 0.0:
-            Vx = V[:, 3:4] + mean[:, None] + sd * nodes[None, :]
+            mu = mean + pr.price_insensitive_liking if cls == 1 else mean
+            Vx = V[:, 3:4] + mu[:, None] + sd * nodes[None, :]
             m = np.maximum(V[:, :3].max(axis=1), Vx.max(axis=1))
             e = np.exp(V[:, :3] - m[:, None])
             ex = np.exp(Vx - m[:, None])
@@ -774,6 +795,13 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
         e = np.exp(V - V.max(axis=1)[:, None])
         P = e / e.sum(axis=1)[:, None]
         return P[:, 1], P[:, 3]
+
+    def segment(seg):
+        c, x = segment_one(seg, 0)
+        if q > 0.0:                    # _mix with the segment's price-insensitive shoppers
+            cq, xq = segment_one(seg, 1)
+            c, x = (1.0 - q) * c + q * cq, (1.0 - q) * x + q * xq
+        return c, x
 
     cM, xM = segment("M")
     cE, xE = segment("E")
@@ -826,9 +854,15 @@ def _rate(pr: DemandParams, seg: str, which: str) -> float:
     # whole mainstream (ordinary shoppers and committed buyers together; "M" when there are no committed buyers).
     rtp = pr.real_tissue_p
     pr.real_tissue_p = value("real_tissue_p")
-    one = lambda sg: _segment(1.0, pr, pr.beta_price, sg, accept_x=1.0, theta_free_M=0.0,
-                              tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
-                              health_x=0.0, health_p=0.0, cultivated_present=False)
+    q, m = pr.price_insensitive_share, pr.price_insensitive_response
+
+    def one(sg):
+        kw = dict(accept_x=1.0, theta_free_M=0.0, tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
+                  health_x=0.0, health_p=0.0, cultivated_present=False)
+        s = _segment(1.0, pr, pr.beta_price, sg, **kw)
+        if q > 0.0:   # the price-insensitive shoppers of this segment (share, _insensitive)
+            s = _mix(s, _segment(1.0, pr, _effective_beta(pr, pr.eps_own * m, pr.income_ref, None), sg, ratio_scale=m, **kw), q)
+        return s
     try:
         if seg == "Mall":
             s = one("M")

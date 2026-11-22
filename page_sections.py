@@ -35,7 +35,7 @@ _GRID_CELLS = (("engineered", "24", ""),
                ("ordinary", "30", "meat cells fed glutamine, which double in 26 h"))
 _GRID_TANKS = (("none", "Gas bubbled in only", "the standard tank"),
                ("column", "With a column", "a pumped loop strips CO₂"),
-               ("oxygen", "Column, pressure and recycled oxygen", "all three tank tricks"))
+               ("oxygen", "Column, pressure and recycled oxygen", "all three pieces of added equipment for oxygen and CO₂"))
 
 
 # ----------------------------------------------------------------------------
@@ -58,10 +58,10 @@ def _vm_size(m3: float) -> str:
 
 
 def _vm_fallback_text(c: dict) -> str:
-    """Why a vessel's cost uses fewer tank tricks than the scenario (mirrored by vmFallbackText in page_vessels.js)."""
-    return ("The scenario clears CO₂ with “tank tricks”: a column beside the tank that strips it without bubbles, and the options that go "
+    """Why a vessel's cost uses fewer added equipment for oxygen and CO₂ than the scenario (mirrored by vmFallbackText in page_vessels.js)."""
+    return ("The scenario clears CO₂ with “added equipment for oxygen and CO₂”: a column beside the tank that strips it without bubbles, and the options that go "
             "with it. This vessel is taller, so the column would keep too much of the culture at a high pH, which slows cell growth. The cost "
-            f"here uses what passes that check: “{_esc(c['tricks_fallback'])}”. With the scenario’s own tricks at full density it would be "
+            f"here uses what passes that check: “{_esc(c['tricks_fallback'])}”. With the scenario’s own added equipment at full density it would be "
             f"{_vm_money(c['unchecked_cost'])}.")
 
 

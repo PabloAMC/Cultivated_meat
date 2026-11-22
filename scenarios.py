@@ -6,20 +6,20 @@ Why
 ---
 Earlier versions of this model quoted one number, "the floor", as if it were the lowest cost the physics allows.
 It was neither an all-favourable nor a typical case: it was `floor_physics.explore()` at its defaults (a standard
-20 m3 stirred tank in perfusion, 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no tank tricks). That number is
+20 m3 stirred tank in perfusion, 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no added equipment for oxygen and CO₂). That number is
 kept as a labelled REFERENCE (`reference()`), and everything else is described as SCENARIOS: each is a preset of a
 small set of SWITCHES, one per decision that moves the cost. Every figure is computed from the model.
 
 The pieces
 ----------
-SWITCHES   the decisions (kind of cells, growth speed, plant, gas the cells tolerate, tank tricks, tank shape, runs
+SWITCHES   the decisions (kind of cells, growth speed, plant, gas the cells tolerate, added equipment for oxygen and CO₂, tank shape, runs
            lost, restart time, growth factors, medium price). Each has settings; each setting is an
            `floor_physics.explore()` argument set, a plain-language label, and a tag for what it needs:
            genetic engineering / selection or adaptation / a change of feed or process / nothing new.
 SCENARIOS  presets of the switches, each with a one-sentence story of what has to go right.
 priorities()   for one scenario, what each switch is worth if it moved to its best or its worst setting.
 grid()         two switches against each other.
-interactions() which switches do not add up (a tank trick matters little if the cells waste a lot), as sentences.
+interactions() which switches do not add up (a piece of added equipment for oxygen and CO₂ matters little if the cells waste a lot), as sentences.
 cell_traits()  the four cell traits a choice gives (ammonia, lactate, doubling time, cell mass); run(choice, **traits) and
                scenario_mc(choice, traits=...) take them directly (2026-11-19); cell_traits.best_in_meat_cells gives the best level of each
                measured in meat cells. The named cases are reference points defined by their traits.
@@ -168,7 +168,7 @@ SWITCHES = (
                 "Twice what has been run in tanks of 8 to 20 m³."),
         Setting("2", "Up to 2 mm a second", {"gas_velocity": value("sc_gas_low")}, NOTHING,
                 "About the most that has been run with cells in tanks of 8 to 20 m³ (Nienow 2006)."))),
-    Switch("tricks", "Tank tricks", "Ways to clear CO₂ and supply oxygen without more bubbles", (
+    Switch("tricks", "Added equipment for oxygen and CO₂", "Ways to clear CO₂ and supply oxygen without more bubbles", (
         Setting("none", "None: gas bubbled in at the base", {}, NOTHING, "The standard stirred tank."),
         Setting("column", "A column beside the tank that strips CO₂ without bubbles", dict(_COL), FEED,
                 "A pump sends culture down a packed column. The size is calculated. No animal cells have gone through one."),
@@ -229,7 +229,7 @@ _SHORT = {
     ("cells", "ordinary"): f"ammonia {value('sc_nh3_ordinary'):.2f}, lactate {value('sc_lac_measured'):.2f} (fed glutamine)", ("growth", "24"): "24 h", ("growth", "30"): "30 h", ("growth", "36"): "36 h", ("growth", "43"): "43 h",
     ("plant", "lean"): "food-grade, shared medium", ("plant", "sterile"): "food-grade plant", ("plant", "pharma"): "pharma-style plant",
     ("gas", "6"): "6 mm/s", ("gas", "4"): "4 mm/s", ("gas", "2"): "2 mm/s",
-    ("tricks", "none"): "no tricks", ("tricks", "column"): "column", ("tricks", "pressure"): "column + pressure",
+    ("tricks", "none"): "none", ("tricks", "column"): "column", ("tricks", "pressure"): "column + pressure",
     ("tricks", "oxygen"): "column + pressure + oxygen",
     ("shape", "flat"): "0.5 deep/wide", ("shape", "squat"): "0.75", ("shape", "square"): "1.0", ("shape", "tall"): "1.6",
     ("losses", "0.2"): "0.2% a day", ("losses", "0.6"): "0.6% a day", ("losses", "1"): "1% a day", ("losses", "2"): "2% a day",
@@ -479,7 +479,7 @@ def favourable_levers() -> list:
         row("Gas flow the cells tolerate", ("gas_velocity",), "cost", "setting of the gas switch",
             (tuple(st.key for st in SW["gas"].settings), "every setting of the gas switch: more gas passes more oxygen and kills more cells"),
             ("6", "his 6 mm a second")),
-        row("Tank tricks and tank shape", ("column", "col_pout", "p_top_barg", "aspect"), "cost", "settings of the two tank-design switches",
+        row("Added equipment for oxygen and CO₂, and tank shape", ("column", "col_pout", "p_top_barg", "aspect"), "cost", "settings of the two tank-design switches",
             ("design()", "the cheapest pair that passes the checks on the CO₂ loop"), (("none", "tall"), "an ordinary tall tank")),
         row("Size of the tank", ("vessel_m3",), "cost", "m³",
             (value("vm_str_m3"), "the model's tank (vm_str_m3)"), (20.0, "his fed-batch tanks; his perfusion tanks are 2 m³ (Sect. 4.2)")),
@@ -592,7 +592,7 @@ def all_favourable() -> dict:
         if r["better"] != "cost":
             continue
         r["value"] = {"The plant": c["plant"], "The device that holds the cells back": dev, "How the tank is run": c["mode"],
-                      "Gas flow the cells tolerate": c["gas"], "Tank tricks and tank shape": (c["tricks"], c["shape"]),
+                      "Gas flow the cells tolerate": c["gas"], "Added equipment for oxygen and CO₂, and tank shape": (c["tricks"], c["shape"]),
                       "Size of the tank": size}[r["lever"]]
         r["source"] = next((s for s, _n in FAV_SOURCES[1:] if r["sources"][s][0] == r["value"]), "model") \
             if r["sources"]["model"][0] != r["value"] else "model"
@@ -636,7 +636,7 @@ SCENARIOS = {
     "process": Scenario(
         "process", "2. Plus process changes and cheaper inputs",
         "The same cells, still grown in batches in a 20 m³ tank. Medium and growth factors fall to the prices companies announce, "
-        "and the tank may take more gas and the tank tricks. A batch this thin needs no more gas, so in fed-batch this step is "
+        "and the tank may take more gas and the added equipment for oxygen and CO₂. A batch this thin needs no more gas, so in fed-batch this step is "
         "mostly the cheaper medium.",
         "Rung 1 with every switch that needs only a change of feed, process or supply moved to the middle of what is reported; "
         "tank design the cheapest the loop checks allow.",
@@ -716,8 +716,8 @@ REFERENCE_NAME = "Humbird's optimistic design: his enhanced cells in an ordinary
 
 def reference() -> dict:
     """Humbird's optimistic design (the old 'floor'): floor_physics.explore() at its defaults. A standard 20 m3 stirred tank in
-    perfusion at 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no tank tricks, no losses, no growth factors. It assumes the
-    hardest change (cells that make almost no ammonia or lactate) and none of the easy ones (tank tricks), so it is not a rung of the LADDER. Kept so the
+    perfusion at 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no added equipment for oxygen and CO₂, no losses, no growth factors. It assumes the
+    hardest change (cells that make almost no ammonia or lactate) and none of the easy ones (added equipment for oxygen and CO₂), so it is not a rung of the LADDER. Kept so the
     Humbird cross-checks and the golden tests still make sense."""
     return fp.explore()
 
@@ -751,7 +751,7 @@ MEDIUM_PLAIN = {"ammonia": "washing out ammonia", "lactate": "washing out lactat
 
 
 # ----------------------------------------------------------------------------
-# The tank tricks a scenario relies on, and what it costs without them
+# The added equipment for oxygen and CO₂ a scenario relies on, and what it costs without them
 # ----------------------------------------------------------------------------
 _TRICK_PARTS = {"column": ("a column beside the tank that strips CO\u2082 without bubbles",),
                 "pressure": ("a column beside the tank that strips CO\u2082 without bubbles", "1 bar of extra pressure in the tank"),
@@ -783,7 +783,7 @@ def tricks_sentence(choice: dict) -> str:
     if not t["used"]:
         return ""
     return (f"Nobody has run this tank design with animal cells. It uses {plain_list(t['used'])}. "
-            f"Without these tricks, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape. That is ${t['d_no_tricks']:.1f} more."
+            f"Without this equipment, a kilo costs ${t['no_tricks']:.1f} in a tank of the same shape. That is ${t['d_no_tricks']:.1f} more."
             + ("" if choice["shape"] == "tall" else f" In the ordinary tall tank, a kilo costs ${t['ordinary_tank']:.1f}."))
 
 
@@ -1330,7 +1330,7 @@ def main() -> None:
         print(markdown_table())
         return
     ref = reference()
-    print(f"Reference (what earlier versions called the floor): standard perfusion tank, no tricks: ${ref['total']:.2f}/kg, "
+    print(f"Reference (what earlier versions called the floor): standard perfusion tank, no added equipment for oxygen and CO₂: ${ref['total']:.2f}/kg, "
           f"{ref['density']:.0f} g/L ({ref['limit']}), world share {shares(ref['total'])['global']:.1f}%")
     print(f"As a company reports: ${reported_cost():.2f}/kg, world share {shares(reported_cost())['global']:.1f}%\n")
     for key in ORDER:

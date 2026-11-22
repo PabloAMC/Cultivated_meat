@@ -57,7 +57,7 @@ def check() -> list:
     # route that takes lactate saves more than it does in the low-lactate example. Before, reuse was capped at $4.6 for these cells.
     names = list(M.routes())
     # 2026-11-19 restructure: rung 1 ("today") is a fed-batch with nothing to reuse; the published cells in perfusion are "cautious"
-    # (the same switches as the old rung 1, with the tank tricks and the tank design chosen)
+    # (the same switches as the old rung 1, with the added equipment for oxygen and CO₂ and the tank design chosen)
     t0, c0 = s["cautious"], s["central"]
     if t0["base"]["medium_set_by"] != "lactate" or c0["base"]["medium_set_by"] != "ammonia":
         fails.append("lactate should set the published cells' litres and ammonia the low-lactate example's")

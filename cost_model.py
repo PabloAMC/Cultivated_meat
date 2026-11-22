@@ -20,7 +20,7 @@ component-based number you can poke. The two questions it answers:
   1. "What if the medium gets cheaper?"  -> vary `media_price` (0.50 -> 0.2 $/L).
   2. "What is the reference case?"       -> `cost_floor()` (kept under its old name) adds the
                                             amino-acid feedstock the cells must eat to the
-                                            plant term of a standard perfusion tank, no tricks.
+                                            plant term of a standard perfusion tank, no added equipment for oxygen and CO₂.
                                             It is a reference, not a limit: the scenarios in
                                             scenarios.py go below it.
 
@@ -196,7 +196,7 @@ def biomass_cost(pr: CostParams, media_price=None, efficiency=None):
 
 def cost_floor(pr: CostParams) -> float:
     """The REFERENCE cost (what earlier versions called the floor), $/kg: stoichiometric amino-acid feedstock + bulk
-    glucose/nutrients + the plant term of a standard perfusion tank, no tank tricks. Not a limit: the best-case
+    glucose/nutrients + the plant term of a standard perfusion tank, no added equipment for oxygen and CO₂. Not a limit: the best-case
     scenario (scenarios.py) is below it.
 
     The reducible parts (recombinant albumin/growth factors, single-use filters,

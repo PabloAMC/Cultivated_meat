@@ -8,7 +8,7 @@ The scenarios use a 20 m3 stirred tank in perfusion (the all-favourable example 
 ones: 42 m3). Larger tanks cost less per m3 (since 2026-11-20 the tank, its makeup tanks and filter housings and the
 buildings are charged per tank as well as per m3: floor_physics.tank_items, capex_at_size) but are deeper, so they clear
 less CO2 and mix more slowly. The scenarios'
-tank tricks (a stripping column, extra pressure, recycled oxygen, a squat shape) are meant to lift those limits. This
+added equipment for oxygen and CO₂ (a stripping column, extra pressure, recycled oxygen, a squat shape) are meant to lift those limits. This
 module scans cost against tank size, 2 to 200 m3, for each scenario's switches and for the reference case. At each size
 it chooses the tank design again, as `scenarios.design` does: the cheapest pair of tricks and shape (16 pairs) whose
 column loop is pH-safe and runs at a pass rate dense cultures have taken. It calls `floor_physics.explore` and adds no
@@ -44,7 +44,7 @@ from inputs import prior, value
 
 SIZES = (2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0)       # m3, the scan the page of results is built on
 CASES = ("reference", "reference_redesigned", "best", "central", "central_lean", "cautious")
-LABELS = {"reference": "Reference (Humbird's tank, no tricks)", "reference_redesigned": "Reference, tank design chosen again",
+LABELS = {"reference": "Reference (Humbird's tank, no added equipment for oxygen and CO₂)", "reference_redesigned": "Reference, tank design chosen again",
           "best": "All-favourable example", "central": "Low-lactate example", "central_lean": "Low-lactate example, food-grade plant with shared medium",
           "cautious": "Cautious", "engineered": "Cells that make almost no ammonia or lactate (rung 6)"}
 SEARCH_RANGE = (2.0, 200.0)                              # the sizes the optimum is searched over
@@ -83,7 +83,7 @@ def _opts(change: dict | None) -> dict:
 
 def _designs(case: str) -> list:
     """The (tricks, shape) pairs a case may choose from, in `scenarios.design`'s order. The reference as defined has
-    one: no tricks, Humbird's tall tank."""
+    one: no added equipment for oxygen and CO₂, Humbird's tall tank."""
     if case == "reference":
         return [("none", "tall")]
     return [(tk.key, sh.key) for tk in S.SW["tricks"].settings for sh in S.SW["shape"].settings]
@@ -240,7 +240,7 @@ def _grid(lo: float = SEARCH_RANGE[0], hi: float = SEARCH_RANGE[1], ratio: float
 
 
 def design_limit(case: str, change: dict | None = None, hi: float = 2000.0) -> float:
-    """The largest size at which the 20 m3 design of a scenario (its own tricks and shape) passes the loop checks:
+    """The largest size at which the 20 m3 design of a scenario (its own added equipment and shape) passes the loop checks:
     found by stepping up from 20 m3 and then halving the last step. `inf` if the design has no column."""
     if case.startswith("reference"):
         return float("inf")
@@ -386,7 +386,7 @@ def main() -> None:
               f"{s['design_limit_relaxed']:.1f}); density held to {s['density_limit']:6.1f} m3; cheapest {o['size']:6.1f} m3 at "
               f"${o['total']:.2f} ({o['saving']:.2f} below 20 m3, {o['saving_pct']:.1f}%; within 1% from {o['within_1pct'][0]:.0f} to "
               f"{o['within_1pct'][1]:.0f} m3); no checks: {u['size']:.0f} m3, {u['saving_pct']:.1f}%")
-    print("\nFlatter tanks than the scenarios offer ($/kg of the cheapest tricks that pass the checks; liquid depth / width = 0.2 ... 0.5)")
+    print("\nFlatter tanks than the scenarios offer ($/kg of the cheapest added equipment that passes the checks; liquid depth / width = 0.2 ... 0.5)")
     for c in ("best", "central", "cautious"):
         for v in (20.0, 50.0, 100.0, 200.0):
             print(f"  {LABELS[c][:22]:<23}{v:5g} m3  " + "  ".join(f"{a:g}: {r['total']:6.2f} ({r['tricks']})" for a, r in flatter(c, v)))

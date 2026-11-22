@@ -64,15 +64,15 @@ def check() -> list:
         fails.append("the first three drivers should each move the low-lactate example by over $35, then the lactate tolerated, the "
                      f"lactate made and the bubble kill by over $12 each, and the protectant's price (eighth) by under $10: {order[:8]}")
     # the new rows are there, with the band status the bands' code gives them
-    # 2026-11-20: sc_p_top (the pressure of the pressure trick, 0.33-2 bar) is no longer a row. At 0.33 bar the trick adds
+    # 2026-11-20: sc_p_top (the pressure of the extra pressure, 0.33-2 bar) is no longer a row. At 0.33 bar the trick adds
     # nothing, and at 2 bar the only pH-safe design is a squat tank, where the bubbles (now charged) kill more cells, so the
     # design drops the trick: both ends cost $50.91 against $49.96 at 1 bar, under the $1 threshold. Before, the squat tank at
     # 2 bar was the cheapest design ($31.7 against $32.8).
-    # 2026-11-20 final model: sc_p_top is a row again. The pressure trick's design is chosen again at each end: at 0.33 bar
+    # 2026-11-20 final model: sc_p_top is a row again. The extra pressure's design is chosen again at each end: at 0.33 bar
     # the low-lactate example costs $52.47 and at 2 bar $51.00, against $49.50 at 1 bar, both over the $1 threshold.
     # 2026-11-21: sc_p_top is no longer a row again. The design search now holds a culture thinner when its loop fails
     # (scenarios.design), so the low-lactate example's tank design is the column with recycled oxygen, held at 168 g/L, which
-    # does not use the pressure trick: the pressure's range moves it by under $1. It keeps its reason for not being drawn
+    # does not use the extra pressure: the pressure's range moves it by under $1. It keeps its reason for not being drawn
     if "sc_p_top" in cr or A._band("sc_p_top") != A.NOT_DRAWN["sc_p_top"]:
         fails.append("sc_p_top should not be a row (the thinned oxygen-column design does not use pressure), and stays marked as a design choice not drawn")
     # maturation (pf_mature_h, 0 to 28 days) is a choice of product, left out of the tables with a stated reason
@@ -110,7 +110,7 @@ def check() -> list:
             fails.append(f"{k} should be a demand input the scan moves and the bands draw")
     # 2026-11-20 final model: the all-favourable example is now $7.62 (was $18.71) and its share 5.4% (was 1.1%), so ten
     # demand inputs move its share by 2 points or more again: 2 -> 10 rows.
-    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 10:
+    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 14:   # 14 since 2026-11-22
         fails.append(f"the demand rows have changed: {[r['key'] for r in s['demand_rows']]}")
     # taste (accept_x) left the bands on 2026-11-20: it was drawn on top of the share at equal price, which already nets it
     if "accept_x" in I.MC_DEMAND_INPUTS or A._band("accept_x") == "yes" or "accept_x" not in A.demand_inputs():
@@ -131,15 +131,17 @@ def check() -> list:
             fails.append(f"{k} now moves the share enough to be a row; the summary should say so")
         if k in dr:
             fails.append(f"{k} is a demand row; check its line reads correctly")
-    if abs(I.REGISTRY["liking_sd"].value - 3.9) > 1e-9 or abs(I.REGISTRY["liking_tail"].value - 4.0) > 1e-9:
-        fails.append("the liking spread is no longer sd 3.9 with 4 degrees of freedom; repin the shares")
+    # 2026-11-22 (fifth batch): refitted with the price-insensitive shoppers, 3.9 and 4 -> 3.55 and 7
+    if abs(I.REGISTRY["liking_sd"].value - 3.55) > 1e-9 or abs(I.REGISTRY["liking_tail"].value - 7.0) > 1e-9:
+        fails.append("the liking spread is no longer sd 3.55 with 7 degrees of freedom; repin the shares")
     # the share at each scenario's own cost, % of world meat and seafood (0.0786 and 2.8149 with the normal spread)
     # 2026-11-20 final model: 0.0456 -> 0.0466 ($49.50) and 1.1345 -> 5.4388 ($7.62, the all-favourable case redefined)
     # 2026-11-21: 0.0466 -> 0.0496 ($49.50 -> $48.68) and 5.4388 -> 6.0674 ($7.62 -> $6.97: the thinned tank design, the building's
     # power by floor and class, the crew per tank)
     # 2026-11-21 (fourth batch): 0.0496 -> 0.0455 and 6.0674 -> 5.5816 (plant-based meat's committed buyers raise the ordinary
     # shoppers' real-meat weight, and with it the blend penalty on cuts; research_notes/demand_checks.md section 5)
-    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.0455), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 5.5816)):
+    # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0455 -> 0.2588 and 5.5816 -> 5.4798
+    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.2588), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 5.4798)):
         # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         # 2026-11-20 model batch: 0.2102 -> 0.0456 and 3.1617 -> 1.1345 (the costs rose from $32.80 to $49.96 and $11.67 to $18.71)
         if abs(got - want) > 2e-3:
@@ -155,7 +157,8 @@ def check() -> list:
     # 2026-11-20 final model: ten demand rows; the ends are 0.022% and 0.33%.
     # With ten rows the retailer's margin at its high end gives 0.0220%, just under the price sensitivity's 0.0222%, so it sets
     # the low end; the price sensitivity still sets the high end.
-    if (lo_k, hi_k) != ("retail_margin", "cult_sub_mult"):
+    # 2026-11-22 (fifth batch): the share at equal price sets both ends (0.056% and 1.56%)
+    if (lo_k, hi_k) != ("equal_price_share", "equal_price_share"):
         fails.append(f"the ends of the low-lactate example's share span are now set by {lo_k} and {hi_k}; rewrite the summary")
     # pinned (2026-11-19 audit batch; before it 15 inputs moved a cost by $1 or more and 7 moved the low-lactate example by more than $3)
     # 2026-11-19: the retention study's aggregate and microcarrier inputs (16, 14 with a range) take 528 / 241 to 544 / 255
@@ -173,10 +176,12 @@ def check() -> list:
     # longer sets their density), and the harvest recovery (its 0.97-0.99 now moves the low-lactate example by just under $1)
     # 2026-11-21 (fourth batch): 611 inputs, 281 with a range (plant-based meat's committed buyers: pb_committed_share,
     # pb_committed_volume, pb_committed_price_x ranged, pb_committed_liking solved; repeat_rate and lapse_rate, ranged)
-    pins = [("inputs", s["inputs"], 611), ("with a range", s["ranged"], 281),      # liking_tail added in the second round
+    # 2026-11-22 (fifth batch): 614 inputs, 284 with a range (the price-insensitive shoppers' three inputs); demand rows 10 -> 14 (the
+    # three new inputs, and others that the higher share at the low-lactate example lifts over the thresholds)
+    pins = [("inputs", s["inputs"], 614), ("with a range", s["ranged"], 284),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
             ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
-            ("demand rows", len(s["demand_rows"]), 10)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
+            ("demand rows", len(s["demand_rows"]), 14)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
     for name, got, want in pins:
         if got != want:
             fails.append(f"{name}: {got} != pinned {want}")
@@ -205,8 +210,9 @@ def check() -> list:
     # 2026-11-20 final model: 0.0214-0.3316 -> 0.0220-0.3278; 0.3534-4.7193 -> 1.4718-19.7075 (ten demand rows)
     # 2026-11-21: 0.0220-0.3278 -> 0.0234-0.3429; 1.4718-19.7075 -> 1.6331-21.6175 (the costs above)
     # 2026-11-21 (fourth batch): 0.0234-0.3429 -> 0.0216-0.3103; 1.6331-21.6175 -> 1.5030-20.4019 (the blend penalty above)
-    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0216, 0.3103)),
-                            ("the all-favourable example's share span", s["best_share_span"], (1.5030, 20.4019))):
+    # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0216-0.3103 -> 0.0559-1.5650; 1.5030-20.4019 -> 1.3387-21.8664
+    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0559, 1.5650)),
+                            ("the all-favourable example's share span", s["best_share_span"], (1.3387, 21.8664))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 

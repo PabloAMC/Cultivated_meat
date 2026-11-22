@@ -12,7 +12,7 @@ a stirred tank, and only two modes differed (perfusion, and drained and refilled
 floor_physics.tiers() changes plant, mode, cells and density from one row to the next, so a reader cannot see
 what caused each step.
 
-This module holds the cells, the plant class, the tank tricks and the losses fixed (one of two settings: the
+This module holds the cells, the plant class, the added equipment for oxygen and CO₂ and the losses fixed (one of two settings: the
 reference case, floor_physics.explore() at its defaults, or a scenario from scenarios.py), and changes only the
 vessel and the mode. Every cell of the grid is a call to floor_physics.explore() with a `vm` dict (the numbers
 that make the vessel and the mode, all from inputs.py `vm_*`), so the stirred tank in perfusion IS the
@@ -24,7 +24,7 @@ stirred   Humbird's stirred tank (as everywhere else in the model).
 airlift   an airlift (draft-tube bubble column): no stirrer, gas lifts and mixes the culture. The same sparged-gas
           rules for oxygen and CO2 as the stirred tank, at the airlift's taller shape; no stirrer to pay for.
 bag       a single-use stirred bag at its largest common size: the stirred tank's physics at that size, a cheaper
-          frame, a bag thrown away each run, no pressure (so no pressure trick).
+          frame, a bag thrown away each run, no pressure (so no extra pressure).
 packed    a packed or fixed bed: cells grow on carriers in a bed that medium is pumped through. The bed's capacity per
           litre of vessel caps the density. Cells must be detached to harvest, so the bed is grown and emptied in
           cycles even when medium flows through it; some cells stay behind.
@@ -69,7 +69,7 @@ VM_KEYS = ("washed", "kind", "wv", "dil_frac", "n_doublings", "turnaround_h", "r
 TODAY, PILOT, PAPER = "done at this size", "only done smaller", "never done with animal cells"
 TAG_ORDER = (TODAY, PILOT, PAPER)
 
-# the explore() arguments of the tank tricks (scenarios.py "tricks" switch) and of the tank shape
+# the explore() arguments of the added equipment for oxygen and CO₂ (scenarios.py "tricks" switch) and of the tank shape
 _TRICK_ARGS = ("column", "col_pout", "p_top_barg")
 _SHAPE_ARGS = ("aspect",)
 
@@ -108,7 +108,7 @@ VESSELS = {
         name="Single-use bag", size=value("vm_bag_m3"),
         what="A plastic bag in a steel frame, with a stirrer. Each run uses a new bag.",
         limits="The physics is the same as in a stirred tank, at the bag's largest common size. The bag takes no pressure, so the "
-               "pressure trick does not apply. The frame is cheap, but each run uses a new bag.",
+               "extra pressure does not apply. The frame is cheap, but each run uses a new bag.",
         vm={"capex_ratio": value("vm_bag_capex_ratio"), "cons_run": value("vm_bag_cost_run")},
         tricks=False, shape=False),
     "packed": dict(
@@ -226,7 +226,7 @@ def vm_for(vessel: str, mode: str) -> dict | None:
 
 def explore_kwargs(vessel: str, mode: str, base: dict | None = None) -> dict | None:
     """explore() arguments for a vessel and a mode, on top of a case `base` (explore arguments, e.g. a scenario's).
-    The vessel replaces the tank's size and, where it has its own, shape; a vessel that cannot take the tank tricks
+    The vessel replaces the tank's size and, where it has its own, shape; a vessel that cannot take the added equipment for oxygen and CO₂
     drops them."""
     vm = vm_for(vessel, mode)
     if vm is None:
@@ -292,7 +292,7 @@ def cell(vessel: str, mode: str, base: dict | None = None) -> dict:
     fallback, unchecked = "", None
     if not _loop_ok(r):
         unchecked = r["total"]
-        # the case's tank tricks need a loop this vessel cannot run within the checks (pH, pass rate dense cultures
+        # the case's added equipment for oxygen and CO₂ need a loop this vessel cannot run within the checks (pH, pass rate dense cultures
         # have taken): use the cheapest setting of the tricks switch that passes, as scenarios.design() does
         import scenarios as S
         best = None

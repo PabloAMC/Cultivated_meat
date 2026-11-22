@@ -82,7 +82,7 @@ def _option(dim: str, key: str) -> tuple:
 
 
 def base_kwargs(key: str) -> dict:
-    """The scenario's explore() arguments without its tank design: the ordinary tall tank, no tricks."""
+    """The scenario's explore() arguments without its tank design: the ordinary tall tank, no added equipment for oxygen and CO₂."""
     return S.explore_kwargs({**S.SCENARIOS[key].choice, "tricks": "none", "shape": "tall"})
 
 
@@ -159,7 +159,7 @@ def plain(key: str) -> dict:
 def describe(design: dict) -> str:
     """A design in words: only the options that differ from the ordinary tank."""
     parts = [_option(d, design[d])[1] for d in KEYS if design[d] != OPTIONS[d][0][0]]
-    return S.plain_list(parts) if parts else "the ordinary tall tank, no tricks"
+    return S.plain_list(parts) if parts else "the ordinary tall tank, no added equipment for oxygen and CO₂"
 
 
 def describe_run(d: dict) -> str:

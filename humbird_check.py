@@ -27,7 +27,7 @@ His conditions, as engine settings (`conditions`)
 * his sterile filter sets, replaced at each batch;
 * everything he does not count switched off: cells killed by bubbles, cells lost at harvest, the least medium flow, the bubble
   protectant, the antifoam's effect on oxygen, the growth slowdown at the end of a batch, the extra medium-preparation
-  equipment, lost runs, tank tricks;
+  equipment, lost runs, added equipment for oxygen and CO₂;
 * the end of a batch as he counts it: only the waste made by the cells grown in the production tank (pf_batch_end_x note).
 Each is run in 2018 dollars (both escalation inputs set to 1) and in today's dollars.
 
