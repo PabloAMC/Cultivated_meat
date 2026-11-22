@@ -211,7 +211,7 @@ to $71.1. The low-lactate example's share of world meat and seafood at that cost
 present rule; at the all-favourable example's cost ($6.97; shelf prices $12.0 and $13.2), with the low-lactate example's demand, 6.8% and 5.6%
 (recomputed 2026-11-21, fourth batch). Both parts are drawn in the uncertainty bands.
 
-**Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no tank tricks, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.7 a kilo at most likely values ($15.9 before 2026-11-21, when a sanitary hall's lower power was first counted); if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $29.
+**Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no added equipment for oxygen and CO₂, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.7 a kilo at most likely values ($15.9 before 2026-11-21, when a sanitary hall's lower power was first counted); if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $29.
 
 | component | value | basis |
 |---|---|---|
@@ -312,8 +312,8 @@ plain-language label, and a tag for what it needs (cells with other traits than 
 nothing new: since 2026-11-19 no tag names a route by which cells would get a trait). The eleven switches: how the tank is run
 (perfusion at 20 m³ / fed-batch at 100, 50 or 20 m³; added 2026-11-19), kind of cells (almost no ammonia or lactate / less lactate on a
 low-ammonia feed / the best meat cells in the
-published record / ordinary), growth speed (24 / 30 / 36 / 43 hours), the plant (food-grade with shared medium / food-grade / pharma-style), gas the cells tolerate (6 / 4 / 2 mm/s), tank
-tricks (none / a column on a pumped loop / the column and 1 bar of pressure / and recycled oxygen), tank shape (liquid 0.5 / 0.75 / 1.0 /
+published record / ordinary), growth speed (24 / 30 / 36 / 43 hours), the plant (food-grade with shared medium / food-grade / pharma-style), gas the cells tolerate (6 / 4 / 2 mm/s), added equipment for
+oxygen and CO₂ (none / a column on a pumped loop / the column and 1 bar of pressure / and recycled oxygen), tank shape (liquid 0.5 / 0.75 / 1.0 /
 1.6 times as deep as wide), runs lost (0.2 / 0.6 / 1 / 2% a day), restart after a loss (4 / 14 / 21 / 30 days), growth factors (none / 30% / 60% /
 all of Humbird's price) and the medium price (the nutrient floor / $0.20 / 0.30 / 0.50 a litre). The nutrient floor is only what the
 cells eat, $2.0 a kilo of cells at GFI's feed-grade amino-acid prices, and the growth-factor switch adds to it. The three prices are
@@ -328,9 +328,9 @@ model's own favourable end, Humbird's design and nine other published cost studi
 model's limits. It carries the levers the switches cannot say as extra settings
 (`scenarios.EXTRAS`), and it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.6% of meat buyers). **The low-lactate example:** cells fed without glutamine
 that make 0.14 mol of ammonia a kilo and 0.42 mol of lactate per mol of glucose, 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
-**Published cells** (key `today`): the published cells (below) grown as a fed-batch in an ordinary 20 m³ tank with no tricks, 43 hours,
+**Published cells** (key `today`): the published cells (below) grown as a fed-batch in an ordinary 20 m³ tank with no added equipment for oxygen and CO₂, 43 hours,
 a food-grade plant, 2 mm/s, 1% a day with 21 days to restart, 60% of growth-factor price, $0.30 a litre. The low-lactate example and every rung above
-it run in perfusion. The **tank design** (tricks and
+it run in perfusion. The **tank design** (the added equipment for oxygen and CO₂, and the tank's
 shape) of every other scenario is the cheapest pair whose loop passes the checks the
 earlier gas-exchange study set: a pH-safe loop at a pass rate dense cultures have taken (`scenarios.design`).
 
@@ -377,7 +377,7 @@ design uses (2, 5, 10, 20, 25, 42 and 211 m³, `FAV_TANK_M3`), and keeps the che
 | The device that holds the cells back (membrane device) | dialyser-grade hollow fibres | this model's own favourable end | dialyser-grade hollow fibres | the engine's own filter loop | none |
 | How the tank is run (setting of the mode switch) | perfusion | Humbird's design (2021) | the cheapest of the four settings | perfusion | none |
 | Gas flow the cells tolerate (setting of the gas switch) | 6 | Humbird's design (2021) | the cheapest of 6, 4 and 2 mm/s | 6 | none |
-| Tank tricks and tank shape (settings of the two tank-design switches) | a CO₂ column and 1 bar of pressure, liquid as deep as wide | this model's own favourable end | the cheapest pair that passes the checks on the CO₂ loop (`design()`) | none, the ordinary tall tank | none |
+| Added equipment for oxygen and CO₂, and tank shape (settings of the two tank-design switches) | a CO₂ column and 1 bar of pressure, liquid as deep as wide | this model's own favourable end | the cheapest pair that passes the checks on the CO₂ loop (`design()`) | none, the ordinary tall tank | none |
 | Size of the tank (m³) | 42 | this model's own favourable end | 20 | 20 | CE Delft 2021 10; Risner 2021 20; Negulescu 2023 211; Garrison 2022 20; Pasitka 2024 5; SuperMeat 2024 25 |
 | Yearly payment that repays the plant (share of the plant's cost a year) | 0.083 (5.4% over 20 years) | this model's own favourable end | 0.083 (5.4% over 20 years) | 0.146 (7.5% over 10 years) | CE Delft 2021 0.25; Risner 2021 0.0882; Negulescu 2023 0.095; Garrison 2022 0.1627 |
 
@@ -526,7 +526,7 @@ is $52 and 8 in 10 fall between $39 and $76. The all-favourable example costs $7
 fall between $7.1 and $10.0. The most-likely-values cost is below the median, because most estimates have more room to fall short
 than to improve: it is below about 95% of the all-favourable example's draws (`research_notes/model_audit.md`, section 3f). The scenario table below is printed by `scenarios.markdown_table()` and keeps both columns, the
 median first. The ladder's steps, the switch tables and the side studies use most likely values, so that they can be subtracted. `scenarios.tricks_report` gives each scenario's cost
-with the tricks taken away: once with the tricks switch at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
+with the added equipment for oxygen and CO₂ taken away: once with that setting at "none" and the tank shape unchanged, and once in the ordinary tall tank. The page states both beside the scenario.
 
 **What every scenario carries** (`scenarios.always`). (1) Dissolved oxygen held at `sc_do_setpoint` (0.10 mmol/L, about half
 of air saturation, as pharma holds it), in place of the 0.28 mmol/L (130%) that Humbird's oxygen transfer implies. It widens the oxygen
@@ -575,13 +575,13 @@ of tank, which every case's labour is scaled from, is taken since 2026-11-20 fro
 
 **The reference points and the steps between them** (`scenarios.LADDER`, rebuilt 2026-11-19). Seven rows from what has been
 shown, each changing one kind of thing, labelled by what changes, not by a route: `today` ("Published cells", a 20 m³ batch; its
-tricks and shape fixed), `process` (cheaper inputs and process changes, still a batch), `selected` (less lactate and a faster
+added equipment and tank shape fixed), `process` (cheaper inputs and process changes, still a batch), `selected` (less lactate and a faster
 doubling, still a batch), `central` (perfusion: the low-lactate example), `central_lean` (a cheaper plant), `engineered` (almost no
 ammonia or lactate) and `best` (everything else at its favourable end: the all-favourable example, which since 2026-11-20 also
 takes Humbird's 3 ng cell and his limits, a doubling every 16 hours, no lost runs and dialyser-grade fibres through its extra
 settings and a 42 m³ tank, so the last step changes more than switches). It is an explanation of
 what each change is worth, not a path anyone must follow. `ORDER` keeps the four scenarios the side studies were run on; `cautious` is the published cells in perfusion
-with the tank tricks and gas at 2 mm/s ($181.1 at most likely values since 2026-11-21; $185.6 before), and stands in for the old rung 1 in the design search and the reuse study. Every row
+with the added equipment for oxygen and CO₂ and gas at 2 mm/s ($181.1 at most likely values since 2026-11-21; $185.6 before), and stands in for the old rung 1 in the design search and the reuse study. Every row
 of the headline table gives the medians of its draws and the most-likely-values figures; `bands(None)` draws Humbird's optimistic
 design (`reference()`) the same way, and `reported_band` takes the company's process from `meat_market.monte_carlo`.
 
@@ -649,7 +649,7 @@ Modes are compared with the same assumptions on both sides: the same cells, plan
 ### Vessel types and operating modes (`vessels.py`, added 2026-11-15)
 
 A grid of five vessels (stirred tank, airlift, single-use bag, packed bed, hollow fibres) against five modes (batch,
-fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, tank tricks
+fed-batch, fill-and-draw, chemostat, perfusion). Only the vessel and the mode change. The cells, plant class, added equipment for oxygen and CO₂
 and losses are those of Humbird's optimistic design or of a scenario. Each cell is one call to `floor_physics.explore` with a `vm`
 dict built from `inputs.py` `vm_*`. With no `vm`, `explore` is unchanged: the stirred tank in perfusion is Humbird's optimistic
 design ($15.72) and the scenario's own cost, and the stirred tank in fill-and-draw is the old "drained and refilled" ($16.50).
@@ -687,9 +687,9 @@ What `vm` changes in `explore`:
   2026-11-20 it enters the plant's cost through what each tank brings with it (`capex_at_size`, `vessel_ratio`; "The plant
   term", below); a plant class without an item breakdown keeps the older rule on the bioreactor share (32%) of the plant. What it throws away each run (`cons_run`, $k per m3) is charged
   per run. A plant of units smaller than 20 m3 gets labour x (20 / unit size)^0.54, from Humbird's two plants.
-- **Tank tricks**: they apply to the stirred tank and the airlift. A bag takes no pressure, and the support vessels have their
+- **Added equipment for oxygen and CO₂**: they apply to the stirred tank and the airlift. A bag takes no pressure, and the support vessels have their
   own gas exchange. Where the case's column loop fails its pH or pass-rate check in another vessel, the cell uses the cheapest
-  setting of the tricks switch that passes (as `scenarios.design` does) and reports the cost the tricks would have given.
+  setting of the added equipment for oxygen and CO₂ that passes (as `scenarios.design` does) and reports the cost the case's own added equipment would have given.
 
 Each vessel is priced at its largest unit built for animal cells, up to 20 m3. Each cell carries a maturity tag: done at this
 size, only done smaller, never done with animal cells (`vessels.TAGS`). The tag is about the vessel, the mode and the size. It
@@ -753,7 +753,7 @@ a kilo) needs. Evidence and odds for each lever: `research_notes/frontier.md`, `
 ### If perfusion cannot be run at 20 m3 (`downside.py`, added 2026-11-15)
 
 For each scenario, `downside.costs` prices the stirred tank in fed-batch and in fill-and-draw (the `vessels.py` modes) at the
-model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (tricks,
+model's own density cap and at `vm_x_meat_shown` (27 g/L), with every other setting the scenario's and the tank design (added equipment,
 shape) chosen again for each mode; for fed-batch through the scenario's own fed-batch setting, so a plant with shared medium keeps
 its full seed train (2026-11-19). Findings: `research_notes/no_perfusion_downside.md`. Since 2026-11-20 no fallback costs less than
 perfusion: the low-lactate example costs $70.32 in fed-batch and $74.75 in fill-and-draw at the model's cap (37 g/L), against
@@ -1369,7 +1369,7 @@ grown in the squat tank against 8% in the tall one, if a protectant works at sca
 with a thick culture's slower oxygen uptake, the squat tank costs $16.8, more than the tall one. A
 published 262 m³ airlift needs 1.6 to 2.3 times the model's gas velocity to hold its stated density.
 
-*Tricks as levers, and every limit shown (`explore`, the panel's "Tricks" group and "What limits this tank").*
+*Tricks as levers, and every limit shown (`explore`, the side bar's levers and "What limits this tank" in the level on the tank and the plant).*
 `explore` returns every cap in the case (`limits`, g/L) and what sets the litres of medium (`medium_terms`),
 not only the binding ones, and carries the tricks sized in the gas-exchange and waste notes:
 

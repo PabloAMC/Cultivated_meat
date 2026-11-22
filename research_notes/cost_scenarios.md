@@ -7,9 +7,9 @@
 > example $7.0 (median $8, 23.4% at its point cost with its own demand, median 17.4%), Humbird's optimistic design $15.7. The
 > boxes below and the prose of the sections are as of the dates they give.
 
-> **Repinned 2026-11-20, final pass.** The table below is regenerated from `scenarios.markdown_table()` (by its header line). There is now one all-favourable case (`scenarios.all_favourable()`): every lever takes the most favourable value among the model's own favourable end, Humbird's design and ten published studies that break no limit of the model (`study_comparison.md`). It allows his 5 mmol/L of ammonia and 50 of lactate, his 3 ng cell, a 16-hour doubling, no lost runs, a 4-day restart, dialyser-grade fibres and 42 m³ tanks, and costs $7.62 at most likely values (median of draws $9; world share 17.4% at the median, 22.6% at the point). **Changed:** (1) the all-favourable example is now below Humbird's optimistic design ($15.93), and no cost line of it is above his; the 2026-11-20 batch statement below, that his design costs less, no longer holds, because the all-favourable example now takes his tolerances and his cell weight where they are more favourable. (2) The other rungs moved by under 2%: $322.55, $311.29, $71.76, $49.50, $45.04 and $27.75; the cautious case $185.59; Humbird's design $15.93 (per-tank plant items, the harvested share applied to every cost line). (3) The low-lactate example's tank design is now the column and 1 bar in the ordinary tall tank, not a squarer tank: with both tricks oxygen holds the tall tank at 154 g/L against 151 in the squarer one, at $49.50 against $51.75. The tank tricks are now worth $5.7 a kilo there ($4.1 before), because the comparison is with the tall tank, which without the tricks is held by CO₂ at 87 g/L. A 24-hour doubling is worth $5.4 a kilo.
+> **Repinned 2026-11-20, final pass.** The table below is regenerated from `scenarios.markdown_table()` (by its header line). There is now one all-favourable case (`scenarios.all_favourable()`): every lever takes the most favourable value among the model's own favourable end, Humbird's design and ten published studies that break no limit of the model (`study_comparison.md`). It allows his 5 mmol/L of ammonia and 50 of lactate, his 3 ng cell, a 16-hour doubling, no lost runs, a 4-day restart, dialyser-grade fibres and 42 m³ tanks, and costs $7.62 at most likely values (median of draws $9; world share 17.4% at the median, 22.6% at the point). **Changed:** (1) the all-favourable example is now below Humbird's optimistic design ($15.93), and no cost line of it is above his; the 2026-11-20 batch statement below, that his design costs less, no longer holds, because the all-favourable example now takes his tolerances and his cell weight where they are more favourable. (2) The other rungs moved by under 2%: $322.55, $311.29, $71.76, $49.50, $45.04 and $27.75; the cautious case $185.59; Humbird's design $15.93 (per-tank plant items, the harvested share applied to every cost line). (3) The low-lactate example's tank design is now the column and 1 bar in the ordinary tall tank, not a squarer tank: with both tricks oxygen holds the tall tank at 154 g/L against 151 in the squarer one, at $49.50 against $51.75. The added equipment for oxygen and CO₂ are now worth $5.7 a kilo there ($4.1 before), because the comparison is with the tall tank, which without the tricks is held by CO₂ at 87 g/L. A 24-hour doubling is worth $5.4 a kilo.
 
-> **Repinned 2026-11-20 (model batch).** The scenarios' cells tolerate 35 mmol/L of lactate (50 before; Humbird's design keeps his 50); cells killed by bursting bubbles are charged, with the gas following what the culture needs; 2% of the cells are lost at harvest; a tank in perfusion carries twice the fed-batch crew; filter membranes are replaced after 2,415 L/m2 (3,960 before); medium preparation capital scales with the medium passed; growth factors and utilities follow the Humbird back-test (`humbird_backtest.md`; `full_review_2026-11-19.md`, section 2). All costs are per kilo of cells harvested. At most likely values the seven rungs cost $322.6, $309.6, $70.4, $50.0, $45.7, $28.1 and $18.7 ($209.1, $201.4, $64.9, $32.8, $29.9, $17.3 and $11.7 on 2026-11-19); the cautious case $183.1 ($92.2). **Three things changed besides the levels.** (1) Humbird's optimistic design ($16.0) now costs less than the all-favourable example ($18.7): his cells are allowed 50 mmol/L of lactate and wash with 12 litres a kilo against 19, his design loses no runs, and his cell weighs 3 ng. (2) Perfusion is worth $20 a kilo between rungs 3 and 4, not $32, and with the all-favourable example's switches a drained and refilled tank ($17.1) or a fed-batch of 50 m³ or more is cheaper than perfusion at 20 m³ (`no_perfusion_downside.md`, `tank_size.md`). (3) The published cells stop a batch at 9.5 g/L, not 14. A 24-hour doubling is worth $5.2 a kilo in the low-lactate example ($2.5 before) and the tank tricks $4.1 ($3.5). The sections below the table keep the figures of the dates they give.
+> **Repinned 2026-11-20 (model batch).** The scenarios' cells tolerate 35 mmol/L of lactate (50 before; Humbird's design keeps his 50); cells killed by bursting bubbles are charged, with the gas following what the culture needs; 2% of the cells are lost at harvest; a tank in perfusion carries twice the fed-batch crew; filter membranes are replaced after 2,415 L/m2 (3,960 before); medium preparation capital scales with the medium passed; growth factors and utilities follow the Humbird back-test (`humbird_backtest.md`; `full_review_2026-11-19.md`, section 2). All costs are per kilo of cells harvested. At most likely values the seven rungs cost $322.6, $309.6, $70.4, $50.0, $45.7, $28.1 and $18.7 ($209.1, $201.4, $64.9, $32.8, $29.9, $17.3 and $11.7 on 2026-11-19); the cautious case $183.1 ($92.2). **Three things changed besides the levels.** (1) Humbird's optimistic design ($16.0) now costs less than the all-favourable example ($18.7): his cells are allowed 50 mmol/L of lactate and wash with 12 litres a kilo against 19, his design loses no runs, and his cell weighs 3 ng. (2) Perfusion is worth $20 a kilo between rungs 3 and 4, not $32, and with the all-favourable example's switches a drained and refilled tank ($17.1) or a fed-batch of 50 m³ or more is cheaper than perfusion at 20 m³ (`no_perfusion_downside.md`, `tank_size.md`). (3) The published cells stop a batch at 9.5 g/L, not 14. A 24-hour doubling is worth $5.2 a kilo in the low-lactate example ($2.5 before) and the added equipment for oxygen and CO₂ $4.1 ($3.5). The sections below the table keep the figures of the dates they give.
 
 > **Updated 2026-11-15 (late), second time.** Every figure in this note is recomputed with the model as it now stands: the hollow-fibre
 > filter loop with its membranes (`retention.py`), the bubble protectant (poloxamer 188, 2 g/L at an assumed $30/kg), antifoam's
@@ -44,7 +44,7 @@ by the waste mass balance (`vessels_and_modes.md` section 10). The cautious scen
 | Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–29) | $15.7 | 2.8× | **0.7%** (0.2–2.6%) | 1.4% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.2%** (0.05–0.8%) | 0.2% | a company's own report |
 
-*History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The tank tricks alone take $20.57 off
+*History (2026-11-16, the old five-rung ladder in perfusion):* what each step was worth, from `scenarios.run`: the published cells cost $62.96 in the ordinary tank. The added equipment for oxygen and CO₂ alone take $20.57 off
 (chosen by `design` with the other switches as they then were), 4 mm/s of gas $17.17, a 14-day restart $2.30, growth factors at 30% $2.99, $0.20
 medium $2.87; together, with the tank design chosen again, $32.23, to $30.73. Cells that make less lactate then took $1.31 off (the low-lactate example $29.42), the
 plant with shared medium $2.86 ($26.56), and cells that make almost no ammonia or lactate with every switch at its cheapest plausible setting $16.90 ($9.66). *Now (2026-11-19, at most likely values):* $209.1,
@@ -58,8 +58,8 @@ under $0.6 a kilo.
 ## Why scenarios, not a floor
 
 Until 2026-11-15 the model quoted one number, "the floor", $11.5/kg of cells. It was `explore()` at its defaults: a standard 20 m3
-stirred tank in perfusion at 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no tank tricks, no lost runs, no growth
-factors. That is neither the most favourable case (the model has since gained tank tricks, a plant built item by item, explicit ammonia and lactate)
+stirred tank in perfusion at 120 g/L, a food-grade plant, cells that make almost no ammonia or lactate, no added equipment for oxygen and CO₂, no lost runs, no growth
+factors. That is neither the most favourable case (the model has since gained added equipment for oxygen and CO₂, a plant built item by item, explicit ammonia and lactate)
 nor a typical one (it assumes cells nobody has shown and ignores contamination). It stays as the labelled reference
 (`scenarios.reference()`), and the cost is described by scenarios, each a preset of ten switches.
 
@@ -75,7 +75,7 @@ route; they are retired.
 | growth speed | 24 h (CELLS) · 30 h (CELLS) · 36 h (CELLS) · 43 h (nothing new) | See "Doubling time" below. |
 | plant | lean (FEED) · sterile (nothing new) · pharma-style (nothing new) | `plant_items.py`, `cheap_plant_study.md`. Sterile: Humbird's plant with a sanitary hall in place of the clean room, $810k per m3. Lean: no clean room, food-grade tanks, a shared medium line, two seed trains, bought oxygen: $340k per m3 (2018 dollars; nobody has built one). Pharma-style: Humbird as designed, $910k. A plant as cheap as a yeast plant is **not offered**: nothing found shows animal cells grown in one (2026-11-15). |
 | gas the cells tolerate | 6 mm/s (FEED) · 4 (FEED) · 2 (nothing new) | Humbird's 6 mm/s is his conversion of a rule of thumb ("under 0.1 vvm"), not a measured limit; Nienow 2006 reports 0.1 to 2 mm/s in 8 to 20 m3 tanks; bubble death scales with gas per litre, foam with surface velocity (`gas_flow_cap.md`). 4 is a midpoint. |
-| tank tricks | none · column on a pumped loop (FEED) · column and 1 bar gauge · column, pressure and recycled oxygen (all FEED) | `gas_exchange.column_design`, `gas_exchange_study.md`: sized by calculation; no animal cells have gone through such a column. |
+| added equipment for oxygen and CO₂ | none · column on a pumped loop (FEED) · column and 1 bar gauge · column, pressure and recycled oxygen (all FEED) | `gas_exchange.column_design`, `gas_exchange_study.md`: sized by calculation; no animal cells have gone through such a column. |
 | tank shape | liquid 0.5 / 0.75 / 1.0 / 1.6 times as deep as wide | geometry is certain; the extra steel and floor of a squat tank are counted (`gas_exchange.shape_capex_factor`); no cost data on tank shape. |
 | runs lost | 0.2 / 0.6 / 1 / 2% a day | 0.2% is large pharma (`pf_hazard_pharma`); the survey of makers (Powell 2025: 11.2% of batches lost, 19.5% beyond flasks) implies 0.6 to 2.2% a day **if** runs lasted 10 to 20 days, which the survey does not state. |
 | restart after a loss | 4 / 14 / 21 / 30 days | 4 days reseeding from a healthy neighbouring tank (FEED; added 2026-11-16; about 2 days to clean and steam, a doubling to regrow, a day for the neighbour's lost output; the donor must test clean); 14 days with a ready seed train (regrowing from a seed is about 7 doublings); 21 days when the seed trains must be regrown; 30 when one failure reaches every tank (`contamination.py`). |
@@ -92,7 +92,7 @@ route; they are retired.
 | Cautious: the best meat cells measured so far | best measured cells, 43 h, food-grade plant, 2 mm/s, 1% a day, 21-day restart, growth factors 60%, $0.30 a litre, **tank design: the column and 1 bar, the ordinary tall tank** | Each switch at the setting that has actually been measured; tank design as above. |
 
 "The checks" (`scenarios.design`): the loop must be pH-safe (the alkaline exposure within the 55 mbar, 0.5 m3 design) and at a pass rate dense
-cultures have taken (15 to 24 tank volumes an hour). Without the checks a tall tank with all three tricks would be a little cheaper still.
+cultures have taken (15 to 24 tank volumes an hour). Without the checks a tall tank with all three pieces of added equipment would be a little cheaper still.
 
 *The block below is from 2026-11-15 and is superseded: since then the scenarios became a ladder, dissolved oxygen is held lower,
 and (2026-11-16) the bands draw the estimates the cost rests on most. Current figures are in the table near the top of this note
@@ -100,13 +100,13 @@ and in RESULTS.md, both checked by `tests/test_scenarios.py`.*
 
 Computed results, 2026-11-15 (cells $/kg; shop; R against $12 meat; long-run share of world meat by weight; bands are 10th to 90th percentile, 4,000 draws; **the headline share is the median of the draws**, the point estimate is the share at the scenario's own point cost):
 
-| scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the tank tricks | ordinary tall tank |
+| scenario | cost | band | shop | R | **world share, median** | band incl. demand | world, point estimate | US (point) | Europe (point) | without the added equipment for oxygen and CO₂ | ordinary tall tank |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | All-favourable example | $9.71 | $9.2–12.2 | $14.7 | 1.23 | **3.8%** | 1.2–9.7% | 7.9% | 13.5% | 25.3% | $10.2 | $10.4 |
 | Low-lactate example, food-grade plant | $29.92 | $27.4–38.1 | $34.9 | 2.91 | **0.2%** | 0.1–0.6% | 0.4% | 0.9% | 2.3% | $33.5 | $36.2 |
 | Low-lactate example, food-grade plant with shared medium | $26.81 | $25.4–34.8 | $31.8 | 2.65 | **0.3%** | 0.1–0.7% | 0.5% | 1.2% | 3.5% | $28.5 | $29.9 |
 | Cautious | $43.79 | $39.2–54.5 | $48.8 | 4.07 | **0.1%** | 0.0–0.2% | 0.1% | 0.3% | 0.5% | $63.0 | $63.0 |
-| Reference (standard tank, no tricks) | $12.51 | | $17.5 | 1.46 | | | 4.3% | 8.5% | 19.6% | | |
+| Reference (standard tank, no added equipment for oxygen and CO₂) | $12.51 | | $17.5 | 1.46 | | | 4.3% | 8.5% | 19.6% | | |
 | As a company reports | $34.35 | | $39.4 | 3.28 | | | 0.3% | 0.6% | 1.3% | | |
 
 **Why the median and not the point estimate.** Each point cost sits below its band's median cost, because the estimates behind a scenario are drawn with
@@ -115,11 +115,11 @@ A headline of 7.9% for the all-favourable example would be a number most draws d
 it is labelled as one. The band exists for the four scenarios. Once a reader changes a switch, the live strip shows the point estimate and says so.
 At 1,000 draws the all-favourable example's median moved by 0.3 points between seeds (7.8 to 8.15, with the old device), so the bands use 4,000.
 
-**Tank design nobody has run with animal cells.** Each scenario's tank design is the cheapest the loop checks allow. Each rests on tricks
-that are calculated, not measured. The all-favourable example and the low-lactate example: a column, 1 bar of extra pressure, and a tank as deep as it is wide. Cautious: the
+**Tank design nobody has run with animal cells.** Each scenario's tank design is the cheapest the loop checks allow. Each rests on added equipment for oxygen and CO₂
+that is calculated, not measured. The all-favourable example and the low-lactate example: a column, 1 bar of extra pressure, and a tank as deep as it is wide. Cautious: the
 column and the pressure in the ordinary tall tank. Recycled pure oxygen through the column would be cheaper still in the low-lactate example (−$2.0) but fails the
-loop checks. "Without the tank tricks" sets the tricks switch to "none" and keeps the tank shape (the low-lactate example: +$3.6). "Ordinary tall tank" also takes
-the shape back to Humbird's 1.6 (the low-lactate example: +$6.3). (2026-11-15 figures; since 2026-11-20 the low-lactate example uses the tall tank, and the tricks are worth +$5.7.) The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
+loop checks. "Without the added equipment for oxygen and CO₂" sets that setting to "none" and keeps the tank shape (the low-lactate example: +$3.6). "Ordinary tall tank" also takes
+the shape back to Humbird's 1.6 (the low-lactate example: +$6.3). (2026-11-15 figures; since 2026-11-20 the low-lactate example uses the tall tank, and the added equipment is worth +$5.7.) The page and the scenario stories (`scenarios.tricks_sentence`) state this beside each scenario.
 
 Each point sits below its band's median, because the estimates behind a scenario (the plant estimate, financing, the life of the filter membranes) are drawn with more room to fall short than to improve: the all-favourable example's point ($9.71) is at the 25th percentile of its draws (median $10.3), the central point ($29.92) at the 31st (median $31.7), the central point with shared medium at the 25th (median $28.6) and the cautious point at the 34th (median $46.2).
 
@@ -161,7 +161,7 @@ Each switch moved alone (cost change; change in world share in percentage points
 | price of the medium | $0.05 (an aspiration) −$4.0 (+0.2); $0.15 −$1.4 | $0.50 +$8.6 (−0.2) |
 | growth factors | none −$3.0 (+0.1) | all +$7.0 (−0.2) |
 | gas the cells tolerate | 6 mm/s −$2.0 (+0.1) | 2 mm/s +$5.4 (−0.1) |
-| tank tricks | recycled pure oxygen too −$2.0 (+0.1), but it fails the loop checks | none +$3.6 (−0.1) |
+| added equipment for oxygen and CO₂ | recycled pure oxygen too −$2.0 (+0.1), but it fails the loop checks | none +$3.6 (−0.1) |
 | the plant | food-grade with shared medium −$3.1 (+0.1) | pharma-style +$0.9 (−0.0) |
 | growth speed | 24 h −$2.6 (+0.1) | 43 h +$1.4 (−0.0) |
 | runs lost | 0.2% a day −$1.0 (+0.0) | 2% +$1.4 (−0.0) |
@@ -174,14 +174,14 @@ did, because oxygen, not CO₂, now limits the central tank: more gas means more
 Interactions (computed, `scenarios.interactions`): cells that make almost no ammonia or lactate save $9.6 as things stand and $13.1 if cells also doubled every 24 h (they reinforce
 each other); they save $8.3 with no growth factors and $7.2 at $0.05 a litre (they overlap: all three attack the same medium cost, and each litre of
 medium must also pass the filter and carries protectant). 6 mm/s of gas would save $2.0 in the low-lactate example but only $0.2 with recycled oxygen in the column;
-in the cautious case $8.7 but only $0.5. The tricks do the job of the gas. A tank trick matters little if the cells waste a lot: with ordinary cells
-no tank trick reaches the medium cost that washing out ammonia sets (the cells-by-tank grid on the page).
+in the cautious case $8.7 but only $0.5. The added equipment does the job of the gas. The added equipment for oxygen and CO₂ matters little if the cells waste a lot: with ordinary cells
+no added equipment for oxygen and CO₂ reaches the medium cost that washing out ammonia sets (the cells-by-tank grid on the page).
 
 ## What would move each scenario
 
 - **All-favourable example**: a culture that doubles in 24 hours at ammonia of 0.055 mol/kg and lactate 0.5 per glucose at density (one mass balance
   run); a food-grade plant with shared medium costed and built for animal cells; a column run with dense meat cells (passes, pH, shear); cells that need no growth factors at scale.
-  The tank tricks alone are worth only $0.7 here, so the all-favourable example rests on the cells.
+  The added equipment for oxygen and CO₂ alone are worth only $0.7 here, so the all-favourable example rests on the cells.
 - **The low-lactate example** (needs CELLS): the doubling time of low-waste meat cells (can it reach 26 to 30 h?); ammonia and lactate per kilo
   at a 36 h doubling in a stirred tank, not a spinner flask (the same paper's shaker value is ten times lower: cause unexplained); the price of medium and of
   growth factors at production scale on a stated mass basis; the gas flow dense meat cells tolerate at 20 m3 (4 mm/s) and whether a column is needed at all.

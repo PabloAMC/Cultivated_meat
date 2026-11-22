@@ -56,7 +56,7 @@ PLAIN = {
     "sc_nh3_selected": "Ammonia the cells of the low-lactate example make per kilo grown",
     "sc_nh3_engineered": "Ammonia the low-waste cells make per kilo grown",
     "sc_mass_selected_pg": "Weight of one cell (every kind of cells since 2026-11-19)",
-    "sc_p_top": "Pressure at the top of the tank, where the pressure trick is used",
+    "sc_p_top": "Pressure at the top of the tank, where the extra pressure is used",
     "rt_membrane_life": "Litres a m² of cell filter passes before it is replaced",
     "pf_protectant_price": "Price of the bubble protectant (poloxamer 188), bought by the tonne",
     "pf_min_perfusion": "Least medium flow the cells need for everything but ammonia and lactate",

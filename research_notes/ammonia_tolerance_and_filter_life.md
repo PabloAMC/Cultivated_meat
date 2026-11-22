@@ -323,7 +323,7 @@ scenario ladder. Nothing was committed or pushed. I report it because it shows h
 The ladder keeps its order and gaps and rises by about $15 in the middle rungs. The move is not a two-number edit. The repo's
 checks fail in `test_golden`, `test_floor_physics`, `test_scenarios`, `test_retention`, `test_filter_flux`,
 `test_answer_rests_on` and `test_audit`, because they pin the old costs (Humbird's optimistic design $12.51 becomes $15.70, the floor
-Monte Carlo median $27.5 becomes $35.7). One scenario design then lists no tank tricks, which crashes `scenarios.plain_list`.
+Monte Carlo median $27.5 becomes $35.7). One scenario design then lists none of the added equipment for oxygen and CO₂, which crashes `scenarios.plain_list`.
 A newly ranged input now moves the answer by over $1 and adds a row to the "what the answer rests on" table. RESULTS.md,
 METHODS.md and the explorer page quote the old numbers. This is why I recommend against it without a source for the price.
 

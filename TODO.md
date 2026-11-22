@@ -116,8 +116,8 @@ Open pull requests (each says "no default changes" unless noted):
       `premium_market_sizes.md` §6; China's rows are order-of-magnitude). India's premium goat and seafood rows are unchecked.
 - [x] #19 Plain, direct sentences for all page text (wording only): done 2026-11-21 (fourth batch, CHANGELOG). Every meat price names
       its meat ("same shop price as US minced beef or pork cuts", "the price of the conventional meat it copies"); no "out of reach",
-      "beat", "path", "ladder" or "frame"; dollars are 2025 dollars. Kept: the setting's name "tank tricks" (a rename is a naming
-      decision for Pablo, since the name is defined where it is used).
+      "beat", "path", "ladder" or "frame"; dollars are 2025 dollars. The setting's name was renamed on 2026-11-22 (fifth batch):
+      "Added equipment for oxygen and CO₂".
 - [x] #29 The frontier: replaced on 2026-11-20 by the path from Humbird's design to the all-favourable example (`frontier.py`, $15.95 → $7.62).
 - [x] #30 Filter flux: the flux is not the limit, the membrane's throughput is. Settled on 2026-11-20 with #45: `rt_membrane_life`
       is Humbird's 2,415 L/m² at his price.
@@ -223,11 +223,14 @@ Raised by Pablo on 2026-11-16 (open):
       level-4 switch and the cells-by-tank rows are named by their ammonia and lactate since the fourth batch); the page opens at
       Humbird's best estimate and leads with no number but the floor and the best the model finds; no reference that gives only a
       cost is drawn on the share map; white background, Computer Modern. `tests/test_easy_view.py` checks most of this.
-- [ ] **The page, what is left** (each needs a decision): (a) level 4 keeps two explorers of its own, the eleven scenario switches
-      and "Every cell and tank setting" (its own sliders and a "Start from a kind of cell" list of reported cells), beside the first
-      screen's levers: fold them into the levers, or keep them as a second view; (b) the methods prose and the shopper histogram
-      quote shares as the median of draws with the shopper settings drawn too (a band statement, not a cost); (c) "tank tricks"
-      as a name.
+- [x] **The page: one set of controls** (a): done 2026-11-22 (fifth batch, CHANGELOG). The side bar is the page's only set of
+      controls: the level "How the tank and the plant set the cost" lost its eleven switches and "Every cell and tank setting"; what
+      the side bar lacked moved into it by section (the tank design and its button, the plant item by item and two more plant
+      classes, reported cells, the other reference points, ten more levers); the level shows results only, from the side bar's state.
+- [x] **"Tank tricks" renamed** (c): done 2026-11-22 (fifth batch). The setting is "Added equipment for oxygen and CO₂" on the
+      page, in scenarios.py and in the documents; code keys (`tricks`, "none"/"column"/"pressure"/"oxygen") unchanged.
+- [ ] **The page, what is left**: (b) the methods prose and the shopper histogram quote shares as the median of draws with the
+      shopper settings drawn too (a band statement, not a cost).
 - [x] **Refresh the prose of RESULTS sections 2-4** for the share of the meat sold and the 2 ng weight of the cells that make almost no ammonia or lactate (2026-11-19: RESULTS,
       METHODS and README recomputed; the demand dial is stated first as a share of meat buyers; the dated notes removed).
 - [ ] **The routes table's weakest cells**: a lactate yield below 1.05 in any meat cell; a figure for ammonia below 0.14 mol a kilo in any meat

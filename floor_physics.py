@@ -2,7 +2,7 @@
 """
 floor_physics.py — the cost of a kilo of cultivated cells from tank physics and published plant costs,
 by reactor type and plant class (`explore`). The cost scenarios (scenarios.py) are sets of `explore` arguments;
-its defaults are the labelled reference case "a standard perfusion tank, no tricks" ($12.81/kg), which earlier
+its defaults are the labelled reference case "a standard perfusion tank, no added equipment for oxygen and CO₂" ($12.81/kg), which earlier
 versions called the floor. (NOT used in the default cost of the share model.)
 
 Why

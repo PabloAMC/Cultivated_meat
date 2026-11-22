@@ -1101,7 +1101,7 @@ What changed, and what it means:
   far more glucose to burn and build the same amounts. That is 4.5 mol of lactate a kilo, and at the 50 mmol/L limit it needs 89.8
   litres of medium.
   Lactate sets their medium now, not ammonia (28 litres).
-- **The tank tricks do little for these cells.** The column with an oxygen sweep and 1 bar takes them from $62.31 to $59.33, 5%.
+- **The added equipment for oxygen and CO₂ do little for these cells.** The column with an oxygen sweep and 1 bar takes them from $62.31 to $59.33, 5%.
   It takes the floor's cell from $12.81 to $10.66, 17%. The tricks raise the density, which cuts the plant's cost per kilo. They
   do not cut the litres, and the litres are most of what these cells cost. An earlier reading of this table, that the tricks
   bring the best-shown meat cells into the mid-$20s, no longer holds.

@@ -1,5 +1,44 @@
 # Change log
 
+## 2026-11-22 (fifth batch), page
+
+No change to the model's arithmetic or inputs. The page has one set of controls, and the setting "Tank tricks" has a literal name.
+
+- **The side bar is the page's only set of controls.** The level "How the tank and the plant set the cost" had two control sets of
+  its own (the eleven scenario switches with "Pick the cheapest tank design", and the explorer "Every cell and tank setting" with its
+  own sliders, "Start from a reference point" and "Start from a kind of cell"), which synced one way and could show a cost the side
+  bar did not. What the side bar lacked moved into it, by section:
+  - *The cells*: "Reported cells", presets that take a reported cell's doubling time and weight, and its CO₂ tolerance where one is
+    reported, named by their traits and source (Humbird's 2021 design; chicken cells in perfusion, SuperMeat 2024; bovine muscle stem
+    cells without serum, Stout 2022; Atlantic mackerel cells, Saad 2023; insect cells, Ashizawa 2022), with "Where these come from";
+    under "More settings for the cells": glucose used per kilo of cells (shows the cells' own balance until set) and fat taken from
+    the feed.
+  - *The reactor*: the tank design ("Added equipment for oxygen and CO₂" and "Tank shape") with the button "Pick the cheapest tank
+    design for these settings" and its explanation; the plant item by item; two more classes of plant (a yeast plant plus what animal
+    cells must have; a plant built like a yeast plant); under "More settings": the chance of losing a run, days to restart after a
+    contamination, planned length of a continuous run, pressure at the top of the tank, CO₂ the culture leaves the column at, the
+    dissolved oxygen held, and the pH.
+  - *The medium*: growth factors bought on top of the medium's price.
+  - *Near the top*: the other reference points (the low-lactate example, the all-favourable example, Humbird's optimistic design) as
+    chips under the two starting points, and "Where each reference point comes from".
+  Each new lever shows the engine's own value until it is moved (tested: set to what it shows, the cost does not move, for every
+  reference point). A switch picked in the table of two settings frees the lever that sets the same thing.
+- **The level shows results only**, all from the side bar's state and priced as the first screen prices it (with the vessel, the
+  retention device, the class of plant and the items): the result card, "What limits this tank", the plant item by item, the cost
+  in six parts, the factors moved one at a time (whose buttons now set the side bar's levers), the table of two settings (its
+  outlined figure is the side bar's own cost), the vessel table, the cost as the medium gets cheaper. Its intro says the side bar
+  sets it. Removed, not moved: the controls the side bar already had (doubling time, cell mass, yearly charge, medium price, upkeep
+  share, CO₂ and gas tolerated, salt, least flow, tank size, mode, ammonia, lactate, the eleven switch selects), the waste dial
+  (the side bar sets ammonia and lactate directly), the share of the product that is cells (the side bar's plant protein in a cut),
+  the sorbent's share, price and uses (the side bar's ammonium-exchanger route), and the explorer's own US share sentence.
+- **Links**: the address carries the new settings (`pc:` class of plant, `it:` items, `h.<lever>`); links written before still
+  read. The explorer had no saved state.
+- **"Tank tricks" is now "Added equipment for oxygen and CO₂"** (the column that strips CO₂ without bubbles, extra pressure, and
+  recycled pure oxygen) on the page, in scenarios.py's labels and notes, in RESULTS, METHODS and the research notes, and in the tests'
+  messages. Code keys (`tricks`, "none"/"column"/"pressure"/"oxygen") are unchanged.
+- Tests: `tests/test_easy_view.py` checks the new side-bar pieces in order, that the level has no controls and says the side bar sets
+  it, that its result card gives the side bar's cost in four states, the address round trip and an old link.
+
 ## 2026-11-21 (fourth batch), documents
 
 No change to the model's behaviour or inputs. Prose that quoted figures the engine had moved past, recomputed from the modules

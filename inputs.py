@@ -1369,7 +1369,7 @@ REGISTRY: dict[str, Input] = {
     "sc_aspect_mid": Input(1.0, "depth/width", "[judgement] a squarer tank than Humbird's 1.6", lo=0.75, hi=1.6,
         mode=1.0),
     "sc_p_top": Input(1.0, "bar gauge", "[gas_exchange_study.md; vendor data sheets] pressure at the top of the tank "
-        "when the pressure trick is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
+        "when the extra pressure is used: steaming already takes 1 bar, steel culture vessels are rated to 3-4",
         lo=0.33, hi=2.0, mode=1.0, note="no culture has been run at 1 bar gauge"),
 
     # --- Cell traits: the best level shown so far by each route (cell_traits.py; research_notes/cell_trait_routes.md; 2026-11-19) ---

@@ -64,15 +64,15 @@ def check() -> list:
         fails.append("the first three drivers should each move the low-lactate example by over $35, then the lactate tolerated, the "
                      f"lactate made and the bubble kill by over $12 each, and the protectant's price (eighth) by under $10: {order[:8]}")
     # the new rows are there, with the band status the bands' code gives them
-    # 2026-11-20: sc_p_top (the pressure of the pressure trick, 0.33-2 bar) is no longer a row. At 0.33 bar the trick adds
+    # 2026-11-20: sc_p_top (the pressure of the extra pressure, 0.33-2 bar) is no longer a row. At 0.33 bar the trick adds
     # nothing, and at 2 bar the only pH-safe design is a squat tank, where the bubbles (now charged) kill more cells, so the
     # design drops the trick: both ends cost $50.91 against $49.96 at 1 bar, under the $1 threshold. Before, the squat tank at
     # 2 bar was the cheapest design ($31.7 against $32.8).
-    # 2026-11-20 final model: sc_p_top is a row again. The pressure trick's design is chosen again at each end: at 0.33 bar
+    # 2026-11-20 final model: sc_p_top is a row again. The extra pressure's design is chosen again at each end: at 0.33 bar
     # the low-lactate example costs $52.47 and at 2 bar $51.00, against $49.50 at 1 bar, both over the $1 threshold.
     # 2026-11-21: sc_p_top is no longer a row again. The design search now holds a culture thinner when its loop fails
     # (scenarios.design), so the low-lactate example's tank design is the column with recycled oxygen, held at 168 g/L, which
-    # does not use the pressure trick: the pressure's range moves it by under $1. It keeps its reason for not being drawn
+    # does not use the extra pressure: the pressure's range moves it by under $1. It keeps its reason for not being drawn
     if "sc_p_top" in cr or A._band("sc_p_top") != A.NOT_DRAWN["sc_p_top"]:
         fails.append("sc_p_top should not be a row (the thinned oxygen-column design does not use pressure), and stays marked as a design choice not drawn")
     # maturation (pf_mature_h, 0 to 28 days) is a choice of product, left out of the tables with a stated reason

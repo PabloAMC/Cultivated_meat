@@ -21,7 +21,7 @@
 > (1) every scenario now saves 5.3% to 7.4% in a larger tank, and 20 m³ is outside the sizes within 3% of the cheapest for all
 > four (on 2026-11-19 the saving was 0.5% to 2.1%; earlier on 2026-11-20 it was up to 5.1% for three of the four); the cause is
 > the per-tank plant items. (2) The all-favourable example's cheapest tank keeps the column and 1 bar of pressure and its density
-> (156 g/L at 90 m³); it was a thin culture with no tricks while membranes cost $1,450 a m². (3) Fed-batch costs more than
+> (156 g/L at 90 m³); it was a thin culture with no added equipment for oxygen and CO₂ while membranes cost $1,450 a m². (3) Fed-batch costs more than
 > perfusion at every size again (section 10). (4) A flatter tank no longer helps at any size (section 5). (5) The probabilities
 > of section 7 are restated as ranges and the column that rested on the old designs is deleted.
 
@@ -44,7 +44,7 @@ is unchanged: no animal cells have run above about 25 m³, and no animal-cell pe
 | Low-lactate example | $48.68 | 200 m³ (the end of the range) | $45.53 | $3.15 (6.5%) | 90 to 200 m³ |
 | Low-lactate example, food-grade plant with shared medium | $44.53 | 200 m³ (the end of the range) | $41.50 | $3.03 (6.8%) | 108 to 200 m³ |
 | Cautious | $181.13 | 200 m³ (the end of the range) | $174.37 | $6.76 (3.7%) | 78 to 200 m³ |
-| Reference (Humbird's tank, no tricks) | $15.72 | 47 m³ | $14.93 | $0.79 (5.0%) | 37 to 50 m³ |
+| Reference (Humbird's tank, no added equipment for oxygen and CO₂) | $15.72 | 47 m³ | $14.93 | $0.79 (5.0%) | 37 to 50 m³ |
 | Reference, tank design chosen again | $14.51 | 200 m³ (the end of the range) | $13.05 | $1.46 (10.1%) | 114 to 200 m³ |
 
 - **Why larger tanks now save more.** Since 2026-11-20 the plant's capital per m³ of tank follows Humbird's own accounting item
@@ -57,7 +57,7 @@ is unchanged: no animal cells have run above about 25 m³, and no animal-cell pe
   low-lactate examples' cheapest design (the column alone, tall tank, 124 g/L) passes the pH check. Above it the cheapest passing
   design is a square tank at 118 g/L and the cost steps up by $1.59 a kilo. Their thinner culture at large sizes also needs less
   membrane per kilo ($20.18 against $22.28 at 20 m³).
-- **The all-favourable example's cheapest tank keeps its tricks.** Its membranes cost $0.04 a kilo at every size (it uses
+- **The all-favourable example's cheapest tank keeps its added equipment for oxygen and CO₂.** Its membranes cost $0.04 a kilo at every size (it uses
   membranes at $8 a m²), so a thin culture saves nothing and the cheapest design at 90 m³ is the column + 1 bar in a squat tank at
   156 g/L, the 20 m³ density. The saving is all capital ($2.06 a kilo against $2.52). Against its own 42 m³ tank the saving is
   $0.12 (1.6%).
@@ -77,7 +77,7 @@ is unchanged: no animal cells have run above about 25 m³, and no animal-cell pe
 
 ## 2. How the scan works
 
-For each case and size, the scan tries every pair of tank tricks (none; column; column and 1 bar extra pressure; column, pressure
+For each case and size, the scan tries every pair of added equipment for oxygen and CO₂ (none; column; column and 1 bar extra pressure; column, pressure
 and recycled oxygen) and tank shape (liquid 1.6, 1.0, 0.75 or 0.5 times as deep as wide). That is 16 designs, as
 `scenarios.design` tries. It keeps the cheapest design whose column loop
 - is pH-safe: its alkaline dose is at most 1.0 times that of the design judged safe (55 mbar out, 0.5 m³ of loop in a 20 m³ tank), and
@@ -85,7 +85,7 @@ and recycled oxygen) and tank shape (liquid 1.6, 1.0, 0.75 or 0.5 times as deep 
 
 At 20 m³ the scan returns each scenario's own design, and its cost for the scenarios whose own tank is 20 m³; for the
 all-favourable example the same design at its own 42 m³ gives the scenario's $7.62 (the test checks both). Everything else about
-the scenario is held fixed. Humbird's optimistic design is shown twice: as defined (Humbird's tall tank, no tricks) and with the design
+the scenario is held fixed. Humbird's optimistic design is shown twice: as defined (Humbird's tall tank, no added equipment for oxygen and CO₂) and with the design
 chosen again.
 
 Two things set what a design costs at a size. The plant's capital per m³ of tank falls with size through the per-tank items
@@ -160,7 +160,7 @@ at 20 m³; its own tank is 42 m³.
 | 100 | column, tall 1.6 | **14.00** | 5.72 | 0.02 | 2.53 | 1.86 | 2.14 | 1.72 | 121 | oxygen supply | $0.88 (pH) |
 | 200 | column, tall 1.6 | **13.81** | 5.80 | 0.02 | 2.67 | 1.48 | 2.12 | 1.72 | 113 | mixing | $0.90 (pH) |
 
-#### Reference as defined (Humbird's tall tank, no tricks)
+#### Reference as defined (Humbird's tall tank, no added equipment for oxygen and CO₂)
 
 | m³ | $/kg | capital | loop | labour | membranes | medium | other | g/L | density limit |
 |---|---|---|---|---|---|---|---|---|---|
@@ -186,7 +186,7 @@ at 20 m³; its own tank is 42 m³.
   then drops the pressure and keeps the column alone at 100 and 200 m³, where the density falls to 119 to 120 g/L. The
   all-favourable and cautious examples keep column + 1 bar at every size and hold their density (153 to 156 g/L and 103 to 108 g/L).
 - **Mixing binds in one chosen design**: the reference with its design chosen again, at 200 m³. In the reference as defined (tall
-  tank, no tricks), oxygen supply binds at 2 to 10 m³ and CO₂ removal from 20 m³ up, and the culture thins from 121 g/L to 56 g/L.
+  tank, no added equipment for oxygen and CO₂), oxygen supply binds at 2 to 10 m³ and CO₂ removal from 20 m³ up, and the culture thins from 121 g/L to 56 g/L.
   That is why the reference's own cost curve turns up above 47 m³.
 - **Heat is not modelled.** At 20 m³ the cells give off 3.8 kW per m³ of culture (all-favourable, 153 g/L), 2.8 kW/m³
   (low-lactate, 154 g/L) and 1.8 kW/m³ (cautious, 103 g/L). The wall of a 20 m³ tank has about 2.9 m² per m³ of culture; at 200
@@ -342,7 +342,7 @@ How each column is built:
   each doubling of size, because the membrane area (and the number of parallel units, up to 173 in the low-lactate example at 200
   m³) grows with the tank, and a failure in one unit has more units to occur in. Below 20 m³ it rises toward the 2 m³ perfusion
   tanks that are standard in pharma.
-- **The scenario's own design at each size.** An earlier column multiplied R by factors for density and for the tricks, judged
+- **The scenario's own design at each size.** An earlier column multiplied R by factors for density and for the added equipment, judged
   for designs the model no longer chooses (258 g/L); it is deleted. For a scenario's design to work at a size, R must hold at the
   design's density (153 to 156 g/L for the all-favourable example, 119 to 154 g/L for the low-lactate example, 103 to 108 g/L for
   the cautious one), and the column and 1 bar of pressure must work at that size for four weeks. Neither has been shown at any
@@ -381,7 +381,7 @@ The scenarios can run the tank in fed-batch (`scenarios.SW["mode"]`), and the fi
 by its waste (the mass balance, `vessels_and_modes.md` section 10), not by gas exchange, so a deeper tank costs it no density.
 Its handicap against perfusion is capital: the same plant makes a sixth to a half of the kilos. A bigger tank makes the capital
 cheaper per m³, so size matters more to fed-batch than to perfusion. `tank_size.fedbatch_at` prices each scenario's switches in
-fed-batch at each size, tank design chosen again (the low-lactate examples come out the tall tank with no tricks; the
+fed-batch at each size, tank design chosen again (the low-lactate examples come out the tall tank with no added equipment for oxygen and CO₂; the
 all-favourable example's the column and the pressure, a column of no size in fed-batch: an open point, see
 `no_perfusion_downside.md`, section 2). Since 2026-11-21 each size also shows perfusion in a tank of that size, its design
 chosen again (`tank_size.perfusion_at`); the first column is each scenario at its own tank:

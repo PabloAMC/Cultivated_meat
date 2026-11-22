@@ -30,7 +30,7 @@ gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity
 |---|---|---|---|---|
 | More gas per litre, with a protectant | CO₂ and oxygen | yes, until foam; foam is the cap, not physics of transfer (`gas_flow_cap.md`) | 0.1–0.2 vvm in dense CHO at 3–200 L (repo) | the "gas the cells tolerate" switch |
 | Pure oxygen in the sparge gas | oxygen | yes; cost is bought or made oxygen | standard in pharma (memory) | Humbird's 90% oxygen is the default |
-| Pressure in the headspace | oxygen (not CO₂) | yes; steam-rated steel takes 1–3 bar | none with cells at 1 bar gauge (repo) | the "1 bar" tank trick |
+| Pressure in the headspace | oxygen (not CO₂) | yes; steam-rated steel takes 1–3 bar | none with cells at 1 bar gauge (repo) | the "1 bar" added equipment for oxygen and CO₂ |
 | Two spargers: a microsparger for oxygen, a drilled pipe for CO₂ | decouples oxygen and CO₂; fewer, larger bubbles strip CO₂ with less foam | yes | common in high-density pharma processes (memory; Xing et al. describe stripping with larger bubbles, repo) | **not in the model**: one gas flow does both jobs |
 | Microspargers (fine bubbles) | oxygen per litre of gas | yes, but more foam and more cell damage per bubble surface | common (search) | not separate |
 | Antifoam choice and dose | oxygen (antifoam costs transfer) | yes | effect 0–50% (repo) | `pf_antifoam_otr` = 0.75, a judgement |
@@ -41,7 +41,7 @@ gas. Beyond both sits the thickness of the culture (258 g/L, Humbird's viscosity
 
 | trick | what it relieves | scales? | evidence of scale | in the model |
 |---|---|---|---|---|
-| Packed stripping column beside the tank | CO₂ without bubbles; oxygen with an oxygen sweep | yes: towers are ordinary industrial equipment; the open questions are the cells (film, pH, deposits) | not with animal cells (repo) | the "column" tank trick |
+| Packed stripping column beside the tank | CO₂ without bubbles; oxygen with an oxygen sweep | yes: towers are ordinary industrial equipment; the open questions are the cells (film, pH, deposits) | not with animal cells (repo) | the "column" added equipment for oxygen and CO₂ |
 | Bubble cage (Pablo's design): sparger in a fine-mesh inner cylinder | gas the cells never feel | **poorly**: the mesh area grows as size² while volume grows as size³, so exchange per litre falls; fine mesh clogs | microcarriers, small tanks (search) | vessel row "Stirred tank with a bubble cage" |
 | Gas-filled inner cylinder (a membrane) | oxygen with pressure; CO₂ only with a CO₂-free sweep | only by packing area: about 9 m² of wall against 1,200–1,500 m² needed (`vessels_and_modes.md` §9) | — | not a row |
 | Membrane bundle in the tank or on a loop | bubble-free oxygen and CO₂ | yes if area is packed; the obstacles are a steam-rated, non-wetting, non-fouling fibre at under about $100/m² | 50 L tubular, about 200 L dynamic membrane (search) | set aside (`gas_exchange_study.md` §7.5) |

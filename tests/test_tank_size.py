@@ -24,7 +24,7 @@ import tank_size as T                       # noqa: E402
 # cells' balance (cautious: the published cells' lactate sets 95 L/kg, +$55.7 at every size)
 # 2026-11-20 batch (lactate tolerance 35 mmol/L in the scenarios, bubble deaths, harvest loss, twice the fed-batch crew in perfusion,
 # membrane life 2,415 L/m2, medium preparation capital, utilities in four parts): every row moves, and the designs chosen change
-# (the all-favourable example: the column alone in a tall tank at 20 m3, no tricks from 50 m3)
+# (the all-favourable example: the column alone in a tall tank at 20 m3, no added equipment for oxygen and CO₂ from 50 m3)
 # 2026-11-20 final pass: per-tank plant items (floor_physics.tank_items: the tank, its makeup tanks and filter housings and the
 # buildings are charged per tank, so capital per m3 falls with size over much more than the 32% bioreactor share), thick
 # cultures take up oxygen more slowly (viscous_kla: lower densities), and the all-favourable example redefined ($7.62 at its own
@@ -178,7 +178,7 @@ ob, oc, oq = opt["best"], opt["central"], opt["cautious"]
 check(oq["size"] >= 199.0 and 3.4 < oq["saving_pct"] < 4.0, f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
 check(40.0 < ob["size"] < 50.0 and 2.8 < ob["saving_pct"] < 3.4, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
 check(oc["size"] >= 199.0 and 6.2 < oc["saving_pct"] < 6.8, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
-# Until 2026-11-20 the all-favourable example's optimum was a thin culture with no tricks (59 g/L at 121 m3) whose harvest carried
+# Until 2026-11-20 the all-favourable example's optimum was a thin culture with no added equipment for oxygen and CO₂ (59 g/L at 121 m3) whose harvest carried
 # out its own spent medium, saving membranes at $1,450 a m2. The example now uses membranes at $8 a m2 ($0.04 a kilo at every
 # size), so a thin culture saves nothing and the optimum keeps the 20 m3 design's column + 1 bar and its density (156 g/L).
 # 2026-11-21: the optimum is now the recycled-oxygen column in a flat tank held at 219 g/L, the all-favourable example's own design
@@ -215,7 +215,7 @@ WI = dict(T.WHAT_IFS)
 crew = T.optimum("best", WI["labour follows Humbird's crew rule"])
 haz = T.optimum("best", WI["chance of losing a run grows with tank size"])
 relax = T.optimum("best", WI["pH check relaxed to twice the safe dose"])
-# 2026-11-20: the all-favourable example's optimum sits at the size where its filter duty reaches zero (121 m3, no tricks), a kink in
+# 2026-11-20: the all-favourable example's optimum sits at the size where its filter duty reaches zero (121 m3, no added equipment for oxygen and CO₂), a kink in
 # the cost curve, so the crew rule does not move the size; it lowers the cost there and raises the saving against 20 m3 (5% -> 23%)
 # 2026-11-20 final pass: the crew rule moves the all-favourable optimum to the 200 m3 end of the range (18.2%). The low-lactate
 # example's optimum (168 m3) is the largest size at which its column-alone tall design passes the pH check; above it the design

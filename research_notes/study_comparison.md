@@ -213,7 +213,7 @@ Not stated by: CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitk
 
 Not stated by: CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitka 2024, SuperMeat 2024, Lever VC 2025, GFI 2021, GFI 2026.
 
-**Tank tricks and tank shape** (settings of the two tank-design switches; the setting that costs least is taken). Taken: **pressure, square**, from this model's own favourable end.
+**Added equipment for oxygen and CO₂, and tank shape** (settings of the two tank-design switches; the setting that costs least is taken). Taken: **pressure, square**, from this model's own favourable end.
 
 | source | value | where it is from |
 |---|---|---|

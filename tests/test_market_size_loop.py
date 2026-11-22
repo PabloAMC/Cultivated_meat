@@ -44,7 +44,7 @@ def check() -> list:
                 if abs(r["share"] - 100.0 * r["volume_mt"] / value("ms_world_meat")) > 1e-3:
                     fails.append(f"{k}, {case}, from {start}: the resting point's cost does not buy the share its volume is")
         lo, hi = s["solved"][(k, "central", "below")], s["solved"][(k, "central", "above")]
-        # 2026-11-19 restructure: the published cells are priced in perfusion as "cautious" ($92.17, the old rung 1 with the tank tricks),
+        # 2026-11-19 restructure: the published cells are priced in perfusion as "cautious" ($92.17, the old rung 1 with the added equipment for oxygen and CO₂),
         # and in the central case they have two resting points: $91.80 left alone, $55.98 if pushed
         # 2026-11-20 (engine batch): the published cells in perfusion cost $183.15 and sell about 900 t a year; even with everything
         # at its floor ($78.27) they would sell 0.02 Mt, whose membrane (about 1.3 million m2 at their 0.067 m2 a kilo) the cost at

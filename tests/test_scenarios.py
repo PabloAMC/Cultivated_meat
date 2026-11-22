@@ -129,10 +129,10 @@ g = S.grid(c0, "cells", "tricks")
 check(abs(g["cost"][g["rows"].index(c0["cells"])][g["cols"].index(c0["tricks"])] - cost["central"]) < 1e-9, "grid: the current cell is not the current cost")
 its = S.interactions(c0, 8)
 check(len(its) > 0 and all(abs(x["gap"]) >= 0.25 for x in its), "interactions: expected some pair to interact")
-# the physics says a tank trick matters little when the cells waste a lot: the trick must save less with ordinary cells
+# the physics says a piece of added equipment for oxygen and CO₂ matters little when the cells waste a lot: the trick must save less with ordinary cells
 bad = {**c0, "cells": "ordinary"}
 tr_ok = (S.run({**c0, "tricks": "none"})["total"] - S.run(c0)["total"]) > (S.run({**bad, "tricks": "none"})["total"] - S.run(bad)["total"]) * 0.0
-check(tr_ok, "tank tricks should still help with ordinary cells")
+check(tr_ok, "added equipment for oxygen and CO₂ should still help with ordinary cells")
 
 # 9. the band: the point is inside the 10th-90th percentile, and the run is reproducible
 b1, b2 = S.bands(c0, 300), S.bands(c0, 300)
@@ -204,7 +204,7 @@ for (a, b), want in STEP.items():
     ca, cb = S.SCENARIOS[a].choice, S.SCENARIOS[b].choice
     got = {k for k in S.KEYS if ca[k] != cb[k]} - {"tricks", "shape"}         # the tank design is chosen again at each rung
     check(got == want, f"rung {a} -> {b} changes {sorted(got)}, expected {sorted(want)}")
-check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no tank tricks")
+check(S.SCENARIOS["today"].choice["tricks"] == "none" and S.SCENARIOS["today"].choice["shape"] == "tall", "rung 1 has no added equipment for oxygen and CO₂")
 for k in ("today", "process", "selected"):
     check(S.SCENARIOS[k].choice["mode"] == "fedbatch", f"{k} should be fed-batch at 20 m3, what has been shown")
 for k in ("central", "central_lean", "engineered", "best", "cautious"):
@@ -262,11 +262,11 @@ for r in w:
     if r["pick"] is not None:
         check(r["pick"][0] <= r["need"] + 1e-9, "a picked trait set must reach the cost")
 
-# 13. what the tank design relies on is stated, with the cost without it (rung 2 is fed-batch since 2026-11-19 and uses no tricks)
-check(S.tricks_report(S.SCENARIOS["process"].choice)["used"] == [], "rung 2 (fed-batch) should use no tank tricks")
+# 13. what the tank design relies on is stated, with the cost without it (rung 2 is fed-batch since 2026-11-19 and uses no added equipment for oxygen and CO₂)
+check(S.tricks_report(S.SCENARIOS["process"].choice)["used"] == [], "rung 2 (fed-batch) should use no added equipment for oxygen and CO₂")
 for k in ("best", "central"):
     tr = S.tricks_report(S.SCENARIOS[k].choice)
-    check(len(tr["used"]) > 0, f"{k}: expected tank tricks to be listed")
+    check(len(tr["used"]) > 0, f"{k}: expected added equipment for oxygen and CO₂ to be listed")
     check(abs(tr["no_tricks"] - S.run({**S.SCENARIOS[k].choice, "tricks": "none"})["total"]) < 1e-9, f"{k}: no-tricks cost")
     check(tr["ordinary_tank"] >= tr["no_tricks"] > tr["cost"], f"{k}: costs without tricks should rise")   # equal when the tank is already tall
     check(f"${tr['no_tricks']:.1f}" in S.story_text(k) and f"${tr['ordinary_tank']:.1f}" in S.story_text(k),

@@ -150,7 +150,7 @@ draw", so that the steps can be subtracted; the table gives both.
   20 m³ tank, the mode and size pharma runs and Upside Foods reports (`research_notes/vessels_and_modes.md`, section 11). Medium
   costs $0.30 a litre, between the $0.20 companies announce and the $0.50 one company reports.
 - **Row 2, Plus process changes and cheaper inputs ($304.8).** The same cells and mode. Medium at the announced $0.20 a litre and
-  growth factors at 30% of Humbird's price; more gas, the tank tricks and a faster restart do nothing for a batch held by its waste.
+  growth factors at 30% of Humbird's price; more gas, the added equipment for oxygen and CO₂ and a faster restart do nothing for a batch held by its waste.
 - **Row 3, less lactate and faster growth ($70.3).** Cells that make 0.42 mol of lactate per mol of glucose and double every 36
   hours, grown in a 20 m³ batch.
 - **Row 4, the low-lactate example ($48.7).** The same cells in perfusion.
@@ -168,7 +168,7 @@ example's traits (2026-11-21; it was $22.3).
 
 An announced or reported medium price is taken to include its growth factors (`growth_factors_in_medium_price.md`), so no row
 with such a medium buys growth factors on top. Humbird's optimistic design is not a row of the steps: it assumes cells with almost
-no waste (Humbird's 3 ng cell) and none of the tank tricks. The path from it to the all-favourable example, one lever at a time, is
+no waste (Humbird's 3 ng cell) and none of the added equipment for oxygen and CO₂. The path from it to the all-favourable example, one lever at a time, is
 in section 1.
 
 **The bands.** Each row's switches stay fixed, and the estimates behind it are drawn (4,000 draws). On the cost side: the plant's
@@ -184,10 +184,10 @@ of cells and their speed are not drawn: they are what the rows differ in.
   (1.05 mol per mol of glucose taken up). By their own balance they need about 4.5 mol of glucose a kilo and make 4.8 mol of
   lactate. Nothing washes it out of a batch, so held to 1.3 times the 35 mmol/L perfusion allows, the batch stops at 10 g/L. The
   plant then makes few kilos: its charge is $222.3 a kilo, labour $41.6 and utilities $11.7 (since 2026-11-21 the food-grade hall
-  draws an eighth of a clean room's power). Each kilo leaves with 108 litres of medium ($33.8). In perfusion with the tank tricks
+  draws an eighth of a clean room's power). Each kilo leaves with 108 litres of medium ($33.8). In perfusion with the added equipment for oxygen and CO₂
   the same cells would cost $181.1 (the cautious scenario): 146 litres of medium a kilo, but a tank 14 times denser (134 g/L).
 - **Process changes and cheaper inputs take $11.3 off, to $304.8, without touching the cells.** All of it is the cheaper medium. A
-  batch this thin is not held by gas, so more gas, the tank tricks and a faster restart are worth nothing.
+  batch this thin is not held by gas, so more gas, the added equipment for oxygen and CO₂ and a faster restart are worth nothing.
 - **Less lactate takes $234.5 off, to $70.3: the largest step in dollars.** These cells make 1.1 mol of lactate a kilo, against 4.8.
   Ammonia (0.14 mol a kilo, held to 1.3 times 4 mmol/L) then holds the batch at 37 g/L, nearly four times denser. The lower lactate
   alone is worth $228.3; the 36-hour doubling in place of 43 adds $11.2. Upside's reported capacity implies 33–136 g/L a batch, and
@@ -199,7 +199,7 @@ of cells and their speed are not drawn: they are what the rows differ in.
   the batch. Since 2026-11-21 the tank's design is a column beside the tank that strips CO₂ and feeds recycled oxygen, with 1 bar of
   extra pressure, held at 168 g/L: the densest culture at which that loop passes its checks on pH and on passes an hour (the design
   search drops no design whose loop fails at full density any more; it runs it thinner). Before, oxygen held the tank at 154 g/L
-  ($49.50). Nobody has run this tank design with animal cells. Without the tank tricks a kilo costs $54.7. At 30 hours the
+  ($49.50). Nobody has run this tank design with animal cells. Without the added equipment for oxygen and CO₂ a kilo costs $54.7. At 30 hours the
   low-lactate example costs $46.3, and at 24 hours $43.8.
 - **A cheaper plant takes $4.2 off, to $44.5.** It is Humbird's plant without a clean hall, an oxygen plant or eight seed tanks,
   and with one medium line for all the tanks. Nobody has built one. In a batch it would save more ($16.4, to $53.9), because a
@@ -223,7 +223,7 @@ of cells and their speed are not drawn: they are what the rows differ in.
   near its middle, which no data pin (section 2). Conventional meat's lower price, as cultivated meat takes its sales, takes 4.1
   points off the 23.4% (its prices fall by about a tenth).
 - **Humbird's optimistic design costs $15.7 (middle draw $22; 8 in 10 between $17 and $29) and takes 1.4% at that cost (middle
-  draw 0.7%; 0.2–2.6%).** It has cells with almost no waste, of 3 ng, but no tank tricks, a 24-hour doubling, the engine's own
+  draw 0.7%; 0.2–2.6%).** It has cells with almost no waste, of 3 ng, but no added equipment for oxygen and CO₂, a 24-hour doubling, the engine's own
   filter loop and a plant without shared medium. The all-favourable example is by construction never dearer than it, because it
   takes every lever on which his design is the more favourable.
 - **Holding the cells back is the largest single cost in the low-lactate example.** A filter loop must clear the medium that the
@@ -258,7 +258,7 @@ of cells and their speed are not drawn: they are what the rows differ in.
   published cells, +$160.3 with ordinary meat cells. Next comes how the tank is run: in a 20 m³ batch a kilo costs $21.6 more (in a
   100 m³ batch, $5.9 more). Then growth factors (+$5.3 at 60% of Humbird's price and +$12.6 if all were bought at his price; nothing
   at 30% or less, since they are inside the medium price), the medium price (−$0.3 at the nutrient floor, +$11.9 at $0.50 a litre),
-  the tank tricks (+$6.1 if none work; the example already takes the cheapest), runs lost (−$4.1 at 0.2% a day, +$5.5 at 2%), growth
+  the added equipment for oxygen and CO₂ (+$6.1 if none work; the example already takes the cheapest), runs lost (−$4.1 at 0.2% a day, +$5.5 at 2%), growth
   speed (−$5.5 at 24 hours, +$3.3 at 43), the plant (−$4.2 with shared medium) and the gas the cells tolerate: with the
   oxygen-feeding column, 2 mm/s costs $1.9 less than the example's 4 mm/s, because fewer bubbles kill fewer cells and the column
   supplies the oxygen, and 6 mm/s costs $2.1 more. The kind of cells matters most because waste sets the litres of medium a kilo, and each litre must also pass the
@@ -379,7 +379,7 @@ Costs in the table are at most likely values.
 
 **For funders,** in order: cells that make less lactate and ammonia and still grow fast, which is the ladder's largest step; a
 filter, or another way of holding cells back, that lasts in a dense culture; the ammonia and lactate measurements; how many cells
-bubbles kill in a dense culture with protectant; the price of medium at production scale; tank tricks that clear CO₂ without
+bubbles kill in a dense culture with protectant; the price of medium at production scale; added equipment for oxygen and CO₂ that clear CO₂ without
 bubbles; and a cheaper class of plant for animal cells. Section 6 gives the reasons.
 
 ## 1. Cost and the price ratio
@@ -397,7 +397,7 @@ what the cells eat and no lost runs, unless the row says otherwise. R is the sho
 | Humbird's fed-batch design, 2025 prices | $24.9 | 3.18 | a detailed design with efficient cells; not built |
 | a pharma-style plant, tanks drained and refilled, first-plant financing | $22.5 | 2.90 | physics-based; efficient cells at this density not shown |
 | Humbird's optimistic design with first-plant financing | $18.4 | 2.42 | the row below at 23.6% of the plant's cost a year |
-| **Humbird's optimistic design (what earlier versions called the floor): a standard perfusion tank, no tricks; no clean rooms, perfusion, efficient cells, food-industry financing** | **$15.7** | **2.11** | physics-based; each piece shown separately, never together; a hollow-fibre filter loop holds the cells back, never run at 20 m³ |
+| **Humbird's optimistic design (what earlier versions called the floor): a standard perfusion tank, no added equipment for oxygen and CO₂; no clean rooms, perfusion, efficient cells, food-industry financing** | **$15.7** | **2.11** | physics-based; each piece shown separately, never together; a hollow-fibre filter loop holds the cells back, never run at 20 m³ |
 | Humbird's optimistic design in a plant as cheap as a yeast plant (no scenario assumes it), buying its oxygen | **$10.7** | **1.53** | such plants exist for microbes; none built or costed for animal cells |
 | rough lower bound | $3.0 | 0.63 | a bound, not a design |
 
@@ -460,7 +460,7 @@ medium price and cell efficiency can improve on the report. It does not include 
 
 **What the tricks do, and what the cells decide.** Research notes size ways round the tank's limits
 (`research_notes/gas_exchange_study.md`, `waste_tricks_sizing.md`); `floor_physics.explore` carries them as
-levers, and the page's panel shows each limit as a bar. Every tank trick here is a change of feed or process; the
+levers, and the page's panel shows each limit as a bar. Every added equipment for oxygen and CO₂ here is a change of feed or process; the
 kinds of cell are set by their traits, against the best measured in meat cells.
 
 The settings of these tables are not the scenarios'. They run `explore()` as Humbird's optimistic design does: a tall 20 m³
@@ -507,7 +507,7 @@ from $15.7 to $13.9, still above the $6.1 parity mark, and in a yeast-style plan
 everything). Since the filter loop is priced, a denser culture saves less: the bleed carries out less liquid, so more passes the
 membranes. With 0.14 ammonia and 0.39 lactate the enhanced cell needs 31 litres of medium per kg (ammonia sets it), and the tricks take
 it from $32.0 to $30.0 ($27.0 in a yeast-style plant, sparger only). With cells that have actually been measured, waste sets the
-medium and the tank tricks are worth little: every trick together takes the best meat cells from $105.0 to $100.5, 4%, against 11%
+medium and the added equipment for oxygen and CO₂ are worth little: all of these together take the best meat cells from $105.0 to $100.5, 4%, against 11%
 for the enhanced cells. The tricks raise the density, not the litres of medium, and for these cells the litres are most of the
 cost: lactate sets them at 107 a kilo. The one tank-side change that helps them is fat in the feed, $105.0 to $73.2: cells that
 take their fat from the feed need less glucose (4.3 mol a kilo falls to 2.9), make less lactate (4.5 mol falls to 3.0) and need
@@ -1313,8 +1313,8 @@ Costs here are at most likely values. The swings are from "What the answer rests
    much ammonia the low-lactate example's cells make per kilo grown ($44 to $80; measured once, in flasks).
 4. **The price of medium and of the bubble protectant at production scale:** verify the $0.20 a litre reports and what is in the
    medium, on a stated mass basis. Medium at $0.50 adds $11.9 to the low-lactate example. A tonne quote for poloxamer 188 would settle $47 to $54.
-5. **Tank tricks that clear CO₂ without bubbles** (a column on a pumped loop, pressure, recycled oxygen) and **the gas flow cells
-   tolerate:** calculated, never tried with meat cells. Without the tricks the low-lactate example costs $6.1 more. For the published
+5. **Added equipment for oxygen and CO₂ that clear CO₂ without bubbles** (a column on a pumped loop, pressure, recycled oxygen) and **the gas flow cells
+   tolerate:** calculated, never tried with meat cells. Without the added equipment for oxygen and CO₂ the low-lactate example costs $6.1 more. For the published
    cells in perfusion they are worth $23.5; in a batch, nothing. Since 2026-11-20 gas also kills: how many cells bursting bubbles kill
    in a dense, protected culture moves the low-lactate example between $46 and $59, and rests on one bench study.
 6. **A cheaper class of plant for animal cells:** a food-grade plant with shared medium (no clean room, shared medium line, bought
