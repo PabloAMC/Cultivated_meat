@@ -269,6 +269,9 @@ def build_model() -> dict:
         # 2026-11-20: conventional meat's price falls as cultivated meat takes sales (meat_market._rollup), and the share of each
         # region's market closed by law, by level (meat_market.closed_share): none, permanent bans, every law, and religious (world)
         "mk_supply": value("mk_supply_elast"), "mk_demand": value("mk_demand_elast"), "closed_level": int(round(value("mk_closed_level"))),
+        # 2026-11-22 (sixth batch): kilos of conventional meat not bought for each kilo sold (meat_market._rollup's price fall; the
+        # entry points' tonnes displaced)
+        "meat_displaced": value("meat_displaced_per_kg"),
         "closed": {r: [mm.closed_share(r, lv) for lv in range(len(mm.CLOSED_LEVELS))] for r in mm.MARKETS},
         # "premium" as a LABEL for charts (nothing numeric depends on it), and the premium penalty's price range (tierOffset)
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
@@ -1094,6 +1097,9 @@ LEVER_REFS = {
     "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported")],
     "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model: novelty faded"), (30, "stated intent in UK and US surveys"), (50, "no preference")],
     "cut": [(20, "this model"), (80, "products on sale are 70 to 97% plant")],
+    # kilos of conventional meat not bought for each kilo sold (meat_displaced_per_kg, 2026-11-22, sixth batch)
+    "displaced": [(0.0, "plant-based meat: no measurable fall in meat orders, Winslow 2026 (restaurants) and Hope 2026 (a menu experiment)"),
+                  (1.0, "this model's assumption: a kilo of conventional meat for each kilo sold")],
     # the closed-market lever: the value is the level of meat_market.closed_share (CLOSED_LEVELS); each level adds to the one before
     "closed": [(0, "none"), (1, "permanent bans: five US states (this model)"),
                (2, "every law in force: also three US temporary bans and Italy's and Hungary's contested laws"),
@@ -3287,7 +3293,10 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       rest is reachable. Cultivated meat wins a share \(s\) of it from the same shopper model as Step 2, using \(\tau\) for
       mince or for a cut (A5) without the premium part. (The premium part stands for the prestige core, which the model has already removed.)</p>
       \[ Q^{\rm reach} = (1-\chi)\,Q,\qquad s = S\big(R;\ \tau_{\rm mince\ or\ cut}\big),\qquad
-         D = s\cdot Q^{\rm reach}\quad(\text{kt/yr displaced}) \tag{A6b} \]
+         D = d\,s\cdot Q^{\rm reach}\quad(\text{kt/yr displaced}) \tag{A6b} \]
+      <p>Here \(d\) is the kilos of conventional meat not bought for each kilo of cultivated meat sold (the lever in the side bar,
+      1 by default). Each kilo sold is counted as a kilo of conventional meat not bought; this has not been measured for cultivated
+      meat. For plant-based meat, restaurant and supermarket data find almost none (Winslow 2026; Hope 2026; Peacock 2026).</p>
       <p><b>Zones.</b> A product is <i>about equal</i> if the accessible price is within $3 of cultivated meat's cost. It is <i>cheaper now</i> if
       the accessible price is above that. It is <i>only in the all-favourable example</i> if the accessible price is above the cost of the all-favourable example. Otherwise it is
       <i>never on price</i>. A single-grade
@@ -3818,13 +3827,15 @@ function tierOffset(structured,ramp,r,cells,K){
 function closedShare(s){ if(s.closed_custom!==undefined&&s.closed_custom!==null&&s.region===state.region) return s.closed_custom;
   const lv=s.closed_level===undefined?C.closed_level:s.closed_level, t=C.closed[s.region]; return t?t[lv]:0; }
 function convExp(s){ const es=s.mk_supply===undefined?C.mk_supply:s.mk_supply; return (es===null||!isFinite(es))?0:1/(es-C.mk_demand); }
+// kilos of conventional meat not bought for each kilo sold (mirror of meat_market._rollup's `displaced`, the input meat_displaced_per_kg)
+function meatDisplaced(s){ const d=(s&&s.meat_displaced!==undefined&&s.meat_displaced!==null)?s.meat_displaced:state.meat_displaced; return (d===undefined||d===null)?C.meat_displaced:d; }
 // conventional meat's prices fall as cultivated meat takes sales, solved with the share (mirror of meat_market._rollup's fixed
 // point); the closed share of the market takes its part off cultivated meat's volume and value shares
 function penetration(s){
-  const K=KP||effConsts(s), market=MODEL.markets[s.region], b=biomass(s), cl=closedShare(s), k=convExp(s);
+  const K=KP||effConsts(s), market=MODEL.markets[s.region], b=biomass(s), cl=closedShare(s), k=convExp(s), dsp=meatDisplaced(s);
   let f=1, out=penOnce(s,K,market,b,1);
-  if(k!==0){ let f0=1, h0=1-Math.pow(1-out.tv*(1-cl),k); f=f0-h0;      // the secant method from f = 1 (mirror of meat_market._rollup)
-    for(let it=0;it<30;it++){ out=penOnce(s,K,market,b,f); const h=f-Math.pow(1-out.tv*(1-cl),k);
+  if(k!==0){ let f0=1, h0=1-Math.pow(1-dsp*out.tv*(1-cl),k); f=f0-h0;      // the secant method from f = 1 (mirror of meat_market._rollup)
+    for(let it=0;it<30;it++){ out=penOnce(s,K,market,b,f); const h=f-Math.pow(1-dsp*out.tv*(1-cl),k);
       if(Math.abs(h)<1e-8) break; const d=h-h0, step=Math.abs(d)>1e-14?h*(f-f0)/d:h; f0=f; h0=h; f=f-step; } }
   out.tv*=(1-cl); out.tval*=(1-cl); out.conv_f=f; out.closed=cl; out.rows.forEach(r=>{ r.sh*=(1-cl); });
   return out;
@@ -4350,7 +4361,7 @@ function footR(s,pd){return footRetail(s,pd.structure==="structured")/pd.p_base;
 function footHasRent(p){return p.p_base!=null && p.p_conv!=null && p.p_base<p.p_conv;}   // a distinct, cheaper accessible tier exists
 function footPhi(p){return footHasRent(p) ? (state.phi===undefined?0.25:state.phi) : 0;}  // global prestige share φ where a rent tier exists
 function footAddr(p){return (1-footPhi(p))*p.volume_kt;}                              // addressable base (prestige core removed)
-function footDisplace(s,p){return footShare(s,p)*footAddr(p);}  // conventional volume DISPLACED (kt/yr) = break-even share × addressable. The rung's impact metric — NO margin/profit claim: cultivated is assumed to price at its own cost (0% margin), since cost, price and volume are too coupled to pin a credible $-figure.
+function footDisplace(s,p){return footShare(s,p)*footAddr(p)*meatDisplaced(s);}  // conventional volume DISPLACED (kt/yr) = break-even share × addressable × kilos of conventional meat not bought a kilo sold (meat_displaced_per_kg, 1 by default). The rung's impact metric — NO margin/profit claim: cultivated is assumed to price at its own cost (0% margin), since cost, price and volume are too coupled to pin a credible $-figure.
 function fillFootholdSel(){
   const sel=document.getElementById("footSel"); if(!sel) return;
   const P=C.foothold_products;

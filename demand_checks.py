@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-demand_checks.py — is the model's response to price as strong as measured ones? Four checks, and what each would change.
+demand_checks.py — is the model's response to price as strong as measured ones? Four checks, and what each would change; and
+since 2026-11-22 (sixth batch) a fifth, the menu check: what adding plant-based meat to a menu takes from meat (Hope 2026).
 
 Why
 ---
@@ -144,6 +145,13 @@ def markdown_checks() -> str:
            f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} ({label}: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |",
            f"| Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | {PB_ELASTICITY_MEASURED:.2f} | "
            f"{s['pb']['elasticity']:.2f} | {s['pb_before']['elasticity']:.2f} (with no committed buyers, the model before 2026-11-21's fourth batch) |"]
+    m = menu_summary()
+    b = m["before"][0]
+    out.append(f"| Adding plant-based meat priced like the meat it copies to a menu: fall in meat's share, points, and the share of the new "
+               f"option's orders taken from meat (menu experiment, Hope 2026; US) | {HOPE_FALL:g} ({HOPE_CI[0]:g} to {HOPE_CI[1]:g}; "
+               f"{HOPE_RULED_OUT:g} or more ruled out); about {HOPE_FROM_MEAT * 100:.0f}% from meat | {m['fall']:.2f}; "
+               f"{m['from_meat'] * 100:.0f}% from meat | {b['fall']:.2f}; {b['from_meat'] * 100:.0f}% from meat (with no committed "
+               f"buyers, the model before 2026-11-21's fourth batch) |")
     return "\n".join(out)
 
 
@@ -234,6 +242,76 @@ def markdown_insensitive() -> str:
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------------------- the menu check (2026-11-22, sixth batch)
+# Hope, Green, Peacock and Mathur 2026 (Food Quality and Preference 143:105931): a randomised online menu, Chipotle-style, 4,431 US
+# adults. The control menu had meat fillings and a vegetarian option; the treatment added Sofritas and a chicken-style plant-based
+# meat priced like chicken and pictured as chicken. Meat orders fell by 2.1 points (95% CI -4.4 to +0.1); a fall of 5 points or more
+# was ruled out. Orders by arm (as reported by Green Queen, 2026): control meat 89.1%, vegetarian 9.2%; both new options added: meat
+# 87.6%, vegetarian 5.7%. So of the about 5.0 points the new options took, 1.5 came from meat (about 30%) and 3.5 from the
+# vegetarian option: "most" came from the vegetarian option, as the authors say.
+HOPE_FALL = 2.1                     # points of meat orders, the study's estimate
+HOPE_CI = (0.0, 4.4)                # the fall's 95% interval, read as a fall (the interval's top end is a rise of 0.1)
+HOPE_RULED_OUT = 5.0                # a fall this large or larger was ruled out: the pass mark
+HOPE_ARMS = {"control": {"meat": 89.1, "veg": 9.2}, "both": {"meat": 87.6, "veg": 5.7}}
+HOPE_FROM_MEAT = ((HOPE_ARMS["control"]["meat"] - HOPE_ARMS["both"]["meat"])
+                  / ((HOPE_ARMS["control"]["meat"] - HOPE_ARMS["both"]["meat"]) + (HOPE_ARMS["control"]["veg"] - HOPE_ARMS["both"]["veg"])))
+MENU_GROUPS = ((None, "every shopper"), ("M", "the mainstream (its ordinary shoppers and plant-based meat's committed buyers)"),
+               ("O", "the mainstream's ordinary shoppers"), ("K", "plant-based meat's committed buyers"), ("E", "the ethical segment"))
+
+
+def menu_check(pr: M.DemandParams | None = None, price: float = 1.0) -> list:
+    """The menu experiment in the model. The model's four choices map onto the menu as: conventional meat = the meat fillings, the
+    whole-food outside option = the vegetarian option, plant-based meat = the new options, and cultivated meat absent (it was not on
+    the menu). The control menu is the model without plant-based meat; the treatment adds it at `price` times the meat it copies
+    (1: priced like chicken, as in the study), with the taste the model gives plant-based meat. US shoppers (the reference income),
+    for every shopper and for each group. Returns, for each group: the shares before and after (%), the fall in meat's share in
+    points, and the share of the new option's choices that came from meat."""
+    pr = S._demand() if pr is None else pr
+    old = pr.price_pb_mult
+    pr.price_pb_mult = price
+    try:
+        out = []
+        for seg, name in MENU_GROUPS:
+            if seg == "K" and pr.pb_committed_share <= 0.0:
+                continue
+            g = lambda which, pb: M.share(1.0, pr, cultivated_present=False, plant_based_present=pb, which=which, segment=seg) * 100.0
+            c0, w0, c1, w1, p1 = g("c", False), g("w", False), g("c", True), g("w", True), g("p", True)
+            out.append({"group": name, "meat_before": c0, "veg_before": w0, "meat_after": c1, "veg_after": w1, "new": p1,
+                        "fall": c0 - c1, "from_meat": (c0 - c1) / p1 if p1 > 0 else float("nan")})
+        return out
+    finally:
+        pr.price_pb_mult = old
+
+
+def menu_summary() -> dict:
+    """The menu check: the size of the fall in meat's share (passes when under HOPE_RULED_OUT and inside HOPE_CI) and its source
+    (the share of the new option's choices taken from meat, against the study's about 30%)."""
+    if "menu" not in _SUM:
+        rows = menu_check()
+        own = menu_check(price=S._demand().price_pb_mult)
+        before = menu_check(M.DemandParams(pb_committed_share=0.0, price_insensitive_share=0.0))
+        t = rows[0]
+        _SUM["menu"] = {"rows": rows, "own_price": own, "before": before, "fall": t["fall"], "from_meat": t["from_meat"],
+                        "size_passes": HOPE_CI[0] <= t["fall"] < HOPE_RULED_OUT and t["fall"] <= HOPE_CI[1],
+                        "source_passes": t["from_meat"] < 0.5}
+    return _SUM["menu"]
+
+
+def markdown_menu() -> str:
+    m = menu_summary()
+    out = ["| shoppers | meat, without plant-based meat | vegetarian (the whole-food option), without | meat, with plant-based meat at "
+           "meat's price | vegetarian, with | plant-based meat | fall in meat's share, points | of plant-based meat's choices, "
+           "taken from meat |", "|---|---|---|---|---|---|---|---|"]
+    for r in m["rows"]:
+        out.append(f"| {r['group']} | {r['meat_before']:.2f}% | {r['veg_before']:.2f}% | {r['meat_after']:.2f}% | {r['veg_after']:.2f}% | "
+                   f"{r['new']:.2f}% | {r['fall']:.2f} | {r['from_meat'] * 100:.0f}% |")
+    h = HOPE_ARMS
+    out.append(f"| Hope 2026, the menu experiment (both new options) | {h['control']['meat']:.1f}% | {h['control']['veg']:.1f}% | "
+               f"{h['both']['meat']:.1f}% | {h['both']['veg']:.1f}% | about {100 - h['both']['meat'] - h['both']['veg'] - (100 - h['control']['meat'] - h['control']['veg']):.1f}% | "
+               f"{HOPE_FALL:g} (95% interval {HOPE_CI[0]:g} to {HOPE_CI[1]:g}; 5 or more ruled out) | about {HOPE_FROM_MEAT * 100:.0f}% |")
+    return "\n".join(out)
+
+
 def markdown_variants() -> str:
     s = summary()
     out = ["| price response | share of a meat at " + ", ".join(f"{R:g}×" for R in R_GRID) + " its price | at first contact and equal price | " +
@@ -246,7 +324,7 @@ def markdown_variants() -> str:
 
 def main() -> None:
     print(markdown_checks()); print(); print(markdown_variants()); print(); print(markdown_committed()); print()
-    print(markdown_insensitive())
+    print(markdown_insensitive()); print(); print(markdown_menu())
     s = summary()
     print("\ncultivated meat's own-price elasticity by price ratio:", {R: round(e, 2) for R, e in s["at"].items()})
 

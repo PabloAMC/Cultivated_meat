@@ -297,7 +297,7 @@ of cells and their speed are not drawn: they are what the rows differ in.
   plant-based meat. The speeds come from durable goods; they are assumed,
   not estimated for a food.
 
-**What the answer rests on** (`answer_rests_on.py`). The model has 614 inputs, 284 of them with a range. Moving each across its
+**What the answer rests on** (`answer_rests_on.py`). The model has 615 inputs, 285 of them with a range. Moving each across its
 range, one at a time, with each scenario's tank design held as it is: only 19 move the low-lactate example's or the all-favourable
 example's cost by $1 or more, and 13 move the low-lactate example by more than $3. The rest serve side studies or tank detail.
 Costs in the table are at most likely values.
@@ -1098,6 +1098,7 @@ passes three and fails one, by less since the price-insensitive shoppers of 2026
 | Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | 1.5% | 1.3% | 0.1% |
 | A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 1.5–4.0 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
 | Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | -1.23 | -1.03 | -2.89 (with no committed buyers, the model before 2026-11-21's fourth batch) |
+| Adding plant-based meat priced like the meat it copies to a menu: fall in meat's share, points, and the share of the new option's orders taken from meat (menu experiment, Hope 2026; US) | 2.1 (0 to 4.4; 5 or more ruled out); about 30% from meat | 0.54; 79% from meat | 1.17; 84% from meat (with no committed buyers, the model before 2026-11-21's fourth batch) |
 
 - **It is inside the choice experiment's range at equal price** (−1.51 against about −1.5; the arms run from −1.1 to −1.65).
 - **It is close to premium real meats at 3 times the price** (1.3% against 1.5%).
@@ -1262,6 +1263,10 @@ reported cost (US), against about 250 for a tonne of the US meat mix as eaten. A
 chicken is where the animals are. In Humbird's optimistic design it is about 87, and in the all-favourable example, with shoppers favouring
 it, about 144. Seafood animals are not counted. Seafood is about three-tenths of sales in the low-lactate example and at the reported cost,
 about a quarter in Humbird's optimistic design and about a seventh in the all-favourable example (US).
+Each kilo sold is counted as a kilo of conventional meat not bought; this has not been measured for cultivated meat
+(`meat_displaced_per_kg`, 1 by default, 0.5 to 1: the animals spared and the entry points' tonnes displaced scale with it). For
+plant-based meat, restaurant data and a menu experiment find meat orders did not measurably fall (Winslow 2026; Hope 2026), but
+cultivated meat is meat, so that near-zero figure is not carried over.
 
 ## 4. By region
 

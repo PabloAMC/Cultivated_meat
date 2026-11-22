@@ -23,6 +23,11 @@
 > them (3.55 utils, tail 7). Section 7. Every table here is regenerated; the low-lactate example's share of world meat rose from
 > 0.045% to 0.26%.
 
+> Added 2026-11-22 (sixth batch): a fifth check, the menu check (section 8): adding plant-based meat priced like the meat it
+> copies takes 0.54 points from meat's share in the model, inside the menu experiment's interval (a fall of 0 to 4.4 points; 5 or
+> more ruled out): the size passes. But 79% of the new option's choices come from meat in the model, against about 30% in the
+> experiment: the source fails. Nothing was refitted.
+
 Date: 2026-11-18; revised the same day when the model gained a spread of liking across shoppers (`liking_spread.md`). Code:
 `demand_checks.py`; test: `tests/test_demand_checks.py`.
 
@@ -59,6 +64,7 @@ shape of the spread is fitted to the first three of these (`liking_spread.md` §
 | Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | 1.5% | 1.3% | 0.1% |
 | A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 1.5–4.0 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
 | Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | -1.23 | -1.03 | -2.89 (with no committed buyers, the model before 2026-11-21's fourth batch) |
+| Adding plant-based meat priced like the meat it copies to a menu: fall in meat's share, points, and the share of the new option's orders taken from meat (menu experiment, Hope 2026; US) | 2.1 (0 to 4.4; 5 or more ruled out); about 30% from meat | 0.54; 79% from meat | 1.17; 84% from meat (with no committed buyers, the model before 2026-11-21's fourth batch) |
 
 - **The choice experiment** (Van Loo, Caputo & Lusk 2020) reports no elasticity. Simulated from its fitted model it is about −1.5 at
   equal price (−1.1 to −1.65 across its four arms). The range "−0.84 to −3.4" the model was checked against until 2026-11-18 is a
@@ -413,6 +419,58 @@ The class at each end of its inputs (the spread held at the model's 3.55 and 7; 
 - **The response matters next**: at 0.25 times (four times between groups) the low-lactate example is 0.066% and salmon 2.9-4.5.
 - **Without the class, the refitted spread fails** (misfit 19.7, the requirements not met): the model before is the row above it.
 
+## 8. The menu check: what adding plant-based meat to a menu takes from meat (2026-11-22, sixth batch)
+
+**The measurement.** Hope, Green, Peacock and Mathur 2026 (Food Quality and Preference 143:105931; **ABS** and a press account,
+Green Queen 2026, for the shares by arm) randomised 4,431 US adults to an online menu in the style of Chipotle. The control menu
+had meat fillings and a vegetarian option. One arm added Sofritas (braised tofu); the other added Sofritas and a chicken-style
+plant-based meat priced like chicken and pictured as chicken. With both, meat orders fell by 2.1 points (95% interval
+a fall of 4.4 to a rise of 0.1); a fall of 5 points or more was ruled out. Sofritas alone: -1.1 (-3.3 to +1.0).
+Orders by arm: control meat 89.1%, vegetarian 9.2%; both new options: meat 87.6%, vegetarian 5.7%. Of the about 5.0 points the new
+options took, 1.5 came from meat and 3.5 from the vegetarian option: about 30% from meat, and most from
+the vegetarian option, as the authors write. Winslow, Peacock, Dhargawe, Sherman, Green and Mathur 2026 (SocArXiv,
+doi:10.31235/osf.io/tpyk9_v1; **ABS** and the EA Forum summary) find the same in 1.2 million US and Canadian restaurant
+transactions, 2016-23: plant-based meats took 1-9% of orders at a $1-2.50 premium, and meat orders did not measurably fall
+(pooled about -1%, range -15% to +16%; also within customers).
+
+**How the menu maps onto the model.** The model's four choices are conventional meat, cultivated meat, plant-based meat and a
+whole-food outside option (beans, tofu, a meal without meat). On the menu: conventional meat = the meat fillings, the whole-food
+option = the vegetarian option, plant-based meat = the new options, and cultivated meat absent (it was not on the menu). The
+control menu is the model without plant-based meat (`market_share.share(..., plant_based_present=False)`, which sets its utility
+to minus infinity); the treatment adds it at the price of the meat it copies (price ratio 1, as in the study) with the taste the
+model gives plant-based meat. US shoppers (the reference income), calibrated as the model is. `demand_checks.menu_check`; test:
+`tests/test_demand_checks.py`.
+
+| shoppers | meat, without plant-based meat | vegetarian (the whole-food option), without | meat, with plant-based meat at meat's price | vegetarian, with | plant-based meat | fall in meat's share, points | of plant-based meat's choices, taken from meat |
+|---|---|---|---|---|---|---|---|
+| every shopper | 89.28% | 10.72% | 88.74% | 10.57% | 0.69% | 0.54 | 79% |
+| the mainstream (its ordinary shoppers and plant-based meat's committed buyers) | 93.98% | 6.02% | 93.41% | 5.99% | 0.61% | 0.57 | 94% |
+| the mainstream's ordinary shoppers | 93.98% | 6.02% | 93.77% | 6.01% | 0.22% | 0.21 | 94% |
+| plant-based meat's committed buyers | 93.98% | 6.02% | 88.81% | 5.69% | 5.50% | 5.17 | 94% |
+| the ethical segment | 0.09% | 99.91% | 0.08% | 97.74% | 2.18% | 0.00 | 0% |
+| Hope 2026, the menu experiment (both new options) | 89.1% | 9.2% | 87.6% | 5.7% | about 5.0% | 2.1 (95% interval 0 to 4.4; 5 or more ruled out) | about 30% |
+
+**Size: passes.** Meat's share falls by 0.54 points, inside the experiment's interval and well under the 5 points it ruled
+out. At plant-based meat's own price in the model (1.77 times meat's) the fall is 0.34.
+The model's control menu is close to the experiment's: 89.3% meat, 10.7%
+the whole-food option, against 89.1% and 9.2%. One difference in what passes: the model's plant-based option takes only
+0.69% of choices, where the experiment's two new options took about 5%. The fall is small in the model
+mostly because few shoppers pick plant-based meat at all, not because they take it from the vegetarian option.
+
+**Source: fails.** In the model 79% of the new option's choices come from meat; in the experiment about
+30%. Within each segment the model is a flat logit, so a new option takes from the others in proportion to
+their shares: in the mainstream, where meat is 94% of choices, 94% of plant-based meat's choices come from meat; in the ethical
+segment, which almost never picks meat, nearly all come from the whole-food option. The total, 79%, is the
+mix of the two. The experiment says plant-based meat is a closer substitute for the vegetarian option than for meat, which a flat
+logit cannot represent within a segment; a nested logit with the meat-free options in one nest could. The model's four products
+are a flat logit by design (METHODS); this check is the first measurement in the model's checks that bears on how closely the
+options substitute. Nothing was refitted to pass it.
+
+**What it bears on.** Cultivated meat's share is a share of the meat sold, x / (x + c), and the model draws cultivated meat's
+sales from conventional meat because it is real tissue. Whether a kilo sold is a kilo of conventional meat not bought is a
+separate question, now an input (`meat_displaced_per_kg`, 1 by default, 0.5 to 1; inputs.py): the plant-based evidence above is
+close to 0, but it is not carried over to a product that is meat. No study measures it for cultivated meat.
+
 ## Sources
 
 1. Knowles, "Why is plant-based meat still so expensive?", Net Primary Production, 16 November 2026 (FT).
@@ -422,3 +480,6 @@ The class at each end of its inputs (the spread held at the model's 3.55 and 7; 
 5. GFI/NielsenIQ household panel, 2022 (7% of households, 82% of plant-based meat spending); Circana household panel, 2024 (a fifth
    of buyers, 75%); Tonsor, Lusk & Schroeder 2021 (elasticities by meat-eating habit); all as read for
    `demand_heterogeneity_evidence.md` section 4.
+6. Hope, Green, Peacock & Mathur 2026, Food Quality and Preference 143:105931 (ABS; shares by arm from Green Queen's report, 2026).
+7. Winslow, Peacock, Dhargawe, Sherman, Green & Mathur 2026, "New alternatives, same orders", SocArXiv, doi:10.31235/osf.io/tpyk9_v1
+   (ABS; EA Forum summary).

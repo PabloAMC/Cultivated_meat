@@ -2214,6 +2214,27 @@ REGISTRY: dict[str, Input] = {
     "mk_demand_elast": Input(-0.65, "-", "[USDA ERS Technical Bulletin 1956: beef -0.56, pork -0.79, chicken -0.58] own-price "
         "elasticity of demand for conventional meat in the price fall above", lo=-0.8, hi=-0.5, mode=-0.65,
         note="a round middle of the three"),
+    # --- conventional meat not bought for each kilo of cultivated meat sold (2026-11-22, sixth batch) ---------------------------
+    "meat_displaced_per_kg": Input(1.0, "kg of conventional meat a kg sold", "[assumed; no study measures it for cultivated "
+        "meat] kilos of conventional meat not bought for each kilo of cultivated meat sold. The model's shares are shares of the "
+        "meat sold; this converts them into meat replaced: the tonnes displaced (the page's entry-point bubbles), the land animals "
+        "spared (meat_market.animals_per_tonne_sold) and the fall in conventional meat's sales that lowers its price "
+        "(meat_market._rollup). The shares sold do not use it, except through that price fall (a smaller fall in conventional "
+        "meat's sales lowers its price less, which raises the share a little). Evidence for plant-based meat, an analogue: Winslow, "
+        "Peacock, Dhargawe, Sherman, Green and Mathur 2026 (SocArXiv, doi:10.31235/osf.io/tpyk9_v1; 1.2 million US and Canadian "
+        "restaurant transactions, 2016-23): plant-based meats took 1-9% of orders, yet meat orders did not measurably fall (pooled "
+        "about -1%, range -15% to +16%); Hope, Green, Peacock and Mathur 2026 (Food Quality and Preference 143:105931; randomised, "
+        "4,431 US adults, an online menu): adding two plant-based options cut meat orders by 2.1 points (95% CI -4.4 to +0.1), "
+        "most of their orders coming from the existing vegetarian option; grocery scanner studies (Cuffey et al. 2023, Neuhofer "
+        "and Lusk 2022, Meyer et al. 2024; reviewed in Peacock 2026, Appetite 216:108301) find plant-based sales without a "
+        "detectable fall in meat bought. That is close to 0 kg of meat displaced per kg of plant-based meat sold",
+        lo=0.5, hi=1.0, mode=1.0,
+        note="1 = every kilo sold replaces a kilo of conventional meat, what the model assumed, unstated, until 2026-11-22. "
+             "Cultivated meat is meat, and the model's real-tissue attribute is why it draws its sales from conventional meat, so "
+             "the near-zero figure measured for plant-based meat is not carried over; 0.5 is the low end the model allows for "
+             "sales that come partly from shoppers buying more meat in all or from meals without meat (a judgement, not a "
+             "measurement). Not drawn in the uncertainty bands: they are bands of the share sold, which this input moves only "
+             "through conventional meat's price, and the price-fall inputs (mk_supply_elast, mk_demand_elast) are not drawn either"),
     # --- markets it cannot be sold into (meat_market.closed_share, research_notes/closed_markets.md, 2026-11-20) ---------------
     # each closed jurisdiction is weighted by its share of the region's meat eaten: US states by population (meat a head taken as
     # equal between states, an assumption), Italy and Hungary by their meat in the EU's, the US and EU by their meat in the world's
