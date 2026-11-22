@@ -391,7 +391,7 @@ chosen again (`tank_size.perfusion_at`); the first column is each scenario at it
 | Low-lactate example | $48.68 | $48.68 (168 g/L) / $70.32 (37 g/L) | $46.60 (145 g/L) / $58.52 (37 g/L) | $45.89 (132 g/L) / $54.58 (37 g/L) | $45.53 (122 g/L) / $52.62 (37 g/L) |
 | Low-lactate example, food-grade plant with shared medium | $44.53 | $44.53 (168 g/L) / $53.88 (37 g/L) | $42.71 (145 g/L) / $46.19 (37 g/L) | $41.97 (132 g/L) / $43.62 (37 g/L) | $41.50 (122 g/L) / $42.34 (37 g/L) |
 | Cells that make almost no ammonia or lactate (rung 6) | $27.26 | $27.26 (168 g/L) / $31.59 (68 g/L) | $25.80 (145 g/L) / $27.40 (68 g/L) | $25.26 (132 g/L) / $25.63 (68 g/L) | $24.94 (122 g/L) / $24.63 (68 g/L) |
-| All-favourable example | $6.97 | $7.16 (218 g/L) / $11.03 (120 g/L) | $6.95 (213 g/L) / $9.65 (120 g/L) | $7.10 (182 g/L) / $9.49 (120 g/L) | $7.29 (156 g/L) / $9.19 (120 g/L) |
+| All-favourable example | $6.97 | $7.16 (218 g/L) / $11.03 (120 g/L) | $6.95 (213 g/L) / $9.65 (120 g/L) | $7.10 (182 g/L) / $9.34 (117 g/L) | $7.29 (156 g/L) / $9.19 (120 g/L) |
 
 - **A 100 m³ batch costs 7% to 15% less than a 20 m³ one** with the scenarios' switches ($71.76 to $60.71 in the low-lactate
   example, $11.28 to $10.44 with the all-favourable example's; for the all-favourable example 50 m³ is already as cheap). Beyond

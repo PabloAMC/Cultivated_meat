@@ -1,5 +1,12 @@
 # The least medium per kg of cells that physics allows
 
+> **Repinned 2026-11-21 (fourth batch, documents).** The tables of the answer and of the cost at the bounds, and the figures in their prose, are
+> recomputed from `python min_litres.py`. Since 2026-11-21 the all-favourable example runs at 219 g/L (its CO₂ loop held at the densest culture it
+> passes), not 155, and costs $6.97; the low-lactate example runs at 168 g/L and costs $48.68. Less culture leaves with the all-favourable
+> example's cells (4.6 L per kilo grown, was 6.4), so its physical floor (5.5 L) now binds and its bounds separate again; 89.1% of
+> its cells grown are harvested (92.4% before). The nutrients' glucose is the mass balance's (0.311 kg a kilo), so the bath and
+> feed bounds fell by about 1%. The box below is the 2026-11-20 repin; its figures are as of that day.
+
 > Repinned 2026-11-20 (final pass). The all-favourable example is now the one case of `scenarios.all_favourable()` ($7.62): cells doubling every 16 hours, 3 ng a cell, 0.054 mol of ammonia a kilo, a lactate yield of 0.279, Humbird's tolerances of 5 mmol/L of ammonia and 50 of lactate, the lowest measured medium flow (3.7 mL/g/day), 155 g/L. `min_litres.costs_at` now gives every row's litres per kilo harvested, as the costs are. **What changed:** (1) the all-favourable example's litres are set by ammonia again (10.80 L per kilo grown, lactate 10.25); in the first batch of 2026-11-20 they were set by lactate at 35 mmol/L. The test that compared this module's nitrogen term with `explore()`'s had assumed 4 mmol/L for both examples; it now uses each example's own limit, and the two agree exactly (a stale check, not an inconsistency). (2) The all-favourable example's physical floor is 5.5 L per kilo grown, but the culture that leaves with its cells is 6.4, so the model's litres can fall only to that: from the model's 11.7 litres a kilo harvested to 7.0 saves $0.61 a kilo ($7.62 to $7.01). (3) The low-lactate example's bounds did not move; its costs did ($49.50 at the model's litres, $17.93 at the physical floor). Every table below is regenerated from `python min_litres.py`.
 
 > Earlier repins (2026-11-20 first batch; 2026-11-19 scenario restructure, nutrient floor and audit batch; 2026-11-16 recompute) are recorded in the changelog.
@@ -17,29 +24,29 @@ Access codes: **FULL** = full text read. **FT-sum** = full text read through a s
 
 | Feed | All-favourable example (16 h, 3 ng) | Low-lactate example (36 h, 2 ng) |
 |---|---|---|
-| The medium is what the cells sit in, at the salt limit, typical salts (250 mOsm/kg) | 22.2 L/kg | 25.1 L/kg |
-| Same, salts cut to 150 | 13.8 | 15.7 |
-| A concentrate of 50 g/L, diluted in the tank | 11.1 | 12.8 |
-| A concentrate of 100 g/L (default) | **5.5** | **6.4** |
-| A concentrate of 200 g/L | 2.8 | 3.2 |
+| The medium is what the cells sit in, at the salt limit, typical salts (250 mOsm/kg) | 21.9 L/kg | 24.8 L/kg |
+| Same, salts cut to 150 | 13.6 | 15.4 |
+| A concentrate of 50 g/L, diluted in the tank | 10.9 | 12.6 |
+| A concentrate of 100 g/L (default) | **5.5** | **6.3** |
+| A concentrate of 200 g/L | 2.7 | 3.2 |
 | Lowest measured flow per cell (3.7 mL/g/day) over the growth rate | 3.6 | 8.0 |
 
-3. Reading: if the medium must be iso-osmotic with the cells, as pharma perfusion media are, the floor is 14-25 L/kg. The low-lactate example's 35 is 1.4 times the top of that range, and the all-favourable example's 10.8 is below the bottom of it. If a concentrate can be dosed into the tank, the floor is about 6-8 L/kg, and the low-lactate example sits 4.4-5.5 times above it, the all-favourable example 1.7-2.0 times. The physical floor is **5.5 L/kg (the all-favourable example) and 6.4 L/kg (the low-lactate example)**, and the floor that respects measured flows 5.5 and 8.0. In the all-favourable example the culture that leaves with each kilo of cells (6.4 L at 155 g/L) is above its floor, so that, not the floor, is the least the model can use.
+3. Reading: if the medium must be iso-osmotic with the cells, as pharma perfusion media are, the floor is 14-25 L/kg. The low-lactate example's 35 is 1.4 times the top of that range, and the all-favourable example's 10.8 is below the bottom of it. If a concentrate can be dosed into the tank, the floor is about 6-8 L/kg, and the low-lactate example sits 4.4-5.6 times above it, the all-favourable example 2.0 times. The physical floor is **5.5 L/kg (the all-favourable example) and 6.3 L/kg (the low-lactate example)**, and the floor that respects measured flows 5.5 and 8.0. In the all-favourable example the culture that leaves with each kilo of cells (4.6 L at 219 g/L) is below its floor, so the floor binds; only the lowest measured flow alone (3.6 L) falls below that culture, and is raised to it.
 
 ## Where the model sits
 
-Litres per kilo of cells grown; the model reports them per kilo harvested (92.4% of the cells grown in the all-favourable example, 90.2% in the low-lactate example).
+Litres per kilo of cells grown; the model reports them per kilo harvested (89.1% of the cells grown in the all-favourable example, 90.2% in the low-lactate example).
 
 | | All-favourable example | Low-lactate example | Floor |
 |---|---|---|---|
-| Litres per kg grown (per kg harvested) | 10.80 (11.69): ammonia 10.80, lactate 10.25, nutrients 8.0, culture leaving with the cells 6.4, least flow 3.6 | 35.0 (38.8): ammonia; lactate 30.7, least flow 16.2 | 5.5 / 6.4 |
+| Litres per kg grown (per kg harvested) | 10.80 (12.12): ammonia 10.80, lactate 10.25, nutrients 8.0, culture leaving with the cells 4.6, least flow 3.6 | 35.0 (38.8): ammonia; lactate 30.7, least flow 16.2 | 5.5 / 6.3 |
 | Ammonia tolerated, mmol/L | 5 (Humbird's) | 4 | |
 | Ammonia, mol/kg | 0.054 (1.9% of the cell's nitrogen) | 0.14 (4.9%) | 0; at the floor litres, 0.028 (1.0%) fits at 5 mmol/L, 0.026 (0.9%) at 4 |
 | Lactate, mol per mol of all glucose taken up | 0.279 (0.51 mol/kg) | 0.42 (1.07 mol/kg) | 0; at the floor litres, 0.28 mol/kg fits at 50 mmol/L (a yield of 0.16), 0.22 at 35 mmol/L (0.10) |
 | Least flow, mL/g/day | 3.7 (the measured low end) | 7.5 | 3.7 measured (zero growth) |
 | Doubling time | 16 h | 36 h | |
 
-Both examples' litres are set by ammonia, each at its own tolerance. With zero waste the all-favourable example would need the model's own nutrient floor of 8 L/kg grown (8.7 per kilo harvested); the low-lactate example would need 16.2 L/kg grown, set by the 7.5 mL/g/day flow at a 36 h doubling, and at 3.7 mL/g/day 8.0. The published cells sit far above all of this: 146 L per kilo harvested (136 grown), set by lactate (4.8 mol/kg at a yield of 1.05).
+Both examples' litres are set by ammonia, each at its own tolerance. With zero waste the all-favourable example would need the model's own nutrient floor of 8 L/kg grown (9.0 per kilo harvested); the low-lactate example would need 16.2 L/kg grown, set by the 7.5 mL/g/day flow at a 36 h doubling, and at 3.7 mL/g/day 8.0. The published cells sit far above all of this: 146 L per kilo harvested (136 grown), set by lactate (4.8 mol/kg at a yield of 1.05).
 
 ## Cost at the bounds
 
@@ -47,14 +54,14 @@ Both examples' litres are set by ammonia, each at its own tolerance. With zero w
 
 | Row (bound, L per kg grown: all-favourable / low-lactate) | All-favourable example | Low-lactate example |
 |---|---|---|
-| Model's litres (10.80 / 35.0) | 11.7 L, $7.62 | 38.8 L, $49.50 |
-| Bath, typical salts (22.2 / 25.1) | 24.0 L, $9.14 | 27.9 L, $38.55 |
-| Zero waste, model's own flow (8.0 / 16.2) | 8.7 L, $7.23 | 18.0 L, $28.73 |
-| Physical floor, 100 g/L feed (5.5 / 6.4) | 7.0 L, $7.01 | 7.2 L, $17.93 |
-| Lowest measured flow (3.6 / 8.0) | 7.0 L, $7.01 | 8.9 L, $19.55 |
-| Zero waste, lowest measured flow, model floor of 8 L/kg (8.0 / 8.0) | 8.7 L, $7.23 | 8.9 L, $19.55 |
+| Model's litres (10.80 / 35.0) | 12.1 L, $6.97 | 38.8 L, $48.68 |
+| Bath, typical salts (21.9 / 24.8) | 24.6 L, $8.47 | 27.5 L, $37.35 |
+| Zero waste, model's own flow (8.0 / 16.2) | 9.0 L, $6.58 | 18.0 L, $27.94 |
+| Physical floor, 100 g/L feed (5.5 / 6.3) | 6.1 L, $6.21 | 7.0 L, $16.90 |
+| Lowest measured flow (3.6 / 8.0) | 5.1 L, $6.08 | 8.9 L, $18.78 |
+| Zero waste, lowest measured flow, model floor of 8 L/kg (8.0 / 8.0) | 9.0 L, $6.58 | 8.9 L, $18.78 |
 
-The all-favourable example gains $0.61 at its floor. Its medium is the nutrient floor ($2.16 a kilo whatever the litres) and its dialyser fibres cost $0.04 a kilo, so litres are cheap there; the bath row, at 24 litres a kilo, costs it $1.52 more than its own litres. The low-lactate example gains $29.95 at 8 L/kg grown, mostly in the filter loop ($22.28 of membranes to $1.17) and the medium ($7.94 of feedstock to $3.55: below about 22 L/kg the $0.20 complete medium is charged its nutrients plus its growth factors). At 11 L/kg grown it costs $22.91 (INF, same call). A bath of typical salts costs the low-lactate example less than its own litres ($38.55 against $49.50). Zero waste with the model's own flow costs the all-favourable example more than its floor, because the model's nutrient floor of 8 L/kg binds there and not in a run whose litres are set from outside. These costs assume the waste fits in the litres; at the floor that needs the ammonia and lactate in the table above.
+The all-favourable example gains $0.76 at its floor. Its medium is the nutrient floor ($2.23 a kilo whatever the litres) and its dialyser fibres cost $0.06 a kilo, so litres are cheap there; the bath row, at 25 litres a kilo, costs it $1.50 more than its own litres. The low-lactate example gains $29.90 at 8 L/kg grown, mostly in the filter loop ($22.71 of membranes to $1.60) and the medium ($7.94 of feedstock to $3.55: below about 22 L/kg the $0.20 complete medium is charged its nutrients plus its growth factors). At 11 L/kg grown it costs $22.14 (INF, same call). A bath of typical salts costs the low-lactate example less than its own litres ($37.35 against $48.68). Zero waste with the model's own flow costs the all-favourable example more than its floor, because the model's nutrient floor of 8 L/kg binds there and not in a run whose litres are set from outside. These costs assume the waste fits in the litres; at the floor that needs the ammonia and lactate in the table above.
 
 ## The four bounds
 

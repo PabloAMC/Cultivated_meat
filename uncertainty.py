@@ -46,7 +46,7 @@ from common import setup_style, _save
 from inputs import prior, sample, REGISTRY, MC_COST_INPUTS, MC_DEMAND_INPUTS
 from cost_model import CostParams, media_cost
 from price_ratio import shelf_price, cost_from_shelf, structured_cost
-from market_share import DemandParams, share
+from market_share import DemandParams, share, share_x_meat_many
 
 
 # Priors are pulled straight from the inputs.py datasheet — one source of truth,
@@ -128,9 +128,10 @@ def monte_carlo(n: int, target: str, fixed: dict, seed: int = 0) -> dict:
 
     base = DemandParams()      # WTP curve; the plant-based floor is a declared constant
     # taste (accept_x) is not drawn since 2026-11-20: held at its point value (equal_price_share is the net of it)
-    sh = np.array([share(R[i], base, eps_own=s["eps_own"][i], kappa=s["cult_sub_mult"][i],
-                         equal_share=s["equal_price_share"][i])
-                   for i in range(n)])
+    # cultivated meat's share of the meat sold, x / (x + c), as the long-run roll-up reports it (2026-11-21, fourth batch; it was
+    # its share of all four choices). share_x_meat_many is share(..., which="x_meat") for every draw at once (tests/test_share_many.py).
+    sh = share_x_meat_many(R, base, tier_offset=0.0, eps_own=s["eps_own"], kappa=s["cult_sub_mult"], income=base.income_ref,
+                           p_ref=base.p_conv, equal_share=s["equal_price_share"])
     return dict(R=R, share=sh, cost=cost, samples=s, priors=pri)
 
 
@@ -180,7 +181,7 @@ def summarise(mc: dict, target: str, fixed: dict) -> None:
     print("  price ratio R:")
     print(f"      P50 = {cR[50]:.2f}    80% CI [P10,P90] = [{cR[10]:.2f}, {cR[90]:.2f}]"
           f"    90% CI [{cR[5]:.2f}, {cR[95]:.2f}]")
-    print("  long-run share (%):")
+    print("  long-run share of the meat sold, x / (x + c) (%):")
     print(f"      P50 = {cS[50]:.1f}    80% CI [P10,P90] = [{cS[10]:.1f}, {cS[90]:.1f}]")
     print(f"  ({100*np.mean(R <= 1.0):.0f}% of the R-distribution is at/below parity)")
 

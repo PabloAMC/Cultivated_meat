@@ -28,7 +28,8 @@ import premium_curve as P
 import scenarios as S
 from inputs import value
 
-PB_ELASTICITY_MEASURED = -1.23        # GFI, US retail scanner data, as cited by Knowles 2026 (the GFI source itself was not read)
+PB_ELASTICITY_MEASURED = -1.23        # GFI/NielsenIQ fact sheet, November 2024: item-level, plant-based beef (demand_heterogeneity_evidence.md §4)
+PB_CATEGORY_RANGE = (-2.5, -0.6)      # the category's long-run elasticity, 80% range around about -1.3 (same note; low confidence)
 SALMON_ALONG_CURVE = (1.0, 1.5)       # percent more volume per percent lower price (market_size_loop.HISTORY_ALONG_CURVE)
 LUSK = P.LUSK                         # (-3.4, -0.84): the model's own check; not a measured elasticity (see the docstring)
 VANLOO_AT_PARITY = -1.5               # the experiment's aggregate own-price elasticity at equal price, first contact (simulated)
@@ -107,7 +108,8 @@ _SUM: dict = {}
 def summary() -> dict:
     if not _SUM:
         pr = S._demand()
-        _SUM.update(pb=pb_elasticity(), cold=cold_parity_elasticity(), at={R: elasticity_at(R) for R in R_GRID},
+        _SUM.update(pb=pb_elasticity(), pb_before=pb_elasticity(M.DemandParams(pb_committed_share=0.0)),
+                    pb_committed=committed_buyers(), cold=cold_parity_elasticity(), at={R: elasticity_at(R) for R in R_GRID},
                     premium_3x=P.curve(3.0, P.summary()["main"]) * 100.0,
                     kappa_fit=P.summary()["main"]["kappa"], kappa=pr.cult_sub_mult, variants=variants(),
                     model_world=_world(lambda c: S.shares(c, regions=("global",))["global"]))
@@ -139,7 +141,39 @@ def markdown_checks() -> str:
            f"| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | "
            f"{SALMON_ALONG_CURVE[0]:g}–{SALMON_ALONG_CURVE[1]:g} | {min(pick):.1f}–{max(pick):.1f} ({label}: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |",
            f"| Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | {PB_ELASTICITY_MEASURED:.2f} | "
-           f"{s['pb']['elasticity']:.2f} | {s['pb']['elasticity']:.2f} |"]
+           f"{s['pb']['elasticity']:.2f} | {s['pb_before']['elasticity']:.2f} (with no committed buyers, the model before 2026-11-21's fourth batch) |"]
+    return "\n".join(out)
+
+
+COMMITTED_CASES = (("the model", {}),
+                   ("no committed buyers (the model before 2026-11-21's fourth batch)", {"pb_committed_share": 0.0}),
+                   ("their response to its price 0.10 times other shoppers'", {"pb_committed_price_x": 0.10}),
+                   ("0.50 times", {"pb_committed_price_x": 0.50}),
+                   ("2% of shoppers", {"pb_committed_share": 0.02}),
+                   ("10% of shoppers", {"pb_committed_share": 0.10}),
+                   ("they buy 75% of the mainstream's plant-based meat", {"pb_committed_volume": 0.75}),
+                   ("90%", {"pb_committed_volume": 0.90}))
+
+
+def committed_buyers() -> list:
+    """Plant-based meat's elasticity with its committed buyers (market_share segment "K") at each end of their three inputs, and
+    what the calibration solves: the ordinary mainstream shoppers' real-meat weight and the committed buyers' liking."""
+    rows = []
+    for name, kw in COMMITTED_CASES:
+        pr = M.DemandParams(**kw)
+        rows.append({"name": name, "elasticity": pb_elasticity(pr)["elasticity"], "share": pb_elasticity(pr)["share"],
+                     "w_realtissue_M": pr.w_realtissue_M, "liking": pr.pb_committed_liking if pr.pb_committed_share > 0 else None,
+                     "x3": M.share(3.0, pr, which="x_meat") * 100.0})
+    return rows
+
+
+def markdown_committed() -> str:
+    out = ["| plant-based meat's committed buyers | its own-price elasticity | its share of all choices | ordinary shoppers' real-meat "
+           "weight, utils | committed buyers' liking for it, utils | cultivated meat's share of meat buyers at 3 times the price |",
+           "|---|---|---|---|---|---|"]
+    for r in summary()["pb_committed"]:
+        out.append(f"| {r['name']} | {r['elasticity']:.2f} | {r['share']:.2f}% | {r['w_realtissue_M']:.2f} | "
+                   f"{'—' if r['liking'] is None else format(r['liking'], '.2f')} | {r['x3']:.2f}% |")
     return "\n".join(out)
 
 
@@ -154,7 +188,7 @@ def markdown_variants() -> str:
 
 
 def main() -> None:
-    print(markdown_checks()); print(); print(markdown_variants())
+    print(markdown_checks()); print(); print(markdown_variants()); print(); print(markdown_committed())
     s = summary()
     print("\ncultivated meat's own-price elasticity by price ratio:", {R: round(e, 2) for R, e in s["at"].items()})
 

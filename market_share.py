@@ -216,6 +216,14 @@ class DemandParams:
     # fully-solved calibration. Members may be any of {"w_realtissue_M","w_health_M","w_health_E"}.
     # Pinning a weight DELIBERATELY breaks the moment it was solved to (the interactive flags this);
     # the OTHER, un-pinned weights still re-solve to hit their own moments where they can.
+    # The committed buyers of plant-based meat (2026-11-21, fourth batch): a class of mainstream shoppers, pb_committed_share of
+    # all shoppers, who like plant-based meat more (pb_committed_liking, solved so they buy pb_committed_volume of the
+    # mainstream's plant-based meat) and respond pb_committed_price_x times as strongly to its price. pb_committed_share = 0
+    # gives the model before.
+    pb_committed_share: float = value("pb_committed_share")
+    pb_committed_volume: float = value("pb_committed_volume")
+    pb_committed_price_x: float = value("pb_committed_price_x")
+    pb_committed_liking: float = value("pb_committed_liking")   # SOLVED (solve_calibration)
     pinned_weights: frozenset = frozenset()
     calibrated: bool = False                        # True once solve_calibration has run (or pinned by hand)
 
@@ -340,7 +348,12 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
     asc            = np.array([0.0, 0.0, neophobia_p, neophobia_x + tier_offset])
 
     # --- segment-specific attribute weights ---------------------------------
-    if seg == "M":
+    # "K": the committed buyers of plant-based meat, a class of the mainstream: mainstream weights, plus their own liking for
+    # plant-based meat and their own response to its price (below).
+    if seg == "K":
+        asc = asc.copy()
+        asc[2] += pr.pb_committed_liking
+    if seg in ("M", "K"):
         w_slaughter, w_realtissue, w_health = theta_free_M, pr.w_realtissue_M, pr.w_health_M
     else:
         w_slaughter, w_realtissue, w_health = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
@@ -401,6 +414,13 @@ def _utilities(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
         V_price[3] = V_price[1] + kr * (V_price[3] - V_price[1])
         V_loss = V_loss.copy()
         V_loss[3] = kr * V_loss[3]
+    # THE COMMITTED BUYERS' RESPONSE TO PLANT-BASED MEAT'S PRICE (2026-11-21): plant-based meat's price utility measured from
+    # conventional's counts pb_committed_price_x times, on both channels, as closeness does for cultivated meat above.
+    if seg == "K" and pr.pb_committed_price_x != 1.0:
+        V_price = V_price.copy()
+        V_price[2] = V_price[1] + pr.pb_committed_price_x * (V_price[2] - V_price[1])
+        V_loss = V_loss.copy()
+        V_loss[2] = pr.pb_committed_price_x * V_loss[2]
 
     # Per-FACTOR utility components (each an array over [w, c, p, x]). The total utility is their
     # sum; returning them lets `utility_breakdown` show each factor's contribution on a common
@@ -525,6 +545,12 @@ def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
         return {"w": P[0], "c": P[1], "p": P[2], "x": P[3]}
     P = _softmax(V[:3])
     return {"w": P[0], "c": P[1], "p": P[2], "x": 0.0}
+
+
+def _mix(M: dict, K: dict, k: float) -> dict:
+    """The mainstream's shares: its ordinary shoppers' M and, a share k of the segment, the committed buyers of plant-based
+    meat's K."""
+    return {j: (1.0 - k) * M[j] + k * K[j] for j in M}
 
 
 def _effective_beta(pr: DemandParams, eps, inc, p_ref) -> float:
@@ -669,6 +695,12 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                  cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
                  slaughter_free_x=slaughter_free_x, liking=liking)
     w = pr.w_eth
+    if pr.pb_committed_share > 0.0:   # the mainstream is its ordinary shoppers and the committed buyers of plant-based meat
+        K = _segment(R, pr, beta, "K", accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset,
+                     neophobia_x=nbx, neophobia_p=nbp, income=inc, health_x=health_x, health_p=health_p,
+                     cultivated_present=cultivated_present, p_ref=p_ref, ratio_scale=eps / pr.eps_own, kappa=kappa,
+                     slaughter_free_x=slaughter_free_x, liking=liking)
+        M = _mix(M, K, pr.pb_committed_share / (1.0 - w))
     if which == "x_meat":           # cultivated meat's share of the meat sold: x / (x + c), both segments mixed (2026-11-19, audit 6a)
         x = w * E["x"] + (1.0 - w) * M["x"]
         return float(x / max(x + w * E["c"] + (1.0 - w) * M["c"], 1e-300))
@@ -719,11 +751,19 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
         nodes, weights = (np.asarray(a, dtype=float) for a in pr.spread)
 
     def segment(seg):
-        if seg == "M":
+        if seg in ("M", "K"):
             w_sl, w_rt, w_h = pr.theta_free_M, pr.w_realtissue_M, pr.w_health_M
         else:
             w_sl, w_rt, w_h = pr.w_slaughter_E, pr.w_realtissue_E, pr.w_health_E
-        V = ((V_price + V_loss) + pr.w_taste * taste + w_sl * slaughter_free + w_rt * real_tissue + w_h * health + asc)
+        Vp, Vl, a = V_price, V_loss, asc
+        if seg == "K":                 # the committed buyers of plant-based meat (_utilities)
+            a = asc.copy()
+            a[:, 2] = a[:, 2] + pr.pb_committed_liking
+            if pr.pb_committed_price_x != 1.0:
+                Vp, Vl = V_price.copy(), V_loss.copy()
+                Vp[:, 2] = Vp[:, 1] + pr.pb_committed_price_x * (Vp[:, 2] - Vp[:, 1])
+                Vl[:, 2] = pr.pb_committed_price_x * Vl[:, 2]
+        V = ((Vp + Vl) + pr.w_taste * taste + w_sl * slaughter_free + w_rt * real_tissue + w_h * health + a)
         if sd > 0.0:
             Vx = V[:, 3:4] + mean[:, None] + sd * nodes[None, :]
             m = np.maximum(V[:, :3].max(axis=1), Vx.max(axis=1))
@@ -738,6 +778,10 @@ def share_x_meat_many(R, pr: DemandParams, *, tier_offset, eps_own, kappa, incom
     cM, xM = segment("M")
     cE, xE = segment("E")
     w = pr.w_eth
+    if pr.pb_committed_share > 0.0:   # the mainstream mixes its ordinary shoppers and the committed buyers (share / _mix)
+        cK, xK = segment("K")
+        k = pr.pb_committed_share / (1.0 - w)
+        cM, xM = (1.0 - k) * cM + k * cK, (1.0 - k) * xM + k * xK
     x = w * xE + (1.0 - w) * xM
     return x / np.maximum(x + w * cE + (1.0 - w) * cM, 1e-300)
 
@@ -778,12 +822,20 @@ def _rate(pr: DemandParams, seg: str, which: str) -> float:
     come from there), so the real_tissue_p dial is a what-if applied AFTER calibration rather than
     a reason to re-fit the weights (at real_tissue_p=1 that re-fit is degenerate). Mirrors the
     page's _rate (rtp:0)."""
+    # seg: "M" the mainstream's ordinary shoppers, "K" the committed buyers of plant-based meat, "E" the ethical segment, "Mall" the
+    # whole mainstream (ordinary shoppers and committed buyers together; "M" when there are no committed buyers).
     rtp = pr.real_tissue_p
     pr.real_tissue_p = value("real_tissue_p")
+    one = lambda sg: _segment(1.0, pr, pr.beta_price, sg, accept_x=1.0, theta_free_M=0.0,
+                              tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
+                              health_x=0.0, health_p=0.0, cultivated_present=False)
     try:
-        s = _segment(1.0, pr, pr.beta_price, seg, accept_x=1.0, theta_free_M=0.0,
-                     tier_offset=0.0, neophobia_x=0.0, neophobia_p=0.0, income=pr.income_ref,
-                     health_x=0.0, health_p=0.0, cultivated_present=False)
+        if seg == "Mall":
+            s = one("M")
+            if pr.pb_committed_share > 0.0:
+                s = _mix(s, one("K"), pr.pb_committed_share / (1.0 - pr.w_eth))
+        else:
+            s = one(seg)
     finally:
         pr.real_tissue_p = rtp
     return s[which]
@@ -815,25 +867,42 @@ def solve_calibration(pr: DemandParams, iters: int = 70, rounds: int = 12):
     pb_E_target = (1.0 - pr.pb_mainstream_frac) * pr.pb_share_target / we        # ethical PB rate
     wf_M_target = pr.wf_mainstream_target
     pin = pr.pinned_weights                              # SOLVED weights the user has overridden
+    # The committed buyers of plant-based meat (2026-11-21): a share k of the mainstream buys pb_committed_volume of its
+    # plant-based meat; the ordinary shoppers buy the rest. w_realtissue_M is solved to the ordinary shoppers' rate and
+    # pb_committed_liking to the committed buyers'; with no committed buyers the ordinary shoppers are the whole mainstream.
+    k = pr.pb_committed_share / (1.0 - we)
+    committed = k > 0.0
+    if committed:
+        pb_O_target = (1.0 - pr.pb_committed_volume) * pb_M_target / (1.0 - k)    # ordinary mainstream shoppers' PB rate
+        pb_K_target = pr.pb_committed_volume * pb_M_target / k                    # committed buyers' PB rate
+    else:
+        pb_O_target = pb_M_target
 
-    # --- mainstream block: (w_realtissue_M, w_health_M) for (PB_M, WF_M) ---
-    # A pinned weight is left at its supplied value; the other still solves given that pin.
+    # --- mainstream block: (w_realtissue_M, pb_committed_liking, w_health_M) for (PB_M, PB_K, WF_M) ---
+    # A pinned weight is left at its supplied value; the others still solve given that pin.
     for _ in range(rounds):
         if "w_realtissue_M" not in pin:
             lo, hi = 0.0, 8.0                            # PB_M decreases in w_realtissue_M
             for _ in range(iters):
                 mid = 0.5 * (lo + hi); pr.w_realtissue_M = mid
-                if _rate(pr, "M", "p") > pb_M_target: lo = mid
+                if _rate(pr, "M", "p") > pb_O_target: lo = mid
                 else: hi = mid
             pr.w_realtissue_M = 0.5 * (lo + hi)
+        if committed:
+            lo, hi = -10.0, 30.0                         # PB_K increases in pb_committed_liking
+            for _ in range(iters):
+                mid = 0.5 * (lo + hi); pr.pb_committed_liking = mid
+                if _rate(pr, "K", "p") > pb_K_target: hi = mid
+                else: lo = mid
+            pr.pb_committed_liking = 0.5 * (lo + hi)
         if "w_health_M" not in pin:
             lo, hi = 0.0, 16.0                           # WF_M increases in w_health_M (health_w > 0)
             for _ in range(iters):
                 mid = 0.5 * (lo + hi); pr.w_health_M = mid
-                if _rate(pr, "M", "w") > wf_M_target: hi = mid
+                if _rate(pr, "Mall", "w") > wf_M_target: hi = mid
                 else: lo = mid
             pr.w_health_M = 0.5 * (lo + hi)
-        if "w_realtissue_M" in pin and "w_health_M" in pin:
+        if "w_realtissue_M" in pin and "w_health_M" in pin and not committed:
             break                                        # nothing left to coordinate-descend
 
     # --- ethical block: w_health_E for the ethical PB rate (PB_E decreases in w_health_E) ---
@@ -969,6 +1038,7 @@ def pb_milk_check(pr: DemandParams) -> float:
         # K_wholefood=-2.0 outside-option intercept. health_c=0 because DAIRY (not red meat) is milk's
         # reference, so the conventional product carries no health penalty in this contrast.
         health_w=-2.0, health_c=0.0, w_health_M=1.0, w_health_E=1.0,
+        pb_committed_share=0.0,            # the committed buyers are plant-based MEAT's (2026-11-21); milk keeps the model before them
         calibrated=True,                   # do NOT run the meat calibration solve on the milk world
     )
     milk.beta_ref = pr.beta_ref            # reuse the SAME (meat-derived) price coefficient + its anchor
@@ -1084,7 +1154,7 @@ def _milk_params(pr: DemandParams) -> DemandParams:
     figure can read its positions."""
     milk = DemandParams(price_pb_mult=1.0, taste_quality_p=0.0, w_realtissue_M=2.1,
                         price_wf_mult=1.2, health_w=-2.0, health_c=0.0, w_health_M=1.0, w_health_E=1.0,
-                        calibrated=True)
+                        pb_committed_share=0.0, calibrated=True)
     milk.beta_ref = pr.beta_ref
     milk.anchor_price = pr.anchor_price
     return milk
@@ -1186,10 +1256,15 @@ def summarise(pr: DemandParams) -> None:
           f"(>> PB: the outside option dominates non-meat eating)")
     # [1b] PB buyer composition: the MAINSTREAM (flexitarians) should carry ~89% of PB (GFI), not the
     # 5% ethical core. This is what pins w_realtissue_M (the reduced-form mainstream not-real-meat standing).
-    pbM = (1 - pr.w_eth) * _rate(pr, "M", "p"); pbE = pr.w_eth * _rate(pr, "E", "p")
+    pbM = (1 - pr.w_eth) * _rate(pr, "Mall", "p"); pbE = pr.w_eth * _rate(pr, "E", "p")
     print(f"  [1b] PB buyer split: mainstream {pbM/(pbM+pbE)*100:.0f}% / ethical {pbE/(pbM+pbE)*100:.0f}%  "
           f"(target mainstream {pr.pb_mainstream_frac*100:.0f}%, GFI);  mainstream whole-food = "
-          f"{_rate(pr,'M','w')*100:.0f}% (target {pr.wf_mainstream_target*100:.0f}%)")
+          f"{_rate(pr,'Mall','w')*100:.0f}% (target {pr.wf_mainstream_target*100:.0f}%)")
+    if pr.pb_committed_share > 0.0:
+        pbK = pr.pb_committed_share * _rate(pr, "K", "p")
+        print(f"  [1c] committed buyers of plant-based meat: {pr.pb_committed_share*100:.0f}% of shoppers buy "
+              f"{pbK/pbM*100:.0f}% of the mainstream's plant-based meat (target {pr.pb_committed_volume*100:.0f}%); they add "
+              f"{pr.pb_committed_liking:.2f} utils to it and respond {pr.pb_committed_price_x:g} times as strongly to its price")
 
     print("  [2] cultivated share at parity by the acceptance dials (NO baked-in stance):")
     print("      (a) taste-acceptance accept_x (theta_free_M=0):")

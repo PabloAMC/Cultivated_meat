@@ -336,18 +336,12 @@ FB_CASES = ("central", "central_lean", "engineered", "best")
 
 def fedbatch_at(case: str, v: float) -> dict:
     """A scenario's switches run in fed-batch at `v` m3 (2026-11-19 restructure: bigger tanks help fed-batch, whose handicap is
-    capital), tank design chosen again under the loop checks. explore()'s result, with the design."""
-    import vessels as V
-    base = {k: x for k, x in S.SCENARIOS[case].choice.items() if k not in ("tricks", "shape")}
-    best = None
-    for tk in S.SW["tricks"].settings:
-        for sh in S.SW["shape"].settings:
-            r = S.run({**base, "mode": "fedbatch", "tricks": tk.key, "shape": sh.key}, vessel_m3=v)
-            if not V._loop_ok(r):
-                continue
-            if best is None or r["total"] < best["total"] - 1e-12:
-                best = {**r, "tricks": tk.key, "shape": sh.key}
-    return best
+    capital), tank design chosen again by scenarios.design, as perfusion_at (since 2026-11-21: with the culture held thinner where
+    the loop fails at full density; before, such designs were dropped here but kept by the plant-cost axis, so the two disagreed).
+    explore()'s result, with the design."""
+    base = {k: x for k, x in S.SCENARIOS[case].choice.items() if k not in ("tricks", "shape", "thin")}
+    d = S.design({**base, "mode": "fedbatch"}, vessel_m3=v)
+    return {**S.run(d, vessel_m3=v), "tricks": d["tricks"], "shape": d["shape"], "thin": d.get("thin")}
 
 
 def perfusion_at(case: str, v: float) -> dict:

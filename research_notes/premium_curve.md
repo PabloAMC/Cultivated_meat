@@ -39,20 +39,20 @@ buys.
 
 | share of the category at premium R | 1× | 1.25× | 1.5× | 2× | 2.5× | 3× | 4× | 5× |
 |---|---|---|---|---|---|---|---|---|
-| the main model | 49.25% | 29.52% | 15.09% | 3.05% | 0.55% | 0.10% | under 0.01% | under 0.01% |
+| the main model | 51.17% | 31.08% | 16.00% | 3.23% | 0.58% | 0.10% | under 0.01% | under 0.01% |
 | fitted to all sixteen premium products | 8.68% | 7.06% | 5.72% | 3.72% | 2.40% | 1.54% | 0.63% | 0.26% |
 
 | data | curve | parameters | typical miss (rms log error) | cold at-parity elasticity |
 |---|---|---|---|---|
-| the six used so far | the main model as it is | κ 8.5, no virtue term | 0.99 | -3.27 |
-| the six used so far | one kind of shopper | κ 2.06, v -2.64 | 0.46 | -0.84 |
-| the six used so far | the model's mainstream plus a loyal minority | κ 8.50, v -52.40, loyal share 5%, v loyal 3.78, κ loyal 7.71 | 0.43 | -0.84 |
-| all sixteen | the main model as it is | κ 8.5, no virtue term | 1.78 | -3.27 |
-| all sixteen | one kind of shopper | κ 2.21, v -2.37 | 0.89 | -0.90 |
-| all sixteen | the model's mainstream plus a loyal minority | κ 8.50, v -12.18, loyal share 30%, v loyal -1.00, κ loyal 2.35 | 0.89 | -0.94 |
-| sixteen plus Ibérico | the main model as it is | κ 8.5, no virtue term | 2.08 | -3.27 |
-| sixteen plus Ibérico | one kind of shopper | κ 2.06, v -2.33 | 0.96 | -0.84 |
-| sixteen plus Ibérico | the model's mainstream plus a loyal minority | κ 8.50, v -2.58, loyal share 30%, v loyal -1.40, κ loyal 1.44 | 0.95 | -1.79 |
+| the six used so far | the main model as it is | κ 8.5, no virtue term | 1.03 | -3.27 |
+| the six used so far | one kind of shopper | κ 2.05, v -2.72 | 0.46 | -0.84 |
+| the six used so far | the model's mainstream plus a loyal minority | κ 8.50, v -41.69, loyal share 5%, v loyal 3.70, κ loyal 7.67 | 0.43 | -0.84 |
+| all sixteen | the main model as it is | κ 8.5, no virtue term | 1.77 | -3.27 |
+| all sixteen | one kind of shopper | κ 2.19, v -2.45 | 0.89 | -0.90 |
+| all sixteen | the model's mainstream plus a loyal minority | κ 8.50, v -42.93, loyal share 30%, v loyal -1.08, κ loyal 2.34 | 0.89 | -0.94 |
+| sixteen plus Ibérico | the main model as it is | κ 8.5, no virtue term | 2.07 | -3.27 |
+| sixteen plus Ibérico | one kind of shopper | κ 2.05, v -2.41 | 0.96 | -0.84 |
+| sixteen plus Ibérico | the model's mainstream plus a loyal minority | κ 8.50, v -2.78, loyal share 30%, v loyal -1.46, κ loyal 1.45 | 0.95 | -1.71 |
 
 ## 2. Cultivated meat on the curve
 
@@ -68,15 +68,17 @@ last row is the all-favourable example's cells with that demand (5.44%), not the
 | scenario | cells, $/kg | the main model | as a premium label (no correction) (+0%) | first contact (-45%) | long run, central (-30%) | long run, favourable (novelty gone) (+15%) | long run, unfavourable (novelty stays) (-110%) |
 |---|---|---|---|---|---|---|---|
 | 1. Published cells | $316.11 | **under 0.01%** | under 0.01% | under 0.01% | under 0.01% | under 0.01% | under 0.01% |
-| 4. Plus perfusion (the low-lactate example) | $48.68 | **0.05%** | 0.03% | 0.02% | 0.02% | 0.04% | under 0.01% |
-| 7. Plus everything else at its favourable end (the all-favourable example) | $6.97 | **6.07%** | 3.75% | 2.33% | 2.73% | 4.39% | 1.18% |
+| 4. Plus perfusion (the low-lactate example) | $48.68 | **0.05%** | 0.02% | 0.01% | 0.01% | 0.03% | under 0.01% |
+| 7. Plus everything else at its favourable end (the all-favourable example) | $6.97 | **5.58%** | 3.19% | 2.00% | 2.33% | 3.73% | 1.02% |
 
 ## 3. What this says
 
-- **At the low-lactate example's price the model is above the premium curve, and just above the curve's own range.** Anchored on
-  premium meats, the low-lactate example takes 0.02% in the long run (0.01–0.04% across the corrections), against the model's
-  0.05%. Unrounded: 0.019% (0.006–0.037%) against 0.047%. The anchored share is two-fifths of the model's, and the model's share
-  sits just above the favourable end of the range. (Before the 2026-11-20 engine batch made cells dearer the anchored share was
+- **At the low-lactate example's price the model is above the premium curve, and above the curve's own range.** Anchored on
+  premium meats, the low-lactate example takes 0.01% in the long run (0.00–0.03% across the corrections), against the model's
+  0.05%. Unrounded: 0.015% (0.005–0.029%) against 0.045%. The anchored share is a third of the model's, and the model's share
+  is 1.6 times the favourable end of the range. (Since 2026-11-21's fourth batch: plant-based meat's committed buyers raise the
+  ordinary shoppers' real-meat weight, and with it the blend penalty on cuts, which cuts the curve with every shopper alike more
+  than the model; before it, 0.019% (0.006–0.037%) against 0.047%, two-fifths, just above the favourable end.) (Before the 2026-11-20 engine batch made cells dearer the anchored share was
   two-fifths below the model's, 0.12% against 0.21%, and the model's was inside the range, 0.04–0.24%.) Two things make the gap.
   First, the blend penalty on cuts and the world's lower income both cut a curve with every shopper alike by more than they cut
   the model's wide spread of liking (a Student's t, `liking_spread.md`). Second, the model's heavier tail: for one shopper at the
@@ -85,8 +87,9 @@ last row is the all-favourable example's cells with that demand (5.44%), not the
   are 7 to 15 times their meat's price, where no premium product is observed (the dearest of the sixteen is at 3.6 times). Both
   figures are extrapolations there, and both are under a tenth of a percent.
 - **Near price parity the model is above the curve and above the corrections' range.** The all-favourable example's cells
-  ($6.97 a kilo since 2026-11-21) take 2.7% anchored on premium meats (1.2–4.4%), against the model's 6.1%: the model gives 2.2 times
-  the curve's central figure and 1.4 times its favourable end (at $7.62: 2.5%, 1.1–4.0%, against 5.4%). At that cost the products of the world market are at 0.35 to 2.9 times their
+  ($6.97 a kilo since 2026-11-21) take 2.3% anchored on premium meats (1.0–3.7%), against the model's 5.6%: the model gives 2.4 times
+  the curve's central figure and 1.5 times its favourable end (before the fourth batch of 2026-11-21: 2.7%, 1.2–4.4%, against
+  6.1%; at $7.62: 2.5%, 1.1–4.0%, against 5.4%). At that cost the products of the world market are at 0.35 to 2.9 times their
   meat's price (beef cuts, premium seafood and dearer products below it). The single curve takes its level at equal price from
   premium labels (8.7%), which are never cheaper than the ordinary product, and the premium data start at 1.5×; the model sets
   that level as a judgement (14.4% of meat buyers, `liking_spread.md`) and its spread of liking holds more shoppers below and
@@ -107,9 +110,9 @@ last row is the all-favourable example's cells with that demand (5.44%), not the
 
 What would have to be true for the low-lactate example to reach 1% of the world in the long run: shoppers would have to like it
 far more than any reading of the evidence gives (even shoppers indifferent on average give about 0.1% at its cost,
-`liking_spread.md`). Its long-run share at $48.68 lies between the corrections' ends, 0.01–0.04%, and the model's 0.05%; the
-share at equal price is uncertain on top. The all-favourable example's cells with the model's ordinary demand take 1.2–4.4%
-anchored on premium meats and 6.1% in the model; a share above about 5% needs the model's level at equal price rather than the
+`liking_spread.md`). Its long-run share at $48.68 lies between the corrections' ends, 0.00–0.03%, and the model's 0.05%; the
+share at equal price is uncertain on top. The all-favourable example's cells with the model's ordinary demand take 1.0–3.7%
+anchored on premium meats and 5.6% in the model; a share above about 5% needs the model's level at equal price rather than the
 premium labels'. The high-premium data did not bear out the expectation, held before this study, that anchoring would raise the
 share.
 

@@ -161,11 +161,11 @@ NOT_DRAWN = {"pf_glc_kg": "no: a trait of the cells, held by the kind-of-cells s
 # inputs left out of the tables, and why
 EXCLUDE = {"pf_gas_velocity": "The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is "
                               "also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure "
-                              "($46.1 to $51.9 in the low-lactate example) without changing any tank; it is left out.",
+                              "({gas_lo} to {gas_hi} in the low-lactate example) without changing any tank; it is left out.",
            "pf_mature_h": "Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of "
                           "product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days "
-                          "to mature muscle or fat would take the low-lactate example from $48.68 to $75.46 (4 days) or "
-                          "$232.75 (28 days; 2026-11-21). It is a lever on the page; it is left out here.",
+                          "to mature muscle or fat would take the low-lactate example from {mature_0} to {mature_4} (4 days) or "
+                          "{mature_28} (28 days). It is a lever on the page; it is left out here.",
            **{k: None for k in ("sc_medium_mid", "sc_gf_part", "sc_hazard_cm", "sc_gas_mid", "sc_td_central", "sc_td_fast",
                                 "sc_restart_base", "sc_hazard_mid", "sc_medium_high")}}
 EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves (medium price, growth factors bought, runs lost, "
@@ -199,6 +199,35 @@ def share_at(cost: float, region: str = "global", **over) -> float:
     margin = over.get("retail_margin", value("retail_margin"))
     return mm._rollup(mm.MARKETS[region], cost, markup, res, share_of, margin, cell_share=cell_share,
                       assembly=over.get("process_cost"))[1] * 100.0
+
+
+def _cost_at(key: str, inp: str, x: float) -> float:
+    """A scenario's cost with one input set to x (inputs read when scenarios.py is imported are handled by a reload)."""
+    import importlib, pathlib
+    v = I.REGISTRY[inp]
+    reload = re.search(r'value\("' + re.escape(inp) + r'"\)', pathlib.Path(S.__file__).read_text()) is not None
+    I.REGISTRY[inp] = replace(v, value=x)
+    try:
+        if reload:
+            importlib.reload(S)
+        return _cost(key)
+    finally:
+        I.REGISTRY[inp] = v
+        if reload:
+            importlib.reload(S)
+
+
+def excluded_reasons() -> list:
+    """EXCLUDE's reasons with their figures computed now (since 2026-11-21; they were typed in and went stale)."""
+    if "excl" in _CACHE:
+        return _CACHE["excl"]
+    g = I.REGISTRY["pf_gas_velocity"]
+    m = lambda x: f"${x:.2f}"
+    fig = {"gas_lo": m(_cost_at("central", "pf_gas_velocity", g.lo)), "gas_hi": m(_cost_at("central", "pf_gas_velocity", g.hi)),
+           "mature_0": m(_cost("central")), "mature_4": m(_cost_at("central", "pf_mature_h", 4 * 24.0)),
+           "mature_28": m(_cost_at("central", "pf_mature_h", 28 * 24.0))}
+    _CACHE["excl"] = [why.format(**fig) for why in EXCLUDE.values() if why]
+    return _CACHE["excl"]
 
 
 def _cost(key: str) -> float:
@@ -313,7 +342,7 @@ def markdown_cost() -> str:
         out.append(f"| {PLAIN[k]} | {_num(r['lo'])}–{_num(r['hi'])} {u} ({_num(r['value'])}) | "
                    f"${r['central'][0]:.1f} to ${r['central'][1]:.1f} | {S.pct_num(r['share'][0])}% to {S.pct_num(r['share'][1])}% | "
                    f"${r['best'][0]:.1f} to ${r['best'][1]:.1f} | {EVIDENCE.get(k, _tag(k))} | {_band(k)} |")
-    out += ["", *(f"*Left out: {why}*" for why in EXCLUDE.values() if why), f"*{EXCLUDE_NOTE}*"]
+    out += ["", *(f"*Left out: {why}*" for why in excluded_reasons()), f"*{EXCLUDE_NOTE}*"]
     return "\n".join(out)
 
 

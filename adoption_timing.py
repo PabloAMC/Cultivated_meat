@@ -139,6 +139,9 @@ class TimingParams:
     accept_rate: float = value("accept_rate")  # how fast initial neophobia decays per unit cumulative exposure
     sensory_parity: bool = True         # gate: if False, novelty does NOT fade (the PB-meat case)
     equal_share: float | None = None    # long-run share at equal price for this path (a draw); None = the demand model's
+    # --- repeat buying and dropping out (2026-11-21, fourth batch) ---------------------------------------------------------
+    repeat_rate: float = value("repeat_rate")   # share of first (and renewed) purchases that turn into repeat buying
+    lapse_rate: float = value("lapse_rate")     # share of buyers who stop buying each year
 
     years: int = int(value("years"))
 
@@ -146,6 +149,23 @@ class TimingParams:
 # ----------------------------------------------------------------------------
 # The coupled simulation
 # ----------------------------------------------------------------------------
+def buying_long_run(tp: TimingParams) -> float:
+    """The share of reached shoppers who are buying once the rollout is complete (F = 1): lapses (lapse_rate a year) balance
+    renewed purchases (the rollout's rate p_innov + q_imit, times repeat_rate, on the lapsed)."""
+    h = tp.p_innov + tp.q_imit
+    return tp.repeat_rate * h / (tp.repeat_rate * h + tp.lapse_rate) if tp.lapse_rate > 0.0 else 1.0
+
+
+def _step(F: float, B: float, tp: TimingParams) -> tuple:
+    """One year of rollout and of repeat buying. F: share of the market reached (tried at least once, Bass); B: share buying.
+    New triers (Bass) and lapsed shoppers trying again (at the same rate) keep buying with probability repeat_rate; a buyer
+    lapses with probability lapse_rate. Returns (F, B) a year on."""
+    h = tp.p_innov + tp.q_imit * F
+    dF = h * (1.0 - F)
+    B = B * (1.0 - tp.lapse_rate) + tp.repeat_rate * (dF + h * max(F - B, 0.0))
+    return min(1.0, F + dF), min(B, 1.0)
+
+
 def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool,
          which="x", nb0=None, nb_long=None):
     """Core loop shared by the fixed-R and cost-path simulations. `R_of_year(k)`
@@ -155,11 +175,18 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool,
       "x"  cultivated (default): cold-start nb0=tp.neophobia_x0 -> long-run dp.neophobia_x;
       "pb" plant-based: pass nb0/nb_long (its own cold-start/long-run novelty). Plant-based's
            PERMANENT taste deficit (a_p<1) is what stalls it even after novelty fades — the
-           contrast that the timing chart makes visible. R_of_year for PB is its OWN price R_p."""
+           contrast that the timing chart makes visible. R_of_year for PB is its OWN price R_p.
+
+    Cultivated meat's share is of the meat sold, x / (x + c), as the long-run roll-up reports it (since 2026-11-21's fourth
+    batch; it was of all four choices). The realised share is the ceiling times B / B_long: B the share of the market buying
+    (repeat buying and dropping out, _step), B_long its value once the rollout is complete (buying_long_run). With
+    repeat_rate 1 and lapse_rate 0, B is the rollout F and this is the model before."""
     nb0 = tp.neophobia_x0 if nb0 is None else nb0
     nb_long = dp.neophobia_x if nb_long is None else nb_long
     t = np.arange(tp.years + 1)
     F = 0.0          # rollout: fraction-of-ceiling reached (Bass)
+    B = 0.0          # share of the market buying (repeat buying and dropping out)
+    Bl = buying_long_run(tp)
     E = 0.0          # cumulative exposure (drives neophobia decay)
     shares, ceilings, nbs, Rs = [], [], [], []
 
@@ -175,12 +202,12 @@ def _run(R_of_year, dp: DemandParams, tp: TimingParams, acceptance_grows: bool,
         if which == "pb":
             ceiling = share(Rk, dp, neophobia_p=nb, which="pb", cultivated_present=False)
         else:
-            ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share)
-        s = F * ceiling
+            ceiling = share(Rk, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share,
+                            which="x_meat")
+        s = B / Bl * ceiling
         shares.append(s); ceilings.append(ceiling); nbs.append(nb); Rs.append(Rk)
         if k < tp.years:
-            dF = (tp.p_innov + tp.q_imit * F) * (1.0 - F)     # rollout advances
-            F = min(1.0, F + dF)
+            F, B = _step(F, B, tp)                             # rollout and repeat buying advance
             E += F          # exposure ~ AVAILABILITY (familiarity grows as it fills shelves),
             #   not the small consumed share -- else neophobia never fades once shares
             #   are realistically ~1%. People grow familiar with a product they keep seeing
@@ -223,19 +250,42 @@ def years_to_stabilize(R, dp: DemandParams, tp: TimingParams, frac=0.9, which="x
     def ceil(nb):
         if which == "pb":
             return share(R, dp, neophobia_p=nb, which="pb", cultivated_present=False)
-        return share(R, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share)
+        return share(R, dp, accept_x=tp.accept_x, theta_free_M=tp.theta_free_M, neophobia_x=nb, equal_share=tp.equal_share,
+                     which="x_meat")
 
     L = ceil(nb_end)
     if L <= 1e-9:
         return max_years
-    F = E = 0.0
+    F = B = E = 0.0
+    Bl = buying_long_run(tp)
     for k in range(max_years + 1):
         nb = nb_long + (nb0 - nb_long) * np.exp(-tp.accept_rate * E) if accept_on else nb0
-        if F * ceil(nb) >= frac * L:
+        if B / Bl * ceil(nb) >= frac * L:
             return k
-        F = min(1.0, F + (tp.p_innov + tp.q_imit * F) * (1.0 - F))
+        F, B = _step(F, B, tp)
         E += F
     return max_years
+
+
+STAB_RATES = (0.15, 0.5, 0.05)     # accept_rate: the point value, then the fast and slow ends of its range
+
+
+def years_for_cost(cost: float, equal_share_input: str = "equal_price_share", **tp_kw) -> tuple:
+    """Years to 90% of the long-run share for mince at `cost` $/kg of cells against the $12 commodity anchor (R = shelf price /
+    p_conv), at the point value of accept_rate and at each end of its range: (point, fast, slow). The figures RESULTS.md and
+    METHODS.md quote for the scenarios (2026-11-21, fourth batch: computed here, not by hand)."""
+    from price_ratio import shelf_price
+    dp = DemandParams() if equal_share_input == "equal_price_share" else DemandParams(equal_price_share=value(equal_share_input))
+    R = shelf_price(cost) / value("p_conv")
+    return tuple(years_to_stabilize(R, dp, TimingParams(accept_rate=r, **tp_kw)) for r in STAB_RATES)
+
+
+def share_path_ratio(R: float, years=(5, 10), **tp_kw) -> dict:
+    """The realised share in given years with repeat buying and dropping out, over the same without (repeat_rate 1, lapse 0)."""
+    dp = DemandParams()
+    a = simulate(R, dp, TimingParams(**tp_kw))["share"]
+    b = simulate(R, dp, TimingParams(repeat_rate=1.0, lapse_rate=0.0))["share"]
+    return {y: float(a[y] / b[y]) for y in years}
 
 
 def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
@@ -267,7 +317,8 @@ def monte_carlo_trajectory(R, n=4000, seed=0, years=None):
         tp_i = TimingParams(neophobia_x0=float(s["neophobia_x0"][i]),
                             accept_rate=float(s["accept_rate"][i]),
                             p_innov=float(s["p_innov"][i]), q_imit=float(s["q_imit"][i]),
-                            equal_share=float(s["equal_price_share"][i]), years=yrs)
+                            equal_share=float(s["equal_price_share"][i]), repeat_rate=float(s["repeat_rate"][i]),
+                            lapse_rate=float(s["lapse_rate"][i]), years=yrs)
         paths[i] = _run(lambda k: R, dp_i, tp_i, acceptance_grows=True)["share"] * 100
         tstab[i] = years_to_stabilize(R, dp_i, tp_i)
     t = np.arange(yrs + 1)

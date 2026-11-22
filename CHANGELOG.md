@@ -1,5 +1,125 @@
 # Change log
 
+## 2026-11-21 (fourth batch), documents
+
+No change to the model's behaviour or inputs. Prose that quoted figures the engine had moved past, recomputed from the modules
+(tables by their header line). Old → new:
+
+- **RESULTS and METHODS.** The all-favourable example's draws in METHODS $8.6 ($7.2–10.4) and $9 ($8–11) → $8.3 ($7.1–10.0), as
+  the table has; the low-lactate example's $53 ($40–77) → $52 ($39–76); Humbird's optimistic design takes 1.6% (0.8%, 0.2–3.0%)
+  → 1.4% (0.7%, 0.2–2.6%); the all-favourable cells with the ordinary demand, middle draw 4.4% (1.5–13.8%) → 3.9% (1.4–12.7%);
+  conventional meat's price response takes 4.5 (and 3.9) points off the all-favourable example → 4.1 (fixed price 26.4% → 27.4%;
+  supply-elasticity range 19.3–25.3% → 19.9–26.2%); closed markets 22.8% → 22.6% became 23.6% → 23.4%; the flat-$5 comparison
+  at the low-lactate example's cost (shelf $54.5/$72.2 → $53.7/$71.1, share 0.05% → 0.045%; the all-favourable example 6.9%/5.4% →
+  6.8%/5.6%); mince against US minced beef or pork cuts at the all-favourable example's cost 11.5% (1.2×) → 12.7% (1.1×), at the
+  low-lactate example's 0.08% (6.0×) → 0.09% (5.9×); the spread's misfits 4.3/9.8/16.6/20.6 → 4.2/10.0/17.1/21.3, least 3.75 →
+  3.69, the all-favourable example with the t and the normal spread 22.6%/29.3% → 23.4%/30.2%, other shapes 25.3–26.0% →
+  26.2–26.9%; salmon's response 3.7–4.3 → 3.7–4.2; first-contact elasticity −1.37 → −1.38; the adoption curve 70- to 100-fold,
+  half in 10–12 years, 90% in 19–24 → 72- to 105-fold, 11–13, 20–24; the sensitivity tornado (plant's cost 2.34 → 2.73, width
+  19% → 24%; share swings 1.5/1.1/0.8/0.7/0.7/0.4 → 1.7/1.2/0.8/0.8/0.8/0.5 pp, in shares of the meat sold); glucose 0.32 →
+  0.311 kg a kilo where quoted as current; the vessel grid's fill-and-draw $19.98 → $16.50 and airlift $30.48 → $29.96 against
+  $15.72; cleaning routes $48.70/$46.03/$45.59 → $47.89/$45.24/$44.83; per-tank rule $16.03/$49.63 → $15.82/$48.80; seven days of
+  maturation $98.25/$22.32 → $95.34/$19.71. RESULTS gains one line on the demand anchored on premium meats (below).
+- **A conclusion that moved with the fourth batch, now written down** (`market_size_loop.md` section 5, RESULTS section 2): with
+  the share taken from the curve fitted to premium real meats, the low-lactate example's own sales need 0.76 million m² of
+  membrane, short of the switch, so it no longer crosses (rests at $48.25 and 0.015%; in the third batch it reached the switch
+  exactly and rested at $24.69 and 0.27%).
+- **`market_size_loop.md`**: the prose kept under a box since the third batch is recomputed (rest $23.91/0.54% → $24.05/0.48%; the
+  all-favourable cells $6.29/6.81% → $6.30/6.27%; 2.6 → 2.4 times the switch; first sales 0.17 → 0.15 Mt; premium 0.75/0.38 →
+  0.68/0.34 million m²; slow learning $30.17/0.27% → $30.30/0.24%; the 8-in-10 cost range $41–79 → $39–76).
+- **`liking_spread.md`**: sections 2, 4 and 6 recomputed (31.0% → 29.8% with the normal spread, shapes that fit 24.7–28.1% →
+  23.4–26.9%, the band ends $41–82 → $39–76 and fourteen- → elevenfold).
+- **Side-study notes** (TODO "Side-study notes are snapshots" narrowed): `min_litres_per_kg.md` tables and prose (the
+  all-favourable example at 219 g/L: its physical floor now binds, $7.01 → $6.21), `filter_flux.md` section 4 ($49.50 → $48.68,
+  1,200 L/m² $72.05 → $71.67), `gf_and_doubling_bounds.md` sections 1-2 (the all-favourable example's litres 11.7 → 12.1),
+  `gas_flow_cap.md` (Humbird's design at 6 mm/s $15.93 → $15.72, at 2 mm/s $35.25 → $34.67), the status box of
+  `ammonia_tolerance_and_filter_life.md`, `demand_checks.md` section 5's salmon products; tables regenerated in `cost_scenarios.md`
+  and `study_comparison.md` (Humbird's own perfusion plant +$16.98 → +$23.49 on his best estimate; a box says the rest is as of
+  2026-11-20).
+- **Prose strings in code**: the page's tornado notes now compute their figures (`floor_physics.tornado_rows`, used by
+  `build_interactive.py`): growth factors at Humbird's price "about $4" → $5.7 a kilo, the oxygen limit with antifoam halved
+  "97 g/L" → 86, the protectant's $0.7 and the 120 g/L; `frontier.py`'s printout computes the parity cost ($6.1). `figures/` regenerated (`report_figures.py`, `sensitivity.py`).
+
+## 2026-11-21 (fourth batch): the demand model's open items
+
+**Plant-based meat's committed buyers, repeat buying, and the side analyses on the share of the meat sold.** Evidence:
+`research_notes/demand_checks.md` (sections 5 and 6), `demand_heterogeneity_evidence.md` (sections 3, 4 and 5). The long-run share
+at equal price is untouched (`equal_price_share` 13%, `best_equal_price_share` 55%; 14.4% and 58.6% of meat buyers).
+
+- **Plant-based meat's committed buyers** (`market_share` segment "K", mirrored in the page's `mainShares`, `segShares`,
+  `solveCalibration` and in `share_x_meat_many`): 7% of shoppers (`pb_committed_share`, 2-10%; GFI/NielsenIQ 2022) buy 82% of
+  the mainstream's plant-based meat (`pb_committed_volume`, 75-90%; Circana 2024 has 75%), through a solved liking
+  (`pb_committed_liking`, 3.14 utils), and respond 0.25 times as strongly to its price (`pb_committed_price_x`, 0.10-0.50; Tonsor,
+  Lusk & Schroeder 2021). Plant-based meat's own-price elasticity −2.89 → −1.30 (measured −1.23, the category about −1.3): the
+  check passes, and stays inside the category's range at every end of the three inputs (−0.99 to −1.81). A spread of liking alone
+  could not do it (a logit buyer's elasticity falls only as their own share nears one; these buyers give plant-based meat about
+  5% of their meat).
+- **Knock-on**: the ordinary mainstream shoppers buy plant-based meat less, so the solved real-meat weight `w_realtissue_M`
+  3.40 → 5.11 utils, and a cut that is 20% plant protein loses 1.02 utils, was 0.68 (`meat_market.tier_offset`). Headline shares
+  of the meat sold, world: the low-lactate example 0.050% → 0.045% (median of draws 0.058% → 0.052%, 8 in 10 0.009-0.30% →
+  0.009-0.26%); the all-favourable example with its own demand 24.7% → 23.4% (median 18.9% → 17.4%), its cells with the
+  ordinary demand 6.1% → 5.6%; the reported cost 0.17% → 0.16%. With the blend penalty at the old weight the all-favourable
+  example would be 24.6%.
+- **Price sensitivity across all shoppers, and farmed salmon**: tried with a price-insensitive class for every product and the
+  spread of liking refitted (`demand_checks.md` section 6). The spread's misfit falls (4.2 → 1.7-3.0), salmon still fails (1.3-4.3
+  against 1-1.5, never all four products inside), and the low-lactate example's share rises 2 to 8 times depending on how much
+  those shoppers like cultivated meat, which nothing measures. Not added; left for a decision. Salmon stays failing (3.7-4.2).
+- **`taste_quality_w`'s upper end** re-solves cleanly across its range (checked; METHODS's remark was stale).
+- **Repeat buying and dropping out** (`adoption_timing._step`, `buying_long_run`; the page's `repStep`): `repeat_rate` 0.62
+  (0.50-0.75; GFI/SPINS, 2025) and `lapse_rate` 0.14 a year (0.05-0.30; plant-based meat's US household reach 20% → 11%,
+  2021-25), both drawn in the timing band (`MC_TIMING_INPUTS`, after the others). The long-run share is unchanged; at the
+  reported cost the share after 5 years is 19% lower, after 10 years 16% lower; the years to 90% barely move (21 at the reported
+  cost; 14 → 15 at the fast end of the fade).
+- **The side analyses count the share of the meat sold**, x / (x + c): `uncertainty.py` (now through `share_x_meat_many`;
+  median 0.3%, 8 in 10 0.1-1.6% → 0.1-1.8%), `sensitivity.py` (the share tornado) and `adoption_timing.py` (and the page's timing
+  curve). `adoption_timing.years_for_cost` computes the years the documents quote.
+- **Repinned** (old → new): `tests/test_golden.py` w_realtissue_M 3.39863 → 5.11335, w_health_M 1.39169 → 2.20457, w_health_E
+  2.36651 → 2.35875, beta_ref −0.052663 → −0.054036, lusk_elas_parity_cold −1.37392 → −1.38249, income_us 1.89075 → 1.86976,
+  income_china 1.38545 → 1.36397, income_nigeria 0.799218 → 0.781302, health_x_half 16.9996 → 19.656, us_pen_vol 0.423594 →
+  0.379082, us_pen_val 0.83839 → 0.741859, world_pen_vol 0.172079 → 0.15554, organic_vs_cuts 20.1926 → 21.397, the elasticity
+  at R = 1 in the page's prose −1.3 → −1.4 (−1.349 → −1.354); `tests/test_answer_rests_on.py` the low-lactate example's share
+  0.0496 → 0.0455, the all-favourable example's with the ordinary demand 6.0674 → 5.5816, inputs 605 → 611, with a range 276 →
+  281, the share spans (0.0234, 0.3429) → (0.0216, 0.3103) and (1.6331, 21.6175) → (1.5030, 20.4019);
+  `tests/test_floor_physics.py` the analogue misfit at κ = 4 1.84 → 1.92; `tests/test_tank_size.py` the all-favourable switches'
+  fed-batch at 100 m³ $9.4878 → $9.3395 (already failing at the base commit 4e78588, not a demand change); the 2026-11-18
+  reproduction in `tests/test_liking_spread.py` now also sets `pb_committed_share` 0. `premium_buyers.shares` carries the committed
+  buyers as a third segment.
+- Tables regenerated by header line: `demand_checks.md`, `liking_spread.md`, `premium_curve.md`, `premium_buyers.md`,
+  `market_size_loop.md`, `retail_markup_form.md`, `tank_size.md` (the fed-batch table), RESULTS and METHODS (scenarios, what it
+  would take, the plant axis, what the answer rests on, the checks, the regional block).
+
+## 2026-11-21 (fourth batch), page
+
+No change to the model's outputs. The page's wording, its charts on a phone, and which figure it leads with (three quoted
+figures change because of that, below).
+
+- **Charts on a phone.** The charts of "How the tank and the plant set the cost" and "How a shop price becomes a share" (cost
+  against the price of medium, the cost in six parts, what limits the tank and the litres it needs, the tornado, the four options
+  against price, what helps and hurts, the shopper histogram, the other products, the products it could enter first) were drawn
+  at a fixed width and shrank to about half size on a 375 px screen. Under 560 px they are now drawn at the box's width
+  (`lvW`, `lvBox` in `build_interactive.py`; `scPartsSVG` takes the box's width): line names go inside the plot, keys and long
+  captions under it, and the bar charts put each name on its own line. Wide screens draw as before. Label overlaps fixed on the
+  way: the cost chart's side labels (at most eight), "equal price" under the legend, the six-part chart's column headings.
+- **The entry-points chart** has one colour for every product: no zones ("cheaper now", "only in the all-favourable example",
+  "not even then") and no zone words in its caption; the bar from price to cost says which is lower.
+- **The point, not the median.** Level 1's cards, its steps chart (the bar ends at the most-likely-values cost; the median dot is
+  gone), the steps table (columns: most likely values, 8 in 10 draws, median draw, saved), the table of Humbird's optimistic design
+  and the company's report, the methods prose on the cases and Step 1, and the price calculation's first line now give the cost with every
+  estimate at its most likely value, with the 8-in-10 range beside it. The ratios quoted in Step 1 follow: the low-lactate example
+  6.3 → 5.9 times US minced beef or pork cuts, the all-favourable example 1.3 → 1.1, and the share at the low-lactate example's
+  price 0.06% → 0.08%. The shopper histogram's caption no longer calls the cost "the median of the first screen's cloud".
+- **Cells named by traits.** Level 4's switch "Kind of cells" is "The cells' ammonia and lactate", its settings named by their
+  values (`scenarios.py`); the cells-by-tank table's rows are written from `scenarios.cell_traits`; "a low-ammonia feed" is "a feed
+  without glutamine"; "Engineered lines" (Stout 2023) is "Immortalised lines"; the ammonia-tolerance note no longer says
+  "selection could raise it".
+- **Wording (#19).** Every meat price names its meat: "same shop price as meat" → "as US minced beef or pork cuts"; "the price of
+  meat" → "the price of the conventional meat it copies". Literal verbs: "frame", "beat", "out of reach", "path", "price ladder",
+  "quality ladder" replaced.
+- **Leftovers.** `page_sections.py` loses nine unused generators (`scenario_table`, `bottlenecks`, `cells_by_tank`, `vessels`,
+  `experiments`, `measured`, `chip`, `limit_text`, `tank_in_every_scenario`); `tests/render_probe.js` drew the removed `drawBars`
+  and now draws the first screen's bars of each kind of meat (`tpSellBars`) at any width.
+- TODO: #19, the page leftovers and the page rebuild ticked; what is left of the page is one item with three decisions.
+
 ## 2026-11-21 (third batch): fed-batch against perfusion in a tank of the same size
 
 - `scenarios.plant_axis` now runs perfusion at 100 m³ too, and each fed-batch crosses perfusion of its own size. Before, fed-batch

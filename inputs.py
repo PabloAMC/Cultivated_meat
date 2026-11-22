@@ -1305,9 +1305,9 @@ REGISTRY: dict[str, Input] = {
         "flow, antifoam, membrane price); 0: only plant cost, financing, membrane life, upkeep, "
         "medium price and loss rate, as before"),
     "sc_nh3_limit": Input(4.0, "mmol/L", "[research_notes/ammonia_tolerance_and_filter_life.md, judgement] ammonia the scenarios' "
-        "cells tolerate in the tank with little loss of growth. The evidence note's median for selected meat cells is 3.5-4 mM "
+        "cells tolerate in the tank with little loss of growth. The evidence note's median for meat cells is 3.5-4 mM "
         "(80% interval 2-8): unadapted meat-relevant cells lose 10% of growth at about 1-3 mM, meat-cell processes hold 2-3 mM, "
-        "and selection could raise it (hybridomas reach 10-21 mM)",
+        "and some other animal cell lines grow at more (hybridomas at 10-21 mM)",
         lo=2.0, hi=8.0, mode=4.0,
         note="Set 2026-11-19 (audit): every scenario took Humbird's 5 mM (pf_nh3_limit), above the note's own median. Humbird's "
              "optimistic design keeps his 5. Drawn in every scenario's band."),
@@ -2256,6 +2256,41 @@ REGISTRY: dict[str, Input] = {
              "is derived from dollar shares and price ratios, US retail with foodservice taken alike. World about 0.3%; Germany "
              "1-2%. The calibration ANCHOR: the whole-food health weight w_health is solved at runtime so the model reproduces this with "
              "cultivated absent (market_share.solve_calibration) — a solved calibration target, not a static floor."),
+    # --- THE COMMITTED BUYERS OF PLANT-BASED MEAT (2026-11-21, fourth batch; research_notes/demand_checks.md section 5) -------
+    # Plant-based meat's buyers are a concentrated minority, and that minority responds less to its price. A class of mainstream
+    # shoppers who like plant-based meat more (a solved liking, pb_committed_liking) and whose response to ITS price is a
+    # multiple of other shoppers' (pb_committed_price_x). Its price difference from conventional meat is scaled, on both price
+    # channels, as closeness (cult_sub_mult) scales cultivated meat's. Nothing else about these shoppers differs: the same
+    # weights, the same price sensitivity for every other product, the same spread of liking for cultivated meat.
+    "pb_committed_share": Input(0.07, "of all shoppers", "[GFI/NielsenIQ 2022; Circana 2024] the share of shoppers who are the "
+        "committed buyers of plant-based meat: 7% of US households made 82% of plant-based meat spending (GFI/NielsenIQ "
+        "household panel, 2022). They are taken out of the mainstream segment.",
+        lo=0.02, hi=0.10, mode=0.07,
+        note="lo: Circana's household panel (2024) has a fifth of buyers making 75% of spending; with household reach at 11% "
+             "(GFI, 2025) that is about 2% of households. hi: 10%, between 7% and the 11% who buy at all in a year. Not drawn in "
+             "the bands (it moves plant-based meat, not cultivated meat: research_notes/demand_checks.md section 5)."),
+    "pb_committed_volume": Input(0.82, "of the mainstream's plant-based meat", "[GFI/NielsenIQ 2022; Circana 2024] the share of "
+        "the mainstream's plant-based meat that its committed buyers buy: 82% of spending by 7% of households (GFI/NielsenIQ "
+        "2022); 75% by a fifth of buyers (Circana 2024). The figure is for all households; it is applied inside the mainstream "
+        "segment, which buys pb_mainstream_frac (89%) of plant-based meat.",
+        lo=0.75, hi=0.90, mode=0.82,
+        note="Solved for through pb_committed_liking. Spending shares are taken as volume shares (the committed buyers are "
+             "assumed to pay the same price a kilo as other buyers)."),
+    "pb_committed_price_x": Input(0.25, "x other shoppers'", "[Tonsor, Lusk & Schroeder 2021; demand_heterogeneity_evidence.md "
+        "sections 3-4] how strongly the committed buyers respond to plant-based meat's price, as a multiple of other shoppers' "
+        "response. In stated choices of Beyond Beef, people who do not regularly eat meat had own-price elasticities of -0.9 to "
+        "-1.6, regular meat eaters -3.6 to -8.6 (a ratio of 0.10 to 0.44; of the mid-points, 0.2). Across meat and egg studies "
+        "the most and least price-sensitive groups differ 4 to 10 times in real purchases (0.10 to 0.25).",
+        lo=0.10, hi=0.50, mode=0.25,
+        note="An elasticity ratio overstates the ratio of price coefficients when the less sensitive group also buys the product "
+             "more often (a logit elasticity is the coefficient times price times one minus the share), so the mode sits a "
+             "little above the mid-points' 0.2, and hi at 0.5. It is a measured input, not fitted to plant-based meat's "
+             "elasticity: that elasticity is the check (demand_checks.py). 1 with pb_committed_share 0 gives the model before "
+             "2026-11-21's fourth batch. Applied only to plant-based meat's price: the evidence measures these buyers' response "
+             "to it, and the price-insensitive groups found for meat are the most hostile to cultivated meat "
+             "(demand_heterogeneity_evidence.md section 2)."),
+    "pb_committed_liking": Input(4.0, "utils", "[calibration, SOLVED] utils the committed buyers add to plant-based meat's utility, "
+        "solved so they buy pb_committed_volume of the mainstream's plant-based meat. Seed only."),
     "w_health_E": Input(2.3, "utils", "[calibration, SOLVED] ETHICAL-segment weight on the HEALTH attribute — "
         "SOLVED so the ethical-segment plant-based rate hits its target (the residual ~11% of PB buyers / the "
         "non-mainstream part of pb_share_target). Times the whole-food health position (health_w), this is the "
@@ -2332,6 +2367,27 @@ REGISTRY: dict[str, Input] = {
              "theta_free_M). ~0.15 -> ~90% faded by yr~23; range 0.05 (novelty barely resolves within 30yr) to "
              "0.50 (fast, ~90% by yr~13). Driving it by consumed share would never ignite once shares are "
              "realistically ~1%, hence availability (F). SWEPT in the MC (time-to-stabilize uncertainty)."),
+    # --- repeat buying and dropping out (2026-11-21, fourth batch; adoption_timing._run) ---------------------------------------
+    # Shoppers the rollout has reached are either buying or lapsed. A first purchase turns into repeat buying with probability
+    # repeat_rate; a buyer lapses with probability lapse_rate a year; a lapsed shopper tries again at the rollout's own rate
+    # (p_innov + q_imit x reach) and again keeps buying with probability repeat_rate. The share is the long-run ceiling times
+    # the buying fraction over its long-run value, so the long run (equal_price_share) is unchanged: repeat and drop-out set
+    # how fast it is reached. repeat_rate = 1 and lapse_rate = 0 give the model before.
+    "repeat_rate": Input(0.62, "of first-time buyers", "[GFI, 'Analyzing plant-based meat and seafood sales', SPINS consumer "
+        "panel to 30 Nov 2025] the share of a year's buyers of plant-based meat and seafood in the US who bought more than once: "
+        "62% in 2025, 'relatively stable' while household reach fell from about 20% (2021) to 11% (2025). Taken for cultivated "
+        "meat by analogy",
+        lo=0.50, hi=0.75, mode=0.62,
+        note="No repeat-purchase data exist for cultivated meat sold in Singapore, the US or Australia "
+             "(demand_heterogeneity_evidence.md section 6). The range is a judgement around the one plant-based figure: buying "
+             "twice in a year is a weak test of repeat buying, so the true share who keep buying could be lower."),
+    "lapse_rate": Input(0.14, "1/yr", "[derived from GFI/SPINS household reach] the share of buyers who stop buying each year: "
+        "plant-based meat's US household reach fell from about 20% to 11% between 2021 and 2025, a net fall of "
+        "1 - (11/20)^(1/4) = 14% a year with the repeat rate near 62% throughout. Taken for cultivated meat by analogy",
+        lo=0.05, hi=0.30, mode=0.14,
+        note="The net fall understates the gross rate if lapsed buyers came back, and a fad unwinding (2019-21) overstates the "
+             "rate of a settled product; the two pull in opposite directions. lo: a settled product; hi: about twice the "
+             "plant-based figure."),
     "milestone_year_breakthrough": Input(10, "year", "[assumed] year a scale-up / cheaper-media "
         "breakthrough lands, stepping R down (Rung 4 cost-path coupling)",
         lo=5, hi=20, mode=10,
@@ -2647,7 +2703,8 @@ MC_CUT_INPUTS = ("scaffold_frac", "process_cost")
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
 # 2026-11-20: accept_x left this list as it left MC_DEMAND_INPUTS (equal_price_share is the net of every taste effect); the
 # timing band holds it at its point value.
-MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit", "equal_price_share")
+# 2026-11-21 (fourth batch): repeat buying and dropping out are drawn too, after the others so their draws are unchanged.
+MC_TIMING_INPUTS = ("neophobia_x0", "accept_rate", "p_innov", "q_imit", "equal_price_share", "repeat_rate", "lapse_rate")
 
 
 # ----------------------------------------------------------------------------

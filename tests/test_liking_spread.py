@@ -44,7 +44,9 @@ def check_shape() -> list:
     # 2026-11-20 (model batch): the plant-based share target fell from 1.2% to 0.4% and incomes became nominal dollars (income_ref
     # $85,810 -> $86,170, phi 0.5 -> 0.32), so the model's own calibration has moved; the 2026-11-18 model is rebuilt with those three
     # inputs at their old values and must still match to the last digit
-    old = M.DemandParams(liking_family="normal", liking_sd=5.0, pb_share_target=0.012, income_gradient=0.5, income_ref=85810)
+    # 2026-11-21 (fourth batch): and with no committed buyers of plant-based meat (pb_committed_share 0).
+    old = M.DemandParams(liking_family="normal", liking_sd=5.0, pb_share_target=0.012, income_gradient=0.5, income_ref=85810,
+                         pb_committed_share=0.0)
     for R, v in NORMAL_2026_11_18.items():
         if abs(M.share(R, old) - v) > 1e-12:
             fails.append(f"the normal shape with a spread of 5 no longer reproduces the 2026-11-18 model at {R:g} times the price")

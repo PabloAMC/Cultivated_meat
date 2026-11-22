@@ -124,7 +124,8 @@ def check() -> list:
     # premium-product analogues: the default over-predicts them; kappa = 9 fits far better
     from market_share import DemandParams, analogue_check
     e4, e9 = (analogue_check(DemandParams(cult_sub_mult=k))["rms_log_error"] for k in (4.0, 9.0))
-    near("analogue misfit at the default kappa", e4, 1.84, 0.03)
+    # 2026-11-21 (fourth batch): 1.87 -> 1.92 (pinned 1.84; plant-based meat's committed buyers re-solve the mainstream weights)
+    near("analogue misfit at the default kappa", e4, 1.92, 0.03)
     if not e9 < 0.6 * e4:
         fails.append("kappa = 9 should fit the premium-product analogues much better than kappa = 4")
     # medium use follows from waste: Humbird's enhanced cells need about 11 L/kg in perfusion, ordinary ones 190
