@@ -1,5 +1,80 @@
 # Change log
 
+## 2026-11-22 (fifth batch), demand
+
+**The price-insensitive shoppers are in the model.** Evidence and fit: `research_notes/demand_checks.md` section 7. The long-run
+share at equal price is untouched (`equal_price_share` 13%, `best_equal_price_share` 55%: the mean liking is still solved so that
+the long-run share at equal price hits them; 14.4% and 58.7% of meat buyers). Costs do not move.
+
+- **What it is** (`market_share.share`, `_rate`, `share_x_meat_many`; mirrored in the page's `segShares` and `_rate`): a share of
+  every segment's shoppers (ethical, the mainstream's ordinary shoppers and plant-based meat's committed buyers alike) responds a
+  multiple of the others' response to every price (both price channels, every product: an elasticity override eps × m, as a
+  per-tier one is), and likes cultivated meat by a set number of utils more, with the same spread around it. In the calibration
+  and in every share with a spread of liking; with `liking_sd` = 0 (every shopper alike) it is off, so the comparisons with the
+  model before 2026-11-18 and the checks on real premium meats are unchanged. β is still derived with every shopper alike.
+- **Three new inputs.** `price_insensitive_share` = 0.08 (0.08-0.15; real purchases probably 8-15%, stated choices 15-35%: Lusk's
+  eggs, Washio et al. 2023, Carzedda & Troiano 2021) and `price_insensitive_response` = 0.11 (0.10-0.25; 4-10 times between groups
+  in purchases), both FITTED within those ranges to the demand checks jointly (the spread's joint misfit plus plant-based meat's
+  elasticity against -1.3): least misfit at 8% and 0.11 (1.07; 6%: 1.16, 10%: 1.14). `price_insensitive_liking` = 0 utils (-2 to
+  +2): in the two latent-class studies that measured it the price-insensitive group is the most hostile to cultured meat in money
+  but not in utils (Washio: -1.90 against a weighted -1.95 for the other groups; Carzedda: -0.54 against -2.49, cultured over
+  conventional meat); a small price coefficient turns the same dislike into a large sum, which the model reproduces at a shift of 0.
+  Searched the other way: no study finds price-insensitive shoppers among cultured meat's enthusiasts. None of the three is drawn
+  in the bands (as `liking_sd` and the committed buyers' inputs).
+- **The spread of liking refitted with the class**: `liking_sd` 3.9 → 3.55 utils (range 3.6-4.2 → 3.3-3.9), `liking_tail` 4 → 7
+  (range 3-6 → 5-12). Joint misfit 4.20 → 0.87. Other shapes refitted in `liking_spread.FITTED`: logistic 4.25 → 3.65, mixture 4.4
+  → 3.5, the mixture with a small wide block 5.2 → 4.2 (renamed: no longer the best on its grid). `liking_spread.profile` searches
+  tails 3-30 and spreads 3.0-4.6.
+- **The checks, before → after**: first contact at equal price -1.38 → -1.51 (about -1.5 measured); share of a meat's buyers at 3
+  times the price 0.9% → 1.3% (premium meats 1.5%); farmed salmon's response 3.7-4.2 → 1.5-4.0 (organic chicken 1.52, heritage pork
+  1.84, premium fillets and shrimp 2.36, sushi-grade seafood 4.00; still failing, narrowed); plant-based meat's elasticity -1.30 →
+  -1.03 (measured -1.23, the category about -1.3; inside its range); first contact's share of all choices 4.3% → 3.8% (measured 4%).
+- **Headline shares of world meat, by weight**: the low-lactate example 0.045% → 0.26% at its own cost (median of draws 0.052% →
+  0.24%; 8 in 10 0.009-0.26% → 0.06-1.2%); 97% of its sales now go to the price-insensitive shoppers, and from -2 to +2 utils of
+  their liking it runs 0.11-0.58%. The all-favourable example with its own demand 23.4% → 25.1% (median 17.4% → 19.2%; 8 in 10
+  10.7-26.3% → 12.4-28.0%); its cells with the ordinary demand 5.6% → 5.5% (median 3.9% → 3.9%; 1.4-12.7% → 1.2-13.5%). The
+  reported cost 0.16% → 0.43% (median 0.19% → 0.45%). Humbird's optimistic design 1.4% → 1.6%.
+- **Knock-on, market size** (`market_size_loop.md`): the low-lactate example's first sales need 13.6 times the membrane switch (2.4);
+  it rests at $23.52 and 0.79% ($24.05, 0.48%), with one resting point under slow learning too ($29.43, 0.54%; was two). The
+  switch's level no longer matters; the plant's learning rate does most. Published cells now cross the switch on their own sales
+  (rest $84.88, 0.09%; they never started before). The loop's price response, 1.6, is near farmed salmon's.
+- **Documents.** New section 7 of `demand_checks.md` (with a side table, `demand_checks.markdown_insensitive`, and a test of it);
+  sections 1, 2, 4 and 5 rewritten, section 6 marked superseded. `liking_spread.md` sections 2-6, `market_size_loop.md`
+  (summary, sections 3-6 and 8), `premium_curve.md` section 3, `premium_buyers.md`, `retail_markup_form.md`,
+  `demand_heterogeneity_evidence.md` §5, RESULTS (headline, "What changed in the fifth batch", sections 1-4, the regional block and
+  the headline-cases table, the by-type table and the US block, recomputed) and METHODS (Step 2: the class; the spread; timing).
+  Tables regenerated by header line; the three repeated ladder tables in `market_size_loop.md` and the two repeated
+  what-it-would-take tables in RESULTS replaced in order. The comparison rows with every shopper alike and the normal spread of
+  2026-11-18 (`demand_checks.variants`, `liking_spread.summary`) and the "no committed buyers" row are calibrated without the
+  class, as those models were. `answer_rests_on` describes the three new inputs. The page's elasticity figures are model tokens and
+  moved with it.
+- **Pinned values that moved, old → new.** `test_golden`: w_realtissue_M 5.11335 → 5.28426, w_health_M 2.20457 → 2.31286,
+  w_health_E 2.35875 → 2.60496, lusk_elas_parity_cold -1.38249 → -1.50699, income_us 1.86976 → 2.10414, income_china 1.36397 →
+  1.64074, income_nigeria 0.781302 → 1.13262, health_x_half 19.656 → 20.249, us_pen_vol 0.379082 → 0.628687, us_pen_val 0.741859 →
+  0.912001, world_pen_vol 0.15554 → 0.430605, organic_vs_cuts 21.397 → 21.4752, years_to_stabilize 21 → 25; the page's elasticity
+  strings at R = 1, 1.5 and 2.42 "−1.4", "−2.1", "−3.1" → "−1.3", "−2.0", "−2.5". `test_demand_checks`: plant-based meat within
+  0.15 → 0.25 of -1.23; the salmon band (all four at 2.4-3.0 times salmon's top) → organic chicken at 1.0-1.1 times and lowest,
+  sushi-grade seafood highest at 2.4-3.0 times; the model against premium meats at 2-4 times the price 0.5-1.0 → 0.7-1.3 of their
+  share; new checks on the side table (the model before reproduced at 0.0455% and 4.20; the model's misfit within 5% of the least;
+  the liking shift moves the low-lactate example most). `test_liking_spread`: the 2026-11-18 reproduction also sets
+  price_insensitive_share 0; the middle reading at equal price 14.5-15.5% → 15.9-16.9% (16.4%); first contact 4.0-4.6% → 3.5-4.1%
+  (3.8%); the middle reading over the default < 1.25 → < 1.35 (1.31, 1.26); the shapes' order mixture < t < logistic < normal → t <
+  logistic < mixture < normal; salmon's response above twice the top → from just above the top to over 2.4 times it; the least
+  misfit at tail 3, spread 3.7 → the model's own, against four neighbours. `test_market_size_loop`: published cells' whole sales now
+  cross the switch; premium products 0.5-1.0 → 1.0-1.2 times the switch; whole sales 2-3 → 10-15 times; without premium products
+  the other sales pass a 3 million m² switch (they fell short); slow learning two resting points → one; the switch's level matters
+  most → the plant's learning rate matters most and the switch moves the cost under $1; published cells never start → cross with
+  central learning, two points with slow learning, under 0.15% (was 0.05%); premium products 20-35% → 5-12% of first sales (8%), the
+  four small 8-20% → 1-4% (2.4%); the five premium products' response all 2.4-3.0 times → the three dearest 1.0-1.7 times, prime beef
+  and sushi-grade seafood 2.4-3.0 times; above history's totals prime beef and sushi → prime beef only; later rounds 25-40% → 8-18%
+  (12%). `test_premium_curve`: the anchored share a third of the model's (0.25-0.4) → a twentieth (0.03-0.1), the model 1.3-1.8 →
+  6-12 times the corrections' favourable end. `test_answer_rests_on`: inputs 611 → 614, with a range 281 → 284, demand rows 10 → 14, the share spans 0.0216-0.3103% →
+  0.0559-1.5650% (the low-lactate example) and 1.5030-20.4019% → 1.3387-21.8664% (the all-favourable example's cells); the shares at the scenarios' costs 0.0455 → 0.2588 and 5.5816 → 5.4798; the spread 3.9/4 → 3.55/7; the span's
+  ends set by retail_margin and cult_sub_mult → equal_price_share at both.
+- **What remains.** Salmon still fails for the three products nearest their meat's price. The low-lactate example's share rests
+  on the class's liking for cultivated meat, measured only in two stated-choice studies (TODO). The class lowers plant-based meat's
+  elasticity to -1.03, 0.20 from the item-level figure; `pb_committed_price_x` was not refitted.
+
 ## 2026-11-21 (fourth batch), documents
 
 No change to the model's behaviour or inputs. Prose that quoted figures the engine had moved past, recomputed from the modules

@@ -1837,39 +1837,40 @@ REGISTRY: dict[str, Input] = {
     # that, once familiar and at equal price, cultivated meat takes equal_price_share of buyers (at neutral settings).
     # liking_sd = 0 is the model before (every shopper alike, no shift). Since 2026-11-19 the spread is a Student's t
     # (LIKING_FAMILY below, liking_tail), heavier-tailed than the normal it replaced: audit finding D3.
-    "liking_sd": Input(3.9, "utils", "[fitted, liking_spread.families] spread (standard deviation) across shoppers of liking for "
+    "liking_sd": Input(3.55, "utils", "[fitted, liking_spread.families] spread (standard deviation) across shoppers of liking for "
         "cultivated meat, in the model's utils. Fitted with liking_tail, jointly, to the one random-parameter choice experiment "
-        "on cultivated meat (Van Loo, Caputo & Lusk 2020: its own-price elasticity at four prices, miss 0.13 against 2.56 with "
+        "on cultivated meat (Van Loo, Caputo & Lusk 2020: its own-price elasticity at four prices, miss 0.02 against 2.56 with "
         "every shopper alike), to the share sixteen premium real meats hold at 2, 3 and 4 times the ordinary price, and to "
-        "farmed salmon's response to its falling price. The choice experiment alone would put it at 3.6 (miss 0.01). The "
-        "experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
-        lo=3.6, hi=4.2, mode=3.9,
+        "farmed salmon's response to its falling price, with the price-insensitive shoppers in the model (since 2026-11-22). "
+        "The experiment itself estimated 3.6-4.6 on its scale, about 3.3-4.7 utils here.",
+        lo=3.3, hi=3.9, mode=3.55,
         note="Not drawn in the bands: equal_price_share is set given it. 0 gives the model as it was before 2026-11-18. lo-hi: "
-             "about the values whose joint misfit is within 20% of the best (3.45-4.15 with liking_tail re-fitted, "
-             "liking_spread.profile); above 4.0 at liking_tail = 4 the first-contact elasticity at equal price leaves "
-             "-1.5 +/- 0.15. CHANGED 2026-11-19 from 5.0 with a normal spread: that fit (miss 0.15, elasticity -1.53) rested on "
-             "fifteen integration points; integrated properly a normal spread of 5 misses by 0.29 with an elasticity of -1.34, "
-             "and no normal spread meets both -1.5 +/- 0.15 and a miss under 0.30. With LIKING_FAMILY = 'normal' and "
-             "liking_sd = 5.0 the model of 2026-11-18 is reproduced exactly."),
-    "liking_tail": Input(4.0, "dof", "[fitted, liking_spread.families] how heavy the tails of the spread of "
+             "about the values whose joint misfit is within 20% of the best at liking_tail = 7 (3.45-3.65) and across tails "
+             "with liking_tail re-fitted (3.25-4.0, liking_spread.profile). CHANGED 2026-11-22 (fifth batch) from 3.9 with a tail "
+             "of 4, refitted with the price-insensitive shoppers (price_insensitive_share): they hold buyers far above meat's "
+             "price, so a narrower spread with a lighter tail fits better (joint misfit 0.87, was 4.20). CHANGED 2026-11-19 from "
+             "5.0 with a normal spread: that fit (miss 0.15, elasticity -1.53) rested on fifteen integration points; integrated "
+             "properly a normal spread of 5 missed by 0.29 with an elasticity of -1.34. With LIKING_FAMILY = 'normal', "
+             "liking_sd = 5.0 and no price-insensitive shoppers the model of 2026-11-18 is reproduced exactly."),
+    "liking_tail": Input(7.0, "dof", "[fitted, liking_spread.families] how heavy the tails of the spread of "
         "liking are: the degrees of freedom of a Student's t. The smaller, the more shoppers who like (or dislike) cultivated "
         "meat far more than the typical spread, so the more who still buy at three or four times meat's price; at 30 or more "
         "it is a normal spread. With liking_sd it is fitted jointly to the choice experiment, the premium real meats and "
-        "farmed salmon (see liking_sd). At 4 the share of a meat's buyers at 3, 4 and 5 times its price falls by about 0.9 "
-        "per unit of price ratio, as the premium meats' does.",
-        lo=3.0, hi=6.0, mode=4.0,
+        "farmed salmon (see liking_sd).",
+        lo=5.0, hi=12.0, mode=7.0,
         note="Must be above 2 (below, the spread has no standard deviation). Not drawn in the bands. LOOSELY PINNED: the "
-             "joint misfit is least at 3 and within 20% of the least from 2.5 to 4.5 (liking_spread.profile); 4 is 10% above "
-             "the least. 4 and not 3 because the misfit cannot tell them apart and three things it does not count favour the "
-             "lighter tail: the model's first-contact share at equal price (4.3% at 4, 3.9% at 3, measured 5%), shares at ten "
-             "or more times meat's price, where a heavier tail leaves more buyers than any premium meat shows, and the best "
-             "case, which a narrower middle lowers. lo-hi: 3 is the least-misfit value; 6 is about 45% above it. Used only "
-             "when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
+             "joint misfit is least at 7 (0.87) and within 20% of the least from 5 to 12 (liking_spread.profile). CHANGED "
+             "2026-11-22 (fifth batch) from 4: with the price-insensitive shoppers in the model, the buyers left far above "
+             "meat's price are partly theirs, and a lighter tail fits better. The three things the misfit does not count, which "
+             "chose 4 over 3 on 2026-11-19, point the same way: a lighter tail gives a first-contact share nearer the measured "
+             "(3.8% of all choices at 7, measured 4%), fewer buyers at ten or more times meat's price, and a higher best case. "
+             "Used only when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
     "equal_price_share": Input(0.13, "of all choices", "[judgement, research_notes/liking_spread.md] once cultivated meat is "
         "familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based "
         "meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free "
         "credit); 14.5% of those who buy a meat. It is first contact plus the model's own fading of novelty (2.8 utils). With the "
-        "Student's t spread, 13% in the long run implies 4.3% of all choices at first contact, 4.8% of those who buy a meat: the "
+        "Student's t spread and the price-insensitive shoppers (2026-11-22), 13% in the long run implies 3.8% of all choices at "
+        "first contact, 4.3% of those who buy a meat: the "
         "experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
         lo=0.03, hi=0.49, mode=0.13, kind="lognormal", clip=(0.005, 0.80),
         note="THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the "
@@ -2291,6 +2292,51 @@ REGISTRY: dict[str, Input] = {
              "(demand_heterogeneity_evidence.md section 2)."),
     "pb_committed_liking": Input(4.0, "utils", "[calibration, SOLVED] utils the committed buyers add to plant-based meat's utility, "
         "solved so they buy pb_committed_volume of the mainstream's plant-based meat. Seed only."),
+    # --- THE PRICE-INSENSITIVE SHOPPERS (2026-11-22, fifth batch; research_notes/demand_checks.md section 7) -----------------
+    # A share of every segment's shoppers whose response to every price is a multiple of other shoppers' (both price channels,
+    # every product), and whose liking for cultivated meat is shifted by a set number of utils. Nothing else about them differs.
+    # They are in the calibration (plant-based meat's share, the meatless rate) and in every share with a spread of liking;
+    # with liking_sd = 0 (every shopper alike) they are not. The mean liking is solved with them in, so the long-run share at
+    # equal price is still equal_price_share (best_equal_price_share in the all-favourable example).
+    "price_insensitive_share": Input(0.08, "of all shoppers", "[Lusk 2019 report to FFAR/FMI; Washio et al. 2023; Carzedda & "
+        "Troiano 2021; demand_heterogeneity_evidence.md section 3; size fitted within that range, demand_checks.md section 7] "
+        "the share of shoppers who respond much less to price than the others. Studies that split meat and egg buyers into "
+        "groups find a price-insensitive group of 15-35% in stated choices (eggs 35%, Japanese beef mince 32%, Italian burgers "
+        "35%); in real purchases it is probably 8-15%.",
+        lo=0.08, hi=0.15, mode=0.08,
+        note="FITTED within the evidence: with price_insensitive_response and the spread of liking (liking_sd, liking_tail) "
+             "re-fitted, the joint misfit of the demand checks is least at 8% (1.07; 6%: 1.16, 10%: 1.14; "
+             "demand_checks.md section 7), the lower end of the range for real purchases. Not drawn in the bands, like "
+             "liking_sd and the committed buyers' inputs: "
+             "equal_price_share is set given them. 0 gives the model before 2026-11-22's fifth batch."),
+    "price_insensitive_response": Input(0.11, "x other shoppers'", "[demand_heterogeneity_evidence.md section 3; fitted within "
+        "its range, demand_checks.md section 7] how strongly the price-insensitive shoppers respond to every price, as a multiple "
+        "of other shoppers' response. Between the most and least price-sensitive groups, price coefficients differ 5-19 times in "
+        "stated choices and probably 4-10 times in real purchases (central 6): 0.10-0.25, central 0.17.",
+        lo=0.10, hi=0.25, mode=0.11,
+        note="FITTED within the evidence: the joint misfit of the demand checks is least at 0.11 (nine times between the groups; "
+             "0.13: 1.12, 0.15: 1.14-1.20, 0.17: 1.35, demand_checks.md section 7), near the end of the range where the "
+             "price-insensitive respond least: farmed salmon's check pulls that way. Applied to both price channels (the dollar term and the ratio term) of every product, as a per-tier elasticity "
+             "override is (market_share ratio_scale). Stated choices give far more: 0.036 in Washio et al. 2023 (the "
+             "'generous customers' against the weighted mean of the other four groups), 0.38 in Carzedda & Troiano 2021 "
+             "(the 'Italian organic supporters' against the others), 0.08 in Lusk's eggs (the 'price insensitive' against "
+             "the other three). Not drawn in the bands."),
+    "price_insensitive_liking": Input(0.0, "utils", "[Washio et al. 2023; Carzedda & Troiano 2021; demand_checks.md section 7] "
+        "how much more the price-insensitive shoppers like cultivated meat than other shoppers do, in utils (negative: they like "
+        "it less). In the two latent-class studies that report it, the price-insensitive group is the most hostile to cultured "
+        "meat in money (willingness to pay), but not in utils: its utility for cultured over conventional meat is -1.90 against "
+        "a weighted mean of -1.95 for the other groups (Washio, 4,421 Japanese shoppers) and -0.54 against -2.49 (Carzedda, "
+        "1,069 Italian students). Its hostility in money comes from its small price coefficient: a utility gap divided by a "
+        "small coefficient is a large sum. The model reproduces that with a shift of 0: at a sixth of the price response, the "
+        "same dislike in utils is six times as many dollars.",
+        lo=-2.0, hi=2.0, mode=0.0,
+        note="lo: hostile in utils too: Carzedda's class measured against plant-based meat rather than conventional meat "
+             "(-0.43 against +0.15, about -0.6), and a margin for the possibility that part of a latent class's small price "
+             "coefficient is a small scale (all of its coefficients are small in Carzedda), which would make its utils for "
+             "cultured meat understate its dislike. hi: Carzedda's +1.95 against conventional meat. No study finds "
+             "price-insensitive shoppers among cultured meat's enthusiasts: the enthusiast groups (13-16%) have middling or high "
+             "price sensitivity. Not drawn in the bands (the mean liking is solved given it); its effect is the side table in "
+             "demand_checks.md section 7."),
     "w_health_E": Input(2.3, "utils", "[calibration, SOLVED] ETHICAL-segment weight on the HEALTH attribute — "
         "SOLVED so the ethical-segment plant-based rate hits its target (the residual ~11% of PB buyers / the "
         "non-mainstream part of pb_share_target). Times the whole-food health position (health_w), this is the "

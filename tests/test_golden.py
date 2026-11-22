@@ -136,20 +136,27 @@ GOLDEN = {
     # larger solved health weight), us_pen_vol 0.423594 -> 0.379082, us_pen_val 0.83839 -> 0.741859, world_pen_vol 0.172079 ->
     # 0.15554, organic_vs_cuts 20.1926 -> 21.397. years_to_stabilize stays 21 with repeat buying (repeat_rate 0.62, lapse_rate
     # 0.14) and the share of the meat sold.
-    "w_realtissue_M":      5.11335,
-    "w_health_M":          2.20457,
-    "w_health_E":          2.35875,
+    # 2026-11-22 (fifth batch): the price-insensitive shoppers (8% of every segment, 0.11 times other shoppers' response to every
+    # price, liking 0 utils above others; research_notes/demand_checks.md section 7) are in the calibration, and the spread of
+    # liking was refitted with them (3.9 -> 3.55 utils, tail 4 -> 7). Each moved by design: w_realtissue_M 5.11335 -> 5.28426,
+    # w_health_M 2.20457 -> 2.31286, w_health_E 2.35875 -> 2.60496, lusk_elas_parity_cold -1.38249 -> -1.50699, income_us
+    # 1.86976 -> 2.10414, income_china 1.36397 -> 1.64074, income_nigeria 0.781302 -> 1.13262 (the price-insensitive shoppers buy
+    # at 2.42 times the price), health_x_half 19.656 -> 20.249, us_pen_vol 0.379082 -> 0.628687, us_pen_val 0.741859 -> 0.912001,
+    # world_pen_vol 0.15554 -> 0.430605, organic_vs_cuts 21.397 -> 21.4752, years_to_stabilize 21 -> 25.
+    "w_realtissue_M":      5.28426,
+    "w_health_M":          2.31286,
+    "w_health_E":          2.60496,
     "pb_share_pct":        0.4000,
     "parity_pct":          13.0000,    # calibration-anchored, invariant to the income re-architecture
     "milk_pct":            15.2568,
     # 2026-11-19, later: shoppers' liking is a Student's t spread (sd 3.9, 4 degrees of freedom) on a 67-point grid; the 15-point
     # rule had been too coarse (research_notes/liking_spread.md). Elasticity -1.53133 -> -1.3685; the income and health shares, the
     # roll-ups and the years to 90% below all moved with it (old values in the comments).
-    "lusk_elas_parity_cold": -1.38249,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
-    "income_us_pct":       1.86976,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
-    "income_china_pct":    1.36397,   # was 1.07862   # damped-BLP gradient at phi=0.5
-    "income_nigeria_pct":  0.781302,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
-    "health_x_half_pct":   19.6560,   # was 14.7346
+    "lusk_elas_parity_cold": -1.50699,  # experiment about -1.5 (-1.1 to -1.65 across arms; self-check [4b])
+    "income_us_pct":       2.10414,   # was 2.08241   # US = the anchor, invariant to phi (y_eff = income_ref there)
+    "income_china_pct":    1.64074,   # was 1.07862   # damped-BLP gradient at phi=0.5
+    "income_nigeria_pct":  1.13262,   # was 0.138745: the heavier tail keeps a few buyers far above parity   # damped-BLP: poorer = more price-sensitive (curvature in the log)
+    "health_x_half_pct":   20.2490,   # was 14.7346
     # 2026-11-13 (independent review): a tier's price-sensitivity override now scales BOTH price channels
     # (the ratio term too), as documented; cuts/premium tiers are less price-sensitive than before, so the
     # US roll-up rose (vol 5.04423 -> 5.73401, val 8.40933 -> 9.26091). World beef re-priced by consumption
@@ -163,11 +170,11 @@ GOLDEN = {
     # with the Student's t spread: vol 0.363114 -> 0.440886, val 0.848201 -> 0.862196, world 0.0594949 -> 0.139634.
     # 2026-11-19 (restructure, audit 6a): the roll-ups report cultivated meat's share of the meat sold, x / (x + c), not of all four
     # choices: vol 0.440886 -> 0.514012, val 0.862196 -> 1.023453, world 0.139634 -> 0.179202. The calibration does not move.
-    "us_pen_vol_pct":      0.379082,
-    "us_pen_val_pct":      0.741859,
-    "world_pen_vol_pct":   0.155540,
-    "organic_vs_cuts_pct": 21.3970,  # vs ~2.4% observed: the model over-predicts shares above parity
-    "years_to_stabilize":  21,      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
+    "us_pen_vol_pct":      0.628687,
+    "us_pen_val_pct":      0.912001,
+    "world_pen_vol_pct":   0.430605,
+    "organic_vs_cuts_pct": 21.4752,  # vs ~2.4% observed: the model over-predicts shares above parity
+    "years_to_stabilize":  25,      # 2026-11-22 (fifth batch): was 21; moved with the demand curve, not examined further      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
 }
 
 
@@ -282,17 +289,18 @@ def check_derived_prose_numbers() -> list:
     derived = [
         ("eps_x = eps_own*kappa",        value("eps_own") * value("kappa_base"), "-3.6"),
         # 2026-11-19: with the Student's t spread of liking these moved from −1.0, −1.8, −3.2 (steeper near parity, flatter far above it)
-        ("elasticity at R=1.0",          elas(1.0),  "−1.4"),   # 2026-11-21 (fourth batch): −1.349 -> −1.354, was "−1.3"
-        ("elasticity at R=1.5",          elas(1.5),  "−2.1"),
-        ("elasticity at R=2.42 (anchor)", elas(2.42), "−3.1"),  # 2026-11-21: was −3.0; the model gives −3.06
+        # 2026-11-22 (fifth batch, the price-insensitive shoppers): −1.354 -> −1.309, −2.10 -> −2.04, −3.06 -> −2.54
+        ("elasticity at R=1.0",          elas(1.0),  "−1.3"),   # 2026-11-21 (fourth batch): −1.349 -> −1.354, was "−1.3"
+        ("elasticity at R=1.5",          elas(1.5),  "−2.0"),
+        ("elasticity at R=2.42 (anchor)", elas(2.42), "−2.5"),  # 2026-11-21: was −3.0; the model gives −3.06
         # 2026-11-21: was "15.8" (plant_floor 13.8 -> 13.5: the building's power follows its floor and class, so Humbird's
         # optimistic design is $15.72, not $15.93). The page carries the figure as MODEL.cost_reference (15.49992), which
         # is where the old "15.8" was found too (15.80352); "15.49" is that literal's prefix
         ("reference cost $/kg",      cost_floor, "15.49"),     # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
-    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.4",
-              "elasticity at R=1.5": "−2.1", "elasticity at R=2.42 (anchor)": "−3.1",
+    rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−1.3",
+              "elasticity at R=1.5": "−2.0", "elasticity at R=2.42 (anchor)": "−2.5",
               "reference cost $/kg": "15.5"}      # 2026-11-21: was "15.8"
 
     fails = []

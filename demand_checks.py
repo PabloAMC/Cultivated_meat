@@ -87,18 +87,20 @@ def variants() -> list:
         return {"name": name, "curve": [M.share(R, pr, **kw) * 100.0 for R in R_GRID],
                 "cold": elasticity_at(1.0, pr, neophobia_x=value("neophobia_x0"), **kw), "world": _world(world)}
 
-    pr = pr0
+    # the rows with every shopper alike, and the normal spread of 2026-11-18, are the model before its price-insensitive
+    # shoppers (2026-11-22, fifth batch): calibrated without them, as those models were
+    pr = before = M.DemandParams(price_insensitive_share=0.0)
     rows = [row("**the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)**"),
-            row("the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general", liking_sd=0.0),
-            row("every shopper alike, 4 times (no extra sensitivity for cultivated meat)", liking_sd=0.0, kappa=pr.kappa_base),
-            row("every shopper alike, with the slope of the sixteen premium meats (2.2 times)", liking_sd=0.0,
+            row("the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general", pr=before, liking_sd=0.0),
+            row("every shopper alike, 4 times (no extra sensitivity for cultivated meat)", pr=before, liking_sd=0.0, kappa=pr.kappa_base),
+            row("every shopper alike, with the slope of the sixteen premium meats (2.2 times)", pr=before, liking_sd=0.0,
                 kappa=P.summary()["main"]["kappa"])]
     main, d = P.summary()["main"], P.delta_cases()["long run, central"]
     rows.append({"name": "one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections",
                  "curve": [P.curve(max(R - d, 0.05), main) * 100.0 for R in R_GRID], "cold": P.parity_elasticity(main),
                  "world": _world(lambda c: P.cultivated_share(c, main, d_price=d))})
     rows.append(row("the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points)",
-                    pr=replace(pr0, liking_family="normal", liking_sd=5.0)))
+                    pr=replace(before, liking_family="normal", liking_sd=5.0)))
     return rows
 
 
@@ -108,7 +110,7 @@ _SUM: dict = {}
 def summary() -> dict:
     if not _SUM:
         pr = S._demand()
-        _SUM.update(pb=pb_elasticity(), pb_before=pb_elasticity(M.DemandParams(pb_committed_share=0.0)),
+        _SUM.update(pb=pb_elasticity(), pb_before=pb_elasticity(M.DemandParams(pb_committed_share=0.0, price_insensitive_share=0.0)),
                     pb_committed=committed_buyers(), cold=cold_parity_elasticity(), at={R: elasticity_at(R) for R in R_GRID},
                     premium_3x=P.curve(3.0, P.summary()["main"]) * 100.0,
                     kappa_fit=P.summary()["main"]["kappa"], kappa=pr.cult_sub_mult, variants=variants(),
@@ -146,7 +148,8 @@ def markdown_checks() -> str:
 
 
 COMMITTED_CASES = (("the model", {}),
-                   ("no committed buyers (the model before 2026-11-21's fourth batch)", {"pb_committed_share": 0.0}),
+                   ("no committed buyers (the model before 2026-11-21's fourth batch)", {"pb_committed_share": 0.0, "price_insensitive_share": 0.0,
+                                                                                         "liking_sd": 3.9, "liking_tail": 4.0}),
                    ("their response to its price 0.10 times other shoppers'", {"pb_committed_price_x": 0.10}),
                    ("0.50 times", {"pb_committed_price_x": 0.50}),
                    ("2% of shoppers", {"pb_committed_share": 0.02}),
@@ -177,6 +180,60 @@ def markdown_committed() -> str:
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------------------- the price-insensitive shoppers (2026-11-22, fifth batch)
+BEFORE_FIFTH = {"price_insensitive_share": 0.0, "liking_sd": 3.9, "liking_tail": 4.0}   # the model before 2026-11-22's fifth batch
+INSENSITIVE_CASES = (("the model", {}),
+                     ("no price-insensitive shoppers, the spread as it was (the model before 2026-11-22's fifth batch)", BEFORE_FIFTH),
+                     ("no price-insensitive shoppers, the spread as now", {"price_insensitive_share": 0.0}),
+                     ("they like cultivated meat 2 utils less than other shoppers", {"price_insensitive_liking": -2.0}),
+                     ("2 utils more", {"price_insensitive_liking": 2.0}),
+                     ("10% of shoppers", {"price_insensitive_share": 0.10}),
+                     ("15% of shoppers", {"price_insensitive_share": 0.15}),
+                     ("their price response 0.10 times other shoppers'", {"price_insensitive_response": 0.10}),
+                     ("0.25 times", {"price_insensitive_response": 0.25}))
+
+
+def checks_of(pr: M.DemandParams) -> dict:
+    """Every check for one demand model (calibrated): the spread's joint misfit and its parts (liking_spread.objective), the
+    first-contact elasticity, plant-based meat's elasticity, farmed salmon's response (the premium products still dearer than
+    their meat), the share of a meat's buyers at 3 times its price, and the low-lactate and all-favourable examples' world shares
+    (the latter with its own demand)."""
+    import liking_spread as LS
+    m = LS.miss(None, pr.liking_sd, pr=pr)
+    cold = cold_parity_elasticity(pr)
+    resp = {n: r for n, (R0, r) in LS.salmon_response(pr).items() if R0 > LS.STILL_DEARER}
+    curve = {R: M.share(R, pr) * 100.0 for R in LS.PREMIUM_AT}
+    out = {"cold": cold, "miss": m["miss"], "response": resp, "curve": curve, "pb": pb_elasticity(pr)["elasticity"],
+           "first": M.share(1.0, pr, neophobia_x=value("neophobia_x0")) * 100.0}
+    out.update(LS.objective({"elasticity": m["elasticity"], "curve": curve, "response": resp, "cold": cold, "miss": m["miss"]}))
+    cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in SCEN}
+    world = lambda p, c: mm.penetration(mm.MARKETS["global"], c, income=mm.REGION_INCOME["global"], pr=p)[1] * 100.0
+    out["world"] = {"central": world(pr, cost["central"]),
+                    "best": world(replace(pr, equal_price_share=value(S.SCENARIOS["best"].equal_price_share)), cost["best"])}
+    return out
+
+
+def insensitive_cases() -> list:
+    """The checks with the price-insensitive shoppers at each end of their three inputs, without them, and as the model was."""
+    if "insensitive" not in _SUM:
+        _SUM["insensitive"] = [{"name": name, **checks_of(M.DemandParams(**kw))} for name, kw in INSENSITIVE_CASES]
+    return _SUM["insensitive"]
+
+
+def markdown_insensitive() -> str:
+    out = ["| price-insensitive shoppers | joint misfit (experiment, premium, salmon) | meets the experiment's two requirements | "
+           "first contact: elasticity | plant-based meat's elasticity | salmon response | share of a meat's buyers at 3x, 4x its "
+           "price | low-lactate example, world | all-favourable example with its own demand, world |",
+           "|---|---|---|---|---|---|---|---|---|"]
+    for r in insensitive_cases():
+        p = r["J_parts"]
+        rs = list(r["response"].values())
+        out.append(f"| {r['name']} | {r['J']:.2f} ({p[0]:.2f}, {p[1]:.2f}, {p[2]:.2f}) | {'yes' if r['meets'] else 'no'} | "
+                   f"{r['cold']:.2f} | {r['pb']:.2f} | {min(rs):.2f}–{max(rs):.2f} | {r['curve'][3.0]:.2f}%, {r['curve'][4.0]:.2f}% | "
+                   f"{r['world']['central']:.3f}% | {r['world']['best']:.1f}% |")
+    return "\n".join(out)
+
+
 def markdown_variants() -> str:
     s = summary()
     out = ["| price response | share of a meat at " + ", ".join(f"{R:g}×" for R in R_GRID) + " its price | at first contact and equal price | " +
@@ -188,7 +245,8 @@ def markdown_variants() -> str:
 
 
 def main() -> None:
-    print(markdown_checks()); print(); print(markdown_variants()); print(); print(markdown_committed())
+    print(markdown_checks()); print(); print(markdown_variants()); print(); print(markdown_committed()); print()
+    print(markdown_insensitive())
     s = summary()
     print("\ncultivated meat's own-price elasticity by price ratio:", {R: round(e, 2) for R, e in s["at"].items()})
 

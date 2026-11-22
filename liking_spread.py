@@ -139,13 +139,15 @@ def levels() -> dict:
             "shoppers indifferent on average (the premise before 2026-11-18)": {"mu": mu2, "parity": share(1.0, mu2, sd, k)}}
 
 
-def world_share(cost: float, mu: float, sd: float, kappa: float | None = None, region: str = "global") -> float:
+def world_share(cost: float, mu: float, sd: float, kappa: float | None = None, region: str = "global",
+                pr: M.DemandParams | None = None) -> float:
     """Long-run share of meat by weight, %, by the model's roll-up across meat types and regions."""
-    pr = demand()
+    pr = demand() if pr is None else pr
     income = mm.REGION_INCOME[region]
 
     def share_of(mt, R, base, res):
-        return share(R, mu, sd, kappa, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv, which="x_meat")
+        return share(R, mu, sd, kappa, tier_offset=mm.tier_offset(mt, base, res, pr), income=income, p_ref=mt.p_conv, which="x_meat",
+                     pr=pr)
     return mm._rollup(mm.MARKETS[region], cost, value("markup_add"), value("premium_resistance"), share_of)[1] * 100.0
 
 
@@ -163,9 +165,10 @@ def summary() -> dict:
     pr = demand()
     ref = reference_nodes(pr.liking_family, pr.liking_tail, pr.liking_minority)
     mu1 = lev["novelty fades by what the model assumes"]["mu"]
+    before = M.DemandParams(price_insensitive_share=0.0)   # every shopper alike, calibrated as before 2026-11-22's fifth batch
     _SUM["summary"] = {"fit": f, "sd": sd, "kappa": k, "levels": rows, "costs": costs,
-                       "model": {"curve": [M.share(R, demand(), liking_sd=0.0) * 100.0 for R in R_GRID],
-                                 "world": {key: world_share(c, 0.0, 0.0, k) for key, c in costs.items()},
+                       "model": {"curve": [M.share(R, before, liking_sd=0.0) * 100.0 for R in R_GRID],
+                                 "world": {key: world_share(c, 0.0, 0.0, k, pr=before) for key, c in costs.items()},
                                  "cold": M.lusk_at_parity_elasticity(M.DemandParams(liking_sd=0.0))},
                        "default": {"world": {key: S.shares(c, regions=("global",))["global"] for key, c in costs.items()},
                                    "parity": M.share(1.0, demand()) * 100.0},
@@ -190,14 +193,18 @@ PREMIUM_AT = (2.0, 3.0, 4.0)
 CURVE_AT = (1.25, 1.5, 2.0, 3.0, 4.0)
 STILL_DEARER = 1.5                               # the salmon check takes the premium products above this price ratio (demand_checks.py)
 WORLD_CASES = ("today", "central", "best")
-# The fitted parameters of each shape (`fit_family` finds them; `python liking_spread.py --families` prints the table).
+# The fitted parameters of each shape (`fit_family` finds them; `python liking_spread.py --families` prints the table). Refitted
+# on 2026-11-22 (fifth batch), with the model's price-insensitive shoppers in: the logistic 4.25 -> 3.65, the mixture 4.4 -> 3.5,
+# the mixture with a small wide block 5.2 -> 4.2 (no longer the best on its grid: with the price-insensitive shoppers in, the
+# block is not needed). The two normal rows keep the spread of 5 of 2026-11-18, for comparison.
 FITTED = {
     "normal, as it was (15 integration points)": dict(liking_family="normal", liking_sd=5.0),
     "normal, integrated properly": dict(liking_family="normal", liking_sd=5.0, _reference=True),
-    "logistic": dict(liking_family="logistic", liking_sd=4.25),
+    "logistic": dict(liking_family="logistic", liking_sd=3.65),
     "Student's t (the model)": dict(liking_family="student", liking_sd=value("liking_sd"), liking_tail=value("liking_tail")),
-    "mixture of two normals": dict(liking_family="mixture", liking_sd=4.4, liking_tail=3.0, liking_minority=0.05),
-    "mixture, best on the grid (its corner)": dict(liking_family="mixture", liking_sd=5.2, liking_tail=6.0, liking_minority=0.02),
+    "mixture of two normals": dict(liking_family="mixture", liking_sd=3.5, liking_tail=3.0, liking_minority=0.05),
+    "mixture with a small wide block (2% of shoppers at 6 times the others' spread)": dict(liking_family="mixture", liking_sd=4.2,
+                                                                                            liking_tail=6.0, liking_minority=0.02),
 }
 
 
@@ -298,8 +305,8 @@ def profile(within: float = 0.20) -> dict:
     within `within` of the best and which meets the two requirements. {'best': (sd, tail, J), 'sd': (lo, hi), 'tail': (lo, hi),
     'by_tail': {tail: (best sd, J)}, 'by_sd': {sd: (best tail, J)}}."""
     if "profile" not in _SUM:
-        tails = (2.2, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 12.0, 30.0)
-        g = {k: v for k, v in fit_family("student", sds=np.round(np.arange(3.3, 4.61, 0.05), 2), tails=tails)["grid"].items() if v[1]}
+        tails = (3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 10.0, 12.0, 30.0)     # 2026-11-22 (fifth batch): the least misfit moved to a tail of 7
+        g = {k: v for k, v in fit_family("student", sds=np.round(np.arange(3.0, 4.61, 0.05), 2), tails=tails)["grid"].items() if v[1]}
         best = min(g, key=lambda k: g[k][0])
         cut = g[best][0] * (1.0 + within)
         by_tail = {t: min(((sd, J) for (sd, tt, _p), (J, _ok) in g.items() if tt == t), key=lambda x: x[1], default=None) for t in tails}
