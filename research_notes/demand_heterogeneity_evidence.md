@@ -94,6 +94,12 @@ The model's first-contact elasticity at equal price is −3.27: inside the old b
    the model (7% of shoppers, 82% of the mainstream's plant-based meat, 0.25 times other shoppers' response to its price; its
    elasticity -1.30, `demand_checks.md` section 5). A price-insensitive class for every product was tried and left out: it fits
    the spread's targets better but does not fix farmed salmon, and its liking for cultivated meat is unmeasured (section 6 there).
+   **2026-11-22 (fifth batch):** the class is now in the model (`demand_checks.md` section 7): 8% of shoppers at 0.11 times the
+   others' response to every price, fitted within section 3's bounds. Its liking for cultivated meat is read from the two studies
+   of section 2 in utils, not in money: Washio's price-insensitive group values cultured over conventional meat at -1.90 utils
+   against -1.95 for the other groups (weighted), Carzedda's at -0.54 against -2.49. Their hostility in money (section 2's "most
+   hostile") comes from their small price coefficient; the model's shift is 0 utils (range -2 to +2). Section 2's probability that
+   liking and low price sensitivity go together, about 0.2, concerned the slow tail of liking; it is not changed.
    The 2025 repeat rate, 62% (GFI/SPINS consumer panel to 30 November 2025), is the model's `repeat_rate`.
 
 ## Sources

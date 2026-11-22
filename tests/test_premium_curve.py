@@ -44,10 +44,13 @@ def check() -> list:
     # 2026-11-21 (fourth batch): plant-based meat's committed buyers raise the blend penalty on cuts, which cuts the curve with
     # every shopper alike more than the model: 0.015% (0.005-0.029%) anchored against 0.045%, a third, and the model 1.6 times the
     # favourable end (was 0.019% against 0.047%, two-fifths, just above it).
+    # 2026-11-22 (fifth batch): the price-insensitive shoppers take the model to 0.26% at the low-lactate example's cost; the
+    # anchored curve (every shopper alike) stays at 0.014% (0.005-0.029%): about a twentieth of the model, which is about nine
+    # times the corrections' favourable end (was a third, and 1.6 times)
     m = s["model_share"]["central"]
-    if not (0.25 * m < sh["central"][lr] < 0.4 * m and 1.3 * sh["central"][fav] < m < 1.8 * sh["central"][fav]):
-        fails.append("the low-lactate example's anchored share is no longer about a third of the model's, with the model's about 1.6 "
-                     "times the corrections' favourable end; rewrite the note's conclusion")
+    if not (0.03 * m < sh["central"][lr] < 0.1 * m and 6.0 * sh["central"][fav] < m < 12.0 * sh["central"][fav]):
+        fails.append("the low-lactate example's anchored share is no longer about a twentieth of the model's, with the model's about "
+                     "nine times the corrections' favourable end; rewrite the note's conclusion")
     # 2026-11-19 audit batch, unchanged by the second round: the all-favourable example's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
     # (0.6-2.5%). The model is about twice the curve's central figure and above its favourable end. (Was: anchored below the model's.)
     # 2026-11-20 (engine batch, $11.67 to $18.71): 1.13% in the model against 0.66% anchored (0.24-1.17%). The model is 1.7 times

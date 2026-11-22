@@ -75,18 +75,20 @@ pork's $3.5 includes curing bacon and ham), plus about $1 to form cells into a p
 
 | rule | cells' cost for parity with $12 meat | All-favourable example: shelf price, share | Low-lactate example: shelf price, share |
 |---|---|---|---|
-| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $12.0, 6.84% | $53.7, 0.14% |
-| per-kg $2.5 + a 15% margin | $7.70 | $11.1, 7.59% | $60.2, 0.09% |
-| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $13.2, 5.58% | $71.1, 0.05% |
-| per-kg $2.5 + a 40% margin | $4.70 | $15.8, 3.76% | $85.3, 0.02% |
-| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $14.5, 4.44% | $90.3, 0.02% |
+| flat $5 a kilo (the model before 2026-11-18) | $7.00 | $12.0, 6.69% | $53.7, 0.41% |
+| per-kg $2.5 + a 15% margin | $7.70 | $11.1, 7.41% | $60.2, 0.34% |
+| **per-kg $2.5 + a 28% margin (the model now)** | $6.14 | $13.2, 5.48% | $71.1, 0.26% |
+| per-kg $2.5 + a 40% margin | $4.70 | $15.8, 3.76% | $85.3, 0.19% |
+| $1 + 45%: the whole spread as a percentage (the 2026-11-16 audit) | $5.60 | $14.5, 4.40% | $90.3, 0.17% |
 
 Shares are the long-run share of world meat by weight. The parity threshold moves little, from $7.0 to $6.1, because every
 rule is fitted to commodity meat's own spread. The shares above parity, where every scenario sits, fall: the low-lactate
-example's point share ($49.50 a kilo of cells) by nearly two-thirds, from 0.14% to 0.05%. The all-favourable example's cells
-($7.62 a kilo) are only a little above the parity threshold, so the rule matters less for it: its share falls by about a fifth,
-from 6.85% to 5.44%, and a 15% margin would give it more than the flat rule. The all-favourable example here is its cells with
-the model's ordinary demand (13% at equal price), not its own 55%. (These shares use the costs of the 2026-11-20 model batch,
+example's point share ($48.68 a kilo of cells) by about two-fifths, from 0.41% to 0.26%. The all-favourable example's cells
+($6.97 a kilo) are only a little above the parity threshold, so the rule matters less for it: its share falls by about a fifth,
+from 6.69% to 5.48%, and a 15% margin would give it more than the flat rule. The all-favourable example here is its cells with
+the model's ordinary demand (13% at equal price), not its own 55%. (Recomputed 2026-11-22, fifth batch, with the price-insensitive
+shoppers, who make the low-lactate example's share respond less to its shelf price. Before them, at the costs of the 2026-11-20
+model batch ($49.50 and $7.62), the shares were 0.14% to 0.05% and 6.85% to 5.44%. These older shares use the costs of the 2026-11-20 model batch,
 in which the all-favourable example keeps haemodialyser fibres for its cells. With the 2026-11-20 engine batch's costs ($18.71
 a kilo for the all-favourable example's cells) they were 0.14% to 0.05% and 2.18% to 1.13%. With the costs of the 2026-11-19 audit batch and the
 Student's t spread of liking fitted later that day they were 0.56% to 0.21% and 4.77% to 3.16%. With the audit batch's normal

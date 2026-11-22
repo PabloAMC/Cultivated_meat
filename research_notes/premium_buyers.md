@@ -21,11 +21,12 @@ default.
 price-insensitive buyers is contradicted by the two studies that split shoppers into groups (`demand_heterogeneity_evidence.md` §2),
 and the model now has a spread of liking across all shoppers instead (`liking_spread.md`). The study is kept for what it says about
 a welfare label on the same shelf. Its prices are the model's as it now stands, but its main class is the model before the spread
-(every shopper alike): with no premium buyers and no label it gives under 0.001% at the low-lactate example and 12.19% for the
-all-favourable example's cells, against the model's 0.05% and 5.58% (13.03% and 6.07% before the fourth batch of 2026-11-21, when
-plant-based meat's committed buyers raised the blend penalty on cuts; 11.43% and 5.44% at $7.62 a kilo, before 2026-11-21). Compare its shares with that base, not with the model's.
+(every shopper alike): with no premium buyers and no label it gives under 0.001% at the low-lactate example and about 12% for the
+all-favourable example's cells, against the model's 0.26% and 5.48% (0.05% and 5.58% before the price-insensitive shoppers of
+2026-11-22's fifth batch; 13.03% and 6.07% for the base and the model before the fourth batch of 2026-11-21, when plant-based meat's
+committed buyers raised the blend penalty on cuts; 11.43% and 5.44% at $7.62 a kilo, before 2026-11-21). Compare its shares with that base, not with the model's.
 "The all-favourable example" here is its cells ($6.97 a kilo) with the model's ordinary demand, not the all-favourable example's
-own 55% at equal price, which gives 23.4%. The change of the model's spread to a Student's t on 2026-11-19 moved only the model's
+own 55% at equal price, which gives 25.1%. The change of the model's spread to a Student's t on 2026-11-19 moved only the model's
 own figures; this study's shares, built on shoppers who are all alike, did not move then. The cost and demand changes of
 2026-11-20 moved all of them.
 
@@ -57,9 +58,9 @@ and nobody is a "premium buyer".
 
 | premium buyers, share of shoppers | their liking for a label (utils) | their price sensitivity κ | main class's liking | typical miss (rms log error) | at-parity elasticity |
 |---|---|---|---|---|---|
-| 5% | 0.73 | 1.95 | -1.34 | 0.897 | -2.69 |
-| 10% | 0.00 | 2.16 | -1.94 | 0.893 | -2.36 |
-| 20% | -0.61 | 2.37 | -3.74 | 0.890 | -1.34 |
+| 5% | 0.73 | 1.95 | -1.35 | 0.897 | -2.69 |
+| 10% | -0.00 | 2.17 | -1.95 | 0.893 | -2.35 |
+| 20% | -0.62 | 2.38 | -3.83 | 0.890 | -1.31 |
 
 **The premium products cannot tell the class sizes apart:** every size from 5% to 20% (and 30%, `premium_curve.md`) fits them equally well.
 So the size has to come from who buys labels (section 4).
@@ -68,39 +69,41 @@ So the size has to come from who buys labels (section 4).
 
 | no killing, valued over a welfare label (share of meat's price) | 4. Plus perfusion (the low-lactate example): share; sold to premium buyers; taken from the label, from conventional meat | 7. Plus everything else at its favourable end (the all-favourable example): share; sold to premium buyers; taken from the label, from conventional meat |
 |---|---|---|
-| +5% | 0.02%; 98%; 17%, 71% | 12.49%; 12%; 3%, 84% |
-| +25% | 0.02%; 99%; 17%, 71% | 12.73%; 14%; 4%, 84% |
-| +50% | 0.03%; 99%; 16%, 71% | 13.07%; 17%; 5%, 83% |
-| +100% | 0.06%; 100%; 15%, 71% | 13.88%; 22%; 6%, 82% |
-| the main model | 0.05% | 5.58% |
-| +5%, no label on the shelf | 0.02% | 12.93% |
+| +5% | 0.01%; 98%; 17%, 70% | 12.41%; 12%; 3%, 84% |
+| +25% | 0.02%; 99%; 17%, 70% | 12.65%; 14%; 4%, 83% |
+| +50% | 0.03%; 99%; 16%, 70% | 12.99%; 17%; 5%, 83% |
+| +100% | 0.06%; 100%; 15%, 70% | 13.80%; 22%; 6%, 82% |
+| the main model | 0.26% | 5.48% |
+| +5%, no label on the shelf | 0.02% | 12.85% |
 
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come
 from: the drop in each product's share when cultivated meat is added.
 
 | premium buyers, share of shoppers | 4. Plus perfusion (the low-lactate example) | 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|
-| 5% | 0.02% | 12.65% |
-| 10% | 0.02% | 12.49% |
-| 20% | 0.01% | 11.81% |
+| 5% | 0.02% | 12.57% |
+| 10% | 0.01% | 12.41% |
+| 20% | 0.01% | 11.74% |
 
 - **Premium buyers give the low-lactate example nearly all of its share in this study, and it is very little**: from the
-  base's under 0.001% to 0.02% (0.015% unrounded; 0.020% before the fourth batch of 2026-11-21), with the evidence's +5% value of
-  no killing; 98% of those sales go to the premium class. **That is a third of the model's 0.05%**: the model's spread of liking, with its heavier tail since
-  2026-11-19, gives more buyers at a high price than this study's premium class adds to shoppers who are all alike. (After the
+  base's under 0.001% to 0.01% (0.015% unrounded; 0.020% before the fourth batch of 2026-11-21), with the evidence's +5% value of
+  no killing; 98% of those sales go to the premium class. **That is about a seventeenth of the model's 0.26%** (a third of its 0.05%
+  before 2026-11-22): the model's price-insensitive shoppers, who like cultivated meat as much as others in utils and respond a
+  ninth as strongly to price, give far more buyers at a high price than this study's premium class, built on shoppers who are
+  all alike and drawn to a welfare label. (After the
   2026-11-20 engine batch: 0.022% against 0.05%; before it: 0.03% to 0.17%, against the model's 0.21%. With the normal spread
-  the model gave 0.08% and the study was above it.) The all-favourable example's cells rise less, from 12.19% to 12.49%. That is
-  2.2 times the model's 5.58% (13.03% to 13.44% against 6.07% before the fourth batch of 2026-11-21; 11.43% to 11.88% against 5.44% at $7.62, before 2026-11-21). **Changed again in the final pass of 2026-11-20:** the base with every shopper alike (12.19%) is
+  the model gave 0.08% and the study was above it.) The all-favourable example's cells rise less, from about 12% to 12.41%. That is
+  2.3 times the model's 5.48% (12.49% against 5.58% before 2026-11-22; 13.03% to 13.44% against 6.07% before the fourth batch of 2026-11-21; 11.43% to 11.88% against 5.44% at $7.62, before 2026-11-21). **Changed again in the final pass of 2026-11-20:** the base with every shopper alike (12.19%) is
   now well above the model (5.58%); after the engine batch it was a little below (1.07% against 1.13%). At $6.97 a kilo most of
   the example's products are within three times their meat's price and several below it, where shoppers who are all alike buy
   more than the model's spread gives; at $18.71 they were further from it, where the spread holds more. So the study's excess
   over the model there comes from the base, not from the premium buyers. (Before the 2026-11-19 audit batch: 0.25% to 0.61% at
   the low-lactate example, 10.7% to 11.35% in the all-favourable example.)
 - **"Even more premium" helps, but slowly.** Valuing no killing at a whole extra meat price (+100%) takes the low-lactate
-  example to 0.06% and the all-favourable example's cells to 13.88%. Cultivated chicken at the low-lactate example's price is 7.7
+  example to 0.06% and the all-favourable example's cells to 13.80%. Cultivated chicken at the low-lactate example's price is 7.7
   times chicken cuts' and 14.4 times processed chicken's, so even shoppers who value it highly mostly don't pay.
 - **Competing for the same shoppers costs a sixth of the share in this model**: the low-lactate example is 0.018% with no label
-  on the shelf and 0.015% with one (the all-favourable example: 12.93% and 12.49%). At the low-lactate example cultivated meat
+  on the shelf and 0.015% with one (the all-favourable example: 12.85% and 12.41%). At the low-lactate example cultivated meat
   takes 15–17% of its sales from the label and about 71% from conventional meat; at the all-favourable example 3–6% and 82–84%.
 - **But that last figure is the logit's assumption, and it is the weak point.** Within a class, a logit takes share from each product in
   proportion to its share. If premium buyers instead treated cultivated meat and the label as close substitutes, most of what cultivated
@@ -136,18 +139,18 @@ is probably partial, and may run more through people who want premium meat than 
 
 ## 5. What this says
 
-- With premium buyers and a welfare label on the shelf the low-lactate example's share is 0.02%, against under 0.001% without
-  them and the model's 0.05%. With a strong no-killing value, a whole meat price against the evidence's +5% (−5% to +20%), it
+- With premium buyers and a welfare label on the shelf the low-lactate example's share is 0.01% (0.015%), against under 0.001%
+  without them and the model's 0.26%. With a strong no-killing value, a whole meat price against the evidence's +5% (−5% to +20%), it
   is 0.06%. Nothing here takes it past 0.1% (before the 2026-11-20 engine batch the strong value gave 0.47%; before the audit
   batch, 1.16%): at 7.7–14.4 times chicken's price no segment is big enough or keen enough to change the answer.
-- Near parity (the all-favourable example's cells) the effect is smaller in relative terms: 12.49% against the base's 12.19%
-  (13.88% with the strong value).
+- Near parity (the all-favourable example's cells) the effect is smaller in relative terms: 12.41% against the base's about 12%
+  (13.80% with the strong value).
 - What cultivated meat displaces matters for its animal impact: between about a sixth and nearly all of its sales at the
   low-lactate example could come from welfare-labelled meat rather than factory-farmed meat.
 - **What would have to be true for premium buyers to raise the low-lactate example's long-run share above the main model's:**
-  a value of no killing over a welfare label of about 80% of meat's price or more (0.02% at +25%, 0.03% at +50%, 0.06% at +100%,
-  against the model's 0.05%; about 60% before the fourth batch of 2026-11-21), where the evidence gives +5% (−5% to +20%). The model's own spread of liking does the work the
-  premium class was meant to do. (The alternative, as before, is that novelty and the "unnatural" image keep premium buyers
+  since 2026-11-22 no value of no killing in the study's range does (0.02% at +25%, 0.03% at +50%, 0.06% at +100%, against the
+  model's 0.26%); before, about 80% of meat's price (against the model's 0.05%; about 60% before the fourth batch of 2026-11-21),
+  where the evidence gives +5% (−5% to +20%). The model's price-insensitive shoppers do the work the premium class was meant to do. (The alternative, as before, is that novelty and the "unnatural" image keep premium buyers
   away, which the corrections' unfavourable end gives.) No setting in this study takes the low-lactate example near 1%.
 
 ## Sources

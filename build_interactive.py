@@ -246,6 +246,10 @@ def build_model() -> dict:
         "pb_committed_share": value("pb_committed_share"),
         "pb_committed_volume": value("pb_committed_volume"),
         "pb_committed_price_x": value("pb_committed_price_x"),
+        # the price-insensitive shoppers (mirror of market_share: share, _rate, share_x_meat_many; 2026-11-22, fifth batch)
+        "price_insensitive_share": value("price_insensitive_share"),
+        "price_insensitive_response": value("price_insensitive_response"),
+        "price_insensitive_liking": value("price_insensitive_liking"),
         # Python-SOLVED reference values (for the in-page self-check; JS re-solves and should match)
         "w_realtissue_M_ref": dp.w_realtissue_M,
         "w_health_M_ref": dp.w_health_M,
@@ -3588,7 +3592,17 @@ function breakdownCalc(R,K,seg,o){
   return out;
 }
 function softmax(V){const m=Math.max.apply(null,V),e=V.map(v=>Math.exp(v-m)),s=e.reduce((a,b)=>a+b,0);return e.map(x=>x/s);}
+// a segment's shares with its price-insensitive shoppers (mirror of market_share.share and _rate): o.piq of its shoppers at
+// an elasticity override eps*price_insensitive_response (both price channels, every product) whose liking for cultivated meat
+// is shifted by price_insensitive_liking. o.piq is set by shareCalc (only with a spread of liking) and by _rate.
 function segShares(R,K,seg,o){
+  const q=o.piq||0;
+  if(!(q>0)) return segSharesOne(R,K,seg,o);
+  const A=segSharesOne(R,K,seg,o), eps=(o.eps===undefined?K.eps_own:o.eps);
+  const B=segSharesOne(R,K,seg,Object.assign({},o,{eps:eps*K.price_insensitive_response,lmean:(o.lmean||0)+K.price_insensitive_liking}));
+  const out={}; for(const j in A) out[j]=(1-q)*A[j]+q*B[j]; return out;
+}
+function segSharesOne(R,K,seg,o){
   const V=utilities(R,K,seg,o);
   if(o.present && o.lsd>0){            // shoppers differ in liking for cultivated meat (mirror of market_share._segment)
     const nd=C.spread_nodes, wt=C.spread_weights, Vx=nd.map(z=>V[3]+o.lmean+o.lsd*z);
@@ -3618,7 +3632,8 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
   const mean=(sd>0)?(lmean!==undefined?lmean:(eqs!==undefined?likingFor(K,eqs):(K.liking_mean||0))):0;
   const o={ax,tfM,toff,present,nbx,nbp,eps:(eps===undefined?K.eps_own:eps),
            income:(income===undefined?K.income_ref:income),
-           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, lsd:sd, lmean:mean};
+           pricePb:pricePb, tasteP:(aP===undefined?undefined:aP-1), rtx:rtx, rtp:rtp, hx:hx, hp:hp, pRef:pRef, kap:kap, lsd:sd, lmean:mean,
+           piq:(sd>0?(K.price_insensitive_share||0):0)};   // the price-insensitive shoppers: only with a spread of liking
   const E=segShares(R,K,"E",o), key=(which==="pb")?"p":which;
   const M=mainShares(R,K,o);                                        // ordinary mainstream shoppers and committed buyers together
   if(which==="x_meat"){ const x=K.w_eth*E.x+(1-K.w_eth)*M.x;     // share of the meat sold, x/(x+c) (mirror of market_share.share)
@@ -3635,7 +3650,8 @@ function shareCalc(R,K,{ax=1,tfM=0,toff=0,eps,income,pricePb,aP,nbx=0,nbp=0,pres
 // plant-based share jumps non-monotonically. Forcing rtp:0,rtx:1 here keeps the solve stable in both
 // dials (mirrors deriveBeta, which already forces rtx:1 for the same reason).
 // seg: "M" ordinary mainstream shoppers, "K" committed buyers of plant-based meat, "E" ethical, "Mall" the whole mainstream
-function _rate(K,seg,which){const o={ax:1,tfM:0,toff:0,eps:K.eps_own,income:K.income_ref,present:false,rtp:0,rtx:1,hp:0,hx:0};
+function _rate(K,seg,which){const o={ax:1,tfM:0,toff:0,eps:K.eps_own,income:K.income_ref,present:false,rtp:0,rtx:1,hp:0,hx:0,
+  piq:(K.price_insensitive_share||0)};   // the price-insensitive shoppers are in the calibration (mirror of market_share._rate)
   return (seg==="Mall"?mainShares(1,K,o):segShares(1,K,seg,o))[which];}
 /* re-solve the calibration (mirror of market_share.solve_calibration): solve the SEGMENT-SPECIFIC
    HEALTH WEIGHTS (w_health_M, w_health_E) — times the whole-food health premium, these REPLACE the
