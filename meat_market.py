@@ -351,26 +351,29 @@ def _region_of(market) -> str | None:
 
 
 def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None, closed=None,
-            supply_elast=None):
+            supply_elast=None, displaced=None):
     """`_rollup_once` with two things a market does around it (2026-11-20):
       * conventional meat's price falls as cultivated meat takes sales: every price of the region's meat is p0 x f with
         f = (1 - s)^(1 / (es - ed)) (conv_exponent), s the region's volume share sold, solved with the share (the secant
         method from f = 1, to 1e-8; a lower price lowers the share, so it converges). Applied to the market as a whole (the same s and f for every kind of meat);
-        `supply_elast` = inf holds the price fixed;
+        `supply_elast` = inf holds the price fixed. The fall in conventional meat's sales is d x s, d the kilos of conventional
+        meat not bought for each kilo sold (`displaced`, default the input meat_displaced_per_kg, 1; 2026-11-22, sixth batch):
+        the price follows the meat farms stop selling, not cultivated meat's sales as such;
       * the share of the market it cannot be sold into (`closed`, default closed_share(region)): the volume and value shares
         are multiplied by (1 - closed). The price fall uses the share actually sold.
     rows carry the per-type shares of the whole region (the closed part included, at none); so do the totals."""
     region = _region_of(market)
     cl = closed_share(region) if (closed is None and region is not None) else (closed or 0.0)
     k = conv_exponent(supply_elast)
+    dsp = value("meat_displaced_per_kg") if displaced is None else displaced
     rows, tv, tval = _rollup_once(market, biomass, markup, res, share_of, margin, cell_share, assembly, 1.0)
     if k != 0.0:
-        # solve h(f) = f - (1 - s(f) (1 - closed))^k = 0 by the secant method from f = 1 (to |h| < 1e-8; per draw for arrays)
-        f0, h0 = 1.0, 1.0 - (1.0 - np.asarray(tv) * (1.0 - cl)) ** k
+        # solve h(f) = f - (1 - dsp s(f) (1 - closed))^k = 0 by the secant method from f = 1 (to |h| < 1e-8; per draw for arrays)
+        f0, h0 = 1.0, 1.0 - (1.0 - dsp * np.asarray(tv) * (1.0 - cl)) ** k
         f = f0 - h0
         for _ in range(30):
             rows, tv, tval = _rollup_once(market, biomass, markup, res, share_of, margin, cell_share, assembly, f)
-            h = f - (1.0 - np.asarray(tv) * (1.0 - cl)) ** k
+            h = f - (1.0 - dsp * np.asarray(tv) * (1.0 - cl)) ** k
             if np.max(np.abs(h)) < 1e-8:
                 break
             d = h - h0
@@ -383,7 +386,8 @@ def _rollup(market, biomass, markup, res, share_of, margin=None, cell_share=None
 def conv_price_factor(market, biomass, **kw) -> float:
     """The factor f on conventional meat's prices at the share cultivated meat takes (penetration's fixed point)."""
     tv = penetration(market, biomass, **kw)[1]
-    return float((1.0 - tv) ** conv_exponent(kw.get("supply_elast")))
+    d = value("meat_displaced_per_kg") if kw.get("displaced") is None else kw["displaced"]
+    return float((1.0 - d * tv) ** conv_exponent(kw.get("supply_elast")))
 
 
 def _rollup_once(market, biomass, markup, res, share_of, margin=None, cell_share=None, assembly=None, f=1.0):
@@ -431,7 +435,8 @@ class _Scaled:
 
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
-                premium_extra=None, pr=None, cell_share=None, assembly=None, closed=None, supply_elast=None):
+                premium_extra=None, pr=None, cell_share=None, assembly=None, closed=None, supply_elast=None,
+                displaced=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
@@ -446,6 +451,8 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     cell_share   = kg of cells in a kg of cut (None = 1 - inputs.py's scaffold_frac): sets BOTH the cut's cost and how much
                    less shoppers like it than a product that is all cells.
     assembly     = what assembling a cut costs, $/kg (None = inputs.py's process_cost, carried by each type).
+    displaced    = kg of conventional meat not bought for each kg sold (None = the input meat_displaced_per_kg): it sets only
+                   conventional meat's price fall (_rollup), not the shares themselves.
     The per-product offset enters as share()'s tier_offset (in utils); every product uses pr's own price sensitivity.
     """
     markup = value("markup_add") if markup is None else markup
@@ -459,7 +466,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
                      p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (x / (x + c)), since 2026-11-19        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
     rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly, closed=closed,
-                                     supply_elast=supply_elast)
+                                     supply_elast=supply_elast, displaced=displaced)
     return rows, tot_vol, tot_val
 
 
@@ -592,14 +599,17 @@ ANIMALS_PER_TONNE = {"Chicken": 580.0, "Beef": 3.0, "Pork": 11.0, "Turkey": 110.
 def animals_per_tonne_sold(market, biomass: float, **kw) -> dict:
     """Land animals spared per tonne of cultivated meat sold, given where the model says it sells.
     Returns the mix-weighted figure for cultivated sales, the same for the whole meat market (what a
-    tonne spares if it displaced meat in proportion to consumption), and the seafood share of sales."""
+    tonne spares if it displaced meat in proportion to consumption), and the seafood share of sales.
+    Each tonne sold is counted as meat_displaced_per_kg tonnes of conventional meat not bought (1 by default; 2026-11-22,
+    sixth batch); this has not been measured for cultivated meat."""
     rows, _vol, _val = penetration(market, biomass, **kw)
+    d = value("meat_displaced_per_kg") if kw.get("displaced") is None else kw["displaced"]
     sold = {mt.name: mt.w_vol * sh for mt, _R, sh in rows}
     tot = sum(sold.values())
     a = lambda mt: ANIMALS_PER_TONNE.get(animal_of(mt).split("/")[0], 0.0)
     land = sum(v for mt, _R, _s in rows for v in [sold[mt.name]] if animal_of(mt) != "Seafood")
-    return {"cultivated_mix": sum(sold[mt.name] * a(mt) for mt, _R, _s in rows) / tot,
-            "market_mix": sum(mt.w_vol * a(mt) for mt, _R, _s in rows) / sum(mt.w_vol for mt, _R, _s in rows),
+    return {"cultivated_mix": d * sum(sold[mt.name] * a(mt) for mt, _R, _s in rows) / tot,
+            "market_mix": d * sum(mt.w_vol * a(mt) for mt, _R, _s in rows) / sum(mt.w_vol for mt, _R, _s in rows),
             "seafood_share_of_sales": 1.0 - land / tot}
 
 

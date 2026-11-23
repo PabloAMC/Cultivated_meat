@@ -619,9 +619,10 @@ def check_first_screen() -> tuple:
     buyers = [0.05, 0.145, 0.3, 0.5, 0.585, 0.75]       # scenarios.all_choices_for_meat_buyers stops at a dial of 0.79 (about 79% of buyers)
     shares = [[c, b] for c in (3.0, 8.0, 15.0, 36.0, 120.0) for b in (0.145, 0.5, 0.8)]
     costfor = [[1.0, 0.1450734531872825], [10.0, 0.1450734531872825], [1.0, 0.5], [10.0, 0.5]]
+    sharesd = [[c, b, d] for c in (3.0, 15.0) for b in (0.145, 0.8) for d in (0.0, 0.5)]   # meat_displaced_per_kg (2026-11-22)
     payload = {"exact": cases, "stat": [{"base": "humbird" if ch is None else "switches", "choice": ch or S.SCENARIOS["central"].choice,
                                          "traits": tr, "held": {}} for ch, tr in stat],
-               "routes": routes, "design": [{"choice": c, "traits": t} for c, t in design], "buyers": buyers, "shares": shares, "costfor": costfor}
+               "routes": routes, "design": [{"choice": c, "traits": t} for c, t in design], "buyers": buyers, "shares": shares, "sharesd": sharesd, "costfor": costfor}
     node = shutil.which("node")
     if node is None:
         return [], "first screen: node not found, not checked"
@@ -694,6 +695,16 @@ def check_first_screen() -> tuple:
         worst_s = max(worst_s, abs(ps - js_s))
         if abs(ps - js_s) > max(0.01, 0.002 * ps):
             fails.append(f"map share at ${c} and {b:.1%} of meat buyers: python {ps:.5f}% js {js_s:.5f}%")
+    import meat_market as _mm
+    for (c, b, d), js_s in zip(sharesd, tp["sharesd"]):
+        _pr = S._DP_V.get(b)
+        if _pr is None:
+            S.world_share(c, b); _pr = S._DP_V[b]
+        ps = _mm.penetration(_mm.MARKETS["global"], c, income=_mm.REGION_INCOME["global"], pr=_pr, displaced=d)[1] * 100.0
+        if abs(ps - js_s) > max(0.01, 0.002 * ps):
+            fails.append(f"map share at ${c}, {b:.1%} of meat buyers and {d} kg of meat displaced a kg sold: python {ps:.5f}% js {js_s:.5f}%")
+    if len(tp["sharesd"]) != len(sharesd):
+        fails.append("the page's probe gave no shares with the meat displaced set")
     for (t, b), jc in zip(costfor, tp["costfor"]):
         pc = S.cost_for_share(t, b)
         if (pc is None) != (jc is None) or (pc is not None and abs(pc - jc) / pc > 0.003):

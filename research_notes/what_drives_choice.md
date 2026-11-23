@@ -40,6 +40,16 @@ Against stated intent as a guide: Slade 2018 told respondents all burgers tasted
 - **Stated against observed:** Van Loo put plant-based at 23% at equal price [FT]. The realised peak was roughly 6–8% of
   ground-meat spending in 2020 and has fallen a third or more since (denominators not matched). A good choice experiment on the
   closest analogue overstated by roughly 2–3×.
+- **Does a kilo of plant-based meat sold replace a kilo of meat? (added 2026-11-22):** Winslow, Peacock, Dhargawe, Sherman, Green
+  & Mathur 2026 ("New alternatives, same orders", SocArXiv, doi:10.31235/osf.io/tpyk9_v1): 1.2 million US and Canadian restaurant
+  transactions, 2016-23; plant-based meats took 1-9% of orders at a $1-2.50 premium, and meat orders did not measurably fall
+  (pooled about -1%, range -15% to +16%; also within customers) [ABS]. Hope, Green, Peacock & Mathur 2026 (Food Quality and
+  Preference 143:105931): a randomised online menu, 4,431 US adults; adding Sofritas and a chicken-style plant-based meat priced
+  like chicken cut meat orders by 2.1 points (95% CI -4.4 to +0.1; Sofritas alone -1.1), most of the new options' orders coming
+  from the vegetarian option; a fall of 5 points or more was ruled out [ABS]. Grocery: Cuffey et al. 2023, Neuhofer & Lusk 2022,
+  Meyer et al. 2024 find plant-based sales without a detectable fall in meat bought; Peacock 2026 (Appetite 216:108301) reviews
+  them. The model uses this twice: the menu check (`demand_checks.md` section 8) and the range of `meat_displaced_per_kg`
+  (not carried over to cultivated meat, which is meat).
 - **Taste:** NECTAR 2025 (122 products): only 20 were rated the same or better than meat by at least half of tasters [SNIP].
 
 What follows for cultivated meat: getting people to try is cheap. The ceiling is set by how many buy again and how often, and

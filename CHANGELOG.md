@@ -1,5 +1,30 @@
 # Change log
 
+## 2026-11-22 (sixth batch): meat displaced, and the menu check
+
+**Meat displaced for each kilo sold.** A new input, `meat_displaced_per_kg` (1 kg of conventional meat not bought for each kg of
+cultivated meat sold; range 0.5 to 1; inputs.py), states what the model assumed without saying: that each kilo sold replaces a
+kilo of conventional meat. It is applied wherever sales are read as meat replaced: the land animals spared
+(`meat_market.animals_per_tonne_sold`), the tonnes displaced of the entry points (the page's `footDisplace`, appendix A6b), and the
+fall in conventional meat's sales that sets its price (`meat_market._rollup`, `conv_price_factor`, `penetration(displaced=)`; the
+page's `penetration`): (1 − d s) in place of (1 − s), because the price follows the meat farms stop selling. The shares sold do not
+use it except through that price. `foothold.displacement_impact` is a min-max of log volume, unchanged by a constant factor. At
+the default 1 no number moves (the world share at $15 a kilo of cells is 1.742001% before and after). At 0 the world share at $15
+rises to 1.767% (no price fall). A lever in the side bar's section on the shoppers, with reference values (0: plant-based meat in
+Winslow 2026 and Hope 2026; 1: this model). Not drawn in the uncertainty bands (bands of the share sold; the price-fall inputs are
+not drawn either). Parity: the map's share at $3 and $15, 14.5% and 80% of meat buyers, with 0 and 0.5 kg displaced
+(`tests/run_parity.py`). METHODS, RESULTS (animals) and `research_notes/what_drives_choice.md` carry the evidence.
+
+**The menu check** (`demand_checks.menu_check`, `menu_summary`, `markdown_menu`; `research_notes/demand_checks.md` section 8 and the
+checks table; `tests/test_demand_checks.py`). `market_share.share` gains `plant_based_present=False` (drops plant-based meat from
+the choice set) and `segment=` (one group of shoppers alone). In the model calibrated as it is (US), with cultivated meat absent,
+adding plant-based meat at meat's price takes 0.54 points from meat's share (89.28% to 88.74%), inside Hope 2026's interval
+(a fall of 0 to 4.4 points; 5 or more ruled out): the size passes. 79% of its choices come from meat, against about 30% in the
+experiment (1.5 of the about 5.0 points the new options took): the source fails, because a flat logit within each segment takes
+in proportion to shares (94% from meat in the mainstream, almost none in the ethical segment). Nothing was refitted.
+
+Pins moved: `test_answer_rests_on` inputs 614 → 615, with a range 284 → 285 (RESULTS.md quotes them). No other pin moved.
+
 ## 2026-11-22 (fifth batch), demand
 
 **The price-insensitive shoppers are in the model.** Evidence and fit: `research_notes/demand_checks.md` section 7. The long-run

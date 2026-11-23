@@ -118,6 +118,32 @@ def check() -> list:
     liking = span("they like cultivated meat 2 utils less than other shoppers", "2 utils more")
     if not (liking > span("10% of shoppers", "15% of shoppers") and liking > span("their price response 0.10 times other shoppers'", "0.25 times")):
         fails.append("the price-insensitive shoppers' liking no longer moves the low-lactate example most; rewrite section 7")
+    # 2026-11-22 (sixth batch): the menu check (Hope 2026; demand_checks.md section 8). Adding plant-based meat priced like the meat
+    # it copies takes 0.54 points from meat's share: inside the experiment's interval (0 to 4.4) and under the 5 points it ruled
+    # out, so the SIZE PASSES. But 79% of its choices come from meat, against about 30% in the experiment: the SOURCE FAILS (a flat
+    # logit within each segment takes in proportion to shares). Not refitted. The control menu is near the experiment's (89.3% meat).
+    # (In proportion to within 1 point: each group mixes its price-insensitive shoppers, whose shares differ a little.)
+    mc = D.menu_summary()
+    if not mc["size_passes"] or not 0.3 < mc["fall"] < 1.0:
+        fails.append(f"the menu check's fall in meat's share ({mc['fall']:.2f} points) has moved; rewrite section 8")
+    if mc["source_passes"] or not 0.7 < mc["from_meat"] < 0.9 or abs(D.HOPE_FROM_MEAT - 0.30) > 1e-9:
+        fails.append(f"the menu check's source ({mc['from_meat']:.0%} from meat against about 30%) has moved; rewrite section 8")
+    t = mc["rows"][0]
+    if abs(t["meat_before"] + t["veg_before"] - 100.0) > 1e-9 or abs(t["meat_after"] + t["veg_after"] + t["new"] - 100.0) > 1e-9:
+        fails.append("the menu check's shares do not add up to 100% without and with plant-based meat")
+    if abs(t["meat_before"] - D.HOPE_ARMS["control"]["meat"]) > 2.0:
+        fails.append("the model's control menu is no longer within 2 points of the experiment's meat share; rewrite section 8")
+    seg = {r["group"]: r for r in mc["rows"]}
+    if not all(abs(seg[g]["from_meat"] - seg[g]["meat_before"] / 100.0) < 0.01 for g in seg if seg[g]["new"] > 0 and g != "every shopper"
+               and g != D.MENU_GROUPS[1][1]):
+        fails.append("within one group of shoppers the new option should take from meat in proportion to meat's share (a flat logit)")
+    import market_share as M
+    pr = S._demand()
+    if abs(M.share(1.0, pr, cultivated_present=False, which="c") - M.share(1.0, pr, cultivated_present=False, which="c", segment=None)) > 0:
+        fails.append("segment=None should be the total")
+    for line in D.markdown_menu().splitlines():
+        if line not in open(os.path.join(ROOT, "research_notes/demand_checks.md"), encoding="utf-8").read():
+            fails.append(f"research_notes/demand_checks.md does not carry the menu table: {line[:90]}")
     quoted = [f"{s['pb']['elasticity']:.2f}", f"{s['pb_before']['elasticity']:.2f}", f"{S.pct_num(v[0]['world']['central'])}%", f"{S.pct_num(v[0]['world']['best'])}%",
               f"{S.pct_num(v[1]['world']['central'])}% to {S.pct_num(v[3]['world']['central'])}%"]
     for name, tables in (("research_notes/demand_checks.md", [D.markdown_checks(), D.markdown_variants(), D.markdown_committed(),

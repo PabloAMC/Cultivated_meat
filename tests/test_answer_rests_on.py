@@ -178,7 +178,9 @@ def check() -> list:
     # pb_committed_volume, pb_committed_price_x ranged, pb_committed_liking solved; repeat_rate and lapse_rate, ranged)
     # 2026-11-22 (fifth batch): 614 inputs, 284 with a range (the price-insensitive shoppers' three inputs); demand rows 10 -> 14 (the
     # three new inputs, and others that the higher share at the low-lactate example lifts over the thresholds)
-    pins = [("inputs", s["inputs"], 614), ("with a range", s["ranged"], 284),      # liking_tail added in the second round
+    # 2026-11-22 (sixth batch): 615 inputs, 285 with a range (meat_displaced_per_kg; it moves no cost and is not a demand field,
+    # so no row)
+    pins = [("inputs", s["inputs"], 615), ("with a range", s["ranged"], 285),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
             ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
             ("demand rows", len(s["demand_rows"]), 14)]   # 2026-11-19: 9 -> 8 with the share of the meat sold

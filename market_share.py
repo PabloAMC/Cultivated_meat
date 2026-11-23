@@ -530,15 +530,19 @@ SPREAD_NODES, SPREAD_WEIGHTS = spread_quadrature()
 def _segment(R, pr: DemandParams, beta, seg, *, accept_x, theta_free_M,
              tier_offset, neophobia_x, neophobia_p, income, health_x=None, health_p=None,
              cultivated_present=True, p_ref=None, ratio_scale=1.0, kappa=None, slaughter_free_x=1.0,
-             liking=None) -> dict:
+             liking=None, plant_based_present=True) -> dict:
     """Flat-logit shares of {w, c, p, x} in one segment. cultivated_present=False
-    drops x from the choice set. `liking` = (mean, sd, nodes, weights): shoppers' liking for cultivated meat is spread around
+    drops x from the choice set; plant_based_present=False drops p (2026-11-22, sixth batch: the menu check of
+    demand_checks.menu_check). `liking` = (mean, sd, nodes, weights): shoppers' liking for cultivated meat is spread around
     the model's utility plus `mean`, as mean + sd x nodes with the given weights (spread_quadrature); the shares are averaged
     over shoppers. None or sd = 0: every shopper alike."""
     V = _utilities(R, pr, beta, seg, accept_x=accept_x, theta_free_M=theta_free_M,
                    tier_offset=tier_offset, neophobia_x=neophobia_x,
                    neophobia_p=neophobia_p, income=income, health_x=health_x, health_p=health_p,
                    p_ref=p_ref, ratio_scale=ratio_scale, kappa=kappa, slaughter_free_x=slaughter_free_x)
+    if not plant_based_present:                                     # p's utility to minus infinity: its share is exactly 0
+        V = np.array(V, dtype=float)
+        V[2] = -np.inf
     if cultivated_present and liking is not None and liking[1] > 0.0:
         Vx = V[3] + liking[0] + liking[1] * liking[2]               # cultivated meat's utility for each kind of shopper
         m = max(float(np.max(V[:3])), float(np.max(Vx)))
@@ -631,7 +635,8 @@ def utility_breakdown(R: float, pr: DemandParams, *, seg: str = "M", which: str 
 def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=0.0,
           eps_own=None, income=None, cultivated_present=True, which="x",
           neophobia_x=None, neophobia_p=None, health_x=None, health_p=None, p_ref=None,
-          kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None, spread=None) -> float:
+          kappa=None, slaughter_free_x=1.0, liking_sd=None, equal_share=None, liking_mean=None, spread=None,
+          plant_based_present=True, segment=None) -> float:
     """Total market share of `which` in {w, c, p, x} (pb is an alias for p), or "x_meat": cultivated meat's share of the meat
     sold, x / (x + c), the share the long-run roll-up reports (2026-11-19; "x" is its share of all four choices),
     mixing the two segments: share_j = w_eth*P_E(j) + (1-w_eth)*P_M(j).
@@ -669,6 +674,10 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
                        => unchanged from the US-anchored calibration). Richer = less
                        price-sensitive. Used by meat_market for the regional roll-up.
       cultivated_present=False removes cultivated (PB calibration + cannibalisation checks).
+      plant_based_present=False removes plant-based meat (2026-11-22, sixth batch: the menu check, demand_checks.menu_check).
+      segment       -> None (default): every shopper. "E": the ethical segment alone; "M": the mainstream (its ordinary shoppers
+                       and plant-based meat's committed buyers); "O": the mainstream's ordinary shoppers alone; "K": the
+                       committed buyers alone (each with its price-insensitive shoppers mixed in, as in the total).
     """
     ax = pr.accept_x if accept_x is None else accept_x
     tfM = pr.theta_free_M if theta_free_M is None else theta_free_M
@@ -695,7 +704,7 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
         liking = None
     kw = dict(accept_x=ax, theta_free_M=tfM, tier_offset=tier_offset, neophobia_x=nbx, neophobia_p=nbp, income=inc,
               health_x=health_x, health_p=health_p, cultivated_present=cultivated_present, p_ref=p_ref, kappa=kappa,
-              slaughter_free_x=slaughter_free_x)
+              slaughter_free_x=slaughter_free_x, plant_based_present=plant_based_present)
     # THE PRICE-INSENSITIVE SHOPPERS (2026-11-22, fifth batch): a share q of every segment responds m times as strongly to every
     # price (their price sensitivity is an elasticity override eps * m: both channels, the cap included) and likes cultivated
     # meat by d utils more. Only with a spread of liking: liking_sd = 0 is every shopper alike.
@@ -712,6 +721,14 @@ def share(R, pr: DemandParams, *, accept_x=None, theta_free_M=None, tier_offset=
         return s
     M, E = seg("M"), seg("E")
     w = pr.w_eth
+    if segment is not None:           # one group of shoppers alone (the menu check)
+        key = "p" if which == "pb" else which
+        if segment == "M" and pr.pb_committed_share > 0.0:
+            M = _mix(M, seg("K"), pr.pb_committed_share / (1.0 - w))
+        g = {"E": E, "M": M, "O": M, "K": seg("K") if segment == "K" else None}[segment]
+        if which == "x_meat":
+            return float(g["x"] / max(g["x"] + g["c"], 1e-300))
+        return float(g[key])
     if pr.pb_committed_share > 0.0:   # the mainstream is its ordinary shoppers and the committed buyers of plant-based meat
         M = _mix(M, seg("K"), pr.pb_committed_share / (1.0 - w))
     if which == "x_meat":           # cultivated meat's share of the meat sold: x / (x + c), both segments mixed (2026-11-19, audit 6a)

@@ -387,7 +387,7 @@ function tpShare(cost,b,region){
 const TP_CF=new WeakMap();
 function tpCostFor(target,b,region){
   if(!TP_CF.has(KP)) TP_CF.set(KP,{});
-  const M=TP_CF.get(KP), key=target+"|"+b.toFixed(6)+"|"+(region||state.region)+"|"+state.income+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells+"|"+state.mk_supply+"|"+state.closed_level+"|"+state.closed_custom;
+  const M=TP_CF.get(KP), key=target+"|"+b.toFixed(6)+"|"+(region||state.region)+"|"+state.income+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells+"|"+state.mk_supply+"|"+state.closed_level+"|"+state.closed_custom+"|"+state.meat_displaced;
   if(key in M) return M[key];
   return M[key]=tpCostForRaw(target,b,region);
 }
@@ -1150,6 +1150,9 @@ function tpBuildControls(){
       '<input type="range" id="tp_mk" min="0.5" max="10" step="0.1" aria-describedby="tp_mk_s"><p class="fxn" id="tp_mk_s" aria-live="polite"></p>'+
       '<div class="refs">References: '+[[0.5,"inelastic supply"],[2,"this model"],[10,"poultry-like supply"]].map(r=>'<button type="button" class="chip" onclick="tpSetMk('+r[0]+',false)"><b>'+r[0]+'</b> '+r[1]+'</button>').join("")+
       '<button type="button" class="chip" onclick="tpSetMk(Infinity,false)"><b>fixed price</b> conventional meat\'s price does not move</button></div></div>'+
+      '<div class="ctl tr"><label for="tp_dsp"><span class="nm">Conventional meat not bought for each kilo of cultivated meat sold</span><span class="q" tabindex="0" data-tip="The shares on this page are shares of the meat sold. Each kilo sold is counted as this many kilos of conventional meat not bought: it sets the tonnes displaced in the entry points and how far conventional meat\'s sales, and so its price, fall. It has not been measured for cultivated meat. For plant-based meat, restaurant sales and a menu experiment found meat orders did not measurably fall (Winslow 2026; Hope 2026). The model\'s setting is 1.">?</span><span class="val" id="tp_dsp_v"></span></label>'+
+      '<input type="range" id="tp_dsp" min="0" max="1" step="0.05" aria-describedby="tp_dsp_s"><p class="fxn" id="tp_dsp_s" aria-live="polite"></p>'+
+      tpRefChips("displaced",v=>"tpSetDisplaced("+v+",false)",v=>v.toFixed(1)+" kg")+'</div>'+
       '<div class="ctl tr"><label for="tp_cl"><span class="nm">Share of the meat market it cannot be sold into</span><span class="q" tabindex="0" data-tip="Laws that ban the sale of cultivated meat, weighted by the share of the region\'s people they cover (a stand-in for its share of meat eaten). The model\'s setting counts the permanent bans in five US states.">?</span><span class="val" id="tp_cl_v"></span></label>'+
       '<input type="range" id="tp_cl" min="0" max="30" step="0.5" aria-describedby="tp_cl_s"><p class="fxn" id="tp_cl_s" aria-live="polite"></p>'+
       '<div class="refs">References: '+(TP.lever_refs.closed||[]).map(r=>'<button type="button" class="chip" onclick="tpSetClosedLevel('+r[0]+')"><b id="tp_clref_'+r[0]+'"></b> '+pgEsc(r[1])+'</button>').join("")+'</div></div>';
@@ -1185,7 +1188,7 @@ function tpBuildControls(){
   const cd=document.getElementById("calc"); if(cd&&cd.addEventListener) cd.addEventListener("toggle",()=>{ if(cd.open) tpCalcRender(); });
   const un=document.getElementById("unc"); if(un&&un.addEventListener) un.addEventListener("toggle",()=>{ if(un.open) tpUncRender(); });
   wire("tp_cut",(v,l)=>tpSetCut(1-v/100,l));
-  wire("tp_mk",(v,l)=>tpSetMk(v,l)); wire("tp_cl",(v,l)=>tpSetClosed(v/100,l));
+  wire("tp_mk",(v,l)=>tpSetMk(v,l)); wire("tp_cl",(v,l)=>tpSetClosed(v/100,l)); wire("tp_dsp",(v,l)=>tpSetDisplaced(v,l));
   try{ const sv=localStorage.getItem("tp_sell_view"); if(sv==="bars"||sv==="disk") PGS.sellView=sv; }catch(e){}
   const sel=document.getElementById("regionsel");
   if(sel){ sel.innerHTML=PG.regions.map(r=>'<option value="'+r[0]+'">'+r[1]+'</option>').join("");
@@ -1242,6 +1245,7 @@ function tpSetCut(c,live){ state.cut_cells=Math.min(1,Math.max(0.1,c)); tpTouche
   if(live) tpSchedule(tpRenderFirst); else recompute(); }
 // conventional meat's price response and the closed share of the market (meat_market._rollup): the shopper model's own state
 function tpSetMk(v,live){ state.mk_supply=v; tpTouched(); if(live) tpSchedule(tpRenderFirst); else recompute(); }
+function tpSetDisplaced(v,live){ state.meat_displaced=Math.min(1,Math.max(0,v)); tpTouched(); if(live) tpSchedule(tpRenderFirst); else recompute(); }
 function tpSetClosed(v,live){ state.closed_custom=v; tpTouched(); if(live) tpSchedule(tpRenderFirst); else recompute(); }
 function tpSetClosedLevel(lv){ state.closed_level=lv; state.closed_custom=null; tpTouched(); recompute(); }
 function tpDismissRead(){ PGS.readDismissed=true; try{ localStorage.setItem("tp_read_off","1"); }catch(e){} const r=document.getElementById("tp_read"); if(r) r.style.display="none"; }
@@ -1332,6 +1336,9 @@ function tpRenderControls(f){
     set("tp_mk_v",isFinite(es)?es.toFixed(1):"fixed price");
     const P=penetration(Object.assign({},state,{cost_override:f.cost,lmean:tpLmean(f.buyers)}));
     set("tp_mk_s",isFinite(es)?"At this cost conventional meat's prices here end "+((1-P.conv_f)*100).toFixed(1)+"% lower than the prices the model starts from, which holds the share back.":"Conventional meat's prices are held at the prices the model starts from.");
+    const dsp=meatDisplaced(state), de=document.getElementById("tp_dsp"); if(de&&document.activeElement!==de) de.value=dsp;
+    set("tp_dsp_v",dsp.toFixed(2)+" kg");
+    set("tp_dsp_s","At this cost it sells "+(P.tv*100).toFixed(2)+"% of "+tpRegionMeat()+"; that is counted as "+(dsp*P.tv*100).toFixed(2)+"% of it no longer bought as conventional meat. This has not been measured for cultivated meat.");
     const cl=closedShare(state), ce=document.getElementById("tp_cl"); if(ce&&document.activeElement!==ce) ce.value=(cl*100).toFixed(1);
     set("tp_cl_v",(cl*100).toFixed(1)+"%");
     const cls=C.closed[state.region]||[]; for(let lv=0;lv<cls.length;lv++) set("tp_clref_"+lv,(cls[lv]*100).toFixed(1)+"%");

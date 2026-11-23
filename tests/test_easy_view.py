@@ -518,7 +518,7 @@ def check() -> list:
     # the reference values under the levers: each belongs to a lever and sits inside its slider's range
     rng = {q[0]: (q[8], q[9]) for q in BI.PAGE_PARAMS}
     rng.update({k: (v[2], v[3]) for k, v in BI.TRAIT_PAGE.items()})
-    rng.update({"capex_x": (0.0, 3.0), "medium_price": (0.0, 0.60), "wash_price": (0.0, 0.60), "buyers": (1.0, 99.0), "cut": (0.0, 90.0),
+    rng.update({"capex_x": (0.0, 3.0), "medium_price": (0.0, 0.60), "wash_price": (0.0, 0.60), "buyers": (1.0, 99.0), "cut": (0.0, 90.0), "displaced": (0.0, 1.0),
                 "closed": (0.0, float(len(mm.CLOSED_LEVELS) - 1))})   # the closed-market lever: a level of meat_market.closed_share
     for k, refs in BI.LEVER_REFS.items():
         if k not in rng:

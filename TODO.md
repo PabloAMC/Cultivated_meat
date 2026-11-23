@@ -72,6 +72,15 @@ Still open:
       the model's rough judgement or plain dates; `humbird_backtest.md`'s ATF ×1.84 remark dated (the ATF is priced in his accounting
       since 2026-11-20); "my judgement" in four notes relabelled. `humbird_backtest.md` had no other owner attribution.
 - [ ] **Still to decide**: whether the meat-buyers setting should be redefined against the world total.
+- [x] **Meat displaced for each kilo sold** (done 2026-11-22, sixth batch): `meat_displaced_per_kg` (1, range 0.5-1) scales the
+      animals spared, the entry points' tonnes displaced and the fall in conventional meat's sales behind its price; a lever in the
+      side bar's shoppers section. No headline moves at 1.
+- [x] **The menu check** (done 2026-11-22, sixth batch; `demand_checks.md` section 8): adding plant-based meat priced like meat
+      takes 0.54 points from meat's share (Hope 2026: 2.1, 0 to 4.4): the size passes. 79% of its choices come from meat against
+      about 30%: the source fails. Not refitted.
+- [ ] **Open from the menu check**: within a segment the flat logit takes a new meat-free option's choices from meat in proportion
+      to meat's share; the menu experiment says plant-based meat substitutes more for the vegetarian option. Whether to represent
+      that (a nest for the meat-free options, or a closer whole-food substitute), and with what measurement, is undecided.
 - [ ] **Smaller**: a sentence each in METHODS on halal and kosher status and substitution across meats; cite the two FDA memos
       (Believer, Wildtype), Negulescu's measured yields and Gu's sorbent data; the research notes still say "Central" in places, and
       three of them (`cost_scenarios.md`, `ammonia_tolerance_and_filter_life.md` section 10, `gas_exchange_study.md`) tie traits to routes.

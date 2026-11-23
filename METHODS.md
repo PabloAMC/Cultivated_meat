@@ -1502,6 +1502,25 @@ seafood rows do not say which species. A tonne of the US meat mix is about 250 l
 cultivated meat, sold where the model says it sells (US), spares about 87 in Humbird's optimistic design, about 66 in the low-lactate example,
 about 68 at the reported cost, and about 138 in the all-favourable example with shoppers favouring it. In the first three it sells mostly as beef and seafood
 (seafood is a quarter to a third of sales); in the all-favourable example every meat sells, and seafood is about a seventh of sales. Share by weight overstates the land animals spared by a factor of about 2 to 4.
+Each kilo sold is counted as a kilo of conventional meat not bought; this has not been measured for cultivated meat.
+
+*Meat displaced for each kilo sold (`meat_displaced_per_kg`, since 2026-11-22).* The model's shares are shares of the meat sold.
+Wherever they are read as meat replaced, they are multiplied by d, the kilos of conventional meat not bought for each kilo of
+cultivated meat sold: the land animals spared (`animals_per_tonne_sold`), the tonnes displaced in the entry points (the page's
+A6b) and the fall in conventional meat's sales that sets its price (below: (1 − d s) in place of (1 − s), since the price follows
+the meat farms stop selling). The shares themselves do not use it, except through that price. d = 1 by default (what the model
+assumed, unstated, before), range 0.5 to 1. The evidence is for plant-based meat only and is close to 0: in 1.2 million US and
+Canadian restaurant transactions (2016-23) plant-based meats took 1-9% of orders and meat orders did not measurably fall (Winslow,
+Peacock, Dhargawe, Sherman, Green and Mathur 2026, SocArXiv); in a randomised menu experiment with 4,431 US adults, adding two
+plant-based options cut meat orders by 2.1 points (95% CI −4.4 to +0.1), most of their orders coming from the vegetarian option
+(Hope, Green, Peacock and Mathur 2026, Food Quality and Preference); grocery scanner studies agree (Cuffey et al. 2023; Neuhofer
+and Lusk 2022; Meyer et al. 2024; reviewed in Peacock 2026, Appetite). Cultivated meat is meat, and the model's real-tissue
+attribute is why it draws its sales from conventional meat, so the near-zero figure is not carried over; the low end, 0.5, allows
+for sales that come partly from more meat eaten in all or from meals without meat (the model's rough judgement, not a
+measurement). It is a lever in the side bar's section on the shoppers. It is not drawn in the bands, which are bands of the share
+sold, as the price-fall inputs are not. The menu check (`demand_checks.menu_check`, `research_notes/demand_checks.md` section 8)
+tests the substitution the model implies for plant-based meat against the menu experiment: the size of the fall in meat's share
+passes (0.54 points, inside 0 to 4.4), its source fails (79% of the new option's choices from meat, against about 30%).
 
 **Plant cost from other sources (`research_notes/plant_capital_crosscheck.md`).** Every plant figure above is
 Humbird's. Other costed plants on the same basis, capital per m³ of production tank, in each source's own
@@ -2080,7 +2099,8 @@ the same reason: the share at equal price is the net of every taste effect.
 **Conventional meat's price falls as it loses sales** (since 2026-11-20; `meat_market._rollup`, `conv_exponent`,
 `conv_price_factor`). In the long run herds adjust and the cost of raising an animal is fixed, so when cultivated meat takes a
 share s of a region's meat by volume, conventional meat's price settles at p₀ × (1 − s)^(1 / (e_s − e_d)), with e_s the long-run
-supply elasticity (`mk_supply_elast` = 2, range 0.5–10: ten-year supply elasticities of 3.24 for cattle, 1.8 for hogs and 14 for
+supply elasticity (with d kilos of conventional meat not bought for each kilo sold, `meat_displaced_per_kg`, the fall uses
+d × s; d = 1 by default) (`mk_supply_elast` = 2, range 0.5–10: ten-year supply elasticities of 3.24 for cattle, 1.8 for hogs and 14 for
 poultry, Brester, Marsh and Atwood 2004; simulated combined elasticities of 0.4 to 4.6, Geibel et al. 2021) and e_d the demand
 elasticity (`mk_demand_elast` = −0.65, range −0.8 to −0.5: beef −0.56, pork −0.79, chicken −0.58, USDA ERS Technical Bulletin
 1956). The exponent is 1 / 2.65 = 0.38. The price applies to every kind of meat in the region (the same s and the same factor:
@@ -2257,7 +2277,8 @@ Product-level reach. A luxury price splits into the price of the everyday (acces
 pedigree cultivated meat can't copy (Rosen's hedonic pricing), so R is taken against the accessible price. A
 prestige core (a share χ of volume, 0.25 by default, from the wild salmon and bellota ibérico splits) never
 switches. Cultivated's share of the rest comes from the same logit, with the mince or cut offset,
-and displaced volume = share × (1 − χ) × volume. Cultivated is assumed to sell at cost (no margin).
+and displaced volume = d × share × (1 − χ) × volume, d the kilos of conventional meat not bought for each kilo sold
+(`meat_displaced_per_kg`, 1 by default; not measured for cultivated meat). Cultivated is assumed to sell at cost (no margin).
 `foothold.py` holds the product list, sourced price tiers and scoring; the per-product price ratio is
 parity-tested against the page. The equations and limits are in the page's appendix A6.
 
