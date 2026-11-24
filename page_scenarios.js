@@ -641,10 +641,13 @@ function tpGroupsDraw(f){
   const G=f.groups, W=Math.max(280,pgWidth("tp_groups_plot",440)), small=W<420, fs=small?11:12, pad=4;
   const xmax=Math.max(G.total,f.one||0)*1.04, step=[1,2,5,10,20,25,50,100,200,500].find(s=>xmax/s<=(small?4:6))||1000;
   const X=v=>pad+(W-2*pad)*v/xmax, gy=fs+2, by=gy+12, bh=small?30:34, ay=by+bh, oneY=ay+fs+12;
-  const H=oneY+(f.one!==null?2*(fs+4)+6:0)+4;
+  // the costs that long-run shares of 1% to 50% need at the reader's meat buyers (the owner, 2026-11-24): a line each through the
+  // bar, labelled one to a row under the axis; shares no cost reaches are named in the last row
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), lines=SH.filter(o=>o.t!==null), none=SH.filter(o=>o.t===null);
+  const H=oneY+(lines.length+(none.length?1:0)+1)*(fs+4)+6;
   let g='', acc=0;
   // the items: one shade each, a thin gap of the card's colour between them, the item's name inside where it fits
-  const x1=f.one!==null?X(f.one):null;
+  const x1=f.one!==null?X(f.one):null, xs=lines.map(o=>X(o.t));
   G.groups.forEach(gr=>{ gr.items.forEach(it=>{ if(it.v<=0) return; const a=X(acc), b=X(acc+it.v); acc+=it.v; const w=Math.max(0.5,b-a-1.5);
       g+='<rect x="'+a.toFixed(1)+'" y="'+by+'" width="'+w.toFixed(1)+'" height="'+bh+'" fill="'+tpICol(it.key)+'"><title>'+pgEsc(gr.name+": "+it.name)+': $'+it.v.toFixed(2)+' a kilo</title></rect>';
       // the item's name inside its segment where it fits, kept off the 1% line (to the line's right, else its left, else left out)
@@ -661,13 +664,14 @@ function tpGroupsDraw(f){
   // the axis, with no tick label where the 1% line comes down
   for(let t=0;t<=xmax+1e-9;t+=step){ const x=X(t), s="$"+t, w=tpTextW(s,fs), xc=Math.max(pad+w/2,Math.min(W-pad-w/2,x));
     g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+ay+'" y2="'+(ay+4)+'" class="ax"/>';
-    if(x1===null||Math.abs(xc-x1)>w/2+4) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
-  // what 1% needs, at the reader's meat buyers: a line through the bar, labelled under the axis
-  if(f.one!==null){ const l1="1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one), l2="at "+tpPctB(f.buyers)+" of meat buyers";
-    const w=Math.max(tpTextW(l1,fs),tpTextW(l2,fs)), cx=Math.max(pad+w/2,Math.min(W-pad-w/2,x1));
-    g+='<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(oneY-2)+'" stroke="#D85A30" stroke-width="2"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+fs)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l1)+'</text>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+2*fs+4)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l2)+'</text>'; }
+    if(!xs.some(xl=>Math.abs(xc-xl)<=w/2+4)) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
+  lines.forEach((o,i)=>{ const xl=xs[i], y=oneY+(i+1)*(fs+4), l=o.p+"% of "+tpRegionMeat(true)+" needs "+tpUSDk(o.t), w=tpTextW(l,fs),
+      cx=Math.max(pad+w/2,Math.min(W-pad-w/2,xl));
+    g+='<line x1="'+xl.toFixed(1)+'" x2="'+xl.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(y-fs+1)+'" stroke="#D85A30" stroke-width="'+(o.p===1?2:1.4)+'"'+(o.p===1?'':' stroke-dasharray="4 3"')+'/>'+
+       '<text x="'+cx.toFixed(1)+'" y="'+y+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l)+'</text>'; });
+  { let y=oneY+(lines.length+1)*(fs+4);
+    if(none.length){ g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc(tpAnd(none.map(o=>o.p+"%"))+": not reached at any cost down to $0.50")+'</text>'; y+=fs+4; }
+    g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc("Each line: with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price")+'</text>'; }
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H);
   svg.innerHTML=g;
 }
@@ -1575,7 +1579,7 @@ function tpRenderFirst(){
   const f=pgFacts(), set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
   set("deck",pgLead()); set("tp_yours",pgDeck(f)); set("sumbar",tpSummaryHTML(f)); tpUncRender(); tpCalcRender(f);
   tpLineText(f); tpGroupsDraw(f); tpGroupsText(f); tpAnimalsRender(f);
-  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f);
+  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f); if(typeof drawFoothold==="function"&&typeof C!=="undefined"&&C.foothold_products) drawFoothold(state);
 }
 const pgRenderFirst=tpRenderFirst;
 // a link to a part of the page inside closed sections: open each enclosing <details>, then go there

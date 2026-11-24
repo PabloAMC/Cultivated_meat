@@ -9,6 +9,11 @@
   gas per litre, holds fewer cells a litre, and the fewer kilos per m³ outweigh its cheaper build. Equipment that strips CO₂
   without bubbles removes the limit, and larger tanks then cost less.
 - The plant-against-running chart draws the totals that 1%, 5%, 10%, 25% and 50% long-run shares need, and lists them under it.
+- "What the cost is made of" draws the same five shares as lines through its bar.
+- Under the plant-against-running chart, a panel names one study and lists exactly what its set changes from it (every assumption
+  not kept, with the study's value, the set's and why), beside the study's own plant and running costs and the set's.
+- The side bar says the region changes only the shoppers, not the cost of growing cells.
+- "Products it could enter first, from foie gras to shrimp" moves from the closed shopper-model section into section 4 of the results.
 
 ## 2026-11-24: the page made clearer; other studies as starting points, audited; plant against running costs; checks under each result
 
