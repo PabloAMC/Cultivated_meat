@@ -2231,9 +2231,10 @@ REGISTRY: dict[str, Input] = {
         lo=0.5, hi=1.0, mode=1.0,
         note="1 = every kilo sold replaces a kilo of conventional meat, what the model assumed, unstated, until 2026-11-22. "
              "Cultivated meat is meat, and the model's real-tissue attribute is why it draws its sales from conventional meat, so "
-             "the near-zero figure measured for plant-based meat is not carried over; 0.5 is the low end the model allows for "
+             "the near-zero figure measured for plant-based meat is not carried over; 0.5 is the low end of the model's stated range, for "
              "sales that come partly from shoppers buying more meat in all or from meals without meat (a judgement, not a "
-             "measurement). Not drawn in the uncertainty bands: they are bands of the share sold, which this input moves only "
+             "measurement). The page's slider goes down to 0, the figure measured for plant-based meat, so that a reader can see "
+             "what that analogue would mean; below 0.5 is outside the stated range. Not drawn in the uncertainty bands: they are bands of the share sold, which this input moves only "
              "through conventional meat's price, and the price-fall inputs (mk_supply_elast, mk_demand_elast) are not drawn either"),
     # --- markets it cannot be sold into (meat_market.closed_share, research_notes/closed_markets.md, 2026-11-20) ---------------
     # each closed jurisdiction is weighted by its share of the region's meat eaten: US states by population (meat a head taken as

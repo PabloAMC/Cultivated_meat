@@ -712,15 +712,17 @@ OWN = "The study's own projection"
 TARGET = "Long-term target"
 CORRECTED = "Corrected"
 HUMBIRD = "Not stated: Humbird's"
+MODEL_DEFAULT = "Not stated: this model's"
 NOT_SET = "Not set on this page"
 WORKED = "Worked out by this model"
-AUDIT_KINDS = (KEPT, OWN, TARGET, CORRECTED, HUMBIRD, NOT_SET, WORKED)
+AUDIT_KINDS = (KEPT, OWN, TARGET, CORRECTED, HUMBIRD, MODEL_DEFAULT, NOT_SET, WORKED)
 AUDIT_WHY = {
     KEPT: "the study's value",
     OWN: "the study's more favourable scenario or sensitivity, not its base case",
     TARGET: "the study's value is what one lab run or today's ingredients gave; the set uses the long-term target",
     CORRECTED: "the study's value is beyond a limit of this model; the set uses the nearest possible value",
     HUMBIRD: "the study does not give it; Humbird's best estimate is kept",
+    MODEL_DEFAULT: "the study does not give it, and Humbird's design has no equivalent the set can keep; this model's default is used",
     NOT_SET: "the page has no lever for it; the set leaves it out",
     WORKED: "this model works it out from the cells and the tank, whatever the study states",
 }
@@ -911,7 +913,7 @@ SETS = [
          own="€7 a kilo, of cells or of a product half cells (not stated)",
          audit=[
              ("Vessel and way of running", "vm", "continuous runs in suspension (company announcement, 28 May 2025)", KEPT, None),
-             ("Device that holds the cells back", "device", "not stated", HUMBIRD, None),
+             ("Device that holds the cells back", "device", "not stated", MODEL_DEFAULT, None),
              ("Tank size", "held:tank_m3", "six 5,000-litre bioreactors (company announcement, 28 May 2025)", KEPT, None),
              ("Plant cost", "held:capex_x", "under €35M a facility, under €1.17M per m³ (derived; company announcement)", KEPT, None),
              ("Doubling time", "trait:doubling_h", "under 16 hours (press report, Green Queen, 28 May 2025)", KEPT, None),

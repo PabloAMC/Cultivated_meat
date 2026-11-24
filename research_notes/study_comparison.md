@@ -421,6 +421,7 @@ The reasons:
 - **Long-term target**: the study's value is what one lab run or today's ingredients gave; the set uses the long-term target.
 - **Corrected**: the study's value is beyond a limit of this model; the set uses the nearest possible value.
 - **Not stated: Humbird's**: the study does not give it; Humbird's best estimate is kept.
+- **Not stated: this model's**: the study does not give it, and Humbird's design has no equivalent the set can keep; this model's default is used.
 - **Not set on this page**: the page has no lever for it; the set leaves it out.
 - **Worked out by this model**: this model works it out from the cells and the tank, whatever the study states.
 
@@ -587,7 +588,7 @@ Its announced plant: six 5 m³ tanks run continuously, cells doubling in under 1
 | assumption | what the study says, and where | what the set uses | why |
 |---|---|---|---|
 | Vessel and way of running | continuous runs in suspension (company announcement, 28 May 2025) | a stirred tank in perfusion | Kept |
-| Device that holds the cells back | not stated | a membrane filter loop (tangential flow) | Not stated: Humbird's |
+| Device that holds the cells back | not stated | a membrane filter loop (tangential flow) | Not stated: this model's |
 | Tank size | six 5,000-litre bioreactors (company announcement, 28 May 2025) | 5 m³ | Kept |
 | Plant cost | under €35M a facility, under €1.17M per m³ (derived; company announcement) | 0.76 times this model's plant: $1,316k per m³ of tank | Kept |
 | Doubling time | under 16 hours (press report, Green Queen, 28 May 2025) | 16 hours | Kept |
