@@ -11,6 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 TESTS=(
+  "the edition for AI agents matches the model (AGENTS.md, llms.txt, inputs.json)|tests/test_agents_edition.py"
   "the Monte Carlo's vectorised share against share(), and the plant-item cache|tests/test_share_many.py"
   "golden-value regression|tests/test_golden.py"
   "doubling-time envelope|tests/test_growth_rate.py"
