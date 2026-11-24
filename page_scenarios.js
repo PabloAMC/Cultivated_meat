@@ -641,10 +641,13 @@ function tpGroupsDraw(f){
   const G=f.groups, W=Math.max(280,pgWidth("tp_groups_plot",440)), small=W<420, fs=small?11:12, pad=4;
   const xmax=Math.max(G.total,f.one||0)*1.04, step=[1,2,5,10,20,25,50,100,200,500].find(s=>xmax/s<=(small?4:6))||1000;
   const X=v=>pad+(W-2*pad)*v/xmax, gy=fs+2, by=gy+12, bh=small?30:34, ay=by+bh, oneY=ay+fs+12;
-  const H=oneY+(f.one!==null?2*(fs+4)+6:0)+4;
+  // the costs that long-run shares of 1% to 50% need at the reader's meat buyers (the owner, 2026-11-24): a line each through the
+  // bar, labelled one to a row under the axis; shares no cost reaches are named in the last row
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), lines=SH.filter(o=>o.t!==null), none=SH.filter(o=>o.t===null);
+  const H=oneY+(lines.length+(none.length?1:0)+1)*(fs+4)+6;
   let g='', acc=0;
   // the items: one shade each, a thin gap of the card's colour between them, the item's name inside where it fits
-  const x1=f.one!==null?X(f.one):null;
+  const x1=f.one!==null?X(f.one):null, xs=lines.map(o=>X(o.t));
   G.groups.forEach(gr=>{ gr.items.forEach(it=>{ if(it.v<=0) return; const a=X(acc), b=X(acc+it.v); acc+=it.v; const w=Math.max(0.5,b-a-1.5);
       g+='<rect x="'+a.toFixed(1)+'" y="'+by+'" width="'+w.toFixed(1)+'" height="'+bh+'" fill="'+tpICol(it.key)+'"><title>'+pgEsc(gr.name+": "+it.name)+': $'+it.v.toFixed(2)+' a kilo</title></rect>';
       // the item's name inside its segment where it fits, kept off the 1% line (to the line's right, else its left, else left out)
@@ -661,13 +664,14 @@ function tpGroupsDraw(f){
   // the axis, with no tick label where the 1% line comes down
   for(let t=0;t<=xmax+1e-9;t+=step){ const x=X(t), s="$"+t, w=tpTextW(s,fs), xc=Math.max(pad+w/2,Math.min(W-pad-w/2,x));
     g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+ay+'" y2="'+(ay+4)+'" class="ax"/>';
-    if(x1===null||Math.abs(xc-x1)>w/2+4) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
-  // what 1% needs, at the reader's meat buyers: a line through the bar, labelled under the axis
-  if(f.one!==null){ const l1="1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one), l2="at "+tpPctB(f.buyers)+" of meat buyers";
-    const w=Math.max(tpTextW(l1,fs),tpTextW(l2,fs)), cx=Math.max(pad+w/2,Math.min(W-pad-w/2,x1));
-    g+='<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(oneY-2)+'" stroke="#D85A30" stroke-width="2"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+fs)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l1)+'</text>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+2*fs+4)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l2)+'</text>'; }
+    if(!xs.some(xl=>Math.abs(xc-xl)<=w/2+4)) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
+  lines.forEach((o,i)=>{ const xl=xs[i], y=oneY+(i+1)*(fs+4), l=o.p+"% of "+tpRegionMeat(true)+" needs "+tpUSDk(o.t), w=tpTextW(l,fs),
+      cx=Math.max(pad+w/2,Math.min(W-pad-w/2,xl));
+    g+='<line x1="'+xl.toFixed(1)+'" x2="'+xl.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(y-fs+1)+'" stroke="#D85A30" stroke-width="'+(o.p===1?2:1.4)+'"'+(o.p===1?'':' stroke-dasharray="4 3"')+'/>'+
+       '<text x="'+cx.toFixed(1)+'" y="'+y+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l)+'</text>'; });
+  { let y=oneY+(lines.length+1)*(fs+4);
+    if(none.length){ g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc(tpAnd(none.map(o=>o.p+"%"))+": not reached at any cost down to $0.50")+'</text>'; y+=fs+4; }
+    g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc("Each line: with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price")+'</text>'; }
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H);
   svg.innerHTML=g;
 }
@@ -989,7 +993,10 @@ function scReadHash(v){
 
 /* ---------- the first screen: the controls ---------- */
 function tpFmtTrait(k,v){ const T=TP.traits[k], x=v*T.scale; return (k==="doubling_h"?x.toFixed(1).replace(/\.0$/,""):(k==="mass_pg"?x.toFixed(2):x.toFixed(k==="nh3_kg"?3:2)))+" "+T.unit; }
-const TP_SHOWN=["humbird_best","today"];        // the starting points offered: Humbird's best estimate (2021), and what has been published for meat cells
+// the starting points offered as buttons: Humbird's best estimate (2021), what has been published for meat cells, and the
+// all-favourable example (every lever at its most favourable value within the model's limits; the owner, 2026-11-24: "we should
+// add the most optimistic one too"), so the two ends of the range sit side by side
+const TP_SHOWN=["humbird_best","today","best"];
 const TP_GROUPS=["cells","reactor","medium"];
 // the reference values under a lever: chips that set it (MODEL.tp.lever_refs, from build_interactive.LEVER_REFS)
 function tpRefChips(key,call,fmt){ const L=(TP.lever_refs||{})[key]; if(!L||!L.length) return "";
@@ -1266,20 +1273,23 @@ function tpCellsRender(f){
   const terms=Object.keys(r.medium_terms||{}).map(k=>[k,r.medium_terms[k]]).sort((a,b)=>b[1]-a[1]);
   const qo2=r.o2_kg*Math.LN2/tr.doubling_h;     // mmol of oxygen a gram of cells an hour
   // one row of a bar plot: the name, a bar to scale, the value; the row that sets the result is drawn in the accent colour
-  const rows=(list,on,name,val,tag)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
-    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on;
-      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i></span>'+
-        '<span class="lv'+(o?' on':'')+'">'+val(x[1])+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
+  // a zero bar says why: a need this model counts and Humbird does not, switched off at his settings (tpAdds), or none at these settings
+  const zeroWhy={"least flow":"none: Humbird counts none; the lever “Least medium flow the cells need” sets it"};
+  const rows=(list,on,name,val,tag,mark)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
+    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on, zero=x[1]<0.05;
+      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i>'+
+        (mark&&!o?'<b class="mk" style="left:'+(mark/mx*100).toFixed(1)+'%"></b>':'')+'</span>'+
+        '<span class="lv'+(o?' on':'')+'">'+(zero?pgEsc(zeroWhy[x[0]]||"none at these settings"):val(x[1]))+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
   host.innerHTML='<div class="cellres"><div><span class="big">'+r.density.toFixed(0)+' g of cells a litre</span>'+
     'the densest this tank can run ('+(cells/1e6).toFixed(0)+' million cells a mL), limited by '+pgEsc(lw(r.limit))+'.</div>'+
     '<div><span class="big">'+r.medium_l.toFixed(0)+' litres of medium a kilo of cells</span>'+
     (terms.length?'set by '+pgEsc(TP_TERMW[r.medium_set_by]||r.medium_set_by)+'.':'as set.')+'</div>'+
     '<div><span class="big">'+(r.output).toFixed(1)+' tonnes a year from each m³ of tank</span>'+
     'The tank is in use '+(r.uptime*100).toFixed(0)+'% of the time.</div></div>'+
-    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit allows. The lowest sets the density.</p>'+
+    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit would allow on its own. The tank runs at the lowest, which keeps within every other limit too.</p>'+
     rows(lims,r.limit,lw,v=>v.toFixed(0)+' g a litre','sets the density')+'</div>'+
-    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need asks for. The largest sets the amount.</p>'+
-    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount')+'</div>':'')+'</div>'+
+    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need would ask for on its own. The tank uses the largest, '+r.medium_l.toFixed(1)+' litres (the line on each bar), which meets every other need too.</p>'+
+    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount',r.medium_l)+'</div>':'')+'</div>'+
     '<p class="small">The cells make '+r.nh3_kg.toFixed(3)+' mol of ammonia and '+r.lac_kg.toFixed(1)+' mol of lactate a kilo, and use '+qo2.toFixed(3)+' mmol of oxygen a gram an hour ('+
     (qo2*tr.mass_pg*1e-12*1e9*24).toFixed(1)+' pmol a cell a day). Every figure here is calculated from your settings, with each estimate at its most likely value. The costs follow in the next sections.</p>';
 }
@@ -1298,7 +1308,10 @@ function tpCompareRender(){
         return '<td class="pick'+on+'" onclick="tpPickVM(\''+v+'\',\''+m+'\','+(size||0)+')" title="'+pgEsc(size?"Animal cells have not been grown in a tank this large.":c.evidence)+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+' g/L, limited by '+pgEsc(VM.limit_plain[c.limit]||c.limit)+'</span><br>'+vmTagChip(size?big:c.tag)+'</td>'; }).join("")+'</tr>'; };
     const rows=VM.vorder.map(v=>row(v,null)+(v==="stirred"?TP_SIZES.map(z=>row(v,z)).join(""):"")).join("");
     document.getElementById("tp_vmgrid").innerHTML='<div class="scrollx"><table class="sctab vmtab">'+head+'<tbody>'+rows+'</tbody></table></div>'+
-      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³.</p>'; }
+      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³. '+
+      '<b>Why a larger tank can cost more:</b> a larger tank is cheaper per m³ to build, but where clearing CO₂ limits the culture it holds fewer cells a litre. '+
+      'The CO₂ leaves only in the gas bubbled through, the gas may rise no faster than bubbles and foam allow, and a taller tank passes less gas per litre, so it clears less CO₂ per litre. '+
+      'Fewer kilos from each m³ then cost more per kilo than the cheaper tank saves. Added equipment that strips CO₂ without bubbles (in the side bar, under the reactor) removes this limit, and larger tanks then cost less.</p>'; }
   if(dr&&dr.open&&MODEL.rt){ const p=tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
     const rows=MODEL.rt.order.map(d=>{ const D=MODEL.rt.devices[d], c=rtCost(d,p), on=(SCS.device||"tff")===d?' class="on"':'';
       return '<tr'+on+'><td class="pick" onclick="tpSetDevice(\''+d+'\')"><b>'+pgEsc(D.name.replace(" (the model's default)",""))+'</b><br><span class="alt">'+pgEsc(D.how)+'</span></td>'+
@@ -1566,7 +1579,7 @@ function tpRenderFirst(){
   const f=pgFacts(), set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
   set("deck",pgLead()); set("tp_yours",pgDeck(f)); set("sumbar",tpSummaryHTML(f)); tpUncRender(); tpCalcRender(f);
   tpLineText(f); tpGroupsDraw(f); tpGroupsText(f); tpAnimalsRender(f);
-  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f);
+  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f); if(typeof drawFoothold==="function"&&typeof C!=="undefined"&&C.foothold_products) drawFoothold(state);
 }
 const pgRenderFirst=tpRenderFirst;
 // a link to a part of the page inside closed sections: open each enclosing <details>, then go there

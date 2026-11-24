@@ -273,9 +273,10 @@ details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 .limgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:14px 0 8px;}
 .limt{font-size:.88rem;font-weight:700;margin:0 0 6px;}
 .lim{display:grid;grid-template-columns:minmax(110px,32%) minmax(40px,1fr) minmax(0,auto);gap:6px 10px;align-items:center;font-size:.84rem;color:var(--ink2);}
-.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;} .lim .bar i{display:block;height:100%;background:var(--axis);}
+.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;position:relative;} .lim .bar .mk{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--accent);margin-left:-1px;} .lim .bar i{display:block;height:100%;background:var(--axis);}
 .lim .bar.on i{background:var(--accent);} .lim .on{color:var(--ink);font-weight:700;} .lim .lv{white-space:nowrap;font-variant-numeric:tabular-nums;}
 .lim .lt{font-weight:400;color:var(--accent);}
+.pvrdiff{margin-top:10px;} .pvrdiff select{font-size:.85rem;margin-left:6px;}
 details.verify{margin:10px 0 0;border-top:1px dashed var(--rule);padding-top:6px;font-size:.86rem;}
 details.verify>summary{cursor:pointer;color:var(--accent);font-size:.84rem;list-style:none;} details.verify>summary::-webkit-details-marker{display:none;}
 details.verify>summary:before{content:"\25B8  ";} details.verify[open]>summary:before{content:"\25BE  ";}
@@ -356,6 +357,7 @@ details.why{font-size:.78rem;color:var(--ink2);margin-top:2px;} details.why>summ
 <div class="refbar"><span class="rl">Start from a published set of assumptions:</span>
 <div class="refrow"><div class="refbtns" id="tp_refs" role="group" aria-label="Starting points"></div>
 <label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<p class="small" id="regionnote">The region changes only the shoppers: their incomes, the meat they eat, its prices and the laws. It does not change the cost of growing cells: this model prices one plant for every region.</p>
 <p class="small" id="tp_setsnote">A button that names another study puts that study's assumptions on Humbird's design, where the page has a
 lever for them. A set may be as optimistic as its study, but it has to be possible: where an assumption breaks a rule of this
 model (a plant repaid with no interest, or cells fed less than they hold and burn), the set uses a corrected value and the note below says so. The cost is then this page's model with those assumptions, not the study's own figure.</p>
@@ -479,19 +481,20 @@ Click a row to choose it.</p>
 <h3 id="st_pvr_title">Plant cost against running cost, a kilo of cells: published studies and this page's model <span class="tag res">result</span></h3>
 <p class="sub">Costs of production, before the cells reach a shop, in 2025 dollars. Across: the plant's yearly payment with interest,
 maintenance and insurance. Up: everything else (medium, growth factors, filters, supplies, labour, energy). Points on one grey curve
-cost the same in all.</p>
+cost the same in all. Most sets sit to the right of and below their study's own point: the long-term cells and medium cut the
+running costs, while this model charges interest on the plant and works out the kilos each m³ of tank makes, which raises the
+plant's part. Plant against running is the split the studies report, so it is the one they can be compared on; what scales with the
+litres of medium against what scales with time in the tank is in "What the cost is made of" above.</p>
 <div class="legend"><span class="li"><span class="dt" style="background:var(--card);border:2px solid var(--ink2)"></span>as the study reports it</span>
 <span class="li"><span class="dt" style="background:var(--accent)"></span>its starting set on this page's model (click to load)</span>
 <span class="li"><span class="dt" style="background:var(--ink);border-radius:0;transform:rotate(45deg)"></span>all-favourable example</span>
 <span class="li"><span class="dt me"></span>your settings</span>
-<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1% share needs</span>
+<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1%, 5%, 10%, 25% or 50% share needs</span>
 <span class="li"><span class="sw hatchd"></span>less running cost than the cells eat</span></div>
 <div class="plot" id="st_pvr_plot"><svg id="st_pvr" role="img" aria-labelledby="st_pvr_title" aria-describedby="st_pvr_alt"></svg></div>
 <p class="hover" id="st_pvr_read" aria-live="polite"></p>
-<p class="small">A study's own figure and this page's figure for its set differ for three reasons: the set uses the long-term
-targets where the study used one lab run or today's ingredients, the set corrects what is not possible (a plant repaid with no
-interest), and this page's engine works out the litres, density and plant for itself. The note under the side bar's buttons says
-which, set by set. Studies count different products (a kilo of cells, of meat, of a product partly plant): each point's note says which.</p>
+<p class="small" id="st_pvr_shares" aria-live="polite"></p>
+<div id="st_pvr_diff" aria-live="polite"></div>
 <details class="verify"><summary>How this is worked out, and how to check it</summary><div class="vb"><p class="vh">How it is worked out</p><ol><li><b>Hollow dots</b>: each study's own plant and running costs, from the page or table its note names, in 2025 dollars by consumer prices (pounds at $1.28 and euros at $1.13, 2024 and 2025 averages typed from memory, to be checked against an official series).</li><li><b>Filled dots</b>: the study's starting set on this page's model. What the set changes from the study, assumption by assumption, is listed under the side bar's buttons when the set is loaded.</li><li>Plant is the yearly payment with interest, maintenance and insurance; running is everything else.</li></ol><p class="vh">What it rests on</p><ul><li>Each study's figures and their pages: <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/study_assumptions.py" target="_blank" rel="noopener"><code>study_assumptions.py</code></a> (SPLITS and SETS).</li></ul><p class="vh">Checked against</p><p>Not a check: the plot compares studies. Studies count different products (a kilo of cells, of meat, of a product partly plant); each dot's note says which.</p><p class="vh">Check it yourself</p><ul><li><a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/study_comparison.md" target="_blank" rel="noopener"><code>research_notes/study_comparison.md</code></a> (section 13: every set's audit and every study's split)</li><li><a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/study_assumptions.py" target="_blank" rel="noopener"><code>study_assumptions.py</code></a></li></ul></div></details>
 <p class="sr" id="st_pvr_alt"></p>
 </div>
@@ -535,6 +538,14 @@ which, set by set. Studies count different products (a kilo of cells, of meat, o
 <p class="sr" id="tp_animals_alt"></p>
 <details class="verify"><summary>How this is worked out, and how to check it</summary><div class="vb"><p class="vh">How it is worked out</p><ol><li>Each bar is one product's long-run share of its own sales, at its own shop price for the cost of cells at your settings, from the shopper model (the box under the map).</li><li>The total weights each product by the meat eaten of it; the dotted line weights by money spent.</li><li>Plant-based meat's share is worked out by the same model at its own price, stacked on top.</li></ol><p class="vh">What it rests on</p><ul><li>Prices and the meat eaten of each product, by region: <a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/meat_market.py" target="_blank" rel="noopener"><code>meat_market.py</code></a> (sources named in the file; a few premium rows are marked as unsourced estimates).</li></ul><p class="vh">Checked against</p><p>Plant-based meat's share with no cultivated meat on sale is set to its measured sales, about 0.4% of meat by volume (a calibration, not a check).</p><p class="vh">Check it yourself</p><ul><li><a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/meat_market.py" target="_blank" rel="noopener"><code>meat_market.py</code></a></li><li><a href="#where" onclick="return pgOpenTo('where')">Share by type of meat, by region and over time</a></li></ul></div></details>
 </div>
+
+<div class="chart" id="tp_footcard"><h3>Products it could enter first, from foie gras to shrimp <span class="tag res">result</span></h3>
+<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. In the cost view, a bar runs from each product's price to cultivated meat's cost, so a bar that runs down means cultivated meat costs less. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat already costs less than some luxury products, but those markets are small. It costs more than
+commodity meat, which is most of the volume.</p>
+<div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
+<p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
+<div class="scrollx"><svg id="foothold" class="w720" viewBox="0 0 720 380" role="img" aria-label="Products cultivated meat could enter first, by price and size of market"></svg></div>
+<div id="footcap" class="small" style="margin-top:6px"></div></div>
 
 <div class="callout" id="sharedef"><b>What &ldquo;share&rdquo; means on this page.</b> The share of all meat and seafood sold, by weight, in the long run:
 once cultivated meat is on every shelf and no longer feels new. Seafood is 24% of that total in the model's world market.
@@ -747,13 +758,7 @@ like a cultivated cut or premium product than cultivated mince (&tau;).</p></div
 <p class="sub" id="cmpsub" data-help="The model was not fitted to plant-based milk. It predicts about 15%, close to milk's market share. That is a weak test, because the milk facts are set by hand. Margarine and plant-based nuggets fit less well. The model was fitted to plant-based meat, so plant-based meat is not a test. Eggs test a different lever (animal welfare), and laws largely set their share.">The same shopper model, with only the product's facts changed.</p>
 <p class="small"><label for="cmpSel">Product</label> <select id="cmpSel" style="width:auto"></select></p>
 <div class="scrollx"><svg id="milk" class="w720" viewBox="0 0 720 320" role="img" aria-label="The model's share for another product beside its observed share"></svg></div></div>
-<div class="chart"><h3>Products it could enter first</h3>
-<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. In the cost view, a bar runs from each product's price to cultivated meat's cost, so a bar that runs down means cultivated meat costs less. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat already costs less than some luxury products, but those markets are small. It costs more than
-commodity meat, which is most of the volume.</p>
-<div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
-<p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
-<div class="scrollx"><svg id="foothold" class="w720" viewBox="0 0 720 380" role="img" aria-label="Products cultivated meat could enter first, by price and size of market"></svg></div>
-<div id="footcap" class="small" style="margin-top:6px"></div></div>
+<p class="small">The chart of the products it could enter first, from foie gras to shrimp, is in section 4 of the results on the first screen.</p>
 </div></details>
 
 <details class="level methods" id="method">
@@ -2941,7 +2946,7 @@ function selfTest(){
     "<div class='stbuild'>"+(buildOK?"Check passed: ":"<b class='stbad'>Check failed: </b>")+"the model in this page reproduces the Python "+
     "source (the calibration and the income term across regions)"+(buildOK?".":". The page needs rebuilding.")+"</div>";
 }
-console.log("interactive.html JS build 2026-11-24 21:30 — loss-aversion canonical form + betaCap monotonicity guard active");
+console.log("interactive.html JS build 2026-11-24 21:39 — loss-aversion canonical form + betaCap monotonicity guard active");
 /* ===== scenarios: the switches, the presets and what to prioritise =====
    A line-for-line mirror of scenarios.py (run, design, priorities, interactions); tests/run_parity.py checks the two agree.
    Included into the page's script by build_interactive.py. Everything is computed by floorExplore (the mirror of
@@ -3585,10 +3590,13 @@ function tpGroupsDraw(f){
   const G=f.groups, W=Math.max(280,pgWidth("tp_groups_plot",440)), small=W<420, fs=small?11:12, pad=4;
   const xmax=Math.max(G.total,f.one||0)*1.04, step=[1,2,5,10,20,25,50,100,200,500].find(s=>xmax/s<=(small?4:6))||1000;
   const X=v=>pad+(W-2*pad)*v/xmax, gy=fs+2, by=gy+12, bh=small?30:34, ay=by+bh, oneY=ay+fs+12;
-  const H=oneY+(f.one!==null?2*(fs+4)+6:0)+4;
+  // the costs that long-run shares of 1% to 50% need at the reader's meat buyers (the owner, 2026-11-24): a line each through the
+  // bar, labelled one to a row under the axis; shares no cost reaches are named in the last row
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), lines=SH.filter(o=>o.t!==null), none=SH.filter(o=>o.t===null);
+  const H=oneY+(lines.length+(none.length?1:0)+1)*(fs+4)+6;
   let g='', acc=0;
   // the items: one shade each, a thin gap of the card's colour between them, the item's name inside where it fits
-  const x1=f.one!==null?X(f.one):null;
+  const x1=f.one!==null?X(f.one):null, xs=lines.map(o=>X(o.t));
   G.groups.forEach(gr=>{ gr.items.forEach(it=>{ if(it.v<=0) return; const a=X(acc), b=X(acc+it.v); acc+=it.v; const w=Math.max(0.5,b-a-1.5);
       g+='<rect x="'+a.toFixed(1)+'" y="'+by+'" width="'+w.toFixed(1)+'" height="'+bh+'" fill="'+tpICol(it.key)+'"><title>'+pgEsc(gr.name+": "+it.name)+': $'+it.v.toFixed(2)+' a kilo</title></rect>';
       // the item's name inside its segment where it fits, kept off the 1% line (to the line's right, else its left, else left out)
@@ -3605,13 +3613,14 @@ function tpGroupsDraw(f){
   // the axis, with no tick label where the 1% line comes down
   for(let t=0;t<=xmax+1e-9;t+=step){ const x=X(t), s="$"+t, w=tpTextW(s,fs), xc=Math.max(pad+w/2,Math.min(W-pad-w/2,x));
     g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+ay+'" y2="'+(ay+4)+'" class="ax"/>';
-    if(x1===null||Math.abs(xc-x1)>w/2+4) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
-  // what 1% needs, at the reader's meat buyers: a line through the bar, labelled under the axis
-  if(f.one!==null){ const l1="1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one), l2="at "+tpPctB(f.buyers)+" of meat buyers";
-    const w=Math.max(tpTextW(l1,fs),tpTextW(l2,fs)), cx=Math.max(pad+w/2,Math.min(W-pad-w/2,x1));
-    g+='<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(oneY-2)+'" stroke="#D85A30" stroke-width="2"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+fs)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l1)+'</text>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(oneY+2*fs+4)+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l2)+'</text>'; }
+    if(!xs.some(xl=>Math.abs(xc-xl)<=w/2+4)) g+='<text x="'+xc.toFixed(1)+'" y="'+(ay+fs+5)+'" text-anchor="middle" font-size="'+fs+'" class="m">'+s+'</text>'; }
+  lines.forEach((o,i)=>{ const xl=xs[i], y=oneY+(i+1)*(fs+4), l=o.p+"% of "+tpRegionMeat(true)+" needs "+tpUSDk(o.t), w=tpTextW(l,fs),
+      cx=Math.max(pad+w/2,Math.min(W-pad-w/2,xl));
+    g+='<line x1="'+xl.toFixed(1)+'" x2="'+xl.toFixed(1)+'" y1="'+(by-4)+'" y2="'+(y-fs+1)+'" stroke="#D85A30" stroke-width="'+(o.p===1?2:1.4)+'"'+(o.p===1?'':' stroke-dasharray="4 3"')+'/>'+
+       '<text x="'+cx.toFixed(1)+'" y="'+y+'" text-anchor="middle" font-size="'+fs+'">'+pgEsc(l)+'</text>'; });
+  { let y=oneY+(lines.length+1)*(fs+4);
+    if(none.length){ g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc(tpAnd(none.map(o=>o.p+"%"))+": not reached at any cost down to $0.50")+'</text>'; y+=fs+4; }
+    g+='<text x="'+pad+'" y="'+y+'" font-size="'+fs+'" class="m">'+pgEsc("Each line: with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price")+'</text>'; }
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H);
   svg.innerHTML=g;
 }
@@ -3933,7 +3942,10 @@ function scReadHash(v){
 
 /* ---------- the first screen: the controls ---------- */
 function tpFmtTrait(k,v){ const T=TP.traits[k], x=v*T.scale; return (k==="doubling_h"?x.toFixed(1).replace(/\.0$/,""):(k==="mass_pg"?x.toFixed(2):x.toFixed(k==="nh3_kg"?3:2)))+" "+T.unit; }
-const TP_SHOWN=["humbird_best","today"];        // the starting points offered: Humbird's best estimate (2021), and what has been published for meat cells
+// the starting points offered as buttons: Humbird's best estimate (2021), what has been published for meat cells, and the
+// all-favourable example (every lever at its most favourable value within the model's limits; the owner, 2026-11-24: "we should
+// add the most optimistic one too"), so the two ends of the range sit side by side
+const TP_SHOWN=["humbird_best","today","best"];
 const TP_GROUPS=["cells","reactor","medium"];
 // the reference values under a lever: chips that set it (MODEL.tp.lever_refs, from build_interactive.LEVER_REFS)
 function tpRefChips(key,call,fmt){ const L=(TP.lever_refs||{})[key]; if(!L||!L.length) return "";
@@ -4210,20 +4222,23 @@ function tpCellsRender(f){
   const terms=Object.keys(r.medium_terms||{}).map(k=>[k,r.medium_terms[k]]).sort((a,b)=>b[1]-a[1]);
   const qo2=r.o2_kg*Math.LN2/tr.doubling_h;     // mmol of oxygen a gram of cells an hour
   // one row of a bar plot: the name, a bar to scale, the value; the row that sets the result is drawn in the accent colour
-  const rows=(list,on,name,val,tag)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
-    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on;
-      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i></span>'+
-        '<span class="lv'+(o?' on':'')+'">'+val(x[1])+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
+  // a zero bar says why: a need this model counts and Humbird does not, switched off at his settings (tpAdds), or none at these settings
+  const zeroWhy={"least flow":"none: Humbird counts none; the lever “Least medium flow the cells need” sets it"};
+  const rows=(list,on,name,val,tag,mark)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
+    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on, zero=x[1]<0.05;
+      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i>'+
+        (mark&&!o?'<b class="mk" style="left:'+(mark/mx*100).toFixed(1)+'%"></b>':'')+'</span>'+
+        '<span class="lv'+(o?' on':'')+'">'+(zero?pgEsc(zeroWhy[x[0]]||"none at these settings"):val(x[1]))+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
   host.innerHTML='<div class="cellres"><div><span class="big">'+r.density.toFixed(0)+' g of cells a litre</span>'+
     'the densest this tank can run ('+(cells/1e6).toFixed(0)+' million cells a mL), limited by '+pgEsc(lw(r.limit))+'.</div>'+
     '<div><span class="big">'+r.medium_l.toFixed(0)+' litres of medium a kilo of cells</span>'+
     (terms.length?'set by '+pgEsc(TP_TERMW[r.medium_set_by]||r.medium_set_by)+'.':'as set.')+'</div>'+
     '<div><span class="big">'+(r.output).toFixed(1)+' tonnes a year from each m³ of tank</span>'+
     'The tank is in use '+(r.uptime*100).toFixed(0)+'% of the time.</div></div>'+
-    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit allows. The lowest sets the density.</p>'+
+    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit would allow on its own. The tank runs at the lowest, which keeps within every other limit too.</p>'+
     rows(lims,r.limit,lw,v=>v.toFixed(0)+' g a litre','sets the density')+'</div>'+
-    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need asks for. The largest sets the amount.</p>'+
-    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount')+'</div>':'')+'</div>'+
+    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need would ask for on its own. The tank uses the largest, '+r.medium_l.toFixed(1)+' litres (the line on each bar), which meets every other need too.</p>'+
+    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount',r.medium_l)+'</div>':'')+'</div>'+
     '<p class="small">The cells make '+r.nh3_kg.toFixed(3)+' mol of ammonia and '+r.lac_kg.toFixed(1)+' mol of lactate a kilo, and use '+qo2.toFixed(3)+' mmol of oxygen a gram an hour ('+
     (qo2*tr.mass_pg*1e-12*1e9*24).toFixed(1)+' pmol a cell a day). Every figure here is calculated from your settings, with each estimate at its most likely value. The costs follow in the next sections.</p>';
 }
@@ -4242,7 +4257,10 @@ function tpCompareRender(){
         return '<td class="pick'+on+'" onclick="tpPickVM(\''+v+'\',\''+m+'\','+(size||0)+')" title="'+pgEsc(size?"Animal cells have not been grown in a tank this large.":c.evidence)+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+' g/L, limited by '+pgEsc(VM.limit_plain[c.limit]||c.limit)+'</span><br>'+vmTagChip(size?big:c.tag)+'</td>'; }).join("")+'</tr>'; };
     const rows=VM.vorder.map(v=>row(v,null)+(v==="stirred"?TP_SIZES.map(z=>row(v,z)).join(""):"")).join("");
     document.getElementById("tp_vmgrid").innerHTML='<div class="scrollx"><table class="sctab vmtab">'+head+'<tbody>'+rows+'</tbody></table></div>'+
-      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³.</p>'; }
+      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³. '+
+      '<b>Why a larger tank can cost more:</b> a larger tank is cheaper per m³ to build, but where clearing CO₂ limits the culture it holds fewer cells a litre. '+
+      'The CO₂ leaves only in the gas bubbled through, the gas may rise no faster than bubbles and foam allow, and a taller tank passes less gas per litre, so it clears less CO₂ per litre. '+
+      'Fewer kilos from each m³ then cost more per kilo than the cheaper tank saves. Added equipment that strips CO₂ without bubbles (in the side bar, under the reactor) removes this limit, and larger tanks then cost less.</p>'; }
   if(dr&&dr.open&&MODEL.rt){ const p=tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
     const rows=MODEL.rt.order.map(d=>{ const D=MODEL.rt.devices[d], c=rtCost(d,p), on=(SCS.device||"tff")===d?' class="on"':'';
       return '<tr'+on+'><td class="pick" onclick="tpSetDevice(\''+d+'\')"><b>'+pgEsc(D.name.replace(" (the model's default)",""))+'</b><br><span class="alt">'+pgEsc(D.how)+'</span></td>'+
@@ -4510,7 +4528,7 @@ function tpRenderFirst(){
   const f=pgFacts(), set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
   set("deck",pgLead()); set("tp_yours",pgDeck(f)); set("sumbar",tpSummaryHTML(f)); tpUncRender(); tpCalcRender(f);
   tpLineText(f); tpGroupsDraw(f); tpGroupsText(f); tpAnimalsRender(f);
-  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f);
+  tpRenderControls(f); tpMapDraw(f); if(typeof stRender==="function") stRender(); if(typeof stPvrDraw==="function") stPvrDraw(f); if(typeof drawFoothold==="function"&&typeof C!=="undefined"&&C.foothold_products) drawFoothold(state);
 }
 const pgRenderFirst=tpRenderFirst;
 // a link to a part of the page inside closed sections: open each enclosing <details>, then go there
@@ -5272,7 +5290,27 @@ const ST_SPL={};                     // the sets' plant and running costs on thi
 function stSplitOf(list){ const r=tpPointFor(stState(list)).res; return {plant:r.capital, running:r.total-r.capital, total:r.total}; }
 function stSplits(){ if(!ST_SPL.__done){ ST_SPL.humbird_best=stSplitOf([]); ST_SETS.forEach(e=>{ ST_SPL[e.key]=stSplitOf([e]); }); ST_SPL.__done=true; } return ST_SPL; }
 let stPvrSel=null;
-function stPvrPick(k){ if(k==="humbird_best") tpLoad("humbird_best"); else stLoadSet(k); }
+function stPvrPick(k){ stPvrStudy=k; if(k==="humbird_best") tpLoad("humbird_best"); else stLoadSet(k); }
+/* ---------- how one study's set differs from the study (the owner, 2026-11-24: "explain exactly how our assumptions differ for
+   the concrete study we are analyzing"): its plant and running costs as it reports them and on this model, and every assumption
+   the set does not keep as the study has it (study_assumptions.audit_rows, every row but "Kept"). ---------- */
+let stPvrStudy=null;
+function stPvrSetStudy(k){ stPvrStudy=k; stPvrDiff(); }
+function stPvrDiff(){
+  const host=document.getElementById("st_pvr_diff"); if(!host||!ST_SETS.length) return;
+  const k=stPvrStudy||(SCS.set&&stSet(SCS.set)?SCS.set:"pasitka"), e=stSet(k)||ST_SETS[0], S=stSplits(), m=S[e.key], rep=ST.splits.find(x=>x.set===e.key);
+  const usd=v=>"$"+(v>=100?v.toFixed(0):v.toFixed(2));
+  const sel='<label class="small">Study: <select onchange="stPvrSetStudy(this.value)">'+ST_SETS.map(x=>'<option value="'+x.key+'"'+(x.key===e.key?' selected':'')+'>'+pgEsc(x.label)+'</option>').join("")+'</select></label>';
+  const nums=_table2(["","Plant","Running","In all","Counts"],[
+      ["As the study reports it"].concat(rep?[usd(rep.plant),usd(rep.running),usd(rep.plant+rep.running),pgEsc(rep.basis)]:["not published","","",""]),
+      ["Its set on this page's model",usd(m.plant),usd(m.running),usd(m.total),"a kilo of cells"]]);
+  const diff=e.audit_rows.filter(r=>r.why!=="Kept");
+  host.innerHTML='<div class="pvrdiff"><p class="limt">How the set differs from the study '+sel+'</p>'+nums+
+    (rep&&!rep.same?'<p class="small">The study\'s split is for a different case from the set\'s: '+pgEsc(rep.how)+'.</p>':'')+
+    '<p class="small">'+diff.length+' of its '+e.audit_rows.length+' listed assumptions are not kept as the study has them; the other '+(e.audit_rows.length-diff.length)+' are. Anything not listed is Humbird\'s best estimate.</p>'+
+    _table2(["Assumption","The study","The set","Why"],diff.map(r=>[pgEsc(r.item),pgEsc(r.study),pgEsc(r.used),'<b>'+pgEsc(r.why)+'</b>']))+
+    '<p class="small"><a href="#" onclick="stLoadSet(\''+e.key+'\');return false">Load this set</a> to see it on the rest of the page; the side bar then lists every assumption, the kept ones too.</p></div>'; }
+function _table2(head,rows){ return '<div class="scrollx"><table class="sctab vt"><thead><tr>'+head.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'; }
 function stPvrHover(i){ stPvrSel=i; const e=document.getElementById("st_pvr_read"); if(e&&STPVR[i]) e.innerHTML=STPVR[i].say; }
 let STPVR=[];
 function stPvrDraw(f){
@@ -5298,13 +5336,20 @@ function stPvrDraw(f){
       if(xp>=tot||yp<y0) continue; d+=(first?"M":"L")+lx(xp).toFixed(1)+","+ly(yp).toFixed(1); first=false; }
     if(!d) return ""; const lxp=Math.max(x0*1.08,Math.min(tot*(at||0.03),x1)), lyp=tot-lxp;
     return '<path d="'+d+'" fill="none" '+style+'/>'+(lab&&lyp>y0&&lyp<y1?'<text x="'+(lx(lxp)+3)+'" y="'+(ly(lyp)-4)+'" font-size="'+(fs-1)+'" fill="'+(at?'#D85A30':'var(--muted)')+'">'+lab+'</text>':''); };
-  const near1=t=>f.one!==null&&Math.abs(Math.log(t/f.one))<0.35;          // the 1% line's label takes the place of a curve's near it
-  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',near1(t)?"":"$"+t+" in all"); });
-  if(f.one!==null&&f.one>x0+y0) g+=iso(f.one,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',"1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one)+" in all",0.031);
+  // the totals that long-run shares of all meat need at the reader's shopper setting (the owner, 2026-11-24: "Can we also
+  // report the 5%, 10%, 25% and 50%?"); a share no cost reaches, or one needing a total below the chart, is listed under it
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), drawn=SH.filter(o=>o.t!==null&&o.t>x0+y0);
+  const nearShare=t=>drawn.some(o=>Math.abs(Math.log(t/o.t))<0.35);      // a share line's label takes the place of a grey curve's near it
+  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',nearShare(t)?"":"$"+t+" in all"); });
+  drawn.forEach(o=>{ g+=iso(o.t,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',o.p+"%: "+tpUSDk(o.t)+" in all",0.031); });
+  const sl=document.getElementById("st_pvr_shares");
+  if(sl) sl.innerHTML="<b>The total a long-run share of "+pgEsc(tpRegionMeat())+" needs</b>, with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price (the dashed lines): "+
+    SH.map(o=>o.p+"%, "+(o.t===null?"not reached at any cost down to $0.50":tpUSDk(o.t)+" a kilo of cells"+(o.t<=x0+y0?" (below the chart)":""))).join("; ")+
+    ". Move the shoppers' setting in the side bar and they move.";
   // the points: each study as it reports it (hollow) and its set on this page's model (filled), joined
   STPVR=[]; let pts="", labs=[], allDots=[];
   const add=(p,kind,label,say,click)=>{ const i=STPVR.length; STPVR.push({say:say}); const x=lx(p.plant), y=ly(p.running), off=p.plant>x1||p.running>y1; allDots.push({x:x-7,y:y-7,w:14,h:14});
-    const ev=' onmouseenter="stPvrHover('+i+')" onfocus="stPvrHover('+i+')"'+(click?' onclick="stPvrPick(\''+click+'\')" style="cursor:pointer"':'')+' tabindex="0"';
+    const ev=' onmouseenter="stPvrHover('+i+')" onfocus="stPvrHover('+i+')"'+(click?' onclick="'+(kind==="rep"?"stPvrSetStudy":"stPvrPick")+'(\''+click+'\')" style="cursor:pointer"':'')+' tabindex="0"';
     if(kind==="rep") pts+='<circle cx="'+x+'" cy="'+y+'" r="5.5" fill="var(--card)" stroke="var(--ink2)" stroke-width="1.8"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></circle>';
     else if(kind==="set") pts+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="var(--accent)"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></circle>';
     else if(kind==="af") pts+='<path d="M'+x+','+(y-8)+'L'+(x+8)+','+y+'L'+x+','+(y+8)+'L'+(x-8)+','+y+'Z" fill="var(--ink)"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></path>';
@@ -5315,7 +5360,7 @@ function stPvrDraw(f){
   const done={};
   ST.splits.forEach(s=>{ const m=s.set?S[s.set]:null;
     if(m){ g+='<line x1="'+lx(s.plant)+'" y1="'+ly(s.running)+'" x2="'+lx(m.plant)+'" y2="'+ly(m.running)+'" stroke="var(--ink2)" stroke-width="1" stroke-dasharray="2 3" opacity="0.8"/>'; }
-    add(s,"rep",m?null:s.label.replace(" Ltd 2024"," 2024"),"<b>"+pgEsc(s.label)+", as the study reports it</b> ("+pgEsc(s.basis)+", 2025 dollars): plant "+usd(s.plant)+", running "+usd(s.running)+", "+usd(s.plant+s.running)+" in all. "+pgEsc(s.how.charAt(0).toUpperCase()+s.how.slice(1))+"."+(m?" The filled point joined to it is its starting set on this page's model.":""),null); });
+    add(s,"rep",m?null:s.label.replace(" Ltd 2024"," 2024"),"<b>"+pgEsc(s.label)+", as the study reports it</b> ("+pgEsc(s.basis)+", 2025 dollars): plant "+usd(s.plant)+", running "+usd(s.running)+", "+usd(s.plant+s.running)+" in all. "+pgEsc(s.how.charAt(0).toUpperCase()+s.how.slice(1))+"."+(m?" The filled point joined to it is its starting set on this page's model. Click to compare the two below.":""),m&&s.set!=="humbird_best"?s.set:null); });
   Object.keys(S).filter(k=>k!=="__done").forEach(k=>{ const m=S[k], rep=ST.splits.find(s=>s.set===k);
     add(m,"set",setLab[k],"<b>"+pgEsc(setName[k])+", on this page's model</b>: plant "+usd(m.plant)+", running "+usd(m.running)+", "+usd(m.total)+" a kilo of cells."+
       (rep?" The study's own figures ("+usd(rep.plant+rep.running)+") are the hollow point joined to it"+(rep.same?"":"; they are for a different case, as the note under the buttons explains")+".":" The study publishes no split.")+" Click to load it.",k); });
@@ -5334,6 +5379,7 @@ function stPvrDraw(f){
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.innerHTML=g;
   const rd=document.getElementById("st_pvr_read"); if(rd&&(stPvrSel===null||!STPVR[stPvrSel])) rd.innerHTML="Point at a dot for its figures and where they come from; click a filled dot to load that set.";
   else if(rd) rd.innerHTML=STPVR[stPvrSel].say;
+  stPvrDiff();
   const alt=document.getElementById("st_pvr_alt"); if(alt) alt.textContent="Plant against running costs of a kilo of cells. As each study reports it: "+ST.splits.map(s=>s.label+" "+usd(s.plant)+" and "+usd(s.running)).join("; ")+
     ". On this page's model: "+Object.keys(S).filter(k=>k!=="__done").map(k=>setLab[k]+" "+usd(S[k].plant)+" and "+usd(S[k].running)).join("; ")+". All-favourable example "+usd(af.plant)+" and "+usd(af.running)+"; your settings "+usd(me.plant)+" and "+usd(me.running)+". Running costs cannot fall below $"+fl.toFixed(2)+".";
 }
