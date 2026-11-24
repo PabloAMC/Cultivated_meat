@@ -139,8 +139,13 @@ def check() -> list:
         fails.append("within one group of shoppers the new option should take from meat in proportion to meat's share (a flat logit)")
     import market_share as M
     pr = S._demand()
-    if abs(M.share(1.0, pr, cultivated_present=False, which="c") - M.share(1.0, pr, cultivated_present=False, which="c", segment=None)) > 0:
-        fails.append("segment=None should be the total")
+    for present in (False, True):   # the two groups of shoppers, weighted, must give the total (tests the segment branch)
+        for wh in ("c", "x", "pb"):
+            total = M.share(1.0, pr, cultivated_present=present, which=wh)
+            parts = (pr.w_eth * M.share(1.0, pr, cultivated_present=present, which=wh, segment="E")
+                     + (1.0 - pr.w_eth) * M.share(1.0, pr, cultivated_present=present, which=wh, segment="M"))
+            if abs(total - parts) > 1e-12 * max(abs(total), 1e-300) + 1e-15:
+                fails.append(f"the two groups' shares ({wh}, cultivated present {present}) should weight to the total: {parts} against {total}")
     for line in D.markdown_menu().splitlines():
         if line not in open(os.path.join(ROOT, "research_notes/demand_checks.md"), encoding="utf-8").read():
             fails.append(f"research_notes/demand_checks.md does not carry the menu table: {line[:90]}")

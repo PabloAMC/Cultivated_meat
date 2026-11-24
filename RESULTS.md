@@ -8,7 +8,7 @@ Everything below reproduces from the code.*
 
 ## Summary
 
-*Last revised 2026-11-21. What changed, and when, is in [CHANGELOG.md](CHANGELOG.md).*
+*Last revised 2026-11-24 (figures unchanged since 22 November). What changed, and when, is in [CHANGELOG.md](CHANGELOG.md).*
 
 **The answer.** With the best meat cells in the published record, grown as they are grown today (in batches, in a 20 m³ tank), a
 kilo of cells costs **$316.1** at most likely values; if the unmeasured estimates are drawn from their ranges, the middle draw is

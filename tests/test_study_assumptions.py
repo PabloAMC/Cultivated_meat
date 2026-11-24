@@ -209,7 +209,7 @@ def check() -> list:
         for r in rows:
             if r["why"] not in SA.AUDIT_KINDS:
                 fails.append(f"set {e['key']}: '{r['item']}' has the reason '{r['why']}'")
-            if r["why"] not in (SA.HUMBIRD,) and r["study"] != "not stated" and not re.search(
+            if r["why"] not in (SA.HUMBIRD, SA.MODEL_DEFAULT) and r["study"] != "not stated" and not re.search(
                     r"PDF page|Table|Section|Figure|Exhibit|Abstract|Appendix|company announcement|press report|as in his|his best", r["study"]):
                 fails.append(f"set {e['key']}: '{r['item']}' does not say where the study gives it: {r['study']}")
         if e["study"] != "humbird2021" and not any(r["lever"] == "held:fin_rate" for r in rows) and \

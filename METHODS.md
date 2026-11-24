@@ -1509,7 +1509,7 @@ Wherever they are read as meat replaced, they are multiplied by d, the kilos of 
 cultivated meat sold: the land animals spared (`animals_per_tonne_sold`), the tonnes displaced in the entry points (the page's
 A6b) and the fall in conventional meat's sales that sets its price (below: (1 − d s) in place of (1 − s), since the price follows
 the meat farms stop selling). The shares themselves do not use it, except through that price. d = 1 by default (what the model
-assumed, unstated, before), range 0.5 to 1. The evidence is for plant-based meat only and is close to 0: in 1.2 million US and
+assumed, unstated, before), range 0.5 to 1 (the page's slider goes to 0, the plant-based figure, to show that analogue). The evidence is for plant-based meat only and is close to 0: in 1.2 million US and
 Canadian restaurant transactions (2016-23) plant-based meats took 1-9% of orders and meat orders did not measurably fall (Winslow,
 Peacock, Dhargawe, Sherman, Green and Mathur 2026, SocArXiv); in a randomised menu experiment with 4,431 US adults, adding two
 plant-based options cut meat orders by 2.1 points (95% CI −4.4 to +0.1), most of their orders coming from the vegetarian option

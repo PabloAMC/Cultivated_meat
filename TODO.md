@@ -4,9 +4,9 @@ The one list of open work, decisions and project ideas. Keep it current: tick or
 does it. Reasons and estimates for the projects are in [`research_notes/roadmap_2026-11-15.md`](research_notes/roadmap_2026-11-15.md);
 the earlier idea list (A–T, M1–M8) is in [`research_notes/project_review.md`](research_notes/project_review.md).
 
-Last updated 2026-11-22.
+Last updated 2026-11-24.
 
-Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
+Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.7% of meat buyers picking it at the same price.
 
 ## 1. Open work
 
@@ -72,6 +72,10 @@ Still open:
       the model's rough judgement or plain dates; `humbird_backtest.md`'s ATF ×1.84 remark dated (the ATF is priced in his accounting
       since 2026-11-20); "my judgement" in four notes relabelled. `humbird_backtest.md` had no other owner attribution.
 - [ ] **Still to decide**: whether the meat-buyers setting should be redefined against the world total.
+- [ ] **Published cells' lactate on the engine's glucose burn** (from CHANGELOG 2026-11-24): Published cells and the Pasitka
+      modification use the measured ratio of lactate to glucose (1.05), which on this engine's glucose burn makes several times the
+      lactate Pasitka measured per kilo. The $316 headline rests on it; check it against a measured balance per kilo.
+- [ ] **Exchange rates typed from memory** ($1.28 a pound, $1.13 a euro, `study_assumptions.py`): replace with sourced rates.
 - [x] **Meat displaced for each kilo sold** (done 2026-11-22, sixth batch): `meat_displaced_per_kg` (1, range 0.5-1) scales the
       animals spared, the entry points' tonnes displaced and the fall in conventional meat's sales behind its price; a lever in the
       side bar's shoppers section. No headline moves at 1.
@@ -93,11 +97,11 @@ Open pull requests (each says "no default changes" unless noted):
 - [x] **Three side analyses count the share of the meat sold** (done 2026-11-21, fourth batch): `uncertainty.py`, `sensitivity.py`
       and `adoption_timing.py` (and the page's timing curve) use x / (x + c), as the roll-up does.
 - [x] **Stale prose in two notes** (`market_size_loop.md`, `premium_buyers.md`): repinned on 2026-11-20.
-- [ ] **The all-favourable example's demand (58.6% of meat buyers) and the low-lactate example's range (3–52% of all choices)**: the low-lactate example's range almost excludes shoppers favouring cultivated meat
+- [ ] **The all-favourable example's demand (58.7% of meat buyers) and the low-lactate example's range (3–52% of all choices)**: the low-lactate example's range almost excludes shoppers favouring cultivated meat
       (under 1% of draws above 45%), while the all-favourable example now assumes it. Decide whether the low-lactate example's range should reach about 60%.
 - [x] **Conventional meat's price response**: modelled on 2026-11-20 (`meat_market.conv_exponent`); it takes 3.9 points off the
       all-favourable example's 22.6%.
-- [x] **Plant-based meat's own-price elasticity** passes since 2026-11-21 (fourth batch): -1.30 against -1.23 measured (the category
+- [x] **Plant-based meat's own-price elasticity** passes since 2026-11-21 (fourth batch): -1.30 then, -1.03 since the fifth batch (tolerance 0.25), against -1.23 measured (the category
       about -1.3). A spread of liking alone could not do it: in a logit a buyer's elasticity falls only as their own share of
       choices nears one, and 7% of households buying 82% gives them about 4%. The fix is a class of committed buyers (7% of
       shoppers, 82% of the mainstream's plant-based meat, a solved liking) whose response to its price is 0.25 times other
