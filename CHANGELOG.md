@@ -9,6 +9,20 @@ and the share where `answer_rests_on.py` finds it does). `AGENTS.md` runs: the a
 with real inputs and outputs; every input; the checks (the back-test, the five price checks and which miss, the study sets); dead
 ends and corrections, dated; open questions ranked by how far they move the share, each with the measurement that would settle it;
 how to extend. `tests/test_agents_edition.py` fails if a committed file differs from a fresh run. No model number moves.
+## 2026-11-24 (later): the all-favourable button, clearer limit bars, why larger tanks can cost more, more share lines
+
+- The all-favourable example is a main button beside Published cells, so the two ends of the range sit side by side.
+- Section 1's bars say that each is what one need or limit would ask on its own; the litres used are marked on every bar; a need
+  at zero says why (the least medium flow: Humbird counts none, and its lever sets it).
+- The vessel table says why a larger stirred tank can cost more: where clearing CO₂ limits the culture, a taller tank passes less
+  gas per litre, holds fewer cells a litre, and the fewer kilos per m³ outweigh its cheaper build. Equipment that strips CO₂
+  without bubbles removes the limit, and larger tanks then cost less.
+- The plant-against-running chart draws the totals that 1%, 5%, 10%, 25% and 50% long-run shares need, and lists them under it.
+- "What the cost is made of" draws the same five shares as lines through its bar.
+- Under the plant-against-running chart, a panel names one study and lists exactly what its set changes from it (every assumption
+  not kept, with the study's value, the set's and why), beside the study's own plant and running costs and the set's.
+- The side bar says the region changes only the shoppers, not the cost of growing cells.
+- "Products it could enter first, from foie gras to shrimp" moves from the closed shopper-model section into section 4 of the results.
 
 ## 2026-11-24: the page made clearer; other studies as starting points, audited; plant against running costs; checks under each result
 

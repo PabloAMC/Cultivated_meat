@@ -113,7 +113,27 @@ const ST_SPL={};                     // the sets' plant and running costs on thi
 function stSplitOf(list){ const r=tpPointFor(stState(list)).res; return {plant:r.capital, running:r.total-r.capital, total:r.total}; }
 function stSplits(){ if(!ST_SPL.__done){ ST_SPL.humbird_best=stSplitOf([]); ST_SETS.forEach(e=>{ ST_SPL[e.key]=stSplitOf([e]); }); ST_SPL.__done=true; } return ST_SPL; }
 let stPvrSel=null;
-function stPvrPick(k){ if(k==="humbird_best") tpLoad("humbird_best"); else stLoadSet(k); }
+function stPvrPick(k){ stPvrStudy=k; if(k==="humbird_best") tpLoad("humbird_best"); else stLoadSet(k); }
+/* ---------- how one study's set differs from the study (the owner, 2026-11-24: "explain exactly how our assumptions differ for
+   the concrete study we are analyzing"): its plant and running costs as it reports them and on this model, and every assumption
+   the set does not keep as the study has it (study_assumptions.audit_rows, every row but "Kept"). ---------- */
+let stPvrStudy=null;
+function stPvrSetStudy(k){ stPvrStudy=k; stPvrDiff(); }
+function stPvrDiff(){
+  const host=document.getElementById("st_pvr_diff"); if(!host||!ST_SETS.length) return;
+  const k=stPvrStudy||(SCS.set&&stSet(SCS.set)?SCS.set:"pasitka"), e=stSet(k)||ST_SETS[0], S=stSplits(), m=S[e.key], rep=ST.splits.find(x=>x.set===e.key);
+  const usd=v=>"$"+(v>=100?v.toFixed(0):v.toFixed(2));
+  const sel='<label class="small">Study: <select onchange="stPvrSetStudy(this.value)">'+ST_SETS.map(x=>'<option value="'+x.key+'"'+(x.key===e.key?' selected':'')+'>'+pgEsc(x.label)+'</option>').join("")+'</select></label>';
+  const nums=_table2(["","Plant","Running","In all","Counts"],[
+      ["As the study reports it"].concat(rep?[usd(rep.plant),usd(rep.running),usd(rep.plant+rep.running),pgEsc(rep.basis)]:["not published","","",""]),
+      ["Its set on this page's model",usd(m.plant),usd(m.running),usd(m.total),"a kilo of cells"]]);
+  const diff=e.audit_rows.filter(r=>r.why!=="Kept");
+  host.innerHTML='<div class="pvrdiff"><p class="limt">How the set differs from the study '+sel+'</p>'+nums+
+    (rep&&!rep.same?'<p class="small">The study\'s split is for a different case from the set\'s: '+pgEsc(rep.how)+'.</p>':'')+
+    '<p class="small">'+diff.length+' of its '+e.audit_rows.length+' listed assumptions are not kept as the study has them; the other '+(e.audit_rows.length-diff.length)+' are. Anything not listed is Humbird\'s best estimate.</p>'+
+    _table2(["Assumption","The study","The set","Why"],diff.map(r=>[pgEsc(r.item),pgEsc(r.study),pgEsc(r.used),'<b>'+pgEsc(r.why)+'</b>']))+
+    '<p class="small"><a href="#" onclick="stLoadSet(\''+e.key+'\');return false">Load this set</a> to see it on the rest of the page; the side bar then lists every assumption, the kept ones too.</p></div>'; }
+function _table2(head,rows){ return '<div class="scrollx"><table class="sctab vt"><thead><tr>'+head.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join("")+'</tr>').join("")+'</tbody></table></div>'; }
 function stPvrHover(i){ stPvrSel=i; const e=document.getElementById("st_pvr_read"); if(e&&STPVR[i]) e.innerHTML=STPVR[i].say; }
 let STPVR=[];
 function stPvrDraw(f){
@@ -139,13 +159,20 @@ function stPvrDraw(f){
       if(xp>=tot||yp<y0) continue; d+=(first?"M":"L")+lx(xp).toFixed(1)+","+ly(yp).toFixed(1); first=false; }
     if(!d) return ""; const lxp=Math.max(x0*1.08,Math.min(tot*(at||0.03),x1)), lyp=tot-lxp;
     return '<path d="'+d+'" fill="none" '+style+'/>'+(lab&&lyp>y0&&lyp<y1?'<text x="'+(lx(lxp)+3)+'" y="'+(ly(lyp)-4)+'" font-size="'+(fs-1)+'" fill="'+(at?'#D85A30':'var(--muted)')+'">'+lab+'</text>':''); };
-  const near1=t=>f.one!==null&&Math.abs(Math.log(t/f.one))<0.35;          // the 1% line's label takes the place of a curve's near it
-  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',near1(t)?"":"$"+t+" in all"); });
-  if(f.one!==null&&f.one>x0+y0) g+=iso(f.one,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',"1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one)+" in all",0.031);
+  // the totals that long-run shares of all meat need at the reader's shopper setting (the owner, 2026-11-24: "Can we also
+  // report the 5%, 10%, 25% and 50%?"); a share no cost reaches, or one needing a total below the chart, is listed under it
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), drawn=SH.filter(o=>o.t!==null&&o.t>x0+y0);
+  const nearShare=t=>drawn.some(o=>Math.abs(Math.log(t/o.t))<0.35);      // a share line's label takes the place of a grey curve's near it
+  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',nearShare(t)?"":"$"+t+" in all"); });
+  drawn.forEach(o=>{ g+=iso(o.t,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',o.p+"%: "+tpUSDk(o.t)+" in all",0.031); });
+  const sl=document.getElementById("st_pvr_shares");
+  if(sl) sl.innerHTML="<b>The total a long-run share of "+pgEsc(tpRegionMeat())+" needs</b>, with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price (the dashed lines): "+
+    SH.map(o=>o.p+"%, "+(o.t===null?"not reached at any cost down to $0.50":tpUSDk(o.t)+" a kilo of cells"+(o.t<=x0+y0?" (below the chart)":""))).join("; ")+
+    ". Move the shoppers' setting in the side bar and they move.";
   // the points: each study as it reports it (hollow) and its set on this page's model (filled), joined
   STPVR=[]; let pts="", labs=[], allDots=[];
   const add=(p,kind,label,say,click)=>{ const i=STPVR.length; STPVR.push({say:say}); const x=lx(p.plant), y=ly(p.running), off=p.plant>x1||p.running>y1; allDots.push({x:x-7,y:y-7,w:14,h:14});
-    const ev=' onmouseenter="stPvrHover('+i+')" onfocus="stPvrHover('+i+')"'+(click?' onclick="stPvrPick(\''+click+'\')" style="cursor:pointer"':'')+' tabindex="0"';
+    const ev=' onmouseenter="stPvrHover('+i+')" onfocus="stPvrHover('+i+')"'+(click?' onclick="'+(kind==="rep"?"stPvrSetStudy":"stPvrPick")+'(\''+click+'\')" style="cursor:pointer"':'')+' tabindex="0"';
     if(kind==="rep") pts+='<circle cx="'+x+'" cy="'+y+'" r="5.5" fill="var(--card)" stroke="var(--ink2)" stroke-width="1.8"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></circle>';
     else if(kind==="set") pts+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="var(--accent)"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></circle>';
     else if(kind==="af") pts+='<path d="M'+x+','+(y-8)+'L'+(x+8)+','+y+'L'+x+','+(y+8)+'L'+(x-8)+','+y+'Z" fill="var(--ink)"'+ev+'><title>'+pgEsc(say.replace(/<[^>]+>/g,""))+'</title></path>';
@@ -156,7 +183,7 @@ function stPvrDraw(f){
   const done={};
   ST.splits.forEach(s=>{ const m=s.set?S[s.set]:null;
     if(m){ g+='<line x1="'+lx(s.plant)+'" y1="'+ly(s.running)+'" x2="'+lx(m.plant)+'" y2="'+ly(m.running)+'" stroke="var(--ink2)" stroke-width="1" stroke-dasharray="2 3" opacity="0.8"/>'; }
-    add(s,"rep",m?null:s.label.replace(" Ltd 2024"," 2024"),"<b>"+pgEsc(s.label)+", as the study reports it</b> ("+pgEsc(s.basis)+", 2025 dollars): plant "+usd(s.plant)+", running "+usd(s.running)+", "+usd(s.plant+s.running)+" in all. "+pgEsc(s.how.charAt(0).toUpperCase()+s.how.slice(1))+"."+(m?" The filled point joined to it is its starting set on this page's model.":""),null); });
+    add(s,"rep",m?null:s.label.replace(" Ltd 2024"," 2024"),"<b>"+pgEsc(s.label)+", as the study reports it</b> ("+pgEsc(s.basis)+", 2025 dollars): plant "+usd(s.plant)+", running "+usd(s.running)+", "+usd(s.plant+s.running)+" in all. "+pgEsc(s.how.charAt(0).toUpperCase()+s.how.slice(1))+"."+(m?" The filled point joined to it is its starting set on this page's model. Click to compare the two below.":""),m&&s.set!=="humbird_best"?s.set:null); });
   Object.keys(S).filter(k=>k!=="__done").forEach(k=>{ const m=S[k], rep=ST.splits.find(s=>s.set===k);
     add(m,"set",setLab[k],"<b>"+pgEsc(setName[k])+", on this page's model</b>: plant "+usd(m.plant)+", running "+usd(m.running)+", "+usd(m.total)+" a kilo of cells."+
       (rep?" The study's own figures ("+usd(rep.plant+rep.running)+") are the hollow point joined to it"+(rep.same?"":"; they are for a different case, as the note under the buttons explains")+".":" The study publishes no split.")+" Click to load it.",k); });
@@ -175,6 +202,7 @@ function stPvrDraw(f){
   svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H); svg.innerHTML=g;
   const rd=document.getElementById("st_pvr_read"); if(rd&&(stPvrSel===null||!STPVR[stPvrSel])) rd.innerHTML="Point at a dot for its figures and where they come from; click a filled dot to load that set.";
   else if(rd) rd.innerHTML=STPVR[stPvrSel].say;
+  stPvrDiff();
   const alt=document.getElementById("st_pvr_alt"); if(alt) alt.textContent="Plant against running costs of a kilo of cells. As each study reports it: "+ST.splits.map(s=>s.label+" "+usd(s.plant)+" and "+usd(s.running)).join("; ")+
     ". On this page's model: "+Object.keys(S).filter(k=>k!=="__done").map(k=>setLab[k]+" "+usd(S[k].plant)+" and "+usd(S[k].running)).join("; ")+". All-favourable example "+usd(af.plant)+" and "+usd(af.running)+"; your settings "+usd(me.plant)+" and "+usd(me.running)+". Running costs cannot fall below $"+fl.toFixed(2)+".";
 }
