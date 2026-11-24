@@ -294,7 +294,7 @@ def check() -> list:
         sp, jp = SA.split(e["settings"]), js["set_splits"].get(e["key"], {})
         if any(k not in jp or rel(jp[k], sp[k]) > TOL for k in ("plant", "running")):
             fails.append(f"set {e['key']}: the plot's plant and running costs are not Python's: page {jp}, python {sp}")
-    for w in ('id="st_pvr"', "function stPvrDraw"):
+    for w in ('id="st_pvr"', "function stPvrDraw", 'id="st_pvr_diff"', "function stPvrDiff"):
         if w not in html:
             fails.append(f"the page has no plot of plant against running costs: '{w}'")
     if [x[0] for x in js["set_names"]] != [e["key"] for e in SA.sets()]:

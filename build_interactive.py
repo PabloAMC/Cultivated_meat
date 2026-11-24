@@ -2360,9 +2360,10 @@ details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 .limgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:14px 0 8px;}
 .limt{font-size:.88rem;font-weight:700;margin:0 0 6px;}
 .lim{display:grid;grid-template-columns:minmax(110px,32%) minmax(40px,1fr) minmax(0,auto);gap:6px 10px;align-items:center;font-size:.84rem;color:var(--ink2);}
-.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;} .lim .bar i{display:block;height:100%;background:var(--axis);}
+.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;position:relative;} .lim .bar .mk{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--accent);margin-left:-1px;} .lim .bar i{display:block;height:100%;background:var(--axis);}
 .lim .bar.on i{background:var(--accent);} .lim .on{color:var(--ink);font-weight:700;} .lim .lv{white-space:nowrap;font-variant-numeric:tabular-nums;}
 .lim .lt{font-weight:400;color:var(--accent);}
+.pvrdiff{margin-top:10px;} .pvrdiff select{font-size:.85rem;margin-left:6px;}
 details.verify{margin:10px 0 0;border-top:1px dashed var(--rule);padding-top:6px;font-size:.86rem;}
 details.verify>summary{cursor:pointer;color:var(--accent);font-size:.84rem;list-style:none;} details.verify>summary::-webkit-details-marker{display:none;}
 details.verify>summary:before{content:"\25B8  ";} details.verify[open]>summary:before{content:"\25BE  ";}
@@ -2443,6 +2444,7 @@ details.why{font-size:.78rem;color:var(--ink2);margin-top:2px;} details.why>summ
 <div class="refbar"><span class="rl">Start from a published set of assumptions:</span>
 <div class="refrow"><div class="refbtns" id="tp_refs" role="group" aria-label="Starting points"></div>
 <label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<p class="small" id="regionnote">The region changes only the shoppers: their incomes, the meat they eat, its prices and the laws. It does not change the cost of growing cells: this model prices one plant for every region.</p>
 <p class="small" id="tp_setsnote">A button that names another study puts that study's assumptions on Humbird's design, where the page has a
 lever for them. A set may be as optimistic as its study, but it has to be possible: where an assumption breaks a rule of this
 model (a plant repaid with no interest, or cells fed less than they hold and burn), the set uses a corrected value and the note below says so. The cost is then this page's model with those assumptions, not the study's own figure.</p>
@@ -2566,19 +2568,20 @@ Click a row to choose it.</p>
 <h3 id="st_pvr_title">Plant cost against running cost, a kilo of cells: published studies and this page's model <span class="tag res">result</span></h3>
 <p class="sub">Costs of production, before the cells reach a shop, in 2025 dollars. Across: the plant's yearly payment with interest,
 maintenance and insurance. Up: everything else (medium, growth factors, filters, supplies, labour, energy). Points on one grey curve
-cost the same in all.</p>
+cost the same in all. Most sets sit to the right of and below their study's own point: the long-term cells and medium cut the
+running costs, while this model charges interest on the plant and works out the kilos each m³ of tank makes, which raises the
+plant's part. Plant against running is the split the studies report, so it is the one they can be compared on; what scales with the
+litres of medium against what scales with time in the tank is in "What the cost is made of" above.</p>
 <div class="legend"><span class="li"><span class="dt" style="background:var(--card);border:2px solid var(--ink2)"></span>as the study reports it</span>
 <span class="li"><span class="dt" style="background:var(--accent)"></span>its starting set on this page's model (click to load)</span>
 <span class="li"><span class="dt" style="background:var(--ink);border-radius:0;transform:rotate(45deg)"></span>all-favourable example</span>
 <span class="li"><span class="dt me"></span>your settings</span>
-<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1% share needs</span>
+<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1%, 5%, 10%, 25% or 50% share needs</span>
 <span class="li"><span class="sw hatchd"></span>less running cost than the cells eat</span></div>
 <div class="plot" id="st_pvr_plot"><svg id="st_pvr" role="img" aria-labelledby="st_pvr_title" aria-describedby="st_pvr_alt"></svg></div>
 <p class="hover" id="st_pvr_read" aria-live="polite"></p>
-<p class="small">A study's own figure and this page's figure for its set differ for three reasons: the set uses the long-term
-targets where the study used one lab run or today's ingredients, the set corrects what is not possible (a plant repaid with no
-interest), and this page's engine works out the litres, density and plant for itself. The note under the side bar's buttons says
-which, set by set. Studies count different products (a kilo of cells, of meat, of a product partly plant): each point's note says which.</p>
+<p class="small" id="st_pvr_shares" aria-live="polite"></p>
+<div id="st_pvr_diff" aria-live="polite"></div>
 <!--VERIFY:plant_running-->
 <p class="sr" id="st_pvr_alt"></p>
 </div>
@@ -2622,6 +2625,14 @@ which, set by set. Studies count different products (a kilo of cells, of meat, o
 <p class="sr" id="tp_animals_alt"></p>
 <!--VERIFY:meats-->
 </div>
+
+<div class="chart" id="tp_footcard"><h3>Products it could enter first, from foie gras to shrimp <span class="tag res">result</span></h3>
+<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. In the cost view, a bar runs from each product's price to cultivated meat's cost, so a bar that runs down means cultivated meat costs less. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat already costs less than some luxury products, but those markets are small. It costs more than
+commodity meat, which is most of the volume.</p>
+<div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
+<p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
+<div class="scrollx"><svg id="foothold" class="w720" viewBox="0 0 720 380" role="img" aria-label="Products cultivated meat could enter first, by price and size of market"></svg></div>
+<div id="footcap" class="small" style="margin-top:6px"></div></div>
 
 <div class="callout" id="sharedef"><b>What &ldquo;share&rdquo; means on this page.</b> The share of all meat and seafood sold, by weight, in the long run:
 once cultivated meat is on every shelf and no longer feels new. Seafood is {{SEAFOOD_PCT}}% of that total in the model's world market.
@@ -2834,13 +2845,7 @@ like a cultivated cut or premium product than cultivated mince (&tau;).</p></div
 <p class="sub" id="cmpsub" data-help="The model was not fitted to plant-based milk. It predicts about 15%, close to milk's market share. That is a weak test, because the milk facts are set by hand. Margarine and plant-based nuggets fit less well. The model was fitted to plant-based meat, so plant-based meat is not a test. Eggs test a different lever (animal welfare), and laws largely set their share.">The same shopper model, with only the product's facts changed.</p>
 <p class="small"><label for="cmpSel">Product</label> <select id="cmpSel" style="width:auto"></select></p>
 <div class="scrollx"><svg id="milk" class="w720" viewBox="0 0 720 320" role="img" aria-label="The model's share for another product beside its observed share"></svg></div></div>
-<div class="chart"><h3>Products it could enter first</h3>
-<p class="sub" data-help="The chart compares each product with the price of its ordinary grade. It does not use the luxury price paid for wild-caught, top-grade or protected-origin products, because cultivated meat cannot copy those. In the cost view, a bar runs from each product's price to cultivated meat's cost, so a bar that runs down means cultivated meat costs less. Bubble size is the conventional production that cultivated meat would displace if sold at cost. The cost view draws cultivated meat's cost as a line. Hover over a bubble for details.">Cultivated meat already costs less than some luxury products, but those markets are small. It costs more than
-commodity meat, which is most of the volume.</p>
-<div class="toggle" style="margin:0 0 6px;display:inline-block"><button id="footWL">cost against each product's price</button><button id="footMV" class="on">share against price</button></div>
-<p class="small"><label for="footSel">Product</label> <select id="footSel" style="width:auto"></select></p>
-<div class="scrollx"><svg id="foothold" class="w720" viewBox="0 0 720 380" role="img" aria-label="Products cultivated meat could enter first, by price and size of market"></svg></div>
-<div id="footcap" class="small" style="margin-top:6px"></div></div>
+<p class="small">The chart of the products it could enter first, from foie gras to shrimp, is in section 4 of the results on the first screen.</p>
 </div></details>
 
 <details class="level methods" id="method">
