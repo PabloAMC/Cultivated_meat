@@ -1047,7 +1047,7 @@ def bands(choice: dict | None, n: int = BAND_N, eqs: str = "equal_price_share", 
 # What it would take (2026-11-19): the cost of cells a share needs, and trait sets that reach it, deterministic, no odds
 # ----------------------------------------------------------------------------
 WIT_TARGETS = (1.0, 10.0)                 # long-run share of world meat and seafood, %
-WIT_BUYERS = (None, 0.50)                 # share of meat buyers who pick cultivated meat at equal price: the model's own, and 50%
+WIT_BUYERS = (None, 0.145)                # share of meat buyers who pick cultivated meat at equal price: the model's own (50% since 2026-11-24), and 14.5% (the model's earlier default)
 _EQ_ALL: dict = {}
 _DP_V: dict = {}
 
@@ -1076,7 +1076,7 @@ def meat_buyers_at_equal_price(eq_all: float | None = None) -> float:
 
 def world_share(cost: float, buyers: float | None = None) -> float:
     """Long-run share of world meat and seafood, %, at `cost` $/kg of cells, with `buyers` of meat buyers picking it at equal price
-    (None: the model's own 14.5%)."""
+    (None: the model's own, 50%)."""
     import meat_market as mm
     if buyers is None:
         return shares(cost)["global"]

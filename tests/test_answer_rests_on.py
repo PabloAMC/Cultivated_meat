@@ -110,7 +110,7 @@ def check() -> list:
             fails.append(f"{k} should be a demand input the scan moves and the bands draw")
     # 2026-11-20 final model: the all-favourable example is now $7.62 (was $18.71) and its share 5.4% (was 1.1%), so ten
     # demand inputs move its share by 2 points or more again: 2 -> 10 rows.
-    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 14:   # 14 since 2026-11-22
+    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 20:   # 14 since 2026-11-22; 20 since 2026-11-24 (the default of 50% of meat buyers)
         fails.append(f"the demand rows have changed: {[r['key'] for r in s['demand_rows']]}")
     # taste (accept_x) left the bands on 2026-11-20: it was drawn on top of the share at equal price, which already nets it
     if "accept_x" in I.MC_DEMAND_INPUTS or A._band("accept_x") == "yes" or "accept_x" not in A.demand_inputs():
@@ -119,6 +119,8 @@ def check() -> list:
         fails.append("the share at equal price is no longer the largest demand driver at the all-favourable example's cost")
     # the spread of liking (second round): both of its inputs are scanned, named, sourced and marked as not drawn; across
     # their fitted ranges neither moves the share enough to be a row (0.2 points at the low-lactate example's cost, 2 at the all-favourable example's)
+    # 2026-11-24 (the default of 50% of meat buyers at equal price): liking_sd now moves the low-lactate example by 0.3 points and
+    # the all-favourable example by 1.9, so it is a demand row and RESULTS.md says so; liking_tail is still too small to be one
     for k in ("liking_sd", "liking_tail"):
         if k not in A.demand_inputs():
             fails.append(f"{k} is not among the demand inputs the scan moves")
@@ -127,10 +129,11 @@ def check() -> list:
         v = I.REGISTRY[k]
         c = [A.share_at(s["central"], **{k: e}) for e in (v.lo, v.hi)]
         b = [A.share_at(s["best"], **{k: e}) for e in (v.lo, v.hi)]
-        if abs(c[1] - c[0]) >= A.SHARE_MIN[0] or abs(b[1] - b[0]) >= A.SHARE_MIN[1]:
-            fails.append(f"{k} now moves the share enough to be a row; the summary should say so")
-        if k in dr:
-            fails.append(f"{k} is a demand row; check its line reads correctly")
+        is_row = abs(c[1] - c[0]) >= A.SHARE_MIN[0] or abs(b[1] - b[0]) >= A.SHARE_MIN[1]
+        if is_row != (k == "liking_sd"):
+            fails.append(f"{k} now stands differently against the row thresholds; the summary should say so")
+        if (k in dr) != (k == "liking_sd"):
+            fails.append(f"{k}: is a demand row or not, against what RESULTS.md says; check its line reads correctly")
     # 2026-11-22 (fifth batch): refitted with the price-insensitive shoppers, 3.9 and 4 -> 3.55 and 7
     if abs(I.REGISTRY["liking_sd"].value - 3.55) > 1e-9 or abs(I.REGISTRY["liking_tail"].value - 7.0) > 1e-9:
         fails.append("the liking spread is no longer sd 3.55 with 7 degrees of freedom; repin the shares")
@@ -141,7 +144,8 @@ def check() -> list:
     # 2026-11-21 (fourth batch): 0.0496 -> 0.0455 and 6.0674 -> 5.5816 (plant-based meat's committed buyers raise the ordinary
     # shoppers' real-meat weight, and with it the blend penalty on cuts; research_notes/demand_checks.md section 5)
     # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0455 -> 0.2588 and 5.5816 -> 5.4798
-    for name, got, want in (("the low-lactate example's share", s["central_share"], 0.2588), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 5.4798)):
+    # 2026-11-24 (the default of 50% of meat buyers at equal price): 0.2588 -> 1.4285 and 5.4798 -> 20.5191
+    for name, got, want in (("the low-lactate example's share", s["central_share"], 1.4285), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 20.5191)):
         # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         # 2026-11-20 model batch: 0.2102 -> 0.0456 and 3.1617 -> 1.1345 (the costs rose from $32.80 to $49.96 and $11.67 to $18.71)
         if abs(got - want) > 2e-3:
@@ -183,7 +187,7 @@ def check() -> list:
     pins = [("inputs", s["inputs"], 615), ("with a range", s["ranged"], 285),      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
             ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
-            ("demand rows", len(s["demand_rows"]), 14)]   # 2026-11-19: 9 -> 8 with the share of the meat sold
+            ("demand rows", len(s["demand_rows"]), 20)]   # 2026-11-19: 9 -> 8 with the share of the meat sold; 2026-11-24: 14 -> 20 (the default of 50% of meat buyers)
     for name, got, want in pins:
         if got != want:
             fails.append(f"{name}: {got} != pinned {want}")
@@ -213,8 +217,9 @@ def check() -> list:
     # 2026-11-21: 0.0220-0.3278 -> 0.0234-0.3429; 1.4718-19.7075 -> 1.6331-21.6175 (the costs above)
     # 2026-11-21 (fourth batch): 0.0234-0.3429 -> 0.0216-0.3103; 1.6331-21.6175 -> 1.5030-20.4019 (the blend penalty above)
     # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0216-0.3103 -> 0.0559-1.5650; 1.5030-20.4019 -> 1.3387-21.8664
-    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0559, 1.5650)),
-                            ("the all-favourable example's share span", s["best_share_span"], (1.3387, 21.8664))):
+    # 2026-11-24 (the default of 50% of meat buyers): 0.0559-1.5650 -> 0.0926-4.2743; 1.3387-21.8664 -> 2.1784-42.8717
+    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0926, 4.2743)),
+                            ("the all-favourable example's share span", s["best_share_span"], (2.1784, 42.8717))):
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 

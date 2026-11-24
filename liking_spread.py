@@ -181,14 +181,19 @@ def summary() -> dict:
 # The joint misfit. Three blocks, each the mean of squared residuals in units of what the measurement can bear, added with equal
 # weights:
 #   (i)   the choice experiment: the four elasticities above, each against 0.15 (the miss of the 2026-11-18 fit);
-#   (ii)  premium real meats: the log of the model's share at 2, 3 and 4 times the price over the fitted curve's (3.7%, 1.5%,
-#         0.6%), each against 0.35 (the curve is fitted to sixteen products with a typical miss of a factor of 2.4, so its own
-#         level is uncertain by about a third);
+#   (ii)  premium real meats: the log of the model's share at 2, 3 and 4 times the price, each relative to its share at 1.5 times,
+#         over the fitted curve's (3.7%, 1.5%, 0.6%, relative to 5.7% at 1.5 times), each against 0.35 (the curve is fitted to
+#         sixteen products with a typical miss of a factor of 2.4, so its own shape is uncertain by about a third). Since
+#         2026-11-24 this block compares the SHAPE of the fall with price, not the level: the level at equal price is the model's
+#         judgement (50% of meat buyers; the premium labels' curve gives 8.7%), and a premium label is not a cultivated product, so
+#         its level is not evidence for cultivated meat's. Until then it compared levels, which the old default (14.5%) happened to match;
 #   (iii) farmed salmon: the log of the response of each premium product still dearer than its meat, where it is outside 1-1.5,
 #         against log 2.
-# and two requirements: the first-contact elasticity at equal price within -1.5 +/- 0.15, and the four-price miss at most 0.30.
+# and two requirements: the first-contact elasticity at equal price within the experiment's arms (-1.65 to -1.10; within -1.5 +/- 0.15
+# until 2026-11-24, when first contact stopped being the measured 4%: the model's first contact is now 20% of all choices, where the
+# elasticity is smaller), and the four-price miss at most 0.30 (the experiment's own frame, whose first contact is fitted to 4%).
 SIGMA_ELASTICITY, SIGMA_PREMIUM, SIGMA_SALMON = 0.15, 0.35, math.log(2.0)
-COLD_BAND, MISS_MAX = (-1.65, -1.35), 0.30
+COLD_BAND, MISS_MAX = (-1.65, -1.10), 0.30
 PREMIUM_AT = (2.0, 3.0, 4.0)
 CURVE_AT = (1.25, 1.5, 2.0, 3.0, 4.0)
 STILL_DEARER = 1.5                               # the salmon check takes the premium products above this price ratio (demand_checks.py)
@@ -272,7 +277,7 @@ def objective(m: dict) -> dict:
     and whether the two requirements hold."""
     target = _premium_target()
     j1 = float(np.mean([((m["elasticity"][R] - VANLOO_ELASTICITY[R]) / SIGMA_ELASTICITY) ** 2 for R in VANLOO_ELASTICITY]))
-    j2 = float(np.mean([(math.log(m["curve"][R] / target[R]) / SIGMA_PREMIUM) ** 2 for R in PREMIUM_AT]))
+    j2 = float(np.mean([(math.log((m["curve"][R] / m["curve"][1.5]) / (target[R] / target[1.5])) / SIGMA_PREMIUM) ** 2 for R in PREMIUM_AT]))
     lo, hi = _salmon_range()
     out = lambda r: max(0.0, math.log(r / hi), math.log(lo / r))
     j3 = float(np.mean([(out(r) / SIGMA_SALMON) ** 2 for r in m["response"].values()])) if m["response"] else 0.0

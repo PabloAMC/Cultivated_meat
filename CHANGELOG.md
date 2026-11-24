@@ -1,5 +1,26 @@
 # Change log
 
+## 2026-11-24 (night): the share at equal price defaults to 50% of meat buyers
+
+- `equal_price_share` is 46.4% of all choices, 50% of meat buyers (was 13%, 14.5%): no good data say which side of an even split
+  cultivated meat would land on once familiar, so the model starts neutral. The bands draw it from a triangle 5%–46.4%–80% of all
+  choices (was a lognormal with median 13%). The all-favourable example keeps its own 55%. Costs do not move.
+- Shares: the low-lactate example 0.26% → 1.43% of world meat (middle draw 1.2%, 8 in 10 0.3–2.9%); the all-favourable example's
+  cells with the ordinary demand 5.5% → 20.5%; with its own demand 25.1%, unchanged. Solved with cost falling as the market grows:
+  the low-lactate example rests at $22.29 and 4.15% (was $23.52 and 0.79%), the all-favourable example's cells at $6.25 and 22.59%.
+  The commodity Monte Carlo's median share 0.3% → 3.5%.
+- Kept: the spread of liking (3.55 utils, tail 7), the price-insensitive shoppers and the novelty penalty (2.8 utils). So first
+  contact is now 20% of all choices against the experiment's 4%, and its elasticity −1.17 against about −1.5.
+- Checks changed to fit the new default (`liking_spread.py`): the first-contact requirement is the experiment's range across arms,
+  −1.10 to −1.65 (was −1.5 ± 0.15); the premium-meat block of the joint misfit compares the shape of the fall with price relative
+  to 1.5 times meat's price, not its level (with the level compared the fit fails: 6.2% at three times the price against 1.5%).
+  `tests/run_parity.py`: the page's Monte Carlo medians may differ from Python's by the larger of 0.4 points and 25% of Python's
+  median (the two use different random generators, and the gap grew in proportion with the medians).
+- `scenarios.WIT_BUYERS` compares the model's own demand with the earlier 14.5%, not with 50%.
+- RESULTS.md, METHODS.md and the research notes (`liking_spread.md`, `market_size_loop.md`, `demand_checks.md`, `premium_curve.md`,
+  `premium_buyers.md`, `cost_scenarios.md`, `retail_markup_form.md`) are rewritten with the new figures, the earlier ones kept
+  beside them where useful.
+
 ## 2026-11-24: an edition for AI agents (AGENTS.md, llms.txt, inputs.json)
 
 `agents_edition.py` writes, from the live model, a plain-markdown edition for AI agents that want to understand the model, check

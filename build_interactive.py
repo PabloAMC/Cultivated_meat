@@ -1095,7 +1095,7 @@ LEVER_REFS = {
     "ph": [(7.0, "a common setpoint"), (value("pf_ph"), "this model")],
     "capex_x": [(0.34, "two published designs"), (1, "this model, from Humbird's plant"), (1.5, "high end")],
     "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported"), (0.63, "Pasitka 2024"), (1.4, "Negulescu 2023")],
-    "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model: novelty faded"), (30, "stated intent in UK and US surveys"), (50, "no preference")],
+    "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model until 2026-11-24"), (30, "stated intent in UK and US surveys"), (50, "no preference: this model's default")],
     "cut": [(20, "this model"), (80, "products on sale are 70 to 97% plant")],
     # kilos of conventional meat not bought for each kilo sold (meat_displaced_per_kg, 2026-11-22, sixth batch)
     "displaced": [(0.0, "plant-based meat: no measurable fall in meat orders, Winslow 2026 (restaurants) and Hope 2026 (a menu experiment)"),

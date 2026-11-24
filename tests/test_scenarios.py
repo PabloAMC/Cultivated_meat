@@ -255,7 +255,7 @@ w = S.what_it_would_take()
 need = {(round(r["buyers"], 3), r["target"]): r["need"] for r in w}
 lo_b = min(b_ for b_, _t in need)
 check(need[(lo_b, 1.0)] > (need[(lo_b, 10.0)] or 0.0) and need[(0.5, 1.0)] > need[(lo_b, 1.0)], f"what it would take: {need}")
-check(abs(S.meat_buyers_at_equal_price() - 0.145) < 0.002, "the model's 13% of all choices is 14.5% of meat buyers")
+check(abs(S.meat_buyers_at_equal_price() - 0.50) < 0.002, "the model's 46.4% of all choices is 50% of meat buyers (13%, 14.5% of meat buyers, until 2026-11-24)")
 check(abs(S.world_share(S.run(S.SCENARIOS["central"].choice)["total"], None) - S.shares(S.run(S.SCENARIOS["central"].choice)["total"])["global"]) < 1e-12,
       "world_share at the model's own liking is shares()")
 for r in w:

@@ -27,12 +27,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.268263,
-     0.249837
+     1.472877,
+     1.386094
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     6.658048,
-     4.534139
+     23.845243,
+     17.663487
     ]
    }
   },
@@ -51,12 +51,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.338972,
-     0.18875
+     1.798483,
+     1.087691
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     7.408418,
-     3.757497
+     25.821357,
+     15.200585
     ]
    }
   },
@@ -72,6 +72,16 @@
     "lo": 10.0,
     "mode": 12.0,
     "hi": 14.0
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.707265,
+     1.26159
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     21.807443,
+     19.692182
+    ]
    }
   },
   {
@@ -157,8 +167,8 @@
      9.9514
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.258819,
-     0.237185
+     1.42852,
+     1.325707
     ]
    }
   },
@@ -185,8 +195,8 @@
      8.33
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.258819,
-     0.249294
+     1.42852,
+     1.383481
     ]
    }
   },
@@ -267,8 +277,8 @@
      7.6512
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.285642,
-     0.229691
+     1.553765,
+     1.289623
     ]
    }
   },
@@ -460,8 +470,8 @@
      7.0615
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.2689,
-     0.254571
+     1.475851,
+     1.408475
     ]
    }
   },
@@ -1031,8 +1041,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.196541,
-     0.258819
+     1.126602,
+     1.42852
     ]
    }
   },
@@ -1100,8 +1110,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.258819,
-     0.217063
+     1.42852,
+     1.228207
     ]
    }
   },
@@ -1284,8 +1294,8 @@
      8.0592
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.268414,
-     0.232667
+     1.473581,
+     1.303984
     ]
    }
   },
@@ -1312,8 +1322,8 @@
      8.665
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.275091,
-     0.219618
+     1.50476,
+     1.240699
     ]
    }
   },
@@ -1586,8 +1596,8 @@
      7.0448
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.244472,
-     0.254114
+     1.360549,
+     1.406315
     ]
    }
   },
@@ -2092,8 +2102,8 @@
      8.7006
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.284432,
-     0.190903
+     1.548161,
+     1.098248
     ]
    }
   },
@@ -2206,8 +2216,8 @@
      7.8951
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.266745,
-     0.23572
+     1.465765,
+     1.318673
     ]
    }
   },
@@ -2270,8 +2280,8 @@
      7.3832
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.258819,
-     0.240019
+     1.42852,
+     1.339284
     ]
    }
   },
@@ -3432,8 +3442,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.296164,
-     0.106076
+     1.602342,
+     0.643893
     ]
    }
   },
@@ -3488,8 +3498,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.258819,
-     0.158923
+     1.42852,
+     0.933431
     ]
    }
   },
@@ -3544,8 +3554,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.247647,
-     0.264836
+     1.375659,
+     1.456813
     ]
    }
   },
@@ -3861,8 +3871,8 @@
      6.892
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.084784,
-     0.302324
+     0.520451,
+     1.630664
     ]
    }
   },
@@ -3889,8 +3899,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.138987,
-     0.258819
+     0.826889,
+     1.42852
     ]
    }
   },
@@ -4662,8 +4672,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.317142,
-     0.258819
+     1.698503,
+     1.42852
     ]
    }
   },
@@ -4690,8 +4700,8 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.089581,
-     0.402928
+     0.548613,
+     2.086394
     ]
    }
   },
@@ -5660,12 +5670,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.151949,
-     0.493028
+     0.895245,
+     2.467585
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.619601,
-     6.584975
+     17.208132,
+     26.746223
     ]
    }
   },
@@ -5690,6 +5700,16 @@
     "lo": 3.3,
     "mode": 3.55,
     "hi": 3.9
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.319077,
+     1.579355
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     19.747035,
+     21.570851
+    ]
    }
   },
   {
@@ -5708,29 +5728,25 @@
   },
   {
    "name": "equal_price_share",
-   "value": 0.13,
+   "value": 0.464,
    "unit": "of all choices",
-   "source": "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free credit); 14.5% of those who buy a meat. It is first contact plus the model's own fading of novelty (2.8 utils). With the Student's t spread and the price-insensitive shoppers (2026-11-22), 13% in the long run implies 3.8% of all choices at first contact, 4.3% of those who buy a meat: the experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
-   "note": "THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the draws are below the point value and half above. 0.03 and 0.49 are its 5th and 95th percentiles in the sense that they set its spread (sigma = ln(0.49/0.03) / 3.29 = 0.85); because 13% is a little above their geometric mean (12%), the percentiles of the draws themselves are 3.2% and 53% (10th and 90th: 4.4% and 39%). Draws are clipped to 0.5%-80%. 0.49: shoppers end up indifferent on average, the model's implicit premise before 2026-11-18. The literature review (research_notes/what_drives_choice.md) puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%. CHANGED 2026-11-19 (audit D1) from a triangular 0.05-0.13-0.49, whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t (2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat buyers; its share of all choices is 4%, and 13% reproduces both.",
+   "source": "[judgement, research_notes/liking_spread.md] once cultivated meat is familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free credit). The default is 46.4%, which is 50% of those who buy a meat: no data says which side of an even split cultivated meat would land on, so the model starts neutral. Since 2026-11-24 this is the starting value. Until then it was 13% (14.5% of those who buy a meat), which is first contact plus the model's own fading of novelty (2.8 utils). With the Student's t spread and the price-insensitive shoppers (2026-11-22), 13% in the long run implied 3.8% of all choices at first contact, 4.3% of those who buy a meat: the experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
+   "note": "THE MODEL'S LARGEST UNKNOWN. CHANGED 2026-11-24 (the owner) from 13% (14.5% of buyers) to 46.4% (50% of buyers), because no good data exists for the long run and an even split is the neutral start. The draws in the bands were a lognormal with median 13% and a 5th-95th range of 3%-49%; a lognormal around 46.4% would pile up at the 80% clip, so the draws are now triangular from 5% (5.6% of buyers) through 46.4% to 80% (83% of buyers). The low end keeps the measured first-contact shares (4-5%) and the 11% of Slade 2018 inside the band. The literature review (research_notes/what_drives_choice.md) puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%: it is the evidence for the earlier, lower default. 0.80 is the largest value the shopper model solves for. Before 2026-11-19 the draws were a triangular 0.05-0.13-0.49.",
    "evidence_class": "judgement",
    "range": {
-    "kind": "lognormal",
-    "lo": 0.03,
-    "mode": 0.13,
-    "hi": 0.49,
-    "clip": [
-     0.005,
-     0.8
-    ]
+    "kind": "triangular",
+    "lo": 0.05,
+    "mode": 0.464,
+    "hi": 0.8
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.055917,
-     1.564983
+     0.092611,
+     4.274323
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     1.338729,
-     21.866434
+     2.178364,
+     42.871737
     ]
    }
   },
@@ -5763,12 +5779,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.612939,
-     0.176992
+     3.026404,
+     1.024829
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     7.129631,
-     5.235847
+     28.765871,
+     18.030843
     ]
    }
   },
@@ -5784,6 +5800,16 @@
     "lo": 1.0,
     "mode": 1.0,
     "hi": 2.25
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.42852,
+     1.179456
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     20.519121,
+     16.311331
+    ]
    }
   },
   {
@@ -5798,6 +5824,16 @@
     "lo": 0.5,
     "mode": 1.0,
     "hi": 1.5
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.381302,
+     1.619851
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     21.164123,
+     19.947411
+    ]
    }
   },
   {
@@ -5815,12 +5851,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.258819,
-     0.458456
+     1.42852,
+     2.296493
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.479831,
-     8.530388
+     20.519121,
+     27.298727
     ]
    }
   },
@@ -5839,12 +5875,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.101973,
-     0.258819
+     0.625305,
+     1.42852
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     2.384559,
-     5.479831
+     11.1945,
+     20.519121
     ]
    }
   },
@@ -5895,12 +5931,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.150807,
-     0.440651
+     0.896864,
+     2.17212
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     3.416193,
-     8.501843
+     14.692307,
+     27.34765
     ]
    }
   },
@@ -6011,12 +6047,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.340082,
-     0.142041
+     1.799313,
+     0.870177
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.578529,
-     8.306726
+     22.250717,
+     17.647739
     ]
    }
   },
@@ -6092,6 +6128,16 @@
     "lo": 0.04,
     "mode": 0.06,
     "hi": 0.14
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.379791,
+     1.653694
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     20.203698,
+     21.899196
+    ]
    }
   },
   {
@@ -6154,7 +6200,7 @@
    "value": 1.0,
    "unit": "kg of conventional meat a kg sold",
    "source": "[assumed; no study measures it for cultivated meat] kilos of conventional meat not bought for each kilo of cultivated meat sold. The model's shares are shares of the meat sold; this converts them into meat replaced: the tonnes displaced (the page's entry-point bubbles), the land animals spared (meat_market.animals_per_tonne_sold) and the fall in conventional meat's sales that lowers its price (meat_market._rollup). The shares sold do not use it, except through that price fall (a smaller fall in conventional meat's sales lowers its price less, which raises the share a little). Evidence for plant-based meat, an analogue: Winslow, Peacock, Dhargawe, Sherman, Green and Mathur 2026 (SocArXiv, doi:10.31235/osf.io/tpyk9_v1; 1.2 million US and Canadian restaurant transactions, 2016-23): plant-based meats took 1-9% of orders, yet meat orders did not measurably fall (pooled about -1%, range -15% to +16%); Hope, Green, Peacock and Mathur 2026 (Food Quality and Preference 143:105931; randomised, 4,431 US adults, an online menu): adding two plant-based options cut meat orders by 2.1 points (95% CI -4.4 to +0.1), most of their orders coming from the existing vegetarian option; grocery scanner studies (Cuffey et al. 2023, Neuhofer and Lusk 2022, Meyer et al. 2024; reviewed in Peacock 2026, Appetite 216:108301) find plant-based sales without a detectable fall in meat bought. That is close to 0 kg of meat displaced per kg of plant-based meat sold",
-   "note": "1 = every kilo sold replaces a kilo of conventional meat, what the model assumed, unstated, until 2026-11-22. Cultivated meat is meat, and the model's real-tissue attribute is why it draws its sales from conventional meat, so the near-zero figure measured for plant-based meat is not carried over; 0.5 is the low end the model allows for sales that come partly from shoppers buying more meat in all or from meals without meat (a judgement, not a measurement). Not drawn in the uncertainty bands: they are bands of the share sold, which this input moves only through conventional meat's price, and the price-fall inputs (mk_supply_elast, mk_demand_elast) are not drawn either",
+   "note": "1 = every kilo sold replaces a kilo of conventional meat, what the model assumed, unstated, until 2026-11-22. Cultivated meat is meat, and the model's real-tissue attribute is why it draws its sales from conventional meat, so the near-zero figure measured for plant-based meat is not carried over; 0.5 is the low end of the model's stated range, for sales that come partly from shoppers buying more meat in all or from meals without meat (a judgement, not a measurement). The page's slider goes down to 0, the figure measured for plant-based meat, so that a reader can see what that analogue would mean; below 0.5 is outside the stated range. Not drawn in the uncertainty bands: they are bands of the share sold, which this input moves only through conventional meat's price, and the price-fall inputs (mk_supply_elast, mk_demand_elast) are not drawn either",
    "evidence_class": "judgement",
    "range": {
     "kind": "triangular",
@@ -6316,12 +6362,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.258819,
-     0.47216
+     1.42852,
+     2.609464
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.479831,
-     5.767182
+     20.519121,
+     21.720177
     ]
    }
   },
@@ -6340,12 +6386,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.289766,
-     0.066342
+     1.570725,
+     0.394695
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.48801,
-     5.378932
+     20.541535,
+     20.217852
     ]
    }
   },
@@ -6364,12 +6410,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.111947,
-     0.575222
+     0.690239,
+     2.665811
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     5.261943,
-     5.915473
+     20.020445,
+     21.262714
     ]
    }
   },
@@ -6397,12 +6443,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.101973,
-     0.409933
+     0.625305,
+     2.056264
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     2.384559,
-     8.02459
+     11.1945,
+     26.363536
     ]
    }
   },
@@ -6539,6 +6585,16 @@
     "lo": 0.1,
     "mode": 0.2,
     "hi": 0.5
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.492398,
+     1.404999
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     21.459782,
+     17.867054
+    ]
    }
   },
   {
@@ -6570,12 +6626,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.268002,
-     0.233069
+     1.471587,
+     1.306513
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     6.609467,
-     3.381634
+     23.420651,
+     14.308357
     ]
    }
   },

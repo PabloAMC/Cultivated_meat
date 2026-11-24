@@ -90,8 +90,8 @@ def variants() -> list:
 
     # the rows with every shopper alike, and the normal spread of 2026-11-18, are the model before its price-insensitive
     # shoppers (2026-11-22, fifth batch): calibrated without them, as those models were
-    pr = before = M.DemandParams(price_insensitive_share=0.0)
-    rows = [row("**the model: shoppers differ in how much they like cultivated meat (13% at equal price once familiar)**"),
+    pr = before = M.DemandParams(price_insensitive_share=0.0, equal_price_share=0.13)   # 13% of all choices: the default until 2026-11-24
+    rows = [row("**the model: shoppers differ in how much they like cultivated meat (50% of meat buyers at equal price once familiar)**"),
             row("the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general", pr=before, liking_sd=0.0),
             row("every shopper alike, 4 times (no extra sensitivity for cultivated meat)", pr=before, liking_sd=0.0, kappa=pr.kappa_base),
             row("every shopper alike, with the slope of the sixteen premium meats (2.2 times)", pr=before, liking_sd=0.0,
@@ -189,7 +189,7 @@ def markdown_committed() -> str:
 
 
 # ---------------------------------------------------------------------------- the price-insensitive shoppers (2026-11-22, fifth batch)
-BEFORE_FIFTH = {"price_insensitive_share": 0.0, "liking_sd": 3.9, "liking_tail": 4.0}   # the model before 2026-11-22's fifth batch
+BEFORE_FIFTH = {"price_insensitive_share": 0.0, "liking_sd": 3.9, "liking_tail": 4.0, "equal_price_share": 0.13}   # the model before 2026-11-22's fifth batch
 INSENSITIVE_CASES = (("the model", {}),
                      ("no price-insensitive shoppers, the spread as it was (the model before 2026-11-22's fifth batch)", BEFORE_FIFTH),
                      ("no price-insensitive shoppers, the spread as now", {"price_insensitive_share": 0.0}),
@@ -210,7 +210,7 @@ def checks_of(pr: M.DemandParams) -> dict:
     m = LS.miss(None, pr.liking_sd, pr=pr)
     cold = cold_parity_elasticity(pr)
     resp = {n: r for n, (R0, r) in LS.salmon_response(pr).items() if R0 > LS.STILL_DEARER}
-    curve = {R: M.share(R, pr) * 100.0 for R in LS.PREMIUM_AT}
+    curve = {R: M.share(R, pr) * 100.0 for R in (1.5,) + LS.PREMIUM_AT}   # 1.5 too: the premium block compares shapes (2026-11-24)
     out = {"cold": cold, "miss": m["miss"], "response": resp, "curve": curve, "pb": pb_elasticity(pr)["elasticity"],
            "first": M.share(1.0, pr, neophobia_x=value("neophobia_x0")) * 100.0}
     out.update(LS.objective({"elasticity": m["elasticity"], "curve": curve, "response": resp, "cold": cold, "miss": m["miss"]}))

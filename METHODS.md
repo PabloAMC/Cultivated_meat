@@ -91,8 +91,8 @@ Every input falls into one of five categories; `python inputs.py` tags each.
    leverage). Since 2026-11-21 (fourth batch) also `pb_committed_liking`, to the 82% of the mainstream's plant-based meat its
    committed buyers buy (GFI/NielsenIQ 2022). One equation per unknown: calibration, not fitting. **Fitted:** the two numbers of the spread of liking,
    `liking_sd` and `liking_tail`, jointly to a choice experiment, sixteen premium meats and farmed salmon (Step 2).
-4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 13% of all choices, which is 14.4% of
-   meat buyers; the all-favourable example's own `best_equal_price_share`, 55%, which is 58.7%), `cult_sub_mult` (κ; set by six premium products), the taste dial `accept_x`, the what-if dials
+4. **Judgement, shown as a range:** the long-run share at equal price (`equal_price_share`, 46.4% of all choices, which is 50% of
+   meat buyers, since 2026-11-24; 13% and 14.4% before; the all-favourable example's own `best_equal_price_share`, 55%, which is 58.7%), `cult_sub_mult` (κ; set by six premium products), the taste dial `accept_x`, the what-if dials
    `theta_free_M`, `neophobia_x` and `health_x`, the premium offset (scaled by `premium_resistance`), `markup_add` and
    `retail_margin` (fitted to USDA's spreads and meat-department margins), the cut's cell share and assembly cost, the ammonia and
    the lactate the scenarios' cells tolerate (`sc_nh3_limit`, `sc_lac_limit`), the crew of a tank in perfusion against a fed-batch
@@ -209,7 +209,7 @@ Against a flat $5 a kilo, the rule this replaced, parity moves little ($7.0 to $
 to commodity meat's own spread, but the shelf price of anything dearer rises: at the low-lactate example's $48.7 a kilo of cells, from $53.7
 to $71.1. The low-lactate example's share of world meat and seafood at that cost would be 0.41% under the flat $5 and is 0.26% under the
 present rule; at the all-favourable example's cost ($6.97; shelf prices $12.0 and $13.2), with the low-lactate example's demand, 6.7% and 5.5%
-(recomputed 2026-11-22, fifth batch; 0.14% and 0.045%, 6.8% and 5.6% in the fourth batch). Both parts are drawn in the uncertainty bands.
+(recomputed 2026-11-22, fifth batch, at the earlier default of 14.4% of meat buyers at equal price; 0.14% and 0.045%, 6.8% and 5.6% in the fourth batch; not recomputed for the default of 50% of 2026-11-24, under which the present rule gives 1.43% and 20.5%). Both parts are drawn in the uncertainty bands.
 
 **Humbird's optimistic design (`scenarios.reference()`, `floor_physics.explore()` with no arguments; what earlier versions called the floor)** is a standard perfusion tank with no added equipment for oxygen and CO₂, Humbird's enhanced cells, no lost runs and no growth factors. It costs $15.7 a kilo at most likely values ($15.9 before 2026-11-21, when a sanitary hall's lower power was first counted); if the unmeasured estimates are drawn from their ranges, the middle draw is $22 and 8 in 10 fall between $17 and $29.
 
@@ -508,10 +508,10 @@ settings fix is held, not drawn (the all-favourable example, above).
   share at equal price is the net of every taste effect, and drawing taste on top of it counted the same uncertainty twice.
   Conventional meat's price response and the closed markets are applied in every draw at their set values; their inputs
   (`mk_supply_elast`, `mk_demand_elast`, `mk_closed_*`) have ranges but are not drawn.
-- *The share at equal price is drawn from a lognormal* (`inputs.draw`, `kind="lognormal"`), on the scale of all choices: its
-  median is the model's own 13% (14.4% of meat buyers), and the stated 3% and 49% set its spread (σ = ln(0.49 / 0.03) / 3.29 =
-  0.85), clipped to 0.5%–80%. The draws' 5th and 95th percentiles are 3% and 52% (3.4% and 55.5% of meat buyers), and their 10th
-  and 90th 4% and 38% (4.5% and 41% of meat buyers). Until 2026-11-19 it was a triangular 5–13–49%, whose median was
+- *The share at equal price is drawn from a triangle* (`inputs.draw`, `kind="triangular"`), on the scale of all choices, from 5%
+  (5.6% of meat buyers) through the model's own 46.4% (50%) to 80% (83%), the largest value the shopper model solves for (since
+  2026-11-24). A lognormal around 46.4% would pile up at that limit. From 2026-11-19 to 2026-11-24 it was a lognormal with median 13%
+  (14.4% of meat buyers), 5th and 95th percentiles 3% and 52%; until 2026-11-19 a triangular 5–13–49%, whose median was
   21%. The all-favourable example's own setting is a triangular 35–55–70%.
 - *Not drawn:* the kind of cells, their speed and their lactate yield (what the scenarios differ in), the low-waste cells'
   ammonia, the salt the cells tolerate, the gas flow (a switch), the harvest recovery, the perfusion crew and the exponent of
@@ -587,15 +587,15 @@ design (`reference()`) the same way, and `reported_band` takes the company's pro
 
 | scenario | cells, $/kg: median of draws (8 in 10 between) | $/kg if every estimate lands on its most likely value | shop price against US minced beef or pork cuts ($12 a kilo), at the median | share of world meat and seafood, long run: median of draws (8 in 10 between) | share at the most-likely-values cost | cell traits set beyond the best measured in meat cells |
 |---|---|---|---|---|---|---|
-| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$337** ($235–475) | $316.1 | 39.3× | **0.001%** (under 0.001–0.02%) | 0.001% | none |
-| 2. Plus process changes and cheaper inputs | **$322** ($223–458) | $304.8 | 37.6× | **0.002%** (under 0.001–0.02%) | 0.001% | none |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$77** ($53–114) | $70.3 | 9.1× | **0.1%** (0.03–0.7%) | 0.1% | lactate |
-| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$52** ($39–76) | $48.7 | 6.3× | **0.2%** (0.06–1.2%) | 0.3% | lactate |
-| 5. Plus a food-grade plant with shared medium | **$48** ($35–71) | $44.5 | 5.8× | **0.3%** (0.06–1.3%) | 0.3% | lactate |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$33** ($25–45) | $27.3 | 4.1× | **0.5%** (0.1–2.1%) | 0.6% | ammonia, lactate |
+| 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$337** ($235–475) | $316.1 | 39.3× | **0.005%** (under 0.001–0.06%) | 0.004% | none |
+| 2. Plus process changes and cheaper inputs | **$322** ($223–458) | $304.8 | 37.6× | **0.007%** (under 0.001–0.08%) | 0.005% | none |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$77** ($53–114) | $70.3 | 9.1× | **0.7%** (0.1–1.9%) | 0.8% | lactate |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$52** ($39–76) | $48.7 | 6.3× | **1.2%** (0.3–2.9%) | 1.4% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$48** ($35–71) | $44.5 | 5.8× | **1.4%** (0.4–3.2%) | 1.6% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$33** ($25–45) | $27.3 | 4.1× | **2.2%** (0.8–5.1%) | 3.0% | ammonia, lactate |
 | 7. Plus everything else at its favourable end (the all-favourable example) | **$8** ($7–10) | $7.0 | 1.3× | **19.2%** (12.4–28.0%) | 25.1% | ammonia, lactate |
-| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–29) | $15.7 | 2.8× | **0.9%** (0.3–3.9%) | 1.6% | ammonia, lactate |
-| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **0.4%** (0.1–2.0%) | 0.4% | a company's own report |
+| Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–29) | $15.7 | 2.8× | **4.0%** (1.5–9.1%) | 7.3% | ammonia, lactate |
+| As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **2.1%** (0.7–4.7%) | 2.2% | a company's own report |
 
 Read with the costs at most likely values first (third column), as everywhere in this document. The second batch of 2026-11-21
 moved the table again (Published cells $316.1, the low-lactate example $48.7, the all-favourable example $7.0 with 25.1% of world
@@ -632,7 +632,7 @@ traits beyond the best measured in meat cells. The evidence behind each measurem
 `research_notes/cell_trait_routes.md`.
 
 **What it would take** (`scenarios.what_it_would_take`). For a long-run share of 1% and 10% of world meat and seafood, at the model's
-14.4% of meat buyers at equal price and at 50% (no preference), the cost of cells that reaches it (`cost_for_share`, a bisection on
+50% of meat buyers at equal price (no preference; since 2026-11-24) and at 14.5% (the earlier default), the cost of cells that reaches it (`cost_for_share`, a bisection on
 the point estimate of `world_share`), and, among the sets of traits tried (`trait_grid`: ammonia 0.14 / 0.055 / 0, lactate 1.05 / 0.42
 / 0.279 / 0, doubling 43 / 36 / 25.7 / 20 / 15 h, 2 ng; a food-grade plant or one with shared medium; perfusion or fed-batch at 20 m³;
 the low-lactate example's other switches; tank design chosen; most likely values), the set that reaches it with the fewest traits
@@ -1954,8 +1954,8 @@ share_j = w_eth·P_Ej + (1 − w_eth)·P_Mj
 uses its own price). Every product uses the same rule and there is no free fitted constant for an existing product (whole
 food's appeal is its health position, +2, times a solved weight). Cultivated meat alone carries ℓ, a liking that differs across
 shoppers and whose mean is set by the share at equal price (below), with the price-insensitive shoppers in. Here `share_j` is of all four products; the share the model
-reports is cultivated meat's share of the meat sold, x / (x + c) (below). At equal price cultivated meat's 13.0% of all four is
-14.4% of the choices that go to conventional or cultivated meat: of meat buyers.
+reports is cultivated meat's share of the meat sold, x / (x + c) (below). At equal price cultivated meat's 46.4% of all four is
+50% of the choices (13.0% and 14.4% before 2026-11-24) that go to conventional or cultivated meat: of meat buyers.
 
 **Why cultivated takes buyers from conventional meat, without a nest.** A single logit takes share from every
 option in proportion. Here the shared real-tissue attribute makes conventional meat own almost all of the
@@ -2003,8 +2003,8 @@ is fitted to this experiment among other things (next paragraph), so this is a f
 
 **Shoppers differ in how much they like cultivated meat** (`research_notes/liking_spread.md`; `market_share.spread_quadrature`).
 Each shopper's utility for cultivated meat is the model's plus a draw ℓ from a spread across shoppers. Its mean is set so that,
-once familiar and at equal price, at neutral settings, cultivated meat is picked by 14.4% of meat buyers, which is
-`equal_price_share` = 13% of all choices among meat, cultivated meat, plant-based meat and no meat (`market_share._solve_liking`).
+once familiar and at equal price, at neutral settings, cultivated meat is picked by 50% of meat buyers (14.4% before 2026-11-24), which is
+`equal_price_share` = 46.4% of all choices among meat, cultivated meat, plant-based meat and no meat (`market_share._solve_liking`).
 **The reported share is the share of the meat sold** (since 2026-11-19, audit finding 6a): for each product,
 `share(..., which="x_meat")` = x / (x + c), cultivated over cultivated plus conventional, both segments mixed, then summed by
 volume (`meat_market._rollup`, `penetration`, `monte_carlo`, and the side studies that rebuild the roll-up). Before it was x, the
@@ -2041,7 +2041,7 @@ better (2.7) with a small block of shoppers who buy at almost any price, which w
 the price-insensitive shoppers are such a block, with a size and response the evidence does show. The model misses the experiment
 by 0.02 (2.61 with every shopper alike), and the experiment alone would put the spread at the same place; its own estimate,
 3.6–4.6 on its scale, is about 3.3–4.7 utils here. Neither number is drawn in the bands; across their ranges they move the
-low-lactate example's share (0.26%) from 0.23% to 0.30% and from 0.28% to 0.24%. Because the spread is fitted to the experiment
+low-lactate example's share (0.26% at the earlier default of 14.4% of meat buyers; 1.43% since 2026-11-24, not recomputed here) from 0.23% to 0.30% and from 0.28% to 0.24%. Because the spread is fitted to the experiment
 and the premium meats, those are no longer independent checks of the model.
 
 *How it is integrated: 67 points on a stretched grid* (`market_share.grid_quadrature`). The share is an average over shoppers
@@ -2078,13 +2078,18 @@ answer depends on how many shoppers are moderately keener than average, which th
 experiment. Shapes that fit the evidence about as well (a logistic, mixtures of two normals) give the all-favourable example 24.5% to
 25.6% (`liking_spread.variant` with each shape's fitted numbers, at $6.97 a kilo of cells; recomputed 2026-11-22).
 
-**The share at equal price is a judgement, and its prior is a lognormal.** It is 14.4% of meat buyers, set as 13% of all choices.
+**The share at equal price is a judgement, and its prior is a triangle.** Since 2026-11-24 it is 50% of meat buyers, set as 46.4%
+of all choices: no good data say which side of an even split cultivated meat would land on, so the model starts neutral. Read back
+through the novelty term (kept at 2.8 utils), it gives 20% of all choices (22% of meat buyers) at first contact, against the
+experiment's 4% (5%); the model no longer reproduces that figure (`research_notes/liking_spread.md`). In the bands it is drawn
+from a triangle 5%–46.4%–80% of all choices. The evidence below supports lower readings; the reasoning for the earlier default,
+for the record: it was 14.4% of meat buyers, set as 13% of all choices.
 13% is a third of first-contact aversion fading (the
 model's own novelty term, 2.8 of 8.6 utils, and survey corrections in which novelty fades by half and an "unnatural" image
 persists). With the t spread, fading the experiment's 5% by 2.8 utils gives 16% if the 5% is read as a share of all choices;
 13% was kept because, read back, it gives 4.3% of meat buyers and 3.8% of all choices at first contact, and the experiment
-measured 5% and 4%. Shoppers indifferent on average would be 49% of all choices (52.5% of meat buyers). In the bands it is drawn from
-a lognormal (`inputs.draw`, `kind="lognormal"`) whose median is the model's 13%, so half the draws fall below the setting and
+measured 5% and 4%. Shoppers indifferent on average would be 49% of all choices (52.5% of meat buyers). From 2026-11-19 to 2026-11-24 it was drawn from
+a lognormal (`inputs.draw`, `kind="lognormal"`) whose median was the model's 13%, so half the draws fall below the setting and
 half above. The stated 3% and 49% set its spread; the draws' own 5th and 95th percentiles are 3% and 52% (3.4% and 55.5% of meat
 buyers), and draws are clipped to 0.5%–80%. Until 2026-11-19 the prior was a triangular 5–13–49%, whose median was 21%: the bands were centred above the setting
 they were meant to surround. Outside readings: the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%
@@ -2108,8 +2113,8 @@ shifts between cuts of one carcass largely cancel, and what remains is the herd)
 method from a fixed price, since a lower price lowers the share. `supply_elast=inf` holds the price fixed. It replaced a fixed
 price, with only a first-order bound in this section. The all-favourable example, with its own 58.7% of meat buyers, takes 29.3%
 of world meat and seafood at a fixed price and 25.1% with the response (conventional meat's prices fall by about a tenth); across
-the supply elasticity's range, 21.6% (0.5) to 28.1% (10). With the ordinary 14.4% its cells take 5.7% at a fixed price and 5.5% with
-the response. The low-lactate example's share (0.26%) is too small for it to matter (recomputed 2026-11-22, fifth batch). The inputs have ranges but are not drawn in the
+the supply elasticity's range, 21.6% (0.5) to 28.1% (10). With the ordinary 50% (since 2026-11-24) its cells take 23.4% at a fixed price and 20.5% with
+the response (5.7% and 5.5% at the earlier 14.4%). The low-lactate example's share (1.43%) is too small for it to matter much (recomputed 2026-11-24). The inputs have ranges but are not drawn in the
 bands.
 
 **How fast: the adoption curve against history.** At its usual settings the model's share grows about 92-fold (the all-favourable example) to about
@@ -2303,8 +2308,8 @@ share of the meat sold, x / (x + c), as in the roll-up (since the same batch; be
 `F(t)` is Bass diffusion (`p_innov` = 0.02, `q_imit` = 0.40): the fraction of the market the product has
 reached. The standard Bass rates come from durable goods, and the familiarity fade below may partly overlap
 with the word-of-mouth term, so timing is rougher than the ceilings. Novelty ν fades
-from the cold start `neophobia_x0` = −2.8 (4.8% of meat buyers at parity, 4.3% of all choices; Van Loo, Caputo & Lusk 2020
-measured 5% and 4%) toward the long-run `neophobia_x` (0, where the share at parity is the setting, 14.4% of meat buyers) as cumulative availability `E(t)` grows, at rate
+from the cold start `neophobia_x0` = −2.8 (22% of meat buyers at parity, 20% of all choices, since the default of 50% of 2026-11-24; 4.8% and 4.3% before; Van Loo, Caputo & Lusk 2020
+measured 5% and 4%) toward the long-run `neophobia_x` (0, where the share at parity is the setting, 50% of meat buyers since 2026-11-24; 14.4% before) as cumulative availability `E(t)` grows, at rate
 `accept_rate` (mere exposure). The ceiling is the Step 2 share at the current novelty. Fading novelty cures
 “it's new”, not “it's worse”: a taste deficit (`accept_x` < 1) persists, which is why plant-based meat stalls
 on the same machinery. Neophobia is symmetric across the two novel meats (`neophobia_x`, `neophobia_p`).
@@ -2340,8 +2345,11 @@ model gives the distribution of the endpoint instead. Monte Carlo (N = 20,000, s
 ```
 basic product vs commodity meat (US minced beef or pork cuts, $12/kg):
   price ratio R:   P50 = 4.42   80% CI [3.36, 5.75]   90% CI [3.11, 6.17]   0% of draws at or below parity
-  long-run share of the meat sold:  P50 = 0.3%   80% CI [0.1, 1.8]
+  long-run share of the meat sold:  P50 = 3.5%   80% CI [1.4, 8.7]
 ```
+
+Since 2026-11-24 the share at equal price defaults to 50% of meat buyers (was 14.5%), drawn from a triangle 5%–46.4%–80% of all
+choices; the share's median rose from 0.3% (80% CI 0.1–1.8) to 3.5% (1.4–8.7). R does not move.
 
 The share is cultivated meat's share of the meat sold, x / (x + c), since 2026-11-21 (fourth batch); as a share of all four
 choices it was P50 0.3%, 80% CI [0.1, 1.6]. `sensitivity.py`'s share tornado counts the same share.
@@ -2387,14 +2395,15 @@ by `answer_rests_on.py` (RESULTS, "What the answer rests on").
   of them. The unsettled numbers are the waste the cells make (lactate and ammonia), the ammonia and lactate they tolerate, how
   long a cell filter lasts in a dense culture, how many cells bubbles kill, how much a thick culture slows oxygen uptake, and
   whether perfusion runs at 20 m³ at all.
-- **Demand at parity:** the share at equal price is a judgement, set at 14.4% of meat buyers (13% of all choices) and drawn
-  between 3.4% and 55.5%. Around it, taste, acceptance as real meat and the value of “no slaughter” move it between 1.5% and 27%.
+- **Demand at parity:** the share at equal price is a judgement, set at 50% of meat buyers (46.4% of all choices; 14.4% and 13% before 2026-11-24) and drawn
+  from a triangle 5%–46.4%–80% of all choices (5th and 95th percentiles 17.5% and 69%; 3.4% and 55.5% of meat buyers with the
+  earlier lognormal). Around the earlier 14.4%, taste, acceptance as real meat and the value of “no slaughter” moved it between 1.5% and 27%.
   The all-favourable example takes 58.7%.
 - **The spread of liking and the price-insensitive shoppers:** a Student's t and a class of 8% of shoppers who respond 0.11 times as
   strongly to price, fitted loosely to one experiment, sixteen premium meats, farmed salmon and plant-based meat. The
   price-insensitive shoppers decide the low-lactate example (97% of its sales; above four times the price of meat it is an
-  extrapolation, and their liking for cultivated meat is read from two stated-choice studies: 0.11% to 0.58% of world meat across
-  −2 to +2 utils, against 0.26%) and the middle of the spread decides the all-favourable example (25.1%; 31.6% with the normal spread
+  extrapolation, and their liking for cultivated meat is read from two stated-choice studies: 0.69% to 2.67% of world meat across
+  −2 to +2 utils, against 1.43%; 0.11% to 0.58% against 0.26% at the earlier default) and the middle of the spread decides the all-favourable example (25.1%; 31.6% with the normal spread
   it replaced). The response to a falling price is still above farmed salmon's for three of four premium products (1.5–4.0).
 
 ## Running it
