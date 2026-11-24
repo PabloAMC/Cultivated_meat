@@ -1,5 +1,14 @@
 # Change log
 
+## 2026-11-24: an edition for AI agents (AGENTS.md, llms.txt, inputs.json)
+
+`agents_edition.py` writes, from the live model, a plain-markdown edition for AI agents that want to understand the model, check
+it or extend it: `AGENTS.md` at the root, `llms.txt` beside the page (an index in the llms.txt form) and `inputs.json` (every input
+of the registry with its value, unit, range, source, note, an evidence class read from its source tag, and how far it moves the cost
+and the share where `answer_rests_on.py` finds it does). `AGENTS.md` runs: the answer in ten lines; the causal chain as functions,
+with real inputs and outputs; every input; the checks (the back-test, the five price checks and which miss, the study sets); dead
+ends and corrections, dated; open questions ranked by how far they move the share, each with the measurement that would settle it;
+how to extend. `tests/test_agents_edition.py` fails if a committed file differs from a fresh run. No model number moves.
 ## 2026-11-24 (later): the all-favourable button, clearer limit bars, why larger tanks can cost more, more share lines
 
 - The all-favourable example is a main button beside Published cells, so the two ends of the range sit side by side.

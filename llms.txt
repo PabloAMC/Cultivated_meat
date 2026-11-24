@@ -1,0 +1,33 @@
+# Cultivated meat: cost and market share
+
+> A cost and demand model of cultivated meat: how cheap a kilo of cells can plausibly get, from tank physics and published plant designs, and how much of the world's meat it would take at that cost. Python is the source of truth; the interactive page is generated from it. Every number below is computed by the model (agents_edition.py).
+
+The answer in ten lines:
+
+- Units: every cost is US dollars of 2025 per kilo of wet cells (about 70% water) leaving the tank, at most likely values; every share is cultivated meat's long-run share of world meat and seafood sold, by weight.
+- Humbird's best estimate (2021), his fed-batch design with enhanced cells on soy hydrolysate in 20 m³ tanks: $21.00 a kilo in 2018 dollars; this model's engine at his conditions gives $26.99 in 2025 dollars, and $30.49 with what this model counts and he does not (cells killed by bubbles, cells lost at harvest, a least medium flow, the bubble protectant, slower oxygen uptake in a thick culture). From `humbird_check.page_start()` and `page_with_additions()`.
+- Humbird's optimistic design (his enhanced cells in a 20 m³ perfusion tank): $15.72. From `floor_physics.explore()` with no arguments.
+- Published cells (the best value of each trait in the published record, grown in 20 m³ batches): $316.1, and a share of 0.0010%. From `scenarios.SCENARIOS['today']`.
+- The low-lactate example (0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, a doubling every 36 hours, 2 ng a cell, perfusion in a 20 m³ tank): $48.68, and a share of 0.26%. From `scenarios.SCENARIOS['central']`.
+- The all-favourable example (every lever at its most favourable value among this model's favourable end, Humbird's design and the published cost studies, inside the model's limits; cells of 3 ng doubling every 16 hours): $6.97, and a share of 25.1% if 58.7% of meat buyers pick it at equal price, 5.5% at the model's ordinary 14.4%. From `scenarios.all_favourable()`.
+- The nutrient floor (what a kilo of cells must eat: amino acids at feed grade and the most efficient published need, glucose and other nutrients): $2.00; the medium is never charged less. From `floor_physics.feedstock(floor_physics.GOOD_CELLS)`, `nutrient_floor.py`.
+- Price parity with a $12 kilo of US minced beef or pork cuts needs cells at $6.14 or less (shelf price = (cost + per-kilo costs to the shelf) / (1 - retail margin)). From `price_ratio.parity_cost`.
+- Long-run share at equal price, once familiar: 13% of all choices (range 3% to 49%), which is 14.4% of meat buyers. A judgement from the literature on first-contact aversion fading, not a measurement: the input `equal_price_share`, `scenarios.meat_buyers_at_equal_price()`.
+- A 1% long-run share of world meat needs cells at $20.5 a kilo or less; 10% needs $3.6, below every set of traits tried. From `scenarios.cost_for_share`.
+
+## For agents
+
+- [AGENTS.md](https://raw.githubusercontent.com/PabloAMC/Cultivated_meat/main/AGENTS.md): the whole edition for agents: the causal chain as functions with real inputs and outputs, every input, the checks and which miss, dead ends, open questions ranked, how to extend
+- [inputs.json](https://pabloamc.github.io/Cultivated_meat/inputs.json): every input with value, unit, range, source, note and evidence class
+- [Repository](https://github.com/PabloAMC/Cultivated_meat): the Python model and its tests
+
+## For people
+
+- [Interactive explorer](https://pabloamc.github.io/Cultivated_meat/interactive.html): the findings, every assumption as a lever, the method in plain language
+- [RESULTS.md](https://raw.githubusercontent.com/PabloAMC/Cultivated_meat/main/RESULTS.md): the findings with their uncertainty bands
+- [METHODS.md](https://raw.githubusercontent.com/PabloAMC/Cultivated_meat/main/METHODS.md): the methods and sources at code level
+
+## Optional
+
+- [CHANGELOG.md](https://raw.githubusercontent.com/PabloAMC/Cultivated_meat/main/CHANGELOG.md): what changed and when
+- [research_notes](https://github.com/PabloAMC/Cultivated_meat/tree/main/research_notes): one note per question, with the evidence read

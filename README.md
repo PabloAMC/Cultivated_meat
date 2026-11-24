@@ -9,6 +9,8 @@ language (“How the model works”, at the bottom of the page).
 
 - **The findings:** [RESULTS.md](RESULTS.md).
 - **Code-level methods and sources:** [METHODS.md](METHODS.md).
+- **For AI agents:** [AGENTS.md](AGENTS.md) (the model as functions with real inputs and outputs, every input, the
+  checks, dead ends and open questions) and [inputs.json](inputs.json), generated from the code by `agents_edition.py`.
 - **Run it offline:** open [interactive.html](interactive.html) in a browser. It is self-contained. The
   Python model is ported to JavaScript, and a parity test keeps the two in step.
 - **The essay:** [Cultivating hope](https://forum.effectivealtruism.org/posts/ED2ag8hYTWf4kmL3x/cultivating-hope-calibrating-the-expectations-for-cultivated)
