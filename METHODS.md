@@ -68,7 +68,7 @@ that is most likely about 18 times the mass of its cells, and its cost leaves ou
 supports the level, but there is no peer-reviewed measurement at production scale, so they are treated as
 directional evidence, not as the basis of the low-lactate example.
 
-Two examples are named throughout. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published cost studies, where a value respects the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Two examples are named throughout. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published cost studies, where a value respects the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 ## Where every number comes from
 
@@ -142,7 +142,7 @@ Output 2 depends on how shoppers will treat a product nobody can buy yet.
 | Side-study | `growth_rate.py` | cost per kg against doubling time; not used in the headline |
 | Cost physics | `floor_physics.py` | the cost of a kilo of cells from oxygen and CO₂ physics, by plant class and tank (`explore`); with no arguments `explore` is Humbird's optimistic design |
 | Cost physics | `humbird_check.py` | the engine run at Humbird's own conditions against his Tables 4.7 and 4.13, line by line; the page's starting point |
-| Cost scenarios | `study_assumptions.py`, `page_studies.js` | what ten published cost studies assume, lever by lever, with the limits a value must respect; each study's own estimate in 2025 dollars; the page's study chips |
+| Cost scenarios | `study_assumptions.py`, `page_studies.js` | what fourteen published cost studies assume, lever by lever, with the limits a value must respect; each study's own estimate in 2025 dollars; the page's study chips |
 | Cost physics | `thick_culture.py`, `tank_size.py` | side studies: a thick culture's viscosity, mixing and oxygen uptake; the cost against tank size |
 | Cost physics | `medium_reuse.py` | cleaning and reusing the medium (an ammonium exchanger, electrodialysis, dialysis); `explore(clean=...)` prices the same routes |
 | Cost scenarios | `scenarios.py`, `page_sections.py`, `page_scenarios.js` | the eleven switches, the scenarios as presets, what to prioritise, interactions, the bands; the page's JavaScript mirrors it |
@@ -241,7 +241,7 @@ the page's `{{TOKEN}}` for the reference cost. Everything that says "Humbird's o
 
 Humbird's optimistic design is not a limit. The all-favourable example (below) costs $6.97 at most likely values (middle draw
 $8.3; 8 in 10 between $7.1 and $10.0), $8.8 less than his design, and it is below his design by construction: since 2026-11-20 it takes,
-lever by lever, the most favourable value among this model's own favourable end, Humbird's design and nine other published
+lever by lever, the most favourable value among this model's own favourable end, Humbird's design and thirteen other published
 cost studies, where a study's value does not break one of the model's limits. From Humbird it takes a 3 ng cell, 5 mmol/L of ammonia and 50 of
 lactate tolerated and no lost runs; from this model's own favourable end a doubling every 16 hours, a food-grade plant with
 shared medium, dialyser-grade hollow fibres and the cheapest tank design that passes the loop checks; from Negulescu 2023's tank
@@ -271,7 +271,7 @@ Table 4.4 in 2025 prices, $0.46 a litre, for the 12.4 litres a kilo harvested ta
 ### What changed in the engine on 2026-11-20
 
 A full review (`research_notes/full_review_2026-11-19.md`, sections 2 and 7), a back-test of the engine against Humbird's own
-tables (`research_notes/humbird_backtest.md`) and a comparison with ten published cost studies
+tables (`research_notes/humbird_backtest.md`) and a comparison with fourteen published cost studies
 (`research_notes/study_comparison.md`) changed `floor_physics.explore`, `inputs.py`, `scenarios.py`, `retention.py`,
 `vessels.py` and `meat_market.py` on 2026-11-20. Each change is described where that part of the model is described; what each
 did to the examples is in RESULTS.md ("What changed on 2026-11-20") and CHANGELOG.md.
@@ -290,7 +290,7 @@ did to the examples is in RESULTS.md ("What changed on 2026-11-20") and CHANGELO
 | An ATF unit is charged in Humbird's accounting for bought equipment (`retention.atf_factor`) | its bare price × 1.84, not escalated | "Holding the cells back" |
 | Hours of maturation at no growth before harvest (`mature_h`, `pf_mature_h`, default 0) | none | "The plant term", *Maturation* |
 | Cleaning and reusing the medium (`clean`, `wash_price`), off by default | a side study outside the engine | "Cleaning and reusing the medium"; *A cheaper liquid for the litres that only wash waste out* |
-| One all-favourable case, lever by lever against Humbird and nine other published studies (`scenarios.all_favourable`, `study_assumptions.py`) | two most favourable cases, neither checked against the studies | "Cost scenarios", *The all-favourable example is defined once* |
+| One all-favourable case, lever by lever against Humbird and thirteen other published studies (`scenarios.all_favourable`, `study_assumptions.py`) | two most favourable cases, neither checked against the studies | "Cost scenarios", *The all-favourable example is defined once* |
 | Defects fixed: a column that strips nothing no longer lowers the gas counted for bubble deaths; the bubble cage's own gas kills no cells; a vessel's own recovery scales every cost, not the output only; the airlift follows the stirred tank's mixing rule; `retention.duty` bleeds per kilo grown; `plant_items.cost_per_kg` prices its items through `explore`; `min_litres` uses the engine's own litres | | where each part is described |
 | Taste (`accept_x`) is not drawn in the demand and timing bands | drawn 0.6–1.0 on top of the share at equal price | "Bands", below; Step 2 |
 | Incomes in nominal dollars (`REGION_INCOME`; `income_gradient` 0.32) | incomes at purchasing-power parity; 0.5 | Step 2, *Income* |
@@ -324,7 +324,7 @@ plant is not offered by any switch: the judgement is that nothing shows animal c
 
 A **scenario** is a preset of the eleven switches. **The all-favourable example** (key `best`) is the one most favourable case,
 defined once in `scenarios.all_favourable()` (next paragraphs): every lever of the engine at its most favourable value among this
-model's own favourable end, Humbird's design and nine other published cost studies, where a study's value breaks none of the
+model's own favourable end, Humbird's design and thirteen other published cost studies, where a study's value breaks none of the
 model's limits. It carries the levers the switches cannot say as extra settings
 (`scenarios.EXTRAS`), and it also takes its own share at equal price (`best_equal_price_share`, 55% of all choices, 58.7% of meat buyers). **The low-lactate example:** cells fed without glutamine
 that make 0.14 mol of ammonia a kilo and 0.42 mol of lactate per mol of glucose, 36 hours, a food-grade plant, 4 mm/s, 1% a day, 30% of growth-factor price, $0.20 a litre.
@@ -344,8 +344,8 @@ known" are the same call.
 
 `scenarios.favourable_levers()` is the table of sources: one row for each lever, with the value each source gives (`FAV_SOURCES`:
 this model's own favourable end; Humbird's design as `scenarios.reference()` and `humbird_check` hold it; and one column for each
-of the nine other studies in `study_assumptions.STUDIES`: CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitka 2024,
-SuperMeat 2024, Lever VC 2025, GFI 2021 and GFI 2026). A study's value is what it assumes on that lever, with its page
+of the thirteen other studies in `study_assumptions.STUDIES`: CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitka 2024,
+SuperMeat 2024, Lever VC 2025, GFI 2021, GFI 2026, Ark Biotech 2023, Cellular Agriculture Ltd 2024, Gourmey and Arthur D. Little 2025, and Aleph Farms and Eridia 2025). A study's value is what it assumes on that lever, with its page
 (`study_assumptions.STUDY_LEVERS`); a value that breaks one of the model's limits is not a source (`study_assumptions.REJECTED`).
 The limits (`study_assumptions.limits()`; `research_notes/study_comparison.md`, section 2): the nutrient floor ($2.00 a kilo of
 cells), the mass balance (311 g of glucose a kilo), the thickest culture that still flows (Humbird's 258 g/L), oxygen transfer and

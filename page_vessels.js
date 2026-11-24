@@ -84,7 +84,7 @@ function vmBase(){                              // the case the table holds fixe
   // the side bar's case in a stirred tank in perfusion (as the first screen's own table of vessels), so the table follows every lever
   return tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
 }
-function vmMoney(x){ return "$"+(x>=1000?Math.round(x).toLocaleString("en-US"):x.toFixed(2)); }
+function vmMoney(x){ return "$"+(x>=1e6?(x/1e6).toFixed(x>=1e7?0:1)+" million":(x>=1000?Math.round(x).toLocaleString("en-US"):x.toFixed(2))); }
 function vmTagChip(t){ const cls=t===VM.tag_order[0]?"vt-today":t===VM.tag_order[1]?"vt-pilot":"vt-paper";
   return '<span class="vtag '+cls+'">'+t+'</span>'; }
 function vmFallbackText(c){      // mirror of page_sections._vm_fallback_text

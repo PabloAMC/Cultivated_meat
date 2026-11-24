@@ -6,7 +6,7 @@ the earlier idea list (A–T, M1–M8) is in [`research_notes/project_review.md`
 
 Last updated 2026-11-22.
 
-Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
+Two examples are named in this list. The low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre ($48.68 a kilo since 2026-11-21; $49.50 before). The all-favourable example (`scenarios.all_favourable`, $6.97; $7.62 before) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits (`research_notes/study_comparison.md`), with 58.6% of meat buyers picking it at the same price.
 
 ## 1. Open work
 

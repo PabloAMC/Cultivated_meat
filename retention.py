@@ -394,7 +394,9 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
     else:
         r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg_grown"]})
     total = r["total"] / (1.0 - sz["loss"])
-    return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"]}
+    return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"],
+            "capital": r["capital"] / (1.0 - sz["loss"]),          # the plant's yearly charge per kilo, as the page's rtCost gives it
+            "density": r.get("density"), "medium_l": r.get("medium_l"), "output": r.get("output"), "limit": r.get("limit")}
 
 
 # What sizing() reads for each device, by the short key the page's JavaScript uses (page_retention.js): {device: {short: input}}

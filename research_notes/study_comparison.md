@@ -312,6 +312,7 @@ A sensitivity value is not a study's assumption. Negulescu's 12-hour doubling wi
 | Humbird 2021, Appendix A: his design but with the financing of his baker's-yeast benchmark, 10% interest over 20 years | $25.22 | -1.77 | $21.00 a kilo (his best estimate) |
 | CE Delft 2021: Humbird 2021 design but with the plant paid back over 30 years at no interest | $19.95 | -7.04 | $6.43 a kilo of meat |
 | CE Delft 2021 and Negulescu 2023: Humbird 2021 design but with a plant that costs a third as much to build | $17.23 | -9.76 | $6.43 a kilo of meat (CE Delft); $35 a kilo (Negulescu, 42 m³ tanks) |
+| Negulescu 2023: Humbird 2021 design but with a complete medium at $1.40 a litre | $34.32 | +7.33 | $35 a kilo (42 m³ tanks) |
 | GFI 2026: Humbird 2021 design but with a complete medium at the $0.20 a litre companies announced | $24.65 | -2.34 | no cost a kilo reported |
 | SuperMeat 2024 and Lever VC 2025: Humbird 2021 design but with a complete medium at $0.50 a litre | $26.82 | -0.17 | $29.5 a kilo (SuperMeat); $10 to $15 (Lever VC) |
 | SuperMeat 2024: Humbird 2021 design but with perfusion through a membrane filter in 25 m³ tanks | $24.51 | -2.48 | $29.5 a kilo with depreciation (derived from $13.4 a pound) |
@@ -323,7 +324,7 @@ A sensitivity value is not a study's assumption. Negulescu's 12-hour doubling wi
 | Pasitka 2024: Humbird 2021 design but with the cells they measured in continuous perfusion | $685.04 | +658.04 | about $21 to $24 a kilo of wet cells (derived) |
 | SuperMeat 2024: Humbird 2021 design but with the cells they report, 1.04 ng each and doubling every 48 hours | $58.02 | +31.03 | $29.5 a kilo with depreciation (derived from $13.4 a pound) |
 | Every modification that lowers the cost alone, together | $17.10 | -9.89 | |
-| Every modification that raises the cost alone, together | $380.30 | +353.31 | |
+| Every modification that raises the cost alone, together | $614.59 | +587.60 | |
 | All together (where two set the same lever, the later is used) | $362.47 | +335.48 | |
 
 ## 9. Levers added or widened on the page
@@ -337,7 +338,7 @@ A sensitivity value is not a study's assumption. Negulescu's 12-hour doubling wi
 | Interest rate, % a year | 2 to 15 | 0 to 15 | CE Delft and Negulescu charge none |
 | Weight of one cell, ng | 1.0 to 3.5 in steps of 0.05 | 1.0 to 5.5 in steps of 0.01 | SuperMeat's 1.04 ng; Risner's 5.3 ng |
 
-Still not representable: Negulescu's 262 m³ airlift (the page's airlift is 20 m³); a medium above $0.60 a litre (Negulescu $1.40, Pasitka $0.63); Risner's 8-hour doubling (the lever stops at 12, and the value is rejected). Pasitka's 430 g/L can be set and changes nothing.
+Still not representable: Negulescu's 262 m³ airlift (the page's airlift is 20 m³); Risner's 8-hour doubling (the lever stops at 12, and the value is rejected). Pasitka's 430 g/L can be set and changes nothing.
 
 ## 10. Corrections to earlier notes and to the study records
 
@@ -401,3 +402,245 @@ moved by 0.03% or less. None moved by more than 2%.
 ## 11. What moved, and what is not repinned
 
 The all-favourable case moved from $7.56 to $7.02, and its ladder gained two steps (`frontier.md`). Repinned here: `tests/test_frontier.py`, `tests/test_ordering.py`, `tests/test_easy_view.py` (the new lever), `tests/test_study_assumptions.py`. Not repinned, and they quote the all-favourable case, its density (193 g/L, now 223), its band or its share: `tests/test_golden.py`, `tests/test_scenarios.py`, and any test or note that pins `SCENARIOS["best"]`; `RESULTS.md`, `METHODS.md`, `README.md`, `CHANGELOG.md`, `TODO.md`; the notes that cite $7.56 (`cost_scenarios.md`, `thick_culture.md`, `tank_size.md`, `nutrient_floor.md` and others).
+
+Since 2026-11-24 the medium lever reaches $1.40 a litre, so Negulescu's $1.40 is a modification in the table above and Pasitka's $0.63 can be set. The page also offers six starting sets (`study_assumptions.SETS`): every assumption of one study that has a lever, together on Humbird's best estimate.
+
+## 13. The starting sets: each study as a reasonable but ambitious long-term estimate, assumption by assumption (2026-11-24)
+
+The owner, 2026-11-24: optimistic assumptions are fine "but they should be possible too"; of Pasitka's 61 hours, "that is not the
+long term ambition ... Revise all the TEAs to make sure they propose reasonable but ambitious long term estimates"; and "We should
+make clear exactly what we modified from each TEA, so it is auditable". Each set (`study_assumptions.SETS`) is the study's own
+design on Humbird's best estimate; every assumption is listed below with what the study says and where, what the set uses, and why.
+The page shows the same table under the side bar's buttons; the used values are written from the settings the page prices, and
+tests/test_study_assumptions.py checks that every lever a set moves has a row. Anything not listed is Humbird's best estimate.
+
+The reasons:
+
+- **Kept**: the study's value.
+- **The study's own projection**: the study's more favourable scenario or sensitivity, not its base case.
+- **Long-term target**: the study's value is what one lab run or today's ingredients gave; the set uses the long-term target.
+- **Corrected**: the study's value is beyond a limit of this model; the set uses the nearest possible value.
+- **Not stated: Humbird's**: the study does not give it; Humbird's best estimate is kept.
+- **Not set on this page**: the page has no lever for it; the set leaves it out.
+- **Worked out by this model**: this model works it out from the cells and the tank, whatever the study states.
+
+The long-term targets: Humbird's design cells (doubling every 24 hours, his low ammonia and lactate; most studies project 23 to 30
+hours, and no serum-free meat cell has been published doubling this fast: 39 hours, Stout 2022) and a complete medium at $0.20 a
+litre (what several companies announced in 2025, GFI 2026, not audited; the model never charges less than the $2.00 of nutrients a
+kilo of cells eats). The correction on financing: a plant is repaid with interest at a market rate, Humbird's 7.5% over the study's
+own years where it charges none.
+
+### Humbird's perfusion design (2021): $50.48 a kilo of cells (plant $32.94, running $17.54)
+
+His other design: perfusion in 2 m³ tanks with an alternating-flow filter, on the plant hydrolysate of his best estimate. The study itself reports $51.29 a kilo of wet cells in 2018 dollars with amino acids bought one by one (his Table 4.13).
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Vessel and way of running | perfusion in 96 stirred tanks (Section 4.2, PDF page 66) | a stirred tank in perfusion | Kept |
+| Tank size | 2 m³, the largest an ATF 10 serves (Section 4.2, PDF page 66) | 2 m³ | Kept |
+| Device that holds the cells back | alternating-flow filters (Section 4.2, PDF page 66) | alternating-flow filters | Kept |
+| Nutrients | amino acids bought one by one, $18.39 a kilo of cells (Table 4.13, PDF page 69) | his plant hydrolysate, as in his best estimate (Table 4.7, column 2) | The study's own projection |
+| Density | 195 g of cells a litre (Section 4.2, PDF page 66) | 146 g of cells a litre, limited by oxygen supply | Worked out by this model |
+| Everything else | his best estimate's cells, plant and financing | the same | Kept |
+
+### CE Delft 2021's assumptions on Humbird's design: $12.96 a kilo of cells (plant $5.28, running $7.67)
+
+Its most favourable scenario (8): a cheap food-grade plant without clean rooms paid back over 30 years, 10 m³ tanks, cells of 3.6 ng doubling every 30 hours. The study itself reports $6.43 a kilo of meat in its most favourable scenario.
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Plant grade | food grade, no clean rooms (Section 2.3.2, PDF page 13) | a food-grade plant | Kept |
+| Plant cost | about $167k to $277k per m³ of tank (derived; Section 3.2.3, PDF pages 23 and 27) | 0.34 times this model's plant: $353k per m³ of tank | Corrected |
+| Years to repay the plant | 30, its social criterion (Section 3.2.3, PDF page 24) | 30 years | Kept |
+| Interest on the plant | none: the investment divided by 30 years (Section 3.2.3, PDF page 24) | 7.5% interest | Corrected |
+| Tank size | 10 m³ working volume (Table 2, PDF page 13) | 10 m³ | Kept |
+| Way of running | semi-continuous, three harvests (Table 5, PDF page 36) | fed-batch, as Humbird | Not set on this page |
+| Doubling time | 30 hours (Table 5, PDF page 36) | 30 hours | Kept |
+| Weight of a cell | 3,500 µm³ (Table 5, PDF page 37); 3.6 ng at 1.03 g/mL (derived) | 3.61 ng | Kept |
+| Medium price | low medium use at future prices, with cheaper growth factors; no price a litre (Table 11, PDF page 41; Section 3.2.5) | $0.20 a litre in 2025 dollars, growth factors in it | Long-term target |
+| Growth factors bought on top | included in its medium at future prices (Section 3.2.5) | none | Long-term target |
+| Sugar fed | 15 g of sugars a kilo of meat (Table 11, PDF page 41) | what this model's mass balance gives (311 g of glucose a kilo of cells at Humbird's growth) | Corrected |
+| Density | 50 million cells a mL, 18% of the volume (Table 5, PDF page 37) | 117 g of cells a litre, limited by waste build-up | Worked out by this model |
+| Maturation | a second stage in 2 m³ perfusion reactors (Table 2, PDF page 13) | left out: cells as grown | Not set on this page |
+| Waste the cells make | not stated | Humbird's | Not stated: Humbird's |
+
+### Risner 2021's assumptions on Humbird's design: $10.95 a kilo of cells (plant $3.39, running $7.56)
+
+Its most favourable scenario (4), brought inside the limits. The study itself reports $1.95 a kilo of wet cells in 2019 dollars (scenario 4).
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Tank size | 20 m³ (Table A1, PDF page 19) | 20 m³ | Kept |
+| Way of running | batches (Appendix A, PDF page 12) | fed-batch, as this page prices the scenario elsewhere | Not set on this page |
+| Doubling time | 8 hours in scenario 4 (Table A2, PDF page 19) | 15 hours | Corrected |
+| Weight of a cell | 5,000 µm³, 5.3 ng (Table A2, PDF page 19) | 3 ng, Humbird's; heavier than any measured for meat cells | Corrected |
+| Density | 200 million cells a mL, which fills the tank (Table A1, PDF page 19) | 92 g of cells a litre, limited by CO2 removal | Corrected |
+| Medium price | $0.24 a litre in 2019 dollars in scenario 4 (Section 3, PDF page 9) | $0.30 a litre in 2025 dollars, growth factors in it | The study's own projection |
+| Growth factors bought on top | priced at nothing in scenario 4 (Table A3, PDF page 20) | none | The study's own projection |
+| Plant cost | the tanks only, $778,000 for a 20 m³ tank (PDF page 7) | 0.34 times this model's plant: $309k per m³ of tank | Corrected |
+| Interest on the plant | 90% debt at 5%, equity at 15% (Table A7, PDF page 22) | 6% interest | Kept |
+| Years to repay the plant | 20 (Table A7, PDF page 22) | 20 years | Kept |
+| Fixed manufacturing costs | 15% of the plant a year (Tables A1 and A7) | this model's labour, energy and supplies | Not set on this page |
+| Waste the cells make, and what they tolerate | no limit set (Appendix A, PDF page 16) | Humbird's | Corrected |
+
+### Negulescu 2023's assumptions on Humbird's design: $11.06 a kilo of cells (plant $4.85, running $6.21)
+
+Its smaller stirred plant: fed-batch in 42 m³ tanks to 100 g a litre, a cheap food-grade plant, cells doubling every 23 hours. The study itself reports $35 a kilo of product with 42 m³ tanks.
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Plant grade | food grade, 304 stainless steel (Section 2.3, PDF page 6) | a food-grade plant | Kept |
+| Plant cost | $438M for the 42 m³ plant (Table 2, PDF page 8) | 0.34 times this model's plant: $236k per m³ of tank | Corrected |
+| Interest on the plant | none: straight-line depreciation (Section 2.3, PDF page 6) | 7.5% interest | Corrected |
+| Years to repay the plant | 10, with a 5% salvage value (Section 2.3, PDF page 6) | 10 years | Kept |
+| Tank size | 42 m³; also 211 m³ and a 262 m³ airlift (Table 2, PDF page 8) | 42 m³ | Kept |
+| Way of running | fed-batch (Section 2.2, PDF page 4) | fed-batch | Kept |
+| Densest culture | 100 g of cells a litre (Section 2.2, PDF page 4) | no more than 100 g of cells a litre | Kept |
+| Doubling time | 23 hours (Section 2.2, PDF page 4) | 23 hours | Kept |
+| Medium price | $1.396 a litre, from 2022 bulk prices of a published serum-free medium (Section 2.2.1, PDF page 6) | $0.20 a litre in 2025 dollars, growth factors in it | Long-term target |
+| Growth factors bought on top | included in its medium (Section 2.2.1, PDF page 6) | none | Kept |
+| Differentiation | 10 days in the tank (Section 2.2, PDF page 4) | left out: cells as grown | Not set on this page |
+| Waste the cells make | Humbird's enhanced metabolism (Section 2.2.1, PDF page 6) | Humbird's | Kept |
+
+### Garrison 2022's assumptions on Humbird's design: $10.97 a kilo of cells (plant $5.39, running $5.58)
+
+Its most favourable variant: Specht's cheapest medium, labour and bioreactors cut by 75%. The study itself reports $17.10 a kilo of meat, packed and delivered, in its most favourable variant; $63.69 as its base case.
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Tank size | four 20 m³ tanks (Section 2.3.1, PDF page 4) | 20 m³ | Kept |
+| Way of running | half of each tank harvested ten times in a 51-day cycle (Section 2.3.1, PDF page 4) | fed-batch | Not set on this page |
+| Medium price | $0.28 a litre, Specht 2020's lowest scenario, in its variant; $3.74 in its base case (Section 3.2.1, PDF page 6) | $0.35 a litre in 2025 dollars, growth factors in it | The study's own projection |
+| Growth factors bought on top | included in the medium (Section 3.2.1, PDF page 6) | none | The study's own projection |
+| Labour | 94 staff, cut by 75% in its variant (Table 2; Section 3.2.1) | 0.25 times this model's labour | The study's own projection |
+| Plant cost | $60M of equipment for 80 m³, $750k per m³ (derived), cut by 75% in its variant (Section 2.3.1; Section 3.2.1) | 0.34 times this model's plant: $309k per m³ of tank | Corrected |
+| Interest on the plant | 10% (Section 2.3, PDF page 4) | 10% interest | Kept |
+| Years to repay the plant | 10 (Section 2.3, PDF page 4) | 10 years | Kept |
+| Cells | not described | Humbird's | Not stated: Humbird's |
+
+### Pasitka 2024's assumptions on Humbird's design: $17.63 a kilo of cells (plant $11.51, running $6.12)
+
+Its plant with tangential-flow filters, with the long-term targets for the cells and the medium. The study itself reports $24.06 a kilo of wet cells for this design in 2024 dollars (its Table S10), or $32.66 with the payment on the plant its Table S4 works out.
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Vessel and way of running | continuous perfusion (PDF page 6) | a stirred tank in perfusion | Kept |
+| Device that holds the cells back | tangential-flow filters (PDF page 6) | a membrane filter loop (tangential flow) | Kept |
+| Tank size | 10 tanks of 5 m³ (PDF page 6) | 5 m³ | Kept |
+| Plant cost | $63.1M for 50 m³ of tank (Table S4) | 0.76 times this model's plant: $1,293k per m³ of tank | Kept |
+| Interest on the plant | 14.6% a year worked out in Table S4 and left out of the total (Table S10) | Humbird's | Corrected |
+| Years to repay the plant | with the 14.6% above (Table S4) | Humbird's | Corrected |
+| Filter membranes | 24 a year at $16,000 for about 24 million litres, about 2 cents a litre filtered (Table S6) | $50 a m² | Kept |
+| Cells lost | 1.3% of production (PDF page 6) | 1.3% | Kept |
+| Medium price | $0.63 a litre, the 2024 price of its animal-free medium (Abstract) | $0.20 a litre in 2025 dollars, growth factors in it | Long-term target |
+| Growth factors bought on top | included in its medium (Figure 2b) | none | Kept |
+| Doubling time | 61 hours in a 1.8-litre run (PDF page 2) | Humbird's design cells (the long-term target: most studies project 23 to 30 hours): 24 hours | Long-term target |
+| Waste the cells make | 0.14 mol of ammonia a kilo, 1.05 mol of lactate per mol of glucose, in that run (PDF page 4) | Humbird's design cells (the long-term target: most studies project 23 to 30 hours) | Long-term target |
+| Ammonia and lactate the cells tolerate | held below 3 mM and 30 mM in that run (PDF page 2) | Humbird's 5 mM and 50 mM | Long-term target |
+| Glucose and amino acids fed | 145 g and 81 g a kilo of cells (PDF page 4; Table S5) | what this model's mass balance gives | Corrected |
+| Weight of a cell | 3.3 ng or 9.8 ng, from two of its figures (Abstract; PDF page 2) | 3 ng | Not stated: Humbird's |
+| Density | up to 130 million cells a mL with serum in 5-litre tanks (Abstract) | 146 g of cells a litre, limited by oxygen supply | Worked out by this model |
+| Labour | Table S8 | this model's | Not set on this page |
+
+### SuperMeat 2024's assumptions on Humbird's design: $25.46 a kilo of cells (plant $13.64, running $11.82)
+
+Its plant: perfusion through a membrane filter in 25 m³ tanks, its medium at scale, with the long-term target for the cells. The study itself reports $29.5 a kilo of cultivated chicken with depreciation (derived from $13.4 a pound).
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Vessel and way of running | perfusion with continuous bleeding (PDF page 18) | a stirred tank in perfusion | Kept |
+| Tank size | 25,000 litres (PDF pages 18 and 20) | 25 m³ | Kept |
+| Weight of a cell | 1.04 g per billion stem cells (PDF page 18) | 1.04 ng | Kept |
+| Doubling time | half a doubling a day while bled, from 10-litre runs (PDF page 18) | Humbird's design cells (the long-term target: most studies project 23 to 30 hours): 24 hours | Long-term target |
+| Density | 80 million cells a mL, 83 g a litre, from 10-litre runs (PDF page 18) | 85 g of cells a litre, limited by CO2 removal | Long-term target |
+| Medium price | under $0.50 a litre at scale (PDF pages 3 and 18) | $0.50 a litre in 2025 dollars, growth factors in it | Kept |
+| Growth factors bought on top | included in its medium (PDF page 7) | none | Kept |
+| Cells lost | 3% rejected (PDF page 18) | 3% | Kept |
+| Interest on the plant | none: depreciation only (PDF page 20) | 7.5% interest | Corrected |
+| Years to repay the plant | not stated | 10 years | Not stated: Humbird's |
+| Plant cost | not given per m³ | Humbird's | Not stated: Humbird's |
+| Labour | 100 staff and 13 outsourced (PDF page 18) | this model's | Not set on this page |
+
+### Ark Biotech 2023's assumptions on Humbird's design: $28.75 a kilo of cells (plant $19.28, running $9.47)
+
+Its levers within reach: 25 m³ fed-batch tanks to 75 g a litre and a medium at $0.25 a litre. The study itself reports $4.4 a kilo of cells with all four of its levers ($2.0 a pound); $65.0 as its baseline.
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Tank size | 25,000-litre stirred tanks (Exhibit 8, PDF page 12) | 25 m³ | Kept |
+| Way of running | fed-batch (Exhibit 6, PDF page 8) | fed-batch | Kept |
+| Weight of a cell | 2,500 picograms (Exhibit 1, PDF page 4) | 2.50 ng | Kept |
+| Doubling time | 24 hours after a 2-day lag (Exhibit 3, PDF page 7) | 24 hours | Kept |
+| Densest culture | 30 million cells a mL as its lever, 20 million as baseline (Exhibit 1, PDF page 4) | no more than 75 g of cells a litre | The study's own projection |
+| Medium price | $0.25 a litre as its lever, $2 as baseline (Exhibit 1, PDF page 4) | $0.26 a litre in 2025 dollars, growth factors in it | The study's own projection |
+| Growth factors bought on top | included in its medium (Exhibit 2, PDF page 5) | none | Kept |
+| Interest on the plant | none: depreciation (Exhibit 8, PDF page 12) | 7.5% interest | Corrected |
+| Years to repay the plant | 15 (Exhibit 8, PDF page 12) | 15 years | Kept |
+| Larger tanks | its own design up to 1,000 m³ as a lever (Exhibit 8, PDF page 12) | left out: this model finds larger tanks dearer, because they clear less CO₂ | Not set on this page |
+| Differentiation | a 128% gain in mass as a lever (Exhibit 1, PDF page 4) | left out: cells as grown | Not set on this page |
+| Plant cost | not given per m³ | Humbird's | Not stated: Humbird's |
+
+### Gourmey and Arthur D. Little 2025's assumptions on Humbird's design: $16.65 a kilo of cells (plant $9.63, running $7.02)
+
+Its announced plant: six 5 m³ tanks run continuously, cells doubling in under 16 hours, medium at €0.20 a litre. The study itself reports €7 a kilo, of cells or of a product half cells (not stated).
+
+| assumption | what the study says, and where | what the set uses | why |
+|---|---|---|---|
+| Vessel and way of running | continuous runs in suspension (company announcement, 28 May 2025) | a stirred tank in perfusion | Kept |
+| Device that holds the cells back | not stated | a membrane filter loop (tangential flow) | Not stated: Humbird's |
+| Tank size | six 5,000-litre bioreactors (company announcement, 28 May 2025) | 5 m³ | Kept |
+| Plant cost | under €35M a facility, under €1.17M per m³ (derived; company announcement) | 0.76 times this model's plant: $1,316k per m³ of tank | Kept |
+| Doubling time | under 16 hours (press report, Green Queen, 28 May 2025) | 16 hours | Kept |
+| Medium price | €0.20 a litre (company announcement, 28 May 2025) | $0.23 a litre in 2025 dollars, growth factors in it | Kept |
+| Growth factors bought on top | none (company announcement, 28 May 2025) | none | Kept |
+| Output | 1,700 tonnes a year from 30 m³, 57 tonnes a m³ (derived; company announcement) | 32.3 tonnes a m³ of tank a year | Worked out by this model |
+| Density, litres of medium, weight of a cell, financing | not stated | Humbird's, or this model's limits | Not stated: Humbird's |
+
+The all-favourable example: $6.97 (plant $1.87, running $5.09).
+
+No button: Humbird's wild-type cells (a sensitivity case of his, not a long-term estimate; it stays as a box in "Why published cost studies disagree"); Lever VC 2025 and Aleph Farms 2025 (no design published); GFI 2021 (CE Delft's study); GFI 2026 (a medium price only); Cellular Agriculture Ltd 2024 (hollow-fibre reactors at a scale this page cannot price).
+
+Earlier versions of the Pasitka set, the same day: $259.07 (the measured ratio of lactate to glucose on this engine's glucose
+burn and the run's 3 and 30 mM), $91.13 (lactate per kilo as measured), $59.16 (the study's plant cost and Humbird's tolerances),
+$45.52 (the study's own filter cost, which an earlier version had wrongly replaced with Humbird's pharma membranes); then the
+long-term targets. The Negulescu set cost $106.98 with its 10 days of differentiation; the sets price cells as grown.
+
+### Plant against running costs
+
+The page plots each study's own plant and running costs a kilo (`study_assumptions.SPLITS`, 2025 dollars) and its set on this
+page's model, joined by a line, with the nutrient floor ($2.00 of running cost), the all-favourable example and the total a 1% share
+needs. "Plant" is the yearly payment with interest, maintenance and insurance.
+
+| study | as it reports it: plant | running | how |
+|---|---:|---:|---|
+| Humbird 2021, best estimate | $15.07 | $12.38 | his Table 4.7, column 2: plant (capital charge, maintenance, insurance) $11.33, the rest $9.67, in 2018 dollars |
+| Humbird 2021, perfusion | $30.07 | $36.74 | his Table 4.13: plant $22.61, the rest $28.68, in 2018 dollars, with amino acids bought one by one (the set uses his hydrolysate) |
+| CE Delft 2021 | $1.27 | $6.37 | scenario 8: $6.43 a kilo; its plant, $320M over 30 years with no interest, on 10,000 tonnes a year is $1.07 (derived; Section 3.2.5, PDF page 27); the rest $5.36. The year of its dollars is not stated: 2021 is taken |
+| Negulescu 2023 | $11.00 | $27.50 | 42 m³ tanks: $35 a kilo with depreciation, $25 without (Table 2, PDF page 8), so $10 of plant; the year of its dollars is not stated: 2022 is taken. Its medium at $1.40 a litre (the set uses $0.20) |
+| Garrison 2022 | $4.90 | $13.91 | its most favourable variant, $17.10 a kilo (Section 3.2.1, PDF page 6): tanks and equipment at a quarter of its $17.81 (Table 2, PDF page 5), $4.45 (derived); the rest $12.65 |
+| Pasitka 2024 | $5.45 | $19.24 | its design with tangential-flow filters, $24.06 a kilo (Table S10): maintenance and insurance $5.31, the rest $18.75. It leaves out the payment on the plant its Table S4 works out, $8.60 a kilo. Its cells and medium are those of its 1.8-litre run (the set uses the long-term targets) |
+| SuperMeat 2024 | $3.62 | $26.70 | $13.4 a pound with depreciation and $11.8 without (PDF page 20): $3.53 and $26.01 a kilo (derived). Its cells are those of its 10-litre runs (the set uses the long-term targets) |
+| Ark Biotech 2023, baseline | $9.08 | $59.63 | its baseline, $29.5 a pound: depreciation $3.9, the rest $25.6 (Exhibit 2, PDF page 5); $8.60 and $56.44 a kilo (derived). Its lever case, which the set models, gives no split |
+| Cellular Agriculture Ltd 2024 | $4.70 | $14.57 | the factory of 60 tonnes a week: plant £3.58, running costs £11.09 (Table 5, PDF page 7), at $1.28 a pound sterling; the plant divided over 20 years with no interest |
+
+## Added 2026-11-24: four analyses by parties with a stake in the result
+
+Ark Biotech 2023 (a bioreactor maker) and Cellular Agriculture Ltd 2024 (a hollow-fibre bioreactor maker) were read in full. Gourmey's (by Arthur D. Little, 2025) and Aleph Farms's (by Eridia, 2025) are not public: only the companies' announcements are recorded, and GFI's 2026 report says of both that sensitive details were omitted. None is peer reviewed. The all-favourable case is unchanged ($6.97): no value of theirs that respects the limits is more favourable than the one it already takes. The earlier sections of this note are as they were before these four.
+
+| study | as published | where | as a kilo of wet cells | year of its dollars | in 2025 dollars | against the case |
+|---|---|---|---|---|---|---|
+| Ark Biotech 2023 | $2.0 a pound with all four of its levers ($29.5 as its baseline) | Exhibit 1, PDF page 4 | $4.41: a kilo of cells leaving the tank, with no differentiation credit removed: $2.0 x 2.2046. The headline figure is taken; its Exhibit 10 (PDF page 14) also shows example paths down to $0.3 a pound, which need cells that gain 3,000% in mass while differentiating | 2023 (not stated; the year of publication is taken) | **$4.66** | **below** |
+| Cellular Agriculture Ltd 2024 | £14.68 a kilo of cultured biomass (factory of 60 tonnes a week) | Table 5, PDF page 7 | $18.79: already a kilo of cultured biomass; pounds to dollars at 1.28, about the 2024 average rate (typed from memory, not fetched from an official series) | 2024 (not stated; the year of publication is taken) | **$19.28** | above |
+| Gourmey and Arthur D. Little 2025 | €7 a kilo ($3.43 a pound) | company announcement, 28 May 2025 | $7.56: the company's own dollar figure, $3.43 x 2.2046, read as a kilo of cells, the more favourable reading: the announcement does not say of what, and the press reports a product about half cells. Whether the plant is charged is not stated | 2025 (the year of the announcement) | **$7.56** | above |
+| Aleph Farms and Eridia 2025 | as low as $4.08 a pound of end products ($6.45 as its estimate, with the plant) | company announcement, September 2025 | $8.99: the low end of its sensitivity analysis, $4.08 x 2.2046, read as a kilo of cells, the more favourable reading: the share of cells in the product is not stated | 2025 (the year of the announcement) | **$8.99** | above |
+
+Values not taken, and the limit each breaks:
+
+| study | what it assumes | where | its value | the limit allows | the limit |
+|---|---|---|---|---|---|
+| Ark Biotech 2023 | the plant written off over 15 years with no interest. The plant must be repaid at a market rate of interest: depreciation alone leaves out what the money costs. The study also counts nothing after the bioreactor. | Exhibit 8, PDF page 12 | 0.0667 share of the plant's cost a year | 0.083 | the plant must be repaid at a market rate of interest |
+| Cellular Agriculture Ltd 2024 | the plant divided over 20 years of output with no interest. The plant must be repaid at a market rate of interest: depreciation alone leaves out what the money costs. | Fixed cost estimation, PDF page 2 | 0.05 share of the plant's cost a year | 0.083 | the plant must be repaid at a market rate of interest |
+
+Open: the pound-to-dollar rate for Cellular Agriculture Ltd (1.28) was typed from memory. Ark's design is not re-priced inside the limits, because it does not publish its plant cost; its tanks of 100 to 1,000 m³ and its gain in mass during differentiation are not levers of this engine. No modification on Humbird's best estimate was added for these four.
+
+Line by line against the study's Tables S4 to S10 (a kilo of wet cells; the set, then the study): medium $17.87 and $14.11 (28.4 and 22.4 litres); filter membranes $0.49 and $0.43; the plant with its upkeep $20.50 and $13.91; labour $4.81 and $2.03; energy $1.55 and $2.18; total $45.52 and $32.66. The plant and labour differ because a m³ of tank makes 15.0 tonnes a year here and 21.4 in the study: at a 61-hour doubling the study's output needs about 239 g of cells a litre, and a 5 m³ tank passes the oxygen for 209. With cells doubling every 36 hours the engine gives the study's output (21.2 tonnes) and $38.39. Until later on 2026-11-24 the set kept Humbird's pharma membranes ($14.13 a kilo, $59.16 in all); the study's filter cost is the membrane lever's own food-grade reference, so that was not a correction.

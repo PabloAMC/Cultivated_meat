@@ -55,8 +55,8 @@ FIRST = ('id="deck"', 'id="levers"', 'id="tp_refs"', 'id="regionsel"', 'id="tp_r
          'id="tp_g_cells"', 'id="tp_g_cells_more"',
          'id="st_reactor"', 'id="pl_vessel"', 'id="pl_vmode"', 'id="pl_size"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_items"', 'id="pl_capex"',
          'id="pl_tricks"', 'id="pl_shape"', 'id="pl_design_btn"', 'id="tp_g_reactor"', 'id="tp_g_reactor_more"', 'id="st_medium"', 'id="pl_med"', 'id="tp_g_medium"', 'id="st_shoppers"', 'id="tp_buyers"', 'id="tp_cuthost"',
-         'id="sumbar"', 'id="tp_calc"', 'id="studies"', 'id="tp_studies"', 'id="tp_cellres"', 'id="tp_vmgrid"', 'id="tp_rtgrid"', 'id="tp_yours"', 'id="tp_costline"', 'id="tp_groups"',
-         'id="tp_unc"', 'id="tp_one"', 'id="tpmap"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"', 'id="tp_wit"')
+         'id="sumbar"', 'id="tp_calc"', 'id="studies"', 'id="tp_studies"', 'id="tp_cellres"', 'id="tp_vmgrid"', 'id="tp_rtgrid"', 'id="tp_yours"', 'id="tp_groups"',
+         'id="tp_unc"', 'id="tpmap"', 'id="tp_cl_note"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"', 'id="tp_wit"')
 # words that claim a route by which cells would get a trait (the author, 2026-11-19: remove them all); a case's name is not one
 ROUTE_WORDS = re.compile(r"engineer|genetic|selection|selected (on|for|to)|adapt|by (any|which) route|routes? (that|verdict)|feed change|"
                          r"other cells|shown together|not (yet )?shown (together|by any)|least intrusive|knocked", re.I)
@@ -411,10 +411,10 @@ def check() -> list:
         ws_ = {k: _text(v) for k, v in w["words"].items()}
         bt = f"{w['buyers'] * 100:.1f}".rstrip("0").rstrip(".") + "% of meat buyers"
         for k, want in (("tp_cl_note", "Each kind of meat has its own price"), ("tp_cl_note", "same shop price as chicken mince at $"),
-                        ("tp_cl_note", "a kilo in the shop)"), ("tp_cl_note", "move that slider and they move"), ("tp_groups_sub", "every estimate at its most likely value"),
+                        ("tp_cl_note", "a kilo in the shop)"), ("tp_cl_note", "These costs are the dashed lines on the map"), ("tp_groups_sub", "every estimate at its most likely value"),
                         ("tp_groups_say", "1% of"), ("tp_groups_say", bt), ("tp_groups_table", "litres a kilo of cells"), ("tp_animals_sub", "at the cost of"),
                         ("tp_animals_total", "Plant-based meat: about"), ("tp_animals_total", "by weight of cells"), ("tp_animals_say", "of its sales"),
-                        ("tp_cl_alt", "Same shop price as chicken mince at $"), ("tp_groups_alt", "split by what drives the cost"),
+                        ("tp_groups_alt", "split by what drives the cost"),
                         ("tp_animals_alt", "Long-run share of each product"), ("tp_animals_alt", "by weight of cells")):
             if want not in ws_.get(k, ""):
                 fails.append(f"{lab}: #{k} does not say '{want}': {ws_.get(k, '')[:200]}")
@@ -518,7 +518,7 @@ def check() -> list:
     # the reference values under the levers: each belongs to a lever and sits inside its slider's range
     rng = {q[0]: (q[8], q[9]) for q in BI.PAGE_PARAMS}
     rng.update({k: (v[2], v[3]) for k, v in BI.TRAIT_PAGE.items()})
-    rng.update({"capex_x": (0.0, 3.0), "medium_price": (0.0, 0.60), "wash_price": (0.0, 0.60), "buyers": (1.0, 99.0), "cut": (0.0, 90.0), "displaced": (0.0, 1.0),
+    rng.update({"capex_x": (0.0, 3.0), "medium_price": (0.0, 1.40), "wash_price": (0.0, 1.40), "buyers": (1.0, 99.0), "cut": (0.0, 90.0), "displaced": (0.0, 1.0),
                 "closed": (0.0, float(len(mm.CLOSED_LEVELS) - 1))})   # the closed-market lever: a level of meat_market.closed_share
     for k, refs in BI.LEVER_REFS.items():
         if k not in rng:
@@ -622,7 +622,7 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
         fails.append(f"the start should be the plant with clean rooms (select {o['plant']}, engine {o['params'].get('plant')})")
     if o["clean"] != "none" or o["params"].get("clean") not in (None, "none"):
         fails.append("the start should not clean the medium")
-    if abs(o["medium"] - py["medium_price"]) > 1e-9 or o["params"].get("growth_factors") != 1.0 or not 0.0 < o["medium"] <= 0.60:
+    if abs(o["medium"] - py["medium_price"]) > 1e-9 or o["params"].get("growth_factors") != 1.0 or not 0.0 < o["medium"] <= 1.40:
         fails.append(f"the start's medium should be his cost per litre with growth factors bought (got {o['medium']}, {o['params'].get('growth_factors')})")
     if abs(o["params"]["vessel_m3"] - 20.0) > 1e-12:
         fails.append("the start's tank should be 20 m3")
@@ -723,6 +723,27 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
         fails.append(f"loading Published cells after Humbird's start with levers moved should reset every lever to the model's own (got {b})")
     if a3["held"] or a3["on"] or a3["ref"] != "humbird_best" or abs(a3["total"] - o["total"]) > 1e-12 or any(abs(a3["levers"][k] - a["start"]["levers"][k]) > 1e-12 for k in a3["levers"]):
         fails.append(f"loading Humbird's best estimate after Published cells with a lever moved should give the start back (got {a3})")
+    # "How this is worked out, and how to check it" (the owner, 2026-11-24): one closed box under each main result, every marker
+    # filled, each with its four parts, and every file it links to present in the repository
+    if "<!--VERIFY:" in html:
+        fails.append("a verification box marker was not filled")
+    import page_verify
+    n_boxes = html.count('<details class="verify">')
+    # the verdicts follow from the numbers: the choice experiment's elasticity sits inside its arms' range at the model's settings
+    if ">Cultivated meat at first contact and equal price: own-price elasticity</td>" in html and \
+            not re.search(r"own-price elasticity</td>(?:<td>[^<]*(?:<[^>]+>[^<]*)*</td>){3}<td>agrees</td>", html):
+        fails.append("the share map's box does not say the choice-experiment check agrees")
+    if n_boxes != 6:
+        fails.append(f"{n_boxes} verification boxes on the page; 6 expected")
+    for part in ("How it is worked out", "What it rests on", "Checked against", "Check it yourself"):
+        if html.count(f'<p class="vh">{part}</p>') != n_boxes:
+            fails.append(f"a verification box lacks the part '{part}'")
+    for path in set(re.findall(r'href="' + re.escape(page_verify.GH) + r'([^"]+)"', html)):
+        if not os.path.exists(os.path.join(ROOT, path)):
+            fails.append(f"a verification box links to {path}, which is not in the repository")
+    for anchor in set(re.findall(r"pgOpenTo\('([^']+)'\)", html)):
+        if f'id="{anchor}"' not in html:
+            fails.append(f"a verification box links to #{anchor}, which is not on the page")
     for w in ('id="tp_adds_btn"', ">Add what this model counts and he does not</button>"):
         if w not in html:
             fails.append(f"the page has no button to add what this model counts: '{w}'")

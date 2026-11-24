@@ -54,6 +54,10 @@ PROBE = r"""
     const others=ST_MODS.filter(o=>o!==m&&stOn(o)&&!stClash(o,m)).length;
     stClear(SCS,m.settings); return {key:m.key, before:before, on:on, cost:c, others:others, off:stOn(m), back:pt()}; });
   SCS.base="switches"; out.off_humbird=ST_MODS.filter(stOn).length; load();
+  // the starting sets: priced on a state built for the purpose, and written into the page's state as the buttons do
+  out.sets=stSetCosts(); out.sets_state={}; ST_SETS.forEach(e=>{ load(); stApplyTo(SCS,e.settings); out.sets_state[e.key]=pt(); }); load();
+  out.set_names=ST_SETS.map(e=>[e.key,e.label,e.name]);
+  out.set_splits=stSplits();
   out.n=[ST_MODS.length, ST_NOTES.length, ST.studies.length];
   out.start=tpRef(ST_KEY).point; out.key=ST_KEY; out.fav=[ST.all_favourable, TP.frontier, ST.below.map(b=>b.name)];
   const host={innerHTML:""}; const gd=document.getElementById; document.getElementById=id=>id==="tp_studies"?host:gd.call(document,id);
@@ -96,7 +100,7 @@ def _in_range(settings: dict) -> list:
         if k == "capex_x":
             lo, hi = S.MC_PRIORS["capex_x"][0], S.MC_PRIORS["capex_x"][2]
         elif k == "medium_price":
-            lo, hi = 0.0, 0.60
+            lo, hi = 0.0, 1.40
         elif k in par:
             lo, hi = par[k][8], par[k][9]
         else:
@@ -128,13 +132,14 @@ def check() -> list:
         for a in s["assumptions"]:
             if len(a) != 3 or not all(str(x).strip() for x in a):
                 fails.append(f"{key}: an assumption without a value or a source reference: {a}")
-            elif not re.search(r"PDF page|Table|Section|Figure|Reaction|Abstract|Appendix", a[2]):
+            # a study known only from a company's announcement has no page: the dated announcement or press report is its reference
+            elif not re.search(r"PDF page|Table|Section|Figure|Reaction|Abstract|Appendix|company announcement, |press report, ", a[2]):
                 fails.append(f"{key}: the source reference names no page, table or section: {a}")
     # --- the modifications
     mods = SA.modifications()
     real = [m for m in mods if not m.get("not_representable")]
-    if not 8 <= len(real) <= 14:
-        fails.append(f"{len(real)} modifications; 8 to 14 expected")
+    if not 8 <= len(real) <= 15:
+        fails.append(f"{len(real)} modifications; 8 to 15 expected")
     if len({m["key"] for m in mods}) != len(mods):
         fails.append("two modifications share a key")
     base = SA.cost({})
@@ -179,10 +184,73 @@ def check() -> list:
     t = SA.table()
     if [r["key"] for r in t["rows"]] != [m["key"] for m in real] or any(abs(r["cost"] - py[r["key"]]) > 1e-9 for r in t["rows"]):
         fails.append("table() does not carry each modification's own cost")
+    # --- the starting sets: one study's assumptions together on Humbird's best estimate
+    keys = {m["key"] for m in real}
+    for e in SA.sets():
+        if e["study"] not in SA.STUDIES or not set(e["mods"]) <= keys:
+            fails.append(f"set {e['key']}: an unknown study or modification")
+        elif any(e["study"] not in m["studies"] for m in real if m["key"] in e["mods"]):
+            fails.append(f"set {e['key']}: a modification that is not this study's")
+        for f in ("label", "name", "text", "own"):
+            if not str(e.get(f, "")).strip():
+                fails.append(f"set {e['key']}: no {f}")
+        # a plant is repaid with interest (the owner, 2026-11-24): no set charges none, and one that changes a study's
+        # financing says so under `corrected`
+        if e["settings"]["held"].get("fin_rate", 7.5) < 5.0:
+            fails.append(f"set {e['key']}: the plant is repaid at {e['settings']['held']['fin_rate']}% interest")
+        # the audit (the owner, 2026-11-24: "make clear exactly what we modified from each TEA, so it is auditable"): every lever
+        # the set moves has a row, every row's reason is one of the named kinds and cites where the study says it
+        rows = e["audit_rows"]
+        moved = {f"trait:{k}" for k in e["settings"].get("traits", {})} | {f"held:{k}" for k in e["settings"].get("held", {})} | \
+                {k for k in ("vm", "device", "plant") if k in e["settings"]}
+        missing = moved - {r["lever"] for r in rows}
+        if missing:
+            fails.append(f"set {e['key']}: levers it moves with no row in its audit: {sorted(missing)}")
+        for r in rows:
+            if r["why"] not in SA.AUDIT_KINDS:
+                fails.append(f"set {e['key']}: '{r['item']}' has the reason '{r['why']}'")
+            if r["why"] not in (SA.HUMBIRD,) and r["study"] != "not stated" and not re.search(
+                    r"PDF page|Table|Section|Figure|Exhibit|Abstract|Appendix|company announcement|press report|as in his|his best", r["study"]):
+                fails.append(f"set {e['key']}: '{r['item']}' does not say where the study gives it: {r['study']}")
+        if e["study"] != "humbird2021" and not any(r["lever"] == "held:fin_rate" for r in rows) and \
+                not any("financing" in r["item"].lower() for r in rows):
+            fails.append(f"set {e['key']}: the audit does not say how the plant is repaid")
+        # the long-term targets (the owner, 2026-11-24): no set keeps a lab run's doubling time or today's medium price
+        if e["settings"]["traits"].get("doubling_h", SA.LT_DOUBLING_H) > 30.0:
+            fails.append(f"set {e['key']}: cells doubling every {e['settings']['traits']['doubling_h']} hours, slower than any study projects")
+        if e["study"] != "humbird2021" and e["settings"]["held"].get("medium_price", SA.LT_MEDIUM) > 0.60:
+            fails.append(f"set {e['key']}: a medium at ${e['settings']['held']['medium_price']} a litre is today's price, not a long-term one")
+        if SA.STUDIES[e["study"]]["name"] not in e["label"]:
+            fails.append(f"set {e['key']}: the label does not name its study")
+        fails += [f"set {e['key']}: {b}" for b in _in_range(e["settings"])]
+        c = SA.cost(e["settings"])
+        if not (math.isfinite(c) and c > 0) or abs(c - base) < 1e-6:
+            fails.append(f"set {e['key']}: cost {c}")
+    # the Pasitka set: the lactate the study measured for a kilo of cells, and the study's own plant cost
+    rp = SA.result({e["key"]: e for e in SA.sets()}["pasitka"]["settings"])
+    rg = SA.result({e["key"]: e for e in SA.sets()}["gourmey"]["settings"])
+    if abs(rg["capex"] / SA.GOURMEY_CAPEX_K_M3 - 1.0) > 0.03:
+        fails.append(f"the Gourmey set's plant costs ${rg['capex']:.0f}k per m³; the announcement's is ${SA.GOURMEY_CAPEX_K_M3:.0f}k: reset GOURMEY_CAPEX_X")
+    # plant against running costs: every study's own split is positive and adds up to a plausible total; every set's split adds up
+    for d in SA.splits_reported():
+        if not (0 < d["plant"] < 100 and 0 < d["running"] < 100) or (d["set"] and d["set"] not in [e["key"] for e in SA.sets()] + ["humbird_best"]):
+            fails.append(f"split {d['key']}: {d['plant']:.2f} and {d['running']:.2f}, set {d['set']}")
+    for e in SA.sets():
+        sp = SA.split(e["settings"])
+        if abs(sp["plant"] + sp["running"] - SA.cost(e["settings"])) > 1e-9 * sp["total"] or sp["plant"] <= 0:
+            fails.append(f"set {e['key']}: its plant and running costs do not add up to its cost: {sp}")
+    if abs(rp["capex"] / (SA.PASITKA_CAPEX_K_M3 * SA.cpi(2024)) - 1.0) > 0.03:
+        fails.append(f"the Pasitka set's plant costs ${rp['capex']:.0f}k per m³; the study's is ${SA.PASITKA_CAPEX_K_M3 * SA.cpi(2024):.0f}k: reset PASITKA_CAPEX_X")
+    if len({e["key"] for e in SA.sets()}) != len(SA.SETS):
+        fails.append("two starting sets share a key")
     # --- the words a reader sees
     pd = SA.page_data()
     seen = [(m["key"], " ".join(str(m.get(f, "")) for f in ("label", "text", "solid", "own", "reason"))) for m in pd["mods"]] + \
-           [(s["key"], " ".join(s[f] for f in ("name", "system", "cost", "basis", "explains"))) for s in pd["studies"]]
+           [(s["key"], " ".join(s[f] for f in ("name", "system", "cost", "basis", "explains"))) for s in pd["studies"]] + \
+           [(e["key"], " ".join([e[f] for f in ("label", "name", "text", "own")] + [r[k] for r in e["audit_rows"] for k in ("item", "study", "used")]))
+            for e in pd["sets"]] + \
+           [(d["key"], " ".join(d[f] for f in ("label", "basis", "how"))) for d in pd["splits"]] + \
+           [("sets_not_offered", pd["sets_not_offered"])]
     for key, txt in seen:
         for rx in (BAD_WORDS, EV.ROUTE_WORDS):
             mt = rx.search(txt)
@@ -216,6 +284,24 @@ def check() -> list:
             fails.append(f"{r['key']}: written into the page's state, the boxes shown ticked are wrong: {r}")
         if rel(r["cost"], py[r["key"]]) > TOL or rel(r["back"], base) > TOL:
             fails.append(f"{r['key']}: in the page's state it gives {r['cost']:.6f} (python {py[r['key']]:.6f}) and taken out {r['back']:.6f} (python {base:.6f})")
+    # the starting sets: the page prices each as Python does, by both paths
+    for e in SA.sets():
+        c = SA.cost(e["settings"])
+        for path in ("sets", "sets_state"):
+            if e["key"] not in js[path] or rel(js[path][e["key"]], c) > TOL:
+                fails.append(f"set {e['key']} ({path}): python {c:.6f} page {js[path].get(e['key'])}")
+    for e in SA.sets():
+        sp, jp = SA.split(e["settings"]), js["set_splits"].get(e["key"], {})
+        if any(k not in jp or rel(jp[k], sp[k]) > TOL for k in ("plant", "running")):
+            fails.append(f"set {e['key']}: the plot's plant and running costs are not Python's: page {jp}, python {sp}")
+    for w in ('id="st_pvr"', "function stPvrDraw"):
+        if w not in html:
+            fails.append(f"the page has no plot of plant against running costs: '{w}'")
+    if [x[0] for x in js["set_names"]] != [e["key"] for e in SA.sets()]:
+        fails.append("the page's starting sets are not Python's, in order")
+    for w in ('id="tp_setsnote"', "stLoadSet("):
+        if w not in html:
+            fails.append(f"the page has no buttons for the starting sets: '{w}'")
     if js["off_humbird"] != 0:
         fails.append("a box shows ticked when the page is not on Humbird's design")
     if js["key"] != SA.BASE_KEY or rel(js["start"], base) > TOL:

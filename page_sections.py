@@ -42,6 +42,8 @@ _GRID_TANKS = (("none", "Gas bubbled in only", "the standard tank"),
 # Vessel types and operating modes (vessels.py): one table, vessel rows, mode columns; page_vessels.js redraws it
 # ----------------------------------------------------------------------------
 def _vm_money(x: float) -> str:
+    if x >= 1e6:                                   # as page_vessels.js vmMoney: "$355 million", not nine digits
+        return f"${x / 1e6:.{0 if x >= 1e7 else 1}f} million"
     return f"${x:,.0f}" if x >= 1000 else f"${x:.2f}"
 
 
