@@ -989,7 +989,10 @@ function scReadHash(v){
 
 /* ---------- the first screen: the controls ---------- */
 function tpFmtTrait(k,v){ const T=TP.traits[k], x=v*T.scale; return (k==="doubling_h"?x.toFixed(1).replace(/\.0$/,""):(k==="mass_pg"?x.toFixed(2):x.toFixed(k==="nh3_kg"?3:2)))+" "+T.unit; }
-const TP_SHOWN=["humbird_best","today"];        // the starting points offered: Humbird's best estimate (2021), and what has been published for meat cells
+// the starting points offered as buttons: Humbird's best estimate (2021), what has been published for meat cells, and the
+// all-favourable example (every lever at its most favourable value within the model's limits; the owner, 2026-11-24: "we should
+// add the most optimistic one too"), so the two ends of the range sit side by side
+const TP_SHOWN=["humbird_best","today","best"];
 const TP_GROUPS=["cells","reactor","medium"];
 // the reference values under a lever: chips that set it (MODEL.tp.lever_refs, from build_interactive.LEVER_REFS)
 function tpRefChips(key,call,fmt){ const L=(TP.lever_refs||{})[key]; if(!L||!L.length) return "";
@@ -1266,20 +1269,23 @@ function tpCellsRender(f){
   const terms=Object.keys(r.medium_terms||{}).map(k=>[k,r.medium_terms[k]]).sort((a,b)=>b[1]-a[1]);
   const qo2=r.o2_kg*Math.LN2/tr.doubling_h;     // mmol of oxygen a gram of cells an hour
   // one row of a bar plot: the name, a bar to scale, the value; the row that sets the result is drawn in the accent colour
-  const rows=(list,on,name,val,tag)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
-    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on;
-      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i></span>'+
-        '<span class="lv'+(o?' on':'')+'">'+val(x[1])+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
+  // a zero bar says why: a need this model counts and Humbird does not, switched off at his settings (tpAdds), or none at these settings
+  const zeroWhy={"least flow":"none: Humbird counts none; the lever “Least medium flow the cells need” sets it"};
+  const rows=(list,on,name,val,tag,mark)=>{ const mx=Math.max.apply(null,list.map(x=>x[1]).concat([1e-9]));
+    return '<div class="lim">'+list.map(x=>{ const o=x[0]===on, zero=x[1]<0.05;
+      return '<span class="ln'+(o?' on':'')+'">'+pgEsc(tpCap(name(x[0])))+'</span><span class="bar'+(o?' on':'')+'"><i style="width:'+Math.max(0.5,x[1]/mx*100).toFixed(1)+'%"></i>'+
+        (mark&&!o?'<b class="mk" style="left:'+(mark/mx*100).toFixed(1)+'%"></b>':'')+'</span>'+
+        '<span class="lv'+(o?' on':'')+'">'+(zero?pgEsc(zeroWhy[x[0]]||"none at these settings"):val(x[1]))+(o?' <span class="lt">'+tag+'</span>':'')+'</span>'; }).join("")+'</div>'; };
   host.innerHTML='<div class="cellres"><div><span class="big">'+r.density.toFixed(0)+' g of cells a litre</span>'+
     'the densest this tank can run ('+(cells/1e6).toFixed(0)+' million cells a mL), limited by '+pgEsc(lw(r.limit))+'.</div>'+
     '<div><span class="big">'+r.medium_l.toFixed(0)+' litres of medium a kilo of cells</span>'+
     (terms.length?'set by '+pgEsc(TP_TERMW[r.medium_set_by]||r.medium_set_by)+'.':'as set.')+'</div>'+
     '<div><span class="big">'+(r.output).toFixed(1)+' tonnes a year from each m³ of tank</span>'+
     'The tank is in use '+(r.uptime*100).toFixed(0)+'% of the time.</div></div>'+
-    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit allows. The lowest sets the density.</p>'+
+    '<div class="limgrid"><div role="group" aria-label="Grams of cells a litre each limit allows"><p class="limt">Grams of cells a litre that each limit would allow on its own. The tank runs at the lowest, which keeps within every other limit too.</p>'+
     rows(lims,r.limit,lw,v=>v.toFixed(0)+' g a litre','sets the density')+'</div>'+
-    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need asks for. The largest sets the amount.</p>'+
-    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount')+'</div>':'')+'</div>'+
+    (terms.length?'<div role="group" aria-label="Litres of medium a kilo of cells each need asks for"><p class="limt">Litres of medium a kilo of cells that each need would ask for on its own. The tank uses the largest, '+r.medium_l.toFixed(1)+' litres (the line on each bar), which meets every other need too.</p>'+
+    rows(terms,r.medium_set_by,k=>TP_TERMW[k]||k,v=>v.toFixed(1)+' litres','sets the amount',r.medium_l)+'</div>':'')+'</div>'+
     '<p class="small">The cells make '+r.nh3_kg.toFixed(3)+' mol of ammonia and '+r.lac_kg.toFixed(1)+' mol of lactate a kilo, and use '+qo2.toFixed(3)+' mmol of oxygen a gram an hour ('+
     (qo2*tr.mass_pg*1e-12*1e9*24).toFixed(1)+' pmol a cell a day). Every figure here is calculated from your settings, with each estimate at its most likely value. The costs follow in the next sections.</p>';
 }
@@ -1298,7 +1304,10 @@ function tpCompareRender(){
         return '<td class="pick'+on+'" onclick="tpPickVM(\''+v+'\',\''+m+'\','+(size||0)+')" title="'+pgEsc(size?"Animal cells have not been grown in a tank this large.":c.evidence)+'"><b>'+vmMoney(c.cost)+'</b><br><span class="alt">'+c.density.toFixed(0)+' g/L, limited by '+pgEsc(VM.limit_plain[c.limit]||c.limit)+'</span><br>'+vmTagChip(size?big:c.tag)+'</td>'; }).join("")+'</tr>'; };
     const rows=VM.vorder.map(v=>row(v,null)+(v==="stirred"?TP_SIZES.map(z=>row(v,z)).join(""):"")).join("");
     document.getElementById("tp_vmgrid").innerHTML='<div class="scrollx"><table class="sctab vmtab">'+head+'<tbody>'+rows+'</tbody></table></div>'+
-      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³.</p>'; }
+      '<p class="small">The tag says whether animal cells have been grown this way at this size. The stirred tank is shown at 20, 50 and 100 m³; the lever “Size of a stirred tank” takes any size from 4 to 250 m³. '+
+      '<b>Why a larger tank can cost more:</b> a larger tank is cheaper per m³ to build, but where clearing CO₂ limits the culture it holds fewer cells a litre. '+
+      'The CO₂ leaves only in the gas bubbled through, the gas may rise no faster than bubbles and foam allow, and a taller tank passes less gas per litre, so it clears less CO₂ per litre. '+
+      'Fewer kilos from each m³ then cost more per kilo than the cheaper tank saves. Added equipment that strips CO₂ without bubbles (in the side bar, under the reactor) removes this limit, and larger tanks then cost less.</p>'; }
   if(dr&&dr.open&&MODEL.rt){ const p=tpParamsFor(Object.assign({},SCS,{vessel:"stirred",vmode:null,choice:Object.assign({},SCS.choice,{mode:"perfusion"}),hb:Object.assign({},SCS.hb,{mode:"perfusion"})}));
     const rows=MODEL.rt.order.map(d=>{ const D=MODEL.rt.devices[d], c=rtCost(d,p), on=(SCS.device||"tff")===d?' class="on"':'';
       return '<tr'+on+'><td class="pick" onclick="tpSetDevice(\''+d+'\')"><b>'+pgEsc(D.name.replace(" (the model's default)",""))+'</b><br><span class="alt">'+pgEsc(D.how)+'</span></td>'+

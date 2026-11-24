@@ -2360,7 +2360,7 @@ details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 .limgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:14px 0 8px;}
 .limt{font-size:.88rem;font-weight:700;margin:0 0 6px;}
 .lim{display:grid;grid-template-columns:minmax(110px,32%) minmax(40px,1fr) minmax(0,auto);gap:6px 10px;align-items:center;font-size:.84rem;color:var(--ink2);}
-.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;} .lim .bar i{display:block;height:100%;background:var(--axis);}
+.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;position:relative;} .lim .bar .mk{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--accent);margin-left:-1px;} .lim .bar i{display:block;height:100%;background:var(--axis);}
 .lim .bar.on i{background:var(--accent);} .lim .on{color:var(--ink);font-weight:700;} .lim .lv{white-space:nowrap;font-variant-numeric:tabular-nums;}
 .lim .lt{font-weight:400;color:var(--accent);}
 details.verify{margin:10px 0 0;border-top:1px dashed var(--rule);padding-top:6px;font-size:.86rem;}
@@ -2571,10 +2571,11 @@ cost the same in all.</p>
 <span class="li"><span class="dt" style="background:var(--accent)"></span>its starting set on this page's model (click to load)</span>
 <span class="li"><span class="dt" style="background:var(--ink);border-radius:0;transform:rotate(45deg)"></span>all-favourable example</span>
 <span class="li"><span class="dt me"></span>your settings</span>
-<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1% share needs</span>
+<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1%, 5%, 10%, 25% or 50% share needs</span>
 <span class="li"><span class="sw hatchd"></span>less running cost than the cells eat</span></div>
 <div class="plot" id="st_pvr_plot"><svg id="st_pvr" role="img" aria-labelledby="st_pvr_title" aria-describedby="st_pvr_alt"></svg></div>
 <p class="hover" id="st_pvr_read" aria-live="polite"></p>
+<p class="small" id="st_pvr_shares" aria-live="polite"></p>
 <p class="small">A study's own figure and this page's figure for its set differ for three reasons: the set uses the long-term
 targets where the study used one lab run or today's ingredients, the set corrects what is not possible (a plant repaid with no
 interest), and this page's engine works out the litres, density and plant for itself. The note under the side bar's buttons says

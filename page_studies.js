@@ -139,9 +139,16 @@ function stPvrDraw(f){
       if(xp>=tot||yp<y0) continue; d+=(first?"M":"L")+lx(xp).toFixed(1)+","+ly(yp).toFixed(1); first=false; }
     if(!d) return ""; const lxp=Math.max(x0*1.08,Math.min(tot*(at||0.03),x1)), lyp=tot-lxp;
     return '<path d="'+d+'" fill="none" '+style+'/>'+(lab&&lyp>y0&&lyp<y1?'<text x="'+(lx(lxp)+3)+'" y="'+(ly(lyp)-4)+'" font-size="'+(fs-1)+'" fill="'+(at?'#D85A30':'var(--muted)')+'">'+lab+'</text>':''); };
-  const near1=t=>f.one!==null&&Math.abs(Math.log(t/f.one))<0.35;          // the 1% line's label takes the place of a curve's near it
-  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',near1(t)?"":"$"+t+" in all"); });
-  if(f.one!==null&&f.one>x0+y0) g+=iso(f.one,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',"1% of "+tpRegionMeat(true)+" needs "+tpUSDk(f.one)+" in all",0.031);
+  // the totals that long-run shares of all meat need at the reader's shopper setting (the owner, 2026-11-24: "Can we also
+  // report the 5%, 10%, 25% and 50%?"); a share no cost reaches, or one needing a total below the chart, is listed under it
+  const SH=[1,5,10,25,50].map(p=>({p:p, t:tpCostFor(p,f.buyers)})), drawn=SH.filter(o=>o.t!==null&&o.t>x0+y0);
+  const nearShare=t=>drawn.some(o=>Math.abs(Math.log(t/o.t))<0.35);      // a share line's label takes the place of a grey curve's near it
+  [5,10,20,50].forEach(t=>{ g+=iso(t,'stroke="var(--axis)" stroke-width="1"',nearShare(t)?"":"$"+t+" in all"); });
+  drawn.forEach(o=>{ g+=iso(o.t,'stroke="#D85A30" stroke-width="1.5" stroke-dasharray="5 4"',o.p+"%: "+tpUSDk(o.t)+" in all",0.031); });
+  const sl=document.getElementById("st_pvr_shares");
+  if(sl) sl.innerHTML="<b>The total a long-run share of "+pgEsc(tpRegionMeat())+" needs</b>, with "+tpPctB(f.buyers)+" of meat buyers picking it at the same price (the dashed lines): "+
+    SH.map(o=>o.p+"%, "+(o.t===null?"not reached at any cost down to $0.50":tpUSDk(o.t)+" a kilo of cells"+(o.t<=x0+y0?" (below the chart)":""))).join("; ")+
+    ". Move the shoppers' setting in the side bar and they move.";
   // the points: each study as it reports it (hollow) and its set on this page's model (filled), joined
   STPVR=[]; let pts="", labs=[], allDots=[];
   const add=(p,kind,label,say,click)=>{ const i=STPVR.length; STPVR.push({say:say}); const x=lx(p.plant), y=ly(p.running), off=p.plant>x1||p.running>y1; allDots.push({x:x-7,y:y-7,w:14,h:14});

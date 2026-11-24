@@ -545,8 +545,8 @@ def check() -> list:
         fails.append(f"the level on the tank and the plant should show results only (the side bar sets them), but it has controls: {ctl}")
     if "side bar sets everything in this section" not in _text(eng):
         fails.append("the level on the tank and the plant should say that the side bar sets it")
-    if probe["start"] != "humbird_best" or probe["shown"] != ["humbird_best", "today"]:
-        fails.append(f"the page should open on Humbird's best estimate and offer it and the published cells only (got {probe['start']}, {probe['shown']})")
+    if probe["start"] != "humbird_best" or probe["shown"] != ["humbird_best", "today", "best"]:
+        fails.append(f"the page should open on Humbird's best estimate and offer it, the published cells and the all-favourable example (got {probe['start']}, {probe['shown']})")
     fails += _check_start(probe, html, vis)
     # the plant protein in a steak or fillet moves every first-screen figure that sells cuts
     c50, c0 = probe["cut50"], probe["refs"]["central"]

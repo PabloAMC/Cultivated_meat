@@ -1,5 +1,15 @@
 # Change log
 
+## 2026-11-24 (later): the all-favourable button, clearer limit bars, why larger tanks can cost more, more share lines
+
+- The all-favourable example is a main button beside Published cells, so the two ends of the range sit side by side.
+- Section 1's bars say that each is what one need or limit would ask on its own; the litres used are marked on every bar; a need
+  at zero says why (the least medium flow: Humbird counts none, and its lever sets it).
+- The vessel table says why a larger stirred tank can cost more: where clearing CO₂ limits the culture, a taller tank passes less
+  gas per litre, holds fewer cells a litre, and the fewer kilos per m³ outweigh its cheaper build. Equipment that strips CO₂
+  without bubbles removes the limit, and larger tanks then cost less.
+- The plant-against-running chart draws the totals that 1%, 5%, 10%, 25% and 50% long-run shares need, and lists them under it.
+
 ## 2026-11-24: the page made clearer; other studies as starting points, audited; plant against running costs; checks under each result
 
 **Layout.** Text runs the full width of its block. Two charts that repeated the share map were removed (the cost against each
