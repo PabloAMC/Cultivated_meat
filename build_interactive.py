@@ -971,7 +971,7 @@ PAGE_PARAMS = (
      "Paid every year whatever the plant makes. Humbird takes 4% for maintenance and 5% for insurance. The payment above plus this is the yearly charge on the plant."),
     ("kla", "reactor", "How fast a stirred tank passes oxygen into the culture (kLa)", "per hour", "fx", "ge.kla_20m3", None, 1.0, 5.0, 60.0, 1.0, 0, (), "ge_kla_20m3",
      "The oxygen transfer coefficient of a 20 m³ stirred tank at the gas flow of Humbird's design. Oxygen supplied is this times the gap between the oxygen the gas can dissolve and the level the culture is held at. Dense animal-cell cultures have been run at 5 to 55 per hour. Higher is better."),
-    ("spargers", "reactor", "Spargers in the tank", "spargers", "kw", "spargers", "spargers", 1.0, 1.0, 2.0, 1.0, 0, (), "ge_spargers",
+    ("spargers", "reactor", "Spargers in the tank", "number", "kw", "spargers", "spargers", 1.0, 1.0, 2.0, 1.0, 0, (), "ge_spargers",
      "One sparger, as in Humbird's design, bubbles the gas that carries oxygen in and CO₂ out. With two, a fine-bubble sparger for oxygen sits beside the drilled pipe: fine bubbles pass about four times as much oxygen per litre of gas, but kill about ten times as many cells, so the model sends through it only the share of the gas that costs least. It helps only where oxygen sets the density, and adds a second gas line to each tank."),
     ("col_loop", "reactor", "CO₂ column on the filter loop", "0 = its own pump, 1 = on the loop", "kw", "col_on_loop", "col_on_loop", 1.0, 0.0, 1.0, 1.0, 0, (), "ge_col_on_loop",
      "In perfusion the culture already circulates through the cell filter's loop. A CO₂-stripping column (part of the added equipment for oxygen and CO₂) can sit on that loop and share its pump and pipes, so it needs no pump of its own. The pumping power is still paid. It matters only with a column and a filter loop, and saves little."),
@@ -1094,7 +1094,7 @@ LEVER_REFS = {
     "do_mmol": [(value("ge_do_setpoint"), "about a quarter of air saturation, typical in pharma")],
     "ph": [(7.0, "a common setpoint"), (value("pf_ph"), "this model")],
     "capex_x": [(0.34, "two published designs"), (1, "this model, from Humbird's plant"), (1.5, "high end")],
-    "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported")],
+    "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported"), (0.63, "Pasitka 2024"), (1.4, "Negulescu 2023")],
     "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model: novelty faded"), (30, "stated intent in UK and US surveys"), (50, "no preference")],
     "cut": [(20, "this model"), (80, "products on sale are 70 to 97% plant")],
     # kilos of conventional meat not bought for each kilo sold (meat_displaced_per_kg, 2026-11-22, sixth batch)
@@ -1236,7 +1236,7 @@ def traits_page_data() -> dict:
             "plant_names": plant_names, "cell_presets": cell_presets(),
             "plant": {"capex": [S.MC_PRIORS["capex_x"][0], S.MC_PRIORS["capex_x"][2]], "cpl": [0.10, 1.60],
                       "mem_price": price, "mem_life": life, "break_even_1500": filter_flux.break_even_price(1500.0),
-                      "medium": [0.0, 0.60]},
+                      "medium": [0.0, 1.40]},
             # the one most favourable case (scenarios.all_favourable): the all-favourable example and the last row of frontier.ladder()
             "frontier": S.all_favourable()["cost"], "n_wit_sets": len(S.trait_grid())}
 
@@ -2114,18 +2114,18 @@ a:hover{text-decoration-color:currentColor;} a:visited{color:var(--accent);}
 a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
 button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .wrap{max-width:920px;margin:0 auto;padding:0 20px 64px;}
-/* a readable measure: about 70 characters a line for running text */
-p,li,dd,.measure{max-width:70ch;} td p,td li,th p{max-width:none;}
+/* text runs the full width of the block it sits in, so text and figures start and end at the same edges (the owner, 2026-11-24) */
+p,li,dd,.measure{max-width:none;}
 /* the first screen: text and figures start and end at the same edges (the column is narrow enough to read); inside a card, text spans the card */
 header p,#first p,#first .callout,.chart p,.chart li,.chart .sub,.chart .say,.chart .alt,.chart .hover,.chart .callout{max-width:none;}
 h1{font-size:1.6rem;line-height:1.2;margin:22px 0 6px;}
 h2{font-size:1.2rem;margin:0;} h3{font-size:1.02rem;margin:22px 0 4px;} h4{font-size:.95rem;margin:16px 0 4px;} h5{font-size:.95rem;margin:18px 0 4px;}
-.deck{font-size:1.05rem;margin:0 0 10px;} .deck p{margin:0 0 .6em;max-width:86ch;}
+.deck{font-size:1.05rem;margin:0 0 10px;} .deck p{margin:0 0 .6em;}
 .calcsteps{margin:6px 0 4px;padding-left:1.4em;} .calcsteps li{margin:0 0 7px;max-width:none;}
 .small{font-size:.86rem;color:var(--ink2);} .note{font-size:.84rem;color:var(--muted);}
 /* one callout style */
 .callout,.fxcard,.scwarn,.example,.aside,.intro,.wovr,.selftest .stanchor{border-left:3px solid var(--axis);background:var(--sunk);padding:8px 12px;margin:10px 0;
- font-size:.9rem;border-radius:0 4px 4px 0;max-width:74ch;}
+ font-size:.9rem;border-radius:0 4px 4px 0;}
 .callout p,.fxcard p,.aside p,.intro p{margin:0 0 6px;} .callout p:last-child,.fxcard p:last-child{margin-bottom:0;}
 .aside .ah{font-weight:700;display:block;margin-bottom:3px;}
 /* one tag style: a quiet outlined chip; the words carry the meaning */
@@ -2150,10 +2150,7 @@ select{font:inherit;font-size:.88rem;padding:5px 6px;border:1px solid var(--axis
 .refrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;}
 .figrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:12px 0;} .figrow .chart{margin:0;}
 @media(max-width:760px){.figrow{grid-template-columns:1fr;}}
-.chart .say{font-size:.9rem;margin:6px 0 8px;max-width:74ch;} .clnote{margin:6px 0 0;}
-#tp_costline .clstrip{fill:var(--sunk);stroke:var(--rule);}
-#tp_one text{fill:var(--ink2);} #tp_one text.b{fill:var(--ink);font-weight:700;} #tp_one .ax{stroke:var(--axis);}
-#tp_costline circle.clme{fill:var(--card);stroke:var(--ink);stroke-width:3;}
+.chart .say{font-size:.9rem;margin:6px 0 8px;} .clnote{margin:6px 0 0;}
 .legend .dn.dash{border-top:1.5px dashed var(--ink2);}
 table.grp{width:100%;margin:4px 0 0;} table.grp td{padding:3px 0 3px 8px;} table.grp td:first-child{padding-left:0;white-space:normal;}
 table.grp tr.gh td{font-weight:600;color:var(--ink);padding-top:7px;} table.grp td.it{padding-left:20px;color:var(--ink2);}
@@ -2165,7 +2162,7 @@ table.grp .sw{display:inline-block;width:11px;height:11px;border-radius:2px;marg
 .anbar{position:absolute;left:0;top:0;bottom:0;background:var(--s1);border-radius:3px;min-width:2px;}
 .ansub{font-size:.8rem;color:var(--ink2);} .antot{border-top:1px solid var(--axis) !important;}
 .chart{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:12px 14px;margin:12px 0;}
-.chart h3{margin:0 0 2px;font-size:1rem;} .chart .sub{font-size:.86rem;color:var(--ink2);margin:0 0 8px;max-width:74ch;}
+.chart h3{margin:0 0 2px;font-size:1rem;} .chart .sub{font-size:.86rem;color:var(--ink2);margin:0 0 8px;}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--ink2);margin:6px 0 4px;align-items:center;}
 .legend .lt{flex-basis:100%;} .legend .li{display:inline-flex;align-items:center;gap:5px;} .legend .li>span:first-child{flex:none;}
 .legend .sw{display:inline-block;width:14px;height:10px;border-radius:2px;}
@@ -2177,7 +2174,7 @@ table.grp .sw{display:inline-block;width:11px;height:11px;border-radius:2px;marg
  padding:7px 9px;font-size:.78rem;line-height:1.4;box-shadow:0 3px 12px rgba(0,0,0,.18);min-width:170px;max-width:240px;}
 .tipbox b{font-weight:600;} .tipbox .tr{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums;}
 .tipbox .tr .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;}
-.alt{font-size:.86rem;color:var(--ink2);margin:8px 0 0;max-width:74ch;}
+.alt{font-size:.86rem;color:var(--ink2);margin:8px 0 0;}
 details.tv{margin:6px 0 0;font-size:.84rem;} details.tv>summary{cursor:pointer;color:var(--accent);}
 table.num{border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums;margin:6px 0;}
 table.num th,table.num td{border-bottom:1px solid var(--rule);padding:3px 9px 3px 0;text-align:right;white-space:nowrap;}
@@ -2224,7 +2221,7 @@ svg line.grid{stroke:var(--grid);}
 #tpmap text{fill:var(--ink2);} #tpmap text.ml{fill:#fff;stroke:#1a1a19;stroke-width:3px;stroke-linejoin:round;paint-order:stroke;font-weight:500;}
 #tpmap text.ml.mb{font-weight:700;} #tpmap .ax{stroke:var(--axis);}
 #tpmap circle.rd{fill:#1a1a19;stroke:#fff;stroke-width:1.5;} #tpmap circle.me{fill:#fff;stroke:#1a1a19;stroke-width:3;}
-.hover{font-size:.86rem;color:var(--ink2);min-height:2.8em;margin:6px 0 0;max-width:80ch;}
+.hover{font-size:.86rem;color:var(--ink2);min-height:2.8em;margin:6px 0 0;}
 .buyers{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:10px 14px;}
 .buyers label{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;} .buyers .nm{font-weight:600;} .buyers .val{margin-left:auto;font-size:1.05rem;}
 .buyers input[type=range]{max-width:none;}
@@ -2247,7 +2244,7 @@ details.level>summary{cursor:pointer;padding:12px 0;list-style:none;display:grid
 details.level>summary::-webkit-details-marker{display:none;}
 details.level>summary .lv{font-size:.8rem;color:var(--muted);grid-row:1;white-space:nowrap;}
 details.level>summary .lv::before{content:"\25B8\00a0";color:var(--ink2);} details.level[open]>summary .lv::before{content:"\25BE\00a0";}
-details.level>summary h2{grid-column:2;} details.level>summary .ls{grid-column:2;font-size:.9rem;color:var(--ink2);max-width:70ch;}
+details.level>summary h2{grid-column:2;} details.level>summary .ls{grid-column:2;font-size:.9rem;color:var(--ink2);}
 details.level>.lb{padding:2px 0 22px;}
 details.sub{border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:14px 0;background:var(--card);}
 details.sub>summary{cursor:pointer;font-weight:600;font-size:.95rem;} details.sub[open]>summary{margin-bottom:8px;}
@@ -2323,7 +2320,7 @@ svg.w720{width:880px;max-width:100%;height:auto;display:block;} svg.w420{width:5
 /* ---- method ---- */
 .methods p,.methods li{font-size:.94rem;line-height:1.55;}
 .methods details.step{border-top:1px solid var(--rule);padding:8px 0;}
-.methods details.step>summary{cursor:pointer;font-size:.94rem;line-height:1.5;max-width:74ch;} .methods details.step[open]>summary{margin-bottom:6px;}
+.methods details.step>summary{cursor:pointer;font-size:.94rem;line-height:1.5;} .methods details.step[open]>summary{margin-bottom:6px;}
 .methods pre{background:var(--sunk);border:1px solid var(--rule);border-radius:6px;padding:8px 11px;font-size:.8rem;overflow-x:auto;}
 .methods code{background:var(--sunk);padding:0 3px;border-radius:3px;font-size:.86em;}
 .methods a[href^="#ref"]{font-size:.8em;font-weight:600;vertical-align:super;padding:0 1px;text-decoration:none;}
@@ -2360,6 +2357,22 @@ details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 .cellres .big{font-size:1.25rem;font-weight:700;display:block;}
 .cellres ul{margin:4px 0 0;padding-left:1.1em;font-size:.84rem;color:var(--ink2);}
 .cellres li.on{color:var(--ink);font-weight:600;}
+.limgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:14px 0 8px;}
+.limt{font-size:.88rem;font-weight:700;margin:0 0 6px;}
+.lim{display:grid;grid-template-columns:minmax(110px,32%) minmax(40px,1fr) minmax(0,auto);gap:6px 10px;align-items:center;font-size:.84rem;color:var(--ink2);}
+.lim .bar{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;} .lim .bar i{display:block;height:100%;background:var(--axis);}
+.lim .bar.on i{background:var(--accent);} .lim .on{color:var(--ink);font-weight:700;} .lim .lv{white-space:nowrap;font-variant-numeric:tabular-nums;}
+.lim .lt{font-weight:400;color:var(--accent);}
+details.verify{margin:10px 0 0;border-top:1px dashed var(--rule);padding-top:6px;font-size:.86rem;}
+details.verify>summary{cursor:pointer;color:var(--accent);font-size:.84rem;list-style:none;} details.verify>summary::-webkit-details-marker{display:none;}
+details.verify>summary:before{content:"\25B8  ";} details.verify[open]>summary:before{content:"\25BE  ";}
+details.verify .vb{background:var(--sunk);border-radius:6px;padding:8px 12px;margin-top:6px;}
+details.verify .vh{font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink2);margin:10px 0 3px;}
+details.verify .vh:first-child{margin-top:2px;} details.verify ol,details.verify ul{margin:2px 0;padding-left:1.3em;} details.verify li{margin:3px 0;}
+table.vt{font-size:.8rem;} table.vt td,table.vt th{padding:3px 6px;vertical-align:top;}
+ul.audit{list-style:none;padding:0;margin:6px 0;font-size:.8rem;} ul.audit li{padding:5px 0;border-top:1px solid var(--rule);line-height:1.4;}
+ul.audit .aw{font-size:.72rem;font-weight:700;padding:0 6px;border-radius:8px;background:var(--sunk);color:var(--ink2);} ul.audit li.moved .aw{background:#fbe3d9;color:#8a3416;} ul.audit .al{color:var(--muted);}
+@media(max-width:560px){.lim .lt{display:none;}}
 .dn.tick{display:inline-block;width:0;height:12px;border-left:2px solid var(--ink2);margin:0 6px -2px 4px;}
 .sumbar{position:sticky;top:0;z-index:30;background:#fff;border:1px solid var(--rule);border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);
  display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:10px 0 6px;}
@@ -2368,7 +2381,7 @@ details.cmp tr.on td, details.cmp td.on{background:rgba(216,90,48,.14);}
 @media(max-width:700px){.sumbar{grid-template-columns:repeat(3,1fr);} .sumbar .sumlab{grid-column:1/-1;max-width:none;padding:4px 8px 0;}}
 .sumbar>div{padding:8px 14px;border-left:1px solid var(--rule);min-width:0;} 
 .sumbar b{display:block;font-size:1.55rem;line-height:1.15;color:var(--accent);font-variant-numeric:tabular-nums;}
-.sumbar span{display:block;font-size:.8rem;color:var(--ink2);line-height:1.3;}
+.sumbar span{display:block;font-size:.8rem;color:var(--ink2);line-height:1.3;} .sumbar span strong{color:var(--ink);}
 @media(max-width:700px){.sumbar>div{padding:6px 8px;} .sumbar b{font-size:1.1rem;} .sumbar span{font-size:.68rem;}}
 .step>h2,.reshead{color:var(--ink);} .cellres .big{color:var(--accent);} .stn{background:var(--accent);}
 .wrap{max-width:1280px;}
@@ -2427,9 +2440,12 @@ details.why{font-size:.78rem;color:var(--ink2);margin-top:2px;} details.why>summ
 <p><b>Published cells</b>: the best value published for each trait of meat cells, taken from different cell lines.</p>
 <p><b>Long-run share</b>: the share of the meat sold once the product is on every shelf and no longer feels new. It is a ceiling, not a figure for any year.</p>
 <p><b>× the model's estimate</b>: 1.00× leaves the model's own figure; 2.00× doubles it.</p></details>
-<div class="refbar"><span class="rl">Start again from a published set:</span>
+<div class="refbar"><span class="rl">Start from a published set of assumptions:</span>
 <div class="refrow"><div class="refbtns" id="tp_refs" role="group" aria-label="Starting points"></div>
 <label class="regl" for="regionsel">Region <select id="regionsel"></select></label></div>
+<p class="small" id="tp_setsnote">A button that names another study puts that study's assumptions on Humbird's design, where the page has a
+lever for them. A set may be as optimistic as its study, but it has to be possible: where an assumption breaks a rule of this
+model (a plant repaid with no interest, or cells fed less than they hold and burn), the set uses a corrected value and the note below says so. The cost is then this page's model with those assumptions, not the study's own figure.</p>
 <div class="refadd" id="tp_adds" style="display:none"><button type="button" class="refbtn" id="tp_adds_btn" aria-pressed="false" onclick="tpToggleAdds()">Add what this model counts and he does not</button>
 <p class="small" id="tp_adds_text" aria-live="polite"></p></div>
 <p class="small refnote" id="tp_refnote"></p>
@@ -2484,7 +2500,7 @@ fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run a
 <details class="grp" open id="st_medium"><summary><span class="stn">3</span> The medium</summary>
 <p class="small">The nutrient liquid the cells grow in. Its price a litre is what companies announce; under it are the amino acids and sugar the cells must eat whatever the price.</p>
 <div class="ctl"><label for="pl_med"><span class="nm">Price of the medium</span><span class="q" tabindex="0" id="pl_med_q" data-tip="The nutrient liquid the cells grow in. Companies announce $0.20 a litre and report $0.30 to $0.50, with growth factors in the price. At zero, the medium costs only the nutrients the cells eat.">?</span><span class="val" id="pl_med_v"></span></label>
-<div class="slw"><input type="range" id="pl_med" min="0" max="0.60" step="0.01" aria-describedby="pl_med_s"><span class="slmark none" id="pl_med_mark"></span></div>
+<div class="slw"><input type="range" id="pl_med" min="0" max="1.40" step="0.01" aria-describedby="pl_med_s"><span class="slmark none" id="pl_med_mark"></span></div>
 <p class="fxn" id="pl_med_s"></p></div>
 <div class="refs" id="pl_med_refs"></div>
 <p class="fxn" id="pl_med_why" aria-live="polite"></p>
@@ -2495,7 +2511,7 @@ fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run a
 <div class="ctl tr" id="pl_clean_share_ctl" style="display:none"><label for="pl_clean_share"><span class="nm">Share of the waste the route handles that it takes out, %</span><span class="q" tabindex="0" data-tip="How much liquid is cleaned and returned: 100% is the litres that would take out all of the ammonia (and, for the routes that take it, the lactate) the cells make. Cleaning more saves more fresh medium and costs more for the device and its membranes. The lever starts at the share that costs least.">?</span><span class="val" id="pl_clean_share_v"></span></label>
 <input type="range" id="pl_clean_share" min="0" max="100" step="1" aria-describedby="pl_clean_share_s"><p class="fxn" id="pl_clean_share_s" aria-live="polite"></p></div>
 <div class="ctl tr" id="pl_wash_ctl"><label for="pl_wash"><span class="nm">Price of the litres that only wash waste out, $ a litre</span><span class="q" tabindex="0" data-tip="The first litres of medium for each kilo of cells carry its nutrients and are charged at the price of the medium. The litres beyond them only wash waste out, and could be a solution of salts, buffer and glucose with no amino acids, vitamins or proteins. This lever starts at the full price of the medium. Growth factors and bubble protectant are dosed in every litre whatever its price, and the medium never costs less than the nutrients the cells eat.">?</span><span class="val" id="pl_wash_v"></span></label>
-<input type="range" id="pl_wash" min="0" max="0.60" step="0.002" aria-describedby="pl_wash_s"><p class="fxn" id="pl_wash_s" aria-live="polite"></p><div class="refs" id="pl_wash_refs"></div></div>
+<input type="range" id="pl_wash" min="0" max="1.40" step="0.002" aria-describedby="pl_wash_s"><p class="fxn" id="pl_wash_s" aria-live="polite"></p><div class="refs" id="pl_wash_refs"></div></div>
 <p class="grphdr">What the medium is made of</p>
 <div id="tp_g_medium"></div>
 </details>
@@ -2523,49 +2539,52 @@ fibres last 180&ndash;2,500 litres per m&sup2; in dense cultures; none has run a
 <div class="chart" id="tp_cellcard">
 <h3 id="tp_cell_title">The tank with your cells <span class="tag res">result</span></h3>
 <div id="tp_cellres" aria-live="polite"></div>
+<!--VERIFY:tank-->
 </div>
 <h2 class="reshead"><span class="stn res">2</span> The cost in each kind of reactor</h2>
 <details class="more cmp" id="cmp_vm" open><summary>Compare every vessel and way of running it, at your settings</summary>
 <p class="small">Each cell is the cost of a kilo of cells with only the vessel (row) and the way it is run (column) changed, every estimate
 at its most likely value, with the membrane loop as the retention device. Click a cost to choose that combination.</p>
-<div id="tp_vmgrid"></div></details>
+<div id="tp_vmgrid"></div>
+<!--VERIFY:reactors--></details>
 <details class="more cmp" id="cmp_rt"><summary>Compare the devices that hold the cells back in perfusion, at your settings</summary>
 <p class="small">Each row is the cost of a kilo of cells in perfusion with that device, every estimate at its most likely value.
 Click a row to choose it.</p>
 <div id="tp_rtgrid"></div></details>
 <h2 class="reshead"><span class="stn res">3</span> What a kilo of cells costs</h2>
 <p class="deck" id="tp_yours" aria-live="polite"></p>
-<div class="chart" id="tp_clcard">
-<h3 id="tp_cl_title">The cost, against the price of each meat and the cost a 1% or 10% share needs <span class="tag res">result</span></h3>
-<div class="legend" id="tp_cl_legend">
-<span class="li"><span class="sw hatchd"></span><span id="tp_cl_fl"></span></span>
-<span class="li"><span class="sw hatchl"></span><span id="tp_cl_fr"></span></span>
-<span class="li"><span class="dn dash"></span>same shop price as a named kind of meat</span>
-<span class="li"><span class="ln" style="border-top-color:#D85A30"></span>cost a long-run share needs</span>
-<span class="li"><span class="dt me"></span>your point: the cost at your settings</span>
-<span class="li"><span class="dn tick"></span>published costs, for comparison</span>
-</div>
-<div class="plot" id="tp_costline_plot"><svg id="tp_costline" role="img" aria-labelledby="tp_cl_title" aria-describedby="tp_cl_alt"></svg></div>
-<p class="small clnote" id="tp_cl_note"></p>
-<p class="sr" id="tp_cl_alt"></p>
-</div>
-
 <div class="chart" id="tp_grcard">
 <h3 id="tp_groups_title">What the cost is made of <span class="tag res">result</span></h3>
 <p class="sub" id="tp_groups_sub"></p>
 <div class="plot" id="tp_groups_plot"><svg id="tp_groups" role="img" aria-labelledby="tp_groups_title" aria-describedby="tp_groups_alt"></svg></div>
 <p class="say" id="tp_groups_say" aria-live="polite"></p>
 <div id="tp_groups_table"></div>
+<!--VERIFY:cost-->
 <p class="sr" id="tp_groups_alt"></p>
+</div>
+<div class="chart" id="st_pvrcard">
+<h3 id="st_pvr_title">Plant cost against running cost, a kilo of cells: published studies and this page's model <span class="tag res">result</span></h3>
+<p class="sub">Costs of production, before the cells reach a shop, in 2025 dollars. Across: the plant's yearly payment with interest,
+maintenance and insurance. Up: everything else (medium, growth factors, filters, supplies, labour, energy). Points on one grey curve
+cost the same in all.</p>
+<div class="legend"><span class="li"><span class="dt" style="background:var(--card);border:2px solid var(--ink2)"></span>as the study reports it</span>
+<span class="li"><span class="dt" style="background:var(--accent)"></span>its starting set on this page's model (click to load)</span>
+<span class="li"><span class="dt" style="background:var(--ink);border-radius:0;transform:rotate(45deg)"></span>all-favourable example</span>
+<span class="li"><span class="dt me"></span>your settings</span>
+<span class="li"><span class="ln" style="border-top:2px dashed #D85A30"></span>total a 1% share needs</span>
+<span class="li"><span class="sw hatchd"></span>less running cost than the cells eat</span></div>
+<div class="plot" id="st_pvr_plot"><svg id="st_pvr" role="img" aria-labelledby="st_pvr_title" aria-describedby="st_pvr_alt"></svg></div>
+<p class="hover" id="st_pvr_read" aria-live="polite"></p>
+<p class="small">A study's own figure and this page's figure for its set differ for three reasons: the set uses the long-term
+targets where the study used one lab run or today's ingredients, the set corrects what is not possible (a plant repaid with no
+interest), and this page's engine works out the litres, density and plant for itself. The note under the side bar's buttons says
+which, set by set. Studies count different products (a kilo of cells, of meat, of a product partly plant): each point's note says which.</p>
+<!--VERIFY:plant_running-->
+<p class="sr" id="st_pvr_alt"></p>
 </div>
 <details class="more" id="unc"><summary>How uncertain is this cost? The estimates nobody has measured, and how far each could be off</summary>
 <div id="tp_unc"></div></details>
 <h2 class="reshead"><span class="stn res">4</span> How much meat it would replace</h2>
-<div class="chart" id="tp_onecard">
-<h3 id="tp_one_title">One kind of meat: the share of its buyers who would pick the cultivated one, by price <span class="tag res">result</span></h3>
-<div class="plot" id="tp_one_plot"><svg id="tp_one" role="img" aria-labelledby="tp_one_title" aria-describedby="tp_one_alt"></svg></div>
-<p class="small" id="tp_one_note" aria-live="polite"></p><p class="sr" id="tp_one_alt"></p>
-</div>
 <div class="chart mapcard" id="tpcard">
 <div class="maphead"><h3 id="tptitle">Share of all meat sold, by cost of cells and by shoppers' preference <span class="tag res">result</span></h3><span class="small" id="tp_map_region"></span></div>
 <div class="callout readme" id="tp_read"><span id="tp_read_txt"></span> <button type="button" class="lnk" onclick="tpDismissRead()">Hide this</button></div>
@@ -2579,7 +2598,9 @@ Click a row to choose it.</p>
 <div class="plot" id="tpplot"><svg id="tpmap" role="img" aria-labelledby="tptitle" aria-describedby="tp_alt"></svg></div>
 <p class="sr" id="tp_alt"></p>
 <p class="hover" id="tp_hover" aria-live="polite"></p>
+<p class="small clnote" id="tp_cl_note"></p>
 <details class="tv"><summary>Show the map's numbers as a table</summary><div class="scrollx" id="tp_table"></div></details>
+<!--VERIFY:map-->
 </div>
 
 <div class="chart" id="tp_ancard">
@@ -2599,6 +2620,7 @@ Click a row to choose it.</p>
 <p class="note" id="tp_animals_scale"></p>
 <p class="say" id="tp_animals_say" aria-live="polite"></p>
 <p class="sr" id="tp_animals_alt"></p>
+<!--VERIFY:meats-->
 </div>
 
 <div class="callout" id="sharedef"><b>What &ldquo;share&rdquo; means on this page.</b> The share of all meat and seafood sold, by weight, in the long run:
@@ -2618,14 +2640,6 @@ traits beyond the best measured in meat cells, every estimate at its most likely
 expert has reviewed the model yet. It is not investment or business advice. <a href="#method">How the model works, its sources and its limits</a>.</p>
 </section>
 
-<ul class="levelnav" aria-label="The rest of this page">
-<li><span><a href="#assumes">Published cost estimates, and the examples on this page</a> <span class="ld">Humbird's 2021 estimate and one company's report, line by line, and the cost after each step from the published cells to the all-favourable example.</span></span></li>
-<li><span><a href="#moves">Which settings change the cost and the share most</a> <span class="ld">Each setting moved on its own from where you are, largest effect first, with how solid the evidence for each is.</span></span></li>
-<li><span><a href="#where">Share by type of meat, by region and over time</a> <span class="ld">Which meats it would replace first, how the share differs between regions, and how many years it takes.</span></span></li>
-<li><span><a href="#engineering">How the tank and the plant set the cost</a> <span class="ld">What limits the tank, the plant item by item, the cost in six parts, other vessels and ways of running a tank, and the model beside reported runs and company figures, all for the settings in the side bar.</span></span></li>
-<li><span><a href="#shoppers">How a shop price becomes a share: the shopper model</a> <span class="ld">How shoppers choose between conventional meat, plant-based meat, cultivated meat and beans, and the same model tried on other products.</span></span></li>
-<li><span><a href="#method">How the model works, its sources and its limits</a> <span class="ld">The steps of the calculation, what the model now counts, what it leaves out, the equations, every input and the references.</span></span></li>
-</ul>
 
 <details class="level" id="assumes">
 <summary><h2>Published cost estimates, and the examples on this page</h2>
@@ -2874,7 +2888,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
         body has ruled against it, and then where religious authorities have set conditions that might not be met
         (<a href="https://github.com/PabloAMC/Cultivated_meat/blob/main/research_notes/closed_markets.md">note</a>).</li>
         <li><b>One all-favourable example.</b> Each lever takes the most favourable value found in three places: this model's own
-        favourable end, Humbird's design, and ten published cost studies. A value is not used if it breaks a physical limit. The limits
+        favourable end, Humbird's design, and fourteen published cost studies. A value is not used if it breaks a physical limit. The limits
         are the cost of the nutrients the cells are built from, the sugar they must burn, and the thickest culture that still flows. It costs
         ${{COST_BEST}} a kilo of cells. One published estimate is lower, scenario 4 of Risner and colleagues (2021), and it breaks those
         limits. The box &ldquo;Why published cost studies disagree&rdquo; on the first screen compares each study with Humbird's design
@@ -3184,7 +3198,7 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       cumulative exposure \(E(t)\) grows, at speed \(r\). The ceiling is the Step 2 share at that novelty.</p>
 
 
-      <h5>A1. Price sensitivity: where the price weight comes from</h5>
+      <h5 id="m_a1">A1. Price sensitivity: where the price weight comes from</h5>
       <p>Grocery data give the <b>price elasticity</b> of meat as a category, \(\varepsilon \approx -0.9\) [4].
       This means that meat 1% dearer sells 0.9% less. Meat as a whole has no close substitute, so it is fairly insensitive to price. A single
       cultivated product does have a close substitute, which is conventional meat on the same shelf. So a single product is more sensitive than the category.
@@ -5562,6 +5576,10 @@ def main() -> None:
     html = html.replace("/*__VM_JS__*/", open(os.path.join(HERE, "page_vessels.js"), encoding="utf-8").read())
     html = html.replace("/*__RT_JS__*/", open(os.path.join(HERE, "page_retention.js"), encoding="utf-8").read())
     html = html.replace("/*__ST_JS__*/", open(os.path.join(HERE, "page_studies.js"), encoding="utf-8").read())
+    import page_verify
+    for k, v in page_verify.boxes().items():          # "How this is worked out, and how to check it" under each main result
+        assert html.count(f"<!--VERIFY:{k}-->") == 1, k
+        html = html.replace(f"<!--VERIFY:{k}-->", v)
     html = html.replace("__BUILD_STAMP__", _dt.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # Substitute the illustrative numbers COMPUTED FROM THE MODEL (no hand-typed shares in the
     # prose/tooltips — they can never drift from the live calibration). See illustrative_numbers().

@@ -45,7 +45,7 @@ and $76), and at that cost cultivated meat takes **0.26%** of world meat and sea
 section 7).
 
 The all-favourable example (`scenarios.all_favourable`) is the one most favourable case: every lever at its most favourable value
-among this model's own favourable end, Humbird's design (2021) and nine other published cost studies, taking no study value that
+among this model's own favourable end, Humbird's design (2021) and thirteen other published cost studies, taking no study value that
 breaks one of the model's limits (`study_assumptions.py`, `research_notes/study_comparison.md`). Lever by lever it is no worse than
 Humbird's design or any published study that respects those limits. Its cells weigh 3 ng, make 0.054 mol of ammonia a kilo and
 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate. They grow in
@@ -404,7 +404,7 @@ bubbles; and a cheaper class of plant for animal cells. Section 6 gives the reas
 
 ## 1. Cost and the price ratio
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 *The cases in this table are older cases kept for comparison. They are not the scenarios. Each is one fixed design with every
 estimate at its most likely value. They use Humbird's enhanced 3 ng cell (almost no ammonia or lactate), his limits of 5 mmol/L of ammonia and 50 of lactate, medium that costs only
@@ -622,11 +622,11 @@ $31.28 there.)
   five together give $30.49 with his plant cost, yearly charge and filter sets kept (it was $37.38 before 2026-11-21). Published
   cells is the page's other start.
 
-### Against ten published cost studies (`study_assumptions.py`, `research_notes/study_comparison.md`)
+### Against fourteen published cost studies (`study_assumptions.py`, `research_notes/study_comparison.md`)
 
 The all-favourable example takes, for every lever, the most favourable value among this model's own favourable end, Humbird's
-design and what nine other published studies assume (CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitka 2024,
-SuperMeat 2024, Lever VC 2025, GFI 2021, GFI 2026), and does not take a value that breaks one of these limits: the nutrient floor
+design and what thirteen other published studies assume (CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022, Pasitka 2024,
+SuperMeat 2024, Lever VC 2025, GFI 2021, GFI 2026, Ark Biotech 2023, Cellular Agriculture Ltd 2024, Gourmey and Arthur D. Little 2025, Aleph Farms and Eridia 2025), and does not take a value that breaks one of these limits: the nutrient floor
 ($2.00 a kilo of cells), the mass balance (311 g of glucose a kilo of cells), the thickest culture that still flows (Humbird's
 258 g/L), the oxygen, CO₂ and waste limits the engine computes, a doubling no faster than any measured in animal cells (15 hours),
 a cell no heavier than any meat cell measured in suspension (Humbird's 3 ng), and a plant repaid at a market rate of interest (8.3%
@@ -645,11 +645,15 @@ favourable estimate, in 2025 dollars by consumer prices:
 | Lever VC 2025 | $10 to $15 a kilo of cell mass | $10.00 | above |
 | GFI 2021 | CE Delft's figure | $7.64 | above |
 | GFI 2026 | prices of medium a litre only | not compared | |
+| Ark Biotech 2023 | $2.0 a pound with all four of its levers ($29.5 as its baseline; 2023 $, year not stated) | $4.66 | **below** |
+| Cellular Agriculture Ltd 2024 | £14.68 a kilo of cultured biomass (2024 £ at $1.28, a rate typed from memory) | $19.28 | above |
+| Gourmey and Arthur D. Little 2025 | €7 a kilo ($3.43 a pound), read as a kilo of cells | $7.56 | above |
+| Aleph Farms and Eridia 2025 | as low as $4.08 a pound of end products, read as a kilo of cells | $8.99 | above |
 
 (Humbird's $26.92 is his total by consumer prices alone; the $26.99 of the page escalates his capital by the plant-cost index and
 is the engine's like-for-like figure.)
 
-**The one estimate below it, and the limits it breaks.** Risner 2021's scenario 4 rests on four assumptions beyond the limits:
+**The two estimates below it, and the limits they break.** Ark Biotech 2023's $2.0 a pound ($4.66 a kilo in 2025 dollars) writes the plant off over 15 years with no interest (6.7% of its cost a year, against the 8.3% a market rate needs) and counts nothing after the bioreactor; it also needs tanks of 1,000 m³, cells that gain 128% in mass while differentiating and medium at $0.25 a litre. The study does not publish its plant cost, so its design is not re-priced inside the limits here. The four analyses added on 2026-11-24 (Ark Biotech, Cellular Agriculture Ltd, Gourmey, Aleph Farms) come from parties with a stake in the result and none is peer reviewed; Gourmey's and Aleph's are known only from company announcements. Risner 2021's scenario 4 rests on four assumptions beyond the limits:
 
 | what scenario 4 assumes | its value | the limit allows | the limit |
 |---|---|---|---|
@@ -982,7 +986,7 @@ mass balance since 2026-11-19). Perfusion includes the filter loop that holds th
 
 ## 2. What share a price buys
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 Shares of a single meat here are shares of meat buyers (cultivated over cultivated plus conventional, as in every reported share).
 The model's inputs are set as shares of all shoppers' choices, with plant-based meat and meals without meat; that figure is given
@@ -1170,7 +1174,7 @@ together.
 
 ## 3. By type of meat
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 Shares in this section are at most likely values, and each is a share of that meat sold (of its buyers). "Price against that
 meat" is the shop price of the cultivated product over the price of the meat it sits beside. A cut costs less than mince per kilo
@@ -1270,7 +1274,7 @@ cultivated meat is meat, so that near-zero figure is not carried over.
 
 ## 4. By region
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 At the reported cost, with its cost and demand both drawn:
 
@@ -1309,7 +1313,7 @@ much of a cut can be cells, and what assembling it costs, are unmeasured.
 
 ## 5. Entry points, and timing
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 At the reported cost, a few luxury products are already within reach on price when compared at their ordinary grade (farmed
 salmon, crossbred wagyu): foie gras, bluefin tuna, sea urchin, wagyu. Lobster is close (R ≈ 1.1). Each is a small market.
@@ -1326,7 +1330,7 @@ assumed, not estimated; history puts the chance of a stall at roughly one in thr
 
 ## 6. What to fund
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 Costs here are at most likely values. The swings are from "What the answer rests on" and "What decides it" in the Summary.
 
@@ -1388,7 +1392,7 @@ numbers do not add up (METHODS.md, "Back-test against reported runs").
 
 ## 7. What would change the conclusions
 
-Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and nine other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
+Here the low-lactate example means cells that make 0.14 mol of ammonia a kilo (the published figure) and 0.42 mol of lactate per mol of glucose (the best published is 1.05), double every 36 hours and weigh 2 ng, grown in perfusion in a 20 m³ tank in a food-grade plant with medium at $0.20 a litre. The all-favourable example (`scenarios.all_favourable`) means every lever at its most favourable value among this model's own favourable end, Humbird's design and thirteen other published studies, within the model's limits: cells of 3 ng that make 0.054 mol of ammonia a kilo and 0.28 mol of lactate per mol of glucose, double every 16 hours and tolerate 5 mmol/L of ammonia and 50 of lactate, grown in perfusion in 42 m³ tanks in a food-grade plant with shared medium, with medium at the cost of its nutrients, no growth factors bought, no lost runs and dialyser-grade hollow fibres holding the cells back, and 58.7% of meat buyers picking it at the same price.
 
 - **Up:** a meat-cell line shown to make little lactate and ammonia while doubling in 36 hours or less, with a full mass balance;
   perfusion at 20 m³ with a filter that lasts a month in a dense culture, or a cheaper way to hold cells back; medium at

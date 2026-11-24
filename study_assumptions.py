@@ -293,6 +293,102 @@ STUDIES = {
             ("medium", "several companies announced $0.20 a litre or below in 2025", "Commercial landscape, overview, PDF page 8"),
             ("medium", "food-grade amino acids allow media below $0.20 a litre", "Science and technology, PDF page 30"),
         ]),
+    # ---- added 2026-11-24: four analyses by parties with a stake in the result, none peer reviewed. The first and the last
+    # were read in full; Gourmey's and Aleph's reports are not public, so only what the companies announced is recorded.
+    "ark2023": dict(
+        name="Ark Biotech 2023", year=2023,
+        citation="Y. Quint and others, 'Cultivated meat's path to price parity: a techno-economic analysis', Ark Biotech, company "
+                 "report, 2023, not peer reviewed; Ark sells large bioreactors (Quint23Cultivated.pdf)",
+        system="A plant making 50,000 tonnes a year in fed-batch: 25 m³ stirred tanks as the baseline, and the company's own "
+               "tank design up to 1,000 m³ as a lever. It counts the cell culture only.",
+        cost="$29.5 a pound as the baseline; $2.0 a pound with all four levers; derived: $65.0 and $4.4 a kilo", cost_value=29.5 * 2.2046,
+        basis="a kilo of cells leaving the tank: nothing after the bioreactor, no packaging, and the plant charged as straight-line "
+              "depreciation over 15 years with no interest",
+        explains="Its baseline medium costs $2 a litre, $20.8 of its $29.5 a pound. Its lowest figure needs tanks of 1,000 m³, forty "
+                 "times the largest used for animal cells, cells that gain 128% in mass in a differentiation step, and medium at "
+                 "$0.25 a litre. It charges the plant no interest.",
+        assumptions=[
+            ("reported cost", "$29.5 a pound baseline: medium $20.8, depreciation $3.9, utilities $2.2, other $2.6", "Exhibit 2, PDF page 5"),
+            ("reported cost", "$2.0 a pound with 1,000 m³ tanks, 50% higher density, 128% differentiation and medium at $0.25 a litre",
+             "Exhibit 1, PDF page 4"),
+            ("reported cost", "example paths down to $0.3 a pound, with a 3,000% gain in mass over 20 days of differentiation; "
+                              "derived: $0.66 a kilo, a third of this model's nutrient floor", "Exhibit 10, PDF page 14"),
+            ("medium", "$2 a litre as the baseline, $0.25 as the lever", "Exhibit 1, PDF page 4"),
+            ("medium use", "9.1 litres a pound in fed-batch; derived: 20 litres a kilo", "Exhibit 6, PDF page 8"),
+            ("density", "20 million cells a mL in fed-batch after 8 days, 30 million as the lever; derived at 2.5 ng: 50 and 75 g/L",
+             "Exhibit 1, PDF page 4"),
+            ("cell weight", "2,500 picograms", "Exhibit 1, PDF page 4"),
+            ("doubling time", "24 hours, after a lag of 2 days", "Exhibit 3, PDF page 7"),
+            ("vessel", "25,000-litre stirred tanks as the baseline; its own design at 100, 250 and 1,000 m³", "Exhibit 8, PDF page 12"),
+            ("financing", "depreciation over 15 years with no salvage value, no interest", "Exhibit 8, PDF page 12"),
+            ("scope", "everything after the bioreactor, packaging, selling costs and margins are left out", "Exhibit 8, PDF page 12"),
+        ]),
+    "cellag2024": dict(
+        name="Cellular Agriculture Ltd 2024", year=2024,
+        citation="I. Argyle and I. Dunsford (Cellular Agriculture Ltd), 'Techno-economic assessment and media cost modelling', "
+                 "Appendix 1 of the Royal Agricultural University's report 'Culture Clash', July 2024, not peer reviewed; the "
+                 "authors' company makes the hollow-fibre bioreactor it models (Argyle24Technoeconomic.pdf)",
+        system="Bovine cells grown and matured in the company's hollow-fibre bioreactors, at two sizes: a farm-scale plant making "
+               "150 tonnes a year and a factory making 60 tonnes a week. The process flow is not disclosed.",
+        cost="£14.68 to £20.64 a kilo of cultured biomass", cost_value=14.68 * 1.28,
+        basis="a kilo of finished cultured biomass, before it is made into a product; the plant is divided over 20 years with no interest",
+        explains="It uses 140 litres of medium a kilo and assumes about 70% of the water and medium is recovered. Growth factors are "
+                 "replaced by an additive priced at £0.40 a kilo of biomass, from talks with a supplier; with growth factors at "
+                 "today's prices the same model gives £15,537 a kilo. It charges the plant no interest.",
+        assumptions=[
+            ("reported cost", "factory of 60 tonnes a week: £14.68 to £15.12 a kilo (plant £3.58, running costs £11.09 to £11.53)",
+             "Table 5, PDF page 7"),
+            ("reported cost", "farm-scale plant of 150 tonnes a year: £20.19 to £20.64 a kilo (plant £6.92)", "Table 5, PDF page 7"),
+            ("reported cost", "with a defined medium and growth factors at today's prices: £15,537 a kilo", "Table 4, PDF page 7"),
+            ("medium use", "140 litres a kilo of cultured meat, following Hubalek 2022", "PDF page 3"),
+            ("medium", "basal medium from food-grade ingredients at £0.03 to £0.05 a litre, ingredients only", "Tables 1 to 3, PDF page 6"),
+            ("growth factors", "replaced by an additive at £0.40 a kilo of biomass", "PDF page 3"),
+            ("recycling", "about 70% of the water and useful medium recovered", "PDF page 2"),
+            ("vessel", "hollow-fibre bioreactors at every stage", "PDF page 2"),
+            ("financing", "the plant divided by the yearly output over 20 years, no interest", "PDF page 2"),
+            ("oxygen", "0.232 kg of oxygen a kilo of cultured meat", "Table 6, PDF page 8"),
+        ]),
+    "gourmey2025": dict(
+        name="Gourmey and Arthur D. Little 2025", year=2025,
+        citation="Gourmey (now PARIMA), 'Gourmey sets new cost benchmark in cultivated meat production', company announcement of "
+                 "an assessment by Arthur D. Little, 28 May 2025; the assessment itself is not public "
+                 "(gourmey.com/blogs/gourmey-sets-new-cost-benchmark-in-cultivated-meat-production)",
+        system="A plant of six 5,000-litre tanks run continuously with duck embryonic stem cells in suspension, making 1,700 "
+               "tonnes a year.",
+        cost="€7 a kilo ($3.43 a pound); below €10 a kilo for the finished product", cost_value=3.43 * 2.2046,
+        basis="the announcement does not say whether €7 is a kilo of cells or of product, nor whether the plant is charged; trade "
+              "press reports that the product assessed is about half cells",
+        explains="Its 1,700 tonnes a year from 30 m³ of tank is 57 tonnes per m³, four times the 14.5 of Humbird's best estimate. Its "
+                 "medium costs €0.20 a litre with no growth factors. The density, the litres of medium a kilo and the financing "
+                 "are not published.",
+        assumptions=[
+            ("reported cost", "€7 a kilo ($3.43 a pound) at commercial scale; below €10 a kilo for finished product", "company announcement, 28 May 2025"),
+            ("product", "a finished product about half cultivated cells, the rest plant ingredients", "press report, Green Queen, 28 May 2025"),
+            ("output", "1,700 tonnes a year from six 5,000-litre bioreactors; derived: 57 tonnes per m³ of tank a year", "company announcement, 28 May 2025"),
+            ("capital", "under €35M per facility; derived: under €1.17M per m³ of tank", "company announcement, 28 May 2025"),
+            ("medium", "€0.20 a litre, with no growth factors or serum", "company announcement, 28 May 2025"),
+            ("mode", "continuous runs in suspension, cells not differentiated", "company announcement, 28 May 2025"),
+            ("doubling time", "less than 16 hours, as the company told the press", "press report, Green Queen, 28 May 2025"),
+        ]),
+    "aleph2025": dict(
+        name="Aleph Farms and Eridia 2025", year=2025,
+        citation="Aleph Farms, 'First of its kind independent TEA shows Aleph Cuts will reach 47% margin at price parity with "
+                 "beef cuts', company announcement of an analysis by Eridia (a joint venture of Bühler and ZETA), September 2025; "
+                 "the analysis itself is not public (aleph-farms.com/journals/cultivated-beef-tea-profitability)",
+        system="A plant with 5,000-litre tanks making a cultivated beef cut from cells that are not modified or immortalised. The "
+               "number of tanks, the output and the way they are run are not published.",
+        cost="$6.45 a pound with the plant; as low as $4.08 a pound in its sensitivity analysis; derived: $14.2 and $9.0 a kilo",
+        cost_value=6.45 * 2.2046,
+        basis="a kilo of the end product, a beef cut; the share of cells in it is not stated; running costs and the plant are both counted",
+        explains="It publishes a cost, a wholesale price ($27 a kilo) and a payback of 2.5 years, and none of the process figures "
+                 "behind them: no density, medium price, litres a kilo, output or plant cost.",
+        assumptions=[
+            ("reported cost", "$6.45 a pound, running costs and capital both counted", "company announcement, September 2025"),
+            ("reported cost", "as low as $4.08 a pound of end products in the sensitivity analysis", "company announcement, September 2025"),
+            ("price", "sold wholesale at $27 a kilo ($12.25 a pound), the price of premium beef cuts; a 47% gross margin", "company announcement, September 2025"),
+            ("payback", "as low as 2.5 years", "company announcement, September 2025"),
+            ("vessel", "5,000-litre bioreactors", "company announcement, September 2025"),
+        ]),
 }
 
 BASE_LABEL = "Humbird's best estimate (2021), like for like in today's dollars"
@@ -340,6 +436,14 @@ def _mods() -> list:
              solid="Paper designs from equipment prices and installation factors. Neither has been built.",
              own="$6.43 a kilo of meat (CE Delft); $35 a kilo (Negulescu, 42 m³ tanks)", settings={"held": {"capex_x": 0.34}}),
         # ---- the medium
+        # (the dearest medium first: where two boxes set the same lever the later is used, so the totals keep $0.50)
+        dict(key="medium_140", studies=["negulescu2023"],
+             label="Negulescu 2023: Humbird 2021 design but with a complete medium at $1.40 a litre",
+             text="Negulescu prices its medium at $1.396 a litre, growth factors included: 10.2 litres and $14.2 for a kilo of "
+                  "fresh cells. Here the growth factors of Humbird's design are still bought on top; the lever \"Growth factors "
+                  "bought on top of the medium's price\" takes them out.",
+             solid="Priced from bulk quotes for each component of a published medium.",
+             own="$35 a kilo (42 m³ tanks)", settings={"held": {"medium_price": 1.40}}),
         dict(key="medium_020", studies=["gfi2026"],
              label="GFI 2026: Humbird 2021 design but with a complete medium at the $0.20 a litre companies announced",
              text="Several companies announced medium at $0.20 a litre or below in 2025. Humbird's nutrients cost $4.34 for a "
@@ -350,7 +454,7 @@ def _mods() -> list:
         dict(key="medium_050", studies=["supermeat2024", "lever2025"],
              label="SuperMeat 2024 and Lever VC 2025: Humbird 2021 design but with a complete medium at $0.50 a litre",
              text="SuperMeat prices its medium at under $0.50 a litre and Lever VC says several companies are under $0.50. "
-                  "Pasitka 2024 reports $0.63, which is beyond the lever's top of $0.60.",
+                  "Pasitka 2024 reports $0.63.",
              solid="SuperMeat's is a projected price at scale. Lever VC's figures were seen under confidentiality.",
              own="$29.5 a kilo (SuperMeat); $10 to $15 (Lever VC)", settings={"held": {"medium_price": 0.50}}),
         # ---- the tank and how it is run
@@ -435,11 +539,6 @@ def _mods() -> list:
              text="Its cheapest case, $17 a kilo, is a 262 m³ airlift priced from a 1997 figure for a 190 m³ one.",
              reason="The page's airlift is 20 m³, and the tank-size lever acts on the stirred tank only, up to 250 m³.",
              own="$17 a kilo"),
-        dict(key="dear_medium", studies=["negulescu2023", "pasitka2024"], not_representable=True,
-             label="Negulescu 2023 and Pasitka 2024: Humbird 2021 design but with their medium at $1.40 and $0.63 a litre",
-             text="Negulescu prices its medium at $1.396 a litre and Pasitka at $0.63.",
-             reason="The medium lever stops at $0.60 a litre.",
-             own="$17 to $35 a kilo (Negulescu); about $21 to $24 a kilo of wet cells (Pasitka, derived)"),
     ]
 
 
@@ -528,6 +627,10 @@ def explore_arguments(settings: dict) -> tuple:
             reg["aa_bulk_price"] = v                                               # the slider is $ a kilo of amino acids
         elif kind == "fx" and arg == "tff.mem_price":
             reg["rt_membrane_price"] = v / scale
+        elif kind == "fxx" and arg == "labour_x":
+            reg["pf_labour"] = value("pf_labour") * v                              # the page's multiplier on the whole crew
+        elif kind == "fx" and arg == "harvest_loss":
+            reg["pf_harvest_recovery"] = 1.0 - v / scale                           # the slider is % of the cells grown
         elif kind != "fin":
             raise ValueError(f"the lever {k} is not priced here")
     if any(k in held for k in ("fin_rate", "fin_life", "fin_upkeep")):
@@ -555,6 +658,409 @@ def result(settings: dict) -> dict:
 def cost(settings: dict) -> float:
     """Cost of a kilo of cells, $: Humbird's best estimate with these lever settings."""
     return float(result(settings)["total"])
+
+
+# ---------------------------------------------------------------------------------------------------------------------------
+# Starting sets: one study's design, as a reasonable but ambitious long-term estimate, on Humbird's best estimate
+# ---------------------------------------------------------------------------------------------------------------------------
+# The owner, 2026-11-24: "there should be a button to change to other of the assumptions in the literature (not just 'published
+# cells'). Otherwise it looks we are just explaining his paper." Later the same day: "it is ok to assume optimistic assumptions
+# (like market maturity and so on) but they should be possible too", and "61h was from her experiment, but that is not the long
+# term ambition ... Revise all the TEAs to make sure they propose reasonable but ambitious long term estimates."
+#
+# The rule each set follows (shown on the page):
+#   1. the study's own design is kept: plant grade and cost where it gives one, tank size, way of running, retention device,
+#      the weight of its cells, the years over which it repays the plant;
+#   2. where the study gives a more favourable projection of its own (a scenario or a sensitivity), that projection is used;
+#   3. where a value is what one lab run or today's ingredients gave, not a projection for a mature industry, the set uses the
+#      long-term targets below (`target` says which, in words);
+#   4. anything beyond a limit of the model is corrected (`corrected`): a plant is repaid with interest at a market rate (a
+#      study that charges none, or no payment, gets Humbird's 7.5% over the study's own years, or his 10), the cells take up
+#      what the mass balance gives, and every lever stays inside its range.
+# Anything the study does not state stays Humbird's (`left` lists what the page cannot set). A set is NOT the study's own cost:
+# `own` gives that, and the plot of plant against running costs shows both.
+#
+# The long-term targets (rule 3):
+#   cells: Humbird's design cells, doubling every 24 hours and making his low ammonia and lactate. Most studies project 23 to 30
+#     hours (Negulescu 2023, Ark Biotech 2023, CE Delft 2021); no serum-free meat cell has been published doubling this fast
+#     (39 hours, Stout 2022), so the target is ambitious; the fastest published, with serum, is 15 hours (Stout 2023).
+#   medium: $0.20 a litre with growth factors in it, what several companies announced in 2025 (GFI 2026, not audited). The
+#     model never charges less than the nutrients the cells eat ($2.00 a kilo of cells), so the target cannot go below what
+#     is possible.
+LT_DOUBLING_H = 24.0
+
+
+def _cpi(year: int) -> float:
+    """cpi() below, for the sets defined before it: 2025 dollars per dollar of `year`."""
+    return value("cpi_u_2025") / value(f"cpi_u_{year}")
+
+
+LT_MEDIUM = 0.20
+EUR_USD_2025 = 1.13            # dollars per euro, about the 2025 average; typed from memory, to be checked against an official series
+PASITKA_CAPEX_X = 0.755        # the study's $1,295k per m³ of tank (2025 dollars) over this model's plant for the set
+PASITKA_CAPEX_K_M3 = 63.1e3 / 50.0   # $k per m³ of tank, 2024 dollars (Table S4: $63.1M for 10 tanks of 5 m³)
+GOURMEY_CAPEX_X = 0.761        # "under €35M" for six 5 m³ tanks: €1.17M, $1.32M per m³ in 2025 dollars, over this model's plant
+GOURMEY_CAPEX_K_M3 = 35e3 / 30.0 * EUR_USD_2025     # $k per m³ of tank, 2025 dollars, an upper bound
+# What a set does with each of a study's assumptions (the owner, 2026-11-24: "We should make clear exactly what we modified from
+# each TEA, so it is auditable"). Each set carries `audit`: one row per assumption, (item, lever, what the study says with where,
+# why, what the set uses). `lever` names the page's lever ("trait:doubling_h", "held:tank_m3", "vm", "device", "plant"), or
+# "result:density" etc. for a figure this model works out, or None; where the lever is in the set's settings, the value the set
+# uses is written from the settings (audit_rows), so the table cannot disagree with what is priced. tests/test_study_assumptions.py
+# checks that every lever a set moves has a row.
+KEPT = "Kept"
+OWN = "The study's own projection"
+TARGET = "Long-term target"
+CORRECTED = "Corrected"
+HUMBIRD = "Not stated: Humbird's"
+NOT_SET = "Not set on this page"
+WORKED = "Worked out by this model"
+AUDIT_KINDS = (KEPT, OWN, TARGET, CORRECTED, HUMBIRD, NOT_SET, WORKED)
+AUDIT_WHY = {
+    KEPT: "the study's value",
+    OWN: "the study's more favourable scenario or sensitivity, not its base case",
+    TARGET: "the study's value is what one lab run or today's ingredients gave; the set uses the long-term target",
+    CORRECTED: "the study's value is beyond a limit of this model; the set uses the nearest possible value",
+    HUMBIRD: "the study does not give it; Humbird's best estimate is kept",
+    NOT_SET: "the page has no lever for it; the set leaves it out",
+    WORKED: "this model works it out from the cells and the tank, whatever the study states",
+}
+_CELLS_T = "Humbird's design cells (the long-term target: most studies project 23 to 30 hours)"
+SETS = [
+    dict(key="humbird_perfusion", study="humbird2021", label="Humbird 2021, perfusion", name="Humbird's perfusion design (2021)",
+         mods=["humbird_perfusion"], extra={},
+         text="His other design: perfusion in 2 m³ tanks with an alternating-flow filter, on the plant hydrolysate of his best estimate.",
+         own="$51.29 a kilo of wet cells in 2018 dollars with amino acids bought one by one (his Table 4.13)",
+         audit=[
+             ("Vessel and way of running", "vm", "perfusion in 96 stirred tanks (Section 4.2, PDF page 66)", KEPT, None),
+             ("Tank size", "held:tank_m3", "2 m³, the largest an ATF 10 serves (Section 4.2, PDF page 66)", KEPT, None),
+             ("Device that holds the cells back", "device", "alternating-flow filters (Section 4.2, PDF page 66)", KEPT, None),
+             ("Nutrients", None, "amino acids bought one by one, $18.39 a kilo of cells (Table 4.13, PDF page 69)", OWN,
+              "his plant hydrolysate, as in his best estimate (Table 4.7, column 2)"),
+             ("Density", "result:density", "195 g of cells a litre (Section 4.2, PDF page 66)", WORKED, None),
+             ("Everything else", None, "his best estimate's cells, plant and financing", KEPT, "the same"),
+         ]),
+    dict(key="cedelft", study="cedelft2021", label="CE Delft 2021",
+         mods=["no_clean_rooms", "capex_third"],
+         extra={"traits": {"doubling_h": 30.0, "mass_pg": 3610.0},
+                "held": {"tank_m3": 10.0, "fin_rate": 7.5, "fin_life": 30.0, "medium_price": LT_MEDIUM, "gf_buy": 0.0}},
+         text="Its most favourable scenario (8): a cheap food-grade plant without clean rooms paid back over 30 years, 10 m³ tanks, "
+              "cells of 3.6 ng doubling every 30 hours.",
+         own="$6.43 a kilo of meat in its most favourable scenario",
+         audit=[
+             ("Plant grade", "plant", "food grade, no clean rooms (Section 2.3.2, PDF page 13)", KEPT, None),
+             ("Plant cost", "held:capex_x", "about $167k to $277k per m³ of tank (derived; Section 3.2.3, PDF pages 23 and 27)",
+              CORRECTED, None),
+             ("Years to repay the plant", "held:fin_life", "30, its social criterion (Section 3.2.3, PDF page 24)", KEPT, None),
+             ("Interest on the plant", "held:fin_rate", "none: the investment divided by 30 years (Section 3.2.3, PDF page 24)",
+              CORRECTED, None),
+             ("Tank size", "held:tank_m3", "10 m³ working volume (Table 2, PDF page 13)", KEPT, None),
+             ("Way of running", None, "semi-continuous, three harvests (Table 5, PDF page 36)", NOT_SET, "fed-batch, as Humbird"),
+             ("Doubling time", "trait:doubling_h", "30 hours (Table 5, PDF page 36)", KEPT, None),
+             ("Weight of a cell", "trait:mass_pg", "3,500 µm³ (Table 5, PDF page 37); 3.6 ng at 1.03 g/mL (derived)", KEPT, None),
+             ("Medium price", "held:medium_price", "low medium use at future prices, with cheaper growth factors; no price a "
+              "litre (Table 11, PDF page 41; Section 3.2.5)", TARGET, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in its medium at future prices (Section 3.2.5)", TARGET, None),
+             ("Sugar fed", None, "15 g of sugars a kilo of meat (Table 11, PDF page 41)", CORRECTED,
+              "what this model's mass balance gives (311 g of glucose a kilo of cells at Humbird's growth)"),
+             ("Density", "result:density", "50 million cells a mL, 18% of the volume (Table 5, PDF page 37)", WORKED, None),
+             ("Maturation", None, "a second stage in 2 m³ perfusion reactors (Table 2, PDF page 13)", NOT_SET, "left out: cells as grown"),
+             ("Waste the cells make", None, "not stated", HUMBIRD, "Humbird's"),
+         ]),
+    dict(key="risner", study="risner2021", label="Risner 2021",
+         mods=[],
+         extra={"traits": {"doubling_h": 15.0},
+                "held": {"tank_m3": 20.0, "medium_price": round(0.24 * _cpi(2019), 2), "gf_buy": 0.0, "capex_x": 0.34,
+                         "fin_rate": 6.0, "fin_life": 20.0}},
+         text="Its most favourable scenario (4), brought inside the limits.",
+         own="$1.95 a kilo of wet cells in 2019 dollars (scenario 4)",
+         audit=[
+             ("Tank size", "held:tank_m3", "20 m³ (Table A1, PDF page 19)", KEPT, None),
+             ("Way of running", None, "batches (Appendix A, PDF page 12)", NOT_SET, "fed-batch, as this page prices the scenario elsewhere"),
+             ("Doubling time", "trait:doubling_h", "8 hours in scenario 4 (Table A2, PDF page 19)", CORRECTED, None),
+             ("Weight of a cell", None, "5,000 µm³, 5.3 ng (Table A2, PDF page 19)", CORRECTED,
+              "3 ng, Humbird's; heavier than any measured for meat cells"),
+             ("Density", "result:density", "200 million cells a mL, which fills the tank (Table A1, PDF page 19)", CORRECTED, None),
+             ("Medium price", "held:medium_price", "$0.24 a litre in 2019 dollars in scenario 4 (Section 3, PDF page 9)", OWN, None),
+             ("Growth factors bought on top", "held:gf_buy", "priced at nothing in scenario 4 (Table A3, PDF page 20)", OWN, None),
+             ("Plant cost", "held:capex_x", "the tanks only, $778,000 for a 20 m³ tank (PDF page 7)", CORRECTED, None),
+             ("Interest on the plant", "held:fin_rate", "90% debt at 5%, equity at 15% (Table A7, PDF page 22)", KEPT, None),
+             ("Years to repay the plant", "held:fin_life", "20 (Table A7, PDF page 22)", KEPT, None),
+             ("Fixed manufacturing costs", None, "15% of the plant a year (Tables A1 and A7)", NOT_SET, "this model's labour, energy and supplies"),
+             ("Waste the cells make, and what they tolerate", None, "no limit set (Appendix A, PDF page 16)", CORRECTED, "Humbird's"),
+         ]),
+    dict(key="negulescu", study="negulescu2023", label="Negulescu 2023",
+         mods=["no_clean_rooms", "capex_third"],
+         extra={"traits": {"doubling_h": 23.0},
+                "held": {"tank_m3": 42.0, "x_cap": 100.0, "fin_rate": 7.5, "fin_life": 10.0, "medium_price": LT_MEDIUM, "gf_buy": 0.0}},
+         text="Its smaller stirred plant: fed-batch in 42 m³ tanks to 100 g a litre, a cheap food-grade plant, cells doubling every 23 hours.",
+         own="$35 a kilo of product with 42 m³ tanks",
+         audit=[
+             ("Plant grade", "plant", "food grade, 304 stainless steel (Section 2.3, PDF page 6)", KEPT, None),
+             ("Plant cost", "held:capex_x", "$438M for the 42 m³ plant (Table 2, PDF page 8)", CORRECTED, None),
+             ("Interest on the plant", "held:fin_rate", "none: straight-line depreciation (Section 2.3, PDF page 6)", CORRECTED, None),
+             ("Years to repay the plant", "held:fin_life", "10, with a 5% salvage value (Section 2.3, PDF page 6)", KEPT, None),
+             ("Tank size", "held:tank_m3", "42 m³; also 211 m³ and a 262 m³ airlift (Table 2, PDF page 8)", KEPT, None),
+             ("Way of running", None, "fed-batch (Section 2.2, PDF page 4)", KEPT, "fed-batch"),
+             ("Densest culture", "held:x_cap", "100 g of cells a litre (Section 2.2, PDF page 4)", KEPT, None),
+             ("Doubling time", "trait:doubling_h", "23 hours (Section 2.2, PDF page 4)", KEPT, None),
+             ("Medium price", "held:medium_price", "$1.396 a litre, from 2022 bulk prices of a published serum-free medium "
+              "(Section 2.2.1, PDF page 6)", TARGET, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in its medium (Section 2.2.1, PDF page 6)", KEPT, None),
+             ("Differentiation", None, "10 days in the tank (Section 2.2, PDF page 4)", NOT_SET, "left out: cells as grown"),
+             ("Waste the cells make", None, "Humbird's enhanced metabolism (Section 2.2.1, PDF page 6)", KEPT, "Humbird's"),
+         ]),
+    dict(key="garrison", study="garrison2022", label="Garrison 2022",
+         mods=[],
+         extra={"held": {"tank_m3": 20.0, "medium_price": round(0.28 * _cpi(2020), 2),
+                         "gf_buy": 0.0, "labourx": 0.25, "capex_x": 0.34, "fin_rate": 10.0, "fin_life": 10.0}},
+         text="Its most favourable variant: Specht's cheapest medium, labour and bioreactors cut by 75%.",
+         own="$17.10 a kilo of meat, packed and delivered, in its most favourable variant; $63.69 as its base case",
+         audit=[
+             ("Tank size", "held:tank_m3", "four 20 m³ tanks (Section 2.3.1, PDF page 4)", KEPT, None),
+             ("Way of running", None, "half of each tank harvested ten times in a 51-day cycle (Section 2.3.1, PDF page 4)",
+              NOT_SET, "fed-batch"),
+             ("Medium price", "held:medium_price", "$0.28 a litre, Specht 2020's lowest scenario, in its variant; $3.74 in its base "
+              "case (Section 3.2.1, PDF page 6)", OWN, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in the medium (Section 3.2.1, PDF page 6)", OWN, None),
+             ("Labour", "held:labourx", "94 staff, cut by 75% in its variant (Table 2; Section 3.2.1)", OWN, None),
+             ("Plant cost", "held:capex_x", "$60M of equipment for 80 m³, $750k per m³ (derived), cut by 75% in its variant "
+              "(Section 2.3.1; Section 3.2.1)", CORRECTED, None),
+             ("Interest on the plant", "held:fin_rate", "10% (Section 2.3, PDF page 4)", KEPT, None),
+             ("Years to repay the plant", "held:fin_life", "10 (Section 2.3, PDF page 4)", KEPT, None),
+             ("Cells", None, "not described", HUMBIRD, "Humbird's"),
+         ]),
+    dict(key="pasitka", study="pasitka2024", label="Pasitka 2024",
+         mods=[],
+         extra={"vm": ["stirred", "perfusion"], "device": "tff",
+                "held": {"tank_m3": 5.0, "medium_price": LT_MEDIUM, "gf_buy": 0.0, "harvest_loss": 1.3,
+                         "capex_x": PASITKA_CAPEX_X, "mem_price": 50.0}},
+         text="Its plant with tangential-flow filters, with the long-term targets for the cells and the medium.",
+         own="$24.06 a kilo of wet cells for this design in 2024 dollars (its Table S10), or $32.66 with the payment on the "
+             "plant its Table S4 works out",
+         audit=[
+             ("Vessel and way of running", "vm", "continuous perfusion (PDF page 6)", KEPT, None),
+             ("Device that holds the cells back", "device", "tangential-flow filters (PDF page 6)", KEPT, None),
+             ("Tank size", "held:tank_m3", "10 tanks of 5 m³ (PDF page 6)", KEPT, None),
+             ("Plant cost", "held:capex_x", "$63.1M for 50 m³ of tank (Table S4)", KEPT, None),
+             ("Interest on the plant", "held:fin_rate", "14.6% a year worked out in Table S4 and left out of the total (Table S10)",
+              CORRECTED, None),
+             ("Years to repay the plant", "held:fin_life", "with the 14.6% above (Table S4)", CORRECTED, None),
+             ("Filter membranes", "held:mem_price", "24 a year at $16,000 for about 24 million litres, about 2 cents a litre "
+              "filtered (Table S6)", KEPT, None),
+             ("Cells lost", "held:harvest_loss", "1.3% of production (PDF page 6)", KEPT, None),
+             ("Medium price", "held:medium_price", "$0.63 a litre, the 2024 price of its animal-free medium (Abstract)", TARGET, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in its medium (Figure 2b)", KEPT, None),
+             ("Doubling time", None, "61 hours in a 1.8-litre run (PDF page 2)", TARGET, _CELLS_T + ": 24 hours"),
+             ("Waste the cells make", None, "0.14 mol of ammonia a kilo, 1.05 mol of lactate per mol of glucose, in that run "
+              "(PDF page 4)", TARGET, _CELLS_T),
+             ("Ammonia and lactate the cells tolerate", None, "held below 3 mM and 30 mM in that run (PDF page 2)", TARGET,
+              "Humbird's 5 mM and 50 mM"),
+             ("Glucose and amino acids fed", None, "145 g and 81 g a kilo of cells (PDF page 4; Table S5)", CORRECTED,
+              "what this model's mass balance gives"),
+             ("Weight of a cell", None, "3.3 ng or 9.8 ng, from two of its figures (Abstract; PDF page 2)", HUMBIRD, "3 ng"),
+             ("Density", "result:density", "up to 130 million cells a mL with serum in 5-litre tanks (Abstract)", WORKED, None),
+             ("Labour", None, "Table S8", NOT_SET, "this model's"),
+         ]),
+    dict(key="supermeat", study="supermeat2024", label="SuperMeat 2024",
+         mods=["perfusion_25", "medium_050"],
+         extra={"traits": {"mass_pg": 1040.0}, "held": {"gf_buy": 0.0, "harvest_loss": 3.0, "fin_rate": 7.5, "fin_life": 10.0}},
+         text="Its plant: perfusion through a membrane filter in 25 m³ tanks, its medium at scale, with the long-term target for the cells.",
+         own="$29.5 a kilo of cultivated chicken with depreciation (derived from $13.4 a pound)",
+         audit=[
+             ("Vessel and way of running", "vm", "perfusion with continuous bleeding (PDF page 18)", KEPT, None),
+             ("Tank size", "held:tank_m3", "25,000 litres (PDF pages 18 and 20)", KEPT, None),
+             ("Weight of a cell", "trait:mass_pg", "1.04 g per billion stem cells (PDF page 18)", KEPT, None),
+             ("Doubling time", None, "half a doubling a day while bled, from 10-litre runs (PDF page 18)", TARGET, _CELLS_T + ": 24 hours"),
+             ("Density", "result:density", "80 million cells a mL, 83 g a litre, from 10-litre runs (PDF page 18)", TARGET, None),
+             ("Medium price", "held:medium_price", "under $0.50 a litre at scale (PDF pages 3 and 18)", KEPT, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in its medium (PDF page 7)", KEPT, None),
+             ("Cells lost", "held:harvest_loss", "3% rejected (PDF page 18)", KEPT, None),
+             ("Interest on the plant", "held:fin_rate", "none: depreciation only (PDF page 20)", CORRECTED, None),
+             ("Years to repay the plant", "held:fin_life", "not stated", HUMBIRD, None),
+             ("Plant cost", None, "not given per m³", HUMBIRD, "Humbird's"),
+             ("Labour", None, "100 staff and 13 outsourced (PDF page 18)", NOT_SET, "this model's"),
+         ]),
+    dict(key="ark", study="ark2023", label="Ark Biotech 2023",
+         mods=[],
+         extra={"traits": {"mass_pg": 2500.0},
+                "held": {"tank_m3": 25.0, "x_cap": 75.0, "medium_price": round(0.25 * _cpi(2023), 2), "gf_buy": 0.0,
+                         "fin_rate": 7.5, "fin_life": 15.0}},
+         text="Its levers within reach: 25 m³ fed-batch tanks to 75 g a litre and a medium at $0.25 a litre.",
+         own="$4.4 a kilo of cells with all four of its levers ($2.0 a pound); $65.0 as its baseline",
+         audit=[
+             ("Tank size", "held:tank_m3", "25,000-litre stirred tanks (Exhibit 8, PDF page 12)", KEPT, None),
+             ("Way of running", None, "fed-batch (Exhibit 6, PDF page 8)", KEPT, "fed-batch"),
+             ("Weight of a cell", "trait:mass_pg", "2,500 picograms (Exhibit 1, PDF page 4)", KEPT, None),
+             ("Doubling time", None, "24 hours after a 2-day lag (Exhibit 3, PDF page 7)", KEPT, "24 hours"),
+             ("Densest culture", "held:x_cap", "30 million cells a mL as its lever, 20 million as baseline (Exhibit 1, PDF page 4)", OWN, None),
+             ("Medium price", "held:medium_price", "$0.25 a litre as its lever, $2 as baseline (Exhibit 1, PDF page 4)", OWN, None),
+             ("Growth factors bought on top", "held:gf_buy", "included in its medium (Exhibit 2, PDF page 5)", KEPT, None),
+             ("Interest on the plant", "held:fin_rate", "none: depreciation (Exhibit 8, PDF page 12)", CORRECTED, None),
+             ("Years to repay the plant", "held:fin_life", "15 (Exhibit 8, PDF page 12)", KEPT, None),
+             ("Larger tanks", None, "its own design up to 1,000 m³ as a lever (Exhibit 8, PDF page 12)", NOT_SET,
+              "left out: this model finds larger tanks dearer, because they clear less CO₂"),
+             ("Differentiation", None, "a 128% gain in mass as a lever (Exhibit 1, PDF page 4)", NOT_SET, "left out: cells as grown"),
+             ("Plant cost", None, "not given per m³", HUMBIRD, "Humbird's"),
+         ]),
+    dict(key="gourmey", study="gourmey2025", label="Gourmey and Arthur D. Little 2025",
+         mods=[],
+         extra={"traits": {"doubling_h": 16.0}, "vm": ["stirred", "perfusion"], "device": "tff",
+                "held": {"tank_m3": 5.0, "medium_price": round(0.20 * EUR_USD_2025, 2), "gf_buy": 0.0,
+                         "capex_x": GOURMEY_CAPEX_X}},
+         text="Its announced plant: six 5 m³ tanks run continuously, cells doubling in under 16 hours, medium at €0.20 a litre.",
+         own="€7 a kilo, of cells or of a product half cells (not stated)",
+         audit=[
+             ("Vessel and way of running", "vm", "continuous runs in suspension (company announcement, 28 May 2025)", KEPT, None),
+             ("Device that holds the cells back", "device", "not stated", HUMBIRD, None),
+             ("Tank size", "held:tank_m3", "six 5,000-litre bioreactors (company announcement, 28 May 2025)", KEPT, None),
+             ("Plant cost", "held:capex_x", "under €35M a facility, under €1.17M per m³ (derived; company announcement)", KEPT, None),
+             ("Doubling time", "trait:doubling_h", "under 16 hours (press report, Green Queen, 28 May 2025)", KEPT, None),
+             ("Medium price", "held:medium_price", "€0.20 a litre (company announcement, 28 May 2025)", KEPT, None),
+             ("Growth factors bought on top", "held:gf_buy", "none (company announcement, 28 May 2025)", KEPT, None),
+             ("Output", "result:output", "1,700 tonnes a year from 30 m³, 57 tonnes a m³ (derived; company announcement)", WORKED, None),
+             ("Density, litres of medium, weight of a cell, financing", None, "not stated", HUMBIRD, "Humbird's, or this model's limits"),
+         ]),
+]
+# studies with no set, and why (shown under the buttons)
+SETS_NOT_OFFERED = ("No button: Humbird's wild-type cells (a sensitivity case of his, not a long-term estimate; it stays as a "
+                    "box in \"Why published cost studies disagree\"); Lever VC 2025 and Aleph Farms 2025 (no design published); "
+                    "GFI 2021 (CE Delft's study); GFI 2026 (a medium price only); Cellular Agriculture Ltd 2024 (hollow-fibre "
+                    "reactors at a scale this page cannot price).")
+
+
+def sets() -> list:
+    """The starting sets with their merged lever settings."""
+    mods = {m["key"]: m for m in modifications(with_notes=False)}
+    out = []
+    for st in SETS:
+        e = dict(st)
+        e["settings"] = merge([mods[k] for k in st["mods"]] + [{"settings": st["extra"]}])
+        e["study_name"] = STUDIES[st["study"]]["name"]
+        e.setdefault("name", f"{st['label']}'s assumptions on Humbird's design")
+        e["audit_rows"] = audit_rows(e)
+        out.append(e)
+    return out
+
+
+# ---------------------------------------------------------------------------------------------------------------------------
+# Plant against running costs (the owner, 2026-11-24: "an interactive plot depicting the OPEX vs CAPEX of the different TEAs and
+# the limit"). "Plant" is every cost that scales with what the plant cost to build: its yearly payment with interest,
+# maintenance and insurance. "Running" is everything else: medium, growth factors, filters and supplies, labour, energy.
+# This engine's `capital` is the first; its total less `capital` the second.
+# ---------------------------------------------------------------------------------------------------------------------------
+def split(settings: dict) -> dict:
+    """Plant and running costs of a kilo of cells, $, for lever settings on Humbird's best estimate."""
+    r = result(settings)
+    return {"plant": float(r["capital"]), "running": float(r["total"] - r["capital"]), "total": float(r["total"])}
+
+
+# Each study's own split, where it publishes one, as it reports it: (plant, running) in its own money and unit, the factor to
+# dollars, the year of its dollars, and where the figures are. Every figure is brought to 2025 dollars by consumer prices
+# (Humbird's by his own escalation, humbird_check.his_today). `set` names the starting set of the same study, if any;
+# `same` says whether the study's figure is the case the set models.
+_LB = 2.2046                    # pounds in a kilo (LB below)
+SPLITS = [
+    dict(key="humbird_best", study="humbird2021", label="Humbird 2021, best estimate", set="humbird_best", same=True,
+         his="fb_hydro", basis="a kilo of wet cells",
+         how="his Table 4.7, column 2: plant (capital charge, maintenance, insurance) $11.33, the rest $9.67, in 2018 dollars"),
+    dict(key="humbird_perfusion", study="humbird2021", label="Humbird 2021, perfusion", set="humbird_perfusion", same=False,
+         his="pf_aa", basis="a kilo of wet cells",
+         how="his Table 4.13: plant $22.61, the rest $28.68, in 2018 dollars, with amino acids bought one by one (the set uses "
+             "his hydrolysate)"),
+    dict(key="cedelft", study="cedelft2021", label="CE Delft 2021", set="cedelft", same=True,
+         plant=320.0 / 30.0 / 10.0, running=6.43 - 320.0 / 30.0 / 10.0, fx=1.0, year=2021, basis="a kilo of meat after maturation",
+         how="scenario 8: $6.43 a kilo; its plant, $320M over 30 years with no interest, on 10,000 tonnes a year is $1.07 "
+             "(derived; Section 3.2.5, PDF page 27); the rest $5.36. The year of its dollars is not stated: 2021 is taken"),
+    dict(key="negulescu", study="negulescu2023", label="Negulescu 2023", set="negulescu", same=False,
+         plant=35.0 - 25.0, running=25.0, fx=1.0, year=2022, basis="a kilo of product, about 97% wet cells",
+         how="42 m³ tanks: $35 a kilo with depreciation, $25 without (Table 2, PDF page 8), so $10 of plant; the year of its "
+             "dollars is not stated: 2022 is taken. Its medium at $1.40 a litre (the set uses $0.20)"),
+    dict(key="garrison", study="garrison2022", label="Garrison 2022", set="garrison", same=True,
+         plant=0.25 * 17.81, running=17.10 - 0.25 * 17.81, fx=1.0, year=2022, basis="a kilo of meat, packed and delivered",
+         how="its most favourable variant, $17.10 a kilo (Section 3.2.1, PDF page 6): tanks and equipment at a quarter of its "
+             "$17.81 (Table 2, PDF page 5), $4.45 (derived); the rest $12.65"),
+    dict(key="pasitka", study="pasitka2024", label="Pasitka 2024", set="pasitka", same=False,
+         plant=5.31, running=24.06 - 5.31, fx=1.0, year=2024, basis="a kilo of wet cells",
+         how="its design with tangential-flow filters, $24.06 a kilo (Table S10): maintenance and insurance $5.31, the rest "
+             "$18.75. It leaves out the payment on the plant its Table S4 works out, $8.60 a kilo. Its cells and medium are "
+             "those of its 1.8-litre run (the set uses the long-term targets)"),
+    dict(key="supermeat", study="supermeat2024", label="SuperMeat 2024", set="supermeat", same=False,
+         plant=(13.4 - 11.8) * _LB, running=11.8 * _LB, fx=1.0, year=2024, basis="a kilo of cultivated chicken",
+         how="$13.4 a pound with depreciation and $11.8 without (PDF page 20): $3.53 and $26.01 a kilo (derived). Its cells are "
+             "those of its 10-litre runs (the set uses the long-term targets)"),
+    dict(key="ark", study="ark2023", label="Ark Biotech 2023, baseline", set="ark", same=False,
+         plant=3.9 * _LB, running=(29.5 - 3.9) * _LB, fx=1.0, year=2023, basis="a kilo of cells leaving the tank",
+         how="its baseline, $29.5 a pound: depreciation $3.9, the rest $25.6 (Exhibit 2, PDF page 5); $8.60 and $56.44 a kilo "
+             "(derived). Its lever case, which the set models, gives no split"),
+    dict(key="cellag", study="cellag2024", label="Cellular Agriculture Ltd 2024", set=None, same=False,
+         plant=3.58, running=11.09, fx=None, year=2024, basis="a kilo of cultured biomass",
+         how="the factory of 60 tonnes a week: plant £3.58, running costs £11.09 (Table 5, PDF page 7), at $1.28 a pound "
+             "sterling; the plant divided over 20 years with no interest"),
+]
+
+
+def splits_reported() -> list:
+    """SPLITS in 2025 dollars a kilo (in each study's own unit of product)."""
+    import humbird_check as HC
+    out = []
+    for d in SPLITS:
+        e = {k: d[k] for k in ("key", "study", "label", "set", "same", "basis", "how")}
+        e["study_name"] = STUDIES[d["study"]]["name"]
+        if "his" in d:
+            h = HC.his_today(d["his"])
+            e["plant"], e["running"] = h["capital"], h["total"] - h["capital"]
+        else:
+            fx = GBP_USD_2024 if d["fx"] is None else d["fx"]
+            e["plant"], e["running"] = d["plant"] * fx * cpi(d["year"]), d["running"] * fx * cpi(d["year"])
+        out.append(e)
+    return out
+
+
+_PLANT_NAMES = {"lean": "a food-grade plant with shared medium", "sterile": "a food-grade plant", "pharma": "a pharma-style plant with clean rooms"}
+_DEVICE_NAMES = {"tff": "a membrane filter loop (tangential flow)", "atf": "alternating-flow filters"}
+_MODE_NAMES = {"fedbatch": "fed-batch", "perfusion": "perfusion"}
+
+
+def _used(lever: str, settings: dict, r: dict) -> str:
+    """The value a set uses for `lever`, in words, from its settings (or from the engine's result for "result:...")."""
+    if lever.startswith("result:"):
+        k = lever.split(":")[1]
+        if k == "density":
+            return f"{r['density']:.0f} g of cells a litre, limited by {r['limit']}"
+        if k == "output":
+            return f"{r['output']:.1f} tonnes a m³ of tank a year"
+        return f"{r[k]:.1f} litres a kilo of cells"
+    if lever == "vm":
+        return f"a stirred tank in {_MODE_NAMES[settings['vm'][1]]}"
+    if lever == "device":
+        return _DEVICE_NAMES[settings.get("device", BASE_DEVICE)]
+    if lever == "plant":
+        return _PLANT_NAMES[settings["plant"]]
+    kind, k = lever.split(":")
+    v = settings["traits" if kind == "trait" else "held"][k]
+    if k == "doubling_h":
+        return f"{v:g} hours"
+    if k == "mass_pg":
+        return f"{v / 1000.0:.2f} ng"
+    return {"tank_m3": f"{v:g} m³", "x_cap": f"no more than {v:g} g of cells a litre", "fin_rate": f"{v:g}% interest",
+            "fin_life": f"{v:g} years", "medium_price": f"${v:.2f} a litre in 2025 dollars, growth factors in it",
+            "gf_buy": "none" if v == 0 else f"{v:g}% of Humbird's", "harvest_loss": f"{v:g}%",
+            "capex_x": f"{v:.2f} times this model's plant: ${r.get('capex', 0):,.0f}k per m³ of tank" if r.get("capex") else f"{v:.2f} times this model's plant",
+            "mem_price": f"${v:,.0f} a m²", "labourx": f"{v:.2f} times this model's labour"}[k]
+
+
+def audit_rows(e: dict) -> list:
+    """A set's audit as dicts: item, what the study says, what the set uses, why (AUDIT_KINDS)."""
+    r = result(e["settings"])
+    out = []
+    for item, lever, says, why, used in e["audit"]:
+        if lever and (lever.startswith("result:") or lever in ("vm", "device", "plant") and lever in e["settings"]
+                      or ":" in lever and lever.split(":")[1] in e["settings"].get("traits" if lever.startswith("trait") else "held", {})):
+            used = _used(lever, e["settings"], r)
+        elif used is None:
+            used = "Humbird's"
+        out.append({"item": item, "lever": lever, "study": says, "used": used, "why": why})
+    return out
 
 
 def table() -> dict:
@@ -594,14 +1100,16 @@ STUDY_LEVERS = {
         "cedelft2021": [(3610.0, "3,500 µm³ (Table 5, PDF page 37); derived at 1.03 g/mL, the wet cells of Humbird's Table 2.2"),
                         (5160.0, "5,000 µm³ in scenario 8 (Section 3.2.5, PDF page 27); derived at 1.03 g/mL")],
         "negulescu2023": [(3000.0, "3 ng a cell (Section 2.2, PDF page 4)")],
-        "supermeat2024": [(1040.0, "1.04 g per billion stem cells (PDF page 18)")]},
+        "supermeat2024": [(1040.0, "1.04 g per billion stem cells (PDF page 18)")],
+        "ark2023": [(2500.0, "2,500 picograms a cell (Exhibit 1, PDF page 4)")]},
     "doubling_h": {
         "risner2021": [(24.0, "scenario 1 (Table A2, PDF page 19)"), (16.0, "scenarios 2 and 3 (Table A2, PDF page 19)"),
                        (8.0, "scenario 4 (Table A2, PDF page 19)")],
         "cedelft2021": [(30.0, "Table 5, PDF page 36")],
         "negulescu2023": [(23.0, "Section 2.2, PDF page 4")],
         "pasitka2024": [(61.0, "through the 20-day continuous run, measured (PDF page 2)")],
-        "supermeat2024": [(48.0, "0.5 doublings a day while bleeding (PDF page 18); derived")]},
+        "supermeat2024": [(48.0, "0.5 doublings a day while bleeding (PDF page 18); derived")],
+        "ark2023": [(24.0, "24 hours, after a lag of 2 days (Exhibit 3, PDF page 7)")]},
     "nh3_limit": {"pasitka2024": [(3.0, "ammonia held below 3 mM (PDF page 2)")]},
     "lac_limit": {"pasitka2024": [(30.0, "lactate held below 30 mM (PDF page 2)")]},
     "growth_factors": {"risner2021": [(0.0, "scenario 4 prices insulin, transferrin, FGF-2 and TGF-β at nothing (Table A3, PDF page 20)")]},
@@ -615,7 +1123,8 @@ STUDY_LEVERS = {
         "pasitka2024": [(430.0, "130 million cells a mL, 43% weight per volume, in 5-litre glass tanks with serum (Abstract and "
                                 "Figure 1, PDF pages 1 and 3)")],
         "supermeat2024": [(83.0, "80 million cells a mL at 1.04 ng (PDF page 18); derived")],
-        "lever2025": [(90.0, "60 to 90 g/L at several companies (PDF page 3)")]},
+        "lever2025": [(90.0, "60 to 90 g/L at several companies (PDF page 3)")],
+        "ark2023": [(75.0, "30 million cells a mL as its lever, 20 million as its baseline (Exhibit 1, PDF page 4); derived at 2.5 ng")]},
     "vessel_m3": {
         "cedelft2021": [(10.0, "stirred tanks of 10 m³ working volume (Table 2, PDF page 13)")],
         "risner2021": [(20.0, "Table A1, PDF page 19")],
@@ -623,7 +1132,9 @@ STUDY_LEVERS = {
                                   "(Table 2, PDF page 8)")],
         "garrison2022": [(20.0, "four 20 m³ tanks (Section 2.3.1, PDF page 4)")],
         "pasitka2024": [(5.0, "10 tanks of 5 m³ with tangential-flow filters; also 25 of 2 m³ and 2 of 25 m³ (PDF page 6)")],
-        "supermeat2024": [(25.0, "25,000-litre tanks (PDF pages 18 and 20)")]},
+        "supermeat2024": [(25.0, "25,000-litre tanks (PDF pages 18 and 20)")],
+        "ark2023": [(25.0, "25,000-litre stirred tanks as the baseline; also its own design at 100, 250 and 1,000 m³, which this "
+                           "engine does not price (Exhibit 8, PDF page 12)")]},
     "recovery": {
         "risner2021": [(0.0882, "90% debt at 5% and equity at 15% over 20 years, each with its own repayment (Table A7, PDF page 22); "
                                 "derived: 0.9 x 8.02% + 0.1 x 15.98%")],
@@ -631,7 +1142,9 @@ STUDY_LEVERS = {
                         (1.0 / 30.0, "payback in 30 years with no interest, its social criterion (Section 3.2.3, PDF page 24)")],
         "negulescu2023": [(0.095, "straight-line depreciation over 10 years to a 5% salvage value, no interest (Section 2.3, PDF page 6)")],
         "garrison2022": [(0.1627, "10% over 10 years (Section 2.3, PDF page 4; Table 2, PDF page 5)")],
-        "pasitka2024": [(0.0, "its cost lines show maintenance and insurance and no payment on the plant (Figure 4, PDF page 7)")]},
+        "pasitka2024": [(0.0, "its cost lines show maintenance and insurance and no payment on the plant (Figure 4, PDF page 7)")],
+        "ark2023": [(1.0 / 15.0, "depreciation over 15 years with no salvage value, no interest (Exhibit 8, PDF page 12)")],
+        "cellag2024": [(1.0 / 20.0, "the plant divided by the yearly output over 20 years, no interest (Fixed cost estimation, PDF page 2)")]},
     # the medium for a kilo of cells, in today's dollars (the study's figure x consumer prices since its year: CPI below)
     "medium_kg": {
         "risner2021": [(1.70 * cpi(2019), "scenario 4: 7.1 litres a kilo at $0.24 a litre, $1.70 in 2019 dollars (Table 2, PDF page 9); derived")],
@@ -719,6 +1232,13 @@ REJECTED = [
          why="The plant must be repaid at a market rate of interest: a plant that is never repaid is not a cost of production. "
              "Its Table S4 computes a charge of 14.6% of the plant a year, but Table S10 leaves it out of the total: with it, "
              "the large-scale case is $26.99 a kilo of cells in 2024 dollars, not $21.49."),
+    dict(study="ark2023", lever="recovery", value=1.0 / 15.0, limit="capital", limit_value=None, unit="share of the plant's cost a year",
+         assumption="the plant written off over 15 years with no interest", ref="Exhibit 8, PDF page 12",
+         why="The plant must be repaid at a market rate of interest: depreciation alone leaves out what the money costs. The "
+             "study also counts nothing after the bioreactor."),
+    dict(study="cellag2024", lever="recovery", value=1.0 / 20.0, limit="capital", limit_value=None, unit="share of the plant's cost a year",
+         assumption="the plant divided over 20 years of output with no interest", ref="Fixed cost estimation, PDF page 2",
+         why="The plant must be repaid at a market rate of interest: depreciation alone leaves out what the money costs."),
     # 2026-11-20: cell weight follows the same rule as doubling time
     dict(study="risner2021", lever="mass_pg", value=5300.0, limit="mass", limit_value=None, unit="pg",
          assumption="a cell of 5.00e-15 m³ at 1,060 kg per m³, 5.3 ng (every scenario)", ref="Table A2, PDF page 19",
@@ -769,6 +1289,7 @@ def favourable_value(lever: str, study: str, better: str) -> tuple:
 # Each study's own most favourable published estimate, as a kilo of wet cells in today's dollars
 # ---------------------------------------------------------------------------------------------------------------------------
 LB = 2.2046                     # pounds in a kilo
+GBP_USD_2024 = 1.28             # dollars per pound sterling, about the 2024 average; typed from memory, to be checked against an official series
 
 # published: the figure as the study prints it; per_kg_cells: the same as $ a kilo of wet cells in the study's own dollars, with
 # `how`; year: the year of its dollars, with `year_how` (stated, or why this year is taken); ref: where it is printed.
@@ -807,6 +1328,27 @@ ESTIMATES = {
                     how="CE Delft's figure, which this report summarises", year=2021, year_how="as CE Delft 2021"),
     "gfi2026": dict(published=None, ref="PDF pages 8 and 30", per_kg_cells=None,
                     how="it gives no cost of cells or of meat, only prices of medium a litre", year=2026, year_how=""),
+    "ark2023": dict(published="$2.0 a pound with all four of its levers ($29.5 as its baseline)", ref="Exhibit 1, PDF page 4",
+                    per_kg_cells=2.0 * LB,
+                    how="a kilo of cells leaving the tank, with no differentiation credit removed: $2.0 x 2.2046. The headline figure "
+                        "is taken; its Exhibit 10 (PDF page 14) also shows example paths down to $0.3 a pound, which need cells "
+                        "that gain 3,000% in mass while differentiating",
+                    year=2023, year_how="not stated; the year of publication is taken"),
+    "cellag2024": dict(published="£14.68 a kilo of cultured biomass (factory of 60 tonnes a week)", ref="Table 5, PDF page 7",
+                       per_kg_cells=14.68 * GBP_USD_2024,
+                       how="already a kilo of cultured biomass; pounds to dollars at 1.28, about the 2024 average rate (typed from "
+                           "memory, not fetched from an official series)",
+                       year=2024, year_how="not stated; the year of publication is taken"),
+    "gourmey2025": dict(published="€7 a kilo ($3.43 a pound)", ref="company announcement, 28 May 2025", per_kg_cells=3.43 * LB,
+                        how="the company's own dollar figure, $3.43 x 2.2046, read as a kilo of cells, the more favourable reading: "
+                            "the announcement does not say of what, and the press reports a product about half cells. Whether "
+                            "the plant is charged is not stated",
+                        year=2025, year_how="the year of the announcement"),
+    "aleph2025": dict(published="as low as $4.08 a pound of end products ($6.45 as its estimate, with the plant)",
+                      ref="company announcement, September 2025", per_kg_cells=4.08 * LB,
+                      how="the low end of its sensitivity analysis, $4.08 x 2.2046, read as a kilo of cells, the more favourable "
+                          "reading: the share of cells in the product is not stated",
+                      year=2025, year_how="the year of the announcement"),
 }
 
 
@@ -851,6 +1393,7 @@ EXCEPTIONS = {
                        inside_how="its 20 m³ batch tanks, tanks-only capital and financing and $0.24 a litre of "
                                   "medium, with cells of 3 ng (not 5.3), a 15-hour doubling, the density that oxygen, CO₂ and waste allow, and "
                                   "at least the nutrients the cells are built from"),
+    "ark2023": dict(levers=(("recovery", 1.0 / 15.0),)),
 }
 # The studies with no estimate to compare, and why.
 NOT_COMPARED = {"gfi2026": "it gives no cost of cells or of meat, only prices of medium a litre"}
@@ -891,6 +1434,13 @@ def comparison() -> dict:
     return {"all_favourable": fav, "rows": rows, "below": below}
 
 
+def _af_split() -> dict:
+    """The all-favourable case's plant and running costs (scenarios.all_favourable), $ a kilo of cells."""
+    import scenarios as S
+    r = S.all_favourable()["result"]
+    return {"plant": float(r["capital"]), "running": float(r["total"] - r["capital"]), "total": float(r["total"])}
+
+
 def page_data() -> dict:
     """What the page's card needs (MODEL.tp.studies): the modifications with their lever settings, the notes, each study's own
     reported cost and its most favourable estimate in today's dollars, and the estimates below the all-favourable case."""
@@ -900,6 +1450,11 @@ def page_data() -> dict:
     return {"base_label": BASE_LABEL, "base_key": BASE_KEY,
             "base": {"vm": BASE_VM, "plant": BASE_PLANT, "device": BASE_DEVICE},
             "mods": [{k: m[k] for k in keep if k in m} for m in modifications()],
+            "sets": [{k: e[k] for k in ("key", "label", "name", "study_name", "text", "own", "settings", "audit_rows")} for e in sets()],
+            "audit_why": AUDIT_WHY,
+            "sets_not_offered": SETS_NOT_OFFERED,
+            "splits": splits_reported(),
+            "af_split": _af_split(),
             "studies": [{"key": k, "name": s["name"], "system": s["system"], "cost": s["cost"], "basis": s["basis"],
                          "explains": s["explains"], "published": est[k]["published"], "today": est[k]["today"],
                          "today_how": (est[k]["how"] + "; " + est[k]["factor_how"]) if est[k]["today"] is not None else est[k]["how"]}
@@ -994,7 +1549,8 @@ def main() -> None:
             print(f"    {r['name']:<16} {r['published']}  ->  ${r['per_kg_cells']:.2f} a kilo of wet cells in {r['year']} dollars, "
                   f"${r['today']:.2f} today{'   BELOW' if r['below'] else ''}")
     for b in c["below"]:
-        print(f"\n  {b['name']} is below. Inside the limits its design costs ${b['inside']:.2f} a kilo here ({b['inside_density']:.0f} g/L).")
+        print(f"\n  {b['name']} is below." + ("" if b["inside"] is None else
+              f" Inside the limits its design costs ${b['inside']:.2f} a kilo here ({b['inside_density']:.0f} g/L)."))
         for a in b["assumptions"]:
             print(f"    {a['assumption']} ({a['ref']}): {a['value']:g} against {a['limit_value']:g} {a['unit']}; {a['limit_name']}")
 

@@ -1,5 +1,43 @@
 # Change log
 
+## 2026-11-24: the page made clearer; other studies as starting points, audited; plant against running costs; checks under each result
+
+**Layout.** Text runs the full width of its block. Two charts that repeated the share map were removed (the cost against each
+meat's price, and one kind of meat's share by price); the sentence on the cost at which it matches each meat's shop price now sits
+under the map. Section 1 shows its limits and litres as bar plots. The summary bar labels production cost apart from the price in
+the shop. The duplicate list of sections, two odd slider labels and nine-digit costs in the vessel table were fixed.
+
+**Other studies as starting points** (`study_assumptions.SETS`). Beside Humbird's best estimate and Published cells, nine buttons
+load one study's design on the same engine: Humbird's perfusion design, CE Delft 2021, Risner 2021, Negulescu 2023, Garrison 2022,
+Pasitka 2024, SuperMeat 2024, Ark Biotech 2023, Gourmey and Arthur D. Little 2025. Each is a reasonable but ambitious long-term
+estimate: the study's own design and its most favourable projection are kept; values that come from one lab run or today's
+ingredients give way to long-term targets (Humbird's design cells, 24 hours; a complete medium at $0.20 a litre); anything beyond a
+limit is corrected (a plant is repaid with interest; the cells take up what the mass balance gives). Every set carries an audit,
+assumption by assumption (what the study says and where, what the set uses, why), shown under the buttons and in
+`research_notes/study_comparison.md` section 13; a test checks every lever a set moves has a row. The medium-price lever now reaches
+$1.40 a litre, so Negulescu's medium is a modification in "Why published cost studies disagree".
+
+**Plant against running costs.** A new chart plots each study's own plant and running costs a kilo (`study_assumptions.SPLITS`, 2025
+dollars) against its set on this model, with the nutrient floor, the all-favourable example and the total a 1% share needs.
+
+**How this is worked out, and how to check it.** A closed box under each main result (`page_verify.py`) gives the steps, what the
+figure rests on, the checks against published or measured figures with a verdict, and links to the page section, the code and the
+research note. The share map's box gives the derivation of the price weight and the five price checks, two of which miss.
+
+Open: the pound and euro rates ($1.28, $1.13) were typed from memory. The modification with Pasitka's cells and Published cells
+still use the measured ratio of lactate to glucose (1.05), which on this engine's glucose burn makes several times the lactate
+Pasitka measured per kilo.
+
+## 2026-11-24: four more published cost analyses
+
+`study_assumptions.STUDIES` gains Ark Biotech 2023, Cellular Agriculture Ltd 2024 (hollow fibres), Gourmey and Arthur D. Little
+2025, and Aleph Farms and Eridia 2025: fourteen studies in place of ten. All four come from parties with a stake in the result
+and none is peer reviewed; Gourmey's and Aleph's are known only from company announcements. The all-favourable example is unchanged
+($6.97). Ark's lowest figure ($2.0 a pound, $4.66 a kilo in 2025 dollars) is below it and is listed in `EXCEPTIONS`: it writes the
+plant off over 15 years with no interest, which `REJECTED` now records, as it does Cellular Agriculture Ltd's 20 years with no
+interest. No modification on Humbird's best estimate was added for the four. Open: the pound-to-dollar rate (1.28) was typed from
+memory. `research_notes/study_comparison.md` has a dated section; RESULTS and METHODS say fourteen.
+
 ## 2026-11-22 (sixth batch): meat displaced, and the menu check
 
 **Meat displaced for each kilo sold.** A new input, `meat_displaced_per_kg` (1 kg of conventional meat not bought for each kg of
