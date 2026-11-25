@@ -1,5 +1,11 @@
 # Model audit: drift, accuracy and whether the costs are reasonable price points
 
+2026-11-25 (the gas cap and loop thinning): the engine now tries every gas flow up to the cells' cap and holds a design whose
+column loop is overloaded thinner, so draws that priced an overloaded loop as if it coped now cost what a passing loop costs.
+`audit.py`'s draws (seed 0, 1,000): the low-lactate example's median $57.68 to $57.22 and 10th percentile $42.62 to $42.36; the
+all-favourable example's median $8.22 to $8.11. The points ($48.68, $6.97) sit at the 26th and 11th percentiles; membrane life,
+then the lactate and ammonia the cells tolerate, still lead the ranking. The sections below are not rewritten.
+
 Date: 2026-11-15; recomputed 2026-11-16 after PR #32 (protectant, antifoam, the plant ladder tied to `explore`) and again after
 the scenarios' lower dissolved-oxygen setpoint. Section 0 is the audit on the final model of 2026-11-20. Sections 1 to 6 are the
 audit as written on 2026-11-16, when the low-lactate example cost $29.42 and the all-favourable example $9.66; they are a snapshot

@@ -37,11 +37,14 @@ from inputs import value
 # best 219), so only the 180 g/L cap moves the all-favourable example. Before (2026-11-20): best 7.6209/7.3892 at 180 and
 # 7.6209 above; central 49.4977; central_lean 45.0374; cautious 185.5915 (the building's power by floor and class, labour per
 # tank, the floor's glucose, the thinned designs and the column on the filter loop moved them)
+# 2026-11-25 (the gas cap and loop thinning): explore() now tries every gas flow up to the cap and thins a failing loop itself.
+# The shared-medium plant and the cautious case bubble less than the cap (2 and 1 mm/s), lose fewer cells and cost less:
+# central_lean 44.5349 -> 43.9221, cautious 181.1270 -> 179.9020 at every cap. The all-favourable and low-lactate figures hold.
 GOLDEN_CAP = {
     "best":         {180.0: (7.4371, 7.1984), 320.0: (6.9686, 6.9686), 400.0: (6.9686, 6.9686)},
     "central":      {180.0: (48.6815, 48.6815), 320.0: (48.6815, 48.6815), 400.0: (48.6815, 48.6815)},
-    "central_lean": {180.0: (44.5349, 44.5349), 320.0: (44.5349, 44.5349), 400.0: (44.5349, 44.5349)},
-    "cautious":     {180.0: (181.1270, 181.1270), 320.0: (181.1270, 181.1270), 400.0: (181.1270, 181.1270)},
+    "central_lean": {180.0: (43.9221, 43.9221), 320.0: (43.9221, 43.9221), 400.0: (43.9221, 43.9221)},
+    "cautious":     {180.0: (179.9020, 179.9020), 320.0: (179.9020, 179.9020), 400.0: (179.9020, 179.9020)},
 }
 # cost if viscosity lowers the oxygen a sparger can feed (Best takes its oxygen from the closed loop, so it does not move)
 # 2026-11-19 audit batch: the same three changes; the viscosity-corrected oxygen limits (151 and 103 g/L) do not move
@@ -149,7 +152,9 @@ def check() -> list:
             if not close(c[258.0][mode]["cost"], own, 1e-6):
                 fails.append(f"{k}: a cap of 258 g/L should give the scenario's own cost (${own:.4f}), got ${c[258.0][mode]['cost']:.4f}")
         costs = [c[x]["fixed"]["cost"] for x in (180.0, 258.0, 320.0, 400.0)]
-        if any(b > a + 1e-9 for a, b in zip(costs, costs[1:])):
+        # 1e-4 relative since 2026-11-25: explore() thins a failing loop to within 0.01 g/L (floor_physics.THIN_TOL), so caps
+        # that do not bind give the same design to about 0.005% of the cost, not to 1e-9
+        if any(b > a * (1.0 + 1e-4) for a, b in zip(costs, costs[1:])):
             fails.append(f"{k}: a thicker culture should never cost more with the design held ({costs})")
         for cap, (fixed, checked) in GOLDEN_CAP[k].items():
             if not (close(c[cap]["fixed"]["cost"], fixed, 1e-4) and close(c[cap]["checked"]["cost"], checked, 1e-4)):

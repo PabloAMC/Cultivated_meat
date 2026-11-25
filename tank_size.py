@@ -90,7 +90,7 @@ def _designs(case: str) -> list:
 
 
 def _kwargs(case: str, tricks: str, shape: str, v: float, o: dict, aspect: float | None = None,
-            thin: float | None = None) -> dict:
+            thin: float | None = None, gas: float | None = None) -> dict:
     # `thin`: the culture held at this density so the column loop passes (scenarios.design, 2026-11-21). The scenario's own
     # thinned cap is for its own design at its own size, so it is dropped here unless passed
     if case.startswith("reference"):
@@ -101,6 +101,8 @@ def _kwargs(case: str, tricks: str, shape: str, v: float, o: dict, aspect: float
         base = {k: x for k, x in S.SCENARIOS[case].choice.items() if k != "thin"}
         kw = S.explore_kwargs({**base, "tricks": tricks, "shape": shape, **({"thin": thin} if thin else {})})
     kw["vessel_m3"] = v
+    if gas is not None:                                  # a held design's own gas flow (design_limit, 2026-11-25)
+        kw["gas_velocity"] = float(gas)
     if aspect is not None:                               # a shape the switch does not offer (see `flatter`)
         kw["aspect"] = aspect
     if o["hazard_exp"]:
@@ -151,13 +153,22 @@ def _heat(r: dict, v: float, kw: dict) -> dict:
     return {"heat_kw_m3": kw_m3, "wall_m2_m3": wall, "wall_flux_kw_m2": kw_m3 / wall}
 
 
+def _engine_checks(o: dict) -> bool:
+    """Are the what-if's loop checks the engine's own (floor_physics.loop_ok: the safe dose, the passes tested)?"""
+    return o["checks"] and o["ph_max"] == 1.0 and o["passes_max"] == value("ge_passes_tested")
+
+
 def evaluate(case: str, tricks: str, shape: str, v: float, change: dict | None = None, aspect: float | None = None,
-             thin: float | None = None) -> dict:
+             thin: float | None = None, gas: float | None = None, held: bool = False) -> dict:
     """One design at one size: explore()'s answer, the cost split, the loop checks. `aspect` overrides the shape's liquid
-    depth-to-width ratio; `thin` holds the culture at that density (g/L)."""
+    depth-to-width ratio; `thin` holds the culture at that density (g/L); `gas` sets the gas flow (m/s).
+    2026-11-25 (the gas cap and loop thinning): explore() now chooses the gas flow up to the cap and holds a failing loop thinner,
+    to the engine's own checks. `held` switches both off (`_gas_search=False`: the gas at `gas` or the cap, the culture never
+    thinned by the engine): a design held fixed (`held`, design_limit), and the extra candidates `design_at` tries when a what-if
+    changes the checks (the engine's choice applies its own)."""
     o = _opts(change)
-    kw = _kwargs(case, tricks, shape, v, o, aspect, thin)
-    r = fp.explore(**kw)
+    kw = _kwargs(case, tricks, shape, v, o, aspect, thin, gas)
+    r = fp.explore(**kw, **({"_gas_search": False} if held else {}))
     ok, kind, why = _check(r, o)
     sp = _split(r, v, o)
     T, depth = fp.tank_shape(v, kw.get("aspect"))
@@ -169,17 +180,20 @@ def evaluate(case: str, tricks: str, shape: str, v: float, change: dict | None =
             "passes": d["passes"] if d else 0.0, "ph": d["ph_vs_safe"] if d else 0.0,
             "width_m": T, "depth_m": depth, "loop_area_m2": area_m3 * v, "loop_area_m2_m3": area_m3,
             "loop_units": area_m3 * v / value("rt_atf_area"), "medium_l": r["medium_l"], "uptime": r["uptime"],
-            "thin": thin, **_heat(r, v, kw)}
+            "thin": thin, "held": held, "gas_used": r["gas_used"], **_heat(r, v, kw)}
 
 
-def thinned(case: str, tricks: str, shape: str, v: float, change: dict | None = None, x_hi: float | None = None):
-    """The design held at the densest culture its loop passes at size v (bisection, as scenarios.thinned): its row, or None."""
+def thinned(case: str, tricks: str, shape: str, v: float, change: dict | None = None, x_hi: float | None = None,
+            held: bool = True):
+    """The design held at the densest culture its loop passes, to the what-if's checks, at size v (bisection, as
+    scenarios.thinned): its row, or None. Since 2026-11-25 only for a what-if's own checks, on held designs (explore() thins to
+    the model's checks itself)."""
     if x_hi is None:
-        x_hi = evaluate(case, tricks, shape, v, change)["density"]
+        x_hi = evaluate(case, tricks, shape, v, change, held=held)["density"]
     lo, hi, ok = 0.0, float(x_hi), None
     for _ in range(S.THIN_STEPS):
         mid = 0.5 * (lo + hi)
-        r = evaluate(case, tricks, shape, v, change, thin=mid)
+        r = evaluate(case, tricks, shape, v, change, thin=mid, held=held)
         if r["ok"]:
             lo, ok = mid, r
         else:
@@ -193,12 +207,21 @@ def design_at(case: str, v: float, change: dict | None = None) -> dict:
     `scenarios.design`."""
     o = _opts(change)
     rows = [evaluate(case, tk, sh, v, change) for tk, sh in _designs(case)]
+    if not _engine_checks(o):
+        # 2026-11-25: explore() chooses the gas and thins to the model's own checks, so a what-if that changes the checks (none, a
+        # looser pH dose, more passes) also tries each design as before (bubbling at the cap, thinned here to its own checks);
+        # the engine's designs stay candidates, so a what-if never costs more for a looser check
+        rows += [evaluate(case, tk, sh, v, change, held=True) for tk, sh in _designs(case)]
     best = unchecked = None
     for r in rows:
         if unchecked is None or r["total"] < unchecked["total"] - 1e-12:
             unchecked = r
         if o["checks"] and not r["ok"] and r["tricks"] != "none":
             # as scenarios.design since 2026-11-21: a design whose loop fails is tried with the culture held thinner
+            # 2026-11-25: explore() has already done so for its own designs (at every gas flow up to the cap), so one that
+            # still fails has no passing density; only the held designs of a what-if are thinned here
+            if not r["held"]:
+                continue
             t = thinned(case, r["tricks"], r["shape"], v, change, r["density"])
             if t is not None and (best is None or t["total"] < best["total"] - 1e-12):
                 best = t
@@ -218,6 +241,10 @@ def size_scan(sizes=SIZES, cases=CASES, change: dict | None = None) -> dict:
         rows = []
         for v in sizes:
             d = design_at(c, v, change)
+            if _opts(change)["checks"]:
+                # 2026-11-25: explore() now thins a failing loop itself, so the cheapest design without the checks is found with
+                # them off (the held designs as well: bubbling at the cap, never thinned)
+                d["unchecked"] = design_at(c, v, {**(change or {}), "checks": False})["unchecked"]
             b = dict(d["best"])
             b["unchecked"] = d["unchecked"]["total"]
             b["unchecked_design"] = (d["unchecked"]["tricks"], d["unchecked"]["shape"])
@@ -239,6 +266,14 @@ def _grid(lo: float = SEARCH_RANGE[0], hi: float = SEARCH_RANGE[1], ratio: float
     return [lo * (hi / lo) ** (i / n) for i in range(n + 1)]
 
 
+def held(case: str, v: float, change: dict | None = None) -> dict:
+    """A scenario's own design held fixed at size v (2026-11-25): its added equipment and shape, the density and gas flow its
+    own run chose (as a cap, and as the gas velocity), no gas choice or thinning by the engine. `evaluate`'s row."""
+    ch = S.SCENARIOS[case].choice
+    r0 = S.run(ch)
+    return evaluate(case, ch["tricks"], ch["shape"], v, change, thin=r0["density"], gas=r0["gas_used"], held=True)
+
+
 def design_limit(case: str, change: dict | None = None, hi: float = 2000.0) -> float:
     """The largest size at which the 20 m3 design of a scenario (its own added equipment and shape) passes the loop checks:
     found by stepping up from 20 m3 and then halving the last step. `inf` if the design has no column."""
@@ -246,7 +281,10 @@ def design_limit(case: str, change: dict | None = None, hi: float = 2000.0) -> f
         return float("inf")
     ch = S.SCENARIOS[case].choice
     # a thinned design (2026-11-21) is taken at its own density cap: it sits at the edge of its checks at its own size
-    ok = lambda v: evaluate(case, ch["tricks"], ch["shape"], v, change, thin=ch.get("thin"))["ok"]
+    # 2026-11-25 (the gas cap and loop thinning): choices no longer carry "thin" (the engine thins itself), and the engine would
+    # choose the gas flow and thin again at every size. The question is about the design HELD FIXED, so it is held: the
+    # scenario's own run density as the cap and its own gas flow (gas_used), with `_gas_search=False`
+    ok = lambda v: held(case, v, change)["ok"]
     if not ok(20.0):
         return float("nan")
     if ch["tricks"] == "none":

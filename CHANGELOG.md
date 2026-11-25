@@ -1,5 +1,23 @@
 # Change log
 
+## 2026-11-25 (later): with a column, the gas flow is a cap and an overloaded loop is held thinner
+
+- `floor_physics.explore`, for a tank with a CO₂ column: the gas flow the cells tolerate is a cap. The cap and every flow on
+  `GAS_LADDER` below it are tried; a flow whose column loop fails its checks (the alkaline dose, the passes an hour) is held
+  thinner, at the densest culture that passes (`_thinned`, false position to 0.01 g/L); the cheapest that passes is the answer.
+  A higher tolerance never costs more (the all-favourable example: $6.97 at 6 mm/s, $7.23 at 9 before, $6.68 now). Until then
+  overloaded loops were priced as if they coped whenever a setting or a draw moved: a lower tolerance looked cheaper, and so did
+  70% of the low-lactate example's Monte Carlo draws and 47% of the all-favourable example's. The page's engine does the same.
+- An airlift keeps its gas at the cap (its gas mixes it); a bubble cage's own gas is unchanged.
+- `retention.scenario_cost` sizes a device from the design it runs (two passes), so the dialyser route and the case agree.
+- Speed: thinning by false position (about 5 solves, not 12); with a cleaning route, the litres cleaned ranked without the search
+  and the three cheapest run in full (`CLEAN_TOP`); the Monte Carlo kept on disk (`model_cache.py`) and drawn in worker processes.
+  The suite takes about 11 minutes cold on a 10-core laptop.
+- Moved: published cells in perfusion $181.13 -> $179.90; rung 3 fed-batch $70.32 -> $69.90; rung 5 $44.53 -> $43.92; the
+  low-lactate middle draw $52 -> $51 (8 in 10 $39-73); the audit's $57.68 -> $57.22. Headline costs unchanged. The side studies
+  that priced overloaded loops move most (gas exchange, design space, filter flux, tank size); their notes say how. Checks that
+  ask what a fixed design does hold it with `explore(_gas_search=False)`.
+
 ## 2026-11-25: the test suite three to four times faster; the share map shows your cost as a line
 
 - The engine: the plant's memos (`floor_physics.plant_ratios`, `building_power_parts`) listed the plant inputs by sorting and

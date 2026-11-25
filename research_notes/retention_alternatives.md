@@ -2,6 +2,9 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> Checked 2026-11-25 (the gas cap and loop thinning): none of the figures below the names line moves; `tests/test_retention.py`
+> pins the three alternatives unchanged.
+
 > **Current figures (2026-11-21, second batch; `python retention.py`).** The low-lactate example now runs at 168 g/L ($48.68
 > with the TFF loop), the all-favourable example at 219 g/L ($6.97), Humbird's optimistic design at 120 g/L ($15.72). With the
 > three alternatives, in that order: reused pharma modules $30.54 / $7.76 / $14.22; dialyser-grade fibres $26.28 / $6.97 /

@@ -136,7 +136,7 @@ def build_model() -> dict:
             "bpow_choice": {k: plant_items.choices_for("humbird")[k] for k in ("hall", "labs", "support")},
             # two spargers and the CO2 column on the filter loop (floor_physics.explore, 2026-11-21; levers, off by default)
             "spargers": value("ge_spargers"), "micro_o2": value("ge_micro_o2_x"), "micro_kill": value("ge_micro_kill_x"),
-            "sparger2_k": value("ge_sparger2_k"), "micro_grid": list(floor_physics.MICRO_GRID),
+            "sparger2_k": value("ge_sparger2_k"), "micro_grid": list(floor_physics.MICRO_GRID), "gas_ladder": list(floor_physics.GAS_LADDER), "loop_limit": floor_physics.LOOP_LIMIT, "thin_steps": floor_physics.THIN_STEPS, "thin_tol": floor_physics.THIN_TOL, "clean_top": floor_physics.CLEAN_TOP,
             "col_on_loop": 1.0 if value("ge_col_on_loop") >= 0.5 else 0.0,
             # cleaning and reusing the medium (floor_physics.explore's `clean`, `wash_price`; medium_reuse.py): the named routes'
             # numbers, the growth factors that survive a pass, and the reference price of a wash solution
@@ -5149,6 +5149,18 @@ function fxCapexAtSize(c20,v,perf,ch,ratio,F){ const a=fxTankItems(v,perf,ch,F),
 // viscosity of the culture and its oxygen limit (mirror of floor_physics.rel_viscosity, kla_factor and oxygen_limit)
 function fxKlaF(x,n,F){ const phi=x/(F.cell_density*1000), rv=1+2.5*phi+10.05*phi*phi+0.00273*Math.exp(16.6*phi);
   return Math.pow(1+(rv-1)*F.kla_thin,-n); }
+function fxLoopOk(r){ const d=r.column; return !d||(d.ph_vs_safe<=1+1e-9&&!!d.passes_tested); }   // floor_physics.loop_ok
+function fxSlack(r,F){ const d=r.column; return d?Math.max(d.ph_vs_safe-1,d.passes/F.ge.passes_tested-1):-1; }   // floor_physics._slack
+function fxThinned(p,u,rHi,noSearch){   // floor_physics._thinned: false position on the loop's slack, the same steps
+  const F=p.fxo?Object.assign({},C.fx,p.fxo):C.fx, vm=p.vm||{};
+  let a=0, sa=-1, b=rHi.density, sb=fxSlack(rHi,F), ok=null, kept=0;
+  for(let i=0;i<F.thin_steps;i++){ if(b-a<=F.thin_tol) break;
+    let x=sb!==sa?b-sb*(b-a)/(sb-sa):0.5*(a+b); x=Math.min(Math.max(x,a+0.01*(b-a)),b-0.01*(b-a));
+    const caps=Object.assign({},vm.caps||{}); caps[F.loop_limit]=x;
+    const r=floorExplore(Object.assign({},p,{gas_v:u,_noGas:true,vm:Object.assign({},vm,{caps:caps})}),noSearch);
+    if(fxLoopOk(r)){ a=x; sa=fxSlack(r,F); ok=r; if(kept===1) sb*=0.5; kept=1; }
+    else { b=x; sb=fxSlack(r,F); if(kept===-1) sa*=0.5; kept=-1; } }
+  return ok; }
 function fxO2Visc(xb,n,F){ if(!isFinite(xb)||n===0) return xb; let lo=0, hi=xb;
   for(let i=0;i<40;i++){ const m=0.5*(lo+hi); if(m>xb*fxKlaF(m,n,F)) hi=m; else lo=m; } return 0.5*(lo+hi); }   // floor_physics.O2_HALVINGS
 function floorExplore(p,noSearch){
@@ -5162,12 +5174,17 @@ function floorExplore(p,noSearch){
     // a cleaning route with no share given: the litres cleaned that cost least, on the side study's own grids (mirror of
     // floor_physics.explore and clean_loops): the exchanger's share in hundredths up to 90%; the others every 0.1 litre per kilo
     // harvested, up to the litres that take out all the route handles
-    const rt=fxCleanRoute(p.clean); let best=null; const keep=r=>{ if(best===null||r.total<best.total) best=r; };
-    if(rt.sorbent){ for(let i=0;i<=90;i++) keep(floorExplore(Object.assign({},p,{clean_share:i/100}),noSearch)); return best; }
-    const r0=floorExplore(Object.assign({},p,{clean_share:0}),noSearch), t=r0.medium_terms; let top=0;
-    [["ammonia",rt.nh3||0],["lactate",rt.lac||0],["least flow",rt.other||0]].forEach(x=>{ if(x[1]>0) top=Math.max(top,t[x[0]]/x[1]); });
-    keep(r0);
-    for(let i=1;i<Math.floor(top*10)+2;i++) keep(floorExplore(Object.assign({},p,{clean_loop:i*0.1*r0.harvested_share}),noSearch));
+    const rt=fxCleanRoute(p.clean), fast=Object.assign({},p,{_noGas:true}), cands=[];
+    if(rt.sorbent){ for(let i=0;i<=90;i++) cands.push({clean_share:i/100}); }
+    else { const r0=floorExplore(Object.assign({},fast,{clean_share:0}),noSearch), t=r0.medium_terms; let top=0;
+      [["ammonia",rt.nh3||0],["lactate",rt.lac||0],["least flow",rt.other||0]].forEach(x=>{ if(x[1]>0) top=Math.max(top,t[x[0]]/x[1]); });
+      for(let i=0;i<Math.floor(top*10)+2;i++) cands.push(i>0?{clean_loop:i*0.1*r0.harvested_share}:{clean_share:0}); }
+    let keep=cands.map((c,i)=>i);
+    if(!p._noGas&&(p.column||"none")!=="none"){   // with a column: ranked without the gas and thinning search, the cheapest few run in full
+      const f=cands.map(c=>floorExplore(Object.assign({},fast,c),noSearch).total);
+      const top3=keep.slice().sort((a,b)=>(f[a]-f[b])||(a-b)).slice(0,F.clean_top);
+      keep=[...new Set(top3.concat([0]))].sort((a,b)=>a-b); }
+    let best=null; keep.forEach(i=>{ const r=floorExplore(Object.assign({},p,cands[i]),noSearch); if(best===null||r.total<best.total) best=r; });
     return best;
   }
   // two spargers: the share of the gas through the fine-bubble one that costs least on the grid (mirror of floor_physics.explore)
@@ -5175,6 +5192,18 @@ function floorExplore(p,noSearch){
   if(nSp>=1.5&&p.micro_share===undefined){ let best=null;
     F.micro_grid.forEach(sh=>{ const r=floorExplore(Object.assign({},p,{micro_share:sh}),noSearch); if(best===null||r.total<best.total) best=r; });
     return best; }
+  // a tank with a column (mirror of floor_physics.explore, 2026-11-25): the gas flow the cells tolerate is a cap, and a loop that
+  // fails its checks is held thinner. The cap and every flow on the ladder below it are tried, each thinned if its loop fails
+  // (F.thin_steps halvings on the cap F.loop_limit); the cheapest that passes, or the cap's own result if none does
+  if(!p._noGas&&(p.column||"none")!=="none"){
+    const cap=p.gas_v===undefined?F.gas_v:p.gas_v, flows=[cap];
+    if(!vm.gas_away&&!vm.gas_mixes&&!vm.no_protectant&&(vm.o2_gas!==false||vm.co2_gas!==false)) F.gas_ladder.forEach(u=>{ if(u<cap-1e-12) flows.push(u); });
+    let atCap=null, best=null;
+    flows.forEach(u=>{ let r=floorExplore(Object.assign({},p,{gas_v:u,_noGas:true}),noSearch);
+      if(atCap===null) atCap=r;
+      if(!fxLoopOk(r)){ const t=fxThinned(p,u,r,noSearch); if(t) r=t; }
+      if(fxLoopOk(r)&&(best===null||r.total<best.total)) best=r; });
+    return best!==null?best:atCap; }
   // salt strength: how much lactate the culture may hold at this CO2 level and pH (mirror of floor_physics.explore)
   const pcTol=p.pco2===undefined?F.pco2:p.pco2, osmLim=p.osm_limit===undefined?F.osm_limit:p.osm_limit, ph=p.ph===undefined?F.ph:p.ph;
   const hco3=F.co2_henry*pcTol*Math.pow(10,ph-F.pk1), osmCo2=2*Math.max(0,hco3-F.hco3_base);

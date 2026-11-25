@@ -56,14 +56,14 @@ def cases() -> dict:
             "best": S.explore_kwargs(S.SCENARIOS["best"].choice)}
 
 
-def duty(kw: dict | None = None) -> dict:
+def duty(kw: dict | None = None, result: dict | None = None) -> dict:
     """What the retention device must do in a case (explore arguments): flows in m3/h, vessel volumes a day, the cells'
     volume fraction, and the case's own result. `kg_h` and `kg_year` are kilos HARVESTED, as explore's output is; the bleed
     carries out the cells GROWN (the harvested over `harvested_share`: cells killed by bubbles or lost at harvest were grown
     and bled too), as explore's own filter loop counts it (corrected 2026-11-20: it was the kilos harvested, which showed
     permeate, and charged membranes, where explore has none)."""
     kw = dict(kw or {})
-    r = fp.explore(**kw)
+    r = fp.explore(**kw) if result is None else result      # `result`: the case as it runs with a device (scenario_cost)
     v = kw.get("vessel_m3", 20.0)
     liquid = value("pf_working_volume") * v                                # m3
     tonnes = r["output"] * v                                                 # t of wet cells per tank-year
@@ -380,6 +380,9 @@ def sizing(device: str, kw: dict | None = None, d: dict | None = None) -> dict:
     return out
 
 
+RESIZE_PASSES = 2                  # scenario_cost: passes that size a device from the design it runs
+
+
 def scenario_cost(device: str, kw: dict | None = None) -> dict:
     """The case's cost per kg with this device: explore() with the device's capital (`retention`, a flat charge with no
     membranes) and running cost (`extra_opex`, per kilo grown: explore divides it by the harvested share itself; until
@@ -393,6 +396,13 @@ def scenario_cost(device: str, kw: dict | None = None) -> dict:
         r = fp.explore(**kw)
     else:
         r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg_grown"]})
+        if device not in PARTICLES:
+            # size the device from the design it runs (2026-11-25): the engine now picks the gas flow and how thin the culture
+            # is, and with the engine's own filter loop (duty) it may pick another design than with this device, so a device
+            # sized on the first duty ran a culture it was not sized for. RESIZE_PASSES passes; the page's rtCost the same
+            for _ in range(RESIZE_PASSES):
+                sz = sizing(device, kw, duty(kw, result=r))
+                r = fp.explore(**{**run, "retention": sz["capex_k_m3"], "extra_opex": kw.get("extra_opex", 0.0) + sz["cons_kg_grown"]})
     total = r["total"] / (1.0 - sz["loss"])
     return {**sz, "total": total, "base": d["result"]["total"], "delta": total - d["result"]["total"],
             "capital": r["capital"] / (1.0 - sz["loss"]),          # the plant's yearly charge per kilo, as the page's rtCost gives it
@@ -430,7 +440,7 @@ def js_model() -> dict:
             "particles": {k: {"key": k, "name": DEVICES[k]["name"], "how": DEVICES[k]["how"], "shown": DEVICES[k]["shown"],
                               "python_only": True} for k in PARTICLES},
             "not_costed": {k: {"name": n, "reason": why} for k, (n, why) in NOT_COSTED.items()},
-            "holdup_max": value("rt_settle_holdup_max"), "hours": HOURS}
+            "holdup_max": value("rt_settle_holdup_max"), "hours": HOURS, "resize_passes": RESIZE_PASSES}
 
 
 # The inputs behind each device, and which way is cheaper (+1: a higher value is cheaper; -1: a lower one is)
@@ -590,7 +600,7 @@ if __name__ == "__main__":
     summarise()
     summarise_particles()
     summarise_ranges()
-    print("\n  does a thinner culture pay? central scenario, density held at each cap (cost; membranes; plant capital):")
+    print("\n  does a thinner culture pay? central scenario, density capped at each value (the engine may run it thinner still; cost; membranes; plant capital):")
     for life in (None, 900.0):
         print("    membrane life " + ("default" if life is None else f"{life:.0f} L/m2") + ": " +
               "; ".join(f"{c:.0f} g/L ${t:.2f} (${m:.1f}, ${k:.1f})" for c, t, m, k in density_scan(cases()["central"], membrane_life=life)))

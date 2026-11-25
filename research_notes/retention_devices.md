@@ -2,6 +2,14 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Recomputed 2026-11-25 (the gas cap and loop thinning; `python retention.py`).** In a tank with a column the engine now takes
+> the gas flow the cells tolerate as a cap, tries lower flows, and holds thinner a culture whose column loop fails its checks
+> (scenarios no longer carry their own thinning); a device is sized from the design it runs (`retention.RESIZE_PASSES`). No
+> device's cost in the three cases moves. What moves is the density scan (section 6): the engine holds the low-lactate example
+> at 168 g/L itself, so a cap of 258, 220 or 180 g/L does not bind ($48.68 each); at 140 g/L it runs at 125 g/L for $49.11, at 100
+> g/L $50.44, so a thinner culture still does not pay at the default life. At the worst membrane life (900 L/m2) the engine itself
+> runs it at 59 g/L for $79.46, whatever the cap above that (it was $86.62-87.00 at every density from 100 to 258 g/L).
+
 > **Current figures (2026-11-21, second batch; `python retention.py`).** After the engine fixes of the second batch (the building's
 > power by floor and class, part of the crew per tank) and the thinner designs in the design search, the scenarios run the
 > recycled-oxygen column held thinner: the low-lactate example at 168 g/L (16% cells by volume, 1.47 m³ of permeate an hour,

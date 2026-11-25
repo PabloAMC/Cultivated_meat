@@ -3,8 +3,8 @@
    routes (MODEL.rt.particles, python_only); tests/run_parity.py checks the two agree. The numbers are in MODEL.rt
    (retention.js_model) and C.fx. `p` is a set of floorExplore arguments (JS names), as scParams gives. No UI here. */
 const RT=MODEL.rt;
-function rtDuty(p){                             // mirror of retention.duty: flows in m3/h for the case p
-  const F=C.fx, r=floorExplore(p), v=p.vessel_m3===undefined?20:p.vessel_m3;
+function rtDuty(p,res){                         // mirror of retention.duty: flows in m3/h for the case p (res: its result, if run)
+  const F=C.fx, r=res||floorExplore(p), v=p.vessel_m3===undefined?20:p.vessel_m3;
   const liquid=F.wv*v;                                        // m3
   const tonnes=r.output*v;                                    // t of wet cells per tank-year
   const harvest=tonnes*1000/(RT.hours*r.uptime);              // kg/h while the tank runs
@@ -75,9 +75,12 @@ function rtSizing(device,p,d){                  // mirror of retention.sizing (n
 }
 const RT_PER_KG=["capital","labour","utilities","consumables","feedstock","growth_factors","extra_opex","membranes","protectant","total"];
 function rtCost(device,p){                      // mirror of retention.scenario_cost
-  const d=rtDuty(p), sz=rtSizing(device,p,d);
-  const r=device==="tff"?floorExplore(p)
+  const d=rtDuty(p); let sz=rtSizing(device,p,d);
+  let r=device==="tff"?floorExplore(p)
     :floorExplore(Object.assign({},p,{retention:sz.capex_k_m3, extra_opex:(p.extra_opex||0)+sz.cons_kg_grown}));
+  if(device!=="tff"&&!(device in (RT.particles||{}))){   // size the device from the design it runs (retention.scenario_cost)
+    for(let i=0;i<RT.resize_passes;i++){ sz=rtSizing(device,p,rtDuty(p,r));
+      r=floorExplore(Object.assign({},p,{retention:sz.capex_k_m3, extra_opex:(p.extra_opex||0)+sz.cons_kg_grown})); } }
   const keep=1-sz.loss, total=r.total/keep;     // the share of grown cells that survive the device
   // the case's own result with every cost per kilo over that share, for a cost breakdown. The device's running cost sits in
   // res.extra_opex (with any bought oxygen) and its capital in res.capital; for the TFF loop they are res.membranes

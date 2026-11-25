@@ -1,5 +1,14 @@
 # Growth-factor prices and the fastest doubling time
 
+> Repinned 2026-11-25 (the gas cap and loop thinning). In a tank with a gas column the engine now picks the gas flow, up to the
+> flow the cells tolerate, and holds a culture whose column loop fails its checks thinner, at the densest density that passes.
+> Before, the scan at other doubling times kept the gas at the cap and the density thinned for the scenario's own doubling time,
+> so its loop could be overloaded there and priced as if it coped. Sections 1 and 2 are regenerated: the cautious case's litres
+> 146.2 -> 142.6 per kilo harvested (its TGF-beta price for $1 a kilo $351 -> $360 a gram), and the cost of speed moved
+> (the low-lactate example $43.19 -> $43.81 at 24 h, $39.65 -> $39.59 at 16 h; the published cells $181.13 -> $179.90 at 43 h,
+> $122.61 -> $123.11 at 16 h; the all-favourable example $8.65 -> $7.97 at 24 h). Faster cells are now held much thinner (the
+> low-lactate example 168 g/L at 36 h, 68 at 16 h, 31 at 8 h) and run less gas. Section 3's table is still as of 2026-11-20.
+
 Date: 2026-11-15; every figure regenerated 2026-11-20 on the final model, and sections 1 and 2 again on 2026-11-22 from `python
 gf_doubling_bounds.py` (litres per kilo harvested; the all-favourable example is `scenarios.all_favourable`, $6.97). Sections
 beyond 2 are as of 2026-11-20 where they quote a cost. Code: `gf_doubling_bounds.py`; tests: `tests/test_gf_doubling_bounds.py`; numbers:
@@ -14,7 +23,7 @@ Access levels: **FT** = read in full text. **ABS** = abstract only. **SNIP** = s
 - **Growth factors.** In the low-lactate example (38.8 L per kilo harvested), growth factors cost $1, $2 or $3 a kilo if all four
   proteins sell at 5.5%, 11.0% or 16.5% of Humbird's price. That is insulin at $0.49, $0.98 or $1.47 a gram and transferrin at
   $0.84, $1.69 or $2.53. FGF needs $46, $91 or $137 a gram and TGF-beta $1,323, $2,646 or $3,969. The all-favourable example
-  (12.1 L/kg) allows prices 3.2 times higher. The cautious case (the published cells, 146 L/kg) needs prices 3.8 times lower than
+  (12.1 L/kg) allows prices 3.2 times higher. The cautious case (the published cells, 143 L/kg) needs prices 3.7 times lower than
   the low-lactate example: 1.5% of Humbird's price for $1 a kilo.
 - **What dominates.** Insulin and transferrin dominate the cost at Humbird's prices (72%), because the cells use grams of them.
   TGF-beta and FGF dominate the price gap: bought at the prices found, they are 4,300 to 21,900 times too dear for $1 a kilo in
@@ -28,13 +37,13 @@ Access levels: **FT** = read in full text. **ABS** = abstract only. **SNIP** = s
 - **Doubling time.** The energy and biosynthesis budget lets an animal cell double in about 8 to 9 h if it can burn twice the
   oxygen West's law gives at 24 h. The range is 5 to 13 h for 3 to 1.5 times. The ribosomes give a similar bound. So physics
   allows doubling far faster than any scenario assumes. Biology and waste, not energy, stop 24 h cells.
-- **Cost of speed.** The low-lactate example costs $48.68 at 36 h, $43.19 at 24 h and $39.65 at 16 h. It saves another $3.71
-  from 16 h to 8 h, a little more than the $3.54 from 24 h to 16 h; its CO₂ loop's checks hold it at 168 g/L down to 16 h, and mixing at
-  146 g/L at 8 h (oxygen supply until 2026-11-21). Part of the gain is the
-  bubbles: they kill the same culture per hour whatever the growth, so they take 8% of the cells grown at 36 h and under 4% at
-  16 h. The published cells gain far more: $181.13 at 43 h, $139.53 at 24 h and $122.61 at 16 h. Lactate sets their medium, and a
+- **Cost of speed.** The low-lactate example costs $48.68 at 36 h, $43.81 at 24 h and $39.59 at 16 h. It saves another $11.96
+  from 16 h to 8 h, far more than the $4.22 from 24 h to 16 h. Its column loop's checks set the density at every doubling time
+  (2026-11-25): 168 g/L at 36 h, 140 at 24 h, 68 at 16 h and 31 at 8 h, with the gas turned down from 4 mm/s to 1 and 0.5 mm/s
+  as the cells speed up. Part of the gain is the bubbles: they take 8% of the cells grown at 36 h and under 1% at 16 h, where
+  less gas is blown. The published cells gain far more: $179.90 at 43 h, $140.65 at 24 h and $123.11 at 16 h. Lactate sets their medium, and a
   faster cell burns less glucose on upkeep per kilo made, so their litres fall with speed. The all-favourable example, at 16 h,
-  costs $6.97; at 24 h it would cost $8.65.
+  costs $6.97; at 24 h it would cost $7.97.
 
 ## 2. Growth factors
 
@@ -54,8 +63,8 @@ shares directly, so they never depended on it.
 
 ### 2.2 Prices each protein needs
 
-`required_prices(litres, target)`. Litres are explore's, per kilo harvested: the all-favourable example 11.7 (ammonia sets it; it
-takes Humbird's 50 mmol/L of lactate tolerated), the low-lactate example 38.8 (ammonia) and the cautious case 146.2 (lactate).
+`required_prices(litres, target)`. Litres are explore's, per kilo harvested: the all-favourable example 12.1 (ammonia sets it; it
+takes Humbird's 50 mmol/L of lactate tolerated), the low-lactate example 38.8 (ammonia) and the cautious case 142.6 (lactate).
 "Shared" splits the budget as Humbird's prices do, so all four fall by the same fraction. "Alone" gives one protein the whole
 budget. Prices in $/g.
 
@@ -67,9 +76,9 @@ budget. Prices in $/g.
 | Low-lactate example (38.8 L/kg), $1 | 0.49 | 0.84 | 46 | 1,323 | 5.5% |
 | Low-lactate example, $2 | 0.98 | 1.69 | 91 | 2,646 | 11.0% |
 | Low-lactate example, $3 | 1.47 | 2.53 | 137 | 3,969 | 16.5% |
-| Cautious (146.2 L/kg), $1 | 0.13 | 0.22 | 12 | 351 | 1.5% |
-| Cautious, $2 | 0.26 | 0.45 | 24 | 703 | 2.9% |
-| Cautious, $3 | 0.39 | 0.67 | 36 | 1,054 | 4.4% |
+| Cautious (142.6 L/kg), $1 | 0.13 | 0.23 | 12 | 360 | 1.5% |
+| Cautious, $2 | 0.27 | 0.46 | 25 | 720 | 3.0% |
+| Cautious, $3 | 0.40 | 0.69 | 37 | 1,080 | 4.5% |
 | Low-lactate example, $1, one protein alone | 1.33 | 2.41 | 258 | 12,879 | |
 | Humbird's price, 2025 dollars | 8.96 | 15.36 | 831 | 24,111 | 100% |
 
@@ -79,7 +88,7 @@ at the 28 L/kg both then used, the low-lactate example assumed $2.99 (30% of Hum
 
 GFI's three medium uses (8, 13, 42 L/kg) at $1 give, for insulin: $2.39, $1.47, $0.45 a gram; for transferrin $4.09, $2.52, $0.78.
 GFI's own targets (insulin and transferrin $1/g, growth factors $100/g; Table 1, FT) cost $0.49 a kilo at the all-favourable
-example's litres, $1.56 at the low-lactate example's 38.8 L/kg and $5.89 at the cautious case's 146.2. So the targets hold at 8 to
+example's litres, $1.56 at the low-lactate example's 38.8 L/kg and $5.75 at the cautious case's 142.6. So the targets hold at 8 to
 12 L/kg and fail at 39.
 
 ### 2.3 Against the prices found
@@ -132,16 +141,16 @@ Three readings.
 ### 2.5 Reuse: what a filter that returns the proteins saves
 
 `reuse(key)`. The permeate (retention.duty's flow) is protein-free, so only the bleed carries the proteins out: the culture that
-leaves with the cells, 6.96 L per kilo harvested in the all-favourable example (155 g/L), 7.22 in the low-lactate example (154 g/L)
-and 10.43 in the cautious case (103 g/L). A first fill adds 0.20, 0.48 and 0.84 L/kg.
+leaves with the cells, 5.12 L per kilo harvested in the all-favourable example (219 g/L), 6.61 in the low-lactate example (168 g/L)
+and 9.62 in the cautious case (109 g/L). A first fill adds 0.15, 0.44 and 0.77 L/kg (regenerated 2026-11-25).
 
 | Scenario | Medium L/kg | Permeate L/kg (share) | Full price, no reuse | Full price, reuse | Scenario's own assumption, no reuse | With reuse |
 |---|---|---|---|---|---|---|
-| All-favourable example | 11.7 | 4.7 (40%) | $5.38 | $3.30 | $0 (none bought) | $0 |
-| Low-lactate example | 38.8 | 31.6 (81%) | $17.88 | $3.55 | $0 (in the $0.20 medium) | $0 |
-| Cautious | 146.2 | 135.8 (93%) | $67.33 | $5.19 | $0 (in the $0.30 medium) | $0 |
+| All-favourable example | 12.1 | 7.0 (58%) | $5.58 | $2.43 | $0 (none bought) | $0 |
+| Low-lactate example | 38.8 | 32.2 (83%) | $17.88 | $3.25 | $0 (in the $0.20 medium) | $0 |
+| Cautious | 142.6 | 133.0 (93%) | $65.68 | $4.78 | $0 (in the $0.30 medium) | $0 |
 
-At Humbird's full price reuse saves $14.33 in the low-lactate example, $62.14 in the cautious case and $2.08 in the all-favourable
+At Humbird's full price reuse saves $14.63 in the low-lactate example, $60.90 in the cautious case and $3.15 in the all-favourable
 example. Against the scenarios' own assumptions it saves nothing, because the growth factors are inside the complete media prices
 and not charged on their own (or, in the all-favourable example, not bought). Whatever share of a complete medium's price is
 growth factors would still be saved by such a filter, but the price does not say how much that share is, so the model cannot
@@ -151,7 +160,7 @@ Four limits on this number.
 - **Decay.** The tank holds a retained protein for 23 h (the all-favourable example), 53 h (the low-lactate example) or 64 h
   (cautious), the time the bleed takes to turn over the liquid. Wild-type FGF2 has a half-life under 10 h at 37 C (vendor pages and
   a review, SNIP). With it decaying and the other three stable, the full-price cost with reuse in the low-lactate example rises from
-  $3.55 to $5.71 and the saving falls from 80% to 68%. FGF2-G3, the engineered form, lasts over 7 days (vendor claim, SNIP; a
+  $3.25 to $5.23 and the saving falls from 82% to 71%. FGF2-G3, the engineered form, lasts over 7 days (vendor claim, SNIP; a
   preprint reports over 20 days). No half-lives were found for insulin, transferrin or TGF-beta; the cells also take them up.
 - **The model's filter passes proteins.** The default TFF loop uses 0.2 micron hollow fibres (Repligen Spectrum, per the retention
   note). Those pass all four proteins. Holding them back needs an ultrafilter or a dialyser fibre, which the retention note says
@@ -159,7 +168,7 @@ Four limits on this number.
 - **Adsorption and shear.** No measurement of growth-factor retention by a filter in cultivated-meat perfusion exists in the notes
   (`waste_and_medium_evidence.md`, item N).
 - **Price follows volume.** If prices follow Humbird's line, using less protein shrinks the market, so each gram costs more. Cost
-  per kilo then goes as litres^0.139, and the saving in the low-lactate example falls from 80% to 20%. The 80% holds only if the
+  per kilo then goes as litres^0.139, and the saving in the low-lactate example falls from 82% to 21%. The 82% holds only if the
   price sits on a production-cost floor that a bigger plant does not lower.
 
 ## 3. Doubling time

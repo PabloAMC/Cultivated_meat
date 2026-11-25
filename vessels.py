@@ -92,7 +92,9 @@ VESSELS = {
         # shape (fewer bubble deaths per litre) made it cheaper than the stirred tank in perfusion although a stirred tank of the
         # same shape is held at about 85 g/L by mixing. Its gas power at 4-6 mm/s (39-59 W/m3, thick_culture.gas_power) is about
         # the stirrer's 43 W/m3, so the same rule at its own shape applies.
-        vm={"capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult")},
+        # 2026-11-25: its gas does the mixing, so it keeps the gas flow the cells tolerate (explore's gas choice skips a vessel
+        # with gas_mixes): the stirred tank's mixing rule above holds at 4-6 mm/s, not at the quarter of it the engine could pick
+        vm={"capex_ratio": value("vm_alr_capex_ratio"), "otr_mult": value("vm_alr_otr_mult"), "gas_mixes": True},
         aspect=value("vm_alr_aspect"), tricks=True, shape=False),
     "caged": dict(
         name="Stirred tank with a bubble cage", size=value("vm_str_m3"),

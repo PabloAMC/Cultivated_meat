@@ -12,7 +12,8 @@ culture does. Two passes, cheapest first:
 2. `designs(key)`: every combination of the tank options the model already has (OPTIONS: the column, headspace pressure,
    tank shape, fat in the feed, a bubble cage), run through `floor_physics.explore`, kept only
    if a column loop passes its pH and pass-rate checks; a design whose loop fails at full density is run thinner, at the densest
-   culture its loop passes (2026-11-21). Each design is scored by cost and by how many of its elements nobody
+   culture its loop passes (2026-11-21; since 2026-11-25 floor_physics.explore does this itself, and picks the gas flow up to
+   the cap, so run() rarely finds a design to thin). Each design is scored by cost and by how many of its elements nobody
    has run with animal cells. `frontier(key)` is the cheapest design for each number of unproven elements.
 
 `ideal(key)` is the scenario in the ordinary tall tank with every gas and mixing limit lifted for free: a lower bound on what

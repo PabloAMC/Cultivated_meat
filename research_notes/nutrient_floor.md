@@ -1,5 +1,7 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> Repinned 2026-11-25 (the gas cap and loop thinning). The engine now picks the gas flow of a tank with a column, up to the flow the cells tolerate, and holds a culture whose column loop fails its checks thinner, at the densest density that passes; before, a medium setting that overloaded the loop was priced as if the loop coped. The floor itself is unchanged ($2.00). The all-favourable example costs $6.97 and the low-lactate example $48.68; the dearest corner of the table (high food-grade amino acids at 650 g/kg) is now $63.72 for the low-lactate example ($63.93 on 2026-11-21). Section 6 carries the table regenerated from `python nutrient_floor.py` on this model. The conclusions are unchanged.
+
 > Repinned 2026-11-20 (final pass). The all-favourable example is now the one case of `scenarios.all_favourable()` ($7.62; it was $18.71 in the first batch of 2026-11-20); the low-lactate example costs $49.50 ($49.96). The floor itself is still $2.00 a kilo of cells grown for the model cell ($1.99 for the all-favourable example's cells, $2.16 per kilo harvested). The table of section 6 is regenerated from `python nutrient_floor.py`. **What changed:** the all-favourable example now loses no runs (Humbird's design loses none, and the case takes the more favourable source), so it moves exactly dollar for dollar with the floor per kilo of cells grown; before, the medium lost with lost tanks made it move a little more. The conclusions are unchanged: the all-favourable example's medium is the floor, so every dollar of the floor is a dollar of its cost (per kilo grown); the low-lactate example moves by nearly the floor's rise (+$0.69 at feed-grade prices and 350 g/kg, +$1.22 at low food-grade prices and 232 g/kg).
 
 > Repinned 2026-11-20 (first batch: lactate tolerance 35 mmol/L in the scenarios, cells killed by bursting bubbles, a 2% harvest loss, twice the fed-batch crew in perfusion, membrane life 2,415 L/m2, medium preparation capital, utilities in four parts, growth factors dosed per litre from Humbird's fed-batch 8.65 L/kg). One conclusion changed then: the low-lactate example moves with the floor. Its 35 litres per kilo grown at $0.20 cost $7.00, and its nutrients plus the growth factors inside that price come to within a few cents of that, so any dearer amino acids raise its cost by nearly the floor's rise. Before that batch it did not move until the floor passed about $3.3 a kilo. Said the other way: at 35 litres a kilo a complete medium at $0.20 a litre is at the least it can cost in the model.
@@ -115,6 +117,19 @@ The all-favourable example moves exactly dollar for dollar with the floor per ki
 to low food-grade at 350 g; $2.79 a kilo harvested, because 92.4% of the cells grown are harvested). The low-lactate example's $0.20 a
 litre is a complete medium, so it cannot cost less than the nutrients plus the growth factors its price includes; at 35 litres a kilo
 that sum is within a few cents of $7.00, so it rises by nearly the floor's rise from the cheapest floor up.
+
+**On the model of 2026-11-25 (the gas cap and loop thinning).** The all-favourable example costs $6.97 and the low-lactate example
+$48.68. The table, as above:
+
+| amino acids | need 232 g | need 350 g | need 650 g |
+|---|---|---|---|
+| feed-grade ($6.36) | floor $2.00; the all-favourable example $6.97; the low-lactate example $48.68 | $2.75; $7.81; $49.37 | $4.66; $9.95; $51.54 |
+| low food-grade ($11.59) | $3.21; $8.33; $49.90 | $4.58; $9.86; $51.45 | $8.06; $13.77; $55.39 |
+| high food-grade ($23.18) | $5.90; $11.35; $52.95 | $8.64; $14.42; $56.05 | $15.59; $22.22; $63.72 |
+
+The all-favourable example still moves exactly dollar for dollar with the floor per kilo grown ($2.58 from feed-grade at 232 g to
+low food-grade at 350 g; $2.90 a kilo harvested, because 89.1% of the cells grown are harvested). The low-lactate example rises
+$2.77 over the same step.
 
 Still open: a supplier's tonne quote for the five amino acids hydrolysate cannot supply.
 

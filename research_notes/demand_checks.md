@@ -1,5 +1,11 @@
 # Is the model's response to price as strong as measured ones?
 
+> **2026-11-25 (the gas cap and loop thinning).** The engine now tries every gas flow up to the cells' cap and holds a tank whose
+> column loop fails its checks thinner. Only published cells move here: $181.13 -> $179.90 at full use of the plant. Their tanks are
+> thinner and more numerous, so more of their cost is the plant's charge and labour, and selling less of the plant costs them a little
+> more than before (40% sold: $223.50, was $219.05). The low-lactate and all-favourable examples, every share and every check are
+> unchanged; the table in section 3 is regenerated.
+
 > **Changed 2026-11-24 (the owner): the model's share at equal price once familiar is 46.4% of all choices, 50% of meat buyers (was 13%, 14.5%).** Every
 > table here is regenerated at the new default. What it does to the checks: first contact is 20% of all choices (the novelty penalty of
 > -2.8 utils was fitted to the experiment's 4% at the old default and is kept), so the first-contact elasticity is -1.17, inside the
@@ -162,10 +168,10 @@ shopper alike it kept steepening with the price (−10.4 at three times).
 
 | share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (the low-lactate example) | 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|
-| 100% | $181.13 | $48.68 | $6.97 |
-| 80% | $187.45 | $52.18 | $7.67 |
-| 60% | $197.98 | $58.01 | $8.83 |
-| 40% | $219.05 | $69.68 | $11.15 |
+| 100% | $179.90 | $48.68 | $6.97 |
+| 80% | $187.17 | $52.18 | $7.67 |
+| 60% | $199.28 | $58.01 | $8.83 |
+| 40% | $223.50 | $69.68 | $11.15 |
 
   Every scenario is at 100%. Beyond Meat's sales fell about 40% from their peak after its plants were built, and its costs run about 70%
   above a right-sized plant's (Knowles 2026). The market-size loop runs backwards as well as forwards.

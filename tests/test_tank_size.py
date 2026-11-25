@@ -38,13 +38,17 @@ import tank_size as T                       # noqa: E402
 #   central (80.8891, 60.7612, 53.4965, 49.4977, 48.3364, 47.2675, 47.7524)
 #   central_lean (63.6921, 52.1810, 47.6678, 45.0374, 44.1287, 43.0371, 43.3629)
 #   cautious (242.6364, 207.0385, 193.3322, 185.5915, 179.8443, 177.1860, 178.0085)
+# 2026-11-25 (the gas cap and loop thinning): explore() tries every gas flow up to the cap and holds a failing loop thinner itself.
+# The shared-medium plant and the cautious case bubble below the cap and lose fewer cells. Before:
+#   central_lean (61.8599, 50.3796, 46.7493, 44.5349, 42.7114, 41.9717, 41.5050)
+#   cautious (226.6587, 196.2850, 186.4678, 181.1270, 177.2204, 175.5879, 174.3669)
 GOLDEN = {
     "reference": (39.3347, 23.4524, 18.2909, 15.7207, 15.0246, 17.4432, 21.1962),
     "reference_redesigned": (26.3747, 18.1284, 15.7639, 14.5068, 13.5514, 13.2182, 13.0465),
     "best": (12.2610, 8.7489, 7.6858, 7.1647, 6.9548, 7.0971, 7.2854),
     "central": (73.5071, 56.4373, 51.5085, 48.6815, 46.6049, 45.8883, 45.5304),
-    "central_lean": (61.8599, 50.3796, 46.7493, 44.5349, 42.7114, 41.9717, 41.5050),
-    "cautious": (226.6587, 196.2850, 186.4678, 181.1270, 177.2204, 175.5879, 174.3669),
+    "central_lean": (61.8599, 50.3796, 46.1768, 43.9221, 42.2927, 41.6674, 41.1937),
+    "cautious": (226.6587, 196.2850, 186.4678, 179.9020, 175.9861, 174.6373, 173.8748),
 }
 NOTE = os.path.join(MODEL_DIR, "research_notes", "tank_size.md")
 
@@ -133,17 +137,28 @@ check(close(cen[6]["loop_area_m2"] / cen[3]["loop_area_m2"], cen[6]["loop_area_m
 # density, and design_limit is 20 m3 (to 1e-4). With the pH check relaxed to twice the safe dose the same design and density pass
 # to 42 m3 (both low-lactate examples) and 107 m3 (cautious). The all-favourable example's design is for its own 42 m3 tank and
 # fails at 20 m3 (nan). Before: all-favourable 51.1 m3, low-lactate 32.1, cautious 168.8 (column + 1 bar at full density).
-RELAXED_RANGE = {"cautious": (100.0, 115.0), "central": (40.0, 45.0), "central_lean": (40.0, 45.0)}
+# 2026-11-25 (the gas cap and loop thinning): the design is held fixed as its own run chose it, density AND gas flow (T.held,
+# _gas_search=False). The low-lactate examples still sit at the edge at 20 m3. The cautious design now bubbles 1 mm/s (the cap is
+# 2) at 109 g/L, and at that flow its alkaline dose first falls with size (0.990 of the safe dose at 24 m3) and rises again:
+# it passes to 27.8 m3. With the pH check relaxed the held designs at their lower gas flows pass much further: shared medium
+# (2 mm/s) 105 m3, cautious beyond 2,000 m3 (inf). Before: 20 m3 for all three; relaxed 42, 42 and 107 m3.
+RELAXED_RANGE = {"cautious": (2000.0, float("inf")), "central": (40.0, 45.0), "central_lean": (100.0, 110.0)}
+EDGE_LIMIT = {"central": (20.0 * (1 - 1e-4), 20.0 * (1 + 1e-4)), "central_lean": (20.0 * (1 - 1e-4), 20.0 * (1 + 1e-4)), "cautious": (27.0, 28.5)}
 for k in S.ORDER:
     lim = T.design_limit(k)
     ch = S.SCENARIOS[k].choice
     if k == "best":
         check(lim != lim, f"{k}: its 42 m3 design should not pass at 20 m3 at its own density cap (got {lim})")
         continue
-    check(abs(lim - 20.0) < 1e-4 * 20.0, f"{k}: the thinned design should sit at the edge of its checks at 20 m3, not {lim}")
-    check(not T.evaluate(k, ch["tricks"], ch["shape"], 20.0 * 1.01, thin=ch["thin"])["ok"], f"{k}: the design passes above 20 m3 at its cap")
+    lo_, hi_ = EDGE_LIMIT[k]
+    check(lo_ < lim < hi_, f"{k}: the held design's limit should be in ({lo_:g}, {hi_:g}) m3, not {lim}")
+    check(T.held(k, lim * 0.99)["ok"], f"{k}: the held design fails just below its limit")
+    # 2026-11-25 (the gas cap and loop thinning): choices no longer carry "thin"; the design is held fixed (T.held: its own run's
+    # density as the cap and its own gas flow, with the engine's gas choice and thinning off, _gas_search=False), since the
+    # question is whether THIS design passes in a larger tank
+    check(not T.held(k, lim * 1.01)["ok"], f"{k}: the design passes above its limit at its cap")
     lo, hi = RELAXED_RANGE[k]
-    check(lo < T.design_limit(k, {"ph_max": "ph_relaxed"}) < hi, f"{k}: a looser pH check should raise the limit into ({lo:g}, {hi:g}) m3")
+    check(lo < T.design_limit(k, {"ph_max": "ph_relaxed"}) <= hi, f"{k}: a looser pH check should raise the limit into ({lo:g}, {hi:g}) m3")
 
 # 5. the answer: 20 m3 is near the flat bottom of the curve, and no scenario gains more than 3% from another size.
 #    2026-11-19 audit batch: the cautious case was the exception (5.4% at 111 m3, pinned between 4% and 5.5%). Its saving is
@@ -175,7 +190,8 @@ for k in S.ORDER:
     check(3.0 < o["saving_pct"] < 7.0, f"{k}: another size saves {o['saving_pct']:.1f}%, outside the 3% to 7% the note says")
     check(not (o["within_3pct"][0] <= 20.0 <= o["within_3pct"][1]), f"{k}: 20 m3 is within 3% of the minimum: rewrite section 1 of the note")
 ob, oc, oq = opt["best"], opt["central"], opt["cautious"]
-check(oq["size"] >= 199.0 and 3.4 < oq["saving_pct"] < 4.0, f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
+# 2026-11-25 (the gas cap and loop thinning): cautious 3.7% -> 3.35% ($6.76 -> $6.03): its 20 m3 row fell more than its 200 m3 row
+check(oq["size"] >= 199.0 and 3.1 < oq["saving_pct"] < 3.6, f"cautious: optimum {oq['size']:.1f} m3, {oq['saving_pct']:.2f}%, ${oq['saving']:.2f}")
 check(40.0 < ob["size"] < 50.0 and 2.8 < ob["saving_pct"] < 3.4, f"best: optimum {ob['size']:.1f} m3, {ob['saving_pct']:.2f}%")
 check(oc["size"] >= 199.0 and 6.2 < oc["saving_pct"] < 6.8, f"central: optimum {oc['size']:.1f} m3, {oc['saving_pct']:.2f}%")
 # Until 2026-11-20 the all-favourable example's optimum was a thin culture with no added equipment for oxygen and CO₂ (59 g/L at 121 m3) whose harvest carried
@@ -198,8 +214,11 @@ check(close(fl[0.5]["total"], T.evaluate("central", fl[0.5]["tricks"], "flat", 1
 # 2026-11-20 final pass: a shallow tank passes more gas per litre of culture at the same surface speed, so it loses more cells to
 # bursting bubbles (at 20 m3 the flat 0.5 tank of the low-lactate example kills 17% of its cells against 8% in the tall tank) and
 # every flatter shape now costs more than the 20 m3 price: at 100 m3 aspect 0.4 costs $51.39 against $49.50 (3.8% more)
-check(fl[0.4]["ok"] and all(x["total"] > scan["central"][i20]["total"] for x in fl.values()),
-      "central at 100 m3: every flatter shape should pass and cost more than the 20 m3 price")
+# 2026-11-25 (the gas cap and loop thinning): THE FINDING CHANGED. The bubble deaths that made flat tanks dear came from bubbling
+# the cap (4 mm/s); explore() now chooses the flow, and every flatter shape at 100 m3 bubbles 2 mm/s. Aspect 0.4 ($47.98) and 0.5
+# ($47.58) now cost less than the 20 m3 price ($48.68); 0.3 ($49.35) and 0.2 ($51.92) still cost more
+check(fl[0.4]["ok"] and fl[0.4]["total"] < scan["central"][i20]["total"] < fl[0.3]["total"] < fl[0.2]["total"],
+      "central at 100 m3: aspect 0.4 should pass and cost less than the 20 m3 price, 0.3 and 0.2 more")
 check(scan["central"][sizes.index(100.0)]["total"] < min(x["total"] for x in fl.values()) and scan["central"][sizes.index(100.0)]["total"] < scan["central"][i20]["total"],
       "central at 100 m3: the scan's own design should now be cheaper than every flatter shape and than 20 m3")
 
@@ -255,7 +274,9 @@ else:
 # 2026-11-20 final pass: the all-favourable example now uses membranes at $8 a m2, so perfusion no longer pays for membranes and
 # fed-batch at every size costs more than perfusion again ($10.22 at 200 m3 against $7.62): the reversal of the batch is undone.
 # 2026-11-21: central (71.7592, 60.7101) and best (11.2827, 10.4370) before (the building's power by floor and class)
-FB_GOLDEN = {"central": (70.3150, 54.5840), "best": (11.0319, 9.3395)}     # $/kg at 20 and 100 m3 (9.4878 before 2026-11-21: designs with a thinned culture were dropped)
+# 2026-11-25 (the gas cap and loop thinning): a thin batch now bubbles less than the cap: central 70.3150 -> 69.9004 and
+# 54.5840 -> 53.5011, best 11.0319 -> 10.9257 at 20 m3 (9.3395 at 100 m3 holds)
+FB_GOLDEN = {"central": (69.9004, 53.5011), "best": (10.9257, 9.3395)}     # $/kg at 20 and 100 m3 (9.4878 before 2026-11-21: designs with a thinned culture were dropped)
 for k, (a, b) in FB_GOLDEN.items():
     c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
     check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")
@@ -265,9 +286,14 @@ check(abs(T.fedbatch_at("central", 20.0)["total"] - S.run(S.SCENARIOS["selected"
       "the low-lactate example's switches in fed-batch at 20 m3 should be rung 3")
 # 2026-11-21: fed-batch compared with perfusion in a tank of the same size. Perfusion is cheaper up to 100 m3 with these switches
 # (before, a 100 m3 batch was set against 20 m3 perfusion and looked cheaper with the shared-medium plant).
+# 2026-11-25 (the gas cap and loop thinning): EXCEPT the cells that make almost no ammonia or lactate at 100 m3: their 68 g/L
+# batch now bubbles 0.5 mm/s (it bubbled the 4 mm/s cap), and costs $24.94 against perfusion's $25.26 (was $25.63)
 for k in ("central", "central_lean", "engineered"):
     for v in (20.0, 100.0):
         p_, f_ = T.perfusion_at(k, v)["total"], T.fedbatch_at(k, v)["total"]
+        if (k, v) == ("engineered", 100.0):
+            check(f_ < p_, f"{k} at {v:g} m3: fed-batch {f_:.2f} should now cost less than perfusion {p_:.2f}")
+            continue
         check(p_ < f_, f"{k} at {v:g} m3: perfusion {p_:.2f} should cost less than fed-batch {f_:.2f}")
 check(abs(T.perfusion_at("central", 20.0)["total"] - S.run(S.SCENARIOS["central"].choice)["total"]) < 1e-9,
       "perfusion_at at 20 m3 should be the low-lactate example itself")

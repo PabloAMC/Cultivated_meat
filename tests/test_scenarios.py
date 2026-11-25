@@ -74,7 +74,10 @@ check(r_best["medium_l"] <= ref["medium_l"] + 1e-9, "the all-favourable example 
 # 2026-11-21 (Humbird back-test: building power and labour per tank; thinned tank designs; floor glucose 0.311): best 7.62 -> 6.97,
 # the low-lactate example 49.50 -> 48.68, with shared medium 45.04 -> 44.53, cautious 185.59 -> 181.13. Old bands: best (7.55, 7.70),
 # central (49.1, 49.9), central_lean (44.65, 45.45), cautious (184.0, 187.2)
-for k, (lo, hi) in {"best": (6.90, 7.05), "central": (48.3, 49.1), "central_lean": (44.1, 44.9), "cautious": (179.5, 182.7)}.items():
+# 2026-11-25 (the gas cap and loop thinning: the engine chooses the gas flow up to the cells' tolerance and thins a failing loop
+# itself): the low-lactate example with shared medium 44.53 -> 43.92 (held at 125 g/L, not 168), cautious 181.13 -> 179.90.
+# central_lean [44.1, 44.9] -> [43.5, 44.3], cautious [179.5, 182.7] -> [178.3, 181.5]
+for k, (lo, hi) in {"best": (6.90, 7.05), "central": (48.3, 49.1), "central_lean": (43.5, 44.3), "cautious": (178.3, 181.5)}.items():
     check(lo <= cost[k] <= hi, f"{k}: ${cost[k]:.2f} outside the pinned range [{lo}, {hi}]")
 
 # 3. what each scenario needs (since 2026-11-19 no tag names a route: cells with other traits than the published ones are tagged
@@ -282,8 +285,11 @@ trc = S.tricks_report(S.SCENARIOS["central"].choice)
 # 2026-11-21: 5.71 -> 6.05. The design search now holds a culture thinner when its loop fails at full density (scenarios.design):
 # the column that also feeds recycled oxygen, in the tall tank, at 168 g/L ($48.68), beats the column and 1 bar at 154 g/L ($49.22)
 check(abs(trc["d_no_tricks"] - 6.05) < 0.05, f"central: expected about +$6.05 without the tricks, got {trc['d_no_tricks']:.2f}")
+# 2026-11-25 (the gas cap and loop thinning): the choice no longer carries "thin"; floor_physics.explore thins the culture itself,
+# so the density is read from the run: S.SCENARIOS["central"].choice.get("thin") -> S.run(...)["density"], still 167.8 g/L
 check(trc["used"] == list(S._TRICK_PARTS["oxygen"]) and S.SCENARIOS["central"].choice["shape"] == "tall"
-      and abs(S.SCENARIOS["central"].choice.get("thin", 0.0) - 167.8) < 0.5,
+      and "thin" not in S.SCENARIOS["central"].choice
+      and abs(S.run(S.SCENARIOS["central"].choice)["density"] - 167.8) < 0.5,
       "central should list the column, the pressure and the recycled oxygen, in the ordinary tall tank held at about 168 g/L")
 check("36 hours" in S.story_text("central") and "10%" in S.story_text("central") and "43" in S.story_text("central"),
       "central's story should give the reasoning for 36 h")

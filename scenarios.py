@@ -425,48 +425,17 @@ FAV_TANK_M3 = (2.0, 5.0, 10.0, 20.0, 25.0, 42.0, 211.0)
 _ALL_FAV: dict = {}
 
 
-# The all-favourable search tries about 10,000 designs and ran at every import of this module: about 3 s in every test, the
-# page's build and each reload of the scan (2026-11-25). Its result is kept on disk under a key that covers everything it can
-# depend on: the text of every model module (*.py beside this one) and every input's value. Any change to either is a new key,
-# so a kept result is never stale; CM_NO_CACHE=1 turns the cache off. The search's one side effect, the extra arguments it
-# registers (EXTRAS[ALL_FAVOURABLE]), is kept and restored with it. The files are small (about 14 kB) and only ours.
-_AF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "all_favourable")
-
-
-def _af_cache_key() -> str:
-    import glob, hashlib
-    import inputs as I
-    h = hashlib.sha256()
-    for f in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.py"))):
-        with open(f, "rb") as fh:
-            h.update(os.path.basename(f).encode() + b"\0" + fh.read())
-    h.update(repr(sorted((k, repr(v.value)) for k, v in I.REGISTRY.items())).encode())
-    return h.hexdigest()[:32]
-
-
+# The all-favourable search tries about 10,000 designs and ran at every import of this module (2026-11-25): its result, and its
+# one side effect (the extra arguments it registers, EXTRAS[ALL_FAVOURABLE]), are kept on disk by model_cache, under a key that
+# covers every model module and input value, so a kept result is never stale.
 def _af_cache_load():
-    if os.environ.get("CM_NO_CACHE"):
-        return None
-    import pickle
-    try:
-        with open(os.path.join(_AF_DIR, _af_cache_key() + ".pkl"), "rb") as fh:
-            return pickle.load(fh)
-    except (OSError, EOFError, KeyError, TypeError, pickle.UnpicklingError, AttributeError, ImportError):
-        return None
+    import model_cache
+    return model_cache.load("all_favourable", model_cache.key("all_favourable"))
 
 
 def _af_cache_save(result: dict) -> None:
-    if os.environ.get("CM_NO_CACHE"):
-        return
-    import pickle, tempfile
-    try:
-        os.makedirs(_AF_DIR, exist_ok=True)
-        fd, tmp = tempfile.mkstemp(dir=_AF_DIR, suffix=".tmp")
-        with os.fdopen(fd, "wb") as fh:
-            pickle.dump(result, fh)
-        os.replace(tmp, os.path.join(_AF_DIR, _af_cache_key() + ".pkl"))     # atomic: parallel tests never read half a file
-    except OSError:
-        pass
+    import model_cache
+    model_cache.save("all_favourable", model_cache.key("all_favourable"), result)
 
 
 def favourable_levers() -> list:
@@ -1013,6 +982,75 @@ MC_VISCOUS_INPUTS = ("tc_kla_exp", "tc_thin")
 
 
 def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict | None = None) -> dict:
+    """_scenario_mc, kept on disk (model_cache: never stale) and its draws run in up to mc_workers() processes (2026-11-25: with
+    the gas and thinning search a draw costs some 40 solves, and the page's build makes 40,000 of them)."""
+    import model_cache
+    k = model_cache.key("scenario_mc", choice, n, seed, traits)
+    hit = model_cache.load("scenario_mc", k)
+    if hit is not None:
+        return hit
+    out = _scenario_mc(choice, n, seed, traits)
+    model_cache.save("scenario_mc", k, out)
+    return out
+
+
+def mc_workers() -> int:
+    """Processes a Monte Carlo of many draws uses: CM_MC_WORKERS if set, else up to 4."""
+    env = os.environ.get("CM_MC_WORKERS")
+    return max(1, int(env)) if env else max(1, min(4, os.cpu_count() or 1))
+
+
+def _mc_costs(job: dict) -> list:
+    """The cost of each draw in `job` (kw0, the drawn arguments d and drawn inputs reg, as lists): one worker's share."""
+    import inputs as I
+    from dataclasses import replace as _rp
+    for k, x in (job.get("values") or {}).items():           # the caller's input values (a test may have set one)
+        if k in I.REGISTRY and I.REGISTRY[k].value != x:
+            I.REGISTRY[k] = _rp(I.REGISTRY[k], value=x)
+    kw0, d, reg = job["kw0"], job["d"], job["reg"]
+    n = len(next(iter(d.values()))) if d else len(next(iter(reg.values()), []))
+    out = []
+    for i in range(n):
+        kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
+        if not reg:
+            out.append(fp.explore(**kw)["total"])
+        else:
+            with fp._inputs_set({k: float(v[i]) for k, v in reg.items()}):
+                out.append(fp.explore(**kw)["total"])
+    return out
+
+
+def _mc_costs_parallel(kw0: dict, d: dict, reg: dict, n: int) -> np.ndarray:
+    """_mc_costs over n draws, in mc_workers() plain `python` processes when there are enough draws to be worth it (each gets a
+    contiguous slice and the caller's numeric input values, and the costs come back in order: the same numbers as one process)."""
+    w = min(mc_workers(), max(1, n // 1000))      # a worker pays the model's start-up (about 1 s, more with no cache): 1,000 draws each
+    if w <= 1:
+        return np.array(_mc_costs({"kw0": kw0, "d": d, "reg": reg}), dtype=float)
+    import pickle, subprocess, sys
+    values = {k: v.value for k, v in REGISTRY.items() if isinstance(v.value, (int, float)) and not isinstance(v.value, bool)}
+    here = os.path.dirname(os.path.abspath(__file__))
+    code = ("import pickle, sys; sys.path.insert(0, %r); import scenarios as S; job = pickle.load(sys.stdin.buffer); "
+            "pickle.dump(S._mc_costs(job), sys.stdout.buffer)" % here)
+    env = {**os.environ, "CM_MC_WORKERS": "1", "CM_SCAN_WORKERS": "1"}
+    cuts = [round(i * n / w) for i in range(w + 1)]
+    procs = []
+    for a, b in zip(cuts[:-1], cuts[1:]):
+        job = {"kw0": kw0, "d": {k: list(v[a:b]) for k, v in d.items()}, "reg": {k: list(v[a:b]) for k, v in reg.items()},
+               "values": values}
+        pr = subprocess.Popen([sys.executable, "-c", code], stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=here, env=env)
+        pr.stdin.write(pickle.dumps(job))
+        pr.stdin.close()
+        procs.append(pr)
+    out = []
+    for pr in procs:
+        res = pr.stdout.read()
+        if pr.wait() != 0:
+            raise RuntimeError("a Monte Carlo worker failed (its error is above)")
+        out += pickle.loads(res)
+    return np.array(out, dtype=float)
+
+
+def _scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict | None = None) -> dict:
     """Cost ($/kg) with the estimates behind a scenario uncertain: plant cost, financing, life of the retention membranes, upkeep
     share of respiration, medium price and loss rate, and (MC_ESTIMATES) the estimates the cost rests on most, drawn from
     their priors; the scenario's switches held. `choice=None` is
@@ -1058,13 +1096,7 @@ def scenario_mc(choice: dict | None, n: int = 1000, seed: int = 0, traits: dict 
         for k in extra_kwargs(choice):                 # made, so the other draws do not move)
             d.pop(k, None)
 
-    def one(i: int) -> float:
-        kw = {**kw0, **{k: float(v[i]) for k, v in d.items()}}
-        if not reg:
-            return fp.explore(**kw)["total"]
-        with fp._inputs_set({k: float(v[i]) for k, v in reg.items()}):
-            return fp.explore(**kw)["total"]
-    cost = np.array([one(i) for i in range(n)])
+    cost = _mc_costs_parallel(kw0, d, reg, n)
     return {"total": cost, **d, **reg}
 
 

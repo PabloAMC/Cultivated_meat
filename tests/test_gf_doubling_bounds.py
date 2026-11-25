@@ -34,9 +34,14 @@ GOLDEN_SCAN = {
     # column on the filter loop): best 7.6209/8.8480/12.2433, central 40.0833/44.1421/49.4977/52.5557, cautious
     # 124.3331/169.8311/185.5915 before. Best at 43 h rose: its thinned recycled-oxygen design is chosen at 16 h and does not
     # suit slow cells
-    "best": {16.0: 6.9686, 24.0: 8.6524, 43.0: 13.6671},
-    "central": {16.0: 39.6525, 24.0: 43.1886, 36.0: 48.6815, 43.0: 52.0237},
-    "cautious": {16.0: 122.6137, 36.0: 165.5675, 43.0: 181.1270},
+    # 2026-11-25 (the gas cap and loop thinning): the engine now picks the gas flow up to the cap and thins an overloaded column
+    # loop itself, at every doubling time, so the design held fixed is the scenario's tank, column and cells, no longer a thinned
+    # density chosen at the scenario's own doubling time. best 8.6524 -> 7.9720 (24 h), 13.6671 -> 11.3876 (43 h); central
+    # 39.6525 -> 39.5912 (16 h), 43.1886 -> 43.8138 (24 h), 52.0237 -> 51.4158 (43 h); cautious 122.6137 -> 123.1127 (16 h),
+    # 165.5675 -> 165.5430 (36 h), 181.1270 -> 179.9020 (43 h, own)
+    "best": {16.0: 6.9686, 24.0: 7.9720, 43.0: 11.3876},
+    "central": {16.0: 39.5912, 24.0: 43.8138, 36.0: 48.6815, 43.0: 51.4158},
+    "cautious": {16.0: 123.1127, 36.0: 165.5430, 43.0: 179.9020},
 }
 
 def close(a, b, tol=1e-6):
@@ -178,7 +183,8 @@ def check() -> list:
             ("central $1 FGF", tab["central"][1.0]["fgf"]["shared"], 45.5783),
             ("central $1 TGF-beta", tab["central"][1.0]["tgfb"]["shared"], 1322.8953),
             ("best $3 insulin", tab["best"][3.0]["insulin"]["shared"], 4.7252),   # 4.8992 until 2026-11-21
-            ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1305),
+            # 2026-11-25 (the gas cap and loop thinning): 0.1305 -> 0.1338 (the cautious case's litres 146.2 -> 142.6 per kilo harvested)
+            ("cautious $1 insulin", tab["cautious"][1.0]["insulin"]["shared"], 0.1338),
             ("central reuse, full price", G.reuse("central")["full_reuse"], 3.2475),   # 3.5484 until 2026-11-21
             # 0 since 2026-11-19 (were 0.5961 and 1.9183): their complete media carry the growth factors in the price
             ("central own, reuse", G.reuse("central")["own_reuse"], 0.0),

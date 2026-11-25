@@ -15,6 +15,7 @@ sys.path.insert(0, ROOT)
 
 import floor_physics as fp  # noqa: E402
 import medium_reuse as M  # noqa: E402
+from inputs import value  # noqa: E402
 
 
 def check() -> list:
@@ -27,19 +28,34 @@ def check() -> list:
         none = M.cost(key, loop=0.0)
         if abs(none["total"] - r0["total"]) > 1e-9 or abs(none["fresh"] - r0["medium_l"]) > 1e-9:
             fails.append(f"{key}: no reuse should reproduce the scenario")
-        filtered0 = r0["medium_l"] - bleed
+        # 2026-11-25 (the gas cap and loop thinning): the litre balance is a statement about ONE design, so it is checked with
+        # the design held (_gas_search=False: the gas flow at the scenario's setting, no thinning, for the scenario and the
+        # route alike). With the full engine each amount cleaned gets its own gas flow and density: the published cells with
+        # no reuse run at 1 mm/s and 108.7 g/L, but with a dialysis route at 2 mm/s and 133.8 g/L, so 8.0 L/kg leave with
+        # the cells, not 9.6, and the route's 8.6 L/kg of fresh medium was compared with the other design's 9.6 (and the
+        # perfect device's filter litres, 138.2, with the other design's 133.0). Against its own design each balance holds.
+        r0h = fp.explore(**kw, _gas_search=False)
+        bleedh = 1000.0 / r0h["density"] / r0h["harvested_share"]
+        filtered0 = r0h["medium_l"] - bleedh
+
+        def held(route: dict) -> dict:
+            r = fp.explore(**{**kw, "clean": route, "_gas_search": False})
+            return {"fresh": r["medium_l"],
+                    "filtered": max(0.0, r["medium_l"] - bleedh) + (0.0 if route.get("in_tank") else r["clean_loop"])}
+
         for n, (args, _a, _b) in M.routes().items():
             c = d["routes"][n]
             if c["total"] > r0["total"] + 1e-9:
                 fails.append(f"{key}: {n} costs more than no reuse at its best litres")
-            if c["fresh"] < min(bleed, r0["medium_l"]) - 1e-9:
+            h = held({"gf_kept": value("mr_gf_kept"), **args})
+            if h["fresh"] < min(bleedh, r0h["medium_l"]) - 1e-9:
                 fails.append(f"{key}: {n} buys less medium than leaves with the cells")
-            if not args.get("in_tank") and c["filtered"] < filtered0 - 1e-9:
+            if not args.get("in_tank") and h["filtered"] < filtered0 - 1e-9:
                 fails.append(f"{key}: {n} is on the permeate but lowers the litres through the cell filter")
         perm, tank = d["bounds"]["on the permeate"], d["bounds"]["across the culture"]
         if not tank["total"] <= perm["total"] <= r0["total"]:
             fails.append(f"{key}: the bounds are out of order")
-        if abs(perm["filtered"] - filtered0) > 0.11:
+        if abs(held({"nh3": 1.0, "lac": 1.0, "other": 1.0, "gf_kept": 1.0})["filtered"] - filtered0) > 0.11:
             fails.append(f"{key}: a perfect device on the permeate should leave the filter's litres as they were")
         for n, c in d["routes"].items():
             if c["total"] < (tank if M.routes()[n][0].get("in_tank") else perm)["total"] - 1e-9:

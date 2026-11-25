@@ -67,7 +67,11 @@ def check() -> list:
         fails.append("the cell filter's flux and life should not move the all-favourable example, which uses its own device")
     # 2026-11-21: 72.0527 -> 71.6736, 147.0528 -> 148.1271 (the low-lactate example's design is now the thinned recycled-oxygen
     # column; the building's power by floor and class; the floor's glucose)
-    for (k, f, l), want in {("central", 5.0, 1200.0): 71.6736, ("central", 2.5, 450.0): 148.1271}.items():
+    # 2026-11-25 (the gas cap and loop thinning): 71.6736 -> 68.9702, 148.1271 -> 114.5006. With membranes this short-lived the
+    # engine's cheapest design bubbles less than the cap and is held thinner by its column loop: 102 g/L and 59 g/L, not 168
+    # (a thinner culture filters fewer litres a kilo). The engine does not search density as such: at (2.5, 450) a culture
+    # capped at 30 g/L costs $79.86 (retention.density_scan), so these are the engine's design, not the cheapest density
+    for (k, f, l), want in {("central", 5.0, 1200.0): 68.9702, ("central", 2.5, 450.0): 114.5006}.items():
         got = FF.cost_at(k, f, l)
         if not close(got, want, 1e-3):
             fails.append(f"{k} flux {f} life {l}: {got:.4f} != pinned {want}")
@@ -86,7 +90,8 @@ def check() -> list:
     # is now $901 a m2, not $549, so $550 no longer reproduces the default: it is $9.36 below it)
     # 2026-11-20 final model: 54.9502 -> 54.1201, 64.6270 -> 63.0864, 40.6019 -> 40.8253, 33.9283 -> 34.6416
     # 2026-11-21: 54.1201 -> 53.3935, 63.0864 -> 62.5335, 40.8253 -> 39.8410, 34.6416 -> 33.5375 (as above)
-    for (k, life, price), want in {("central", 2000.0, 1450.0): 53.3935, ("central", 1500.0, 1450.0): 62.5335,
+    # 2026-11-25 (the gas cap and loop thinning): 53.3935 -> 53.3088, 62.5335 -> 61.4572 (run at 125 g/L, not 168)
+    for (k, life, price), want in {("central", 2000.0, 1450.0): 53.3088, ("central", 1500.0, 1450.0): 61.4572,
                                    ("central", 1500.0, 550.0): 39.8410, ("central", 1000.0, 200.0): 33.5375}.items():
         got = FF.cost_at_life_price(k, life, price)
         if not close(got, want, 1e-3):

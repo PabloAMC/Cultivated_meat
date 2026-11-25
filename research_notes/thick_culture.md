@@ -1,5 +1,11 @@
 # How thick can a stirred or airlift culture be?
 
+> **2026-11-25.** The model now chooses the gas flow up to the cap the cells tolerate, and holds a culture thinner by itself
+> when its column loop fails its checks. The section 7 table is recomputed. Two scenarios now bubble less gas and lose fewer
+> cells: the shared-medium plant $44.53 -> $43.92 (125 g/L), the cautious case $181.13 -> $179.90 (109 g/L). The others do not
+> move. "Fixed" now means the scenario's own added equipment and shape, with the model's own gas choice and thinning. The
+> conclusion holds: no density cap from 180 to 400 g/L changes any scenario's cost except the all-favourable example's at 180.
+
 > **2026-11-21.** `scenarios.design` now holds a culture thinner when that lets a column loop pass its checks, which is the
 > finding of section 7 below, now adopted: every scenario runs the column with recycled oxygen at the densest culture its loop
 > passes (low-lactate example 168 g/L, $48.68; cautious 134 g/L, $181.13; all-favourable example 219 g/L in a flat 42 m³ tank,
@@ -189,7 +195,7 @@ water lift it. The model does not count heat removal; 258 g/L is inside the jack
 ## 7. What the cost does if the density limit is 180, 258, 320 or 400 g/L
 
 `thick_culture.cost_by_cap(key)`, printed by `python thick_culture.py`. Two readings. **Fixed**: the scenario's own tank design, the loop's checks not
-applied. **Checked**: the added equipment for oxygen and CO₂ and shape chosen again among the scenario switches' settings, as `scenarios.design` does, with the loop's checks applied
+applied (since 2026-11-25 the model itself chooses the gas flow and thins a failing loop, so "fixed" keeps only the added equipment and shape). **Checked**: the added equipment for oxygen and CO₂ and shape chosen again among the scenario switches' settings, as `scenarios.design` does, with the loop's checks applied
 (a design whose column breaks the pH or pass-rate rules is refused). $/kg; the density reached in brackets.
 
 | scenario | 180 | 258 (model) | 320 | 400 |
@@ -197,8 +203,8 @@ applied. **Checked**: the added equipment for oxygen and CO₂ and shape chosen 
 | All-favourable example, fixed | 7.44 (180) | **6.97** (219; its own limit is 320) | 6.97 (219) | 6.97 (219) |
 | All-favourable example, checked | 7.20 (180; recycled oxygen, squat) | 6.97 (219) | 6.97 (219) | 6.97 (219) |
 | Low-lactate example, fixed and checked | 48.68 (168) | **48.68** (168) | 48.68 (168) | 48.68 (168) |
-| Low-lactate example, shared medium, fixed and checked | 44.53 (168) | **44.53** (168) | 44.53 (168) | 44.53 (168) |
-| Cautious, fixed and checked | 181.13 (134) | **181.13** (134) | 181.13 (134) | 181.13 (134) |
+| Low-lactate example, shared medium, fixed and checked | 43.92 (125) | **43.92** (125) | 43.92 (125) | 43.92 (125) |
+| Cautious, fixed and checked | 179.90 (109) | **179.90** (109) | 179.90 (109) | 179.90 (109) |
 
 Since 2026-11-21 every scenario's own design is the column with recycled oxygen held thinner than its limits allow, at the densest
 culture its loop passes (168, 134 and 219 g/L), so the "checked" reading finds the same design as the scenario except where the cap

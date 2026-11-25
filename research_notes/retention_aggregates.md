@@ -2,6 +2,17 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> **Recomputed 2026-11-25 (the gas cap and loop thinning; `tests/test_retention.py` pins these).** In a tank with a column the
+> engine now takes the gas flow the cells tolerate as a cap and tries lower flows, and holds thinner a culture whose column loop
+> fails its checks. Thin cultures with gas to spare now bubble less, so fewer cells die: carriers $43.50 / $94.66 / $24.31 (were
+> $43.50 / $94.87 / $24.35), carriers $6.32 a kilo harvested (97.5% harvested; was $6.44), the low-lactate tank making about 6.1
+> times the kilos of the same tank on carriers (5.7). Ranges: aggregates $25.95-34.85 (was 36.41) and $6.93-10.30 (10.48);
+> carriers $33.84-486.92 (35.58) and $8.73-205.95 (206.29). Aggregates grown to 400, 500, 600 um at 0.10 mmol/L: $26.61, $26.89,
+> $27.26 (were 26.65, 27.07, 27.59; at 168-172 g/L). One input at a time (section 4): aggregates at a cell share of 0.60 $27.53,
+> phi_max 0.20 $27.47, 450 um $26.74, proliferation level 0.065 $26.76; carriers at 3e5 cells/cm2 $64.34, 100 um beads $59.16,
+> phi_max 0.35 $72.02, $3/kg $90.10, $50/kg $120.70. The central and reference aggregates ($26.51, $14.24) and every verdict
+> do not move.
+
 > **Second recomputation, 2026-11-21 (later the same day; `tests/test_retention.py` pins these).** The scenarios' tank designs now
 > hold the culture thinner when that lets the recycled-oxygen column pass its loop checks (`scenarios.design`): the low-lactate
 > example runs at 168 g/L ($48.68 with the filter loop), the all-favourable example at 219 g/L ($6.97). The building's power now

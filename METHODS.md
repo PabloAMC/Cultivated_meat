@@ -589,11 +589,11 @@ design (`reference()`) the same way, and `reported_band` takes the company's pro
 |---|---|---|---|---|---|---|
 | 1. Published cells: the best meat cells in the published record, grown in batches in a 20 m³ tank | **$337** ($235–475) | $316.1 | 39.3× | **0.005%** (under 0.001–0.06%) | 0.004% | none |
 | 2. Plus process changes and cheaper inputs | **$322** ($223–458) | $304.8 | 37.6× | **0.007%** (under 0.001–0.08%) | 0.005% | none |
-| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$77** ($53–114) | $70.3 | 9.1× | **0.7%** (0.1–1.9%) | 0.8% | lactate |
-| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$52** ($39–76) | $48.7 | 6.3× | **1.2%** (0.3–2.9%) | 1.4% | lactate |
-| 5. Plus a food-grade plant with shared medium | **$48** ($35–71) | $44.5 | 5.8× | **1.4%** (0.4–3.2%) | 1.6% | lactate |
-| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$33** ($25–45) | $27.3 | 4.1× | **2.2%** (0.8–5.1%) | 3.0% | ammonia, lactate |
-| 7. Plus everything else at its favourable end (the all-favourable example) | **$8** ($7–10) | $7.0 | 1.3× | **19.2%** (12.4–28.0%) | 25.1% | ammonia, lactate |
+| 3. Plus cells that make less lactate (0.42 mol per mol of glucose) and double every 36 hours, still in batches | **$75** ($52–112) | $69.9 | 9.0× | **0.7%** (0.2–2.0%) | 0.8% | lactate |
+| 4. Plus perfusion (the low-lactate example): waste washed out through a cell filter | **$51** ($39–73) | $48.7 | 6.2× | **1.2%** (0.4–2.9%) | 1.4% | lactate |
+| 5. Plus a food-grade plant with shared medium | **$47** ($35–67) | $43.9 | 5.7× | **1.4%** (0.4–3.3%) | 1.6% | lactate |
+| 6. Plus cells that make almost no ammonia or lactate (0.055 mol a kilo; 0.28 mol per mol of glucose) | **$33** ($25–43) | $27.3 | 4.1× | **2.3%** (0.8–5.1%) | 3.0% | ammonia, lactate |
+| 7. Plus everything else at its favourable end (the all-favourable example) | **$8** ($7–10) | $7.0 | 1.3× | **19.2%** (12.3–28.1%) | 25.1% | ammonia, lactate |
 | Humbird's optimistic design: his enhanced cells in an ordinary perfusion tank | **$22** ($17–29) | $15.7 | 2.8× | **4.0%** (1.5–9.1%) | 7.3% | ammonia, lactate |
 | As a company reports (SuperMeat 2024) | **$34** (its own point figure) | $34.4 | 4.3× | **2.1%** (0.7–4.7%) | 2.2% | a company's own report |
 
@@ -1236,8 +1236,24 @@ from its sparger, not the cap: the gas-velocity cap × min(1, density / the smal
 serve, for oxygen and for CO₂). A column does not change those two densities (corrected in a second pass on 2026-11-20; before
 it, a column that took the CO₂ left only the oxygen limit in the formula, which lowered the gas counted for a thin batch with
 a column: rows 2 and 3 of the ladder were $309.6 and $70.4 and are $311.3 and $71.8). The column is sized for what the sparger
-at its cap cannot handle, so a culture beyond what the sparger alone could serve bubbles the full cap whatever the column, and
-a thin fed-batch culture bubbles in proportion less (`gas_used` in the result). It
+at the flow chosen cannot handle, and a thin fed-batch culture bubbles in proportion less (`gas_used` in the result).
+
+**With a column, the gas flow and the culture's thickness are the plant's choices (since 2026-11-25).** The gas flow the cells
+tolerate is a cap, not a setting. Until then a culture denser than the sparger alone could serve bubbled the full cap, so a
+higher tolerance killed more cells and cost more: the all-favourable example cost $6.97 at 6 mm/s and $7.23 at 9. Now
+`explore` tries the cap and every flow below it on `GAS_LADDER` (0.25, 0.5, 1, 2, 4, 6 and 8 mm/s). Less gas leaves the column
+more to strip, and its loop has two checks (the alkaline culture within the dose judged safe; no more passes an hour than dense
+cultures have taken, `loop_ok`). A flow whose loop fails is held thinner, at the densest culture whose loop passes (`_thinned`:
+false position on how far the loop is past its checks, to 0.01 g/L, at most 12 solves). Of every flow, thinned where needed,
+the cheapest whose loop passes is the answer, so a higher tolerance only adds options and never costs more. Until then
+`scenarios.design()` thinned a case once, when it was built, and nothing re-checked the loop when a setting or a draw moved:
+a lower tolerance priced an overloaded loop as if it coped ($6.87 at 4 mm/s, with 3 times the safe alkaline dose), and so
+did 70% of the low-lactate example's Monte Carlo draws and 47% of the all-favourable example's. Thinning a culture can lower
+its cost (in 1% of draws, by up to 7%): a thinner culture needs less gas through the cells, so fewer die. The search costs
+some 35 to 50 solves where one did; to keep the suite fast, with a cleaning route the litres cleaned are ranked without it and
+the three cheapest run in full (`CLEAN_TOP`; equal to the full search in 8 of 9 cases checked, 0.24% dear in one), and the
+Monte Carlo is kept on disk and drawn in worker processes. `explore(_gas_search=False)` holds a design as it is, for the side
+studies that ask what a fixed design does. The page's engine (`floorExplore`) makes the same choices. It
 applies to every tank whose cells meet sparged gas. The dead cells lyse and are not harvested. (2) **Harvest.**
 `pf_harvest_recovery` = 0.98 (range 0.97–0.99) of the cells grown are recovered: SuperMeat rejects 3%, Negulescu loses about 2%
 in the decanter, Pasitka 1.3%. The model had no loss at harvest. A vessel's own recovery (`vessels.py`) applies on top.

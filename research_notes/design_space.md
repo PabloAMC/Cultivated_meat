@@ -5,6 +5,20 @@ rewritten to match). Code: `design_space.py`; test: `tests/test_design_space.py`
 harvested. Nothing here changes a default or a scenario. Names: the low-lactate example and the all-favourable example are
 reference points defined by their cells' traits; "Published cells" are the cells as published.
 
+> **2026-11-25 (the gas cap and loop thinning).** `floor_physics.explore` now makes two choices itself in a tank with a column: it
+> tries every gas flow up to the one the cells tolerate, and it holds a culture whose column loop fails its checks thinner, at
+> the densest density that passes; of these it takes the cheapest that passes. Every table below is regenerated. Until now a run
+> outside `design_space.run`'s own thinning, in particular every row of section 3 that lifts a limit, ran the column loop
+> overloaded and priced it as if it coped. Those rows moved most: with the scenario's column fitted, lifting CO₂ removal, oxygen
+> supply or mixing alone is now worth nothing in any of the three cases (the loop's checks still bind at the same density), and
+> every gas limit lifted is worth $3.37 in the low-lactate example (was $5.47), $6.41 for the published cells (was $13.22) and
+> $0.52 in the all-favourable example (was $1.05), still held by the loop's checks. The ideal, which has no column, is unchanged
+> ($42.81, $167.26, $5.49), so it now lies below "every gas limit lifted" with the column: the column's loop, not the gas, is what
+> holds the scenarios' designs. The published cells' own design costs $179.90 (was $181.13, 109 g/L), their cheapest design
+> without a cage $126.50 (was $127.36; 138 g/L), and the shared-medium plant's $43.92 (was $44.53). Because `explore` now thins,
+> `design_space.run` no longer finds a design to run thinner, so the "run thinner" marks are gone. The prose of sections 3 and 4
+> is still the 2026-11-20 reading; where its figures differ from the tables, the tables hold.
+
 > **2026-11-21.** A design whose column loop fails its checks at the density the other limits allow is no longer dropped: it is
 > run with the culture held thinner, at the densest culture its loop passes (`design_space.run`, `vessels._thinned`; the same rule
 > as `scenarios.design`), and marked "run thinner". Every table below is regenerated with that rule and with the day's engine
@@ -42,11 +56,11 @@ which takes 42 m³, the published size that costs least (`scenarios.all_favourab
 
 | case | ordinary tank | the scenario's design | cheapest design, no cage | cheapest design, with a bubble cage | perfect gas exchange |
 |---|---|---|---|---|---|
-| Published cells, in perfusion | $204.67 (46 g/L, CO₂) | $181.13 | $127.36 (166 g/L, the loop's checks; 5 unproven, run thinner) | $123.33 (258 g/L, thickness; 5 unproven) | **$167.26** (258 g/L) |
+| Published cells, in perfusion | $204.67 (46 g/L, CO₂) | $179.90 | $126.50 (138 g/L, the loop's checks; 5 unproven) | $123.33 (258 g/L, thickness; 5 unproven) | **$167.26** (258 g/L) |
 | 4. Low-lactate example | $54.73 (87 g/L, CO₂) | $48.68 | $47.19 (207 g/L, oxygen; 4 unproven) | $46.10 (258 g/L, thickness; 4 unproven) | **$42.81** (258 g/L) |
-| 5. Shared-medium plant | $47.15 (87 g/L, CO₂) | $44.53 | $43.76 (207 g/L, oxygen; 4 unproven) | $43.22 (258 g/L, thickness; 4 unproven) | **$40.18** (258 g/L) |
+| 5. Shared-medium plant | $47.15 (87 g/L, CO₂) | $43.92 | $42.96 (129 g/L, the loop's checks; 5 unproven) | $42.96 (129 g/L, the loop's checks; 5 unproven) | **$40.18** (258 g/L) |
 | 6. Cells that make almost no ammonia or lactate | $29.74 (87 g/L, CO₂) | $27.26 | $23.53 (207 g/L, oxygen; 4 unproven) | $23.03 (258 g/L, thickness; 5 unproven) | **$24.05** (258 g/L) |
-| 7. All-favourable example | $10.43 (75 g/L, CO₂) | $6.97 | $6.54 (275 g/L, the loop's checks; 6 unproven, run thinner) | $6.07 (302 g/L, the loop's checks; 5 unproven, run thinner) | **$5.49** (320 g/L) |
+| 7. All-favourable example | $10.43 (75 g/L, CO₂) | $6.97 | $6.54 (275 g/L, the loop's checks; 6 unproven) | $6.07 (302 g/L, the loop's checks; 5 unproven) | **$5.49** (320 g/L) |
 
 "Unproven" counts elements nobody has run with animal cells: the column (1; 2 with recycled oxygen), 1 bar of extra pressure (1; 2
 bar counts 2), a tank squatter than those in use (1), fat taken from the feed (1), the bubble cage (1). A tank as deep as wide is
@@ -59,9 +73,9 @@ The cheapest design for each number of unproven elements:
 | 0 | liquid as deep as wide | $200.12 | 63 g/L, CO₂ |
 | 1 | liquid as deep as wide, and fat taken from the feed | $144.70 | 71 g/L, oxygen |
 | 2 | a column that strips CO₂, and fat taken from the feed | $140.48 | 73 g/L, oxygen |
-| 3 | a column that strips CO₂ and feeds recycled oxygen, and fat taken from the feed, the culture run thinner so the loop passes | $131.52 | 121 g/L, the loop's checks |
-| 4 | a column that strips CO₂ and feeds recycled oxygen, 1 bar of extra pressure, and fat taken from the feed, the culture run thinner so the loop passes | $127.84 | 159 g/L, the loop's checks |
-| 5 | a column that strips CO₂ and feeds recycled oxygen, 2 bar of extra pressure, and fat taken from the feed, the culture run thinner so the loop passes | $127.36 | 166 g/L, the loop's checks |
+| 3 | a column that strips CO₂ and feeds recycled oxygen, and fat taken from the feed | $131.52 | 121 g/L, the loop's checks |
+| 4 | a column that strips CO₂ and feeds recycled oxygen, 1 bar of extra pressure, and fat taken from the feed | $127.84 | 159 g/L, the loop's checks |
+| 5 | a column that strips CO₂ and feeds recycled oxygen, 2 bar of extra pressure, and fat taken from the feed | $126.50 | 138 g/L, the loop's checks |
 
 | Published cells, in perfusion, with a bubble cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
 |---|---|---|---|
@@ -76,8 +90,8 @@ The cheapest design for each number of unproven elements:
 |---|---|---|---|
 | 0 | liquid as deep as wide | $54.51 | 108 g/L, oxygen |
 | 1 | a column that strips CO₂ | $52.09 | 112 g/L, oxygen |
-| 2 | a column that strips CO₂ and feeds recycled oxygen, the culture run thinner so the loop passes | $48.68 | 168 g/L, the loop's checks |
-| 3 | a column that strips CO₂, and 2 bar of extra pressure, the culture run thinner so the loop passes | $48.56 | 168 g/L, the loop's checks |
+| 2 | a column that strips CO₂ and feeds recycled oxygen | $48.68 | 168 g/L, the loop's checks |
+| 3 | a column that strips CO₂, and 2 bar of extra pressure | $48.56 | 168 g/L, the loop's checks |
 | 4 | a column that strips CO₂, 2 bar of extra pressure, and fat taken from the feed | $47.19 | 207 g/L, oxygen |
 
 | 4. Low-lactate example, with a bubble cage: unproven elements | cheapest design that passes the checks | cost | density, limit |
@@ -92,42 +106,42 @@ The cheapest design for each number of unproven elements:
 
 | Published cells, in perfusion: if this were free | cost | change | density, what then binds |
 |---|---|---|---|
-| the scenario as it is | $181.13 |  | 134 g/L, the loop's checks |
-| CO₂ removal lifted | $174.34 | −$6.79 | 258 g/L, thickness |
-| oxygen supply lifted | $174.34 | −$6.79 | 258 g/L, thickness |
-| mixing lifted | $174.34 | −$6.79 | 258 g/L, thickness |
-| every gas limit lifted (CO₂, oxygen, mixing) | $167.91 | −$13.22 | 258 g/L, thickness |
-| every gas limit lifted, and the culture as thick as 320 g/L | $166.92 | −$14.20 | 320 g/L, thickness |
-| medium at the least the physics allows (6.6 L/kg; this thin culture needs 8.0, what leaves with the cells) | $24.52 | −$156.61 | 134 g/L, the loop's checks |
-| filter membranes that never wear out | $83.71 | −$97.42 | 134 g/L, the loop's checks |
-| no bubble protectant to buy | $172.35 | −$8.77 | 134 g/L, the loop's checks |
-| no growth factors to buy | $181.13 |  | 134 g/L, the loop's checks |
-| no runs lost | $161.86 | −$19.27 | 134 g/L, the loop's checks |
-| a yeast plant with what animal cells need | $169.61 | −$11.52 | 134 g/L, the loop's checks |
+| the scenario as it is | $179.90 |  | 109 g/L, the loop's checks |
+| CO₂ removal lifted | $179.90 |  | 109 g/L, the loop's checks |
+| oxygen supply lifted | $179.90 |  | 109 g/L, the loop's checks |
+| mixing lifted | $179.90 |  | 109 g/L, the loop's checks |
+| every gas limit lifted (CO₂, oxygen, mixing) | $173.49 | −$6.41 | 134 g/L, the loop's checks |
+| every gas limit lifted, and the culture as thick as 320 g/L | $173.49 | −$6.41 | 134 g/L, the loop's checks |
+| medium at the least the physics allows (6.6 L/kg; this thin culture needs 8.0, what leaves with the cells) | $24.52 | −$155.38 | 134 g/L, the loop's checks |
+| filter membranes that never wear out | $83.71 | −$96.20 | 134 g/L, the loop's checks |
+| no bubble protectant to buy | $171.34 | −$8.56 | 109 g/L, the loop's checks |
+| no growth factors to buy | $179.90 |  | 109 g/L, the loop's checks |
+| no runs lost | $160.59 | −$19.31 | 109 g/L, the loop's checks |
+| a yeast plant with what animal cells need | $166.26 | −$13.64 | 80 g/L, the loop's checks |
 
 | 4. Low-lactate example: if this were free | cost | change | density, what then binds |
 |---|---|---|---|
 | the scenario as it is | $48.68 |  | 168 g/L, the loop's checks |
-| CO₂ removal lifted | $46.13 | −$2.55 | 258 g/L, thickness |
-| oxygen supply lifted | $46.13 | −$2.55 | 258 g/L, thickness |
-| mixing lifted | $46.13 | −$2.55 | 258 g/L, thickness |
-| every gas limit lifted (CO₂, oxygen, mixing) | $43.21 | −$5.47 | 258 g/L, thickness |
-| every gas limit lifted, and the culture as thick as 320 g/L | $42.55 | −$6.13 | 320 g/L, thickness |
+| CO₂ removal lifted | $48.68 |  | 168 g/L, the loop's checks |
+| oxygen supply lifted | $48.68 |  | 168 g/L, the loop's checks |
+| mixing lifted | $48.68 |  | 168 g/L, the loop's checks |
+| every gas limit lifted (CO₂, oxygen, mixing) | $45.31 | −$3.37 | 168 g/L, the loop's checks |
+| every gas limit lifted, and the culture as thick as 320 g/L | $45.31 | −$3.37 | 168 g/L, the loop's checks |
 | medium at the least the physics allows (6.3 L/kg) | $16.90 | −$31.78 | 168 g/L, the loop's checks |
 | filter membranes that never wear out | $25.97 | −$22.71 | 168 g/L, the loop's checks |
 | no bubble protectant to buy | $46.35 | −$2.33 | 168 g/L, the loop's checks |
 | no growth factors to buy | $48.68 |  | 168 g/L, the loop's checks |
 | no runs lost | $43.63 | −$5.06 | 168 g/L, the loop's checks |
-| a yeast plant with what animal cells need | $42.21 | −$6.48 | 168 g/L, the loop's checks |
+| a yeast plant with what animal cells need | $40.51 | −$8.17 | 102 g/L, the loop's checks |
 
 | 7. All-favourable example: if this were free | cost | change | density, what then binds |
 |---|---|---|---|
 | the scenario as it is | $6.97 |  | 219 g/L, the loop's checks |
-| CO₂ removal lifted | $6.35 | −$0.62 | 320 g/L, thickness |
-| oxygen supply lifted | $6.35 | −$0.62 | 320 g/L, thickness |
-| mixing lifted | $6.35 | −$0.62 | 320 g/L, thickness |
-| every gas limit lifted (CO₂, oxygen, mixing) | $5.92 | −$1.05 | 320 g/L, thickness |
-| every gas limit lifted, and the culture as thick as 320 g/L | $5.92 | −$1.05 | 320 g/L, thickness |
+| CO₂ removal lifted | $6.97 |  | 219 g/L, the loop's checks |
+| oxygen supply lifted | $6.97 |  | 219 g/L, the loop's checks |
+| mixing lifted | $6.97 |  | 219 g/L, the loop's checks |
+| every gas limit lifted (CO₂, oxygen, mixing) | $6.45 | −$0.52 | 219 g/L, the loop's checks |
+| every gas limit lifted, and the culture as thick as 320 g/L | $6.45 | −$0.52 | 219 g/L, the loop's checks |
 | medium at the least the physics allows (5.5 L/kg) | $6.21 | −$0.76 | 219 g/L, the loop's checks |
 | filter membranes that never wear out | $6.91 | −$0.06 | 219 g/L, the loop's checks |
 | no bubble protectant to buy | $6.24 | −$0.73 | 219 g/L, the loop's checks |

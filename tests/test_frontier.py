@@ -35,8 +35,10 @@ def check() -> list:
     if not close(rows[0]["cost"], ref, 2e-3):
         fails.append(f"the first row (${rows[0]['cost']:.4f}) is not scenarios.reference() (${ref:.4f})")
     # moving a lever to its favourable value never costs more, in the path's order
+    # 1e-4 relative since 2026-11-25: explore() thins a failing loop to within 0.01 g/L (floor_physics.THIN_TOL), so a step that
+    # changes nothing gives the same cost to about 0.005%, not to 1e-9
     for x, y in zip(rows, rows[1:]):
-        if y["cost"] > x["cost"] + 1e-9:
+        if y["cost"] > x["cost"] * (1.0 + 1e-4):
             fails.append(f"'{y['name']}' raised the cost")
     # every explore() argument of the case is set by exactly one step
     used = [k for _n, keys, _w in F.steps() for k in keys]
@@ -49,7 +51,9 @@ def check() -> list:
     # repinned 2026-11-21 (building power by floor and class, labour per tank, floor glucose 0.311, the tank design held thinner so
     # its oxygen-feeding loop passes, the column on the filter loop): was [15.945, 12.2424, 12.2424, 9.9371, 9.6923, 9.6923, 8.0977,
     # 7.6209, 7.6209, 7.6209, 7.6209]
-    want = [15.7364, 12.0731, 12.0731, 9.7471, 9.5023, 9.5023, 7.4981, 6.9686, 6.9686, 6.9686, 6.9686]
+    # 2026-11-25 (the gas cap and loop thinning): the tank-design step at 20 m3, 7.4981 -> 7.5215. The case no longer carries its
+    # 42 m3 density cap (219 g/L); explore() thins the 20 m3 loop itself, to 217 g/L, where the cap let it overload its checks
+    want = [15.7364, 12.0731, 12.0731, 9.7471, 9.5023, 9.5023, 7.5215, 6.9686, 6.9686, 6.9686, 6.9686]
     got = [r["cost"] for r in rows]
     if len(got) != len(want) or any(not close(g, w, 1e-4) for g, w in zip(got, want)):
         fails.append(f"the path moved: {[round(g, 4) for g in got]} != pinned {want}")
@@ -63,7 +67,9 @@ def check() -> list:
             "A food-grade plant with shared medium": 12.8447,
             "Dialyser-grade hollow fibres as the filter": 13.8666,
             "Dissolved oxygen held at about half of air saturation": 15.7364,
-            "The cheapest tank design that passes the checks on the CO₂ loop": 16.3359,
+            # 2026-11-25 (the gas cap and loop thinning): 16.3359 -> 15.8870. Without the case's 219 g/L cap, explore() chooses
+            # for Humbird's slower cells: 4 mm/s of gas and 193 g/L. Still dearer than Humbird's design (15.7364)
+            "The cheapest tank design that passes the checks on the CO₂ loop": 15.8870,
             "The least medium flow at the lowest measured": 15.7364, "Culture up to 320 g/L in place of 258": 15.7364,
             "Medium at the nutrient floor": 15.7364}
     for n, w in want.items():
