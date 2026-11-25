@@ -53,7 +53,7 @@ LEVELS = ("assumes", "moves", "where", "engineering", "shoppers", "method")
 # in the tank; the reactor, how it is run and the plant; the medium; then the cost; the shoppers; then the share
 FIRST = ('id="deck"', 'id="levers"', 'id="tp_refs"', 'id="regionsel"', 'id="tp_refs_more"', 'id="st_cells"', 'id="tp_traits"', 'id="tp_cellrefs"',
          'id="tp_g_cells"', 'id="tp_g_cells_more"',
-         'id="st_reactor"', 'id="pl_vessel"', 'id="pl_vmode"', 'id="pl_size"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_items"', 'id="pl_capex"',
+         'id="st_reactor"', 'id="pl_vessel"', 'id="pl_size"', 'id="pl_vmode"', 'id="pl_device"', 'id="pl_plant"', 'id="pl_items"', 'id="pl_capex"',
          'id="pl_tricks"', 'id="pl_shape"', 'id="pl_design_btn"', 'id="tp_g_reactor"', 'id="tp_g_reactor_more"', 'id="st_medium"', 'id="pl_med"', 'id="tp_g_medium"', 'id="st_shoppers"', 'id="tp_buyers"', 'id="tp_cuthost"',
          'id="sumbar"', 'id="tp_calc"', 'id="studies"', 'id="tp_studies"', 'id="tp_cellres"', 'id="tp_vmgrid"', 'id="tp_rtgrid"', 'id="tp_yours"', 'id="tp_groups"',
          'id="tp_unc"', 'id="tpmap"', 'id="tp_cl_note"', 'id="tp_animals"', 'id="tp_sbars"', 'id="tp_disk"', 'id="tp_wit"')
