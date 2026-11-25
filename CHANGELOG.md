@@ -14,7 +14,7 @@
 - `run_tests.sh` runs, on a laptop, two fewer tests at once than it has cores (all of them on CI). A test peaks at 80-170 MB, so
   memory was not what hung the laptop overnight on 2026-11-24/25.
 - The whole suite: about 18 minutes to under 8 on a 10-core laptop; it took 46 minutes on GitHub.
-- The share map (section 4): your settings are a vertical line at your cost, with 8 in 10 draws as a shaded band, not a point at
+- The share map (section 4): your settings are a solid yellow vertical line at your cost (no other mark on the map is yellow), with 8 in 10 draws as a shaded band, not a point at
   one shoppers' preference (it sat at 14.5%, now 50%, for every case): a case sets the cost of cells, not how shoppers feel. A
   ring on the line marks the shoppers' setting.
 

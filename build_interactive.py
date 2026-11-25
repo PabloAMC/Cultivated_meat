@@ -2625,7 +2625,7 @@ litres of medium against what scales with time in the tank is in "What the cost 
 <span class="li"><span class="ln" style="border-top-color:#D85A30"></span>lines of equal share</span>
 <span class="li"><span class="sw hatchd"></span><span>impossible: below what the cells must eat</span></span>
 <span class="li"><span class="sw hatchl"></span><span>beyond every known limit</span></span>
-<span class="li"><span class="ln" style="border-top-color:#1a1a19;border-top-width:2px"></span>your cost: a line at the cost of cells at your settings, the shaded band 8 in 10 draws; the ring marks the shoppers&rsquo; setting</span>
+<span class="li"><span class="ln" style="border-top-color:#F5C518;border-top-width:3px;outline:1px solid #1a1a19"></span>your cost: the yellow line at the cost of cells at your settings, the shaded band 8 in 10 draws; the ring marks the shoppers&rsquo; setting</span>
 </div>
 <div class="plot" id="tpplot"><svg id="tpmap" role="img" aria-labelledby="tptitle" aria-describedby="tp_alt"></svg></div>
 <p class="sr" id="tp_alt"></p>

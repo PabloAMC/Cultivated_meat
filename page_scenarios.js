@@ -1457,9 +1457,11 @@ function tpMapDraw(f){
   // your cost (a line) and its label, last
   const px=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cost)));
   // your cost: a line from top to bottom (a white halo under a dark line), and a small ring where it meets the shoppers' setting
-  const meDot='<g class="meline"><title>'+tip+'</title><line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="5" stroke-opacity="0.75"/>'+
-    '<line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#1a1a19" stroke-width="2"/>'+
-    '<circle class="me" cx="'+px.toFixed(1)+'" cy="'+yp.toFixed(1)+'" r="'+(small?4:4.5)+'"/></g>';
+  // yellow, a colour nothing else on the map uses (the blues of the share, the orange lines of equal share, the white limits and
+  // dashed prices), edged in dark so it reads on light and dark blue alike (2026-11-25: it was lost beside the white limit line)
+  const meDot='<g class="meline"><title>'+tip+'</title><line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#1a1a19" stroke-width="5"/>'+
+    '<line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#F5C518" stroke-width="3"/>'+
+    '<circle cx="'+px.toFixed(1)+'" cy="'+yp.toFixed(1)+'" r="'+(small?5:5.5)+'" fill="#F5C518" stroke="#1a1a19" stroke-width="1.8"/></g>';
   pl.block(px-4,T,px+4,B); pl.block(px-6,yp-6,px+6,yp+6);
   const meLab=f.key==="own"?"Your settings":short(f.label);
   const meC=[]; [14,28,42,B-T-8,B-T-22].forEach(u=>{ meC.push({x:px+9,y:T+u,t:meLab,fs:fs+1,anchor:"start"},{x:px-9,y:T+u,t:meLab,fs:fs+1,anchor:"end"}); });
@@ -1508,7 +1510,7 @@ function tpMapText(f,G){
   const one=tpCostFor(1,f.buyers), ten=tpCostFor(10,f.buyers);
   set("tp_read_txt","<b>How to read the map.</b> Each orange line joins the points with the same share. To the right of the 1% line cultivated meat stays below 1% of the meat sold. To cross it with "+tpPctB(f.buyers)+
     " of meat buyers picking it at the same price, cells must cost under about "+(one===null?"$0.5 (no cost down to $0.5 reaches it)":tpUSDk(one))+" a kilo; for 10%, under about "+(ten===null?"$0.5 (no cost down to $0.5 reaches it)":tpUSDk(ten))+
-    ". <b>Your cost</b> is the dark upright line, at "+tpUSD(f.cost)+" a kilo of cells, with 8 in 10 draws in the shaded band: a case sets the cost of cells, not how shoppers feel, so read up and down the line for the share at each preference. The ring on it marks the shoppers' setting. "+
+    ". <b>Your cost</b> is the yellow upright line, at "+tpUSD(f.cost)+" a kilo of cells, with 8 in 10 draws in the shaded band: a case sets the cost of cells, not how shoppers feel, so read up and down the line for the share at each preference. The ring on it marks the shoppers' setting. "+
     "Up the map, more shoppers like it; to the left, cells are cheaper. The lines of equal share do not move with the meat-buyers slider: it moves the ring along your line. "+
     "<b>The dashed lines</b> mark the cost of cells at which it would sell at the shop price of each kind of meat named along the top. For one kind of meat at its own price, the share of its buyers who pick the cultivated one is your setting exactly. This map adds up every kind of meat at one cost of cells, each at its own price, so its lines of equal share cross each dashed line below that setting for the dearer meats to its right and above it for the cheaper ones.");
 
