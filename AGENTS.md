@@ -9,13 +9,13 @@ Contents: 1. The question and the answer in ten lines. 2. The causal chain as fu
 1. Units: every cost is US dollars of 2025 per kilo of wet cells (about 70% water) leaving the tank, at most likely values; every share is cultivated meat's long-run share of world meat and seafood sold, by weight.
 2. Humbird's best estimate (2021), his fed-batch design with enhanced cells on soy hydrolysate in 20 m³ tanks: $21.00 a kilo in 2018 dollars; this model's engine at his conditions gives $26.99 in 2025 dollars, and $30.49 with what this model counts and he does not (cells killed by bubbles, cells lost at harvest, a least medium flow, the bubble protectant, slower oxygen uptake in a thick culture). From `humbird_check.page_start()` and `page_with_additions()`.
 3. Humbird's optimistic design (his enhanced cells in a 20 m³ perfusion tank): $15.72. From `floor_physics.explore()` with no arguments.
-4. Published cells (the best value of each trait in the published record, grown in 20 m³ batches): $316.1, and a share of 0.0010%. From `scenarios.SCENARIOS['today']`.
-5. The low-lactate example (0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, a doubling every 36 hours, 2 ng a cell, perfusion in a 20 m³ tank): $48.68, and a share of 0.26%. From `scenarios.SCENARIOS['central']`.
-6. The all-favourable example (every lever at its most favourable value among this model's favourable end, Humbird's design and the published cost studies, inside the model's limits; cells of 3 ng doubling every 16 hours): $6.97, and a share of 25.1% if 58.7% of meat buyers pick it at equal price, 5.5% at the model's ordinary 14.4%. From `scenarios.all_favourable()`.
+4. Published cells (the best value of each trait in the published record, grown in 20 m³ batches): $316.1, and a share of 0.0045%. From `scenarios.SCENARIOS['today']`.
+5. The low-lactate example (0.14 mol of ammonia a kilo, 0.42 mol of lactate per mol of glucose, a doubling every 36 hours, 2 ng a cell, perfusion in a 20 m³ tank): $48.68, and a share of 1.4%. From `scenarios.SCENARIOS['central']`.
+6. The all-favourable example (every lever at its most favourable value among this model's favourable end, Humbird's design and the published cost studies, inside the model's limits; cells of 3 ng doubling every 16 hours): $6.97, and a share of 25.1% if 58.7% of meat buyers pick it at equal price, 20.5% at the model's ordinary 50.0%. From `scenarios.all_favourable()`.
 7. The nutrient floor (what a kilo of cells must eat: amino acids at feed grade and the most efficient published need, glucose and other nutrients): $2.00; the medium is never charged less. From `floor_physics.feedstock(floor_physics.GOOD_CELLS)`, `nutrient_floor.py`.
 8. Price parity with a $12 kilo of US minced beef or pork cuts needs cells at $6.14 or less (shelf price = (cost + per-kilo costs to the shelf) / (1 - retail margin)). From `price_ratio.parity_cost`.
-9. Long-run share at equal price, once familiar: 13% of all choices (range 3% to 49%), which is 14.4% of meat buyers. A judgement from the literature on first-contact aversion fading, not a measurement: the input `equal_price_share`, `scenarios.meat_buyers_at_equal_price()`.
-10. A 1% long-run share of world meat needs cells at $20.5 a kilo or less; 10% needs $3.6, below every set of traits tried. From `scenarios.cost_for_share`.
+9. Long-run share at equal price, once familiar: 46.4% of all choices (range 5% to 80%), which is 50.0% of meat buyers. A judgement from the literature on first-contact aversion fading, not a measurement: the input `equal_price_share`, `scenarios.meat_buyers_at_equal_price()`.
+10. A 1% long-run share of world meat needs cells at $62.7 a kilo or less; 10% needs $12.7, below every set of traits tried. From `scenarios.cost_for_share`.
 
 ## 2. The causal chain as functions
 
@@ -85,7 +85,7 @@ A two-segment (mainstream and ethical) flat logit over four products (convention
 >>> from market_share import DemandParams, share
 >>> pr = DemandParams()
 >>> [round(share(R, pr, which="x_meat") * 100, 3) for R in (1.0, 1.5, 2.0, 3.0)]
-[14.454, 7.408, 3.84, 1.416]
+[49.998, 32.834, 19.551, 6.946]
 ```
 
 ### Step 5. Every meat type and region: `meat_market.penetration(market, cost, income=..., pr=...)`
@@ -96,9 +96,9 @@ Repeats step 4 for each meat type at its own local price and the region's income
 >>> import meat_market as mm
 >>> rows, vol, val = mm.penetration(mm.MARKETS["global"], cost, income=mm.REGION_INCOME["global"], pr=pr)
 >>> round(vol * 100, 3), round(val * 100, 3)
-(0.259, 0.313)
+(1.429, 1.69)
 >>> {k: round(v, 3) for k, v in S.shares(cost).items()}
-{'global': 0.259, 'us': 0.366, 'eu': 0.487}
+{'global': 1.429, 'us': 1.902, 'eu': 2.485}
 ```
 
 ### Step 6. Over time: `adoption_timing.years_for_cost(cost)`
@@ -108,7 +108,7 @@ Bass diffusion for the rollout and first-contact wariness fading towards the lon
 ```python
 >>> import adoption_timing as AT
 >>> AT.years_for_cost(cost)
-(25, 16, 58)
+(23, 16, 51)
 ```
 
 ### Shortcuts
@@ -140,25 +140,25 @@ Every input with a range moved to each end, one at a time (`answer_rests_on.cost
 
 | input | its range (model's value) | Low-lactate example, $/kg | The low-lactate example's share of world meat | All-favourable example, $/kg | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|---|
-| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (2415) | $86.9 to $35.9 | 0.09% to 0.4% | $7.0 to $7.0 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
-| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $89.0 to $43.8 | 0.08% to 0.3% | $7.0 to $6.9 | the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
-| Ammonia the cells of the low-lactate example make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $44.5 to $80.4 | 0.3% to 0.1% | $7.0 to $7.0 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
-| Lactate the cells tolerate in the tank | 20–50 mmol/L (35) | $70.3 to $48.7 | 0.1% to 0.3% | $7.0 to $7.0 | Cultivated Meat (book), Table 2, citing Hassell 1991; Pasitka 2024; Humbird 2021, judgement | yes |
-| Lactate the cells of the low-lactate example make per mol of glucose | 0.39–0.6 mol lactate / mol glucose (0.42) | $48.7 to $65.5 | 0.3% to 0.2% | $7.0 to $7.0 | waste_tricks_sizing.md | **no** |
-| Culture whose cells bursting bubbles kill, per volume of gas passed | 0.0001–0.0012 L of culture per L of gas (0.0004) | $45.7 to $58.9 | 0.3% to 0.2% | $6.5 to $8.7 | Jobses, Martens, Tramper 1991, read in full | yes |
-| Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $57.9 to $48.7 | 0.2% to 0.3% | $8.3 to $7.0 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the all-favourable example's median by about $0.1, at forty times the computing time |
-| Price of the bubble protectant (poloxamer 188), bought by the tonne | 5–100 $/kg (30) | $46.7 to $54.1 | 0.3% to 0.2% | $6.4 to $8.7 | assumed: only catalogue prices ($230–260/kg) found | yes |
-| Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $45.6 to $52.6 | 0.3% to 0.2% | $6.4 to $7.7 | derived from Humbird's financing, at a mature industry's rates | yes |
-| Price of cell-filter membrane | 1050–1450 $/m2 (1450) | $42.4 to $48.7 | 0.3% to 0.3% | $7.0 to $7.0 | Humbird's ATF price; retail modules a quarter less | yes |
-| Least medium flow the cells need for everything but ammonia and lactate | 3.7–18.5 mL per g wet cells per day (7.5) | $48.7 to $54.5 | 0.3% to 0.2% | $7.0 to $7.0 | judgement within CHO measurements | yes |
-| Dose of bubble protectant in the medium | 1–5 g/L (2) | $47.5 to $52.2 | 0.3% to 0.2% | $6.6 to $8.1 | dense pharma cultures (`gas_flow_cap.md`) | yes |
-| Staff a plant in perfusion needs, against a fed-batch plant | 1.4–3.9 x the fed-batch crew (2) | $47.7 to $51.7 | 0.3% to 0.2% | $6.7 to $7.9 | Humbird 2021; CE Delft 2021; SuperMeat 2024, derived | **no** |
-| Amino acids a kilo of cells takes up (the nutrient floor) | 0.2–0.65 kg amino acids/kg wet (0.232) | $48.7 to $51.5 | 0.3% to 0.2% | $6.7 to $10.0 | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | no: a trait of the cells, as glucose use is; the all-favourable example takes the efficient end |
-| How the cost of medium preparation equipment rises with the medium passed (exponent) | 0.6–1 exponent (0.6) | $48.7 to $51.1 | 0.3% to 0.2% | $7.0 to $7.4 | assumed | **no** |
-| Weight of one cell (every kind of cells since 2026-11-19) | 1000–3000 pg wet per cell (2000) | $50.1 to $47.9 | 0.2% to 0.3% | $7.0 to $7.0 | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | yes |
-| Rise in plant construction costs since 2018 | 1.17–1.4 x (1.33) | $47.5 to $49.2 | 0.3% to 0.3% | $6.8 to $7.1 | construction cost index, 2024 estimated | partly: the plant's cost is drawn, not this index |
-| CO₂ level at which the culture leaves the stripping column | 20–70 mbar (55) | $50.5 to $49.3 | 0.2% to 0.3% | $7.2 to $7.0 | design choice | **no** |
-| Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $48.7 to $49.9 | 0.3% to 0.2% | $6.6 to $8.3 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
+| Litres a m² of cell filter passes before it is replaced | 900–5500 L/m2 (2415) | $86.9 to $35.9 | 0.5% to 2.1% | $7.0 to $7.0 | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | yes |
+| Ammonia the cells tolerate in the tank | 2–8 mmol/L (4) | $89.0 to $43.8 | 0.5% to 1.6% | $7.0 to $6.9 | the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | yes |
+| Ammonia the cells of the low-lactate example make per kilo grown | 0.04–0.25 mol/kg wet (0.14) | $44.5 to $80.4 | 1.6% to 0.6% | $7.0 to $7.0 | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | yes |
+| Lactate the cells tolerate in the tank | 20–50 mmol/L (35) | $70.3 to $48.7 | 0.8% to 1.4% | $7.0 to $7.0 | Cultivated Meat (book), Table 2, citing Hassell 1991; Pasitka 2024; Humbird 2021, judgement | yes |
+| Lactate the cells of the low-lactate example make per mol of glucose | 0.39–0.6 mol lactate / mol glucose (0.42) | $48.7 to $65.5 | 1.4% to 0.9% | $7.0 to $7.0 | waste_tricks_sizing.md | **no** |
+| Culture whose cells bursting bubbles kill, per volume of gas passed | 0.0001–0.0012 L of culture per L of gas (0.0004) | $45.7 to $58.9 | 1.5% to 1.1% | $6.5 to $8.7 | Jobses, Martens, Tramper 1991, read in full | yes |
+| Salt strength the cells tolerate (osmolality) | 350–450 mOsm/kg (415) | $57.9 to $48.7 | 1.1% to 1.4% | $8.3 to $7.0 | CHO measurements (`perfusion_rate_osmolality.md`) | no: moves the all-favourable example's median by about $0.1, at forty times the computing time |
+| Price of the bubble protectant (poloxamer 188), bought by the tonne | 5–100 $/kg (30) | $46.7 to $54.1 | 1.5% to 1.2% | $6.4 to $8.7 | assumed: only catalogue prices ($230–260/kg) found | yes |
+| Yearly charge on the plant's capital (financing and recovery) | 0.123–0.236 of TCI per yr (0.173) | $45.6 to $52.6 | 1.6% to 1.3% | $6.4 to $7.7 | derived from Humbird's financing, at a mature industry's rates | yes |
+| Price of cell-filter membrane | 1050–1450 $/m2 (1450) | $42.4 to $48.7 | 1.7% to 1.4% | $7.0 to $7.0 | Humbird's ATF price; retail modules a quarter less | yes |
+| Least medium flow the cells need for everything but ammonia and lactate | 3.7–18.5 mL per g wet cells per day (7.5) | $48.7 to $54.5 | 1.4% to 1.2% | $7.0 to $7.0 | judgement within CHO measurements | yes |
+| Dose of bubble protectant in the medium | 1–5 g/L (2) | $47.5 to $52.2 | 1.5% to 1.3% | $6.6 to $8.1 | dense pharma cultures (`gas_flow_cap.md`) | yes |
+| Staff a plant in perfusion needs, against a fed-batch plant | 1.4–3.9 x the fed-batch crew (2) | $47.7 to $51.7 | 1.5% to 1.3% | $6.7 to $7.9 | Humbird 2021; CE Delft 2021; SuperMeat 2024, derived | **no** |
+| Amino acids a kilo of cells takes up (the nutrient floor) | 0.2–0.65 kg amino acids/kg wet (0.232) | $48.7 to $51.5 | 1.4% to 1.3% | $6.7 to $10.0 | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | no: a trait of the cells, as glucose use is; the all-favourable example takes the efficient end |
+| How the cost of medium preparation equipment rises with the medium passed (exponent) | 0.6–1 exponent (0.6) | $48.7 to $51.1 | 1.4% to 1.3% | $7.0 to $7.4 | assumed | **no** |
+| Weight of one cell (every kind of cells since 2026-11-19) | 1000–3000 pg wet per cell (2000) | $50.1 to $47.9 | 1.4% to 1.5% | $7.0 to $7.0 | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | yes |
+| Rise in plant construction costs since 2018 | 1.17–1.4 x (1.33) | $47.5 to $49.2 | 1.5% to 1.4% | $6.8 to $7.1 | construction cost index, 2024 estimated | partly: the plant's cost is drawn, not this index |
+| CO₂ level at which the culture leaves the stripping column | 20–70 mbar (55) | $50.5 to $49.3 | 1.4% to 1.4% | $7.2 to $7.0 | design choice | **no** |
+| Price of amino acids (the nutrient floor) | 5–11.59 $/kg amino acids (6.36) | $48.7 to $49.9 | 1.4% to 1.4% | $6.6 to $8.3 | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | yes |
 
 *Left out: The gas flow the tank takes is a scenario switch (2, 4 or 6 mm/s). The input of that name is also the reference speed of Humbird's oxygen figure, so moving it alone rescales that figure ($48.56 to $48.68 in the low-lactate example) without changing any tank; it is left out.*
 *Left out: Maturation, the hours the cells spend in the tank without growing before harvest, is a choice of product, not an estimate. The products near market are bulk cell mass and take none; 4 to 28 days to mature muscle or fat would take the low-lactate example from $48.68 to $75.46 (4 days) or $232.75 (28 days). It is a lever on the page; it is left out here.*
@@ -170,20 +170,26 @@ The demand inputs moved the same way (`answer_rests_on.demand_drivers()`); kept 
 
 | input | its range (model's value) | share at the low-lactate example's cost | share at the all-favourable example's cost | where the value comes from | in the uncertainty band? |
 |---|---|---|---|---|---|
-| Share of buyers who choose cultivated meat at equal price, once familiar | 0.03 to 0.49 of all choices (0.13) | 0.06% to 1.6% | 1.3% to 21.9% | a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | yes |
-| How wary people are of a novel food, in the long run | -2 to 1 utils (0) | 0.1% to 0.4% | 2.4% to 8.0% | a judgement on long-run behaviour | no: part of the share at equal price, which is drawn |
-| Whether people see cultivated meat as healthier or less healthy | -0.5 to 0.5 norm (0) | 0.2% to 0.4% | 3.4% to 8.5% | a scenario dial: no data | no: part of the share at equal price, which is drawn |
-| Retailer's gross margin, as a share of the shelf price | 0.15 to 0.4 of shelf price (0.28) | 0.3% to 0.2% | 7.4% to 3.8% | US meat-department margins (28–32%) and French supermarket data | yes |
-| Cost of assembling a cut, beyond what mince pays | 0.5 to 7 $/kg (2) | 0.3% to 0.2% | 6.6% to 3.4% | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | yes |
-| How fully mainstream buyers credit cultivated meat's taste | 0.6 to 1 fraction (1) | 0.1% to 0.3% | 2.4% to 5.5% | a scenario dial | no: part of the share at equal price, which is drawn (left the bands on 2026-11-20) |
-| Value mainstream buyers put on meat without slaughter | 0 to 1 utils (0) | 0.3% to 0.5% | 5.5% to 8.5% | a scenario dial: surveys disagree | no: part of the share at equal price, which is drawn |
-| How price sensitivity falls with income | 0 to 1 exponent (0.32) | 0.3% to 0.1% | 5.6% to 8.3% | USDA demand estimates | no: each value re-solves the demand model's calibration |
-| Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg | 1.5 to 3.5 $/kg (2.5) | 0.3% to 0.2% | 6.7% to 4.5% | fitted to USDA ERS meat spreads, plus forming | yes |
-| How much more price-sensitive cultivated meat is than meat in general | 4 to 11 x (8.5) | 0.6% to 0.2% | 7.1% to 5.2% | bracketed by data on close substitutes | yes |
-| Price elasticity of meat demand | -1.4 to -0.5 elasticity (-0.9) | 0.2% to 0.5% | 5.6% to 6.6% | scanner-data meta-analysis | yes |
-| How much more the price-insensitive shoppers like cultivated meat than other shoppers, utils | -2 to 2 utils (0) | 0.1% to 0.6% | 5.3% to 5.9% | two latent-class studies, read in utils: no more hostile than other shoppers (`demand_checks.md` section 7) | no: the share at equal price is set given it |
-| Share of shoppers who respond much less to price than the others | 0.08 to 0.15 of all shoppers (0.08) | 0.3% to 0.5% | 5.5% to 5.8% | latent-class studies: 15-35% in stated choices, probably 8-15% in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | no: the share at equal price is set given it |
-| How strongly those price-insensitive shoppers respond to price, times other shoppers' response | 0.1 to 0.25 x other shoppers' (0.11) | 0.3% to 0.07% | 5.5% to 5.4% | 4-10 times between groups in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | no: the share at equal price is set given it |
+| Share of buyers who choose cultivated meat at equal price, once familiar | 0.05 to 0.8 of all choices (0.464) | 0.09% to 4.3% | 2.2% to 42.9% | a judgement: an even split for meat buyers, the neutral start where no good data exist (since 2026-11-24; 13% of all choices before); the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | yes |
+| How wary people are of a novel food, in the long run | -2 to 1 utils (0) | 0.6% to 2.1% | 11.2% to 26.4% | a judgement on long-run behaviour | no: part of the share at equal price, which is drawn |
+| Whether people see cultivated meat as healthier or less healthy | -0.5 to 0.5 norm (0) | 0.9% to 2.2% | 14.7% to 27.3% | a scenario dial: no data | no: part of the share at equal price, which is drawn |
+| How much more price-sensitive cultivated meat is than meat in general | 4 to 11 x (8.5) | 3.0% to 1.0% | 28.8% to 18.0% | bracketed by data on close substitutes | yes |
+| Retailer's gross margin, as a share of the shelf price | 0.15 to 0.4 of shelf price (0.28) | 1.8% to 1.1% | 25.8% to 15.2% | US meat-department margins (28–32%) and French supermarket data | yes |
+| Price elasticity of meat demand | -1.4 to -0.5 elasticity (-0.9) | 0.9% to 2.5% | 17.2% to 26.7% | scanner-data meta-analysis | yes |
+| How fully mainstream buyers credit cultivated meat's taste | 0.6 to 1 fraction (1) | 0.6% to 1.4% | 11.2% to 20.5% | a scenario dial | no: part of the share at equal price, which is drawn (left the bands on 2026-11-20) |
+| Cost of assembling a cut, beyond what mince pays | 0.5 to 7 $/kg (2) | 1.5% to 1.3% | 23.4% to 14.3% | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | yes |
+| Value mainstream buyers put on meat without slaughter | 0 to 1 utils (0) | 1.4% to 2.3% | 20.5% to 27.3% | a scenario dial: surveys disagree | no: part of the share at equal price, which is drawn |
+| Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg | 1.5 to 3.5 $/kg (2.5) | 1.5% to 1.4% | 23.8% to 17.7% | fitted to USDA ERS meat spreads, plus forming | yes |
+| How price sensitivity falls with income | 0 to 1 exponent (0.32) | 1.8% to 0.9% | 22.3% to 17.6% | USDA demand estimates | no: each value re-solves the demand model's calibration |
+| Whether a price above meat's hurts more than a price below helps (off by default) | 1 to 2.25 ratio (1) | 1.4% to 1.2% | 20.5% to 16.3% | an alternative model of price, not a measured value; with it, part of the price response moves from dollars to the ratio to meat's price | no: each value re-solves the demand model's calibration |
+| Share of a cut that is plant protein, not cells | 0.1 to 0.5 kg/kg (0.2) | 1.5% to 1.4% | 21.5% to 17.9% | assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`) | yes |
+| Price of everyday meat | 10 to 14 $/kg (12) | 1.7% to 1.3% | 21.8% to 19.7% | market prices | no: an observed price |
+| How much shoppers differ in liking cultivated meat | 3.3 to 3.9 utils (3.55) | 1.3% to 1.6% | 19.7% to 21.6% | fitted to the one random-parameter choice experiment, premium real meats and farmed salmon, jointly | no: the share at equal price is set given it |
+| Share of mainstream meat meals where shoppers choose a whole-food plant protein instead of meat | 0.04 to 0.14 share (0.06) | 1.4% to 1.7% | 20.2% to 21.9% | assumed, SOFT | **no** |
+| How much more the price-insensitive shoppers like cultivated meat than other shoppers, utils | -2 to 2 utils (0) | 0.7% to 2.7% | 20.0% to 21.3% | two latent-class studies, read in utils: no more hostile than other shoppers (`demand_checks.md` section 7) | no: the share at equal price is set given it |
+| Weight on the price compared with meat's | 0.5 to 1.5 utils per unit ratio (1) | 1.4% to 1.6% | 21.2% to 19.9% | judgement: how much of the price response is a ratio to meat's price rather than dollars | no: each value re-solves the demand model's calibration |
+| Share of shoppers who respond much less to price than the others | 0.08 to 0.15 of all shoppers (0.08) | 1.4% to 2.6% | 20.5% to 21.7% | latent-class studies: 15-35% in stated choices, probably 8-15% in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | no: the share at equal price is set given it |
+| How strongly those price-insensitive shoppers respond to price, times other shoppers' response | 0.1 to 0.25 x other shoppers' (0.11) | 1.6% to 0.4% | 20.5% to 20.2% | 4-10 times between groups in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | no: the share at equal price is set given it |
 
 ### All inputs
 
@@ -193,7 +199,7 @@ Value, unit, Monte Carlo range (triangular lo, mode, hi unless marked lognormal:
 |---|---|---|---|---|---|---|
 | `markup_add` | 2.5 | $/kg | 1.5, 2.5, 3.5 | judgement | **[share]** | USDA ERS fit, judgement |
 | `retail_margin` | 0.28 | of shelf price | 0.15, 0.28, 0.4 | published_partly | **[share]** | Progressive Grocer ~2011 (snippet); Cooperative Grocer 2016 (read); OFPM 2025 via Reussir (read) |
-| `p_conv` | 12 | $/kg | 10, 12, 14 | published |  | market |
+| `p_conv` | 12 | $/kg | 10, 12, 14 | published | **[share]** | market |
 | `years` | 30 | years | fixed | judgement |  | assumed |
 | `media_intensity` | 30.5 | L/kg wet | fixed | company |  | SuperMeat |
 | `media_price` | 0.5 | $/L | 0.2, 0.5, 1 | company |  | SuperMeat |
@@ -666,13 +672,13 @@ Value, unit, Monte Carlo range (triangular lo, mode, hi unless marked lognormal:
 | `elasticity_anchor_price` | 29.012 | $/kg | fixed | fitted |  | calibration |
 | `eps_own` | -0.9 | elasticity | -1.4, -0.9, -0.5 | published | **[share]** | scanner |
 | `kappa_base` | 4 | x | fixed | published |  | structural |
-| `liking_sd` | 3.55 | utils | 3.3, 3.55, 3.9 | fitted |  | fitted, liking_spread.families |
+| `liking_sd` | 3.55 | utils | 3.3, 3.55, 3.9 | fitted | **[share]** | fitted, liking_spread.families |
 | `liking_tail` | 7 | dof | 5, 7, 12 | fitted |  | fitted, liking_spread.families |
-| `equal_price_share` | 0.13 | of all choices | 0.03, 0.13, 0.49 (lognormal) | judgement | **[share]** | judgement, research_notes/liking_spread.md |
+| `equal_price_share` | 0.464 | of all choices | 0.05, 0.464, 0.8 | judgement | **[share]** | judgement, research_notes/liking_spread.md |
 | `best_equal_price_share` | 0.55 | of buyers | 0.35, 0.55, 0.7 | judgement |  | the model's rough judgement, 2026-11-19 |
 | `cult_sub_mult` | 8.5 | x | 4, 8.5, 11 | published | **[share]** | data-bracketed |
-| `loss_aversion` | 1 | ratio | 1, 1, 2.25 | untagged |  | REFERENCE-DEPENDENT price asymmetry lambda (OFF by default). |
-| `w_ratio` | 1 | utils per unit ratio | 0.5, 1, 1.5 | judgement |  | judgement |
+| `loss_aversion` | 1 | ratio | 1, 1, 2.25 | untagged | **[share]** | REFERENCE-DEPENDENT price asymmetry lambda (OFF by default). |
+| `w_ratio` | 1 | utils per unit ratio | 0.5, 1, 1.5 | judgement | **[share]** | judgement |
 | `theta_free_M` | 0 | utils | 0, 0, 1 | judgement | **[share]** | NEUTRAL DIAL |
 | `accept_x` | 1 | fraction | 0.6, 1, 1 | judgement | **[share]** | DIAL |
 | `premium_resistance` | 1 | x | 0.5, 1, 1.5 | judgement |  | assumed |
@@ -693,7 +699,7 @@ Value, unit, Monte Carlo range (triangular lo, mode, hi unless marked lognormal:
 | `w_eth` | 0.05 | fraction | 0.04, 0.05, 0.1 | published |  | Gallup |
 | `w_realtissue_M` | 2 | utils | fixed | fitted |  | calibration, SOLVED |
 | `pb_mainstream_frac` | 0.89 | fraction | 0.82, 0.89, 0.93 | company |  | GFI |
-| `wf_mainstream_target` | 0.06 | share | 0.04, 0.06, 0.14 | judgement |  | assumed, SOFT |
+| `wf_mainstream_target` | 0.06 | share | 0.04, 0.06, 0.14 | judgement | **[share]** | assumed, SOFT |
 | `w_health_M` | 1.2 | utils | fixed | fitted |  | calibration, SOLVED |
 | `w_realtissue_E` | 0 | utils | fixed | judgement |  | assumed |
 | `w_slaughter_E` | 4 | utils | fixed | judgement |  | assumed |
@@ -726,7 +732,7 @@ Value, unit, Monte Carlo range (triangular lo, mode, hi unless marked lognormal:
 | `lapse_rate` | 0.14 | 1/yr | 0.05, 0.14, 0.3 | derived |  | derived from GFI/SPINS household reach |
 | `milestone_year_breakthrough` | 10 | year | 5, 10, 20 | judgement |  | assumed |
 | `biomass_cost_nearterm` | 25.2 | $/kg | fixed | derived |  | derived |
-| `scaffold_frac` | 0.2 | kg/kg | 0.1, 0.2, 0.5 | judgement |  | assumed; products: structuring_cost.md |
+| `scaffold_frac` | 0.2 | kg/kg | 0.1, 0.2, 0.5 | judgement | **[share]** | assumed; products: structuring_cost.md |
 | `material_price` | 2 | $/kg | 1, 2, 5 | published |  | TVP, extrusion, binders: structuring_cost.md |
 | `process_cost` | 2 | $/kg | 0.5, 2, 7 | published | **[share]** | analogues: structuring_cost.md |
 | `p_conv_premium_fish` | 25 | $/kg | 20, 25, 30 | published |  | market |
@@ -850,14 +856,14 @@ The demand model has never seen cultivated meat on sale, so its response to pric
 
 | check | measured | the model | rule | result |
 |---|---|---|---|---|
-| 1. Cultivated meat at first contact and equal price: own-price elasticity (Van Loo, Caputo and Lusk 2020, simulated from the paper's fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -1.51 | inside the arms' range | passes |
-| 2. Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted; `premium_curve.py`) | 1.5% | 1.3% | within a factor of 1.3 | passes |
-| 3. A premium product getting cheaper: % more volume per % lower price (farmed salmon while it was premium) | 1 to 1.5 | 1.5 to 4.0 (the model's premium products still dearer than their meat at the low-lactate example's cost) | every product inside the range | **misses** |
+| 1. Cultivated meat at first contact and equal price: own-price elasticity (Van Loo, Caputo and Lusk 2020, simulated from the paper's fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -1.17 | inside the arms' range | passes |
+| 2. Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted; `premium_curve.py`) | 1.5% | 6.2% | within a factor of 1.3 | **misses** |
+| 3. A premium product getting cheaper: % more volume per % lower price (farmed salmon while it was premium) | 1 to 1.5 | 1.5 to 3.5 (the model's premium products still dearer than their meat at the low-lactate example's cost) | every product inside the range | **misses** |
 | 4. Plant-based meat's own-price elasticity (US retail; GFI/NielsenIQ) | -1.23 (category -2.5 to -0.6) | -1.03 | inside the category's range | passes |
 | 5a. Adding plant-based meat priced like meat to a menu: fall in meat's share, points (Hope 2026, US) | 2.1 (95% interval 0 to 4.4; 5 or more ruled out) | 0.54 | inside the interval, under the ruled-out size | passes |
 | 5b. The same menu: share of the new option's orders taken from meat | about 30% | 79% | under 50% | **misses** |
 
-Misses: 3 (farmed salmon), 5b (where the menu's new orders come from). In the model a flat logit within each group of shoppers takes a new option's sales from each product in proportion to its share, so most of plant-based meat's orders come from meat, the largest product; the menu experiment found most came from the vegetarian option. The salmon check says the model's premium products respond more strongly to price than farmed salmon did.
+Misses: 3 (farmed salmon), 5b (where the menu's new orders come from), 2. In the model a flat logit within each group of shoppers takes a new option's sales from each product in proportion to its share, so most of plant-based meat's orders come from meat, the largest product; the menu experiment found most came from the vegetarian option. The salmon check says the model's premium products respond more strongly to price than farmed salmon did.
 
 ### 4.3 The published cost studies (`study_assumptions.py`, `research_notes/study_comparison.md` section 13)
 
@@ -955,39 +961,45 @@ Ranked by how far the input, moved across its range, moves the low-lactate examp
 
 | rank | input | moves the low-lactate example's share | moves the cost | evidence now | the measurement that would settle it |
 |---:|---|---|---|---|---|
-| 1 | Share of buyers who choose cultivated meat at equal price, once familiar (`equal_price_share`) | 0.056% to 1.6% (all-favourable 1.3% to 21.9%) | no | a judgement: a third of first-contact aversion fading; the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | a repeated-purchase study (a market test or a panel) of a cultivated product sold at the price of the meat it copies, after the first purchase: the share of meat buyers who keep choosing it |
-| 2 | How much more the price-insensitive shoppers like cultivated meat than other shoppers, utils (`price_insensitive_liking`) | 0.11% to 0.58% (all-favourable 5.3% to 5.9%) | no | two latent-class studies, read in utils: no more hostile than other shoppers (`demand_checks.md` section 7) | the same analysis: the two classes' liking for cultivated meat, in utils |
-| 3 | How much more price-sensitive cultivated meat is than meat in general (`cult_sub_mult`) | 0.61% to 0.18% (all-favourable 7.1% to 5.2%) | no | bracketed by data on close substitutes | a price-variation test of cultivated meat on sale (a discount or a premium at random stores or weeks): its own price elasticity against that of the meat it copies |
-| 4 | Price elasticity of meat demand (`eps_own`) | 0.15% to 0.49% (all-favourable 5.6% to 6.6%) | no | scanner-data meta-analysis | already measured (scanner meta-analyses); a test on cultivated meat itself would replace it |
-| 5 | Litres a m² of cell filter passes before it is replaced (`rt_membrane_life`) | 0.090% to 0.40% | $86.9 to $35.9 (all-favourable $7.0 to $7.0) | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | the litres a square metre of cell filter passes before it is replaced, in a long meat-cell perfusion run |
-| 6 | How wary people are of a novel food, in the long run (`neophobia_x`) | 0.10% to 0.41% (all-favourable 2.4% to 8.0%) | no | a judgement on long-run behaviour | the share of first-time buyers who buy again, months after launch |
-| 7 | Whether people see cultivated meat as healthier or less healthy (`health_x`) | 0.15% to 0.44% (all-favourable 3.4% to 8.5%) | no | a scenario dial: no data | a choice experiment that varies health information on cultivated meat |
-| 8 | How strongly those price-insensitive shoppers respond to price, times other shoppers' response (`price_insensitive_response`) | 0.29% to 0.066% (all-favourable 5.5% to 5.4%) | no | 4-10 times between groups in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | the same latent-class analysis: the ratio of the two classes' price coefficients |
-| 9 | Ammonia the cells tolerate in the tank (`sc_nh3_limit`) | 0.085% to 0.30% | $89.0 to $43.8 (all-favourable $7.0 to $6.9) | the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | growth rate of meat cells at 2, 4, 8 and 16 mmol/L of ammonia, at production density in perfusion |
-| 10 | Share of shoppers who respond much less to price than the others (`price_insensitive_share`) | 0.26% to 0.47% (all-favourable 5.5% to 5.8%) | no | latent-class studies: 15-35% in stated choices, probably 8-15% in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | a latent-class analysis of purchase data (not stated choices) for a premium or novel meat |
-| 11 | Value mainstream buyers put on meat without slaughter (`theta_free_M`) | 0.26% to 0.46% (all-favourable 5.5% to 8.5%) | no | a scenario dial: surveys disagree | a choice experiment that states the no-slaughter attribute and measures its value to mainstream buyers |
-| 12 | How price sensitivity falls with income (`income_gradient`) | 0.34% to 0.14% (all-favourable 5.6% to 8.3%) | no | USDA demand estimates | price elasticities of meat by income group (already measured for conventional meat) |
-| 13 | Ammonia the cells of the low-lactate example make per kilo grown (`sc_nh3_selected`) | 0.30% to 0.11% | $44.5 to $80.4 (all-favourable $7.0 to $7.0) | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | ammonia made per kilo of meat cells grown, measured in perfusion at density on a glutamine-free feed |
-| 14 | How fully mainstream buyers credit cultivated meat's taste (`accept_x`) | 0.10% to 0.26% (all-favourable 2.4% to 5.5%) | no | a scenario dial | a blind sensory test of cultivated meat against the meat it copies |
-| 15 | Retailer's gross margin, as a share of the shelf price (`retail_margin`) | 0.34% to 0.19% (all-favourable 7.4% to 3.8%) | no | US meat-department margins (28–32%) and French supermarket data | retailers' gross margin on a cultivated product once it is stocked at volume |
-| 16 | Lactate the cells tolerate in the tank (`sc_lac_limit`) | 0.14% to 0.26% | $70.3 to $48.7 (all-favourable $7.0 to $7.0) | Cultivated Meat (book), Table 2, citing Hassell 1991; Pasitka 2024; Humbird 2021, judgement | growth rate of meat cells at 20, 40 and 80 mmol/L of lactate, at density |
-| 17 | Lactate the cells of the low-lactate example make per mol of glucose (`sc_lac_selected`) | 0.26% to 0.16% | $48.7 to $65.5 (all-favourable $7.0 to $7.0) | waste_tricks_sizing.md | mol of lactate made per mol of glucose by meat cells at density, in perfusion |
-| 18 | Culture whose cells bursting bubbles kill, per volume of gas passed (`ge_kill_protected`) | 0.28% to 0.19% | $45.7 to $58.9 (all-favourable $6.5 to $8.7) | Jobses, Martens, Tramper 1991, read in full | the share of meat cells killed per litre of gas sparged, with the bubble protectant, in a stirred tank |
-| 19 | Salt strength the cells tolerate (osmolality) (`pf_osm_limit`) | 0.20% to 0.26% | $57.9 to $48.7 (all-favourable $8.3 to $7.0) | CHO measurements (`perfusion_rate_osmolality.md`) | the growth of meat cells against osmolality (salt strength), at density |
-| 20 | Price of cell-filter membrane (`rt_membrane_price`) | 0.32% to 0.26% | $42.4 to $48.7 (all-favourable $7.0 to $7.0) | Humbird's ATF price; retail modules a quarter less | a volume quote for hollow-fibre membrane, per m² |
-| 21 | Yearly charge on the plant's capital (financing and recovery) (`plant_charge_mature`) | 0.29% to 0.23% | $45.6 to $52.6 (all-favourable $6.4 to $7.7) | derived from Humbird's financing, at a mature industry's rates | the financing terms (rate and years) lenders give a food-grade cell-culture plant |
-| 22 | Price of the bubble protectant (poloxamer 188), bought by the tonne (`pf_protectant_price`) | 0.28% to 0.22% | $46.7 to $54.1 (all-favourable $6.4 to $8.7) | assumed: only catalogue prices ($230–260/kg) found | a bulk (tonne) quote for food-grade poloxamer 188 |
-| 23 | Least medium flow the cells need for everything but ammonia and lactate (`pf_min_perfusion`) | 0.26% to 0.22% | $48.7 to $54.5 (all-favourable $7.0 to $7.0) | judgement within CHO measurements | the least medium flow per cell at which meat cells keep growing when ammonia and lactate are removed |
-| 24 | Dose of bubble protectant in the medium (`pf_protectant_dose`) | 0.27% to 0.23% | $47.5 to $52.2 (all-favourable $6.6 to $8.1) | dense pharma cultures (`gas_flow_cap.md`) | the least dose of protectant that keeps meat cells alive under sparging |
-| 25 | Cost of assembling a cut, beyond what mince pays (`process_cost`) | 0.27% to 0.23% (all-favourable 6.6% to 3.4%) | no | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | the cost of assembling a cut at a pilot line, per kilo |
-| 26 | Staff a plant in perfusion needs, against a fed-batch plant (`pf_labour_perfusion_x`) | 0.27% to 0.24% | $47.7 to $51.7 (all-favourable $6.7 to $7.9) | Humbird 2021; CE Delft 2021; SuperMeat 2024, derived | staff per tank in a perfusion plant against a fed-batch plant of the same output |
-| 27 | Amino acids a kilo of cells takes up (the nutrient floor) (`aa_intensity`) | 0.26% to 0.24% | $48.7 to $51.5 (all-favourable $6.7 to $10.0) | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | the amino acids taken up per kilo of meat cells grown, from a mass balance on the medium |
-| 28 | How the cost of medium preparation equipment rises with the medium passed (exponent) (`pf_medium_prep_exp`) | 0.26% to 0.24% | $48.7 to $51.1 (all-favourable $7.0 to $7.4) | assumed | quotes for medium-preparation equipment at two or more flows |
-| 29 | Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg (`markup_add`) | 0.27% to 0.25% (all-favourable 6.7% to 4.5%) | no | fitted to USDA ERS meat spreads, plus forming | the cost from harvested cells to the shelf (forming, packing, cold chain) reported by a producer selling at volume |
-| 30 | Weight of one cell (every kind of cells since 2026-11-19) (`sc_mass_selected_pg`) | 0.25% to 0.26% | $50.1 to $47.9 (all-favourable $7.0 to $7.0) | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | dry and wet mass per cell of meat cells at harvest (a cell count against a weighed, drained pellet) |
-| 31 | Rise in plant construction costs since 2018 (`pf_capex_escalation`) | 0.27% to 0.25% | $47.5 to $49.2 (all-favourable $6.8 to $7.1) | construction cost index, 2024 estimated | the construction cost index for the year the plant is priced |
-| 32 | CO₂ level at which the culture leaves the stripping column (`ge_col_pout`) | 0.24% to 0.25% | $50.5 to $49.3 (all-favourable $7.2 to $7.0) | design choice | the CO₂ level a stripping column on a cell-culture loop reaches at its design flow |
-| 33 | Price of amino acids (the nutrient floor) (`aa_bulk_price`) | 0.26% to 0.25% | $48.7 to $49.9 (all-favourable $6.6 to $8.3) | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | food-grade bulk quotes for the amino acids of a defined medium, at tonne scale |
+| 1 | Share of buyers who choose cultivated meat at equal price, once familiar (`equal_price_share`) | 0.093% to 4.3% (all-favourable 2.2% to 42.9%) | no | a judgement: an even split for meat buyers, the neutral start where no good data exist (since 2026-11-24; 13% of all choices before); the literature review puts the 10th, 50th and 90th percentiles at 2%, 10% and 35% (`what_drives_choice.md`) | a repeated-purchase study (a market test or a panel) of a cultivated product sold at the price of the meat it copies, after the first purchase: the share of meat buyers who keep choosing it |
+| 2 | How much more price-sensitive cultivated meat is than meat in general (`cult_sub_mult`) | 3.0% to 1.0% (all-favourable 28.8% to 18.0%) | no | bracketed by data on close substitutes | a price-variation test of cultivated meat on sale (a discount or a premium at random stores or weeks): its own price elasticity against that of the meat it copies |
+| 3 | How much more the price-insensitive shoppers like cultivated meat than other shoppers, utils (`price_insensitive_liking`) | 0.69% to 2.7% (all-favourable 20.0% to 21.3%) | no | two latent-class studies, read in utils: no more hostile than other shoppers (`demand_checks.md` section 7) | the same analysis: the two classes' liking for cultivated meat, in utils |
+| 4 | Price elasticity of meat demand (`eps_own`) | 0.90% to 2.5% (all-favourable 17.2% to 26.7%) | no | scanner-data meta-analysis | already measured (scanner meta-analyses); a test on cultivated meat itself would replace it |
+| 5 | Litres a m² of cell filter passes before it is replaced (`rt_membrane_life`) | 0.55% to 2.1% | $86.9 to $35.9 (all-favourable $7.0 to $7.0) | derived from pharma runs (fouled in 4.5 days to lasted 30); no meat-cell run; probably the generous end (median about 1,500), and read with the membrane price | the litres a square metre of cell filter passes before it is replaced, in a long meat-cell perfusion run |
+| 6 | How wary people are of a novel food, in the long run (`neophobia_x`) | 0.63% to 2.1% (all-favourable 11.2% to 26.4%) | no | a judgement on long-run behaviour | the share of first-time buyers who buy again, months after launch |
+| 7 | Whether people see cultivated meat as healthier or less healthy (`health_x`) | 0.90% to 2.2% (all-favourable 14.7% to 27.3%) | no | a scenario dial: no data | a choice experiment that varies health information on cultivated meat |
+| 8 | Share of shoppers who respond much less to price than the others (`price_insensitive_share`) | 1.4% to 2.6% (all-favourable 20.5% to 21.7%) | no | latent-class studies: 15-35% in stated choices, probably 8-15% in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | a latent-class analysis of purchase data (not stated choices) for a premium or novel meat |
+| 9 | How strongly those price-insensitive shoppers respond to price, times other shoppers' response (`price_insensitive_response`) | 1.6% to 0.39% (all-favourable 20.5% to 20.2%) | no | 4-10 times between groups in purchases; fitted within that to the demand checks (`demand_checks.md` section 7) | the same latent-class analysis: the ratio of the two classes' price coefficients |
+| 10 | Ammonia the cells tolerate in the tank (`sc_nh3_limit`) | 0.52% to 1.6% | $89.0 to $43.8 (all-favourable $7.0 to $6.9) | the evidence note's median, 3.5–4 mmol/L (80% interval 2–8): meat-relevant cells measured lose 10–55% of growth at 2.5–5, meat-cell processes hold 2–3, none measured at density | growth rate of meat cells at 2, 4, 8 and 16 mmol/L of ammonia, at production density in perfusion |
+| 11 | Ammonia the cells of the low-lactate example make per kilo grown (`sc_nh3_selected`) | 1.6% to 0.64% | $44.5 to $80.4 (all-favourable $7.0 to $7.0) | measured once, in bovine cells with glutamine replaced (Hubalek 2023): 'more than 5-fold' below the 0.70 with glutamine | ammonia made per kilo of meat cells grown, measured in perfusion at density on a glutamine-free feed |
+| 12 | How price sensitivity falls with income (`income_gradient`) | 1.8% to 0.87% (all-favourable 22.3% to 17.6%) | no | USDA demand estimates | price elasticities of meat by income group (already measured for conventional meat) |
+| 13 | Value mainstream buyers put on meat without slaughter (`theta_free_M`) | 1.4% to 2.3% (all-favourable 20.5% to 27.3%) | no | a scenario dial: surveys disagree | a choice experiment that states the no-slaughter attribute and measures its value to mainstream buyers |
+| 14 | How fully mainstream buyers credit cultivated meat's taste (`accept_x`) | 0.63% to 1.4% (all-favourable 11.2% to 20.5%) | no | a scenario dial | a blind sensory test of cultivated meat against the meat it copies |
+| 15 | Retailer's gross margin, as a share of the shelf price (`retail_margin`) | 1.8% to 1.1% (all-favourable 25.8% to 15.2%) | no | US meat-department margins (28–32%) and French supermarket data | retailers' gross margin on a cultivated product once it is stocked at volume |
+| 16 | Lactate the cells tolerate in the tank (`sc_lac_limit`) | 0.83% to 1.4% | $70.3 to $48.7 (all-favourable $7.0 to $7.0) | Cultivated Meat (book), Table 2, citing Hassell 1991; Pasitka 2024; Humbird 2021, judgement | growth rate of meat cells at 20, 40 and 80 mmol/L of lactate, at density |
+| 17 | Lactate the cells of the low-lactate example make per mol of glucose (`sc_lac_selected`) | 1.4% to 0.93% | $48.7 to $65.5 (all-favourable $7.0 to $7.0) | waste_tricks_sizing.md | mol of lactate made per mol of glucose by meat cells at density, in perfusion |
+| 18 | Culture whose cells bursting bubbles kill, per volume of gas passed (`ge_kill_protected`) | 1.5% to 1.1% | $45.7 to $58.9 (all-favourable $6.5 to $8.7) | Jobses, Martens, Tramper 1991, read in full | the share of meat cells killed per litre of gas sparged, with the bubble protectant, in a stirred tank |
+| 19 | Price of everyday meat (`p_conv`) | 1.7% to 1.3% (all-favourable 21.8% to 19.7%) | no | market prices | observed; not open |
+| 20 | Salt strength the cells tolerate (osmolality) (`pf_osm_limit`) | 1.1% to 1.4% | $57.9 to $48.7 (all-favourable $8.3 to $7.0) | CHO measurements (`perfusion_rate_osmolality.md`) | the growth of meat cells against osmolality (salt strength), at density |
+| 21 | Share of mainstream meat meals where shoppers choose a whole-food plant protein instead of meat (`wf_mainstream_target`) | 1.4% to 1.7% (all-favourable 20.2% to 21.9%) | no | assumed, SOFT | no measurement named yet: add one to SETTLE in agents_edition.py |
+| 22 | Price of cell-filter membrane (`rt_membrane_price`) | 1.7% to 1.4% | $42.4 to $48.7 (all-favourable $7.0 to $7.0) | Humbird's ATF price; retail modules a quarter less | a volume quote for hollow-fibre membrane, per m² |
+| 23 | Yearly charge on the plant's capital (financing and recovery) (`plant_charge_mature`) | 1.6% to 1.3% | $45.6 to $52.6 (all-favourable $6.4 to $7.7) | derived from Humbird's financing, at a mature industry's rates | the financing terms (rate and years) lenders give a food-grade cell-culture plant |
+| 24 | Price of the bubble protectant (poloxamer 188), bought by the tonne (`pf_protectant_price`) | 1.5% to 1.2% | $46.7 to $54.1 (all-favourable $6.4 to $8.7) | assumed: only catalogue prices ($230–260/kg) found | a bulk (tonne) quote for food-grade poloxamer 188 |
+| 25 | How much shoppers differ in liking cultivated meat (`liking_sd`) | 1.3% to 1.6% (all-favourable 19.7% to 21.6%) | no | fitted to the one random-parameter choice experiment, premium real meats and farmed salmon, jointly | a random-parameter choice experiment on cultivated meat with real purchases, which estimates the spread of willingness to pay across shoppers |
+| 26 | Whether a price above meat's hurts more than a price below helps (off by default) (`loss_aversion`) | 1.4% to 1.2% (all-favourable 20.5% to 16.3%) | no | an alternative model of price, not a measured value; with it, part of the price response moves from dollars to the ratio to meat's price | a test of whether shoppers respond more to a price above meat's than to one below it |
+| 27 | Weight on the price compared with meat's (`w_ratio`) | 1.4% to 1.6% (all-favourable 21.2% to 19.9%) | no | judgement: how much of the price response is a ratio to meat's price rather than dollars | a choice experiment that varies the absolute price and the price relative to meat separately |
+| 28 | Least medium flow the cells need for everything but ammonia and lactate (`pf_min_perfusion`) | 1.4% to 1.2% | $48.7 to $54.5 (all-favourable $7.0 to $7.0) | judgement within CHO measurements | the least medium flow per cell at which meat cells keep growing when ammonia and lactate are removed |
+| 29 | Dose of bubble protectant in the medium (`pf_protectant_dose`) | 1.5% to 1.3% | $47.5 to $52.2 (all-favourable $6.6 to $8.1) | dense pharma cultures (`gas_flow_cap.md`) | the least dose of protectant that keeps meat cells alive under sparging |
+| 30 | Cost of assembling a cut, beyond what mince pays (`process_cost`) | 1.5% to 1.3% (all-favourable 23.4% to 14.3%) | no | analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`) | the cost of assembling a cut at a pilot line, per kilo |
+| 31 | Staff a plant in perfusion needs, against a fed-batch plant (`pf_labour_perfusion_x`) | 1.5% to 1.3% | $47.7 to $51.7 (all-favourable $6.7 to $7.9) | Humbird 2021; CE Delft 2021; SuperMeat 2024, derived | staff per tank in a perfusion plant against a fed-batch plant of the same output |
+| 32 | Amino acids a kilo of cells takes up (the nutrient floor) (`aa_intensity`) | 1.4% to 1.3% | $48.7 to $51.5 (all-favourable $6.7 to $10.0) | GFI's eight estimates, 200–650 g; the model takes the most efficient (`nutrient_floor.md`) | the amino acids taken up per kilo of meat cells grown, from a mass balance on the medium |
+| 33 | How the cost of medium preparation equipment rises with the medium passed (exponent) (`pf_medium_prep_exp`) | 1.4% to 1.3% | $48.7 to $51.1 (all-favourable $7.0 to $7.4) | assumed | quotes for medium-preparation equipment at two or more flows |
+| 34 | Share of a cut that is plant protein, not cells (`scaffold_frac`) | 1.5% to 1.4% (all-favourable 21.5% to 17.9%) | no | assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`) | the cell share of cuts that reach the texture of meat in a blind sensory test |
+| 35 | Per-kg costs from cells to the shop shelf (forming, packing, cold chain), $ per kg (`markup_add`) | 1.5% to 1.4% (all-favourable 23.8% to 17.7%) | no | fitted to USDA ERS meat spreads, plus forming | the cost from harvested cells to the shelf (forming, packing, cold chain) reported by a producer selling at volume |
+| 36 | Weight of one cell (every kind of cells since 2026-11-19) (`sc_mass_selected_pg`) | 1.4% to 1.5% | $50.1 to $47.9 (all-favourable $7.0 to $7.0) | judgement between the 1.0–1.75 ng reported for chicken cells and Humbird's 3 ng | dry and wet mass per cell of meat cells at harvest (a cell count against a weighed, drained pellet) |
+| 37 | Rise in plant construction costs since 2018 (`pf_capex_escalation`) | 1.5% to 1.4% | $47.5 to $49.2 (all-favourable $6.8 to $7.1) | construction cost index, 2024 estimated | the construction cost index for the year the plant is priced |
+| 38 | CO₂ level at which the culture leaves the stripping column (`ge_col_pout`) | 1.4% to 1.4% | $50.5 to $49.3 (all-favourable $7.2 to $7.0) | design choice | the CO₂ level a stripping column on a cell-culture loop reaches at its design flow |
+| 39 | Price of amino acids (the nutrient floor) (`aa_bulk_price`) | 1.4% to 1.4% | $48.7 to $49.9 (all-favourable $6.6 to $8.3) | GFI's feed-grade mean of 22, to low food-grade (`nutrient_floor.md`) | food-grade bulk quotes for the amino acids of a defined medium, at tonne scale |
 
 ## 7. How to extend
 
@@ -1064,7 +1076,7 @@ Run from the repository root. The scripts import each other by module name, so t
 2. Add what it assumes on each lever of the all-favourable example to `STUDY_LEVERS`. A value that breaks a limit of the model (`LIMITS`) goes into `REJECTED` with the limit and its source, and is never a source for `scenarios.all_favourable()`.
 3. Add its most favourable estimate to `ESTIMATES` (basis, year of its dollars) so `estimates()` brings it to a kilo of wet cells in 2025 dollars.
 4. Express its design in the page's levers as modifications over Humbird's best estimate (`_mods()`: traits, held, plant, vm, device); an assumption the levers cannot say carries `not_representable` and the reason.
-5. Add a `SETS` entry with `audit`: one row per assumption, (assumption, the setting it moves or None, what the study says and where, one of the reasons in `AUDIT_WHY`, what the set uses when it is not the study's value). The reasons: the study's value; the study's more favourable scenario or sensitivity, not its base case; the study's value is what one lab run or today's ingredients gave; the set uses the long-term target; the study's value is beyond a limit of this model; the set uses the nearest possible value; the study does not give it; Humbird's best estimate is kept; the page has no lever for it; the set leaves it out; this model works it out from the cells and the tank, whatever the study states.
+5. Add a `SETS` entry with `audit`: one row per assumption, (assumption, the setting it moves or None, what the study says and where, one of the reasons in `AUDIT_WHY`, what the set uses when it is not the study's value). The reasons: the study's value; the study's more favourable scenario or sensitivity, not its base case; the study's value is what one lab run or today's ingredients gave; the set uses the long-term target; the study's value is beyond a limit of this model; the set uses the nearest possible value; the study does not give it; Humbird's best estimate is kept; the study does not give it, and Humbird's design has no equivalent the set can keep; this model's default is used; the page has no lever for it; the set leaves it out; this model works it out from the cells and the tank, whatever the study states.
 6. If it publishes a plant and running split, add it to `SPLITS`.
 7. Regenerate section 13 of `research_notes/study_comparison.md` from `study_assumptions.markdown()`, rebuild the page, run `./run_tests.sh` (`tests/test_study_assumptions.py` checks that every lever a set moves has an audit row and that the page gives the same cost), then `python agents_edition.py`.
 

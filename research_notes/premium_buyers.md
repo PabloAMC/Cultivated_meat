@@ -73,7 +73,7 @@ So the size has to come from who buys labels (section 4).
 | +25% | 0.02%; 99%; 17%, 70% | 12.65%; 14%; 4%, 83% |
 | +50% | 0.03%; 99%; 16%, 70% | 12.99%; 17%; 5%, 83% |
 | +100% | 0.06%; 100%; 15%, 70% | 13.80%; 22%; 6%, 82% |
-| the main model | 0.26% | 5.48% |
+| the main model | 1.43% | 20.52% |
 | +5%, no label on the shelf | 0.02% | 12.85% |
 
 "Sold to premium buyers" is the share of cultivated meat's sales that go to the premium class. "Taken from" is where those sales come

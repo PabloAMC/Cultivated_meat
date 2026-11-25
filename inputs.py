@@ -1865,24 +1865,23 @@ REGISTRY: dict[str, Input] = {
              "chose 4 over 3 on 2026-11-19, point the same way: a lighter tail gives a first-contact share nearer the measured "
              "(3.8% of all choices at 7, measured 4%), fewer buyers at ten or more times meat's price, and a higher best case. "
              "Used only when LIKING_FAMILY is 'student' (for 'mixture' it is the minority's spread as a multiple of the others')."),
-    "equal_price_share": Input(0.13, "of all choices", "[judgement, research_notes/liking_spread.md] once cultivated meat is "
+    "equal_price_share": Input(0.464, "of all choices", "[judgement, research_notes/liking_spread.md] once cultivated meat is "
         "familiar and costs the same as conventional meat, the share of all shoppers' choices (meat, cultivated meat, plant-based "
         "meat or no meat) that go to it, at neutral settings (tastes as good, seen as real meat, no health or slaughter-free "
-        "credit); 14.5% of those who buy a meat. It is first contact plus the model's own fading of novelty (2.8 utils). With the "
-        "Student's t spread and the price-insensitive shoppers (2026-11-22), 13% in the long run implies 3.8% of all choices at "
+        "credit). The default is 46.4%, which is 50% of those who buy a meat: no data says which side of an even split cultivated "
+        "meat would land on, so the model starts neutral. Since 2026-11-24 this is the starting value. Until then it was 13% "
+        "(14.5% of those who buy a meat), which is first contact plus the model's own fading of novelty (2.8 utils). With the "
+        "Student's t spread and the price-insensitive shoppers (2026-11-22), 13% in the long run implied 3.8% of all choices at "
         "first contact, 4.3% of those who buy a meat: the "
         "experiment (Van Loo, Caputo & Lusk 2020) measured 4% and 5%.",
-        lo=0.03, hi=0.49, mode=0.13, kind="lognormal", clip=(0.005, 0.80),
-        note="THE MODEL'S LARGEST UNKNOWN. Drawn in the bands from a lognormal whose median is the model's own 13%, so half the "
-             "draws are below the point value and half above. 0.03 and 0.49 are its 5th and 95th percentiles in the sense that "
-             "they set its spread (sigma = ln(0.49/0.03) / 3.29 = 0.85); because 13% is a little above their geometric mean (12%), "
-             "the percentiles of the draws themselves are 3.2% and 53% (10th and 90th: 4.4% and 39%). Draws are clipped to "
-             "0.5%-80%. 0.49: shoppers end up indifferent on average, the "
-             "model's implicit premise before 2026-11-18. The literature review (research_notes/what_drives_choice.md) puts the "
-             "10th, 50th and 90th percentiles at 2%, 10% and 35%. CHANGED 2026-11-19 (audit D1) from a triangular 0.05-0.13-0.49, "
-             "whose median was 21%, well above the point value it was meant to surround. KEPT AT 13% when the spread became a Student's t "
-             "(2026-11-19): holding first contact at 5% of ALL choices would give 15%, but 5% is the experiment's share of meat "
-             "buyers; its share of all choices is 4%, and 13% reproduces both."),
+        lo=0.05, hi=0.80, mode=0.464, kind="triangular",
+        note="THE MODEL'S LARGEST UNKNOWN. CHANGED 2026-11-24 (the owner) from 13% (14.5% of buyers) to 46.4% (50% of buyers), because "
+             "no good data exists for the long run and an even split is the neutral start. The draws in the bands were a lognormal "
+             "with median 13% and a 5th-95th range of 3%-49%; a lognormal around 46.4% would pile up at the 80% clip, so the draws are "
+             "now triangular from 5% (5.6% of buyers) through 46.4% to 80% (83% of buyers). The low end keeps the measured first-contact "
+             "shares (4-5%) and the 11% of Slade 2018 inside the band. The literature review (research_notes/what_drives_choice.md) "
+             "puts the 10th, 50th and 90th percentiles at 2%, 10% and 35%: it is the evidence for the earlier, lower default. "
+             "0.80 is the largest value the shopper model solves for. Before 2026-11-19 the draws were a triangular 0.05-0.13-0.49."),
     "best_equal_price_share": Input(0.55, "of buyers", "[the model's rough judgement, 2026-11-19] the same share in the all-favourable example: once "
         "familiar and at equal price, shoppers slightly favour cultivated meat. The all-favourable example takes the favourable end of every "
         "uncertain input, and demand is one of them. Its competitor is factory-farmed meat, whose own image (slaughter, "

@@ -1047,8 +1047,9 @@ def _used(lever: str, settings: dict, r: dict) -> str:
     return {"tank_m3": f"{v:g} m³", "x_cap": f"no more than {v:g} g of cells a litre", "fin_rate": f"{v:g}% interest",
             "fin_life": f"{v:g} years", "medium_price": f"${v:.2f} a litre in 2025 dollars, growth factors in it",
             "gf_buy": "none" if v == 0 else f"{v:g}% of Humbird's", "harvest_loss": f"{v:g}%",
-            "capex_x": f"{v:.2f} times this model's plant: ${r.get('capex', 0):,.0f}k per m³ of tank" if r.get("capex") else f"{v:.2f} times this model's plant",
-            "mem_price": f"${v:,.0f} a m²", "labourx": f"{v:.2f} times this model's labour"}[k]
+            "capex_x": f"${r.get('capex', 0):,.0f}k per m³ of tank" if r.get("capex") else f"{v:.2f} times this model's plant",
+            "mem_price": f"${v:,.0f} a m²",
+            "labourx": f"${v * value('pf_labour') * value('pf_opex_escalation'):.2f} a kilo of labour, as Humbird's fed-batch plant would pay"}[k]
 
 
 def audit_rows(e: dict) -> list:

@@ -46,11 +46,24 @@ def _prior_lo_hi(name):
     return lo, hi
 
 
-def _lognormal_5_95(name):
-    """5th and 95th percentile of a lognormal input's draws before clipping: median x (lo/hi)^0.5 and median x (hi/lo)^0.5
-    (inputs.sample: lo and hi set the spread; they are the percentiles themselves only when the median is their geometric mean)."""
+def _prior_quantile(name, q):
+    """The q-th quantile of an input's draws before clipping, for the prior kinds inputs.sample uses: a lognormal (median the mode,
+    lo and hi setting its spread as 5th and 95th percentiles around a geometric mean) or a triangle (lo, mode, hi)."""
+    import math
     inp = REGISTRY[name]
-    return inp.prior_mode * (inp.lo / inp.hi) ** 0.5, inp.prior_mode * (inp.hi / inp.lo) ** 0.5
+    lo, hi, mode = inp.lo, inp.hi, inp.prior_mode
+    if inp.kind == "lognormal":
+        z = {0.05: -1.0, 0.5: 0.0, 0.95: 1.0}[q]                       # lo and hi set the spread: +/- 1.645 sigma
+        return mode * (hi / lo) ** (0.5 * z)
+    if inp.kind == "triangular":
+        f = (mode - lo) / (hi - lo)
+        return lo + math.sqrt(q * (hi - lo) * (mode - lo)) if q < f else hi - math.sqrt((1 - q) * (hi - lo) * (hi - mode))
+    raise ValueError(f"{name}: prior kind {inp.kind!r} not handled")
+
+
+def _prior_5_95(name):
+    """5th and 95th percentile of an input's draws (since 2026-11-24 the share at equal price is a triangle, not a lognormal)."""
+    return _prior_quantile(name, 0.05), _prior_quantile(name, 0.95)
 
 
 def _prior_lo_mode_hi(name):
@@ -556,12 +569,13 @@ def build_model() -> dict:
                value("equal_price_share"), "judgement", fmt="pct",
                tip="If cultivated meat cost the same as the meat beside it, tasted the same and was no longer new, this is the "
                "share of that meat's buyers who would choose it. At first contact a US choice experiment found about 5%. The "
-               "default 13% assumes a third of that first wariness fades: novelty fades by half, while the sense that it is "
-               "unnatural stays. 49% would mean shoppers end up indifferent on average. The all-favourable example takes "
+               "default, an even split (46% of all choices, 50% of meat buyers, since 2026-11-24), is a neutral start: no good data "
+               "say which side of it cultivated meat would land on, and the evidence reviewed points lower (a median near 10%). "
+               "Until 2026-11-24 it was 13%. The all-favourable example takes "
                f"{value('best_equal_price_share'):.0%}: shoppers slightly favour it. Nobody has measured it, and it moves "
-               "the long-run share more than any cost does. The Monte Carlo draws it with a median of "
-               f"{value('equal_price_share'):.0%}, and nine draws in ten fall between about "
-               f"{_lognormal_5_95('equal_price_share')[0]:.0%} and {_lognormal_5_95('equal_price_share')[1]:.0%}."),
+               "the long-run share more than any cost does. The Monte Carlo draws it from a triangle peaking at "
+               f"{value('equal_price_share'):.0%} (median {_prior_quantile('equal_price_share', 0.5):.0%}), and nine draws in ten fall between about "
+               f"{_prior_5_95('equal_price_share')[0]:.0%} and {_prior_5_95('equal_price_share')[1]:.0%}."),
         slider("liking_sd", "Spread of liking between shoppers", "points of score", 0.0, 8.0, 0.1, value("liking_sd"),
                "Van Loo 2020",
                tip="How much shoppers differ in how much they like cultivated meat. With a wide spread, the shoppers still "
@@ -939,19 +953,19 @@ PAGE_PARAMS = (
      "Lactate and the bicarbonate that holds the pH against CO₂ both add salt. Above this salt strength growth stops, so it limits how much lactate and CO₂ the culture can hold together. Higher is better."),
     ("pco2", "cells", "Dissolved CO₂ the cells tolerate", "mbar", "kw", "pco2", "pco2", 1.0, 40.0, 300.0, 5.0, 0, (), "pf_pco2_limit",
      "Cells breathe out CO₂, and only the gas bubbled through the tank carries it away. The more CO₂ the cells tolerate, the denser the culture can be. Higher is better."),
-    ("o2x", "cells", "Oxygen the cells use, against the model's estimate", "×", "fxx", "power_coef", None, 1.0, 0.5, 2.0, 0.05, 2, (), "pf_power_coef",
-     "How much oxygen a cell of a given weight consumes. The model takes it from a general law for cells (West); a tank can supply only so much oxygen, so cells that use less can be grown denser. Lower is better."),
+    ("o2x", "cells", "Oxygen a cell uses (a 2 ng cell doubling every 24 hours)", "pmol an hour", "fxx", "power_coef", None, 1.0, 0.5, 2.0, 0.05, 2, (), "pf_power_coef",
+     "How much oxygen a cell consumes, shown for a 2 ng cell doubling every 24 hours, the unit cell-culture papers report. The model takes it from a general law for cells (West): heavier cells use more, as their weight to the power 0.75, and slower ones less. A tank can supply only so much oxygen, so cells that use less can be grown denser. Lower is better."),
     ("maint", "cells", "Share of a cell's oxygen spent on upkeep, not growth", "%", "kw", "maint", "maint_share", 100.0, 30.0, 100.0, 1.0, 0, ("maint",), "pf_maintenance_share",
      "At a 24-hour doubling time. The larger the share spent on upkeep, the more oxygen and sugar a slow-growing cell burns per kilo made."),
     ("gas_v", "cells", "Gas flow the cells tolerate", "mm a second", "kw", "gas_v", "gas_v", 1000.0, 1.0, 10.0, 0.5, 1, (), "pf_gas_velocity",
      "The speed of the gas rising through the tank. Bursting bubbles and foam kill cells, so the cells cap the gas flow, and with it the oxygen supplied and the CO₂ removed. Higher is better."),
-    ("killx", "cells", "Bubble deaths, against the model's estimate", "×", "fxx", "kill", None, 1.0, 0.0, 8.0, 0.25, 2, ("kill",), "ge_kill_protected",
-     "Bubbles that burst at the surface kill some of the cells near them, and dead cells are not harvested. The model's estimate is a bench measurement with protectant in the medium; 0 means no cells are killed. The deaths follow the gas the culture needs: a tank at its oxygen or CO₂ limit bubbles the most gas the cells tolerate, a thin culture less. Lower is better."),
+    ("killx", "cells", "Cells bursting bubbles kill, per volume of gas passed", "litres of culture a m³ of gas", "fxx", "kill", None, 1.0, 0.0, 8.0, 0.25, 2, ("kill",), "ge_kill_protected",
+     "Bubbles that burst at the surface kill the cells in a small volume of culture around them, and dead cells are not harvested. The setting is that volume for each m³ of gas bubbled through; beside it, the share of the cells grown that it kills in the case shown. The model's estimate is a bench measurement with protectant in the medium; 0 means no cells are killed. The deaths follow the gas the culture needs: a tank at its oxygen or CO₂ limit bubbles the most gas the cells tolerate, a thin culture less. Lower is better."),
     ("kla_exp", "cells", "Thick cultures take up oxygen more slowly", "exponent", "kw", "kla_exp", "kla_exp", 1.0, 0.0, 0.6, 0.05, 2, ("_kla",), "tc_kla_exp",
      "A thick culture is more viscous, and bubbles in it pass oxygen to the liquid more slowly: the transfer falls as the viscosity, raised to this power. The tank's oxygen limit then falls more than in proportion as the culture thickens. 0 means no effect, as in Humbird's design. Lower is better."),
     ("min_perfusion", "cells", "Least medium flow the cells need", "mL a gram of cells a day", "kw", "min_perfusion", "min_perfusion", 1.0, 0.0, 20.0, 0.5, 1, ("min_perfusion",), "pf_min_perfusion",
      "Even with ammonia and lactate dealt with, cells need some fresh medium for the other by-products and the nutrients that run out. The model's figure is a rule from pharma perfusion; Humbird's design counts none, which is 0 here. Lower is better."),
-    ("tank_m3", "reactor", "Size of a stirred tank", "m³", "kw", "vessel_m3", "wv", 1.0, 2.0, 250.0, 1.0, 0, (), "vm_str_m3",
+    ("tank_m3", "reactor", "Size of the tank (any size; the menu under the vessel offers four)", "m³", "kw", "vessel_m3", "wv", 1.0, 2.0, 250.0, 1.0, 0, (), "vm_str_m3",
      "The volume of one stirred tank, in any way of running it. A larger tank costs less per litre to build, and with the cost mostly plant (fed-batch) that matters; in perfusion most of the cost follows the litres of medium, so size matters little. The model counts the larger batch lost when a big tank is contaminated, but gives every size the same chance of losing a run; at least one industry report says large tanks are riskier, so the saving at large sizes is probably overstated. Other vessels keep their own size."),
     ("x_cap", "reactor", "Densest culture allowed", "g of cells a litre", "kw", "x_visc", "x_visc", 1.0, 20.0, 450.0, 1.0, 0, (), "pf_x_visc",
      "A ceiling on how dense the culture may get, in grams of wet cells a litre. The model works the density out from oxygen, CO₂ and waste, and stops at the thickest culture that still flows: a quarter of the volume as cells, 258 g/L (Humbird). Set this lower to hold the tank at the densities companies report. Setting it higher changes nothing unless oxygen, CO₂ and waste allow more."),
@@ -975,18 +989,18 @@ PAGE_PARAMS = (
      "One sparger, as in Humbird's design, bubbles the gas that carries oxygen in and CO₂ out. With two, a fine-bubble sparger for oxygen sits beside the drilled pipe: fine bubbles pass about four times as much oxygen per litre of gas, but kill about ten times as many cells, so the model sends through it only the share of the gas that costs least. It helps only where oxygen sets the density, and adds a second gas line to each tank."),
     ("col_loop", "reactor", "CO₂ column on the filter loop", "0 = its own pump, 1 = on the loop", "kw", "col_on_loop", "col_on_loop", 1.0, 0.0, 1.0, 1.0, 0, (), "ge_col_on_loop",
      "In perfusion the culture already circulates through the cell filter's loop. A CO₂-stripping column (part of the added equipment for oxygen and CO₂) can sit on that loop and share its pump and pipes, so it needs no pump of its own. The pumping power is still paid. It matters only with a column and a filter loop, and saves little."),
-    ("labourx", "reactor", "Labour, against the model's estimate", "×", "fxx", "labour_x", None, 1.0, 0.25, 4.0, 0.05, 2, (), "pf_labour_perfusion_x",
-     f"The staff a plant needs, paid by the year and shared over what the tanks make. The model takes the staff per m³ of tank from Humbird's fed-batch plant, and {value('pf_labour_perfusion_x'):g} times that for a 20 m³ tank in perfusion, which is what analyses that assume perfusion count. As Humbird counts them, much of the hours go to each tank whatever its size, so small tanks need more staff per m³ and large ones fewer."),
+    ("labourx", "reactor", "Labour, as it would cost in Humbird's fed-batch plant", "$ a kilo", "fxx", "labour_x", None, 1.0, 0.25, 4.0, 0.05, 2, (), "pf_labour_perfusion_x",
+     f"The staff a plant needs, paid by the year and shared over what the tanks make. The setting is what that crew costs a kilo in Humbird's fed-batch plant (his Table 4.6, in today's dollars); every case scales from it by its own tanks and output. The model takes the staff per m³ of tank from Humbird's fed-batch plant, and {value('pf_labour_perfusion_x'):g} times that for a 20 m³ tank in perfusion, which is what analyses that assume perfusion count. As Humbird counts them, much of the hours go to each tank whatever its size, so small tanks need more staff per m³ and large ones fewer."),
     ("harvest_loss", "reactor", "Cells lost at harvest", "%", "fx", "harvest_loss", None, 100.0, 0.0, 10.0, 0.5, 1, (), "pf_harvest_recovery",
      "The share of the cells grown that is lost when they are separated from the medium and washed. Lower is better."),
-    ("energyx", "reactor", "Energy and gas, against the model's estimate", "×", "fxx", "utilities", None, 1.0, 0.25, 3.0, 0.05, 2, (), "pf_utilities",
-     "Power, cooling, water and gases, from Humbird's design."),
+    ("energyx", "reactor", "Energy and gas, as they cost in Humbird's fed-batch plant", "$ a kilo", "fxx", "utilities", None, 1.0, 0.25, 3.0, 0.05, 2, (), "pf_utilities",
+     "Power, cooling, water and gases, from Humbird's design. The setting is what they cost a kilo in his fed-batch plant (Table 4.6, in today's dollars); every case scales from it by its own building, runs, medium and oxygen burned."),
     ("aa_price", "medium", "Price of amino acids", "$ a kilo", "fx", "aa", None, 1.0 / value("aa_intensity"), 2.0, 110.0, 0.25, 2, ("_aa",), "aa_bulk_price",
      f"Cells are built from amino acids: about {value('aa_intensity') * 1000:.0f} g for each kilo of cells. This is the largest part of what the cells must eat. Feed-grade amino acids cost $5 to $12 a kilo; bought one by one at the purity pharma uses, as in Humbird's first design, about ten times more."),
     ("glucose_price", "medium", "Price of glucose", "$ a kilo", "fx", "glucose", None, 1.0 / value("glucose_intensity"), 0.2, 1.5, 0.05, 2, (), "glucose_price",
      "The sugar the cells burn and ferment."),
-    ("gfx", "medium", "Price of growth factors, against Humbird's large-scale estimate", "×", "fxx", "gf", None, 1.0, 0.0, 3.0, 0.05, 2, (), "pf_growth_factors",
-     "Growth factors are the signalling proteins (insulin, transferrin, FGF, TGF-β) that tell cells to grow. Humbird's estimate assumes they are made at the scale of a large industry. It counts only when growth factors are bought on top of the medium or the medium is at its nutrient floor."),
+    ("gfx", "medium", "Growth factors, at the doses of Humbird's design", "$ a kilo of cells", "fxx", "gf", None, 1.0, 0.0, 3.0, 0.05, 2, (), "pf_growth_factors",
+     f"Growth factors are the signalling proteins (insulin, transferrin, FGF, TGF-β) that tell cells to grow. The setting is what they cost for each kilo of cells grown, at his doses; his estimate, ${value('pf_growth_factors') * value('pf_opex_escalation'):.2f} a kilo in today's dollars, assumes they are made at the scale of a large industry. It counts only when growth factors are bought on top of the medium or the medium is at its nutrient floor."),
     ("protect_dose", "medium", "Bubble protectant in the medium (poloxamer)", "grams a litre", "fx", "protect_dose", None, 1.0, 0.0, 5.0, 0.25, 2, ("_dose",), "pf_protectant_dose",
      "A surfactant that keeps cells from sticking to bubbles and dying when they burst. It leaves with every litre of medium."),
     ("protect_price", "medium", "Price of the bubble protectant", "$ a kilo", "kw", "protectant_price", "protect_price", 1.0, 5.0, 150.0, 5.0, 0, ("protectant_price",), "pf_protectant_price",
@@ -1028,9 +1042,21 @@ def _finance() -> dict:
     return {"rate": rate, "life": life, "upkeep": upkeep}
 
 
+# The multipliers shown in their own units (the author, 2026-11-25: "just the units for all sliders, not x1 or x0.35"): the page keeps
+# a multiplier on the datasheet constant inside (the study presets, the uncertainty list and the tests use it), and shows it, sets
+# it and labels its references as multiplier x `disp`, the model's own value in the slider's unit.
+def page_disp() -> dict:
+    o2_2ng = value("pf_power_coef") * 2000.0 ** 0.75 * 3600.0 / (value("pf_heat_per_o2") * 1e3)      # pmol O2 a 2 ng cell an hour
+    return {"o2x": (o2_2ng, 2), "killx": (value("ge_kill_protected") * 1000.0, 2),
+            "labourx": (value("pf_labour") * value("pf_opex_escalation"), 2),
+            "energyx": (value("pf_utilities") * value("pf_opex_escalation"), 2),
+            "gfx": (value("pf_growth_factors") * value("pf_opex_escalation"), 2)}
+
+
 def page_params() -> list:
     """PAGE_PARAMS as the page reads them, with each input's value, range and source from the datasheet."""
     from inputs import REGISTRY as REG
+    disp = page_disp()
     out = []
     for key, group, name, unit, kind, arg, dflt, scale, lo, hi, step, digits, drop, inp, hlp in PAGE_PARAMS:
         i = REG[inp]
@@ -1041,6 +1067,8 @@ def page_params() -> list:
         out.append({"key": key, "group": group, "name": name, "unit": unit, "kind": kind, "arg": arg, "dflt": dflt, "scale": scale,
                     "min": lo, "max": hi, "step": step, "digits": digits, "drop": list(drop), "input": inp, "help": hlp,
                     "source": src[:220] + ("…" if len(src) > 220 else "")})
+        if key in disp:
+            out[-1]["disp"], out[-1]["digits"] = disp[key]
     return out
 
 
@@ -1095,7 +1123,7 @@ LEVER_REFS = {
     "ph": [(7.0, "a common setpoint"), (value("pf_ph"), "this model")],
     "capex_x": [(0.34, "two published designs"), (1, "this model, from Humbird's plant"), (1.5, "high end")],
     "medium_price": [(0.0, "priced from its ingredients alone"), (0.2, "announced by companies; GFI 2026"), (0.3, "reported"), (0.5, "reported"), (0.63, "Pasitka 2024"), (1.4, "Negulescu 2023")],
-    "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model: novelty faded"), (30, "stated intent in UK and US surveys"), (50, "no preference")],
+    "buyers": [(5, "first contact, Van Loo 2020"), (11, "Slade 2018"), (14.5, "this model until 2026-11-24"), (30, "stated intent in UK and US surveys"), (50, "no preference: this model's default")],
     "cut": [(20, "this model"), (80, "products on sale are 70 to 97% plant")],
     # kilos of conventional meat not bought for each kilo sold (meat_displaced_per_kg, 2026-11-22, sixth batch)
     "displaced": [(0.0, "plant-based meat: no measurable fall in meat orders, Winslow 2026 (restaurants) and Hope 2026 (a menu experiment)"),
@@ -1353,7 +1381,7 @@ def illustrative_numbers() -> dict:
     sea = sum(t.w_vol for t in world if t.name.startswith("seafood")) / sum(t.w_vol for t in world)
     bands_c = S.bands(S.SCENARIOS["central"].choice)
     R_central = shelf_price(S.run(S.SCENARIOS["central"].choice)["total"]) / value("p_conv")   # at the point cost
-    lo5, hi95 = _lognormal_5_95("equal_price_share")
+    lo5, hi95 = _prior_5_95("equal_price_share")
 
     N = {
         # at-parity baseline (neutral dials) — the most-quoted figure
@@ -1779,7 +1807,7 @@ def page_data() -> dict:
         reg("maint", "pf_maintenance_share", unit="% of the oxygen a cell uses", scale=100.0, digits=0),
     ]
     best_eqs = REGISTRY["best_equal_price_share"]
-    lo_c, hi_c = _lognormal_5_95("equal_price_share")
+    lo_c, hi_c = _prior_5_95("equal_price_share")
     ksm, sf = REGISTRY["cult_sub_mult"], REGISTRY["scaffold_frac"]
     judgements = [
         {"key": "equal_price_share", "name": "Share of shoppers who would choose it at equal price, once familiar",
@@ -2464,12 +2492,13 @@ model (a plant repaid with no interest, or cells fed less than they hold and bur
 <details class="grp sub" id="st_cells_more"><summary>More settings for the cells</summary><div id="tp_g_cells_more"></div></details>
 </details>
 <details class="grp" open id="st_reactor"><summary><span class="stn">2</span> The reactor and how it is run</summary>
-<p class="small">Three separate choices: the vessel, the way it is run and, where medium flows through, the device that holds the cells back. Then the plant around it.</p>
+<p class="small">Separate choices: the vessel, its size, the way it is run and, where medium flows through, the device that holds the cells back. Then the plant around it.</p>
 <div class="ctl"><label for="pl_vessel"><span class="nm">The vessel</span></label><select id="pl_vessel" onchange="tpSetVM(this.value,null)"></select>
 <p class="fxn" id="pl_vessel_s"></p></div>
+<div class="ctl" id="pl_size_ctl"><label for="pl_size"><span class="nm">Tank size</span></label><select id="pl_size" onchange="tpSetSize(this.value)" aria-label="Tank size"></select>
+<p class="fxn" id="pl_size_s"></p></div>
 <div class="ctl"><label for="pl_vmode"><span class="nm">How it is run</span></label><select id="pl_vmode" onchange="tpSetVM(null,this.value)"></select>
 <p class="fxn" id="pl_vmode_s"></p></div>
-<div class="ctl" id="pl_size_ctl" style="display:none"><label for="pl_size"><span class="nm">Tank size (fed-batch in a stirred tank)</span></label><select id="pl_size" onchange="tpSetSize(this.value)" aria-label="Fed-batch tank size"></select></div>
 <div class="ctl" id="pl_device_ctl"><label for="pl_device"><span class="nm">The device that holds the cells back (perfusion)</span></label><select id="pl_device" onchange="tpSetDevice(this.value)"></select>
 <p class="fxn" id="pl_device_s"></p></div>
 <div class="ctl"><label for="pl_plant"><span class="nm">The plant around the tanks</span></label><select id="pl_plant" onchange="tpSetPlant(this.value)"></select>

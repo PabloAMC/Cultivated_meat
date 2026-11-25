@@ -47,10 +47,12 @@ def check() -> list:
     # 2026-11-22 (fifth batch): the price-insensitive shoppers take the model to 0.26% at the low-lactate example's cost; the
     # anchored curve (every shopper alike) stays at 0.014% (0.005-0.029%): about a twentieth of the model, which is about nine
     # times the corrections' favourable end (was a third, and 1.6 times)
+    # 2026-11-24: the model's long-run share at equal price is 50% of meat buyers (was 14.5%): the model gives 1.43% at the low-lactate example's
+    # cost, the anchored curve 0.014% (0.004-0.028%), which does not use it: about a hundredth, and about fifty times the favourable end.
     m = s["model_share"]["central"]
-    if not (0.03 * m < sh["central"][lr] < 0.1 * m and 6.0 * sh["central"][fav] < m < 12.0 * sh["central"][fav]):
-        fails.append("the low-lactate example's anchored share is no longer about a twentieth of the model's, with the model's about "
-                     "nine times the corrections' favourable end; rewrite the note's conclusion")
+    if not (0.005 * m < sh["central"][lr] < 0.02 * m and 30.0 * sh["central"][fav] < m < 80.0 * sh["central"][fav]):
+        fails.append("the low-lactate example's anchored share is no longer about a hundredth of the model's, with the model's about "
+                     "fifty times the corrections' favourable end; rewrite the note's conclusion")
     # 2026-11-19 audit batch, unchanged by the second round: the all-favourable example's cells with the model's ordinary demand: 2.7% in the model against 1.4% anchored
     # (0.6-2.5%). The model is about twice the curve's central figure and above its favourable end. (Was: anchored below the model's.)
     # 2026-11-20 (engine batch, $11.67 to $18.71): 1.13% in the model against 0.66% anchored (0.24-1.17%). The model is 1.7 times
@@ -65,8 +67,8 @@ def check() -> list:
     mb = s["model_share"]["best"]
     # 2026-11-21 (fourth batch): 5.58% against 2.33% anchored (1.02-3.73%): 2.4 times, and 1.50 times the favourable end (upper
     # bound widened from 1.5 to 1.6, which 5.58 / 3.73 = 1.496 sat on)
-    if not (0.4 * mb < sh["best"][lr] < 0.55 * mb and 1.2 * sh["best"][fav] < mb < 1.6 * sh["best"][fav]):
-        fails.append("the all-favourable example's model share is no longer about twice the anchored one and above the curve's "
+    if not (0.07 * mb < sh["best"][lr] < 0.15 * mb and 4.0 * sh["best"][fav] < mb < 7.5 * sh["best"][fav]):   # 2026-11-24: 20.5% against 2.31% (3.69% favourable end): 8.9 times, 5.6 times
+        fails.append("the all-favourable example's model share is no longer about nine times the anchored one and above the curve's "
                      "favourable end; rewrite the note's conclusion")
 
     quoted = [f"{sh['central'][lr]:.2f}%", f"{sh['central'][unf]:.2f}–{sh['central'][fav]:.2f}%", f"{s['model_share']['central']:.2f}%",
