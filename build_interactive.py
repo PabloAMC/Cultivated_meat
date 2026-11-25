@@ -2625,7 +2625,7 @@ litres of medium against what scales with time in the tank is in "What the cost 
 <span class="li"><span class="ln" style="border-top-color:#D85A30"></span>lines of equal share</span>
 <span class="li"><span class="sw hatchd"></span><span>impossible: below what the cells must eat</span></span>
 <span class="li"><span class="sw hatchl"></span><span>beyond every known limit</span></span>
-<span class="li"><span class="dt me"></span>your point: the cost at your settings</span>
+<span class="li"><span class="ln" style="border-top-color:#1a1a19;border-top-width:2px"></span>your cost: a line at the cost of cells at your settings, the shaded band 8 in 10 draws; the ring marks the shoppers&rsquo; setting</span>
 </div>
 <div class="plot" id="tpplot"><svg id="tpmap" role="img" aria-labelledby="tptitle" aria-describedby="tp_alt"></svg></div>
 <p class="sr" id="tp_alt"></p>
@@ -5150,7 +5150,7 @@ function fxCapexAtSize(c20,v,perf,ch,ratio,F){ const a=fxTankItems(v,perf,ch,F),
 function fxKlaF(x,n,F){ const phi=x/(F.cell_density*1000), rv=1+2.5*phi+10.05*phi*phi+0.00273*Math.exp(16.6*phi);
   return Math.pow(1+(rv-1)*F.kla_thin,-n); }
 function fxO2Visc(xb,n,F){ if(!isFinite(xb)||n===0) return xb; let lo=0, hi=xb;
-  for(let i=0;i<60;i++){ const m=0.5*(lo+hi); if(m>xb*fxKlaF(m,n,F)) hi=m; else lo=m; } return 0.5*(lo+hi); }
+  for(let i=0;i<40;i++){ const m=0.5*(lo+hi); if(m>xb*fxKlaF(m,n,F)) hi=m; else lo=m; } return 0.5*(lo+hi); }   // floor_physics.O2_HALVINGS
 function floorExplore(p,noSearch){
   // p.fxo: datasheet constants this case sets for itself (Humbird's own way of counting, at the page's start; as inputs.py would if changed there)
   const F=p.fxo?Object.assign({},C.fx,p.fxo):C.fx, ms=p.maint===undefined?F.maint_share:p.maint, vm=p.vm||{};   // vm: vessel and mode (vessels.py)

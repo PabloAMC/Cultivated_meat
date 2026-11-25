@@ -47,7 +47,12 @@ TESTS=(
   "Python <-> JS parity|tests/run_parity.py"
 )
 
-JOBS="${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)}"
+# Tests at once: every core on CI; on a laptop two fewer than its cores, so the machine stays responsive (2026-11-25: a run at one
+# test per core on a 10-core laptop ran alongside a hung, rebooted machine; each test peaks at about 80-170 MB, so it was not
+# memory). The scan in test_answer_rests_on.py starts its own workers too (CM_SCAN_WORKERS, up to 4). Set JOBS to override.
+NCPU="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
+if [ -n "${CI:-}" ]; then DEFAULT_JOBS="$NCPU"; else DEFAULT_JOBS=$(( NCPU > 3 ? NCPU - 2 : 1 )); fi
+JOBS="${JOBS:-$DEFAULT_JOBS}"
 LOGS="$(mktemp -d "${TMPDIR:-/tmp}/cm_tests.XXXXXX")"
 trap 'rm -rf "$LOGS"' EXIT
 
