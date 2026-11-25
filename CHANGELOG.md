@@ -1,5 +1,23 @@
 # Change log
 
+## 2026-11-25: the test suite three to four times faster; the share map shows your cost as a line
+
+- The engine: the plant's memos (`floor_physics.plant_ratios`, `building_power_parts`) listed the plant inputs by sorting and
+  scanning the whole registry on every call, a third of the engine's time; they are listed once. `oxygen_limit` is memoised (91%
+  of its calls repeated one exactly) and bisects 40 times, not 60 (to about 1e-12 of its bracket; the page's `fxO2Visc` the
+  same). Every scenario's cost, share and design is unchanged to the last bit; the scan's rows to 7e-13.
+- `scenarios.all_favourable()` keeps its result on disk (`.cache/`, ignored by git), under a key that hashes every model module
+  and every input value, so a kept result is never stale; `CM_NO_CACHE=1` turns it off. CI keeps the folder between runs.
+  Importing the model: 6.2 s before, 2.9 s with no kept result, 0.7 s with one.
+- `answer_rests_on.py`'s scan reloads `scenarios.py` twice an input, not three times, and splits across up to four worker
+  processes (`CM_SCAN_WORKERS`): 712 s to 189 s on its own, the same 19 cost rows and 20 demand rows.
+- `run_tests.sh` runs, on a laptop, two fewer tests at once than it has cores (all of them on CI). A test peaks at 80-170 MB, so
+  memory was not what hung the laptop overnight on 2026-11-24/25.
+- The whole suite: about 18 minutes to under 8 on a 10-core laptop; it took 46 minutes on GitHub.
+- The share map (section 4): your settings are a solid yellow vertical line at your cost (no other mark on the map is yellow), with 8 in 10 draws as a shaded band, not a point at
+  one shoppers' preference (it sat at 14.5%, now 50%, for every case): a case sets the cost of cells, not how shoppers feel. A
+  ring on the line marks the shoppers' setting.
+
 ## 2026-11-24 (night): the share at equal price defaults to 50% of meat buyers
 
 - `equal_price_share` is 46.4% of all choices, 50% of meat buyers (was 13%, 14.5%): no good data say which side of an even split

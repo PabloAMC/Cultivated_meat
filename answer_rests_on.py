@@ -19,6 +19,7 @@ and is not in the band is where the model's stated uncertainty is too narrow, an
 from __future__ import annotations
 
 import dataclasses
+import os
 import re
 import sys
 from dataclasses import replace
@@ -265,28 +266,94 @@ def _band(k: str) -> str:
 _CACHE: dict = {}
 
 
+def _at_import() -> set:
+    """Inputs read when scenarios.py is imported: moving one changes nothing until the module is read again (audit 2026-11-19: the
+    scan showed no swing for any of them), so the scan reloads it for those."""
+    import pathlib
+    return set(re.findall(r'value\("([A-Za-z0-9_]+)"\)', pathlib.Path(S.__file__).read_text()))
+
+
+def _scan_cost(keys: list, values: dict | None = None) -> dict:
+    """{key: [(central, best) at lo, (central, best) at hi]}: the two scenarios' cost with each input in `keys` at each end of its
+    range. `values` ({input: value}) is the caller's registry, applied first, so a worker process scans the same model. Inputs
+    read at import take a reload of scenarios.py at each end; they come last, and the registry is put back with one reload at the
+    end (2026-11-25: a reload after each input as well made the scan's 93 reloads, most of its time; now 2 an input + 1)."""
+    import importlib
+    if values:
+        changed = [k for k, x in values.items() if k in I.REGISTRY and I.REGISTRY[k].value != x]
+        for k in changed:
+            I.REGISTRY[k] = replace(I.REGISTRY[k], value=values[k])
+        if changed:
+            importlib.reload(S)
+    at_import = _at_import()
+    ordered = [k for k in keys if k not in at_import] + [k for k in keys if k in at_import]
+    out, stale = {}, False
+    for k in ordered:
+        v = I.REGISTRY[k]
+        ends = []
+        for end in (v.lo, v.hi):
+            I.REGISTRY[k] = replace(v, value=end)
+            try:
+                if k in at_import:
+                    importlib.reload(S)
+                    stale = True
+                ends.append((_cost("central"), _cost("best")))
+            finally:
+                I.REGISTRY[k] = v
+        out[k] = ends
+    if stale:
+        importlib.reload(S)
+    return out
+
+
+def scan_workers() -> int:
+    """Processes the cost scan uses: CM_SCAN_WORKERS if set, else up to 4 (it is the test suite's longest step; each worker holds
+    a copy of the model, a few hundred MB)."""
+    env = os.environ.get("CM_SCAN_WORKERS")
+    return max(1, int(env)) if env else max(1, min(4, os.cpu_count() or 1))
+
+
+def _scan_all(keys: list) -> dict:
+    """_scan_cost over `keys`, split across scan_workers() processes (2026-11-25). The inputs that need a reload cost far more,
+    so they are dealt out in turn first and the rest after. Each worker is a plain `python` process that imports the model
+    (not multiprocessing, whose workers re-run the caller's main script) and gets the caller's numeric input values, so it scans
+    the same model. The rows are the same whatever the split: every input is scanned on its own and put back after."""
+    w = min(scan_workers(), len(keys))
+    if w <= 1:
+        return _scan_cost(keys)
+    import json, subprocess
+    at_import = _at_import()
+    heavy = [k for k in keys if k in at_import] + [k for k in keys if k not in at_import]
+    chunks = [heavy[i::w] for i in range(w)]
+    values = {k: v.value for k, v in I.REGISTRY.items() if isinstance(v.value, (int, float)) and not isinstance(v.value, bool)}
+    here = os.path.dirname(os.path.abspath(__file__))
+    code = ("import json, sys; sys.path.insert(0, %r); import answer_rests_on as A; job = json.load(sys.stdin); "
+            "json.dump(A._scan_cost(job['keys'], job['values']), sys.stdout)" % here)
+    env = {**os.environ, "CM_SCAN_WORKERS": "1"}
+    procs = [subprocess.Popen([sys.executable, "-c", code], stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=here, env=env,
+                              text=True) for _ in chunks]
+    for pr, ch in zip(procs, chunks):           # hand each its job, then let them all run
+        pr.stdin.write(json.dumps({"keys": ch, "values": values}))
+        pr.stdin.close()
+    out: dict = {}
+    for pr in procs:
+        res = pr.stdout.read()
+        if pr.wait() != 0:
+            raise RuntimeError("a scan worker failed (its error is above)")
+        out.update({k: [tuple(e) for e in v] for k, v in json.loads(res).items()})
+    return out
+
+
 def cost_drivers() -> list:
     """Inputs that move the low-lactate example's or the all-favourable example's cost by at least COST_MIN, largest swing in the low-lactate example first. Each row:
     {key, lo, hi, value, central: (at lo, at hi), best: (at lo, at hi), share: (the low-lactate example's share at lo, at hi)}."""
     if "cost" in _CACHE:
         return _CACHE["cost"]
     rows = []
-    # The scenarios' settings read their inputs when scenarios.py is imported, so moving one in the registry changes nothing
-    # until the module is read again (audit 2026-11-19: the scan showed no swing for any of them). Reload for those inputs.
-    import importlib, pathlib
-    at_import = set(re.findall(r'value\("([A-Za-z0-9_]+)"\)', pathlib.Path(S.__file__).read_text()))
-    for k, v in _ranged():
-        out = []
-        for end in (v.lo, v.hi):
-            I.REGISTRY[k] = replace(v, value=end)
-            try:
-                if k in at_import:
-                    importlib.reload(S)
-                out.append((_cost("central"), _cost("best")))
-            finally:
-                I.REGISTRY[k] = v
-        if k in at_import:
-            importlib.reload(S)
+    ranged = _ranged()
+    scanned = _scan_all([k for k, _v in ranged])
+    for k, v in ranged:
+        out = scanned[k]
         c, b = (out[0][0], out[1][0]), (out[0][1], out[1][1])
         if max(abs(c[1] - c[0]), abs(b[1] - b[0])) >= COST_MIN:
             rows.append({"key": k, "lo": v.lo, "hi": v.hi, "value": v.value, "central": c, "best": b})

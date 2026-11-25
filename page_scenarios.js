@@ -1426,10 +1426,10 @@ function tpMapDraw(f){
   [fl,fr].forEach(v=>{ g+='<line x1="'+lx(v).toFixed(1)+'" x2="'+lx(v).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="1.5"/>'; });
   const meats=tpMeats().filter(m=>m.parity>TPM.x0&&m.parity<TPM.x1);
   meats.forEach(m=>{ g+='<line x1="'+lx(m.parity).toFixed(1)+'" x2="'+lx(m.parity).toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.8"/>'; });
-  // your point's range for 8 in 10 draws: a thin whisker across its cost, under everything else
+  // your cost's range for 8 in 10 draws: a light band across every preference, under everything else (2026-11-25, the author:
+  // a case sets the cost of cells, not how shoppers feel, so it is a vertical line at its cost, not a point at one preference)
   const yp=ly(f.buyers), cl=f.cloud, wa=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cb[0]))), wb=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cb[2]))), tip=pgEsc(tpVariedTip());
-  if(wb-wa>1) g+='<g class="mwh"><title>'+tip+'</title><path d="M'+wa.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+' M'+wa.toFixed(1)+' '+yp.toFixed(1)+' H'+wb.toFixed(1)+' M'+wb.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+'" fill="none" stroke="#fff" stroke-width="4" stroke-opacity="0.7"/>'+
-     '<path d="M'+wa.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+' M'+wa.toFixed(1)+' '+yp.toFixed(1)+' H'+wb.toFixed(1)+' M'+wb.toFixed(1)+' '+(yp-6).toFixed(1)+' V'+(yp+6).toFixed(1)+'" fill="none" stroke="#1a1a19" stroke-width="1.6"/></g>';
+  if(wb-wa>1) g+='<rect class="mband" x="'+wa.toFixed(1)+'" y="'+T+'" width="'+(wb-wa).toFixed(1)+'" height="'+(B-T)+'" fill="#1a1a19" fill-opacity="0.10" stroke="#1a1a19" stroke-opacity="0.35" stroke-dasharray="3 3"><title>'+tip+'</title></rect>';
   g+='</g>';
   // Labels that do not depend on your point are placed first, in a fixed order, so that moving your point (the meat-buyers slider
   // moves it up and down) never moves them: the zones, every reference point (the one loaded keeps its place, unlabelled, under your
@@ -1454,12 +1454,17 @@ function tpMapDraw(f){
       (Lv>=30?[0.8,0.9,0.72,0.62]:fracs).forEach(fy=>{ const q=pts.reduce((a,b)=>Math.abs(b[1]-fy)<Math.abs(a[1]-fy)?b:a);
         cands.push({x:lx(q[0])+5,y:ly(q[1])+4,t:t,fs:fs}); cands.push({x:lx(q[0])-5,y:ly(q[1])+4,t:t,fs:fs,anchor:"end"}); });
       const c=pl.tryPut(cands,within); if(c) labs.push(tpLabelSVG(c)); }); }
-  // your point and its label, last
+  // your cost (a line) and its label, last
   const px=lx(Math.min(TPM.x1,Math.max(TPM.x0,f.cost)));
-  const meDot='<circle class="me" cx="'+px.toFixed(1)+'" cy="'+yp.toFixed(1)+'" r="'+(small?6:7)+'"><title>'+tip+'</title></circle>'; pl.block(px-8,yp-8,px+8,yp+8);
+  // your cost: a line from top to bottom (a white halo under a dark line), and a small ring where it meets the shoppers' setting
+  // yellow, a colour nothing else on the map uses (the blues of the share, the orange lines of equal share, the white limits and
+  // dashed prices), edged in dark so it reads on light and dark blue alike (2026-11-25: it was lost beside the white limit line)
+  const meDot='<g class="meline"><title>'+tip+'</title><line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#1a1a19" stroke-width="5"/>'+
+    '<line x1="'+px.toFixed(1)+'" x2="'+px.toFixed(1)+'" y1="'+T+'" y2="'+B+'" stroke="#F5C518" stroke-width="3"/>'+
+    '<circle cx="'+px.toFixed(1)+'" cy="'+yp.toFixed(1)+'" r="'+(small?5:5.5)+'" fill="#F5C518" stroke="#1a1a19" stroke-width="1.8"/></g>';
+  pl.block(px-4,T,px+4,B); pl.block(px-6,yp-6,px+6,yp+6);
   const meLab=f.key==="own"?"Your settings":short(f.label);
-  const meC=[]; [[-10,22],[-24,36],[-38,50],[-52,64],[-66,78],[-80,92]].forEach(([u,d])=>{ meC.push({x:px+11,y:yp+u,t:meLab,fs:fs+1,anchor:"start"},{x:px-11,y:yp+u,t:meLab,fs:fs+1,anchor:"end"},
-    {x:px+11,y:yp+d,t:meLab,fs:fs+1,anchor:"start"},{x:px-11,y:yp+d,t:meLab,fs:fs+1,anchor:"end"},{x:px,y:yp+u,t:meLab,fs:fs+1,anchor:"middle"},{x:px,y:yp+d,t:meLab,fs:fs+1,anchor:"middle"}); });
+  const meC=[]; [14,28,42,B-T-8,B-T-22].forEach(u=>{ meC.push({x:px+9,y:T+u,t:meLab,fs:fs+1,anchor:"start"},{x:px-9,y:T+u,t:meLab,fs:fs+1,anchor:"end"}); });
   const me=pl.tryPut(meC,within)||pl.tryPut(meC.map(c=>Object.assign({},c,{fs:fs})),within)||pl.tryPut(meC.map(c=>Object.assign({},c,{fs:fs})),[2,T-30,W-2,B])||meC[0];
   if(me) labs.push(tpLabelSVG(me,"mb"));
   g+=labs.join("")+meDot;
@@ -1499,14 +1504,14 @@ function tpMapWire(svg){
     read.textContent=tpReadAt(cx,cy); };
   svg.addEventListener("pointermove",move); svg.addEventListener("pointerdown",move); svg.addEventListener("pointerleave",tpHoverReset);
 }
-function tpHoverReset(){ const r=document.getElementById("tp_hover"); if(r&&TPGEO) r.textContent="Point at the map to read the share anywhere on it. Your point: "+tpReadAt(TPGEO.f.cost,TPGEO.f.buyers); }
+function tpHoverReset(){ const r=document.getElementById("tp_hover"); if(r&&TPGEO) r.textContent="Point at the map to read the share anywhere on it. At your cost and the shoppers' setting: "+tpReadAt(TPGEO.f.cost,TPGEO.f.buyers); }
 function tpMapText(f,G){
   const set=(id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
   const one=tpCostFor(1,f.buyers), ten=tpCostFor(10,f.buyers);
   set("tp_read_txt","<b>How to read the map.</b> Each orange line joins the points with the same share. To the right of the 1% line cultivated meat stays below 1% of the meat sold. To cross it with "+tpPctB(f.buyers)+
     " of meat buyers picking it at the same price, cells must cost under about "+(one===null?"$0.5 (no cost down to $0.5 reaches it)":tpUSDk(one))+" a kilo; for 10%, under about "+(ten===null?"$0.5 (no cost down to $0.5 reaches it)":tpUSDk(ten))+
-    ". Your point sits at "+tpUSD(f.cost)+". "+
-    "Up the map, more shoppers like it; to the left, cells are cheaper. The lines of equal share do not move with the meat-buyers slider: it moves your point up and down. "+
+    ". <b>Your cost</b> is the yellow upright line, at "+tpUSD(f.cost)+" a kilo of cells, with 8 in 10 draws in the shaded band: a case sets the cost of cells, not how shoppers feel, so read up and down the line for the share at each preference. The ring on it marks the shoppers' setting. "+
+    "Up the map, more shoppers like it; to the left, cells are cheaper. The lines of equal share do not move with the meat-buyers slider: it moves the ring along your line. "+
     "<b>The dashed lines</b> mark the cost of cells at which it would sell at the shop price of each kind of meat named along the top. For one kind of meat at its own price, the share of its buyers who pick the cultivated one is your setting exactly. This map adds up every kind of meat at one cost of cells, each at its own price, so its lines of equal share cross each dashed line below that setting for the dearer meats to its right and above it for the cheaper ones.");
 
   const rd=document.getElementById("tp_read"); if(rd) rd.style.display=PGS.readDismissed?"none":"";
@@ -1519,7 +1524,7 @@ function tpMapText(f,G){
       cs.map(c=>'<tr><td>$'+c+'</td>'+bs.map(b=>'<td>'+pgPctS(tpInterp(c,b))+'</td>').join("")+'</tr>').join("")+'</tbody></table>'+
       '<p class="note">Long-run share of '+pgRegionOf()+' meat and seafood, read from the map\'s grid, at the shopper settings as set.</p>'; }
   set("tp_alt","Upright lines: the nutrient floor ($"+C.FEEDSTOCK_FLOOR.toFixed(2)+" a kilo of cells: cells grown on a medium cannot cost less), the cost at which it would sell at the shop price of each kind of meat ("+tpAnd(tpMeats().map(m=>m.plain+" "+tpUSD(m.parity)))+", dashed), and every lever at its limit ($"+TP.frontier.toFixed(2)+"). The map shades the long-run share of "+pgRegionOf()+" meat and seafood for every cost of cells (across) and every share of meat buyers who would pick it at the same price (up). "+
-    "Your point: "+tpUSD(f.cost)+" and "+tpPctB(f.buyers)+", a share of "+pgPctS(f.share)+".");
+    "Your cost: an upright line at "+tpUSD(f.cost)+"; at the shoppers' setting of "+tpPctB(f.buyers)+", a share of "+pgPctS(f.share)+".");
 }
 // three figures that stay in view while any slider moves: the cost, the shop price against two named meats, the long-run share
 function tpSummaryHTML(f){

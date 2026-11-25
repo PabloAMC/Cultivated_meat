@@ -22,6 +22,13 @@ jobs:
         with:
           node-version: "20"
       - run: pip install -r requirements.txt
+      # the model's own cache (scenarios.all_favourable): each file is named by a hash of every model module and input value,
+      # so a file restored from an older run is used only if nothing it depends on changed (2026-11-25)
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: model-cache-${{ hashFiles('*.py') }}
+          restore-keys: model-cache-
       # Rebuilds interactive.html from the Python model, then: golden values and prose drift,
       # doubling-time envelope, physics-based floor, Python <-> JS parity.
       - run: ./run_tests.sh

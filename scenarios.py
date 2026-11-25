@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 
+import os
 import numpy as np
 
 import floor_physics as fp
@@ -424,6 +425,50 @@ FAV_TANK_M3 = (2.0, 5.0, 10.0, 20.0, 25.0, 42.0, 211.0)
 _ALL_FAV: dict = {}
 
 
+# The all-favourable search tries about 10,000 designs and ran at every import of this module: about 3 s in every test, the
+# page's build and each reload of the scan (2026-11-25). Its result is kept on disk under a key that covers everything it can
+# depend on: the text of every model module (*.py beside this one) and every input's value. Any change to either is a new key,
+# so a kept result is never stale; CM_NO_CACHE=1 turns the cache off. The search's one side effect, the extra arguments it
+# registers (EXTRAS[ALL_FAVOURABLE]), is kept and restored with it. The files are small (about 14 kB) and only ours.
+_AF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "all_favourable")
+
+
+def _af_cache_key() -> str:
+    import glob, hashlib
+    import inputs as I
+    h = hashlib.sha256()
+    for f in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "*.py"))):
+        with open(f, "rb") as fh:
+            h.update(os.path.basename(f).encode() + b"\0" + fh.read())
+    h.update(repr(sorted((k, repr(v.value)) for k, v in I.REGISTRY.items())).encode())
+    return h.hexdigest()[:32]
+
+
+def _af_cache_load():
+    if os.environ.get("CM_NO_CACHE"):
+        return None
+    import pickle
+    try:
+        with open(os.path.join(_AF_DIR, _af_cache_key() + ".pkl"), "rb") as fh:
+            return pickle.load(fh)
+    except (OSError, EOFError, KeyError, TypeError, pickle.UnpicklingError, AttributeError, ImportError):
+        return None
+
+
+def _af_cache_save(result: dict) -> None:
+    if os.environ.get("CM_NO_CACHE"):
+        return
+    import pickle, tempfile
+    try:
+        os.makedirs(_AF_DIR, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(dir=_AF_DIR, suffix=".tmp")
+        with os.fdopen(fd, "wb") as fh:
+            pickle.dump(result, fh)
+        os.replace(tmp, os.path.join(_AF_DIR, _af_cache_key() + ".pkl"))     # atomic: parallel tests never read half a file
+    except OSError:
+        pass
+
+
 def favourable_levers() -> list:
     """Every lever the all-favourable case sets, one row each: `lever` (plain name), `args` (the explore() arguments it sets),
     `better` ("lower", "higher": the direction that is favourable; or "cost": no direction, the setting that costs least is
@@ -523,6 +568,11 @@ def all_favourable() -> dict:
     for reuse; fat fed to the cells."""
     if _ALL_FAV:
         return _ALL_FAV
+    cached = _af_cache_load()
+    if cached is not None:                       # the search's two results: its own, and the extra arguments it registers
+        _ALL_FAV.update(cached["af"])
+        EXTRAS[ALL_FAVOURABLE] = cached["extras"]
+        return _ALL_FAV
     rows = favourable_levers()
     pick = {"lower": min, "higher": max}
     always, fixed = {}, {}
@@ -598,6 +648,7 @@ def all_favourable() -> dict:
             if r["sources"]["model"][0] != r["value"] else "model"
     kw = explore_kwargs(c)
     _ALL_FAV.update(choice=c, kw=kw, result=fp.explore(**kw), cost=cost, levers=rows, device=dev)
+    _af_cache_save({"af": dict(_ALL_FAV), "extras": EXTRAS[ALL_FAVOURABLE]})
     return _ALL_FAV
 
 

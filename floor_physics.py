@@ -221,23 +221,37 @@ def kla_factor(x: float, law: str = "thomas", thin: float | None = None, exponen
     return apparent_rel_viscosity(x, law, thin) ** (-n)
 
 
+O2_HALVINGS = 40                   # oxygen_limit's bisection; the page's fxO2Visc uses the same count
+_O2_MEMO: dict = {}
+
+
 def oxygen_limit(x_base: float, law: str = "thomas", thin: float | None = None, exponent: float | None = None) -> float:
     """Density (g/L) a sparger can feed once viscosity is counted. `x_base` is the density the oxygen supply gives with the kLa
     of medium. Oxygen use rises in proportion to density and kLa falls with it, so the limit is the fixed point
-    x = x_base x kla_factor(x), found by bisection (60 halvings; the page's fxO2Visc mirrors it). Infinite stays infinite."""
+    x = x_base x kla_factor(x), found by bisection (40 halvings, to about 1e-12 of x_base; 60 until 2026-11-25, finer than any
+    figure can show; the page's fxO2Visc mirrors it). Infinite stays infinite."""
     if not np.isfinite(x_base):
         return float("inf")
     n = value("tc_kla_exp") if exponent is None else exponent
     if n == 0.0:
         return float(x_base)
+    # memoised (2026-11-25: 91% of calls repeat one exactly, and this was a third of the engine's time): the key holds every
+    # input the fixed point reads, so a changed input is a new key, never a stale value
+    key = (float(x_base), law, thin, n, value("tc_thin"), value("pf_cell_density"), value("tc_phi_max"))
+    hit = _O2_MEMO.get(key)
+    if hit is not None:
+        return hit
+    if len(_O2_MEMO) > 500_000:
+        _O2_MEMO.clear()
     lo, hi = 0.0, float(x_base)
-    for _ in range(60):
+    for _ in range(O2_HALVINGS):
         mid = 0.5 * (lo + hi)
         if mid > x_base * kla_factor(mid, law, thin, n):
             hi = mid
         else:
             lo = mid
-    return 0.5 * (lo + hi)
+    _O2_MEMO[key] = out = 0.5 * (lo + hi)
+    return out
 
 
 def _kla_exponent(viscous_kla) -> float:
@@ -322,6 +336,17 @@ def humbird_fedbatch_output() -> float:
 
 
 _RATIOS: dict = {}
+_PI_NAMES: list = [0, ()]          # (registry size when listed, the pi_ input names): the cache keys below read only these
+
+
+def _pi_values() -> tuple:
+    """The values of the pi_ inputs (the plant's items), in name order: the key of the plant's memos. The names are listed once
+    (2026-11-25: listing them on every call, by sorting and scanning the whole registry, was a third of the engine's time), and
+    again only if the registry grows."""
+    import inputs as I
+    if _PI_NAMES[0] != len(I.REGISTRY):
+        _PI_NAMES[0], _PI_NAMES[1] = len(I.REGISTRY), tuple(sorted(k for k in I.REGISTRY if k.startswith("pi_")))
+    return tuple((k, value(k)) for k in _PI_NAMES[1])
 
 
 def plant_ratios(choices: dict | None = None) -> tuple:
@@ -331,7 +356,7 @@ def plant_ratios(choices: dict | None = None) -> tuple:
     import inputs as I
     import plant_items as PI
     c = PI.choices_for("humbird", **(choices or {}))
-    key = (tuple(sorted(c.items())), tuple((k, value(k)) for k in sorted(I.REGISTRY) if k.startswith("pi_")))
+    key = (tuple(sorted(c.items())), _pi_values())
     if key not in _RATIOS:
         o, h = PI.options(), PI.humbird()
         bh = h["hall"] + h["labs"] + h["support"]
@@ -377,7 +402,7 @@ def building_power_parts() -> dict:
     labs' area are their cost over his rate per m2). A hall of another class has his hall's area at its own load; a yeast
     plant's hall is mostly outdoors and its labs and support are not costed apart, so they draw nothing. Memoised on the inputs."""
     import inputs as I
-    key = tuple((k, value(k)) for k in sorted(I.REGISTRY) if k.startswith("pi_"))
+    key = _pi_values()
     if key not in _BPOWER:
         hall_m2 = value("pi_bldg_hall") * 1000.0 / value("pi_rate_class8")
         labs_m2 = (value("pi_bldg_cell_lab") + value("pi_bldg_qc_lab")) * 1000.0 / value("pi_rate_class6")
