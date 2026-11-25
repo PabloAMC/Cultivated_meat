@@ -31,8 +31,8 @@
      1.386094
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     23.845243,
-     17.663487
+     23.845241,
+     17.663485
     ]
    }
   },
@@ -55,8 +55,8 @@
      1.087691
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     25.821357,
-     15.200585
+     25.821356,
+     15.200584
     ]
    }
   },
@@ -79,8 +79,8 @@
      1.26159
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.807443,
-     19.692182
+     21.807441,
+     19.69218
     ]
    }
   },
@@ -269,7 +269,7 @@
    },
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
-     45.5669,
+     45.3005,
      52.6058
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
@@ -277,7 +277,7 @@
      7.6512
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.553765,
+     1.56523,
      1.289623
     ]
    }
@@ -998,6 +998,20 @@
     "lo": 0.31,
     "mode": 0.5,
     "hi": 1.0
+   },
+   "moves_cost": {
+    "low_lactate_example_usd_per_kg_at_lo_hi": [
+     48.1008,
+     50.1951
+    ],
+    "all_favourable_example_usd_per_kg_at_lo_hi": [
+     7.164,
+     6.4519
+    ],
+    "low_lactate_example_world_share_pct_at_lo_hi": [
+     1.450742,
+     1.372742
+    ]
    }
   },
   {
@@ -1191,6 +1205,20 @@
     "lo": 80.0,
     "mode": 100.0,
     "hi": 250.0
+   },
+   "moves_cost": {
+    "low_lactate_example_usd_per_kg_at_lo_hi": [
+     51.8681,
+     46.4842
+    ],
+    "all_favourable_example_usd_per_kg_at_lo_hi": [
+     7.7402,
+     6.9753
+    ],
+    "low_lactate_example_world_share_pct_at_lo_hi": [
+     1.314366,
+     1.515257
+    ]
    }
   },
   {
@@ -1348,6 +1376,20 @@
     "lo": 0.5,
     "mode": 0.75,
     "hi": 1.0
+   },
+   "moves_cost": {
+    "low_lactate_example_usd_per_kg_at_lo_hi": [
+     48.7196,
+     48.6815
+    ],
+    "all_favourable_example_usd_per_kg_at_lo_hi": [
+     7.9673,
+     6.9379
+    ],
+    "low_lactate_example_world_share_pct_at_lo_hi": [
+     1.427077,
+     1.42852
+    ]
    }
   },
   {
@@ -1453,6 +1495,20 @@
     "lo": 0.0,
     "mode": 0.0,
     "hi": 5.0
+   },
+   "moves_cost": {
+    "low_lactate_example_usd_per_kg_at_lo_hi": [
+     48.6815,
+     46.5972
+    ],
+    "all_favourable_example_usd_per_kg_at_lo_hi": [
+     6.9686,
+     6.9983
+    ],
+    "low_lactate_example_world_share_pct_at_lo_hi": [
+     1.42852,
+     1.510613
+    ]
    }
   },
   {
@@ -1613,6 +1669,20 @@
     "lo": 4.0,
     "mode": 8.0,
     "hi": 20.0
+   },
+   "moves_cost": {
+    "low_lactate_example_usd_per_kg_at_lo_hi": [
+     47.9347,
+     51.2797
+    ],
+    "all_favourable_example_usd_per_kg_at_lo_hi": [
+     6.9106,
+     7.3149
+    ],
+    "low_lactate_example_world_share_pct_at_lo_hi": [
+     1.457187,
+     1.334532
+    ]
    }
   },
   {
@@ -2095,15 +2165,15 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      45.6983,
-     58.9422
+     52.4091
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
      6.4846,
-     8.7006
+     8.602
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
      1.548161,
-     1.098248
+     1.296164
     ]
    }
   },
@@ -3435,7 +3505,7 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      44.4585,
-     80.4247
+     79.6591
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
      6.9686,
@@ -3443,7 +3513,7 @@
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
      1.602342,
-     0.643893
+     0.656207
     ]
    }
   },
@@ -3491,7 +3561,7 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      48.6815,
-     65.4539
+     65.2542
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
      6.9686,
@@ -3499,7 +3569,7 @@
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
      1.42852,
-     0.933431
+     0.938082
     ]
    }
   },
@@ -3555,7 +3625,7 @@
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
      1.375659,
-     1.456813
+     1.456812
     ]
    }
   },
@@ -3863,7 +3933,7 @@
    },
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
-     89.0451,
+     87.9515,
      43.8366
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
@@ -3871,7 +3941,7 @@
      6.892
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.520451,
+     0.534666,
      1.630664
     ]
    }
@@ -3891,7 +3961,7 @@
    },
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
-     70.3312,
+     69.9477,
      48.6815
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
@@ -3899,7 +3969,7 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.826889,
+     0.834798,
      1.42852
     ]
    }
@@ -4692,7 +4762,7 @@
    },
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
-     86.907,
+     79.4569,
      35.9443
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
@@ -4700,7 +4770,7 @@
      6.9686
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.548613,
+     0.659498,
      2.086394
     ]
    }
@@ -5674,8 +5744,8 @@
      2.467585
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     17.208132,
-     26.746223
+     17.208131,
+     26.746222
     ]
    }
   },
@@ -5707,8 +5777,8 @@
      1.579355
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     19.747035,
-     21.570851
+     19.747034,
+     21.570849
     ]
    }
   },
@@ -5746,7 +5816,7 @@
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
      2.178364,
-     42.871737
+     42.871735
     ]
    }
   },
@@ -5783,8 +5853,8 @@
      1.024829
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     28.765871,
-     18.030843
+     28.76587,
+     18.030842
     ]
    }
   },
@@ -5807,8 +5877,8 @@
      1.179456
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.519121,
-     16.311331
+     20.51912,
+     16.31133
     ]
    }
   },
@@ -5831,8 +5901,8 @@
      1.619851
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.164123,
-     19.947411
+     21.164121,
+     19.947409
     ]
    }
   },
@@ -5855,8 +5925,8 @@
      2.296493
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.519121,
-     27.298727
+     20.51912,
+     27.298725
     ]
    }
   },
@@ -5879,8 +5949,8 @@
      1.42852
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     11.1945,
-     20.519121
+     11.194499,
+     20.51912
     ]
    }
   },
@@ -5935,8 +6005,8 @@
      2.17212
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     14.692307,
-     27.34765
+     14.692306,
+     27.347648
     ]
    }
   },
@@ -6051,8 +6121,8 @@
      0.870177
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     22.250717,
-     17.647739
+     22.250715,
+     17.647738
     ]
    }
   },
@@ -6135,8 +6205,8 @@
      1.653694
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.203698,
-     21.899196
+     20.203697,
+     21.899195
     ]
    }
   },
@@ -6366,8 +6436,8 @@
      2.609464
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.519121,
-     21.720177
+     20.51912,
+     21.720175
     ]
    }
   },
@@ -6390,8 +6460,8 @@
      0.394695
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.541535,
-     20.217852
+     20.541534,
+     20.217851
     ]
    }
   },
@@ -6414,8 +6484,8 @@
      2.665811
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.020445,
-     21.262714
+     20.020444,
+     21.262713
     ]
    }
   },
@@ -6447,8 +6517,8 @@
      2.056264
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     11.1945,
-     26.363536
+     11.194499,
+     26.363534
     ]
    }
   },
@@ -6592,8 +6662,8 @@
      1.404999
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.459782,
-     17.867054
+     21.459781,
+     17.867053
     ]
    }
   },
@@ -6630,8 +6700,8 @@
      1.306513
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     23.420651,
-     14.308357
+     23.420649,
+     14.308356
     ]
    }
   },

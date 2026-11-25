@@ -68,7 +68,11 @@ def check() -> list:
     # 2026-11-21: the draws put right (growth factors inside a complete medium, no price per litre on a floor medium, the
     # tolerated waste, kill and harvest drawn) and the model of 2026-11-21: central P50 64.62 -> 57.68, P10 50.31 -> 42.62,
     # best P50 11.37 -> 8.22
-    for name, s, want in (("central P50", cen["p50"], 57.68), ("central P10", cen["p10"], 42.62), ("best P50", best["p50"], 8.22)):
+    # 2026-11-25 (the gas cap and loop thinning): the engine now tries every gas flow up to the cells' cap and holds a design
+    # whose column loop is overloaded thinner, so draws that priced an overloaded loop as if it coped now cost what a loop that
+    # passes costs (cheaper where a lower gas flow pays): central P50 57.68 -> 57.22, P10 42.62 -> 42.36, best P50 8.22 -> 8.11.
+    # The point percentiles (0.26, 0.11) and the ranking (membrane life -0.40, lactate tolerated -0.37, ammonia -0.32) hold
+    for name, s, want in (("central P50", cen["p50"], 57.22), ("central P10", cen["p10"], 42.36), ("best P50", best["p50"], 8.11)):
         if not close(s, want, 5e-3):
             fails.append(f"{name}: {s:.2f} != pinned {want}")
     # the retail translation: the model's rule is per-kg costs plus a percentage margin; it sits between the old flat $5

@@ -118,8 +118,15 @@ def check() -> list:
         if not close(got, want, 1e-4):
             fails.append(f"central {dev}: {got:.4f} != pinned {want}")
     # a thinner culture does not pay in the central case: the cheapest density is the one the tank allows
+    # 2026-11-25 (the gas cap and loop thinning): the engine now thins an overloaded column loop itself, so a cap above the
+    # density it reaches (168 g/L) does not bind and the 258, 220 and 180 g/L rows are the case itself, tied. The premise still
+    # holds with the full engine (held at the 2026-11-21 design, 258 g/L would be priced with a loop that fails its checks, which
+    # is what the change stopped): no cap below the tank's own density is cheaper, and the thinnest culture saves membranes
+    # but costs more in total ($50.44 at 100 g/L against $48.68)
     scan = R.density_scan(R.cases()["central"])
-    if min(scan, key=lambda r: r[1])[0] != 258.0 or not scan[-1][2] < scan[0][2]:
+    own = fp.explore(**R.cases()["central"])["total"]
+    if (not close(min(r[1] for r in scan), own, 1e-4) or not scan[0][1] <= scan[-1][1]
+            or not scan[-1][2] < scan[0][2]):
         fails.append("central: a thinner culture should save membranes but cost more in total")
     # the alternative membranes: each is cheaper per kg than the default TFF loop in the central case, and the dialyser's
     # lower flux needs more membrane area for the same duty
@@ -233,16 +240,20 @@ def check_particles() -> list:
     # 2026-11-21 (the low-lactate example's tank design is the thinned recycled-oxygen column at 168 g/L, was 1 bar at 154; the
     # building's power by floor and class; labour per tank; the floor's glucose; the all-favourable example at 219 g/L): aggregates 14.46 / 27.80 / 7.79,
     # carriers 44.16 / 96.46 / 24.26 before
+    # 2026-11-25 (the gas cap and loop thinning): carriers 94.87 -> 94.66 (central), 24.35 -> 24.31 (best): the thin carrier
+    # culture now bubbles a lower flow than the cells' cap, so fewer cells die
     pins = {("aggregates", "reference"): 14.24, ("aggregates", "central"): 26.51, ("aggregates", "best"): 7.39,
-            ("microcarriers", "reference"): 43.50, ("microcarriers", "central"): 94.87, ("microcarriers", "best"): 24.35}
+            ("microcarriers", "reference"): 43.50, ("microcarriers", "central"): 94.66, ("microcarriers", "best"): 24.31}
     for (dev, name), want in pins.items():
         got = R.scenario_cost(dev, cs[name])["total"]
         if abs(got - want) > 0.005:
             fails.append(f"{name} {dev}: ${got:.2f} != pinned ${want}")
     # 2026-11-21: (27.22, 36.77), (7.62, 10.39), (36.02, 491.52), (8.68, 206.02) before, as above
-    rng = {("aggregates", "central"): (25.95, 36.41), ("aggregates", "best"): (6.93, 10.48),   # 6.94 with the column on the loop only beside the TFF loop (2026-11-21)
+    # 2026-11-25 (the gas cap and loop thinning): (25.95, 36.41) -> (25.95, 34.85), (6.93, 10.48) -> (6.93, 10.30),
+    # (35.58, 486.92) -> (33.84, 486.92), (8.77, 206.29) -> (8.73, 205.95)
+    rng = {("aggregates", "central"): (25.95, 34.85), ("aggregates", "best"): (6.93, 10.30),   # 6.94 with the column on the loop only beside the TFF loop (2026-11-21)
           
-           ("microcarriers", "central"): (35.58, 486.92), ("microcarriers", "best"): (8.77, 206.29)}
+           ("microcarriers", "central"): (33.84, 486.92), ("microcarriers", "best"): (8.73, 205.95)}
     for (dev, name), want in rng.items():
         r = R.scenario_range(dev, cs[name])
         if max(abs(r["low"]["total"] - want[0]), abs(r["high"]["total"] - want[1])) > 0.005:
@@ -260,7 +271,8 @@ def check_particles() -> list:
                                   ("carrier cap g/L", cm["note"]["cap"], 25.5, 0.05), ("carrier kg/kg", cm["particle"]["carrier_kg"], 0.62, 0.005),
                                   ("bead L/kg", cm["particle"]["bead_l_kg"], 8.8, 0.05), ("carrier share of product", cm["particle"]["carrier_wet_share"], 0.90, 0.005),
                                   # per kilo harvested since 2026-11-20 (6.16 per kilo grown, over the 95.7% harvested)
-                                  ("carriers $/kg", cm["cons_kg"], 6.435, 0.005), ("carriers $/kg grown", cm["cons_kg_grown"], 6.16, 0.005),
+                                  # 2026-11-25 (the gas cap and loop thinning): 6.435 -> 6.315, 97.5% harvested (less gas)
+                                  ("carriers $/kg", cm["cons_kg"], 6.315, 0.005), ("carriers $/kg grown", cm["cons_kg_grown"], 6.16, 0.005),
                                   ("bead cm/h alone", cm["particle_cm_h"], 239.0, 0.5)):
         if abs(got - want) > tol:
             fails.append(f"central {label}: {got:.3f} != pinned {want}")
@@ -272,14 +284,16 @@ def check_particles() -> list:
     # 2026-11-20, third pass (the low-lactate example at 154 g/L, plant items per tank)
     # 2026-11-21 (as above; the plate area 12.9 -> 16.0 m2 and the stay 11.7 -> 13.1 min, more permeate at 168 g/L): 28.68 -> 27.59,
     # 28.95 -> 26.51. The tank's oxygen now comes from the column, so a higher setpoint no longer thins it (142 -> 168 g/L)
-    for key, want in (((0.1, 600.0), (0.0654, 27.59)), ((0.28, 600.0), (0.0001, 26.51))):
+    # 2026-11-25 (the gas cap and loop thinning): 27.59 -> 27.26 (at 172 g/L, was 168)
+    for key, want in (((0.1, 600.0), (0.0654, 27.26)), ((0.28, 600.0), (0.0001, 26.51))):
         pen, x, tot = scan[key]
         if abs(pen - want[0]) > 0.0005 or abs(tot - want[1]) > 0.005:
             fails.append(f"aggregate scan {key}: growth lost {pen:.4f}, ${tot:.2f} != pinned {want}")
     if round(scan[(0.28, 600.0)][1]) != 168:
         fails.append("aggregate scan: at 0.28 mmol/L the central tank should hold 168 g/L")
     # 2026-11-21: 27.80, 27.92, 28.25, 28.94 before
-    for key, want in (((0.1, 300.0), (0.0, 26.51)), ((0.1, 400.0), (0.009, 26.65)), ((0.1, 500.0), (0.035, 27.07)),
+    # 2026-11-25 (the gas cap and loop thinning): 26.65 -> 26.61, 27.07 -> 26.89
+    for key, want in (((0.1, 300.0), (0.0, 26.51)), ((0.1, 400.0), (0.009, 26.61)), ((0.1, 500.0), (0.035, 26.89)),
                       ((0.28, 300.0), (0.0, 26.51))):
         pen, x, tot = scan[key]
         if abs(pen - want[0]) > 0.0005 or abs(tot - want[1]) > 0.005:
@@ -311,13 +325,14 @@ def check_note_figures() -> list:
     # aggregates' cap at a cell share of 0.60 (155 g/L) nor at phi_max 0.20 holds any longer)
     # 2026-11-21 (the low-lactate example at 168 g/L with the thinned recycled-oxygen design, and the rest as above). Before:
     # 27.82, 27.80, 27.24, 29.31, 28.07, 28.10; 164.54, 66.12, 60.94, 123.33, 73.88, 91.82, 123.00
-    one = {("aggregates", "rt_agg_cell_share", 0.60): 27.55, ("aggregates", "rt_part_phi_max", 0.20): 27.48,
+    # 2026-11-25 (the gas cap and loop thinning). Before: 27.55, 27.48, 26.84, 26.88; 65.09, 60.01, 72.74, 90.22, 121.40
+    one = {("aggregates", "rt_agg_cell_share", 0.60): 27.53, ("aggregates", "rt_part_phi_max", 0.20): 27.47,
            ("aggregates", "rt_part_loss", 0.01): 25.98, ("aggregates", "rt_part_loss", 0.08): 27.95,
-           ("aggregates", "rt_agg_d_max_um", 450.0): 26.84, ("aggregates", "rt_o2_prolif", 0.065): 26.88,
-           ("microcarriers", "rt_mc_cells_cm2", 1e5): 161.82, ("microcarriers", "rt_mc_cells_cm2", 3e5): 65.09,
-           ("microcarriers", "rt_mc_d_um", 100.0): 60.01, ("microcarriers", "rt_mc_d_um", 250.0): 121.29,
-           ("microcarriers", "rt_part_phi_max", 0.35): 72.74, ("microcarriers", "rt_mc_price", 3.0): 90.22,
-           ("microcarriers", "rt_mc_price", 50.0): 121.40}
+           ("aggregates", "rt_agg_d_max_um", 450.0): 26.74, ("aggregates", "rt_o2_prolif", 0.065): 26.76,
+           ("microcarriers", "rt_mc_cells_cm2", 1e5): 161.82, ("microcarriers", "rt_mc_cells_cm2", 3e5): 64.34,
+           ("microcarriers", "rt_mc_d_um", 100.0): 59.16, ("microcarriers", "rt_mc_d_um", 250.0): 121.29,
+           ("microcarriers", "rt_part_phi_max", 0.35): 72.02, ("microcarriers", "rt_mc_price", 3.0): 90.10,
+           ("microcarriers", "rt_mc_price", 50.0): 120.70}
     for (dev, k, v), want in one.items():
         with R._with({k: v}):
             got = R.scenario_cost(dev, cen)["total"]

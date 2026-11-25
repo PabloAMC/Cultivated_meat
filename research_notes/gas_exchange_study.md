@@ -1,5 +1,35 @@
 # Gas exchange for a 20 m³ tank of animal cells: membrane loop, tank shape, and a published airlift
 
+> **2026-11-25: the gas cap and loop thinning.** `floor_physics.explore` now makes two choices itself in a tank with a column.
+> The gas the cells tolerate is a cap, not a setting: it tries the cap and every lower flow on `GAS_LADDER`. And a culture whose
+> column loop fails its checks (the alkaline dose above the safe 55 mbar / 0.5 m³ design, or more passes an hour than dense
+> cultures have taken) is held thinner, at the densest density that passes; the limit is then shown as "what the column can strip
+> safely". It returns the cheapest design whose loop passes. **Before this, an overloaded loop was priced as if it coped.** Several
+> column cases in this note did exactly that, and they were too cheap: the oxygen-sweep column with 1 bar ran at 258 g/L with 22
+> passes an hour and 1.89 times the safe dose at 6 mm/s, and 61 passes and 5.16 times the dose at 2 mm/s (those two figures are
+> still what the design does at full density; `tests/test_gas_exchange.py` computes them with the search off). On the note's
+> settings (the right-hand column of the next table, which is otherwise as of 2026-11-20/21):
+>
+> | Case (note's settings) | Before | 2026-11-25 | What now binds |
+> |---|---|---|---|
+> | packed column 20 mbar out, with 1 bar gauge | $9.63 | $11.45 | what the column can strip safely (was oxygen supply) |
+> | 2 mm/s, column with oxygen sweep | $10.30 | $18.05 | what the column can strip safely, 82 g/L (was mixing) |
+> | 2 mm/s, column with oxygen sweep and 1 bar | $8.51 | $18.05 | the same (was the thickness) |
+> | yeast-style plant, column and 1 bar | $6.10 | $7.47 | the same (was the thickness) |
+> | gentle column (55 mbar) with oxygen sweep and 1 bar; the same at 2 mm/s | $8.77; $8.53 | $10.18; $13.83 | the column, at 194 and 116 g/L |
+> | cheapest tricks at 1, 2 and 6 mm/s (sanitary plant) | $8.43; $8.40; $8.62 | $15.56; $12.47; $9.37 | the column at 1 and 2 mm/s; the thickness at 6 |
+> | cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s | $21.62; $14.40; $11.33; $9.37 | $15.56; $12.47; $9.74; $9.37 | the same designs as the line above |
+> | the "column with oxygen sweep, 1 bar" column of the cells-by-tank tables, floor's cell | $8.62 | $10.18 | the column, 194 g/L |
+>
+> Three conclusions change in kind. (1) **With every trick allowed, more gas tolerated is cheaper again**, not 2 mm/s: a higher cap
+> only adds flows to choose from, so it never costs more, and below 6 mm/s the column cannot carry what the sparger does not without
+> breaking its checks. Conclusion 3 of the box below is withdrawn. (2) **"Any circulation" and "within the checks" are now the same
+> search**: every loop the engine returns passes, so the "cheapest tricks" figures that were $6 to $7 below the constrained ones
+> were the price of an overloaded loop. The constrained figures fell instead, because a design that failed the checks was dropped
+> where it is now held thinner and kept. (3) **The hard column (20 mbar out) and the oxygen sweep at 2 mm/s are worth far less**
+> than section 7 says: what limits them is the alkaline dose, not mixing or oxygen. The cases without a column, and the column
+> for CO₂ alone (it stops at the oxygen limit with its loop within the checks), did not move.
+
 > **Figures on the final model (2026-11-20).** The body's dollar figures were computed with the model of 2026-11-14 and are no
 > longer what the code gives, even on the note's own settings (`floor_physics.BEFORE_FILTER_LOOP`: the old hoped-for cell-retention
 > device, no protectant, no antifoam effect, no oxygen bought by the yeast-style plant). Since then `floor_physics.explore` charges,
@@ -28,15 +58,19 @@
 > | ordinary meat cells: sparger only; every trick | $31.09; $26.89 | $43.96; $37.45 |
 > | the floor's cell on the low-waste feed, no genetic change: sparger only; every trick | $13.98; $9.79 | $17.89; $12.32 |
 >
-> **At the model's own settings (2026-11-21).** The column above keeps the note's settings. With the model's own (the TFF filter
+> **At the model's own settings (2026-11-25).** The column above keeps the note's settings. With the model's own (the TFF filter
 > loop, the protectant, antifoam's effect on oxygen, the yeast-style plant buying its oxygen), after the second batch of engine
-> fixes of 2026-11-21 (`tests/test_gas_exchange.py`, `_check_current`, pins these): the floor (Humbird's optimistic design)
-> $15.72; more gas, 12.5 mm/s, $15.76 (the extra bubbles kill as much as the extra gas is worth); cheapest tricks at 1, 2 and
-> 6 mm/s $13.41, $13.49 and $13.92 (the column with an oxygen sweep and 1 bar, in the tall tank, at 94, 75 and 22 passes an hour);
-> cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s $27.49, $17.22, $14.92 and $14.49 (the CO₂ column in a tank
-> twice as deep as wide, 1 bar); best shown in meat cells: sparger only $105.03, fat fed $73.20, every trick $100.55; ordinary
-> meat cells: sparger only $141.91, every trick $138.77; the floor's cell on the low-waste feed: sparger only $32.05, every trick
-> $30.01. RESULTS.md section 1 quotes the same figures.
+> fixes of 2026-11-21 and the gas cap and loop thinning of 2026-11-25 (`tests/test_gas_exchange.py`, `_check_current`, pins
+> these): the floor (Humbird's optimistic design) $15.72; more gas, 12.5 mm/s, $15.76 (the extra bubbles kill as much as the
+> extra gas is worth); cheapest tricks at 1, 2 and 6 mm/s $17.81, $15.38 and $14.49 (the column with an oxygen sweep and 1 bar
+> in a tank twice as deep as wide, held by its checks at 80 and 110 g/L; at 6 mm/s the CO₂ column in the same tank, 172 g/L,
+> held by oxygen); cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s $17.81, $15.38, $14.75 and $14.49 (the
+> same designs: every loop the engine returns now passes; at 4 mm/s the oxygen column, 1.6 times as deep as wide, 155 g/L); best
+> shown in meat cells: sparger only $105.03, fat fed $73.20, every trick $95.10; ordinary meat cells: sparger only $141.91, every
+> trick $134.18; the floor's cell on the low-waste feed: sparger only $32.05, every trick $30.52. Until 2026-11-25 the cheapest
+> tricks were $13.41, $13.49 and $13.92: the oxygen column in the tall tank at 94, 75 and 22 passes an hour, past the checks and
+> priced as if the loop coped; within the checks they were $27.49, $17.22, $14.92 and $14.49, and every trick $100.55, $138.77
+> and $30.01. RESULTS.md section 1 still quotes those 2026-11-21 figures.
 >
 > **Conclusions that changed in kind** (the body's text says the earlier ones; read these in their place):
 > 1. **The column alone, or with 1 bar, no longer reaches the thickness limit.** Once it lifts the CO₂ limit the culture stops at
@@ -46,7 +80,7 @@
 > 2. **The cheapest tank shape is 1.1 times as deep as wide, not 0.75.** Once the shape lifts the CO₂ limit, oxygen binds at
 >    153 g/L whatever the shape, and a squatter tank adds steel and bubble deaths (13% of the cells grown at depth 0.8 of width,
 >    8% in the tall tank). Answer-in-brief item 3 is rewritten.
-> 3. **With every trick allowed the gas the cells tolerate matters a little again.** The thickness binds at 1, 2 and 6 mm/s, and the
+> 3. *(Withdrawn 2026-11-25: it held only with overloaded loops; see the banner at the top.)* **With every trick allowed the gas the cells tolerate matters a little again.** The thickness binds at 1, 2 and 6 mm/s, and the
 >    only difference is the cells the bubbles kill (1.3%, 2.7% and 8.0%): 2 mm/s is the cheapest, 6 mm/s costs $0.23 more.
 > 4. **More gas is worth less**: twice the gas (12.5 mm/s) takes the floor from $14.05 to $10.88 (23%; it was 26%), with 16% of
 >    the cells killed.

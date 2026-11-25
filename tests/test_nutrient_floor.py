@@ -77,7 +77,8 @@ def check() -> list:
     # 2026-11-20 batch: 11.6738, 14.2773, 45.4289 before
     # 2026-11-20 final pass: 18.7144, 21.6023, 65.7209 before (the all-favourable example redefined; viscous oxygen, bubble deaths)
     # 2026-11-21: 7.6209, 10.4139, 64.7523 before (the same causes)
-    for (k, t, n), want in {("best", "feed", "eff"): 6.9686, ("best", "low", "mid"): 9.8644, ("central", "high", "low"): 63.9312}.items():
+    # 2026-11-25 (the gas cap and loop thinning): central high low 63.9312 -> 63.7218 (the engine thins the loop for this medium itself)
+    for (k, t, n), want in {("best", "feed", "eff"): 6.9686, ("best", "low", "mid"): 9.8644, ("central", "high", "low"): 63.7218}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")

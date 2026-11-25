@@ -53,7 +53,11 @@ GOLDEN_REF = {
 # 3.78 -> 6.01; membranes and medium fall a little, consumables 23.69 -> 20.47)
 # 2026-11-21: stirred perfusion 49.4977 -> 48.6815 (the thinned recycled-oxygen design), fed-batch 71.7592 -> 70.3150, airlift
 # perfusion 53.1084 -> 52.7303 (the building's power by floor and class, the floor's glucose)
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 48.6815, ("stirred", "fedbatch"): 70.3150, ("airlift", "perfusion"): 52.7303}
+# 2026-11-25 (the gas cap and loop thinning): stirred fed-batch 70.3150 -> 69.9004 (it bubbles less than the cells' cap, so fewer
+# cells die). The airlift in perfusion first moved to 50.8826 (it bubbled 1 mm/s against its 4 mm/s cap while still held to the
+# stirred tank's mixing rule, which vessels.VESSELS["airlift"] justifies by the gas power of 4-6 mm/s); its gas mixes it, so it now
+# keeps the cap (vm "gas_mixes", skipped by explore's gas choice) and stays at 52.7303
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 48.6815, ("stirred", "fedbatch"): 69.9004, ("airlift", "perfusion"): 52.7303}
 
 
 def close(a, b, tol=1e-3):

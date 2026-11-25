@@ -336,7 +336,9 @@ def _best_design(choice: dict, cap: float, redesign: bool, checked: bool):
 def cost_by_cap(key: str, caps=(180.0, 258.0, 320.0, 400.0)) -> dict:
     """A scenario's cost per kg of cells if its density limit ('thickness of the culture') were each of `caps`, g/L. Nothing else
     changes. Two readings per cap:
-      'fixed'  the scenario's own tank design, the column loop not checked: what the physics the model has gives;
+      'fixed'  the scenario's own tank design (its added equipment and shape; since 2026-11-25 explore() itself chooses the gas
+               flow up to the cap and holds a failing loop thinner, as the scenario's own run does, so a cap of 258 g/L gives
+               the scenario's own cost);
       'checked' the tank design chosen again, as `scenarios.design` does, with the loop checks (a pH-safe loop at a pass rate dense
                 cultures have taken): the loop's own limits can stop the design from using a thicker culture.
     Each entry: {'cost', 'density', 'limit', 'design' (tricks/shape)}. Where another limit holds the culture below the cap, the

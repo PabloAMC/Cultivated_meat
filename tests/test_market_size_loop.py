@@ -141,9 +141,13 @@ def check() -> list:
     t0 = s["base"]["cautious"]["cost"]
     # 2026-11-24 (the default of 50% of meat buyers): published cells rest at $81.47 (0.63%) with central learning, $97.91 with slow
     # learning and $76.16 with fast; only with no food-grade supplier and slow plant learning do they stay at their own cost ($180.37)
+    # 2026-11-25 (the gas cap and loop thinning): $181.13 -> $179.90 at their own cost; they rest at $81.23 central, $97.91 slow, $75.87
+    # fast, and stay at $178.89 with no food-grade supplier and slow plant learning
     if not (s["solved"][("cautious", "central", "below")]["cost"] < 0.5 * t0
             and s["solved"][("cautious", "slow learning", "below")]["cost"] < 0.6 * t0
-            and s["solved"][("cautious", "no food-grade membrane supplier, slow plant learning", "below")]["cost"] > t0 - 1.0
+            # 2026-11-25 (the gas cap and loop thinning): "at their own cost" was within $1 ($180.37 against $181.13); now $178.89
+            # against $179.90, $1.01 below, so the bound is 1% of their own cost. They still stay put: the conclusion is unchanged
+            and s["solved"][("cautious", "no food-grade membrane supplier, slow plant learning", "below")]["cost"] > 0.99 * t0
             and all(s["solved"][("cautious", case, start)]["share"] < 0.8 for case in L.CASES for start in ("below", "above"))):
         fails.append("published cells no longer rest below half their own cost with central and slow learning, stay at their own cost with no "
                      "food-grade supplier and slow plant learning, and stay under 0.8% of world meat; rewrite the note")

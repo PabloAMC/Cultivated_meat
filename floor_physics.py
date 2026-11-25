@@ -393,6 +393,55 @@ def tank_items(vessel_m3: float, perfusion: bool = False, choices: dict | None =
 # the cells it kills is small, then coarser; a share above what lifts oxygen to the next limit is cut to that share
 MICRO_GRID = (0.0, 0.0025, 0.005, 0.0075, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.065, 0.08, 0.1, 0.13, 0.16, 0.2, 0.25, 0.3,
               0.4, 0.5, 0.65, 0.8, 1.0)
+GAS_LADDER = (0.00025, 0.0005, 0.001, 0.002, 0.004, 0.006, 0.008)   # m/s: the gas flows a tank with a column may choose (explore)
+LOOP_LIMIT = "what the column can strip safely"   # the density cap that holds a column loop within its checks (vessels.LOOP_LIMIT)
+THIN_STEPS = 12                    # at most this many solves to find it (_thinned)
+THIN_TOL = 0.01                    # g/L: how close to the densest passing density (about 0.005% of the cost)
+CLEAN_TOP = 3                      # cleaning amounts run with the gas and thinning search (explore's cleaning search)
+
+
+def _slack(r: dict) -> float:
+    """How far a result's column loop is past its checks: the larger of the alkaline dose over the safe one and the passes an
+    hour over what dense cultures have taken, less 1 (0 or below passes; -1 with no loop)."""
+    d = r.get("column")
+    if d is None:
+        return -1.0
+    return max(d["ph_vs_safe"] - 1.0, d["passes"] / value("ge_passes_tested") - 1.0)
+
+
+def _thinned(kw: dict, u: float, r_hi: dict):
+    """explore(**kw) at gas flow u with the culture held at the densest density below r_hi's at which its column loop passes, or
+    None if none passes. A bracketed false position on the loop's slack (Illinois: an end kept twice has its slack halved),
+    from density 0 (no loop to speak of: slack -1) to r_hi's (failing), until the bracket is THIN_TOL g/L wide or THIN_STEPS
+    solves: about 0.01 g/L in 5 or 6 solves where 12 halvings took 12 (2026-11-25; the page's fxThinned does the same steps)."""
+    vm = kw.get("vm") or {}
+    a, sa, b, sb, ok, kept = 0.0, -1.0, float(r_hi["density"]), _slack(r_hi), None, 0
+    for _ in range(THIN_STEPS):
+        if b - a <= THIN_TOL:
+            break
+        x = b - sb * (b - a) / (sb - sa) if sb != sa else 0.5 * (a + b)
+        x = min(max(x, a + 0.01 * (b - a)), b - 0.01 * (b - a))       # never at an end of the bracket
+        r = explore(**{**kw, "vm": {**vm, "caps": {**vm.get("caps", {}), LOOP_LIMIT: x}}}, gas_velocity=u, _gas_search=False)
+        if loop_ok(r):
+            a, sa, ok = x, _slack(r), r
+            if kept == 1:
+                sb *= 0.5
+            kept = 1
+        else:
+            b, sb = x, _slack(r)
+            if kept == -1:
+                sa *= 0.5
+            kept = -1
+    return ok
+
+
+def loop_ok(r: dict) -> bool:
+    """Does a result's column loop (if any) pass its checks: the alkaline culture within the dose judged safe, and no more passes
+    an hour than dense cultures have taken (scenarios.loop_ok and the page's scLoopOk say the same)."""
+    d = r.get("column")
+    return d is None or (d["ph_vs_safe"] <= 1.0 + 1e-9 and bool(d["passes_tested"]))
+
+
 _BPOWER: dict = {}
 
 
@@ -658,7 +707,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             clean_loop: float | None = None, x_visc: float | None = None,
             membrane_price: float | None = None, membrane_hw: float | None = None, viscous_kla=True,
             mature_h: float | None = None, per_tank: bool = True, spargers: int | None = None,
-            micro_share: float | None = None, col_on_loop: bool | None = None, _search: bool = True) -> dict:
+            micro_share: float | None = None, col_on_loop: bool | None = None, _search: bool = True,
+            _gas_search: bool = True, _thin: bool = True) -> dict:
     """One case from the levers a reader can move, with the physics applied:
 
       * smaller cells respire more per gram (West's law), so the tank holds fewer of them;
@@ -834,16 +884,54 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # the litres cleaned that cost least, on the side study's own grids (medium_reuse.best, sorbent_best). None cleaned is
         # on both, so a route never costs more than no route
         kw = {k: v for k, v in locals().items() if k not in ("kw", "washed", "clean_share", "clean_loop")}
-        if clean_route(clean).get("sorbent"):          # the exchanger: the share of the ammonia taken, 0 to 90% in hundredths
-            return min((explore(clean_share=i / 100.0, **kw) for i in range(91)), key=lambda r: r["total"])
-        r0 = explore(clean_share=0.0, **kw)            # the others: every 0.1 litre per kilo harvested, up to all it handles
-        return min((explore(clean_loop=loop * r0["harvested_share"], **kw) if loop > 0 else r0
-                    for loop in clean_loops(r0["medium_terms"], clean_route(clean))), key=lambda r: r["total"])
+        route, fast = clean_route(clean), {**kw, "_gas_search": False}
+        if route.get("sorbent"):                       # the exchanger: the share of the ammonia taken, 0 to 90% in hundredths
+            cands = [{"clean_share": i / 100.0} for i in range(91)]
+        else:                                          # the others: every 0.1 litre per kilo harvested, up to all it handles
+            r0 = explore(clean_share=0.0, **fast)
+            cands = [{"clean_loop": loop * r0["harvested_share"]} if loop > 0 else {"clean_share": 0.0}
+                     for loop in clean_loops(r0["medium_terms"], route)]
+        keep = range(len(cands))
+        if _gas_search and column != "none":
+            # with a column each candidate runs the gas and thinning search (2026-11-25), so the litres are ranked without it
+            # and only the CLEAN_TOP cheapest, and none cleaned, are run in full: the answer is a feasible design, its litres
+            # the cheapest of those (the side study's grids are fine enough that the best of three is the best of all, or close)
+            f = [explore(**c, **fast)["total"] for c in cands]
+            keep = sorted(set(sorted(range(len(cands)), key=lambda i: (f[i], i))[:CLEAN_TOP]) | {0})
+        return min((explore(**cands[i], **kw) for i in keep), key=lambda r: r["total"])
     if (spargers if spargers is not None else value("ge_spargers")) >= 1.5 and micro_share is None:
         # two spargers: the share of the gas through the fine-bubble one that costs least (MICRO_GRID; the page's floorExplore
         # searches the same grid)
         kw = {k: v for k, v in locals().items() if k not in ("kw", "washed", "micro_share")}
         return min((explore(micro_share=sh, **kw) for sh in MICRO_GRID), key=lambda r: r["total"])
+    if _gas_search and column != "none":
+        # A TANK WITH A COLUMN (2026-11-25, the owner). Two choices the plant makes, not the model's settings:
+        # (1) the gas flow the cells tolerate is a cap ("no minimum"). Until then a culture denser than the sparger alone could
+        #     serve bubbled the full cap whatever the column, so a higher tolerance killed more cells and cost more. The column
+        #     takes whatever the sparger does not: the cap and every flow on GAS_LADDER below it are tried.
+        # (2) a culture whose loop fails its checks at every flow is held thinner, at the densest density at which it passes (the
+        #     cap LOOP_LIMIT, found by _thinned, at each flow: what scenarios.design() did when a case was built, now wherever a
+        #     setting or a draw moves). Of all of them, the cheapest whose loop passes its checks (loop_ok). Until then a reader's
+        #     setting or a Monte Carlo draw that overloaded the loop was priced as if the loop coped: 70% of the low-lactate
+        #     example's draws and 47% of the all-favourable example's.
+        # The page's floorExplore makes the same two choices.
+        kw = {k: v for k, v in locals().items() if k not in ("kw", "washed", "gas_velocity", "_gas_search", "_thin")}
+        cap = value("pf_gas_velocity") if gas_velocity is None else gas_velocity
+        flows = [cap]
+        if (not vm.get("gas_away") and not vm.get("gas_mixes") and not vm.get("no_protectant")
+                and (vm.get("o2_gas", True) or vm.get("co2_gas", True))):   # an airlift's gas mixes it: it keeps the cap
+            flows += [u for u in GAS_LADDER if u < cap - 1e-12]
+        at_cap, best = None, None
+        for u in flows:
+            r = explore(gas_velocity=u, _gas_search=False, **kw)
+            at_cap = r if at_cap is None else at_cap
+            if not loop_ok(r) and _thin:
+                r = _thinned(kw, u, r) or r
+            if loop_ok(r) and (best is None or r["total"] < best["total"]):
+                best = r
+        # every flow up to the cap, each held thinner if its loop fails: the cheapest that passes. A higher cap only adds flows,
+        # so it never costs more; if none passes even thinned, the cap's own result (its loop shown as failing)
+        return best if best is not None else at_cap
     args = {k: v for k, v in locals().items() if k not in ("pco2_mbar", "_search", "washed")}
     cyclic = vm.get("kind") == "cyclic"                # cycles (batch, fed-batch) in place of a continuous run
     wv = vm.get("wv", value("pf_working_volume"))

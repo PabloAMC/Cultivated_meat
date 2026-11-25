@@ -27,7 +27,8 @@ def check() -> list:
     for r in s["cost_rows"] + s["demand_rows"]:
         if r["key"] not in A.PLAIN:
             fails.append(f"{r['key']}: no plain name")
-    src = inspect.getsource(S.scenario_mc)
+    # 2026-11-25: scenario_mc is now a cached wrapper; the draws are made in _scenario_mc and priced in _mc_costs (worker processes)
+    src = "".join(inspect.getsource(f) for f in (S.scenario_mc, S._scenario_mc, S._mc_costs))
     for k in ("plant_charge_mature", "rt_membrane_life", "pf_maintenance_share"):
         if f'"{k}"' not in src:
             fails.append(f"{k} is listed as in the band but scenario_mc does not draw it")
@@ -40,8 +41,10 @@ def check() -> list:
     # longer moves them), and the scan now sees the scenarios' own settings. The largest driver of the low-lactate example's cost is no
     # longer the ammonia limit: it is the life of the cell filter (a lost run now throws its membranes away, and the low-lactate example
     # filters 30 litres a kilo, not 23), then the ammonia the cells tolerate, then the ammonia the low-lactate cells make.
+    # 2026-11-25 (the gas cap and loop thinning): the ammonia the cells tolerate is first again ($44.1), the filter's life second
+    # ($43.5; its short end $86.91 -> $79.46: at a short life the engine now finds a lower gas flow cheaper), the ammonia made third
     order = [r["key"] for r in s["cost_rows"]]
-    if order[:3] != ["rt_membrane_life", "sc_nh3_limit", "sc_nh3_selected"]:
+    if order[:3] != ["sc_nh3_limit", "rt_membrane_life", "sc_nh3_selected"]:
         fails.append(f"the three largest drivers of the low-lactate example's cost have changed ({order[:3]}); rewrite the summary")
     if "pf_nh3_limit" in order:
         fails.append("pf_nh3_limit should no longer move a scenario's cost (the scenarios pass sc_nh3_limit)")
@@ -58,11 +61,19 @@ def check() -> list:
     # tolerated ($21.7), the lactate made ($16.8) and the bubble kill ($13.5): the last two swapped places, and the bubble
     # kill is now under $15 (the cage's gas no longer counts, and the other fixes of the day). The protectant's price is
     # still eighth, under $10.
-    if not (min(swing(k) for k in order[:3]) > 35.0 and order[3:6] == ["sc_lac_limit", "sc_lac_selected", "ge_kill_protected"]
-            and min(swing(k) for k in order[3:6]) > 12.0 and swing("pf_protectant_price") < 10.0
-            and order.index("pf_protectant_price") == 7):
+    # 2026-11-25 (the gas cap and loop thinning): the bubble kill falls from sixth ($13.2) to ninth ($6.7): at its high end the
+    # engine now runs a lower gas flow rather than charge the kill at the cap ($58.94 -> $52.41). The salt strength the cells
+    # tolerate ($9.3) is sixth; the protectant's price ($7.4) seventh. The first three are still over $35 (the third $35.2)
+    if not (min(swing(k) for k in order[:3]) > 35.0 and order[3:6] == ["sc_lac_limit", "sc_lac_selected", "pf_osm_limit"]
+            and min(swing(k) for k in order[3:6]) > 9.0 and swing("pf_protectant_price") < 10.0
+            and order.index("pf_protectant_price") == 6 and swing("ge_kill_protected") < 10.0):
         fails.append("the first three drivers should each move the low-lactate example by over $35, then the lactate tolerated, the "
-                     f"lactate made and the bubble kill by over $12 each, and the protectant's price (eighth) by under $10: {order[:8]}")
+                     "lactate made and the salt strength tolerated by over $9 each, and the protectant's price (seventh) and the bubble "
+                     f"kill by under $10: {order[:9]}")
+    # 2026-11-25: the CO2 the cells tolerate (80-250 mbar) is a row: with the gas flow chosen up to the cap, a lower tolerance
+    # needs more gas or a thinner culture ($51.87 at 80 mbar, $46.48 at 250). It is not drawn in the bands
+    if "pf_pco2_limit" not in cr or swing("pf_pco2_limit") < 3.0 or A._band("pf_pco2_limit") != "**no**":
+        fails.append("pf_pco2_limit should move the low-lactate example by over $3 and be marked as not in the band")
     # the new rows are there, with the band status the bands' code gives them
     # 2026-11-20: sc_p_top (the pressure of the extra pressure, 0.33-2 bar) is no longer a row. At 0.33 bar the trick adds
     # nothing, and at 2 bar the only pH-safe design is a squat tank, where the bubbles (now charged) kill more cells, so the
@@ -184,9 +195,13 @@ def check() -> list:
     # three new inputs, and others that the higher share at the low-lactate example lifts over the thresholds)
     # 2026-11-22 (sixth batch): 615 inputs, 285 with a range (meat_displaced_per_kg; it moves no cost and is not a demand field,
     # so no row)
+    # 2026-11-25 (the gas cap and loop thinning): 19 -> 24 cost rows, 13 -> 15 over $3, 19 -> 23 at $1 or more in the low-lactate
+    # example. New rows: the CO2 tolerated, the loop's transit time, the culture's other buffering (both column-loop inputs, now
+    # that a failing loop is thinned), the upkeep share of oxygen use, and antifoam's cost to oxygen transfer (a row on the
+    # all-favourable example alone: $7.97 at 0.5)
     pins = [("inputs", s["inputs"], 615), ("with a range", s["ranged"], 285),      # liking_tail added in the second round
-            ("rows", len(s["cost_rows"]), 19), ("over $3", s["over_3"], 13),
-            ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 19),
+            ("rows", len(s["cost_rows"]), 24), ("over $3", s["over_3"], 15),
+            ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 23),
             ("demand rows", len(s["demand_rows"]), 20)]   # 2026-11-19: 9 -> 8 with the share of the meat sold; 2026-11-24: 14 -> 20 (the default of 50% of meat buyers)
     for name, got, want in pins:
         if got != want:
@@ -202,8 +217,11 @@ def check() -> list:
     # ammonia made (45.27, 81.28) -> (44.46, 80.42), lactate tolerated (71.18, 49.50) -> (70.33, 48.68), bubble kill
     # (46.46, 59.93) -> (45.70, 58.94), protectant price (47.94, 56.49) -> (47.13, 55.67), osmolality (58.76, 49.50) -> (57.93, 48.68)
     # 2026-11-21, the protectant's price band $10-120 -> $5-100 (evidence_poloxamer_price.md): (47.13, 55.67) -> (46.74, 54.12)
-    for k, want in (("rt_membrane_life", (86.91, 35.94)), ("sc_nh3_limit", (89.05, 43.84)), ("sc_nh3_selected", (44.46, 80.42)),   # low end 0.07 -> 0.04 (2026-11-19)
-                    ("sc_lac_limit", (70.33, 48.68)), ("ge_kill_protected", (45.70, 58.94)),
+    # 2026-11-25 (the gas cap and loop thinning): filter life (86.91, 35.94) -> (79.46, 35.94), ammonia tolerated (89.05, 43.84) ->
+    # (87.95, 43.84), ammonia made (44.46, 80.42) -> (44.46, 79.66), lactate tolerated (70.33, 48.68) -> (69.95, 48.68), bubble kill
+    # (45.70, 58.94) -> (45.70, 52.41); the protectant's price and the osmolality unchanged
+    for k, want in (("rt_membrane_life", (79.46, 35.94)), ("sc_nh3_limit", (87.95, 43.84)), ("sc_nh3_selected", (44.46, 79.66)),   # low end 0.07 -> 0.04 (2026-11-19)
+                    ("sc_lac_limit", (69.95, 48.68)), ("ge_kill_protected", (45.70, 52.41)),
                     ("pf_protectant_price", (46.74, 54.12)), ("pf_osm_limit", (57.93, 48.68))):
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
             fails.append(f"{k}: the low-lactate example {cr[k]['central'][0]:.2f} to {cr[k]['central'][1]:.2f} != pinned {want}")

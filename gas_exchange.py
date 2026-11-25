@@ -709,9 +709,10 @@ def cheapest_tricks(sparge_cap: float, plant: str = "sanitary", aspects=(0.5, 0.
                     pressures=(None, 0.5, 1.0), columns=("none", "co2", "o2_closed"), ph_safe: bool = False,
                     tested: bool = False, **cells) -> dict:
     """The cheapest combination of tank shape, column and headspace pressure when the cells tolerate at most
-    `sparge_cap` m/s of gas. The sparger runs at the cap (gas is not priced here); a squatter tank pays for its
-    extra steel and floor (shape_capex_factor); the column takes whatever CO2 (and, with an oxygen sweep,
-    oxygen) the sparger cannot. `ph_safe` keeps only loops whose alkaline exposure is within the 55 mbar /
+    `sparge_cap` m/s of gas. Without a column the sparger runs at the cap; with one, explore tries the cap and every
+    lower flow and holds a loop that fails its checks thinner (2026-11-25), so every column design returned passes;
+    a squatter tank pays for its extra steel and floor (shape_capex_factor); the column takes whatever CO2 (and, with
+    an oxygen sweep, oxygen) the sparger cannot. `ph_safe` keeps only loops whose alkaline exposure is within the 55 mbar /
     0.5 m3 design (section 8); `tested` keeps only loops within the pass rate dense cultures have taken."""
     best = None
     for a in aspects:

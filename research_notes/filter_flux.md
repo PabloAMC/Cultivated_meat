@@ -1,6 +1,8 @@
 # Can a filter hold 5 L/m²/h at 25% cells for a month?
 
-Date: 2026-11-15; costs recomputed 2026-11-22 on the current model (section 4). The default membrane life became 2,415 L/m² on 2026-11-20 (section 5). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
+> Recomputed 2026-11-25 (the gas cap and loop thinning). The engine now takes the gas flow the cells tolerate as a cap and tries lower flows, and holds thinner a culture whose column loop fails its checks. With short-lived membranes the low-lactate example's cheapest design now bubbles less and runs thinner, which filters fewer litres a kilo: at (5, 1,200) $71.67 -> $68.97 (102 g/L, was 168), at (2.5, 450) $148.13 -> $114.50 (59 g/L). The default ($48.68) and the earlier default ($39.82) do not move. These are the engine's design, not the cheapest density: the engine thins only as far as its column loop needs, and at (2.5, 450) a culture capped at 30 g/L costs about $80 (`retention.density_scan`). Section 4 and the figures quoted in section 5 are updated.
+
+Date: 2026-11-15; costs recomputed 2026-11-22 and 2026-11-25 on the current model (section 4). The default membrane life became 2,415 L/m² on 2026-11-20 (section 5). Code: `filter_flux.py`; tests: `tests/test_filter_flux.py`; inputs `ff_*` in `inputs.py`. The research report with every source,
 its URL and how much of it was read is `filter_flux_sources/flux_limit_sources.md`. Costs are 2025 dollars per kg of wet cells. No default changed.
 
 ## 1. The question
@@ -67,23 +69,23 @@ days. The later evidence pass put the median life at about 1,500 L/m², with an 
 
 | Cost per kg with the filter at (flux, membrane life) | Default (5, 2,415) | The earlier default (5, 3,960) | (5, 1,200) | (2.5, 1,200) | (2.5, 450) |
 |---|---|---|---|---|---|
-| Low-lactate example | **$48.68** | $39.82 | $71.67 | $71.96 | $148.13 |
+| Low-lactate example | **$48.68** | $39.82 | $68.97 | $69.20 | $114.50 |
 
 The all-favourable example ($6.97) is not in the table: it holds its cells back with dialyser-grade hollow fibres, whose flux,
 life and price it sets itself (`scenarios.all_favourable`), so the cell filter's flux and life do not move it.
 
-- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves the low-lactate example by $0.3. The
-  membrane's throughput moves it by $23 to $99.
+- **The hardware barely matters; membrane life does.** Halving the flux doubles the membrane area but moves the low-lactate example by $0.2. The
+  membrane's throughput moves it by $20 to $66.
 - **Moving the default from 3,960 to 2,415 added $8.86 to the low-lactate example** (at today's other settings; $8.69 when it was made, on 2026-11-20).
 - **Caveat:** the short-life columns include the lost-run factor, as the default does; a membrane replaced
   several times a run loses less than that to a lost run, so they are high by up to about 15% of the membrane cost.
-- **At the measured CHO throughput, the low-lactate example costs $72–148.** That is not a forecast: the data are from thinner cultures of a pharma line.
+- **At the measured CHO throughput, the low-lactate example costs $69–115** (run thinner at the shorter lives; $72–148 before 2026-11-25). That is not a forecast: the data are from thinner cultures of a pharma line.
   It says the default still sits above the measured CHO range, by a factor of two at its top.
 - **Life and price act together.** A membrane adds price ÷ life to each litre filtered. A 1,500 L/m² membrane costs the low-lactate example nothing extra at $901 a m² or less, and a 1,000 L/m² membrane at $600 or less (`filter_flux.break_even_price`).
 
 ## 5. What this means
 
-1. **The decision was taken on 2026-11-20:** `rt_membrane_life` is 2,415 L/m², Humbird's own schedule, paired with his price. At 1,200 L/m² the low-lactate example would be $71.67. The model's range still
+1. **The decision was taken on 2026-11-20:** `rt_membrane_life` is 2,415 L/m², Humbird's own schedule, paired with his price. At 1,200 L/m² the low-lactate example would be $68.97. The model's range still
    spans 900–5,500.
 2. **The experiment that settles it:** run a hollow-fibre filter on a meat cell line at 10–25% cells by volume at 2–5 L/m²/h and
    record the pressure against litres filtered per m². Fouling is slow, so it takes weeks. A bench filter of 0.025 m² is enough.

@@ -289,7 +289,9 @@ def rna_share_for(doubling_h: float, elongation: float | None = None) -> float:
 
 
 def scan_doubling(key: str, hours=HOURS) -> dict:
-    """explore() for a scenario at other doubling times, its tank design held fixed. {hours: result}."""
+    """explore() for a scenario at other doubling times, its tank design held fixed. {hours: result}.
+    The tank, column and cells are held; since 2026-11-25 the engine picks the gas flow (up to the cap) and thins an overloaded
+    column loop at each doubling time, as a plant would."""
     choice = S.SCENARIOS[key].choice
     return {h: S.run(choice, doubling_h=h) for h in hours}
 

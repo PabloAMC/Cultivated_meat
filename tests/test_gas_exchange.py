@@ -61,8 +61,9 @@ def check() -> list:
 
 
 def _check_current() -> list:
-    """The note's box "At the model's own settings (2026-11-21)": the same figures with the filter loop, the protectant, antifoam
-    and bought oxygen on, after the second batch of engine fixes of 2026-11-21. RESULTS.md section 1 quotes them too."""
+    """The note's box "At the model's own settings (2026-11-25)": the same figures with the filter loop, the protectant, antifoam
+    and bought oxygen on, after the second batch of engine fixes of 2026-11-21 and the gas cap and loop thinning of 2026-11-25.
+    RESULTS.md section 1 quotes them too (with the 2026-11-21 figures until it is regenerated)."""
     import floor_physics as fp
     import gas_exchange as ge
     fails = []
@@ -76,18 +77,24 @@ def _check_current() -> list:
                      (8, "ordinary cells, sparger"), (11, "ordinary cells, every trick"), (12, "low-waste feed, sparger"),
                      (15, "low-waste feed, every trick")):
         got[label] = rows[i][2]
-    want = {"floor": 15.72, "12.5 mm/s": 15.76, "cheapest tricks at 1 mm/s": 13.41, "cheapest tricks at 2 mm/s": 13.49,
-            "cheapest tricks at 6 mm/s": 13.92, "cheapest within the checks at 1 mm/s": 27.49,
-            "cheapest within the checks at 2 mm/s": 17.22, "cheapest within the checks at 4 mm/s": 14.92,
+    # 2026-11-25 (the gas cap and loop thinning): every case with a column now runs the cheapest gas flow up to the cap and a
+    # loop that passes its checks, so "any circulation" and "within the checks" are the same search. Before -> after: cheapest
+    # tricks at 1 / 2 / 6 mm/s 13.41 -> 17.81, 13.49 -> 15.38, 13.92 -> 14.49 (they ran 94, 75 and 22 passes an hour, beyond
+    # the checks); within the checks at 1 / 2 / 4 mm/s 27.49 -> 17.81, 17.22 -> 15.38, 14.92 -> 14.75 (the recycled-oxygen
+    # column held thinner now beats the CO2 column); every trick: best meat cells 100.55 -> 95.10, ordinary cells
+    # 138.77 -> 134.18, low-waste feed 30.01 -> 30.52 (each loop was overloaded at 258 g/L and is now held where it passes)
+    want = {"floor": 15.72, "12.5 mm/s": 15.76, "cheapest tricks at 1 mm/s": 17.81, "cheapest tricks at 2 mm/s": 15.38,
+            "cheapest tricks at 6 mm/s": 14.49, "cheapest within the checks at 1 mm/s": 17.81,
+            "cheapest within the checks at 2 mm/s": 15.38, "cheapest within the checks at 4 mm/s": 14.75,
             "cheapest within the checks at 6 mm/s": 14.49, "best meat cells, sparger": 105.03, "best meat cells, fat fed": 73.20,
-            "best meat cells, every trick": 100.55, "ordinary cells, sparger": 141.91, "ordinary cells, every trick": 138.77,
-            "low-waste feed, sparger": 32.05, "low-waste feed, every trick": 30.01}
+            "best meat cells, every trick": 95.10, "ordinary cells, sparger": 141.91, "ordinary cells, every trick": 134.18,
+            "low-waste feed, sparger": 32.05, "low-waste feed, every trick": 30.52}
     for k, w in want.items():
         if abs(got[k] - w) > 0.006:
             fails.append(f"current figures, {k}: want ${w:.2f} got ${got[k]:.2f}")
     here = os.path.dirname(os.path.abspath(__file__))
     note = open(os.path.join(os.path.dirname(here), "research_notes", "gas_exchange_study.md"), encoding="utf-8").read()
-    box = note.split("> **At the model's own settings (2026-11-21).**")[1].split("> **Conclusions that changed in kind**")[0]
+    box = note.split("> **At the model's own settings (2026-11-25).**")[1].split("> **Conclusions that changed in kind**")[0]
     for w in want.values():
         if f"${w:.2f}" not in box:
             fails.append(f"gas_exchange_study.md's box at the model's own settings does not quote ${w:.2f}")
@@ -222,14 +229,20 @@ def _check() -> list:
     near("note: the loop's jet barely helps mixing", mx["mix_x"], 1.06, 0.02)
     # 2026-11-20: 8.90 / 7.48 / 16.06 / 9.29 / 7.80 / 5.30 before the batch; final model: the first three 10.44 -> 11.96
     # (mixing -> oxygen supply), 8.54 -> 9.63 (thickness -> oxygen supply), 18.53 -> 20.25 (viscous_kla)
+    # 2026-11-25 (the gas cap and loop thinning): this hard column (20 mbar out) fails the pH check wherever it carries much CO2,
+    # and the engine now holds such a loop thinner, at the densest density that passes ("what the column can strip safely").
+    # Before, the overloaded loop was priced as if it coped. column + 1 bar 9.63 -> 11.45 (oxygen supply -> the column);
+    # 2 mm/s with the oxygen sweep 10.30 -> 18.05 (mixing -> the column, 82 g/L); the same + 1 bar 8.51 -> 18.05 (thickness ->
+    # the column); yeast-style + 1 bar 6.10 -> 7.47 (thickness -> the column). The first and third still pass at full density.
+    LOOP = fp.LOOP_LIMIT
     cases = (("note: floor, column at 6 mm/s", dict(), 11.96, "oxygen supply"),
-             ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 9.63, "oxygen supply"),
+             ("note: floor, column + 1 bar gauge", dict(p_top_barg=1.0), 11.45, LOOP),
              ("note: 2 mm/s, column for CO2 only", dict(sparge_velocity=0.002), 20.25, "oxygen supply"),
-             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 10.30, "mixing"),
-             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 8.51,
-              "thickness of the culture"),
-             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 6.10,   # 6.23 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)
-              "thickness of the culture"))
+             ("note: 2 mm/s, column with oxygen sweep", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed"), 18.05, LOOP),
+             ("note: 2 mm/s, column + oxygen + 1 bar", dict(sparge_velocity=0.002, oxygen=True, sweep="o2_closed", p_top_barg=1.0), 18.05,
+              LOOP),
+             ("note: yeast-style plant, column + 1 bar", dict(oxygen=True, sweep="o2_closed", p_top_barg=1.0, plant="microbial"), 7.47,   # 6.23 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo); 6.10 before 2026-11-25
+              LOOP))
     for name, kw, want, lim in cases:
         r = ge.floor_with_column(p_out=20.0, **kw)
         near(name, r["total"], want, 0.02)
@@ -249,10 +262,12 @@ def _check() -> list:
     near("note: hard design vs Paul's pH dose", hard["vs_paul"], 1.57, 0.02)
     near("note: gentle design vs Paul's pH dose", soft["vs_paul"], 0.29, 0.03)
     near("note: floor, gentle column", ge.floor_with_column(p_out=55.0)["total"], 11.98, 0.02)   # 10.47
+    # 2026-11-25 (the gas cap and loop thinning): 8.77 -> 10.18 and 8.53 -> 13.83. Even the gentle loop is past the safe pH dose
+    # at 258 g/L with the oxygen sweep (1.89 of it at 6 mm/s, 5.16 at 2 mm/s, below), so it is held at 194 and 116 g/L
     near("note: floor, gentle column + oxygen + 1 bar", ge.floor_with_column(p_out=55.0, oxygen=True, sweep="o2_closed",
-         p_top_barg=1.0)["total"], 8.77, 0.02)
+         p_top_barg=1.0)["total"], 10.18, 0.02)
     near("note: same at 2 mm/s", ge.floor_with_column(p_out=55.0, sparge_velocity=0.002, oxygen=True, sweep="o2_closed",
-         p_top_barg=1.0)["total"], 8.53, 0.02)
+         p_top_barg=1.0)["total"], 13.83, 0.02)
 
     # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
     r0 = fp.explore()
@@ -296,7 +311,12 @@ def _check() -> list:
     # Final model (2026-11-20, later): the column case of the floor's cell 10.468 -> 11.982 (oxygen now binds at 153 g/L,
     # viscous_kla); the rest moved by under 1% with the day's engine fixes.
     # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): every pin below moved by 1-3% (before: the list as it stood on 2026-11-20, final model)
-    pins = [('sanitary', 0.0, True, 0, 0, 13.843), ('sanitary', 0.0, True, 0, 1, 11.908), ('sanitary', 0.0, True, 0, 2, 11.817), ('sanitary', 0.0, True, 0, 3, 8.624), ('sanitary', 0.0, True, 1, 0, 39.043), ('sanitary', 0.0, True, 1, 3, 32.603), ('sanitary', 0.0, True, 1, 1, 28.653), ('sanitary', 0.0, True, 2, 0, 43.75), ('sanitary', 0.0, True, 2, 3, 37.349), ('sanitary', 0.002, True, 0, 0, 14.108), ('sanitary', 0.002, True, 0, 3, 8.758), ('microbial', 0.0, True, 0, 0, 8.477), ('microbial', 0.0, True, 0, 3, 6.128), ('microbial', 0.0, True, 1, 3, 27.813), ('microbial', 0.006, True, 0, 3, 6.341), ('microbial', 0.022, True, 0, 0, 9.936), ('microbial', 0.022, True, 0, 3, 6.928), ('microbial', 0.022, True, 1, 3, 30.624), ('sanitary', 0.0, False, 0, 0, 17.683), ('sanitary', 0.0, False, 0, 3, 12.223), ('sanitary', 0.002, False, 0, 3, 12.371), ('microbial', 0.0, False, 0, 3, 9.727), ('microbial', 0.022, False, 0, 3, 10.68)]
+    # 2026-11-25 (the gas cap and loop thinning): only the last tank column (the oxygen column, 1 bar) moved; its loop was
+    # overloaded at 258 g/L and is now held where it passes (194 g/L for the floor's cell). Before -> after: sanitary 0.0 GE
+    # 8.624 -> 10.184, 32.603 -> 33.025, 37.349 -> 39.159; sanitary 0.002 GE 8.758 -> 10.357; microbial 0.0 GE 6.128 -> 6.869,
+    # 27.813 -> 27.987; microbial 0.006 GE 6.341 -> 7.136; microbial 0.022 GE 6.928 -> 7.875, 30.624 -> 30.908; no GE: sanitary
+    # 0.0 12.223 -> 13.863, sanitary 0.002 12.371 -> 14.051, microbial 0.0 9.727 -> 10.549, microbial 0.022 10.68 -> 11.716
+    pins = [('sanitary', 0.0, True, 0, 0, 13.843), ('sanitary', 0.0, True, 0, 1, 11.908), ('sanitary', 0.0, True, 0, 2, 11.817), ('sanitary', 0.0, True, 0, 3, 10.184), ('sanitary', 0.0, True, 1, 0, 39.043), ('sanitary', 0.0, True, 1, 3, 33.025), ('sanitary', 0.0, True, 1, 1, 28.653), ('sanitary', 0.0, True, 2, 0, 43.75), ('sanitary', 0.0, True, 2, 3, 39.159), ('sanitary', 0.002, True, 0, 0, 14.108), ('sanitary', 0.002, True, 0, 3, 10.357), ('microbial', 0.0, True, 0, 0, 8.477), ('microbial', 0.0, True, 0, 3, 6.869), ('microbial', 0.0, True, 1, 3, 27.987), ('microbial', 0.006, True, 0, 3, 7.136), ('microbial', 0.022, True, 0, 0, 9.936), ('microbial', 0.022, True, 0, 3, 7.875), ('microbial', 0.022, True, 1, 3, 30.908), ('sanitary', 0.0, False, 0, 0, 17.683), ('sanitary', 0.0, False, 0, 3, 13.863), ('sanitary', 0.002, False, 0, 3, 14.051), ('microbial', 0.0, False, 0, 3, 10.549), ('microbial', 0.022, False, 0, 3, 11.716)]
     tabs = {}
     for plant, hz, genetic, ci, tj, want in pins:
         tabs.setdefault((plant, hz, genetic), ge.cases_table(plant, hz, genetic=genetic))
@@ -338,15 +358,25 @@ def _check() -> list:
     # --- circulation and the pH rule (review of PR 10) -------------------------------------------------------
     near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 11.817, 0.002)   # 11.982 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)   # 10.468 before the final model
     # final model: the column alone stops at 153 g/L (oxygen), so 11.1 -> 5.34 passes an hour and 0.92 -> 0.44 of the safe dose
+    # 2026-11-25 (the gas cap and loop thinning): these figures describe each design HELD FIXED at the density its other limits
+    # allow (how far past the checks the oxygen column runs at 258 g/L), so they run with _gas_search=False: the sparger at
+    # the cap and no thinning. With the full engine the two oxygen-column designs are held thinner, where the loop passes
+    # (12.0 and 12.3 passes an hour, exactly the safe dose), checked just below.
     for kw, passes, safe in ((dict(column="co2"), 5.34, 0.44), (dict(column="o2_closed", p_top_barg=1.0), 22.4, 1.89),
                              (dict(column="o2_closed", p_top_barg=1.0, gas_velocity=0.002), 61.0, 5.16)):
-        d = fp.explore(**kw)["column"]
+        d = fp.explore(_gas_search=False, **kw)["column"]
         near(f"note: passes an hour {kw}", d["passes"], passes, 0.01)
         near(f"note: alkaline exposure vs the safe design {kw}", d["ph_vs_safe"], safe, 0.02)
+        r_full = fp.explore(**kw)
+        if not fp.loop_ok(r_full) or (safe > 1.0 and not (r_full["limit"] == fp.LOOP_LIMIT
+                                                          and abs(r_full["column"]["ph_vs_safe"] - 1.0) < 1e-3)):
+            fails.append(f"the engine should hold {kw} where its loop passes, at the safe dose if it is past it at full density")
     # 2026-11-20: 17.57 / 12.00 / 8.79 / 7.75 / 7.08 / 5.21 before the batch
     # final model: 20.150 / 13.695 / 10.639 / 9.280 / 8.479 / 6.419 -> the figures below (viscous_kla)
     # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 21.972 / 14.622 / 11.481 / 9.478 / 9.093 / 6.605 before
-    for cap, plant, want in ((0.001, 'sanitary', 21.622), (0.002, 'sanitary', 14.401), (0.004, 'sanitary', 11.332), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 8.811), (0.006, 'microbial', 6.472)):
+    # 2026-11-25 (the gas cap and loop thinning): 21.622 / 14.401 / 11.332 / 9.373 / 8.811 / 6.472 before. A design whose loop
+    # failed the checks was dropped; it is now held thinner and kept, so the constrained figures fell (the oxygen column, 1 bar)
+    for cap, plant, want in ((0.001, 'sanitary', 15.562), (0.002, 'sanitary', 12.467), (0.004, 'sanitary', 9.737), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 7.723), (0.006, 'microbial', 6.472)):
         b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
         near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)
         if b["column"] is not None and (b["column"]["ph_vs_safe"] > 1 + 1e-9 or not b["column"]["passes_tested"]):
@@ -373,14 +403,21 @@ def _check() -> list:
     # only thing the gas changes is the cells the bubbles kill (1.3%, 2.7% and 8.0% of the cells grown), and 2 mm/s, where
     # the oxygen column has the least to do beyond the sparger, is the cheapest; 6 mm/s costs $0.23 more.
     # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 8.518 / 8.491 / 8.723 / 6.156 / 6.254 before
-    for cap, plant, want in ((0.001, 'sanitary', 8.426), (0.002, 'sanitary', 8.397), (0.006, 'sanitary', 8.624), (0.002, 'microbial', 6.038), (0.006, 'microbial', 6.128)):
+    # 2026-11-25 (the gas cap and loop thinning): 8.426 / 8.397 / 8.624 / 6.038 / 6.128 before. Those ran the oxygen column at
+    # 258 g/L far past its checks (61 passes an hour at 2 mm/s, 5.2 times the safe pH dose) and priced it as if it coped; every
+    # design now runs a loop that passes, so these equal the constrained figures above.
+    for cap, plant, want in ((0.001, 'sanitary', 15.562), (0.002, 'sanitary', 12.467), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 7.723), (0.006, 'microbial', 6.472)):
         near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
+    # 2026-11-25: was "the thickness binds at every gas flow, the bubbles kill more the more gas, 2 mm/s is cheapest and 6 mm/s
+    # costs under $0.30 more". That held only with overloaded loops. Now the gas the cells tolerate is a cap the engine may run
+    # below, so a higher cap never costs more (to 1e-4 of the cost: thinning stops within 0.01 g/L, about 0.005% of the cost);
+    # below 6 mm/s the column's checks hold the culture, and at 6 mm/s it reaches the thickness limit.
     trio = [ge.cheapest_tricks(cap, "sanitary") for cap in (0.001, 0.002, 0.006)]
-    if not (all(t["limit"] == "thickness of the culture" for t in trio) and trio[0]["death_share"] < trio[1]["death_share"]
-            < trio[2]["death_share"] and min(range(3), key=lambda i: trio[i]["total"]) == 1
-            and trio[2]["total"] - trio[1]["total"] < 0.30):
-        fails.append("with every trick allowed the thickness should bind at every gas flow, the bubbles kill more the more gas, "
-                     "2 mm/s is cheapest and 6 mm/s costs under $0.30 more")
+    if not (all(b["total"] <= a["total"] * (1.0 + 1e-4) for a, b in zip(trio, trio[1:]))
+            and all(t["limit"] == fp.LOOP_LIMIT for t in trio[:2]) and trio[2]["limit"] == "thickness of the culture"
+            and all(fp.loop_ok(t) for t in trio)):
+        fails.append("with every trick allowed a higher gas cap should never cost more, the column's checks should hold the "
+                     "culture below 6 mm/s and the thickness at 6 mm/s, and every loop should pass its checks")
 
     # --- bubble damage goes with gas per litre: same velocity, shallower tank, more deaths -------------
     d0, d1 = ge.sparge_death(), ge.sparge_death(depth=fp.tank_shape(20.0, 0.8)[1])

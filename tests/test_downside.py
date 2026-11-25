@@ -37,9 +37,12 @@ from inputs import value
 # 2026-11-21: every figure falls a little, none changes its limit (the building's power by floor and class, the floor's glucose;
 # the least medium flow times pf_batch_end_x leaves these waste-held tanks alone). Before: best 11.2827 / 37.6200 / 9.3519,
 # central 71.7592 / 96.6177 / 76.3460, central_lean 55.5037 / 52.3868, cautious 322.5502 / 366.3655 / 366.3655.
+# 2026-11-25 (the gas cap and loop thinning): the fallbacks with gas to spare now bubble less than the cells' cap where that is
+# cheaper; no limit and no density moves. best 11.0319 -> 10.9257, 9.1250 -> 9.0394; central 70.3150 -> 69.9004,
+# 94.6670 -> 94.6573, 74.7529 -> 74.3543. central_lean, cautious and best at 27 g/L do not move.
 GOLDEN = {
-    "best": {("fedbatch", "model"): 11.0319, ("fedbatch", "shown"): 36.5619, ("filldraw", "model"): 9.1250},
-    "central": {("fedbatch", "model"): 70.3150, ("fedbatch", "shown"): 94.6670, ("filldraw", "model"): 74.7529},
+    "best": {("fedbatch", "model"): 10.9257, ("fedbatch", "shown"): 36.5619, ("filldraw", "model"): 9.0394},
+    "central": {("fedbatch", "model"): 69.9004, ("fedbatch", "shown"): 94.6573, ("filldraw", "model"): 74.3543},
     "central_lean": {("fedbatch", "model"): 53.8796, ("filldraw", "model"): 50.5951},
     "cautious": {("fedbatch", "model"): 316.1052, ("filldraw", "model"): 358.7276, ("filldraw", "shown"): 358.7276},
 }
