@@ -53,7 +53,8 @@ def check() -> list:
     # 7.6209, 7.6209, 7.6209, 7.6209]
     # 2026-11-25 (the gas cap and loop thinning): the tank-design step at 20 m3, 7.4981 -> 7.5215. The case no longer carries its
     # 42 m3 density cap (219 g/L); explore() thins the 20 m3 loop itself, to 217 g/L, where the cap let it overload its checks
-    want = [15.7364, 12.0731, 12.0731, 9.7471, 9.5023, 9.5023, 7.5215, 6.9686, 6.9686, 6.9686, 6.9686]
+    # 2026-11-27 (nutrient balance: Humbird's cells make 0.56 mol of lactate a kilo and eat for it): every step about +$0.05
+    want = [15.7896, 12.123, 12.123, 9.797, 9.5522, 9.5522, 7.5748, 7.0205, 7.0205, 7.0205, 7.0205]
     got = [r["cost"] for r in rows]
     if len(got) != len(want) or any(not close(g, w, 1e-4) for g, w in zip(got, want)):
         fails.append(f"the path moved: {[round(g, 4) for g in got]} != pinned {want}")
@@ -62,16 +63,16 @@ def check() -> list:
     # repinned 2026-11-21 (as above). The tank design alone now costs more than Humbird's design (16.34 against 15.74; it saved
     # $0.35 before): the all-favourable case's design is a flat tank held at 219 g/L by its loop's checks, which pays only with
     # its fast cells and cheap filter
-    want = {"Cells double in 16 hours": 12.0731, "Cells of 3 ng, Humbird's, the heaviest allowed": 15.7364,
-            "Tanks of 42 m³ in place of 20 m³": 15.0079,
-            "A food-grade plant with shared medium": 12.8447,
-            "Dialyser-grade hollow fibres as the filter": 13.8666,
-            "Dissolved oxygen held at about half of air saturation": 15.7364,
-            # 2026-11-25 (the gas cap and loop thinning): 16.3359 -> 15.8870. Without the case's 219 g/L cap, explore() chooses
-            # for Humbird's slower cells: 4 mm/s of gas and 193 g/L. Still dearer than Humbird's design (15.7364)
-            "The cheapest tank design that passes the checks on the CO₂ loop": 15.8870,
-            "The least medium flow at the lowest measured": 15.7364, "Culture up to 320 g/L in place of 258": 15.7364,
-            "Medium at the nutrient floor": 15.7364}
+    want = {"Cells double in 16 hours": 12.1230, "Cells of 3 ng, Humbird's, the heaviest allowed": 15.7896,
+            "Tanks of 42 m³ in place of 20 m³": 15.0600,
+            "A food-grade plant with shared medium": 12.8979,
+            "Dialyser-grade hollow fibres as the filter": 13.9197,
+            "Dissolved oxygen held at about half of air saturation": 15.7896,
+            # 2026-11-25 (the gas cap and loop thinning): 16.3359 -> 15.9422. Without the case's 219 g/L cap, explore() chooses
+            # for Humbird's slower cells: 4 mm/s of gas and 193 g/L. Still dearer than Humbird's design (15.7896). 2026-11-27 (nutrient balance): every value here +$0.05
+            "The cheapest tank design that passes the checks on the CO₂ loop": 15.9422,
+            "The least medium flow at the lowest measured": 15.7896, "Culture up to 320 g/L in place of 258": 15.7896,
+            "Medium at the nutrient floor": 15.7896}
     for n, w in want.items():
         if n not in alone or not close(alone[n], w, 1e-4):
             fails.append(f"{n} alone: {alone.get(n, float('nan')):.4f} != {w}")

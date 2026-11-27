@@ -40,10 +40,14 @@ from inputs import value
 # 2026-11-25 (the gas cap and loop thinning): the fallbacks with gas to spare now bubble less than the cells' cap where that is
 # cheaper; no limit and no density moves. best 11.0319 -> 10.9257, 9.1250 -> 9.0394; central 70.3150 -> 69.9004,
 # 94.6670 -> 94.6573, 74.7529 -> 74.3543. central_lean, cautious and best at 27 g/L do not move.
+# 2026-11-27 (nutrient balance): the cells pay for the amino acids their ammonia takes and the glucose they ferment. best
+# 10.9257 -> 10.9747, 36.5619 -> 36.6098, 9.0394 -> 9.0884; central 69.9004 -> 70.0156, 74.3543 -> 74.4681; central_lean
+# 53.8796 -> 53.9983, 50.5951 -> 50.7124. The low-lactate examples at 27 g/L and the cautious case do not move (litres x price
+# exceed what the cells eat)
 GOLDEN = {
-    "best": {("fedbatch", "model"): 10.9257, ("fedbatch", "shown"): 36.5619, ("filldraw", "model"): 9.0394},
-    "central": {("fedbatch", "model"): 69.9004, ("fedbatch", "shown"): 94.6573, ("filldraw", "model"): 74.3543},
-    "central_lean": {("fedbatch", "model"): 53.8796, ("filldraw", "model"): 50.5951},
+    "best": {("fedbatch", "model"): 10.9747, ("fedbatch", "shown"): 36.6098, ("filldraw", "model"): 9.0884},
+    "central": {("fedbatch", "model"): 70.0156, ("fedbatch", "shown"): 94.6573, ("filldraw", "model"): 74.4681},
+    "central_lean": {("fedbatch", "model"): 53.9983, ("filldraw", "model"): 50.7124},
     "cautious": {("fedbatch", "model"): 316.1052, ("filldraw", "model"): 358.7276, ("filldraw", "shown"): 358.7276},
 }
 # Fallbacks that cost LESS than perfusion. 2026-11-20 (first batch): the all-favourable example in fill-and-draw ($17.06 against

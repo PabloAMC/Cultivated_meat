@@ -108,6 +108,7 @@ def check() -> list:
     if not v[1]["world"]["central"] < v[2]["world"]["central"] < v[3]["world"]["central"] < v[0]["world"]["central"]:
         fails.append("the order of the low-lactate example's share across the price responses has changed; rewrite the note")
     # 2026-11-24: best: 12.2% (8.5 times), 17.1% (4 times), 20.5% (the model), 23.8% (premium slope)
+    # 2026-11-27 (nutrient balance): 12.2% -> 12.1%, 17.1% -> 17.0%, 20.5% -> 20.4%, 23.8% -> 23.7% (same order)
     if not v[1]["world"]["best"] < v[2]["world"]["best"] < v[0]["world"]["best"] < v[3]["world"]["best"]:
         fails.append("the order of the all-favourable example's share across the price responses has changed; rewrite the note")
     u = [L.underused(S.SCENARIOS["central"].choice, x)["cost"] for x in L.UTILISATION]

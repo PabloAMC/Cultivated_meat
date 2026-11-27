@@ -201,21 +201,22 @@ INSENSITIVE_CASES = (("the model", {}),
                      ("0.25 times", {"price_insensitive_response": 0.25}))
 
 
-def checks_of(pr: M.DemandParams) -> dict:
+def checks_of(pr: M.DemandParams, blend_curve=None) -> dict:
     """Every check for one demand model (calibrated): the spread's joint misfit and its parts (liking_spread.objective), the
     first-contact elasticity, plant-based meat's elasticity, farmed salmon's response (the premium products still dearer than
     their meat), the share of a meat's buyers at 3 times its price, and the low-lactate and all-favourable examples' world shares
-    (the latter with its own demand)."""
+    (the latter with its own demand). blend_curve: the exponent of the cut's blend rule (None = the input; 1 = the linear rule
+    used until 2026-11-27, for a row that reproduces an earlier model)."""
     import liking_spread as LS
     m = LS.miss(None, pr.liking_sd, pr=pr)
     cold = cold_parity_elasticity(pr)
-    resp = {n: r for n, (R0, r) in LS.salmon_response(pr).items() if R0 > LS.STILL_DEARER}
+    resp = {n: r for n, (R0, r) in LS.salmon_response(pr, blend_curve).items() if R0 > LS.STILL_DEARER}
     curve = {R: M.share(R, pr) * 100.0 for R in (1.5,) + LS.PREMIUM_AT}   # 1.5 too: the premium block compares shapes (2026-11-24)
     out = {"cold": cold, "miss": m["miss"], "response": resp, "curve": curve, "pb": pb_elasticity(pr)["elasticity"],
            "first": M.share(1.0, pr, neophobia_x=value("neophobia_x0")) * 100.0}
     out.update(LS.objective({"elasticity": m["elasticity"], "curve": curve, "response": resp, "cold": cold, "miss": m["miss"]}))
     cost = {k: S.run(S.SCENARIOS[k].choice)["total"] for k in SCEN}
-    world = lambda p, c: mm.penetration(mm.MARKETS["global"], c, income=mm.REGION_INCOME["global"], pr=p)[1] * 100.0
+    world = lambda p, c: mm.penetration(mm.MARKETS["global"], c, income=mm.REGION_INCOME["global"], pr=p, blend_curve=blend_curve)[1] * 100.0
     out["world"] = {"central": world(pr, cost["central"]),
                     "best": world(replace(pr, equal_price_share=value(S.SCENARIOS["best"].equal_price_share)), cost["best"])}
     return out
@@ -224,7 +225,8 @@ def checks_of(pr: M.DemandParams) -> dict:
 def insensitive_cases() -> list:
     """The checks with the price-insensitive shoppers at each end of their three inputs, without them, and as the model was."""
     if "insensitive" not in _SUM:
-        _SUM["insensitive"] = [{"name": name, **checks_of(M.DemandParams(**kw))} for name, kw in INSENSITIVE_CASES]
+        _SUM["insensitive"] = [{"name": name, **checks_of(M.DemandParams(**kw), blend_curve=1.0 if kw is BEFORE_FIFTH else None)}
+                               for name, kw in INSENSITIVE_CASES]   # the model before had the linear blend rule
     return _SUM["insensitive"]
 
 

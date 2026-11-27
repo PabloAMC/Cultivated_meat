@@ -1,5 +1,7 @@
 # Cheap-plant study: what animal cells need of a sterile plant, and how much contamination a cheaper one can afford
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). Every plant's cost rises by about $0.05 a kilo: current sterile plant $15.72 -> $15.78, lean plant $12.83 -> $12.88; in the snapshot the sterile plant $13.8 -> $13.9, yeast+ $9.0 -> $9.1; the current break-even loss rates (2.56%, 4.81%, 5.97%) are unchanged. The conclusions are unchanged.
+>
 > **Snapshot, recomputed 2026-11-20.** The figures in this note are computed with the engine as it stands on 2026-11-20 (cells
 > killed by bubbles, a 2% harvest loss, twice the fed-batch crew in perfusion, utilities in four parts, medium preparation
 > capital that scales with the medium passed) at the settings the note was written with on 2026-11-14: the old hoped-for
@@ -10,14 +12,14 @@
 > cheaper plant does not remove, so a cheaper plant now affords fewer lost runs.
 >
 > **Current figures** (the model's own settings: the filter loop, the protectant and antifoam on, the yeast-style class buying
-> its oxygen; recomputed 2026-11-21 after the second batch of engine fixes; `tests/test_plant_items.py` pins them in
-> `_check_current`): sterile (food-grade) plant $15.72, at pharma's 0.2% a day $16.03; yeast-style class $10.72; yeast plant
-> with what animal cells need $10.92; lean plant $12.83; lean plant losing 0.6 / 1.5 / 5% a day with a 14-day restart $13.54 /
-> $14.65 / $19.51, 1.5% with a 30-day restart $16.09; break-even loss rate against the sterile plant at 0.2% a day: **2.56% a
+> its oxygen; recomputed 2026-11-21 after the second batch of engine fixes and 2026-11-27 for the nutrient balance; `tests/test_plant_items.py` pins them in
+> `_check_current`): sterile (food-grade) plant $15.78, at pharma's 0.2% a day $16.09; yeast-style class $10.77; yeast plant
+> with what animal cells need $10.97; lean plant $12.88; lean plant losing 0.6 / 1.5 / 5% a day with a 14-day restart $13.59 /
+> $14.71 / $19.57, 1.5% with a 30-day restart $16.14; break-even loss rate against the sterile plant at 0.2% a day: **2.56% a
 > day** for the lean plant, **4.81%** for the yeast plant with additions and 5.97% for the yeast plant. The lean plant's
 > break-even is just above the top of what cultivated-meat makers report (2.2% a day). A drained and refilled tank is cheaper
-> than perfusion in the lean plant and in both yeast-style plants ($12.00 against $12.83 in the lean plant, $9.05 against
-> $10.92 in the yeast plant with additions); in the sterile plant perfusion is cheaper ($15.72 against $16.51). (On 2026-11-20,
+> than perfusion in the lean plant and in both yeast-style plants ($12.05 against $12.88 in the lean plant, $9.11 against
+> $10.97 in the yeast plant with additions); in the sterile plant perfusion is cheaper ($15.78 against $16.56). (On 2026-11-20,
 > third pass: sterile $15.93, lean $13.06, break-even 2.5% and 4.7%.)
 >
 > Third pass, 2026-11-20: the named plants' costs (`plant_items.cost_per_kg(plant)`) now pass the plant's items to `explore`
@@ -208,11 +210,11 @@ food-grade label alone does not make the plant cheap.
 
 | Plant | What it is | $k per m³ | Today's prices | Cells, $/kg (perfusion) | Cells, $/kg (drained and refilled) |
 |---|---|---|---|---|---|
-| Humbird's | every item as designed | 683 | 909 | $14.9 | $17.5 |
-| The floor's | the same in a sanitary hall | 611 | 813 | $13.8 | $15.9 |
-| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $11.0 | $11.4 |
-| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $9.0 | $8.5 |
-| Yeast | every item as in his yeast plant | 130 | 172 | $7.9 | $7.3 |
+| Humbird's | every item as designed | 683 | 909 | $14.9 | $17.6 |
+| The floor's | the same in a sanitary hall | 611 | 813 | $13.9 | $16.0 |
+| Lean | plain building; food-grade tank at $1M; two small seed trains; shared medium lines; bought oxygen | 340 | 452 | $11.0 | $11.5 |
+| Yeast+ | the yeast plant plus cell labs, shared sterilisation of all medium, bought oxygen | 175 | 233 | $9.1 | $8.5 |
+| Yeast | every item as in his yeast plant | 130 | 172 | $8.0 | $7.3 |
 
 Recomputed 2026-11-21 (the building's power by floor and class, the least medium flow in a tank drained and refilled taken
 as the other wastes are, the floor's glucose). Before: perfusion $14.9 / $14.1 / $11.2 / $9.3 / $8.2, drained and refilled
@@ -318,7 +320,7 @@ What moves the 33-day threshold:
 | Cultivated meat, all respondents [6] | 11.2% (range 0–52%, 11 companies) | 0.6–1.2% if batches ran 20 or 10 days | 2.5 to 10 times under |
 | Cultivated meat, beyond flasks [6] | 19.5% (6 companies) | 1.1–2.2% | 1.4 to 6 times under |
 
-At 1.5% a day the lean plant makes cells at $12.4, yeast+ at $10.1 and the yeast plant at $8.9 (2026-11-21; $12.7, $10.4 and $9.2 before), against $14.3
+At 1.5% a day the lean plant makes cells at $12.5, yeast+ at $10.2 and the yeast plant at $9.0 (2026-11-27; $12.4, $10.1 and $8.9 on 2026-11-21, $12.7, $10.4 and $9.2 before), against $14.2
 for the floor's plant at pharma's rate. So if the cheaper plants can be built at these prices and lose runs
 no more often than cultivated-meat makers do today, in whatever plants they have, they win. The survey's worst
 respondent (52% of batches) would be over the lean threshold if its batches ran under about 23 days.

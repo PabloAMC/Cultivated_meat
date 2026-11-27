@@ -111,7 +111,7 @@ def check() -> list:
     near("explore() = the floor tier", fp.explore()["total"], by["No clean rooms, perfusion"]["total_mature"], 1e-9)
     near("explore(plant='microbial') = the frontier tier", fp.explore(plant="microbial")["total"],
          by["Microbial-fermentation-class plant"]["total_mature"], 1e-9)
-    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 15.721, 1e-3)   # 12.81 before the 2026-11-20 batch; 16.025 before tank_items (third pass); 15.929 before the building's power followed its floor and class (2026-11-21)
+    near("explore() defaults, with the TFF loop, protectant and antifoam", fp.explore()["total"], 15.774, 1e-3)   # 15.721 before the nitrogen and carbon balance (2026-11-27); 12.81 before the 2026-11-20 batch; 16.025 before tank_items (third pass); 15.929 before the building's power followed its floor and class (2026-11-21)
     for key, (_label, dh, mass, _med, pco2, rng, extra, _note) in fp.SPECIES_PRESETS.items():
         r = fp.explore(doubling_h=dh, mass_pg=mass, pco2_mbar=pco2, **(extra or {}))
         if not (rng[0] <= (value("pf_pco2_limit") if pco2 is None else pco2) <= rng[1]):

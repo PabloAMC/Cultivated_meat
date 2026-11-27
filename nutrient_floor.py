@@ -35,14 +35,14 @@ def aa_cost(tier: str, need: str) -> float:
 
 def floor(tier: str, need: str) -> float:
     """The nutrient floor, $/kg of cells, with amino acids at this tier and need: amino acids + glucose + the other nutrients."""
-    return aa_cost(tier, need) + fp.GLUCOSE_FLOOR + value("other_nutrients_floor")
+    return aa_cost(tier, need) + fp.nutrient_balance(fp.GOOD_CELLS)["glc_kg"] * value("glucose_price") + value("other_nutrients_floor")
 
 
 def scenario_cost(key: str, tier: str, need: str) -> dict:
-    """A scenario's cost with its amino-acid price replaced (through `aa_bulk_price`, which explore() reads per kilo of
-    hydrolysate: set so that aa_intensity x price is the amino-acid cost)."""
-    price = aa_cost(tier, need) / value("aa_intensity")
-    with retention._with({"aa_bulk_price": price}):
+    """A scenario's cost with the amino acids at this tier's price and this need (`aa_bulk_price` and `aa_intensity`). Since
+    2026-11-27 the need is set directly, not folded into the price: the amino acids a case's ammonia takes
+    (floor_physics.nutrient_balance) are bought at the tier's price, not at a price inflated by the need."""
+    with retention._with({"aa_bulk_price": value(TIERS[tier]), "aa_intensity": value(NEEDS[need]) / 1000.0}):
         r = fp.explore(**S.explore_kwargs(S.SCENARIOS[key].choice))
     return {"total": r["total"], "medium": r["feedstock"], "floor_binds": r["feedstock"] <= floor(tier, need) + 1e-9}
 

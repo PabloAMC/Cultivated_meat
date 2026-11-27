@@ -40,8 +40,10 @@ from inputs import value
 # 2026-11-25 (the gas cap and loop thinning): explore() now tries every gas flow up to the cap and thins a failing loop itself.
 # The shared-medium plant and the cautious case bubble less than the cap (2 and 1 mm/s), lose fewer cells and cost less:
 # central_lean 44.5349 -> 43.9221, cautious 181.1270 -> 179.9020 at every cap. The all-favourable and low-lactate figures hold.
+# 2026-11-27 (nutrient balance): the all-favourable cells pay for the glucose they ferment, +$0.05 at every cap: best
+# 7.4371/7.1984 -> 7.4890/7.2491 at 180 g/L, 6.9686 -> 7.0205 above. The other scenarios do not move
 GOLDEN_CAP = {
-    "best":         {180.0: (7.4371, 7.1984), 320.0: (6.9686, 6.9686), 400.0: (6.9686, 6.9686)},
+    "best":         {180.0: (7.4890, 7.2491), 320.0: (7.0205, 7.0205), 400.0: (7.0205, 7.0205)},
     "central":      {180.0: (48.6815, 48.6815), 320.0: (48.6815, 48.6815), 400.0: (48.6815, 48.6815)},
     "central_lean": {180.0: (43.9221, 43.9221), 320.0: (43.9221, 43.9221), 400.0: (43.9221, 43.9221)},
     "cautious":     {180.0: (179.9020, 179.9020), 320.0: (179.9020, 179.9020), 400.0: (179.9020, 179.9020)},

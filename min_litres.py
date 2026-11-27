@@ -45,12 +45,13 @@ def nitrogen_in() -> float:
 
 def nutrients(doubling_h: float = 24.0, mass_pg: float = 3000.0) -> dict:
     """What a kg of cells must eat, as amino acids and glucose (`floor_physics.feedstock` counts the same two): moles,
-    which set the salt a medium carries, and kilograms, which set the strength of a feed. Glucose scales with the oxygen
-    burned per kg, as in `feedstock` (half of it is upkeep)."""
+    which set the salt a medium carries, and kilograms, which set the strength of a feed. Both come from
+    `floor_physics.nutrient_balance` for cells that make no ammonia and no lactate, the floor (2026-11-27: before, the
+    amino acids were Humbird's 0.26 kg, ml_aa_pure_kg, against the 0.232 the cost floor uses, and glucose was half upkeep)."""
     cells = fp.Cells(mass_pg=mass_pg, doubling_h=doubling_h)
-    burn = cells.o2_per_kg / fp.GOOD_CELLS.o2_per_kg
-    aa_kg = value("ml_aa_pure_kg")
-    glc_kg = value("glucose_intensity") * (0.5 + 0.5 * burn)
+    nb = fp.nutrient_balance(cells)
+    aa_kg = nb["aa_kg"]
+    glc_kg = nb["glc_kg"]
     n_aa = aa_kg * 1000.0 / value("ml_aa_mw")
     n_glc = glc_kg * 1000.0 / value("ml_glc_mw")
     return {"n_aa": n_aa, "n_glc": n_glc, "n_osm": n_aa + n_glc, "solids_kg": aa_kg + glc_kg, "mu_day": cells.mu * 24.0}

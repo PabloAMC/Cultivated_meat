@@ -153,13 +153,22 @@ REGISTRY: dict[str, Input] = {
 
     # --- Rung 2: the irreducible FLOOR --------------------------------------
     "aa_intensity": Input(0.232, "kg amino acids/kg wet", "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; chosen "
-        "2026-11-19] amino acids a kilo of wet cells takes up, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g "
-        "is the middle). Humbird's stoichiometry (Reaction 2.11) gives 0.26 kg of pure amino acids (Table 3.4); a kilo of wet cells "
-        "is about 15-20% protein",
+        "2026-11-19] amino acids a kilo of wet cells keeps, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g "
+        "is the middle). It is the nitrogen balance's figure for cells that release no ammonia: 0.232 kg of FSF4's amino acids "
+        "carries 2.85 mol of nitrogen (nb_aa_n_kg), the 2.86 mol in a kilo of Humbird's cells. Humbird's stoichiometry (Reaction "
+        "2.11) gives 0.26 kg (Table 3.4)",
         lo=0.2, hi=0.65, mode=0.232,
-        note="stoichiometric -> does NOT scale with media efficiency. Before 2026-11-19: 0.337 kg of soy hydrolysate at $2/kg "
-             "($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, arginine, asparagine, cystine or serine, so those "
-             "come from fermentation at the prices of aa_bulk_price"),
+        note="NITROGEN BALANCE (2026-11-27, floor_physics.nutrient_balance): the amino acids a case takes up are this plus its "
+             "ammonia / nb_aa_n_kg, so cells that release ammonia eat more of them (81 g a mol). Above 0.232 the figure stands for "
+             "nitrogen that leaves unused or as other amino acids (alanine, glutamate); nobody has measured that in meat cells. "
+             "Before 2026-11-19: 0.337 kg of soy hydrolysate at $2/kg ($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, "
+             "arginine, asparagine, cystine or serine, so those come from fermentation at the prices of aa_bulk_price"),
+    "nb_aa_n_kg": Input(12.30, "mol N/kg amino acids", "[GFI Dec 2025, p. 18, derived 2026-11-27] nitrogen in a kilo of the "
+        "amino acids the FSF4 medium supplies: GFI's tonnes of each of 21 amino acids for 250 kt of meat at the most efficient need, "
+        "weighted by each one's nitrogen atoms over its molar mass (mean 135.9 g/mol, 1.67 N per amino acid)",
+        note="the modified CHO medium at the least efficient need gives 11.65. The medium is rich in nitrogen because arginine "
+             "(4 N), glutamine and asparagine (2 N) are among the amino acids needed most. Sets how many grams of amino acids a "
+             "mol of ammonia takes (81 g), and with aa_intensity the nitrogen balance of the floor"),
     "aa_bulk_price": Input(6.36, "$/kg amino acids", "[GFI Dec 2025, Table 1, read in full] feed-grade amino acids, the "
         "unweighted mean of 22 (low food-grade 11.59, high food-grade 23.18); weighted by GFI's own need profiles "
         "(Table 2: FSF4 medium $5.74, modified CHO medium $6.47) it is bracketed, so the unweighted mean is kept "
@@ -170,14 +179,14 @@ REGISTRY: dict[str, Input] = {
              "about 400 t a year and no tonne quote is public. So $6.36 assumes new serine capacity; at today's quotes (serine "
              "near $20-30/kg) the floor would be about $2.35-2.45, not $2.00 (research_notes/evidence_amino_acid_prices.md, "
              "2026-11-21). Drawn in the scenarios' bands (scenarios.MC_ESTIMATE_INPUTS)"),
-    "glucose_intensity": Input(0.311, "kg/kg wet", "[derived 2026-11-21: floor_physics.glucose_balance for Humbird's enhanced "
-        "cell (3 ng, 24 h, 0.054 mol of ammonia a kilo) making no lactate: 1.724 mol x 0.180 kg] glucose a kilo of cells takes up "
-        "when none is fermented",
-        note="TIED TO THE MASS BALANCE (2026-11-21; TODO 'the nutrient floor's glucose'): it was 0.32, from Humbird's Table 2.3 "
-             "(0.13 mol per mol of dry cell mass against 0.147 for Reaction 2.11, 0.362 kg a kilo: 0.13 / 0.147 x 0.362), a third "
-             "glucose figure beside pf_glc_kg and the balance. The balance gives 0.311 with no lactate and 0.361 with his "
-             "lactate (his Table 3.4: 0.362), so the floor now uses the same arithmetic as the scenarios: $0.004 a kilo less. "
-             "tests/test_nutrient_floor.py checks the two agree. Faster growth lowers it, toward 0.16 kg/kg (anabolic only)"),
+    "glucose_intensity": Input(0.3142, "kg/kg wet", "[derived 2026-11-27: floor_physics.nutrient_balance for Humbird's model "
+        "cell (3 ng, 24 h) making no ammonia and no lactate, the floor: 1.744 mol x 0.180 kg] glucose a kilo of cells takes up "
+        "when none is fermented and no amino acid is burned",
+        note="TIED TO THE MASS BALANCE: 0.311 from 2026-11-21 (the balance at Humbird's 0.054 mol of ammonia a kilo), 0.3142 since "
+             "2026-11-27, when the floor became the cell that makes no ammonia, as its amino acids are (aa_intensity). Before "
+             "2026-11-21 it was 0.32, from Humbird's Table 2.3. tests/test_nutrient_floor.py checks it against the balance. Each "
+             "case's own glucose (fermented and burned) comes from floor_physics.nutrient_balance, not from this figure, which "
+             "only sets the floor and the page's glucose-price lever. Faster growth lowers it, toward 0.16 kg/kg (anabolic only)"),
     "glucose_price": Input(0.40, "$/kg", "[GFI25] US Midwest DE95 glucose, GFI & Hawkwood 2025 "
         "(Driving down costs of fermentation-derived ingredients, Table 6: $0.35-0.56)",
         note="Humbird quotes ~$0.25-0.26/kg contract prices"),
@@ -2477,6 +2486,18 @@ REGISTRY: dict[str, Input] = {
         note="Drawn in the bands (MC_CUT_INPUTS) since 2026-11-19. It sets the cut's cost (price_ratio.structured_cost) AND how "
              "much shoppers like it: a cut that is part plant protein gets that much less of the real-meat credit "
              "(meat_market.tier_offset)."),
+    # 2026-11-27 (research_notes/hybrid_demand_evidence.md). A product that is a share s of cells keeps s ** blend_curve of the
+    # real-meat credit (meat_market.blend_kept). 1 is the linear rule the model used until then.
+    "blend_curve": Input(1.2, "-", "[Asioli et al. 2023, doi:10.1002/aepp.13283; hybrid_demand_evidence.md] exponent of the "
+        "blend rule: a product that is a share s of cells keeps s ** blend_curve of the credit shoppers give real meat. In "
+        "Asioli's labelled choice among burgers (about 2,400 people, UK, Spain, Denmark) a 50/50 beef-plant burger keeps 0.42, "
+        "0.48 and 0.39 of beef's advantage over the plant burger, mean 0.43, so 0.5 ** x = 0.43 gives 1.2. The evidence is from "
+        "blends of meat and plants: no study varies the share of cultivated cells",
+        lo=0.4, hi=2.5, mode=1.2,
+        note="The model's judgement of an analogue. Low end: tasted blind, a 70/30 blend keeps 0.85-0.92 (Caputo et al. 2022), "
+             "an exponent of 0.2-0.5, and told about health or taste Asioli's blend keeps 0.56-0.97. High end: Profeta et al. "
+             "2021 find blends of 50-80% meat keep 0.2-0.3, an exponent of 2 or more. Drawn in the bands (MC_CUT_INPUTS, "
+             "after the others, so their draws are unchanged)."),
     "material_price": Input(2.0, "$/kg", "[TVP, extrusion, binders: structuring_cost.md] price of the matrix: textured or "
         "extruded plant protein $0.7-2.8/kg all in (GFI 2021), TVP $0.5-5.6/kg dry (Tridge), binders $0.1-0.6/kg of product",
         lo=1.0, hi=5.0, mode=2.0),
@@ -2693,11 +2714,11 @@ REGISTRY: dict[str, Input] = {
 # ----------------------------------------------------------------------------
 # Derived constants (computed from the registry — never hand-typed twice)
 # ----------------------------------------------------------------------------
-# Irreducible feedstock: what the cells must physically eat. Media cost can never fall below
-# AA_FLOOR + GLUCOSE_OTHER_FLOOR (cost_model.FEEDSTOCK_FLOOR).
-AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].value  # 0.337*2 = 0.67
-GLUCOSE_FLOOR: float = REGISTRY["glucose_intensity"].value * REGISTRY["glucose_price"].value  # 0.32*0.40 = 0.13
-GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].value          # 0.13 + 0.9
+# Irreducible feedstock: what cells that make no ammonia and no lactate must eat ($2.00). Media cost can never fall below
+# AA_FLOOR + GLUCOSE_OTHER_FLOOR (cost_model.FEEDSTOCK_FLOOR); a case whose cells make waste eats more (floor_physics.nutrient_balance).
+AA_FLOOR: float = REGISTRY["aa_intensity"].value * REGISTRY["aa_bulk_price"].value  # 0.232 x 6.36 = 1.48
+GLUCOSE_FLOOR: float = REGISTRY["glucose_intensity"].value * REGISTRY["glucose_price"].value  # 0.3142 x 0.40 = 0.13
+GLUCOSE_OTHER_FLOOR: float = GLUCOSE_FLOOR + REGISTRY["other_nutrients_floor"].value          # 0.13 + 0.4
 
 # Three plant COSTS for the cost chart and the scenario tables, as (label -> everything-but-medium $/kg).
 # They are combined with the reported medium use, so the outer two are not the floor_physics cases
@@ -2717,8 +2738,9 @@ PLANT_CONFIGS: dict[str, float] = {
 # species' cheapest form) and LOWER price sensitivity for cuts (x0.8) and premium (x0.3). The lower price sensitivity raised
 # cultivated meat's share wherever it was the dearer product, so "resistance" worked backwards. Now (meat_market.tier_offset):
 #   mince and other unstructured products: 0;
-#   every cut: -(1 - cell share) x the mainstream real-meat weight (derived: a cut that is one-fifth plant protein gets four-fifths
-#     of the real-meat credit; about -0.45 utils at 80% cells), not scaled by premium_resistance;
+#   every cut: -(1 - cell share ** blend_curve) x the mainstream real-meat weight, not scaled by premium_resistance. Until
+#     2026-11-27 the rule was linear (blend_curve = 1: a cut that is one-fifth plant protein got four-fifths of the credit);
+#     labelled-choice studies of meat-plant blends put the exponent near 1.2 (the input blend_curve);
 #   premium cuts: plus premium_resistance x AUTH_PREMIUM_EXTRA x a ramp that rises from 0 at PREMIUM_START x the species' cheapest
 #     form to 1 at PREMIUM_FULL x (on a log scale of price), so there is no cliff.
 # Every product uses the model's own price sensitivity.
@@ -2731,7 +2753,7 @@ CUT_MATRIX_PRICE: float = REGISTRY["material_price"].value     # $/kg of plant-p
 PREMIUM_RATIO: float = 2.5   # a LABEL only (charts, tables): a structured product priced >= this x its species' base form is "premium"
 PREMIUM_START: float = 2.0   # the premium penalty starts at this multiple of the species' cheapest form ...
 PREMIUM_FULL: float = 4.0    # ... and is complete at this one
-AUTH_PREMIUM_EXTRA: float = -1.1   # utils: the full premium penalty, on top of the blend penalty (about -0.45): about -1.5 in all,
+AUTH_PREMIUM_EXTRA: float = -1.1   # utils: the full premium penalty, on top of the blend penalty: about -1.5 in all when set (2026-11-19),
                                    # the old premium offset. Judgement; scaled by premium_resistance
 
 # Loss-aversion asymmetry constant (Tversky-Kahneman 1992 median ~2.25). The LIVE loss-aversion
@@ -2765,7 +2787,8 @@ MC_DEMAND_INPUTS = ("eps_own", "cult_sub_mult", "equal_price_share")
 MC_TIER_INPUTS = ("premium_resistance",)   # only where meat types are rolled up by tier
 # 2026-11-19 (audit D4): a cut's make-up and assembly cost. Cuts are most of what the scenarios sell, and these two were drawn
 # nowhere. Sampled AFTER the lists above wherever meat types are rolled up, so the other inputs' draws are unchanged.
-MC_CUT_INPUTS = ("scaffold_frac", "process_cost")
+# 2026-11-27: the shape of the blend rule (blend_curve) joins them, last, so the earlier draws are unchanged.
+MC_CUT_INPUTS = ("scaffold_frac", "process_cost", "blend_curve")
 # The adoption-over-time band holds the price ratio fixed and samples what shapes the PATH:
 # the cold start, how fast novelty fades, the Bass rollout speed, and the long-run acceptance dials.
 # 2026-11-20: accept_x left this list as it left MC_DEMAND_INPUTS (equal_price_share is the net of every taste effect); the

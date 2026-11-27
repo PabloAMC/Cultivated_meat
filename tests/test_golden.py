@@ -176,9 +176,11 @@ GOLDEN = {
     # with the Student's t spread: vol 0.363114 -> 0.440886, val 0.848201 -> 0.862196, world 0.0594949 -> 0.139634.
     # 2026-11-19 (restructure, audit 6a): the roll-ups report cultivated meat's share of the meat sold, x / (x + c), not of all four
     # choices: vol 0.440886 -> 0.514012, val 0.862196 -> 1.023453, world 0.139634 -> 0.179202. The calibration does not move.
-    "us_pen_vol_pct":      3.16127,
-    "us_pen_val_pct":      4.64943,
-    "world_pen_vol_pct":   2.2109,
+    # 2026-11-27: the blend rule is a curve (a cut keeps cell share ** 1.2 of the real-meat credit, 0.765 at 80% cells, not
+    # 0.8; research_notes/hybrid_demand_evidence.md): vol 3.16127 -> 3.02298, val 4.64943 -> 4.39295, world 2.2109 -> 2.11762.
+    "us_pen_vol_pct":      3.02298,
+    "us_pen_val_pct":      4.39295,
+    "world_pen_vol_pct":   2.11762,
     "organic_vs_cuts_pct": 21.4752,  # vs ~2.4% observed: the model over-predicts shares above parity
     "years_to_stabilize":  23,      # 2026-11-24: was 25 (the long-run share at equal price rose, so the share settles sooner); 2026-11-22 (fifth batch): was 21; moved with the demand curve, not examined further      # 28 with the normal spread;     # was "~25" when measured as 90% of the year-30 value
 }
@@ -302,7 +304,7 @@ def check_derived_prose_numbers() -> list:
         # 2026-11-21: was "15.8" (plant_floor 13.8 -> 13.5: the building's power follows its floor and class, so Humbird's
         # optimistic design is $15.72, not $15.93). The page carries the figure as MODEL.cost_reference (15.49992), which
         # is where the old "15.8" was found too (15.80352); "15.49" is that literal's prefix
-        ("reference cost $/kg",      cost_floor, "15.49"),     # 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
+        ("reference cost $/kg",      cost_floor, "15.50"),     # 2026-11-27: was "15.49" (floor glucose 0.311 -> 0.3142 kg). 2026-11-20: was "12.8" (plant_floor 10.8 -> 13.8)
     ]
     # what each label ROUNDS to, so the test also catches a silent value move that the prose missed
     rounds = {"eps_x = eps_own*kappa": "−3.6", "elasticity at R=1.0": "−0.8",

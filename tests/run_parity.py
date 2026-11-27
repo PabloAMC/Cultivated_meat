@@ -257,7 +257,10 @@ def check_parity() -> list:
                  # of growth, and with the litres of medium set)
                  {'lac_limit': 22.0, 'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True, 'doubling_h': 36.0, 'mass_pg': 2000.0},
                  {'kill': 1.6e-3, 'gas_v': 0.004}, {'kill': 0.01, 'doubling_h': 48.0}, {'medium_l': 60.0, 'kill': 8e-4},
-                 {'mode': 'filldraw', 'lac_limit': 30.0, 'lac_yield': 1.05, 'glc_balance': True, 'kill': 0.0}]
+                 {'mode': 'filldraw', 'lac_limit': 30.0, 'lac_yield': 1.05, 'glc_balance': True, 'kill': 0.0},
+                 # 2026-11-27: the cells' fat (lipid_share), made from glucose or fed, with the nutrient balance's wastes
+                 {'lipid_share': 0.4}, {'lipid_share': 0.3, 'fat_fed': 0.5, 'nh3_kg': 0.14, 'lac_yield': 0.42, 'glc_balance': True},
+                 {'lipid_share': 0.05, 'mode': 'filldraw', 'nh3_kg': 0.14, 'lac_yield': 1.05, 'glc_balance': True}]
     names = {"gas_v": "gas_velocity", "p_top": "p_top_barg", "pco2": "pco2_mbar", "maint": "maintenance_share",
              "restart_fail": "restart_fail_days"}
     js_tr = js.get("fxTricks", [])
@@ -266,7 +269,11 @@ def check_parity() -> list:
     for case, jr in zip(FX_TRICKS, js_tr):
         kw = {names.get(k, k): v for k, v in case.items()}
         r = _fp.explore(charge=0.173, **kw)
-        tot, dens, lim, ml, setby, jlims, jo2, jo2u, jco2, jcol = jr
+        tot, dens, lim, ml, setby, jlims, jo2, jo2u, jco2, jcol, jmet = jr
+        bad_m = [k for k, v in r["metrics"].items() if abs(v - jmet.get(k, float("nan"))) > 1e-6 * max(1.0, abs(v))] + \
+            [k for k in ("nutrients", "aa_kg", "glc_taken_kg", "n_kept") if abs(r[k] - jmet.get(k, float("nan"))) > 1e-9 * max(1.0, abs(r[k]))]
+        if bad_m:
+            fails.append(f"floorExplore tricks {case}: the measures differ: {bad_m}")
         if (jcol is None) != (r["column"] is None) or (jcol and max(abs(jcol[0] - r["column"]["passes"]),
                 abs(jcol[1] - r["column"]["loop_volume"]), abs(jcol[2] - r["column"]["ph_vs_safe"])) > 1e-6):
             fails.append(f"floorExplore tricks {case}: column passes / loop volume / pH differ: python "
@@ -436,11 +443,12 @@ def check_parity() -> list:
     _CUST_EXTRA = -2.5
     _pra = _DPa()
     worst_a = 0.0
-    if len(js.get("authCheck", [])) < 10:
+    if len(js.get("authCheck", [])) < 10 or not any(c[0] == "curve" for c in js.get("authCheck", [])):
         fails.append("authCheck: not emitted by the JS probe")
     for kind, structured, price, r, cells, jv in js.get("authCheck", []):
         mt = MeatType("x", float(price), 0.0, scaffold=SCAF if structured else 0.0)
-        pv = float(tier_offset(mt, 10.0, r, _pra, cell_share=cells, premium_extra=None if kind == "def" else _CUST_EXTRA))
+        pv = float(tier_offset(mt, 10.0, r, _pra, cell_share=cells, premium_extra=_CUST_EXTRA if kind == "cust" else None,
+                               blend_curve=2.0 if kind == "curve" else None))   # "curve": the blend exponent set through the slider
         d = abs(pv - jv)
         worst_a = max(worst_a, d)
         if d > TOL:
@@ -678,12 +686,11 @@ def check_first_screen() -> tuple:
         b = CT.best_in_meat_cells()[k]
         if v != b["value"] or src != b["short"]:
             fails.append(f"best measured in meat cells, {k}: python {b['value']} ({b['short']}) js {v} ({src})")
-    # the plant sliders' words: capital per m3 of tank (explore()'s 'capex', $k) and the nutrient floor (floor_physics.feedstock)
-    import floor_physics as fp
+    # the plant sliders' words: capital per m3 of tank (explore()'s 'capex', $k) and what the case's cells eat (explore()'s
+    # 'nutrients': floor_physics.nutrient_balance with the case's ammonia and lactate, since 2026-11-27)
     for i, ((ch, tr), (jcap, jnut)) in enumerate(zip(stat, tp["plant"])):
         r = S.run(ch, **tr) if ch is not None else S.reference()
-        kw = {**(S.explore_kwargs(ch) if ch is not None else {}), **tr}
-        nut = fp.feedstock(fp.Cells(mass_pg=kw.get("mass_pg", 3000.0), doubling_h=kw.get("doubling_h", 24.0)))
+        nut = r["nutrients"]
         if abs(r["capex"] - jcap) > 1e-6 * r["capex"] or abs(nut - jnut) > 1e-9 * nut:
             fails.append(f"plant sliders, case {i}: python capex {r['capex']:.4f} nutrients {nut:.5f}; js {jcap:.4f} {jnut:.5f}")
     for (c, t), (tk, sh) in zip(design, tp["design"]):

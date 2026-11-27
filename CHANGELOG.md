@@ -1,5 +1,75 @@
 # Change log
 
+## 2026-11-27 (last): the cut's blend rule is a curve, set from choice studies of meat-plant blends
+
+- `meat_market.blend_kept(cell_share, curve)`: a product that is a share c of cells keeps c ** `blend_curve` of the credit
+  shoppers give real meat. `tier_offset`, `penetration`, `monte_carlo` and the page's `tierOffset` use it. Before, the loss was
+  linear (the exponent was 1).
+- New input `blend_curve` = 1.2 (range 0.4-2.5), drawn in the bands last among `MC_CUT_INPUTS`, so the other inputs' draws are
+  unchanged. Central value: Asioli et al. 2023, where a labelled 50/50 beef-plant burger keeps 0.43 of beef's advantage over the
+  plant burger. Low end: blind tastings and informed choice. High end: Profeta et al. 2021. It is the model's judgement of an
+  analogue: no study varies the share of cultivated cells (`research_notes/hybrid_demand_evidence.md`, section 6).
+- The page: a slider "How fast shoppers' liking falls as plant protein replaces cells" beside the cut's cell share, a row under
+  "What the answer rests on", and appendix equation A5 with the exponent.
+- Effects. No cost moves. At 80% cells a cut keeps 77% of the credit, not 80% (-1.24 utils, was -1.06). Shares:
+  - the low-lactate example 1.43% → 1.37% of world meat (middle draw 1.2% → 1.1%);
+  - the all-favourable example 25.0% → 24.3% with its own demand, 20.38% → 19.76% with the ordinary demand;
+  - the reported cost, US 3.2% → 3.0%, world 2.21% → 2.11%;
+  - across the exponent's range the low-lactate example runs 1.7% to 1.1%.
+- `demand_checks.checks_of` and `liking_spread.salmon_response` take `blend_curve`, so the row that reproduces the model before
+  2026-11-22 keeps the linear rule.
+- RESULTS.md: the headline bands, the tables by meat and by region and the cut-share sentence are recomputed; the notes'
+  tables are regenerated. `answer_rests_on` has 617 inputs and 21 demand rows.
+- Not done: mince is still all cells (TODO.md, "Hybrid mince").
+
+## 2026-11-27 (later): the cells' fat as a trait; the measures other cost models report; evidence on hybrids
+
+- `explore(lipid_share=...)` and the page's lever "Fat in the cells, as a share of their dry mass" (5-50%; Humbird's 15% by default, so
+  no case moves). Fattier cells need fewer amino acids. If they make their own fat they need more glucose and give off more CO₂ per
+  oxygen (`floor_physics.lipid_scale`, `anabolic_glucose`, `cell_rq`), so the CO₂ limit holds them thinner. Humbird's optimistic
+  design: $15.90 at 5%, $15.77 at 15%, $16.27 at 30%, $18.09 at 50%; with all the fat fed, $15.58 at 50%.
+- `explore()["metrics"]`, the page's worked calculation and `scenarios.measures_table` (RESULTS.md, section 1):
+  - the cost per kg of dry matter and of protein;
+  - amino acids and glucose per kg of dry matter and per kcal;
+  - litres of medium a kg;
+  - the plant's capital per tonne of cells a year.
+
+  The reference points keep 95-98% of the amino-acid nitrogen they take up and eat 2.1-3.7 kg of feed per kg of dry matter; their
+  plant costs $11,000 to $1.3 million a tonne a year.
+- Parity: three cases with fat and the new measures are checked between Python and the page.
+- `research_notes/hybrid_demand_evidence.md`: how shoppers value meat-plant blends (no study varies the share of cultivated cells).
+  Tasted blind, a blend loses little; chosen with a label, it keeps less than a linear share of meat's advantage. That bears on
+  the linear blend rule for cuts, changed in the entry above.
+
+## 2026-11-27: what each case's cells eat, from a nitrogen and a carbon balance
+
+- `floor_physics.nutrient_balance` (and the page's engine): amino acids a kilo = `aa_intensity` + ammonia / `nb_aa_n_kg`;
+  glucose = what is built in + what is burned for the oxygen the amino acids do not cover + lactate / 2. Before, every case ate
+  the floor's 0.232 kg of amino acids and about 0.31 kg of glucose. That was so even though the glucose balance already credited
+  amino acids burned for ammonia and glucose fermented to lactate when it set the litres. `explore` reports `nutrients`, `aa_kg`,
+  `glc_taken_kg` and `n_kept` (the share of the amino-acid nitrogen kept in the cells).
+- New input `nb_aa_n_kg` = 12.30 mol of nitrogen a kilo of the FSF4 medium's amino acids (GFI, December 2025, page 18). At it,
+  the floor's 0.232 kg carries exactly the 2.86 mol of nitrogen in a kilo of Humbird's cells: the floor is cells that release no
+  ammonia, and each mol of ammonia takes 81 g more. `glucose_intensity` 0.311 → 0.3142 kg, the balance's figure with no ammonia.
+  The floor stays $2.00.
+- Fixes found on the way:
+  - a cleaning route's dialysate was floored at the model cell's nutrients a litre, not the case's;
+  - `min_litres.nutrients` used Humbird's 0.26 kg of amino acids against the cost floor's 0.232;
+  - `nutrient_floor.scenario_cost` and `frontier.with_gfi_amino_acids` emulated a larger need by inflating the price of
+    0.232 kg; they now set the need and the price directly;
+  - stale comments in `inputs.py` and `cost_model.py` (0.337 kg of hydrolysate at $2, $0.9 of other nutrients);
+  - the page's tooltip on the nutrient floor gives the case's own grams;
+  - METHODS' sensitivity table around Humbird's design is regenerated (it was from 2026-11-21).
+- Moved:
+  - the all-favourable example $6.97 → $7.02 (middle draw $8.3 → $8.4; share 25.1% → 25.0% with its own demand, 20.52% → 20.38%
+    with the ordinary);
+  - Humbird's optimistic design $15.72 → $15.77 (his cells make 0.56 mol of lactate a kilo);
+  - the fed-batch rung 3 $69.90 → $70.02.
+  - The low-lactate example ($48.68), published cells ($316.11) and the cautious case ($179.90) do not move: litres × price
+    binds there. Cells that keep 95-98% of the amino-acid nitrogen eat $2.04-2.28 a kilo grown.
+- Notes: `research_notes/nutrient_floor.md` section 9 (method, what it shows about GFI's higher estimates, limits); the side
+  studies repinned; an open item in TODO.md (amino acids left in spent medium).
+
 ## 2026-11-25 (later): with a column, the gas flow is a cap and an overloaded loop is held thinner
 
 - `floor_physics.explore`, for a tank with a CO₂ column: the gas flow the cells tolerate is a cap. The cap and every flow on

@@ -10,6 +10,18 @@ Two examples are named in this list. The low-lactate example means cells that ma
 
 ## 1. Open work
 
+- [ ] **Hybrid mince** (2026-11-27, `research_notes/hybrid_demand_evidence.md`). The blend rule is now a curve (`blend_curve`,
+      1.2, drawn 0.4-2.5), and a cut can be set down to 10% cells. Mince is still all cells: a product of 3-30% cells in a plant
+      base, sold as mince or nuggets, is not modelled. It needs a cell share for unstructured products and a view on whether such
+      a product competes with meat or with plant-based meat. The curve itself rests on meat-plant blends; a choice study that
+      varies the share of cultivated cells would replace it.
+- [ ] **Industry-average baselines from GFI**, if and when GFI publishes them: add them to `study_assumptions.py` as a study.
+
+- [ ] **Amino acids left in spent medium** (2026-11-27, `research_notes/nutrient_floor.md` section 9). The nitrogen balance says
+      cells keeping 95-98% of the amino-acid nitrogen eat about 0.24 kg a kilo; GFI's estimates reach 0.65. Only a large unused
+      or secreted share (alanine, glutamate) closes that gap. A measurement of the amino acids in spent medium from a meat-cell
+      perfusion would set `aa_intensity` above the floor, and say how much a recycling route (`medium_reuse.py`) could save.
+
 From the full review of 2026-11-19 (`research_notes/full_review_2026-11-19.md`, section 7). **Done on 20-21 November** (CHANGELOG.md;
 effects in RESULTS.md, "What changed on 20 and 21 November"):
 

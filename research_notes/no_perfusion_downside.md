@@ -2,6 +2,8 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). The low-lactate example's fed-batch (rung 3) $69.90 -> $70.02, fill-and-draw $74.35 -> $74.47; with shared medium $53.88 -> $54.00 and $50.60 -> $50.71; the all-favourable example's perfusion $6.97 -> $7.02, fed-batch $10.93 -> $10.97, fill-and-draw $9.04 -> $9.09. The 27 g/L columns of the low-lactate rows and the cautious row do not move (their litres x price exceed what the cells eat). Costs in section 2 are updated; the share columns were not regenerated. The conclusions are unchanged.
+
 > Repinned 2026-11-25 (the gas cap and loop thinning). The engine now takes the gas flow the cells tolerate as a cap and tries the lower flows too, and holds a column loop that fails its checks thinner. Fallbacks with gas to spare bubble less, so fewer cells die: the low-lactate example's fed-batch $70.32 -> $69.90, fill-and-draw $74.75 -> $74.35, fed-batch at 27 g/L $94.67 -> $94.66; the all-favourable example's $11.03 -> $10.93 and $9.13 -> $9.04. No density and no limit moves, and no conclusion changes. The perfusion column of the food-grade and cautious rows moved with their scenarios ($44.53 -> $43.92, $181.13 -> $179.90). Costs in section 2 are updated; the share columns were not regenerated (the share function prints different shares for the same costs, a change unrelated to this one).
 
 > Repinned 2026-11-20 (final pass). The all-favourable example is now the one case of `scenarios.all_favourable()` ($7.62): Humbird's 5 mmol/L of ammonia and 50 mmol/L of lactate, 0.054 mol of ammonia a kilo, dialyser-grade hollow fibres, 42 m³ tanks in perfusion. Bubble deaths are now charged only on the gas the cells meet, and a column that strips nothing no longer lowers them. **Changed conclusions:** no fallback now costs less than perfusion (the all-favourable example in fill-and-draw costs $9.35 against $7.62 in perfusion; in the first batch of 2026-11-20 it cost $17.06 against $18.71); the all-favourable example's unwashed tank is held at 120 g/L by its ammonia, not 77 g/L by its lactate; the "column of no size" that every fallback took is gone, so the suspected defect reported in the first batch is fixed; perfusion is worth about $22 a kilo in the low-lactate example.
@@ -39,9 +41,9 @@ in the design search).
 
 | Scenario | Perfusion (the model) | Fed-batch, model cap | Fill-and-draw, model cap | Fed-batch, 27 g/L | Fill-and-draw, 27 g/L |
 |---|---|---|---|---|---|
-| All-favourable example | **$6.97** (6.1%) | $10.93 (120 g/L, 3.1%) | $9.04 (120 g/L, 4.2%) | $36.56 (0.1%) | $28.35 (0.3%) |
-| Low-lactate example | **$48.68** (0.05%) | $69.90 (37 g/L, 0.01%) | $74.35 (37 g/L, 0.01%) | $94.66 (0.004%) | $100.10 (0.003%) |
-| Low-lactate example, food-grade plant with shared medium | **$43.92** (0.07%) | $53.88 (37 g/L, 0.03%) | $50.60 (37 g/L, 0.04%) | $72.27 (0.01%) | $67.45 (0.01%) |
+| All-favourable example | **$7.02** (6.1%) | $10.97 (120 g/L, 3.1%) | $9.09 (120 g/L, 4.2%) | $36.61 (0.1%) | $28.40 (0.3%) |
+| Low-lactate example | **$48.68** (0.05%) | $70.02 (37 g/L, 0.01%) | $74.47 (37 g/L, 0.01%) | $94.66 (0.004%) | $100.10 (0.003%) |
+| Low-lactate example, food-grade plant with shared medium | **$43.92** (0.07%) | $54.00 (37 g/L, 0.03%) | $50.71 (37 g/L, 0.04%) | $72.27 (0.01%) | $67.45 (0.01%) |
 | Cautious (published cells) | **$179.90** (under 0.001%) | $316.11 (10 g/L) | $358.73 (10 g/L) | $316.11 (10 g/L: the cap is under 27) | $358.73 (10 g/L) |
 
 Shares in brackets are the long-run share of world meat and seafood at the point cost, with the ordinary demand (14.4% of meat
@@ -49,9 +51,9 @@ buyers at equal price). All costs are per kilo of cells harvested.
 
 - **Every fallback costs more than perfusion.** The all-favourable example holds its cells back with dialyser-grade fibres ($0.06
   a kilo of membranes) and runs 42 m³ tanks. Its perfusion makes 53.9 tonnes per m³ a year against 20.5 in fill-and-draw at
-  20 m³, and pays $1.87 a kilo of capital against $4.12. Fill-and-draw costs $2.07 a kilo more (30%), fed-batch $3.96 more.
+  20 m³, and pays $1.87 a kilo of capital against $4.12. Fill-and-draw costs $2.07 a kilo more (29%), fed-batch $3.95 more.
   These fallbacks run at 20 m³, the size this note asks about; perfusion runs at the case's own 42 m³.
-- **Perfusion is worth about $21 a kilo in the low-lactate example.** That is rung 3 (the same cells in a batch, $69.9) to rung 4
+- **Perfusion is worth about $21 a kilo in the low-lactate example.** That is rung 3 (the same cells in a batch, $70.0) to rung 4
   (the low-lactate example, $48.7). Perfusion carries twice the fed-batch crew, its membranes cost $22.7 a kilo, and its dense
   tank (168 g/L, held there so its oxygen-feeding column passes its checks) bubbles enough gas to kill 8.0% of its cells against
   3.4% in a 37 g/L batch. The batch makes 2.8 tonnes per m³ a year against perfusion's 16.3, so it pays $49.6 a kilo of capital
@@ -117,7 +119,7 @@ density Vow reports.
   capital.
 - **Cells that make less waste.** A drained tank's density is set by waste, so better cells raise it. For the published cells the
   waste that matters is lactate: a lower lactate yield raises their cap above 9.5 g/L and cuts their perfusion medium too.
-- **A larger fed-batch tank.** It helps fed-batch (about 22% at 100 m³: $54.58 against $70.32 (2026-11-21; $69.90 since 2026-11-25) in the low-lactate example,
+- **A larger fed-batch tank.** It helps fed-batch (about 22% at 100 m³: $54.58 against $70.32 (2026-11-21; $69.90 since 2026-11-25, $70.02 since 2026-11-27) in the low-lactate example,
   `scenarios.plant_axis`) and helps perfusion less (under 5%, `tank_size.md`).
 - **A run of fed-batch or fill-and-draw at 20 m³ that reports its density and waste levels, with meat cells.** Vow's 27 g/L
   comes from press reports about one harvest; Upside's 33-136 g/L is arithmetic on a capacity claim. Upside's promised FDA memo

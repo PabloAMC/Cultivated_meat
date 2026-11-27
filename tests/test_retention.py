@@ -69,8 +69,9 @@ def check() -> list:
     # 2026-11-20 batch: bubble deaths, harvest loss, twice the fed-batch crew, medium preparation capital, utilities ($12.45 -> $14.89)
     # 2026-11-20, third pass: plant items charged per tank (floor_physics.tank_items) and the plant floor ($14.89 -> $14.79)
     # 2026-11-21: the building's power by floor and class, the floor's glucose ($14.79 -> $14.59)
-    if not close(R.scenario_cost("hoped", {})["total"], 14.5858, 1e-5):
-        fails.append("the hoped-for device no longer gives the pinned reference cost ($14.79)")
+    # 2026-11-27 (nutrient balance): Humbird's cells pay for the glucose they ferment ($14.59 -> $14.64)
+    if not close(R.scenario_cost("hoped", {})["total"], 14.6389, 1e-5):
+        fails.append("the hoped-for device no longer gives the pinned reference cost ($14.64)")
     cen = R.cases()["central"]
     d = R.duty(cen)
     # ATF: whole units that cover the permeate at the design flux
@@ -242,8 +243,10 @@ def check_particles() -> list:
     # carriers 44.16 / 96.46 / 24.26 before
     # 2026-11-25 (the gas cap and loop thinning): carriers 94.87 -> 94.66 (central), 24.35 -> 24.31 (best): the thin carrier
     # culture now bubbles a lower flow than the cells' cap, so fewer cells die
-    pins = {("aggregates", "reference"): 14.24, ("aggregates", "central"): 26.51, ("aggregates", "best"): 7.39,
-            ("microcarriers", "reference"): 43.50, ("microcarriers", "central"): 94.66, ("microcarriers", "best"): 24.31}
+    # 2026-11-27 (nutrient balance): aggregates 14.24 -> 14.30 (reference), 7.39 -> 7.44 (best); carriers 24.31 -> 24.36 (best).
+    # The low-lactate example and the reference on carriers do not move (litres x price exceed what the cells eat)
+    pins = {("aggregates", "reference"): 14.30, ("aggregates", "central"): 26.51, ("aggregates", "best"): 7.44,
+            ("microcarriers", "reference"): 43.50, ("microcarriers", "central"): 94.66, ("microcarriers", "best"): 24.36}
     for (dev, name), want in pins.items():
         got = R.scenario_cost(dev, cs[name])["total"]
         if abs(got - want) > 0.005:
@@ -251,9 +254,10 @@ def check_particles() -> list:
     # 2026-11-21: (27.22, 36.77), (7.62, 10.39), (36.02, 491.52), (8.68, 206.02) before, as above
     # 2026-11-25 (the gas cap and loop thinning): (25.95, 36.41) -> (25.95, 34.85), (6.93, 10.48) -> (6.93, 10.30),
     # (35.58, 486.92) -> (33.84, 486.92), (8.77, 206.29) -> (8.73, 205.95)
-    rng = {("aggregates", "central"): (25.95, 34.85), ("aggregates", "best"): (6.93, 10.30),   # 6.94 with the column on the loop only beside the TFF loop (2026-11-21)
+    # 2026-11-27 (nutrient balance): best (6.93, 10.30) -> (6.98, 10.35) and (8.73, 205.95) -> (8.78, 206.00)
+    rng = {("aggregates", "central"): (25.95, 34.85), ("aggregates", "best"): (6.98, 10.35),   # 6.94 with the column on the loop only beside the TFF loop (2026-11-21)
           
-           ("microcarriers", "central"): (33.84, 486.92), ("microcarriers", "best"): (8.73, 205.95)}
+           ("microcarriers", "central"): (33.84, 486.92), ("microcarriers", "best"): (8.78, 206.00)}
     for (dev, name), want in rng.items():
         r = R.scenario_range(dev, cs[name])
         if max(abs(r["low"]["total"] - want[0]), abs(r["high"]["total"] - want[1])) > 0.005:

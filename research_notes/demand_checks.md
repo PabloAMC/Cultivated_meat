@@ -45,6 +45,10 @@
 > more ruled out): the size passes. But 79% of the new option's choices come from meat in the model, against about 30% in the
 > experiment: the source fails. Nothing was refitted.
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment). The all-favourable example costs $7.02 ($6.97); its cells with the ordinary demand are 20.4% of world meat (20.5%), with every shopper alike 12.1%, 17.0% and 23.7% (12.2%, 17.1%, 23.8%), and with its own demand 25.0% (25.1%; 24.5% to 25.6% across the price-insensitive shoppers' liking, was 24.7% to 25.8%). The under-used plant's cells cost $7.02 to $11.20 (to $11.15). The low-lactate example's cost and shares did not move, and no check changed. The conclusions are unchanged.
+
+> Repinned 2026-11-27 (later; the blend rule is a curve: a cut that is 80% cells keeps 0.8^1.2 = 77% of the credit shoppers give real meat, not 80%; `hybrid_demand_evidence.md`). Costs did not move; every share that includes cuts fell by about a twentieth. The low-lactate example takes 1.37% of world meat (1.43%) and the all-favourable example's cells with the ordinary demand 19.8% (20.4%). The row that reproduces the model before 2026-11-22 keeps the linear rule. The conclusions are unchanged.
+
 Date: 2026-11-18; revised the same day when the model gained a spread of liking across shoppers (`liking_spread.md`). Code:
 `demand_checks.py`; test: `tests/test_demand_checks.py`.
 
@@ -79,7 +83,7 @@ shape of the spread is fitted to the first three of these (`liking_spread.md` §
 |---|---|---|---|
 | Cultivated meat at first contact and equal price: own-price elasticity (choice experiment, simulated from its fitted model) | about -1.5 (-1.1 to -1.65 across its arms) | -1.17 | -3.27 |
 | Share of a meat at 3 times the ordinary one's price (sixteen premium real meats, fitted) | 1.5% | 6.2% | 0.1% |
-| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 1.5–3.5 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
+| A premium product getting cheaper: percent more volume per percent lower price (farmed salmon) | 1–1.5 | 1.5–3.6 (organic chicken, heritage pork, premium fish fillets and shrimp, sushi-grade seafood: the premium products still dearer than their meat) | 3.0–3.4 (recorded on 2026-11-18 at that day's costs; not recomputed) |
 | Plant-based meat's own-price elasticity (US retail; the category is about -1.3) | -1.23 | -1.03 | -2.89 (with no committed buyers, the model before 2026-11-21's fourth batch) |
 | Adding plant-based meat priced like the meat it copies to a menu: fall in meat's share, points, and the share of the new option's orders taken from meat (menu experiment, Hope 2026; US) | 2.1 (0 to 4.4; 5 or more ruled out); about 30% from meat | 0.54; 79% from meat | 1.17; 84% from meat (with no committed buyers, the model before 2026-11-21's fourth batch) |
 
@@ -131,12 +135,12 @@ shopper alike it kept steepening with the price (−10.4 at three times).
 
 | price response | share of a meat at 1×, 1.25×, 1.5×, 2×, 3×, 4× its price | at first contact and equal price | world share, 4. Plus perfusion (the low-lactate example) | world share, 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|---|
-| **the model: shoppers differ in how much they like cultivated meat (50% of meat buyers at equal price once familiar)** | 46.4%, 37.8%, 30.0%, 17.6%, 6.2%, 3.4% | -1.17 | 1.4% | 20.5% |
-| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 51.6%, 31.3%, 16.1%, 3.2%, 0.1%, 0.003% | -3.27 | under 0.001% | 12.2% |
-| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 51.6%, 41.7%, 32.3%, 17.5%, 3.9%, 0.8% | -1.54 | 0.02% | 17.1% |
-| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 51.6%, 46.1%, 40.7%, 30.7%, 15.3%, 6.9% | -0.84 | 0.3% | 23.8% |
-| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.01% | 2.3% |
-| the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points) | 13.0%, 10.2%, 7.8%, 3.8%, 0.8%, 0.1% | -1.54 | 0.006% | 5.9% |
+| **the model: shoppers differ in how much they like cultivated meat (50% of meat buyers at equal price once familiar)** | 46.4%, 37.8%, 30.0%, 17.6%, 6.2%, 3.4% | -1.17 | 1.4% | 19.8% |
+| the model before 2026-11-18: every shopper alike, 8.5 times as price-sensitive as meat in general | 51.6%, 31.3%, 16.1%, 3.2%, 0.1%, 0.003% | -3.27 | under 0.001% | 11.4% |
+| every shopper alike, 4 times (no extra sensitivity for cultivated meat) | 51.6%, 41.7%, 32.3%, 17.5%, 3.9%, 0.8% | -1.54 | 0.02% | 15.9% |
+| every shopper alike, with the slope of the sixteen premium meats (2.2 times) | 51.6%, 46.1%, 40.7%, 30.7%, 15.3%, 6.9% | -0.84 | 0.2% | 22.3% |
+| one curve fitted to the sixteen premium meats (slope and level), with cultivated meat's corrections | 6.8%, 5.5%, 4.4%, 2.9%, 1.2%, 0.5% | -0.90 | 0.01% | 2.1% |
+| the model of 2026-11-18: a normal spread of 5 utils (fifteen integration points) | 13.0%, 10.2%, 7.8%, 3.8%, 0.8%, 0.1% | -1.54 | 0.005% | 5.6% |
 
 - The first row is the model. The second is the model before: too few buyers above twice the price.
 - The third and fourth weaken the slope for every shopper and keep half the market at equal price. They are too generous: at twice
@@ -145,19 +149,19 @@ shopper alike it kept steepening with the price (−10.4 at three times).
   product.
 - The last is the model as it stood on 2026-11-18 and through the audit batch, a normal spread of 5 utils, with no
   price-insensitive shoppers. Against it the model gives the low-lactate example about forty times the share (0.26% against
-  0.006%) and the all-favourable example's cells about the same (5.5% against 5.9%).
+  0.006%) and the all-favourable example's cells about the same (5.4% against 5.8%).
 - The rows with every shopper alike and the normal spread of 2026-11-18 are calibrated without the price-insensitive shoppers, as
   those models were.
-- **Across one-kind responses the low-lactate example's share runs from under 0.001% to 0.3%.** The model's 0.26%, and 5.5% for
+- **Across one-kind responses the low-lactate example's share runs from under 0.001% to 0.2%.** The model's 0.26%, and 5.4% for
   the all-favourable example's cells, are its own reading; the share at equal price (`liking_spread.md`) and the price-insensitive
-  shoppers' liking (section 7) carry most of what remains uncertain. The all-favourable example's column is its cells ($6.97 a
+  shoppers' liking (section 7) carry most of what remains uncertain. The all-favourable example's column is its cells ($7.02 a
   kilo) with the model's ordinary demand, not its own 55% at equal price.
 - **A weaker price response with every shopper alike gives the low-lactate example less than the model.** With every shopper four
   times as price-sensitive as for meat in general (the third row) it takes 0.02%, against the model's 0.26%. At $48.68 a kilo of
   cells most products are 4 to 14 times their meat's price, where the model's price-insensitive shoppers leave more buyers than
   shoppers who are all alike. Only the slope of the premium meats (2.2 times, the fourth row) gives about as much (0.3%). For the
-  all-favourable example's cells, nearer equal price, both weaker responses give far more than the model (17.1% and 23.8% against
-  5.5%), and the model before 2026-11-18 gives 12.2%, about twice the model.
+  all-favourable example's cells, nearer equal price, both weaker responses give far more than the model (17.0% and 23.7% against
+  5.4%), and the model before 2026-11-18 gives 12.1%, about twice the model.
 
 ## 3. Two smaller things from the same reading
 
@@ -168,10 +172,10 @@ shopper alike it kept steepening with the price (−10.4 at three times).
 
 | share of the plant's capacity that is sold | Cautious | 4. Plus perfusion (the low-lactate example) | 7. Plus everything else at its favourable end (the all-favourable example) |
 |---|---|---|---|
-| 100% | $179.90 | $48.68 | $6.97 |
-| 80% | $187.17 | $52.18 | $7.67 |
-| 60% | $199.28 | $58.01 | $8.83 |
-| 40% | $223.50 | $69.68 | $11.15 |
+| 100% | $179.90 | $48.68 | $7.02 |
+| 80% | $187.17 | $52.18 | $7.72 |
+| 60% | $199.28 | $58.01 | $8.88 |
+| 40% | $223.50 | $69.68 | $11.20 |
 
   Every scenario is at 100%. Beyond Meat's sales fell about 40% from their peak after its plants were built, and its costs run about 70%
   above a right-sized plant's (Knowles 2026). The market-size loop runs backwards as well as forwards.
@@ -233,7 +237,7 @@ every price would hand cultivated meat a block of price-insensitive buyers the e
   20% plant protein loses 20% of that weight (`meat_market.tier_offset`): 1.06 utils (0.68 before the committed buyers). In the
   fourth batch that took the all-favourable example's cells with the ordinary demand from 6.1% to 5.6% of world meat, and with its
   own demand from 24.7% to 23.4%. It is the existing rule applied to a better-measured weight; whether a blend should lose the
-  ordinary shopper's full dislike of plant-based meat in proportion is itself unmeasured (TODO, cut cell share). The "no committed
+  ordinary shopper's full dislike of plant-based meat in proportion is itself unmeasured (TODO, cut cell share; since 2026-11-27 the cut keeps cell share^1.2 of the weight, from choice studies of meat-plant blends: `hybrid_demand_evidence.md`). The "no committed
   buyers" row is the model before the fourth batch in full (no price-insensitive shoppers, the spread of 3.9 and 4).
 
 ## 6. Farmed salmon with the same machinery (2026-11-21, fourth batch; superseded by section 7)
@@ -412,7 +416,7 @@ of 2026-11-22, run on the module as built; not a module.)
   buy 0.008% of world meat. In the all-favourable example, near meat's price, 13% of its sales go to them.
 - **So the low-lactate example's share now rests on how much the price-insensitive like cultivated meat**, which only two
   stated-choice studies measure. From -2 to +2 utils it runs from 0.11% to 0.58% (the side table below, at the fitted spread). The
-  all-favourable example barely moves with it (24.7% to 25.8%).
+  all-favourable example barely moves with it (24.5% to 25.6%).
 - **Far above meat's price the tail is longer.** A meat's buyers at 5, 8 and 10 times its price: 0.58%, 0.33% and 0.23% of all
   choices, against 0.15%, 0.03% and 0.01% before. The premium data stop at 3.6 times; above that it is the class's own response,
   not a measurement.
@@ -421,15 +425,15 @@ The class at each end of its inputs (the spread held at the model's 3.55 and 7; 
 
 | price-insensitive shoppers | joint misfit (experiment, premium, salmon) | meets the experiment's two requirements | first contact: elasticity | plant-based meat's elasticity | salmon response | share of a meat's buyers at 3x, 4x its price | low-lactate example, world | all-favourable example with its own demand, world |
 |---|---|---|---|---|---|---|---|---|
-| the model | 0.80 (0.02, 0.22, 0.56) | yes | -1.17 | -1.03 | 1.51–3.54 | 6.21%, 3.40% | 1.429% | 25.1% |
-| no price-insensitive shoppers, the spread as it was (the model before 2026-11-22's fifth batch) | 5.21 (0.54, 2.80, 1.87) | yes | -1.38 | -1.30 | 3.68–4.19 | 0.93%, 0.34% | 0.045% | 23.4% |
-| no price-insensitive shoppers, the spread as now | 17.82 (4.80, 8.82, 4.20) | no | -1.27 | -1.30 | 4.95–6.87 | 3.36%, 0.65% | 0.043% | 23.5% |
-| they like cultivated meat 2 utils less than other shoppers | 3.71 (1.45, 1.09, 1.17) | yes | -1.20 | -1.03 | 2.22–4.11 | 5.07%, 2.17% | 0.690% | 24.7% |
-| 2 utils more | 4.98 (4.29, 0.44, 0.26) | no | -1.12 | -1.03 | 1.03–2.94 | 7.57%, 4.93% | 2.666% | 25.8% |
-| 10% of shoppers | 0.90 (0.27, 0.20, 0.43) | yes | -1.15 | -0.99 | 1.37–3.33 | 6.92%, 4.08% | 1.769% | 25.5% |
-| 15% of shoppers | 3.43 (2.43, 0.76, 0.25) | no | -1.09 | -0.88 | 1.14–2.89 | 8.69%, 5.80% | 2.609% | 26.6% |
-| their price response 0.10 times other shoppers' | 0.77 (0.02, 0.21, 0.53) | yes | -1.17 | -1.03 | 1.43–3.52 | 6.27%, 3.48% | 1.571% | 25.2% |
-| 0.25 times | 2.40 (0.30, 0.77, 1.33) | yes | -1.19 | -1.11 | 2.82–3.90 | 5.43%, 2.34% | 0.395% | 24.8% |
+| the model | 0.80 (0.02, 0.22, 0.57) | yes | -1.17 | -1.03 | 1.51–3.58 | 6.21%, 3.40% | 1.366% | 24.3% |
+| no price-insensitive shoppers, the spread as it was (the model before 2026-11-22's fifth batch) | 5.21 (0.54, 2.80, 1.87) | yes | -1.38 | -1.30 | 3.68–4.19 | 0.93%, 0.34% | 0.045% | 23.2% |
+| no price-insensitive shoppers, the spread as now | 17.82 (4.80, 8.82, 4.20) | no | -1.27 | -1.30 | 5.01–6.83 | 3.36%, 0.65% | 0.039% | 22.7% |
+| they like cultivated meat 2 utils less than other shoppers | 3.72 (1.45, 1.09, 1.18) | yes | -1.20 | -1.03 | 2.21–4.16 | 5.07%, 2.17% | 0.655% | 23.8% |
+| 2 utils more | 4.98 (4.29, 0.44, 0.26) | no | -1.12 | -1.03 | 1.03–2.96 | 7.57%, 4.93% | 2.572% | 25.0% |
+| 10% of shoppers | 0.91 (0.27, 0.20, 0.44) | yes | -1.15 | -0.99 | 1.37–3.36 | 6.92%, 4.08% | 1.691% | 24.7% |
+| 15% of shoppers | 3.44 (2.43, 0.76, 0.25) | no | -1.09 | -0.88 | 1.15–2.93 | 8.69%, 5.80% | 2.494% | 25.7% |
+| their price response 0.10 times other shoppers' | 0.77 (0.02, 0.21, 0.54) | yes | -1.17 | -1.03 | 1.43–3.55 | 6.27%, 3.48% | 1.504% | 24.3% |
+| 0.25 times | 2.41 (0.30, 0.77, 1.34) | yes | -1.19 | -1.11 | 2.82–3.95 | 5.43%, 2.34% | 0.370% | 24.0% |
 
 - **The liking shift moves the answer most**: -2 utils gives the low-lactate example 0.112%, +2 gives 0.575%. Both fit worse than
   0 (misfits 4.38 and 6.69 at this spread; a hostile class wants a wider spread). The evidence in utils points to 0.

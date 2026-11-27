@@ -42,10 +42,16 @@ import tank_size as T                       # noqa: E402
 # The shared-medium plant and the cautious case bubble below the cap and lose fewer cells. Before:
 #   central_lean (61.8599, 50.3796, 46.7493, 44.5349, 42.7114, 41.9717, 41.5050)
 #   cautious (226.6587, 196.2850, 186.4678, 181.1270, 177.2204, 175.5879, 174.3669)
+# 2026-11-27 (nutrient balance): the floor's cells pay for the glucose they ferment, so the reference and the all-favourable
+# example rise by about $0.05 at every size but the reference at 100 and 200 m3 (there litres x price already exceed what
+# the cells eat; the other scenarios likewise do not move). Before:
+#   reference (39.3347, 23.4524, 18.2909, 15.7207, 15.0246, 17.4432, 21.1962)
+#   reference_redesigned (26.3747, 18.1284, 15.7639, 14.5068, 13.5514, 13.2182, 13.0465)
+#   best (12.2610, 8.7489, 7.6858, 7.1647, 6.9548, 7.0971, 7.2854)
 GOLDEN = {
-    "reference": (39.3347, 23.4524, 18.2909, 15.7207, 15.0246, 17.4432, 21.1962),
-    "reference_redesigned": (26.3747, 18.1284, 15.7639, 14.5068, 13.5514, 13.2182, 13.0465),
-    "best": (12.2610, 8.7489, 7.6858, 7.1647, 6.9548, 7.0971, 7.2854),
+    "reference": (39.3937, 23.5084, 18.3452, 15.7738, 15.0765, 17.4432, 21.1962),
+    "reference_redesigned": (26.4337, 18.1843, 15.8182, 14.5598, 13.6033, 13.2695, 13.0972),
+    "best": (12.3143, 8.8005, 7.7378, 7.2165, 7.0064, 7.1477, 7.3352),
     "central": (73.5071, 56.4373, 51.5085, 48.6815, 46.6049, 45.8883, 45.5304),
     "central_lean": (61.8599, 50.3796, 46.1768, 43.9221, 42.2927, 41.6674, 41.1937),
     "cautious": (226.6587, 196.2850, 186.4678, 179.9020, 175.9861, 174.6373, 173.8748),
@@ -276,7 +282,8 @@ else:
 # 2026-11-21: central (71.7592, 60.7101) and best (11.2827, 10.4370) before (the building's power by floor and class)
 # 2026-11-25 (the gas cap and loop thinning): a thin batch now bubbles less than the cap: central 70.3150 -> 69.9004 and
 # 54.5840 -> 53.5011, best 11.0319 -> 10.9257 at 20 m3 (9.3395 at 100 m3 holds)
-FB_GOLDEN = {"central": (69.9004, 53.5011), "best": (10.9257, 9.3395)}     # $/kg at 20 and 100 m3 (9.4878 before 2026-11-21: designs with a thinned culture were dropped)
+# 2026-11-27 (nutrient balance): central 69.9004 -> 70.0156 and 53.5011 -> 53.6164, best 10.9257 -> 10.9747 and 9.3395 -> 9.3882
+FB_GOLDEN = {"central": (70.0156, 53.6164), "best": (10.9747, 9.3882)}     # $/kg at 20 and 100 m3 (9.4878 before 2026-11-21: designs with a thinned culture were dropped)
 for k, (a, b) in FB_GOLDEN.items():
     c20, c100 = T.fedbatch_at(k, 20.0)["total"], T.fedbatch_at(k, 100.0)["total"]
     check(abs(c20 - a) < 1e-3 * a and abs(c100 - b) < 1e-3 * b, f"{k} fed-batch: {c20:.4f}, {c100:.4f} != pinned {a}, {b}")

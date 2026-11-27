@@ -1,5 +1,7 @@
 # The nutrient floor, built from GFI's amino-acid prices
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance, section 9). The floor is unchanged ($2.00); each case's cells now eat what their ammonia and lactate imply. The all-favourable example costs $7.02 ($6.97) and the low-lactate example $48.68 (unchanged); the dearest corner of the table is $64.05 ($63.72). The conclusions are unchanged.
+
 > Repinned 2026-11-25 (the gas cap and loop thinning). The engine now picks the gas flow of a tank with a column, up to the flow the cells tolerate, and holds a culture whose column loop fails its checks thinner, at the densest density that passes; before, a medium setting that overloaded the loop was priced as if the loop coped. The floor itself is unchanged ($2.00). The all-favourable example costs $6.97 and the low-lactate example $48.68; the dearest corner of the table (high food-grade amino acids at 650 g/kg) is now $63.72 for the low-lactate example ($63.93 on 2026-11-21). Section 6 carries the table regenerated from `python nutrient_floor.py` on this model. The conclusions are unchanged.
 
 > Repinned 2026-11-20 (final pass). The all-favourable example is now the one case of `scenarios.all_favourable()` ($7.62; it was $18.71 in the first batch of 2026-11-20); the low-lactate example costs $49.50 ($49.96). The floor itself is still $2.00 a kilo of cells grown for the model cell ($1.99 for the all-favourable example's cells, $2.16 per kilo harvested). The table of section 6 is regenerated from `python nutrient_floor.py`. **What changed:** the all-favourable example now loses no runs (Humbird's design loses none, and the case takes the more favourable source), so it moves exactly dollar for dollar with the floor per kilo of cells grown; before, the medium lost with lost tanks made it move a little more. The conclusions are unchanged: the all-favourable example's medium is the floor, so every dollar of the floor is a dollar of its cost (per kilo grown); the low-lactate example moves by nearly the floor's rise (+$0.69 at feed-grade prices and 350 g/kg, +$1.22 at low food-grade prices and 232 g/kg).
@@ -172,3 +174,63 @@ GFI's $10 a kilo for it is hypothetical. At today's quotes the floor would be ab
 The floor is meant as a long-run price at industry scale, so $6.36 a kilo of amino acids is kept. That assumes new serine
 capacity is built; comparable fermentation amino acids made at scale (threonine, lysine, valine) sell at $1–3 a kilo. The
 band's top stays at $11.59 (GFI's low food-grade mean). A supplier's quote would settle it (TODO.md).
+
+## 9. A nitrogen and carbon balance: what each case's cells eat (2026-11-27)
+
+Until now the floor was one figure for every case: 0.232 kg of amino acids and about 0.31 kg of glucose a kilo of cells, whatever
+the cells released as waste. Two parts of the model contradicted that. The glucose balance (`glucose_balance`) already counted
+amino acids burned for the ammonia they release, and glucose turned into lactate, when it set the lactate a tank must wash out.
+But the medium's cost floor charged neither the amino acids behind that ammonia nor the glucose behind that lactate.
+`floor_physics.nutrient_balance` now does, for every case, in the Python engine and the page's.
+
+**Nitrogen.** GFI's tonnes of each amino acid for the FSF4 medium (the table on page 18, most efficient need) give the nitrogen a
+kilo of the medium's amino acids carries: **12.30 mol** (mean molar mass 135.9 g/mol, 1.67 N an amino acid; arginine has four,
+glutamine and asparagine two, and they are needed most). The modified CHO medium gives 11.65. New input `nb_aa_n_kg`.
+So 0.232 kg of them carries 2.85 mol of nitrogen, and a kilo of Humbird's cells (CH1.68 O0.34 N0.21, 13.6 mol of dry mass)
+holds 2.86. **The floor's 0.232 kg is exactly what cells that release no ammonia must eat**: none of its nitrogen is left over.
+Each mol of ammonia the cells release takes 1 / 12.30 kg = **81 g** more:
+
+    amino acids, kg a kilo = aa_intensity + NH3 / nb_aa_n_kg
+
+`aa_intensity` keeps its range (0.20-0.65 kg). Above 0.232 it now stands for nitrogen that leaves unused or as other amino
+acids (alanine and glutamate are secreted by CHO cells), which nobody has measured in meat cells.
+
+**Carbon.** Glucose a kilo = what is built in (`pf_glc_anabolic`, less three-quarters of it if the lipid is fed) + what is burned for
+the oxygen the amino acids do not cover, (O2 - 2.25 NH3) / 6 + what is fermented, lactate / 2. This is `glucose_balance` with
+the lactate in mol. Where a case sets its glucose directly (`glc_kg`, or `pf_glc_kg` with an explicit lactate yield), that
+glucose is charged. The floor's glucose (`glucose_intensity`) is now the balance's for cells that make no ammonia, like its amino
+acids: 0.3142 kg, not 0.311 (+$0.001).
+
+**What it changes.** Little, because the ammonia meat cells are measured to make is small:
+
+| case | amino acids, g | glucose, g | nitrogen kept in the cells | nutrients, $ a kilo grown | cost before → after |
+|---|---|---|---|---|---|
+| the floor (no ammonia, no lactate) | 232 | 314 | 100% | 2.00 | |
+| published cells (0.14 mol NH3, lactate 1.05) | 243 | 819 | 95% | 2.28 | $316.11, unchanged (litres × price binds) |
+| low-lactate example (0.14, 0.42) | 243 | 461 | 95% | 2.13 | $48.68, unchanged; its fed-batch rung $69.90 → $70.02 |
+| all-favourable example (0.054, 0.28) | 236 | 331 | 98% | 2.04 | $6.97 → $7.02 |
+
+The nutrients set the medium's cost only where the medium is priced at or near its nutrients: the all-favourable example
+(medium at the cost of its nutrients) and the complete medium at $0.20 a litre in fed-batch. Elsewhere litres × price is larger.
+The dialysate of a cleaning route is now floored at the case's own nutrients a litre, not the model cell's. `min_litres.py` takes
+its amino acids and glucose from the same balance (0.232 kg, not Humbird's 0.26), so its bounds moved by a few per cent.
+
+**What it shows.** Cells that keep 95-98% of the amino-acid nitrogen they take up turn amino acids into protein efficiently.
+GFI's December 2025 estimates go up to 650 g a kilo, nearly three times the floor. The balance says where such a figure would have
+to go. Either the cells release about 5 mol of ammonia a kilo (37 times the best measured, 0.14), or most of the nitrogen leaves
+unused in spent medium or as other amino acids. The second is a medium that is thrown away half used, which recycling
+(`medium_reuse.py`) would address. Measuring the amino acids in spent medium would settle which (TODO.md).
+
+**The table of section 6 on this model** (`python nutrient_floor.py`). Since this change `scenario_cost` sets the need and the price
+directly (`aa_intensity`, `aa_bulk_price`), not the price alone inflated by the need. Otherwise the amino acids a case's ammonia
+takes would be bought at a price raised by the need: $0.84 on the dearest corner, where the honest figure is $0.33.
+
+| amino acids | need 232 g | need 350 g | need 650 g |
+|---|---|---|---|
+| feed-grade ($6.36) | floor $2.00; the all-favourable example $7.02; the low-lactate example $48.68 | $2.75; $7.86; $49.50 | $4.66; $10.00; $51.66 |
+| low food-grade ($11.59) | $3.21; $8.41; $50.09 | $4.58; $9.94; $51.64 | $8.06; $13.84; $55.58 |
+| high food-grade ($23.18) | $5.90; $11.48; $53.29 | $8.64; $14.55; $56.39 | $15.59; $22.35; $64.05 |
+
+Limits: the amino acids burned are charged at the medium's profile, while the glucose balance credits their oxygen as if they
+were glutamine (2.25 O2 per NH3). The cells' nitrogen is Humbird's formula; a protein-and-nucleic-acid count gives about 2.4
+mol, which would put the no-ammonia need at 0.20 kg (GFI's lowest estimate).

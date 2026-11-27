@@ -154,6 +154,12 @@ def build_model() -> dict:
             "consumables": value("pf_consumables_low"),
             "power_coef": value("pf_power_coef"), "heat_per_o2": value("pf_heat_per_o2"),
             "aa": AA_FLOOR, "glucose": floor_physics.GLUCOSE_FLOOR, "other": value("other_nutrients_floor"),
+            # the nitrogen and carbon balance (floor_physics.nutrient_balance, 2026-11-27): `aa` and `glucose` are the floor's
+            # dollars for aa_kg and glc_int kilos, so the page's price levers scale them; the case's own kilos follow its waste
+            "aa_kg": value("aa_intensity"), "aa_n_kg": value("nb_aa_n_kg"), "glc_int": value("glucose_intensity"),
+            "glc_mw": value("ml_glc_mw"), "n_cells": value("ml_n_per_dry") * value("ml_dry_mol_kg"),
+            # the cells' lipid share of dry mass (floor_physics.lipid_scale) and their composition, for the measures other models report
+            "lipid0": value("gb_f_lipid"), "dry": value("gb_dry_per_wet"), "f_protein": value("gb_f_protein"),
             "ref_mass": floor_physics.GOOD_CELLS.mass_pg, "ref_doubling": floor_physics.GOOD_CELLS.doubling_h,
             "run_days": value("pf_run_days"), "medium_l": value("pf_medium_l_floor"),
             "gf": value("pf_growth_factors") * value("pf_opex_escalation"), "filler": value("pf_blend_filler_price"),
@@ -290,6 +296,7 @@ def build_model() -> dict:
         "PREMIUM_RATIO": mm.PREMIUM_RATIO,
         "PREMIUM_START": mm.PREMIUM_START, "PREMIUM_FULL": mm.PREMIUM_FULL,
         "AUTH_PREMIUM_EXTRA": mm.AUTH_PREMIUM_EXTRA,
+        "BLEND_CURVE": value("blend_curve"),   # exponent of the blend rule (meat_market.blend_kept; blendKept below)
         # a cut = cut_cells x cells + (1 - cut_cells) x matrix price + assembly (price_ratio.structured_cost; cutCost below)
         "matrix_price": value("material_price"),
         # WHICH inputs the page's bands sample: the SAME lists the Python bands use (inputs.MC_*),
@@ -412,6 +419,7 @@ def build_model() -> dict:
             "overhead":      ["h", "plant running cost in Eq. (1)"],
             "scaffold":      ["k", "Eq. (1), structured cuts only"],
             "cut_cells":     ["c", "Eq. (1), structured cuts only"],
+            "blend_curve":   ["&gamma;", "a cut keeps c<sup>&gamma;</sup> of the real-meat weight in Eq. (2)"],
             "markup_add":    ["a", "Eq. (1)"],
             "retail_margin": ["m", "Eq. (1)"],
             "meat_tax":      ["t", "denominator of Eq. (1)"],
@@ -460,7 +468,7 @@ def build_model() -> dict:
     SLIDER_GROUPS = [
         ("Main settings",
          ["equal_price_share", "accept_x", "premium_resistance", "markup_add", "retail_margin", "meat_tax"], False),
-        ("A cut (a steak or fillet)", ["cut_cells", "scaffold"], True),
+        ("A cut (a steak or fillet)", ["cut_cells", "blend_curve", "scaffold"], True),
         ("How shoppers choose",
          ["eps_own", "cult_sub_mult", "liking_sd", "theta_free_M", "loss_aversion", "w_ratio", "income", "income_gradient", "w_eth",
           "health_x", "neophobia_x", "real_tissue_x"], True),
@@ -547,9 +555,17 @@ def build_model() -> dict:
                tip="A cut (steak or fillet) is made by binding harvested cells with plant protein. The rest of the cut is that "
                "plant protein, at $" + f"{value('material_price'):.0f}" + "/kg. Cuts sold or approved so far are 10 to 30% cells. "
                "Nobody has shown a cut that is mostly cells grown in suspension with the texture of meat. The model's setting keeps the cut "
-               "mostly cells. A lower share makes a cut cheaper, and shoppers like it less: a cut that is part plant protein gets "
-               "that much less of the credit shoppers give real meat. The Monte Carlo samples "
+               "mostly cells. A lower share makes a cut cheaper, and shoppers like it less: a cut that is part plant protein loses "
+               "part of the credit shoppers give real meat (the next slider sets how fast). The Monte Carlo samples "
                + f"{(1 - REGISTRY['scaffold_frac'].hi) * 100:.0f} to {(1 - REGISTRY['scaffold_frac'].lo) * 100:.0f}" + "% cells."),
+        slider("blend_curve", "How fast shoppers' liking falls as plant protein replaces cells (&gamma;)", "", 0.2, 3.0, 0.1,
+               value("blend_curve"), "Asioli 2023",
+               tip="A cut that is a share <i>c</i> of cells keeps <i>c</i><sup>&gamma;</sup> of the credit shoppers give real meat. At 1 "
+               "the loss equals the share of plant protein. Above 1 a blend loses more than that, below 1 less. The setting comes "
+               "from a choice study of beef, half-beef and plant burgers in three countries (Asioli and others, 2023), where the "
+               "half-beef burger kept 0.43 of beef's advantage. Tasted blind, blends lose less (about 0.3). In a German and "
+               "Belgian study they lose more (2 or above). No study varies the share of cultivated cells, so this is an analogue. "
+               "The Monte Carlo samples " + f"{REGISTRY['blend_curve'].lo:g} to {REGISTRY['blend_curve'].hi:g}" + "."),
         slider("scaffold", "Cost of assembling a cut (<i>k</i>)", "$/kg", 0.0, 12.0, 0.5, mm.SCAF,
                "analogues",
                tip="This is the cost of binding, forming, setting and slicing a cut after the cells are harvested. Mince does not need it. "
@@ -1015,6 +1031,8 @@ PAGE_PARAMS = (
      "The glucose a kilo of cells uses; with the lactate made per glucose it sets the lactate a kilo of cells makes. Humbird's efficient cell uses 1.12 mol; measured pharma cells use 0.67 to 1.0; nobody has measured it for meat cells. Left alone, the reference points work it out from the cells' own balance of fat, oxygen, ammonia and lactate, and the lever shows that value. Lower is better."),
     ("fat_fed", "cells_more", "Fat taken from the feed, not made from glucose", "%", "kw", "fat_fed", 0.0, 100.0, 0.0, 100.0, 5.0, 0, (), "pf_rq_lipid",
      "Cells that make their own fat from glucose give off CO₂ without using oxygen: most of why cells make 1.2 CO₂ per oxygen. With all of the fat in the feed the ratio falls to 0.97 and the CO₂ limit rises by about a quarter (a carbon balance on Humbird's cell); the fat is paid for. Nobody has tested whether meat cells stop making their own fat. Higher clears CO₂ more easily."),
+    ("lipid_share", "cells_more", "Fat in the cells, as a share of their dry mass", "%", "kw", "lipid_share", value("gb_f_lipid"), 100.0, 5.0, 50.0, 1.0, 0, (), "gb_f_lipid",
+     "How much of the cells' dry mass is fat. Humbird's cell is 15%. A kilo of cells stays 70% water here, so fattier cells hold less protein: they need fewer amino acids, and more glucose if they make the fat themselves. Making fat from glucose gives off CO₂ without using oxygen, so fattier cells that make their own fat are held thinner by the tank's CO₂ limit; fat from the feed (the lever above) avoids that. Real fat tissue holds far less water than 70%, so this lever covers lean to marbled cells, not pure fat. The oxygen a cell uses is not lowered for its fat, which leans against fattier cells."),
     ("hazard", "reactor_more", "Chance of losing a run to contamination", "% a day", "kw", "hazard", 0.0, 100.0, 0.0, 10.0, 0.1, 1, ("hazard",), "sc_hazard_cm",
      "The chance, each day, that a contamination ruins the run in a tank. A lost run empties the tank and takes days to restart. Large pharma plants lose about 0.2% a day; cultivated-meat makers report losses that work out to roughly 1 to 2% a day. Lower is better."),
     ("restart_fail", "reactor_more", "Days to restart a tank after a contamination", "days", "kw", "restart_fail", None, 1.0, 1.0, 30.0, 0.5, 1, (), "sc_restart_base",
@@ -1112,6 +1130,7 @@ LEVER_REFS = {
     "gf_buy": [(0, "none bought: Believer's and Wildtype's FDA memos"), (100, "Humbird 2021: every litre at his large-scale price")],
     "glc_kg": [(0.67, "measured pharma cells, low end"), (1.0, "measured pharma cells, high end"), (round(value("pf_glc_kg"), 2), "Humbird's 2021 efficient cell")],
     "fat_fed": [(0, "Humbird 2021: the cells make their own fat"), (100, "all the fat from the feed, not tested with meat cells")],
+    "lipid_share": [(15, "Humbird 2021, Table 2.1: 15% of dry mass")],
     "hazard": [(0, "Humbird 2021: no runs lost"), (round(100 * value("pf_hazard_pharma"), 2), "large pharma plants"), (round(100 * value("sc_hazard_mid"), 2), "low end of what makers report, Powell 2025"),
                (round(100 * value("sc_hazard_cm"), 2), "what makers report, Powell 2025"), (round(100 * value("sc_hazard_high"), 2), "upper end of what makers report, Powell 2025")],
     "restart_fail": [(value("sc_restart_neighbour"), "reseeded from a neighbouring tank, a judgement"), (value("sc_restart_base"), "two weeks to clean and regrow the seed train"),
@@ -1635,7 +1654,10 @@ def derived_numbers() -> dict:
         "CUT_CELLS_PCT": f"{mm.CUT_CELL_SHARE * 100:.0f}",
         # how much less shoppers like a cut than mince (meat_market.tier_offset): the blend penalty at the default cell share, and
         # the premium penalty's size and price range
-        "BLEND_OFFSET": f"\u2212{(1 - mm.CUT_CELL_SHARE) * dp.w_realtissue_M:.2f}",
+        "BLEND_OFFSET": f"\u2212{(1 - mm.blend_kept(mm.CUT_CELL_SHARE)) * dp.w_realtissue_M:.2f}",
+        "BLEND_KEPT_PCT": f"{mm.blend_kept(mm.CUT_CELL_SHARE) * 100:.0f}",
+        "BLEND_CURVE": f"{value('blend_curve'):g}", "BLEND_CURVE_LO": f"{REGISTRY['blend_curve'].lo:g}",
+        "BLEND_CURVE_HI": f"{REGISTRY['blend_curve'].hi:g}",
         "PREMIUM_EXTRA": f"\u2212{abs(mm.AUTH_PREMIUM_EXTRA):g}",
         "PREMIUM_START": f"{mm.PREMIUM_START:g}", "PREMIUM_FULL": f"{mm.PREMIUM_FULL:g}", "PREMIUM_RATIO": f"{mm.PREMIUM_RATIO:g}",
         "SCAF": f"{mm.SCAF:.0f}",
@@ -1820,6 +1842,12 @@ def page_data() -> dict:
         {"key": "cut_cells", "name": "Share of a cut (a steak or fillet) that is cells, the rest plant protein",
          "ranges": {"central": [1 - sf.hi, 1 - sf.lo], "best": [1 - sf.hi, 1 - sf.lo]}, "fmt": "pct",
          "why": "Products on sale are 10 to 30% plant protein and binder. Fewer cells make a cut cheaper, and shoppers like it less."},
+        {"key": "blend_curve", "name": "How fast shoppers' liking falls as plant protein replaces cells in a cut",
+         "ranges": {"central": [REGISTRY["blend_curve"].lo, REGISTRY["blend_curve"].hi],
+                    "best": [REGISTRY["blend_curve"].lo, REGISTRY["blend_curve"].hi]}, "fmt": "num",
+         "why": "From studies of meat blended with plants, not of cultivated cells. At 1 a cut loses as much of the credit "
+                "shoppers give real meat as it has plant protein. Tasted blind, blends lose less (the low end). Chosen with a "
+                "label, they lose more (the high end)."},
     ]
     _PAGE_DATA.update({"own_label": OWN_LABEL, "regions": REGION_NAMES, "region_bands": region_bands,
                        "ladder": ladder, "estimates": estimates, "judgements": judgements, "p_conv": value("p_conv")})
@@ -3086,8 +3114,9 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       price and adds up the results <b>by weight</b> (closest to the climate footprint) and <b>by value</b> (the market). Neither
       total counts animals. Most land animals raised for meat are chickens, and cultivated meat does worst there.</p>
       <p><b>Mince, cuts and premium products.</b> Shoppers like a cultivated cut less than cultivated mince, for two reasons. First, a cut
-      is cells bound with plant protein, so it gets that much less of the credit shoppers give real meat: at {{CUT_CELLS_PCT}}% cells
-      the penalty is {{BLEND_OFFSET}} points of score, and it grows as the share of cells falls. The same share of cells sets the cut's cost.
+      is cells bound with plant protein, so it loses part of the credit shoppers give real meat: at {{CUT_CELLS_PCT}}% cells
+      it keeps {{BLEND_KEPT_PCT}}% of that credit, a penalty of {{BLEND_OFFSET}} points of score, and the penalty grows as the share
+      of cells falls. In choice studies of meat blended with plants a blend loses a little more than its share of plants. The same share of cells sets the cut's cost.
       Second, <b>wanting the genuine article</b>: nobody misses &ldquo;the real thing&rdquo; in a nugget, but for wagyu the breed <i>is</i> the
       product. A further penalty starts at {{PREMIUM_START}} times the species' cheapest form and reaches its full size,
       {{PREMIUM_EXTRA}} points, at {{PREMIUM_FULL}} times (wagyu, sushi-grade fish). Its size is a judgement, scaled by one setting
@@ -3320,10 +3349,11 @@ like {{MEDIA_L}}&nbsp;L/kg&nbsp;[1], comes from that source. Judgement calls are
       aversion. The draws take it between &minus;0.5 and +0.5.</p>
       <p>In formulas. For mince and other unstructured products \(\tau=0\). For a cut made of a share \(c\) of cells,
       priced at \(q\) times its species' cheapest form:</p>
-      \[ \tau=\underbrace{-(1-c)\,w^{rt}_M}_{\text{part plant protein}}\;+\;\rho\,\tau_{\rm prem}\,
+      \[ \tau=\underbrace{-(1-c^{\gamma})\,w^{rt}_M}_{\text{part plant protein}}\;+\;\rho\,\tau_{\rm prem}\,
          \min\!\Big(1,\max\!\Big(0,\frac{\ln(q/{{PREMIUM_START}})}{\ln({{PREMIUM_FULL}}/{{PREMIUM_START}})}\Big)\Big) \tag{A5} \]
-      <p>The first term is derived: \(w^{rt}_M\) is the weight mainstream shoppers put on real meat (A4), and a cut that is one-fifth
-      plant protein gets four-fifths of that credit. \(c\) is the same share of cells that sets the cut's cost in Eq. (1). The second
+      <p>The first term is derived: \(w^{rt}_M\) is the weight mainstream shoppers put on real meat (A4), and a cut that is a share
+      \(c\) of cells keeps \(c^{\gamma}\) of that credit, with \(\gamma={{BLEND_CURVE}}\) from a choice study of beef, half-beef and plant
+      burgers (Asioli and others, 2023; the draws take it from {{BLEND_CURVE_LO}} to {{BLEND_CURVE_HI}}). \(c\) is the same share of cells that sets the cut's cost in Eq. (1). The second
       term is a judgement: \(\tau_{\rm prem}={{PREMIUM_EXTRA}}\) is the full penalty on a cultivated version of a premium product, and
       \(\rho\) scales it. It rises smoothly with price, so no product changes sharply at a threshold, and because \(q\) is taken
       per species every species can have premium products. Wagyu and sushi-grade fish are well attested.
@@ -3860,16 +3890,18 @@ function typeR(mt,b,mk,s,bases,mg){
 // Utils added to cultivated meat's utility for a product, against cultivated mince (mirror of meat_market.tier_offset).
 //   mince and other unstructured products: 0
 //   a structured product: BLEND + PREMIUM
-//     BLEND   = -(1 - cells) x K.w_realtissue_M: a cut that is part plant protein gets that much less of the real-meat credit.
-//               `cells` is the SAME cell share the cut's cost uses (s.cut_cells; cutCost above). Not scaled by r.
+//     BLEND   = -(1 - cells ** g) x K.w_realtissue_M: a cut that is part plant protein loses part of the real-meat credit
+//               (mirror of meat_market.blend_kept). `cells` is the SAME cell share the cut's cost uses (s.cut_cells; cutCost
+//               above); g is the blend_curve slider (s.blend_curve, or a draw's), C.BLEND_CURVE when unset. Not scaled by r.
 //     PREMIUM = r x (the full premium penalty) x ramp: r is the premium-resistance slider, ramp is premiumRamp. The full
 //               penalty is the auth_premium_extra slider, C.AUTH_PREMIUM_EXTRA when unset.
 // Every product uses the model's own price sensitivity (there is no per-tier multiplier since 2026-11-19).
 function _auth(key,dflt){return (typeof state!=="undefined" && (key in state))?state[key]:dflt;}
-function tierOffset(structured,ramp,r,cells,K){
+function blendKept(cells,g){ if(g===undefined||g===null) g=_auth("blend_curve",C.BLEND_CURVE); return Math.pow(cells,g); }
+function tierOffset(structured,ramp,r,cells,K,g){
   if(!structured) return 0;
   r=(r===undefined?1:r);
-  return -(1-cells)*K.w_realtissue_M + r*_auth("auth_premium_extra",C.AUTH_PREMIUM_EXTRA)*ramp;}
+  return -(1-blendKept(cells,g))*K.w_realtissue_M + r*_auth("auth_premium_extra",C.AUTH_PREMIUM_EXTRA)*ramp;}
 // the share of the region's market closed by law (mirror of meat_market.closed_share; a share set by the reader holds for the region
 // on show) and the exponent of conventional meat's price fall (mirror of meat_market.conv_exponent)
 function closedShare(s){ if(s.closed_custom!==undefined&&s.closed_custom!==null&&s.region===state.region) return s.closed_custom;
@@ -3894,7 +3926,7 @@ function penOnce(s,K,market0,b,f){
   let Wval=0, Wvol=0; market0.forEach(mt=>{Wval+=mt.p_conv*mt.w_vol; Wvol+=mt.w_vol;});   // Wvol: listed weights sum to 1.00-1.025
   const rows=market.map(mt=>{
     const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);
-    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv,lmean:s.lmean};   // lmean: the page's first screen sets the liking directly (undefined: the calibration's)
+    const o={ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(mt.structured,ramp,r,s.cut_cells,K,s.blend_curve),eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:mt.p_conv,lmean:s.lmean};   // lmean: the page's first screen sets the liking directly (undefined: the calibration's)
     const sh=shareCalc(R,K,Object.assign({},o,{which:"x_meat"}));  // cultivated share of the meat of this type sold, x/(x+c)
     const shp=shareCalc(R,K,Object.assign({},o,{which:"p"}));       // plant-based share of this type
     return {mt:market0[market.indexOf(mt)],R,sh,shp,t};     // the kind of meat at its own price (the fall is in R)
@@ -4187,7 +4219,7 @@ function drawCurve(s){
   const mt=market.find(m=>m.name===state.curveType)||market[0];
   const rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
   const {R:Rmark,t,ramp}=typeR(mt,biomass(s),s.markup_add,s,speciesBases(market));   // t: a label for the title only
-  const eps=s.eps_own, toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP);
+  const eps=s.eps_own, toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP,s.blend_curve);
   const Rp=s.R_p;                                                   // plant-based's OWN price ratio (its marker x)
   // x-axis extends to cover BOTH markers (cultivated's Rmark and plant-based's R_p) so the dots land ON the curves
   const x1=Math.max(3, Math.ceil((Math.max(Rmark,Rp)+0.4)*2)/2);
@@ -4271,7 +4303,7 @@ function drawBreakdown(s){
   const mt=market.find(m=>m.name===s.curveType)||market[0];     // SHARED selector with panel 4a
   const b=biomass(s), rpr=(s.premium_resistance===undefined?1:s.premium_resistance);
   const {R,t,ramp}=typeR(mt,b,s.markup_add,s,bases);            // this type's price ratio, tier label (for the tag) and premium ramp
-  const toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP);
+  const toff=tierOffset(mt.structured,ramp,rpr,s.cut_cells,KP,s.blend_curve);
   const o={ax:s.accept_x,tfM:s.theta_free_M,toff,
            eps:s.eps_own,income:s.income,nbx:s.neophobia_x,nbp:s.neophobia_p,
            hx:s.health_x,hp:s.health_p,pricePb:s.R_p,tasteP:(s.a_p-1),
@@ -4496,7 +4528,7 @@ function footShare(s,pd){   // share of the ADDRESSABLE base = Step 2's calibrat
   const K=KP||effConsts(s), r=(s.premium_resistance===undefined?1:s.premium_resistance);
   // a structured product carries the blend penalty of any cut; the premium penalty is not applied here (ramp 0): the
   // prestige core is already removed as volume via φ
-  return shareCalc(footR(s,pd),K,{ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(pd.structure==="structured",0,r,s.cut_cells,K),
+  return shareCalc(footR(s,pd),K,{ax:s.accept_x,tfM:s.theta_free_M,toff:tierOffset(pd.structure==="structured",0,r,s.cut_cells,K,s.blend_curve),
     eps:s.eps_own,income:s.income,pricePb:s.R_p,aP:s.a_p,nbx:s.neophobia_x,nbp:s.neophobia_p,pRef:pd.p_base});
 }
 function footRad(v){return 3+2.6*Math.log10(Math.max(v,0.2)+1);}   // bubble radius ~ log volume (impact)
@@ -4618,12 +4650,12 @@ function priorDraw(k){const P=C.priors[k], kd=C.prior_kinds[k];
 function mcDraw(keys){const d={};for(const k of keys)d[k]=priorDraw(k);return d;}
 // The settings with one draw's cut: its cell share (1 - the drawn plant-protein share) and assembly cost. cutCost and
 // tierOffset both read the cell share from here, so a draw's cut is one product in cost and in liking.
-function mcCutSettings(s,dr){return Object.assign({},s,{cut_cells:1-dr.scaffold_frac,scaffold:dr.process_cost});}
+function mcCutSettings(s,dr){return Object.assign({},s,{cut_cells:1-dr.scaffold_frac,scaffold:dr.process_cost,blend_curve:dr.blend_curve});}
 // cultivated's shareCalc options for one draw of C.mc_inputs, for meat type mt (premium ramp `ramp`); `s` carries the
 // draw's cut (mcCutSettings). Same options as penetration()'s point estimate, including pRef = this cut's own price (the
 // income log needs the dollar price of the rival it faces; before this helper the bands priced every cut at the $12 anchor).
 function mcShareOpts(dr,mt,ramp,s){return {ax:s.accept_x,tfM:s.theta_free_M,
-  toff:tierOffset(mt.structured,ramp,dr.premium_resistance,s.cut_cells,KP),
+  toff:tierOffset(mt.structured,ramp,dr.premium_resistance,s.cut_cells,KP,s.blend_curve),
   eps:dr.eps_own, kap:dr.cult_sub_mult,   // a kappa draw scales cultivated's price gap
   income:s.income,pricePb:s.R_p,aP:s.a_p,
   nbx:s.neophobia_x,nbp:s.neophobia_p,hx:s.health_x,pRef:mt.p_conv,eqs:dr.equal_price_share};}   // novelty, no-slaughter, health: the slider values (not drawn)
@@ -5251,10 +5283,13 @@ function floorExplore(p,noSearch){
   const ar=p.aspect===undefined?F.aspect:p.aspect, us=p.gas_v===undefined?F.gas_v:p.gas_v, pc=p.pco2===undefined?F.pco2:p.pco2;
   const tankT=(v,a)=>Math.pow(4*F.wv*v/(Math.PI*a),1/3), T=tankT(p.vessel_m3,ar), depth=ar*T;
   const SE=p.strip_eff===undefined?F.strip_eff:p.strip_eff, AF=p.antifoam_otr===undefined?F.antifoam:p.antifoam_otr;
-  const xCo2=us/depth*3600*(pc*100/(8.314*310.15))*SE/((p.rq!==undefined?p.rq:F.rq-F.rq_lipid*(p.fat_fed||0))*cell.qo2);
+  const lipX=(p.lipid_share===undefined?F.lipid0:p.lipid_share)/F.lipid0, leanX=(1-(p.lipid_share===undefined?F.lipid0:p.lipid_share))/(1-F.lipid0);   // mirror of floor_physics.lipid_scale
+  const rqCell=F.rq-F.rq_lipid+F.rq_lipid*lipX*(1-(p.fat_fed||0));   // mirror of floor_physics.cell_rq
+  const glcAnab=F.glc_anabolic*(0.25*leanX+0.75*lipX*(1-(p.fat_fed||0)));   // mirror of floor_physics.anabolic_glucose
+  const xCo2=us/depth*3600*(pc*100/(8.314*310.15))*SE/((p.rq!==undefined?p.rq:rqCell)*cell.qo2);
   const tmRel=Math.pow(T/tankT(20,F.aspect),2/3)*Math.pow(ar/F.aspect,2.5);
   const col=p.column||"none", fP=(p.p_top===undefined&&p.do_mmol===undefined)?1:fxHead(p.p_top,p.vessel_m3,ar,p.do_mmol).f;   // the tricks
-  const rq=p.rq!==undefined?p.rq:F.rq-F.rq_lipid*(p.fat_fed||0);   // fat from the feed releases no lipogenic CO2
+  const rq=p.rq!==undefined?p.rq:rqCell;   // fat from the feed releases no lipogenic CO2; fattier cells release more
   const limits=[["oxygen supply",col==="o2_closed"?Infinity:F.otr*Math.pow(us/F.gas_v,0.8)/cell.qo2*fP*AF],["thickness of the culture",p.x_visc===undefined?F.x_visc:p.x_visc],
                 ["mixing",F.otr/cell.qo2*F.mix_ratio/tmRel*fP],
                 ["CO2 removal",col!=="none"?Infinity:xCo2]];
@@ -5270,8 +5305,14 @@ function floorExplore(p,noSearch){
   const w=p.waste||0;
   const nh3=p.nh3_kg!==undefined?p.nh3_kg:(F.nh3[0]+w*(F.nh3[1]-F.nh3[0]))*burn;        // mol per kg wet cells
   // glucose from what the cells build, burn and ferment (mirror of floor_physics.glucose_balance), when the scenarios ask
-  const glcBal=(F.glc_anabolic*(1-0.75*(p.fat_fed||0))+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6)/Math.max(0.05,1-(p.lac_yield||0)/2);
-  const lac=p.lac_yield!==undefined?p.lac_yield*(p.glc_kg!==undefined?p.glc_kg:(p.glc_balance?glcBal:F.glc_kg)):(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
+  const glcBal=(glcAnab+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6)/Math.max(0.05,1-(p.lac_yield||0)/2);
+  const glcUsed=p.lac_yield!==undefined?(p.glc_kg!==undefined?p.glc_kg:(p.glc_balance?glcBal:F.glc_kg)):null;   // mol a kilo, when the case sets it
+  const lac=glcUsed!==null?p.lac_yield*glcUsed:(F.lac[0]+w*(F.lac[1]-F.lac[0]))*burn;
+  // what the cells eat: amino acids from the nitrogen balance, glucose from the carbon balance (mirror of floor_physics.nutrient_balance)
+  const aaKg=F.aa_kg*leanX+Math.max(0,nh3)/F.aa_n_kg;
+  const glcMol=glcUsed!==null?glcUsed:glcAnab+Math.max(0,cell.o2kg*1000/32-2.25*nh3)/6+Math.max(0,lac)/2;
+  const glcTaken=glcMol*F.glc_mw/1000, glcPrice=F.glucose/F.glc_int;
+  const eatCells=F.aa*aaKg/F.aa_kg+glcTaken*glcPrice+F.other;
   const nh3Lim=p.nh3_limit===undefined?F.nh3_limit:p.nh3_limit;      // the scenarios carry their own (SC.always)
   const flow=p.min_perfusion===undefined?F.min_perfusion:p.min_perfusion;
   // a tank that is not washed out holds what its cells make: the litres a kilo leaves with must hold its ammonia and lactate at
@@ -5305,7 +5346,7 @@ function floorExplore(p,noSearch){
   let capital=p.charge*capex/out;      // labour: Humbird's fed-batch crew per m3 of tank, times labour_perf_x for a tank in perfusion
   let labour=F.labour_ref*fxCrew(p.vessel_m3,perf&&!cyclic,F)*F.labour_x/out*(vm.labour_mult===undefined?1:vm.labour_mult);
   let utilities=0;                     // set below, once the litres of medium are known
-  let eat=F.aa+F.glucose*(0.5+0.5*burn)+F.other;
+  let eat=eatCells;
   // litres per kg: ammonia (less what a sorbent takes), lactate within the salt limit, the sorbent's sodium, and the
   // least flow a cell needs for everything else
   let sorb=perf?(p.sorbent||0):0; const terms={};
@@ -5357,11 +5398,11 @@ function floorExplore(p,noSearch){
   // maturation (mirror of floor_physics.explore's mature_h): medium and glucose at the upkeep rate; a continuous tank's maturation vessel
   let matCapex=0, matL=0;
   if(matH>0){ const m24=Math.LN2/F.ref_doubling, q=cell.qo2/(ms+(1-ms)*cell.mu/m24), up=q*ms/cell.mu, gr=q*(1-ms)/m24;
-    const ratio=up*cell.mu*matH/(up+gr); matL=ml*ratio; ml+=matL; eat+=0.5*F.glucose*burn*ratio; utilities+=F.utilities*F.util.water*matL;
+    const ratio=up*cell.mu*matH/(up+gr); matL=ml*ratio; ml+=matL; eat+=ratio*cell.o2kg*1000/32/6*F.glc_mw/1000*glcPrice; utilities+=F.utilities*F.util.water*matL;
     if(!cyclic){ const vol=out*1000/(8760*uptime)*matH/lim[1]; matCapex=vol*(capex-retCapex); capex+=matCapex; capital+=p.charge*matCapex/out; } }
   if(loop>0){   // growth factors lost in the litres cleaned, the dialysate (basal medium) and the device
     const gfIn=(+p.gf_in_medium||0), gfL=F.gf/F.gf_litres*((+p.growth_factors||0)+gfIn);
-    const basalL=Math.max(mp-(gfIn?gfL:0),(F.aa+F.glucose+F.other)/mlUnclean);
+    const basalL=Math.max(mp-(gfIn?gfL:0),eatCells/mlUnclean);
     cleanParts["growth factors lost"]=loop*(1-(route.gf_kept===undefined?F.mr_gf_kept:route.gf_kept))*gfL;
     cleanParts["dialysate"]=loop*(route.dialysate_l||0)*basalL; cleanParts["device"]=loop*(route.device_l||0);
     const running=cleanParts["growth factors lost"]+cleanParts["dialysate"]+cleanParts["device"];
@@ -5370,7 +5411,7 @@ function floorExplore(p,noSearch){
   const prepCapex=prepItem*F.escalation*(Math.pow(Math.max(1,ml*out/F.medium_prep_ref),F.medium_prep_exp)-1);
   capex+=prepCapex; capital+=p.charge*prepCapex/out;
   if(vm.cons_run) consumables+=vm.cons_run*(runsYr!==null?runsYr:365/(p.run_days||F.run_days))/out;   // what the vessel throws away
-  if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*(p.fat_price!==undefined?p.fat_price:F.fat_price);
+  if(p.fat_fed) consumables+=p.fat_fed*F.fat_kg*lipX*(p.fat_price!==undefined?p.fat_price:F.fat_price);
   if(sorb>0){ const sc=sorb*nh3/(p.sorbent_q!==undefined?p.sorbent_q:F.sorbent_q)*(p.sorbent_price!==undefined?p.sorbent_price:F.sorbent_price)
                           /(p.sorbent_cycles!==undefined?p.sorbent_cycles:F.sorbent_cycles);
     consumables+=sc; cleanOpex+=sc; cleanParts["sorbent"]=sc; }
@@ -5408,7 +5449,10 @@ function floorExplore(p,noSearch){
           utilities:utilities, consumables:consumables, feedstock:feed, growth_factors:gf, uptime:uptime, run_frac:runFrac,
           medium_l:ml, total:total, product:cs*total+(1-cs)*F.filler, medium_floor:mediumFloor, nutrients:eat,
           pco2_used:pcTol, osmolality:osm,
-          limits:lims, medium_terms:terms, medium_set_by:setBy, nh3_kg:nh3, lac_kg:lac, column:colR,
+          limits:lims, medium_terms:terms, medium_set_by:setBy, nh3_kg:nh3, lac_kg:lac, column:colR, aa_kg:aaKg, glc_taken_kg:glcTaken, n_kept:F.n_cells*leanX/(aaKg*F.aa_n_kg),
+          metrics:(()=>{ const prot=F.dry*F.f_protein*leanX, lipK=F.dry*F.lipid0*lipX, kcal=1000*(4*prot+9*lipK+4*(F.dry-prot-lipK)), sub=(aaKg+glcTaken)/live;   // mirror of explore's metrics
+            return {cost_dry:total/F.dry, cost_protein:total/prot, protein_kg:prot, lipid_kg:lipK, kcal_kg:kcal, fcr_dry:sub/F.dry,
+                    fcr_energy:(sub*4000+(p.fat_fed||0)*lipK/live*9000)/kcal, capex_t_yr:capex*1000/out}; })(),
           rq:rq, o2_kg:cell.qo2/cell.mu, o2_kg_upkeep:o2up, o2_kg_growth:o2gr, co2_kg:rq*cell.qo2/cell.mu};
 }
 // Tornado: each limiting factor moved alone across its range around the current case (mirror of

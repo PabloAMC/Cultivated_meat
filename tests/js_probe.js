@@ -174,7 +174,7 @@ if (!TP_IN) js += `
   });
 
   // OFFSET of a cut / premium product (mirror of meat_market.tier_offset): 0 for mince; for a structured product the blend
-  // penalty -(1 - cell share) x w_realtissue_M plus premium-resistance r x the full premium penalty x a ramp in the product's
+  // penalty -(1 - cell share ** blend_curve) x w_realtissue_M plus premium-resistance r x the full premium penalty x a ramp in the product's
   // price against its species' cheapest form ($10 here). Each case: [kind, structured, price, r, cell share, offset], at the
   // default premium penalty ("def") and at a custom one set through the page's slider ("cust").
   const authCheck = [];
@@ -187,6 +187,9 @@ if (!TP_IN) js += `
   state.auth_premium_extra = -2.5;                                           // a custom premium penalty via the slider
   [[false, 10, 1.0, 0.8], [true, 10, 1.0, 0.8], [true, 30, 1.0, 0.8], [true, 50, 0.8, 0.5]].forEach(c => offCase("cust", ...c));
   delete state.auth_premium_extra;                                           // restore the default
+  const _bc = state.blend_curve; state.blend_curve = 2.0;                    // a custom blend exponent via the slider ("curve")
+  [[false, 10, 1.0, 0.8], [true, 10, 1.0, 0.8], [true, 30, 1.0, 0.5], [true, 12, 1.0, 0.3]].forEach(c => offCase("curve", ...c));
+  if (_bc === undefined) delete state.blend_curve; else state.blend_curve = _bc;
 
   // IMPORTANCE BREAKDOWN parity (mirror of market_share.utility_breakdown): the per-factor utils
   // decomposition of cultivated vs conventional (mainstream). Sample a few operating points/dials.
@@ -255,11 +258,14 @@ if (!TP_IN) js += `
   const fxTricks = [{"column": "co2"}, {"column": "o2_closed", "p_top": 1.0, "gas_v": 0.002, "col_pout": 55.0}, {"p_top": 0.5, "aspect": 1.0}, {"nh3_kg": 0.14, "lac_yield": 1.05, "glc_kg": 0.84, "doubling_h": 42.9}, {"nh3_kg": 0.7, "sorbent": 0.8, "sorbent_price": 0.3}, {"column": "co2", "plant": "microbial", "vessel_m3": 50, "p_top": 0.0}, {"mode": "filldraw", "nh3_kg": 0.2}, {"sorbent": 0.5, "nh3_kg": 0.3, "lac_yield": 0.4, "osm_limit": 380, "sorbent_cycles": 10}, {"column": "o2_closed", "p_top": 1.0, "aspect": 0.8, "doubling_h": 30, "mass_pg": 2000, "nh3_kg": 0.1}, {"fat_fed": 1.0}, {"do_mmol": 0.05, "doubling_h": 48, "maint": 0.31}, {"rq": 1.0, "gas_v": 0.003}, {"column": "o2_closed", "do_mmol": 0.08, "gas_v": 0.002, "fat_fed": 0.5, "fat_price": 10.0}, {"column": "co2", "p_top": 0.5, "do_mmol": 0.15, "aspect": 1.2}, {"aspect": 1.0}, {"aspect": 0.8, "shape_cost": false}, {"aspect": 2.5, "vessel_m3": 100}, {"mode": "filldraw", "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": true, "doubling_h": 43.0, "mass_pg": 2000.0}, {"mode": "filldraw", "vm": {"kind": "cyclic", "washed": false, "n_doublings": 2.0, "turnaround_h": 10.0, "restart_days": 2.0}, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true, "doubling_h": 36.0, "mass_pg": 2000.0, "nh3_limit": 4.0, "hazard": 0.01}, {"mode": "filldraw", "vm": {"washed": false, "shape": 1.0, "dil_frac": 0.6}, "nh3_kg": 0.2, "nh3_limit": 3.0}, {"mode": "filldraw", "nh3_kg": 0.3, "nh3_limit": 4.0, "doubling_h": 30.0},
     {"lac_limit": 22.0, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true, "doubling_h": 36.0, "mass_pg": 2000.0},
     {"kill": 1.6e-3, "gas_v": 0.004}, {"kill": 0.01, "doubling_h": 48.0}, {"medium_l": 60.0, "kill": 8e-4},
-    {"mode": "filldraw", "lac_limit": 30.0, "lac_yield": 1.05, "glc_balance": true, "kill": 0.0}].map(c => {
+    {"mode": "filldraw", "lac_limit": 30.0, "lac_yield": 1.05, "glc_balance": true, "kill": 0.0},
+    {"lipid_share": 0.4}, {"lipid_share": 0.3, "fat_fed": 0.5, "nh3_kg": 0.14, "lac_yield": 0.42, "glc_balance": true},
+    {"lipid_share": 0.05, "mode": "filldraw", "nh3_kg": 0.14, "lac_yield": 1.05, "glc_balance": true}].map(c => {
     const r = floorExplore(Object.assign({ doubling_h: 24, mass_pg: 3000, vessel_m3: 20, plant: "sanitary", mode: "perfusion",
                                            charge: 0.173 }, c));
     return [r.total, r.density, r.limit, r.medium_l, r.medium_set_by, r.limits, r.o2_kg, r.o2_kg_upkeep, r.co2_kg,
-            r.column ? [r.column.passes, r.column.loop_volume, r.column.ph_vs_safe] : null];
+            r.column ? [r.column.passes, r.column.loop_volume, r.column.ph_vs_safe] : null,
+            Object.assign({}, r.metrics, { nutrients: r.nutrients, aa_kg: r.aa_kg, glc_taken_kg: r.glc_taken_kg, n_kept: r.n_kept })];
   });
   // cleaning and reusing the medium, and a leaner feed for the washing litres: the same cases as tests/run_parity.py FX_CLEAN
   const fxCleanCases = [{clean: "none"}, {clean: "exchanger"}, {clean: "electrodialysis"}, {clean: "dialysis"},

@@ -1,5 +1,7 @@
 # Gas exchange for a 20 m³ tank of animal cells: membrane loop, tank shape, and a published airlift
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). Every case of the floor's cell rises by $0.05 to $0.06 (at the model's own settings the floor $15.72 -> $15.77, cheapest tricks at 2 mm/s $15.38 -> $15.43; on the note's settings the floor $13.84 -> $13.90 and the 2026-11-25 column of the table below by the same, e.g. $15.56 / $12.47 / $9.37 -> $15.61 / $12.52 / $9.43); the other cells and the fed-fat tank do not move, as their litres x price already exceed what they eat. The conclusions are unchanged.
+
 > **2026-11-25: the gas cap and loop thinning.** `floor_physics.explore` now makes two choices itself in a tank with a column.
 > The gas the cells tolerate is a cap, not a setting: it tries the cap and every lower flow on `GAS_LADDER`. And a culture whose
 > column loop fails its checks (the alkaline dose above the safe 55 mbar / 0.5 m³ design, or more passes an hour than dense
@@ -60,11 +62,11 @@
 >
 > **At the model's own settings (2026-11-25).** The column above keeps the note's settings. With the model's own (the TFF filter
 > loop, the protectant, antifoam's effect on oxygen, the yeast-style plant buying its oxygen), after the second batch of engine
-> fixes of 2026-11-21 and the gas cap and loop thinning of 2026-11-25 (`tests/test_gas_exchange.py`, `_check_current`, pins
-> these): the floor (Humbird's optimistic design) $15.72; more gas, 12.5 mm/s, $15.76 (the extra bubbles kill as much as the
-> extra gas is worth); cheapest tricks at 1, 2 and 6 mm/s $17.81, $15.38 and $14.49 (the column with an oxygen sweep and 1 bar
+> fixes of 2026-11-21, the gas cap and loop thinning of 2026-11-25 and the nutrient balance of 2026-11-27 (`tests/test_gas_exchange.py`, `_check_current`, pins
+> these): the floor (Humbird's optimistic design) $15.77; more gas, 12.5 mm/s, $15.82 (the extra bubbles kill as much as the
+> extra gas is worth); cheapest tricks at 1, 2 and 6 mm/s $17.86, $15.43 and $14.54 (the column with an oxygen sweep and 1 bar
 > in a tank twice as deep as wide, held by its checks at 80 and 110 g/L; at 6 mm/s the CO₂ column in the same tank, 172 g/L,
-> held by oxygen); cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s $17.81, $15.38, $14.75 and $14.49 (the
+> held by oxygen); cheapest within the pH and pass-rate checks at 1, 2, 4 and 6 mm/s $17.86, $15.43, $14.80 and $14.54 (the
 > same designs: every loop the engine returns now passes; at 4 mm/s the oxygen column, 1.6 times as deep as wide, 155 g/L); best
 > shown in meat cells: sparger only $105.03, fat fed $73.20, every trick $95.10; ordinary meat cells: sparger only $141.91, every
 > trick $134.18; the floor's cell on the low-waste feed: sparger only $32.05, every trick $30.52. Until 2026-11-25 the cheapest

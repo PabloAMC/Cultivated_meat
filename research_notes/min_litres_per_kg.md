@@ -1,5 +1,7 @@
 # The least medium per kg of cells that physics allows
 
+> **Repinned 2026-11-27 (the nitrogen and carbon balance).** `min_litres.nutrients` takes the cost floor's 0.232 kg of amino acids and the balance's glucose (`floor_physics.nutrient_balance`), not Humbird's 0.26 kg, so the salt-limited bounds need fewer litres; the cases' cells eat what their ammonia and lactate imply. The all-favourable example costs $7.02: bath 23.2 L/kg ($8.36), physical and practical 5.84 L/kg ($6.22), measured flow 5.12 L/kg ($6.13). The low-lactate example: bath 26.1 L/kg ($36.13), physical 6.72 L/kg ($16.77), practical 8.88 L/kg ($18.90). The tables below are as of 2026-11-21; the conclusions are unchanged.
+>
 > **Repinned 2026-11-21 (fourth batch, documents).** The tables of the answer and of the cost at the bounds, and the figures in their prose, are
 > recomputed from `python min_litres.py`. Since 2026-11-21 the all-favourable example runs at 219 g/L (its CO₂ loop held at the densest culture it
 > passes), not 155, and costs $6.97; the low-lactate example runs at 168 g/L and costs $48.68. Less culture leaves with the all-favourable
