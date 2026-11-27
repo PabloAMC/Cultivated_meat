@@ -96,6 +96,7 @@ PLAIN = {
     "premium_resistance": "How much less buyers of premium products (wagyu, sushi-grade fish) like a cultivated version, beyond what applies to any cut",
     "scaffold_frac": "Share of a cut that is plant protein, not cells",
     "process_cost": "Cost of assembling a cut, beyond what mince pays",
+    "blend_curve": "How fast shoppers' liking falls as plant protein replaces cells in a cut (1 = in step with the plant share)",
     "w_ratio": "Weight on the price compared with meat's",
     "theta_free_M": "Value mainstream buyers put on meat without slaughter",
     "accept_x": "How fully mainstream buyers credit cultivated meat's taste",
@@ -146,6 +147,7 @@ EVIDENCE = {
     "p_conv": "market prices",
     "premium_resistance": "assumed",
     "scaffold_frac": "assumed: the cuts sold or approved so far are 10–30% cells, and no mostly-cell cut has been shown with the texture of meat (`structuring_cost.md`)",
+    "blend_curve": "analogue: choice studies of meat blended with plants, none of cultivated cells; set from Asioli et al. 2023, range from blind tastings to Profeta et al. 2021 (`hybrid_demand_evidence.md`)",
     "process_cost": "analogues, no study of cultivated meat: plant-protein extrusion, surimi forming, binder prices (`structuring_cost.md`)",
     "w_ratio": "judgement: how much of the price response is a ratio to meat's price rather than dollars",
     "theta_free_M": "a scenario dial: surveys disagree",
@@ -193,7 +195,7 @@ EXCLUDE_NOTE = ("Also left out: the settings of the scenario switches themselves
 _SHARE_OVERRIDES = {"neophobia_x", "health_x", "eps_own", "cult_sub_mult", "theta_free_M", "accept_x"}
 _PENETRATION_ARGS = {"markup_add", "retail_margin", "premium_resistance"}
 # a cut's make-up: they move the share (a cut's cost and how much shoppers like it), not the cost of a kilo of cells
-_CUT_ARGS = set(I.MC_CUT_INPUTS)                     # scaffold_frac, process_cost
+_CUT_ARGS = set(I.MC_CUT_INPUTS)                     # scaffold_frac, process_cost, blend_curve
 
 
 def share_at(cost: float, region: str = "global", **over) -> float:
@@ -209,7 +211,7 @@ def share_at(cost: float, region: str = "global", **over) -> float:
 
     def share_of(mt, R, base, res):
         return share(R, pr, theta_free_M=over.get("theta_free_M", 0.0), accept_x=over.get("accept_x", 1.0),
-                     tier_offset=mm.tier_offset(mt, base, res, pr, cell_share), eps_own=eps,
+                     tier_offset=mm.tier_offset(mt, base, res, pr, cell_share, blend_curve=over.get("blend_curve")), eps_own=eps,
                      income=income, p_ref=mt.p_conv, neophobia_x=over.get("neophobia_x"), health_x=over.get("health_x"),
                      kappa=over.get("cult_sub_mult"), which="x_meat")
     markup = over.get("markup_add", value("markup_add"))

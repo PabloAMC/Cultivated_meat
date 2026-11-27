@@ -289,14 +289,38 @@ def batch_slowdown(end_x: float, doublings: float, half_x: float | None = None, 
     return tot / steps
 
 
-def glucose_balance(o2_kg: float, nh3_kg: float, lac_yield: float, fat_fed: float = 0.0) -> float:
+def lipid_scale(lipid_share: float | None = None) -> tuple:
+    """(lipid, lean): the cells' lipid and their lipid-free dry mass, each over Humbird's (15% lipid, Table 2.1), for cells whose
+    dry mass is `lipid_share` lipid (None: Humbird's). The kilo stays 70% water (gb_dry_per_wet), so a fattier cell holds less
+    protein, nucleotides and carbohydrate, and more lipid (2026-11-27)."""
+    l0 = value("gb_f_lipid")
+    l = l0 if lipid_share is None else float(lipid_share)
+    return l / l0, (1.0 - l) / (1.0 - l0)
+
+
+def anabolic_glucose(fat_fed: float = 0.0, lipid_share: float | None = None) -> float:
+    """Glucose built into a kilo of wet cells, mol: pf_glc_anabolic, three-quarters of it lipid (made from glucose unless
+    `fat_fed` of it comes from the feed) and a quarter carbohydrate and nucleotides, each in proportion to its share of the cell."""
+    lip, lean = lipid_scale(lipid_share)
+    return value("pf_glc_anabolic") * (0.25 * lean + 0.75 * lip * (1.0 - fat_fed))
+
+
+def cell_rq(fat_fed: float = 0.0, lipid_share: float | None = None) -> float:
+    """CO2 made per oxygen used: pf_rq for Humbird's cell, of which pf_rq_lipid comes from making its lipid from glucose (no
+    oxygen used), so it scales with the lipid made: (pf_rq - pf_rq_lipid) + pf_rq_lipid x lipid x (1 - fat fed)."""
+    lip, _lean = lipid_scale(lipid_share)
+    return value("pf_rq") - value("pf_rq_lipid") + value("pf_rq_lipid") * lip * (1.0 - fat_fed)
+
+
+def glucose_balance(o2_kg: float, nh3_kg: float, lac_yield: float, fat_fed: float = 0.0,
+                    lipid_share: float | None = None) -> float:
     """Glucose a kilo of wet cells takes up, mol, from what it builds, burns and ferments (audit 2026-11-19):
-        G = [anabolic x (1 - 0.75 fat_fed) + (O2 - 2.25 NH3) / 6] / (1 - Y / 2)
-    anabolic: glucose built into lipid, carbohydrate and nucleotides (pf_glc_anabolic; three-quarters of it is lipid);
+        G = [anabolic + (O2 - 2.25 NH3) / 6] / (1 - Y / 2)
+    anabolic: glucose built into lipid, carbohydrate and nucleotides (`anabolic_glucose`; at Humbird's cell 0.884 x (1 - 0.75 fat fed));
     O2 / 6: glucose burned for the oxygen the cell uses, less the part burned from amino acids (2.25 O2 per NH3 released);
     Y: mol lactate per mol of ALL glucose taken up (two lactate per glucose fermented). Reproduces Humbird's enhanced cell."""
     burned = max(0.0, o2_kg - 2.25 * nh3_kg) / 6.0
-    return (value("pf_glc_anabolic") * (1.0 - 0.75 * fat_fed) + burned) / max(0.05, 1.0 - lac_yield / 2.0)
+    return (anabolic_glucose(fat_fed, lipid_share) + burned) / max(0.05, 1.0 - lac_yield / 2.0)
 
 
 def output_per_m3(cells: Cells, mode: str, otr: float | None = None, uptime: float | None = None,
@@ -533,12 +557,41 @@ def plant_cost(cells: Cells, mode: str, capex_k_per_m3: float, consumables: floa
             "plant": capital + labour + utilities + consumables}
 
 
-def feedstock(cells: Cells, cheap: bool = False) -> float:
-    """What the cells must eat, $/kg wet: amino acids (stoichiometric), glucose (half of it burned
-    for maintenance, so it scales with oxygen per kg), salts and vitamins."""
-    aa = value("aa_intensity") * (value("pf_aa_price_cheap") if cheap else value("aa_bulk_price"))
-    burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg                           # maintenance relative to the model cell
-    glucose = GLUCOSE_FLOOR * (0.5 + 0.5 * burn)
+def nutrient_balance(cells: Cells, nh3: float = 0.0, lac: float = 0.0, fat_fed: float = 0.0,
+                     glc_mol: float | None = None, lipid_share: float | None = None) -> dict:
+    """What a kilo of wet cells takes up, from a nitrogen and a carbon balance (2026-11-27). Per kg of wet cells grown:
+
+      nitrogen:  amino acids = aa_intensity + NH3 / nb_aa_n_kg
+                 aa_intensity is what the cells keep (built into protein and nucleotides) and, above the floor, what leaves
+                 unused or as other amino acids; at the floor (0.232 kg) the medium's amino acids carry 0.232 x 12.30 = 2.85 mol
+                 of nitrogen, the 2.86 mol in a kilo of Humbird's cells (ml_n_per_dry x ml_dry_mol_kg), so none is left over
+                 for ammonia. Each mol of ammonia the cells release takes 1 / 12.30 kg = 81 g more of the medium's amino acids.
+      carbon:    glucose = anabolic x (1 - 0.75 fat fed) + (O2 - 2.25 NH3) / 6 + lactate / 2   (mol)
+                 what is built in, what is burned for the oxygen the amino acids do not cover, and what is fermented (two
+                 lactate per glucose). It is glucose_balance with the lactate given in mol; `glc_mol` overrides it when the
+                 case sets its glucose directly (explore's glc_kg, or pf_glc_kg with an explicit lactate yield).
+
+    `lipid_share` (lipid over dry mass; None: Humbird's 15%) scales what is built: the cells' nitrogen, and so the floor's amino
+    acids, with their lipid-free dry mass, and the glucose built into lipid with their lipid (`anabolic_glucose`).
+
+    Returns kg of amino acids and of glucose, and the share of the amino-acid nitrogen kept in the cells."""
+    _lip, lean = lipid_scale(lipid_share)
+    aa_kg = value("aa_intensity") * lean + max(0.0, nh3) / value("nb_aa_n_kg")
+    if glc_mol is None:
+        o2 = cells.o2_per_kg * 1000.0 / 32.0
+        glc_mol = anabolic_glucose(fat_fed, lipid_share) + max(0.0, o2 - 2.25 * nh3) / 6.0 + max(0.0, lac) / 2.0
+    n_cells = value("ml_n_per_dry") * value("ml_dry_mol_kg") * lean
+    return {"aa_kg": aa_kg, "glc_kg": glc_mol * value("ml_glc_mw") / 1000.0, "glc_mol": glc_mol,
+            "n_kept": n_cells / (aa_kg * value("nb_aa_n_kg"))}
+
+
+def feedstock(cells: Cells, cheap: bool = False, nh3: float = 0.0, lac: float = 0.0, fat_fed: float = 0.0,
+              glc_mol: float | None = None, lipid_share: float | None = None) -> float:
+    """What the cells must eat, $/kg wet: amino acids and glucose from `nutrient_balance`, plus salts and vitamins. With no
+    ammonia and no lactate (the defaults) it is the floor: $2.00 for the model cell."""
+    nb = nutrient_balance(cells, nh3, lac, fat_fed, glc_mol, lipid_share)
+    aa = nb["aa_kg"] * (value("pf_aa_price_cheap") if cheap else value("aa_bulk_price"))
+    glucose = nb["glc_kg"] * value("glucose_price")
     other = value("pf_other_nutrients_cheap") if cheap else value("other_nutrients_floor")
     return aa + glucose + other
 
@@ -698,7 +751,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             glc_balance: bool = False,
             sorbent: float = 0.0, sorbent_q: float | None = None, sorbent_price: float | None = None,
             sorbent_cycles: float | None = None, column: str = "none", p_top_barg: float | None = None,
-            col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0,
+            col_pout: float | None = None, rq: float | None = None, fat_fed: float = 0.0, lipid_share: float | None = None,
             fat_price: float | None = None, do_mmol: float | None = None, shape_cost: bool = True,
             vm: dict | None = None, membrane_life: float | None = None, flux: float | None = None,
             strip_eff: float | None = None, antifoam_otr: float | None = None,
@@ -1035,7 +1088,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if p_top_barg is not None or do_mmol is not None:  # oxygen driving force: pressure, setpoint (gas_exchange.py)
         from gas_exchange import headspace_pressure
         f_p = headspace_pressure(p_top_barg, vessel_m3, aspect, do_mmol)["otr_factor"]
-    rq_eff = (value("pf_rq") - value("pf_rq_lipid") * fat_fed) if rq is None else rq
+    rq_eff = cell_rq(fat_fed, lipid_share) if rq is None else rq
     x_o2 = value("pf_otr_cap") * us_rel ** 0.8 / cells.qo2 * f_p * value("pf_antifoam_otr")
     x_co2 = x_scale * co2_limited_density(cells, vessel_m3, pco2_mbar, gas_velocity, aspect, rq_eff)
     limits = {"oxygen supply": float("inf") if column == "o2_closed" else x_o2,
@@ -1066,12 +1119,16 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     burn = cells.o2_per_kg / GOOD_CELLS.o2_per_kg
     nh3_w, lac_w = waste_per_kg(cells, waste)
     nh3 = nh3_w if nh3_kg is None else nh3_kg          # mol per kg wet cells
+    glc_used = None                                    # mol glucose a kilo, when the case sets it (nutrient_balance otherwise)
     if lac_yield is None:
         lac = lac_w
     else:
         if glc_kg is None and glc_balance:      # glucose from what the cells build, burn and ferment (yield on total glucose)
-            glc_kg = glucose_balance(cells.o2_per_kg * 1000.0 / 32.0, nh3, lac_yield, fat_fed)   # kg O2 -> mol
-        lac = lac_yield * (value("pf_glc_kg") if glc_kg is None else glc_kg)
+            glc_kg = glucose_balance(cells.o2_per_kg * 1000.0 / 32.0, nh3, lac_yield, fat_fed, lipid_share)   # kg O2 -> mol
+        glc_used = value("pf_glc_kg") if glc_kg is None else glc_kg
+        lac = lac_yield * glc_used
+    nut = nutrient_balance(cells, nh3, lac, fat_fed, glc_used, lipid_share)
+    eat_cells = feedstock(cells, nh3=nh3, lac=lac, fat_fed=fat_fed, glc_mol=glc_used, lipid_share=lipid_share)   # $ a kilo grown
     flow = value("pf_min_perfusion") if min_perfusion is None else min_perfusion
     nh3_lim = value("pf_nh3_limit") if nh3_limit is None else nh3_limit
     steady = bool(vm.get("dil_frac"))                  # a chemostat sits at its density: no batch end above the level
@@ -1259,7 +1316,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         # growth factors per litre, whether bought on top or inside a complete medium's price
         gf_l = value("pf_growth_factors") * ox / value("pf_medium_prep_l_kg") * (float(growth_factors) + float(gf_in_medium))
         # the dialysate is basal medium: the medium's price without its growth factors, never below the nutrients a litre carries
-        basal_l = max(medium_price - (gf_l if gf_in_medium else 0.0), feedstock(GOOD_CELLS) / medium_l_unclean)
+        basal_l = max(medium_price - (gf_l if gf_in_medium else 0.0), eat_cells / medium_l_unclean)
         clean_parts["growth factors lost"] = loop * (1.0 - route.get("gf_kept", value("mr_gf_kept"))) * gf_l
         clean_parts["dialysate"] = loop * route.get("dialysate_l", 0.0) * basal_l
         clean_parts["device"] = loop * route.get("device_l", 0.0)
@@ -1287,7 +1344,7 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     if col is not None:
         utilities += col["energy_kg"] + col["gas_kg"]
     if fat_fed > 0:                                    # lipid bought instead of made from glucose
-        consumables += fat_fed * value("pf_fat_kg") * (value("pf_fat_price") if fat_price is None else fat_price)
+        consumables += fat_fed * value("pf_fat_kg") * lipid_scale(lipid_share)[0] * (value("pf_fat_price") if fat_price is None else fat_price)
     if sorb > 0:                                       # exchanger bought per mol of ammonium taken, over its uses
         q = value("pf_sorbent_q") if sorbent_q is None else sorbent_q                     # mol per kg of sorbent
         sorbent_cost = sorb * nh3 / q * (value("pf_sorbent_price") if sorbent_price is None else sorbent_price) \
@@ -1321,7 +1378,9 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
     # `wash_price`: the litres that carry the nutrients at the medium's price, the rest (they only wash waste out) at the wash price
     carry = min(medium_l, value("pf_medium_l_floor"))
     bought = medium_l * medium_price if wash_price is None else carry * medium_price + (medium_l - carry) * wash_price
-    eat = feedstock(cells) + 0.5 * GLUCOSE_FLOOR * burn * mat_ratio      # the glucose burned while maturing
+    # what the cells eat, from their own nitrogen and carbon balance (nutrient_balance, 2026-11-27: the amino acids their ammonia
+    # takes and the glucose they ferment to lactate), and the glucose they burn at upkeep while maturing
+    eat = eat_cells + mat_ratio * cells.o2_per_kg * 1000.0 / 32.0 / 6.0 * value("ml_glc_mw") / 1000.0 * value("glucose_price")
     feed = max(eat + gf_per * float(gf_in_medium), bought) / (1.0 - lost)   # medium in a lost tank is lost too
     # the sparge gas: oxygen fed per kg of cells x its price, REPORTED but not added. The plant prices
     # (capital per m3, utilities) already contain the oxygen supply of the design they come from (20 m3,
@@ -1349,7 +1408,20 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
         terms = {k: v / live for k, v in terms.items()}
     total = capital + labour + utilities + consumables + feed + gf + extra_opex
     product = cell_share * total + (1.0 - cell_share) * value("pf_blend_filler_price")
-    return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex),
+    # the measures other cost models report (2026-11-27), per kilo harvested: cost per kg of dry matter and of protein, kg of
+    # amino acids and glucose per kg of dry matter (dry-matter feed conversion), kcal of them per kcal of cells (energy feed
+    # conversion), litres of medium per kg (medium_l), and the plant's capital per tonne of cells a year (capex_t_yr, $)
+    lip_x, lean_x = lipid_scale(lipid_share)
+    dry = value("gb_dry_per_wet")
+    protein_kg = dry * value("gb_f_protein") * lean_x
+    lipid_kg = dry * value("gb_f_lipid") * lip_x
+    kcal_kg = 1000.0 * (4.0 * protein_kg + 9.0 * lipid_kg + 4.0 * (dry - protein_kg - lipid_kg))
+    substrate = (nut["aa_kg"] + nut["glc_kg"]) / live
+    metrics = {"cost_dry": float(total / dry), "cost_protein": float(total / protein_kg), "protein_kg": float(protein_kg),
+               "lipid_kg": float(lipid_kg), "kcal_kg": float(kcal_kg), "fcr_dry": float(substrate / dry),
+               "fcr_energy": float((substrate * 4000.0 + fat_fed * lipid_kg / live * 9000.0) / kcal_kg),
+               "capex_t_yr": float(capex * 1000.0 / out)}
+    return {"density": float(x), "limit": limit, "output": float(out), "capex": float(capex), "metrics": metrics,
             "retention_capex": float(ret_capex), "membranes": float(membranes), "protectant": float(protectant),
             "medium_prep_capex": float(prep_capex), "mature_capex": float(mat_capex), "mature_l": float(mat_l / live), "death_share": float(death), "gas_used": float(gas_used), "gas_cells": float(gas_cells), "micro_share": float(micro), "sparger2_capex": float(sparger2_capex),
             "harvested_share": float(live), "clean_capex": float(clean_capex), "clean_opex": float(clean_opex),
@@ -1366,6 +1438,8 @@ def explore(doubling_h: float = 24.0, mass_pg: float = 3000.0, vessel_m3: float 
             "medium_terms": {k: float(v) for k, v in terms.items()},
             "medium_set_by": max(terms, key=terms.get) if terms else "",
             "nh3_kg": float(nh3), "lac_kg": float(lac), "column": col,
+            "nutrients": float(eat), "aa_kg": float(nut["aa_kg"]), "glc_taken_kg": float(nut["glc_kg"]),
+            "n_kept": float(nut["n_kept"]),
             "rq": float(rq_eff), "o2_kg": float(cells.qo2 / cells.mu), "o2_kg_upkeep": float(o2_split(cells)[0]),
             "o2_kg_growth": float(o2_split(cells)[1]), "co2_kg": float(rq_eff * cells.qo2 / cells.mu)}
 

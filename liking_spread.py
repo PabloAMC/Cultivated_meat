@@ -224,20 +224,21 @@ def variant(**kw) -> M.DemandParams:
     return replace(demand(), **kw)
 
 
-def _world(pr: M.DemandParams, cost: float) -> float:
-    return mm.penetration(mm.MARKETS["global"], cost, income=mm.REGION_INCOME["global"], pr=pr)[1] * 100.0
+def _world(pr: M.DemandParams, cost: float, blend_curve=None) -> float:
+    return mm.penetration(mm.MARKETS["global"], cost, income=mm.REGION_INCOME["global"], pr=pr, blend_curve=blend_curve)[1] * 100.0
 
 
-def salmon_response(pr: M.DemandParams) -> dict:
+def salmon_response(pr: M.DemandParams, blend_curve=None) -> dict:
     """market_size_loop.premium_response for a demand model: percent more share per percent lower price ratio of each premium
-    product, between the low-lactate example's cost and its cost once a food-grade membrane exists; {name: (price ratio at the low-lactate example's cost, response)}."""
+    product, between the low-lactate example's cost and its cost once a food-grade membrane exists; {name: (price ratio at the low-lactate example's cost, response)}.
+    blend_curve: the exponent of the cut's blend rule (None = the input; 1 reproduces a model from before 2026-11-27)."""
     import market_size_loop as L
     choice = S.SCENARIOS["central"].choice
     c0 = L.base_run(choice)["cost"]
-    c1 = L.solve(choice, start="above", share=lambda cost: _world(pr, cost))["cost"]
+    c1 = L.solve(choice, start="above", share=lambda cost: _world(pr, cost, blend_curve))["cost"]
     mk, inc = mm.MARKETS["global"], mm.REGION_INCOME["global"]
     bases = mm.species_bases(mk)
-    a, b = mm.penetration(mk, c0, income=inc, pr=pr)[0], mm.penetration(mk, c1, income=inc, pr=pr)[0]
+    a, b = (mm.penetration(mk, c, income=inc, pr=pr, blend_curve=blend_curve)[0] for c in (c0, c1))
     return {mt.name: (float(R0), math.log(s1 / s0) / math.log(R0 / R1)) for (mt, R0, s0), (_m, R1, s1) in zip(a, b)
             if mm.tier(mt, bases[mm.animal_of(mt)]) == "premium" and s0 > 0 and R1 < R0}
 

@@ -128,8 +128,7 @@ def alone() -> list:
 def with_gfi_amino_acids(kw: dict, tier: str = "feed", need: str = "eff") -> float:
     """A case's cost with the nutrient floor built from GFI's amino-acid prices (`nutrient_floor.aa_cost`). Since 2026-11-19
     the model's own floor is GFI's feed grade at the efficient need ($2.00 a kilo), so at the defaults this equals the case."""
-    price = nutrient_floor.aa_cost(tier, need) / value("aa_intensity")
-    with retention._with({"aa_bulk_price": price}):
+    with retention._with({"aa_bulk_price": value(nutrient_floor.TIERS[tier]), "aa_intensity": value(nutrient_floor.NEEDS[need]) / 1000.0}):
         return evaluate(kw)["total"]
 
 

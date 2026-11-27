@@ -10,7 +10,7 @@
   "published": "a published or observed figure (a paper, a report read in full, a market price, official statistics)",
   "untagged": "no source tag"
  },
- "count": 615,
+ "count": 617,
  "inputs": [
   {
    "name": "markup_add",
@@ -27,12 +27,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.472877,
-     1.386094
+     1.408499,
+     1.324909
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     23.845241,
-     17.663485
+     23.010111,
+     16.978877
     ]
    }
   },
@@ -51,12 +51,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.798483,
-     1.087691
+     1.722077,
+     1.036565
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     25.821356,
-     15.200584
+     24.966356,
+     14.569929
     ]
    }
   },
@@ -75,12 +75,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.707265,
-     1.26159
+     1.631623,
+     1.206308
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.807441,
-     19.69218
+     20.980389,
+     18.990492
     ]
    }
   },
@@ -148,8 +148,8 @@
    "name": "aa_intensity",
    "value": 0.232,
    "unit": "kg amino acids/kg wet",
-   "source": "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; chosen 2026-11-19] amino acids a kilo of wet cells takes up, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g is the middle). Humbird's stoichiometry (Reaction 2.11) gives 0.26 kg of pure amino acids (Table 3.4); a kilo of wet cells is about 15-20% protein",
-   "note": "stoichiometric -> does NOT scale with media efficiency. Before 2026-11-19: 0.337 kg of soy hydrolysate at $2/kg ($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, arginine, asparagine, cystine or serine, so those come from fermentation at the prices of aa_bulk_price",
+   "source": "[GFI Dec 2025, read in full; research_notes/nutrient_floor.md; chosen 2026-11-19] amino acids a kilo of wet cells keeps, at the floor: GFI's most efficient of eight estimates (200-650 g; 350 g is the middle). It is the nitrogen balance's figure for cells that release no ammonia: 0.232 kg of FSF4's amino acids carries 2.85 mol of nitrogen (nb_aa_n_kg), the 2.86 mol in a kilo of Humbird's cells. Humbird's stoichiometry (Reaction 2.11) gives 0.26 kg (Table 3.4)",
+   "note": "NITROGEN BALANCE (2026-11-27, floor_physics.nutrient_balance): the amino acids a case takes up are this plus its ammonia / nb_aa_n_kg, so cells that release ammonia eat more of them (81 g a mol). Above 0.232 the figure stands for nitrogen that leaves unused or as other amino acids (alanine, glutamate); nobody has measured that in meat cells. Before 2026-11-19: 0.337 kg of soy hydrolysate at $2/kg ($0.67 a kilo). GFI: hydrolysates cannot supply glutamine, arginine, asparagine, cystine or serine, so those come from fermentation at the prices of aa_bulk_price",
    "evidence_class": "company",
    "range": {
     "kind": "triangular",
@@ -160,17 +160,26 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      48.6815,
-     51.5358
+     51.6589
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.7403,
-     9.9514
+     6.7922,
+     10.0033
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     1.325707
+     1.365783,
+     1.262325
     ]
    }
+  },
+  {
+   "name": "nb_aa_n_kg",
+   "value": 12.3,
+   "unit": "mol N/kg amino acids",
+   "source": "[GFI Dec 2025, p. 18, derived 2026-11-27] nitrogen in a kilo of the amino acids the FSF4 medium supplies: GFI's tonnes of each of 21 amino acids for 250 kt of meat at the most efficient need, weighted by each one's nitrogen atoms over its molar mass (mean 135.9 g/mol, 1.67 N per amino acid)",
+   "note": "the modified CHO medium at the least efficient need gives 11.65. The medium is rich in nitrogen because arginine (4 N), glutamine and asparagine (2 N) are among the amino acids needed most. Sets how many grams of amino acids a mol of ammonia takes (81 g), and with aa_intensity the nitrogen balance of the floor",
+   "evidence_class": "derived",
+   "range": null
   },
   {
    "name": "aa_bulk_price",
@@ -188,24 +197,24 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      48.6815,
-     49.8974
+     50.0879
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.6146,
-     8.33
+     6.6598,
+     8.4076
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     1.383481
+     1.365783,
+     1.315598
     ]
    }
   },
   {
    "name": "glucose_intensity",
-   "value": 0.311,
+   "value": 0.3142,
    "unit": "kg/kg wet",
-   "source": "[derived 2026-11-21: floor_physics.glucose_balance for Humbird's enhanced cell (3 ng, 24 h, 0.054 mol of ammonia a kilo) making no lactate: 1.724 mol x 0.180 kg] glucose a kilo of cells takes up when none is fermented",
-   "note": "TIED TO THE MASS BALANCE (2026-11-21; TODO 'the nutrient floor's glucose'): it was 0.32, from Humbird's Table 2.3 (0.13 mol per mol of dry cell mass against 0.147 for Reaction 2.11, 0.362 kg a kilo: 0.13 / 0.147 x 0.362), a third glucose figure beside pf_glc_kg and the balance. The balance gives 0.311 with no lactate and 0.361 with his lactate (his Table 3.4: 0.362), so the floor now uses the same arithmetic as the scenarios: $0.004 a kilo less. tests/test_nutrient_floor.py checks the two agree. Faster growth lowers it, toward 0.16 kg/kg (anabolic only)",
+   "source": "[derived 2026-11-27: floor_physics.nutrient_balance for Humbird's model cell (3 ng, 24 h) making no ammonia and no lactate, the floor: 1.744 mol x 0.180 kg] glucose a kilo of cells takes up when none is fermented and no amino acid is burned",
+   "note": "TIED TO THE MASS BALANCE: 0.311 from 2026-11-21 (the balance at Humbird's 0.054 mol of ammonia a kilo), 0.3142 since 2026-11-27, when the floor became the cell that makes no ammonia, as its amino acids are (aa_intensity). Before 2026-11-21 it was 0.32, from Humbird's Table 2.3. tests/test_nutrient_floor.py checks it against the balance. Each case's own glucose (fermented and burned) comes from floor_physics.nutrient_balance, not from this figure, which only sets the floor and the page's glucose-price lever. Faster growth lowers it, toward 0.16 kg/kg (anabolic only)",
    "evidence_class": "derived",
    "range": null
   },
@@ -273,12 +282,12 @@
      52.6058
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.4269,
-     7.6512
+     6.4788,
+     7.7031
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.56523,
-     1.289623
+     1.497806,
+     1.231507
     ]
    }
   },
@@ -466,12 +475,12 @@
      49.2161
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.7564,
-     7.0615
+     6.8083,
+     7.1134
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.475851,
-     1.408475
+     1.411512,
+     1.346412
     ]
    }
   },
@@ -1005,12 +1014,12 @@
      50.1951
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     7.164,
-     6.4519
+     7.2165,
+     6.5019
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.450742,
-     1.372742
+     1.387256,
+     1.311873
     ]
    }
   },
@@ -1051,12 +1060,12 @@
      48.6815
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     8.2845,
-     6.9686
+     8.3364,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.126602,
-     1.42852
+     1.073881,
+     1.365783
     ]
    }
   },
@@ -1120,12 +1129,12 @@
      54.5139
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     1.228207
+     1.365783,
+     1.172118
     ]
    }
   },
@@ -1212,12 +1221,12 @@
      46.4842
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     7.7402,
-     6.9753
+     7.7921,
+     7.0272
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.314366,
-     1.515257
+     1.255433,
+     1.449568
     ]
    }
   },
@@ -1318,12 +1327,12 @@
      52.1756
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.6051,
-     8.0592
+     6.657,
+     8.1111
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.473581,
-     1.303984
+     1.409319,
+     1.245394
     ]
    }
   },
@@ -1346,12 +1355,12 @@
      54.1167
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.3628,
-     8.665
+     6.4147,
+     8.7169
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.50476,
-     1.240699
+     1.439432,
+     1.184197
     ]
    }
   },
@@ -1383,12 +1392,12 @@
      48.6815
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     7.9673,
-     6.9379
+     8.0191,
+     6.9898
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.427077,
-     1.42852
+     1.364389,
+     1.365783
     ]
    }
   },
@@ -1502,12 +1511,12 @@
      46.5972
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9983
+     7.0205,
+     7.0502
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     1.510613
+     1.365783,
+     1.445084
     ]
    }
   },
@@ -1648,12 +1657,12 @@
      49.2744
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     7.2394,
-     7.0448
+     7.2913,
+     7.0967
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.360549,
-     1.406315
+     1.300086,
+     1.344325
     ]
    }
   },
@@ -1676,12 +1685,12 @@
      51.2797
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9106,
-     7.3149
+     6.9625,
+     7.3668
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.457187,
-     1.334532
+     1.393482,
+     1.274931
     ]
    }
   },
@@ -2168,12 +2177,12 @@
      52.4091
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.4846,
-     8.602
+     6.5329,
+     8.6596
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.548161,
-     1.296164
+     1.481332,
+     1.237832
     ]
    }
   },
@@ -2282,12 +2291,12 @@
      51.7415
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.6761,
-     7.8951
+     6.728,
+     7.947
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.465765,
-     1.318673
+     1.401769,
+     1.259598
     ]
    }
   },
@@ -2346,12 +2355,12 @@
      51.1426
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     7.3832
+     7.0205,
+     7.4351
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     1.339284
+     1.365783,
+     1.279526
     ]
    }
   },
@@ -3504,16 +3513,16 @@
    },
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
-     44.4585,
+     44.5268,
      79.6591
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.602342,
-     0.656207
+     1.530654,
+     0.620604
     ]
    }
   },
@@ -3564,12 +3573,12 @@
      65.2542
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.42852,
-     0.938082
+     1.365783,
+     0.891812
     ]
    }
   },
@@ -3620,12 +3629,12 @@
      47.9443
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.375659,
-     1.456812
+     1.314693,
+     1.39312
     ]
    }
   },
@@ -3934,15 +3943,15 @@
    "moves_cost": {
     "low_lactate_example_usd_per_kg_at_lo_hi": [
      87.9515,
-     43.8366
+     43.9597
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.892
+     7.0205,
+     6.9439
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.534666,
-     1.630664
+     0.504235,
+     1.555454
     ]
    }
   },
@@ -3965,12 +3974,12 @@
      48.6815
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.834798,
-     1.42852
+     0.792258,
+     1.365783
     ]
    }
   },
@@ -4738,12 +4747,12 @@
      48.6815
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     1.698503,
-     1.42852
+     1.626287,
+     1.365783
     ]
    }
   },
@@ -4766,12 +4775,12 @@
      35.9443
     ],
     "all_favourable_example_usd_per_kg_at_lo_hi": [
-     6.9686,
-     6.9686
+     7.0205,
+     7.0205
     ],
     "low_lactate_example_world_share_pct_at_lo_hi": [
-     0.659498,
-     2.086394
+     0.62376,
+     1.998624
     ]
    }
   },
@@ -5740,12 +5749,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.895245,
-     2.467585
+     0.847315,
+     2.366497
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     17.208131,
-     26.746222
+     16.606468,
+     25.834435
     ]
    }
   },
@@ -5773,12 +5782,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.319077,
-     1.579355
+     1.257021,
+     1.515953
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     19.747034,
-     21.570849
+     18.979466,
+     20.827302
     ]
    }
   },
@@ -5811,12 +5820,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.092611,
-     4.274323
+     0.08771,
+     4.157204
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     2.178364,
-     42.871735
+     2.043601,
+     41.918334
     ]
    }
   },
@@ -5849,12 +5858,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     3.026404,
-     1.024829
+     2.898017,
+     0.975247
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     28.76587,
-     18.030842
+     27.820038,
+     17.361768
     ]
    }
   },
@@ -5873,12 +5882,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.42852,
-     1.179456
+     1.365783,
+     1.122934
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.51912,
-     16.31133
+     19.76102,
+     15.678583
     ]
    }
   },
@@ -5897,12 +5906,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.381302,
-     1.619851
+     1.320871,
+     1.54448
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.164121,
-     19.947409
+     20.413463,
+     19.185162
     ]
    }
   },
@@ -5921,12 +5930,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.42852,
-     2.296493
+     1.365783,
+     2.204224
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.51912,
-     27.298725
+     19.76102,
+     26.439062
     ]
    }
   },
@@ -5945,12 +5954,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.625305,
-     1.42852
+     0.593913,
+     1.365783
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     11.194499,
-     20.51912
+     10.673999,
+     19.76102
     ]
    }
   },
@@ -6001,12 +6010,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.896864,
-     2.17212
+     0.853857,
+     2.087536
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     14.692306,
-     27.347648
+     14.068413,
+     26.481517
     ]
    }
   },
@@ -6117,12 +6126,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.799313,
-     0.870177
+     1.722376,
+     0.813291
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     22.250715,
-     17.647738
+     21.434624,
+     17.189408
     ]
    }
   },
@@ -6201,12 +6210,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.379791,
-     1.653694
+     1.319312,
+     1.581258
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.203697,
-     21.899195
+     19.450818,
+     21.1224
     ]
    }
   },
@@ -6432,12 +6441,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.42852,
-     2.609464
+     1.365783,
+     2.493838
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.51912,
-     21.720175
+     19.76102,
+     20.92913
     ]
    }
   },
@@ -6456,12 +6465,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.570725,
-     0.394695
+     1.504173,
+     0.370064
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.541534,
-     20.217851
+     19.78305,
+     19.465391
     ]
    }
   },
@@ -6480,12 +6489,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.690239,
-     2.665811
+     0.655256,
+     2.572341
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     20.020444,
-     21.262713
+     19.266862,
+     20.518454
     ]
    }
   },
@@ -6513,12 +6522,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     0.625305,
-     2.056264
+     0.593913,
+     1.974712
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     11.194499,
-     26.363534
+     10.673999,
+     25.510117
     ]
    }
   },
@@ -6658,12 +6667,36 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.492398,
-     1.404999
+     1.456811,
+     1.287043
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     21.459781,
-     17.867053
+     20.964525,
+     16.756337
+    ]
+   }
+  },
+  {
+   "name": "blend_curve",
+   "value": 1.2,
+   "unit": "-",
+   "source": "[Asioli et al. 2023, doi:10.1002/aepp.13283; hybrid_demand_evidence.md] exponent of the blend rule: a product that is a share s of cells keeps s ** blend_curve of the credit shoppers give real meat. In Asioli's labelled choice among burgers (about 2,400 people, UK, Spain, Denmark) a 50/50 beef-plant burger keeps 0.42, 0.48 and 0.39 of beef's advantage over the plant burger, mean 0.43, so 0.5 ** x = 0.43 gives 1.2. The evidence is from blends of meat and plants: no study varies the share of cultivated cells",
+   "note": "The model's judgement of an analogue. Low end: tasted blind, a 70/30 blend keeps 0.85-0.92 (Caputo et al. 2022), an exponent of 0.2-0.5, and told about health or taste Asioli's blend keeps 0.56-0.97. High end: Profeta et al. 2021 find blends of 50-80% meat keep 0.2-0.3, an exponent of 2 or more. Drawn in the bands (MC_CUT_INPUTS, after the others, so their draws are unchanged).",
+   "evidence_class": "published",
+   "range": {
+    "kind": "triangular",
+    "lo": 0.4,
+    "mode": 1.2,
+    "hi": 2.5
+   },
+   "moves_share": {
+    "world_share_pct_at_low_lactate_cost_at_lo_hi": [
+     1.658791,
+     1.078152
+    ],
+    "world_share_pct_at_all_favourable_cost_at_lo_hi": [
+     22.521388,
+     16.687599
     ]
    }
   },
@@ -6696,12 +6729,12 @@
    },
    "moves_share": {
     "world_share_pct_at_low_lactate_cost_at_lo_hi": [
-     1.471587,
-     1.306513
+     1.406343,
+     1.250875
     ],
     "world_share_pct_at_all_favourable_cost_at_lo_hi": [
-     23.420649,
-     14.308356
+     22.552361,
+     13.836409
     ]
    }
   },

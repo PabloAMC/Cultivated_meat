@@ -2,6 +2,8 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). Every device in Humbird's optimistic design and in the all-favourable example rises by $0.05 to $0.06 (the TFF loop $15.72 -> $15.77 and $6.97 -> $7.02, the hoped-for device $14.59 -> $14.64 and $7.14 -> $7.19); the low-lactate example's devices do not move. The box of current figures is updated; the body is not. The conclusions are unchanged.
+
 > **Recomputed 2026-11-25 (the gas cap and loop thinning; `python retention.py`).** In a tank with a column the engine now takes
 > the gas flow the cells tolerate as a cap, tries lower flows, and holds thinner a culture whose column loop fails its checks
 > (scenarios no longer carry their own thinning); a device is sized from the design it runs (`retention.RESIZE_PASSES`). No
@@ -10,15 +12,15 @@
 > g/L $50.44, so a thinner culture still does not pay at the default life. At the worst membrane life (900 L/m2) the engine itself
 > runs it at 59 g/L for $79.46, whatever the cap above that (it was $86.62-87.00 at every density from 100 to 258 g/L).
 
-> **Current figures (2026-11-21, second batch; `python retention.py`).** After the engine fixes of the second batch (the building's
+> **Current figures (2026-11-21, second batch; repinned 2026-11-27 for the nutrient balance; `python retention.py`).** After the engine fixes of the second batch (the building's
 > power by floor and class, part of the crew per tank) and the thinner designs in the design search, the scenarios run the
 > recycled-oxygen column held thinner: the low-lactate example at 168 g/L (16% cells by volume, 1.47 m³ of permeate an hour,
-> $48.68 with the TFF loop, membranes $22.71 a kilo), the all-favourable example at 219 g/L ($6.97), Humbird's optimistic design
-> at 120 g/L ($15.72). With each device, Humbird's optimistic design / the low-lactate example / the all-favourable example:
-> hoped-for device $14.59 / $26.63 / $7.14; ATF $17.32 / $66.29 / $14.59; reused pharma modules $14.22 / $30.54 / $7.76;
-> dialyser-grade fibres $13.86 / $26.28 / $6.97; ceramic $14.01 / $27.75 / $7.29; inclined settler $13.85 / $26.37 (not
-> possible) / $6.99; acoustic $14.13 / $29.20 / $7.53; disc stack $14.92 / $33.53 (20% of the cells lost) / $7.64;
-> hydrocyclone $14.19 / $35.81 / $7.62. The ATF is the dearest real device, $17.61 a kilo above the loop in the low-lactate
+> $48.68 with the TFF loop, membranes $22.71 a kilo), the all-favourable example at 219 g/L ($7.02), Humbird's optimistic design
+> at 120 g/L ($15.77). With each device, Humbird's optimistic design / the low-lactate example / the all-favourable example:
+> hoped-for device $14.64 / $26.63 / $7.19; ATF $17.38 / $66.29 / $14.64; reused pharma modules $14.27 / $30.54 / $7.81;
+> dialyser-grade fibres $13.92 / $26.28 / $7.02; ceramic $14.06 / $27.75 / $7.34; inclined settler $13.90 / $26.37 (not
+> possible) / $7.04; acoustic $14.19 / $29.20 / $7.58; disc stack $14.98 / $33.53 (20% of the cells lost) / $7.70;
+> hydrocyclone $14.25 / $35.81 / $7.68. The ATF is the dearest real device, $17.61 a kilo above the loop in the low-lactate
 > example. The body below gives the figures of the morning of 2026-11-21 (the low-lactate example at 154 g/L, $49.50); its
 > conclusions stand.
 

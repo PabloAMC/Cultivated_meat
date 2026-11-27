@@ -121,7 +121,7 @@ def check() -> list:
             fails.append(f"{k} should be a demand input the scan moves and the bands draw")
     # 2026-11-20 final model: the all-favourable example is now $7.62 (was $18.71) and its share 5.4% (was 1.1%), so ten
     # demand inputs move its share by 2 points or more again: 2 -> 10 rows.
-    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 20:   # 14 since 2026-11-22; 20 since 2026-11-24 (the default of 50% of meat buyers)
+    if [r["key"] for r in s["demand_rows"]][:2] != ["equal_price_share", "neophobia_x"] or len(s["demand_rows"]) != 21:   # 14 since 2026-11-22; 20 since 2026-11-24 (the default of 50% of meat buyers); 21 since 2026-11-27 (blend_curve)
         fails.append(f"the demand rows have changed: {[r['key'] for r in s['demand_rows']]}")
     # taste (accept_x) left the bands on 2026-11-20: it was drawn on top of the share at equal price, which already nets it
     if "accept_x" in I.MC_DEMAND_INPUTS or A._band("accept_x") == "yes" or "accept_x" not in A.demand_inputs():
@@ -156,7 +156,7 @@ def check() -> list:
     # shoppers' real-meat weight, and with it the blend penalty on cuts; research_notes/demand_checks.md section 5)
     # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0455 -> 0.2588 and 5.5816 -> 5.4798
     # 2026-11-24 (the default of 50% of meat buyers at equal price): 0.2588 -> 1.4285 and 5.4798 -> 20.5191
-    for name, got, want in (("the low-lactate example's share", s["central_share"], 1.4285), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 20.5191)):
+    for name, got, want in (("the low-lactate example's share", s["central_share"], 1.3658), ("the all-favourable example's share, the low-lactate example's demand", s["best_share"], 19.7610)):  # 2026-11-27 (nutrient balance): 20.5191 -> 20.3777; (the blend curve): 1.4285 -> 1.3658, 20.3777 -> 19.7610
         # 2026-11-19 restructure: the share of the meat sold (was 0.1638 and 2.7352 as a share of all four choices; best also 2 ng)
         # 2026-11-20 model batch: 0.2102 -> 0.0456 and 3.1617 -> 1.1345 (the costs rose from $32.80 to $49.96 and $11.67 to $18.71)
         if abs(got - want) > 2e-3:
@@ -199,10 +199,11 @@ def check() -> list:
     # example. New rows: the CO2 tolerated, the loop's transit time, the culture's other buffering (both column-loop inputs, now
     # that a failing loop is thinned), the upkeep share of oxygen use, and antifoam's cost to oxygen transfer (a row on the
     # all-favourable example alone: $7.97 at 0.5)
-    pins = [("inputs", s["inputs"], 615), ("with a range", s["ranged"], 285),      # liking_tail added in the second round
+    pins = [("inputs", s["inputs"], 617),  # 2026-11-27: 615 -> 616 (nb_aa_n_kg) -> 617 (blend_curve)
+            ("with a range", s["ranged"], 286),      # 2026-11-27: blend_curve;      # liking_tail added in the second round
             ("rows", len(s["cost_rows"]), 24), ("over $3", s["over_3"], 15),
             ("move the low-lactate example by $1 or more", sum(swing(k) >= 1.0 for k in order), 23),
-            ("demand rows", len(s["demand_rows"]), 20)]   # 2026-11-19: 9 -> 8 with the share of the meat sold; 2026-11-24: 14 -> 20 (the default of 50% of meat buyers)
+            ("demand rows", len(s["demand_rows"]), 21)]   # 2026-11-27: 21 (blend_curve);   # 2026-11-19: 9 -> 8 with the share of the meat sold; 2026-11-24: 14 -> 20 (the default of 50% of meat buyers)
     for name, got, want in pins:
         if got != want:
             fails.append(f"{name}: {got} != pinned {want}")
@@ -220,7 +221,7 @@ def check() -> list:
     # 2026-11-25 (the gas cap and loop thinning): filter life (86.91, 35.94) -> (79.46, 35.94), ammonia tolerated (89.05, 43.84) ->
     # (87.95, 43.84), ammonia made (44.46, 80.42) -> (44.46, 79.66), lactate tolerated (70.33, 48.68) -> (69.95, 48.68), bubble kill
     # (45.70, 58.94) -> (45.70, 52.41); the protectant's price and the osmolality unchanged
-    for k, want in (("rt_membrane_life", (79.46, 35.94)), ("sc_nh3_limit", (87.95, 43.84)), ("sc_nh3_selected", (44.46, 79.66)),   # low end 0.07 -> 0.04 (2026-11-19)
+    for k, want in (("rt_membrane_life", (79.46, 35.94)), ("sc_nh3_limit", (87.95, 43.96)), ("sc_nh3_selected", (44.53, 79.66)),   # 2026-11-27 (nutrient balance): 43.84 -> 43.96, 44.46 -> 44.53;   # low end 0.07 -> 0.04 (2026-11-19)
                     ("sc_lac_limit", (69.95, 48.68)), ("ge_kill_protected", (45.70, 52.41)),
                     ("pf_protectant_price", (46.74, 54.12)), ("pf_osm_limit", (57.93, 48.68))):
         if max(abs(a - b) for a, b in zip(cr[k]["central"], want)) > 0.02:
@@ -236,8 +237,8 @@ def check() -> list:
     # 2026-11-21 (fourth batch): 0.0234-0.3429 -> 0.0216-0.3103; 1.6331-21.6175 -> 1.5030-20.4019 (the blend penalty above)
     # 2026-11-22 (fifth batch, the price-insensitive shoppers): 0.0216-0.3103 -> 0.0559-1.5650; 1.5030-20.4019 -> 1.3387-21.8664
     # 2026-11-24 (the default of 50% of meat buyers): 0.0559-1.5650 -> 0.0926-4.2743; 1.3387-21.8664 -> 2.1784-42.8717
-    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0926, 4.2743)),
-                            ("the all-favourable example's share span", s["best_share_span"], (2.1784, 42.8717))):
+    for name, got, want in (("the low-lactate example's share span", s["central_share_span"], (0.0877, 4.1572)),   # 2026-11-27 (the blend curve): was (0.0926, 4.2743)
+                            ("the all-favourable example's share span", s["best_share_span"], (2.0436, 41.9183))):  # 2026-11-27 (nutrient balance): (2.1784, 42.8717) -> (2.1583, 42.6582); (the blend curve): -> (2.0436, 41.9183)
         if max(abs(a - b) for a, b in zip(got, want)) > 2e-3:
             fails.append(f"{name}: {got[0]:.4f} to {got[1]:.4f} != pinned {want}")
 

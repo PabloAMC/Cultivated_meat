@@ -73,24 +73,22 @@ were draft guesses that turned out inaccurate. We keep them clearly separated:
 
   OUR BEST GUESSES (labelled as ours, NOT attributed to Humbird):
    * aa_intensity: an earlier draft used 1.5 kg AA/kg biomass; Humbird's
-     stoichiometry is ~0.26 kg/kg wet of pure amino acids (0.85 dry), and 0.337 kg/kg
-     of soy hydrolysate to supply them (Table 3.5). The floor prices hydrolysate, so
-     it uses 0.337. Humbird's $3.4 residual also buys free glutamine and tyrosine
-     ($1.74 + $0.88); the floor leaves them out, assuming glutamine-synthetase cells
-     (standard in CHO) and tyrosine from the hydrolysate. (Low impact either way next
-     to the plant term.)
+     stoichiometry is ~0.26 kg/kg wet of pure amino acids (0.85 dry). Since 2026-11-19
+     the floor takes GFI's most efficient estimate, 0.232 kg of amino acids at feed-grade
+     prices ($6.36/kg; 0.337 kg of soy hydrolysate at $2 before). Since 2026-11-27 it is
+     also the nitrogen balance's figure for cells that release no ammonia; cells that do
+     eat more (floor_physics.nutrient_balance).
    * "~$0.75/kg AA at CHO-grade efficiency" and "4x" were draft extrapolations
      with NO basis in Humbird; they are model assumptions, not citations.
 
 The floor (see cost_floor):
-  * amino acids are irreducible feedstock: 0.337 kg/kg wet of hydrolysate x $2/kg =
-    ~$0.67/kg.
+  * amino acids are irreducible feedstock: 0.232 kg/kg wet x $6.36/kg = ~$1.48/kg.
   * glucose: anabolism (lipid, carbohydrate, nucleotides) plus the glucose respired
     to pay the cells' metabolic power while they grow. Humbird's full-respiration
-    stoichiometry gives 0.32 kg/kg wet (half of it anabolic; faster growth lowers the
-    rest), x $0.40/kg (GFI & Hawkwood 2025, US Midwest) = ~$0.13/kg. Salts, buffer,
-    vitamins and trace elements: ~$0.9/kg, an assumption (the rest of an earlier $1
-    glucose-and-other guess; Humbird treats them as low-cost). Together ~$1.7/kg.
+    stoichiometry gives 0.314 kg/kg wet with no lactate (half of it anabolic; faster growth
+    lowers the rest), x $0.40/kg (GFI & Hawkwood 2025, US Midwest) = ~$0.13/kg. Salts, buffer,
+    vitamins and trace elements: ~$0.4/kg, an assumption (0.9 before 2026-11-19; Humbird
+    treats them as low-cost). Together ~$2.00/kg.
     This is comparable to, not far below, conventional chicken's feed bill: US
     broilers eat ~4.6 kg of feed per kg of edible meat (parents included), ~$1.4/kg
     of edible meat in 2025 (~$1.9 in the EU, 2024), from NCC, Aviagen, USDA NASS and
@@ -137,7 +135,7 @@ from price_ratio import p_cult as _p_cult, ratio as _ratio, parity_cost as _pari
 # must physically consume. Medium cost cannot fall below this however cheap the
 # medium gets — but it is STOICHIOMETRIC, so it does NOT scale with media
 # efficiency (using less medium does not let the cells eat fewer amino acids).
-FEEDSTOCK_FLOOR = AA_FLOOR + GLUCOSE_OTHER_FLOOR   # ~0.67 + (0.13 + 0.9) = 1.70 $/kg
+FEEDSTOCK_FLOOR = AA_FLOOR + GLUCOSE_OTHER_FLOOR   # ~1.48 + (0.13 + 0.4) = 2.00 $/kg
 
 
 # ----------------------------------------------------------------------------
@@ -156,8 +154,8 @@ class CostParams:
     # --- floor inputs (irreducible) ----------------------------------------
     #   aa_intensity is stoichiometric (does NOT scale with media efficiency); an
     #   earlier draft used 1.5 here, ~6x too high — see module docstring.
-    aa_intensity: float = value("aa_intensity")        # kg hydrolysate/kg wet  [Humbird Table 3.5]
-    aa_bulk_price: float = value("aa_bulk_price")      # $/kg bulk plant hydrolysate [Humbird]
+    aa_intensity: float = value("aa_intensity")        # kg amino acids/kg wet  [GFI Dec 2025]
+    aa_bulk_price: float = value("aa_bulk_price")      # $/kg feed-grade amino acids [GFI Dec 2025]
     glucose_other_floor: float = GLUCOSE_OTHER_FLOOR   # $/kg glucose [derived] + salts etc. [assumed]
     plant_floor: float = value("plant_floor")          # $/kg minimal plant cost at scale [floor_physics]
     eff_best: float = value("eff_best")                # CHO-grade media-VOLUME multiplier; SCENARIO only
@@ -207,7 +205,7 @@ def cost_floor(pr: CostParams) -> float:
     transfer at 20 m3). It assumes efficient cells and a device to hold cells back that does not
     exist yet; see inputs.py `plant_floor` for what has and has not been shown.
     """
-    aa = pr.aa_intensity * pr.aa_bulk_price   # 0.337*2 = 0.67 (stoichiometric, no eff knob)
+    aa = pr.aa_intensity * pr.aa_bulk_price   # 0.232 x 6.36 = 1.48 (stoichiometric, no eff knob)
     return aa + pr.glucose_other_floor + pr.plant_floor
 
 

@@ -9,6 +9,10 @@
 > 13.6 million m² of membrane (was 13.8). The low-lactate example ($48.68) and the all-favourable example ($6.97) do not move;
 > neither does any conclusion. Tables are regenerated.
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment). The all-favourable example costs $7.02 ($6.97) and sells 20.38% of world meat at that cost (20.52%; 68.5 Mt a year, was 68.9); its cells rest at the floors, $6.30 and 22.44% ($6.25 and 22.59%), $6.72 and 21.21% with slow learning ($6.67 and 21.36%); with their own demand 25.0% to 27.3% (25.1% to 27.5%). Anchored on premium real meats they rest at $6.47 and 2.49% ($6.42 and 2.51%). The low-lactate example and published cells do not move. The conclusions are unchanged; the cells still rest $0.16 above price parity ($6.14).
+
+> Repinned 2026-11-27 (later; the blend rule is a curve: a cut that is 80% cells keeps 0.8^1.2 = 77% of the credit shoppers give real meat, not 80%; `hybrid_demand_evidence.md`). Costs did not move; every share that includes cuts fell by about a twentieth. The low-lactate example rests at $22.32 and 3.95% ($22.29 and 4.15%); the all-favourable example's cells with the ordinary demand at $6.30 and 21.79% (22.44%), with its own demand 26.6% (27.3%). The conclusions are unchanged.
+
 > **Figures of 2026-11-24 (the default share at equal price is 50% of meat buyers, was 14.5%; published cells superseded above).** Costs at the
 > starting point do not move; every share does. Tables are regenerated; the sections below still give the fifth batch's
 > figures in prose unless marked 2026-11-24. At its own cost the low-lactate example now sells 1.43% of world meat (4.80 Mt a
@@ -76,10 +80,10 @@ cultivated meat first undercuts the premium product it competes with (Wildtype's
 unlocks is the volume that makes everything cheaper.
 
 **In short (2026-11-24, at 50% of meat buyers).** At its point cost the low-lactate example sells 4.80 Mt a year, 75 times
-what brings a food-grade membrane supplier into being, and its cells fall from $48.68 to $22.29 as its share rises from 1.43% to
-4.15% of world meat. The all-favourable example's cells go from $6.97 and 20.52% to the floors, $6.25 and 22.59%, on the plant's
+what brings a food-grade membrane supplier into being, and its cells fall from $48.68 to $22.32 as its share rises from 1.43% to
+3.95% of world meat. The all-favourable example's cells go from $7.02 and 20.38% to the floors, $6.30 and 21.79% (2026-11-27; from $6.97 and 20.52% to $6.25 and 22.59% before), on the plant's
 learning, still short of the $6.14 that price parity with US minced beef or pork cuts needs. Published cells cross on their own
-sales: $179.90 to $81.23, 0.06% to 0.63% (2026-11-25; $181.13 to $81.47 before the gas cap and loop thinning).
+sales: $179.90 to $81.30, 0.06% to 0.60% (2026-11-25; $181.13 to $81.47 before the gas cap and loop thinning).
 
 **In short (2026-11-22, fifth batch, at 14.5% of meat buyers).** At its point cost the low-lactate example sells enough to bring a food-grade membrane
 supplier into being many times over, and gets much cheaper for it: its cells fall from $48.68 to $23.52 and its share rises from
@@ -132,63 +136,64 @@ third. Here "the all-favourable example" is its cells with the model's ordinary 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
 | 0.01 | 0.00298% | 1,130 | 1,450 | 0.98× | $179.57 | 0.06% |
-| 0.1 | 0.0298% | 11,304 | 88 | 0.87× | $87.81 | 0.54% |
-| 0.5 | 0.149% | 56,518 | 55 | 0.73× | $83.53 | 0.60% |
-| 2 | 0.595% | 226,074 | 50 | 0.60× | $81.30 | 0.63% |
-| 10 | 2.98% | 1,130,368 | 50 | 0.47× | $79.47 | 0.66% |
-| 35 | 10.4% | 3,956,289 | 50 | 0.39× | $78.30 | 0.68% |
+| 0.1 | 0.0298% | 11,304 | 88 | 0.87× | $87.81 | 0.51% |
+| 0.5 | 0.149% | 56,518 | 55 | 0.73× | $83.53 | 0.56% |
+| 2 | 0.595% | 226,074 | 50 | 0.60× | $81.30 | 0.60% |
+| 10 | 2.98% | 1,130,368 | 50 | 0.47× | $79.47 | 0.62% |
+| 35 | 10.4% | 3,956,289 | 50 | 0.39× | $78.30 | 0.64% |
 
 **4. Plus perfusion (the low-lactate example)** (no learning: $48.68)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 613 | 1,450 | 0.99× | $48.58 | 1.43% |
-| 0.1 | 0.0298% | 6,125 | 132 | 0.92× | $27.31 | 3.03% |
-| 0.5 | 0.149% | 30,626 | 83 | 0.79× | $25.41 | 3.38% |
-| 2 | 0.595% | 122,504 | 56 | 0.65× | $23.81 | 3.74% |
-| 10 | 2.98% | 612,522 | 50 | 0.52× | $22.51 | 4.08% |
-| 35 | 10.4% | 2,143,826 | 50 | 0.43× | $21.73 | 4.32% |
+| 0.01 | 0.00298% | 613 | 1,450 | 0.99× | $48.58 | 1.37% |
+| 0.1 | 0.0298% | 6,125 | 132 | 0.92× | $27.31 | 2.90% |
+| 0.5 | 0.149% | 30,626 | 83 | 0.79× | $25.41 | 3.23% |
+| 2 | 0.595% | 122,504 | 56 | 0.65× | $23.81 | 3.57% |
+| 10 | 2.98% | 612,522 | 50 | 0.52× | $22.51 | 3.90% |
+| 35 | 10.4% | 2,143,826 | 50 | 0.43× | $21.73 | 4.12% |
 
-**7. Plus everything else at its favourable end (the all-favourable example)** (no learning: $6.97)
+**7. Plus everything else at its favourable end (the all-favourable example)** (no learning: $7.02)
 
 | cultivated meat sold, Mt a year | that is, of world meat | tanks needed, m³ | membrane, $/m² | plant cost against today's | cells, $/kg | share that cost would buy |
 |---|---|---|---|---|---|---|
-| 0.01 | 0.00298% | 185 | 1,450 | 1.00× | $6.96 | 20.53% |
-| 0.1 | 0.0298% | 1,855 | 1,450 | 0.97× | $6.92 | 20.65% |
-| 0.5 | 0.149% | 9,273 | 1,450 | 0.89× | $6.80 | 20.97% |
-| 2 | 0.595% | 37,090 | 1,450 | 0.77× | $6.62 | 21.48% |
-| 10 | 2.98% | 185,452 | 1,450 | 0.62× | $6.40 | 22.15% |
-| 35 | 10.4% | 649,081 | 138 | 0.52× | $6.25 | 22.59% |
+| 0.01 | 0.00298% | 185 | 1,450 | 1.00× | $7.02 | 19.77% |
+| 0.1 | 0.0298% | 1,855 | 1,450 | 0.97× | $6.97 | 19.89% |
+| 0.5 | 0.149% | 9,273 | 1,450 | 0.89× | $6.86 | 20.21% |
+| 2 | 0.595% | 37,090 | 1,450 | 0.77× | $6.68 | 20.70% |
+| 10 | 2.98% | 185,452 | 1,450 | 0.62× | $6.45 | 21.35% |
+| 35 | 10.4% | 649,081 | 138 | 0.52× | $6.30 | 21.79% |
 
 "Share that cost would buy" is the main model's long-run share at that cost. Where it exceeds the share the volume is, the market grows;
 where it is less, it shrinks. With both items at their floors the cells cost $76.83 (published cells), $20.49 (the low-lactate
-example) and $6.25 (the all-favourable example). The all-favourable example's membrane column stays at $1,450: at 0.00004 m² of
+example) and $6.30 (the all-favourable example; $6.25 before 2026-11-27). The all-favourable example's membrane column stays at $1,450: at 0.00004 m² of
 process membrane a kilo (the low-lactate example uses 0.015) its demand never reaches the switch, and only the plant learns.
 
 ## 3. Where cost and share agree
 
 | scenario | learning | the main model: cells, share | resting point from below: cells, share, Mt a year | from above: cells, share, Mt a year |
 |---|---|---|---|---|
-| Cautious | central | $179.90, 0.06% | $81.23, 0.63%, 2.12 | $81.23, 0.63%, 2.12 |
-| Cautious | no food-grade membrane supplier, slow plant learning | $179.90, 0.06% | $178.89, 0.06%, 0.22 | $178.89, 0.06%, 0.22 |
-| Cautious | slow learning | $179.90, 0.06% | $97.91, 0.42%, 1.41 | $97.91, 0.42%, 1.41 |
-| Cautious | fast learning | $179.90, 0.06% | $75.87, 0.72%, 2.42 | $75.87, 0.72%, 2.42 |
-| 4. Plus perfusion (the low-lactate example) | central | $48.68, 1.43% | $22.29, 4.15%, 13.94 | $22.29, 4.15%, 13.94 |
-| 4. Plus perfusion (the low-lactate example) | no food-grade membrane supplier, slow plant learning | $48.68, 1.43% | $47.38, 1.48%, 4.97 | $47.38, 1.48%, 4.97 |
-| 4. Plus perfusion (the low-lactate example) | slow learning | $48.68, 1.43% | $27.89, 2.94%, 9.88 | $27.89, 2.94%, 9.88 |
-| 4. Plus perfusion (the low-lactate example) | fast learning | $48.68, 1.43% | $20.02, 4.93%, 16.57 | $20.02, 4.93%, 16.57 |
-| 7. Plus everything else at its favourable end (the all-favourable example) | central | $6.97, 20.52% | $6.25, 22.59%, 75.92 | $6.25, 22.59%, 75.92 |
-| 7. Plus everything else at its favourable end (the all-favourable example) | no food-grade membrane supplier, slow plant learning | $6.97, 20.52% | $6.67, 21.36%, 71.76 | $6.67, 21.36%, 71.76 |
-| 7. Plus everything else at its favourable end (the all-favourable example) | slow learning | $6.97, 20.52% | $6.67, 21.36%, 71.76 | $6.67, 21.36%, 71.76 |
-| 7. Plus everything else at its favourable end (the all-favourable example) | fast learning | $6.97, 20.52% | $6.25, 22.59%, 75.92 | $6.25, 22.59%, 75.92 |
+| Cautious | central | $179.90, 0.06% | $81.30, 0.60%, 2.00 | $81.30, 0.60%, 2.00 |
+| Cautious | no food-grade membrane supplier, slow plant learning | $179.90, 0.06% | $178.93, 0.06%, 0.20 | $178.93, 0.06%, 0.20 |
+| Cautious | slow learning | $179.90, 0.06% | $98.11, 0.39%, 1.32 | $98.11, 0.39%, 1.32 |
+| Cautious | fast learning | $179.90, 0.06% | $75.96, 0.68%, 2.29 | $75.96, 0.68%, 2.29 |
+| 4. Plus perfusion (the low-lactate example) | central | $48.68, 1.37% | $22.32, 3.95%, 13.27 | $22.32, 3.95%, 13.27 |
+| 4. Plus perfusion (the low-lactate example) | no food-grade membrane supplier, slow plant learning | $48.68, 1.37% | $47.39, 1.41%, 4.75 | $47.39, 1.41%, 4.75 |
+| 4. Plus perfusion (the low-lactate example) | slow learning | $48.68, 1.37% | $27.93, 2.81%, 9.43 | $27.93, 2.81%, 9.43 |
+| 4. Plus perfusion (the low-lactate example) | fast learning | $48.68, 1.37% | $20.02, 4.71%, 15.81 | $20.02, 4.71%, 15.81 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | central | $7.02, 19.76% | $6.30, 21.79%, 73.22 | $6.30, 21.79%, 73.22 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | no food-grade membrane supplier, slow plant learning | $7.02, 19.76% | $6.72, 20.57%, 69.13 | $6.72, 20.57%, 69.13 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | slow learning | $7.02, 19.76% | $6.72, 20.57%, 69.13 | $6.72, 20.57%, 69.13 |
+| 7. Plus everything else at its favourable end (the all-favourable example) | fast learning | $7.02, 19.76% | $6.30, 21.79%, 73.22 | $6.30, 21.79%, 73.22 |
 
 "From below" starts with no learning; "from above" starts with everything at its floor. Where the two differ there are two resting
 points, and reaching the upper one needs someone to carry the industry across the gap.
 
-- **The all-favourable example's cells do not reach parity by this route: $6.30 against the $6.14 parity needs, and 6.14% of
-  world meat** (5.48% without learning). They rest 5 cents above the cost with both items at their floors ($6.25); fast learning
-  gives $6.25, and without plant learning they would stay near $6.97. With the all-favourable example's own demand (55% at equal
-  price, 25.1% without learning) they rest at the floors, $6.25, and take 27.5% of world meat. (Fourth batch of 2026-11-21: $6.30
+- **The all-favourable example's cells do not reach parity by this route: $6.30 against the $6.14 parity needs, and 21.79% of
+  world meat** (20.38% without learning; 6.14% and 5.48% at the fifth batch's 14.5% of meat buyers). Since 2026-11-27 they rest at
+  the cost with both items at their floors, $6.30 (in the fifth batch 5 cents above floors of $6.25); fast learning gives $6.30 too,
+  and without plant learning they would stay near $7.02. With the all-favourable example's own demand (55% at equal price, 24.3%
+  without learning; 25.1% before 2026-11-27) they rest at the floors, $6.30, and take 26.6% of world meat (27.5% before). (Fourth batch of 2026-11-21: $6.30
   and 6.27%; with its own demand 23.4% and 25.8%.)
 - **The low-lactate example: cells fall from $48.68 to $23.52 and the share rises from 0.26% to 0.79%**, about three times. Its
   0.87 Mt a year needs 13.6 million m² of membrane, 13.6 times the switch at 1.0, so it crosses on its own sales and has one
@@ -210,27 +215,27 @@ points, and reaching the upper one needs someone to carry the industry across th
 
 | scenario | stage | cells, $/kg | sold, Mt a year: premium products, cuts, mince and processed | premium products' part of sales (without premium fillets and shrimp) | chicken (organic): price against it, share of it | pork (heritage): price against it, share of it | beef (prime/wagyu): price against it, share of it | seafood (premium fillet, shrimp): price against it, share of it | seafood (sushi): price against it, share of it |
 |---|---|---|---|---|---|---|---|---|---|
-| Cautious | no learning | $179.90 | 0.04, 0.15, 0.02 | 17% (5%) | 15.90×, 0.10% | 12.92×, 0.15% | 4.59×, 0.65% | 10.34×, 0.20% | 5.91×, 0.38% |
-| Cautious | resting point | $81.23 | 0.19, 1.34, 0.59 | 9% (2%) | 7.48×, 0.82% | 6.08×, 0.97% | 2.16×, 2.55% | 4.86×, 1.13% | 2.78×, 1.63% |
-| 4. Plus perfusion (the low-lactate example) | no learning | $48.68 | 0.37, 2.71, 1.71 | 8% (2%) | 4.71×, 1.51% | 3.83×, 1.71% | 1.36×, 9.59% | 3.06×, 1.95% | 1.75×, 3.83% |
-| 4. Plus perfusion (the low-lactate example) | resting point | $22.29 | 2.23, 7.75, 3.96 | 16% (6%) | 2.47×, 4.02% | 2.00×, 6.06% | 0.71×, 65.05% | 1.60×, 10.02% | 0.92×, 37.89% |
-| 7. Plus everything else at its favourable end (the all-favourable example) | no learning | $6.97 | 7.65, 36.87, 24.42 | 11% (2%) | 1.22×, 25.46% | 0.99×, 34.31% | 0.35×, 86.22% | 0.79×, 45.02% | 0.45×, 74.23% |
-| 7. Plus everything else at its favourable end (the all-favourable example) | resting point | $6.25 | 7.95, 39.96, 28.01 | 10% (2%) | 1.16×, 27.52% | 0.95×, 36.47% | 0.34×, 86.56% | 0.76×, 47.06% | 0.43×, 75.17% |
+| Cautious | no learning | $179.90 | 0.03, 0.14, 0.02 | 17% (5%) | 15.90×, 0.10% | 12.92×, 0.14% | 4.59×, 0.59% | 10.34×, 0.19% | 5.91×, 0.35% |
+| Cautious | resting point | $81.30 | 0.18, 1.24, 0.59 | 9% (2%) | 7.49×, 0.75% | 6.09×, 0.90% | 2.16×, 2.37% | 4.87×, 1.04% | 2.78×, 1.51% |
+| 4. Plus perfusion (the low-lactate example) | no learning | $48.68 | 0.35, 2.53, 1.71 | 8% (2%) | 4.71×, 1.41% | 3.83×, 1.60% | 1.36×, 8.90% | 3.06×, 1.82% | 1.75×, 3.56% |
+| 4. Plus perfusion (the low-lactate example) | resting point | $22.32 | 2.09, 7.22, 3.96 | 16% (7%) | 2.47×, 3.73% | 2.01×, 5.61% | 0.71×, 63.28% | 1.60×, 9.27% | 0.92×, 35.97% |
+| 7. Plus everything else at its favourable end (the all-favourable example) | no learning | $7.02 | 7.35, 34.74, 24.30 | 11% (3%) | 1.22×, 23.88% | 0.99×, 32.48% | 0.35×, 85.52% | 0.79×, 43.05% | 0.45×, 72.89% |
+| 7. Plus everything else at its favourable end (the all-favourable example) | resting point | $6.30 | 7.65, 37.69, 27.88 | 10% (2%) | 1.17×, 25.88% | 0.95×, 34.60% | 0.34×, 85.89% | 0.76×, 45.10% | 0.43×, 73.88% |
 
 | scenario | learning | sold at the scenario's own cost, Mt a year: premium products, premium products without premium fillets and shrimp, everything | membrane each needs, million m² a year | the switch, million m² a year | which of the three cross it alone? |
 |---|---|---|---|---|---|
-| Cautious | central | 0.04, 0.010, 0.21 | 2.37, 0.63, 13.62 | 1.0 | yes, no, yes |
-| Cautious | no food-grade membrane supplier, slow plant learning | 0.04, 0.010, 0.21 | 2.37, 0.63, 13.62 | never | no, no, no |
-| Cautious | slow learning | 0.04, 0.010, 0.21 | 2.37, 0.63, 13.62 | 3.0 | no, no, yes |
-| Cautious | fast learning | 0.04, 0.010, 0.21 | 2.37, 0.63, 13.62 | 0.3 | yes, yes, yes |
-| 4. Plus perfusion (the low-lactate example) | central | 0.37, 0.12, 4.80 | 5.87, 1.83, 75.17 | 1.0 | yes, yes, yes |
-| 4. Plus perfusion (the low-lactate example) | no food-grade membrane supplier, slow plant learning | 0.37, 0.12, 4.80 | 5.87, 1.83, 75.17 | never | no, no, no |
-| 4. Plus perfusion (the low-lactate example) | slow learning | 0.37, 0.12, 4.80 | 5.87, 1.83, 75.17 | 3.0 | yes, no, yes |
-| 4. Plus perfusion (the low-lactate example) | fast learning | 0.37, 0.12, 4.80 | 5.87, 1.83, 75.17 | 0.3 | yes, yes, yes |
-| 7. Plus everything else at its favourable end (the all-favourable example) | central | 7.65, 1.70, 68.94 | 0.30, 0.07, 2.66 | 1.0 | no, no, yes |
-| 7. Plus everything else at its favourable end (the all-favourable example) | no food-grade membrane supplier, slow plant learning | 7.65, 1.70, 68.94 | 0.30, 0.07, 2.66 | never | no, no, no |
-| 7. Plus everything else at its favourable end (the all-favourable example) | slow learning | 7.65, 1.70, 68.94 | 0.30, 0.07, 2.66 | 3.0 | no, no, no |
-| 7. Plus everything else at its favourable end (the all-favourable example) | fast learning | 7.65, 1.70, 68.94 | 0.30, 0.07, 2.66 | 0.3 | no, no, yes |
+| Cautious | central | 0.03, 0.009, 0.20 | 2.17, 0.58, 12.63 | 1.0 | yes, no, yes |
+| Cautious | no food-grade membrane supplier, slow plant learning | 0.03, 0.009, 0.20 | 2.17, 0.58, 12.63 | never | no, no, no |
+| Cautious | slow learning | 0.03, 0.009, 0.20 | 2.17, 0.58, 12.63 | 3.0 | no, no, yes |
+| Cautious | fast learning | 0.03, 0.009, 0.20 | 2.17, 0.58, 12.63 | 0.3 | yes, yes, yes |
+| 4. Plus perfusion (the low-lactate example) | central | 0.35, 0.11, 4.59 | 5.47, 1.70, 71.87 | 1.0 | yes, yes, yes |
+| 4. Plus perfusion (the low-lactate example) | no food-grade membrane supplier, slow plant learning | 0.35, 0.11, 4.59 | 5.47, 1.70, 71.87 | never | no, no, no |
+| 4. Plus perfusion (the low-lactate example) | slow learning | 0.35, 0.11, 4.59 | 5.47, 1.70, 71.87 | 3.0 | yes, no, yes |
+| 4. Plus perfusion (the low-lactate example) | fast learning | 0.35, 0.11, 4.59 | 5.47, 1.70, 71.87 | 0.3 | yes, yes, yes |
+| 7. Plus everything else at its favourable end (the all-favourable example) | central | 7.35, 1.66, 66.40 | 0.28, 0.06, 2.56 | 1.0 | no, no, yes |
+| 7. Plus everything else at its favourable end (the all-favourable example) | no food-grade membrane supplier, slow plant learning | 7.35, 1.66, 66.40 | 0.28, 0.06, 2.56 | never | no, no, no |
+| 7. Plus everything else at its favourable end (the all-favourable example) | slow learning | 7.35, 1.66, 66.40 | 0.28, 0.06, 2.56 | 3.0 | no, no, no |
+| 7. Plus everything else at its favourable end (the all-favourable example) | fast learning | 7.35, 1.66, 66.40 | 0.28, 0.06, 2.56 | 0.3 | no, no, yes |
 
 **Which products count as premium (decided 2026-11-19).** Premium products are the rows the model labels premium: a cut priced at
 2.5 times its species' cheapest form or more. When world seafood was re-priced by consumption the single fillet row ($16) was split
@@ -271,21 +276,21 @@ So the tables give every count twice: with it, and for the four small premium ma
 
 | scenario | its own cost and share | first pass: the learning its own volume brings | resting point | part of the share gain from later rounds | resting point with demand anchored on premium meats (its own share there) |
 |---|---|---|---|---|---|
-| 4. Plus perfusion (the low-lactate example) | $48.68, 1.43% | $23.03, 3.94% | $22.29, 4.15% | 8% | $48.26, 0.01% (0.01%) |
-| 7. Plus everything else at its favourable end (the all-favourable example) | $6.97, 20.52% | $6.25, 22.59% | $6.25, 22.59% | 0% | $6.42, 2.51% (2.31%) |
+| 4. Plus perfusion (the low-lactate example) | $48.68, 1.37% | $23.07, 3.75% | $22.32, 3.95% | 8% | $48.32, 0.01% (0.01%) |
+| 7. Plus everything else at its favourable end (the all-favourable example) | $7.02, 19.76% | $6.30, 21.79% | $6.30, 21.79% | 0% | $6.48, 2.31% (2.13%) |
 
 | input, across its range | 4. Plus perfusion (the low-lactate example): cells, share | 7. Plus everything else at its favourable end (the all-favourable example): cells, share |
 |---|---|---|
-| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $22.29 to $22.29, 4.15% to 4.15% | $6.25 to $6.25, 22.59% to 22.59% |
-| That supplier's first price (60 to 400 $/m2) | $22.29 to $22.89, 4.15% to 3.98% | $6.25 to $6.25, 22.59% to 22.59% |
-| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $22.56 to $22.29, 4.07% to 4.15% | $6.25 to $6.25, 22.59% to 22.59% |
-| Membrane's price floor (20 to 120 $/m2) | $21.99 to $23.44, 4.24% to 3.83% | $6.25 to $6.25, 22.59% to 22.59% |
-| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $25.18 to $20.49, 3.42% to 4.75% | $6.67 to $6.25, 21.36% to 22.59% |
-| Animal-cell tanks installed today (6500 to 11800 m3) | $22.15 to $22.56, 4.19% to 4.07% | $6.25 to $6.25, 22.59% to 22.59% |
-| World meat, boneless (300 to 384 Mt a year) | $22.36 to $22.20, 4.13% to 4.18% | $6.25 to $6.25, 22.59% to 22.59% |
+| Membrane demand at which a food-grade supplier appears (300000 to 3e+06 m2 a year) | $22.32 to $22.32, 3.95% to 3.95% | $6.30 to $6.30, 21.79% to 21.79% |
+| That supplier's first price (60 to 400 $/m2) | $22.32 to $22.94, 3.95% to 3.78% | $6.30 to $6.30, 21.79% to 21.79% |
+| Membrane's price fall per doubling (0.1 to 0.28 per doubling) | $22.60 to $22.32, 3.87% to 3.95% | $6.30 to $6.30, 21.79% to 21.79% |
+| Membrane's price floor (20 to 120 $/m2) | $22.03 to $23.47, 4.03% to 3.65% | $6.30 to $6.30, 21.79% to 21.79% |
+| Plant's cost fall per doubling (0.03 to 0.18 per doubling) | $25.20 to $20.49, 3.27% to 4.53% | $6.72 to $6.30, 20.57% to 21.79% |
+| Animal-cell tanks installed today (6500 to 11800 m3) | $22.18 to $22.59, 3.99% to 3.87% | $6.30 to $6.30, 21.79% to 21.79% |
+| World meat, boneless (300 to 384 Mt a year) | $22.40 to $22.23, 3.93% to 3.98% | $6.30 to $6.30, 21.79% to 21.79% |
 
 - **It is mostly one step, not a loop.** 88% of the low-lactate example's gain in share comes on the first pass: the 0.87 Mt
-  it already sells crosses the membrane switch, cells fall to $24.75 and the share rises to 0.72%. Later rounds, where cheaper
+  it already sells crosses the membrane switch, cells fall to $24.75 and the share rises to 0.68%. Later rounds, where cheaper
   cells sell more and more sales make cells cheaper again, add the other 12% (to $23.52 and 0.79%). For the all-favourable
   example's cells the first pass gives 98%. (Fourth batch: 69% and 31%; after the engine batch later rounds gave 32%.) So the
   result rests mostly on whether one event happens, a food-grade membrane supplier, and at what price.
@@ -293,13 +298,13 @@ So the tables give every count twice: with it, and for the four small premium ma
   level and the speed of the membrane's later fall matter little (table above). Across the switch's range (0.3 to 3 million m²) the
   low-lactate example rests at $23.49 to $23.85, because its sales need 13.6 million. (Before the price-insensitive shoppers a 3
   million m² switch left it at $47.66.)
-- **The all-favourable example's cells are sturdy on cost**: $6.25–6.74 across every input; only the plant's learning rate moves
+- **The all-favourable example's cells are sturdy on cost**: $6.30–6.72 across every input (2026-11-27; $6.25–6.74 in the fifth batch); only the plant's learning rate moves
   them.
 - **The share side is weaker than the cost side.** With the share taken from the single curve fitted to premium real meats
   (`premium_curve.md`) in place of the model's, the low-lactate example does not cross the switch: at its own cost the fitted
   curve gives 0.014% of world meat, about a twentieth of the model's 0.26%, and those sales need about 0.7 million m², short of
   the central switch, so it rests at $48.26 and 0.015%, not $23.52 and 0.79%. The all-favourable example's cells cost about the
-  same ($6.42) and take 2.51%, not 6.14%. So whether the low-lactate example crosses at all depends on which demand side is right,
+  same ($6.47; $6.42 before 2026-11-27) and take 2.49% (2.51%), not 6.14%. So whether the low-lactate example crosses at all depends on which demand side is right,
   and the model's side now rests on the price-insensitive shoppers.
 
 ## 6. The checks (2026-11-18)
@@ -337,13 +342,13 @@ Judgement: $150 a m² at a million m² a year (80% range 60–400; about 70% tha
 
 **How much does a price cut unlock?** The model against history (percent more volume per percent lower price):
 
-| premium product | price against it: at $48.68 a kilo of cells, at $22.29 | cultivated meat's share of it | percent more share per percent lower price |
+| premium product | price against it: at $48.68 a kilo of cells, at $22.32 | cultivated meat's share of it | percent more share per percent lower price |
 |---|---|---|---|
-| chicken (organic) | 4.71×, 2.47× | 1.51%, 4.02% | 1.5 |
-| pork (heritage) | 3.83×, 2.00× | 1.71%, 6.06% | 2.0 |
-| beef (prime/wagyu) | 1.36×, 0.71× | 9.59%, 65.05% | 3.0 |
-| seafood (premium fillet, shrimp) | 3.06×, 1.60× | 1.95%, 10.02% | 2.5 |
-| seafood (sushi) | 1.75×, 0.92× | 3.83%, 37.89% | 3.5 |
+| chicken (organic) | 4.71×, 2.47× | 1.41%, 3.73% | 1.5 |
+| pork (heritage) | 3.83×, 2.01× | 1.60%, 5.61% | 1.9 |
+| beef (prime/wagyu) | 1.36×, 0.71× | 8.90%, 63.28% | 3.0 |
+| seafood (premium fillet, shrimp) | 3.06×, 1.60× | 1.82%, 9.27% | 2.5 |
+| seafood (sushi) | 1.75×, 0.92× | 3.56%, 35.97% | 3.6 |
 | history, along the demand curve (farmed salmon while still a premium product) | | | 1–1.5 |
 | history, in total, with demand growth mixed in (salmon, US broilers, US catfish) | | | 1.3–4.1 |
 
@@ -414,7 +419,7 @@ is 15–30 years, with something like a one-in-three chance of stalling as Quorn
 - **Resting points, not a path.** Learning is counted on yearly scale, not cumulative output, and nothing says who pays for the early
   years.
 - **What would have to be true.** For the all-favourable example's cells to reach $6.14 (price parity) by learning: the plant
-  would have to learn faster than the fast case (which gives $6.25, the floors), since the membrane plays no part in them. For
+  would have to learn faster than the fast case (which gives $6.30, the floors), since the membrane plays no part in them. For
   the low-lactate example's sales to pass the switch with no outside push: on the model's demand they do at every cost in its
   8-in-10 range and every switch in its range; on the curve fitted to premium real meats they fall short (about 0.7 million m²).
   For learning to take the low-lactate example above 1% of world meat: no learning case does at its point cost (the middle case

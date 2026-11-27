@@ -118,8 +118,10 @@ def check() -> list:
     # cage 123.5281 -> 123.3291, ideal with fat fed 118.5639 -> 118.3721; best ideal 5.5871 -> 5.4895
     # 2026-11-25 (the gas cap and loop thinning): explore now tries every gas flow up to the cap and thins an overloaded loop
     # itself, so the cautious case's cheapest design without a cage runs less gas at 138 g/L: no cage 127.3644 -> 126.5018
+    # 2026-11-27 (nutrient balance): best ideal 5.4895 -> 5.5373 (the all-favourable cells pay for the glucose they ferment);
+    # the low-lactate and published cells' pins do not move (their litres x price exceed what they eat)
     for (k, what), want in {("central", "ideal"): 42.8135, ("central", "no_cage"): 47.1880, ("central", "cage"): 46.0958,
-                            ("cautious", "ideal"): 167.2592, ("best", "ideal"): 5.4895,   # 2026-11-19: best's cells 2 ng (were 3)
+                            ("cautious", "ideal"): 167.2592, ("best", "ideal"): 5.5373,   # 2026-11-19: best's cells 2 ng (were 3)
                             ("cautious", "no_cage"): 126.5018, ("cautious", "cage"): 123.3291, ("cautious", "ideal_fed"): 118.3721}.items():
         if what == "ideal_fed":
             got = ideal_fat_fed(k)["total"]

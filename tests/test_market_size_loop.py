@@ -103,6 +103,7 @@ def check() -> list:
     # checks) sells 20.4 Mt at its own cost and needs 0.79 million m2 (was 0.48 million for 18.3 Mt): still short of the central
     # switch, but no longer under 0.6 of it. The bound is now 0.9 of the switch; the note says 0.79 million and that it does not cross
     # 2026-11-24: its whole sales (68.9 Mt a year) need 2.7 million m2, 2.7 times the switch: they cross it
+    # 2026-11-27 (nutrient balance): 68.9 -> 68.5 Mt a year, 2.66 -> 2.64 million m2; rests at $6.25 -> $6.30, 22.59% -> 22.44%
     if not 2.0 * st["switch_m2"] < s["start"][("best", "central")]["whole_area_m2"] < 3.5 * st["switch_m2"]:
         fails.append("the all-favourable example's whole sales no longer need two to three and a half times the membrane switch; rewrite the note")
     # 2026-11-19 second round: a switch at 3 million m2 is again below what the low-lactate example's sales need (4.86 million), so with slow

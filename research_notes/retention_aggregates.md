@@ -2,6 +2,8 @@
 
 > Names (2026-11-19): the low-lactate example was earlier called Central; the all-favourable example was earlier called the best case. Cells are described by their traits, never as a named kind of cell.
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). Humbird's optimistic design and the all-favourable example rise by $0.05: aggregates $14.24 -> $14.30 and $7.39 -> $7.44 (range $6.93-10.30 -> $6.98-10.35), carriers in the all-favourable example $24.31 -> $24.36 (range $8.73-205.95 -> $8.78-206.00), against its dialyser-grade loop $6.97 -> $7.02. The low-lactate example's figures and the reference on carriers ($43.50) do not move. The conclusions are unchanged.
+
 > **Recomputed 2026-11-25 (the gas cap and loop thinning; `tests/test_retention.py` pins these).** In a tank with a column the
 > engine now takes the gas flow the cells tolerate as a cap and tries lower flows, and holds thinner a culture whose column loop
 > fails its checks. Thin cultures with gas to spare now bubble less, so fewer cells die: carriers $43.50 / $94.66 / $24.31 (were

@@ -60,10 +60,12 @@ def _check_current() -> list:
            "lean, drained and refilled": pi.cost_per_kg("lean", mode="filldraw")["total"],
            "yeast plant with additions, drained and refilled": pi.cost_per_kg("yeastplus", mode="filldraw")["total"],
            "sterile plant, drained and refilled": pi.cost_per_kg("floor", mode="filldraw")["total"]}
-    want = {"sterile plant": 15.72, "sterile plant at 0.2% a day": 16.03, "yeast-style class": 10.72,
-            "yeast plant with additions": 10.92, "lean plant": 12.83, "lean, 0.6% a day": 13.54, "lean, 1.5% a day": 14.65,
-            "lean, 5% a day": 19.51, "lean, 1.5% a day, 30-day restart": 16.09, "lean, drained and refilled": 12.00,
-            "yeast plant with additions, drained and refilled": 9.05, "sterile plant, drained and refilled": 16.51}
+    # 2026-11-27 (nutrient balance): every figure +$0.05 or +$0.06 (sterile plant 15.72 -> 15.78, lean 12.83 -> 12.88,
+    # yeast plant with additions drained and refilled 9.05 -> 9.11); the break-even loss rates are unchanged
+    want = {"sterile plant": 15.78, "sterile plant at 0.2% a day": 16.09, "yeast-style class": 10.77,
+            "yeast plant with additions": 10.97, "lean plant": 12.88, "lean, 0.6% a day": 13.59, "lean, 1.5% a day": 14.71,
+            "lean, 5% a day": 19.57, "lean, 1.5% a day, 30-day restart": 16.14, "lean, drained and refilled": 12.05,
+            "yeast plant with additions, drained and refilled": 9.11, "sterile plant, drained and refilled": 16.56}
     for k, w in want.items():
         if abs(got[k] - w) > 0.006:
             fails.append(f"current figures, {k}: want ${w:.2f} got ${got[k]:.2f}")

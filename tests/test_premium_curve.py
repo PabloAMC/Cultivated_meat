@@ -64,6 +64,7 @@ def check() -> list:
     # ABOVE its favourable end again (1.35 times it). A correct consequence: at $7.62 a kilo of cells the products in the world
     # market are at 0.35 to 2.9 times their meat's price (beef cuts, premium seafood and dearer below it), where the model's level
     # at equal price (14.4% of meat buyers) sits above the premium labels' 8.7% and its spread of liking holds more shoppers.
+    # 2026-11-27 (nutrient balance): 20.52% -> 20.38% against 2.31% -> 2.29% anchored (3.69% -> 3.66% favourable end): still 8.9 and 5.6 times
     mb = s["model_share"]["best"]
     # 2026-11-21 (fourth batch): 5.58% against 2.33% anchored (1.02-3.73%): 2.4 times, and 1.50 times the favourable end (upper
     # bound widened from 1.5 to 1.6, which 5.58 / 3.73 = 1.496 sat on)

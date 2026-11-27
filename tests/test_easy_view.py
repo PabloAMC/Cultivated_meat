@@ -660,7 +660,7 @@ def _check_start(probe: dict, html: str, vis: str) -> list:
             # engine's own value at his design: his growth factors bought at his price, glucose from his cell's own balance, no fat fed,
             # no lost runs, the engine's restart after a loss and run length, his top pressure, the column's design outlet, the
             # dissolved oxygen his oxygen supply implies, and the model's pH
-            "gf_buy": 100.0, "glc_kg": py["lac_kg"] / tr["lac_yield"], "fat_fed": 0.0, "hazard": 0.0,
+            "gf_buy": 100.0, "glc_kg": py["lac_kg"] / tr["lac_yield"], "fat_fed": 0.0, "lipid_share": 15.0, "hazard": 0.0,
             "restart_fail": value("pf_run_days") * (1.0 / value("pf_uptime_realistic") - 1.0), "run_days": value("pf_run_days"),
             "p_top": value("ge_p_top_base"), "col_pout": value("ge_col_pout"),
             "do_mmol": __import__("gas_exchange").headspace_pressure()["c_liquid_implied"], "ph": value("pf_ph")}

@@ -1,5 +1,7 @@
 # How thick can a stirred or airlift culture be?
 
+> Repinned 2026-11-27 (the nitrogen and carbon balance: each case's cells are charged the amino acids their ammonia takes and the glucose they ferment; a cleaning route's dialysate is floored at the case's own nutrients). Only the all-favourable example moves, by $0.05 at every cap: its own design $6.97 -> $7.02, at 180 g/L $7.44 -> $7.49 fixed and $7.20 -> $7.25 checked. The conclusions are unchanged.
+
 > **2026-11-25.** The model now chooses the gas flow up to the cap the cells tolerate, and holds a culture thinner by itself
 > when its column loop fails its checks. The section 7 table is recomputed. Two scenarios now bubble less gas and lose fewer
 > cells: the shared-medium plant $44.53 -> $43.92 (125 g/L), the cautious case $181.13 -> $179.90 (109 g/L). The others do not
@@ -200,8 +202,8 @@ applied (since 2026-11-25 the model itself chooses the gas flow and thins a fail
 
 | scenario | 180 | 258 (model) | 320 | 400 |
 |---|---|---|---|---|
-| All-favourable example, fixed | 7.44 (180) | **6.97** (219; its own limit is 320) | 6.97 (219) | 6.97 (219) |
-| All-favourable example, checked | 7.20 (180; recycled oxygen, squat) | 6.97 (219) | 6.97 (219) | 6.97 (219) |
+| All-favourable example, fixed | 7.49 (180) | **7.02** (219; its own limit is 320) | 7.02 (219) | 7.02 (219) |
+| All-favourable example, checked | 7.25 (180; recycled oxygen, squat) | 7.02 (219) | 7.02 (219) | 7.02 (219) |
 | Low-lactate example, fixed and checked | 48.68 (168) | **48.68** (168) | 48.68 (168) | 48.68 (168) |
 | Low-lactate example, shared medium, fixed and checked | 43.92 (125) | **43.92** (125) | 43.92 (125) | 43.92 (125) |
 | Cautious, fixed and checked | 179.90 (109) | **179.90** (109) | 179.90 (109) | 179.90 (109) |

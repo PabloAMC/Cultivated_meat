@@ -83,10 +83,14 @@ def _check_current() -> list:
     # the checks); within the checks at 1 / 2 / 4 mm/s 27.49 -> 17.81, 17.22 -> 15.38, 14.92 -> 14.75 (the recycled-oxygen
     # column held thinner now beats the CO2 column); every trick: best meat cells 100.55 -> 95.10, ordinary cells
     # 138.77 -> 134.18, low-waste feed 30.01 -> 30.52 (each loop was overloaded at 258 g/L and is now held where it passes)
-    want = {"floor": 15.72, "12.5 mm/s": 15.76, "cheapest tricks at 1 mm/s": 17.81, "cheapest tricks at 2 mm/s": 15.38,
-            "cheapest tricks at 6 mm/s": 14.49, "cheapest within the checks at 1 mm/s": 17.81,
-            "cheapest within the checks at 2 mm/s": 15.38, "cheapest within the checks at 4 mm/s": 14.75,
-            "cheapest within the checks at 6 mm/s": 14.49, "best meat cells, sparger": 105.03, "best meat cells, fat fed": 73.20,
+    # 2026-11-27 (nutrient balance): the floor's cells now pay for the glucose they ferment, +$0.05 to +$0.06 on every case of
+    # the floor's cell: floor 15.72 -> 15.77, 12.5 mm/s 15.76 -> 15.82, cheapest tricks at 1 / 2 / 6 mm/s 17.81 -> 17.86,
+    # 15.38 -> 15.43, 14.49 -> 14.54, within the checks at 4 mm/s 14.75 -> 14.80. The other cells did not move: litres x price
+    # already exceed what they eat
+    want = {"floor": 15.77, "12.5 mm/s": 15.82, "cheapest tricks at 1 mm/s": 17.86, "cheapest tricks at 2 mm/s": 15.43,
+            "cheapest tricks at 6 mm/s": 14.54, "cheapest within the checks at 1 mm/s": 17.86,
+            "cheapest within the checks at 2 mm/s": 15.43, "cheapest within the checks at 4 mm/s": 14.80,
+            "cheapest within the checks at 6 mm/s": 14.54, "best meat cells, sparger": 105.03, "best meat cells, fat fed": 73.20,
             "best meat cells, every trick": 95.10, "ordinary cells, sparger": 141.91, "ordinary cells, every trick": 134.18,
             "low-waste feed, sparger": 32.05, "low-waste feed, every trick": 30.52}
     for k, w in want.items():
@@ -272,7 +276,8 @@ def _check() -> list:
     # --- explore(): every cap, the liquid levers, the tricks as levers (the page mirrors these) -------------
     r0 = fp.explore()
     # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 14.052 -> 13.843
-    near("explore: default floor", r0["total"], 13.843, 0.001)            # 11.78 before 2026-11-20; 14.148 before the final model
+    # 2026-11-27 (nutrient balance): 13.843 -> 13.896 (the floor's cells pay for the glucose they ferment)
+    near("explore: default floor", r0["total"], 13.896, 0.001)            # 11.78 before 2026-11-20; 14.148 before the final model
     # the litres per kilo grown are what they were (11.16); explore reports them per kilo harvested (12.38)
     near("explore: default medium, per kilo grown, unchanged", r0["medium_l"] * r0["harvested_share"], 11.16, 1e-6)
     near("explore: default medium, per kilo harvested", r0["medium_l"], 12.379, 1e-4)
@@ -283,7 +288,11 @@ def _check() -> list:
         fails.append("explore: limits or medium terms missing at the floor")
     if abs(r0["limits"][r0["limit"]] - r0["density"]) > 1e-9 or min(r0["limits"].values()) != r0["density"]:
         fails.append("explore: the binding limit must be the smallest cap")
-    ex = fp.explore(nh3_kg=value("pf_nh3_efficient"), lac_yield=0.5, glc_kg=value("pf_glc_kg"))
+    # 2026-11-27 (nutrient balance): the floor's glucose now comes from its carbon balance (2.00 mol a kilo with the lactate it
+    # ferments), not pf_glc_kg (1.116 mol), so the explicit wastes reproduce the floor with that glucose and the same 0.558 mol
+    # of lactate. With glc_kg = pf_glc_kg the case eats 0.16 kg less glucose and costs $0.07 less
+    g_floor = r0["glc_taken_kg"] * 1000.0 / value("ml_glc_mw")
+    ex = fp.explore(nh3_kg=value("pf_nh3_efficient"), lac_yield=value("pf_lac_efficient") / g_floor, glc_kg=g_floor)
     near("explicit wastes at the enhanced cell reproduce the floor", ex["total"], r0["total"], 1e-9)
     near("pf_glc_kg times 0.5 is the enhanced lactate", 0.5 * value("pf_glc_kg"), value("pf_lac_efficient"), 1e-3)
     s0 = fp.explore(nh3_kg=0.70, sorbent=0.0)
@@ -316,7 +325,11 @@ def _check() -> list:
     # 8.624 -> 10.184, 32.603 -> 33.025, 37.349 -> 39.159; sanitary 0.002 GE 8.758 -> 10.357; microbial 0.0 GE 6.128 -> 6.869,
     # 27.813 -> 27.987; microbial 0.006 GE 6.341 -> 7.136; microbial 0.022 GE 6.928 -> 7.875, 30.624 -> 30.908; no GE: sanitary
     # 0.0 12.223 -> 13.863, sanitary 0.002 12.371 -> 14.051, microbial 0.0 9.727 -> 10.549, microbial 0.022 10.68 -> 11.716
-    pins = [('sanitary', 0.0, True, 0, 0, 13.843), ('sanitary', 0.0, True, 0, 1, 11.908), ('sanitary', 0.0, True, 0, 2, 11.817), ('sanitary', 0.0, True, 0, 3, 10.184), ('sanitary', 0.0, True, 1, 0, 39.043), ('sanitary', 0.0, True, 1, 3, 33.025), ('sanitary', 0.0, True, 1, 1, 28.653), ('sanitary', 0.0, True, 2, 0, 43.75), ('sanitary', 0.0, True, 2, 3, 39.159), ('sanitary', 0.002, True, 0, 0, 14.108), ('sanitary', 0.002, True, 0, 3, 10.357), ('microbial', 0.0, True, 0, 0, 8.477), ('microbial', 0.0, True, 0, 3, 6.869), ('microbial', 0.0, True, 1, 3, 27.987), ('microbial', 0.006, True, 0, 3, 7.136), ('microbial', 0.022, True, 0, 0, 9.936), ('microbial', 0.022, True, 0, 3, 7.875), ('microbial', 0.022, True, 1, 3, 30.908), ('sanitary', 0.0, False, 0, 0, 17.683), ('sanitary', 0.0, False, 0, 3, 13.863), ('sanitary', 0.002, False, 0, 3, 14.051), ('microbial', 0.0, False, 0, 3, 10.549), ('microbial', 0.022, False, 0, 3, 11.716)]
+    # 2026-11-27 (nutrient balance): the floor's cell (cell row 0, genetic engineering allowed) +$0.05 to +$0.06 in every tank
+    # but the fed-fat one: 13.843 -> 13.896, 11.817 -> 11.871, 10.184 -> 10.237, 14.108 -> 14.161, 10.357 -> 10.41, 8.477 -> 8.53,
+    # 6.869 -> 6.922, 7.136 -> 7.189, 9.936 -> 9.991, 7.875 -> 7.93. The other cells, and the fed-fat tank (11.908), did not move:
+    # their litres x price already exceed what they eat
+    pins = [('sanitary', 0.0, True, 0, 0, 13.896), ('sanitary', 0.0, True, 0, 1, 11.908), ('sanitary', 0.0, True, 0, 2, 11.871), ('sanitary', 0.0, True, 0, 3, 10.237), ('sanitary', 0.0, True, 1, 0, 39.043), ('sanitary', 0.0, True, 1, 3, 33.025), ('sanitary', 0.0, True, 1, 1, 28.653), ('sanitary', 0.0, True, 2, 0, 43.75), ('sanitary', 0.0, True, 2, 3, 39.159), ('sanitary', 0.002, True, 0, 0, 14.161), ('sanitary', 0.002, True, 0, 3, 10.41), ('microbial', 0.0, True, 0, 0, 8.53), ('microbial', 0.0, True, 0, 3, 6.922), ('microbial', 0.0, True, 1, 3, 27.987), ('microbial', 0.006, True, 0, 3, 7.189), ('microbial', 0.022, True, 0, 0, 9.991), ('microbial', 0.022, True, 0, 3, 7.93), ('microbial', 0.022, True, 1, 3, 30.908), ('sanitary', 0.0, False, 0, 0, 17.683), ('sanitary', 0.0, False, 0, 3, 13.863), ('sanitary', 0.002, False, 0, 3, 14.051), ('microbial', 0.0, False, 0, 3, 10.549), ('microbial', 0.022, False, 0, 3, 11.716)]
     tabs = {}
     for plant, hz, genetic, ci, tj, want in pins:
         tabs.setdefault((plant, hz, genetic), ge.cases_table(plant, hz, genetic=genetic))
@@ -352,11 +365,11 @@ def _check() -> list:
     near("note: lactate could supply this share of the energy", lr["share_of_energy"], 0.021, 0.03)
 
     # final model: 11.99 -> 12.51 and 11.704 -> 12.207 (at depth = width oxygen now binds at 153 g/L)
-    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 12.340, 0.002)   # 12.51 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)
-    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 12.037, 0.002)   # 12.207 before
+    near("note: page shape lever at depth = width includes steel", fp.explore(aspect=1.0)["total"], 12.395, 0.002)   # 2026-11-27 (nutrient balance): 12.340 -> 12.395;   # 12.51 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)
+    near("shape cost off reproduces the shape-free figure", fp.explore(aspect=1.0, shape_cost=False)["total"], 12.092, 0.002)   # 12.207 before; 12.037 before 2026-11-27 (nutrient balance)
 
     # --- circulation and the pH rule (review of PR 10) -------------------------------------------------------
-    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 11.817, 0.002)   # 11.982 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)   # 10.468 before the final model
+    near("default column strips to 55 mbar", fp.explore(column="co2")["total"], 11.871, 0.002)   # 11.817 before 2026-11-27 (nutrient balance)   # 11.982 before 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo)   # 10.468 before the final model
     # final model: the column alone stops at 153 g/L (oxygen), so 11.1 -> 5.34 passes an hour and 0.92 -> 0.44 of the safe dose
     # 2026-11-25 (the gas cap and loop thinning): these figures describe each design HELD FIXED at the density its other limits
     # allow (how far past the checks the oxygen column runs at 258 g/L), so they run with _gas_search=False: the sparger at
@@ -376,7 +389,8 @@ def _check() -> list:
     # 2026-11-21 (the building's power by floor and class, the floor's glucose 0.32 -> 0.311 kg a kilo): 21.972 / 14.622 / 11.481 / 9.478 / 9.093 / 6.605 before
     # 2026-11-25 (the gas cap and loop thinning): 21.622 / 14.401 / 11.332 / 9.373 / 8.811 / 6.472 before. A design whose loop
     # failed the checks was dropped; it is now held thinner and kept, so the constrained figures fell (the oxygen column, 1 bar)
-    for cap, plant, want in ((0.001, 'sanitary', 15.562), (0.002, 'sanitary', 12.467), (0.004, 'sanitary', 9.737), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 7.723), (0.006, 'microbial', 6.472)):
+    # 2026-11-27 (nutrient balance): 15.562 / 12.467 / 9.737 / 9.373 / 7.723 / 6.472 before
+    for cap, plant, want in ((0.001, 'sanitary', 15.612), (0.002, 'sanitary', 12.519), (0.004, 'sanitary', 9.792), (0.006, 'sanitary', 9.429), (0.002, 'microbial', 7.775), (0.006, 'microbial', 6.528)):
         b = ge.cheapest_tricks(cap, plant, ph_safe=True, tested=True)
         near(f"note: cheapest within pH and tested passes, {cap * 1000:.0f} mm/s {plant}", b["total"], want, 0.002)
         if b["column"] is not None and (b["column"]["ph_vs_safe"] > 1 + 1e-9 or not b["column"]["passes_tested"]):
@@ -406,7 +420,8 @@ def _check() -> list:
     # 2026-11-25 (the gas cap and loop thinning): 8.426 / 8.397 / 8.624 / 6.038 / 6.128 before. Those ran the oxygen column at
     # 258 g/L far past its checks (61 passes an hour at 2 mm/s, 5.2 times the safe pH dose) and priced it as if it coped; every
     # design now runs a loop that passes, so these equal the constrained figures above.
-    for cap, plant, want in ((0.001, 'sanitary', 15.562), (0.002, 'sanitary', 12.467), (0.006, 'sanitary', 9.373), (0.002, 'microbial', 7.723), (0.006, 'microbial', 6.472)):
+    # 2026-11-27 (nutrient balance): 15.562 / 12.467 / 9.373 / 7.723 / 6.472 before
+    for cap, plant, want in ((0.001, 'sanitary', 15.612), (0.002, 'sanitary', 12.519), (0.006, 'sanitary', 9.429), (0.002, 'microbial', 7.775), (0.006, 'microbial', 6.528)):
         near(f"note: cheapest tricks at {cap * 1000:.0f} mm/s, {plant}", ge.cheapest_tricks(cap, plant)["total"], want, 0.002)
     # 2026-11-25: was "the thickness binds at every gas flow, the bubbles kill more the more gas, 2 mm/s is cheapest and 6 mm/s
     # costs under $0.30 more". That held only with overloaded loops. Now the gas the cells tolerate is a cap the engine may run

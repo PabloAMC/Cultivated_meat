@@ -16,7 +16,7 @@ share, differ enormously by meat type:
 
 BUT price is only half the story. Shoppers like a cultivated CUT less than cultivated mince (tier_offset below):
   * mince and other unstructured products: no offset (a nugget has no "genuine article" to miss);
-  * every cut: a cut is part plant protein, so it gets that much less of the real-meat credit;
+  * every cut: a cut is part plant protein, so it loses part of the real-meat credit (blend_kept);
   * premium cuts (wagyu, sushi-grade fish): a further penalty that grows with how far the product's price sits above its
     species' cheapest form, because part of what the buyer pays for is the genuine article.
 Every product uses the model's own price sensitivity. So cultivated meat is cheapest, against the conventional product,
@@ -70,7 +70,7 @@ class MeatType:
 #
 #   * BASIC everyday meat (mince/ground/processed, cheap): cultivated is price-UNcompetitive but liked as much as the
 #     model's reference product: a nugget has no "genuine article" to miss. No offset.
-#   * CUTS: a cut is part plant protein, so shoppers give it that much less of the real-meat credit.
+#   * CUTS: a cut is part plant protein, so shoppers give it less of the real-meat credit (blend_kept).
 #   * PREMIUM meat (structured, dear: sushi, fine cuts): cultivated is price-COMPETITIVE (R<1) but part of what the buyer
 #     pays for is the genuine article. A further penalty, growing with the product's price against its species' cheapest form.
 #
@@ -110,23 +110,33 @@ def premium_ramp(mt: "MeatType", base: float) -> float:
     return float(x) if np.ndim(x) == 0 else x
 
 
-def tier_offset(mt: "MeatType", base: float, resistance, pr, cell_share=None, premium_extra=None):
+def blend_kept(cell_share, curve=None):
+    """The share of the real-meat credit a product keeps when `cell_share` of it is cells and the rest plant protein:
+    cell_share ** curve. curve = None for the input blend_curve (1.2, from labelled choice among beef, 50/50 and plant burgers:
+    research_notes/hybrid_demand_evidence.md); 1 is the linear rule used until 2026-11-27. Above 1 a blend keeps less than its
+    share of cells; below 1 (blind tastings) more. Scalars or per-draw arrays."""
+    g = value("blend_curve") if curve is None else curve
+    return np.asarray(cell_share, dtype=float) ** g if (np.ndim(cell_share) or np.ndim(g)) else float(cell_share) ** float(g)
+
+
+def tier_offset(mt: "MeatType", base: float, resistance, pr, cell_share=None, premium_extra=None, blend_curve=None):
     """Utils added to cultivated meat's utility for this product (market_share.share's tier_offset), against cultivated mince.
       mince and other unstructured products: 0.
       a structured product: BLEND + PREMIUM, with
-        BLEND   = -(1 - cell_share) x pr.w_realtissue_M: the cut is part plant protein, so it gets that much less of the
-                  mainstream real-meat credit of the calibrated demand model `pr` (at 80% cells about -0.45). Not scaled by
-                  `resistance`.
+        BLEND   = -(1 - blend_kept(cell_share)) x pr.w_realtissue_M: the cut is part plant protein, so it loses part of the
+                  mainstream real-meat credit of the calibrated demand model `pr`. At 80% cells it keeps 0.8 ** 1.2 = 0.77 of
+                  it. Not scaled by `resistance`.
         PREMIUM = resistance x premium_extra x premium_ramp(mt, base): what buyers of premium products hold against a
                   cultivated version, continuous in price.
     cell_share    = kg of cells in a kg of cut, THE SAME figure the cut's cost uses (None = 1 - inputs.py's scaffold_frac).
     premium_extra = None for inputs.AUTH_PREMIUM_EXTRA (the page's slider overrides it).
-    `resistance` and `cell_share` may be scalars or per-draw arrays."""
+    blend_curve   = the exponent of blend_kept (None = the input blend_curve).
+    `resistance`, `cell_share` and `blend_curve` may be scalars or per-draw arrays."""
     if mt.scaffold == 0:
         return 0.0
     cs = 1.0 - value("scaffold_frac") if cell_share is None else cell_share
     extra = AUTH_PREMIUM_EXTRA if premium_extra is None else premium_extra
-    return -(1.0 - cs) * pr.w_realtissue_M + resistance * extra * premium_ramp(mt, base)
+    return -(1.0 - blend_kept(cs, blend_curve)) * pr.w_realtissue_M + resistance * extra * premium_ramp(mt, base)
 
 # Prices: GlobalProductPrices (Jan 2026) + USDA/BLS (US); mixes: USDA ERS (US),
 # FAO/OECD (regional). Cultivated cost is ~global; the LOCAL price it competes
@@ -436,7 +446,7 @@ class _Scaled:
 def penetration(market, biomass: float, theta_free_M: float = 0.0,
                 accept_x: float = 1.0, markup=None, income=None, premium_resistance=None,
                 premium_extra=None, pr=None, cell_share=None, assembly=None, closed=None, supply_elast=None,
-                displaced=None):
+                displaced=None, blend_curve=None):
     """Per-type (R, cultivated share) and the volume- and value-weighted totals.
 
     biomass      = cultivated biomass cost $/kg (the shared numerator input).
@@ -451,6 +461,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
     cell_share   = kg of cells in a kg of cut (None = 1 - inputs.py's scaffold_frac): sets BOTH the cut's cost and how much
                    less shoppers like it than a product that is all cells.
     assembly     = what assembling a cut costs, $/kg (None = inputs.py's process_cost, carried by each type).
+    blend_curve  = the exponent of the blend rule (blend_kept; None = the input blend_curve).
     displaced    = kg of conventional meat not bought for each kg sold (None = the input meat_displaced_per_kg): it sets only
                    conventional meat's price fall (_rollup), not the shares themselves.
     The per-product offset enters as share()'s tier_offset (in utils); every product uses pr's own price sensitivity.
@@ -462,7 +473,7 @@ def penetration(market, biomass: float, theta_free_M: float = 0.0,
 
     def share_of(mt, R, base, res):                                # per-type cultivated share
         return share(R, pr, theta_free_M=theta_free_M, accept_x=accept_x,
-                     tier_offset=tier_offset(mt, base, res, pr, cs, premium_extra), income=income,
+                     tier_offset=tier_offset(mt, base, res, pr, cs, premium_extra, blend_curve), income=income,
                      p_ref=mt.p_conv, which="x_meat")   # share of the meat sold (x / (x + c)), since 2026-11-19        # absolute price uses THIS cut's conventional price (chicken vs chicken, steak vs steak)
 
     rows, tot_vol, tot_val = _rollup(market, biomass, markup, res, share_of, cell_share=cs, assembly=assembly, closed=closed,
@@ -503,7 +514,7 @@ def monte_carlo(region: str, n: int = 10000, seed: int = 0, biomass=None, equal_
     cell_share = 1.0 - s["scaffold_frac"]       # per-draw kg of cells in a kg of cut: the cut's cost AND its liking
 
     def share_of(mt, R, b, res):                # per-draw cultivated share array for this type
-        toff = np.broadcast_to(tier_offset(mt, b, res, base, cell_share), (n,))   # per-draw (utils)
+        toff = np.broadcast_to(tier_offset(mt, b, res, base, cell_share, blend_curve=s["blend_curve"]), (n,))   # per-draw (utils)
         # taste (accept_x) is not drawn since 2026-11-20: it is held at its point value (equal_price_share is the net of it)
         # share(R[i], base, tier_offset=toff[i], eps_own=..., kappa=..., income, p_ref=mt.p_conv, equal_share=..., which="x_meat")
         # for every draw at once (novelty, no-slaughter, health: in equal_price_share); tests/test_share_many.py checks it is that

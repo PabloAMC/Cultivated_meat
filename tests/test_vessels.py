@@ -36,8 +36,11 @@ GOLDEN_REF = {
     # flow now caps an unwashed tank at pf_batch_end_x times its level, 120 g/L not 92, so CO2 and the waste hold them; and the
     # building's power by floor and class), chemostat 37.4347 -> 36.6689, perfusion 15.9293 -> 15.7207, airlift fed-batch
     # 39.1422 -> 38.3548, airlift perfusion 30.4806 -> 29.9640 (the building's power, labour per tank, the floor's glucose)
-    ("stirred", "batch"): 70.4820, ("stirred", "fedbatch"): 17.3153, ("stirred", "filldraw"): 16.5048,
-    ("stirred", "chemostat"): 36.6689, ("stirred", "perfusion"): 15.7207,
+    # 2026-11-27 (nutrient balance): Humbird's cells pay for the glucose they ferment: fed-batch 17.3153 -> 17.3683, fill-and-draw
+    # 16.5048 -> 16.5577, perfusion 15.7207 -> 15.7738. Batch, chemostat and the airlift do not move (litres x price exceed what
+    # the cells eat)
+    ("stirred", "batch"): 70.4820, ("stirred", "fedbatch"): 17.3683, ("stirred", "filldraw"): 16.5577,
+    ("stirred", "chemostat"): 36.6689, ("stirred", "perfusion"): 15.7738,
     ("airlift", "fedbatch"): 38.3548, ("airlift", "perfusion"): 29.9640,
     ("packed", "filldraw"): None, ("hollow", "chemostat"): None,
 }
@@ -57,7 +60,8 @@ GOLDEN_REF = {
 # cells die). The airlift in perfusion first moved to 50.8826 (it bubbled 1 mm/s against its 4 mm/s cap while still held to the
 # stirred tank's mixing rule, which vessels.VESSELS["airlift"] justifies by the gas power of 4-6 mm/s); its gas mixes it, so it now
 # keeps the cap (vm "gas_mixes", skipped by explore's gas choice) and stays at 52.7303
-GOLDEN_CENTRAL = {("stirred", "perfusion"): 48.6815, ("stirred", "fedbatch"): 69.9004, ("airlift", "perfusion"): 52.7303}
+# 2026-11-27 (nutrient balance): stirred fed-batch (rung 3) 69.9004 -> 70.0156; perfusion and the airlift do not move
+GOLDEN_CENTRAL = {("stirred", "perfusion"): 48.6815, ("stirred", "fedbatch"): 70.0156, ("airlift", "perfusion"): 52.7303}
 
 
 def close(a, b, tol=1e-3):

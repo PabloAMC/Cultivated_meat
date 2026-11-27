@@ -1406,9 +1406,29 @@ def markdown_table() -> str:
     return "\n".join(out)
 
 
+def measures_table() -> str:
+    """The reference points in the measures other cost models report (2026-11-27; floor_physics.explore's `metrics`): the cost of a
+    kilo of wet cells, of its dry matter and of its protein, the amino acids and glucose per kilo of dry matter and per kcal of cells,
+    the litres of medium, and the plant's capital per tonne of cells a year. At most likely values. RESULTS.md and METHODS.md quote it."""
+    out = ["| reference point | $/kg of cells (70% water) | $/kg of dry matter | $/kg of protein | amino acids, g/kg grown | "
+           "glucose, g/kg grown | amino-acid nitrogen kept in the cells | amino acids and glucose, kg per kg of dry matter | "
+           "amino acids and glucose, kcal per kcal of cells | medium, L/kg | "
+           "plant to build, $ per tonne a year |", "|---|---|---|---|---|---|---|---|---|---|---|"]
+    rows = [(SCENARIOS[k].name, run(SCENARIOS[k].choice)) for k in LADDER] + [(REFERENCE_NAME, reference())]
+    for name, r in rows:
+        m = r["metrics"]
+        out.append(f"| {name} | ${r['total']:.2f} | ${m['cost_dry']:.1f} | ${m['cost_protein']:.1f} | {r['aa_kg'] * 1000:.0f} | "
+                   f"{r['glc_taken_kg'] * 1000:.0f} | {r['n_kept'] * 100:.0f}% | {m['fcr_dry']:.2f} | {m['fcr_energy']:.2f} | "
+                   f"{r['medium_l']:.0f} | ${m['capex_t_yr']:,.0f} |")
+    return "\n".join(out)
+
+
 # ----------------------------------------------------------------------------
 def main() -> None:
     import sys
+    if "--measures" in sys.argv:
+        print(measures_table())
+        return
     if "--markdown" in sys.argv:
         print(markdown_table())
         return

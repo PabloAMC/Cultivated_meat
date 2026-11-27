@@ -35,7 +35,8 @@ ref = S.reference()
 # since 2026-11-20 (final pass) each tank brings its own plant items (floor_physics.tank_items, capex_at_size) and the harvested
 # share scales every cost line: $15.93
 # 2026-11-21: 15.9293 -> 15.7207 (the building's power follows its floor and class: a sanitary hall draws 50 W per m2, not 410)
-check(abs(ref["total"] - 15.7207) < 5e-3, f"reference cost {ref['total']:.4f} != 15.7207 (explore() defaults moved)")
+# 2026-11-27: 15.7207 -> 15.7738 (the nitrogen and carbon balance: Humbird's enhanced cells make 0.56 mol of lactate a kilo and eat for it)
+check(abs(ref["total"] - 15.7738) < 5e-3, f"reference cost {ref['total']:.4f} != 15.7738 (explore() defaults moved)")
 check(ref["limit"] == "CO2 removal" and abs(ref["density"] - 120.0) < 1.0, "reference: 120 g/L limited by CO2 removal")
 
 # 2. the scenarios come out in order, with the numbers quoted in the docs
@@ -328,6 +329,10 @@ for lab, md, docs in (("what it would take", S.what_it_would_take_markdown(), ("
         for ln in md.splitlines():
             if ln.strip():
                 check(ln in text, f"{fname} does not carry the {lab} table line: {ln[:80]}")
+# 2026-11-27: the reference points in the measures other cost models report, as RESULTS.md carries them (scenarios.measures_table)
+_rt = open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read()
+for ln in S.measures_table().splitlines():
+    check(ln in _rt, f"RESULTS.md does not carry the measures table line: {ln[:80]}")
 check("forecast for 2035" not in open(os.path.join(MODEL_DIR, "RESULTS.md"), encoding="utf-8").read().split("## 1.")[0].lower(),
       "the Summary should not lead with a forecast (the author's direction, 2026-11-19)")
 

@@ -390,7 +390,7 @@ function tpShare(cost,b,region){
 const TP_CF=new WeakMap();
 function tpCostFor(target,b,region){
   if(!TP_CF.has(KP)) TP_CF.set(KP,{});
-  const M=TP_CF.get(KP), key=target+"|"+b.toFixed(6)+"|"+(region||state.region)+"|"+state.income+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells+"|"+state.mk_supply+"|"+state.closed_level+"|"+state.closed_custom+"|"+state.meat_displaced;
+  const M=TP_CF.get(KP), key=target+"|"+b.toFixed(6)+"|"+(region||state.region)+"|"+state.income+"|"+state.markup_add+"|"+state.retail_margin+"|"+state.cut_cells+"|"+state.blend_curve+"|"+state.mk_supply+"|"+state.closed_level+"|"+state.closed_custom+"|"+state.meat_displaced;
   if(key in M) return M[key];
   return M[key]=tpCostForRaw(target,b,region);
 }
@@ -1196,7 +1196,7 @@ function tpRenderControls(f){
     if(q.kind==="fin"){ const F=tpFin(SCS), i=(hd.fin_rate===undefined?F.rate:hd.fin_rate)/100, n=hd.fin_life===undefined?F.life:hd.fin_life, pay=(i>1e-9?i/(1-Math.pow(1+i,-n)):1/n)*100, ch=tpFinCharge(hd,SCS)*100;
       extra=q.key==="fin_upkeep"?" Yearly charge on the plant: "+pay.toFixed(1)+"% to pay it back with interest + "+(ch-pay).toFixed(1)+"% = "+ch.toFixed(1)+"% of what it cost to build.":(q.key==="fin_rate"?" With the years below, the yearly payment is "+pay.toFixed(1)+"% of the plant's cost.":""); }
     if(q.key==="do_mmol"){ const air=C.fx.ge.o2_henry*0.2095*1013; extra=" "+(v/air*100).toFixed(0)+"% of air saturation."; }
-    if(q.key==="fat_fed") extra=" The cells give off "+(C.fx.rq-C.fx.rq_lipid*v/100).toFixed(2)+" CO₂ per oxygen used.";
+    if(q.key==="fat_fed"||q.key==="lipid_share"){ const rr=f.cloud.res; extra=" The cells give off "+rr.rq.toFixed(2)+" CO₂ per oxygen used"+(rr.metrics?"; a kilo holds "+(rr.metrics.protein_kg*1000).toFixed(0)+" g of protein and "+(rr.metrics.lipid_kg*1000).toFixed(0)+" g of fat":"")+"."; }
     if(q.key==="col_pout"&&f.cloud.res.column) extra=" The column passes the culture "+f.cloud.res.column.passes.toFixed(0)+" times an hour.";
     { const cyc=!!(p.vm&&p.vm.kind==="cyclic"), why=(q.key==="col_pout"&&(!p.column||p.column==="none"))?"Not in use at these settings: there is no column beside the tank.":
         ((q.key==="restart_fail"||q.key==="run_days")&&cyc?"Not in use at these settings: a batch or fed-batch tank is set by its own cycle.":""), c=e&&e.parentNode;
@@ -1230,8 +1230,8 @@ function tpRenderControls(f){
   set("pl_med_v",(medNow<0.005?"at the nutrient floor":"$"+medNow.toFixed(2)+" a litre")+" (nutrient floor "+flT+" a litre)");
   const mk=document.getElementById("pl_med_mark"); if(mk) mk.outerHTML=tpMarkHTML(flL,0,1.40,"nutrient floor "+flT,"pl_med_mark");
   const mq=document.getElementById("pl_med_q"); if(mq&&mq.setAttribute) mq.setAttribute("data-tip","The nutrient liquid the cells grow in. Companies announce $0.20 a litre and report $0.30 to $0.50, with growth factors in that price. "+
-    "The nutrient floor is what the cells must eat: $"+r0.nutrients.toFixed(2)+" a kilo of cells (amino acids, "+Math.round(TP.cloud.aa_intensity*1000)+" g at $"+(C.fx.aa/TP.cloud.aa_intensity).toFixed(2)+" a kilo, feed grade, GFI December 2025, $"+C.fx.aa.toFixed(2)+
-    "; glucose, $"+(r0.nutrients-C.fx.aa-C.fx.other).toFixed(2)+", more for cells that burn more; salts, buffer and vitamins, $"+C.fx.other.toFixed(2)+"), "+
+    "The nutrient floor is what the cells must eat: $"+r0.nutrients.toFixed(2)+" a kilo of cells (amino acids, "+Math.round(r0.aa_kg*1000)+" g at $"+(C.fx.aa/TP.cloud.aa_intensity).toFixed(2)+" a kilo, feed grade, GFI December 2025, $"+(C.fx.aa*r0.aa_kg/TP.cloud.aa_intensity).toFixed(2)+
+    ": "+Math.round(TP.cloud.aa_intensity*1000)+" g hold the nitrogen of a kilo of cells and each mol of ammonia the cells release takes "+Math.round(1000/C.fx.aa_n_kg)+" g more; glucose, "+Math.round(r0.glc_taken_kg*1000)+" g, $"+(r0.nutrients-C.fx.aa*r0.aa_kg/TP.cloud.aa_intensity-C.fx.other).toFixed(2)+", more for cells that burn more or turn more into lactate; salts, buffer and vitamins, $"+C.fx.other.toFixed(2)+"), "+
     "over the "+mlGrown.toFixed(1)+" litres a kilo of cells grown needs here: "+flT+" a litre. It moves with the cells' traits. Growth factors are on top of it.");
   set("pl_med_s",(hd.medium_price===undefined?'':'<button type="button" class="lnk" onclick="tpFreeHeld(\'medium_price\')">Let it vary again</button> ')+
     "The nutrient floor: the $"+r0.nutrients.toFixed(2)+" of nutrients a kilo of cells must eat, over the "+mlGrown.toFixed(0)+" litres it takes to grow here, is "+flT+" a litre; growth factors are on top of it. "+
@@ -1592,6 +1592,10 @@ function tpCalcRender(f){
     (r.protectant>0.005?" Bubble protectant: "+m1(r.protectant)+".":"")+(r.growth_factors>0.005?" Growth factors bought on top: "+m1(r.growth_factors)+".":""));
   const rest=r.total-r.capital-r.feedstock-(r.membranes-cfm)-(r.device_running||0)-r.protectant-r.growth_factors-(r.clean_opex||0);
   st.push("<b>Labour, energy and other supplies.</b> Labour "+m1(r.labour)+", and "+m1(rest-r.labour)+" for energy, gas and supplies. Everything added up: <b>"+m1(r.total)+" a kilo of cells</b>.");
+  const mt=r.metrics;
+  if(mt) st.push("<b>The same kilo in the measures other cost models use.</b> A kilo of cells here is 70% water, "+(mt.protein_kg*1000).toFixed(0)+" g of protein and "+(mt.lipid_kg*1000).toFixed(0)+" g of fat ("+mt.kcal_kg.toFixed(0)+" kcal). So "+m1(r.total)+" a kilo is "+m1(mt.cost_dry)+" a kilo of dry matter and "+m1(mt.cost_protein)+" a kilo of protein. "+
+    "The cells take up "+(r.aa_kg*1000).toFixed(0)+" g of amino acids and "+(r.glc_taken_kg*1000).toFixed(0)+" g of glucose a kilo grown and keep "+(r.n_kept*100).toFixed(0)+"% of the amino acids' nitrogen: "+mt.fcr_dry.toFixed(1)+" kg of feed a kilo of dry matter, "+mt.fcr_energy.toFixed(1)+" kcal of feed a kcal of cells, in "+r.medium_l.toFixed(0)+" litres of medium. "+
+    "The plant costs $"+Math.round(mt.capex_t_yr).toLocaleString("en-US")+" to build for each tonne of cells it makes a year.");
   const shop=shelfPrice(f.cost,state);
   st.push("<b>In the shop.</b> ("+m1(f.cost)+" + "+m2(state.markup_add)+" to reach the shelf) ÷ (1 − the shop's "+(state.retail_margin*100).toFixed(0)+"% margin) = <b>"+m1(shop)+" a kilo as mince</b>.");
   const ms=tpMeats(), ty=f.animals.types;
@@ -1720,9 +1724,9 @@ function l2Rows(){
     if(j.key==="equal_price_share"){ const m=rg.map(tpBuyersOfDial); a=tpShare(base,m[0]); b=tpShare(base,m[1]);
       dem.push({kind:"judgement", id:"jd_"+j.key, name:"Meat buyers who would pick it at the same price, once familiar", lo:Math.min(a,b), hi:Math.max(a,b),
         loT:tpPctB(a<=b?m[0]:m[1]), hiT:tpPctB(a<=b?m[1]:m[0]), nowT:tpPctB(b0), why:j.why.replace("The range is the middle nine tenths of the draws for this case.","The range is the middle nine tenths of the model's draws, in meat buyers.")+" Set it under the map.", tag:"your assumption"}); return; }
-    if(j.key==="cut_cells"){ a=pgShareK(base,KP,{cut_cells:rg[0]}); b=pgShareK(base,KP,{cut_cells:rg[1]}); }
+    if(j.key==="cut_cells"||j.key==="blend_curve"){ a=pgShareK(base,KP,{[j.key]:rg[0]}); b=pgShareK(base,KP,{[j.key]:rg[1]}); }
     else { a=pgShareK(base,effConsts(Object.assign({},state,{[j.key]:rg[0]}))); b=pgShareK(base,effConsts(Object.assign({},state,{[j.key]:rg[1]}))); }
-    f=v=>j.fmt==="pct"?Math.round(v*100)+"%":(+v.toFixed(1))+" times";
+    f=v=>j.fmt==="pct"?Math.round(v*100)+"%":j.fmt==="num"?String(+v.toFixed(1)):(+v.toFixed(1))+" times";
     dem.push({kind:"judgement", id:"jd_"+j.key, name:j.name, lo:Math.min(a,b), hi:Math.max(a,b), loT:f(a<=b?rg[0]:rg[1]), hiT:f(a<=b?rg[1]:rg[0]),
       nowT:f(state[j.key]), why:j.why, tag:"a judgement about shoppers"}); });
   dem.sort((x,y)=>Math.log(Math.max(y.hi,1e-6)/Math.max(y.lo,1e-6))-Math.log(Math.max(x.hi,1e-6)/Math.max(x.lo,1e-6)));

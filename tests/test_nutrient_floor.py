@@ -28,7 +28,8 @@ def check() -> list:
     # 2026-11-20 final pass: the all-favourable example is now scenarios.all_favourable() (18.7144 -> 7.6209); the low-lactate
     # example 49.9616 -> 49.4977 (the fixes to bubble deaths and viscous oxygen transfer)
     # 2026-11-21 (Humbird back-test fixes, thinned tank designs, floor glucose): best 7.6209 -> 6.9686, central 49.4977 -> 48.6815
-    for k, want in (("best", 6.9686), ("central", 48.6815)):
+    # 2026-11-27 (the nitrogen and carbon balance): best 6.9686 -> 7.0205; central unchanged (litres x price binds)
+    for k, want in (("best", 7.0205), ("central", 48.6815)):
         if not close(S.run(S.SCENARIOS[k].choice)["total"], want, 1e-4):
             fails.append(f"{k}: default cost moved")
     # GFI's headline: amino acids below about $5 a kilo at low food-grade prices and the better bioconversion estimates
@@ -78,16 +79,60 @@ def check() -> list:
     # 2026-11-20 final pass: 18.7144, 21.6023, 65.7209 before (the all-favourable example redefined; viscous oxygen, bubble deaths)
     # 2026-11-21: 7.6209, 10.4139, 64.7523 before (the same causes)
     # 2026-11-25 (the gas cap and loop thinning): central high low 63.9312 -> 63.7218 (the engine thins the loop for this medium itself)
-    for (k, t, n), want in {("best", "feed", "eff"): 6.9686, ("best", "low", "mid"): 9.8644, ("central", "high", "low"): 63.7218}.items():
+    # 2026-11-27 (the nitrogen and carbon balance, and scenario_cost sets the need directly): best feed eff 6.9686 -> 7.0205,
+    # best low mid 9.8644 -> 9.9421, central high low 63.7218 -> 64.0478
+    for (k, t, n), want in {("best", "feed", "eff"): 7.0205, ("best", "low", "mid"): 9.9421, ("central", "high", "low"): 64.0478}.items():
         got = N.scenario_cost(k, t, n)["total"]
         if not close(got, want, 1e-3):
             fails.append(f"{k} {t} {n}: {got:.4f} != pinned {want}")
     # 2026-11-21: the floor's glucose is the mass balance's for Humbird's enhanced cell with no lactate (inputs glucose_intensity)
+    # 2026-11-27: and no ammonia, as the floor's amino acids are (nutrient_balance): 0.311 -> 0.3142
     import floor_physics as _fp
     from inputs import value as _v
-    g0 = _fp.glucose_balance(_fp.GOOD_CELLS.o2_per_kg * 1000.0 / 32.0, _v("pf_nh3_efficient"), 0.0) * 0.18016
+    g0 = _fp.glucose_balance(_fp.GOOD_CELLS.o2_per_kg * 1000.0 / 32.0, 0.0, 0.0) * 0.18016
     if abs(g0 - _v("glucose_intensity")) > 0.0015:
         fails.append(f"the floor's glucose {_v('glucose_intensity')} kg a kilo should be the balance's {g0:.4f} (no lactate)")
+    # 2026-11-27, the nitrogen and carbon balance (floor_physics.nutrient_balance):
+    # (1) at the floor the medium's amino acids carry the cells' nitrogen and no more: 0.232 kg x 12.30 mol/kg = 2.86 mol
+    n_cells = _v("ml_n_per_dry") * _v("ml_dry_mol_kg")
+    if abs(_v("aa_intensity") * _v("nb_aa_n_kg") / n_cells - 1.0) > 0.01:
+        fails.append(f"the floor's amino acids carry {_v('aa_intensity') * _v('nb_aa_n_kg'):.3f} mol N, not the cells' {n_cells:.3f}")
+    # (2) each mol of ammonia takes 1 / nb_aa_n_kg kg more amino acids, and the floor keeps all the nitrogen
+    nb0, nb1 = _fp.nutrient_balance(_fp.GOOD_CELLS), _fp.nutrient_balance(_fp.GOOD_CELLS, nh3=1.0)
+    if not close(nb1["aa_kg"] - nb0["aa_kg"], 1.0 / _v("nb_aa_n_kg"), 1e-9) or not close(nb0["n_kept"], 1.0, 0.01):
+        fails.append(f"amino acids per mol of ammonia {nb1['aa_kg'] - nb0['aa_kg']:.4f} kg, nitrogen kept at the floor {nb0['n_kept']:.3f}")
+    # (3) the carbon balance is glucose_balance with the lactate in mol: G = A + B + lactate / 2
+    for nh3, y in ((0.054, 0.28), (0.14, 1.05), (0.0, 0.0)):
+        o2 = _fp.GOOD_CELLS.o2_per_kg * 1000.0 / 32.0
+        g = _fp.glucose_balance(o2, nh3, y)
+        nb = _fp.nutrient_balance(_fp.GOOD_CELLS, nh3=nh3, lac=y * g)
+        if not close(nb["glc_mol"], g, 1e-9):
+            fails.append(f"carbon balance at NH3 {nh3}, Y {y}: {nb['glc_mol']:.4f} mol against glucose_balance's {g:.4f}")
+    # (4) cells that make waste eat more than the floor, and explore() charges what they eat
+    r = _fp.explore(nh3_kg=0.14, lac_yield=1.05, glc_balance=True, medium_price=0.0)
+    if not r["nutrients"] > _fp.feedstock(_fp.GOOD_CELLS) + 0.2 or not close(r["feedstock"] * r["harvested_share"], r["nutrients"], 0.05):
+        fails.append(f"cells making 0.14 mol ammonia and 1.05 lactate eat ${r['nutrients']:.2f}, charged ${r['feedstock']:.2f}")
+    # 2026-11-27, the cells' fat (lipid_share) and the measures other models report:
+    # (5) Humbird's 15% reproduces the model as it was, exactly
+    if _fp.explore(lipid_share=_v("gb_f_lipid"))["total"] != _fp.explore()["total"]:
+        fails.append("lipid_share at Humbird's 15% should change nothing")
+    if not close(_fp.anabolic_glucose(), _v("pf_glc_anabolic"), 1e-12) or not close(_fp.cell_rq(), _v("pf_rq"), 1e-12) \
+            or not close(_fp.cell_rq(fat_fed=1.0), _v("pf_rq") - _v("pf_rq_lipid"), 1e-12):
+        fails.append("anabolic glucose or RQ at Humbird's cell moved")
+    # (6) fat made from glucose: more glucose, more CO2 per oxygen; fat from the feed: neither; amino acids follow the lean mass
+    lo, hi = _fp.nutrient_balance(_fp.GOOD_CELLS, lipid_share=0.05), _fp.nutrient_balance(_fp.GOOD_CELLS, lipid_share=0.45)
+    if not (hi["glc_kg"] > lo["glc_kg"] and hi["aa_kg"] < lo["aa_kg"] and _fp.cell_rq(lipid_share=0.45) > _fp.cell_rq()
+            and close(_fp.cell_rq(fat_fed=1.0, lipid_share=0.45), _fp.cell_rq(fat_fed=1.0), 1e-12)
+            and close(hi["aa_kg"] / lo["aa_kg"], 0.55 / 0.95, 1e-9) and close(hi["n_kept"], 1.0, 0.01)):
+        fails.append("the fat trait: glucose, amino acids, RQ or nitrogen do not move as they should")
+    r45, r45f = _fp.explore(lipid_share=0.45), _fp.explore(lipid_share=0.45, fat_fed=1.0)
+    if not (r45["limits"]["CO2 removal"] < _fp.explore()["limits"]["CO2 removal"] and r45f["limits"]["CO2 removal"] > r45["limits"]["CO2 removal"]):
+        fails.append("fattier cells that make their fat should be held thinner by CO2, and fed fat should lift that")
+    # (7) the measures: a kilo of Humbird's cells is 210 g of protein, 45 g of fat, 1,425 kcal; costs per kg of dry matter and protein
+    m = _fp.explore()["metrics"]; t = _fp.explore()["total"]
+    if not (close(m["protein_kg"], 0.21, 1e-9) and close(m["lipid_kg"], 0.045, 1e-9) and close(m["kcal_kg"], 1425.0, 1e-9)
+            and close(m["cost_dry"], t / 0.3, 1e-9) and close(m["cost_protein"], t / 0.21, 1e-9) and m["fcr_dry"] > 1.0 and m["fcr_energy"] > 1.0):
+        fails.append(f"the measures other models report are off: {m}")
     return fails
 
 
